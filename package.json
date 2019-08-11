@@ -4,7 +4,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c"
   },
   "devDependencies": {
     "rollup": "^1.19.4"
