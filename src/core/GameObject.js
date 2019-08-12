@@ -8,9 +8,10 @@ export default class GameObject{
 		}, ...opts}
 		this.name = opts.name;
 		this._parent = null;
-		this.parent = opts.parent;
 		this._children = [];
 		this.components = [];
+
+		this.setParent(opts.parent, false);
 	}
 
 	addComponent(component){
@@ -31,33 +32,34 @@ export default class GameObject{
 	}
 
 	setParent(newParent, keepPosition = true){
+		if(this._parent){
+			this._parent._children = this._parent._children.filter(c => c != this);
+		}
+		this._parent = newParent;
 		if(newParent){
-			newParent.add(this, keepPosition);
-		}else{
-			this._parent = null;
+			newParent._children.push(this);
+		}
+		for(const component of this.components){
+			component.onParentChanged();
 		}
 	}
 
 	add(child, keepPosition = true){
-		if(child._parent){
-			child._parent.remove(child);
-		}
-		child._parent = this;
-		this._children.push(child);
+		child.setParent(this, keepPosition);
 	}
 
 	remove(child){
-		this._children = this._children.filter(c => c != child);
-		child._parent = null;
+		if(child.parent != this) return;
+		child.setParent(null);
 	}
 
-	*children(){
+	*getChildren(){
 		for(const child of this._children){
 			yield child;
 		}
 	}
 
-	getChildren(){
-		return Array.from(this.children());
+	get children(){
+		return Array.from(this.getChildren());
 	}
 }
