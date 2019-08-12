@@ -1,3 +1,3 @@
-export {default as GameObject} from "./core/GameObject.js";
-export * from "./core/components/Components.js";
+export {default as GameObject} from "./GameObject.js";
+export * from "./components/Components.js";
 export * from "./rendering/renderers/renderers.js";

@@ -1,5 +1,5 @@
 import Component from "./Component.js";
-import RealTimeRenderer from "../../rendering/renderers/RealTimeRenderer.js";
+import RealTimeRenderer from "../rendering/renderers/RealTimeRenderer.js";
 
 export default class CameraComponent extends Component{
 	constructor(opts){
