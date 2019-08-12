@@ -1,4 +1,5 @@
-import Component from "./Component.js"
+import Component from "./Component.js";
+import RealTimeRenderer from "../../rendering/renderers/RealTimeRenderer.js";
 
 export default class CameraComponent extends Component{
 	constructor(opts){
@@ -9,6 +10,7 @@ export default class CameraComponent extends Component{
 		this.autoManageRootRenderObjects = opts.autoManageRootRenderObjects;
 
 		this.rootRenderObjects = [];
+		this.renderer = new RealTimeRenderer();
 	}
 
 	onAttachedToObject(){
@@ -37,5 +39,9 @@ export default class CameraComponent extends Component{
 				this.rootRenderObjects = [];
 			}
 		}
+	}
+
+	render(){
+		this.renderer.render(this);
 	}
 }
