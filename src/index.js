@@ -1,6 +1,3 @@
-export * from "./core/GameObject.js";
-export * from "./core/Component.js";
-export * from "./rendering/PbrRenderer.js";
-
-let test = new GameObject();
-console.log(test.test());
+export {default as GameObject} from "./core/GameObject.js";
+export * from "./core/components/Components.js";
+export {default as Renderer} from "./rendering/Renderer.js";
