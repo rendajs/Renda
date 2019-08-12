@@ -11,6 +11,7 @@ export default class CameraComponent extends Component{
 
 		this.rootRenderObjects = [];
 		this.renderer = new RealTimeRenderer();
+		this.renderer.init();
 	}
 
 	onAttachedToObject(){
