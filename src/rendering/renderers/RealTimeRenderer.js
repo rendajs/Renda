@@ -1,4 +1,5 @@
 import Renderer from "./Renderer.js";
+import MeshComponent from "../../components/MeshComponent.js";
 
 export default class RealTimeRenderer extends Renderer{
 	constructor(){
@@ -16,6 +17,11 @@ export default class RealTimeRenderer extends Renderer{
 	}
 
 	render(camera){
-
+		let meshComponents = [];
+		for(const root of camera.rootRenderObjects){
+			for(const child of root.traverse()){
+				meshComponents = [...meshComponents, ...child.getComponentsByType(MeshComponent)];
+			}
+		}
 	}
 }

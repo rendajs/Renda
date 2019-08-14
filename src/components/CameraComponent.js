@@ -24,18 +24,8 @@ export default class CameraComponent extends Component{
 
 	setRootRenderObjects(){
 		if(this.autoManageRootRenderObjects){
-			let lastParent = this.attachedObject;
-			if(lastParent){
-				while(true){
-					if(lastParent.parent){
-						lastParent = lastParent.parent;
-					}else{
-						break;
-					}
-				}
-			}
-			if(lastParent){
-				this.rootRenderObjects = [lastParent];
+			if(this.gameObject){
+				this.rootRenderObjects = [this.gameObject.getRoot()];
 			}else{
 				this.rootRenderObjects = [];
 			}

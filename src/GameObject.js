@@ -23,6 +23,14 @@ export default class GameObject{
 		component.attachedToObject(this);
 	}
 
+	*getComponentsByType(type){
+		for(const component of this.components){
+			if(component instanceof type){
+				yield component;
+			}
+		}
+	}
+
 	get parent(){
 		return this._parent;
 	}
@@ -61,5 +69,26 @@ export default class GameObject{
 
 	get children(){
 		return Array.from(this.getChildren());
+	}
+
+	getRoot(){
+		let lastParent = this;
+		while(true){
+			if(lastParent.parent){
+				lastParent = lastParent.parent;
+			}else{
+				break;
+			}
+		}
+		return lastParent;
+	}
+
+	*traverse(){
+		yield this;
+		for(const child of this._children){
+			for(const c of child.traverse()){
+				yield c;
+			}
+		}
 	}
 }

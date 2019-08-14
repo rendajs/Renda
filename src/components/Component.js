@@ -1,10 +1,10 @@
 export default class Component{
 	constructor(opts){
-		this.attachedObject = null;
+		this.gameObject = null;
 	}
 
 	attachedToObject(obj){
-		this.attachedObject = obj;
+		this.gameObject = obj;
 		this.onAttachedToObject(obj);
 	}
 
