@@ -20,8 +20,32 @@ export default class RealTimeRenderer extends Renderer{
 		let meshComponents = [];
 		for(const root of camera.rootRenderObjects){
 			for(const child of root.traverse()){
-				meshComponents = [...meshComponents, ...child.getComponentsByType(MeshComponent)];
+				for(const component of child.getComponentsByType(MeshComponent)){
+					this.renderMeshComponent(component);
+				}
 			}
 		}
+	}
+
+	renderMeshComponent(component){
+		let mesh = component.mesh;
+		let materials = component.materials;
+
+		mesh.updateBuffersGl(this.gl);
+
+		for(const material of materials){
+			//todo: only init necessary materials
+			material.compileShader(this.gl);
+
+			const positionAttrib = material.shader.getAttribLocation("aVertexPosition");
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.positionBuffer);
+			this.gl.vertexAttribPointer(positionAttrib, 3, this.gl.FLOAT, false, 0, 0);
+			this.gl.enableVertexAttribArray(positionAttrib);
+
+			material.shader.use(this.gl);
+			this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
+		}
+
+		// this.gl.drawElements(this.gl.TRIANGLES, 6)
 	}
 }

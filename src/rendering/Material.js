@@ -1,5 +1,9 @@
 export default class Material{
-	constructor(){
+	constructor(shader){
+		this.shader = shader;
+	}
 
+	compileShader(gl){
+		this.shader.compile(gl);
 	}
 }
