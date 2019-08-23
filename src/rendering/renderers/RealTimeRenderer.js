@@ -43,9 +43,8 @@ export default class RealTimeRenderer extends Renderer{
 			this.gl.enableVertexAttribArray(positionAttrib);
 
 			material.shader.use(this.gl);
-			this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
+			this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
 		}
 
-		// this.gl.drawElements(this.gl.TRIANGLES, 6)
 	}
 }

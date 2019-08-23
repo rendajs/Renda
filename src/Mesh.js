@@ -10,10 +10,6 @@ export default class Mesh{
 	}
 
 	updateBuffersGl(gl){
-		this.indexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.indexBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
-
 		this.positionBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 		let positions = new Float32Array(this.positions.length * 3);
@@ -24,5 +20,9 @@ export default class Mesh{
 			positions[i++] = pos.z;
 		}
 		gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+		this.indexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
 	}
 }
