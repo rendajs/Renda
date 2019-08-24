@@ -1,5 +1,6 @@
 import Renderer from "./Renderer.js";
 import MeshComponent from "../../components/MeshComponent.js";
+import Mat4 from "../../math/Mat4.js";
 
 export default class RealTimeRenderer extends Renderer{
 	constructor(){
@@ -17,17 +18,18 @@ export default class RealTimeRenderer extends Renderer{
 	}
 
 	render(camera){
+		let vpMatrix = camera.getVpMatrix();
 		let meshComponents = [];
 		for(const root of camera.rootRenderObjects){
 			for(const child of root.traverse()){
 				for(const component of child.getComponentsByType(MeshComponent)){
-					this.renderMeshComponent(component);
+					this.renderMeshComponent(component, vpMatrix);
 				}
 			}
 		}
 	}
 
-	renderMeshComponent(component){
+	renderMeshComponent(component, vpMatrix){
 		let mesh = component.mesh;
 		let materials = component.materials;
 
@@ -36,14 +38,19 @@ export default class RealTimeRenderer extends Renderer{
 		for(const material of materials){
 			//todo: only init necessary materials
 			material.compileShader(this.gl);
+			let shader = material.shader;
 
-			const positionAttrib = material.shader.getAttribLocation("aVertexPosition");
+			const positionAttrib = shader.getAttribLocation("aVertexPosition");
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.positionBuffer);
 			this.gl.vertexAttribPointer(positionAttrib, 3, this.gl.FLOAT, false, 0, 0);
 			this.gl.enableVertexAttribArray(positionAttrib);
 
-			material.shader.use(this.gl);
-			this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
+			shader.use();
+			let worldMatrix = new Mat4(component.gameObject.worldMatrix);
+
+			let mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
+			shader.uniformMatrix4fv("uMvpMatrix", mvpMatrix);
+			this.gl.drawElements(this.gl.TRIANGLES, 12, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
 		}
 
 	}

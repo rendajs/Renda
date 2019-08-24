@@ -9,21 +9,60 @@
 			let cube = new GameEngine.GameObject({name:"cube"});
 			let cubeMesh = new GameEngine.Mesh();
 			cubeMesh.positions = [
-				new GameEngine.Vector3(0,0,0),
-				new GameEngine.Vector3(0.5,0,0),
-				new GameEngine.Vector3(0.5,0.5,0),
-				new GameEngine.Vector3(1,0,0),
+				new GameEngine.Vector3(-1,-1,-1),
+				new GameEngine.Vector3(-1,-1, 1),
+				new GameEngine.Vector3(-1, 1, 1),
+				new GameEngine.Vector3(1, 1,-1),
+				new GameEngine.Vector3(-1,-1,-1),
+				new GameEngine.Vector3(-1, 1,-1),
+				new GameEngine.Vector3(1,-1, 1),
+				new GameEngine.Vector3(-1,-1,-1),
+				new GameEngine.Vector3(1,-1,-1),
+				new GameEngine.Vector3(1, 1,-1),
+				new GameEngine.Vector3(1,-1,-1),
+				new GameEngine.Vector3(-1,-1,-1),
+				new GameEngine.Vector3(-1,-1,-1),
+				new GameEngine.Vector3(-1, 1, 1),
+				new GameEngine.Vector3(-1, 1,-1),
+				new GameEngine.Vector3(1,-1, 1),
+				new GameEngine.Vector3(-1,-1, 1),
+				new GameEngine.Vector3(-1,-1,-1),
+				new GameEngine.Vector3(-1, 1, 1),
+				new GameEngine.Vector3(-1,-1, 1),
+				new GameEngine.Vector3(1,-1, 1),
+				new GameEngine.Vector3(1, 1, 1),
+				new GameEngine.Vector3(1,-1,-1),
+				new GameEngine.Vector3(1, 1,-1),
+				new GameEngine.Vector3(1,-1,-1),
+				new GameEngine.Vector3(1, 1, 1),
+				new GameEngine.Vector3(1,-1, 1),
+				new GameEngine.Vector3(1, 1, 1),
+				new GameEngine.Vector3(1, 1,-1),
+				new GameEngine.Vector3(-1, 1,-1),
+				new GameEngine.Vector3(1, 1, 1),
+				new GameEngine.Vector3(-1, 1,-1),
+				new GameEngine.Vector3(-1, 1, 1),
+				new GameEngine.Vector3(1, 1, 1),
+				new GameEngine.Vector3(-1, 1, 1),
+				new GameEngine.Vector3(1,-1, 1),
 			];
-			cubeMesh.indices = [0,1,2,1,2,3];
+			cubeMesh.indices = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35];
 			let cubeShader = new GameEngine.Shader(`
 				attribute vec4 aVertexPosition;
 
+				uniform mat4 uMvpMatrix;
+
+				varying lowp vec4 vColor;
+
 				void main() {
-				  gl_Position = aVertexPosition;
+				  gl_Position = uMvpMatrix * aVertexPosition;
+				  vColor = aVertexPosition;
 				}
 			`,`
+				varying lowp vec4 vColor;
+
 				void main() {
-					gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+					gl_FragColor = vec4(abs(vColor).rgb, 1.0);
 				}
 			`);
 			let cubeMat = new GameEngine.Material(cubeShader);
@@ -35,6 +74,16 @@
 			scene.add(cam);
 			document.body.appendChild(camComponent.renderer.canvas);
 			camComponent.render();
+
+			function loop(){
+				cube.worldMatrix = GameEngine.Mat4.createRotationX(Date.now()*0.003);
+				cube.worldMatrix.multiplyMatrix(GameEngine.Mat4.createRotationY(Date.now()*0.0025));
+				cube.worldMatrix.multiplyMatrix(GameEngine.Mat4.createRotationZ(Date.now()*0.0022));
+				cube.worldMatrix.translate(0,0,5);
+				camComponent.render();
+				window.requestAnimationFrame(loop);
+			}
+			loop();
 		</script>
 	</head>
 	<body>

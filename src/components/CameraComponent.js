@@ -1,5 +1,6 @@
 import Component from "./Component.js";
 import RealTimeRenderer from "../rendering/renderers/RealTimeRenderer.js";
+import Mat4 from "../math/Mat4.js";
 
 export default class CameraComponent extends Component{
 	constructor(opts){
@@ -8,6 +9,12 @@ export default class CameraComponent extends Component{
 			autoManageRootRenderObjects: true,
 		}, ...opts}
 		this.autoManageRootRenderObjects = opts.autoManageRootRenderObjects;
+
+		this.fov = 70;
+		this.clipNear = 0.01;
+		this.clipFar = 1000;
+		this.projectionMatrix = null;
+		this.updateProjectionMatrix();
 
 		this.rootRenderObjects = [];
 		this.renderer = new RealTimeRenderer();
@@ -34,5 +41,13 @@ export default class CameraComponent extends Component{
 
 	render(){
 		this.renderer.render(this);
+	}
+
+	updateProjectionMatrix(){
+		this.projectionMatrix = Mat4.createProjection(this.fov, 100, 100, this.clipNear, this.clipFar);
+	}
+
+	getVpMatrix(){
+		return new Mat4(this.projectionMatrix);
 	}
 }

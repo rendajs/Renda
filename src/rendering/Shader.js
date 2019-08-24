@@ -45,13 +45,24 @@ export default class Shader{
 		return shader;
 	}
 
-	use(gl){
-		gl.useProgram(this.program);
+	use(){
+		this.gl.useProgram(this.program);
 	}
 
 	getAttribLocation(name){
 		//todo: cache these values
 		if(!this.program) return null;
 		return this.gl.getAttribLocation(this.program, name);
+	}
+
+	getUniformLocation(name){
+		//todo: cache these values
+		if(!this.program) return null;
+		return this.gl.getUniformLocation(this.program, name);
+	}
+
+	uniformMatrix4fv(name, matrix){
+		this.use();
+		this.gl.uniformMatrix4fv(this.getUniformLocation(name), false, matrix.glValue);
 	}
 }

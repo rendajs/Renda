@@ -1,4 +1,5 @@
 import Component from "./components/Component.js";
+import Mat4 from "./math/Mat4.js";
 
 export default class GameObject{
 	constructor(opts){
@@ -10,6 +11,9 @@ export default class GameObject{
 		this._parent = null;
 		this._children = [];
 		this.components = [];
+
+		this.localMatrix = new Mat4();
+		this.worldMatrix = new Mat4();
 
 		this.setParent(opts.parent, false);
 	}
