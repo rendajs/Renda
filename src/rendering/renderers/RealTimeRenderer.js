@@ -12,12 +12,14 @@ export default class RealTimeRenderer extends Renderer{
 
 	init(){
 		this.canvas = document.createElement("canvas");
+		this.canvas.width = this.canvas.height = 300;
 		this.gl = this.canvas.getContext("webgl");
 		this.gl.clearColor(0, 0, 0, 1);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 	}
 
 	render(camera){
+		this.gl.enable(this.gl.DEPTH_TEST);
 		let vpMatrix = camera.getVpMatrix();
 		let meshComponents = [];
 		for(const root of camera.rootRenderObjects){
@@ -50,7 +52,7 @@ export default class RealTimeRenderer extends Renderer{
 
 			let mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
 			shader.uniformMatrix4fv("uMvpMatrix", mvpMatrix);
-			this.gl.drawElements(this.gl.TRIANGLES, 12, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
+			this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
 		}
 
 	}
