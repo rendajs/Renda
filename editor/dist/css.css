@@ -1,0 +1,39 @@
+body, html{
+	 overflow: hidden;
+	position: relative;
+	margin: 0;
+	height: 100%;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
+
+.editorWindowSplitHalf{
+	position: relative;
+}
+
+.editorWindowSplit{
+	display: flex;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.editorWindowSplitResizer{
+	z-index: 100;
+}
+
+.editorWindowTabs{
+	width: 100%;
+	height: 100%;
+	background: #afafaf;
+	position: absolute;
+	border-radius: 5px;
+	display: inline-block;
+}
+
+.editorWindowRoot{
+	width: calc(100% - 6px);
+	height: calc(100% - 6px);
+	margin: 3px;
+}
