@@ -62,6 +62,7 @@
 			cube.addComponent(new GameEngine.MeshComponent({mesh: cubeMesh, material: cubeMat}));
 			scene.add(cube);
 			let cam = new GameEngine.GameObject({name:"cam"});
+			cam.worldMatrix.translate(0,0,-5);
 			let camComponent = new GameEngine.CameraComponent();
 			cam.addComponent(camComponent);
 			scene.add(cam);
@@ -72,7 +73,6 @@
 				cube.worldMatrix = GameEngine.Mat4.createRotationX(Date.now()*0.003);
 				cube.worldMatrix.multiplyMatrix(GameEngine.Mat4.createRotationY(Date.now()*0.0025));
 				cube.worldMatrix.multiplyMatrix(GameEngine.Mat4.createRotationZ(Date.now()*0.0022));
-				cube.worldMatrix.translate(0,0,5);
 				camComponent.render();
 				window.requestAnimationFrame(loop);
 			}

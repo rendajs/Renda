@@ -78,6 +78,12 @@ export default class Mat4{
 		return this;
 	}
 
+	inverse(){
+		let mat = new Mat4(this);
+		mat.invert();
+		return mat;
+	}
+
 	translate(x,y,z){
 		if(arguments[0] instanceof Vector3){
 			let vec = arguments[0];

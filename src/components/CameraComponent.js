@@ -48,6 +48,6 @@ export default class CameraComponent extends Component{
 	}
 
 	getVpMatrix(){
-		return new Mat4(this.projectionMatrix);
+		return Mat4.multiplyMatrices(this.gameObject.worldMatrix.inverse(), this.projectionMatrix);
 	}
 }
