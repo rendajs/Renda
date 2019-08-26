@@ -8,4 +8,8 @@ export default class EditorWindow{
 	}
 
 	updateEls(){}
+
+	onContentWindowRegistered(constructor){}
+
+	*getChildren(){}
 }

@@ -7,7 +7,7 @@ export default class EditorWindowSplit extends EditorWindow{
 
 		this.el.classList.add("editorWindowSplit");
 
-		this.isHorizontal = false;
+		this.splitHorizontal = false;
 		this.splitPercentage = 0.5;
 		this.windowA = null;
 		this.windowB = null;
@@ -52,12 +52,12 @@ export default class EditorWindowSplit extends EditorWindow{
 	}
 
 	updateSplit(){
-		this.el.style.flexDirection = this.isHorizontal ? "column" : "row";
+		this.el.style.flexDirection = this.splitHorizontal ? "column" : "row";
 
-		this.resizer.style.width = this.isHorizontal ? null : "3px";
-		this.resizer.style.height = this.isHorizontal ? "3px" : null;
-		this.resizer.style.cursor = this.isHorizontal ? "row-resize" : "col-resize";
-		this.resizer.style.transform = this.isHorizontal ? "scale(1, 2.5)" : "scale(2.5, 1)";
+		this.resizer.style.width = this.splitHorizontal ? null : "3px";
+		this.resizer.style.height = this.splitHorizontal ? "3px" : null;
+		this.resizer.style.cursor = this.splitHorizontal ? "row-resize" : "col-resize";
+		this.resizer.style.transform = this.splitHorizontal ? "scale(1, 2.5)" : "scale(2.5, 1)";
 
 		this.elA.style.flexGrow = this.splitPercentage;
 		this.elB.style.flexGrow = 1 - this.splitPercentage;
@@ -73,9 +73,9 @@ export default class EditorWindowSplit extends EditorWindow{
 
 	onResizerMove(e){
 		this.calcNewPercentage(
-			this.isHorizontal ? this.resizeStartBounds.top  : this.resizeStartBounds.left,
-			this.isHorizontal ? this.resizeStartBounds.bottom : this.resizeStartBounds.right,
-			this.isHorizontal ? e.clientY : e.clientX
+			this.splitHorizontal ? this.resizeStartBounds.top  : this.resizeStartBounds.left,
+			this.splitHorizontal ? this.resizeStartBounds.bottom : this.resizeStartBounds.right,
+			this.splitHorizontal ? e.clientY : e.clientX
 		);
 	}
 
@@ -93,5 +93,20 @@ export default class EditorWindowSplit extends EditorWindow{
 		this.isResizing = false;
 		window.removeEventListener("mouseup", this.boundOnResizerUp);
 		window.removeEventListener("mousemove", this.boundOnResizerMove);
+	}
+
+	*getChildren(){
+		if(this.windowA){
+			yield this.windowA;
+			for(const child of this.windowA.getChildren()){
+				yield child;
+			}
+		}
+		if(this.windowB){
+			yield this.windowB;
+			for(const child of this.windowB.getChildren()){
+				yield child;
+			}
+		}
 	}
 }

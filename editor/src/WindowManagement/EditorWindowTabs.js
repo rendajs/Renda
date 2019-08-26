@@ -6,6 +6,29 @@ export default class EditorWindowTabs extends EditorWindow{
 
 		this.el.classList.add("editorWindowTabs");
 
+		this.tabTypes = [];
 		this.tabs = [];
+
+		this.tabsSelectorEl = document.createElement("div");
+		this.el.appendChild(this.tabsSelectorEl);
+
+		this.tabsEl = document.createElement("div");
+		this.el.appendChild(this.tabsEl);
+	}
+
+	setTabType(index, tabType){
+		this.tabTypes[index] = tabType;
+	}
+
+	onContentWindowRegistered(constructor){
+		for(let i=0; i<this.tabTypes.length; i++){
+			if(this.tabTypes[i] == constructor.windowName){
+				this.loadContentWindow(i, constructor);
+			}
+		}
+	}
+
+	loadContentWindow(index, constructor){
+		this.tabs[index] = new constructor();
 	}
 }
