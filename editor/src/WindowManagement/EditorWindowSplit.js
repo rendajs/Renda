@@ -2,8 +2,8 @@ import EditorWindow from "./EditorWindow.js";
 import {clamp01, mapValue} from "../Util/Util.js";
 
 export default class EditorWindowSplit extends EditorWindow{
-	constructor(){
-		super();
+	constructor(windowManager){
+		super(windowManager);
 
 		this.el.classList.add("editorWindowSplit");
 

@@ -1,5 +1,6 @@
 export default class EditorWindow{
-	constructor(){
+	constructor(windowManager){
+		this.windowManager = windowManager;
 		this.el = document.createElement("div");
 	}
 

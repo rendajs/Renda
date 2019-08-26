@@ -59,13 +59,13 @@ export default class WindowManager{
 	parseWorkspaceWindow(workspaceWindow){
 		let newWindow = null;
 		if(workspaceWindow.type == "split"){
-			newWindow = new EditorWindowSplit();
+			newWindow = new EditorWindowSplit(this);
 			newWindow.splitHorizontal = workspaceWindow.splitHorizontal;
 			newWindow.splitPercentage = workspaceWindow.splitPercentage;
 			newWindow.windowA = this.parseWorkspaceWindow(workspaceWindow.windowA);
 			newWindow.windowB = this.parseWorkspaceWindow(workspaceWindow.windowB);
 		}else if(workspaceWindow.type == "tabs"){
-			newWindow = new EditorWindowTabs();
+			newWindow = new EditorWindowTabs(this);
 			for(let i=0; i<workspaceWindow.tabTypes.length; i++){
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
@@ -88,6 +88,15 @@ export default class WindowManager{
 		for(const w of this.allContentWindows()){
 			w.onContentWindowRegistered(constructor);
 		}
+	}
+
+	getContentWindowByType(type){
+		for(const contentWindow of this.registeredContentWindows){
+			if(contentWindow.windowName == type){
+				return contentWindow;
+			}
+		}
+		return null;
 	}
 
 	*allContentWindows(){

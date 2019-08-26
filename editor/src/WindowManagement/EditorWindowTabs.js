@@ -1,8 +1,8 @@
 import EditorWindow from "./EditorWindow.js";
 
 export default class EditorWindowTabs extends EditorWindow{
-	constructor(){
-		super();
+	constructor(windowManager){
+		super(windowManager);
 
 		this.el.classList.add("editorWindowTabs");
 
@@ -18,6 +18,10 @@ export default class EditorWindowTabs extends EditorWindow{
 
 	setTabType(index, tabType){
 		this.tabTypes[index] = tabType;
+		let constructor = this.windowManager.getContentWindowByType(tabType);
+		if(constructor){
+			this.loadContentWindow(index, constructor);
+		}
 	}
 
 	onContentWindowRegistered(constructor){
