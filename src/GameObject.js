@@ -19,12 +19,16 @@ export default class GameObject{
 	}
 
 	addComponent(component){
+		if(component.prototype instanceof Component){
+			component = new component();
+		}
 		if(!component instanceof Component){
 			throw new Error("component argument is not of type Component");
 		}
 
 		this.components.push(component);
 		component.attachedToObject(this);
+		return component;
 	}
 
 	*getComponentsByType(type){

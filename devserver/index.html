@@ -63,8 +63,7 @@
 			scene.add(cube);
 			let cam = new GameEngine.GameObject({name:"cam"});
 			cam.worldMatrix.translate(0,0,-5);
-			let camComponent = new GameEngine.CameraComponent();
-			cam.addComponent(camComponent);
+			let camComponent = cam.addComponent(GameEngine.CameraComponent);
 			scene.add(cam);
 			document.body.appendChild(camComponent.renderer.canvas);
 			camComponent.render();
