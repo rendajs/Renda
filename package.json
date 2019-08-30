@@ -4,7 +4,7 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "build": "rollup -c",
+    "build": "node build.js",
     "build-editor": "node editor/build.js",
     "editor-dev": "node editor/build.js --dev"
   },
