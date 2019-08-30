@@ -2,4 +2,5 @@
 *.sublime-workspace
 node_modules
 package-lock.json
-builds
+build
+editor/dist/index.js

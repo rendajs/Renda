@@ -1,4 +1,4 @@
-import Main from "./main.js";
+import Main from "./Main.js";
 
 let main = new Main();
 main.init();
