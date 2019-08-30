@@ -1,1 +1,1 @@
-import mainInstance from "./mainInstance.js";
+import editorInstance from "./editorInstance.js";
