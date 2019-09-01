@@ -44,6 +44,10 @@ body, html{
 	height: 100%;
 }
 
+.treeViewItem{
+	white-space: nowrap;
+}
+
 .treeViewChildList{
 	padding-left: 12px;
 }

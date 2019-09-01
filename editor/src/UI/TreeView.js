@@ -1,6 +1,7 @@
 export default class TreeView{
 	constructor(data){
 		this.el = document.createElement("div");
+		this.el.classList.add("treeViewItem");
 
 		this.arrowEl = document.createElement("div");
 		this.arrowEl.classList.add("treeViewArrow");
