@@ -6,4 +6,6 @@ export default class Renderer{
 	init(){}
 
 	render(camera){}
+
+	getImageBitmap(){}
 }

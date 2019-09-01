@@ -64,6 +64,8 @@
 			let cam = new GameEngine.GameObject({name:"cam"});
 			cam.worldMatrix.translate(0,0,-5);
 			let camComponent = cam.addComponent(GameEngine.CameraComponent);
+			camComponent.renderer = new GameEngine.RealTimeRenderer();
+			camComponent.renderer.init();
 			scene.add(cam);
 			document.body.appendChild(camComponent.renderer.canvas);
 			camComponent.render();

@@ -17,8 +17,7 @@ export default class CameraComponent extends Component{
 		this.updateProjectionMatrix();
 
 		this.rootRenderObjects = [];
-		this.renderer = new RealTimeRenderer();
-		this.renderer.init();
+		this.renderer = null;
 	}
 
 	onAttachedToObject(){

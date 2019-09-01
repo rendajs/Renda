@@ -54,6 +54,9 @@ export default class RealTimeRenderer extends Renderer{
 			shader.uniformMatrix4fv("uMvpMatrix", mvpMatrix);
 			this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
 		}
+	}
 
+	getImageBitmap(){
+		self.createImageBitmap(this.canvas);
 	}
 }

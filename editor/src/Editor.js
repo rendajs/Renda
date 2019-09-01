@@ -8,6 +8,7 @@ export default class Editor{
 	}
 
 	init(){
-
+		this.renderer.init();
+		this.windowManger.init(this);
 	}
 }

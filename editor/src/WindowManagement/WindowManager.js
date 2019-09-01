@@ -6,12 +6,17 @@ import ContentWindow from "./ContentWindows/ContentWindow.js";
 export default class WindowManager{
 	constructor(){
 		this.rootWindow = null;
+		this.editor = null;
 
 		this.registeredContentWindows = [];
 
 		for(const w of ContentWindows){
 			this.registerContentWindow(w);
 		}
+	}
+
+	init(editor){
+		this.editor = editor;
 
 		this.loadWorkspace({
 			rootWindow: {

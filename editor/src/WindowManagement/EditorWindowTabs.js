@@ -33,7 +33,7 @@ export default class EditorWindowTabs extends EditorWindow{
 	}
 
 	loadContentWindow(index, constructor){
-		let contentWindow = new constructor();
+		let contentWindow = new constructor(this.windowManager.editor);
 		this.tabs[index] = contentWindow;
 		this.tabsEl.appendChild(contentWindow.el);
 	}
