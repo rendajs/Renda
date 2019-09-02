@@ -26,6 +26,7 @@ export default class WindowManager{
 				windowA: {
 					type: "tabs",
 					tabTypes: ["Outliner", "Assets"],
+					activeTab: 1,
 				},
 				windowB: {
 					type: "split",
@@ -74,6 +75,7 @@ export default class WindowManager{
 			for(let i=0; i<workspaceWindow.tabTypes.length; i++){
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
+			newWindow.setActiveTab(workspaceWindow.activeTab || 0);
 		}
 		return newWindow;
 	}

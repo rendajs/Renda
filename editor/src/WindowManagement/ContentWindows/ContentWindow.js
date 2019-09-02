@@ -5,6 +5,10 @@ export default class ContentWindow{
 		this.el.classList.add("editorContentWindow");
 	}
 
+	setVisible(visible){
+		this.el.classList.toggle("hidden", !visible);
+	}
+
 	static get windowName(){
 		return "Empty";
 	}
