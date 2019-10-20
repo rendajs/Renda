@@ -24,7 +24,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 			],
 		});
 
-		this.el.appendChild(this.treeView.el);
+		this.contentEl.appendChild(this.treeView.el);
 	}
 
 	static get windowName(){

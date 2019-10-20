@@ -3,6 +3,17 @@ export default class ContentWindow{
 		this.editor = editor;
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
+
+		this.topButtonBar = document.createElement("div");
+		this.topButtonBar.classList.add("editorContentWindowTopButtonBar");
+		this.el.appendChild(this.topButtonBar);
+
+		this.tabSelectorSpacer = document.createElement("div");
+		this.tabSelectorSpacer.classList.add("editorContentWindowTopButtonBarSpacer");
+		this.topButtonBar.appendChild(this.tabSelectorSpacer);
+
+		this.contentEl = document.createElement("div");
+		this.el.appendChild(this.contentEl);
 	}
 
 	setVisible(visible){
@@ -11,5 +22,10 @@ export default class ContentWindow{
 
 	static get windowName(){
 		return "Empty";
+	}
+
+	updateTabSelectorSpacer(w, h){
+		this.tabSelectorSpacer.style.width = w+"px";
+		this.tabSelectorSpacer.style.height = h+"px";
 	}
 }

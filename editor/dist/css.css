@@ -40,6 +40,8 @@ body, html{
 	display: inline-block;
 	border-radius: 5px;
 	overflow: hidden;
+	position: absolute;
+	box-sizing: content-box;
 }
 
 .editorWindowTabSelectorTab{
@@ -74,6 +76,10 @@ body, html{
 
 .editorContentWindow.hidden{
 	display: none;
+}
+
+.editorContentWindowTopButtonBar{
+	width: 100%;
 }
 
 .treeViewItem{

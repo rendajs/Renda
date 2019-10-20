@@ -1,4 +1,5 @@
 import EditorWindow from "./EditorWindow.js";
+import {getElemSize} from "../Util/Util.js";
 
 export default class EditorWindowTabs extends EditorWindow{
 	constructor(windowManager){
@@ -15,6 +16,10 @@ export default class EditorWindowTabs extends EditorWindow{
 
 		this.tabsEl = document.createElement("div");
 		this.el.appendChild(this.tabsEl);
+	}
+
+	updateEls(){
+		this.updateTabSelectorSpacer();
 	}
 
 	setTabType(index, tabType){
@@ -55,6 +60,16 @@ export default class EditorWindowTabs extends EditorWindow{
 			}
 		}else if(deltaCount < 0){
 			//todo
+		}
+		if(deltaCount != 0){
+			this.updateTabSelectorSpacer();
+		}
+	}
+
+	updateTabSelectorSpacer(){
+		let [w,h] = getElemSize(this.tabsSelectorEl);
+		for(const tab of this.tabs){
+			tab.updateTabSelectorSpacer(w, h);
 		}
 	}
 
