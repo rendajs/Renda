@@ -6,7 +6,6 @@ import ContentWindow from "./ContentWindows/ContentWindow.js";
 export default class WindowManager{
 	constructor(){
 		this.rootWindow = null;
-		this.editor = null;
 
 		this.registeredContentWindows = [];
 
@@ -15,9 +14,7 @@ export default class WindowManager{
 		}
 	}
 
-	init(editor){
-		this.editor = editor;
-
+	init(){
 		this.loadWorkspace({
 			rootWindow: {
 				type: "split",

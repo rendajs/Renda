@@ -1,6 +1,5 @@
 export default class ContentWindow{
-	constructor(editor){
-		this.editor = editor;
+	constructor(){
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
 

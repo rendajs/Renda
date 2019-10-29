@@ -1,9 +1,10 @@
 import ContentWindow from "./ContentWindow.js";
 import {GameObject, CameraComponent} from "../../../../src/index.js";
+import editor from "../../editorInstance.js";
 
 export default class ContentWindowObjectEditor extends ContentWindow{
-	constructor(editor){
-		super(editor);
+	constructor(){
+		super();
 
 		this.canvasEl = document.createElement("canvas");
 		this.ctx = this.canvasEl.getContext("bitmaprenderer");
@@ -20,7 +21,7 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 	}
 
 	render(){
-		let renderer = this.editor.renderer;
+		let renderer = editor.renderer;
 		renderer.render(this.editorCamComponent);
 		this.ctx.transferFromImageBitmap(renderer.getImageBitmap());
 	}

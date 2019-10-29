@@ -2,8 +2,8 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
-	constructor(editor){
-		super(editor);
+	constructor(){
+		super();
 
 		this.treeView = new TreeView({
 			name: "test1",
