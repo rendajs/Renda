@@ -42,6 +42,7 @@ body, html{
 	overflow: hidden;
 	position: absolute;
 	box-sizing: content-box;
+	z-index: 100;
 }
 
 .editorWindowTabSelectorTab{
@@ -72,6 +73,8 @@ body, html{
 .editorContentWindow{
 	width: 100%;
 	height: 100%;
+	display: flex;
+	flex-flow: column;
 }
 
 .editorContentWindow.hidden{
@@ -80,6 +83,23 @@ body, html{
 
 .editorContentWindowTopButtonBar{
 	width: 100%;
+	z-index: 20;
+}
+
+.editorContentWindowTopButtonBarSpacer{
+	display: inline-block;
+}
+
+.editorContentWindowContent{
+	flex-grow: 1;
+}
+.editorContentWindowContent.behindTopButtonBar{
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	z-index: 10;
 }
 
 .treeViewItem{

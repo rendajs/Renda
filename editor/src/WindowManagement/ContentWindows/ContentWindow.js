@@ -12,6 +12,7 @@ export default class ContentWindow{
 		this.topButtonBar.appendChild(this.tabSelectorSpacer);
 
 		this.contentEl = document.createElement("div");
+		this.contentEl.classList.add("editorContentWindowContent");
 		this.el.appendChild(this.contentEl);
 	}
 
@@ -26,5 +27,9 @@ export default class ContentWindow{
 	updateTabSelectorSpacer(w, h){
 		this.tabSelectorSpacer.style.width = w+"px";
 		this.tabSelectorSpacer.style.height = h+"px";
+	}
+
+	setContentBehindTopBar(value){
+		this.contentEl.classList.toggle("behindTopButtonBar", value);
 	}
 }
