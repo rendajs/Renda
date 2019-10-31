@@ -57,6 +57,6 @@ export default class RealTimeRenderer extends Renderer{
 	}
 
 	getImageBitmap(){
-		self.createImageBitmap(this.canvas);
+		return self.createImageBitmap(this.canvas);
 	}
 }
