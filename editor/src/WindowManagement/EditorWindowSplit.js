@@ -2,8 +2,8 @@ import EditorWindow from "./EditorWindow.js";
 import {clamp01, mapValue} from "../Util/Util.js";
 
 export default class EditorWindowSplit extends EditorWindow{
-	constructor(windowManager){
-		super(windowManager);
+	constructor(){
+		super();
 
 		this.el.classList.add("editorWindowSplit");
 
@@ -62,6 +62,8 @@ export default class EditorWindowSplit extends EditorWindow{
 		this.elA.style.flexGrow = this.splitPercentage;
 		this.elB.style.flexGrow = 1 - this.splitPercentage;
 		this.elA.style.flexBasis = this.elB.flexBasis = 0;
+
+		this.onResized();
 	}
 
 	onResizerDown(e){
@@ -108,5 +110,11 @@ export default class EditorWindowSplit extends EditorWindow{
 				yield child;
 			}
 		}
+	}
+
+	onResized(){
+		super.onResized();
+		if(this.windowA) this.windowA.onResized();
+		if(this.windowB) this.windowB.onResized();
 	}
 }

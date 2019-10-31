@@ -1,9 +1,10 @@
 import EditorWindow from "./EditorWindow.js";
 import {getElemSize} from "../Util/Util.js";
+import editor from "../editorInstance.js";
 
 export default class EditorWindowTabs extends EditorWindow{
-	constructor(windowManager){
-		super(windowManager);
+	constructor(){
+		super();
 
 		this.el.classList.add("editorWindowTabs");
 
@@ -24,7 +25,7 @@ export default class EditorWindowTabs extends EditorWindow{
 
 	setTabType(index, tabType){
 		this.tabTypes[index] = tabType;
-		let constructor = this.windowManager.getContentWindowByType(tabType);
+		let constructor = editor.windowManager.getContentWindowByType(tabType);
 		if(constructor){
 			this.loadContentWindow(index, constructor);
 		}
@@ -78,6 +79,12 @@ export default class EditorWindowTabs extends EditorWindow{
 			let active = i == index;
 			this.tabsSelectorEl.children[i].classList.toggle("active", active);
 			this.tabs[i].setVisible(active);
+		}
+	}
+
+	onResized(){
+		for(const tab of this.tabs){
+			tab.onResized();
 		}
 	}
 }

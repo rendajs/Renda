@@ -1,6 +1,5 @@
 export default class EditorWindow{
-	constructor(windowManager){
-		this.windowManager = windowManager;
+	constructor(){
 		this.el = document.createElement("div");
 	}
 
@@ -13,4 +12,6 @@ export default class EditorWindow{
 	onContentWindowRegistered(constructor){}
 
 	*getChildren(){}
+
+	onResized(){}
 }

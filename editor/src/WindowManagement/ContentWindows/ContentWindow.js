@@ -32,4 +32,17 @@ export default class ContentWindow{
 	setContentBehindTopBar(value){
 		this.contentEl.classList.toggle("behindTopButtonBar", value);
 	}
+
+	get contentWidth(){
+		return this.contentEl.clientWidth;
+	}
+	get contentHeight(){
+		return this.contentEl.clientHeight;
+	}
+
+	onResized(){
+		this.onWindowResize(this.contentWidth, this.contentHeight);
+	}
+
+	onWindowResize(w, h){}
 }

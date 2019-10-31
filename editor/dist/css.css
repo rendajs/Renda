@@ -33,6 +33,7 @@ body, html{
 	position: absolute;
 	border-radius: 5px;
 	display: inline-block;
+	overflow: hidden;
 }
 
 .editorWindowTabSelector{

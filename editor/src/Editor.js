@@ -5,12 +5,12 @@ import * as GameEngine from "../../src/index.js";
 export default class Editor{
 	constructor(){
 		this.renderer = new GameEngine.RealTimeRenderer();
-		this.windowManger = new WindowManager();
+		this.windowManager = new WindowManager();
 		this.projectManager = new ProjectManager();
 	}
 
 	init(){
 		this.renderer.init();
-		this.windowManger.init(this);
+		this.windowManager.init(this);
 	}
 }
