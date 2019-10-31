@@ -3,16 +3,20 @@ export default class TreeView{
 		this.el = document.createElement("div");
 		this.el.classList.add("treeViewItem");
 
+		this.rowEl = document.createElement("div");
+		this.rowEl.classList.add("treeViewRow");
+		this.el.appendChild(this.rowEl);
+
 		this.arrowEl = document.createElement("div");
 		this.arrowEl.classList.add("treeViewArrow");
-		this.el.appendChild(this.arrowEl);
+		this.rowEl.appendChild(this.arrowEl);
 
 		this.boundOnArrowClick = this.onArrowClick.bind(this);
 		this.arrowEl.addEventListener("click", this.boundOnArrowClick);
 
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
-		this.el.appendChild(this.myNameEl);
+		this.rowEl.appendChild(this.myNameEl);
 
 		this.childrenEl = document.createElement("div");
 		this.childrenEl.classList.add("treeViewChildList");
@@ -21,7 +25,9 @@ export default class TreeView{
 		this.name = "";
 		this.children = [];
 		this.parent = null;
+		this.recursionDepth = 0;
 		this.collapsed = false;
+		this.selectable = true;
 
 		this.updateArrowHidden();
 		if(data) this.updateData(data);
@@ -51,13 +57,18 @@ export default class TreeView{
 		let deltaChildren = newChildren.length - this.children.length;
 		if(deltaChildren > 0){
 			for(let i=0; i<deltaChildren; i++){
-				this.addChild(new TreeView());
+				let child = new TreeView();
+				child.recursionDepth = this.recursionDepth + 1;
+				this.addChild(child);
 			}
 		}else if(deltaChildren < 0){
 			for(let i=this.children.length-1; i>=newChildren.length; i--){
 				this.removeChild(i);
 			}
 		}
+		let padding = this.recursionDepth*12;
+		if(this.arrowVisible) padding -= 12;
+		this.rowEl.style.paddingLeft = padding+"px";
 		for(let i=0; i<this.children.length; i++){
 			this.children[i].updateData(newChildren[i]);
 		}
@@ -76,8 +87,12 @@ export default class TreeView{
 		this.updateArrowHidden();
 	}
 
+	get arrowVisible(){
+		return this.children.length > 0;
+	}
+
 	updateArrowHidden(){
-		this.arrowEl.classList.toggle("hidden", this.children.length <= 0);
+		this.arrowEl.classList.toggle("hidden", !this.arrowVisible);
 	}
 
 	setCollapsed(collapsed){

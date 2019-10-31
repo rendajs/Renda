@@ -107,10 +107,6 @@ body, html{
 	white-space: nowrap;
 }
 
-.treeViewChildList{
-	padding-left: 12px;
-}
-
 .treeViewName{
 	display: inline-block;
 }
