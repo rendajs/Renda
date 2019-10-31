@@ -23,7 +23,7 @@ export default class WindowManager{
 				windowA: {
 					type: "tabs",
 					tabTypes: ["Outliner", "Assets"],
-					activeTab: 1,
+					activeTab: 0,
 				},
 				windowB: {
 					type: "split",
@@ -89,12 +89,12 @@ export default class WindowManager{
 
 		this.registeredContentWindows.push(constructor);
 
-		for(const w of this.allContentWindows()){
+		for(const w of this.allEditorWindows()){
 			w.onContentWindowRegistered(constructor);
 		}
 	}
 
-	getContentWindowByType(type){
+	getContentWindowConstructorByType(type){
 		for(const contentWindow of this.registeredContentWindows){
 			if(contentWindow.windowName == type){
 				return contentWindow;
@@ -103,11 +103,29 @@ export default class WindowManager{
 		return null;
 	}
 
-	*allContentWindows(){
+	*allEditorWindows(){
 		if(!this.rootWindow) return;
 		yield this.rootWindow;
 		for(const child of this.rootWindow.getChildren()){
 			yield child;
+		}
+	}
+
+	*allContentWindows(){
+		for(const w of this.allEditorWindows()){
+			if(w instanceof EditorWindowTabs){
+				for(const tab of w.tabs){
+					yield tab;
+				}
+			}
+		}
+	}
+
+	*getContentWindowsByType(type){
+		for(const w of this.allContentWindows()){
+			if(w instanceof type){
+				yield w;
+			}
 		}
 	}
 }

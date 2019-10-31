@@ -1,4 +1,5 @@
 import ContentWindow from "./ContentWindow.js";
+import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import {GameObject, CameraComponent, Mesh, Vector3, Shader, Material, MeshComponent} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 
@@ -92,11 +93,18 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.editingObject.add(cube);
 
 		this.render();
+		this.updateOutliners();
 	}
 
 	async render(){
 		let renderer = editor.renderer;
 		renderer.render(this.editorCamComponent);
 		this.ctx.transferFromImageBitmap(await renderer.getImageBitmap());
+	}
+
+	updateOutliners(){
+		for(const outliner of editor.windowManager.getContentWindowsByType(ContentWindowOutliner)){
+			outliner.setLinkedObjectEditor(this);
+		}
 	}
 }

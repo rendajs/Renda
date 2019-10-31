@@ -25,7 +25,7 @@ export default class EditorWindowTabs extends EditorWindow{
 
 	setTabType(index, tabType){
 		this.tabTypes[index] = tabType;
-		let constructor = editor.windowManager.getContentWindowByType(tabType);
+		let constructor = editor.windowManager.getContentWindowConstructorByType(tabType);
 		if(constructor){
 			this.loadContentWindow(index, constructor);
 		}

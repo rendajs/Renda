@@ -43,7 +43,7 @@ export default class TreeView{
 		this.parent = null;
 	}
 
-	updateData(data){
+	updateData(data = {}){
 		this.name = data.name || "";
 		this.myNameEl.textContent = this.name;
 		if(data.collapsed !== undefined) this.setCollapsed(data.collapsed);
