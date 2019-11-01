@@ -1,5 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
+import Button from "../../UI/Button.js";
+import ButtonGroup from "../../UI/ButtonGroup.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
 	constructor(){
@@ -27,6 +29,15 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.linkedObjectEditor = null;
 
 		this.contentEl.appendChild(this.treeView.el);
+
+		let button1 = new Button({
+			text: "button1",
+		});
+		let button2 = new Button({
+			text: "button2",
+		});
+		let buttonGroup = new ButtonGroup(button1, button2);
+		this.addTopBarButton(buttonGroup);
 	}
 
 	static get windowName(){

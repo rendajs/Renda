@@ -1,6 +1,8 @@
 import EditorWindow from "./EditorWindow.js";
 import {getElemSize} from "../Util/Util.js";
 import editor from "../editorInstance.js";
+import Button from "../UI/Button.js";
+import ButtonGroup from "../UI/ButtonGroup.js";
 
 export default class EditorWindowTabs extends EditorWindow{
 	constructor(){
@@ -11,9 +13,8 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.tabTypes = [];
 		this.tabs = [];
 
-		this.tabsSelectorEl = document.createElement("div");
-		this.tabsSelectorEl.classList.add("editorWindowTabSelector");
-		this.el.appendChild(this.tabsSelectorEl);
+		this.tabsSelectorGroup = new ButtonGroup();
+		this.el.appendChild(this.tabsSelectorGroup.el);
 
 		this.tabsEl = document.createElement("div");
 		this.el.appendChild(this.tabsEl);
@@ -47,17 +48,17 @@ export default class EditorWindowTabs extends EditorWindow{
 	}
 
 	updateTabSelector(){
-		let prevTabCount = this.tabsSelectorEl.childElementCount;
+		let prevTabCount = this.tabsSelectorGroup.buttons.length;
 		let deltaCount = this.tabs.length - prevTabCount;
 		if(deltaCount > 0){
 			for(let i=0; i<deltaCount; i++){
-				let newEl = document.createElement("div");
-				newEl.classList.add("editorWindowTabSelectorTab");
 				let tabIndex = prevTabCount + i;
-				newEl.addEventListener("click", _ => {
-					this.setActiveTab(tabIndex);
+				let newButton = new Button({
+					onClick: _ => {
+						this.setActiveTab(tabIndex);
+					}
 				});
-				this.tabsSelectorEl.appendChild(newEl);
+				this.tabsSelectorGroup.addButton(newButton);
 			}
 		}else if(deltaCount < 0){
 			//todo
@@ -68,7 +69,7 @@ export default class EditorWindowTabs extends EditorWindow{
 	}
 
 	updateTabSelectorSpacer(){
-		let [w,h] = getElemSize(this.tabsSelectorEl);
+		let [w,h] = getElemSize(this.tabsSelectorGroup.el);
 		for(const tab of this.tabs){
 			tab.updateTabSelectorSpacer(w, h);
 		}
@@ -77,7 +78,7 @@ export default class EditorWindowTabs extends EditorWindow{
 	setActiveTab(index){
 		for(let i=0; i<this.tabs.length; i++){
 			let active = i == index;
-			this.tabsSelectorEl.children[i].classList.toggle("active", active);
+			this.tabsSelectorGroup.buttons[i].setActiveHighlight(active);
 			this.tabs[i].setVisible(active);
 		}
 	}

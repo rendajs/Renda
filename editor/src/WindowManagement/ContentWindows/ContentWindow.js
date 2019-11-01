@@ -45,4 +45,8 @@ export default class ContentWindow{
 	}
 
 	onWindowResize(w, h){}
+
+	addTopBarButton(button){
+		this.topButtonBar.appendChild(button.el);
+	}
 }

@@ -41,7 +41,7 @@ body, html{
 	overflow: hidden;
 }
 
-.editorWindowTabSelector{
+.buttonGroup{
 	margin: 5px;
 	display: inline-block;
 	border-radius: var(--default-border-radius);
@@ -51,22 +51,22 @@ body, html{
 	z-index: 100;
 }
 
-.editorWindowTabSelectorTab{
+.button{
 	width: 20px;
 	height: 20px;
 	display: inline-block;
 	background: #6f6f6fb8;
 }
 
-.editorWindowTabSelectorTab:not(:last-child){
+.button:not(:last-child){
 	margin-right: 1px;
 }
 
-.editorWindowTabSelectorTab:hover{
+.button:hover{
 	background: #525252b8;
 }
 
-.editorWindowTabSelectorTab.active{
+.button.active{
 	background: #929292b8;
 }
 
