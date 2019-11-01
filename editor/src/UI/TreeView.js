@@ -7,6 +7,9 @@ export default class TreeView{
 		this.rowEl.classList.add("treeViewRow");
 		this.el.appendChild(this.rowEl);
 
+		this.boundOnRowClick = this.onRowClick.bind(this);
+		this.rowEl.addEventListener("click", this.boundOnRowClick);
+
 		this.arrowEl = document.createElement("div");
 		this.arrowEl.classList.add("treeViewArrow");
 		this.rowEl.appendChild(this.arrowEl);
@@ -28,6 +31,9 @@ export default class TreeView{
 		this.recursionDepth = 0;
 		this.collapsed = false;
 		this.selectable = true;
+		this.renameable = false;
+
+		this.selected = false;
 
 		this.updateArrowHidden();
 		if(data) this.updateData(data);
@@ -101,7 +107,55 @@ export default class TreeView{
 		this.arrowEl.classList.toggle("collapsed", collapsed);
 	}
 
-	onArrowClick(){
+	*traverse(){
+		yield this;
+		for(const child of this.children){
+			for(const c of child.traverse()){
+				yield c;
+			}
+		}
+	}
+
+	onArrowClick(e){
+		e.stopPropagation();
 		this.setCollapsed(!this.collapsed);
+	}
+
+	onRowClick(){
+		if(this.selectable){
+			if(this.selected){
+				//rename
+			}else{
+				this.select();
+			}
+		}
+	}
+
+	select(){
+		let root = this.findRoot();
+		root.deselectAll();
+		this.selected = true;
+		this.updateSelectedStyle();
+	}
+
+	deselect(){
+		if(!this.selected) return;
+		this.selected = false;
+		this.updateSelectedStyle();
+	}
+
+	updateSelectedStyle(){
+		this.rowEl.classList.toggle("selected", this.selected);
+	}
+
+	findRoot(){
+		if(this.parent) return this.parent.findRoot();
+		return this;
+	}
+
+	deselectAll(){
+		for(const view of this.traverse()){
+			view.deselect();
+		}
 	}
 }

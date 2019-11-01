@@ -1,3 +1,8 @@
+:root{
+	--color-selected-blue: #000000;
+	--default-border-radius: 5px;
+}
+
 body, html{
 	overflow: hidden;
 	position: relative;
@@ -31,7 +36,7 @@ body, html{
 	height: 100%;
 	background: rgb(27, 27, 27);
 	position: absolute;
-	border-radius: 5px;
+	border-radius: var(--default-border-radius);
 	display: inline-block;
 	overflow: hidden;
 }
@@ -39,7 +44,7 @@ body, html{
 .editorWindowTabSelector{
 	margin: 5px;
 	display: inline-block;
-	border-radius: 5px;
+	border-radius: var(--default-border-radius);
 	overflow: hidden;
 	position: absolute;
 	box-sizing: content-box;
@@ -116,6 +121,13 @@ body, html{
 	height: 12px;
 	display: inline-block;
 	background: black;
+}
+
+.treeViewRow{
+	border-radius: var(--default-border-radius);
+}
+.treeViewRow.selected{
+	background: #005598;
 }
 
 .treeViewArrow.collapsed{
