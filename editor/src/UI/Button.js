@@ -10,6 +10,7 @@ export default class Button{
 		this.onClick = onClick;
 		this.boundFireOnClick = this.fireOnClick.bind(this);
 		this.el.addEventListener("click", this.boundFireOnClick);
+		this.setText(text);
 	}
 
 	destructor(){
@@ -18,6 +19,10 @@ export default class Button{
 
 	fireOnClick(){
 		if(this.onClick) this.onClick();
+	}
+
+	setText(text){
+		this.el.textContent = text;
 	}
 
 	setActiveHighlight(active){

@@ -52,10 +52,13 @@ body, html{
 }
 
 .button{
-	width: 20px;
+	min-width: 20px;
+	font-size: 10pt;
 	height: 20px;
 	display: inline-block;
 	background: #6f6f6fb8;
+	box-sizing: border-box;
+	padding: 2px 3px;
 }
 
 .button:not(:last-child){
