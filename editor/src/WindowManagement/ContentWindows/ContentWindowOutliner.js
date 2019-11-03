@@ -68,12 +68,22 @@ export default class ContentWindowOutliner extends ContentWindow{
 	}
 
 	createNewEmpty(){
+		this.createNew("GameObject");
+	}
+
+	createNew(name, afterCreate = null){
 		if(!this.linkedObjectEditor || !this.linkedObjectEditor.editingObject) return;
 		let rootObj = this.linkedObjectEditor.editingObject;
+		let createdAny = false;
 		for(const indexPath of this.treeView.getSelectionPaths()){
 			let obj = rootObj.getObjectByIndexPath(indexPath);
-			let createdObject = new GameObject("GameObject");
+			let createdObject = new GameObject(name);
 			obj.add(createdObject);
+			createdAny = true;
+		}
+		if(!createdAny){
+			let createdObject = new GameObject(name);
+			rootObj.add(createdObject);
 		}
 		this.updateTreeView();
 	}
