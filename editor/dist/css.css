@@ -68,6 +68,9 @@ body, html{
 .button:hover{
 	background: #525252b8;
 }
+.button:active{
+	background: #3e3e3eb8;
+}
 
 .button.active{
 	background: #929292b8;
