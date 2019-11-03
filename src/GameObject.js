@@ -3,6 +3,11 @@ import Mat4 from "./math/Mat4.js";
 
 export default class GameObject{
 	constructor(opts){
+		if(typeof opts == "string"){
+			opts = {
+				name: opts,
+			}
+		}
 		opts = {...{
 			name: "",
 			parent: null,
@@ -98,5 +103,12 @@ export default class GameObject{
 				yield c;
 			}
 		}
+	}
+
+	getObjectByIndexPath(indexPath, startFrom = 0){
+		if(startFrom >= indexPath.length) return this;
+		let index = indexPath[startFrom];
+		let child = this.children[index];
+		return child.getObjectByIndexPath(indexPath, startFrom + 1);
 	}
 }

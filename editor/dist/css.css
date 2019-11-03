@@ -41,6 +41,11 @@ body, html{
 	overflow: hidden;
 }
 
+.editorContentWindowTopButtonBar > .button{
+	position: absolute;
+	margin: 5px;
+}
+
 .buttonGroup{
 	margin: 5px;
 	display: inline-block;
@@ -59,6 +64,11 @@ body, html{
 	background: #6f6f6fb8;
 	box-sizing: border-box;
 	padding: 2px 3px;
+	border-radius: var(--default-border-radius);
+}
+
+.buttonGroup > .button{
+	border-radius: 0px;
 }
 
 .button:not(:last-child){
@@ -131,6 +141,7 @@ body, html{
 
 .treeViewRow{
 	border-radius: var(--default-border-radius);
+	height: 18px;
 }
 .treeViewRow.selected{
 	background: #005598;

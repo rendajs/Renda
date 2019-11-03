@@ -2,6 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
 import ButtonGroup from "../../UI/ButtonGroup.js";
+import {GameObject} from "../../../../src/index.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
 	constructor(){
@@ -30,14 +31,13 @@ export default class ContentWindowOutliner extends ContentWindow{
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		let button1 = new Button({
-			text: "button1",
+		let createEmptyButton = new Button({
+			text: "Create Emtpy",
+			onClick: _ => {
+				this.createNewEmpty();
+			}
 		});
-		let button2 = new Button({
-			text: "button2",
-		});
-		let buttonGroup = new ButtonGroup(button1, button2);
-		this.addTopBarButton(buttonGroup);
+		this.addTopBarButton(createEmptyButton);
 	}
 
 	static get windowName(){
@@ -65,5 +65,16 @@ export default class ContentWindowOutliner extends ContentWindow{
 			treeData.children.push(this.treeDataFromGameObject(child));
 		}
 		return treeData;
+	}
+
+	createNewEmpty(){
+		if(!this.linkedObjectEditor || !this.linkedObjectEditor.editingObject) return;
+		let rootObj = this.linkedObjectEditor.editingObject;
+		for(const indexPath of this.treeView.getSelectionPaths()){
+			let obj = rootObj.getObjectByIndexPath(indexPath);
+			let createdObject = new GameObject("GameObject");
+			obj.add(createdObject);
+		}
+		this.updateTreeView();
 	}
 }

@@ -31,6 +31,7 @@ export default class TreeView{
 		this.recursionDepth = 0;
 		this.collapsed = false;
 		this.selectable = true;
+		this.canSelectMultiple = true;
 		this.renameable = false;
 
 		this.selected = false;
@@ -121,19 +122,19 @@ export default class TreeView{
 		this.setCollapsed(!this.collapsed);
 	}
 
-	onRowClick(){
+	onRowClick(e){
 		if(this.selectable){
-			if(this.selected){
-				//rename
-			}else{
-				this.select();
+			let selectExtra = this.canSelectMultiple && (e.metaKey || e.ctrlKey);
+			if(!selectExtra){
+				let root = this.findRoot();
+				root.deselectAll();
 			}
+
+			this.select();
 		}
 	}
 
 	select(){
-		let root = this.findRoot();
-		root.deselectAll();
 		this.selected = true;
 		this.updateSelectedStyle();
 	}
@@ -146,6 +147,34 @@ export default class TreeView{
 
 	updateSelectedStyle(){
 		this.rowEl.classList.toggle("selected", this.selected);
+	}
+
+	*getSelectedItems(){
+		for(const item of this.traverse()){
+			if(item.selected){
+				yield item;
+			}
+		}
+	}
+
+	*getSelectionPaths(){
+		for(const item of this.getSelectedItems()){
+			yield item.getSelectionPath();
+		}
+	}
+
+	getSelectionPath(){
+		if(!this.selected) return null;
+		let path = [];
+		let parent = this.parent;
+		let child = this;
+		while(parent){
+			let index = parent.children.indexOf(child);
+			path.push(index);
+			child = parent;
+			parent = parent.parent;
+		}
+		return path.reverse();
 	}
 
 	findRoot(){
