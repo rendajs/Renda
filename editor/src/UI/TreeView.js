@@ -36,6 +36,8 @@ export default class TreeView{
 
 		this.selected = false;
 
+		this.onSelectedChangeCbs = [];
+
 		this.updateArrowHidden();
 		if(data) this.updateData(data);
 	}
@@ -124,13 +126,25 @@ export default class TreeView{
 
 	onRowClick(e){
 		if(this.selectable){
+			let changes = {};
 			let selectExtra = this.canSelectMultiple && (e.metaKey || e.ctrlKey);
-			if(!selectExtra){
+			if(selectExtra){
+				if(this.selected){
+					this.deselect();
+					changes.removed = [this];
+				}else{
+					this.select();
+					changes.added = [this];
+				}
+			}else{
 				let root = this.findRoot();
 				root.deselectAll();
+				this.select();
+				changes.reset = true;
+				changes.added = [this];
 			}
 
-			this.select();
+			this.fireOnSelectionChange(changes);
 		}
 	}
 
@@ -186,5 +200,23 @@ export default class TreeView{
 		for(const view of this.traverse()){
 			view.deselect();
 		}
+	}
+
+	onSelectedChange(cb){
+		this.onSelectedChangeCbs.push(cb);
+	}
+
+	removeOnSelectedChange(cb){
+		let index = this.onSelectedChangeCbs.indexOf(cb);
+		if(index >= 0){
+			this.onSelectedChangeCbs.splice(index, 1);
+		}
+	}
+
+	fireOnSelectionChange(changes){
+		for(const cb of this.onSelectedChangeCbs){
+			cb(changes);
+		}
+		if(this.parent) this.parent.fireOnSelectionChange(changes);
 	}
 }
