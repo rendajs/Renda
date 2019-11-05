@@ -9,6 +9,14 @@ export default class ButtonGroup{
 		}
 	}
 
+	destructor(){
+		this.el = null;
+		for(const button of this.buttons){
+			button.destructor();
+		}
+		this.buttons = [];
+	}
+
 	addButton(button){
 		this.buttons.push(button);
 		this.el.appendChild(button.el);

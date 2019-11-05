@@ -14,6 +14,19 @@ export default class ContentWindow{
 		this.contentEl = document.createElement("div");
 		this.contentEl.classList.add("editorContentWindowContent");
 		this.el.appendChild(this.contentEl);
+
+		this.addedButtons = [];
+	}
+
+	destructor(){
+		this.el = null;
+		this.topButtonBar = null;
+		this.tabSelectorSpacer = null;
+		this.contentEl = null;
+		for(const b of this.addedButtons){
+			b.destructor();
+		}
+		this.addedButtons = [];
 	}
 
 	setVisible(visible){
@@ -47,6 +60,7 @@ export default class ContentWindow{
 	onWindowResize(w, h){}
 
 	addTopBarButton(button){
+		this.addedButtons.push(button);
 		this.topButtonBar.appendChild(button.el);
 	}
 }

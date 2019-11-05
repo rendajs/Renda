@@ -40,6 +40,13 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.addTopBarButton(createEmptyButton);
 	}
 
+	destructor(){
+		super.destructor();
+		this.treeView.destructor();
+		this.treeView = null;
+		this.linkedObjectEditor = null;
+	}
+
 	static get windowName(){
 		return "Outliner";
 	}
