@@ -33,6 +33,7 @@ export default class TreeView{
 		this.selectable = true;
 		this.canSelectMultiple = true;
 		this.renameable = false;
+		this.rowVisible = true;
 
 		this.selected = false;
 
@@ -108,6 +109,11 @@ export default class TreeView{
 		this.collapsed = collapsed;
 		this.childrenEl.style.display = collapsed ? "none" : null;
 		this.arrowEl.classList.toggle("collapsed", collapsed);
+	}
+
+	setRowVisible(visible){
+		this.rowVisible = visible;
+		this.rowEl.classList.toggle("hidden", !this.rowVisible);
 	}
 
 	*traverse(){

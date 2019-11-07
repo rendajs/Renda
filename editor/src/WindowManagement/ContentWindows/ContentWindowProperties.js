@@ -5,24 +5,7 @@ export default class ContentWindowProperties extends ContentWindow{
 	constructor(){
 		super();
 
-		this.treeView = new TreeView({
-			name: "test1",
-			children:[
-				{name:"test2"},
-				{name:"test3"},
-				{
-					name:"test4",
-					collapsed: true,
-					children:[
-						{name:"a"},
-						{name:"b"},
-						{name:"c"},
-					],
-				},
-				{name:"test5"},
-				{name:"test6"},
-			],
-		});
+		this.treeView = new TreeView();
 		this.contentEl.appendChild(this.treeView.el);
 	}
 
@@ -49,5 +32,6 @@ export default class ContentWindowProperties extends ContentWindow{
 			}),
 		}
 		this.treeView.updateData(treeData);
+		this.treeView.setRowVisible(false);
 	}
 }

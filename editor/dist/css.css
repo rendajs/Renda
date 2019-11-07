@@ -146,6 +146,9 @@ body, html{
 .treeViewRow.selected{
 	background: #005598;
 }
+.treeViewRow.hidden{
+	display: none;
+}
 
 .treeViewArrow.collapsed{
 	background: red;
