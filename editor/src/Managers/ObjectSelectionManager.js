@@ -1,3 +1,6 @@
+import editor from "../editorInstance.js";
+import ContentWindowProperties from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
+
 export default class ObjectSelectionManager{
 	constructor(objectEditor){
 		this.objectEditor = objectEditor;
@@ -17,6 +20,14 @@ export default class ObjectSelectionManager{
 				let obj = this.currentSelectedObjects[i];
 				if(obj == removed) this.currentSelectedObjects.splice(i, 1);
 			}
+		}
+
+		this.updatePropertyWindows();
+	}
+
+	updatePropertyWindows(){
+		for(const propertyWindow of editor.windowManager.getContentWindowsByType(ContentWindowProperties)){
+			propertyWindow.showSelectedObjectProperties(this.currentSelectedObjects);
 		}
 	}
 }

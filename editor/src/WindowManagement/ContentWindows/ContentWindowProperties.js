@@ -24,11 +24,30 @@ export default class ContentWindowProperties extends ContentWindow{
 			],
 		});
 		this.contentEl.appendChild(this.treeView.el);
-
-		this.linkedObject = null;
 	}
 
 	static get windowName(){
 		return "Properties";
+	}
+
+	showSelectedObjectProperties(selectedObjects){
+		let componentList = [];
+		for(const object of selectedObjects){
+			for(const component of object.components){
+				componentList.push({
+					type: component.constructor,
+					instances: [component],
+				});
+			}
+		}
+		let treeData = {
+			name: "components",
+			children: componentList.map(c => {
+				return {
+					name: c.type.name,
+				}
+			}),
+		}
+		this.treeView.updateData(treeData);
 	}
 }

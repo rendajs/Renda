@@ -105,6 +105,10 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.editingObject.add(cube);
 
+		let cam = new GameObject({name:"cam"});
+		this.editingObject.add(cam);
+		cam.addComponent(CameraComponent);
+
 		this.render();
 		this.updateOutliners();
 	}
