@@ -24,9 +24,12 @@ export default class GameObject{
 	}
 
 	addComponent(component){
+		//if argument is a component type constructor instead of an instance,
+		//instantiate a new instance of this type
 		if(component.prototype instanceof Component){
 			component = new component();
 		}
+
 		if(!component instanceof Component){
 			throw new Error("component argument is not of type Component");
 		}
