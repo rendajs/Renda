@@ -2,6 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import {GameObject, CameraComponent, Mesh, Vector3, Shader, Material, MeshComponent} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
+import ObjectSelectionManager from "../../Managers/ObjectSelectionManager.js";
 
 export default class ContentWindowObjectEditor extends ContentWindow{
 	constructor(){
@@ -20,10 +21,22 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
 
 		this.editingObject = null;
+		this.selectionManager = new ObjectSelectionManager(this);
 	}
 
 	static get windowName(){
 		return "ObjectEditor";
+	}
+
+	destructor(){
+		super.destructor();
+
+		this.canvasEl = null;
+		this.ctx = null;
+		this.editorScene.destructor();
+		this.editingObject = null;
+		this.selectionManager.destructor();
+		this.selectionManager = null;
 	}
 
 	onWindowResize(w, h){

@@ -126,7 +126,11 @@ export default class TreeView{
 
 	onRowClick(e){
 		if(this.selectable){
-			let changes = {};
+			let changes = {
+				reset: false,
+				added: [],
+				removed: [],
+			};
 			let selectExtra = this.canSelectMultiple && (e.metaKey || e.ctrlKey);
 			if(selectExtra){
 				if(this.selected){
@@ -173,12 +177,11 @@ export default class TreeView{
 
 	*getSelectionPaths(){
 		for(const item of this.getSelectedItems()){
-			yield item.getSelectionPath();
+			yield item.getIndicesPath();
 		}
 	}
 
-	getSelectionPath(){
-		if(!this.selected) return null;
+	getIndicesPath(){
 		let path = [];
 		let parent = this.parent;
 		let child = this;

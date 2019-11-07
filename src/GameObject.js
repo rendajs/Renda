@@ -105,10 +105,10 @@ export default class GameObject{
 		}
 	}
 
-	getObjectByIndexPath(indexPath, startFrom = 0){
+	getObjectByIndicesPath(indexPath, startFrom = 0){
 		if(startFrom >= indexPath.length) return this;
 		let index = indexPath[startFrom];
 		let child = this.children[index];
-		return child.getObjectByIndexPath(indexPath, startFrom + 1);
+		return child.getObjectByIndicesPath(indexPath, startFrom + 1);
 	}
 }

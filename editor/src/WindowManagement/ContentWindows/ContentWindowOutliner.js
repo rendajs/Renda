@@ -8,28 +8,11 @@ export default class ContentWindowOutliner extends ContentWindow{
 	constructor(){
 		super();
 
-		this.treeView = new TreeView({
-			name: "test1",
-			children:[
-				{name:"test2"},
-				{name:"test3"},
-				{
-					name:"test4",
-					collapsed: true,
-					children:[
-						{name:"a"},
-						{name:"b"},
-						{name:"c"},
-					],
-				},
-				{name:"test5"},
-				{name:"test6"},
-			],
-		});
+		this.treeView = new TreeView();
+		this.contentEl.appendChild(this.treeView.el);
+		this.treeView.onSelectedChange(this.onTreeViewSelectionChange.bind(this));
 
 		this.linkedObjectEditor = null;
-
-		this.contentEl.appendChild(this.treeView.el);
 
 		let createEmptyButton = new Button({
 			text: "Create Emtpy",
@@ -82,8 +65,9 @@ export default class ContentWindowOutliner extends ContentWindow{
 		if(!this.linkedObjectEditor || !this.linkedObjectEditor.editingObject) return;
 		let rootObj = this.linkedObjectEditor.editingObject;
 		let createdAny = false;
-		for(const indexPath of this.treeView.getSelectionPaths()){
-			let obj = rootObj.getObjectByIndexPath(indexPath);
+		//todo: use selection manager
+		for(const indicesPath of this.treeView.getSelectionPaths()){
+			let obj = rootObj.getObjectByIndicesPath(indicesPath);
 			let createdObject = new GameObject(name);
 			obj.add(createdObject);
 			createdAny = true;
@@ -93,5 +77,21 @@ export default class ContentWindowOutliner extends ContentWindow{
 			rootObj.add(createdObject);
 		}
 		this.updateTreeView();
+	}
+
+	getObjectByTreeViewItem(treeView){
+		if(!this.linkedObjectEditor || !this.linkedObjectEditor.editingObject) return null;
+		let indicesPath = treeView.getIndicesPath();
+		return this.linkedObjectEditor.editingObject.getObjectByIndicesPath(indicesPath);
+	}
+
+	onTreeViewSelectionChange(changes){
+		if(!this.linkedObjectEditor) return;
+		let toIndices = name => {
+			changes[name] = changes[name].map(t => this.getObjectByTreeViewItem(t));
+		}
+		toIndices("added");
+		toIndices("removed");
+		this.linkedObjectEditor.selectionManager.changeSelection(changes);
 	}
 }
