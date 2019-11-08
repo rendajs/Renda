@@ -14,12 +14,13 @@ export default class RealTimeRenderer extends Renderer{
 		this.canvas = document.createElement("canvas");
 		this.canvas.width = this.canvas.height = 300;
 		this.gl = this.canvas.getContext("webgl");
-		this.gl.clearColor(0, 0, 0, 1);
-		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+		this.gl.enable(this.gl.DEPTH_TEST);
 	}
 
 	render(camera){
-		this.gl.enable(this.gl.DEPTH_TEST);
+		this.gl.clearColor(0, 0, 0, 1);
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+		this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 		let vpMatrix = camera.getVpMatrix();
 		let meshComponents = [];
 		for(const root of camera.rootRenderObjects){

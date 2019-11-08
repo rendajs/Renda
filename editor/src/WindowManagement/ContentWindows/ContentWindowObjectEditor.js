@@ -42,6 +42,9 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 	onWindowResize(w, h){
 		this.canvasEl.width = w;
 		this.canvasEl.height = h;
+
+		this.editorCamComponent.aspect = w / h;
+		this.render();
 	}
 
 	newEmptyEditingObject(){

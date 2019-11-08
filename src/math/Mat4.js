@@ -96,16 +96,23 @@ export default class Mat4{
 		this.values[3][2] += z;
 	}
 
-	static createProjection(fov, screenWidth, screenHeight, near, far){
+	static createDynamicAspectProjection(fov = 90, near = 0.05, far = 1000, aspect = 1){
+		let uwMultiplier = 1;
+		let uhMultiplier = 1;
+		if(aspect > 1){
+			uhMultiplier = aspect;
+		}else{
+			uwMultiplier = 1 / aspect;
+		}
+		return this.createProjection(fov, near, far, uwMultiplier, uhMultiplier);
+	}
+
+	static createProjection(fov = 90, near = 0.05, far = 1000, uwMultiplier = 1, uhMultiplier = 1){
 		const mat = new Mat4();
 		let uw = 1 / Math.tan(fov/2);
 		let uh = uw;
-		const aspect = screenWidth / screenHeight;
-		if(screenWidth > screenHeight){
-			uh = uh * aspect;
-		}else{
-			uw = uw / aspect;
-		}
+		uw *= uwMultiplier;
+		uh *= uhMultiplier;
 		const deltaDepth = far - near;
 		const depth = 1 / deltaDepth;
 		mat.values[0][0] = uw;
