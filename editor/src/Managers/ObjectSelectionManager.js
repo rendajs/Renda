@@ -27,7 +27,8 @@ export default class ObjectSelectionManager{
 
 	updatePropertyWindows(){
 		for(const propertyWindow of editor.windowManager.getContentWindowsByType(ContentWindowProperties)){
-			propertyWindow.showSelectedObjectProperties(this.currentSelectedObjects);
+			propertyWindow.setGameObjectMode(this.objectEditor);
+			propertyWindow.updateGameObjectPropertiesTreeView();
 		}
 	}
 }
