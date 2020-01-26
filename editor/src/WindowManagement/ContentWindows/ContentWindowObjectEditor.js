@@ -3,6 +3,7 @@ import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import {GameObject, CameraComponent, Mesh, Vector3, Shader, Material, MeshComponent} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import ObjectSelectionManager from "../../Managers/ObjectSelectionManager.js";
+import OrbitControls from "../../Util/OrbitControls.js";
 
 export default class ContentWindowObjectEditor extends ContentWindow{
 	constructor(){
@@ -14,11 +15,15 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.ctx = this.canvasEl.getContext("bitmaprenderer");
 		this.contentEl.appendChild(this.canvasEl);
 
+		this.renderDirty = false;
+
 		this.editorScene = new GameObject({name: "editorScene"});
 		this.editorCamera = new GameObject({name: "editorCamera"});
 		this.editorCamera.worldMatrix.translate(0,0,-5);
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
+
+		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
 
 		this.editingObject = null;
 		this.selectionManager = new ObjectSelectionManager(this);
@@ -44,7 +49,7 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.canvasEl.height = h;
 
 		this.editorCamComponent.aspect = w / h;
-		this.render();
+		this.renderDirty = true;
 	}
 
 	newEmptyEditingObject(){
@@ -114,6 +119,16 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.render();
 		this.updateOutliners();
+	}
+
+	loop(){
+		this.orbitControls.loop();
+		this.renderDirty = true;
+
+		if(this.renderDirty){
+			this.render();
+			this.renderDirty = false;
+		}
 	}
 
 	async render(){
