@@ -1,5 +1,5 @@
 import Component from "./components/Component.js";
-import Mat4 from "./math/Mat4.js";
+import {Vector3, Mat4} from "./math/Math.js";
 
 export default class GameObject{
 	constructor(opts){
@@ -17,8 +17,13 @@ export default class GameObject{
 		this._children = [];
 		this.components = [];
 
-		this.localMatrix = new Mat4();
-		this.worldMatrix = new Mat4();
+		this.localMatrixDirty = false;
+		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirty.bind(this);
+		this.worldMatrixDirty = false;
+		this._localMatrix = new Mat4();
+		this._worldMatrix = new Mat4();
+		this._pos = new Vector3();
+		this._pos.onChange(this.boundMarkLocalMatrixDirty);
 
 		this.setParent(opts.parent, false);
 	}
@@ -53,6 +58,36 @@ export default class GameObject{
 
 	set parent(newParent){
 		this.setParent(newParent);
+	}
+
+	get pos(){
+		return this._pos;
+	}
+
+	set pos(value){
+		this._pos.set(value);
+	}
+
+	get localMatrix(){
+		if(this.localMatrixDirty){
+			this._localMatrix = Mat4.createTranslation(this.pos);
+		}
+		return this._localMatrix;
+	}
+
+	get worldMatrix(){
+		if(this.localMatrixDirty || this.worldMatrixDirty){
+			if(this.parent){
+				this._worldMatrix = Mat4.multiplyMatrices(this.parent.worldMatrix, this.localMatrix);
+			}else{
+				this._worldMatrix = this.localMatrix.clone();
+			}
+		}
+		return this._worldMatrix;
+	}
+
+	markLocalMatrixDirty(){
+		this.localMatrixDirty = true;
 	}
 
 	setParent(newParent, keepPosition = true){

@@ -49,9 +49,8 @@ export default class RealTimeRenderer extends Renderer{
 			this.gl.enableVertexAttribArray(positionAttrib);
 
 			shader.use();
-			let worldMatrix = new Mat4(component.gameObject.worldMatrix);
 
-			let mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
+			let mvpMatrix = Mat4.multiplyMatrices(component.gameObject.worldMatrix, vpMatrix);
 			shader.uniformMatrix4fv("uMvpMatrix", mvpMatrix);
 			this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
 		}

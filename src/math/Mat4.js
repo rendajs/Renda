@@ -31,6 +31,10 @@ export default class Mat4{
 		return [...this.values[0],...this.values[1],...this.values[2],...this.values[3]];
 	}
 
+	clone(){
+		return new Mat4(this);
+	}
+
 	//github.com/toji/gl-matrix/blob/6866ae93d19bbff032139941cbfe0ae68c4cdead/src/gl-matrix/mat4.js#L256
 	invert(){
 		let a00 = this.values[0][0], a01 = this.values[0][1], a02 = this.values[0][2], a03 = this.values[0][3];
