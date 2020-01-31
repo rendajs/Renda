@@ -19,7 +19,6 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.editorScene = new GameObject({name: "editorScene"});
 		this.editorCamera = new GameObject({name: "editorCamera"});
-		this.editorCamera.worldMatrix.translate(0,0,-5);
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
 

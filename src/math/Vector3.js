@@ -4,6 +4,38 @@ export default class Vector3{
 		this.set(x,y,z)
 	}
 
+	static get left(){
+		return new Vector3(-1,0,0);
+	}
+
+	static get down(){
+		return new Vector3(0,-1,0);
+	}
+
+	static get back(){
+		return new Vector3(0,0,-1);
+	}
+
+	static get right(){
+		return new Vector3(1,0,0);
+	}
+
+	static get up(){
+		return new Vector3(0,1,0);
+	}
+
+	static get forward(){
+		return new Vector3(0,0,1);
+	}
+
+	static get one(){
+		return new Vector3(1,1,1);
+	}
+
+	static get zero(){
+		return new Vector3()
+	}
+
 	get x(){
 		return this._x;
 	}
@@ -29,15 +61,15 @@ export default class Vector3{
 
 	set(x=0, y=0, z=0){
 		if(x instanceof Vector3){
-			let vec = x;
-			x = vec.x;
-			y = vec.y;
-			z = vec.z;
+			let vector = x;
+			x = vector.x;
+			y = vector.y;
+			z = vector.z;
 		}else if(x instanceof Object){
-			let vec = x;
-			x = vec[0];
-			y = vec[1];
-			z = vec[2];
+			let vector = x;
+			x = vector[0];
+			y = vector[1];
+			z = vector[2];
 		}
 
 		this._x = x;
@@ -68,6 +100,55 @@ export default class Vector3{
 
 	normalize(){
 		this.magnitude = 1;
+		return this;
+	}
+
+	multiply(vectorOrScalar){
+		if(vectorOrScalar instanceof Vector3 || arguments.length == 3){
+			return this.multiplyVector(new Vector3(...arguments));
+		}else{
+			return this.multiplyScalar(vectorOrScalar);
+		}
+	}
+
+	multiplyScalar(scalar){
+		this._x *= scalar;
+		this._y *= scalar;
+		this._z *= scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	multiplyVector(vector){
+		this._x *= vector.x;
+		this._y *= vector.y;
+		this._z *= vector.z;
+		this.fireOnChange();
+		return this;
+	}
+
+	add(vectorOrScalar){
+		if(vectorOrScalar instanceof Vector3 || arguments.length == 3){
+			return this.addVector(new Vector3(...arguments));
+		}else{
+			return this.addScalar(vectorOrScalar);
+		}
+	}
+
+	addScalar(scalar){
+		this._x += scalar;
+		this._y += scalar;
+		this._z += scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	addVector(vector){
+		this._x += vector.x;
+		this._y += vector.y;
+		this._z += vector.z;
+		this.fireOnChange();
+		return this;
 	}
 
 	onChange(cb){

@@ -16,6 +16,10 @@ export default class ContentWindow{
 		this.el.appendChild(this.contentEl);
 
 		this.addedButtons = [];
+
+		if(typeof this.loop == "function"){
+			window.requestAnimationFrame(this._loop.bind(this));
+		}
 	}
 
 	destructor(){
@@ -62,5 +66,11 @@ export default class ContentWindow{
 	addTopBarButton(button){
 		this.addedButtons.push(button);
 		this.topButtonBar.appendChild(button.el);
+	}
+
+	_loop(){
+		if(!this.el) return; //if destructed
+		this.loop();
+		window.requestAnimationFrame(this._loop.bind(this));
 	}
 }

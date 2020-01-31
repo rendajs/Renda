@@ -165,6 +165,58 @@ export default class Mat4{
 		]);
 	}
 
+	static createPosRotScale(pos,rot,scale){
+		let x = rot.x;
+		let y = rot.y;
+		let z = rot.z;
+		let w = rot.w;
+
+		let x2 = x * 2;
+		let y2 = y * 2;
+		let z2 = z * 2;
+
+		let xx = x*x2;
+		let xy = x*y2;
+		let xz = x*z2;
+
+		let yy = y*y2;
+		let yz = y*z2;
+
+		let zz = z*z2;
+
+		let wx = w*x2;
+		let wy = w*y2;
+		let wz = w*z2;
+
+		let sx = scale.x;
+		let sy = scale.y;
+		let sz = scale.z;
+
+		return new Mat4([
+			[
+				(1-(yy+zz))*sx,
+				(xy+wz)*sx,
+				(xz-wy)*sx,
+				0
+			],[
+				(xy-wz)*sy,
+				(1-(xx+zz))*sy,
+				(yz+wx)*sy,
+				0
+			],[
+				(xz+wy)*sz,
+				(yz-wx)*sz,
+				(1-(xx+yy))*sz,
+				0
+			],[
+				pos.x,
+				pos.y,
+				pos.z,
+				1
+			],
+		]);
+	}
+
 	static multiplyMatrices(a1, a2){
 		const v1 = a1.values;
 		const v2 = a2.values;

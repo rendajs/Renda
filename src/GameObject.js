@@ -1,5 +1,5 @@
 import Component from "./components/Component.js";
-import {Vector3, Mat4} from "./math/Math.js";
+import {Vector3, Quaternion, Mat4} from "./math/Math.js";
 
 export default class GameObject{
 	constructor(opts){
@@ -24,6 +24,10 @@ export default class GameObject{
 		this._worldMatrix = new Mat4();
 		this._pos = new Vector3();
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
+		this._rot = new Quaternion();
+		this._rot.onChange(this.boundMarkLocalMatrixDirty);
+		this._scale = Vector3.one;
+		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
 		this.setParent(opts.parent, false);
 	}
@@ -68,9 +72,25 @@ export default class GameObject{
 		this._pos.set(value);
 	}
 
+	get rot(){
+		return this._rot;
+	}
+
+	set rot(value){
+		this._rot.set(value);
+	}
+
+	get scale(){
+		return this._scale;
+	}
+
+	set scale(value){
+		this._scale.set(value);
+	}
+
 	get localMatrix(){
 		if(this.localMatrixDirty){
-			this._localMatrix = Mat4.createTranslation(this.pos);
+			this._localMatrix = Mat4.createPosRotScale(this.pos, this.rot, this.scale);
 		}
 		return this._localMatrix;
 	}
