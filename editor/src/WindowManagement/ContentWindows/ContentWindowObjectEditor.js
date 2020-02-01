@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import {GameObject, CameraComponent, Mesh, Vector3, Shader, Material, MeshComponent} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
-import ObjectSelectionManager from "../../Managers/ObjectSelectionManager.js";
+import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
 
 export default class ContentWindowObjectEditor extends ContentWindow{
@@ -25,7 +25,7 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
 
 		this.editingObject = null;
-		this.selectionManager = new ObjectSelectionManager(this);
+		this.selectionManager = new SelectionManager();
 	}
 
 	static get windowName(){

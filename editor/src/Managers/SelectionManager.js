@@ -1,14 +1,12 @@
 import editor from "../editorInstance.js";
 import ContentWindowProperties from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
 
-export default class ObjectSelectionManager{
-	constructor(objectEditor){
-		this.objectEditor = objectEditor;
+export default class SelectionManager{
+	constructor(){
 		this.currentSelectedObjects = [];
 	}
 
 	destructor(){
-		this.objectEditor = null;
 		this.currentSelectedObjects = null;
 	}
 
@@ -27,8 +25,7 @@ export default class ObjectSelectionManager{
 
 	updatePropertyWindows(){
 		for(const propertyWindow of editor.windowManager.getContentWindowsByType(ContentWindowProperties)){
-			propertyWindow.setGameObjectMode(this.objectEditor);
-			propertyWindow.updateGameObjectPropertiesTreeView();
+			propertyWindow.onSelectionChanged(this);
 		}
 	}
 }
