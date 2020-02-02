@@ -1,3 +1,5 @@
+import {clamp, mod} from "../Util/Util.js";
+
 export default class NumericGUI{
 	constructor({
 		value = 0,
@@ -13,7 +15,8 @@ export default class NumericGUI{
 		this.el = document.createElement("input");
 		this.el.classList.add("numericGUI");
 
-		this.value = value;
+		this.value = 0;
+		this.internalValue = 0;
 		this.min = min;
 		this.max = max;
 		this.mouseAdjustSpeed = mouseAdjustSpeed;
@@ -26,7 +29,6 @@ export default class NumericGUI{
 		this.isMouseAdjusting = false;
 		this.hasMovedWhileAdjusting = false;
 		this.isTextAdjusting = false;
-		this.setIsTextAdjusting(false);
 
 		this.boundOnFocus = this.onFocus.bind(this);
 		this.boundOnBlur = this.onBlur.bind(this);
@@ -40,6 +42,9 @@ export default class NumericGUI{
 		this.el.addEventListener("mousedown", this.boundOnMouseDown);
 		this.el.addEventListener("wheel", this.boundOnWheel);
 		this.el.addEventListener("input", this.boundOnInput);
+
+		this.setIsTextAdjusting(false);
+		this.setValue(value);
 		this.updateTextValue();
 	}
 
@@ -60,9 +65,10 @@ export default class NumericGUI{
 		this.boundOnInput = null;
 	}
 
-	setValue(value){
-		this.value = value;
-		this.updateTextValue();
+	setValue(value, updateTextValue = true){
+		this.internalValue = clamp(value, this.min, this.max);
+		this.value = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
+		if(updateTextValue) this.updateTextValue();
 	}
 
 	updateTextValue(){
@@ -89,6 +95,7 @@ export default class NumericGUI{
 	onBlur(e){
 		this.setIsTextAdjusting(false);
 		this.updateTextValue();
+		this.internalValue = this.value;
 	}
 
 	setIsTextAdjusting(value){
@@ -108,7 +115,7 @@ export default class NumericGUI{
 		if(!this.isMouseAdjusting) return;
 		e.preventDefault();
 		this.hasMovedWhileAdjusting = true;
-		this.adjustValue(e.movementX, e.movementY, e, this.mouseAdjustSpeed);
+		this.adjustValue(e.movementX, -e.movementY, e, this.mouseAdjustSpeed);
 	}
 
 	onMouseUp(e){
@@ -129,7 +136,7 @@ export default class NumericGUI{
 		delta += x * adjustSpeed;
 		delta += y * adjustSpeed;
 		if(e.shiftKey) delta *= 0.1;
-		this.setValue(this.value + delta);
+		this.setValue(this.internalValue + delta);
 	}
 
 	onWheel(e){
@@ -140,7 +147,7 @@ export default class NumericGUI{
 
 	onInput(){
 		let value = this.parseCurrentValue();
-		this.value = value;
+		this.setValue(value, false);
 	}
 
 	parseCurrentValue(){

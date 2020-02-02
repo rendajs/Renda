@@ -7,6 +7,10 @@ export function clamp01(v){
 	return clamp(v, 0, 1);
 }
 
+export function mod(n, m) {
+	return ((n % m) + m) % m;
+}
+
 export function lerp(a,b,t){
 	return a + t * (b-a);
 }
