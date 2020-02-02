@@ -1,4 +1,4 @@
-import {clamp, mod} from "../Util/Util.js";
+import {mod} from "../Util/Util.js";
 
 export default class NumericGUI{
 	constructor({
@@ -37,11 +37,13 @@ export default class NumericGUI{
 		this.boundOnMouseUp = this.onMouseUp.bind(this);
 		this.boundOnWheel = this.onWheel.bind(this);
 		this.boundOnInput = this.onInput.bind(this);
+		this.boundOnKeyDown = this.onKeyDown.bind(this);
 		this.el.addEventListener("focus", this.boundOnFocus);
 		this.el.addEventListener("blur", this.boundOnBlur);
 		this.el.addEventListener("mousedown", this.boundOnMouseDown);
 		this.el.addEventListener("wheel", this.boundOnWheel);
 		this.el.addEventListener("input", this.boundOnInput);
+		this.el.addEventListener("keydown", this.boundOnKeyDown);
 
 		this.setIsTextAdjusting(false);
 		this.setValue(value);
@@ -54,6 +56,7 @@ export default class NumericGUI{
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
 		this.el.removeEventListeners("wheel", this.boundOnWheel);
 		this.el.removeEventListeners("input", this.boundOnInput);
+		this.el.removeEventListeners("keydown", this.keydown);
 		this.removeEventListeners();
 		this.el = null;
 		this.boundOnFocus = null;
@@ -63,11 +66,18 @@ export default class NumericGUI{
 		this.boundOnMouseUp = null;
 		this.boundOnWheel = null;
 		this.boundOnInput = null;
+		this.boundOnKeyDown = null;
 	}
 
 	setValue(value, updateTextValue = true){
-		this.internalValue = clamp(value, this.min, this.max);
-		this.value = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
+		if(this.min != null) value = Math.max(this.min, value);
+		if(this.max != null) value = Math.min(this.max, value);
+		this.internalValue = value;
+		if(this.step > 0){
+			this.value = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
+		}else{
+			this.value = this.internalValue;
+		}
 		if(updateTextValue) this.updateTextValue();
 	}
 
@@ -158,5 +168,74 @@ export default class NumericGUI{
 		}
 		value = value.replace(/[^\d\.]/g,"");
 		return parseFloat(value);
+	}
+
+	onKeyDown(e){
+		if(e.key == "ArrowUp"){
+			e.preventDefault();
+			this.handleCaretAdjust(1);
+		}else if(e.key == "ArrowDown"){
+			e.preventDefault();
+			this.handleCaretAdjust(-1);
+		}
+	}
+
+	handleCaretAdjust(delta){
+		let value = this.el.value;
+		let caretPos = this.el.selectionStart;
+		let foundDigit = null;
+		let digitStart = 0;
+		let digitEnd = 0;
+		let re = /-?(\d+\.\d+|\d+)/g;
+		while(true){
+			let match = re.exec(value);
+			if(!match) break;
+			let start = match.index;
+			let end = start + match[0].length;
+			if(start <= caretPos && end >= caretPos){
+				foundDigit = match[0];
+				digitStart = start;
+				digitEnd = end;
+				break;
+			}
+		}
+		if(foundDigit){
+			let digit = parseFloat(foundDigit);
+			let digitCaretPos = caretPos - digitStart;
+			let dotIndex = foundDigit.indexOf(".");
+			if(dotIndex < 0) dotIndex = digitEnd;
+			if(digitCaretPos == dotIndex) digitCaretPos--;
+			if(digit < 0 && digitCaretPos == 0) digitCaretPos++;
+
+			let oldBeforeDotLength = this.getBeforeDotLength(foundDigit)
+			let dotDistance = digitCaretPos - dotIndex;
+			let decimal = dotDistance + 1;
+			if(decimal > 0) decimal--;
+			let offset = Math.pow(10, -decimal);
+			let newDigit = digit + offset * delta;
+			let newDigitStr = ""+newDigit;
+			let newBeforeDotLength = this.getBeforeDotLength(newDigitStr);
+			let beforeDotLengthDelta = oldBeforeDotLength - newBeforeDotLength;
+			if(digitCaretPos == 0 || (digit < 0 && digitCaretPos == 1)){
+				if(newDigit < 0) newDigitStr = newDigitStr.slice(1);
+				newDigitStr = newDigitStr.padStart(newDigitStr.length + beforeDotLengthDelta, "0");
+				if(newDigit < 0) newDigitStr = "-"+newDigitStr;
+				beforeDotLengthDelta = Math.min(0, beforeDotLengthDelta);
+			}
+			let newValue = value.slice(0, digitStart)+newDigitStr+value.slice(digitEnd, value.length);
+			this.el.value = newValue;
+			let newCaretPos = digitCaretPos;
+			if(digit >= 0 && newDigit < 0) newCaretPos++;
+			if(digit <= 0 && newDigit > 0) newCaretPos--;
+			newCaretPos -= beforeDotLengthDelta;
+			this.el.selectionStart = digitStart + newCaretPos;
+			this.el.selectionEnd = digitStart + newCaretPos + 1;
+		}
+	}
+
+	getBeforeDotLength(str){
+		let beforeDotLengthMatch = /-?(\d+)(\.\d+)?/.exec(str);
+		if(!beforeDotLengthMatch) return;
+		return beforeDotLengthMatch[1].length;
 	}
 }
