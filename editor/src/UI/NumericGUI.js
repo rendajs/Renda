@@ -28,23 +28,36 @@ export default class NumericGUI{
 		this.isTextAdjusting = false;
 		this.setIsTextAdjusting(false);
 
+		this.boundOnFocus = this.onFocus.bind(this);
 		this.boundOnBlur = this.onBlur.bind(this);
-		this.el.addEventListener("blur", this.boundOnBlur);
 		this.boundOnMouseDown = this.onMouseDown.bind(this);
-		this.el.addEventListener("mousedown", this.boundOnMouseDown);
 		this.boundOnMouseMove = this.onMouseMove.bind(this);
 		this.boundOnMouseUp = this.onMouseUp.bind(this);
 		this.boundOnWheel = this.onWheel.bind(this);
+		this.boundOnInput = this.onInput.bind(this);
+		this.el.addEventListener("focus", this.boundOnFocus);
+		this.el.addEventListener("blur", this.boundOnBlur);
+		this.el.addEventListener("mousedown", this.boundOnMouseDown);
 		this.el.addEventListener("wheel", this.boundOnWheel);
+		this.el.addEventListener("input", this.boundOnInput);
 		this.updateTextValue();
 	}
 
 	destructor(){
+		this.el.removeEventListener("focus", this.boundOnFocus);
 		this.el.removeEventListener("blur", this.boundOnBlur);
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
 		this.el.removeEventListeners("wheel", this.boundOnWheel);
+		this.el.removeEventListeners("input", this.boundOnInput);
 		this.removeEventListeners();
 		this.el = null;
+		this.boundOnFocus = null;
+		this.boundOnBlur = null;
+		this.boundOnMouseDown = null;
+		this.boundOnMouseMove = null;
+		this.boundOnMouseUp = null;
+		this.boundOnWheel = null;
+		this.boundOnInput = null;
 	}
 
 	setValue(value){
@@ -66,7 +79,8 @@ export default class NumericGUI{
 		window.removeEventListener("mouseup", this.boundOnMouseUp);
 	}
 
-	onClick(){
+	onFocus(){
+		if(this.isMouseAdjusting) return;
 		this.setIsTextAdjusting(true);
 		let valueText = this.el.value;
 		this.el.setSelectionRange(this.suffix.length, valueText.length - this.prefix.length);
@@ -74,6 +88,7 @@ export default class NumericGUI{
 
 	onBlur(e){
 		this.setIsTextAdjusting(false);
+		this.updateTextValue();
 	}
 
 	setIsTextAdjusting(value){
@@ -102,10 +117,10 @@ export default class NumericGUI{
 		this.isMouseAdjusting = false;
 		document.exitPointerLock();
 		this.removeEventListeners();
-		if(!this.hasMovedWhileAdjusting){
-			this.onClick();
-		}else{
+		if(this.hasMovedWhileAdjusting){
 			this.el.blur();
+		}else{
+			this.onFocus();
 		}
 	}
 
@@ -120,5 +135,21 @@ export default class NumericGUI{
 	onWheel(e){
 		e.preventDefault();
 		this.adjustValue(-e.deltaX, e.deltaY, e, this.scrollAdjustSpeed);
+		this.el.blur();
+	}
+
+	onInput(){
+		let value = this.parseCurrentValue();
+		this.value = value;
+	}
+
+	parseCurrentValue(){
+		let value = this.el.value;
+		if(value.startsWith(this.suffix) && value.endsWith(this.prefix)){
+			value = value.slice(this.suffix.length);
+			value = value.slice(0, value.length - this.prefix.length);
+		}
+		value = value.replace(/[^\d\.]/g,"");
+		return parseFloat(value);
 	}
 }
