@@ -207,14 +207,17 @@ export default class NumericGUI{
 			if(digitCaretPos == dotIndex) digitCaretPos--;
 			if(digit < 0 && digitCaretPos == 0) digitCaretPos++;
 
-			let oldBeforeDotLength = this.getBeforeDotLength(foundDigit)
+			let oldBeforeDotLength = this.getNumbersLength(foundDigit);
+			let oldAfterDotLength = this.getNumbersLength(foundDigit, false);
 			let dotDistance = digitCaretPos - dotIndex;
 			let decimal = dotDistance + 1;
 			if(decimal > 0) decimal--;
 			let offset = Math.pow(10, -decimal);
 			let newDigit = digit + offset * delta;
+			let roundAmount = Math.pow(10, oldAfterDotLength);
+			newDigit = Math.round(newDigit*roundAmount)/roundAmount;
 			let newDigitStr = ""+newDigit;
-			let newBeforeDotLength = this.getBeforeDotLength(newDigitStr);
+			let newBeforeDotLength = this.getNumbersLength(newDigitStr);
 			let beforeDotLengthDelta = oldBeforeDotLength - newBeforeDotLength;
 			if(digitCaretPos == 0 || (digit < 0 && digitCaretPos == 1)){
 				if(newDigit < 0) newDigitStr = newDigitStr.slice(1);
@@ -233,9 +236,15 @@ export default class NumericGUI{
 		}
 	}
 
-	getBeforeDotLength(str){
-		let beforeDotLengthMatch = /-?(\d+)(\.\d+)?/.exec(str);
-		if(!beforeDotLengthMatch) return;
-		return beforeDotLengthMatch[1].length;
+	//gets the amount of digits before or after the dot
+	getNumbersLength(str, getBefore=true){
+		let beforeDotLengthMatch = /-?(\d+)(\.(\d+))?/.exec(str);
+		if(getBefore){
+			if(!beforeDotLengthMatch) return 1;
+			return beforeDotLengthMatch[1].length;
+		}else{
+			if(!beforeDotLengthMatch || !beforeDotLengthMatch[3]) return 0;
+			return beforeDotLengthMatch[3].length;
+		}
 	}
 }
