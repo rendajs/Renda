@@ -1,5 +1,6 @@
 :root{
-	--color-selected-blue: #000000;
+	--color-selected-blue: rgb(0, 85, 152);
+	--color-selected-blue-rgba: rgba(0, 85, 152, 0.99);
 	--default-border-radius: 5px;
 }
 
@@ -56,7 +57,7 @@ body, html{
 	z-index: 100;
 }
 
-.button{
+.button, .numericGUI{
 	min-width: 20px;
 	font-size: 10pt;
 	height: 20px;
@@ -84,6 +85,33 @@ body, html{
 
 .button.active{
 	background: #929292b8;
+}
+
+.numericGUI{
+	background: #101010;
+	cursor: ew-resize;
+	-webkit-appearance: none;
+	border: none;
+	color: white;
+	outline: none;
+	text-align: center;
+}
+
+.numericGUI:hover{
+	box-shadow: inset 0px 0px 0 1px #464646;
+}
+
+.numericGUI:focus{
+	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
+}
+
+.numericGUI::selection{
+	background: var(--color-selected-blue-rgba);
+}
+
+.numericGUI.nocaret{
+	color: transparent;
+	text-shadow: 0 0 0 white;
 }
 
 .editorWindowRoot{
@@ -144,7 +172,7 @@ body, html{
 	height: 18px;
 }
 .treeViewRow.selected{
-	background: #005598;
+	background: var(--color-selected-blue);
 }
 .treeViewRow.hidden{
 	display: none;
