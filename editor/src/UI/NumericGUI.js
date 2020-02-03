@@ -141,12 +141,30 @@ export default class NumericGUI{
 		}
 	}
 
-	adjustValue(x, y, e, adjustSpeed){
+	adjustValue(x=0, y=0, e=null, adjustSpeed=1){
 		let delta = 0;
 		delta += x * adjustSpeed;
 		delta += y * adjustSpeed;
-		if(e.shiftKey) delta *= 0.1;
-		this.setValue(this.internalValue + delta);
+		if(e){
+			if(e.ctrlKey || e.metaKey) delta *= 100;
+			if(e.shiftKey) delta *= 10;
+			if(e.altKey) delta *= 0.1;
+		}
+
+		//round delta to prevent floating point errors from creating many digits
+		//perhaps this could be more elegant, where you look at the amount of digits
+		//in the provided arguments, but this will do for now
+		let big = 10000000000000;
+		delta = Math.round(delta*big)/big;
+
+		let oldValue = this.internalValue;
+		let newValue = this.internalValue + delta;
+		let oldAfterDotLength = this.getNumbersLength(""+oldValue, false);
+		let deltaAfterDotLength = this.getNumbersLength(""+delta, false);
+		let desiredAfterDotLength = Math.max(oldAfterDotLength, deltaAfterDotLength);
+		let roundAmount = Math.pow(10, desiredAfterDotLength);
+		newValue = Math.round(newValue*roundAmount)/roundAmount;
+		this.setValue(newValue);
 	}
 
 	onWheel(e){
