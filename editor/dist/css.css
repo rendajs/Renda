@@ -89,7 +89,7 @@ body, html{
 
 .numericGUI{
 	background: #101010;
-	cursor: ew-resize;
+	cursor: crosshair;
 	-webkit-appearance: none;
 	border: none;
 	color: white;
@@ -103,6 +103,7 @@ body, html{
 
 .numericGUI:focus{
 	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
+	cursor: text;
 }
 
 .numericGUI::selection{
