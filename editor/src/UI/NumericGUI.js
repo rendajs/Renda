@@ -243,6 +243,11 @@ export default class NumericGUI{
 				if(newDigit < 0) newDigitStr = "-"+newDigitStr;
 				beforeDotLengthDelta = Math.min(0, beforeDotLengthDelta);
 			}
+			let newAfterDotLength = this.getNumbersLength(newDigitStr, false);
+			let afterDotLengthDelta = oldAfterDotLength - newAfterDotLength;
+			if(digitCaretPos >= newDigitStr.length){
+				newDigitStr = newDigitStr.padEnd(newDigitStr.length + afterDotLengthDelta, "0");
+			}
 			let newValue = value.slice(0, digitStart)+newDigitStr+value.slice(digitEnd, value.length);
 			this.el.value = newValue;
 			let newCaretPos = digitCaretPos;
