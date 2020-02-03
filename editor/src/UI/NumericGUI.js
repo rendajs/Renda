@@ -232,7 +232,9 @@ export default class NumericGUI{
 			if(decimal > 0) decimal--;
 			let offset = Math.pow(10, -decimal);
 			let newDigit = digit + offset * delta;
-			let roundAmount = Math.pow(10, oldAfterDotLength);
+			let roundDigitCount = oldAfterDotLength;
+			if(digitCaretPos == foundDigit.length) roundDigitCount++;
+			let roundAmount = Math.pow(10, roundDigitCount);
 			newDigit = Math.round(newDigit*roundAmount)/roundAmount;
 			let newDigitStr = ""+newDigit;
 			let newBeforeDotLength = this.getNumbersLength(newDigitStr);
@@ -246,6 +248,7 @@ export default class NumericGUI{
 			let newAfterDotLength = this.getNumbersLength(newDigitStr, false);
 			let afterDotLengthDelta = oldAfterDotLength - newAfterDotLength;
 			if(digitCaretPos >= newDigitStr.length){
+				if(!newDigitStr.includes(".")) newDigitStr = newDigitStr+".";
 				newDigitStr = newDigitStr.padEnd(newDigitStr.length + afterDotLengthDelta, "0");
 			}
 			let newValue = value.slice(0, digitStart)+newDigitStr+value.slice(digitEnd, value.length);
