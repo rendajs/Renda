@@ -259,6 +259,7 @@ export default class NumericGUI{
 			newCaretPos -= beforeDotLengthDelta;
 			this.el.selectionStart = digitStart + newCaretPos;
 			this.el.selectionEnd = digitStart + newCaretPos + 1;
+			this.onInput();
 		}
 	}
 
