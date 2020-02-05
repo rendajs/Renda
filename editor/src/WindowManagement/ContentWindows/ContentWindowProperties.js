@@ -34,11 +34,15 @@ export default class ContentWindowProperties extends ContentWindow{
 
 	updateCurrentContentType(){
 		if(!this.activeSelectionManager) return;
+		let selectedObjects = this.activeSelectionManager.currentSelectedObjects;
 
-		let PropertiesWindowContent = editor.propertiesWindowContentManager.getContentTypeForObjects(this.activeSelectionManager.currentSelectedObjects);
+		let PropertiesWindowContent = editor.propertiesWindowContentManager.getContentTypeForObjects(selectedObjects);
 		if(!this.activeContent || this.activeContent.constructor != PropertiesWindowContent){
 			if(this.activeContent) this.activeContent.destructor();
 			this.activeContent = new PropertiesWindowContent();
+			this.contentEl.appendChild(this.activeContent.el);
 		}
+
+		this.activeContent.selectionChanged(selectedObjects);
 	}
 }
