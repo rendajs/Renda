@@ -1,7 +1,7 @@
 export default class ButtonGroup{
 	constructor(buttons){
 		this.el = document.createElement("div");
-		this.el.classList.add("buttonGroup");
+		this.el.classList.add("buttonGroup", "buttonGroupLike");
 
 		this.buttons = [];
 		for(const button of arguments){

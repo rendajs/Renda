@@ -4,9 +4,9 @@ export default class Button{
 		icon = null,
 		hasDownArrow = false,
 		onClick = null,
-	}){
+	} = {}){
 		this.el = document.createElement("div");
-		this.el.classList.add("button");
+		this.el.classList.add("button", "buttonLike");
 		this.onClick = onClick;
 		this.boundFireOnClick = this.fireOnClick.bind(this);
 		this.el.addEventListener("click", this.boundFireOnClick);

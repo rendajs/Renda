@@ -50,14 +50,13 @@ body, html{
 .buttonGroup{
 	margin: 5px;
 	display: inline-block;
-	border-radius: var(--default-border-radius);
 	overflow: hidden;
 	position: absolute;
 	box-sizing: content-box;
 	z-index: 100;
 }
 
-.button, .numericGUI{
+.buttonLike{
 	min-width: 20px;
 	font-size: 10pt;
 	height: 20px;
@@ -68,11 +67,19 @@ body, html{
 	border-radius: var(--default-border-radius);
 }
 
-.buttonGroup > .button{
+.buttonGroupLike > .buttonLike{
 	border-radius: 0px;
 }
+.buttonGroupLike > .buttonLike:first-child{
+	border-top-left-radius: var(--default-border-radius);
+	border-bottom-left-radius: var(--default-border-radius);
+}
+.buttonGroupLike > .buttonLike:last-child{
+	border-top-right-radius: var(--default-border-radius);
+	border-bottom-right-radius: var(--default-border-radius);
+}
 
-.button:not(:last-child){
+.buttonLike:not(:last-child){
 	margin-right: 1px;
 }
 
@@ -113,6 +120,10 @@ body, html{
 .numericGUI.nocaret{
 	color: transparent;
 	text-shadow: 0 0 0 white;
+}
+
+.vectorGUI{
+	display: flex;
 }
 
 .editorWindowRoot{
