@@ -58,6 +58,7 @@ export default class TreeView{
 		this.arrowEl = null;
 		this.myNameEl = null;
 		this.childrenEl = null;
+		this.customEl = null;
 		for(const child of this.children){
 			child.destructor();
 		}

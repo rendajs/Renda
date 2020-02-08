@@ -151,6 +151,10 @@ export default class Vector3{
 		return this;
 	}
 
+	toArray(){
+		return [this.x, this.y, this.z];
+	}
+
 	onChange(cb){
 		this.onChangeCbs.push(cb);
 	}

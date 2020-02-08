@@ -9,6 +9,8 @@ export default class PropertiesTreeViewProperty extends TreeView{
 		super({
 			addCustomEl: true,
 		});
+		this.type = type;
+
 		this.setRowVisible(false);
 		this.selectable = false;
 
@@ -23,7 +25,27 @@ export default class PropertiesTreeViewProperty extends TreeView{
 		this.valueEl.classList.add("propertiesGUIPropertyValue");
 		this.customEl.appendChild(this.valueEl);
 
-		let vector = new VectorGUI();
-		this.valueEl.appendChild(vector.el);
+		if(type.startsWith("Vector")){
+			this.gui = new VectorGUI();
+			this.valueEl.appendChild(this.gui.el);
+		}
+	}
+
+	destructor(){
+		this.label = null;
+		this.valueEl = null;
+		if(this.gui) this.gui.destructor();
+		this.gui = null;
+		super.destructor();
+	}
+
+	setValue(newValue){
+		this.gui.setValue(newValue);
+	}
+
+	onValueChange(cb){
+		if(this.type.startsWith("Vector")){
+			this.gui.onValueChange(cb);
+		}
 	}
 }

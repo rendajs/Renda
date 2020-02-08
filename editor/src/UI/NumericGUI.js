@@ -30,6 +30,8 @@ export default class NumericGUI{
 		this.hasMovedWhileAdjusting = false;
 		this.isTextAdjusting = false;
 
+		this.onValueChangeCbs = [];
+
 		this.boundOnFocus = this.onFocus.bind(this);
 		this.boundOnBlur = this.onBlur.bind(this);
 		this.boundOnMouseDown = this.onMouseDown.bind(this);
@@ -54,9 +56,9 @@ export default class NumericGUI{
 		this.el.removeEventListener("focus", this.boundOnFocus);
 		this.el.removeEventListener("blur", this.boundOnBlur);
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
-		this.el.removeEventListeners("wheel", this.boundOnWheel);
-		this.el.removeEventListeners("input", this.boundOnInput);
-		this.el.removeEventListeners("keydown", this.keydown);
+		this.el.removeEventListener("wheel", this.boundOnWheel);
+		this.el.removeEventListener("input", this.boundOnInput);
+		this.el.removeEventListener("keydown", this.keydown);
 		this.removeEventListeners();
 		this.el = null;
 		this.boundOnFocus = null;
@@ -67,6 +69,7 @@ export default class NumericGUI{
 		this.boundOnWheel = null;
 		this.boundOnInput = null;
 		this.boundOnKeyDown = null;
+		this.onValueChangeCbs = null;
 	}
 
 	setValue(value, updateTextValue = true){
@@ -78,7 +81,16 @@ export default class NumericGUI{
 		}else{
 			this.value = this.internalValue;
 		}
-		if(updateTextValue) this.updateTextValue();
+		if(updateTextValue){
+			this.updateTextValue();
+			for(const cb of this.onValueChangeCbs){
+				cb(this.value);
+			}
+		}
+	}
+
+	onValueChange(cb){
+		this.onValueChangeCbs.push(cb);
 	}
 
 	updateTextValue(){
