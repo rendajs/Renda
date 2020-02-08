@@ -232,54 +232,54 @@ export default class NumericGUI{
 			}
 		}
 		if(foundDigit){
-			let digit = parseFloat(foundDigit);
-			let digitCaretPos = caretPos - digitStart;
+			let oldValue = parseFloat(foundDigit);
 			let dotIndex = foundDigit.indexOf(".");
 			let hasDot = dotIndex >= 0;
 			if(!hasDot) dotIndex = digitEnd;
-			if(digitCaretPos == dotIndex){
-				if(hasDot){
-					digitCaretPos--;
-				}else{
-					digitCaretPos++;
-				}
-			}
-			if(digit < 0 && digitCaretPos == 0) digitCaretPos++;
+			let digitCaretPos = caretPos - digitStart - dotIndex;
+			if(digitCaretPos > 0) digitCaretPos--;
 
 			let oldBeforeDotLength = this.getNumbersLength(foundDigit);
 			let oldAfterDotLength = this.getNumbersLength(foundDigit, false);
-			let dotDistance = digitCaretPos - dotIndex;
-			let decimal = dotDistance + 1;
-			if(decimal > 0) decimal--;
-			let offset = Math.pow(10, -decimal);
-			let newDigit = digit + offset * delta;
-			let roundDigitCount = Math.max(1, oldAfterDotLength);
-			if(digitCaretPos == foundDigit.length) roundDigitCount++;
+			let offset = Math.pow(10, -digitCaretPos - 1);
+			let newDigit = oldValue + offset * delta;
+
+			//prevent number from getting huge because of floating point errors
+			let roundDigitCount = oldAfterDotLength;
+			if(digitCaretPos == oldAfterDotLength) roundDigitCount++; //allow adding extra digits when caret is at the very end
 			let roundAmount = Math.pow(10, roundDigitCount);
 			newDigit = Math.round(newDigit*roundAmount)/roundAmount;
+
 			let newDigitStr = ""+newDigit;
+
+			//prevent removal of trailing 0 when the caret is currently at the beginning
 			let newBeforeDotLength = this.getNumbersLength(newDigitStr);
 			let beforeDotLengthDelta = oldBeforeDotLength - newBeforeDotLength;
-			if(digitCaretPos == 0 || (digit < 0 && digitCaretPos == 1)){
+			if(-digitCaretPos == oldBeforeDotLength){
 				if(newDigit < 0) newDigitStr = newDigitStr.slice(1);
 				newDigitStr = newDigitStr.padStart(newDigitStr.length + beforeDotLengthDelta, "0");
 				if(newDigit < 0) newDigitStr = "-"+newDigitStr;
-				beforeDotLengthDelta = Math.min(0, beforeDotLengthDelta);
 			}
+
+			//prevent removal of leading 0 when carret is currently at the very end
 			let newAfterDotLength = this.getNumbersLength(newDigitStr, false);
 			let afterDotLengthDelta = oldAfterDotLength - newAfterDotLength;
-			if(digitCaretPos >= newDigitStr.length){
+			if(digitCaretPos + 1 == oldAfterDotLength && oldAfterDotLength > 0){
 				if(!newDigitStr.includes(".")) newDigitStr = newDigitStr+".";
 				newDigitStr = newDigitStr.padEnd(newDigitStr.length + afterDotLengthDelta, "0");
 			}
+
 			let newValue = value.slice(0, digitStart)+newDigitStr+value.slice(digitEnd, value.length);
 			this.el.value = newValue;
-			let newCaretPos = digitCaretPos;
-			if(digit >= 0 && newDigit < 0) newCaretPos++;
-			if(digit <= 0 && newDigit > 0) newCaretPos--;
-			newCaretPos -= beforeDotLengthDelta;
-			this.el.selectionStart = digitStart + newCaretPos;
-			this.el.selectionEnd = digitStart + newCaretPos + 1;
+
+			let newDotIndex = newDigitStr.indexOf(".");
+			if(newDotIndex < 0) newDotIndex = newDigitStr.length;
+			let newCaretPosRelativeToDot = digitCaretPos;
+			if(newCaretPosRelativeToDot >= 0) newCaretPosRelativeToDot++;
+			let newCaretPos = digitStart + newDotIndex + newCaretPosRelativeToDot;
+			this.el.selectionStart = newCaretPos;
+			this.el.selectionEnd = newCaretPos + 1;
+
 			this.onInput();
 		}
 	}
