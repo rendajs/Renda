@@ -11,6 +11,15 @@ export default class Editor{
 		this.projectManager = new ProjectManager();
 	}
 
+	//convenience function for getting selected object in the browser console
+	get selected(){
+		//todo: get selection manager from active window, once that's implemented
+		let selected = this.windowManager.rootWindow.windowB.windowA.windowA.tabs[0].selectionManager.currentSelectedObjects;
+		if(selected.length == 0) return null;
+		if(selected.length == 1) return selected[0];
+		return [...selected];
+	}
+
 	init(){
 		this.renderer.init();
 		this.windowManager.init(this);
