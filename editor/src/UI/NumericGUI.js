@@ -81,16 +81,18 @@ export default class NumericGUI{
 		}else{
 			this.value = this.internalValue;
 		}
-		if(updateTextValue){
-			this.updateTextValue();
-			for(const cb of this.onValueChangeCbs){
-				cb(this.value);
-			}
-		}
+		if(updateTextValue) this.updateTextValue();
+		this.fireOnChangeCbs();
 	}
 
 	onValueChange(cb){
 		this.onValueChangeCbs.push(cb);
+	}
+
+	fireOnChangeCbs(){
+		for(const cb of this.onValueChangeCbs){
+			cb(this.value);
+		}
 	}
 
 	updateTextValue(){
