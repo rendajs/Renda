@@ -198,7 +198,7 @@ export default class NumericGUI{
 			value = value.slice(this.suffix.length);
 			value = value.slice(0, value.length - this.prefix.length);
 		}
-		value = value.replace(/[^\d\.]/g,"");
+		value = value.replace(/[^\d\.\-]/g,"");
 		return parseFloat(value);
 	}
 
