@@ -1,5 +1,4 @@
 import ContentWindow from "./ContentWindow.js";
-import TreeView from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
 import {MeshComponent} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";

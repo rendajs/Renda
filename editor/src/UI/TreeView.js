@@ -1,5 +1,5 @@
 export default class TreeView{
-	constructor(data){
+	constructor(data = {}){
 		this.el = document.createElement("div");
 		this.el.classList.add("treeViewItem");
 
@@ -25,7 +25,13 @@ export default class TreeView{
 		this.childrenEl.classList.add("treeViewChildList");
 		this.el.appendChild(this.childrenEl);
 
-		this.name = "";
+		if(data.addCustomEl){
+			this.customEl = document.createElement("div");
+			this.customEl.classList.add("treeViewCustomEl");
+			this.el.appendChild(this.customEl);
+		}
+
+		this._name = "";
 		this.children = [];
 		this.parent = null;
 		this.recursionDepth = 0;
@@ -59,9 +65,18 @@ export default class TreeView{
 		this.parent = null;
 	}
 
+	get name(){
+		return this._name;
+	}
+
+	set name(value){
+		this._name = value;
+		this.myNameEl.textContent = value;
+	}
+
+
 	updateData(data = {}){
 		this.name = data.name || "";
-		this.myNameEl.textContent = this.name;
 		if(data.collapsed !== undefined) this.setCollapsed(data.collapsed);
 		let newChildren = data.children || [];
 		let deltaChildren = newChildren.length - this.children.length;
@@ -127,6 +142,10 @@ export default class TreeView{
 
 	onArrowClick(e){
 		e.stopPropagation();
+		this.toggleCollapsed();
+	}
+
+	toggleCollapsed(){
 		this.setCollapsed(!this.collapsed);
 	}
 
@@ -155,6 +174,8 @@ export default class TreeView{
 			}
 
 			this.fireOnSelectionChange(changes);
+		}else{
+			this.toggleCollapsed();
 		}
 	}
 
