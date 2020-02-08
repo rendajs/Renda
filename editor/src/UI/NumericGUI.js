@@ -5,8 +5,8 @@ export default class NumericGUI{
 		value = 0,
 		min = null,
 		max = null,
-		mouseAdjustSpeed = 1,
-		scrollAdjustSpeed = 1,
+		mouseAdjustSpeed = 0.1,
+		scrollAdjustSpeed = 0.1,
 		step = 0,
 		stepStart = 0,
 		suffix = "",
@@ -155,7 +155,7 @@ export default class NumericGUI{
 		}
 	}
 
-	adjustValue(x=0, y=0, e=null, adjustSpeed=1){
+	adjustValue(x=0, y=0, e=null, adjustSpeed=0.1){
 		let delta = 0;
 		delta += x * adjustSpeed;
 		delta += y * adjustSpeed;
