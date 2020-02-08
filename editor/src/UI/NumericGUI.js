@@ -235,8 +235,15 @@ export default class NumericGUI{
 			let digit = parseFloat(foundDigit);
 			let digitCaretPos = caretPos - digitStart;
 			let dotIndex = foundDigit.indexOf(".");
-			if(dotIndex < 0) dotIndex = digitEnd;
-			if(digitCaretPos == dotIndex) digitCaretPos--;
+			let hasDot = dotIndex >= 0;
+			if(!hasDot) dotIndex = digitEnd;
+			if(digitCaretPos == dotIndex){
+				if(hasDot){
+					digitCaretPos--;
+				}else{
+					digitCaretPos++;
+				}
+			}
 			if(digit < 0 && digitCaretPos == 0) digitCaretPos++;
 
 			let oldBeforeDotLength = this.getNumbersLength(foundDigit);
@@ -246,7 +253,7 @@ export default class NumericGUI{
 			if(decimal > 0) decimal--;
 			let offset = Math.pow(10, -decimal);
 			let newDigit = digit + offset * delta;
-			let roundDigitCount = oldAfterDotLength;
+			let roundDigitCount = Math.max(1, oldAfterDotLength);
 			if(digitCaretPos == foundDigit.length) roundDigitCount++;
 			let roundAmount = Math.pow(10, roundDigitCount);
 			newDigit = Math.round(newDigit*roundAmount)/roundAmount;
