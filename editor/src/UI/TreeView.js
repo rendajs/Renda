@@ -98,7 +98,6 @@ export default class TreeView{
 		if(deltaChildren > 0){
 			for(let i=0; i<deltaChildren; i++){
 				let child = new TreeView();
-				child.recursionDepth = this.recursionDepth + 1;
 				this.addChild(child);
 			}
 		}else if(deltaChildren < 0){
@@ -106,12 +105,24 @@ export default class TreeView{
 				this.removeChild(i);
 			}
 		}
-		let padding = this.recursionDepth*12;
-		if(this.arrowVisible) padding -= 12;
-		this.rowEl.style.paddingLeft = padding+"px";
 		for(let i=0; i<this.children.length; i++){
 			this.children[i].updateData(newChildren[i]);
 		}
+	}
+
+	calculateRecursionDepth(){
+		if(!this.parent){
+			this.recursionDepth = 0;
+		}else{
+			this.recursionDepth = this.parent.recursionDepth + 1;
+	}
+		this.updatePadding();
+	}
+
+	updatePadding(){
+		let padding = this.recursionDepth*12;
+		if(this.arrowVisible) padding -= 12;
+		this.rowEl.style.paddingLeft = padding+"px";
 	}
 
 	removeChild(index){
@@ -127,6 +138,7 @@ export default class TreeView{
 			});
 		}
 		treeView.parent = this;
+		treeView.calculateRecursionDepth();
 		this.children.push(treeView);
 		this.childrenEl.appendChild(treeView.el);
 		this.updateArrowHidden();
