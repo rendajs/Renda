@@ -22,7 +22,7 @@ export default class WindowManager{
 				splitPercentage: 0.25,
 				windowA: {
 					type: "tabs",
-					tabTypes: ["Outliner", "Assets"],
+					tabTypes: ["Outliner", "Project"],
 					activeTab: 0,
 				},
 				windowB: {

@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 
-export default class ContentWindowAssets extends ContentWindow{
+export default class ContentWindowProject extends ContentWindow{
 	constructor(){
 		super();
 
@@ -15,7 +15,7 @@ export default class ContentWindowAssets extends ContentWindow{
 	}
 
 	static get windowName(){
-		return "Assets";
+		return "Project";
 	}
 
 	async updateTreeView(){
