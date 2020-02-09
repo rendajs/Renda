@@ -3,6 +3,10 @@ export default class Component{
 		this.gameObject = null;
 	}
 
+	destructor(){
+		this.gameObject = null;
+	}
+
 	attachedToObject(obj){
 		this.gameObject = obj;
 		this.onAttachedToObject(obj);

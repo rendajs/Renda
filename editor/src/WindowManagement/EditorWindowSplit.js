@@ -34,6 +34,19 @@ export default class EditorWindowSplit extends EditorWindow{
 		this.el.appendChild(this.elB);
 	}
 
+	destructor(){
+		if(this.windowA) this.windowA.destructor();
+		if(this.windowB) this.windowB.destructor();
+		this.windowA = null;
+		this.windowB = null;
+		this.elA = null;
+		this.onResizerUp();
+		this.resizer.removeEventListener("mousedown", this.boundOnResizerDown);
+		this.resizer = null;
+		this.elB = null;
+		super.destructor();
+	}
+
 	updateEls(){
 		while(this.elA.firstChild){
 			this.elA.removeChild(this.elA.firstChild);

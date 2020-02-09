@@ -22,6 +22,8 @@ export default class CameraComponent extends Component{
 		this.renderer = null;
 	}
 
+	//todo: destructor
+
 	onAttachedToObject(){
 		this.setRootRenderObjects();
 	}

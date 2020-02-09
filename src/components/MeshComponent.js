@@ -15,6 +15,8 @@ export default class MeshComponent extends Component{
 		if(opts.material) this.material = opts.material;
 	}
 
+	//todo: destructor
+
 	get material(){
 		return this.materials[0];
 	}

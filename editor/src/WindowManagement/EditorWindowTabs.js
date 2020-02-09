@@ -20,6 +20,18 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.el.appendChild(this.tabsEl);
 	}
 
+	destructor(){
+		this.tabTypes = null;
+		for(const tab of this.tabs){
+			tab.destructor();
+		}
+		this.tabs = null;
+		this.tabsSelectorGroup.destructor();
+		this.tabsSelectorGroup = null;
+		this.tabsEl = null;
+		super.destructor();
+	}
+
 	updateEls(){
 		this.updateTabSelectorSpacer();
 	}

@@ -32,6 +32,17 @@ export default class GameObject{
 		this.setParent(opts.parent, false);
 	}
 
+	destructor(){
+		this.setParent(null, false);
+		for(const child of this._children){
+			child.destructor();
+		}
+		this._children = null;
+		for(const component of this.components){
+			component.destructor();
+		}
+	}
+
 	addComponent(component){
 		//if argument is a component type constructor instead of an instance,
 		//instantiate a new instance of this type
