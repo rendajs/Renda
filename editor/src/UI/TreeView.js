@@ -14,8 +14,9 @@ export default class TreeView{
 		this.arrowEl.classList.add("treeViewArrow");
 		this.rowEl.appendChild(this.arrowEl);
 
-		this.boundOnArrowClick = this.onArrowClick.bind(this);
-		this.arrowEl.addEventListener("click", this.boundOnArrowClick);
+		this.onArrowClickCbs = [];
+		this.boundArrowClickEvent = this.arrowClickEvent.bind(this);
+		this.arrowEl.addEventListener("click", this.boundArrowClickEvent);
 
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
@@ -35,7 +36,7 @@ export default class TreeView{
 		this.children = [];
 		this.parent = null;
 		this.recursionDepth = 0;
-		this.collapsed = false;
+		this._collapsed = false;
 		this.selectable = true;
 		this._alwaysShowArrow = false;
 		this.canSelectMultiple = true;
@@ -62,7 +63,9 @@ export default class TreeView{
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
-		this.arrowEl.removeEventListener("click", this.boundOnArrowClick);
+		this.rowEl.removeEventListener("click", this.boundOnRowClick);
+		this.rowEl = null;
+		this.arrowEl.removeEventListener("click", this.boundArrowClickEvent);
 		this.arrowEl = null;
 		this.myNameEl = null;
 		this.childrenEl = null;
@@ -72,6 +75,9 @@ export default class TreeView{
 		}
 		this.children = null;
 		this.parent = null;
+
+		this.onSelectedChangeCbs = null;
+		this.onArrowClickCbs = null;
 	}
 
 	get name(){
@@ -86,7 +92,7 @@ export default class TreeView{
 
 	updateData(data = {}){
 		this.name = data.name || "";
-		if(data.collapsed !== undefined) this.setCollapsed(data.collapsed);
+		if(data.collapsed !== undefined) this.collapsed = data.collapsed;
 		let newChildren = data.children || [];
 		let deltaChildren = newChildren.length - this.children.length;
 		if(deltaChildren > 0){
@@ -135,8 +141,12 @@ export default class TreeView{
 		this.arrowEl.classList.toggle("hidden", !this.arrowVisible);
 	}
 
-	setCollapsed(collapsed){
-		this.collapsed = collapsed;
+	get collapsed(){
+		return this._collapsed;
+	}
+
+	set collapsed(collapsed){
+		this._collapsed = collapsed;
 		this.childrenEl.style.display = collapsed ? "none" : null;
 		this.arrowEl.classList.toggle("collapsed", collapsed);
 	}
@@ -168,13 +178,24 @@ export default class TreeView{
 		}
 	}
 
-	onArrowClick(e){
+	arrowClickEvent(e){
 		e.stopPropagation();
 		this.toggleCollapsed();
+		this.fireOnArrowClickCbs();
+	}
+
+	fireOnArrowClickCbs(){
+		for(const cb of this.onArrowClickCbs){
+			cb();
+		}
+	}
+
+	onArrowClick(cb){
+		this.onArrowClickCbs.push(cb);
 	}
 
 	toggleCollapsed(){
-		this.setCollapsed(!this.collapsed);
+		this.collapsed = !this.collapsed;
 	}
 
 	onRowClick(e){

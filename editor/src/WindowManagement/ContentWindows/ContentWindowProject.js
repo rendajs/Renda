@@ -11,26 +11,31 @@ export default class ContentWindowProject extends ContentWindow{
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		this.updateTreeView();
+		let fileSystem = editor.projectManager.currentProjectFileSystem;
+		if(fileSystem){
+			this.updateTreeView(this.treeView, fileSystem);
+		}
 	}
 
 	static get windowName(){
 		return "Project";
 	}
 
-	async updateTreeView(){
-		let fileSystem = editor.projectManager.currentProjectFileSystem;
-		if(fileSystem){
-			let fileTree = await fileSystem.readDir();
-			for(const dir of fileTree.directories){
-				let treeView = this.treeView.addChild();
-				treeView.alwaysShowArrow = true;
-				treeView.name = dir;
-			}
-			for(const file of fileTree.files){
-				let treeView = this.treeView.addChild();
-				treeView.name = file;
-			}
+	async updateTreeView(treeView, fileSystem, path = []){
+		let fileTree = await fileSystem.readDir(path);
+		for(const dir of fileTree.directories){
+			let newTreeView = treeView.addChild();
+			newTreeView.alwaysShowArrow = true;
+			newTreeView.onArrowClick(_ => {
+				let newPath = [...path, dir];
+				this.updateTreeView(newTreeView, fileSystem, newPath);
+			});
+			newTreeView.name = dir;
+			newTreeView.collapsed = true;
+		}
+		for(const file of fileTree.files){
+			let newTreeView = treeView.addChild();
+			newTreeView.name = file;
 		}
 	}
 }
