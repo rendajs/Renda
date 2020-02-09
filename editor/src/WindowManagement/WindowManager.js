@@ -15,6 +15,10 @@ export default class WindowManager{
 	}
 
 	init(){
+		this.reloadCurrentWorkspace();
+	}
+
+	reloadCurrentWorkspace(){
 		this.loadWorkspace({
 			rootWindow: {
 				type: "split",
@@ -52,6 +56,9 @@ export default class WindowManager{
 	}
 
 	loadWorkspace(workspace){
+		if(this.rootWindow){
+			this.rootWindow.destructor();
+		}
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.rootWindow.setRoot();
 

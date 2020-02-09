@@ -8,6 +8,7 @@ export default class ProjectManager{
 
 	openProject(fileSystem){
 		this.currentProjectFileSystem = fileSystem;
+		editor.windowManager.reloadCurrentWorkspace();
 	}
 
 	async openProjectFromLocalDirectory(){
