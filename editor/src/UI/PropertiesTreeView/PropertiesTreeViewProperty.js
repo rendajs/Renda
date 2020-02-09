@@ -11,7 +11,7 @@ export default class PropertiesTreeViewProperty extends TreeView{
 		});
 		this.type = type;
 
-		this.setRowVisible(false);
+		this.rowVisible = false;
 		this.selectable = false;
 
 		this.customEl.classList.add("propertiesTreeViewProperty");

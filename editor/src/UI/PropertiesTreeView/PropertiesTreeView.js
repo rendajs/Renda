@@ -7,7 +7,7 @@ export default class PropertiesTreeView extends TreeView{
 		name = "",
 	} = {}){
 		super();
-		this.setRowVisible(rowVisible);
+		this.rowVisible = rowVisible;
 		this.name = name;
 		this.selectable = false;
 	}

@@ -37,9 +37,17 @@ export default class TreeView{
 		this.recursionDepth = 0;
 		this.collapsed = false;
 		this.selectable = true;
+		this._alwaysShowArrow = false;
 		this.canSelectMultiple = true;
 		this.renameable = false;
-		this.rowVisible = true;
+		this._rowVisible = true;
+
+		if(data.copySettings){
+			this.collapsed = data.copySettings.collapsed;
+			this.selectable = data.copySettings.selectable;
+			this.canSelectMultiple = data.copySettings.canSelectMultiple;
+			this.renameable = data.copySettings.renameable;
+		}
 
 		this.selected = false;
 
@@ -106,15 +114,21 @@ export default class TreeView{
 		this.updateArrowHidden();
 	}
 
-	addChild(treeView){
+	addChild(treeView = null){
+		if(treeView == null){
+			treeView = new TreeView({
+				copySettings: this,
+			});
+		}
 		treeView.parent = this;
 		this.children.push(treeView);
 		this.childrenEl.appendChild(treeView.el);
 		this.updateArrowHidden();
+		return treeView;
 	}
 
 	get arrowVisible(){
-		return this.children.length > 0;
+		return this.children.length > 0 || this._alwaysShowArrow;
 	}
 
 	updateArrowHidden(){
@@ -127,9 +141,22 @@ export default class TreeView{
 		this.arrowEl.classList.toggle("collapsed", collapsed);
 	}
 
-	setRowVisible(visible){
-		this.rowVisible = visible;
-		this.rowEl.classList.toggle("hidden", !this.rowVisible);
+	get rowVisible(){
+		return this._rowVisible;
+	}
+
+	set rowVisible(value){
+		this._rowVisible = value;
+		this.rowEl.classList.toggle("hidden", !value);
+	}
+
+	get alwaysShowArrow(){
+		return this._alwaysShowArrow;
+	}
+
+	set alwaysShowArrow(value){
+		this._alwaysShowArrow = value;
+		this.updateArrowHidden();
 	}
 
 	*traverse(){

@@ -6,12 +6,12 @@ export default class ContentWindowProject extends ContentWindow{
 	constructor(){
 		super();
 
-		this.treeView = new TreeView({
-			name: "test1",
-			children:[],
-		});
+		this.treeView = new TreeView();
+		this.treeView.rowVisible = false;
 
 		this.contentEl.appendChild(this.treeView.el);
+
+		this.updateTreeView();
 	}
 
 	static get windowName(){
@@ -20,23 +20,17 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async updateTreeView(){
 		let fileSystem = editor.projectManager.currentProjectFileSystem;
-		let handlesTree = await fileSystem.getHandlesTree();
-		let treeData = this.generateTreeData(handlesTree);
-		this.treeView.updateData(treeData);
-	}
-
-	generateTreeData(handlesTree){
-		let treeData = {
-			name: handlesTree.handle.name,
+		if(fileSystem){
+			let fileTree = await fileSystem.readDir();
+			for(const dir of fileTree.directories){
+				let treeView = this.treeView.addChild();
+				treeView.alwaysShowArrow = true;
+				treeView.name = dir;
+			}
+			for(const file of fileTree.files){
+				let treeView = this.treeView.addChild();
+				treeView.name = file;
+			}
 		}
-		let children = [];
-		for(const dir of handlesTree.directories){
-			children.push(this.generateTreeData(dir));
-		}
-		for(const file of handlesTree.files){
-			children.push({name: file.name});
-		}
-		treeData.children = children;
-		return treeData;
 	}
 }
