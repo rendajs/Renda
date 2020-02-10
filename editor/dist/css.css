@@ -173,10 +173,20 @@ body, html{
 }
 
 .treeViewArrow{
-	width: 12px;
-	height: 12px;
+	width: 0px;
+	height: 0px;
 	display: inline-block;
-	background: black;
+	border: 5px solid transparent;
+	border-left: 10px solid white;
+	border-right: 0px solid transparent;
+	vertical-align: middle;
+	position: relative;
+	top: -1px;
+	margin-right: 3px;
+}
+
+.treeViewArrow:not(.collapsed){
+	transform: rotate(90deg);
 }
 
 .treeViewRow{
@@ -188,10 +198,6 @@ body, html{
 }
 .treeViewRow.hidden{
 	display: none;
-}
-
-.treeViewArrow.collapsed{
-	background: red;
 }
 
 .treeViewArrow.hidden{
