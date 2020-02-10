@@ -6,6 +6,13 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		this.handle = handle;
 	}
 
+	static async openUserDir(){
+		let directoryHandle = await window.chooseFileSystemEntries({
+			type: "openDirectory"
+		});
+		return new EditorFileSystemNative(directoryHandle);
+	}
+
 	async readDir(path = []){
 		let handle = this.handle;
 		for(const dirName of path){

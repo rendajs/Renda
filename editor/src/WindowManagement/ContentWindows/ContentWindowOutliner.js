@@ -66,7 +66,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 		let rootObj = this.linkedObjectEditor.editingObject;
 		let createdAny = false;
 		//todo: use selection manager
-		for(const indicesPath of this.treeView.getSelectionPaths()){
+		for(const indicesPath of this.treeView.getSelectionIndices()){
 			let obj = rootObj.getObjectByIndicesPath(indicesPath);
 			let createdObject = new GameObject(name);
 			obj.add(createdObject);

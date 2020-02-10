@@ -1,5 +1,6 @@
 import editor from "../editorInstance.js";
 import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.js";
+import EditorFileSystemIndexedDB from "../Util/FileSystems/EditorFileSystemIndexedDB.js";
 
 export default class ProjectManager{
 	constructor(){
@@ -12,10 +13,12 @@ export default class ProjectManager{
 	}
 
 	async openProjectFromLocalDirectory(){
-		let directoryHandle = await window.chooseFileSystemEntries({
-			type: "openDirectory"
-		});
-		let fileSystem = new EditorFileSystemNative(directoryHandle);
+		let fileSystem = await EditorFileSystemNative.openUserDir();
+		this.openProject(fileSystem);
+	}
+
+	async openDb(){
+		let fileSystem = new EditorFileSystemIndexedDB("test project");
 		this.openProject(fileSystem);
 	}
 }

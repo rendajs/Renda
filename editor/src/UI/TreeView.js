@@ -263,9 +263,15 @@ export default class TreeView{
 		}
 	}
 
-	*getSelectionPaths(){
+	*getSelectionIndices(){
 		for(const item of this.getSelectedItems()){
 			yield item.getIndicesPath();
+		}
+	}
+
+	*getSelectionPaths(){
+		for(const item of this.getSelectedItems()){
+			yield item.getNamesPath();
 		}
 	}
 

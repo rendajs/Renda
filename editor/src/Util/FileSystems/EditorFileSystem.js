@@ -6,8 +6,10 @@ export default class EditorFileSystem{
 	//path should be an array of directory names
 	async readDir(path = []){
 		return {
-			files: [],
-			directories: [],
+			files: [], //DOMString array of file names
+			directories: [], //DOMString array of directory names
 		};
 	}
+
+	async createDir(path = []){}
 }

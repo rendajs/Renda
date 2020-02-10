@@ -1,10 +1,19 @@
 import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
+import Button from "../../UI/Button.js";
 
 export default class ContentWindowProject extends ContentWindow{
 	constructor(){
 		super();
+
+		let createDirButton = new Button({
+			text: "New Dir",
+			onClick: _ => {
+				this.createNewDir();
+			}
+		});
+		this.addTopBarButton(createDirButton);
 
 		this.treeView = new TreeView();
 		this.treeView.rowVisible = false;
@@ -37,5 +46,10 @@ export default class ContentWindowProject extends ContentWindow{
 			let newTreeView = treeView.addChild();
 			newTreeView.name = file;
 		}
+	}
+
+	async createNewDir(){
+		let fileSystem = editor.projectManager.currentProjectFileSystem;
+		fileSystem.createDir(["test","hoi","hallo"]);
 	}
 }
