@@ -89,7 +89,6 @@ export default class TreeView{
 		this.myNameEl.textContent = value;
 	}
 
-
 	updateData(data = {}){
 		this.name = data.name || "";
 		if(data.collapsed !== undefined) this.collapsed = data.collapsed;
@@ -132,6 +131,13 @@ export default class TreeView{
 	}
 
 	addChild(treeView = null){
+		return this.addChildAtIndex(-1, treeView);
+	}
+
+	addChildAtIndex(index = -1, treeView = null){
+		if(index < 0){
+			index = this.children.length + index;
+		}
 		if(treeView == null){
 			treeView = new TreeView({
 				copySettings: this,
@@ -139,8 +145,13 @@ export default class TreeView{
 		}
 		treeView.parent = this;
 		treeView.calculateRecursionDepth();
-		this.children.push(treeView);
-		this.childrenEl.appendChild(treeView.el);
+		if(index >= this.children.length){
+			this.children.push(treeView);
+			this.childrenEl.appendChild(treeView.el);
+		}else{
+			this.children.splice(index, 0, treeView);
+			this.childrenEl.insertBefore(treeView.el, this.childrenEl.children[index]);
+		}
 		this.updateArrowHidden();
 		return treeView;
 	}
@@ -308,6 +319,19 @@ export default class TreeView{
 	findRoot(){
 		if(this.parent) return this.parent.findRoot();
 		return this;
+	}
+
+	includes(name, recursive = false){
+		if(recursive){
+			for(const child of this.traverseDown()){
+				if(child.name == name) return true;
+			}
+		}else{
+			for(const child of this.children){
+				if(child.name == name) return true;
+			}
+		}
+		return false;
 	}
 
 	deselectAll(){

@@ -33,14 +33,18 @@ export default class ContentWindowProject extends ContentWindow{
 	async updateTreeView(treeView, fileSystem, path = []){
 		let fileTree = await fileSystem.readDir(path);
 		for(const dir of fileTree.directories){
-			let newTreeView = treeView.addChild();
-			newTreeView.alwaysShowArrow = true;
-			newTreeView.onArrowClick(_ => {
-				let newPath = [...path, dir];
-				this.updateTreeView(newTreeView, fileSystem, newPath);
-			});
-			newTreeView.name = dir;
-			newTreeView.collapsed = true;
+			if(!treeView.includes(dir)){
+				let newTreeView = treeView.addChild();
+				newTreeView.alwaysShowArrow = true;
+				newTreeView.onArrowClick(_ => {
+					if(!newTreeView.collapsed){
+						let newPath = [...path, dir];
+						this.updateTreeView(newTreeView, fileSystem, newPath);
+					}
+				});
+				newTreeView.name = dir;
+				newTreeView.collapsed = true;
+			}
 		}
 		for(const file of fileTree.files){
 			let newTreeView = treeView.addChild();
@@ -50,12 +54,17 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async createNewDir(){
 		let fileSystem = editor.projectManager.currentProjectFileSystem;
-		let path = [];
-		for(const selectionPath of this.treeView.getSelectionPaths()){
-			path = selectionPath.slice(1, selectionPath.length);
+		let selectedPath = [];
+		let treeView = this.treeView;
+		for(const selectedItem of this.treeView.getSelectedItems()){
+			let selectionPath = selectedItem.getNamesPath();
+			selectedPath = selectionPath.slice(1, selectionPath.length);
+			treeView = selectedItem;
 			break;
 		}
-		path.push("New Folder");
-		fileSystem.createDir(path);
+		let newPath = [...selectedPath, "New Folder"];
+		await fileSystem.createDir(newPath);
+		await this.updateTreeView(treeView, fileSystem, selectedPath);
+		treeView.collapsed = false;
 	}
 }
