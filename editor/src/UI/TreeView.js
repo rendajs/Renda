@@ -136,7 +136,7 @@ export default class TreeView{
 
 	addChildAtIndex(index = -1, treeView = null){
 		if(index < 0){
-			index = this.children.length + index;
+			index = this.children.length + index + 1;
 		}
 		if(treeView == null){
 			treeView = new TreeView({
