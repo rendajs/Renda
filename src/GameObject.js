@@ -165,10 +165,10 @@ export default class GameObject{
 		return lastParent;
 	}
 
-	*traverse(){
+	*traverseDown(){
 		yield this;
 		for(const child of this._children){
-			for(const c of child.traverse()){
+			for(const c of child.traverseDown()){
 				yield c;
 			}
 		}

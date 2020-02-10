@@ -24,7 +24,7 @@ export default class RealTimeRenderer extends Renderer{
 		let vpMatrix = camera.getVpMatrix();
 		let meshComponents = [];
 		for(const root of camera.rootRenderObjects){
-			for(const child of root.traverse()){
+			for(const child of root.traverseDown()){
 				for(const component of child.getComponentsByType(MeshComponent)){
 					this.renderMeshComponent(component, vpMatrix);
 				}

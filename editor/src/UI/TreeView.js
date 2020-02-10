@@ -181,10 +181,10 @@ export default class TreeView{
 		this.updateArrowHidden();
 	}
 
-	*traverse(){
+	*traverseDown(){
 		yield this;
 		for(const child of this.children){
-			for(const c of child.traverse()){
+			for(const c of child.traverseDown()){
 				yield c;
 			}
 		}
@@ -256,7 +256,7 @@ export default class TreeView{
 	}
 
 	*getSelectedItems(){
-		for(const item of this.traverse()){
+		for(const item of this.traverseDown()){
 			if(item.selected){
 				yield item;
 			}
@@ -294,7 +294,7 @@ export default class TreeView{
 	}
 
 	deselectAll(){
-		for(const view of this.traverse()){
+		for(const view of this.traverseDown()){
 			view.deselect();
 		}
 	}
