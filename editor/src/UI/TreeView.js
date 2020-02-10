@@ -190,6 +190,15 @@ export default class TreeView{
 		}
 	}
 
+	*traverseUp(){
+		yield this;
+		if(this.parent){
+			for(const p of this.parent.traverseUp()){
+				yield p;
+			}
+		}
+	}
+
 	arrowClickEvent(e){
 		e.stopPropagation();
 		this.toggleCollapsed();
@@ -284,6 +293,14 @@ export default class TreeView{
 			path.push(index);
 			child = parent;
 			parent = parent.parent;
+		}
+		return path.reverse();
+	}
+
+	getNamesPath(){
+		let path = [];
+		for(const p of this.traverseUp()){
+			path.push(p.name);
 		}
 		return path.reverse();
 	}

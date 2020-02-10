@@ -50,6 +50,12 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async createNewDir(){
 		let fileSystem = editor.projectManager.currentProjectFileSystem;
-		fileSystem.createDir(["test","hoi","hallo"]);
+		let path = [];
+		for(const selectionPath of this.treeView.getSelectionPaths()){
+			path = selectionPath.slice(1, selectionPath.length);
+			break;
+		}
+		path.push("New Folder");
+		fileSystem.createDir(path);
 	}
 }
