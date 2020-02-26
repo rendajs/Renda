@@ -1,4 +1,33 @@
 {
+	"build_systems":
+	[
+		{
+			"cmd":
+			[
+				"npm", "run", "build"
+			],
+			"name": "Build",
+			"working_dir": "${project_path}",
+			"variants": [
+				{
+					"cmd":
+					[
+						"npm", "run", "build-editor"
+					],
+					"name": "Build Editor",
+					"working_dir": "${project_path}"
+				},
+				{
+					"cmd":
+					[
+						"npm", "run", "dev"
+					],
+					"name": "dev",
+					"working_dir": "${project_path}"
+				}
+			]
+		}
+	],
 	"folders":
 	[
 		{

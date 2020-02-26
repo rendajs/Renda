@@ -6,9 +6,11 @@
   "scripts": {
     "build": "node build.js",
     "build-editor": "node editor/build.js",
-    "editor-dev": "node editor/build.js --dev"
+    "dev": "concurrently --names 'BUILD,SERVE' -c 'bgBlue.bold,bgGreen.bold' 'node editor/build.js --dev' 'serve -l 5070'"
   },
   "devDependencies": {
-    "rollup": "^1.19.4"
+    "concurrently": "5.x",
+    "rollup": "1.x",
+    "serve": "^10.1.2"
   }
 }
