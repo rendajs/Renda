@@ -3,6 +3,7 @@ import TreeView from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
 import ButtonGroup from "../../UI/ButtonGroup.js";
 import {GameObject} from "../../../../src/index.js";
+import ContentWindowObjectEditor from "./ContentWindowObjectEditor.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
 	constructor(){
@@ -21,6 +22,8 @@ export default class ContentWindowOutliner extends ContentWindow{
 			}
 		});
 		this.addTopBarButton(createEmptyButton);
+
+		this.setAvailableLinkedObjectEditor();
 	}
 
 	destructor(){
@@ -32,6 +35,13 @@ export default class ContentWindowOutliner extends ContentWindow{
 
 	static get windowName(){
 		return "Outliner";
+	}
+
+	setAvailableLinkedObjectEditor(){
+		for(const objectEditor of editor.windowManager.getContentWindowsByType(ContentWindowObjectEditor)){
+			this.setLinkedObjectEditor(objectEditor);
+			break;
+		}
 	}
 
 	setLinkedObjectEditor(linkedObjectEditor){

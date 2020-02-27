@@ -26,6 +26,8 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.editingObject = null;
 		this.selectionManager = new SelectionManager();
+
+		this.newEmptyEditingObject();
 	}
 
 	static get windowName(){
@@ -52,6 +54,12 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 	}
 
 	newEmptyEditingObject(){
+		this.editingObject = new GameObject({name: "object"});
+		this.editorScene.add(this.editingObject);
+		this.updateOutliners();
+	}
+
+	createTempDebugObject(){
 		this.editingObject = new GameObject({name: "object"});
 		this.editorScene.add(this.editingObject);
 

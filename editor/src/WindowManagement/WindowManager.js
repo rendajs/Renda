@@ -69,6 +69,7 @@ export default class WindowManager{
 		}
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.rootWindow.setRoot();
+		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
 
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
@@ -80,8 +81,6 @@ export default class WindowManager{
 			newWindow = new EditorWindowSplit(this);
 			newWindow.splitHorizontal = workspaceWindow.splitHorizontal;
 			newWindow.splitPercentage = workspaceWindow.splitPercentage;
-			newWindow.windowA = this.parseWorkspaceWindow(workspaceWindow.windowA);
-			newWindow.windowB = this.parseWorkspaceWindow(workspaceWindow.windowB);
 		}else if(workspaceWindow.type == "tabs"){
 			newWindow = new EditorWindowTabs(this);
 			for(let i=0; i<workspaceWindow.tabTypes.length; i++){
@@ -90,6 +89,15 @@ export default class WindowManager{
 			newWindow.setActiveTab(workspaceWindow.activeTab || 0);
 		}
 		return newWindow;
+	}
+
+	parseWorkspaceWindowChildren(workspaceWindow, existingWorkspaceWindow){
+		if(workspaceWindow.type == "split"){
+			existingWorkspaceWindow.windowA = this.parseWorkspaceWindow(workspaceWindow.windowA);
+			existingWorkspaceWindow.windowB = this.parseWorkspaceWindow(workspaceWindow.windowB);
+			this.parseWorkspaceWindowChildren(workspaceWindow.windowA, existingWorkspaceWindow.windowA);
+			this.parseWorkspaceWindowChildren(workspaceWindow.windowB, existingWorkspaceWindow.windowB);
+		}
 	}
 
 	registerContentWindow(constructor){
