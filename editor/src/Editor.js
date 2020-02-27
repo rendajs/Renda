@@ -24,5 +24,7 @@ export default class Editor{
 		this.renderer.init();
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
+
+		this.projectManager.openDb();
 	}
 }
