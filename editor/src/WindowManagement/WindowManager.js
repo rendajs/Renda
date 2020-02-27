@@ -25,9 +25,17 @@ export default class WindowManager{
 				splitHorizontal: false,
 				splitPercentage: 0.25,
 				windowA: {
-					type: "tabs",
-					tabTypes: ["Outliner", "Project"],
-					activeTab: 0,
+					type: "split",
+					splitHorizontal: true,
+					splitPercentage: 0.6,
+					windowA: {
+						type: "tabs",
+						tabTypes: ["Outliner"],
+					},
+					windowB: {
+						type: "tabs",
+						tabTypes: ["Project"],
+					},
 				},
 				windowB: {
 					type: "split",
