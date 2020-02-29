@@ -1,3 +1,5 @@
+import editor from "../editorInstance.js";
+
 export default class TreeView{
 	constructor(data = {}){
 		this.el = document.createElement("div");
@@ -42,12 +44,16 @@ export default class TreeView{
 		this.canSelectMultiple = true;
 		this.renameable = false;
 		this._rowVisible = true;
+		this._draggable = false;
+		this.rearrangeable = true;
 
 		if(data.copySettings){
 			this.collapsed = data.copySettings.collapsed;
 			this.selectable = data.copySettings.selectable;
 			this.canSelectMultiple = data.copySettings.canSelectMultiple;
 			this.renameable = data.copySettings.renameable;
+			this.draggable = data.copySettings.draggable;
+			this.rearrangeable = data.copySettings.rearrangeable;
 		}
 
 		this.selected = false;
@@ -96,8 +102,7 @@ export default class TreeView{
 		let deltaChildren = newChildren.length - this.children.length;
 		if(deltaChildren > 0){
 			for(let i=0; i<deltaChildren; i++){
-				let child = new TreeView();
-				this.addChild(child);
+				this.addChild();
 			}
 		}else if(deltaChildren < 0){
 			for(let i=this.children.length-1; i>=newChildren.length; i--){
@@ -190,6 +195,39 @@ export default class TreeView{
 	set alwaysShowArrow(value){
 		this._alwaysShowArrow = value;
 		this.updateArrowHidden();
+	}
+
+	get draggable(){
+		return this._draggable;
+	}
+
+	set draggable(value){
+		if(this._draggable != value){
+			this._draggable = value;
+			this.rowEl.draggable = value;
+			if(value){
+				this.boundDragStart = this.onDragStart.bind(this);
+				this.rowEl.addEventListener("dragstart", this.boundDragStart);
+				this.boundDragEnd = this.onDragEnd.bind(this);
+				this.rowEl.addEventListener("dragend", this.boundDragEnd);
+			}else{
+				this.rowEl.removeEventListener("dragstart", this.boundDragStart);
+				this.rowEl.removeEventListener("onDragEnd", this.boundDragEnd);
+			}
+		}
+	}
+
+	onDragStart(e){
+		let {el, x, y} = editor.dragManager.createDragFeedbackText({
+			text: this.name,
+		});
+		this.currenDragFeedbackEl = el;
+		e.dataTransfer.setDragImage(el, x, y);
+	}
+
+	onDragEnd(e){
+		if(this.currenDragFeedbackEl) editor.dragManager.removeFeedbackEl(this.currenDragFeedbackEl);
+		this.currenDragFeedbackEl = null;
 	}
 
 	*traverseDown(){

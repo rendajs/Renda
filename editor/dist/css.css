@@ -2,6 +2,8 @@
 	--color-selected-blue: rgb(0, 85, 152);
 	--color-selected-blue-rgba: rgba(0, 85, 152, 0.99);
 	--default-border-radius: 5px;
+	--selection-border-radius: 10px;
+	--default-selection-text-padding: 5px;
 }
 
 body, html{
@@ -190,7 +192,7 @@ body, html{
 }
 
 .treeViewRow{
-	border-radius: var(--default-border-radius);
+	border-radius: var(--selection-border-radius);
 	height: 18px;
 }
 .treeViewRow.selected{
@@ -224,4 +226,15 @@ body, html{
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
+}
+
+.dragFeedbackText{
+	background: var(--color-selected-blue);
+	position: absolute;
+	z-index: 10000;
+	border-radius: var(--selection-border-radius);
+	transform: translateX(-100%);
+	padding: 0px var(--default-selection-text-padding);
+	max-width: 300px;
+	text-align: center;
 }
