@@ -43,6 +43,8 @@ export default class TreeView{
 		this._alwaysShowArrow = false;
 		this.canSelectMultiple = true;
 		this.renameable = false;
+		this._textFieldVisible = false;
+		this.renameTextField = null;
 		this._rowVisible = true;
 		this._draggable = false;
 		this.rearrangeable = true;
@@ -270,31 +272,60 @@ export default class TreeView{
 
 	onRowClick(e){
 		if(this.selectable){
-			let changes = {
-				reset: false,
-				added: [],
-				removed: [],
-			};
-			let selectExtra = this.canSelectMultiple && (e.metaKey || e.ctrlKey);
-			if(selectExtra){
-				if(this.selected){
-					this.deselect();
-					changes.removed = [this];
+			if(this.renameable && this.selected){
+				this.setTextFieldVisible(true);
+			}else{
+				let changes = {
+					reset: false,
+					added: [],
+					removed: [],
+				};
+				let selectExtra = this.canSelectMultiple && (e.metaKey || e.ctrlKey);
+				if(selectExtra){
+					if(this.selected){
+						this.deselect();
+						changes.removed = [this];
+					}else{
+						this.select();
+						changes.added = [this];
+					}
 				}else{
+					let root = this.findRoot();
+					root.deselectAll();
 					this.select();
+					changes.reset = true;
 					changes.added = [this];
 				}
-			}else{
-				let root = this.findRoot();
-				root.deselectAll();
-				this.select();
-				changes.reset = true;
-				changes.added = [this];
-			}
 
-			this.fireOnSelectionChange(changes);
+				this.fireOnSelectionChange(changes);
+			}
 		}else{
 			this.toggleCollapsed();
+		}
+	}
+
+	setTextFieldVisible(textFieldVisible){
+		if(textFieldVisible != this._textFieldVisible){
+			this._textFieldVisible = textFieldVisible;
+			if(textFieldVisible){
+				let currentText = this.myNameEl.textContent;
+				this.myNameEl.textContent = "";
+				let textEl = document.createElement("input");
+				this.renameTextField = textEl;
+				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
+				textEl.value = currentText;
+				this.myNameEl.appendChild(textEl);
+				textEl.addEventListener("blur", _ => {
+					this.setTextFieldVisible(false);
+				});
+				textEl.focus();
+				textEl.select();
+			}else if(this.renameTextField){
+				let value = this.renameTextField.value;
+				this.myNameEl.removeChild(this.renameTextField);
+				this.renameTextField = null;
+				this.myNameEl.textContent = value;
+			}
 		}
 	}
 

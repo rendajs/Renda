@@ -13,7 +13,7 @@ export default class NumericGUI{
 		prefix = "",
 	} = {}){
 		this.el = document.createElement("input");
-		this.el.classList.add("numericGUI", "buttonLike");
+		this.el.classList.add("numericGUI", "buttonLike", "resetInput", "textInput");
 
 		this.value = 0;
 		this.internalValue = 0;

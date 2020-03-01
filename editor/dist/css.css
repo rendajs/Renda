@@ -96,27 +96,37 @@ body, html{
 	background: #929292b8;
 }
 
-.numericGUI{
-	background: #101010;
-	cursor: crosshair;
+.resetInput{
 	-webkit-appearance: none;
 	border: none;
-	color: white;
 	outline: none;
-	text-align: center;
+	font-family: inherit;
 }
 
-.numericGUI:hover{
+.textInput{
+	background: #101010;
+	color: white;
+}
+
+.textInput:hover{
 	box-shadow: inset 0px 0px 0 1px #464646;
 }
 
-.numericGUI:focus{
+.textInput:focus{
 	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
-	cursor: text;
 }
 
-.numericGUI::selection{
+.textInput::selection{
 	background: var(--color-selected-blue-rgba);
+}
+
+.numericGUI{
+	cursor: crosshair;
+	text-align: center;
+}
+
+.numericGUI:focus{
+	cursor: text;
 }
 
 .numericGUI.nocaret{
@@ -172,6 +182,16 @@ body, html{
 
 .treeViewName{
 	display: inline-block;
+	width: 100%;
+}
+
+.treeViewRenameField{
+	width: calc(100% - 8px);
+	height: 24px;
+	position: relative;
+	top: -3px;
+	left: -2px;
+	font-size: inherit;
 }
 
 .treeViewArrow{
