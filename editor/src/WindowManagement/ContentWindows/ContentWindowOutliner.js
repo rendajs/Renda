@@ -14,6 +14,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.treeView.renameable = true;
 		this.contentEl.appendChild(this.treeView.el);
 		this.treeView.onSelectedChange(this.onTreeViewSelectionChange.bind(this));
+		this.treeView.onNameChange(this.onTreeViewNameChange.bind(this));
 
 		this.linkedObjectEditor = null;
 
@@ -105,5 +106,10 @@ export default class ContentWindowOutliner extends ContentWindow{
 		toIndices("added");
 		toIndices("removed");
 		this.linkedObjectEditor.selectionManager.changeSelection(changes);
+	}
+
+	onTreeViewNameChange(changedElement){
+		let obj = this.getObjectByTreeViewItem(changedElement);
+		obj.name = changedElement.name;
 	}
 }
