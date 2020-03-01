@@ -309,16 +309,16 @@ export default class TreeView{
 		if(textFieldVisible != this._textFieldVisible){
 			this._textFieldVisible = textFieldVisible;
 			if(textFieldVisible){
-				let currentText = this.myNameEl.textContent;
+				let oldName = this.myNameEl.textContent;
 				this.myNameEl.textContent = "";
 				let textEl = document.createElement("input");
 				this.renameTextField = textEl;
 				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
-				textEl.value = currentText;
+				textEl.value = oldName;
 				this.myNameEl.appendChild(textEl);
 				textEl.addEventListener("blur", _ => {
 					this.setTextFieldVisible(false);
-					this.fireOnNameChange(this);
+					this.fireOnNameChange(this, oldName);
 				});
 				textEl.focus();
 				textEl.select();
@@ -440,10 +440,10 @@ export default class TreeView{
 		}
 	}
 
-	fireOnNameChange(changedElement){
+	fireOnNameChange(changedElement, oldName){
 		for(const cb of this.onNameChangeCbs){
-			cb(changedElement);
+			cb(changedElement, oldName, changedElement.name);
 		}
-		if(this.parent) this.parent.fireOnNameChange(changedElement);
+		if(this.parent) this.parent.fireOnNameChange(changedElement, oldName);
 	}
 }
