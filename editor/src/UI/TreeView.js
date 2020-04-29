@@ -318,15 +318,16 @@ export default class TreeView{
 				this.myNameEl.appendChild(textEl);
 				textEl.addEventListener("blur", _ => {
 					this.setTextFieldVisible(false);
-					this.fireOnNameChange(this, oldName);
 				});
 				textEl.focus();
 				textEl.select();
 			}else if(this.renameTextField){
-				let value = this.renameTextField.value;
+				let newName = this.renameTextField.value;
 				this.myNameEl.removeChild(this.renameTextField);
 				this.renameTextField = null;
-				this.name = value;
+				let oldName = this.name;
+				this.name = newName;
+				this.fireOnNameChange(this, oldName, newName);
 			}
 		}
 	}
@@ -440,10 +441,10 @@ export default class TreeView{
 		}
 	}
 
-	fireOnNameChange(changedElement, oldName){
+	fireOnNameChange(changedElement, oldName, newName){
 		for(const cb of this.onNameChangeCbs){
 			cb(changedElement, oldName, changedElement.name);
 		}
-		if(this.parent) this.parent.fireOnNameChange(changedElement, oldName);
+		if(this.parent) this.parent.fireOnNameChange(changedElement, oldName, newName);
 	}
 }

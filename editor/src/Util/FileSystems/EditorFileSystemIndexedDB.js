@@ -57,4 +57,8 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 			return oldValue;
 		});
 	}
+
+	async move(fromPath = [], toPath = []){
+
+	}
 }

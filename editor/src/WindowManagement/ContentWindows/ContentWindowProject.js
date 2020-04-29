@@ -16,11 +16,13 @@ export default class ContentWindowProject extends ContentWindow{
 		this.addTopBarButton(createDirButton);
 
 		this.treeView = new TreeView();
+		this.treeView.renameable = true;
 		this.treeView.rowVisible = false;
+		this.treeView.onNameChange(this.onTreeViewNameChange.bind(this));
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		let fileSystem = editor.projectManager.currentProjectFileSystem;
+		let fileSystem = this.getFileSystem();
 		if(fileSystem){
 			this.updateTreeView(this.treeView, fileSystem);
 		}
@@ -28,6 +30,10 @@ export default class ContentWindowProject extends ContentWindow{
 
 	static get windowName(){
 		return "Project";
+	}
+
+	getFileSystem(){
+		return editor.projectManager.currentProjectFileSystem;
 	}
 
 	async updateTreeView(treeView, fileSystem, path = []){
@@ -53,7 +59,7 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	async createNewDir(){
-		let fileSystem = editor.projectManager.currentProjectFileSystem;
+		let fileSystem = this.getFileSystem();
 		let selectedPath = [];
 		let treeView = this.treeView;
 		for(const selectedItem of this.treeView.getSelectedItems()){
@@ -66,5 +72,17 @@ export default class ContentWindowProject extends ContentWindow{
 		await fileSystem.createDir(newPath);
 		await this.updateTreeView(treeView, fileSystem, selectedPath);
 		treeView.collapsed = false;
+	}
+
+	async onTreeViewNameChange(changedElement, oldName, newName){
+		let namesPath = changedElement.getNamesPath();
+		namesPath.shift(); //remove root
+		namesPath.pop(); //remove changed item
+		let oldPath = namesPath.slice();
+		let newPath = namesPath.slice();
+		oldPath.push(oldName);
+		newPath.push(newName);
+		let fileSystem = this.getFileSystem();
+		await fileSystem.move(oldPath, newPath);
 	}
 }

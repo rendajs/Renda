@@ -12,4 +12,6 @@ export default class EditorFileSystem{
 	}
 
 	async createDir(path = []){}
+
+	async move(fromPath = [], toPath = []){}
 }
