@@ -1,40 +1,15 @@
 import EditorFileSystem from "./EditorFileSystem.js";
+import IndexedDbUtil from "../IndexedDbUtil.js";
 
 export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	constructor(name){
 		super();
 
 		this.name = name;
-		this.db = null;
-		this.openDb();
-		this.onOpenDbCbs = [];
-	}
-
-	get dbName(){
-		return "fileSystem_"+this.name;
-	}
-
-	async openDb(){
-		let dbRequest = indexedDB.open(this.dbName);
-		dbRequest.onupgradeneeded = (e) => {
-			dbRequest.result.createObjectStore("files");
-			dbRequest.result.createObjectStore("tree");
-		};
-		await new Promise(r => dbRequest.onsuccess = r);
-		this.db = dbRequest.result;
+		this.db = new IndexedDbUtil("fileSystem_"+this.name, "objects");
 
 		//create root directory
-		await this.createDir();
-
-		for(const cb of this.onOpenDbCbs){
-			cb(this.db);
-		}
-		this.onOpenDbCbs = null;
-	}
-
-	async getDb(){
-		if(this.db) return this.db;
-		return new Promise(r => this.onOpenDbCbs.push(r));
+		this.createDir();
 	}
 
 	pathToKey(path = []){
@@ -51,51 +26,20 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		})
 	}
 
-	async getTree(path = []){
-		let db = await this.getDb();
-		let transaction = db.transaction("tree", "readonly");
-		let objectStore = transaction.objectStore("tree");
-		let getRequest = objectStore.get(this.pathToKey(path));
-		return await this.promisifyIdbRequest(getRequest);
-	}
-
-	async getSetTree(path, setCb){
-		let key = this.pathToKey(path);
-		let db = await this.getDb();
-		let transaction = db.transaction("tree", "readwrite");
-		let objectStore = transaction.objectStore("tree");
-		let cursorRequest = objectStore.openCursor(key);
-		await this.promisifyIdbRequest(cursorRequest);
-		let cursor = cursorRequest.result;
-
-		if(cursor){
-			let newVal = setCb(cursor.value);
-			let updateRequest = cursor.update(newVal);
-			await this.promisifyIdbRequest(updateRequest);
-		}else{
-			let putRequest = objectStore.put(setCb(null), key);
-			await this.promisifyIdbRequest(putRequest);
-		}
-	}
-
-	async setTree(path, value){
-		await this.getSetTree(path, _ => value);
-	}
-
 	async readDir(path = []){
 		let result = {
 			files: [],
 			directories: [],
 		};
 
-		return await this.getTree(path);
+		return await this.db.get(this.pathToKey(path));
 	}
 
 	async createDir(path = []){
 		if(path.length > 0){
 			let parentPath = path.slice(0, path.length - 1);
 			await this.createDir(parentPath);
-			await this.getSetTree(parentPath, oldValue => {
+			await this.db.getSet(this.pathToKey(parentPath), oldValue => {
 				let newDirName = path[path.length - 1];
 				if(!oldValue.directories.includes(newDirName)){
 					oldValue.directories.push(newDirName);
@@ -103,7 +47,7 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 				return oldValue;
 			});
 		}
-		await this.getSetTree(path, oldValue => {
+		await this.db.getSet(this.pathToKey(path), oldValue => {
 			if(!oldValue){
 				oldValue = {
 					files: [],
