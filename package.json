@@ -9,7 +9,9 @@
     "dev": "concurrently --names 'BUILD,SERVE' -c 'bgBlue.bold,bgGreen.bold' 'node editor/build.js --dev' 'serve -l 5070'"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.1.0",
     "concurrently": "5.x",
+    "js-md5": "^0.7.3",
     "rollup": "1.x",
     "serve": "^10.1.2"
   }
