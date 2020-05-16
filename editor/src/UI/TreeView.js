@@ -12,6 +12,11 @@ export default class TreeView{
 		this.boundOnRowClick = this.onRowClick.bind(this);
 		this.rowEl.addEventListener("click", this.boundOnRowClick);
 
+		this.boundOnDragOverEvent = this.onDragOverEvent.bind(this);
+		this.rowEl.addEventListener("dragover", this.boundOnDragOverEvent);
+		this.boundOnDropEvent = this.onDropEvent.bind(this);
+		this.rowEl.addEventListener("drop", this.boundOnDropEvent);
+
 		this.arrowEl = document.createElement("div");
 		this.arrowEl.classList.add("treeViewArrow");
 		this.rowEl.appendChild(this.arrowEl);
@@ -60,8 +65,9 @@ export default class TreeView{
 
 		this.selected = false;
 
-		this.onSelectedChangeCbs = [];
-		this.onNameChangeCbs = [];
+		this.onSelectedChangeCbs = new Set();
+		this.onNameChangeCbs = new Set();
+		this.onDropCbs = new Set();
 
 		this.updateArrowHidden();
 		if(data) this.updateData(data);
@@ -73,8 +79,14 @@ export default class TreeView{
 		}
 		this.el = null;
 		this.rowEl.removeEventListener("click", this.boundOnRowClick);
+		this.boundOnRowClick = null;
+		this.rowEl.removeEventListener("dragover", this.boundOnDragOverEvent);
+		this.boundOnDragOverEvent = null;
+		this.rowEl.removeEventListener("drop", this.boundOnDropEvent);
+		this.boundOnDropEvent = null;
 		this.rowEl = null;
 		this.arrowEl.removeEventListener("click", this.boundArrowClickEvent);
+		this.boundArrowClickEvent = null;
 		this.arrowEl = null;
 		this.myNameEl = null;
 		this.childrenEl = null;
@@ -86,6 +98,8 @@ export default class TreeView{
 		this.parent = null;
 
 		this.onSelectedChangeCbs = null;
+		this.onNameChangeCbs = null;
+		this.onDropCbs = null;
 		this.onArrowClickCbs = null;
 	}
 
@@ -413,14 +427,11 @@ export default class TreeView{
 	}
 
 	onSelectedChange(cb){
-		this.onSelectedChangeCbs.push(cb);
+		this.onSelectedChangeCbs.add(cb);
 	}
 
 	removeOnSelectedChange(cb){
-		let index = this.onSelectedChangeCbs.indexOf(cb);
-		if(index >= 0){
-			this.onSelectedChangeCbs.splice(index, 1);
-		}
+		this.onSelectedChangeCbs.delete(cb);
 	}
 
 	fireOnSelectionChange(changes){
@@ -431,14 +442,11 @@ export default class TreeView{
 	}
 
 	onNameChange(cb){
-		this.onNameChangeCbs.push(cb);
+		this.onNameChangeCbs.add(cb);
 	}
 
 	removeOnNameChange(cb){
-		let index = this.onNameChangeCbs.indexOf(cb);
-		if(index >= 0){
-			this.onNameChangeCbs.splice(index, 1);
-		}
+		this.onNameChangeCbs.delete(cb);
 	}
 
 	fireOnNameChange(changedElement, oldName, newName){
@@ -446,5 +454,29 @@ export default class TreeView{
 			cb(changedElement, oldName, changedElement.name);
 		}
 		if(this.parent) this.parent.fireOnNameChange(changedElement, oldName, newName);
+	}
+
+	onDragOverEvent(e){
+		e.preventDefault();
+	}
+
+	onDropEvent(e){
+		e.preventDefault();
+		this.fireOnDrop(this, e);
+	}
+
+	onDrop(cb){
+		this.onDropCbs.add(cb);
+	}
+
+	removeOnDrop(cb){
+		this.onDropCbs.delete(cb);
+	}
+
+	fireOnDrop(droppedOnElement, e){
+		for(const cb of this.onDropCbs){
+			cb(droppedOnElement, e);
+		}
+		if(this.parent) this.parent.fireOnDrop(droppedOnElement, e);
 	}
 }

@@ -105,7 +105,7 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 				parsedBytes += buffer.byteLength;
 			}
 		}else if(obj.isFile){
-			contentBuffer = obj.blob.arrayBuffer();
+			contentBuffer = await obj.blob.arrayBuffer();
 		}
 		totalBufferLength += contentBuffer.byteLength;
 
@@ -259,6 +259,20 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		//add new pointer to new parent
 		let newParentPath = toPath.slice(0, toPath.length -1);
 		let newParentTravelledData = await this.createDir(newParentPath);
+		let newParentObj = newParentTravelledData[newParentTravelledData.length -1];
+		newParentObj.obj.files.push(newPointer);
+		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
+	}
+
+	async writeFile(path = [], blob = null){
+		blob = new Blob([blob]);
+		let newParentPath = path.slice(0, path.length -1);
+		let newParentTravelledData = await this.createDir(newParentPath);
+		let newPointer = await this.createObject({
+			isFile: true,
+			blob,
+			fileName: path[path.length -1],
+		});
 		let newParentObj = newParentTravelledData[newParentTravelledData.length -1];
 		newParentObj.obj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);

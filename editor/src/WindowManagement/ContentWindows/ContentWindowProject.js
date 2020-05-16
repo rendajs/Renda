@@ -19,6 +19,7 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView.renameable = true;
 		this.treeView.rowVisible = false;
 		this.treeView.onNameChange(this.onTreeViewNameChange.bind(this));
+		this.treeView.onDrop(this.onTreeViewDrop.bind(this));
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -84,5 +85,15 @@ export default class ContentWindowProject extends ContentWindow{
 		newPath.push(newName);
 		let fileSystem = this.getFileSystem();
 		await fileSystem.move(oldPath, newPath);
+	}
+
+	async onTreeViewDrop(droppedOnElement, e){
+		let namesPath = droppedOnElement.getNamesPath();
+		namesPath.shift(); //remove root
+		for(const file of e.dataTransfer.files){
+			let filePath = [...namesPath, file.name];
+			let fileSystem = this.getFileSystem();
+			await fileSystem.writeFile(filePath, file);
+		}
 	}
 }
