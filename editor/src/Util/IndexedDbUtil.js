@@ -1,13 +1,15 @@
 export default class IndexedDbUtil{
-	constructor(dbName = "keyValuesDb", objectStoreName = "keyValues"){
+	constructor(dbName = "keyValuesDb", objectStoreNames = ["keyValues"]){
 		this.dbName = dbName;
-		this.objectStoreName = objectStoreName;
+		this.objectStoreNames = objectStoreNames;
 
 		this.supported = false;
 		try{
 			let dbRequest = indexedDB.open(dbName);
 			dbRequest.onupgradeneeded = _ => {
-				dbRequest.result.createObjectStore(objectStoreName);
+				for(const name of objectStoreNames){
+					dbRequest.result.createObjectStore(name);
+				}
 			};
 			this.supported = true;
 		}catch(e){
@@ -25,13 +27,13 @@ export default class IndexedDbUtil{
 		});
 	}
 
-	getLocalStorageName(key){
-		return "indexedDBFallback-"+this.dbName+"-"+this.objectStoreName+"-"+key;
+	getLocalStorageName(key, objectStoreName = this.objectStoreNames[0]){
+		return "indexedDBFallback-"+this.dbName+"-"+objectStoreName+"-"+key;
 	}
 
-	async get(key){
+	async get(key, objectStoreName = this.objectStoreNames[0]){
 		if(!this.supported){
-			let val = localStorage.getItem(this.getLocalStorageName(key));
+			let val = localStorage.getItem(this.getLocalStorageName(key, objectStoreName));
 			try{
 				val = JSON.parse(val);
 			}catch(e){
@@ -41,21 +43,21 @@ export default class IndexedDbUtil{
 		}
 		let request = await indexedDB.open(this.dbName);
 		let db = await this.promisifyRequest(request);
-		let transaction = db.transaction(this.objectStoreName, "readonly");
-		let objectStore = transaction.objectStore(this.objectStoreName);
+		let transaction = db.transaction(objectStoreName, "readonly");
+		let objectStore = transaction.objectStore(objectStoreName);
 		let getRequest = objectStore.get(key);
 		return await this.promisifyRequest(getRequest);
 	}
 
-	set(key,value){
+	set(key, value, objectStoreName = this.objectStoreNames[0]){
 		return this.getSet(key, _ => {
 			return value;
-		});
+		}, objectStoreName);
 	}
 
-	async getSet(key, cb){
+	async getSet(key, cb, objectStoreName = this.objectStoreNames[0], deleteCursor = false){
 		if(!this.supported){
-			let newKey = this.getLocalStorageName(key);
+			let newKey = this.getLocalStorageName(key, objectStoreName);
 			let val = localStorage.getItem(newKey);
 			try{
 				val = JSON.parse(val);
@@ -68,17 +70,26 @@ export default class IndexedDbUtil{
 		}
 		let request = indexedDB.open(this.dbName);
 		let db = await this.promisifyRequest(request);
-		let transaction = db.transaction(this.objectStoreName, "readwrite");
-		let objectStore = transaction.objectStore(this.objectStoreName);
+		let transaction = db.transaction(objectStoreName, "readwrite");
+		let objectStore = transaction.objectStore(objectStoreName);
 		let cursorRequest = objectStore.openCursor(key);
 		let cursor = await this.promisifyRequest(cursorRequest);
 		if(cursor){
-			let newVal = cb(cursor.value);
-			let cursorRequest = cursor.update(newVal);
-			await this.promisifyRequest(cursorRequest);
+			if(deleteCursor){
+				let cursorRequest = cursor.delete();
+				await this.promisifyRequest(cursorRequest);
+			}else{
+				let newVal = cb(cursor.value);
+				let cursorRequest = cursor.update(newVal);
+				await this.promisifyRequest(cursorRequest);
+			}
 		}else{
 			let putRequest = objectStore.put(cb(null), key);
 			await this.promisifyRequest(putRequest);
 		}
+	}
+
+	delete(key, objectStoreName = this.objectStoreNames[0]){
+		this.getSet(key, _ => {}, objectStoreName, true);
 	}
 }
