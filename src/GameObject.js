@@ -1,5 +1,6 @@
 import Component from "./components/Component.js";
 import {Vector3, Quaternion, Mat4} from "./math/Math.js";
+import {UUID} from "./util/Util.js";
 
 export default class GameObject{
 	constructor(opts){
@@ -12,6 +13,7 @@ export default class GameObject{
 			name: "",
 			parent: null,
 		}, ...opts}
+		this.uuid = UUID();
 		this.name = opts.name;
 		this._parent = null;
 		this._children = [];
