@@ -24,4 +24,10 @@ export default class MeshComponent extends Component{
 	set material(value){
 		this.materials[0] = value;
 	}
+
+	toJson(){
+		return {
+			type: "MeshComponent",
+		}
+	}
 }

@@ -14,4 +14,10 @@ export default class Component{
 
 	onAttachedToObject(){}
 	onParentChanged(){}
+
+	toJson(){
+		return {
+			type: "Component",
+		}
+	}
 }

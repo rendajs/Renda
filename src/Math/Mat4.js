@@ -10,7 +10,7 @@ export default class Mat4{
 				[values[12], values[13], values[14], values[15]],
 			];
 		}else if(values instanceof Mat4){
-			const glValue = values.glValue;
+			const glValue = values.getAsArray();
 			this.values = [
 				[glValue[0],  glValue[1],  glValue[2],  glValue[3] ],
 				[glValue[4],  glValue[5],  glValue[6],  glValue[7] ],
@@ -27,7 +27,7 @@ export default class Mat4{
 		}
 	}
 
-	get glValue(){
+	getAsArray(){
 		return [...this.values[0],...this.values[1],...this.values[2],...this.values[3]];
 	}
 

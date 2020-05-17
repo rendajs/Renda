@@ -63,6 +63,6 @@ export default class Shader{
 
 	uniformMatrix4fv(name, matrix){
 		this.use();
-		this.gl.uniformMatrix4fv(this.getUniformLocation(name), false, matrix.glValue);
+		this.gl.uniformMatrix4fv(this.getUniformLocation(name), false, matrix.getAsArray());
 	}
 }

@@ -182,4 +182,20 @@ export default class GameObject{
 		let child = this.children[index];
 		return child.getObjectByIndicesPath(indexPath, startFrom + 1);
 	}
+
+	toJson(){
+		let json = {
+			uuid: this.uuid,
+			matrix: this._localMatrix.getAsArray(),
+			components: [],
+			children: [],
+		}
+		for(const component of this.components){
+			json.components.push(component.toJson());
+		}
+		for(const child of this.getChildren()){
+			json.children.push(child.toJson());
+		}
+		return json;
+	}
 }
