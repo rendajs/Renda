@@ -1,6 +1,6 @@
-import Component from "./components/Component.js";
-import {Vector3, Quaternion, Mat4} from "./math/Math.js";
-import {UUID} from "./util/Util.js";
+import Component from "./Components/Component.js";
+import {Vector3, Quaternion, Mat4} from "./Math/Math.js";
+import {UUID} from "./Util/Util.js";
 
 export default class GameObject{
 	constructor(opts){

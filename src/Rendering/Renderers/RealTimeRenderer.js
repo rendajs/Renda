@@ -1,6 +1,6 @@
 import Renderer from "./Renderer.js";
-import MeshComponent from "../../components/MeshComponent.js";
-import Mat4 from "../../math/Mat4.js";
+import MeshComponent from "../../Components/MeshComponent.js";
+import Mat4 from "../../Math/Mat4.js";
 
 export default class RealTimeRenderer extends Renderer{
 	constructor(){

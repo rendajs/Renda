@@ -1,4 +1,4 @@
-import Vector3 from "./math/Vector3.js";
+import Vector3 from "./Math/Vector3.js";
 
 export default class Mesh{
 	constructor(){

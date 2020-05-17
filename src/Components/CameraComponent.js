@@ -1,6 +1,6 @@
 import Component from "./Component.js";
-import RealTimeRenderer from "../rendering/renderers/RealTimeRenderer.js";
-import Mat4 from "../math/Mat4.js";
+import RealTimeRenderer from "../Rendering/Renderers/RealTimeRenderer.js";
+import Mat4 from "../Math/Mat4.js";
 
 export default class CameraComponent extends Component{
 	constructor(opts){
