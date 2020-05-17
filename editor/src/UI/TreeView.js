@@ -12,6 +12,9 @@ export default class TreeView{
 		this.boundOnRowClick = this.onRowClick.bind(this);
 		this.rowEl.addEventListener("click", this.boundOnRowClick);
 
+		this.boundOnDblClick = this.onDblClick.bind(this);
+		this.rowEl.addEventListener("dblclick", this.boundOnDblClick.bind(this));
+
 		this.boundOnDragOverEvent = this.onDragOverEvent.bind(this);
 		this.rowEl.addEventListener("dragover", this.boundOnDragOverEvent);
 		this.boundOnDropEvent = this.onDropEvent.bind(this);
@@ -66,7 +69,7 @@ export default class TreeView{
 		this.selected = false;
 
 		this.eventCbs = new Map();
-		for(const eventType of ["selectionchange", "namechange", "drop"]){
+		for(const eventType of ["selectionchange", "namechange", "drop", "dblclick"]){
 			this.eventCbs.set(eventType, new Set());
 		}
 
@@ -316,6 +319,10 @@ export default class TreeView{
 		}else{
 			this.toggleCollapsed();
 		}
+	}
+
+	onDblClick(e){
+		this.fireEvent("dblclick", {clickedElement: this});
 	}
 
 	setTextFieldVisible(textFieldVisible){
