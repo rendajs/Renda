@@ -20,6 +20,7 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView.rowVisible = false;
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
+		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -76,11 +77,11 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	async onTreeViewNameChange({changedElement, oldName, newName}){
-		let namesPath = changedElement.getNamesPath();
-		namesPath.shift(); //remove root
-		namesPath.pop(); //remove changed item
-		let oldPath = namesPath.slice();
-		let newPath = namesPath.slice();
+		let path = changedElement.getNamesPath();
+		path.shift(); //remove root
+		path.pop(); //remove changed item
+		let oldPath = path.slice();
+		let newPath = path.slice();
 		oldPath.push(oldName);
 		newPath.push(newName);
 		let fileSystem = this.getFileSystem();
@@ -88,12 +89,20 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	async onTreeViewDrop({droppedOnElement, event}){
-		let namesPath = droppedOnElement.getNamesPath();
-		namesPath.shift(); //remove root
+		let path = droppedOnElement.getNamesPath();
+		path.shift(); //remove root
 		for(const file of event.dataTransfer.files){
-			let filePath = [...namesPath, file.name];
+			let filePath = [...path, file.name];
 			let fileSystem = this.getFileSystem();
 			await fileSystem.writeFile(filePath, file);
 		}
+	}
+
+	async onTreeViewDblClick({clickedElement}){
+		let path = clickedElement.getNamesPath();
+		path.shift(); //remove root
+		let fileSystem = this.getFileSystem();
+		let file = await fileSystem.readFile(path);
+		console.log(file);
 	}
 }

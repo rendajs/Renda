@@ -277,4 +277,12 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		newParentObj.obj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
 	}
+
+	async readFile(path = []){
+		let obj = await this.getObjectFromPath(path);
+		if(!obj.obj.isFile){
+			throw new Error(obj.fileName+" is not a file");
+		}
+		return obj.obj.blob;
+	}
 }
