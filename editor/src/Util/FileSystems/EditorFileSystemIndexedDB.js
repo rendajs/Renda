@@ -105,7 +105,7 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 				parsedBytes += buffer.byteLength;
 			}
 		}else if(obj.isFile){
-			contentBuffer = await obj.blob.arrayBuffer();
+			contentBuffer = await obj.file.arrayBuffer();
 		}
 		totalBufferLength += contentBuffer.byteLength;
 
@@ -264,13 +264,21 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
 	}
 
-	async writeFile(path = [], blob = null){
-		blob = new Blob([blob]);
+	async writeFile(path = [], file = null){
+		if(!file) file = new Blob();
+		let fileName = path[path.length -1];
+		let type = "";
+		let lastModified = Date.now();
+		if(file instanceof File){
+			type = file.type;
+			lastModified = file.lastModified;
+		}
+		file = new File([file], fileName, {type, lastModified});
 		let newParentPath = path.slice(0, path.length -1);
 		let newParentTravelledData = await this.createDir(newParentPath);
 		let newPointer = await this.createObject({
 			isFile: true,
-			blob,
+			file,
 			fileName: path[path.length -1],
 		});
 		let newParentObj = newParentTravelledData[newParentTravelledData.length -1];
@@ -283,6 +291,6 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		if(!obj.obj.isFile){
 			throw new Error(obj.fileName+" is not a file");
 		}
-		return obj.obj.blob;
+		return obj.obj.file;
 	}
 }

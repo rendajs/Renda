@@ -15,5 +15,5 @@ export default class EditorFileSystem{
 
 	async move(fromPath = [], toPath = []){}
 
-	async writeFile(path = [], blob = null){}
+	async writeFile(path = [], file = null){}
 }
