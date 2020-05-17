@@ -18,8 +18,8 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
 		this.treeView.rowVisible = false;
-		this.treeView.onNameChange(this.onTreeViewNameChange.bind(this));
-		this.treeView.onDrop(this.onTreeViewDrop.bind(this));
+		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
+		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -75,7 +75,7 @@ export default class ContentWindowProject extends ContentWindow{
 		treeView.collapsed = false;
 	}
 
-	async onTreeViewNameChange(changedElement, oldName, newName){
+	async onTreeViewNameChange({changedElement, oldName, newName}){
 		let namesPath = changedElement.getNamesPath();
 		namesPath.shift(); //remove root
 		namesPath.pop(); //remove changed item
@@ -87,10 +87,10 @@ export default class ContentWindowProject extends ContentWindow{
 		await fileSystem.move(oldPath, newPath);
 	}
 
-	async onTreeViewDrop(droppedOnElement, e){
+	async onTreeViewDrop({droppedOnElement, event}){
 		let namesPath = droppedOnElement.getNamesPath();
 		namesPath.shift(); //remove root
-		for(const file of e.dataTransfer.files){
+		for(const file of event.dataTransfer.files){
 			let filePath = [...namesPath, file.name];
 			let fileSystem = this.getFileSystem();
 			await fileSystem.writeFile(filePath, file);

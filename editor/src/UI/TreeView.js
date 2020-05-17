@@ -65,9 +65,10 @@ export default class TreeView{
 
 		this.selected = false;
 
-		this.onSelectedChangeCbs = new Set();
-		this.onNameChangeCbs = new Set();
-		this.onDropCbs = new Set();
+		this.eventCbs = new Map();
+		for(const eventType of ["selectionchange", "namechange", "drop"]){
+			this.eventCbs.set(eventType, new Set());
+		}
 
 		this.updateArrowHidden();
 		if(data) this.updateData(data);
@@ -97,10 +98,8 @@ export default class TreeView{
 		this.children = null;
 		this.parent = null;
 
-		this.onSelectedChangeCbs = null;
-		this.onNameChangeCbs = null;
-		this.onDropCbs = null;
 		this.onArrowClickCbs = null;
+		this.eventCbs = null;
 	}
 
 	get name(){
@@ -312,7 +311,7 @@ export default class TreeView{
 					changes.added = [this];
 				}
 
-				this.fireOnSelectionChange(changes);
+				this.fireEvent("selectionchange", changes);
 			}
 		}else{
 			this.toggleCollapsed();
@@ -341,7 +340,10 @@ export default class TreeView{
 				this.renameTextField = null;
 				let oldName = this.name;
 				this.name = newName;
-				this.fireOnNameChange(this, oldName, newName);
+				this.fireEvent("namechange", {
+					changedElement: this,
+					oldName, newName,
+				});
 			}
 		}
 	}
@@ -426,57 +428,47 @@ export default class TreeView{
 		}
 	}
 
-	onSelectedChange(cb){
-		this.onSelectedChangeCbs.add(cb);
-	}
-
-	removeOnSelectedChange(cb){
-		this.onSelectedChangeCbs.delete(cb);
-	}
-
-	fireOnSelectionChange(changes){
-		for(const cb of this.onSelectedChangeCbs){
-			cb(changes);
-		}
-		if(this.parent) this.parent.fireOnSelectionChange(changes);
-	}
-
-	onNameChange(cb){
-		this.onNameChangeCbs.add(cb);
-	}
-
-	removeOnNameChange(cb){
-		this.onNameChangeCbs.delete(cb);
-	}
-
-	fireOnNameChange(changedElement, oldName, newName){
-		for(const cb of this.onNameChangeCbs){
-			cb(changedElement, oldName, changedElement.name);
-		}
-		if(this.parent) this.parent.fireOnNameChange(changedElement, oldName, newName);
-	}
-
 	onDragOverEvent(e){
 		e.preventDefault();
 	}
 
 	onDropEvent(e){
 		e.preventDefault();
-		this.fireOnDrop(this, e);
+		this.fireEvent("drop", {
+			droppedOnElement: this,
+			event: e,
+		});
 	}
 
-	onDrop(cb){
-		this.onDropCbs.add(cb);
-	}
-
-	removeOnDrop(cb){
-		this.onDropCbs.delete(cb);
-	}
-
-	fireOnDrop(droppedOnElement, e){
-		for(const cb of this.onDropCbs){
-			cb(droppedOnElement, e);
+	getEventCbs(eventType){
+		let cbs = this.eventCbs.get(eventType);
+		if(!cbs){
+			console.warn("unknown event type: "+eventType+" for TreeView");
+			return null;
 		}
-		if(this.parent) this.parent.fireOnDrop(droppedOnElement, e);
+		return cbs;
+	}
+
+	addEventListener(eventType, cb){
+		let cbs = this.getEventCbs(eventType);
+		if(!cbs) return;
+		cbs.add(cb);
+	}
+
+	removeEventListener(eventType, cb){
+		let cbs = this.getEventCbs(eventType);
+		if(!cbs) return;
+		cbs.delete(cb);
+	}
+
+	//fires event on this TreeView and its parents
+	fireEvent(eventType, event){
+		let cbs = this.getEventCbs(eventType);
+		if(cbs){
+			for(const cb of cbs){
+				cb(event);
+			}
+		}
+		if(this.parent) this.parent.fireEvent(eventType, event);
 	}
 }

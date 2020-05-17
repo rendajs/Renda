@@ -13,8 +13,8 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.treeView.draggable = true;
 		this.treeView.renameable = true;
 		this.contentEl.appendChild(this.treeView.el);
-		this.treeView.onSelectedChange(this.onTreeViewSelectionChange.bind(this));
-		this.treeView.onNameChange(this.onTreeViewNameChange.bind(this));
+		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
+		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 
 		this.linkedObjectEditor = null;
 
@@ -108,7 +108,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.linkedObjectEditor.selectionManager.changeSelection(changes);
 	}
 
-	onTreeViewNameChange(changedElement){
+	onTreeViewNameChange({changedElement}){
 		let obj = this.getObjectByTreeViewItem(changedElement);
 		obj.name = changedElement.name;
 	}
