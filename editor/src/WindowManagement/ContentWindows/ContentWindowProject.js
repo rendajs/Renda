@@ -2,6 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
+import ContentWindowObjectEditor from "./ContentWindowObjectEditor.js";
 
 export default class ContentWindowProject extends ContentWindow{
 	constructor(){
@@ -103,6 +104,16 @@ export default class ContentWindowProject extends ContentWindow{
 		path.shift(); //remove root
 		let fileSystem = this.getFileSystem();
 		let file = await fileSystem.readFile(path);
-		console.log(file);
+		if(file.type == "application/json"){
+			let body = await file.text();
+			let json = JSON.parse(body);
+			let type = json.type;
+			if(type == "GameObject"){
+				let gameObject = editor.projectManager.assetManager.createObjectFromJsonData(json.object);
+				for(const objectEditor of editor.windowManager.getContentWindowsByType(ContentWindowObjectEditor)){
+					objectEditor.editingObject = gameObject;
+				}
+			}
+		}
 	}
 }

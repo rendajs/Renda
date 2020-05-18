@@ -121,7 +121,7 @@ export default class GameObject{
 		this.localMatrixDirty = true;
 	}
 
-	setParent(newParent, keepPosition = true){
+	setParent(newParent, keepWorldPosition = false){
 		if(this._parent){
 			this._parent._children = this._parent._children.filter(c => c != this);
 		}
@@ -134,8 +134,8 @@ export default class GameObject{
 		}
 	}
 
-	add(child, keepPosition = true){
-		child.setParent(this, keepPosition);
+	add(child, keepWorldPosition = false){
+		child.setParent(this, keepWorldPosition);
 	}
 
 	remove(child){
@@ -183,6 +183,7 @@ export default class GameObject{
 
 	toJson(){
 		let json = {
+			name: this.name,
 			matrix: this._localMatrix.getAsArray(),
 			components: [],
 			children: [],

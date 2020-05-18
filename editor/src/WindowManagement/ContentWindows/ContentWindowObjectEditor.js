@@ -24,7 +24,7 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
 
-		this.editingObject = null;
+		this._editingObject = null;
 		this.selectionManager = new SelectionManager();
 
 		this.newEmptyEditingObject();
@@ -40,9 +40,20 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.canvasEl = null;
 		this.ctx = null;
 		this.editorScene.destructor();
-		this.editingObject = null;
+		this._editingObject = null;
 		this.selectionManager.destructor();
 		this.selectionManager = null;
+	}
+
+	get editingObject(){
+		return this._editingObject;
+	}
+
+	set editingObject(val){
+		this._editingObject = val;
+		this.editorScene.add(val);
+		this.render();
+		this.updateOutliners();
 	}
 
 	onWindowResize(w, h){
@@ -55,13 +66,10 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 	newEmptyEditingObject(){
 		this.editingObject = new GameObject({name: "object"});
-		this.editorScene.add(this.editingObject);
-		this.updateOutliners();
 	}
 
 	createTempDebugObject(){
 		this.editingObject = new GameObject({name: "object"});
-		this.editorScene.add(this.editingObject);
 
 		let cube = new GameObject({name:"cube"});
 		let cubeMesh = new Mesh();
@@ -123,9 +131,6 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		let cam = new GameObject({name:"cam"});
 		this.editingObject.add(cam);
 		cam.addComponent(CameraComponent);
-
-		this.render();
-		this.updateOutliners();
 	}
 
 	loop(){
