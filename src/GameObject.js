@@ -1,6 +1,5 @@
 import Component from "./Components/Component.js";
 import {Vector3, Quaternion, Mat4} from "./Math/Math.js";
-import {UUID} from "./Util/Util.js";
 
 export default class GameObject{
 	constructor(opts){
@@ -13,7 +12,6 @@ export default class GameObject{
 			name: "",
 			parent: null,
 		}, ...opts}
-		this.uuid = UUID();
 		this.name = opts.name;
 		this._parent = null;
 		this._children = [];
@@ -185,7 +183,6 @@ export default class GameObject{
 
 	toJson(){
 		let json = {
-			uuid: this.uuid,
 			matrix: this._localMatrix.getAsArray(),
 			components: [],
 			children: [],
