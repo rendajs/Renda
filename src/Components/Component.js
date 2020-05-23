@@ -7,9 +7,9 @@ export default class Component{
 		this.entity = null;
 	}
 
-	attachedToEntity(obj){
-		this.entity = obj;
-		this.onAttachedToEntity(obj);
+	attachedToEntity(ent){
+		this.entity = ent;
+		this.onAttachedToEntity(ent);
 	}
 
 	onAttachedToEntity(){}

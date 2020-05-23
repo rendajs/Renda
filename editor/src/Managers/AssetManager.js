@@ -10,11 +10,11 @@ export default class AssetManager{
 	}
 
 	createEntityFromJsonData(jsonData){
-		let obj = new Entity(jsonData.name || "");
+		let ent = new Entity(jsonData.name || "");
 		for(const childJson of (jsonData.children || [])){
 			let child = this.createEntityFromJsonData(childJson);
-			obj.add(child);
+			ent.add(child);
 		}
-		return obj;
+		return ent;
 	}
 }

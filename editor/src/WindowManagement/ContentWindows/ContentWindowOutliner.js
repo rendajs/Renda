@@ -76,18 +76,18 @@ export default class ContentWindowOutliner extends ContentWindow{
 
 	createNew(name, afterCreate = null){
 		if(!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return;
-		let rootObj = this.linkedEntityEditor.editingEntity;
+		let rootEnt = this.linkedEntityEditor.editingEntity;
 		let createdAny = false;
 		//todo: use selection manager
 		for(const indicesPath of this.treeView.getSelectionIndices()){
-			let obj = rootObj.getEntityByIndicesPath(indicesPath);
-			let createdObj = new Entity(name);
-			obj.add(createdObj);
+			let ent = rootEnt.getEntityByIndicesPath(indicesPath);
+			let createdEnt = new Entity(name);
+			ent.add(createdEnt);
 			createdAny = true;
 		}
 		if(!createdAny){
-			let createdObj = new Entity(name);
-			rootObj.add(createdObj);
+			let createdEnt = new Entity(name);
+			rootEnt.add(createdEnt);
 		}
 		this.updateTreeView();
 	}
@@ -109,7 +109,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 	}
 
 	onTreeViewNameChange({changedElement}){
-		let obj = this.getEntityByTreeViewItem(changedElement);
-		obj.name = changedElement.name;
+		let ent = this.getEntityByTreeViewItem(changedElement);
+		ent.name = changedElement.name;
 	}
 }
