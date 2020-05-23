@@ -1,8 +1,8 @@
 import {Vector3, Quaternion} from "../../../../src/index.js";
 
 export default class OrbitControls{
-	constructor(cameraObject, eventElement){
-		this.camera = cameraObject;
+	constructor(cameraEntity, eventElement){
+		this.camera = cameraEntity;
 
 		this.lookPos = new Vector3();
 		this.lookRot = new Quaternion();

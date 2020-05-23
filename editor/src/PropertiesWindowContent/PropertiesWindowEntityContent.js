@@ -50,8 +50,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.positionProperty.setValue(selectedObjects[0].pos);
 		this.componentsSection.clearChildren();
 		let componentGroups = [];
-		for(const object of selectedObjects){
-			for(const component of object.components){
+		for(const entity of selectedObjects){
+			for(const component of entity.components){
 				componentGroups.push(component);
 			}
 		}
