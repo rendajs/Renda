@@ -154,6 +154,14 @@ export default class TreeView{
 		this.updateArrowHidden();
 	}
 
+	clearChildren(){
+		for(const child of this.children){
+			child.destructor();
+		}
+		this.children = [];
+		this.updateArrowHidden();
+	}
+
 	addChild(treeView = null){
 		return this.addChildAtIndex(-1, treeView);
 	}

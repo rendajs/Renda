@@ -29,6 +29,8 @@ export default class PropertiesWindowGameObjectContent extends PropertiesWindowC
 			label: "Scale",
 			type: "Vector3",
 		});
+
+		this.componentsSection = this.treeView.addCollapsable("Components");
 	}
 
 	destructor(){
@@ -46,5 +48,15 @@ export default class PropertiesWindowGameObjectContent extends PropertiesWindowC
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
 		this.positionProperty.setValue(selectedObjects[0].pos);
+		this.componentsSection.clearChildren();
+		let componentGroups = [];
+		for(const object of selectedObjects){
+			for(const component of object.components){
+				componentGroups.push(component);
+			}
+		}
+		for(const componentGroup of componentGroups){
+			this.componentsSection.addCollapsable("component");
+		}
 	}
 }
