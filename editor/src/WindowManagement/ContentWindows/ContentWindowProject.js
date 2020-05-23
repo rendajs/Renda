@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
-import ContentWindowObjectEditor from "./ContentWindowObjectEditor.js";
+import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 
 export default class ContentWindowProject extends ContentWindow{
 	constructor(){
@@ -109,9 +109,9 @@ export default class ContentWindowProject extends ContentWindow{
 			let json = JSON.parse(body);
 			let type = json.type;
 			if(type == "Entity"){
-				let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.object);
-				for(const objectEditor of editor.windowManager.getContentWindowsByType(ContentWindowObjectEditor)){
-					objectEditor.editingObject = entity;
+				let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.entity);
+				for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
+					entityEditor.editingEntity = entity;
 				}
 			}
 		}

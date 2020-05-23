@@ -47,7 +47,7 @@ export default class WindowManager{
 						splitPercentage: 0.5,
 						windowA: {
 							type: "tabs",
-							tabTypes: ["ObjectEditor"],
+							tabTypes: ["EntityEditor"],
 						},
 						windowB: {
 							type: "tabs",

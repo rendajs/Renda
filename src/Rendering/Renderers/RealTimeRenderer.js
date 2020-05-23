@@ -23,7 +23,7 @@ export default class RealTimeRenderer extends Renderer{
 		this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 		let vpMatrix = camera.getVpMatrix();
 		let meshComponents = [];
-		for(const root of camera.rootRenderObjects){
+		for(const root of camera.rootRenderEntities){
 			for(const child of root.traverseDown()){
 				for(const component of child.getComponentsByType(MeshComponent)){
 					this.renderMeshComponent(component, vpMatrix);

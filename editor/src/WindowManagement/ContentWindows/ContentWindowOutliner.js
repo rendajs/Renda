@@ -3,7 +3,7 @@ import TreeView from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
 import ButtonGroup from "../../UI/ButtonGroup.js";
 import {Entity} from "../../../../src/index.js";
-import ContentWindowObjectEditor from "./ContentWindowObjectEditor.js";
+import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
 	constructor(){
@@ -16,7 +16,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 
-		this.linkedObjectEditor = null;
+		this.linkedEntityEditor = null;
 
 		let createEmptyButton = new Button({
 			text: "Create Emtpy",
@@ -26,36 +26,36 @@ export default class ContentWindowOutliner extends ContentWindow{
 		});
 		this.addTopBarButton(createEmptyButton);
 
-		this.setAvailableLinkedObjectEditor();
+		this.setAvailableLinkedEntityEditor();
 	}
 
 	destructor(){
 		super.destructor();
 		this.treeView.destructor();
 		this.treeView = null;
-		this.linkedObjectEditor = null;
+		this.linkedEntityEditor = null;
 	}
 
 	static get windowName(){
 		return "Outliner";
 	}
 
-	setAvailableLinkedObjectEditor(){
-		for(const objectEditor of editor.windowManager.getContentWindowsByType(ContentWindowObjectEditor)){
-			this.setLinkedObjectEditor(objectEditor);
+	setAvailableLinkedEntityEditor(){
+		for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
+			this.setLinkedEntityEditor(entityEditor);
 			break;
 		}
 	}
 
-	setLinkedObjectEditor(linkedObjectEditor){
-		this.linkedObjectEditor = linkedObjectEditor;
+	setLinkedEntityEditor(linkedEntityEditor){
+		this.linkedEntityEditor = linkedEntityEditor;
 		this.updateTreeView();
 	}
 
 	updateTreeView(){
 		let treeData = {};
-		if(this.linkedObjectEditor && this.linkedObjectEditor.editingObject){
-			treeData = this.treeDataFromEntity(this.linkedObjectEditor.editingObject);
+		if(this.linkedEntityEditor && this.linkedEntityEditor.editingEntity){
+			treeData = this.treeDataFromEntity(this.linkedEntityEditor.editingEntity);
 		}
 		this.treeView.updateData(treeData);
 	}
@@ -75,41 +75,41 @@ export default class ContentWindowOutliner extends ContentWindow{
 	}
 
 	createNew(name, afterCreate = null){
-		if(!this.linkedObjectEditor || !this.linkedObjectEditor.editingObject) return;
-		let rootObj = this.linkedObjectEditor.editingObject;
+		if(!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return;
+		let rootObj = this.linkedEntityEditor.editingEntity;
 		let createdAny = false;
 		//todo: use selection manager
 		for(const indicesPath of this.treeView.getSelectionIndices()){
 			let obj = rootObj.getEntityByIndicesPath(indicesPath);
-			let createdObject = new Entity(name);
-			obj.add(createdObject);
+			let createdObj = new Entity(name);
+			obj.add(createdObj);
 			createdAny = true;
 		}
 		if(!createdAny){
-			let createdObject = new Entity(name);
-			rootObj.add(createdObject);
+			let createdObj = new Entity(name);
+			rootObj.add(createdObj);
 		}
 		this.updateTreeView();
 	}
 
-	getObjectByTreeViewItem(treeView){
-		if(!this.linkedObjectEditor || !this.linkedObjectEditor.editingObject) return null;
+	getEntityByTreeViewItem(treeView){
+		if(!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return null;
 		let indicesPath = treeView.getIndicesPath();
-		return this.linkedObjectEditor.editingObject.getEntityByIndicesPath(indicesPath);
+		return this.linkedEntityEditor.editingEntity.getEntityByIndicesPath(indicesPath);
 	}
 
 	onTreeViewSelectionChange(changes){
-		if(!this.linkedObjectEditor) return;
+		if(!this.linkedEntityEditor) return;
 		let toIndices = name => {
-			changes[name] = changes[name].map(t => this.getObjectByTreeViewItem(t));
+			changes[name] = changes[name].map(t => this.getEntityByTreeViewItem(t));
 		}
 		toIndices("added");
 		toIndices("removed");
-		this.linkedObjectEditor.selectionManager.changeSelection(changes);
+		this.linkedEntityEditor.selectionManager.changeSelection(changes);
 	}
 
 	onTreeViewNameChange({changedElement}){
-		let obj = this.getObjectByTreeViewItem(changedElement);
+		let obj = this.getEntityByTreeViewItem(changedElement);
 		obj.name = changedElement.name;
 	}
 }

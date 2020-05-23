@@ -5,7 +5,7 @@ import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
 
-export default class ContentWindowObjectEditor extends ContentWindow{
+export default class ContentWindowEntityEditor extends ContentWindow{
 	constructor(){
 		super();
 
@@ -24,14 +24,14 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
 
-		this._editingObject = null;
+		this._editingEntity = null;
 		this.selectionManager = new SelectionManager();
 
 		this.newEmptyEditingEntity();
 	}
 
 	static get windowName(){
-		return "ObjectEditor";
+		return "EntityEditor";
 	}
 
 	destructor(){
@@ -40,17 +40,17 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.canvasEl = null;
 		this.ctx = null;
 		this.editorScene.destructor();
-		this._editingObject = null;
+		this._editingEntity = null;
 		this.selectionManager.destructor();
 		this.selectionManager = null;
 	}
 
-	get editingObject(){
-		return this._editingObject;
+	get editingEntity(){
+		return this._editingEntity;
 	}
 
-	set editingObject(val){
-		this._editingObject = val;
+	set editingEntity(val){
+		this._editingEntity = val;
 		this.editorScene.add(val);
 		this.render();
 		this.updateOutliners();
@@ -65,11 +65,11 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 	}
 
 	newEmptyEditingEntity(){
-		this.editingObject = new Entity();
+		this.editingEntity = new Entity();
 	}
 
 	createTempDebugObject(){
-		this.editingObject = new Entity({name: "object"});
+		this.editingEntity = new Entity({name: "object"});
 
 		let cube = new Entity({name:"cube"});
 		let cubeMesh = new Mesh();
@@ -126,10 +126,10 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		let cubeMat = new Material(cubeShader);
 		cube.addComponent(new MeshComponent({mesh: cubeMesh, material: cubeMat}));
 
-		this.editingObject.add(cube);
+		this.editingEntity.add(cube);
 
 		let cam = new Entity({name:"cam"});
-		this.editingObject.add(cam);
+		this.editingEntity.add(cam);
 		cam.addComponent(CameraComponent);
 	}
 
@@ -151,7 +151,7 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 	updateOutliners(){
 		for(const outliner of editor.windowManager.getContentWindowsByType(ContentWindowOutliner)){
-			outliner.setLinkedObjectEditor(this);
+			outliner.setLinkedEntityEditor(this);
 		}
 	}
 }

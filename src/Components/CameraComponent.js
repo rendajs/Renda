@@ -6,9 +6,9 @@ export default class CameraComponent extends Component{
 	constructor(opts){
 		super(opts);
 		opts = {...{
-			autoManageRootRenderObjects: true,
+			autoManageRootRenderEntities: true,
 		}, ...opts}
-		this.autoManageRootRenderObjects = opts.autoManageRootRenderObjects;
+		this.autoManageRootRenderEntities = opts.autoManageRootRenderEntities;
 
 		this.autoUpdateProjectionMatrix = true;
 		this._fov = 70;
@@ -18,26 +18,26 @@ export default class CameraComponent extends Component{
 		this.projectionMatrix = null;
 		this.updateProjectionMatrix();
 
-		this.rootRenderObjects = [];
+		this.rootRenderEntities = [];
 		this.renderer = null;
 	}
 
 	//todo: destructor
 
 	onAttachedToEntity(){
-		this.setRootRenderObjects();
+		this.setRootRenderEntities();
 	}
 
 	onParentChanged(){
-		this.setRootRenderObjects();
+		this.setRootRenderEntities();
 	}
 
-	setRootRenderObjects(){
-		if(this.autoManageRootRenderObjects){
+	setRootRenderEntities(){
+		if(this.autoManageRootRenderEntities){
 			if(this.entity){
-				this.rootRenderObjects = [this.entity.getRoot()];
+				this.rootRenderEntities = [this.entity.getRoot()];
 			}else{
-				this.rootRenderObjects = [];
+				this.rootRenderEntities = [];
 			}
 		}
 	}
