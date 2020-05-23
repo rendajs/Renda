@@ -108,10 +108,10 @@ export default class ContentWindowProject extends ContentWindow{
 			let body = await file.text();
 			let json = JSON.parse(body);
 			let type = json.type;
-			if(type == "GameObject"){
-				let gameObject = editor.projectManager.assetManager.createObjectFromJsonData(json.object);
+			if(type == "Entity"){
+				let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.object);
 				for(const objectEditor of editor.windowManager.getContentWindowsByType(ContentWindowObjectEditor)){
-					objectEditor.editingObject = gameObject;
+					objectEditor.editingObject = entity;
 				}
 			}
 		}

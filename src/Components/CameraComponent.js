@@ -24,7 +24,7 @@ export default class CameraComponent extends Component{
 
 	//todo: destructor
 
-	onAttachedToObject(){
+	onAttachedToEntity(){
 		this.setRootRenderObjects();
 	}
 
@@ -34,8 +34,8 @@ export default class CameraComponent extends Component{
 
 	setRootRenderObjects(){
 		if(this.autoManageRootRenderObjects){
-			if(this.gameObject){
-				this.rootRenderObjects = [this.gameObject.getRoot()];
+			if(this.entity){
+				this.rootRenderObjects = [this.entity.getRoot()];
 			}else{
 				this.rootRenderObjects = [];
 			}
@@ -83,6 +83,6 @@ export default class CameraComponent extends Component{
 	}
 
 	getVpMatrix(){
-		return Mat4.multiplyMatrices(this.gameObject.worldMatrix.inverse(), this.projectionMatrix);
+		return Mat4.multiplyMatrices(this.entity.worldMatrix.inverse(), this.projectionMatrix);
 	}
 }

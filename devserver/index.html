@@ -5,8 +5,8 @@
 
 			window["GameEngine"] = GameEngine;
 
-			let scene = new GameEngine.GameObject({name:"scene"});
-			let cube = new GameEngine.GameObject({name:"cube"});
+			let scene = new GameEngine.Entity({name:"scene"});
+			let cube = new GameEngine.Entity({name:"cube"});
 			let cubeMesh = new GameEngine.Mesh();
 			cubeMesh.positions = [
 				new GameEngine.Vector3(-1,-1,-1),
@@ -61,7 +61,7 @@
 			let cubeMat = new GameEngine.Material(cubeShader);
 			cube.addComponent(new GameEngine.MeshComponent({mesh: cubeMesh, material: cubeMat}));
 			scene.add(cube);
-			let cam = new GameEngine.GameObject({name:"cam"});
+			let cam = new GameEngine.Entity({name:"cam"});
 			cam.worldMatrix.translate(0,0,-5);
 			let camComponent = cam.addComponent(GameEngine.CameraComponent);
 			camComponent.renderer = new GameEngine.RealTimeRenderer();

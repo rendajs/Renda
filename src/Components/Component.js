@@ -1,18 +1,18 @@
 export default class Component{
 	constructor(opts){
-		this.gameObject = null;
+		this.entity = null;
 	}
 
 	destructor(){
-		this.gameObject = null;
+		this.entity = null;
 	}
 
-	attachedToObject(obj){
-		this.gameObject = obj;
-		this.onAttachedToObject(obj);
+	attachedToEntity(obj){
+		this.entity = obj;
+		this.onAttachedToEntity(obj);
 	}
 
-	onAttachedToObject(){}
+	onAttachedToEntity(){}
 	onParentChanged(){}
 
 	toJson(){

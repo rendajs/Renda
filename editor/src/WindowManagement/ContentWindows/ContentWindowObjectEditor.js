@@ -1,6 +1,6 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
-import {GameObject, CameraComponent, Mesh, Vector3, Shader, Material, MeshComponent} from "../../../../src/index.js";
+import {Entity, CameraComponent, Mesh, Vector3, Shader, Material, MeshComponent} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -17,8 +17,8 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.renderDirty = false;
 
-		this.editorScene = new GameObject({name: "editorScene"});
-		this.editorCamera = new GameObject({name: "editorCamera"});
+		this.editorScene = new Entity({name: "editorScene"});
+		this.editorCamera = new Entity({name: "editorCamera"});
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
 
@@ -27,7 +27,7 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this._editingObject = null;
 		this.selectionManager = new SelectionManager();
 
-		this.newEmptyEditingObject();
+		this.newEmptyEditingEntity();
 	}
 
 	static get windowName(){
@@ -64,14 +64,14 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 		this.renderDirty = true;
 	}
 
-	newEmptyEditingObject(){
-		this.editingObject = new GameObject({name: "object"});
+	newEmptyEditingEntity(){
+		this.editingObject = new Entity();
 	}
 
 	createTempDebugObject(){
-		this.editingObject = new GameObject({name: "object"});
+		this.editingObject = new Entity({name: "object"});
 
-		let cube = new GameObject({name:"cube"});
+		let cube = new Entity({name:"cube"});
 		let cubeMesh = new Mesh();
 		cubeMesh.positions = [
 			new Vector3(-1,-1,-1),
@@ -128,7 +128,7 @@ export default class ContentWindowObjectEditor extends ContentWindow{
 
 		this.editingObject.add(cube);
 
-		let cam = new GameObject({name:"cam"});
+		let cam = new Entity({name:"cam"});
 		this.editingObject.add(cam);
 		cam.addComponent(CameraComponent);
 	}

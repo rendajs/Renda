@@ -1,4 +1,4 @@
-export {default as GameObject} from "./GameObject.js";
+export {default as Entity} from "./Entity.js";
 export {default as Mesh} from "./Mesh.js";
 export * from "./Components/Components.js";
 export * from "./Rendering/Rendering.js";

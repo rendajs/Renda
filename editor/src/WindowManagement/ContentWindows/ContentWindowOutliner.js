@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
 import ButtonGroup from "../../UI/ButtonGroup.js";
-import {GameObject} from "../../../../src/index.js";
+import {Entity} from "../../../../src/index.js";
 import ContentWindowObjectEditor from "./ContentWindowObjectEditor.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
@@ -55,23 +55,23 @@ export default class ContentWindowOutliner extends ContentWindow{
 	updateTreeView(){
 		let treeData = {};
 		if(this.linkedObjectEditor && this.linkedObjectEditor.editingObject){
-			treeData = this.treeDataFromGameObject(this.linkedObjectEditor.editingObject);
+			treeData = this.treeDataFromEntity(this.linkedObjectEditor.editingObject);
 		}
 		this.treeView.updateData(treeData);
 	}
 
-	treeDataFromGameObject(gameObject){
+	treeDataFromEntity(entity){
 		let treeData = {};
-		treeData.name = gameObject.name;
+		treeData.name = entity.name;
 		treeData.children = [];
-		for(const child of gameObject.getChildren()){
-			treeData.children.push(this.treeDataFromGameObject(child));
+		for(const child of entity.getChildren()){
+			treeData.children.push(this.treeDataFromEntity(child));
 		}
 		return treeData;
 	}
 
 	createNewEmpty(){
-		this.createNew("GameObject");
+		this.createNew("Entity");
 	}
 
 	createNew(name, afterCreate = null){
@@ -80,13 +80,13 @@ export default class ContentWindowOutliner extends ContentWindow{
 		let createdAny = false;
 		//todo: use selection manager
 		for(const indicesPath of this.treeView.getSelectionIndices()){
-			let obj = rootObj.getObjectByIndicesPath(indicesPath);
-			let createdObject = new GameObject(name);
+			let obj = rootObj.getEntityByIndicesPath(indicesPath);
+			let createdObject = new Entity(name);
 			obj.add(createdObject);
 			createdAny = true;
 		}
 		if(!createdAny){
-			let createdObject = new GameObject(name);
+			let createdObject = new Entity(name);
 			rootObj.add(createdObject);
 		}
 		this.updateTreeView();
@@ -95,7 +95,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 	getObjectByTreeViewItem(treeView){
 		if(!this.linkedObjectEditor || !this.linkedObjectEditor.editingObject) return null;
 		let indicesPath = treeView.getIndicesPath();
-		return this.linkedObjectEditor.editingObject.getObjectByIndicesPath(indicesPath);
+		return this.linkedObjectEditor.editingObject.getEntityByIndicesPath(indicesPath);
 	}
 
 	onTreeViewSelectionChange(changes){

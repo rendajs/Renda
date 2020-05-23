@@ -1,7 +1,7 @@
 import Component from "./Components/Component.js";
 import {Vector3, Quaternion, Mat4} from "./Math/Math.js";
 
-export default class GameObject{
+export default class Entity{
 	constructor(opts){
 		if(typeof opts == "string"){
 			opts = {
@@ -9,7 +9,7 @@ export default class GameObject{
 			}
 		}
 		opts = {...{
-			name: "",
+			name: "Entity",
 			parent: null,
 		}, ...opts}
 		this.name = opts.name;
@@ -55,7 +55,7 @@ export default class GameObject{
 		}
 
 		this.components.push(component);
-		component.attachedToObject(this);
+		component.attachedToEntity(this);
 		return component;
 	}
 
@@ -174,11 +174,11 @@ export default class GameObject{
 		}
 	}
 
-	getObjectByIndicesPath(indexPath, startFrom = 0){
+	getEntityByIndicesPath(indexPath, startFrom = 0){
 		if(startFrom >= indexPath.length) return this;
 		let index = indexPath[startFrom];
 		let child = this.children[index];
-		return child.getObjectByIndicesPath(indexPath, startFrom + 1);
+		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
 	}
 
 	toJson(){

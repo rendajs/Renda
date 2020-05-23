@@ -1,3 +1,3 @@
-import PropertiesWindowGameObjectContent from "./PropertiesWindowGameObjectContent.js";
+import PropertiesWindowEntityContent from "./PropertiesWindowEntityContent.js";
 
-export default [PropertiesWindowGameObjectContent];
+export default [PropertiesWindowEntityContent];

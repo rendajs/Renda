@@ -1,4 +1,4 @@
-import {GameObject} from "../../../src/index.js";
+import {Entity} from "../../../src/index.js";
 
 export default class AssetManager{
 	constructor(){
@@ -9,10 +9,10 @@ export default class AssetManager{
 
 	}
 
-	createObjectFromJsonData(jsonData){
-		let obj = new GameObject(jsonData.name || "");
+	createEntityFromJsonData(jsonData){
+		let obj = new Entity(jsonData.name || "");
 		for(const childJson of (jsonData.children || [])){
-			let child = this.createObjectFromJsonData(childJson);
+			let child = this.createEntityFromJsonData(childJson);
 			obj.add(child);
 		}
 		return obj;

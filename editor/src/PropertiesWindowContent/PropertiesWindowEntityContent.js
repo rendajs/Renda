@@ -1,8 +1,8 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {GameObject, Vector3} from "../../../../src/index.js";
+import {Entity, Vector3} from "../../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
-export default class PropertiesWindowGameObjectContent extends PropertiesWindowContent{
+export default class PropertiesWindowEntityContent extends PropertiesWindowContent{
 	constructor(){
 		super();
 
@@ -11,8 +11,8 @@ export default class PropertiesWindowGameObjectContent extends PropertiesWindowC
 		this.treeView = new PropertiesTreeView();
 		this.el.appendChild(this.treeView.el);
 
-		let gameObjectSection = this.treeView.addCollapsable("GameObject");
-		this.positionProperty = gameObjectSection.addItem({
+		let entitySection = this.treeView.addCollapsable("Entity");
+		this.positionProperty = entitySection.addItem({
 			label: "Position",
 			type: "Vector3",
 		});
@@ -21,11 +21,11 @@ export default class PropertiesWindowGameObjectContent extends PropertiesWindowC
 				obj.pos.set(newValue);
 			}
 		});
-		this.rotationProperty = gameObjectSection.addItem({
+		this.rotationProperty = entitySection.addItem({
 			label: "Rotation",
 			type: "Vector3",
 		});
-		this.scaleProperty = gameObjectSection.addItem({
+		this.scaleProperty = entitySection.addItem({
 			label: "Scale",
 			type: "Vector3",
 		});
@@ -42,7 +42,7 @@ export default class PropertiesWindowGameObjectContent extends PropertiesWindowC
 	}
 
 	static get useForTypes(){
-		return [GameObject];
+		return [Entity];
 	}
 
 	selectionChanged(selectedObjects){
