@@ -1,4 +1,4 @@
-import AutoRegisterContentWindows from "../PropertiesWindowContent/AutoRegisterContentWindows.js";
+import autoRegisterContentWindows from "../PropertiesWindowContent/AutoRegisterContentWindows.js";
 import PropertiesWindowContent from "../PropertiesWindowContent/PropertiesWindowContent.js";
 import ContentWindowProperties from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
 import PropertiesWindowEmptyContent from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
@@ -11,7 +11,7 @@ export default class PropertiesWindowContentManager{
 	}
 
 	init(){
-		for(const t of AutoRegisterContentWindows){
+		for(const t of autoRegisterContentWindows){
 			this.registerContentType(t);
 		}
 	}
@@ -39,14 +39,8 @@ export default class PropertiesWindowContentManager{
 			this.registeredContentTypes.set(t, constructor);
 		}
 
-		for(const w of this.allPropertiesWindows()){
-			w.onContentTypeRegistered(constructor);
-		}
-	}
-
-	*allPropertiesWindows(){
 		for(const w of editor.windowManager.getContentWindowsByType(ContentWindowProperties)){
-			yield w;
+			w.onContentTypeRegistered(constructor);
 		}
 	}
 

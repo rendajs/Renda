@@ -14,7 +14,7 @@ export default class ContentWindowRenderView extends ContentWindow{
 	}
 
 	static get windowName(){
-		return "RenderView";
+		return "renderView";
 	}
 
 	destructor(){

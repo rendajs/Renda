@@ -31,7 +31,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	static get windowName(){
-		return "EntityEditor";
+		return "entityEditor";
 	}
 
 	destructor(){

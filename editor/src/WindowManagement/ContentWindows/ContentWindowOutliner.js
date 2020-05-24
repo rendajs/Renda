@@ -37,7 +37,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 	}
 
 	static get windowName(){
-		return "Outliner";
+		return "outliner";
 	}
 
 	setAvailableLinkedEntityEditor(){

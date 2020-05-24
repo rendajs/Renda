@@ -38,7 +38,7 @@ export default class ContentWindow{
 	}
 
 	static get windowName(){
-		return "Empty";
+		return null; //should be overridden by inherited class
 	}
 
 	updateTabSelectorSpacer(w, h){

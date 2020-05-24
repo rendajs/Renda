@@ -12,7 +12,7 @@ export default class ContentWindowProperties extends ContentWindow{
 	}
 
 	static get windowName(){
-		return "Properties";
+		return "properties";
 	}
 
 	destructor(){

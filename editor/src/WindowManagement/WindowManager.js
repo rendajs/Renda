@@ -7,7 +7,7 @@ export default class WindowManager{
 	constructor(){
 		this.rootWindow = null;
 
-		this.registeredContentWindows = [];
+		this.registeredContentWindows = new Map();
 
 		for(const w of ContentWindows){
 			this.registerContentWindow(w);
@@ -30,11 +30,11 @@ export default class WindowManager{
 					splitPercentage: 0.6,
 					windowA: {
 						type: "tabs",
-						tabTypes: ["Outliner"],
+						tabTypes: ["outliner"],
 					},
 					windowB: {
 						type: "tabs",
-						tabTypes: ["Project"],
+						tabTypes: ["project"],
 					},
 				},
 				windowB: {
@@ -47,16 +47,16 @@ export default class WindowManager{
 						splitPercentage: 0.5,
 						windowA: {
 							type: "tabs",
-							tabTypes: ["EntityEditor"],
+							tabTypes: ["entityEditor"],
 						},
 						windowB: {
 							type: "tabs",
-							tabTypes: ["RenderView"],
+							tabTypes: ["renderView"],
 						},
 					},
 					windowB: {
 						type: "tabs",
-						tabTypes: ["Properties"],
+						tabTypes: ["properties"],
 					},
 				}
 			}
@@ -105,12 +105,12 @@ export default class WindowManager{
 			console.warn("Tried to register content window ("+constructor.name+") that does not extend ContentWindow class.");
 			return;
 		}
-		if(constructor.windowName == "Empty"){
+		if(constructor.windowName == null){
 			console.warn("Tried to register content window ("+constructor.name+") with no window name, override the static windowName property in order for this content window to function properly");
 			return;
 		}
 
-		this.registeredContentWindows.push(constructor);
+		this.registeredContentWindows.set(constructor.windowName, constructor);
 
 		for(const w of this.allEditorWindows()){
 			w.onContentWindowRegistered(constructor);
@@ -118,12 +118,7 @@ export default class WindowManager{
 	}
 
 	getContentWindowConstructorByType(type){
-		for(const contentWindow of this.registeredContentWindows){
-			if(contentWindow.windowName == type){
-				return contentWindow;
-			}
-		}
-		return null;
+		return this.registeredContentWindows.get(type);
 	}
 
 	*allEditorWindows(){

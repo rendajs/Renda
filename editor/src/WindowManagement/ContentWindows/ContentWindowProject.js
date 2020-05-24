@@ -32,7 +32,7 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	static get windowName(){
-		return "Project";
+		return "project";
 	}
 
 	getFileSystem(){
