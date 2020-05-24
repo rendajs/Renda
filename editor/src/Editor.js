@@ -2,15 +2,17 @@ import WindowManager from "./WindowManagement/WindowManager.js";
 import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import DragManager from "./Managers/DragManager.js";
-import * as GameEngine from "../../src/index.js";
+import {RealTimeRenderer} from "../../src/index.js";
+import ComponentTypeManager from "./Managers/ComponentTypeManager.js";
 
 export default class Editor{
 	constructor(){
-		this.renderer = new GameEngine.RealTimeRenderer();
+		this.renderer = new RealTimeRenderer();
 		this.windowManager = new WindowManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
 		this.projectManager = new ProjectManager();
 		this.dragManager = new DragManager();
+		this.componentTypeManager = new ComponentTypeManager();
 	}
 
 	//convenience function for getting selected object in the browser console
@@ -26,6 +28,7 @@ export default class Editor{
 		this.renderer.init();
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
+		this.componentTypeManager.init();
 
 		this.projectManager.openDb();
 	}

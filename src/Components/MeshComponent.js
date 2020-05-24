@@ -15,6 +15,10 @@ export default class MeshComponent extends Component{
 		if(opts.material) this.material = opts.material;
 	}
 
+	static get componentName(){
+		return "mesh";
+	}
+
 	//todo: destructor
 
 	get material(){

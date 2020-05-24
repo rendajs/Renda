@@ -56,7 +56,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			}
 		}
 		for(const componentGroup of componentGroups){
-			this.componentsSection.addCollapsable("component");
+			this.componentsSection.addCollapsable(componentGroup.constructor.componentName);
 		}
 	}
 }

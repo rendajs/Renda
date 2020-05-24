@@ -22,6 +22,10 @@ export default class CameraComponent extends Component{
 		this.renderer = null;
 	}
 
+	static get componentName(){
+		return "camera";
+	}
+
 	//todo: destructor
 
 	onAttachedToEntity(){

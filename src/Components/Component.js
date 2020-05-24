@@ -3,6 +3,10 @@ export default class Component{
 		this.entity = null;
 	}
 
+	static get componentName(){
+		return null; //should be overridden by inherited class
+	}
+
 	destructor(){
 		this.entity = null;
 	}
