@@ -24,8 +24,13 @@ export default class Component{
 	onParentChanged(){}
 
 	toJson(){
+		let propertyValues = {};
+		for(const [propertyName, property] of this._componentProperties){
+			propertyValues[propertyName] = property.getValue();
+		}
 		return {
-			type: "Component",
+			type: this.constructor.componentName,
+			propertyValues,
 		}
 	}
 
