@@ -11,15 +11,34 @@ export default class CameraComponent extends Component{
 		this.autoManageRootRenderEntities = opts.autoManageRootRenderEntities;
 
 		this.autoUpdateProjectionMatrix = true;
-		this._fov = 70;
-		this._clipNear = 0.01;
-		this._clipFar = 1000;
-		this._aspect = 1;
+		this.fov = 70;
+		this.clipNear = 0.01;
+		this.clipFar = 1000;
+		this.aspect = 1;
 		this.projectionMatrix = null;
 		this.updateProjectionMatrix();
 
 		this.rootRenderEntities = [];
 		this.renderer = null;
+
+		this.setComponentProperties({
+			fov: {
+				min:0, max:180,
+				onChange: _ => {this.updateProjectionMatrixAuto()},
+			},
+			clipNear: {
+				min: 0,
+				onChange: _ => {this.updateProjectionMatrixAuto()},
+			},
+			clipFar: {
+				min: 0,
+				onChange: _ => {this.updateProjectionMatrixAuto()},
+			},
+			aspect: {
+				min: 0,
+				onChange: _ => {this.updateProjectionMatrixAuto()},
+			},
+		});
 	}
 
 	static get componentName(){
@@ -50,40 +69,12 @@ export default class CameraComponent extends Component{
 		this.renderer.render(this);
 	}
 
-	get fov(){
-		return this._fov;
-	}
-	set fov(value){
-		this._fov = value;
-		if(this.autoUpdateProjectionMatrix) this.updateProjectionMatrix();
-	}
-
-	get clipNear(){
-		return this._clipNear;
-	}
-	set clipNear(value){
-		this._clipNear = value;
-		if(this.autoUpdateProjectionMatrix) this.updateProjectionMatrix();
-	}
-
-	get clipFar(){
-		return this._clipFar;
-	}
-	set clipFar(value){
-		this._clipFar = value;
-		if(this.autoUpdateProjectionMatrix) this.updateProjectionMatrix();
-	}
-
-	get aspect(){
-		return this._aspect;
-	}
-	set aspect(value){
-		this._aspect = value;
+	updateProjectionMatrixAuto(){
 		if(this.autoUpdateProjectionMatrix) this.updateProjectionMatrix();
 	}
 
 	updateProjectionMatrix(){
-		this.projectionMatrix = Mat4.createDynamicAspectProjection(this._fov, this._clipNear, this._clipFar, this._aspect);
+		this.projectionMatrix = Mat4.createDynamicAspectProjection(this.fov, this.clipNear, this.clipFar, this.aspect);
 	}
 
 	getVpMatrix(){

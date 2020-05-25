@@ -1,14 +1,17 @@
 import TreeView from "../TreeView.js";
 import VectorGUI from "../VectorGUI.js";
+import NumericGUI from "../NumericGUI.js";
 
 export default class PropertiesTreeViewProperty extends TreeView{
 	constructor({
 		label = "",
 		type = "",
+		guiItemOpts = {},
 	} = {}){
 		super({
 			addCustomEl: true,
 		});
+		type = type.toLowerCase();
 		this.type = type;
 
 		this.rowVisible = false;
@@ -25,8 +28,13 @@ export default class PropertiesTreeViewProperty extends TreeView{
 		this.valueEl.classList.add("propertiesGUIPropertyValue");
 		this.customEl.appendChild(this.valueEl);
 
-		if(type.startsWith("Vector")){
-			this.gui = new VectorGUI();
+		if(type.startsWith("vector")){
+			let size = parseInt(type.slice(6));
+			guiItemOpts.size = size;
+			this.gui = new VectorGUI(guiItemOpts);
+			this.valueEl.appendChild(this.gui.el);
+		}else if(type == "float"){
+			this.gui = new NumericGUI(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}
 	}
@@ -44,7 +52,9 @@ export default class PropertiesTreeViewProperty extends TreeView{
 	}
 
 	onValueChange(cb){
-		if(this.type.startsWith("Vector")){
+		if(this.type.startsWith("vector")){
+			this.gui.onValueChange(cb);
+		}else if(this.type == "float"){
 			this.gui.onValueChange(cb);
 		}
 	}
