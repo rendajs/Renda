@@ -45,7 +45,7 @@ body, html{
 }
 
 .editorContentWindowTopButtonBar > .button{
-	position: absolute;
+	/* position: absolute; */
 	margin: 5px;
 }
 

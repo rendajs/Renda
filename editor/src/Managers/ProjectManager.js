@@ -7,12 +7,12 @@ export default class ProjectManager{
 	constructor(){
 		this.currentProjectFileSystem = null;
 		this.assetManager = null;
-		this.reloadAssetManager();
 	}
 
 	openProject(fileSystem){
 		this.currentProjectFileSystem = fileSystem;
 		editor.windowManager.reloadCurrentWorkspace();
+		this.reloadAssetManager();
 	}
 
 	reloadAssetManager(){

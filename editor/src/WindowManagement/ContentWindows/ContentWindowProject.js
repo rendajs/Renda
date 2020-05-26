@@ -15,6 +15,13 @@ export default class ContentWindowProject extends ContentWindow{
 			}
 		});
 		this.addTopBarButton(createDirButton);
+		let createMatButton = new Button({
+			text: "New Mat",
+			onClick: _ => {
+				this.createNewMat();
+			}
+		});
+		this.addTopBarButton(createMatButton);
 
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
@@ -61,8 +68,7 @@ export default class ContentWindowProject extends ContentWindow{
 		}
 	}
 
-	async createNewDir(){
-		let fileSystem = this.getFileSystem();
+	async createAtSelectedPath(createName = "new", createFn = null){
 		let selectedPath = [];
 		let treeView = this.treeView;
 		for(const selectedItem of this.treeView.getSelectedItems()){
@@ -71,10 +77,30 @@ export default class ContentWindowProject extends ContentWindow{
 			treeView = selectedItem;
 			break;
 		}
-		let newPath = [...selectedPath, "New Folder"];
-		await fileSystem.createDir(newPath);
+		let newPath = [...selectedPath, createName];
+		let fileSystem = this.getFileSystem();
+		let returnData = null;
+		if(createFn){
+			returnData = await createFn(fileSystem, newPath, createName);
+		}
 		await this.updateTreeView(treeView, fileSystem, selectedPath);
 		treeView.collapsed = false;
+		return returnData;
+	}
+
+	async createNewDir(){
+		await this.createAtSelectedPath("New Folder", async (fileSystem, newPath) => {
+			await fileSystem.createDir(newPath);
+		});
+	}
+
+	async createNewMat(){
+		let newPath = await this.createAtSelectedPath("New Material.json", async(fileSystem, newPath, fileName) => {
+			await fileSystem.writeJson(newPath, {test: "dit is een test"});
+			return newPath;
+		});
+
+		await editor.projectManager.assetManager.registerAsset(newPath);
 	}
 
 	async onTreeViewNameChange({changedElement, oldName, newName}){
@@ -103,16 +129,12 @@ export default class ContentWindowProject extends ContentWindow{
 		let path = clickedElement.getNamesPath();
 		path.shift(); //remove root
 		let fileSystem = this.getFileSystem();
-		let file = await fileSystem.readFile(path);
-		if(file.type == "application/json"){
-			let body = await file.text();
-			let json = JSON.parse(body);
-			let type = json.type;
-			if(type == "Entity"){
-				let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.entity);
-				for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
-					entityEditor.editingEntity = entity;
-				}
+		let json = await fileSystem.readJson(path);
+		let type = json.type;
+		if(type == "Entity"){
+			let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.entity);
+			for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
+				entityEditor.editingEntity = entity;
 			}
 		}
 	}
