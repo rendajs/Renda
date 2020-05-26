@@ -1,6 +1,7 @@
 import TreeView from "../TreeView.js";
 import VectorGUI from "../VectorGUI.js";
 import NumericGUI from "../NumericGUI.js";
+import AssetGUI from "../AssetGUI.js";
 
 export default class PropertiesTreeViewProperty extends TreeView{
 	constructor({
@@ -35,6 +36,9 @@ export default class PropertiesTreeViewProperty extends TreeView{
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == "float"){
 			this.gui = new NumericGUI(guiItemOpts);
+			this.valueEl.appendChild(this.gui.el);
+		}else if(type == "asset"){
+			this.gui = new AssetGUI(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}
 	}

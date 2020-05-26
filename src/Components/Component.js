@@ -1,5 +1,6 @@
 import ComponentProperty from "./ComponentProperties/ComponentProperty.js";
 import ComponentPropertyFloat from "./ComponentProperties/ComponentPropertyFloat.js";
+import ComponentPropertyAsset from "./ComponentProperties/ComponentPropertyAsset.js";
 
 export default class Component{
 	constructor(opts){
@@ -58,6 +59,8 @@ export default class Component{
 		let propertyType = settings.type || "float";
 		if(propertyType == "float"){
 			return new ComponentPropertyFloat(settings);
+		}else if(propertyType == "asset"){
+			return new ComponentPropertyAsset(settings);
 		}else{
 			return new ComponentProperty(settings);
 		}

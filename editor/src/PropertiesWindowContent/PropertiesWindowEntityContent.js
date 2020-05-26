@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vector3, ComponentPropertyFloat} from "../../../../src/index.js";
+import {Entity, Vector3, ComponentPropertyFloat, ComponentPropertyAsset} from "../../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent{
@@ -62,6 +62,14 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					componentUI.addItem({
 						label: propertyName,
 						type: "float",
+						guiItemOpts: {
+							value: property.value,
+						},
+					});
+				}else if(property instanceof ComponentPropertyAsset){
+					componentUI.addItem({
+						label: propertyName,
+						type: "asset",
 						guiItemOpts: {
 							value: property.value,
 						},

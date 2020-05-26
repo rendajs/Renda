@@ -13,6 +13,17 @@ export default class MeshComponent extends Component{
 
 		this.materials = opts.materials;
 		if(opts.material) this.material = opts.material;
+
+		this.setComponentProperties({
+			mesh: {
+				type: "asset",
+				onChange: _ => {this.updateProjectionMatrixAuto()},
+			},
+			material: {
+				type: "asset",
+				onChange: _ => {this.updateProjectionMatrixAuto()},
+			},
+		});
 	}
 
 	static get componentName(){
