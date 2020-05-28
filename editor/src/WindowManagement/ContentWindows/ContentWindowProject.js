@@ -8,20 +8,21 @@ export default class ContentWindowProject extends ContentWindow{
 	constructor(){
 		super();
 
-		let createDirButton = new Button({
-			text: "New Dir",
+		let createButton = new Button({
+			text: "+",
 			onClick: _ => {
-				this.createNewDir();
+				let menu = editor.contextMenuManager.createContextMenu();
+				menu.addItem("New Folder", _ => {
+					this.createNewDir();
+				});
+				menu.addItem("New Material", _ => {
+					this.createNewMaterial();
+				});
+
+				menu.setPos(createButton, "top left");
 			}
 		});
-		this.addTopBarButton(createDirButton);
-		let createMatButton = new Button({
-			text: "New Mat",
-			onClick: _ => {
-				this.createNewMat();
-			}
-		});
-		this.addTopBarButton(createMatButton);
+		this.addTopBarButton(createButton);
 
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
@@ -94,7 +95,7 @@ export default class ContentWindowProject extends ContentWindow{
 		});
 	}
 
-	async createNewMat(){
+	async createNewMaterial(){
 		let newPath = await this.createAtSelectedPath("New Material.json", async(fileSystem, newPath, fileName) => {
 			await fileSystem.writeJson(newPath, {assetType:"material"});
 			return newPath;
