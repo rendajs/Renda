@@ -35,6 +35,7 @@ export default class RealTimeRenderer extends Renderer{
 	renderMeshComponent(component, vpMatrix){
 		let mesh = component.mesh;
 		let materials = component.materials;
+		if(!mesh || !materials || !materials.length) return;
 
 		mesh.updateBuffersGl(this.gl);
 
