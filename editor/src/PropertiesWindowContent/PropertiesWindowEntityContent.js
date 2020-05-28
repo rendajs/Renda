@@ -42,6 +42,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 						for(const obj of this.currentSelection){
 							obj.addComponent(constructor);
 						}
+						this.refreshComponents();
+						this.componentsSection.collapsed = false;
 					});
 				}
 
@@ -66,9 +68,12 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
 		this.positionProperty.setValue(selectedObjects[0].pos);
+	}
+
+	refreshComponents(){
 		this.componentsSection.clearChildren();
 		let componentGroups = [];
-		for(const entity of selectedObjects){
+		for(const entity of this.currentSelection){
 			for(const component of entity.components){
 				componentGroups.push(component);
 			}
