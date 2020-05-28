@@ -1,18 +1,17 @@
 import ContextMenuItem from "./ContextMenuItem.js";
 
 export default class ContextMenu{
-	constructor(){
+	constructor(manager){
+		this.manager = manager;
 		this.el = document.createElement("div");
 		this.el.classList.add("contextMenu");
 		document.body.appendChild(this.el);
-
-		this.boundOnWindowClick = this.onWindowClick.bind(this);
-		window.addEventListener("click", this.boundOnWindowClick);
 
 		this.addedItems = [];
 	}
 
 	destructor(){
+		this.manager = null;
 		for(const item of this.addedItems){
 			item.destructor();
 		}
@@ -21,7 +20,6 @@ export default class ContextMenu{
 			if(this.el.parentElement) this.el.parentElement.removeChild(this.el);
 			this.el = null;
 		}
-		window.removeEventListener("click", this.boundOnWindowClick);
 	}
 
 	setPos(x,y){
@@ -40,13 +38,8 @@ export default class ContextMenu{
 		this.close();
 	}
 
-	onWindowClick(e){
-		if(!this.el.contains(e.target)){
-			this.close();
-		}
-	}
-
 	close(){
+		this.manager.onContextMenuClosed(this);
 		this.destructor();
 	}
 }

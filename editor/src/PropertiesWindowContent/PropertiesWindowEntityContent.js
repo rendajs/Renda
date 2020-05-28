@@ -2,6 +2,7 @@ import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import {Entity, Vector3, ComponentPropertyFloat, ComponentPropertyAsset} from "../../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
+import editor from "../editorInstance.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent{
 	constructor(){
@@ -35,7 +36,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		let createComponentButton = new Button({
 			text: "+",
 			onClick: _ => {
-				//TODO: show create component context menu
+				let menu = editor.contextMenuManager.createContextMenu();
+				menu.addItem("Create it!");
 			}
 		});
 		this.componentsSection.addButton(createComponentButton)
