@@ -38,6 +38,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			onClick: _ => {
 				let menu = editor.contextMenuManager.createContextMenu();
 				menu.addItem("Create it!");
+
+				menu.setPos(createComponentButton, "top left");
 			}
 		});
 		this.componentsSection.addButton(createComponentButton)
