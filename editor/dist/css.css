@@ -154,6 +154,10 @@ body, html{
 	box-shadow: 2px 2px 5px #0000004d;
 }
 
+.assetGUI.dragHovering{
+	box-shadow: inset 0px 0px 0px 1px var(--color-selected-blue);
+}
+
 .editorWindowRoot{
 	width: calc(100% - 6px);
 	height: calc(100% - 6px);

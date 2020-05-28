@@ -264,6 +264,11 @@ export default class TreeView{
 		});
 		this.currenDragFeedbackEl = el;
 		e.dataTransfer.setDragImage(el, x, y);
+		e.dataTransfer.effectAllowed = "all";
+		e.dataTransfer.setData("text/plain", this.name);
+		e.dataTransfer.setData("text/jj; dragtype=projectAsset; assettype=material", JSON.stringify({
+			path: this.name,
+		}));
 	}
 
 	onDragEnd(e){

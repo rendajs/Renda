@@ -17,10 +17,12 @@ export default class MeshComponent extends Component{
 		this.setComponentProperties({
 			mesh: {
 				type: "asset",
+				assetType: "mesh",
 				onChange: _ => {this.updateProjectionMatrixAuto()},
 			},
 			material: {
 				type: "asset",
+				assetType: "material",
 				onChange: _ => {this.updateProjectionMatrixAuto()},
 			},
 		});

@@ -95,6 +95,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 						type: "asset",
 						guiItemOpts: {
 							value: property.value,
+							supportedAssetTypes: [property.assetType]
 						},
 					});
 				}

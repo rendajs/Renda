@@ -27,6 +27,7 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
 		this.treeView.rowVisible = false;
+		this.treeView.draggable = true;
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));

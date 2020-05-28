@@ -56,3 +56,17 @@ export function Uuid() {
 		return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
 	});
 }
+
+export function parseMimeType(mimeType){
+	const split = mimeType.split("/");
+	if(split.length < 2) return null;
+	const type = split[0];
+	const subTypeWithParams = split[1];
+	const paramsSplit = subTypeWithParams.split(";");
+	const [subType, ...paramsStr] = paramsSplit;
+	const params = {}
+	for(const [name, value] of paramsStr.map(p => p.trim().split("="))){
+		params[name] = value;
+	}
+	return {type, subType, params};
+}
