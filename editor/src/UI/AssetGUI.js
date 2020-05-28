@@ -2,8 +2,8 @@ export default class AssetGUI{
 	constructor({
 		supportedAssetTypes = [],
 	} = {}){
-		this.el = document.createElement("input");
-		this.el.classList.add("assetGUI", "buttonLike", "resetInput", "textInput");
+		this.el = document.createElement("div");
+		this.el.classList.add("assetGUI", "empty");
 		this.onValueChangeCbs = [];
 	}
 

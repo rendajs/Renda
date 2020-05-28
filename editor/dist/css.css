@@ -138,6 +138,22 @@ body, html{
 	display: flex;
 }
 
+.assetGUI{
+	height: 18px;
+	margin: 1px;
+	border-radius: var(--selection-border-radius);
+}
+
+.assetGUI.empty{
+	background: #101010;
+	box-shadow: inset 1px 1px 3px #000000;
+}
+
+.assetGUI.filled{
+	background: #6f6f6fb8;
+	box-shadow: 2px 2px 5px #0000004d;
+}
+
 .editorWindowRoot{
 	width: calc(100% - 6px);
 	height: calc(100% - 6px);
