@@ -258,3 +258,21 @@ body, html{
 	max-width: 300px;
 	text-align: center;
 }
+
+.contextMenu{
+	position: absolute;
+	z-index: 100;
+	border-radius: var(--default-border-radius);
+	background: #2d2d2d;
+	padding: 3px 0px;
+	border: 1px solid #5a5a5a;
+	box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.3);
+}
+
+.contextMenuItem{
+	padding: 1px 3px;
+}
+
+.contextMenuItem:hover{
+	background: var(--color-selected-blue);
+}

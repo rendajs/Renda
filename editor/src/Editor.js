@@ -4,11 +4,13 @@ import ProjectManager from "./Managers/ProjectManager.js";
 import DragManager from "./Managers/DragManager.js";
 import {RealTimeRenderer} from "../../src/index.js";
 import ComponentTypeManager from "./Managers/ComponentTypeManager.js";
+import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
 
 export default class Editor{
 	constructor(){
 		this.renderer = new RealTimeRenderer();
 		this.windowManager = new WindowManager();
+		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
 		this.projectManager = new ProjectManager();
 		this.dragManager = new DragManager();
