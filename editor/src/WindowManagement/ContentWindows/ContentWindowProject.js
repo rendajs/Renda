@@ -96,7 +96,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async createNewMat(){
 		let newPath = await this.createAtSelectedPath("New Material.json", async(fileSystem, newPath, fileName) => {
-			await fileSystem.writeJson(newPath, {test: "dit is een test"});
+			await fileSystem.writeJson(newPath, {assetType:"material"});
 			return newPath;
 		});
 

@@ -38,9 +38,16 @@ export default class AssetManager{
 	}
 
 	async loadAssetSettings(){
-		let json = await this.getFileSystem().readJson(this.assetSettingsPath);
-		for(const [uuid, asset] of Object.entries(json.assets)){
-			this.assets.set(uuid, asset);
+		let json = null;
+		try{
+			json = await this.getFileSystem().readJson(this.assetSettingsPath);
+		}catch(e){
+			//no asset settings found
+		}
+		if(json){
+			for(const [uuid, asset] of Object.entries(json.assets)){
+				this.assets.set(uuid, asset);
+			}
 		}
 	}
 
