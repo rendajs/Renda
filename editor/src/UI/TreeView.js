@@ -32,6 +32,11 @@ export default class TreeView{
 		this.myNameEl.classList.add("treeViewName");
 		this.rowEl.appendChild(this.myNameEl);
 
+		this.addedButtons = [];
+		this.buttonsEl = document.createElement("div");
+		this.buttonsEl.classList.add("treeViewButtons");
+		this.rowEl.appendChild(this.buttonsEl);
+
 		this.childrenEl = document.createElement("div");
 		this.childrenEl.classList.add("treeViewChildList");
 		this.el.appendChild(this.childrenEl);
@@ -93,6 +98,10 @@ export default class TreeView{
 		this.boundArrowClickEvent = null;
 		this.arrowEl = null;
 		this.myNameEl = null;
+		for(const b of this.addedButtons){
+			b.destructor();
+		}
+		this.addedButtons = [];
 		this.childrenEl = null;
 		this.customEl = null;
 		for(const child of this.children){
@@ -131,6 +140,11 @@ export default class TreeView{
 		for(let i=0; i<this.children.length; i++){
 			this.children[i].updateData(newChildren[i]);
 		}
+	}
+
+	addButton(button){
+		this.addedButtons.push(button);
+		this.buttonsEl.appendChild(button.el);
 	}
 
 	calculateRecursionDepth(){

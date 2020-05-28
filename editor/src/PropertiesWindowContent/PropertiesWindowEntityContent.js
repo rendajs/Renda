@@ -1,6 +1,7 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import {Entity, Vector3, ComponentPropertyFloat, ComponentPropertyAsset} from "../../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import Button from "../UI/Button.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent{
 	constructor(){
@@ -31,6 +32,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 
 		this.componentsSection = this.treeView.addCollapsable("Components");
+		let createComponentButton = new Button({
+			text: "+",
+			onClick: _ => {
+				//TODO: show create component context menu
+			}
+		});
+		this.componentsSection.addButton(createComponentButton)
 	}
 
 	destructor(){
