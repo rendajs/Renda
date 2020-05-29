@@ -74,7 +74,7 @@ export default class TreeView{
 		this.selected = false;
 
 		this.eventCbs = new Map();
-		for(const eventType of ["selectionchange", "namechange", "drop", "dblclick"]){
+		for(const eventType of ["selectionchange", "namechange", "dragstart", "drop", "dblclick"]){
 			this.eventCbs.set(eventType, new Set());
 		}
 
@@ -264,11 +264,10 @@ export default class TreeView{
 		});
 		this.currenDragFeedbackEl = el;
 		e.dataTransfer.setDragImage(el, x, y);
-		e.dataTransfer.effectAllowed = "all";
-		e.dataTransfer.setData("text/plain", this.name);
-		e.dataTransfer.setData("text/jj; dragtype=projectAsset; assettype=material", JSON.stringify({
-			path: this.name,
-		}));
+		this.fireEvent("dragstart", {
+			draggedElement: this,
+			event: e,
+		});
 	}
 
 	onDragEnd(e){

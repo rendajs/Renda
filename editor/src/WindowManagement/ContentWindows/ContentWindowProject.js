@@ -29,6 +29,7 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView.rowVisible = false;
 		this.treeView.draggable = true;
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
+		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
 
@@ -105,10 +106,15 @@ export default class ContentWindowProject extends ContentWindow{
 		await editor.projectManager.assetManager.registerAsset(newPath);
 	}
 
-	async onTreeViewNameChange({changedElement, oldName, newName}){
-		let path = changedElement.getNamesPath();
+	pathFromTreeView(treeView, removeLast = false){
+		let path = treeView.getNamesPath();
 		path.shift(); //remove root
-		path.pop(); //remove changed item
+		if(removeLast) path.pop();
+		return path;
+	}
+
+	async onTreeViewNameChange({changedElement, oldName, newName}){
+		const path = this.pathFromTreeView(changedElement);
 		let oldPath = path.slice();
 		let newPath = path.slice();
 		oldPath.push(oldName);
@@ -117,9 +123,14 @@ export default class ContentWindowProject extends ContentWindow{
 		await fileSystem.move(oldPath, newPath);
 	}
 
+	onTreeViewDragStart({draggedElement, event}){
+		let path = this.pathFromTreeView(draggedElement);
+		event.dataTransfer.effectAllowed = "all";
+		event.dataTransfer.setData("text/jj; dragtype=projectAsset; assettype=material", JSON.stringify({path}));
+	}
+
 	async onTreeViewDrop({droppedOnElement, event}){
-		let path = droppedOnElement.getNamesPath();
-		path.shift(); //remove root
+		const path = this.pathFromTreeView(droppedOnElement);
 		for(const file of event.dataTransfer.files){
 			let filePath = [...path, file.name];
 			let fileSystem = this.getFileSystem();
@@ -128,8 +139,7 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	async onTreeViewDblClick({clickedElement}){
-		let path = clickedElement.getNamesPath();
-		path.shift(); //remove root
+		const path = this.pathFromTreeView(clickedElement);
 		let fileSystem = this.getFileSystem();
 		let json = await fileSystem.readJson(path);
 		let type = json.type;
