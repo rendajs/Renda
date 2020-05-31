@@ -1,8 +1,4 @@
-import Component from "./Component.js";
-import CameraComponent from "./CameraComponent.js";
-import MeshComponent from "./MeshComponent.js";
-
-export {Component, CameraComponent, MeshComponent};
+export {default as Component} from "./Component.js";
+export {default as ComponentTypes} from "./ComponentTypes.js";
+export {default as defaultComponentTypeManager} from "./defaultComponentTypeManager.js";
 export * from "./ComponentProperties/ComponentProperties.js";
-
-export const autoRegisterComponents = [CameraComponent, MeshComponent];

@@ -1,9 +1,9 @@
 export default class ComponentProperty{
 	constructor({
-		value,
+		defaultValue = null,
 		onChange = null,
 	} = {}){
-		this.value = value;
+		this.value = defaultValue;
 		this.onChange = onChange;
 	}
 

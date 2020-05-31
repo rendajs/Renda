@@ -1,6 +1,49 @@
 import Renderer from "./Renderer.js";
-import MeshComponent from "../../Components/MeshComponent.js";
 import Mat4 from "../../Math/Mat4.js";
+import {ComponentTypes} from "../../Components/Components.js";
+import defaultComponentTypeManager from "../../Components/defaultComponentTypeManager.js";
+
+defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
+	properties: {
+		fov: {
+			defaultValue: 70,
+		},
+		clipNear: {
+			defaultValue: 0.01,
+		},
+		clipFar: {
+			defaultValue: 1000,
+		},
+		aspect: {
+			defaultValue: 1,
+		},
+		autoUpdateProjectionMatrix: {
+			type: "bool",
+			defaultValue: true,
+		},
+		projectionMatrix: {
+			type: "mat4",
+		},
+		// autoManageRootRenderEntities: {
+		// 	type: "bool",
+		// 	defaultValue: true,
+		// },
+		// rootRenderEntities: {
+		// 	type: "array",
+		// }
+	},
+}, defaultComponentTypeManager.defaultNamespace);
+
+defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
+	properties: {
+		mesh: {
+			type: "asset",
+		},
+		materials: {
+			type: "array",
+		}
+	},
+}, defaultComponentTypeManager.defaultNamespace);
 
 export default class RealTimeRenderer extends Renderer{
 	constructor(){
@@ -21,11 +64,17 @@ export default class RealTimeRenderer extends Renderer{
 		this.gl.clearColor(0, 0, 0, 1);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 		this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
-		let vpMatrix = camera.getVpMatrix();
+		if(camera.autoUpdateProjectionMatrix){
+			camera.projectionMatrix = Mat4.createDynamicAspectProjection(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
+		}
+		const vpMatrix = Mat4.multiplyMatrices(camera.entity.worldMatrix.inverse(), camera.projectionMatrix);
 		let meshComponents = [];
-		for(const root of camera.rootRenderEntities){
+		const rootRenderEntities = [camera.entity.getRoot()];
+		//TODO: don't get root every frame, only when changed
+		//see state of CameraComponent.js in commit 5d2efa1
+		for(const root of rootRenderEntities){
 			for(const child of root.traverseDown()){
-				for(const component of child.getComponentsByType(MeshComponent)){
+				for(const component of child.getComponentsByType(ComponentTypes.mesh)){
 					this.renderMeshComponent(component, vpMatrix);
 				}
 			}

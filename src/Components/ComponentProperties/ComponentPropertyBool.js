@@ -1,9 +1,9 @@
 import ComponentProperty from "./ComponentProperty.js";
 
-export default class ComponentPropertyFloat extends ComponentProperty{
+export default class ComponentPropertyBool extends ComponentProperty{
 	constructor(opts){
 		opts = {
-			defaultValue: 0,
+			defaultValue: false,
 			...opts,
 		}
 		super(opts);

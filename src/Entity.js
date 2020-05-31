@@ -1,5 +1,5 @@
-import Component from "./Components/Component.js";
 import {Vector3, Quaternion, Mat4} from "./Math/Math.js";
+import {Component, defaultComponentTypeManager} from "./Components/Components.js";
 
 export default class Entity{
 	constructor(opts){
@@ -44,14 +44,8 @@ export default class Entity{
 	}
 
 	addComponent(component){
-		//if argument is a component type constructor instead of an instance,
-		//instantiate a new instance of this type
-		if(component.prototype instanceof Component){
-			component = new component();
-		}
-
-		if(!component instanceof Component){
-			throw new Error("component argument is not of type Component");
+		if(!(component instanceof Component)){
+			component = new Component(...arguments);
 		}
 
 		this.components.push(component);
@@ -59,9 +53,10 @@ export default class Entity{
 		return component;
 	}
 
-	*getComponentsByType(type){
+	*getComponentsByType(type, namespace = defaultComponentTypeManager.defaultNamespace, componentTypeManager = defaultComponentTypeManager){
 		for(const component of this.components){
-			if(component instanceof type){
+			if(component.componentType == type && component.componentTypeManager == componentTypeManager){
+				if(namespace && component.componentNamespace != namespace) continue;
 				yield component;
 			}
 		}
@@ -128,9 +123,6 @@ export default class Entity{
 		this._parent = newParent;
 		if(newParent){
 			newParent._children.push(this);
-		}
-		for(const component of this.components){
-			component.onParentChanged();
 		}
 	}
 

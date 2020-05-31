@@ -1,46 +1,48 @@
 <html>
 	<head>
 		<script type="module">
-			import * as GameEngine from "../src/index.js";
+			import * as JJ from "../src/index.js";
+			import {Entity, Vector3, Mesh, Shader, Material, RealTimeRenderer, ComponentTypes, Quaternion} from "../src/index.js";
 
-			window["GameEngine"] = GameEngine;
+			window["JJ"] = JJ;
 
-			let scene = new GameEngine.Entity({name:"scene"});
-			let cube = new GameEngine.Entity({name:"cube"});
-			let cubeMesh = new GameEngine.Mesh();
+			let scene = new Entity({name:"scene"});
+			let cube = new Entity({name:"cube"});
+			window.cube = cube;
+			let cubeMesh = new Mesh();
 			cubeMesh.positions = [
-				new GameEngine.Vector3(-1,-1,-1),
-				new GameEngine.Vector3(-1,-1, 1),
-				new GameEngine.Vector3(-1, 1,-1),
-				new GameEngine.Vector3(-1, 1, 1),
+				new Vector3(-1,-1,-1),
+				new Vector3(-1,-1, 1),
+				new Vector3(-1, 1,-1),
+				new Vector3(-1, 1, 1),
 
-				new GameEngine.Vector3( 1,-1,-1),
-				new GameEngine.Vector3( 1,-1, 1),
-				new GameEngine.Vector3( 1, 1,-1),
-				new GameEngine.Vector3( 1, 1, 1),
+				new Vector3( 1,-1,-1),
+				new Vector3( 1,-1, 1),
+				new Vector3( 1, 1,-1),
+				new Vector3( 1, 1, 1),
 
-				new GameEngine.Vector3(-1,-1,-1),
-				new GameEngine.Vector3(-1,-1, 1),
-				new GameEngine.Vector3( 1,-1,-1),
-				new GameEngine.Vector3( 1,-1, 1),
+				new Vector3(-1,-1,-1),
+				new Vector3(-1,-1, 1),
+				new Vector3( 1,-1,-1),
+				new Vector3( 1,-1, 1),
 
-				new GameEngine.Vector3(-1, 1,-1),
-				new GameEngine.Vector3(-1, 1, 1),
-				new GameEngine.Vector3( 1, 1,-1),
-				new GameEngine.Vector3( 1, 1, 1),
+				new Vector3(-1, 1,-1),
+				new Vector3(-1, 1, 1),
+				new Vector3( 1, 1,-1),
+				new Vector3( 1, 1, 1),
 
-				new GameEngine.Vector3(-1,-1,-1),
-				new GameEngine.Vector3(-1, 1,-1),
-				new GameEngine.Vector3( 1,-1,-1),
-				new GameEngine.Vector3( 1, 1,-1),
+				new Vector3(-1,-1,-1),
+				new Vector3(-1, 1,-1),
+				new Vector3( 1,-1,-1),
+				new Vector3( 1, 1,-1),
 
-				new GameEngine.Vector3(-1,-1, 1),
-				new GameEngine.Vector3(-1, 1, 1),
-				new GameEngine.Vector3( 1,-1, 1),
-				new GameEngine.Vector3( 1, 1, 1),
+				new Vector3(-1,-1, 1),
+				new Vector3(-1, 1, 1),
+				new Vector3( 1,-1, 1),
+				new Vector3( 1, 1, 1),
 			];
 			cubeMesh.indices = [0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23];
-			let cubeShader = new GameEngine.Shader(`
+			let cubeShader = new Shader(`
 				attribute vec4 aVertexPosition;
 
 				uniform mat4 uMvpMatrix;
@@ -58,23 +60,20 @@
 					gl_FragColor = vec4(abs(vColor).rgb, 1.0);
 				}
 			`);
-			let cubeMat = new GameEngine.Material(cubeShader);
-			cube.addComponent(new GameEngine.MeshComponent({mesh: cubeMesh, material: cubeMat}));
+			let cubeMat = new Material(cubeShader);
+			cube.addComponent(ComponentTypes.mesh, {mesh: cubeMesh, materials: [cubeMat]});
 			scene.add(cube);
-			let cam = new GameEngine.Entity({name:"cam"});
-			cam.worldMatrix.translate(0,0,-5);
-			let camComponent = cam.addComponent(GameEngine.CameraComponent);
-			camComponent.renderer = new GameEngine.RealTimeRenderer();
-			camComponent.renderer.init();
+			let cam = new Entity({name:"cam"});
+			cam.pos.z = -5;
+			let camComponent = cam.addComponent(ComponentTypes.camera);
+			const renderer = new RealTimeRenderer();
+			renderer.init();
 			scene.add(cam);
-			document.body.appendChild(camComponent.renderer.canvas);
-			camComponent.render();
+			document.body.appendChild(renderer.canvas);
 
 			function loop(){
-				cube.worldMatrix = GameEngine.Mat4.createRotationX(Date.now()*0.003);
-				cube.worldMatrix.multiplyMatrix(GameEngine.Mat4.createRotationY(Date.now()*0.0025));
-				cube.worldMatrix.multiplyMatrix(GameEngine.Mat4.createRotationZ(Date.now()*0.0022));
-				camComponent.render();
+				cube.rot = Quaternion.fromAxisAngle(new Vector3(0.2,3.3,-0.8), Date.now() * 0.001);
+				renderer.render(camComponent);
 				window.requestAnimationFrame(loop);
 			}
 			loop();

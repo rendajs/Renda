@@ -1,15 +1,31 @@
-import ComponentProperty from "./ComponentProperties/ComponentProperty.js";
-import ComponentPropertyFloat from "./ComponentProperties/ComponentPropertyFloat.js";
-import ComponentPropertyAsset from "./ComponentProperties/ComponentPropertyAsset.js";
+import {
+	ComponentProperty,
+	ComponentPropertyFloat,
+	ComponentPropertyBool,
+	ComponentPropertyAsset,
+	ComponentPropertyArray,
+	ComponentPropertyMat4,
+} from "./ComponentProperties/ComponentProperties.js";
+import defaultComponentTypeManager from "./defaultComponentTypeManager.js";
 
 export default class Component{
-	constructor(opts){
+	constructor(componentType, propertyValues = {}, {
+		componentNamespace = null,
+		componentTypeManager = defaultComponentTypeManager
+	} = {}){
+		this.componentType = componentType;
+		this.componentNamespace = componentNamespace;
+		this.componentTypeManager = componentTypeManager;
 		this.entity = null;
 		this._componentProperties = new Map();
-	}
 
-	static get componentName(){
-		return null; //should be overridden by inherited class
+		const componentData = componentTypeManager.getComponentData(componentType, componentNamespace);
+		this.setComponentProperties(componentData?.properties);
+
+		for(const [propertyName, propertyValue] of Object.entries(propertyValues)){
+			let property = this._componentProperties.get(propertyName);
+			property.setValue(propertyValue);
+		}
 	}
 
 	destructor(){
@@ -18,11 +34,7 @@ export default class Component{
 
 	attachedToEntity(ent){
 		this.entity = ent;
-		this.onAttachedToEntity(ent);
 	}
-
-	onAttachedToEntity(){}
-	onParentChanged(){}
 
 	toJson(){
 		let propertyValues = {};
@@ -36,10 +48,9 @@ export default class Component{
 	}
 
 	setComponentProperties(properties){
+		if(!properties) return;
 		let objectProperties = {};
 		for(const [propertyName, propertySettings] of Object.entries(properties)){
-			let oldValue = this[propertyName];
-			propertySettings.value = oldValue;
 			let componentProperty = this.generateComponentProperty(propertySettings);
 			this._componentProperties.set(propertyName, componentProperty);
 			objectProperties[propertyName] = {
@@ -57,12 +68,22 @@ export default class Component{
 
 	generateComponentProperty(settings){
 		let propertyType = settings.type || "float";
-		if(propertyType == "float"){
-			return new ComponentPropertyFloat(settings);
-		}else if(propertyType == "asset"){
-			return new ComponentPropertyAsset(settings);
-		}else{
-			return new ComponentProperty(settings);
+		if(typeof propertyType == "string"){
+			propertyType = propertyType.toLowerCase();
+			if(propertyType == "float"){
+				propertyType = ComponentPropertyFloat;
+			}else if(propertyType == "bool"){
+				propertyType = ComponentPropertyBool;
+			}else if(propertyType == "array"){
+				propertyType = ComponentPropertyArray;
+			}else if(propertyType == "asset"){
+				propertyType = ComponentPropertyAsset;
+			}else if(propertyType == "mat4"){
+				propertyType = ComponentPropertyMat4;
+			}else{
+				propertyType = ComponentProperty;
+			}
 		}
+		return new propertyType(settings);
 	}
 }
