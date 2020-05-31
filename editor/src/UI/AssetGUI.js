@@ -20,6 +20,8 @@ export default class AssetGUI{
 		this.el.addEventListener("dragend", this.boundOnDragEnd);
 		this.el.addEventListener("dragleave", this.boundOnDragEnd);
 		this.el.addEventListener("drop", this.boundOnDrop);
+
+		this.linkedAssetUuid = null;
 	}
 
 	destructor(){
@@ -85,8 +87,11 @@ export default class AssetGUI{
 			if(this.validateMimeType(mimeType)){
 				const dataStr = e.dataTransfer.getData(mimeType);
 				const dataJson = JSON.parse(dataStr);
-				console.log(dataJson);
-				break;
+				if(dataJson.path){
+					const assetUuid = editor.projectManager.assetManager.getAssetUuid(dataJson.path);
+					this.setAssetUuid(assetUuid);
+					break;
+				}
 			}
 		}
 	}
@@ -102,5 +107,9 @@ export default class AssetGUI{
 
 	setDragHoverValidStyle(valid){
 		this.el.classList.toggle("dragHovering", valid);
+	}
+
+	setAssetUuid(uuid){
+		this.linkedAssetUuid = uuid;
 	}
 }
