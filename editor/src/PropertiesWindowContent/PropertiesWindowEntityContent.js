@@ -68,6 +68,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
 		this.positionProperty.setValue(selectedObjects[0].pos);
+		this.refreshComponents();
 	}
 
 	refreshComponents(){
