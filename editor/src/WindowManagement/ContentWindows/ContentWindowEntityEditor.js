@@ -1,6 +1,6 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
-import {Entity, CameraComponent, Mesh, Vector3, Shader, Material, MeshComponent} from "../../../../src/index.js";
+import {Entity, Mesh, Vector3, Shader, Material, ComponentTypes} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -20,7 +20,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorScene = new Entity({name: "editorScene"});
 		this.editorCamera = new Entity({name: "editorCamera"});
 		this.editorScene.add(this.editorCamera);
-		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
+		this.editorCamComponent = this.editorCamera.addComponent(ComponentTypes.camera);
 
 		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
 
@@ -124,13 +124,13 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			}
 		`);
 		let cubeMat = new Material(cubeShader);
-		cube.addComponent(new MeshComponent({mesh: cubeMesh, material: cubeMat}));
+		cube.addComponent(ComponentTypes.mesh, {mesh: cubeMesh, materials: [cubeMat]});
 
 		this.editingEntity.add(cube);
 
 		let cam = new Entity({name:"cam"});
 		this.editingEntity.add(cam);
-		cam.addComponent(CameraComponent);
+		cam.addComponent(ComponentTypes.camera);
 	}
 
 	loop(){

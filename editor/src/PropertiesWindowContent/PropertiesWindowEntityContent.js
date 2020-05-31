@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vector3, ComponentPropertyFloat, ComponentPropertyAsset} from "../../../../src/index.js";
+import {Entity, Vector3, ComponentPropertyFloat, ComponentPropertyAsset, defaultComponentTypeManager} from "../../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
@@ -37,10 +37,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			text: "+",
 			onClick: _ => {
 				let menu = editor.contextMenuManager.createContextMenu();
-				for(const [name, constructor] of editor.componentTypeManager.registeredComponents){
-					menu.addItem(name, _ => {
+				for(const component of defaultComponentTypeManager.getAllComponents()){
+					menu.addItem(component.type, _ => {
 						for(const obj of this.currentSelection){
-							obj.addComponent(constructor);
+							obj.addComponent(component.type);
 						}
 						this.refreshComponents();
 						this.componentsSection.collapsed = false;

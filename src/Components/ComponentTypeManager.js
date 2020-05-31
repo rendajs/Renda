@@ -48,4 +48,12 @@ export default class ComponentTypeManager{
 			return this.namespaces.get(namespace)?.get(type);
 		}
 	}
+
+	*getAllComponents(){
+		for(const [namespace, namespaceData] of this.namespaces){
+			for(const [type, componentData] of namespaceData){
+				yield {namespace, type, componentData};
+			}
+		}
+	}
 }

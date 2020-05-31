@@ -3,7 +3,6 @@ import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentMa
 import ProjectManager from "./Managers/ProjectManager.js";
 import DragManager from "./Managers/DragManager.js";
 import {RealTimeRenderer} from "../../src/index.js";
-import ComponentTypeManager from "./Managers/ComponentTypeManager.js";
 import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
 
 export default class Editor{
@@ -14,7 +13,6 @@ export default class Editor{
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
 		this.projectManager = new ProjectManager();
 		this.dragManager = new DragManager();
-		this.componentTypeManager = new ComponentTypeManager();
 	}
 
 	//convenience function for getting selected object in the browser console
@@ -30,7 +28,6 @@ export default class Editor{
 		this.renderer.init();
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
-		this.componentTypeManager.init();
 
 		this.projectManager.openDb();
 	}
