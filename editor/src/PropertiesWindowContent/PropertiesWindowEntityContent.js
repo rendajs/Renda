@@ -1,5 +1,10 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vector3, ComponentPropertyFloat, ComponentPropertyAsset, defaultComponentTypeManager} from "../../../../src/index.js";
+import {
+	Entity, Vector3, defaultComponentTypeManager,
+	ComponentPropertyFloat,
+	ComponentPropertyAsset,
+	ComponentPropertyArray,
+} from "../../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
@@ -98,6 +103,11 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 							value: property.value,
 							supportedAssetTypes: [property.assetType]
 						},
+					});
+				}else if(property instanceof ComponentPropertyArray){
+					componentUI.addItem({
+						label: propertyName,
+						type: "array",
 					});
 				}
 			}

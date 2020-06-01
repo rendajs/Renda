@@ -41,6 +41,18 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
 		},
 		materials: {
 			type: "array",
+			arrayTypeOpts: {
+				type: "asset",
+				assetType: "material",
+			}
+		},
+		test: {
+			type: "array",
+			arrayTypeOpts: {
+				type: "float",
+				min: 10,
+				max: 20,
+			}
 		}
 	},
 }, defaultComponentTypeManager.defaultNamespace);
