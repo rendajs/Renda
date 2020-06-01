@@ -1,6 +1,6 @@
 import {mod} from "../Util/Util.js";
 
-export default class NumericGUI{
+export default class NumericGui{
 	constructor({
 		value = 0,
 		min = null,
@@ -13,7 +13,7 @@ export default class NumericGUI{
 		prefix = "",
 	} = {}){
 		this.el = document.createElement("input");
-		this.el.classList.add("numericGUI", "buttonLike", "resetInput", "textInput");
+		this.el.classList.add("numericGui", "buttonLike", "resetInput", "textInput");
 
 		this.value = 0;
 		this.internalValue = 0;

@@ -1,11 +1,11 @@
 import {parseMimeType} from "../Util/Util.js";
 
-export default class AssetGUI{
+export default class AssetGui{
 	constructor({
 		supportedAssetTypes = [],
 	} = {}){
 		this.el = document.createElement("div");
-		this.el.classList.add("assetGUI", "empty");
+		this.el.classList.add("assetGui", "empty");
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = supportedAssetTypes;

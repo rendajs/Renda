@@ -1,17 +1,17 @@
-import NumericGUI from "./NumericGUI.js";
+import NumericGui from "./NumericGui.js";
 import {Vector3} from "../../../../src/index.js";
 
-export default class VectorGUI{
+export default class VectorGui{
 	constructor({
 		size = 3,
 	} = {}){
 		this.el = document.createElement("div");
-		this.el.classList.add("vectorGUI", "buttonGroupLike");
+		this.el.classList.add("vectorGui", "buttonGroupLike");
 		this.numericGuis = [];
 		this.onValueChangeCbs = [];
 
 		for(let i=0; i<size; i++){
-			let numericGui = new NumericGUI();
+			let numericGui = new NumericGui();
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
 			numericGui.onValueChange(_ => this.fireValueChange());

@@ -1,7 +1,7 @@
 import TreeView from "../TreeView.js";
-import VectorGUI from "../VectorGUI.js";
-import NumericGUI from "../NumericGUI.js";
-import AssetGUI from "../AssetGUI.js";
+import VectorGui from "../VectorGui.js";
+import NumericGui from "../NumericGui.js";
+import AssetGui from "../AssetGui.js";
 import ArrayGui from "../ArrayGui.js";
 
 export default class PropertiesTreeViewProperty extends TreeView{
@@ -27,19 +27,19 @@ export default class PropertiesTreeViewProperty extends TreeView{
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
-		this.valueEl.classList.add("propertiesGUIPropertyValue");
+		this.valueEl.classList.add("propertiesGuiPropertyValue");
 		this.customEl.appendChild(this.valueEl);
 
 		if(type.startsWith("vector")){
 			let size = parseInt(type.slice(6));
 			guiItemOpts.size = size;
-			this.gui = new VectorGUI(guiItemOpts);
+			this.gui = new VectorGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == "float"){
-			this.gui = new NumericGUI(guiItemOpts);
+			this.gui = new NumericGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == "asset"){
-			this.gui = new AssetGUI(guiItemOpts);
+			this.gui = new AssetGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == "array"){
 			this.gui = new ArrayGui(guiItemOpts);
