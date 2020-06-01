@@ -4,7 +4,7 @@ import {
 	ComponentPropertyFloat,
 	ComponentPropertyAsset,
 	ComponentPropertyArray,
-} from "../../../../src/index.js";
+} from "../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
