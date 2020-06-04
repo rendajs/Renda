@@ -5,7 +5,7 @@ import {Uuid} from "../Util/Util.js";
 export default class AssetManager{
 	constructor(){
 		this.packages = new Map();
-		this.assets = new Map();
+		this.assetsSettings = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
@@ -46,7 +46,7 @@ export default class AssetManager{
 		}
 		if(json){
 			for(const [uuid, asset] of Object.entries(json.assets)){
-				this.assets.set(uuid, asset);
+				this.assetsSettings.set(uuid, asset);
 			}
 		}
 	}
@@ -57,7 +57,7 @@ export default class AssetManager{
 			packages.push({name, ...packageSettings});
 		}
 		let assets = {};
-		for(const [uuid, asset] of this.assets){
+		for(const [uuid, asset] of this.assetsSettings){
 			let assetData = {
 				path: asset.path,
 			}
@@ -72,7 +72,7 @@ export default class AssetManager{
 
 	async registerAsset(path = []){
 		let uuid = Uuid();
-		this.assets.set(uuid, {
+		this.assetsSettings.set(uuid, {
 			path,
 		});
 		await this.saveAssetSettings();
@@ -80,7 +80,7 @@ export default class AssetManager{
 	}
 
 	getAssetUuid(path = []){
-		for(const [uuid, asset] of this.assets){
+		for(const [uuid, asset] of this.assetsSettings){
 			if(this.testPathMatch(path, asset.path)){
 				return uuid;
 			}
