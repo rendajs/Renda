@@ -9,8 +9,9 @@ export default class ArrayGui{
 		this.el = document.createElement("div");
 		this.el.classList.add("arrayGui");
 
-		this.value = value;
+		this.valueItems = [];
 		this.arrayTypeOpts = arrayTypeOpts;
+		this.onValueChangeCbs = [];
 
 		this.treeView = new GuiTreeView();
 		this.el.appendChild(this.treeView.el);
@@ -24,6 +25,14 @@ export default class ArrayGui{
 		this.el.appendChild(this.addItemButton.el);
 	}
 
+	get value(){
+		const valueArray = [];
+		for(const item of this.valueItems){
+			valueArray.push(item.gui.value);
+		}
+		return valueArray;
+	}
+
 	destructor(){
 		if(this.el.parentElement){
 			this.el.parentElement.removeChild(this.el);
@@ -33,11 +42,25 @@ export default class ArrayGui{
 
 	addItem(){
 		const index = this.value.length;
-		this.treeView.addItem({
+		const addedItem = this.treeView.addItem({
 			label: index,
 			smallLabel: true,
 			...this.arrayTypeOpts,
 		});
-		this.value.push(null);
+		addedItem.onValueChange(_ => {
+			this.fireValueChange();
+		});
+		this.valueItems.push(addedItem);
+		this.fireValueChange();
+	}
+
+	onValueChange(cb){
+		this.onValueChangeCbs.push(cb);
+	}
+
+	fireValueChange(){
+		for(const cb of this.onValueChangeCbs){
+			cb(this.value);
+		}
 	}
 }

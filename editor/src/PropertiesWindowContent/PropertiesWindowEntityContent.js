@@ -2,6 +2,7 @@ import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import {
 	Entity, Vector3, defaultComponentTypeManager,
 	ComponentPropertyFloat,
+	ComponentPropertyBool,
 	ComponentPropertyAsset,
 	ComponentPropertyArray,
 } from "../../../src/index.js";
@@ -23,7 +24,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			label: "Position",
 			type: "Vector3",
 		});
-		this.positionProperty.gui.onValueChange(newValue => {
+		this.positionProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.pos.set(newValue);
 			}
@@ -87,33 +88,28 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		for(const componentGroup of componentGroups){
 			let componentUI = this.componentsSection.addCollapsable(componentGroup.constructor.componentName);
 			for(const [propertyName, property] of componentGroup._componentProperties){
-				if(property instanceof ComponentPropertyFloat){
-					componentUI.addItem({
-						label: propertyName,
-						type: "float",
-						guiItemOpts: {
-							value: property.value,
-						},
-					});
-				}else if(property instanceof ComponentPropertyAsset){
-					componentUI.addItem({
-						label: propertyName,
-						type: "asset",
-						guiItemOpts: {
-							value: property.value,
-							supportedAssetTypes: [property.assetType]
-						},
-					});
-				}else if(property instanceof ComponentPropertyArray){
-					componentUI.addItem({
-						label: propertyName,
-						type: "array",
-						guiItemOpts: {
-							value: property.value,
-							arrayTypeOpts: property.arrayTypeOpts,
-						},
-					});
+				let type = "";
+				let guiItemOpts = {
+					value: property.value,
 				}
+				if(property instanceof ComponentPropertyFloat){
+					type = "float";
+				}else if(property instanceof ComponentPropertyBool){
+					type = "bool";
+				}else if(property instanceof ComponentPropertyAsset){
+					type = "asset";
+					guiItemOpts.supportedAssetTypes = [property.assetType];
+				}else if(property instanceof ComponentPropertyArray){
+					type = "array";
+					guiItemOpts.arrayTypeOpts = property.arrayTypeOpts;
+				}
+				const addedItem = componentUI.addItem({
+					label: propertyName,
+					type, guiItemOpts,
+				});
+				addedItem.onValueChange(newValue => {
+					console.log("newValue:", newValue);
+				});
 			}
 		}
 	}

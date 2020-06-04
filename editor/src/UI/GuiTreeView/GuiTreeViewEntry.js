@@ -61,8 +61,10 @@ export default class GuiTreeViewEntry extends TreeView{
 	}
 
 	setValue(newValue){
-		if(this.gui && this.gui.setValue){
-			this.gui.setValue(newValue);
-		}
+		this.gui?.setValue?.(newValue);
+	}
+
+	onValueChange(cb){
+		this.gui?.onValueChange?.(cb);
 	}
 }

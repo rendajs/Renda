@@ -40,13 +40,17 @@ export default class AssetGui{
 		this.el = null;
 	}
 
+	get value(){
+		return this.linkedAssetUuid;
+	}
+
 	onValueChange(cb){
 		this.onValueChangeCbs.push(cb);
 	}
 
 	fireValueChange(){
 		for(const cb of this.onValueChangeCbs){
-			cb();
+			cb(this.linkedAssetUuid);
 		}
 	}
 
@@ -104,5 +108,6 @@ export default class AssetGui{
 
 	setAssetUuid(uuid){
 		this.linkedAssetUuid = uuid;
+		this.fireValueChange();
 	}
 }
