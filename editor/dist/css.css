@@ -246,7 +246,7 @@ body, html{
 	display: none;
 }
 
-.propertiesTreeViewProperty{
+.guiTreeViewProperty{
 	display: flex;
 	width: 100%;
 	flex-wrap: wrap;
@@ -256,17 +256,17 @@ body, html{
 	margin-top: 1px;
 }
 
-.propertiesTreeViewProperty > * {
+.guiTreeViewProperty > * {
 	width: 50%;
 	min-width: 100px;
 	flex-grow: 1;
 }
 
-.propertiesTreeViewProperty > .multiline{
+.guiTreeViewProperty > .multiline{
 	width: 100%;
 }
 
-.propertiesTreeViewPropertyLabel{
+.guiTreeViewPropertyLabel{
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;

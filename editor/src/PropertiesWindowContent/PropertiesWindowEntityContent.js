@@ -5,7 +5,7 @@ import {
 	ComponentPropertyAsset,
 	ComponentPropertyArray,
 } from "../../../src/index.js";
-import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
 
@@ -15,7 +15,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 
 		this.currentSelection = null;
 
-		this.treeView = new PropertiesTreeView();
+		this.treeView = new GuiTreeView();
 		this.el.appendChild(this.treeView.el);
 
 		let entitySection = this.treeView.addCollapsable("Entity");
