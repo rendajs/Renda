@@ -44,6 +44,8 @@ export default class PropertiesTreeViewProperty extends TreeView{
 		}else if(type == "array"){
 			this.gui = new ArrayGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
+			this.label.classList.add("multiLine");
+			this.valueEl.classList.add("multiLine");
 		}
 	}
 

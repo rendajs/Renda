@@ -262,6 +262,10 @@ body, html{
 	flex-grow: 1;
 }
 
+.propertiesTreeViewProperty > .multiline{
+	width: 100%;
+}
+
 .propertiesTreeViewPropertyLabel{
 	white-space: nowrap;
 	text-overflow: ellipsis;
