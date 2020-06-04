@@ -82,13 +82,9 @@ export default class AssetGui{
 		this.setDragHoverValidStyle(false);
 		for(const mimeType of e.dataTransfer.types){
 			if(this.validateMimeType(mimeType)){
-				const dataStr = e.dataTransfer.getData(mimeType);
-				const dataJson = JSON.parse(dataStr);
-				if(dataJson.path){
-					const assetUuid = editor.projectManager.assetManager.getAssetUuid(dataJson.path);
-					this.setAssetUuid(assetUuid);
-					break;
-				}
+				const assetUuid = e.dataTransfer.getData(mimeType);
+				this.setAssetUuid(assetUuid);
+				break;
 			}
 		}
 	}

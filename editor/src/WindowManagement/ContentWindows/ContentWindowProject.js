@@ -99,11 +99,11 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async createNewMaterial(){
 		let newPath = await this.createAtSelectedPath("New Material.json", async(fileSystem, newPath, fileName) => {
-			await fileSystem.writeJson(newPath, {assetType:"material"});
+			await fileSystem.writeJson(newPath, {assetType: "material"});
 			return newPath;
 		});
 
-		await editor.projectManager.assetManager.registerAsset(newPath);
+		await editor.projectManager.assetManager.registerAsset(newPath, "material");
 	}
 
 	pathFromTreeView(treeView, removeLast = false){
@@ -126,7 +126,8 @@ export default class ContentWindowProject extends ContentWindow{
 	onTreeViewDragStart({draggedElement, event}){
 		let path = this.pathFromTreeView(draggedElement);
 		event.dataTransfer.effectAllowed = "all";
-		event.dataTransfer.setData("text/jj; dragtype=projectAsset; assettype=material", JSON.stringify({path}));
+		const assetData = editor.projectManager.assetManager.getAssetData(path);
+		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetData.assetType}`, assetData.uuid);
 	}
 
 	async onTreeViewDrop({droppedOnElement, event}){

@@ -5,7 +5,8 @@ import {Uuid} from "../Util/Util.js";
 export default class AssetManager{
 	constructor(){
 		this.packages = new Map();
-		this.assetsSettings = new Map();
+		this.assetDatas = new Map();
+		this.liveAssets = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
@@ -16,7 +17,7 @@ export default class AssetManager{
 
 	}
 
-	getFileSystem(){
+	get fileSystem(){
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
@@ -40,13 +41,17 @@ export default class AssetManager{
 	async loadAssetSettings(){
 		let json = null;
 		try{
-			json = await this.getFileSystem().readJson(this.assetSettingsPath);
+			json = await this.fileSystem.readJson(this.assetSettingsPath);
 		}catch(e){
 			//no asset settings found
 		}
 		if(json){
 			for(const [uuid, asset] of Object.entries(json.assets)){
-				this.assetsSettings.set(uuid, asset);
+				if(!asset.assetType){
+					asset.assetType = await this.guessAssetType(asset.path);
+					asset.assetTypeIsHint = true;
+				}
+				this.assetDatas.set(uuid, asset);
 			}
 		}
 	}
@@ -57,30 +62,38 @@ export default class AssetManager{
 			packages.push({name, ...packageSettings});
 		}
 		let assets = {};
-		for(const [uuid, asset] of this.assetsSettings){
+		for(const [uuid, asset] of this.assetDatas){
 			let assetData = {
 				path: asset.path,
+			}
+			if(!asset.assetTypeIsHint){
+				assetData.assetType = asset.assetType;
 			}
 			if(asset.package && asset.package != this.mainPackageName){
 				assetData.package = asset.package;
 			}
 			assets[uuid] = assetData;
 		}
-		let fileSystem = this.getFileSystem();
-		await fileSystem.writeJson(this.assetSettingsPath, {packages, assets});
+		await this.fileSystem.writeJson(this.assetSettingsPath, {packages, assets});
 	}
 
-	async registerAsset(path = []){
+	async registerAsset(path = [], assetType = null, assetTypeIsHint = true){
 		let uuid = Uuid();
-		this.assetsSettings.set(uuid, {
-			path,
-		});
+		if(!assetType){
+			assetType = await this.guessAssetType(path);
+		}
+		this.assetDatas.set(uuid, {path, assetType, assetTypeIsHint});
 		await this.saveAssetSettings();
 		return uuid;
 	}
 
+	async guessAssetType(path = []){
+		const json = await this.fileSystem.readJson(path);
+		return json?.assetType ?? "unknown";
+	}
+
 	getAssetUuid(path = []){
-		for(const [uuid, asset] of this.assetsSettings){
+		for(const [uuid, asset] of this.assetDatas){
 			if(this.testPathMatch(path, asset.path)){
 				return uuid;
 			}
@@ -95,8 +108,12 @@ export default class AssetManager{
 		return true;
 	}
 
-	getAsset(uuid){
-
+	getAssetData(path = []){
+		for(const [uuid, asset] of this.assetDatas){
+			if(this.testPathMatch(path, asset.path)){
+				return {uuid, ...asset};
+			}
+		}
 	}
 
 	moveAsset(fromPath = [], toPath = []){
