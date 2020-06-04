@@ -7,7 +7,8 @@ import ArrayGui from "../ArrayGui.js";
 export default class GuiTreeViewProperty extends TreeView{
 	constructor({
 		label = "",
-		type = "",
+		smallLabel = false,
+		type = "float",
 		guiItemOpts = {},
 	} = {}){
 		super({
@@ -23,11 +24,13 @@ export default class GuiTreeViewProperty extends TreeView{
 
 		this.label = document.createElement("div");
 		this.label.classList.add("guiTreeViewPropertyLabel");
+		this.label.classList.toggle("smallLabel", smallLabel);
 		this.label.textContent = label;
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
 		this.valueEl.classList.add("guiTreeViewPropertyValue");
+		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
 		if(type.startsWith("vector")){

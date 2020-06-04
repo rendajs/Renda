@@ -108,6 +108,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					componentUI.addItem({
 						label: propertyName,
 						type: "array",
+						guiItemOpts: {
+							value: property.value,
+							arrayTypeOpts: property.arrayTypeOpts,
+						},
 					});
 				}
 			}

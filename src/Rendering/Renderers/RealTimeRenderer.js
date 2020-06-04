@@ -10,9 +10,11 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 		},
 		clipNear: {
 			defaultValue: 0.01,
+			min: 0,
 		},
 		clipFar: {
 			defaultValue: 1000,
+			min: 0,
 		},
 		aspect: {
 			defaultValue: 1,

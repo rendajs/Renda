@@ -123,6 +123,7 @@ body, html{
 .numericGui{
 	cursor: crosshair;
 	text-align: center;
+	width: 100%;
 }
 
 .numericGui:focus{
@@ -258,7 +259,7 @@ body, html{
 
 .guiTreeViewProperty > * {
 	width: 50%;
-	min-width: 100px;
+	 min-width: 100px;
 	flex-grow: 1;
 }
 
@@ -270,6 +271,13 @@ body, html{
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
+}
+.guiTreeViewPropertyValue.smallLabel{
+	width: 85%;
+}
+.guiTreeViewPropertyLabel.smallLabel{
+	width: 15%;
+	 min-width: 10px;
 }
 
 .dragFeedbackText{
