@@ -40,13 +40,6 @@ export default class AssetGui{
 		this.el = null;
 	}
 
-	setValue(vector){
-		let arr = vector.toArray();
-		for(let [i, gui] of this.numericGuis.entries()){
-			gui.setValue(arr[i]);
-		}
-	}
-
 	onValueChange(cb){
 		this.onValueChangeCbs.push(cb);
 	}

@@ -56,14 +56,8 @@ export default class PropertiesTreeViewProperty extends TreeView{
 	}
 
 	setValue(newValue){
-		this.gui.setValue(newValue);
-	}
-
-	onValueChange(cb){
-		if(this.type.startsWith("vector")){
-			this.gui.onValueChange(cb);
-		}else if(this.type == "float"){
-			this.gui.onValueChange(cb);
+		if(this.gui && this.gui.setValue){
+			this.gui.setValue(newValue);
 		}
 	}
 }

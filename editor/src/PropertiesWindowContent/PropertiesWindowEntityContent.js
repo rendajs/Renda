@@ -23,7 +23,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			label: "Position",
 			type: "Vector3",
 		});
-		this.positionProperty.onValueChange(newValue => {
+		this.positionProperty.gui.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.pos.set(newValue);
 			}
