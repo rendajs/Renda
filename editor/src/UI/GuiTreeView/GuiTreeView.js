@@ -1,5 +1,5 @@
 import TreeView from "../TreeView.js";
-import GuiTreeViewProperty from "./GuiTreeViewProperty.js";
+import GuiTreeViewEntry from "./GuiTreeViewEntry.js";
 
 export default class PropertiesTreeView extends TreeView{
 	constructor({
@@ -22,7 +22,7 @@ export default class PropertiesTreeView extends TreeView{
 	}
 
 	addItem(opts){
-		let item = new GuiTreeViewProperty(opts);
+		let item = new GuiTreeViewEntry(opts);
 		this.addChild(item);
 		return item;
 	}

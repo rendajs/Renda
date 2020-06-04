@@ -4,7 +4,7 @@ import NumericGui from "../NumericGui.js";
 import AssetGui from "../AssetGui.js";
 import ArrayGui from "../ArrayGui.js";
 
-export default class GuiTreeViewProperty extends TreeView{
+export default class GuiTreeViewEntry extends TreeView{
 	constructor({
 		label = "",
 		smallLabel = false,
@@ -20,16 +20,16 @@ export default class GuiTreeViewProperty extends TreeView{
 		this.rowVisible = false;
 		this.selectable = false;
 
-		this.customEl.classList.add("guiTreeViewProperty");
+		this.customEl.classList.add("guiTreeViewEntry");
 
 		this.label = document.createElement("div");
-		this.label.classList.add("guiTreeViewPropertyLabel");
+		this.label.classList.add("guiTreeViewEntryLabel");
 		this.label.classList.toggle("smallLabel", smallLabel);
 		this.label.textContent = label;
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
-		this.valueEl.classList.add("guiTreeViewPropertyValue");
+		this.valueEl.classList.add("guiTreeViewEntryValue");
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 

@@ -247,7 +247,7 @@ body, html{
 	display: none;
 }
 
-.guiTreeViewProperty{
+.guiTreeViewEntry{
 	display: flex;
 	width: 100%;
 	flex-wrap: wrap;
@@ -257,25 +257,25 @@ body, html{
 	margin-top: 1px;
 }
 
-.guiTreeViewProperty > * {
+.guiTreeViewEntry > * {
 	width: 50%;
 	 min-width: 100px;
 	flex-grow: 1;
 }
 
-.guiTreeViewProperty > .multiline{
+.guiTreeViewEntry > .multiline{
 	width: 100%;
 }
 
-.guiTreeViewPropertyLabel{
+.guiTreeViewEntryLabel{
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
-.guiTreeViewPropertyValue.smallLabel{
+.guiTreeViewEntryValue.smallLabel{
 	width: 85%;
 }
-.guiTreeViewPropertyLabel.smallLabel{
+.guiTreeViewEntryLabel.smallLabel{
 	width: 15%;
 	 min-width: 10px;
 }
