@@ -1,3 +1,4 @@
+import ediitor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 
 export default class AssetGui{
@@ -21,6 +22,7 @@ export default class AssetGui{
 		this.el.addEventListener("dragleave", this.boundOnDragEnd);
 		this.el.addEventListener("drop", this.boundOnDrop);
 
+		this.linkedLiveAsset = null;
 		this.linkedAssetUuid = null;
 	}
 
@@ -41,7 +43,7 @@ export default class AssetGui{
 	}
 
 	get value(){
-		return this.linkedAssetUuid;
+		return this.linkedLiveAsset;
 	}
 
 	onValueChange(cb){
@@ -50,7 +52,7 @@ export default class AssetGui{
 
 	fireValueChange(){
 		for(const cb of this.onValueChangeCbs){
-			cb(this.linkedAssetUuid);
+			cb(this.value);
 		}
 	}
 
@@ -102,8 +104,9 @@ export default class AssetGui{
 		this.el.classList.toggle("dragHovering", valid);
 	}
 
-	setAssetUuid(uuid){
+	async setAssetUuid(uuid){
 		this.linkedAssetUuid = uuid;
+		this.linkedLiveAsset = await editor.projectManager.assetManager.getLiveAsset(uuid);
 		this.fireValueChange();
 	}
 }

@@ -1,4 +1,4 @@
-import {Entity} from "../../../src/index.js";
+import {Entity, Material, Shader} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {Uuid} from "../Util/Util.js";
 
@@ -49,7 +49,7 @@ export default class AssetManager{
 			for(const [uuid, asset] of Object.entries(json.assets)){
 				if(!asset.assetType){
 					asset.assetType = await this.guessAssetType(asset.path);
-					asset.assetTypeIsHint = true;
+					asset.forceAssetType = false;
 				}
 				this.assetDatas.set(uuid, asset);
 			}
@@ -66,7 +66,7 @@ export default class AssetManager{
 			let assetData = {
 				path: asset.path,
 			}
-			if(!asset.assetTypeIsHint){
+			if(asset.forceAssetType){
 				assetData.assetType = asset.assetType;
 			}
 			if(asset.package && asset.package != this.mainPackageName){
@@ -77,12 +77,12 @@ export default class AssetManager{
 		await this.fileSystem.writeJson(this.assetSettingsPath, {packages, assets});
 	}
 
-	async registerAsset(path = [], assetType = null, assetTypeIsHint = true){
+	async registerAsset(path = [], assetType = null, forceAssetType = false){
 		let uuid = Uuid();
 		if(!assetType){
 			assetType = await this.guessAssetType(path);
 		}
-		this.assetDatas.set(uuid, {path, assetType, assetTypeIsHint});
+		this.assetDatas.set(uuid, {path, assetType, forceAssetType});
 		await this.saveAssetSettings();
 		return uuid;
 	}
@@ -135,5 +135,41 @@ export default class AssetManager{
 			ent.add(child);
 		}
 		return ent;
+	}
+
+	createMaterialFromJsonData(jsonData){
+		const shader = new Shader(`
+			attribute vec4 aVertexPosition;
+
+			uniform mat4 uMvpMatrix;
+
+			varying lowp vec4 vColor;
+
+			void main() {
+			  gl_Position = uMvpMatrix * aVertexPosition;
+			  vColor = aVertexPosition;
+			}
+		`,`
+			varying lowp vec4 vColor;
+
+			void main() {
+				gl_FragColor = vec4(abs(vColor).rgb, 1.0);
+			}
+		`);
+		const material = new Material(shader);
+		return material;
+	}
+
+	async getLiveAsset(uuid){
+		let asset = this.liveAssets.get(uuid);
+		if(asset) return asset;
+		const assetData = this.assetDatas.get(uuid);
+		if(!assetData) return null;
+		if(assetData.assetType == "material"){
+			const json = await this.fileSystem.readJson(assetData.path);
+			const material = this.createMaterialFromJsonData(json);
+			this.liveAssets.set(uuid, material);
+			return material;
+		}
 	}
 }

@@ -108,7 +108,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					type, guiItemOpts,
 				});
 				addedItem.onValueChange(newValue => {
-					console.log("newValue:", newValue);
+					property.setValue(newValue);
 				});
 			}
 		}
