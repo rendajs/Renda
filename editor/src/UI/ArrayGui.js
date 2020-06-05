@@ -23,6 +23,11 @@ export default class ArrayGui{
 			}
 		});
 		this.el.appendChild(this.addItemButton.el);
+
+		//initialize array values
+		for(const arrayItem of value){
+			this.addItem();
+		}
 	}
 
 	get value(){
