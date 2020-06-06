@@ -86,22 +86,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			}
 		}
 		for(const componentGroup of componentGroups){
-			let componentUI = this.componentsSection.addCollapsable(componentGroup.constructor.componentName);
+			const componentUI = this.componentsSection.addCollapsable(componentGroup.constructor.componentName);
+			const componentData = componentGroup.getComponentData();
 			for(const [propertyName, property] of componentGroup._componentProperties){
-				let type = "";
+				let type = property.constructor.getTypeStr();
 				let guiItemOpts = {
+					...componentData.properties[propertyName],
 					value: property.value,
-				}
-				if(property instanceof ComponentPropertyFloat){
-					type = "float";
-				}else if(property instanceof ComponentPropertyBool){
-					type = "bool";
-				}else if(property instanceof ComponentPropertyAsset){
-					type = "asset";
-					guiItemOpts.supportedAssetTypes = [property.assetType];
-				}else if(property instanceof ComponentPropertyArray){
-					type = "array";
-					guiItemOpts.arrayTypeOpts = property.arrayTypeOpts;
 				}
 				const addedItem = componentUI.addItem({
 					label: propertyName,

@@ -7,6 +7,12 @@ export default class ComponentProperty{
 		this.onChange = onChange;
 	}
 
+	//inherited classes should override this and return the type to
+	//be used by GuiTreeViewEntry.js in the editor
+	static getTypeStr(){
+		return "";
+	}
+
 	getValue(){
 		return this.value;
 	}

@@ -9,4 +9,8 @@ export default class ComponentPropertyMat4 extends ComponentProperty{
 		}
 		super(opts);
 	}
+
+	static getTypeStr(){
+		return "mat4";
+	}
 }

@@ -5,4 +5,8 @@ export default class ComponentPropertyAsset extends ComponentProperty{
 		super(opts);
 		this.assetType = opts.assetType || "";
 	}
+
+	static getTypeStr(){
+		return "asset";
+	}
 }

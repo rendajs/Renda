@@ -53,10 +53,15 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
 			arrayTypeOpts: {
 				type: "float",
 				defaultValue: 10,
-				min: 10,
+				min: 5,
 				max: 20,
 			}
-		}
+		},
+		test2: {
+			defaultValue: 5,
+			min: 0,
+			max: 30,
+		},
 	},
 }, defaultComponentTypeManager.defaultNamespace);
 

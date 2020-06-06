@@ -19,7 +19,7 @@ export default class Component{
 		this.entity = null;
 		this._componentProperties = new Map();
 
-		const componentData = componentTypeManager.getComponentData(componentType, componentNamespace);
+		const componentData = this.getComponentData();
 		this.setComponentProperties(componentData?.properties);
 
 		for(const [propertyName, propertyValue] of Object.entries(propertyValues)){
@@ -45,6 +45,10 @@ export default class Component{
 			type: this.constructor.componentName,
 			propertyValues,
 		}
+	}
+
+	getComponentData(){
+		return this.componentTypeManager.getComponentData(this.componentType, this.componentNamespace);
 	}
 
 	setComponentProperties(properties){

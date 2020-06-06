@@ -8,4 +8,8 @@ export default class ComponentPropertyFloat extends ComponentProperty{
 		}
 		super(opts);
 	}
+
+	static getTypeStr(){
+		return "float";
+	}
 }

@@ -8,4 +8,8 @@ export default class ComponentPropertyBool extends ComponentProperty{
 		}
 		super(opts);
 	}
+
+	static getTypeStr(){
+		return "bool";
+	}
 }

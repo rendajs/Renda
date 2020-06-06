@@ -10,6 +10,7 @@ export default class ArrayGui{
 		this.el.classList.add("arrayGui");
 
 		this.valueItems = [];
+		this.type = arrayTypeOpts.type || "asset";
 		this.arrayTypeOpts = arrayTypeOpts;
 		this.onValueChangeCbs = [];
 
@@ -50,8 +51,11 @@ export default class ArrayGui{
 		const addedItem = this.treeView.addItem({
 			label: index,
 			smallLabel: true,
-			...this.arrayTypeOpts,
-			...extraArrayTypeOpts,
+			type: this.type,
+			guiItemOpts: {
+				...this.arrayTypeOpts,
+				...extraArrayTypeOpts,
+			},
 		});
 		addedItem.onValueChange(_ => {
 			this.fireValueChange();
