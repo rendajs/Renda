@@ -1,4 +1,5 @@
-import ComponentTypes from "./ComponentTypes.js";
+import {autoRegisterComponentProperties} from "./ComponentProperties/ComponentProperties.js";
+import ComponentProperty from "./ComponentProperties/ComponentProperty.js";
 
 export default class ComponentTypeManager{
 	constructor(){
@@ -6,15 +7,22 @@ export default class ComponentTypeManager{
 
 		this.getNamespace(this.defaultNamespace);
 		this.getNamespace(this.userNamespace);
+
+		for(const property of autoRegisterComponentProperties){
+			this.registerComponentProperty(property, this.defaultNamespace);
+		}
 	}
 
 	getNamespace(namespace, creationOpts = {}){
-		let namespaceMap = this.namespaces.get(namespace);
-		if(namespaceMap) return namespaceMap;
-		namespaceMap = new Map();
-		this.namespaces.set(namespace, namespaceMap);
+		let namespaceObj = this.namespaces.get(namespace);
+		if(namespaceObj) return namespaceObj;
+		namespaceObj = {
+			componentTypes: new Map(),
+			propertyTypes: new Map(),
+		}
+		this.namespaces.set(namespace, namespaceObj);
 		this.sortNamespaces();
-		return namespaceMap;
+		return namespaceObj;
 	}
 
 	sortNamespaces(){
@@ -25,8 +33,24 @@ export default class ComponentTypeManager{
 	}
 
 	registerComponentType(type, componentData, namespace = this.userNamespace){
-		const namespaceMap = this.getNamespace(namespace);
-		namespaceMap.set(type, componentData);
+		const namespaceObj = this.getNamespace(namespace);
+		namespaceObj.componentTypes.set(type, componentData);
+	}
+
+	registerComponentProperty(property, namespace = this.userNamespace){
+		if(!(property.prototype instanceof ComponentProperty)){
+			console.warn("Tried to register component property that is not an instance of ComponentProperty: ",property.name);
+			return;
+		}
+
+		const typeStr = property.getTypeStr();
+		if(!typeStr){
+			console.warn("Failed to register component property because its getTypeStr method is not implemented", property.name);
+			return;
+		}
+
+		const namespaceObj = this.getNamespace(namespace);
+		namespaceObj.propertyTypes.set(typeStr, property);
 	}
 
 	get defaultNamespace(){
@@ -39,19 +63,31 @@ export default class ComponentTypeManager{
 
 	getComponentData(type, namespace = null){
 		if(namespace == null){
-			for(const namespace of this.namespaces.values()){
-				let componentData = namespace.get(type);
+			for(const namespaceObj of this.namespaces.values()){
+				let componentData = namespaceObj.componentTypes.get(type);
 				if(componentData) return componentData;
 			}
 			return null;
 		}else{
-			return this.namespaces.get(namespace)?.get(type);
+			return this.namespaces.get(namespace)?.componentTypes.get(type);
+		}
+	}
+
+	getComponentProperty(type, namespace = null){
+		if(namespace == null){
+			for(const namespaceObj of this.namespaces.values()){
+				let property = namespaceObj.propertyTypes.get(type);
+				if(property) return property;
+			}
+			return null;
+		}else{
+			return this.namespaces.get(namespace)?.propertyTypes.get(type);
 		}
 	}
 
 	*getAllComponents(){
-		for(const [namespace, namespaceData] of this.namespaces){
-			for(const [type, componentData] of namespaceData){
+		for(const [namespace, namespaceObj] of this.namespaces){
+			for(const [type, componentData] of namespaceObj.componentTypes){
 				yield {namespace, type, componentData};
 			}
 		}

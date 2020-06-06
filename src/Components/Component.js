@@ -1,11 +1,4 @@
-import {
-	ComponentProperty,
-	ComponentPropertyFloat,
-	ComponentPropertyBool,
-	ComponentPropertyAsset,
-	ComponentPropertyArray,
-	ComponentPropertyMat4,
-} from "./ComponentProperties/ComponentProperties.js";
+import {ComponentProperty} from "./ComponentProperties/ComponentProperties.js";
 import defaultComponentTypeManager from "./defaultComponentTypeManager.js";
 
 export default class Component{
@@ -74,17 +67,8 @@ export default class Component{
 		let propertyType = settings.type || "float";
 		if(typeof propertyType == "string"){
 			propertyType = propertyType.toLowerCase();
-			if(propertyType == "float"){
-				propertyType = ComponentPropertyFloat;
-			}else if(propertyType == "bool"){
-				propertyType = ComponentPropertyBool;
-			}else if(propertyType == "array"){
-				propertyType = ComponentPropertyArray;
-			}else if(propertyType == "asset"){
-				propertyType = ComponentPropertyAsset;
-			}else if(propertyType == "mat4"){
-				propertyType = ComponentPropertyMat4;
-			}else{
+			propertyType = defaultComponentTypeManager.getComponentProperty(propertyType);
+			if(!propertyType){
 				propertyType = ComponentProperty;
 			}
 		}

@@ -1,11 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {
-	Entity, Vector3, defaultComponentTypeManager,
-	ComponentPropertyFloat,
-	ComponentPropertyBool,
-	ComponentPropertyAsset,
-	ComponentPropertyArray,
-} from "../../../src/index.js";
+import {Entity, Vector3, defaultComponentTypeManager} from "../../../src/index.js";
 import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";

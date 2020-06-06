@@ -1,6 +1,6 @@
 import {Entity, Material, Shader} from "../../../src/index.js";
 import editor from "../editorInstance.js";
-import {Uuid} from "../Util/Util.js";
+import {generateUuid} from "../Util/Util.js";
 
 export default class AssetManager{
 	constructor(){
@@ -78,7 +78,7 @@ export default class AssetManager{
 	}
 
 	async registerAsset(path = [], assetType = null, forceAssetType = false){
-		let uuid = Uuid();
+		let uuid = generateUuid();
 		if(!assetType){
 			assetType = await this.guessAssetType(path);
 		}

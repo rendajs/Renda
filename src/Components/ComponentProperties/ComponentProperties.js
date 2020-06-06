@@ -1,6 +1,14 @@
 export {default as ComponentProperty} from "./ComponentProperty.js";
-export {default as ComponentPropertyFloat} from "./ComponentPropertyFloat.js";
-export {default as ComponentPropertyBool} from "./ComponentPropertyBool.js";
-export {default as ComponentPropertyAsset} from "./ComponentPropertyAsset.js";
-export {default as ComponentPropertyArray} from "./ComponentPropertyArray.js";
-export {default as ComponentPropertyMat4} from "./ComponentPropertyMat4.js";
+import ComponentPropertyFloat from "./ComponentPropertyFloat.js";
+import ComponentPropertyBool from "./ComponentPropertyBool.js";
+import ComponentPropertyAsset from "./ComponentPropertyAsset.js";
+import ComponentPropertyArray from "./ComponentPropertyArray.js";
+import ComponentPropertyMat4 from "./ComponentPropertyMat4.js";
+
+export const autoRegisterComponentProperties = [
+	ComponentPropertyFloat,
+	ComponentPropertyBool,
+	ComponentPropertyAsset,
+	ComponentPropertyArray,
+	ComponentPropertyMat4,
+];
