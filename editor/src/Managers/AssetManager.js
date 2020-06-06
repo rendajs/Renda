@@ -161,15 +161,23 @@ export default class AssetManager{
 	}
 
 	async getLiveAsset(uuid){
-		let asset = this.liveAssets.get(uuid);
-		if(asset) return asset;
+		let liveAssetData = this.liveAssets.get(uuid);
+		if(liveAssetData) return liveAssetData;
 		const assetData = this.assetDatas.get(uuid);
 		if(!assetData) return null;
 		if(assetData.assetType == "material"){
 			const json = await this.fileSystem.readJson(assetData.path);
 			const material = this.createMaterialFromJsonData(json);
-			this.liveAssets.set(uuid, material);
-			return material;
+			const liveAssetData = {
+				asset: material,
+				fileName: assetData.path[assetData.path.length -1],
+			};
+			this.liveAssets.set(uuid, liveAssetData);
+			return liveAssetData;
 		}
+	}
+
+	getLiveAssetUuid(assetData){
+
 	}
 }

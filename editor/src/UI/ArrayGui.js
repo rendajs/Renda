@@ -26,7 +26,7 @@ export default class ArrayGui{
 
 		//initialize array values
 		for(const arrayItem of value){
-			this.addItem();
+			this.addItem({value: arrayItem});
 		}
 	}
 
@@ -45,12 +45,13 @@ export default class ArrayGui{
 		this.el = null;
 	}
 
-	addItem(){
+	addItem(extraArrayTypeOpts = {}){
 		const index = this.value.length;
 		const addedItem = this.treeView.addItem({
 			label: index,
 			smallLabel: true,
 			...this.arrayTypeOpts,
+			...extraArrayTypeOpts,
 		});
 		addedItem.onValueChange(_ => {
 			this.fireValueChange();

@@ -52,6 +52,7 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
 			type: "array",
 			arrayTypeOpts: {
 				type: "float",
+				defaultValue: 10,
 				min: 10,
 				max: 20,
 			}
@@ -103,6 +104,7 @@ export default class RealTimeRenderer extends Renderer{
 		mesh.updateBuffersGl(this.gl);
 
 		for(const material of materials){
+			if(!material) continue;
 			//todo: only init necessary materials
 			material.compileShader(this.gl);
 			let shader = material.shader;

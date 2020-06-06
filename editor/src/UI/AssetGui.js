@@ -4,6 +4,7 @@ import {parseMimeType} from "../Util/Util.js";
 export default class AssetGui{
 	constructor({
 		supportedAssetTypes = [],
+		value = null,
 	} = {}){
 		this.el = document.createElement("div");
 		this.el.classList.add("assetGui", "empty");
@@ -43,7 +44,10 @@ export default class AssetGui{
 	}
 
 	get value(){
-		return this.linkedLiveAsset;
+		if(this.linkedLiveAsset){
+			return this.linkedLiveAsset.asset;
+		}
+		return null;
 	}
 
 	onValueChange(cb){
@@ -108,5 +112,12 @@ export default class AssetGui{
 		this.linkedAssetUuid = uuid;
 		this.linkedLiveAsset = await editor.projectManager.assetManager.getLiveAsset(uuid);
 		this.fireValueChange();
+		this.updateContent();
+	}
+
+	updateContent(){
+		this.el.classList.toggle("empty", !this.linkedLiveAsset);
+		this.el.classList.toggle("filled", this.linkedLiveAsset);
+		this.el.textContent = this.linkedLiveAsset.fileName;
 	}
 }
