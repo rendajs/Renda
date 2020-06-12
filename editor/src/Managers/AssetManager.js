@@ -177,7 +177,10 @@ export default class AssetManager{
 		}
 	}
 
-	getLiveAssetUuid(assetData){
-
+	getLiveAssetUuidForAsset(asset){
+		for(const [uuid, liveAssetData] of this.liveAssets){
+			if(liveAssetData.asset == asset) return uuid;
+		}
+		return null;
 	}
 }

@@ -23,6 +23,11 @@ export default class AssetGui{
 		this.el.addEventListener("dragleave", this.boundOnDragEnd);
 		this.el.addEventListener("drop", this.boundOnDrop);
 
+		if(value){
+			const uuid = editor.projectManager.assetManager.getLiveAssetUuidForAsset(value);
+			this.setAssetUuid(uuid);
+		}
+
 		this.linkedLiveAsset = null;
 		this.linkedAssetUuid = null;
 	}
@@ -109,8 +114,13 @@ export default class AssetGui{
 	}
 
 	async setAssetUuid(uuid){
-		this.linkedAssetUuid = uuid;
-		this.linkedLiveAsset = await editor.projectManager.assetManager.getLiveAsset(uuid);
+		if(!uuid){
+			this.linkedAssetUuid = null;
+			this.linkedLiveAsset = null;
+		}else{
+			this.linkedAssetUuid = uuid;
+			this.linkedLiveAsset = await editor.projectManager.assetManager.getLiveAsset(uuid);
+		}
 		this.fireValueChange();
 		this.updateContent();
 	}
@@ -118,6 +128,6 @@ export default class AssetGui{
 	updateContent(){
 		this.el.classList.toggle("empty", !this.linkedLiveAsset);
 		this.el.classList.toggle("filled", this.linkedLiveAsset);
-		this.el.textContent = this.linkedLiveAsset.fileName;
+		this.el.textContent = this.linkedLiveAsset?.fileName || "";
 	}
 }
