@@ -39,12 +39,8 @@ export default class AssetManager{
 	}
 
 	async loadAssetSettings(){
-		let json = null;
-		try{
-			json = await this.fileSystem.readJson(this.assetSettingsPath);
-		}catch(e){
-			//no asset settings found
-		}
+		if(!(await this.fileSystem.isFile(this.assetSettingsPath))) return;
+		let json = await this.fileSystem.readJson(this.assetSettingsPath);
 		if(json){
 			for(const [uuid, asset] of Object.entries(json.assets)){
 				if(!asset.assetType){

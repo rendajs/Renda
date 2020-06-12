@@ -19,6 +19,10 @@ export default class EditorFileSystem{
 
 	async readFile(path = []){}
 
+	async isFile(path = []){}
+
+	async isDir(path = []){}
+
 	/*util functions*/
 	async writeJson(path = [], json = {}){
 		let jsonStr = JSON.stringify(json);

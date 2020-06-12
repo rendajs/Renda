@@ -8,16 +8,42 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 
 	static async openUserDir(){
 		let directoryHandle = await window.chooseFileSystemEntries({
-			type: "openDirectory"
+			type: "open-directory"
 		});
 		return new EditorFileSystemNative(directoryHandle);
 	}
 
-	async readDir(path = []){
+	async verifyHandlePermission(handle, {
+		prompt = true,
+		writable = true,
+		error = true,
+	} = {}){
+		const opts = {writable};
+		if(await handle.queryPermission(opts) == "granted") return true;
+		if(await handle.requestPermission(opts) == "granted") return true;
+		if(error) throw new Error("Not enough file system permissions for this operation.");
+		return false;
+	}
+
+	async getDirHandle(path = [], create = false){
 		let handle = this.handle;
 		for(const dirName of path){
-			handle = await handle.getDirectory(dirName)
+			await this.verifyHandlePermission(handle, {writable: create});
+			handle = await handle.getDirectory(dirName, {create})
 		}
+		return handle;
+	}
+
+	async getFileHandle(path = [], create = false){
+		if(create) writable = true;
+		const {dirPath, fileName} = this.splitDirFileName(path);
+		const dirHandle = await this.getDirHandle(dirPath);
+		await this.verifyHandlePermission(dirHandle, {writable: create});
+		return await dirHandle.getFile(fileName);
+	}
+
+	async readDir(path = []){
+		const handle = await this.getDirHandle(path);
 		let result = {
 			files: [],
 			directories: [],
@@ -30,5 +56,57 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 			}
 		}
 		return result;
+	}
+
+	async createDir(path = []){
+		return await this.getDirHandle(path, true);
+	}
+
+	async move(fromPath = [], toPath = []){
+		//wait for this method to be added to the native file system api spec
+	}
+
+	splitDirFileName(path = []){
+		const dirPath = path.slice(0, path.length - 1);
+		const fileName = path[path.length - 1];
+		return {dirPath, fileName};
+	}
+
+	async writeFile(path = [], file = null){
+		const fileHandle = await this.getFileHandle(path, true);
+		await this.verifyHandlePermission(fileHandle);
+		const fileStream = await fileHandle.createWritable();
+		if(!fileStream.locked){
+			await fileStream.write(file);
+			await fileStream.close();
+		}
+	}
+
+	async readFile(path = []){
+		const fileHandle = await this.getFileHandle(path);
+		await this.verifyHandlePermission(fileHandle, {writable: false});
+		return await fileHandle.getFile();
+	}
+
+	async isFile(path = []){
+		try{
+			await this.getFileHandle(path);
+		}catch(e){
+			if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	async isDir(path = []){
+		try{
+			await this.getDirHandle(path);
+		}catch(e){
+			if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
+				return false;
+			}
+		}
+		return true;
 	}
 }
