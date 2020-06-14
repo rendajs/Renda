@@ -1,4 +1,4 @@
-import {Renderer, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh} from "../../index.js";
+import {Renderer, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh, MeshAttributeBuffer} from "../../index.js";
 
 defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 	properties: {
@@ -98,17 +98,34 @@ export default class RealTimeRenderer extends Renderer{
 			let shader = material.shader;
 
 			const positionAttrib = shader.getAttribLocation("aVertexPosition");
-			const positionBuffer = mesh.getBuffer(Mesh.AttributeTypes.position);
+			const positionBuffer = mesh.getBuffer(Mesh.AttributeTypes.POSITION);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer.glBuffer);
-			this.gl.vertexAttribPointer(positionAttrib, positionBuffer.componentCount, this.gl.FLOAT, false, 0, 0);
+			this.gl.vertexAttribPointer(positionAttrib, positionBuffer.componentCount, this.attribTypeToWebGlConst(positionBuffer.componentType), false, 0, 0);
 			this.gl.enableVertexAttribArray(positionAttrib);
 
 			shader.use();
 
 			let mvpMatrix = Mat4.multiplyMatrices(component.entity.worldMatrix, vpMatrix);
 			shader.uniformMatrix4fv("uMvpMatrix", mvpMatrix);
-			const indexBuffer = mesh.getBuffer(Mesh.AttributeTypes.index);
-			this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, indexBuffer.glBuffer)
+			const indexBuffer = mesh.getBuffer(Mesh.AttributeTypes.INDEX);
+			this.gl.drawElements(this.gl.TRIANGLES, 36, this.attribTypeToWebGlConst(indexBuffer.componentType), indexBuffer.glBuffer)
+		}
+	}
+
+	attribTypeToWebGlConst(type){
+		switch(type){
+			case MeshAttributeBuffer.ComponentTypes.BYTE:
+				return this.gl.BYTE;
+			case MeshAttributeBuffer.ComponentTypes.SHORT:
+				return this.gl.SHORT;
+			case MeshAttributeBuffer.ComponentTypes.UNSIGNED_BYTE:
+				return this.gl.UNSIGNED_BYTE;
+			case MeshAttributeBuffer.ComponentTypes.UNSIGNED_SHORT:
+				return this.gl.UNSIGNED_SHORT;
+			case MeshAttributeBuffer.ComponentTypes.FLOAT:
+				return this.gl.FLOAT;
+			case MeshAttributeBuffer.ComponentTypes.HALF_FLOAT:
+				return this.gl.HALF_FLOAT;
 		}
 	}
 

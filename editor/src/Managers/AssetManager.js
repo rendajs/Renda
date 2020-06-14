@@ -1,4 +1,4 @@
-import {Entity, Material, Shader} from "../../../src/index.js";
+import {Entity, Material, Shader, Mesh} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid} from "../Util/Util.js";
 
@@ -84,6 +84,9 @@ export default class AssetManager{
 	}
 
 	async guessAssetType(path = []){
+		if(!path || path.length <= 0) return null;
+		const fileName = path[path.length - 1];
+		if(fileName.endsWith(".jjmesh")) return "mesh";
 		const json = await this.fileSystem.readJson(path);
 		return json?.assetType ?? "unknown";
 	}
@@ -161,16 +164,24 @@ export default class AssetManager{
 		if(liveAssetData) return liveAssetData;
 		const assetData = this.assetDatas.get(uuid);
 		if(!assetData) return null;
+
+		liveAssetData = {
+			asset: null,
+			fileName: assetData.path[assetData.path.length -1],
+		};
 		if(assetData.assetType == "material"){
 			const json = await this.fileSystem.readJson(assetData.path);
 			const material = this.createMaterialFromJsonData(json);
-			const liveAssetData = {
-				asset: material,
-				fileName: assetData.path[assetData.path.length -1],
-			};
-			this.liveAssets.set(uuid, liveAssetData);
-			return liveAssetData;
+			liveAssetData.asset = material;
+		}else if(assetData.assetType == "mesh"){
+			const blob = await this.fileSystem.readFile(assetData.path);
+			const mesh = await Mesh.fromBlob(blob);
+			liveAssetData.asset = mesh;
+		}else{
+			return null;
 		}
+		this.liveAssets.set(uuid, liveAssetData);
+		return liveAssetData;
 	}
 
 	getLiveAssetUuidForAsset(asset){
