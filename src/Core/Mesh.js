@@ -39,4 +39,16 @@ export default class Mesh{
 			buffer.uploadToWebGl(gl, bufferType);
 		}
 	}
+
+	toBlob(){
+		const blobData = [];
+		const magicHeader = new Uint32Array([0x68734D6A]);
+		blobData.push(magicHeader);
+		for(const [type, buffer] of this.buffers){
+			const chunkHeader = new Uint32Array([type, buffer.dataView.byteLength]);
+			blobData.push(chunkHeader);
+			blobData.push(buffer.dataView);
+		}
+		return new Blob(blobData);
+	}
 }

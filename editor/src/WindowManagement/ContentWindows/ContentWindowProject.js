@@ -3,6 +3,7 @@ import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
+import {Mesh, Vector3} from "../../../../src/index.js";
 
 export default class ContentWindowProject extends ContentWindow{
 	constructor(){
@@ -17,6 +18,9 @@ export default class ContentWindowProject extends ContentWindow{
 				});
 				menu.addItem("New Material", _ => {
 					this.createNewMaterial();
+				});
+				menu.addItem("New Mesh", _ => {
+					this.createNewMesh();
 				});
 
 				menu.setPos(createButton, "top left");
@@ -104,6 +108,50 @@ export default class ContentWindowProject extends ContentWindow{
 		});
 
 		await editor.projectManager.assetManager.registerAsset(newPath, "material");
+	}
+
+	async createNewMesh(){
+		let newPath = await this.createAtSelectedPath("New Mesh.jjmesh", async(fileSystem, newPath, fileName) => {
+			const cubeMesh = new Mesh();
+			cubeMesh.setBuffer(Mesh.AttributeTypes.index, [0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
+			cubeMesh.setBuffer(Mesh.AttributeTypes.position, [
+				new Vector3(-1,-1,-1),
+				new Vector3(-1,-1, 1),
+				new Vector3(-1, 1,-1),
+				new Vector3(-1, 1, 1),
+
+				new Vector3( 1,-1,-1),
+				new Vector3( 1,-1, 1),
+				new Vector3( 1, 1,-1),
+				new Vector3( 1, 1, 1),
+
+				new Vector3(-1,-1,-1),
+				new Vector3(-1,-1, 1),
+				new Vector3( 1,-1,-1),
+				new Vector3( 1,-1, 1),
+
+				new Vector3(-1, 1,-1),
+				new Vector3(-1, 1, 1),
+				new Vector3( 1, 1,-1),
+				new Vector3( 1, 1, 1),
+
+				new Vector3(-1,-1,-1),
+				new Vector3(-1, 1,-1),
+				new Vector3( 1,-1,-1),
+				new Vector3( 1, 1,-1),
+
+				new Vector3(-1,-1, 1),
+				new Vector3(-1, 1, 1),
+				new Vector3( 1,-1, 1),
+				new Vector3( 1, 1, 1),
+			]);
+			const blob = cubeMesh.toBlob();
+			const file = new File([blob], fileName);
+			await fileSystem.writeFile(newPath, file);
+			return newPath;
+		});
+
+		await editor.projectManager.assetManager.registerAsset(newPath, "mesh");
 	}
 
 	pathFromTreeView(treeView, removeLast = false){
