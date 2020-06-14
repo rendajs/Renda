@@ -1,5 +1,5 @@
-import {Vector3, Quaternion, Mat4} from "./Math/Math.js";
-import {Component, defaultComponentTypeManager} from "./Components/Components.js";
+import {Vector3, Quaternion, Mat4} from "../Math/Math.js";
+import {Component, defaultComponentTypeManager} from "../Components/Components.js";
 
 export default class Entity{
 	constructor(opts){
