@@ -1,7 +1,4 @@
-import Renderer from "./Renderer.js";
-import Mat4 from "../../Math/Mat4.js";
-import {ComponentTypes} from "../../Components/Components.js";
-import defaultComponentTypeManager from "../../Components/defaultComponentTypeManager.js";
+import {Renderer, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh} from "../../index.js";
 
 defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 	properties: {
@@ -92,7 +89,7 @@ export default class RealTimeRenderer extends Renderer{
 		let materials = component.materials;
 		if(!mesh || !materials || !materials.length) return;
 
-		mesh.updateBuffersGl(this.gl);
+		mesh.uploadToWebGl(this.gl);
 
 		for(const material of materials){
 			if(!material) continue;
@@ -101,15 +98,17 @@ export default class RealTimeRenderer extends Renderer{
 			let shader = material.shader;
 
 			const positionAttrib = shader.getAttribLocation("aVertexPosition");
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, mesh.positionBuffer);
-			this.gl.vertexAttribPointer(positionAttrib, 3, this.gl.FLOAT, false, 0, 0);
+			const positionBuffer = mesh.getBuffer(Mesh.AttributeTypes.position);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer.glBuffer);
+			this.gl.vertexAttribPointer(positionAttrib, positionBuffer.componentCount, this.gl.FLOAT, false, 0, 0);
 			this.gl.enableVertexAttribArray(positionAttrib);
 
 			shader.use();
 
 			let mvpMatrix = Mat4.multiplyMatrices(component.entity.worldMatrix, vpMatrix);
 			shader.uniformMatrix4fv("uMvpMatrix", mvpMatrix);
-			this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, mesh.indexBuffer)
+			const indexBuffer = mesh.getBuffer(Mesh.AttributeTypes.index);
+			this.gl.drawElements(this.gl.TRIANGLES, 36, this.gl.UNSIGNED_SHORT, indexBuffer.glBuffer)
 		}
 	}
 
