@@ -35,11 +35,10 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	async getFileHandle(path = [], create = false){
-		if(create) writable = true;
 		const {dirPath, fileName} = this.splitDirFileName(path);
 		const dirHandle = await this.getDirHandle(dirPath);
 		await this.verifyHandlePermission(dirHandle, {writable: create});
-		return await dirHandle.getFile(fileName);
+		return await dirHandle.getFile(fileName, {create});
 	}
 
 	async readDir(path = []){
