@@ -70,8 +70,10 @@ export default class ContentWindowProject extends ContentWindow{
 			}
 		}
 		for(const file of fileTree.files){
-			let newTreeView = treeView.addChild();
-			newTreeView.name = file;
+			if(!treeView.includes(file)){
+				let newTreeView = treeView.addChild();
+				newTreeView.name = file;
+			}
 		}
 	}
 
@@ -192,7 +194,7 @@ export default class ContentWindowProject extends ContentWindow{
 		let fileSystem = this.getFileSystem();
 		let json = await fileSystem.readJson(path);
 		let type = json.type;
-		if(type == "Entity"){
+		if(type == "entity"){
 			let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.entity);
 			for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
 				entityEditor.editingEntity = entity;
