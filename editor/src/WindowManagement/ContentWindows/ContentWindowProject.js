@@ -9,10 +9,10 @@ export default class ContentWindowProject extends ContentWindow{
 	constructor(){
 		super();
 
-		let createButton = new Button({
+		const createButton = new Button({
 			text: "+",
 			onClick: _ => {
-				let menu = editor.contextMenuManager.createContextMenu();
+				const menu = editor.contextMenuManager.createContextMenu();
 				menu.addItem("New Folder", _ => {
 					this.createNewDir();
 				});
@@ -30,6 +30,14 @@ export default class ContentWindowProject extends ContentWindow{
 			}
 		});
 		this.addTopBarButton(createButton);
+
+		const loadAssetSettingsButton = new Button({
+			text: "Load Asset Settings",
+			onClick: _ => {
+				editor.projectManager.assetManager.loadAssetSettings()
+			},
+		});
+		this.addTopBarButton(loadAssetSettingsButton);
 
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
