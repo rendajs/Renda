@@ -1,4 +1,4 @@
-import {Entity, Material, Shader, Mesh} from "../../../src/index.js";
+import {Entity, Material, Shader, Mesh, ComponentPropertyArray, ComponentPropertyAsset} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid} from "../Util/Util.js";
 
@@ -131,6 +131,53 @@ export default class AssetManager{
 
 	setAssetSettings(path = [], settings = {}){
 
+	}
+
+	entityToJson(entity){
+		let json = {
+			name: entity.name,
+			matrix: entity.localMatrix.getAsArray(),
+			components: [],
+			children: [],
+		}
+		for(const component of entity.components){
+			json.components.push(this.componentToJson(component));
+		}
+		for(const child of entity.getChildren()){
+			json.children.push(this.entityToJson(child));
+		}
+		if(json.components.length <= 0) delete json.components;
+		if(json.children.length <= 0) delete json.children;
+		return json;
+	}
+
+	componentToJson(component){
+		const propertyValues = {};
+		for(const [propertyName, property] of component._componentProperties){
+			propertyValues[propertyName] = this.componentPropertyToJson(property);
+		}
+		const componentJson = {
+			type: component.componentType,
+			propertyValues,
+		};
+		if(component.componentNamespace != null){
+			componentJson.namespace = component.componentNamespace;
+		}
+		return componentJson;
+	}
+
+	componentPropertyToJson(componentProperty){
+		const value = componentProperty.getValue();
+		if(componentProperty instanceof ComponentPropertyArray){
+			const newValue = [];
+			for(const item of value){
+				newValue.push(this.componentPropertyToJson(item));
+			}
+			return newValue;
+		}else if(componentProperty instanceof ComponentPropertyAsset){
+			return this.getLiveAssetUuidForAsset(value);
+		}
+		return value;
 	}
 
 	createEntityFromJsonData(jsonData){

@@ -30,14 +30,18 @@ export default class Component{
 	}
 
 	toJson(){
-		let propertyValues = {};
+		const propertyValues = {};
 		for(const [propertyName, property] of this._componentProperties){
 			propertyValues[propertyName] = property.getValue();
 		}
-		return {
-			type: this.constructor.componentName,
+		const componentJson = {
+			type: this.componentType,
 			propertyValues,
+		};
+		if(this.componentNamespace != null){
+			componentJson.namespace = this.componentNamespace;
 		}
+		return componentJson;
 	}
 
 	getComponentData(){
