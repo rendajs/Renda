@@ -213,8 +213,9 @@ export default class ContentWindowProject extends ContentWindow{
 			let assetType = json.assetType;
 			if(assetType == "entity"){
 				let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.asset);
+				const entityUuid = editor.projectManager.assetManager.getAssetUuid(path);
 				for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
-					entityEditor.editingEntity = entity;
+					entityEditor.setEditingEntityAsset(entity, entityUuid);
 				}
 			}
 		}

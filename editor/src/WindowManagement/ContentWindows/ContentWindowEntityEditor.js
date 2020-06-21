@@ -24,6 +24,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
 
+		this.editingEntityUuid = null;
 		this._editingEntity = null;
 		this.selectionManager = new SelectionManager();
 
@@ -131,6 +132,11 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		let cam = new Entity({name:"cam"});
 		this.editingEntity.add(cam);
 		cam.addComponent(ComponentTypes.camera);
+	}
+
+	setEditingEntityAsset(entity, entityUuid){
+		this.editingEntity = entity;
+		this.editingEntityUuid = entityUuid;
 	}
 
 	loop(){
