@@ -99,6 +99,12 @@ export default class AssetManager{
 		}
 	}
 
+	getAssetPath(uuid){
+		const asset = this.assetDatas.get(uuid);
+		if(!asset) return null;
+		return asset.path.slice();
+	}
+
 	testPathMatch(path1 = [], path2 = []){
 		if(path1.length != path2.length) return false;
 		for(let i=0; i<path1.length; i++){

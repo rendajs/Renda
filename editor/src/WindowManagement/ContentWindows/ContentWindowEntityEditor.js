@@ -1,5 +1,6 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
+import Button from "../../UI/Button.js";
 import {Entity, Mesh, Vector3, Shader, Material, ComponentTypes} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
@@ -10,6 +11,14 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		super();
 
 		this.setContentBehindTopBar(true);
+
+		let saveEntityButton = new Button({
+			text: "Save",
+			onClick: _ => {
+				this.saveEntityAsset();
+			}
+		});
+		this.addTopBarButton(saveEntityButton);
 
 		this.canvasEl = document.createElement("canvas");
 		this.ctx = this.canvasEl.getContext("bitmaprenderer");
@@ -134,9 +143,19 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		cam.addComponent(ComponentTypes.camera);
 	}
 
-	setEditingEntityAsset(entity, entityUuid){
+	loadEntityAsset(entity, entityUuid){
 		this.editingEntity = entity;
 		this.editingEntityUuid = entityUuid;
+	}
+
+	async saveEntityAsset(){
+		if(!this.editingEntityUuid) return;
+		const path = editor.projectManager.assetManager.getAssetPath(this.editingEntityUuid);
+		const fs = editor.projectManager.currentProjectFileSystem;
+		await fs.writeJson(path, {
+			assetType: "entity",
+			asset: this.editingEntity.toJson(),
+		});
 	}
 
 	loop(){
