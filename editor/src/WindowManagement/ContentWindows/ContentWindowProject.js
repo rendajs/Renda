@@ -3,7 +3,7 @@ import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
-import {Mesh, Vector3} from "../../../../src/index.js";
+import {Mesh, Vector3, Entity} from "../../../../src/index.js";
 
 export default class ContentWindowProject extends ContentWindow{
 	constructor(){
@@ -21,6 +21,9 @@ export default class ContentWindowProject extends ContentWindow{
 				});
 				menu.addItem("New Mesh", _ => {
 					this.createNewMesh();
+				});
+				menu.addItem("New Entity", _ => {
+					this.createNewEntity();
 				});
 
 				menu.setPos(createButton, "top left");
@@ -156,6 +159,19 @@ export default class ContentWindowProject extends ContentWindow{
 		await editor.projectManager.assetManager.registerAsset(newPath, "mesh");
 	}
 
+	async createNewEntity(){
+		let newPath = await this.createAtSelectedPath("New Entity.json", async(fileSystem, newPath, fileName) => {
+			const entity = new Entity("New Entity");
+			await fileSystem.writeJson(newPath, {
+				assetType: "entity",
+				asset: entity.toJson(),
+			});
+			return newPath;
+		});
+
+		await editor.projectManager.assetManager.registerAsset(newPath, "entity");
+	}
+
 	pathFromTreeView(treeView, removeLast = false){
 		let path = treeView.getNamesPath();
 		path.shift(); //remove root
@@ -192,12 +208,14 @@ export default class ContentWindowProject extends ContentWindow{
 	async onTreeViewDblClick({clickedElement}){
 		const path = this.pathFromTreeView(clickedElement);
 		let fileSystem = this.getFileSystem();
-		let json = await fileSystem.readJson(path);
-		let type = json.type;
-		if(type == "entity"){
-			let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.entity);
-			for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
-				entityEditor.editingEntity = entity;
+		if(await fileSystem.isFile(path)){
+			let json = await fileSystem.readJson(path);
+			let assetType = json.assetType;
+			if(assetType == "entity"){
+				let entity = editor.projectManager.assetManager.createEntityFromJsonData(json.asset);
+				for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
+					entityEditor.editingEntity = entity;
+				}
 			}
 		}
 	}
