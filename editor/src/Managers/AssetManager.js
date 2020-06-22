@@ -1,4 +1,4 @@
-import {Entity, Material, Shader, Mesh, ComponentPropertyArray, ComponentPropertyAsset} from "../../../src/index.js";
+import {Entity, Material, Shader, Mesh} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid} from "../Util/Util.js";
 

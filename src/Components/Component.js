@@ -1,4 +1,3 @@
-import {ComponentProperty} from "./ComponentProperties/ComponentProperties.js";
 import defaultComponentTypeManager from "./defaultComponentTypeManager.js";
 
 export default class Component{
@@ -10,14 +9,12 @@ export default class Component{
 		this.componentNamespace = componentNamespace;
 		this.componentTypeManager = componentTypeManager;
 		this.entity = null;
-		this._componentProperties = new Map();
 
 		const componentData = this.getComponentData();
-		this.setComponentProperties(componentData?.properties);
+		this.setDefaultValues(componentData?.properties);
 
 		for(const [propertyName, propertyValue] of Object.entries(propertyValues)){
-			let property = this._componentProperties.get(propertyName);
-			property.setValue(propertyValue);
+			this[propertyName] = propertyValue;
 		}
 	}
 
@@ -48,34 +45,13 @@ export default class Component{
 		return this.componentTypeManager.getComponentData(this.componentType, this.componentNamespace);
 	}
 
-	setComponentProperties(properties){
-		if(!properties) return;
-		let objectProperties = {};
-		for(const [propertyName, propertySettings] of Object.entries(properties)){
-			let componentProperty = this.generateComponentProperty(propertySettings);
-			this._componentProperties.set(propertyName, componentProperty);
-			objectProperties[propertyName] = {
-				get: _ => {
-					return componentProperty.getValue();
-				},
-				set: val => {
-					componentProperty.setValue(val);
-				},
-				configurable: true,
+	setDefaultValues(properties){
+		for(const [propertyName, propertyData] of Object.entries(properties)){
+			if(propertyData.defaultValue != undefined){
+				this[propertyName] = propertyData.defaultValue;
+			}else if(propertyData.type){
+				this[propertyName] = new propertyData.type();
 			}
 		}
-		Object.defineProperties(this, objectProperties);
-	}
-
-	generateComponentProperty(settings){
-		let propertyType = settings.type || "float";
-		if(typeof propertyType == "string"){
-			propertyType = propertyType.toLowerCase();
-			propertyType = defaultComponentTypeManager.getComponentProperty(propertyType);
-			if(!propertyType){
-				propertyType = ComponentProperty;
-			}
-		}
-		return new propertyType(settings);
 	}
 }

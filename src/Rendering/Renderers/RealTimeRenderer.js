@@ -1,4 +1,4 @@
-import {Renderer, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh, MeshAttributeBuffer} from "../../index.js";
+import {Renderer, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh, Material, MeshAttributeBuffer} from "../../index.js";
 
 defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 	properties: {
@@ -17,11 +17,10 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 			defaultValue: 1,
 		},
 		autoUpdateProjectionMatrix: {
-			type: "bool",
 			defaultValue: true,
 		},
 		projectionMatrix: {
-			type: "mat4",
+			type: Mat4,
 		},
 		// autoManageRootRenderEntities: {
 		// 	type: "bool",
@@ -36,14 +35,13 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
 	properties: {
 		mesh: {
-			type: "asset",
+			type: Mesh,
 		},
 		materials: {
-			type: "array",
+			type: Array,
 			arrayTypeOpts: {
-				type: "asset",
-				assetType: "material",
-			}
+				type: Material,
+			},
 		},
 	},
 }, defaultComponentTypeManager.defaultNamespace);

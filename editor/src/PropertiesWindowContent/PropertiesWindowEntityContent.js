@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vector3, defaultComponentTypeManager} from "../../../src/index.js";
+import {Entity, Vector3, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
 import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
@@ -82,19 +82,22 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		for(const componentGroup of componentGroups){
 			const componentUI = this.componentsSection.addCollapsable(componentGroup.constructor.componentName);
 			const componentData = componentGroup.getComponentData();
-			for(const [propertyName, property] of componentGroup._componentProperties){
-				let type = property.constructor.getTypeStr();
-				let guiItemOpts = {
-					...componentData.properties[propertyName],
-					value: property.value,
+			const componentProperties = componentData?.properties;
+			if(componentProperties){
+				for(const [propertyName, property] of Object.entries(componentProperties)){
+					let guiItemOpts = {
+						...componentData.properties[propertyName],
+						value: componentGroup[propertyName],
+					}
+					const addedItem = componentUI.addItem({
+						label: propertyName,
+						type: property.type,
+						guiItemOpts,
+					});
+					addedItem.onValueChange(newValue => {
+						componentGroup[propertyName] = newValue;
+					});
 				}
-				const addedItem = componentUI.addItem({
-					label: propertyName,
-					type, guiItemOpts,
-				});
-				addedItem.onValueChange(newValue => {
-					property.setValue(newValue);
-				});
 			}
 		}
 	}

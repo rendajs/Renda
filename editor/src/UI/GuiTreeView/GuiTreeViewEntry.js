@@ -4,18 +4,18 @@ import NumericGui from "../NumericGui.js";
 import AssetGui from "../AssetGui.js";
 import ArrayGui from "../ArrayGui.js";
 
+import {Vector3, Mesh, Material} from "../../../../src/index.js";
+
 export default class GuiTreeViewEntry extends TreeView{
 	constructor({
 		label = "",
 		smallLabel = false,
-		type = "float",
+		type = Number,
 		guiItemOpts = {},
 	} = {}){
 		super({
 			addCustomEl: true,
 		});
-		type = type.toLowerCase();
-		this.type = type;
 
 		this.rowVisible = false;
 		this.selectable = false;
@@ -33,18 +33,18 @@ export default class GuiTreeViewEntry extends TreeView{
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		if(type.startsWith("vector")){
+		if(type == Vector3){
 			let size = parseInt(type.slice(6));
 			guiItemOpts.size = size;
 			this.gui = new VectorGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == "float"){
+		}else if(type == Number){
 			this.gui = new NumericGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == "asset"){
+		}else if(type == Mesh || type == Material){
 			this.gui = new AssetGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == "array"){
+		}else if(type == Array){
 			this.gui = new ArrayGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 			this.label.classList.add("multiLine");

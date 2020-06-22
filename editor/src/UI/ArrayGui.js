@@ -10,7 +10,7 @@ export default class ArrayGui{
 		this.el.classList.add("arrayGui");
 
 		this.valueItems = [];
-		this.type = arrayTypeOpts.type || "asset";
+		this.type = arrayTypeOpts.type || Number;
 		this.arrayTypeOpts = arrayTypeOpts;
 		this.onValueChangeCbs = [];
 
