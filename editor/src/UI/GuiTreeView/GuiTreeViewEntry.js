@@ -34,8 +34,7 @@ export default class GuiTreeViewEntry extends TreeView{
 		this.customEl.appendChild(this.valueEl);
 
 		if(type == Vector3){
-			let size = parseInt(type.slice(6));
-			guiItemOpts.size = size;
+			guiItemOpts.size = 3;
 			this.gui = new VectorGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Number){
