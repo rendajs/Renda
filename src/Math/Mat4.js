@@ -2,6 +2,10 @@ import Vector3 from "./Vector3.js";
 
 export default class Mat4{
 	constructor(values){
+		this.set(values);
+	}
+
+	set(values){
 		if(values && values.constructor === Float32Array){
 			this.values = [
 				[values[0],  values[1],  values[2],  values[3] ],
@@ -9,13 +13,20 @@ export default class Mat4{
 				[values[8],  values[9],  values[10], values[11]],
 				[values[12], values[13], values[14], values[15]],
 			];
-		}else if(values instanceof Mat4){
-			const glValue = values.getAsArray();
+			return;
+		}
+		let flatValue = null;
+		if(values instanceof Mat4){
+			flatValue = values.getFlatArray();
+		}else if(Array.isArray(values) && values.length == 16){
+			flatValue = values;
+		}
+		if(flatValue){
 			this.values = [
-				[glValue[0],  glValue[1],  glValue[2],  glValue[3] ],
-				[glValue[4],  glValue[5],  glValue[6],  glValue[7] ],
-				[glValue[8],  glValue[9],  glValue[10], glValue[11]],
-				[glValue[12], glValue[13], glValue[14], glValue[15]],
+				[flatValue[0],  flatValue[1],  flatValue[2],  flatValue[3] ],
+				[flatValue[4],  flatValue[5],  flatValue[6],  flatValue[7] ],
+				[flatValue[8],  flatValue[9],  flatValue[10], flatValue[11]],
+				[flatValue[12], flatValue[13], flatValue[14], flatValue[15]],
 			];
 		}else{
 			this.values = values || [
@@ -27,7 +38,7 @@ export default class Mat4{
 		}
 	}
 
-	getAsArray(){
+	getFlatArray(){
 		return [...this.values[0],...this.values[1],...this.values[2],...this.values[3]];
 	}
 
@@ -89,15 +100,21 @@ export default class Mat4{
 	}
 
 	translate(x,y,z){
-		if(arguments[0] instanceof Vector3){
-			let vec = arguments[0];
-			x = vec.x;
-			y = vec.y;
-			z = vec.z;
-		}
-		this.values[3][0] += x;
-		this.values[3][1] += y;
-		this.values[3][2] += z;
+		const vec = Vector3(arguments);
+		this.values[3][0] += vec.x;
+		this.values[3][1] += vec.y;
+		this.values[3][2] += vec.z;
+	}
+
+	getTranslation(){
+		return new Vector3(this.values[3]);
+	}
+
+	setTranslation(x,y,z){
+		const vec = Vector3(arguments);
+		this.values[3][0] = vec.x;
+		this.values[3][1] = vec.y;
+		this.values[3][2] = vec.z;
 	}
 
 	static createDynamicAspectProjection(fov = 90, near = 0.05, far = 1000, aspect = 1){

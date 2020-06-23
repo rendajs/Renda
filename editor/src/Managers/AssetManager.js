@@ -134,7 +134,10 @@ export default class AssetManager{
 	}
 
 	async createEntityFromJsonData(jsonData){
-		let ent = new Entity(jsonData.name || "");
+		let ent = new Entity({
+			name: jsonData.name || "",
+			matrix: jsonData.matrix,
+		});
 		if(jsonData.components){
 			for(const component of jsonData.components){
 				const componentType = component.type;

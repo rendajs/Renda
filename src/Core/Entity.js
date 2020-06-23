@@ -10,6 +10,7 @@ export default class Entity{
 		}
 		opts = {...{
 			name: "Entity",
+			matrix: null,
 			parent: null,
 		}, ...opts}
 		this.name = opts.name;
@@ -30,6 +31,8 @@ export default class Entity{
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
 		this.setParent(opts.parent, false);
+
+		if(opts.matrix) this.localMatrix = opts.matrix;
 	}
 
 	destructor(){
@@ -97,8 +100,16 @@ export default class Entity{
 	get localMatrix(){
 		if(this.localMatrixDirty){
 			this._localMatrix = Mat4.createPosRotScale(this.pos, this.rot, this.scale);
+			this.localMatrixDirty = false;
 		}
 		return this._localMatrix;
+	}
+
+	set localMatrix(value){
+		this._localMatrix.set(value);
+		this.pos = this._localMatrix.getTranslation();
+		this.localMatrixDirty = false;
+		this.worldMatrixDirty = true;
 	}
 
 	get worldMatrix(){
@@ -108,6 +119,7 @@ export default class Entity{
 			}else{
 				this._worldMatrix = this.localMatrix.clone();
 			}
+			this.worldMatrixDirty = false;
 		}
 		return this._worldMatrix;
 	}
@@ -178,7 +190,7 @@ export default class Entity{
 	} = {}){
 		let json = {
 			name: this.name,
-			matrix: this._localMatrix.getAsArray(),
+			matrix: this._localMatrix.getFlatArray(),
 			components: [],
 			children: [],
 		}
