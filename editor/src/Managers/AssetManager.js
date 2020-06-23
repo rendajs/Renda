@@ -1,4 +1,4 @@
-import {Entity, Material, Shader, Mesh} from "../../../src/index.js";
+import {Entity, Material, Shader, Mesh, defaultComponentTypeManager} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid} from "../Util/Util.js";
 
@@ -133,60 +133,50 @@ export default class AssetManager{
 
 	}
 
-	entityToJson(entity){
-		let json = {
-			name: entity.name,
-			matrix: entity.localMatrix.getAsArray(),
-			components: [],
-			children: [],
-		}
-		for(const component of entity.components){
-			json.components.push(this.componentToJson(component));
-		}
-		for(const child of entity.getChildren()){
-			json.children.push(this.entityToJson(child));
-		}
-		if(json.components.length <= 0) delete json.components;
-		if(json.children.length <= 0) delete json.children;
-		return json;
-	}
-
-	componentToJson(component){
-		const propertyValues = {};
-		for(const [propertyName, property] of component._componentProperties){
-			propertyValues[propertyName] = this.componentPropertyToJson(property);
-		}
-		const componentJson = {
-			type: component.componentType,
-			propertyValues,
-		};
-		if(component.componentNamespace != null){
-			componentJson.namespace = component.componentNamespace;
-		}
-		return componentJson;
-	}
-
-	componentPropertyToJson(componentProperty){
-		const value = componentProperty.getValue();
-		if(componentProperty instanceof ComponentPropertyArray){
-			const newValue = [];
-			for(const item of value){
-				newValue.push(this.componentPropertyToJson(item));
-			}
-			return newValue;
-		}else if(componentProperty instanceof ComponentPropertyAsset){
-			return this.getLiveAssetUuidForAsset(value);
-		}
-		return value;
-	}
-
-	createEntityFromJsonData(jsonData){
+	async createEntityFromJsonData(jsonData){
 		let ent = new Entity(jsonData.name || "");
-		for(const childJson of (jsonData.children || [])){
-			let child = this.createEntityFromJsonData(childJson);
-			ent.add(child);
+		if(jsonData.components){
+			for(const component of jsonData.components){
+				const componentType = component.type;
+				const componentNamespace = component.namespace;
+				const componentData = defaultComponentTypeManager.getComponentData(componentType, componentNamespace);
+				const componentPropertyValues = await this.componentPropertyValuesFromJson(component.propertyValues, componentData);
+				ent.addComponent(componentType, componentPropertyValues, {componentNamespace});
+			}
+		}
+		if(jsonData.children){
+			for(const childJson of jsonData.children){
+				let child = await this.createEntityFromJsonData(childJson);
+				ent.add(child);
+			}
 		}
 		return ent;
+	}
+
+	async componentPropertyValuesFromJson(jsonData, componentData){
+		const componentProperties = componentData?.properties;
+		const newPropertyValues = {}
+		if(componentProperties){
+			for(const [name, propertyData] of Object.entries(componentProperties)){
+				newPropertyValues[name] = await this.componentPropertyValueFromJson(jsonData[name], propertyData);
+			}
+		}
+		return newPropertyValues;
+	}
+
+	async componentPropertyValueFromJson(propertyValue, propertyData){
+		if(propertyData.type == Array){
+			const newArr = [];
+			for(const item of propertyValue){
+				newArr.push(await this.componentPropertyValueFromJson(item, propertyData.arrayTypeOpts));
+			}
+			return newArr;
+		}
+		if(propertyData.type == Mesh || propertyData.type == Material){
+			const liveAsset = await this.getLiveAsset(propertyValue);
+			return liveAsset.asset;
+		}
+		return propertyValue;
 	}
 
 	createMaterialFromJsonData(jsonData){

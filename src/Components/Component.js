@@ -1,4 +1,6 @@
 import defaultComponentTypeManager from "./defaultComponentTypeManager.js";
+import Material from "../Rendering/Material.js";
+import Mesh from "../Core/Mesh.js";
 
 export default class Component{
 	constructor(componentType, propertyValues = {}, {
@@ -26,19 +28,40 @@ export default class Component{
 		this.entity = ent;
 	}
 
-	toJson(){
+	toJson({
+		assetManager = null,
+	} = {}){
 		const propertyValues = {};
-		for(const [propertyName, property] of this._componentProperties){
-			propertyValues[propertyName] = property.getValue();
+		const componentData = this.getComponentData();
+		const componentProperties = componentData?.properties;
+		if(componentProperties){
+			for(const [propertyName, property] of Object.entries(componentProperties)){
+				propertyValues[propertyName] = this.propertyToJson(this[propertyName], assetManager);
+			}
 		}
 		const componentJson = {
 			type: this.componentType,
+			namespace: this.componentNamespace,
 			propertyValues,
 		};
 		if(this.componentNamespace != null){
 			componentJson.namespace = this.componentNamespace;
 		}
 		return componentJson;
+	}
+
+	propertyToJson(propertyValue, assetManager = null){
+		if(Array.isArray(propertyValue)){
+			return propertyValue.map(p => this.propertyToJson(p, assetManager));
+		}
+
+		if(assetManager){
+			if(propertyValue instanceof Material || propertyValue instanceof Mesh){
+				return assetManager.getLiveAssetUuidForAsset(propertyValue);
+			}
+		}
+
+		return propertyValue;
 	}
 
 	getComponentData(){

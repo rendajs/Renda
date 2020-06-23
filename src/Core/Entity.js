@@ -173,7 +173,9 @@ export default class Entity{
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
 	}
 
-	toJson(){
+	toJson({
+		assetManager = null,
+	} = {}){
 		let json = {
 			name: this.name,
 			matrix: this._localMatrix.getAsArray(),
@@ -181,11 +183,13 @@ export default class Entity{
 			children: [],
 		}
 		for(const component of this.components){
-			json.components.push(component.toJson());
+			json.components.push(component.toJson({assetManager}));
 		}
 		for(const child of this.getChildren()){
-			json.children.push(child.toJson());
+			json.children.push(child.toJson({assetManager}));
 		}
+		if(json.components.length <= 0) delete json.components;
+		if(json.children.length <= 0) delete json.children;
 		return json;
 	}
 }
