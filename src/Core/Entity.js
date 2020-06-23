@@ -126,6 +126,9 @@ export default class Entity{
 
 	markLocalMatrixDirty(){
 		this.localMatrixDirty = true;
+		for(const child of this.traverseDown()){
+			child.worldMatrixDirty = true;
+		}
 	}
 
 	setParent(newParent, keepWorldPosition = false){
