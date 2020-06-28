@@ -1,6 +1,6 @@
 import ContentWindow from "./ContentWindow.js";
 
-export default class ContentWindowRenderView extends ContentWindow{
+export default class ContentWindowBuildView extends ContentWindow{
 	constructor(){
 		super();
 
@@ -14,7 +14,7 @@ export default class ContentWindowRenderView extends ContentWindow{
 	}
 
 	static get windowName(){
-		return "renderView";
+		return "buildView";
 	}
 
 	destructor(){

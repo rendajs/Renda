@@ -51,7 +51,7 @@ export default class WindowManager{
 						},
 						windowB: {
 							type: "tabs",
-							tabTypes: ["renderView"],
+							tabTypes: ["buildView"],
 						},
 					},
 					windowB: {
