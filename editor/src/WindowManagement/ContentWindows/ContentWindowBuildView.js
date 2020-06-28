@@ -1,4 +1,6 @@
+import editor from "../../editorInstance.js";
 import ContentWindow from "./ContentWindow.js";
+import Button from "../../UI/Button.js";
 
 export default class ContentWindowBuildView extends ContentWindow{
 	constructor(){
@@ -10,7 +12,14 @@ export default class ContentWindowBuildView extends ContentWindow{
 		this.iframeEl.classList.add("buildViewIframe");
 		this.contentEl.appendChild(this.iframeEl);
 
-		this.activeCamera = null;
+
+		const loadFrameButton = new Button({
+			text: "Load Frame",
+			onClick: _ => {
+				this.updateFrameSrc();
+			},
+		});
+		this.addTopBarButton(loadFrameButton);
 	}
 
 	static get windowName(){
@@ -24,5 +33,10 @@ export default class ContentWindowBuildView extends ContentWindow{
 	}
 
 	onWindowResize(w, h){
+	}
+
+	async updateFrameSrc(){
+		const clientId = await editor.serviceWorkerManager.getClientId();
+		this.iframeEl.src = "projectbuilds/"+clientId+"/Build/index.html";
 	}
 }
