@@ -315,3 +315,11 @@ body, html{
 .contextMenuItem:hover{
 	background: var(--color-selected-blue);
 }
+
+
+
+.buildViewIframe{
+	border: none;
+	width: 100%;
+	height: 100%;
+}

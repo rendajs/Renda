@@ -6,9 +6,9 @@ export default class ContentWindowBuildView extends ContentWindow{
 
 		this.setContentBehindTopBar(true);
 
-		this.canvasEl = document.createElement("canvas");
-		this.ctx = this.canvasEl.getContext("bitmaprenderer");
-		this.contentEl.appendChild(this.canvasEl);
+		this.iframeEl = document.createElement("iframe");
+		this.iframeEl.classList.add("buildViewIframe");
+		this.contentEl.appendChild(this.iframeEl);
 
 		this.activeCamera = null;
 	}
@@ -20,14 +20,9 @@ export default class ContentWindowBuildView extends ContentWindow{
 	destructor(){
 		super.destructor();
 
-		this.canvasEl = null;
-		this.ctx = null;
-		this.activeCamera = null;
+		this.iframeEl = null;
 	}
 
 	onWindowResize(w, h){
-		this.canvasEl.width = w;
-		this.canvasEl.height = h;
 	}
-
 }
