@@ -25,7 +25,7 @@ export default class EditorFileSystem{
 
 	/*util functions*/
 	async writeJson(path = [], json = {}){
-		let jsonStr = JSON.stringify(json);
+		let jsonStr = JSON.stringify(json, null, "\t");
 		let file = new File([jsonStr], "", {type: "application/json"});
 		await this.writeFile(path, file);
 	}
