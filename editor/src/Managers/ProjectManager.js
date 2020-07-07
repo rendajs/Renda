@@ -1,7 +1,7 @@
 import editor from "../editorInstance.js";
 import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.js";
 import EditorFileSystemIndexedDB from "../Util/FileSystems/EditorFileSystemIndexedDB.js";
-import AssetManager from "./AssetManager.js";
+import AssetManager from "../Assets/AssetManager.js";
 import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 
 export default class ProjectManager{
