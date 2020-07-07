@@ -102,6 +102,12 @@ export default class ContentWindowProject extends ContentWindow{
 		}
 	}
 
+	getProjectAssetByTreeViewItem(treeView){
+		const path = this.pathFromTreeView(treeView);
+		const projectAsset = editor.projectManager.assetManager.getProjectAssetFromPath(path);
+		return projectAsset;
+	}
+
 	async createAtSelectedPath(createName = "new", createFn = null){
 		let selectedPath = [];
 		let treeView = this.treeView;
@@ -202,6 +208,8 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	onTreeViewSelectionChange(changes){
+		changes.added = changes.added.map(treeView => this.getProjectAssetByTreeViewItem(treeView));
+		changes.removed = changes.removed.map(treeView => this.getProjectAssetByTreeViewItem(treeView));
 		this.selectionManager.changeSelection(changes);
 	}
 
@@ -216,9 +224,8 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	onTreeViewDragStart({draggedElement, event}){
-		let path = this.pathFromTreeView(draggedElement);
+		const assetData = this.getProjectAssetByTreeViewItem(draggedElement);
 		event.dataTransfer.effectAllowed = "all";
-		const assetData = editor.projectManager.assetManager.getAssetData(path);
 		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetData.assetType}`, assetData.uuid);
 	}
 

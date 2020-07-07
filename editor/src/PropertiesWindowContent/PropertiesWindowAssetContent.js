@@ -3,6 +3,7 @@ import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
+import ProjectAsset from "../Assets/ProjectAsset.js";
 
 export default class PropertiesWindowAssetContent extends PropertiesWindowContent{
 	constructor(){
@@ -22,12 +23,10 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 	}
 
 	static get useForTypes(){
-		return [];
+		return [ProjectAsset];
 	}
 
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
-		this.positionProperty.setValue(selectedObjects[0].pos);
-		this.refreshComponents();
 	}
 }

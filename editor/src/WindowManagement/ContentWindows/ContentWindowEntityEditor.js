@@ -150,7 +150,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 	async saveEntityAsset(){
 		if(!this.editingEntityUuid) return;
-		const path = editor.projectManager.assetManager.getAssetPath(this.editingEntityUuid);
+		const path = editor.projectManager.assetManager.getAssetPathFromUuid(this.editingEntityUuid);
 		const fs = editor.projectManager.currentProjectFileSystem;
 		const json = this.editingEntity.toJson({
 			assetManager: editor.projectManager.assetManager,

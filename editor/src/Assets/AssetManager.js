@@ -1,11 +1,12 @@
 import {Entity, Material, Shader, Mesh, defaultComponentTypeManager} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid} from "../Util/Util.js";
+import ProjectAsset from "./ProjectAsset.js";
 
 export default class AssetManager{
 	constructor(){
 		this.bundles = new Map();
-		this.assetDatas = new Map();
+		this.projectAssets = new Map();
 		this.liveAssets = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
@@ -42,12 +43,11 @@ export default class AssetManager{
 		if(!(await this.fileSystem.isFile(this.assetSettingsPath))) return;
 		let json = await this.fileSystem.readJson(this.assetSettingsPath);
 		if(json){
-			for(const [uuid, asset] of Object.entries(json.assets)){
-				if(!asset.assetType){
-					asset.assetType = await this.guessAssetType(asset.path);
-					asset.forceAssetType = false;
+			for(const [uuid, assetData] of Object.entries(json.assets)){
+				const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
+				if(projectAsset){
+					this.projectAssets.set(uuid, projectAsset);
 				}
-				this.assetDatas.set(uuid, asset);
 			}
 		}
 	}
@@ -58,49 +58,31 @@ export default class AssetManager{
 			bundles.push({name, ...bundleSettings});
 		}
 		let assets = {};
-		for(const [uuid, asset] of this.assetDatas){
-			let assetData = {
-				path: asset.path,
-			}
-			if(asset.forceAssetType){
-				assetData.assetType = asset.assetType;
-			}
-			if(asset.bundle && asset.bundle != this.mainBundleName){
-				assetData.bundle = asset.bundle;
-			}
-			assets[uuid] = assetData;
+		for(const [uuid, projectAsset] of this.projectAssets){
+			assets[uuid] = projectAsset.toJson();
 		}
 		await this.fileSystem.writeJson(this.assetSettingsPath, {bundles, assets});
 	}
 
 	async registerAsset(path = [], assetType = null, forceAssetType = false){
-		let uuid = generateUuid();
+		const uuid = generateUuid();
 		if(!assetType){
 			assetType = await this.guessAssetType(path);
 		}
-		this.assetDatas.set(uuid, {path, assetType, forceAssetType});
+		const projectAsset = new ProjectAsset({uuid, path, assetType, forceAssetType});
+		this.projectAssets.set(uuid, projectAsset);
 		await this.saveAssetSettings();
 		return uuid;
 	}
 
-	async guessAssetType(path = []){
-		if(!path || path.length <= 0) return null;
-		const fileName = path[path.length - 1];
-		if(fileName.endsWith(".jjmesh")) return "mesh";
-		const json = await this.fileSystem.readJson(path);
-		return json?.assetType ?? "unknown";
-	}
-
 	getAssetUuid(path = []){
-		for(const [uuid, asset] of this.assetDatas){
-			if(this.testPathMatch(path, asset.path)){
-				return uuid;
-			}
-		}
+		const projectAsset = this.getProjectAssetFromPath(path);
+		if(!projectAsset) return null;
+		return projectAsset.uuid;
 	}
 
-	getAssetPath(uuid){
-		const asset = this.assetDatas.get(uuid);
+	getAssetPathFromUuid(uuid){
+		const asset = this.projectAssets.get(uuid);
 		if(!asset) return null;
 		return asset.path.slice();
 	}
@@ -113,10 +95,10 @@ export default class AssetManager{
 		return true;
 	}
 
-	getAssetData(path = []){
-		for(const [uuid, asset] of this.assetDatas){
+	getProjectAssetFromPath(path = []){
+		for(const [uuid, asset] of this.projectAssets){
 			if(this.testPathMatch(path, asset.path)){
-				return {uuid, ...asset};
+				return asset;
 			}
 		}
 	}
@@ -208,7 +190,7 @@ export default class AssetManager{
 	async getLiveAsset(uuid){
 		let liveAssetData = this.liveAssets.get(uuid);
 		if(liveAssetData) return liveAssetData;
-		const assetData = this.assetDatas.get(uuid);
+		const assetData = this.projectAssets.get(uuid);
 		if(!assetData) return null;
 
 		liveAssetData = {
