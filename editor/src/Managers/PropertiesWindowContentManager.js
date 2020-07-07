@@ -48,6 +48,7 @@ export default class PropertiesWindowContentManager{
 		let selectedTypes = new Map();
 		for(const obj of objects){
 			let t = this.registeredContentTypes.get(obj.constructor);
+			if(!t) continue;
 			let count = 0;
 			if(selectedTypes.has(t)){
 				count = selectedTypes.get(t);
@@ -58,7 +59,7 @@ export default class PropertiesWindowContentManager{
 		if(selectedTypes.size == 0){
 			return PropertiesWindowEmptyContent;
 		}else if(selectedTypes.size == 1){
-			let [[onlyType, ]] = selectedTypes; //get the first and only item from selectedTypes
+			let [[onlyType, count]] = selectedTypes; //get the first and only item from selectedTypes
 			return onlyType;
 		}else{
 			return PropertiesWindowMultipleContent;
