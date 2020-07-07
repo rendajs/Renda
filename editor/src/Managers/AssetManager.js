@@ -4,7 +4,7 @@ import {generateUuid} from "../Util/Util.js";
 
 export default class AssetManager{
 	constructor(){
-		this.packages = new Map();
+		this.bundles = new Map();
 		this.assetDatas = new Map();
 		this.liveAssets = new Map();
 
@@ -21,21 +21,21 @@ export default class AssetManager{
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
-	getMainPackageEntry(){
-		if(this.packages.size <= 0){
-			this.packages.set("main", {});
+	getMainBundleEntry(){
+		if(this.bundles.size <= 0){
+			this.bundles.set("main", {});
 		}
-		for(const entry of this.packages){
+		for(const entry of this.bundles){
 			return entry;
 		}
 	}
 
-	get mainPackageName(){
-		this.getMainPackageEntry()[0];
+	get mainBundleName(){
+		this.getMainBundleEntry()[0];
 	}
 
-	get mainPackage(){
-		this.getMainPackageEntry()[1];
+	get mainBundle(){
+		this.getMainBundleEntry()[1];
 	}
 
 	async loadAssetSettings(){
@@ -53,9 +53,9 @@ export default class AssetManager{
 	}
 
 	async saveAssetSettings(){
-		let packages = [];
-		for(const [name, packageSettings] of this.packages){
-			packages.push({name, ...packageSettings});
+		let bundles = [];
+		for(const [name, bundleSettings] of this.bundles){
+			bundles.push({name, ...bundleSettings});
 		}
 		let assets = {};
 		for(const [uuid, asset] of this.assetDatas){
@@ -65,12 +65,12 @@ export default class AssetManager{
 			if(asset.forceAssetType){
 				assetData.assetType = asset.assetType;
 			}
-			if(asset.package && asset.package != this.mainPackageName){
-				assetData.package = asset.package;
+			if(asset.bundle && asset.bundle != this.mainBundleName){
+				assetData.bundle = asset.bundle;
 			}
 			assets[uuid] = assetData;
 		}
-		await this.fileSystem.writeJson(this.assetSettingsPath, {packages, assets});
+		await this.fileSystem.writeJson(this.assetSettingsPath, {bundles, assets});
 	}
 
 	async registerAsset(path = [], assetType = null, forceAssetType = false){
