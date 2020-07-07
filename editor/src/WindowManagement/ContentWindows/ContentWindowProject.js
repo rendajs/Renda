@@ -3,6 +3,7 @@ import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
+import SelectionManager from "../../Managers/SelectionManager.js";
 import {Mesh, Vector3, Entity} from "../../../../src/index.js";
 
 export default class ContentWindowProject extends ContentWindow{
@@ -43,6 +44,7 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView.renameable = true;
 		this.treeView.rowVisible = false;
 		this.treeView.draggable = true;
+		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
@@ -50,10 +52,22 @@ export default class ContentWindowProject extends ContentWindow{
 
 		this.contentEl.appendChild(this.treeView.el);
 
+		this.selectionManager = new SelectionManager();
+
 		let fileSystem = this.getFileSystem();
 		if(fileSystem){
 			this.updateTreeView(this.treeView, fileSystem);
 		}
+	}
+
+	destructor(){
+		super.destructor();
+
+		this.treeView.destructor();
+		this.treeView = null;
+
+		this.selectionManager.destructor();
+		this.selectionManager = null;
 	}
 
 	static get windowName(){
@@ -185,6 +199,10 @@ export default class ContentWindowProject extends ContentWindow{
 		path.shift(); //remove root
 		if(removeLast) path.pop();
 		return path;
+	}
+
+	onTreeViewSelectionChange(changes){
+		this.selectionManager.changeSelection(changes);
 	}
 
 	async onTreeViewNameChange({changedElement, oldName, newName}){
