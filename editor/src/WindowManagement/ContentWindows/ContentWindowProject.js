@@ -208,8 +208,8 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	onTreeViewSelectionChange(changes){
-		changes.added = changes.added.map(treeView => this.getProjectAssetByTreeViewItem(treeView));
-		changes.removed = changes.removed.map(treeView => this.getProjectAssetByTreeViewItem(treeView));
+		changes.added = changes.added.map(treeView => this.getProjectAssetByTreeViewItem(treeView)).filter(asset => !!asset);
+		changes.removed = changes.removed.map(treeView => this.getProjectAssetByTreeViewItem(treeView)).filter(asset => !!asset);
 		this.selectionManager.changeSelection(changes);
 	}
 
