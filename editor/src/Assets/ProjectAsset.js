@@ -37,5 +37,6 @@ export default class ProjectAsset{
 		if(this.forceAssetType){
 			assetData.assetType = this.assetType;
 		}
+		return assetData;
 	}
 }
