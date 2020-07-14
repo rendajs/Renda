@@ -10,15 +10,19 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		super();
 
 		this.currentSelection = null;
+		this.activeAssetContent = null;
 
 		this.treeView = new GuiTreeView();
 		this.el.appendChild(this.treeView.el);
 
-		let entitySection = this.treeView.addCollapsable("File");
+		this.assetSettingsTree = this.treeView.addCollapsable("Asset settings will be placed here");
+		this.assetContentTree = this.treeView.addCollapsable("Asset content will be placed here");
 	}
 
 	destructor(){
 		this.treeView.destructor();
+		this.assetSettingsTree = null;
+		this.assetContentTree = null;
 		super.destructor();
 	}
 
@@ -28,5 +32,23 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
+		this.updateAssetContent();
+	}
+
+	onAssetContentTypeRegistered(constructor){
+		this.updateAssetContent();
+	}
+
+	updateAssetContent(){
+		let PropertiesAssetContent = editor.propertiesAssetContentManager.getContentTypeForObjects(this.currentSelection);
+		if(!this.activeAssetContent || this.activeAssetContent.constructor != PropertiesAssetContent){
+			if(this.activeAssetContent) this.activeAssetContent.destructor();
+			if(PropertiesAssetContent){
+				this.activeAssetContent = new PropertiesAssetContent();
+			}
+
+			//todo: add created assetcontent to assetContentTree
+		}
+		if(this.activeAssetContent) this.activeAssetContent.updateAll(this.currentSelection);
 	}
 }

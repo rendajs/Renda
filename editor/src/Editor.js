@@ -1,5 +1,6 @@
 import WindowManager from "./WindowManagement/WindowManager.js";
 import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentManager.js";
+import PropertiesAssetContentManager from "./Managers/PropertiesAssetContentManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
@@ -12,6 +13,7 @@ export default class Editor{
 		this.windowManager = new WindowManager();
 		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
+		this.propertiesAssetContentManager = new PropertiesAssetContentManager();
 		this.projectManager = new ProjectManager();
 		this.dragManager = new DragManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
@@ -30,6 +32,7 @@ export default class Editor{
 		this.renderer.init();
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
+		this.propertiesAssetContentManager.init();
 
 		this.projectManager.openRecentProjectHandle();
 	}

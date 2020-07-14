@@ -22,7 +22,7 @@ export default class PropertiesWindowContentManager{
 			return;
 		}
 		if(!constructor.useForTypes){
-			if(!constructor.supressUnsetUseForTypesValue) console.warn("Tried to register properties content type ("+constructor.name+") with no useForTypes value, override the static useForTypes value in order for this content type to function properly");
+			console.warn("Tried to register properties content type ("+constructor.name+") with no useForTypes value, override the static useForTypes value in order for this content type to function properly");
 			return;
 		}
 		let useForTypes = constructor.useForTypes;
