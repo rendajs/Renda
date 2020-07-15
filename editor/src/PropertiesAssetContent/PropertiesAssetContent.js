@@ -13,7 +13,7 @@ export default class PropertiesAssetContent{
 	}
 
 	//override this with a array of types that this window content should be used for
-	static get useForTypes(){
+	static get useForType(){
 		return null;
 	}
 }

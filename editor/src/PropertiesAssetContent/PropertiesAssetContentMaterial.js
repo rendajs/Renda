@@ -6,7 +6,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 		super();
 	}
 
-	static get useForTypes(){
-		return [Material];
+	static get useForType(){
+		return Material;
 	}
 }

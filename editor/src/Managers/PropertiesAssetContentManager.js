@@ -17,26 +17,15 @@ export default class PropertiesAssetContentManager{
 
 	registerContentType(constructor){
 		if(!(constructor.prototype instanceof PropertiesAssetContent)){
-			console.warn("Tried to register properties asset type ("+constructor.name+") that does not extend PropertiesAssetContent class.");
+			console.warn("Tried to register properties asset content type ("+constructor.name+") that does not extend PropertiesAssetContent class.");
 			return;
 		}
-		if(!constructor.useForTypes){
-			console.warn("Tried to register properties content type ("+constructor.name+") with no useForTypes value, override the static useForTypes value in order for this content type to function properly");
-			return;
-		}
-		let useForTypes = constructor.useForTypes;
-		if(!(useForTypes instanceof Array)){
-			console.warn(constructor.name+" didn't register because its useForTypes value is not an array");
-			return;
-		}
-		if(useForTypes.length == 0){
-			console.warn(constructor.name+" didn't register because its useForTypes array is empty");
+		if(constructor.useForType == null){
+			console.warn("Tried to register properties asset content type ("+constructor.name+") with no useForType value, override the static useForType value in order for this content type to function properly");
 			return;
 		}
 
-		for(const t of useForTypes){
-			this.registeredContentTypes.set(t, constructor);
-		}
+		this.registeredContentTypes.set(constructor.useForType, constructor);
 
 		for(const w of editor.windowManager.getContentWindowsByType(ContentWindowProperties)){
 			if(w.activeContent && w.activeContent instanceof PropertiesWindowAssetContent){
