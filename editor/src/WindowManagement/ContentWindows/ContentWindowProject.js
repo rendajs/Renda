@@ -139,7 +139,11 @@ export default class ContentWindowProject extends ContentWindow{
 				const file = new File([file], fileName);
 				await fileSystem.writeFile(newPath, fileData);
 			}else if(typeof fileData == "object"){
-				await fileSystem.writeJson(newPath, fileData);
+				const json = {
+					assetType,
+					asset: fileData,
+				}
+				await fileSystem.writeJson(newPath, json);
 			}
 			return newPath;
 		});

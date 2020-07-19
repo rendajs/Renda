@@ -11,7 +11,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 	}
 
 	static createNewFile(){
-		return {assetType: "material"};
+		return {};
 	}
 
 	async getLiveAsset(materialJson){
