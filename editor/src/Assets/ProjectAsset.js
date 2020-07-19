@@ -39,4 +39,8 @@ export default class ProjectAsset{
 		}
 		return assetData;
 	}
+
+	async getLiveAsset(){} //todo
+
+	saveLiveAsset(){} //todo
 }

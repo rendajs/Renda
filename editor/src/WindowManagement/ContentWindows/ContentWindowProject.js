@@ -18,7 +18,7 @@ export default class ContentWindowProject extends ContentWindow{
 					this.createNewDir();
 				});
 				menu.addItem("New Material", _ => {
-					this.createNewMaterial();
+					this.createAsset("material");
 				});
 				menu.addItem("New Mesh", _ => {
 					this.createNewMesh();
@@ -108,7 +108,7 @@ export default class ContentWindowProject extends ContentWindow{
 		return projectAsset;
 	}
 
-	async createAtSelectedPath(createName = "new", createFn = null){
+	async createAtSelectedPath(createName, createFn = null){
 		let selectedPath = [];
 		let treeView = this.treeView;
 		for(const selectedItem of this.treeView.getSelectedItems()){
@@ -128,19 +128,27 @@ export default class ContentWindowProject extends ContentWindow{
 		return returnData;
 	}
 
+	async createAsset(assetType){
+		const type = editor.projectAssetTypeManager.getAssetType(assetType);
+		const fileName = type.newFileName+"."+type.newFileExtension;
+		const newPath = await this.createAtSelectedPath(fileName, async (fileSystem, newPath, fileName) => {
+			let file = type.createNewFile();
+			if(typeof file == "string"){
+				file = new File([file], fileName);
+			}else if(typeof file == "object"){
+				const jsonStr = JSON.stringify(file, null, "\t");
+				file = new File([jsonStr], fileName, {type: "application/json"});
+			}
+			await fileSystem.writeFile(newPath, file);
+			return newPath;
+		});
+		await editor.projectManager.assetManager.registerAsset(newPath, assetType);
+	}
+
 	async createNewDir(){
 		await this.createAtSelectedPath("New Folder", async (fileSystem, newPath) => {
 			await fileSystem.createDir(newPath);
 		});
-	}
-
-	async createNewMaterial(){
-		let newPath = await this.createAtSelectedPath("New Material.json", async(fileSystem, newPath, fileName) => {
-			await fileSystem.writeJson(newPath, {assetType: "material"});
-			return newPath;
-		});
-
-		await editor.projectManager.assetManager.registerAsset(newPath, "material");
 	}
 
 	async createNewMesh(){
