@@ -132,16 +132,15 @@ export default class ContentWindowProject extends ContentWindow{
 		const type = editor.projectAssetTypeManager.getAssetType(assetType);
 		const fileName = type.newFileName+"."+type.newFileExtension;
 		const newPath = await this.createAtSelectedPath(fileName, async (fileSystem, newPath, fileName) => {
-			let file = type.createNewFile();
-			if(file instanceof File){
-				//do nothing
-			}else if(typeof file == "string"){
-				file = new File([file], fileName);
-			}else if(typeof file == "object"){
-				const jsonStr = JSON.stringify(file, null, "\t");
-				file = new File([jsonStr], fileName, {type: "application/json"});
+			let fileData = type.createNewFile();
+			if(fileData instanceof File){
+				await fileSystem.writeFile(newPath, fileData);
+			}else if(typeof fileData == "string"){
+				const file = new File([file], fileName);
+				await fileSystem.writeFile(newPath, fileData);
+			}else if(typeof fileData == "object"){
+				await fileSystem.writeJson(newPath, fileData);
 			}
-			await fileSystem.writeFile(newPath, file);
 			return newPath;
 		});
 		await editor.projectManager.assetManager.registerAsset(newPath, assetType);

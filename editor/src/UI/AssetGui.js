@@ -49,9 +49,7 @@ export default class AssetGui{
 	}
 
 	get value(){
-		if(this.linkedLiveAsset){
-			return this.linkedLiveAsset.asset;
-		}
+		if(this.linkedLiveAsset) return this.linkedLiveAsset;
 		return null;
 	}
 
@@ -117,9 +115,12 @@ export default class AssetGui{
 		if(!uuid){
 			this.linkedAssetUuid = null;
 			this.linkedLiveAsset = null;
+			this.linkedAssetName = null;
 		}else{
 			this.linkedAssetUuid = uuid;
-			this.linkedLiveAsset = await editor.projectManager.assetManager.getLiveAsset(uuid);
+			const projectAsset = editor.projectManager.assetManager.getProjectAsset(uuid);
+			this.linkedLiveAsset = await projectAsset.getLiveAsset();
+			this.linkedAssetName = projectAsset.name;
 		}
 		this.fireValueChange();
 		this.updateContent();
@@ -128,6 +129,6 @@ export default class AssetGui{
 	updateContent(){
 		this.el.classList.toggle("empty", !this.linkedLiveAsset);
 		this.el.classList.toggle("filled", this.linkedLiveAsset);
-		this.el.textContent = this.linkedLiveAsset?.fileName || "";
+		this.el.textContent = this.linkedAssetName || "";
 	}
 }

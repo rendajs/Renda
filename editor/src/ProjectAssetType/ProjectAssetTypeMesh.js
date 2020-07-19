@@ -6,6 +6,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	static type = "mesh";
 	static newFileName = "New Mesh";
 	static newFileExtension = "jjmesh";
+	static storeInProjectAsJson = false;
 
 	constructor(){
 		super();
@@ -48,5 +49,9 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		const blob = cubeMesh.toBlob();
 		const file = new File([blob], "mesh.jjmesh");
 		return file;
+	}
+
+	async getLiveAsset(blob){
+		return Mesh.fromBlob(blob);
 	}
 }

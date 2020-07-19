@@ -81,6 +81,10 @@ export default class AssetManager{
 		return projectAsset.uuid;
 	}
 
+	getProjectAsset(uuid){
+		return this.projectAssets.get(uuid);
+	}
+
 	getAssetPathFromUuid(uuid){
 		const asset = this.projectAssets.get(uuid);
 		if(!asset) return null;
@@ -158,8 +162,7 @@ export default class AssetManager{
 			return newArr;
 		}
 		if(propertyData.type == Mesh || propertyData.type == Material){
-			const liveAsset = await this.getLiveAsset(propertyValue);
-			return liveAsset.asset;
+			return await this.getLiveAsset(propertyValue);
 		}
 		return propertyValue;
 	}
@@ -188,28 +191,10 @@ export default class AssetManager{
 	}
 
 	async getLiveAsset(uuid){
-		let liveAssetData = this.liveAssets.get(uuid);
-		if(liveAssetData) return liveAssetData;
-		const assetData = this.projectAssets.get(uuid);
-		if(!assetData) return null;
+		const projectAsset = this.projectAssets.get(uuid);
+		if(!projectAsset) return null;
 
-		liveAssetData = {
-			asset: null,
-			fileName: assetData.path[assetData.path.length -1],
-		};
-		if(assetData.assetType == "material"){
-			const json = await this.fileSystem.readJson(assetData.path);
-			const material = this.createMaterialFromJsonData(json);
-			liveAssetData.asset = material;
-		}else if(assetData.assetType == "mesh"){
-			const blob = await this.fileSystem.readFile(assetData.path);
-			const mesh = await Mesh.fromBlob(blob);
-			liveAssetData.asset = mesh;
-		}else{
-			return null;
-		}
-		this.liveAssets.set(uuid, liveAssetData);
-		return liveAssetData;
+		return await projectAsset.getLiveAsset();
 	}
 
 	getLiveAssetUuidForAsset(asset){

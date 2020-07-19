@@ -7,6 +7,8 @@ export default class ProjectAssetType{
 	static newFileName = "New Asset";
 	static newFileExtension = "json";
 
+	static storeInProjectAsJson = true;
+
 	constructor(){
 
 	}
@@ -15,5 +17,9 @@ export default class ProjectAssetType{
 	//objects will automatically be saved as json
 	static createNewFile(){
 		return "";
+	}
+
+	async getLiveAsset(){
+		return null;
 	}
 }
