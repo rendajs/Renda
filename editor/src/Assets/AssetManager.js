@@ -126,9 +126,9 @@ export default class AssetManager{
 		return await projectAsset.getLiveAsset();
 	}
 
-	getLiveAssetUuidForAsset(asset){
-		for(const [uuid, liveAssetData] of this.liveAssets){
-			if(liveAssetData.asset == asset) return uuid;
+	getLiveAssetUuidForAsset(liveAsset){
+		for(const [uuid, projectAsset] of this.projectAssets){
+			if(projectAsset.liveAsset == liveAsset) return uuid;
 		}
 		return null;
 	}

@@ -73,7 +73,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		}
 		//todo: make the list of types more scalable
 		if(propertyData.type == Mesh || propertyData.type == Material){
-			return await this.getLiveAsset(propertyValue);
+			return await editor.projectManager.assetManager.getLiveAsset(propertyValue);
 		}
 		return propertyValue;
 	}
