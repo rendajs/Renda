@@ -2,7 +2,6 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
-import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import {Mesh, Vector3, Entity} from "../../../../src/index.js";
 
@@ -196,17 +195,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async onTreeViewDblClick({clickedElement}){
 		const path = this.pathFromTreeView(clickedElement);
-		let fileSystem = this.getFileSystem();
-		if(await fileSystem.isFile(path)){
-			let json = await fileSystem.readJson(path);
-			let assetType = json.assetType;
-			if(assetType == "entity"){
-				let entity = await editor.projectManager.assetManager.createEntityFromJsonData(json.asset);
-				const entityUuid = editor.projectManager.assetManager.getAssetUuid(path);
-				for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
-					entityEditor.loadEntityAsset(entity, entityUuid);
-				}
-			}
-		}
+		const projectAsset = editor.projectManager.assetManager.getProjectAssetFromPath(path);
+		projectAsset.open();
 	}
 }

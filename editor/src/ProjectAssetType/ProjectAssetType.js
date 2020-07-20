@@ -9,8 +9,8 @@ export default class ProjectAssetType{
 
 	static storeInProjectAsJson = true;
 
-	constructor(){
-
+	constructor(projectAsset){
+		this.projectAsset = projectAsset;
 	}
 
 	//should return either a `new File()`, a DOMString, or an object
@@ -21,5 +21,11 @@ export default class ProjectAssetType{
 
 	async getLiveAsset(){
 		return null;
+	}
+
+	//if this asset is a file that can be opened, open it
+	//either in the editor or in an external application
+	async open(){
+
 	}
 }

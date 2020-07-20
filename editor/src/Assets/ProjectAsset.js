@@ -13,7 +13,7 @@ export default class ProjectAsset{
 		this.forceAssetType = forceAssetType;
 
 		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(assetType);
-		this.projectAssetType = new AssetTypeConstructor();
+		this.projectAssetType = new AssetTypeConstructor(this);
 
 		this.liveAsset = null;
 	}
@@ -49,13 +49,18 @@ export default class ProjectAsset{
 		return assetData;
 	}
 
+	async open(){
+		await this.projectAssetType.open();
+	}
+
 	//todo: make sure this promise has only one instance running at a time
 	async getLiveAsset(){
 		if(this.liveAsset) return this.liveAsset;
 
 		let fileData = null;
 		if(this.projectAssetType.constructor.storeInProjectAsJson){
-			fileData = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
+			const json = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
+			fileData = json.asset;
 		}else{
 			fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
 		}

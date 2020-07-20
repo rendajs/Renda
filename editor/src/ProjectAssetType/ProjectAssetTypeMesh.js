@@ -9,7 +9,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	static storeInProjectAsJson = false;
 
 	constructor(){
-		super();
+		super(...arguments);
 	}
 
 	static createNewFile(){

@@ -1,4 +1,4 @@
-import {Entity, Material, Shader, Mesh, defaultComponentTypeManager} from "../../../src/index.js";
+import {Entity, Material, Shader, Mesh} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid} from "../Util/Util.js";
 import ProjectAsset from "./ProjectAsset.js";
@@ -117,77 +117,6 @@ export default class AssetManager{
 
 	setAssetSettings(path = [], settings = {}){
 
-	}
-
-	async createEntityFromJsonData(jsonData){
-		let ent = new Entity({
-			name: jsonData.name || "",
-			matrix: jsonData.matrix,
-		});
-		if(jsonData.components){
-			for(const component of jsonData.components){
-				const componentType = component.type;
-				const componentNamespace = component.namespace;
-				const componentData = defaultComponentTypeManager.getComponentData(componentType, componentNamespace);
-				const componentPropertyValues = await this.componentPropertyValuesFromJson(component.propertyValues, componentData);
-				ent.addComponent(componentType, componentPropertyValues, {componentNamespace});
-			}
-		}
-		if(jsonData.children){
-			for(const childJson of jsonData.children){
-				let child = await this.createEntityFromJsonData(childJson);
-				ent.add(child);
-			}
-		}
-		return ent;
-	}
-
-	async componentPropertyValuesFromJson(jsonData, componentData){
-		const componentProperties = componentData?.properties;
-		const newPropertyValues = {}
-		if(componentProperties){
-			for(const [name, propertyData] of Object.entries(componentProperties)){
-				newPropertyValues[name] = await this.componentPropertyValueFromJson(jsonData[name], propertyData);
-			}
-		}
-		return newPropertyValues;
-	}
-
-	async componentPropertyValueFromJson(propertyValue, propertyData){
-		if(propertyData.type == Array){
-			const newArr = [];
-			for(const item of propertyValue){
-				newArr.push(await this.componentPropertyValueFromJson(item, propertyData.arrayTypeOpts));
-			}
-			return newArr;
-		}
-		if(propertyData.type == Mesh || propertyData.type == Material){
-			return await this.getLiveAsset(propertyValue);
-		}
-		return propertyValue;
-	}
-
-	createMaterialFromJsonData(jsonData){
-		const shader = new Shader(`
-			attribute vec4 aVertexPosition;
-
-			uniform mat4 uMvpMatrix;
-
-			varying lowp vec4 vColor;
-
-			void main() {
-			  gl_Position = uMvpMatrix * aVertexPosition;
-			  vColor = aVertexPosition;
-			}
-		`,`
-			varying lowp vec4 vColor;
-
-			void main() {
-				gl_FragColor = vec4(abs(vColor).rgb, 1.0);
-			}
-		`);
-		const material = new Material(shader);
-		return material;
 	}
 
 	async getLiveAsset(uuid){
