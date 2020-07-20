@@ -1,5 +1,5 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import {Shader, Material} from "../../../src/index.js";
+import {Shader, Material} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 

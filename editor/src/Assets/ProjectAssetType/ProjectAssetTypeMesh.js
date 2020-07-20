@@ -1,5 +1,5 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import {Mesh, Vector3} from "../../../src/index.js";
+import {Mesh, Vector3} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeMesh extends ProjectAssetType{
 

@@ -1,5 +1,5 @@
-import autoRegisterAssetTypes from "../ProjectAssetType/AutoRegisterAssetTypes.js";
-import ProjectAssetType from "../ProjectAssetType/ProjectAssetType.js";
+import autoRegisterAssetTypes from "./ProjectAssetType/AutoRegisterAssetTypes.js";
+import ProjectAssetType from "./ProjectAssetType/ProjectAssetType.js";
 
 export default class ProjectAssetTypeManager{
 	constructor(){

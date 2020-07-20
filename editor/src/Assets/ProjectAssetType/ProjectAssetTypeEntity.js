@@ -1,7 +1,7 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import {Entity, defaultComponentTypeManager, Mesh, Material} from "../../../src/index.js";
-import editor from "../editorInstance.js";
-import ContentWindowEntityEditor from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import {Entity, defaultComponentTypeManager, Mesh, Material} from "../../../../src/index.js";
+import editor from "../../editorInstance.js";
+import ContentWindowEntityEditor from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 
 export default class ProjectAssetTypeEntity extends ProjectAssetType{
 
