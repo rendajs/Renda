@@ -19,6 +19,12 @@ export default class ProjectAssetType{
 		return "";
 	}
 
+	//return the constructor of the would-be live asset
+	//in case an async function is not possible
+	getLiveAssetConstructor(){
+		return null;
+	}
+
 	async getLiveAsset(){
 		return null;
 	}

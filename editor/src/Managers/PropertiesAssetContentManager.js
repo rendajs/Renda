@@ -34,7 +34,18 @@ export default class PropertiesAssetContentManager{
 		}
 	}
 
-	getContentTypeForObjects(selectedObjects){
-		console.log("selectedObjects:",selectedObjects);
+	getConstructorForProjectAssets(projectAssets){
+		for(const projectAsset of projectAssets){
+			return projectAsset.projectAssetType.getLiveAssetConstructor();
+		}
+		return null;
+	}
+
+	getContentTypeForProjectAssets(projectAssets){
+		const constructor = this.getConstructorForProjectAssets(projectAssets);
+		if(constructor){
+			return this.registeredContentTypes.get(constructor);
+		}
+		return null;
 	}
 }

@@ -40,7 +40,7 @@ export default class GuiTreeViewEntry extends TreeView{
 		}else if(type == Number){
 			this.gui = new NumericGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == Mesh || type == Material){
+		}else if(type == Mesh || type == Material){ //todo make this list more scalable
 			this.gui = new AssetGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Array){

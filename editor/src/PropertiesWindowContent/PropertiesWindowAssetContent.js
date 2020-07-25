@@ -40,14 +40,16 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 	}
 
 	updateAssetContent(){
-		let PropertiesAssetContent = editor.propertiesAssetContentManager.getContentTypeForObjects(this.currentSelection);
-		if(!this.activeAssetContent || this.activeAssetContent.constructor != PropertiesAssetContent){
+		const constructor = editor.propertiesAssetContentManager.getContentTypeForProjectAssets(this.currentSelection);
+		const needsNew = constructor && (!this.activeAssetContent || this.activeAssetContent.constructor != constructor);
+		if(needsNew || (!constructor && this.activeAssetContent)){
 			if(this.activeAssetContent) this.activeAssetContent.destructor();
-			if(PropertiesAssetContent){
-				this.activeAssetContent = new PropertiesAssetContent();
-			}
-
-			//todo: add created assetcontent to assetContentTree
+			this.activeAssetContent = null;
+			this.assetContentTree.clearChildren();
+		}
+		if(needsNew){
+			this.activeAssetContent = new constructor();
+			this.assetContentTree.addChild(this.activeAssetContent.treeView);
 		}
 		if(this.activeAssetContent) this.activeAssetContent.updateAll(this.currentSelection);
 	}

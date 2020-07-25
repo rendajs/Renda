@@ -1,6 +1,8 @@
+import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
+
 export default class PropertiesAssetContent{
 	constructor(){
-		this.el = document.createElement("div");
+		this.treeView = new GuiTreeView();
 	}
 
 	destructor(){
@@ -16,4 +18,6 @@ export default class PropertiesAssetContent{
 	static get useForType(){
 		return null;
 	}
+
+	updateAll(){}
 }
