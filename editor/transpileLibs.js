@@ -13,6 +13,10 @@ let libs = [
 		input: "../node_modules/rollup/dist/rollup.browser.js",
 		output: "rollup.browser.js",
 	},
+	{
+		input: "../node_modules/rollup/dist/rollup.browser.js",
+		output: "rollup.browser.js",
+	},
 ];
 
 (async _ => {

@@ -13,6 +13,6 @@
     "concurrently": "5.x",
     "js-md5": "^0.7.3",
     "rollup": "2.x",
-    "serve": "^10.1.2"
+    "serve": "^11.3.2"
   }
 }
