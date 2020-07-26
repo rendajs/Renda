@@ -44,9 +44,13 @@ export default class ScriptBuilder{
 			},
 			async load(id){
 				const path = id.split("/");
-				const file = await editor.projectManager.currentProjectFileSystem.readFile(path);
-				const text = await file.text();
-				return text;
+				try{
+					const file = await editor.projectManager.currentProjectFileSystem.readFile(path);
+					const text = await file.text();
+					return text;
+				}catch(e){
+					console.error("unable to read file at "+id+" it may not exist.");
+				}
 			},
 		}
 	}
