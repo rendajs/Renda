@@ -1,4 +1,5 @@
 import rollup from "../../libs/rollup.browser.js";
+import jscomp from "../../libs/jscomp.js";
 
 export default class ScriptBuilder{
 	constructor(){
@@ -12,7 +13,13 @@ export default class ScriptBuilder{
 		const {output} = await bundle.generate({
 			format: "esm",
 		});
-		return output[0].code;
+		const code = output[0].code;
+		const closureData = jscomp({
+			compilationLevel: "ADVANCED",
+		}, [{
+			src: code,
+		}]);
+		return closureData.compiledCode;
 	}
 
 	resolveScripts(){
