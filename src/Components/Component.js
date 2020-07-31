@@ -13,7 +13,11 @@ export default class Component{
 		this.entity = null;
 
 		const componentData = this.getComponentData();
-		this.setDefaultValues(componentData?.properties);
+		if(componentData && componentData.properties){
+			this.setDefaultValues(componentData.properties);
+		}else{
+			this.setDefaultValues(null);
+		}
 
 		for(const [propertyName, propertyValue] of Object.entries(propertyValues)){
 			this[propertyName] = propertyValue;
@@ -33,9 +37,8 @@ export default class Component{
 	} = {}){
 		const propertyValues = {};
 		const componentData = this.getComponentData();
-		const componentProperties = componentData?.properties;
-		if(componentProperties){
-			for(const [propertyName, property] of Object.entries(componentProperties)){
+		if(componentData && componentData.properties){
+			for(const [propertyName, property] of Object.entries(componentData.properties)){
 				propertyValues[propertyName] = this.propertyToJson(this[propertyName], assetManager);
 			}
 		}

@@ -26,12 +26,14 @@ export default class ComponentTypeManager{
 
 	registerComponentType(type, componentData, namespace = this.userNamespace){
 		const namespaceObj = this.getNamespace(namespace);
-		for(const [propertyName, property] of Object.entries(componentData?.properties)){
-			if(!property.type && property.defaultValue != undefined){
-				if(typeof property.defaultValue == "number"){
-					property.type = Number;
-				}else{
-					property.type = property.defaultValue.constructor;
+		if(componentData && componentData.properties){
+			for(const [propertyName, property] of Object.entries(componentData.properties)){
+				if(!property.type && property.defaultValue != undefined){
+					if(typeof property.defaultValue == "number"){
+						property.type = Number;
+					}else{
+						property.type = property.defaultValue.constructor;
+					}
 				}
 			}
 		}
@@ -54,7 +56,9 @@ export default class ComponentTypeManager{
 			}
 			return null;
 		}else{
-			return this.namespaces.get(namespace)?.componentTypes.get(type);
+			const namespaceObj = this.namespaces.get(namespace);
+			if(!namespaceObj) return null;
+			return namespaceObj.componentTypes.get(type);
 		}
 	}
 

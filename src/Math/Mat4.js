@@ -125,7 +125,7 @@ export default class Mat4{
 		}else{
 			uwMultiplier = 1 / aspect;
 		}
-		return this.createProjection(fov, near, far, uwMultiplier, uhMultiplier);
+		return Mat4.createProjection(fov, near, far, uwMultiplier, uhMultiplier);
 	}
 
 	static createProjection(fov = 90, near = 0.05, far = 1000, uwMultiplier = 1, uhMultiplier = 1){
