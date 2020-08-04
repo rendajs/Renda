@@ -20,7 +20,8 @@ export default class ProjectAssetType{
 	}
 
 	//return the constructor of the would-be live asset
-	//in case an async function is not possible
+	//this is used when the editor only needs to know the asset type
+	//this way a live asset is not created when not necessary
 	getLiveAssetConstructor(){
 		return null;
 	}
