@@ -9,6 +9,9 @@ export default class ProjectAssetType{
 
 	static storeInProjectAsJson = true;
 
+	//which properties asset content class to use for the properties UI
+	static propertiesAssetContentConstructor = null;
+
 	constructor(projectAsset){
 		this.projectAsset = projectAsset;
 	}
@@ -17,13 +20,6 @@ export default class ProjectAssetType{
 	//objects will automatically be saved as json
 	static createNewFile(){
 		return "";
-	}
-
-	//return the constructor of the would-be live asset
-	//this is used when the editor only needs to know the asset type
-	//this way a live asset is not created when not necessary
-	getLiveAssetConstructor(){
-		return null;
 	}
 
 	async getLiveAsset(){

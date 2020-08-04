@@ -94,9 +94,9 @@ export default class ProjectAsset{
 		return this.liveAsset;
 	}
 
-	async getLiveAssetConstructor(){
+	async getPropertiesAssetContentConstructor(){
 		await this.waitForInit();
-		return this.projectAssetType.getLiveAssetConstructor();
+		return this.projectAssetType.constructor.propertiesAssetContentConstructor;
 	}
 
 	saveLiveAsset(){} //todo

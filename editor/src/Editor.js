@@ -1,6 +1,5 @@
 import WindowManager from "./WindowManagement/WindowManager.js";
 import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentManager.js";
-import PropertiesAssetContentManager from "./Managers/PropertiesAssetContentManager.js";
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
@@ -15,7 +14,6 @@ export default class Editor{
 		this.windowManager = new WindowManager();
 		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
-		this.propertiesAssetContentManager = new PropertiesAssetContentManager();
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.projectManager = new ProjectManager();
 		this.scriptBuilder = new ScriptBuilder();
@@ -36,7 +34,6 @@ export default class Editor{
 		this.renderer.init();
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
-		this.propertiesAssetContentManager.init();
 		this.projectAssetTypeManager.init();
 
 		this.projectManager.openRecentProjectHandle();

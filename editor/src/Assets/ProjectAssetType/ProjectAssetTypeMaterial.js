@@ -1,10 +1,12 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import {Shader, Material} from "../../../../src/index.js";
+import PropertiesAssetContentMaterial from "../../PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 
 export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
 	static type = "material";
 	static newFileName = "New Material";
+	static propertiesAssetContentConstructor = PropertiesAssetContentMaterial;
 
 	constructor(){
 		super();
@@ -12,10 +14,6 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
 	static createNewFile(){
 		return {};
-	}
-
-	getLiveAssetConstructor(){
-		return Material;
 	}
 
 	async getLiveAsset(materialJson){
