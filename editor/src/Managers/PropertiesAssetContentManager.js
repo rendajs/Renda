@@ -34,15 +34,15 @@ export default class PropertiesAssetContentManager{
 		}
 	}
 
-	getConstructorForProjectAssets(projectAssets){
+	async getConstructorForProjectAssets(projectAssets){
 		for(const projectAsset of projectAssets){
-			return projectAsset.projectAssetType.getLiveAssetConstructor();
+			return await projectAsset.getLiveAssetConstructor();
 		}
 		return null;
 	}
 
-	getContentTypeForProjectAssets(projectAssets){
-		const constructor = this.getConstructorForProjectAssets(projectAssets);
+	async getContentTypeForProjectAssets(projectAssets){
+		const constructor = await this.getConstructorForProjectAssets(projectAssets);
 		if(constructor){
 			return this.registeredContentTypes.get(constructor);
 		}

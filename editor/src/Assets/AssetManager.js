@@ -64,15 +64,12 @@ export default class AssetManager{
 		await this.fileSystem.writeJson(this.assetSettingsPath, {bundles, assets});
 	}
 
-	async registerAsset(path = [], assetType = null, forceAssetType = false){
+	registerAsset(path = [], assetType = null, forceAssetType = false){
 		const uuid = generateUuid();
-		if(!assetType){
-			assetType = await this.guessAssetType(path);
-		}
 		const projectAsset = new ProjectAsset({uuid, path, assetType, forceAssetType});
 		this.projectAssets.set(uuid, projectAsset);
-		await this.saveAssetSettings();
-		return uuid;
+		this.saveAssetSettings();
+		return projectAsset;
 	}
 
 	getAssetUuid(path = []){
@@ -104,6 +101,12 @@ export default class AssetManager{
 			if(this.testPathMatch(path, asset.path)){
 				return asset;
 			}
+		}
+
+		//no existing project asset was found, check if the file exists
+		if(this.fileSystem.isFile(path)){
+			//create a new project asset
+			return this.registerAsset(path);
 		}
 	}
 

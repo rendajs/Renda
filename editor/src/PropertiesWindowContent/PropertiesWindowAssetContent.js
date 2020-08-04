@@ -39,8 +39,9 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		this.updateAssetContent();
 	}
 
-	updateAssetContent(){
-		const constructor = editor.propertiesAssetContentManager.getContentTypeForProjectAssets(this.currentSelection);
+	//todo: make sure only one instance runs at a time
+	async updateAssetContent(){
+		const constructor = await editor.propertiesAssetContentManager.getContentTypeForProjectAssets(this.currentSelection);
 		const needsNew = constructor && (!this.activeAssetContent || this.activeAssetContent.constructor != constructor);
 		if(needsNew || (!constructor && this.activeAssetContent)){
 			if(this.activeAssetContent) this.activeAssetContent.destructor();

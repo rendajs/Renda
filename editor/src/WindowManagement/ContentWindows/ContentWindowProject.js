@@ -146,7 +146,7 @@ export default class ContentWindowProject extends ContentWindow{
 			}
 			return newPath;
 		});
-		await editor.projectManager.assetManager.registerAsset(newPath, assetType);
+		editor.projectManager.assetManager.registerAsset(newPath, assetType);
 	}
 
 	async createNewDir(){

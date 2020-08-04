@@ -1,4 +1,5 @@
 import editor from "../editorInstance.js";
+import SingleInstancePromise from "../Util/SingleInstancePromise.js";
 
 export default class ProjectAsset{
 	constructor({
@@ -12,27 +13,49 @@ export default class ProjectAsset{
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
 
-		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(assetType);
-		this.projectAssetType = new AssetTypeConstructor(this);
-
+		this.projectAssetType = null;
 		this.liveAsset = null;
+
+		this.initInstance = new SingleInstancePromise(async _=> this.init());
+		this.initInstance.run();
+	}
+
+	async init(){
+		if(!this.assetType){
+			this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path);
+		}
+
+		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(this.assetType);
+		this.projectAssetType = new AssetTypeConstructor(this);
+	}
+
+	async waitForInit(){
+		await this.initInstance.run();
 	}
 
 	static async fromJsonData(uuid, assetData){
 		if(!assetData.assetType){
-			assetData.assetType = await this.guessAssetType(assetData.path);
+			assetData.assetType = this.guessAssetTypeFromPath(assetData.path);
 			assetData.forceAssetType = false;
 		};
 		const projectAsset = new ProjectAsset({uuid,...assetData});
 		return projectAsset;
 	}
 
-	static async guessAssetType(path = []){
+	static guessAssetTypeFromPath(path = []){
 		if(!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
 		if(fileName.endsWith(".jjmesh")) return "mesh";
+		if(fileName.endsWith(".js")) return "javascript";
+		return null;
+	}
+
+	static async guessAssetTypeFromFile(path = []){
+		const assetType = this.guessAssetTypeFromPath(path);
+		if(assetType) return assetType;
+
 		const json = await editor.projectManager.currentProjectFileSystem.readJson(path);
-		return json?.assetType ?? "unknown";
+		return json?.assetType || null;
 	}
 
 	get name(){
@@ -50,6 +73,7 @@ export default class ProjectAsset{
 	}
 
 	async open(){
+		await this.waitForInit();
 		await this.projectAssetType.open();
 	}
 
@@ -57,6 +81,7 @@ export default class ProjectAsset{
 	async getLiveAsset(){
 		if(this.liveAsset) return this.liveAsset;
 
+		await this.waitForInit();
 		let fileData = null;
 		if(this.projectAssetType.constructor.storeInProjectAsJson){
 			const json = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
@@ -67,6 +92,11 @@ export default class ProjectAsset{
 
 		this.liveAsset = await this.projectAssetType.getLiveAsset(fileData);
 		return this.liveAsset;
+	}
+
+	async getLiveAssetConstructor(){
+		await this.waitForInit();
+		return this.projectAssetType.getLiveAssetConstructor();
 	}
 
 	saveLiveAsset(){} //todo
