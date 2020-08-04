@@ -14,8 +14,4 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 			type: Mesh,
 		});
 	}
-
-	static get useForType(){
-		return Material;
-	}
 }
