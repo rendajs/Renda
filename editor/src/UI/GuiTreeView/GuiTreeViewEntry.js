@@ -1,6 +1,7 @@
 import TreeView from "../TreeView.js";
 import VectorGui from "../VectorGui.js";
 import NumericGui from "../NumericGui.js";
+import TextGui from "../TextGui.js";
 import AssetGui from "../AssetGui.js";
 import ArrayGui from "../ArrayGui.js";
 
@@ -33,7 +34,10 @@ export default class GuiTreeViewEntry extends TreeView{
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		if(type == Vector3){
+		if(type == "string"){
+			this.gui = new TextGui(guiItemOpts);
+			this.valueEl.appendChild(this.gui.el);
+		}else if(type == Vector3){
 			guiItemOpts.size = 3;
 			this.gui = new VectorGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
