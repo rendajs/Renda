@@ -39,6 +39,14 @@ export default class ContentWindowProject extends ContentWindow{
 		});
 		this.addTopBarButton(loadAssetSettingsButton);
 
+		const openProjectButton = new Button({
+			text: "Open Project",
+			onClick: _ => {
+				editor.projectManager.openProjectFromLocalDirectory();
+			},
+		});
+		this.addTopBarButton(openProjectButton);
+
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
 		this.treeView.rowVisible = false;
