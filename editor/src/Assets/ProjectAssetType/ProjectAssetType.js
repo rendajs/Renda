@@ -10,7 +10,12 @@ export default class ProjectAssetType{
 	static storeInProjectAsJson = true;
 
 	//which properties asset content class to use for the properties UI
+	//leave it as null if you don't wish to show any asset content UI
 	static propertiesAssetContentConstructor = null;
+
+	//fill this with asset settings you want to appear in
+	//the properties window
+	static assetSettingsStructure = [];
 
 	constructor(projectAsset){
 		this.projectAsset = projectAsset;
