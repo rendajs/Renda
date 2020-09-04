@@ -1,8 +1,8 @@
-import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
+import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
 export default class PropertiesAssetContent{
 	constructor(){
-		this.treeView = new GuiTreeView();
+		this.treeView = new PropertiesTreeView();
 	}
 
 	destructor(){

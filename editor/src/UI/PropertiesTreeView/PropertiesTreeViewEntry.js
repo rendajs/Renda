@@ -7,7 +7,7 @@ import ArrayGui from "../ArrayGui.js";
 
 import {Vector3, Mesh, Material} from "../../../../src/index.js";
 
-export default class GuiTreeViewEntry extends TreeView{
+export default class PropertiesTreeViewEntry extends TreeView{
 	constructor({
 		label = "",
 		smallLabel = false,

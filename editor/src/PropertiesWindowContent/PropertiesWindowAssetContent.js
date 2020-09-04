@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
+import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
@@ -12,7 +12,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		this.activeAssetContent = null;
 		this.activeAssetSettingsStructureUi = null;
 
-		this.treeView = new GuiTreeView();
+		this.treeView = new PropertiesTreeView();
 		this.el.appendChild(this.treeView.el);
 
 		this.assetSettingsTree = this.treeView.addCollapsable("Asset settings will be placed here");

@@ -1,6 +1,6 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import {Entity, Vector3, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
-import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
+import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
 
@@ -10,7 +10,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 
 		this.currentSelection = null;
 
-		this.treeView = new GuiTreeView();
+		this.treeView = new PropertiesTreeView();
 		this.el.appendChild(this.treeView.el);
 
 		let entitySection = this.treeView.addCollapsable("Entity");

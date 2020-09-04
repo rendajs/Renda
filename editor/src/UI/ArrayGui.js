@@ -1,4 +1,4 @@
-import GuiTreeView from "./GuiTreeView/GuiTreeView.js";
+import PropertiesTreeView from "./PropertiesTreeView/PropertiesTreeView.js";
 import Button from "./Button.js";
 
 export default class ArrayGui{
@@ -14,7 +14,7 @@ export default class ArrayGui{
 		this.arrayTypeOpts = arrayTypeOpts;
 		this.onValueChangeCbs = [];
 
-		this.treeView = new GuiTreeView();
+		this.treeView = new PropertiesTreeView();
 		this.el.appendChild(this.treeView.el);
 
 		this.addItemButton = new Button({
