@@ -31,14 +31,6 @@ export default class ContentWindowProject extends ContentWindow{
 		});
 		this.addTopBarButton(createButton);
 
-		const loadAssetSettingsButton = new Button({
-			text: "Load Asset Settings",
-			onClick: _ => {
-				editor.projectManager.assetManager.loadAssetSettings()
-			},
-		});
-		this.addTopBarButton(loadAssetSettingsButton);
-
 		const openProjectButton = new Button({
 			text: "Open Project",
 			onClick: _ => {
@@ -109,10 +101,18 @@ export default class ContentWindowProject extends ContentWindow{
 		}
 	}
 
-	getProjectAssetByTreeViewItem(treeView){
+	async getProjectAssetByTreeViewItem(treeView){
 		const path = this.pathFromTreeView(treeView);
-		const projectAsset = editor.projectManager.assetManager.getProjectAssetFromPath(path);
+		const projectAsset = await editor.projectManager.assetManager.getProjectAssetFromPath(path);
 		return projectAsset;
+	}
+
+	async mapTreeViewArrayToProjectAssets(treeViews){
+		const newArr = [];
+		for(const treeView of treeViews){
+			newArr.push(await this.getProjectAssetByTreeViewItem(treeView));
+		}
+		return newArr;
 	}
 
 	async createAtSelectedPath(createName, createFn = null){
@@ -154,7 +154,7 @@ export default class ContentWindowProject extends ContentWindow{
 			}
 			return newPath;
 		});
-		editor.projectManager.assetManager.registerAsset(newPath, assetType);
+		await editor.projectManager.assetManager.registerAsset(newPath, assetType);
 	}
 
 	async createNewDir(){
@@ -170,9 +170,9 @@ export default class ContentWindowProject extends ContentWindow{
 		return path;
 	}
 
-	onTreeViewSelectionChange(changes){
-		changes.added = changes.added.map(treeView => this.getProjectAssetByTreeViewItem(treeView)).filter(asset => !!asset);
-		changes.removed = changes.removed.map(treeView => this.getProjectAssetByTreeViewItem(treeView)).filter(asset => !!asset);
+	async onTreeViewSelectionChange(changes){
+		changes.added = await this.mapTreeViewArrayToProjectAssets(changes.added);
+		changes.removed = await this.mapTreeViewArrayToProjectAssets(changes.removed);
 		this.selectionManager.changeSelection(changes);
 	}
 
@@ -186,8 +186,8 @@ export default class ContentWindowProject extends ContentWindow{
 		await fileSystem.move(oldPath, newPath);
 	}
 
-	onTreeViewDragStart({draggedElement, event}){
-		const assetData = this.getProjectAssetByTreeViewItem(draggedElement);
+	async onTreeViewDragStart({draggedElement, event}){
+		const assetData = await this.getProjectAssetByTreeViewItem(draggedElement);
 		event.dataTransfer.effectAllowed = "all";
 		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetData.assetType}`, assetData.uuid);
 	}
@@ -203,7 +203,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async onTreeViewDblClick({clickedElement}){
 		const path = this.pathFromTreeView(clickedElement);
-		const projectAsset = editor.projectManager.assetManager.getProjectAssetFromPath(path);
+		const projectAsset = await editor.projectManager.assetManager.getProjectAssetFromPath(path);
 		projectAsset.open();
 	}
 }

@@ -23,6 +23,19 @@ export default class EditorFileSystem{
 
 	async isDir(path = []){}
 
+	//This should return true if the user has permission to read
+	//(or write if specified) at the specified path.
+	//This method should not trigger any ui pop ups
+	//asking the user for permissions.
+	//If the file/directory does not exist, it
+	//should still return true when the highest
+	//available directory in the path has permissions
+	async queryPermission(path = [], {
+		writable = true,
+	}){
+		return true;
+	}
+
 	/*util functions*/
 	async writeJson(path = [], json = {}){
 		let jsonStr = JSON.stringify(json, null, "\t");

@@ -11,6 +11,42 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		return new EditorFileSystemNative(directoryHandle);
 	}
 
+	async queryPermission(path = [], {
+		writable = true,
+	} = {}){
+		let handle = this.handle;
+		for(let i=0; i<=path.length; i++){
+			const hasPermission = await this.verifyHandlePermission(handle, {writable, prompt: false, error: false});
+			if(!hasPermission) return false;
+
+			if(i == path.length) return true;
+
+			const dirName = path[i];
+			const isLast = i == path.length - 1;
+			try{
+				handle = await handle.getDirectoryHandle(dirName);
+			}catch(e){
+				if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
+					if(isLast){
+						try{
+							handle = await handle.getFileHandle(dirName);
+						}catch(e){
+							if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
+								return true;
+							}else{
+								return false;
+							}
+						}
+					}else{
+						return true;
+					}
+				}else{
+					return false;
+				}
+			}
+		}
+	}
+
 	async verifyHandlePermission(handle, {
 		prompt = true,
 		writable = true,
@@ -18,7 +54,9 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	} = {}){
 		const opts = {writable};
 		if(await handle.queryPermission(opts) == "granted") return true;
-		if(await handle.requestPermission(opts) == "granted") return true;
+		if(prompt){
+			if(await handle.requestPermission(opts) == "granted") return true;
+		}
 		if(error) throw new Error("Not enough file system permissions for this operation.");
 		return false;
 	}

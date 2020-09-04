@@ -11,6 +11,7 @@ export default class AssetManager{
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
+		this.needsAssetSettingsLoad = true;
 		this.loadAssetSettings();
 	}
 
@@ -22,6 +23,8 @@ export default class AssetManager{
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
+	//todo: either make this async or make sure it
+	//isn't called before assetsettings are loaded
 	getMainBundleEntry(){
 		if(this.bundles.size <= 0){
 			this.bundles.set("main", {});
@@ -39,7 +42,15 @@ export default class AssetManager{
 		this.getMainBundleEntry()[1];
 	}
 
-	async loadAssetSettings(){
+	async loadAssetSettings(fromUserEvent = false){
+		if(!this.needsAssetSettingsLoad) return;
+
+		if(!fromUserEvent){
+			const hasPermissions = await this.fileSystem.queryPermission(this.assetSettingsPath);
+			if(!hasPermissions) return;
+		}
+
+		this.needsAssetSettingsLoad = false;
 		if(!(await this.fileSystem.isFile(this.assetSettingsPath))) return;
 		let json = await this.fileSystem.readJson(this.assetSettingsPath);
 		if(json){
@@ -64,7 +75,8 @@ export default class AssetManager{
 		await this.fileSystem.writeJson(this.assetSettingsPath, {bundles, assets});
 	}
 
-	registerAsset(path = [], assetType = null, forceAssetType = false){
+	async registerAsset(path = [], assetType = null, forceAssetType = false){
+		await this.loadAssetSettings(true);
 		const uuid = generateUuid();
 		const projectAsset = new ProjectAsset({uuid, path, assetType, forceAssetType});
 		this.projectAssets.set(uuid, projectAsset);
@@ -72,17 +84,19 @@ export default class AssetManager{
 		return projectAsset;
 	}
 
-	getAssetUuid(path = []){
-		const projectAsset = this.getProjectAssetFromPath(path);
+	async getAssetUuid(path = []){
+		const projectAsset = await this.getProjectAssetFromPath(path);
 		if(!projectAsset) return null;
 		return projectAsset.uuid;
 	}
 
-	getProjectAsset(uuid){
+	async getProjectAsset(uuid){
+		await this.loadAssetSettings(true);
 		return this.projectAssets.get(uuid);
 	}
 
-	getAssetPathFromUuid(uuid){
+	async getAssetPathFromUuid(uuid){
+		await this.loadAssetSettings(true);
 		const asset = this.projectAssets.get(uuid);
 		if(!asset) return null;
 		return asset.path.slice();
@@ -96,7 +110,8 @@ export default class AssetManager{
 		return true;
 	}
 
-	getProjectAssetFromPath(path = []){
+	async getProjectAssetFromPath(path = []){
+		await this.loadAssetSettings(true);
 		for(const [uuid, asset] of this.projectAssets){
 			if(this.testPathMatch(path, asset.path)){
 				return asset;
@@ -106,7 +121,7 @@ export default class AssetManager{
 		//no existing project asset was found, check if the file exists
 		if(this.fileSystem.isFile(path)){
 			//create a new project asset
-			return this.registerAsset(path);
+			return await this.registerAsset(path);
 		}
 	}
 
@@ -123,12 +138,19 @@ export default class AssetManager{
 	}
 
 	async getLiveAsset(uuid){
+		await this.loadAssetSettings(true);
 		const projectAsset = this.projectAssets.get(uuid);
 		if(!projectAsset) return null;
 
 		return await projectAsset.getLiveAsset();
 	}
 
+	//LoadAssetSettings is expected to be called
+	//(from a user gesture) before calling this method.
+	//If `liveAsset` is not a live asset generated from the
+	//asset manager, this method may be called before loadAssetSettings
+	//since there is no way to get a liveAsset before calling
+	//loadAssetSettings anyway.
 	getLiveAssetUuidForAsset(liveAsset){
 		for(const [uuid, projectAsset] of this.projectAssets){
 			if(projectAsset.liveAsset == liveAsset) return uuid;
