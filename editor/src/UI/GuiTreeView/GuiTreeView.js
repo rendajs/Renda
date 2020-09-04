@@ -26,4 +26,16 @@ export default class PropertiesTreeView extends TreeView{
 		this.addChild(item);
 		return item;
 	}
+
+	generateFromSerializableStructure(structure){
+		this.clearChildren();
+		for(const [key, item] of Object.entries(structure)){
+			let label = key;
+			if(item.label) label = item.label;
+			this.addItem({
+				label,
+				type: item.type,
+			});
+		}
+	}
 }

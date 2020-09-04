@@ -1,4 +1,5 @@
 import ProjectAssetType from "./ProjectAssetType.js";
+import {Vector3, Mesh, Material} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 
@@ -7,12 +8,12 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 	static newFileExtension = "js";
 	static storeInProjectAsJson = false;
 
-	static assetSettingsStructure = [
-		{
+	static assetSettingsStructure = {
+		outputLocation: {
 			label: "Build output location",
-			type: ""
-		}
-	];
+			type: "string",
+		},
+	};
 
 	constructor(){
 		super(...arguments);

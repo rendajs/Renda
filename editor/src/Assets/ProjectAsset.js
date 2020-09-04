@@ -99,5 +99,10 @@ export default class ProjectAsset{
 		return this.projectAssetType.constructor.propertiesAssetContentConstructor;
 	}
 
+	async getPropertiesAssetSettingsStructure(){
+		await this.waitForInit();
+		return this.projectAssetType.constructor.assetSettingsStructure;
+	}
+
 	saveLiveAsset(){} //todo
 }

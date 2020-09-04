@@ -1,5 +1,4 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-// import {Entity, Vector3, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
 import GuiTreeView from "../UI/GuiTreeView/GuiTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
@@ -11,6 +10,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 
 		this.currentSelection = null;
 		this.activeAssetContent = null;
+		this.activeAssetSettingsStructureUi = null;
 
 		this.treeView = new GuiTreeView();
 		this.el.appendChild(this.treeView.el);
@@ -23,6 +23,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		this.treeView.destructor();
 		this.assetSettingsTree = null;
 		this.assetContentTree = null;
+		if(this.activeAssetSettingsStructureUi) this.activeAssetSettingsStructureUi.destructor();
 		super.destructor();
 	}
 
@@ -32,11 +33,31 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
+		this.updateAssetSettings();
 		this.updateAssetContent();
 	}
 
 	onAssetContentTypeRegistered(constructor){
 		this.updateAssetContent();
+	}
+
+	async updateAssetSettings(){
+		if(this.activeAssetSettingsStructureUi){
+			this.activeAssetSettingsStructureUi.destructor();
+			this.activeAssetSettingsStructureUi = null;
+		}
+
+		let settingsStructure = {};
+
+		for(const projectAsset of this.currentSelection){
+			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
+			if(structure){
+				settingsStructure = structure;
+				break;
+			}
+		}
+
+		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure);
 	}
 
 	//todo: make sure only one instance runs at a time
