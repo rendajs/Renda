@@ -7,9 +7,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	static async openUserDir(){
-		let directoryHandle = await window.chooseFileSystemEntries({
-			type: "open-directory"
-		});
+		let directoryHandle = await window.showDirectoryPicker();
 		return new EditorFileSystemNative(directoryHandle);
 	}
 
@@ -29,7 +27,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		let handle = this.handle;
 		for(const dirName of path){
 			await this.verifyHandlePermission(handle, {writable: create});
-			handle = await handle.getDirectory(dirName, {create})
+			handle = await handle.getDirectoryHandle(dirName, {create})
 		}
 		return handle;
 	}
@@ -38,7 +36,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		const {dirPath, fileName} = this.splitDirFileName(path);
 		const dirHandle = await this.getDirHandle(dirPath, create);
 		await this.verifyHandlePermission(dirHandle, {writable: create});
-		return await dirHandle.getFile(fileName, {create});
+		return await dirHandle.getFileHandle(fileName, {create});
 	}
 
 	async readDir(path = []){
@@ -47,11 +45,11 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 			files: [],
 			directories: [],
 		}
-		for await (const item of handle.getEntries()){
-			if(item.isDirectory){
-				result.directories.push(item.name);
-			}else if(item.isFile){
-				result.files.push(item.name);
+		for await (const [name, item] of handle.entries()){
+			if(item.kind == "directory"){
+				result.directories.push(name);
+			}else if(item.kind == "file"){
+				result.files.push(name);
 			}
 		}
 		return result;
