@@ -1,5 +1,5 @@
 import NumericGui from "./NumericGui.js";
-import {Vector3} from "../../../../src/index.js";
+import {Vec3} from "../../../../src/index.js";
 
 export default class VectorGui{
 	constructor({
@@ -44,7 +44,7 @@ export default class VectorGui{
 		let newValueArr = this.numericGuis.map(g => g.value);
 		let newValue = null;
 		if(this.numericGuis.length == 3){
-			newValue = new Vector3(newValueArr);
+			newValue = new Vec3(newValueArr);
 		}
 		for(const cb of this.onValueChangeCbs){
 			cb(newValue.clone());

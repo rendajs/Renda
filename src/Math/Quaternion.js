@@ -1,4 +1,4 @@
-import Vector3 from "./Vector3.js";
+import Vec3 from "./Vec3.js";
 
 export default class Quaternion{
 	constructor(x=0, y=0, z=0, w=1){
@@ -57,7 +57,7 @@ export default class Quaternion{
 
 	static fromAxisAngle(axis, angle){
 		if(arguments.length == 4){
-			axis = new Vector3(arguments[0], arguments[1], arguments[2]);
+			axis = new Vec3(arguments[0], arguments[1], arguments[2]);
 			angle = arguments[3];
 		}
 		let vec = axis.clone();
@@ -104,12 +104,12 @@ export default class Quaternion{
 
 	rotateVector(x,y,z){
 		//TODO: optimise: gamedev.stackexchange.com/a/50545/87477
-		let vec = new Vector3(...arguments);
+		let vec = new Vec3(...arguments);
 		let pin = new Quaternion(vec.x, vec.y, vec.z, 1);
 		let qconj = new Quaternion(this);
 		qconj.invert();
 		let pout = Quaternion.multiplyQuaternions(qconj, Quaternion.multiplyQuaternions(pin, this));
-		let newVec = new Vector3(
+		let newVec = new Vec3(
 			pout.x,
 			pout.y,
 			pout.z,

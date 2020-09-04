@@ -1,4 +1,4 @@
-import {Vector3} from "../index.js";
+import {Vec3} from "../index.js";
 
 export default class MeshAttributeBuffer{
 	constructor(data, {
@@ -19,7 +19,7 @@ export default class MeshAttributeBuffer{
 				componentCount = 1;
 				componentType = MeshAttributeBuffer.ComponentTypes.UNSIGNED_SHORT;
 				data = new Uint16Array(data);
-			}else if(data[0] instanceof Vector3){
+			}else if(data[0] instanceof Vec3){
 				componentCount = 3;
 				const newData = new Float32Array(data.length * 3);
 				let i=0;

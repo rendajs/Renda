@@ -5,7 +5,7 @@ import TextGui from "../TextGui.js";
 import AssetGui from "../AssetGui.js";
 import ArrayGui from "../ArrayGui.js";
 
-import {Vector3, Mesh, Material} from "../../../../src/index.js";
+import {Vec3, Mesh, Material} from "../../../../src/index.js";
 
 export default class PropertiesTreeViewEntry extends TreeView{
 	constructor({
@@ -37,7 +37,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		if(type == "string"){
 			this.gui = new TextGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == Vector3){
+		}else if(type == Vec3){
 			guiItemOpts.size = 3;
 			this.gui = new VectorGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);

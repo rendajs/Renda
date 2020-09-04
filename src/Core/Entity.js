@@ -1,4 +1,4 @@
-import {Vector3, Quaternion, Mat4} from "../Math/Math.js";
+import {Vec3, Quaternion, Mat4} from "../Math/Math.js";
 import {Component, defaultComponentTypeManager} from "../Components/Components.js";
 
 export default class Entity{
@@ -23,11 +23,11 @@ export default class Entity{
 		this.worldMatrixDirty = false;
 		this._localMatrix = new Mat4();
 		this._worldMatrix = new Mat4();
-		this._pos = new Vector3();
+		this._pos = new Vec3();
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
 		this._rot = new Quaternion();
 		this._rot.onChange(this.boundMarkLocalMatrixDirty);
-		this._scale = Vector3.one;
+		this._scale = Vec3.one;
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
 		this.setParent(opts.parent, false);

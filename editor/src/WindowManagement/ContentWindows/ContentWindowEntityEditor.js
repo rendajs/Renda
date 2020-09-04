@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vector3, Shader, Material, ComponentTypes} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Shader, Material, ComponentTypes} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -85,35 +85,35 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		let cubeMesh = new Mesh();
 		cubeMesh.setBuffer(Mesh.AttributeTypes.INDEX, [0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
 		cubeMesh.setBuffer(Mesh.AttributeTypes.POSITION, [
-			new Vector3(-1,-1,-1),
-			new Vector3(-1,-1, 1),
-			new Vector3(-1, 1,-1),
-			new Vector3(-1, 1, 1),
+			new Vec3(-1,-1,-1),
+			new Vec3(-1,-1, 1),
+			new Vec3(-1, 1,-1),
+			new Vec3(-1, 1, 1),
 
-			new Vector3( 1,-1,-1),
-			new Vector3( 1,-1, 1),
-			new Vector3( 1, 1,-1),
-			new Vector3( 1, 1, 1),
+			new Vec3( 1,-1,-1),
+			new Vec3( 1,-1, 1),
+			new Vec3( 1, 1,-1),
+			new Vec3( 1, 1, 1),
 
-			new Vector3(-1,-1,-1),
-			new Vector3(-1,-1, 1),
-			new Vector3( 1,-1,-1),
-			new Vector3( 1,-1, 1),
+			new Vec3(-1,-1,-1),
+			new Vec3(-1,-1, 1),
+			new Vec3( 1,-1,-1),
+			new Vec3( 1,-1, 1),
 
-			new Vector3(-1, 1,-1),
-			new Vector3(-1, 1, 1),
-			new Vector3( 1, 1,-1),
-			new Vector3( 1, 1, 1),
+			new Vec3(-1, 1,-1),
+			new Vec3(-1, 1, 1),
+			new Vec3( 1, 1,-1),
+			new Vec3( 1, 1, 1),
 
-			new Vector3(-1,-1,-1),
-			new Vector3(-1, 1,-1),
-			new Vector3( 1,-1,-1),
-			new Vector3( 1, 1,-1),
+			new Vec3(-1,-1,-1),
+			new Vec3(-1, 1,-1),
+			new Vec3( 1,-1,-1),
+			new Vec3( 1, 1,-1),
 
-			new Vector3(-1,-1, 1),
-			new Vector3(-1, 1, 1),
-			new Vector3( 1,-1, 1),
-			new Vector3( 1, 1, 1),
+			new Vec3(-1,-1, 1),
+			new Vec3(-1, 1, 1),
+			new Vec3( 1,-1, 1),
+			new Vec3( 1, 1, 1),
 		]);
 		let cubeShader = new Shader(`
 			attribute vec4 aVertexPosition;

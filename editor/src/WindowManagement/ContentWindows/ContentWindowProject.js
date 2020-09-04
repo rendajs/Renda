@@ -3,7 +3,6 @@ import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
-import {Mesh, Vector3, Entity} from "../../../../src/index.js";
 
 export default class ContentWindowProject extends ContentWindow{
 	constructor(){

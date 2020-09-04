@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vector3, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
+import {Entity, Vec3, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
@@ -16,7 +16,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		let entitySection = this.treeView.addCollapsable("Entity");
 		this.positionProperty = entitySection.addItem({
 			label: "Position",
-			type: Vector3,
+			type: Vec3,
 		});
 		this.positionProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
@@ -25,11 +25,11 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.rotationProperty = entitySection.addItem({
 			label: "Rotation",
-			type: Vector3,
+			type: Vec3,
 		});
 		this.scaleProperty = entitySection.addItem({
 			label: "Scale",
-			type: Vector3,
+			type: Vec3,
 		});
 
 		this.componentsSection = this.treeView.addCollapsable("Components");

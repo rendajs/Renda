@@ -1,4 +1,4 @@
-import Vector3 from "../Math/Vector3.js";
+import Vec3 from "../Math/Vec3.js";
 import MeshAttributeBuffer from "./MeshAttributeBuffer.js";
 
 export default class Mesh{

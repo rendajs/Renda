@@ -1,39 +1,39 @@
-export default class Vector3{
+export default class Vec3{
 	constructor(x=0, y=0, z=0){
 		this.onChangeCbs = [];
 		this.set(x,y,z)
 	}
 
 	static get left(){
-		return new Vector3(-1,0,0);
+		return new Vec3(-1,0,0);
 	}
 
 	static get down(){
-		return new Vector3(0,-1,0);
+		return new Vec3(0,-1,0);
 	}
 
 	static get back(){
-		return new Vector3(0,0,-1);
+		return new Vec3(0,0,-1);
 	}
 
 	static get right(){
-		return new Vector3(1,0,0);
+		return new Vec3(1,0,0);
 	}
 
 	static get up(){
-		return new Vector3(0,1,0);
+		return new Vec3(0,1,0);
 	}
 
 	static get forward(){
-		return new Vector3(0,0,1);
+		return new Vec3(0,0,1);
 	}
 
 	static get one(){
-		return new Vector3(1,1,1);
+		return new Vec3(1,1,1);
 	}
 
 	static get zero(){
-		return new Vector3()
+		return new Vec3()
 	}
 
 	get x(){
@@ -60,7 +60,7 @@ export default class Vector3{
 	}
 
 	set(x=0, y=0, z=0){
-		if(x instanceof Vector3){
+		if(x instanceof Vec3){
 			let vector = x;
 			x = vector.x;
 			y = vector.y;
@@ -79,7 +79,7 @@ export default class Vector3{
 	}
 
 	clone(){
-		return new Vector3(this);
+		return new Vec3(this);
 	}
 
 	get magnitude(){
@@ -104,8 +104,8 @@ export default class Vector3{
 	}
 
 	multiply(vectorOrScalar){
-		if(vectorOrScalar instanceof Vector3 || arguments.length == 3){
-			return this.multiplyVector(new Vector3(...arguments));
+		if(vectorOrScalar instanceof Vec3 || arguments.length == 3){
+			return this.multiplyVector(new Vec3(...arguments));
 		}else{
 			return this.multiplyScalar(vectorOrScalar);
 		}
@@ -128,8 +128,8 @@ export default class Vector3{
 	}
 
 	add(vectorOrScalar){
-		if(vectorOrScalar instanceof Vector3 || arguments.length == 3){
-			return this.addVector(new Vector3(...arguments));
+		if(vectorOrScalar instanceof Vec3 || arguments.length == 3){
+			return this.addVector(new Vec3(...arguments));
 		}else{
 			return this.addScalar(vectorOrScalar);
 		}

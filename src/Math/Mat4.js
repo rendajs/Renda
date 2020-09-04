@@ -1,4 +1,4 @@
-import Vector3 from "./Vector3.js";
+import Vec3 from "./Vec3.js";
 
 export default class Mat4{
 	constructor(values){
@@ -100,18 +100,18 @@ export default class Mat4{
 	}
 
 	translate(x,y,z){
-		const vec = Vector3(arguments);
+		const vec = Vec3(arguments);
 		this.values[3][0] += vec.x;
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
 	}
 
 	getTranslation(){
-		return new Vector3(this.values[3]);
+		return new Vec3(this.values[3]);
 	}
 
 	setTranslation(x,y,z){
-		const vec = Vector3(arguments);
+		const vec = Vec3(arguments);
 		this.values[3][0] = vec.x;
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
@@ -173,7 +173,7 @@ export default class Mat4{
 	}
 
 	static createTranslation(v){
-		v = new Vector3(...arguments);
+		v = new Vec3(...arguments);
 		return new Mat4([
 			[1, 0, 0, 0],
 			[0, 1, 0, 0],
