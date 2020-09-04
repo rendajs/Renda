@@ -48,16 +48,21 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		}
 
 		let settingsStructure = {};
+		let settingsValues = {};
 
 		for(const projectAsset of this.currentSelection){
 			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
+			const values = projectAsset.assetSettings;
+			//todo: handle selecting multiple assets
 			if(structure){
 				settingsStructure = structure;
+				settingsValues = values;
 				break;
 			}
 		}
 
 		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure);
+		this.assetSettingsTree.fillSerializableStructureValues(settingsValues);
 	}
 
 	//todo: make sure only one instance runs at a time

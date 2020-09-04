@@ -10,6 +10,9 @@ export default class PropertiesTreeView extends TreeView{
 		this.rowVisible = rowVisible;
 		this.name = name;
 		this.selectable = false;
+
+		this.serializableStructure = null;
+		this.currentSerializableStructureItems = null;
 	}
 
 	addCollapsable(name){
@@ -29,13 +32,22 @@ export default class PropertiesTreeView extends TreeView{
 
 	generateFromSerializableStructure(structure){
 		this.clearChildren();
-		for(const [key, item] of Object.entries(structure)){
+		this.currentSerializableStructureItems = {};
+		for(const [key, itemSettings] of Object.entries(structure)){
 			let label = key;
-			if(item.label) label = item.label;
-			this.addItem({
+			if(itemSettings.label) label = itemSettings.label;
+			const addedItem = this.addItem({
 				label,
-				type: item.type,
+				type: itemSettings.type,
 			});
+			this.currentSerializableStructureItems[key] = addedItem;
+		}
+	}
+
+	fillSerializableStructureValues(values){
+		for(const [key, value] of Object.entries(values)){
+			const item = this.currentSerializableStructureItems[key];
+			item.setValue(value);
 		}
 	}
 }

@@ -5,11 +5,13 @@ export default class ProjectAsset{
 	constructor({
 		uuid = null,
 		path = [],
+		assetSettings = {},
 		assetType = null,
 		forceAssetType = false,
 	} = {}){
 		this.uuid = uuid;
 		this.path = path;
+		this.assetSettings = assetSettings;
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
 

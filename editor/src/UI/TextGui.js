@@ -8,7 +8,7 @@ export default class TextGui{
 
 	}
 
-	setValue(){
-
+	setValue(value){
+		this.el.value = value;
 	}
 }

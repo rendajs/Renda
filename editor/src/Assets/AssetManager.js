@@ -129,8 +129,8 @@ export default class AssetManager{
 
 	}
 
-	getAssetSettings(path = []){
-
+	async getAssetSettings(path = []){
+		await this.loadAssetSettings(true);
 	}
 
 	setAssetSettings(path = [], settings = {}){
