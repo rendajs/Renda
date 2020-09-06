@@ -28,7 +28,9 @@ export default class ProjectAsset{
 		}
 
 		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(this.assetType);
-		this.projectAssetType = new AssetTypeConstructor(this);
+		if(AssetTypeConstructor){
+			this.projectAssetType = new AssetTypeConstructor(this);
+		}
 	}
 
 	async waitForInit(){
@@ -98,11 +100,13 @@ export default class ProjectAsset{
 
 	async getPropertiesAssetContentConstructor(){
 		await this.waitForInit();
+		if(!this.projectAssetType) return null;
 		return this.projectAssetType.constructor.propertiesAssetContentConstructor;
 	}
 
 	async getPropertiesAssetSettingsStructure(){
 		await this.waitForInit();
+		if(!this.projectAssetType) return null;
 		return this.projectAssetType.constructor.assetSettingsStructure;
 	}
 
