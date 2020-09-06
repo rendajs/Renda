@@ -100,6 +100,28 @@ export default class Mat4{
 		return mat;
 	}
 
+	getDeterminant(){
+		let a00 = this.values[0][0], a01 = this.values[0][1], a02 = this.values[0][2], a03 = this.values[0][3];
+		let a10 = this.values[1][0], a11 = this.values[1][1], a12 = this.values[1][2], a13 = this.values[1][3];
+		let a20 = this.values[2][0], a21 = this.values[2][1], a22 = this.values[2][2], a23 = this.values[2][3];
+		let a30 = this.values[3][0], a31 = this.values[3][1], a32 = this.values[3][2], a33 = this.values[3][3];
+
+		let b00 = a00 * a11 - a01 * a10;
+		let b01 = a00 * a12 - a02 * a10;
+		let b02 = a00 * a13 - a03 * a10;
+		let b03 = a01 * a12 - a02 * a11;
+		let b04 = a01 * a13 - a03 * a11;
+		let b05 = a02 * a13 - a03 * a12;
+		let b06 = a20 * a31 - a21 * a30;
+		let b07 = a20 * a32 - a22 * a30;
+		let b08 = a20 * a33 - a23 * a30;
+		let b09 = a21 * a32 - a22 * a31;
+		let b10 = a21 * a33 - a23 * a31;
+		let b11 = a22 * a33 - a23 * a32;
+
+		return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+	}
+
 	translate(x,y,z){
 		const vec = Vec3(...arguments);
 		this.values[3][0] += vec.x;
@@ -119,12 +141,15 @@ export default class Mat4{
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-	getRotation(){
-		const scale = this.getScale();
+	getRotation(scale = null){
+		if(!scale) scale = this.getScale();
 
-		const m00 = this.values[0][0] / scale.x;
-		const m01 = this.values[0][1] / scale.x;
-		const m02 = this.values[0][2] / scale.x;
+		const sX = scale.x;
+		if(this.getDeterminant() < 0) sX = -sX;
+
+		const m00 = this.values[0][0] / sX;
+		const m01 = this.values[0][1] / sX;
+		const m02 = this.values[0][2] / sX;
 		const m10 = this.values[1][0] / scale.y;
 		const m11 = this.values[1][1] / scale.y;
 		const m12 = this.values[1][2] / scale.y;
@@ -179,6 +204,13 @@ export default class Mat4{
 		this.values[0][0] = vec.x;
 		this.values[1][1] = vec.y;
 		this.values[2][2] = vec.z;
+	}
+
+	decompose(){
+		const pos = this.getTranslation();
+		const scale = this.getScale();
+		const rot = this.getRotation(scale);
+		return {pos, rot, scale};
 	}
 
 	static createDynamicAspectProjection(fov = 90, near = 0.05, far = 1000, aspect = 1){

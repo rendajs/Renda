@@ -119,10 +119,10 @@ export default class Entity{
 
 	set localMatrix(value){
 		this._localMatrix.set(value);
-		// const {pos, rot, scale} = this._localMatrix.decompose();
-		this.pos = this._localMatrix.getTranslation();
-		this.rot = this._localMatrix.getRotation();
-		this.scale = this._localMatrix.getScale();
+		const {pos, rot, scale} = this._localMatrix.decompose();
+		this.pos = pos;
+		this.rot = rot;
+		this.scale = scale;
 		this.localMatrixDirty = false;
 		this.worldMatrixDirty = true;
 	}
