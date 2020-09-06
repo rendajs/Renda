@@ -27,6 +27,8 @@ export default class Entity{
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
 		this._rot = new Quaternion();
 		this._rot.onChange(this.boundMarkLocalMatrixDirty);
+		this._euler = new Vec3();
+		this._euler.onChange(this.boundMarkLocalMatrixDirty);
 		this._scale = Vec3.one;
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
@@ -44,6 +46,8 @@ export default class Entity{
 		for(const component of this.components){
 			component.destructor();
 		}
+
+		//todo: remove transformation listeners from rot pos scale etc
 	}
 
 	addComponent(component){
@@ -89,6 +93,14 @@ export default class Entity{
 		this._rot.set(value);
 	}
 
+	get euler(){
+		return this._euler;
+	}
+
+	set euler(value){
+		this.rot = Quaternion.fromEuler(value);
+	}
+
 	get scale(){
 		return this._scale;
 	}
@@ -107,7 +119,9 @@ export default class Entity{
 
 	set localMatrix(value){
 		this._localMatrix.set(value);
+		// const {pos, rot, scale} = this._localMatrix.decompose();
 		this.pos = this._localMatrix.getTranslation();
+		this.rot = this._localMatrix.getRotation();
 		this.scale = this._localMatrix.getScale();
 		this.localMatrixDirty = false;
 		this.worldMatrixDirty = true;

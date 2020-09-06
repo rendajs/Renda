@@ -72,6 +72,28 @@ export default class Quaternion{
 		return q;
 	}
 
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
+	static fromEuler(x,y,z){
+		const vec = new Vec3(...arguments);
+
+		const c1 = Math.cos(vec.x/2);
+		const c2 = Math.cos(vec.y/2);
+		const c3 = Math.cos(vec.z/2);
+		const s1 = Math.sin(vec.x/2);
+		const s2 = Math.sin(vec.y/2);
+		const s3 = Math.sin(vec.z/2);
+
+		const c1c2 = c1 * c2;
+		const s1s2 = s1 * s2;
+
+		const qw = c1c2 * c3 - s1s2 * s3;
+		const qx = c1c2 * s3 + s1s2 * c3;
+		const qy = s1 * c2 * c3 + c1 * s2 * s3;
+		const qz = c1 * s2 * c3 - s1 * c2 * s3;
+
+		return new Quaternion(qx,qy,qz,qw);
+	}
+
 	static multiplyQuaternions(q1, q2){
 		return new Quaternion(
 			q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,

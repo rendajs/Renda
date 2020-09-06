@@ -1,4 +1,5 @@
 import Vec3 from "./Vec3.js";
+import Quaternion from "./Quaternion.js";
 
 export default class Mat4{
 	constructor(values){
@@ -100,7 +101,7 @@ export default class Mat4{
 	}
 
 	translate(x,y,z){
-		const vec = Vec3(arguments);
+		const vec = Vec3(...arguments);
 		this.values[3][0] += vec.x;
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
@@ -111,18 +112,70 @@ export default class Mat4{
 	}
 
 	setTranslation(x,y,z){
-		const vec = new Vec3(arguments);
+		const vec = new Vec3(...arguments);
 		this.values[3][0] = vec.x;
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
 	}
 
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+	getRotation(){
+		const scale = this.getScale();
+
+		const m00 = this.values[0][0] / scale.x;
+		const m01 = this.values[0][1] / scale.x;
+		const m02 = this.values[0][2] / scale.x;
+		const m10 = this.values[1][0] / scale.y;
+		const m11 = this.values[1][1] / scale.y;
+		const m12 = this.values[1][2] / scale.y;
+		const m20 = this.values[2][0] / scale.z;
+		const m21 = this.values[2][1] / scale.z;
+		const m22 = this.values[2][2] / scale.z;
+
+		const q = new Quaternion();
+		const trace = m00 + m11 + m22;
+
+		if(trace > 0){
+			const s = Math.sqrt(trace + 1) * 2;
+			q.w = 0.25 * s;
+			q.x = (m21 - m12) / s;
+			q.y = (m02 - m20) / s;
+			q.z = (m10 - m01) / s;
+		}else if(m00 > m11 && m00 > m22){
+			const s = Math.sqrt(1 + m00 - m11 - m22) * 2;
+			q.w = (m21 - m12) / s;
+			q.x = 0.25 * s;
+			q.y = (m01 + m10) / s;
+			q.z = (m02 + m20) / s;
+		}else if(m11 > m22){
+			const s = Math.sqrt(1 + m11 - m00 - m22) * 2;
+			q.w = (m02 - m20) / s;
+			q.x = (m01 + m10) / s;
+			q.y = 0.25 * s;
+			q.z = (m12 + m21) / s;
+		}else{
+			const s = Math.sqrt(1 + m22 - m00 - m11) * 2;
+			q.w = (m10 - m01) / s;
+			q.x = (m02 + m20) / s;
+			q.y = (m12 + m21) / s;
+			q.z = 0.25 * s;
+		}
+		return q;
+	}
+
+	setRotation(){
+		//todo
+	}
+
 	getScale(){
-		return new Vec3(this.values[0][0], this.values[1][1], this.values[2][2]);
+		const sx = (new Vec3(this.values[0])).magnitude;
+		const sy = (new Vec3(this.values[1])).magnitude;
+		const sz = (new Vec3(this.values[2])).magnitude;
+		return new Vec3(sx, sy, sz);
 	}
 
 	setScale(x,y,z){
-		const vec = new Vec3(arguments);
+		const vec = new Vec3(...arguments);
 		this.values[0][0] = vec.x;
 		this.values[1][1] = vec.y;
 		this.values[2][2] = vec.z;

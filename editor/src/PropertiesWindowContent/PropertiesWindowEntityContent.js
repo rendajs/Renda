@@ -20,13 +20,18 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.positionProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
-				obj.pos.set(newValue);
+				obj.pos = newValue;
 			}
 		});
 
 		this.rotationProperty = entitySection.addItem({
 			label: "Rotation",
 			type: Vec3,
+		});
+		this.rotationProperty.onValueChange(newValue => {
+			for(const obj of this.currentSelection){
+				obj.euler = newValue;
+			}
 		});
 
 		this.scaleProperty = entitySection.addItem({
@@ -35,7 +40,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.scaleProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
-				obj.scale.set(newValue);
+				obj.scale = newValue;
 			}
 		});
 
