@@ -108,6 +108,7 @@ export default class Entity{
 	set localMatrix(value){
 		this._localMatrix.set(value);
 		this.pos = this._localMatrix.getTranslation();
+		this.scale = this._localMatrix.getScale();
 		this.localMatrixDirty = false;
 		this.worldMatrixDirty = true;
 	}

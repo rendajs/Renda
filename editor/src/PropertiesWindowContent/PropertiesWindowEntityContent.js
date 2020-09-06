@@ -23,13 +23,20 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 				obj.pos.set(newValue);
 			}
 		});
+
 		this.rotationProperty = entitySection.addItem({
 			label: "Rotation",
 			type: Vec3,
 		});
+
 		this.scaleProperty = entitySection.addItem({
 			label: "Scale",
 			type: Vec3,
+		});
+		this.scaleProperty.onValueChange(newValue => {
+			for(const obj of this.currentSelection){
+				obj.scale.set(newValue);
+			}
 		});
 
 		this.componentsSection = this.treeView.addCollapsable("Components");
@@ -68,6 +75,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
 		this.positionProperty.setValue(selectedObjects[0].pos);
+		this.scaleProperty.setValue(selectedObjects[0].scale);
 		this.refreshComponents();
 	}
 

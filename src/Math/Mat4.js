@@ -111,10 +111,21 @@ export default class Mat4{
 	}
 
 	setTranslation(x,y,z){
-		const vec = Vec3(arguments);
+		const vec = new Vec3(arguments);
 		this.values[3][0] = vec.x;
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
+	}
+
+	getScale(){
+		return new Vec3(this.values[0][0], this.values[1][1], this.values[2][2]);
+	}
+
+	setScale(x,y,z){
+		const vec = new Vec3(arguments);
+		this.values[0][0] = vec.x;
+		this.values[1][1] = vec.y;
+		this.values[2][2] = vec.z;
 	}
 
 	static createDynamicAspectProjection(fov = 90, near = 0.05, far = 1000, aspect = 1){
