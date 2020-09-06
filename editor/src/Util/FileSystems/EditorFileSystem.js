@@ -15,6 +15,8 @@ export default class EditorFileSystem{
 
 	async move(fromPath = [], toPath = []){}
 
+	//file should be of type File`
+	//use writeText() for writing strings
 	async writeFile(path = [], file = null){}
 
 	async readFile(path = []){}
@@ -37,10 +39,15 @@ export default class EditorFileSystem{
 	}
 
 	/*util functions*/
+	async writeText(path = [], text = "", {
+		type = "text/plain",
+	} = {}){
+		await this.writeFile(path, new File([text], "", {type}))
+	}
+
 	async writeJson(path = [], json = {}){
 		let jsonStr = JSON.stringify(json, null, "\t");
-		let file = new File([jsonStr], "", {type: "application/json"});
-		await this.writeFile(path, file);
+		await this.writeText(path, jsonStr, {type: "application/json"});
 	}
 
 	async readJson(path = []){

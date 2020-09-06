@@ -4,6 +4,7 @@ import NumericGui from "../NumericGui.js";
 import TextGui from "../TextGui.js";
 import AssetGui from "../AssetGui.js";
 import ArrayGui from "../ArrayGui.js";
+import Button from "../Button.js";
 
 import {Vec3, Mesh, Material} from "../../../../src/index.js";
 
@@ -13,6 +14,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		smallLabel = false,
 		type = Number,
 		guiItemOpts = {},
+		callbacksContext = {},
 	} = {}){
 		super({
 			addCustomEl: true,
@@ -34,6 +36,8 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
+		//todo: also allow type to be a string
+
 		if(type == "string"){
 			this.gui = new TextGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
@@ -52,6 +56,15 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			this.valueEl.appendChild(this.gui.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
+		}else if(type == "button"){
+			this.gui = new Button({
+				text: label,
+				...guiItemOpts,
+				onClick: _ => {
+					guiItemOpts.onClick(callbacksContext);
+				},
+			});
+			this.valueEl.appendChild(this.gui.el);
 		}
 	}
 

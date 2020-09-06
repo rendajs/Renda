@@ -61,7 +61,11 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 			}
 		}
 
-		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure);
+		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {
+			callbacksContext: {
+				selectedAssets: this.currentSelection
+			},
+		});
 		this.assetSettingsTree.fillSerializableStructureValues(settingsValues);
 	}
 
