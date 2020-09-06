@@ -47,6 +47,7 @@ export default class PropertiesWindowContentManager{
 	getContentTypeForObjects(objects){
 		let selectedTypes = new Map();
 		for(const obj of objects){
+			if(!obj) continue;
 			let t = this.registeredContentTypes.get(obj.constructor);
 			if(!t) continue;
 			let count = 0;

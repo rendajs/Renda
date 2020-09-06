@@ -119,10 +119,11 @@ export default class AssetManager{
 		}
 
 		//no existing project asset was found, check if the file exists
-		if(this.fileSystem.isFile(path)){
+		if(await this.fileSystem.isFile(path)){
 			//create a new project asset
 			return await this.registerAsset(path);
 		}
+		return null;
 	}
 
 	moveAsset(fromPath = [], toPath = []){
