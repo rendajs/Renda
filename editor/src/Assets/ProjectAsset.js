@@ -85,6 +85,9 @@ export default class ProjectAsset{
 		if(this.forceAssetType){
 			assetData.assetType = this.assetType;
 		}
+		if(Object.keys(this.assetSettings).length > 0){
+			assetData.assetSettings = this.assetSettings;
+		}
 		return assetData;
 	}
 
