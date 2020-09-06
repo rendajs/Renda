@@ -57,6 +57,7 @@ export default class AssetManager{
 			for(const [uuid, assetData] of Object.entries(json.assets)){
 				const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
 				if(projectAsset){
+					projectAsset.makeUuidConsistent();
 					this.projectAssets.set(uuid, projectAsset);
 				}
 			}
@@ -70,7 +71,9 @@ export default class AssetManager{
 		}
 		let assets = {};
 		for(const [uuid, projectAsset] of this.projectAssets){
-			assets[uuid] = projectAsset.toJson();
+			if(projectAsset.needsAssetSettingsSave){
+				assets[uuid] = projectAsset.toJson();
+			}
 		}
 		await this.fileSystem.writeJson(this.assetSettingsPath, {bundles, assets});
 	}
@@ -80,7 +83,9 @@ export default class AssetManager{
 		const uuid = generateUuid();
 		const projectAsset = new ProjectAsset({uuid, path, assetType, forceAssetType});
 		this.projectAssets.set(uuid, projectAsset);
-		this.saveAssetSettings();
+		if(projectAsset.needsAssetSettingsSave){
+			this.saveAssetSettings();
+		}
 		return projectAsset;
 	}
 

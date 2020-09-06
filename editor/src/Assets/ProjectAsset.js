@@ -14,6 +14,7 @@ export default class ProjectAsset{
 		this.assetSettings = assetSettings;
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
+		this.needsConsistentUuid = false;
 
 		this.projectAssetType = null;
 		this.liveAsset = null;
@@ -64,6 +65,17 @@ export default class ProjectAsset{
 
 	get name(){
 		return this.path[this.path.length - 1];
+	}
+
+	makeUuidConsistent(){
+		this.needsConsistentUuid = true;
+	}
+
+	get needsAssetSettingsSave(){
+		if(this.forceAssetType) return true;
+		if(this.needsConsistentUuid) return true;
+
+		return false;
 	}
 
 	toJson(){
