@@ -148,13 +148,13 @@ export default class Mat4{
 		if(this.getDeterminant() < 0) sX = -sX;
 
 		const m00 = this.values[0][0] / sX;
-		const m01 = this.values[0][1] / sX;
-		const m02 = this.values[0][2] / sX;
-		const m10 = this.values[1][0] / scale.y;
+		const m01 = this.values[1][0] / sX;
+		const m02 = this.values[2][0] / sX;
+		const m10 = this.values[0][1] / scale.y;
 		const m11 = this.values[1][1] / scale.y;
-		const m12 = this.values[1][2] / scale.y;
-		const m20 = this.values[2][0] / scale.z;
-		const m21 = this.values[2][1] / scale.z;
+		const m12 = this.values[2][1] / scale.y;
+		const m20 = this.values[0][2] / scale.z;
+		const m21 = this.values[1][2] / scale.z;
 		const m22 = this.values[2][2] / scale.z;
 
 		const q = new Quaternion();
