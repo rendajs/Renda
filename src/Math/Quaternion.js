@@ -76,20 +76,17 @@ export default class Quaternion{
 	static fromEuler(x,y,z){
 		const vec = new Vec3(...arguments);
 
-		const c1 = Math.cos(vec.x/2);
-		const c2 = Math.cos(vec.y/2);
-		const c3 = Math.cos(vec.z/2);
-		const s1 = Math.sin(vec.x/2);
-		const s2 = Math.sin(vec.y/2);
-		const s3 = Math.sin(vec.z/2);
+		const c1 = Math.cos(vec.y/2);
+		const c2 = Math.cos(vec.z/2);
+		const c3 = Math.cos(vec.x/2);
+		const s1 = Math.sin(vec.y/2);
+		const s2 = Math.sin(vec.z/2);
+		const s3 = Math.sin(vec.x/2);
 
-		const c1c2 = c1 * c2;
-		const s1s2 = s1 * s2;
-
-		const qw = c1c2 * c3 - s1s2 * s3;
-		const qx = c1c2 * s3 + s1s2 * c3;
+		const qx = c1 * c2 * s3 + s1 * s2 * c3;
 		const qy = s1 * c2 * c3 + c1 * s2 * s3;
 		const qz = c1 * s2 * c3 - s1 * c2 * s3;
+		const qw = c1 * c2 * c3 - s1 * s2 * s3;
 
 		return new Quaternion(qx,qy,qz,qw);
 	}
