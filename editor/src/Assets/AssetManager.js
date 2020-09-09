@@ -131,8 +131,10 @@ export default class AssetManager{
 		return null;
 	}
 
-	moveAsset(fromPath = [], toPath = []){
-
+	async assetMoved(fromPath = [], toPath = []){
+		const asset = await this.getProjectAssetFromPath(fromPath);
+		asset.assetMoved(toPath);
+		await this.saveAssetSettings();
 	}
 
 	async getAssetSettings(path = []){

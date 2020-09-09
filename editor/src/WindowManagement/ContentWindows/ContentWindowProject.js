@@ -179,10 +179,18 @@ export default class ContentWindowProject extends ContentWindow{
 		const path = this.pathFromTreeView(changedElement);
 		let oldPath = path.slice();
 		let newPath = path.slice();
+		oldPath.pop();
+		newPath.pop();
 		oldPath.push(oldName);
 		newPath.push(newName);
 		let fileSystem = this.getFileSystem();
-		await fileSystem.move(oldPath, newPath);
+		try{
+			await fileSystem.move(oldPath, newPath);
+		}catch(e){
+			changedElement.name = oldName;
+			throw e;
+		}
+		await editor.projectManager.assetManager.assetMoved(oldPath, newPath);
 	}
 
 	async onTreeViewDragStart({draggedElement, event}){

@@ -78,6 +78,10 @@ export default class ProjectAsset{
 		return false;
 	}
 
+	assetMoved(newPath){
+		this.path = newPath;
+	}
+
 	toJson(){
 		const assetData = {
 			path: this.path,

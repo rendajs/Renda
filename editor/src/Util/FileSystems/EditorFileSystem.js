@@ -15,6 +15,8 @@ export default class EditorFileSystem{
 
 	async move(fromPath = [], toPath = []){}
 
+	async delete(path = [], recursive = false){}
+
 	//file should be of type File`
 	//use writeText() for writing strings
 	async writeFile(path = [], file = null){}

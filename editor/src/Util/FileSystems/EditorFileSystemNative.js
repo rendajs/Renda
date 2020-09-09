@@ -65,7 +65,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		let handle = this.handle;
 		for(const dirName of path){
 			await this.verifyHandlePermission(handle, {writable: create});
-			handle = await handle.getDirectoryHandle(dirName, {create})
+			handle = await handle.getDirectoryHandle(dirName, {create});
 		}
 		return handle;
 	}
@@ -98,7 +98,25 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	async move(fromPath = [], toPath = []){
-		//wait for this method to be added to the native file system api spec
+		if(await this.isDir(fromPath)){
+			throw new Error("not yet implemented");
+		}
+		const file = await this.readFile(fromPath);
+		await this.writeFile(toPath, file);
+		await this.delete(fromPath);
+	}
+
+	async delete(path = [], recursive = false){
+		const handle = await this.handle;
+		for(const [i, name] of path.entries()){
+			await this.verifyHandlePermission(handle);
+			if(i == path.length - 1){
+				await this.verifyHandlePermission(handle);
+				await handle.removeEntry(name, {recursive});
+			}else{
+				handle = await handle.getDirectoryHandle(name);
+			}
+		}
 	}
 
 	splitDirFileName(path = []){
