@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vec3, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
+import {Entity, Vec3, Quaternion, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
@@ -30,7 +30,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.rotationProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
-				obj.euler = newValue;
+				obj.rot.setFromAxisAngle(newValue);
 			}
 		});
 
@@ -80,6 +80,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	selectionChanged(selectedObjects){
 		this.currentSelection = selectedObjects;
 		this.positionProperty.setValue(selectedObjects[0].pos);
+		this.rotationProperty.setValue(selectedObjects[0].rot.toAxisAngle())
 		this.scaleProperty.setValue(selectedObjects[0].scale);
 		this.refreshComponents();
 	}

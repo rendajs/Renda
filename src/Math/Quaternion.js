@@ -59,6 +59,12 @@ export default class Quaternion{
 		if(arguments.length == 4){
 			axis = new Vec3(arguments[0], arguments[1], arguments[2]);
 			angle = arguments[3];
+		}else if(arguments.length == 3){
+			axis = new Vec3(arguments[0], arguments[1], arguments[2]);
+			angle = undefined;
+		}
+		if(angle == undefined){
+			angle = axis.magnitude;
 		}
 		let vec = axis.clone();
 		vec.normalize();
@@ -70,6 +76,24 @@ export default class Quaternion{
 		let qw = Math.cos(angle/2);
 		let q = new Quaternion(qx,qy,qz,qw);
 		return q;
+	}
+
+	setFromAxisAngle(args){
+		const q = Quaternion.fromAxisAngle(...arguments);
+		this.set(q);
+	}
+
+	toAxisAngle(){
+		const q = this.clone();
+		if(q.w > 1) q.normalize();
+		const angle = 2 * Math.acos(q.w);
+		const s = Math.sqrt(1 - q.w * q.w);
+		const x = q.x / s;
+		const y = q.y / s;
+		const z = q.z / s;
+		const vec = new Vec3(x,y,z);
+		vec.magnitude = angle;
+		return vec;
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm

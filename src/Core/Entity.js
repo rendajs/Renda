@@ -27,8 +27,6 @@ export default class Entity{
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
 		this._rot = new Quaternion();
 		this._rot.onChange(this.boundMarkLocalMatrixDirty);
-		this._euler = new Vec3();
-		this._euler.onChange(this.boundMarkLocalMatrixDirty);
 		this._scale = Vec3.one;
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
@@ -91,14 +89,6 @@ export default class Entity{
 
 	set rot(value){
 		this._rot.set(value);
-	}
-
-	get euler(){
-		return this._euler;
-	}
-
-	set euler(value){
-		this.rot = Quaternion.fromEuler(value);
 	}
 
 	get scale(){
