@@ -121,6 +121,15 @@ export default class Quaternion{
 		return this;
 	}
 
+	normalize(){
+		const length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+		this.x /= length;
+		this.y /= length;
+		this.z /= length;
+		this.w /= length;
+		return this;
+	}
+
 	rotateVector(x,y,z){
 		//TODO: optimise: gamedev.stackexchange.com/a/50545/87477
 		let vec = new Vec3(...arguments);
