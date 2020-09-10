@@ -40,14 +40,18 @@ export default class VectorGui{
 		this.onValueChangeCbs.push(cb);
 	}
 
-	fireValueChange(){
-		let newValueArr = this.numericGuis.map(g => g.value);
-		let newValue = null;
+	get value(){
+		let numbersArr = this.numericGuis.map(g => g.value);
+		let val = null;
 		if(this.numericGuis.length == 3){
-			newValue = new Vec3(newValueArr);
+			val = new Vec3(numbersArr);
 		}
+		return val;
+	}
+
+	fireValueChange(){
 		for(const cb of this.onValueChangeCbs){
-			cb(newValue.clone());
+			cb(this.value.clone());
 		}
 	}
 }

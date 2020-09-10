@@ -13,6 +13,8 @@ export default class PropertiesTreeView extends TreeView{
 
 		this.serializableStructure = null;
 		this.currentSerializableStructureItems = null;
+
+		this.registerNewEventType("treeViewEntryValueChange");
 	}
 
 	addCollapsable(name){
@@ -30,15 +32,18 @@ export default class PropertiesTreeView extends TreeView{
 		return item;
 	}
 
+	onChildValueChange(cb){
+		this.addEventListener("treeViewEntryValueChange", cb);
+	}
+
 	generateFromSerializableStructure(structure, {
 		callbacksContext = {},
 	} = {}){
 		this.clearChildren();
 		this.currentSerializableStructureItems = {};
 		for(const [key, itemSettings] of Object.entries(structure)){
-			let label = key;
-			if(itemSettings.label) label = itemSettings.label;
 			const addedItem = this.addItem({
+				label: key,
 				...itemSettings,
 				callbacksContext,
 			});
@@ -51,5 +56,15 @@ export default class PropertiesTreeView extends TreeView{
 			const item = this.currentSerializableStructureItems[key];
 			item.setValue(value);
 		}
+	}
+
+	getSerializableStructureValues(structure){
+		const values = {};
+		let i = 0;
+		for(const [key, itemSettings] of Object.entries(structure)){
+			const entry = this.children[i++];
+			values[key] = entry.value;
+		}
+		return values;
 	}
 }

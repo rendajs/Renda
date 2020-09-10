@@ -67,6 +67,14 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			});
 			this.valueEl.appendChild(this.gui.el);
 		}
+
+		this.registerNewEventType("treeViewEntryValueChange");
+		this.gui?.onValueChange?.(newValue => {
+			this.fireEvent("treeViewEntryValueChange", {
+				changedEntry: this,
+				newValue,
+			});
+		});
 	}
 
 	destructor(){
@@ -83,5 +91,9 @@ export default class PropertiesTreeViewEntry extends TreeView{
 
 	onValueChange(cb){
 		this.gui?.onValueChange?.(cb);
+	}
+
+	get value(){
+		return this.gui?.value;
 	}
 }

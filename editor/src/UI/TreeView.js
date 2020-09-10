@@ -75,7 +75,7 @@ export default class TreeView{
 
 		this.eventCbs = new Map();
 		for(const eventType of ["selectionchange", "namechange", "dragstart", "drop", "dblclick"]){
-			this.eventCbs.set(eventType, new Set());
+			this.registerNewEventType(eventType);
 		}
 
 		this.updateArrowHidden();
@@ -471,6 +471,10 @@ export default class TreeView{
 			droppedOnElement: this,
 			event: e,
 		});
+	}
+
+	registerNewEventType(name){
+		this.eventCbs.set(name, new Set());
 	}
 
 	getEventCbs(eventType){

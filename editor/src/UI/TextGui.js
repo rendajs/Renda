@@ -11,4 +11,8 @@ export default class TextGui{
 	setValue(value){
 		this.el.value = value;
 	}
+
+	get value(){
+		return this.el.value;
+	}
 }

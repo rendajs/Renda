@@ -2,6 +2,7 @@ import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
 export default class PropertiesAssetContent{
 	constructor(){
+		this.currentSelection = [];
 		this.treeView = new PropertiesTreeView();
 	}
 
@@ -14,5 +15,7 @@ export default class PropertiesAssetContent{
 		}
 	}
 
-	updateAll(){}
+	selectionUpdated(currentSelection){
+		this.currentSelection = currentSelection;
+	}
 }

@@ -89,6 +89,8 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 			this.activeAssetContent = new constructor();
 			this.assetContentTree.addChild(this.activeAssetContent.treeView);
 		}
-		if(this.activeAssetContent) this.activeAssetContent.updateAll(this.currentSelection);
+		if(this.activeAssetContent){
+			this.activeAssetContent.selectionUpdated(this.currentSelection);
+		}
 	}
 }
