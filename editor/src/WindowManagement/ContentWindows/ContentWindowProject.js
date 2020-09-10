@@ -24,6 +24,9 @@ export default class ContentWindowProject extends ContentWindow{
 				menu.addItem("New Entity", _ => {
 					this.createAsset("entity");
 				});
+				menu.addItem("New Asset Bundle", _ => {
+					this.createAsset("assetBundle");
+				});
 
 				menu.setPos(createButton, "top left");
 			}
@@ -176,6 +179,7 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	async onTreeViewNameChange({changedElement, oldName, newName}){
+		if(oldName == newName) return;
 		const path = this.pathFromTreeView(changedElement);
 		let oldPath = path.slice();
 		let newPath = path.slice();
