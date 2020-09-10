@@ -1,5 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import {Mesh} from "../../../src/index.js";
+import ProjectAsset from "../Assets/ProjectAsset.js";
 
 export default class PropertiesAssetContentAssetBundle extends PropertiesAssetContent{
 	constructor(){
@@ -9,7 +10,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 			type: Array,
 			guiItemOpts:{
 				arrayTypeOpts:{
-					type: Mesh,
+					type: ProjectAsset,
 				}
 			}
 		});

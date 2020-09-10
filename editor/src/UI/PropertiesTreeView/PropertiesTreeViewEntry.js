@@ -6,6 +6,7 @@ import AssetGui from "../AssetGui.js";
 import ArrayGui from "../ArrayGui.js";
 import Button from "../Button.js";
 
+import ProjectAsset from "../../Assets/ProjectAsset.js";
 import {Vec3, Mesh, Material} from "../../../../src/index.js";
 
 export default class PropertiesTreeViewEntry extends TreeView{
@@ -48,7 +49,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		}else if(type == Number){
 			this.gui = new NumericGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == Mesh || type == Material){ //todo make this list more scalable
+		}else if(type == ProjectAsset){
 			this.gui = new AssetGui(guiItemOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Array){

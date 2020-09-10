@@ -1,4 +1,4 @@
-import ediitor from "../editorInstance.js";
+import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 
 export default class AssetGui{
@@ -23,13 +23,8 @@ export default class AssetGui{
 		this.el.addEventListener("dragleave", this.boundOnDragEnd);
 		this.el.addEventListener("drop", this.boundOnDrop);
 
-		if(value){
-			const uuid = editor.projectManager.assetManager.getLiveAssetUuidForAsset(value);
-			this.setAssetUuid(uuid);
-		}
-
-		this.linkedLiveAsset = null;
-		this.linkedAssetUuid = null;
+		this.value = value;
+		this.updateContent();
 	}
 
 	destructor(){
@@ -46,11 +41,6 @@ export default class AssetGui{
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
-	}
-
-	get value(){
-		if(this.linkedLiveAsset) return this.linkedLiveAsset;
-		return null;
 	}
 
 	onValueChange(cb){
@@ -92,7 +82,7 @@ export default class AssetGui{
 		for(const mimeType of e.dataTransfer.types){
 			if(this.validateMimeType(mimeType)){
 				const assetUuid = e.dataTransfer.getData(mimeType);
-				this.setAssetUuid(assetUuid);
+				this.setFromAssetUuid(assetUuid);
 				break;
 			}
 		}
@@ -111,15 +101,13 @@ export default class AssetGui{
 		this.el.classList.toggle("dragHovering", valid);
 	}
 
-	async setAssetUuid(uuid){
+	async setFromAssetUuid(uuid){
 		if(!uuid){
-			this.linkedAssetUuid = null;
-			this.linkedLiveAsset = null;
+			this.value = null;
 			this.linkedAssetName = null;
 		}else{
-			this.linkedAssetUuid = uuid;
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
-			this.linkedLiveAsset = await projectAsset.getLiveAsset();
+			this.value = projectAsset;
 			this.linkedAssetName = projectAsset.name;
 		}
 		this.fireValueChange();
@@ -127,8 +115,8 @@ export default class AssetGui{
 	}
 
 	updateContent(){
-		this.el.classList.toggle("empty", !this.linkedLiveAsset);
-		this.el.classList.toggle("filled", this.linkedLiveAsset);
+		this.el.classList.toggle("empty", !this.value);
+		this.el.classList.toggle("filled", this.value);
 		this.el.textContent = this.linkedAssetName || "";
 	}
 }
