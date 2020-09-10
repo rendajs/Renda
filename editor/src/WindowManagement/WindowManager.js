@@ -6,12 +6,18 @@ import ContentWindow from "./ContentWindows/ContentWindow.js";
 export default class WindowManager{
 	constructor(){
 		this.rootWindow = null;
+		this.focusedEditorWindow = null;
+		this.lastFocusedEditorWindow = null;
 
 		this.registeredContentWindows = new Map();
 
 		for(const w of ContentWindows){
 			this.registerContentWindow(w);
 		}
+
+		window.addEventListener("blur", _ => {
+			this.setFocusedEditorWindow(null);
+		})
 	}
 
 	init(){
@@ -87,6 +93,9 @@ export default class WindowManager{
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
 			newWindow.setActiveTab(workspaceWindow.activeTab || 0);
+			newWindow.onEditorWindowClick(_ => {
+				this.setFocusedEditorWindow(newWindow);
+			});
 		}
 		return newWindow;
 	}
@@ -145,5 +154,24 @@ export default class WindowManager{
 				yield w;
 			}
 		}
+	}
+
+	setFocusedEditorWindow(editorWindow){
+		if(this.focusedEditorWindow){
+			this.focusedEditorWindow.setFocused(false);
+		}
+		this.focusedEditorWindow = editorWindow;
+		if(editorWindow) this.lastFocusedEditorWindow = editorWindow;
+		if(this.focusedEditorWindow){
+			this.focusedEditorWindow.setFocused(true);
+		}
+	}
+
+	get focusedContentWindow(){
+		return this.focusedEditorWindow?.activeTab || null;
+	}
+
+	get lastFocusedContentWindow(){
+		return this.lastFocusedEditorWindow?.activeTab || null;
 	}
 }

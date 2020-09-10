@@ -43,6 +43,9 @@ body, html{
 	display: inline-block;
 	overflow: hidden;
 }
+.editorWindowTabs.focused{
+	box-shadow: 0px 0px 0 1px #525252;
+}
 
 .editorContentWindowTopButtonBar > .button{
 	/* position: absolute; */

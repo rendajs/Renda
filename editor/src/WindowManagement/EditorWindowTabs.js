@@ -12,6 +12,7 @@ export default class EditorWindowTabs extends EditorWindow{
 
 		this.tabTypes = [];
 		this.tabs = [];
+		this.activeTabIndex = -1;
 
 		this.tabsSelectorGroup = new ButtonGroup();
 		this.el.appendChild(this.tabsSelectorGroup.el);
@@ -88,11 +89,16 @@ export default class EditorWindowTabs extends EditorWindow{
 	}
 
 	setActiveTab(index){
+		this.activeTabIndex = index;
 		for(let i=0; i<this.tabs.length; i++){
 			let active = i == index;
 			this.tabsSelectorGroup.buttons[i].setActiveHighlight(active);
 			this.tabs[i].setVisible(active);
 		}
+	}
+
+	get activeTab(){
+		return this.tabs[this.activeTabIndex];
 	}
 
 	onResized(){
