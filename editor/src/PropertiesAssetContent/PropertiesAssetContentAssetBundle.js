@@ -31,8 +31,10 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 				},
 			}
 		};
+		this.isUpdatingBundleSettingsTree = false;
 		this.bundleSettingsTree.generateFromSerializableStructure(this.bundleSettingsStructure);
 		this.bundleSettingsTree.onChildValueChange(_ => {
+			if(this.isUpdatingBundleSettingsTree) return;
 			const guiValues = this.getGuiValues();
 			const jsonData = {
 				outputLocation: guiValues.outputLocation,
@@ -62,7 +64,9 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 			const asset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
 			guiValues.assets[i] = asset;
 		}
+		this.isUpdatingBundleSettingsTree = true;
 		this.bundleSettingsTree.fillSerializableStructureValues(guiValues);
+		this.isUpdatingBundleSettingsTree = false;
 	}
 
 	getGuiValues(){
