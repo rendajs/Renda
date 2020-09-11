@@ -3,6 +3,7 @@ import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentMa
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
+import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import {RealTimeRenderer} from "../../src/index.js";
@@ -17,6 +18,7 @@ export default class Editor{
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.projectManager = new ProjectManager();
 		this.scriptBuilder = new ScriptBuilder();
+		this.assetBundler = new AssetBundler();
 		this.dragManager = new DragManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
 	}

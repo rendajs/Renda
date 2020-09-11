@@ -18,7 +18,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 				type: "button",
 				guiItemOpts: {
 					onClick: _ => {
-						console.log("todo");
+						editor.assetBundler.bundle(this.currentSelection[0])
 					},
 				},
 			},
