@@ -119,6 +119,7 @@ export default class AssetGui{
 			this.linkedAssetName = null;
 		}else{
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
+			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
 			this.setValue(projectAsset);
 		}
 		this.fireValueChange();

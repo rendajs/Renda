@@ -57,7 +57,7 @@ export default class AssetManager{
 			for(const [uuid, assetData] of Object.entries(json.assets)){
 				const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
 				if(projectAsset){
-					projectAsset.makeUuidConsistent();
+					projectAsset.makeUuidConsistent(false);
 					this.projectAssets.set(uuid, projectAsset);
 				}
 			}
@@ -87,6 +87,12 @@ export default class AssetManager{
 			this.saveAssetSettings();
 		}
 		return projectAsset;
+	}
+
+	async makeAssetUuidConsistent(asset){
+		if(asset.needsConsistentUuid) return;
+		asset.makeUuidConsistent();
+		await this.saveAssetSettings();
 	}
 
 	async getAssetUuid(path = []){
