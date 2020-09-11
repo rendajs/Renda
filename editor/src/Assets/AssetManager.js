@@ -5,7 +5,6 @@ import ProjectAsset from "./ProjectAsset.js";
 
 export default class AssetManager{
 	constructor(){
-		this.bundles = new Map();
 		this.projectAssets = new Map();
 		this.liveAssets = new Map();
 
@@ -21,25 +20,6 @@ export default class AssetManager{
 
 	get fileSystem(){
 		return editor.projectManager.currentProjectFileSystem;
-	}
-
-	//todo: either make this async or make sure it
-	//isn't called before assetsettings are loaded
-	getMainBundleEntry(){
-		if(this.bundles.size <= 0){
-			this.bundles.set("main", {});
-		}
-		for(const entry of this.bundles){
-			return entry;
-		}
-	}
-
-	get mainBundleName(){
-		this.getMainBundleEntry()[0];
-	}
-
-	get mainBundle(){
-		this.getMainBundleEntry()[1];
 	}
 
 	async loadAssetSettings(fromUserEvent = false){
@@ -65,17 +45,13 @@ export default class AssetManager{
 	}
 
 	async saveAssetSettings(){
-		let bundles = [];
-		for(const [name, bundleSettings] of this.bundles){
-			bundles.push({name, ...bundleSettings});
-		}
 		let assets = {};
 		for(const [uuid, projectAsset] of this.projectAssets){
 			if(projectAsset.needsAssetSettingsSave){
 				assets[uuid] = projectAsset.toJson();
 			}
 		}
-		await this.fileSystem.writeJson(this.assetSettingsPath, {bundles, assets});
+		await this.fileSystem.writeJson(this.assetSettingsPath, {assets});
 	}
 
 	async registerAsset(path = [], assetType = null, forceAssetType = false){
