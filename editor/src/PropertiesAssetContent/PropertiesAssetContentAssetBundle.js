@@ -9,6 +9,19 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		this.bundleSettingsTree = this.treeView.addCollapsable("asset bundle settings");
 
 		this.bundleSettingsStructure = {
+			outputLocation: {
+				label: "Bundle output location",
+				type: "string",
+			},
+			bundleButton: {
+				label: "Bundle",
+				type: "button",
+				guiItemOpts: {
+					onClick: _ => {
+						console.log("todo");
+					},
+				},
+			},
 			assets: {
 				type: Array,
 				guiItemOpts:{
@@ -22,6 +35,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		this.bundleSettingsTree.onChildValueChange(_ => {
 			const guiValues = this.getGuiValues();
 			const jsonData = {
+				outputLocation: guiValues.outputLocation,
 				assets: [],
 			};
 			for(let i=0; i<guiValues.assets.length; i++){
@@ -40,6 +54,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		const bundle = selectedBundles[0];
 		const bundleData = await bundle.readAssetData();
 		const guiValues = {
+			outputLocation: bundleData.outputLocation,
 			assets: [],
 		}
 		for(let i=0; i<bundleData.assets.length; i++){
