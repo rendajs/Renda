@@ -25,10 +25,7 @@ export default class ArrayGui{
 		});
 		this.el.appendChild(this.addItemButton.el);
 
-		//initialize array values
-		for(const arrayItem of value){
-			this.addItem({value: arrayItem});
-		}
+		this.setValue(value);
 	}
 
 	get value(){
@@ -62,6 +59,16 @@ export default class ArrayGui{
 		});
 		this.valueItems.push(addedItem);
 		this.fireValueChange();
+	}
+
+	setValue(value){
+		for(const [i, item] of value.entries()){
+			if(this.valueItems.length <= i){
+				this.addItem({value: item});
+			}else{
+				this.valueItems.setValue(item);
+			}
+		}
 	}
 
 	onValueChange(cb){

@@ -148,6 +148,7 @@ export default class ContentWindowProject extends ContentWindow{
 				const file = new File([file], fileName);
 				await fileSystem.writeFile(newPath, fileData);
 			}else if(typeof fileData == "object"){
+				//todo: use ProjectAsset.writeAssetData() here instead
 				const json = {
 					assetType,
 					asset: fileData,

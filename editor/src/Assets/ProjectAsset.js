@@ -16,7 +16,7 @@ export default class ProjectAsset{
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
 
-		this.projectAssetType = null;
+		this._projectAssetType = null;
 		this.liveAsset = null;
 
 		this.initInstance = new SingleInstancePromise(async _=> this.init());
@@ -30,12 +30,17 @@ export default class ProjectAsset{
 
 		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(this.assetType);
 		if(AssetTypeConstructor){
-			this.projectAssetType = new AssetTypeConstructor(this);
+			this._projectAssetType = new AssetTypeConstructor(this);
 		}
 	}
 
 	async waitForInit(){
 		await this.initInstance.run();
+	}
+
+	async getProjectAssetType(){
+		await this.waitForInit();
+		return this._projectAssetType;
 	}
 
 	static async fromJsonData(uuid, assetData){
@@ -97,7 +102,7 @@ export default class ProjectAsset{
 
 	async open(){
 		await this.waitForInit();
-		await this.projectAssetType.open();
+		await this._projectAssetType.open();
 	}
 
 	//todo: make sure this promise has only one instance running at a time
@@ -105,29 +110,56 @@ export default class ProjectAsset{
 		if(this.liveAsset) return this.liveAsset;
 
 		await this.waitForInit();
-		let fileData = null;
-		if(this.projectAssetType.constructor.storeInProjectAsJson){
-			const json = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
-			fileData = json.asset;
-		}else{
-			fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
-		}
+		const fileData = await this.readAssetData();
 
-		this.liveAsset = await this.projectAssetType.getLiveAsset(fileData);
+		this.liveAsset = await this._projectAssetType.getLiveAsset(fileData);
 		return this.liveAsset;
 	}
 
 	async getPropertiesAssetContentConstructor(){
 		await this.waitForInit();
-		if(!this.projectAssetType) return null;
-		return this.projectAssetType.constructor.propertiesAssetContentConstructor;
+		if(!this._projectAssetType) return null;
+		return this._projectAssetType.constructor.propertiesAssetContentConstructor;
 	}
 
 	async getPropertiesAssetSettingsStructure(){
 		await this.waitForInit();
-		if(!this.projectAssetType) return null;
-		return this.projectAssetType.constructor.assetSettingsStructure;
+		if(!this._projectAssetType) return null;
+		return this._projectAssetType.constructor.assetSettingsStructure;
 	}
 
-	saveLiveAsset(){} //todo
+	async readAssetData(){
+		await this.waitForInit();
+
+		let fileData = null;
+		if(this._projectAssetType.constructor.storeInProjectAsJson){
+			const json = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
+			if(this._projectAssetType.constructor.wrapProjectJsonWithEditorMetaData){
+				fileData = json.asset;
+			}else{
+				fileData = json;
+			}
+		}else{
+			fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+		}
+		return fileData;
+	}
+
+	async writeAssetData(fileData){
+		await this.waitForInit();
+		if(this._projectAssetType.constructor.storeInProjectAsJson){
+			let json = null;
+			if(this._projectAssetType.constructor.wrapProjectJsonWithEditorMetaData){
+				json = {
+					assetType: this._projectAssetType.constructor.type,
+					asset: fileData,
+				}
+			}else{
+				json = fileData;
+			}
+			await editor.projectManager.currentProjectFileSystem.writeJson(this.path, json);
+		}else{
+			//todo
+		}
+	}
 }

@@ -11,7 +11,6 @@ export default class PropertiesTreeView extends TreeView{
 		this.name = name;
 		this.selectable = false;
 
-		this.serializableStructure = null;
 		this.currentSerializableStructureItems = null;
 
 		this.registerNewEventType("treeViewEntryValueChange");

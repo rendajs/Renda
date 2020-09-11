@@ -1,5 +1,8 @@
 export default class ProjectAssetType{
-	//override this with a array of types that this window content should be used for
+	//override this with a DOMStrings that functions as an identifier
+	//for this type. This will be stored in various places such as
+	//the asset settings file or the wrapped editor meta data and
+	//is used to identify the type of assets.
 	static type = null;
 
 	//override these with a string that gets used as file name and extension
@@ -8,6 +11,11 @@ export default class ProjectAssetType{
 	static newFileExtension = "json";
 
 	static storeInProjectAsJson = true;
+
+	//set this to false if you don't want the editor to
+	//wrap your provided data in ProjectAsset.writeAssetData()
+	//with editor values
+	static wrapProjectJsonWithEditorMetaData = true;
 
 	//which properties asset content class to use for the properties UI
 	//leave it as null if you don't wish to show any asset content UI

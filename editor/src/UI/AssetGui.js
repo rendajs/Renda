@@ -23,8 +23,8 @@ export default class AssetGui{
 		this.el.addEventListener("dragleave", this.boundOnDragEnd);
 		this.el.addEventListener("drop", this.boundOnDrop);
 
-		this.value = value;
-		this.updateContent();
+		this.value = null;
+		this.setValue(value);
 	}
 
 	destructor(){
@@ -41,6 +41,17 @@ export default class AssetGui{
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
+	}
+
+	setValue(value){
+		this.value = value;
+		if(value){
+			this.linkedAssetName = value.name;
+		}else{
+			this.linkedAssetName = null;
+		}
+
+		this.updateContent();
 	}
 
 	onValueChange(cb){
@@ -103,12 +114,12 @@ export default class AssetGui{
 
 	async setFromAssetUuid(uuid){
 		if(!uuid){
+			this.setValue(null);
 			this.value = null;
 			this.linkedAssetName = null;
 		}else{
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
-			this.value = projectAsset;
-			this.linkedAssetName = projectAsset.name;
+			this.setValue(projectAsset);
 		}
 		this.fireValueChange();
 		this.updateContent();

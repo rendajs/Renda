@@ -1,6 +1,7 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import {Mesh, Vec3} from "../../../src/index.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
+import editor from "../editorInstance.js";
 
 export default class PropertiesAssetContentAssetBundle extends PropertiesAssetContent{
 	constructor(){
@@ -19,16 +20,34 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		};
 		this.bundleSettingsTree.generateFromSerializableStructure(this.bundleSettingsStructure);
 		this.bundleSettingsTree.onChildValueChange(_ => {
-			for(const projectAsset of this.currentSelection){
-				console.log(projectAsset);
+			const guiValues = this.getGuiValues();
+			const jsonData = {
+				assets: [],
+			};
+			for(let i=0; i<guiValues.assets.length; i++){
+				const asset = guiValues.assets[i];
+				const assetUuid = asset?.uuid || "";
+				jsonData.assets[i] = assetUuid;
 			}
-			console.log(this.getGuiValues());
+			//todo: handle multiple selected items or no selection
+			this.currentSelection[0].writeAssetData(jsonData);
 		});
 	}
 
-	selectionUpdated(selectedBundles){
+	async selectionUpdated(selectedBundles){
 		super.selectionUpdated(selectedBundles);
-		console.log(selectedBundles);
+		//todo: handle multiple selected items or no selection
+		const bundle = selectedBundles[0];
+		const bundleData = await bundle.readAssetData();
+		const guiValues = {
+			assets: [],
+		}
+		for(let i=0; i<bundleData.assets.length; i++){
+			const assetUuid = bundleData.assets[i];
+			const asset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
+			guiValues.assets[i] = asset;
+		}
+		this.bundleSettingsTree.fillSerializableStructureValues(guiValues);
 	}
 
 	getGuiValues(){
