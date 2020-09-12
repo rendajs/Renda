@@ -17,11 +17,13 @@ export default class EditorFileSystem{
 
 	async delete(path = [], recursive = false){}
 
+	async readFile(path = []){}
+
 	//file should be of type File`
 	//use writeText() for writing strings
 	async writeFile(path = [], file = null){}
 
-	async readFile(path = []){}
+	async writeFileStream(path = [], keepExistingData = false){}
 
 	async isFile(path = []){}
 

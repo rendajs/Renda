@@ -57,6 +57,20 @@ export function generateUuid() {
 	});
 }
 
+export function uuidToBinary(uuidStr){
+	const buffer = new ArrayBuffer(16);
+	let i=0, j=0;
+	const view = new DataView(buffer);
+	while(i < uuidStr.length){
+		if(uuidStr[i] == "-") i++;
+		const hex = uuidStr.slice(i, i+2);
+		const int = parseInt(hex, 16);
+		view.setUint8(j++, int, true);
+		i+=2;
+	}
+	return buffer;
+}
+
 export function parseMimeType(mimeType){
 	const split = mimeType.split("/");
 	if(split.length < 2) return null;

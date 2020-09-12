@@ -164,4 +164,13 @@ export default class ProjectAsset{
 			//todo
 		}
 	}
+
+	async getBundledAssetData(assetSettingOverrides = {}){
+		await this.waitForInit();
+		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
+		if(!binaryData){
+			binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+		}
+		return binaryData;
+	}
 }

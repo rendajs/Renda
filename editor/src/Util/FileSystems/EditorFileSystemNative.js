@@ -125,20 +125,25 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		return {dirPath, fileName};
 	}
 
+	async readFile(path = []){
+		const fileHandle = await this.getFileHandle(path);
+		await this.verifyHandlePermission(fileHandle, {writable: false});
+		return await fileHandle.getFile();
+	}
+
 	async writeFile(path = [], file = null){
-		const fileHandle = await this.getFileHandle(path, true);
-		await this.verifyHandlePermission(fileHandle);
-		const fileStream = await fileHandle.createWritable();
+		const fileStream = await this.writeFileStream(path);
 		if(!fileStream.locked){
 			await fileStream.write(file);
 			await fileStream.close();
 		}
 	}
 
-	async readFile(path = []){
-		const fileHandle = await this.getFileHandle(path);
-		await this.verifyHandlePermission(fileHandle, {writable: false});
-		return await fileHandle.getFile();
+	async writeFileStream(path = [], keepExistingData = false){
+		const fileHandle = await this.getFileHandle(path, true);
+		await this.verifyHandlePermission(fileHandle);
+		const fileStream = await fileHandle.createWritable({keepExistingData});
+		return fileStream;
 	}
 
 	async isFile(path = []){

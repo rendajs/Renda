@@ -41,7 +41,15 @@ export default class ProjectAssetType{
 
 	//if this asset is a file that can be opened, open it
 	//either in the editor or in an external application
-	async open(){
+	async open(){}
 
-	}
+	//This method is called when creating asset bundles
+	//it should return a BufferSource, Blob or USVString. You can use this.projectasset
+	//to generate the binary data. assetSettingOverrides are
+	//changes made to the asset settings from the assetbundle
+	//that is being generated.
+	//If this function returns null or undefined, the raw
+	//asset data as it is stored in the project will be used
+	//which could be very inefficient.
+	async createBundledAssetData(assetSettingOverrides = {}){}
 }
