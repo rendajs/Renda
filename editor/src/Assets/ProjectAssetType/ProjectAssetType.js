@@ -3,6 +3,8 @@ export default class ProjectAssetType{
 	//for this type. This will be stored in various places such as
 	//the asset settings file or the wrapped editor meta data and
 	//is used to identify the type of assets.
+	//This should have the format "namespace:assetType",
+	//for example: "JJ:mesh".
 	static type = null;
 
 	//override these with a string that gets used as file name and extension

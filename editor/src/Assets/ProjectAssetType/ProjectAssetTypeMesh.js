@@ -3,7 +3,7 @@ import {Mesh, Vec3} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeMesh extends ProjectAssetType{
 
-	static type = "mesh";
+	static type = "JJ:mesh";
 	static newFileName = "New Mesh";
 	static newFileExtension = "jjmesh";
 	static storeInProjectAsJson = false;

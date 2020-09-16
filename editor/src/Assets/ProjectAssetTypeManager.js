@@ -21,6 +21,10 @@ export default class ProjectAssetTypeManager{
 			console.warn("Tried to register project asset type ("+constructor.name+") with no type value, override the static type value in order for this content type to function properly");
 			return;
 		}
+		if(!constructor.type.includes(":") || constructor.type.split(":")[0].length <= 0){
+			console.warn("Tried to register project asset type ("+constructor.name+") without a namespace in the type value. Use a namespace to prevent name clashes with other plugins.\nFor example: \"myCoolPlugin:myAssetType\".");
+			return;
+		}
 
 		this.registeredAssetTypes.set(constructor.type, constructor);
 	}

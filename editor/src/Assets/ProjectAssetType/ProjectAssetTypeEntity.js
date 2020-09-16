@@ -5,7 +5,7 @@ import ContentWindowEntityEditor from "../../WindowManagement/ContentWindows/Con
 
 export default class ProjectAssetTypeEntity extends ProjectAssetType{
 
-	static type = "entity";
+	static type = "JJ:entity";
 	static newFileName = "New Entity";
 
 	constructor(){

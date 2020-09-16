@@ -55,8 +55,9 @@ export default class ProjectAsset{
 	static guessAssetTypeFromPath(path = []){
 		if(!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
-		if(fileName.endsWith(".jjmesh")) return "mesh";
-		if(fileName.endsWith(".js")) return "javascript";
+		//todo: make this more scalable, store extension types in ProjectAssetType classes
+		if(fileName.endsWith(".jjmesh")) return "JJ:mesh";
+		if(fileName.endsWith(".js")) return "JJ:javascript";
 		return null;
 	}
 

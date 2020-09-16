@@ -3,7 +3,7 @@ import PropertiesAssetContentAssetBundle from "../../PropertiesAssetContent/Prop
 
 export default class ProjectAssetTypeAssetBundle extends ProjectAssetType{
 
-	static type = "assetBundle";
+	static type = "JJ:assetBundle";
 	static newFileName = "New AssetBundle";
 	static propertiesAssetContentConstructor = PropertiesAssetContentAssetBundle;
 
