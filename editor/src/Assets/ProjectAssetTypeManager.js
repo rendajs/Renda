@@ -1,5 +1,6 @@
 import autoRegisterAssetTypes from "./ProjectAssetType/AutoRegisterAssetTypes.js";
 import ProjectAssetType from "./ProjectAssetType/ProjectAssetType.js";
+import {isUuid} from "../Util/Util.js";
 
 export default class ProjectAssetTypeManager{
 	constructor(){
@@ -25,7 +26,7 @@ export default class ProjectAssetTypeManager{
 			constructor.invalidConfigurationWarning("Tried to register project asset type ("+constructor.name+") without a namespace in the type value.");
 			return;
 		}
-		if(constructor.typeUuid == null){
+		if(!isUuid(constructor.typeUuid)){
 			constructor.invalidConfigurationWarning("Tried to register project asset type ("+constructor.name+") without a valid typeUuid, override the static typeUuid value in order for this asset type to function properly.");
 			return;
 		}
