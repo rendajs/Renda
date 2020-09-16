@@ -5,6 +5,7 @@ import PropertiesAssetContentMaterial from "../../PropertiesAssetContent/Propert
 export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
 	static type = "JJ:material";
+	static typeUuid = "430f47a8-82cc-4b4c-a664-2360794e80d6";
 	static newFileName = "New Material";
 	static propertiesAssetContentConstructor = PropertiesAssetContentMaterial;
 

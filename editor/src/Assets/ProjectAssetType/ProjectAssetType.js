@@ -7,6 +7,11 @@ export default class ProjectAssetType{
 	//for example: "JJ:mesh".
 	static type = null;
 
+	//This will be used for storing the asset type in asset bundles.
+	//This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
+	//You can generate a uuid in the editor browser console using Util.generateUuid()
+	static typeUuid = null;
+
 	//override these with a string that gets used as file name and extension
 	//when a new project asset of this type is created
 	static newFileName = "New Asset";
@@ -54,4 +59,8 @@ export default class ProjectAssetType{
 	//asset data as it is stored in the project will be used
 	//which could be very inefficient.
 	async createBundledAssetData(assetSettingOverrides = {}){}
+
+	static invalidConfigurationWarning(message){
+		console.warn(message+"\nView ProjectAssetType.js for more info.");
+	}
 }

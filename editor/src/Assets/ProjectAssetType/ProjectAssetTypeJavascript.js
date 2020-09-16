@@ -5,6 +5,7 @@ import editor from "../../editorInstance.js";
 export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 
 	static type = "JJ:javascript";
+	static typeUuid = "3654355b-9c4c-4ac0-b3d7-81565208ec0f";
 	static newFileName = "New Script";
 	static newFileExtension = "js";
 	static storeInProjectAsJson = false;

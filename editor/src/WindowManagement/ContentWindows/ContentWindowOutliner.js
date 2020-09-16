@@ -4,6 +4,7 @@ import Button from "../../UI/Button.js";
 import ButtonGroup from "../../UI/ButtonGroup.js";
 import {Entity} from "../../../../src/index.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
+import editor from "../../editorInstance.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
 	constructor(){

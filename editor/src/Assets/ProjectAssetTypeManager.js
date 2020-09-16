@@ -18,11 +18,15 @@ export default class ProjectAssetTypeManager{
 			return;
 		}
 		if(constructor.type == null){
-			console.warn("Tried to register project asset type ("+constructor.name+") with no type value, override the static type value in order for this content type to function properly");
+			constructor.invalidConfigurationWarning("Tried to register project asset type ("+constructor.name+") with no type value, override the static type value in order for this asset type to function properly.");
 			return;
 		}
 		if(!constructor.type.includes(":") || constructor.type.split(":")[0].length <= 0){
-			console.warn("Tried to register project asset type ("+constructor.name+") without a namespace in the type value. Use a namespace to prevent name clashes with other plugins.\nFor example: \"myCoolPlugin:myAssetType\".");
+			constructor.invalidConfigurationWarning("Tried to register project asset type ("+constructor.name+") without a namespace in the type value.");
+			return;
+		}
+		if(constructor.typeUuid == null){
+			constructor.invalidConfigurationWarning("Tried to register project asset type ("+constructor.name+") without a valid typeUuid, override the static typeUuid value in order for this asset type to function properly.");
 			return;
 		}
 
