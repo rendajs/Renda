@@ -16,7 +16,7 @@ export default class AssetBundler{
 			throw new Error("Failed to write bundle, file is locked.");
 		}
 
-		const assetHeaderByteLength = 20; //16 bytes for the uuid + 4 bytes for the asset length
+		const assetHeaderByteLength = 16 + 16 + 4; //16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
 		const headerByteLength = 4 + assetCount * assetHeaderByteLength; //4 bytes for the asset count + the asset headers
 		const header = new ArrayBuffer(headerByteLength);
 		const headerIntView = new Uint8Array(header);
@@ -30,9 +30,15 @@ export default class AssetBundler{
 			if(!assetUuid) continue;
 			const binaryUuid = uuidToBinary(assetUuid);
 			headerIntView.set(new Uint8Array(binaryUuid), headerCursor);
-			headerCursor += 16; //a uuid should always be 16 bytes
+			headerCursor += 16;
 
 			const asset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
+
+			const assetTypeUuid = await asset.getAssetTypeUuid();
+			const binaryAssetTypeUuid = uuidToBinary(assetTypeUuid);
+			headerIntView.set(new Uint8Array(binaryAssetTypeUuid), headerCursor);
+			headerCursor += 16;
+
 			const assetData = await asset.getBundledAssetData();
 			let dataSizeBytes = 0;
 			if(assetData instanceof Blob){

@@ -166,6 +166,11 @@ export default class ProjectAsset{
 		}
 	}
 
+	async getAssetTypeUuid(){
+		await this.waitForInit();
+		return this._projectAssetType.constructor.typeUuid;
+	}
+
 	async getBundledAssetData(assetSettingOverrides = {}){
 		await this.waitForInit();
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
