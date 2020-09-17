@@ -17,7 +17,9 @@ export default class ScriptBuilder{
 		const closureData = jscomp({
 			compilationLevel: "ADVANCED",
 			languageIn: "ECMASCRIPT_NEXT",
-			// formatting: "PRETTY_PRINT",
+			languageOut: "ECMASCRIPT_NEXT",
+			formatting: "PRETTY_PRINT",
+			debug: true,
 		}, [{
 			src: code,
 		}]);
