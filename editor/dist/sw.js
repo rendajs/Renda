@@ -27,7 +27,11 @@ async function getProjectFileResponse(e, pathname){
 		type: "getProjectFile",
 		filePath,
 	});
-	return new Response(file);
+	const headers = {};
+	headers["Content-Length"] = file.size;
+	return new Response(file, {
+		headers,
+	});
 }
 
 

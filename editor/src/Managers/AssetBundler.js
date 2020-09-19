@@ -47,7 +47,7 @@ export default class AssetBundler{
 			}
 			headerView.setUint32(headerCursor, dataSizeBytes, true);
 			headerCursor += 4;
-			//todo add padding after written data?
+
 			await bundleFileStream.write(assetData);
 		}
 
