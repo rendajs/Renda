@@ -1,5 +1,5 @@
 import editor from "../editorInstance.js";
-import SingleInstancePromise from "../Util/SingleInstancePromise.js";
+import {SingleInstancePromise} from "../../../src/index.js";
 
 export default class ProjectAsset{
 	constructor({
@@ -19,7 +19,7 @@ export default class ProjectAsset{
 		this._projectAssetType = null;
 		this.liveAsset = null;
 
-		this.initInstance = new SingleInstancePromise(async _=> this.init());
+		this.initInstance = new SingleInstancePromise(async _=> await this.init());
 		this.initInstance.run();
 	}
 

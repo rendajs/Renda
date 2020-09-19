@@ -7,12 +7,12 @@ export default class SingleInstancePromise{
 		this.isRunning = false;
 		this.hasRan = false;
 		this.onceReturnValue = undefined;
-		this.onRunFinishCbs = [];
+		this.onRunFinishCbs = new Set();
 	}
 
 	async run(){
 		if(this.isRunning){
-			return await new Promise(r => this.onRunFinishCbs.push(r));
+			return await new Promise(r => this.onRunFinishCbs.add(r));
 		}
 
 		if(this.hasRan && this.once){
@@ -31,7 +31,12 @@ export default class SingleInstancePromise{
 		for(const cb of this.onRunFinishCbs){
 			cb(result);
 		}
-		this.onRunFinishCbs = [];
+		this.onRunFinishCbs.clear();
 		return result;
+	}
+
+	async waitForFinish(){
+		if(this.once && this.hasRan) return;
+		await new Promise(r => this.onRunFinishCbs.add(r));
 	}
 }
