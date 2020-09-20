@@ -1,16 +1,20 @@
 import AssetBundleRange from "./AssetBundleRange.js";
 import SingleInstancePromise from "../Util/SingleInstancePromise.js";
+import PromiseWaitHelper from "../Util/PromiseWaitHelper.js";
 import {streamAsyncIterator, binaryToUuid} from "../Util/Util.js";
 
 export default class AssetBundle{
 	constructor(url){
 		this.url = url;
 
-		this.assets = new Map();
+		this.assetRanges = new Map();
 		this.progress = 0;
 		this.onProgressCbs = new Set();
 
 		this.downloadInstance = new SingleInstancePromise(async _ => await this.downloadLogic());
+		this.headerWait = new PromiseWaitHelper();
+
+		this.downloadBuffer = null;
 	}
 
 	async startDownload(){
@@ -26,13 +30,14 @@ export default class AssetBundle{
 		const contentLength = +response.headers.get("Content-Length");
 		let receivedLength = 0;
 		const allChunks = new Uint8Array(contentLength);
+		this.downloadBuffer = allChunks.buffer;
 		const bundleDataView = new DataView(allChunks.buffer);
 
-		let hasReceivedAssetCount = false;
+		let hasParsedAssetCount = false;
 		let assetCount = 0;
 		let headerLength = 0;
 
-		let hasReceivedHeader = false;
+		let hasParsedHeader = false;
 
 		//todo: use for await here once it's implemented in most browsers
 		for await(const chunk of streamAsyncIterator(response.body)){
@@ -40,16 +45,16 @@ export default class AssetBundle{
 			receivedLength += chunk.length;
 
 			//parse asset count
-			if(!hasReceivedAssetCount && receivedLength >= 4){
-				hasReceivedAssetCount = true;
+			if(!hasParsedAssetCount && receivedLength >= 4){
+				hasParsedAssetCount = true;
 				assetCount = bundleDataView.getUint32(0, true);
 				const assetHeaderByteLength = 16 + 16 + 4; //16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
 				headerLength = 4 + assetCount * assetHeaderByteLength;
 			}
 
 			//parse header
-			if(hasReceivedAssetCount && !hasReceivedHeader && receivedLength >= headerLength){
-				hasReceivedHeader = true;
+			if(hasParsedAssetCount && !hasParsedHeader && receivedLength >= headerLength){
+				hasParsedHeader = true;
 				let headerCursor=4;
 				let prevAssetByteEnd = headerLength;
 				while(headerCursor < headerLength){
@@ -65,7 +70,14 @@ export default class AssetBundle{
 					const byteStart = prevAssetByteEnd;
 					const byteEnd = prevAssetByteEnd + assetSize;
 					prevAssetByteEnd = byteEnd;
-					this.assets.set(uuid, new AssetBundleRange({typeUuid, byteStart, byteEnd}));
+					this.assetRanges.set(uuid, new AssetBundleRange({typeUuid, byteStart, byteEnd}));
+				}
+				this.headerWait.fire();
+			}
+
+			if(hasParsedHeader){
+				for(const range of this.assetRanges.values()){
+					range.bundleDataReceived(receivedLength);
 				}
 			}
 
@@ -78,5 +90,20 @@ export default class AssetBundle{
 
 	onProgress(cb){
 		this.onProgressCbs.add(cb);
+	}
+
+	async waitForHeader(){
+		await this.headerWait.wait();
+	}
+
+	async getAsset(uuid){
+		await this.waitForHeader();
+		const range = this.assetRanges.get(uuid);
+		if(!range) return null;
+
+		await range.waitForAvailable();
+		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);
+		const type = range.typeUuid;
+		return {buffer, type};
 	}
 }
