@@ -13,6 +13,11 @@ export async function* streamAsyncIterator(stream){
 	}
 }
 
+export function isUuid(uuidStr){
+	const re = /[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}/gmi;
+	return re.test(uuidStr);
+}
+
 export function binaryToUuid(buffer, offset = 0){
 	const view = new Uint8Array(buffer);
 	let str = "";

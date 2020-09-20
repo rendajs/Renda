@@ -59,7 +59,12 @@ export default class Mesh{
 	}
 
 	static async fromBlob(blob){
-		const dataView = new DataView(await blob.arrayBuffer());
+		const arrayBuffer = await blob.arrayBuffer();
+		return this.fromArrayBuffer(arrayBuffer);
+	}
+
+	static fromArrayBuffer(arrayBuffer){
+		const dataView = new DataView(arrayBuffer);
 		if(dataView.getUint32(0, true) != 0x68734D6A) return null;
 		const mesh = new Mesh();
 		let i=4;

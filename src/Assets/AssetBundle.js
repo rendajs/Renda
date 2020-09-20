@@ -96,12 +96,26 @@ export default class AssetBundle{
 		await this.headerWait.wait();
 	}
 
-	async getAsset(uuid){
+	async hasAsset(uuid){
 		await this.waitForHeader();
 		const range = this.assetRanges.get(uuid);
-		if(!range) return null;
+		return !!range;
+	}
+
+	async waitForAssetAvailable(uuid){
+		await this.waitForHeader();
+		const range = this.assetRanges.get(uuid);
+		if(!range) return false;
 
 		await range.waitForAvailable();
+		return true;
+	}
+
+	async getAsset(uuid){
+		const exists = await this.hasAsset(uuid);
+		if(!exists) return null;
+
+		const range = this.assetRanges.get(uuid);
 		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);
 		const type = range.typeUuid;
 		return {buffer, type};

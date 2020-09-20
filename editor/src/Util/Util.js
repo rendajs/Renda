@@ -71,11 +71,6 @@ export function uuidToBinary(uuidStr){
 	return buffer;
 }
 
-export function isUuid(uuidStr){
-	const re = /[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}/gmi;
-	return re.test(uuidStr);
-}
-
 export function parseMimeType(mimeType){
 	const split = mimeType.split("/");
 	if(split.length < 2) return null;
