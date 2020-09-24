@@ -4,14 +4,14 @@ import Button from "./Button.js";
 export default class ArrayGui{
 	constructor({
 		value = [],
-		arrayTypeOpts = {},
+		arrayOpts = {},
 	} = {}){
 		this.el = document.createElement("div");
 		this.el.classList.add("arrayGui");
 
 		this.valueItems = [];
-		this.type = arrayTypeOpts.type || Number;
-		this.arrayTypeOpts = arrayTypeOpts;
+		this.type = arrayOpts.type || Number;
+		this.arrayOpts = arrayOpts;
 		this.onValueChangeCbs = [];
 
 		this.treeView = new PropertiesTreeView();
@@ -43,15 +43,15 @@ export default class ArrayGui{
 		this.el = null;
 	}
 
-	addItem(extraArrayTypeOpts = {}){
+	addItem(extraArrayOpts = {}){
 		const index = this.value.length;
 		const addedItem = this.treeView.addItem({
-			label: index,
-			smallLabel: true,
 			type: this.type,
-			guiItemOpts: {
-				...this.arrayTypeOpts,
-				...extraArrayTypeOpts,
+			guiOpts: {
+				smallLabel: true,
+				label: index,
+				...this.arrayOpts.guiOpts,
+				...extraArrayOpts,
 			},
 		});
 		addedItem.onValueChange(_ => {

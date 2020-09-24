@@ -11,10 +11,9 @@ import {Vec3, Mesh, Material} from "../../../../src/index.js";
 
 export default class PropertiesTreeViewEntry extends TreeView{
 	constructor({
-		label = "",
-		smallLabel = false,
 		type = Number,
-		guiItemOpts = {},
+		guiOpts = {},
+		arrayOpts = {},
 		callbacksContext = {},
 	} = {}){
 		super({
@@ -26,10 +25,11 @@ export default class PropertiesTreeViewEntry extends TreeView{
 
 		this.customEl.classList.add("guiTreeViewEntry");
 
+		const smallLabel = guiOpts.smallLabel ?? false;
 		this.label = document.createElement("div");
 		this.label.classList.add("guiTreeViewEntryLabel");
 		this.label.classList.toggle("smallLabel", smallLabel);
-		this.label.textContent = label;
+		this.label.textContent = guiOpts.label ?? "";
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
@@ -39,30 +39,33 @@ export default class PropertiesTreeViewEntry extends TreeView{
 
 		//todo: also allow type to be a string
 
-		if(type == "string"){
-			this.gui = new TextGui(guiItemOpts);
+		this.type = type;
+		if(type == String){
+			this.gui = new TextGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Vec3){
-			guiItemOpts.size = 3;
-			this.gui = new VectorGui(guiItemOpts);
+			guiOpts.size = 3;
+			this.gui = new VectorGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Number){
-			this.gui = new NumericGui(guiItemOpts);
+			this.gui = new NumericGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == ProjectAsset){
-			this.gui = new AssetGui(guiItemOpts);
+			this.gui = new AssetGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Array){
-			this.gui = new ArrayGui(guiItemOpts);
+			this.gui = new ArrayGui({
+				arrayOpts,
+				...guiOpts,
+			});
 			this.valueEl.appendChild(this.gui.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
 		}else if(type == "button"){
 			this.gui = new Button({
-				text: label,
-				...guiItemOpts,
+				...guiOpts,
 				onClick: _ => {
-					guiItemOpts.onClick(callbacksContext);
+					guiOpts.onClick(callbacksContext);
 				},
 			});
 			this.valueEl.appendChild(this.gui.el);

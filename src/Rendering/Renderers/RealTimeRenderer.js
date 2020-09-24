@@ -7,11 +7,15 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 		},
 		clipNear: {
 			defaultValue: 0.01,
-			min: 0,
+			guiOpts: {
+				min: 0,
+			},
 		},
 		clipFar: {
 			defaultValue: 1000,
-			min: 0,
+			guiOpts: {
+				min: 0,
+			}
 		},
 		aspect: {
 			defaultValue: 1,
@@ -39,7 +43,7 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
 		},
 		materials: {
 			type: Array,
-			arrayTypeOpts: {
+			arrayOpts: {
 				type: Material,
 			},
 		},

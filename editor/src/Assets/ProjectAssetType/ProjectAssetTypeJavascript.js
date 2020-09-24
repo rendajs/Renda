@@ -12,13 +12,15 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 
 	static assetSettingsStructure = {
 		outputLocation: {
-			label: "Build output location",
-			type: "string",
+			type: String,
+			guiOpts: {
+				label: "Build output location",
+			},
 		},
 		buildButton: {
-			label: "Build",
 			type: "button",
-			guiItemOpts: {
+			guiOpts: {
+				text: "Build",
 				onClick: async context => {
 					for(const asset of context.selectedAssets){
 						let outputPath = null;

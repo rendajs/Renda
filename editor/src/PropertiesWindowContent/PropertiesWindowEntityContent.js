@@ -15,8 +15,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 
 		let entitySection = this.treeView.addCollapsable("Entity");
 		this.positionProperty = entitySection.addItem({
-			label: "Position",
 			type: Vec3,
+			guiOpts: {
+				label: "Position",
+			},
 		});
 		this.positionProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
@@ -25,8 +27,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 
 		this.rotationProperty = entitySection.addItem({
-			label: "Rotation",
 			type: Vec3,
+			guiOpts: {
+				label: "Rotation",
+			},
 		});
 		this.rotationProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
@@ -35,8 +39,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 
 		this.scaleProperty = entitySection.addItem({
-			label: "Scale",
 			type: Vec3,
+			guiOpts: {
+				label: "Scale",
+			},
 		});
 		this.scaleProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
@@ -96,22 +102,26 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		for(const componentGroup of componentGroups){
 			const componentUI = this.componentsSection.addCollapsable(componentGroup.constructor.componentName);
 			const componentData = componentGroup.getComponentData();
-			const componentProperties = componentData?.properties;
-			if(componentProperties){
-				for(const [propertyName, property] of Object.entries(componentProperties)){
-					let guiItemOpts = {
-						...componentData.properties[propertyName],
-						value: componentGroup[propertyName],
-					}
-					const addedItem = componentUI.addItem({
-						label: propertyName,
-						type: property.type,
-						guiItemOpts,
-					});
-					addedItem.onValueChange(newValue => {
-						componentGroup[propertyName] = newValue;
-					});
-				}
+			const serializableStructure = componentData?.properties;
+			if(serializableStructure){
+				componentUI.generateFromSerializableStructure(serializableStructure);
+				componentUI.onChildValueChange(e => {
+					console.log("onChildValueChange", e);
+				});
+				// for(const [propertyName, property] of Object.entries(serializableStructure)){
+				// 	let guiItemOpts = {
+				// 		...componentData.properties[propertyName],
+				// 		value: componentGroup[propertyName],
+				// 	}
+				// 	const addedItem = componentUI.addItem({
+				// 		label: propertyName,
+				// 		type: property.type,
+				// 		guiItemOpts,
+				// 	});
+				// 	addedItem.onValueChange(newValue => {
+				// 		componentGroup[propertyName] = newValue;
+				// 	});
+				// }
 			}
 		}
 	}

@@ -10,13 +10,15 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 
 		this.bundleSettingsStructure = {
 			outputLocation: {
-				label: "Bundle output location",
-				type: "string",
+				type: String,
+				guiOpts: {
+					label: "Bundle output location",
+				},
 			},
 			bundleButton: {
-				label: "Bundle",
 				type: "button",
-				guiItemOpts: {
+				guiOpts: {
+					text: "Bundle",
 					onClick: _ => {
 						editor.assetBundler.bundle(this.currentSelection[0])
 					},
@@ -24,12 +26,10 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 			},
 			assets: {
 				type: Array,
-				guiItemOpts:{
-					arrayTypeOpts:{
-						type: ProjectAsset,
-					}
-				},
-			}
+				arrayOpts:{
+					type: ProjectAsset,
+				}
+			},
 		};
 		this.isUpdatingBundleSettingsTree = false;
 		this.bundleSettingsTree.generateFromSerializableStructure(this.bundleSettingsStructure);

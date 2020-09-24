@@ -41,9 +41,13 @@ export default class PropertiesTreeView extends TreeView{
 		this.clearChildren();
 		this.currentSerializableStructureItems = {};
 		for(const [key, itemSettings] of Object.entries(structure)){
-			const addedItem = this.addItem({
+			let guiOpts = {
 				label: key,
+				...itemSettings?.guiOpts,
+			};
+			const addedItem = this.addItem({
 				...itemSettings,
+				guiOpts,
 				callbacksContext,
 			});
 			this.currentSerializableStructureItems[key] = addedItem;
