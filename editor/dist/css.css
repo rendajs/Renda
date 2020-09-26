@@ -169,7 +169,7 @@ body, html{
 
 .numericGui.nocaret{
 	color: transparent;
-	text-shadow: 0 0 0 white;
+	text-shadow: 0 0 0 var(--default-text-color);
 }
 
 .vectorGui{
