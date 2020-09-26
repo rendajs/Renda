@@ -52,6 +52,8 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		return file;
 	}
 
+	static expectedLiveAssetConstructor = Mesh;
+
 	async getLiveAsset(blob){
 		return Mesh.fromBlob(blob);
 	}

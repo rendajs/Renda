@@ -42,6 +42,15 @@ export default class ProjectAssetType{
 		return "";
 	}
 
+	//This is used to find out if a specific class could be stored as an asset,
+	//when dragging assets to a DroppableGui for instance.
+	//Set this to the constructor of the type that you expect to return in getLiveAsset()
+	//for example, if getLiveAsset() returns a `new Material()`, this value
+	//should be set to `Material` (without new)
+	//If you don't plan on adding support for loading this asset type at runtime,
+	//you can safely ommit this property.
+	static expectedLiveAssetConstructor = null;
+
 	async getLiveAsset(){
 		return null;
 	}

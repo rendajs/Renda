@@ -18,6 +18,8 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		return entity.toJson();
 	}
 
+	static expectedLiveAssetConstructor = Entity;
+
 	async getLiveAsset(json){
 		return await this.createEntityFromJsonData(json);
 	}

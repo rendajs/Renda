@@ -37,4 +37,19 @@ export default class ProjectAssetTypeManager{
 	getAssetType(type){
 		return this.registeredAssetTypes.get(type);
 	}
+
+	*getAssetTypesForConstructor(constructor){
+		for(const assetType of this.registeredAssetTypes.values()){
+			if(assetType.expectedLiveAssetConstructor == constructor){
+				yield assetType;
+			}
+		}
+	}
+
+	constructorHasAssetType(constructor){
+		for(const assetType of this.getAssetTypesForConstructor(constructor)){
+			return true;
+		}
+		return false;
+	}
 }

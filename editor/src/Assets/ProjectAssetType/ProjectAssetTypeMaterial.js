@@ -17,6 +17,8 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 		return {};
 	}
 
+	static expectedLiveAssetConstructor = Material;
+
 	async getLiveAsset(materialJson){
 		const shader = new Shader(`
 			attribute vec4 aVertexPosition;

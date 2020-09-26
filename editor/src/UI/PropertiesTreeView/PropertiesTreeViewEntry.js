@@ -1,3 +1,4 @@
+import editor from "../../editorInstance.js";
 import TreeView from "../TreeView.js";
 import VectorGui from "../VectorGui.js";
 import NumericGui from "../NumericGui.js";
@@ -66,7 +67,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 				},
 			});
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == ProjectAsset){
+		}else if(type == ProjectAsset || editor.projectAssetTypeManager.constructorHasAssetType(type)){
 			this.gui = new DroppableGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}
