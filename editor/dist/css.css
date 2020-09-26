@@ -1,9 +1,40 @@
 :root{
-	--color-selected-blue: rgb(0, 85, 152);
-	--color-selected-blue-rgba: rgba(0, 85, 152, 0.99);
 	--default-border-radius: 5px;
 	--selection-border-radius: 10px;
 	--default-selection-text-padding: 5px;
+	--default-ui-bg-color: #1b1b1b;
+	--panel-borders-color: #272727;
+	--overlay-panel-borders-color: #5a5a5a;
+	--default-text-color: #bdbdbd;
+	--color-selected-blue: #005598;
+	--color-selected-blue-textfield: #005598fe;
+	--selected-text-color: #ffffff;
+	--default-button-color: #6f6f6f;
+	--default-button-hover-color: #626262;
+	--default-button-active-color: #565656;
+	--default-button-selected-color: #929292;
+	--focused-window-border-color: #838383;
+	--default-input-box-color: #101010;
+	--default-input-box-border-color: transparent;
+	--default-input-box-border-hover-color: #464646;
+}
+@media(prefers-color-scheme: light){
+	:root{
+		--default-ui-bg-color: #ffffff;
+		--panel-borders-color: #e0e0e0;
+		--overlay-panel-borders-color: #c9c9c9;
+		--default-text-color: #505050;
+		--selected-text-color: #ffffff;
+		--color-selected-blue-textfield: #95c0fffe;
+		--default-button-color: #dcdcdcb8;
+		--default-button-hover-color: #c9c9c9;
+		--default-button-active-color: #b9b9b9;
+		--default-button-selected-color: #afafaf;
+		--focused-window-border-color: #717171;
+		--default-input-box-color: #f7f7f7;
+		--default-input-box-border-color: #dadcda;
+		--default-input-box-border-hover-color: #a4a4a4;
+	}
 }
 
 body, html{
@@ -15,9 +46,10 @@ body, html{
 	-webkit-user-select: none;
 	-webkit-touch-callout: none;
 	font-family: Helvetica, Arial, sans-serif;
-	background: #272727;
-	color: #bdbdbd;
+	background: var(--panel-borders-color);
+	color: var(--default-text-color);
 }
+
 
 .editorWindowSplitHalf{
 	position: relative;
@@ -37,14 +69,14 @@ body, html{
 .editorWindowTabs{
 	width: 100%;
 	height: 100%;
-	background: rgb(27, 27, 27);
+	background: var(--default-ui-bg-color);
 	position: absolute;
 	border-radius: var(--default-border-radius);
 	display: inline-block;
 	overflow: hidden;
 }
 .editorWindowTabs.focused{
-	box-shadow: 0px 0px 0 1px #525252;
+	box-shadow: 0px 0px 0 1px var(--focused-window-border-color);
 }
 
 .editorContentWindowTopButtonBar > .button{
@@ -66,7 +98,7 @@ body, html{
 	font-size: 10pt;
 	height: 20px;
 	display: inline-block;
-	background: #6f6f6fb8;
+	background: var(--default-button-color);
 	box-sizing: border-box;
 	padding: 2px 3px;
 	border-radius: var(--default-border-radius);
@@ -89,14 +121,14 @@ body, html{
 }
 
 .button:hover{
-	background: #525252b8;
+	background: var(--default-button-hover-color);
 }
 .button:active{
-	background: #3e3e3eb8;
+	background: var(--default-button-active-color);
 }
 
-.button.active{
-	background: #929292b8;
+.button.selected{
+	background: var(--default-button-selected-color);
 }
 
 .resetInput{
@@ -107,13 +139,14 @@ body, html{
 }
 
 .textInput{
-	background: #101010;
-	color: white;
+	background: var(--default-input-box-color);
+	color: var(--default-text-color);
 	width: 100%;
+	box-shadow: inset 0px 0px 0 1px var(--default-input-box-border-color);
 }
 
 .textInput:hover{
-	box-shadow: inset 0px 0px 0 1px #464646;
+	box-shadow: inset 0px 0px 0 1px var(--default-input-box-border-hover-color);
 }
 
 .textInput:focus{
@@ -121,7 +154,7 @@ body, html{
 }
 
 .textInput::selection{
-	background: var(--color-selected-blue-rgba);
+	background: var(--color-selected-blue-textfield);
 }
 
 .numericGui{
@@ -241,6 +274,7 @@ body, html{
 }
 .treeViewRow.selected{
 	background: var(--color-selected-blue);
+	color: var(--selected-text-color);
 }
 .treeViewRow.hidden{
 	display: none;
@@ -305,9 +339,9 @@ body, html{
 	position: absolute;
 	z-index: 100;
 	border-radius: var(--default-border-radius);
-	background: #2d2d2d;
+	background: var(--default-ui-bg-color);
 	padding: 3px 0px;
-	border: 1px solid #5a5a5a;
+	border: 1px solid var(--overlay-panel-borders-color);
 	box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.3);
 }
 
@@ -317,6 +351,7 @@ body, html{
 
 .contextMenuItem:hover{
 	background: var(--color-selected-blue);
+	color: var(--selected-text-color);
 }
 
 

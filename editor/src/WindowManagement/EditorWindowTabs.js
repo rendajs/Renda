@@ -92,7 +92,7 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.activeTabIndex = index;
 		for(let i=0; i<this.tabs.length; i++){
 			let active = i == index;
-			this.tabsSelectorGroup.buttons[i].setActiveHighlight(active);
+			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
 			this.tabs[i].setVisible(active);
 		}
 	}

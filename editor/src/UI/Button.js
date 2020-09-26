@@ -25,7 +25,7 @@ export default class Button{
 		this.el.textContent = text;
 	}
 
-	setActiveHighlight(active){
-		this.el.classList.toggle("active", active);
+	setSelectedHighlight(selected){
+		this.el.classList.toggle("selected", selected);
 	}
 }
