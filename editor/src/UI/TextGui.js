@@ -2,6 +2,7 @@ export default class TextGui{
 	constructor(){
 		this.el = document.createElement("input");
 		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
+		this.el.spellcheck = false;
 
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
