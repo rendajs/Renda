@@ -1,13 +1,13 @@
 import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 
-export default class AssetGui{
+export default class DroppableGui{
 	constructor({
 		supportedAssetTypes = [],
 		value = null,
 	} = {}){
 		this.el = document.createElement("div");
-		this.el.classList.add("assetGui", "empty");
+		this.el.classList.add("droppableGui", "empty");
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = supportedAssetTypes;

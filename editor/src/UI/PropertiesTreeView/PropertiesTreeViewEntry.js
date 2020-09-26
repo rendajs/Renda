@@ -2,7 +2,7 @@ import TreeView from "../TreeView.js";
 import VectorGui from "../VectorGui.js";
 import NumericGui from "../NumericGui.js";
 import TextGui from "../TextGui.js";
-import AssetGui from "../AssetGui.js";
+import DroppableGui from "../DroppableGui.js";
 import ArrayGui from "../ArrayGui.js";
 import Button from "../Button.js";
 
@@ -50,9 +50,6 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		}else if(type == Number){
 			this.gui = new NumericGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == ProjectAsset){
-			this.gui = new AssetGui(guiOpts);
-			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Array){
 			this.gui = new ArrayGui({
 				arrayOpts,
@@ -68,6 +65,9 @@ export default class PropertiesTreeViewEntry extends TreeView{
 					guiOpts.onClick(callbacksContext);
 				},
 			});
+			this.valueEl.appendChild(this.gui.el);
+		}else if(type == ProjectAsset){
+			this.gui = new DroppableGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}
 

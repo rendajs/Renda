@@ -176,23 +176,23 @@ body, html{
 	display: flex;
 }
 
-.assetGui{
+.droppableGui{
 	height: 18px;
 	margin: 1px;
 	border-radius: var(--selection-border-radius);
 }
 
-.assetGui.empty{
+.droppableGui.empty{
 	background: #101010;
 	box-shadow: inset 1px 1px 3px #000000;
 }
 
-.assetGui.filled{
+.droppableGui.filled{
 	background: #6f6f6fb8;
 	box-shadow: 2px 2px 5px #0000004d;
 }
 
-.assetGui.dragHovering{
+.droppableGui.dragHovering{
 	box-shadow: inset 0px 0px 0px 1px var(--color-selected-blue);
 }
 
