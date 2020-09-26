@@ -320,6 +320,7 @@ body, html{
 
 .dragFeedbackText{
 	background: var(--color-selected-blue);
+	color: var(--selected-text-color);
 	position: absolute;
 	z-index: 10000;
 	border-radius: var(--selection-border-radius);
