@@ -3,6 +3,7 @@ import {Entity, Vec3, Quaternion, defaultComponentTypeManager, Mesh} from "../..
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
+import ProjectAsset from "../Assets/ProjectAsset.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent{
 	constructor(){
@@ -105,24 +106,28 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			const serializableStructure = componentData?.properties;
 			if(serializableStructure){
 				componentUI.generateFromSerializableStructure(serializableStructure);
-				componentUI.onChildValueChange(e => {
-					console.log("onChildValueChange", e);
+				componentUI.onChildValueChange(async e => {
+					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.changedEntry);
+					let value = await this.mapDroppableGuiValues(e.newValue);
+					componentGroup[propertyName] = value;
 				});
-				// for(const [propertyName, property] of Object.entries(serializableStructure)){
-				// 	let guiItemOpts = {
-				// 		...componentData.properties[propertyName],
-				// 		value: componentGroup[propertyName],
-				// 	}
-				// 	const addedItem = componentUI.addItem({
-				// 		label: propertyName,
-				// 		type: property.type,
-				// 		guiItemOpts,
-				// 	});
-				// 	addedItem.onValueChange(newValue => {
-				// 		componentGroup[propertyName] = newValue;
-				// 	});
-				// }
 			}
 		}
+	}
+
+	async mapDroppableGuiValues(value){
+		if(value instanceof ProjectAsset){
+			value = await value.getLiveAsset();
+		}else if(Array.isArray(value)){
+			const promises = [];
+			for(const [i, item] of value.entries()){
+				promises.push((async r => {
+					const newValue = await this.mapDroppableGuiValues(item);
+					value[i] = newValue;
+				})());
+			}
+			await Promise.all(promises);
+		}
+		return value;
 	}
 }
