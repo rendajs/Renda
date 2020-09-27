@@ -70,7 +70,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		if(propertyData.type == Array){
 			const newArr = [];
 			for(const item of propertyValue){
-				newArr.push(await this.componentPropertyValueFromJson(item, propertyData.arrayTypeOpts));
+				newArr.push(await this.componentPropertyValueFromJson(item, propertyData.arrayOpts));
 			}
 			return newArr;
 		}
