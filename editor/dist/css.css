@@ -252,24 +252,41 @@ body, html{
 	font-size: inherit;
 }
 
+.treeViewArrowContainer{
+	width: 16px;
+	height: 16px;
+	border-radius: var(--selection-border-radius);
+	position: absolute;
+	transform: translate(-100%, 1px);
+}
+.treeViewArrowContainer:not(.collapsed){
+	transform: translate(-100%, 1px) rotate(90deg);
+}
+.treeViewArrowContainer.hover{
+	background: var(--default-text-color);
+}
+.selected > .treeViewArrowContainer.hover{
+	background: var(--selected-text-color);
+}
+
 .treeViewArrow{
 	width: 0px;
 	height: 0px;
-	display: inline-block;
+	position: absolute;
+	left: 4px;
+	top: 3px;
 	border: 5px solid transparent;
 	border-left: 10px solid var(--default-text-color);
 	border-right: 0px solid transparent;
-	vertical-align: middle;
-	position: relative;
-	top: -1px;
-	margin-right: 3px;
 }
-.selected > .treeViewArrow{
+.treeViewArrowContainer.hover > .treeViewArrow{
+	border-left: 10px solid var(--default-ui-bg-color);
+}
+.selected > .treeViewArrowContainer > .treeViewArrow{
 	border-left: 10px solid var(--selected-text-color);
 }
-
-.treeViewArrow:not(.collapsed){
-	transform: rotate(90deg);
+.selected > .treeViewArrowContainer.hover > .treeViewArrow{
+	border-left: 10px solid var(--color-selected-blue);
 }
 
 .treeViewRow{

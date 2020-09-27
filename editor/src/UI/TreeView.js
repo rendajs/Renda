@@ -20,13 +20,22 @@ export default class TreeView{
 		this.boundOnDropEvent = this.onDropEvent.bind(this);
 		this.rowEl.addEventListener("drop", this.boundOnDropEvent);
 
+		this.arrowContainerEl = document.createElement("div");
+		this.arrowContainerEl.classList.add("treeViewArrowContainer");
+		this.rowEl.appendChild(this.arrowContainerEl);
+
 		this.arrowEl = document.createElement("div");
 		this.arrowEl.classList.add("treeViewArrow");
-		this.rowEl.appendChild(this.arrowEl);
+		this.arrowContainerEl.appendChild(this.arrowEl);
 
 		this.onArrowClickCbs = [];
 		this.boundArrowClickEvent = this.arrowClickEvent.bind(this);
-		this.arrowEl.addEventListener("click", this.boundArrowClickEvent);
+		this.arrowContainerEl.addEventListener("click", this.boundArrowClickEvent);
+
+		this.boundArrowHoverStartEvent = this.arrowHoverStartEvent.bind(this);
+		this.boundArrowHoverEndEvent = this.arrowHoverEndEvent.bind(this);
+		this.arrowContainerEl.addEventListener("pointerenter", this.boundArrowHoverStartEvent);
+		this.arrowContainerEl.addEventListener("pointerleave", this.boundArrowHoverEndEvent);
 
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
@@ -80,6 +89,7 @@ export default class TreeView{
 
 		this.updateArrowHidden();
 		if(data) this.updateData(data);
+		this.updatePadding();
 	}
 
 	destructor(){
@@ -94,8 +104,9 @@ export default class TreeView{
 		this.rowEl.removeEventListener("drop", this.boundOnDropEvent);
 		this.boundOnDropEvent = null;
 		this.rowEl = null;
-		this.arrowEl.removeEventListener("click", this.boundArrowClickEvent);
+		this.arrowContainerEl.removeEventListener("click", this.boundArrowClickEvent);
 		this.boundArrowClickEvent = null;
+		this.arrowContainerEl = null;
 		this.arrowEl = null;
 		this.myNameEl = null;
 		for(const b of this.addedButtons){
@@ -157,8 +168,7 @@ export default class TreeView{
 	}
 
 	updatePadding(){
-		let padding = this.recursionDepth*12;
-		if(this.arrowVisible) padding -= 12;
+		let padding = this.recursionDepth*12 + 18;
 		this.rowEl.style.paddingLeft = padding+"px";
 	}
 
@@ -217,7 +227,7 @@ export default class TreeView{
 	set collapsed(collapsed){
 		this._collapsed = collapsed;
 		this.childrenEl.style.display = collapsed ? "none" : null;
-		this.arrowEl.classList.toggle("collapsed", collapsed);
+		this.arrowContainerEl.classList.toggle("collapsed", collapsed);
 	}
 
 	get rowVisible(){
@@ -297,6 +307,15 @@ export default class TreeView{
 		e.stopPropagation();
 		this.toggleCollapsed();
 		this.fireOnArrowClickCbs();
+	}
+
+	arrowHoverStartEvent(e){
+		if(!this.arrowVisible) return;
+		this.arrowContainerEl.classList.toggle("hover", true);
+	}
+
+	arrowHoverEndEvent(e){
+		this.arrowContainerEl.classList.toggle("hover", false);
 	}
 
 	fireOnArrowClickCbs(){
