@@ -156,7 +156,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			assetManager: editor.projectManager.assetManager,
 		});
 		await fs.writeJson(path, {
-			assetType: "entity",
+			assetType: "JJ:entity",
 			asset: json,
 		});
 	}
