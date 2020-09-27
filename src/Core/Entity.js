@@ -120,7 +120,7 @@ export default class Entity{
 	get worldMatrix(){
 		if(this.localMatrixDirty || this.worldMatrixDirty){
 			if(this.parent){
-				this._worldMatrix = Mat4.multiplyMatrices(this.parent.worldMatrix, this.localMatrix);
+				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
 			}else{
 				this._worldMatrix = this.localMatrix.clone();
 			}
