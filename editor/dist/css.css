@@ -257,12 +257,15 @@ body, html{
 	height: 0px;
 	display: inline-block;
 	border: 5px solid transparent;
-	border-left: 10px solid white;
+	border-left: 10px solid var(--default-text-color);
 	border-right: 0px solid transparent;
 	vertical-align: middle;
 	position: relative;
 	top: -1px;
 	margin-right: 3px;
+}
+.selected > .treeViewArrow{
+	border-left: 10px solid var(--selected-text-color);
 }
 
 .treeViewArrow:not(.collapsed){
