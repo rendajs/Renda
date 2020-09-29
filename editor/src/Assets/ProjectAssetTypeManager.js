@@ -52,4 +52,14 @@ export default class ProjectAssetTypeManager{
 		}
 		return false;
 	}
+
+	*getAssetTypesForExtension(extension){
+		for(const assetType of this.registeredAssetTypes.values()){
+			if(assetType.matchExtensions.length > 0){
+				if(assetType.matchExtensions.includes(extension)) yield assetType;
+			}else{
+				if(extension == assetType.newFileExtension) yield assetType;
+			}
+		}
+	}
 }

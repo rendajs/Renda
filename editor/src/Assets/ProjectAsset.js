@@ -1,5 +1,6 @@
 import editor from "../editorInstance.js";
 import {SingleInstancePromise} from "../../../src/index.js";
+import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 
 export default class ProjectAsset{
 	constructor({
@@ -55,9 +56,11 @@ export default class ProjectAsset{
 	static guessAssetTypeFromPath(path = []){
 		if(!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
-		//todo: make this more scalable, store extension types in ProjectAssetType classes
-		if(fileName.endsWith(".jjmesh")) return "JJ:mesh";
-		if(fileName.endsWith(".js")) return "JJ:javascript";
+		const {extension} = getNameAndExtension(fileName);
+		if(extension == "json") return null;
+		for(const assetType of editor.projectAssetTypeManager.getAssetTypesForExtension(extension)){
+			return assetType.type;
+		}
 		return null;
 	}
 

@@ -12,6 +12,12 @@ export default class ProjectAssetType{
 	//You can generate a uuid in the editor browser console using Util.generateUuid()
 	static typeUuid = null;
 
+
+	//this is used to find out what type an asset is when it isn't json
+	//if this value is omitted and storeInProjectAsJson is false,
+	//`newFileExtension` will be used instead
+	static matchExtensions = [];
+
 	//override these with a string that gets used as file name and extension
 	//when a new project asset of this type is created
 	static newFileName = "New Asset";
