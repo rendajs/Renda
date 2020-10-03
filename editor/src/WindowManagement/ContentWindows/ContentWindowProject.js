@@ -16,16 +16,19 @@ export default class ContentWindowProject extends ContentWindow{
 					this.createNewDir();
 				});
 				menu.addItem("New Material", _ => {
-					this.createAsset("material");
+					this.createAsset("JJ:material");
+				});
+				menu.addItem("New Material Map", _ => {
+					this.createAsset("JJ:materialMap");
 				});
 				menu.addItem("New Mesh", _ => {
-					this.createAsset("mesh");
+					this.createAsset("JJ:mesh");
 				});
 				menu.addItem("New Entity", _ => {
-					this.createAsset("entity");
+					this.createAsset("JJ:entity");
 				});
 				menu.addItem("New Asset Bundle", _ => {
-					this.createAsset("assetBundle");
+					this.createAsset("JJ:assetBundle");
 				});
 
 				menu.setPos(createButton, "top left");
