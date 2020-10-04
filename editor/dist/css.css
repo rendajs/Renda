@@ -17,6 +17,9 @@
 	--default-input-box-color: #101010;
 	--default-input-box-border-color: transparent;
 	--default-input-box-border-hover-color: #464646;
+	--droppable-border-color: #2d2d2d;
+	--droppable-filled-color: #525252;
+	--droppable-filled-text-color: #f3f3f3;
 }
 @media(prefers-color-scheme: light){
 	:root{
@@ -35,6 +38,9 @@
 		--default-input-box-color: #f7f7f7;
 		--default-input-box-border-color: #dadcda;
 		--default-input-box-border-hover-color: #a4a4a4;
+		--droppable-border-color: var(--default-input-box-border-color);
+		--droppable-filled-color: #c7c7c7;
+		--droppable-filled-text-color: #373737;
 	}
 }
 
@@ -180,16 +186,19 @@ body, html{
 	height: 18px;
 	margin: 1px;
 	border-radius: var(--selection-border-radius);
+	padding: 0px 10px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .droppableGui.empty{
-	background: #101010;
-	box-shadow: inset 1px 1px 3px #000000;
+	background: var(--default-input-box-color);
+	box-shadow: inset 0px 0px 0px 1px var(--droppable-border-color);
 }
 
 .droppableGui.filled{
-	background: #6f6f6fb8;
-	box-shadow: 2px 2px 5px #0000004d;
+	background: var(--droppable-filled-color);
+	color: var(--droppable-filled-text-color);
 }
 
 .droppableGui.dragHovering{
