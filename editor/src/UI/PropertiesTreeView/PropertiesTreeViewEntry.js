@@ -6,6 +6,7 @@ import TextGui from "../TextGui.js";
 import DroppableGui from "../DroppableGui.js";
 import ArrayGui from "../ArrayGui.js";
 import Button from "../Button.js";
+import ObjectGui from "../ObjectGui.js";
 
 import ProjectAsset from "../../Assets/ProjectAsset.js";
 import {Vec3, Mesh, Material} from "../../../../src/index.js";
@@ -57,6 +58,11 @@ export default class PropertiesTreeViewEntry extends TreeView{
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
+			this.label.classList.add("multiLine");
+			this.valueEl.classList.add("multiLine");
+		}else if(type && type.constructor == Object){
+			this.gui = new ObjectGui(type);
+			this.valueEl.appendChild(this.gui.treeView.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
 		}else if(type == "button"){
