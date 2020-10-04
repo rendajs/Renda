@@ -220,6 +220,7 @@ body, html{
 
 .editorContentWindowTopButtonBarSpacer{
 	display: inline-block;
+	vertical-align: top;
 }
 
 .editorContentWindowContent{
