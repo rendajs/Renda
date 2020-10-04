@@ -37,9 +37,9 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 
 		this.mapSettingsTree = this.treeView.addCollapsable("map settings");
 		this.mapSettingsTree.generateFromSerializableStructure(this.mapStructure);
-		this.isUpdatingBundleSettingsTree = false;
+		this.isUpdatingMapSettingsTree = false;
 		this.mapSettingsTree.onChildValueChange(_ => {
-			if(this.isUpdatingBundleSettingsTree) return;
+			if(this.isUpdatingMapSettingsTree) return;
 			const guiValues = this.getGuiValues();
 			//todo: handle multiple selected items or no selection
 			this.currentSelection[0].writeAssetData(guiValues);
@@ -51,9 +51,9 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		//todo: handle multiple selected items or no selection
 		const map = selectedMaps[0];
 		const mapData = await map.readAssetData();
-		this.isUpdatingBundleSettingsTree = true;
+		this.isUpdatingMapSettingsTree = true;
 		this.mapSettingsTree.fillSerializableStructureValues(mapData);
-		this.isUpdatingBundleSettingsTree = false;
+		this.isUpdatingMapSettingsTree = false;
 	}
 
 	getGuiValues(){
