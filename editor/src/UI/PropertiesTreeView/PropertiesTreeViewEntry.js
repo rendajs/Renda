@@ -61,7 +61,10 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
 		}else if(type && type.constructor == Object){
-			this.gui = new ObjectGui(type);
+			this.gui = new ObjectGui({
+				structure: type,
+				...guiOpts,
+			});
 			this.valueEl.appendChild(this.gui.treeView.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
