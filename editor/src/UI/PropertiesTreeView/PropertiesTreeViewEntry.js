@@ -81,6 +81,9 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			this.valueEl.appendChild(this.gui.el);
 		}
 
+		//todo: maybe instead of calling setvalue inside the constructor
+		//of every gui class, call setValue over here
+
 		this.registerNewEventType("treeViewEntryValueChange");
 		this.gui?.onValueChange?.(newValue => {
 			this.fireEvent("treeViewEntryValueChange", {
