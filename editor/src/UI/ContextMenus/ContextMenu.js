@@ -61,8 +61,8 @@ export default class ContextMenu{
 		this.el.style.top = y+"px";
 	}
 
-	addItem(text, onClickCb){
-		let item = new ContextMenuItem(this, text, onClickCb);
+	addItem(text, onClickCb, opts){
+		let item = new ContextMenuItem(this, text, onClickCb, opts);
 		this.addedItems.push(item);
 		this.el.appendChild(item.el);
 		return item;

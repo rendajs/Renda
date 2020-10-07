@@ -46,9 +46,10 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 				onClick: _ => {
 					const menu = editor.contextMenuManager.createContextMenu();
 					for(const typeConstructor of editor.materialMapTypeManager.getAllTypes()){
+						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem(typeConstructor.uiName, _ => {
 							this.addMapType(typeConstructor);
-						});
+						}, {disabled});
 					}
 
 					menu.setPos(this.addMapTypeButtonEntry.gui, "top left");
@@ -80,10 +81,15 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 	// 	return this.mapSettingsTree.getSerializableStructureValues(this.mapStructure);
 	// }
 
-	addMapType(typeConstructor){
+	hasTypeConstructor(typeConstructor){
 		for(const existingType of this.addedMapTypes){
-			if(existingType.constructor.typeUuid == typeConstructor.typeUuid) return;
+			if(existingType.constructor.typeUuid == typeConstructor.typeUuid) return true;
 		}
+		return false;
+	}
+
+	addMapType(typeConstructor){
+		if(this.hasTypeConstructor(typeConstructor)) return;
 		const treeView = this.mapTypesTreeView.addCollapsable(typeConstructor.uiName);
 
 		const typeInstance = new typeConstructor();

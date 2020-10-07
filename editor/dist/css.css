@@ -6,6 +6,7 @@
 	--panel-borders-color: #272727;
 	--overlay-panel-borders-color: #5a5a5a;
 	--default-text-color: #bdbdbd;
+	--default-text-color-disabled: #5a5a5a;
 	--color-selected-blue: #005598;
 	--color-selected-blue-textfield: #005598fe;
 	--selected-text-color: #ffffff;
@@ -27,6 +28,7 @@
 		--panel-borders-color: #e0e0e0;
 		--overlay-panel-borders-color: #c9c9c9;
 		--default-text-color: #505050;
+		--default-text-color-disabled: #bdbdbd;
 		--color-selected-blue: #008fff;
 		--selected-text-color: #ffffff;
 		--color-selected-blue-textfield: #95c0fffe;
@@ -380,8 +382,11 @@ body, html{
 .contextMenuItem{
 	padding: 1px 3px;
 }
+.contextMenuItem.disabled{
+	color: var(--default-text-color-disabled);
+}
 
-.contextMenuItem:hover{
+.contextMenuItem:hover:not(.disabled){
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
 }
