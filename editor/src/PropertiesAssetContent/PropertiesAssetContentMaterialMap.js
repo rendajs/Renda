@@ -1,5 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import {Material} from "../../../src/index.js";
+import editor from "../editorInstance.js";
 
 export default class PropertiesAssetContentMaterialMap extends PropertiesAssetContent{
 	constructor(){
@@ -35,28 +36,57 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 			},
 		};
 
-		this.mapSettingsTree = this.treeView.addCollapsable("map settings");
-		this.mapSettingsTree.generateFromSerializableStructure(this.mapStructure);
-		this.isUpdatingMapSettingsTree = false;
-		this.mapSettingsTree.onChildValueChange(_ => {
-			if(this.isUpdatingMapSettingsTree) return;
-			const guiValues = this.getGuiValues();
-			//todo: handle multiple selected items or no selection
-			this.currentSelection[0].writeAssetData(guiValues);
+		this.addedMapTypes = new Set();
+		this.mapTypesTreeView = this.treeView.addCollapsable("Map Types");
+
+		this.addMapTypeButtonEntry = this.treeView.addItem({
+			type: "button",
+			guiOpts: {
+				text: "Add Map Type",
+				onClick: _ => {
+					const menu = editor.contextMenuManager.createContextMenu();
+					for(const typeConstructor of editor.materialMapTypeManager.getAllTypes()){
+						menu.addItem(typeConstructor.uiName, _ => {
+							this.addMapType(typeConstructor);
+						});
+					}
+
+					menu.setPos(this.addMapTypeButtonEntry.gui, "top left");
+				}
+			},
 		});
+		// this.mapSettingsTree = this.treeView.addCollapsable("map settings");
+		// this.mapSettingsTree.generateFromSerializableStructure(this.mapStructure);
+		// this.isUpdatingMapSettingsTree = false;
+		// this.mapSettingsTree.onChildValueChange(_ => {
+		// 	if(this.isUpdatingMapSettingsTree) return;
+		// 	const guiValues = this.getGuiValues();
+		// 	//todo: handle multiple selected items or no selection
+		// 	this.currentSelection[0].writeAssetData(guiValues);
+		// });
 	}
 
 	async selectionUpdated(selectedMaps){
 		super.selectionUpdated(selectedMaps);
 		//todo: handle multiple selected items or no selection
-		const map = selectedMaps[0];
-		const mapData = await map.readAssetData();
-		this.isUpdatingMapSettingsTree = true;
-		this.mapSettingsTree.fillSerializableStructureValues(mapData);
-		this.isUpdatingMapSettingsTree = false;
+		// const map = selectedMaps[0];
+		// const mapData = await map.readAssetData();
+		// this.isUpdatingMapSettingsTree = true;
+		// this.mapSettingsTree.fillSerializableStructureValues(mapData);
+		// this.isUpdatingMapSettingsTree = false;
 	}
 
-	getGuiValues(){
-		return this.mapSettingsTree.getSerializableStructureValues(this.mapStructure);
+	// getGuiValues(){
+	// 	return this.mapSettingsTree.getSerializableStructureValues(this.mapStructure);
+	// }
+
+	addMapType(typeConstructor){
+		for(const existingType of this.addedMapTypes){
+			if(existingType.constructor.typeUuid == typeConstructor.typeUuid) return;
+		}
+		const treeView = this.mapTypesTreeView.addCollapsable(typeConstructor.uiName);
+
+		const typeInstance = new typeConstructor();
+		this.addedMapTypes.add(typeInstance);
 	}
 }
