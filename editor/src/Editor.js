@@ -1,6 +1,7 @@
 import WindowManager from "./WindowManagement/WindowManager.js";
 import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentManager.js";
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
+import MaterialMapTypeManager from "./Managers/MaterialMapTypeManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
@@ -16,6 +17,7 @@ export default class Editor{
 		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
+		this.materialMapTypeManager = new MaterialMapTypeManager();
 		this.projectManager = new ProjectManager();
 		this.scriptBuilder = new ScriptBuilder();
 		this.assetBundler = new AssetBundler();
@@ -37,6 +39,7 @@ export default class Editor{
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
+		this.materialMapTypeManager.init();
 
 		this.projectManager.openRecentProjectHandle();
 	}
