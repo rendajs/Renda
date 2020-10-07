@@ -1,4 +1,5 @@
 import ProjectAssetType from "./ProjectAssetType.js";
+import {Shader} from "../../../../src/index.js";
 import {getNameAndExtension} from "../../Util/FileSystems/PathUtil.js";
 import editor from "../../editorInstance.js";
 
@@ -19,5 +20,28 @@ export default class ProjectAssetTypeShader extends ProjectAssetType{
 		return `void main(){
 
 }`;
+	}
+
+	static expectedLiveAssetConstructor = Shader;
+
+	async getLiveAsset(materialJson){
+		return new Shader(`
+			attribute vec4 aVertexPosition;
+
+			uniform mat4 uMvpMatrix;
+
+			varying lowp vec4 vColor;
+
+			void main() {
+			  gl_Position = uMvpMatrix * aVertexPosition;
+			  vColor = aVertexPosition;
+			}
+		`,`
+			varying lowp vec4 vColor;
+
+			void main() {
+				gl_FragColor = vec4(abs(vColor).rgb, 1.0);
+			}
+		`);
 	}
 }
