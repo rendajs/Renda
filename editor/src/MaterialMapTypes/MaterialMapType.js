@@ -9,8 +9,8 @@ export default class MaterialMapType{
 	//You can generate a uuid in the editor browser console using Util.generateUuid()
 	static typeUuid = null;
 
-	constructor(){
-
+	constructor(treeView){
+		this.treeView = treeView;
 	}
 
 	static invalidConfigurationWarning(message){

@@ -92,7 +92,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		if(this.hasTypeConstructor(typeConstructor)) return;
 		const treeView = this.mapTypesTreeView.addCollapsable(typeConstructor.uiName);
 
-		const typeInstance = new typeConstructor();
+		const typeInstance = new typeConstructor(treeView);
 		this.addedMapTypes.add(typeInstance);
 	}
 }
