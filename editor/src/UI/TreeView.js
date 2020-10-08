@@ -145,7 +145,7 @@ export default class TreeView{
 			}
 		}else if(deltaChildren < 0){
 			for(let i=this.children.length-1; i>=newChildren.length; i--){
-				this.removeChild(i);
+				this.removeChildIndex(i);
 			}
 		}
 		for(let i=0; i<this.children.length; i++){
@@ -172,7 +172,16 @@ export default class TreeView{
 		this.rowEl.style.paddingLeft = padding+"px";
 	}
 
-	removeChild(index){
+	removeChild(child){
+		for(const [i, c] of this.children.entries()){
+			if(child == c){
+				this.removeChildIndex(i);
+				break;
+			}
+		}
+	}
+
+	removeChildIndex(index){
 		this.children[index].destructor();
 		this.children.splice(index, 1);
 		this.updateArrowHidden();
