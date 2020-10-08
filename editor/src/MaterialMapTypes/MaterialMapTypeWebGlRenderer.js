@@ -1,5 +1,5 @@
 import MaterialMapType from "./MaterialMapType.js";
-import {Shader} from "../../../src/index.js";
+import {Shader, Vec3} from "../../../src/index.js";
 
 export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 
@@ -18,6 +18,15 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 			},
 		};
 
-		this.treeView.generateFromSerializableStructure(this.guiStructure);
+		this.shadersTreeView = this.treeView.addCollapsable("Shaders");
+		this.shadersTreeView.generateFromSerializableStructure(this.guiStructure);
+
+		this.mapListTreeView = this.generateMapListUi({
+			items: [
+				{name: "idk", type: Number},
+				{name: "v3", type: Vec3},
+			],
+		});
+		this.treeView.addChild(this.mapListTreeView);
 	}
 }

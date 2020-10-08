@@ -1,3 +1,5 @@
+import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+
 export default class MaterialMapType{
 
 	//name to be used in the editor ui
@@ -11,6 +13,36 @@ export default class MaterialMapType{
 
 	constructor(treeView){
 		this.treeView = treeView;
+	}
+
+	generateMapListUi({
+		items = [],
+	} = {}){
+		const treeView = new PropertiesTreeView({name: "mapList"});
+		for(const item of items){
+			const collapsable = treeView.addCollapsable(item.name);
+			collapsable.addItem({
+				type: Boolean,
+				guiOpts: {
+					label: "Visible",
+				},
+			});
+			collapsable.addItem({
+				type: String,
+				guiOpts: {
+					label: "Mapped Name",
+					placeholder: item.name,
+				},
+			});
+			collapsable.addItem({
+				type: item.type,
+				guiOpts: {
+					label: "Default Value",
+				},
+			});
+		}
+
+		return treeView;
 	}
 
 	static invalidConfigurationWarning(message){
