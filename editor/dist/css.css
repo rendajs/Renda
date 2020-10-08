@@ -18,6 +18,7 @@
 	--default-input-box-color: #101010;
 	--default-input-box-border-color: transparent;
 	--default-input-box-border-hover-color: #464646;
+	--default-input-placeholder-color: #585858;
 	--droppable-border-color: #2d2d2d;
 	--droppable-filled-color: #525252;
 	--droppable-filled-text-color: #f3f3f3;
@@ -40,6 +41,7 @@
 		--default-input-box-color: #f7f7f7;
 		--default-input-box-border-color: #dadcda;
 		--default-input-box-border-hover-color: #a4a4a4;
+		--default-input-placeholder-color: #c7c7c7;
 		--droppable-border-color: var(--default-input-box-border-color);
 		--droppable-filled-color: #c7c7c7;
 		--droppable-filled-text-color: #373737;
@@ -152,6 +154,10 @@ body, html{
 	color: var(--default-text-color);
 	width: 100%;
 	box-shadow: inset 0px 0px 0 1px var(--default-input-box-border-color);
+}
+
+.textInput::placeholder{
+	color: var(--default-input-placeholder-color);
 }
 
 .textInput:hover{

@@ -1,8 +1,11 @@
 export default class TextGui{
-	constructor(){
+	constructor({
+		placeholder = "",
+	} = {}){
 		this.el = document.createElement("input");
 		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
 		this.el.spellcheck = false;
+		this.el.placeholder = placeholder;
 
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
