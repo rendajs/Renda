@@ -1,6 +1,7 @@
 import MaterialMapType from "./MaterialMapType.js";
 import {Shader, Vec3} from "../../../src/index.js";
 import {SingleInstancePromise} from "../../../src/index.js";
+import MaterialMapListUi from "./MaterialMapListUi.js";
 
 export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 
@@ -25,11 +26,22 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 			this.updateMapListInstance.run();
 		});
 
-		this.mapListTreeView = null;
+		this.mapListUi = null;
 
 		//todo: if this is already running, run it again when .run() is called
 		this.updateMapListInstance = new SingleInstancePromise(async _=> await this.updateMapList(), {once: false});
 		this.updateMapListInstance.run();
+	}
+
+	async loadData(data){
+		let vertexShader = null;
+		let fragmentShader = null;
+		if(data.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(data.vertexShader);
+		if(data.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(data.fragmentShader);
+		this.settingsTreeView.fillSerializableStructureValues({vertexShader, fragmentShader});
+
+		await this.updateMapList();
+		this.fillMapListValues(data.mapList);
 	}
 
 	getSettingsValues(){
@@ -37,10 +49,10 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 	}
 
 	async updateMapList(){
-		if(this.mapListTreeView){
-			this.treeView.removeChild(this.mapListTreeView);
+		if(this.mapListUi){
+			this.mapListUi.destructor();
+			this.mapListUi = null;
 		}
-
 
 		const settings = this.getSettingsValues();
 
@@ -53,8 +65,13 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 			const type = itemData.type;
 			items.push({name, type})
 		}
-		this.mapListTreeView = this.generateMapListUi({items});
-		this.treeView.addChild(this.mapListTreeView);
+		this.mapListUi = new MaterialMapListUi({items});
+		this.treeView.addChild(this.mapListUi.treeView);
+	}
+
+	fillMapListValues(values){
+		if(!this.mapListUi) return;
+		this.mapListUi.setValues(values);
 	}
 
 	async addShaderUniformsToMap(shaderAsset, itemsMap){

@@ -37,4 +37,8 @@ export default class MaterialMapTypeManager{
 			yield type;
 		}
 	}
+
+	getTypeByUuid(uuid){
+		return this.registeredMapTypes.get(uuid);
+	}
 }
