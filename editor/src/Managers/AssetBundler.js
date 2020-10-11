@@ -25,8 +25,10 @@ export default class AssetBundler{
 		let headerCursor = 0;
 		headerView.setUint32(headerCursor, assetCount, true);
 		headerCursor += 4;
+
 		//fill header with zeros
 		await bundleFileStream.write(header);
+
 		for(const assetUuid of bundleData.assets){
 			if(!assetUuid) continue;
 			const binaryUuid = uuidToBinary(assetUuid);

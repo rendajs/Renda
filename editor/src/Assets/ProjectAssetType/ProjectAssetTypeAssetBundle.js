@@ -9,7 +9,7 @@ export default class ProjectAssetTypeAssetBundle extends ProjectAssetType{
 	static propertiesAssetContentConstructor = PropertiesAssetContentAssetBundle;
 
 	constructor(){
-		super();
+		super(...arguments);
 	}
 
 	static createNewFile(){

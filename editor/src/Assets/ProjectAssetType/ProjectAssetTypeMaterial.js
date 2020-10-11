@@ -10,7 +10,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 	static propertiesAssetContentConstructor = PropertiesAssetContentMaterial;
 
 	constructor(){
-		super();
+		super(...arguments);
 	}
 
 	static createNewFile(){

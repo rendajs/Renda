@@ -9,17 +9,21 @@ export default class MaterialMapType{
 	//You can generate a uuid in the editor browser console using Util.generateUuid()
 	static typeUuid = null;
 
+	static allowExportInAssetBundles = false;
+
 	constructor(treeView){
 		this.treeView = treeView;
 		this.onValueChangeCbs = new Set();
 	}
-
 
 	//overide this with your logic to load saved data in your ui
 	async loadData(data){}
 
 	//this should return your current data, it will be saved in the MaterialMap asset
 	async getData(){}
+
+	//used to export materialMaps to asset bundles, should return an ArrayBuffer
+	static mapDataToBinary(mapData){}
 
 	onValueChange(cb){
 		this.onValueChangeCbs.add(cb);

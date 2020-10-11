@@ -2,11 +2,13 @@ import MaterialMapType from "./MaterialMapType.js";
 import {Shader, Vec3} from "../../../src/index.js";
 import {SingleInstancePromise} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
+import {uuidToBinary} from "../Util/Util.js";
 
 export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 
 	static uiName = "WebGL Renderer";
 	static typeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
+	static allowExportInAssetBundles = true;
 
 	constructor(treeView){
 		super(treeView);
@@ -55,6 +57,15 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		}
 
 		return data;
+	}
+
+	static mapDataToBinary(mapData){
+		const vertUuid = uuidToBinary(mapData.vertexShader);
+		const fragUuid = uuidToBinary(mapData.fragmentShader);
+		for(const [name, mappedData] of Object.entries(mapData.mapList)){
+			console.log(name, mappedData);
+		}
+		return vertUuid;
 	}
 
 	getSettingsValues(){
