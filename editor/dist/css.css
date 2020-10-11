@@ -147,6 +147,7 @@ body, html{
 	border: none;
 	outline: none;
 	font-family: inherit;
+	appearance: none;
 }
 
 .textInput{
@@ -188,6 +189,25 @@ body, html{
 
 .vectorGui{
 	display: flex;
+}
+
+.booleanGui{
+	width: 16px;
+	min-width: 16px;
+	height: 16px;
+	margin: 1px;
+	display: block;
+	padding: 0;
+}
+
+.booleanGui:checked:after{
+	content: ' ';
+	width: 16px;
+	height: 16px;
+	display: block;
+	background: var(--default-text-color);
+	-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path style="fill: none; stroke: white; stroke-width: 6px;" d="M 10 25 L 20 35 L 40 15"></path></svg>');
+	background-size: contain;
 }
 
 .droppableGui{

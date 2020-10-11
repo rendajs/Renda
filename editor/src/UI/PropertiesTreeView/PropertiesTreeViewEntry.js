@@ -2,6 +2,7 @@ import editor from "../../editorInstance.js";
 import TreeView from "../TreeView.js";
 import VectorGui from "../VectorGui.js";
 import NumericGui from "../NumericGui.js";
+import BooleanGui from "../BooleanGui.js";
 import TextGui from "../TextGui.js";
 import DroppableGui from "../DroppableGui.js";
 import ArrayGui from "../ArrayGui.js";
@@ -51,6 +52,9 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Number){
 			this.gui = new NumericGui(guiOpts);
+			this.valueEl.appendChild(this.gui.el);
+		}else if(type == Boolean){
+			this.gui = new BooleanGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Array){
 			this.gui = new ArrayGui({
