@@ -58,15 +58,6 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		});
 
 		this.ignoreValueChange = false;
-		// this.mapSettingsTree = this.treeView.addCollapsable("map settings");
-		// this.mapSettingsTree.generateFromSerializableStructure(this.mapStructure);
-		// this.isUpdatingMapSettingsTree = false;
-		// this.mapSettingsTree.onChildValueChange(_ => {
-		// 	if(this.isUpdatingMapSettingsTree) return;
-		// 	const guiValues = this.getGuiValues();
-		// 	//todo: handle multiple selected items or no selection
-		// 	this.currentSelection[0].writeAssetData(guiValues);
-		// });
 	}
 
 	async selectionUpdated(selectedMaps){
@@ -77,14 +68,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		this.ignoreValueChange = true;
 		await this.updateMaps(mapData);
 		this.ignoreValueChange = false;
-		// this.isUpdatingMapSettingsTree = true;
-		// this.mapSettingsTree.fillSerializableStructureValues(mapData);
-		// this.isUpdatingMapSettingsTree = false;
 	}
-
-	// getGuiValues(){
-	// 	return this.mapSettingsTree.getSerializableStructureValues(this.mapStructure);
-	// }
 
 	hasTypeConstructor(typeConstructor){
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
