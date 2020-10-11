@@ -44,6 +44,19 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		this.fillMapListValues(data.mapList);
 	}
 
+	async getData(){
+		const settings = this.getSettingsValues();
+		const data = {
+			vertexShader: settings.vertexShader.uuid,
+			fragmentShader: settings.fragmentShader.uuid,
+		}
+		if(this.mapListUi){
+			data.mapList = this.mapListUi.getValues();
+		}
+
+		return data;
+	}
+
 	getSettingsValues(){
 		return this.settingsTreeView.getSerializableStructureValues(this.settingsGuiStructure);
 	}
@@ -67,6 +80,9 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		}
 		this.mapListUi = new MaterialMapListUi({items});
 		this.treeView.addChild(this.mapListUi.treeView);
+		this.mapListUi.onValueChange(_ => {
+			this.valueChanged();
+		});
 	}
 
 	fillMapListValues(values){

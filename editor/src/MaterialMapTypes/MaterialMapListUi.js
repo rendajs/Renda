@@ -41,9 +41,28 @@ export default class MaterialMapListUi{
 			const mapUi = this.createdMapListUis.get(name);
 			if(mapUi){
 				const {visibleEntry, mappedNameEntry, defaultValueEntry} = mapUi;
+				// visibleEntry.setValue(itemData.visible);
 				mappedNameEntry.setValue(itemData.mappedName);
 				defaultValueEntry.setValue(itemData.defaultValue);
 			}
 		}
+	}
+
+	onValueChange(cb){
+		this.treeView.onChildValueChange(cb);
+	}
+
+	getValues(){
+		const data = {};
+
+		for(const [name, mapUi] of this.createdMapListUis){
+			data[name] = {
+				// visible: mapUi.visibleEntry.value,
+				mappedName: mapUi.mappedNameEntry.value,
+				defaultValue: mapUi.defaultValueEntry.value,
+			}
+		}
+
+		return data;
 	}
 }

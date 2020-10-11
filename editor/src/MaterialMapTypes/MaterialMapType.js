@@ -11,11 +11,25 @@ export default class MaterialMapType{
 
 	constructor(treeView){
 		this.treeView = treeView;
+		this.onValueChangeCbs = new Set();
 	}
 
 
 	//overide this with your logic to load saved data in your ui
 	async loadData(data){}
+
+	//this should return your current data, it will be saved in the MaterialMap asset
+	async getData(){}
+
+	onValueChange(cb){
+		this.onValueChangeCbs.add(cb);
+	}
+
+	valueChanged(){
+		for(const cb of this.onValueChangeCbs){
+			cb();
+		}
+	}
 
 	static invalidConfigurationWarning(message){
 		console.warn(message+"\nView MaterialMapType.js for more info.");

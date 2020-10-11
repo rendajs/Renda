@@ -56,6 +56,8 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 				}
 			},
 		});
+
+		this.ignoreValueChange = false;
 		// this.mapSettingsTree = this.treeView.addCollapsable("map settings");
 		// this.mapSettingsTree.generateFromSerializableStructure(this.mapStructure);
 		// this.isUpdatingMapSettingsTree = false;
@@ -72,7 +74,9 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		//todo: handle multiple selected items or no selection
 		const map = selectedMaps[0];
 		const mapData = await map.readAssetData();
+		this.ignoreValueChange = true;
 		await this.updateMaps(mapData);
+		this.ignoreValueChange = false;
 		// this.isUpdatingMapSettingsTree = true;
 		// this.mapSettingsTree.fillSerializableStructureValues(mapData);
 		// this.isUpdatingMapSettingsTree = false;
@@ -92,11 +96,18 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 	}
 
 	addMapType(typeConstructor){
-		if(this.hasTypeConstructor(typeConstructor)) return;
+		if(this.hasTypeConstructor(typeConstructor)){
+			return this.addedMapTypes.get(typeConstructor.typeUuid);
+		}
 		const treeView = this.mapTypesTreeView.addCollapsable(typeConstructor.uiName);
 
 		const typeInstance = new typeConstructor(treeView);
 		this.addedMapTypes.set(typeConstructor.typeUuid, typeInstance);
+		typeInstance.onValueChange(_ => {
+			if(!this.ignoreValueChange){
+				this.saveSelectedAssets();
+			}
+		});
 		return typeInstance;
 	}
 
@@ -107,9 +118,26 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		}
 	}
 
+	async getAssetData(){
+		const data = {
+			maps: [],
+		};
+		for(const [uuid, mapInstance] of this.addedMapTypes){
+			const map = {
+				mapTypeId: uuid,
+			}
+			const mapData = await mapInstance.getData();
+			if(mapData){
+				map.mapData = mapData;
+			}
+			data.maps.push(map);
+		}
+		return data;
+	}
+
 	async saveSelectedAssets(){
+		const assetData = await this.getAssetData();
 		for(const asset of this.currentSelection){
-			const assetData = await asset.readAssetData();
 			asset.writeAssetData(assetData);
 		}
 	}
