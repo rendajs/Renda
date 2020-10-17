@@ -10,7 +10,7 @@ export default class AssetManager{
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
-		this.needsAssetSettingsLoad = true;
+		this.assetSettingsLoaded = false;
 		this.loadAssetSettings();
 	}
 
@@ -23,14 +23,14 @@ export default class AssetManager{
 	}
 
 	async loadAssetSettings(fromUserEvent = false){
-		if(!this.needsAssetSettingsLoad) return;
+		if(this.assetSettingsLoaded) return;
 
 		if(!fromUserEvent){
 			const hasPermissions = await this.fileSystem.queryPermission(this.assetSettingsPath);
 			if(!hasPermissions) return;
 		}
 
-		this.needsAssetSettingsLoad = false;
+		this.assetSettingsLoaded = true;
 		if(!(await this.fileSystem.isFile(this.assetSettingsPath))) return;
 		let json = await this.fileSystem.readJson(this.assetSettingsPath);
 		if(json){
@@ -79,6 +79,11 @@ export default class AssetManager{
 
 	async getProjectAsset(uuid){
 		await this.loadAssetSettings(true);
+		return this.projectAssets.get(uuid);
+	}
+
+	getProjectAssetImmediate(uuid){
+		if(!this.assetSettingsLoaded) return null;
 		return this.projectAssets.get(uuid);
 	}
 
@@ -138,12 +143,12 @@ export default class AssetManager{
 	//LoadAssetSettings is expected to be called
 	//(from a user gesture) before calling this method.
 	//If `liveAsset` is not a live asset generated from the
-	//asset manager, this method may be called before loadAssetSettings
+	//asset manager, this method is allowed to be called before loadAssetSettings
 	//since there is no way to get a liveAsset before calling
 	//loadAssetSettings anyway.
-	getLiveAssetUuidForAsset(liveAsset){
-		for(const [uuid, projectAsset] of this.projectAssets){
-			if(projectAsset.liveAsset == liveAsset) return uuid;
+	getProjectAssetForLiveAsset(liveAsset){
+		for(const projectAsset of this.projectAssets.values()){
+			if(projectAsset.liveAsset == liveAsset) return projectAsset;
 		}
 		return null;
 	}

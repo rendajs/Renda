@@ -81,7 +81,10 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			});
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == ProjectAsset || editor.projectAssetTypeManager.constructorHasAssetType(type)){
-			this.gui = new DroppableGui(guiOpts);
+			this.gui = new DroppableGui({
+				supportedAssetTypes: [type],
+				...guiOpts,
+			});
 			this.valueEl.appendChild(this.gui.el);
 		}
 

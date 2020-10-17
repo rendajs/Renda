@@ -60,7 +60,12 @@ export default class Component{
 
 		if(assetManager){
 			if(propertyValue instanceof Material || propertyValue instanceof Mesh){
-				return assetManager.getLiveAssetUuidForAsset(propertyValue);
+				const projectAsset = assetManager.getProjectAssetForLiveAsset(propertyValue);
+				if(projectAsset){
+					return projectAsset.uuid;
+				}else{
+					return null;
+				}
 			}
 		}
 

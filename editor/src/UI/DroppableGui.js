@@ -1,16 +1,32 @@
 import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
+import ProjectAsset from "../Assets/ProjectAsset.js";
 
 export default class DroppableGui{
 	constructor({
 		supportedAssetTypes = [],
 		value = null,
+
+		//this controls what type of value is expected in setValue() and
+		//returned from this.value. Possible values are:
+		//"liveAsset", "projectAsset" or "uuid"
+		//if null, it guesses the best option based on the supportedAssetTypes
+		storageType = null,
 	} = {}){
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = supportedAssetTypes;
+		this.storageType = storageType;
+		if(this.storageType == null){
+			const containsLiveAssetType = this.supportedAssetTypes.some(type => editor.projectAssetTypeManager.constructorHasAssetType(type));
+			if(containsLiveAssetType){
+				this.storageType = "liveAsset";
+			}else{
+				this.storageType = "projectAsset";
+			}
+		}
 
 		this.boundOnDragEnter = this.onDragEnter.bind(this);
 		this.boundOnDragOver = this.onDragOver.bind(this);
@@ -23,7 +39,7 @@ export default class DroppableGui{
 		this.el.addEventListener("dragleave", this.boundOnDragEnd);
 		this.el.addEventListener("drop", this.boundOnDrop);
 
-		this.value = null;
+		this.projectAssetValue = null;
 		this.setValue(value);
 	}
 
@@ -44,13 +60,49 @@ export default class DroppableGui{
 	}
 
 	setValue(value){
-		this.value = value;
-		if(value){
-			this.linkedAssetName = value.name;
+		let projectAsset = null;
+		if(this.storageType == "liveAsset"){
+			editor.projectManager.assetManager.getProjectAssetForLiveAsset(value);
+		}else if(this.storageType == "projectAsset"){
+			projectAsset = value;
+		}else if(this.storageType == "uuid"){
+			projectAsset = editor.projectManager.assetManager.getProjectAssetImmediate(value);
+		}
+		this.setValueFromProjectAsset(projectAsset);
+	}
+
+	get value(){
+		if(this.storageType == "liveAsset"){
+			return this.projectAssetValue?.getLiveAssetImmediate();
+		}else if(this.storageType == "projectAsset"){
+			return this.projectAssetValue;
+		}else if(this.storageType == "uuid"){
+			return this.projectAssetValue?.uuid;
+		}
+	}
+
+	setValueFromProjectAsset(projectAsset){
+		this.projectAssetValue = projectAsset;
+		if(projectAsset){
+			this.linkedAssetName = projectAsset.name;
 		}else{
 			this.linkedAssetName = null;
 		}
 
+		this.updateContent();
+	}
+
+	async setValueFromAssetUuid(uuid){
+		if(!uuid){
+			this.setValueFromProjectAsset(null);
+			this.value = null;
+			this.linkedAssetName = null;
+		}else{
+			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
+			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
+			this.setValueFromProjectAsset(projectAsset);
+		}
+		this.fireValueChange();
 		this.updateContent();
 	}
 
@@ -93,7 +145,7 @@ export default class DroppableGui{
 		for(const mimeType of e.dataTransfer.types){
 			if(this.validateMimeType(mimeType)){
 				const assetUuid = e.dataTransfer.getData(mimeType);
-				this.setFromAssetUuid(assetUuid);
+				this.setValueFromAssetUuid(assetUuid);
 				break;
 			}
 		}
@@ -105,25 +157,18 @@ export default class DroppableGui{
 		const {type, subType, params} = parsed;
 		if(type != "text" || subType != "jj") return false;
 		if(this.supportedAssetTypes.length <= 0) return true;
-		return this.supportedAssetTypes.includes(params.assettype);
+		if(params.dragtype == "projectasset"){
+			if(this.supportedAssetTypes.includes(ProjectAsset)) return true;
+			const assetType = editor.projectAssetTypeManager.getAssetTypeByUuid(params.assettype);
+			if(assetType && assetType.expectedLiveAssetConstructor){
+				return this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
+			}
+		}
+		return false;
 	}
 
 	setDragHoverValidStyle(valid){
 		this.el.classList.toggle("dragHovering", valid);
-	}
-
-	async setFromAssetUuid(uuid){
-		if(!uuid){
-			this.setValue(null);
-			this.value = null;
-			this.linkedAssetName = null;
-		}else{
-			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
-			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
-			this.setValue(projectAsset);
-		}
-		this.fireValueChange();
-		this.updateContent();
 	}
 
 	updateContent(){

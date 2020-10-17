@@ -111,6 +111,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					let value = await this.mapDroppableGuiValues(e.newValue);
 					componentGroup[propertyName] = value;
 				});
+				componentUI.fillSerializableStructureValues(componentGroup);
 			}
 		}
 	}

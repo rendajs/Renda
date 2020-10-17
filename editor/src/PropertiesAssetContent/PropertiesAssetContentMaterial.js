@@ -9,6 +9,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 			type: MaterialMap,
 			guiOpts: {
 				label: "Map",
+				storageType: "uuid",
 			},
 		});
 		this.mapTreeView.onValueChange(_ => {
@@ -26,7 +27,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 		const mapData = await map.readAssetData();
 		this.isUpdatingUi = true;
 
-		this.mapTreeView.gui.setFromAssetUuid(mapData.map);
+		this.mapTreeView.gui.setValue(mapData.map);
 
 		this.isUpdatingUi = false;
 	}
@@ -34,7 +35,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 	saveAsset(){
 		//todo: handle multiple selected items or no selection
 		const assetData = {};
-		assetData.map = this.mapTreeView.value.uuid;
+		assetData.map = this.mapTreeView.value;
 		this.currentSelection[0].writeAssetData(assetData);
 	}
 

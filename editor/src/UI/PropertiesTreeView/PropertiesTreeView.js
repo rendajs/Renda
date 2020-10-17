@@ -57,7 +57,7 @@ export default class PropertiesTreeView extends TreeView{
 	fillSerializableStructureValues(values){
 		for(const [key, value] of Object.entries(values)){
 			const item = this.currentSerializableStructureItems[key];
-			item.setValue(value);
+			item?.setValue(value);
 		}
 	}
 

@@ -204,7 +204,12 @@ export default class ContentWindowProject extends ContentWindow{
 	async onTreeViewDragStart({draggedElement, event}){
 		const assetData = await this.getProjectAssetByTreeViewItem(draggedElement);
 		event.dataTransfer.effectAllowed = "all";
-		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetData.assetType}`, assetData.uuid);
+		let assetTypeUuid = "";
+		const assetType = editor.projectAssetTypeManager.getAssetType(assetData.assetType);
+		if(assetType){
+			assetTypeUuid = assetType.typeUuid;
+		}
+		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, assetData.uuid);
 	}
 
 	async onTreeViewDrop({droppedOnElement, event}){

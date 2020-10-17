@@ -38,6 +38,15 @@ export default class ProjectAssetTypeManager{
 		return this.registeredAssetTypes.get(type);
 	}
 
+	getAssetTypeByUuid(uuid){
+		for(const assetType of this.registeredAssetTypes.values()){
+			if(assetType.typeUuid == uuid){
+				return assetType;
+			}
+		}
+		return null;
+	}
+
 	*getAssetTypesForConstructor(constructor){
 		for(const assetType of this.registeredAssetTypes.values()){
 			if(assetType.expectedLiveAssetConstructor == constructor){

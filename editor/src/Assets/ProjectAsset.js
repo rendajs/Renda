@@ -122,6 +122,12 @@ export default class ProjectAsset{
 		return this.liveAsset;
 	}
 
+	//returns the currently loaded live asset synchronously
+	//returns null if the liveAsset isn't init yet
+	getLiveAssetImmediate(){
+		return this.liveAsset;
+	}
+
 	async getPropertiesAssetContentConstructor(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return null;
