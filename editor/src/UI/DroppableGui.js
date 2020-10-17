@@ -62,7 +62,7 @@ export default class DroppableGui{
 	setValue(value){
 		let projectAsset = null;
 		if(this.storageType == "liveAsset"){
-			editor.projectManager.assetManager.getProjectAssetForLiveAsset(value);
+			projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(value);
 		}else if(this.storageType == "projectAsset"){
 			projectAsset = value;
 		}else if(this.storageType == "uuid"){
