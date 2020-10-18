@@ -61,19 +61,21 @@ export default class DroppableGui{
 
 	setValue(value){
 		let projectAsset = null;
-		if(this.storageType == "liveAsset"){
-			projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(value);
-		}else if(this.storageType == "projectAsset"){
-			projectAsset = value;
-		}else if(this.storageType == "uuid"){
-			projectAsset = editor.projectManager.assetManager.getProjectAssetImmediate(value);
+		if(value){
+			if(this.storageType == "liveAsset"){
+				projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(value);
+			}else if(this.storageType == "projectAsset"){
+				projectAsset = value;
+			}else if(this.storageType == "uuid"){
+				projectAsset = editor.projectManager.assetManager.getProjectAssetImmediate(value);
+			}
 		}
 		this.setValueFromProjectAsset(projectAsset);
 	}
 
 	get value(){
 		if(this.storageType == "liveAsset"){
-			return this.projectAssetValue?.getLiveAssetImmediate();
+			return this.projectAssetValue?.getLiveAssetImmediate() || null;
 		}else if(this.storageType == "projectAsset"){
 			return this.projectAssetValue;
 		}else if(this.storageType == "uuid"){
@@ -101,6 +103,9 @@ export default class DroppableGui{
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
 			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
 			this.setValueFromProjectAsset(projectAsset);
+			if(this.storageType == "liveAsset"){
+				await this.projectAssetValue?.getLiveAsset();
+			}
 		}
 		this.fireValueChange();
 		this.updateContent();
@@ -172,8 +177,8 @@ export default class DroppableGui{
 	}
 
 	updateContent(){
-		this.el.classList.toggle("empty", !this.value);
-		this.el.classList.toggle("filled", this.value);
+		this.el.classList.toggle("empty", !this.projectAssetValue);
+		this.el.classList.toggle("filled", this.projectAssetValue);
 		this.el.textContent = this.linkedAssetName || "";
 	}
 }
