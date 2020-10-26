@@ -3,6 +3,7 @@ import {Shader, Vec3} from "../../../src/index.js";
 import {SingleInstancePromise} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 import {uuidToBinary} from "../Util/Util.js";
+import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 
 export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 
@@ -59,13 +60,21 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		return data;
 	}
 
-	static mapDataToBinary(mapData){
-		const vertUuid = uuidToBinary(mapData.vertexShader);
-		const fragUuid = uuidToBinary(mapData.fragmentShader);
-		for(const [name, mappedData] of Object.entries(mapData.mapList)){
-			console.log(name, mappedData);
-		}
-		return vertUuid;
+	static assetBundleDataStructure = {
+		vertUuid: BinaryComposer.StructureTypes.UUID,
+		fragUuid: BinaryComposer.StructureTypes.UUID,
+	};
+
+	static assetBundleDataNameIds = {
+		vertUuid: 1,
+		fragUuid: 2,
+	};
+
+	static mapDataToAssetBundleData(mapData){
+		return {
+			vertUuid: mapData.vertexShader,
+			fragUuid: mapData.fragmentShader,
+		};
 	}
 
 	getSettingsValues(){

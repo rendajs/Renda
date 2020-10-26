@@ -1,3 +1,5 @@
+import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+
 export default class MaterialMapType{
 
 	//name to be used in the editor ui
@@ -22,8 +24,35 @@ export default class MaterialMapType{
 	//this should return your current data, it will be saved in the MaterialMap asset
 	async getData(){}
 
-	//used to export materialMaps to asset bundles, should return an ArrayBuffer
-	static mapDataToBinary(mapData){}
+	static assetBundleDataStructure = null;
+	static assetBundleDataNameIds = null;
+
+	//used to export materialMaps to asset bundles, should return an Object
+	//this doesn't need to export mapped items, this will be done automatically
+	//make sure assetBundleDataStructure and assetBundleDataNameIds are set
+	//these values will be fed into BinaryComposer.objectToBinary()
+	static mapDataToAssetBundleData(mapData){}
+
+	//alternatively you can override this for more control
+	static mapDataToAssetBundleBinary(mapData){
+		const bundleMapData = this.mapDataToAssetBundleData(mapData);
+		if(!bundleMapData){
+			console.warn("Failed to export material map, no data to export");
+			return null;
+		}
+		if(!this.assetBundleDataStructure){
+			console.warn("Failed to export material map, assetBundleDataStructure is not set");
+			return null;
+		}
+		if(!this.assetBundleDataNameIds){
+			console.warn("Failed to export material map, assetBundleDataNameIds is not set");
+			return null;
+		}
+		return BinaryComposer.objectToBinary(bundleMapData, {
+			structure: this.assetBundleDataStructure,
+			nameIds: this.assetBundleDataNameIds
+		});
+	}
 
 	onValueChange(cb){
 		this.onValueChangeCbs.add(cb);
