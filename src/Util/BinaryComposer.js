@@ -48,6 +48,30 @@ export default class BinaryComposer{
 		this.bufferList.push(buffer);
 	}
 
+	static uuidToBinary(uuidStr){
+		const buffer = new ArrayBuffer(16);
+		let i=0, j=0;
+		const view = new DataView(buffer);
+		while(i < uuidStr.length){
+			if(uuidStr[i] == "-") i++;
+			const hex = uuidStr.slice(i, i+2);
+			const int = parseInt(hex, 16);
+			view.setUint8(j++, int, true);
+			i+=2;
+		}
+		return buffer;
+	}
+
+	static binaryToUuid(buffer, offset = 0){
+		const view = new Uint8Array(buffer);
+		let str = "";
+		for(let i=0; i<16; i++){
+	        str += view[offset+i].toString(16).padStart(2, "0");
+	        if(i == 3 || i == 5 || i == 7 || i == 9) str += "-";
+	    }
+		return str;
+	}
+
 	static objectToBinary(data, {
 		structure = null,
 		nameIds = null,

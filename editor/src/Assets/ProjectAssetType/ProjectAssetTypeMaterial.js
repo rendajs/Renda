@@ -3,7 +3,6 @@ import {Shader, Material} from "../../../../src/index.js";
 import PropertiesAssetContentMaterial from "../../PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 import editor from "../../editorInstance.js";
 import BinaryComposer from "../../../../src/Util/BinaryComposer.js";
-import {uuidToBinary} from "../../Util/Util.js";
 
 export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
@@ -56,7 +55,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 			const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 			const arrayBuffer = mapType.mapDataToAssetBundleBinary(map.mapData);
 			if(!arrayBuffer) continue;
-			const typeUuidBinary = uuidToBinary(map.mapTypeId);
+			const typeUuidBinary = BinaryComposer.uuidToBinary(map.mapTypeId);
 			composer.appendBuffer(typeUuidBinary);
 			console.log(typeUuidBinary, arrayBuffer);
 		}

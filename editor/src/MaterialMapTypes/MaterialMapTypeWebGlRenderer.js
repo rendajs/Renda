@@ -2,7 +2,6 @@ import MaterialMapType from "./MaterialMapType.js";
 import {Shader, Vec3} from "../../../src/index.js";
 import {SingleInstancePromise} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
-import {uuidToBinary} from "../Util/Util.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 
 export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{

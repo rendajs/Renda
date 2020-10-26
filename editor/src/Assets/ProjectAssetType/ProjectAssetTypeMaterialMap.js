@@ -1,7 +1,6 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import PropertiesAssetContentMaterialMap from "../../PropertiesAssetContent/PropertiesAssetContentMaterialMap.js";
 import editor from "../../editorInstance.js";
-import {uuidToBinary} from "../../Util/Util.js";
 
 export default class ProjectAssetTypeMaterialMap extends ProjectAssetType{
 

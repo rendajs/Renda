@@ -1,4 +1,4 @@
-import {uuidToBinary} from "../Util/Util.js";
+import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 
 export default class AssetBundler{
@@ -31,14 +31,14 @@ export default class AssetBundler{
 
 		for(const assetUuid of bundleData.assets){
 			if(!assetUuid) continue;
-			const binaryUuid = uuidToBinary(assetUuid);
+			const binaryUuid = BinaryComposer.uuidToBinary(assetUuid);
 			headerIntView.set(new Uint8Array(binaryUuid), headerCursor);
 			headerCursor += 16;
 
 			const asset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
 
 			const assetTypeUuid = await asset.getAssetTypeUuid();
-			const binaryAssetTypeUuid = uuidToBinary(assetTypeUuid);
+			const binaryAssetTypeUuid = BinaryComposer.uuidToBinary(assetTypeUuid);
 			headerIntView.set(new Uint8Array(binaryAssetTypeUuid), headerCursor);
 			headerCursor += 16;
 
