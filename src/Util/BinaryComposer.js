@@ -16,10 +16,11 @@ export default class BinaryComposer{
 		FLOAT32: 7,
 		FLOAT64: 8,
 		STRING: 9,
-		BOOL: 10,
-		UUID: 11,
-		ARRAY: 12,
-		OBJECT: 13,
+		ARRAY: 10,
+		OBJECT: 11,
+		BOOL: 12,
+		UUID: 13,
+		ARRAYBUFFER: 14,
 	});
 
 	getFullBuffer(){
@@ -121,31 +122,12 @@ export default class BinaryComposer{
 		const textEncoder = new TextEncoder();
 		let totalByteLength = 0;
 		for(const item of flattened){
-			if(item.type == BinaryComposer.StructureTypes.INT8){
-				totalByteLength += 1;
-			}else if(item.type == BinaryComposer.StructureTypes.INT16){
-				totalByteLength += 2;
-			}else if(item.type == BinaryComposer.StructureTypes.INT32){
-				totalByteLength += 4;
-			}else if(item.type == BinaryComposer.StructureTypes.UINT8){
-				totalByteLength += 1;
-			}else if(item.type == BinaryComposer.StructureTypes.UINT16){
-				totalByteLength += 2;
-			}else if(item.type == BinaryComposer.StructureTypes.UINT32){
-				totalByteLength += 4;
-			}else if(item.type == BinaryComposer.StructureTypes.FLOAT32){
-				totalByteLength += 4;
-			}else if(item.type == BinaryComposer.StructureTypes.FLOAT64){
-				totalByteLength += 8;
-			}else if(item.type == BinaryComposer.StructureTypes.STRING){
-				item.value = textEncoder.encode(item.value);
-				totalByteLength += item.value.byteLength;
-				totalByteLength += stringLengthByteLength;
-			}else if(item.type == BinaryComposer.StructureTypes.BOOL){
-				totalByteLength += 1;
-			}else if(item.type == BinaryComposer.StructureTypes.UUID){
-				totalByteLength += 16;
-			}
+			const {length, value} = BinaryComposer.getStructureTypeLength(item.type, {
+				value: item.value,
+				textEncoder, stringLengthByteLength,
+			});
+			totalByteLength += length;
+			if(value) item.value = value;
 		}
 
 
@@ -459,6 +441,37 @@ export default class BinaryComposer{
 			}else{
 				yield item;
 			}
+		}
+	}
+
+	static getStructureTypeLength(type, {
+		value = null,
+		textEncoder = null,
+		stringLengthByteLength = 0,
+	} = {}){
+		if(type == BinaryComposer.StructureTypes.INT8){
+			return {length: 1};
+		}else if(type == BinaryComposer.StructureTypes.INT16){
+			return {length: 2};
+		}else if(type == BinaryComposer.StructureTypes.INT32){
+			return {length: 4};
+		}else if(type == BinaryComposer.StructureTypes.UINT8){
+			return {length: 1};
+		}else if(type == BinaryComposer.StructureTypes.UINT16){
+			return {length: 2};
+		}else if(type == BinaryComposer.StructureTypes.UINT32){
+			return {length: 4};
+		}else if(type == BinaryComposer.StructureTypes.FLOAT32){
+			return {length: 4};
+		}else if(type == BinaryComposer.StructureTypes.FLOAT64){
+			return {length: 8};
+		}else if(type == BinaryComposer.StructureTypes.STRING){
+			const encoded = textEncoder.encode(value);
+			return {length: encoded.byteLength + stringLengthByteLength, value: encoded};
+		}else if(type == BinaryComposer.StructureTypes.BOOL){
+			return {length: 1};
+		}else if(type == BinaryComposer.StructureTypes.UUID){
+			return {length: 16};
 		}
 	}
 
