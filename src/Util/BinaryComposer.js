@@ -210,7 +210,7 @@ export default class BinaryComposer{
 							byteOffset += bytesMoved;
 							if(!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.arrayType.structureRef});
 							unparsedStructureIds.add(refId);
-							collectedReferenceLinks.push({refId, location: digestable.arrayType.location, ref: reconstructedData, variableLengthArrayIndex: i});
+							collectedReferenceLinks.push({refId, location: digestable.arrayType.location, injectIntoRefId: parsingStructureId, variableLengthArrayIndex: i});
 						}
 					}else{
 						for(let i=0; i<arrayLength; i++){
@@ -224,7 +224,7 @@ export default class BinaryComposer{
 					byteOffset += bytesMoved;
 					if(!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.structureRef});
 					unparsedStructureIds.add(refId);
-					collectedReferenceLinks.push({refId, location: digestable.location, ref: reconstructedData});
+					collectedReferenceLinks.push({refId, location: digestable.location, injectIntoRefId: parsingStructureId});
 				}else{
 					const {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.type, byteOffset, {littleEndian, stringLengthStorageType, textDecoder});
 					byteOffset += bytesMoved;
@@ -238,10 +238,13 @@ export default class BinaryComposer{
 			parsingStructureId++;
 		}
 
-		for(const {refId, location, ref, variableLengthArrayIndex} of collectedReferenceLinks){
+		for(const {refId, location, injectIntoRefId, variableLengthArrayIndex} of collectedReferenceLinks){
 			const structureData = structureDataById.get(refId);
 			const value = structureData.reconstructedData;
-			BinaryComposer.resolveBinaryValueLocation(ref, {nameIdsMapInverse, value, location, variableLengthArrayIndex});
+			const injectIntoStructureData = structureDataById.get(injectIntoRefId);
+			let injectIntoRef = injectIntoStructureData.reconstructedData;
+			injectIntoRef = BinaryComposer.resolveBinaryValueLocation(injectIntoRef, {nameIdsMapInverse, value, location, variableLengthArrayIndex});
+			injectIntoStructureData.reconstructedData = injectIntoRef;
 		}
 
 		return structureDataById.get(0).reconstructedData;
