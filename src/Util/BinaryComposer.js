@@ -534,7 +534,7 @@ export default class BinaryComposer{
 		let bytesMoved = BinaryComposer.setDataViewValue(dataView, buffer.byteLength, lengthStorageType, byteOffset, {littleEndian});
 		byteOffset += bytesMoved;
 		const view = new Uint8Array(dataView.buffer);
-		view.set(buffer, byteOffset);
+		view.set(new Uint8Array(buffer), byteOffset);
 		bytesMoved += buffer.byteLength;
 		return bytesMoved;
 	}
