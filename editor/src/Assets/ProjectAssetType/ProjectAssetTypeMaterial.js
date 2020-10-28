@@ -48,16 +48,37 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 		const assetData = await this.projectAsset.readAssetData();
 		const mapUuid = assetData.map;
 		if(!mapUuid) return "";
-		const composer = new BinaryComposer();
+		const mapDatas = [];
+
 		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapUuid);
 		const mapData = await mapAsset.readAssetData();
 		for(const map of mapData.maps){
 			const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 			const arrayBuffer = mapType.mapDataToAssetBundleBinary(map.mapData);
 			if(!arrayBuffer) continue;
-			const typeUuidBinary = BinaryComposer.uuidToBinary(map.mapTypeId);
-			composer.appendBuffer(typeUuidBinary);
-			console.log(typeUuidBinary, arrayBuffer);
+			mapDatas.push({
+				typeUuid: map.mapTypeId,
+				data: arrayBuffer,
+			});
 		}
+
+		return BinaryComposer.objectToBinary({
+			values: [], //todo
+			mapDatas: mapDatas,
+		}, {
+			structure: {
+				values: [BinaryComposer.StructureTypes.INT8],
+				mapDatas: [{
+					typeUuid: BinaryComposer.StructureTypes.UUID,
+					data: BinaryComposer.StructureTypes.ARRAYBUFFER,
+				}],
+			},
+			nameIds: {
+				values: 1,
+				mapDatas: 2,
+				typeUuid: 3,
+				data: 4,
+			},
+		});
 	}
 }

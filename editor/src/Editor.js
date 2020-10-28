@@ -9,6 +9,7 @@ import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import {RealTimeRenderer} from "../../src/index.js";
 import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
+import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
 	constructor(){
@@ -42,5 +43,19 @@ export default class Editor{
 		this.materialMapTypeManager.init();
 
 		this.projectManager.openRecentProjectHandle();
+	}
+
+	doIt(){
+		const structure = {
+			strArr: [BinaryComposer.StructureTypes.STRING],
+		};
+		const nameIds = {
+			strArr: 1,
+		};
+		const binary = BinaryComposer.objectToBinary({
+			strArr: ["a","b","c"],
+		}, {structure, nameIds});
+		const reconstructed = BinaryComposer.binaryToObject(binary, {structure, nameIds});
+		console.log(reconstructed);
 	}
 }

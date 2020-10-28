@@ -46,6 +46,8 @@ export default class AssetBundler{
 			let dataSizeBytes = 0;
 			if(assetData instanceof Blob){
 				dataSizeBytes = assetData.size;
+			}else if(assetData instanceof ArrayBuffer){
+				dataSizeBytes = assetData.byteLength;
 			}
 			headerView.setUint32(headerCursor, dataSizeBytes, true);
 			headerCursor += 4;
