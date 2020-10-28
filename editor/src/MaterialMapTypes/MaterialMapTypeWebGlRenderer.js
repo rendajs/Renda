@@ -16,9 +16,15 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		this.settingsGuiStructure = {
 			vertexShader: {
 				type: Shader,
+				guiOpts: {
+					storageType: "projectAsset",
+				},
 			},
 			fragmentShader: {
 				type: Shader,
+				guiOpts: {
+					storageType: "projectAsset",
+				},
 			},
 		};
 
@@ -49,8 +55,8 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 	async getData(){
 		const settings = this.getSettingsValues();
 		const data = {
-			vertexShader: settings.vertexShader.uuid,
-			fragmentShader: settings.fragmentShader.uuid,
+			vertexShader: settings.vertexShader?.uuid || null,
+			fragmentShader: settings.fragmentShader?.uuid || null,
 		}
 		if(this.mapListUi){
 			data.mapList = this.mapListUi.getValues();
