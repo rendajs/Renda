@@ -49,6 +49,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem(typeConstructor.uiName, _ => {
 							this.addMapType(typeConstructor);
+							this.saveSelectedAssets();
 						}, {disabled});
 					}
 
@@ -66,7 +67,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		const map = selectedMaps[0];
 		const mapData = await map.readAssetData();
 		this.ignoreValueChange = true;
-		await this.updateMaps(mapData);
+		await this.loadMaps(mapData);
 		this.ignoreValueChange = false;
 	}
 
@@ -74,12 +75,16 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
 	}
 
-	addMapTypeUuid(uuid){
+	addMapTypeUuid(uuid, {
+		updateMapListUi = true,
+	} = {}){
 		const constructor = editor.materialMapTypeManager.getTypeByUuid(uuid);
-		return this.addMapType(constructor);
+		return this.addMapType(constructor, {updateMapListUi});
 	}
 
-	addMapType(typeConstructor){
+	addMapType(typeConstructor, {
+		updateMapListUi = true,
+	} = {}){
 		if(this.hasTypeConstructor(typeConstructor)){
 			return this.addedMapTypes.get(typeConstructor.typeUuid);
 		}
@@ -92,13 +97,16 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 				this.saveSelectedAssets();
 			}
 		});
+		if(updateMapListUi) typeInstance.updateMapListUi();
 		return typeInstance;
 	}
 
-	async updateMaps(mapData){
+	async loadMaps(mapData){
 		for(const map of mapData.maps){
-			const typeInstance = this.addMapTypeUuid(map.mapTypeId);
-			await typeInstance.loadData(map.mapData);
+			const typeInstance = this.addMapTypeUuid(map.mapTypeId, {updateMapListUi: false});
+			if(map.customData) await typeInstance.customAssetDataFromLoad(map.customData);
+			await typeInstance.updateMapListUi();
+			if(map.mappedValues) await typeInstance.fillMapListValues(map.mappedValues);
 		}
 	}
 
@@ -110,10 +118,11 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 			const map = {
 				mapTypeId: uuid,
 			}
-			const mapData = await mapInstance.getData();
-			if(mapData){
-				map.mapData = mapData;
+			const customData = await mapInstance.getCustomAssetDataForSave();
+			if(customData){
+				map.customData = customData;
 			}
+			map.mappedValues = await mapInstance.getMappableValuesForSave();
 			data.maps.push(map);
 		}
 		return data;

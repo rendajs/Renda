@@ -1,4 +1,5 @@
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+import MaterialMapListUi from "./MaterialMapListUi.js";
 
 export default class MaterialMapType{
 
@@ -15,14 +16,21 @@ export default class MaterialMapType{
 
 	constructor(treeView){
 		this.treeView = treeView;
+		this.settingsTreeView = this.treeView.addCollapsable("Map Settings");
 		this.onValueChangeCbs = new Set();
+		this.mapListTreeView = this.treeView.addCollapsable("Map List");
+		this.mapListUi = null;
 	}
 
 	//overide this with your logic to load saved data in your ui
-	async loadData(data){}
+	async customAssetDataFromLoad(data){}
 
 	//this should return your current data, it will be saved in the MaterialMap asset
-	async getData(){}
+	async getCustomAssetDataForSave(){}
+
+	//this should return a list of mappable values, this will be used to render the ui
+	//the values will be automatically loaded, saved and exported in assetbundles
+	async getMappableValues(){return []}
 
 	static assetBundleDataStructure = null;
 	static assetBundleDataNameIds = null;
@@ -37,7 +45,7 @@ export default class MaterialMapType{
 	static mapDataToAssetBundleBinary(mapData){
 		const bundleMapData = this.mapDataToAssetBundleData(mapData);
 		if(!bundleMapData){
-			console.warn("Failed to export material map, no data to export");
+			//fail silently, you probaly intended to not export anything
 			return null;
 		}
 		if(!this.assetBundleDataStructure){
@@ -62,6 +70,30 @@ export default class MaterialMapType{
 		for(const cb of this.onValueChangeCbs){
 			cb();
 		}
+	}
+
+	async updateMapListUi(){
+		if(this.mapListUi){
+			this.mapListUi.destructor();
+			this.mapListUi = null;
+		}
+
+		this.mapListUi = new MaterialMapListUi({
+			items: await this.getMappableValues(),
+		});
+		this.mapListTreeView.addChild(this.mapListUi.treeView);
+		this.mapListUi.onValueChange(_ => {
+			this.valueChanged();
+		});
+	}
+
+	async getMappableValuesForSave(){
+		return this.mapListUi?.getValues();
+	}
+
+	fillMapListValues(values){
+		if(!this.mapListUi) return;
+		this.mapListUi.setValues(values);
 	}
 
 	static invalidConfigurationWarning(message){

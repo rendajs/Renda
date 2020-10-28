@@ -28,38 +28,26 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 			},
 		};
 
-		this.settingsTreeView = this.treeView.addCollapsable("Shaders");
 		this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);
 		this.settingsTreeView.onChildValueChange(_ => {
-			this.updateMapListInstance.run();
+			this.updateMapListUi();
+			this.valueChanged();
 		});
-
-		this.mapListUi = null;
-
-		//todo: if this is already running, run it again when .run() is called
-		this.updateMapListInstance = new SingleInstancePromise(async _=> await this.updateMapList(), {once: false});
-		this.updateMapListInstance.run();
 	}
 
-	async loadData(data){
+	async customAssetDataFromLoad(data){
 		let vertexShader = null;
 		let fragmentShader = null;
 		if(data.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(data.vertexShader);
 		if(data.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(data.fragmentShader);
 		this.settingsTreeView.fillSerializableStructureValues({vertexShader, fragmentShader});
-
-		await this.updateMapList();
-		this.fillMapListValues(data.mapList);
 	}
 
-	async getData(){
+	async getCustomAssetDataForSave(){
 		const settings = this.getSettingsValues();
 		const data = {
 			vertexShader: settings.vertexShader?.uuid || null,
 			fragmentShader: settings.fragmentShader?.uuid || null,
-		}
-		if(this.mapListUi){
-			data.mapList = this.mapListUi.getValues();
 		}
 
 		return data;
@@ -86,12 +74,7 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		return this.settingsTreeView.getSerializableStructureValues(this.settingsGuiStructure);
 	}
 
-	async updateMapList(){
-		if(this.mapListUi){
-			this.mapListUi.destructor();
-			this.mapListUi = null;
-		}
-
+	async getMappableValues(){
 		const settings = this.getSettingsValues();
 
 		const itemsMap = new Map();
@@ -103,16 +86,7 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 			const type = itemData.type;
 			items.push({name, type})
 		}
-		this.mapListUi = new MaterialMapListUi({items});
-		this.treeView.addChild(this.mapListUi.treeView);
-		this.mapListUi.onValueChange(_ => {
-			this.valueChanged();
-		});
-	}
-
-	fillMapListValues(values){
-		if(!this.mapListUi) return;
-		this.mapListUi.setValues(values);
+		return items;
 	}
 
 	async addShaderUniformsToMap(shaderAsset, itemsMap){

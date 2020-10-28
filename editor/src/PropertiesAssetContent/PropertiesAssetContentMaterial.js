@@ -9,10 +9,11 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 			type: ProjectAsset,
 			guiOpts: {
 				label: "Map",
-				storageType: "uuid",
+				storageType: "projectAsset",
 			},
 		});
-		this.mapTreeView.onValueChange(_ => {
+		this.mapValuesTreeView = materialSettingsTree.addCollapsable("map values");
+		materialSettingsTree.onChildValueChange(_ => {
 			if(this.isUpdatingUi) return;
 			this.saveAsset();
 		});
@@ -27,7 +28,8 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 		const mapData = await map.readAssetData();
 		this.isUpdatingUi = true;
 
-		this.mapTreeView.gui.setValue(mapData.map);
+		await this.mapTreeView.gui.setValueFromAssetUuid(mapData.map);
+		this.updateMapValues();
 
 		this.isUpdatingUi = false;
 	}
@@ -35,12 +37,18 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 	saveAsset(){
 		//todo: handle multiple selected items or no selection
 		const assetData = {};
-		assetData.map = this.mapTreeView.value;
+		assetData.map = this.mapTreeView.value?.uuid || null;
 		this.currentSelection[0].writeAssetData(assetData);
 	}
 
 	async selectionUpdated(selectedMaterials){
 		super.selectionUpdated(selectedMaterials);
 		this.loadAsset();
+	}
+
+	async updateMapValues(){
+		this.mapValuesTreeView.clearChildren();
+		const mapValues = await editor.materialMapTypeManager.getMapValuesForMapAsset(this.mapTreeView.value);
+		console.log(mapValues);
 	}
 }
