@@ -49,6 +49,13 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 	async updateMapValues(){
 		this.mapValuesTreeView.clearChildren();
 		const mapValues = await editor.materialMapTypeManager.getMapValuesForMapAsset(this.mapTreeView.value);
-		console.log(mapValues);
+		for(const [name, valueData] of mapValues){
+			this.mapValuesTreeView.addItem({
+				type: valueData.type,
+				guiOpts:{
+					label: name,
+				},
+			});
+		}
 	}
 }

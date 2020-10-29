@@ -44,12 +44,15 @@ export default class MaterialMapTypeManager{
 
 	async getMapValuesForMapAsset(mapAsset){
 		if(!mapAsset) return [];
+		const mapValues = new Map();
 		const mapData = await mapAsset.readAssetData();
 		for(const map of mapData.maps){
 			const mapTypeConstructor = this.getTypeByUuid(map.mapTypeId);
-			mapTypeConstructor.getMaterialValues();
-			console.log(mapTypeConstructor);
+			const values = await mapTypeConstructor.getMappedValues(map.customData, map.mappedValues);
+			for(const value of values){
+				mapValues.set(value.name, value);
+			}
 		}
-		console.log(mapData);
+		return mapValues;
 	}
 }

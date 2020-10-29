@@ -118,7 +118,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 			const map = {
 				mapTypeId: uuid,
 			}
-			const customData = await mapInstance.getCustomAssetDataForSave();
+			const customData = await mapInstance.getCustomAssetDataForSaveInternal();
 			if(customData){
 				map.customData = customData;
 			}

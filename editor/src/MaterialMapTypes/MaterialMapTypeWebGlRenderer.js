@@ -31,7 +31,7 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);
 		this.settingsTreeView.onChildValueChange(_ => {
 			this.updateMapListUi();
-			this.valueChanged();
+			this.signalCustomDataChanged();
 		});
 	}
 
@@ -74,12 +74,10 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		return this.settingsTreeView.getSerializableStructureValues(this.settingsGuiStructure);
 	}
 
-	async getMappableValues(){
-		const settings = this.getSettingsValues();
-
+	static async getMappableValues(customData){
 		const itemsMap = new Map();
-		await this.addShaderUniformsToMap(settings.vertexShader, itemsMap);
-		await this.addShaderUniformsToMap(settings.fragmentShader, itemsMap);
+		await this.addShaderUniformsToMap(customData.vertexShader, itemsMap);
+		await this.addShaderUniformsToMap(customData.fragmentShader, itemsMap);
 
 		const items = [];
 		for(const [name, itemData] of itemsMap){
@@ -89,23 +87,29 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		return items;
 	}
 
-	async addShaderUniformsToMap(shaderAsset, itemsMap){
+	static async addShaderUniformsToMap(shaderUuid, itemsMap){
+		const shaderAsset = await editor.projectManager.assetManager.getProjectAsset(shaderUuid);
 		for(const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)){
 			itemsMap.set(name, {type});
 		}
 	}
 
-	async getMapItemsIteratorFromShaderAsset(asset){
+	static async getMapItemsIteratorFromShaderAsset(asset){
 		if(!asset) return [];
 		const shader = await asset.getLiveAsset();
 		return this.getMapItemsFromShaderSource(shader.vertSource);
 	}
 
-	*getMapItemsFromShaderSource(shaderSrc){
-		const re = /^\s+uniform\s(?<type>.+?)\s+(?<name>.+?)\s*;/gm;
+	static *getMapItemsFromShaderSource(shaderSrc){
+		const re = /^\s*uniform\s(?<type>.+?)\s+(?<name>.+?)\s*;/gm;
 		for(const result of shaderSrc.matchAll(re)){
 			const name = result.groups.name;
-			const type = Number;
+			let type = null;
+			if(result.groups.type == "float"){
+				type = Number;
+			}else if(result.groups.type == "vec3"){
+				type = Vec3;
+			}
 			yield {name, type};
 		}
 	}
