@@ -7,13 +7,13 @@ import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
-import {RealTimeRenderer} from "../../src/index.js";
+import {WebGlRenderer} from "../../src/index.js";
 import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
 import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
 	constructor(){
-		this.renderer = new RealTimeRenderer();
+		this.renderer = new WebGlRenderer();
 		this.windowManager = new WindowManager();
 		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();

@@ -50,7 +50,7 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
 	},
 }, defaultComponentTypeManager.defaultNamespace);
 
-export default class RealTimeRenderer extends Renderer{
+export default class WebGlRenderer extends Renderer{
 	constructor(){
 		super();
 

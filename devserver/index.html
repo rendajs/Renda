@@ -2,7 +2,7 @@
 	<head>
 		<script type="module">
 			import * as JJ from "../src/index.js";
-			import {Entity, Vec3, Mesh, Shader, Material, RealTimeRenderer, ComponentTypes, Quaternion} from "../src/index.js";
+			import {Entity, Vec3, Mesh, Shader, Material, WebGlRenderer, ComponentTypes, Quaternion} from "../src/index.js";
 
 			window["JJ"] = JJ;
 
@@ -66,7 +66,7 @@
 			let cam = new Entity({name:"cam"});
 			cam.pos.z = -5;
 			let camComponent = cam.addComponent(ComponentTypes.camera);
-			const renderer = new RealTimeRenderer();
+			const renderer = new WebGlRenderer();
 			renderer.init();
 			scene.add(cam);
 			document.body.appendChild(renderer.canvas);
