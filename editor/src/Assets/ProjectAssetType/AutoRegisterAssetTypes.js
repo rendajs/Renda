@@ -3,7 +3,7 @@ import ProjectAssetTypeMaterialMap from "./ProjectAssetTypeMaterialMap.js";
 import ProjectAssetTypeMesh from "./ProjectAssetTypeMesh.js";
 import ProjectAssetTypeEntity from "./ProjectAssetTypeEntity.js";
 import ProjectAssetTypeJavascript from "./ProjectAssetTypeJavascript.js";
-import ProjectAssetTypeShader from "./ProjectAssetTypeShader.js";
+import ProjectAssetTypeShaderSource from "./ProjectAssetTypeShaderSource.js";
 import ProjectAssetTypeAssetBundle from "./ProjectAssetTypeAssetBundle.js";
 
-export default [ProjectAssetTypeMaterial, ProjectAssetTypeMaterialMap, ProjectAssetTypeMesh, ProjectAssetTypeEntity, ProjectAssetTypeJavascript, ProjectAssetTypeShader, ProjectAssetTypeAssetBundle];
+export default [ProjectAssetTypeMaterial, ProjectAssetTypeMaterialMap, ProjectAssetTypeMesh, ProjectAssetTypeEntity, ProjectAssetTypeJavascript, ProjectAssetTypeShaderSource, ProjectAssetTypeAssetBundle];

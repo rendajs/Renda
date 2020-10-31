@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Shader, Material, ComponentTypes} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, ComponentTypes} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -115,25 +115,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			new Vec3( 1,-1, 1),
 			new Vec3( 1, 1, 1),
 		]);
-		let cubeShader = new Shader(`
-			attribute vec4 aVertexPosition;
-
-			uniform mat4 uMvpMatrix;
-
-			varying lowp vec4 vColor;
-
-			void main() {
-			  gl_Position = uMvpMatrix * aVertexPosition;
-			  vColor = aVertexPosition;
-			}
-		`,`
-			varying lowp vec4 vColor;
-
-			void main() {
-				gl_FragColor = vec4(abs(vColor).rgb, 1.0);
-			}
-		`);
-		let cubeMat = new Material(cubeShader);
+		let cubeMat = new Material();
 		cube.addComponent(ComponentTypes.mesh, {mesh: cubeMesh, materials: [cubeMat]});
 
 		this.editingEntity.add(cube);

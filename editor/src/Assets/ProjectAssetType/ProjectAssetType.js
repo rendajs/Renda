@@ -24,6 +24,7 @@ export default class ProjectAssetType{
 	static newFileExtension = "json";
 
 	static storeInProjectAsJson = true;
+	static storeInProjectAsText = false;
 
 	//set this to false if you don't want the editor to
 	//wrap your provided data in ProjectAsset.writeAssetData()

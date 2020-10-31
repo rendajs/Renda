@@ -151,6 +151,8 @@ export default class ProjectAsset{
 			}else{
 				fileData = json;
 			}
+		}else if(this._projectAssetType.constructor.storeInProjectAsText){
+			fileData = await editor.projectManager.currentProjectFileSystem.readText(this.path);
 		}else{
 			fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
 		}
@@ -170,6 +172,8 @@ export default class ProjectAsset{
 				json = fileData;
 			}
 			await editor.projectManager.currentProjectFileSystem.writeJson(this.path, json);
+		}else if(this._projectAssetType.constructor.storeInProjectAsText){
+			await editor.projectManager.currentProjectFileSystem.writeText(this.path, fileData);
 		}else{
 			//todo
 		}

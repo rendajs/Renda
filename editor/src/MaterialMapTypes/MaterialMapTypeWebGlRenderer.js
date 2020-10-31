@@ -1,5 +1,5 @@
 import MaterialMapType from "./MaterialMapType.js";
-import {Shader, Vec3} from "../../../src/index.js";
+import {ShaderSource, Vec3} from "../../../src/index.js";
 import {SingleInstancePromise} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
@@ -15,13 +15,13 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 
 		this.settingsGuiStructure = {
 			vertexShader: {
-				type: Shader,
+				type: ShaderSource,
 				guiOpts: {
 					storageType: "projectAsset",
 				},
 			},
 			fragmentShader: {
-				type: Shader,
+				type: ShaderSource,
 				guiOpts: {
 					storageType: "projectAsset",
 				},
@@ -97,7 +97,7 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 	static async getMapItemsIteratorFromShaderAsset(asset){
 		if(!asset) return [];
 		const shader = await asset.getLiveAsset();
-		return this.getMapItemsFromShaderSource(shader.vertSource);
+		return this.getMapItemsFromShaderSource(shader.source);
 	}
 
 	static *getMapItemsFromShaderSource(shaderSrc){

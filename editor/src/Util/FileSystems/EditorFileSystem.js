@@ -49,6 +49,11 @@ export default class EditorFileSystem{
 		await this.writeFile(path, new File([text], "", {type}))
 	}
 
+	async readText(path = []){
+		const file = await this.readFile(path);
+		return await file.text();
+	}
+
 	async writeJson(path = [], json = {}){
 		let jsonStr = JSON.stringify(json, null, "\t");
 		await this.writeText(path, jsonStr, {type: "application/json"});
