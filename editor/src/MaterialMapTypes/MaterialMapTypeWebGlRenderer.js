@@ -35,11 +35,11 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		});
 	}
 
-	async customAssetDataFromLoad(data){
+	async customAssetDataFromLoad(customData){
 		let vertexShader = null;
 		let fragmentShader = null;
-		if(data.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(data.vertexShader);
-		if(data.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(data.fragmentShader);
+		if(customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
+		if(customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
 		this.settingsTreeView.fillSerializableStructureValues({vertexShader, fragmentShader});
 	}
 
@@ -51,6 +51,14 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		}
 
 		return data;
+	}
+
+	static async getLiveAssetCustomData(customData){
+		let vertexShader = null;
+		let fragmentShader = null;
+		if(customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getLiveAsset(customData.vertexShader);
+		if(customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getLiveAsset(customData.fragmentShader);
+		return {vertexShader, fragmentShader};
 	}
 
 	static assetBundleDataStructure = {

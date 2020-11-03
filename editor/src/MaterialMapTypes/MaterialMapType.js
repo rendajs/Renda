@@ -37,6 +37,12 @@ export default class MaterialMapType{
 		this.valueChanged();
 	}
 
+	//this should return data that will be stored in the material
+	//you can transform customData from how it is stored in the
+	//project to something that is more easily digestable by
+	//a renderer for example
+	static async getLiveAssetCustomData(customData){}
+
 	//this should return a list of mappable values, this will be used to render the ui
 	//the values will be automatically loaded, saved and exported in assetbundles
 	//customData will be whatever you last returned from getCustomAssetDataForSave()

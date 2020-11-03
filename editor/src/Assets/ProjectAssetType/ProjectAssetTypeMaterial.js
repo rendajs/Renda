@@ -22,7 +22,14 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 	static expectedLiveAssetConstructor = Material;
 
 	async getLiveAsset(materialJson){
-		const material = new Material();
+		let customMapDatas = null;
+		if(materialJson.map){
+			const map = await editor.projectManager.assetManager.getProjectAsset(materialJson.map);
+			customMapDatas = await editor.materialMapTypeManager.getCustomMapDatasForMapAsset(map);
+		}
+		const material = new Material({
+			customMapDatas,
+		});
 		return material;
 	}
 

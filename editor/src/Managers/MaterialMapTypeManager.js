@@ -46,13 +46,24 @@ export default class MaterialMapTypeManager{
 		if(!mapAsset) return [];
 		const mapValues = new Map();
 		const mapData = await mapAsset.readAssetData();
-		for(const map of mapData.maps){
-			const mapTypeConstructor = this.getTypeByUuid(map.mapTypeId);
-			const values = await mapTypeConstructor.getMappedValues(map.customData, map.mappedValues);
+		for(const mapType of mapData.maps){
+			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
+			const values = await mapTypeConstructor.getMappedValues(mapType.customData, mapType.mappedValues);
 			for(const value of values){
 				mapValues.set(value.name, value);
 			}
 		}
 		return mapValues;
+	}
+
+	async getCustomMapDatasForMapAsset(mapAsset){
+		const mapData = await mapAsset.readAssetData();
+		const mapDatas = new Map();
+		for(const mapType of mapData.maps){
+			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
+			const customData = await mapTypeConstructor.getLiveAssetCustomData(mapType.customData);
+			mapDatas.set(mapType.mapTypeId, customData);
+		}
+		return mapDatas;
 	}
 }
