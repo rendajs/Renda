@@ -4,6 +4,10 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	constructor(handle){
 		super();
 		this.handle = handle;
+
+		this.watchLoopIsRunning = false;
+		this.watchLoopIsStopping = false;
+		this.watchTree = new Map();
 	}
 
 	static async openUserDir(){
@@ -166,5 +170,79 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 			}
 		}
 		return true;
+	}
+
+	//todos:
+	//-don't fire when obtaining read permissions
+	//-don't fire when making a change from this application
+	//-fire events when deleting a file
+	//-fire events when creating a directory
+	onExternalChange(){
+		super.onExternalChange(...arguments);
+
+		this.startWatchLoop();
+	}
+
+	async startWatchLoop(){
+		if(this.watchLoopIsRunning){
+			this.watchLoopIsStopping = false;
+			return;
+		}
+		this.watchLoopIsRunning = true;
+
+		//populate watchtree with initial values
+		await this.traverseWatchTree(this.watchTree, this.handle, []);
+
+		while(true){
+			await this.watchLoop();
+			if(this.watchLoopIsStopping){
+				this.watchLoopIsStopping = false;
+				this.watchLoopIsRunning = false;
+			}
+		}
+	}
+
+	stopWatchLoop(){
+		this.watchLoopIsStopping = true;
+	}
+
+	async watchLoop(){
+		const collectedChanges = [];
+
+		await this.traverseWatchTree(this.watchTree, this.handle, collectedChanges);
+
+		for(const change of collectedChanges){
+			this.fireExternalChange(change);
+		}
+	}
+
+	async traverseWatchTree(watchTree, dirHandle, collectedChanges, traversedPath = []){
+		if(!await this.verifyHandlePermission(dirHandle, {prompt: false, writable: false, error: false})){
+			return;
+		}
+		for await (const [name, handle] of dirHandle.entries()){
+			if(!await this.verifyHandlePermission(handle, {prompt: false, writable: false, error: false})){
+				continue;
+			}
+			if(handle.kind == "file"){
+				const file = await handle.getFile();
+				const lastModified = file.lastModified;
+				if(!watchTree.has(name) || watchTree.get(name) < lastModified){
+					watchTree.set(name, lastModified);
+					collectedChanges.push({
+						kind: handle.kind,
+						path: [...traversedPath, name],
+					});
+				}
+			}else if(handle.kind == "directory"){
+				let dirWatchTree = watchTree.get(name);
+				if(!dirWatchTree){
+					dirWatchTree = new Map();
+					watchTree.set(name, dirWatchTree);
+				}
+				const newTraversedPath = [...traversedPath, name];
+				await this.traverseWatchTree(dirWatchTree, handle, collectedChanges, newTraversedPath);
+			}
+		}
 	}
 }

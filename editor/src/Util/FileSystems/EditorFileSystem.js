@@ -1,6 +1,6 @@
 export default class EditorFileSystem{
 	constructor(){
-
+		this.onExternalChangeCbs = new Set();
 	}
 
 	//path should be an array of directory names
@@ -28,6 +28,16 @@ export default class EditorFileSystem{
 	async isFile(path = []){}
 
 	async isDir(path = []){}
+
+	onExternalChange(cb){
+		this.onExternalChangeCbs.add(cb);
+	}
+
+	fireExternalChange(e){
+		for(const cb of this.onExternalChangeCbs){
+			cb(e);
+		}
+	}
 
 	//This should return true if the user has permission to read
 	//(or write if specified) at the specified path.
