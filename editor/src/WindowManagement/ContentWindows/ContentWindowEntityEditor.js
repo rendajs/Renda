@@ -60,6 +60,9 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	set editingEntity(val){
+		if(this._editingEntity){
+			this.editorScene.remove(this._editingEntity);
+		}
 		this._editingEntity = val;
 		this.editorScene.add(val);
 		this.render();
