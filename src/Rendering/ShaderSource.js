@@ -1,5 +1,6 @@
 export default class ShaderSource{
-	constructor(source){
+	constructor(uuid, source){
+		this.uuid = uuid;
 		this.source = source;
 	}
 }

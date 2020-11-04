@@ -30,6 +30,7 @@ export default class Mesh{
 		return this.buffers.get(type);
 	}
 
+	//todo: move this method to the renderer
 	uploadToWebGl(gl){
 		for(const [type, buffer] of this.buffers){
 			let bufferType = gl.ARRAY_BUFFER;

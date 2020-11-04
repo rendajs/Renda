@@ -1,4 +1,4 @@
-import {Renderer, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh, Material, MeshAttributeBuffer} from "../../index.js";
+import {Renderer, WebGlShader, ShaderSource, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh, Material, MeshAttributeBuffer} from "../../index.js";
 
 defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
 	properties: {
@@ -51,11 +51,23 @@ defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
 }, defaultComponentTypeManager.defaultNamespace);
 
 export default class WebGlRenderer extends Renderer{
+
+	static materialMapWebGlTypeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
+
 	constructor(){
 		super();
 
 		this.canvas = null;
 		this.gl = null;
+
+		//key: Material, value: object with WebGlShaders etc.
+		this.cachedMaterialData = new WeakMap();
+
+		//key: ShaderSource, value: WeakMap of (ShaderSource, WebGlShader)
+		this.cachedShaders = new WeakMap();
+
+		//key: WebGlShader, value: Set of WeakRefs that contains the object this shader is used by
+		this.shadersUsedByLists = new WeakMap();
 	}
 
 	init(){
@@ -94,10 +106,14 @@ export default class WebGlRenderer extends Renderer{
 		mesh.uploadToWebGl(this.gl);
 
 		for(const material of materials){
-			if(!material) continue;
-			//todo: only init necessary materials
-			material.compileShader(this.gl);
-			let shader = material.shader;
+			if(!material || material.disposed) continue;
+
+			const webGlMapData = material.customMapDatas.get(WebGlRenderer.materialMapWebGlTypeUuid);
+			const materialData = this.getCachedMaterialData(material);
+			if(!materialData.forwardShader){
+				materialData.forwardShader = this.getShader(material, webGlMapData.vertexShader, webGlMapData.fragmentShader);
+			}
+			const shader = materialData.forwardShader;
 
 			const positionAttrib = shader.getAttribLocation("aVertexPosition");
 			const positionBuffer = mesh.getBuffer(Mesh.AttributeTypes.POSITION);
@@ -112,6 +128,75 @@ export default class WebGlRenderer extends Renderer{
 			const indexBuffer = mesh.getBuffer(Mesh.AttributeTypes.INDEX);
 			this.gl.drawElements(this.gl.TRIANGLES, 36, this.attribTypeToWebGlConst(indexBuffer.componentType), indexBuffer.glBuffer)
 		}
+	}
+
+	getCachedMaterialData(material){
+		let data = this.cachedMaterialData.get(material);
+		if(!data){
+			data = {};
+			this.cachedMaterialData.set(material, data);
+		}
+		return data;
+	}
+
+	getShader(usedByMaterial, vertSourceAsset, fragSourceAsset){
+		let shader;
+		let cachedFragList = this.cachedShaders.get(vertSourceAsset);
+		if(cachedFragList){
+			shader = cachedFragList.get(fragSourceAsset);
+		}
+
+		if(!shader){
+			shader = new WebGlShader(this, vertSourceAsset, fragSourceAsset);
+			shader.compile();
+
+			if(!cachedFragList){
+				cachedFragList = new WeakMap();
+				this.cachedShaders.set(vertSourceAsset, cachedFragList);
+			}
+			cachedFragList.set(fragSourceAsset, shader);
+		}
+
+		this.addUsedByObjectToShader(shader, usedByMaterial);
+
+		return shader;
+	}
+
+	disposeMaterial(material){
+		material.markDisposed();
+		const materialData = this.getCachedMaterialData(material);
+		this.cachedMaterialData.delete(material);
+		this.removeUsedByObjectFromShader(materialData.forwardShader, material);
+	}
+
+	addUsedByObjectToShader(shader, usedBy){
+		let usedByList = this.shadersUsedByLists.get(shader);
+		if(!usedByList){
+			usedByList = new Set();
+			this.shadersUsedByLists.set(shader, usedByList);
+		}
+		usedByList.add(new WeakRef(usedBy));
+	}
+
+	removeUsedByObjectFromShader(shader, usedBy){
+		const usedByList = this.shadersUsedByLists.get(shader);
+		if(usedByList){
+			for(const ref of usedByList){
+				const deref = ref.deref();
+				if(usedBy == deref || deref === undefined){
+					usedByList.delete(ref);
+				}
+			}
+		}
+
+		if(!usedByList || usedByList.size == 0){
+			this.disposeShader(shader);
+		}
+	}
+
+	disposeShader(shader){
+		shader.destructor();
+		this.shadersUsedByLists.delete(shader);
 	}
 
 	attribTypeToWebGlConst(type){

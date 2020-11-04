@@ -3,5 +3,12 @@ export default class Material{
 		customMapDatas = new Map(),
 	} = {}){
 		this.customMapDatas = customMapDatas;
+
+		this.disposed = false;
+	}
+
+	markDisposed(){
+		this.disposed = true;
+		this.customMapDatas = null;
 	}
 }

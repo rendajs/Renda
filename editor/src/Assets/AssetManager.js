@@ -5,7 +5,6 @@ import ProjectAsset from "./ProjectAsset.js";
 export default class AssetManager{
 	constructor(){
 		this.projectAssets = new Map();
-		this.liveAssets = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 

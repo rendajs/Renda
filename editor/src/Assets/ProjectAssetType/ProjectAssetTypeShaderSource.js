@@ -26,6 +26,6 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	static expectedLiveAssetConstructor = ShaderSource;
 
 	async getLiveAsset(source){
-		return new ShaderSource(source);
+		return new ShaderSource(this.projectAsset.uuid, source);
 	}
 }
