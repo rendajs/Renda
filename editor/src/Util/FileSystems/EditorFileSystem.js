@@ -39,6 +39,11 @@ export default class EditorFileSystem{
 		}
 	}
 
+	//external change events are not guaranteed to fire immediately
+	//calling this method suggests that right now is a good time
+	//to check for external changes
+	suggestCheckExternalChanges(){}
+
 	//This should return true if the user has permission to read
 	//(or write if specified) at the specified path.
 	//This method should not trigger any ui pop ups

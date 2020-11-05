@@ -1,13 +1,13 @@
 import EditorFileSystem from "./EditorFileSystem.js";
+import {SingleInstancePromise} from "../../../../src/index.js";
 
 export default class EditorFileSystemNative extends EditorFileSystem{
 	constructor(handle){
 		super();
 		this.handle = handle;
 
-		this.watchLoopIsRunning = false;
-		this.watchLoopIsStopping = false;
 		this.watchTree = new Map();
+		this.updateWatchTreeInstance = new SingleInstancePromise(async _=> await this.updateWatchTree(), {once: false});
 	}
 
 	static async openUserDir(){
@@ -177,36 +177,11 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	//-don't fire when making a change from this application
 	//-fire events when deleting a file
 	//-fire events when creating a directory
-	onExternalChange(){
-		super.onExternalChange(...arguments);
-
-		this.startWatchLoop();
+	async suggestCheckExternalChanges(){
+		this.updateWatchTreeInstance.run(true);
 	}
 
-	async startWatchLoop(){
-		if(this.watchLoopIsRunning){
-			this.watchLoopIsStopping = false;
-			return;
-		}
-		this.watchLoopIsRunning = true;
-
-		//populate watchtree with initial values
-		await this.traverseWatchTree(this.watchTree, this.handle, []);
-
-		while(true){
-			await this.watchLoop();
-			if(this.watchLoopIsStopping){
-				this.watchLoopIsStopping = false;
-				this.watchLoopIsRunning = false;
-			}
-		}
-	}
-
-	stopWatchLoop(){
-		this.watchLoopIsStopping = true;
-	}
-
-	async watchLoop(){
+	async updateWatchTree(){
 		const collectedChanges = [];
 
 		await this.traverseWatchTree(this.watchTree, this.handle, collectedChanges);

@@ -10,10 +10,21 @@ export default class ProjectManager{
 		this.assetManager = null;
 
 		this.tmpNativeHandleDb = new IndexedDbUtil("tmpNFShandles");
+
+		window.addEventListener("focus", _ => this.suggestCheckExternalChanges());
+		document.addEventListener("visibilitychange", _ => {
+			if(document.visibilityState === "visible"){
+				this.suggestCheckExternalChanges();
+			}
+		});
 	}
 
 	openProject(fileSystem){
 		this.currentProjectFileSystem = fileSystem;
+		//todo remove this event when opening a new fileSystem
+		fileSystem.onExternalChange(e => {
+			console.log(e);
+		});
 		editor.windowManager.reloadCurrentWorkspace();
 		this.reloadAssetManager();
 	}
@@ -42,5 +53,11 @@ export default class ProjectManager{
 	async openDb(){
 		let fileSystem = new EditorFileSystemIndexedDB("test project");
 		this.openProject(fileSystem);
+	}
+
+	suggestCheckExternalChanges(){
+		if(this.currentProjectFileSystem){
+			this.currentProjectFileSystem.suggestCheckExternalChanges();
+		}
 	}
 }

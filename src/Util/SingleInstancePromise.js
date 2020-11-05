@@ -1,5 +1,7 @@
 export default class SingleInstancePromise{
 	constructor(promiseFn, {
+		//if this is true, the promise will run only once.
+		//repeating calls to run() will always return the first result.
 		once = true,
 	} = {}){
 		this.once = once;
@@ -10,9 +12,18 @@ export default class SingleInstancePromise{
 		this.onRunFinishCbs = new Set();
 	}
 
-	async run(){
+	//if `repeatIfRunning` is true and the promise is already running,
+	//it will run again when the first run is done.
+	//calling run() many times will not cause the promise to
+	//run many times, i.e., jobs do not get queued indefinitely, only twice.
+	async run(repeatIfRunning = false){
 		if(this.isRunning){
-			return await new Promise(r => this.onRunFinishCbs.add(r));
+			if(repeatIfRunning && !this.once){
+				await new Promise(r => this.onRunFinishCbs.add(r));
+				return await this.run(false);
+			}else{
+				return await new Promise(r => this.onRunFinishCbs.add(r));
+			}
 		}
 
 		if(this.hasRan && this.once){
@@ -28,10 +39,11 @@ export default class SingleInstancePromise{
 			this.onceReturnValue = result;
 		}
 
-		for(const cb of this.onRunFinishCbs){
+		const onRunFinishCbsCopy = this.onRunFinishCbs;
+		this.onRunFinishCbs = new Set();
+		for(const cb of onRunFinishCbsCopy){
 			cb(result);
 		}
-		this.onRunFinishCbs.clear();
 		return result;
 	}
 
