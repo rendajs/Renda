@@ -207,6 +207,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 					collectedChanges.push({
 						kind: handle.kind,
 						path: [...traversedPath, name],
+						type: "changed",
 					});
 				}
 			}else if(handle.kind == "directory"){

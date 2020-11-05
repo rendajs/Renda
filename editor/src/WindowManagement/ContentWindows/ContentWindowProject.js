@@ -62,6 +62,9 @@ export default class ContentWindowProject extends ContentWindow{
 		if(fileSystem){
 			this.updateTreeView(this.treeView, fileSystem);
 		}
+
+		this.boundExternalChange = this.externalChange.bind(this);
+		editor.projectManager.onExternalChange(this.boundExternalChange);
 	}
 
 	destructor(){
@@ -72,6 +75,9 @@ export default class ContentWindowProject extends ContentWindow{
 
 		this.selectionManager.destructor();
 		this.selectionManager = null;
+
+		editor.projectManager.removeOnExternalChange(this.boundExternalChange);
+		this.boundExternalChange = null;
 	}
 
 	static get windowName(){
@@ -104,6 +110,10 @@ export default class ContentWindowProject extends ContentWindow{
 				newTreeView.name = file;
 			}
 		}
+	}
+
+	async externalChange(e){
+		//todo: update treeview
 	}
 
 	async getProjectAssetByTreeViewItem(treeView){
