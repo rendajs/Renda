@@ -37,6 +37,8 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this._editingEntity = null;
 		this.selectionManager = new SelectionManager();
 
+		this.createdLiveAssetChangeListeners = new Set();
+
 		this.newEmptyEditingEntity();
 	}
 
@@ -165,6 +167,42 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	updateOutliners(){
 		for(const outliner of editor.windowManager.getContentWindowsByType(ContentWindowOutliner)){
 			outliner.setLinkedEntityEditor(this);
+		}
+	}
+
+	updateLiveAssetChangeListeners(){
+		for(const {projectAsset, listener} of this.createdLiveAssetChangeListeners){
+			projectAsset.removeOnNewLiveAssetInstance(listener);
+		}
+		this.createdLiveAssetChangeListeners.clear();
+
+		for(const entity of this.editingEntity.traverseDown()){
+			for(const component of entity.components){
+				const componentData = component.getComponentData();
+				this.addComponentLiveAssetListeners(componentData.properties, component, true);
+			}
+		}
+	}
+
+	addComponentLiveAssetListeners(structure, data, isRoot=false, parentObject=null, propertyChangeName=null){
+		if(isRoot || structure.type == Object){
+			for(const [name, propertyData] of Object.entries(structure)){
+				const dataItem = data[name];
+				this.addComponentLiveAssetListeners(propertyData, data[name], false, data, name);
+			}
+		}else if(structure.type == Array){
+			for(const [i, item] of data.entries()){
+				this.addComponentLiveAssetListeners(structure.arrayOpts, item, false, data, i);
+			}
+		}else if(editor.projectAssetTypeManager.constructorHasAssetType(structure.type)){
+			if(data){
+				const projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(data);
+				const listener = async _ => {
+					parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
+				}
+				projectAsset.onNewLiveAssetInstance(listener);
+				this.createdLiveAssetChangeListeners.add({projectAsset, listener});
+			}
 		}
 	}
 }
