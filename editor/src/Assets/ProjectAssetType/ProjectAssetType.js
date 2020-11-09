@@ -62,6 +62,20 @@ export default class ProjectAssetType{
 		return null;
 	}
 
+	//this gets called when the file is changed on disk by an external program.
+	//use this to modify the liveAsset, or call liveAssetNeedsReplacement() to
+	//replace the liveAsset with a new instance entirely.
+	async fileChangedExternally(){}
+
+	liveAssetNeedsReplacement(){
+		this.projectAsset.liveAssetNeedsReplacement();
+	}
+
+	//optionally override this for custom asset destruction
+	destroyLiveAsset(liveAsset){
+		liveAsset.destructor?.();
+	}
+
 	//if this asset is a file that can be opened, open it
 	//either in the editor or in an external application
 	async open(){}

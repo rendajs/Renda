@@ -28,4 +28,8 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	async getLiveAsset(source){
 		return new ShaderSource(this.projectAsset.uuid, source);
 	}
+
+	async fileChangedExternally(){
+		this.liveAssetNeedsReplacement();
+	}
 }

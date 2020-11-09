@@ -22,6 +22,8 @@ export default class ProjectAsset{
 
 		this.initInstance = new SingleInstancePromise(async _=> await this.init());
 		this.initInstance.run();
+
+		this.onNewLiveAssetInstanceCbs = new Set();
 	}
 
 	async init(){
@@ -128,6 +130,13 @@ export default class ProjectAsset{
 		return this.liveAsset;
 	}
 
+	destroyLiveAsset(){
+		if(this.liveAsset && this._projectAssetType){
+			this._projectAssetType.destroyLiveAsset(this.liveAsset);
+			this.liveAsset = null;
+		}
+	}
+
 	async getPropertiesAssetContentConstructor(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return null;
@@ -191,5 +200,26 @@ export default class ProjectAsset{
 			binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
 		}
 		return binaryData;
+	}
+
+	async fileChangedExternally(){
+		await this.waitForInit();
+		if(!this._projectAssetType) return;
+		await this._projectAssetType.fileChangedExternally();
+	}
+
+	onNewLiveAssetInstance(cb){
+		this.onNewLiveAssetInstanceCbs.add(cb);
+	}
+
+	removeOnNewLiveAssetInstance(cb){
+		this.onNewLiveAssetInstanceCbs.delete(cb);
+	}
+
+	liveAssetNeedsReplacement(){
+		this.destroyLiveAsset();
+		for(const cb of this.onNewLiveAssetInstanceCbs){
+			cb();
+		}
 	}
 }

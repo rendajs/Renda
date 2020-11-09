@@ -10,10 +10,14 @@ export default class AssetManager{
 
 		this.assetSettingsLoaded = false;
 		this.loadAssetSettings();
+
+		this.boundExternalChange = this.externalChange.bind(this);
+		editor.projectManager.onExternalChange(this.boundExternalChange);
 	}
 
 	destructor(){
-
+		editor.projectManager.removeOnExternalChange(this.boundExternalChange);
+		this.boundExternalChange = null;
 	}
 
 	get fileSystem(){
@@ -67,6 +71,19 @@ export default class AssetManager{
 		if(asset.needsConsistentUuid) return;
 		asset.makeUuidConsistent();
 		await this.saveAssetSettings();
+	}
+
+	async externalChange(e){
+		const projectAsset = await this.getProjectAssetFromPath(e.path);
+		if(projectAsset){
+			const guessedType = await ProjectAsset.guessAssetTypeFromFile(e.path);
+			if(guessedType != projectAsset.assetType){
+				//todo
+				console.warn("nyi, changing assetType");
+			}else{
+				await projectAsset.fileChangedExternally();
+			}
+		}
 	}
 
 	async getAssetUuid(path = []){
