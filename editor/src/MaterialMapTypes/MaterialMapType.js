@@ -43,6 +43,11 @@ export default class MaterialMapType{
 	//a renderer for example
 	static async getLiveAssetCustomData(customData){}
 
+	//this should yield ProjectAssets that are linked in the custom data
+	//this will be used to replace material instances
+	//in the editor whenever a linked live asset changes (a shader for example)
+	static async *getLinkedAssetsInCustomData(customData){return []}
+
 	//this should return a list of mappable values, this will be used to render the ui
 	//the values will be automatically loaded, saved and exported in assetbundles
 	//customData will be whatever you last returned from getCustomAssetDataForSave()

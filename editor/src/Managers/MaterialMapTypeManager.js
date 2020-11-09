@@ -56,14 +56,19 @@ export default class MaterialMapTypeManager{
 		return mapValues;
 	}
 
-	async getCustomMapDatasForMapAsset(mapAsset){
+	async getDataForMapLiveAsset(mapAsset){
 		const mapData = await mapAsset.readAssetData();
 		const mapDatas = new Map();
+		const linkedProjectAssets = new Set();
 		for(const mapType of mapData.maps){
 			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
 			const customData = await mapTypeConstructor.getLiveAssetCustomData(mapType.customData);
 			mapDatas.set(mapType.mapTypeId, customData);
+
+			for await (const projectAsset of mapTypeConstructor.getLinkedAssetsInCustomData(mapType.customData)){
+				linkedProjectAssets.add(projectAsset);
+			}
 		}
-		return mapDatas;
+		return {mapDatas, linkedProjectAssets};
 	}
 }

@@ -7,6 +7,10 @@ export default class Material{
 		this.disposed = false;
 	}
 
+	destructor(){
+		//todo: keep track of used renderers and let then know to dispose this material
+	}
+
 	markDisposed(){
 		this.disposed = true;
 		this.customMapDatas = null;

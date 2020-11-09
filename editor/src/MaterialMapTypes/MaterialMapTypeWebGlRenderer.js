@@ -61,6 +61,11 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		return {vertexShader, fragmentShader};
 	}
 
+	static async *getLinkedAssetsInCustomData(customData){
+		if(customData.vertexShader) yield editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
+		if(customData.fragmentShader) yield editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
+	}
+
 	static assetBundleDataStructure = {
 		vertUuid: BinaryComposer.StructureTypes.UUID,
 		fragUuid: BinaryComposer.StructureTypes.UUID,
