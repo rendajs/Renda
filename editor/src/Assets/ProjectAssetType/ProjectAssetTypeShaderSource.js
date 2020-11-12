@@ -11,7 +11,7 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	static newFileExtension = "shader";
 	static storeInProjectAsJson = false;
 	static storeInProjectAsText = true;
-	static matchExtensions = ["shader", "vert", "frag"];
+	static matchExtensions = ["glsl"];
 
 	constructor(){
 		super(...arguments);
@@ -26,7 +26,7 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	static expectedLiveAssetConstructor = ShaderSource;
 
 	async getLiveAsset(source){
-		return new ShaderSource(this.projectAsset.uuid, source);
+		return new ShaderSource(source);
 	}
 
 	async fileChangedExternally(){
