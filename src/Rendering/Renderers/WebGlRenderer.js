@@ -115,11 +115,23 @@ export default class WebGlRenderer extends Renderer{
 			}
 			const shader = materialData.forwardShader;
 
+			//todo: make attribute management more scalable
+
 			const positionAttrib = shader.getAttribLocation("aVertexPosition");
 			const positionBuffer = mesh.getBuffer(Mesh.AttributeTypes.POSITION);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer.glBuffer);
 			this.gl.vertexAttribPointer(positionAttrib, positionBuffer.componentCount, this.attribTypeToWebGlConst(positionBuffer.componentType), false, 0, 0);
 			this.gl.enableVertexAttribArray(positionAttrib);
+
+			const normalAttrib = shader.getAttribLocation("aVertexNormal");
+			if(normalAttrib >= 0){
+				const normalBuffer = mesh.getBuffer(Mesh.AttributeTypes.NORMAL);
+				if(normalBuffer){
+					this.gl.bindBuffer(this.gl.ARRAY_BUFFER, normalBuffer.glBuffer);
+					this.gl.vertexAttribPointer(normalAttrib, normalBuffer.componentCount, this.attribTypeToWebGlConst(positionBuffer.componentType), false, 0, 0);
+					this.gl.enableVertexAttribArray(normalAttrib);
+				}
+			}
 
 			shader.use();
 

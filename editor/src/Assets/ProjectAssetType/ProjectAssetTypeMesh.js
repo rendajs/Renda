@@ -47,6 +47,37 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 1,-1, 1),
 			new Vec3( 1, 1, 1),
 		]);
+		cubeMesh.setBuffer(Mesh.AttributeTypes.NORMAL, [
+			new Vec3(-1, 0, 0),
+			new Vec3(-1, 0, 0),
+			new Vec3(-1, 0, 0),
+			new Vec3(-1, 0, 0),
+
+			new Vec3( 1, 0, 0),
+			new Vec3( 1, 0, 0),
+			new Vec3( 1, 0, 0),
+			new Vec3( 1, 0, 0),
+
+			new Vec3( 0,-1, 0),
+			new Vec3( 0,-1, 0),
+			new Vec3( 0,-1, 0),
+			new Vec3( 0,-1, 0),
+
+			new Vec3( 0, 1, 0),
+			new Vec3( 0, 1, 0),
+			new Vec3( 0, 1, 0),
+			new Vec3( 0, 1, 0),
+
+			new Vec3( 0, 0,-1),
+			new Vec3( 0, 0,-1),
+			new Vec3( 0, 0,-1),
+			new Vec3( 0, 0,-1),
+
+			new Vec3( 0, 0, 1),
+			new Vec3( 0, 0, 1),
+			new Vec3( 0, 0, 1),
+			new Vec3( 0, 0, 1),
+		]);
 		const blob = cubeMesh.toBlob();
 		const file = new File([blob], "mesh.jjmesh");
 		return file;
