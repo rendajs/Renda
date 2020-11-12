@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, ComponentTypes} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, DefaultComponentTypes} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -29,7 +29,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorScene = new Entity({name: "editorScene"});
 		this.editorCamera = new Entity({name: "editorCamera"});
 		this.editorScene.add(this.editorCamera);
-		this.editorCamComponent = this.editorCamera.addComponent(ComponentTypes.camera);
+		this.editorCamComponent = this.editorCamera.addComponent(DefaultComponentTypes.camera);
 
 		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
 
@@ -122,13 +122,13 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			new Vec3( 1, 1, 1),
 		]);
 		let cubeMat = new Material();
-		cube.addComponent(ComponentTypes.mesh, {mesh: cubeMesh, materials: [cubeMat]});
+		cube.addComponent(DefaultComponentTypes.mesh, {mesh: cubeMesh, materials: [cubeMat]});
 
 		this.editingEntity.add(cube);
 
 		let cam = new Entity({name:"cam"});
 		this.editingEntity.add(cam);
-		cam.addComponent(ComponentTypes.camera);
+		cam.addComponent(DefaultComponentTypes.camera);
 	}
 
 	loadEntityAsset(entity, entityUuid){

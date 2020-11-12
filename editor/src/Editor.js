@@ -7,8 +7,9 @@ import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
-import {WebGlRenderer} from "../../src/index.js";
 import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
+
+import {WebGlRenderer, defaultComponents, defaultComponentTypeManager} from "../../src/index.js";
 import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
@@ -24,6 +25,10 @@ export default class Editor{
 		this.assetBundler = new AssetBundler();
 		this.dragManager = new DragManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
+
+		for(const [type, component] of defaultComponents){
+			defaultComponentTypeManager.registerComponentType(type, component);
+		}
 	}
 
 	//convenience function for getting selected object in the browser console

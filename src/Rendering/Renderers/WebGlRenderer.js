@@ -1,54 +1,4 @@
-import {Renderer, WebGlShader, ShaderSource, Mat4, ComponentTypes, defaultComponentTypeManager, Mesh, Material, MeshAttributeBuffer} from "../../index.js";
-
-defaultComponentTypeManager.registerComponentType(ComponentTypes.camera, {
-	properties: {
-		fov: {
-			defaultValue: 70,
-		},
-		clipNear: {
-			defaultValue: 0.01,
-			guiOpts: {
-				min: 0,
-			},
-		},
-		clipFar: {
-			defaultValue: 1000,
-			guiOpts: {
-				min: 0,
-			}
-		},
-		aspect: {
-			defaultValue: 1,
-		},
-		autoUpdateProjectionMatrix: {
-			defaultValue: true,
-		},
-		projectionMatrix: {
-			type: Mat4,
-		},
-		// autoManageRootRenderEntities: {
-		// 	type: "bool",
-		// 	defaultValue: true,
-		// },
-		// rootRenderEntities: {
-		// 	type: "array",
-		// }
-	},
-}, defaultComponentTypeManager.defaultNamespace);
-
-defaultComponentTypeManager.registerComponentType(ComponentTypes.mesh, {
-	properties: {
-		mesh: {
-			type: Mesh,
-		},
-		materials: {
-			type: Array,
-			arrayOpts: {
-				type: Material,
-			},
-		},
-	},
-}, defaultComponentTypeManager.defaultNamespace);
+import {Renderer, WebGlShader, ShaderSource, Mat4, DefaultComponentTypes, defaultComponentTypeManager, Mesh, Material, MeshAttributeBuffer} from "../../index.js";
 
 export default class WebGlRenderer extends Renderer{
 
@@ -91,7 +41,7 @@ export default class WebGlRenderer extends Renderer{
 		//see state of CameraComponent.js in commit 5d2efa1
 		for(const root of rootRenderEntities){
 			for(const child of root.traverseDown()){
-				for(const component of child.getComponentsByType(ComponentTypes.mesh)){
+				for(const component of child.getComponentsByType(DefaultComponentTypes.mesh)){
 					this.renderMeshComponent(component, vpMatrix);
 				}
 			}
