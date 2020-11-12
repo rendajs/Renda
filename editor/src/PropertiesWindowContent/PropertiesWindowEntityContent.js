@@ -1,5 +1,6 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vec3, Quaternion, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
+import {Entity, Vec3, Quaternion, defaultComponentTypeManager, DefaultComponentTypes, Mesh} from "../../../src/index.js";
+import {findObjectKey} from "../../../src/Util/Util.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
@@ -57,7 +58,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			onClick: _ => {
 				let menu = editor.contextMenuManager.createContextMenu();
 				for(const component of defaultComponentTypeManager.getAllComponents()){
-					menu.addItem(component.type, _ => {
+					const componentName = this.getComponentName(component.type);
+					menu.addItem(componentName, _ => {
 						for(const obj of this.currentSelection){
 							obj.addComponent(component.type);
 						}
@@ -101,7 +103,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			}
 		}
 		for(const componentGroup of componentGroups){
-			const componentUI = this.componentsSection.addCollapsable(componentGroup.constructor.componentName);
+			const componentName = this.getComponentName(componentGroup.componentType, componentGroup.componentNamespace);
+			const componentUI = this.componentsSection.addCollapsable(componentName);
 			const componentData = componentGroup.getComponentData();
 			const serializableStructure = componentData?.properties;
 			if(serializableStructure){
@@ -114,6 +117,11 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 				componentUI.fillSerializableStructureValues(componentGroup);
 			}
 		}
+	}
+
+	getComponentName(type, namespace){
+		//todo: handle namespace
+		return findObjectKey(DefaultComponentTypes, type);
 	}
 
 	async mapDroppableGuiValues(value){
