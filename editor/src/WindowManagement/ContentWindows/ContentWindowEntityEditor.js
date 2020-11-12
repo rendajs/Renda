@@ -69,6 +69,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorScene.add(val);
 		this.render();
 		this.updateOutliners();
+		this.updateLiveAssetChangeListeners();
 	}
 
 	onWindowResize(w, h){
