@@ -143,6 +143,12 @@ export default class ProjectAsset{
 		return this._projectAssetType.constructor.propertiesAssetContentConstructor;
 	}
 
+	async getPropertiesAssetContentStructure(){
+		await this.waitForInit();
+		if(!this._projectAssetType) return null;
+		return this._projectAssetType.constructor.propertiesAssetContentStructure;
+	}
+
 	async getPropertiesAssetSettingsStructure(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return null;

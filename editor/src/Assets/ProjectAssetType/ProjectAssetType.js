@@ -31,8 +31,14 @@ export default class ProjectAssetType{
 	//with editor values
 	static wrapProjectJsonWithEditorMetaData = true;
 
-	//which properties asset content class to use for the properties UI
-	//leave it as null if you don't wish to show any asset content UI
+	//the properties window will show ui generated from this structure
+	//this object will be fed into PropertiesTreeView.generateFromSerializableStructure
+	//leave this as null if you don't want to show any ui or if you want to create
+	//custom ui using `propertiesAssetContentConstructor`
+	static propertiesAssetContentStructure = null;
+
+	//if you want more control over ui rendering in the properties window
+	//you can set this to the constructor of an extended PropertiesAssetContent class
 	static propertiesAssetContentConstructor = null;
 
 	//fill this with asset settings you want to appear in
@@ -58,7 +64,7 @@ export default class ProjectAssetType{
 	//you can safely ommit this property.
 	static expectedLiveAssetConstructor = null;
 
-	async getLiveAsset(){
+	async getLiveAsset(fileData){
 		return null;
 	}
 
