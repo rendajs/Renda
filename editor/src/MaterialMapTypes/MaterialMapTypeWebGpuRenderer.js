@@ -1,6 +1,5 @@
 import MaterialMapType from "./MaterialMapType.js";
-import {ShaderSource, Vec3} from "../../../src/index.js";
-import {SingleInstancePromise} from "../../../src/index.js";
+import {Vec3, SingleInstancePromise, WebGpuShaderConfiguration} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 
@@ -14,14 +13,8 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		super(treeView);
 
 		this.settingsGuiStructure = {
-			vertexShader: {
-				type: ShaderSource,
-				guiOpts: {
-					storageType: "projectAsset",
-				},
-			},
-			fragmentShader: {
-				type: ShaderSource,
+			shaderConfiguration: {
+				type: WebGpuShaderConfiguration,
 				guiOpts: {
 					storageType: "projectAsset",
 				},
@@ -36,50 +29,41 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	}
 
 	async customAssetDataFromLoad(customData){
-		let vertexShader = null;
-		let fragmentShader = null;
-		if(customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
-		if(customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
-		this.settingsTreeView.fillSerializableStructureValues({vertexShader, fragmentShader});
+		let shaderConfiguration = null;
+		if(customData.shaderConfiguration) shaderConfiguration = await editor.projectManager.assetManager.getProjectAsset(customData.shaderConfiguration);
+		this.settingsTreeView.fillSerializableStructureValues({shaderConfiguration});
 	}
 
 	async getCustomAssetDataForSave(){
 		const settings = this.getSettingsValues();
 		const data = {
-			vertexShader: settings.vertexShader?.uuid || null,
-			fragmentShader: settings.fragmentShader?.uuid || null,
+			shaderConfiguration: settings.shaderConfiguration?.uuid || null,
 		}
 
 		return data;
 	}
 
 	static async getLiveAssetCustomData(customData){
-		let vertexShader = null;
-		let fragmentShader = null;
-		if(customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getLiveAsset(customData.vertexShader);
-		if(customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getLiveAsset(customData.fragmentShader);
-		return {vertexShader, fragmentShader};
+		let shaderConfiguration = null;
+		if(customData.shaderConfiguration) shaderConfiguration = await editor.projectManager.assetManager.getLiveAsset(customData.shaderConfiguration);
+		return {shaderConfiguration};
 	}
 
 	static async *getLinkedAssetsInCustomData(customData){
-		if(customData.vertexShader) yield editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
-		if(customData.fragmentShader) yield editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
+		if(customData.shaderConfiguration) yield editor.projectManager.assetManager.getProjectAsset(customData.shaderConfiguration);
 	}
 
 	static assetBundleDataStructure = {
-		vertUuid: BinaryComposer.StructureTypes.UUID,
-		fragUuid: BinaryComposer.StructureTypes.UUID,
+		configUuid: BinaryComposer.StructureTypes.UUID,
 	};
 
 	static assetBundleDataNameIds = {
-		vertUuid: 1,
-		fragUuid: 2,
+		configUuid: 1,
 	};
 
 	static mapDataToAssetBundleData(mapData){
 		return {
-			vertUuid: mapData.vertexShader,
-			fragUuid: mapData.fragmentShader,
+			configUuid: mapData.shaderConfiguration,
 		};
 	}
 

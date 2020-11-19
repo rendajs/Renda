@@ -1,6 +1,8 @@
 import {Renderer, Mat4, DefaultComponentTypes, defaultComponentTypeManager} from "../../../index.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 
+export {default as WebGpuShaderConfiguration} from "./WebGpuShaderConfiguration.js";
+
 export default class WebGpuRenderer extends Renderer{
 
 	static materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
@@ -206,7 +208,9 @@ export default class WebGpuRenderer extends Renderer{
 			camera.projectionMatrix = Mat4.createDynamicAspectProjection(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
 		const vpMatrix = Mat4.multiplyMatrices(camera.entity.worldMatrix.inverse(), camera.projectionMatrix);
-		let meshComponents = [];
+
+		const collectedDrawObjects = new Map(); //Map<MaterialMap, Map<Material, Set<RenderableComponent>>>
+
 		const rootRenderEntities = [camera.entity.getRoot()];
 		//TODO: don't get root every frame, only when changed
 		//see state of CameraComponent.js in commit 5d2efa1

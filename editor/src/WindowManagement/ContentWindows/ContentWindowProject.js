@@ -21,6 +21,9 @@ export default class ContentWindowProject extends ContentWindow{
 				menu.addItem("New Material Map", _ => {
 					this.createAsset("JJ:materialMap");
 				});
+				menu.addItem("New WebGPU Shader Configuration", _ => {
+					this.createAsset("JJ:webGpuShaderConfiguration");
+				});
 				menu.addItem("New Mesh", _ => {
 					this.createAsset("JJ:mesh");
 				});
@@ -158,7 +161,7 @@ export default class ContentWindowProject extends ContentWindow{
 			if(fileData instanceof File){
 				await fileSystem.writeFile(newPath, fileData);
 			}else if(typeof fileData == "string"){
-				const file = new File([file], fileName);
+				const file = new File([fileData], fileName);
 				await fileSystem.writeFile(newPath, fileData);
 			}else if(typeof fileData == "object"){
 				//todo: use ProjectAsset.writeAssetData() here instead

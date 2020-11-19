@@ -5,5 +5,15 @@ import ProjectAssetTypeEntity from "./ProjectAssetTypeEntity.js";
 import ProjectAssetTypeJavascript from "./ProjectAssetTypeJavascript.js";
 import ProjectAssetTypeShaderSource from "./ProjectAssetTypeShaderSource.js";
 import ProjectAssetTypeAssetBundle from "./ProjectAssetTypeAssetBundle.js";
+import ProjectAssetTypeWebGpuShaderConfiguration from "./ProjectAssetTypeWebGpuShaderConfiguration.js";
 
-export default [ProjectAssetTypeMaterial, ProjectAssetTypeMaterialMap, ProjectAssetTypeMesh, ProjectAssetTypeEntity, ProjectAssetTypeJavascript, ProjectAssetTypeShaderSource, ProjectAssetTypeAssetBundle];
+export default [
+	ProjectAssetTypeMaterial,
+	ProjectAssetTypeMaterialMap,
+	ProjectAssetTypeMesh,
+	ProjectAssetTypeEntity,
+	ProjectAssetTypeJavascript,
+	ProjectAssetTypeShaderSource,
+	ProjectAssetTypeAssetBundle,
+	ProjectAssetTypeWebGpuShaderConfiguration,
+];
