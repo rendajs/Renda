@@ -178,7 +178,8 @@ export default class WebGlRenderer extends Renderer{
 		}
 	}
 
-	getImageBitmap(){
-		return self.createImageBitmap(this.canvas);
-	}
+	//todo:
+	// getImageBitmap(){
+	// 	return self.createImageBitmap(this.canvas);
+	// }
 }

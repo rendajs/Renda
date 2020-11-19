@@ -9,12 +9,12 @@ import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
 
-import {WebGlRenderer, defaultComponents, defaultComponentTypeManager} from "../../src/index.js";
+import {WebGpuRenderer, defaultComponents, defaultComponentTypeManager} from "../../src/index.js";
 import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
 	constructor(){
-		this.renderer = new WebGlRenderer();
+		this.renderer = new WebGpuRenderer();
 		this.windowManager = new WindowManager();
 		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();

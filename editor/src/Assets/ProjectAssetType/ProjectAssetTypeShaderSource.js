@@ -11,7 +11,7 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	static newFileExtension = "shader";
 	static storeInProjectAsJson = false;
 	static storeInProjectAsText = true;
-	static matchExtensions = ["glsl"];
+	static matchExtensions = ["glsl", "wgsl"];
 
 	constructor(){
 		super(...arguments);

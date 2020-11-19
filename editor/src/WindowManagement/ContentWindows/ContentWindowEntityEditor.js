@@ -20,9 +20,9 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		});
 		this.addTopBarButton(saveEntityButton);
 
-		this.canvasEl = document.createElement("canvas");
-		this.ctx = this.canvasEl.getContext("bitmaprenderer");
-		this.contentEl.appendChild(this.canvasEl);
+		this.domTarget = editor.renderer.createDomTarget();
+		const renderTargetElement = this.domTarget.getElement();
+		this.contentEl.appendChild(renderTargetElement);
 
 		this.renderDirty = false;
 
@@ -31,7 +31,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(DefaultComponentTypes.camera);
 
-		this.orbitControls = new OrbitControls(this.editorCamera, this.canvasEl);
+		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
 
 		this.editingEntityUuid = null;
 		this._editingEntity = null;
@@ -49,8 +49,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	destructor(){
 		super.destructor();
 
-		this.canvasEl = null;
-		this.ctx = null;
+		this.domTarget.destructor();
 		this.editorScene.destructor();
 		this._editingEntity = null;
 		this.selectionManager.destructor();
@@ -73,8 +72,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	onWindowResize(w, h){
-		this.canvasEl.width = w;
-		this.canvasEl.height = h;
+		this.domTarget.resize(w,h);
 
 		this.editorCamComponent.aspect = w / h;
 		this.renderDirty = true;
@@ -159,10 +157,8 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		}
 	}
 
-	async render(){
-		let renderer = editor.renderer;
-		renderer.render(this.editorCamComponent);
-		this.ctx.transferFromImageBitmap(await renderer.getImageBitmap());
+	render(){
+		this.domTarget.render(this.editorCamComponent);
 	}
 
 	updateOutliners(){
