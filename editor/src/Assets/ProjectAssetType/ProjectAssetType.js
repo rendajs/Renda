@@ -61,7 +61,7 @@ export default class ProjectAssetType{
 	//for example, if getLiveAsset() returns a `new Material()`, this value
 	//should be set to `Material` (without new)
 	//If you don't plan on adding support for loading this asset type at runtime,
-	//you can safely ommit this property.
+	//you can safely ommit this.
 	static expectedLiveAssetConstructor = null;
 
 	async getLiveAsset(fileData){

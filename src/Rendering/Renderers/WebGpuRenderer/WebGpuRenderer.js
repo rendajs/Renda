@@ -114,6 +114,7 @@ export default class WebGpuRenderer extends Renderer{
 					binding: 0,
 					visibility: GPUShaderStage.VERTEX,
 					type: "uniform-buffer",
+					hasDynamicOffset: true,
 				},
 			],
 		});
@@ -160,8 +161,9 @@ export default class WebGpuRenderer extends Renderer{
 
 		this.tempMat = new Mat4();
 
-		this.uniformBuffer = device.createBuffer({
-			size: 4 * 4 * 4, //32 bit 4x4 matrix
+		this.meshRendererUniformsBufferLength = 65536;
+		this.meshRendererUniformsBuffer = device.createBuffer({
+			size: this.meshRendererUniformsBufferLength,
 			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 		});
 
@@ -171,7 +173,8 @@ export default class WebGpuRenderer extends Renderer{
 				{
 					binding: 0,
 					resource: {
-						buffer: this.uniformBuffer,
+						buffer: this.meshRendererUniformsBuffer,
+						size: 256,
 					}
 				}
 			],
@@ -211,6 +214,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		const collectedDrawObjects = new Map(); //Map<MaterialMap, Map<Material, Set<RenderableComponent>>>
 
+		let meshComponents = [];
 		const rootRenderEntities = [camera.entity.getRoot()];
 		//TODO: don't get root every frame, only when changed
 		//see state of CameraComponent.js in commit 5d2efa1
@@ -223,10 +227,8 @@ export default class WebGpuRenderer extends Renderer{
 		}
 
 		const swapChainTextureView = domTarget.swapChain.getCurrentTexture().createView();
-
-		this.device.defaultQueue.writeBuffer(this.uniformBuffer, 0, new Float32Array(vpMatrix.getFlatArray()));
-
 		const commandEncoder = this.device.createCommandEncoder();
+
 		const renderPassEncoder = commandEncoder.beginRenderPass({
 			colorAttachments: [{
 				attachment: swapChainTextureView,
@@ -242,10 +244,20 @@ export default class WebGpuRenderer extends Renderer{
 			// },
 		});
 
-		renderPassEncoder.setPipeline(this.basicPipeline);
-		renderPassEncoder.setBindGroup(0, this.uniformBindGroup);
-		renderPassEncoder.setVertexBuffer(0, this.cubeVerticesBuffer);
-		renderPassEncoder.draw(36, 1, 0, 0);
+		const uniformsLength = 256;
+		const uniformBufferData = new ArrayBuffer(uniformsLength * meshComponents.length);
+		const uniformBufferFloatView = new Float32Array(uniformBufferData);
+		for(const [i, meshComponent] of meshComponents.entries()){
+			let mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
+			uniformBufferFloatView.set(mvpMatrix.getFlatArray(), i*uniformsLength/4);
+
+			renderPassEncoder.setPipeline(this.basicPipeline);
+			renderPassEncoder.setBindGroup(0, this.uniformBindGroup, [i*uniformsLength]);
+			renderPassEncoder.setVertexBuffer(0, this.cubeVerticesBuffer);
+			renderPassEncoder.draw(36, 1, 0, 0);
+		}
+		this.device.defaultQueue.writeBuffer(this.meshRendererUniformsBuffer, 0, uniformBufferData);
+
 
 		renderPassEncoder.endPass();
 

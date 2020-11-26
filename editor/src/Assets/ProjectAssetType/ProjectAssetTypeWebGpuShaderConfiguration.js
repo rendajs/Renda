@@ -1,7 +1,7 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import {getNameAndExtension} from "../../Util/FileSystems/PathUtil.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource} from "../../../../src/index.js";
+import {ShaderSource, WebGpuShaderConfiguration} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeWebGpuShaderConfiguration extends ProjectAssetType{
 
@@ -31,6 +31,8 @@ export default class ProjectAssetTypeWebGpuShaderConfiguration extends ProjectAs
 			},
 		},
 	};
+
+	static expectedLiveAssetConstructor = WebGpuShaderConfiguration;
 
 	async getLiveAsset(){
 		return new WebGpuShaderConfiguration();
