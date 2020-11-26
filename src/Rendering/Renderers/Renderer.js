@@ -11,7 +11,7 @@ export default class Renderer{
 
 	render(domTarget, camera){}
 
-	createDomTarget(){
-		return new this.constructor.domTargetConstructor(this);
+	createDomTarget(...args){
+		return new this.constructor.domTargetConstructor(this, ...args);
 	}
 }

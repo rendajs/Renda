@@ -157,9 +157,8 @@ export default class WebGpuRenderer extends Renderer{
 					},
 				],
 			},
+			sampleCount: 4,
 		});
-
-		this.tempMat = new Mat4();
 
 		this.meshRendererUniformsBufferLength = 65536;
 		this.meshRendererUniformsBuffer = device.createBuffer({
@@ -205,7 +204,7 @@ export default class WebGpuRenderer extends Renderer{
 
 	render(domTarget, camera){
 		if(!this.isInit) return;
-		if(!domTarget.swapChain) return;
+		if(!domTarget.ready) return;
 
 		if(camera.autoUpdateProjectionMatrix){
 			camera.projectionMatrix = Mat4.createDynamicAspectProjection(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
@@ -226,23 +225,9 @@ export default class WebGpuRenderer extends Renderer{
 			}
 		}
 
-		const swapChainTextureView = domTarget.swapChain.getCurrentTexture().createView();
 		const commandEncoder = this.device.createCommandEncoder();
 
-		const renderPassEncoder = commandEncoder.beginRenderPass({
-			colorAttachments: [{
-				attachment: swapChainTextureView,
-				loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
-				storeOp: "store",
-			}],
-			// depthStencilAttachment: {
-			// 	attachment: swapChainTextureView,
-			// 	depthLoadValue: 1,
-			// 	depthStoreOp: "store",
-			// 	stencilLoadValue: 1,
-			// 	stencilStoreOp: "store",
-			// },
-		});
+		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
 
 		const uniformsLength = 256;
 		const uniformBufferData = new ArrayBuffer(uniformsLength * meshComponents.length);

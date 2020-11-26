@@ -1,13 +1,36 @@
 import RendererDomTarget from "../../RendererDomTarget.js";
 
 export default class WebGpuRendererDomTarget extends RendererDomTarget{
-	constructor(){
+	constructor(renderer, {
+		sampleCount = 4, //msaa
+	} = {}){
 		super(...arguments);
+
+		this.sampleCount = sampleCount;
 
 		this.canvas = document.createElement("canvas");
 		this.ctx = this.canvas.getContext("gpupresent");
 		this.swapChainFormat = null;
 		this.swapChain = null;
+		this.colorTexture = null;
+		this.colorTextureView = null;
+		this.ready = false;
+
+		this.colorAttachment = {
+			attachment: null, //will be assigned in getRenderPassDescriptor()
+			resolveTarget: null, //will be assigned in getRenderPassDescriptor()
+			loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
+		}
+		this.renderPassDescriptor = {
+			colorAttachments: [this.colorAttachment],
+			// depthStencilAttachment: {
+			// 	attachment: swapChainTextureView,
+			// 	depthLoadValue: 1,
+			// 	depthStoreOp: "store",
+			// 	stencilLoadValue: 1,
+			// 	stencilStoreOp: "store",
+			// },
+		}
 	}
 
 	async configureSwapChain(device){
@@ -16,6 +39,20 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 			device,
 			format: this.swapChainFormat,
 		});
+
+		if(this.sampleCount > 1){
+			this.colorTexture = device.createTexture({
+				size: {
+					width: this.canvas.width,
+					height: this.canvas.height,
+				},
+				sampleCount: this.sampleCount,
+				format: this.swapChainFormat,
+				usage: GPUTextureUsage.OUTPUT_ATTACHMENT,
+			});
+			this.colorTextureView = this.colorTexture.createView();
+		}
+		this.ready = true;
 	}
 
 	getElement(){
@@ -25,5 +62,17 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	resize(w,h){
 		this.canvas.width = w;
 		this.canvas.height = h;
+	}
+
+	getRenderPassDescriptor(){
+		if(!this.ready) return null;
+		const swapChainTextureView = this.swapChain.getCurrentTexture().createView();
+		if(this.sampleCount == 1){
+			this.colorAttachment.attachment = swapChainTextureView;
+		}else{
+			this.colorAttachment.attachment = this.colorTextureView;
+			this.colorAttachment.resolveTarget = swapChainTextureView;
+		}
+		return this.renderPassDescriptor;
 	}
 }
