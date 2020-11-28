@@ -118,7 +118,16 @@ export default class ProjectAsset{
 		if(this.liveAsset) return this.liveAsset;
 
 		await this.waitForInit();
-		const fileData = await this.readAssetData();
+		let fileData = null;
+		try{
+			fileData = await this.readAssetData();
+		}catch(e){
+			//todo: implement a way to detect if the file has been deleted
+			//and if that's the case give the user an option to remove the uuid
+			//from assetSettings.json
+			console.warn("error getting live asset for "+this.path.join("/"));
+			return null;
+		}
 
 		this.liveAsset = await this._projectAssetType.getLiveAsset(fileData);
 		return this.liveAsset;
