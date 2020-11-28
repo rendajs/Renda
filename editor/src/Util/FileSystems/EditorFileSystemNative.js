@@ -67,9 +67,15 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 
 	async getDirHandle(path = [], create = false){
 		let handle = this.handle;
+		let parsedPathDepth = 0;
 		for(const dirName of path){
+			parsedPathDepth++;
 			await this.verifyHandlePermission(handle, {writable: create});
-			handle = await handle.getDirectoryHandle(dirName, {create});
+			try{
+				handle = await handle.getDirectoryHandle(dirName, {create});
+			}catch(e){
+				throw new Error("Failed to get directory handle for "+path.slice(0, parsedPathDepth).join("/")+"/");
+			}
 		}
 		return handle;
 	}
@@ -78,7 +84,13 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		const {dirPath, fileName} = this.splitDirFileName(path);
 		const dirHandle = await this.getDirHandle(dirPath, create);
 		await this.verifyHandlePermission(dirHandle, {writable: create});
-		return await dirHandle.getFileHandle(fileName, {create});
+		let fileHandle = null;
+		try{
+			fileHandle = await dirHandle.getFileHandle(fileName, {create});
+		}catch(e){
+			throw new Error("Failed to get file handle for "+path.join("/"));
+		}
+		return fileHandle;
 	}
 
 	async readDir(path = []){
