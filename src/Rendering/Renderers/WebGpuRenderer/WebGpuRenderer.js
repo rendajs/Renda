@@ -143,6 +143,11 @@ export default class WebGpuRenderer extends Renderer{
 			colorStates: [{
 				format: "bgra8unorm",
 			}],
+			depthStencilState: {
+				depthWriteEnabled: true,
+				depthCompare: "less",
+				format: "depth24plus-stencil8",
+			},
 			vertexState: {
 				vertexBuffers: [
 					{
