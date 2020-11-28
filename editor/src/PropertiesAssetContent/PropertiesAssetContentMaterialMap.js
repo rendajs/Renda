@@ -102,7 +102,8 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 	}
 
 	async loadMaps(mapData){
-		for(const map of mapData.maps){
+		const maps = mapData.maps || [];
+		for(const map of maps){
 			const typeInstance = this.addMapTypeUuid(map.mapTypeId, {updateMapListUi: false});
 			if(map.customData) await typeInstance.customAssetDataFromLoad(map.customData);
 			await typeInstance.updateMapListUi();
