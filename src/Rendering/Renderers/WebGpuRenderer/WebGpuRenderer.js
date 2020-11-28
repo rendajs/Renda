@@ -1,5 +1,6 @@
 import {Renderer, Mat4, DefaultComponentTypes, defaultComponentTypeManager} from "../../../index.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
+import WebGpuPipeline from "./WebGpuPipeline.js";
 
 export {default as WebGpuShaderConfiguration} from "./WebGpuShaderConfiguration.js";
 
@@ -16,6 +17,12 @@ export default class WebGpuRenderer extends Renderer{
 		this.adapter = null;
 		this.device = null;
 		this.onInitCbs = new Set();
+
+		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
+		this.cachedPipelines = new WeakMap(); //<WebGpuShaderConfiguration, WebGpuPipeline>
+
+		//for every pipeline, maintain a list of objects that the pipeline is used by
+		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 	}
 
 	async init(){
@@ -241,6 +248,14 @@ export default class WebGpuRenderer extends Renderer{
 			let mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
 			uniformBufferFloatView.set(mvpMatrix.getFlatArray(), i*uniformsLength/4);
 
+			for(const material of meshComponent.materials){
+				const materialData = this.getCachedMaterialData(material);
+				if(!materialData.forwardPipeline){
+					const mapData = material.customMapDatas.get(WebGpuRenderer.materialMapWebGpuTypeUuid);
+					materialData.forwardPipeline = this.getPipeline(mapData.forwardShaderConfiguration);
+					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
+				}
+			}
 			renderPassEncoder.setPipeline(this.basicPipeline);
 			renderPassEncoder.setBindGroup(0, this.uniformBindGroup, [i*uniformsLength]);
 			renderPassEncoder.setVertexBuffer(0, this.cubeVerticesBuffer);
@@ -252,5 +267,61 @@ export default class WebGpuRenderer extends Renderer{
 		renderPassEncoder.endPass();
 
 		this.device.defaultQueue.submit([commandEncoder.finish()]);
+	}
+
+	getCachedMaterialData(material){
+		let data = this.cachedMaterialData.get(material);
+		if(!data){
+			data = {};
+			this.cachedMaterialData.set(material, data);
+		}
+		return data;
+	}
+
+	getPipeline(shaderConfiguration){
+		let pipeline = this.cachedPipelines.get(shaderConfiguration);
+		if(!pipeline){
+			pipeline = new WebGpuPipeline(shaderConfiguration);
+			this.cachedPipelines.set(shaderConfiguration, pipeline);
+		}
+		return pipeline;
+	}
+
+	disposeMaterial(material){
+		material.markDisposed();
+		const materialData = this.getCachedMaterialData(material);
+		this.cachedMaterialData.delete(material);
+		this.removeUsedByObjectFromPipeline(materialData.forwardPipeline, material);
+	}
+
+	addUsedByObjectToPipeline(pipeline, usedBy){
+		let usedByList = this.pipelinesUsedByLists.get(pipeline);
+		if(!usedByList){
+			usedByList = new Set();
+			this.pipelinesUsedByLists.set(pipeline, usedByList);
+		}
+		usedByList.add(new WeakRef(usedBy));
+	}
+
+	removeUsedByObjectFromPipeline(pipeline, usedBy){
+		if(!pipeline) return;
+		const usedByList = this.pipelinesUsedByLists.get(pipeline);
+		if(usedByList){
+			for(const ref of usedByList){
+				const deref = ref.deref();
+				if(usedBy == deref || deref === undefined){
+					usedByList.delete(ref);
+				}
+			}
+		}
+
+		if(!usedByList || usedByList.size == 0){
+			this.disposePipeline(pipeline);
+		}
+	}
+
+	disposePipeline(pipeline){
+		pipeline.destructor();
+		this.pipelinesUsedByLists.delete(pipeline);
 	}
 }

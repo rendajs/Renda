@@ -61,7 +61,8 @@ export default class WebGlRenderer extends Renderer{
 			const webGlMapData = material.customMapDatas.get(WebGlRenderer.materialMapWebGlTypeUuid);
 			const materialData = this.getCachedMaterialData(material);
 			if(!materialData.forwardShader){
-				materialData.forwardShader = this.getShader(material, webGlMapData.vertexShader, webGlMapData.fragmentShader);
+				materialData.forwardShader = this.getShader(webGlMapData.vertexShader, webGlMapData.fragmentShader);
+				this.addUsedByObjectToShader(materialData.forwardShader, material);
 			}
 			const shader = materialData.forwardShader;
 
@@ -101,7 +102,7 @@ export default class WebGlRenderer extends Renderer{
 		return data;
 	}
 
-	getShader(usedByMaterial, vertSourceAsset, fragSourceAsset){
+	getShader(vertSourceAsset, fragSourceAsset){
 		let shader;
 		let cachedFragList = this.cachedShaders.get(vertSourceAsset);
 		if(cachedFragList){
@@ -118,9 +119,6 @@ export default class WebGlRenderer extends Renderer{
 			}
 			cachedFragList.set(fragSourceAsset, shader);
 		}
-
-		this.addUsedByObjectToShader(shader, usedByMaterial);
-
 		return shader;
 	}
 
