@@ -56,7 +56,7 @@ export default class MaterialMapTypeManager{
 		return mapValues;
 	}
 
-	async getDataForMapLiveAsset(mapAsset){
+	async getDataForMapProjectAsset(mapAsset){
 		const mapData = await mapAsset.readAssetData();
 		const mapDatas = new Map();
 		const linkedProjectAssets = new Set();

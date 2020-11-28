@@ -29,7 +29,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 		let linkedAssets = null;
 		if(materialJson.map){
 			const map = await editor.projectManager.assetManager.getProjectAsset(materialJson.map);
-			const {mapDatas, linkedProjectAssets} = await editor.materialMapTypeManager.getDataForMapLiveAsset(map);
+			const {mapDatas, linkedProjectAssets} = await editor.materialMapTypeManager.getDataForMapProjectAsset(map);
 			customMapDatas = mapDatas;
 			linkedAssets = linkedProjectAssets;
 		}
