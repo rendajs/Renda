@@ -2,7 +2,7 @@ import {Renderer, Mat4, DefaultComponentTypes, defaultComponentTypeManager} from
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuPipeline from "./WebGpuPipeline.js";
 
-export {default as WebGpuShaderConfiguration} from "./WebGpuShaderConfiguration.js";
+export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 
 export default class WebGpuRenderer extends Renderer{
 
@@ -19,7 +19,7 @@ export default class WebGpuRenderer extends Renderer{
 		this.onInitCbs = new Set();
 
 		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
-		this.cachedPipelines = new WeakMap(); //<WebGpuShaderConfiguration, WebGpuPipeline>
+		this.cachedPipelines = new WeakMap(); //<WebGpuPipelineConfiguration, WebGpuPipeline>
 
 		//for every pipeline, maintain a list of objects that the pipeline is used by
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]

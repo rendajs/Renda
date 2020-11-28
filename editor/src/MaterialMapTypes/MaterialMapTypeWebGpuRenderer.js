@@ -1,5 +1,5 @@
 import MaterialMapType from "./MaterialMapType.js";
-import {Vec3, SingleInstancePromise, WebGpuShaderConfiguration} from "../../../src/index.js";
+import {Vec3, SingleInstancePromise, WebGpuPipelineConfiguration} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 
@@ -14,7 +14,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 
 		this.settingsGuiStructure = {
 			forwardShaderConfiguration: {
-				type: WebGpuShaderConfiguration,
+				type: WebGpuPipelineConfiguration,
 				guiOpts: {
 					storageType: "projectAsset",
 				},

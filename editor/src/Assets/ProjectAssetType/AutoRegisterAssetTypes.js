@@ -5,7 +5,7 @@ import ProjectAssetTypeEntity from "./ProjectAssetTypeEntity.js";
 import ProjectAssetTypeJavascript from "./ProjectAssetTypeJavascript.js";
 import ProjectAssetTypeShaderSource from "./ProjectAssetTypeShaderSource.js";
 import ProjectAssetTypeAssetBundle from "./ProjectAssetTypeAssetBundle.js";
-import ProjectAssetTypeWebGpuShaderConfiguration from "./ProjectAssetTypeWebGpuShaderConfiguration.js";
+import ProjectAssetTypeWebGpuPipelineConfiguration from "./ProjectAssetTypeWebGpuPipelineConfiguration.js";
 
 export default [
 	ProjectAssetTypeMaterial,
@@ -15,5 +15,5 @@ export default [
 	ProjectAssetTypeJavascript,
 	ProjectAssetTypeShaderSource,
 	ProjectAssetTypeAssetBundle,
-	ProjectAssetTypeWebGpuShaderConfiguration,
+	ProjectAssetTypeWebGpuPipelineConfiguration,
 ];

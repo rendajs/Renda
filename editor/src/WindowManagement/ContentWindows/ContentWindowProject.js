@@ -22,7 +22,7 @@ export default class ContentWindowProject extends ContentWindow{
 					this.createAsset("JJ:materialMap");
 				});
 				menu.addItem("New WebGPU Shader Configuration", _ => {
-					this.createAsset("JJ:webGpuShaderConfiguration");
+					this.createAsset("JJ:webGpuPipelineConfiguration");
 				});
 				menu.addItem("New Mesh", _ => {
 					this.createAsset("JJ:mesh");
