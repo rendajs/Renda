@@ -13,7 +13,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		super(treeView);
 
 		this.settingsGuiStructure = {
-			shaderConfiguration: {
+			forwardShaderConfiguration: {
 				type: WebGpuShaderConfiguration,
 				guiOpts: {
 					storageType: "projectAsset",
@@ -29,28 +29,28 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	}
 
 	async customAssetDataFromLoad(customData){
-		let shaderConfiguration = null;
-		if(customData.shaderConfiguration) shaderConfiguration = await editor.projectManager.assetManager.getProjectAsset(customData.shaderConfiguration);
-		this.settingsTreeView.fillSerializableStructureValues({shaderConfiguration});
+		let forwardShaderConfiguration = null;
+		if(customData.forwardShaderConfiguration) forwardShaderConfiguration = await editor.projectManager.assetManager.getProjectAsset(customData.forwardShaderConfiguration);
+		this.settingsTreeView.fillSerializableStructureValues({forwardShaderConfiguration});
 	}
 
 	async getCustomAssetDataForSave(){
 		const settings = this.getSettingsValues();
 		const data = {
-			shaderConfiguration: settings.shaderConfiguration?.uuid || null,
+			forwardShaderConfiguration: settings.forwardShaderConfiguration?.uuid || null,
 		}
 
 		return data;
 	}
 
 	static async getLiveAssetCustomData(customData){
-		let shaderConfiguration = null;
-		if(customData.shaderConfiguration) shaderConfiguration = await editor.projectManager.assetManager.getLiveAsset(customData.shaderConfiguration);
-		return {shaderConfiguration};
+		let forwardShaderConfiguration = null;
+		if(customData.forwardShaderConfiguration) forwardShaderConfiguration = await editor.projectManager.assetManager.getLiveAsset(customData.forwardShaderConfiguration);
+		return {forwardShaderConfiguration};
 	}
 
 	static async *getLinkedAssetsInCustomData(customData){
-		if(customData.shaderConfiguration) yield editor.projectManager.assetManager.getProjectAsset(customData.shaderConfiguration);
+		if(customData.forwardShaderConfiguration) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardShaderConfiguration);
 	}
 
 	static assetBundleDataStructure = {
@@ -63,7 +63,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 
 	static mapDataToAssetBundleData(mapData){
 		return {
-			configUuid: mapData.shaderConfiguration,
+			configUuid: mapData.forwardShaderConfiguration,
 		};
 	}
 
