@@ -3,16 +3,26 @@ export default class Material{
 		customMapDatas = new Map(),
 	} = {}){
 		this.customMapDatas = customMapDatas;
+		this.onDestructorCbs = new Set();
 
-		this.disposed = false;
+		this.destructed = false;
 	}
 
 	destructor(){
-		//todo: keep track of used renderers and let then know to dispose this material
+		for(const cb of this.onDestructorCbs){
+			cb();
+		}
+		this.onDestructorCbs.clear();
+
+		this.customMapDatas = null;
+		this.destructed = true;
 	}
 
-	markDisposed(){
-		this.disposed = true;
-		this.customMapDatas = null;
+	onDestructor(cb){
+		this.onDestructorCbs.add(cb);
+	}
+
+	removeOnDestructor(cb){
+		this.onDestructorCbs.delete(cb);
 	}
 }

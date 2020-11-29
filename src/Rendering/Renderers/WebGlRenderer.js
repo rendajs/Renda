@@ -56,7 +56,7 @@ export default class WebGlRenderer extends Renderer{
 		mesh.uploadToWebGl(this.gl);
 
 		for(const material of materials){
-			if(!material || material.disposed) continue;
+			if(!material || material.destructed) continue;
 
 			const webGlMapData = material.customMapDatas.get(WebGlRenderer.materialMapWebGlTypeUuid);
 			const materialData = this.getCachedMaterialData(material);
@@ -123,7 +123,6 @@ export default class WebGlRenderer extends Renderer{
 	}
 
 	disposeMaterial(material){
-		material.markDisposed();
 		const materialData = this.getCachedMaterialData(material);
 		this.cachedMaterialData.delete(material);
 		this.removeUsedByObjectFromShader(materialData.forwardShader, material);
@@ -151,6 +150,7 @@ export default class WebGlRenderer extends Renderer{
 
 		if(!usedByList || usedByList.size == 0){
 			this.disposeShader(shader);
+			this.shadersUsedByLists.delete(shader);
 		}
 	}
 

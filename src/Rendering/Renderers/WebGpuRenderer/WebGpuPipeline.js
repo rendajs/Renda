@@ -40,4 +40,6 @@ export default class WebGpuPipeline{
 			sampleCount: 4,
 		});
 	}
+
+	destructor(){}
 }

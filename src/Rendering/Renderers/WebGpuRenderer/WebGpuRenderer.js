@@ -209,6 +209,7 @@ export default class WebGpuRenderer extends Renderer{
 			uniformBufferFloatView.set(mvpMatrix.getFlatArray(), i*uniformsLength/4);
 
 			for(const material of meshComponent.materials){
+				if(!material || material.destructed) continue;
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
 					const mapData = material.customMapDatas.get(WebGpuRenderer.materialMapWebGpuTypeUuid);
@@ -234,6 +235,9 @@ export default class WebGpuRenderer extends Renderer{
 		if(!data){
 			data = {};
 			this.cachedMaterialData.set(material, data);
+			material.onDestructor(_ => {
+				this.disposeMaterial(material);
+			});
 		}
 		return data;
 	}
@@ -248,7 +252,6 @@ export default class WebGpuRenderer extends Renderer{
 	}
 
 	disposeMaterial(material){
-		material.markDisposed();
 		const materialData = this.getCachedMaterialData(material);
 		this.cachedMaterialData.delete(material);
 		this.removeUsedByObjectFromPipeline(materialData.forwardPipeline, material);
@@ -277,6 +280,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		if(!usedByList || usedByList.size == 0){
 			this.disposePipeline(pipeline);
+			this.pipelinesUsedByLists.delete(pipeline);
 		}
 	}
 
