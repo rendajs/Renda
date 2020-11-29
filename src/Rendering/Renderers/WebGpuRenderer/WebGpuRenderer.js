@@ -83,38 +83,6 @@ export default class WebGpuRenderer extends Renderer{
 		verticesBuffer.unmap();
 		this.cubeVerticesBuffer = verticesBuffer;
 
-		const vertexCode = `
-			[[block]] struct Uniforms {
-				[[offset(0)]] mvp : mat4x4<f32>;
-			};
-
-			[[binding(0), set(0)]] var<uniform> uniforms : Uniforms;
-
-			[[location(0)]] var<in> position : vec4<f32>;
-
-			[[builtin(position)]] var<out> Position : vec4<f32>;
-			[[location(0)]] var<out> fragColor : vec4<f32>;
-
-			[[stage(vertex)]]
-			fn main() -> void {
-				Position = uniforms.mvp * position;
-				fragColor = position;
-				return;
-			}
-		`;
-
-		const fragmentCode = `
-			[[location(0)]] var<in> fragColor : vec4<f32>;
-
-			[[location(0)]] var<out> outColor : vec4<f32>;
-
-			[[stage(fragment)]]
-			fn main() -> void {
-				outColor = abs(fragColor);
-				return;
-			}
-		`;
-
 		const uniformBindGroupLayout = device.createBindGroupLayout({
 			entries: [
 				{
