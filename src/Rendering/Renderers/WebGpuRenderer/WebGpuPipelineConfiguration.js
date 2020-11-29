@@ -1,3 +1,9 @@
 export default class WebGpuPipelineConfiguration{
-	constructor(){}
+	constructor({
+		fragmentShader = null,
+		vertexShader = null,
+	} = {}){
+		this.fragmentShader = fragmentShader;
+		this.vertexShader = vertexShader;
+	}
 }

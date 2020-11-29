@@ -126,50 +126,10 @@ export default class WebGpuRenderer extends Renderer{
 			],
 		});
 
-		const pipelineLayout = device.createPipelineLayout({
+		this.pipelineLayout = device.createPipelineLayout({
 			bindGroupLayouts: [
 				uniformBindGroupLayout,
 			],
-		});
-
-		this.basicPipeline = device.createRenderPipeline({
-			layout: pipelineLayout,
-			vertexStage: {
-				module: device.createShaderModule({
-					code: vertexCode,
-				}),
-				entryPoint: "main",
-			},
-			fragmentStage: {
-				module: device.createShaderModule({
-					code: fragmentCode,
-				}),
-				entryPoint: "main",
-			},
-			primitiveTopology: "triangle-list",
-			colorStates: [{
-				format: "bgra8unorm",
-			}],
-			depthStencilState: {
-				depthWriteEnabled: true,
-				depthCompare: "less",
-				format: "depth24plus-stencil8",
-			},
-			vertexState: {
-				vertexBuffers: [
-					{
-						arrayStride: 16,
-						attributes: [
-							{
-								shaderLocation: 0, //position
-								offset: 0,
-								format: "float4",
-							},
-						],
-					},
-				],
-			},
-			sampleCount: 4,
 		});
 
 		this.meshRendererUniformsBufferLength = 65536;
@@ -255,11 +215,11 @@ export default class WebGpuRenderer extends Renderer{
 					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
+				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
+				renderPassEncoder.setBindGroup(0, this.uniformBindGroup, [i*uniformsLength]);
+				renderPassEncoder.setVertexBuffer(0, this.cubeVerticesBuffer);
+				renderPassEncoder.draw(36, 1, 0, 0);
 			}
-			renderPassEncoder.setPipeline(this.basicPipeline);
-			renderPassEncoder.setBindGroup(0, this.uniformBindGroup, [i*uniformsLength]);
-			renderPassEncoder.setVertexBuffer(0, this.cubeVerticesBuffer);
-			renderPassEncoder.draw(36, 1, 0, 0);
 		}
 		this.device.defaultQueue.writeBuffer(this.meshRendererUniformsBuffer, 0, uniformBufferData);
 
@@ -281,7 +241,7 @@ export default class WebGpuRenderer extends Renderer{
 	getPipeline(pipelineConfiguration){
 		let pipeline = this.cachedPipelines.get(pipelineConfiguration);
 		if(!pipeline){
-			pipeline = new WebGpuPipeline(pipelineConfiguration);
+			pipeline = new WebGpuPipeline(this.device, pipelineConfiguration, this.pipelineLayout);
 			this.cachedPipelines.set(pipelineConfiguration, pipeline);
 		}
 		return pipeline;
