@@ -252,7 +252,7 @@ export default class WebGpuRenderer extends Renderer{
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
 					const mapData = material.customMapDatas.get(WebGpuRenderer.materialMapWebGpuTypeUuid);
-					materialData.forwardPipeline = this.getPipeline(mapData.forwardShaderConfiguration);
+					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 			}
@@ -278,11 +278,11 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	getPipeline(shaderConfiguration){
-		let pipeline = this.cachedPipelines.get(shaderConfiguration);
+	getPipeline(pipelineConfiguration){
+		let pipeline = this.cachedPipelines.get(pipelineConfiguration);
 		if(!pipeline){
-			pipeline = new WebGpuPipeline(shaderConfiguration);
-			this.cachedPipelines.set(shaderConfiguration, pipeline);
+			pipeline = new WebGpuPipeline(pipelineConfiguration);
+			this.cachedPipelines.set(pipelineConfiguration, pipeline);
 		}
 		return pipeline;
 	}

@@ -13,7 +13,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		super(treeView);
 
 		this.settingsGuiStructure = {
-			forwardShaderConfiguration: {
+			forwardPipelineConfiguration: {
 				type: WebGpuPipelineConfiguration,
 				guiOpts: {
 					storageType: "projectAsset",
@@ -29,28 +29,28 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	}
 
 	async customAssetDataFromLoad(customData){
-		let forwardShaderConfiguration = null;
-		if(customData.forwardShaderConfiguration) forwardShaderConfiguration = await editor.projectManager.assetManager.getProjectAsset(customData.forwardShaderConfiguration);
-		this.settingsTreeView.fillSerializableStructureValues({forwardShaderConfiguration});
+		let forwardPipelineConfiguration = null;
+		if(customData.forwardPipelineConfiguration) forwardPipelineConfiguration = await editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfiguration);
+		this.settingsTreeView.fillSerializableStructureValues({forwardPipelineConfiguration});
 	}
 
 	async getCustomAssetDataForSave(){
 		const settings = this.getSettingsValues();
 		const data = {
-			forwardShaderConfiguration: settings.forwardShaderConfiguration?.uuid || null,
+			forwardPipelineConfiguration: settings.forwardPipelineConfiguration?.uuid || null,
 		}
 
 		return data;
 	}
 
 	static async getLiveAssetCustomData(customData){
-		let forwardShaderConfiguration = null;
-		if(customData.forwardShaderConfiguration) forwardShaderConfiguration = await editor.projectManager.assetManager.getLiveAsset(customData.forwardShaderConfiguration);
-		return {forwardShaderConfiguration};
+		let forwardPipelineConfiguration = null;
+		if(customData.forwardPipelineConfiguration) forwardPipelineConfiguration = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfiguration);
+		return {forwardPipelineConfiguration};
 	}
 
 	static async *getLinkedAssetsInCustomData(customData){
-		if(customData.forwardShaderConfiguration) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardShaderConfiguration);
+		if(customData.forwardPipelineConfiguration) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfiguration);
 	}
 
 	static assetBundleDataStructure = {
@@ -63,7 +63,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 
 	static mapDataToAssetBundleData(mapData){
 		return {
-			configUuid: mapData.forwardShaderConfiguration,
+			configUuid: mapData.forwardPipelineConfiguration,
 		};
 	}
 
