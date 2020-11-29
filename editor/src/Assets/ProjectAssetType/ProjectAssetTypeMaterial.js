@@ -13,9 +13,6 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
 	constructor(){
 		super(...arguments);
-
-		this.boundOnLinkedAssetNewInstance = this.onLinkedAssetNewInstance.bind(this);
-		this.currentLiveAssetLinkedAssets = null;
 	}
 
 	static createNewFile(){
@@ -26,38 +23,19 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
 	async getLiveAsset(materialJson){
 		let customMapDatas = null;
-		let linkedAssets = null;
 		if(materialJson.map){
 			const map = await editor.projectManager.assetManager.getProjectAsset(materialJson.map);
 			const {mapDatas, linkedProjectAssets} = await editor.materialMapTypeManager.getDataForMapProjectAsset(map);
 			customMapDatas = mapDatas;
-			linkedAssets = linkedProjectAssets;
-		}
-
-		if(linkedAssets){
-			for(const projectAsset of linkedAssets){
-				projectAsset.onNewLiveAssetInstance(this.boundOnLinkedAssetNewInstance)
+			for(const projectAsset of linkedProjectAssets){
+				this.listenForUsedLiveAssetChanges(projectAsset);
 			}
 		}
-		this.currentLiveAssetLinkedAssets = linkedAssets;
 
 		const material = new Material({
 			customMapDatas,
 		});
 		return material;
-	}
-
-	destroyLiveAsset(material){
-		material.destructor();
-		if(this.currentLiveAssetLinkedAssets){
-			for(const projectAsset of this.currentLiveAssetLinkedAssets){
-				projectAsset.onNewLiveAssetInstance(this.boundOnLinkedAssetNewInstance)
-			}
-		}
-	}
-
-	onLinkedAssetNewInstance(){
-		this.liveAssetNeedsReplacement();
 	}
 
 	async createBundledAssetData(assetSettingOverrides = {}){

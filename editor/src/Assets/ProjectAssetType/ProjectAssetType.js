@@ -47,6 +47,9 @@ export default class ProjectAssetType{
 
 	constructor(projectAsset){
 		this.projectAsset = projectAsset;
+
+		this.boundLiveAssetNeedsReplacement = this.liveAssetNeedsReplacement.bind(this);
+		this.usedLiveAssets = new Set();
 	}
 
 	//should return either a `new File()`, a DOMString, or an object
@@ -77,9 +80,20 @@ export default class ProjectAssetType{
 		this.projectAsset.liveAssetNeedsReplacement();
 	}
 
+	//you can use this to automacally listen for changes in other projectAsset.
+	//If any of the registered liveAssets get replaced, the liveAsset
+	//of this ProjectAsset automatically gets destroyed and recreated.
+	listenForUsedLiveAssetChanges(projectAsset){
+		this.usedLiveAssets.add(projectAsset);
+		projectAsset.onNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement);
+	}
+
 	//optionally override this for custom asset destruction
 	destroyLiveAsset(liveAsset){
 		liveAsset.destructor?.();
+		for(const projectAsset of this.usedLiveAssets){
+			projectAsset.removeOnNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement)
+		}
 	}
 
 	//if this asset is a file that can be opened, open it

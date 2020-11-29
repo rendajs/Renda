@@ -35,10 +35,13 @@ export default class ProjectAssetTypeWebGpuPipelineConfiguration extends Project
 	static expectedLiveAssetConstructor = WebGpuPipelineConfiguration;
 
 	async getLiveAsset(fileData){
-		const fragmentShader = await editor.projectManager.assetManager.getLiveAsset(fileData.fragmentShader);
-		const vertexShader = await editor.projectManager.assetManager.getLiveAsset(fileData.vertexShader);
+		const fragmentShader = await editor.projectManager.assetManager.getProjectAsset(fileData.fragmentShader);
+		const vertexShader = await editor.projectManager.assetManager.getProjectAsset(fileData.vertexShader);
+		this.listenForUsedLiveAssetChanges(fragmentShader);
+		this.listenForUsedLiveAssetChanges(vertexShader);
 		return new WebGpuPipelineConfiguration({
-			fragmentShader, vertexShader,
+			vertexShader: await vertexShader.getLiveAsset(),
+			fragmentShader: await fragmentShader.getLiveAsset(),
 		});
 	}
 
