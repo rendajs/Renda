@@ -18,6 +18,9 @@ export default class ProjectAsset{
 		this.needsConsistentUuid = false;
 
 		this._projectAssetType = null;
+		this.isGettingLiveAsset = false;
+		this.currentGettingLiveAssetSymbol = null;
+		this.onLiveAssetGetCbs = new Set();
 		this.liveAsset = null;
 
 		this.initInstance = new SingleInstancePromise(async _=> await this.init());
@@ -113,10 +116,16 @@ export default class ProjectAsset{
 		await this._projectAssetType.open();
 	}
 
-	//todo: make sure this promise has only one instance running at a time
 	async getLiveAsset(){
 		if(this.liveAsset) return this.liveAsset;
 
+		if(this.isGettingLiveAsset){
+			return await new Promise(r => this.onLiveAssetGetCbs.add(r));
+		}
+
+		this.isGettingLiveAsset = true;
+		const getLiveAssetSymbol = Symbol("get liveAsset");
+		this.currentGettingLiveAssetSymbol = getLiveAssetSymbol;
 		await this.waitForInit();
 		let fileData = null;
 		try{
@@ -129,7 +138,16 @@ export default class ProjectAsset{
 			return null;
 		}
 
-		this.liveAsset = await this._projectAssetType.getLiveAsset(fileData);
+		const liveAsset = await this._projectAssetType.getLiveAsset(fileData);
+		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol){
+			//if destroyLiveAsset has been called before this Promise was finished
+			return null;
+		}
+		this.liveAsset = liveAsset;
+		for(const cb of this.onLiveAssetGetCbs){
+			cb(this.liveAsset);
+		}
+		this.isGettingLiveAsset = false;
 		return this.liveAsset;
 	}
 
@@ -139,8 +157,29 @@ export default class ProjectAsset{
 		return this.liveAsset;
 	}
 
+	onNewLiveAssetInstance(cb){
+		this.onNewLiveAssetInstanceCbs.add(cb);
+	}
+
+	removeOnNewLiveAssetInstance(cb){
+		this.onNewLiveAssetInstanceCbs.delete(cb);
+	}
+
+	liveAssetNeedsReplacement(){
+		this.destroyLiveAsset();
+		for(const cb of this.onNewLiveAssetInstanceCbs){
+			cb();
+		}
+	}
+
 	destroyLiveAsset(){
-		if(this.liveAsset && this._projectAssetType){
+		if(this.isGettingLiveAsset){
+			for(const cb of this.onLiveAssetGetCbs){
+				cb(null);
+			}
+			this.isGettingLiveAsset = false;
+			this.currentGettingLiveAssetSymbol = null;
+		}else if(this.liveAsset && this._projectAssetType){
 			this._projectAssetType.destroyLiveAsset(this.liveAsset);
 			this.liveAsset = null;
 		}
@@ -221,20 +260,5 @@ export default class ProjectAsset{
 		await this.waitForInit();
 		if(!this._projectAssetType) return;
 		await this._projectAssetType.fileChangedExternally();
-	}
-
-	onNewLiveAssetInstance(cb){
-		this.onNewLiveAssetInstanceCbs.add(cb);
-	}
-
-	removeOnNewLiveAssetInstance(cb){
-		this.onNewLiveAssetInstanceCbs.delete(cb);
-	}
-
-	liveAssetNeedsReplacement(){
-		this.destroyLiveAsset();
-		for(const cb of this.onNewLiveAssetInstanceCbs){
-			cb();
-		}
 	}
 }
