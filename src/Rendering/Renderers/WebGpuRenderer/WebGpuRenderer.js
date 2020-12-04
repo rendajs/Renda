@@ -139,7 +139,7 @@ export default class WebGpuRenderer extends Renderer{
 
 	async configureSwapChainAsync(domTarget){
 		await this.waitForInit();
-		domTarget.configureSwapChain(this.device);
+		domTarget.configureSwapChain(this.adapter, this.device);
 	}
 
 	render(domTarget, camera){

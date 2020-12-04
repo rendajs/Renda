@@ -42,8 +42,8 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		}
 	}
 
-	async configureSwapChain(device){
-		this.swapChainFormat = await this.ctx.getSwapChainPreferredFormat(device);
+	configureSwapChain(adapter, device){
+		this.swapChainFormat = this.ctx.getSwapChainPreferredFormat(adapter);
 		this.swapChain = this.ctx.configureSwapChain({
 			device,
 			format: this.swapChainFormat,
