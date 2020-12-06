@@ -23,65 +23,13 @@ export default class WebGpuRenderer extends Renderer{
 
 		//for every pipeline, maintain a list of objects that the pipeline is used by
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
+
+		this.cachedMeshData = new WeakMap(); //<Mesh, {cachedData}>
 	}
 
 	async init(){
 		this.adapter = await navigator.gpu.requestAdapter();
 		const device = this.device = await this.adapter.requestDevice();
-
-		const cubeVertexArray = new Float32Array([
-			// float4 position, float4 color, float2 uv,
-			1, -1, 1, 1,
-			-1, -1, 1, 1,
-			-1, -1, -1, 1,
-			1, -1, -1, 1,
-			1, -1, 1, 1,
-			-1, -1, -1, 1,
-
-			1, 1, 1, 1,
-			1, -1, 1, 1,
-			1, -1, -1, 1,
-			1, 1, -1, 1,
-			1, 1, 1, 1,
-			1, -1, -1, 1,
-
-			-1, 1, 1, 1,
-			1, 1, 1, 1,
-			1, 1, -1, 1,
-			-1, 1, -1, 1,
-			-1, 1, 1, 1,
-			1, 1, -1, 1,
-
-			-1, -1, 1, 1,
-			-1, 1, 1, 1,
-			-1, 1, -1, 1,
-			-1, -1, -1, 1,
-			-1, -1, 1, 1,
-			-1, 1, -1, 1,
-
-			1, 1, 1, 1,
-			-1, 1, 1, 1,
-			-1, -1, 1, 1,
-			-1, -1, 1, 1,
-			1, -1, 1, 1,
-			1, 1, 1, 1,
-
-			1, -1, -1, 1,
-			-1, -1, -1, 1,
-			-1, 1, -1, 1,
-			1, 1, -1, 1,
-			1, -1, -1, 1,
-			-1, 1, -1, 1,
-		]);
-
-		const verticesBuffer = device.createBuffer({
-			size: cubeVertexArray.byteLength,
-			usage: GPUBufferUsage.VERTEX,
-			mappedAtCreation: true,
-		});
-		new Float32Array(verticesBuffer.getMappedRange()).set(cubeVertexArray);
-		verticesBuffer.unmap();
-		this.cubeVerticesBuffer = verticesBuffer;
 
 		const uniformBindGroupLayout = device.createBindGroupLayout({
 			entries: [
@@ -160,6 +108,7 @@ export default class WebGpuRenderer extends Renderer{
 		for(const root of rootRenderEntities){
 			for(const child of root.traverseDown()){
 				for(const component of child.getComponentsByType(DefaultComponentTypes.mesh)){
+					if(!component.mesh) continue;
 					meshComponents.push(component);
 				}
 			}
@@ -186,7 +135,8 @@ export default class WebGpuRenderer extends Renderer{
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
 				renderPassEncoder.setBindGroup(0, this.uniformBindGroup, [i*uniformsLength]);
-				renderPassEncoder.setVertexBuffer(0, this.cubeVerticesBuffer);
+				const {vertexBuffer} = this.getCachedMeshData(meshComponent.mesh);
+				renderPassEncoder.setVertexBuffer(0, vertexBuffer);
 				renderPassEncoder.draw(36, 1, 0, 0);
 			}
 		}
@@ -255,5 +205,68 @@ export default class WebGpuRenderer extends Renderer{
 	disposePipeline(pipeline){
 		pipeline.destructor();
 		this.pipelinesUsedByLists.delete(pipeline);
+	}
+
+	getCachedMeshData(mesh){
+		let data = this.cachedMeshData.get(mesh);
+		if(!data){
+			data = {};
+			this.cachedMeshData.set(data);
+
+			const cubeVertexArray = new Float32Array([
+				// float4 position, float4 color, float2 uv,
+				1, -1, 1, 1,
+				-1, -1, 1, 1,
+				-1, -1, -1, 1,
+				1, -1, -1, 1,
+				1, -1, 1, 1,
+				-1, -1, -1, 1,
+
+				1, 1, 1, 1,
+				1, -1, 1, 1,
+				1, -1, -1, 1,
+				1, 1, -1, 1,
+				1, 1, 1, 1,
+				1, -1, -1, 1,
+
+				-1, 1, 1, 1,
+				1, 1, 1, 1,
+				1, 1, -1, 1,
+				-1, 1, -1, 1,
+				-1, 1, 1, 1,
+				1, 1, -1, 1,
+
+				-1, -1, 1, 1,
+				-1, 1, 1, 1,
+				-1, 1, -1, 1,
+				-1, -1, -1, 1,
+				-1, -1, 1, 1,
+				-1, 1, -1, 1,
+
+				1, 1, 1, 1,
+				-1, 1, 1, 1,
+				-1, -1, 1, 1,
+				-1, -1, 1, 1,
+				1, -1, 1, 1,
+				1, 1, 1, 1,
+
+				1, -1, -1, 1,
+				-1, -1, -1, 1,
+				-1, 1, -1, 1,
+				1, 1, -1, 1,
+				1, -1, -1, 1,
+				-1, 1, -1, 1,
+			]);
+
+			const vertexBuffer = this.device.createBuffer({
+				size: cubeVertexArray.byteLength,
+				usage: GPUBufferUsage.VERTEX,
+				mappedAtCreation: true,
+			});
+			new Float32Array(vertexBuffer.getMappedRange()).set(cubeVertexArray);
+			vertexBuffer.unmap();
+			data.vertexBuffer = vertexBuffer;
+		}
+		return data;
 	}
 }
