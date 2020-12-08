@@ -21,7 +21,7 @@ export default class ContentWindowProject extends ContentWindow{
 				menu.addItem("New Material Map", _ => {
 					this.createAsset("JJ:materialMap");
 				});
-				menu.addItem("New WebGPU Shader Configuration", _ => {
+				menu.addItem("New WebGPU Pipeline Configuration", _ => {
 					this.createAsset("JJ:webGpuPipelineConfiguration");
 				});
 				menu.addItem("New Mesh", _ => {

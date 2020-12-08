@@ -7,7 +7,7 @@ export default class ProjectAssetTypeWebGpuPipelineConfiguration extends Project
 
 	static type = "JJ:webGpuPipelineConfiguration";
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
-	static newFileName = "New Shader Configuration";
+	static newFileName = "New Pipeline Configuration";
 
 	constructor(){
 		super(...arguments);
