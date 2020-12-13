@@ -73,6 +73,8 @@ export default class WindowManager{
 		if(this.rootWindow){
 			this.rootWindow.destructor();
 		}
+		this.focusedEditorWindow = null;
+		this.lastFocusedEditorWindow = null;
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.rootWindow.setRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
