@@ -3,6 +3,7 @@ import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuPipeline from "./WebGpuPipeline.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
+export {default as WebGpuVertexLayout} from "./WebGpuVertexLayout.js";
 
 export default class WebGpuRenderer extends Renderer{
 

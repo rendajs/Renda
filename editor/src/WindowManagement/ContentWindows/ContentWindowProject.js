@@ -27,6 +27,9 @@ export default class ContentWindowProject extends ContentWindow{
 				menu.addItem("New Mesh", _ => {
 					this.createAsset("JJ:mesh");
 				});
+				menu.addItem("New Vertex Layout", _ => {
+					this.createAsset("JJ:vertexLayout");
+				});
 				menu.addItem("New Entity", _ => {
 					this.createAsset("JJ:entity");
 				});
