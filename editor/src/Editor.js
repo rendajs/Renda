@@ -46,8 +46,6 @@ export default class Editor{
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.materialMapTypeManager.init();
-
-		this.projectManager.openRecentProjectHandle();
 	}
 
 	doIt(){

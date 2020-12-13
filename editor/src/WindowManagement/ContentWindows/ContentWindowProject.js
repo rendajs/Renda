@@ -47,6 +47,14 @@ export default class ContentWindowProject extends ContentWindow{
 		});
 		this.addTopBarButton(openProjectButton);
 
+		const openRecentButton = new Button({
+			text: "Open Recent",
+			onClick: _ => {
+				editor.projectManager.openRecentProjectHandle();
+			},
+		});
+		this.addTopBarButton(openRecentButton);
+
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
 		this.treeView.rowVisible = false;

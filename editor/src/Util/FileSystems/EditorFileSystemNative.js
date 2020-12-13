@@ -77,6 +77,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 				throw new Error("Failed to get directory handle for "+path.slice(0, parsedPathDepth).join("/")+"/");
 			}
 		}
+		await this.verifyHandlePermission(handle, {writable: create});
 		return handle;
 	}
 
