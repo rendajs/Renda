@@ -49,6 +49,47 @@ export default class BinaryComposer{
 		this.bufferList.push(buffer);
 	}
 
+	appendInt8(value){
+		const buffer = new ArrayBuffer(1);
+		new DataView(buffer).setInt8(0, value);
+		this.appendBuffer(buffer);
+	}
+
+	appendUint8(value){
+		const buffer = new ArrayBuffer(1);
+		new DataView(buffer).setUint8(0, value);
+		this.appendBuffer(buffer);
+	}
+
+	appendInt16(value){
+		const buffer = new ArrayBuffer(2);
+		new DataView(buffer).setInt16(0, value, this.littleEndian);
+		this.appendBuffer(buffer);
+	}
+
+	appendUint16(value){
+		const buffer = new ArrayBuffer(2);
+		new DataView(buffer).setUint16(0, value, this.littleEndian);
+		this.appendBuffer(buffer);
+	}
+
+	appendInt32(value){
+		const buffer = new ArrayBuffer(4);
+		new DataView(buffer).setInt32(0, value, this.littleEndian);
+		this.appendBuffer(buffer);
+	}
+
+	appendUint32(value){
+		const buffer = new ArrayBuffer(4);
+		new DataView(buffer).setUint32(0, value, this.littleEndian);
+		this.appendBuffer(buffer);
+	}
+
+	appendUuid(uuid){
+		const buffer = BinaryComposer.uuidToBinary(uuid);
+		this.appendBuffer(buffer);
+	}
+
 	static uuidToBinary(uuidStr){
 		const buffer = new ArrayBuffer(16);
 		let i=0, j=0;
@@ -63,13 +104,13 @@ export default class BinaryComposer{
 		return buffer;
 	}
 
-	static binaryToUuid(binary, offset = 0){
-		if(!ArrayBuffer.isView(binary)){
-			binary = new Uint8Array(binary);
+	static binaryToUuid(buffer, offset = 0){
+		if(!ArrayBuffer.isView(buffer)){
+			buffer = new Uint8Array(buffer);
 		}
 		let str = "";
 		for(let i=0; i<16; i++){
-	        str += binary[offset+i].toString(16).padStart(2, "0");
+	        str += buffer[offset+i].toString(16).padStart(2, "0");
 	        if(i == 3 || i == 5 || i == 7 || i == 9) str += "-";
 	    }
 		return str;

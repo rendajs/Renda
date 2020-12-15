@@ -238,7 +238,7 @@ export default class ProjectAsset{
 		}else if(this._projectAssetType.constructor.storeInProjectAsText){
 			await editor.projectManager.currentProjectFileSystem.writeText(this.path, fileData);
 		}else{
-			//todo
+			await editor.projectManager.currentProjectFileSystem.writeFile(this.path, fileData);
 		}
 	}
 

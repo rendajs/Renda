@@ -1,5 +1,7 @@
 import ProjectAssetType from "./ProjectAssetType.js";
+import PropertiesAssetContentMesh from "../../PropertiesAssetContent/PropertiesAssetContentMesh.js";
 import {Mesh, Vec3} from "../../../../src/index.js";
+import BinaryComposer from "../../../../src/Util/BinaryComposer.js";
 
 export default class ProjectAssetTypeMesh extends ProjectAssetType{
 
@@ -8,6 +10,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	static newFileName = "New Mesh";
 	static newFileExtension = "jjmesh";
 	static storeInProjectAsJson = false;
+	static propertiesAssetContentConstructor = PropertiesAssetContentMesh;
 
 	constructor(){
 		super(...arguments);
@@ -78,7 +81,20 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
 		]);
-		const blob = cubeMesh.toBlob();
+
+		const composer = new BinaryComposer();
+
+		//magic header: jMsh
+		composer.appendUint32(0x68734D6A);
+		composer.appendUuid("00000000-0000-0000-0000-000000000000"); //todo: replace with global mesh layout asset uuid
+		for(const [type, buffer] of cubeMesh.buffers){
+			composer.appendUint16(type);
+			composer.appendUint8(buffer.componentCount);
+			composer.appendUint8(buffer.componentType);
+			composer.appendUint32(buffer.arrayBuffer.byteLength);
+			composer.appendBuffer(buffer.arrayBuffer);
+		}
+		const blob = new Blob([composer.getFullBuffer()]);
 		const file = new File([blob], "mesh.jjmesh");
 		return file;
 	}
@@ -86,6 +102,32 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	static expectedLiveAssetConstructor = Mesh;
 
 	async getLiveAsset(blob){
-		return Mesh.fromBlob(blob);
+		const arrayBuffer = await blob.arrayBuffer();
+		const dataView = new DataView(arrayBuffer);
+		if(dataView.getUint32(0, true) != 0x68734D6A) return null;
+		const mesh = new Mesh();
+		let i=4;
+		const layoutUuidBuffer = arrayBuffer.slice(i, i+16);
+		i+=16;
+		const layoutUuid = BinaryComposer.binaryToUuid(layoutUuidBuffer);
+		const layoutProjectAsset = await editor.projectManager.assetManager.getProjectAsset(layoutUuid);
+		if(layoutProjectAsset){
+			mesh.setVertexLayout(await layoutProjectAsset.getLiveAsset());
+			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
+		}
+		while(i < dataView.byteLength){
+			const type = dataView.getUint16(i, true);
+			i += 2;
+			const componentCount = dataView.getUint8(i, true);
+			i++;
+			const componentType = dataView.getUint8(i, true);
+			i++;
+			const length = dataView.getUint32(i, true);
+			i += 4;
+			const data = dataView.buffer.slice(i, i + length);
+			mesh.setBuffer(type, data, {componentCount, componentType});
+			i += length;
+		}
+		return mesh;
 	}
 }

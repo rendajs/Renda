@@ -10,6 +10,6 @@ export default class AssetLoaderTypeMesh extends AssetLoaderType{
 	}
 
 	parseBuffer(buffer){
-		return Mesh.fromArrayBuffer(buffer);
+		return null; //todo
 	}
 }
