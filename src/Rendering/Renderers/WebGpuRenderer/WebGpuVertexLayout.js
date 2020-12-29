@@ -1,5 +1,5 @@
 export default class WebGpuVertexLayout{
-	constructor(){
-
+	constructor(vertexStateDescriptor){
+		this.descriptor = vertexStateDescriptor;
 	}
 }

@@ -212,7 +212,7 @@ export default class WebGpuRenderer extends Renderer{
 		let data = this.cachedMeshData.get(mesh);
 		if(!data){
 			data = {};
-			this.cachedMeshData.set(data);
+			this.cachedMeshData.set(mesh, data);
 
 			const cubeVertexArray = new Float32Array([
 				// float4 position, float4 color, float2 uv,

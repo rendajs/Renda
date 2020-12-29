@@ -58,6 +58,7 @@ export default class MeshAttributeBuffer{
 		this.arrayBuffer = null;
 	}
 
+	//todo move this code to renderer
 	uploadToWebGl(gl, bufferType = null){
 		if(!this.glBuffer){
 			this.glBuffer = gl.createBuffer();
