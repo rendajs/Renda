@@ -32,18 +32,19 @@ export default class AssetManager{
 			if(!hasPermissions) return;
 		}
 
-		this.assetSettingsLoaded = true;
-		if(!(await this.fileSystem.isFile(this.assetSettingsPath))) return;
-		let json = await this.fileSystem.readJson(this.assetSettingsPath);
-		if(json){
-			for(const [uuid, assetData] of Object.entries(json.assets)){
-				const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
-				if(projectAsset){
-					projectAsset.makeUuidConsistent(false);
-					this.projectAssets.set(uuid, projectAsset);
+		if(await this.fileSystem.isFile(this.assetSettingsPath)){
+			let json = await this.fileSystem.readJson(this.assetSettingsPath);
+			if(json){
+				for(const [uuid, assetData] of Object.entries(json.assets)){
+					const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
+					if(projectAsset){
+						projectAsset.makeUuidConsistent(false);
+						this.projectAssets.set(uuid, projectAsset);
+					}
 				}
 			}
 		}
+		this.assetSettingsLoaded = true;
 	}
 
 	async saveAssetSettings(){
@@ -74,7 +75,7 @@ export default class AssetManager{
 	}
 
 	async externalChange(e){
-		const projectAsset = await this.getProjectAssetFromPath(e.path);
+		const projectAsset = await this.getProjectAssetFromPath(e.path, this.assetSettingsLoaded);
 		if(projectAsset){
 			const guessedType = await ProjectAsset.guessAssetTypeFromFile(e.path);
 			if(guessedType != projectAsset.assetType){
@@ -117,7 +118,7 @@ export default class AssetManager{
 		return true;
 	}
 
-	async getProjectAssetFromPath(path = []){
+	async getProjectAssetFromPath(path = [], registerIfNecessary = true){
 		await this.loadAssetSettings(true);
 		for(const [uuid, asset] of this.projectAssets){
 			if(this.testPathMatch(path, asset.path)){
@@ -125,9 +126,7 @@ export default class AssetManager{
 			}
 		}
 
-		//no existing project asset was found, check if the file exists
-		if(await this.fileSystem.isFile(path)){
-			//create a new project asset
+		if(registerIfNecessary && await this.fileSystem.isFile(path)){
 			return await this.registerAsset(path);
 		}
 		return null;
