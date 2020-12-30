@@ -1,6 +1,6 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource, WebGpuPipelineConfiguration, WebGpuVertexLayout} from "../../../../src/index.js";
+import {ShaderSource, WebGpuPipelineConfiguration, WebGpuVertexState} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeWebGpuPipelineConfiguration extends ProjectAssetType{
 
@@ -29,10 +29,10 @@ export default class ProjectAssetTypeWebGpuPipelineConfiguration extends Project
 				storageType: "uuid",
 			},
 		},
-		preloadVertexLayouts: {
+		preloadVertexStates: {
 			type: Array,
 			arrayOpts: {
-				type: WebGpuVertexLayout,
+				type: WebGpuVertexState,
 				guiOpts: {
 					storageType: "uuid",
 				},

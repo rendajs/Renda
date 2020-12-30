@@ -1,12 +1,12 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource, WebGpuVertexLayout} from "../../../../src/index.js";
+import {ShaderSource, WebGpuVertexState} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeVertexLayout extends ProjectAssetType{
+export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 
-	static type = "JJ:vertexLayout";
+	static type = "JJ:vertexState";
 	static typeUuid = "07dcd52e-03a5-4823-b343-16a142c304f6";
-	static newFileName = "New Vertex Layout";
+	static newFileName = "New Vertex State";
 
 	constructor(){
 		super(...arguments);
@@ -67,7 +67,7 @@ export default class ProjectAssetTypeVertexLayout extends ProjectAssetType{
 		},
 	};
 
-	static expectedLiveAssetConstructor = WebGpuVertexLayout;
+	static expectedLiveAssetConstructor = WebGpuVertexState;
 
 	async getLiveAsset(fileData){
 		const descriptor = {};
@@ -119,7 +119,7 @@ export default class ProjectAssetTypeVertexLayout extends ProjectAssetType{
 				}
 			}
 		}
-		return new WebGpuVertexLayout(descriptor);
+		return new WebGpuVertexState(descriptor);
 	}
 
 	async fileChangedExternally(){

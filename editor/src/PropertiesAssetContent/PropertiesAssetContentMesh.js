@@ -1,5 +1,5 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
-import {Mesh, WebGpuVertexLayout} from "../../../src/index.js";
+import {Mesh, WebGpuVertexState} from "../../../src/index.js";
 import BinaryComposer from "../../../../src/Util/BinaryComposer.js";
 
 export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
@@ -9,8 +9,8 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
 
 		this.meshSettingsStructure = {
-			vertexLayout: {
-				type: WebGpuVertexLayout,
+			vertexState: {
+				type: WebGpuVertexState,
 				guiOpts: {
 					storageType: "uuid",
 				}
@@ -33,11 +33,11 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 		const file = await asset.readAssetData();
 		this.isUpdatingUi = true;
 
-		const vertexLayoutUuidSlice = file.slice(4, 4 + 16);
-		const vertexLayoutUuidBuffer = await vertexLayoutUuidSlice.arrayBuffer();
-		const vertexLayoutUuid = BinaryComposer.binaryToUuid(vertexLayoutUuidBuffer);
+		const vertexStateUuidSlice = file.slice(4, 4 + 16);
+		const vertexStateUuidBuffer = await vertexStateUuidSlice.arrayBuffer();
+		const vertexStateUuid = BinaryComposer.binaryToUuid(vertexStateUuidBuffer);
 		await this.meshSettingsTree.fillSerializableStructureValues({
-			vertexLayout: vertexLayoutUuid,
+			vertexState: vertexStateUuid,
 		});
 
 		this.isUpdatingUi = false;
@@ -45,7 +45,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 
 	async saveAsset(){
 		const settings = this.meshSettingsTree.getSerializableStructureValues(this.meshSettingsStructure);
-		const layoutUuidBuffer = new Uint8Array(BinaryComposer.uuidToBinary(settings.vertexLayout));
+		const layoutUuidBuffer = new Uint8Array(BinaryComposer.uuidToBinary(settings.vertexState));
 
 		for(const asset of this.currentSelection){
 			const file = await asset.readAssetData();

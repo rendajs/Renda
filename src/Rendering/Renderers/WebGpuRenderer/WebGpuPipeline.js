@@ -1,5 +1,5 @@
 export default class WebGpuPipeline{
-	constructor(device, configuration, pipelineLayout, vertexLayout){
+	constructor(device, configuration, pipelineLayout, vertexState){
 		this.pipeline = device.createRenderPipeline({
 			layout: pipelineLayout,
 			vertexStage: {
@@ -23,7 +23,7 @@ export default class WebGpuPipeline{
 				depthCompare: "less",
 				format: "depth24plus-stencil8",
 			},
-			vertexState: vertexLayout.descriptor,
+			vertexState: vertexState.descriptor,
 			sampleCount: 4,
 		});
 	}

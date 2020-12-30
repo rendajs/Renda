@@ -112,7 +112,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		const layoutUuid = BinaryComposer.binaryToUuid(layoutUuidBuffer);
 		const layoutProjectAsset = await editor.projectManager.assetManager.getProjectAsset(layoutUuid);
 		if(layoutProjectAsset){
-			mesh.setVertexLayout(await layoutProjectAsset.getLiveAsset());
+			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
 			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
 		}
 		while(i < dataView.byteLength){

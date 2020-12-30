@@ -4,7 +4,7 @@ import MeshAttributeBuffer from "./MeshAttributeBuffer.js";
 export default class Mesh{
 	constructor(){
 		this.buffers = new Map();
-		this.vertexLayout = null;
+		this.vertexState = null;
 	}
 
 	destructor(){
@@ -31,8 +31,8 @@ export default class Mesh{
 		return this.buffers.get(type);
 	}
 
-	setVertexLayout(layout){
-		this.vertexLayout = layout;
+	setVertexState(layout){
+		this.vertexState = layout;
 	}
 
 	//todo: move this method to the renderer

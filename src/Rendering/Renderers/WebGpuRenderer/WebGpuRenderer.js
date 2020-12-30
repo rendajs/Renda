@@ -3,7 +3,7 @@ import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuPipeline from "./WebGpuPipeline.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
-export {default as WebGpuVertexLayout} from "./WebGpuVertexLayout.js";
+export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
 
 export default class WebGpuRenderer extends Renderer{
 
@@ -20,7 +20,7 @@ export default class WebGpuRenderer extends Renderer{
 		this.onInitCbs = new Set();
 
 		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
-		this.cachedPipelines = new WeakMap(); //<WebGpuPipelineConfiguration, WeakMap<WebGpuVertexLayout, WebGpuPipeline>>
+		this.cachedPipelines = new WeakMap(); //<WebGpuPipelineConfiguration, WeakMap<WebGpuVertexState, WebGpuPipeline>>
 
 		//for every pipeline, maintain a list of objects that the pipeline is used by
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
@@ -131,7 +131,7 @@ export default class WebGpuRenderer extends Renderer{
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
 					const mapData = material.customMapDatas.get(WebGpuRenderer.materialMapWebGpuTypeUuid);
-					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexLayout);
+					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
@@ -161,16 +161,16 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	getPipeline(pipelineConfiguration, vertexLayout){
-		let vertexLayoutList = this.cachedPipelines.get(pipelineConfiguration);
-		if(!vertexLayoutList){
-			vertexLayoutList = new WeakMap(); //<WebGpuVertexLayout, WebGpuPipeline>
-			this.cachedPipelines.set(pipelineConfiguration, vertexLayoutList);
+	getPipeline(pipelineConfiguration, vertexState){
+		let vertexStateList = this.cachedPipelines.get(pipelineConfiguration);
+		if(!vertexStateList){
+			vertexStateList = new WeakMap(); //<WebGpuVertexState, WebGpuPipeline>
+			this.cachedPipelines.set(pipelineConfiguration, vertexStateList);
 		}
-		let pipeline = vertexLayoutList.get(vertexLayout);
+		let pipeline = vertexStateList.get(vertexState);
 		if(!pipeline){
-			pipeline = new WebGpuPipeline(this.device, pipelineConfiguration, this.pipelineLayout, vertexLayout);
-			vertexLayoutList.set(vertexLayout, pipeline);
+			pipeline = new WebGpuPipeline(this.device, pipelineConfiguration, this.pipelineLayout, vertexState);
+			vertexStateList.set(vertexState, pipeline);
 		}
 		return pipeline;
 	}

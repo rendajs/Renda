@@ -4,7 +4,7 @@ import ProjectAssetTypeMesh from "./ProjectAssetTypeMesh.js";
 import ProjectAssetTypeEntity from "./ProjectAssetTypeEntity.js";
 import ProjectAssetTypeJavascript from "./ProjectAssetTypeJavascript.js";
 import ProjectAssetTypeShaderSource from "./ProjectAssetTypeShaderSource.js";
-import ProjectAssetTypeVertexLayout from "./ProjectAssetTypeVertexLayout.js";
+import ProjectAssetTypeVertexState from "./ProjectAssetTypeVertexState.js";
 import ProjectAssetTypeAssetBundle from "./ProjectAssetTypeAssetBundle.js";
 import ProjectAssetTypeWebGpuPipelineConfiguration from "./ProjectAssetTypeWebGpuPipelineConfiguration.js";
 
@@ -15,7 +15,7 @@ export default [
 	ProjectAssetTypeEntity,
 	ProjectAssetTypeJavascript,
 	ProjectAssetTypeShaderSource,
-	ProjectAssetTypeVertexLayout,
+	ProjectAssetTypeVertexState,
 	ProjectAssetTypeAssetBundle,
 	ProjectAssetTypeWebGpuPipelineConfiguration,
 ];
