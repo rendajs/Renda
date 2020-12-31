@@ -185,6 +185,13 @@ export default class ProjectAsset{
 		}
 	}
 
+	async saveLiveAsset(){
+		await this.waitForInit();
+		const liveAsset = await this.getLiveAsset();
+		const assetData = await this._projectAssetType.saveLiveAsset(liveAsset);
+		await this.writeAssetData(assetData);
+	}
+
 	async getPropertiesAssetContentConstructor(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return null;
@@ -238,7 +245,7 @@ export default class ProjectAsset{
 		}else if(this._projectAssetType.constructor.storeInProjectAsText){
 			await editor.projectManager.currentProjectFileSystem.writeText(this.path, fileData);
 		}else{
-			await editor.projectManager.currentProjectFileSystem.writeFile(this.path, fileData);
+			await editor.projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
 		}
 	}
 

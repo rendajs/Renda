@@ -92,6 +92,7 @@ export default class BinaryComposer{
 
 	static uuidToBinary(uuidStr){
 		const buffer = new ArrayBuffer(16);
+		if(!uuidStr) return buffer;
 		let i=0, j=0;
 		const view = new DataView(buffer);
 		while(i < uuidStr.length){

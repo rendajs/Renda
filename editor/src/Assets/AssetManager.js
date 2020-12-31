@@ -87,7 +87,7 @@ export default class AssetManager{
 		}
 	}
 
-	async getAssetUuid(path = []){
+	async getAssetUuidFromPath(path = []){
 		const projectAsset = await this.getProjectAssetFromPath(path);
 		if(!projectAsset) return null;
 		return projectAsset.uuid;
@@ -154,15 +154,20 @@ export default class AssetManager{
 		return await projectAsset.getLiveAsset();
 	}
 
-	//LoadAssetSettings is expected to be called
-	//(from a user gesture) before calling this method.
-	//If `liveAsset` is not a live asset generated from the
-	//asset manager, this method is allowed to be called before loadAssetSettings
-	//since there is no way to get a liveAsset before calling
-	//loadAssetSettings anyway.
 	getProjectAssetForLiveAsset(liveAsset){
+		//this method doesn't need a loadAssetSettings call because there
+		//is no way to get liveAssets without loading the settings anyway.
+		//So we can keep this method sync.
 		for(const projectAsset of this.projectAssets.values()){
 			if(projectAsset.liveAsset == liveAsset) return projectAsset;
+		}
+		return null;
+	}
+
+	getAssetUuidFromLiveAsset(liveAsset){
+		const projectAsset = this.getProjectAssetForLiveAsset(liveAsset);
+		if(projectAsset){
+			return projectAsset.uuid;
 		}
 		return null;
 	}

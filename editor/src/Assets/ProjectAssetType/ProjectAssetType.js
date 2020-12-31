@@ -67,9 +67,16 @@ export default class ProjectAssetType{
 	//you can safely ommit this.
 	static expectedLiveAssetConstructor = null;
 
+	//if you plan on supporting loading live assets in the editor,
+	//return your liveasset instance here
 	async getLiveAsset(fileData){
 		return null;
 	}
+
+	//use this to store a liveasset instance in the project folder
+	//the return value will be passed on to ProjectAsset so depending
+	//on your configuration you can return a json object, DOMString, or binary data
+	async saveLiveAsset(liveAsset){}
 
 	//this gets called when the file is changed on disk by an external program.
 	//use this to modify the liveAsset, or call liveAssetNeedsReplacement() to

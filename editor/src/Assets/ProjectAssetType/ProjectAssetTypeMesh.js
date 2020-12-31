@@ -130,4 +130,22 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		}
 		return mesh;
 	}
+
+	async saveLiveAsset(liveAsset){
+		const composer = new BinaryComposer();
+		composer.appendUint32(0x68734D6A); //magic header: jMsh
+		let vertexStateUuid = null;
+		if(liveAsset.vertexState){
+			vertexStateUuid = editor.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.vertexState);
+		}
+		composer.appendUuid(vertexStateUuid);
+		for(const [type, buffer] of liveAsset.buffers){
+			composer.appendUint16(type);
+			composer.appendUint8(buffer.componentCount);
+			composer.appendUint8(buffer.componentType);
+			composer.appendUint32(buffer.arrayBuffer.byteLength);
+			composer.appendBuffer(buffer.arrayBuffer);
+		}
+		return composer.getFullBuffer();
+	}
 }

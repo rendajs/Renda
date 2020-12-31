@@ -19,7 +19,7 @@ export default class EditorFileSystem{
 
 	async readFile(path = []){}
 
-	//file should be of type File`
+	//file should be of type `File`
 	//use writeText() for writing strings
 	async writeFile(path = [], file = null){}
 
@@ -82,5 +82,11 @@ export default class EditorFileSystem{
 			return json;
 		}
 		return null;
+	}
+
+	//binary can be a File, Blob, ArrayBuffer or TypedArray
+	async writeBinary(path = [], binary = null){
+		const fileName = path[path.lenth - 1] || "";
+		await this.writeFile(path, new File([binary], fileName))
 	}
 }
