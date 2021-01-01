@@ -40,8 +40,15 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 		this.isUpdatingUi = true;
 
 		if(liveAsset){
+			const attributeNames = [];
+			for(const attributeType of liveAsset.getBufferTypes()){
+				if(attributeType == Mesh.AttributeTypes.INDEX) continue;
+				const name = Mesh.getAttributeNameForType(attributeType);
+				attributeNames.push(name);
+			}
 			this.meshSettingsTree.fillSerializableStructureValues({
 				vertexState: liveAsset.vertexState,
+				attributes: attributeNames,
 			});
 		}
 

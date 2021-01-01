@@ -1,7 +1,10 @@
 export default class DropDownGui{
-	constructor(options){
+	constructor({
+		items = [],
+		value = null,
+	} = {}){
 		this.el = document.createElement("select");
-		for(const option of options){
+		for(const option of items){
 			const optionEl = document.createElement("option");
 			optionEl.textContent = option;
 			this.el.appendChild(optionEl);
@@ -10,6 +13,7 @@ export default class DropDownGui{
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
+		this.setValue(value);
 	}
 
 	destructor(){
