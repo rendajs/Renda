@@ -135,11 +135,12 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		const composer = new BinaryComposer();
 		composer.appendUint32(0x68734D6A); //magic header: jMsh
 		let vertexStateUuid = null;
-		if(liveAsset.vertexState){
-			vertexStateUuid = editor.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.vertexState);
+		const vertexState = liveAsset.getVertexState();
+		if(vertexState){
+			vertexStateUuid = editor.projectManager.assetManager.getAssetUuidFromLiveAsset(vertexState);
 		}
 		composer.appendUuid(vertexStateUuid);
-		for(const [type, buffer] of liveAsset.buffers){
+		for(const [type, buffer] of liveAsset.getBufferEntries()){
 			composer.appendUint16(type);
 			composer.appendUint8(buffer.componentCount);
 			composer.appendUint8(buffer.componentType);

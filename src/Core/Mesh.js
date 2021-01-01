@@ -42,6 +42,10 @@ export default class Mesh{
 	getBuffers(){ return this._buffers.values() }
 	getBufferEntries(){ return this._buffers.entries() }
 
+	getVertexState(){
+		return this._vertexState;
+	}
+
 	setVertexState(layout){
 		this._vertexState = layout;
 	}

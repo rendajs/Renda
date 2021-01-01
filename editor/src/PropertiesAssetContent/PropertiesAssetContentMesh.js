@@ -47,7 +47,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 				attributeNames.push(name);
 			}
 			this.meshSettingsTree.fillSerializableStructureValues({
-				vertexState: liveAsset.vertexState,
+				vertexState: liveAsset.getVertexState(),
 				attributes: attributeNames,
 			});
 		}

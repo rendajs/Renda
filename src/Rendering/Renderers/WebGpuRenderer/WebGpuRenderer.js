@@ -131,7 +131,7 @@ export default class WebGpuRenderer extends Renderer{
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
 					const mapData = material.customMapDatas.get(WebGpuRenderer.materialMapWebGpuTypeUuid);
-					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState);
+					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.getVertexState());
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
