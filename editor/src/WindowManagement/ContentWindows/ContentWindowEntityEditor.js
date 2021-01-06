@@ -82,53 +82,6 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editingEntity = new Entity();
 	}
 
-	createTempDebugObject(){
-		this.editingEntity = new Entity({name: "object"});
-
-		let cube = new Entity({name:"cube"});
-		let cubeMesh = new Mesh();
-		cubeMesh.setBuffer(Mesh.AttributeTypes.INDEX, [0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
-		cubeMesh.setBuffer(Mesh.AttributeTypes.POSITION, [
-			new Vec3(-1,-1,-1),
-			new Vec3(-1,-1, 1),
-			new Vec3(-1, 1,-1),
-			new Vec3(-1, 1, 1),
-
-			new Vec3( 1,-1,-1),
-			new Vec3( 1,-1, 1),
-			new Vec3( 1, 1,-1),
-			new Vec3( 1, 1, 1),
-
-			new Vec3(-1,-1,-1),
-			new Vec3(-1,-1, 1),
-			new Vec3( 1,-1,-1),
-			new Vec3( 1,-1, 1),
-
-			new Vec3(-1, 1,-1),
-			new Vec3(-1, 1, 1),
-			new Vec3( 1, 1,-1),
-			new Vec3( 1, 1, 1),
-
-			new Vec3(-1,-1,-1),
-			new Vec3(-1, 1,-1),
-			new Vec3( 1,-1,-1),
-			new Vec3( 1, 1,-1),
-
-			new Vec3(-1,-1, 1),
-			new Vec3(-1, 1, 1),
-			new Vec3( 1,-1, 1),
-			new Vec3( 1, 1, 1),
-		]);
-		let cubeMat = new Material();
-		cube.addComponent(DefaultComponentTypes.mesh, {mesh: cubeMesh, materials: [cubeMat]});
-
-		this.editingEntity.add(cube);
-
-		let cam = new Entity({name:"cam"});
-		this.editingEntity.add(cam);
-		cam.addComponent(DefaultComponentTypes.camera);
-	}
-
 	loadEntityAsset(entity, entityUuid){
 		this.editingEntity = entity;
 		this.editingEntityUuid = entityUuid;
