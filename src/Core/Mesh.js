@@ -3,7 +3,7 @@ import MeshAttributeBuffer from "./MeshAttributeBuffer.js";
 
 export default class Mesh{
 	constructor(){
-		this._buffers = new Map();
+		this._buffers = [];
 		this._vertexState = null;
 	}
 
@@ -15,10 +15,9 @@ export default class Mesh{
 
 	static get AttributeTypes(){
 		return {
-			INDEX: 1,
-			POSITION: 2,
-			NORMAL: 3,
-			COLOR: 4,
+			POSITION: 1,
+			NORMAL: 2,
+			COLOR: 3,
 		}
 	}
 
@@ -29,18 +28,24 @@ export default class Mesh{
 		return typeId;
 	}
 
-	setBuffer(type, data, opts){
-		const buffer = new MeshAttributeBuffer(data, opts);
-		this._buffers.set(type, buffer);
+	setIndexBuffer(data){
+		this._indexBuffer = new MeshAttributeBuffer(data, {
+			componentCount: 1,
+		});
 	}
 
-	getBuffer(type){
-		return this._buffers.get(type);
+	setVertexData(type, data){
+
 	}
 
-	getBufferTypes(){ return this._buffers.keys() }
-	getBuffers(){ return this._buffers.values() }
-	getBufferEntries(){ return this._buffers.entries() }
+	setBuffer(bufferId, data){
+		const buffer = new MeshAttributeBuffer(data);
+		this._buffers[bufferId] = buffer;
+	}
+
+	getBuffer(bufferId){
+		return this._buffers[bufferId];
+	}
 
 	getVertexState(){
 		return this._vertexState;
@@ -48,16 +53,5 @@ export default class Mesh{
 
 	setVertexState(layout){
 		this._vertexState = layout;
-	}
-
-	//todo: move this method to the renderer
-	uploadToWebGl(gl){
-		for(const [type, buffer] of this._buffers){
-			let bufferType = gl.ARRAY_BUFFER;
-			if(type == Mesh.AttributeTypes.INDEX){
-				bufferType = gl.ELEMENT_ARRAY_BUFFER;
-			}
-			buffer.uploadToWebGl(gl, bufferType);
-		}
 	}
 }

@@ -1,6 +1,6 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource, WebGpuVertexState} from "../../../../src/index.js";
+import {ShaderSource, WebGpuVertexState, Mesh} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 
@@ -37,6 +37,9 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 						type: Array,
 						arrayOpts: {
 							type: {
+								attributeType: {
+									type: Array.from(Object.keys(Mesh.AttributeTypes)),
+								},
 								format: {
 									type: ["int8", "int16", "int32", "float16", "float32"],
 								},
@@ -71,6 +74,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 
 	async getLiveAsset(fileData){
 		const descriptor = {};
+		const attributeTypeMap = [];
 		if(fileData.indexFormat){
 			if(fileData.indexFormat == "16-bit"){
 				descriptor.indexFormat = "uint16";
@@ -83,6 +87,10 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 			for(const bufferFromFile of fileData.vertexBuffers){
 				const buffer = {};
 				descriptor.vertexBuffers.push(buffer);
+
+				const bufferAttributeTypeMap = [];
+				attributeTypeMap.push(bufferAttributeTypeMap);
+
 				buffer.arrayStride = bufferFromFile.arrayStride;
 				if(bufferFromFile.stepMode) buffer.stepMode = bufferFromFile.stepMode;
 				buffer.attributes = [];
@@ -90,6 +98,8 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 					for(const attributeFromFile of bufferFromFile.attributes){
 						const attribute = {};
 						buffer.attributes.push(attribute);
+						const attributeType = Mesh.AttributeTypes[attributeFromFile.attributeType] || attributeFromFile.attributeType;
+						bufferAttributeTypeMap.push(attributeType);
 						attribute.offset = attributeFromFile.offset || 0;
 						attribute.shaderLocation = attributeFromFile.shaderLocation || 0;
 						let format = "";
@@ -119,7 +129,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 				}
 			}
 		}
-		return new WebGpuVertexState(descriptor);
+		return new WebGpuVertexState(descriptor, attributeTypeMap);
 	}
 
 	async fileChangedExternally(){
