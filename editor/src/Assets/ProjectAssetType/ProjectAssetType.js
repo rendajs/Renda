@@ -52,10 +52,10 @@ export default class ProjectAssetType{
 		this.usedLiveAssets = new Set();
 	}
 
-	//this will be called when a new file of this type is created
-	//the returned value will be passed along to saveLiveAsset()
-	async createNewLiveAsset(){
-		return null;
+	//should return either a `new File()`, a DOMString, or an object
+	//objects will automatically be saved as json
+	static createNewFile(){
+		return "";
 	}
 
 	//This is used to find out if a specific class could be stored as an asset,
@@ -74,7 +74,7 @@ export default class ProjectAssetType{
 	}
 
 	//use this to store a liveasset instance in the project folder
-	//the return value will be passed on to ProjectAsset.writeAssetData() so depending
+	//the return value will be passed on to ProjectAsset so depending
 	//on your configuration you can return a json object, DOMString, or binary data
 	async saveLiveAsset(liveAsset){}
 

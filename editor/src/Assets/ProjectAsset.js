@@ -116,13 +116,6 @@ export default class ProjectAsset{
 		await this._projectAssetType.open();
 	}
 
-	async createNewLiveAsset(){
-		await this.waitForInit();
-		const liveAsset = await this._projectAssetType.createNewLiveAsset();
-		const assetData = await this._projectAssetType.saveLiveAsset(liveAsset);
-		await this.writeAssetData(assetData);
-	}
-
 	async getLiveAsset(){
 		if(this.liveAsset) return this.liveAsset;
 
