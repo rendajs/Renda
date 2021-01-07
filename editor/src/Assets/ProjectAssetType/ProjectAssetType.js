@@ -74,7 +74,7 @@ export default class ProjectAssetType{
 	}
 
 	//use this to store a liveasset instance in the project folder
-	//the return value will be passed on to ProjectAsset so depending
+	//the return value will be passed on to ProjectAsset.writeAssetData() so depending
 	//on your configuration you can return a json object, DOMString, or binary data
 	async saveLiveAsset(liveAsset){}
 
