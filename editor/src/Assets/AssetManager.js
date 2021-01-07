@@ -57,7 +57,16 @@ export default class AssetManager{
 		await this.fileSystem.writeJson(this.assetSettingsPath, {assets});
 	}
 
-	async registerAsset(path = [], assetType = null, forceAssetType = false){
+	async createNewAsset(parentPath, assetType){
+		const type = editor.projectAssetTypeManager.getAssetType(assetType);
+		const fileName = type.newFileName+"."+type.newFileExtension;
+		const newPath = [...parentPath, fileName];
+
+		const projectAsset = await this.registerAsset(newPath, assetType);
+		projectAsset.createNewLiveAsset();
+	}
+
+	async registerAsset(path, assetType = null, forceAssetType = false){
 		await this.loadAssetSettings(true);
 		const uuid = generateUuid();
 		const projectAsset = new ProjectAsset({uuid, path, assetType, forceAssetType});

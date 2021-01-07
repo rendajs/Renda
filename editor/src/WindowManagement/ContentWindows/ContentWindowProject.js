@@ -144,7 +144,7 @@ export default class ContentWindowProject extends ContentWindow{
 		return newArr;
 	}
 
-	async createAtSelectedPath(createName, createFn = null){
+	getFirstSelectedPath(){
 		let selectedPath = [];
 		let treeView = this.treeView;
 		for(const selectedItem of this.treeView.getSelectedItems()){
@@ -153,44 +153,22 @@ export default class ContentWindowProject extends ContentWindow{
 			treeView = selectedItem;
 			break;
 		}
-		let newPath = [...selectedPath, createName];
-		let fileSystem = this.getFileSystem();
-		let returnData = null;
-		if(createFn){
-			returnData = await createFn(fileSystem, newPath, createName);
-		}
-		await this.updateTreeView(treeView, fileSystem, selectedPath);
-		treeView.collapsed = false;
-		return returnData;
+		return selectedPath;
 	}
 
 	async createAsset(assetType){
-		const type = editor.projectAssetTypeManager.getAssetType(assetType);
-		const fileName = type.newFileName+"."+type.newFileExtension;
-		const newPath = await this.createAtSelectedPath(fileName, async (fileSystem, newPath, fileName) => {
-			let fileData = type.createNewFile();
-			if(fileData instanceof File){
-				await fileSystem.writeFile(newPath, fileData);
-			}else if(typeof fileData == "string"){
-				const file = new File([fileData], fileName);
-				await fileSystem.writeFile(newPath, fileData);
-			}else if(typeof fileData == "object"){
-				//todo: use ProjectAsset.writeAssetData() here instead
-				const json = {
-					assetType,
-					asset: fileData,
-				}
-				await fileSystem.writeJson(newPath, json);
-			}
-			return newPath;
-		});
-		await editor.projectManager.assetManager.registerAsset(newPath, assetType);
+		const selectedPath = this.getFirstSelectedPath();
+		await editor.projectManager.assetManager.createNewAsset(selectedPath, assetType);
+		await this.updateTreeView(this.treeView, this.getFileSystem(), selectedPath);
 	}
 
 	async createNewDir(){
-		await this.createAtSelectedPath("New Folder", async (fileSystem, newPath) => {
-			await fileSystem.createDir(newPath);
-		});
+		const selectedPath = this.getFirstSelectedPath();
+		let newPath = [...selectedPath, "New Folder"];
+		let fileSystem = this.getFileSystem();
+		await fileSystem.createDir(newPath);
+		await this.updateTreeView(this.treeView, fileSystem, selectedPath);
+		this.treeView.collapsed = false;
 	}
 
 	pathFromTreeView(treeView, removeLast = false){
