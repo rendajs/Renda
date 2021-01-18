@@ -1,5 +1,5 @@
 import editor from "../editorInstance.js";
-import {generateUuid} from "../Util/Util.js";
+import {generateUuid, handleDuplicateName} from "../Util/Util.js";
 import ProjectAsset from "./ProjectAsset.js";
 
 export default class AssetManager{
@@ -59,7 +59,12 @@ export default class AssetManager{
 
 	async createNewAsset(parentPath, assetType){
 		const type = editor.projectAssetTypeManager.getAssetType(assetType);
-		const fileName = type.newFileName+"."+type.newFileExtension;
+		let fileName = type.newFileName+"."+type.newFileExtension;
+
+		if(this.fileSystem.isFile([...parentPath, fileName])){
+			const {files: existingFiles} = await this.fileSystem.readDir(parentPath);
+			fileName = handleDuplicateName(existingFiles, type.newFileName, "."+type.newFileExtension);
+		}
 		const newPath = [...parentPath, fileName];
 
 		const projectAsset = await this.registerAsset(newPath, assetType);

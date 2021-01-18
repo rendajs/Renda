@@ -70,3 +70,13 @@ export function parseMimeType(mimeType){
 	}
 	return {type, subType, params};
 }
+
+export function handleDuplicateName(existingNames, prefix, suffix="", numberPrefix="_"){
+	if(!existingNames.includes(prefix+suffix)) return prefix+suffix;
+	let i = 0;
+	while(true){
+		i++;
+		const newName = prefix+numberPrefix+i+suffix;
+		if(!existingNames.includes(newName)) return newName;
+	}
+}
