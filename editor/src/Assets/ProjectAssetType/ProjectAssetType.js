@@ -52,10 +52,10 @@ export default class ProjectAssetType{
 		this.usedLiveAssets = new Set();
 	}
 
-	//should return either a `new File()`, a DOMString, or an object
-	//objects will automatically be saved as json
-	static createNewFile(){
-		return "";
+	//this will be called when a new file of this type is created
+	//the returned value will be passed along to saveLiveAsset()
+	async createNewLiveAsset(){
+		return null;
 	}
 
 	//This is used to find out if a specific class could be stored as an asset,
