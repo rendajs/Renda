@@ -20,6 +20,9 @@ export default class TreeView{
 		this.boundOnDropEvent = this.onDropEvent.bind(this);
 		this.rowEl.addEventListener("drop", this.boundOnDropEvent);
 
+		this.boundOnContextMenuEvent = this.onContextMenuEvent.bind(this);
+		this.rowEl.addEventListener("contextmenu", this.boundOnContextMenuEvent);
+
 		this.arrowContainerEl = document.createElement("div");
 		this.arrowContainerEl.classList.add("treeViewArrowContainer");
 		this.rowEl.appendChild(this.arrowContainerEl);
@@ -83,7 +86,7 @@ export default class TreeView{
 		this.selected = false;
 
 		this.eventCbs = new Map();
-		for(const eventType of ["selectionchange", "namechange", "dragstart", "drop", "dblclick"]){
+		for(const eventType of ["selectionchange", "namechange", "dragstart", "drop", "dblclick", "contextmenu"]){
 			this.registerNewEventType(eventType);
 		}
 
@@ -103,6 +106,8 @@ export default class TreeView{
 		this.boundOnDragOverEvent = null;
 		this.rowEl.removeEventListener("drop", this.boundOnDropEvent);
 		this.boundOnDropEvent = null;
+		this.rowEl.removeEventListener("contextmenu", this.boundOnContextMenuEvent);
+		this.boundOnContextMenuEvent = null;
 		this.rowEl = null;
 		this.arrowContainerEl.removeEventListener("click", this.boundArrowClickEvent);
 		this.boundArrowClickEvent = null;
@@ -499,6 +504,31 @@ export default class TreeView{
 			droppedOnElement: this,
 			event: e,
 		});
+	}
+
+	onContextMenuEvent(e){
+		let menuCreated = false;
+		let eventExpired = false;
+		this.fireEvent("contextmenu", {
+			event: e,
+			showContextMenu: _ => {
+				if(eventExpired){
+					console.warn("showContextMenu should be called from within the contextmenu event");
+					return;
+				}
+				if(menuCreated){
+					console.log("showContextMenu can only be called once");
+					return;
+				}
+
+				menuCreated = true;
+				e.preventDefault();
+				const menu = editor.contextMenuManager.createContextMenu();
+				menu.setPos(e.pageX, e.pageY);
+				return menu;
+			},
+		});
+		eventExpired = true;
 	}
 
 	registerNewEventType(name){

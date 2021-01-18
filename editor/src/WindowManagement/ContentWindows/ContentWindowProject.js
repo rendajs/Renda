@@ -67,6 +67,7 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
+		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -227,5 +228,10 @@ export default class ContentWindowProject extends ContentWindow{
 		const path = this.pathFromTreeView(clickedElement);
 		const projectAsset = await editor.projectManager.assetManager.getProjectAssetFromPath(path);
 		projectAsset.open();
+	}
+
+	onTreeViewContextMenu(e){
+		const menu = e.showContextMenu();
+		menu.addItem("hello");
 	}
 }
