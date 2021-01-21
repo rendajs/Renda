@@ -17,10 +17,10 @@ export default class ContextMenuManager{
 		return null;
 	}
 
-	createContextMenu(){
+	createContextMenu(structure){
 		if(this.activeContextMenu && this.activeContextMenu.el) return null;
 
-		this.activeContextMenu = new ContextMenu(this);
+		this.activeContextMenu = new ContextMenu(this, {structure});
 		this.updateCurtainActive();
 		return this.activeContextMenu;
 	}

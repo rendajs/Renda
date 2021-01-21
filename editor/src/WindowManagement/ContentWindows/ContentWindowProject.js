@@ -11,31 +11,34 @@ export default class ContentWindowProject extends ContentWindow{
 		const createButton = new Button({
 			text: "+",
 			onClick: _ => {
-				const menu = editor.contextMenuManager.createContextMenu();
-				// menu.addItem("New Folder", _ => {
-				// 	this.createNewDir();
-				// });
-				// menu.addItem("New Material", _ => {
-				// 	this.createAsset("JJ:material");
-				// });
-				// menu.addItem("New Material Map", _ => {
-				// 	this.createAsset("JJ:materialMap");
-				// });
-				// menu.addItem("New WebGPU Pipeline Configuration", _ => {
-				// 	this.createAsset("JJ:webGpuPipelineConfiguration");
-				// });
-				// menu.addItem("New Mesh", _ => {
-				// 	this.createAsset("JJ:mesh");
-				// });
-				// menu.addItem("New Vertex State", _ => {
-				// 	this.createAsset("JJ:vertexState");
-				// });
-				// menu.addItem("New Entity", _ => {
-				// 	this.createAsset("JJ:entity");
-				// });
-				// menu.addItem("New Asset Bundle", _ => {
-				// 	this.createAsset("JJ:assetBundle");
-				// });
+				const menu = editor.contextMenuManager.createContextMenu([
+					{text: "New Folder", cb: _ => {
+						this.createNewDir();
+					}},
+					{text: "Materials", submenu: [
+						{text: "New Material", cb: _ => {
+							this.createAsset("JJ:material");
+						}},
+						{text: "New Material Map", cb: _ => {
+							this.createAsset("JJ:materialMap");
+						}},
+						{text: "New WebGPU Pipeline Configuration", cb: _ => {
+							this.createAsset("JJ:webGpuPipelineConfiguration");
+						}},
+					]},
+					{text: "New Mesh", cb: _ => {
+						this.createAsset("JJ:mesh");
+					}},
+					{text: "New Vertex State", cb: _ => {
+						this.createAsset("JJ:vertexState");
+					}},
+					{text: "New Entity", cb: _ => {
+						this.createAsset("JJ:entity");
+					}},
+					{text: "New Asset Bundle", cb: _ => {
+						this.createAsset("JJ:assetBundle");
+					}},
+				]);
 
 				menu.setPos(createButton, "top left");
 			}
@@ -232,16 +235,24 @@ export default class ContentWindowProject extends ContentWindow{
 
 	onTreeViewContextMenu(e){
 		const menu = e.showContextMenu();
-		menu.addItem("hello");
-		menu.addSubMenu("submenu").onCreateSubmenu(submenu => {
-			submenu.addItem("yes");
-			submenu.addItem("no");
-			submenu.addItem("maybe");
+		const structure = [
+			{text: "Hello", cb: _ => alert("hello")},
+			{text: "also hello"},
+			{text: "submenu", submenu: [
+				{text:"yes"},
+				{text:"no"},
+				{text:"maybe"},
+			]},
+			{text: "submenu2", submenu: [
+				{text:"yes2"},
+				{text:"no2"},
+				{text:"maybe2"},
+			]},
+		];
+		structure.push({
+			text: "selfref",
+			submenu: structure,
 		});
-		menu.addSubMenu("submenu2").onCreateSubmenu(submenu => {
-			submenu.addItem("yes2");
-			submenu.addItem("no2");
-			submenu.addItem("maybe2");
-		});
+		menu.createStructure(structure);
 	}
 }

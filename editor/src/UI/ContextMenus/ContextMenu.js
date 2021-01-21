@@ -3,7 +3,10 @@ import ContextMenuSubmenuItem from "./ContextMenuSubmenuItem.js";
 import Button from "../Button.js";
 
 export default class ContextMenu{
-	constructor(manager, parentMenu = null){
+	constructor(manager, {
+		parentMenu = null,
+		structure = null,
+	} = {}){
 		this.manager = manager;
 		this.parentMenu = parentMenu;
 		this.el = document.createElement("div");
@@ -13,6 +16,10 @@ export default class ContextMenu{
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
 		this.currentSubmenu = null;
+
+		if(structure){
+			this.createStructure(structure);
+		}
 	}
 
 	destructor(){
@@ -77,6 +84,23 @@ export default class ContextMenu{
 		this.el.style.top = y+"px";
 	}
 
+	createStructure(structure){
+		for(const itemSettings of structure){
+			let createdItem = null;
+			if(itemSettings.submenu){
+				createdItem = this.addSubMenu(itemSettings.text);
+				createdItem.onCreateSubmenu(submenu => {
+					submenu.createStructure(itemSettings.submenu);
+				});
+			}else{
+				createdItem = this.addItem(itemSettings.text);
+			}
+			if(itemSettings.cb){
+				createdItem.onClick(itemSettings.cb);
+			}
+		}
+	}
+
 	addItem(text, opts){
 		let item = new ContextMenuItem(this, text, opts);
 		this.addedItems.push(item);
@@ -94,7 +118,7 @@ export default class ContextMenu{
 	startHoverSubmenu(submenuItem){
 		this.removeSubmenu();
 		this.activeSubmenuItem = submenuItem;
-		this.currentSubmenu = new ContextMenu(this.manager, this);
+		this.currentSubmenu = new ContextMenu(this.manager, {parentMenu: this});
 		this.currentSubmenu.setPos(submenuItem, "top right");
 		return this.currentSubmenu;
 	}

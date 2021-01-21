@@ -511,7 +511,7 @@ export default class TreeView{
 		let eventExpired = false;
 		this.fireEvent("contextmenu", {
 			event: e,
-			showContextMenu: _ => {
+			showContextMenu: structure => {
 				if(eventExpired){
 					console.warn("showContextMenu should be called from within the contextmenu event");
 					return;
@@ -523,7 +523,7 @@ export default class TreeView{
 
 				menuCreated = true;
 				e.preventDefault();
-				const menu = editor.contextMenuManager.createContextMenu();
+				const menu = editor.contextMenuManager.createContextMenu(structure);
 				menu.setPos(e.pageX, e.pageY);
 				return menu;
 			},
