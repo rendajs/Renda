@@ -12,30 +12,30 @@ export default class ContentWindowProject extends ContentWindow{
 			text: "+",
 			onClick: _ => {
 				const menu = editor.contextMenuManager.createContextMenu();
-				menu.addItem("New Folder", _ => {
-					this.createNewDir();
-				});
-				menu.addItem("New Material", _ => {
-					this.createAsset("JJ:material");
-				});
-				menu.addItem("New Material Map", _ => {
-					this.createAsset("JJ:materialMap");
-				});
-				menu.addItem("New WebGPU Pipeline Configuration", _ => {
-					this.createAsset("JJ:webGpuPipelineConfiguration");
-				});
-				menu.addItem("New Mesh", _ => {
-					this.createAsset("JJ:mesh");
-				});
-				menu.addItem("New Vertex State", _ => {
-					this.createAsset("JJ:vertexState");
-				});
-				menu.addItem("New Entity", _ => {
-					this.createAsset("JJ:entity");
-				});
-				menu.addItem("New Asset Bundle", _ => {
-					this.createAsset("JJ:assetBundle");
-				});
+				// menu.addItem("New Folder", _ => {
+				// 	this.createNewDir();
+				// });
+				// menu.addItem("New Material", _ => {
+				// 	this.createAsset("JJ:material");
+				// });
+				// menu.addItem("New Material Map", _ => {
+				// 	this.createAsset("JJ:materialMap");
+				// });
+				// menu.addItem("New WebGPU Pipeline Configuration", _ => {
+				// 	this.createAsset("JJ:webGpuPipelineConfiguration");
+				// });
+				// menu.addItem("New Mesh", _ => {
+				// 	this.createAsset("JJ:mesh");
+				// });
+				// menu.addItem("New Vertex State", _ => {
+				// 	this.createAsset("JJ:vertexState");
+				// });
+				// menu.addItem("New Entity", _ => {
+				// 	this.createAsset("JJ:entity");
+				// });
+				// menu.addItem("New Asset Bundle", _ => {
+				// 	this.createAsset("JJ:assetBundle");
+				// });
 
 				menu.setPos(createButton, "top left");
 			}
@@ -233,5 +233,15 @@ export default class ContentWindowProject extends ContentWindow{
 	onTreeViewContextMenu(e){
 		const menu = e.showContextMenu();
 		menu.addItem("hello");
+		menu.addSubMenu("submenu").onCreateSubmenu(submenu => {
+			submenu.addItem("yes");
+			submenu.addItem("no");
+			submenu.addItem("maybe");
+		});
+		menu.addSubMenu("submenu2").onCreateSubmenu(submenu => {
+			submenu.addItem("yes2");
+			submenu.addItem("no2");
+			submenu.addItem("maybe2");
+		});
 	}
 }

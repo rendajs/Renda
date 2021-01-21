@@ -420,6 +420,19 @@ body, html{
 	color: var(--selected-text-color);
 }
 
+.contextMenuRightArrow{
+	width: 0px;
+	height: 0px;
+	display: inline-block;
+	border: 5px solid transparent;
+	border-left: 10px solid var(--default-text-color);
+	border-right: 0px solid transparent;
+	margin-left: 6px;
+}
+.contextMenuItem:hover:not(.disabled) .contextMenuRightArrow{
+	border-left: 10px solid var(--selected-text-color);
+}
+
 
 
 .buildViewIframe{
