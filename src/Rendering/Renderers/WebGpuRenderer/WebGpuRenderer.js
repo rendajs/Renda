@@ -141,12 +141,12 @@ export default class WebGpuRenderer extends Renderer{
 				renderPassEncoder.draw(36, 1, 0, 0);
 			}
 		}
-		this.device.defaultQueue.writeBuffer(this.meshRendererUniformsBuffer, 0, uniformBufferData);
+		this.device.queue.writeBuffer(this.meshRendererUniformsBuffer, 0, uniformBufferData);
 
 
 		renderPassEncoder.endPass();
 
-		this.device.defaultQueue.submit([commandEncoder.finish()]);
+		this.device.queue.submit([commandEncoder.finish()]);
 	}
 
 	getCachedMaterialData(material){
