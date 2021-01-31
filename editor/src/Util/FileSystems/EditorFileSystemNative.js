@@ -65,31 +65,46 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		return false;
 	}
 
-	async getDirHandle(path = [], create = false){
+	async getDirHandle(path = [], {
+		create = false,
+		overrideError = true,
+	} = {}){
 		let handle = this.handle;
 		let parsedPathDepth = 0;
 		for(const dirName of path){
 			parsedPathDepth++;
+
 			await this.verifyHandlePermission(handle, {writable: create});
 			try{
 				handle = await handle.getDirectoryHandle(dirName, {create});
 			}catch(e){
-				throw new Error("Failed to get directory handle for "+path.slice(0, parsedPathDepth).join("/")+"/");
+				if(overrideError){
+					throw new Error("Failed to get directory handle for "+path.slice(0, parsedPathDepth).join("/")+"/");
+				}else{
+					throw e;
+				}
 			}
 		}
 		await this.verifyHandlePermission(handle, {writable: create});
 		return handle;
 	}
 
-	async getFileHandle(path = [], create = false){
+	async getFileHandle(path = [], {
+		create = false,
+		overrideError = true,
+	} = {}){
 		const {dirPath, fileName} = this.splitDirFileName(path);
-		const dirHandle = await this.getDirHandle(dirPath, create);
+		const dirHandle = await this.getDirHandle(dirPath, {create});
 		await this.verifyHandlePermission(dirHandle, {writable: create});
 		let fileHandle = null;
 		try{
 			fileHandle = await dirHandle.getFileHandle(fileName, {create});
 		}catch(e){
-			throw new Error("Failed to get file handle for "+path.join("/"));
+			if(overrideError){
+				throw new Error("Failed to get file handle for "+path.join("/"));
+			}else{
+				throw e;
+			}
 		}
 		return fileHandle;
 	}
@@ -111,7 +126,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	async createDir(path = []){
-		return await this.getDirHandle(path, true);
+		return await this.getDirHandle(path, {create: true});
 	}
 
 	async move(fromPath = [], toPath = []){
@@ -157,7 +172,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	async writeFileStream(path = [], keepExistingData = false){
-		const fileHandle = await this.getFileHandle(path, true);
+		const fileHandle = await this.getFileHandle(path, {create: true});
 		await this.verifyHandlePermission(fileHandle);
 		const fileStream = await fileHandle.createWritable({keepExistingData});
 		return fileStream;
@@ -165,10 +180,12 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 
 	async isFile(path = []){
 		try{
-			await this.getFileHandle(path);
+			await this.getFileHandle(path, {overrideError: false});
 		}catch(e){
 			if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
 				return false;
+			}else{
+				throw e;
 			}
 		}
 		return true;
@@ -176,10 +193,12 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 
 	async isDir(path = []){
 		try{
-			await this.getDirHandle(path);
+			await this.getDirHandle(path, {overrideError: false});
 		}catch(e){
 			if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
 				return false;
+			}else{
+				throw e;
 			}
 		}
 		return true;
