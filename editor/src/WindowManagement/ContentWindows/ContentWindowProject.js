@@ -78,7 +78,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 		let fileSystem = this.getFileSystem();
 		if(fileSystem){
-			this.updateTreeView(this.treeView, fileSystem);
+			this.updateTreeView();
 		}
 
 		this.boundExternalChange = this.externalChange.bind(this);
@@ -106,7 +106,8 @@ export default class ContentWindowProject extends ContentWindow{
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
-	async updateTreeView(treeView, fileSystem, path = []){
+	//todo: support for only updating a certain section of the treeview
+	async updateTreeView(treeView = this.treeView, fileSystem = this.getFileSystem(), path = []){
 		let fileTree = await fileSystem.readDir(path);
 		for(const dir of fileTree.directories){
 			if(!treeView.includes(dir)){
@@ -126,6 +127,11 @@ export default class ContentWindowProject extends ContentWindow{
 			if(!treeView.includes(file)){
 				let newTreeView = treeView.addChild();
 				newTreeView.name = file;
+			}
+		}
+		for(const child of [...treeView.children]){
+			if(!fileTree.directories.includes(child.name) && !fileTree.files.includes(child.name)){
+				treeView.removeChild(child);
 			}
 		}
 	}
@@ -163,7 +169,7 @@ export default class ContentWindowProject extends ContentWindow{
 	async createAsset(assetType){
 		const selectedPath = this.getFirstSelectedPath();
 		await editor.projectManager.assetManager.createNewAsset(selectedPath, assetType);
-		await this.updateTreeView(this.treeView, this.getFileSystem(), selectedPath);
+		await this.updateTreeView();
 	}
 
 	async createNewDir(){
@@ -171,7 +177,7 @@ export default class ContentWindowProject extends ContentWindow{
 		let newPath = [...selectedPath, "New Folder"];
 		let fileSystem = this.getFileSystem();
 		await fileSystem.createDir(newPath);
-		await this.updateTreeView(this.treeView, fileSystem, selectedPath);
+		await this.updateTreeView();
 		this.treeView.collapsed = false;
 	}
 
@@ -235,24 +241,12 @@ export default class ContentWindowProject extends ContentWindow{
 
 	onTreeViewContextMenu(e){
 		const menu = e.showContextMenu();
-		const structure = [
-			{text: "Hello", cb: _ => alert("hello")},
-			{text: "also hello"},
-			{text: "submenu", submenu: [
-				{text:"yes"},
-				{text:"no"},
-				{text:"maybe"},
-			]},
-			{text: "submenu2", submenu: [
-				{text:"yes2"},
-				{text:"no2"},
-				{text:"maybe2"},
-			]},
-		];
-		structure.push({
-			text: "selfref",
-			submenu: structure,
-		});
-		menu.createStructure(structure);
+		menu.createStructure([
+			{text: "Delete", cb: async _ => {
+				const path = this.pathFromTreeView(e.clickedElement);
+				await editor.projectManager.assetManager.deleteAsset(path);
+				await this.updateTreeView();
+			}},
+		]);
 	}
 }
