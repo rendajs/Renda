@@ -139,7 +139,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	async delete(path = [], recursive = false){
-		const handle = await this.handle;
+		let handle = await this.handle;
 		for(const [i, name] of path.entries()){
 			await this.verifyHandlePermission(handle);
 			if(i == path.length - 1){
