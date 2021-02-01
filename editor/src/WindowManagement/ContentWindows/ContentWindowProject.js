@@ -76,8 +76,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 		this.selectionManager = new SelectionManager();
 
-		let fileSystem = this.getFileSystem();
-		if(fileSystem){
+		if(this.fileSystem){
 			this.updateTreeView();
 		}
 
@@ -102,13 +101,13 @@ export default class ContentWindowProject extends ContentWindow{
 		return "project";
 	}
 
-	getFileSystem(){
+	get fileSystem(){
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
 	//todo: support for only updating a certain section of the treeview
-	async updateTreeView(treeView = this.treeView, fileSystem = this.getFileSystem(), path = []){
-		let fileTree = await fileSystem.readDir(path);
+	async updateTreeView(treeView = this.treeView, path = []){
+		let fileTree = await this.fileSystem.readDir(path);
 		for(const dir of fileTree.directories){
 			if(!treeView.includes(dir)){
 				let newTreeView = treeView.addChild();
@@ -116,7 +115,7 @@ export default class ContentWindowProject extends ContentWindow{
 				newTreeView.onArrowClick(_ => {
 					if(!newTreeView.collapsed){
 						let newPath = [...path, dir];
-						this.updateTreeView(newTreeView, fileSystem, newPath);
+						this.updateTreeView(newTreeView, newPath);
 					}
 				});
 				newTreeView.name = dir;
@@ -179,8 +178,7 @@ export default class ContentWindowProject extends ContentWindow{
 	async createNewDir(){
 		const selectedPath = this.getSelectedParentPathForCreate();
 		let newPath = [...selectedPath, "New Folder"];
-		let fileSystem = this.getFileSystem();
-		await fileSystem.createDir(newPath);
+		await this.fileSystem.createDir(newPath);
 		await this.updateTreeView();
 		this.treeView.collapsed = false;
 	}
@@ -207,9 +205,8 @@ export default class ContentWindowProject extends ContentWindow{
 		newPath.pop();
 		oldPath.push(oldName);
 		newPath.push(newName);
-		let fileSystem = this.getFileSystem();
 		try{
-			await fileSystem.move(oldPath, newPath);
+			await this.fileSystem.move(oldPath, newPath);
 		}catch(e){
 			changedElement.name = oldName;
 			throw e;
@@ -232,8 +229,7 @@ export default class ContentWindowProject extends ContentWindow{
 		const path = this.pathFromTreeView(droppedOnElement);
 		for(const file of event.dataTransfer.files){
 			let filePath = [...path, file.name];
-			let fileSystem = this.getFileSystem();
-			await fileSystem.writeFile(filePath, file);
+			await this.fileSystem.writeFile(filePath, file);
 		}
 	}
 
