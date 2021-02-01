@@ -154,26 +154,30 @@ export default class ContentWindowProject extends ContentWindow{
 		return newArr;
 	}
 
-	getFirstSelectedPath(){
+	getSelectedParentPathForCreate(){
 		let selectedPath = [];
 		let treeView = this.treeView;
 		for(const selectedItem of this.treeView.getSelectedItems()){
-			let selectionPath = selectedItem.getNamesPath();
-			selectedPath = selectionPath.slice(1, selectionPath.length);
-			treeView = selectedItem;
+			if(!selectedItem.alwaysShowArrow && selectedItem.parent){
+				treeView = selectedItem.parent;
+			}else{
+				treeView = selectedItem;
+			}
 			break;
 		}
+		const selectionPath = treeView.getNamesPath();
+		selectedPath = selectionPath.slice(1, selectionPath.length);
 		return selectedPath;
 	}
 
 	async createAsset(assetType){
-		const selectedPath = this.getFirstSelectedPath();
+		const selectedPath = this.getSelectedParentPathForCreate();
 		await editor.projectManager.assetManager.createNewAsset(selectedPath, assetType);
 		await this.updateTreeView();
 	}
 
 	async createNewDir(){
-		const selectedPath = this.getFirstSelectedPath();
+		const selectedPath = this.getSelectedParentPathForCreate();
 		let newPath = [...selectedPath, "New Folder"];
 		let fileSystem = this.getFileSystem();
 		await fileSystem.createDir(newPath);
