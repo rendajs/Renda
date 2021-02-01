@@ -135,26 +135,32 @@ export default class ProjectAsset{
 		this.currentGettingLiveAssetSymbol = getLiveAssetSymbol;
 		await this.waitForInit();
 		let fileData = null;
+		let readFailed = false;
 		try{
 			fileData = await this.readAssetData();
 		}catch(e){
 			//todo: implement a way to detect if the file has been deleted
 			//and if that's the case give the user an option to remove the uuid
 			//from assetSettings.json
+			readFailed = true;
+		}
+
+		//if destroyLiveAsset has been called before this Promise was finished
+		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) return null;
+
+		if(readFailed){
 			console.warn("error getting live asset for "+this.path.join("/"));
+			this.fireOnLiveAssetGetCbs(null);
 			return null;
 		}
 
 		const liveAsset = await this._projectAssetType.getLiveAsset(fileData);
-		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol){
-			//if destroyLiveAsset has been called before this Promise was finished
-			return null;
-		}
+
+		//if destroyLiveAsset has been called before this Promise was finished
+		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) return null;
+
 		this.liveAsset = liveAsset;
-		for(const cb of this.onLiveAssetGetCbs){
-			cb(this.liveAsset);
-		}
-		this.isGettingLiveAsset = false;
+		this.fireOnLiveAssetGetCbs(this.liveAsset);
 		return this.liveAsset;
 	}
 
@@ -179,12 +185,17 @@ export default class ProjectAsset{
 		}
 	}
 
+	fireOnLiveAssetGetCbs(liveAsset){
+		for(const cb of this.onLiveAssetGetCbs){
+			cb(liveAsset);
+		}
+		this.onLiveAssetGetCbs.clear();
+		this.isGettingLiveAsset = false;
+	}
+
 	destroyLiveAsset(){
 		if(this.isGettingLiveAsset){
-			for(const cb of this.onLiveAssetGetCbs){
-				cb(null);
-			}
-			this.isGettingLiveAsset = false;
+			this.fireOnLiveAssetGetCbs(null);
 			this.currentGettingLiveAssetSymbol = null;
 		}else if(this.liveAsset && this._projectAssetType){
 			this._projectAssetType.destroyLiveAsset(this.liveAsset);
