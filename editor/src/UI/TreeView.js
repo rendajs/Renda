@@ -484,7 +484,7 @@ export default class TreeView{
 		}else{
 			let child = null;
 			for(const c of this.children){
-				if(c.name = path[0]){
+				if(c.name == path[0]){
 					child = c;
 					break;
 				}
