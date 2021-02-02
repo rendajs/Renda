@@ -57,7 +57,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 				},
 				sampleCount: this.sampleCount,
 				format: this.swapChainFormat,
-				usage: GPUTextureUsage.OUTPUT_ATTACHMENT,
+				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 			});
 			this.colorTextureView = this.colorTexture.createView();
 		}
@@ -69,7 +69,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 				},
 				sampleCount: this.sampleCount,
 				format: this.depthFormat,
-				usage: GPUTextureUsage.OUTPUT_ATTACHMENT,
+				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 			});
 			this.depthStencilAttachment.attachment = this.depthTexture.createView();
 		}
