@@ -140,8 +140,7 @@ export default class ContentWindowProject extends ContentWindow{
 		for(const child of [...treeView.children]){
 			if(!fileTree.directories.includes(child.name) && !fileTree.files.includes(child.name)){
 				treeView.removeChild(child);
-			}
-			if(child.alwaysShowArrow && child.expanded){
+			}else if(child.alwaysShowArrow && child.expanded){
 				const newPath = [...path, child.name];
 				this.updateTreeViewRecursive(child, newPath);
 			}
