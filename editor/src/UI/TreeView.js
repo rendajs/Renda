@@ -244,6 +244,14 @@ export default class TreeView{
 		this.arrowContainerEl.classList.toggle("collapsed", collapsed);
 	}
 
+	get expanded(){
+		return !this.collapsed;
+	}
+
+	set expanded(value){
+		this.collapsed = !value;
+	}
+
 	get rowVisible(){
 		return this._rowVisible;
 	}
@@ -468,6 +476,25 @@ export default class TreeView{
 			path.push(p.name);
 		}
 		return path.reverse();
+	}
+
+	findChildFromNamesPath(path = []){
+		if(path.length <= 0){
+			return this;
+		}else{
+			let child = null;
+			for(const c of this.children){
+				if(c.name = path[0]){
+					child = c;
+					break;
+				}
+			}
+			if(!child){
+				return null;
+			}else{
+				return child.findChildFromNamesPath(path.slice(0, path.length - 1));
+			}
+		}
 	}
 
 	findRoot(){

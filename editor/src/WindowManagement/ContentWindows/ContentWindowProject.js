@@ -105,8 +105,17 @@ export default class ContentWindowProject extends ContentWindow{
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
-	//todo: support for only updating a certain section of the treeview
-	async updateTreeView(treeView = this.treeView, path = []){
+	async updateTreeView(startUpdatePath = null){
+		let treeView = this.treeView;
+		let path = [];
+		if(startUpdatePath){
+			treeView = this.treeView.findChildFromNamesPath(startUpdatePath);
+			path = startUpdatePath;
+		}
+		await this.updateTreeViewRecursive(treeView, path);
+	}
+
+	async updateTreeViewRecursive(treeView, path){
 		let fileTree = await this.fileSystem.readDir(path);
 		for(const dir of fileTree.directories){
 			if(!treeView.includes(dir)){
@@ -115,7 +124,7 @@ export default class ContentWindowProject extends ContentWindow{
 				newTreeView.onArrowClick(_ => {
 					if(!newTreeView.collapsed){
 						let newPath = [...path, dir];
-						this.updateTreeView(newTreeView, newPath);
+						this.updateTreeViewRecursive(newTreeView, newPath);
 					}
 				});
 				newTreeView.name = dir;
@@ -131,6 +140,10 @@ export default class ContentWindowProject extends ContentWindow{
 		for(const child of [...treeView.children]){
 			if(!fileTree.directories.includes(child.name) && !fileTree.files.includes(child.name)){
 				treeView.removeChild(child);
+			}
+			if(child.alwaysShowArrow && child.expanded){
+				const newPath = [...path, child.name];
+				this.updateTreeViewRecursive(child, newPath);
 			}
 		}
 	}
@@ -172,14 +185,14 @@ export default class ContentWindowProject extends ContentWindow{
 	async createAsset(assetType){
 		const selectedPath = this.getSelectedParentPathForCreate();
 		await editor.projectManager.assetManager.createNewAsset(selectedPath, assetType);
-		await this.updateTreeView();
+		await this.updateTreeView(selectedPath);
 	}
 
 	async createNewDir(){
 		const selectedPath = this.getSelectedParentPathForCreate();
 		let newPath = [...selectedPath, "New Folder"];
 		await this.fileSystem.createDir(newPath);
-		await this.updateTreeView();
+		await this.updateTreeView(selectedPath);
 		this.treeView.collapsed = false;
 	}
 
@@ -245,7 +258,8 @@ export default class ContentWindowProject extends ContentWindow{
 			{text: "Delete", cb: async _ => {
 				const path = this.pathFromTreeView(e.clickedElement);
 				await editor.projectManager.assetManager.deleteAsset(path);
-				await this.updateTreeView();
+				const parentPath = path.slice(0, path.length - 1);
+				await this.updateTreeView(parentPath);
 			}},
 		]);
 	}
