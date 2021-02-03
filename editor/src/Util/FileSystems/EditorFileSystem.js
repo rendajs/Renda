@@ -29,6 +29,12 @@ export default class EditorFileSystem{
 
 	async isDir(path = []){}
 
+	async exists(path = []){
+		const isFile = await this.isFile(path);
+		const isDir = await this.isDir(path);
+		return isFile || isDir;
+	}
+
 	onExternalChange(cb){
 		this.onExternalChangeCbs.add(cb);
 	}

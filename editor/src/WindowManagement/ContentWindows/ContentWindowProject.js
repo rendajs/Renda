@@ -3,6 +3,7 @@ import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
+import {handleDuplicateName} from "../../Util/Util.js";
 
 export default class ContentWindowProject extends ContentWindow{
 	constructor(){
@@ -189,7 +190,12 @@ export default class ContentWindowProject extends ContentWindow{
 
 	async createNewDir(){
 		const selectedPath = this.getSelectedParentPathForCreate();
-		let newPath = [...selectedPath, "New Folder"];
+		let folderName = "New Folder";
+		if(this.fileSystem.exists([...selectedPath, folderName])){
+			const existingFiles = await this.fileSystem.readDir(selectedPath);
+			folderName = handleDuplicateName(existingFiles, folderName);
+		}
+		const newPath = [...selectedPath, folderName];
 		await this.fileSystem.createDir(newPath);
 		await this.updateTreeView(selectedPath);
 		this.treeView.collapsed = false;

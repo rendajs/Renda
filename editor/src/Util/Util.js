@@ -71,7 +71,10 @@ export function parseMimeType(mimeType){
 	return {type, subType, params};
 }
 
-export function handleDuplicateName(existingNames, prefix, suffix="", numberPrefix="_"){
+export function handleDuplicateName(existingNames, prefix, suffix="", numberPrefix=" "){
+	if(!Array.isArray(existingNames) && typeof existingNames == "object" && existingNames.files && existingNames.directories){
+		existingNames = [...existingNames.files, ...existingNames.directories];
+	}
 	if(!existingNames.includes(prefix+suffix)) return prefix+suffix;
 	let i = 0;
 	while(true){

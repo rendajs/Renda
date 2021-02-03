@@ -61,8 +61,8 @@ export default class AssetManager{
 		const type = editor.projectAssetTypeManager.getAssetType(assetType);
 		let fileName = type.newFileName+"."+type.newFileExtension;
 
-		if(this.fileSystem.isFile([...parentPath, fileName])){
-			const {files: existingFiles} = await this.fileSystem.readDir(parentPath);
+		if(this.fileSystem.exists([...parentPath, fileName])){
+			const existingFiles = await this.fileSystem.readDir(parentPath);
 			fileName = handleDuplicateName(existingFiles, type.newFileName, "."+type.newFileExtension);
 		}
 		const newPath = [...parentPath, fileName];
