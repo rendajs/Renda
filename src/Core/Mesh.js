@@ -34,17 +34,22 @@ export default class Mesh{
 		});
 	}
 
-	setVertexData(type, data){
-
-	}
-
-	setBuffer(bufferId, data){
-		const buffer = new MeshAttributeBuffer(data);
-		this._buffers[bufferId] = buffer;
+	setVertexData(attributeType, data, opts){
+		const buffer = new MeshAttributeBuffer(data, {
+			attributeType,
+			...opts,
+		});
+		this._buffers.push(buffer);
 	}
 
 	getBuffer(bufferId){
 		return this._buffers[bufferId];
+	}
+
+	*getBuffers(){
+		for(const buffer of this._buffers){
+			yield buffer;
+		}
 	}
 
 	getVertexState(){

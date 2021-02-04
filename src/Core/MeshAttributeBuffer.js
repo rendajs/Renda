@@ -3,6 +3,7 @@ import {Vec3} from "../index.js";
 export default class MeshAttributeBuffer{
 	constructor(data, {
 		componentCount = 1, //amount of components per attribute e.g. 3 for vec3
+		attributeType = null,
 	} = {}){
 		if(data instanceof ArrayBuffer){
 			//data does not need to be parsed

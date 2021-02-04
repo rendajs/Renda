@@ -16,10 +16,10 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		super(...arguments);
 	}
 
-	static createNewFile(){
-		const cubeMesh = new Mesh();
-		cubeMesh.setIndexBuffer([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
-		cubeMesh.setVertexData(Mesh.AttributeTypes.POSITION, [
+	async createNewLiveAsset(){
+		const mesh = new Mesh();
+		mesh.setIndexBuffer([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
+		mesh.setVertexData(Mesh.AttributeTypes.POSITION, [
 			new Vec3(-1,-1,-1),
 			new Vec3(-1,-1, 1),
 			new Vec3(-1, 1,-1),
@@ -50,7 +50,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 1,-1, 1),
 			new Vec3( 1, 1, 1),
 		]);
-		cubeMesh.setVertexData(Mesh.AttributeTypes.NORMAL, [
+		mesh.setVertexData(Mesh.AttributeTypes.NORMAL, [
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),
@@ -81,22 +81,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
 		]);
-
-		const composer = new BinaryComposer();
-
-		//magic header: jMsh
-		composer.appendUint32(0x68734D6A);
-		composer.appendUuid("00000000-0000-0000-0000-000000000000"); //todo: replace with global mesh layout asset uuid
-		for(const [type, buffer] of cubeMesh.buffers){
-			composer.appendUint16(type);
-			composer.appendUint8(buffer.componentCount);
-			composer.appendUint8(buffer.componentType);
-			composer.appendUint32(buffer.arrayBuffer.byteLength);
-			composer.appendBuffer(buffer.arrayBuffer);
-		}
-		const blob = new Blob([composer.getFullBuffer()]);
-		const file = new File([blob], "mesh.jjmesh");
-		return file;
+		return mesh;
 	}
 
 	static expectedLiveAssetConstructor = Mesh;
@@ -116,7 +101,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
 		}
 		while(i < dataView.byteLength){
-			const type = dataView.getUint16(i, true);
+			const attributeType = dataView.getUint16(i, true);
 			i += 2;
 			const componentCount = dataView.getUint8(i, true);
 			i++;
@@ -125,7 +110,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			const length = dataView.getUint32(i, true);
 			i += 4;
 			const data = dataView.buffer.slice(i, i + length);
-			mesh.setBuffer(type, data, {componentCount, componentType});
+			mesh.setVertexData(attributeType, data, {componentCount, componentType});
 			i += length;
 		}
 		return mesh;
@@ -140,8 +125,8 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			vertexStateUuid = editor.projectManager.assetManager.getAssetUuidFromLiveAsset(vertexState);
 		}
 		composer.appendUuid(vertexStateUuid);
-		for(const [type, buffer] of liveAsset.getBufferEntries()){
-			composer.appendUint16(type);
+		for(const buffer of liveAsset.getBuffers()){
+			composer.appendUint16(buffer.attributeType);
 			composer.appendUint8(buffer.componentCount);
 			composer.appendUint8(buffer.componentType);
 			composer.appendUint32(buffer.arrayBuffer.byteLength);
