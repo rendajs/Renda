@@ -37,8 +37,10 @@ export default class WebGpuRenderer extends Renderer{
 				{
 					binding: 0,
 					visibility: GPUShaderStage.VERTEX,
-					type: "uniform-buffer",
-					hasDynamicOffset: true,
+					buffer: {
+						type: "uniform",
+						hasDynamicOffset: true,
+					},
 				},
 			],
 		});
