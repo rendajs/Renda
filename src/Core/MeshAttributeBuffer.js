@@ -32,6 +32,7 @@ export default class MeshAttributeBuffer{
 		}
 
 		this.componentCount = componentCount;
+		this.attributeType = attributeType;
 		this.arrayBuffer = data;
 		this.glBuffer = null;
 	}

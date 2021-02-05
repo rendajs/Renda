@@ -52,7 +52,7 @@ export default class Mesh{
 		}
 	}
 
-	getVertexState(){
+	get vertexState(){
 		return this._vertexState;
 	}
 

@@ -109,7 +109,7 @@ export default class WebGpuRenderer extends Renderer{
 		for(const root of rootRenderEntities){
 			for(const child of root.traverseDown()){
 				for(const component of child.getComponentsByType(DefaultComponentTypes.mesh)){
-					if(!component.mesh) continue;
+					if(!component.mesh || !component.mesh.vertexState) continue;
 					meshComponents.push(component);
 				}
 			}
@@ -131,7 +131,7 @@ export default class WebGpuRenderer extends Renderer{
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
 					const mapData = material.customMapDatas.get(WebGpuRenderer.materialMapWebGpuTypeUuid);
-					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.getVertexState());
+					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
@@ -219,8 +219,7 @@ export default class WebGpuRenderer extends Renderer{
 			data = {};
 			this.cachedMeshData.set(mesh, data);
 
-			const vertexState = mesh.getVertexState();
-			for(const bufferConfig of vertexState.descriptor.vertexBuffers){
+			for(const bufferConfig of mesh.vertexState.descriptor.vertexBuffers){
 
 			}
 
