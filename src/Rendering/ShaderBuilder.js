@@ -5,13 +5,18 @@ export default class ShaderBuilder{
 	}
 
 	addShader(uuid, shaderCode){
-		this.shaderLibrary.set(uuid, shaderCode);
+		this.shaderLibrary.set(uuid, {
+			shaderCode,
+			builtCode: null,
+		});
 	}
 
 	async buildShader(shaderCode){
 		const regex = /^\s*#include\s(?<uuid>.+?):?(?::(?<params>.+)|$)/gm;
 		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, p1, p2, offset, str, groups) => {
-			const block = await this.getShaderBlock(groups.uuid, groups.params);
+			const block = await this.getShaderBlock(groups.uuid, {
+				params: groups.params,
+			});
 			return block || "";
 		});
 		return shaderCode;
@@ -27,9 +32,22 @@ export default class ShaderBuilder{
 		return str.replace(regex, _ => replaceData.shift());
 	}
 
-	async getShaderBlock(uuid, params){
+	async getShaderBlock(uuid, {
+		params = null,
+		buildRecursive = true,
+	} = {}){
 		//todo, get only specific part of shader
-		return await this.getShader(uuid);
+		const shaderData = await this.getShader(uuid);
+		if(buildRecursive){
+			if(shaderData.builtCode){
+				return shaderData.builtCode;
+			}else{
+				shaderData.builtCode = await this.buildShader(shaderData.shaderCode);
+				return shaderData.builtCode;
+			}
+		}else{
+			return shaderData.shaderCode;
+		}
 	}
 
 	async getShader(uuid){
