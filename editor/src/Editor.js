@@ -9,12 +9,15 @@ import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
 
-import {WebGpuRenderer, defaultComponents, defaultComponentTypeManager} from "../../src/index.js";
+import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
+
+import {WebGpuRenderer, defaultComponents, defaultComponentTypeManager, ShaderBuilder} from "../../src/index.js";
 import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
 	constructor(){
 		this.renderer = new WebGpuRenderer();
+		this.webGpuShaderBuilder = new ShaderBuilder();
 		this.windowManager = new WindowManager();
 		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
@@ -46,6 +49,15 @@ export default class Editor{
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.materialMapTypeManager.init();
+
+		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
+			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
+			if(projectAsset){
+				if(projectAsset.assetType == "JJ:shaderSource"){
+					return await projectAsset.readAssetData();
+				}
+			}
+		});
 	}
 
 	doIt(){

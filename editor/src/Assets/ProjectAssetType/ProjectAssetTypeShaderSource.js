@@ -26,7 +26,8 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	static expectedLiveAssetConstructor = ShaderSource;
 
 	async getLiveAsset(source){
-		return new ShaderSource(source);
+		const builtSource = await editor.webGpuShaderBuilder.buildShader(source);
+		return new ShaderSource(builtSource);
 	}
 
 	async fileChangedExternally(){
