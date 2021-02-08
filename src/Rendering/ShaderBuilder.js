@@ -25,8 +25,11 @@ export default class ShaderBuilder{
 
 	async buildShader(shaderCode){
 		const includedUuids = [];
+		const attemptedUuids = [];
 		const regex = /^\s*#include\s(?<uuid>.+?):?(?::(?<params>.+)|$)/gm;
 		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, p1, p2, offset, str, groups) => {
+			if(attemptedUuids.includes(groups.uuid)) return "";
+			attemptedUuids.push(groups.uuid);
 			const block = await this.getShaderBlock(groups.uuid, {
 				params: groups.params,
 			});
