@@ -69,6 +69,8 @@ export default class ProjectAssetType{
 
 	//if you plan on supporting loading live assets in the editor,
 	//return your liveasset instance here
+	//this it guaranteed to not get called if a liveAssets already exists
+	//i.e. it is only called twice if destroyLiveAsset gets called first
 	async getLiveAsset(fileData){
 		return null;
 	}

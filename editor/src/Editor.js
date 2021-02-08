@@ -51,12 +51,17 @@ export default class Editor{
 		this.materialMapTypeManager.init();
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
-			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
+			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);
 			if(projectAsset){
 				if(projectAsset.assetType == "JJ:shaderSource"){
 					return await projectAsset.readAssetData();
 				}
 			}
+		});
+
+		this.projectManager.onExternalChange(async e => {
+			const uuid = await this.projectManager.assetManager.getAssetUuidFromPath(e.path);
+			editor.webGpuShaderBuilder.invalidateShader(uuid);
 		});
 	}
 

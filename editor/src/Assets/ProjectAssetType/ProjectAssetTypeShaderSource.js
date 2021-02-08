@@ -15,6 +15,9 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 
 	constructor(){
 		super(...arguments);
+
+		this.includedUuids = [];
+		this.boundOnShaderInvalidated = null;
 	}
 
 	static createNewFile(){
@@ -26,8 +29,27 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	static expectedLiveAssetConstructor = ShaderSource;
 
 	async getLiveAsset(source){
-		const builtSource = await editor.webGpuShaderBuilder.buildShader(source);
-		return new ShaderSource(builtSource);
+		const {shaderCode, includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);
+		this.includedUuids = includedUuids;
+		if(!this.boundOnShaderInvalidated){
+			this.boundOnShaderInvalidated = this.onShaderInvalidated.bind(this);
+			editor.webGpuShaderBuilder.onShaderInvalidated(this.boundOnShaderInvalidated);
+		}
+		return new ShaderSource(shaderCode);
+	}
+
+	destroyLiveAsset(liveAsset){
+		super.destroyLiveAsset(liveAsset);
+		if(this.boundOnShaderInvalidated){
+			editor.webGpuShaderBuilder.removeShaderInvalidated(this.boundOnShaderInvalidated);
+			this.boundOnShaderInvalidated = null;
+		}
+	}
+
+	onShaderInvalidated(uuid){
+		if(this.includedUuids.includes(uuid)){
+			this.liveAssetNeedsReplacement();
+		}
 	}
 
 	async fileChangedExternally(){

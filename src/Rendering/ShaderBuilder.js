@@ -2,24 +2,41 @@ export default class ShaderBuilder{
 	constructor(){
 		this.shaderLibrary = new Map();
 		this.onShaderUuidRequestedCbs = new Set();
+		this.onShaderInvalidatedCbs = new Set();
 	}
 
 	addShader(uuid, shaderCode){
 		this.shaderLibrary.set(uuid, {
 			shaderCode,
 			builtCode: null,
+			includedUuids: [],
 		});
 	}
 
+	invalidateShader(uuid){
+		this.shaderLibrary.delete(uuid);
+		this.fireOnShaderInvalidated(uuid);
+		for(const [existingUuid, shader] of this.shaderLibrary){
+			if(shader.includedUuids.includes(uuid)){
+				this.invalidateShader(existingUuid);
+			}
+		}
+	}
+
 	async buildShader(shaderCode){
+		const includedUuids = [];
 		const regex = /^\s*#include\s(?<uuid>.+?):?(?::(?<params>.+)|$)/gm;
 		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, p1, p2, offset, str, groups) => {
 			const block = await this.getShaderBlock(groups.uuid, {
 				params: groups.params,
 			});
-			return block || "";
+			if(block){
+				includedUuids.push(groups.uuid);
+				return block;
+			}
+			return "";
 		});
-		return shaderCode;
+		return {shaderCode, includedUuids};
 	}
 
 	async replaceAsync(str, regex, fn){
@@ -42,7 +59,9 @@ export default class ShaderBuilder{
 			if(shaderData.builtCode){
 				return shaderData.builtCode;
 			}else{
-				shaderData.builtCode = await this.buildShader(shaderData.shaderCode);
+				const {shaderCode, includedUuids} = await this.buildShader(shaderData.shaderCode);
+				shaderData.builtCode = shaderCode;
+				shaderData.includedUuids = includedUuids;
 				return shaderData.builtCode;
 			}
 		}else{
@@ -75,6 +94,20 @@ export default class ShaderBuilder{
 		}
 		if(foundShaderCode){
 			this.addShader(uuid, foundShaderCode);
+		}
+	}
+
+	onShaderInvalidated(cb){
+		this.onShaderInvalidatedCbs.add(cb);
+	}
+
+	removeShaderInvalidated(cb){
+		this.onShaderInvalidatedCbs.delete(cb);
+	}
+
+	fireOnShaderInvalidated(uuid){
+		for(const cb of this.onShaderInvalidatedCbs){
+			cb(uuid);
 		}
 	}
 }
