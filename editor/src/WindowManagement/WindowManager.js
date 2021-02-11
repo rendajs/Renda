@@ -17,7 +17,13 @@ export default class WindowManager{
 
 		window.addEventListener("blur", _ => {
 			this.setFocusedEditorWindow(null);
-		})
+		});
+
+		window.addEventListener("resize", _ => {
+			if(this.rootWindow){
+				this.rootWindow.onResized();
+			}
+		});
 	}
 
 	init(){
