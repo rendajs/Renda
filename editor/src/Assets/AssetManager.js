@@ -24,6 +24,10 @@ export default class AssetManager{
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
+	get builtInAssets(){
+		return editor.builtInAssetManager.builtInAssets;
+	}
+
 	async loadAssetSettings(fromUserEvent = false){
 		if(this.assetSettingsLoaded) return;
 
@@ -113,18 +117,23 @@ export default class AssetManager{
 
 	async getProjectAsset(uuid){
 		await this.loadAssetSettings(true);
-		return this.projectAssets.get(uuid);
+		return this.projectAssets.get(uuid) || this.builtInAssets.get(uuid);
 	}
 
 	getProjectAssetImmediate(uuid){
 		if(!this.assetSettingsLoaded) return null;
-		return this.projectAssets.get(uuid);
+		return this.projectAssets.get(uuid) || this.builtInAssets.get(uuid);
 	}
 
 	async getAssetPathFromUuid(uuid){
 		await this.loadAssetSettings(true);
 		const asset = this.projectAssets.get(uuid);
-		if(!asset) return null;
+		if(!asset){
+			if(this.builtInAssets.has(uuid)){
+				throw new Error("Getting asset path from built-in assets is not supported.");
+			}
+			return null;
+		}
 		return asset.path.slice();
 	}
 
@@ -165,8 +174,7 @@ export default class AssetManager{
 	}
 
 	async getLiveAsset(uuid){
-		await this.loadAssetSettings(true);
-		const projectAsset = this.projectAssets.get(uuid);
+		const projectAsset = await this.getProjectAsset(uuid);
 		if(!projectAsset) return null;
 
 		return await projectAsset.getLiveAsset();
@@ -177,6 +185,9 @@ export default class AssetManager{
 		//is no way to get liveAssets without loading the settings anyway.
 		//So we can keep this method sync.
 		for(const projectAsset of this.projectAssets.values()){
+			if(projectAsset.liveAsset == liveAsset) return projectAsset;
+		}
+		for(const projectAsset of this.builtInAssets.values()){
 			if(projectAsset.liveAsset == liveAsset) return projectAsset;
 		}
 		return null;

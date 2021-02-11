@@ -3,6 +3,7 @@ import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentMa
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
 import MaterialMapTypeManager from "./Managers/MaterialMapTypeManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
+import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
@@ -24,6 +25,7 @@ export default class Editor{
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.materialMapTypeManager = new MaterialMapTypeManager();
 		this.projectManager = new ProjectManager();
+		this.builtInAssetManager = new BuiltInAssetManager();
 		this.scriptBuilder = new ScriptBuilder();
 		this.assetBundler = new AssetBundler();
 		this.dragManager = new DragManager();

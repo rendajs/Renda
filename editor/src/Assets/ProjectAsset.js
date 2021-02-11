@@ -16,6 +16,7 @@ export default class ProjectAsset{
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
+		this.isBuiltIn = false;
 
 		this._projectAssetType = null;
 		this.isGettingLiveAsset = false;
@@ -92,6 +93,10 @@ export default class ProjectAsset{
 		if(this.needsConsistentUuid) return true;
 
 		return false;
+	}
+
+	makeBuiltIn(){
+		this.isBuiltIn = true;
 	}
 
 	assetMoved(newPath){
@@ -231,18 +236,28 @@ export default class ProjectAsset{
 	async readAssetData(){
 		await this.waitForInit();
 
-		let fileData = null;
+		let format = "binary";
 		if(this._projectAssetType.constructor.storeInProjectAsJson){
-			const json = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
-			if(this._projectAssetType.constructor.wrapProjectJsonWithEditorMetaData){
-				fileData = json.asset;
-			}else{
-				fileData = json;
-			}
+			format = "json";
 		}else if(this._projectAssetType.constructor.storeInProjectAsText){
-			fileData = await editor.projectManager.currentProjectFileSystem.readText(this.path);
+			format = "text";
+		}
+
+		let fileData = null;
+		if(this.isBuiltIn){
+			fileData = await editor.builtInAssetManager.fetchAsset(this.path, format);
 		}else{
-			fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+			if(format == "json"){
+				fileData = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
+			}else if(format == "text"){
+				fileData = await editor.projectManager.currentProjectFileSystem.readText(this.path);
+			}else{
+				fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+			}
+		}
+
+		if(format == "json" && this._projectAssetType.constructor.wrapProjectJsonWithEditorMetaData){
+			fileData = fileData.asset;
 		}
 		return fileData;
 	}
