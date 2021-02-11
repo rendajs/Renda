@@ -22,14 +22,14 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		this.ready = false;
 
 		this.colorAttachment = {
-			attachment: null, //will be assigned in getRenderPassDescriptor() or resize()
+			attachment: null, //will be assigned in getRenderPassDescriptor()
 			resolveTarget: null, //will be assigned in getRenderPassDescriptor()
 			loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
 		}
 		this.depthStencilAttachment = null;
 		if(this.depthSupport){
 			this.depthStencilAttachment = {
-				attachment: null, //will be assigned in resize()
+				attachment: null, //will be assigned in generateTextures()
 				depthLoadValue: 1,
 				depthStoreOp: "store",
 				stencilLoadValue: 1,
@@ -42,15 +42,32 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		}
 	}
 
-	configureSwapChain(adapter, device){
-		this.swapChainFormat = this.ctx.getSwapChainPreferredFormat(adapter);
+	gpuReady(){
+		this.swapChainFormat = this.ctx.getSwapChainPreferredFormat(this.renderer.adapter);
 		this.swapChain = this.ctx.configureSwapChain({
-			device,
+			device: this.renderer.device,
 			format: this.swapChainFormat,
 		});
 
+		this.ready = true;
+		this.generateTextures();
+	}
+
+	getElement(){
+		return this.canvas;
+	}
+
+	resize(w,h){
+		this.canvas.width = w;
+		this.canvas.height = h;
+		this.generateTextures();
+	}
+
+	generateTextures(){
+		if(!this.ready) return;
 		if(this.sampleCount > 1){
-			this.colorTexture = device.createTexture({
+			if(this.colorTexture) this.colorTexture.destroy();
+			this.colorTexture = this.renderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,
@@ -62,7 +79,8 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 			this.colorTextureView = this.colorTexture.createView();
 		}
 		if(this.depthSupport){
-			this.depthTexture = device.createTexture({
+			if(this.depthTexture) this.depthTexture.destroy();
+			this.depthTexture = this.renderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,
@@ -73,16 +91,6 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 			});
 			this.depthStencilAttachment.attachment = this.depthTexture.createView();
 		}
-		this.ready = true;
-	}
-
-	getElement(){
-		return this.canvas;
-	}
-
-	resize(w,h){
-		this.canvas.width = w;
-		this.canvas.height = h;
 	}
 
 	getRenderPassDescriptor(){
