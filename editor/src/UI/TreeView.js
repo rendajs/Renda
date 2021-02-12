@@ -502,17 +502,21 @@ export default class TreeView{
 		return this;
 	}
 
-	includes(name, recursive = false){
+	getChildByName(name, recursive = false){
 		if(recursive){
 			for(const child of this.traverseDown()){
-				if(child.name == name) return true;
+				if(child.name == name) return child;
 			}
 		}else{
 			for(const child of this.children){
-				if(child.name == name) return true;
+				if(child.name == name) return child;
 			}
 		}
-		return false;
+		return null;
+	}
+
+	includes(name, recursive = false){
+		return !!this.getChildByName(name, recursive);
 	}
 
 	deselectAll(){

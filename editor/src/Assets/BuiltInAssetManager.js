@@ -1,23 +1,27 @@
 import ProjectAsset from "./ProjectAsset.js";
+import {SingleInstancePromise} from "../../../src/index.js";
 
 export default class BuiltInAssetManager{
 	constructor(){
 		this.builtInAssets = new Map();
 		this.basePath = "../builtInAssets/";
 
-		this.loadBuiltInAssets();
+		this.loadAssetsInstance = new SingleInstancePromise(async _ => {
+			const response = await fetch(this.basePath + "assetSettings.json");
+			const json = await response.json();
+			for(const [uuid, assetData] of Object.entries(json.assets)){
+				assetData.isBuiltIn = true;
+				const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
+				if(projectAsset){
+					projectAsset.makeBuiltIn();
+					this.builtInAssets.set(uuid, projectAsset);
+				}
+			}
+		}, {run: true});
 	}
 
-	async loadBuiltInAssets(){
-		const response = await fetch(this.basePath + "assetSettings.json");
-		const json = await response.json();
-		for(const [uuid, assetData] of Object.entries(json.assets)){
-			const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
-			if(projectAsset){
-				projectAsset.makeBuiltIn();
-				this.builtInAssets.set(uuid, projectAsset);
-			}
-		}
+	async waitForLoad(){
+		await this.loadAssetsInstance.waitForFinish();
 	}
 
 	async fetchAsset(path, format="json"){

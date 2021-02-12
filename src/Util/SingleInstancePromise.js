@@ -3,6 +3,7 @@ export default class SingleInstancePromise{
 		//if this is true, the promise will run only once.
 		//repeating calls to run() will always return the first result.
 		once = true,
+		run = false,
 	} = {}){
 		this.once = once;
 		this.promiseFn = promiseFn;
@@ -10,6 +11,8 @@ export default class SingleInstancePromise{
 		this.hasRan = false;
 		this.onceReturnValue = undefined;
 		this.onRunFinishCbs = new Set();
+
+		if(run) this.run();
 	}
 
 	//if `repeatIfRunning` is true and the promise is already running,
@@ -33,9 +36,9 @@ export default class SingleInstancePromise{
 		this.isRunning = true;
 		let result = await this.promiseFn();
 		this.isRunning = false;
+		this.hasRan = true;
 
 		if(this.once){
-			this.hasRan = true;
 			this.onceReturnValue = result;
 		}
 
@@ -48,7 +51,7 @@ export default class SingleInstancePromise{
 	}
 
 	async waitForFinish(){
-		if(this.once && this.hasRan) return;
+		if(this.hasRan) return;
 		await new Promise(r => this.onRunFinishCbs.add(r));
 	}
 }

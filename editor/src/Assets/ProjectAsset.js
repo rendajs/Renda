@@ -9,6 +9,7 @@ export default class ProjectAsset{
 		assetSettings = {},
 		assetType = null,
 		forceAssetType = false,
+		isBuiltIn = false,
 	} = {}){
 		this.uuid = uuid;
 		this.path = path;
@@ -16,7 +17,7 @@ export default class ProjectAsset{
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
-		this.isBuiltIn = false;
+		this.isBuiltIn = isBuiltIn;
 
 		this._projectAssetType = null;
 		this.isGettingLiveAsset = false;
@@ -32,7 +33,11 @@ export default class ProjectAsset{
 
 	async init(){
 		if(!this.assetType){
-			this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path);
+			if(this.isBuiltIn){
+				this.assetType = await ProjectAsset.guessAssetTypeFromPath(this.path);
+			}else{
+				this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path);
+			}
 		}
 
 		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(this.assetType);

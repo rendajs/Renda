@@ -46,7 +46,7 @@ export default class WindowManager{
 					},
 					windowB: {
 						type: "tabs",
-						tabTypes: ["project"],
+						tabTypes: ["project", "builtInAssets"],
 					},
 				},
 				windowB: {
