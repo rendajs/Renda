@@ -1,5 +1,5 @@
 import NumericGui from "./NumericGui.js";
-import {Vec3} from "../../../../src/index.js";
+import {Vec3} from "../../../src/index.js";
 
 export default class VectorGui{
 	constructor({

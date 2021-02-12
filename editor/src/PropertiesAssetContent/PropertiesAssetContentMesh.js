@@ -1,6 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import {Mesh, WebGpuVertexState} from "../../../src/index.js";
-import BinaryComposer from "../../../../src/Util/BinaryComposer.js";
+import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 
 export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 	constructor(){
