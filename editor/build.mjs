@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const rollup = require("rollup");
-const fs = require("fs").promises;
+import {rollup} from "rollup";
+import {promises as fs} from "fs";
 
 async function setScriptSrc(src){
 	const filePath = "editor/dist/index.html";
@@ -24,8 +24,12 @@ async function setScriptSrc(src){
 		}
 		await setScriptSrc("../src/index.js");
 	}else{
-		const bundle = await rollup.rollup({
+		const bundle = await rollup({
 			input: "editor/src/index.js",
+			onwarn: message => {
+				if(message.code == "CIRCULAR_DEPENDENCY") return;
+				console.error(message.message);
+			},
 		});
 		await bundle.write({
 			file: "editor/dist/index.js",
