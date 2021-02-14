@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-const rollup = require("rollup");
-const path = require("path");
-const commonjs = require("@rollup/plugin-commonjs");
+import {rollup} from "rollup";
+import path from "path";
+import commonjs from "@rollup/plugin-commonjs";
+import {fileURLToPath} from "url";
 
 let libs = [
 	{
@@ -45,11 +46,13 @@ function ignore(ignoreList){
 }
 
 (async _ => {
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 	for(const lib of libs){
 		let inputPath = path.resolve(__dirname, lib.input);
 		let outputPath = path.resolve(__dirname, "libs", lib.output);
 		console.log("bundling "+lib.input);
-		const bundle = await rollup.rollup({
+		const bundle = await rollup({
 			input: inputPath,
 			plugins: [commonjs(), ignore(["fs"])],
 		});

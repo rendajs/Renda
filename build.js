@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const rollup = require("rollup");
+import {rollup} from "rollup";
 
 (async _ => {
-	const bundle = await rollup.rollup({
+	const bundle = await rollup({
 		input: "src/index.js",
 	});
 	await bundle.write({
