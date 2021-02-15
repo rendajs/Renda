@@ -29,4 +29,4 @@ export function sendAllConnections(data){
 	}
 }
 
-const builtInAssetManager = new BuiltInAssetManager();
+global.builtInAssetManager = new BuiltInAssetManager();
