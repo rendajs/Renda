@@ -1,3 +1,5 @@
+import {toFormattedJsonString} from "../Util.js";
+
 export default class EditorFileSystem{
 	constructor(){
 		this.onExternalChangeCbs = new Set();
@@ -76,7 +78,7 @@ export default class EditorFileSystem{
 	}
 
 	async writeJson(path = [], json = {}){
-		let jsonStr = JSON.stringify(json, null, "\t");
+		let jsonStr = toFormattedJsonString(json);
 		await this.writeText(path, jsonStr, {type: "application/json"});
 	}
 
