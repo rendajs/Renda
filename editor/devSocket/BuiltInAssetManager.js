@@ -4,6 +4,7 @@ import path from "path";
 import {fileURLToPath} from "url";
 import {sendAllConnections} from "./index.js";
 import {generateUuid} from "./Util.js";
+import {toFormattedJsonString} from "../src/Util/Util.js";
 
 export default class BuiltInAssetManager{
 	constructor(){
@@ -81,7 +82,7 @@ export default class BuiltInAssetManager{
 			assets[uuid] = assetSettings;
 		}
 		const json = {assets};
-		const str = JSON.stringify(json, null, "\t") + "\n";
+		const str = toFormattedJsonString(json);
 		await fs.writeFile(this.assetSettingsPath, str);
 
 		if(notifySocket){
