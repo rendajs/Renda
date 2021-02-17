@@ -46,7 +46,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 	}
 
 	updateTreeView(){
-		for(const asset of editor.builtInAssetManager.builtInAssets.values()){
+		for(const asset of editor.builtInAssetManager.assets.values()){
 			this.addAssetToTreeView(asset, asset.path, this.treeView);
 		}
 	}

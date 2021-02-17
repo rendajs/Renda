@@ -9,6 +9,7 @@ import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
+import DevSocketManager from "./DevSocketManager.js";
 
 import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
 
@@ -31,6 +32,11 @@ export default class Editor{
 		this.dragManager = new DragManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
 
+		if(IS_DEV_BUILD){
+			this.devSocket = new DevSocketManager();
+		}
+
+
 		for(const [type, component] of defaultComponents){
 			defaultComponentTypeManager.registerComponentType(type, component);
 		}
@@ -51,6 +57,7 @@ export default class Editor{
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.materialMapTypeManager.init();
+		this.builtInAssetManager.init();
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);

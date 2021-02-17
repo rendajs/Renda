@@ -8,6 +8,7 @@ const isDevBuild = process.argv.includes("--dev");
 
 const defines = {
 	"EDITOR_ENV": isDevBuild ? "dev" : "production",
+	"IS_DEV_BUILD": isDevBuild,
 };
 
 for(const [name, value] of Object.entries(defines)){

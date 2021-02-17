@@ -25,7 +25,7 @@ export default class AssetManager{
 	}
 
 	get builtInAssets(){
-		return editor.builtInAssetManager.builtInAssets;
+		return editor.builtInAssetManager.assets;
 	}
 
 	async loadAssetSettings(fromUserEvent = false){

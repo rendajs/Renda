@@ -29,6 +29,16 @@ export default class ProjectAsset{
 		this.initInstance.run();
 
 		this.onNewLiveAssetInstanceCbs = new Set();
+
+		this.destructed = false;
+	}
+
+	destructor(){
+		this.destructed = true;
+
+		this.destroyLiveAsset();
+		this.assetSettings = null;
+		this._projectAssetType = null;
 	}
 
 	async init(){
@@ -39,6 +49,7 @@ export default class ProjectAsset{
 				this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path);
 			}
 		}
+		if(this.destructed) return;
 
 		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(this.assetType);
 		if(AssetTypeConstructor){

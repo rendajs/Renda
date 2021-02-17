@@ -1,23 +1,48 @@
 import ProjectAsset from "./ProjectAsset.js";
 import {SingleInstancePromise} from "../../../src/index.js";
+import editor from "../editorInstance.js";
 
 export default class BuiltInAssetManager{
 	constructor(){
-		this.builtInAssets = new Map();
+		this.assets = new Map();
 		this.basePath = "../builtInAssets/";
 
 		this.loadAssetsInstance = new SingleInstancePromise(async _ => {
 			const response = await fetch(this.basePath + "assetSettings.json");
 			const json = await response.json();
+			const existingUuids = new Set(this.assets.keys());
 			for(const [uuid, assetData] of Object.entries(json.assets)){
+				if(existingUuids.has(uuid)){
+					existingUuids.delete(uuid);
+					continue;
+				}
 				assetData.isBuiltIn = true;
 				const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
 				if(projectAsset){
 					projectAsset.makeBuiltIn();
-					this.builtInAssets.set(uuid, projectAsset);
+					this.assets.set(uuid, projectAsset);
 				}
 			}
-		}, {run: true});
+			for(const uuid of existingUuids){
+				const asset = this.assets.get(uuid);
+				asset.destructor();
+				this.assets.delete(uuid);
+			}
+		}, {run: true, once: false});
+	}
+
+	init(){
+		if(IS_DEV_BUILD){
+			editor.devSocket.addListener("builtInAssetChange", data => {
+				const asset = this.assets.get(data.uuid);
+				if(asset){
+					asset.fileChangedExternally();
+				}
+			});
+			editor.devSocket.addListener("builtInAssetListUpdate", _ => {
+				this.loadAssetsInstance.run(true);
+			});
+		}
 	}
 
 	async waitForLoad(){
