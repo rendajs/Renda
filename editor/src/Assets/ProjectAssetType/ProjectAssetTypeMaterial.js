@@ -21,7 +21,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
 	static expectedLiveAssetConstructor = Material;
 
-	async getLiveAsset(materialJson){
+	async getLiveAssetData(materialJson){
 		let customMapDatas = null;
 		if(materialJson.map){
 			const map = await editor.projectManager.assetManager.getProjectAsset(materialJson.map);
@@ -35,7 +35,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 		const material = new Material({
 			customMapDatas,
 		});
-		return material;
+		return {liveAsset: material};
 	}
 
 	async createBundledAssetData(assetSettingOverrides = {}){

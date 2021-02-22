@@ -20,10 +20,11 @@ export default class ProjectAsset{
 		this.isBuiltIn = isBuiltIn;
 
 		this._projectAssetType = null;
-		this.isGettingLiveAsset = false;
+		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
-		this.onLiveAssetGetCbs = new Set();
+		this.onLiveAssetDataGetCbs = new Set();
 		this.liveAsset = null;
+		this.editorData = null;
 
 		this.initInstance = new SingleInstancePromise(async _=> await this.init());
 		this.initInstance.run();
@@ -36,7 +37,7 @@ export default class ProjectAsset{
 	destructor(){
 		this.destructed = true;
 
-		this.destroyLiveAsset();
+		this.destroyLiveAssetData();
 		this.assetSettings = null;
 		this._projectAssetType = null;
 	}
@@ -137,21 +138,26 @@ export default class ProjectAsset{
 		await this._projectAssetType.open();
 	}
 
-	async createNewLiveAsset(){
+	async createNewLiveAssetData(){
 		await this.waitForInit();
-		const liveAsset = await this._projectAssetType.createNewLiveAsset();
-		const assetData = await this._projectAssetType.saveLiveAsset(liveAsset);
+		const {liveAsset, editorData} = await this._projectAssetType.createNewLiveAssetData();
+		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
 		await this.writeAssetData(assetData);
 	}
 
-	async getLiveAsset(){
-		if(this.liveAsset) return this.liveAsset;
-
-		if(this.isGettingLiveAsset){
-			return await new Promise(r => this.onLiveAssetGetCbs.add(r));
+	async getLiveAssetData(){
+		if(this.liveAsset || this.editorData){
+			return {
+				liveAsset: this.liveAsset,
+				editorData: this.editorData,
+			}
 		}
 
-		this.isGettingLiveAsset = true;
+		if(this.isGettingLiveAssetData){
+			return await new Promise(r => this.onLiveAssetDataGetCbs.add(r));
+		}
+
+		this.isGettingLiveAssetData = true;
 		const getLiveAssetSymbol = Symbol("get liveAsset");
 		this.currentGettingLiveAssetSymbol = getLiveAssetSymbol;
 		await this.waitForInit();
@@ -166,23 +172,46 @@ export default class ProjectAsset{
 			readFailed = true;
 		}
 
-		//if destroyLiveAsset has been called before this Promise was finished
-		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) return null;
+		//if destroyLiveAssetData has been called before this Promise was finished
+		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) return {liveAsset: null, editorData: null};
 
 		if(readFailed){
 			console.warn("error getting live asset for "+this.path.join("/"));
-			this.fireOnLiveAssetGetCbs(null);
-			return null;
+			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
+			return {liveAsset: null, editorData: null};
 		}
 
-		const liveAsset = await this._projectAssetType.getLiveAsset(fileData);
+		const {liveAsset, editorData} = await this._projectAssetType.getLiveAssetData(fileData);
 
-		//if destroyLiveAsset has been called before this Promise was finished
-		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) return null;
+		//if destroyLiveAssetData has been called before this Promise was finished
+		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol){
+			if((liveAsset || editorData) && this._projectAssetType){
+				this._projectAssetType.destroyLiveAssetData(liveAsset, editorData);
+			}
+			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
+			return {liveAsset: null, editorData: null};
+		}
 
-		this.liveAsset = liveAsset;
-		this.fireOnLiveAssetGetCbs(this.liveAsset);
-		return this.liveAsset;
+		this.liveAsset = liveAsset || null;
+		this.editorData = editorData || null;
+		this.fireOnLiveAssetDataGetCbs({
+			liveAsset: this.liveAsset,
+			editorData: this.editorData,
+		});
+		return {
+			liveAsset: this.liveAsset,
+			editorData: this.editorData,
+		}
+	}
+
+	async getLiveAsset(){
+		const {liveAsset} = await this.getLiveAssetData();
+		return liveAsset;
+	}
+
+	async getEditorData(){
+		const {editorData} = await this.getLiveAssetData();
+		return editorData;
 	}
 
 	//returns the currently loaded live asset synchronously
@@ -200,34 +229,35 @@ export default class ProjectAsset{
 	}
 
 	liveAssetNeedsReplacement(){
-		this.destroyLiveAsset();
+		this.destroyLiveAssetData();
 		for(const cb of this.onNewLiveAssetInstanceCbs){
 			cb();
 		}
 	}
 
-	fireOnLiveAssetGetCbs(liveAsset){
-		for(const cb of this.onLiveAssetGetCbs){
-			cb(liveAsset);
+	fireOnLiveAssetDataGetCbs(liveAssetData){
+		for(const cb of this.onLiveAssetDataGetCbs){
+			cb(liveAssetData);
 		}
-		this.onLiveAssetGetCbs.clear();
-		this.isGettingLiveAsset = false;
+		this.onLiveAssetDataGetCbs.clear();
+		this.isGettingLiveAssetData = false;
 	}
 
-	destroyLiveAsset(){
-		if(this.isGettingLiveAsset){
-			this.fireOnLiveAssetGetCbs(null);
+	destroyLiveAssetData(){
+		if(this.isGettingLiveAssetData){
+			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
 			this.currentGettingLiveAssetSymbol = null;
-		}else if(this.liveAsset && this._projectAssetType){
-			this._projectAssetType.destroyLiveAsset(this.liveAsset);
+		}else if((this.liveAsset || this.editorData) && this._projectAssetType){
+			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.editorData);
 			this.liveAsset = null;
 		}
 	}
 
-	async saveLiveAsset(){
+	async saveLiveAssetData(){
 		await this.waitForInit();
 		const liveAsset = await this.getLiveAsset();
-		const assetData = await this._projectAssetType.saveLiveAsset(liveAsset);
+		const editorData = await this.getEditorData();
+		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
 		await this.writeAssetData(assetData);
 	}
 

@@ -72,7 +72,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 
 	static expectedLiveAssetConstructor = WebGpuVertexState;
 
-	async getLiveAsset(fileData){
+	async getLiveAssetData(fileData){
 		const descriptor = {};
 		const attributeTypeMap = [];
 		if(fileData.indexFormat){
@@ -129,7 +129,8 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 				}
 			}
 		}
-		return new WebGpuVertexState(descriptor, attributeTypeMap);
+		const liveAsset = new WebGpuVertexState(descriptor, attributeTypeMap);
+		return {liveAsset};
 	}
 
 	async fileChangedExternally(){

@@ -16,7 +16,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		super(...arguments);
 	}
 
-	async createNewLiveAsset(){
+	async createNewLiveAssetData(){
 		const mesh = new Mesh();
 		mesh.setIndexBuffer([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
 		mesh.setVertexData(Mesh.AttributeTypes.POSITION, [
@@ -81,12 +81,12 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
 		]);
-		return mesh;
+		return {liveAsset: mesh};
 	}
 
 	static expectedLiveAssetConstructor = Mesh;
 
-	async getLiveAsset(blob){
+	async getLiveAssetData(blob){
 		const arrayBuffer = await blob.arrayBuffer();
 		const dataView = new DataView(arrayBuffer);
 		if(dataView.getUint32(0, true) != 0x68734D6A) return null;
@@ -100,6 +100,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
 			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
 		}
+		//todo: only add buffers that are specified in the vertexState
 		while(i < dataView.byteLength){
 			const attributeType = dataView.getUint16(i, true);
 			i += 2;
@@ -113,10 +114,10 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			mesh.setVertexData(attributeType, data, {componentCount, componentType});
 			i += length;
 		}
-		return mesh;
+		return {liveAsset: mesh};
 	}
 
-	async saveLiveAsset(liveAsset){
+	async saveLiveAssetData(liveAsset, editorData){
 		const composer = new BinaryComposer();
 		composer.appendUint32(0x68734D6A); //magic header: jMsh
 		let vertexStateUuid = null;

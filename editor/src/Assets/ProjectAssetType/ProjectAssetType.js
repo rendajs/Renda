@@ -53,9 +53,9 @@ export default class ProjectAssetType{
 	}
 
 	//this will be called when a new file of this type is created
-	//the returned value will be passed along to saveLiveAsset()
-	async createNewLiveAsset(){
-		return null;
+	//the returned value will be passed along to saveLiveAssetData()
+	async createNewLiveAssetData(){
+		return {liveAsset: null, editorData: null};
 	}
 
 	//This is used to find out if a specific class could be stored as an asset,
@@ -67,18 +67,22 @@ export default class ProjectAssetType{
 	//you can safely ommit this.
 	static expectedLiveAssetConstructor = null;
 
-	//if you plan on supporting loading live assets in the editor,
-	//return your liveasset instance here
-	//this it guaranteed to not get called if a liveAssets already exists
-	//i.e. it is only called twice if destroyLiveAsset gets called first
-	async getLiveAsset(fileData){
-		return null;
+	//If you plan on supporting loading live assets in the editor,
+	//return your liveasset instance and editorData here.
+	//This it guaranteed to not get called if a liveAssets already exists,
+	//i.e. it is only called twice if destroyLiveAssetData gets called first.
+	//Both `editorData` and `liveAsset` are optional.
+	//`editorData` will be passed back to saveLiveAssetData()
+	//You can use this to store extra data that can be manipulated by the editor.
+	//Editor data is useful for storing info that is not necessary in assetbundle exports.
+	async getLiveAssetData(fileData){
+		return {liveAsset: null, editorData: null};
 	}
 
 	//use this to store a liveasset instance in the project folder
 	//the return value will be passed on to ProjectAsset.writeAssetData() so depending
 	//on your configuration you can return a json object, DOMString, or binary data
-	async saveLiveAsset(liveAsset){}
+	async saveLiveAssetData(liveAsset, editorData){}
 
 	//this gets called when the file is changed on disk by an external program.
 	//use this to modify the liveAsset, or call liveAssetNeedsReplacement() to
@@ -98,7 +102,7 @@ export default class ProjectAssetType{
 	}
 
 	//optionally override this for custom asset destruction
-	destroyLiveAsset(liveAsset){
+	destroyLiveAssetData(liveAsset, editorData){
 		liveAsset.destructor?.();
 		for(const projectAsset of this.usedLiveAssets){
 			projectAsset.removeOnNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement)

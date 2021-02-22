@@ -62,7 +62,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 		const liveAsset = await asset.getLiveAsset();
 		if(liveAsset){
 			liveAsset.setVertexState(settings.vertexState);
-			await asset.saveLiveAsset();
+			await asset.saveLiveAssetData();
 		}
 	}
 

@@ -28,18 +28,19 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 
 	static expectedLiveAssetConstructor = ShaderSource;
 
-	async getLiveAsset(source){
+	async getLiveAssetData(source){
 		const {shaderCode, includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);
 		this.includedUuids = includedUuids;
 		if(!this.boundOnShaderInvalidated){
 			this.boundOnShaderInvalidated = this.onShaderInvalidated.bind(this);
 			editor.webGpuShaderBuilder.onShaderInvalidated(this.boundOnShaderInvalidated);
 		}
-		return new ShaderSource(shaderCode);
+		const liveAsset = new ShaderSource(shaderCode);
+		return {liveAsset};
 	}
 
-	destroyLiveAsset(liveAsset){
-		super.destroyLiveAsset(liveAsset);
+	destroyLiveAssetData(liveAsset){
+		super.destroyLiveAssetData(liveAsset);
 		if(this.boundOnShaderInvalidated){
 			editor.webGpuShaderBuilder.removeShaderInvalidated(this.boundOnShaderInvalidated);
 			this.boundOnShaderInvalidated = null;

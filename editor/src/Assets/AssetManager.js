@@ -72,7 +72,7 @@ export default class AssetManager{
 		const newPath = [...parentPath, fileName];
 
 		const projectAsset = await this.registerAsset(newPath, assetType);
-		await projectAsset.createNewLiveAsset();
+		await projectAsset.createNewLiveAssetData();
 	}
 
 	async deleteAsset(path){
