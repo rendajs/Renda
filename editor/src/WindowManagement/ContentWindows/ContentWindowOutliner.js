@@ -41,6 +41,10 @@ export default class ContentWindowOutliner extends ContentWindow{
 		return "outliner";
 	}
 
+	get selectionManager(){
+		return this.linkedEntityEditor.selectionManager;
+	}
+
 	setAvailableLinkedEntityEditor(){
 		for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
 			this.setLinkedEntityEditor(entityEditor);
@@ -103,7 +107,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 		if(!this.linkedEntityEditor) return;
 		changes.added = changes.added.map(treeView => this.getEntityByTreeViewItem(treeView));
 		changes.removed = changes.removed.map(treeView => this.getEntityByTreeViewItem(treeView));
-		this.linkedEntityEditor.selectionManager.changeSelection(changes);
+		this.selectionManager.changeSelection(changes);
 	}
 
 	onTreeViewNameChange({changedElement}){
