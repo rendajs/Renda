@@ -1,4 +1,4 @@
-import {Renderer, Mat4, DefaultComponentTypes, defaultComponentTypeManager} from "../../../index.js";
+import {Renderer, Mat4, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuPipeline from "./WebGpuPipeline.js";
 
@@ -144,8 +144,13 @@ export default class WebGpuRenderer extends Renderer{
 					renderPassEncoder.setVertexBuffer(i, buffer);
 				}
 				if(meshData.indexBuffer){
-					//todo: add support for uint32 indexformat
-					renderPassEncoder.setIndexBuffer(meshData.indexBuffer, "uint16");
+					let indexFormat = null;
+					if(mesh.indexFormat == Mesh.IndexFormat.UINT_16){
+						indexFormat = "uint16";
+					}else if(mesh.indexFormat == Mesh.IndexFormat.UINT_32){
+						indexFormat = "uint32";
+					}
+					renderPassEncoder.setIndexBuffer(meshData.indexBuffer, indexFormat);
 					renderPassEncoder.drawIndexed(36, 1, 0, 0, 0);
 				}else{
 					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
