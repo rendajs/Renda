@@ -36,9 +36,12 @@ export default class MeshAttributeBuffer{
 	}
 
 	setVertexCount(vertexCount){
-		//todo: resize buffer if it already exists
 		const length = vertexCount*this.arrayStride;
+		const oldBuffer = this.buffer;
 		this.buffer = new ArrayBuffer(length);
+		if(oldBuffer){
+			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer));
+		}
 	}
 
 	setVertexData(attributeType, data){
