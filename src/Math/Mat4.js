@@ -144,7 +144,7 @@ export default class Mat4{
 	getRotation(scale = null){
 		if(!scale) scale = this.getScale();
 
-		const sX = scale.x;
+		let sX = scale.x;
 		if(this.getDeterminant() < 0) sX = -sX;
 
 		const m00 = this.values[0][0] / sX;
