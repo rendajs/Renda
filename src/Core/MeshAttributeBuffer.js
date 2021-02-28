@@ -1,48 +1,74 @@
 import {Vec3} from "../index.js";
 
 export default class MeshAttributeBuffer{
-	constructor(data, {
-		componentCount = 1, //amount of components per attribute e.g. 3 for vec3
-		attributeType = null,
+	constructor({
+		arrayStride = 4,
+		attributes = [{offset: 0, format: "float32", components: 1, attributeType: null}],
 	} = {}){
-		if(data instanceof ArrayBuffer){
-			//data does not need to be parsed
-		}else if(ArrayBuffer.isView(data)){
-			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-		}else{
-			if(!Array.isArray(data)){
-				throw new TypeError("invalid data type");
-			}
-			if(data.length <= 0){
-				data = new Uint8Array();
-			}else if(typeof data[0] == "number"){
-				componentCount = 1;
-				data = new Uint16Array(data);
-			}else if(data[0] instanceof Vec3){
-				componentCount = 3;
-				const newData = new Float32Array(data.length * 3);
-				let i=0;
-				for(const pos of data){
-					newData[i++] = pos.x;
-					newData[i++] = pos.y;
-					newData[i++] = pos.z;
-				}
-				data = newData;
-			}
-		}
+		this.arrayStride = arrayStride;
+		this.attributes = attributes;
 
-		this.componentCount = componentCount;
-		this.attributeType = attributeType;
-		this.arrayBuffer = data;
-		this.glBuffer = null;
+		this.buffer = null;
+		this._dataView = null;
 	}
 
 	destructor(){
-		if(this.glBuffer){
-			//todo
-			//gl.deleteBuffer(this.glBuffer);
-			this.glBuffer = null;
+	}
+
+	getDataView(){
+		if(!this._dataView){
+			this._dataView = new DataView(this.buffer);
 		}
-		this.arrayBuffer = null;
+		return this._dataView;
+	}
+
+	hasAttributeType(attributeType){
+		return !!this.getAttributeSettings(attributeType);
+	}
+
+	getAttributeSettings(attributeType){
+		for(const attribute of this.attributes){
+			if(attribute.attributeType == attributeType){
+				return attribute;
+			}
+		}
+		return null;
+	}
+
+	setVertexCount(vertexCount){
+		//todo: resize buffer if it already exists
+		const length = vertexCount*this.arrayStride;
+		this.buffer = new ArrayBuffer(length);
+	}
+
+	setVertexData(attributeType, data){
+		const attributeSettings = this.getAttributeSettings(attributeType);
+		const dataView = this.getDataView();
+
+		//todo: pick function based on attributeSettings.format
+		let setFunction = dataView.setFloat32.bind(dataView);
+		let valueByteSize = 4;
+
+		if(data instanceof ArrayBuffer){
+			//todo
+		}else if(ArrayBuffer.isView(data)){
+			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+			//todo
+		}else if(Array.isArray(data)){
+			if(data.length <= 0){
+				return;
+			}else if(typeof data[0] == "number"){
+				//todo
+			}else if(data[0] instanceof Vec3){
+				for(const [i, pos] of data.entries()){
+					setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
+					setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
+					setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
+				}
+			}
+			//todo: support more vector types
+		}else{
+			throw new TypeError("invalid data type");
+		}
 	}
 }

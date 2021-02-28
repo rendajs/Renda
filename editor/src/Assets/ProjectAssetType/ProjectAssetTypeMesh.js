@@ -18,7 +18,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 
 	async createNewLiveAssetData(){
 		const mesh = new Mesh();
-		mesh.setIndexBuffer([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
+		mesh.setIndexData([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
 		mesh.setVertexData(Mesh.AttributeTypes.POSITION, [
 			new Vec3(-1,-1,-1),
 			new Vec3(-1,-1, 1),
@@ -100,20 +100,73 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
 			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
 		}
-		//todo: only add buffers that are specified in the vertexState
-		while(i < dataView.byteLength){
-			const attributeType = dataView.getUint16(i, true);
-			i += 2;
-			const componentCount = dataView.getUint8(i, true);
-			i++;
-			const componentType = dataView.getUint8(i, true);
-			i++;
-			const length = dataView.getUint32(i, true);
-			i += 4;
-			const data = dataView.buffer.slice(i, i + length);
-			mesh.setVertexData(attributeType, data, {componentCount, componentType});
-			i += length;
-		}
+
+		//todo load asset data
+
+		mesh.setVertexCount(24);
+		mesh.setIndexData([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
+		mesh.setVertexData(Mesh.AttributeTypes.POSITION, [
+			new Vec3(-1,-1,-1),
+			new Vec3(-1,-1, 1),
+			new Vec3(-1, 1,-1),
+			new Vec3(-1, 1, 1),
+
+			new Vec3( 1,-1,-1),
+			new Vec3( 1,-1, 1),
+			new Vec3( 1, 1,-1),
+			new Vec3( 1, 1, 1),
+
+			new Vec3(-1,-1,-1),
+			new Vec3(-1,-1, 1),
+			new Vec3( 1,-1,-1),
+			new Vec3( 1,-1, 1),
+
+			new Vec3(-1, 1,-1),
+			new Vec3(-1, 1, 1),
+			new Vec3( 1, 1,-1),
+			new Vec3( 1, 1, 1),
+
+			new Vec3(-1,-1,-1),
+			new Vec3(-1, 1,-1),
+			new Vec3( 1,-1,-1),
+			new Vec3( 1, 1,-1),
+
+			new Vec3(-1,-1, 1),
+			new Vec3(-1, 1, 1),
+			new Vec3( 1,-1, 1),
+			new Vec3( 1, 1, 1),
+		]);
+		mesh.setVertexData(Mesh.AttributeTypes.NORMAL, [
+			new Vec3(-1, 0, 0),
+			new Vec3(-1, 0, 0),
+			new Vec3(-1, 0, 0),
+			new Vec3(-1, 0, 0),
+
+			new Vec3( 1, 0, 0),
+			new Vec3( 1, 0, 0),
+			new Vec3( 1, 0, 0),
+			new Vec3( 1, 0, 0),
+
+			new Vec3( 0,-1, 0),
+			new Vec3( 0,-1, 0),
+			new Vec3( 0,-1, 0),
+			new Vec3( 0,-1, 0),
+
+			new Vec3( 0, 1, 0),
+			new Vec3( 0, 1, 0),
+			new Vec3( 0, 1, 0),
+			new Vec3( 0, 1, 0),
+
+			new Vec3( 0, 0,-1),
+			new Vec3( 0, 0,-1),
+			new Vec3( 0, 0,-1),
+			new Vec3( 0, 0,-1),
+
+			new Vec3( 0, 0, 1),
+			new Vec3( 0, 0, 1),
+			new Vec3( 0, 0, 1),
+			new Vec3( 0, 0, 1),
+		]);
 		return {liveAsset: mesh};
 	}
 

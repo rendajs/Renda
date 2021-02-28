@@ -138,9 +138,18 @@ export default class WebGpuRenderer extends Renderer{
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
 				renderPassEncoder.setBindGroup(0, this.uniformBindGroup, [i*uniformsLength]);
-				const {vertexBuffer} = this.getCachedMeshData(meshComponent.mesh);
-				renderPassEncoder.setVertexBuffer(0, vertexBuffer);
-				renderPassEncoder.draw(36, 1, 0, 0);
+				const mesh = meshComponent.mesh;
+				const meshData = this.getCachedMeshData(mesh);
+				for(const [i, buffer] of meshData.buffers.entries()){
+					renderPassEncoder.setVertexBuffer(i, buffer);
+				}
+				if(meshData.indexBuffer){
+					//todo: add support for uint32 indexformat
+					renderPassEncoder.setIndexBuffer(meshData.indexBuffer, "uint16");
+					renderPassEncoder.drawIndexed(36, 1, 0, 0, 0);
+				}else{
+					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
+				}
 			}
 		}
 		this.device.queue.writeBuffer(this.meshRendererUniformsBuffer, 0, uniformBufferData);
@@ -221,63 +230,28 @@ export default class WebGpuRenderer extends Renderer{
 			data = {};
 			this.cachedMeshData.set(mesh, data);
 
-			for(const bufferConfig of mesh.vertexState.descriptor.vertexBuffers){
-
+			data.buffers = [];
+			for(const buffer of mesh.getBuffers()){
+				const vertexBuffer = this.device.createBuffer({
+					size: buffer.buffer.byteLength,
+					usage: GPUBufferUsage.VERTEX,
+					mappedAtCreation: true,
+				});
+				new Uint8Array(vertexBuffer.getMappedRange()).set(new Uint8Array(buffer.buffer));
+				vertexBuffer.unmap();
+				data.buffers.push(vertexBuffer);
 			}
 
-			const cubeVertexArray = new Float32Array([
-				// float3 position, float3 normal
-				1,  -1,  1,     1,  -1,  1,
-				-1, -1,  1,     -1, -1,  1,
-				-1, -1, -1,     -1, -1, -1,
-				1,  -1, -1,     1,  -1, -1,
-				1,  -1,  1,     1,  -1,  1,
-				-1, -1, -1,     -1, -1, -1,
-
-				1,   1,  1,     1,   1,  1,
-				1,  -1,  1,     1,  -1,  1,
-				1,  -1, -1,     1,  -1, -1,
-				1,   1, -1,     1,   1, -1,
-				1,   1,  1,     1,   1,  1,
-				1,  -1, -1,     1,  -1, -1,
-
-				-1,  1,  1,     -1,  1,  1,
-				1,   1,  1,     1,   1,  1,
-				1,   1, -1,     1,   1, -1,
-				-1,  1, -1,     -1,  1, -1,
-				-1,  1,  1,     -1,  1,  1,
-				1,   1, -1,     1,   1, -1,
-
-				-1, -1,  1,     -1, -1,  1,
-				-1,  1,  1,     -1,  1,  1,
-				-1,  1, -1,     -1,  1, -1,
-				-1, -1, -1,     -1, -1, -1,
-				-1, -1,  1,     -1, -1,  1,
-				-1,  1, -1,     -1,  1, -1,
-
-				1,   1,  1,     1,   1,  1,
-				-1,  1,  1,     -1,  1,  1,
-				-1, -1,  1,     -1, -1,  1,
-				-1, -1,  1,     -1, -1,  1,
-				1,  -1,  1,     1,  -1,  1,
-				1,   1,  1,     1,   1,  1,
-
-				1,  -1, -1,     1,  -1, -1,
-				-1, -1, -1,     -1, -1, -1,
-				-1,  1, -1,     -1,  1, -1,
-				1,   1, -1,     1,   1, -1,
-				1,  -1, -1,     1,  -1, -1,
-				-1,  1, -1,     -1,  1, -1,
-			]);
-
-			const vertexBuffer = this.device.createBuffer({
-				size: cubeVertexArray.byteLength,
-				usage: GPUBufferUsage.VERTEX,
-				mappedAtCreation: true,
-			});
-			new Float32Array(vertexBuffer.getMappedRange()).set(cubeVertexArray);
-			vertexBuffer.unmap();
-			data.vertexBuffer = vertexBuffer;
+			if(mesh.indexBuffer){
+				const indexBuffer = this.device.createBuffer({
+					size: mesh.indexBuffer.byteLength,
+					usage: GPUBufferUsage.INDEX,
+					mappedAtCreation: true,
+				});
+				new Uint8Array(indexBuffer.getMappedRange()).set(new Uint8Array(mesh.indexBuffer));
+				indexBuffer.unmap();
+				data.indexBuffer = indexBuffer;
+			}
 		}
 		return data;
 	}

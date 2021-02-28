@@ -62,6 +62,12 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 										step: 1,
 									},
 								},
+								offset: {
+									guiOpts: {
+										min: 0,
+										step: 1,
+									},
+								}
 							},
 						},
 					},
