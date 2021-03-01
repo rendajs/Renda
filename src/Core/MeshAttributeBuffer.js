@@ -61,8 +61,17 @@ export default class MeshAttributeBuffer{
 			if(data.length <= 0){
 				return;
 			}else if(typeof data[0] == "number"){
-				//todo
+				let i=0;
+				while(i<data.length){
+					for(let j=0; j<attributeSettings.components; j++){
+						setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * j, data[i], true);
+					}
+					i++;
+				}
 			}else if(data[0] instanceof Vec3){
+				if(attributeSettings.components != 3){
+					throw new TypeError("Vec3 array expected");
+				}
 				for(const [i, pos] of data.entries()){
 					setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
 					setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
