@@ -11,6 +11,7 @@ export default class NumericGui{
 		stepStart = 0,
 		suffix = "",
 		prefix = "",
+		allowedStringValues = [], //when the value is a string and one of these values, it won't be parsed as a number
 	} = {}){
 		this.el = document.createElement("input");
 		this.el.classList.add("numericGui", "buttonLike", "resetInput", "textInput");
@@ -25,6 +26,7 @@ export default class NumericGui{
 		this.stepStart = stepStart;
 		this.suffix = suffix;
 		this.prefix = prefix;
+		this.allowedStringValues = allowedStringValues;
 
 		this.isMouseAdjusting = false;
 		this.hasMovedWhileAdjusting = false;
@@ -73,13 +75,17 @@ export default class NumericGui{
 	}
 
 	setValue(value, updateTextValue = true){
-		if(this.min != null) value = Math.max(this.min, value);
-		if(this.max != null) value = Math.min(this.max, value);
-		this.internalValue = value;
-		if(this.step > 0){
-			this.value = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
+		if(typeof value == "string"){
+			this.value = this.internalValue = value;
 		}else{
-			this.value = this.internalValue;
+			if(this.min != null) value = Math.max(this.min, value);
+			if(this.max != null) value = Math.min(this.max, value);
+			this.internalValue = value;
+			if(this.step > 0){
+				this.value = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
+			}else{
+				this.value = this.internalValue;
+			}
 		}
 		if(updateTextValue) this.updateTextValue();
 		this.fireOnChangeCbs();
@@ -96,7 +102,11 @@ export default class NumericGui{
 	}
 
 	updateTextValue(){
-		this.el.value = this.suffix+this.value+this.prefix;
+		if(typeof this.value == "string"){
+			this.el.value = this.value;
+		}else{
+			this.el.value = this.suffix+this.value+this.prefix;
+		}
 	}
 
 	addEventListeners(){
@@ -197,6 +207,9 @@ export default class NumericGui{
 		if(value.startsWith(this.suffix) && value.endsWith(this.prefix)){
 			value = value.slice(this.suffix.length);
 			value = value.slice(0, value.length - this.prefix.length);
+		}
+		if(this.allowedStringValues.includes(value)){
+			return value;
 		}
 		value = value.replace(/[^\d\.\-]/g,"");
 		return parseFloat(value);
