@@ -263,6 +263,7 @@ body, html{
 
 .editorContentWindowContent{
 	flex-grow: 1;
+	overflow: auto;
 }
 .editorContentWindowContent.behindTopButtonBar{
 	position: absolute;
@@ -331,6 +332,7 @@ body, html{
 .treeViewRow{
 	border-radius: var(--selection-border-radius);
 	height: 18px;
+	position: relative;
 }
 .treeViewRow.selected{
 	background: var(--color-selected-blue);
