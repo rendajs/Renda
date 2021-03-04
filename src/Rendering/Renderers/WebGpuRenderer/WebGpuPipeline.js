@@ -23,7 +23,7 @@ export default class WebGpuPipeline{
 				depthCompare: "less",
 				format: "depth24plus-stencil8",
 			},
-			vertexState: vertexState.descriptor,
+			vertexState: vertexState.getDescriptor(),
 			sampleCount: 4,
 		});
 	}

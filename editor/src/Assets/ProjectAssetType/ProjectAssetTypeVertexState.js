@@ -17,17 +17,16 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 	}
 
 	static propertiesAssetContentStructure = {
-		indexFormat: {
-			type: ["none", "16-bit", "32-bit"],
-		},
-		vertexBuffers: {
+		buffers: {
 			type: Array,
 			arrayOpts: {
 				type: {
 					arrayStride: {
 						guiOpts: {
-							min: 0,
+							min: -1,
 							step: 1,
+							allowedStringValues: ["auto"],
+							value: "auto",
 						},
 					},
 					stepMode: {
@@ -60,14 +59,10 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 									guiOpts: {
 										min: 0,
 										step: 1,
+										allowedStringValues: ["auto"],
+										value: "auto",
 									},
 								},
-								offset: {
-									guiOpts: {
-										min: 0,
-										step: 1,
-									},
-								}
 							},
 						},
 					},
@@ -79,63 +74,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 	static expectedLiveAssetConstructor = WebGpuVertexState;
 
 	async getLiveAssetData(fileData){
-		const descriptor = {};
-		const attributeTypeMap = [];
-		if(fileData.indexFormat){
-			if(fileData.indexFormat == "16-bit"){
-				descriptor.indexFormat = "uint16";
-			}else if(fileData.indexFormat == "32-bit"){
-				descriptor.indexFormat = "uint32";
-			}
-		}
-		if(fileData.vertexBuffers){
-			descriptor.vertexBuffers = [];
-			for(const bufferFromFile of fileData.vertexBuffers){
-				const buffer = {};
-				descriptor.vertexBuffers.push(buffer);
-
-				const bufferAttributeTypeMap = [];
-				attributeTypeMap.push(bufferAttributeTypeMap);
-
-				buffer.arrayStride = bufferFromFile.arrayStride;
-				if(bufferFromFile.stepMode) buffer.stepMode = bufferFromFile.stepMode;
-				buffer.attributes = [];
-				if(bufferFromFile.attributes){
-					for(const attributeFromFile of bufferFromFile.attributes){
-						const attribute = {};
-						buffer.attributes.push(attribute);
-						const attributeType = Mesh.AttributeTypes[attributeFromFile.attributeType] || attributeFromFile.attributeType;
-						bufferAttributeTypeMap.push(attributeType);
-						attribute.offset = attributeFromFile.offset || 0;
-						attribute.shaderLocation = attributeFromFile.shaderLocation || 0;
-						let format = "";
-						if(attributeFromFile.unsigned) format += "u";
-						switch(attributeFromFile.format){
-							case "int8":
-								format += "char";
-								break;
-							case "int16":
-								format += "short";
-								break;
-							case "int32":
-								format += "int";
-								break;
-							case "float16":
-							default:
-								format += "half";
-								break;
-							case "float32":
-								format += "float";
-								break;
-						}
-						if(attributeFromFile.components) format += attributeFromFile.components;
-						if(attributeFromFile.normalized) format += "norm";
-						attribute.format = format;
-					}
-				}
-			}
-		}
-		const liveAsset = new WebGpuVertexState(descriptor, attributeTypeMap);
+		const liveAsset = new WebGpuVertexState(fileData);
 		return {liveAsset};
 	}
 

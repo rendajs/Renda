@@ -107,25 +107,25 @@ export default class Mesh{
 		return this._vertexState;
 	}
 
-	setVertexState(layout){
-		this._vertexState = layout;
+	setVertexState(vertexState){
+		this._vertexState = vertexState;
 
-		const oldBuffers = this._buffers; //todo, transfer to new layout
+		const oldBuffers = this._buffers; //todo, transfer to new vertexState
 
 		this._buffers = [];
-		for(const [bufferIndex, bufferDescriptor] of layout.descriptor.vertexBuffers.entries()){
+		for(const bufferDescriptor of vertexState.buffers){
 			const attributes = [];
-			for(const [attributeIndex, attribute] of bufferDescriptor.attributes.entries()){
-				const attributeType = layout.attributeTypeMap[bufferIndex][attributeIndex];
+			for(const attribute of bufferDescriptor.attributes.values()){
+				const attributeType = attribute.attributeType;
 				attributes.push({
-					offset: attribute.offset,
+					offset: 0,
 					format: attribute.format,
 					components: 3,
 					attributeType,
 				});
 			}
 			const buffer = new MeshAttributeBuffer({
-				arrayStride: bufferDescriptor.arrayStride,
+				arrayStride: 12,
 				attributes,
 			});
 			if(this.vertexCount) buffer.setVertexCount(this.vertexCount);
