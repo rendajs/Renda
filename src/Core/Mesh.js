@@ -4,6 +4,7 @@ import MeshAttributeBuffer from "./MeshAttributeBuffer.js";
 export default class Mesh{
 	constructor(){
 		this._buffers = [];
+		this._unusedBuffers = new Map();
 		this._vertexState = null;
 		this.indexBuffer = null;
 		this.indexFormat = Mesh.IndexFormat.UINT_16;
@@ -82,17 +83,35 @@ export default class Mesh{
 	}
 
 	setVertexData(attributeType, data, opts){
-		const buffer = this.getBufferForAttributeType(attributeType);
+		const buffer = this.getBufferForAttributeType(attributeType, opts);
 		if(buffer){
 			buffer.setVertexData(attributeType, data);
 		}
 	}
 
-	getBufferForAttributeType(attributeType){
+	getBufferForAttributeType(attributeType, {
+		unusedFormat = "float32",
+		unusedComponentCount = 3,
+	} = {}){
 		for(const buffer of this._buffers){
 			if(buffer.hasAttributeType(attributeType)){
 				return buffer;
 			}
+		}
+		const unusedBuffer = this._unusedBuffers.get(attributeType);
+		if(unusedBuffer){
+			return unusedBuffer;
+		}else{
+			const unusedBuffer = new MeshAttributeBuffer({
+				attributes: [{
+					offset: 0,
+					format: unusedFormat,
+					components: unusedComponentCount,
+					attributeType,
+				}],
+				isUnused: true,
+			});
+			this._unusedBuffers.set(attributeType, unusedBuffer)
 		}
 		return null;
 	}

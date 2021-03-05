@@ -2,17 +2,53 @@ import {Vec3} from "../index.js";
 
 export default class MeshAttributeBuffer{
 	constructor({
-		arrayStride = 4,
+		arrayStride = null,
 		attributes = [{offset: 0, format: "float32", components: 1, attributeType: null}],
+		isUnused = false,
 	} = {}){
-		this.arrayStride = arrayStride;
+		if(isUnused && attributes.length != 1){
+			throw new Error("Unused attribute buffers must have exactly 1 attribute");
+		}
+		this.arrayStride = null;
 		this.attributes = attributes;
+		this.isUnused = isUnused;
+
+		this.setArrayStride(arrayStride);
 
 		this.buffer = null;
 		this._dataView = null;
 	}
 
 	destructor(){
+	}
+
+	setArrayStride(arrayStride){
+		if(arrayStride != null){
+			this.arrayStride = arrayStride;
+		}else{
+			this.arrayStride = 0;
+			for(const attribute of this.attributes){
+				const neededBytes = attribute.components * MeshAttributeBuffer.getByteLengthForFormat(attribute.format);
+				this.arrayStride = Math.max(this.arrayStride, attribute.offset);
+			}
+		}
+	}
+
+	static getByteLengthForFormat(format){
+		switch(format){
+			case "int8":
+				return 1;
+			case "int16":
+			case "float16":
+				return 2;
+			case "int32":
+			case "float32":
+				return 4;
+		}
+	}
+
+	static getBitLengthForFormat(format){
+		return MeshAttributeBuffer.getByteLengthForFormat(format) * 8;
 	}
 
 	getDataView(){

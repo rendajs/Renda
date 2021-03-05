@@ -1,4 +1,4 @@
-import Mesh from "../../../Core/Mesh.js";
+import {MeshAttributeBuffer, Mesh} from "../../../index.js";
 
 export default class WebGpuVertexStateAttribute{
 	constructor({
@@ -33,11 +33,11 @@ export default class WebGpuVertexStateAttribute{
 	}
 
 	get byteSize(){
-		return this.components * WebGpuVertexStateAttribute.getByteLengthForFormat(this.format);
+		return this.components * MeshAttributeBuffer.getByteLengthForFormat(this.format);
 	}
 
 	get minRequiredStrideBytes(){
-		return this.lastRequestedOffset + this.components * WebGpuVertexStateAttribute.getByteLengthForFormat(this.format);
+		return this.lastRequestedOffset + this.components * MeshAttributeBuffer.getByteLengthForFormat(this.format);
 	}
 
 	getDescriptorFormat(){
@@ -46,7 +46,7 @@ export default class WebGpuVertexStateAttribute{
 			str += this.unsigned ? "u" : "s";
 		}
 		if(this.normalized){
-			str += "norm" + WebGpuVertexStateAttribute.getBitLengthForFormat(this.format);
+			str += "norm" + MeshAttributeBuffer.getBitLengthForFormat(this.format);
 		}else{
 			str += this.format;
 		}
@@ -54,22 +54,5 @@ export default class WebGpuVertexStateAttribute{
 			str += "x"+this.components;
 		}
 		return str;
-	}
-
-	static getByteLengthForFormat(format){
-		switch(format){
-			case "int8":
-				return 1;
-			case "int16":
-			case "float16":
-				return 2;
-			case "int32":
-			case "float32":
-				return 4;
-		}
-	}
-
-	static getBitLengthForFormat(format){
-		return WebGpuVertexStateAttribute.getByteLengthForFormat(format) * 8;
 	}
 }
