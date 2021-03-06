@@ -1,3 +1,5 @@
+import BinaryDecomposer from "./BinaryDecomposer.js";
+
 export default class BinaryComposer{
 	constructor({
 		littleEndian = true,
@@ -103,18 +105,6 @@ export default class BinaryComposer{
 			i+=2;
 		}
 		return buffer;
-	}
-
-	static binaryToUuid(buffer, offset = 0){
-		if(!ArrayBuffer.isView(buffer)){
-			buffer = new Uint8Array(buffer);
-		}
-		let str = "";
-		for(let i=0; i<16; i++){
-	        str += buffer[offset+i].toString(16).padStart(2, "0");
-	        if(i == 3 || i == 5 || i == 7 || i == 9) str += "-";
-	    }
-		return str;
 	}
 
 	static objectToBinary(data, {
@@ -678,7 +668,7 @@ export default class BinaryComposer{
 			bytesMoved = 1;
 		}else if(type == BinaryComposer.StructureTypes.UUID){
 			const view = new Uint8Array(dataView.buffer, byteOffset, 16);
-			value = BinaryComposer.binaryToUuid(view);
+			value = BinaryDecomposer.binaryToUuid(view);
 			bytesMoved = 16;
 		}else if(type == BinaryComposer.StructureTypes.ARRAYBUFFER){
 			const {buffer, bytesMoved: newBytesMoved} = BinaryComposer.getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, {littleEndian});

@@ -1,3 +1,5 @@
+export {default as BinaryComposer} from "./BinaryComposer.js";
+export {default as BinaryDecomposer} from "./BinaryDecomposer.js";
 export {default as SingleInstancePromise} from "./SingleInstancePromise.js";
 
 export async function* streamAsyncIterator(stream){

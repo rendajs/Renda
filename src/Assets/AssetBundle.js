@@ -2,7 +2,7 @@ import AssetBundleRange from "./AssetBundleRange.js";
 import SingleInstancePromise from "../Util/SingleInstancePromise.js";
 import PromiseWaitHelper from "../Util/PromiseWaitHelper.js";
 import {streamAsyncIterator} from "../Util/Util.js";
-import BinaryComposer from "../Util/BinaryComposer.js";
+import BinaryDecomposer from "../Util/BinaryDecomposer.js";
 
 export default class AssetBundle{
 	constructor(url){
@@ -59,10 +59,10 @@ export default class AssetBundle{
 				let headerCursor=4;
 				let prevAssetByteEnd = headerLength;
 				while(headerCursor < headerLength){
-					const uuid = BinaryComposer.binaryToUuid(allChunks.buffer, headerCursor);
+					const uuid = BinaryDecomposer.binaryToUuid(allChunks.buffer, headerCursor);
 					headerCursor += 16;
 
-					const typeUuid = BinaryComposer.binaryToUuid(allChunks.buffer, headerCursor);
+					const typeUuid = BinaryDecomposer.binaryToUuid(allChunks.buffer, headerCursor);
 					headerCursor += 16;
 
 					const assetSize = bundleDataView.getUint32(headerCursor, true);
