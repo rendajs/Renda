@@ -1,18 +1,19 @@
-import {MeshAttributeBuffer, Mesh} from "../../../index.js";
+import {Mesh} from "../../../index.js";
 
 export default class WebGpuVertexStateAttribute{
 	constructor({
 		componentCount = 3,
-		format = "float32",
+		format = Mesh.AttributeFormat.FLOAT32,
 		unsigned = false,
-		normalized = false,
 		shaderLocation = null, //null or undefined or "auto" for auto
 		attributeType = null,
 	} = {}){
 		this.componentCount = componentCount;
+		if(typeof format == "string"){
+			format = Mesh.AttributeFormat[format];
+		}
 		this.format = format;
 		this.unsigned = unsigned;
-		this.normalized = normalized;
 		this.shaderLocation = shaderLocation;
 		if(typeof attributeType == "string"){
 			attributeType = Mesh.AttributeTypes[attributeType];
@@ -33,22 +34,45 @@ export default class WebGpuVertexStateAttribute{
 	}
 
 	get byteSize(){
-		return this.componentCount * MeshAttributeBuffer.getByteLengthForFormat(this.format);
+		return this.componentCount * Mesh.getByteLengthForAttributeFormat(this.format);
 	}
 
 	get minRequiredStrideBytes(){
-		return this.lastRequestedOffset + this.componentCount * MeshAttributeBuffer.getByteLengthForFormat(this.format);
+		return this.lastRequestedOffset + this.componentCount * Mesh.getByteLengthForAttributeFormat(this.format);
 	}
 
 	getDescriptorFormat(){
 		let str = "";
-		if(this.format.startsWith("int")){
-			str += this.unsigned ? "u" : "s";
+		switch(this.format){
+			case Mesh.AttributeFormat.INT8:
+			case Mesh.AttributeFormat.INT16:
+			case Mesh.AttributeFormat.INT32:
+			case Mesh.AttributeFormat.NORM8:
+			case Mesh.AttributeFormat.NORM16:
+				str += this.unsigned ? "u" : "s";
 		}
-		if(this.normalized){
-			str += "norm" + MeshAttributeBuffer.getBitLengthForFormat(this.format);
-		}else{
-			str += this.format;
+		switch(this.format){
+			case Mesh.AttributeFormat.INT8:
+				str += "int8";
+				break;
+			case Mesh.AttributeFormat.INT16:
+				str += "int16";
+				break;
+			case Mesh.AttributeFormat.INT32:
+				str += "int32";
+				break;
+			case Mesh.AttributeFormat.FLOAT16:
+				str += "float16";
+				break;
+			case Mesh.AttributeFormat.FLOAT32:
+				str += "float32";
+				break;
+			case Mesh.AttributeFormat.NORM8:
+				str += "norm8";
+				break;
+			case Mesh.AttributeFormat.NORM16:
+				str += "norm8";
+				break;
 		}
 		if(this.componentCount > 1){
 			str += "x"+this.componentCount;

@@ -40,7 +40,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 									type: Array.from(Object.keys(Mesh.AttributeTypes)),
 								},
 								format: {
-									type: ["int8", "int16", "int32", "float16", "float32"],
+									type: Array.from(Object.keys(Mesh.AttributeFormat)),
 								},
 								componentCount: {
 									guiOpts: {
@@ -50,9 +50,6 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 									},
 								},
 								unsigned: {
-									type: Boolean,
-								},
-								normalized: {
 									type: Boolean,
 								},
 								shaderLocation: {

@@ -33,6 +33,35 @@ export default class Mesh{
 		}
 	};
 
+	static get AttributeFormat(){
+		return {
+			INT8: 1,
+			INT16: 2,
+			INT32: 3,
+			FLOAT16: 4,
+			FLOAT32: 5,
+			NORM8: 6,
+			NORM16: 7,
+		}
+	}
+
+	static getByteLengthForAttributeFormat(format){
+		switch(format){
+			case Mesh.AttributeFormat.INT8:
+				return 1;
+			case Mesh.AttributeFormat.INT16:
+			case Mesh.AttributeFormat.FLOAT16:
+				return 2;
+			case Mesh.AttributeFormat.INT32:
+			case Mesh.AttributeFormat.FLOAT32:
+				return 4;
+		}
+	}
+
+	static getBitLengthForAttributeFormat(format){
+		return Mesh.getByteLengthForAttributeFormat(format) * 8;
+	}
+
 	static getAttributeNameForType(typeId){
 		for(const [name, type] of Object.entries(Mesh.AttributeTypes)){
 			if(type == typeId) return name;
@@ -90,7 +119,7 @@ export default class Mesh{
 	}
 
 	getBufferForAttributeType(attributeType, {
-		unusedFormat = "float32",
+		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
 	} = {}){
 		for(const buffer of this.getBuffers()){

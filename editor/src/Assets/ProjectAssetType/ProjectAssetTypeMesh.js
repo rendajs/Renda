@@ -49,7 +49,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3(-1, 1, 1),
 			new Vec3( 1,-1, 1),
 			new Vec3( 1, 1, 1),
-		]);
+		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
 		mesh.setVertexData(Mesh.AttributeTypes.NORMAL, [
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),
@@ -80,7 +80,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
-		]);
+		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
 		return {liveAsset: mesh};
 	}
 
@@ -135,7 +135,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3(-1, 1, 1),
 			new Vec3( 1,-1, 1),
 			new Vec3( 1, 1, 1),
-		], {unusedFormat: "float32", unusedComponentCount: 3});
+		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
 		mesh.setVertexData(Mesh.AttributeTypes.NORMAL, [
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),
@@ -166,7 +166,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
-		], {unusedFormat: "float32", unusedComponentCount: 3});
+		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
 		return {liveAsset: mesh};
 	}
 
