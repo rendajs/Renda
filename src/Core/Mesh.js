@@ -18,7 +18,7 @@ export default class Mesh{
 		}
 	}
 
-	static get AttributeTypes(){
+	static get AttributeType(){
 		return {
 			POSITION: 1,
 			NORMAL: 2,
@@ -63,7 +63,7 @@ export default class Mesh{
 	}
 
 	static getAttributeNameForType(typeId){
-		for(const [name, type] of Object.entries(Mesh.AttributeTypes)){
+		for(const [name, type] of Object.entries(Mesh.AttributeType)){
 			if(type == typeId) return name;
 		}
 		return typeId;

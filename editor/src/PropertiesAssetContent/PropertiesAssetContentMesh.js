@@ -18,7 +18,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 			attributes: {
 				type: Array,
 				arrayOpts: {
-					type: Array.from(Object.keys(Mesh.AttributeTypes)),
+					type: Array.from(Object.keys(Mesh.AttributeType)),
 				},
 			}
 		};

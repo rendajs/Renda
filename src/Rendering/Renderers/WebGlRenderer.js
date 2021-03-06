@@ -69,14 +69,14 @@ export default class WebGlRenderer extends Renderer{
 			//todo: make attribute management more scalable
 
 			const positionAttrib = shader.getAttribLocation("aVertexPosition");
-			const positionBuffer = mesh.getBuffer(Mesh.AttributeTypes.POSITION);
+			const positionBuffer = mesh.getBuffer(Mesh.AttributeType.POSITION);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer.glBuffer);
 			this.gl.vertexAttribPointer(positionAttrib, positionBuffer.componentCount, this.attribTypeToWebGlConst(positionBuffer.componentType), false, 0, 0);
 			this.gl.enableVertexAttribArray(positionAttrib);
 
 			const normalAttrib = shader.getAttribLocation("aVertexNormal");
 			if(normalAttrib >= 0){
-				const normalBuffer = mesh.getBuffer(Mesh.AttributeTypes.NORMAL);
+				const normalBuffer = mesh.getBuffer(Mesh.AttributeType.NORMAL);
 				if(normalBuffer){
 					this.gl.bindBuffer(this.gl.ARRAY_BUFFER, normalBuffer.glBuffer);
 					this.gl.vertexAttribPointer(normalAttrib, normalBuffer.componentCount, this.attribTypeToWebGlConst(positionBuffer.componentType), false, 0, 0);
@@ -88,7 +88,7 @@ export default class WebGlRenderer extends Renderer{
 
 			let mvpMatrix = Mat4.multiplyMatrices(component.entity.worldMatrix, vpMatrix);
 			shader.uniformMatrix4fv("uMvpMatrix", mvpMatrix);
-			const indexBuffer = mesh.getBuffer(Mesh.AttributeTypes.INDEX);
+			const indexBuffer = mesh.getBuffer(Mesh.AttributeType.INDEX);
 			this.gl.drawElements(this.gl.TRIANGLES, 36, this.attribTypeToWebGlConst(indexBuffer.componentType), indexBuffer.glBuffer)
 		}
 	}

@@ -19,7 +19,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	async createNewLiveAssetData(){
 		const mesh = new Mesh();
 		mesh.setIndexData([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
-		mesh.setVertexData(Mesh.AttributeTypes.POSITION, [
+		mesh.setVertexData(Mesh.AttributeType.POSITION, [
 			new Vec3(-1,-1,-1),
 			new Vec3(-1,-1, 1),
 			new Vec3(-1, 1,-1),
@@ -50,7 +50,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 1,-1, 1),
 			new Vec3( 1, 1, 1),
 		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-		mesh.setVertexData(Mesh.AttributeTypes.NORMAL, [
+		mesh.setVertexData(Mesh.AttributeType.NORMAL, [
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),
@@ -105,7 +105,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 
 		mesh.setVertexCount(24);
 		mesh.setIndexData([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
-		mesh.setVertexData(Mesh.AttributeTypes.POSITION, [
+		mesh.setVertexData(Mesh.AttributeType.POSITION, [
 			new Vec3(-1,-1,-1),
 			new Vec3(-1,-1, 1),
 			new Vec3(-1, 1,-1),
@@ -136,7 +136,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 1,-1, 1),
 			new Vec3( 1, 1, 1),
 		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-		mesh.setVertexData(Mesh.AttributeTypes.NORMAL, [
+		mesh.setVertexData(Mesh.AttributeType.NORMAL, [
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),
 			new Vec3(-1, 0, 0),

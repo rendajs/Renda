@@ -37,7 +37,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 						arrayOpts: {
 							type: {
 								attributeType: {
-									type: Array.from(Object.keys(Mesh.AttributeTypes)),
+									type: Array.from(Object.keys(Mesh.AttributeType)),
 								},
 								format: {
 									type: Array.from(Object.keys(Mesh.AttributeFormat)),

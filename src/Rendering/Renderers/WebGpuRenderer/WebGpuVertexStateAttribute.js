@@ -16,7 +16,7 @@ export default class WebGpuVertexStateAttribute{
 		this.unsigned = unsigned;
 		this.shaderLocation = shaderLocation;
 		if(typeof attributeType == "string"){
-			attributeType = Mesh.AttributeTypes[attributeType];
+			attributeType = Mesh.AttributeType[attributeType];
 		}
 		this.attributeType = attributeType;
 
