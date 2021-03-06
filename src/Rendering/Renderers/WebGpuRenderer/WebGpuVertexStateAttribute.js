@@ -2,14 +2,14 @@ import {MeshAttributeBuffer, Mesh} from "../../../index.js";
 
 export default class WebGpuVertexStateAttribute{
 	constructor({
-		components = 3,
+		componentCount = 3,
 		format = "float32",
 		unsigned = false,
 		normalized = false,
 		shaderLocation = null, //null or undefined or "auto" for auto
 		attributeType = null,
 	} = {}){
-		this.components = components;
+		this.componentCount = componentCount;
 		this.format = format;
 		this.unsigned = unsigned;
 		this.normalized = normalized;
@@ -33,11 +33,11 @@ export default class WebGpuVertexStateAttribute{
 	}
 
 	get byteSize(){
-		return this.components * MeshAttributeBuffer.getByteLengthForFormat(this.format);
+		return this.componentCount * MeshAttributeBuffer.getByteLengthForFormat(this.format);
 	}
 
 	get minRequiredStrideBytes(){
-		return this.lastRequestedOffset + this.components * MeshAttributeBuffer.getByteLengthForFormat(this.format);
+		return this.lastRequestedOffset + this.componentCount * MeshAttributeBuffer.getByteLengthForFormat(this.format);
 	}
 
 	getDescriptorFormat(){
@@ -50,8 +50,8 @@ export default class WebGpuVertexStateAttribute{
 		}else{
 			str += this.format;
 		}
-		if(this.components > 1){
-			str += "x"+this.components;
+		if(this.componentCount > 1){
+			str += "x"+this.componentCount;
 		}
 		return str;
 	}

@@ -42,7 +42,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 								format: {
 									type: ["int8", "int16", "int32", "float16", "float32"],
 								},
-								components: {
+								componentCount: {
 									guiOpts: {
 										min: 1,
 										step: 1,

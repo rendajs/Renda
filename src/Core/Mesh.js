@@ -103,7 +103,7 @@ export default class Mesh{
 			attributes: [{
 				offset: 0,
 				format: unusedFormat,
-				components: unusedComponentCount,
+				componentCount: unusedComponentCount,
 				attributeType,
 			}],
 			isUnused: true,
@@ -140,7 +140,7 @@ export default class Mesh{
 				attributes.push({
 					offset: 0,
 					format: attribute.format,
-					components: 3,
+					componentCount: 3,
 					attributeType,
 				});
 			}
@@ -161,7 +161,7 @@ export default class Mesh{
 				const arr = Array.from(buffer.getVertexData(attribute.attributeType));
 				this.setVertexData(attribute.attributeType, arr, {
 					unusedFormat: attribute.format,
-					unusedComponentCount: attribute.components,
+					unusedComponentCount: attribute.componentCount,
 				});
 			}
 		}

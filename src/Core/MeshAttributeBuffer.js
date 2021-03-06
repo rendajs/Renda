@@ -3,7 +3,7 @@ import {Vec3} from "../index.js";
 export default class MeshAttributeBuffer{
 	constructor({
 		arrayStride = null,
-		attributes = [{offset: 0, format: "float32", components: 1, attributeType: null}],
+		attributes = [{offset: 0, format: "float32", componentCount: 1, attributeType: null}],
 		isUnused = false,
 	} = {}){
 		if(isUnused && attributes.length != 1){
@@ -28,7 +28,7 @@ export default class MeshAttributeBuffer{
 		}else{
 			this.arrayStride = 0;
 			for(const attribute of this.attributes){
-				const neededBytes = attribute.components * MeshAttributeBuffer.getByteLengthForFormat(attribute.format);
+				const neededBytes = attribute.componentCount * MeshAttributeBuffer.getByteLengthForFormat(attribute.format);
 				this.arrayStride = Math.max(this.arrayStride, attribute.offset + neededBytes);
 			}
 		}
@@ -99,13 +99,13 @@ export default class MeshAttributeBuffer{
 			}else if(typeof data[0] == "number"){
 				let i=0;
 				while(i<data.length){
-					for(let j=0; j<attributeSettings.components; j++){
+					for(let j=0; j<attributeSettings.componentCount; j++){
 						setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * j, data[i], true);
 					}
 					i++;
 				}
 			}else if(data[0] instanceof Vec3){
-				if(attributeSettings.components != 3){
+				if(attributeSettings.componentCount != 3){
 					throw new TypeError("Vec3 array expected");
 				}
 				for(const [i, pos] of data.entries()){
@@ -130,7 +130,7 @@ export default class MeshAttributeBuffer{
 		let getFunction = dataView.getFloat32.bind(dataView);
 		let valueByteSize = 4;
 		//todo, add cases for different component counts
-		if(attributeSettings.components == 3){
+		if(attributeSettings.componentCount == 3){
 			let i=0;
 			while(i <= this.buffer.byteLength - this.arrayStride){
 				const x = getFunction(i + attributeSettings.offset + valueByteSize * 0, true);
