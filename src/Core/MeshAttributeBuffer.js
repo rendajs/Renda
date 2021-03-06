@@ -29,7 +29,7 @@ export default class MeshAttributeBuffer{
 			this.arrayStride = 0;
 			for(const attribute of this.attributes){
 				const neededBytes = attribute.components * MeshAttributeBuffer.getByteLengthForFormat(attribute.format);
-				this.arrayStride = Math.max(this.arrayStride, attribute.offset);
+				this.arrayStride = Math.max(this.arrayStride, attribute.offset + neededBytes);
 			}
 		}
 	}
@@ -117,6 +117,28 @@ export default class MeshAttributeBuffer{
 			//todo: support more vector types
 		}else{
 			throw new TypeError("invalid data type");
+		}
+	}
+
+	*getVertexData(attributeType){
+		const attributeSettings = this.getAttributeSettings(attributeType);
+		if(!attributeSettings) return;
+
+		const dataView = this.getDataView();
+
+		//todo: pick function based on attributeSettings.format
+		let getFunction = dataView.getFloat32.bind(dataView);
+		let valueByteSize = 4;
+		//todo, add cases for different component counts
+		if(attributeSettings.components == 3){
+			let i=0;
+			while(i <= this.buffer.byteLength - this.arrayStride){
+				const x = getFunction(i + attributeSettings.offset + valueByteSize * 0, true);
+				const y = getFunction(i + attributeSettings.offset + valueByteSize * 1, true);
+				const z = getFunction(i + attributeSettings.offset + valueByteSize * 2, true);
+				yield new Vec3(x,y,z);
+				i += this.arrayStride;
+			}
 		}
 	}
 }

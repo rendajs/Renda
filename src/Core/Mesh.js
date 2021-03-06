@@ -13,7 +13,7 @@ export default class Mesh{
 	}
 
 	destructor(){
-		for(const buffer of this._buffers.values()){
+		for(const buffer of this.getBuffers()){
 			buffer.destructor();
 		}
 	}
@@ -77,7 +77,7 @@ export default class Mesh{
 
 	setVertexCount(vertexCount){
 		this.vertexCount = vertexCount;
-		for(const buffer of this._buffers){
+		for(const buffer of this.getBuffers()){
 			buffer.setVertexCount(vertexCount);
 		}
 	}
@@ -93,31 +93,31 @@ export default class Mesh{
 		unusedFormat = "float32",
 		unusedComponentCount = 3,
 	} = {}){
-		for(const buffer of this._buffers){
+		for(const buffer of this.getBuffers()){
 			if(buffer.hasAttributeType(attributeType)){
 				return buffer;
 			}
 		}
-		const unusedBuffer = this._unusedBuffers.get(attributeType);
-		if(unusedBuffer){
-			return unusedBuffer;
-		}else{
-			const unusedBuffer = new MeshAttributeBuffer({
-				attributes: [{
-					offset: 0,
-					format: unusedFormat,
-					components: unusedComponentCount,
-					attributeType,
-				}],
-				isUnused: true,
-			});
-			this._unusedBuffers.set(attributeType, unusedBuffer)
-		}
-		return null;
+
+		const unusedBuffer = new MeshAttributeBuffer({
+			attributes: [{
+				offset: 0,
+				format: unusedFormat,
+				components: unusedComponentCount,
+				attributeType,
+			}],
+			isUnused: true,
+		});
+		unusedBuffer.setVertexCount(this.vertexCount);
+		this._unusedBuffers.set(attributeType, unusedBuffer)
+		return unusedBuffer;
 	}
 
 	*getBuffers(){
 		for(const buffer of this._buffers){
+			yield buffer;
+		}
+		for(const buffer of this._unusedBuffers.values()){
 			yield buffer;
 		}
 	}
@@ -129,9 +129,10 @@ export default class Mesh{
 	setVertexState(vertexState){
 		this._vertexState = vertexState;
 
-		const oldBuffers = this._buffers; //todo, transfer to new vertexState
-
+		const oldBuffers = Array.from(this.getBuffers());
 		this._buffers = [];
+		this._unusedBuffers.clear();
+
 		for(const bufferDescriptor of vertexState.buffers){
 			const attributes = [];
 			for(const attribute of bufferDescriptor.attributes.values()){
@@ -149,6 +150,20 @@ export default class Mesh{
 			});
 			if(this.vertexCount) buffer.setVertexCount(this.vertexCount);
 			this._buffers.push(buffer);
+		}
+
+		//todo: there's probably still some performance that can be gained here
+		//currently it's decomposing all the buffers into vectors and turning
+		//them back into buffers, if the buffer doesn't need to be changed it
+		//can simply copy or move all the bytes at once
+		for(const buffer of oldBuffers){
+			for(const attribute of buffer.attributes){
+				const arr = Array.from(buffer.getVertexData(attribute.attributeType));
+				this.setVertexData(attribute.attributeType, arr, {
+					unusedFormat: attribute.format,
+					unusedComponentCount: attribute.components,
+				});
+			}
 		}
 	}
 }
