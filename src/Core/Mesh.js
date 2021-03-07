@@ -20,14 +20,15 @@ export default class Mesh{
 
 	static get AttributeType(){
 		return {
-			POSITION: 1,
-			NORMAL: 2,
-			COLOR: 3,
+			POSITION: 0,
+			NORMAL: 1,
+			COLOR: 2,
 		}
 	}
 
 	static get IndexFormat(){
 		return {
+			NONE: 0,
 			UINT_16: 1,
 			UINT_32: 2,
 		}
@@ -35,13 +36,13 @@ export default class Mesh{
 
 	static get AttributeFormat(){
 		return {
-			INT8: 1,
-			INT16: 2,
-			INT32: 3,
-			FLOAT16: 4,
-			FLOAT32: 5,
-			NORM8: 6,
-			NORM16: 7,
+			INT8: 0,
+			INT16: 1,
+			INT32: 2,
+			FLOAT16: 3,
+			FLOAT32: 4,
+			NORM8: 5,
+			NORM16: 6,
 		}
 	}
 
@@ -118,6 +119,26 @@ export default class Mesh{
 		}
 	}
 
+	setBufferData(attributeBufferOpts){
+		const attributeBuffer = new MeshAttributeBuffer(attributeBufferOpts);
+		this.setAttributeBufferData(attributeBuffer);
+	}
+
+	setAttributeBufferData(attributeBuffer){
+		//todo: there's probably still some performance that can be gained here
+		//currently it's decomposing the buffer into vectors and turning
+		//it back into a buffer, if the buffer doesn't need to be changed it
+		//can simply copy or move all the bytes at once
+
+		for(const attribute of attributeBuffer.attributes){
+			const arr = Array.from(attributeBuffer.getVertexData(attribute.attributeType));
+			this.setVertexData(attribute.attributeType, arr, {
+				unusedFormat: attribute.format,
+				unusedComponentCount: attribute.componentCount,
+			});
+		}
+	}
+
 	getBufferForAttributeType(attributeType, {
 		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
@@ -181,18 +202,8 @@ export default class Mesh{
 			this._buffers.push(buffer);
 		}
 
-		//todo: there's probably still some performance that can be gained here
-		//currently it's decomposing all the buffers into vectors and turning
-		//them back into buffers, if the buffer doesn't need to be changed it
-		//can simply copy or move all the bytes at once
 		for(const buffer of oldBuffers){
-			for(const attribute of buffer.attributes){
-				const arr = Array.from(buffer.getVertexData(attribute.attributeType));
-				this.setVertexData(attribute.attributeType, arr, {
-					unusedFormat: attribute.format,
-					unusedComponentCount: attribute.componentCount,
-				});
-			}
+			this.setAttributeBufferData(buffer);
 		}
 	}
 }

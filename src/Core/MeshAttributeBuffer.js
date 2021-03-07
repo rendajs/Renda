@@ -5,6 +5,7 @@ export default class MeshAttributeBuffer{
 		arrayStride = null,
 		attributes = [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: null}],
 		isUnused = false,
+		arrayBuffer = null,
 	} = {}){
 		if(isUnused && attributes.length != 1){
 			throw new Error("Unused attribute buffers must have exactly 1 attribute");
@@ -15,7 +16,7 @@ export default class MeshAttributeBuffer{
 
 		this.setArrayStride(arrayStride);
 
-		this.buffer = null;
+		this.buffer = arrayBuffer;
 		this._dataView = null;
 	}
 

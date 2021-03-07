@@ -44,10 +44,14 @@ export default class BinaryDecomposer{
 		return val;
 	}
 
+	getBuffer(byteLength){
+		const buffer = this.dataView.buffer.slice(this.cursor, this.cursor+byteLength);
+		this.cursor += byteLength;
+		return buffer;
+	}
+
 	getUuid(){
-		const buffer = this.dataView.buffer.slice(this.cursor, this.cursor+16);
-		this.cursor += 16;
-		return BinaryDecomposer.binaryToUuid(buffer);
+		return BinaryDecomposer.binaryToUuid(this.getBuffer(16));
 	}
 
 	static binaryToUuid(buffer, offset = 0){
