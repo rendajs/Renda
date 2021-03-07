@@ -36,15 +36,20 @@ export default class Editor{
 			this.devSocket = new DevSocketManager();
 		}
 
-
 		for(const [type, component] of defaultComponents){
 			defaultComponentTypeManager.registerComponentType(type, component);
 		}
+
+		this.lastUsedSelectionManager = null;
 	}
 
 	//convenience function for getting selected object in the browser console
 	get selected(){
-		const selected = this.windowManager.lastFocusedContentWindow?.selectionManager?.currentSelectedObjects ?? [];
+		let selectionManager = this.windowManager.lastFocusedContentWindow?.selectionManager;
+		if(selectionManager){
+			this.lastUsedSelectionManager = selectionManager;
+		}
+		const selected = this.lastUsedSelectionManager?.currentSelectedObjects ?? [];
 		if(selected.length == 0) return null;
 		if(selected.length == 1) return selected[0];
 		return [...selected];
