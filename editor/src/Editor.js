@@ -46,10 +46,12 @@ export default class Editor{
 	//convenience function for getting selected object in the browser console
 	get selected(){
 		let selectionManager = this.windowManager.lastFocusedContentWindow?.selectionManager;
-		if(selectionManager){
+		if(selectionManager && selectionManager != this.lastUsedSelectionManager){
 			this.lastUsedSelectionManager = selectionManager;
+		}else{
+			selectionManager = this.lastUsedSelectionManager;
 		}
-		const selected = this.lastUsedSelectionManager?.currentSelectedObjects ?? [];
+		const selected = selectionManager?.currentSelectedObjects ?? [];
 		if(selected.length == 0) return null;
 		if(selected.length == 1) return selected[0];
 		return [...selected];
