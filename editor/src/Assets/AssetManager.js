@@ -102,7 +102,7 @@ export default class AssetManager{
 			const guessedType = await ProjectAsset.guessAssetTypeFromFile(e.path);
 			if(guessedType != projectAsset.assetType){
 				//todo
-				console.warn("nyi, changing assetType");
+				console.warn("not yet implemented: changing assetType");
 			}else{
 				await projectAsset.fileChangedExternally();
 			}
