@@ -1,6 +1,6 @@
 export default class Vec3{
 	constructor(x=0, y=0, z=0){
-		this.onChangeCbs = [];
+		this.onChangeCbs = new Set();
 		this.set(x,y,z)
 	}
 
@@ -65,7 +65,7 @@ export default class Vec3{
 			x = vector.x;
 			y = vector.y;
 			z = vector.z;
-		}else if(x instanceof Object){
+		}else if(Array.isArray(x)){
 			let vector = x;
 			x = vector[0];
 			y = vector[1];
@@ -156,14 +156,11 @@ export default class Vec3{
 	}
 
 	onChange(cb){
-		this.onChangeCbs.push(cb);
+		this.onChangeCbs.add(cb);
 	}
 
 	removeOnChange(cb){
-		let index = this.onChangeCbs.indexOf(cb);
-		if(index >= 0){
-			this.onChangeCbs.splice(index, 1);
-		}
+		this.onChangeCbs.delete(cb);
 	}
 
 	fireOnChange(){
