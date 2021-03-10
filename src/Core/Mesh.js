@@ -196,14 +196,14 @@ export default class Mesh{
 			for(const attribute of bufferDescriptor.attributes.values()){
 				const attributeType = attribute.attributeType;
 				attributes.push({
-					offset: 0,
+					offset: attribute.offset,
 					format: attribute.format,
 					componentCount: 3,
 					attributeType,
 				});
 			}
 			const buffer = new MeshAttributeBuffer({
-				arrayStride: 12,
+				arrayStride: bufferDescriptor.arrayStride,
 				attributes,
 			});
 			if(this.vertexCount) buffer.setVertexCount(this.vertexCount);

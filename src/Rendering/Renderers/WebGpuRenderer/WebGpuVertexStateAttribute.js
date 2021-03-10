@@ -20,12 +20,12 @@ export default class WebGpuVertexStateAttribute{
 		}
 		this.attributeType = attributeType;
 
-		this.lastRequestedOffset = 0;
+		this.offset = 0;
 	}
 
 	getDescriptor(vertexState, vertexBuffer){
 		const format = this.getDescriptorFormat();
-		const offset = this.lastRequestedOffset = vertexBuffer.requestAttributeOffset(this.byteSize);
+		const offset = this.offset = vertexBuffer.requestAttributeOffset(this.byteSize);
 		let shaderLocation = this.shaderLocation;
 		if(shaderLocation == null || shaderLocation == "auto"){
 			shaderLocation = vertexState.requestShaderLocationIndex();
@@ -33,12 +33,12 @@ export default class WebGpuVertexStateAttribute{
 		return {format, offset, shaderLocation};
 	}
 
-	get byteSize(){
-		return this.componentCount * Mesh.getByteLengthForAttributeFormat(this.format);
+	setOffset(offset){
+		this.offset = offset;
 	}
 
-	get minRequiredStrideBytes(){
-		return this.lastRequestedOffset + this.componentCount * Mesh.getByteLengthForAttributeFormat(this.format);
+	get byteSize(){
+		return this.componentCount * Mesh.getByteLengthForAttributeFormat(this.format);
 	}
 
 	getDescriptorFormat(){
