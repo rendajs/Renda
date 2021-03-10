@@ -198,7 +198,7 @@ export default class Mesh{
 				attributes.push({
 					offset: attribute.offset,
 					format: attribute.format,
-					componentCount: 3,
+					componentCount: attribute.componentCount,
 					attributeType,
 				});
 			}

@@ -1,4 +1,4 @@
-import {Vec3, Mesh} from "../index.js";
+import {Vec2, Vec3, Mesh} from "../index.js";
 
 export default class MeshAttributeBuffer{
 	constructor({
@@ -87,6 +87,14 @@ export default class MeshAttributeBuffer{
 						setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * j, data[i], true);
 					}
 					i++;
+				}
+			}else if(data[0] instanceof Vec2){
+				if(attributeSettings.componentCount != 2){
+					throw new TypeError("Vec2 array expected");
+				}
+				for(const [i, pos] of data.entries()){
+					setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
+					setFunction(i*this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 				}
 			}else if(data[0] instanceof Vec3){
 				if(attributeSettings.componentCount != 3){
