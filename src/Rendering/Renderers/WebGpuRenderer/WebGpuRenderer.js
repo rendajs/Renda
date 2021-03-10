@@ -1,13 +1,15 @@
-import {Renderer, Mat4, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
+import {Mat4, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
+import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuPipeline from "./WebGpuPipeline.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
 
+export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
+
 export default class WebGpuRenderer extends Renderer{
 
-	static materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static domTargetConstructor = WebGpuRendererDomTarget;
 
 	constructor(){
@@ -132,7 +134,7 @@ export default class WebGpuRenderer extends Renderer{
 				if(!material || material.destructed) continue;
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
-					const mapData = material.customMapDatas.get(WebGpuRenderer.materialMapWebGpuTypeUuid);
+					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
 					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
