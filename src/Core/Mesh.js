@@ -8,6 +8,7 @@ export default class Mesh{
 		this._vertexState = null;
 		this.indexBuffer = null;
 		this.indexFormat = Mesh.IndexFormat.UINT_16;
+		this.indexLength = 0;
 
 		this.vertexCount = 0;
 	}
@@ -73,12 +74,19 @@ export default class Mesh{
 	setIndexData(data){
 		if(data instanceof ArrayBuffer){
 			//data already has the correct format
+			if(this.indexFormat == Mesh.IndexFormat.UINT_16){
+				this.indexLength = data.byteLength / 2;
+			}else if(this.indexFormat == Mesh.IndexFormat.UINT_32){
+				this.indexLength = data.byteLength / 4;
+			}
 		}else if(ArrayBuffer.isView(data)){
 			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+			this.indexLength = data.length;
 			if(data instanceof Uint32Array){
 				this.indexFormat = Mesh.IndexFormat.UINT_32;
 			}
 		}else if(Array.isArray(data)){
+			this.indexLength = data.length;
 			let bufferLength = 0;
 			if(this.indexFormat == Mesh.IndexFormat.UINT_16){
 				bufferLength = data.length * 2;

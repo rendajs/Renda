@@ -151,7 +151,7 @@ export default class WebGpuRenderer extends Renderer{
 						indexFormat = "uint32";
 					}
 					renderPassEncoder.setIndexBuffer(meshData.indexBuffer, indexFormat);
-					renderPassEncoder.drawIndexed(36, 1, 0, 0, 0);
+					renderPassEncoder.drawIndexed(mesh.indexLength, 1, 0, 0, 0);
 				}else{
 					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
 				}
