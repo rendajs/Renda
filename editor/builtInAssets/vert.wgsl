@@ -2,7 +2,7 @@
 	[[offset(0)]] mvp : mat4x4<f32>;
 };
 
-[[binding(0), set(0)]] var<uniform> uniforms : Uniforms;
+[[binding(0), group(0)]] var<uniform> uniforms : Uniforms;
 
 [[location(0)]] var<in> position : vec4<f32>;
 
