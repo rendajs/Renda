@@ -14,7 +14,7 @@ export default class WebGpuPipeline{
 				}),
 				entryPoint: "main",
 			},
-			primitiveTopology: "triangle-list",
+			primitiveTopology: configuration.primitiveTopology,
 			colorStates: [{
 				format: "bgra8unorm",
 			}],
