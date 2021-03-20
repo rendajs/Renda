@@ -20,8 +20,8 @@ export default class WebGpuVertexState{
 
 	getDescriptor(){
 		this.requestingShaderLocationIndex = 0;
-		const vertexBuffers = this.buffers.map(b => b.getDescriptor(this));
-		const descriptor = {vertexBuffers}; //todo: rename `vertexBuffers` to `buffers` when chrome renames the api
+		const buffers = this.buffers.map(b => b.getDescriptor(this));
+		const descriptor = {buffers};
 		return descriptor;
 	}
 
