@@ -2,6 +2,7 @@ import {Mat4, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "..
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuPipeline from "./WebGpuPipeline.js";
+import WebGpuUniformBuffer from "./WebGpuUniformBuffer.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
@@ -34,41 +35,57 @@ export default class WebGpuRenderer extends Renderer{
 		this.adapter = await navigator.gpu.requestAdapter();
 		const device = this.device = await this.adapter.requestDevice();
 
-		const uniformBindGroupLayout = device.createBindGroupLayout({
-			entries: [
-				{
-					binding: 0,
-					visibility: GPUShaderStage.VERTEX,
-					buffer: {
-						type: "uniform",
-						hasDynamicOffset: true,
+		this.viewUniformsBuffer = new WebGpuUniformBuffer({
+			device,
+			bindGroupLayout: device.createBindGroupLayout({
+				entries: [
+					{
+						binding: 0,
+						visibility: GPUShaderStage.VERTEX,
+						buffer: {},
 					},
-				},
-			],
+				],
+			}),
+			uniformOffsets: {
+				projectionMatrix: 0,
+			},
+		});
+
+		this.materialUniformsBuffer = new WebGpuUniformBuffer({
+			device,
+			bindGroupLayout: device.createBindGroupLayout({
+				entries: [
+					{
+						binding: 0,
+						visibility: GPUShaderStage.VERTEX,
+						buffer: {},
+					},
+				],
+			}),
+		});
+
+		this.objectUniformsBuffer = new WebGpuUniformBuffer({
+			device,
+			bindGroupLayout: device.createBindGroupLayout({
+				entries: [
+					{
+						binding: 0,
+						visibility: GPUShaderStage.VERTEX,
+						buffer: {
+							type: "uniform",
+							hasDynamicOffset: true,
+						},
+					}
+				],
+			}),
+			totalBufferLength: 65536,
 		});
 
 		this.pipelineLayout = device.createPipelineLayout({
 			bindGroupLayouts: [
-				uniformBindGroupLayout,
-			],
-		});
-
-		this.meshRendererUniformsBufferLength = 65536;
-		this.meshRendererUniformsBuffer = device.createBuffer({
-			size: this.meshRendererUniformsBufferLength,
-			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-		});
-
-		this.uniformBindGroup = device.createBindGroup({
-			layout: uniformBindGroupLayout,
-			entries: [
-				{
-					binding: 0,
-					resource: {
-						buffer: this.meshRendererUniformsBuffer,
-						size: 256,
-					}
-				}
+				this.viewUniformsBuffer.bindGroupLayout,
+				this.materialUniformsBuffer.bindGroupLayout,
+				this.objectUniformsBuffer.bindGroupLayout,
 			],
 		});
 
@@ -102,7 +119,8 @@ export default class WebGpuRenderer extends Renderer{
 		if(camera.autoUpdateProjectionMatrix){
 			camera.projectionMatrix = Mat4.createDynamicAspectProjection(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
-		const vpMatrix = Mat4.multiplyMatrices(camera.entity.worldMatrix.inverse(), camera.projectionMatrix);
+		const inverseCamMat = camera.entity.worldMatrix.inverse();
+		const vpMatrix = Mat4.multiplyMatrices(inverseCamMat, camera.projectionMatrix);
 
 		const collectedDrawObjects = new Map(); //Map<MaterialMap, Map<Material, Set<RenderableComponent>>>
 
@@ -123,13 +141,23 @@ export default class WebGpuRenderer extends Renderer{
 
 		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
 
-		const uniformsLength = 256;
-		const uniformBufferData = new ArrayBuffer(uniformsLength * meshComponents.length);
-		const uniformBufferFloatView = new Float32Array(uniformBufferData);
-		for(const [i, meshComponent] of meshComponents.entries()){
-			let mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
-			uniformBufferFloatView.set(mvpMatrix.getFlatArray(), i*uniformsLength/4);
+		//todo, only update when something changed
+		this.viewUniformsBuffer.dataView.setFloat32(0, Math.random(), true);
+		this.viewUniformsBuffer.writeToGpu();
+		renderPassEncoder.setBindGroup(0, this.viewUniformsBuffer.bindGroup);
 
+		//todo
+		renderPassEncoder.setBindGroup(1, this.materialUniformsBuffer.bindGroup);
+
+		this.objectUniformsBuffer.resetDynamicOffset();
+
+		for(const [i, meshComponent] of meshComponents.entries()){
+			const mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
+			this.objectUniformsBuffer.appendData(mvpMatrix);
+			this.objectUniformsBuffer.appendData(vpMatrix);
+			this.objectUniformsBuffer.appendData(meshComponent.entity.worldMatrix);
+
+			//todo: group all materials in the current view and render them all grouped
 			for(const material of meshComponent.materials){
 				if(!material || material.destructed) continue;
 				const materialData = this.getCachedMaterialData(material);
@@ -139,7 +167,8 @@ export default class WebGpuRenderer extends Renderer{
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
-				renderPassEncoder.setBindGroup(0, this.uniformBindGroup, [i*uniformsLength]);
+				renderPassEncoder.setBindGroup(2, this.objectUniformsBuffer.bindGroup, [this.objectUniformsBuffer.currentDynamicOffset]);
+				this.objectUniformsBuffer.nextDynamicOffset();
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
 				for(const [i, buffer] of meshData.buffers.entries()){
@@ -159,7 +188,7 @@ export default class WebGpuRenderer extends Renderer{
 				}
 			}
 		}
-		this.device.queue.writeBuffer(this.meshRendererUniformsBuffer, 0, uniformBufferData);
+		this.objectUniformsBuffer.writeToGpu();
 
 
 		renderPassEncoder.endPass();
