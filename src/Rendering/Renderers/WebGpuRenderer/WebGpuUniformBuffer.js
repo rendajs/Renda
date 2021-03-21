@@ -36,8 +36,14 @@ export default class WebGpuUniformBuffer{
 		this.dataView = new DataView(this.arrayBuffer);
 	}
 
+	appendScalar(val){
+		//todo: support multiple types
+		this.dataView.setFloat32(this.currentCursorByteIndex, val, true);
+		this.currentCursorByteIndex += 4;
+	}
+
 	appendData(data){
-		for(const val of data.getFlatArray()){
+		for(const val of data.toArray()){
 			//todo: support multiple types
 			this.dataView.setFloat32(this.currentCursorByteIndex, val, true);
 			this.currentCursorByteIndex += 4;

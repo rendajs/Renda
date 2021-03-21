@@ -43,6 +43,10 @@ export default class Mat4{
 		return [...this.values[0],...this.values[1],...this.values[2],...this.values[3]];
 	}
 
+	toArray(){
+		return this.getFlatArray();
+	}
+
 	clone(){
 		return new Mat4(this);
 	}

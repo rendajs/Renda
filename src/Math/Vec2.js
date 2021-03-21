@@ -36,6 +36,58 @@ export default class Vec2{
 		this.fireOnChange();
 	}
 
+	clone(){
+		return new Vec2(this);
+	}
+
+	multiply(vectorOrScalar){
+		if(vectorOrScalar instanceof Vec2 || arguments.length == 3){
+			return this.multiplyVector(new Vec2(...arguments));
+		}else{
+			return this.multiplyScalar(vectorOrScalar);
+		}
+	}
+
+	multiplyScalar(scalar){
+		this._x *= scalar;
+		this._y *= scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	multiplyVector(vector){
+		this._x *= vector.x;
+		this._y *= vector.y;
+		this.fireOnChange();
+		return this;
+	}
+
+	add(vectorOrScalar){
+		if(vectorOrScalar instanceof Vec2 || arguments.length == 3){
+			return this.addVector(new Vec2(...arguments));
+		}else{
+			return this.addScalar(vectorOrScalar);
+		}
+	}
+
+	addScalar(scalar){
+		this._x += scalar;
+		this._y += scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	addVector(vector){
+		this._x += vector.x;
+		this._y += vector.y;
+		this.fireOnChange();
+		return this;
+	}
+
+	toArray(){
+		return [this.x, this.y];
+	}
+
 	fireOnChange(){
 		for(const cb of this.onChangeCbs){
 			cb();

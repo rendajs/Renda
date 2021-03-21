@@ -58,6 +58,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	}
 
 	resize(w,h){
+		super.resize(w,h);
 		this.canvas.width = w;
 		this.canvas.height = h;
 		this.generateTextures();

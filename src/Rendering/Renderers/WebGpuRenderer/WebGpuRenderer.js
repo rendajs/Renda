@@ -1,4 +1,4 @@
-import {Mat4, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
+import {Mat4, Vec2, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuPipeline from "./WebGpuPipeline.js";
@@ -116,6 +116,8 @@ export default class WebGpuRenderer extends Renderer{
 		if(!this.isInit) return;
 		if(!domTarget.ready) return;
 
+		//todo, support for auto cam aspect based on domTarget size
+
 		if(camera.autoUpdateProjectionMatrix){
 			camera.projectionMatrix = Mat4.createDynamicAspectProjection(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
@@ -141,15 +143,18 @@ export default class WebGpuRenderer extends Renderer{
 
 		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
 
+		this.viewUniformsBuffer.resetDynamicOffset();
+		this.materialUniformsBuffer.resetDynamicOffset();
+		this.objectUniformsBuffer.resetDynamicOffset();
+
 		//todo, only update when something changed
-		this.viewUniformsBuffer.dataView.setFloat32(0, Math.random(), true);
+		this.viewUniformsBuffer.appendData(new Vec2(domTarget.width,domTarget.height)); //todo, pass as integer
 		this.viewUniformsBuffer.writeToGpu();
 		renderPassEncoder.setBindGroup(0, this.viewUniformsBuffer.bindGroup);
 
 		//todo
 		renderPassEncoder.setBindGroup(1, this.materialUniformsBuffer.bindGroup);
 
-		this.objectUniformsBuffer.resetDynamicOffset();
 
 		for(const [i, meshComponent] of meshComponents.entries()){
 			const mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
