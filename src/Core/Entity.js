@@ -138,12 +138,17 @@ export default class Entity{
 
 	setParent(newParent, keepWorldPosition = false){
 		if(this._parent){
+			//todo: use slice?
 			this._parent._children = this._parent._children.filter(c => c != this);
 		}
 		this._parent = newParent;
 		if(newParent){
 			newParent._children.push(this);
 		}
+	}
+
+	detachParent(){
+		this.setParent(null);
 	}
 
 	add(child, keepWorldPosition = false){

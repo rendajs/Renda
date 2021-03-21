@@ -16,6 +16,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.contentEl.appendChild(this.treeView.el);
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
+		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
 
 		this.linkedEntityEditor = null;
 
@@ -113,5 +114,16 @@ export default class ContentWindowOutliner extends ContentWindow{
 	onTreeViewNameChange({changedElement}){
 		let ent = this.getEntityByTreeViewItem(changedElement);
 		ent.name = changedElement.name;
+	}
+
+	onTreeViewContextMenu(e){
+		const menu = e.showContextMenu();
+		menu.createStructure([
+			{text: "Delete", cb: _ => {
+				const entity = this.getEntityByTreeViewItem(e.clickedElement);
+				entity.detachParent();
+				this.updateTreeView();
+			}},
+		]);
 	}
 }
