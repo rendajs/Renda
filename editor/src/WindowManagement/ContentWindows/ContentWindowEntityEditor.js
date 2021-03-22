@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, DefaultComponentTypes} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -26,8 +26,8 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.renderDirty = false;
 
-		this.editorScene = new Entity({name: "editorScene"});
-		this.editorCamera = new Entity({name: "editorCamera"});
+		this.editorScene = new Entity("editorScene");
+		this.editorCamera = new Entity("editorCamera");
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(DefaultComponentTypes.camera);
 
@@ -38,6 +38,10 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.selectionManager = new SelectionManager();
 
 		this.createdLiveAssetChangeListeners = new Set();
+
+		this.gizmos = new GizmoManager();
+		this.editorScene.add(this.gizmos.entity);
+		this.currentLinkedGizmos = new Map();
 
 		this.newEmptyEditingEntity();
 	}
@@ -117,6 +121,31 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	updateOutliners(){
 		for(const outliner of editor.windowManager.getContentWindowsByType(ContentWindowOutliner)){
 			outliner.setLinkedEntityEditor(this);
+		}
+	}
+
+	updateGizmos(){
+		//add new gizmos
+		const existingEntities = new Set();
+		for(const entity of this.editingEntity.traverseDown()){
+			for(const component of entity.components){
+				//todo: better mapping of component types to gizmo icons
+				if(component.componentType == DefaultComponentTypes.light){
+					existingEntities.add(entity);
+					if(!this.currentLinkedGizmos.has(entity)){
+						const gizmo = this.gizmos.addGizmo(LightGizmo);
+						this.currentLinkedGizmos.set(entity, gizmo);
+					}
+				}
+			}
+		}
+
+		//remove old gizmos
+		for(const [entity, gizmo] of this.currentLinkedGizmos){
+			if(!existingEntities.has(entity)){
+				this.gizmos.removeGizmo(gizmo);
+				this.currentLinkedGizmos.delete(entity);
+			}
 		}
 	}
 
