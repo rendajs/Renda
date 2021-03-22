@@ -5,6 +5,7 @@ import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
+import ContentWindowEntityEditor from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent{
 	constructor(){
@@ -25,6 +26,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.positionProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.pos = newValue;
+				this.notifyEntityEditors(obj);
 			}
 		});
 
@@ -37,6 +39,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.rotationProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.rot.setFromAxisAngle(newValue);
+				this.notifyEntityEditors(obj);
 			}
 		});
 
@@ -49,6 +52,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.scaleProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.scale = newValue;
+				this.notifyEntityEditors(obj);
 			}
 		});
 
@@ -140,5 +144,11 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			await Promise.all(promises);
 		}
 		return value;
+	}
+
+	notifyEntityEditors(obj){
+		for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
+			entityEditor.onEntityTransformChanged(obj);
+		}
 	}
 }

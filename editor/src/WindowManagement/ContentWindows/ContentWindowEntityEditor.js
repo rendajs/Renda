@@ -186,4 +186,10 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			}
 		}
 	}
+
+	onEntityTransformChanged(entity){
+		if(!this.editingEntity.containsChild(entity)) return;
+
+		this.renderDirty = true;
+	}
 }

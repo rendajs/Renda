@@ -191,6 +191,22 @@ export default class Entity{
 		}
 	}
 
+	*traverseUp(){
+		yield this;
+		if(this.parent){
+			for(const entity of this.parent.traverseUp()){
+				yield entity;
+			}
+		}
+	}
+
+	containsChild(child){
+		for(const parent of child.traverseUp()){
+			if(parent == this) return true;
+		}
+		return false;
+	}
+
 	getEntityByIndicesPath(indexPath, startFrom = 0){
 		if(startFrom >= indexPath.length) return this;
 		let index = indexPath[startFrom];
