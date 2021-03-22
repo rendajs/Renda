@@ -4,6 +4,7 @@ export default class OrbitControls{
 	constructor(cameraEntity, eventElement){
 		this.camera = cameraEntity;
 
+		this.camTransformDirty = false;
 		this.lookPos = new Vec3();
 		this.lookRot = new Quaternion();
 		this.lookDist = 3;
@@ -27,21 +28,31 @@ export default class OrbitControls{
 
 	onWheel(e){
 		e.preventDefault();
+		const dx = e.deltaX;
+		const dy = e.deltaY;
+		if(dx != 0 || dy != 0){
+			this.camTransformDirty = true;
+		}
 		if(e.ctrlKey){
 			this.lookDist += e.deltaY*0.01;
 		}else if(e.shiftKey){
-			let xDir = this.lookRot.rotateVector(Vec3.right).multiply(e.deltaX*0.01);
-			let yDir = this.lookRot.rotateVector(Vec3.up).multiply(-e.deltaY*0.01);
+			let xDir = this.lookRot.rotateVector(Vec3.right).multiply(dx*0.01);
+			let yDir = this.lookRot.rotateVector(Vec3.up).multiply(-dy*0.01);
 			this.lookPos.add(xDir).add(yDir);
 		}else{
-			this.lookRot.rotateAxisAngle(new Vec3(0,1,0), e.deltaX*0.01);
+			this.lookRot.rotateAxisAngle(new Vec3(0,1,0), dx*0.01);
 			let pitchAxis = this.lookRot.rotateVector(Vec3.right);
 			this.lookRot.rotateAxisAngle(pitchAxis, e.deltaY*0.01);
 		}
 	}
 
 	loop(){
-		this.updateCamPos();
+		if(this.camTransformDirty){
+			this.updateCamPos();
+			this.camTransformDirty = false;
+			return true;
+		}
+		return false;
 	}
 
 	updateCamPos(){

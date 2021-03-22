@@ -105,8 +105,10 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	loop(){
-		this.orbitControls.loop();
-		this.renderDirty = true;
+		const camChanged = this.orbitControls.loop();
+		if(camChanged){
+			this.renderDirty = true;
+		}
 
 		if(this.renderDirty){
 			this.render();
