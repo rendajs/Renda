@@ -19,6 +19,14 @@ export default class Gizmo{
 		this.entity.pos = new Vec3();
 	}
 
+	get pos(){
+		return this.entity.pos;
+	}
+
+	set pos(val){
+		this.entity.pos = val;
+	}
+
 	destructor(){
 		this.entity.detachParent();
 		this.mesh.destructor();

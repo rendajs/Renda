@@ -159,6 +159,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 				let gizmo = linkedGizmos.get(gizmoType);
 				if(!gizmo){
 					gizmo = this.gizmos.addGizmo(gizmoType);
+					gizmo.pos = entity.pos;
 					linkedGizmos.set(gizmoType, gizmo);
 				}
 				unusedGizmos.delete(gizmoType);
@@ -172,6 +173,15 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			this.currentLinkedGizmos.set(entity, linkedGizmos);
 		}else{
 			this.currentLinkedGizmos.delete(entity);
+		}
+	}
+
+	updateGizmoPositionsForEntity(entity){
+		const linkedGizmos = this.currentLinkedGizmos.get(entity);
+		if(linkedGizmos){
+			for(const gizmo of linkedGizmos.values()){
+				gizmo.pos = entity.pos;
+			}
 		}
 	}
 
@@ -217,7 +227,9 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.renderDirty = true;
 
-		if(type == "component"){
+		if(type == "pos"){
+			this.updateGizmoPositionsForEntity(entity);
+		}else if(type == "component"){
 			this.updateGizmosForEntity(entity);
 		}
 	}
