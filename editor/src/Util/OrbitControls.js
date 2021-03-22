@@ -4,7 +4,7 @@ export default class OrbitControls{
 	constructor(cameraEntity, eventElement){
 		this.camera = cameraEntity;
 
-		this.camTransformDirty = false;
+		this.camTransformDirty = true;
 		this.lookPos = new Vec3();
 		this.lookRot = new Quaternion();
 		this.lookDist = 3;
