@@ -26,7 +26,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.positionProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.pos = newValue;
-				this.notifyEntityEditors(obj);
+				this.notifyEntityEditors(obj, "pos");
 			}
 		});
 
@@ -39,7 +39,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.rotationProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.rot.setFromAxisAngle(newValue);
-				this.notifyEntityEditors(obj);
+				this.notifyEntityEditors(obj, "rot");
 			}
 		});
 
@@ -52,7 +52,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.scaleProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.scale = newValue;
-				this.notifyEntityEditors(obj);
+				this.notifyEntityEditors(obj, "scale");
 			}
 		});
 
@@ -67,6 +67,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 						onClick: _ => {
 							for(const obj of this.currentSelection){
 								obj.addComponent(component.type);
+								this.notifyEntityEditors(obj, "component");
 							}
 							this.refreshComponents();
 							this.componentsSection.collapsed = false;
@@ -146,9 +147,9 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		return value;
 	}
 
-	notifyEntityEditors(obj){
+	notifyEntityEditors(obj, type){
 		for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
-			entityEditor.onEntityTransformChanged(obj);
+			entityEditor.onEntityChanged(obj, type);
 		}
 	}
 }

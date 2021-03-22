@@ -26,6 +26,13 @@ export default class GizmoManager{
 		this.gizmoMaterial = this.createMaterial();
 	}
 
+	destructor(){
+		for(const gizmo of this.gizmos){
+			this.removeGizmo(gizmo);
+		}
+		this.entity.detachParent();
+	}
+
 	addGizmo(constructor){
 		const gizmo = new constructor(this);
 		this.gizmos.add(gizmo);

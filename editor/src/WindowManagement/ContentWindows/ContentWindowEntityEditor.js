@@ -39,9 +39,13 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.createdLiveAssetChangeListeners = new Set();
 
+		this.gizmoTypesMap = new Map([
+			[DefaultComponentTypes.light, LightGizmo],
+		]);
+
 		this.gizmos = new GizmoManager();
 		this.editorScene.add(this.gizmos.entity);
-		this.currentLinkedGizmos = new Map();
+		this.currentLinkedGizmos = new Map(); //Map<Entity, Set<Gizmo>>
 
 		this.newEmptyEditingEntity();
 	}
@@ -58,6 +62,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this._editingEntity = null;
 		this.selectionManager.destructor();
 		this.selectionManager = null;
+		this.gizmos.destructor();
 	}
 
 	get editingEntity(){
@@ -70,6 +75,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		}
 		this._editingEntity = val;
 		this.editorScene.add(val);
+		this.updateGizmos();
 		this.render();
 		this.updateOutliners();
 		this.updateLiveAssetChangeListeners();
@@ -127,27 +133,45 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	updateGizmos(){
-		//add new gizmos
-		const existingEntities = new Set();
+		const unusedEntities = new Map(this.currentLinkedGizmos);
 		for(const entity of this.editingEntity.traverseDown()){
-			for(const component of entity.components){
-				//todo: better mapping of component types to gizmo icons
-				if(component.componentType == DefaultComponentTypes.light){
-					existingEntities.add(entity);
-					if(!this.currentLinkedGizmos.has(entity)){
-						const gizmo = this.gizmos.addGizmo(LightGizmo);
-						this.currentLinkedGizmos.set(entity, gizmo);
-					}
-				}
-			}
+			this.updateGizmosForEntity(entity);
+			unusedEntities.delete(entity);
 		}
 
-		//remove old gizmos
-		for(const [entity, gizmo] of this.currentLinkedGizmos){
-			if(!existingEntities.has(entity)){
+		for(const [entity, linkedGizmos] of unusedEntities){
+			for(const gizmo of linkedGizmos.values()){
 				this.gizmos.removeGizmo(gizmo);
-				this.currentLinkedGizmos.delete(entity);
 			}
+			this.currentLinkedGizmos.delete(entity);
+		}
+	}
+
+	updateGizmosForEntity(entity){
+		let linkedGizmos = this.currentLinkedGizmos.get(entity);
+		if(!linkedGizmos){
+			linkedGizmos = new Map();
+		}
+		const unusedGizmos = new Map(linkedGizmos);
+		for(const component of entity.components){
+			const gizmoType = this.gizmoTypesMap.get(component.componentType);
+			if(gizmoType){
+				let gizmo = linkedGizmos.get(gizmoType);
+				if(!gizmo){
+					gizmo = this.gizmos.addGizmo(gizmoType);
+					linkedGizmos.set(gizmoType, gizmo);
+				}
+				unusedGizmos.delete(gizmoType);
+			}
+		}
+		for(const [gizmoType, gizmo] of unusedGizmos){
+			this.gizmos.removeGizmo(gizmo);
+			linkedGizmos.delete(gizmoType);
+		}
+		if(linkedGizmos.size > 0){
+			this.currentLinkedGizmos.set(entity, linkedGizmos);
+		}else{
+			this.currentLinkedGizmos.delete(entity);
 		}
 	}
 
@@ -187,9 +211,14 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		}
 	}
 
-	onEntityTransformChanged(entity){
+	//type can be "pos", "rot", "scale", "component" or "componentProperty"
+	onEntityChanged(entity, type){
 		if(!this.editingEntity.containsChild(entity)) return;
 
 		this.renderDirty = true;
+
+		if(type == "component"){
+			this.updateGizmosForEntity(entity);
+		}
 	}
 }
