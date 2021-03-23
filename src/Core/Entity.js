@@ -219,7 +219,7 @@ export default class Entity{
 	} = {}){
 		let json = {
 			name: this.name,
-			matrix: this._localMatrix.getFlatArray(),
+			matrix: this.localMatrix.getFlatArray(),
 			components: [],
 			children: [],
 		}
