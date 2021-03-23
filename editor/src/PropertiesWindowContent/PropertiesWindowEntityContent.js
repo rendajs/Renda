@@ -26,7 +26,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.positionProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.pos = newValue;
-				this.notifyEntityEditors(obj, "pos");
+				this.notifyEntityEditors(obj, "transform");
 			}
 		});
 
@@ -39,7 +39,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.rotationProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.rot.setFromAxisAngle(newValue);
-				this.notifyEntityEditors(obj, "rot");
+				this.notifyEntityEditors(obj, "transform");
 			}
 		});
 
@@ -52,7 +52,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.scaleProperty.onValueChange(newValue => {
 			for(const obj of this.currentSelection){
 				obj.scale = newValue;
-				this.notifyEntityEditors(obj, "scale");
+				this.notifyEntityEditors(obj, "transform");
 			}
 		});
 

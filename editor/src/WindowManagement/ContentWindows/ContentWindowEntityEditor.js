@@ -221,13 +221,13 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		}
 	}
 
-	//type can be "pos", "rot", "scale", "component" or "componentProperty"
+	//type can be "create", "delete", "transform", "component" or "componentProperty"
 	onEntityChanged(entity, type){
 		if(!this.editingEntity.containsChild(entity)) return;
 
 		this.renderDirty = true;
 
-		if(type == "pos"){
+		if(type == "transform"){
 			this.updateGizmoPositionsForEntity(entity);
 		}else if(type == "component"){
 			this.updateGizmosForEntity(entity);
