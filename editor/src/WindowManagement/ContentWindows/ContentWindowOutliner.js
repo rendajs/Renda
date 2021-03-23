@@ -123,7 +123,13 @@ export default class ContentWindowOutliner extends ContentWindow{
 				const entity = this.getEntityByTreeViewItem(e.clickedElement);
 				entity.detachParent();
 				this.updateTreeView();
+				this.notifyEntityEditors(entity, "delete");
 			}},
 		]);
+	}
+
+	notifyEntityEditors(obj, type){
+		if(!this.linkedEntityEditor) return;
+		this.linkedEntityEditor.onEntityChanged(obj, type);
 	}
 }

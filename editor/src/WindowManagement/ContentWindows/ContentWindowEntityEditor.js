@@ -147,22 +147,24 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		}
 	}
 
-	updateGizmosForEntity(entity){
+	updateGizmosForEntity(entity, removeAll = false){
 		let linkedGizmos = this.currentLinkedGizmos.get(entity);
 		if(!linkedGizmos){
 			linkedGizmos = new Map();
 		}
 		const unusedGizmos = new Map(linkedGizmos);
-		for(const component of entity.components){
-			const gizmoType = this.gizmoTypesMap.get(component.componentType);
-			if(gizmoType){
-				let gizmo = linkedGizmos.get(gizmoType);
-				if(!gizmo){
-					gizmo = this.gizmos.addGizmo(gizmoType);
-					gizmo.pos = entity.pos;
-					linkedGizmos.set(gizmoType, gizmo);
+		if(!removeAll){
+			for(const component of entity.components){
+				const gizmoType = this.gizmoTypesMap.get(component.componentType);
+				if(gizmoType){
+					let gizmo = linkedGizmos.get(gizmoType);
+					if(!gizmo){
+						gizmo = this.gizmos.addGizmo(gizmoType);
+						gizmo.pos = entity.pos;
+						linkedGizmos.set(gizmoType, gizmo);
+					}
+					unusedGizmos.delete(gizmoType);
 				}
-				unusedGizmos.delete(gizmoType);
 			}
 		}
 		for(const [gizmoType, gizmo] of unusedGizmos){
@@ -223,7 +225,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 	//type can be "create", "delete", "transform", "component" or "componentProperty"
 	onEntityChanged(entity, type){
-		if(!this.editingEntity.containsChild(entity)) return;
+		if(!this.editingEntity.containsChild(entity) && type != "delete") return;
 
 		this.renderDirty = true;
 
@@ -231,6 +233,8 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			this.updateGizmoPositionsForEntity(entity);
 		}else if(type == "component"){
 			this.updateGizmosForEntity(entity);
+		}else if(type == "delete"){
+			this.updateGizmosForEntity(entity, true);
 		}
 	}
 }
