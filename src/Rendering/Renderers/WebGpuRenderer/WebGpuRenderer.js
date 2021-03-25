@@ -1,7 +1,6 @@
 import {Mat4, Vec2, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
-import WebGpuPipeline from "./WebGpuPipeline.js";
 import WebGpuUniformBuffer from "./WebGpuUniformBuffer.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
@@ -171,7 +170,7 @@ export default class WebGpuRenderer extends Renderer{
 					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
-				renderPassEncoder.setPipeline(materialData.forwardPipeline.pipeline);
+				renderPassEncoder.setPipeline(materialData.forwardPipeline);
 				renderPassEncoder.setBindGroup(2, this.objectUniformsBuffer.bindGroup, [this.objectUniformsBuffer.currentDynamicOffset]);
 				this.objectUniformsBuffer.nextDynamicOffset();
 				const mesh = meshComponent.mesh;
@@ -221,7 +220,36 @@ export default class WebGpuRenderer extends Renderer{
 		}
 		let pipeline = vertexStateList.get(vertexState);
 		if(!pipeline){
-			pipeline = new WebGpuPipeline(this.device, pipelineConfiguration, this.pipelineLayout, vertexState);
+			pipeline = this.device.createRenderPipeline({
+				layout: this.pipelineLayout,
+				vertex: {
+					module: this.device.createShaderModule({
+						code: pipelineConfiguration.vertexShader.source,
+					}),
+					entryPoint: "main",
+					...vertexState.getDescriptor(),
+				},
+				primitive: {
+					topology: pipelineConfiguration.primitiveTopology,
+				},
+				depthStencil: {
+					format: "depth24plus-stencil8",
+					depthCompare: "less",
+					depthWriteEnabled: true,
+				},
+				multisample: {
+					count: 4,
+				},
+				fragment: {
+					module: this.device.createShaderModule({
+						code: pipelineConfiguration.fragmentShader.source,
+					}),
+					entryPoint: "main",
+					targets: [
+						{format: "bgra8unorm"},
+					],
+				},
+			});
 			vertexStateList.set(vertexState, pipeline);
 		}
 		return pipeline;
