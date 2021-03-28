@@ -289,7 +289,6 @@ export default class WebGpuRenderer extends Renderer{
 	}
 
 	disposePipeline(pipeline){
-		pipeline.destructor();
 		this.pipelinesUsedByLists.delete(pipeline);
 	}
 
