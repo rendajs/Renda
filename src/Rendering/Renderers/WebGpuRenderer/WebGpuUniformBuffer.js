@@ -3,37 +3,41 @@ export default class WebGpuUniformBuffer{
 		device = null,
 		bindGroupLayout = null,
 		bindGroupLength = 512,
-		totalBufferLength = 512,
-		propertiesMap = {},
+		totalBufferLength = bindGroupLength,
+		usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
 	} = {}){
 		this.device = device;
 		this.bindGroupLayout = bindGroupLayout;
 		this.bindGroupLength = bindGroupLength;
 		this.totalBufferLength = totalBufferLength;
 
-		this.currentDynamicOffset = 0;
+		this.currentBufferOffset = 0;
 		this.currentCursorByteIndex = 0;
 
 		this.gpuBuffer = device.createBuffer({
 			size: this.totalBufferLength,
-			usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-		});
-
-		this.bindGroup = device.createBindGroup({
-			layout: this.bindGroupLayout,
-			entries: [
-				{
-					binding: 0,
-					resource: {
-						buffer: this.gpuBuffer,
-						size: this.bindGroupLength,
-					}
-				}
-			],
+			usage,
 		});
 
 		this.arrayBuffer = new ArrayBuffer(this.totalBufferLength);
 		this.dataView = new DataView(this.arrayBuffer);
+	}
+
+	createBindGroup(){
+		return this.device.createBindGroup({
+			layout: this.bindGroupLayout,
+			entries: [this.createBindGroupEntry()],
+		});
+	}
+
+	createBindGroupEntry({binding = 0} = {}){
+		return {
+			binding,
+			resource: {
+				buffer: this.gpuBuffer,
+				size: this.bindGroupLength,
+			}
+		}
 	}
 
 	appendScalar(val){
@@ -50,13 +54,13 @@ export default class WebGpuUniformBuffer{
 		}
 	}
 
-	nextDynamicOffset(){
-		this.currentDynamicOffset += this.bindGroupLength;
-		this.currentCursorByteIndex = this.currentDynamicOffset;
+	nextBufferOffset(offset = this.bindGroupLength){
+		this.currentBufferOffset += offset;
+		this.currentCursorByteIndex = this.currentBufferOffset;
 	}
 
-	resetDynamicOffset(){
-		this.currentDynamicOffset = this.currentCursorByteIndex = 0;
+	resetBufferOffset(){
+		this.currentBufferOffset = this.currentCursorByteIndex = 0;
 	}
 
 	writeToGpu(){

@@ -2,6 +2,7 @@ import {Mat4, Vec2, DefaultComponentTypes, defaultComponentTypeManager, Mesh} fr
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuUniformBuffer from "./WebGpuUniformBuffer.js";
+import WebGpuCachedCameraData from "./WebGpuCachedCameraData.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
@@ -15,12 +16,15 @@ export default class WebGpuRenderer extends Renderer{
 	constructor(){
 		super();
 
+		this.maxLights = 512;
+
 		this.isInit = false;
 
 		this.adapter = null;
 		this.device = null;
 		this.onInitCbs = new Set();
 
+		this.cachedCameraData = new WeakMap();
 		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
 		this.cachedPipelines = new WeakMap(); //<WebGpuPipelineConfiguration, WeakMap<WebGpuVertexState, WebGpuPipeline>>
 
@@ -28,26 +32,48 @@ export default class WebGpuRenderer extends Renderer{
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 
 		this.cachedMeshData = new WeakMap(); //<Mesh, {cachedData}>
+
+		this.computeClusterBoundsPipeline = null;
 	}
 
 	async init(){
 		this.adapter = await navigator.gpu.requestAdapter();
 		const device = this.device = await this.adapter.requestDevice();
 
+		this.viewBindGroupLayout = device.createBindGroupLayout({
+			entries: [
+				{
+					binding: 0, //view uniforms
+					visibility: GPUShaderStage.VERTEX,
+					buffer: {},
+				},
+				{
+					binding: 1, //lights
+					visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
+					buffer: {type: "read-only-storage"},
+				},
+			],
+		});
+
+		this.lightsBuffer = new WebGpuUniformBuffer({
+			device,
+			bindGroupLength: this.maxLights * 8,
+			usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+		});
+
+		this.computeClusterBoundsBindGroupLayout = device.createBindGroupLayout({
+			entries: [
+				{
+					binding: 0, //cluster bounds buffer
+					visibility: GPUShaderStage.COMPUTE,
+					buffer: {type: "storage"},
+				}
+			],
+		})
+
 		this.viewUniformsBuffer = new WebGpuUniformBuffer({
 			device,
-			bindGroupLayout: device.createBindGroupLayout({
-				entries: [
-					{
-						binding: 0,
-						visibility: GPUShaderStage.VERTEX,
-						buffer: {},
-					},
-				],
-			}),
-			uniformOffsets: {
-				projectionMatrix: 0,
-			},
+			bindGroupLayout: this.viewBindGroupLayout,
 		});
 
 		this.materialUniformsBuffer = new WebGpuUniformBuffer({
@@ -62,6 +88,7 @@ export default class WebGpuRenderer extends Renderer{
 				],
 			}),
 		});
+		this.materialUniformsBufferBindGroup = this.materialUniformsBuffer.createBindGroup();
 
 		this.objectUniformsBuffer = new WebGpuUniformBuffer({
 			device,
@@ -79,10 +106,11 @@ export default class WebGpuRenderer extends Renderer{
 			}),
 			totalBufferLength: 65536,
 		});
+		this.objectUniformsBufferBindGroup = this.objectUniformsBuffer.createBindGroup();
 
 		this.pipelineLayout = device.createPipelineLayout({
 			bindGroupLayouts: [
-				this.viewUniformsBuffer.bindGroupLayout,
+				this.viewBindGroupLayout,
 				this.materialUniformsBuffer.bindGroupLayout,
 				this.objectUniformsBuffer.bindGroupLayout,
 			],
@@ -125,7 +153,8 @@ export default class WebGpuRenderer extends Renderer{
 
 		const collectedDrawObjects = new Map(); //Map<MaterialMap, Map<Material, Set<RenderableComponent>>>
 
-		let meshComponents = [];
+		const meshComponents = [];
+		const lightComponents = [];
 		const rootRenderEntities = [camera.entity.getRoot()];
 		//TODO: don't get root every frame, only when changed
 		//see state of CameraComponent.js in commit 5d2efa1
@@ -135,25 +164,36 @@ export default class WebGpuRenderer extends Renderer{
 					if(!component.mesh || !component.mesh.vertexState) continue;
 					meshComponents.push(component);
 				}
+				for(const component of child.getComponentsByType(DefaultComponentTypes.light)){
+					lightComponents.push(component);
+				}
 			}
 		}
 
 		const commandEncoder = this.device.createCommandEncoder();
 
-		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
 
-		this.viewUniformsBuffer.resetDynamicOffset();
-		this.materialUniformsBuffer.resetDynamicOffset();
-		this.objectUniformsBuffer.resetDynamicOffset();
+		this.viewUniformsBuffer.resetBufferOffset();
+		this.lightsBuffer.resetBufferOffset();
+		this.materialUniformsBuffer.resetBufferOffset();
+		this.objectUniformsBuffer.resetBufferOffset();
 
 		//todo, only update when something changed
 		this.viewUniformsBuffer.appendData(new Vec2(domTarget.width,domTarget.height)); //todo, pass as integer
 		this.viewUniformsBuffer.writeToGpu();
-		renderPassEncoder.setBindGroup(0, this.viewUniformsBuffer.bindGroup);
 
-		//todo
-		renderPassEncoder.setBindGroup(1, this.materialUniformsBuffer.bindGroup);
+		const cameraData = this.getCachedCameraData(camera);
+		cameraData.clusterSetup.computeBounds(commandEncoder);
 
+		for(const light of lightComponents){
+			this.lightsBuffer.appendData(light.entity.pos);
+			this.lightsBuffer.nextBufferOffset(16);
+		}
+		this.lightsBuffer.writeToGpu();
+
+		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
+		renderPassEncoder.setBindGroup(0, cameraData.viewBindGroup);
+		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); //todo
 
 		for(const [i, meshComponent] of meshComponents.entries()){
 			const mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
@@ -171,8 +211,8 @@ export default class WebGpuRenderer extends Renderer{
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline);
-				renderPassEncoder.setBindGroup(2, this.objectUniformsBuffer.bindGroup, [this.objectUniformsBuffer.currentDynamicOffset]);
-				this.objectUniformsBuffer.nextDynamicOffset();
+				renderPassEncoder.setBindGroup(2, this.objectUniformsBufferBindGroup, [this.objectUniformsBuffer.currentBufferOffset]);
+				this.objectUniformsBuffer.nextBufferOffset();
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
 				for(const [i, buffer] of meshData.buffers.entries()){
@@ -198,6 +238,15 @@ export default class WebGpuRenderer extends Renderer{
 		renderPassEncoder.endPass();
 
 		this.device.queue.submit([commandEncoder.finish()]);
+	}
+
+	getCachedCameraData(camera){
+		let data = this.cachedCameraData.get(camera);
+		if(!data){
+			data = new WebGpuCachedCameraData(camera, this);
+			this.cachedMaterialData.set(camera, data);
+		}
+		return data;
 	}
 
 	getCachedMaterialData(material){
