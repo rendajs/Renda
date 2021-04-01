@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightGizmo} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightGizmo, CameraGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -41,6 +41,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.gizmoTypesMap = new Map([
 			[DefaultComponentTypes.light, LightGizmo],
+			[DefaultComponentTypes.camera, CameraGizmo],
 		]);
 
 		this.gizmos = new GizmoManager();
