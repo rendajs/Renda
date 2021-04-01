@@ -1,8 +1,7 @@
-import Gizmo from "./Gizmo.js";
-import Vec2 from "../../Math/Vec2.js";
-import Vec3 from "../../Math/Vec3.js";
+import IconGizmo from "./IconGizmo.js";
+import Vec2 from "../../../Math/Vec2.js";
 
-export default class LightGizmo extends Gizmo{
+export default class LightIconGizmo extends IconGizmo{
 	constructor(){
 		super(...arguments);
 

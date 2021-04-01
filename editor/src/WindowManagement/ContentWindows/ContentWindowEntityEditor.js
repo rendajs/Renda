@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightGizmo, CameraGizmo} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightIconGizmo, CameraIconGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -40,8 +40,8 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.createdLiveAssetChangeListeners = new Set();
 
 		this.gizmoTypesMap = new Map([
-			[DefaultComponentTypes.light, LightGizmo],
-			[DefaultComponentTypes.camera, CameraGizmo],
+			[DefaultComponentTypes.light, [LightIconGizmo]],
+			[DefaultComponentTypes.camera, [CameraIconGizmo]],
 		]);
 
 		this.gizmos = new GizmoManager();
@@ -156,15 +156,17 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		const unusedGizmos = new Map(linkedGizmos);
 		if(!removeAll){
 			for(const component of entity.components){
-				const gizmoType = this.gizmoTypesMap.get(component.componentType);
-				if(gizmoType){
-					let gizmo = linkedGizmos.get(gizmoType);
-					if(!gizmo){
-						gizmo = this.gizmos.addGizmo(gizmoType);
-						gizmo.pos = entity.pos;
-						linkedGizmos.set(gizmoType, gizmo);
+				const gizmoTypes = this.gizmoTypesMap.get(component.componentType);
+				if(gizmoTypes){
+					for(const gizmoType of gizmoTypes){
+						let gizmo = linkedGizmos.get(gizmoType);
+						if(!gizmo){
+							gizmo = this.gizmos.addGizmo(gizmoType);
+							gizmo.pos = entity.pos;
+							linkedGizmos.set(gizmoType, gizmo);
+						}
+						unusedGizmos.delete(gizmoType);
 					}
-					unusedGizmos.delete(gizmoType);
 				}
 			}
 		}

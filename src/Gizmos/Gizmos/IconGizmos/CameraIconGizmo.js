@@ -1,8 +1,7 @@
-import Gizmo from "./Gizmo.js";
-import Mesh from "../../Core/Mesh.js";
-import Vec2 from "../../Math/Vec2.js";
+import IconGizmo from "./IconGizmo.js";
+import Vec2 from "../../../Math/Vec2.js";
 
-export default class CameraGizmo extends Gizmo{
+export default class CameraIconGizmo extends IconGizmo{
 	constructor(){
 		super(...arguments);
 
