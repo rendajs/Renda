@@ -19,6 +19,7 @@ export default class WebGpuClusterSetup{
 
 	computeBounds(commandEncoder){
 		if(this.computeBoundsPipelineDirty){
+			//todo: destroy old buffers etc
 			this.computeBoundsPipeline = this.renderer.device.createComputePipeline({
 				layout: this.renderer.device.createPipelineLayout({
 					bindGroupLayouts: [
@@ -28,7 +29,12 @@ export default class WebGpuClusterSetup{
 				}),
 				computeStage: {
 					module: this.renderer.device.createShaderModule({
-						code: computeClusterBoundsShaderCode(this.totalTileCount),
+						code: computeClusterBoundsShaderCode({
+							totalTileCount: this.totalTileCount,
+							tileCountX: this.tileCountX,
+							tileCountY: this.tileCountY,
+							tileCountZ: this.tileCountZ,
+						}),
 					}),
 					entryPoint: "main",
 				},

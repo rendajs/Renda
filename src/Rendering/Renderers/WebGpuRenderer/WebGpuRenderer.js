@@ -1,4 +1,4 @@
-import {Mat4, Vec2, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
+import {Mat4, Vec4, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuUniformBuffer from "./WebGpuUniformBuffer.js";
@@ -44,7 +44,7 @@ export default class WebGpuRenderer extends Renderer{
 			entries: [
 				{
 					binding: 0, //view uniforms
-					visibility: GPUShaderStage.VERTEX,
+					visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
 					buffer: {},
 				},
 				{
@@ -148,9 +148,6 @@ export default class WebGpuRenderer extends Renderer{
 		if(camera.autoUpdateProjectionMatrix){
 			camera.projectionMatrix = Mat4.createDynamicAspectProjection(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
-		const inverseCamMat = camera.entity.worldMatrix.inverse();
-		const vpMatrix = Mat4.multiplyMatrices(inverseCamMat, camera.projectionMatrix);
-
 		const collectedDrawObjects = new Map(); //Map<MaterialMap, Map<Material, Set<RenderableComponent>>>
 
 		const meshComponents = [];
@@ -178,8 +175,15 @@ export default class WebGpuRenderer extends Renderer{
 		this.materialUniformsBuffer.resetBufferOffset();
 		this.objectUniformsBuffer.resetBufferOffset();
 
+		const viewMatrix = camera.entity.worldMatrix.inverse();
+		const vpMatrix = Mat4.multiplyMatrices(viewMatrix, camera.projectionMatrix);
+		const inverseProjectionMatrix = camera.projectionMatrix.inverse();
+
 		//todo, only update when something changed
-		this.viewUniformsBuffer.appendData(new Vec2(domTarget.width,domTarget.height)); //todo, pass as integer
+		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width,domTarget.height, 0, 0)); //todo, pass as integer
+		this.viewUniformsBuffer.appendData(camera.projectionMatrix);
+		this.viewUniformsBuffer.appendData(inverseProjectionMatrix);
+
 		this.viewUniformsBuffer.writeToGpu();
 
 		const cameraData = this.getCachedCameraData(camera);
