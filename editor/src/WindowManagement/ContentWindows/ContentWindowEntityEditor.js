@@ -79,7 +79,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this._editingEntity = val;
 		this.editorScene.add(val);
 		this.updateGizmos();
-		this.render();
+		this.markRenderDirty();
 		this.updateOutliners();
 		this.updateBuildViews();
 		this.updateLiveAssetChangeListeners();
