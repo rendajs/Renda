@@ -229,7 +229,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	//type can be "create", "delete", "transform", "component" or "componentProperty"
-	onEntityChanged(entity, type){
+	notifyEntityChanged(entity, type){
 		if(!this.editingEntity.containsChild(entity) && type != "delete") return;
 
 		this.renderDirty = true;

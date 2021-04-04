@@ -130,6 +130,6 @@ export default class ContentWindowOutliner extends ContentWindow{
 
 	notifyEntityEditors(obj, type){
 		if(!this.linkedEntityEditor) return;
-		this.linkedEntityEditor.onEntityChanged(obj, type);
+		this.linkedEntityEditor.notifyEntityChanged(obj, type);
 	}
 }
