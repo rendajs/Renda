@@ -1,5 +1,6 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
+import ContentWindowBuildView from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
 import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
@@ -25,6 +26,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.contentEl.appendChild(renderTargetElement);
 
 		this.renderDirty = false;
+		this.onRenderDirtyCbs = new Set();
 
 		this.editorScene = new Entity("editorScene");
 		this.editorCamera = new Entity("editorCamera");
@@ -79,6 +81,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.updateGizmos();
 		this.render();
 		this.updateOutliners();
+		this.updateBuildViews();
 		this.updateLiveAssetChangeListeners();
 	}
 
@@ -86,7 +89,24 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.domTarget.resize(w,h);
 
 		this.editorCamComponent.aspect = w / h;
+		this.markRenderDirty();
+	}
+
+	markRenderDirty(notifyExternalRenders = true){
 		this.renderDirty = true;
+		if(notifyExternalRenders){
+			for(const cb of this.onRenderDirtyCbs){
+				cb();
+			}
+		}
+	}
+
+	onRenderDirty(cb){
+		this.onRenderDirtyCbs.add(cb);
+	}
+
+	removeOnRenderDirty(cb){
+		this.onRenderDirtyCbs.add(cb);
 	}
 
 	newEmptyEditingEntity(){
@@ -114,7 +134,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	loop(){
 		const camChanged = this.orbitControls.loop();
 		if(camChanged){
-			this.renderDirty = true;
+			this.markRenderDirty(false);
 		}
 
 		if(this.renderDirty){
@@ -130,6 +150,12 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	updateOutliners(){
 		for(const outliner of editor.windowManager.getContentWindowsByType(ContentWindowOutliner)){
 			outliner.setLinkedEntityEditor(this);
+		}
+	}
+
+	updateBuildViews(){
+		for(const buildView of editor.windowManager.getContentWindowsByType(ContentWindowBuildView)){
+			buildView.setLinkedEntityEditor(this);
 		}
 	}
 
@@ -232,7 +258,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	notifyEntityChanged(entity, type){
 		if(!this.editingEntity.containsChild(entity) && type != "delete") return;
 
-		this.renderDirty = true;
+		this.markRenderDirty();
 
 		if(type == "transform"){
 			this.updateGizmoPositionsForEntity(entity);

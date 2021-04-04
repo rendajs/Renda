@@ -67,6 +67,14 @@ export default class Entity{
 		}
 	}
 
+	*getChildComponentsByType(type, namespace = defaultComponentTypeManager.defaultNamespace, componentTypeManager = defaultComponentTypeManager){
+		for(const child of this.traverseDown()){
+			for(const component of child.getComponentsByType(type, namespace, componentTypeManager)){
+				yield component;
+			}
+		}
+	}
+
 	get parent(){
 		return this._parent;
 	}
