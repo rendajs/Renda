@@ -230,7 +230,7 @@ export default class Mat4{
 
 	static createProjection(fov = 90, near = 0.05, far = 1000, uwMultiplier = 1, uhMultiplier = 1){
 		const mat = new Mat4();
-		let uw = 1 / Math.tan(fov/2);
+		let uw = 1 / Math.tan(fov * Math.PI / 360);
 		let uh = uw;
 		uw *= uwMultiplier;
 		uh *= uhMultiplier;
