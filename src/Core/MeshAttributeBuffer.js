@@ -18,6 +18,8 @@ export default class MeshAttributeBuffer{
 
 		this.buffer = arrayBuffer;
 		this._dataView = null;
+
+		this.onBufferChangedCbs = new Set();
 	}
 
 	destructor(){
@@ -62,6 +64,8 @@ export default class MeshAttributeBuffer{
 		if(oldBuffer){
 			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer));
 		}
+
+		this.fireBufferChanged();
 	}
 
 	setVertexData(attributeType, data){
@@ -110,6 +114,8 @@ export default class MeshAttributeBuffer{
 		}else{
 			throw new TypeError("invalid data type");
 		}
+
+		this.fireBufferChanged();
 	}
 
 	*getVertexData(attributeType){
@@ -131,6 +137,16 @@ export default class MeshAttributeBuffer{
 				yield new Vec3(x,y,z);
 				i += this.arrayStride;
 			}
+		}
+	}
+
+	onBufferChanged(cb){
+		this.onBufferChangedCbs.add(cb);
+	}
+
+	fireBufferChanged(){
+		for(const cb of this.onBufferChangedCbs){
+			cb();
 		}
 	}
 }

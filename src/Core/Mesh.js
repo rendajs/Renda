@@ -171,12 +171,14 @@ export default class Mesh{
 		return unusedBuffer;
 	}
 
-	*getBuffers(){
+	*getBuffers(includeUnused = true){
 		for(const buffer of this._buffers){
 			yield buffer;
 		}
-		for(const buffer of this._unusedBuffers.values()){
-			yield buffer;
+		if(includeUnused){
+			for(const buffer of this._unusedBuffers.values()){
+				yield buffer;
+			}
 		}
 	}
 

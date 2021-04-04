@@ -219,8 +219,12 @@ export default class WebGpuRenderer extends Renderer{
 				this.objectUniformsBuffer.nextBufferOffset();
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
-				for(const [i, buffer] of meshData.buffers.entries()){
-					renderPassEncoder.setVertexBuffer(i, buffer);
+				for(const [i, bufferData] of meshData.buffers.entries()){
+					if(bufferData.bufferDirty){
+						this.device.queue.writeBuffer(bufferData.gpuBuffer, 0, bufferData.meshBuffer.buffer);
+						bufferData.bufferDirty = false;
+					}
+					renderPassEncoder.setVertexBuffer(i, bufferData.gpuBuffer);
 				}
 				if(meshData.indexBuffer){
 					let indexFormat = null;
@@ -352,15 +356,22 @@ export default class WebGpuRenderer extends Renderer{
 			this.cachedMeshData.set(mesh, data);
 
 			data.buffers = [];
-			for(const buffer of mesh.getBuffers()){
-				const vertexBuffer = this.device.createBuffer({
-					size: buffer.buffer.byteLength,
-					usage: GPUBufferUsage.VERTEX,
+			for(const meshBuffer of mesh.getBuffers(false)){
+				const gpuBuffer = this.device.createBuffer({
+					size: meshBuffer.buffer.byteLength,
+					usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, //todo: only use copy_dst when buffer updates are actually expected
 					mappedAtCreation: true,
 				});
-				new Uint8Array(vertexBuffer.getMappedRange()).set(new Uint8Array(buffer.buffer));
-				vertexBuffer.unmap();
-				data.buffers.push(vertexBuffer);
+				new Uint8Array(gpuBuffer.getMappedRange()).set(new Uint8Array(meshBuffer.buffer));
+				gpuBuffer.unmap();
+				const bufferData = {
+					meshBuffer, gpuBuffer,
+					bufferDirty: false,
+				}
+				meshBuffer.onBufferChanged(_ => {
+					bufferData.bufferDirty = true;
+				});
+				data.buffers.push(bufferData);
 			}
 
 			if(mesh.indexBuffer){
