@@ -120,6 +120,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.changedEntry);
 					let value = await this.mapDroppableGuiValues(e.newValue);
 					componentGroup[propertyName] = value;
+					this.notifyEntityEditors(componentGroup.entity, "componentProperty");
 				});
 				componentUI.fillSerializableStructureValues(componentGroup);
 			}
@@ -147,9 +148,9 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		return value;
 	}
 
-	notifyEntityEditors(obj, type){
+	notifyEntityEditors(entity, type){
 		for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
-			entityEditor.notifyEntityChanged(obj, type);
+			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}
 }
