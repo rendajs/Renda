@@ -18,7 +18,7 @@ fn main() -> void {
 	var brightness : f32 = 0.0;
 	for(var i : i32 = 0; i < 2; i = i + 1){
 		var dist : f32 = length(lights.lights[i].pos - vWorldPos);
-		brightness = brightness + max(0.0, 1.0 - dist);
+		brightness = brightness + max(0.0, 1.0 - dist * 0.1);
 	}
 	outColor = vec4<f32>(brightness, brightness, brightness, 1.0);
 	return;
