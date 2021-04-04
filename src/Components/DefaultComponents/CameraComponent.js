@@ -4,6 +4,10 @@ export default {
 	properties: {
 		fov: {
 			defaultValue: 70,
+			guiOpts: {
+				min: 0,
+				max: 180,
+			},
 		},
 		clipNear: {
 			defaultValue: 0.01,
@@ -19,6 +23,9 @@ export default {
 		},
 		aspect: {
 			defaultValue: 1,
+			guiOpts: {
+				min: 0,
+			},
 		},
 		autoUpdateProjectionMatrix: {
 			defaultValue: true,
