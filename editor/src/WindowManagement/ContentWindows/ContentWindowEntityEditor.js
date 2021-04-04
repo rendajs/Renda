@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightIconGizmo, CameraIconGizmo} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -41,7 +41,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.gizmoTypesMap = new Map([
 			[DefaultComponentTypes.light, [LightIconGizmo]],
-			[DefaultComponentTypes.camera, [CameraIconGizmo]],
+			[DefaultComponentTypes.camera, [CameraIconGizmo, CameraGizmo]],
 		]);
 
 		this.gizmos = new GizmoManager();
@@ -182,10 +182,12 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	updateGizmoPositionsForEntity(entity){
+		//todo: set the matrices directly instead of pos,rot,scale
 		const linkedGizmos = this.currentLinkedGizmos.get(entity);
 		if(linkedGizmos){
 			for(const gizmo of linkedGizmos.values()){
 				gizmo.pos = entity.pos;
+				gizmo.rot = entity.rot;
 			}
 		}
 	}

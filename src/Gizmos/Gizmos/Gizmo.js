@@ -14,6 +14,14 @@ export default class Gizmo{
 		this.entity.pos = val;
 	}
 
+	get rot(){
+		return this.entity.rot;
+	}
+
+	set rot(val){
+		this.entity.rot = val;
+	}
+
 	destructor(){
 		this.entity.detachParent();
 		this.mesh.destructor();

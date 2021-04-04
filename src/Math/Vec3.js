@@ -1,3 +1,5 @@
+import Mat4 from "./Mat4.js";
+
 export default class Vec3{
 	constructor(x=0, y=0, z=0){
 		this.onChangeCbs = new Set();
@@ -103,11 +105,13 @@ export default class Vec3{
 		return this;
 	}
 
-	multiply(vectorOrScalar){
-		if(vectorOrScalar instanceof Vec3 || arguments.length == 3){
+	multiply(vectorScalarOrMatrix){
+		if(vectorScalarOrMatrix instanceof Vec3 || arguments.length == 3){
 			return this.multiplyVector(new Vec3(...arguments));
+		}else if(vectorScalarOrMatrix instanceof Mat4){
+			return this.multiplyMatrix(vectorScalarOrMatrix);
 		}else{
-			return this.multiplyScalar(vectorOrScalar);
+			return this.multiplyScalar(vectorScalarOrMatrix);
 		}
 	}
 
@@ -125,6 +129,16 @@ export default class Vec3{
 		this._z *= vector.z;
 		this.fireOnChange();
 		return this;
+	}
+
+	multiplyMatrix(mat4){
+		const x = this._x;
+		const y = this._y;
+		const z = this._z;
+		this._x = x * mat4.values[0][0] + y * mat4.values[0][1] + z * mat4.values[0][2] + mat4.values[0][3];
+		this._y = x * mat4.values[1][0] + y * mat4.values[1][1] + z * mat4.values[1][2] + mat4.values[1][3];
+		this._z = x * mat4.values[2][0] + y * mat4.values[2][1] + z * mat4.values[2][2] + mat4.values[2][3];
+		this.fireOnChange();
 	}
 
 	add(vectorOrScalar){

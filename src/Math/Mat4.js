@@ -366,24 +366,8 @@ export default class Mat4{
 		]);
 	}
 
-	multiplyMatrix(mat2){
-		let newMat = Mat4.multiplyMatrices(this, mat2);
+	multiplyMatrix(otherMatrix){
+		let newMat = Mat4.multiplyMatrices(this, otherMatrix);
 		this.values = newMat.values;
-	}
-
-	multiplyVector(x,y,z,w){
-		if(x instanceof Array){
-			let vec = x;
-			x = vec[0];
-			y = vec[1];
-			z = vec[2];
-			w = vec[3];
-		}
-		return [
-			x * this.values[0][0] + y * this.values[0][1] + z * this.values[0][2] + w * this.values[0][3],
-			x * this.values[1][0] + y * this.values[1][1] + z * this.values[1][2] + w * this.values[1][3],
-			x * this.values[2][0] + y * this.values[2][1] + z * this.values[2][2] + w * this.values[2][3],
-			x * this.values[3][0] + y * this.values[3][1] + z * this.values[3][2] + w * this.values[3][3],
-		];
 	}
 }

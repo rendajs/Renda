@@ -12,7 +12,7 @@ export default class GizmoManager{
 		this.entity = new Entity("gizmos");
 		this.gizmos = new Set();
 
-		this.vertexState = new WebGpuVertexState({
+		this.billboardVertexState = new WebGpuVertexState({
 			buffers: [
 				{
 					attributes: [
@@ -22,8 +22,29 @@ export default class GizmoManager{
 				}
 			],
 		});
+		this.meshVertexState = new WebGpuVertexState({
+			buffers: [
+				{
+					attributes: [
+						{attributeType: Mesh.AttributeType.POSITION},
+						{attributeType: Mesh.AttributeType.COLOR},
+					],
+				}
+			],
+		});
 
-		this.gizmoMaterial = this.createMaterial();
+		this.billboardMaterial = this.createMaterial(`
+			var objPos : vec4<f32> = objectUniforms.m[3];
+			outPos = objectUniforms.vp * objPos;
+			const w : f32 = outPos.w;
+			outPos = outPos / vec4<f32>(w,w,w,w);
+			outPos.x = outPos.x + vertexPos.x / viewUniforms.screenSize.x;
+			outPos.y = outPos.y + vertexPos.y / viewUniforms.screenSize.y;
+			outPos = vec4<f32>(outPos.xy, 0.0, 1.0);
+		`);
+		this.meshMaterial = this.createMaterial(`
+			outPos = objectUniforms.mvp * vec4<f32>(vertexPos, 1.0);
+		`);
 	}
 
 	destructor(){
@@ -45,7 +66,7 @@ export default class GizmoManager{
 		this.gizmos.delete(gizmo);
 	}
 
-	createMaterial(){
+	createMaterial(mainCode){
 		const vertexShader = new ShaderSource(`
 			[[block]] struct ViewUniforms {
 				[[offset(0)]] screenSize : vec2<f32>;
@@ -67,13 +88,7 @@ export default class GizmoManager{
 
 			[[stage(vertex)]]
 			fn main() -> void {
-				var objPos : vec4<f32> = objectUniforms.m[3];
-				outPos = objectUniforms.vp * objPos;
-				const w : f32 = outPos.w;
-				outPos = outPos / vec4<f32>(w,w,w,w);
-				outPos.x = outPos.x + vertexPos.x / viewUniforms.screenSize.x;
-				outPos.y = outPos.y + vertexPos.y / viewUniforms.screenSize.y;
-				outPos = vec4<f32>(outPos.xy, 0.0, 1.0);
+				${mainCode}
 				vertexColorOut = vertexColor;
 				return;
 			}

@@ -9,7 +9,7 @@ export default class IconGizmo extends Gizmo{
 		super(...arguments);
 
 		this.mesh = new Mesh();
-		this.mesh.setVertexState(this.gizmoManager.vertexState);
+		this.mesh.setVertexState(this.gizmoManager.billboardVertexState);
 
 		this.indices = [];
 		this.positions = [];
@@ -17,15 +17,15 @@ export default class IconGizmo extends Gizmo{
 
 		this.entity.addComponent(DefaultComponentTypes.mesh, {
 			mesh: this.mesh,
-			materials: [this.gizmoManager.gizmoMaterial],
+			materials: [this.gizmoManager.billboardMaterial],
 		});
 	}
 
 	updateMesh(){
 		this.mesh.setVertexCount(this.positions.length);
 		this.mesh.setIndexData(this.indices);
-		this.mesh.setVertexData(Mesh.AttributeType.POSITION, this.positions, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2});
-		this.mesh.setVertexData(Mesh.AttributeType.COLOR, this.colors, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
+		this.mesh.setVertexData(Mesh.AttributeType.POSITION, this.positions);
+		this.mesh.setVertexData(Mesh.AttributeType.COLOR, this.colors);
 	}
 
 	addCircle(segments, radius, origin = new Vec2()){
