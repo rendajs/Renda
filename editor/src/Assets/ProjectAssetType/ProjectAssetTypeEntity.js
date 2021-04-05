@@ -1,5 +1,5 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import {Entity, defaultComponentTypeManager, Mesh, Material} from "../../../../src/index.js";
+import {Entity, defaultComponentTypeManager, Mesh, Material, Vec2, Vec3, Vec4, Mat4} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import ContentWindowEntityEditor from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 
@@ -74,6 +74,15 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 				newArr.push(await this.componentPropertyValueFromJson(item, propertyData.arrayOpts));
 			}
 			return newArr;
+		}
+		if(propertyData.type == Vec2){
+			return new Vec2(...propertyValue);
+		}else if(propertyData.type == Vec3){
+			return new Vec3(...propertyValue);
+		}else if(propertyData.type == Vec4){
+			return new Vec4(...propertyValue);
+		}else if(propertyData.type == Mat4){
+			return new Mat4(propertyValue);
 		}
 		//todo: make the list of types more scalable
 		if(propertyData.type == Mesh || propertyData.type == Material){
