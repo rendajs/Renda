@@ -6,20 +6,8 @@ export default class Gizmo{
 		this.entity = new Entity("gizmo");
 	}
 
-	get pos(){
-		return this.entity.pos;
-	}
-
-	set pos(val){
-		this.entity.pos = val;
-	}
-
-	get rot(){
-		return this.entity.rot;
-	}
-
-	set rot(val){
-		this.entity.rot = val;
+	set matrix(val){
+		this.entity.localMatrix = val;
 	}
 
 	destructor(){

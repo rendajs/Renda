@@ -1,6 +1,8 @@
 import WindowManager from "./WindowManagement/WindowManager.js";
+import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
 import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentManager.js";
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
+import ComponentGizmosManager from "./Managers/ComponentGizmosManager.js";
 import MaterialMapTypeManager from "./Managers/MaterialMapTypeManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
@@ -8,7 +10,6 @@ import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
-import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
 import DevSocketManager from "./DevSocketManager.js";
 
 import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
@@ -24,6 +25,7 @@ export default class Editor{
 		this.contextMenuManager = new ContextMenuManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
+		this.componentGizmosManager = new ComponentGizmosManager();
 		this.materialMapTypeManager = new MaterialMapTypeManager();
 		this.projectManager = new ProjectManager();
 		this.builtInAssetManager = new BuiltInAssetManager();
@@ -37,7 +39,7 @@ export default class Editor{
 		}
 
 		for(const [type, component] of defaultComponents){
-			defaultComponentTypeManager.registerComponentType(type, component);
+			defaultComponentTypeManager.registerComponentType(type, component, defaultComponentTypeManager.defaultNamespace);
 		}
 
 		this.lastUsedSelectionManager = null;
@@ -62,6 +64,7 @@ export default class Editor{
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
+		this.componentGizmosManager.init();
 		this.materialMapTypeManager.init();
 		this.builtInAssetManager.init();
 
