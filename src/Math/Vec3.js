@@ -1,4 +1,5 @@
 import Mat4 from "./Mat4.js";
+import Vec4 from "./Vec4.js";
 
 export default class Vec3{
 	constructor(x=0, y=0, z=0){
@@ -62,7 +63,7 @@ export default class Vec3{
 	}
 
 	set(x=0, y=0, z=0){
-		if(x instanceof Vec3){
+		if(x instanceof Vec3 || x instanceof Vec4){
 			let vector = x;
 			x = vector.x;
 			y = vector.y;
@@ -106,7 +107,7 @@ export default class Vec3{
 	}
 
 	multiply(vectorScalarOrMatrix){
-		if(vectorScalarOrMatrix instanceof Vec3 || arguments.length == 3){
+		if(vectorScalarOrMatrix instanceof Vec4 || vectorScalarOrMatrix instanceof Vec3 || arguments.length == 4 || arguments.length == 3){
 			return this.multiplyVector(new Vec3(...arguments));
 		}else if(vectorScalarOrMatrix instanceof Mat4){
 			return this.multiplyMatrix(vectorScalarOrMatrix);
@@ -141,8 +142,32 @@ export default class Vec3{
 		this.fireOnChange();
 	}
 
+	divide(vectorOrScalar){
+		if(vectorOrScalar instanceof Vec4 || vectorOrScalar instanceof Vec3 || arguments.length == 4 || arguments.length == 3){
+			return this.divideVector(new Vec3(...arguments));
+		}else{
+			return this.divideScalar(vectorOrScalar);
+		}
+	}
+
+	divideVector(vector){
+		this._x /= vector.x;
+		this._y /= vector.y;
+		this._z /= vector.z;
+		this.fireOnChange();
+		return this;
+	}
+
+	divideScalar(scalar){
+		this._x /= scalar;
+		this._y /= scalar;
+		this._z /= scalar;
+		this.fireOnChange();
+		return this;
+	}
+
 	add(vectorOrScalar){
-		if(vectorOrScalar instanceof Vec3 || arguments.length == 3){
+		if(vectorOrScalar instanceof Vec4 || vectorOrScalar instanceof Vec3 || arguments.length == 4 || arguments.length == 3){
 			return this.addVector(new Vec3(...arguments));
 		}else{
 			return this.addScalar(vectorOrScalar);
