@@ -136,9 +136,9 @@ export default class Vec3{
 		const x = this._x;
 		const y = this._y;
 		const z = this._z;
-		this._x = x * mat4.values[0][0] + y * mat4.values[0][1] + z * mat4.values[0][2] + mat4.values[0][3];
-		this._y = x * mat4.values[1][0] + y * mat4.values[1][1] + z * mat4.values[1][2] + mat4.values[1][3];
-		this._z = x * mat4.values[2][0] + y * mat4.values[2][1] + z * mat4.values[2][2] + mat4.values[2][3];
+		this._x = x * mat4.values[0][0] + y * mat4.values[1][0] + z * mat4.values[2][0] + mat4.values[3][0];
+		this._y = x * mat4.values[0][1] + y * mat4.values[1][1] + z * mat4.values[2][1] + mat4.values[3][1];
+		this._z = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + mat4.values[3][2];
 		this.fireOnChange();
 	}
 

@@ -99,10 +99,10 @@ export default class Vec4{
 		const y = this._y;
 		const z = this._z;
 		const w = this._w;
-		this._x = x * mat4.values[0][0] + y * mat4.values[0][1] + z * mat4.values[0][2] + w * mat4.values[0][3];
-		this._y = x * mat4.values[1][0] + y * mat4.values[1][1] + z * mat4.values[1][2] + w * mat4.values[1][3];
-		this._z = x * mat4.values[2][0] + y * mat4.values[2][1] + z * mat4.values[2][2] + w * mat4.values[2][3];
-		this._w = x * mat4.values[3][0] + y * mat4.values[3][1] + z * mat4.values[3][2] + w * mat4.values[3][3];
+		this._x = x * mat4.values[0][0] + y * mat4.values[1][0] + z * mat4.values[2][0] + w * mat4.values[3][0];
+		this._y = x * mat4.values[0][1] + y * mat4.values[1][1] + z * mat4.values[2][1] + w * mat4.values[3][1];
+		this._z = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + w * mat4.values[3][2];
+		this._w = x * mat4.values[0][3] + y * mat4.values[1][3] + z * mat4.values[2][3] + w * mat4.values[3][3];
 		this.fireOnChange();
 	}
 
