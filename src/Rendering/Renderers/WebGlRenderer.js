@@ -32,7 +32,7 @@ export default class WebGlRenderer extends Renderer{
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 		this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 		if(camera.autoUpdateProjectionMatrix){
-			camera.projectionMatrix = Mat4.createDynamicAspectProjection(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
+			camera.projectionMatrix = Mat4.createDynamicAspectPerspective(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
 		const vpMatrix = Mat4.multiplyMatrices(camera.entity.worldMatrix.inverse(), camera.projectionMatrix);
 		let meshComponents = [];

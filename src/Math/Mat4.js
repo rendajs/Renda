@@ -217,7 +217,7 @@ export default class Mat4{
 		return {pos, rot, scale};
 	}
 
-	static createDynamicAspectProjection(fov = 90, near = 0.05, far = 1000, aspect = 1){
+	static createDynamicAspectPerspective(fov = 90, near = 0.05, far = 1000, aspect = 1){
 		let uwMultiplier = 1;
 		let uhMultiplier = 1;
 		if(aspect > 1){
@@ -225,10 +225,10 @@ export default class Mat4{
 		}else{
 			uwMultiplier = 1 / aspect;
 		}
-		return Mat4.createProjection(fov, near, far, uwMultiplier, uhMultiplier);
+		return Mat4.createPerspective(fov, near, far, uwMultiplier, uhMultiplier);
 	}
 
-	static createProjection(fov = 90, near = 0.05, far = 1000, uwMultiplier = 1, uhMultiplier = 1){
+	static createPerspective(fov = 90, near = 0.05, far = 1000, uwMultiplier = 1, uhMultiplier = 1){
 		const mat = new Mat4();
 		let uw = 1 / Math.tan(fov * Math.PI / 360);
 		let uh = uw;
