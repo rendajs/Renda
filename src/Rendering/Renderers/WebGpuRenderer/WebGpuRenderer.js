@@ -252,7 +252,7 @@ export default class WebGpuRenderer extends Renderer{
 		let data = this.cachedCameraData.get(camera);
 		if(!data){
 			data = new WebGpuCachedCameraData(camera, this);
-			this.cachedMaterialData.set(camera, data);
+			this.cachedCameraData.set(camera, data);
 		}
 		return data;
 	}
