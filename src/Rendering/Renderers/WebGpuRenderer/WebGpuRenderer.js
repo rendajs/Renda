@@ -387,4 +387,20 @@ export default class WebGpuRenderer extends Renderer{
 		}
 		return data;
 	}
+
+	//useful for debugging storage buffers but probably pretty slow
+	//buffer should have GPUBufferUsage.COPY_SRC at creation
+	async inspectBuffer(gpuBuffer, bufferSize){
+		const readBuffer = this.device.createBuffer({
+			size: bufferSize,
+			usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+		});
+		const commandEncoder = this.device.createCommandEncoder();
+		commandEncoder.copyBufferToBuffer(gpuBuffer, 0, readBuffer, 0, bufferSize);
+		const gpuCommands = commandEncoder.finish();
+		this.device.queue.submit([gpuCommands]);
+
+		await readBuffer.mapAsync(GPUMapMode.READ);
+		return readBuffer.getMappedRange();
+	}
 }
