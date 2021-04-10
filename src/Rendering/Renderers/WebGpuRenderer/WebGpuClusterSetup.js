@@ -41,7 +41,7 @@ export default class WebGpuClusterSetup{
 			});
 
 			this.boundsBuffer = this.renderer.device.createBuffer({
-				size: this.totalTileCount * 4 * 4 * 4, //4x4 32 bit float matrix
+				size: this.totalTileCount * 32,
 				usage: GPUBufferUsage.STORAGE,
 			});
 
