@@ -30,12 +30,10 @@ fn screen2View(screen : vec4<f32>) -> vec3<f32> {
 
 [[stage(compute)]]
 fn main() -> void {
-	const tileIndex : u32 = global_id.x + global_id.y * tileCount.x + global_id.z * tileCount.x * tileCount.y;
-
 	const tileSize : vec3<f32> = vec3<f32>(1.0, 1.0, 1.0) / vec3<f32>(tileCount.xyz);
 
-	const minPointScreen : vec4<f32> = vec4<f32>(vec2<f32>(global_id.xy) * tileSize.xy, -1.0, 1.0);
-	const maxPointScreen : vec4<f32> = vec4<f32>((vec2<f32>(global_id.xy) + vec2<f32>(1.0, 1.0)) * tileSize.xy, -1.0, 1.0);
+	const minPointScreen : vec4<f32> = vec4<f32>(vec2<f32>(global_id.xy) * tileSize.xy, 1.0, 1.0);
+	const maxPointScreen : vec4<f32> = vec4<f32>((vec2<f32>(global_id.xy) + vec2<f32>(1.0, 1.0)) * tileSize.xy, 1.0, 1.0);
 
 	const minPointView : vec3<f32> = screen2View(minPointScreen);
 	const maxPointView : vec3<f32> = screen2View(maxPointScreen);
@@ -48,6 +46,7 @@ fn main() -> void {
 	const minFar : vec3<f32> = minPointView * tileFar;
 	const maxFar : vec3<f32> = maxPointView * tileFar;
 
+	const tileIndex : u32 = global_id.x + global_id.y * tileCount.x + global_id.z * tileCount.x * tileCount.y;
 	clusterBounds.bounds[tileIndex].min = min(min(minNear, maxNear),min(minFar, maxFar));
 	clusterBounds.bounds[tileIndex].max = max(max(minNear, maxNear),max(minFar, maxFar));
 	return;
