@@ -303,7 +303,7 @@ export default class ProjectAsset{
 		}
 
 		if(format == "json" && this._projectAssetType.constructor.wrapProjectJsonWithEditorMetaData){
-			fileData = fileData.asset;
+			fileData = fileData.asset || null;
 		}
 		return fileData;
 	}

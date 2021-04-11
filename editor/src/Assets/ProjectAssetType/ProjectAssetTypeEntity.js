@@ -33,6 +33,9 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 	}
 
 	async createEntityFromJsonData(jsonData){
+		if(!jsonData){
+			return new Entity();
+		}
 		let ent = new Entity({
 			name: jsonData.name || "",
 			matrix: jsonData.matrix,
