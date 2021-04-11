@@ -1,8 +1,9 @@
 [[block]] struct Light {
 	[[offset(0)]] pos : vec3<f32>;
+	[[offset(16)]] col : vec3<f32>;
 };
 [[block]] struct Lights {
-	[[offset(0)]] lights : [[stride(16)]] array<Light, 2>;
+	[[offset(0)]] lights : [[stride(32)]] array<Light, 2>;
 };
 [[group(0), binding(1)]] var<storage_buffer> lights : [[access(read)]] Lights;
 
@@ -15,11 +16,16 @@ const lightDir : vec3<f32> = vec3<f32>(0.0, 1.0, 1.0);
 
 [[stage(fragment)]]
 fn main() -> void {
-	var brightness : f32 = 0.0;
+	var color : vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
 	for(var i : i32 = 0; i < 2; i = i + 1){
-		var dist : f32 = length(lights.lights[i].pos - vWorldPos);
-		brightness = brightness + max(0.0, 1.0 - dist * 0.1);
+		var light : Light = lights.lights[i];
+		var dist : f32 = length(light.pos - vWorldPos);
+		var attenuation : f32 = 1.0 / (dist * dist);
+		color = color + vec3<f32>(attenuation, attenuation, attenuation) * light.col;
 	}
-	outColor = vec4<f32>(brightness, brightness, brightness, 1.0);
+
+	var gamma : f32 = 1.0/2.2;
+	color = pow(color, vec3<f32>(gamma, gamma, gamma));
+	outColor = vec4<f32>(color, 1.0);
 	return;
 }

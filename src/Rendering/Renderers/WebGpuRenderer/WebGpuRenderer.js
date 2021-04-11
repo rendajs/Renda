@@ -58,7 +58,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		this.lightsBuffer = new WebGpuUniformBuffer({
 			device,
-			bindGroupLength: this.maxLights * 8,
+			bindGroupLength: 2048,
 			usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 		});
 
@@ -208,7 +208,9 @@ export default class WebGpuRenderer extends Renderer{
 
 		for(const light of lightComponents){
 			this.lightsBuffer.appendData(light.entity.pos);
-			this.lightsBuffer.nextBufferOffset(16);
+			this.lightsBuffer.appendScalar(0); //todo: make this prettier
+			this.lightsBuffer.appendData(light.color);
+			this.lightsBuffer.nextBufferOffset(32);
 		}
 		this.lightsBuffer.writeToGpu();
 

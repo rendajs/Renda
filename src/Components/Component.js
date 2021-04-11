@@ -90,6 +90,8 @@ export default class Component{
 		for(const [propertyName, propertyData] of Object.entries(properties)){
 			if(propertyData.defaultValue != undefined){
 				this[propertyName] = propertyData.defaultValue;
+			}else if(propertyData.type instanceof Array){
+				this[propertyName] = propertyData.type[0];
 			}else if(propertyData.type){
 				this[propertyName] = new propertyData.type();
 			}
