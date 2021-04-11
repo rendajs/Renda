@@ -34,6 +34,7 @@ export default class WebGpuRenderer extends Renderer{
 		this.cachedMeshData = new WeakMap(); //<Mesh, {cachedData}>
 
 		this.computeClusterBoundsPipeline = null;
+		this.computeClusterLightsBindGroupLayout = null;
 	}
 
 	async init(){
@@ -67,9 +68,24 @@ export default class WebGpuRenderer extends Renderer{
 					binding: 0, //cluster bounds buffer
 					visibility: GPUShaderStage.COMPUTE,
 					buffer: {type: "storage"},
-				}
+				},
 			],
-		})
+		});
+
+		this.computeClusterLightsBindGroupLayout = device.createBindGroupLayout({
+			entries: [
+				{
+					binding: 0, //cluster bounds buffer
+					visibility: GPUShaderStage.COMPUTE,
+					buffer: {type: "storage"},
+				},
+				{
+					binding: 1, //cluster lights buffer
+					visibility: GPUShaderStage.COMPUTE,
+					buffer: {type: "storage"},
+				},
+			],
+		});
 
 		this.viewUniformsBuffer = new WebGpuUniformBuffer({
 			device,
@@ -188,6 +204,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		const cameraData = this.getCachedCameraData(camera);
 		cameraData.clusterSetup.computeBounds(commandEncoder);
+		cameraData.clusterSetup.computeLightIndices(commandEncoder);
 
 		for(const light of lightComponents){
 			this.lightsBuffer.appendData(light.entity.pos);

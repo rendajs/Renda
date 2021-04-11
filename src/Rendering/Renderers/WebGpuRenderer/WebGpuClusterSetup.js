@@ -1,4 +1,4 @@
-import {computeClusterBoundsShaderCode} from "./WebGpuShaders.js";
+import {computeClusterBoundsShaderCode, computeClusterLightsShaderCode} from "./WebGpuShaders.js";
 
 export default class WebGpuClusterSetup{
 	constructor(camera, cachedCameraData){
@@ -11,10 +11,17 @@ export default class WebGpuClusterSetup{
 		this.tileCountZ = 24;
 		this.totalTileCount = this.tileCountX * this.tileCountY * this.tileCountZ;
 
+		this.maxLightsPerCluster = 10;
+
 		this.computeBoundsPipelineDirty = true;
 		this.computeBoundsPipeline = null;
 		this.boundsBuffer = null;
 		this.boundsBindGroup = null;
+
+		this.computeLightIndicesPipelineDirty = true;
+		this.computeLightIndicesPipeline = null;
+		this.lightIndicesBuffer = null;
+		this.lightIndicesBindGroup = null;
 	}
 
 	computeBounds(commandEncoder){
@@ -65,6 +72,63 @@ export default class WebGpuClusterSetup{
 		computePassEncoder.setPipeline(this.computeBoundsPipeline);
 		computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
 		computePassEncoder.setBindGroup(1, this.boundsBindGroup);
+		computePassEncoder.dispatch(this.tileCountX, this.tileCountY, this.tileCountZ);
+		computePassEncoder.endPass();
+	}
+
+	computeLightIndices(commandEncoder){
+		if(this.computeLightIndicesPipelineDirty){
+			this.computeLightIndicesPipeline = this.renderer.device.createComputePipeline({
+				layout: this.renderer.device.createPipelineLayout({
+					bindGroupLayouts: [
+						this.renderer.viewBindGroupLayout,
+						this.renderer.computeClusterLightsBindGroupLayout,
+					],
+				}),
+				computeStage: {
+					module: this.renderer.device.createShaderModule({
+						code: computeClusterLightsShaderCode({
+							totalTileCount: this.totalTileCount,
+							maxLightsPerCluster: this.maxLightsPerCluster,
+							tileCountX: this.tileCountX,
+							tileCountY: this.tileCountY,
+							tileCountZ: this.tileCountZ,
+						}),
+					}),
+					entryPoint: "main",
+				},
+			});
+
+			this.lightIndicesBuffer = this.renderer.device.createBuffer({
+				size: (this.maxLightsPerCluster * 4 + 4) * this.totalTileCount,
+				usage: GPUBufferUsage.STORAGE,
+			});
+
+			this.lightIndicesBindGroup = this.renderer.device.createBindGroup({
+				layout: this.renderer.computeClusterLightsBindGroupLayout,
+				entries: [
+					{
+						binding: 0,
+						resource: {
+							buffer: this.boundsBuffer,
+						},
+					},
+					{
+						binding: 1,
+						resource: {
+							buffer: this.lightIndicesBuffer,
+						},
+					},
+				],
+			});
+
+			this.computeLightIndicesPipelineDirty = false;
+		}
+
+		const computePassEncoder = commandEncoder.beginComputePass();
+		computePassEncoder.setPipeline(this.computeLightIndicesPipeline);
+		computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
+		computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
 		computePassEncoder.dispatch(this.tileCountX, this.tileCountY, this.tileCountZ);
 		computePassEncoder.endPass();
 	}
