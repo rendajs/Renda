@@ -1,4 +1,4 @@
-export default class WebGpuUniformBuffer{
+export default class WebGpuBufferHelper{
 	constructor({
 		device = null,
 		bindGroupLayout = null,

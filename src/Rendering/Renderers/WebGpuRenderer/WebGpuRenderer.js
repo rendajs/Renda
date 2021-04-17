@@ -1,7 +1,7 @@
 import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
-import WebGpuUniformBuffer from "./WebGpuUniformBuffer.js";
+import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
 import WebGpuCachedCameraData from "./WebGpuCachedCameraData.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
@@ -56,7 +56,7 @@ export default class WebGpuRenderer extends Renderer{
 			],
 		});
 
-		this.lightsBuffer = new WebGpuUniformBuffer({
+		this.lightsBuffer = new WebGpuBufferHelper({
 			device,
 			bindGroupLength: 2048,
 			usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
@@ -87,12 +87,12 @@ export default class WebGpuRenderer extends Renderer{
 			],
 		});
 
-		this.viewUniformsBuffer = new WebGpuUniformBuffer({
+		this.viewUniformsBuffer = new WebGpuBufferHelper({
 			device,
 			bindGroupLayout: this.viewBindGroupLayout,
 		});
 
-		this.materialUniformsBuffer = new WebGpuUniformBuffer({
+		this.materialUniformsBuffer = new WebGpuBufferHelper({
 			device,
 			bindGroupLayout: device.createBindGroupLayout({
 				entries: [
@@ -106,7 +106,7 @@ export default class WebGpuRenderer extends Renderer{
 		});
 		this.materialUniformsBufferBindGroup = this.materialUniformsBuffer.createBindGroup();
 
-		this.objectUniformsBuffer = new WebGpuUniformBuffer({
+		this.objectUniformsBuffer = new WebGpuBufferHelper({
 			device,
 			bindGroupLayout: device.createBindGroupLayout({
 				entries: [
