@@ -58,7 +58,7 @@ export default class Entity{
 		return component;
 	}
 
-	*getComponentsByType(type, namespace = defaultComponentTypeManager.defaultNamespace, componentTypeManager = defaultComponentTypeManager){
+	*getComponentsByType(type, namespace = defaultComponentTypeManager.builtInNamespace, componentTypeManager = defaultComponentTypeManager){
 		for(const component of this.components){
 			if(component.componentType == type && component.componentTypeManager == componentTypeManager){
 				if(namespace && component.componentNamespace != namespace) continue;
@@ -67,7 +67,7 @@ export default class Entity{
 		}
 	}
 
-	*getChildComponentsByType(type, namespace = defaultComponentTypeManager.defaultNamespace, componentTypeManager = defaultComponentTypeManager){
+	*getChildComponentsByType(type, namespace = defaultComponentTypeManager.builtInNamespace, componentTypeManager = defaultComponentTypeManager){
 		for(const child of this.traverseDown()){
 			for(const component of child.getComponentsByType(type, namespace, componentTypeManager)){
 				yield component;

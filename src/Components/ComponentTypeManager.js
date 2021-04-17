@@ -2,7 +2,7 @@ export default class ComponentTypeManager{
 	constructor(){
 		this.namespaces = new Map();
 
-		this.getNamespace(this.defaultNamespace);
+		this.getNamespace(this.builtInNamespace);
 		this.getNamespace(this.userNamespace);
 	}
 
@@ -19,8 +19,8 @@ export default class ComponentTypeManager{
 
 	sortNamespaces(){
 		this.namespaces = new Map([...this.namespaces.entries()].sort((a, b) => {
-			if(a[0] == this.defaultNamespace || b[0] == this.userNamespace) return 1;
-			if(b[0] == this.defaultNamespace || a[0] == this.userNamespace) return -1;
+			if(a[0] == this.builtInNamespace || b[0] == this.userNamespace) return 1;
+			if(b[0] == this.builtInNamespace || a[0] == this.userNamespace) return -1;
 		}));
 	}
 
@@ -40,7 +40,7 @@ export default class ComponentTypeManager{
 		namespaceObj.componentTypes.set(type, componentData);
 	}
 
-	get defaultNamespace(){
+	get builtInNamespace(){
 		return 0;
 	}
 

@@ -4,7 +4,7 @@ import {DefaultComponentTypes, defaultComponentTypeManager, LightIconGizmo} from
 export default class ComponentGizmosLight extends ComponentGizmos{
 
 	static componentType = DefaultComponentTypes.light;
-	static componentNamespace = defaultComponentTypeManager.defaultNamespace;
+	static componentNamespace = defaultComponentTypeManager.builtInNamespace;
 	static requiredGizmos = [LightIconGizmo];
 
 	constructor(){

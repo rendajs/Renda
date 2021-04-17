@@ -4,7 +4,7 @@ import {DefaultComponentTypes, defaultComponentTypeManager, CameraIconGizmo, Cam
 export default class ComponentGizmosCamera extends ComponentGizmos{
 
 	static componentType = DefaultComponentTypes.camera;
-	static componentNamespace = defaultComponentTypeManager.defaultNamespace;
+	static componentNamespace = defaultComponentTypeManager.builtInNamespace;
 	static requiredGizmos = [CameraIconGizmo, CameraGizmo];
 
 	constructor(){

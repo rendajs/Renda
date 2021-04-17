@@ -14,7 +14,7 @@ import DevSocketManager from "./DevSocketManager.js";
 
 import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
 
-import {WebGpuRenderer, defaultComponents, defaultComponentTypeManager, ShaderBuilder} from "../../src/index.js";
+import {WebGpuRenderer, builtInComponents, defaultComponentTypeManager, ShaderBuilder} from "../../src/index.js";
 import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
@@ -38,8 +38,8 @@ export default class Editor{
 			this.devSocket = new DevSocketManager();
 		}
 
-		for(const [type, component] of defaultComponents){
-			defaultComponentTypeManager.registerComponentType(type, component, defaultComponentTypeManager.defaultNamespace);
+		for(const [type, component] of builtInComponents){
+			defaultComponentTypeManager.registerComponentType(type, component, defaultComponentTypeManager.builtInNamespace);
 		}
 
 		this.lastUsedSelectionManager = null;

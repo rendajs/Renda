@@ -6,7 +6,7 @@ export default class ComponentGizmos{
 	static componentType = null;
 
 	//override this if your component has a custom namespace,
-	//builtin editor components should use defaultComponentTypeManager.defaultNamespace
+	//builtin editor components should use defaultComponentTypeManager.builtInNamespace
 	static componentNamespace = defaultComponentTypeManager.userNamespace;
 
 	//a list of gizmo constructors
