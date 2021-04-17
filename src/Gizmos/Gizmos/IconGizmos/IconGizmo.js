@@ -1,6 +1,6 @@
 import Gizmo from "../Gizmo.js";
 import Mesh from "../../../Core/Mesh.js";
-import DefaultComponentTypes from "../../../Components/DefaultComponentTypes.js";
+import MeshComponent from "../../../Components/BuiltIn/MeshComponent.js";
 import Vec3 from "../../../Math/Vec3.js";
 import Vec2 from "../../../Math/Vec2.js";
 
@@ -15,7 +15,7 @@ export default class IconGizmo extends Gizmo{
 		this.positions = [];
 		this.colors = [];
 
-		this.entity.addComponent(DefaultComponentTypes.mesh, {
+		this.entity.addComponent(MeshComponent, {
 			mesh: this.mesh,
 			materials: [this.gizmoManager.billboardMaterial],
 		});

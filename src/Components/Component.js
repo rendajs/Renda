@@ -8,19 +8,24 @@ import Mat4 from "../Math/Mat4.js";
 
 export default class Component{
 	constructor(componentType, propertyValues = {}, {
-		componentNamespace = null,
 		componentTypeManager = defaultComponentTypeManager
 	} = {}){
-		this.componentType = componentType;
-		this.componentNamespace = componentNamespace;
 		this.componentTypeManager = componentTypeManager;
+
+		if(typeof componentType == "string"){
+			this.componentUuid = componentUuid;
+		}else{
+			const componentData = this.componentTypeManager.getComponentFromData(componentType);
+			if(!componentData){
+				throw new Error("Unable to create new component type");
+			}
+			this.componentUuid = componentData.uuid;
+		}
 		this.entity = null;
 
 		const componentData = this.getComponentData();
 		if(componentData && componentData.properties){
 			this.setDefaultValues(componentData.properties);
-		}else{
-			this.setDefaultValues(null);
 		}
 
 		for(const [propertyName, propertyValue] of Object.entries(propertyValues)){
@@ -47,13 +52,9 @@ export default class Component{
 			}
 		}
 		const componentJson = {
-			type: this.componentType,
-			namespace: this.componentNamespace,
+			uuid: this.componentUuid,
 			propertyValues,
 		};
-		if(this.componentNamespace != null){
-			componentJson.namespace = this.componentNamespace;
-		}
 		return componentJson;
 	}
 
@@ -83,7 +84,7 @@ export default class Component{
 	}
 
 	getComponentData(){
-		return this.componentTypeManager.getComponentData(this.componentType, this.componentNamespace);
+		return this.componentTypeManager.getComponentDataForUuid(this.componentUuid);
 	}
 
 	setDefaultValues(properties){

@@ -38,8 +38,8 @@ export default class Editor{
 			this.devSocket = new DevSocketManager();
 		}
 
-		for(const [type, component] of builtInComponents){
-			defaultComponentTypeManager.registerComponentType(type, component, defaultComponentTypeManager.builtInNamespace);
+		for(const component of builtInComponents){
+			defaultComponentTypeManager.registerComponent(component);
 		}
 
 		this.lastUsedSelectionManager = null;

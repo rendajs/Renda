@@ -48,6 +48,8 @@ export default class Entity{
 		//todo: remove transformation listeners from rot pos scale etc
 	}
 
+	//if the argument already is a component, it will be detached
+	//from the old entity and attached it to this one
 	addComponent(component){
 		if(!(component instanceof Component)){
 			component = new Component(...arguments);
@@ -58,18 +60,19 @@ export default class Entity{
 		return component;
 	}
 
-	*getComponentsByType(type, namespace = defaultComponentTypeManager.builtInNamespace, componentTypeManager = defaultComponentTypeManager){
+	*getComponentsByType(type, componentTypeManager = defaultComponentTypeManager){
+		const component = componentTypeManager.getComponentFromData(type, false);
+		const uuid = component.uuid;
 		for(const component of this.components){
-			if(component.componentType == type && component.componentTypeManager == componentTypeManager){
-				if(namespace && component.componentNamespace != namespace) continue;
+			if(component.componentUuid == uuid && component.componentTypeManager == componentTypeManager){
 				yield component;
 			}
 		}
 	}
 
-	*getChildComponentsByType(type, namespace = defaultComponentTypeManager.builtInNamespace, componentTypeManager = defaultComponentTypeManager){
+	*getChildComponentsByType(type, componentTypeManager = defaultComponentTypeManager){
 		for(const child of this.traverseDown()){
-			for(const component of child.getComponentsByType(type, namespace, componentTypeManager)){
+			for(const component of child.getComponentsByType(type, componentTypeManager)){
 				yield component;
 			}
 		}

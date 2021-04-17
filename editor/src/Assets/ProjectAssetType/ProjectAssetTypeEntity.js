@@ -42,11 +42,10 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		});
 		if(jsonData.components){
 			for(const component of jsonData.components){
-				const componentType = component.type;
-				const componentNamespace = component.namespace;
-				const componentData = defaultComponentTypeManager.getComponentData(componentType, componentNamespace);
+				const componentUuid = component.uuid;
+				const componentData = defaultComponentTypeManager.getComponentDataForUuid(componentUuid);
 				const componentPropertyValues = await this.componentPropertyValuesFromJson(component.propertyValues, componentData);
-				ent.addComponent(componentType, componentPropertyValues, {componentNamespace});
+				ent.addComponent(componentData, componentPropertyValues);
 			}
 		}
 		if(jsonData.children){

@@ -1,4 +1,4 @@
-import {Renderer, WebGlShader, ShaderSource, Mat4, DefaultComponentTypes, defaultComponentTypeManager, Mesh, Material, MeshAttributeBuffer} from "../../index.js";
+import {Renderer, WebGlShader, ShaderSource, Mat4, defaultComponentTypeManager, Mesh, Material, MeshAttributeBuffer} from "../../index.js";
 
 export default class WebGlRenderer extends Renderer{
 

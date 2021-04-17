@@ -1,4 +1,4 @@
-import {Mat4, Vec4, DefaultComponentTypes, defaultComponentTypeManager, Mesh} from "../../../index.js";
+import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuUniformBuffer from "./WebGpuUniformBuffer.js";
@@ -173,11 +173,11 @@ export default class WebGpuRenderer extends Renderer{
 		//see state of CameraComponent.js in commit 5d2efa1
 		for(const root of rootRenderEntities){
 			for(const child of root.traverseDown()){
-				for(const component of child.getComponentsByType(DefaultComponentTypes.mesh)){
+				for(const component of child.getComponentsByType(MeshComponent)){
 					if(!component.mesh || !component.mesh.vertexState) continue;
 					meshComponents.push(component);
 				}
-				for(const component of child.getComponentsByType(DefaultComponentTypes.light)){
+				for(const component of child.getComponentsByType(LightComponent)){
 					lightComponents.push(component);
 				}
 			}

@@ -1,31 +1,18 @@
 export default class ComponentTypeManager{
 	constructor(){
-		this.namespaces = new Map();
-
-		this.getNamespace(this.builtInNamespace);
-		this.getNamespace(this.userNamespace);
+		this.components = new Map(); //Map<uuid, componentData>
 	}
 
-	getNamespace(namespace, creationOpts = {}){
-		let namespaceObj = this.namespaces.get(namespace);
-		if(namespaceObj) return namespaceObj;
-		namespaceObj = {
-			componentTypes: new Map(),
+	registerComponent(componentData){
+		if(!componentData){
+			console.warn("registerComponent expects componentData to be an object.");
+			return null;
 		}
-		this.namespaces.set(namespace, namespaceObj);
-		this.sortNamespaces();
-		return namespaceObj;
-	}
+		if(!componentData.uuid){
+			console.warn("Unable to register component, component doesn't have an uuid.");
+			return null;
+		}
 
-	sortNamespaces(){
-		this.namespaces = new Map([...this.namespaces.entries()].sort((a, b) => {
-			if(a[0] == this.builtInNamespace || b[0] == this.userNamespace) return 1;
-			if(b[0] == this.builtInNamespace || a[0] == this.userNamespace) return -1;
-		}));
-	}
-
-	registerComponentType(type, componentData, namespace = this.userNamespace){
-		const namespaceObj = this.getNamespace(namespace);
 		if(componentData && componentData.properties){
 			for(const [propertyName, property] of Object.entries(componentData.properties)){
 				if(!property.type && property.defaultValue != undefined){
@@ -37,36 +24,27 @@ export default class ComponentTypeManager{
 				}
 			}
 		}
-		namespaceObj.componentTypes.set(type, componentData);
+
+		this.components.set(componentData.uuid, componentData);
+		return componentData;
 	}
 
-	get builtInNamespace(){
-		return 0;
-	}
-
-	get userNamespace(){
-		return 1;
-	}
-
-	getComponentData(type, namespace = null){
-		if(namespace == null){
-			for(const namespaceObj of this.namespaces.values()){
-				let componentData = namespaceObj.componentTypes.get(type);
-				if(componentData) return componentData;
-			}
-			return null;
-		}else{
-			const namespaceObj = this.namespaces.get(namespace);
-			if(!namespaceObj) return null;
-			return namespaceObj.componentTypes.get(type);
-		}
+	getComponentDataForUuid(uuid){
+		return this.components.get(uuid);
 	}
 
 	*getAllComponents(){
-		for(const [namespace, namespaceObj] of this.namespaces){
-			for(const [type, componentData] of namespaceObj.componentTypes){
-				yield {namespace, type, componentData};
-			}
+		for(const component of this.components.values()){
+			yield component;
+		}
+	}
+
+	getComponentFromData(componentData, registerIfNotFound = true){
+		const component = this.components.get(componentData.uuid);
+		if(component){
+			return component;
+		}else if(registerIfNotFound){
+			return this.registerComponent(componentData);
 		}
 	}
 }

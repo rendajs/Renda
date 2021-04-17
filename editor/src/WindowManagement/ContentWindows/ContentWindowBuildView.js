@@ -2,7 +2,7 @@ import editor from "../../editorInstance.js";
 import ContentWindow from "./ContentWindow.js";
 import Button from "../../UI/Button.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
-import {DefaultComponentTypes} from "../../../../src/index.js";
+import {CameraComponent} from "../../../../src/index.js";
 
 export default class ContentWindowBuildView extends ContentWindow{
 	constructor(){
@@ -68,7 +68,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 		let foundCamComponent = null;
 		if(this.linkedEntityEditor){
 			for(const obj of this.linkedEntityEditor.selectionManager.currentSelectedObjects){
-				for(const camComponent of obj.getComponentsByType(DefaultComponentTypes.camera)){
+				for(const camComponent of obj.getComponentsByType(CameraComponent)){
 					foundCamComponent = camComponent;
 					break;
 				}
@@ -76,7 +76,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 			}
 
 			if(!foundCamComponent){
-				for(const camComponent of this.linkedEntityEditor.editingEntity.getChildComponentsByType(DefaultComponentTypes.camera)){
+				for(const camComponent of this.linkedEntityEditor.editingEntity.getChildComponentsByType(CameraComponent)){
 					foundCamComponent = camComponent;
 					break;
 				}

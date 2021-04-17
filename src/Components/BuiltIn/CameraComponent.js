@@ -1,6 +1,8 @@
 import Mat4 from "../../Math/Mat4.js";
 
 export default {
+	uuid: "1a78b3f2-7688-4776-b512-ed1ee2326d8a",
+	name: "Camera",
 	properties: {
 		fov: {
 			defaultValue: 70,

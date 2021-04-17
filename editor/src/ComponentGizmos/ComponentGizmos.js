@@ -2,12 +2,8 @@ import {defaultComponentTypeManager} from "../../../../src/index.js";
 
 export default class ComponentGizmos{
 
-	//set this to the componentType as used by the component manager
+	//set this to the componentType as used by the component manager (not the component uuid)
 	static componentType = null;
-
-	//override this if your component has a custom namespace,
-	//builtin editor components should use defaultComponentTypeManager.builtInNamespace
-	static componentNamespace = defaultComponentTypeManager.userNamespace;
 
 	//a list of gizmo constructors
 	//these will automatically be created and destroyed with the component/entity

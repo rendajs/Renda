@@ -1,10 +1,9 @@
 import ComponentGizmos from "./ComponentGizmos.js";
-import {DefaultComponentTypes, defaultComponentTypeManager, CameraIconGizmo, CameraGizmo} from "../../../../src/index.js";
+import {CameraComponent, defaultComponentTypeManager, CameraIconGizmo, CameraGizmo} from "../../../../src/index.js";
 
 export default class ComponentGizmosCamera extends ComponentGizmos{
 
-	static componentType = DefaultComponentTypes.camera;
-	static componentNamespace = defaultComponentTypeManager.builtInNamespace;
+	static componentType = CameraComponent;
 	static requiredGizmos = [CameraIconGizmo, CameraGizmo];
 
 	constructor(){

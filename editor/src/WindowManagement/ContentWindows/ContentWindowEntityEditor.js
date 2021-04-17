@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import ContentWindowBuildView from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, DefaultComponentTypes, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, CameraComponent, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -31,7 +31,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorScene = new Entity("editorScene");
 		this.editorCamera = new Entity("editorCamera");
 		this.editorScene.add(this.editorCamera);
-		this.editorCamComponent = this.editorCamera.addComponent(DefaultComponentTypes.camera);
+		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
 
@@ -181,7 +181,8 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			for(const component of entity.components){
 				let componentGizmos = linkedComponentGizmos.get(component);
 				if(!componentGizmos){
-					componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(component.componentType, component.componentNamespace, component, this.gizmos);
+					const componentType = component.getComponentData();
+					componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(componentType, component, this.gizmos);
 					if(componentGizmos){
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
 						linkedComponentGizmos.set(component, componentGizmos);

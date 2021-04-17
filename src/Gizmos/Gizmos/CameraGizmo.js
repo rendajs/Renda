@@ -1,6 +1,6 @@
 import Gizmo from "./Gizmo.js";
 import Mesh from "../../Core/Mesh.js";
-import DefaultComponentTypes from "../../Components/DefaultComponentTypes.js";
+import MeshComponent from "../../Components/BuiltIn/MeshComponent.js";
 import Vec3 from "../../Math/Vec3.js";
 import Vec4 from "../../Math/Vec4.js";
 import Mat4 from "../../Math/Mat4.js";
@@ -24,7 +24,7 @@ export default class CameraGizmo extends Gizmo{
 			new Vec3(1,1,1),
 		];
 
-		this.entity.addComponent(DefaultComponentTypes.mesh, {
+		this.entity.addComponent(MeshComponent, {
 			mesh: this.mesh,
 			materials: [this.gizmoManager.meshMaterial],
 		});

@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vec3, Quaternion, defaultComponentTypeManager, DefaultComponentTypes, Mesh} from "../../../src/index.js";
+import {Entity, Vec3, Quaternion, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
 import {findObjectKey} from "../../../src/Util/Util.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
@@ -62,11 +62,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			onClick: _ => {
 				let menu = editor.contextMenuManager.createContextMenu();
 				for(const component of defaultComponentTypeManager.getAllComponents()){
-					const componentName = this.getComponentName(component.type);
-					menu.addItem(componentName, {
+					menu.addItem(component.name || component.uuid, {
 						onClick: _ => {
 							for(const obj of this.currentSelection){
-								obj.addComponent(component.type);
+								obj.addComponent(component);
 								this.notifyEntityEditors(obj, "component");
 							}
 							this.refreshComponents();
@@ -110,7 +109,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			}
 		}
 		for(const componentGroup of componentGroups){
-			const componentName = this.getComponentName(componentGroup.componentType, componentGroup.componentNamespace);
+			const componentName = componentGroup.name || componentGroup.uuid;
 			const componentUI = this.componentsSection.addCollapsable(componentName);
 			const componentData = componentGroup.getComponentData();
 			const serializableStructure = componentData?.properties;
@@ -125,11 +124,6 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 				componentUI.fillSerializableStructureValues(componentGroup);
 			}
 		}
-	}
-
-	getComponentName(type, namespace){
-		//todo: handle namespace
-		return findObjectKey(DefaultComponentTypes, type);
 	}
 
 	async mapDroppableGuiValues(value){

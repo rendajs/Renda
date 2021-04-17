@@ -4,7 +4,7 @@ import {defaultComponentTypeManager} from "../../../../src/index.js";
 
 export default class ComponentGizmosManager{
 	constructor(){
-		this.componentGizmos = new Map(); //Map<namespace, Map<componentType, ComponentGizmos>>
+		this.componentGizmos = new Map(); //Map<componentType, ComponentGizmos>
 	}
 
 	init(){
@@ -24,31 +24,15 @@ export default class ComponentGizmosManager{
 			return;
 		}
 
-		let namespace = this.componentGizmos.get(constructor.componentNamespace);
-		if(!namespace){
-			namespace = new Map();
-			this.componentGizmos.set(constructor.componentNamespace, namespace);
-		}
-
-		namespace.set(constructor.componentType, constructor);
+		this.componentGizmos.set(constructor.componentType, constructor);
 	}
 
-	getComponentGizmos(componentType, namespace = null){
-		if(namespace == null){
-			for(const namespaceObj of this.componentGizmos.values()){
-				let componentGizmos = namespaceObj.get(componentType);
-				if(componentGizmos) return componentGizmos;
-			}
-			return null;
-		}else{
-			const namespaceObj = this.componentGizmos.get(namespace);
-			if(!namespaceObj) return null;
-			return namespaceObj.get(componentType);
-		}
+	getComponentGizmos(componentType){
+		return this.componentGizmos.get(componentType);
 	}
 
-	createComponentGizmosInstance(componentType, namespace, component, gizmoManager){
-		const constructor = this.getComponentGizmos(componentType, namespace);
+	createComponentGizmosInstance(componentType, component, gizmoManager){
+		const constructor = this.getComponentGizmos(componentType);
 		if(!constructor) return null;
 		return new constructor(component, gizmoManager);
 	}
