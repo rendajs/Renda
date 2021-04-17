@@ -12,16 +12,19 @@
 
 [[location(0)]] var<out> outColor : vec4<f32>;
 
-const lightDir : vec3<f32> = vec3<f32>(0.0, 1.0, 1.0);
-
 [[stage(fragment)]]
 fn main() -> void {
 	var color : vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
 	for(var i : i32 = 0; i < 2; i = i + 1){
-		var light : Light = lights.lights[i];
-		var dist : f32 = length(light.pos - vWorldPos);
-		var attenuation : f32 = 1.0 / (dist * dist);
-		color = color + vec3<f32>(attenuation, attenuation, attenuation) * light.col;
+		const light : Light = lights.lights[i];
+		const deltaLightPos : vec3<f32> = light.pos - vWorldPos;
+		const lightDir : vec3<f32> = normalize(deltaLightPos);
+		const lightDist : f32 = length(deltaLightPos);
+		const attenuation : f32 = 1.0 / (lightDist * lightDist);
+
+		const NdotL : f32 = max(dot(normal, lightDir), 0.0);
+
+		color = color + light.col * NdotL * attenuation;
 	}
 
 	var gamma : f32 = 1.0/2.2;
