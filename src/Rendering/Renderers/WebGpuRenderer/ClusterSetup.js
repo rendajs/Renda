@@ -34,7 +34,7 @@ export default class ClusterSetup{
 						this.renderer.computeClusterBoundsBindGroupLayout,
 					],
 				}),
-				computeStage: {
+				compute: {
 					module: this.renderer.device.createShaderModule({
 						code: computeClusterBoundsShaderCode({
 							totalTileCount: this.totalTileCount,
@@ -85,7 +85,7 @@ export default class ClusterSetup{
 						this.renderer.computeClusterLightsBindGroupLayout,
 					],
 				}),
-				computeStage: {
+				compute: {
 					module: this.renderer.device.createShaderModule({
 						code: computeClusterLightsShaderCode({
 							totalTileCount: this.totalTileCount,
