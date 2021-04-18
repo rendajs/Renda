@@ -2,7 +2,7 @@ import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, 
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
-import WebGpuCachedCameraData from "./WebGpuCachedCameraData.js";
+import CachedCameraData from "./CachedCameraData.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
@@ -270,7 +270,7 @@ export default class WebGpuRenderer extends Renderer{
 	getCachedCameraData(camera){
 		let data = this.cachedCameraData.get(camera);
 		if(!data){
-			data = new WebGpuCachedCameraData(camera, this);
+			data = new CachedCameraData(camera, this);
 			this.cachedCameraData.set(camera, data);
 		}
 		return data;

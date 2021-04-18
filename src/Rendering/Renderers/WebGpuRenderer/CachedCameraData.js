@@ -1,11 +1,11 @@
-import WebGpuClusterSetup from "./WebGpuClusterSetup.js";
+import ClusterSetup from "./ClusterSetup.js";
 
-export default class WebGpuCachedCameraData{
+export default class CachedCameraData{
 	constructor(camera, renderer){
 		this.camera = camera;
 		this.renderer = renderer;
 
-		this.clusterSetup = new WebGpuClusterSetup(camera, this);
+		this.clusterSetup = new ClusterSetup(camera, this);
 
 		this.viewBindGroup = this.renderer.device.createBindGroup({
 			layout: this.renderer.viewBindGroupLayout,

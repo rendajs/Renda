@@ -1,6 +1,6 @@
-import {computeClusterBoundsShaderCode, computeClusterLightsShaderCode} from "./WebGpuShaders.js";
+import {computeClusterBoundsShaderCode, computeClusterLightsShaderCode} from "./ClusteredComputeShaders.js";
 
-export default class WebGpuClusterSetup{
+export default class ClusterSetup{
 	constructor(camera, cachedCameraData){
 		this.camera = camera;
 		this.cachedCameraData = cachedCameraData;
