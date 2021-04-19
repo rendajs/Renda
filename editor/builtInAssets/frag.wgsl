@@ -23,7 +23,7 @@
 [[block]] struct ClusterLightIndicesArray {
 	[[offset(0)]] clusters : [[stride(44)]] array<ClusterLightIndices, 3456>;
 };
-[[group(0), binding(2)]] var<storage> clusterLightIndices : ClusterLightIndicesArray;
+[[group(0), binding(2)]] var<storage> clusterLightIndices : [[access(read)]] ClusterLightIndicesArray;
 
 fn depthToLinear(z : f32) -> f32 {
 	// const m : mat4x4<f32> = viewUniforms.projectionMatrix;

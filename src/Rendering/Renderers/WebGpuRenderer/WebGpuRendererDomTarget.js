@@ -22,14 +22,14 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		this.ready = false;
 
 		this.colorAttachment = {
-			attachment: null, //will be assigned in getRenderPassDescriptor()
+			view: null, //will be assigned in getRenderPassDescriptor()
 			resolveTarget: null, //will be assigned in getRenderPassDescriptor()
 			loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
 		}
 		this.depthStencilAttachment = null;
 		if(this.depthSupport){
 			this.depthStencilAttachment = {
-				attachment: null, //will be assigned in generateTextures()
+				view: null, //will be assigned in generateTextures()
 				depthLoadValue: 1,
 				depthStoreOp: "store",
 				stencilLoadValue: 1,
@@ -90,7 +90,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 				format: this.depthFormat,
 				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 			});
-			this.depthStencilAttachment.attachment = this.depthTexture.createView();
+			this.depthStencilAttachment.view = this.depthTexture.createView();
 		}
 	}
 
@@ -98,9 +98,9 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		if(!this.ready) return null;
 		const swapChainTextureView = this.swapChain.getCurrentTexture().createView();
 		if(this.sampleCount == 1){
-			this.colorAttachment.attachment = swapChainTextureView;
+			this.colorAttachment.view = swapChainTextureView;
 		}else{
-			this.colorAttachment.attachment = this.colorTextureView;
+			this.colorAttachment.view = this.colorTextureView;
 			this.colorAttachment.resolveTarget = swapChainTextureView;
 		}
 		return this.renderPassDescriptor;

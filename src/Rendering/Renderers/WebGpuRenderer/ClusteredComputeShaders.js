@@ -29,7 +29,7 @@ function clusterBounds(totalClusterCount){
 [[block]] struct ClusterBoundsArray {
 	[[offset(0)]] bounds : [[stride(32)]] array<ClusterAABB, ${totalClusterCount}>;
 };
-[[group(1), binding(0)]] var<storage> clusterBounds : ClusterBoundsArray;
+[[group(1), binding(0)]] var<storage> clusterBounds : [[access(write)]] ClusterBoundsArray;
 `;
 }
 
@@ -42,7 +42,7 @@ function clusterLightIndices(totalClusterCount, maxLightCount){
 [[block]] struct ClusterLightIndicesArray {
 	[[offset(0)]] clusters : [[stride(${maxLightCount*4 + 4})]] array<ClusterLightIndices, ${totalClusterCount}>;
 };
-[[group(1), binding(1)]] var<storage> clusterLightIndices : ClusterLightIndicesArray;
+[[group(1), binding(1)]] var<storage> clusterLightIndices : [[access(write)]] ClusterLightIndicesArray;
 `;
 }
 
