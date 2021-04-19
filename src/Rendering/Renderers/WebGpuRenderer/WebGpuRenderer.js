@@ -50,8 +50,13 @@ export default class WebGpuRenderer extends Renderer{
 				},
 				{
 					binding: 1, //lights
-					visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
+					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
 					buffer: {type: "read-only-storage"},
+				},
+				{
+					binding: 2, //cluster light indices
+					visibility: GPUShaderStage.FRAGMENT,
+					buffer: {type: "storage"},
 				},
 			],
 		});
@@ -196,9 +201,10 @@ export default class WebGpuRenderer extends Renderer{
 		const inverseProjectionMatrix = camera.projectionMatrix.inverse();
 
 		//todo, only update when something changed
-		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width,domTarget.height, 0, 0)); //todo, pass as integer
+		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width,domTarget.height, 0, 0)); //todo, pass as integer?
 		this.viewUniformsBuffer.appendData(camera.projectionMatrix);
 		this.viewUniformsBuffer.appendData(inverseProjectionMatrix);
+		this.viewUniformsBuffer.appendData(new Vec4(camera.clipNear, camera.clipFar));
 
 		this.viewUniformsBuffer.writeToGpu();
 
@@ -215,7 +221,7 @@ export default class WebGpuRenderer extends Renderer{
 		this.lightsBuffer.writeToGpu();
 
 		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
-		renderPassEncoder.setBindGroup(0, cameraData.viewBindGroup);
+		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
 		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); //todo
 
 		for(const [i, meshComponent] of meshComponents.entries()){
