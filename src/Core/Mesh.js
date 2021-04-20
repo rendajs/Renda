@@ -11,6 +11,8 @@ export default class Mesh{
 		this.indexLength = 0;
 
 		this.vertexCount = 0;
+
+		this.onIndexBufferChangedCbs = new Set();
 	}
 
 	destructor(){
@@ -111,6 +113,7 @@ export default class Mesh{
 			throw new TypeError("invalid data type");
 		}
 		this.indexBuffer = data;
+		this.fireIndexBufferChanged();
 	}
 
 	setVertexCount(vertexCount){
@@ -214,6 +217,16 @@ export default class Mesh{
 
 		for(const buffer of oldBuffers){
 			this.setAttributeBufferData(buffer);
+		}
+	}
+
+	onIndexBufferChanged(cb){
+		this.onIndexBufferChangedCbs.add(cb);
+	}
+
+	fireIndexBufferChanged(){
+		for(const cb of this.onIndexBufferChangedCbs){
+			cb();
 		}
 	}
 }
