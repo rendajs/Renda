@@ -12,25 +12,50 @@ export default class CachedMeshData{
 			this.buffers.push(bufferData);
 		}
 
-		this.indexBuffer = null;
-		if(mesh.indexBuffer){
+		this.createIndexGpuBuffer();
+
+		//todo: remove listeners when gpurenderer is destroyed
+		this.indexBufferDirty = false;
+		this.mesh.onIndexBufferChanged(_ => {
+			this.indexBufferDirty = true;
+		});
+	}
+
+	destructor(){
+		//todo
+	}
+
+	createIndexGpuBuffer(){
+		if(this.indexBuffer){
+			this.indexBuffer.destroy();
+			this.indexBuffer = null;
+		}
+		if(this.mesh.indexBuffer){
 			const indexBuffer = this.renderer.device.createBuffer({
-				size: mesh.indexBuffer.byteLength,
+				size: this.mesh.indexBuffer.byteLength,
 				usage: GPUBufferUsage.INDEX,
 				mappedAtCreation: true,
 			});
-			new Uint8Array(indexBuffer.getMappedRange()).set(new Uint8Array(mesh.indexBuffer));
+			new Uint8Array(indexBuffer.getMappedRange()).set(new Uint8Array(this.mesh.indexBuffer));
 			indexBuffer.unmap();
 			this.indexBuffer = indexBuffer;
 		}
 	}
 
-	*getGpuBufferCommands(){
+	*getBufferGpuCommands(){
 		for(const [i, buffer] of this.buffers.entries()){
 			yield {
 				index: i,
-				...buffer.getGpuBufferCommands(),
+				...buffer.getBufferGpuCommands(),
 			}
 		}
+	}
+
+	getIndexedBufferGpuCommands(){
+		//todo: support for dynamic indexbuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
+		if(this.indexBufferDirty){
+			this.createIndexGpuBuffer();
+		}
+		return this.indexBuffer;
 	}
 }

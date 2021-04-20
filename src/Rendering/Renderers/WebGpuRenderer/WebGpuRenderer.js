@@ -245,20 +245,21 @@ export default class WebGpuRenderer extends Renderer{
 				this.objectUniformsBuffer.nextBufferOffset();
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
-				for(const {index, gpuBuffer, newBufferData} of meshData.getGpuBufferCommands()){
+				for(const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()){
 					if(newBufferData){
 						this.device.queue.writeBuffer(gpuBuffer, 0, newBufferData);
 					}
 					renderPassEncoder.setVertexBuffer(index, gpuBuffer);
 				}
-				if(meshData.indexBuffer){
+				const indexBufferData = meshData.getIndexedBufferGpuCommands();
+				if(indexBufferData){
 					let indexFormat = null;
 					if(mesh.indexFormat == Mesh.IndexFormat.UINT_16){
 						indexFormat = "uint16";
 					}else if(mesh.indexFormat == Mesh.IndexFormat.UINT_32){
 						indexFormat = "uint32";
 					}
-					renderPassEncoder.setIndexBuffer(meshData.indexBuffer, indexFormat);
+					renderPassEncoder.setIndexBuffer(indexBufferData, indexFormat);
 					renderPassEncoder.drawIndexed(mesh.indexLength, 1, 0, 0, 0);
 				}else{
 					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);

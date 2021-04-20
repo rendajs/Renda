@@ -31,7 +31,7 @@ export default class CachedMeshBufferData{
 		this.currentGpuBufferSize = size;
 	}
 
-	getGpuBufferCommands(){
+	getBufferGpuCommands(){
 		let newBufferData = null;
 		if(this.bufferDirty){
 			if(this.currentGpuBufferSize != this.meshBuffer.buffer.byteLength){
