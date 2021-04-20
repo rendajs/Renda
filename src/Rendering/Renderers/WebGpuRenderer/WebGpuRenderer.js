@@ -3,6 +3,7 @@ import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
 import CachedCameraData from "./CachedCameraData.js";
+import CachedMeshData from "./CachedMeshData.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
@@ -31,7 +32,7 @@ export default class WebGpuRenderer extends Renderer{
 		//for every pipeline, maintain a list of objects that the pipeline is used by
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 
-		this.cachedMeshData = new WeakMap(); //<Mesh, {cachedData}>
+		this.cachedMeshData = new WeakMap();
 
 		this.computeClusterBoundsPipeline = null;
 		this.computeClusterLightsBindGroupLayout = null;
@@ -244,12 +245,11 @@ export default class WebGpuRenderer extends Renderer{
 				this.objectUniformsBuffer.nextBufferOffset();
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
-				for(const [i, bufferData] of meshData.buffers.entries()){
-					if(bufferData.bufferDirty){
-						this.device.queue.writeBuffer(bufferData.gpuBuffer, 0, bufferData.meshBuffer.buffer);
-						bufferData.bufferDirty = false;
+				for(const {index, gpuBuffer, newBufferData} of meshData.getGpuBufferCommands()){
+					if(newBufferData){
+						this.device.queue.writeBuffer(gpuBuffer, 0, newBufferData);
 					}
-					renderPassEncoder.setVertexBuffer(i, bufferData.gpuBuffer);
+					renderPassEncoder.setVertexBuffer(index, gpuBuffer);
 				}
 				if(meshData.indexBuffer){
 					let indexFormat = null;
@@ -377,38 +377,8 @@ export default class WebGpuRenderer extends Renderer{
 	getCachedMeshData(mesh){
 		let data = this.cachedMeshData.get(mesh);
 		if(!data){
-			data = {};
+			data = new CachedMeshData(mesh, this);
 			this.cachedMeshData.set(mesh, data);
-
-			data.buffers = [];
-			for(const meshBuffer of mesh.getBuffers(false)){
-				const gpuBuffer = this.device.createBuffer({
-					size: meshBuffer.buffer.byteLength,
-					usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, //todo: only use copy_dst when buffer updates are actually expected
-					mappedAtCreation: true,
-				});
-				new Uint8Array(gpuBuffer.getMappedRange()).set(new Uint8Array(meshBuffer.buffer));
-				gpuBuffer.unmap();
-				const bufferData = {
-					meshBuffer, gpuBuffer,
-					bufferDirty: false,
-				}
-				meshBuffer.onBufferChanged(_ => {
-					bufferData.bufferDirty = true;
-				});
-				data.buffers.push(bufferData);
-			}
-
-			if(mesh.indexBuffer){
-				const indexBuffer = this.device.createBuffer({
-					size: mesh.indexBuffer.byteLength,
-					usage: GPUBufferUsage.INDEX,
-					mappedAtCreation: true,
-				});
-				new Uint8Array(indexBuffer.getMappedRange()).set(new Uint8Array(mesh.indexBuffer));
-				indexBuffer.unmap();
-				data.indexBuffer = indexBuffer;
-			}
 		}
 		return data;
 	}
