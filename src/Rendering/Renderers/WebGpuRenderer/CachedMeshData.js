@@ -5,6 +5,7 @@ export default class CachedMeshData{
 		this.mesh = mesh;
 		this.renderer = renderer;
 
+		//todo: remove old bufferdata when the list of buffers changes
 		this.buffers = [];
 		for(const meshBuffer of mesh.getBuffers(false)){
 			const bufferData = new CachedMeshBufferData(meshBuffer, this);

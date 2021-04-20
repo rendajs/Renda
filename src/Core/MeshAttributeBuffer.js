@@ -17,12 +17,14 @@ export default class MeshAttributeBuffer{
 		this.setArrayStride(arrayStride);
 
 		this.buffer = arrayBuffer;
+		this._currentDataViewBuffer = null;
 		this._dataView = null;
 
 		this.onBufferChangedCbs = new Set();
 	}
 
 	destructor(){
+		//todo
 	}
 
 	setArrayStride(arrayStride){
@@ -38,8 +40,12 @@ export default class MeshAttributeBuffer{
 	}
 
 	getDataView(){
+		if(this._currentDataViewBuffer != !this.buffer){
+			this._dataView = null;
+		}
 		if(!this._dataView){
 			this._dataView = new DataView(this.buffer);
+			this._currentDataViewBuffer = this.buffer;
 		}
 		return this._dataView;
 	}
@@ -62,7 +68,7 @@ export default class MeshAttributeBuffer{
 		const oldBuffer = this.buffer;
 		this.buffer = new ArrayBuffer(length);
 		if(oldBuffer){
-			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer));
+			new Uint8Array(this.buffer).set(oldBuffer);
 		}
 
 		this.fireBufferChanged();
