@@ -40,17 +40,29 @@ export default class WebGpuBufferHelper{
 		}
 	}
 
-	appendScalar(val){
-		//todo: support multiple types
-		this.dataView.setFloat32(this.currentCursorByteIndex, val, true);
+	appendScalar(val, type = "f32"){
+		switch(type){
+			case "f32":
+			default:
+				this.dataView.setFloat32(this.currentCursorByteIndex, val, true);
+				break;
+			case "i32":
+				this.dataView.setInt32(this.currentCursorByteIndex, val, true);
+				break;
+			case "u32":
+				this.dataView.setUint32(this.currentCursorByteIndex, val, true);
+				break;
+		}
 		this.currentCursorByteIndex += 4;
 	}
 
-	appendData(data){
-		for(const val of data.toArray()){
-			//todo: support multiple types
-			this.dataView.setFloat32(this.currentCursorByteIndex, val, true);
-			this.currentCursorByteIndex += 4;
+	appendData(data, type = "f32"){
+		if(typeof data == "number"){
+			this.appendScalar(data, type);
+		}else{
+			for(const val of data.toArray()){
+				this.appendScalar(val, type);
+			}
 		}
 	}
 
