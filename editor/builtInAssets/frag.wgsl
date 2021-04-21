@@ -12,7 +12,8 @@
 	[[offset(16)]] col : vec3<f32>;
 };
 [[block]] struct Lights {
-	[[offset(0)]] lights : [[stride(32)]] array<Light, 2>;
+	[[offset(0)]] lightCount : u32;
+	[[offset(16)]] lights : [[stride(32)]] array<Light, 2>;
 };
 [[group(0), binding(1)]] var<storage_buffer> lightUniforms : [[access(read)]] Lights;
 

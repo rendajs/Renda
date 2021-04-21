@@ -214,11 +214,13 @@ export default class WebGpuRenderer extends Renderer{
 		cameraData.clusterSetup.computeBounds(commandEncoder);
 		cameraData.clusterSetup.computeLightIndices(commandEncoder);
 
+		this.lightsBuffer.appendData(lightComponents.length, "u32");
+		this.lightsBuffer.skipBytes(12);
 		for(const light of lightComponents){
 			this.lightsBuffer.appendData(light.entity.pos);
 			this.lightsBuffer.skipBytes(4);
 			this.lightsBuffer.appendData(light.color);
-			this.lightsBuffer.nextBufferOffset(32);
+			this.lightsBuffer.skipBytes(4);
 		}
 		this.lightsBuffer.writeToGpu();
 
