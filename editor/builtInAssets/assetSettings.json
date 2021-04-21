@@ -5,6 +5,15 @@
 		},
 		"eb430f5f-a7fa-4a77-acc6-56106769adb7": {
 			"path": ["vert.wgsl"]
+		},
+		"8cd64104-1d45-4536-972a-5685a2523725": {
+			"path": ["structs", "lightUniforms.wgsl"]
+		},
+		"41eaba39-e2aa-48a3-8deb-47f410542bc2": {
+			"path": ["structs", "viewUniforms.wgsl"]
+		},
+		"08a38e5b-b2b9-44be-9194-f404f815445f": {
+			"path": ["structs", "modelUniforms.wgsl"]
 		}
 	}
 }

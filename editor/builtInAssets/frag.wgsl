@@ -1,21 +1,5 @@
-[[block]] struct ViewUniforms {
-	[[offset(0)]] screenSize : vec4<f32>;
-	[[offset(16)]] projectionMatrix : mat4x4<f32>;
-	[[offset(80)]] inverseProjectionMatrix : mat4x4<f32>;
-	[[offset(144)]] viewMatrix : mat4x4<f32>;
-	[[offset(208)]] clippingPanes : vec4<f32>;
-};
-[[group(0), binding(0)]] var<uniform> viewUniforms : ViewUniforms;
-
-[[block]] struct Light {
-	[[offset(0)]] pos : vec3<f32>;
-	[[offset(16)]] col : vec3<f32>;
-};
-[[block]] struct Lights {
-	[[offset(0)]] lightCount : u32;
-	[[offset(16)]] lights : [[stride(32)]] array<Light, 10>;
-};
-[[group(0), binding(1)]] var<storage_buffer> lightUniforms : [[access(read)]] Lights;
+#include 8cd64104-1d45-4536-972a-5685a2523725
+#include 41eaba39-e2aa-48a3-8deb-47f410542bc2
 
 //todo: update max lights and cluster count based on cam settings
 [[block]] struct ClusterLightIndices {
