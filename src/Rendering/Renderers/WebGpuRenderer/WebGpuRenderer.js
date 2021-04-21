@@ -205,6 +205,7 @@ export default class WebGpuRenderer extends Renderer{
 		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width,domTarget.height, 0, 0)); //todo, pass as integer?
 		this.viewUniformsBuffer.appendData(camera.projectionMatrix);
 		this.viewUniformsBuffer.appendData(inverseProjectionMatrix);
+		this.viewUniformsBuffer.appendData(viewMatrix);
 		this.viewUniformsBuffer.appendData(new Vec4(camera.clipNear, camera.clipFar));
 
 		this.viewUniformsBuffer.writeToGpu();

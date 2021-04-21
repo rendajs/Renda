@@ -63,7 +63,7 @@ export default class CameraClusterDataGizmo extends Gizmo{
 				new Vec3(max.x,max.y,min.z),
 				new Vec3(max.x,max.y,max.z),
 			);
-			const col = new Vec3(1,1,1);
+			const col = new Vec3(0.5,0.5,0.5);
 			colors.push(col,col,col,col,col,col,col,col);
 		}
 		this.boundsMesh.setVertexCount(vertices.length);
