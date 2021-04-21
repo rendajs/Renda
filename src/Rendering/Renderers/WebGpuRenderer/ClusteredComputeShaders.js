@@ -17,7 +17,7 @@ const lightUniforms = `
 };
 [[block]] struct Lights {
 	[[offset(0)]] lightCount : u32;
-	[[offset(16)]] lights : [[stride(32)]] array<Light, 2>;
+	[[offset(16)]] lights : [[stride(32)]] array<Light, 10>;
 };
 [[group(0), binding(1)]] var<storage_buffer> lightUniforms : [[access(read)]] Lights;
 `;
@@ -126,21 +126,20 @@ var sqDist : f32 = 0.0;
 fn main() -> void {
 	const clusterIndex : u32 = globalId.x + globalId.y * clusterCount.x + globalId.z * clusterCount.x * clusterCount.y;
 
-	var lightCount : u32 = 0u;
+	var clusterLightCount : u32 = 0u;
 
-	//todo: don't hardcode lightCount
-	for(var i : u32 = 0u; i < 2u; i = i + 1u){
+	for(var i : u32 = 0u; i < lightUniforms.lightCount; i = i + 1u){
 		const range : f32 = 10.0;
 		const lightViewPos : vec4<f32> = viewUniforms.viewMatrix * vec4<f32>(lightUniforms.lights[i].pos, 1.0);
 
 		const squareDist : f32 = squareDistPointToAabb(lightViewPos.xyz, clusterBounds.bounds[clusterIndex].min, clusterBounds.bounds[clusterIndex].max);
 
 		if(squareDist <= (range * range)) {
-			clusterLightIndices.clusters[clusterIndex].indices[lightCount] = i;
-			lightCount = lightCount + 1u;
+			clusterLightIndices.clusters[clusterIndex].indices[clusterLightCount] = i;
+			clusterLightCount = clusterLightCount + 1u;
 		}
 	}
-	clusterLightIndices.clusters[clusterIndex].lightCount = lightCount;
+	clusterLightIndices.clusters[clusterIndex].lightCount = clusterLightCount;
 
 	return;
 }

@@ -13,7 +13,7 @@
 };
 [[block]] struct Lights {
 	[[offset(0)]] lightCount : u32;
-	[[offset(16)]] lights : [[stride(32)]] array<Light, 2>;
+	[[offset(16)]] lights : [[stride(32)]] array<Light, 10>;
 };
 [[group(0), binding(1)]] var<storage_buffer> lightUniforms : [[access(read)]] Lights;
 
