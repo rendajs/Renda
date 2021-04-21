@@ -216,7 +216,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		for(const light of lightComponents){
 			this.lightsBuffer.appendData(light.entity.pos);
-			this.lightsBuffer.appendScalar(0); //todo: make this prettier
+			this.lightsBuffer.skipBytes(4);
 			this.lightsBuffer.appendData(light.color);
 			this.lightsBuffer.nextBufferOffset(32);
 		}

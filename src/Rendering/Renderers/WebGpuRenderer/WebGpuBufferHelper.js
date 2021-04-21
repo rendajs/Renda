@@ -54,6 +54,10 @@ export default class WebGpuBufferHelper{
 		}
 	}
 
+	skipBytes(byteLength){
+		this.currentCursorByteIndex += byteLength;
+	}
+
 	nextBufferOffset(offset = this.bindGroupLength){
 		this.currentBufferOffset += offset;
 		this.currentCursorByteIndex = this.currentBufferOffset;
