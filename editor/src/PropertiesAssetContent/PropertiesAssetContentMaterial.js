@@ -9,7 +9,6 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 			type: ProjectAsset,
 			guiOpts: {
 				label: "Map",
-				storageType: "projectAsset",
 			},
 		});
 		this.mapValuesTreeView = materialSettingsTree.addCollapsable("map values");

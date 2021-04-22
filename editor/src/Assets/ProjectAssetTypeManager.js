@@ -1,6 +1,5 @@
 import autoRegisterAssetTypes from "./ProjectAssetType/AutoRegisterAssetTypes.js";
 import ProjectAssetType from "./ProjectAssetType/ProjectAssetType.js";
-import ProjectAsset from "./ProjectAsset.js";
 import {isUuid} from "../../../src/Util/Util.js";
 
 export default class ProjectAssetTypeManager{
@@ -57,7 +56,6 @@ export default class ProjectAssetTypeManager{
 	}
 
 	constructorHasAssetType(constructor){
-		if(constructor == ProjectAsset) return true;
 		for(const assetType of this.getAssetTypesForConstructor(constructor)){
 			return true;
 		}

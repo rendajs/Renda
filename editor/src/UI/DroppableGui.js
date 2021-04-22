@@ -10,7 +10,9 @@ export default class DroppableGui{
 		//this controls what type of value is expected in setValue() and
 		//returned from this.value. Possible values are:
 		//"liveAsset", "projectAsset" or "uuid"
-		//if null, it guesses the best option based on the supportedAssetTypes
+		//if null, it guesses the best option based on the supportedAssetTypes:
+		//"liveAsset" for assets that support this
+		//"projectAsset" for all others
 		storageType = null,
 	} = {}){
 		this.el = document.createElement("div");
