@@ -1,5 +1,5 @@
 import editor from "../editorInstance.js";
-import {SingleInstancePromise} from "../../../src/index.js";
+import {SingleInstancePromise, AssetLoaderTypeGenericBinaryStructure, BinaryComposer} from "../../../src/index.js";
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 
 export default class ProjectAsset{
@@ -336,6 +336,17 @@ export default class ProjectAsset{
 	async getBundledAssetData(assetSettingOverrides = {}){
 		await this.waitForInit();
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
+		if(!binaryData){
+			const usedAssetLoaderType = this._projectAssetType.constructor.usedAssetLoaderType;
+			if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericBinaryStructure){
+				const assetData = await this.readAssetData();
+				binaryData = BinaryComposer.objectToBinary(assetData, {
+					structure: usedAssetLoaderType.structure,
+					nameIds: usedAssetLoaderType.nameIds,
+					littleEndian: usedAssetLoaderType.littleEndian,
+				});
+			}
+		}
 		if(!binaryData){
 			binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
 		}

@@ -1,6 +1,6 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource, WebGpuVertexState, Mesh} from "../../../../src/index.js";
+import {ShaderSource, WebGpuVertexState, Mesh, AssetLoaderTypeVertexState} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 
@@ -78,4 +78,6 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 	async fileChangedExternally(){
 		this.liveAssetNeedsReplacement();
 	}
+
+	static usedAssetLoaderType = AssetLoaderTypeVertexState;
 }

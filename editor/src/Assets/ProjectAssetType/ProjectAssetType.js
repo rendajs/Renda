@@ -113,6 +113,12 @@ export default class ProjectAssetType{
 	//either in the editor or in an external application
 	async open(){}
 
+	//if your asset loader extends AssetLoaderTypeGenericBinaryStructure
+	//you don't need to implement createBundledAssetData() below.
+	//the structure values of the AssetLoaderType will be passed on to
+	//BinaryComposer.objectToBinary instead
+	static usedAssetLoaderType = null;
+
 	//This method is called when creating asset bundles
 	//it should return a BufferSource, Blob or USVString. You can use this.projectAsset
 	//to generate the binary data. assetSettingOverrides are
