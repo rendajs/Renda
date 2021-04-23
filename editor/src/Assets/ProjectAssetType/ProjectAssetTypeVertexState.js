@@ -37,10 +37,16 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 						arrayOpts: {
 							type: {
 								attributeType: {
-									type: Array.from(Object.keys(Mesh.AttributeType)),
+									type: [],
+									guiOpts: {
+										enumObject: Mesh.AttributeType,
+									},
 								},
 								format: {
-									type: Array.from(Object.keys(Mesh.AttributeFormat)),
+									type: [],
+									guiOpts: {
+										enumObject: Mesh.AttributeFormat,
+									},
 								},
 								componentCount: {
 									guiOpts: {

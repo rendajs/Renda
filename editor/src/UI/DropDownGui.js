@@ -2,10 +2,25 @@ export default class DropDownGui{
 	constructor({
 		items = [],
 		value = null,
+		enumObject = null,
 	} = {}){
+		this.items = items;
+		this.enumObject = enumObject;
+		this.inverseEnumObject = null;
+
+		if(enumObject){
+			this.inverseEnumObject = {};
+			this.items = [];
+			for(const [key, value] of Object.entries(enumObject)){
+				this.inverseEnumObject[value] = key;
+				this.items.push(key);
+			}
+		}
+
 		this.el = document.createElement("select");
-		for(const option of items){
+		for(const [i, option] of this.items.entries()){
 			const optionEl = document.createElement("option");
+			optionEl.value = i;
 			optionEl.textContent = option;
 			this.el.appendChild(optionEl);
 		}
@@ -22,11 +37,23 @@ export default class DropDownGui{
 	}
 
 	setValue(value){
-		this.el.value = value;
+		if(this.enumObject){
+			value = this.inverseEnumObject[value];
+		}
+		const index = this.items.indexOf(value);
+		if(index >= 0){
+			this.el.value = index;
+		}else{
+			this.el.value = null;
+		}
 	}
 
 	get value(){
-		return this.el.value;
+		let value = this.items[this.el.value];
+		if(this.enumObject){
+			value = this.enumObject[value];
+		}
+		return value;
 	}
 
 	onValueChange(cb){
