@@ -1,23 +1,23 @@
 //todo: move this to somewhere better
 const viewUniforms = `
 [[block]] struct ViewUniforms {
-	[[offset(0)]] screenSize : vec4<f32>;
-	[[offset(16)]] projectionMatrix : mat4x4<f32>;
-	[[offset(80)]] inverseProjectionMatrix : mat4x4<f32>;
-	[[offset(144)]] viewMatrix : mat4x4<f32>;
-	[[offset(208)]] clippingPanes : vec4<f32>;
+	screenSize : vec4<f32>;
+	projectionMatrix : mat4x4<f32>;
+	inverseProjectionMatrix : mat4x4<f32>;
+	viewMatrix : mat4x4<f32>;
+	clippingPanes : vec4<f32>;
 };
 [[group(0), binding(0)]] var<uniform> viewUniforms : ViewUniforms;
 `;
 
 const lightUniforms = `
 struct Light {
-	[[offset(0)]] pos : vec3<f32>;
-	[[offset(16)]] col : vec3<f32>;
+	pos : vec3<f32>;
+	col : vec3<f32>;
 };
 [[block]] struct Lights {
-	[[offset(0)]] lightCount : u32;
-	[[offset(16)]] lights : [[stride(32)]] array<Light, 10>;
+	lightCount : u32;
+	lights : [[stride(32)]] array<Light, 10>;
 };
 [[group(0), binding(1)]] var<storage_buffer> lightUniforms : [[access(read)]] Lights;
 `;
@@ -25,11 +25,11 @@ struct Light {
 function clusterBounds(totalClusterCount){
 	return `
 struct ClusterAABB {
-	[[offset(0)]] min : vec3<f32>;
-	[[offset(16)]] max : vec3<f32>;
+	min : vec3<f32>;
+	max : vec3<f32>;
 };
 [[block]] struct ClusterBoundsArray {
-	[[offset(0)]] bounds : [[stride(32)]] array<ClusterAABB, ${totalClusterCount}>;
+	bounds : [[stride(32)]] array<ClusterAABB, ${totalClusterCount}>;
 };
 [[group(1), binding(0)]] var<storage> clusterBounds : [[access(write)]] ClusterBoundsArray;
 `;
@@ -38,11 +38,11 @@ struct ClusterAABB {
 function clusterLightIndices(totalClusterCount, maxLightCount){
 	return `
 struct ClusterLightIndices {
-	[[offset(0)]] lightCount : u32;
-	[[offset(4)]] indices : [[stride(4)]] array<u32, ${maxLightCount}>;
+	lightCount : u32;
+	indices : [[stride(4)]] array<u32, ${maxLightCount}>;
 };
 [[block]] struct ClusterLightIndicesArray {
-	[[offset(0)]] clusters : [[stride(${maxLightCount*4 + 4})]] array<ClusterLightIndices, ${totalClusterCount}>;
+	clusters : [[stride(${maxLightCount*4 + 4})]] array<ClusterLightIndices, ${totalClusterCount}>;
 };
 [[group(1), binding(1)]] var<storage> clusterLightIndices : [[access(write)]] ClusterLightIndicesArray;
 `;
@@ -55,39 +55,37 @@ ${viewUniforms}
 ${lightUniforms}
 ${clusterBounds(totalClusterCount)}
 
-[[builtin(global_invocation_id)]] var<in> globalId : vec3<u32>;
-
-const clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
+let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
 fn screen2View(screen : vec2<f32>) -> vec3<f32> {
-	const flippedScreen : vec2<f32> = vec2<f32>(screen.x, 1.0 - screen.y);
-	const clip : vec4<f32> = vec4<f32>(flippedScreen.xy * 2.0 - vec2<f32>(1.0, 1.0), 1.0, 1.0);
+	let flippedScreen : vec2<f32> = vec2<f32>(screen.x, 1.0 - screen.y);
+	let clip : vec4<f32> = vec4<f32>(flippedScreen.xy * 2.0 - vec2<f32>(1.0, 1.0), 1.0, 1.0);
 	var view : vec4<f32> = viewUniforms.inverseProjectionMatrix * clip;
 	view = view / vec4<f32>(view.w, view.w, view.w, view.w);
 	return view.xyz;
 }
 
 [[stage(compute)]]
-fn main() -> void {
-	const clusterSize : vec3<f32> = vec3<f32>(1.0, 1.0, 1.0) / vec3<f32>(clusterCount.xyz);
+fn main([[builtin(global_invocation_id)]] globalId : vec3<u32>) {
+	let clusterSize : vec3<f32> = vec3<f32>(1.0, 1.0, 1.0) / vec3<f32>(clusterCount.xyz);
 
-	const minPointScreen : vec2<f32> = vec2<f32>(globalId.xy) * clusterSize.xy;
-	const maxPointScreen : vec2<f32> = (vec2<f32>(globalId.xy) + vec2<f32>(1.0, 1.0)) * clusterSize.xy;
+	let minPointScreen : vec2<f32> = vec2<f32>(globalId.xy) * clusterSize.xy;
+	let maxPointScreen : vec2<f32> = (vec2<f32>(globalId.xy) + vec2<f32>(1.0, 1.0)) * clusterSize.xy;
 
-	const minPointView : vec3<f32> = screen2View(minPointScreen);
-	const maxPointView : vec3<f32> = screen2View(maxPointScreen);
+	let minPointView : vec3<f32> = screen2View(minPointScreen);
+	let maxPointView : vec3<f32> = screen2View(maxPointScreen);
 
-	const near : f32 = viewUniforms.clippingPanes.x;
-	const far : f32 = viewUniforms.clippingPanes.y;
-	const clusterNear : f32 = near * pow(far / near, f32(globalId.z) / f32(clusterCount.z));
-	const clusterFar : f32 = near * pow(far / near, f32(globalId.z + 1u) / f32(clusterCount.z));
+	let near : f32 = viewUniforms.clippingPanes.x;
+	let far : f32 = viewUniforms.clippingPanes.y;
+	let clusterNear : f32 = near * pow(far / near, f32(globalId.z) / f32(clusterCount.z));
+	let clusterFar : f32 = near * pow(far / near, f32(globalId.z + 1u) / f32(clusterCount.z));
 
-	const minNear : vec3<f32> = minPointView * (clusterNear / far);
-	const maxNear : vec3<f32> = maxPointView * (clusterNear / far);
-	const minFar : vec3<f32> = minPointView * (clusterFar / far);
-	const maxFar : vec3<f32> = maxPointView * (clusterFar / far);
+	let minNear : vec3<f32> = minPointView * (clusterNear / far);
+	let maxNear : vec3<f32> = maxPointView * (clusterNear / far);
+	let minFar : vec3<f32> = minPointView * (clusterFar / far);
+	let maxFar : vec3<f32> = maxPointView * (clusterFar / far);
 
-	const clusterIndex : u32 = globalId.x + globalId.y * clusterCount.x + globalId.z * clusterCount.x * clusterCount.y;
+	let clusterIndex : u32 = globalId.x + globalId.y * clusterCount.x + globalId.z * clusterCount.x * clusterCount.y;
 	clusterBounds.bounds[clusterIndex].min = min(min(minNear, maxNear),min(minFar, maxFar));
 	clusterBounds.bounds[clusterIndex].max = max(max(minNear, maxNear),max(minFar, maxFar));
 	return;
@@ -103,9 +101,7 @@ ${lightUniforms}
 ${clusterBounds(totalClusterCount)}
 ${clusterLightIndices(totalClusterCount, maxLightsPerCluster)}
 
-[[builtin(global_invocation_id)]] var<in> globalId : vec3<u32>;
-
-const clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
+let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
 fn squareDistPointToAabb(point : vec3<f32>, minAabb : vec3<f32>, maxAabb : vec3<f32>) -> f32 {
 
@@ -123,16 +119,16 @@ var sqDist : f32 = 0.0;
 }
 
 [[stage(compute)]]
-fn main() -> void {
-	const clusterIndex : u32 = globalId.x + globalId.y * clusterCount.x + globalId.z * clusterCount.x * clusterCount.y;
+fn main([[builtin(global_invocation_id)]] globalId : vec3<u32>) {
+	let clusterIndex : u32 = globalId.x + globalId.y * clusterCount.x + globalId.z * clusterCount.x * clusterCount.y;
 
 	var clusterLightCount : u32 = 0u;
 
 	for(var i : u32 = 0u; i < lightUniforms.lightCount; i = i + 1u){
-		const range : f32 = 10.0;
-		const lightViewPos : vec4<f32> = viewUniforms.viewMatrix * vec4<f32>(lightUniforms.lights[i].pos, 1.0);
+		let range : f32 = 10.0;
+		let lightViewPos : vec4<f32> = viewUniforms.viewMatrix * vec4<f32>(lightUniforms.lights[i].pos, 1.0);
 
-		const squareDist : f32 = squareDistPointToAabb(lightViewPos.xyz, clusterBounds.bounds[clusterIndex].min, clusterBounds.bounds[clusterIndex].max);
+		let squareDist : f32 = squareDistPointToAabb(lightViewPos.xyz, clusterBounds.bounds[clusterIndex].min, clusterBounds.bounds[clusterIndex].max);
 
 		if(squareDist <= (range * range)) {
 			clusterLightIndices.clusters[clusterIndex].indices[clusterLightCount] = i;
