@@ -1,7 +1,7 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import editor from "../editorInstance.js";
 
-export default class PropertiesAssetContentBasicStructure extends PropertiesAssetContent{
+export default class PropertiesAssetContentGenericStructure extends PropertiesAssetContent{
 	constructor(structure){
 		super();
 

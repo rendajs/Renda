@@ -1,8 +1,8 @@
-import AssetLoaderTypeGenericBinaryStructure from "./AssetLoaderTypeGenericBinaryStructure.js";
+import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
 import WebGpuVertexState from "../../Rendering/Renderers/WebGpuRenderer/WebGpuVertexState.js";
 
-export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericBinaryStructure{
+export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericStructure{
 
 	static typeUuid = "07dcd52e-03a5-4823-b343-16a142c304f6";
 

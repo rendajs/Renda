@@ -113,7 +113,7 @@ export default class ProjectAssetType{
 	//either in the editor or in an external application
 	async open(){}
 
-	//if your asset loader extends AssetLoaderTypeGenericBinaryStructure
+	//if your asset loader extends AssetLoaderTypeGenericStructure
 	//you don't need to implement createBundledAssetData() below.
 	//the structure values of the AssetLoaderType will be passed on to
 	//BinaryComposer.objectToBinary instead

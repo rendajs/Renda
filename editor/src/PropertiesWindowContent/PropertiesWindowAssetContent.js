@@ -3,7 +3,7 @@ import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
-import PropertiesAssetContentBasicStructure from "../PropertiesAssetContent/PropertiesAssetContentBasicStructure.js";
+import PropertiesAssetContentGenericStructure from "../PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
 export default class PropertiesWindowAssetContent extends PropertiesWindowContent{
 	constructor(){
@@ -91,7 +91,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 
 		let constructor = foundConstructor;
 		if(foundStructure){
-			constructor = PropertiesAssetContentBasicStructure;
+			constructor = PropertiesAssetContentGenericStructure;
 		}
 
 		const needsNew = constructor && (!this.activeAssetContent || this.activeAssetContent.constructor != constructor);
