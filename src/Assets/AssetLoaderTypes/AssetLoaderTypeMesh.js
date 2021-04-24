@@ -7,12 +7,12 @@ export default class AssetLoaderTypeMesh extends AssetLoaderType{
 	static typeUuid = "f202aae6-673a-497d-806d-c2d4752bb146";
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		this.magicHeader = 0x68734D6A;
 	}
 
-	async parseBuffer(arrayBuffer, assetLoader){
+	async parseBuffer(arrayBuffer){
 		const decomposer = new BinaryDecomposer(arrayBuffer);
 		if(decomposer.getUint32() != this.magicHeader) return null;
 		if(decomposer.getUint16() != 1){
@@ -21,7 +21,7 @@ export default class AssetLoaderTypeMesh extends AssetLoaderType{
 		const mesh = new Mesh();
 
 		const vertexStateUuid = decomposer.getUuid();
-		const vertexState = await assetLoader.getAsset(vertexStateUuid);
+		const vertexState = await this.assetLoader.getAsset(vertexStateUuid);
 		mesh.setVertexState(vertexState);
 
 		const indexFormat = decomposer.getUint8();

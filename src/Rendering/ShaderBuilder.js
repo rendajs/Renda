@@ -83,17 +83,42 @@ export default class ShaderBuilder{
 		this.onShaderUuidRequestedCbs.add(cb);
 	}
 
+	removeOnShaderUuidRequested(cb){
+		this.onShaderUuidRequestedCbs.delete(cb);
+	}
+
 	async fireShaderUuidRequested(uuid){
-		const promises = [];
+		let unparsedPromiseItems = [];
 		let shaderCode = null;
 		for(const cb of this.onShaderUuidRequestedCbs){
-			const promise = cb(uuid);
-			promises.push(promise);
+			const promiseItem = {
+				resolved: false,
+				result: null,
+				promise: null,
+			}
+			promiseItem.promise = (async _ => {
+				promiseItem.result = await cb(uuid);
+				promiseItem.resolved = true;
+				return promiseItem.result;
+			})();
+			unparsedPromiseItems.push(promiseItem);
 		}
-		const foundShaderCodes = await Promise.all(promises);
+		if(unparsedPromiseItems.length <= 0){
+			return;
+		}
 		let foundShaderCode = null;
-		for(const shaderCode of foundShaderCodes){
-			if(shaderCode) foundShaderCode = shaderCode;
+		while(unparsedPromiseItems.length > 0 && !foundShaderCode){
+			const promises = unparsedPromiseItems.map(i => i.promise);
+			try{
+				foundShaderCode = await Promise.race(promises);
+			}catch(_){
+				//fail silently
+			}
+			if(foundShaderCode){
+				break;
+			}else{
+				unparsedPromiseItems = unparsedPromiseItems.filter(p => !p.resolved);
+			}
 		}
 		if(foundShaderCode){
 			this.addShader(uuid, foundShaderCode);

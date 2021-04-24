@@ -26,10 +26,12 @@ export default class AssetLoader{
 			return;
 		}
 
-		this.registeredLoaderTypes.set(constructor.typeUuid, new constructor());
+		const instance = new constructor(this);
+		this.registeredLoaderTypes.set(constructor.typeUuid, instance);
+		return instance;
 	}
 
-	async getAsset(uuid){
+	async getAsset(uuid, opts){
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			let unavailableCount = 0;
 			for(const bundle of this.bundles){
@@ -55,6 +57,6 @@ export default class AssetLoader{
 			return null;
 		}
 
-		return await loaderType.parseBuffer(buffer, this);
+		return await loaderType.parseBuffer(buffer, opts);
 	}
 }
