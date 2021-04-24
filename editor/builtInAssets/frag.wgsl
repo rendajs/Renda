@@ -2,7 +2,7 @@
 #include 41eaba39-e2aa-48a3-8deb-47f410542bc2
 
 //todo: update max lights and cluster count based on cam settings
-[[block]] struct ClusterLightIndices {
+struct ClusterLightIndices {
 	[[offset(0)]] lightCount : u32;
 	[[offset(4)]] indices : [[stride(4)]] array<u32, 10>;
 };

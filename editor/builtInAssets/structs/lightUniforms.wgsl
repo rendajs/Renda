@@ -1,4 +1,4 @@
-[[block]] struct Light {
+struct Light {
 	[[offset(0)]] pos : vec3<f32>;
 	[[offset(16)]] col : vec3<f32>;
 };

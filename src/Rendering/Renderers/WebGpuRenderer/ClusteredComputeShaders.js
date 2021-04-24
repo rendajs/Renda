@@ -11,7 +11,7 @@ const viewUniforms = `
 `;
 
 const lightUniforms = `
-[[block]] struct Light {
+struct Light {
 	[[offset(0)]] pos : vec3<f32>;
 	[[offset(16)]] col : vec3<f32>;
 };
@@ -24,7 +24,7 @@ const lightUniforms = `
 
 function clusterBounds(totalClusterCount){
 	return `
-[[block]] struct ClusterAABB {
+struct ClusterAABB {
 	[[offset(0)]] min : vec3<f32>;
 	[[offset(16)]] max : vec3<f32>;
 };
@@ -37,7 +37,7 @@ function clusterBounds(totalClusterCount){
 
 function clusterLightIndices(totalClusterCount, maxLightCount){
 	return `
-[[block]] struct ClusterLightIndices {
+struct ClusterLightIndices {
 	[[offset(0)]] lightCount : u32;
 	[[offset(4)]] indices : [[stride(4)]] array<u32, ${maxLightCount}>;
 };
