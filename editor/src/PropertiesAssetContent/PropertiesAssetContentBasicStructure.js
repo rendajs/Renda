@@ -36,7 +36,7 @@ export default class PropertiesAssetContentBasicStructure extends PropertiesAsse
 
 	saveAsset(){
 		//todo: handle multiple selected items or no selection
-		const assetData = this.assetTreeView.getSerializableStructureValues(this.structure);
+		const assetData = this.assetTreeView.getSerializableStructureValues(this.structure, {convertEnumsToString: true});
 		this.currentSelection[0].writeAssetData(assetData);
 	}
 }

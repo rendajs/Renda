@@ -16,12 +16,16 @@ export default class ObjectGui{
 		this.setValue(value);
 	}
 
-	get value(){
-		return this.treeView.getSerializableStructureValues(this.structure);
-	}
-
 	setValue(value){
 		this.treeView.fillSerializableStructureValues(value);
+	}
+
+	getValue(guiOpts){
+		return this.treeView.getSerializableStructureValues(this.structure, guiOpts);
+	}
+
+	get value(){
+		return this.getValue();
 	}
 
 	onValueChange(cb){

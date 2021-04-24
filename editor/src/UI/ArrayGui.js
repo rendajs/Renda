@@ -28,14 +28,6 @@ export default class ArrayGui{
 		this.setValue(value);
 	}
 
-	get value(){
-		const valueArray = [];
-		for(const item of this.valueItems){
-			valueArray.push(item.gui.value);
-		}
-		return valueArray;
-	}
-
 	destructor(){
 		if(this.el.parentElement){
 			this.el.parentElement.removeChild(this.el);
@@ -69,6 +61,24 @@ export default class ArrayGui{
 				this.valueItems.setValue(item);
 			}
 		}
+	}
+
+	getValue(guiOpts){
+		const valueArray = [];
+		for(const item of this.valueItems){
+			let value = null;
+			if(item.gui.getValue){
+				value = item.gui.getValue(guiOpts);
+			}else{
+				value = item.gui.value;
+			}
+			valueArray.push(value);
+		}
+		return valueArray;
+	}
+
+	get value(){
+		return this.getValue();
 	}
 
 	onValueChange(cb){

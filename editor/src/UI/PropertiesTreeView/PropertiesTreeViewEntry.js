@@ -124,6 +124,14 @@ export default class PropertiesTreeViewEntry extends TreeView{
 	}
 
 	get value(){
-		return this.gui?.value;
+		return this.getValue();
+	}
+
+	getValue(guiOpts){
+		if(this.gui.getValue){
+			return this.gui.getValue(guiOpts);
+		}else{
+			return this.gui?.value;
+		}
 	}
 }

@@ -61,12 +61,12 @@ export default class PropertiesTreeView extends TreeView{
 		}
 	}
 
-	getSerializableStructureValues(structure){
+	getSerializableStructureValues(structure, guiOpts){
 		const values = {};
 		let i = 0;
 		for(const [key, itemSettings] of Object.entries(structure)){
 			const entry = this.children[i++];
-			values[key] = entry.value;
+			values[key] = entry.getValue(guiOpts);
 		}
 		return values;
 	}

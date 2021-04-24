@@ -38,7 +38,11 @@ export default class DropDownGui{
 
 	setValue(value){
 		if(this.enumObject){
-			value = this.inverseEnumObject[value];
+			if(typeof value == "string"){
+				//todo: detect different strings that look like the correct match?
+			}else{
+				value = this.inverseEnumObject[value];
+			}
 		}
 		const index = this.items.indexOf(value);
 		if(index >= 0){
@@ -49,8 +53,14 @@ export default class DropDownGui{
 	}
 
 	get value(){
+		return this.getValue();
+	}
+
+	getValue({
+		convertEnumsToString = false,
+	} = {}){
 		let value = this.items[this.el.value];
-		if(this.enumObject){
+		if(this.enumObject && !convertEnumsToString){
 			value = this.enumObject[value];
 		}
 		return value;
