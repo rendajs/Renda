@@ -8,14 +8,14 @@ export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericSt
 
 	static structure = {
 		buffers: [{
-			arrayStride: BinaryComposer.StructureTypes.INT16,
+			arrayStride: BinaryComposer.StructureTypes.INT16, //todo: support serializing auto value
 			stepMode: BinaryComposer.StructureTypes.INT8,
 			attributes: [{
 				attributeType: BinaryComposer.StructureTypes.INT8,
 				format: BinaryComposer.StructureTypes.INT8,
 				componentCount: BinaryComposer.StructureTypes.INT8,
 				unsigned: BinaryComposer.StructureTypes.BOOL,
-				shaderLocation: BinaryComposer.StructureTypes.INT8,
+				shaderLocation: BinaryComposer.StructureTypes.INT8, //todo: support serializing auto value
 			}],
 		}],
 	};
