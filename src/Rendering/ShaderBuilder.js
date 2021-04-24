@@ -58,6 +58,9 @@ export default class ShaderBuilder{
 	} = {}){
 		//todo, get only specific part of shader
 		const shaderData = await this.getShader(uuid);
+		if(!shaderData){
+			throw new Error(`Shader tried to #include uuid ${uuid} but it could not be found`);
+		}
 		if(buildRecursive){
 			if(shaderData.builtCode){
 				return shaderData.builtCode;
