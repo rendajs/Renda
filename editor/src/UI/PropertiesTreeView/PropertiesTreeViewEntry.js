@@ -12,6 +12,7 @@ import ObjectGui from "../ObjectGui.js";
 
 import ProjectAsset from "../../Assets/ProjectAsset.js";
 import {Vec3, Mesh, Material} from "../../../../src/index.js";
+import {prettifyVariableName} from "../../Util/Util.js";
 
 export default class PropertiesTreeViewEntry extends TreeView{
 	constructor({
@@ -33,7 +34,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		this.label = document.createElement("div");
 		this.label.classList.add("guiTreeViewEntryLabel");
 		this.label.classList.toggle("smallLabel", smallLabel);
-		this.label.textContent = guiOpts.label ?? "";
+		this.label.textContent = prettifyVariableName(guiOpts.label) ?? "";
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");

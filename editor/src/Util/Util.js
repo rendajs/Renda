@@ -165,3 +165,16 @@ export function toFormattedJsonString(jsonObj, {
 	}
 	return newStr;
 }
+
+export function prettifyVariableName(variableName){
+	variableName = "" + variableName;
+	const words = variableName.split(/(?=[A-Z])|_/);
+	const capitalizedWords = words.map(w => {
+		if(w && w.length != 0){
+			return w[0].toUpperCase() + w.slice(1).toLowerCase();
+		}else{
+			return w;
+		}
+	});
+	return capitalizedWords.join(" ");
+}
