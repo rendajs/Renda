@@ -1,3 +1,5 @@
+import {prettifyVariableName} from "../Util/Util.js";
+
 export default class DropDownGui{
 	constructor({
 		items = [],
@@ -5,20 +7,23 @@ export default class DropDownGui{
 		enumObject = null,
 	} = {}){
 		this.items = items;
+		let itemTexts = [...items];
 		this.enumObject = enumObject;
 		this.inverseEnumObject = null;
 
 		if(enumObject){
 			this.inverseEnumObject = {};
 			this.items = [];
+			itemTexts = [];
 			for(const [key, value] of Object.entries(enumObject)){
 				this.inverseEnumObject[value] = key;
 				this.items.push(key);
+				itemTexts.push(prettifyVariableName(key));
 			}
 		}
 
 		this.el = document.createElement("select");
-		for(const [i, option] of this.items.entries()){
+		for(const [i, option] of itemTexts.entries()){
 			const optionEl = document.createElement("option");
 			optionEl.value = i;
 			optionEl.textContent = option;
@@ -38,9 +43,7 @@ export default class DropDownGui{
 
 	setValue(value){
 		if(this.enumObject){
-			if(typeof value == "string"){
-				//todo: detect different strings that look like the correct match?
-			}else{
+			if(typeof value != "string"){
 				value = this.inverseEnumObject[value];
 			}
 		}
