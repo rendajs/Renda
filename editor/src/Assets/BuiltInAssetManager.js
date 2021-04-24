@@ -55,6 +55,8 @@ export default class BuiltInAssetManager{
 			return await response.json();
 		}else if(format == "text"){
 			return await response.text();
+		}else if(format == "binary"){
+			return await response.arrayBuffer();
 		}
 	}
 }

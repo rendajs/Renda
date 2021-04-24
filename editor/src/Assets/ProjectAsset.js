@@ -333,7 +333,7 @@ export default class ProjectAsset{
 		return this._projectAssetType.constructor.typeUuid;
 	}
 
-	async getBundledAssetData(assetSettingOverrides = {}){
+	async getBundledAssetData(assetSettingOverrides){
 		await this.waitForInit();
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
 		if(!binaryData){
@@ -353,7 +353,11 @@ export default class ProjectAsset{
 			}
 		}
 		if(!binaryData){
-			binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+			if(this.isBuiltIn){
+				binaryData = await editor.builtInAssetManager.fetchAsset(this.path, "binary");
+			}else{
+				binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+			}
 		}
 		return binaryData;
 	}
