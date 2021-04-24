@@ -89,6 +89,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	static expectedLiveAssetConstructor = Mesh;
 
 	async getLiveAssetData(blob){
+		//todo: remove all of this and reuse the code in AssetLoaderTypeMesh
 		const arrayBuffer = await blob.arrayBuffer();
 		const decomposer = new BinaryDecomposer(arrayBuffer);
 		if(decomposer.getUint32() != this.magicHeader) return null;

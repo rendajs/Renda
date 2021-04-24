@@ -55,6 +55,6 @@ export default class AssetLoader{
 			return null;
 		}
 
-		return loaderType.parseBuffer(buffer);
+		return await loaderType.parseBuffer(buffer, this);
 	}
 }
