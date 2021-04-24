@@ -340,6 +340,11 @@ export default class ProjectAsset{
 			const usedAssetLoaderType = this._projectAssetType.constructor.usedAssetLoaderType;
 			if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure){
 				const assetData = await this.readAssetData();
+
+				if(this._projectAssetType.constructor.propertiesAssetContentStructure){
+					this.remapAssetDataEnums(assetData, this._projectAssetType.constructor.propertiesAssetContentStructure);
+				}
+
 				binaryData = BinaryComposer.objectToBinary(assetData, {
 					structure: usedAssetLoaderType.structure,
 					nameIds: usedAssetLoaderType.nameIds,
@@ -351,6 +356,27 @@ export default class ProjectAsset{
 			binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
 		}
 		return binaryData;
+	}
+
+	remapAssetDataEnums(assetData, propertiesStructure){
+		if(typeof assetData == "object" && assetData != null){
+			if(Array.isArray(assetData)){
+				if(propertiesStructure.type != Array) return assetData;
+				for(let i=0; i<assetData.length; i++){
+					assetData[i] = this.remapAssetDataEnums(assetData[i], propertiesStructure.arrayOpts.type);
+				}
+			}else{
+				for(const [key, value] of Object.entries(assetData)){
+					const structure = propertiesStructure[key];
+					assetData[key] = this.remapAssetDataEnums(value, structure);
+				}
+			}
+		}else if(typeof assetData == "string"){
+			if(Array.isArray(propertiesStructure.type) && propertiesStructure.guiOpts?.enumObject){
+				assetData = propertiesStructure.guiOpts.enumObject[assetData];
+			}
+		}
+		return assetData;
 	}
 
 	async fileChangedExternally(){

@@ -58,7 +58,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		}else if(type == Boolean){
 			this.gui = new BooleanGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type instanceof Array){
+		}else if(Array.isArray(type)){
 			this.gui = new DropDownGui({
 				items: type,
 				...guiOpts,

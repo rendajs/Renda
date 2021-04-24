@@ -279,7 +279,7 @@ export default class BinaryComposer{
 		while(prevReferences.length > 0){
 			const newReferences = [];
 			for(const ref of prevReferences){
-				if(typeof ref === "object" && ref !== null){
+				if(typeof ref == "object" && ref != null){
 					if(occurringReferences.has(ref)){
 						reoccurringReferences.add(ref);
 					}else{
@@ -329,7 +329,7 @@ export default class BinaryComposer{
 		}
 
 
-		if(typeof data === "object" && data !== null){
+		if(typeof data == "object" && data != null){
 			if(Array.isArray(data)){
 				if(structure.length == 0){
 					//nyi
@@ -337,7 +337,7 @@ export default class BinaryComposer{
 					const structureItem = structure[0];
 					//todo: add some sort of way to store arrays with variable length with
 					//the value in place rather than as reference
-					if(typeof structureItem === "object" && structureItem !== null){
+					if(typeof structureItem == "object" && structureItem != null){
 						for(const item of data){
 							collectedItems.set(item, structureItem);
 						}
@@ -411,7 +411,7 @@ export default class BinaryComposer{
 	}
 
 	static generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isInitialItem = false}){
-		if(typeof structure === "object" && structure !== null){
+		if(typeof structure == "object" && structure != null){
 			if(!isInitialItem && referenceIds.has(obj)){
 				const refId = referenceIds.get(obj);
 				let type = Array.isArray(obj) ? BinaryComposer.StructureTypes.ARRAY : BinaryComposer.StructureTypes.OBJECT;
@@ -572,7 +572,7 @@ export default class BinaryComposer{
 	}
 
 	static generateStructureDigestable(structure, traversedLocationPath, {nameIdsMap, reoccurringStructureReferences, isInitialItem = false}){
-		if(typeof structure === "object" && structure !== null){
+		if(typeof structure == "object" && structure != null){
 			if(!isInitialItem && reoccurringStructureReferences.has(structure)){
 				let type = Array.isArray(structure) ? BinaryComposer.StructureTypes.ARRAY : BinaryComposer.StructureTypes.OBJECT;
 				return {type, structureRef: structure, location: traversedLocationPath};
