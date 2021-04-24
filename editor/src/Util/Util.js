@@ -119,6 +119,7 @@ export function toFormattedJsonString(jsonObj, {
 			const lineBeforeIndent = splitStr[indentStartPos - 1];
 			removeNewLineIndents.push({
 				isObjectIndent: lineBeforeIndent.endsWith("{"),
+				isArrayIndent: lineBeforeIndent.endsWith("["),
 				start: indentStartPos,
 				end: i + 1,
 			});
@@ -126,7 +127,7 @@ export function toFormattedJsonString(jsonObj, {
 		prevTabCount = tabCount;
 	}
 
-	if(removeNewLineIndents.length == 1 && removeNewLineIndents[0].isObjectIndent && purpose == "fileStorage"){
+	if(removeNewLineIndents.length == 1 && removeNewLineIndents[0].isObjectIndent && removeNewLineIndents[0].start == 1 && purpose == "fileStorage"){
 		removeNewLineIndents = [];
 	}
 
@@ -141,6 +142,22 @@ export function toFormattedJsonString(jsonObj, {
 				}
 			}
 			if(indentCharCount > 40) continue;
+		}else if(indent.isArrayIndent){
+			let removeNewLines = true;
+			for(let i=indent.start; i<indent.end - 1; i++){
+				const line = splitStr[i];
+				if(line.includes("\"")){
+					let valueCharCount = 0;
+					for(const char of line){
+						if(char != "\t") valueCharCount++;
+					}
+					if(valueCharCount > 10){
+						removeNewLines = false;
+						break;
+					}
+				}
+			}
+			if(!removeNewLines) continue;
 		}
 		for(let i=indent.start; i<indent.end; i++){
 			needsNewLinePositions[i] = false;
