@@ -184,6 +184,7 @@ export default class BinaryComposer{
 		structure = null,
 		nameIds = null,
 		littleEndian = true,
+		transformValueCb = null,
 	} = {}){
 		const nameIdsMap = new Map(Object.entries(nameIds));
 		const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k,v]) => [v,k]));
@@ -234,9 +235,15 @@ export default class BinaryComposer{
 						}
 					}else{
 						for(let i=0; i<arrayLength; i++){
-							const {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.arrayType.type, byteOffset, {littleEndian});
+							const {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.arrayType.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
 							byteOffset += bytesMoved;
-							reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {nameIdsMapInverse, value, location: digestable.arrayType.location, variableLengthArrayIndex: i});
+							const transformValueCbOpts = {type: digestable.arrayType.type, nameId: digestable.nameId};
+							reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
+								nameIdsMapInverse, value,
+								location: digestable.arrayType.location,
+								variableLengthArrayIndex: i,
+								transformValueCb, transformValueCbOpts,
+							});
 						}
 					}
 				}else if(digestable.structureRef){
@@ -246,9 +253,14 @@ export default class BinaryComposer{
 					unparsedStructureIds.add(refId);
 					collectedReferenceLinks.push({refId, location: digestable.location, injectIntoRefId: parsingStructureId});
 				}else{
-					const {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
+					let {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
 					byteOffset += bytesMoved;
-					reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {nameIdsMapInverse, value, location: digestable.location});
+					const transformValueCbOpts = {type: digestable.type, nameId: digestable.nameId};
+					reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
+						nameIdsMapInverse, value,
+						location: digestable.location,
+						transformValueCb, transformValueCbOpts,
+					});
 				}
 			}
 
@@ -268,6 +280,29 @@ export default class BinaryComposer{
 		}
 
 		return structureDataById.get(0).reconstructedData;
+	}
+
+	//similar to binaryToObject() but replaces all uuids with assets
+	static async binaryToObjectWithAssetLoader(buffer, assetLoader, {
+		structure = null,
+		nameIds = null,
+		littleEndian = true,
+	} = {}){
+		let promises = [];
+		const obj = BinaryComposer.binaryToObject(buffer, {
+			structure, nameIds, littleEndian,
+			transformValueCb: ({value, type, placedOnObject, placedOnKey}) => {
+				if(type != BinaryComposer.StructureTypes.UUID) return value;
+				const promise = (async _ => {
+					const asset = await assetLoader.getAsset(value);
+					placedOnObject[placedOnKey] = asset;
+				})();
+				promises.push(promise);
+				return null;
+			},
+		});
+		await Promise.all(promises);
+		return obj;
 	}
 
 	//returns a Set of objects references that occur more than once in the data
@@ -688,7 +723,10 @@ export default class BinaryComposer{
 		return {buffer, length: bufferByteLength, bytesMoved};
 	}
 
-	static resolveBinaryValueLocation(obj, {value, location, nameIdsMapInverse, variableLengthArrayIndex}, locationOffset = 0){
+	static resolveBinaryValueLocation(obj, {
+		value, location, nameIdsMapInverse, variableLengthArrayIndex,
+		transformValueCb, transformValueCbOpts,
+	}, locationOffset = 0){
 		const keyData = location[locationOffset];
 		let key = keyData.id;
 		if(obj == null){
@@ -706,10 +744,16 @@ export default class BinaryComposer{
 			key = nameIdsMapInverse.get(keyData.id);
 		}
 		if(locationOffset >= location.length - 1){
+			if(transformValueCb){
+				value = transformValueCb({value, placedOnObject: obj, placedOnKey: key, ...transformValueCbOpts});
+			}
 			obj[key] = value;
 		}else{
 			let subValue = obj[key] || null;
-			subValue = BinaryComposer.resolveBinaryValueLocation(subValue, {value, location, nameIdsMapInverse, variableLengthArrayIndex}, locationOffset + 1);
+			subValue = BinaryComposer.resolveBinaryValueLocation(subValue, {
+				value, location, nameIdsMapInverse, variableLengthArrayIndex,
+				transformValueCb, transformValueCbOpts,
+			}, locationOffset + 1);
 			obj[key] = subValue;
 		}
 		return obj;
