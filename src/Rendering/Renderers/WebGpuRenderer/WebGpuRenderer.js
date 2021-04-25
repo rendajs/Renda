@@ -7,6 +7,7 @@ import CachedMeshData from "./CachedMeshData.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
+export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 

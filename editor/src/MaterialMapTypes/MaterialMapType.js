@@ -58,13 +58,14 @@ export default class MaterialMapType{
 	//}
 	static async getMappableValues(customData){return []}
 
+	//override these 3 items if you want to be able to export mapData in assetbundles.
+	//usually returning the mapData object itself in mapDataToAssetBundleData() is enough,
+	//unless you want to transform some values first.
+	//mapDataToAssetBundleData() can return an arraybuffer.
+	//you can also return an object if assetBundleDataStructure and assetBundleDataNameIds
+	//are set, the values will be converted to binary using BinaryComposer.objectToBinary()
 	static assetBundleDataStructure = null;
 	static assetBundleDataNameIds = null;
-
-	//used to export materialMaps to asset bundles, should return an Object
-	//this doesn't need to export mapped items, this will be done automatically
-	//make sure assetBundleDataStructure and assetBundleDataNameIds are set
-	//these values will be fed into BinaryComposer.objectToBinary()
 	static mapDataToAssetBundleData(mapData){}
 
 	//alternatively you can override this for more control
@@ -74,6 +75,8 @@ export default class MaterialMapType{
 			//fail silently, you probaly intended to not export anything
 			return null;
 		}
+		if(bundleMapData instanceof ArrayBuffer) return data;
+
 		if(!this.assetBundleDataStructure){
 			console.warn("Failed to export material map, assetBundleDataStructure is not set");
 			return null;

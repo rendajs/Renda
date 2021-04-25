@@ -54,17 +54,15 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	}
 
 	static assetBundleDataStructure = {
-		configUuid: BinaryComposer.StructureTypes.UUID,
+		forwardPipelineConfiguration: BinaryComposer.StructureTypes.UUID,
 	};
 
 	static assetBundleDataNameIds = {
-		configUuid: 1,
+		forwardPipelineConfiguration: 1,
 	};
 
 	static mapDataToAssetBundleData(mapData){
-		return {
-			configUuid: mapData.forwardPipelineConfiguration,
-		};
+		return mapData;
 	}
 
 	getSettingsValues(){

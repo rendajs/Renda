@@ -9,5 +9,5 @@ export default class AssetLoaderType{
 
 	//this method should parse an ArrayBuffer and return an
 	//instance of the desired class such as a Mesh or Texture
-	parseBuffer(buffer){}
+	async parseBuffer(buffer){}
 }
