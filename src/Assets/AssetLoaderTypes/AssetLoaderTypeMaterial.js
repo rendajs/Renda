@@ -8,7 +8,7 @@ export default class AssetLoaderTypeMaterial extends AssetLoaderType{
 	static typeUuid = "430f47a8-82cc-4b4c-a664-2360794e80d6";
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		this.registeredLoaderTypes = new Map();
 	}
@@ -53,7 +53,7 @@ export default class AssetLoaderTypeMaterial extends AssetLoaderType{
 			return;
 		}
 
-		const instance = new constructor(this);
+		const instance = new constructor(this.assetLoader, this);
 		this.registeredLoaderTypes.set(constructor.typeUuid, instance);
 	}
 }
