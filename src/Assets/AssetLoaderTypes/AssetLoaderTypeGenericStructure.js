@@ -8,14 +8,21 @@ export default class AssetLoaderTypeGenericStructure extends AssetLoaderType{
 	static littleEndian = true;
 
 	constructor(){
-		super();
+		super(...arguments);
 	}
 
-	parseBuffer(buffer){
-		return BinaryComposer.binaryToObject(buffer, {
+	async parseBuffer(buffer, {
+		loadRecursiveAssetUuids = true,
+	} = {}){
+		const binaryToObjectOpts = {
 			structure: this.constructor.structure,
 			nameIds: this.constructor.nameIds,
 			littleEndian: this.constructor.littleEndian,
-		});
+		};
+		if(loadRecursiveAssetUuids){
+			return await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, binaryToObjectOpts);
+		}else{
+			return BinaryComposer.binaryToObject(buffer, binaryToObjectOpts);
+		}
 	}
 }

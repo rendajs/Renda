@@ -32,11 +32,11 @@ export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericSt
 	};
 
 	constructor(){
-		super();
+		super(...arguments);
 	}
 
-	parseBuffer(buffer){
-		const data = super.parseBuffer(buffer);
+	async parseBuffer(buffer){
+		const data = await super.parseBuffer(buffer);
 		return new WebGpuVertexState(data);
 	}
 }

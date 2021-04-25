@@ -38,7 +38,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 		return {liveAsset: material};
 	}
 
-	async createBundledAssetData(assetSettingOverrides = {}){
+	async createBundledAssetData(){
 		const assetData = await this.projectAsset.readAssetData();
 		const mapUuid = assetData.map;
 		if(!mapUuid) return "";

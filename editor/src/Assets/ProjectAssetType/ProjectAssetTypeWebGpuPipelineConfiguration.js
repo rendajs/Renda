@@ -1,6 +1,6 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource, WebGpuPipelineConfiguration, WebGpuVertexState} from "../../../../src/index.js";
+import {ShaderSource, WebGpuPipelineConfiguration, WebGpuVertexState, AssetLoaderTypeWebGpuPipelineConfiguration} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeWebGpuPipelineConfiguration extends ProjectAssetType{
 
@@ -57,4 +57,6 @@ export default class ProjectAssetTypeWebGpuPipelineConfiguration extends Project
 	async fileChangedExternally(){
 		this.liveAssetNeedsReplacement();
 	}
+
+	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfiguration;
 }
