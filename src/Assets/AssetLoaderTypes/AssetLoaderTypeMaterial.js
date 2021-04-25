@@ -1,6 +1,7 @@
 import AssetLoaderType from "./AssetLoaderType.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
 import MaterialMapTypeLoader from "../MaterialMapTypeLoader.js";
+import Material from "../../Rendering/Material.js";
 import {isUuid} from "../../Util/Util.js";
 
 export default class AssetLoaderTypeMaterial extends AssetLoaderType{
@@ -29,6 +30,7 @@ export default class AssetLoaderTypeMaterial extends AssetLoaderType{
 				data: 4,
 			},
 		});
+		const customMapDatas = new Map();
 		for(const mapData of materialData.mapDatas){
 			const mapLoader = this.registeredLoaderTypes.get(mapData.typeUuid);
 			if(!mapLoader){
@@ -37,8 +39,12 @@ export default class AssetLoaderTypeMaterial extends AssetLoaderType{
 				continue;
 			}
 			const parsedMapData = await mapLoader.parseBuffer(mapData.data);
-			console.log(parsedMapData);
+			customMapDatas.set(mapData.typeUuid, parsedMapData);
 		}
+		const material = new Material({
+			customMapDatas,
+		});
+		return material;
 	}
 
 	registerMaterialMapTypeLoader(constructor){
