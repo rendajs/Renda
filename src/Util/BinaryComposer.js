@@ -173,7 +173,7 @@ export default class BinaryComposer{
 		let byteOffset = 0;
 		//todo: add arraylength and refid storage types as header
 		for(const item of flattened){
-			const bytesMoved = BinaryComposer.setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType});
+			const bytesMoved = BinaryComposer.setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType});
 			byteOffset += bytesMoved;
 		}
 
