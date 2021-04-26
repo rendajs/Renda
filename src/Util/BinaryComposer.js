@@ -447,6 +447,13 @@ export default class BinaryComposer{
 
 	static generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isInitialItem = false}){
 		if(typeof structure == "object" && structure != null){
+			if(!obj){
+				if(Array.isArray(structure)){
+					obj = [];
+				}else{
+					obj = {};
+				}
+			}
 			if(!isInitialItem && referenceIds.has(obj)){
 				const refId = referenceIds.get(obj);
 				let type = Array.isArray(obj) ? BinaryComposer.StructureTypes.ARRAY : BinaryComposer.StructureTypes.OBJECT;
@@ -463,8 +470,9 @@ export default class BinaryComposer{
 				return {value: arr, type: BinaryComposer.StructureTypes.ARRAY, variableArrayLength};
 			}else{
 				const arr = [];
-				for(const [key, val] of Object.entries(obj)){
+				for(const key of Object.keys(structure)){
 					if(nameIdsMap.has(key)){
+						const val = obj[key];
 						arr.push({
 							...BinaryComposer.generateBinaryDigestable(val, structure[key], {referenceIds, nameIdsMap}),
 							nameId: nameIdsMap.get(key),
