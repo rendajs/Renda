@@ -1,7 +1,8 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import {Entity, defaultComponentTypeManager, Mesh, Material, Vec2, Vec3, Vec4, Mat4} from "../../../../src/index.js";
+import {Entity, defaultComponentTypeManager, Mesh, Material, Vec2, Vec3, Vec4, Mat4, AssetLoaderTypeEntity} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import ContentWindowEntityEditor from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import BinaryComposer from "../../../../src/Util/BinaryComposer.js";
 
 export default class ProjectAssetTypeEntity extends ProjectAssetType{
 
@@ -91,5 +92,21 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 			return await editor.projectManager.assetManager.getLiveAsset(propertyValue);
 		}
 		return propertyValue;
+	}
+
+	async createBundledAssetData(){
+		const assetData = await this.projectAsset.readAssetData();
+		const objectStructure = {
+			name: BinaryComposer.StructureTypes.STRING,
+			matrix: [BinaryComposer.StructureTypes.FLOAT32],
+		};
+		const nameIds = {
+			name: 1,
+			matrix: 2,
+		};
+		return BinaryComposer.objectToBinary(assetData, {
+			structure: AssetLoaderTypeEntity.entityBinaryStructure,
+			nameIds: AssetLoaderTypeEntity.entityBinaryNameIds,
+		});
 	}
 }
