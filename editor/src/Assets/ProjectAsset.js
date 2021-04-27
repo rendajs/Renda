@@ -345,11 +345,7 @@ export default class ProjectAsset{
 					this.remapAssetDataEnums(assetData, this._projectAssetType.constructor.propertiesAssetContentStructure);
 				}
 
-				binaryData = BinaryComposer.objectToBinary(assetData, {
-					structure: usedAssetLoaderType.structure,
-					nameIds: usedAssetLoaderType.nameIds,
-					littleEndian: usedAssetLoaderType.littleEndian,
-				});
+				binaryData = BinaryComposer.objectToBinary(assetData, usedAssetLoaderType.binaryComposerOpts);
 			}
 		}
 		if(!binaryData){

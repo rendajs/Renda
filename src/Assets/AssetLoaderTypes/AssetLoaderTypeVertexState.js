@@ -6,30 +6,32 @@ export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericSt
 
 	static typeUuid = "07dcd52e-03a5-4823-b343-16a142c304f6";
 
-	static structure = {
-		buffers: [{
-			arrayStride: BinaryComposer.StructureTypes.INT16, //todo: support serializing auto value
-			stepMode: BinaryComposer.StructureTypes.INT8,
-			attributes: [{
-				attributeType: BinaryComposer.StructureTypes.INT8,
-				format: BinaryComposer.StructureTypes.INT8,
-				componentCount: BinaryComposer.StructureTypes.INT8,
-				unsigned: BinaryComposer.StructureTypes.BOOL,
-				shaderLocation: BinaryComposer.StructureTypes.INT8, //todo: support serializing auto value
+	static binaryComposerOpts = {
+		structure: {
+			buffers: [{
+				arrayStride: BinaryComposer.StructureTypes.INT16, //todo: support serializing auto value
+				stepMode: BinaryComposer.StructureTypes.INT8,
+				attributes: [{
+					attributeType: BinaryComposer.StructureTypes.INT8,
+					format: BinaryComposer.StructureTypes.INT8,
+					componentCount: BinaryComposer.StructureTypes.INT8,
+					unsigned: BinaryComposer.StructureTypes.BOOL,
+					shaderLocation: BinaryComposer.StructureTypes.INT8, //todo: support serializing auto value
+				}],
 			}],
-		}],
-	};
-	static nameIds = {
-		buffers: 1,
-		arrayStride: 2,
-		stepMode: 3,
-		attributes: 4,
-		attributeType: 5,
-		format: 6,
-		componentCount: 7,
-		unsigned: 8,
-		shaderLocation: 9,
-	};
+		},
+		nameIds: {
+			buffers: 1,
+			arrayStride: 2,
+			stepMode: 3,
+			attributes: 4,
+			attributeType: 5,
+			format: 6,
+			componentCount: 7,
+			unsigned: 8,
+			shaderLocation: 9,
+		},
+	}
 
 	constructor(){
 		super(...arguments);

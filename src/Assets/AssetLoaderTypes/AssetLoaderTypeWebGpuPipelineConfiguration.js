@@ -6,17 +6,18 @@ export default class AssetLoaderTypeWebGpuPipelineConfiguration extends AssetLoa
 
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 
-	static structure = {
-		vertexShader: BinaryComposer.StructureTypes.UUID,
-		fragmentShader: BinaryComposer.StructureTypes.UUID,
-		preloadVertexStates: [BinaryComposer.StructureTypes.UUID],
-	};
-
-	static nameIds = {
-		vertexShader: 1,
-		fragmentShader: 2,
-		preloadVertexStates: 3,
-	};
+	static binaryComposerOpts = {
+		structure: {
+			vertexShader: BinaryComposer.StructureTypes.UUID,
+			fragmentShader: BinaryComposer.StructureTypes.UUID,
+			preloadVertexStates: [BinaryComposer.StructureTypes.UUID],
+		},
+		nameIds: {
+			vertexShader: 1,
+			fragmentShader: 2,
+			preloadVertexStates: 3,
+		},
+	}
 
 	constructor(){
 		super(...arguments);

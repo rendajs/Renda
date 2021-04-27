@@ -3,9 +3,7 @@ import BinaryComposer from "../../Util/BinaryComposer.js";
 
 export default class AssetLoaderTypeGenericStructure extends AssetLoaderType{
 
-	static structure = null;
-	static nameIds = null;
-	static littleEndian = true;
+	static binaryComposerOpts = null;
 
 	constructor(){
 		super(...arguments);
@@ -14,15 +12,10 @@ export default class AssetLoaderTypeGenericStructure extends AssetLoaderType{
 	async parseBuffer(buffer, {
 		loadRecursiveAssetUuids = true,
 	} = {}){
-		const binaryToObjectOpts = {
-			structure: this.constructor.structure,
-			nameIds: this.constructor.nameIds,
-			littleEndian: this.constructor.littleEndian,
-		};
 		if(loadRecursiveAssetUuids){
-			return await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, binaryToObjectOpts);
+			return await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, this.constructor.binaryComposerOpts);
 		}else{
-			return BinaryComposer.binaryToObject(buffer, binaryToObjectOpts);
+			return BinaryComposer.binaryToObject(buffer, binaryComposerOpts);
 		}
 	}
 }
