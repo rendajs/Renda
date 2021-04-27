@@ -29,6 +29,7 @@ export default class ScriptBuilder{
 			const lines = rollupCode.split("\n");
 			let codeBackground = "background: white;";
 			let codeStyle = "color: black;";
+			const blockWidth = 150;
 			if(matchMedia("(prefers-color-scheme: dark)").matches){
 				codeBackground = "background: #272727;";
 				codeStyle = "color: white;";
@@ -42,7 +43,7 @@ export default class ScriptBuilder{
 				for(let i=startLine; i<endLine; i++){
 					const line = lines[i];
 					const spacesLine = line.replace(/\t/g,"    ");
-					const extraSpaces = " ".repeat(100 - spacesLine.length);
+					const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
 					logText += spacesLine + extraSpaces + "\n";
 					if(i == error.lineNo -1){
 						const splitStr = line.slice(0, error.charNo);
@@ -52,7 +53,7 @@ export default class ScriptBuilder{
 						let caretsLength = splitStr2.search(/\s/);
 						if(caretsLength == -1) caretsLength = splitStr2.length;
 						const carets = "^".repeat(caretsLength);
-						const spaces2 = " ".repeat(100 - spacesLength - caretsLength);
+						const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
 						logText += "%c"+spaces + carets + spaces2 + "%c\n";
 						logStyles.push(codeBackground+"color: red;", codeStyle);
 					}
