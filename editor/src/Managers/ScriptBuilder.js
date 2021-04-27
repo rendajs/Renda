@@ -38,24 +38,26 @@ export default class ScriptBuilder{
 			for(const error of closureData.errors){
 				logText += "\n\n%c"+error.description + "%c\n%c";
 				logStyles.push("font-weight: bold", "", codeStyle);
-				const startLine = Math.max(0, error.lineNo - 5);
-				const endLine = Math.min(lines.length - 1, error.lineNo + 5);
-				for(let i=startLine; i<endLine; i++){
-					const line = lines[i];
-					const spacesLine = line.replace(/\t/g,"    ");
-					const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
-					logText += spacesLine + extraSpaces + "\n";
-					if(i == error.lineNo -1){
-						const splitStr = line.slice(0, error.charNo);
-						const splitStr2 = line.slice(error.charNo);
-						const spacesLength = splitStr.replace(/\t/g,"    ").length;
-						const spaces = " ".repeat(spacesLength);
-						let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
-						if(caretsLength == -1) caretsLength = splitStr2.length;
-						const carets = "^".repeat(caretsLength);
-						const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
-						logText += "%c"+spaces + carets + spaces2 + "%c\n";
-						logStyles.push(codeBackground+"color: red;", codeStyle);
+				if(error.lineNo >= 0){
+					const startLine = Math.max(0, error.lineNo - 5);
+					const endLine = Math.min(lines.length - 1, error.lineNo + 5);
+					for(let i=startLine; i<endLine; i++){
+						const line = lines[i];
+						const spacesLine = line.replace(/\t/g,"    ");
+						const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
+						logText += spacesLine + extraSpaces + "\n";
+						if(i == error.lineNo -1 && error.charNo >= 0){
+							const splitStr = line.slice(0, error.charNo);
+							const splitStr2 = line.slice(error.charNo);
+							const spacesLength = splitStr.replace(/\t/g,"    ").length;
+							const spaces = " ".repeat(spacesLength);
+							let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
+							if(caretsLength == -1) caretsLength = splitStr2.length;
+							const carets = "^".repeat(caretsLength);
+							const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
+							logText += "%c"+spaces + carets + spaces2 + "%c\n";
+							logStyles.push(codeBackground+"color: red;", codeStyle);
+						}
 					}
 				}
 				logText += "%c";
