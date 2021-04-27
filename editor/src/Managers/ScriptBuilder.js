@@ -36,7 +36,7 @@ export default class ScriptBuilder{
 			}
 			codeStyle += codeBackground;
 			for(const error of closureData.errors){
-				logText += "%c"+error.description + "%c\n%c";
+				logText += "\n\n%c"+error.description + "%c\n%c";
 				logStyles.push("font-weight: bold", "", codeStyle);
 				const startLine = Math.max(0, error.lineNo - 5);
 				const endLine = Math.min(lines.length - 1, error.lineNo + 5);
@@ -50,7 +50,7 @@ export default class ScriptBuilder{
 						const splitStr2 = line.slice(error.charNo);
 						const spacesLength = splitStr.replace(/\t/g,"    ").length;
 						const spaces = " ".repeat(spacesLength);
-						let caretsLength = splitStr2.search(/\s/);
+						let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
 						if(caretsLength == -1) caretsLength = splitStr2.length;
 						const carets = "^".repeat(caretsLength);
 						const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
