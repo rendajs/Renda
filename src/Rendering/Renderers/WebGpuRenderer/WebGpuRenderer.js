@@ -13,7 +13,9 @@ export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 
 export default class WebGpuRenderer extends Renderer{
 
-	static domTargetConstructor = WebGpuRendererDomTarget;
+	static get domTargetConstructor(){
+		return WebGpuRendererDomTarget;
+	}
 
 	constructor(){
 		super();

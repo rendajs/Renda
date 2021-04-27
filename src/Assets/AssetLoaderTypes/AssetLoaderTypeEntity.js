@@ -23,11 +23,15 @@ const entityBinaryNameIds = {
 
 export default class AssetLoaderTypeEntity extends AssetLoaderType{
 
-	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";
+	static get typeUuid(){
+		return "0654611f-c908-4ec0-8bbf-c109a33c0914";
+	}
 
-	static entityBinaryFormat = {
-		structure: entityBinaryStructure,
-		nameIds: entityBinaryNameIds,
+	static get entityBinaryFormat(){
+		return {
+			structure: entityBinaryStructure,
+			nameIds: entityBinaryNameIds,
+		};
 	}
 
 	constructor(){

@@ -8,22 +8,24 @@ export default class BinaryComposer{
 		this.littleEndian = littleEndian;
 	}
 
-	static StructureTypes = Object.freeze({
-		INT8: 1,
-		INT16: 2,
-		INT32: 3,
-		UINT8: 4,
-		UINT16: 5,
-		UINT32: 6,
-		FLOAT32: 7,
-		FLOAT64: 8,
-		ARRAY: 9,
-		OBJECT: 10,
-		STRING: 11,
-		BOOL: 12,
-		UUID: 13,
-		ARRAYBUFFER: 14,
-	});
+	static get StructureTypes(){
+		return {
+			INT8: 1,
+			INT16: 2,
+			INT32: 3,
+			UINT8: 4,
+			UINT16: 5,
+			UINT32: 6,
+			FLOAT32: 7,
+			FLOAT64: 8,
+			ARRAY: 9,
+			OBJECT: 10,
+			STRING: 11,
+			BOOL: 12,
+			UUID: 13,
+			ARRAYBUFFER: 14,
+		};
+	}
 
 	getFullBuffer(){
 		if(this.bufferList.length == 0){

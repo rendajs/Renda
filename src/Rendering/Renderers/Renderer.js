@@ -5,7 +5,9 @@ export default class Renderer{
 	}
 
 	//optionally override this with your own RendererDomTarget class
-	static domTargetConstructor = RendererDomTarget;
+	static get domTargetConstructor(){
+		return RendererDomTarget;
+	}
 
 	init(){}
 

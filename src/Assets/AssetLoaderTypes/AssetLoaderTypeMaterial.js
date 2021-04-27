@@ -6,7 +6,9 @@ import {isUuid} from "../../Util/Util.js";
 
 export default class AssetLoaderTypeMaterial extends AssetLoaderType{
 
-	static typeUuid = "430f47a8-82cc-4b4c-a664-2360794e80d6";
+	static get typeUuid(){
+		return "430f47a8-82cc-4b4c-a664-2360794e80d6";
+	}
 
 	constructor(){
 		super(...arguments);

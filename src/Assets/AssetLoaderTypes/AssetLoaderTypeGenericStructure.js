@@ -3,7 +3,7 @@ import BinaryComposer from "../../Util/BinaryComposer.js";
 
 export default class AssetLoaderTypeGenericStructure extends AssetLoaderType{
 
-	static binaryComposerOpts = null;
+	static get binaryComposerOpts(){return null}
 
 	constructor(){
 		super(...arguments);

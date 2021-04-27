@@ -1,7 +1,7 @@
 export default class MaterialMapTypeLoader{
 
-	//this should be the same uuid as the typeUuid of your MaterialMapType
-	static typeUuid = null;
+	//this should return the same uuid as the typeUuid of your MaterialMapType
+	static get typeUuid(){return null}
 
 	constructor(assetLoader, materialLoader){
 		this.assetLoader = assetLoader;

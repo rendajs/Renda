@@ -3,7 +3,9 @@ import ShaderSource from "../../Rendering/ShaderSource.js";
 
 export default class AssetLoaderTypeShaderSource extends AssetLoaderType{
 
-	static typeUuid = "e7253ad6-8459-431f-ac16-609150538a24";
+	static get typeUuid(){
+		return "e7253ad6-8459-431f-ac16-609150538a24";
+	}
 
 	constructor(){
 		super(...arguments);

@@ -1,7 +1,9 @@
 export default class AssetLoaderType{
 
 	//this should be the same as the uuid used in ProjectAssetType.js
-	static typeUuid = null;
+	static get typeUuid(){
+		return null;
+	}
 
 	constructor(assetLoader){
 		this.assetLoader = assetLoader;
