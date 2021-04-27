@@ -27,7 +27,13 @@ export default class ScriptBuilder{
 			const logStyles = ["font-weight: bold", ""];
 			let logText = "%cerrors occurred while building script with closure compiler:%c\n\n\n";
 			const lines = rollupCode.split("\n");
-			const codeStyle = "background: white; color: black;";
+			let codeBackground = "background: white;";
+			let codeStyle = "color: black;";
+			if(matchMedia("(prefers-color-scheme: dark)").matches){
+				codeBackground = "background: #272727;";
+				codeStyle = "color: white;";
+			}
+			codeStyle += codeBackground;
 			for(const error of closureData.errors){
 				logText += "%c"+error.description + "%c\n%c";
 				logStyles.push("font-weight: bold", "", codeStyle);
@@ -43,11 +49,12 @@ export default class ScriptBuilder{
 						const splitStr2 = line.slice(error.charNo);
 						const spacesLength = splitStr.replace(/\t/g,"    ").length;
 						const spaces = " ".repeat(spacesLength);
-						let caretLength = splitStr2.search(/\s/);
-						if(caretLength == -1) caretLength = splitStr2.length;
-						const carets = "^".repeat(caretLength);
-						logText += "%c"+spaces + carets + "%c\n";
-						logStyles.push("", codeStyle);
+						let caretsLength = splitStr2.search(/\s/);
+						if(caretsLength == -1) caretsLength = splitStr2.length;
+						const carets = "^".repeat(caretsLength);
+						const spaces2 = " ".repeat(100 - spacesLength - caretsLength);
+						logText += "%c"+spaces + carets + spaces2 + "%c\n";
+						logStyles.push(codeBackground+"color: red;", codeStyle);
 					}
 				}
 				logText += "%c";
