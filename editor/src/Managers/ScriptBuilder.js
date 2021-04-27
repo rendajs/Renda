@@ -13,7 +13,7 @@ export default class ScriptBuilder{
 		const {output} = await bundle.generate({
 			format: "esm",
 		});
-		const code = output[0].code;
+		const rollupCode = output[0].code;
 		const closureData = jscomp({
 			compilationLevel: "ADVANCED",
 			languageIn: "ECMASCRIPT_NEXT",
@@ -21,8 +21,41 @@ export default class ScriptBuilder{
 			formatting: "PRETTY_PRINT",
 			debug: true,
 		}, [{
-			src: code,
+			src: rollupCode,
 		}]);
+		if(closureData.errors.length > 0){
+			const logStyles = ["font-weight: bold", ""];
+			let logText = "%cerrors occurred while building script with closure compiler:%c\n\n\n";
+			const lines = rollupCode.split("\n");
+			const codeStyle = "background: white; color: black;";
+			for(const error of closureData.errors){
+				logText += "%c"+error.description + "%c\n%c";
+				logStyles.push("font-weight: bold", "", codeStyle);
+				const startLine = Math.max(0, error.lineNo - 5);
+				const endLine = Math.min(lines.length - 1, error.lineNo + 5);
+				for(let i=startLine; i<endLine; i++){
+					const line = lines[i];
+					const spacesLine = line.replace(/\t/g,"    ");
+					const extraSpaces = " ".repeat(100 - spacesLine.length);
+					logText += spacesLine + extraSpaces + "\n";
+					if(i == error.lineNo -1){
+						const splitStr = line.slice(0, error.charNo);
+						const splitStr2 = line.slice(error.charNo);
+						const spacesLength = splitStr.replace(/\t/g,"    ").length;
+						const spaces = " ".repeat(spacesLength);
+						let caretLength = splitStr2.search(/\s/);
+						if(caretLength == -1) caretLength = splitStr2.length;
+						const carets = "^".repeat(caretLength);
+						logText += "%c"+spaces + carets + "%c\n";
+						logStyles.push("", codeStyle);
+					}
+				}
+				logText += "%c";
+				logStyles.push("");
+			}
+			console.error(logText, ...logStyles);
+			return null;
+		}
 		return closureData.compiledCode;
 	}
 

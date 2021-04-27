@@ -41,7 +41,9 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 
 						if(outputPath && outputPath.length > 0){
 							const builtScript = await editor.scriptBuilder.buildScript(asset.path.join("/"));
-							editor.projectManager.currentProjectFileSystem.writeText(outputPath, builtScript);
+							if(builtScript != null){
+								editor.projectManager.currentProjectFileSystem.writeText(outputPath, builtScript);
+							}
 						}
 					}
 				}
