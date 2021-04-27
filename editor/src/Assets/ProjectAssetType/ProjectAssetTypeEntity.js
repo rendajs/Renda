@@ -96,17 +96,6 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 
 	async createBundledAssetData(){
 		const assetData = await this.projectAsset.readAssetData();
-		const objectStructure = {
-			name: BinaryComposer.StructureTypes.STRING,
-			matrix: [BinaryComposer.StructureTypes.FLOAT32],
-		};
-		const nameIds = {
-			name: 1,
-			matrix: 2,
-		};
-		return BinaryComposer.objectToBinary(assetData, {
-			structure: AssetLoaderTypeEntity.entityBinaryStructure,
-			nameIds: AssetLoaderTypeEntity.entityBinaryNameIds,
-		});
+		return BinaryComposer.objectToBinary(assetData, AssetLoaderTypeEntity.entityBinaryFormat);
 	}
 }
