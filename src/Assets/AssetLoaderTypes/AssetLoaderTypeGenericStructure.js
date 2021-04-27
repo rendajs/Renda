@@ -15,7 +15,7 @@ export default class AssetLoaderTypeGenericStructure extends AssetLoaderType{
 		if(loadRecursiveAssetUuids){
 			return await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, this.constructor.binaryComposerOpts);
 		}else{
-			return BinaryComposer.binaryToObject(buffer, binaryComposerOpts);
+			return BinaryComposer.binaryToObject(buffer, this.constructor.binaryComposerOpts);
 		}
 	}
 }
