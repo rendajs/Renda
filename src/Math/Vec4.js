@@ -1,4 +1,5 @@
 import Vec3 from "./Vec3.js";
+import Mat4 from "./Mat4.js";
 
 export default class Vec4{
 	constructor(x=0, y=0, z=0, w=1){

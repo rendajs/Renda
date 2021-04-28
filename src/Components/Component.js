@@ -13,7 +13,7 @@ export default class Component{
 		this.componentTypeManager = componentTypeManager;
 
 		if(typeof componentType == "string"){
-			this.componentUuid = componentUuid;
+			this.componentUuid = componentType;
 		}else{
 			const componentData = this.componentTypeManager.getComponentFromData(componentType);
 			if(!componentData){
