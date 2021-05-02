@@ -3,6 +3,7 @@
 import {server as WebSocketServer} from "websocket";
 import http from "http";
 import BuiltInAssetManager from "./BuiltInAssetManager.js";
+import ClosureCompilerManager from "./ClosureCompilerManager.js";
 
 const port = 5071;
 
@@ -17,6 +18,14 @@ const wsServer = new WebSocketServer({
 const activeConnections = new Set();
 wsServer.on("connect", connection => {
 	activeConnections.add(connection);
+	connection.on("message", e => {
+		if(e.type == "utf8"){
+			const json = JSON.parse(e.utf8Data)
+			if(json.op == "runClosureCompiler"){
+				global.closureCompilerManager.compileJs(connection, json);
+			}
+		}
+	});
 });
 wsServer.on("close", connection => {
 	activeConnections.delete(connection);
@@ -30,3 +39,4 @@ export function sendAllConnections(data){
 }
 
 global.builtInAssetManager = new BuiltInAssetManager();
+global.closureCompilerManager = new ClosureCompilerManager();
