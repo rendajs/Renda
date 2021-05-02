@@ -67,8 +67,7 @@ export default class BuiltInAssetManager{
 			}
 
 			if(uuid){
-				sendAllConnections({
-					type: "builtInAssetChange",
+				sendAllConnections("builtInAssetChange", {
 					uuid,
 				});
 			}
@@ -86,9 +85,7 @@ export default class BuiltInAssetManager{
 		await fs.writeFile(this.assetSettingsPath, str);
 
 		if(notifySocket){
-			sendAllConnections({
-				type: "builtInAssetListUpdate",
-			});
+			sendAllConnections("builtInAssetListUpdate");
 		}
 	}
 

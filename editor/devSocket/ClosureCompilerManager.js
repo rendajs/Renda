@@ -25,23 +25,19 @@ export default class ClosureCompilerManager{
 		}
 	}
 
-	async compileJs(connection, {js, referenceData}){
+	async compileJs({js, referenceData}, responseCb){
 		this.lastCreatedId++;
 
 		const fileName = this.lastCreatedId+"_in.js";
 		const filePath = path.resolve(this.tmpFilesPath, fileName);
 		await writeFile(filePath, js);
 
-		const {exitCode, stdOut, stdErr} = await this.runCompiler({
+		const result = await this.runCompiler({
 			js: filePath,
 			compilation_level: "ADVANCED",
 		});
 
-		connection.send(JSON.stringify({
-			op: "runClosureCompilerResponse",
-			referenceData,
-			exitCode, stdOut, stdErr,
-		}));
+		responseCb(result);
 
 		await unlink(filePath);
 	}

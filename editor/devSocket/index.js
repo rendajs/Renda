@@ -21,8 +21,19 @@ wsServer.on("connect", connection => {
 	connection.on("message", e => {
 		if(e.type == "utf8"){
 			const json = JSON.parse(e.utf8Data)
-			if(json.op == "runClosureCompiler"){
-				global.closureCompilerManager.compileJs(connection, json);
+			if(json.op == "roundTripRequest"){
+				const responseCb = responseData => {
+					connection.send(JSON.stringify({
+						op: "roundTripResponse",
+						data: {
+							roundTripId: json.roundTripId,
+							responseData,
+						},
+					}));
+				}
+				if(json.roundTripOp == "runClosureCompiler"){
+					global.closureCompilerManager.compileJs(json.data, responseCb);
+				}
 			}
 		}
 	});
@@ -31,8 +42,8 @@ wsServer.on("close", connection => {
 	activeConnections.delete(connection);
 });
 
-export function sendAllConnections(data){
-	const str = JSON.stringify(data);
+export function sendAllConnections(op, data){
+	const str = JSON.stringify({op, data});
 	for(const connection of activeConnections){
 		connection.sendUTF(str);
 	}
