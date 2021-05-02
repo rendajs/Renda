@@ -13,8 +13,10 @@ export default class ScriptBuilder{
 		const {output} = await bundle.generate({
 			format: "esm",
 		});
-		let code = output[0].code;
+		const rollupCode = output[0].code;
+		let code = rollupCode;
 		//todo: also make this work in production builds
+		let foundErrors = [];
 		if(IS_DEV_BUILD){
 			const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
 			    js: code,
@@ -22,52 +24,62 @@ export default class ScriptBuilder{
 			if(stdOut){
 				code = stdOut;
 			}
+			if(stdErr){
+				const re = /^.*\.js:(?<line>\d+):(?<char>\d+):\s(\S+)\s-\s\[(?<errorType>\S+)\]\s(?<message>.+)$/gm;
+				for(const match of stdErr.matchAll(re)){
+					const {message, line, char, errorType} = match.groups;
+					foundErrors.push({
+						description: `${errorType}: ${message}`,
+						line: +line,
+						char: +char,
+					});
+				}
+			}
 		}
-		//todo: make error logging work again
 
-		// if(closureData.errors.length > 0){
-		// 	const logStyles = ["font-weight: bold", ""];
-		// 	let logText = "%cerrors occurred while building script with closure compiler:%c\n\n\n";
-		// 	const lines = rollupCode.split("\n");
-		// 	let codeBackground = "background: white;";
-		// 	let codeStyle = "color: black;";
-		// 	const blockWidth = 150;
-		// 	if(matchMedia("(prefers-color-scheme: dark)").matches){
-		// 		codeBackground = "background: #272727;";
-		// 		codeStyle = "color: white;";
-		// 	}
-		// 	codeStyle += codeBackground;
-		// 	for(const error of closureData.errors){
-		// 		logText += "\n\n%c"+error.description + "%c\n%c";
-		// 		logStyles.push("font-weight: bold", "", codeStyle);
-		// 		if(error.lineNo >= 0){
-		// 			const startLine = Math.max(0, error.lineNo - 5);
-		// 			const endLine = Math.min(lines.length - 1, error.lineNo + 5);
-		// 			for(let i=startLine; i<endLine; i++){
-		// 				const line = lines[i];
-		// 				const spacesLine = line.replace(/\t/g,"    ");
-		// 				const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
-		// 				logText += spacesLine + extraSpaces + "\n";
-		// 				if(i == error.lineNo -1 && error.charNo >= 0){
-		// 					const splitStr = line.slice(0, error.charNo);
-		// 					const splitStr2 = line.slice(error.charNo);
-		// 					const spacesLength = splitStr.replace(/\t/g,"    ").length;
-		// 					const spaces = " ".repeat(spacesLength);
-		// 					let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
-		// 					if(caretsLength == -1) caretsLength = splitStr2.length;
-		// 					const carets = "^".repeat(caretsLength);
-		// 					const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
-		// 					logText += "%c"+spaces + carets + spaces2 + "%c\n";
-		// 					logStyles.push(codeBackground+"color: red;", codeStyle);
-		// 				}
-		// 			}
-		// 		}
-		// 		logText += "%c";
-		// 		logStyles.push("");
-		// 	}
-		// 	console.error(logText, ...logStyles);
-		// 	return null;
-		// }
+		if(foundErrors.length > 0){
+			const logStyles = ["font-weight: bold", ""];
+			let logText = "%cerrors occurred while building script with closure compiler:%c\n\n\n";
+			const lines = rollupCode.split("\n");
+			let codeBackground = "background: white;";
+			let codeStyle = "color: black;";
+			const blockWidth = 150;
+			if(matchMedia("(prefers-color-scheme: dark)").matches){
+				codeBackground = "background: #272727;";
+				codeStyle = "color: white;";
+			}
+			codeStyle += codeBackground;
+			for(const error of foundErrors){
+				logText += "\n\n%c"+error.description + "%c\n%c";
+				logStyles.push("font-weight: bold", "", codeStyle);
+				if(error.line >= 0){
+					const startLine = Math.max(0, error.line - 5);
+					const endLine = Math.min(lines.length - 1, error.line + 5);
+					for(let i=startLine; i<endLine; i++){
+						const line = lines[i];
+						const spacesLine = line.replace(/\t/g,"    ");
+						const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
+						logText += spacesLine + extraSpaces + "\n";
+						if(i == error.line -1 && error.char >= 0){
+							const splitStr = line.slice(0, error.char);
+							const splitStr2 = line.slice(error.char);
+							const spacesLength = splitStr.replace(/\t/g,"    ").length;
+							const spaces = " ".repeat(spacesLength);
+							let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
+							if(caretsLength == -1) caretsLength = splitStr2.length;
+							const carets = "^".repeat(caretsLength);
+							const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
+							logText += "%c"+spaces + carets + spaces2 + "%c\n";
+							logStyles.push(codeBackground+"color: red;", codeStyle);
+						}
+					}
+				}
+				logText += "%c";
+				logStyles.push("");
+			}
+			console.error(logText, ...logStyles);
+			return null;
+		}
 		return code;
 	}
 
