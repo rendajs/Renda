@@ -10,7 +10,7 @@ import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
-import DevSocketManager from "./DevSocketManager.js";
+import DevSocketManager from "./Managers/DevSocketManager.js";
 
 import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
 
