@@ -35,6 +35,8 @@ export default class ClosureCompilerManager{
 		const result = await this.runCompiler({
 			js: filePath,
 			compilation_level: "ADVANCED",
+			language_in: "ECMASCRIPT_NEXT",
+			language_out: "ECMASCRIPT_NEXT",
 		});
 
 		responseCb(result);
