@@ -42,7 +42,7 @@ export default class AssetManager{
 				for(const [uuid, assetData] of Object.entries(json.assets)){
 					const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
 					if(projectAsset){
-						projectAsset.makeUuidConsistent(false);
+						projectAsset.makeUuidConsistent();
 						this.projectAssets.set(uuid, projectAsset);
 					}
 				}

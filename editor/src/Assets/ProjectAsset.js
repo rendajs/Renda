@@ -109,6 +109,11 @@ export default class ProjectAsset{
 		if(this.forceAssetType) return true;
 		if(this.needsConsistentUuid) return true;
 
+		//if asset settings contains at least one key it needs to be saved
+		for(const key of Object.keys(this.assetSettings)){
+			return true;
+		}
+
 		return false;
 	}
 

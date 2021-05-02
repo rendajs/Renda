@@ -18,6 +18,12 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 
 		this.assetSettingsTree = this.treeView.addCollapsable("Asset settings will be placed here");
 		this.assetContentTree = this.treeView.addCollapsable("Asset content will be placed here");
+
+		this.isUpdatingAssetSettingsUi = false;
+		this.assetSettingsTree.onChildValueChange(_ => {
+			if(this.isUpdatingAssetSettingsUi) return;
+			this.saveAssetSettings();
+		});
 	}
 
 	destructor(){
@@ -54,7 +60,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		for(const projectAsset of this.currentSelection){
 			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
 			const values = projectAsset.assetSettings;
-			//todo: handle selecting multiple assets
+			//todo: handle selecting multiple assets or none
 			if(structure){
 				settingsStructure = structure;
 				settingsValues = values;
@@ -67,7 +73,22 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 				selectedAssets: this.currentSelection
 			},
 		});
+		this.isUpdatingAssetSettingsUi = true;
 		this.assetSettingsTree.fillSerializableStructureValues(settingsValues);
+		this.isUpdatingAssetSettingsUi = false;
+	}
+
+	//todo: make sure only one instance runs at a time
+	async saveAssetSettings(){
+		for(const projectAsset of this.currentSelection){
+			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
+			//todo: handle selecting multiple assets or none
+			if(structure){
+				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {convertEnumsToString: true});
+				await editor.projectManager.assetManager.saveAssetSettings();
+				break;
+			}
+		}
 	}
 
 	//todo: make sure only one instance runs at a time
