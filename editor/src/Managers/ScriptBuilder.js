@@ -1,5 +1,4 @@
 import rollup from "../../libs/rollup.browser.js";
-import jscomp from "../../libs/jscomp.js";
 
 export default class ScriptBuilder{
 	constructor(){
@@ -14,6 +13,7 @@ export default class ScriptBuilder{
 			format: "esm",
 		});
 		const rollupCode = output[0].code;
+		return rollupCode;
 		const closureData = jscomp({
 			compilationLevel: "ADVANCED",
 			languageIn: "ECMASCRIPT_NEXT",
