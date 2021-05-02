@@ -19,7 +19,6 @@ export default class ScriptBuilder{
 			const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
 			    js: code,
 			});
-			console.log(exitCode, stdErr, stdOut);
 			if(stdOut){
 				code = stdOut;
 			}
