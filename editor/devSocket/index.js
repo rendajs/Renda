@@ -14,6 +14,8 @@ console.log("listening for websocket connections on port " + port);
 const wsServer = new WebSocketServer({
 	httpServer,
 	autoAcceptConnections: true,
+	fragmentationThreshold: 1_000_000_000, //1 GB
+	maxReceivedFrameSize: 1_000_000_000, //1 GB
 });
 const activeConnections = new Set();
 wsServer.on("connect", connection => {
