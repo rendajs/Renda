@@ -25,7 +25,7 @@ export default class ClosureCompilerManager{
 		}
 	}
 
-	async compileJs({js, referenceData}, responseCb){
+	async compileJs({js}, responseCb){
 		this.lastCreatedId++;
 
 		const fileName = this.lastCreatedId+"_in.js";

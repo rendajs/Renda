@@ -1,4 +1,5 @@
 import rollup from "../../libs/rollup.browser.js";
+import editor from "../editorInstance.js";
 
 export default class ScriptBuilder{
 	constructor(){
@@ -12,61 +13,63 @@ export default class ScriptBuilder{
 		const {output} = await bundle.generate({
 			format: "esm",
 		});
-		const rollupCode = output[0].code;
-		return rollupCode;
-		const closureData = jscomp({
-			compilationLevel: "ADVANCED",
-			languageIn: "ECMASCRIPT_NEXT",
-			languageOut: "ECMASCRIPT_NEXT",
-			formatting: "PRETTY_PRINT",
-			debug: true,
-		}, [{
-			src: rollupCode,
-		}]);
-		if(closureData.errors.length > 0){
-			const logStyles = ["font-weight: bold", ""];
-			let logText = "%cerrors occurred while building script with closure compiler:%c\n\n\n";
-			const lines = rollupCode.split("\n");
-			let codeBackground = "background: white;";
-			let codeStyle = "color: black;";
-			const blockWidth = 150;
-			if(matchMedia("(prefers-color-scheme: dark)").matches){
-				codeBackground = "background: #272727;";
-				codeStyle = "color: white;";
+		let code = output[0].code;
+		//todo: also make this work in production builds
+		if(IS_DEV_BUILD){
+			const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
+			    js: code,
+			});
+			console.log(exitCode, stdErr, stdOut);
+			if(stdOut){
+				code = stdOut;
 			}
-			codeStyle += codeBackground;
-			for(const error of closureData.errors){
-				logText += "\n\n%c"+error.description + "%c\n%c";
-				logStyles.push("font-weight: bold", "", codeStyle);
-				if(error.lineNo >= 0){
-					const startLine = Math.max(0, error.lineNo - 5);
-					const endLine = Math.min(lines.length - 1, error.lineNo + 5);
-					for(let i=startLine; i<endLine; i++){
-						const line = lines[i];
-						const spacesLine = line.replace(/\t/g,"    ");
-						const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
-						logText += spacesLine + extraSpaces + "\n";
-						if(i == error.lineNo -1 && error.charNo >= 0){
-							const splitStr = line.slice(0, error.charNo);
-							const splitStr2 = line.slice(error.charNo);
-							const spacesLength = splitStr.replace(/\t/g,"    ").length;
-							const spaces = " ".repeat(spacesLength);
-							let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
-							if(caretsLength == -1) caretsLength = splitStr2.length;
-							const carets = "^".repeat(caretsLength);
-							const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
-							logText += "%c"+spaces + carets + spaces2 + "%c\n";
-							logStyles.push(codeBackground+"color: red;", codeStyle);
-						}
-					}
-				}
-				logText += "%c";
-				logStyles.push("");
-			}
-			console.error(logText, ...logStyles);
-			return null;
 		}
-		return closureData.compiledCode;
+		//todo: make error logging work again
+
+		// if(closureData.errors.length > 0){
+		// 	const logStyles = ["font-weight: bold", ""];
+		// 	let logText = "%cerrors occurred while building script with closure compiler:%c\n\n\n";
+		// 	const lines = rollupCode.split("\n");
+		// 	let codeBackground = "background: white;";
+		// 	let codeStyle = "color: black;";
+		// 	const blockWidth = 150;
+		// 	if(matchMedia("(prefers-color-scheme: dark)").matches){
+		// 		codeBackground = "background: #272727;";
+		// 		codeStyle = "color: white;";
+		// 	}
+		// 	codeStyle += codeBackground;
+		// 	for(const error of closureData.errors){
+		// 		logText += "\n\n%c"+error.description + "%c\n%c";
+		// 		logStyles.push("font-weight: bold", "", codeStyle);
+		// 		if(error.lineNo >= 0){
+		// 			const startLine = Math.max(0, error.lineNo - 5);
+		// 			const endLine = Math.min(lines.length - 1, error.lineNo + 5);
+		// 			for(let i=startLine; i<endLine; i++){
+		// 				const line = lines[i];
+		// 				const spacesLine = line.replace(/\t/g,"    ");
+		// 				const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
+		// 				logText += spacesLine + extraSpaces + "\n";
+		// 				if(i == error.lineNo -1 && error.charNo >= 0){
+		// 					const splitStr = line.slice(0, error.charNo);
+		// 					const splitStr2 = line.slice(error.charNo);
+		// 					const spacesLength = splitStr.replace(/\t/g,"    ").length;
+		// 					const spaces = " ".repeat(spacesLength);
+		// 					let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
+		// 					if(caretsLength == -1) caretsLength = splitStr2.length;
+		// 					const carets = "^".repeat(caretsLength);
+		// 					const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
+		// 					logText += "%c"+spaces + carets + spaces2 + "%c\n";
+		// 					logStyles.push(codeBackground+"color: red;", codeStyle);
+		// 				}
+		// 			}
+		// 		}
+		// 		logText += "%c";
+		// 		logStyles.push("");
+		// 	}
+		// 	console.error(logText, ...logStyles);
+		// 	return null;
+		// }
+		return code;
 	}
 
 	resolveScripts(){
