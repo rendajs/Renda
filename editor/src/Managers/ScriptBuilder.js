@@ -19,12 +19,29 @@ export default class ScriptBuilder{
 		let foundErrors = [];
 		if(IS_DEV_BUILD){
 			const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
-			    js: code,
+				js: code,
+				externs: `
+					const GPUMapMode = {};
+					GPUMapMode.READ = {};
+
+					const GPUTextureUsage = {};
+					GPUTextureUsage.RENDER_ATTACHMENT = {};
+
+					const GPUBufferUsage = {};
+					GPUBufferUsage.UNIFORM = {};
+
+					const GPUShaderStage = {};
+					GPUShaderStage.VERTEX = {};
+				`,
 			});
 			if(stdOut){
 				code = stdOut;
 			}
 			if(stdErr){
+				foundErrors.push({
+					description: "Errors occurred while building script with closure compiler",
+				});
+				let foundMatch = false;
 				const re = /^.*\.js:(?<line>\d+):(?<char>\d+):\s(\S+)\s-\s\[(?<errorType>\S+)\]\s(?<message>.+)$/gm;
 				for(const match of stdErr.matchAll(re)){
 					const {message, line, char, errorType} = match.groups;
@@ -33,13 +50,19 @@ export default class ScriptBuilder{
 						line: +line,
 						char: +char,
 					});
+					foundMatch = true;
+				}
+				if(!foundMatch){
+					foundErrors.push({
+						description: stdErr,
+					});
 				}
 			}
 		}
 
 		if(foundErrors.length > 0){
-			const logStyles = ["font-weight: bold", ""];
-			let logText = "%cerrors occurred while building script with closure compiler:%c\n\n\n";
+			const logStyles = [];
+			let logText = "";
 			const lines = rollupCode.split("\n");
 			let codeBackground = "background: white;";
 			let codeStyle = "color: black;";
@@ -50,9 +73,9 @@ export default class ScriptBuilder{
 			}
 			codeStyle += codeBackground;
 			for(const error of foundErrors){
-				logText += "\n\n%c"+error.description + "%c\n%c";
+				logText += "%c"+error.description + "%c\n%c";
 				logStyles.push("font-weight: bold", "", codeStyle);
-				if(error.line >= 0){
+				if(error.line != null){
 					const startLine = Math.max(0, error.line - 5);
 					const endLine = Math.min(lines.length - 1, error.line + 5);
 					for(let i=startLine; i<endLine; i++){
@@ -60,7 +83,7 @@ export default class ScriptBuilder{
 						const spacesLine = line.replace(/\t/g,"    ");
 						const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
 						logText += spacesLine + extraSpaces + "\n";
-						if(i == error.line -1 && error.char >= 0){
+						if(i == error.line -1 && error.char != null){
 							const splitStr = line.slice(0, error.char);
 							const splitStr2 = line.slice(error.char);
 							const spacesLength = splitStr.replace(/\t/g,"    ").length;
