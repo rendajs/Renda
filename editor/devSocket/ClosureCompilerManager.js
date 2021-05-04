@@ -25,27 +25,24 @@ export default class ClosureCompilerManager{
 		}
 	}
 
-	async compileJs({js, externs}, responseCb){
+	async compileJs(responseCb, {
+		js,
+		externs = null,
+		args = {},
+	}){
 		this.lastCreatedId++;
-
-		const args = [
-			`--compilation_level=ADVANCED`,
-			`--language_in=ECMASCRIPT_NEXT`,
-			`--language_out=ECMASCRIPT_NEXT`,
-			`--error_format=JSON`,
-		];
 
 		const fileName = this.lastCreatedId+"_in.js";
 		const filePath = path.resolve(this.tmpFilesPath, fileName);
 		await writeFile(filePath, js);
-		args.push(`--js=${filePath}`);
+		args.js = filePath;
 
 		let externsFilePath = null;
 		if(externs){
 			const externsFileName = this.lastCreatedId+"_externs.js";
 			externsFilePath = path.resolve(this.tmpFilesPath, externsFileName);
 			await writeFile(externsFilePath, externs);
-			args.push(`--externs=${externsFilePath}`);
+			args.externs = externsFilePath;
 		}
 
 		const result = await this.runCompiler(args);

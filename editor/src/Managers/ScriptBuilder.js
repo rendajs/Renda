@@ -33,6 +33,12 @@ export default class ScriptBuilder{
 					const GPUShaderStage = {};
 					GPUShaderStage.VERTEX = {};
 				`,
+				args: {
+					compilation_level: "ADVANCED",
+					language_in: "ECMASCRIPT_NEXT",
+					language_out: "ECMASCRIPT_NEXT",
+					error_format: "JSON",
+				},
 			});
 			if(stdOut){
 				code = stdOut;

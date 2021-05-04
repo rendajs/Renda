@@ -34,7 +34,7 @@ wsServer.on("connect", connection => {
 					}));
 				}
 				if(json.roundTripOp == "runClosureCompiler"){
-					global.closureCompilerManager.compileJs(json.data, responseCb);
+					global.closureCompilerManager.compileJs(responseCb, json.data);
 				}
 			}
 		}
