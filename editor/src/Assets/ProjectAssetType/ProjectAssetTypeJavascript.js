@@ -46,6 +46,7 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 							const buildOpts = {
 								useClosureCompiler: asset?.assetSettings?.useClosureCompiler ?? false,
 							};
+							await editor.projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
 							const builtScript = await editor.scriptBuilder.buildScript(asset.path.join("/"), buildOpts);
 							if(builtScript != null){
 								editor.projectManager.currentProjectFileSystem.writeText(outputPath, builtScript);
