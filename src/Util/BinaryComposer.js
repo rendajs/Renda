@@ -323,9 +323,7 @@ export default class BinaryComposer{
 						occurringReferences.add(ref);
 
 						if(Array.isArray(ref)){
-							if(ref.length == 0 && isStructure){
-								//nyi, I don't know what to do with this
-							}else if(ref.length == 1 && isStructure){
+							if(ref.length == 1 && isStructure){
 								//If the array structure only has one item, this array is expected
 								//to have an arbitrary number of items, so it could have the same
 								//reference in the data twice. Therefore we will assume arrays
@@ -368,9 +366,7 @@ export default class BinaryComposer{
 
 		if(typeof data == "object" && data != null){
 			if(Array.isArray(data)){
-				if(structure.length == 0){
-					//nyi
-				}else if(structure.length == 1){
+				if(structure.length == 1){
 					const structureItem = structure[0];
 					//todo: add some sort of way to store arrays with variable length with
 					//the value in place rather than as reference
