@@ -17,6 +17,9 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 				label: "Build output location",
 			},
 		},
+		useClosureCompiler: {
+			type: Boolean,
+		},
 		buildButton: {
 			type: "button",
 			guiOpts: {
@@ -40,7 +43,10 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 						}
 
 						if(outputPath && outputPath.length > 0){
-							const builtScript = await editor.scriptBuilder.buildScript(asset.path.join("/"));
+							const buildOpts = {
+								useClosureCompiler: asset?.assetSettings?.useClosureCompiler ?? false,
+							};
+							const builtScript = await editor.scriptBuilder.buildScript(asset.path.join("/"), buildOpts);
 							if(builtScript != null){
 								editor.projectManager.currentProjectFileSystem.writeText(outputPath, builtScript);
 							}

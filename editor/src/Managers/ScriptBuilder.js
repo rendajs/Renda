@@ -5,7 +5,9 @@ export default class ScriptBuilder{
 	constructor(){
 	}
 
-	async buildScript(input){
+	async buildScript(input, {
+		useClosureCompiler = true,
+	} = {}){
 		const bundle = await rollup.rollup({
 			input,
 			plugins: [this.resolveScripts()],
@@ -17,7 +19,7 @@ export default class ScriptBuilder{
 		let code = rollupCode;
 		//todo: also make this work in production builds
 		let closureErrors = [];
-		if(IS_DEV_BUILD){
+		if(useClosureCompiler && IS_DEV_BUILD){
 			const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
 				js: code,
 				externs: `
@@ -38,6 +40,7 @@ export default class ScriptBuilder{
 					language_in: "ECMASCRIPT_NEXT",
 					language_out: "ECMASCRIPT_NEXT",
 					error_format: "JSON",
+					formatting: "PRETTY_PRINT",
 				},
 			});
 			if(stdOut){
