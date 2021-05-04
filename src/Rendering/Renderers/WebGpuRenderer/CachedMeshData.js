@@ -12,6 +12,7 @@ export default class CachedMeshData{
 			this.buffers.push(bufferData);
 		}
 
+		this.indexBuffer = null;
 		this.createIndexGpuBuffer();
 
 		//todo: remove listeners when gpurenderer is destroyed

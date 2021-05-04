@@ -22,10 +22,20 @@ export default class WebGpuRenderer extends Renderer{
 
 		this.maxLights = 512;
 
-		this.isInit = false;
-
 		this.adapter = null;
 		this.device = null;
+		this.viewBindGroupLayout = null;
+		this.lightsBuffer = null;
+		this.computeClusterBoundsBindGroupLayout = null;
+		this.computeClusterLightsBindGroupLayout = null;
+		this.viewUniformsBuffer = null;
+		this.materialUniformsBuffer = null;
+		this.materialUniformsBufferBindGroup = null;
+		this.objectUniformsBuffer = null;
+		this.objectUniformsBufferBindGroup = null;
+		this.pipelineLayout = null;
+
+		this.isInit = false;
 		this.onInitCbs = new Set();
 
 		this.cachedCameraData = new WeakMap();
@@ -36,9 +46,6 @@ export default class WebGpuRenderer extends Renderer{
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 
 		this.cachedMeshData = new WeakMap();
-
-		this.computeClusterBoundsPipeline = null;
-		this.computeClusterLightsBindGroupLayout = null;
 	}
 
 	async init(){

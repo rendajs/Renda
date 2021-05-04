@@ -10,6 +10,7 @@ export default class WebGpuVertexStateBuffer{
 		this._customArrayStride = arrayStride;
 		this.autoArrayStride = arrayStride == null || arrayStride == "auto";
 		this._calculatedArrayStride = 0;
+		this.requestingAttributeOffset = 0;
 
 		this.attributes = [];
 		for(const attribute of attributes){

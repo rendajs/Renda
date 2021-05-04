@@ -3,6 +3,8 @@ export default class CachedMeshBufferData{
 		this.meshBuffer = meshBuffer;
 		this.meshData = meshData;
 
+		this.gpuBuffer = null;
+		this.currentGpuBufferSize = 0;
 		this.createGpuBuffer();
 
 		//todo: remove listeners when gpurenderer is destroyed
