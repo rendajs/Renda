@@ -5,7 +5,7 @@ export default class ContextMenuManager{
 		this.activeContextMenu = null;
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("contextMenuCurtain");
-		this.curtainEl.addEventListener("click", _ => {
+		this.curtainEl.addEventListener("click", () => {
 			this.closeCurrent();
 		});
 		document.body.appendChild(this.curtainEl);

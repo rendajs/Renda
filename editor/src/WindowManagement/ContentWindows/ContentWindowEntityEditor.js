@@ -15,7 +15,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		let saveEntityButton = new Button({
 			text: "Save",
-			onClick: _ => {
+			onClick: () => {
 				this.saveEntityAsset();
 			}
 		});
@@ -242,7 +242,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		}else if(editor.projectAssetTypeManager.constructorHasAssetType(structure.type)){
 			if(data){
 				const projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(data);
-				const listener = async _ => {
+				const listener = async () => {
 					parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
 				}
 				projectAsset.onNewLiveAssetInstance(listener);

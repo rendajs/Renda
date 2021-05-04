@@ -3,7 +3,7 @@ export default class EditorWindow{
 		this.el = document.createElement("div");
 
 		this.editorWindowClickCbs = new Set();
-		this.el.addEventListener("click", _ => {
+		this.el.addEventListener("click", () => {
 			for(const cb of this.editorWindowClickCbs){
 				cb();
 			}

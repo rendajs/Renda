@@ -49,7 +49,7 @@ export default class ShaderBuilder{
 			promises.push(promise);
 		});
 		const replaceData = await Promise.all(promises);
-		return str.replace(regex, _ => replaceData.shift());
+		return str.replace(regex, () => replaceData.shift());
 	}
 
 	async getShaderBlock(uuid, {
@@ -99,7 +99,7 @@ export default class ShaderBuilder{
 				result: null,
 				promise: null,
 			}
-			promiseItem.promise = (async _ => {
+			promiseItem.promise = (async () => {
 				promiseItem.result = await cb(uuid);
 				promiseItem.resolved = true;
 				return promiseItem.result;

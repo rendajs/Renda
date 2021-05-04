@@ -295,7 +295,7 @@ export default class BinaryComposer{
 			structure, nameIds, littleEndian,
 			transformValueCb: ({value, type, placedOnObject, placedOnKey}) => {
 				if(type != BinaryComposer.StructureTypes.UUID) return value;
-				const promise = (async _ => {
+				const promise = (async () => {
 					const asset = await assetLoader.getAsset(value);
 					placedOnObject[placedOnKey] = asset;
 				})();

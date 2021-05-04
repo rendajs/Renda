@@ -45,7 +45,7 @@ async function generateDefines(filePath, defines){
 	await fs.writeFile(filePath, newData);
 }
 
-(async _ => {
+(async () => {
 	if(isDevBuild){
 		try{
 			await fs.unlink("editor/dist/index.js");

@@ -120,7 +120,7 @@ export default class MaterialMapType{
 			items: await this.constructor.getMappableValues(await this.getCustomAssetDataForSaveInternal()),
 		});
 		this.mapListTreeView.addChild(this.mapListUi.treeView);
-		this.mapListUi.onValueChange(_ => {
+		this.mapListUi.onValueChange(() => {
 			this.valueChanged();
 		});
 	}

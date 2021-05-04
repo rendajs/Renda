@@ -19,7 +19,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 				type: "button",
 				guiOpts: {
 					text: "Bundle",
-					onClick: _ => {
+					onClick: () => {
 						editor.assetBundler.bundle(this.currentSelection[0])
 					},
 				},
@@ -33,7 +33,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		};
 		this.isUpdatingBundleSettingsTree = false;
 		this.bundleSettingsTree.generateFromSerializableStructure(this.bundleSettingsStructure);
-		this.bundleSettingsTree.onChildValueChange(_ => {
+		this.bundleSettingsTree.onChildValueChange(() => {
 			if(this.isUpdatingBundleSettingsTree) return;
 			const guiValues = this.getGuiValues();
 			const jsonData = {

@@ -43,11 +43,11 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 			type: "button",
 			guiOpts: {
 				text: "Add Map Type",
-				onClick: _ => {
+				onClick: () => {
 					const menu = editor.contextMenuManager.createContextMenu();
 					for(const typeConstructor of editor.materialMapTypeManager.getAllTypes()){
 						const disabled = this.hasTypeConstructor(typeConstructor);
-						menu.addItem(typeConstructor.uiName, _ => {
+						menu.addItem(typeConstructor.uiName, () => {
 							this.addMapType(typeConstructor);
 							this.saveSelectedAssets();
 						}, {disabled});
@@ -92,7 +92,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 
 		const typeInstance = new typeConstructor(treeView);
 		this.addedMapTypes.set(typeConstructor.typeUuid, typeInstance);
-		typeInstance.onValueChange(_ => {
+		typeInstance.onValueChange(() => {
 			if(!this.ignoreValueChange){
 				this.saveSelectedAssets();
 			}

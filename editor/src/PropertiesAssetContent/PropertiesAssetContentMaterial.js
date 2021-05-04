@@ -12,7 +12,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 			},
 		});
 		this.mapValuesTreeView = materialSettingsTree.addCollapsable("map values");
-		materialSettingsTree.onChildValueChange(_ => {
+		materialSettingsTree.onChildValueChange(() => {
 			if(this.isUpdatingUi) return;
 			this.saveAsset();
 		});

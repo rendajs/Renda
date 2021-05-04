@@ -36,10 +36,10 @@ export default class ServiceWorkerManager{
 			this.installationFailed = true;
 		}
 		if(this.registration){
-			this.registration.onupdatefound = _ => {
+			this.registration.onupdatefound = () => {
 				if(this.registration.active != null){
 					let installingWorker = this.registration.installing;
-					installingWorker.onstatechange = _ => {
+					installingWorker.onstatechange = () => {
 						if(installingWorker.state == "installed"){
 							//TODO: show update notification
 						}

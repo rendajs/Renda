@@ -24,7 +24,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 		};
 
 		this.meshSettingsTree.generateFromSerializableStructure(this.meshSettingsStructure);
-		this.meshSettingsTree.onChildValueChange(_ => {
+		this.meshSettingsTree.onChildValueChange(() => {
 			if(this.isUpdatingUi) return;
 			this.saveAsset();
 		});

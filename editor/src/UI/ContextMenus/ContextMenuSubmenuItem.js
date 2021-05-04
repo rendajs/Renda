@@ -10,7 +10,7 @@ export default class ContextMenuSubmenuItem extends ContextMenuItem{
 
 		this.onCreateSubmenuCbs = new Set();
 
-		this.onHover(_ => {
+		this.onHover(() => {
 			this.createSubmenu();
 		});
 	}

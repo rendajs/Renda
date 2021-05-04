@@ -41,7 +41,7 @@ function ignore(ignoreList){
 	}
 }
 
-(async _ => {
+(async () => {
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 	for(const lib of libs){

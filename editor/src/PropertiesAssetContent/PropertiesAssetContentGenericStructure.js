@@ -9,7 +9,7 @@ export default class PropertiesAssetContentGenericStructure extends PropertiesAs
 
 		this.assetTreeView = this.treeView.addCollapsable("Asset Values");
 		this.assetTreeView.generateFromSerializableStructure(this.structure);
-		this.assetTreeView.onChildValueChange(_ => {
+		this.assetTreeView.onChildValueChange(() => {
 			if(this.isUpdatingUi) return;
 			this.saveAsset();
 		});

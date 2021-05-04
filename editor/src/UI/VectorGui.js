@@ -14,7 +14,7 @@ export default class VectorGui{
 			let numericGui = new NumericGui();
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
-			numericGui.onValueChange(_ => this.fireValueChange());
+			numericGui.onValueChange(() => this.fireValueChange());
 		}
 	}
 

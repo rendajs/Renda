@@ -294,7 +294,7 @@ export default class WebGpuRenderer extends Renderer{
 		if(!data){
 			data = {};
 			this.cachedMaterialData.set(material, data);
-			material.onDestructor(_ => {
+			material.onDestructor(() => {
 				this.disposeMaterial(material);
 			});
 		}

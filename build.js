@@ -2,7 +2,7 @@
 
 import {rollup} from "rollup";
 
-(async _ => {
+(async () => {
 	const bundle = await rollup({
 		input: "src/index.js",
 	});

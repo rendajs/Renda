@@ -59,11 +59,11 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.componentsSection = this.treeView.addCollapsable("Components");
 		let createComponentButton = new Button({
 			text: "+",
-			onClick: _ => {
+			onClick: () => {
 				let menu = editor.contextMenuManager.createContextMenu();
 				for(const component of defaultComponentTypeManager.getAllComponents()){
 					menu.addItem(component.name || component.uuid, {
-						onClick: _ => {
+						onClick: () => {
 							for(const obj of this.currentSelection){
 								obj.addComponent(component);
 								this.notifyEntityEditors(obj, "component");

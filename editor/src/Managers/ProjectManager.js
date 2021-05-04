@@ -12,8 +12,8 @@ export default class ProjectManager{
 		this.tmpNativeHandleDb = new IndexedDbUtil("tmpNFShandles");
 
 		this.onExternalChangeCbs = new Set();
-		window.addEventListener("focus", _ => this.suggestCheckExternalChanges());
-		document.addEventListener("visibilitychange", _ => {
+		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
+		document.addEventListener("visibilitychange", () => {
 			if(document.visibilityState === "visible"){
 				this.suggestCheckExternalChanges();
 			}

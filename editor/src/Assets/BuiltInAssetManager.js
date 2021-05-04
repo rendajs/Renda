@@ -7,7 +7,7 @@ export default class BuiltInAssetManager{
 		this.assets = new Map();
 		this.basePath = "../builtInAssets/";
 
-		this.loadAssetsInstance = new SingleInstancePromise(async _ => {
+		this.loadAssetsInstance = new SingleInstancePromise(async () => {
 			const response = await fetch(this.basePath + "assetSettings.json");
 			const json = await response.json();
 			const existingUuids = new Set(this.assets.keys());
@@ -39,7 +39,7 @@ export default class BuiltInAssetManager{
 					asset.fileChangedExternally();
 				}
 			});
-			editor.devSocket.addListener("builtInAssetListUpdate", _ => {
+			editor.devSocket.addListener("builtInAssetListUpdate", () => {
 				this.loadAssetsInstance.run(true);
 			});
 		}

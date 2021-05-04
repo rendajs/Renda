@@ -6,7 +6,7 @@ export default class IndexedDbUtil{
 		this.supported = false;
 		try{
 			let dbRequest = indexedDB.open(dbName);
-			dbRequest.onupgradeneeded = _ => {
+			dbRequest.onupgradeneeded = () => {
 				for(const name of objectStoreNames){
 					dbRequest.result.createObjectStore(name);
 				}
@@ -20,7 +20,7 @@ export default class IndexedDbUtil{
 	async promisifyRequest(request){
 		if(request.readyState == "done") return request.result;
 		return await new Promise((resolve, reject) => {
-			request.onsuccess = _ => {
+			request.onsuccess = () => {
 				resolve(request.result)
 			};
 			request.onerror = reject;
@@ -50,7 +50,7 @@ export default class IndexedDbUtil{
 	}
 
 	set(key, value, objectStoreName = this.objectStoreNames[0]){
-		return this.getSet(key, _ => {
+		return this.getSet(key, () => {
 			return value;
 		}, objectStoreName);
 	}
@@ -90,6 +90,6 @@ export default class IndexedDbUtil{
 	}
 
 	delete(key, objectStoreName = this.objectStoreNames[0]){
-		this.getSet(key, _ => {}, objectStoreName, true);
+		this.getSet(key, () => {}, objectStoreName, true);
 	}
 }

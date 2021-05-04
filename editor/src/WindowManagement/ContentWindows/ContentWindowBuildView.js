@@ -23,7 +23,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 
 		const loadFrameButton = new Button({
 			text: "Load Frame",
-			onClick: _ => {
+			onClick: () => {
 				this.updateFrameSrc();
 			},
 		});

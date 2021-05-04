@@ -9,7 +9,7 @@ export default class ObjectGui{
 		this.treeView = new PropertiesTreeView();
 		this.treeView.generateFromSerializableStructure(structure);
 		this.onValueChangeCbs = new Set();
-		this.treeView.onChildValueChange(_ => {
+		this.treeView.onChildValueChange(() => {
 			this.fireValueChange();
 		});
 

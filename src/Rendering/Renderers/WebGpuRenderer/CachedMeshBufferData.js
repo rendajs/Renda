@@ -7,7 +7,7 @@ export default class CachedMeshBufferData{
 
 		//todo: remove listeners when gpurenderer is destroyed
 		this.bufferDirty = false;
-		meshBuffer.onBufferChanged(_ => {
+		meshBuffer.onBufferChanged(() => {
 			this.bufferDirty = true;
 		});
 	}

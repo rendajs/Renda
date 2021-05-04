@@ -67,7 +67,7 @@ export default class EditorWindowTabs extends EditorWindow{
 			for(let i=0; i<deltaCount; i++){
 				let tabIndex = prevTabCount + i;
 				let newButton = new Button({
-					onClick: _ => {
+					onClick: () => {
 						this.setActiveTab(tabIndex);
 					}
 				});

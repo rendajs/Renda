@@ -83,7 +83,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		}else if(type == "button"){
 			this.gui = new Button({
 				...guiOpts,
-				onClick: _ => {
+				onClick: () => {
 					if(guiOpts.onClick) guiOpts.onClick(callbacksContext);
 				},
 			});

@@ -15,11 +15,11 @@ export default class WindowManager{
 			this.registerContentWindow(w);
 		}
 
-		window.addEventListener("blur", _ => {
+		window.addEventListener("blur", () => {
 			this.setFocusedEditorWindow(null);
 		});
 
-		window.addEventListener("resize", _ => {
+		window.addEventListener("resize", () => {
 			if(this.rootWindow){
 				this.rootWindow.onResized();
 			}
@@ -101,7 +101,7 @@ export default class WindowManager{
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
 			newWindow.setActiveTab(workspaceWindow.activeTab || 0);
-			newWindow.onEditorWindowClick(_ => {
+			newWindow.onEditorWindowClick(() => {
 				this.setFocusedEditorWindow(newWindow);
 			});
 		}

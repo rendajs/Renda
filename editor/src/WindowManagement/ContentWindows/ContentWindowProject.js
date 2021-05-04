@@ -11,32 +11,32 @@ export default class ContentWindowProject extends ContentWindow{
 
 		const createButton = new Button({
 			text: "+",
-			onClick: _ => {
+			onClick: () => {
 				const menu = editor.contextMenuManager.createContextMenu([
-					{text: "New Folder", cb: _ => {
+					{text: "New Folder", cb: () => {
 						this.createNewDir();
 					}},
 					{text: "Materials", submenu: [
-						{text: "New Material", cb: _ => {
+						{text: "New Material", cb: () => {
 							this.createAsset("JJ:material");
 						}},
-						{text: "New Material Map", cb: _ => {
+						{text: "New Material Map", cb: () => {
 							this.createAsset("JJ:materialMap");
 						}},
-						{text: "New WebGPU Pipeline Configuration", cb: _ => {
+						{text: "New WebGPU Pipeline Configuration", cb: () => {
 							this.createAsset("JJ:webGpuPipelineConfiguration");
 						}},
 					]},
-					{text: "New Mesh", cb: _ => {
+					{text: "New Mesh", cb: () => {
 						this.createAsset("JJ:mesh");
 					}},
-					{text: "New Vertex State", cb: _ => {
+					{text: "New Vertex State", cb: () => {
 						this.createAsset("JJ:vertexState");
 					}},
-					{text: "New Entity", cb: _ => {
+					{text: "New Entity", cb: () => {
 						this.createAsset("JJ:entity");
 					}},
-					{text: "New Asset Bundle", cb: _ => {
+					{text: "New Asset Bundle", cb: () => {
 						this.createAsset("JJ:assetBundle");
 					}},
 				]);
@@ -48,7 +48,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 		const openProjectButton = new Button({
 			text: "Open Project",
-			onClick: _ => {
+			onClick: () => {
 				editor.projectManager.openProjectFromLocalDirectory();
 			},
 		});
@@ -56,7 +56,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 		const openRecentButton = new Button({
 			text: "Open Recent",
-			onClick: _ => {
+			onClick: () => {
 				editor.projectManager.openRecentProjectHandle();
 			},
 		});
@@ -122,7 +122,7 @@ export default class ContentWindowProject extends ContentWindow{
 			if(!treeView.includes(dir)){
 				let newTreeView = treeView.addChild();
 				newTreeView.alwaysShowArrow = true;
-				newTreeView.onArrowClick(_ => {
+				newTreeView.onArrowClick(() => {
 					if(!newTreeView.collapsed){
 						let newPath = [...path, dir];
 						this.updateTreeViewRecursive(newTreeView, newPath);
@@ -260,12 +260,12 @@ export default class ContentWindowProject extends ContentWindow{
 	onTreeViewContextMenu(e){
 		const menu = e.showContextMenu();
 		menu.createStructure([
-			{text: "Copy asset UUID", cb: async _ => {
+			{text: "Copy asset UUID", cb: async () => {
 				const path = this.pathFromTreeView(e.clickedElement);
 				const uuid = await editor.projectManager.assetManager.getAssetUuidFromPath(path);
 				await navigator.clipboard.writeText(uuid);
 			}},
-			{text: "Delete", cb: async _ => {
+			{text: "Delete", cb: async () => {
 				const path = this.pathFromTreeView(e.clickedElement);
 				await editor.projectManager.assetManager.deleteAsset(path);
 				const parentPath = path.slice(0, path.length - 1);

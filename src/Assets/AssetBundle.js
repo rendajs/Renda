@@ -12,7 +12,7 @@ export default class AssetBundle{
 		this.progress = 0;
 		this.onProgressCbs = new Set();
 
-		this.downloadInstance = new SingleInstancePromise(async _ => await this.downloadLogic());
+		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic());
 		this.headerWait = new PromiseWaitHelper();
 
 		this.downloadBuffer = null;

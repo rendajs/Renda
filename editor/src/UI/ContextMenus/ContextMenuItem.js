@@ -21,14 +21,14 @@ export default class ContextMenuItem{
 		this.onHoverCbs = new Set();
 		if(onHover) this.onHover(onHover);
 
-		this.el.addEventListener("click", _ => {
+		this.el.addEventListener("click", () => {
 			if(this.disabled) return;
 			for(const cb of this.onClickCbs){
 				cb();
 			}
 			this.parentContextMenu.onItemClicked();
 		});
-		this.el.addEventListener("mouseenter", _ => {
+		this.el.addEventListener("mouseenter", () => {
 			if(this.disabled) return;
 			for(const cb of this.onHoverCbs){
 				cb();

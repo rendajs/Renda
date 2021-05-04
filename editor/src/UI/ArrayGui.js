@@ -19,7 +19,7 @@ export default class ArrayGui{
 
 		this.addItemButton = new Button({
 			text: "Add Item",
-			onClick: _ => {
+			onClick: () => {
 				this.addItem();
 			}
 		});
@@ -46,7 +46,7 @@ export default class ArrayGui{
 				...extraArrayOpts,
 			},
 		});
-		addedItem.onValueChange(_ => {
+		addedItem.onValueChange(() => {
 			this.fireValueChange();
 		});
 		this.valueItems.push(addedItem);

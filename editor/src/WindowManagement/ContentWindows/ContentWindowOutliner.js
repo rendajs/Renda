@@ -22,7 +22,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 
 		let createEmptyButton = new Button({
 			text: "Create Emtpy",
-			onClick: _ => {
+			onClick: () => {
 				this.createNewEmpty();
 			}
 		});
@@ -119,7 +119,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 	onTreeViewContextMenu(e){
 		const menu = e.showContextMenu();
 		menu.createStructure([
-			{text: "Delete", cb: _ => {
+			{text: "Delete", cb: () => {
 				const entity = this.getEntityByTreeViewItem(e.clickedElement);
 				entity.detachParent();
 				this.updateTreeView();

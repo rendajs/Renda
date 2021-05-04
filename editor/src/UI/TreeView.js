@@ -403,7 +403,7 @@ export default class TreeView{
 				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
 				textEl.value = oldName;
 				this.myNameEl.appendChild(textEl);
-				textEl.addEventListener("blur", _ => {
+				textEl.addEventListener("blur", () => {
 					this.setTextFieldVisible(false);
 				});
 				textEl.focus();

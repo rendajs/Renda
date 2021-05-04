@@ -20,7 +20,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		this.assetContentTree = this.treeView.addCollapsable("Asset content will be placed here");
 
 		this.isUpdatingAssetSettingsUi = false;
-		this.assetSettingsTree.onChildValueChange(_ => {
+		this.assetSettingsTree.onChildValueChange(() => {
 			if(this.isUpdatingAssetSettingsUi) return;
 			this.saveAssetSettings();
 		});
