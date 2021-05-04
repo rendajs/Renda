@@ -2,7 +2,7 @@ import Vec3 from "./Vec3.js";
 import Quaternion from "./Quaternion.js";
 
 export default class Mat4{
-	constructor(values){
+	constructor(values = null){
 		this.values = [
 			[1,0,0,0],
 			[0,1,0,0],
