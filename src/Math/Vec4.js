@@ -7,7 +7,8 @@ export default class Vec4{
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
-		this._w = 0;
+		this._w = 1;
+		this.set(x,y,z,w);
 	}
 
 	get x(){

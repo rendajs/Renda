@@ -3,6 +3,7 @@ export default class Vec2{
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
+		this.set(x,y);
 	}
 
 	get x(){

@@ -7,6 +7,7 @@ export default class Vec3{
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
+		this.set(x,y,z)
 	}
 
 	static get left(){
