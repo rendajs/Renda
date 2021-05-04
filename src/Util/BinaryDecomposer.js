@@ -9,13 +9,13 @@ export default class BinaryDecomposer{
 	}
 
 	getInt8(){
-		const val = this.dataView.getInt8(this.cursor, this.littleEndian);
+		const val = this.dataView.getInt8(this.cursor);
 		this.cursor++;
 		return val;
 	}
 
 	getUint8(){
-		const val = this.dataView.getUint8(this.cursor, this.littleEndian);
+		const val = this.dataView.getUint8(this.cursor);
 		this.cursor++;
 		return val;
 	}

@@ -103,7 +103,7 @@ export default class BinaryComposer{
 			if(uuidStr[i] == "-") i++;
 			const hex = uuidStr.slice(i, i+2);
 			const int = parseInt(hex, 16);
-			view.setUint8(j++, int, true);
+			view.setUint8(j++, int);
 			i+=2;
 		}
 		return buffer;
