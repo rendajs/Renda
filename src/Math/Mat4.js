@@ -132,7 +132,7 @@ export default class Mat4{
 	}
 
 	translate(x,y,z){
-		const vec = Vec3(...arguments);
+		const vec = new Vec3(...arguments);
 		this.values[3][0] += vec.x;
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
