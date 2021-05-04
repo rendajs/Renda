@@ -56,7 +56,9 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		writable = true,
 		error = true,
 	} = {}){
-		const opts = {writable};
+		const opts = {
+			mode: writable ? "readwrite" : "read",
+		};
 		if(await handle.queryPermission(opts) == "granted") return true;
 		if(prompt){
 			if(await handle.requestPermission(opts) == "granted") return true;
