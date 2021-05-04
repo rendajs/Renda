@@ -31,7 +31,7 @@ export default class AssetLoader{
 		return instance;
 	}
 
-	async getAsset(uuid, opts){
+	async getAsset(uuid, opts = null){
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			let unavailableCount = 0;
 			for(const bundle of this.bundles){
