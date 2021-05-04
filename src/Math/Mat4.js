@@ -3,7 +3,12 @@ import Quaternion from "./Quaternion.js";
 
 export default class Mat4{
 	constructor(values){
-		this.set(values);
+		this.values = [
+			[1,0,0,0],
+			[0,1,0,0],
+			[0,0,1,0],
+			[0,0,0,1],
+		];
 	}
 
 	set(values){

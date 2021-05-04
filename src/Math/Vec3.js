@@ -4,7 +4,9 @@ import Vec4 from "./Vec4.js";
 export default class Vec3{
 	constructor(x=0, y=0, z=0){
 		this.onChangeCbs = new Set();
-		this.set(x,y,z)
+		this._x = 0;
+		this._y = 0;
+		this._z = 0;
 	}
 
 	static get left(){

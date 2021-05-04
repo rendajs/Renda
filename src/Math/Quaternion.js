@@ -3,7 +3,10 @@ import Vec3 from "./Vec3.js";
 export default class Quaternion{
 	constructor(x=0, y=0, z=0, w=1){
 		this.onChangeCbs = [];
-		this.set(x,y,z,w)
+		this._x = 0;
+		this._y = 0;
+		this._z = 0;
+		this._w = 0;
 	}
 
 	set(x=0, y=0, z=0, w=1){

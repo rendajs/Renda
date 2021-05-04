@@ -1,7 +1,8 @@
 export default class Vec2{
 	constructor(x=0, y=0){
 		this.onChangeCbs = new Set();
-		this.set(x,y);
+		this._x = 0;
+		this._y = 0;
 	}
 
 	get x(){
