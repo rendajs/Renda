@@ -32,6 +32,7 @@ export default class ClosureCompilerManager{
 			`--compilation_level=ADVANCED`,
 			`--language_in=ECMASCRIPT_NEXT`,
 			`--language_out=ECMASCRIPT_NEXT`,
+			`--error_format=JSON`,
 		];
 
 		const fileName = this.lastCreatedId+"_in.js";

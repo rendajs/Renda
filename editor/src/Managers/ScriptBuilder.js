@@ -16,7 +16,7 @@ export default class ScriptBuilder{
 		const rollupCode = output[0].code;
 		let code = rollupCode;
 		//todo: also make this work in production builds
-		let foundErrors = [];
+		let closureErrors = [];
 		if(IS_DEV_BUILD){
 			const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
 				js: code,
@@ -38,32 +38,30 @@ export default class ScriptBuilder{
 				code = stdOut;
 			}
 			if(stdErr){
-				foundErrors.push({
-					description: "Errors occurred while building script with closure compiler",
-				});
-				let foundMatch = false;
-				const re = /^.*\.js:(?<line>\d+):(?<char>\d+):\s(\S+)\s-\s\[(?<errorType>\S+)\]\s(?<message>.+)$/gm;
-				for(const match of stdErr.matchAll(re)){
-					const {message, line, char, errorType} = match.groups;
-					foundErrors.push({
-						description: `${errorType}: ${message}`,
-						line: +line,
-						char: +char,
-					});
-					foundMatch = true;
+				let extraLines = [];
+				for(const line of stdErr.split("\n")){
+					let json = null;
+					if(!!line.trim()){
+						try{
+							json = JSON.parse(line);
+						}catch(_){}
+					}
+					if(json){
+						closureErrors = json;
+					}else{
+						extraLines.push(line);
+					}
 				}
-				if(!foundMatch){
-					foundErrors.push({
-						description: stdErr,
-					});
+				const message = extraLines.join("\n");
+				if(!!message.trim()){
+					console.error(message);
 				}
 			}
 		}
 
-		if(foundErrors.length > 0){
-			const logStyles = [];
-			let logText = "";
+		if(closureErrors.length > 0){
 			const lines = rollupCode.split("\n");
+
 			let codeBackground = "background: white;";
 			let codeStyle = "color: black;";
 			const blockWidth = 150;
@@ -72,10 +70,21 @@ export default class ScriptBuilder{
 				codeStyle = "color: white;";
 			}
 			codeStyle += codeBackground;
-			for(const error of foundErrors){
-				logText += "%c"+error.description + "%c\n%c";
-				logStyles.push("font-weight: bold", "", codeStyle);
-				if(error.line != null){
+
+			for(const error of closureErrors){
+				const logStyles = [];
+				let logText = "";
+
+				if(error.key){
+					logText += `%c${error.key}:%c${error.description}`;
+					logStyles.push("font-weight: bold", "");
+				}else{
+					logText += error.description;
+				}
+
+				if(error.line >= 0){
+					logText += `\n%c`;
+					logStyles.push(codeStyle);
 					const startLine = Math.max(0, error.line - 5);
 					const endLine = Math.min(lines.length - 1, error.line + 5);
 					for(let i=startLine; i<endLine; i++){
@@ -83,9 +92,9 @@ export default class ScriptBuilder{
 						const spacesLine = line.replace(/\t/g,"    ");
 						const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
 						logText += spacesLine + extraSpaces + "\n";
-						if(i == error.line -1 && error.char != null){
-							const splitStr = line.slice(0, error.char);
-							const splitStr2 = line.slice(error.char);
+						if(i == error.line -1 && error.column != null){
+							const splitStr = line.slice(0, error.column);
+							const splitStr2 = line.slice(error.column);
 							const spacesLength = splitStr.replace(/\t/g,"    ").length;
 							const spaces = " ".repeat(spacesLength);
 							let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
@@ -98,11 +107,15 @@ export default class ScriptBuilder{
 						}
 					}
 				}
-				logText += "%c";
-				logStyles.push("");
+
+				if(error.level == "error"){
+					console.error(logText, ...logStyles);
+				}else if(error.level == "warning"){
+					console.warn(logText, ...logStyles);
+				}else if(error.level == "info"){
+					console.log(logText, ...logStyles);
+				}
 			}
-			console.error(logText, ...logStyles);
-			return null;
 		}
 		return code;
 	}
