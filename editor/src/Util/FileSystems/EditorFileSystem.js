@@ -52,15 +52,13 @@ export default class EditorFileSystem{
 	//to check for external changes
 	suggestCheckExternalChanges(){}
 
-	//This should return true if the user has permission to read
-	//(or write if specified) at the specified path.
-	//This method should not trigger any ui pop ups
-	//asking the user for permissions.
-	//If the file/directory does not exist, it
-	//should still return true when the highest
+	//This should return true if the user has permission to read (or write if specified) at the specified path.
+	//This method should not trigger any ui pop ups asking the user for permissions when `prompt` is false.
+	//If the file/directory does not exist, it should still return true when the highest
 	//available directory in the path has permissions
-	async queryPermission(path = [], {
+	async getPermission(path = [], {
 		writable = true,
+		prompt = false,
 	}){
 		return true;
 	}

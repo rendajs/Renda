@@ -15,12 +15,13 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		return new EditorFileSystemNative(directoryHandle);
 	}
 
-	async queryPermission(path = [], {
+	async getPermission(path = [], {
 		writable = true,
+		prompt = false,
 	} = {}){
 		let handle = this.handle;
 		for(let i=0; i<=path.length; i++){
-			const hasPermission = await this.verifyHandlePermission(handle, {writable, prompt: false, error: false});
+			const hasPermission = await this.verifyHandlePermission(handle, {writable, prompt, error: false});
 			if(!hasPermission) return false;
 
 			if(i == path.length) return true;

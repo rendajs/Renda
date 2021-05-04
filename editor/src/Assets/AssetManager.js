@@ -32,7 +32,7 @@ export default class AssetManager{
 		if(this.assetSettingsLoaded) return;
 
 		if(!fromUserEvent){
-			const hasPermissions = await this.fileSystem.queryPermission(this.assetSettingsPath);
+			const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath);
 			if(!hasPermissions) return;
 		}
 
