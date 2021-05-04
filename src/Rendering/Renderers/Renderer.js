@@ -9,7 +9,7 @@ export default class Renderer{
 		return RendererDomTarget;
 	}
 
-	init(){}
+	async init(){}
 
 	render(domTarget, camera){}
 

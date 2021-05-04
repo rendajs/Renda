@@ -20,7 +20,7 @@ export default class WebGlRenderer extends Renderer{
 		this.shadersUsedByLists = new WeakMap();
 	}
 
-	init(){
+	async init(){
 		this.canvas = document.createElement("canvas");
 		this.canvas.width = this.canvas.height = 300;
 		this.gl = this.canvas.getContext("webgl");

@@ -40,7 +40,7 @@ export default class Entity{
 		for(const child of this._children){
 			child.destructor();
 		}
-		this._children = null;
+		this._children = [];
 		for(const component of this.components){
 			component.destructor();
 		}
