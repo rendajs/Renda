@@ -14,6 +14,9 @@
 		},
 		"08a38e5b-b2b9-44be-9194-f404f815445f": {
 			"path": ["structs", "modelUniforms.wgsl"]
+		},
+		"2c2abb9a-8c5a-4faf-a605-066d33242391": {
+			"path": ["webgpuExterns.js"]
 		}
 	}
 }

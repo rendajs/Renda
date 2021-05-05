@@ -9,6 +9,7 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 	static newFileName = "New Script";
 	static newFileExtension = "js";
 	static storeInProjectAsJson = false;
+	static storeInProjectAsText = true;
 
 	static assetSettingsStructure = {
 		outputLocation: {
