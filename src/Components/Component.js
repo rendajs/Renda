@@ -6,6 +6,7 @@ import Vec3 from "../Math/Vec3.js";
 import Vec4 from "../Math/Vec4.js";
 import Mat4 from "../Math/Mat4.js";
 
+/** @unrestricted */
 export default class Component{
 	constructor(componentType, propertyValues = {}, {
 		componentTypeManager = defaultComponentTypeManager
