@@ -74,6 +74,11 @@ export default class MeshAttributeBuffer{
 		this.fireBufferChanged();
 	}
 
+	/**
+		@param {Object} attributeType
+		@param {Object} data
+		@suppress {suspiciousCode}
+	*/
 	setVertexData(attributeType, data){
 		const attributeSettings = this.getAttributeSettings(attributeType);
 		const dataView = this.getDataView();
@@ -83,7 +88,7 @@ export default class MeshAttributeBuffer{
 		let valueByteSize = 4;
 
 		if(data instanceof ArrayBuffer){
-			//todo
+			//todo: implement and remove the @suppress for this function
 		}else if(ArrayBuffer.isView(data)){
 			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
 			//todo
