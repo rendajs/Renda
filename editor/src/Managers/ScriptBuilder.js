@@ -18,7 +18,6 @@ export default class ScriptBuilder{
 		const rollupCode = output[0].code;
 		let code = rollupCode;
 		//todo: also make this work in production builds
-		let closureErrors = [];
 		if(useClosureCompiler && IS_DEV_BUILD){
 			const externsAsset = await editor.projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
 			const externs = await externsAsset.readAssetData();
@@ -37,6 +36,7 @@ export default class ScriptBuilder{
 				code = stdOut;
 			}
 			if(stdErr){
+				let closureErrors = [];
 				let extraLines = [];
 				for(const line of stdErr.split("\n")){
 					let json = null;
@@ -55,68 +55,73 @@ export default class ScriptBuilder{
 				if(!!message.trim()){
 					console.error(message);
 				}
+
+				this.printCodeErrors(closureErrors, rollupCode);
 			}
 		}
 
-		if(closureErrors.length > 0){
-			const lines = rollupCode.split("\n");
+		return code;
+	}
 
-			let codeBackground = "background: white;";
-			let codeStyle = "color: black;";
-			const blockWidth = 150;
-			if(matchMedia("(prefers-color-scheme: dark)").matches){
-				codeBackground = "background: #272727;";
-				codeStyle = "color: white;";
+	printCodeErrors(errors, code){
+		if(errors.length == 0) return;
+
+		const lines = code.split("\n");
+
+		let codeBackground = "background: white;";
+		let codeStyle = "color: black;";
+		const blockWidth = 150;
+		if(matchMedia("(prefers-color-scheme: dark)").matches){
+			codeBackground = "background: #272727;";
+			codeStyle = "color: white;";
+		}
+		codeStyle += codeBackground;
+
+		for(const error of errors){
+			const logStyles = [];
+			let logText = "";
+
+			if(error.key){
+				logText += `%c${error.key}:%c${error.description}`;
+				logStyles.push("font-weight: bold", "");
+			}else{
+				logText += error.description;
 			}
-			codeStyle += codeBackground;
 
-			for(const error of closureErrors){
-				const logStyles = [];
-				let logText = "";
-
-				if(error.key){
-					logText += `%c${error.key}:%c${error.description}`;
-					logStyles.push("font-weight: bold", "");
-				}else{
-					logText += error.description;
-				}
-
-				if(error.line >= 0){
-					logText += `\n%c`;
-					logStyles.push(codeStyle);
-					const startLine = Math.max(0, error.line - 5);
-					const endLine = Math.min(lines.length - 1, error.line + 5);
-					for(let i=startLine; i<endLine; i++){
-						const line = lines[i];
-						const spacesLine = line.replace(/\t/g,"    ");
-						const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
-						logText += spacesLine + extraSpaces + "\n";
-						if(i == error.line -1 && error.column != null){
-							const splitStr = line.slice(0, error.column);
-							const splitStr2 = line.slice(error.column);
-							const spacesLength = splitStr.replace(/\t/g,"    ").length;
-							const spaces = " ".repeat(spacesLength);
-							let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
-							if(caretsLength == -1) caretsLength = splitStr2.length;
-							caretsLength = Math.max(caretsLength, 1);
-							const carets = "^".repeat(caretsLength);
-							const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
-							logText += "%c"+spaces + carets + spaces2 + "%c\n";
-							logStyles.push(codeBackground+"color: red;", codeStyle);
-						}
+			if(error.line >= 0){
+				logText += `\n%c`;
+				logStyles.push(codeStyle);
+				const startLine = Math.max(0, error.line - 5);
+				const endLine = Math.min(lines.length - 1, error.line + 5);
+				for(let i=startLine; i<endLine; i++){
+					const line = lines[i];
+					const spacesLine = line.replace(/\t/g,"    ");
+					const extraSpaces = " ".repeat(Math.max(0, blockWidth - spacesLine.length));
+					logText += spacesLine + extraSpaces + "\n";
+					if(i == error.line -1 && error.column != null){
+						const splitStr = line.slice(0, error.column);
+						const splitStr2 = line.slice(error.column);
+						const spacesLength = splitStr.replace(/\t/g,"    ").length;
+						const spaces = " ".repeat(spacesLength);
+						let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
+						if(caretsLength == -1) caretsLength = splitStr2.length;
+						caretsLength = Math.min(caretsLength, 1);
+						const carets = "^".repeat(caretsLength);
+						const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
+						logText += "%c"+spaces + carets + spaces2 + "%c\n";
+						logStyles.push(codeBackground+"color: red;", codeStyle);
 					}
 				}
+			}
 
-				if(error.level == "error"){
-					console.error(logText, ...logStyles);
-				}else if(error.level == "warning"){
-					console.warn(logText, ...logStyles);
-				}else if(error.level == "info"){
-					console.log(logText, ...logStyles);
-				}
+			if(error.level == "error"){
+				console.error(logText, ...logStyles);
+			}else if(error.level == "warning"){
+				console.warn(logText, ...logStyles);
+			}else if(error.level == "info"){
+				console.log(logText, ...logStyles);
 			}
 		}
-		return code;
 	}
 
 	resolveScripts(){
