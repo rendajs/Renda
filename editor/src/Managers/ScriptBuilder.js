@@ -97,8 +97,8 @@ export default class ScriptBuilder{
 							const spacesLength = splitStr.replace(/\t/g,"    ").length;
 							const spaces = " ".repeat(spacesLength);
 							let caretsLength = splitStr2.search(/[^a-zA-Z0-9_.]/);
-							if(caretsLength == 0) caretsLength = 1;
 							if(caretsLength == -1) caretsLength = splitStr2.length;
+							caretsLength = Math.max(caretsLength, 1);
 							const carets = "^".repeat(caretsLength);
 							const spaces2 = " ".repeat(Math.max(0, blockWidth - spacesLength - caretsLength));
 							logText += "%c"+spaces + carets + spaces2 + "%c\n";
