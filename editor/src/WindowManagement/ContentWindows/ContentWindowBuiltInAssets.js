@@ -21,7 +21,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		// this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 		// this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
-		// this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
+		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -74,5 +74,15 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 			assetTypeUuid = assetType.typeUuid;
 		}
 		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, projectAsset.uuid);
+	}
+
+	onTreeViewContextMenu(e){
+		const menu = e.showContextMenu();
+		menu.createStructure([
+			{text: "Copy asset UUID", cb: async () => {
+				const projectAsset = this.treeViewAssets.get(e.clickedElement);
+				await navigator.clipboard.writeText(projectAsset.uuid);
+			}},
+		]);
 	}
 }
