@@ -300,3 +300,34 @@ const GPUShaderStage = {};
 GPUShaderStage.VERTEX = 0;
 GPUShaderStage.FRAGMENT = 0;
 GPUShaderStage.COMPUTE = 0;
+
+class GPUCanvasContext{
+	/**
+		@param {GPUSwapChainDescriptor} descriptor
+		@return {GPUSwapChain}
+	*/
+	configureSwapChain(descriptor){}
+	getSwapChainPreferredFormat(){}
+}
+
+/** @typedef {{
+	device: GPUDevice,
+	format: string,
+	usage: number,
+	compositingAlphaMode: string,
+}}
+*/
+var GPUSwapChainDescriptor;
+
+class GPUSwapChain{
+	/**
+		@return {GPUTexture}
+	*/
+	getCurrentTexture(){}
+}
+
+class GPUTexture{
+	createView(){}
+
+	destroy(){}
+}
