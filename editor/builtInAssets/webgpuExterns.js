@@ -37,7 +37,11 @@ class GPUDevice{
 		@return {!GPUPipelineLayout}
 	*/
 	createPipelineLayout(descriptor){}
-	createBindGroup(){}
+	/**
+		@param {GPUBindGroupDescriptor} descriptor
+		@return {!GPUBindGroup}
+	*/
+	createBindGroup(descriptor){}
 
 	/**
 		@param {GPUShaderModuleDescriptor} descriptor
@@ -62,6 +66,7 @@ class GPUDevice{
 class GPUBindGroupLayout{}
 class GPUShaderModule{}
 class GPUPipelineLayout{}
+class GPUBindGroup{}
 
 class GPUBuffer{
 	/**
@@ -98,6 +103,31 @@ var GPUBufferDescriptor;
 	}}
 */
 var GPUBindGroupLayoutEntry;
+
+/**
+	@typedef {{
+		layout: GPUBindGroupLayout,
+		entries: Array<GPUBindGroupEntry>,
+	}}
+*/
+var GPUBindGroupDescriptor;
+
+/**
+	@typedef {{
+		binding: number,
+		resource: GPUBindingResource,
+	}}
+*/
+var GPUBindGroupEntry;
+
+/**
+	@typedef {{
+		buffer: GPUBuffer,
+		offset: number,
+		size: number,
+	}}
+*/
+var GPUBindingResource;
 
 /**
 	@typedef {{
