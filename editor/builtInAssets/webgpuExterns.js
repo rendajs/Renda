@@ -1,5 +1,232 @@
 navigator.gpu = {}
+
+/** @return {!GPUAdapter} */
 navigator.gpu.requestAdapter = function(){}
+
+class GPUAdapter{
+	constructor(){
+		this.name = "";
+	}
+
+	/** @return {!GPUDevice} */
+	requestDevice(){}
+}
+
+class GPUDevice{
+	constructor(){
+		/** @type {!GPUQueue} */
+		this.queue;
+	}
+	destroy(){}
+
+	/**
+		@param {GPUBufferDescriptor}
+		@return {GPUBuffer}
+	*/
+	createBuffer(descriptor){}
+	createTexture(){}
+	createSampler(){}
+
+	/**
+		@param {GPUBindGroupLayoutDescriptor} descriptor
+		@return {!GPUBindGroupLayout}
+	*/
+	createBindGroupLayout(descriptor){}
+	/**
+		@param {GPUPipelineLayoutDescriptor} descriptor
+		@return {!GPUPipelineLayout}
+	*/
+	createPipelineLayout(descriptor){}
+	createBindGroup(){}
+
+	/**
+		@param {GPUShaderModuleDescriptor} descriptor
+		@return GPUShaderModule
+	*/
+	createShaderModule(descriptor){}
+	createComputePipeline(){}
+	/**
+		@param {Object} descriptor
+		@return GPURenderPipeline
+	*/
+	createRenderPipeline(descriptor){}
+	createComputePipelineAsync(){}
+	createRenderPipelineAsync(){}
+
+	createCommandEncoder(){}
+	createRenderBundleEncoder(){}
+
+	createQuerySet(){}
+}
+
+class GPUBindGroupLayout{}
+class GPUShaderModule{}
+
+/**
+	@typedef {{
+		entries: Array<GPUBindGroupLayoutEntry>,
+	}}
+*/
+var GPUBindGroupLayoutDescriptor;
+
+class GPUBufferDescriptor{
+	constructor(){
+		this.size;
+		this.usage;
+		this.mappedAtCreation;
+	}
+}
+
+class GPUBindGroupLayoutEntry{
+	constructor(){
+		this.binding;
+		this.visibility;
+	}
+}
+
+/**
+	@typedef {{
+		code:string,
+	}}
+*/
+var GPUShaderModuleDescriptor;
+
+/**
+	@typedef {{
+		vertex: GPUVertexState,
+		primitive: GPUPrimitiveState,
+		depthStencil: GPUDepthStencilState,
+		multisample: GPUMultisampleState,
+		fragment: GPUFragmentState,
+	}}
+*/
+var GPURenderPipelineDescriptor;
+
+/**
+	@typedef {{
+		buffers: Array<GPUVertexBufferLayout>,
+	}}
+*/
+var GPUVertexState;
+
+/**
+	@typedef {{
+		arrayStride: number,
+		stepMode: string,
+		attributes: Array<GPUVertexAttribute>,
+	}}
+*/
+var GPUVertexBufferLayout;
+
+/**
+	@typedef {{
+		format: string,
+		offset: number,
+		offset: number,
+	}}
+*/
+var GPUVertexAttribute;
+
+/**
+	@typedef {{
+		topology: string,
+		stripIndexFormat: string,
+		frontFace: string,
+		cullMode: string,
+	}}
+*/
+var GPUPrimitiveState;
+
+/**
+	@typedef {{
+		format: string,
+		depthWriteEnabled: ?boolean,
+		depthCompare: ?string,
+		stencilFront: ?GPUStencilFaceState,
+		stencilBack: ?GPUStencilFaceState,
+		stencilReadMask: ?number,
+		stencilWriteMask: ?number,
+		depthBias: ?number,
+		depthBiasSlopeScale: ?number,
+		depthBiasClamp: ?number,
+	}}
+*/
+var GPUDepthStencilState;
+
+/**
+	@typedef {{
+		compare: string,
+		failOp: string,
+		depthFailOp: string,
+		passOp: string,
+	}}
+*/
+var GPUStencilFaceState;
+
+/**
+	@typedef {{
+		count: number,
+		mask: number,
+		alphaToCoverageEnabled: boolean,
+	}}
+*/
+var GPUMultisampleState;
+
+/**
+	@typedef {{
+		targets: Array<GPUColorTargetState>,
+	}}
+*/
+var GPUFragmentState;
+
+/**
+	@typedef {{
+		format: string,
+		blend: GPUBlendState,
+		writeMask: number,
+	}}
+*/
+var GPUColorTargetState;
+
+/**
+	@typedef {{
+		color: GPUBlendComponent,
+		alpha: GPUBlendComponent,
+	}}
+*/
+var GPUBlendState;
+
+/**
+	@typedef {{
+		srcFactor: string,
+		dstFactor: string,
+		operation: string,
+	}}
+*/
+var GPUBlendComponent;
+
+/*
+	@typedef {{
+		bindGroupLayouts: Array<GPUBindGroupLayout>,
+	}}
+*/
+var GPUPipelineLayoutDescriptor;
+
+class GPUQueue{
+	/** @param {Array<GPUCommandBuffer>} commandBuffers */
+	submit(commandBuffers){}
+
+	/**
+		@param {GPUBuffer} buffer,
+		@param {number} bufferOffset,
+		@param {BufferSource} data,
+		@param {number=} dataOffset,
+		@param {number=} size,
+	*/
+	writeBuffer(buffer, bufferOffset, data, dataOffset, size){}
+}
+
+class GPUCommandBuffer{}
 
 const GPUMapMode = {};
 GPUMapMode.READ = 0;
