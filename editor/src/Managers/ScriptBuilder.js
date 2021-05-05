@@ -82,7 +82,7 @@ export default class ScriptBuilder{
 			let logText = "";
 
 			if(error.key){
-				logText += `%c${error.key}:%c${error.description}`;
+				logText += `%c${error.key} : %c${error.description}`;
 				logStyles.push("font-weight: bold", "");
 			}else{
 				logText += error.description;
