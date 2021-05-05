@@ -20,7 +20,7 @@ class GPUDevice{
 	destroy(){}
 
 	/**
-		@param {GPUBufferDescriptor}
+		@param {GPUBufferDescriptor} descriptor
 		@return {GPUBuffer}
 	*/
 	createBuffer(descriptor){}
@@ -61,6 +61,19 @@ class GPUDevice{
 
 class GPUBindGroupLayout{}
 class GPUShaderModule{}
+class GPUPipelineLayout{}
+
+class GPUBuffer{
+	/**
+		@param {number} mode
+		@param {number=} offset
+		@param {number=} size
+	*/
+	mapAsync(mode, offset, size){}
+	getMappedRange(){}
+	unmap(){}
+	destroy(){}
+}
 
 /**
 	@typedef {{
@@ -69,20 +82,22 @@ class GPUShaderModule{}
 */
 var GPUBindGroupLayoutDescriptor;
 
-class GPUBufferDescriptor{
-	constructor(){
-		this.size;
-		this.usage;
-		this.mappedAtCreation;
-	}
-}
+/**
+	@typedef {{
+		size: number,
+		usage: number,
+		mappedAtCreation: (Boolean|null|undefined),
+	}}
+*/
+var GPUBufferDescriptor;
 
-class GPUBindGroupLayoutEntry{
-	constructor(){
-		this.binding;
-		this.visibility;
-	}
-}
+/**
+	@typedef {{
+		binding: number,
+		visibility: number,
+	}}
+*/
+var GPUBindGroupLayoutEntry;
 
 /**
 	@typedef {{
@@ -122,7 +137,7 @@ var GPUVertexBufferLayout;
 	@typedef {{
 		format: string,
 		offset: number,
-		offset: number,
+		shaderLocation: number,
 	}}
 */
 var GPUVertexAttribute;
@@ -205,7 +220,7 @@ var GPUBlendState;
 */
 var GPUBlendComponent;
 
-/*
+/**
 	@typedef {{
 		bindGroupLayouts: Array<GPUBindGroupLayout>,
 	}}
