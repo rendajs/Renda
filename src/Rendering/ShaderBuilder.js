@@ -26,15 +26,13 @@ export default class ShaderBuilder{
 	async buildShader(shaderCode){
 		const includedUuids = [];
 		const attemptedUuids = [];
-		const regex = /^\s*#include\s(?<uuid>.+?):?(?::(?<params>.+)|$)/gm;
-		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, p1, p2, offset, str, groups) => {
-			if(attemptedUuids.includes(groups.uuid)) return "";
-			attemptedUuids.push(groups.uuid);
-			const block = await this.getShaderBlock(groups.uuid, {
-				params: groups.params,
-			});
+		const regex = /^\s*#include\s(.+?):?(?::(.+)|$)/gm;
+		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, uuid, params) => {
+			if(attemptedUuids.includes(uuid)) return "";
+			attemptedUuids.push(uuid);
+			const block = await this.getShaderBlock(uuid, {params});
 			if(block){
-				includedUuids.push(groups.uuid);
+				includedUuids.push(uuid);
 				return block;
 			}
 			return "";
