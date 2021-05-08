@@ -24,6 +24,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 		const loadFrameButton = new Button({
 			text: "Load Frame",
 			onClick: () => {
+				this.previewCamDomTarget.getElement().style.display = "none";
 				this.updateFrameSrc();
 			},
 		});
