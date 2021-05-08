@@ -30,7 +30,7 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 						let outputPath = null;
 						const outputLocation = asset?.assetSettings?.outputLocation;
 						if(outputLocation){
-							outputPath = outputLocation.split("/");
+							outputPath = outputLocation.split("/").filter(s => !!s);
 							//todo: support relative paths and starting with a leading slash
 						}else{
 							outputPath = [...asset.path];
@@ -48,10 +48,7 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 								useClosureCompiler: asset?.assetSettings?.useClosureCompiler ?? false,
 							};
 							await editor.projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
-							const builtScript = await editor.scriptBuilder.buildScript(asset.path.join("/"), buildOpts);
-							if(builtScript != null){
-								editor.projectManager.currentProjectFileSystem.writeText(outputPath, builtScript);
-							}
+							await editor.scriptBuilder.buildScript(asset.path, outputPath, buildOpts);
 						}
 					}
 				}

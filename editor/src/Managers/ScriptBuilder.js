@@ -5,62 +5,100 @@ export default class ScriptBuilder{
 	constructor(){
 	}
 
-	async buildScript(input, {
+	async buildScript(inputPath, outputPath, {
 		useClosureCompiler = true,
 	} = {}){
 		const bundle = await rollup.rollup({
-			input,
+			input: inputPath.join("/"),
 			plugins: [this.resolveScripts()],
 		});
 		const {output} = await bundle.generate({
 			format: "esm",
+			sourcemap: true,
 		});
-		const rollupCode = output[0].code;
-		let code = rollupCode;
-		//todo: also make this work in production builds
-		if(useClosureCompiler && IS_DEV_BUILD){
-			const externsAsset = await editor.projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
-			const externs = await externsAsset.readAssetData();
-			const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
-				js: code,
-				externs,
-				args: {
-					compilation_level: "ADVANCED",
-					language_in: "ECMASCRIPT_NEXT",
-					language_out: "ECMASCRIPT_NEXT",
-					error_format: "JSON",
-					formatting: "PRETTY_PRINT",
-				},
-			});
-			if(stdOut){
-				code = stdOut;
-			}
-			if(stdErr){
-				let closureErrors = [];
-				let extraLines = [];
-				for(const line of stdErr.split("\n")){
-					let json = null;
-					if(!!line.trim()){
-						try{
-							json = JSON.parse(line);
-						}catch(_){}
-					}
-					if(json){
-						closureErrors = json;
-					}else{
-						extraLines.push(line);
-					}
-				}
-				const message = extraLines.join("\n");
-				if(!!message.trim()){
-					console.error(message);
-				}
 
-				this.printCodeErrors(closureErrors, rollupCode);
-			}
+		if(!useClosureCompiler){
+			this.writeRollupOutput(output, outputPath);
+		}else{
+			// todo
 		}
 
-		return code;
+		// if(!useClosureCompiler){
+		// 	return [
+		// 		{
+		// 			path: null,
+		// 			content: output[0].code,
+		// 		},
+		// 		{
+		// 			path: ["test"],
+		// 			content: JSON.stringify(output[0].map),
+		// 		},
+		// 	];
+		// }else{
+		// 	const rollupCode = output[0].code;
+		// 	const externsAsset = await editor.projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
+		// 	//todo: also make this work in production builds
+		// 	const externs = await externsAsset.readAssetData();
+		// 	const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
+		// 		js: rollupCode,
+		// 		externs,
+		// 		args: {
+		// 			compilation_level: "ADVANCED",
+		// 			language_in: "ECMASCRIPT_NEXT",
+		// 			language_out: "ECMASCRIPT_NEXT",
+		// 			error_format: "JSON",
+		// 			formatting: "PRETTY_PRINT",
+		// 			debug: true,
+		// 		},
+		// 	});
+		// 	if(stdErr){
+		// 		let closureErrors = [];
+		// 		let extraLines = [];
+		// 		for(const line of stdErr.split("\n")){
+		// 			let json = null;
+		// 			if(!!line.trim()){
+		// 				try{
+		// 					json = JSON.parse(line);
+		// 				}catch(_){}
+		// 			}
+		// 			if(json){
+		// 				closureErrors = json;
+		// 			}else{
+		// 				extraLines.push(line);
+		// 			}
+		// 		}
+		// 		const message = extraLines.join("\n");
+		// 		if(!!message.trim()){
+		// 			console.error(message);
+		// 		}
+
+		// 		this.printCodeErrors(closureErrors, rollupCode);
+		// 	}
+		// 	return [{
+		// 		content: stdOut,
+		// 	}];
+		// }
+	}
+
+	writeRollupOutput(output, outputPath){
+		for(const chunkOrAsset of output){
+			if(chunkOrAsset.type == "chunk"){
+				const chunk = chunkOrAsset;
+				const [type, fileName] = this.getPathType(chunk.fileName);
+				const codeOutputPath = [...outputPath, fileName];
+				let code = chunk.code;
+				if(chunk.map){
+					const sourcemapName = fileName+".map";
+					const sourcemapPath = [...outputPath, sourcemapName];
+					editor.projectManager.currentProjectFileSystem.writeText(sourcemapPath, JSON.stringify(chunk.map));
+
+					code += "\n\n//# sourceMappingURL=./"+sourcemapName;
+				}
+
+				editor.projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
+			}
+			//todo: handle chunkOrAsset.type == "asset"
+		}
 	}
 
 	printCodeErrors(errors, code){
