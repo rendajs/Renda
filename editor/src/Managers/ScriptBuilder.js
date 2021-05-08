@@ -163,21 +163,23 @@ export default class ScriptBuilder{
 	}
 
 	resolveScripts(){
+		const context = this;
 		return {
-			name: "resolve-scripts",
-			resolveId: (source, importer) => {
-				let type = null;
-				const [sourceType, sourceNoType] = this.getPathType(source);
-				const [importerType, importerNoType] = this.getPathType(importer);
-				type = sourceType || importerType || null;
+			name: "editor-resolve-scripts",
+			resolveId(source, importer, opts){
+				const importerInfo = this.getModuleInfo(importer);
+				let scriptType = null;
+				const [sourceType, sourceNoType] = context.getPathType(source);
+				const importerType = importerInfo?.meta?.editorResolve?.scriptType ?? null;
+				scriptType = sourceType || importerType || null;
 				if(sourceNoType == "JJ"){
-					type = ScriptBuilder.PathTypes.ENGINE;
+					scriptType = ScriptBuilder.PathTypes.ENGINE;
 				}
-				if(!type) type = ScriptBuilder.PathTypes.PROJECT;
+				if(!scriptType) scriptType = ScriptBuilder.PathTypes.PROJECT;
 
 				let importerPathArr = [];
 				if(importer && importerType == sourceType){
-					importerPathArr = importerNoType.split("/");
+					importerPathArr = importer.split("/");
 					importerPathArr.pop();
 				}
 				const pathArr = [...importerPathArr];
@@ -190,20 +192,28 @@ export default class ScriptBuilder{
 						pathArr.push(dir);
 					}
 				}
-				let resolvedPath = type + ":" + pathArr.join("/");
-				return resolvedPath;
+				let resolvedPath = pathArr.join("/");
+				return {
+					id: resolvedPath,
+					meta: {
+						editorResolve: {
+							scriptType,
+						},
+					}
+				};
 			},
-			load: async id => {
-				const [type, pathNoType] = this.getPathType(id);
-				if(type == ScriptBuilder.PathTypes.PROJECT){
+			async load(id){
+				const moduleInfo = this.getModuleInfo(id);
+				const scriptType = moduleInfo.meta.editorResolve.scriptType;
+				if(scriptType == ScriptBuilder.PathTypes.PROJECT){
 					try{
-						const file = await editor.projectManager.currentProjectFileSystem.readFile(pathNoType.split("/"));
+						const file = await editor.projectManager.currentProjectFileSystem.readFile(id.split("/"));
 						const text = await file.text();
 						return text;
 					}catch(e){
-						console.error("unable to read file at "+pathNoType+" it may not exist.");
+						console.error("unable to read file at "+id+" it may not exist.");
 					}
-				}else if(type == ScriptBuilder.PathTypes.ENGINE){
+				}else if(scriptType == ScriptBuilder.PathTypes.ENGINE){
 					const resp = await fetch("/build/game-engine.js");
 					return await resp.text();
 				}
