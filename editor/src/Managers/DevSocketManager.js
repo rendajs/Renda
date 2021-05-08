@@ -1,3 +1,5 @@
+import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
+
 export default class DevSocketManager{
 	constructor(){
 		this.listeners = new Map();
@@ -9,6 +11,14 @@ export default class DevSocketManager{
 
 		this.lastRoundtripId = 0;
 
+		this.tryConnectionOnceInstance = new SingleInstancePromise(async () => {
+			return await this.tryConnectionOnceFn();
+		}, {once: false});
+
+		this.tryConnectionMultipleInstance = new SingleInstancePromise(async () => {
+			return await this.tryConnectionMultipleFn();
+		}, {once: false});
+
 		this.tryConnectionOnce();
 	}
 
@@ -17,7 +27,7 @@ export default class DevSocketManager{
 		return this.ws.readyState == WebSocket.OPEN;
 	}
 
-	async tryConnectionOnce(){
+	async tryConnectionOnceFn(){
 		const ws = this.ws = new WebSocket("ws://localhost:5071");
 		this.ws.addEventListener("message", e => {
 			if(this.ws != ws) return;
@@ -38,9 +48,11 @@ export default class DevSocketManager{
 		});
 	}
 
-	async tryConnectionMultiple(){
-		if(this.isTryingConnectMultiple) return;
-		this.isTryingConnectMultiple = true;
+	async tryConnectionOnce(){
+		return await this.tryConnectionOnceInstance.run();
+	}
+
+	async tryConnectionMultipleFn(){
 		let attempts = 0;
 		while(true){
 			attempts++;
@@ -49,11 +61,12 @@ export default class DevSocketManager{
 			await new Promise(r => setTimeout(r, attempts * 1000));
 
 			const success = await this.tryConnectionOnce();
-			if(success){
-				this.isTryingConnectMultiple = false;
-				return true;
-			}
+			if(success) return true;
 		}
+	}
+
+	async tryConnectionMultiple(){
+		return await this.tryConnectionMultipleInstance.run();
 	}
 
 	handleMessage(e){
@@ -90,6 +103,17 @@ export default class DevSocketManager{
 	}
 
 	async sendRoundTripMessage(op, data){
+		if(!this.connected){
+			let success;
+			if(this.connectedOnce){
+				success = await this.tryConnectionMultiple();
+			}else{
+				success = await this.tryConnectionOnce();
+			}
+			if(!success){
+				throw new Error("Failed to connect to devsocket");
+			}
+		}
 		const roundTripId = this.lastRoundtripId++;
 		this.ws.send(JSON.stringify({
 			op: "roundTripRequest",
