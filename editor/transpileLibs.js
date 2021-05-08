@@ -13,6 +13,7 @@ let libs = [
 	{
 		input: "../node_modules/rollup/dist/rollup.browser.js",
 		output: "rollup.browser.js",
+		plugins: [removeSourceMaps()],
 	},
 ];
 
@@ -41,6 +42,21 @@ function ignore(ignoreList){
 	}
 }
 
+function removeSourceMaps(){
+	function executeRemoval(code){
+		return code.replace(/^\s*\/\/# sourceMappingURL=.*/gm, "");
+	}
+	return {
+		name: "remove-source-maps",
+		renderChunk(code, chunk){
+			return executeRemoval(code);
+		},
+		transform(code, id){
+			return executeRemoval(code);
+		},
+	}
+}
+
 (async () => {
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -48,9 +64,11 @@ function ignore(ignoreList){
 		let inputPath = path.resolve(__dirname, lib.input);
 		let outputPath = path.resolve(__dirname, "libs", lib.output);
 		console.log("bundling "+lib.input);
+		const libPlugins = lib.plugins || [];
+		const plugins = [...libPlugins, commonjs(), ignore(["fs"])];
 		const bundle = await rollup({
 			input: inputPath,
-			plugins: [commonjs(), ignore(["fs"])],
+			plugins,
 		});
 		console.log("writing to "+lib.output);
 		await bundle.write({

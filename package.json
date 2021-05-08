@@ -14,7 +14,7 @@
     "concurrently": "5.x",
     "google-closure-compiler": "^20210406.0.0",
     "js-md5": "^0.7.3",
-    "rollup": "2.x",
+    "rollup": "^2.47.0",
     "rollup-plugin-define": "^1.0.1",
     "serve": "^11.3.2",
     "websocket": "^1.0.33"
