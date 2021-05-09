@@ -1,3 +1,8 @@
+/**
+@fileoverview externs file for webgpu api calls
+@externs
+*/
+
 navigator.gpu = {}
 
 /** @return {!GPUAdapter} */

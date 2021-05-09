@@ -12,83 +12,26 @@ export default class ScriptBuilder{
 			input: inputPath.join("/"),
 			plugins: [this.resolveScripts()],
 		});
-		const {output} = await bundle.generate({
+		const {output: rollupOutput} = await bundle.generate({
 			format: "esm",
 			sourcemap: true,
 		});
 
 		if(!useClosureCompiler){
-			this.writeRollupOutput(output, outputPath);
+			this.writeRollupOutput(rollupOutput, outputPath);
 		}else{
-			// todo
+			await this.runClosureCompiler(rollupOutput, outputPath);
 		}
-
-		// if(!useClosureCompiler){
-		// 	return [
-		// 		{
-		// 			path: null,
-		// 			content: output[0].code,
-		// 		},
-		// 		{
-		// 			path: ["test"],
-		// 			content: JSON.stringify(output[0].map),
-		// 		},
-		// 	];
-		// }else{
-		// 	const rollupCode = output[0].code;
-		// 	const externsAsset = await editor.projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
-		// 	//todo: also make this work in production builds
-		// 	const externs = await externsAsset.readAssetData();
-		// 	const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
-		// 		js: rollupCode,
-		// 		externs,
-		// 		args: {
-		// 			compilation_level: "ADVANCED",
-		// 			language_in: "ECMASCRIPT_NEXT",
-		// 			language_out: "ECMASCRIPT_NEXT",
-		// 			error_format: "JSON",
-		// 			formatting: "PRETTY_PRINT",
-		// 			debug: true,
-		// 		},
-		// 	});
-		// 	if(stdErr){
-		// 		let closureErrors = [];
-		// 		let extraLines = [];
-		// 		for(const line of stdErr.split("\n")){
-		// 			let json = null;
-		// 			if(!!line.trim()){
-		// 				try{
-		// 					json = JSON.parse(line);
-		// 				}catch(_){}
-		// 			}
-		// 			if(json){
-		// 				closureErrors = json;
-		// 			}else{
-		// 				extraLines.push(line);
-		// 			}
-		// 		}
-		// 		const message = extraLines.join("\n");
-		// 		if(!!message.trim()){
-		// 			console.error(message);
-		// 		}
-
-		// 		this.printCodeErrors(closureErrors, rollupCode);
-		// 	}
-		// 	return [{
-		// 		content: stdOut,
-		// 	}];
-		// }
 	}
 
-	writeRollupOutput(output, outputPath){
-		for(const chunkOrAsset of output){
+	writeRollupOutput(rollupOutput, outputPath){
+		for(const chunkOrAsset of rollupOutput){
 			if(chunkOrAsset.type == "chunk"){
 				const chunk = chunkOrAsset;
-				const [type, fileName] = this.getPathType(chunk.fileName);
-				const codeOutputPath = [...outputPath, fileName];
+				const codeOutputPath = [...outputPath, chunk.fileName];
 				let code = chunk.code;
 				if(chunk.map){
-					const sourcemapName = fileName+".map";
+					const sourcemapName = chunk.fileName+".map";
 					const sourcemapPath = [...outputPath, sourcemapName];
 					editor.projectManager.currentProjectFileSystem.writeText(sourcemapPath, JSON.stringify(chunk.map));
 
@@ -98,6 +41,81 @@ export default class ScriptBuilder{
 				editor.projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
 			}
 			//todo: handle chunkOrAsset.type == "asset"
+		}
+	}
+
+	async runClosureCompiler(rollupOutput, outputPath){
+		const rollupCode = rollupOutput[0].code;
+		const externsAsset = await editor.projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
+		const webGpuExterns = await externsAsset.readAssetData();
+		const inputFiles = rollupOutput.map(chunk => {
+			return {
+				path: chunk.fileName,
+				src: chunk.code,
+				sourceMap: JSON.stringify(chunk.map),
+				chunkName: chunk.fileName,
+				chunkDependencies: chunk.dynamicImports,
+			}
+		});
+		inputFiles.push({
+			path: "webGpuExterns.js",
+			src: webGpuExterns,
+		});
+		//todo: also make this work in production builds
+		const {exitCode, stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
+			inputFiles,
+			args: {
+				compilation_level: "ADVANCED",
+				language_in: "ECMASCRIPT_NEXT",
+				language_out: "ECMASCRIPT_NEXT",
+				error_format: "JSON",
+				formatting: "PRETTY_PRINT",
+				chunk_output_type: "ES_MODULES",
+				json_streams: "BOTH",
+				source_map_include_content: true,
+				emit_use_strict: false,
+				debug: true,
+			},
+		});
+		if(stdErr){
+			let closureErrors = [];
+			let extraLines = [];
+			for(const line of stdErr.split("\n")){
+				let json = null;
+				if(!!line.trim()){
+					try{
+						json = JSON.parse(line);
+					}catch(_){}
+				}
+				if(json){
+					closureErrors = json;
+				}else{
+					extraLines.push(line);
+				}
+			}
+			const message = extraLines.join("\n");
+			if(!!message.trim()){
+				console.error(message);
+			}
+
+			this.printCodeErrors(closureErrors, rollupCode);
+		}
+		if(stdOut){
+			const outFiles = JSON.parse(stdOut);
+			for(const file of outFiles){
+				const fileName = file.path;
+				const codeOutputPath = [...outputPath, fileName];
+				let code = file.src;
+				if(file.source_map){
+					const sourcemapName = fileName+".map";
+					const sourcemapPath = [...outputPath, sourcemapName];
+					editor.projectManager.currentProjectFileSystem.writeText(sourcemapPath, file.source_map);
+
+					code += "\n\n//# sourceMappingURL=./"+sourcemapName;
+				}
+
+				editor.projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
+			}
 		}
 	}
 
