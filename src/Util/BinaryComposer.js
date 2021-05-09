@@ -130,7 +130,6 @@ export default class BinaryComposer{
 		}
 
 		const highestReferenceId = sortedReferences.length - 1;
-		const binaryNeedsReferenceIds = reoccurringStructureReferences.size > 0;
 		const {type: refIdStorageType} = BinaryComposer.requiredStorageTypeForUint(highestReferenceId);
 
 		const binaryDigestable = [];
