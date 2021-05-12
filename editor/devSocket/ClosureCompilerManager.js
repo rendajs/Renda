@@ -17,12 +17,12 @@ export default class ClosureCompilerManager{
 			const proc = compiler.run((exitCode, stdOut, stdErr) => {
 				r({exitCode, stdOut, stdErr});
 			});
-			const stdInStream = new stream.Readable({read: function(){}});
-			stdInStream.pipe(proc.stdin);
-			process.nextTick(() => {
-				stdInStream.push(JSON.stringify(inputFiles));
-				stdInStream.push(null);
+			proc.stdin.on("error", () => {
+				//this callback exists to prevent node from throwing an error
+				//when the compiler fails before stdin is parsed
+				//errors will be handled from the compiler.run() callback
 			});
+			proc.stdin.write(JSON.stringify(inputFiles));
 		});
 
 		responseCb(result);
