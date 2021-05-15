@@ -226,25 +226,35 @@ export default class BinaryComposer{
 				if(digestable.arrayType){
 					const {value: arrayLength, bytesMoved} = BinaryComposer.getDataViewValue(dataView, arrayLengthStorageType, byteOffset, {littleEndian});
 					byteOffset += bytesMoved;
-					if(digestable.arrayType.structureRef){
-						for(let i=0; i<arrayLength; i++){
-							const {value: refId, bytesMoved} = BinaryComposer.getDataViewValue(dataView, refIdStorageType, byteOffset, {littleEndian});
-							byteOffset += bytesMoved;
-							if(!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.arrayType.structureRef});
-							unparsedStructureIds.add(refId);
-							collectedReferenceLinks.push({refId, location: digestable.arrayType.location, injectIntoRefId: parsingStructureId, variableLengthArrayIndex: i});
-						}
+					if(arrayLength == 0){
+						const transformValueCbOpts = {type: digestable.type, nameId: digestable.nameId};
+						reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
+							nameIdsMapInverse,
+							value: [],
+							location: digestable.location,
+							transformValueCb, transformValueCbOpts,
+						});
 					}else{
-						for(let i=0; i<arrayLength; i++){
-							const {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.arrayType.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
-							byteOffset += bytesMoved;
-							const transformValueCbOpts = {type: digestable.arrayType.type, nameId: digestable.nameId};
-							reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
-								nameIdsMapInverse, value,
-								location: digestable.arrayType.location,
-								variableLengthArrayIndex: i,
-								transformValueCb, transformValueCbOpts,
-							});
+						if(digestable.arrayType.structureRef){
+							for(let i=0; i<arrayLength; i++){
+								const {value: refId, bytesMoved} = BinaryComposer.getDataViewValue(dataView, refIdStorageType, byteOffset, {littleEndian});
+								byteOffset += bytesMoved;
+								if(!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.arrayType.structureRef});
+								unparsedStructureIds.add(refId);
+								collectedReferenceLinks.push({refId, location: digestable.arrayType.location, injectIntoRefId: parsingStructureId, variableLengthArrayIndex: i});
+							}
+						}else{
+							for(let i=0; i<arrayLength; i++){
+								const {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.arrayType.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
+								byteOffset += bytesMoved;
+								const transformValueCbOpts = {type: digestable.arrayType.type, nameId: digestable.nameId};
+								reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
+									nameIdsMapInverse, value,
+									location: digestable.arrayType.location,
+									variableLengthArrayIndex: i,
+									transformValueCb, transformValueCbOpts,
+								});
+							}
 						}
 					}
 				}else if(digestable.structureRef){
@@ -622,14 +632,14 @@ export default class BinaryComposer{
 				if(variableArrayLength){
 					const newTraversedLocationPath = [...traversedLocationPath, {id: -1, type: BinaryComposer.StructureTypes.ARRAY}];
 					const arrayType = BinaryComposer.generateStructureDigestable(structure[0], newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences});
-					return {type: BinaryComposer.StructureTypes.ARRAY, arrayType};
+					return {type: BinaryComposer.StructureTypes.ARRAY, arrayType, location: traversedLocationPath};
 				}else{
 					const arr = [];
 					for(const [i, arrayItem] of structure.entries()){
 						const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: BinaryComposer.StructureTypes.ARRAY}];
 						arr.push(BinaryComposer.generateStructureDigestable(arrayItem, newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences}));
 					}
-					return {type: BinaryComposer.StructureTypes.ARRAY, childData: arr}
+					return {type: BinaryComposer.StructureTypes.ARRAY, childData: arr, location: traversedLocationPath}
 				}
 			}else{
 				const arr = [];
@@ -644,7 +654,7 @@ export default class BinaryComposer{
 					}
 				}
 				BinaryComposer.sortNameIdsArr(arr);
-				return {type: BinaryComposer.StructureTypes.OBJECT, childData: arr};
+				return {type: BinaryComposer.StructureTypes.OBJECT, childData: arr, location: traversedLocationPath};
 			}
 		}else{
 			return {type: structure, location: traversedLocationPath};
