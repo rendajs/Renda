@@ -266,6 +266,9 @@ export default class BinaryComposer{
 				}else{
 					let {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
 					byteOffset += bytesMoved;
+					if(digestable.enumStrings){
+						value = digestable.enumStrings[value - 1];
+					}
 					const transformValueCbOpts = {type: digestable.type, nameId: digestable.nameId};
 					reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
 						nameIdsMapInverse, value,
@@ -467,14 +470,21 @@ export default class BinaryComposer{
 				return {value: refId, type};
 			}
 
-			if(Array.isArray(obj)){
-				const arr = [];
-				const variableArrayLength = structure.length == 1;
-				for(let i=0; i<obj.length; i++){
-					const structureIndex = variableArrayLength ? 0 : i;
-					arr.push(BinaryComposer.generateBinaryDigestable(obj[i], structure[structureIndex], {referenceIds, nameIdsMap}));
+			if(Array.isArray(structure)){
+				if(typeof structure[0] == "string"){
+					//structure is an array of strings, treat it as an enum
+					const value = structure.indexOf(obj) + 1; //use 0 if the enum value is invalid
+					const {type} = BinaryComposer.requiredStorageTypeForUint(structure.length);
+					return {value, type};
+				}else{
+					const arr = [];
+					const variableArrayLength = structure.length == 1;
+					for(let i=0; i<obj.length; i++){
+						const structureIndex = variableArrayLength ? 0 : i;
+						arr.push(BinaryComposer.generateBinaryDigestable(obj[i], structure[structureIndex], {referenceIds, nameIdsMap}));
+					}
+					return {value: arr, type: BinaryComposer.StructureTypes.ARRAY, variableArrayLength};
 				}
-				return {value: arr, type: BinaryComposer.StructureTypes.ARRAY, variableArrayLength};
 			}else{
 				const arr = [];
 				for(const key of Object.keys(structure)){
@@ -628,18 +638,24 @@ export default class BinaryComposer{
 				return {type, structureRef: structure, location: traversedLocationPath};
 			}
 			if(Array.isArray(structure)){
-				const variableArrayLength = structure.length == 1;
-				if(variableArrayLength){
-					const newTraversedLocationPath = [...traversedLocationPath, {id: -1, type: BinaryComposer.StructureTypes.ARRAY}];
-					const arrayType = BinaryComposer.generateStructureDigestable(structure[0], newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences});
-					return {type: BinaryComposer.StructureTypes.ARRAY, arrayType, location: traversedLocationPath};
+				if(typeof structure[0] == "string"){
+					//structure is an array of strings, treat it as an enum
+					const {type} = BinaryComposer.requiredStorageTypeForUint(structure.length);
+					return {type, location: traversedLocationPath, enumStrings: structure};
 				}else{
-					const arr = [];
-					for(const [i, arrayItem] of structure.entries()){
-						const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: BinaryComposer.StructureTypes.ARRAY}];
-						arr.push(BinaryComposer.generateStructureDigestable(arrayItem, newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences}));
+					const variableArrayLength = structure.length == 1;
+					if(variableArrayLength){
+						const newTraversedLocationPath = [...traversedLocationPath, {id: -1, type: BinaryComposer.StructureTypes.ARRAY}];
+						const arrayType = BinaryComposer.generateStructureDigestable(structure[0], newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences});
+						return {type: BinaryComposer.StructureTypes.ARRAY, arrayType, location: traversedLocationPath};
+					}else{
+						const arr = [];
+						for(const [i, arrayItem] of structure.entries()){
+							const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: BinaryComposer.StructureTypes.ARRAY}];
+							arr.push(BinaryComposer.generateStructureDigestable(arrayItem, newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences}));
+						}
+						return {type: BinaryComposer.StructureTypes.ARRAY, childData: arr, location: traversedLocationPath}
 					}
-					return {type: BinaryComposer.StructureTypes.ARRAY, childData: arr, location: traversedLocationPath}
 				}
 			}else{
 				const arr = [];

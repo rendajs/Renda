@@ -13,7 +13,7 @@ export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericSt
 			structure: {
 				buffers: [{
 					arrayStride: BinaryComposer.StructureTypes.INT16, //todo: support serializing auto value
-					stepMode: BinaryComposer.StructureTypes.INT8,
+					stepMode: ["vertex", "instance"],
 					attributes: [{
 						attributeType: BinaryComposer.StructureTypes.INT8,
 						format: BinaryComposer.StructureTypes.INT8,
