@@ -60,7 +60,8 @@ export default class WebGpuBufferHelper{
 		if(typeof data == "number"){
 			this.appendScalar(data, type);
 		}else{
-			for(const val of data.toArray()){
+			if(!Array.isArray(data)) data = data.toArray();
+			for(const val of data){
 				this.appendScalar(val, type);
 			}
 		}
