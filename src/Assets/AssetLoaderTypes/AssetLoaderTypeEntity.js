@@ -59,7 +59,7 @@ export default class AssetLoaderTypeEntity extends AssetLoaderType{
 			entity.addComponent(entityComponentData.uuid, propertyValues);
 		}
 		for(const child of data.children){
-			this.createEntityFromData(child, entity);
+			await this.createEntityFromData(child, entity);
 		}
 		return entity;
 	}
