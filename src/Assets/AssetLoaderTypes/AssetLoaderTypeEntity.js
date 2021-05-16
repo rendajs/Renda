@@ -44,10 +44,10 @@ export default class AssetLoaderTypeEntity extends AssetLoaderType{
 	async parseBuffer(buffer){
 		const entityData = BinaryComposer.binaryToObject(buffer, AssetLoaderTypeEntity.entityBinaryFormat);
 
-		return this.createEntityFromData(entityData);
+		return await this.createEntityFromData(entityData);
 	}
 
-	createEntityFromData(data, parent = null){
+	async createEntityFromData(data, parent = null){
 		const entity = new Entity({
 			name: data.name,
 			matrix: new Mat4(data.matrix),
@@ -55,7 +55,7 @@ export default class AssetLoaderTypeEntity extends AssetLoaderType{
 		});
 		for(const entityComponentData of data.components){
 			const componentData = defaultComponentTypeManager.getComponentDataForUuid(entityComponentData.uuid);
-			const propertyValues = BinaryComposer.binaryToObject(entityComponentData.propertyValues, componentData.binaryComposerOpts);
+			const propertyValues = await BinaryComposer.binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, componentData.binaryComposerOpts);
 			entity.addComponent(entityComponentData.uuid, propertyValues);
 		}
 		for(const child of data.children){
