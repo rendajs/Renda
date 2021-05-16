@@ -96,6 +96,21 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 
 	async createBundledAssetData(){
 		const assetData = await this.projectAsset.readAssetData();
+		this.generateComponentArrayBuffers(assetData);
 		return BinaryComposer.objectToBinary(assetData, AssetLoaderTypeEntity.entityBinaryFormat);
+	}
+
+	generateComponentArrayBuffers(entityData){
+		if(entityData.components){
+			for(const component of entityData.components){
+				const componentData = defaultComponentTypeManager.getComponentDataForUuid(component.uuid);
+				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, componentData.binaryComposerOpts);
+			}
+		}
+		if(entityData.children){
+			for(const child of entityData.children){
+				this.generateComponentArrayBuffers(child);
+			}
+		}
 	}
 }

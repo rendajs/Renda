@@ -1,4 +1,5 @@
 import Mat4 from "../../Math/Mat4.js";
+import BinaryComposer from "../../Util/BinaryComposer.js";
 
 export default {
 	uuid: "1a78b3f2-7688-4776-b512-ed1ee2326d8a",
@@ -42,5 +43,21 @@ export default {
 		// rootRenderEntities: {
 		// 	type: "array",
 		// }
+	},
+	binaryComposerOpts: {
+		structure: {
+			fov: BinaryComposer.StructureTypes.FLOAT64,
+			clipNear: BinaryComposer.StructureTypes.FLOAT64,
+			clipFar: BinaryComposer.StructureTypes.FLOAT64,
+			aspect: BinaryComposer.StructureTypes.FLOAT64,
+			fov: BinaryComposer.StructureTypes.BOOL,
+		},
+		nameIds: {
+			fov: 1,
+			clipNear: 2,
+			clipFar: 3,
+			aspect: 4,
+			fov: 5,
+		},
 	},
 };
