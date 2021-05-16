@@ -7,6 +7,8 @@ export default class AssetLoader{
 		this.bundles = new Set();
 
 		this.registeredLoaderTypes = new Map();
+
+		this.loadedAssets = new Map(); //Map<uuid, WeakRef<asset>>
 	}
 
 	addBundle(url){
@@ -31,7 +33,16 @@ export default class AssetLoader{
 		return instance;
 	}
 
-	async getAsset(uuid, opts = undefined){
+	async getAsset(uuid, opts = undefined, createNewInstance = false){
+		if(!createNewInstance){
+			const weakRef = this.loadedAssets.get(uuid);
+			if(weakRef){
+				const ref = weakRef.deref();
+				if(ref){
+					return ref;
+				}
+			}
+		}
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			let unavailableCount = 0;
 			for(const bundle of this.bundles){
@@ -57,6 +68,13 @@ export default class AssetLoader{
 			return null;
 		}
 
-		return await loaderType.parseBuffer(buffer, opts);
+		const asset = await loaderType.parseBuffer(buffer, opts);
+
+		if(!createNewInstance){
+			const weakRef = new WeakRef(asset);
+			this.loadedAssets.set(uuid, weakRef);
+		}
+
+		return asset;
 	}
 }

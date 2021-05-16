@@ -37,7 +37,7 @@ export default class AssetLoaderTypeShaderSource extends AssetLoaderType{
 	}
 
 	async onShaderUuidRequested(uuid){
-		const shader = await this.assetLoader.getAsset(uuid, {raw: true});
+		const shader = await this.assetLoader.getAsset(uuid, {raw: true}, true);
 		return shader;
 	}
 }
