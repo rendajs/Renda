@@ -20,8 +20,8 @@ export default class AssetLoaderTypeShaderSource extends AssetLoaderType{
 		const decoder = new TextDecoder();
 		const shaderCode = decoder.decode(buffer);
 		if(this.builder && !raw){
-			const {} = await this.builder.buildShader(shaderCode);
-			return new ShaderSource(shaderCode);
+			const {shaderCode: newShaderCode} = await this.builder.buildShader(shaderCode);
+			return new ShaderSource(newShaderCode);
 		}else{
 			return shaderCode;
 		}
