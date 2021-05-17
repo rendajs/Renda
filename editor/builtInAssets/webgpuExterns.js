@@ -53,15 +53,22 @@ class GPUDevice{
 		@return GPUShaderModule
 	*/
 	createShaderModule(descriptor){}
-	createComputePipeline(){}
 	/**
-		@param {Object} descriptor
+		@param {GPUComputePipelineDescriptor} descriptor
+		@return GPUComputePipeline
+	*/
+	createComputePipeline(descriptor){}
+	/**
+		@param {GPURenderPipelineDescriptor} descriptor
 		@return GPURenderPipeline
 	*/
 	createRenderPipeline(descriptor){}
 	createComputePipelineAsync(){}
 	createRenderPipelineAsync(){}
 
+	/**
+		@returns GPUCommandEncoder
+	*/
 	createCommandEncoder(){}
 	createRenderBundleEncoder(){}
 
@@ -72,6 +79,8 @@ class GPUBindGroupLayout{}
 class GPUShaderModule{}
 class GPUPipelineLayout{}
 class GPUBindGroup{}
+class GPUTextureView{}
+class GPUComputePipeline{}
 
 class GPUBuffer{
 	/**
@@ -143,6 +152,7 @@ var GPUShaderModuleDescriptor;
 
 /**
 	@typedef {{
+		layout: GPUPipelineLayout,
 		vertex: GPUVertexState,
 		primitive: GPUPrimitiveState,
 		depthStencil: GPUDepthStencilState,
@@ -231,6 +241,22 @@ var GPUFragmentState;
 
 /**
 	@typedef {{
+		layout: GPUPipelineLayout,
+		compute: GPUProgrammableStage,
+	}}
+*/
+var GPUComputePipelineDescriptor;
+
+/**
+	@typedef {{
+		module: GPUShaderModule,
+		entryPoint: string,
+	}}
+*/
+var GPUProgrammableStage;
+
+/**
+	@typedef {{
 		format: string,
 		blend: GPUBlendState,
 		writeMask: number,
@@ -277,6 +303,115 @@ class GPUQueue{
 }
 
 class GPUCommandBuffer{}
+
+class GPUCommandEncoder{
+	/**
+		@param {GPURenderPassDescriptor} descriptor
+		@returns GPURenderPassEncoder
+	*/
+	beginRenderPass(descriptor){}
+
+	/**
+		@param {Object} descriptor
+		@returns GPUComputePassEncoder
+	*/
+	beginComputePass(descriptor){}
+}
+
+/**
+	@typedef {{
+		colorAttachments: Array<GPURenderPassColorAttachment>,
+		depthStencilAttachment: GPURenderPassDepthStencilAttachment,
+		occlusionQuerySet: GPUQuerySet,
+	}}
+*/
+var GPURenderPassDescriptor;
+
+/**
+	@typedef {{
+		view: GPUTextureView,
+		resolveTarget: GPUTextureView,
+		loadValue: (GPUColor|Array<number>|string),
+		storeOp: string,
+	}}
+*/
+var GPURenderPassColorAttachment;
+
+/**
+	@typedef {{
+		r: number,
+		g: number,
+		b: number,
+		a: number,
+	}}
+*/
+var GPUColor;
+
+/**
+	@typedef {{
+		view: GPUTextureView,
+		depthLoadValue: (string|number),
+		depthStoreOp: string,
+		depthReadOnly: boolean,
+		stencilLoadValue: (string|number),
+		stencilStoreOp: string,
+		stencilReadOnly: boolean,
+	}}
+*/
+var GPURenderPassDepthStencilAttachment;
+
+class GPUQuerySet{
+	destroy(){}
+}
+
+class GPUComputePassEncoder{
+	/**
+		@param {GPUComputePipeline} pipeline
+	*/
+	setPipeline(pipeline){}
+
+	/**
+		@param {number} index,
+		@param {GPUBindGroup} bindGroup,
+		@param {Array<number>} dynamicOffsets,
+	*/
+	setBindGroup(index, bindGroup, dynamicOffsets){}
+
+	/**
+		@param {number} x
+		@param {number} y
+		@param {number} z
+	*/
+	dispatch(x,y,z){}
+
+	endPass(){}
+}
+
+class GPURenderPassEncoder{
+	/**
+		@param {GPUBuffer} buffer,
+		@param {string} indexFormat,
+		@param {number} offset,
+		@param {number} size,
+	*/
+	setIndexBuffer(buffer, indexFormat, offset, size){}
+	/**
+		@param {number} slot,
+		@param {number} buffer,
+		@param {number} offset,
+		@param {number} size,
+	*/
+	setVertexBuffer(slot, buffer, offset, size){}
+
+	/**
+		@param {number} indexCount,
+		@param {number} instanceCount,
+		@param {number} firstIndex,
+		@param {number} baseVertex,
+		@param {number} firstInstance,
+	*/
+	drawIndexed(indexCount, instanceCount, firstIndex, baseVertex, firstInstance){}
+}
 
 const GPUMapMode = {};
 GPUMapMode.READ = 0;
