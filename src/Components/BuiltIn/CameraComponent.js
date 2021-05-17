@@ -56,7 +56,6 @@ export default {
 			clipNear: 2,
 			clipFar: 3,
 			aspect: 4,
-			fov: 5,
 		},
 	},
 };
