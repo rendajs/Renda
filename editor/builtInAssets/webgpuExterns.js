@@ -29,7 +29,11 @@ class GPUDevice{
 		@return {GPUBuffer}
 	*/
 	createBuffer(descriptor){}
-	createTexture(){}
+	/**
+		@param {GPUTextureDescriptor} descriptor
+		@return GPUTexture
+	*/
+	createTexture(descriptor){}
 	createSampler(){}
 
 	/**
@@ -114,6 +118,9 @@ var GPUBufferDescriptor;
 	@typedef {{
 		binding: number,
 		visibility: number,
+		buffer: GPUBufferBindingLayout,
+		sampler: GPUSamplerBindingLayout,
+		texture: GPUTextureBindingLayout,
 	}}
 */
 var GPUBindGroupLayoutEntry;
@@ -142,6 +149,31 @@ var GPUBindGroupEntry;
 	}}
 */
 var GPUBindingResource;
+
+/**
+	@typedef {{
+		type: string,
+		hasDynamicOffset: boolean,
+		minBindingSize: number,
+	}}
+*/
+var GPUBufferBindingLayout;
+
+/**
+	@typedef {{
+		type: string,
+	}}
+*/
+var GPUSamplerBindingLayout;
+
+/**
+	@typedef {{
+		sampleType: string,
+		viewDimension: string,
+		multisampled: boolean,
+	}}
+*/
+var GPUTextureBindingLayout;
 
 /**
 	@typedef {{
@@ -359,6 +391,27 @@ var GPUColor;
 	}}
 */
 var GPURenderPassDepthStencilAttachment;
+
+/**
+	@typedef {{
+		size: (Array<number>|GPUExtent3D),
+		mipLevelCount: number,
+		sampleCount: number,
+		dimension: string,
+		format: string,
+		usage: number,
+	}}
+*/
+var GPUTextureDescriptor;
+
+/**
+	@typedef {{
+		width: number,
+		height: number,
+		depthOrArrayLayers: number,
+	}}
+*/
+var GPUExtent3D;
 
 class GPUQuerySet{
 	destroy(){}
