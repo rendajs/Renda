@@ -185,7 +185,7 @@ export default class BinaryComposer{
 		structure = null,
 		nameIds = null,
 		littleEndian = true,
-		transformValueCb = null,
+		transformValueHook = null,
 	} = {}){
 		const nameIdsMap = new Map(Object.entries(nameIds));
 		const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k,v]) => [v,k]));
@@ -227,12 +227,12 @@ export default class BinaryComposer{
 					const {value: arrayLength, bytesMoved} = BinaryComposer.getDataViewValue(dataView, arrayLengthStorageType, byteOffset, {littleEndian});
 					byteOffset += bytesMoved;
 					if(arrayLength == 0){
-						const transformValueCbOpts = {type: digestable.type, nameId: digestable.nameId};
+						const transformValueHookOpts = {type: digestable.type, nameId: digestable.nameId};
 						reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
 							nameIdsMapInverse,
 							value: [],
 							location: digestable.location,
-							transformValueCb, transformValueCbOpts,
+							transformValueHook, transformValueHookOpts,
 						});
 					}else{
 						if(digestable.arrayType.structureRef){
@@ -247,12 +247,12 @@ export default class BinaryComposer{
 							for(let i=0; i<arrayLength; i++){
 								const {value, bytesMoved} = BinaryComposer.getDataViewValue(dataView, digestable.arrayType.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
 								byteOffset += bytesMoved;
-								const transformValueCbOpts = {type: digestable.arrayType.type, nameId: digestable.nameId};
+								const transformValueHookOpts = {type: digestable.arrayType.type, nameId: digestable.nameId};
 								reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
 									nameIdsMapInverse, value,
 									location: digestable.arrayType.location,
 									variableLengthArrayIndex: i,
-									transformValueCb, transformValueCbOpts,
+									transformValueHook, transformValueHookOpts,
 								});
 							}
 						}
@@ -269,11 +269,11 @@ export default class BinaryComposer{
 					if(digestable.enumStrings){
 						value = digestable.enumStrings[value - 1];
 					}
-					const transformValueCbOpts = {type: digestable.type, nameId: digestable.nameId};
+					const transformValueHookOpts = {type: digestable.type, nameId: digestable.nameId};
 					reconstructedData = BinaryComposer.resolveBinaryValueLocation(reconstructedData, {
 						nameIdsMapInverse, value,
 						location: digestable.location,
-						transformValueCb, transformValueCbOpts,
+						transformValueHook, transformValueHookOpts,
 					});
 				}
 			}
@@ -305,7 +305,7 @@ export default class BinaryComposer{
 		let promises = [];
 		const obj = BinaryComposer.binaryToObject(buffer, {
 			structure, nameIds, littleEndian,
-			transformValueCb: ({value, type, placedOnObject, placedOnKey}) => {
+			transformValueHook: ({value, type, placedOnObject, placedOnKey}) => {
 				if(type != BinaryComposer.StructureTypes.UUID) return value;
 				const promise = (async () => {
 					const asset = await assetLoader.getAsset(value);
@@ -756,7 +756,7 @@ export default class BinaryComposer{
 
 	static resolveBinaryValueLocation(obj, {
 		value, location, nameIdsMapInverse, variableLengthArrayIndex,
-		transformValueCb, transformValueCbOpts,
+		transformValueHook, transformValueHookOpts,
 	}, locationOffset = 0){
 		const keyData = location[locationOffset];
 		let key = keyData.id;
@@ -775,15 +775,15 @@ export default class BinaryComposer{
 			key = nameIdsMapInverse.get(keyData.id);
 		}
 		if(locationOffset >= location.length - 1){
-			if(transformValueCb){
-				value = transformValueCb({value, placedOnObject: obj, placedOnKey: key, ...transformValueCbOpts});
+			if(transformValueHook){
+				value = transformValueHook({value, placedOnObject: obj, placedOnKey: key, ...transformValueHookOpts});
 			}
 			obj[key] = value;
 		}else{
 			let subValue = obj[key] || null;
 			subValue = BinaryComposer.resolveBinaryValueLocation(subValue, {
 				value, location, nameIdsMapInverse, variableLengthArrayIndex,
-				transformValueCb, transformValueCbOpts,
+				transformValueHook, transformValueHookOpts,
 			}, locationOffset + 1);
 			obj[key] = subValue;
 		}
