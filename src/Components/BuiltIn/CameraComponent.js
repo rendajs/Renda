@@ -50,7 +50,6 @@ export default {
 			clipNear: BinaryComposer.StructureTypes.FLOAT64,
 			clipFar: BinaryComposer.StructureTypes.FLOAT64,
 			aspect: BinaryComposer.StructureTypes.FLOAT64,
-			fov: BinaryComposer.StructureTypes.BOOL,
 		},
 		nameIds: {
 			fov: 1,
