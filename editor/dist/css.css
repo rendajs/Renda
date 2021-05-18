@@ -14,6 +14,7 @@
 	--default-button-hover-color: #626262;
 	--default-button-active-color: #565656;
 	--default-button-selected-color: #929292;
+	--default-button-text-color: #eaeaea;
 	--focused-window-border-color: #838383;
 	--default-input-box-color: #101010;
 	--default-input-box-border-color: transparent;
@@ -37,6 +38,7 @@
 		--default-button-hover-color: #c9c9c9;
 		--default-button-active-color: #b9b9b9;
 		--default-button-selected-color: #afafaf;
+		--default-button-text-color: #505050;
 		--focused-window-border-color: #717171;
 		--default-input-box-color: #f7f7f7;
 		--default-input-box-border-color: #dadcda;
@@ -95,7 +97,6 @@ body, html{
 }
 
 .editorContentWindowTopButtonBar > .button{
-	/* position: absolute; */
 	margin: 5px;
 }
 
@@ -114,6 +115,7 @@ body, html{
 	height: 20px;
 	display: inline-block;
 	background: var(--default-button-color);
+	color: var(--default-button-text-color);
 	box-sizing: border-box;
 	padding: 2px 3px;
 	border-radius: var(--default-border-radius);
