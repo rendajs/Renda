@@ -15,6 +15,7 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.activeTabIndex = -1;
 
 		this.tabsSelectorGroup = new ButtonGroup();
+		this.tabsSelectorGroup.el.classList.add("editorWindowTabButtonGroup")
 		this.el.appendChild(this.tabsSelectorGroup.el);
 
 		this.tabsEl = document.createElement("div");

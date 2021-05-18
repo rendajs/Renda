@@ -90,6 +90,10 @@ body, html{
 	box-shadow: 0px 0px 0 1px var(--focused-window-border-color);
 }
 
+.editorWindowTabButtonGroup{
+	position: absolute;
+}
+
 .editorContentWindowTopButtonBar > .button{
 	/* position: absolute; */
 	margin: 5px;
@@ -99,7 +103,6 @@ body, html{
 	margin: 5px;
 	display: inline-block;
 	overflow: hidden;
-	position: absolute;
 	box-sizing: content-box;
 	z-index: 100;
 }
