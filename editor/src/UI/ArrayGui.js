@@ -1,4 +1,5 @@
 import PropertiesTreeView from "./PropertiesTreeView/PropertiesTreeView.js";
+import ButtonGroup from "../UI/ButtonGroup.js";
 import Button from "./Button.js";
 
 export default class ArrayGui{
@@ -14,16 +15,29 @@ export default class ArrayGui{
 		this.arrayOpts = arrayOpts;
 		this.onValueChangeCbs = [];
 
-		this.treeView = new PropertiesTreeView();
-		this.el.appendChild(this.treeView.el);
-
+		this.addRemoveButtonGroup = new ButtonGroup();
+		this.el.appendChild(this.addRemoveButtonGroup.el);
+		this.removeItemButton = new Button({
+			text: "-",
+			onClick: () => {
+				//todo: add support for removing selected entry
+				//check if the index exists instead of try catch
+				try{
+					this.removeItem();
+				}catch(e){}
+			}
+		});
+		this.addRemoveButtonGroup.addButton(this.removeItemButton);
 		this.addItemButton = new Button({
-			text: "Add Item",
+			text: "+",
 			onClick: () => {
 				this.addItem();
 			}
 		});
-		this.el.appendChild(this.addItemButton.el);
+		this.addRemoveButtonGroup.addButton(this.addItemButton);
+
+		this.treeView = new PropertiesTreeView();
+		this.el.appendChild(this.treeView.el);
 
 		this.setValue(value);
 	}
@@ -35,6 +49,7 @@ export default class ArrayGui{
 		this.el = null;
 	}
 
+	//adds new item to the end of the array
 	addItem(extraArrayOpts = {}){
 		const index = this.value.length;
 		const addedItem = this.treeView.addItem({
@@ -50,6 +65,18 @@ export default class ArrayGui{
 			this.fireValueChange();
 		});
 		this.valueItems.push(addedItem);
+		this.fireValueChange();
+	}
+
+	//remove array item by index, counts from the back when negative
+	removeItem(index = -1){
+		if(index < 0) index = this.valueItems.length + index;
+
+		if(index < 0 || index >= this.valueItems.length){
+			throw new Error(`Failed to remove array item, index ${index} does not exist`);
+		}
+		this.treeView.removeChildIndex(index);
+		this.valueItems.splice(index, 1);
 		this.fireValueChange();
 	}
 

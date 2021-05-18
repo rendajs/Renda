@@ -111,7 +111,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 	destructor(){
 		this.label = null;
 		this.valueEl = null;
-		if(this.gui) this.gui.destructor();
+		this.gui?.destructor?.();
 		this.gui = null;
 		super.destructor();
 	}

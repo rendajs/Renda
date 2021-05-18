@@ -107,6 +107,7 @@ body, html{
 .buttonLike{
 	min-width: 20px;
 	font-size: 10pt;
+	text-align: center;
 	height: 20px;
 	display: inline-block;
 	background: var(--default-button-color);
@@ -175,7 +176,6 @@ body, html{
 
 .numericGui{
 	cursor: crosshair;
-	text-align: center;
 }
 
 .numericGui:focus{
