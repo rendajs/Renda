@@ -23,7 +23,8 @@ export default class BinaryComposer{
 			STRING: 11,
 			BOOL: 12,
 			UUID: 13,
-			ARRAYBUFFER: 14,
+			ASSET_UUID: 14, //same as UUID but will load the asset when binaryToObjectWithAssetLoader() is used
+			ARRAYBUFFER: 15,
 		};
 	}
 
@@ -306,7 +307,7 @@ export default class BinaryComposer{
 		const obj = BinaryComposer.binaryToObject(buffer, {
 			structure, nameIds, littleEndian,
 			transformValueHook: ({value, type, placedOnObject, placedOnKey}) => {
-				if(type != BinaryComposer.StructureTypes.UUID) return value;
+				if(type != BinaryComposer.StructureTypes.ASSET_UUID) return value;
 				const promise = (async () => {
 					const asset = await assetLoader.getAsset(value);
 					placedOnObject[placedOnKey] = asset;
@@ -569,7 +570,7 @@ export default class BinaryComposer{
 			return {length: encoded.byteLength + stringLengthByteLength, value: encoded};
 		}else if(type == BinaryComposer.StructureTypes.BOOL){
 			return {length: 1};
-		}else if(type == BinaryComposer.StructureTypes.UUID){
+		}else if(type == BinaryComposer.StructureTypes.UUID || type == BinaryComposer.StructureTypes.ASSET_UUID){
 			return {length: 16};
 		}else if(type == BinaryComposer.StructureTypes.ARRAYBUFFER){
 			return {length: value.byteLength + arrayBufferLengthByteLength};
@@ -611,7 +612,7 @@ export default class BinaryComposer{
 		}else if(type == BinaryComposer.StructureTypes.BOOL){
 			dataView.setUint8(byteOffset, value ? 1 : 0);
 			bytesMoved = 1;
-		}else if(type == BinaryComposer.StructureTypes.UUID){
+		}else if(type == BinaryComposer.StructureTypes.UUID || type == BinaryComposer.StructureTypes.ASSET_UUID){
 			const binaryUuid = BinaryComposer.uuidToBinary(value);
 			const view = new Uint8Array(dataView.buffer);
 			view.set(new Uint8Array(binaryUuid), byteOffset);
@@ -732,7 +733,7 @@ export default class BinaryComposer{
 		}else if(type == BinaryComposer.StructureTypes.BOOL){
 			value = !!dataView.getUint8(byteOffset);
 			bytesMoved = 1;
-		}else if(type == BinaryComposer.StructureTypes.UUID){
+		}else if(type == BinaryComposer.StructureTypes.UUID || type == BinaryComposer.StructureTypes.ASSET_UUID){
 			const view = new Uint8Array(dataView.buffer, byteOffset, 16);
 			value = BinaryDecomposer.binaryToUuid(view);
 			bytesMoved = 16;
