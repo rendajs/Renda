@@ -113,4 +113,39 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 			}
 		}
 	}
+
+	async *getReferencedAssetUuids(){
+		const assetData = await this.projectAsset.readAssetData();
+		for(const uuid of this.getReferencedAssetUuidsForEntityData(assetData)){
+			yield uuid;
+		}
+	}
+
+	*getReferencedAssetUuidsForEntityData(entityData){
+		if(entityData.components){
+			for(const component of entityData.components){
+				const componentData = defaultComponentTypeManager.getComponentDataForUuid(component.uuid);
+				const referencedUuids = [];
+				BinaryComposer.objectToBinary(component.propertyValues, {
+					...componentData.binaryComposerOpts,
+					transformValueHook: ({value, type}) => {
+						if(type == BinaryComposer.StructureTypes.ASSET_UUID){
+							referencedUuids.push(value);
+						}
+						return value;
+					},
+				});
+				for(const uuid of referencedUuids){
+					yield uuid;
+				}
+			}
+		}
+		if(entityData.children){
+			for(const child of entityData.children){
+				for(const uuid of this.getReferencedAssetUuidsForEntityData(child)){
+					yield uuid;
+				}
+			}
+		}
+	}
 }

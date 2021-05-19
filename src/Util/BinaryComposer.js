@@ -114,6 +114,7 @@ export default class BinaryComposer{
 		structure = null,
 		nameIds = null,
 		littleEndian = true,
+		transformValueHook = null,
 	} = {}){
 		const nameIdsMap = new Map(Object.entries(nameIds));
 
@@ -161,6 +162,9 @@ export default class BinaryComposer{
 		const textEncoder = new TextEncoder();
 		let totalByteLength = 0;
 		for(const item of flattened){
+			if(transformValueHook){
+				item.value = transformValueHook({type: item.type, value: item.value});
+			}
 			const {length, value} = BinaryComposer.getStructureTypeLength(item.type, {
 				value: item.value,
 				textEncoder, stringLengthByteLength, arrayBufferLengthByteLength,

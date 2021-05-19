@@ -17,8 +17,8 @@ export default {
 	},
 	binaryComposerOpts: {
 		structure: {
-			mesh: BinaryComposer.StructureTypes.UUID,
-			materials: [BinaryComposer.StructureTypes.UUID],
+			mesh: BinaryComposer.StructureTypes.ASSET_UUID,
+			materials: [BinaryComposer.StructureTypes.ASSET_UUID],
 		},
 		nameIds: {
 			mesh: 1,
