@@ -26,25 +26,47 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 			},
 			assets: {
 				type: Array,
-				arrayOpts:{
-					type: ProjectAsset,
+				arrayOpts: {
+					type: {
+						asset: {
+							type: ProjectAsset,
+							guiOpts: {
+								storageType: "uuid",
+							},
+						},
+						includeChildren: {
+							type: Boolean,
+							guiOpts: {
+								value: true,
+							},
+						},
+					},
 				}
+			},
+			excludeAssets: {
+				type: Array,
+				arrayOpts: {
+					type: ProjectAsset,
+					guiOpts: {
+						storageType: "uuid",
+					},
+				},
+			},
+			excludeAssetsRecursive: {
+				type: Array,
+				arrayOpts: {
+					type: ProjectAsset,
+					guiOpts: {
+						storageType: "uuid",
+					},
+				},
 			},
 		};
 		this.isUpdatingBundleSettingsTree = false;
 		this.bundleSettingsTree.generateFromSerializableStructure(this.bundleSettingsStructure);
 		this.bundleSettingsTree.onChildValueChange(() => {
 			if(this.isUpdatingBundleSettingsTree) return;
-			const guiValues = this.getGuiValues();
-			const jsonData = {
-				outputLocation: guiValues.outputLocation,
-				assets: [],
-			};
-			for(let i=0; i<guiValues.assets.length; i++){
-				const asset = guiValues.assets[i];
-				const assetUuid = asset?.uuid || "";
-				jsonData.assets[i] = assetUuid;
-			}
+			const jsonData = this.getGuiValues();
 			//todo: handle multiple selected items or no selection
 			this.currentSelection[0].writeAssetData(jsonData);
 		});
@@ -54,16 +76,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		super.selectionUpdated(selectedBundles);
 		//todo: handle multiple selected items or no selection
 		const bundle = selectedBundles[0];
-		const bundleData = await bundle.readAssetData();
-		const guiValues = {
-			outputLocation: bundleData.outputLocation,
-			assets: [],
-		}
-		for(let i=0; i<bundleData.assets.length; i++){
-			const assetUuid = bundleData.assets[i];
-			const asset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
-			guiValues.assets[i] = asset;
-		}
+		const guiValues = await bundle.readAssetData();
 		this.isUpdatingBundleSettingsTree = true;
 		this.bundleSettingsTree.fillSerializableStructureValues(guiValues);
 		this.isUpdatingBundleSettingsTree = false;

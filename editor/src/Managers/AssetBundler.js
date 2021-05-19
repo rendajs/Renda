@@ -6,10 +6,7 @@ export default class AssetBundler{
 
 	async bundle(bundleProjectAsset){
 		const bundleData = await bundleProjectAsset.readAssetData();
-		let assetCount = 0;
-		for(const assetUuid of bundleData.assets){
-			if(assetUuid) assetCount++;
-		}
+		const assetUuids = await this.getAllAssetUuids(bundleData.assets, bundleData.excludeAssets, bundleData.excludeAssetsRecursive);
 
 		const bundleFileStream = await editor.projectManager.currentProjectFileSystem.writeFileStream(bundleData.outputLocation.split("/"));
 		if(bundleFileStream.locked){
@@ -17,20 +14,19 @@ export default class AssetBundler{
 		}
 
 		const assetHeaderByteLength = 16 + 16 + 4; //16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
-		const headerByteLength = 4 + assetCount * assetHeaderByteLength; //4 bytes for the asset count + the asset headers
+		const headerByteLength = 4 + assetUuids.length * assetHeaderByteLength; //4 bytes for the asset count + the asset headers
 		const header = new ArrayBuffer(headerByteLength);
 		const headerIntView = new Uint8Array(header);
 		const headerView = new DataView(header);
 
 		let headerCursor = 0;
-		headerView.setUint32(headerCursor, assetCount, true);
+		headerView.setUint32(headerCursor, assetUuids.length, true);
 		headerCursor += 4;
 
 		//fill header with zeros
 		await bundleFileStream.write(header);
 
-		for(const assetUuid of bundleData.assets){
-			if(!assetUuid) continue;
+		for(const assetUuid of assetUuids){
 			const binaryUuid = BinaryComposer.uuidToBinary(assetUuid);
 			headerIntView.set(new Uint8Array(binaryUuid), headerCursor);
 			headerCursor += 16;
@@ -57,5 +53,31 @@ export default class AssetBundler{
 
 		await bundleFileStream.write({type: "write", position: 0, data: header});
 		await bundleFileStream.close();
+	}
+
+	async getAllAssetUuids(assetsList){
+		const assetUuids = [];
+		for(const assetData of assetsList){
+			if(assetData.includeChildren){
+				for await (const uuid of this.collectAllReferences(assetData.asset, assetUuids)){
+					assetUuids.push(uuid);
+				}
+			}else{
+				assetUuids.push(assetData.asset);
+			}
+		}
+		return assetUuids;
+	}
+
+	async *collectAllReferences(assetUuid){
+		const projectAsset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
+		if(projectAsset){
+			yield assetUuid;
+			for await(const referenceUuid of projectAsset.getReferencedAssetUuids()){
+				for await(const subReferenceUuid of this.collectAllReferences(referenceUuid)){
+					yield subReferenceUuid;
+				}
+			}
+		}
 	}
 }

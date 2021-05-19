@@ -384,6 +384,13 @@ export default class ProjectAsset{
 		return assetData;
 	}
 
+	async *getReferencedAssetUuids(){
+		await this.waitForInit();
+		for await(const uuid of this._projectAssetType.getReferencedAssetUuids()){
+			yield uuid;
+		}
+	}
+
 	async fileChangedExternally(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return;

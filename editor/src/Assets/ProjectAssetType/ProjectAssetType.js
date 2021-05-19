@@ -113,7 +113,7 @@ export default class ProjectAssetType{
 	//either in the editor or in an external application
 	async open(){}
 
-	//if your asset loader extends AssetLoaderTypeGenericStructure
+	//If your asset loader extends AssetLoaderTypeGenericStructure
 	//you don't need to implement createBundledAssetData() below.
 	//the structure values of the AssetLoaderType will be passed on to
 	//BinaryComposer.objectToBinary instead
@@ -128,6 +128,10 @@ export default class ProjectAssetType{
 	//asset data as it is stored in the project will be used
 	//which could be very inefficient.
 	async createBundledAssetData(assetSettingOverrides = {}){}
+
+	//This should yield all asset uuids that are referenced by this asset, this will be
+	//used for determining what other assets should be included in a bundle recursively
+	async *getReferencedAssetUuids(){}
 
 	static invalidConfigurationWarning(message){
 		console.warn(message+"\nView ProjectAssetType.js for more info.");
