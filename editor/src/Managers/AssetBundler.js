@@ -6,7 +6,7 @@ export default class AssetBundler{
 
 	async bundle(bundleProjectAsset){
 		const bundleData = await bundleProjectAsset.readAssetData();
-		const assetUuids = await this.getAllAssetUuids(bundleData.assets, bundleData.excludeAssets, bundleData.excludeAssetsRecursive);
+		const assetUuids = await this.getAllAssetUuids(bundleData.assets, new Set(bundleData.excludeAssets), new Set(bundleData.excludeAssetsRecursive));
 
 		const bundleFileStream = await editor.projectManager.currentProjectFileSystem.writeFileStream(bundleData.outputLocation.split("/"));
 		if(bundleFileStream.locked){
@@ -14,13 +14,13 @@ export default class AssetBundler{
 		}
 
 		const assetHeaderByteLength = 16 + 16 + 4; //16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
-		const headerByteLength = 4 + assetUuids.length * assetHeaderByteLength; //4 bytes for the asset count + the asset headers
+		const headerByteLength = 4 + assetUuids.size * assetHeaderByteLength; //4 bytes for the asset count + the asset headers
 		const header = new ArrayBuffer(headerByteLength);
 		const headerIntView = new Uint8Array(header);
 		const headerView = new DataView(header);
 
 		let headerCursor = 0;
-		headerView.setUint32(headerCursor, assetUuids.length, true);
+		headerView.setUint32(headerCursor, assetUuids.size, true);
 		headerCursor += 4;
 
 		//fill header with zeros
@@ -55,26 +55,27 @@ export default class AssetBundler{
 		await bundleFileStream.close();
 	}
 
-	async getAllAssetUuids(assetsList){
-		const assetUuids = [];
+	async getAllAssetUuids(assetsList, excludeUuids, excludeUuidsRecursive){
+		const foundUuids = new Set();
 		for(const assetData of assetsList){
 			if(assetData.includeChildren){
-				for await (const uuid of this.collectAllReferences(assetData.asset, assetUuids)){
-					assetUuids.push(uuid);
+				for await (const uuid of this.collectAllReferences(assetData.asset, foundUuids, excludeUuids, excludeUuidsRecursive)){
+					foundUuids.add(uuid);
 				}
 			}else{
-				assetUuids.push(assetData.asset);
+				foundUuids.add(assetData.asset);
 			}
 		}
-		return assetUuids;
+		return foundUuids;
 	}
 
-	async *collectAllReferences(assetUuid){
+	async *collectAllReferences(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive){
 		const projectAsset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
 		if(projectAsset){
-			yield assetUuid;
+			if(foundUuids.has(assetUuid) || excludeUuidsRecursive.has(assetUuid)) return;
+			if(!excludeUuids.has(assetUuid)) yield assetUuid;
 			for await(const referenceUuid of projectAsset.getReferencedAssetUuids()){
-				for await(const subReferenceUuid of this.collectAllReferences(referenceUuid)){
+				for await(const subReferenceUuid of this.collectAllReferences(referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)){
 					yield subReferenceUuid;
 				}
 			}
