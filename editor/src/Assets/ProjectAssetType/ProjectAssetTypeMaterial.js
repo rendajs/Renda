@@ -75,4 +75,19 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 			},
 		});
 	}
+
+	async *getReferencedAssetUuids(){
+		const assetData = await this.projectAsset.readAssetData();
+		const mapUuid = assetData.map;
+		if(!mapUuid) return;
+
+		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapUuid);
+		const mapData = await mapAsset.readAssetData();
+		for(const map of mapData.maps){
+			const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+			for(const uuid of mapType.getReferencedAssetUuids(map.customData)){
+				yield uuid;
+			}
+		}
+	}
 }

@@ -91,6 +91,40 @@ export default class MaterialMapType{
 		});
 	}
 
+	//alternatively you can override this for more control
+	//this will be used for determining what other assets should be included in a bundle recursively
+	static *getReferencedAssetUuids(mapData){
+		const bundleMapData = this.mapDataToAssetBundleData(mapData);
+		if(!bundleMapData){
+			//fail silently, you probaly intended to not export anything
+			return;
+		}
+		if(bundleMapData instanceof ArrayBuffer) return;
+
+		if(!this.assetBundleDataStructure){
+			console.warn("Failed to find referenced asset uuids, assetBundleDataStructure is not set");
+			return;
+		}
+		if(!this.assetBundleDataNameIds){
+			console.warn("Failed to find referenced asset uuids, assetBundleDataNameIds is not set");
+			return;
+		}
+		const referencedUuids = [];
+		BinaryComposer.objectToBinary(bundleMapData, {
+			structure: this.assetBundleDataStructure,
+			nameIds: this.assetBundleDataNameIds,
+			transformValueHook: ({value, type}) => {
+				if(type == BinaryComposer.StructureTypes.ASSET_UUID){
+					referencedUuids.push(value);
+				}
+				return value;
+			},
+		});
+		for(const uuid of referencedUuids){
+			yield uuid;
+		}
+	}
+
 	onValueChange(cb){
 		this.onValueChangeCbs.add(cb);
 	}
