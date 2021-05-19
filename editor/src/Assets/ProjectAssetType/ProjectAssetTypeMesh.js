@@ -182,4 +182,9 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		}
 		return composer.getFullBuffer();
 	}
+
+	async *getReferencedAssetUuids(){
+		const mesh = await this.projectAsset.getLiveAsset();
+		yield editor.projectManager.assetManager.getAssetUuidFromLiveAsset(mesh.vertexState);
+	}
 }
