@@ -386,6 +386,25 @@ export default class ProjectAsset{
 
 	async *getReferencedAssetUuids(){
 		await this.waitForInit();
+		const usedAssetLoaderType = this._projectAssetType.constructor.usedAssetLoaderType;
+		if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure){
+			const assetData = await this.readAssetData();
+
+			const referencedUuids = [];
+			BinaryComposer.objectToBinary(assetData, {
+				...usedAssetLoaderType.binaryComposerOpts,
+				transformValueHook: ({value, type}) => {
+					if(type == BinaryComposer.StructureTypes.ASSET_UUID){
+						referencedUuids.push(value);
+					}
+					return value;
+				},
+			});
+			for(const uuid of referencedUuids){
+				yield uuid;
+			}
+		}
+
 		for await(const uuid of this._projectAssetType.getReferencedAssetUuids()){
 			yield uuid;
 		}

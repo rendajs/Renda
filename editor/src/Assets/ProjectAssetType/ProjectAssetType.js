@@ -119,7 +119,8 @@ export default class ProjectAssetType{
 	//BinaryComposer.objectToBinary instead
 	static usedAssetLoaderType = null;
 
-	//This method is called when creating asset bundles
+	//This method is called when creating asset bundles,
+	//this is optional when `usedAssetLoaderType` is set
 	//it should return a BufferSource, Blob or USVString. You can use this.projectAsset
 	//to generate the binary data. assetSettingOverrides are
 	//changes made to the asset settings from the assetbundle
@@ -130,7 +131,9 @@ export default class ProjectAssetType{
 	async createBundledAssetData(assetSettingOverrides = {}){}
 
 	//This should yield all asset uuids that are referenced by this asset, this will be
-	//used for determining what other assets should be included in a bundle recursively
+	//used for determining what other assets should be included in a bundle recursively.
+	//If `usedAssetLoaderType` has been set to an instance of `AssetLoaderTypeGenericStructure`,
+	//the references from its structure values, will automatically be collected as well.
 	async *getReferencedAssetUuids(){}
 
 	static invalidConfigurationWarning(message){

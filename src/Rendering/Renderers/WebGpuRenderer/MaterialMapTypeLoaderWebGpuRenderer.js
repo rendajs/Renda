@@ -14,7 +14,7 @@ export default class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapType
 	async parseBuffer(buffer){
 		return await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
 			structure: {
-				forwardPipelineConfiguration: BinaryComposer.StructureTypes.UUID,
+				forwardPipelineConfiguration: BinaryComposer.StructureTypes.ASSET_UUID,
 			},
 			nameIds: {
 				forwardPipelineConfiguration: 1,

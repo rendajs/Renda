@@ -11,9 +11,9 @@ export default class AssetLoaderTypeWebGpuPipelineConfiguration extends AssetLoa
 	static get binaryComposerOpts(){
 		return {
 			structure: {
-				vertexShader: BinaryComposer.StructureTypes.UUID,
-				fragmentShader: BinaryComposer.StructureTypes.UUID,
-				preloadVertexStates: [BinaryComposer.StructureTypes.UUID],
+				vertexShader: BinaryComposer.StructureTypes.ASSET_UUID,
+				fragmentShader: BinaryComposer.StructureTypes.ASSET_UUID,
+				preloadVertexStates: [BinaryComposer.StructureTypes.ASSET_UUID],
 			},
 			nameIds: {
 				vertexShader: 1,
