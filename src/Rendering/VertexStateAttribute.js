@@ -1,4 +1,4 @@
-import {Mesh} from "../../../index.js";
+import Mesh from "../Core/Mesh.js";
 
 export default class VertexStateAttribute{
 	constructor({

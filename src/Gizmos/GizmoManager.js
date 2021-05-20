@@ -1,6 +1,6 @@
 import Entity from "../Core/Entity.js";
 import Gizmo from "./Gizmos/Gizmo.js";
-import VertexState from "../Rendering/Renderers/WebGpuRenderer/VertexState.js";
+import VertexState from "../Rendering/VertexState.js";
 import Mesh from "../Core/Mesh.js";
 import ShaderSource from "../Rendering/ShaderSource.js";
 import WebGpuPipelineConfiguration from "../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfiguration.js";

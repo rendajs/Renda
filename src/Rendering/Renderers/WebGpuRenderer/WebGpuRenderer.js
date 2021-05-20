@@ -4,9 +4,9 @@ import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
 import CachedCameraData from "./CachedCameraData.js";
 import CachedMeshData from "./CachedMeshData.js";
+import VertexState from "../../VertexState.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
-export {default as VertexState} from "./VertexState.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";

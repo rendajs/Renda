@@ -1,6 +1,6 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
-import VertexState from "../../Rendering/Renderers/WebGpuRenderer/VertexState.js";
+import VertexState from "../../Rendering/VertexState.js";
 
 export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericStructure{
 
