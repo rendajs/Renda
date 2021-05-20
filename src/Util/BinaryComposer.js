@@ -24,7 +24,7 @@ export default class BinaryComposer{
 			BOOL: 12,
 			UUID: 13,
 			ASSET_UUID: 14, //same as UUID but will load the asset when binaryToObjectWithAssetLoader() is used
-			ARRAYBUFFER: 15,
+			ARRAY_BUFFER: 15,
 		};
 	}
 
@@ -576,7 +576,7 @@ export default class BinaryComposer{
 			return {length: 1};
 		}else if(type == BinaryComposer.StructureTypes.UUID || type == BinaryComposer.StructureTypes.ASSET_UUID){
 			return {length: 16};
-		}else if(type == BinaryComposer.StructureTypes.ARRAYBUFFER){
+		}else if(type == BinaryComposer.StructureTypes.ARRAY_BUFFER){
 			return {length: value.byteLength + arrayBufferLengthByteLength};
 		}
 	}
@@ -621,7 +621,7 @@ export default class BinaryComposer{
 			const view = new Uint8Array(dataView.buffer);
 			view.set(new Uint8Array(binaryUuid), byteOffset);
 			bytesMoved = 16;
-		}else if(type = BinaryComposer.StructureTypes.ARRAYBUFFER){
+		}else if(type = BinaryComposer.StructureTypes.ARRAY_BUFFER){
 			bytesMoved = BinaryComposer.insertLengthAndBuffer(dataView, value, byteOffset, arrayBufferLengthStorageType, {littleEndian});
 		}
 		return bytesMoved;
@@ -741,7 +741,7 @@ export default class BinaryComposer{
 			const view = new Uint8Array(dataView.buffer, byteOffset, 16);
 			value = BinaryDecomposer.binaryToUuid(view);
 			bytesMoved = 16;
-		}else if(type == BinaryComposer.StructureTypes.ARRAYBUFFER){
+		}else if(type == BinaryComposer.StructureTypes.ARRAY_BUFFER){
 			const {buffer, bytesMoved: newBytesMoved} = BinaryComposer.getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, {littleEndian});
 			value = buffer;
 			bytesMoved = newBytesMoved;

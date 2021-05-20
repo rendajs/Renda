@@ -64,7 +64,7 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 				values: [BinaryComposer.StructureTypes.INT8],
 				mapDatas: [{
 					typeUuid: BinaryComposer.StructureTypes.UUID,
-					data: BinaryComposer.StructureTypes.ARRAYBUFFER,
+					data: BinaryComposer.StructureTypes.ARRAY_BUFFER,
 				}],
 			},
 			nameIds: {

@@ -10,7 +10,7 @@ const entityBinaryStructure = {
 	children: [],
 	components: [{
 		uuid: BinaryComposer.StructureTypes.UUID,
-		propertyValues: BinaryComposer.StructureTypes.ARRAYBUFFER,
+		propertyValues: BinaryComposer.StructureTypes.ARRAY_BUFFER,
 	}],
 };
 entityBinaryStructure.children[0] = entityBinaryStructure;
