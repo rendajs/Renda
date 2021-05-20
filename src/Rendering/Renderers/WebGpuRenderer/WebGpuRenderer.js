@@ -6,7 +6,7 @@ import CachedCameraData from "./CachedCameraData.js";
 import CachedMeshData from "./CachedMeshData.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
-export {default as WebGpuVertexState} from "./WebGpuVertexState.js";
+export {default as VertexState} from "./VertexState.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
@@ -40,7 +40,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		this.cachedCameraData = new WeakMap();
 		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
-		this.cachedPipelines = new WeakMap(); //<WebGpuPipelineConfiguration, WeakMap<WebGpuVertexState, WebGpuPipeline>>
+		this.cachedPipelines = new WeakMap(); //<WebGpuPipelineConfiguration, WeakMap<VertexState, WebGpuPipeline>>
 
 		//for every pipeline, maintain a list of objects that the pipeline is used by
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
@@ -313,7 +313,7 @@ export default class WebGpuRenderer extends Renderer{
 	getPipeline(pipelineConfiguration, vertexState){
 		let vertexStateList = this.cachedPipelines.get(pipelineConfiguration);
 		if(!vertexStateList){
-			vertexStateList = new WeakMap(); //<WebGpuVertexState, WebGpuPipeline>
+			vertexStateList = new WeakMap(); //<VertexState, WebGpuPipeline>
 			this.cachedPipelines.set(pipelineConfiguration, vertexStateList);
 		}
 		let pipeline = vertexStateList.get(vertexState);

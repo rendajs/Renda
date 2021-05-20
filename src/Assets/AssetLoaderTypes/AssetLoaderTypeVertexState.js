@@ -1,6 +1,6 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
-import WebGpuVertexState from "../../Rendering/Renderers/WebGpuRenderer/WebGpuVertexState.js";
+import VertexState from "../../Rendering/Renderers/WebGpuRenderer/VertexState.js";
 
 export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericStructure{
 
@@ -43,6 +43,6 @@ export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericSt
 
 	async parseBuffer(buffer){
 		const data = await super.parseBuffer(buffer);
-		return new WebGpuVertexState(data);
+		return new VertexState(data);
 	}
 }

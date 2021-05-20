@@ -1,6 +1,6 @@
 import Entity from "../Core/Entity.js";
 import Gizmo from "./Gizmos/Gizmo.js";
-import WebGpuVertexState from "../Rendering/Renderers/WebGpuRenderer/WebGpuVertexState.js";
+import VertexState from "../Rendering/Renderers/WebGpuRenderer/VertexState.js";
 import Mesh from "../Core/Mesh.js";
 import ShaderSource from "../Rendering/ShaderSource.js";
 import WebGpuPipelineConfiguration from "../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfiguration.js";
@@ -12,7 +12,7 @@ export default class GizmoManager{
 		this.entity = new Entity("gizmos");
 		this.gizmos = new Set();
 
-		this.billboardVertexState = new WebGpuVertexState({
+		this.billboardVertexState = new VertexState({
 			buffers: [
 				{
 					attributes: [
@@ -22,7 +22,7 @@ export default class GizmoManager{
 				}
 			],
 		});
-		this.meshVertexState = new WebGpuVertexState({
+		this.meshVertexState = new VertexState({
 			buffers: [
 				{
 					attributes: [

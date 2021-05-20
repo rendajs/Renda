@@ -1,5 +1,5 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
-import {Mesh, WebGpuVertexState} from "../../../src/index.js";
+import {Mesh, VertexState} from "../../../src/index.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 
 export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
@@ -10,7 +10,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 
 		this.meshSettingsStructure = {
 			vertexState: {
-				type: WebGpuVertexState,
+				type: VertexState,
 				guiOpts: {
 					storageType: "liveAsset",
 				},

@@ -1,6 +1,6 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource, WebGpuVertexState, Mesh, AssetLoaderTypeVertexState} from "../../../../src/index.js";
+import {ShaderSource, VertexState, Mesh, AssetLoaderTypeVertexState} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 
@@ -74,10 +74,10 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 		},
 	};
 
-	static expectedLiveAssetConstructor = WebGpuVertexState;
+	static expectedLiveAssetConstructor = VertexState;
 
 	async getLiveAssetData(fileData){
-		const liveAsset = new WebGpuVertexState(fileData);
+		const liveAsset = new VertexState(fileData);
 		return {liveAsset};
 	}
 
