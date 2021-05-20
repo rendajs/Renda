@@ -1,4 +1,4 @@
-import WebGpuVertexStateAttribute from "./WebGpuVertexStateAttribute.js";
+import VertexStateAttribute from "./VertexStateAttribute.js";
 
 export default class WebGpuVertexStateBuffer{
 	constructor({
@@ -19,7 +19,7 @@ export default class WebGpuVertexStateBuffer{
 	}
 
 	addAttribute(opts){
-		const attribute = new WebGpuVertexStateAttribute(opts);
+		const attribute = new VertexStateAttribute(opts);
 		this.attributes.push(attribute);
 
 		this.calculateAttributeOffsets();

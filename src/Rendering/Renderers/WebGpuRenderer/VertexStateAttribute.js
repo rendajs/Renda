@@ -1,6 +1,6 @@
 import {Mesh} from "../../../index.js";
 
-export default class WebGpuVertexStateAttribute{
+export default class VertexStateAttribute{
 	constructor({
 		componentCount = 3,
 		format = Mesh.AttributeFormat.FLOAT32,
