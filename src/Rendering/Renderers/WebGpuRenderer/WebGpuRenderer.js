@@ -46,6 +46,8 @@ export default class WebGpuRenderer extends Renderer{
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 
 		this.cachedMeshData = new WeakMap();
+
+		this.cachedShaderModules = new WeakMap(); //<ShaderSource, GPUShaderModule>;
 	}
 
 	async init(){
@@ -319,9 +321,7 @@ export default class WebGpuRenderer extends Renderer{
 			pipeline = this.device.createRenderPipeline({
 				layout: this.pipelineLayout,
 				vertex: {
-					module: this.device.createShaderModule({
-						code: pipelineConfiguration.vertexShader.source,
-					}),
+					module: this.getCachedShaderModule(pipelineConfiguration.vertexShader),
 					entryPoint: "main",
 					...vertexState.getDescriptor(),
 				},
@@ -337,9 +337,7 @@ export default class WebGpuRenderer extends Renderer{
 					count: 4,
 				},
 				fragment: {
-					module: this.device.createShaderModule({
-						code: pipelineConfiguration.fragmentShader.source,
-					}),
+					module: this.getCachedShaderModule(pipelineConfiguration.fragmentShader),
 					entryPoint: "main",
 					targets: [
 						{format: "bgra8unorm"},
@@ -393,6 +391,17 @@ export default class WebGpuRenderer extends Renderer{
 		if(!data){
 			data = new CachedMeshData(mesh, this);
 			this.cachedMeshData.set(mesh, data);
+		}
+		return data;
+	}
+
+	getCachedShaderModule(shaderSource){
+		let data = this.cachedShaderModules.get(shaderSource);
+		if(!data){
+			data = this.device.createShaderModule({
+				code: shaderSource.source,
+			});
+			this.cachedShaderModules.set(shaderSource, data);
 		}
 		return data;
 	}
