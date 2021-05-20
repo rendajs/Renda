@@ -1,6 +1,6 @@
 import VertexStateAttribute from "./VertexStateAttribute.js";
 
-export default class WebGpuVertexStateBuffer{
+export default class VertexStateBuffer{
 	constructor({
 		stepMode = "vertex",
 		arrayStride = null, //null or undefined or "auto" for auto stride

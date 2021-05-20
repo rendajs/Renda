@@ -1,4 +1,4 @@
-import WebGpuVertexStateBuffer from "./WebGpuVertexStateBuffer.js";
+import VertexStateBuffer from "./VertexStateBuffer.js";
 
 export default class WebGpuVertexState{
 	constructor({
@@ -14,7 +14,7 @@ export default class WebGpuVertexState{
 	}
 
 	addBuffer(opts){
-		const buffer = new WebGpuVertexStateBuffer(opts);
+		const buffer = new VertexStateBuffer(opts);
 		this.buffers.push(buffer);
 	}
 
