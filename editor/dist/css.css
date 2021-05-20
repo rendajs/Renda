@@ -295,6 +295,7 @@ body, html{
 	top: -3px;
 	left: -2px;
 	font-size: inherit;
+	text-align: left;
 }
 
 .treeViewArrowContainer{
