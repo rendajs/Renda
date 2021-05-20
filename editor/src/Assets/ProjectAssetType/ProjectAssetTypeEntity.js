@@ -128,7 +128,12 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 				const referencedUuids = [];
 				BinaryComposer.objectToBinary(component.propertyValues, {
 					...componentData.binaryComposerOpts,
-					transformValueHook: ({value, type}) => {
+					transformValueHook: args => {
+						let {value, type} = args;
+						if(componentData.binaryComposerOpts.transformValueHook){
+							value = transformValueHook(args);
+						}
+
 						if(type == BinaryComposer.StructureTypes.ASSET_UUID){
 							referencedUuids.push(value);
 						}

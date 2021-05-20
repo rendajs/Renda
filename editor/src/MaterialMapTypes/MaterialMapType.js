@@ -100,7 +100,12 @@ export default class MaterialMapType{
 		const referencedUuids = [];
 		BinaryComposer.objectToBinary(bundleMapData, {
 			...this.assetBundleBinaryComposerOpts,
-			transformValueHook: ({value, type}) => {
+			transformValueHook: args => {
+				let {value, type} = args;
+				if(this.assetBundleBinaryComposerOpts.transformValueHook){
+					value = transformValueHook(args);
+				}
+
 				if(type == BinaryComposer.StructureTypes.ASSET_UUID){
 					referencedUuids.push(value);
 				}

@@ -393,7 +393,12 @@ export default class ProjectAsset{
 			const referencedUuids = [];
 			BinaryComposer.objectToBinary(assetData, {
 				...usedAssetLoaderType.binaryComposerOpts,
-				transformValueHook: ({value, type}) => {
+				transformValueHook: args => {
+					let {value, type} = args;
+					if(usedAssetLoaderType.binaryComposerOpts.transformValueHook){
+						value = transformValueHook(args);
+					}
+
 					if(type == BinaryComposer.StructureTypes.ASSET_UUID){
 						referencedUuids.push(value);
 					}
