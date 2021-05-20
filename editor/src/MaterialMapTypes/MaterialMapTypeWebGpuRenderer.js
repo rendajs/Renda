@@ -53,13 +53,14 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		if(customData.forwardPipelineConfiguration) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfiguration);
 	}
 
-	static assetBundleDataStructure = {
-		forwardPipelineConfiguration: BinaryComposer.StructureTypes.ASSET_UUID,
-	};
-
-	static assetBundleDataNameIds = {
-		forwardPipelineConfiguration: 1,
-	};
+	static assetBundleBinaryComposerOpts = {
+		structure: {
+			forwardPipelineConfiguration: BinaryComposer.StructureTypes.ASSET_UUID,
+		},
+		nameIds: {
+			forwardPipelineConfiguration: 1,
+		},
+	}
 
 	static mapDataToAssetBundleData(mapData){
 		return mapData;

@@ -66,15 +66,16 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		if(customData.fragmentShader) yield editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
 	}
 
-	static assetBundleDataStructure = {
-		vertUuid: BinaryComposer.StructureTypes.UUID,
-		fragUuid: BinaryComposer.StructureTypes.UUID,
-	};
-
-	static assetBundleDataNameIds = {
-		vertUuid: 1,
-		fragUuid: 2,
-	};
+	static assetBundleBinaryComposerOpts = {
+		structure: {
+			vertUuid: BinaryComposer.StructureTypes.UUID,
+			fragUuid: BinaryComposer.StructureTypes.UUID,
+		},
+		nameIds: {
+			vertUuid: 1,
+			fragUuid: 2,
+		},
+	}
 
 	static mapDataToAssetBundleData(mapData){
 		return {

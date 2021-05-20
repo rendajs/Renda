@@ -62,10 +62,9 @@ export default class MaterialMapType{
 	//usually returning the mapData object itself in mapDataToAssetBundleData() is enough,
 	//unless you want to transform some values first.
 	//mapDataToAssetBundleData() can return an arraybuffer.
-	//you can also return an object if assetBundleDataStructure and assetBundleDataNameIds
-	//are set, the values will be converted to binary using BinaryComposer.objectToBinary()
-	static assetBundleDataStructure = null;
-	static assetBundleDataNameIds = null;
+	//you can also return an object if assetBundleBinaryComposerOpts is set,
+	//the values will be converted to binary using BinaryComposer.objectToBinary()
+	static assetBundleBinaryComposerOpts = null;
 	static mapDataToAssetBundleData(mapData){}
 
 	//alternatively you can override this for more control
@@ -77,18 +76,11 @@ export default class MaterialMapType{
 		}
 		if(bundleMapData instanceof ArrayBuffer) return data;
 
-		if(!this.assetBundleDataStructure){
-			console.warn("Failed to export material map, assetBundleDataStructure is not set");
+		if(!this.assetBundleBinaryComposerOpts){
+			console.warn("Failed to export material map, assetBundleBinaryComposerOpts is not set");
 			return null;
 		}
-		if(!this.assetBundleDataNameIds){
-			console.warn("Failed to export material map, assetBundleDataNameIds is not set");
-			return null;
-		}
-		return BinaryComposer.objectToBinary(bundleMapData, {
-			structure: this.assetBundleDataStructure,
-			nameIds: this.assetBundleDataNameIds
-		});
+		return BinaryComposer.objectToBinary(bundleMapData, this.assetBundleBinaryComposerOpts);
 	}
 
 	//alternatively you can override this for more control
@@ -101,18 +93,13 @@ export default class MaterialMapType{
 		}
 		if(bundleMapData instanceof ArrayBuffer) return;
 
-		if(!this.assetBundleDataStructure){
-			console.warn("Failed to find referenced asset uuids, assetBundleDataStructure is not set");
-			return;
-		}
-		if(!this.assetBundleDataNameIds){
-			console.warn("Failed to find referenced asset uuids, assetBundleDataNameIds is not set");
+		if(!this.assetBundleBinaryComposerOpts){
+			console.warn("Failed to find referenced asset uuids, assetBundleBinaryComposerOpts is not set");
 			return;
 		}
 		const referencedUuids = [];
 		BinaryComposer.objectToBinary(bundleMapData, {
-			structure: this.assetBundleDataStructure,
-			nameIds: this.assetBundleDataNameIds,
+			...this.assetBundleBinaryComposerOpts,
 			transformValueHook: ({value, type}) => {
 				if(type == BinaryComposer.StructureTypes.ASSET_UUID){
 					referencedUuids.push(value);
