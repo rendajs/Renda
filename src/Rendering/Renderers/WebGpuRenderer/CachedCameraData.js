@@ -1,3 +1,4 @@
+import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../defines.js";
 import ClusterSetup from "./ClusterSetup.js";
 
 export default class CachedCameraData{
@@ -5,7 +6,9 @@ export default class CachedCameraData{
 		this.camera = camera;
 		this.renderer = renderer;
 
-		this.clusterSetup = new ClusterSetup(camera, this);
+		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+			this.clusterSetup = new ClusterSetup(camera, this);
+		}
 
 		this.viewBindGroup = null;
 	}

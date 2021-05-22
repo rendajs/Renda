@@ -9,6 +9,8 @@ import VertexState from "../../VertexState.js";
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
+import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../defines.js";
+
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 
 export default class WebGpuRenderer extends Renderer{
@@ -26,8 +28,10 @@ export default class WebGpuRenderer extends Renderer{
 		this.device = null;
 		this.viewBindGroupLayout = null;
 		this.lightsBuffer = null;
-		this.computeClusterBoundsBindGroupLayout = null;
-		this.computeClusterLightsBindGroupLayout = null;
+		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+			this.computeClusterBoundsBindGroupLayout = null;
+			this.computeClusterLightsBindGroupLayout = null;
+		}
 		this.viewUniformsBuffer = null;
 		this.materialUniformsBuffer = null;
 		this.materialUniformsBufferBindGroup = null;
@@ -80,30 +84,32 @@ export default class WebGpuRenderer extends Renderer{
 			usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 		});
 
-		this.computeClusterBoundsBindGroupLayout = device.createBindGroupLayout({
-			entries: [
-				{
-					binding: 0, //cluster bounds buffer
-					visibility: GPUShaderStage.COMPUTE,
-					buffer: {type: "storage"},
-				},
-			],
-		});
+		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+			this.computeClusterBoundsBindGroupLayout = device.createBindGroupLayout({
+				entries: [
+					{
+						binding: 0, //cluster bounds buffer
+						visibility: GPUShaderStage.COMPUTE,
+						buffer: {type: "storage"},
+					},
+				],
+			});
 
-		this.computeClusterLightsBindGroupLayout = device.createBindGroupLayout({
-			entries: [
-				{
-					binding: 0, //cluster bounds buffer
-					visibility: GPUShaderStage.COMPUTE,
-					buffer: {type: "storage"},
-				},
-				{
-					binding: 1, //cluster lights buffer
-					visibility: GPUShaderStage.COMPUTE,
-					buffer: {type: "storage"},
-				},
-			],
-		});
+			this.computeClusterLightsBindGroupLayout = device.createBindGroupLayout({
+				entries: [
+					{
+						binding: 0, //cluster bounds buffer
+						visibility: GPUShaderStage.COMPUTE,
+						buffer: {type: "storage"},
+					},
+					{
+						binding: 1, //cluster lights buffer
+						visibility: GPUShaderStage.COMPUTE,
+						buffer: {type: "storage"},
+					},
+				],
+			});
+		}
 
 		this.viewUniformsBuffer = new WebGpuBufferHelper({
 			device,
@@ -223,8 +229,10 @@ export default class WebGpuRenderer extends Renderer{
 		this.viewUniformsBuffer.writeToGpu();
 
 		const cameraData = this.getCachedCameraData(camera);
-		cameraData.clusterSetup.computeBounds(commandEncoder);
-		cameraData.clusterSetup.computeLightIndices(commandEncoder);
+		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+			cameraData.clusterSetup.computeBounds(commandEncoder);
+			cameraData.clusterSetup.computeLightIndices(commandEncoder);
+		}
 
 		this.lightsBuffer.appendData(lightComponents.length, "u32");
 		this.lightsBuffer.skipBytes(12);
