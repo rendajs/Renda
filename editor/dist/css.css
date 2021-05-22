@@ -285,7 +285,11 @@ body, html{
 
 .treeViewName{
 	display: inline-block;
-	width: 100%;
+}
+
+.treeViewButtons{
+	display: inline-block;
+	margin-left: 5px;
 }
 
 .treeViewRenameField{
@@ -337,7 +341,6 @@ body, html{
 
 .treeViewRow{
 	border-radius: var(--selection-border-radius);
-	height: 18px;
 	position: relative;
 }
 .treeViewRow.selected{
