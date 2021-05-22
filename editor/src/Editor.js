@@ -82,18 +82,4 @@ export default class Editor{
 			editor.webGpuShaderBuilder.invalidateShader(uuid);
 		});
 	}
-
-	doIt(){
-		const structure = {
-			strArr: [BinaryComposer.StructureTypes.STRING],
-		};
-		const nameIds = {
-			strArr: 1,
-		};
-		const binary = BinaryComposer.objectToBinary({
-			strArr: ["a","b","c"],
-		}, {structure, nameIds});
-		const reconstructed = BinaryComposer.binaryToObject(binary, {structure, nameIds});
-		console.log(reconstructed);
-	}
 }
