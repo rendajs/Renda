@@ -285,6 +285,8 @@ body, html{
 
 .treeViewName{
 	display: inline-block;
+	position: relative;
+	vertical-align: text-top;
 }
 
 .treeViewButtons{
@@ -293,13 +295,13 @@ body, html{
 }
 
 .treeViewRenameField{
-	width: calc(100% - 8px);
 	height: 24px;
-	position: relative;
+	position: absolute;
 	top: -3px;
 	left: -2px;
 	font-size: inherit;
 	text-align: left;
+	width: 100px;
 }
 
 .treeViewArrowContainer{
