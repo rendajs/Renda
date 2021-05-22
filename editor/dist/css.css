@@ -368,7 +368,7 @@ body, html{
 	flex-grow: 1;
 }
 
-.guiTreeViewEntry > .multiline{
+.guiTreeViewEntry > .multiLine{
 	width: 100%;
 }
 
