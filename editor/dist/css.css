@@ -288,6 +288,10 @@ body, html{
 	position: relative;
 	vertical-align: text-top;
 }
+.treeViewName::after{
+	content: attr(data-rename-value);
+	visibility: hidden;
+}
 
 .treeViewButtons{
 	display: inline-block;
@@ -301,7 +305,7 @@ body, html{
 	left: -2px;
 	font-size: inherit;
 	text-align: left;
-	width: 100px;
+	width: calc(100% + 6px);
 }
 
 .treeViewArrowContainer{

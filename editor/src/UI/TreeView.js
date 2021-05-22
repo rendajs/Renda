@@ -403,6 +403,9 @@ export default class TreeView{
 				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
 				textEl.value = oldName;
 				this.myNameEl.appendChild(textEl);
+				textEl.addEventListener("input", () => {
+					this.updateDataRenameValue();
+				});
 				textEl.addEventListener("blur", () => {
 					this.setTextFieldVisible(false);
 				});
@@ -419,6 +422,15 @@ export default class TreeView{
 					oldName, newName,
 				});
 			}
+		}
+		this.updateDataRenameValue();
+	}
+
+	updateDataRenameValue(){
+		if(this.renameTextField){
+			this.myNameEl.dataset.renameValue = this.renameTextField.value;
+		}else{
+			delete this.myNameEl.dataset.renameValue;
 		}
 	}
 
