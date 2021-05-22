@@ -33,6 +33,8 @@ export default class AssetLoader{
 		return instance;
 	}
 
+	//todo: more options for deciding whether unfinished bundles
+	//should be searched as well
 	async getAsset(uuid, opts = undefined, createNewInstance = false){
 		if(!createNewInstance){
 			const weakRef = this.loadedAssets.get(uuid);
@@ -44,6 +46,11 @@ export default class AssetLoader{
 			}
 		}
 		const bundleWithAsset = await new Promise((resolve, reject) => {
+			if(this.bundles.size == 0){
+				resolve(null);
+				return;
+			}
+			const searchCount = this.bundles.size;
 			let unavailableCount = 0;
 			for(const bundle of this.bundles){
 				bundle.waitForAssetAvailable(uuid).then(available => {
@@ -51,7 +58,7 @@ export default class AssetLoader{
 						resolve(bundle);
 					}else{
 						unavailableCount++;
-						if(unavailableCount >= this.bundles.size){
+						if(unavailableCount >= searchCount){
 							resolve(null);
 						}
 					}
