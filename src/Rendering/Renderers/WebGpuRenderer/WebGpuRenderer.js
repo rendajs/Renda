@@ -1,3 +1,4 @@
+import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../defines.js";
 import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
@@ -5,11 +6,11 @@ import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
 import CachedCameraData from "./CachedCameraData.js";
 import CachedMeshData from "./CachedMeshData.js";
 import VertexState from "../../VertexState.js";
+import defaultEngineAssetsManager from "../../../Assets/defaultEngineAssetsManager.js";
 
 export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
-import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../defines.js";
 
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 
@@ -31,6 +32,7 @@ export default class WebGpuRenderer extends Renderer{
 		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
 			this.computeClusterBoundsBindGroupLayout = null;
 			this.computeClusterLightsBindGroupLayout = null;
+			this.lightUniformsShaderCodeTest = null;
 		}
 		this.viewUniformsBuffer = null;
 		this.materialUniformsBuffer = null;
@@ -109,6 +111,8 @@ export default class WebGpuRenderer extends Renderer{
 					},
 				],
 			});
+
+			this.lightUniformsShaderCodeTest = await defaultEngineAssetsManager.getAsset("8cd64104-1d45-4536-972a-5685a2523725");
 		}
 
 		this.viewUniformsBuffer = new WebGpuBufferHelper({

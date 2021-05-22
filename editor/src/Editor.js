@@ -14,7 +14,7 @@ import DevSocketManager from "./Managers/DevSocketManager.js";
 
 import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
 
-import {WebGpuRenderer, builtInComponents, defaultComponentTypeManager, ShaderBuilder} from "../../src/index.js";
+import {WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager, ShaderBuilder} from "../../src/index.js";
 import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
@@ -60,13 +60,20 @@ export default class Editor{
 	}
 
 	init(){
+
+		this.builtInAssetManager.init();
+		defaultEngineAssetsManager.addGetAssetHandler(async (uuid) => {
+			const projectAsset = this.builtInAssetManager.assets.get(uuid);
+			if(!projectAsset) return null;
+			return await projectAsset.getLiveAsset();
+		});
+
 		this.renderer.init();
 		this.windowManager.init(this);
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.componentGizmosManager.init();
 		this.materialMapTypeManager.init();
-		this.builtInAssetManager.init();
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);
