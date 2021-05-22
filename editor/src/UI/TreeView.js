@@ -410,7 +410,12 @@ export default class TreeView{
 					this.setTextFieldVisible(false);
 				});
 				textEl.focus();
-				textEl.select();
+				const dotIndex = oldName.lastIndexOf(".");
+				if(dotIndex <= 0){
+					textEl.select();
+				}else{
+					textEl.setSelectionRange(0,dotIndex);
+				}
 			}else if(this.renameTextField){
 				let newName = this.renameTextField.value;
 				this.myNameEl.removeChild(this.renameTextField);
