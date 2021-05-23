@@ -1,5 +1,5 @@
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../defines.js";
-import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh} from "../../../index.js";
+import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh, MultiKeyWeakMap} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
@@ -46,7 +46,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		this.cachedCameraData = new WeakMap();
 		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
-		this.cachedPipelines = new WeakMap(); //<WebGpuPipelineConfiguration, WeakMap<VertexState, WebGpuPipeline>>
+		this.cachedPipelines = new MultiKeyWeakMap(); //<[WebGpuPipelineConfiguration, VertexState], WebGpuPipeline>
 
 		//for every pipeline, maintain a list of objects that the pipeline is used by
 		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
@@ -323,12 +323,8 @@ export default class WebGpuRenderer extends Renderer{
 	}
 
 	getPipeline(pipelineConfiguration, vertexState){
-		let vertexStateList = this.cachedPipelines.get(pipelineConfiguration);
-		if(!vertexStateList){
-			vertexStateList = new WeakMap(); //<VertexState, WebGpuPipeline>
-			this.cachedPipelines.set(pipelineConfiguration, vertexStateList);
-		}
-		let pipeline = vertexStateList.get(vertexState);
+		const keys = [pipelineConfiguration, vertexState];
+		let pipeline = this.cachedPipelines.get(keys);
 		if(!pipeline){
 			pipeline = this.device.createRenderPipeline({
 				layout: this.pipelineLayout,
@@ -356,7 +352,7 @@ export default class WebGpuRenderer extends Renderer{
 					],
 				},
 			});
-			vertexStateList.set(vertexState, pipeline);
+			this.cachedPipelines.set(keys, pipeline);
 		}
 		return pipeline;
 	}
