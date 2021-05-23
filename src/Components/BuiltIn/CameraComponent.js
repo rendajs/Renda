@@ -1,5 +1,6 @@
 import Mat4 from "../../Math/Mat4.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
+import RenderOutputConfiguration from "../../Rendering/RenderOutputConfiguration.js";
 
 export default {
 	uuid: "1a78b3f2-7688-4776-b512-ed1ee2326d8a",
@@ -36,6 +37,9 @@ export default {
 		projectionMatrix: {
 			type: Mat4,
 		},
+		renderOutputConfiguration: {
+			type: RenderOutputConfiguration,
+		},
 		// autoManageRootRenderEntities: {
 		// 	type: "bool",
 		// 	defaultValue: true,
@@ -50,12 +54,14 @@ export default {
 			clipNear: BinaryComposer.StructureTypes.FLOAT64,
 			clipFar: BinaryComposer.StructureTypes.FLOAT64,
 			aspect: BinaryComposer.StructureTypes.FLOAT64,
+			renderOutputConfiguration: BinaryComposer.StructureTypes.ASSET_UUID,
 		},
 		nameIds: {
 			fov: 1,
 			clipNear: 2,
 			clipFar: 3,
 			aspect: 4,
+			renderOutputConfiguration: 5,
 		},
 	},
 };

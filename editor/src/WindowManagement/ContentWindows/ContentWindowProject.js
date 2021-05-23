@@ -39,6 +39,9 @@ export default class ContentWindowProject extends ContentWindow{
 					{text: "New Asset Bundle", cb: () => {
 						this.createAsset("JJ:assetBundle");
 					}},
+					{text: "New Render Output Configuration", cb: () => {
+						this.createAsset("JJ:renderOutputConfiguration");
+					}},
 				]);
 
 				menu.setPos(createButton, "top left");
