@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import ContentWindowBuildView from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, CameraComponent, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, CameraComponent, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo, RenderOutputConfiguration} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import OrbitControls from "../../Util/OrbitControls.js";
@@ -32,6 +32,10 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorCamera = new Entity("editorCamera");
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
+		this.editorCamComponent.renderOutputConfiguration = new RenderOutputConfiguration({
+			depthStencilFormat: "depth24plus-stencil8",
+			multisampleCount: 4,
+		});
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
 

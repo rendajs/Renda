@@ -264,7 +264,7 @@ export default class WebGpuRenderer extends Renderer{
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
-					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState);
+					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState, camera.renderOutputConfiguration);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline);
@@ -322,8 +322,8 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	getPipeline(pipelineConfiguration, vertexState){
-		const keys = [pipelineConfiguration, vertexState];
+	getPipeline(pipelineConfiguration, vertexState, outputConfig){
+		const keys = [outputConfig, vertexState, pipelineConfiguration];
 		let pipeline = this.cachedPipelines.get(keys);
 		if(!pipeline){
 			pipeline = this.device.createRenderPipeline({
@@ -337,19 +337,17 @@ export default class WebGpuRenderer extends Renderer{
 					topology: pipelineConfiguration.primitiveTopology,
 				},
 				depthStencil: {
-					format: "depth24plus-stencil8",
+					format: outputConfig.depthStencilFormat,
 					depthCompare: "less",
 					depthWriteEnabled: true,
 				},
 				multisample: {
-					count: 4,
+					count: outputConfig.multisampleCount,
 				},
 				fragment: {
 					module: this.getCachedShaderModule(pipelineConfiguration.fragmentShader),
 					entryPoint: "main",
-					targets: [
-						{format: "bgra8unorm"},
-					],
+					targets: outputConfig.fragmentTargets,
 				},
 			});
 			this.cachedPipelines.set(keys, pipeline);
