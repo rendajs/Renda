@@ -42,14 +42,12 @@ export default class Component{
 		this.entity = ent;
 	}
 
-	toJson({
-		assetManager = null,
-	} = {}){
+	toJson(editorOpts = null){
 		const propertyValues = {};
 		const componentData = this.getComponentData();
 		if(componentData && componentData.properties){
 			for(const [propertyName, property] of Object.entries(componentData.properties)){
-				propertyValues[propertyName] = this.propertyToJson(this[propertyName], assetManager);
+				propertyValues[propertyName] = this.propertyToJson(this[propertyName], editorOpts);
 			}
 		}
 		const componentJson = {
@@ -59,9 +57,9 @@ export default class Component{
 		return componentJson;
 	}
 
-	propertyToJson(propertyValue, assetManager = null){
+	propertyToJson(propertyValue, editorOpts){
 		if(Array.isArray(propertyValue)){
-			return propertyValue.map(p => this.propertyToJson(p, assetManager));
+			return propertyValue.map(p => this.propertyToJson(p, editorOpts));
 		}
 
 		if(propertyValue instanceof Vec2 || propertyValue instanceof Vec3 || propertyValue instanceof Vec4){
@@ -70,14 +68,12 @@ export default class Component{
 			return propertyValue.getFlatArray();
 		}
 
-		if(assetManager){
-			if(propertyValue instanceof Material || propertyValue instanceof Mesh){
-				const projectAsset = assetManager.getProjectAssetForLiveAsset(propertyValue);
-				if(projectAsset){
-					return projectAsset.uuid;
-				}else{
-					return null;
-				}
+		if(propertyValue && editorOpts && editorOpts.assetManager && editorOpts.assetTypeManager && editorOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)){
+			const projectAsset = editorOpts.assetManager.getProjectAssetForLiveAsset(propertyValue);
+			if(projectAsset){
+				return projectAsset.uuid;
+			}else{
+				return null;
 			}
 		}
 

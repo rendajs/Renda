@@ -225,9 +225,7 @@ export default class Entity{
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
 	}
 
-	toJson({
-		assetManager = null,
-	} = {}){
+	toJson(editorOpts = null){
 		let json = {
 			name: this.name,
 			matrix: this.localMatrix.getFlatArray(),
@@ -235,10 +233,10 @@ export default class Entity{
 			children: [],
 		}
 		for(const component of this.components){
-			json.components.push(component.toJson({assetManager}));
+			json.components.push(component.toJson(editorOpts));
 		}
 		for(const child of this.getChildren()){
-			json.children.push(child.toJson({assetManager}));
+			json.children.push(child.toJson(editorOpts));
 		}
 		if(json.components.length <= 0) delete json.components;
 		if(json.children.length <= 0) delete json.children;

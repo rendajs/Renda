@@ -119,6 +119,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		const fs = editor.projectManager.currentProjectFileSystem;
 		const json = this.editingEntity.toJson({
 			assetManager: editor.projectManager.assetManager,
+			assetTypeManager: editor.projectAssetTypeManager,
 		});
 		await fs.writeJson(path, {
 			assetType: "JJ:entity",
