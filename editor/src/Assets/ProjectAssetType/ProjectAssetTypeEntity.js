@@ -87,8 +87,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		}else if(propertyData.type == Mat4){
 			return new Mat4(propertyValue);
 		}
-		//todo: make the list of types more scalable
-		if(propertyData.type == Mesh || propertyData.type == Material){
+		if(editor.projectAssetTypeManager.constructorHasAssetType(propertyData.type)){
 			return await editor.projectManager.assetManager.getLiveAsset(propertyValue);
 		}
 		return propertyValue;
