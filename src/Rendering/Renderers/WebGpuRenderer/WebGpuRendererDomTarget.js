@@ -111,6 +111,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		const swapChainTextureView = this.swapChain.getCurrentTexture().createView();
 		if(this.outputConfig.multisampleCount == 1){
 			this.colorAttachment.view = swapChainTextureView;
+			this.colorAttachment.resolveTarget = undefined;
 		}else{
 			this.colorAttachment.view = this.colorTextureView;
 			this.colorAttachment.resolveTarget = swapChainTextureView;
