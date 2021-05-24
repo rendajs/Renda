@@ -48,8 +48,8 @@ export default class WebGpuRenderer extends Renderer{
 		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
 		this.cachedPipelines = new MultiKeyWeakMap(); //<[WebGpuPipelineConfiguration, VertexState], WebGpuPipeline>
 
-		//for every pipeline, maintain a list of objects that the pipeline is used by
-		this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
+		// (legacy) for every pipeline, maintain a list of objects that the pipeline is used by
+		// this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 
 		this.cachedMeshData = new WeakMap();
 
@@ -265,12 +265,13 @@ export default class WebGpuRenderer extends Renderer{
 			for(const material of meshComponent.materials){
 				if(!material || material.destructed) continue;
 				const materialData = this.getCachedMaterialData(material);
-				if(!materialData.forwardPipeline){
+				if(!materialData.forwardPipelineConfiguration){
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
-					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState, outputConfig);
-					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
+					materialData.forwardPipelineConfiguration = mapData.forwardPipelineConfiguration;
+					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
-				renderPassEncoder.setPipeline(materialData.forwardPipeline);
+				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfiguration, meshComponent.mesh.vertexState, outputConfig);
+				renderPassEncoder.setPipeline(forwardPipeline);
 				renderPassEncoder.setBindGroup(2, this.objectUniformsBufferBindGroup, [this.objectUniformsBuffer.currentBufferOffset]);
 				this.objectUniformsBuffer.nextBufferOffset();
 				const mesh = meshComponent.mesh;
@@ -361,39 +362,42 @@ export default class WebGpuRenderer extends Renderer{
 	disposeMaterial(material){
 		const materialData = this.getCachedMaterialData(material);
 		this.cachedMaterialData.delete(material);
-		this.removeUsedByObjectFromPipeline(materialData.forwardPipeline, material);
+		// this.removeUsedByObjectFromPipeline(materialData.forwardPipeline, material);
 	}
 
-	addUsedByObjectToPipeline(pipeline, usedBy){
-		let usedByList = this.pipelinesUsedByLists.get(pipeline);
-		if(!usedByList){
-			usedByList = new Set();
-			this.pipelinesUsedByLists.set(pipeline, usedByList);
-		}
-		usedByList.add(new WeakRef(usedBy));
-	}
+	//pipelines cannot be disposed by the webgpu spec at the moment,
+	//leaving this code here just in case it is needed in the future
 
-	removeUsedByObjectFromPipeline(pipeline, usedBy){
-		if(!pipeline) return;
-		const usedByList = this.pipelinesUsedByLists.get(pipeline);
-		if(usedByList){
-			for(const ref of usedByList){
-				const deref = ref.deref();
-				if(usedBy == deref || deref === undefined){
-					usedByList.delete(ref);
-				}
-			}
-		}
+	// addUsedByObjectToPipeline(pipeline, usedBy){
+	// 	let usedByList = this.pipelinesUsedByLists.get(pipeline);
+	// 	if(!usedByList){
+	// 		usedByList = new Set();
+	// 		this.pipelinesUsedByLists.set(pipeline, usedByList);
+	// 	}
+	// 	usedByList.add(new WeakRef(usedBy));
+	// }
 
-		if(!usedByList || usedByList.size == 0){
-			this.disposePipeline(pipeline);
-			this.pipelinesUsedByLists.delete(pipeline);
-		}
-	}
+	// removeUsedByObjectFromPipeline(pipeline, usedBy){
+	// 	if(!pipeline) return;
+	// 	const usedByList = this.pipelinesUsedByLists.get(pipeline);
+	// 	if(usedByList){
+	// 		for(const ref of usedByList){
+	// 			const deref = ref.deref();
+	// 			if(usedBy == deref || deref === undefined){
+	// 				usedByList.delete(ref);
+	// 			}
+	// 		}
+	// 	}
 
-	disposePipeline(pipeline){
-		this.pipelinesUsedByLists.delete(pipeline);
-	}
+	// 	if(!usedByList || usedByList.size == 0){
+	// 		this.disposePipeline(pipeline);
+	// 		this.pipelinesUsedByLists.delete(pipeline);
+	// 	}
+	// }
+
+	// disposePipeline(pipeline){
+	// 	this.pipelinesUsedByLists.delete(pipeline);
+	// }
 
 	getCachedMeshData(mesh){
 		let data = this.cachedMeshData.get(mesh);
