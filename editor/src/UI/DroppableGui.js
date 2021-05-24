@@ -110,10 +110,11 @@ export default class DroppableGui{
 		}else{
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
 			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
-			this.setValueFromProjectAsset(projectAsset);
 			if(this.storageType == "liveAsset"){
-				await this.projectAssetValue?.getLiveAsset();
+				//get the live asset so that it is loaded before this.value is called
+				await projectAsset?.getLiveAsset();
 			}
+			this.setValueFromProjectAsset(projectAsset);
 		}
 	}
 
