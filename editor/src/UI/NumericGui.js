@@ -216,10 +216,10 @@ export default class NumericGui{
 	}
 
 	onKeyDown(e){
-		if(e.key == "ArrowUp"){
+		if(e.code == "ArrowUp"){
 			e.preventDefault();
 			this.handleCaretAdjust(1);
-		}else if(e.key == "ArrowDown"){
+		}else if(e.code == "ArrowDown"){
 			e.preventDefault();
 			this.handleCaretAdjust(-1);
 		}

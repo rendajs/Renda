@@ -17,6 +17,7 @@ export default class DroppableGui{
 	} = {}){
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
+		this.el.setAttribute("tabindex", "0");
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = supportedAssetTypes;
@@ -34,12 +35,14 @@ export default class DroppableGui{
 		this.boundOnDragOver = this.onDragOver.bind(this);
 		this.boundOnDragEnd = this.onDragEnd.bind(this);
 		this.boundOnDrop = this.onDrop.bind(this);
+		this.boundOnKeyDown = this.onKeyDown.bind(this);
 
 		this.el.addEventListener("dragenter", this.boundOnDragEnter);
 		this.el.addEventListener("dragover", this.boundOnDragOver);
 		this.el.addEventListener("dragend", this.boundOnDragEnd);
 		this.el.addEventListener("dragleave", this.boundOnDragEnd);
 		this.el.addEventListener("drop", this.boundOnDrop);
+		this.el.addEventListener("keydown", this.boundOnKeyDown);
 
 		this.projectAssetValue = null;
 		this.setValue(value);
@@ -51,10 +54,12 @@ export default class DroppableGui{
 		this.el.removeEventListener("dragend", this.boundOnDragEnd);
 		this.el.removeEventListener("dragleave", this.boundOnDragEnd);
 		this.el.removeEventListener("drop", this.boundOnDrop);
+		this.el.removeEventListener("keydown", this.boundOnKeyDown);
 		this.boundOnDragEnter = null;
 		this.boundOnDragOver = null;
 		this.boundOnDragEnd = null;
 		this.boundOnDrop = null;
+		this.boundOnKeyDown = null;
 		if(this.el.parentElement){
 			this.el.parentElement.removeChild(this.el);
 		}
@@ -93,6 +98,7 @@ export default class DroppableGui{
 			this.linkedAssetName = null;
 		}
 
+		this.fireValueChange();
 		this.updateContent();
 	}
 
@@ -109,8 +115,6 @@ export default class DroppableGui{
 				await this.projectAssetValue?.getLiveAsset();
 			}
 		}
-		this.fireValueChange();
-		this.updateContent();
 	}
 
 	onValueChange(cb){
@@ -176,6 +180,12 @@ export default class DroppableGui{
 
 	setDragHoverValidStyle(valid){
 		this.el.classList.toggle("dragHovering", valid);
+	}
+
+	onKeyDown(e){
+		if(e.code == "Backspace" || e.code == "Delete"){
+			this.setValue(null);
+		}
 	}
 
 	updateContent(){

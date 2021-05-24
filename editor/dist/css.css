@@ -227,6 +227,11 @@ body, html{
 	text-overflow: ellipsis;
 }
 
+.droppableGui:focus{
+	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
+	outline: none;
+}
+
 .droppableGui.empty{
 	background: var(--default-input-box-color);
 	box-shadow: inset 0px 0px 0px 1px var(--droppable-border-color);
