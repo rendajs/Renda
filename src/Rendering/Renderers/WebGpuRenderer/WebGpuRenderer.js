@@ -192,7 +192,10 @@ export default class WebGpuRenderer extends Renderer{
 		if(camera.autoUpdateProjectionMatrix){
 			camera.projectionMatrix = Mat4.createDynamicAspectPerspective(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
-		const collectedDrawObjects = new Map(); //Map<MaterialMap, Map<Material, Set<RenderableComponent>>>
+		if(camera.renderOutputConfiguration){
+			domTarget.setRenderOutputConfig(camera.renderOutputConfiguration);
+		}
+		const outputConfig = domTarget.outputConfig;
 
 		const meshComponents = [];
 		const lightComponents = [];
@@ -264,7 +267,7 @@ export default class WebGpuRenderer extends Renderer{
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipeline){
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
-					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState, camera.renderOutputConfiguration);
+					materialData.forwardPipeline = this.getPipeline(mapData.forwardPipelineConfiguration, meshComponent.mesh.vertexState, outputConfig);
 					this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				renderPassEncoder.setPipeline(materialData.forwardPipeline);

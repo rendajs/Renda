@@ -1,7 +1,7 @@
 export default class RenderOutputConfiguration{
 	constructor({
 		depthStencilFormat = "depth24plus",
-		multisampleCount = 1,
+		multisampleCount = 4,
 		fragmentTargets = [{format: "bgra8unorm"}],
 	} = {}){
 		this.depthStencilFormat = depthStencilFormat;

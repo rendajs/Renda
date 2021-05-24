@@ -32,10 +32,6 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorCamera = new Entity("editorCamera");
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
-		this.editorCamComponent.renderOutputConfiguration = new RenderOutputConfiguration({
-			depthStencilFormat: "depth24plus-stencil8",
-			multisampleCount: 4,
-		});
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
 

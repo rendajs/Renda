@@ -62,6 +62,7 @@ export default class Component{
 			return propertyValue.map(p => this.propertyToJson(p, editorOpts));
 		}
 
+		//todo, use a global list of math types
 		if(propertyValue instanceof Vec2 || propertyValue instanceof Vec3 || propertyValue instanceof Vec4){
 			return propertyValue.toArray();
 		}else if(propertyValue instanceof Mat4){
@@ -90,8 +91,10 @@ export default class Component{
 				this[propertyName] = propertyData.defaultValue;
 			}else if(propertyData.type instanceof Array){
 				this[propertyName] = propertyData.type[0];
-			}else if(propertyData.type){
+			}else if(propertyData.type == Vec2 || propertyData.type == Vec3 || propertyData.type == Vec3 || propertyData.type == Mat4){ //todo, use a global list of math types
 				this[propertyName] = new propertyData.type();
+			}else{
+				this[propertyName] = null;
 			}
 		}
 	}

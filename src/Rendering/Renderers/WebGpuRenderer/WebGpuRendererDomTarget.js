@@ -1,16 +1,14 @@
 import RendererDomTarget from "../../RendererDomTarget.js";
+import RenderOutputConfiguration from "../../RenderOutputConfiguration.js";
 
 export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	constructor(renderer, {
-		sampleCount = 4, //msaa
 		depthSupport = true,
-		depthFormat = "depth24plus-stencil8",
 	} = {}){
 		super(...arguments);
 
-		this.sampleCount = sampleCount;
-		this.depthSupport = depthSupport;
-		this.depthFormat = depthFormat;
+		this._outputConfig = new RenderOutputConfiguration();
+		this.depthSupport = depthSupport; //todo: use output config
 
 		this.canvas = document.createElement("canvas");
 		this.ctx = this.canvas.getContext("gpupresent");
@@ -23,7 +21,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 
 		this.colorAttachment = {
 			view: null, //will be assigned in getRenderPassDescriptor()
-			resolveTarget: null, //will be assigned in getRenderPassDescriptor()
+			resolveTarget: undefined, //will be assigned in getRenderPassDescriptor()
 			loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
 		}
 		this.depthStencilAttachment = null;
@@ -44,10 +42,6 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 
 	gpuReady(){
 		this.swapChainFormat = this.ctx.getSwapChainPreferredFormat(this.renderer.adapter);
-		this.swapChain = this.ctx.configureSwapChain({
-			device: this.renderer.device,
-			format: this.swapChainFormat,
-		});
 
 		this.ready = true;
 		this.generateTextures();
@@ -64,30 +58,48 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		this.generateTextures();
 	}
 
+	get outputConfig(){
+		return this._outputConfig;
+	}
+
+	setRenderOutputConfig(outputConfig){
+		//todo: add support for cloning config and filling in fragmentTargets
+		//with preferred swapchain format
+		this._outputConfig = outputConfig;
+		this.generateTextures();
+	}
+
 	generateTextures(){
 		if(!this.ready) return;
-		if(this.sampleCount > 1){
-			if(this.colorTexture) this.colorTexture.destroy();
+
+		this.swapChain = this.ctx.configureSwapChain({
+			device: this.renderer.device,
+			format: this.swapChainFormat,
+		});
+
+		if(this.colorTexture) this.colorTexture.destroy();
+		if(this.outputConfig.multisampleCount > 1){
 			this.colorTexture = this.renderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,
 				},
-				sampleCount: this.sampleCount,
+				sampleCount: this.outputConfig.multisampleCount,
 				format: this.swapChainFormat,
 				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 			});
 			this.colorTextureView = this.colorTexture.createView();
 		}
+
+		if(this.depthTexture) this.depthTexture.destroy();
 		if(this.depthSupport){
-			if(this.depthTexture) this.depthTexture.destroy();
 			this.depthTexture = this.renderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,
 				},
-				sampleCount: this.sampleCount,
-				format: this.depthFormat,
+				sampleCount: this.outputConfig.multisampleCount,
+				format: this.outputConfig.depthStencilFormat,
 				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 			});
 			this.depthStencilAttachment.view = this.depthTexture.createView();
@@ -97,7 +109,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	getRenderPassDescriptor(){
 		if(!this.ready) return null;
 		const swapChainTextureView = this.swapChain.getCurrentTexture().createView();
-		if(this.sampleCount == 1){
+		if(this.outputConfig.multisampleCount == 1){
 			this.colorAttachment.view = swapChainTextureView;
 		}else{
 			this.colorAttachment.view = this.colorTextureView;
