@@ -151,6 +151,12 @@ export default class BuiltInAssetManager{
 		for(const [uuid, assetSettings] of this.assetSettings){
 			if(this.testPathStartsWith(assetSettings.path, path)){
 				this.assetSettings.delete(uuid);
+				for(const [hash, hashUuid] of this.fileHashes){
+					if(hashUuid == uuid){
+						this.fileHashes.delete(hash);
+					}
+				}
+				this.cachedUuidOrder = this.cachedUuidOrder.filter(orderUuid => orderUuid != uuid);
 				assetSettingsNeedsUpdate = true;
 			}
 		}
