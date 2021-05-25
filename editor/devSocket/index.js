@@ -34,7 +34,7 @@ wsServer.on("connect", connection => {
 					}));
 				}
 				if(json.roundTripOp == "runClosureCompiler"){
-					global.closureCompilerManager.compileJs(responseCb, json.data);
+					globalThis.closureCompilerManager.compileJs(responseCb, json.data);
 				}
 			}
 		}
@@ -51,5 +51,5 @@ export function sendAllConnections(op, data){
 	}
 }
 
-global.builtInAssetManager = new BuiltInAssetManager();
-global.closureCompilerManager = new ClosureCompilerManager();
+globalThis.builtInAssetManager = new BuiltInAssetManager();
+globalThis.closureCompilerManager = new ClosureCompilerManager();

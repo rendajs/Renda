@@ -5,6 +5,7 @@ import {fileURLToPath} from "url";
 import {sendAllConnections} from "./index.js";
 import {generateUuid} from "./Util.js";
 import {toFormattedJsonString} from "../src/Util/Util.js";
+import md5 from "js-md5";
 
 export default class BuiltInAssetManager{
 	constructor(){
@@ -14,6 +15,8 @@ export default class BuiltInAssetManager{
 
 		this.assetSettingsLoaded = false;
 		this.assetSettings = new Map();
+		this.fileHashes = new Map(); //<md5, uuid>
+		this.cachedUuidOrder = [];
 		this.loadAssetSettings();
 		this.watch();
 	}
@@ -22,8 +25,19 @@ export default class BuiltInAssetManager{
 		const str = await fs.readFile(this.assetSettingsPath, {encoding: "utf8"});
 		const data = JSON.parse(str);
 		this.assetSettings.clear();
+		this.fileHashes.clear();
+		this.cachedUuidOrder = [];
 		for(const [uuid, assetData] of Object.entries(data.assets)){
 			this.assetSettings.set(uuid, assetData);
+			this.cachedUuidOrder.push(uuid);
+			if(assetData.path){
+				const fullPath = path.resolve(this.builtInAssetsPath, ...assetData.path);
+				(async () => {
+					const fileBuffer = await fs.readFile(fullPath);
+					const hash = md5(fileBuffer);
+					this.fileHashes.set(hash, uuid);
+				})();
+			}
 		}
 		this.assetSettingsLoaded = true;
 	}
@@ -53,7 +67,19 @@ export default class BuiltInAssetManager{
 				}
 			}else{
 				if(this.getAssetSettingsUuidForPath(pathArr) == null){
-					uuid = this.createAssetSettings(pathArr);
+					const fileBuffer = await fs.readFile(fullPath);
+					const hash = md5(fileBuffer);
+					if(this.fileHashes.has(hash)){
+						uuid = this.fileHashes.get(hash);
+						const assetSettings = this.assetSettings.get(uuid);
+						if(assetSettings){
+							assetSettings.path = pathArr;
+						}else{
+							this.assetSettings.set(uuid, {path: pathArr});
+						}
+					}else{
+						uuid = this.createAssetSettings(pathArr);
+					}
 					assetSettingsNeedsUpdate = true;
 				}
 			}
@@ -77,7 +103,13 @@ export default class BuiltInAssetManager{
 	async saveAssetSettings(notifySocket = true){
 		if(!this.assetSettingsLoaded) return;
 		const assets = {};
+		for(const uuid of this.cachedUuidOrder){
+			if(this.assetSettings.has(uuid)){
+				assets[uuid] = this.assetSettings.get(uuid);
+			}
+		}
 		for(const [uuid, assetSettings] of this.assetSettings){
+			if(assets[uuid]) continue;
 			assets[uuid] = assetSettings;
 		}
 		const json = {assets};
