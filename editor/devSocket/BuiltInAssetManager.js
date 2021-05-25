@@ -17,6 +17,7 @@ export default class BuiltInAssetManager{
 		this.assetSettings = new Map();
 		this.fileHashes = new Map(); //<md5, uuid>
 		this.cachedUuidOrder = [];
+		this.assetSettingsJustSaved = false;
 		this.loadAssetSettings();
 		this.watch();
 	}
@@ -39,6 +40,7 @@ export default class BuiltInAssetManager{
 				})();
 			}
 		}
+		console.log("[BuiltInAssetManager] Asset settings loaded");
 		this.assetSettingsLoaded = true;
 	}
 
@@ -46,7 +48,15 @@ export default class BuiltInAssetManager{
 		console.log("watching for file changes in " + this.builtInAssetsPath);
 		fsSync.watch(this.builtInAssetsPath, {recursive:true}, async (eventType, relPath) => {
 			if(!this.assetSettingsLoaded) return;
-			if(relPath == "assetSettings.json") return;
+			if(relPath == "assetSettings.json"){
+				if(this.assetSettingsJustSaved){
+					this.assetSettingsJustSaved = false;
+				}else{
+					console.log("[BuiltInAssetManager] External assetSettings.json change, reloading asset settings...");
+					this.loadAssetSettings();
+				}
+				return;
+			}
 			const filename = path.basename(relPath);
 			if(filename.startsWith(".")) return;
 			const fullPath = path.resolve(this.builtInAssetsPath, relPath);
@@ -114,6 +124,7 @@ export default class BuiltInAssetManager{
 		}
 		const json = {assets};
 		const str = toFormattedJsonString(json, {maxArrayStringItemLength: -1});
+		this.assetSettingsJustSaved = true;
 		await fs.writeFile(this.assetSettingsPath, str);
 
 		if(notifySocket){
