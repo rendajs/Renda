@@ -52,7 +52,7 @@ export default class BuiltInAssetManager{
 
 	watch(){
 		console.log("[BuiltInAssetManager] watching for file changes in " + this.builtInAssetsPath);
-		fsSync.watch(this.builtInAssetsPath, {recursive:true}, async (eventType, relPath) => {
+		fsSync.watch(this.builtInAssetsPath, {recursive:true}, (eventType, relPath) => {
 			if(relPath == "assetSettings.json"){
 				if(this.assetSettingsJustSaved){
 					this.assetSettingsJustSaved = false;
@@ -63,70 +63,81 @@ export default class BuiltInAssetManager{
 				return;
 			}
 			if(!this.assetSettingsLoaded) return;
-			const filename = path.basename(relPath);
-			if(filename.startsWith(".")) return;
-			const fullPath = path.resolve(this.builtInAssetsPath, relPath);
-			let stat = null;
-			try{
-				stat = await fs.stat(fullPath);
-			}catch(e){
-				stat = null;
-			}
-			if(stat && stat.isDirectory()) return;
 
-			let newHash = null;
-			if(stat){
-				const fileBuffer = await fs.readFile(fullPath);
-				newHash = md5(fileBuffer);
-			}
-
-			const pathArr = relPath.split("/");
-			let assetSettingsNeedsUpdate = false;
-			let uuid = this.getAssetSettingsUuidForPath(pathArr);
-			if(newHash && uuid){
-				for(const [oldHash, hashUuid] of this.fileHashes){
-					if(hashUuid == uuid && newHash != oldHash && !this.fileHashes.has(newHash)){
-						this.fileHashes.delete(oldHash);
-						this.fileHashes.set(newHash, uuid);
-					}
-				}
-			}
-			if(!stat){
-				if(this.deleteAssetSettings(pathArr)){
-					assetSettingsNeedsUpdate = true;
-				}
-			}else{
-				if(!uuid){
-					if(this.fileHashes.has(newHash)){
-						uuid = this.fileHashes.get(newHash);
-						const assetSettings = this.assetSettings.get(uuid);
-						if(assetSettings){
-							assetSettings.path = pathArr;
-						}else{
-							this.assetSettings.set(uuid, {path: pathArr});
-						}
-					}else{
-						uuid = this.createAssetSettings(pathArr);
-						if(newHash) this.fileHashes.set(newHash, uuid);
-					}
-					assetSettingsNeedsUpdate = true;
-				}
-			}
-
-			if(assetSettingsNeedsUpdate){
-				this.saveAssetSettings();
-			}
-
-			if(!uuid){
-				uuid = this.getAssetSettingsUuidForPath(pathArr);
-			}
-
-			if(uuid){
-				sendAllConnections("builtInAssetChange", {
-					uuid,
-				});
-			}
+			this.handleFileChange(relPath);
 		});
+	}
+
+	async handleFileChange(relPath){
+		const filename = path.basename(relPath);
+		if(filename.startsWith(".")) return;
+		const fullPath = path.resolve(this.builtInAssetsPath, relPath);
+		let stat = null;
+		try{
+			stat = await fs.stat(fullPath);
+		}catch(e){
+			stat = null;
+		}
+		if(stat && stat.isDirectory()){
+			const entries = await fs.readdir(fullPath);
+			for(const entry of entries){
+				await this.handleFileChange(path.join(relPath, entry));
+			}
+			return;
+		}
+
+		let newHash = null;
+		if(stat){
+			const fileBuffer = await fs.readFile(fullPath);
+			newHash = md5(fileBuffer);
+		}
+
+		const pathArr = relPath.split("/");
+		let assetSettingsNeedsUpdate = false;
+		let uuid = this.getAssetSettingsUuidForPath(pathArr);
+		if(newHash && uuid){
+			for(const [oldHash, hashUuid] of this.fileHashes){
+				if(hashUuid == uuid && newHash != oldHash && !this.fileHashes.has(newHash)){
+					this.fileHashes.delete(oldHash);
+					this.fileHashes.set(newHash, uuid);
+				}
+			}
+		}
+		if(!stat){
+			if(this.deleteAssetSettings(pathArr)){
+				assetSettingsNeedsUpdate = true;
+			}
+		}else{
+			if(!uuid){
+				if(this.fileHashes.has(newHash)){
+					uuid = this.fileHashes.get(newHash);
+					const assetSettings = this.assetSettings.get(uuid);
+					if(assetSettings){
+						assetSettings.path = pathArr;
+					}else{
+						this.assetSettings.set(uuid, {path: pathArr});
+					}
+				}else{
+					uuid = this.createAssetSettings(pathArr);
+					if(newHash) this.fileHashes.set(newHash, uuid);
+				}
+				assetSettingsNeedsUpdate = true;
+			}
+		}
+
+		if(assetSettingsNeedsUpdate){
+			this.saveAssetSettings();
+		}
+
+		if(!uuid){
+			uuid = this.getAssetSettingsUuidForPath(pathArr);
+		}
+
+		if(uuid){
+			sendAllConnections("builtInAssetChange", {
+				uuid,
+			});
+		}
 	}
 
 	async saveAssetSettings(notifySocket = true){
