@@ -24,7 +24,13 @@ export default class BuiltInAssetManager{
 
 	async loadAssetSettings(){
 		const str = await fs.readFile(this.assetSettingsPath, {encoding: "utf8"});
-		const data = JSON.parse(str);
+		let data;
+		try{
+			data = JSON.parse(str);
+		}catch(e){
+			console.error("[BuiltInAssetManager] parsing asset settings failed");
+			return;
+		}
 		this.assetSettings.clear();
 		this.fileHashes.clear();
 		this.cachedUuidOrder = [];
@@ -47,7 +53,6 @@ export default class BuiltInAssetManager{
 	watch(){
 		console.log("[BuiltInAssetManager] watching for file changes in " + this.builtInAssetsPath);
 		fsSync.watch(this.builtInAssetsPath, {recursive:true}, async (eventType, relPath) => {
-			if(!this.assetSettingsLoaded) return;
 			if(relPath == "assetSettings.json"){
 				if(this.assetSettingsJustSaved){
 					this.assetSettingsJustSaved = false;
@@ -57,6 +62,7 @@ export default class BuiltInAssetManager{
 				}
 				return;
 			}
+			if(!this.assetSettingsLoaded) return;
 			const filename = path.basename(relPath);
 			if(filename.startsWith(".")) return;
 			const fullPath = path.resolve(this.builtInAssetsPath, relPath);
