@@ -77,9 +77,9 @@ export default class BuiltInAssetManager{
 			const pathArr = relPath.split("/");
 			let assetSettingsNeedsUpdate = false;
 			let uuid = this.getAssetSettingsUuidForPath(pathArr);
-			if(newHash){
+			if(newHash && uuid){
 				for(const [oldHash, hashUuid] of this.fileHashes){
-					if(hashUuid == uuid && newHash != oldHash){
+					if(hashUuid == uuid && newHash != oldHash && !this.fileHashes.has(newHash)){
 						this.fileHashes.delete(oldHash);
 						this.fileHashes.set(newHash, uuid);
 					}
@@ -101,6 +101,7 @@ export default class BuiltInAssetManager{
 						}
 					}else{
 						uuid = this.createAssetSettings(pathArr);
+						if(newHash) this.fileHashes.set(newHash, uuid);
 					}
 					assetSettingsNeedsUpdate = true;
 				}
@@ -159,6 +160,7 @@ export default class BuiltInAssetManager{
 	createAssetSettings(path){
 		const uuid = generateUuid();
 		this.assetSettings.set(uuid, {path});
+		this.cachedUuidOrder.push(uuid);
 		return uuid;
 	}
 
