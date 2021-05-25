@@ -81,7 +81,7 @@ export default class BuiltInAssetManager{
 			assets[uuid] = assetSettings;
 		}
 		const json = {assets};
-		const str = toFormattedJsonString(json);
+		const str = toFormattedJsonString(json, {maxArrayStringItemLength: -1});
 		await fs.writeFile(this.assetSettingsPath, str);
 
 		if(notifySocket){

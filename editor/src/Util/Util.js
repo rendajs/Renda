@@ -86,6 +86,7 @@ export function handleDuplicateName(existingNames, prefix, suffix="", numberPref
 
 export function toFormattedJsonString(jsonObj, {
 	purpose = "fileStorage",
+	maxArrayStringItemLength = 10, //use -1 to always put string arrays on a single line
 } = {}){
 
 	const countTabs = str => {
@@ -144,16 +145,20 @@ export function toFormattedJsonString(jsonObj, {
 			if(indentCharCount > 40) continue;
 		}else if(indent.isArrayIndent){
 			let removeNewLines = true;
-			for(let i=indent.start; i<indent.end - 1; i++){
-				const line = splitStr[i];
-				if(line.includes("\"")){
-					let valueCharCount = 0;
-					for(const char of line){
-						if(char != "\t") valueCharCount++;
-					}
-					if(valueCharCount > 10){
-						removeNewLines = false;
-						break;
+			if(maxArrayStringItemLength == 0){
+				removeNewLines = false;
+			}else if(maxArrayStringItemLength > 0){
+				for(let i=indent.start; i<indent.end - 1; i++){
+					const line = splitStr[i];
+					if(line.includes("\"")){
+						let valueCharCount = 0;
+						for(const char of line){
+							if(char != "\t") valueCharCount++;
+						}
+						if(valueCharCount > maxArrayStringItemLength){
+							removeNewLines = false;
+							break;
+						}
 					}
 				}
 			}
