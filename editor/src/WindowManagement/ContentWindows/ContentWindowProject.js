@@ -23,8 +23,8 @@ export default class ContentWindowProject extends ContentWindow{
 						{text: "New Material Map", cb: () => {
 							this.createAsset("JJ:materialMap");
 						}},
-						{text: "New WebGPU Pipeline Configuration", cb: () => {
-							this.createAsset("JJ:webGpuPipelineConfiguration");
+						{text: "New WebGPU Pipeline Config", cb: () => {
+							this.createAsset("JJ:webGpuPipelineConfig");
 						}},
 					]},
 					{text: "New Mesh", cb: () => {
@@ -39,8 +39,8 @@ export default class ContentWindowProject extends ContentWindow{
 					{text: "New Asset Bundle", cb: () => {
 						this.createAsset("JJ:assetBundle");
 					}},
-					{text: "New Render Output Configuration", cb: () => {
-						this.createAsset("JJ:renderOutputConfiguration");
+					{text: "New Render Output Config", cb: () => {
+						this.createAsset("JJ:renderOutputConfig");
 					}},
 				]);
 

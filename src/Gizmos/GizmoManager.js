@@ -3,7 +3,7 @@ import Gizmo from "./Gizmos/Gizmo.js";
 import VertexState from "../Rendering/VertexState.js";
 import Mesh from "../Core/Mesh.js";
 import ShaderSource from "../Rendering/ShaderSource.js";
-import WebGpuPipelineConfiguration from "../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfiguration.js";
+import WebGpuPipelineConfig from "../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js";
 import {materialMapWebGpuTypeUuid} from "../Rendering/Renderers/WebGpuRenderer/WebGpuRenderer.js";
 import Material from "../Rendering/Material.js";
 
@@ -107,14 +107,14 @@ export default class GizmoManager{
 			}
 		`);
 
-		const pipelineConfiguration = new WebGpuPipelineConfiguration({
+		const pipelineConfig = new WebGpuPipelineConfig({
 			vertexShader, fragmentShader,
 			primitiveTopology: "line-list",
 		});
 
 		const customMapDatas = new Map();
 		customMapDatas.set(materialMapWebGpuTypeUuid, {
-			forwardPipelineConfiguration: pipelineConfiguration,
+			forwardPipelineConfig: pipelineConfig,
 		});
 		return new Material({customMapDatas});
 	}

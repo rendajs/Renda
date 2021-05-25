@@ -1,4 +1,4 @@
-export default class RenderOutputConfiguration{
+export default class RenderOutputConfig{
 	constructor({
 		depthStencilFormat = "depth24plus",
 		multisampleCount = 4,

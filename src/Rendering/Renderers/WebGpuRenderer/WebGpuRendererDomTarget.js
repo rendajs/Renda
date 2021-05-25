@@ -1,5 +1,5 @@
 import RendererDomTarget from "../../RendererDomTarget.js";
-import RenderOutputConfiguration from "../../RenderOutputConfiguration.js";
+import RenderOutputConfig from "../../RenderOutputConfig.js";
 
 export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	constructor(renderer, {
@@ -7,7 +7,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	} = {}){
 		super(...arguments);
 
-		this._outputConfig = new RenderOutputConfiguration();
+		this._outputConfig = new RenderOutputConfig();
 		this.depthSupport = depthSupport; //todo: use output config
 
 		this.canvas = document.createElement("canvas");

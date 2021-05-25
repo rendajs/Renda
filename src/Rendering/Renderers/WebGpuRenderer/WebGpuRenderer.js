@@ -8,7 +8,7 @@ import CachedMeshData from "./CachedMeshData.js";
 import VertexState from "../../VertexState.js";
 import defaultEngineAssetsManager from "../../../Assets/defaultEngineAssetsManager.js";
 
-export {default as WebGpuPipelineConfiguration} from "./WebGpuPipelineConfiguration.js";
+export {default as WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
 
@@ -46,7 +46,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		this.cachedCameraData = new WeakMap();
 		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
-		this.cachedPipelines = new MultiKeyWeakMap(); //<[WebGpuPipelineConfiguration, VertexState], WebGpuPipeline>
+		this.cachedPipelines = new MultiKeyWeakMap(); //<[WebGpuPipelineConfig, VertexState], WebGpuPipeline>
 
 		// (legacy) for every pipeline, maintain a list of objects that the pipeline is used by
 		// this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
@@ -192,8 +192,8 @@ export default class WebGpuRenderer extends Renderer{
 		if(camera.autoUpdateProjectionMatrix){
 			camera.projectionMatrix = Mat4.createDynamicAspectPerspective(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
-		if(camera.renderOutputConfiguration){
-			domTarget.setRenderOutputConfig(camera.renderOutputConfiguration);
+		if(camera.renderOutputConfig){
+			domTarget.setRenderOutputConfig(camera.renderOutputConfig);
 		}
 		const outputConfig = domTarget.outputConfig;
 
@@ -265,12 +265,12 @@ export default class WebGpuRenderer extends Renderer{
 			for(const material of meshComponent.materials){
 				if(!material || material.destructed) continue;
 				const materialData = this.getCachedMaterialData(material);
-				if(!materialData.forwardPipelineConfiguration){
+				if(!materialData.forwardPipelineConfig){
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
-					materialData.forwardPipelineConfiguration = mapData.forwardPipelineConfiguration;
+					materialData.forwardPipelineConfig = mapData.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
-				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfiguration, meshComponent.mesh.vertexState, outputConfig);
+				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, meshComponent.mesh.vertexState, outputConfig);
 				renderPassEncoder.setPipeline(forwardPipeline);
 				renderPassEncoder.setBindGroup(2, this.objectUniformsBufferBindGroup, [this.objectUniformsBuffer.currentBufferOffset]);
 				this.objectUniformsBuffer.nextBufferOffset();
@@ -326,19 +326,19 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	getPipeline(pipelineConfiguration, vertexState, outputConfig){
-		const keys = [outputConfig, vertexState, pipelineConfiguration];
+	getPipeline(pipelineConfig, vertexState, outputConfig){
+		const keys = [outputConfig, vertexState, pipelineConfig];
 		let pipeline = this.cachedPipelines.get(keys);
 		if(!pipeline){
 			pipeline = this.device.createRenderPipeline({
 				layout: this.pipelineLayout,
 				vertex: {
-					module: this.getCachedShaderModule(pipelineConfiguration.vertexShader),
+					module: this.getCachedShaderModule(pipelineConfig.vertexShader),
 					entryPoint: "main",
 					...vertexState.getDescriptor(),
 				},
 				primitive: {
-					topology: pipelineConfiguration.primitiveTopology,
+					topology: pipelineConfig.primitiveTopology,
 				},
 				depthStencil: {
 					format: outputConfig.depthStencilFormat,
@@ -349,7 +349,7 @@ export default class WebGpuRenderer extends Renderer{
 					count: outputConfig.multisampleCount,
 				},
 				fragment: {
-					module: this.getCachedShaderModule(pipelineConfiguration.fragmentShader),
+					module: this.getCachedShaderModule(pipelineConfig.fragmentShader),
 					entryPoint: "main",
 					targets: outputConfig.fragmentTargets,
 				},

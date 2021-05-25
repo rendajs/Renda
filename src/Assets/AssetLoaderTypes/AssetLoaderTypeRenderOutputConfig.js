@@ -1,8 +1,8 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
-import RenderOutputConfiguration from "../../Rendering/RenderOutputConfiguration.js";
+import RenderOutputConfig from "../../Rendering/RenderOutputConfig.js";
 
-export default class AssetLoaderTypeRenderOutputConfiguration extends AssetLoaderTypeGenericStructure{
+export default class AssetLoaderTypeRenderOutputConfig extends AssetLoaderTypeGenericStructure{
 
 	static get typeUuid(){
 		return "b4c9bbdc-86dc-4270-ae94-780dbaa66976";
@@ -32,6 +32,6 @@ export default class AssetLoaderTypeRenderOutputConfiguration extends AssetLoade
 
 	async parseBuffer(buffer){
 		const data = await super.parseBuffer(buffer);
-		return new RenderOutputConfiguration(data);
+		return new RenderOutputConfig(data);
 	}
 }

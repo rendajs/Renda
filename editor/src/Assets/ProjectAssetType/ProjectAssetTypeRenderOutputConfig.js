@@ -1,12 +1,12 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {RenderOutputConfiguration, AssetLoaderTypeRenderOutputConfiguration} from "../../../../src/index.js";
+import {RenderOutputConfig, AssetLoaderTypeRenderOutputConfig} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeRenderOutputConfiguration extends ProjectAssetType{
+export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType{
 
-	static type = "JJ:renderOutputConfiguration";
+	static type = "JJ:renderOutputConfig";
 	static typeUuid = "b4c9bbdc-86dc-4270-ae94-780dbaa66976";
-	static newFileName = "New Render Output Configuration";
+	static newFileName = "New Render Output Config";
 
 	constructor(){
 		super(...arguments);
@@ -16,7 +16,7 @@ export default class ProjectAssetTypeRenderOutputConfiguration extends ProjectAs
 		return {};
 	}
 
-	//todo: better support for webgl configuration
+	//todo: better support for webgl config
 	static propertiesAssetContentStructure = {
 		depthStencilFormat: {
 			type: ["stencil8", "depth16unorm", "depth24plus", "depth24plus-stencil8", "depth32float"],
@@ -38,10 +38,10 @@ export default class ProjectAssetTypeRenderOutputConfiguration extends ProjectAs
 		},
 	};
 
-	static expectedLiveAssetConstructor = RenderOutputConfiguration;
+	static expectedLiveAssetConstructor = RenderOutputConfig;
 
 	async getLiveAssetData(fileData){
-		const liveAsset = new RenderOutputConfiguration(fileData);
+		const liveAsset = new RenderOutputConfig(fileData);
 		return {liveAsset};
 	}
 
@@ -49,5 +49,5 @@ export default class ProjectAssetTypeRenderOutputConfiguration extends ProjectAs
 		this.liveAssetNeedsReplacement();
 	}
 
-	static usedAssetLoaderType = AssetLoaderTypeRenderOutputConfiguration;
+	static usedAssetLoaderType = AssetLoaderTypeRenderOutputConfig;
 }

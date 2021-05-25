@@ -1,12 +1,12 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
-import {ShaderSource, WebGpuPipelineConfiguration, VertexState, AssetLoaderTypeWebGpuPipelineConfiguration} from "../../../../src/index.js";
+import {ShaderSource, WebGpuPipelineConfig, VertexState, AssetLoaderTypeWebGpuPipelineConfig} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeWebGpuPipelineConfiguration extends ProjectAssetType{
+export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType{
 
-	static type = "JJ:webGpuPipelineConfiguration";
+	static type = "JJ:webGpuPipelineConfig";
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
-	static newFileName = "New Pipeline Configuration";
+	static newFileName = "New Pipeline Config";
 
 	constructor(){
 		super(...arguments);
@@ -40,14 +40,14 @@ export default class ProjectAssetTypeWebGpuPipelineConfiguration extends Project
 		},
 	};
 
-	static expectedLiveAssetConstructor = WebGpuPipelineConfiguration;
+	static expectedLiveAssetConstructor = WebGpuPipelineConfig;
 
 	async getLiveAssetData(fileData){
 		const fragmentShader = await editor.projectManager.assetManager.getProjectAsset(fileData.fragmentShader);
 		const vertexShader = await editor.projectManager.assetManager.getProjectAsset(fileData.vertexShader);
 		this.listenForUsedLiveAssetChanges(fragmentShader);
 		this.listenForUsedLiveAssetChanges(vertexShader);
-		const liveAsset = new WebGpuPipelineConfiguration({
+		const liveAsset = new WebGpuPipelineConfig({
 			vertexShader: await vertexShader.getLiveAsset(),
 			fragmentShader: await fragmentShader.getLiveAsset(),
 		});
@@ -58,5 +58,5 @@ export default class ProjectAssetTypeWebGpuPipelineConfiguration extends Project
 		this.liveAssetNeedsReplacement();
 	}
 
-	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfiguration;
+	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfig;
 }

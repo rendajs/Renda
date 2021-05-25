@@ -1,8 +1,8 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
-import WebGpuPipelineConfiguration from "../../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfiguration.js";
+import WebGpuPipelineConfig from "../../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js";
 
-export default class AssetLoaderTypeWebGpuPipelineConfiguration extends AssetLoaderTypeGenericStructure{
+export default class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericStructure{
 
 	static get typeUuid(){
 		return "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
@@ -29,6 +29,6 @@ export default class AssetLoaderTypeWebGpuPipelineConfiguration extends AssetLoa
 
 	async parseBuffer(buffer){
 		const data = await super.parseBuffer(buffer);
-		return new WebGpuPipelineConfiguration(data);
+		return new WebGpuPipelineConfig(data);
 	}
 }

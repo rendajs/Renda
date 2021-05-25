@@ -1,5 +1,5 @@
 import MaterialMapType from "./MaterialMapType.js";
-import {Vec3, SingleInstancePromise, WebGpuPipelineConfiguration} from "../../../src/index.js";
+import {Vec3, SingleInstancePromise, WebGpuPipelineConfig} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 
@@ -13,8 +13,8 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		super(treeView);
 
 		this.settingsGuiStructure = {
-			forwardPipelineConfiguration: {
-				type: WebGpuPipelineConfiguration,
+			forwardPipelineConfig: {
+				type: WebGpuPipelineConfig,
 				guiOpts: {
 					storageType: "projectAsset",
 				},
@@ -29,36 +29,36 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	}
 
 	async customAssetDataFromLoad(customData){
-		let forwardPipelineConfiguration = null;
-		if(customData.forwardPipelineConfiguration) forwardPipelineConfiguration = await editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfiguration);
-		this.settingsTreeView.fillSerializableStructureValues({forwardPipelineConfiguration});
+		let forwardPipelineConfig = null;
+		if(customData.forwardPipelineConfig) forwardPipelineConfig = await editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
+		this.settingsTreeView.fillSerializableStructureValues({forwardPipelineConfig});
 	}
 
 	async getCustomAssetDataForSave(){
 		const settings = this.getSettingsValues();
 		const data = {
-			forwardPipelineConfiguration: settings.forwardPipelineConfiguration?.uuid || null,
+			forwardPipelineConfig: settings.forwardPipelineConfig?.uuid || null,
 		}
 
 		return data;
 	}
 
 	static async getLiveAssetCustomData(customData){
-		let forwardPipelineConfiguration = null;
-		if(customData.forwardPipelineConfiguration) forwardPipelineConfiguration = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfiguration);
-		return {forwardPipelineConfiguration};
+		let forwardPipelineConfig = null;
+		if(customData.forwardPipelineConfig) forwardPipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		return {forwardPipelineConfig};
 	}
 
 	static async *getLinkedAssetsInCustomData(customData){
-		if(customData.forwardPipelineConfiguration) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfiguration);
+		if(customData.forwardPipelineConfig) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
 	}
 
 	static assetBundleBinaryComposerOpts = {
 		structure: {
-			forwardPipelineConfiguration: BinaryComposer.StructureTypes.ASSET_UUID,
+			forwardPipelineConfig: BinaryComposer.StructureTypes.ASSET_UUID,
 		},
 		nameIds: {
-			forwardPipelineConfiguration: 1,
+			forwardPipelineConfig: 1,
 		},
 	}
 

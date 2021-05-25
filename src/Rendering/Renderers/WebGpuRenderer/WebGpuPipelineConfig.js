@@ -1,4 +1,4 @@
-export default class WebGpuPipelineConfiguration{
+export default class WebGpuPipelineConfig{
 	constructor({
 		fragmentShader = null,
 		vertexShader = null,
