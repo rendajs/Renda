@@ -45,7 +45,7 @@ export default class BuiltInAssetManager{
 	}
 
 	watch(){
-		console.log("watching for file changes in " + this.builtInAssetsPath);
+		console.log("[BuiltInAssetManager] watching for file changes in " + this.builtInAssetsPath);
 		fsSync.watch(this.builtInAssetsPath, {recursive:true}, async (eventType, relPath) => {
 			if(!this.assetSettingsLoaded) return;
 			if(relPath == "assetSettings.json"){
@@ -68,19 +68,31 @@ export default class BuiltInAssetManager{
 			}
 			if(stat && stat.isDirectory()) return;
 
+			let newHash = null;
+			if(stat){
+				const fileBuffer = await fs.readFile(fullPath);
+				newHash = md5(fileBuffer);
+			}
+
 			const pathArr = relPath.split("/");
 			let assetSettingsNeedsUpdate = false;
-			let uuid = null;
+			let uuid = this.getAssetSettingsUuidForPath(pathArr);
+			if(newHash){
+				for(const [oldHash, hashUuid] of this.fileHashes){
+					if(hashUuid == uuid && newHash != oldHash){
+						this.fileHashes.delete(oldHash);
+						this.fileHashes.set(newHash, uuid);
+					}
+				}
+			}
 			if(!stat){
 				if(this.deleteAssetSettings(pathArr)){
 					assetSettingsNeedsUpdate = true;
 				}
 			}else{
-				if(this.getAssetSettingsUuidForPath(pathArr) == null){
-					const fileBuffer = await fs.readFile(fullPath);
-					const hash = md5(fileBuffer);
-					if(this.fileHashes.has(hash)){
-						uuid = this.fileHashes.get(hash);
+				if(!uuid){
+					if(this.fileHashes.has(newHash)){
+						uuid = this.fileHashes.get(newHash);
 						const assetSettings = this.assetSettings.get(uuid);
 						if(assetSettings){
 							assetSettings.path = pathArr;
