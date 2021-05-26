@@ -3,7 +3,7 @@ import {prettifyVariableName} from "../Util/Util.js";
 export default class DropDownGui{
 	constructor({
 		items = [],
-		value = null,
+		defaultValue = null,
 		enumObject = null,
 	} = {}){
 		this.items = items;
@@ -33,7 +33,7 @@ export default class DropDownGui{
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
-		this.setValue(value);
+		this.setValue(defaultValue);
 	}
 
 	destructor(){

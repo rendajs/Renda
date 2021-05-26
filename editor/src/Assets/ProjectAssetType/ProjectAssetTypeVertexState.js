@@ -32,7 +32,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 					stepMode: {
 						type: ["vertex", "instance"],
 						guiOpts: {
-							value: "vertex",
+							defaultValue: "vertex",
 						}
 					},
 					attributes: {
@@ -49,7 +49,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 									type: [],
 									guiOpts: {
 										enumObject: Mesh.AttributeFormat,
-										value: Mesh.AttributeFormat.FLOAT32,
+										defaultValue: Mesh.AttributeFormat.FLOAT32,
 									},
 								},
 								componentCount: {
