@@ -11,14 +11,18 @@ export default class NumericGui{
 		stepStart = 0,
 		suffix = "",
 		prefix = "",
-		allowedStringValues = [], //when the value is a string and one of these values, it won't be parsed as a number
+
+		//when the numeric value is one of these keys, the mapped string will be displayed in the gui instead
+		//this.getValue() will return this string, unless `mapNumericStringsBackToNumbers` is set
+		//example value: [[-1, "auto"], [-2, "disabled"]]
+		mappedStringValues = [],
 	} = {}){
 		this.el = document.createElement("input");
 		this.el.classList.add("numericGui", "buttonLike", "resetInput", "textInput");
 
 		this.defaultValue = defaultValue;
-		this.value = 0;
 		this.internalValue = 0;
+		this.unroundedValue = 0;
 		this.min = min;
 		this.max = max;
 		this.mouseAdjustSpeed = mouseAdjustSpeed;
@@ -27,7 +31,11 @@ export default class NumericGui{
 		this.stepStart = stepStart;
 		this.suffix = suffix;
 		this.prefix = prefix;
-		this.allowedStringValues = allowedStringValues;
+		this.mappedStringValues = new Map(mappedStringValues);
+		this.inverseMappedStringValues = new Map();
+		for(const [val, str] of mappedStringValues){
+			this.inverseMappedStringValues.set(str, val);
+		}
 
 		this.isMouseAdjusting = false;
 		this.hasMovedWhileAdjusting = false;
@@ -77,19 +85,35 @@ export default class NumericGui{
 
 	setValue(value, updateTextValue = true){
 		if(typeof value == "string"){
-			this.value = this.internalValue = value;
-		}else{
-			if(this.min != null) value = Math.max(this.min, value);
-			if(this.max != null) value = Math.min(this.max, value);
-			this.internalValue = value;
-			if(this.step > 0){
-				this.value = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
+			if(this.inverseMappedStringValues.has(value)){
+				this.unroundedValue = this.inverseMappedStringValues.get(value);
 			}else{
-				this.value = this.internalValue;
+				this.unroundedValue = parseFloat(value);
 			}
+		}else{
+			this.unroundedValue = value;
+		}
+		if(this.min != null) this.unroundedValue = Math.max(this.min, this.unroundedValue);
+		if(this.max != null) this.unroundedValue = Math.min(this.max, this.unroundedValue);
+		this.internalValue = this.unroundedValue;
+		if(this.step > 0){
+			this.internalValue = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
 		}
 		if(updateTextValue) this.updateTextValue();
 		this.fireOnChangeCbs();
+	}
+
+	get value(){
+		return this.getValue();
+	}
+
+	getValue({
+		mapNumericStringsBackToNumbers = false,
+	} = {}){
+		if(this.mappedStringValues.has(this.internalValue)){
+			return this.mappedStringValues.get(this.internalValue);
+		}
+		return this.internalValue;
 	}
 
 	onValueChange(cb){
@@ -130,7 +154,7 @@ export default class NumericGui{
 	onBlur(e){
 		this.setIsTextAdjusting(false);
 		this.updateTextValue();
-		this.internalValue = this.value;
+		this.unroundedValue = this.internalValue;
 	}
 
 	setIsTextAdjusting(value){
@@ -182,8 +206,8 @@ export default class NumericGui{
 		let big = 10000000000000;
 		delta = Math.round(delta*big)/big;
 
-		let oldValue = this.internalValue;
-		let newValue = this.internalValue + delta;
+		let oldValue = this.unroundedValue;
+		let newValue = this.unroundedValue + delta;
 		let oldAfterDotLength = this.getNumbersLength(""+oldValue, false);
 		let deltaAfterDotLength = this.getNumbersLength(""+delta, false);
 		let desiredAfterDotLength = Math.max(oldAfterDotLength, deltaAfterDotLength);
@@ -209,9 +233,7 @@ export default class NumericGui{
 			value = value.slice(this.suffix.length);
 			value = value.slice(0, value.length - this.prefix.length);
 		}
-		if(this.allowedStringValues.includes(value)){
-			return value;
-		}
+		if(this.inverseMappedStringValues.has(value)) return value;
 		value = value.replace(/[^\d\.\-]/g,"");
 		return parseFloat(value);
 	}

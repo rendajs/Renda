@@ -349,6 +349,7 @@ export default class ProjectAsset{
 
 				if(this._projectAssetType.constructor.propertiesAssetContentStructure){
 					this.remapAssetDataEnums(assetData, this._projectAssetType.constructor.propertiesAssetContentStructure);
+					//todo: fill with default values from structure
 				}
 
 				binaryData = BinaryComposer.objectToBinary(assetData, usedAssetLoaderType.binaryComposerOpts);
