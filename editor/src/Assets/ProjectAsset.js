@@ -1,6 +1,7 @@
 import editor from "../editorInstance.js";
 import {SingleInstancePromise, AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/index.js";
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
+import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
 export default class ProjectAsset{
 	constructor({
@@ -345,11 +346,14 @@ export default class ProjectAsset{
 		if(!binaryData){
 			const usedAssetLoaderType = this._projectAssetType.constructor.usedAssetLoaderType;
 			if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure){
-				const assetData = await this.readAssetData();
+				let assetData = await this.readAssetData();
 
-				if(this._projectAssetType.constructor.propertiesAssetContentStructure){
-					this.remapAssetDataEnums(assetData, this._projectAssetType.constructor.propertiesAssetContentStructure);
-					//todo: fill with default values from structure
+				const structure = this._projectAssetType.constructor.propertiesAssetContentStructure;
+				if(structure){
+					const treeView = new PropertiesTreeView();
+					treeView.generateFromSerializableStructure(structure);
+					treeView.fillSerializableStructureValues(assetData);
+					assetData = treeView.getSerializableStructureValues(structure);
 				}
 
 				binaryData = BinaryComposer.objectToBinary(assetData, usedAssetLoaderType.binaryComposerOpts);
@@ -363,27 +367,6 @@ export default class ProjectAsset{
 			}
 		}
 		return binaryData;
-	}
-
-	remapAssetDataEnums(assetData, propertiesStructure){
-		if(typeof assetData == "object" && assetData != null){
-			if(Array.isArray(assetData)){
-				if(propertiesStructure.type != Array) return assetData;
-				for(let i=0; i<assetData.length; i++){
-					assetData[i] = this.remapAssetDataEnums(assetData[i], propertiesStructure.arrayOpts.type);
-				}
-			}else{
-				for(const [key, value] of Object.entries(assetData)){
-					const structure = propertiesStructure[key];
-					assetData[key] = this.remapAssetDataEnums(value, structure);
-				}
-			}
-		}else if(typeof assetData == "string"){
-			if(Array.isArray(propertiesStructure.type) && propertiesStructure.guiOpts?.enumObject){
-				assetData = propertiesStructure.guiOpts.enumObject[assetData];
-			}
-		}
-		return assetData;
 	}
 
 	async *getReferencedAssetUuids(){

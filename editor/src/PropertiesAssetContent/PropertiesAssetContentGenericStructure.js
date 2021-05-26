@@ -36,7 +36,11 @@ export default class PropertiesAssetContentGenericStructure extends PropertiesAs
 
 	saveAsset(){
 		//todo: handle multiple selected items or no selection
-		const assetData = this.assetTreeView.getSerializableStructureValues(this.structure, {convertEnumsToString: true, stripDefaultValues: true});
+		const assetData = this.assetTreeView.getSerializableStructureValues(this.structure, {
+			convertEnumsToString: true,
+			stripDefaultValues: true,
+			mapNumericValuesToStrings: true,
+		});
 		this.currentSelection[0].writeAssetData(assetData);
 	}
 }

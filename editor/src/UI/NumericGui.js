@@ -13,7 +13,7 @@ export default class NumericGui{
 		prefix = "",
 
 		//when the numeric value is one of these keys, the mapped string will be displayed in the gui instead
-		//this.getValue() will return this string, unless `mapNumericStringsBackToNumbers` is set
+		//this.getValue() will return a numbel, unless `mapNumericValuesToStrings` is set
 		//example value: [[-1, "auto"], [-2, "disabled"]]
 		mappedStringValues = [],
 	} = {}){
@@ -108,12 +108,16 @@ export default class NumericGui{
 	}
 
 	getValue({
-		mapNumericStringsBackToNumbers = false,
+		mapNumericValuesToStrings = false,
 	} = {}){
-		if(this.mappedStringValues.has(this.internalValue)){
+		if(mapNumericValuesToStrings && this.mappedStringValues.has(this.internalValue)){
 			return this.mappedStringValues.get(this.internalValue);
 		}
 		return this.internalValue;
+	}
+
+	isDefaultValue(){
+		return this.getValue() == this.defaultValue || this.getValue({mapNumericValuesToStrings: true}) == this.defaultValue;
 	}
 
 	onValueChange(cb){
@@ -127,10 +131,11 @@ export default class NumericGui{
 	}
 
 	updateTextValue(){
-		if(typeof this.value == "string"){
-			this.el.value = this.value;
+		const value = this.getValue({mapNumericValuesToStrings: true});
+		if(typeof value == "string"){
+			this.el.value = value;
 		}else{
-			this.el.value = this.suffix+this.value+this.prefix;
+			this.el.value = this.suffix+value+this.prefix;
 		}
 	}
 
