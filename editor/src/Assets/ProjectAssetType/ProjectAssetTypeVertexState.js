@@ -62,7 +62,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 								},
 								unsigned: {
 									type: Boolean,
-									value: false,
+									defaultValue: false,
 								},
 								shaderLocation: {
 									guiOpts: {

@@ -1,7 +1,9 @@
 export default class BooleanGui{
 	constructor({
-		value = false,
+		defaultValue = false,
 	} = {}){
+		this.defaultValue = defaultValue;
+
 		this.el = document.createElement("input");
 		this.el.type = "checkbox";
 		this.el.classList.add("booleanGui", "buttonLike", "resetInput", "textInput");
@@ -10,7 +12,7 @@ export default class BooleanGui{
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
 
-		this.setValue(value);
+		this.setValue(defaultValue);
 	}
 
 	destructor(){

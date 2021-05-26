@@ -37,7 +37,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 						includeChildren: {
 							type: Boolean,
 							guiOpts: {
-								value: true,
+								defaultValue: true,
 							},
 						},
 					},
