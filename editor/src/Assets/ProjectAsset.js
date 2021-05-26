@@ -44,11 +44,7 @@ export default class ProjectAsset{
 
 	async init(){
 		if(!this.assetType){
-			if(this.isBuiltIn){
-				this.assetType = await ProjectAsset.guessAssetTypeFromPath(this.path);
-			}else{
-				this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path);
-			}
+			this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path, this.isBuiltIn);
 		}
 		if(this.destructed) return;
 
@@ -87,11 +83,16 @@ export default class ProjectAsset{
 		return null;
 	}
 
-	static async guessAssetTypeFromFile(path = []){
+	static async guessAssetTypeFromFile(path = [], isBuiltIn = false){
 		const assetType = this.guessAssetTypeFromPath(path);
 		if(assetType) return assetType;
 
-		const json = await editor.projectManager.currentProjectFileSystem.readJson(path);
+		let json;
+		if(isBuiltIn){
+			json = await editor.builtInAssetManager.fetchAsset(path);
+		}else{
+			json = await editor.projectManager.currentProjectFileSystem.readJson(path);
+		}
 		return json?.assetType || null;
 	}
 
