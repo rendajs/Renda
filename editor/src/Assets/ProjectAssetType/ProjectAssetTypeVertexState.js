@@ -31,6 +31,9 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 					},
 					stepMode: {
 						type: ["vertex", "instance"],
+						guiOpts: {
+							value: "vertex",
+						}
 					},
 					attributes: {
 						type: Array,
@@ -46,6 +49,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 									type: [],
 									guiOpts: {
 										enumObject: Mesh.AttributeFormat,
+										value: Mesh.AttributeFormat.FLOAT32,
 									},
 								},
 								componentCount: {
@@ -53,10 +57,12 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 										min: 1,
 										step: 1,
 										max: 4,
+										value: 3,
 									},
 								},
 								unsigned: {
 									type: Boolean,
+									value: false,
 								},
 								shaderLocation: {
 									guiOpts: {
