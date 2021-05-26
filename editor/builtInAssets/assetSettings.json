@@ -1,5 +1,8 @@
 {
 	"assets": {
+		"2c2abb9a-8c5a-4faf-a605-066d33242391": {
+			"path": ["webgpuExterns.js"]
+		},
 		"9deb2d09-8c4a-45b7-b60a-30eb9536d199": {
 			"path": ["shaders", "wgsl", "materials", "frag.wgsl"]
 		},
@@ -9,14 +12,11 @@
 		"8cd64104-1d45-4536-972a-5685a2523725": {
 			"path": ["shaders", "wgsl", "materials", "structs", "lightUniforms.wgsl"]
 		},
-		"41eaba39-e2aa-48a3-8deb-47f410542bc2": {
-			"path": ["shaders", "wgsl", "materials", "structs", "viewUniforms.wgsl"]
-		},
 		"08a38e5b-b2b9-44be-9194-f404f815445f": {
 			"path": ["shaders", "wgsl", "materials", "structs", "modelUniforms.wgsl"]
 		},
-		"2c2abb9a-8c5a-4faf-a605-066d33242391": {
-			"path": ["webgpuExterns.js"]
+		"41eaba39-e2aa-48a3-8deb-47f410542bc2": {
+			"path": ["shaders", "wgsl", "materials", "structs", "viewUniforms.wgsl"]
 		}
 	}
 }
