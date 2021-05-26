@@ -3,6 +3,24 @@
 		"2c2abb9a-8c5a-4faf-a605-066d33242391": {
 			"path": ["webgpuExterns.js"]
 		},
+		"47f64a6d-9629-4921-8b1a-a244af1aa568": {
+			"path": ["gizmos", "MeshGizmo", "MeshGizmo Material.json"]
+		},
+		"2f144ab0-49c2-422e-8ea1-b3bd9c1fdddb": {
+			"path": ["gizmos", "MeshGizmo", "MeshGizmo Material Map.json"]
+		},
+		"f9704f9a-92b3-4525-9870-3fca18605614": {
+			"path": ["gizmos", "MeshGizmo", "MeshGizmo Pipeline Configuration.json"]
+		},
+		"2a5ca9e6-6790-441b-8764-a07fbb438d1a": {
+			"path": ["gizmos", "MeshGizmo", "MeshGizmo Vertex State.json"]
+		},
+		"cf617a8f-4afa-4147-8afa-71bb6314a554": {
+			"path": ["gizmos", "wgsl", "Frag.wgsl"]
+		},
+		"1e48d7b4-4e74-4d66-bdf6-8f8c65771768": {
+			"path": ["gizmos", "wgsl", "Vert.wgsl"]
+		},
 		"9deb2d09-8c4a-45b7-b60a-30eb9536d199": {
 			"path": ["shaders", "wgsl", "materials", "frag.wgsl"]
 		},

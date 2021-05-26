@@ -6,6 +6,7 @@ import ShaderSource from "../Rendering/ShaderSource.js";
 import WebGpuPipelineConfig from "../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js";
 import {materialMapWebGpuTypeUuid} from "../Rendering/Renderers/WebGpuRenderer/WebGpuRenderer.js";
 import Material from "../Rendering/Material.js";
+import defaultEngineAssetsManager from "../Assets/defaultEngineAssetsManager.js";
 
 export default class GizmoManager{
 	constructor(){
@@ -22,16 +23,7 @@ export default class GizmoManager{
 				}
 			],
 		});
-		this.meshVertexState = new VertexState({
-			buffers: [
-				{
-					attributes: [
-						{attributeType: Mesh.AttributeType.POSITION},
-						{attributeType: Mesh.AttributeType.COLOR},
-					],
-				}
-			],
-		});
+		this.meshVertexState = null;
 
 		this.billboardMaterial = this.createMaterial(`
 			var objPos : vec4<f32> = objectUniforms.m[3];
@@ -42,9 +34,14 @@ export default class GizmoManager{
 			outPos.y = outPos.y + vertexPos.y / viewUniforms.screenSize.y;
 			outPos = vec4<f32>(outPos.xy, 0.0, 1.0);
 		`);
-		this.meshMaterial = this.createMaterial(`
-			outPos = objectUniforms.mvp * vec4<f32>(vertexPos, 1.0);
-		`);
+		this.meshMaterial = null;
+
+		this.init();
+	}
+
+	async init(){
+		this.meshVertexState = await defaultEngineAssetsManager.getAsset("2a5ca9e6-6790-441b-8764-a07fbb438d1a");
+		this.meshMaterial = await defaultEngineAssetsManager.getAsset("47f64a6d-9629-4921-8b1a-a244af1aa568");
 	}
 
 	destructor(){

@@ -1,0 +1,14 @@
+{
+	"assetType": "JJ:materialMap",
+	"asset": {
+		"maps": [
+			{
+				"mapTypeId": "286eaa41-36ce-4d94-9413-d52fc435b6e5",
+				"customData": {
+					"forwardPipelineConfig": "f9704f9a-92b3-4525-9870-3fca18605614"
+				},
+				"mappedValues": {}
+			}
+		]
+	}
+}
