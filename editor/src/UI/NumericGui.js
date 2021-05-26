@@ -2,7 +2,7 @@ import {mod} from "../Util/Util.js";
 
 export default class NumericGui{
 	constructor({
-		value = 0,
+		defaultValue = 0,
 		min = null,
 		max = null,
 		mouseAdjustSpeed = 0.1,
@@ -16,6 +16,7 @@ export default class NumericGui{
 		this.el = document.createElement("input");
 		this.el.classList.add("numericGui", "buttonLike", "resetInput", "textInput");
 
+		this.defaultValue = defaultValue;
 		this.value = 0;
 		this.internalValue = 0;
 		this.min = min;
@@ -50,7 +51,7 @@ export default class NumericGui{
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 
 		this.setIsTextAdjusting(false);
-		this.setValue(value);
+		this.setValue(defaultValue);
 		this.updateTextValue();
 	}
 

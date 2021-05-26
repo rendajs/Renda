@@ -26,7 +26,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 							min: -1,
 							step: 1,
 							allowedStringValues: ["auto"],
-							value: "auto",
+							defaultValue: "auto",
 						},
 					},
 					stepMode: {
@@ -57,7 +57,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 										min: 1,
 										step: 1,
 										max: 4,
-										value: 3,
+										defaultValue: 3,
 									},
 								},
 								unsigned: {
@@ -69,7 +69,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 										min: 0,
 										step: 1,
 										allowedStringValues: ["auto"],
-										value: "auto",
+										defaultValue: "auto",
 									},
 								},
 							},
