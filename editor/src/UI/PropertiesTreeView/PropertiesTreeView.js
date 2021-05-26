@@ -67,7 +67,7 @@ export default class PropertiesTreeView extends TreeView{
 		let i = 0;
 		for(const [key, itemSettings] of Object.entries(structure)){
 			const entry = this.children[i++];
-			if(entry.hasValue(guiOpts)){
+			if(!entry.omitFromSerializableStuctureValues(guiOpts)){
 				values[key] = entry.getValue(guiOpts);
 			}
 		}

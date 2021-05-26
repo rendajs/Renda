@@ -138,10 +138,17 @@ export default class PropertiesTreeViewEntry extends TreeView{
 
 	//if this, returns false, the value be omitted from getSerializableStructureValues
 	//useful for entries such as buttons, labels, etc.
-	hasValue(guiOpts){
+	omitFromSerializableStuctureValues(guiOpts){
 		if(this.gui instanceof Button){
-			return false;
+			return true;
 		}
-		return true;
+		if(guiOpts && guiOpts.stripDefaultValues){
+			if(this.gui.isDefaultValue){
+				if(this.gui.isDefaultValue(guiOpts)) return true;
+			}else{
+				if(this.gui.value == this.gui.defaultValue) return true;
+			}
+		}
+		return false;
 	}
 }

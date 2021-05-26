@@ -7,6 +7,7 @@ export default class DropDownGui{
 		enumObject = null,
 	} = {}){
 		this.items = items;
+		this.defaultValue = defaultValue;
 		let itemTexts = [...items];
 		this.enumObject = enumObject;
 		this.inverseEnumObject = null;
