@@ -29,6 +29,12 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 				storageType: "uuid",
 			},
 		},
+		primitiveTopology: {
+			type: ["point-list", "line-list", "line-strip", "triangle-list", "triangle-strip"],
+			guiOpts: {
+				defaultValue: "triangle-list",
+			},
+		},
 		preloadVertexStates: {
 			type: Array,
 			arrayOpts: {
@@ -50,6 +56,7 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 		const liveAsset = new WebGpuPipelineConfig({
 			vertexShader: await vertexShader.getLiveAsset(),
 			fragmentShader: await fragmentShader.getLiveAsset(),
+			primitiveTopology: fileData.primitiveTopology,
 		});
 		return {liveAsset};
 	}
