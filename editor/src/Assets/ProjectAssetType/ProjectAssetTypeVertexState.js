@@ -25,7 +25,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 						guiOpts: {
 							min: -1,
 							step: 1,
-							allowedStringValues: ["auto"],
+							mappedStringValues: [[-1, "auto"]],
 							defaultValue: "auto",
 						},
 					},
@@ -66,9 +66,9 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 								},
 								shaderLocation: {
 									guiOpts: {
-										min: 0,
+										min: -1,
 										step: 1,
-										allowedStringValues: ["auto"],
+										mappedStringValues: [[-1, "auto"]],
 										defaultValue: "auto",
 									},
 								},

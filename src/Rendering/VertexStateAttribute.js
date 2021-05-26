@@ -5,7 +5,7 @@ export default class VertexStateAttribute{
 		componentCount = 3,
 		format = Mesh.AttributeFormat.FLOAT32,
 		unsigned = false,
-		shaderLocation = null, //null or undefined or "auto" for auto
+		shaderLocation = null, //use null|-1|"auto" for auto
 		attributeType = null,
 	} = {}){
 		this.componentCount = componentCount;
@@ -27,7 +27,7 @@ export default class VertexStateAttribute{
 		const format = this.getDescriptorFormat();
 		const offset = this.offset = vertexBuffer.requestAttributeOffset(this.byteSize);
 		let shaderLocation = this.shaderLocation;
-		if(shaderLocation == null || shaderLocation == "auto"){
+		if(shaderLocation == null || shaderLocation == "auto" || shaderLocation == -1){
 			shaderLocation = vertexState.requestShaderLocationIndex();
 		}
 		return {format, offset, shaderLocation};

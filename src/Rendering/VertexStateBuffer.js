@@ -3,12 +3,12 @@ import VertexStateAttribute from "./VertexStateAttribute.js";
 export default class VertexStateBuffer{
 	constructor({
 		stepMode = "vertex",
-		arrayStride = null, //null or undefined or "auto" for auto stride
+		arrayStride = null, //use null|-1|"auto" for auto stride
 		attributes = [],
 	} = {}){
 		this.stepMode = stepMode;
 		this._customArrayStride = arrayStride;
-		this.autoArrayStride = arrayStride == null || arrayStride == "auto";
+		this.autoArrayStride = arrayStride == null || arrayStride == "auto" || arrayStride == -1;
 		this._calculatedArrayStride = 0;
 		this.requestingAttributeOffset = 0;
 
