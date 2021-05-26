@@ -143,7 +143,52 @@ export default class BuiltInAssetManager{
 	async saveAssetSettings(notifySocket = true){
 		if(!this.assetSettingsLoaded) return;
 		const assets = {};
+		const uuidPaths = new Map();
 		for(const uuid of this.cachedUuidOrder){
+			uuidPaths.set(uuid, null);
+		}
+		for(const [uuid, assetSettings] of this.assetSettings){
+			uuidPaths.set(uuid, assetSettings.path);
+		}
+		const sortedUuidSettings = [];
+		for(const [uuid, path] of uuidPaths){
+			sortedUuidSettings.push({uuid, path});
+		}
+		sortedUuidSettings.sort((a,b) => {
+			const cachedIndexA = this.cachedUuidOrder.indexOf(a.uuid);
+			const cachedIndexB = this.cachedUuidOrder.indexOf(b.uuid);
+			if(cachedIndexA >= 0 && cachedIndexB >= 0){
+				if(cachedIndexA < cachedIndexB){
+					return -1;
+				}
+				if(cachedIndexA > cachedIndexB){
+					return 1;
+				}
+			}
+			if(a.path && b.path){
+				if(a.path.length != b.path.length){
+					return a.path.length - b.path.length;
+				}
+				const joinedA = a.path.join("/");
+				const joinedB = b.path.join("/");
+				if(joinedA < joinedB){
+					return -1;
+				}
+				if(joinedA > joinedB){
+					return 1;
+				}
+			}
+			if(a.uuid < b.uuid){
+				return -1;
+			}
+			if(a.uuid > b.uuid){
+				return 1;
+			}
+			return 0;
+		});
+		const sortedUuids = sortedUuidSettings.map(x => x.uuid);
+		this.cachedUuidOrder = sortedUuids;
+		for(const uuid of sortedUuids){
 			if(this.assetSettings.has(uuid)){
 				assets[uuid] = this.assetSettings.get(uuid);
 			}
@@ -177,7 +222,6 @@ export default class BuiltInAssetManager{
 	createAssetSettings(path){
 		const uuid = generateUuid();
 		this.assetSettings.set(uuid, {path});
-		this.cachedUuidOrder.push(uuid);
 		return uuid;
 	}
 
