@@ -1,0 +1,16 @@
+{
+	"assetType": "JJ:vertexState",
+	"asset": {
+		"buffers": [
+			{
+				"attributes": [
+					{
+						"attributeType": "POSITION",
+						"componentCount": 2
+					},
+					{"attributeType": "COLOR"}
+				]
+			}
+		]
+	}
+}
