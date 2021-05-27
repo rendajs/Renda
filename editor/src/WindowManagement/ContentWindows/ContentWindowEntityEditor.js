@@ -224,26 +224,27 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		for(const entity of this.editingEntity.traverseDown()){
 			for(const component of entity.components){
 				const componentData = component.getComponentData();
-				this.addComponentLiveAssetListeners(componentData.properties, component, true);
+				this.addComponentLiveAssetListeners(component, componentData.properties, component, true);
 			}
 		}
 	}
 
-	addComponentLiveAssetListeners(structure, data, isRoot=false, parentObject=null, propertyChangeName=null){
+	addComponentLiveAssetListeners(rootComponent, structure, data, isRoot=false, parentObject=null, propertyChangeName=null){
 		if(isRoot || structure.type == Object){
 			for(const [name, propertyData] of Object.entries(structure)){
 				const dataItem = data[name];
-				this.addComponentLiveAssetListeners(propertyData, data[name], false, data, name);
+				this.addComponentLiveAssetListeners(rootComponent, propertyData, data[name], false, data, name);
 			}
 		}else if(structure.type == Array){
 			for(const [i, item] of data.entries()){
-				this.addComponentLiveAssetListeners(structure.arrayOpts, item, false, data, i);
+				this.addComponentLiveAssetListeners(rootComponent, structure.arrayOpts, item, false, data, i);
 			}
 		}else if(editor.projectAssetTypeManager.constructorHasAssetType(structure.type)){
 			if(data){
 				const projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(data);
 				const listener = async () => {
 					parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
+					this.notifyEntityChanged(rootComponent.entity, "componentProperty");
 				}
 				projectAsset.onNewLiveAssetInstance(listener);
 				this.createdLiveAssetChangeListeners.add({projectAsset, listener});
