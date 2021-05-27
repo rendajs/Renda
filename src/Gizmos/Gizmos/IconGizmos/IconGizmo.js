@@ -15,7 +15,7 @@ export default class IconGizmo extends Gizmo{
 		this.positions = [];
 		this.colors = [];
 
-		this.entity.addComponent(MeshComponent, {
+		this.meshComponent = this.entity.addComponent(MeshComponent, {
 			mesh: this.mesh,
 			materials: [this.gizmoManager.billboardMaterial],
 		});
@@ -53,5 +53,10 @@ export default class IconGizmo extends Gizmo{
 		this.positions.push(start, end);
 		this.colors.push(new Vec3(1,1,1), new Vec3(1,1,1));
 		this.indices.push(startIndex, startIndex + 1);
+	}
+
+	updateMaterials(){
+		this.mesh.setVertexState(this.gizmoManager.billboardVertexState);
+		this.meshComponent.materials = [this.gizmoManager.billboardMaterial];
 	}
 }

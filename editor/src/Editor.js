@@ -67,6 +67,11 @@ export default class Editor{
 			if(!projectAsset) return null;
 			return await projectAsset.getLiveAsset();
 		});
+		if(IS_DEV_BUILD){
+			this.builtInAssetManager.onAssetChange(uuid => {
+				defaultEngineAssetsManager.notifyAssetChanged(uuid);
+			});
+		}
 
 		this.renderer.init();
 		this.windowManager.init(this);

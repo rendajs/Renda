@@ -7,6 +7,10 @@ export default class BuiltInAssetManager{
 		this.assets = new Map();
 		this.basePath = "../builtInAssets/";
 
+		if(IS_DEV_BUILD){
+			this.onAssetChangeCbs = new Set();
+		}
+
 		this.loadAssetsInstance = new SingleInstancePromise(async () => {
 			const response = await fetch(this.basePath + "assetSettings.json");
 			const json = await response.json();
@@ -19,7 +23,11 @@ export default class BuiltInAssetManager{
 				assetData.isBuiltIn = true;
 				const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
 				if(projectAsset){
-					projectAsset.makeBuiltIn();
+					projectAsset.onNewLiveAssetInstance(() => {
+						for(const cb of this.onAssetChangeCbs){
+							cb(uuid);
+						}
+					});
 					this.assets.set(uuid, projectAsset);
 				}
 			}
@@ -58,5 +66,10 @@ export default class BuiltInAssetManager{
 		}else if(format == "binary"){
 			return await response.arrayBuffer();
 		}
+	}
+
+	onAssetChange(cb){
+		if(!IS_DEV_BUILD) return;
+		this.onAssetChangeCbs.add(cb);
 	}
 }

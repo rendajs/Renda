@@ -41,6 +41,7 @@ export default class ProjectAsset{
 		this.destroyLiveAssetData();
 		this.assetSettings = null;
 		this._projectAssetType = null;
+		this.onNewLiveAssetInstanceCbs.clear();
 	}
 
 	async init(){
@@ -117,10 +118,6 @@ export default class ProjectAsset{
 		}
 
 		return false;
-	}
-
-	makeBuiltIn(){
-		this.isBuiltIn = true;
 	}
 
 	assetMoved(newPath){

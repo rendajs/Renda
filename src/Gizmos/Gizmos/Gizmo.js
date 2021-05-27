@@ -15,4 +15,8 @@ export default class Gizmo{
 		this.mesh.destructor();
 		this.mesh = null;
 	}
+
+	//this is called when the GizmoManager built-in assets have changed
+	//update your mesh components accordingly
+	updateMaterials(){}
 }

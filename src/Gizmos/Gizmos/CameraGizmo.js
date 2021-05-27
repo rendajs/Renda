@@ -24,7 +24,7 @@ export default class CameraGizmo extends Gizmo{
 			new Vec3(1,1,1),
 		];
 
-		this.entity.addComponent(MeshComponent, {
+		this.meshComponent = this.entity.addComponent(MeshComponent, {
 			mesh: this.mesh,
 			materials: [this.gizmoManager.meshMaterial],
 		});
@@ -53,5 +53,10 @@ export default class CameraGizmo extends Gizmo{
 			return new Vec3(pos4);
 		});
 		this.mesh.setVertexData(Mesh.AttributeType.POSITION, positionsFrustum);
+	}
+
+	updateMaterials(){
+		this.mesh.setVertexState(this.gizmoManager.meshVertexState);
+		this.meshComponent.materials = [this.gizmoManager.meshMaterial];
 	}
 }
