@@ -1,14 +1,4 @@
-[[block]] struct ViewUniforms {
-	[[offset(0)]] screenSize : vec2<f32>;
-};
-[[group(0), binding(0)]] var<uniform> viewUniforms : ViewUniforms;
-
-[[block]] struct ObjectUniforms {
-	[[offset(0)]] mvp : mat4x4<f32>;
-	[[offset(64)]] vp : mat4x4<f32>;
-	[[offset(128)]] m : mat4x4<f32>;
-};
-[[group(2), binding(0)]] var<uniform> objectUniforms : ObjectUniforms;
+#include 08a38e5b-b2b9-44be-9194-f404f815445f
 
 [[location(0)]] var<in> vertexPos : vec3<f32>;
 [[location(1)]] var<in> vertexColor : vec3<f32>;
@@ -18,7 +8,7 @@
 
 [[stage(vertex)]]
 fn main() -> void {
-	outPos = objectUniforms.mvp * vec4<f32>(vertexPos, 1.0);
+	outPos = modelUniforms.mvp * vec4<f32>(vertexPos, 1.0);
 	vertexColorOut = vertexColor;
 	return;
 }
