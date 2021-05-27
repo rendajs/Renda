@@ -1,4 +1,4 @@
-import {Vec3, Quaternion} from "../../../src/index.js";
+import {Vec3, Quaternion} from "../index.js";
 
 export default class OrbitControls{
 	constructor(cameraEntity, eventElement){
