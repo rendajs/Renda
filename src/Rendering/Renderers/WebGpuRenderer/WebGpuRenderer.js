@@ -256,14 +256,9 @@ export default class WebGpuRenderer extends Renderer{
 		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); //todo
 
 		for(const [i, meshComponent] of meshComponents.entries()){
-			const mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
-			this.objectUniformsBuffer.appendData(mvpMatrix);
-			this.objectUniformsBuffer.appendData(vpMatrix);
-			this.objectUniformsBuffer.appendData(meshComponent.entity.worldMatrix);
-
 			//todo: group all materials in the current view and render them all grouped
 			for(const material of meshComponent.materials){
-				if(!material || material.destructed) continue;
+				if(!material || material.destructed) continue; //todo: log a (supressable) warning when the material is destructed
 				const materialData = this.getCachedMaterialData(material);
 				if(!materialData.forwardPipelineConfig){
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
@@ -273,7 +268,6 @@ export default class WebGpuRenderer extends Renderer{
 				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, meshComponent.mesh.vertexState, outputConfig);
 				renderPassEncoder.setPipeline(forwardPipeline);
 				renderPassEncoder.setBindGroup(2, this.objectUniformsBufferBindGroup, [this.objectUniformsBuffer.currentBufferOffset]);
-				this.objectUniformsBuffer.nextBufferOffset();
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
 				for(const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()){
@@ -296,6 +290,12 @@ export default class WebGpuRenderer extends Renderer{
 					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
 				}
 			}
+
+			const mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
+			this.objectUniformsBuffer.appendData(mvpMatrix);
+			this.objectUniformsBuffer.appendData(vpMatrix);
+			this.objectUniformsBuffer.appendData(meshComponent.entity.worldMatrix);
+			this.objectUniformsBuffer.nextBufferOffset();
 		}
 		this.objectUniformsBuffer.writeToGpu();
 
