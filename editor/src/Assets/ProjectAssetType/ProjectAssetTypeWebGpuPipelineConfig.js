@@ -30,7 +30,7 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 			},
 		},
 		primitiveTopology: {
-			type: ["point-list", "line-list", "line-strip", "triangle-list", "triangle-strip"],
+			type: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
 			guiOpts: {
 				defaultValue: "triangle-list",
 			},

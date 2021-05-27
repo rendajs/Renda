@@ -8,17 +8,23 @@ export default class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderType
 		return "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	}
 
+	static get primitiveTopologyTypes(){
+		return ["point-list", "line-list", "line-strip", "triangle-list", "triangle-strip"];
+	}
+
 	static get binaryComposerOpts(){
 		return {
 			structure: {
 				vertexShader: BinaryComposer.StructureTypes.ASSET_UUID,
 				fragmentShader: BinaryComposer.StructureTypes.ASSET_UUID,
+				primitiveTopology: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
 				preloadVertexStates: [BinaryComposer.StructureTypes.ASSET_UUID],
 			},
 			nameIds: {
 				vertexShader: 1,
 				fragmentShader: 2,
-				preloadVertexStates: 3,
+				primitiveTopology: 3,
+				preloadVertexStates: 4,
 			},
 		}
 	}
