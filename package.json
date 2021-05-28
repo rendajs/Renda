@@ -7,6 +7,7 @@
   "scripts": {
     "build": "node build.js",
     "build-editor": "node editor/build.js",
+    "build-editor-dev": "node editor/build.js --dev",
     "dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 5070' 'node editor/devSocket/index.js'"
   },
   "devDependencies": {

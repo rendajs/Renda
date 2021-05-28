@@ -20,9 +20,9 @@
 				{
 					"cmd":
 					[
-						"npm", "run", "dev"
+						"npm", "run", "build-editor-dev"
 					],
-					"name": "dev",
+					"name": "Build Editor dev",
 					"working_dir": "${project_path}"
 				}
 			]
