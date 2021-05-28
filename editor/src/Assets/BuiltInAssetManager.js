@@ -1,6 +1,7 @@
 import ProjectAsset from "./ProjectAsset.js";
 import {SingleInstancePromise} from "../../../src/index.js";
 import editor from "../editorInstance.js";
+import {IS_DEV_BUILD} from "../editorDefines.js";
 
 export default class BuiltInAssetManager{
 	constructor(){

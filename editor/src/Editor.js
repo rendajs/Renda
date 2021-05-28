@@ -11,6 +11,7 @@ import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import DevSocketManager from "./Managers/DevSocketManager.js";
+import {IS_DEV_BUILD} from "./editorDefines.js";
 
 import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
 
