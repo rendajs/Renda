@@ -1,5 +1,5 @@
 import ComponentGizmos from "./ComponentGizmos.js";
-import {LightComponent, defaultComponentTypeManager, LightIconGizmo} from "../../../../src/index.js";
+import {LightComponent, defaultComponentTypeManager, LightIconGizmo} from "../../../src/index.js";
 
 export default class ComponentGizmosLight extends ComponentGizmos{
 

@@ -1,6 +1,6 @@
 import autoRegisterComponentGizmos from "../ComponentGizmos/AutoRegisterComponentGizmos.js";
 import ComponentGizmos from "../ComponentGizmos/ComponentGizmos.js";
-import {defaultComponentTypeManager} from "../../../../src/index.js";
+import {defaultComponentTypeManager} from "../../../src/index.js";
 
 export default class ComponentGizmosManager{
 	constructor(){
