@@ -20,7 +20,7 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 	static propertiesAssetContentStructure = {
 		depthStencilFormat: {
 			type: ["stencil8", "depth16unorm", "depth24plus", "depth24plus-stencil8", "depth32float"],
-			guiOpts: {defaultValue: "depth24plus"},
+			defaultValue: "depth24plus",
 		},
 		multisampleCount: {
 			guiOpts: {min: 1, step: 1},
@@ -31,7 +31,7 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 				type: {
 					format: {
 						type: ["bgra8unorm", "rgba16float"],
-						guiOpts: {defaultValue: "bgra8unorm"},
+						defaultValue: "bgra8unorm",
 					},
 				},
 			},

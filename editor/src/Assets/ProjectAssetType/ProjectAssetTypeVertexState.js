@@ -22,18 +22,16 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 			arrayOpts: {
 				type: {
 					arrayStride: {
+						defaultValue: "auto",
 						guiOpts: {
 							min: -1,
 							step: 1,
 							mappedStringValues: [[-1, "auto"]],
-							defaultValue: "auto",
 						},
 					},
 					stepMode: {
 						type: ["vertex", "instance"],
-						guiOpts: {
-							defaultValue: "vertex",
-						}
+						defaultValue: "vertex",
 					},
 					attributes: {
 						type: Array,
@@ -47,17 +45,17 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 								},
 								format: {
 									type: [],
+									defaultValue: Mesh.AttributeFormat.FLOAT32,
 									guiOpts: {
 										enumObject: Mesh.AttributeFormat,
-										defaultValue: Mesh.AttributeFormat.FLOAT32,
 									},
 								},
 								componentCount: {
+									defaultValue: 3,
 									guiOpts: {
 										min: 1,
 										step: 1,
 										max: 4,
-										defaultValue: 3,
 									},
 								},
 								unsigned: {
@@ -65,11 +63,11 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 									defaultValue: false,
 								},
 								shaderLocation: {
+									defaultValue: "auto",
 									guiOpts: {
 										min: -1,
 										step: 1,
 										mappedStringValues: [[-1, "auto"]],
-										defaultValue: "auto",
 									},
 								},
 							},

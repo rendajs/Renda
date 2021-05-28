@@ -17,6 +17,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
 export default class PropertiesTreeViewEntry extends TreeView{
 	constructor({
 		type = Number,
+		defaultValue = undefined,
 		guiOpts = {},
 		arrayOpts = {},
 		callbacksContext = {},
@@ -53,14 +54,21 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			this.gui = new VectorGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Number){
-			this.gui = new NumericGui(guiOpts);
+			this.gui = new NumericGui({
+				defaultValue,
+				...guiOpts,
+			});
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Boolean){
-			this.gui = new BooleanGui(guiOpts);
+			this.gui = new BooleanGui({
+				defaultValue,
+				...guiOpts,
+			});
 			this.valueEl.appendChild(this.gui.el);
 		}else if(Array.isArray(type)){
 			this.gui = new DropDownGui({
 				items: type,
+				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
