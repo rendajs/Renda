@@ -101,7 +101,9 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		await this.verifyHandlePermission(dirHandle, {writable: create});
 		let fileHandle = null;
 		try{
+			if(create) this.setWatchTreeLastModified(path, Date.now() + 1000);
 			fileHandle = await dirHandle.getFileHandle(fileName, {create});
+			if(create) this.setWatchTreeLastModified(path);
 		}catch(e){
 			if(overrideError){
 				throw new Error("Failed to get file handle for "+path.join("/"));
@@ -171,6 +173,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		if(!fileStream.locked){
 			await fileStream.write(file);
 			await fileStream.close();
+			this.setWatchTreeLastModified(path);
 		}
 	}
 
@@ -209,7 +212,6 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 
 	//todos:
 	//-don't fire when obtaining read permissions
-	//-don't fire when making a change from this application
 	//-fire events when deleting a file
 	//-fire events when creating a directory
 	async suggestCheckExternalChanges(){
@@ -253,6 +255,24 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 				}
 				const newTraversedPath = [...traversedPath, name];
 				await this.traverseWatchTree(dirWatchTree, handle, collectedChanges, newTraversedPath);
+			}
+		}
+	}
+
+	setWatchTreeLastModified(path, lastModified = Date.now()){
+		let map = this.watchTree;
+		for(const [i, name] of path.entries()){
+			const last = i == path.length - 1;
+			if(last){
+				map.set(name, lastModified);
+			}else{
+				if(map.has(name)){
+					map = map.get(name);
+				}else{
+					const newMap = new Map();
+					map.set(name, newMap);
+					map = newMap;
+				}
 			}
 		}
 	}
