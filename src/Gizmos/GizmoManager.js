@@ -1,6 +1,6 @@
 import Entity from "../Core/Entity.js";
 import defaultEngineAssetsManager from "../Assets/defaultEngineAssetsManager.js";
-import {ENABLE_ENGINE_ASSETS_HANDLERS} from "../defines.js";
+import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../defines.js";
 
 export default class GizmoManager{
 	constructor(){
@@ -51,7 +51,7 @@ export default class GizmoManager{
 	}
 
 	updateGizmoMaterials(){
-		if(!ENABLE_ENGINE_ASSETS_HANDLERS) return;
+		if(!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
 		for(const gizmo of this.gizmos){
 			gizmo.updateMaterials();
 		}
