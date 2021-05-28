@@ -11,6 +11,8 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		this.depthSupport = depthSupport; //todo: use output config
 
 		this.canvas = document.createElement("canvas");
+		this.width = this.canvas.width;
+		this.height = this.canvas.height;
 		this.ctx = this.canvas.getContext("gpupresent");
 		this.swapChainFormat = null;
 		this.swapChain = null;
