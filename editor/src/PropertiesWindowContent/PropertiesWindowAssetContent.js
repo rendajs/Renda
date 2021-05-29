@@ -115,7 +115,12 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 			constructor = PropertiesAssetContentGenericStructure;
 		}
 
-		const needsNew = constructor && (!this.activeAssetContent || this.activeAssetContent.constructor != constructor);
+		const needsNew = constructor &&
+			(
+				!this.activeAssetContent ||
+				this.activeAssetContent.constructor != constructor ||
+				(constructor == PropertiesAssetContentGenericStructure && foundStructure != this.activeAssetContent.structure)
+			);
 		if(needsNew || (!constructor && this.activeAssetContent)){
 			if(this.activeAssetContent) this.activeAssetContent.destructor();
 			this.activeAssetContent = null;
