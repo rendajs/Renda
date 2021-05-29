@@ -4,7 +4,9 @@ export default class ObjectGui{
 	constructor({
 		structure = {},
 		value = {},
+		disabled = false,
 	} = {}){
+		this.disabled = disabled;
 		this.structure = structure;
 		this.treeView = new PropertiesTreeView();
 		this.treeView.generateFromSerializableStructure(structure);
@@ -14,6 +16,7 @@ export default class ObjectGui{
 		});
 
 		this.setValue(value);
+		this.setDisabled(disabled);
 	}
 
 	setValue(value){
@@ -37,5 +40,10 @@ export default class ObjectGui{
 		for(const cb of this.onValueChangeCbs){
 			cb(value);
 		}
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.treeView.setFullTreeDisabled(disabled);
 	}
 }

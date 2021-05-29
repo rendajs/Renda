@@ -81,4 +81,10 @@ export default class PropertiesTreeView extends TreeView{
 			}
 		}
 	}
+
+	setFullTreeDisabled(disabled){
+		for(const child of this.children){
+			child.setDisabled(disabled);
+		}
+	}
 }

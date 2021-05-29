@@ -124,6 +124,10 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		super.destructor();
 	}
 
+	setDisabled(disabled){
+		this.gui?.setDisabled?.(disabled);
+	}
+
 	setValue(newValue){
 		this.gui?.setValue?.(newValue);
 	}

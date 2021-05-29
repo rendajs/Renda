@@ -33,13 +33,6 @@ export default class VectorGui{
 		this.numericGuis = null;
 	}
 
-	setDisabled(disabled){
-		this.disabled = disabled;
-		for(const gui of this.numericGuis){
-			gui.setDisabled(disabled);
-		}
-	}
-
 	setValue(vector){
 		let arr = vector.toArray();
 		for(let [i, gui] of this.numericGuis.entries()){
@@ -63,6 +56,13 @@ export default class VectorGui{
 	fireValueChange(){
 		for(const cb of this.onValueChangeCbs){
 			cb(this.value.clone());
+		}
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		for(const gui of this.numericGuis){
+			gui.setDisabled(disabled);
 		}
 	}
 }

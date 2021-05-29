@@ -86,11 +86,6 @@ export default class NumericGui{
 		this.onValueChangeCbs = null;
 	}
 
-	setDisabled(disabled){
-		this.disabled = disabled;
-		this.el.disabled = disabled;
-	}
-
 	setValue(value, updateTextValue = true){
 		if(typeof value == "string"){
 			if(this.inverseMappedStringValues.has(value)){
@@ -136,6 +131,11 @@ export default class NumericGui{
 		for(const cb of this.onValueChangeCbs){
 			cb(this.value);
 		}
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.el.disabled = disabled;
 	}
 
 	updateTextValue(){
