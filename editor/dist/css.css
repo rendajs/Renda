@@ -16,8 +16,8 @@
 	--default-button-active-color: #565656;
 	--default-button-selected-color: #929292;
 	--default-button-text-color: #eaeaea;
-	--default-button-color-disabled: #4d4d4d;
-	--default-button-text-color-disabled: #919191;
+	--default-button-color-disabled: #2f2f2f;
+	--default-button-text-color-disabled: #8d8d8d;
 	--focused-window-border-color: #838383;
 	--default-input-box-color: #101010;
 	--default-input-box-color-disabled: #2f2f2f;
@@ -39,13 +39,13 @@
 		--color-selected-blue: #008fff;
 		--selected-text-color: #ffffff;
 		--color-selected-blue-textfield: #95c0fffe;
-		--default-button-color: #dcdcdcb8;
+		--default-button-color: #dcdcdc;
 		--default-button-hover-color: #c9c9c9;
 		--default-button-active-color: #b9b9b9;
 		--default-button-selected-color: #afafaf;
 		--default-button-text-color: #505050;
-		--default-button-color-disabled: #6f6f6f;
-		--default-button-text-color-disabled: #acacac;
+		--default-button-color-disabled: #ececec;
+		--default-button-text-color-disabled: #7f7f7f;
 		--focused-window-border-color: #717171;
 		--default-input-box-color: #f7f7f7;
 		--default-input-box-color-disabled: #ececec;
