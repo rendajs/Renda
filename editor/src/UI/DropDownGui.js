@@ -5,9 +5,11 @@ export default class DropDownGui{
 		items = [],
 		defaultValue = null,
 		enumObject = null,
+		disabled = false,
 	} = {}){
 		this.items = items;
 		this.defaultValue = defaultValue;
+		this.disabled = disabled;
 		let itemTexts = [...items];
 		this.enumObject = enumObject;
 		this.inverseEnumObject = null;
@@ -36,6 +38,7 @@ export default class DropDownGui{
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
 		this.setValue(defaultValue);
+		this.setDisabled(disabled);
 	}
 
 	destructor(){
@@ -79,5 +82,10 @@ export default class DropDownGui{
 		for(const cb of this.onValueChangeCbs){
 			cb(this.value);
 		}
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.el.disabled = disabled;
 	}
 }
