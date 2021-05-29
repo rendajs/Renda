@@ -127,5 +127,7 @@ export default class ArrayGui{
 		for(const item of this.valueItems){
 			item.setDisabled(disabled);
 		}
+		this.addItemButton.setDisabled(disabled);
+		this.removeItemButton.setDisabled(disabled);
 	}
 }
