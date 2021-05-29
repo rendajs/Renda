@@ -155,10 +155,12 @@ body, html{
 }
 
 .resetInput{
-	-webkit-appearance: none;
 	border: none;
 	outline: none;
 	font-family: inherit;
+}
+.resetInput:not(select){
+	-webkit-appearance: none;
 	appearance: none;
 }
 
@@ -189,6 +191,10 @@ body, html{
 	cursor: inherit;
 	color: var(--default-text-color-disabled-textfield);
 	background: var(--default-input-box-color-disabled);
+}
+
+select.textInput{
+	width: auto;
 }
 
 .numericGui{

@@ -24,6 +24,7 @@ export default class DropDownGui{
 		}
 
 		this.el = document.createElement("select");
+		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
 		for(const [i, option] of itemTexts.entries()){
 			const optionEl = document.createElement("option");
 			optionEl.value = i;
