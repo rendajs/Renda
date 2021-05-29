@@ -4,20 +4,24 @@ export default class Button{
 		icon = null,
 		hasDownArrow = false,
 		onClick = null,
+		disabled = false,
 	} = {}){
 		this.el = document.createElement("div");
 		this.el.classList.add("button", "buttonLike");
 		this.onClick = onClick;
-		this.boundFireOnClick = this.fireOnClick.bind(this);
-		this.el.addEventListener("click", this.boundFireOnClick);
+		this.boundClick = this.click.bind(this);
+		this.el.addEventListener("click", this.boundClick);
+		this.disabled = disabled;
 		this.setText(text);
+		this.setDisabled(disabled);
 	}
 
 	destructor(){
-		this.el.removeEventListener("click", this.boundFireOnClick);
+		this.el.removeEventListener("click", this.boundClick);
 	}
 
-	fireOnClick(){
+	click(){
+		if(this.disabled) return;
 		if(this.onClick) this.onClick();
 	}
 
@@ -27,5 +31,10 @@ export default class Button{
 
 	setSelectedHighlight(selected){
 		this.el.classList.toggle("selected", selected);
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.el.classList.toggle("disabled", disabled);
 	}
 }

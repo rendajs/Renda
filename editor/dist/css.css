@@ -16,6 +16,7 @@
 	--default-button-active-color: #565656;
 	--default-button-selected-color: #929292;
 	--default-button-text-color: #eaeaea;
+	--default-button-text-color-disabled: #9a9a9a;
 	--focused-window-border-color: #838383;
 	--default-input-box-color: #101010;
 	--default-input-box-color-disabled: ececec;
@@ -42,6 +43,7 @@
 		--default-button-active-color: #b9b9b9;
 		--default-button-selected-color: #afafaf;
 		--default-button-text-color: #505050;
+		--default-button-text-color-disabled: #acacac;
 		--focused-window-border-color: #717171;
 		--default-input-box-color: #f7f7f7;
 		--default-input-box-color-disabled: #ececec;
@@ -143,11 +145,14 @@ body, html{
 	margin-right: 1px;
 }
 
-.button:hover{
+.button:hover:not(.disabled){
 	background: var(--default-button-hover-color);
 }
-.button:active{
+.button:active:not(.disabled){
 	background: var(--default-button-active-color);
+}
+.button.disabled{
+	color: var(--default-button-text-color-disabled);
 }
 
 .button.selected{
