@@ -7,7 +7,7 @@
 	--overlay-panel-borders-color: #5a5a5a;
 	--default-text-color: #bdbdbd;
 	--default-text-color-disabled-context-menu: #5a5a5a;
-	--default-text-color-disabled-textfield: #5a5a5a;
+	--default-text-color-disabled-textfield: #8d8d8d;
 	--color-selected-blue: #005598;
 	--color-selected-blue-textfield: #005598fe;
 	--selected-text-color: #ffffff;
@@ -19,7 +19,7 @@
 	--default-button-text-color-disabled: #9a9a9a;
 	--focused-window-border-color: #838383;
 	--default-input-box-color: #101010;
-	--default-input-box-color-disabled: ececec;
+	--default-input-box-color-disabled: #2f2f2f;
 	--default-input-box-border-color: transparent;
 	--default-input-box-border-hover-color: #464646;
 	--default-input-placeholder-color: #585858;
@@ -200,6 +200,10 @@ body, html{
 
 select.textInput{
 	width: auto;
+}
+
+select.textInput:disabled{
+	opacity: 1;
 }
 
 .numericGui{
