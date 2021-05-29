@@ -91,7 +91,7 @@ export default class AssetManager{
 	}
 
 	async makeAssetUuidConsistent(asset){
-		if(asset.needsConsistentUuid) return;
+		if(asset.needsConsistentUuid || asset.isBuiltIn) return;
 		asset.makeUuidConsistent();
 		await this.saveAssetSettings();
 	}

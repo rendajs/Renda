@@ -313,6 +313,7 @@ export default class ProjectAsset{
 	}
 
 	async writeAssetData(fileData){
+		if(this.isBuiltIn) return;
 		await this.waitForInit();
 		if(this._projectAssetType.constructor.storeInProjectAsJson){
 			let json = null;

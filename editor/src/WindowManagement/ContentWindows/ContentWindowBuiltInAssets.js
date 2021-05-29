@@ -16,7 +16,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		this.treeView = new TreeView();
 		this.treeView.rowVisible = false;
 		this.treeView.draggable = true;
-		// this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
+		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		// this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		// this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
@@ -84,5 +84,19 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 				await navigator.clipboard.writeText(projectAsset.uuid);
 			}},
 		]);
+	}
+
+	onTreeViewSelectionChange(changes){
+		changes.added = this.mapTreeViewArrayToProjectAssets(changes.added);
+		changes.removed = this.mapTreeViewArrayToProjectAssets(changes.removed);
+		this.selectionManager.changeSelection(changes);
+	}
+
+	mapTreeViewArrayToProjectAssets(treeViews){
+		const newArr = [];
+		for(const treeView of treeViews){
+			newArr.push(this.treeViewAssets.get(treeView));
+		}
+		return newArr;
 	}
 }
