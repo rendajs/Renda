@@ -6,7 +6,8 @@
 	--panel-borders-color: #272727;
 	--overlay-panel-borders-color: #5a5a5a;
 	--default-text-color: #bdbdbd;
-	--default-text-color-disabled: #5a5a5a;
+	--default-text-color-disabled-context-menu: #5a5a5a;
+	--default-text-color-disabled-textfield: #5a5a5a;
 	--color-selected-blue: #005598;
 	--color-selected-blue-textfield: #005598fe;
 	--selected-text-color: #ffffff;
@@ -17,6 +18,7 @@
 	--default-button-text-color: #eaeaea;
 	--focused-window-border-color: #838383;
 	--default-input-box-color: #101010;
+	--default-input-box-color-disabled: ececec;
 	--default-input-box-border-color: transparent;
 	--default-input-box-border-hover-color: #464646;
 	--default-input-placeholder-color: #585858;
@@ -30,7 +32,8 @@
 		--panel-borders-color: #e0e0e0;
 		--overlay-panel-borders-color: #c9c9c9;
 		--default-text-color: #505050;
-		--default-text-color-disabled: #bdbdbd;
+		--default-text-color-disabled-context-menu: #bdbdbd;
+		--default-text-color-disabled-textfield: #7f7f7f;
 		--color-selected-blue: #008fff;
 		--selected-text-color: #ffffff;
 		--color-selected-blue-textfield: #95c0fffe;
@@ -41,6 +44,7 @@
 		--default-button-text-color: #505050;
 		--focused-window-border-color: #717171;
 		--default-input-box-color: #f7f7f7;
+		--default-input-box-color-disabled: #ececec;
 		--default-input-box-border-color: #dadcda;
 		--default-input-box-border-hover-color: #a4a4a4;
 		--default-input-placeholder-color: #c7c7c7;
@@ -169,7 +173,7 @@ body, html{
 	color: var(--default-input-placeholder-color);
 }
 
-.textInput:hover{
+.textInput:hover:not(:disabled){
 	box-shadow: inset 0px 0px 0 1px var(--default-input-box-border-hover-color);
 }
 
@@ -181,6 +185,12 @@ body, html{
 	background: var(--color-selected-blue-textfield);
 }
 
+.textInput:disabled{
+	cursor: inherit;
+	color: var(--default-text-color-disabled-textfield);
+	background: var(--default-input-box-color-disabled);
+}
+
 .numericGui{
 	cursor: crosshair;
 }
@@ -189,7 +199,7 @@ body, html{
 	cursor: text;
 }
 
-.numericGui.nocaret{
+.numericGui.nocaret:not(:disabled){
 	color: transparent;
 	text-shadow: 0 0 0 var(--default-text-color);
 }
@@ -436,7 +446,7 @@ body, html{
 	padding: 1px 3px;
 }
 .contextMenuItem.disabled{
-	color: var(--default-text-color-disabled);
+	color: var(--default-text-color-disabled-context-menu);
 }
 
 .contextMenuItem:hover:not(.disabled){

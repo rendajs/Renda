@@ -11,6 +11,7 @@ export default class NumericGui{
 		stepStart = 0,
 		suffix = "",
 		prefix = "",
+		disabled = false,
 
 		//when the numeric value is one of these keys, the mapped string will be displayed in the gui instead
 		//this.getValue() will return a numbel, unless `mapNumericValuesToStrings` is set
@@ -31,6 +32,7 @@ export default class NumericGui{
 		this.stepStart = stepStart;
 		this.suffix = suffix;
 		this.prefix = prefix;
+		this.disabled = disabled;
 		this.mappedStringValues = new Map(mappedStringValues);
 		this.inverseMappedStringValues = new Map();
 		for(const [val, str] of mappedStringValues){
@@ -61,6 +63,7 @@ export default class NumericGui{
 		this.setIsTextAdjusting(false);
 		this.setValue(defaultValue);
 		this.updateTextValue();
+		this.setDisabled(disabled);
 	}
 
 	destructor(){
@@ -81,6 +84,11 @@ export default class NumericGui{
 		this.boundOnInput = null;
 		this.boundOnKeyDown = null;
 		this.onValueChangeCbs = null;
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.el.disabled = disabled;
 	}
 
 	setValue(value, updateTextValue = true){
@@ -222,6 +230,7 @@ export default class NumericGui{
 	}
 
 	onWheel(e){
+		if(this.disabled) return;
 		e.preventDefault();
 		this.adjustValue(-e.deltaX, e.deltaY, e, this.scrollAdjustSpeed);
 		this.el.blur();

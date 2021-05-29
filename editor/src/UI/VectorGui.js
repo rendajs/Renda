@@ -4,11 +4,13 @@ import {Vec3} from "../../../src/index.js";
 export default class VectorGui{
 	constructor({
 		size = 3,
+		disabled = false,
 	} = {}){
 		this.el = document.createElement("div");
 		this.el.classList.add("vectorGui", "buttonGroupLike");
 		this.numericGuis = [];
 		this.onValueChangeCbs = [];
+		this.disabled = false;
 
 		for(let i=0; i<size; i++){
 			let numericGui = new NumericGui();
@@ -16,6 +18,8 @@ export default class VectorGui{
 			this.el.appendChild(numericGui.el);
 			numericGui.onValueChange(() => this.fireValueChange());
 		}
+
+		this.setDisabled(disabled);
 	}
 
 	destructor(){
@@ -27,6 +31,13 @@ export default class VectorGui{
 			gui.destructor();
 		}
 		this.numericGuis = null;
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		for(const gui of this.numericGuis){
+			gui.setDisabled(disabled);
+		}
 	}
 
 	setValue(vector){
