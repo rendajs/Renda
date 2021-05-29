@@ -30,6 +30,7 @@ export default class PropertiesAssetContentGenericStructure extends PropertiesAs
 		this.isUpdatingUi = true;
 
 		await this.assetTreeView.fillSerializableStructureValues(assetData);
+		this.assetTreeView.setFullTreeDisabled(asset.isBuiltIn);
 
 		this.isUpdatingUi = false;
 	}
