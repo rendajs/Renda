@@ -1,8 +1,10 @@
 export default class BooleanGui{
 	constructor({
 		defaultValue = false,
+		disabled = false,
 	} = {}){
 		this.defaultValue = defaultValue;
+		this.disabled = disabled;
 
 		this.el = document.createElement("input");
 		this.el.type = "checkbox";
@@ -36,5 +38,10 @@ export default class BooleanGui{
 		for(const cb of this.onValueChangeCbs){
 			cb(this.value);
 		}
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.el.disabled = disabled;
 	}
 }
