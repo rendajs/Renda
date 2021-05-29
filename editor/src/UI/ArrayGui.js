@@ -85,11 +85,17 @@ export default class ArrayGui{
 	}
 
 	setValue(value){
+		const removeCount = this.valueItems.length - value.length;
+		if(removeCount > 0){
+			for(let i=0; i<removeCount; i++){
+				this.removeItem();
+			}
+		}
 		for(const [i, item] of value.entries()){
 			if(this.valueItems.length <= i){
 				this.addItem({value: item});
 			}else{
-				this.valueItems.setValue(item);
+				this.valueItems[i].setValue(item);
 			}
 		}
 	}
