@@ -3,8 +3,7 @@
 #include 26ace8e7-7181-4e44-b507-f723b3567e9d
 #include 0e0f87de-6305-45df-9513-c5c08d08a2d7
 
-//todo: don't hardcode this
-let clusterCount : vec3<u32> = vec3<u32>(16u, 9u, 24u);
+let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
 fn squareDistPointToAabb(point : vec3<f32>, minAabb : vec3<f32>, maxAabb : vec3<f32>) -> f32 {
 

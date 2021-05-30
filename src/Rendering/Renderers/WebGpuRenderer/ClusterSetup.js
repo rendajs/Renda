@@ -1,3 +1,5 @@
+import ShaderBuilder from "../../ShaderBuilder.js";
+
 export default class ClusterSetup{
 	constructor(camera, cachedCameraData){
 		this.camera = camera;
@@ -24,6 +26,17 @@ export default class ClusterSetup{
 		this.createComputeLightIndicesObjects();
 	}
 
+	get shaderDefines(){
+		return {
+			totalClusterCount: this.totalClusterCount,
+			maxLightsPerCluster: this.maxLightsPerCluster,
+			clusterLightIndicesStride: this.maxLightsPerCluster * 4 + 4,
+			clusterCountX: this.clusterCountX,
+			clusterCountY: this.clusterCountY,
+			clusterCountZ: this.clusterCountZ,
+		}
+	}
+
 	createComputeBoundsObjects(){
 		if(this.computeBoundsPipelineDirty){
 			//todo: destroy old buffers etc
@@ -36,7 +49,7 @@ export default class ClusterSetup{
 				}),
 				compute: {
 					module: this.renderer.device.createShaderModule({
-						code: this.renderer.computeClusterBoundsShaderCode.source,
+						code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterBoundsShaderCode.source, this.shaderDefines),
 					}),
 					entryPoint: "main",
 				},
@@ -86,7 +99,7 @@ export default class ClusterSetup{
 				}),
 				compute: {
 					module: this.renderer.device.createShaderModule({
-						code: this.renderer.computeClusterLightsShaderCode.source,
+						code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterLightsShaderCode.source, this.shaderDefines),
 					}),
 					entryPoint: "main",
 				},

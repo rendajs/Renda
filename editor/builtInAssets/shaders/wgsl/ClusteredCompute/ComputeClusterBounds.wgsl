@@ -2,8 +2,7 @@
 #include 8cd64104-1d45-4536-972a-5685a2523725
 #include 26ace8e7-7181-4e44-b507-f723b3567e9d
 
-//todo: don't hardcode this
-let clusterCount : vec3<u32> = vec3<u32>(16u, 9u, 24u);
+let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
 fn screen2View(screen : vec2<f32>) -> vec3<f32> {
 	let flippedScreen : vec2<f32> = vec2<f32>(screen.x, 1.0 - screen.y);

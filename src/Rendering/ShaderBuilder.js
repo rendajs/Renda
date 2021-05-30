@@ -139,4 +139,11 @@ export default class ShaderBuilder{
 			cb(uuid);
 		}
 	}
+
+	static fillShaderDefines(shaderCode, defines){
+		for(const [key, value] of Object.entries(defines)){
+			shaderCode = shaderCode.replaceAll("${"+key+"}", value);
+		}
+		return shaderCode;
+	}
 }

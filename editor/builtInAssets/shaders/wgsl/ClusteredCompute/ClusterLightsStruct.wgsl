@@ -1,8 +1,8 @@
 struct ClusterLightIndices {
 	lightCount : u32;
-	indices : [[stride(4)]] array<u32, 10>; //todo: don't hardcode lightcount
+	indices : [[stride(4)]] array<u32, ${maxLightsPerCluster}>;
 };
 [[block]] struct ClusterLightIndicesArray {
-	clusters : [[stride(44)]] array<ClusterLightIndices, 3456>; //todo, don't hard code clustercount and stride
+	clusters : [[stride(${clusterLightIndicesStride})]] array<ClusterLightIndices, ${totalClusterCount}>;
 };
 [[group(1), binding(1)]] var<storage> clusterLightIndices : [[access(write)]] ClusterLightIndicesArray;
