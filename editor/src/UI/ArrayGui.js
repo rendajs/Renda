@@ -68,6 +68,7 @@ export default class ArrayGui{
 		addedItem.onValueChange(() => {
 			this.fireValueChange();
 		});
+		if(this.disabled) addedItem.setDisabled(true);
 		this.valueItems.push(addedItem);
 		this.fireValueChange();
 	}

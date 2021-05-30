@@ -10,6 +10,7 @@ export default class PropertiesTreeView extends TreeView{
 		this.rowVisible = rowVisible;
 		this.name = name;
 		this.selectable = false;
+		this.fullTreeDisabled = false;
 
 		this.currentSerializableStructureItems = null;
 
@@ -27,6 +28,7 @@ export default class PropertiesTreeView extends TreeView{
 
 	addItem(opts){
 		let item = new PropertiesTreeViewEntry(opts);
+		if(this.fullTreeDisabled) item.setDisabled(true);
 		this.addChild(item);
 		return item;
 	}
@@ -83,6 +85,7 @@ export default class PropertiesTreeView extends TreeView{
 	}
 
 	setFullTreeDisabled(disabled){
+		this.fullTreeDisabled = disabled;
 		for(const child of this.children){
 			child.setDisabled(disabled);
 		}

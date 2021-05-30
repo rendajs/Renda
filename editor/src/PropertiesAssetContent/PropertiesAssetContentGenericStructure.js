@@ -26,11 +26,11 @@ export default class PropertiesAssetContentGenericStructure extends PropertiesAs
 		//todo: handle multiple selected items or no selection
 
 		const asset = this.currentSelection[0];
+		this.assetTreeView.setFullTreeDisabled(asset.isBuiltIn);
 		const assetData = await asset.readAssetData();
 		this.isUpdatingUi = true;
 
-		await this.assetTreeView.fillSerializableStructureValues(assetData);
-		this.assetTreeView.setFullTreeDisabled(asset.isBuiltIn);
+		this.assetTreeView.fillSerializableStructureValues(assetData);
 
 		this.isUpdatingUi = false;
 	}
