@@ -1,5 +1,3 @@
-import {computeClusterBoundsShaderCode, computeClusterLightsShaderCode} from "./ClusteredComputeShaders.js";
-
 export default class ClusterSetup{
 	constructor(camera, cachedCameraData){
 		this.camera = camera;
@@ -38,12 +36,7 @@ export default class ClusterSetup{
 				}),
 				compute: {
 					module: this.renderer.device.createShaderModule({
-						code: computeClusterBoundsShaderCode({
-							totalClusterCount: this.totalClusterCount,
-							clusterCountX: this.clusterCountX,
-							clusterCountY: this.clusterCountY,
-							clusterCountZ: this.clusterCountZ,
-						}),
+						code: this.renderer.computeClusterBoundsShaderCode.source,
 					}),
 					entryPoint: "main",
 				},
@@ -93,13 +86,7 @@ export default class ClusterSetup{
 				}),
 				compute: {
 					module: this.renderer.device.createShaderModule({
-						code: computeClusterLightsShaderCode({
-							totalClusterCount: this.totalClusterCount,
-							maxLightsPerCluster: this.maxLightsPerCluster,
-							clusterCountX: this.clusterCountX,
-							clusterCountY: this.clusterCountY,
-							clusterCountZ: this.clusterCountZ,
-						}),
+						code: this.renderer.computeClusterLightsShaderCode.source,
 					}),
 					entryPoint: "main",
 				},

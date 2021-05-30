@@ -36,6 +36,18 @@
 		"cf617a8f-4afa-4147-8afa-71bb6314a554": {
 			"path": ["gizmos", "wgsl", "Frag.wgsl"]
 		},
+		"26ace8e7-7181-4e44-b507-f723b3567e9d": {
+			"path": ["shaders", "wgsl", "ClusteredCompute", "ClusterBoundsStruct.wgsl"]
+		},
+		"0e0f87de-6305-45df-9513-c5c08d08a2d7": {
+			"path": ["shaders", "wgsl", "ClusteredCompute", "ClusterLightsStruct.wgsl"]
+		},
+		"892d56b3-df77-472b-93dd-2c9c38ec2f3d": {
+			"path": ["shaders", "wgsl", "ClusteredCompute", "ComputeClusterBounds.wgsl"]
+		},
+		"a2b8172d-d910-47e9-8d3b-2a8ea3280153": {
+			"path": ["shaders", "wgsl", "ClusteredCompute", "ComputeClusterLights.wgsl"]
+		},
 		"9deb2d09-8c4a-45b7-b60a-30eb9536d199": {
 			"path": ["shaders", "wgsl", "materials", "frag.wgsl"]
 		},

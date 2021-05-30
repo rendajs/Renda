@@ -32,7 +32,8 @@ export default class WebGpuRenderer extends Renderer{
 		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
 			this.computeClusterBoundsBindGroupLayout = null;
 			this.computeClusterLightsBindGroupLayout = null;
-			this.lightUniformsShaderCodeTest = null;
+			this.computeClusterBoundsShaderCode = null;
+			this.computeClusterLightsShaderCode = null;
 		}
 		this.viewUniformsBuffer = null;
 		this.materialUniformsBuffer = null;
@@ -112,7 +113,13 @@ export default class WebGpuRenderer extends Renderer{
 				],
 			});
 
-			this.lightUniformsShaderCodeTest = await defaultEngineAssetsManager.getAsset("8cd64104-1d45-4536-972a-5685a2523725");
+
+			await defaultEngineAssetsManager.watchAsset("892d56b3-df77-472b-93dd-2c9c38ec2f3d", asset => {
+				this.computeClusterBoundsShaderCode = asset;
+			});
+			await defaultEngineAssetsManager.watchAsset("a2b8172d-d910-47e9-8d3b-2a8ea3280153", asset => {
+				this.computeClusterLightsShaderCode = asset;
+			});
 		}
 
 		this.viewUniformsBuffer = new WebGpuBufferHelper({
