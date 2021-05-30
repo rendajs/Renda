@@ -44,7 +44,6 @@ export default class BuiltInAssetManager{
 	init(){
 		if(IS_DEV_BUILD){
 			editor.devSocket.addListener("builtInAssetChange", data => {
-				console.log("builtInAssetChange", data);
 				const asset = this.assets.get(data.uuid);
 				if(asset){
 					asset.fileChangedExternally();
@@ -66,7 +65,6 @@ export default class BuiltInAssetManager{
 	}
 
 	async fetchAsset(path, format="json"){
-		console.log("fetchAsset", path);
 		const response = await fetch(this.basePath + path.join("/"));
 		if(format == "json"){
 			return await response.json();
