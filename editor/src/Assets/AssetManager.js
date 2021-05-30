@@ -9,6 +9,7 @@ export default class AssetManager{
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
 		this.assetSettingsLoaded = false;
+		this.waitForAssetSettingsLoadCbs = new Set();
 		this.loadAssetSettings();
 
 		this.boundExternalChange = this.externalChange.bind(this);
@@ -48,7 +49,15 @@ export default class AssetManager{
 				}
 			}
 		}
+		for(const cb of this.waitForAssetSettingsLoadCbs){
+			cb();
+		}
 		this.assetSettingsLoaded = true;
+	}
+
+	async waitForAssetSettingsLoad(){
+		if(this.assetSettingsLoaded) return;
+		await new Promise(r => this.waitForAssetSettingsLoadCbs.add(r));
 	}
 
 	async saveAssetSettings(){

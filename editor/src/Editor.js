@@ -64,6 +64,8 @@ export default class Editor{
 
 		this.builtInAssetManager.init();
 		defaultEngineAssetsManager.addGetAssetHandler(async (uuid) => {
+			await this.builtInAssetManager.waitForLoad();
+			await this.projectManager.waitForAssetManagerLoad();
 			const projectAsset = this.builtInAssetManager.assets.get(uuid);
 			if(!projectAsset) return null;
 			return await projectAsset.getLiveAsset();

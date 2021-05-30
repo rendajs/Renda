@@ -18,6 +18,8 @@ export default class ProjectManager{
 				this.suggestCheckExternalChanges();
 			}
 		});
+
+		this.onAssetManagerLoadCbs = new Set();
 	}
 
 	openProject(fileSystem){
@@ -32,11 +34,21 @@ export default class ProjectManager{
 		this.reloadAssetManager();
 	}
 
-	reloadAssetManager(){
+	async reloadAssetManager(){
 		if(this.assetManager){
 			this.assetManager.destructor();
 		}
 		this.assetManager = new AssetManager();
+		await this.assetManager.waitForAssetSettingsLoad();
+		for(const cb of this.onAssetManagerLoadCbs){
+			cb();
+		}
+		this.onAssetManagerLoadCbs.clear();
+	}
+
+	async waitForAssetManagerLoad(){
+		if(this.assetManager && this.assetManager.assetSettingsLoaded) return;
+		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
 	}
 
 	async openProjectFromLocalDirectory(){
