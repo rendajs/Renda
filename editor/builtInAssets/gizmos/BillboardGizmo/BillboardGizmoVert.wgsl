@@ -15,7 +15,8 @@ fn main() -> void {
 	outPos = outPos / vec4<f32>(w,w,w,w);
 	outPos.x = outPos.x + vertexPos.x / viewUniforms.screenSize.x;
 	outPos.y = outPos.y + vertexPos.y / viewUniforms.screenSize.y;
-	outPos = vec4<f32>(outPos.xy, 0.0, 1.0);
+	outPos.z = outPos.z + vertexPos.z / viewUniforms.screenSize.z;
+	outPos = vec4<f32>(outPos.xyz, 1.0);
 	vertexColorOut = vertexColor;
 	return;
 }
