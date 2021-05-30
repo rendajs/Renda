@@ -21,11 +21,3 @@ export function isUuid(uuidStr){
 	const re = /[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}/gmi;
 	return re.test(uuidStr);
 }
-
-export function findObjectKey(obj, value){
-	for(const [key,val] of Object.entries(obj)){
-		if(val == value){
-			return key;
-		}
-	}
-}

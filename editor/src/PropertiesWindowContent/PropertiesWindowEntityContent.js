@@ -1,6 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import {Entity, Vec3, Quaternion, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
-import {findObjectKey} from "../../../src/Util/Util.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
