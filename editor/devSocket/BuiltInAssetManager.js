@@ -3,7 +3,7 @@ import {promises as fs} from "fs";
 import path from "path";
 import {fileURLToPath} from "url";
 import {sendAllConnections} from "./index.js";
-import {generateUuid} from "./Util.js";
+import {generateUuid, base64ToArrayBuffer} from "./Util.js";
 import {toFormattedJsonString} from "../src/Util/Util.js";
 import md5 from "js-md5";
 
@@ -223,6 +223,17 @@ export default class BuiltInAssetManager{
 		const uuid = generateUuid();
 		this.assetSettings.set(uuid, {path});
 		return uuid;
+	}
+
+	async writeAssetData(pathArr, base64Data, responsecb){
+		const fullPath = path.resolve(this.builtInAssetsPath, ...pathArr);
+		const buffer = base64ToArrayBuffer(base64Data);
+		let success = false;
+		try{
+			await fs.writeFile(fullPath, new Uint8Array(buffer));
+			success = true;
+		}catch(e){}
+		responsecb(success);
 	}
 
 	testPathStartsWith(path, startsWithPath){

@@ -317,7 +317,6 @@ export default class ProjectAsset{
 	}
 
 	async writeAssetData(fileData){
-		if(this.isBuiltIn) return;
 		await this.waitForInit();
 		if(this._projectAssetType.constructor.storeInProjectAsJson){
 			let json = null;
@@ -329,11 +328,23 @@ export default class ProjectAsset{
 			}else{
 				json = fileData;
 			}
-			await editor.projectManager.currentProjectFileSystem.writeJson(this.path, json);
+			if(this.isBuiltIn){
+				await editor.builtInAssetManager.writeJson(this.path, json);
+			}else{
+				await editor.projectManager.currentProjectFileSystem.writeJson(this.path, json);
+			}
 		}else if(this._projectAssetType.constructor.storeInProjectAsText){
-			await editor.projectManager.currentProjectFileSystem.writeText(this.path, fileData);
+			if(this.isBuiltIn){
+				await editor.builtInAssetManager.writeText(this.path, fileData);
+			}else{
+				await editor.projectManager.currentProjectFileSystem.writeText(this.path, fileData);
+			}
 		}else{
-			await editor.projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
+			if(this.isBuiltIn){
+				await editor.builtInAssetManager.writeBinary(this.path, fileData);
+			}else{
+				await editor.projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
+			}
 		}
 	}
 

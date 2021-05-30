@@ -1,7 +1,8 @@
 import ProjectAsset from "./ProjectAsset.js";
-import {SingleInstancePromise} from "../../../src/index.js";
+import {SingleInstancePromise, arrayBufferToBase64} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
+import {toFormattedJsonString} from "../Util/Util.js";
 
 export default class BuiltInAssetManager{
 	constructor(){
@@ -43,6 +44,7 @@ export default class BuiltInAssetManager{
 	init(){
 		if(IS_DEV_BUILD){
 			editor.devSocket.addListener("builtInAssetChange", data => {
+				console.log("builtInAssetChange", data);
 				const asset = this.assets.get(data.uuid);
 				if(asset){
 					asset.fileChangedExternally();
@@ -64,6 +66,7 @@ export default class BuiltInAssetManager{
 	}
 
 	async fetchAsset(path, format="json"){
+		console.log("fetchAsset", path);
 		const response = await fetch(this.basePath + path.join("/"));
 		if(format == "json"){
 			return await response.json();
@@ -77,5 +80,26 @@ export default class BuiltInAssetManager{
 	onAssetChange(cb){
 		if(!IS_DEV_BUILD) return;
 		this.onAssetChangeCbs.add(cb);
+	}
+
+	async writeJson(path, json){
+		if(!IS_DEV_BUILD) return;
+		let jsonStr = toFormattedJsonString(json);
+		await this.writeText(path, jsonStr);
+	}
+
+	async writeText(path, text){
+		if(!IS_DEV_BUILD) return;
+		const encoder = new TextEncoder();
+		const buffer = encoder.encode(text);
+		await this.writeBinary(path, buffer.buffer);
+	}
+
+	async writeBinary(path, arrayBuffer){
+		if(!IS_DEV_BUILD) return;
+		await editor.devSocket.sendRoundTripMessage("writeBuiltInAsset", {
+			path,
+			writeData: arrayBufferToBase64(arrayBuffer),
+		});
 	}
 }

@@ -16,3 +16,8 @@ export function generateUuid() {
 		return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
 	});
 }
+
+export function base64ToArrayBuffer(base64){
+	const buffer = Buffer.from(base64, "base64");
+	return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+}

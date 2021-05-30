@@ -21,3 +21,23 @@ export function isUuid(uuidStr){
 	const re = /[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}/gmi;
 	return re.test(uuidStr);
 }
+
+export function arrayBufferToBase64(buffer){
+	let binaryStr = "";
+	const bytes = new Uint8Array(buffer);
+	const length = bytes.byteLength;
+	for(let i=0; i<length; i++){
+		binaryStr += String.fromCharCode(bytes[i]);
+	}
+	return btoa(binaryStr);
+}
+
+export function base64ToArrayBuffer(base64){
+	let binaryStr = atob(base64);
+	const length = binaryStr.length;
+	const bytes = new Uint8Array(length);
+	for(let i=0; i<length; i++){
+		bytes[i] = binaryStr.charCodeAt(i);
+	}
+	return bytes.buffer;
+}
