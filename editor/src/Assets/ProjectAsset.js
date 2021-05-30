@@ -102,6 +102,10 @@ export default class ProjectAsset{
 		return this.path[this.path.length - 1];
 	}
 
+	get editable(){
+		return !this.isBuiltIn || editor.builtInAssetManager.allowAssetEditing;
+	}
+
 	//call AssetManager.makeAssetUuidConsistent() to also save
 	//the uuid to asset settings file immediately
 	makeUuidConsistent(){

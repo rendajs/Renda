@@ -58,6 +58,11 @@ export default class BuiltInAssetManager{
 		await this.loadAssetsInstance.waitForFinish();
 	}
 
+	get allowAssetEditing(){
+		if(!IS_DEV_BUILD) return false;
+		return editor.devSocket.connected;
+	}
+
 	async fetchAsset(path, format="json"){
 		const response = await fetch(this.basePath + path.join("/"));
 		if(format == "json"){

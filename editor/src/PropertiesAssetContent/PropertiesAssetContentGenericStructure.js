@@ -23,10 +23,11 @@ export default class PropertiesAssetContentGenericStructure extends PropertiesAs
 	}
 
 	async loadAsset(){
-		//todo: handle multiple selected items or no selection
+		const editable = this.currentSelection.some(asset => asset.editable);
+		this.assetTreeView.setFullTreeDisabled(!editable);
 
+		//todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
-		this.assetTreeView.setFullTreeDisabled(asset.isBuiltIn);
 		const assetData = await asset.readAssetData();
 		this.isUpdatingUi = true;
 
