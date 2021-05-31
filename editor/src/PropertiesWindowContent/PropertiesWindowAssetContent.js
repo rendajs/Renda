@@ -84,7 +84,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
 			//todo: handle selecting multiple assets or none
 			if(structure){
-				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {convertEnumsToString: true});
+				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {purpose: "fileStorage"});
 				await editor.projectManager.assetManager.saveAssetSettings();
 				break;
 			}

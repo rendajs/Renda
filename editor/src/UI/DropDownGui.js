@@ -65,10 +65,11 @@ export default class DropDownGui{
 	}
 
 	getValue({
-		convertEnumsToString = false,
+		getAsString = false,
+		purpose = "default",
 	} = {}){
 		let value = this.items[this.el.value];
-		if(this.enumObject && !convertEnumsToString){
+		if(this.enumObject && !getAsString && purpose != "fileStorage"){
 			value = this.enumObject[value];
 		}
 		return value;

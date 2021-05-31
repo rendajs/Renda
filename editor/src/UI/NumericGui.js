@@ -14,7 +14,7 @@ export default class NumericGui{
 		disabled = false,
 
 		//when the numeric value is one of these keys, the mapped string will be displayed in the gui instead
-		//this.getValue() will return a numbel, unless `mapNumericValuesToStrings` is set
+		//this.getValue() will return a numbel, unless `mapNumericValuesToStrings` or `purpose: "fileStorage"` is set
 		//example value: [[-1, "auto"], [-2, "disabled"]]
 		mappedStringValues = [],
 	} = {}){
@@ -112,8 +112,9 @@ export default class NumericGui{
 
 	getValue({
 		mapNumericValuesToStrings = false,
+		purpose = "default",
 	} = {}){
-		if(mapNumericValuesToStrings && this.mappedStringValues.has(this.internalValue)){
+		if((mapNumericValuesToStrings || purpose == "fileStorage") && this.mappedStringValues.has(this.internalValue)){
 			return this.mappedStringValues.get(this.internalValue);
 		}
 		return this.internalValue;

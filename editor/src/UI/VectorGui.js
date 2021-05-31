@@ -37,7 +37,12 @@ export default class VectorGui{
 	}
 
 	setValue(vector){
-		let arr = vector.toArray();
+		let arr;
+		if(Array.isArray(vector)){
+			arr = vector;
+		}else{
+			arr = vector.toArray();
+		}
 		for(let [i, gui] of this.numericGuis.entries()){
 			gui.setValue(arr[i]);
 		}
@@ -48,11 +53,12 @@ export default class VectorGui{
 	}
 
 	getValue({
-		convertMathTypesToArrays = false,
+		getAsArray = false,
+		purpose = "default",
 	} = {}){
 		let numbersArr = this.numericGuis.map(g => g.value);
 		let val = null;
-		if(convertMathTypesToArrays){
+		if(getAsArray || purpose == "fileStorage"){
 			val = numbersArr;
 		}else if(this.numericGuis.length == 3){
 			val = new Vec3(numbersArr);
