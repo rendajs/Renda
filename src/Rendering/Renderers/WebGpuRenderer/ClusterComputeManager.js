@@ -1,6 +1,6 @@
 import ShaderBuilder from "../../ShaderBuilder.js";
 
-export default class ClusterSetup{
+export default class ClusterComputeManager{
 	constructor(camera, cachedCameraData){
 		this.camera = camera;
 		this.cachedCameraData = cachedCameraData;

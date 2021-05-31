@@ -244,8 +244,8 @@ export default class WebGpuRenderer extends Renderer{
 
 		const cameraData = this.getCachedCameraData(camera);
 		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
-			cameraData.clusterSetup.computeBounds(commandEncoder);
-			cameraData.clusterSetup.computeLightIndices(commandEncoder);
+			cameraData.clusterComputeManager.computeBounds(commandEncoder);
+			cameraData.clusterComputeManager.computeLightIndices(commandEncoder);
 		}
 
 		this.lightsBuffer.appendData(lightComponents.length, "u32");

@@ -25,8 +25,8 @@ export default class ComponentGizmosCamera extends ComponentGizmos{
 
 	async updateClusterBounds(){
 		const clusterDataGizmo = this.createdGizmos[2];
-		const clusterSetup = editor.renderer.getCachedCameraData(this.component).clusterSetup;
-		const buffer = await editor.renderer.inspectBuffer(clusterSetup.boundsBuffer, clusterSetup.totalClusterCount * 32);
+		const clusterComputeManager = editor.renderer.getCachedCameraData(this.component).clusterComputeManager;
+		const buffer = await editor.renderer.inspectBuffer(clusterComputeManager.boundsBuffer, clusterComputeManager.totalClusterCount * 32);
 
 		const clusterBoundsData = [];
 		const dataView = new DataView(buffer);
