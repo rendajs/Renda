@@ -12,10 +12,6 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 		super(...arguments);
 	}
 
-	static createNewFile(){
-		return {};
-	}
-
 	static propertiesAssetContentStructure = {
 		buffers: {
 			type: Array,

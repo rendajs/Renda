@@ -12,8 +12,4 @@ export default class ProjectAssetTypeMaterialMap extends ProjectAssetType{
 	constructor(){
 		super(...arguments);
 	}
-
-	static createNewFile(){
-		return {};
-	}
 }

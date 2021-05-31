@@ -12,10 +12,6 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 		super(...arguments);
 	}
 
-	static createNewFile(){
-		return {};
-	}
-
 	static propertiesAssetContentStructure = {
 		vertexShader: {
 			type: ShaderSource,

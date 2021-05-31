@@ -20,12 +20,6 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 		this.boundOnShaderInvalidated = null;
 	}
 
-	static createNewFile(){
-		return `void main(){
-
-}`;
-	}
-
 	static expectedLiveAssetConstructor = ShaderSource;
 
 	async getLiveAssetData(source){

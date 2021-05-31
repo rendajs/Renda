@@ -59,14 +59,4 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 	constructor(){
 		super(...arguments);
 	}
-
-	static createNewFile(){
-		return `import JJ from "JJ";
-
-export default class NewClass{
-	constructor(){
-
-	}
-}"`;
-	}
 }

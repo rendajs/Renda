@@ -14,11 +14,6 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		super(...arguments);
 	}
 
-	static createNewFile(){
-		const entity = new Entity("New Entity");
-		return entity.toJson();
-	}
-
 	static expectedLiveAssetConstructor = Entity;
 
 	async getLiveAssetData(json){

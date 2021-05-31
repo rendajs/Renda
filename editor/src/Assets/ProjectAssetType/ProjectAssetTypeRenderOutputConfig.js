@@ -12,10 +12,6 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 		super(...arguments);
 	}
 
-	static createNewFile(){
-		return {};
-	}
-
 	//todo: better support for webgl config
 	static propertiesAssetContentStructure = {
 		depthStencilFormat: {

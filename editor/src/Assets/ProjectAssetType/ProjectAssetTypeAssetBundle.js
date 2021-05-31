@@ -11,8 +11,4 @@ export default class ProjectAssetTypeAssetBundle extends ProjectAssetType{
 	constructor(){
 		super(...arguments);
 	}
-
-	static createNewFile(){
-		return {};
-	}
 }
