@@ -11,7 +11,7 @@ export default class ClusterSetup{
 		this.clusterCountZ = 24;
 		this.totalClusterCount = this.clusterCountX * this.clusterCountY * this.clusterCountZ;
 
-		this.maxLightsPerCluster = 10;
+		this.maxLightsPerClusterPass = 10;
 
 		this.computeBoundsPipelineDirty = true;
 		this.computeBoundsPipeline = null;
@@ -29,8 +29,8 @@ export default class ClusterSetup{
 	get shaderDefines(){
 		return {
 			totalClusterCount: this.totalClusterCount,
-			maxLightsPerCluster: this.maxLightsPerCluster,
-			clusterLightIndicesStride: this.maxLightsPerCluster * 4 + 4,
+			maxLightsPerClusterPass: this.maxLightsPerClusterPass,
+			clusterLightIndicesStride: this.maxLightsPerClusterPass * 4 + 4,
 			clusterCountX: this.clusterCountX,
 			clusterCountY: this.clusterCountY,
 			clusterCountZ: this.clusterCountZ,
@@ -106,7 +106,7 @@ export default class ClusterSetup{
 			});
 
 			this.lightIndicesBuffer = this.renderer.device.createBuffer({
-				size: (this.maxLightsPerCluster * 4 + 4) * this.totalClusterCount,
+				size: (this.maxLightsPerClusterPass * 4 + 4) * this.totalClusterCount,
 				usage: GPUBufferUsage.STORAGE,
 			});
 

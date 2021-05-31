@@ -1,6 +1,6 @@
 struct ClusterLightIndices {
 	lightCount : u32;
-	indices : [[stride(4)]] array<u32, ${maxLightsPerCluster}>;
+	indices : [[stride(4)]] array<u32, ${maxLightsPerClusterPass}>;
 };
 [[block]] struct ClusterLightIndicesArray {
 	clusters : [[stride(${clusterLightIndicesStride})]] array<ClusterLightIndices, ${totalClusterCount}>;
