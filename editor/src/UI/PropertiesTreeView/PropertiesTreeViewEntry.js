@@ -51,7 +51,10 @@ export default class PropertiesTreeViewEntry extends TreeView{
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Vec3){
 			guiOpts.size = 3;
-			this.gui = new VectorGui(guiOpts);
+			this.gui = new VectorGui({
+				defaultValue,
+				...guiOpts,
+			});
 			this.valueEl.appendChild(this.gui.el);
 		}else if(type == Number){
 			this.gui = new NumericGui({

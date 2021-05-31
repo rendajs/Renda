@@ -3,9 +3,11 @@ import {Vec3} from "../../../src/index.js";
 
 export default class VectorGui{
 	constructor({
+		defaultValue = new Vec3(),
 		size = 3,
 		disabled = false,
 	} = {}){
+		this.defaultValue = defaultValue;
 		this.el = document.createElement("div");
 		this.el.classList.add("vectorGui", "buttonGroupLike");
 		this.numericGuis = [];
@@ -19,6 +21,7 @@ export default class VectorGui{
 			numericGui.onValueChange(() => this.fireValueChange());
 		}
 
+		this.setValue(defaultValue);
 		this.setDisabled(disabled);
 	}
 
