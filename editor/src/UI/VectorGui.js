@@ -47,13 +47,21 @@ export default class VectorGui{
 		this.onValueChangeCbs.push(cb);
 	}
 
-	get value(){
+	getValue({
+		convertMathTypesToArrays = false,
+	} = {}){
 		let numbersArr = this.numericGuis.map(g => g.value);
 		let val = null;
-		if(this.numericGuis.length == 3){
+		if(convertMathTypesToArrays){
+			val = numbersArr;
+		}else if(this.numericGuis.length == 3){
 			val = new Vec3(numbersArr);
 		}
 		return val;
+	}
+
+	get value(){
+		return this.getValue();
 	}
 
 	fireValueChange(){

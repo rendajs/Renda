@@ -42,6 +42,7 @@ export default class PropertiesAssetContentGenericStructure extends PropertiesAs
 			convertEnumsToString: true,
 			stripDefaultValues: true,
 			mapNumericValuesToStrings: true,
+			convertMathTypesToArrays: true,
 		});
 		this.currentSelection[0].writeAssetData(assetData);
 	}
