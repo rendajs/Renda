@@ -1,4 +1,5 @@
 import ProjectAssetTypeAssetBundle from "./ProjectAssetTypeAssetBundle.js";
+import ProjectAssetTypeClusteredLightsConfig from "./ProjectAssetTypeClusteredLightsConfig.js";
 import ProjectAssetTypeEntity from "./ProjectAssetTypeEntity.js";
 import ProjectAssetTypeJavascript from "./ProjectAssetTypeJavascript.js";
 import ProjectAssetTypeMaterial from "./ProjectAssetTypeMaterial.js";
@@ -11,6 +12,7 @@ import ProjectAssetTypeWebGpuPipelineConfig from "./ProjectAssetTypeWebGpuPipeli
 
 export default [
 	ProjectAssetTypeAssetBundle,
+	ProjectAssetTypeClusteredLightsConfig,
 	ProjectAssetTypeEntity,
 	ProjectAssetTypeJavascript,
 	ProjectAssetTypeMaterial,

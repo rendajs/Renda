@@ -35,6 +35,7 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 	};
 
 	static expectedLiveAssetConstructor = RenderOutputConfig;
+	static usedAssetLoaderType = AssetLoaderTypeRenderOutputConfig;
 
 	async getLiveAssetData(fileData){
 		const liveAsset = new RenderOutputConfig(fileData);
@@ -44,6 +45,4 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 	async fileChangedExternally(){
 		this.liveAssetNeedsReplacement();
 	}
-
-	static usedAssetLoaderType = AssetLoaderTypeRenderOutputConfig;
 }

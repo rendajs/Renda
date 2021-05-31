@@ -42,6 +42,9 @@ export default class ContentWindowProject extends ContentWindow{
 					{text: "New Render Output Config", cb: () => {
 						this.createAsset("JJ:renderOutputConfig");
 					}},
+					{text: "New Render Clustered Lights Config", cb: () => {
+						this.createAsset("JJ:clusteredLightsSetup");
+					}},
 				]);
 
 				menu.setPos(createButton, "top left");

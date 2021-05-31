@@ -41,6 +41,7 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 	};
 
 	static expectedLiveAssetConstructor = WebGpuPipelineConfig;
+	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfig;
 
 	async getLiveAssetData(fileData){
 		const fragmentShader = await editor.projectManager.assetManager.getProjectAsset(fileData.fragmentShader);
@@ -58,6 +59,4 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 	async fileChangedExternally(){
 		this.liveAssetNeedsReplacement();
 	}
-
-	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfig;
 }

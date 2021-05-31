@@ -1,3 +1,4 @@
+export {default as ClusteredLightsConfig} from "./ClusteredLightsConfig.js";
 export {default as Material} from "./Material.js";
 export {default as RendererDomTarget} from "./RendererDomTarget.js";
 export {default as RenderOutputConfig} from "./RenderOutputConfig.js";

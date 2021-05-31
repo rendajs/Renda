@@ -1,4 +1,5 @@
 export {default as AssetLoaderType} from "./AssetLoaderType.js";
+export {default as AssetLoaderTypeClusteredLightsConfig} from "./AssetLoaderTypeClusteredLightsConfig.js";
 export {default as AssetLoaderTypeEntity} from "./AssetLoaderTypeEntity.js";
 export {default as AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
 export {default as AssetLoaderTypeMaterial} from "./AssetLoaderTypeMaterial.js";
