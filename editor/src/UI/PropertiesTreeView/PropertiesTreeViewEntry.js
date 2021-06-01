@@ -157,7 +157,7 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		if(this.gui instanceof Button){
 			return true;
 		}
-		if(guiOpts && guiOpts.stripDefaultValues || guiOpts.purpose == "fileStorage"){
+		if(guiOpts && (guiOpts.stripDefaultValues || guiOpts.purpose == "fileStorage")){
 			if(this.gui.isDefaultValue){
 				if(this.gui.isDefaultValue(guiOpts)) return true;
 			}else{
