@@ -47,10 +47,6 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 		}
 	}
 
-	async fileChangedExternally(){
-		this.liveAssetNeedsReplacement();
-	}
-
 	async *getReferencedAssetUuids(){
 		const source = await this.projectAsset.readAssetData();
 		const {shaderCode, includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);

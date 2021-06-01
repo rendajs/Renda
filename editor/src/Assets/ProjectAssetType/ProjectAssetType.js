@@ -84,11 +84,18 @@ export default class ProjectAssetType{
 	//on your configuration you can return a json object, DOMString, or binary data
 	async saveLiveAssetData(liveAsset, editorData){}
 
-	//this gets called when the file is changed on disk by an external program.
-	//use this to modify the liveAsset, or call liveAssetNeedsReplacement() to
-	//replace the liveAsset with a new instance entirely.
-	async fileChangedExternally(){}
+	//This gets called when the file is changed on disk by an external program.
+	//By default this calls `liveAssetNeedsReplacement()` but you can optionally
+	//override this and reconfigure the current liveAsset manually without creating
+	//a new instance. This might be more efficient if the live asset is used in a lot
+	//of places, or if a new instance sets of a big chain of liveAsset replacements.
+	async fileChangedExternally(){
+		this.liveAssetNeedsReplacement();
+	}
 
+	//Destroys all current live asset data, informing any objects
+	//that are holding an instance of the liveAsset that they should
+	//request a new instance.
 	liveAssetNeedsReplacement(){
 		this.projectAsset.liveAssetNeedsReplacement();
 	}

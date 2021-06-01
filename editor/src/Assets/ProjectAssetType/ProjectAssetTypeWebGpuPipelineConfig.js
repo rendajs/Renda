@@ -55,8 +55,4 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 		});
 		return {liveAsset};
 	}
-
-	async fileChangedExternally(){
-		this.liveAssetNeedsReplacement();
-	}
 }

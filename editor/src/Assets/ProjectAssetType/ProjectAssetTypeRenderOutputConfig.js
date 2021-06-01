@@ -41,8 +41,4 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 		const liveAsset = new RenderOutputConfig(fileData);
 		return {liveAsset};
 	}
-
-	async fileChangedExternally(){
-		this.liveAssetNeedsReplacement();
-	}
 }

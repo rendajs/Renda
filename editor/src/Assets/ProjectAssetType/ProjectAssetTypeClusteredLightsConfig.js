@@ -31,8 +31,4 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 		const liveAsset = new ClusteredLightsConfig(fileData);
 		return {liveAsset};
 	}
-
-	async fileChangedExternally(){
-		this.liveAssetNeedsReplacement();
-	}
 }

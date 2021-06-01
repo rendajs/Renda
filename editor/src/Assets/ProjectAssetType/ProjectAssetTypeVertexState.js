@@ -75,15 +75,10 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 	};
 
 	static expectedLiveAssetConstructor = VertexState;
+	static usedAssetLoaderType = AssetLoaderTypeVertexState;
 
 	async getLiveAssetData(fileData){
 		const liveAsset = new VertexState(fileData);
 		return {liveAsset};
 	}
-
-	async fileChangedExternally(){
-		this.liveAssetNeedsReplacement();
-	}
-
-	static usedAssetLoaderType = AssetLoaderTypeVertexState;
 }
