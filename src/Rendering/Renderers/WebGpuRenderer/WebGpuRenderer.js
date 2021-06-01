@@ -244,7 +244,6 @@ export default class WebGpuRenderer extends Renderer{
 
 		const cameraData = this.getCachedCameraData(camera);
 		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
-			cameraData.clusterComputeManager.computeBounds(commandEncoder);
 			cameraData.clusterComputeManager.computeLightIndices(commandEncoder);
 		}
 
@@ -430,17 +429,17 @@ export default class WebGpuRenderer extends Renderer{
 		clusteredLightsConfig = null,
 	} = {}){
 		const keys = [shaderSource];
-		let code;
-		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
-			if(clusteredLightsConfig){
-				keys.push(clusteredLightsConfig);
-			}
-			code = ShaderBuilder.fillShaderDefines(shaderSource.source, clusteredLightsConfig.getShaderDefines());
-		}else{
-			code = shaderSource.source;
+		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig){
+			keys.push(clusteredLightsConfig);
 		}
 		let data = this.cachedShaderModules.get(keys);
 		if(!data){
+			let code;
+			if(ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig){
+				code = ShaderBuilder.fillShaderDefines(shaderSource.source, clusteredLightsConfig.getShaderDefines());
+			}else{
+				code = shaderSource.source;
+			}
 			data = this.device.createShaderModule({code});
 			this.cachedShaderModules.set(keys, data);
 		}

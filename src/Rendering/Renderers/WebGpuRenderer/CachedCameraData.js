@@ -8,13 +8,26 @@ export default class CachedCameraData{
 
 		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
 			this.clusterComputeManager = new ClusterComputeManager(camera, this);
+			this.lastUsedClusterConfig = null;
 		}
 
 		this.viewBindGroup = null;
 	}
 
+	testViewBindGroupDirty(){
+		if(!ENABLE_WEBGPU_CLUSTERED_LIGHTS) return false;
+		if(this.lastUsedClusterConfig){
+			const ref = this.lastUsedClusterConfig.deref();
+			if(ref){
+				if(this.camera.clusteredLightsConfig == ref) return false;
+			}
+		}
+		this.lastUsedClusterConfig = new WeakRef(this.camera.clusteredLightsConfig);
+		return true;
+	}
+
 	getViewBindGroup(){
-		if(!this.viewBindGroup){
+		if(!this.viewBindGroup || this.testViewBindGroupDirty()){
 			this.viewBindGroup = this.renderer.device.createBindGroup({
 				layout: this.renderer.viewBindGroupLayout,
 				entries: [
