@@ -8,6 +8,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 
 		this.watchTree = new Map();
 		this.updateWatchTreeInstance = new SingleInstancePromise(async _=> await this.updateWatchTree(), {once: false});
+		this.currentlyGettingFileCbs = new Map(); //<path, Set<cb>>
 	}
 
 	static async openUserDir(){
@@ -163,9 +164,22 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	async readFile(path = []){
+		const jointPath = path.join("/");
+		let cbs = this.currentlyGettingFileCbs.get(jointPath);
+		if(cbs){
+			return await new Promise(r => cbs.add(r));
+		}else{
+			cbs = new Set();
+			this.currentlyGettingFileCbs.set(jointPath, cbs);
+		}
 		const fileHandle = await this.getFileHandle(path);
 		await this.verifyHandlePermission(fileHandle, {writable: false});
-		return await fileHandle.getFile();
+		const fileContent = await fileHandle.getFile();
+		for(const cb of cbs){
+			cb(fileContent);
+		}
+		this.currentlyGettingFileCbs.delete(jointPath);
+		return fileContent;
 	}
 
 	async writeFile(path = [], file = null){
