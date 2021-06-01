@@ -15,11 +15,16 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 		clusterCount: {
 			type: Vec3,
 			defaultValue: new Vec3(16,9,24),
+			guiOpts: {
+				min: 1,
+				step: 1,
+			},
 		},
 		maxLightsPerClusterPass: {
 			defaultValue: 10,
 			guiOpts: {
 				min: 1,
+				step: 1,
 			},
 		},
 	};
