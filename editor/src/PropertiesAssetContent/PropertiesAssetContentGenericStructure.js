@@ -36,11 +36,12 @@ export default class PropertiesAssetContentGenericStructure extends PropertiesAs
 		this.isUpdatingUi = false;
 	}
 
-	saveAsset(){
+	async saveAsset(){
 		//todo: handle multiple selected items or no selection
 		const assetData = this.assetTreeView.getSerializableStructureValues(this.structure, {
 			purpose: "fileStorage"
 		});
-		this.currentSelection[0].writeAssetData(assetData);
+		await this.currentSelection[0].writeAssetData(assetData);
+		this.currentSelection[0].liveAssetNeedsReplacement();
 	}
 }

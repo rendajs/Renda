@@ -59,6 +59,7 @@ export default {
 			clipFar: BinaryComposer.StructureTypes.FLOAT64,
 			aspect: BinaryComposer.StructureTypes.FLOAT64,
 			renderOutputConfig: BinaryComposer.StructureTypes.ASSET_UUID,
+			clusteredLightsConfig: BinaryComposer.StructureTypes.ASSET_UUID,
 		},
 		nameIds: {
 			fov: 1,
@@ -66,6 +67,7 @@ export default {
 			clipFar: 3,
 			aspect: 4,
 			renderOutputConfig: 5,
+			clusteredLightsConfig: 6,
 		},
 	},
 };
