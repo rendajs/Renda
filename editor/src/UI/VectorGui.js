@@ -1,21 +1,42 @@
 import NumericGui from "./NumericGui.js";
-import {Vec3} from "../../../src/index.js";
+import {Vec2, Vec3, Vec4} from "../../../src/index.js";
 
 export default class VectorGui{
 	constructor({
-		defaultValue = new Vec3(),
+		defaultValue = null,
 		size = 3,
 		disabled = false,
+		min = null,
+		max = null,
+		step = null,
 	} = {}){
+		if(!defaultValue){
+			if(size == 2){
+				defaultValue = new Vec2();
+			}else if(size == 3){
+				defaultValue = new Vec3();
+			}else if(size == 4){
+				defaultValue = new Vec4();
+			}
+		}
 		this.defaultValue = defaultValue;
 		this.el = document.createElement("div");
 		this.el.classList.add("vectorGui", "buttonGroupLike");
 		this.numericGuis = [];
 		this.onValueChangeCbs = [];
 		this.disabled = false;
+		this.size = size;
+
+		min = this.getGuiOptArray(min);
+		max = this.getGuiOptArray(max);
+		step = this.getGuiOptArray(step);
 
 		for(let i=0; i<size; i++){
-			let numericGui = new NumericGui();
+			const numericGui = new NumericGui({
+				min: min[0],
+				max: max[0],
+				step: step[0],
+			});
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
 			numericGui.onValueChange(() => this.fireValueChange());
@@ -34,6 +55,19 @@ export default class VectorGui{
 			gui.destructor();
 		}
 		this.numericGuis = null;
+	}
+
+	getGuiOptArray(value){
+		if(Array.isArray(value)) return value;
+		if(typeof value == "number" || !value){
+			const array = [];
+			for(let i=0; i<this.size; i++){
+				array.push(value);
+			}
+			return array;
+		}else{
+			return value.toArray();
+		}
 	}
 
 	setValue(vector){
