@@ -181,7 +181,9 @@ export default class ProjectAsset{
 		}
 
 		//if destroyLiveAssetData has been called before this Promise was finished
-		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) return {liveAsset: null, editorData: null};
+		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) {
+			return await this.getLiveAssetData();
+		}
 
 		if(readFailed){
 			console.warn("error getting live asset for "+this.path.join("/"));
@@ -196,8 +198,7 @@ export default class ProjectAsset{
 			if((liveAsset || editorData) && this._projectAssetType){
 				this._projectAssetType.destroyLiveAssetData(liveAsset, editorData);
 			}
-			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
-			return {liveAsset: null, editorData: null};
+			return await this.getLiveAssetData();
 		}
 
 		this.liveAsset = liveAsset || null;
