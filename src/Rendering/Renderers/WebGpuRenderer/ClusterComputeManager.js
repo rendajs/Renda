@@ -6,13 +6,6 @@ export default class ClusterComputeManager{
 		this.cachedCameraData = cachedCameraData;
 		this.renderer = this.cachedCameraData.renderer;
 
-		this.clusterCountX = 16;
-		this.clusterCountY = 9;
-		this.clusterCountZ = 24;
-		this.totalClusterCount = this.clusterCountX * this.clusterCountY * this.clusterCountZ;
-
-		this.maxLightsPerClusterPass = 10;
-
 		this.computeBoundsPipelineDirty = true;
 		this.computeBoundsPipeline = null;
 		this.boundsBuffer = null;
@@ -26,15 +19,8 @@ export default class ClusterComputeManager{
 		this.createComputeLightIndicesObjects();
 	}
 
-	get shaderDefines(){
-		return {
-			totalClusterCount: this.totalClusterCount,
-			maxLightsPerClusterPass: this.maxLightsPerClusterPass,
-			clusterLightIndicesStride: this.maxLightsPerClusterPass * 4 + 4,
-			clusterCountX: this.clusterCountX,
-			clusterCountY: this.clusterCountY,
-			clusterCountZ: this.clusterCountZ,
-		}
+	get config(){
+		return this.camera.clusteredLightsConfig;
 	}
 
 	createComputeBoundsObjects(){
@@ -49,14 +35,14 @@ export default class ClusterComputeManager{
 				}),
 				compute: {
 					module: this.renderer.device.createShaderModule({
-						code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterBoundsShaderCode.source, this.shaderDefines),
+						code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterBoundsShaderCode.source, this.config.getShaderDefines()),
 					}),
 					entryPoint: "main",
 				},
 			});
 
 			this.boundsBuffer = this.renderer.device.createBuffer({
-				size: this.totalClusterCount * 32,
+				size: this.config.totalClusterCount * 32,
 				usage: GPUBufferUsage.STORAGE,
 			});
 
@@ -84,7 +70,7 @@ export default class ClusterComputeManager{
 		computePassEncoder.setPipeline(this.computeBoundsPipeline);
 		computePassEncoder.setBindGroup(0, this.cachedCameraData.getViewBindGroup());
 		computePassEncoder.setBindGroup(1, this.boundsBindGroup);
-		computePassEncoder.dispatch(this.clusterCountX, this.clusterCountY, this.clusterCountZ);
+		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 		computePassEncoder.endPass();
 	}
 
@@ -99,14 +85,14 @@ export default class ClusterComputeManager{
 				}),
 				compute: {
 					module: this.renderer.device.createShaderModule({
-						code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterLightsShaderCode.source, this.shaderDefines),
+						code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterLightsShaderCode.source, this.config.getShaderDefines()),
 					}),
 					entryPoint: "main",
 				},
 			});
 
 			this.lightIndicesBuffer = this.renderer.device.createBuffer({
-				size: (this.maxLightsPerClusterPass * 4 + 4) * this.totalClusterCount,
+				size: (this.config.maxLightsPerClusterPass * 4 + 4) * this.config.totalClusterCount,
 				usage: GPUBufferUsage.STORAGE,
 			});
 
@@ -141,7 +127,7 @@ export default class ClusterComputeManager{
 		computePassEncoder.setPipeline(this.computeLightIndicesPipeline);
 		computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
 		computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
-		computePassEncoder.dispatch(this.clusterCountX, this.clusterCountY, this.clusterCountZ);
+		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 		computePassEncoder.endPass();
 	}
 }

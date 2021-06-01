@@ -1,5 +1,5 @@
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../defines.js";
-import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh, MultiKeyWeakMap} from "../../../index.js";
+import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh, MultiKeyWeakMap, ShaderBuilder} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
@@ -54,7 +54,7 @@ export default class WebGpuRenderer extends Renderer{
 
 		this.cachedMeshData = new WeakMap();
 
-		this.cachedShaderModules = new WeakMap(); //<ShaderSource, GPUShaderModule>;
+		this.cachedShaderModules = new MultiKeyWeakMap(); //<[ShaderSource, clusteredLightsConfig], GPUShaderModule>;
 	}
 
 	async init(){
@@ -272,7 +272,7 @@ export default class WebGpuRenderer extends Renderer{
 					materialData.forwardPipelineConfig = mapData.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
-				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, meshComponent.mesh.vertexState, outputConfig);
+				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, meshComponent.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 				renderPassEncoder.setPipeline(forwardPipeline);
 				renderPassEncoder.setBindGroup(2, this.objectUniformsBufferBindGroup, [this.objectUniformsBuffer.currentBufferOffset]);
 				const mesh = meshComponent.mesh;
@@ -333,14 +333,25 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	getPipeline(pipelineConfig, vertexState, outputConfig){
+	getPipeline(pipelineConfig, vertexState, outputConfig, clusteredLightsConfig){
 		const keys = [outputConfig, vertexState, pipelineConfig];
+		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig){
+			keys.push(clusteredLightsConfig);
+		}
 		let pipeline = this.cachedPipelines.get(keys);
 		if(!pipeline){
+			let vertexModule, fragmentModule;
+			if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader, {clusteredLightsConfig});
+				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader, {clusteredLightsConfig});
+			}else{
+				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader);
+				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader);
+			}
 			pipeline = this.device.createRenderPipeline({
 				layout: this.pipelineLayout,
 				vertex: {
-					module: this.getCachedShaderModule(pipelineConfig.vertexShader),
+					module: vertexModule,
 					entryPoint: "main",
 					...vertexState.getDescriptor(),
 				},
@@ -356,7 +367,7 @@ export default class WebGpuRenderer extends Renderer{
 					count: outputConfig.multisampleCount,
 				},
 				fragment: {
-					module: this.getCachedShaderModule(pipelineConfig.fragmentShader),
+					module: fragmentModule,
 					entryPoint: "main",
 					targets: outputConfig.fragmentTargets,
 				},
@@ -415,13 +426,23 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	getCachedShaderModule(shaderSource){
-		let data = this.cachedShaderModules.get(shaderSource);
+	getCachedShaderModule(shaderSource, {
+		clusteredLightsConfig = null,
+	} = {}){
+		const keys = [shaderSource];
+		let code;
+		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+			if(clusteredLightsConfig){
+				keys.push(clusteredLightsConfig);
+			}
+			code = ShaderBuilder.fillShaderDefines(shaderSource.source, clusteredLightsConfig.getShaderDefines());
+		}else{
+			code = shaderSource.source;
+		}
+		let data = this.cachedShaderModules.get(keys);
 		if(!data){
-			data = this.device.createShaderModule({
-				code: shaderSource.source,
-			});
-			this.cachedShaderModules.set(shaderSource, data);
+			data = this.device.createShaderModule({code});
+			this.cachedShaderModules.set(keys, data);
 		}
 		return data;
 	}

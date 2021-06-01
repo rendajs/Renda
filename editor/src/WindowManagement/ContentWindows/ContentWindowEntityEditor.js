@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import ContentWindowBuildView from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, CameraComponent, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo, RenderOutputConfig, OrbitControls} from "../../../../src/index.js";
+import {Entity, Mesh, Vec3, Material, CameraComponent, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo, RenderOutputConfig, OrbitControls, ClusteredLightsConfig} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
@@ -31,6 +31,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.editorCamera = new Entity("editorCamera");
 		this.editorScene.add(this.editorCamera);
 		this.editorCamComponent = this.editorCamera.addComponent(CameraComponent);
+		this.editorCamComponent.clusteredLightsConfig = new ClusteredLightsConfig();
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
 

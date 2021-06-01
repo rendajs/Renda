@@ -1,14 +1,13 @@
 #include 8cd64104-1d45-4536-972a-5685a2523725
 #include 41eaba39-e2aa-48a3-8deb-47f410542bc2
 
-//todo: update max lights and cluster count based on cam settings
+//todo: import this from clusterBoundsStruct.wgsl
 struct ClusterLightIndices {
 	lightCount : u32;
-	indices : [[stride(4)]] array<u32, 10>;
+	indices : [[stride(4)]] array<u32, ${maxLightsPerClusterPass}>;
 };
-//todo: don't hardcode clusters array length
 [[block]] struct ClusterLightIndicesArray {
-	clusters : [[stride(44)]] array<ClusterLightIndices, 3456>;
+	clusters : [[stride(${clusterLightIndicesStride})]] array<ClusterLightIndices, ${totalClusterCount}>;
 };
 [[group(0), binding(2)]] var<storage> clusterLightIndices : [[access(read)]] ClusterLightIndicesArray;
 
@@ -17,8 +16,7 @@ fn depthToLinear(z : f32) -> f32 {
 	return - (z * viewUniforms.projectionMatrix[3][3] - viewUniforms.projectionMatrix[3][2]) / (z * viewUniforms.projectionMatrix[2][3] - viewUniforms.projectionMatrix[2][2]);
 }
 
-//todo: don't hard code this
-let clusterCount : vec3<u32> = vec3<u32>(16u, 9u, 24u);
+let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
 fn getClusterCoord(fragCoord : vec4<f32>) -> vec3<u32> {
 	let viewCoord : vec2<f32> = fragCoord.xy / viewUniforms.screenSize.xy;
