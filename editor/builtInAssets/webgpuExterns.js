@@ -524,3 +524,11 @@ class GPUTexture{
 
 	destroy(){}
 }
+
+/**
+ * @this {String|string}
+ * @param {RegExp|string} pattern
+ * @param {?string|function(string, ...?):*} replacement
+ * @return {string}
+ */
+String.prototype.replaceAll = function(pattern, replacement) {};
