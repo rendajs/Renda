@@ -90,9 +90,14 @@ export default class VectorGui{
 		getAsArray = false,
 		purpose = "default",
 	} = {}){
+		if(purpose == "fileStorage"){
+			getAsArray = true;
+		}else if(purpose == "binaryComposer"){
+			getAsArray = true;
+		}
 		let numbersArr = this.numericGuis.map(g => g.value);
 		let val = null;
-		if(getAsArray || purpose == "fileStorage"){
+		if(getAsArray){
 			val = numbersArr;
 		}else if(this.numericGuis.length == 3){
 			val = new Vec3(numbersArr);

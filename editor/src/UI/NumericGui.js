@@ -114,7 +114,12 @@ export default class NumericGui{
 		mapNumericValuesToStrings = false,
 		purpose = "default",
 	} = {}){
-		if((mapNumericValuesToStrings || purpose == "fileStorage") && this.mappedStringValues.has(this.internalValue)){
+		if(purpose == "fileStorage"){
+			mapNumericValuesToStrings = true;
+		}else if(purpose == "binaryComposer"){
+			mapNumericValuesToStrings = false;
+		}
+		if(mapNumericValuesToStrings && this.mappedStringValues.has(this.internalValue)){
 			return this.mappedStringValues.get(this.internalValue);
 		}
 		return this.internalValue;

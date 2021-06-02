@@ -68,8 +68,13 @@ export default class DropDownGui{
 		getAsString = false,
 		purpose = "default",
 	} = {}){
+		if(purpose == "fileStorage"){
+			getAsString = true;
+		}else if(purpose == "binaryComposer"){
+			getAsString = false;
+		}
 		let value = this.items[this.el.value];
-		if(this.enumObject && !getAsString && purpose != "fileStorage"){
+		if(this.enumObject && !getAsString){
 			value = this.enumObject[value];
 		}
 		return value;

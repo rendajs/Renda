@@ -367,7 +367,7 @@ export default class ProjectAsset{
 					const treeView = new PropertiesTreeView();
 					treeView.generateFromSerializableStructure(structure);
 					treeView.fillSerializableStructureValues(assetData);
-					assetData = treeView.getSerializableStructureValues(structure);
+					assetData = treeView.getSerializableStructureValues(structure, {purpose: "binaryComposer"});
 				}
 
 				binaryData = BinaryComposer.objectToBinary(assetData, usedAssetLoaderType.binaryComposerOpts);
