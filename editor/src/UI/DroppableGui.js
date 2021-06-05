@@ -31,16 +31,21 @@ export default class DroppableGui{
 			}
 		}
 
+		this.currenDragFeedbackEl = null;
+
+		this.boundOnDragStart = this.onDragStart.bind(this);
 		this.boundOnDragEnter = this.onDragEnter.bind(this);
 		this.boundOnDragOver = this.onDragOver.bind(this);
 		this.boundOnDragEnd = this.onDragEnd.bind(this);
+		this.boundOnDragLeave = this.onDragLeave.bind(this);
 		this.boundOnDrop = this.onDrop.bind(this);
 		this.boundOnKeyDown = this.onKeyDown.bind(this);
 
+		this.el.addEventListener("dragstart", this.boundOnDragStart);
 		this.el.addEventListener("dragenter", this.boundOnDragEnter);
 		this.el.addEventListener("dragover", this.boundOnDragOver);
 		this.el.addEventListener("dragend", this.boundOnDragEnd);
-		this.el.addEventListener("dragleave", this.boundOnDragEnd);
+		this.el.addEventListener("dragleave", this.boundOnDragLeave);
 		this.el.addEventListener("drop", this.boundOnDrop);
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 
@@ -49,15 +54,18 @@ export default class DroppableGui{
 	}
 
 	destructor(){
+		this.el.removeEventListener("dragstart", this.boundOnDragStart);
 		this.el.removeEventListener("dragenter", this.boundOnDragEnter);
 		this.el.removeEventListener("dragover", this.boundOnDragOver);
 		this.el.removeEventListener("dragend", this.boundOnDragEnd);
-		this.el.removeEventListener("dragleave", this.boundOnDragEnd);
+		this.el.removeEventListener("dragleave", this.boundOnDragLeave);
 		this.el.removeEventListener("drop", this.boundOnDrop);
 		this.el.removeEventListener("keydown", this.boundOnKeyDown);
+		this.boundOnDragStart = null;
 		this.boundOnDragEnter = null;
 		this.boundOnDragOver = null;
 		this.boundOnDragEnd = null;
+		this.boundOnDragLeave = null;
 		this.boundOnDrop = null;
 		this.boundOnKeyDown = null;
 		if(this.el.parentElement){
@@ -128,6 +136,23 @@ export default class DroppableGui{
 		}
 	}
 
+	onDragStart(e){
+		let {el, x, y} = editor.dragManager.createDragFeedbackText({
+			text: this.linkedAssetName,
+		});
+		this.currenDragFeedbackEl = el;
+		e.dataTransfer.setDragImage(el, x, y);
+
+		event.dataTransfer.effectAllowed = "all";
+		let assetTypeUuid = "";
+		const assetType = editor.projectAssetTypeManager.getAssetType(this.projectAssetValue.assetType);
+		if(assetType){
+			assetTypeUuid = assetType.typeUuid;
+		}
+		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, this.projectAssetValue.uuid);
+
+	}
+
 	onDragEnter(e){
 		const valid = this.handleDrag(e);
 		if(valid){
@@ -140,6 +165,11 @@ export default class DroppableGui{
 	}
 
 	onDragEnd(e){
+		if(this.currenDragFeedbackEl) editor.dragManager.removeFeedbackEl(this.currenDragFeedbackEl);
+		this.currenDragFeedbackEl = null;
+	}
+
+	onDragLeave(){
 		this.setDragHoverValidStyle(false);
 	}
 
@@ -193,5 +223,6 @@ export default class DroppableGui{
 		this.el.classList.toggle("empty", !this.projectAssetValue);
 		this.el.classList.toggle("filled", this.projectAssetValue);
 		this.el.textContent = this.linkedAssetName || "";
+		this.el.draggable = this.projectAssetValue;
 	}
 }
