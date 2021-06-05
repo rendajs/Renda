@@ -71,6 +71,7 @@ export default class ArrayGui{
 		if(this.disabled) addedItem.setDisabled(true);
 		this.valueItems.push(addedItem);
 		this.fireValueChange();
+		return addedItem;
 	}
 
 	//remove array item by index, counts from the back when negative
@@ -94,7 +95,8 @@ export default class ArrayGui{
 		}
 		for(const [i, item] of value.entries()){
 			if(this.valueItems.length <= i){
-				this.addItem({value: item});
+				const addedItem = this.addItem();
+				addedItem.setValue(item);
 			}else{
 				this.valueItems[i].setValue(item);
 			}
