@@ -1,0 +1,8 @@
+{
+	"assetType": "JJ:webGpuPipelineConfig",
+	"asset": {
+		"vertexShader": "eb430f5f-a7fa-4a77-acc6-56106769adb7",
+		"fragmentShader": "9deb2d09-8c4a-45b7-b60a-30eb9536d199",
+		"preloadVertexStates": []
+	}
+}

@@ -3,6 +3,15 @@
 		"2c2abb9a-8c5a-4faf-a605-066d33242391": {
 			"path": ["webgpuExterns.js"]
 		},
+		"873ade41-8986-4371-b2a3-5bc1aff9d938": {
+			"path": ["DefaultAssets", "Default Material", "Default Material Map.json"]
+		},
+		"542fb96a-d3f8-4150-9963-9f1bf803da67": {
+			"path": ["DefaultAssets", "Default Material", "Default Material.json"]
+		},
+		"abc1df88-ae0b-4a5d-8ac4-0a98c1602a32": {
+			"path": ["DefaultAssets", "Default Material", "Default Pipeline Configuration.json"]
+		},
 		"6e258624-2df6-47db-8a89-08dd14412d30": {
 			"path": ["gizmos", "BillboardGizmo", "BillboardGizmo Material Map.json"]
 		},
