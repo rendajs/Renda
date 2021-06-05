@@ -21,6 +21,7 @@
 	--focused-window-border-color: #838383;
 	--default-input-box-color: #101010;
 	--default-input-box-color-disabled: #2f2f2f;
+	--default-input-box-text-color-focus: #ffffff;
 	--default-input-box-border-color: transparent;
 	--default-input-box-border-hover-color: #464646;
 	--default-input-placeholder-color: #585858;
@@ -49,6 +50,7 @@
 		--focused-window-border-color: #717171;
 		--default-input-box-color: #f7f7f7;
 		--default-input-box-color-disabled: #ececec;
+		--default-input-box-text-color-focus: #000000;
 		--default-input-box-border-color: #dadcda;
 		--default-input-box-border-hover-color: #a4a4a4;
 		--default-input-placeholder-color: #c7c7c7;
@@ -192,6 +194,7 @@ body, html{
 
 .textInput:focus:not(:disabled){
 	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
+	color: var(--default-input-box-text-color-focus);
 }
 
 .textInput::selection{
