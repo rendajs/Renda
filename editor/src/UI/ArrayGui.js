@@ -8,7 +8,7 @@ export default class ArrayGui{
 		arrayOpts = {},
 		disabled = false,
 	} = {}){
-		this.disabled = disabled;
+		this.disabled = false;
 
 		this.el = document.createElement("div");
 		this.el.classList.add("arrayGui");
@@ -43,7 +43,7 @@ export default class ArrayGui{
 		this.el.appendChild(this.treeView.el);
 
 		this.setValue(value);
-		this.setDisabled(disabled);
+		if(disabled) this.setDisabled(true);
 	}
 
 	destructor(){

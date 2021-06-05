@@ -6,7 +6,7 @@ export default class ObjectGui{
 		value = {},
 		disabled = false,
 	} = {}){
-		this.disabled = disabled;
+		this.disabled = false;
 		this.structure = structure;
 		this.treeView = new PropertiesTreeView();
 		this.treeView.generateFromSerializableStructure(structure);
@@ -16,7 +16,7 @@ export default class ObjectGui{
 		});
 
 		this.setValue(value);
-		this.setDisabled(disabled);
+		if(disabled) this.setDisabled(true);
 	}
 
 	setValue(value){
