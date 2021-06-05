@@ -4,7 +4,7 @@ import editor from "../../editorInstance.js";
 
 export default class ContentWindowProperties extends ContentWindow{
 
-	static windowName = " properties";
+	static windowName = "properties";
 
 	constructor(){
 		super();
