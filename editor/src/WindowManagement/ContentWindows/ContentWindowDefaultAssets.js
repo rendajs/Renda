@@ -11,7 +11,7 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 		super();
 
 		this.guiStructure = {
-			defaultAssets: {
+			defaultAssetLinks: {
 				type: Array,
 				arrayOpts: {
 					type: {
@@ -37,14 +37,16 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 		this.treeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.treeView.el);
 		this.treeView.generateFromSerializableStructure(this.guiStructure);
+
+		this.isLoadingAssetLinks = true;
 		this.isParsingValueChange = false;
 		this.treeView.onChildValueChange((e) => {
-			if(this.isParsingValueChange) return;
+			if(this.isLoadingAssetLinks || this.isParsingValueChange) return;
 			this.isParsingValueChange = true;
 
 			const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure, {resolveDefaultAssetUuids: false});
 			const assetLinks = [];
-			for(const defaultAssetConfig of guiValues.defaultAssets){
+			for(const defaultAssetConfig of guiValues.defaultAssetLinks){
 				assetLinks.push({
 					name: defaultAssetConfig.name,
 					defaultAssetUuid: defaultAssetConfig.defaultAsset,
@@ -53,12 +55,32 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 			}
 			editor.projectManager.assetManager.setDefaultAssetLinks(assetLinks);
 
-			const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssets");
+			const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");
 			for(const valueItem of arrayTreeView.gui.valueItems){
 				this.updateDefaultAssetLinkGui(valueItem.gui);
 			}
 			this.isParsingValueChange = false;
 		});
+
+		this.loadDefaultAssetLinks();
+	}
+
+	async loadDefaultAssetLinks(){
+		await editor.projectManager.waitForAssetManagerLoad();
+		await editor.projectManager.assetManager.waitForAssetSettingsLoad();
+		const values = {
+			defaultAssetLinks: [],
+		}
+		for(const [uuid, assetLink] of editor.projectManager.assetManager.defaultAssetLinks){
+			values.defaultAssetLinks.push({
+				name: assetLink.name,
+				originalAsset: assetLink.originalUuid,
+				defaultAsset: uuid,
+			});
+		}
+		this.isLoadingAssetLinks = true;
+		this.treeView.fillSerializableStructureValues(values);
+		this.isLoadingAssetLinks = false;
 	}
 
 	updateDefaultAssetLinkGui(objectGui){

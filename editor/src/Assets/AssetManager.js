@@ -50,8 +50,8 @@ export default class AssetManager{
 				}
 
 				if(json.defaultAssetLinks){
-					for(const defaultAssetData of json.defaultAssetLinks){
-
+					for(const [uuid, defaultAssetData] of Object.entries(json.defaultAssetLinks)){
+						this.defaultAssetLinks.set(uuid, defaultAssetData);
 					}
 				}
 			}
@@ -68,13 +68,20 @@ export default class AssetManager{
 	}
 
 	async saveAssetSettings(){
-		let assets = {};
+		const assetSettings = {};
+		let assets = assetSettings.assets = {};
 		for(const [uuid, projectAsset] of this.projectAssets){
 			if(projectAsset.needsAssetSettingsSave){
 				assets[uuid] = projectAsset.toJson();
 			}
 		}
-		await this.fileSystem.writeJson(this.assetSettingsPath, {assets});
+		if(this.defaultAssetLinks.size > 0){
+			assetSettings.defaultAssetLinks = {};
+			for(const [uuid, assetLink] of this.defaultAssetLinks){
+				assetSettings.defaultAssetLinks[uuid] = assetLink;
+			}
+		}
+		await this.fileSystem.writeJson(this.assetSettingsPath, assetSettings);
 	}
 
 	async createNewAsset(parentPath, assetType){
@@ -132,6 +139,7 @@ export default class AssetManager{
 			if(!defaultAssetUuid) defaultAssetUuid = generateUuid();
 			this.defaultAssetLinks.set(defaultAssetUuid, {name, originalUuid});
 		}
+		this.saveAssetSettings();
 	}
 
 	getDefaultAssetUuidForOriginal(originalUuid){
