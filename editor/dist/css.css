@@ -99,6 +99,9 @@ body, html{
 .editorWindowTabs.focused{
 	box-shadow: 0px 0px 0 1px var(--focused-window-border-color);
 }
+.editorWindowTabsList{
+	height: 100%;
+}
 
 .editorWindowTabButtonGroup{
 	position: absolute;

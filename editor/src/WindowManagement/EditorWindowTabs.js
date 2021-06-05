@@ -19,6 +19,7 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.el.appendChild(this.tabsSelectorGroup.el);
 
 		this.tabsEl = document.createElement("div");
+		this.tabsEl.classList.add("editorWindowTabsList");
 		this.el.appendChild(this.tabsEl);
 	}
 
