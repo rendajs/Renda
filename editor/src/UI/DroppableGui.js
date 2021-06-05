@@ -5,7 +5,8 @@ import ProjectAsset from "../Assets/ProjectAsset.js";
 export default class DroppableGui{
 	constructor({
 		supportedAssetTypes = [],
-		value = null,
+		//todo: default value support
+		disabled = false,
 
 		//this controls what type of value is expected in setValue() and
 		//returned from this.value. Possible values are:
@@ -15,9 +16,10 @@ export default class DroppableGui{
 		//"projectAsset" for all others
 		storageType = null,
 	} = {}){
+		this.disabled = disabled;
+
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
-		this.el.setAttribute("tabindex", "0");
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = supportedAssetTypes;
@@ -50,7 +52,8 @@ export default class DroppableGui{
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 
 		this.projectAssetValue = null;
-		this.setValue(value);
+		this.setValue(null);
+		this.setDisabled(disabled);
 	}
 
 	destructor(){
@@ -86,6 +89,10 @@ export default class DroppableGui{
 			}
 		}
 		this.setValueFromProjectAsset(projectAsset);
+	}
+
+	set value(value){
+		this.setValue(value);
 	}
 
 	get value(){
@@ -136,6 +143,16 @@ export default class DroppableGui{
 		}
 	}
 
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.el.ariaDisabled = disabled;
+		if(disabled){
+			this.el.removeAttribute("tabIndex");
+		}else{
+			this.el.setAttribute("tabindex", "0");
+		}
+	}
+
 	onDragStart(e){
 		let {el, x, y} = editor.dragManager.createDragFeedbackText({
 			text: this.linkedAssetName,
@@ -154,7 +171,7 @@ export default class DroppableGui{
 	}
 
 	onDragEnter(e){
-		const valid = this.handleDrag(e);
+		const valid = this.handleDrag(e) && !this.disabled;
 		if(valid){
 			this.setDragHoverValidStyle(true);
 		}
@@ -174,6 +191,7 @@ export default class DroppableGui{
 	}
 
 	handleDrag(e){
+		if(this.disabled) return false;
 		if(e.dataTransfer.types.some(mimeType => this.validateMimeType(mimeType))){
 			e.dataTransfer.dropEffect = "copy";
 			e.preventDefault();
@@ -214,6 +232,7 @@ export default class DroppableGui{
 	}
 
 	onKeyDown(e){
+		if(this.disabled) return;
 		if(e.code == "Backspace" || e.code == "Delete"){
 			this.setValue(null);
 		}

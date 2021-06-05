@@ -258,7 +258,7 @@ select.textInput:disabled{
 	text-overflow: ellipsis;
 }
 
-.droppableGui:focus{
+.droppableGui:focus:not([aria-disabled='true']){
 	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
 	outline: none;
 }
@@ -273,8 +273,13 @@ select.textInput:disabled{
 	color: var(--droppable-filled-text-color);
 }
 
-.droppableGui.dragHovering{
+.droppableGui.dragHovering:not([aria-disabled='true']){
 	box-shadow: inset 0px 0px 0px 1px var(--color-selected-blue);
+}
+
+.droppableGui[aria-disabled='true']{
+	background: var(--default-input-box-color-disabled);
+	color: var(--default-button-text-color-disabled);
 }
 
 .editorWindowRoot{
