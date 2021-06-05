@@ -51,6 +51,8 @@ export default class DroppableGui{
 		this.el.addEventListener("drop", this.boundOnDrop);
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 
+		this.defaultAssetLinkUuid = null;
+		this.defaultAssetLink = null;
 		this.projectAssetValue = null;
 		this.setValue(null);
 		this.setDisabled(disabled);
@@ -85,10 +87,12 @@ export default class DroppableGui{
 			}else if(this.storageType == "projectAsset"){
 				projectAsset = value;
 			}else if(this.storageType == "uuid"){
+				this.defaultAssetLinkUuid = value;
+				this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(value);
 				projectAsset = editor.projectManager.assetManager.getProjectAssetImmediate(value);
 			}
 		}
-		this.setValueFromProjectAsset(projectAsset);
+		this.setValueFromProjectAsset(projectAsset, false);
 	}
 
 	set value(value){
@@ -105,13 +109,12 @@ export default class DroppableGui{
 		}
 	}
 
-	setValueFromProjectAsset(projectAsset){
-		this.projectAssetValue = projectAsset;
-		if(projectAsset){
-			this.linkedAssetName = projectAsset.name;
-		}else{
-			this.linkedAssetName = null;
+	setValueFromProjectAsset(projectAsset, clearDefaultAssetLink = true){
+		if(clearDefaultAssetLink){
+			this.defaultAssetLinkUuid = null;
+			this.defaultAssetLink = null;
 		}
+		this.projectAssetValue = projectAsset;
 
 		this.fireValueChange();
 		this.updateContent();
@@ -121,15 +124,16 @@ export default class DroppableGui{
 		if(!uuid){
 			this.setValueFromProjectAsset(null);
 			this.value = null;
-			this.linkedAssetName = null;
 		}else{
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
 			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
 			if(this.storageType == "liveAsset"){
-				//get the live asset so that it is loaded before this.value is called
+				//get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
 				await projectAsset?.getLiveAsset();
 			}
-			this.setValueFromProjectAsset(projectAsset);
+			this.defaultAssetLinkUuid = uuid;
+			this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(uuid);
+			this.setValueFromProjectAsset(projectAsset, false);
 		}
 	}
 
@@ -155,7 +159,7 @@ export default class DroppableGui{
 
 	onDragStart(e){
 		let {el, x, y} = editor.dragManager.createDragFeedbackText({
-			text: this.linkedAssetName,
+			text: this.visibleAssetName,
 		});
 		this.currenDragFeedbackEl = el;
 		e.dataTransfer.setDragImage(el, x, y);
@@ -166,7 +170,8 @@ export default class DroppableGui{
 		if(assetType){
 			assetTypeUuid = assetType.typeUuid;
 		}
-		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, this.projectAssetValue.uuid);
+		const uuid = this.defaultAssetLinkUuid || this.projectAssetValue.uuid;
+		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, uuid);
 
 	}
 
@@ -238,10 +243,14 @@ export default class DroppableGui{
 		}
 	}
 
+	get visibleAssetName(){
+		return this.defaultAssetLink?.name || this.projectAssetValue?.name || "";
+	}
+
 	updateContent(){
 		this.el.classList.toggle("empty", !this.projectAssetValue);
 		this.el.classList.toggle("filled", this.projectAssetValue);
-		this.el.textContent = this.linkedAssetName || "";
-		this.el.draggable = this.projectAssetValue;
+		this.el.textContent = this.visibleAssetName;
+		this.el.draggable = this.projectAssetValue || this.defaultAssetLink;
 	}
 }

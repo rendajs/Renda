@@ -76,6 +76,10 @@ export default class PropertiesTreeView extends TreeView{
 		return values;
 	}
 
+	getSerializableStructureEntry(key){
+		return this.currentSerializableStructureItems[key];
+	}
+
 	getSerializableStructureKeyForEntry(treeViewEntry){
 		for(const [key, entry] of Object.entries(this.currentSerializableStructureItems)){
 			if(treeViewEntry == entry){

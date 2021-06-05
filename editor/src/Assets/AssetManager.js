@@ -5,6 +5,7 @@ import ProjectAsset from "./ProjectAsset.js";
 export default class AssetManager{
 	constructor(){
 		this.projectAssets = new Map();
+		this.defaultAssetLinks = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
@@ -45,6 +46,12 @@ export default class AssetManager{
 					if(projectAsset){
 						projectAsset.makeUuidConsistent();
 						this.projectAssets.set(uuid, projectAsset);
+					}
+				}
+
+				if(json.defaultAssetLinks){
+					for(const defaultAssetData of json.defaultAssetLinks){
+
 					}
 				}
 			}
@@ -116,6 +123,26 @@ export default class AssetManager{
 				await projectAsset.fileChangedExternally();
 			}
 		}
+	}
+
+	setDefaultAssetLinks(defaultAssetLinks){
+		this.defaultAssetLinks.clear();
+		for(const {defaultAssetUuid: uuid, name, originalUuid} of defaultAssetLinks){
+			let defaultAssetUuid = uuid;
+			if(!defaultAssetUuid) defaultAssetUuid = generateUuid();
+			this.defaultAssetLinks.set(defaultAssetUuid, {name, originalUuid});
+		}
+	}
+
+	getDefaultAssetUuidForOriginal(originalUuid){
+		for(const [defaultAssetUuid, assetLink] of this.defaultAssetLinks){
+			if(assetLink.originalUuid == originalUuid) return defaultAssetUuid;
+		}
+		return null;
+	}
+
+	getDefaultAssetLink(defaultAssetUuid){
+		return this.defaultAssetLinks.get(defaultAssetUuid);
 	}
 
 	async getAssetUuidFromPath(path = []){
