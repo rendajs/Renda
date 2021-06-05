@@ -3,15 +3,14 @@ import Button from "../../UI/Button.js";
 import editor from "../../editorInstance.js";
 
 export default class ContentWindowProperties extends ContentWindow{
+
+	static windowName = " properties";
+
 	constructor(){
 		super();
 
 		this.activeSelectionManager = null;
 		this.activeContent = null;
-	}
-
-	static get windowName(){
-		return "properties";
 	}
 
 	destructor(){

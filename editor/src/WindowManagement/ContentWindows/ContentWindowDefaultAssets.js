@@ -1,9 +1,8 @@
 import ContentWindow from "./ContentWindow.js";
 
 export default class ContentWindowDefaultAssets extends ContentWindow{
-	static get windowName(){
-		return "defaultAssets";
-	}
+
+	static windowName = "defaultAssets";
 
 	constructor(){
 		super();

@@ -5,6 +5,9 @@ import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../src/index.js";
 
 export default class ContentWindowBuildView extends ContentWindow{
+
+	static windowName = "buildView";
+
 	constructor(){
 		super();
 
@@ -36,10 +39,6 @@ export default class ContentWindowBuildView extends ContentWindow{
 		this.setAvailableLinkedEntityEditor();
 
 		this.updateIframeVisibility();
-	}
-
-	static get windowName(){
-		return "buildView";
 	}
 
 	destructor(){

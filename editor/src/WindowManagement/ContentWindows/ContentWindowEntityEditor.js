@@ -7,6 +7,9 @@ import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
 export default class ContentWindowEntityEditor extends ContentWindow{
+
+	static windowName = "entityEditor";
+
 	constructor(){
 		super();
 
@@ -47,10 +50,6 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.currentLinkedGizmos = new Map(); //Map<Entity, Set<Gizmo>>
 
 		this.newEmptyEditingEntity();
-	}
-
-	static get windowName(){
-		return "entityEditor";
 	}
 
 	destructor(){

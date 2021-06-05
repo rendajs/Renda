@@ -1,4 +1,9 @@
 export default class ContentWindow{
+
+	//should be overridden by inherited class
+	//this name will be used for saving the users workspace
+	static windowName = null;
+
 	constructor(){
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
@@ -35,10 +40,6 @@ export default class ContentWindow{
 
 	setVisible(visible){
 		this.el.classList.toggle("hidden", !visible);
-	}
-
-	static get windowName(){
-		return null; //should be overridden by inherited class
 	}
 
 	updateTabSelectorSpacer(w, h){

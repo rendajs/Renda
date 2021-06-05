@@ -6,6 +6,9 @@ import SelectionManager from "../../Managers/SelectionManager.js";
 import {handleDuplicateName} from "../../Util/Util.js";
 
 export default class ContentWindowProject extends ContentWindow{
+
+	static windowName = "project";
+
 	constructor(){
 		super();
 
@@ -102,10 +105,6 @@ export default class ContentWindowProject extends ContentWindow{
 
 		editor.projectManager.removeOnExternalChange(this.boundExternalChange);
 		this.boundExternalChange = null;
-	}
-
-	static get windowName(){
-		return "project";
 	}
 
 	get fileSystem(){

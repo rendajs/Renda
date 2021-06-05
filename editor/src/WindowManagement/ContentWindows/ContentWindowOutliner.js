@@ -7,6 +7,9 @@ import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import editor from "../../editorInstance.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
+
+	static windowName = "outliner";
+
 	constructor(){
 		super();
 
@@ -36,10 +39,6 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.treeView.destructor();
 		this.treeView = null;
 		this.linkedEntityEditor = null;
-	}
-
-	static get windowName(){
-		return "outliner";
 	}
 
 	get selectionManager(){

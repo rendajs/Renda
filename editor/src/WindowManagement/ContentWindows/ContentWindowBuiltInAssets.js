@@ -4,9 +4,8 @@ import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
 export default class ContentWindowBuiltInAssets extends ContentWindow{
-	static get windowName(){
-		return "builtInAssets";
-	}
+
+	static windowName = "builtInAssets"
 
 	constructor(){
 		super();
