@@ -22,6 +22,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.domTarget = editor.renderer.createDomTarget();
 		const renderTargetElement = this.domTarget.getElement();
+		renderTargetElement.style.display = "block";
 		this.contentEl.appendChild(renderTargetElement);
 
 		this.renderDirty = false;

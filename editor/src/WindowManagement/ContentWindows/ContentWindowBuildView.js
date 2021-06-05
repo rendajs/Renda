@@ -118,7 +118,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 	}
 
 	updateIframeVisibility(){
-		this.renderTargetElement.style.display = this.isRunning ? "none" : null;
+		this.renderTargetElement.style.display = this.isRunning ? "none" : "block";
 		this.iframeEl.style.display = this.isRunning ? null : "none";
 	}
 }
