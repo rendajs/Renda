@@ -56,6 +56,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		if(!child){
 			child = treeView.addChild();
 			child.name = path[0];
+			child.collapsed = true;
 		}
 		if(path.length > 1){
 			this.addAssetToTreeView(asset, restPath, child);
