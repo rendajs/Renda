@@ -42,7 +42,7 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 			if(this.isParsingValueChange) return;
 			this.isParsingValueChange = true;
 
-			const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure);
+			const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure, {resolveDefaultAssetUuids: false});
 			const assetLinks = [];
 			for(const defaultAssetConfig of guiValues.defaultAssets){
 				assetLinks.push({
@@ -62,9 +62,9 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 	}
 
 	updateDefaultAssetLinkGui(objectGui){
-		const assetEntry = objectGui.treeView.getSerializableStructureEntry("originalAsset");
+		const originalAssetEntry = objectGui.treeView.getSerializableStructureEntry("originalAsset");
 		const defaultAssetEntry = objectGui.treeView.getSerializableStructureEntry("defaultAsset");
-		const defaultAssetUuid = editor.projectManager.assetManager.getDefaultAssetUuidForOriginal(assetEntry.gui.value);
+		const defaultAssetUuid = editor.projectManager.assetManager.getDefaultAssetUuidForOriginal(originalAssetEntry.gui.value);
 		defaultAssetEntry.gui.value = defaultAssetUuid;
 	}
 }

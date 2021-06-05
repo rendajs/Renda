@@ -99,14 +99,24 @@ export default class DroppableGui{
 		this.setValue(value);
 	}
 
-	get value(){
+	getValue({
+		resolveDefaultAssetUuids = true,
+	} = {}){
 		if(this.storageType == "liveAsset"){
 			return this.projectAssetValue?.getLiveAssetImmediate() || null;
 		}else if(this.storageType == "projectAsset"){
 			return this.projectAssetValue;
 		}else if(this.storageType == "uuid"){
-			return this.projectAssetValue?.uuid;
+			if(!resolveDefaultAssetUuids && this.defaultAssetLinkUuid){
+				return this.defaultAssetLinkUuid;
+			}else{
+				return this.projectAssetValue?.uuid;
+			}
 		}
+	}
+
+	get value(){
+		return this.getValue();
 	}
 
 	setValueFromProjectAsset(projectAsset, clearDefaultAssetLink = true){

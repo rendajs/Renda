@@ -153,11 +153,16 @@ export default class AssetManager{
 
 	async getProjectAsset(uuid){
 		await this.loadAssetSettings(true);
-		return this.projectAssets.get(uuid) || this.builtInAssets.get(uuid);
+		return this.getProjectAssetImmediate(uuid);
 	}
 
 	getProjectAssetImmediate(uuid){
 		if(!this.assetSettingsLoaded) return null;
+
+		const defaultAssetLink = this.getDefaultAssetLink(uuid);
+		if(defaultAssetLink){
+			return this.getProjectAssetImmediate(defaultAssetLink.originalUuid);
+		}
 		return this.projectAssets.get(uuid) || this.builtInAssets.get(uuid);
 	}
 
