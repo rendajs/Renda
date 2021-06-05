@@ -11,12 +11,13 @@ export default class ContentWindowBuildView extends ContentWindow{
 		this.setContentBehindTopBar(true);
 
 		this.previewCamDomTarget = editor.renderer.createDomTarget();
-		const renderTargetElement = this.previewCamDomTarget.getElement();
-		this.contentEl.appendChild(renderTargetElement);
+		this.renderTargetElement = this.previewCamDomTarget.getElement();
+		this.contentEl.appendChild(this.renderTargetElement);
 		this.previewCamComponent = null;
 		this.previewCamRenderDirty = true;
 		this.boundMarkPreviewCamRenderDirty = this.markPreviewCamRenderDirty.bind(this);
 
+		this.isRunning = false;
 		this.iframeEl = document.createElement("iframe");
 		this.iframeEl.classList.add("buildViewIframe");
 		this.contentEl.appendChild(this.iframeEl);
@@ -24,14 +25,17 @@ export default class ContentWindowBuildView extends ContentWindow{
 		const loadFrameButton = new Button({
 			text: "Load Frame",
 			onClick: () => {
-				this.previewCamDomTarget.getElement().style.display = "none";
+				this.isRunning = true;
 				this.updateFrameSrc();
+				this.updateIframeVisibility();
 			},
 		});
 		this.addTopBarButton(loadFrameButton);
 
 		this.linkedEntityEditor = null;
 		this.setAvailableLinkedEntityEditor();
+
+		this.updateIframeVisibility();
 	}
 
 	static get windowName(){
@@ -111,5 +115,10 @@ export default class ContentWindowBuildView extends ContentWindow{
 		if(this.previewCamComponent){
 			this.previewCamDomTarget.render(this.previewCamComponent);
 		}
+	}
+
+	updateIframeVisibility(){
+		this.renderTargetElement.style.display = this.isRunning ? "none" : null;
+		this.iframeEl.style.display = this.isRunning ? null : "none";
 	}
 }
