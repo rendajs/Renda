@@ -5,6 +5,7 @@ import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
 import ComponentGizmosManager from "./Managers/ComponentGizmosManager.js";
 import MaterialMapTypeManager from "./Managers/MaterialMapTypeManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
+import BuiltInDefaultAssetLinksManager from "./Assets/BuiltInDefaultAssetLinksManager.js";
 import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
@@ -29,6 +30,7 @@ export default class Editor{
 		this.componentGizmosManager = new ComponentGizmosManager();
 		this.materialMapTypeManager = new MaterialMapTypeManager();
 		this.projectManager = new ProjectManager();
+		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
 		this.builtInAssetManager = new BuiltInAssetManager();
 		this.scriptBuilder = new ScriptBuilder();
 		this.assetBundler = new AssetBundler();
@@ -82,6 +84,7 @@ export default class Editor{
 		this.projectAssetTypeManager.init();
 		this.componentGizmosManager.init();
 		this.materialMapTypeManager.init();
+		this.builtInDefaultAssetLinksManager.init();
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);

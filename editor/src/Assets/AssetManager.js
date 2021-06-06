@@ -1,5 +1,6 @@
 import editor from "../editorInstance.js";
 import {generateUuid, handleDuplicateName} from "../Util/Util.js";
+import DefaultAssetLink from "./DefaultAssetLink.js";
 import ProjectAsset from "./ProjectAsset.js";
 
 export default class AssetManager{
@@ -38,6 +39,12 @@ export default class AssetManager{
 			if(!hasPermissions) return;
 		}
 
+		for(const builtInAssetLink of editor.builtInDefaultAssetLinksManager.registeredAssetLinks){
+			const defaultAssetLink = new DefaultAssetLink(builtInAssetLink);
+			defaultAssetLink.setBuiltIn(true, builtInAssetLink.originalAssetUuid);
+			this.defaultAssetLinks.set(builtInAssetLink.defaultAssetUuid, defaultAssetLink);
+		}
+
 		if(await this.fileSystem.isFile(this.assetSettingsPath)){
 			let json = await this.fileSystem.readJson(this.assetSettingsPath);
 			if(json){
@@ -50,8 +57,14 @@ export default class AssetManager{
 				}
 
 				if(json.defaultAssetLinks){
-					for(const [uuid, defaultAssetData] of Object.entries(json.defaultAssetLinks)){
-						this.defaultAssetLinks.set(uuid, defaultAssetData);
+					for(const [defaultAssetUuid, defaultAssetData] of Object.entries(json.defaultAssetLinks)){
+						const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
+						if(existingDefaultAssetLink){
+							existingDefaultAssetLink.setUserData(defaultAssetData);
+						}else{
+							const defaultAssetLink = new DefaultAssetLink({defaultAssetUuid, ...defaultAssetData});
+							this.defaultAssetLinks.set(defaultAssetUuid, defaultAssetLink);
+						}
 					}
 				}
 			}
@@ -75,11 +88,17 @@ export default class AssetManager{
 				assets[uuid] = projectAsset.toJson();
 			}
 		}
-		if(this.defaultAssetLinks.size > 0){
-			assetSettings.defaultAssetLinks = {};
-			for(const [uuid, assetLink] of this.defaultAssetLinks){
-				assetSettings.defaultAssetLinks[uuid] = assetLink;
+		assetSettings.defaultAssetLinks = {};
+		let savedDefaultAssetLinksCount = 0;
+		for(const [defaultAssetUuid, assetLink] of this.defaultAssetLinks){
+			const jsonData = assetLink.toJson();
+			if(jsonData){
+				assetSettings.defaultAssetLinks[defaultAssetUuid] = jsonData;
+				savedDefaultAssetLinksCount++;
 			}
+		}
+		if(savedDefaultAssetLinksCount == 0){
+			delete assetSettings.defaultAssetLinks;
 		}
 		await this.fileSystem.writeJson(this.assetSettingsPath, assetSettings);
 	}
@@ -133,20 +152,26 @@ export default class AssetManager{
 	}
 
 	setDefaultAssetLinks(defaultAssetLinks){
-		this.defaultAssetLinks.clear();
-		for(const {defaultAssetUuid: uuid, name, originalUuid} of defaultAssetLinks){
+		const unsetAssetLinkUuids = new Set(this.defaultAssetLinks.keys());
+		for(const {defaultAssetUuid: uuid, name, originalAssetUuid} of defaultAssetLinks){
 			let defaultAssetUuid = uuid;
 			if(!defaultAssetUuid) defaultAssetUuid = generateUuid();
-			this.defaultAssetLinks.set(defaultAssetUuid, {name, originalUuid});
+			unsetAssetLinkUuids.delete(defaultAssetUuid);
+			const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
+			const userData = {name, defaultAssetUuid, originalAssetUuid};
+			if(existingDefaultAssetLink){
+				existingDefaultAssetLink.setUserData(userData);
+			}else{
+				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink(userData));
+			}
+		}
+		for(const unsetUuid of unsetAssetLinkUuids){
+			const defaultAssetLink = this.getDefaultAssetLink(unsetUuid);
+			if(defaultAssetLink && !defaultAssetLink.isBuiltIn){
+				this.defaultAssetLinks.delete(unsetUuid);
+			}
 		}
 		this.saveAssetSettings();
-	}
-
-	getDefaultAssetUuidForOriginal(originalUuid){
-		for(const [defaultAssetUuid, assetLink] of this.defaultAssetLinks){
-			if(assetLink.originalUuid == originalUuid) return defaultAssetUuid;
-		}
-		return null;
 	}
 
 	getDefaultAssetLink(defaultAssetUuid){
@@ -169,7 +194,7 @@ export default class AssetManager{
 
 		const defaultAssetLink = this.getDefaultAssetLink(uuid);
 		if(defaultAssetLink){
-			return this.getProjectAssetImmediate(defaultAssetLink.originalUuid);
+			return this.getProjectAssetImmediate(defaultAssetLink.originalAssetUuid);
 		}
 		return this.projectAssets.get(uuid) || this.builtInAssets.get(uuid);
 	}

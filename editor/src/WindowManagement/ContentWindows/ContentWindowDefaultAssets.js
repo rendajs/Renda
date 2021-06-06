@@ -10,23 +10,16 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 	constructor(){
 		super();
 
+		this.builtInAssetLinksTreeView = new PropertiesTreeView();
+		this.builtInAssetLinksTreeView.onChildValueChange(() => this.handleGuiValueChange());
+		this.contentEl.appendChild(this.builtInAssetLinksTreeView.el);
+
+		this.builtInAssetLinkGuiStructure = this.getAssetLinkGuiStructure(true);
+
 		this.guiStructure = {
 			defaultAssetLinks: {
 				type: Array,
-				arrayOpts: {
-					type: {
-						name: {type: String},
-						originalAsset: {
-							type: ProjectAsset
-						},
-						defaultAsset: {
-							type: ProjectAsset,
-							guiOpts: {
-								disabled: true,
-							},
-						},
-					},
-				},
+				arrayOpts: this.getAssetLinkGuiStructure(false),
 			},
 		};
 
@@ -36,27 +29,7 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 
 		this.isLoadingAssetLinks = true;
 		this.isParsingValueChange = false;
-		this.treeView.onChildValueChange((e) => {
-			if(this.isLoadingAssetLinks || this.isParsingValueChange) return;
-			this.isParsingValueChange = true;
-
-			const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure);
-			const assetLinks = [];
-			for(const defaultAssetConfig of guiValues.defaultAssetLinks){
-				assetLinks.push({
-					name: defaultAssetConfig.name,
-					defaultAssetUuid: defaultAssetConfig.defaultAsset,
-					originalUuid: defaultAssetConfig.originalAsset,
-				});
-			}
-			editor.projectManager.assetManager.setDefaultAssetLinks(assetLinks);
-
-			const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");
-			for(const valueItem of arrayTreeView.gui.valueItems){
-				this.updateDefaultAssetLinkGui(valueItem.gui);
-			}
-			this.isParsingValueChange = false;
-		});
+		this.treeView.onChildValueChange(() => this.handleGuiValueChange());
 
 		this.loadDefaultAssetLinks();
 	}
@@ -64,13 +37,31 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 	async loadDefaultAssetLinks(){
 		await editor.projectManager.waitForAssetManagerLoad();
 		await editor.projectManager.assetManager.waitForAssetSettingsLoad();
+		if(!this.el) return; //the content window was destructed
+
+		this.builtInAssetLinksTreeView.clearChildren();
+		for(const builtInAssetLink of editor.builtInDefaultAssetLinksManager.registeredAssetLinks){
+			const item = this.builtInAssetLinksTreeView.addItem({
+				guiOpts: {
+					label: builtInAssetLink.name,
+				},
+				...this.builtInAssetLinkGuiStructure,
+			});
+			const assetLink = editor.projectManager.assetManager.getDefaultAssetLink(builtInAssetLink.defaultAssetUuid);
+			item.setValue({
+				originalAsset: assetLink.originalAssetUuid,
+				defaultAsset: builtInAssetLink.defaultAssetUuid,
+			});
+		}
+
 		const values = {
 			defaultAssetLinks: [],
 		}
 		for(const [uuid, assetLink] of editor.projectManager.assetManager.defaultAssetLinks){
+			if(assetLink.isBuiltIn) continue;
 			values.defaultAssetLinks.push({
 				name: assetLink.name,
-				originalAsset: assetLink.originalUuid,
+				originalAsset: assetLink.originalAssetUuid,
 				defaultAsset: uuid,
 			});
 		}
@@ -79,10 +70,52 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 		this.isLoadingAssetLinks = false;
 	}
 
-	updateDefaultAssetLinkGui(objectGui){
-		const originalAssetEntry = objectGui.treeView.getSerializableStructureEntry("originalAsset");
-		const defaultAssetEntry = objectGui.treeView.getSerializableStructureEntry("defaultAsset");
-		const defaultAssetUuid = editor.projectManager.assetManager.getDefaultAssetUuidForOriginal(originalAssetEntry.gui.value);
-		defaultAssetEntry.gui.value = defaultAssetUuid;
+	getAssetLinkGuiStructure(isBuiltIn){
+		const typeObj = {};
+		if(!isBuiltIn){
+			typeObj.name = {type: String};
+		}
+		typeObj.originalAsset = {type: ProjectAsset};
+		typeObj.defaultAsset = {
+			type: ProjectAsset,
+			guiOpts: {
+				disabled: true,
+			},
+		};
+		return {
+			type: typeObj,
+		};
+	}
+
+	handleGuiValueChange(){
+		if(this.isLoadingAssetLinks || this.isParsingValueChange) return;
+		this.isParsingValueChange = true;
+
+		const assetLinks = [];
+
+		for(const child of this.builtInAssetLinksTreeView.children){
+			const guiValues = child.getValue();
+			assetLinks.push({
+				defaultAssetUuid: guiValues.defaultAsset,
+				originalAssetUuid: guiValues.originalAsset,
+			});
+		}
+
+		const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure);
+		for(const defaultAssetConfig of guiValues.defaultAssetLinks){
+			assetLinks.push({
+				name: defaultAssetConfig.name,
+				defaultAssetUuid: defaultAssetConfig.defaultAsset,
+				originalAssetUuid: defaultAssetConfig.originalAsset,
+			});
+		}
+		editor.projectManager.assetManager.setDefaultAssetLinks(assetLinks);
+
+		const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");
+		for(const valueItem of arrayTreeView.gui.valueItems){
+			const defaultAssetEntry = valueItem.gui.treeView.getSerializableStructureEntry("defaultAsset");
+			defaultAssetEntry.gui.updateContent();
+		}
+		this.isParsingValueChange = false;
 	}
 }
