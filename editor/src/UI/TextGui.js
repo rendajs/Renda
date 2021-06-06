@@ -1,7 +1,10 @@
 export default class TextGui{
 	constructor({
 		placeholder = "",
+		disabled = false,
 	} = {}){
+		this.disabled = disabled;
+
 		this.el = document.createElement("input");
 		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
 		this.el.spellcheck = false;
@@ -10,6 +13,8 @@ export default class TextGui{
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
+
+		this.setDisabled(disabled);
 	}
 
 	destructor(){
@@ -33,5 +38,10 @@ export default class TextGui{
 		for(const cb of this.onValueChangeCbs){
 			cb(this.value);
 		}
+	}
+
+	setDisabled(disabled){
+		this.disabled = disabled;
+		this.el.disabled = disabled;
 	}
 }
