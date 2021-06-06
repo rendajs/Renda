@@ -25,6 +25,7 @@ export default class DroppableGui{
 		this.boundOnDragLeave = this.onDragLeave.bind(this);
 		this.boundOnDrop = this.onDrop.bind(this);
 		this.boundOnKeyDown = this.onKeyDown.bind(this);
+		this.boundOnContextMenu = this.onContextMenu.bind(this);
 
 		this.el.addEventListener("dragstart", this.boundOnDragStart);
 		this.el.addEventListener("dragenter", this.boundOnDragEnter);
@@ -33,6 +34,7 @@ export default class DroppableGui{
 		this.el.addEventListener("dragleave", this.boundOnDragLeave);
 		this.el.addEventListener("drop", this.boundOnDrop);
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
+		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 
 		this.defaultAssetLinkUuid = null;
 		this.defaultAssetLink = null;
@@ -49,6 +51,7 @@ export default class DroppableGui{
 		this.el.removeEventListener("dragleave", this.boundOnDragLeave);
 		this.el.removeEventListener("drop", this.boundOnDrop);
 		this.el.removeEventListener("keydown", this.boundOnKeyDown);
+		this.el.removeEventListener("contextmenu", this.boundOnContextMenu);
 		this.boundOnDragStart = null;
 		this.boundOnDragEnter = null;
 		this.boundOnDragOver = null;
@@ -56,6 +59,7 @@ export default class DroppableGui{
 		this.boundOnDragLeave = null;
 		this.boundOnDrop = null;
 		this.boundOnKeyDown = null;
+		this.boundOnContextMenu = null;
 		if(this.el.parentElement){
 			this.el.parentElement.removeChild(this.el);
 		}
@@ -66,8 +70,7 @@ export default class DroppableGui{
 		let projectAsset = null;
 		if(value){
 			if(typeof value == "string"){
-				this.defaultAssetLinkUuid = value;
-				this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(value);
+				this.setDefaultAssetLinkUuid(value);
 				projectAsset = editor.projectManager.assetManager.getProjectAssetImmediate(value);
 			}else if(value instanceof ProjectAsset){
 				projectAsset = value;
@@ -128,9 +131,17 @@ export default class DroppableGui{
 			// 	//get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
 			// 	await projectAsset?.getLiveAsset();
 			// }
-			this.defaultAssetLinkUuid = uuid;
-			this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(uuid);
+			this.setDefaultAssetLinkUuid(uuid);
 			this.setValueFromProjectAsset(projectAsset, false);
+		}
+	}
+
+	setDefaultAssetLinkUuid(uuid){
+		this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(uuid);
+		if(this.defaultAssetLink){
+			this.defaultAssetLinkUuid = uuid;
+		}else{
+			this.defaultAssetLinkUuid = null;
 		}
 	}
 
@@ -238,6 +249,41 @@ export default class DroppableGui{
 		if(e.code == "Backspace" || e.code == "Delete"){
 			this.setValue(null);
 		}
+	}
+
+	onContextMenu(e){
+		e.preventDefault();
+		if(!this.projectAssetValue) return;
+		const contextMenuStructure = [
+			{
+				text: "Unlink",
+				cb: () => {
+					this.setValue(null);
+				},
+			},
+		];
+		const copyAssetUuidText = "Copy asset UUID";
+		if(this.defaultAssetLinkUuid){
+			contextMenuStructure.push({
+				text: copyAssetUuidText,
+				cb: async () => {
+					if(this.projectAssetValue){
+						await navigator.clipboard.writeText(this.defaultAssetLinkUuid);
+					}
+				},
+			});
+		}
+		const resolvedText = this.defaultAssetLinkUuid ? "Copy resolved asset link UUID" : copyAssetUuidText;
+		contextMenuStructure.push({
+			text: resolvedText,
+			cb: async () => {
+				if(this.projectAssetValue){
+					await navigator.clipboard.writeText(this.projectAssetValue.uuid);
+				}
+			},
+		});
+		const menu = editor.contextMenuManager.createContextMenu(contextMenuStructure);
+		menu.setPos(e.pageX, e.pageY);
 	}
 
 	get visibleAssetName(){

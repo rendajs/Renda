@@ -88,12 +88,12 @@ export default class ContextMenu{
 		for(const itemSettings of structure){
 			let createdItem = null;
 			if(itemSettings.submenu){
-				createdItem = this.addSubMenu(itemSettings.text);
+				createdItem = this.addSubMenu(itemSettings.text, itemSettings);
 				createdItem.onCreateSubmenu(submenu => {
 					submenu.createStructure(itemSettings.submenu);
 				});
 			}else{
-				createdItem = this.addItem(itemSettings.text);
+				createdItem = this.addItem(itemSettings.text, itemSettings);
 			}
 			if(itemSettings.cb){
 				createdItem.onClick(itemSettings.cb);
