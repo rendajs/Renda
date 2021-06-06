@@ -17,16 +17,12 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 					type: {
 						name: {type: String},
 						originalAsset: {
-							type: ProjectAsset,
-							guiOpts: {
-								storageType: "uuid",
-							},
+							type: ProjectAsset
 						},
 						defaultAsset: {
 							type: ProjectAsset,
 							guiOpts: {
 								disabled: true,
-								storageType: "uuid",
 							},
 						},
 					},

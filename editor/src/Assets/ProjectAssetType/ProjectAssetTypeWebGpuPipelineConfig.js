@@ -13,30 +13,15 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 	}
 
 	static propertiesAssetContentStructure = {
-		vertexShader: {
-			type: ShaderSource,
-			guiOpts: {
-				storageType: "uuid",
-			},
-		},
-		fragmentShader: {
-			type: ShaderSource,
-			guiOpts: {
-				storageType: "uuid",
-			},
-		},
+		vertexShader: {type: ShaderSource},
+		fragmentShader: {type: ShaderSource},
 		primitiveTopology: {
 			type: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
 			defaultValue: "triangle-list",
 		},
 		preloadVertexStates: {
 			type: Array,
-			arrayOpts: {
-				type: VertexState,
-				guiOpts: {
-					storageType: "uuid",
-				},
-			},
+			arrayOpts: {type: VertexState},
 		},
 	};
 

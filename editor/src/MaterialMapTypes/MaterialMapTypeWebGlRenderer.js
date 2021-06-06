@@ -16,15 +16,9 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 		this.settingsGuiStructure = {
 			vertexShader: {
 				type: ShaderSource,
-				guiOpts: {
-					storageType: "projectAsset",
-				},
 			},
 			fragmentShader: {
 				type: ShaderSource,
-				guiOpts: {
-					storageType: "projectAsset",
-				},
 			},
 		};
 

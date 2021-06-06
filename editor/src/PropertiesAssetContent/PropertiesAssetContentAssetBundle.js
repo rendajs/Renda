@@ -28,12 +28,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 				type: Array,
 				arrayOpts: {
 					type: {
-						asset: {
-							type: ProjectAsset,
-							guiOpts: {
-								storageType: "uuid",
-							},
-						},
+						asset: {type: ProjectAsset},
 						includeChildren: {
 							type: Boolean,
 							defaultValue: true,
@@ -43,21 +38,11 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 			},
 			excludeAssets: {
 				type: Array,
-				arrayOpts: {
-					type: ProjectAsset,
-					guiOpts: {
-						storageType: "uuid",
-					},
-				},
+				arrayOpts: {type: ProjectAsset},
 			},
 			excludeAssetsRecursive: {
 				type: Array,
-				arrayOpts: {
-					type: ProjectAsset,
-					guiOpts: {
-						storageType: "uuid",
-					},
-				},
+				arrayOpts: {type: ProjectAsset},
 			},
 		};
 		this.isUpdatingBundleSettingsTree = false;

@@ -9,12 +9,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
 
 		this.meshSettingsStructure = {
-			vertexState: {
-				type: VertexState,
-				guiOpts: {
-					storageType: "liveAsset",
-				},
-			},
+			vertexState: {type: VertexState},
 			attributes: {
 				type: Array,
 				arrayOpts: {

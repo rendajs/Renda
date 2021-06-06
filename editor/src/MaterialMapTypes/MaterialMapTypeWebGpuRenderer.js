@@ -13,12 +13,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		super(treeView);
 
 		this.settingsGuiStructure = {
-			forwardPipelineConfig: {
-				type: WebGpuPipelineConfig,
-				guiOpts: {
-					storageType: "projectAsset",
-				},
-			},
+			forwardPipelineConfig: {type: WebGpuPipelineConfig},
 		};
 
 		this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);

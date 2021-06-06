@@ -64,6 +64,11 @@ export default class PropertiesTreeView extends TreeView{
 		}
 	}
 
+	//guiOpts has the following possible values:
+	// - "default" uses the default behaviour of PropertiesTreeViewEntries
+	// - "fileStorage" optimizes for data stored as json in project asset files
+	// - "binaryComposer" optimizes for data passed to BinaryComposer.objectToBinary
+	// - "script" optimizes for how in game scripts are most likely to access the data (e.g. Entity Components)
 	getSerializableStructureValues(structure, guiOpts){
 		const values = {};
 		let i = 0;

@@ -7,14 +7,6 @@ export default class DroppableGui{
 		supportedAssetTypes = [],
 		//todo: default value support
 		disabled = false,
-
-		//this controls what type of value is expected in setValue() and
-		//returned from this.value. Possible values are:
-		//"liveAsset", "projectAsset" or "uuid"
-		//if null, it guesses the best option based on the supportedAssetTypes:
-		//"liveAsset" for assets that support this
-		//"projectAsset" for all others
-		storageType = null,
 	} = {}){
 		this.disabled = disabled;
 
@@ -23,15 +15,6 @@ export default class DroppableGui{
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = supportedAssetTypes;
-		this.storageType = storageType;
-		if(this.storageType == null){
-			const containsLiveAssetType = this.supportedAssetTypes.some(type => editor.projectAssetTypeManager.constructorHasAssetType(type));
-			if(containsLiveAssetType){
-				this.storageType = "liveAsset";
-			}else{
-				this.storageType = "projectAsset";
-			}
-		}
 
 		this.currenDragFeedbackEl = null;
 
@@ -82,14 +65,14 @@ export default class DroppableGui{
 	setValue(value){
 		let projectAsset = null;
 		if(value){
-			if(this.storageType == "liveAsset"){
-				projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(value);
-			}else if(this.storageType == "projectAsset"){
-				projectAsset = value;
-			}else if(this.storageType == "uuid"){
+			if(typeof value == "string"){
 				this.defaultAssetLinkUuid = value;
 				this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(value);
 				projectAsset = editor.projectManager.assetManager.getProjectAssetImmediate(value);
+			}else if(value instanceof ProjectAsset){
+				projectAsset = value;
+			}else{
+				projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(value);
 			}
 		}
 		this.setValueFromProjectAsset(projectAsset, false);
@@ -101,12 +84,15 @@ export default class DroppableGui{
 
 	getValue({
 		resolveDefaultAssetUuids = true,
+		purpose = "default",
 	} = {}){
-		if(this.storageType == "liveAsset"){
+		let returnLiveAsset = false;
+		if(purpose == "script"){
+			returnLiveAsset = true;
+		}
+		if(returnLiveAsset){
 			return this.projectAssetValue?.getLiveAssetImmediate() || null;
-		}else if(this.storageType == "projectAsset"){
-			return this.projectAssetValue;
-		}else if(this.storageType == "uuid"){
+		}else{
 			if(!resolveDefaultAssetUuids && this.defaultAssetLinkUuid){
 				return this.defaultAssetLinkUuid;
 			}else{
@@ -137,10 +123,11 @@ export default class DroppableGui{
 		}else{
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
 			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
-			if(this.storageType == "liveAsset"){
-				//get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
-				await projectAsset?.getLiveAsset();
-			}
+			// todo
+			// if(this.storageType == "liveAsset"){
+			// 	//get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
+			// 	await projectAsset?.getLiveAsset();
+			// }
 			this.defaultAssetLinkUuid = uuid;
 			this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(uuid);
 			this.setValueFromProjectAsset(projectAsset, false);
