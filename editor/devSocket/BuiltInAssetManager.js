@@ -16,7 +16,6 @@ export default class BuiltInAssetManager{
 		this.assetSettingsLoaded = false;
 		this.assetSettings = new Map();
 		this.fileHashes = new Map(); //<md5, uuid>
-		this.cachedUuidOrder = [];
 		this.assetSettingsJustSaved = false;
 		this.loadAssetSettings();
 		this.watch();
@@ -33,10 +32,8 @@ export default class BuiltInAssetManager{
 		}
 		this.assetSettings.clear();
 		this.fileHashes.clear();
-		this.cachedUuidOrder = [];
 		for(const [uuid, assetData] of Object.entries(data.assets)){
 			this.assetSettings.set(uuid, assetData);
-			this.cachedUuidOrder.push(uuid);
 			if(assetData.path){
 				const fullPath = path.resolve(this.builtInAssetsPath, ...assetData.path);
 				(async () => {
@@ -144,9 +141,6 @@ export default class BuiltInAssetManager{
 		if(!this.assetSettingsLoaded) return;
 		const assets = {};
 		const uuidPaths = new Map();
-		for(const uuid of this.cachedUuidOrder){
-			uuidPaths.set(uuid, null);
-		}
 		for(const [uuid, assetSettings] of this.assetSettings){
 			uuidPaths.set(uuid, assetSettings.path);
 		}
@@ -155,16 +149,6 @@ export default class BuiltInAssetManager{
 			sortedUuidSettings.push({uuid, path});
 		}
 		sortedUuidSettings.sort((a,b) => {
-			const cachedIndexA = this.cachedUuidOrder.indexOf(a.uuid);
-			const cachedIndexB = this.cachedUuidOrder.indexOf(b.uuid);
-			if(cachedIndexA >= 0 && cachedIndexB >= 0){
-				if(cachedIndexA < cachedIndexB){
-					return -1;
-				}
-				if(cachedIndexA > cachedIndexB){
-					return 1;
-				}
-			}
 			if(a.path && b.path){
 				if(a.path.length != b.path.length){
 					return a.path.length - b.path.length;
@@ -187,7 +171,6 @@ export default class BuiltInAssetManager{
 			return 0;
 		});
 		const sortedUuids = sortedUuidSettings.map(x => x.uuid);
-		this.cachedUuidOrder = sortedUuids;
 		for(const uuid of sortedUuids){
 			if(this.assetSettings.has(uuid)){
 				assets[uuid] = this.assetSettings.get(uuid);
