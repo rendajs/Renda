@@ -111,10 +111,14 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 		}
 		editor.projectManager.assetManager.setDefaultAssetLinks(assetLinks);
 
+		for(const child of this.builtInAssetLinksTreeView.children){
+			const assetEntry = child.gui.treeView.getSerializableStructureEntry("defaultAsset");
+			assetEntry.gui.updateDefaultAssetLink();
+		}
 		const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");
 		for(const valueItem of arrayTreeView.gui.valueItems){
 			const defaultAssetEntry = valueItem.gui.treeView.getSerializableStructureEntry("defaultAsset");
-			defaultAssetEntry.gui.updateContent();
+			defaultAssetEntry.gui.updateDefaultAssetLink();
 		}
 		this.isParsingValueChange = false;
 	}

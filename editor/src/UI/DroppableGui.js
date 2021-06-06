@@ -296,4 +296,10 @@ export default class DroppableGui{
 		this.el.textContent = this.visibleAssetName;
 		this.el.draggable = this.projectAssetValue || this.defaultAssetLink;
 	}
+
+	updateDefaultAssetLink(){
+		if(this.defaultAssetLinkUuid){
+			this.setValue(this.defaultAssetLinkUuid);
+		}
+	}
 }
