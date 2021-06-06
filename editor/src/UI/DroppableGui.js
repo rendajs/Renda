@@ -86,17 +86,17 @@ export default class DroppableGui{
 	}
 
 	getValue({
-		resolveDefaultAssetUuids = true,
+		resolveDefaultAssetLinks = false,
+		returnLiveAsset = false,
 		purpose = "default",
 	} = {}){
-		let returnLiveAsset = false;
 		if(purpose == "script"){
 			returnLiveAsset = true;
 		}
 		if(returnLiveAsset){
 			return this.projectAssetValue?.getLiveAssetImmediate() || null;
 		}else{
-			if(!resolveDefaultAssetUuids && this.defaultAssetLinkUuid){
+			if(!resolveDefaultAssetLinks && this.defaultAssetLinkUuid){
 				return this.defaultAssetLinkUuid;
 			}else{
 				return this.projectAssetValue?.uuid;

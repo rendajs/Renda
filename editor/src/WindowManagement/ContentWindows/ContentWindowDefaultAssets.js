@@ -40,7 +40,7 @@ export default class ContentWindowDefaultAssets extends ContentWindow{
 			if(this.isLoadingAssetLinks || this.isParsingValueChange) return;
 			this.isParsingValueChange = true;
 
-			const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure, {resolveDefaultAssetUuids: false});
+			const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure);
 			const assetLinks = [];
 			for(const defaultAssetConfig of guiValues.defaultAssetLinks){
 				assetLinks.push({
