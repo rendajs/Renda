@@ -28,7 +28,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 		const mapData = await map.readAssetData();
 		this.isUpdatingUi = true;
 
-		await this.mapTreeView.gui.setValueFromAssetUuid(mapData.map);
+		await this.mapTreeView.gui.setValueFromAssetUuid(mapData?.map);
 		this.updateMapValues();
 
 		this.isUpdatingUi = false;
@@ -37,7 +37,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 	saveAsset(){
 		//todo: handle multiple selected items or no selection
 		const assetData = {};
-		assetData.map = this.mapTreeView.value?.uuid || null;
+		assetData.map = this.mapTreeView.value;
 		this.currentSelection[0].writeAssetData(assetData);
 	}
 
