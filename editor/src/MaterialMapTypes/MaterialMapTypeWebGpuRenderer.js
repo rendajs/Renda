@@ -32,7 +32,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	async getCustomAssetDataForSave(){
 		const settings = this.getSettingsValues();
 		const data = {
-			forwardPipelineConfig: settings.forwardPipelineConfig?.uuid || null,
+			forwardPipelineConfig: settings.forwardPipelineConfig,
 		}
 
 		return data;
