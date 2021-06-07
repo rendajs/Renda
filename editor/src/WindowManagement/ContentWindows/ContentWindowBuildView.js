@@ -49,7 +49,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 	}
 
 	setAvailableLinkedEntityEditor(){
-		for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
+		for(const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)){
 			this.setLinkedEntityEditor(entityEditor);
 			break;
 		}

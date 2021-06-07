@@ -146,13 +146,13 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	}
 
 	updateOutliners(){
-		for(const outliner of editor.windowManager.getContentWindowsByType(ContentWindowOutliner)){
+		for(const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)){
 			outliner.setLinkedEntityEditor(this);
 		}
 	}
 
 	updateBuildViews(){
-		for(const buildView of editor.windowManager.getContentWindowsByType(ContentWindowBuildView)){
+		for(const buildView of editor.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)){
 			buildView.setLinkedEntityEditor(this);
 		}
 	}

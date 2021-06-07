@@ -39,7 +39,7 @@ export default class PropertiesWindowContentManager{
 			this.registeredContentTypes.set(t, constructor);
 		}
 
-		for(const w of editor.windowManager.getContentWindowsByType(ContentWindowProperties)){
+		for(const w of editor.windowManager.getContentWindowsByConstructor(ContentWindowProperties)){
 			w.onContentTypeRegistered(constructor);
 		}
 	}

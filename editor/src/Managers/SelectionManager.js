@@ -24,7 +24,7 @@ export default class SelectionManager{
 	}
 
 	updatePropertyWindows(){
-		for(const propertyWindow of editor.windowManager.getContentWindowsByType(ContentWindowProperties)){
+		for(const propertyWindow of editor.windowManager.getContentWindowsByConstructor(ContentWindowProperties)){
 			propertyWindow.onSelectionChanged(this);
 		}
 	}

@@ -142,7 +142,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	}
 
 	notifyEntityEditors(entity, type){
-		for(const entityEditor of editor.windowManager.getContentWindowsByType(ContentWindowEntityEditor)){
+		for(const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)){
 			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}

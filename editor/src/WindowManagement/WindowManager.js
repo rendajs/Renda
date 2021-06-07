@@ -157,9 +157,9 @@ export default class WindowManager{
 		}
 	}
 
-	*getContentWindowsByType(type){
+	*getContentWindowsByConstructor(contentWindowConstructor){
 		for(const w of this.allContentWindows()){
-			if(w instanceof type){
+			if(w instanceof contentWindowConstructor){
 				yield w;
 			}
 		}
@@ -168,7 +168,7 @@ export default class WindowManager{
 	focusOrCreateContentWindowType(type){
 		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
 		let foundContentWindow = null;
-		for(const contentWindow of this.getContentWindowsByType(contentWindowConstructor)){
+		for(const contentWindow of this.getContentWindowsByConstructor(contentWindowConstructor)){
 			foundContentWindow = contentWindow;
 			break;
 		}
