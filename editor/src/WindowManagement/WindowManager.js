@@ -100,7 +100,7 @@ export default class WindowManager{
 			for(let i=0; i<workspaceWindow.tabTypes.length; i++){
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
-			newWindow.setActiveTab(workspaceWindow.activeTab || 0);
+			newWindow.setActiveTabIndex(workspaceWindow.activeTab || 0);
 			newWindow.onEditorWindowClick(() => {
 				this.setFocusedEditorWindow(newWindow);
 			});
@@ -110,8 +110,9 @@ export default class WindowManager{
 
 	parseWorkspaceWindowChildren(workspaceWindow, existingWorkspaceWindow){
 		if(workspaceWindow.type == "split"){
-			existingWorkspaceWindow.windowA = this.parseWorkspaceWindow(workspaceWindow.windowA);
-			existingWorkspaceWindow.windowB = this.parseWorkspaceWindow(workspaceWindow.windowB);
+			const windowA = this.parseWorkspaceWindow(workspaceWindow.windowA);
+			const windowB = this.parseWorkspaceWindow(workspaceWindow.windowB);
+			existingWorkspaceWindow.setWindows(windowA, windowB);
 			this.parseWorkspaceWindowChildren(workspaceWindow.windowA, existingWorkspaceWindow.windowA);
 			this.parseWorkspaceWindowChildren(workspaceWindow.windowB, existingWorkspaceWindow.windowB);
 		}
@@ -160,6 +161,31 @@ export default class WindowManager{
 		for(const w of this.allContentWindows()){
 			if(w instanceof type){
 				yield w;
+			}
+		}
+	}
+
+	focusOrCreateContentWindowType(type){
+		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
+		let foundContentWindow = null;
+		for(const contentWindow of this.getContentWindowsByType(contentWindowConstructor)){
+			foundContentWindow = contentWindow;
+			break;
+		}
+		if(!foundContentWindow){
+			foundContentWindow = this.createNewContentWindow(type);
+		}
+		if(!foundContentWindow) return null;
+
+		this.setFocusedEditorWindow(foundContentWindow.parentEditorWindow);
+		foundContentWindow.parentEditorWindow.setActiveContentWindow(foundContentWindow);
+		return foundContentWindow;
+	}
+
+	createNewContentWindow(type){
+		for(const w of this.allEditorWindows()){
+			if(w instanceof EditorWindowTabs){
+				return w.addTabType(type);
 			}
 		}
 	}

@@ -7,7 +7,7 @@ export default class ContentWindowProperties extends ContentWindow{
 	static windowName = "properties";
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		this.activeSelectionManager = null;
 		this.activeContent = null;

@@ -34,6 +34,13 @@ export default class EditorWindowSplit extends EditorWindow{
 		this.el.appendChild(this.elB);
 	}
 
+	setWindows(windowA, windowB){
+		this.windowA = windowA;
+		this.windowB = windowB;
+		this.windowA.setParent(this);
+		this.windowB.setParent(this);
+	}
+
 	destructor(){
 		if(this.windowA) this.windowA.destructor();
 		if(this.windowB) this.windowB.destructor();

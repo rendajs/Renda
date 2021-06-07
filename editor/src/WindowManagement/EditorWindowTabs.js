@@ -43,8 +43,13 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.tabTypes[index] = tabType;
 		let constructor = editor.windowManager.getContentWindowConstructorByType(tabType);
 		if(constructor){
-			this.loadContentWindow(index, constructor);
+			return this.loadContentWindow(index, constructor);
 		}
+		return null;
+	}
+
+	addTabType(tabType){
+		return this.setTabType(this.tabTypes.length, tabType);
 	}
 
 	onContentWindowRegistered(constructor){
@@ -56,10 +61,11 @@ export default class EditorWindowTabs extends EditorWindow{
 	}
 
 	loadContentWindow(index, constructor){
-		let contentWindow = new constructor();
+		const contentWindow = new constructor(this);
 		this.tabs[index] = contentWindow;
 		this.tabsEl.appendChild(contentWindow.el);
 		this.updateTabSelector();
+		return contentWindow;
 	}
 
 	updateTabSelector(){
@@ -70,7 +76,7 @@ export default class EditorWindowTabs extends EditorWindow{
 				let tabIndex = prevTabCount + i;
 				let newButton = new Button({
 					onClick: () => {
-						this.setActiveTab(tabIndex);
+						this.setActiveTabIndex(tabIndex);
 					}
 				});
 				this.tabsSelectorGroup.addButton(newButton);
@@ -90,13 +96,18 @@ export default class EditorWindowTabs extends EditorWindow{
 		}
 	}
 
-	setActiveTab(index){
+	setActiveTabIndex(index){
 		this.activeTabIndex = index;
 		for(let i=0; i<this.tabs.length; i++){
 			let active = i == index;
 			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
 			this.tabs[i].setVisible(active);
 		}
+	}
+
+	setActiveContentWindow(contentWindow){
+		const index = this.tabs.indexOf(contentWindow);
+		this.setActiveTabIndex(index);
 	}
 
 	get activeTab(){

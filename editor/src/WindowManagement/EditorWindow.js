@@ -2,6 +2,8 @@ export default class EditorWindow{
 	constructor(){
 		this.el = document.createElement("div");
 
+		this.parent = null;
+
 		this.editorWindowClickCbs = new Set();
 		this.el.addEventListener("click", () => {
 			for(const cb of this.editorWindowClickCbs){
@@ -33,6 +35,12 @@ export default class EditorWindow{
 	updateEls(){}
 
 	onContentWindowRegistered(constructor){}
+
+	setParent(parent){
+		this.parent = parent;
+	}
+
+	getParent(){}
 
 	*getChildren(){}
 

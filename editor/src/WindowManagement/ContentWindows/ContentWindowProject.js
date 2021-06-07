@@ -10,7 +10,7 @@ export default class ContentWindowProject extends ContentWindow{
 	static windowName = "project";
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		const createButton = new Button({
 			text: "+",

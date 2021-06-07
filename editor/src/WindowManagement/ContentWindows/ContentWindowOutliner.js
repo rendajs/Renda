@@ -11,7 +11,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 	static windowName = "outliner";
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		this.treeView = new TreeView();
 		this.treeView.draggable = true;

@@ -11,7 +11,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 	static windowName = "entityEditor";
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		this.setContentBehindTopBar(true);
 

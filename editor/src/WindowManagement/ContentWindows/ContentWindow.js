@@ -4,7 +4,9 @@ export default class ContentWindow{
 	//this name will be used for saving the users workspace
 	static windowName = null;
 
-	constructor(){
+	constructor(parentEditorWindow){
+		this.parentEditorWindow = parentEditorWindow;
+
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
 

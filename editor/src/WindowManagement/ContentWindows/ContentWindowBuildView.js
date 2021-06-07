@@ -9,7 +9,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 	static windowName = "buildView";
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		this.setContentBehindTopBar(true);
 

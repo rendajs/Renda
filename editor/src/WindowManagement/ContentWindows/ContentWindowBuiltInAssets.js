@@ -8,7 +8,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 	static windowName = "builtInAssets"
 
 	constructor(){
-		super();
+		super(...arguments);
 
 		this.treeViewAssets = new Map();
 
