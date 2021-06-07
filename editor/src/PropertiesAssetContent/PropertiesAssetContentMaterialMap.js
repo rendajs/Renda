@@ -47,10 +47,13 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 					const menu = editor.contextMenuManager.createContextMenu();
 					for(const typeConstructor of editor.materialMapTypeManager.getAllTypes()){
 						const disabled = this.hasTypeConstructor(typeConstructor);
-						menu.addItem(typeConstructor.uiName, () => {
-							this.addMapType(typeConstructor);
-							this.saveSelectedAssets();
-						}, {disabled});
+						menu.addItem(typeConstructor.uiName, {
+							onClick: () => {
+								this.addMapType(typeConstructor);
+								this.saveSelectedAssets();
+							},
+							disabled,
+						});
 					}
 
 					menu.setPos(this.addMapTypeButtonEntry.gui, "top left");
