@@ -24,9 +24,9 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	}
 
 	async customAssetDataFromLoad(customData){
-		let forwardPipelineConfig = null;
-		if(customData.forwardPipelineConfig) forwardPipelineConfig = await editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
-		this.settingsTreeView.fillSerializableStructureValues({forwardPipelineConfig});
+		this.settingsTreeView.fillSerializableStructureValues({
+			forwardPipelineConfig: customData.forwardPipelineConfig,
+		});
 	}
 
 	async getCustomAssetDataForSave(){
