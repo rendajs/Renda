@@ -1,6 +1,7 @@
 import autoRegisterMaterialMapTypes from "../MaterialMapTypes/AutoRegisterMaterialMapTypes.js";
 import MaterialMapType from "../MaterialMapTypes/MaterialMapType.js";
 import {isUuid} from "../../../src/Util/Util.js";
+import editor from "../editorInstance.js";
 
 export default class MaterialMapTypeManager{
 	constructor(){
@@ -42,7 +43,9 @@ export default class MaterialMapTypeManager{
 		return this.registeredMapTypes.get(uuid);
 	}
 
-	async getMapValuesForMapAsset(mapAsset){
+	async getMapValuesForMapAssetUuid(mapAssetUuid){
+		if(!mapAssetUuid) return [];
+		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapAssetUuid);
 		if(!mapAsset) return [];
 		const mapValues = new Map();
 		const mapData = await mapAsset.readAssetData();

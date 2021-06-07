@@ -1,5 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
+import editor from "../editorInstance.js";
 
 export default class PropertiesAssetContentMaterial extends PropertiesAssetContent{
 	constructor(){
@@ -47,7 +48,7 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 
 	async updateMapValues(){
 		this.mapValuesTreeView.clearChildren();
-		const mapValues = await editor.materialMapTypeManager.getMapValuesForMapAsset(this.mapTreeView.value);
+		const mapValues = await editor.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		for(const [name, valueData] of mapValues){
 			this.mapValuesTreeView.addItem({
 				type: valueData.type,
