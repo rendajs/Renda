@@ -3,9 +3,9 @@ import ContentWindow from "./ContentWindow.js";
 import PropertiesTreeView from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import ProjectAsset from "../../Assets/ProjectAsset.js";
 
-export default class ContentWindowDefaultAssets extends ContentWindow{
+export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 
-	static windowName = "defaultAssets";
+	static windowName = "defaultAssetLinks";
 
 	constructor(){
 		super(...arguments);

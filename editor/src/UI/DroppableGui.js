@@ -1,7 +1,6 @@
 import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
-import ContentWindowDefaultAssets from "../WindowManagement/ContentWindows/ContentWindowDefaultAssets.js";
 
 export default class DroppableGui{
 	constructor({
@@ -288,7 +287,7 @@ export default class DroppableGui{
 			cb: async () => {
 				//todo: highlight assetLink
 				if(this.defaultAssetLink){
-					const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("defaultAssets");
+					const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("defaultAssetLinks");
 				}else if(this.projectAssetValue){
 					if(this.projectAssetValue.isBuiltIn){
 						const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");

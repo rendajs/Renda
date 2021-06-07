@@ -42,7 +42,7 @@ export default class WindowManager{
 					splitPercentage: 0.6,
 					windowA: {
 						type: "tabs",
-						tabTypes: ["outliner", "defaultAssets"],
+						tabTypes: ["outliner", "defaultAssetLinks"],
 					},
 					windowB: {
 						type: "tabs",
