@@ -1,6 +1,7 @@
 import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
+import ContentWindowDefaultAssets from "../WindowManagement/ContentWindows/ContentWindowDefaultAssets.js";
 
 export default class DroppableGui{
 	constructor({
@@ -279,6 +280,21 @@ export default class DroppableGui{
 			cb: async () => {
 				if(this.projectAssetValue){
 					await navigator.clipboard.writeText(this.projectAssetValue.uuid);
+				}
+			},
+		});
+		contextMenuStructure.push({
+			text: "View location",
+			cb: async () => {
+				//todo: highlight assetLink
+				if(this.defaultAssetLink){
+					const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("defaultAssets");
+				}else if(this.projectAssetValue){
+					if(this.projectAssetValue.isBuiltIn){
+						const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");
+					}else{
+						const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("project");
+					}
 				}
 			},
 		});
