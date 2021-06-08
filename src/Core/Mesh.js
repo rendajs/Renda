@@ -196,23 +196,25 @@ export default class Mesh{
 		this._buffers = [];
 		this._unusedBuffers.clear();
 
-		for(const bufferDescriptor of vertexState.buffers){
-			const attributes = [];
-			for(const attribute of bufferDescriptor.attributes.values()){
-				const attributeType = attribute.attributeType;
-				attributes.push({
-					offset: attribute.offset,
-					format: attribute.format,
-					componentCount: attribute.componentCount,
-					attributeType,
+		if(vertexState){
+			for(const bufferDescriptor of vertexState.buffers){
+				const attributes = [];
+				for(const attribute of bufferDescriptor.attributes.values()){
+					const attributeType = attribute.attributeType;
+					attributes.push({
+						offset: attribute.offset,
+						format: attribute.format,
+						componentCount: attribute.componentCount,
+						attributeType,
+					});
+				}
+				const buffer = new MeshAttributeBuffer({
+					arrayStride: bufferDescriptor.arrayStride,
+					attributes,
 				});
+				if(this.vertexCount) buffer.setVertexCount(this.vertexCount);
+				this._buffers.push(buffer);
 			}
-			const buffer = new MeshAttributeBuffer({
-				arrayStride: bufferDescriptor.arrayStride,
-				attributes,
-			});
-			if(this.vertexCount) buffer.setVertexCount(this.vertexCount);
-			this._buffers.push(buffer);
 		}
 
 		for(const buffer of oldBuffers){
