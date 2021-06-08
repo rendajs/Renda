@@ -98,8 +98,8 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		}
 		const mesh = new Mesh();
 
-		const layoutUuid = decomposer.getUuid();
-		const layoutProjectAsset = await editor.projectManager.assetManager.getProjectAsset(layoutUuid);
+		const vertexStateUuid = decomposer.getUuid();
+		const layoutProjectAsset = await editor.projectManager.assetManager.getProjectAsset(vertexStateUuid);
 		if(layoutProjectAsset){
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
 			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
@@ -137,7 +137,12 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			});
 		}
 
-		return {liveAsset: mesh};
+		return {
+			liveAsset: mesh,
+			editorData: {
+				vertexStateUuid,
+			},
+		};
 	}
 
 	async saveLiveAssetData(liveAsset, editorData){
@@ -145,11 +150,7 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		composer.appendUint32(this.magicHeader); //magic header: jMsh
 		composer.appendUint16(1); //version
 
-		let vertexStateUuid = null;
-		if(liveAsset.vertexState){
-			vertexStateUuid = editor.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.vertexState);
-		}
-		composer.appendUuid(vertexStateUuid);
+		composer.appendUuid(editorData?.vertexStateUuid);
 
 		if(!liveAsset.indexBuffer){
 			composer.appendUint8(Mesh.IndexFormat.NONE);

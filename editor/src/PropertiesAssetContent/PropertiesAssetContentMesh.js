@@ -1,6 +1,7 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../src/index.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+import editor from "../editorInstance.js";
 
 export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 	constructor(){
@@ -31,7 +32,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 		//todo: handle multiple selected items or no selection
 
 		const asset = this.currentSelection[0];
-		const liveAsset = await asset.getLiveAsset();
+		const {liveAsset, editorData} = await asset.getLiveAssetData();
 		this.isUpdatingUi = true;
 
 		if(liveAsset){
@@ -41,7 +42,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 				attributeNames.push(name);
 			}
 			this.meshSettingsTree.fillSerializableStructureValues({
-				vertexState: liveAsset.vertexState,
+				vertexState: editorData.vertexStateUuid,
 				attributes: attributeNames,
 			});
 		}
@@ -54,9 +55,11 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 
 		//todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
-		const liveAsset = await asset.getLiveAsset();
+		const {liveAsset, editorData} = await asset.getLiveAssetData();
+		editorData.vertexStateUuid = settings.vertexState;
 		if(liveAsset){
-			liveAsset.setVertexState(settings.vertexState);
+			const vertexStateLiveAsset = await editor.projectManager.assetManager.getLiveAsset(settings.vertexState);
+			liveAsset.setVertexState(vertexStateLiveAsset);
 			await asset.saveLiveAssetData();
 		}
 	}
