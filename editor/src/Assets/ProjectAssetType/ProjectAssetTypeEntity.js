@@ -21,6 +21,13 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		return {liveAsset};
 	}
 
+	async saveLiveAssetData(liveAsset, editorData){
+		return liveAsset.toJson({
+			assetManager: editor.projectManager.assetManager,
+			assetTypeManager: editor.projectAssetTypeManager,
+		});
+	}
+
 	async open(){
 		const entity = await this.projectAsset.getLiveAsset();
 		for(const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)){

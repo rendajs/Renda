@@ -115,16 +115,8 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 	async saveEntityAsset(){
 		if(!this.editingEntityUuid) return;
-		const path = await editor.projectManager.assetManager.getAssetPathFromUuid(this.editingEntityUuid);
-		const fs = editor.projectManager.currentProjectFileSystem;
-		const json = this.editingEntity.toJson({
-			assetManager: editor.projectManager.assetManager,
-			assetTypeManager: editor.projectAssetTypeManager,
-		});
-		await fs.writeJson(path, {
-			assetType: "JJ:entity",
-			asset: json,
-		});
+		const asset = await editor.projectManager.assetManager.getProjectAsset(this.editingEntityUuid);
+		await asset.saveLiveAssetData();
 	}
 
 	loop(){
