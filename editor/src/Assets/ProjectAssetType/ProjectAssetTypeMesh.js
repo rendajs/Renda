@@ -18,8 +18,11 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	}
 
 	async createNewLiveAssetData(){
+		const defaultVertexStateAssetUuid = "ad4146d6-f709-422e-b93e-5beb51e38fe4";
 		const mesh = new Mesh();
 		mesh.setVertexCount(24);
+		const vertexStateLiveAsset = await editor.projectManager.assetManager.getLiveAsset(defaultVertexStateAssetUuid);
+		mesh.setVertexState(vertexStateLiveAsset);
 		mesh.setIndexData([0,1,2, 1,2,3,  4,5,6, 5,6,7,  8,9,10, 9,10,11,  12,13,14, 13,14,15,  16,17,18, 17,18,19,  20,21,22, 21,22,23]);
 		mesh.setVertexData(Mesh.AttributeType.POSITION, [
 			new Vec3(-1,-1,-1),
@@ -83,7 +86,12 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			new Vec3( 0, 0, 1),
 			new Vec3( 0, 0, 1),
 		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-		return {liveAsset: mesh};
+		return {
+			liveAsset: mesh,
+			editorData: {
+				vertexStateUuid: defaultVertexStateAssetUuid,
+			}
+		};
 	}
 
 	static expectedLiveAssetConstructor = Mesh;
