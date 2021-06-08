@@ -68,6 +68,7 @@ export default class DroppableGui{
 
 	setValue(value){
 		let projectAsset = null;
+		this.setDefaultAssetLinkUuid(null);
 		if(value){
 			if(typeof value == "string"){
 				this.setDefaultAssetLinkUuid(value);
@@ -137,10 +138,15 @@ export default class DroppableGui{
 	}
 
 	setDefaultAssetLinkUuid(uuid){
-		this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(uuid);
+		if(uuid){
+			this.defaultAssetLink = editor.projectManager.assetManager.getDefaultAssetLink(uuid);
+		}else{
+			this.defaultAssetLink = null;
+		}
 		if(this.defaultAssetLink){
 			this.defaultAssetLinkUuid = uuid;
 		}else{
+			this.defaultAssetLink = null;
 			this.defaultAssetLinkUuid = null;
 		}
 	}
