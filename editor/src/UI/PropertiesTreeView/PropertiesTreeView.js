@@ -70,14 +70,26 @@ export default class PropertiesTreeView extends TreeView{
 	// - "binaryComposer" optimizes for data passed to BinaryComposer.objectToBinary
 	// - "script" optimizes for how in game scripts are most likely to access the data (e.g. Entity Components)
 	getSerializableStructureValues(structure, guiOpts){
+		let {
+			purpose = "default",
+			stripDefaultValues = false,
+		} = guiOpts || {};
+		if(purpose == "fileStorage"){
+			stripDefaultValues = true;
+		}else if(purpose == "binaryComposer"){
+			stripDefaultValues = false;
+		}
 		const values = {};
 		let i = 0;
+		let hasSetOneValue = false;
 		for(const [key, itemSettings] of Object.entries(structure)){
 			const entry = this.children[i++];
 			if(!entry.omitFromSerializableStuctureValues(guiOpts)){
 				values[key] = entry.getValue(guiOpts);
+				hasSetOneValue = true;
 			}
 		}
+		if(stripDefaultValues && !hasSetOneValue) return undefined;
 		return values;
 	}
 
