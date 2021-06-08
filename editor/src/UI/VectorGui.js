@@ -115,6 +115,18 @@ export default class VectorGui{
 		}
 	}
 
+	isDefaultValue(guiOpts){
+		const val = this.getValue({
+			...guiOpts,
+			getAsArray: true,
+		});
+		const defaultVal = this.defaultValue.toArray();
+		for(let i=0; i<this.size; i++){
+			if(val[i] != defaultVal[i]) return false;
+		}
+		return true;
+	}
+
 	setDisabled(disabled){
 		this.disabled = disabled;
 		for(const gui of this.numericGuis){
