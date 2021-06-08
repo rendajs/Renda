@@ -58,11 +58,15 @@ export default class BinaryDecomposer{
 		if(!ArrayBuffer.isView(buffer)){
 			buffer = new Uint8Array(buffer);
 		}
+		let allZeros = true;
 		let str = "";
 		for(let i=0; i<16; i++){
-			str += buffer[offset+i].toString(16).padStart(2, "0");
+			const intValue = buffer[offset+i];
+			if(intValue != 0) allZeros = false;
+			str += intValue.toString(16).padStart(2, "0");
 			if(i == 3 || i == 5 || i == 7 || i == 9) str += "-";
 		}
+		if(allZeros) return null;
 		return str;
 	}
 }
