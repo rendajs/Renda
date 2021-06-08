@@ -3,6 +3,9 @@
 		"2c2abb9a-8c5a-4faf-a605-066d33242391": {
 			"path": ["webgpuExterns.js"]
 		},
+		"36996838-4f7e-4be3-9c18-49c4a9db00be": {
+			"path": ["DefaultAssets", "Default Vertex State.json"]
+		},
 		"873ade41-8986-4371-b2a3-5bc1aff9d938": {
 			"path": ["DefaultAssets", "Default Material", "Default Material Map.json"]
 		},
