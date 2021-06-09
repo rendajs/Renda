@@ -43,7 +43,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	}
 
 	gpuReady(){
-		this.swapChainFormat = this.ctx.getSwapChainPreferredFormat(this.renderer.adapter);
+		this.swapChainFormat = this.ctx.getPreferredFormat(this.renderer.adapter);
 
 		this.ready = true;
 		this.generateTextures();
@@ -74,7 +74,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 	generateTextures(){
 		if(!this.ready) return;
 
-		this.swapChain = this.ctx.configureSwapChain({
+		this.swapChain = this.ctx.configure({
 			device: this.renderer.device,
 			format: this.swapChainFormat,
 		});
@@ -110,7 +110,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 
 	getRenderPassDescriptor(){
 		if(!this.ready) return null;
-		const swapChainTextureView = this.swapChain.getCurrentTexture().createView();
+		const swapChainTextureView = this.ctx.getCurrentTexture().createView();
 		if(this.outputConfig.multisampleCount == 1){
 			this.colorAttachment.view = swapChainTextureView;
 			this.colorAttachment.resolveTarget = undefined;
