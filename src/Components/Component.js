@@ -5,6 +5,7 @@ import Vec2 from "../Math/Vec2.js";
 import Vec3 from "../Math/Vec3.js";
 import Vec4 from "../Math/Vec4.js";
 import Mat4 from "../Math/Mat4.js";
+import { DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT } from "../engineDefines.js";
 
 /** @unrestricted */
 export default class Component{
@@ -74,8 +75,7 @@ export default class Component{
 			return propertyValue.getFlatArray();
 		}
 
-		//todo, strip this code using defines
-		if(propertyValue && editorOpts && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.assetTypeManager && editorOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)){
+		if(DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT && propertyValue && editorOpts && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.assetTypeManager && editorOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)){
 			const usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol];
 			if(usedAssetUuids){
 				const assetUuid = usedAssetUuids[propertyName];

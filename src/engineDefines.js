@@ -16,3 +16,4 @@ export const ENABLE_WEBGPU_CLUSTERED_LIGHTS = true;
 
 //enables listening for asset changes for assets that are used by the engine
 export const ENGINE_ASSETS_LIVE_UPDATES_SUPPORT = true;
+export const DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT = true;
