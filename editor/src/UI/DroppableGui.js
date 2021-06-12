@@ -120,18 +120,17 @@ export default class DroppableGui{
 		this.updateContent();
 	}
 
-	async setValueFromAssetUuid(uuid){
+	async setValueFromAssetUuid(uuid, preloadLiveAsset = false){
 		if(!uuid){
 			this.setValueFromProjectAsset(null);
 			this.value = null;
 		}else{
 			const projectAsset = await editor.projectManager.assetManager.getProjectAsset(uuid);
 			await editor.projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
-			// todo
-			// if(this.storageType == "liveAsset"){
-			// 	//get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
-			// 	await projectAsset?.getLiveAsset();
-			// }
+			if(preloadLiveAsset){
+				//get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
+				await projectAsset?.getLiveAsset();
+			}
 			this.setDefaultAssetLinkUuid(uuid);
 			this.setValueFromProjectAsset(projectAsset, false);
 		}
@@ -224,7 +223,7 @@ export default class DroppableGui{
 		for(const mimeType of e.dataTransfer.types){
 			if(this.validateMimeType(mimeType)){
 				const assetUuid = e.dataTransfer.getData(mimeType);
-				this.setValueFromAssetUuid(assetUuid);
+				this.setValueFromAssetUuid(assetUuid, true);
 				break;
 			}
 		}
