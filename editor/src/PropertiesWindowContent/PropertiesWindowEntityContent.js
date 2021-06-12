@@ -123,7 +123,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 				});
 				componentUI.fillSerializableStructureValues(componentGroup, {
 					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
-						if(editor.projectAssetTypeManager.constructorHasAssetType(value.constructor)){
+						if(value && editor.projectAssetTypeManager.constructorHasAssetType(value.constructor)){
 							const usedAssetUuids = setOnObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 							if(usedAssetUuids){
 								const uuid = usedAssetUuids[setOnObjectKey];
