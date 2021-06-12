@@ -14,10 +14,7 @@ import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import DevSocketManager from "./Managers/DevSocketManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
 
-import ProjectAssetTypeShaderSource from "./Assets/ProjectAssetType/ProjectAssetTypeShaderSource.js";
-
 import {WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager, ShaderBuilder} from "../../src/index.js";
-import BinaryComposer from "../../src/Util/BinaryComposer.js";
 
 export default class Editor{
 	constructor(){
@@ -63,7 +60,6 @@ export default class Editor{
 	}
 
 	init(){
-
 		this.builtInAssetManager.init();
 		defaultEngineAssetsManager.addGetAssetHandler(async (uuid) => {
 			await this.builtInAssetManager.waitForLoad();
