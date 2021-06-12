@@ -1,6 +1,6 @@
 import Entity from "../Core/Entity.js";
 import defaultEngineAssetsManager from "../Assets/defaultEngineAssetsManager.js";
-import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../defines.js";
+import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 
 export default class GizmoManager{
 	constructor(){

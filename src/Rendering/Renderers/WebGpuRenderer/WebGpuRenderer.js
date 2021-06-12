@@ -1,4 +1,4 @@
-import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../defines.js";
+import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
 import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh, MultiKeyWeakMap, ShaderBuilder} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";

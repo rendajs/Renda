@@ -1,5 +1,5 @@
 import defaultAssetLoader from "./defaultAssetLoader.js";
-import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../defines.js";
+import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 
 export default class EngineAssetsManager{
 	constructor(){
