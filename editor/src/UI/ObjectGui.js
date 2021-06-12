@@ -19,8 +19,8 @@ export default class ObjectGui{
 		if(disabled) this.setDisabled(true);
 	}
 
-	setValue(value){
-		this.treeView.fillSerializableStructureValues(value);
+	setValue(value, setValueOpts){
+		this.treeView.fillSerializableStructureValues(value, setValueOpts);
 	}
 
 	getValue(guiOpts){

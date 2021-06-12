@@ -131,8 +131,15 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		this.gui?.setDisabled?.(disabled);
 	}
 
-	setValue(newValue){
-		this.gui?.setValue?.(newValue);
+	setValue(newValue, setValueOpts){
+		if(setValueOpts?.beforeValueSetHook){
+			newValue = setValueOpts.beforeValueSetHook({
+				value: newValue,
+				setOnObject: setValueOpts.setOnObject,
+				setOnObjectKey: setValueOpts.setOnObjectKey,
+			});
+		}
+		this.gui?.setValue?.(newValue, setValueOpts);
 	}
 
 	onValueChange(cb){

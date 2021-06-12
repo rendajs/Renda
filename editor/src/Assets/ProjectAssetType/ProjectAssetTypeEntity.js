@@ -10,6 +10,8 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";
 	static newFileName = "New Entity";
 
+	static usedAssetUuidsSymbol = Symbol("used asset uuids");
+
 	constructor(){
 		super(...arguments);
 	}
@@ -25,6 +27,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		return liveAsset.toJson({
 			assetManager: editor.projectManager.assetManager,
 			assetTypeManager: editor.projectAssetTypeManager,
+			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 		});
 	}
 
@@ -47,7 +50,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 			for(const component of jsonData.components){
 				const componentUuid = component.uuid;
 				const componentData = defaultComponentTypeManager.getComponentDataForUuid(componentUuid);
-				const componentPropertyValues = await this.componentPropertyValuesFromJson(component.propertyValues, componentData);
+				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, componentData);
 				ent.addComponent(componentData, componentPropertyValues);
 			}
 		}
@@ -60,39 +63,45 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		return ent;
 	}
 
-	async componentPropertyValuesFromJson(jsonData, componentData){
+	async getComponentPropertyValuesFromJson(jsonData, componentData){
 		const componentProperties = componentData?.properties;
 		const newPropertyValues = {}
 		if(componentProperties){
 			for(const [name, propertyData] of Object.entries(componentProperties)){
-				newPropertyValues[name] = await this.componentPropertyValueFromJson(jsonData[name], propertyData);
+				await this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData);
 			}
 		}
 		return newPropertyValues;
 	}
 
-	async componentPropertyValueFromJson(propertyValue, propertyData){
-		if(propertyValue == null) return null;
-		if(propertyData.type == Array){
+	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyData){
+		const propertyValue = originalParentObject[propertyKey];
+		let newPropertyValue = propertyValue;
+		if(propertyValue == null){
+			newPropertyValue = null;
+		}else if(propertyData.type == Array){
 			const newArr = [];
-			for(const item of propertyValue){
-				newArr.push(await this.componentPropertyValueFromJson(item, propertyData.arrayOpts));
+			for(const i of propertyValue.keys()){
+				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, propertyData.arrayOpts);
 			}
-			return newArr;
-		}
-		if(propertyData.type == Vec2){
-			return new Vec2(...propertyValue);
+			newPropertyValue = newArr;
+		}else if(propertyData.type == Vec2){
+			newPropertyValue = new Vec2(...propertyValue);
 		}else if(propertyData.type == Vec3){
-			return new Vec3(...propertyValue);
+			newPropertyValue = new Vec3(...propertyValue);
 		}else if(propertyData.type == Vec4){
-			return new Vec4(...propertyValue);
+			newPropertyValue = new Vec4(...propertyValue);
 		}else if(propertyData.type == Mat4){
-			return new Mat4(propertyValue);
+			newPropertyValue = new Mat4(propertyValue);
+		}else if(editor.projectAssetTypeManager.constructorHasAssetType(propertyData.type)){
+			newPropertyValue = await editor.projectManager.assetManager.getLiveAsset(propertyValue);
+			let usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
+			if(!usedAssetUuids){
+				usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = {};
+			}
+			usedAssetUuids[propertyKey] = propertyValue;
 		}
-		if(editor.projectAssetTypeManager.constructorHasAssetType(propertyData.type)){
-			return await editor.projectManager.assetManager.getLiveAsset(propertyValue);
-		}
-		return propertyValue;
+		newParentObject[propertyKey] = newPropertyValue;
 	}
 
 	async createBundledAssetData(){

@@ -3,8 +3,8 @@ import {Entity, Vec3, Quaternion, defaultComponentTypeManager, Mesh} from "../..
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
-import ProjectAsset from "../Assets/ProjectAsset.js";
 import ContentWindowEntityEditor from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import ProjectAssetTypeEntity from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent{
 	constructor(){
@@ -114,31 +114,42 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			const serializableStructure = componentData?.properties;
 			if(serializableStructure){
 				componentUI.generateFromSerializableStructure(serializableStructure);
-				componentUI.onChildValueChange(async e => {
+				componentUI.onChildValueChange(e => {
 					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.changedEntry);
-					const scriptValue = e.changedEntry.getValue({purpose:"script"});
-					componentGroup[propertyName] = await this.mapDroppableGuiValues(scriptValue);
+					const scriptValueFromGui = e.changedEntry.getValue({purpose:"script"});
+					const uuidValue = e.changedEntry.value;
+					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, uuidValue);
 					this.notifyEntityEditors(componentGroup.entity, "componentProperty");
 				});
-				componentUI.fillSerializableStructureValues(componentGroup);
+				componentUI.fillSerializableStructureValues(componentGroup, {
+					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
+						if(editor.projectAssetTypeManager.constructorHasAssetType(value.constructor)){
+							const usedAssetUuids = setOnObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
+							if(usedAssetUuids){
+								const uuid = usedAssetUuids[setOnObjectKey];
+								if(uuid) return uuid;
+							}
+						}
+						return value;
+					},
+				});
 			}
 		}
 	}
 
-	async mapDroppableGuiValues(value){
-		if(value instanceof ProjectAsset){
-			value = await value.getLiveAsset();
-		}else if(Array.isArray(value)){
-			const promises = [];
-			for(const [i, item] of value.entries()){
-				promises.push((async r => {
-					const newValue = await this.mapDroppableGuiValues(item);
-					value[i] = newValue;
-				})());
+	mapFromDroppableGuiValues(object, propertyName, scriptValue, uuidValue){
+		if(Array.isArray(scriptValue)){
+			for(const [i, item] of scriptValue.entries()){
+				this.mapFromDroppableGuiValues(scriptValue, i, item, uuidValue[i]);
 			}
-			await Promise.all(promises);
 		}
-		return value;
+		//todo: make it work with objects as well
+
+		if(!object[ProjectAssetTypeEntity.usedAssetUuidsSymbol]){
+			object[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = {};
+		}
+		object[propertyName] = scriptValue;
+		object[ProjectAssetTypeEntity.usedAssetUuidsSymbol][propertyName] = uuidValue;
 	}
 
 	notifyEntityEditors(entity, type){

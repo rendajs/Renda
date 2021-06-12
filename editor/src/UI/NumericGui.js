@@ -86,7 +86,9 @@ export default class NumericGui{
 		this.onValueChangeCbs = null;
 	}
 
-	setValue(value, updateTextValue = true){
+	setValue(value, {
+		updateTextValue = true,
+	} = {}){
 		if(typeof value == "string"){
 			if(this.inverseMappedStringValues.has(value)){
 				this.unroundedValue = this.inverseMappedStringValues.get(value);
@@ -244,7 +246,7 @@ export default class NumericGui{
 
 	onInput(){
 		let value = this.parseCurrentValue();
-		this.setValue(value, false);
+		this.setValue(value, {updateTextValue: false});
 	}
 
 	parseCurrentValue(){

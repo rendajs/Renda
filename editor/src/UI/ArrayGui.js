@@ -86,7 +86,7 @@ export default class ArrayGui{
 		this.fireValueChange();
 	}
 
-	setValue(value){
+	setValue(value, setValueOpts){
 		const removeCount = this.valueItems.length - value.length;
 		if(removeCount > 0){
 			for(let i=0; i<removeCount; i++){
@@ -94,11 +94,16 @@ export default class ArrayGui{
 			}
 		}
 		for(const [i, item] of value.entries()){
+			const newSetValueOpts = {
+				...setValueOpts,
+				setOnObject: value,
+				setOnObjectKey: i,
+			}
 			if(this.valueItems.length <= i){
 				const addedItem = this.addItem();
-				addedItem.setValue(item);
+				addedItem.setValue(item, newSetValueOpts);
 			}else{
-				this.valueItems[i].setValue(item);
+				this.valueItems[i].setValue(item, newSetValueOpts);
 			}
 		}
 	}

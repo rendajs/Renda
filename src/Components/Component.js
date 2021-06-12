@@ -47,7 +47,7 @@ export default class Component{
 		const componentData = this.getComponentData();
 		if(componentData && componentData.properties){
 			for(const [propertyName, property] of Object.entries(componentData.properties)){
-				propertyValues[propertyName] = this.propertyToJson(this[propertyName], editorOpts);
+				propertyValues[propertyName] = this.propertyToJson(this, propertyName, editorOpts);
 			}
 		}
 		const componentJson = {
@@ -57,9 +57,14 @@ export default class Component{
 		return componentJson;
 	}
 
-	propertyToJson(propertyValue, editorOpts){
+	propertyToJson(object, propertyName, editorOpts){
+		const propertyValue = object[propertyName];
 		if(Array.isArray(propertyValue)){
-			return propertyValue.map(p => this.propertyToJson(p, editorOpts));
+			const mappedArray = [];
+			for(const i of propertyValue.keys()){
+				mappedArray[i] = this.propertyToJson(propertyValue, i, editorOpts);
+			}
+			return mappedArray;
 		}
 
 		//todo, use a global list of math types
@@ -69,7 +74,14 @@ export default class Component{
 			return propertyValue.getFlatArray();
 		}
 
-		if(propertyValue && editorOpts && editorOpts.assetManager && editorOpts.assetTypeManager && editorOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)){
+		//todo, strip this code using defines
+		if(propertyValue && editorOpts && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.assetTypeManager && editorOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)){
+			const usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol];
+			if(usedAssetUuids){
+				const assetUuid = usedAssetUuids[propertyName];
+				if(assetUuid) return assetUuid;
+			}
+
 			const projectAsset = editorOpts.assetManager.getProjectAssetForLiveAsset(propertyValue);
 			if(projectAsset){
 				return projectAsset.uuid;
