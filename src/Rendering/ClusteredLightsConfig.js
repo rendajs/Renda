@@ -1,4 +1,4 @@
-import {Vec3} from "../index.js";
+import Vec3 from "../Math/Vec3.js";
 
 export default class ClusteredLightsConfig{
 	constructor({

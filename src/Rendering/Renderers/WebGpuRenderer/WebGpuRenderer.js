@@ -1,12 +1,16 @@
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
-import {Mat4, Vec4, MeshComponent, LightComponent, defaultComponentTypeManager, Mesh, MultiKeyWeakMap, ShaderBuilder} from "../../../index.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
 import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
 import CachedCameraData from "./CachedCameraData.js";
 import CachedMeshData from "./CachedMeshData.js";
-import VertexState from "../../VertexState.js";
 import defaultEngineAssetsManager from "../../../Assets/defaultEngineAssetsManager.js";
+import Mat4 from "../../../Math/Mat4.js";
+import Vec4 from "../../../Math/Vec4.js";
+import { LightComponent, MeshComponent } from "../../../Components/Components.js";
+import Mesh from "../../../Core/Mesh.js";
+import MultiKeyWeakMap from "../../../Util/MultiKeyWeakMap.js";
+import ShaderBuilder from "../../ShaderBuilder.js";
 
 export {default as WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";

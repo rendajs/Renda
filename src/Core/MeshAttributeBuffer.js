@@ -1,4 +1,6 @@
-import {Vec2, Vec3, Mesh} from "../index.js";
+import Vec2 from "../Math/Vec2.js";
+import Vec3 from "../Math/Vec3.js";
+import Mesh from "./Mesh.js";
 
 export default class MeshAttributeBuffer{
 	constructor({

@@ -1,4 +1,5 @@
-import {Mesh, Material} from "../../index.js";
+import Mesh from "../../Core/Mesh.js";
+import Material from "../../Rendering/Material.js";
 import BinaryComposer from "../../Util/BinaryComposer.js";
 
 export default {
