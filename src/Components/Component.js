@@ -99,15 +99,30 @@ export default class Component{
 
 	setDefaultValues(properties){
 		for(const [propertyName, propertyData] of Object.entries(properties)){
-			if(propertyData.defaultValue != undefined){
-				this[propertyName] = propertyData.defaultValue;
-			}else if(propertyData.type instanceof Array){
-				this[propertyName] = propertyData.type[0];
-			}else if(propertyData.type == Vec2 || propertyData.type == Vec3 || propertyData.type == Vec3 || propertyData.type == Mat4){ //todo, use a global list of math types
-				this[propertyName] = new propertyData.type();
-			}else{
-				this[propertyName] = null;
+			this.setPropertyDefaultValue(this, propertyName, propertyData);
+		}
+	}
+
+	setPropertyDefaultValue(object, propertyName, propertyData){
+		if(propertyData.type == Array){
+			const array = [];
+			if(propertyData.defaultValue){
+				for(const [i, value] of Object.entries(propertyData.defaultValue)){
+					this.setPropertyDefaultValue(array, i, {
+						...propertyData.arrayOpts,
+						defaultValue: value,
+					});
+				}
 			}
+			object[propertyName] = array;
+		}else if(propertyData.defaultValue != undefined){
+			object[propertyName] = propertyData.defaultValue;
+		}else if(propertyData.type instanceof Array){
+			object[propertyName] = propertyData.type[0];
+		}else if(propertyData.type == Vec2 || propertyData.type == Vec3 || propertyData.type == Vec3 || propertyData.type == Mat4){ //todo, use a global list of math types
+			object[propertyName] = new propertyData.type();
+		}else{
+			object[propertyName] = null;
 		}
 	}
 }
