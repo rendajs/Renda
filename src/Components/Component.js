@@ -102,21 +102,25 @@ export default class Component{
 		}
 	}
 
-	//todo: strip editor opts in non-editor builds
 	setPropertyDefaultValue(object, propertyName, propertyData, editorOpts = null){
 		if(propertyData.type == Array){
 			const array = [];
 			if(propertyData.defaultValue){
 				for(const [i, value] of Object.entries(propertyData.defaultValue)){
-					this.setPropertyDefaultValue(array, i, {
+					const childPropertyData = {
 						...propertyData.arrayOpts,
 						defaultValue: value,
-					}, editorOpts);
+					};
+					if(DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT){
+						this.setPropertyDefaultValue(array, i, childPropertyData, editorOpts);
+					}else{
+						this.setPropertyDefaultValue(array, i, childPropertyData);
+					}
 				}
 			}
 			object[propertyName] = array;
 		}else if(propertyData.defaultValue != undefined){
-			if(typeof propertyData.defaultValue == "string" && editorOpts && editorOpts.editorAssetTypeManager && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.editorAssetTypeManager.constructorHasAssetType(propertyData.type)){
+			if(typeof propertyData.defaultValue == "string" && DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT && editorOpts && editorOpts.editorAssetTypeManager && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.editorAssetTypeManager.constructorHasAssetType(propertyData.type)){
 				let usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol];
 				if(!usedAssetUuids){
 					usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol] = {};
