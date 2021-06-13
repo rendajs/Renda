@@ -499,8 +499,13 @@ class GPUCanvasContext{
 		@param {GPUSwapChainDescriptor} descriptor
 		@return {GPUSwapChain}
 	*/
-	configureSwapChain(descriptor){}
-	getSwapChainPreferredFormat(){}
+	configure(descriptor){}
+
+	/**
+		@return {GPUTexture}
+	*/
+	getCurrentTexture(){}
+	getPreferredFormat(){}
 }
 
 /** @typedef {{
@@ -512,12 +517,7 @@ class GPUCanvasContext{
 */
 var GPUSwapChainDescriptor;
 
-class GPUSwapChain{
-	/**
-		@return {GPUTexture}
-	*/
-	getCurrentTexture(){}
-}
+class GPUSwapChain{}
 
 class GPUTexture{
 	createView(){}
