@@ -215,11 +215,11 @@ export default class WebGpuRenderer extends Renderer{
 		//see state of CameraComponent.js in commit 5d2efa1
 		for(const root of rootRenderEntities){
 			for(const child of root.traverseDown()){
-				for(const component of child.getComponentsByType(MeshComponent)){
+				for(const component of child.getComponents(MeshComponent)){
 					if(!component.mesh || !component.mesh.vertexState) continue;
 					meshComponents.push(component);
 				}
-				for(const component of child.getComponentsByType(LightComponent)){
+				for(const component of child.getComponents(LightComponent)){
 					lightComponents.push(component);
 				}
 			}

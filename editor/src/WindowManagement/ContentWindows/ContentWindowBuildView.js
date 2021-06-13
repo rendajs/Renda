@@ -72,7 +72,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 		let foundCamComponent = null;
 		if(this.linkedEntityEditor){
 			for(const obj of this.linkedEntityEditor.selectionManager.currentSelectedObjects){
-				for(const camComponent of obj.getComponentsByType(CameraComponent)){
+				for(const camComponent of obj.getComponents(CameraComponent)){
 					foundCamComponent = camComponent;
 					break;
 				}
@@ -80,7 +80,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 			}
 
 			if(!foundCamComponent){
-				for(const camComponent of this.linkedEntityEditor.editingEntity.getChildComponentsByType(CameraComponent)){
+				for(const camComponent of this.linkedEntityEditor.editingEntity.getChildComponents(CameraComponent)){
 					foundCamComponent = camComponent;
 					break;
 				}

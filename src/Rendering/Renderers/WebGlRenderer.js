@@ -45,7 +45,7 @@ export default class WebGlRenderer extends Renderer{
 		//see state of CameraComponent.js in commit 5d2efa1
 		for(const root of rootRenderEntities){
 			for(const child of root.traverseDown()){
-				for(const component of child.getComponentsByType(DefaultComponentTypes.mesh)){
+				for(const component of child.getComponents(DefaultComponentTypes.mesh)){
 					this.renderMeshComponent(component, vpMatrix);
 				}
 			}

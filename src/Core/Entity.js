@@ -60,7 +60,14 @@ export default class Entity{
 		return component;
 	}
 
-	*getComponentsByType(type, componentTypeManager = defaultComponentTypeManager){
+	getComponent(type, componentTypeManager = defaultComponentTypeManager){
+		for(const component of this.getComponents(type, componentTypeManager)){
+			return component;
+		}
+		return;
+	}
+
+	*getComponents(type, componentTypeManager = defaultComponentTypeManager){
 		const component = componentTypeManager.getComponentFromData(type, false);
 		const uuid = component.uuid;
 		for(const component of this.components){
@@ -70,9 +77,9 @@ export default class Entity{
 		}
 	}
 
-	*getChildComponentsByType(type, componentTypeManager = defaultComponentTypeManager){
+	*getChildComponents(type, componentTypeManager = defaultComponentTypeManager){
 		for(const child of this.traverseDown()){
-			for(const component of child.getComponentsByType(type, componentTypeManager)){
+			for(const component of child.getComponents(type, componentTypeManager)){
 				yield component;
 			}
 		}
