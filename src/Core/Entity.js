@@ -225,6 +225,13 @@ export default class Entity{
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
 	}
 
+	getEntityByName(name){
+		for(const child of this.traverseDown()){
+			if(child.name == name) return child;
+		}
+		return null;
+	}
+
 	toJson(editorOpts = null){
 		let json = {
 			name: this.name,
