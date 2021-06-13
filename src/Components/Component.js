@@ -1,6 +1,4 @@
 import defaultComponentTypeManager from "./defaultComponentTypeManager.js";
-import Material from "../Rendering/Material.js";
-import Mesh from "../Core/Mesh.js";
 import Vec2 from "../Math/Vec2.js";
 import Vec3 from "../Math/Vec3.js";
 import Vec4 from "../Math/Vec4.js";
@@ -10,7 +8,8 @@ import { DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT } from "../engineDefines.js";
 /** @unrestricted */
 export default class Component{
 	constructor(componentType, propertyValues = {}, {
-		componentTypeManager = defaultComponentTypeManager
+		componentTypeManager = defaultComponentTypeManager,
+		editorOpts = null,
 	} = {}){
 		this.componentTypeManager = componentTypeManager;
 
@@ -27,7 +26,7 @@ export default class Component{
 
 		const componentData = this.getComponentData();
 		if(componentData && componentData.properties){
-			this.setDefaultValues(componentData.properties);
+			this.setDefaultValues(componentData.properties, editorOpts);
 		}
 
 		for(const [propertyName, propertyValue] of Object.entries(propertyValues)){
@@ -97,13 +96,14 @@ export default class Component{
 		return this.componentTypeManager.getComponentDataForUuid(this.componentUuid);
 	}
 
-	setDefaultValues(properties){
+	setDefaultValues(properties, editorOpts = null){
 		for(const [propertyName, propertyData] of Object.entries(properties)){
-			this.setPropertyDefaultValue(this, propertyName, propertyData);
+			this.setPropertyDefaultValue(this, propertyName, propertyData, editorOpts);
 		}
 	}
 
-	setPropertyDefaultValue(object, propertyName, propertyData){
+	//todo: strip editor opts in non-editor builds
+	setPropertyDefaultValue(object, propertyName, propertyData, editorOpts = null){
 		if(propertyData.type == Array){
 			const array = [];
 			if(propertyData.defaultValue){
@@ -111,12 +111,25 @@ export default class Component{
 					this.setPropertyDefaultValue(array, i, {
 						...propertyData.arrayOpts,
 						defaultValue: value,
-					});
+					}, editorOpts);
 				}
 			}
 			object[propertyName] = array;
 		}else if(propertyData.defaultValue != undefined){
-			object[propertyName] = propertyData.defaultValue;
+			if(typeof propertyData.defaultValue == "string" && editorOpts && editorOpts.editorAssetTypeManager && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.editorAssetTypeManager.constructorHasAssetType(propertyData.type)){
+				let usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol];
+				if(!usedAssetUuids){
+					usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol] = {};
+				}
+				usedAssetUuids[propertyName] = propertyData.defaultValue;
+				//todo: make the whole method async?
+				(async () => {
+					object[propertyName] = null;
+					object[propertyName] = await editorOpts.assetManager.getLiveAsset(propertyData.defaultValue);
+				})();
+			}else{
+				object[propertyName] = propertyData.defaultValue;
+			}
 		}else if(propertyData.type instanceof Array){
 			object[propertyName] = propertyData.type[0];
 		}else if(propertyData.type == Vec2 || propertyData.type == Vec3 || propertyData.type == Vec3 || propertyData.type == Mat4){ //todo, use a global list of math types

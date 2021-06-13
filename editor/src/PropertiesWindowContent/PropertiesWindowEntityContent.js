@@ -64,7 +64,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					menu.addItem(component.name || component.uuid, {
 						onClick: () => {
 							for(const obj of this.currentSelection){
-								obj.addComponent(component);
+								obj.addComponent(component, {}, {
+									editorOpts: {
+										editorAssetTypeManager: editor.projectAssetTypeManager,
+										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
+										assetManager: editor.projectManager.assetManager,
+									},
+								});
 								this.notifyEntityEditors(obj, "component");
 							}
 							this.refreshComponents();
@@ -142,6 +148,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			for(const [i, item] of scriptValue.entries()){
 				this.mapFromDroppableGuiValues(scriptValue, i, item, uuidValue[i]);
 			}
+			return;
 		}
 		//todo: make it work with objects as well
 
