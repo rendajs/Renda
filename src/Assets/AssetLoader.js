@@ -65,7 +65,11 @@ export default class AssetLoader{
 				}).catch(reject);
 			}
 		});
-		if(!bundleWithAsset) return null;
+		if(!bundleWithAsset){
+			//todo: remove this warning in release builds and add a way to suppress the warning
+			console.warn(`Tried to load an asset with uuid ${uuid} but the uuid wasn't found in any AssetBundles.`);
+			return null;
+		}
 		const {buffer, type} = await bundleWithAsset.getAsset(uuid);
 
 		const loaderType = this.registeredLoaderTypes.get(type);
