@@ -1,6 +1,7 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import PropertiesAssetContentMesh from "../../PropertiesAssetContent/PropertiesAssetContentMesh.js";
 import {Mesh, Vec3, BinaryComposer, BinaryDecomposer} from "../../../../src/index.js";
+import editor from "../../editorInstance.js";
 
 export default class ProjectAssetTypeMesh extends ProjectAssetType{
 
@@ -153,12 +154,12 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 		};
 	}
 
-	async saveLiveAssetData(liveAsset, editorData){
+	meshToBuffer(liveAsset, vertexStateUuid){
 		const composer = new BinaryComposer();
 		composer.appendUint32(this.magicHeader); //magic header: jMsh
 		composer.appendUint16(1); //version
 
-		composer.appendUuid(editorData?.vertexStateUuid);
+		composer.appendUuid(vertexStateUuid);
 
 		if(!liveAsset.indexBuffer){
 			composer.appendUint8(Mesh.IndexFormat.NONE);
@@ -190,6 +191,16 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 			composer.appendBuffer(buffer.buffer);
 		}
 		return composer.getFullBuffer();
+	}
+
+	async saveLiveAssetData(liveAsset, editorData){
+		return this.meshToBuffer(liveAsset, editorData?.vertexStateUuid);
+	}
+
+	async createBundledAssetData(assetSettingOverrides = {}){
+		const {liveAsset, editorData} = await this.projectAsset.getLiveAssetData();
+		const vertexStateUuid = editor.projectManager.assetManager.resolveDefaultAssetLinkUuid(editorData?.vertexStateUuid);
+		return this.meshToBuffer(liveAsset, vertexStateUuid);
 	}
 
 	async *getReferencedAssetUuids(){
