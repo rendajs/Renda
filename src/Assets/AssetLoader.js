@@ -35,7 +35,10 @@ export default class AssetLoader{
 
 	//todo: more options for deciding whether unfinished bundles
 	//should be searched as well
-	async getAsset(uuid, opts = undefined, createNewInstance = false){
+	async getAsset(uuid, {
+		assetOpts = undefined,
+		createNewInstance = false,
+	} = {}){
 		if(!createNewInstance){
 			const weakRef = this.loadedAssets.get(uuid);
 			if(weakRef){
@@ -79,7 +82,7 @@ export default class AssetLoader{
 			return null;
 		}
 
-		const asset = await loaderType.parseBuffer(buffer, opts);
+		const asset = await loaderType.parseBuffer(buffer, assetOpts);
 
 		if(!createNewInstance){
 			const weakRef = new WeakRef(asset);
