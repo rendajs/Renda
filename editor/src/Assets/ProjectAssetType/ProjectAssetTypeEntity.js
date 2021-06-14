@@ -114,7 +114,10 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		if(entityData.components){
 			for(const component of entityData.components){
 				const componentData = defaultComponentTypeManager.getComponentDataForUuid(component.uuid);
-				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, componentData.binaryComposerOpts);
+				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, {
+					...componentData.binaryComposerOpts,
+					editorAssetManager: editor.projectManager.assetManager,
+				});
 			}
 		}
 		if(entityData.children){
