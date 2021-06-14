@@ -115,6 +115,7 @@ export default class BinaryComposer{
 		nameIds = null,
 		littleEndian = true,
 		transformValueHook = null,
+		editorAssetManager = null,
 	} = {}){
 		const nameIdsMap = new Map(Object.entries(nameIds));
 
@@ -179,7 +180,7 @@ export default class BinaryComposer{
 		let byteOffset = 0;
 		//todo: add arraylength and refid storage types as header
 		for(const item of flattened){
-			const bytesMoved = BinaryComposer.setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType});
+			const bytesMoved = BinaryComposer.setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, editorAssetManager});
 			byteOffset += bytesMoved;
 		}
 
@@ -585,6 +586,7 @@ export default class BinaryComposer{
 		littleEndian = true,
 		stringLengthStorageType = BinaryComposer.StructureTypes.UINT8,
 		arrayBufferLengthStorageType = BinaryComposer.StructureTypes.UINT8,
+		editorAssetManager = null,
 	} = {}){
 		let bytesMoved = 0;
 		if(type == BinaryComposer.StructureTypes.INT8){
@@ -617,6 +619,9 @@ export default class BinaryComposer{
 			dataView.setUint8(byteOffset, value ? 1 : 0);
 			bytesMoved = 1;
 		}else if(type == BinaryComposer.StructureTypes.UUID || type == BinaryComposer.StructureTypes.ASSET_UUID){
+			if(type == BinaryComposer.StructureTypes.ASSET_UUID && editorAssetManager){
+				value = editorAssetManager.resolveDefaultAssetLinkUuid(value);
+			}
 			const binaryUuid = BinaryComposer.uuidToBinary(value);
 			const view = new Uint8Array(dataView.buffer);
 			view.set(new Uint8Array(binaryUuid), byteOffset);
