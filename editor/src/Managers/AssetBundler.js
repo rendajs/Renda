@@ -76,7 +76,7 @@ export default class AssetBundler{
 			if(!excludeUuids.has(assetUuid)) yield assetUuid;
 			for await(const referenceUuid of projectAsset.getReferencedAssetUuids()){
 				for await(const subReferenceUuid of this.collectAllReferences(referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)){
-					yield subReferenceUuid;
+					yield editor.projectManager.assetManager.resolveDefaultAssetLinkUuid(subReferenceUuid);
 				}
 			}
 		}

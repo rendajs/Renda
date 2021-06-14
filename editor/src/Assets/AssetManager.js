@@ -178,6 +178,14 @@ export default class AssetManager{
 		return this.defaultAssetLinks.get(defaultAssetUuid);
 	}
 
+	resolveDefaultAssetLinkUuid(uuid){
+		const defaultAssetLink = this.getDefaultAssetLink(uuid);
+		if(defaultAssetLink){
+			return this.resolveDefaultAssetLinkUuid(defaultAssetLink.originalAssetUuid);
+		}
+		return uuid;
+	}
+
 	async getAssetUuidFromPath(path = []){
 		const projectAsset = await this.getProjectAssetFromPath(path);
 		if(!projectAsset) return null;
@@ -192,10 +200,7 @@ export default class AssetManager{
 	getProjectAssetImmediate(uuid){
 		if(!this.assetSettingsLoaded) return null;
 
-		const defaultAssetLink = this.getDefaultAssetLink(uuid);
-		if(defaultAssetLink){
-			return this.getProjectAssetImmediate(defaultAssetLink.originalAssetUuid);
-		}
+		uuid = this.resolveDefaultAssetLinkUuid(uuid);
 		return this.projectAssets.get(uuid) || this.builtInAssets.get(uuid);
 	}
 
