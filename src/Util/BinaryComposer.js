@@ -451,7 +451,11 @@ export default class BinaryComposer{
 		const minBytes = Math.ceil(Math.log2(int+1)/8);
 		let bytes = 4;
 		let type = BinaryComposer.StructureTypes.UINT32;
-		if(minBytes == 1){
+		if(minBytes == 0){
+			//todo: add an extra type for when minBytes is 0
+			type = BinaryComposer.StructureTypes.UINT8;
+			bytes = 1;
+		}else if(minBytes == 1){
 			type = BinaryComposer.StructureTypes.UINT8;
 			bytes = 1;
 		}else if(minBytes == 2){
