@@ -396,6 +396,7 @@ export default class BinaryComposer{
 			structure, nameIds, littleEndian,
 			transformValueHook: ({value, type, placedOnObject, placedOnKey}) => {
 				if(type != BinaryComposer.StructureTypes.ASSET_UUID) return value;
+				if(value == null) return null;
 				const promise = (async () => {
 					const asset = await assetLoader.getAsset(value);
 					placedOnObject[placedOnKey] = asset;
