@@ -25,6 +25,13 @@ export default class BinaryComposer{
 			UUID: 13,
 			ASSET_UUID: 14, //same as UUID but will load the asset when binaryToObjectWithAssetLoader() is used
 			ARRAY_BUFFER: 15,
+			NULL: 16,
+		};
+	}
+
+	static get HeaderBits(){
+		return {
+			hasCustomVariableLengthStorageTypes: 0b00000001,
 		};
 	}
 
@@ -110,10 +117,21 @@ export default class BinaryComposer{
 		return buffer;
 	}
 
+	static get defaultVariableLengthStorageTypes(){
+		return {
+			refId: BinaryComposer.StructureTypes.NULL,
+			array: BinaryComposer.StructureTypes.UINT8,
+			string: BinaryComposer.StructureTypes.UINT16,
+			arrayBuffer: BinaryComposer.StructureTypes.UINT16,
+		}
+	}
+
 	static objectToBinary(data, {
 		structure = null,
 		nameIds = null,
 		littleEndian = true,
+		useHeaderByte = true,
+		variableLengthStorageTypes = null,
 		transformValueHook = null,
 		editorAssetManager = null,
 	} = {}){
@@ -133,7 +151,7 @@ export default class BinaryComposer{
 		}
 
 		const highestReferenceId = sortedReferences.length - 1;
-		const {type: refIdStorageType} = BinaryComposer.requiredStorageTypeForUint(highestReferenceId);
+		const {type: refIdStorageType, refIdLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(highestReferenceId);
 
 		const binaryDigestable = [];
 		for(const {ref, structure} of sortedReferences){
@@ -143,13 +161,13 @@ export default class BinaryComposer{
 
 		let biggestVariableArrayLength = BinaryComposer.findBiggestVariableArrayLength(binaryDigestable);
 		const dataContainsVariableLengthArrays = biggestVariableArrayLength >= 0;
-		const {type: arrayLengthStorageType} = BinaryComposer.requiredStorageTypeForUint(biggestVariableArrayLength);
+		const {type: arrayLengthStorageType, bytes: arrayLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(biggestVariableArrayLength);
 
 		const biggestStringLength = 600; //todo
 		const {type: stringLengthStorageType, bytes: stringLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(biggestStringLength);
 
 		const biggestArrayBufferLength = 600; //todo
-		const {type: arrayBufferLengthStorageType, bytes: arrayBufferLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(biggestStringLength);
+		const {type: arrayBufferLengthStorageType, bytes: arrayBufferLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(biggestArrayBufferLength);
 
 		const flattened = Array.from(BinaryComposer.flattenBinaryDigestable(binaryDigestable, arrayLengthStorageType));
 		// console.log(flattened);
@@ -162,6 +180,21 @@ export default class BinaryComposer{
 
 		const textEncoder = new TextEncoder();
 		let totalByteLength = 0;
+		let hasCustomVariableLengthStorageTypes = false;
+		if(useHeaderByte){
+			totalByteLength++;
+			variableLengthStorageTypes = {
+				...BinaryComposer.defaultVariableLengthStorageTypes,
+				...variableLengthStorageTypes,
+			}
+			hasCustomVariableLengthStorageTypes =
+				refIdStorageType != variableLengthStorageTypes.refId ||
+				(arrayLengthStorageType != variableLengthStorageTypes.array && dataContainsVariableLengthArrays) ||
+				stringLengthStorageType != variableLengthStorageTypes.string ||
+				arrayBufferLengthStorageType != variableLengthStorageTypes.arrayBuffer;
+
+			if(hasCustomVariableLengthStorageTypes) totalByteLength++;
+		}
 		for(const item of flattened){
 			if(transformValueHook){
 				item.value = transformValueHook({type: item.type, value: item.value});
@@ -174,11 +207,35 @@ export default class BinaryComposer{
 			if(value) item.value = value;
 		}
 
-
 		const buffer = new ArrayBuffer(totalByteLength);
 		const dataView = new DataView(buffer);
 		let byteOffset = 0;
-		//todo: add arraylength and refid storage types as header
+
+		if(useHeaderByte){
+			let headerByte = 0;
+
+			if(hasCustomVariableLengthStorageTypes){
+				headerByte |= BinaryComposer.HeaderBits.hasCustomVariableLengthStorageTypes;
+			}
+
+			byteOffset += BinaryComposer.setDataViewValue(dataView, headerByte, BinaryComposer.StructureTypes.UINT8, byteOffset, {littleEndian});
+
+			if(hasCustomVariableLengthStorageTypes){
+				const refIdStorageTypeBits = this.variableLengthStorageTypeToBits(refIdStorageType);
+				const arrayLengthStorageTypeBits = this.variableLengthStorageTypeToBits(arrayLengthStorageType);
+				const stringLengthStorageTypeBits = this.variableLengthStorageTypeToBits(stringLengthStorageType);
+				const arrayBufferLengthStorageTypeBits = this.variableLengthStorageTypeToBits(arrayBufferLengthStorageType);
+
+				let customStorageTypesByte = 0;
+				customStorageTypesByte |= refIdStorageTypeBits;
+				customStorageTypesByte |= arrayLengthStorageTypeBits << 2;
+				customStorageTypesByte |= stringLengthStorageTypeBits << 4;
+				customStorageTypesByte |= arrayBufferLengthStorageTypeBits << 6;
+
+				byteOffset += BinaryComposer.setDataViewValue(dataView, customStorageTypesByte, BinaryComposer.StructureTypes.UINT8, byteOffset, {littleEndian});
+			}
+		}
+
 		for(const item of flattened){
 			const bytesMoved = BinaryComposer.setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, editorAssetManager});
 			byteOffset += bytesMoved;
@@ -191,6 +248,8 @@ export default class BinaryComposer{
 		structure = null,
 		nameIds = null,
 		littleEndian = true,
+		useHeaderByte = true,
+		variableLengthStorageTypes = null,
 		transformValueHook = null,
 	} = {}){
 		const nameIdsMap = new Map(Object.entries(nameIds));
@@ -206,15 +265,39 @@ export default class BinaryComposer{
 			structureDigestables.set(structureRef, flattened);
 		}
 
-		const refIdStorageType = BinaryComposer.StructureTypes.UINT8; //todo: get from header
-		const arrayLengthStorageType = BinaryComposer.StructureTypes.UINT8; //todo: get from header
-		const stringLengthStorageType = BinaryComposer.StructureTypes.UINT16; //todo: get from header
-		const arrayBufferLengthStorageType = BinaryComposer.StructureTypes.UINT16; //todo: get from header
-
+		variableLengthStorageTypes = {
+			...BinaryComposer.defaultVariableLengthStorageTypes,
+			...variableLengthStorageTypes,
+		}
+		let refIdStorageType = variableLengthStorageTypes.refId;
+		let arrayLengthStorageType = variableLengthStorageTypes.array;
+		let stringLengthStorageType = variableLengthStorageTypes.string;
+		let arrayBufferLengthStorageType = variableLengthStorageTypes.arrayBuffer;
 
 		const dataView = new DataView(buffer);
-		const textDecoder = new TextDecoder();
 		let byteOffset = 0;
+		if(useHeaderByte){
+			const {value: headerByte, bytesMoved} = BinaryComposer.getDataViewValue(dataView, BinaryComposer.StructureTypes.UINT8, byteOffset, {littleEndian});
+			byteOffset += bytesMoved;
+
+			const hasCustomVariableLengthStorageTypes = !! headerByte & BinaryComposer.HeaderBits.hasCustomVariableLengthStorageTypes;
+
+			if(hasCustomVariableLengthStorageTypes){
+				const {value: customStorageTypesByte, bytesMoved} = BinaryComposer.getDataViewValue(dataView, BinaryComposer.StructureTypes.UINT8, byteOffset, {littleEndian});
+				byteOffset += bytesMoved;
+
+				const refIdStorageTypeBits = (customStorageTypesByte) & 0b00000011;
+				const arrayLengthStorageTypeBits = (customStorageTypesByte >> 2) & 0b00000011;
+				const stringLengthStorageTypeBits = (customStorageTypesByte >> 4) & 0b00000011;
+				const arrayBufferLengthStorageTypeBits = (customStorageTypesByte >> 6) & 0b00000011;
+
+				refIdStorageType = this.variableLengthBitsToStorageType(refIdStorageTypeBits);
+				arrayLengthStorageType = this.variableLengthBitsToStorageType(arrayLengthStorageTypeBits);
+				stringLengthStorageType = this.variableLengthBitsToStorageType(stringLengthStorageTypeBits);
+				arrayBufferLengthStorageType = this.variableLengthBitsToStorageType(arrayBufferLengthStorageTypeBits);
+			}
+		}
+		const textDecoder = new TextDecoder();
 		const structureDataById = new Map();
 		structureDataById.set(0, {structureRef: structure});
 
@@ -449,20 +532,45 @@ export default class BinaryComposer{
 
 	static requiredStorageTypeForUint(int){
 		const minBytes = Math.ceil(Math.log2(int+1)/8);
-		let bytes = 4;
-		let type = BinaryComposer.StructureTypes.UINT32;
-		if(minBytes == 0){
-			//todo: add an extra type for when minBytes is 0
-			type = BinaryComposer.StructureTypes.UINT8;
-			bytes = 1;
-		}else if(minBytes == 1){
+		let bytes = 0;
+		let type = BinaryComposer.StructureTypes.NULL;
+		if(minBytes == 1){
 			type = BinaryComposer.StructureTypes.UINT8;
 			bytes = 1;
 		}else if(minBytes == 2){
 			type = BinaryComposer.StructureTypes.UINT16;
 			bytes = 2;
+		}else if(minBytes > 2){
+			type = BinaryComposer.StructureTypes.UINT32;
+			bytes = 4;
 		}
 		return {type, bytes};
+	}
+
+	static variableLengthStorageTypeToBits(storageType){
+		switch(storageType){
+			case BinaryComposer.StructureTypes.NULL:
+				return 0b00;
+			case BinaryComposer.StructureTypes.UINT8:
+				return 0b01;
+			case BinaryComposer.StructureTypes.UINT16:
+				return 0b10;
+			case BinaryComposer.StructureTypes.UINT32:
+				return 0b11;
+		}
+	}
+
+	static variableLengthBitsToStorageType(bits){
+		switch(bits){
+			case 0b00:
+				return BinaryComposer.StructureTypes.NULL;
+			case 0b01:
+				return BinaryComposer.StructureTypes.UINT8;
+			case 0b10:
+				return BinaryComposer.StructureTypes.UINT16;
+			case 0b11:
+				return BinaryComposer.StructureTypes.UINT32;
+		}
 	}
 
 	static generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isInitialItem = false}){
@@ -583,6 +691,8 @@ export default class BinaryComposer{
 			return {length: 16};
 		}else if(type == BinaryComposer.StructureTypes.ARRAY_BUFFER){
 			return {length: value.byteLength + arrayBufferLengthByteLength};
+		}else if(type == BinaryComposer.StructureTypes.NULL){
+			return {length: 0};
 		}
 	}
 
@@ -630,8 +740,10 @@ export default class BinaryComposer{
 			const view = new Uint8Array(dataView.buffer);
 			view.set(new Uint8Array(binaryUuid), byteOffset);
 			bytesMoved = 16;
-		}else if(type = BinaryComposer.StructureTypes.ARRAY_BUFFER){
+		}else if(type == BinaryComposer.StructureTypes.ARRAY_BUFFER){
 			bytesMoved = BinaryComposer.insertLengthAndBuffer(dataView, value, byteOffset, arrayBufferLengthStorageType, {littleEndian});
+		}else if(type == BinaryComposer.StructureTypes.NULL){
+			bytesMoved = 0;
 		}
 		return bytesMoved;
 	}
@@ -754,6 +866,9 @@ export default class BinaryComposer{
 			const {buffer, bytesMoved: newBytesMoved} = BinaryComposer.getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, {littleEndian});
 			value = buffer;
 			bytesMoved = newBytesMoved;
+		}else if(type == BinaryComposer.StructureTypes.NULL){
+			value = null;
+			bytesMoved = 0;
 		}
 
 		return {value, bytesMoved};
