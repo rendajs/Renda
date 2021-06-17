@@ -104,6 +104,7 @@ export default class ProjectAssetType{
 	//If any of the registered liveAssets get replaced, the liveAsset
 	//of this ProjectAsset automatically gets destroyed and recreated.
 	listenForUsedLiveAssetChanges(projectAsset){
+		if(!projectAsset) return;
 		this.usedLiveAssets.add(projectAsset);
 		projectAsset.onNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement);
 	}
