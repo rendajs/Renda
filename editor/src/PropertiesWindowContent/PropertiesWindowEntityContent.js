@@ -2,6 +2,7 @@ import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import {Entity, Vec3, Quaternion, defaultComponentTypeManager, Mesh} from "../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
+import DroppableGui from "../UI/DroppableGui.js";
 import editor from "../editorInstance.js";
 import ContentWindowEntityEditor from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import ProjectAssetTypeEntity from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
@@ -123,8 +124,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 				componentUI.onChildValueChange(e => {
 					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.changedEntry);
 					const scriptValueFromGui = e.changedEntry.getValue({purpose:"script"});
-					const uuidValue = e.changedEntry.value;
-					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, uuidValue);
+					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.changedEntry);
 					this.notifyEntityEditors(componentGroup.entity, "componentProperty");
 				});
 				componentUI.fillSerializableStructureValues(componentGroup, {
@@ -143,20 +143,23 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		}
 	}
 
-	mapFromDroppableGuiValues(object, propertyName, scriptValue, uuidValue){
+	mapFromDroppableGuiValues(object, propertyName, scriptValue, guiEntry){
 		if(Array.isArray(scriptValue)){
+			const newScriptValue = [];
 			for(const [i, item] of scriptValue.entries()){
-				this.mapFromDroppableGuiValues(scriptValue, i, item, uuidValue[i]);
+				this.mapFromDroppableGuiValues(newScriptValue, i, item, guiEntry.gui.valueItems[i]);
 			}
-			return;
+			scriptValue = newScriptValue;
 		}
 		//todo: make it work with objects as well
 
-		if(!object[ProjectAssetTypeEntity.usedAssetUuidsSymbol]){
-			object[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = {};
-		}
 		object[propertyName] = scriptValue;
-		object[ProjectAssetTypeEntity.usedAssetUuidsSymbol][propertyName] = uuidValue;
+		if(guiEntry.gui instanceof DroppableGui){
+			if(!object[ProjectAssetTypeEntity.usedAssetUuidsSymbol]){
+				object[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = {};
+			}
+			object[ProjectAssetTypeEntity.usedAssetUuidsSymbol][propertyName] = guiEntry.value;
+		}
 	}
 
 	notifyEntityEditors(entity, type){
