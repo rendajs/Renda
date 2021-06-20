@@ -259,14 +259,15 @@ export default class DroppableGui{
 	onContextMenu(e){
 		e.preventDefault();
 		if(!this.projectAssetValue) return;
-		const contextMenuStructure = [
-			{
+		const contextMenuStructure = [];
+		if(!this.disabled){
+			contextMenuStructure.push({
 				text: "Unlink",
 				cb: () => {
 					this.setValue(null);
 				},
-			},
-		];
+			});
+		}
 		const copyAssetUuidText = "Copy asset UUID";
 		if(this.defaultAssetLinkUuid){
 			contextMenuStructure.push({
@@ -315,11 +316,5 @@ export default class DroppableGui{
 		this.el.classList.toggle("filled", this.projectAssetValue);
 		this.el.textContent = this.visibleAssetName;
 		this.el.draggable = this.projectAssetValue || this.defaultAssetLink;
-	}
-
-	updateDefaultAssetLink(){
-		if(this.defaultAssetLinkUuid){
-			this.setValue(this.defaultAssetLinkUuid);
-		}
 	}
 }
