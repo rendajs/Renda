@@ -509,7 +509,7 @@ export default class TreeView{
 			if(!child){
 				return null;
 			}else{
-				return child.findChildFromNamesPath(path.slice(0, path.length - 1));
+				return child.findChildFromNamesPath(path.slice(1));
 			}
 		}
 	}
