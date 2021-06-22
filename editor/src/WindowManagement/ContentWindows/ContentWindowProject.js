@@ -111,16 +111,50 @@ export default class ContentWindowProject extends ContentWindow{
 		return editor.projectManager.currentProjectFileSystem;
 	}
 
-	async updateTreeView(startUpdatePath = null){
+	/**
+	 * Updates the path and its children recursively when expanded
+	 * @param {Array<string> | null} path directory to update, updates the root TreeView when omitted
+	 */
+	async updateTreeView(path = null){
 		let treeView = this.treeView;
-		let path = [];
-		if(startUpdatePath){
-			treeView = this.treeView.findChildFromNamesPath(startUpdatePath);
-			path = startUpdatePath;
+		let updatePath = [];
+		if(path){
+			treeView = this.treeView.findChildFromNamesPath(path);
+			updatePath = path;
 		}
-		await this.updateTreeViewRecursive(treeView, path);
+		await this.updateTreeViewRecursive(treeView, updatePath);
 	}
 
+	/**
+	 * Updates a full range of directories from start to end, useful right before expanding a specific directory.
+	 * @param {Array<string>} end The directory to update, this path is relative to start
+	 * @param {?Array<string>} start The directory to start updating from, starts updating from the root when omitted.
+	 * @param {boolean} collapsedOnly when this is true, expanded TreeViews won't be usdated.
+	 */
+	async updateTreeViewRange(end, start = null, collapsedOnly = true){
+		let treeView = this.treeView;
+		if(start){
+			treeView = this.treeView.findChildFromNamesPath(startUpdatePath);
+		}else{
+			start = [];
+		}
+		for(let i=0; i<end.length; i++){
+			const name = end[i];
+			treeView = treeView.getChildByName(name);
+			if(!collapsedOnly || treeView.collapsed){
+				const path = end.slice(0, i + 1);
+				if(!treeView.alwaysShowArrow) return; //if the TreeView is not a directory
+				await this.updateTreeViewRecursive(treeView, [...start, ...path]);
+			}
+		}
+	}
+
+	/**
+	 * Utility function for {@link ContentWindowProject.updateTreeView} that updates
+	 * a TreeView and all expanded children recursively
+	 * @param {TreeView} treeView the TreeView to update
+	 * @param {Array<string>} path the path this TreeView belongs to
+	 */
 	async updateTreeViewRecursive(treeView, path){
 		let fileTree = await this.fileSystem.readDir(path);
 		for(const dir of fileTree.directories){
@@ -146,7 +180,7 @@ export default class ContentWindowProject extends ContentWindow{
 		for(const child of [...treeView.children]){
 			if(!fileTree.directories.includes(child.name) && !fileTree.files.includes(child.name)){
 				treeView.removeChild(child);
-			}else if(child.alwaysShowArrow && child.expanded){
+			}else if(child.alwaysShowArrow && child.expanded){ //if the TreeView is a directory
 				const newPath = [...path, child.name];
 				this.updateTreeViewRecursive(child, newPath);
 			}
@@ -279,9 +313,12 @@ export default class ContentWindowProject extends ContentWindow{
 		]);
 	}
 
-	highlightPath(path){
+	async highlightPath(path){
+		await this.updateTreeViewRange(path);
 		const assetTreeView = this.treeView.findChildFromNamesPath(path);
-		assetTreeView.expandWithParents();
-		assetTreeView.highlight();
+		if(assetTreeView){
+			assetTreeView.expandWithParents();
+			assetTreeView.highlight();
+		}
 	}
 }

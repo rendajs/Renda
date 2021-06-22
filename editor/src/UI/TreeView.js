@@ -555,7 +555,7 @@ export default class TreeView{
 
 	/**
 	 * @param {string} name the name of the child
-	 * @param {boolean} recursive whether or not the full tree should be searched
+	 * @param {boolean} recursive whether or not the full tree should be searched, defaults to false
 	 * @returns
 	 */
 	getChildByName(name, recursive = false){
