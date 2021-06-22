@@ -484,6 +484,11 @@ export default class TreeView{
 		}
 	}
 
+	/**
+	 * Gets a list of indices that can be traversed from the
+	 * root in order to get to this TreeView
+	 * @returns Array<number> list of indices
+	 */
 	getIndicesPath(){
 		let path = [];
 		let parent = this.parent;
@@ -497,6 +502,11 @@ export default class TreeView{
 		return path.reverse();
 	}
 
+	/**
+	 * Gets array of TreeView names from the root
+	 * traversed down until this element
+	 * @returns {Array<string>} list of TreeView names
+	 */
 	getNamesPath(){
 		let path = [];
 		for(const p of this.traverseUp()){
@@ -505,17 +515,16 @@ export default class TreeView{
 		return path.reverse();
 	}
 
+	/**
+	 * Traverses a list of names to find the specified child
+	 * @param {Array<string>} path list of TreeView names
+	 * @returns {?TreeView}
+	 */
 	findChildFromNamesPath(path = []){
 		if(path.length <= 0){
 			return this;
 		}else{
-			let child = null;
-			for(const c of this.children){
-				if(c.name == path[0]){
-					child = c;
-					break;
-				}
-			}
+			const child = this.getChildByName(path[0]);
 			if(!child){
 				return null;
 			}else{
@@ -524,11 +533,19 @@ export default class TreeView{
 		}
 	}
 
+	/**
+	 * @returns {TreeView}
+	 */
 	findRoot(){
 		if(this.parent) return this.parent.findRoot();
 		return this;
 	}
 
+	/**
+	 * @param {string} name the name of the child
+	 * @param {boolean} recursive whether or not the full tree should be searched
+	 * @returns
+	 */
 	getChildByName(name, recursive = false){
 		if(recursive){
 			for(const child of this.traverseDown()){
@@ -542,6 +559,12 @@ export default class TreeView{
 		return null;
 	}
 
+	/**
+	 * Tests if one of the children contains a TreeView with this name
+	 * @param {string} name name of the child
+	 * @param {boolean} recursive whether or not the full tree should be searched
+	 * @returns {boolean}
+	 */
 	includes(name, recursive = false){
 		return !!this.getChildByName(name, recursive);
 	}
