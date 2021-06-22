@@ -399,13 +399,13 @@ select.textInput:disabled{
 	border-radius: var(--selection-border-radius);
 	position: relative;
 }
-.treeViewRow.highlighted{
-	background: var(--color-highlighted-yellow);
-	color: var(--color-highlighted-yellow-text);
-}
 .treeViewRow.selected{
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
+}
+.treeViewRow.highlighted{
+	background: var(--color-highlighted-yellow);
+	color: var(--color-highlighted-yellow-text);
 }
 .treeViewRow.hidden{
 	display: none;
