@@ -99,4 +99,10 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		}
 		return newArr;
 	}
+
+	highlightPath(path){
+		const assetTreeView = this.treeView.findChildFromNamesPath(path);
+		assetTreeView.expandWithParents();
+		assetTreeView.highlight();
+	}
 }

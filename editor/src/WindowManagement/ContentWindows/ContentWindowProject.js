@@ -278,4 +278,10 @@ export default class ContentWindowProject extends ContentWindow{
 			}},
 		]);
 	}
+
+	highlightPath(path){
+		const assetTreeView = this.treeView.findChildFromNamesPath(path);
+		assetTreeView.expandWithParents();
+		assetTreeView.highlight();
+	}
 }

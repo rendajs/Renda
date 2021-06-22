@@ -354,6 +354,16 @@ export default class TreeView{
 		this.collapsed = !this.collapsed;
 	}
 
+	expandWithParents(){
+		for(const treeView of this.traverseUp()){
+			treeView.expanded = true;
+		}
+	}
+
+	highlight(){
+		this.rowEl.classList.add("highlighted");
+	}
+
 	onRowClick(e){
 		if(this.selectable){
 			if(this.renameable && this.selected){

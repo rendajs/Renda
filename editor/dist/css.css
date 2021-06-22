@@ -10,6 +10,8 @@
 	--default-text-color-disabled-textfield: #8d8d8d;
 	--color-selected-blue: #005598;
 	--color-selected-blue-textfield: #005598fe;
+	--color-highlighted-yellow: #ffa500;
+	--color-highlighted-yellow-text: #000000;
 	--selected-text-color: #ffffff;
 	--default-button-color: #6f6f6f;
 	--default-button-hover-color: #626262;
@@ -40,6 +42,8 @@
 		--color-selected-blue: #008fff;
 		--selected-text-color: #ffffff;
 		--color-selected-blue-textfield: #95c0fffe;
+		--color-highlighted-yellow: #FFE006;
+		--color-highlighted-yellow-text: #333333;
 		--default-button-color: #dcdcdc;
 		--default-button-hover-color: #c9c9c9;
 		--default-button-active-color: #b9b9b9;
@@ -394,6 +398,10 @@ select.textInput:disabled{
 .treeViewRow{
 	border-radius: var(--selection-border-radius);
 	position: relative;
+}
+.treeViewRow.highlighted{
+	background: var(--color-highlighted-yellow);
+	color: var(--color-highlighted-yellow-text);
 }
 .treeViewRow.selected{
 	background: var(--color-selected-blue);

@@ -295,11 +295,13 @@ export default class DroppableGui{
 				if(this.defaultAssetLink){
 					const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("defaultAssetLinks");
 				}else if(this.projectAssetValue){
+					let assetLinksWindow;
 					if(this.projectAssetValue.isBuiltIn){
-						const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");
+						assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");
 					}else{
-						const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("project");
+						assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("project");
 					}
+					assetLinksWindow.highlightPath(this.projectAssetValue.path);
 				}
 			},
 		});
