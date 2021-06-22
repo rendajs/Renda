@@ -85,6 +85,9 @@ export default class TreeView{
 
 		this.selected = false;
 
+		this.lastHighlightTime = 0;
+		this.boundOnBodyClick = this.onBodyClick.bind(this);
+
 		this.eventCbs = new Map();
 		for(const eventType of ["selectionchange", "namechange", "dragstart", "drop", "dblclick", "contextmenu"]){
 			this.registerNewEventType(eventType);
@@ -361,7 +364,16 @@ export default class TreeView{
 	}
 
 	highlight(){
+		this.lastHighlightTime = Date.now();
 		this.rowEl.classList.add("highlighted");
+		document.body.addEventListener("click", this.boundOnBodyClick);
+	}
+
+	onBodyClick(){
+		if(Date.now() - this.lastHighlightTime > 1000){
+			this.rowEl.classList.remove("highlighted");
+			document.body.removeEventListener("click", this.boundOnBodyClick);
+		}
 	}
 
 	onRowClick(e){
