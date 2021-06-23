@@ -151,11 +151,22 @@ export default class AssetManager{
 		}
 	}
 
-	setDefaultAssetLinks(defaultAssetLinks){
+	setDefaultAssetLinks(builtInDefaultAssetLinks, defaultAssetLinks){
 		const unsetAssetLinkUuids = new Set(this.defaultAssetLinks.keys());
+		for(const {defaultAssetUuid, originalAssetUuid} of builtInDefaultAssetLinks){
+			const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
+			const userData = {defaultAssetUuid, originalAssetUuid};
+			if(existingDefaultAssetLink){
+				existingDefaultAssetLink.setUserData(userData);
+			}else{
+				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink(userData));
+			}
+		}
+		let userDefaultAssetLinkUuids = [];
 		for(const {defaultAssetUuid: uuid, name, originalAssetUuid} of defaultAssetLinks){
 			let defaultAssetUuid = uuid;
 			if(!defaultAssetUuid) defaultAssetUuid = generateUuid();
+			userDefaultAssetLinkUuids.push(defaultAssetUuid);
 			unsetAssetLinkUuids.delete(defaultAssetUuid);
 			const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
 			const userData = {name, defaultAssetUuid, originalAssetUuid};
@@ -172,6 +183,7 @@ export default class AssetManager{
 			}
 		}
 		this.saveAssetSettings();
+		return userDefaultAssetLinkUuids;
 	}
 
 	getDefaultAssetLink(defaultAssetUuid){
