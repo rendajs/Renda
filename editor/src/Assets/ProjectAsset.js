@@ -370,7 +370,10 @@ export default class ProjectAsset{
 					assetData = treeView.getSerializableStructureValues(structure, {purpose: "binaryComposer"});
 				}
 
-				binaryData = BinaryComposer.objectToBinary(assetData, usedAssetLoaderType.binaryComposerOpts);
+				binaryData = BinaryComposer.objectToBinary(assetData, {
+					...usedAssetLoaderType.binaryComposerOpts,
+					editorAssetManager: editor.projectManager.assetManager,
+				});
 			}
 		}
 		if(!binaryData){

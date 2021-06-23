@@ -1,4 +1,5 @@
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+import editor from "../editorInstance.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 
 export default class MaterialMapType{
@@ -80,7 +81,10 @@ export default class MaterialMapType{
 			console.warn("Failed to export material map, assetBundleBinaryComposerOpts is not set");
 			return null;
 		}
-		return BinaryComposer.objectToBinary(bundleMapData, this.assetBundleBinaryComposerOpts);
+		return BinaryComposer.objectToBinary(bundleMapData, {
+			...this.assetBundleBinaryComposerOpts,
+			editorAssetManager: editor.projectManager.assetManager,
+		});
 	}
 
 	//alternatively you can override this for more control
