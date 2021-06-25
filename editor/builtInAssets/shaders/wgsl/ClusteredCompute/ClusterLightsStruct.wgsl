@@ -5,4 +5,4 @@ struct ClusterLightIndices {
 [[block]] struct ClusterLightIndicesArray {
 	clusters : [[stride(${clusterLightIndicesStride})]] array<ClusterLightIndices, ${totalClusterCount}>;
 };
-[[group(1), binding(1)]] var<storage> clusterLightIndices : [[access(write)]] ClusterLightIndicesArray;
+[[group(1), binding(1)]] var<storage,write> clusterLightIndices : ClusterLightIndicesArray;

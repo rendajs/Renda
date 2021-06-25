@@ -6,4 +6,4 @@ struct Light {
 	lightCount : u32;
 	lights : [[stride(32)]] array<Light, 10>;
 };
-[[group(0), binding(1)]] var<storage_buffer> lightUniforms : [[access(read)]] LightUniforms;
+[[group(0), binding(1)]] var<storage_buffer,read> lightUniforms : LightUniforms;

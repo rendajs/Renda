@@ -9,7 +9,7 @@ struct ClusterLightIndices {
 [[block]] struct ClusterLightIndicesArray {
 	clusters : [[stride(${clusterLightIndicesStride})]] array<ClusterLightIndices, ${totalClusterCount}>;
 };
-[[group(0), binding(2)]] var<storage> clusterLightIndices : [[access(read)]] ClusterLightIndicesArray;
+[[group(0), binding(2)]] var<storage,read> clusterLightIndices : ClusterLightIndicesArray;
 
 fn depthToLinear(z : f32) -> f32 {
 	// let m : mat4x4<f32> = viewUniforms.projectionMatrix;

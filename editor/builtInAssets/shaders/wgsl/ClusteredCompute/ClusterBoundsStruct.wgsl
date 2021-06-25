@@ -5,4 +5,4 @@ struct ClusterAABB {
 [[block]] struct ClusterBoundsArray {
 	bounds : [[stride(32)]] array<ClusterAABB, ${totalClusterCount}>;
 };
-[[group(1), binding(0)]] var<storage> clusterBounds : [[access(write)]] ClusterBoundsArray;
+[[group(1), binding(0)]] var<storage,write> clusterBounds : ClusterBoundsArray;
