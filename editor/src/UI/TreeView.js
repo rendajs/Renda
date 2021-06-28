@@ -533,9 +533,52 @@ export default class TreeView{
 	}
 
 	onSelectionUpPressed(){
+		const item = this.getLastSelectedItem();
+		if(!item) return;
+
+		const parent = item.parent;
+		if(!parent) return;
+		const index = parent.children.indexOf(item);
+		if(index == 0){
+			parent.select();
+		}else{
+			let deepestItem = parent.children[index - 1];
+			while(true){
+				if(deepestItem.collapsed || deepestItem.children.length <= 0) break;
+
+				const lastItem = deepestItem.children[deepestItem.children.length - 1];
+				deepestItem = lastItem;
+			}
+			deepestItem.select();
+		}
+		item.deselect();
 	}
 
 	onSelectionDownPressed(){
+		const item = this.getLastSelectedItem();
+		if(!item) return;
+
+		if(item.children.length > 0 && item.expanded){
+			item.children[0].select();
+		}else{
+			let firstParentWithItemBelow = item;
+			let firstItemWithItemBelowIndex = 0;
+			while(true){
+				const parent = firstParentWithItemBelow.parent;
+				const prevParentWithItemBelow = firstParentWithItemBelow;
+				firstParentWithItemBelow = parent;
+				if(!parent) break;
+				firstItemWithItemBelowIndex = parent.children.indexOf(prevParentWithItemBelow);
+
+				//If the item is not the last in the list, this item has an item below
+				if(firstItemWithItemBelowIndex < parent.children.length - 1) break;
+			}
+
+			if(!firstParentWithItemBelow) return;
+			const itemBelow = firstParentWithItemBelow.children[firstItemWithItemBelowIndex + 1];
+			itemBelow.select();
+		}
+		item.deselect();
 	}
 
 	getLastSelectedItem(){
