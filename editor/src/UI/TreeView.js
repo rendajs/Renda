@@ -40,8 +40,10 @@ export default class TreeView{
 		this.arrowContainerEl.addEventListener("pointerenter", this.boundArrowHoverStartEvent);
 		this.arrowContainerEl.addEventListener("pointerleave", this.boundArrowHoverEndEvent);
 
-		this.boundOnSelectionUpPressed = this.onSelectionUpPressed.bind(this);
-		this.boundOnSelectionDownPressed = this.onSelectionDownPressed.bind(this);
+		this.boundSelectPrevious = this.selectPrevious.bind(this);
+		this.boundSelectNext = this.selectNext.bind(this);
+		this.boundExpandSelected = this.expandSelected.bind(this);
+		this.boundCollapseSelected = this.collapseSelected.bind(this);
 
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
@@ -523,16 +525,20 @@ export default class TreeView{
 		if(this.hasKeyboardEventHandlers != needsEventHandlers){
 			this.hasKeyboardEventHandlers = needsEventHandlers;
 			if(needsEventHandlers){
-				editor.keyboardShortcutManager.onCommand("treeView.selection.up", this.boundOnSelectionUpPressed);
-				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectionDownPressed);
+				editor.keyboardShortcutManager.onCommand("treeView.selection.up", this.boundSelectPrevious);
+				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundSelectNext);
+				editor.keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundExpandSelected);
+				editor.keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundCollapseSelected);
 			}else{
-				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectionUpPressed);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectionDownPressed);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundSelectPrevious);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundSelectNext);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundExpandSelected);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundCollapseSelected);
 			}
 		}
 	}
 
-	onSelectionUpPressed(){
+	selectPrevious(){
 		const item = this.getLastSelectedItem();
 		if(!item) return;
 
@@ -554,7 +560,7 @@ export default class TreeView{
 		item.deselect();
 	}
 
-	onSelectionDownPressed(){
+	selectNext(){
 		const item = this.getLastSelectedItem();
 		if(!item) return;
 
@@ -579,6 +585,26 @@ export default class TreeView{
 			itemBelow.select();
 		}
 		item.deselect();
+	}
+
+	expandSelected(){
+		const item = this.getLastSelectedItem();
+		if(!item) return;
+		if(item.arrowVisible && !item.expanded){
+			item.expanded = true;
+		}else{
+			this.selectNext();
+		}
+	}
+
+	collapseSelected(){
+		const item = this.getLastSelectedItem();
+		if(!item) return;
+		if(item.arrowVisible && !item.collapsed){
+			item.collapsed = true;
+		}else{
+			this.selectPrevious();
+		}
 	}
 
 	getLastSelectedItem(){
