@@ -24,10 +24,9 @@ export default class PropertiesTreeViewEntry extends TreeView{
 	} = {}){
 		super({
 			addCustomEl: true,
+			selectable: false,
+			rowVisible: false,
 		});
-
-		this.rowVisible = false;
-		this.selectable = false;
 
 		this.customEl.classList.add("guiTreeViewEntry");
 

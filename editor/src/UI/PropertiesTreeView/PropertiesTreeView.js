@@ -6,10 +6,11 @@ export default class PropertiesTreeView extends TreeView{
 		rowVisible = false,
 		name = "",
 	} = {}){
-		super();
-		this.rowVisible = rowVisible;
-		this.name = name;
-		this.selectable = false;
+		super({
+			name,
+			selectable: false,
+			rowVisible,
+		});
 		this.fullTreeDisabled = false;
 
 		this.currentSerializableStructureItems = null;

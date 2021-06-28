@@ -40,6 +40,9 @@ export default class TreeView{
 		this.arrowContainerEl.addEventListener("pointerenter", this.boundArrowHoverStartEvent);
 		this.arrowContainerEl.addEventListener("pointerleave", this.boundArrowHoverEndEvent);
 
+		this.boundOnSelectionUpPressed = this.onSelectionUpPressed.bind(this);
+		this.boundOnSelectionDownPressed = this.onSelectionDownPressed.bind(this);
+
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
 		this.rowEl.appendChild(this.myNameEl);
@@ -59,18 +62,19 @@ export default class TreeView{
 			this.el.appendChild(this.customEl);
 		}
 
+		this.destructed = false;
 		this._name = "";
 		this.children = [];
-		this.parent = null;
+		this.parent = data.parent ?? null;
 		this.recursionDepth = 0;
 		this._collapsed = false;
-		this.selectable = true;
+		this.selectable = data.selectable ?? true;
 		this._alwaysShowArrow = false;
 		this.canSelectMultiple = true;
 		this.renameable = false;
 		this._textFieldVisible = false;
 		this.renameTextField = null;
-		this._rowVisible = true;
+		this._rowVisible = data.rowVisible ?? true;
 		this._draggable = false;
 		this.rearrangeable = true;
 
@@ -83,7 +87,7 @@ export default class TreeView{
 			this.rearrangeable = data.copySettings.rearrangeable;
 		}
 
-		this.selected = false;
+		this.selected = false; //todo: make this private or a getter/setter
 
 		this.lastHighlightTime = 0;
 		this.boundOnBodyClick = this.onBodyClick.bind(this);
@@ -96,9 +100,13 @@ export default class TreeView{
 		this.updateArrowHidden();
 		if(data) this.updateData(data);
 		this.updatePadding();
+
+		this.hasKeyboardEventHandlers = false;
+		this.updateKeyboardShortcutEvents();
 	}
 
 	destructor(){
+		this.destructed = true;
 		if(this.el.parentElement){
 			this.el.parentElement.removeChild(this.el);
 		}
@@ -121,13 +129,14 @@ export default class TreeView{
 			b.destructor();
 		}
 		this.addedButtons = [];
+		this.updateKeyboardShortcutEvents();
 		this.childrenEl = null;
 		this.customEl = null;
 		for(const child of this.children){
 			child.destructor();
 		}
 		this.children = null;
-		this.parent = null;
+		this.setParent(null);
 
 		this.onArrowClickCbs = null;
 		this.eventCbs = null;
@@ -167,7 +176,7 @@ export default class TreeView{
 	}
 
 	calculateRecursionDepth(){
-		if(!this.parent){
+		if(this.isRoot){
 			this.recursionDepth = 0;
 		}else{
 			this.recursionDepth = this.parent.recursionDepth + 1;
@@ -180,17 +189,21 @@ export default class TreeView{
 		this.rowEl.style.paddingLeft = padding+"px";
 	}
 
-	removeChild(child){
+	get isRoot(){
+		return !this.parent;
+	}
+
+	removeChild(child, destructChild = true){
 		for(const [i, c] of this.children.entries()){
 			if(child == c){
-				this.removeChildIndex(i);
+				this.removeChildIndex(i, destructChild);
 				break;
 			}
 		}
 	}
 
-	removeChildIndex(index){
-		this.children[index].destructor();
+	removeChildIndex(index, destructChild = true){
+		if(destructChild) this.children[index].destructor();
 		this.children.splice(index, 1);
 		this.updateArrowHidden();
 	}
@@ -203,10 +216,37 @@ export default class TreeView{
 		this.updateArrowHidden();
 	}
 
+	/**
+	 * @param {TreeView} parent
+	 * @param {boolean} addChild whether a call should be made to parent.addChild()
+	 */
+	setParent(parent, addChild = true){
+		if(parent != this.parent){
+			if(this.parent){
+				this.parent.removeChild(this, false);
+			}
+			this.parent = parent;
+			if(parent && addChild){
+				parent.addChild(this);
+			}
+
+			this.updateKeyboardShortcutEvents();
+		}
+	}
+
+	/**
+	 * @param {?TreeView} treeView the TreeView to insert, creates a new one when null
+	 * @returns {TreeView} the created TreeView
+	 */
 	addChild(treeView = null){
 		return this.addChildAtIndex(-1, treeView);
 	}
 
+	/**
+	 * @param {number} index index to insert the TreeView at, starts counting from the back when negative
+	 * @param {?TreeView} treeView the TreeView to insert, creates a new one when null
+	 * @returns {TreeView} the created TreeView
+	 */
 	addChildAtIndex(index = -1, treeView = null){
 		if(index < 0){
 			index = this.children.length + index + 1;
@@ -214,9 +254,10 @@ export default class TreeView{
 		if(treeView == null){
 			treeView = new TreeView({
 				copySettings: this,
+				parent: this,
 			});
 		}
-		treeView.parent = this;
+		treeView.setParent(this, false);
 		treeView.calculateRecursionDepth();
 		if(index >= this.children.length){
 			this.children.push(treeView);
@@ -234,6 +275,7 @@ export default class TreeView{
 	}
 
 	updateArrowHidden(){
+		if(this.destructed) return;
 		this.arrowEl.classList.toggle("hidden", !this.arrowVisible);
 	}
 
@@ -474,6 +516,35 @@ export default class TreeView{
 
 	updateSelectedStyle(){
 		this.rowEl.classList.toggle("selected", this.selected);
+	}
+
+	updateKeyboardShortcutEvents(){
+		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
+		if(this.hasKeyboardEventHandlers != needsEventHandlers){
+			this.hasKeyboardEventHandlers = needsEventHandlers;
+			if(needsEventHandlers){
+				editor.keyboardShortcutManager.onCommand("treeView.selection.up", this.boundOnSelectionUpPressed);
+				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectionDownPressed);
+			}else{
+				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectionUpPressed);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectionDownPressed);
+			}
+		}
+	}
+
+	onSelectionUpPressed(){
+	}
+
+	onSelectionDownPressed(){
+	}
+
+	getLastSelectedItem(){
+		//todo: track last clicked item and use that if it is selected
+
+		const selectedItem = this.getSelectedItems().next().value;
+		if(selectedItem) return selectedItem;
+
+		return null;
 	}
 
 	*getSelectedItems(){

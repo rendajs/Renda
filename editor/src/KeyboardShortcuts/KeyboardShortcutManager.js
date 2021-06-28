@@ -159,13 +159,23 @@ export default class KeyboardShortcutManager{
 		}
 	}
 
-	addCommandListener(command, cb){
+	onCommand(command, cb){
 		let listeners = this.commandListeners.get(command);
 		if(!listeners){
 			listeners = new Set();
 			this.commandListeners.set(command, listeners);
 		}
 		listeners.add(cb);
+	}
+
+	removeOnCommand(command, cb){
+		const listeners = this.commandListeners.get(command);
+		if(listeners){
+			listeners.delete(cb);
+			if(listeners.size <= 0){
+				this.commandListeners.delete(command);
+			}
+		}
 	}
 
 	fireCommand(command){
