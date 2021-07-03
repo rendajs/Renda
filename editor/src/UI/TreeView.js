@@ -105,6 +105,8 @@ export default class TreeView{
 
 		this.hasKeyboardEventHandlers = false;
 		this.updateKeyboardShortcutEvents();
+
+		this.updateRowVisibility();
 	}
 
 	destructor(){
@@ -305,7 +307,11 @@ export default class TreeView{
 
 	set rowVisible(value){
 		this._rowVisible = value;
-		this.rowEl.classList.toggle("hidden", !value);
+		this.updateRowVisibility();
+	}
+
+	updateRowVisibility(){
+		this.rowEl.classList.toggle("hidden", !this.rowVisible);
 	}
 
 	get alwaysShowArrow(){
