@@ -10,6 +10,8 @@
 	--default-text-color-disabled-textfield: #8d8d8d;
 	--color-selected-blue: #005598;
 	--color-selected-blue-textfield: #005598fe;
+	--color-selected-blue-nofocus: #505050;
+	--selected-text-color-nofocus: #ffffff;
 	--color-highlighted-yellow: #ffa500;
 	--color-highlighted-yellow-text: #000000;
 	--selected-text-color: #ffffff;
@@ -42,6 +44,8 @@
 		--color-selected-blue: #008fff;
 		--selected-text-color: #ffffff;
 		--color-selected-blue-textfield: #95c0fffe;
+		--color-selected-blue-nofocus: #d7d7d7;
+		--selected-text-color-nofocus: #292929;
 		--color-highlighted-yellow: #FFE006;
 		--color-highlighted-yellow-text: #333333;
 		--default-button-color: #dcdcdc;
@@ -402,6 +406,10 @@ select.textInput:disabled{
 .treeViewRow.selected{
 	background: var(--color-selected-blue);
 	color: var(--selected-text-color);
+}
+.treeViewRow.selected.noFocus{
+	background: var(--color-selected-blue-nofocus);
+	color: var(--selected-text-color-nofocus);
 }
 .treeViewRow.highlighted{
 	background: var(--color-highlighted-yellow);

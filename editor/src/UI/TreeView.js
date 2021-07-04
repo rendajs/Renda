@@ -542,6 +542,16 @@ export default class TreeView{
 
 	updateSelectedStyle(){
 		this.rowEl.classList.toggle("selected", this.selected);
+		if(this.selected){
+			const root = this.findRoot();
+			this.rowEl.classList.toggle("noFocus", !root.hasFocusWithin);
+		}
+	}
+
+	updateSelectedChildrenStyle(){
+		for(const item of this.getSelectedItems()){
+			item.updateSelectedStyle();
+		}
 	}
 
 	updeteRootEventListeners(){
@@ -570,10 +580,12 @@ export default class TreeView{
 
 	onFocusIn(){
 		this.hasFocusWithin = true;
+		this.updateSelectedChildrenStyle();
 	}
 
 	onFocusOut(){
 		this.hasFocusWithin = false;
+		this.updateSelectedChildrenStyle();
 	}
 
 	onSelectPreviousKeyPressed(){
