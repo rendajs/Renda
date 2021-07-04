@@ -1,14 +1,16 @@
 export default class EditorWindow{
 	constructor(){
 		this.el = document.createElement("div");
+		this.el.tabIndex = -1;
 
 		this.parent = null;
 
-		this.editorWindowClickCbs = new Set();
-		this.el.addEventListener("click", () => {
-			for(const cb of this.editorWindowClickCbs){
-				cb();
-			}
+		this.onFocusedChangeCbs = new Set();
+		this.el.addEventListener("focusin", () => {
+			this.fireFocusedChange(true);
+		});
+		this.el.addEventListener("focusout", () => {
+			this.fireFocusedChange(false);
 		});
 	}
 
@@ -17,19 +19,24 @@ export default class EditorWindow{
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
-		this.editorWindowClickCbs = null;
 	}
 
 	setRoot(){
 		this.el.classList.add("editorWindowRoot");
 	}
 
-	onEditorWindowClick(cb){
-		this.editorWindowClickCbs.add(cb);
+	onFocusedChange(cb){
+		this.onFocusedChangeCbs.add(cb);
 	}
 
-	setFocused(focused){
-		this.el.classList.toggle("focused", focused);
+	fireFocusedChange(hasFocus){
+		for(const cb of this.onFocusedChangeCbs){
+			cb(hasFocus);
+		}
+	}
+
+	focus(){
+		this.el.focus();
 	}
 
 	updateEls(){}

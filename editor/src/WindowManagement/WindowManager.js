@@ -6,7 +6,6 @@ import ContentWindow from "./ContentWindows/ContentWindow.js";
 export default class WindowManager{
 	constructor(){
 		this.rootWindow = null;
-		this.focusedEditorWindow = null;
 		this.lastFocusedEditorWindow = null;
 
 		this.registeredContentWindows = new Map();
@@ -14,10 +13,6 @@ export default class WindowManager{
 		for(const w of ContentWindows){
 			this.registerContentWindow(w);
 		}
-
-		window.addEventListener("blur", () => {
-			this.setFocusedEditorWindow(null);
-		});
 
 		window.addEventListener("resize", () => {
 			if(this.rootWindow){
@@ -79,7 +74,6 @@ export default class WindowManager{
 		if(this.rootWindow){
 			this.rootWindow.destructor();
 		}
-		this.focusedEditorWindow = null;
 		this.lastFocusedEditorWindow = null;
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.rootWindow.setRoot();
@@ -101,8 +95,8 @@ export default class WindowManager{
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
 			newWindow.setActiveTabIndex(workspaceWindow.activeTab || 0);
-			newWindow.onEditorWindowClick(() => {
-				this.setFocusedEditorWindow(newWindow);
+			newWindow.onFocusedChange(hasFocus => {
+				if(hasFocus) this.lastFocusedEditorWindow = newWindow;
 			});
 		}
 		return newWindow;
@@ -177,7 +171,7 @@ export default class WindowManager{
 		}
 		if(!foundContentWindow) return null;
 
-		this.setFocusedEditorWindow(foundContentWindow.parentEditorWindow);
+		foundContentWindow.parentEditorWindow.focus();
 		foundContentWindow.parentEditorWindow.setActiveContentWindow(foundContentWindow);
 		return foundContentWindow;
 	}
@@ -188,21 +182,6 @@ export default class WindowManager{
 				return w.addTabType(type);
 			}
 		}
-	}
-
-	setFocusedEditorWindow(editorWindow){
-		if(this.focusedEditorWindow){
-			this.focusedEditorWindow.setFocused(false);
-		}
-		this.focusedEditorWindow = editorWindow;
-		if(editorWindow) this.lastFocusedEditorWindow = editorWindow;
-		if(this.focusedEditorWindow){
-			this.focusedEditorWindow.setFocused(true);
-		}
-	}
-
-	get focusedContentWindow(){
-		return this.focusedEditorWindow?.activeTab || null;
 	}
 
 	get lastFocusedContentWindow(){
