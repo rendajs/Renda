@@ -40,10 +40,14 @@ export default class TreeView{
 		this.arrowContainerEl.addEventListener("pointerenter", this.boundArrowHoverStartEvent);
 		this.arrowContainerEl.addEventListener("pointerleave", this.boundArrowHoverEndEvent);
 
-		this.boundSelectPrevious = this.selectPrevious.bind(this);
-		this.boundSelectNext = this.selectNext.bind(this);
-		this.boundExpandSelected = this.expandSelected.bind(this);
-		this.boundCollapseSelected = this.collapseSelected.bind(this);
+		this.hasFocusWithin = false;
+		this.boundOnFocusIn = this.onFocusIn.bind(this);
+		this.boundOnFocusOut = this.onFocusOut.bind(this);
+
+		this.boundOnSelectPreviousKeyPressed = this.onSelectPreviousKeyPressed.bind(this);
+		this.boundOnSelectNextKeyPressed = this.onSelectNextKeyPressed.bind(this);
+		this.boundOnExpandSelectedKeyPressed = this.onExpandSelectedKeyPressed.bind(this);
+		this.boundOnCollapseSelectedKeyPressed = this.onCollapseSelectedKeyPressed.bind(this);
 
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
@@ -70,7 +74,7 @@ export default class TreeView{
 		this.parent = data.parent ?? null;
 		this.recursionDepth = 0;
 		this._collapsed = false;
-		this.selectable = data.selectable ?? true;
+		this.selectable = data.selectable ?? true; //todo: make this private or a getter/setter
 		this._alwaysShowArrow = false;
 		this.canSelectMultiple = true;
 		this.renameable = false;
@@ -79,6 +83,11 @@ export default class TreeView{
 		this._rowVisible = data.rowVisible ?? true;
 		this._draggable = false;
 		this.rearrangeable = true;
+
+		if(this.selectable){
+			//todo: update at runtime when this.selectable changes
+			this.rowEl.tabIndex = 0;
+		}
 
 		if(data.copySettings){
 			this.collapsed = data.copySettings.collapsed;
@@ -103,8 +112,8 @@ export default class TreeView{
 		if(data) this.updateData(data);
 		this.updatePadding();
 
-		this.hasKeyboardEventHandlers = false;
-		this.updateKeyboardShortcutEvents();
+		this.hasRootEventListeners = false;
+		this.updeteRootEventListeners();
 
 		this.updateRowVisibility();
 	}
@@ -114,7 +123,6 @@ export default class TreeView{
 		if(this.el.parentElement){
 			this.el.parentElement.removeChild(this.el);
 		}
-		this.el = null;
 		this.rowEl.removeEventListener("click", this.boundOnRowClick);
 		this.boundOnRowClick = null;
 		this.rowEl.removeEventListener("dragover", this.boundOnDragOverEvent);
@@ -133,7 +141,15 @@ export default class TreeView{
 			b.destructor();
 		}
 		this.addedButtons = [];
-		this.updateKeyboardShortcutEvents();
+
+		this.updeteRootEventListeners();
+		this.boundOnFocusIn = null;
+		this.boundOnFocusOut = null;
+		this.boundOnSelectPreviousKeyPressed = null;
+		this.boundOnSelectNextKeyPressed = null;
+		this.boundOnExpandSelectedKeyPressed = null;
+		this.boundOnCollapseSelectedKeyPressed = null;
+
 		this.childrenEl = null;
 		this.customEl = null;
 		for(const child of this.children){
@@ -144,6 +160,8 @@ export default class TreeView{
 
 		this.onArrowClickCbs = null;
 		this.eventCbs = null;
+
+		this.el = null;
 	}
 
 	get name(){
@@ -234,7 +252,7 @@ export default class TreeView{
 				parent.addChild(this);
 			}
 
-			this.updateKeyboardShortcutEvents();
+			this.updeteRootEventListeners();
 		}
 	}
 
@@ -526,25 +544,41 @@ export default class TreeView{
 		this.rowEl.classList.toggle("selected", this.selected);
 	}
 
-	updateKeyboardShortcutEvents(){
+	updeteRootEventListeners(){
 		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
-		if(this.hasKeyboardEventHandlers != needsEventHandlers){
-			this.hasKeyboardEventHandlers = needsEventHandlers;
+		if(this.hasRootEventListeners != needsEventHandlers){
+			this.hasRootEventListeners = needsEventHandlers;
 			if(needsEventHandlers){
-				editor.keyboardShortcutManager.onCommand("treeView.selection.up", this.boundSelectPrevious);
-				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundSelectNext);
-				editor.keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundExpandSelected);
-				editor.keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundCollapseSelected);
+				this.el.addEventListener("focusin", this.boundOnFocusIn);
+				this.el.addEventListener("focusout", this.boundOnFocusOut);
+
+				editor.keyboardShortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				editor.keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				editor.keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
 			}else{
-				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundSelectPrevious);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundSelectNext);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundExpandSelected);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundCollapseSelected);
+				this.el.removeEventListener("focusin", this.boundOnFocusIn);
+				this.el.removeEventListener("focusout", this.boundOnFocusOut);
+
+				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
 			}
 		}
 	}
 
-	selectPrevious(){
+	onFocusIn(){
+		this.hasFocusWithin = true;
+	}
+
+	onFocusOut(){
+		this.hasFocusWithin = false;
+	}
+
+	onSelectPreviousKeyPressed(){
+		if(!this.hasFocusWithin) return;
+
 		const item = this.getLastSelectedItem();
 		if(!item) return;
 
@@ -566,7 +600,9 @@ export default class TreeView{
 		item.deselect();
 	}
 
-	selectNext(){
+	onSelectNextKeyPressed(){
+		if(!this.hasFocusWithin) return;
+
 		const item = this.getLastSelectedItem();
 		if(!item) return;
 
@@ -593,23 +629,27 @@ export default class TreeView{
 		item.deselect();
 	}
 
-	expandSelected(){
+	onExpandSelectedKeyPressed(){
+		if(!this.hasFocusWithin) return;
+
 		const item = this.getLastSelectedItem();
 		if(!item) return;
 		if(item.arrowVisible && !item.expanded){
 			item.expanded = true;
 		}else{
-			this.selectNext();
+			this.onSelectNextKeyPressed();
 		}
 	}
 
-	collapseSelected(){
+	onCollapseSelectedKeyPressed(){
+		if(!this.hasFocusWithin) return;
+
 		const item = this.getLastSelectedItem();
 		if(!item) return;
 		if(item.arrowVisible && !item.collapsed){
 			item.collapsed = true;
 		}else{
-			this.selectPrevious();
+			this.onSelectPreviousKeyPressed();
 		}
 	}
 
