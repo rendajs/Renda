@@ -597,8 +597,9 @@ export default class TreeView{
 		const parent = item.parent;
 		if(!parent) return;
 		const index = parent.children.indexOf(item);
+		let selectItem = null;
 		if(index == 0){
-			parent.select();
+			selectItem = parent;
 		}else{
 			let deepestItem = parent.children[index - 1];
 			while(true){
@@ -607,9 +608,19 @@ export default class TreeView{
 				const lastItem = deepestItem.children[deepestItem.children.length - 1];
 				deepestItem = lastItem;
 			}
-			deepestItem.select();
+			selectItem = deepestItem;
 		}
 		item.deselect();
+		const changes = {
+			reset: true,
+			added: [],
+			removed: [],
+		};
+		if(selectItem){
+			selectItem.select();
+			changes.added = [selectItem];
+		}
+		this.fireEvent("selectionchange", changes);
 	}
 
 	onSelectNextKeyPressed(){
@@ -618,8 +629,9 @@ export default class TreeView{
 		const item = this.getLastSelectedItem();
 		if(!item) return;
 
+		let selectItem = null;
 		if(item.children.length > 0 && item.expanded){
-			item.children[0].select();
+			selectItem = item.children[0];
 		}else{
 			let firstParentWithItemBelow = item;
 			let firstItemWithItemBelowIndex = 0;
@@ -636,9 +648,19 @@ export default class TreeView{
 
 			if(!firstParentWithItemBelow) return;
 			const itemBelow = firstParentWithItemBelow.children[firstItemWithItemBelowIndex + 1];
-			itemBelow.select();
+			selectItem = itemBelow;
 		}
 		item.deselect();
+		const changes = {
+			reset: true,
+			added: [],
+			removed: [],
+		};
+		if(selectItem){
+			selectItem.select();
+			changes.added = [selectItem];
+		}
+		this.fireEvent("selectionchange", changes);
 	}
 
 	onExpandSelectedKeyPressed(){
