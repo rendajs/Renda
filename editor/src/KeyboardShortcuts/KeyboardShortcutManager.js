@@ -16,6 +16,8 @@ export default class KeyboardShortcutManager{
 		this.currentPressedSequenceHighestLength = 0;
 		this.currentPressedSequence = [];
 
+		this.currentActiveHoldStateCommands = new Set();
+
 		this.commandListeners = new Map();
 
 		for(const commandOpts of AutoRegisterShortcutCommands){
@@ -41,18 +43,19 @@ export default class KeyboardShortcutManager{
 		this.sequenceMap.childNodes.clear();
 		this.sequenceMap.commands.clear();
 		for(const command of this.registeredCommands){
-			const sequence = command.configuredKeySequence;
+			const sequence = command.parsedSequence;
 			if(!sequence || sequence.length == 0) continue;
 
 			let currentMapNode = this.sequenceMap;
-			for(const bit of sequence.split(" ")){
-				let childNode = currentMapNode.childNodes.get(bit);
+			for(const bit of sequence){
+				const joinedBit = bit.join("+");
+				let childNode = currentMapNode.childNodes.get(joinedBit);
 				if(!childNode){
 					childNode = {
 						childNodes: new Map(),
 						commands: new Set(),
 					};
-					currentMapNode.childNodes.set(bit, childNode);
+					currentMapNode.childNodes.set(joinedBit, childNode);
 				}
 				currentMapNode = childNode;
 			}
@@ -66,6 +69,21 @@ export default class KeyboardShortcutManager{
 			if(this.currentPressedKeys.has(keyName)) return;
 			this.currentPressedKeys.add(keyName);
 		}else{
+			for(const command of this.currentActiveHoldStateCommands){
+				if(command.holdType == "hold" || command.holdType == "smart"){
+					if(!command.holdStateActive) continue;
+
+					if(
+						command.parsedSequence &&
+						command.parsedSequence.length > 0 &&
+						command.parsedSequence[command.parsedSequence.length - 1].includes(keyName)
+					){
+						if(!command.testAllowSmartHoldDeactivate()) continue;
+						command.setHoldStateActive(false);
+						this.fireCommand(command);
+					}
+				}
+			}
 			const deleted = this.currentPressedKeys.delete(keyName);
 			if(!deleted) return;
 
@@ -98,9 +116,19 @@ export default class KeyboardShortcutManager{
 				break;
 			}
 		}
-		if(sequenceHasCommands){
+		if(sequenceHasCommands && down){
 			for(const command of currentMapNode.commands){
-				this.fireCommand(command.command);
+				if(command.holdType != "single"){
+					let success = true;
+					if(command.holdType == "toggle" || command.holdType == "smart"){
+						success = command.setHoldStateActive(!command.holdStateActive);
+					}else{
+						success = command.setHoldStateActive(true);
+					}
+					if(!success) break;
+					this.currentActiveHoldStateCommands.add(command);
+				}
+				this.fireCommand(command);
 				this.clearCurrentSequence();
 				e.preventDefault();
 				break;
@@ -179,10 +207,13 @@ export default class KeyboardShortcutManager{
 	}
 
 	fireCommand(command){
-		const listeners = this.commandListeners.get(command);
+		const listeners = this.commandListeners.get(command.command);
 		if(listeners){
+			const eventData = {
+				command,
+			}
 			for(const cb of listeners){
-				cb();
+				cb(eventData);
 			}
 		}
 	}
