@@ -3,7 +3,7 @@ import Entity from "../../Core/Entity.js";
 export default class Gizmo{
 	constructor(gizmoManager){
 		this.gizmoManager = gizmoManager;
-		this.entity = new Entity("gizmo");
+		this.entity = new Entity("gizmo ("+this.constructor.name+")");
 	}
 
 	set matrix(val){
