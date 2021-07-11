@@ -46,7 +46,11 @@ export default class ProjectAsset{
 
 	async init(){
 		if(!this.assetType){
-			this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path, this.isBuiltIn);
+			try{
+				this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path, this.isBuiltIn);
+			}catch(e){
+				this.assetType = null;
+			}
 		}
 		if(this.destructed) return;
 
