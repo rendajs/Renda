@@ -21,6 +21,13 @@ export default class IconGizmo extends Gizmo{
 		});
 	}
 
+	destructor(){
+		super.destructor();
+
+		this.mesh.destructor();
+		this.mesh = null;
+	}
+
 	updateMesh(){
 		this.mesh.setVertexCount(this.positions.length);
 		this.mesh.setIndexData(this.indices);

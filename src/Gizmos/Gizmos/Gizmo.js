@@ -12,8 +12,6 @@ export default class Gizmo{
 
 	destructor(){
 		this.entity.detachParent();
-		this.mesh.destructor();
-		this.mesh = null;
 	}
 
 	//this is called when the GizmoManager built-in assets have changed

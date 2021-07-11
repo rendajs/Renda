@@ -19,6 +19,13 @@ export default class CameraClusterDataGizmo extends Gizmo{
 		});
 	}
 
+	destructor(){
+		super.destructor();
+
+		this.boundsMesh.destructor();
+		this.boundsMesh = null;
+	}
+
 	setClusterBoundsData(boundsData){
 		const vertices = [];
 		const colors = [];

@@ -34,6 +34,13 @@ export default class CameraGizmo extends Gizmo{
 		this.mesh.setVertexData(Mesh.AttributeType.COLOR, colors);
 	}
 
+	destructor(){
+		super.destructor();
+
+		this.mesh.destructor();
+		this.mesh = null;
+	}
+
 	setProjectionMatrix(projection){
 		const positionsCube = [
 			new Vec3(-1,-1, 0),
