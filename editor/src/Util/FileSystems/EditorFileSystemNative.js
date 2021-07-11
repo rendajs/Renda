@@ -167,19 +167,35 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		const jointPath = path.join("/");
 		let cbs = this.currentlyGettingFileCbs.get(jointPath);
 		if(cbs){
-			return await new Promise(r => cbs.add(r));
+			return await new Promise((resolve, reject) => cbs.add({resolve, reject}));
 		}else{
 			cbs = new Set();
 			this.currentlyGettingFileCbs.set(jointPath, cbs);
 		}
-		const fileHandle = await this.getFileHandle(path);
-		await this.verifyHandlePermission(fileHandle, {writable: false});
-		const fileContent = await fileHandle.getFile();
-		for(const cb of cbs){
-			cb(fileContent);
+		let fileContent;
+		let catchedError;
+		try{
+			const fileHandle = await this.getFileHandle(path);
+			await this.verifyHandlePermission(fileHandle, {writable: false});
+			fileContent = await fileHandle.getFile();
+		}catch(e){
+			catchedError = e;
+		}
+		if(catchedError){
+			for(const {reject} of cbs){
+				reject(catchedError);
+			}
+		}else{
+			for(const {resolve} of cbs){
+				resolve(fileContent);
+			}
 		}
 		this.currentlyGettingFileCbs.delete(jointPath);
-		return fileContent;
+		if(catchedError){
+			throw catchedError;
+		}else{
+			return fileContent;
+		}
 	}
 
 	async writeFile(path = [], file = null){
