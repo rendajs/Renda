@@ -2,7 +2,7 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import ContentWindowBuildView from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
-import {Entity, Mesh, Vec3, Material, CameraComponent, GizmoManager, LightIconGizmo, CameraIconGizmo, CameraGizmo, RenderOutputConfig, OrbitControls, ClusteredLightsConfig} from "../../../../src/index.js";
+import {Entity, CameraComponent, GizmoManager, OrbitControls, ClusteredLightsConfig, TranslationGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
@@ -47,6 +47,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 		this.gizmos = new GizmoManager();
 		this.editorScene.add(this.gizmos.entity);
+		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
 		this.currentLinkedGizmos = new Map(); //Map<Entity, Set<Gizmo>>
 
 		this.newEmptyEditingEntity();

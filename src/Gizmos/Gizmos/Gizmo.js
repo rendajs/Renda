@@ -6,6 +6,9 @@ export default class Gizmo{
 		this.entity = new Entity("gizmo ("+this.constructor.name+")");
 	}
 
+	/**
+	 * @param {import("../../index.js").Mat4} val
+	 */
 	set matrix(val){
 		this.entity.localMatrix = val;
 	}
