@@ -5,7 +5,13 @@ import ProjectAsset from "./ProjectAsset.js";
 
 export default class AssetManager{
 	constructor(){
+		/**
+		 * @type {Map<string, ProjectAsset>}
+		 */
 		this.projectAssets = new Map();
+		/**
+		 * @type {Map<string, DefaultAssetLink>}
+		 */
 		this.defaultAssetLinks = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
@@ -186,6 +192,10 @@ export default class AssetManager{
 		return userDefaultAssetLinkUuids;
 	}
 
+	/**
+	 * @param {string} defaultAssetUuid
+	 * @returns {DefaultAssetLink}
+	 */
 	getDefaultAssetLink(defaultAssetUuid){
 		return this.defaultAssetLinks.get(defaultAssetUuid);
 	}

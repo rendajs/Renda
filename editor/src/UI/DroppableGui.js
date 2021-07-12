@@ -1,6 +1,7 @@
 import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
+/** @typedef {import("../Assets/DefaultAssetLink.js").default} DefaultAssetLink */
 
 export default class DroppableGui{
 	constructor({
@@ -36,8 +37,17 @@ export default class DroppableGui{
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 
+		/**
+		 * @type {?string}
+		 */
 		this.defaultAssetLinkUuid = null;
+		/**
+		 * @type {?DefaultAssetLink}
+		 */
 		this.defaultAssetLink = null;
+		/**
+		 * @type {?ProjectAsset}
+		 */
 		this.projectAssetValue = null;
 		this.setValue(null);
 		this.setDisabled(disabled);
@@ -109,6 +119,10 @@ export default class DroppableGui{
 		return this.getValue();
 	}
 
+	/**
+	 * @param {ProjectAsset} projectAsset
+	 * @param {boolean} clearDefaultAssetLink
+	 */
 	setValueFromProjectAsset(projectAsset, clearDefaultAssetLink = true){
 		if(clearDefaultAssetLink){
 			this.defaultAssetLinkUuid = null;
