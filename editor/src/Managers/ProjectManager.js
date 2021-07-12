@@ -3,9 +3,13 @@ import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.j
 import EditorFileSystemIndexedDB from "../Util/FileSystems/EditorFileSystemIndexedDB.js";
 import AssetManager from "../Assets/AssetManager.js";
 import IndexedDbUtil from "../Util/IndexedDbUtil.js";
+/** @typedef {import("../Util/FileSystems/EditorFileSystem.js").default} EditorFileSystem */
 
 export default class ProjectManager{
 	constructor(){
+		/**
+		 * @type {?EditorFileSystem}
+		 */
 		this.currentProjectFileSystem = null;
 		this.assetManager = null;
 

@@ -48,6 +48,7 @@ export default class MaterialMapTypeManager{
 		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapAssetUuid);
 		if(!mapAsset) return [];
 		const mapValues = new Map();
+		if(await mapAsset.getIsDeleted()) return mapValues;
 		const mapData = await mapAsset.readAssetData();
 		for(const mapType of mapData.maps){
 			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);

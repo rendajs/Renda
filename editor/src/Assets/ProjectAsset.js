@@ -13,12 +13,21 @@ export default class ProjectAsset{
 		isBuiltIn = false,
 	} = {}){
 		this.uuid = uuid;
+		/**
+		 * @type {Array<string>}
+		 */
 		this.path = path;
 		this.assetSettings = assetSettings;
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
 		this.isBuiltIn = isBuiltIn;
+		/**
+		 * Whether the asset data is no longer available on disk
+		 * null if unknown
+		 * @type {?boolean}
+		 */
+		this._deletedState = null;
 
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
@@ -155,6 +164,29 @@ export default class ProjectAsset{
 		const {liveAsset, editorData} = await this._projectAssetType.createNewLiveAssetData();
 		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
 		await this.writeAssetData(assetData);
+	}
+
+	/**
+	 * Returns true if the asset data has been removed from disk
+	 * @returns {boolean}
+	 */
+	async getIsDeleted(){
+		if(this._deletedState == null){
+			await this.verifyDeletedState();
+		}
+		return this._deletedState;
+	}
+
+	async verifyDeletedState(){
+		await this.waitForInit();
+
+		let exists = false;
+		if(this.isBuiltIn){
+			exists = await editor.builtInAssetManager.exists(this.path);
+		}else{
+			exists = await editor.projectManager.currentProjectFileSystem.exists(this.path);
+		}
+		this._deletedState = !exists;
 	}
 
 	async getLiveAssetData(){

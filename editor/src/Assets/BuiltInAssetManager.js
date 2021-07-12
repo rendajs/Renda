@@ -3,9 +3,13 @@ import {SingleInstancePromise, arrayBufferToBase64} from "../../../src/index.js"
 import editor from "../editorInstance.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
 import {toFormattedJsonString} from "../Util/Util.js";
+import AssetManager from "./AssetManager.js";
 
 export default class BuiltInAssetManager{
 	constructor(){
+		/**
+		 * @type {Map<string, ProjectAsset>}
+		 */
 		this.assets = new Map();
 		this.basePath = "../builtInAssets/";
 
@@ -62,6 +66,14 @@ export default class BuiltInAssetManager{
 	get allowAssetEditing(){
 		if(!IS_DEV_BUILD) return false;
 		return editor.devSocket.connected;
+	}
+
+	async exists(path){
+		await this.waitForLoad();
+		for(const asset of this.assets.values()){
+			if(AssetManager.testPathMatch(asset.path, path)) return true;
+		}
+		return false;
 	}
 
 	async fetchAsset(path, format="json"){
