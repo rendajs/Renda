@@ -49,6 +49,10 @@ export default class DroppableGui{
 		 * @type {?ProjectAsset}
 		 */
 		this.projectAssetValue = null;
+		/**
+		 * @type {boolean}
+		 */
+		this.projectAssetValueDeleted = false;
 		this.setValue(null);
 		this.setDisabled(disabled);
 	}
@@ -131,6 +135,15 @@ export default class DroppableGui{
 		this.projectAssetValue = projectAsset;
 
 		this.fireValueChange();
+		this.updateContent();
+		this.updateDeletedState();
+	}
+
+	async updateDeletedState(){
+		this.projectAssetValueDeleted = false;
+		if(this.projectAssetValue){
+			this.projectAssetValueDeleted = await this.projectAssetValue.getIsDeleted();
+		}
 		this.updateContent();
 	}
 
@@ -318,6 +331,7 @@ export default class DroppableGui{
 					assetLinksWindow.highlightPath(this.projectAssetValue.path);
 				}
 			},
+			disabled: this.projectAssetValueDeleted,
 		});
 		const menu = editor.contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos(e.pageX, e.pageY);
@@ -328,9 +342,23 @@ export default class DroppableGui{
 	}
 
 	updateContent(){
-		this.el.classList.toggle("empty", !this.projectAssetValue);
-		this.el.classList.toggle("filled", this.projectAssetValue);
-		this.el.textContent = this.visibleAssetName;
-		this.el.draggable = this.projectAssetValue || this.defaultAssetLink;
+		const filled = this.projectAssetValue && !this.projectAssetValueDeleted;
+		this.el.classList.toggle("empty", !filled);
+		this.el.classList.toggle("filled", filled);
+		if(!this.projectAssetValueDeleted){
+			this.el.textContent = this.visibleAssetName;
+		}else{
+			while(this.el.firstChild){
+				this.el.removeChild(this.el.firstChild);
+			}
+			const deletedText = document.createElement("span");
+			deletedText.textContent = "Deleted";
+			deletedText.classList.add("droppableGuiDeletedText");
+			this.el.appendChild(deletedText);
+			if(this.visibleAssetName){
+				this.el.appendChild(document.createTextNode(" ("+this.visibleAssetName+")"));
+			}
+		}
+		this.el.draggable = (this.projectAssetValue && !this.projectAssetValueDeleted) || this.defaultAssetLink;
 	}
 }

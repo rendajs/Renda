@@ -284,6 +284,10 @@ select.textInput:disabled{
 	color: var(--droppable-filled-text-color);
 }
 
+.droppableGuiDeletedText{
+	font-style: italic;
+}
+
 .droppableGui.dragHovering:not([aria-disabled='true']){
 	box-shadow: inset 0px 0px 0px 1px var(--color-selected-blue);
 }

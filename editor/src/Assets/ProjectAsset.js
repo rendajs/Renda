@@ -168,7 +168,8 @@ export default class ProjectAsset{
 
 	/**
 	 * Returns true if the asset data has been removed from disk
-	 * @returns {boolean}
+	 * @async
+	 * @returns {Promise<boolean>}
 	 */
 	async getIsDeleted(){
 		if(this._deletedState == null){
