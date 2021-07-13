@@ -16,6 +16,7 @@ export default class ContextMenu{
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
 		this.currentSubmenu = null;
+		this.lastPosArguments = null;
 
 		if(structure){
 			this.createStructure(structure);
@@ -43,13 +44,17 @@ export default class ContextMenu{
 	}
 
 	setPos(){
-		let [x,y] = arguments;
-		let [el, corner = "center"] = arguments;
-		let [button, buttonCorner] = arguments;
-		let [contextMenuItem, contextMenuItemCorner] = arguments;
+		this.lastPosArguments = Array.from(arguments);
+		let [x,y, clampMode = null] = arguments;
+		let [el, corner = "center", elClampMode = null] = arguments;
+		let [button, buttonCorner, buttonClampMode] = arguments;
+		let [contextMenuItem, contextMenuItemCorner, contextMenuClampMode] = arguments;
+
+		if(elClampMode) clampMode = elClampMode;
 
 		if(contextMenuItem instanceof ContextMenuItem){
 			el = contextMenuItem.el;
+			if(!clampMode) clampMode = "flip";
 		}
 		if(button instanceof Button){
 			el = button.el;
@@ -78,7 +83,33 @@ export default class ContextMenu{
 			}else if(verticalCorner == "bottom"){
 				y = rect.bottom;
 			}
+
+			if(!clampMode) clampMode = "clamp";
 		}
+
+		if(!clampMode) clampMode = "flip";
+
+		const bounds = this.el.getBoundingClientRect();
+		if(clampMode == "flip"){
+			if(x + bounds.width > window.innerWidth){
+				x -= bounds.width;
+			}
+			if(y + bounds.height > window.innerHeight){
+				y -= bounds.height;
+			}
+		}else if(clampMode == "clamp"){
+			const deltaX = x + bounds.width - window.innerWidth;
+			if(deltaX > 0){
+				x -= deltaX;
+				x = Math.max(0, x);
+			}
+			const deltaY = y + bounds.height - window.innerHeight;
+			if(deltaY > 0){
+				y -= deltaY;
+				y = Math.max(0, y);
+			}
+		}
+
 
 		this.el.style.left = x+"px";
 		this.el.style.top = y+"px";
@@ -99,6 +130,7 @@ export default class ContextMenu{
 				createdItem.onClick(itemSettings.cb);
 			}
 		}
+		if(this.lastPosArguments) this.setPos(...this.lastPosArguments);
 	}
 
 	addItem(text, opts){

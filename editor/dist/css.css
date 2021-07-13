@@ -487,6 +487,7 @@ select.textInput:disabled{
 	border-radius: var(--default-border-radius);
 	background: var(--default-ui-bg-color);
 	padding: 3px 0px;
+	white-space: nowrap;
 	border: 1px solid var(--overlay-panel-borders-color);
 	box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.3);
 }
