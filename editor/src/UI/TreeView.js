@@ -496,7 +496,8 @@ export default class TreeView{
 				textEl.addEventListener("input", () => {
 					this.updateDataRenameValue();
 				});
-				textEl.addEventListener("blur", () => {
+				//use "focusout" instead of "blur" to ensure the "focusout" event bubbles to the root treeview
+				textEl.addEventListener("focusout", () => {
 					this.setTextFieldVisible(false);
 				});
 				textEl.focus();
