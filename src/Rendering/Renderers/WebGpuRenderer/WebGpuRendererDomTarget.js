@@ -13,7 +13,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		this.canvas = document.createElement("canvas");
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
-		this.ctx = this.canvas.getContext("gpupresent");
+		this.ctx = this.canvas.getContext("webgpu");
 		this.swapChainFormat = null;
 		this.swapChain = null;
 		this.colorTexture = null;
