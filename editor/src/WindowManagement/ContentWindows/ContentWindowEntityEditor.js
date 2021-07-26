@@ -128,7 +128,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 			}
 		}
 
-		if(this.renderDirty){
+		if(this.renderDirty && editor.renderer.isInit){
 			this.render();
 			this.renderDirty = false;
 		}
