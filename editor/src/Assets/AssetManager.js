@@ -216,7 +216,7 @@ export default class AssetManager{
 
 	/**
 	 * @param {string} uuid
-	 * @returns {ProjectAsset}
+	 * @returns {Promise<ProjectAsset>}
 	 */
 	async getProjectAsset(uuid){
 		await this.loadAssetSettings(true);
