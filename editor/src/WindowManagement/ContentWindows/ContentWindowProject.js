@@ -161,7 +161,7 @@ export default class ContentWindowProject extends ContentWindow{
 			if(!treeView.includes(dir)){
 				let newTreeView = treeView.addChild();
 				newTreeView.alwaysShowArrow = true;
-				newTreeView.onArrowClick(() => {
+				newTreeView.onCollapsedChange(() => {
 					if(!newTreeView.collapsed){
 						let newPath = [...path, dir];
 						this.updateTreeViewRecursive(newTreeView, newPath);

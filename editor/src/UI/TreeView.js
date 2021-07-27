@@ -31,7 +31,7 @@ export default class TreeView{
 		this.arrowEl.classList.add("treeViewArrow");
 		this.arrowContainerEl.appendChild(this.arrowEl);
 
-		this.onArrowClickCbs = [];
+		this.onCollapsedChangeCbs = [];
 		this.boundArrowClickEvent = this.arrowClickEvent.bind(this);
 		this.arrowContainerEl.addEventListener("click", this.boundArrowClickEvent);
 
@@ -158,7 +158,7 @@ export default class TreeView{
 		this.children = null;
 		this.setParent(null);
 
-		this.onArrowClickCbs = null;
+		this.onCollapsedChangeCbs = null;
 		this.eventCbs = null;
 
 		this.el = null;
@@ -309,6 +309,7 @@ export default class TreeView{
 		this._collapsed = collapsed;
 		this.childrenEl.style.display = collapsed ? "none" : null;
 		this.arrowContainerEl.classList.toggle("collapsed", collapsed);
+		this.fireOnCollapsedChange();
 	}
 
 	get expanded(){
@@ -399,7 +400,6 @@ export default class TreeView{
 	arrowClickEvent(e){
 		e.stopPropagation();
 		this.toggleCollapsed();
-		this.fireOnArrowClickCbs();
 	}
 
 	arrowHoverStartEvent(e){
@@ -411,14 +411,14 @@ export default class TreeView{
 		this.arrowContainerEl.classList.toggle("hover", false);
 	}
 
-	fireOnArrowClickCbs(){
-		for(const cb of this.onArrowClickCbs){
+	fireOnCollapsedChange(){
+		for(const cb of this.onCollapsedChangeCbs){
 			cb();
 		}
 	}
 
-	onArrowClick(cb){
-		this.onArrowClickCbs.push(cb);
+	onCollapsedChange(cb){
+		this.onCollapsedChangeCbs.push(cb);
 	}
 
 	toggleCollapsed(){
