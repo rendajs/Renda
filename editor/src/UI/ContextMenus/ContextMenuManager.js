@@ -17,6 +17,10 @@ export default class ContextMenuManager{
 		return null;
 	}
 
+	/**
+	 * @param {import("./ContextMenu.js").ContextMenuStructure} structure
+	 * @returns ContextMenu
+	 */
 	createContextMenu(structure){
 		if(this.activeContextMenu && this.activeContextMenu.el) return null;
 

@@ -826,6 +826,11 @@ export default class TreeView{
 		this.fireEvent("contextmenu", {
 			event: e,
 			clickedElement: this,
+			/**
+			 *
+			 * @param {import("./ContextMenus/ContextMenu.js").ContextMenuStructure} structure
+			 * @returns {import("./ContextMenus/ContextMenu.js").default}
+			 */
 			showContextMenu: structure => {
 				if(eventExpired){
 					console.warn("showContextMenu should be called from within the contextmenu event");

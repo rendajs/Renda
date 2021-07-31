@@ -116,14 +116,18 @@ export default class ContentWindowOutliner extends ContentWindow{
 	}
 
 	onTreeViewContextMenu(e){
+		/** @type {import("../../UI/ContextMenus/ContextMenu.js").default} */
 		const menu = e.showContextMenu();
 		menu.createStructure([
-			{text: "Delete", cb: () => {
-				const entity = this.getEntityByTreeViewItem(e.clickedElement);
-				entity.detachParent();
-				this.updateTreeView();
-				this.notifyEntityEditors(entity, "delete");
-			}},
+			{
+				text: "Delete",
+				onClick: () => {
+					const entity = this.getEntityByTreeViewItem(e.clickedElement);
+					entity.detachParent();
+					this.updateTreeView();
+					this.notifyEntityEditors(entity, "delete");
+				}
+			},
 		]);
 	}
 

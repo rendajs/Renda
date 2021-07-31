@@ -1,8 +1,23 @@
 import ContextMenuItem from "./ContextMenuItem.js";
 import ContextMenuSubmenuItem from "./ContextMenuSubmenuItem.js";
 import Button from "../Button.js";
+/**
+ * @typedef {Object} ContextMenuOptions
+ * @property {?ContextMenu} parentMenu
+ * @property {?ContextMenuStructure} structure
+ */
+
+/**
+ * @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure
+ */
 
 export default class ContextMenu{
+	/** @typedef {import("./ContextMenuItem.js").ContextMenuItemOpts} ContextMenuItemOpts */
+	/** @typedef {import("./ContextMenuManager.js").default} ContextMenuManager */
+	/**
+	 * @param {ContextMenuManager} manager
+	 * @param {ContextMenuOptions} opts
+	 */
 	constructor(manager, {
 		parentMenu = null,
 		structure = null,
@@ -115,38 +130,50 @@ export default class ContextMenu{
 		this.el.style.top = y+"px";
 	}
 
+	/**
+	 * @param {ContextMenuStructure} structure
+	 */
 	createStructure(structure){
 		for(const itemSettings of structure){
 			let createdItem = null;
 			if(itemSettings.submenu){
-				createdItem = this.addSubMenu(itemSettings.text, itemSettings);
+				createdItem = this.addSubMenu(itemSettings);
 				createdItem.onCreateSubmenu(submenu => {
 					submenu.createStructure(itemSettings.submenu);
 				});
 			}else{
-				createdItem = this.addItem(itemSettings.text, itemSettings);
-			}
-			if(itemSettings.cb){
-				createdItem.onClick(itemSettings.cb);
+				createdItem = this.addItem(itemSettings);
 			}
 		}
 		if(this.lastPosArguments) this.setPos(...this.lastPosArguments);
 	}
 
-	addItem(text, opts){
-		let item = new ContextMenuItem(this, text, opts);
+	/**
+	 * @param {ContextMenuItemOpts} opts
+	 * @returns {ContextMenuItem}
+	 */
+	addItem(opts){
+		let item = new ContextMenuItem(this, opts);
 		this.addedItems.push(item);
 		this.el.appendChild(item.el);
 		return item;
 	}
 
-	addSubMenu(text, opts){
-		const item = new ContextMenuSubmenuItem(this, text, opts);
+	/**
+	 * @param {ContextMenuItemOpts} opts
+	 * @returns {ContextMenuSubmenuItem}
+	 */
+	 addSubMenu(opts){
+		const item = new ContextMenuSubmenuItem(this, opts);
 		this.addedItems.push(item);
 		this.el.appendChild(item.el);
 		return item;
 	}
 
+	/**
+	 * @param {ContextMenuSubmenuItem} submenuItem
+	 * @returns {ContextMenu}
+	 */
 	startHoverSubmenu(submenuItem){
 		this.removeSubmenu();
 		this.activeSubmenuItem = submenuItem;

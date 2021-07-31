@@ -297,14 +297,15 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	onTreeViewContextMenu(e){
+		/** @type {import("../../UI/ContextMenus/ContextMenu.js").default} */
 		const menu = e.showContextMenu();
 		menu.createStructure([
-			{text: "Copy asset UUID", cb: async () => {
+			{text: "Copy asset UUID", onClick: async () => {
 				const path = this.pathFromTreeView(e.clickedElement);
 				const uuid = await editor.projectManager.assetManager.getAssetUuidFromPath(path);
 				await navigator.clipboard.writeText(uuid);
 			}},
-			{text: "Delete", cb: async () => {
+			{text: "Delete", onClick: async () => {
 				const path = this.pathFromTreeView(e.clickedElement);
 				await editor.projectManager.assetManager.deleteAsset(path);
 				const parentPath = path.slice(0, path.length - 1);

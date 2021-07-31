@@ -77,12 +77,16 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 	}
 
 	onTreeViewContextMenu(e){
+		/** @type {import("../../UI/ContextMenus/ContextMenu.js").default} */
 		const menu = e.showContextMenu();
 		menu.createStructure([
-			{text: "Copy asset UUID", cb: async () => {
-				const projectAsset = this.treeViewAssets.get(e.clickedElement);
-				await navigator.clipboard.writeText(projectAsset.uuid);
-			}},
+			{
+				text: "Copy asset UUID",
+				onClick: async () => {
+					const projectAsset = this.treeViewAssets.get(e.clickedElement);
+					await navigator.clipboard.writeText(projectAsset.uuid);
+				}
+			},
 		]);
 	}
 

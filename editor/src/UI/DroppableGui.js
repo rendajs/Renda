@@ -286,11 +286,12 @@ export default class DroppableGui{
 	onContextMenu(e){
 		e.preventDefault();
 		if(!this.projectAssetValue) return;
+		/** @type {import("./ContextMenus/ContextMenuItem.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
 		if(!this.disabled){
 			contextMenuStructure.push({
 				text: "Unlink",
-				cb: () => {
+				onClick: () => {
 					this.setValue(null);
 				},
 			});
@@ -299,7 +300,7 @@ export default class DroppableGui{
 		if(this.defaultAssetLinkUuid){
 			contextMenuStructure.push({
 				text: copyAssetUuidText,
-				cb: async () => {
+				onClick: async () => {
 					if(this.projectAssetValue){
 						await navigator.clipboard.writeText(this.defaultAssetLinkUuid);
 					}
@@ -309,7 +310,7 @@ export default class DroppableGui{
 		const resolvedText = this.defaultAssetLinkUuid ? "Copy resolved asset link UUID" : copyAssetUuidText;
 		contextMenuStructure.push({
 			text: resolvedText,
-			cb: async () => {
+			onClick: async () => {
 				if(this.projectAssetValue){
 					await navigator.clipboard.writeText(this.projectAssetValue.uuid);
 				}
@@ -317,7 +318,7 @@ export default class DroppableGui{
 		});
 		contextMenuStructure.push({
 			text: "View location",
-			cb: async () => {
+			onClick: async () => {
 				//todo: highlight assetLink
 				if(this.defaultAssetLink){
 					const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("defaultAssetLinks");
