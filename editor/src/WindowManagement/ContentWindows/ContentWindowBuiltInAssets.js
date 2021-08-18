@@ -65,15 +65,18 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		}
 	}
 
-	onTreeViewDragStart({draggedElement, event}){
-		const projectAsset = this.treeViewAssets.get(draggedElement);
-		event.dataTransfer.effectAllowed = "all";
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewEvent} e
+	 */
+	onTreeViewDragStart(e){
+		const projectAsset = this.treeViewAssets.get(e.target);
+		e.rawEvent.dataTransfer.effectAllowed = "all";
 		let assetTypeUuid = "";
 		const assetType = editor.projectAssetTypeManager.getAssetType(projectAsset.assetType);
 		if(assetType){
 			assetTypeUuid = assetType.typeUuid;
 		}
-		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, projectAsset.uuid);
+		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, projectAsset.uuid);
 	}
 
 	onTreeViewContextMenu(e){

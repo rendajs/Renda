@@ -2,6 +2,8 @@ import editor from "../editorInstance.js";
 
 /**
  * @typedef {Object} TreeViewEvent
+ * @property {TreeView} target
+ * @property {Event} rawEvent
  */
 
 /**
@@ -379,8 +381,8 @@ export default class TreeView{
 		this.currenDragFeedbackEl = el;
 		e.dataTransfer.setDragImage(el, x, y);
 		this.fireEvent("dragstart", {
-			draggedElement: this,
-			event: e,
+			rawEvent: e,
+			target: this,
 		});
 	}
 
