@@ -1,5 +1,15 @@
 import editor from "../editorInstance.js";
 
+/**
+ * @typedef {Object} TreeViewEvent
+ */
+
+/**
+ * @typedef {Object} TreeViewContextMenuEvent
+ * @property {PointerEvent} event - The raw event object from the "contextmenu" event callback.
+ * @property {TreeView} clickedElement - The tree view that was clicked.
+ */
+
 export default class TreeView{
 	constructor(data = {}){
 		this.el = document.createElement("div");
@@ -823,7 +833,8 @@ export default class TreeView{
 	onContextMenuEvent(e){
 		let menuCreated = false;
 		let eventExpired = false;
-		this.fireEvent("contextmenu", {
+		/** @type {TreeViewContextMenuEvent} */
+		const eventData = {
 			event: e,
 			clickedElement: this,
 			/**
@@ -847,7 +858,8 @@ export default class TreeView{
 				menu.setPos(e.pageX, e.pageY);
 				return menu;
 			},
-		});
+		};
+		this.fireEvent("contextmenu", eventData);
 		eventExpired = true;
 	}
 
@@ -864,19 +876,31 @@ export default class TreeView{
 		return cbs;
 	}
 
+	/**
+	 * @param {string} eventType - The identifier of the event type.
+	 * @param {function(TreeViewEvent)} cb - The callback to invoke when the event occurs.
+	 */
 	addEventListener(eventType, cb){
 		let cbs = this.getEventCbs(eventType);
 		if(!cbs) return;
 		cbs.add(cb);
 	}
 
+	/**
+	 * @param {string} eventType - The identifier of the event type.
+	 * @param {function(TreeViewEvent)} cb - The callback to remove.
+	 */
 	removeEventListener(eventType, cb){
 		let cbs = this.getEventCbs(eventType);
 		if(!cbs) return;
 		cbs.delete(cb);
 	}
 
-	//fires event on this TreeView and its parents
+	/**
+	 * Fires an event on this TreeView and its parents
+	 * @param {string} eventType - The identifier of the event type.
+	 * @param {TreeViewEvent} event - The data to pass to the event callbacks.
+	 */
 	fireEvent(eventType, event){
 		let cbs = this.getEventCbs(eventType);
 		if(cbs){
