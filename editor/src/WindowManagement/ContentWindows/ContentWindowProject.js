@@ -240,6 +240,11 @@ export default class ContentWindowProject extends ContentWindow{
 		this.treeView.collapsed = false;
 	}
 
+	/**
+	 * @param {import("../../UI/TreeView").default} treeView
+	 * @param {boolean removeLast
+	 * @returns {Array<string>}
+	 */
 	pathFromTreeView(treeView, removeLast = false){
 		let path = treeView.getNamesPath();
 		path.shift(); //remove root
@@ -293,8 +298,11 @@ export default class ContentWindowProject extends ContentWindow{
 		}
 	}
 
-	async onTreeViewDblClick({clickedElement}){
-		const path = this.pathFromTreeView(clickedElement);
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewEvent} e
+	 */
+	async onTreeViewDblClick(e){
+		const path = this.pathFromTreeView(e.target);
 		const projectAsset = await editor.projectManager.assetManager.getProjectAssetFromPath(path);
 		projectAsset.open();
 	}

@@ -491,7 +491,10 @@ export default class TreeView{
 	}
 
 	onDblClick(e){
-		this.fireEvent("dblclick", {clickedElement: this});
+		this.fireEvent("dblclick", {
+			target: this,
+			rawEvent: e,
+		});
 	}
 
 	setTextFieldVisible(textFieldVisible){
