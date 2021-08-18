@@ -290,9 +290,12 @@ export default class ContentWindowProject extends ContentWindow{
 		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, assetData.uuid);
 	}
 
-	async onTreeViewDrop({droppedOnElement, event}){
-		const path = this.pathFromTreeView(droppedOnElement);
-		for(const file of event.dataTransfer.files){
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewEvent} e
+	 */
+	async onTreeViewDrop(e){
+		const path = this.pathFromTreeView(e.target);
+		for(const file of e.rawEvent.dataTransfer.files){
 			let filePath = [...path, file.name];
 			await this.fileSystem.writeFile(filePath, file);
 		}

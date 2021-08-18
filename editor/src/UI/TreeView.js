@@ -830,8 +830,8 @@ export default class TreeView{
 	onDropEvent(e){
 		e.preventDefault();
 		this.fireEvent("drop", {
-			droppedOnElement: this,
-			event: e,
+			target: this,
+			rawEvent: e,
 		});
 	}
 
