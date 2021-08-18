@@ -1,7 +1,6 @@
 import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
-import ButtonGroup from "../../UI/ButtonGroup.js";
 import {Entity} from "../../../../src/index.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import editor from "../../editorInstance.js";
@@ -110,9 +109,12 @@ export default class ContentWindowOutliner extends ContentWindow{
 		this.selectionManager.changeSelection(changes);
 	}
 
-	onTreeViewNameChange({changedElement}){
-		let ent = this.getEntityByTreeViewItem(changedElement);
-		ent.name = changedElement.name;
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewNameChangeEvent} e
+	 */
+	onTreeViewNameChange(e){
+		let ent = this.getEntityByTreeViewItem(e.target);
+		ent.name = e.target.name;
 	}
 
 	onTreeViewContextMenu(e){

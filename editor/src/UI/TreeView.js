@@ -7,6 +7,14 @@ import editor from "../editorInstance.js";
  */
 
 /**
+ * @typedef {Object} TreeViewNameChangeEvent
+ * @property {string} oldName
+ * @property {string} newName
+ *
+ * @typedef {TreeViewEvent & TreeViewNameChangeEventType} TreeViewNameChangeEvent
+ */
+
+/**
  * @typedef {Object} TreeViewContextMenuEvent
  * @property {PointerEvent} event - The raw event object from the "contextmenu" event callback.
  * @property {TreeView} clickedElement - The tree view that was clicked.
@@ -528,10 +536,13 @@ export default class TreeView{
 				this.renameTextField = null;
 				let oldName = this.name;
 				this.name = newName;
-				this.fireEvent("namechange", {
-					changedElement: this,
+				/** @type {TreeViewNameChangeEvent} */
+				const event = {
+					target: this,
+					rawEvent: null,
 					oldName, newName,
-				});
+				};
+				this.fireEvent("namechange", event);
 			}
 		}
 		this.updateDataRenameValue();

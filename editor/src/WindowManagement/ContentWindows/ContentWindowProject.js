@@ -258,20 +258,23 @@ export default class ContentWindowProject extends ContentWindow{
 		this.selectionManager.changeSelection(changes);
 	}
 
-	async onTreeViewNameChange({changedElement, oldName, newName}){
-		if(oldName == newName) return;
-		const path = this.pathFromTreeView(changedElement);
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewNameChangeEvent} e
+	 */
+	async onTreeViewNameChange(e){
+		if(e.oldName == e.newName) return;
+		const path = this.pathFromTreeView(e.target);
 		let oldPath = path.slice();
 		let newPath = path.slice();
 		oldPath.pop();
 		newPath.pop();
-		oldPath.push(oldName);
-		newPath.push(newName);
+		oldPath.push(e.oldName);
+		newPath.push(e.newName);
 		try{
 			await this.fileSystem.move(oldPath, newPath);
-		}catch(e){
-			changedElement.name = oldName;
-			throw e;
+		}catch(err){
+			e.target.name = e.oldName;
+			throw err;
 		}
 		await editor.projectManager.assetManager.assetMoved(oldPath, newPath);
 	}
