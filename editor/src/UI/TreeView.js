@@ -7,7 +7,7 @@ import editor from "../editorInstance.js";
  */
 
 /**
- * @typedef {Object} TreeViewNameChangeEvent
+ * @typedef {Object} TreeViewNameChangeEventType
  * @property {string} oldName
  * @property {string} newName
  *
@@ -15,10 +15,18 @@ import editor from "../editorInstance.js";
  */
 
 /**
- * @typedef {Object} TreeViewContextMenuEvent
- * @property {PointerEvent} event - The raw event object from the "contextmenu" event callback.
- * @property {TreeView} clickedElement - The tree view that was clicked.
+ * @callback showContextMenuCallback
+ * @param {import("./ContextMenus/ContextMenu.js").ContextMenuStructure} [structure]
+ * @returns {import("./ContextMenus/ContextMenu.js").default}
  */
+
+/**
+ * @typedef {Object} TreeViewContextMenuEventType
+ * @property {showContextMenuCallback} showContextMenu
+ *
+ * @typedef {TreeViewEvent & TreeViewContextMenuEventType} TreeViewContextMenuEvent
+ */
+
 
 export default class TreeView{
 	constructor(data = {}){
@@ -851,21 +859,16 @@ export default class TreeView{
 		let eventExpired = false;
 		/** @type {TreeViewContextMenuEvent} */
 		const eventData = {
-			event: e,
-			clickedElement: this,
-			/**
-			 *
-			 * @param {import("./ContextMenus/ContextMenu.js").ContextMenuStructure} structure
-			 * @returns {import("./ContextMenus/ContextMenu.js").default}
-			 */
+			rawEvent: e,
+			target: this,
 			showContextMenu: structure => {
 				if(eventExpired){
 					console.warn("showContextMenu should be called from within the contextmenu event");
-					return;
+					return null;
 				}
 				if(menuCreated){
 					console.log("showContextMenu can only be called once");
-					return;
+					return null;
 				}
 
 				menuCreated = true;

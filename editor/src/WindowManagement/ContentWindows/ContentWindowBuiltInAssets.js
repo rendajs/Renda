@@ -79,14 +79,16 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, projectAsset.uuid);
 	}
 
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewContextMenuEvent} e
+	 */
 	onTreeViewContextMenu(e){
-		/** @type {import("../../UI/ContextMenus/ContextMenu.js").default} */
 		const menu = e.showContextMenu();
 		menu.createStructure([
 			{
 				text: "Copy asset UUID",
 				onClick: async () => {
-					const projectAsset = this.treeViewAssets.get(e.clickedElement);
+					const projectAsset = this.treeViewAssets.get(e.target);
 					await navigator.clipboard.writeText(projectAsset.uuid);
 				}
 			},
