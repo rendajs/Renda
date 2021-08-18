@@ -27,6 +27,14 @@ import editor from "../editorInstance.js";
  * @typedef {TreeViewEvent & TreeViewContextMenuEventType} TreeViewContextMenuEvent
  */
 
+/**
+ * @typedef {Object} TreeViewSelectionChangeEventType
+ * @property {boolean} reset
+ * @property {Array<TreeViewItem>} added
+ * @property {Array<TreeViewItem>} removed
+ *
+ * @typedef {TreeViewEvent & TreeViewSelectionChangeEventType} TreeViewSelectionChangeEvent
+ */
 
 export default class TreeView{
 	constructor(data = {}){
@@ -477,7 +485,10 @@ export default class TreeView{
 			if(this.renameable && this.selected){
 				this.setTextFieldVisible(true);
 			}else{
+				/** @type {TreeViewSelectionChangeEvent} */
 				let changes = {
+					target: this,
+					rawEvent: null,
 					reset: false,
 					added: [],
 					removed: [],
@@ -646,7 +657,10 @@ export default class TreeView{
 			selectItem = deepestItem;
 		}
 		item.deselect();
+		/** @type {TreeViewSelectionChangeEvent} */
 		const changes = {
+			target: this,
+			rawEvent: null,
 			reset: true,
 			added: [],
 			removed: [],
@@ -686,7 +700,10 @@ export default class TreeView{
 			selectItem = itemBelow;
 		}
 		item.deselect();
+		/** @type {TreeViewSelectionChangeEvent} */
 		const changes = {
+			target: this,
+			rawEvent: null,
 			reset: true,
 			added: [],
 			removed: [],
