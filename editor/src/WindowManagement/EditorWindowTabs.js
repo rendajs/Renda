@@ -18,6 +18,9 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.tabsSelectorGroup.el.classList.add("editorWindowTabButtonGroup")
 		this.el.appendChild(this.tabsSelectorGroup.el);
 
+		this.boundOnTabsContextMenu = this.onTabsContextMenu.bind(this);
+		this.tabsSelectorGroup.onContextMenu(this.boundOnTabsContextMenu);
+
 		this.tabsEl = document.createElement("div");
 		this.tabsEl.classList.add("editorWindowTabsList");
 		this.el.appendChild(this.tabsEl);
@@ -50,6 +53,18 @@ export default class EditorWindowTabs extends EditorWindow{
 
 	addTabType(tabType){
 		return this.setTabType(this.tabTypes.length, tabType);
+	}
+
+	closeTab(tabIndex) {
+		const contentWindow = this.tabs[tabIndex];
+		contentWindow.destructor();
+		this.tabs.splice(tabIndex, 1);
+		this.tabTypes.splice(tabIndex, 1);
+		this.tabsSelectorGroup.removeButton(tabIndex);
+
+		if (this.activeTabIndex == tabIndex) {
+			this.setActiveTabIndex(0);
+		}
 	}
 
 	onContentWindowRegistered(constructor){
@@ -118,5 +133,26 @@ export default class EditorWindowTabs extends EditorWindow{
 		for(const tab of this.tabs){
 			tab.onResized();
 		}
+	}
+
+	onTabsContextMenu(button, e) {
+		e.preventDefault();
+
+		/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
+		const contextMenuStructure = [
+			{
+				text: "Close Tab",
+				onClick: () => {
+					const index = this.tabsSelectorGroup.buttons.indexOf(button);
+					this.closeTab(index);
+					if (this.tabs.length == 0) {
+						// todo: close EditorWindow
+					}
+				}
+			},
+		];
+
+		const menu = editor.contextMenuManager.createContextMenu(contextMenuStructure);
+		menu.setPos(e.pageX, e.pageY);
 	}
 }

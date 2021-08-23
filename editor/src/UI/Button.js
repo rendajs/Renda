@@ -14,10 +14,16 @@ export default class Button{
 		this.disabled = disabled;
 		this.setText(text);
 		this.setDisabled(disabled);
+
+		this.onContextMenuCbs = new Set();
+
+		this.boundFireContextMenuCbs = this.fireContextMenuCbs.bind(this);
+		this.el.addEventListener("contextmenu", this.boundFireContextMenuCbs);
 	}
 
 	destructor(){
 		this.el.removeEventListener("click", this.boundClick);
+		this.el.removeEventListener("contextmenu", this.boundFireContextMenuCbs);
 	}
 
 	click(){
@@ -36,5 +42,19 @@ export default class Button{
 	setDisabled(disabled){
 		this.disabled = disabled;
 		this.el.classList.toggle("disabled", disabled);
+	}
+
+	fireContextMenuCbs(e) {
+		for (const cb of this.onContextMenuCbs) {
+			cb(this, e);
+		}
+	}
+
+	onContextMenu(cb) {
+		this.onContextMenuCbs.add(cb);
+	}
+
+	removeOnContextMenu(cb) {
+		this.onContextMenuCbs.delete(cb);
 	}
 }
