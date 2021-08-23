@@ -204,14 +204,14 @@ export default class DroppableGui{
 		this.currenDragFeedbackEl = el;
 		e.dataTransfer.setDragImage(el, x, y);
 
-		event.dataTransfer.effectAllowed = "all";
+		e.dataTransfer.effectAllowed = "all";
 		let assetTypeUuid = "";
 		const assetType = editor.projectAssetTypeManager.getAssetType(this.projectAssetValue.assetType);
 		if(assetType){
 			assetTypeUuid = assetType.typeUuid;
 		}
 		const uuid = this.defaultAssetLinkUuid || this.projectAssetValue.uuid;
-		event.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, uuid);
+		e.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, uuid);
 
 	}
 
@@ -286,7 +286,7 @@ export default class DroppableGui{
 	onContextMenu(e){
 		e.preventDefault();
 		if(!this.projectAssetValue) return;
-		/** @type {import("./ContextMenus/ContextMenuItem.js").ContextMenuStructure} */
+		/** @type {import("./ContextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
 		if(!this.disabled){
 			contextMenuStructure.push({
