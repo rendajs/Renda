@@ -69,11 +69,7 @@ export default class EditorWindowTabs extends EditorWindow{
 		contentWindow.destructor();
 		this.tabs.splice(tabIndex, 1);
 		this.tabTypes.splice(tabIndex, 1);
-		this.tabsSelectorGroup.removeButton(tabIndex);
-
-		if (this.activeTabIndex == tabIndex) {
-			this.setActiveTabIndex(0);
-		}
+		this.updateTabSelector();
 	}
 
 	/**
@@ -109,7 +105,9 @@ export default class EditorWindowTabs extends EditorWindow{
 				this.tabsSelectorGroup.addButton(newButton);
 			}
 		}else if(deltaCount < 0){
-			//todo
+			for (let i = this.tabsSelectorGroup.buttons.length - 1; i >= this.tabs.length; i--) {
+				this.tabsSelectorGroup.removeButton(i);
+			}
 		}
 		if(deltaCount != 0){
 			this.updateTabSelectorSpacer();
