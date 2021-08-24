@@ -8,6 +8,7 @@ export default class WindowManager{
 		this.rootWindow = null;
 		this.lastFocusedEditorWindow = null;
 
+		/** @type {Map<string, typeof ContentWindow>} */
 		this.registeredContentWindows = new Map();
 
 		for(const w of ContentWindows){
@@ -112,17 +113,20 @@ export default class WindowManager{
 		}
 	}
 
+	/**
+	 * @param {typeof ContentWindow} constructor
+	 */
 	registerContentWindow(constructor){
 		if(!(constructor.prototype instanceof ContentWindow)){
 			console.warn("Tried to register content window ("+constructor.name+") that does not extend ContentWindow class.");
 			return;
 		}
-		if(constructor.windowName == null){
-			console.warn("Tried to register content window ("+constructor.name+") with no window name, override the static windowName property in order for this content window to function properly");
+		if(constructor.contentWindowTypeId == null){
+			console.warn("Tried to register content window ("+constructor.name+") with no window name, override the static contentWindowTypeId property in order for this content window to function properly");
 			return;
 		}
 
-		this.registeredContentWindows.set(constructor.windowName, constructor);
+		this.registeredContentWindows.set(constructor.contentWindowTypeId, constructor);
 
 		for(const w of this.allEditorWindows()){
 			w.onContentWindowRegistered(constructor);

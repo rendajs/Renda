@@ -1,8 +1,11 @@
 export default class ContentWindow{
 
-	//should be overridden by inherited class
-	//this name will be used for saving the users workspace
-	static windowName = null;
+	/**
+	 * Should be overridden by inherited class.
+	 * This name will be used for saving the users workspace.
+	 * @type {String}
+	 */
+	static contentWindowTypeId = null;
 
 	constructor(parentEditorWindow){
 		this.parentEditorWindow = parentEditorWindow;

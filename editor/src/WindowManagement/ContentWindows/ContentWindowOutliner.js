@@ -7,7 +7,7 @@ import editor from "../../editorInstance.js";
 
 export default class ContentWindowOutliner extends ContentWindow{
 
-	static windowName = "outliner";
+	static contentWindowTypeId = "outliner";
 
 	constructor(){
 		super(...arguments);

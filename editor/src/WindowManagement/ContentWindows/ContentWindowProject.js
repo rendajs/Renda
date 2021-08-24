@@ -7,7 +7,7 @@ import {handleDuplicateName} from "../../Util/Util.js";
 
 export default class ContentWindowProject extends ContentWindow{
 
-	static windowName = "project";
+	static contentWindowTypeId = "project";
 
 	constructor(){
 		super(...arguments);

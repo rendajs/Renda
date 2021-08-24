@@ -42,6 +42,11 @@ export default class EditorWindowTabs extends EditorWindow{
 		this.updateTabSelectorSpacer();
 	}
 
+	/**
+	 * @param {Number} index
+	 * @param {String} tabType
+	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
+	 */
 	setTabType(index, tabType){
 		this.tabTypes[index] = tabType;
 		let constructor = editor.windowManager.getContentWindowConstructorByType(tabType);
@@ -51,6 +56,10 @@ export default class EditorWindowTabs extends EditorWindow{
 		return null;
 	}
 
+	/**
+	 * @param {String} tabType
+	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
+	 */
 	addTabType(tabType){
 		return this.setTabType(this.tabTypes.length, tabType);
 	}
@@ -67,9 +76,12 @@ export default class EditorWindowTabs extends EditorWindow{
 		}
 	}
 
+	/**
+	 * @param {typeof import("./ContentWindows/ContentWindow.js").default} constructor
+	 */
 	onContentWindowRegistered(constructor){
 		for(let i=0; i<this.tabTypes.length; i++){
-			if(this.tabTypes[i] == constructor.windowName){
+			if(this.tabTypes[i] == constructor.contentWindowTypeId){
 				this.loadContentWindow(i, constructor);
 			}
 		}
