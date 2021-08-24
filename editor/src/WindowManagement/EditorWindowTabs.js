@@ -57,11 +57,17 @@ export default class EditorWindowTabs extends EditorWindow{
 	}
 
 	/**
-	 * @param {String} tabType
+	 * @param {String} tabType The id of the tab type to create.
+	 * @param {Boolean} activate Whether to set the tab as active.
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
-	addTabType(tabType){
-		return this.setTabType(this.tabTypes.length, tabType);
+	addTabType(tabType, activate = false){
+		const index = this.tabTypes.length;
+		const contentWindow = this.setTabType(index, tabType);
+		if (activate) {
+			this.setActiveTabIndex(index);
+		}
+		return contentWindow;
 	}
 
 	closeTab(tabIndex) {
@@ -160,7 +166,7 @@ export default class EditorWindowTabs extends EditorWindow{
 			addTabSubmenu.push({
 				text,
 				onClick: () => {
-					this.addTabType(id);
+					this.addTabType(id, true);
 				},
 			});
 		}
