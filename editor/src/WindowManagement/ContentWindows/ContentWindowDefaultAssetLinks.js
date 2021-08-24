@@ -7,6 +7,7 @@ import { generateUuid } from "../../Util/Util.js";
 export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 
 	static contentWindowTypeId = "defaultAssetLinks";
+	static contentWindowUiName = "Default Asset Links";
 
 	constructor(){
 		super(...arguments);

@@ -7,6 +7,13 @@ export default class ContentWindow{
 	 */
 	static contentWindowTypeId = null;
 
+	/**
+	 * Should be overridden by inherited class.
+	 * This name will be visible in the UI.
+	 * @type {String}
+	 */
+	static contentWindowUiName = null;
+
 	constructor(parentEditorWindow){
 		this.parentEditorWindow = parentEditorWindow;
 

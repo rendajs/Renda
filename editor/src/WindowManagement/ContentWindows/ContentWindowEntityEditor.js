@@ -9,6 +9,7 @@ import SelectionManager from "../../Managers/SelectionManager.js";
 export default class ContentWindowEntityEditor extends ContentWindow{
 
 	static contentWindowTypeId = "entityEditor";
+	static contentWindowUiName = "Entity Editor";
 
 	constructor(){
 		super(...arguments);

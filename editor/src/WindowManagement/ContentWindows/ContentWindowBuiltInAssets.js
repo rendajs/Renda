@@ -5,7 +5,8 @@ import SelectionManager from "../../Managers/SelectionManager.js";
 
 export default class ContentWindowBuiltInAssets extends ContentWindow{
 
-	static contentWindowTypeId = "builtInAssets"
+	static contentWindowTypeId = "builtInAssets";
+	static contentWindowUiName = "Built-in Assets";
 
 	constructor(){
 		super(...arguments);

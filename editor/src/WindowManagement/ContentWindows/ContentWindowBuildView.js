@@ -7,6 +7,7 @@ import {CameraComponent} from "../../../../src/index.js";
 export default class ContentWindowBuildView extends ContentWindow{
 
 	static contentWindowTypeId = "buildView";
+	static contentWindowUiName = "Build";
 
 	constructor(){
 		super(...arguments);

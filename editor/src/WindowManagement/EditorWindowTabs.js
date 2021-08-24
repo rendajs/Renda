@@ -151,6 +151,23 @@ export default class EditorWindowTabs extends EditorWindow{
 		e.preventDefault();
 
 		/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
+		const addTabSubmenu = [];
+		for (const [id, contentWindow] of editor.windowManager.registeredContentWindows) {
+			let text = "<ContentWindow>";
+			if (contentWindow.contentWindowUiName) {
+				text = contentWindow.contentWindowUiName;
+			} else if (contentWindow.contentWindowTypeId) {
+				text = "<" + contentWindow.contentWindowTypeId + ">";
+			}
+			addTabSubmenu.push({
+				text,
+				onClick: () => {
+					this.addTabType(id);
+				},
+			});
+		}
+
+		/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [
 			{
 				text: "Close Tab",
@@ -162,6 +179,10 @@ export default class EditorWindowTabs extends EditorWindow{
 					}
 				}
 			},
+			{
+				text: "Add Tab",
+				submenu: addTabSubmenu,
+			}
 		];
 
 		const menu = editor.contextMenuManager.createContextMenu(contextMenuStructure);
