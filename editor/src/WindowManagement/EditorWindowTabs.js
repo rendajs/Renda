@@ -118,6 +118,10 @@ export default class EditorWindowTabs extends EditorWindow{
 		if(deltaCount != 0){
 			this.updateTabSelectorSpacer();
 		}
+
+		if (this.activeTabIndex >= this.tabs.length) {
+			this.setActiveTabIndex(this.tabs.length - 1);
+		}
 	}
 
 	updateTabSelectorSpacer(){
