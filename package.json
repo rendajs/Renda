@@ -9,7 +9,8 @@
 		"build-editor": "node editor/build.js",
 		"build-editor-dependencies": "node editor/buildDependencies.js",
 		"build-editor-dev": "node editor/build.js --dev",
-		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 5070' 'node editor/devSocket/index.js'"
+		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 5070' 'node editor/devSocket/index.js'",
+		"lint": "tsc -p jsconfig.json"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^11.1.0",
@@ -18,6 +19,7 @@
 		"js-md5": "^0.7.3",
 		"rollup": "^2.47.0",
 		"serve": "^11.3.2",
+		"typescript": "^4.3.5",
 		"websocket": "^1.0.33"
 	}
 }

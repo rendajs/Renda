@@ -1,0 +1,8 @@
+{
+	"compilerOptions": {
+		"lib": ["esnext"],
+		"target": "esnext",
+		"checkJs": true
+	},
+	"files": ["src/index.js", "editor/src/index.js"]
+}
