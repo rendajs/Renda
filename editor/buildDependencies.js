@@ -57,6 +57,16 @@ function removeSourceMaps(){
 	}
 }
 
+function addHeader(headerCode) {
+	return {
+		name: "add-header",
+		renderChunk(code, chunk){
+			console.log(chunk);
+			return headerCode + code;
+		},
+	}
+}
+
 (async () => {
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -65,7 +75,7 @@ function removeSourceMaps(){
 		let outputPath = path.resolve(__dirname, "libs", lib.output);
 		console.log("bundling "+lib.input);
 		const libPlugins = lib.plugins || [];
-		const plugins = [...libPlugins, commonjs(), ignore(["fs"])];
+		const plugins = [...libPlugins, commonjs(), ignore(["fs"]), addHeader("// @ts-nocheck\n\n")];
 		const bundle = await rollup({
 			input: inputPath,
 			plugins,
