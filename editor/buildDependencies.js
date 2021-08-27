@@ -61,7 +61,6 @@ function addHeader(headerCode) {
 	return {
 		name: "add-header",
 		renderChunk(code, chunk){
-			console.log(chunk);
 			return headerCode + code;
 		},
 	}
