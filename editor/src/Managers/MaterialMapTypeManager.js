@@ -39,6 +39,10 @@ export default class MaterialMapTypeManager{
 		}
 	}
 
+	/**
+	 * @param {String} uuid
+	 * @returns {typeof MaterialMapType}
+	 */
 	getTypeByUuid(uuid){
 		return this.registeredMapTypes.get(uuid);
 	}

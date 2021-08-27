@@ -16,6 +16,7 @@ import DevSocketManager from "./Managers/DevSocketManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
 
 import {WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager, ShaderBuilder} from "../../src/index.js";
+import editor from "./editorInstance.js";
 
 export default class Editor{
 	constructor(){
@@ -77,7 +78,7 @@ export default class Editor{
 		}
 
 		this.renderer.init();
-		this.windowManager.init(this);
+		this.windowManager.init();
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.componentGizmosManager.init();

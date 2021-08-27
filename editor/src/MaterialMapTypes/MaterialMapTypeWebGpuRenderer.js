@@ -2,6 +2,7 @@ import MaterialMapType from "./MaterialMapType.js";
 import {Vec3, SingleInstancePromise, WebGpuPipelineConfig} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+import editor from "../editorInstance.js";
 
 export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 

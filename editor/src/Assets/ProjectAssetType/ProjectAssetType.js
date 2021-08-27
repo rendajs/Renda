@@ -43,7 +43,7 @@ export default class ProjectAssetType{
 
 	//fill this with asset settings you want to appear in
 	//the properties window
-	static assetSettingsStructure = [];
+	static assetSettingsStructure = {};
 
 	constructor(projectAsset){
 		this.projectAsset = projectAsset;

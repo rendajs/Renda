@@ -14,7 +14,8 @@ export default class ComponentGizmos{
 		this.gizmoManager = gizmoManager;
 
 		this.createdGizmos = [];
-		for(const gizmoConstructor of this.constructor.requiredGizmos){
+		const constr = /** @type {typeof ComponentGizmos} */ (this.constructor);
+		for(const gizmoConstructor of constr.requiredGizmos){
 			const gizmo = gizmoManager.addGizmo(gizmoConstructor);
 			this.createdGizmos.push(gizmo);
 		}

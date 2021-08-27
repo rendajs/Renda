@@ -3,6 +3,7 @@ import {ShaderSource, Vec3} from "../../../src/index.js";
 import {SingleInstancePromise} from "../../../src/index.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+import editor from "../editorInstance.js";
 
 export default class MaterialMapTypeWebGlRenderer extends MaterialMapType{
 

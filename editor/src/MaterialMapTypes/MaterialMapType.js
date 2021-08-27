@@ -28,7 +28,10 @@ export default class MaterialMapType{
 	//overide this with your logic to load saved data in your ui
 	async customAssetDataFromLoad(data){}
 
-	//this should return your current data, it will be saved in the MaterialMap asset
+	/**
+	 * Override this and return the data you want to save.
+	 * @returns {Promise<?Object>}
+	 */
 	async getCustomAssetDataForSave(){}
 
 	//fire this whenever a user changes something that
@@ -38,15 +41,24 @@ export default class MaterialMapType{
 		this.valueChanged();
 	}
 
-	//this should return data that will be stored in the material
-	//you can transform customData from how it is stored in the
-	//project to something that is more easily digestable by
-	//a renderer for example
-	static async getLiveAssetCustomData(customData){}
+	/**
+	 * Use this to convert customData to something that is more easily usable.
+	 * For instance load assets from their id.
+	 * @param {Object} customData
+	 * @returns {Promise<Object>}
+	 */
+	static async getLiveAssetCustomData(customData) {
+		return {};
+	}
 
 	//this should yield ProjectAssets that are linked in the custom data
 	//this will be used to replace material instances
 	//in the editor whenever a linked live asset changes (a shader for example)
+	/**
+	 *
+	 * @param {Object} customData
+	 * @returns {AsyncGenerator<import("../Assets/ProjectAsset.js").default>}
+	 */
 	static async *getLinkedAssetsInCustomData(customData){return []}
 
 	//this should return a list of mappable values, this will be used to render the ui
@@ -59,14 +71,22 @@ export default class MaterialMapType{
 	//}
 	static async getMappableValues(customData){return []}
 
-	//override these 3 items if you want to be able to export mapData in assetbundles.
+	//Override the 3 items below if you want to be able to export mapData in assetbundles.
 	//usually returning the mapData object itself in mapDataToAssetBundleData() is enough,
 	//unless you want to transform some values first.
 	//mapDataToAssetBundleData() can return an arraybuffer.
 	//you can also return an object if assetBundleBinaryComposerOpts is set,
 	//the values will be converted to binary using BinaryComposer.objectToBinary()
+
 	static assetBundleBinaryComposerOpts = null;
-	static mapDataToAssetBundleData(mapData){}
+
+	/**
+	 * @param {Object} mapData
+	 * @returns {?Object}
+	 */
+	static mapDataToAssetBundleData(mapData){
+		return null;
+	}
 
 	//alternatively you can override this for more control
 	static mapDataToAssetBundleBinary(mapData){
@@ -75,7 +95,7 @@ export default class MaterialMapType{
 			//fail silently, you probaly intended to not export anything
 			return null;
 		}
-		if(bundleMapData instanceof ArrayBuffer) return data;
+		if(bundleMapData instanceof ArrayBuffer) return bundleMapData;
 
 		if(!this.assetBundleBinaryComposerOpts){
 			console.warn("Failed to export material map, assetBundleBinaryComposerOpts is not set");
@@ -107,7 +127,7 @@ export default class MaterialMapType{
 			transformValueHook: args => {
 				let {value, type} = args;
 				if(this.assetBundleBinaryComposerOpts.transformValueHook){
-					value = transformValueHook(args);
+					value = this.assetBundleBinaryComposerOpts.transformValueHook(args);
 				}
 
 				if(type == BinaryComposer.StructureTypes.ASSET_UUID){
@@ -146,8 +166,9 @@ export default class MaterialMapType{
 			this.mapListUi = null;
 		}
 
+		const constr = /** @type {typeof MaterialMapType} */ (this.constructor);
 		this.mapListUi = new MaterialMapListUi({
-			items: await this.constructor.getMappableValues(await this.getCustomAssetDataForSaveInternal()),
+			items: await constr.getMappableValues(await this.getCustomAssetDataForSaveInternal()),
 		});
 		this.mapListTreeView.addChild(this.mapListUi.treeView);
 		this.mapListUi.onValueChange(() => {

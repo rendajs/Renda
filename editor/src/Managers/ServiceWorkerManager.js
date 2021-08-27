@@ -7,7 +7,7 @@ export default class ServiceWorkerManager{
 		this.installationFailed = false;
 		this.installSw();
 
-		if(ServiceWorkerManager.supported){
+		if(this.supported){
 			navigator.serviceWorker.addEventListener("message", async e => {
 				if(e.data.type == "getProjectFile"){
 					const {filePath} = e.data;
@@ -23,12 +23,12 @@ export default class ServiceWorkerManager{
 		}
 	}
 
-	static get supported(){
+	get supported(){
 		return 'serviceWorker' in window.navigator && !this.installationFailed;
 	}
 
 	async installSw(){
-		if(!ServiceWorkerManager.supported) return;
+		if(!this.supported) return;
 		try{
 			this.registration = await navigator.serviceWorker.register("sw.js");
 		}catch(e){
