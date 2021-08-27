@@ -28,7 +28,8 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 		const mapData = await map.readAssetData();
 		this.isUpdatingUi = true;
 
-		await this.mapTreeView.gui.setValueFromAssetUuid(mapData?.map);
+		const gui = /** @type {import("../UI/DroppableGui.js").default} */ (this.mapTreeView.gui);
+		await gui.setValueFromAssetUuid(mapData?.map);
 		this.updateMapValues();
 
 		this.isUpdatingUi = false;

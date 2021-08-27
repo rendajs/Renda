@@ -1,11 +1,11 @@
 /**
  * @typedef {Object} ContextMenuItemOpts
- * @property {string} text - The text to display in the item.
- * @property {function()} onClick - The function to call when the item is clicked.
- * @property {function()} onHover - The function to call when the item is hovered over.
- * @property {boolean} disabled - Whether the item should start disabled.
- * @property {boolean} showRightArrow - Whether to arrow on the right of the text should be shown.
- * @property {import("./ContextMenu.js").ContextMenuStructure} submenu - The submenu structure to show on hover.
+ * @property {string} [text=""] - The text to display in the item.
+ * @property {function(): void} [onClick=null] - The function to call when the item is clicked.
+ * @property {function(): void} [onHover=null] - The function to call when the item is hovered over.
+ * @property {boolean} [disabled=false] - Whether the item should start disabled.
+ * @property {boolean} [showRightArrow=false] - Whether to arrow on the right of the text should be shown.
+ * @property {import("./ContextMenu.js").ContextMenuStructure} [submenu=null] - The submenu structure to show on hover.
  */
 
 export default class ContextMenuItem{
