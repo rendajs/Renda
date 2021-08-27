@@ -127,6 +127,9 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 		}
 	}
 
+	/**
+	 * @returns {AsyncGenerator<String>}
+	 */
 	async *getReferencedAssetUuids(){
 		const assetData = await this.projectAsset.readAssetData();
 		for(const uuid of this.getReferencedAssetUuidsForEntityData(assetData)){
@@ -144,7 +147,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 					transformValueHook: args => {
 						let {value, type} = args;
 						if(componentData.binaryComposerOpts.transformValueHook){
-							value = transformValueHook(args);
+							value = componentData.binaryComposerOpts.transformValueHook(args);
 						}
 
 						if(type == BinaryComposer.StructureTypes.ASSET_UUID){

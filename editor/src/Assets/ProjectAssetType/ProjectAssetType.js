@@ -77,10 +77,10 @@ export default class ProjectAssetType{
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
 	 * @param {import("../ProjectAsset").ProjectAssetFileData} fileData
-	 * @returns {Promise<{liveAsset: any, editorData: any}>}
+	 * @returns {Promise<{liveAsset?: any, editorData?: any}>}
 	 */
 	async getLiveAssetData(fileData){
-		return {liveAsset: null, editorData: null};
+		return {liveAsset: null};
 	}
 
 	//use this to store a liveasset instance in the project folder
@@ -147,10 +147,13 @@ export default class ProjectAssetType{
 		return null;
 	}
 
-	//This should yield all asset uuids that are referenced by this asset, this will be
-	//used for determining what other assets should be included in a bundle recursively.
-	//If `usedAssetLoaderType` has been set to an instance of `AssetLoaderTypeGenericStructure`,
-	//the references from its structure values, will automatically be collected as well.
+	/**
+	 * This should yield all asset uuids that are referenced by this asset, this will be
+	 * used for determining what other assets should be included in a bundle recursively.
+	 * If `usedAssetLoaderType` has been set to an instance of `AssetLoaderTypeGenericStructure`,
+	 * the references from its structure values, will automatically be collected as well.
+	 * @returns {AsyncGenerator<String>}
+	 */
 	async *getReferencedAssetUuids(){}
 
 	static invalidConfigurationWarning(message){
