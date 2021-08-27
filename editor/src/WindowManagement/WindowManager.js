@@ -87,11 +87,11 @@ export default class WindowManager{
 	parseWorkspaceWindow(workspaceWindow){
 		let newWindow = null;
 		if(workspaceWindow.type == "split"){
-			newWindow = new EditorWindowSplit(this);
+			newWindow = new EditorWindowSplit();
 			newWindow.splitHorizontal = workspaceWindow.splitHorizontal;
 			newWindow.splitPercentage = workspaceWindow.splitPercentage;
 		}else if(workspaceWindow.type == "tabs"){
-			newWindow = new EditorWindowTabs(this);
+			newWindow = new EditorWindowTabs();
 			for(let i=0; i<workspaceWindow.tabTypes.length; i++){
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}

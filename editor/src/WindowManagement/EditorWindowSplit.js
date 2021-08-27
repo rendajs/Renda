@@ -79,9 +79,9 @@ export default class EditorWindowSplit extends EditorWindow{
 		this.resizer.style.cursor = this.splitHorizontal ? "row-resize" : "col-resize";
 		this.resizer.style.transform = this.splitHorizontal ? "scale(1, 2.5)" : "scale(2.5, 1)";
 
-		this.elA.style.flexGrow = this.splitPercentage;
-		this.elB.style.flexGrow = 1 - this.splitPercentage;
-		this.elA.style.flexBasis = this.elB.flexBasis = 0;
+		this.elA.style.flexGrow = "" + this.splitPercentage;
+		this.elB.style.flexGrow = "" + (1 - this.splitPercentage);
+		this.elA.style.flexBasis = this.elB.style.flexBasis = "0";
 
 		this.onResized();
 	}

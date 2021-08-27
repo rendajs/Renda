@@ -49,6 +49,9 @@ export default class EditorWindow{
 
 	getParent(){}
 
+	/**
+	 * @returns {Generator<EditorWindow>}
+	 */
 	*getChildren(){}
 
 	onResized(){}
