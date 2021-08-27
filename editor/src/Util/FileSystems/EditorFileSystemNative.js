@@ -2,8 +2,13 @@ import EditorFileSystem from "./EditorFileSystem.js";
 import {SingleInstancePromise} from "../../../../src/index.js";
 
 export default class EditorFileSystemNative extends EditorFileSystem{
+	/**
+	 * @param {FileSystemDirectoryHandle} handle
+	 */
 	constructor(handle){
 		super();
+
+		/** @type {FileSystemDirectoryHandle} */
 		this.handle = handle;
 
 		this.watchTree = new Map();
@@ -12,7 +17,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	static async openUserDir(){
-		let directoryHandle = await window.showDirectoryPicker();
+		const directoryHandle = await globalThis.showDirectoryPicker();
 		return new EditorFileSystemNative(directoryHandle);
 	}
 
@@ -53,6 +58,15 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		}
 	}
 
+	/**
+	 * Utility function for verifying permissions on a specific handle.
+	 * @param {FileSystemHandle} handle
+	 * @param {Object} opts
+	 * @param {boolean} [opts.prompt=true] - Whether to prompt the user if no permission has been granted yet.
+	 * @param {boolean} [opts.writable=true] - Whether to request write permission.
+	 * @param {boolean} [opts.error=true] - If true, will throw an error if the permission is denied.
+	 * @returns {Promise<Boolean>}
+	 */
 	async verifyHandlePermission(handle, {
 		prompt = true,
 		writable = true,
@@ -69,6 +83,13 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		return false;
 	}
 
+	/**
+	 * @param {Array<String>} path
+	 * @param {Object} opts
+	 * @param {Boolean} [opts.create=false] - Whether to create the directory if it doesn't exist.
+	 * @param {Boolean} [opts.overrideError=true] - If true, replaces system errors with one that prints the path.
+	 * @returns {Promise<FileSystemDirectoryHandle>}
+	 */
 	async getDirHandle(path = [], {
 		create = false,
 		overrideError = true,
@@ -93,6 +114,13 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		return handle;
 	}
 
+	/**
+	 * @param {Array<String>} path
+	 * @param {Object} opts
+	 * @param {Boolean} [opts.create=false] - Whether to create the file if it doesn't exist.
+	 * @param {Boolean} [opts.overrideError=true] - If true, replaces system errors with one that prints the path.
+	 * @returns {Promise<FileSystemFileHandle>}
+	 */
 	async getFileHandle(path = [], {
 		create = false,
 		overrideError = true,
