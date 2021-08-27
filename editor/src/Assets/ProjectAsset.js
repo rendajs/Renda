@@ -3,6 +3,10 @@ import {SingleInstancePromise, AssetLoaderTypeGenericStructure, BinaryComposer} 
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
+/**
+ * @typedef {Object | String | File} ProjectAssetFileData
+ */
+
 export default class ProjectAsset{
 	constructor({
 		uuid = null,
@@ -29,6 +33,7 @@ export default class ProjectAsset{
 		 */
 		this._deletedState = null;
 
+		/** @type {import("./ProjectAssetType/ProjectAssetType.js").default} */
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
@@ -67,6 +72,10 @@ export default class ProjectAsset{
 		if(AssetTypeConstructor){
 			this._projectAssetType = new AssetTypeConstructor(this);
 		}
+	}
+
+	get projectAssetTypeConstructor() {
+		return /** @type {typeof import("./ProjectAssetType/ProjectAssetType.js").default} */ (this._projectAssetType.constructor);
 	}
 
 	async waitForInit(){
@@ -310,28 +319,33 @@ export default class ProjectAsset{
 	async getPropertiesAssetContentConstructor(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return null;
-		return this._projectAssetType.constructor.propertiesAssetContentConstructor;
+		return this.projectAssetTypeConstructor.propertiesAssetContentConstructor;
 	}
 
 	async getPropertiesAssetContentStructure(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return null;
-		return this._projectAssetType.constructor.propertiesAssetContentStructure;
+		return this.projectAssetTypeConstructor.propertiesAssetContentStructure;
 	}
 
 	async getPropertiesAssetSettingsStructure(){
 		await this.waitForInit();
 		if(!this._projectAssetType) return null;
-		return this._projectAssetType.constructor.assetSettingsStructure;
+		return this.projectAssetTypeConstructor.assetSettingsStructure;
 	}
 
+	/**
+	 * The returned type depends on the value of ProjectAssetType.storeInProjectAsJson
+	 * and ProjectAssetType.storeInProjectAsText.
+	 * @returns {Promise<?ProjectAssetFileData>}
+	 */
 	async readAssetData(){
 		await this.waitForInit();
 
 		let format = "binary";
-		if(this._projectAssetType.constructor.storeInProjectAsJson){
+		if(this.projectAssetTypeConstructor.storeInProjectAsJson){
 			format = "json";
-		}else if(this._projectAssetType.constructor.storeInProjectAsText){
+		}else if(this.projectAssetTypeConstructor.storeInProjectAsText){
 			format = "text";
 		}
 
@@ -348,7 +362,7 @@ export default class ProjectAsset{
 			}
 		}
 
-		if(format == "json" && this._projectAssetType.constructor.wrapProjectJsonWithEditorMetaData){
+		if(format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData){
 			fileData = fileData.asset || {};
 		}
 		return fileData;
@@ -356,11 +370,12 @@ export default class ProjectAsset{
 
 	async writeAssetData(fileData){
 		await this.waitForInit();
-		if(this._projectAssetType.constructor.storeInProjectAsJson){
+
+		if(this.projectAssetTypeConstructor.storeInProjectAsJson){
 			let json = null;
-			if(this._projectAssetType.constructor.wrapProjectJsonWithEditorMetaData){
+			if(this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData){
 				json = {
-					assetType: this._projectAssetType.constructor.type,
+					assetType: this.projectAssetTypeConstructor.type,
 					asset: fileData,
 				}
 			}else{
@@ -371,7 +386,7 @@ export default class ProjectAsset{
 			}else{
 				await editor.projectManager.currentProjectFileSystem.writeJson(this.path, json);
 			}
-		}else if(this._projectAssetType.constructor.storeInProjectAsText){
+		}else if(this.projectAssetTypeConstructor.storeInProjectAsText){
 			if(this.isBuiltIn){
 				await editor.builtInAssetManager.writeText(this.path, fileData);
 			}else{
@@ -388,18 +403,18 @@ export default class ProjectAsset{
 
 	async getAssetTypeUuid(){
 		await this.waitForInit();
-		return this._projectAssetType.constructor.typeUuid;
+		return this.projectAssetTypeConstructor.typeUuid;
 	}
 
 	async getBundledAssetData(assetSettingOverrides){
 		await this.waitForInit();
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
 		if(!binaryData){
-			const usedAssetLoaderType = this._projectAssetType.constructor.usedAssetLoaderType;
+			const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
 			if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure){
 				let assetData = await this.readAssetData();
 
-				const structure = this._projectAssetType.constructor.propertiesAssetContentStructure;
+				const structure = this.projectAssetTypeConstructor.propertiesAssetContentStructure;
 				if(structure){
 					const treeView = new PropertiesTreeView();
 					treeView.generateFromSerializableStructure(structure);
@@ -425,7 +440,7 @@ export default class ProjectAsset{
 
 	async *getReferencedAssetUuids(){
 		await this.waitForInit();
-		const usedAssetLoaderType = this._projectAssetType.constructor.usedAssetLoaderType;
+		const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
 		if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure){
 			const assetData = await this.readAssetData();
 
@@ -435,7 +450,7 @@ export default class ProjectAsset{
 				transformValueHook: args => {
 					let {value, type} = args;
 					if(usedAssetLoaderType.binaryComposerOpts.transformValueHook){
-						value = transformValueHook(args);
+						value = usedAssetLoaderType.binaryComposerOpts.transformValueHook(args);
 					}
 
 					if(type == BinaryComposer.StructureTypes.ASSET_UUID){

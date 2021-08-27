@@ -67,14 +67,18 @@ export default class ProjectAssetType{
 	//you can safely ommit this.
 	static expectedLiveAssetConstructor = null;
 
-	//If you plan on supporting loading live assets in the editor,
-	//return your liveasset instance and editorData here.
-	//This it guaranteed to not get called if a liveAssets already exists,
-	//i.e. it is only called twice if destroyLiveAssetData gets called first.
-	//Both `editorData` and `liveAsset` are optional.
-	//`editorData` will be passed back to saveLiveAssetData()
-	//You can use this to store extra data that can be manipulated by the editor.
-	//Editor data is useful for storing info that is not necessary in assetbundle exports.
+	/**
+	 * If you plan on supporting loading live assets in the editor,
+	 * return your liveasset instance and editorData here.
+	 * This it guaranteed to not get called if a liveAssets already exists,
+	 * i.e. it is only called twice if destroyLiveAssetData gets called first.
+	 * Both `editorData` and `liveAsset` are optional.
+	 * `editorData` will be passed back to saveLiveAssetData()
+	 * You can use this to store extra data that can be manipulated by the editor.
+	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
+	 * @param {import("../ProjectAsset").ProjectAssetFileData} fileData
+	 * @returns {Promise<{liveAsset: any, editorData: any}>}
+	 */
 	async getLiveAssetData(fileData){
 		return {liveAsset: null, editorData: null};
 	}
@@ -127,16 +131,21 @@ export default class ProjectAssetType{
 	//BinaryComposer.objectToBinary instead
 	static usedAssetLoaderType = null;
 
-	//This method is called when creating asset bundles,
-	//this is optional when `usedAssetLoaderType` is set
-	//it should return a BufferSource, Blob or USVString. You can use this.projectAsset
-	//to generate the binary data. assetSettingOverrides are
-	//changes made to the asset settings from the assetbundle
-	//that is being generated.
-	//If this function returns null or undefined, the raw
-	//asset data as it is stored in the project will be used
-	//which could be very inefficient.
-	async createBundledAssetData(assetSettingOverrides = {}){}
+	/**
+	 * This method is called when creating asset bundles,
+	 * this is optional when `usedAssetLoaderType` is set
+	 * You can use this.projectAsset to generate the binary data.
+	 * assetSettingOverrides are changes made to the asset settings from the
+	 * assetbundle that is being generated.
+	 * If this function returns null or undefined, the raw
+	 * asset data as it is stored in the project will be used
+	 * which could be very inefficient.
+	 * @param {any} assetSettingOverrides
+	 * @returns {Promise<null | BufferSource | Blob | String>}
+	 */
+	async createBundledAssetData(assetSettingOverrides = {}){
+		return null;
+	}
 
 	//This should yield all asset uuids that are referenced by this asset, this will be
 	//used for determining what other assets should be included in a bundle recursively.

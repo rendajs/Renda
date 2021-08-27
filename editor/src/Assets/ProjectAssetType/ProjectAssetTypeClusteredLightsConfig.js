@@ -32,8 +32,13 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 	static expectedLiveAssetConstructor = ClusteredLightsConfig;
 	static usedAssetLoaderType = AssetLoaderTypeClusteredLightsConfig;
 
+	/**
+	 * @override
+	 * @param {*} fileData
+	 * @returns
+	 */
 	async getLiveAssetData(fileData){
 		const liveAsset = new ClusteredLightsConfig(fileData);
-		return {liveAsset};
+		return {liveAsset, editorData: null};
 	}
 }

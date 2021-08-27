@@ -19,7 +19,13 @@ export default class EditorFileSystem{
 
 	async delete(path = [], recursive = false){}
 
-	async readFile(path = []){}
+	/**
+	 * @param {Array<String>} path
+	 * @returns {Promise<File>}
+	 */
+	async readFile(path = []){
+		return new File([], "");
+	}
 
 	//file should be of type `File`
 	//use writeText() for writing strings
@@ -27,10 +33,24 @@ export default class EditorFileSystem{
 
 	async writeFileStream(path = [], keepExistingData = false){}
 
-	async isFile(path = []){}
+	/**
+	 * @param {Array<string>} path
+	 * @returns {Promise<Boolean>}
+	 */
+	async isFile(path = []){
+		return false;
+	}
 
+	/**
+	 * @param {Array<string>} path
+	 * @returns {Promise<Boolean>}
+	 */
 	async isDir(path = []){}
 
+	/**
+	 * @param {Array<string>} path
+	 * @returns {Promise<Boolean>}
+	 */
 	async exists(path = []){
 		const isFile = await this.isFile(path);
 		const isDir = await this.isDir(path);
@@ -70,6 +90,10 @@ export default class EditorFileSystem{
 		await this.writeFile(path, new File([text], "", {type}))
 	}
 
+	/**
+	 * @param {Array<String>} path
+	 * @returns {Promise<String>}
+	 */
 	async readText(path = []){
 		const file = await this.readFile(path);
 		return await file.text();
@@ -80,6 +104,10 @@ export default class EditorFileSystem{
 		await this.writeText(path, jsonStr, {type: "application/json"});
 	}
 
+	/**
+	 * @param {Array<String>} path
+	 * @returns {Promise<?Object>}
+	 */
 	async readJson(path = []){
 		let file = await this.readFile(path);
 		if(file.type == "application/json"){

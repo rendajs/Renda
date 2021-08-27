@@ -161,11 +161,10 @@ export default class AssetManager{
 		const unsetAssetLinkUuids = new Set(this.defaultAssetLinks.keys());
 		for(const {defaultAssetUuid, originalAssetUuid} of builtInDefaultAssetLinks){
 			const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
-			const userData = {defaultAssetUuid, originalAssetUuid};
 			if(existingDefaultAssetLink){
-				existingDefaultAssetLink.setUserData(userData);
+				existingDefaultAssetLink.setUserData({name: "", originalAssetUuid});
 			}else{
-				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink(userData));
+				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink({defaultAssetUuid, originalAssetUuid}));
 			}
 		}
 		let userDefaultAssetLinkUuids = [];
