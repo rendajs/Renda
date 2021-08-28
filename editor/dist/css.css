@@ -517,6 +517,12 @@ select.textInput:disabled{
 	border-left: 10px solid var(--selected-text-color);
 }
 
+.contextMenuItemHorizontalLine {
+	background: var(--overlay-panel-borders-color);
+	height: 1px;
+	margin: 5px 3px;
+}
+
 
 
 .buildViewIframe{
