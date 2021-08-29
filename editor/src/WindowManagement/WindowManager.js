@@ -2,11 +2,14 @@ import EditorWindowSplit from "./EditorWindowSplit.js";
 import EditorWindowTabs from "./EditorWindowTabs.js";
 import ContentWindows from "./ContentWindows/ContentWindows.js";
 import ContentWindow from "./ContentWindows/ContentWindow.js";
+import WorkspaceManager from "./WorkspaceManager.js";
 
 export default class WindowManager{
 	constructor(){
 		this.rootWindow = null;
 		this.lastFocusedEditorWindow = null;
+
+		this.workspacexManager = new WorkspaceManager();
 
 		/** @type {Map<string, typeof ContentWindow>} */
 		this.registeredContentWindows = new Map();
@@ -26,49 +29,26 @@ export default class WindowManager{
 		this.reloadCurrentWorkspace();
 	}
 
-	reloadCurrentWorkspace(){
-		this.loadWorkspace({
-			rootWindow: {
-				type: "split",
-				splitHorizontal: false,
-				splitPercentage: 0.25,
-				windowA: {
-					type: "split",
-					splitHorizontal: true,
-					splitPercentage: 0.6,
-					windowA: {
-						type: "tabs",
-						tabTypes: ["outliner", "defaultAssetLinks"],
-					},
-					windowB: {
-						type: "tabs",
-						tabTypes: ["project", "builtInAssets"],
-					},
-				},
-				windowB: {
-					type: "split",
-					splitHorizontal: false,
-					splitPercentage: 0.6,
-					windowA: {
-						type: "split",
-						splitHorizontal: true,
-						splitPercentage: 0.5,
-						windowA: {
-							type: "tabs",
-							tabTypes: ["entityEditor"],
-						},
-						windowB: {
-							type: "tabs",
-							tabTypes: ["buildView"],
-						},
-					},
-					windowB: {
-						type: "tabs",
-						tabTypes: ["properties"],
-					},
-				}
-			}
-		});
+	async reloadCurrentWorkspace(){
+		this.loadWorkspaceId(await this.workspacexManager.getCurrentWorkspaceId());
+	}
+
+	/**
+	 * @param {string} workspaceId
+	 */
+	async loadWorkspaceId(workspaceId) {
+		const workspaceData = await this.workspacexManager.getWorkspace(workspaceId);
+		this.loadWorkspace(workspaceData);
+	}
+
+	async saveWorkspace() {
+		const workspaceData = this.getCurrentWorkspaceData();
+		await this.workspacexManager.saveCurrentWorkspace(workspaceData);
+	}
+
+	getCurrentWorkspaceData() {
+		const rootWindow = this.serializeWorkspaceWindow(this.rootWindow);
+		return {rootWindow};
 	}
 
 	loadWorkspace(workspace){
@@ -95,7 +75,7 @@ export default class WindowManager{
 			for(let i=0; i<workspaceWindow.tabTypes.length; i++){
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
-			newWindow.setActiveTabIndex(workspaceWindow.activeTab || 0);
+			newWindow.setActiveTabIndex(workspaceWindow.activeTabIndex || 0);
 			newWindow.onFocusedChange(hasFocus => {
 				if(hasFocus) this.lastFocusedEditorWindow = newWindow;
 			});
@@ -110,6 +90,32 @@ export default class WindowManager{
 			existingWorkspaceWindow.setWindows(windowA, windowB);
 			this.parseWorkspaceWindowChildren(workspaceWindow.windowA, existingWorkspaceWindow.windowA);
 			this.parseWorkspaceWindowChildren(workspaceWindow.windowB, existingWorkspaceWindow.windowB);
+		}
+	}
+
+	/**
+	 * @param {import("./EditorWindow.js").default} workspaceWindow
+	 * @returns {import("./WorkspaceManager.js").WorkspaceDataWindow}
+	 */
+	serializeWorkspaceWindow(workspaceWindow) {
+		if (workspaceWindow instanceof EditorWindowSplit) {
+			/** @type {import("./WorkspaceManager.js").WorkspaceDataWindowSplit} */
+			const data = {
+				type: "split",
+				splitHorizontal: workspaceWindow.splitHorizontal,
+				splitPercentage: workspaceWindow.splitPercentage,
+				windowA: this.serializeWorkspaceWindow(workspaceWindow.windowA),
+				windowB: this.serializeWorkspaceWindow(workspaceWindow.windowB),
+			};
+			return data;
+		} else if (workspaceWindow instanceof EditorWindowTabs) {
+			/** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */
+			const data = {
+				type: "tabs",
+				tabTypes: workspaceWindow.tabTypes,
+				activeTabIndex: workspaceWindow.activeTabIndex
+			};
+			return data;
 		}
 	}
 

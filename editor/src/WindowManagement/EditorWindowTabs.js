@@ -190,6 +190,46 @@ export default class EditorWindowTabs extends EditorWindow{
 			{
 				text: "Add Tab",
 				submenu: addTabSubmenu,
+			},
+			{
+				text: "Workspaces",
+				submenu: async () => {
+					/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
+					const workspacesSubmenu = [];
+
+					for (const workspaceId of await editor.windowManager.workspacexManager.getWorkspacesList()) {
+						workspacesSubmenu.push({
+							text: workspaceId,
+							onClick: () => {
+								editor.windowManager.loadWorkspaceId(workspaceId);
+							},
+						});
+					}
+
+					const currentWorkspace = await editor.windowManager.workspacexManager.getCurrentWorkspaceId();
+
+					workspacesSubmenu.push({
+						horizontalLine: true,
+					},
+					// {
+					// 	text: "Add New Workspace",
+					// },
+					{
+						text: `Save '${currentWorkspace}'`,
+						onClick: () => {
+							editor.windowManager.saveWorkspace();
+						}
+					},
+					// {
+					// 	text: `Autosave '${currentWorkspace}'`,
+					// },
+					// {
+					// 	text: `Delete '${currentWorkspace}'`,
+					// }
+					);
+
+					return workspacesSubmenu;
+				},
 			}
 		];
 
