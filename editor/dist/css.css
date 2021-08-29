@@ -493,7 +493,21 @@ select.textInput:disabled{
 }
 
 .contextMenuItem{
-	padding: 1px 3px;
+	padding: 1px 8px;
+}
+.contextMenuItemText {
+	display: inline;
+}
+.contextMenuItemIcon {
+	display: inline-block;
+	width: 20px;
+	height: 1em;
+	background-size: contain;
+	background-repeat: no-repeat;
+	vertical-align: text-top;
+}
+.contextMenuItemIcon.hidden {
+	display: none;
 }
 .contextMenuItem.disabled{
 	color: var(--default-text-color-disabled-context-menu);

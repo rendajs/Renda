@@ -10,23 +10,35 @@ export default class ContextMenuItem{
 		disabled = false,
 		showRightArrow = false,
 		horizontalLine = false,
+		reserveIconSpace = false,
+		showCheckmark = false,
+		showBullet = false,
 	} = {}){
 		this.containingContextMenu = containingContextMenu;
 		this.el = document.createElement("div");
 		this.el.classList.add("contextMenuItem");
 		this.el.classList.toggle("disabled", disabled || horizontalLine);
 
-		this.textNode = document.createTextNode("");
+		this.iconEl = document.createElement("div");
+		this.iconEl.classList.add("contextMenuItemIcon");
+		this.textEl = document.createElement("div");
+		this.textEl.classList.add("contextMenuItemText");
 		if (!horizontalLine) {
-			this.el.appendChild(this.textNode);
+			this.el.appendChild(this.iconEl);
+			this.el.appendChild(this.textEl);
 		} else {
 			const lineEl = document.createElement("div");
 			lineEl.classList.add("contextMenuItemHorizontalLine");
 			this.el.appendChild(lineEl);
 		}
 
+		this._reserveIconSpace = reserveIconSpace;
+		this._showCheckmark = showCheckmark;
+		this._showBullet = showBullet;
 		this.disabled = disabled;
+		this.updateIconStyle();
 
+		/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
 		this.onClickCbs = new Set();
 		if(onClick) this.onClick(onClick);
 
@@ -35,10 +47,20 @@ export default class ContextMenuItem{
 
 		this.el.addEventListener("click", () => {
 			if(this.disabled) return;
+			let preventMenuClose = false;
 			for(const cb of this.onClickCbs){
-				cb();
+				/** @type {import("./ContextMenu.js").ContextMenuItemClickEvent} */
+				const event = {
+					item: this,
+					preventMenuClose: () => {
+						preventMenuClose = true;
+					}
+				}
+				cb(event);
 			}
-			this.containingContextMenu.onItemClicked();
+			if (!preventMenuClose) {
+				this.containingContextMenu.onItemClicked();
+			}
 		});
 		this.el.addEventListener("mouseenter", () => {
 			if(this.disabled) return;
@@ -56,14 +78,60 @@ export default class ContextMenuItem{
 		this.setText(text);
 	}
 
+	get reserveIconSpace() {
+		return this._reserveIconSpace;
+	}
+
+	set reserveIconSpace(value) {
+		this._reserveIconSpace = value;
+		this.containingContextMenu.updateHasResevedIconSpaceItem();
+	}
+
+	get showCheckmark() {
+		return this._showCheckmark;
+	}
+
+	set showCheckmark(value) {
+		this._showCheckmark = value;
+		this.updateIconStyle();
+	}
+
+	get showBullet() {
+		return this._showBullet;
+	}
+
+	set showBullet(value) {
+		this._showBullet = value;
+		this.updateIconStyle();
+	}
+
+	updateIconStyle() {
+		const needsSpace = this.containingContextMenu.hasResevedIconSpaceItem || this.showCheckmark || this.showBullet;
+		this.iconEl.classList.toggle("hidden", !needsSpace);
+		let iconUrl = null;
+		if (this.showCheckmark) {
+			iconUrl = "contextMenuCheck.svg";
+		} else if (this.showBullet) {
+			iconUrl = "contextMenuBullet.svg";
+		}
+		if (iconUrl) {
+			this.iconEl.style.backgroundImage = `url(icons/${iconUrl})`;
+		} else {
+			this.iconEl.style.backgroundImage = "";
+		}
+	}
+
 	destructor(){
 		this.onClickCbs.clear();
 	}
 
 	setText(text){
-		this.textNode.textContent = text;
+		this.textEl.textContent = text;
 	}
 
+	/**
+	 * @param {function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void} cb
+	 */
 	onClick(cb){
 		this.onClickCbs.add(cb);
 	}

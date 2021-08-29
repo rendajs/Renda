@@ -11,12 +11,21 @@ import Button from "../Button.js";
 /** @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure */
 
 /**
+ * @typedef {Object} ContextMenuItemClickEvent
+ * @property {ContextMenuItem} item
+ * @property {function() : void} preventMenuClose
+ */
+
+/**
  * @typedef {Object} ContextMenuItemOpts
  * @property {string} [text=""] - The text to display in the item.
- * @property {function(): void} [onClick=null] - The function to call when the item is clicked.
+ * @property {function(ContextMenuItemClickEvent): void} [onClick=null] - The function to call when the item is clicked.
  * @property {function(): void} [onHover=null] - The function to call when the item is hovered over.
  * @property {boolean} [disabled=false] - Whether the item should start disabled.
  * @property {boolean} [showRightArrow=false] - Whether to arrow on the right of the text should be shown.
+ * @property {boolean} [reserveIconSpace=false] - If true, all items in the submenu will move to the right in case this item gets a checkmark or bullet.
+ * @property {boolean} [showCheckmark=false] - Whether to show a checkmark in front of to the item.
+ * @property {boolean} [showBullet=false] - Whether to show a bullet in front of to the item.
  * @property {boolean} [horizontalLine=false] - When true, renders a line instead of the text.
  * @property {ContextMenuStructure | (function(): Promise<ContextMenuStructure>) | function(): ContextMenuStructure} [submenu=null] - The submenu structure to show on hover.
  */
@@ -36,10 +45,13 @@ export default class ContextMenu{
 		this.el.classList.add("contextMenu");
 		document.body.appendChild(this.el);
 
+		/** @type {Array<ContextMenuItem>} */
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
 		this.currentSubmenu = null;
 		this.lastPosArguments = null;
+
+		this.hasResevedIconSpaceItem = false;
 
 		if(structure){
 			this.createStructure(structure);
@@ -175,6 +187,7 @@ export default class ContextMenu{
 		let item = new ContextMenuItem(this, opts);
 		this.addedItems.push(item);
 		this.el.appendChild(item.el);
+		this.updateHasResevedIconSpaceItem();
 		return item;
 	}
 
@@ -212,5 +225,12 @@ export default class ContextMenu{
 	close(){
 		this.manager.onContextMenuClosed(this);
 		this.destructor();
+	}
+
+	updateHasResevedIconSpaceItem() {
+		this.hasResevedIconSpaceItem = this.addedItems.some(item => item.reserveIconSpace);
+		for (const item of this.addedItems) {
+			item.updateIconStyle();
+		}
 	}
 }
