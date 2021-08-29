@@ -197,16 +197,18 @@ export default class EditorWindowTabs extends EditorWindow{
 					/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
 					const workspacesSubmenu = [];
 
+					const currentWorkspace = await editor.windowManager.workspacexManager.getCurrentWorkspaceId();
+
 					for (const workspaceId of await editor.windowManager.workspacexManager.getWorkspacesList()) {
 						workspacesSubmenu.push({
 							text: workspaceId,
+							reserveIconSpace: true,
+							showBullet: workspaceId == currentWorkspace,
 							onClick: () => {
 								editor.windowManager.loadWorkspaceId(workspaceId);
 							},
 						});
 					}
-
-					const currentWorkspace = await editor.windowManager.workspacexManager.getCurrentWorkspaceId();
 
 					workspacesSubmenu.push({
 						horizontalLine: true,

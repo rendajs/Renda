@@ -37,6 +37,7 @@ export default class WindowManager{
 	 * @param {string} workspaceId
 	 */
 	async loadWorkspaceId(workspaceId) {
+		await this.workspacexManager.setCurrentWorkspaceId(workspaceId);
 		const workspaceData = await this.workspacexManager.getWorkspace(workspaceId);
 		this.loadWorkspace(workspaceData);
 	}
