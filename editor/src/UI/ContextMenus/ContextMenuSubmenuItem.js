@@ -2,18 +2,17 @@ import ContextMenuItem from "./ContextMenuItem.js";
 
 export default class ContextMenuSubmenuItem extends ContextMenuItem{
 	/** @typedef {import("./ContextMenu.js").default} ContextMenu */
-	/** @typedef {import("./ContextMenuItem").ContextMenuItemOpts} ContextMenuItemOpts */
 
 	/**
-	 * @param {ContextMenu} parentContextMenu
-	 * @param {ContextMenuItemOpts} opts
+	 * @param {ContextMenu} containingContextMenu
+	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
 	 */
-	constructor(parentContextMenu, opts){
+	constructor(containingContextMenu, opts){
 		opts = {
 			...opts,
 			showRightArrow: true,
 		}
-		super(parentContextMenu, opts);
+		super(containingContextMenu, opts);
 
 		this.onCreateSubmenuCbs = new Set();
 
@@ -23,14 +22,14 @@ export default class ContextMenuSubmenuItem extends ContextMenuItem{
 	}
 
 	createSubmenu(){
-		const submenu = this.parentContextMenu.startHoverSubmenu(this);
+		const submenu = this.containingContextMenu.startHoverSubmenu(this);
 		for(const cb of this.onCreateSubmenuCbs){
 			cb(submenu);
 		}
 	}
 
 	/**
-	 * @param {function(ContextMenu)} cb - The callback to call when the submenu is created.
+	 * @param {function(ContextMenu): void} cb - The callback to call when the submenu is created.
 	 */
 	onCreateSubmenu(cb){
 		this.onCreateSubmenuCbs.add(cb);

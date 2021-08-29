@@ -1,21 +1,29 @@
 import ContextMenuItem from "./ContextMenuItem.js";
 import ContextMenuSubmenuItem from "./ContextMenuSubmenuItem.js";
 import Button from "../Button.js";
-/**
- * @typedef {Object} ContextMenuOptions
- * @property {?ContextMenu} parentMenu
- * @property {?ContextMenuStructure} structure
- */
 
 /**
- * @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure
+ * @typedef {Object} ContextMenuOptions
+ * @property {ContextMenu} [parentMenu=null]
+ * @property {ContextMenuStructure} [structure=null]
+ */
+
+/** @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure */
+
+/**
+ * @typedef {Object} ContextMenuItemOpts
+ * @property {string} [text=""] - The text to display in the item.
+ * @property {function(): void} [onClick=null] - The function to call when the item is clicked.
+ * @property {function(): void} [onHover=null] - The function to call when the item is hovered over.
+ * @property {boolean} [disabled=false] - Whether the item should start disabled.
+ * @property {boolean} [showRightArrow=false] - Whether to arrow on the right of the text should be shown.
+ * @property {boolean} [horizontalLine=false] - When true, renders a line instead of the text.
+ * @property {ContextMenuStructure | (function(): Promise<ContextMenuStructure>) | function(): ContextMenuStructure} [submenu=null] - The submenu structure to show on hover.
  */
 
 export default class ContextMenu{
-	/** @typedef {import("./ContextMenuItem.js").ContextMenuItemOpts} ContextMenuItemOpts */
-	/** @typedef {import("./ContextMenuManager.js").default} ContextMenuManager */
 	/**
-	 * @param {ContextMenuManager} manager
+	 * @param {import("./ContextMenuManager.js").default} manager
 	 * @param {ContextMenuOptions} opts
 	 */
 	constructor(manager, {
@@ -139,7 +147,18 @@ export default class ContextMenu{
 			if(itemSettings.submenu){
 				createdItem = this.addSubMenu(itemSettings);
 				createdItem.onCreateSubmenu(submenu => {
-					submenu.createStructure(itemSettings.submenu);
+					if (itemSettings.submenu instanceof Array) {
+						submenu.createStructure(itemSettings.submenu);
+					} else if (itemSettings.submenu instanceof Function) {
+						const result = itemSettings.submenu();
+						if (result instanceof Promise) {
+							result.then(submenuStructure => {
+								submenu.createStructure(submenuStructure);
+							});
+						} else {
+							submenu.createStructure(result);
+						}
+					}
 				});
 			}else{
 				createdItem = this.addItem(itemSettings);

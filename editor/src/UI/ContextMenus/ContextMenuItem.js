@@ -1,22 +1,9 @@
-/**
- * @typedef {Object} ContextMenuItemOpts
- * @property {string} [text=""] - The text to display in the item.
- * @property {function(): void} [onClick=null] - The function to call when the item is clicked.
- * @property {function(): void} [onHover=null] - The function to call when the item is hovered over.
- * @property {boolean} [disabled=false] - Whether the item should start disabled.
- * @property {boolean} [showRightArrow=false] - Whether to arrow on the right of the text should be shown.
- * @property {boolean} [horizontalLine=false] - When true, renders a line instead of the text.
- * @property {import("./ContextMenu.js").ContextMenuStructure} [submenu=null] - The submenu structure to show on hover.
- */
-
 export default class ContextMenuItem{
-
-	/** @typedef {import("./ContextMenu.js").default} ContextMenu */
 	/**
-	 * @param {ContextMenu} parentContextMenu
-	 * @param {ContextMenuItemOpts} opts
+	 * @param {import("./ContextMenu.js").default} containingContextMenu
+	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
 	 */
-	constructor(parentContextMenu, {
+	constructor(containingContextMenu, {
 		text = "",
 		onClick = null,
 		onHover = null,
@@ -24,7 +11,7 @@ export default class ContextMenuItem{
 		showRightArrow = false,
 		horizontalLine = false,
 	} = {}){
-		this.parentContextMenu = parentContextMenu;
+		this.containingContextMenu = containingContextMenu;
 		this.el = document.createElement("div");
 		this.el.classList.add("contextMenuItem");
 		this.el.classList.toggle("disabled", disabled || horizontalLine);
@@ -51,7 +38,7 @@ export default class ContextMenuItem{
 			for(const cb of this.onClickCbs){
 				cb();
 			}
-			this.parentContextMenu.onItemClicked();
+			this.containingContextMenu.onItemClicked();
 		});
 		this.el.addEventListener("mouseenter", () => {
 			if(this.disabled) return;
