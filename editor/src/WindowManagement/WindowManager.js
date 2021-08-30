@@ -9,7 +9,7 @@ export default class WindowManager{
 		this.rootWindow = null;
 		this.lastFocusedEditorWindow = null;
 
-		this.workspacexManager = new WorkspaceManager();
+		this.workspaceManager = new WorkspaceManager();
 
 		/** @type {Map<string, typeof ContentWindow>} */
 		this.registeredContentWindows = new Map();
@@ -30,21 +30,21 @@ export default class WindowManager{
 	}
 
 	async reloadCurrentWorkspace(){
-		this.loadWorkspaceId(await this.workspacexManager.getCurrentWorkspaceId());
+		this.loadWorkspaceId(await this.workspaceManager.getCurrentWorkspaceId());
 	}
 
 	/**
 	 * @param {string} workspaceId
 	 */
 	async loadWorkspaceId(workspaceId) {
-		await this.workspacexManager.setCurrentWorkspaceId(workspaceId);
-		const workspaceData = await this.workspacexManager.getWorkspace(workspaceId);
+		await this.workspaceManager.setCurrentWorkspaceId(workspaceId);
+		const workspaceData = await this.workspaceManager.getWorkspace(workspaceId);
 		this.loadWorkspace(workspaceData);
 	}
 
 	async saveWorkspace() {
 		const workspaceData = this.getCurrentWorkspaceData();
-		await this.workspacexManager.saveCurrentWorkspace(workspaceData);
+		await this.workspaceManager.saveCurrentWorkspace(workspaceData);
 	}
 
 	getCurrentWorkspaceData() {

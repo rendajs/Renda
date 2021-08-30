@@ -197,9 +197,9 @@ export default class EditorWindowTabs extends EditorWindow{
 					/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
 					const workspacesSubmenu = [];
 
-					const currentWorkspace = await editor.windowManager.workspacexManager.getCurrentWorkspaceId();
+					const currentWorkspace = await editor.windowManager.workspaceManager.getCurrentWorkspaceId();
 
-					for (const workspaceId of await editor.windowManager.workspacexManager.getWorkspacesList()) {
+					for (const workspaceId of await editor.windowManager.workspaceManager.getWorkspacesList()) {
 						workspacesSubmenu.push({
 							text: workspaceId,
 							reserveIconSpace: true,
@@ -209,6 +209,8 @@ export default class EditorWindowTabs extends EditorWindow{
 							},
 						});
 					}
+
+					let autoSaveValue = await editor.windowManager.workspaceManager.getAutoSaveValue();
 
 					workspacesSubmenu.push({
 						horizontalLine: true,
@@ -222,9 +224,17 @@ export default class EditorWindowTabs extends EditorWindow{
 							editor.windowManager.saveWorkspace();
 						}
 					},
-					// {
-					// 	text: `Autosave '${currentWorkspace}'`,
-					// },
+					{
+						text: `Autosave '${currentWorkspace}'`,
+						reserveIconSpace: true,
+						showCheckmark: autoSaveValue,
+						onClick: (e) => {
+							e.preventMenuClose();
+							autoSaveValue = !autoSaveValue;
+							e.item.showCheckmark = autoSaveValue;
+							editor.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
+						},
+					},
 					// {
 					// 	text: `Delete '${currentWorkspace}'`,
 					// }

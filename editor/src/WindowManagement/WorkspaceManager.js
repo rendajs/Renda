@@ -3,6 +3,7 @@ import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 /**
  * @typedef {Object} WorkspaceData
  * @property {WorkspaceDataWindow} rootWindow
+ * @property {boolean} [autosaveWorkspace=true]
  */
 
 /**
@@ -64,10 +65,29 @@ export default class WorkspaceManager {
 		return workspaceData;
 	}
 
+	/** @returns {Promise<WorkspaceData>} */
+	async getCurrentWorkspace() {
+		return await this.getWorkspace(await this.getCurrentWorkspaceId());
+	}
+
 	/**
 	 * @param {WorkspaceData} workspaceData
 	 */
 	async saveCurrentWorkspace(workspaceData) {
+		await this.indexedDb.set(await this.getCurrentWorkspaceId(), workspaceData, "workspaces");
+	}
+
+	async getAutoSaveValue() {
+		const data = await this.getCurrentWorkspace();
+		return data?.autosaveWorkspace ?? true;
+	}
+
+	/**
+	 * @param {boolean} value
+	 */
+	async setAutoSaveValue(value) {
+		const workspaceData = await this.getCurrentWorkspace();
+		workspaceData.autosaveWorkspace = value;
 		await this.indexedDb.set(await this.getCurrentWorkspaceId(), workspaceData, "workspaces");
 	}
 
