@@ -67,15 +67,20 @@ export default class EditorWindowTabs extends EditorWindow{
 		if (activate) {
 			this.setActiveTabIndex(index);
 		}
+		this.fireWorkspaceChangeCbs();
 		return contentWindow;
 	}
 
+	/**
+	 * @param {number} tabIndex
+	 */
 	closeTab(tabIndex) {
 		const contentWindow = this.tabs[tabIndex];
 		contentWindow.destructor();
 		this.tabs.splice(tabIndex, 1);
 		this.tabTypes.splice(tabIndex, 1);
 		this.updateTabSelector();
+		this.fireWorkspaceChangeCbs();
 	}
 
 	/**
@@ -138,6 +143,7 @@ export default class EditorWindowTabs extends EditorWindow{
 			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
 			this.tabs[i].setVisible(active);
 		}
+		this.fireWorkspaceChangeCbs();
 	}
 
 	setActiveContentWindow(contentWindow){

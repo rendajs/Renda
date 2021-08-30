@@ -9,6 +9,7 @@ export default class WindowManager{
 		this.rootWindow = null;
 		this.lastFocusedEditorWindow = null;
 
+		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
 
 		/** @type {Map<string, typeof ContentWindow>} */
@@ -53,6 +54,8 @@ export default class WindowManager{
 	}
 
 	loadWorkspace(workspace){
+		this.isLoadingWorkspace = true;
+
 		if(this.rootWindow){
 			this.rootWindow.destructor();
 		}
@@ -60,9 +63,16 @@ export default class WindowManager{
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.rootWindow.setRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
+		this.rootWindow.onWorkspaceChange(() => {
+			if (!this.isLoadingWorkspace) {
+				this.saveWorkspace();
+			}
+		});
 
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
+
+		this.isLoadingWorkspace = false;
 	}
 
 	parseWorkspaceWindow(workspaceWindow){

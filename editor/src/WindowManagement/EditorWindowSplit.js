@@ -34,11 +34,17 @@ export default class EditorWindowSplit extends EditorWindow{
 		this.el.appendChild(this.elB);
 	}
 
+	/**
+	 * @param {EditorWindow} windowA
+	 * @param {EditorWindow} windowB
+	 */
 	setWindows(windowA, windowB){
 		this.windowA = windowA;
 		this.windowB = windowB;
 		this.windowA.setParent(this);
 		this.windowB.setParent(this);
+		this.windowA.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
+		this.windowB.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
 	}
 
 	destructor(){
@@ -136,5 +142,6 @@ export default class EditorWindowSplit extends EditorWindow{
 		super.onResized();
 		if(this.windowA) this.windowA.onResized();
 		if(this.windowB) this.windowB.onResized();
+		this.fireWorkspaceChangeCbs();
 	}
 }

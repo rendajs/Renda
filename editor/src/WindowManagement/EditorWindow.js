@@ -12,6 +12,9 @@ export default class EditorWindow{
 		this.el.addEventListener("focusout", () => {
 			this.fireFocusedChange(false);
 		});
+
+		/** @type {Set<function() : void>} */
+		this.onWorkspaceChangeCbs = new Set();
 	}
 
 	destructor(){
@@ -19,6 +22,7 @@ export default class EditorWindow{
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
+		this.onWorkspaceChangeCbs.clear();
 	}
 
 	setRoot(){
@@ -55,4 +59,17 @@ export default class EditorWindow{
 	*getChildren(){}
 
 	onResized(){}
+
+	/**
+	 * @param {function() : void} cb
+	 */
+	onWorkspaceChange(cb) {
+		this.onWorkspaceChangeCbs.add(cb);
+	}
+
+	fireWorkspaceChangeCbs() {
+		for (const cb of this.onWorkspaceChangeCbs) {
+			cb();
+		}
+	}
 }
