@@ -250,7 +250,7 @@ export default class EditorWindowTabs extends EditorWindow{
 					},
 					{
 						text: `Delete '${currentWorkspace}'`,
-						disabled: workspaces.length <= 0,
+						disabled: workspaces.length <= 1,
 						onClick: () => {
 							editor.windowManager.workspaceManager.deleteCurrentWorkspace();
 						},
