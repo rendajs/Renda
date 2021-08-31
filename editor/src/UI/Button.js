@@ -44,6 +44,13 @@ export default class Button{
 		this.el.classList.toggle("disabled", disabled);
 	}
 
+	/**
+	 * @param {string} iconUrl
+	 */
+	setIcon(iconUrl) {
+		this.el.style.backgroundImage = `url(${iconUrl})`;
+	}
+
 	fireContextMenuCbs(e) {
 		for (const cb of this.onContextMenuCbs) {
 			cb(this, e);
