@@ -222,9 +222,15 @@ export default class EditorWindowTabs extends EditorWindow{
 					workspacesSubmenu.push({
 						horizontalLine: true,
 					},
-					// {
-					// 	text: "Add New Workspace",
-					// },
+					{
+						text: "Add New Workspace",
+						onClick: () => {
+							const name = prompt("Enter Workspace Name", `Copy of ${currentWorkspace}`);
+							if (name && !workspaces.includes(name)) {
+								editor.windowManager.workspaceManager.addNewWorkspace(name);
+							}
+						},
+					},
 					{
 						text: `Save '${currentWorkspace}'`,
 						onClick: () => {

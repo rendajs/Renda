@@ -98,7 +98,28 @@ export default class WorkspaceManager {
 	 * @param {WorkspaceData} workspaceData
 	 */
 	async saveCurrentWorkspace(workspaceData) {
-		await this.indexedDb.set(await this.getCurrentWorkspaceId(), workspaceData, "workspaces");
+		await this.saveWorkspace(await this.getCurrentWorkspaceId(), workspaceData);
+	}
+
+	/**
+	 * @param {string} workspaceId
+	 * @param {WorkspaceData} workspaceData
+	 */
+	async saveWorkspace(workspaceId, workspaceData) {
+		await this.indexedDb.set(workspaceId, workspaceData, "workspaces");
+	}
+
+	/**
+	 * @param {string} name
+	 */
+	async addNewWorkspace(name) {
+		const list = await this.getWorkspacesList();
+		list.push(name);
+		await this.setWorkspacesList(list);
+		const previousId = await this.getCurrentWorkspaceId();
+		const currentData = await this.getCurrentWorkspace();
+		await this.setCurrentWorkspaceId(name);
+		await this.saveWorkspace(previousId, currentData);
 	}
 
 	async deleteCurrentWorkspace() {
