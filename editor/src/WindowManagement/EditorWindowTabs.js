@@ -10,7 +10,9 @@ export default class EditorWindowTabs extends EditorWindow{
 
 		this.el.classList.add("editorWindowTabs");
 
+		/** @type {Array<string>} */
 		this.tabTypes = [];
+		/** @type {Array<import("./ContentWindows/ContentWindow.js").default>} */
 		this.tabs = [];
 		this.activeTabIndex = -1;
 
@@ -94,6 +96,11 @@ export default class EditorWindowTabs extends EditorWindow{
 		}
 	}
 
+	/**
+	 * @param {number} index
+	 * @param {typeof import("./ContentWindows/ContentWindow.js").default} constructor
+	 * @returns
+	 */
 	loadContentWindow(index, constructor){
 		const contentWindow = new constructor(this);
 		this.tabs[index] = contentWindow;
@@ -126,6 +133,11 @@ export default class EditorWindowTabs extends EditorWindow{
 
 		if (this.activeTabIndex >= this.tabs.length) {
 			this.setActiveTabIndex(this.tabs.length - 1);
+		}
+
+		for (let i = 0; i < this.tabs.length; i++) {
+			const contentWindowType = /** @type {typeof import("./ContentWindows/ContentWindow.js").default} */ (this.tabs[i].constructor);
+			this.tabsSelectorGroup.buttons[i].setIcon(contentWindowType.contentWindowUiIcon);
 		}
 	}
 

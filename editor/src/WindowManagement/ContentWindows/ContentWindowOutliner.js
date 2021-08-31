@@ -9,6 +9,7 @@ export default class ContentWindowOutliner extends ContentWindow{
 
 	static contentWindowTypeId = "outliner";
 	static contentWindowUiName = "Outliner";
+	static contentWindowUiIcon = "icons/contentWindowTabs/outliner.svg";
 
 	constructor(){
 		super(...arguments);

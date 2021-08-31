@@ -14,6 +14,11 @@ export default class ContentWindow{
 	 */
 	static contentWindowUiName = null;
 
+	/**
+	 * The icon that is visible in the tab selector.
+	 */
+	static contentWindowUiIcon = "icons/generic.svg";
+
 	constructor(parentEditorWindow){
 		this.parentEditorWindow = parentEditorWindow;
 
