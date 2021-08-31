@@ -11,6 +11,9 @@ export default class WindowManager{
 
 		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
+		this.workspaceManager.onCurrentWorkspaceIdChange(() => {
+			this.reloadCurrentWorkspace();
+		});
 
 		/** @type {Map<string, typeof ContentWindow>} */
 		this.registeredContentWindows = new Map();
@@ -31,15 +34,7 @@ export default class WindowManager{
 	}
 
 	async reloadCurrentWorkspace(){
-		this.loadWorkspaceId(await this.workspaceManager.getCurrentWorkspaceId());
-	}
-
-	/**
-	 * @param {string} workspaceId
-	 */
-	async loadWorkspaceId(workspaceId) {
-		await this.workspaceManager.setCurrentWorkspaceId(workspaceId);
-		const workspaceData = await this.workspaceManager.getWorkspace(workspaceId);
+		const workspaceData = await this.workspaceManager.getCurrentWorkspace();
 		this.loadWorkspace(workspaceData);
 	}
 

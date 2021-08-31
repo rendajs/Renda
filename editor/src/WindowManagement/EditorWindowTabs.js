@@ -205,13 +205,14 @@ export default class EditorWindowTabs extends EditorWindow{
 
 					const currentWorkspace = await editor.windowManager.workspaceManager.getCurrentWorkspaceId();
 
-					for (const workspaceId of await editor.windowManager.workspaceManager.getWorkspacesList()) {
+					const workspaces = await editor.windowManager.workspaceManager.getWorkspacesList()
+					for (const workspaceId of workspaces) {
 						workspacesSubmenu.push({
 							text: workspaceId,
 							reserveIconSpace: true,
 							showBullet: workspaceId == currentWorkspace,
 							onClick: () => {
-								editor.windowManager.loadWorkspaceId(workspaceId);
+								editor.windowManager.workspaceManager.setCurrentWorkspaceId(workspaceId);
 							},
 						});
 					}
@@ -241,9 +242,13 @@ export default class EditorWindowTabs extends EditorWindow{
 							editor.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
 						},
 					},
-					// {
-					// 	text: `Delete '${currentWorkspace}'`,
-					// }
+					{
+						text: `Delete '${currentWorkspace}'`,
+						disabled: workspaces.length <= 0,
+						onClick: () => {
+							editor.windowManager.workspaceManager.deleteCurrentWorkspace();
+						},
+					}
 					);
 
 					return workspacesSubmenu;

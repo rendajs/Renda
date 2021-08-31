@@ -32,6 +32,10 @@ import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 export default class WorkspaceManager {
 	constructor() {
 		this.indexedDb = new IndexedDbUtil("workspaces", ["workspaces", "workspaceSettings"]);
+
+		this.currentWorkSpaceIdCache = null;
+		/** @type {Set<function() : void>} */
+		this.onCurrentWorkspaceIdChangeCbs = new Set();
 	}
 
 	/** @returns {Promise<Array<string>>} */
@@ -41,18 +45,38 @@ export default class WorkspaceManager {
 		return list;
 	}
 
+	/**
+	 * @param {Array<string>} value
+	 */
+	async setWorkspacesList(value) {
+		await this.indexedDb.set("workspaces", value, "workspaceSettings");
+	}
+
 	/** @returns {Promise<string>} */
 	async getCurrentWorkspaceId() {
-		const id = await this.indexedDb.get("currentWorkspaceId", "workspaceSettings");
-		if (!id) return "Default";
-		return id;
+		if (this.currentWorkSpaceIdCache) return this.currentWorkSpaceIdCache;
+
+		this.currentWorkSpaceIdCache = await this.indexedDb.get("currentWorkspaceId", "workspaceSettings");
+		if (!this.currentWorkSpaceIdCache) this.currentWorkSpaceIdCache = "Default";
+		return this.currentWorkSpaceIdCache;
 	}
 
 	/**
 	 * @param {string} id
 	 */
 	async setCurrentWorkspaceId(id) {
+		this.currentWorkSpaceIdCache = id;
+		for (const cb of this.onCurrentWorkspaceIdChangeCbs) {
+			cb();
+		}
 		await this.indexedDb.set("currentWorkspaceId", id, "workspaceSettings");
+	}
+
+	/**
+	 * @param {function() : void} cb
+	 */
+	onCurrentWorkspaceIdChange(cb) {
+		this.onCurrentWorkspaceIdChangeCbs.add(cb);
 	}
 
 	/**
@@ -75,6 +99,17 @@ export default class WorkspaceManager {
 	 */
 	async saveCurrentWorkspace(workspaceData) {
 		await this.indexedDb.set(await this.getCurrentWorkspaceId(), workspaceData, "workspaces");
+	}
+
+	async deleteCurrentWorkspace() {
+		const list = await this.getWorkspacesList();
+		if (list.length <= 1) {
+			throw new Error("Cannot delete workspace when it's the only one");
+		}
+		const currentWorkspace = await this.getCurrentWorkspaceId();
+		const newList = list.filter(id => id != currentWorkspace);
+		await this.setWorkspacesList(newList);
+		await this.setCurrentWorkspaceId(newList[0]); //todo: update windowmanager workspace
 	}
 
 	async getAutoSaveValue() {
