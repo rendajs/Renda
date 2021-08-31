@@ -175,6 +175,16 @@ body, html{
 	background: var(--default-button-selected-color);
 }
 
+.buttonIcon {
+	width: 20px;
+	height: 20px;
+	background-repeat: no-repeat;
+	background-position: center;
+	display: inline-block;
+	vertical-align: middle;
+	margin-top: -2px;
+}
+
 .resetInput{
 	border: none;
 	outline: none;

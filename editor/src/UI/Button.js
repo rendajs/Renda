@@ -12,7 +12,17 @@ export default class Button{
 		this.boundClick = this.click.bind(this);
 		this.el.addEventListener("click", this.boundClick);
 		this.disabled = disabled;
+
+		this.iconEl = document.createElement("div");
+		this.iconEl.classList.add("buttonIcon");
+		this.el.appendChild(this.iconEl);
+
+		this.textEl = document.createElement("span");
+		this.textEl.classList.add("buttonText");
+		this.el.appendChild(this.textEl);
+
 		this.setText(text);
+		this.setIcon(icon);
 		this.setDisabled(disabled);
 
 		this.onContextMenuCbs = new Set();
@@ -31,8 +41,11 @@ export default class Button{
 		if(this.onClick) this.onClick();
 	}
 
+	/**
+	 * @param {string} text
+	 */
 	setText(text){
-		this.el.textContent = text;
+		this.textEl.textContent = text;
 	}
 
 	setSelectedHighlight(selected){
@@ -48,7 +61,15 @@ export default class Button{
 	 * @param {string} iconUrl
 	 */
 	setIcon(iconUrl) {
-		this.el.style.backgroundImage = `url(${iconUrl})`;
+		this.iconEl.style.backgroundImage = `url(${iconUrl})`;
+		this.iconEl.style.display = iconUrl ? null : "none";
+	}
+
+	/**
+	 * @param {number} size
+	 */
+	setIconSizeMultiplier(size = 1) {
+		this.iconEl.style.backgroundSize = `${size * 100}%`;
 	}
 
 	fireContextMenuCbs(e) {
