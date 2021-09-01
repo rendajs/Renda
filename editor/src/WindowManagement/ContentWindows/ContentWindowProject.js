@@ -9,6 +9,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 	static contentWindowTypeId = "project";
 	static contentWindowUiName = "Project Files";
+	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";
 
 	constructor(){
 		super(...arguments);

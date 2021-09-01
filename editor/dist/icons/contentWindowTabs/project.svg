@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <g style="fill: transparent; stroke: black; stroke-width: 20px;">
+    <path d="M 90 400 L 90 90 L 230 90 L 230 140 L 420 140 L 420 400 L 90 400 Z"/>
+    <line x1="90" y1="205" x2="420" y2="205"/>
+  </g>
+</svg>

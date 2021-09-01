@@ -6,6 +6,7 @@ export default class ContentWindowProperties extends ContentWindow{
 
 	static contentWindowTypeId = "properties";
 	static contentWindowUiName = "Properties";
+	static contentWindowUiIcon = "icons/contentWindowTabs/properties.svg";
 
 	constructor(){
 		super(...arguments);

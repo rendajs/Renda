@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <g style="fill: transparent; stroke: black; stroke-width: 20px;">
+    <path d="M 90 170 L 60 170 L 60 330 L 90 330"/>
+    <path d="M 200 170 L 440 170 L 440 330 L 200 330"/>
+    <path d="M 90 400 L 200 400 M 145 400 L 145 100 M 90 100 L 200 100"/>
+  </g>
+</svg>
