@@ -180,6 +180,10 @@ export default class WindowManager{
 		}
 	}
 
+	/**
+	 * @param {string} type
+	 * @returns {ContentWindow}
+	 */
 	focusOrCreateContentWindowType(type){
 		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
 		let foundContentWindow = null;

@@ -331,9 +331,11 @@ export default class DroppableGui{
 				}else if(this.projectAssetValue){
 					let assetLinksWindow;
 					if(this.projectAssetValue.isBuiltIn){
-						assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");
+						const contentWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");
+						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowBuiltInAssets.js").default} */ (contentWindow);
 					}else{
-						assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("project");
+						const contentWindow = editor.windowManager.focusOrCreateContentWindowType("project");
+						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowProject.js").default} */ (contentWindow);
 					}
 					assetLinksWindow.highlightPath(this.projectAssetValue.path);
 				}
@@ -366,6 +368,6 @@ export default class DroppableGui{
 				this.el.appendChild(document.createTextNode(" ("+this.visibleAssetName+")"));
 			}
 		}
-		this.el.draggable = (this.projectAssetValue && !this.projectAssetValueDeleted) || this.defaultAssetLink;
+		this.el.draggable = (this.projectAssetValue && !this.projectAssetValueDeleted) || !!this.defaultAssetLink;
 	}
 }
