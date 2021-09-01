@@ -167,6 +167,11 @@ export default class WindowManager{
 		}
 	}
 
+	/**
+	 * @template {ContentWindow} T
+	 * @param {new () => T} contentWindowConstructor
+	 * @returns {Generator<T>}
+	 */
 	*getContentWindowsByConstructor(contentWindowConstructor){
 		for(const w of this.allContentWindows()){
 			if(w instanceof contentWindowConstructor){
