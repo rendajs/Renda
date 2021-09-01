@@ -30,8 +30,8 @@ import editor from "../editorInstance.js";
 /**
  * @typedef {Object} TreeViewSelectionChangeEventType
  * @property {boolean} reset
- * @property {Array<TreeViewItem>} added
- * @property {Array<TreeViewItem>} removed
+ * @property {Array<TreeView>} added
+ * @property {Array<TreeView>} removed
  *
  * @typedef {TreeViewEvent & TreeViewSelectionChangeEventType} TreeViewSelectionChangeEvent
  */
@@ -914,7 +914,7 @@ export default class TreeView{
 
 	/**
 	 * @param {string} eventType - The identifier of the event type.
-	 * @param {function(TreeViewEvent)} cb - The callback to invoke when the event occurs.
+	 * @param {function(TreeViewEvent) : void} cb - The callback to invoke when the event occurs.
 	 */
 	addEventListener(eventType, cb){
 		let cbs = this.getEventCbs(eventType);
@@ -924,7 +924,7 @@ export default class TreeView{
 
 	/**
 	 * @param {string} eventType - The identifier of the event type.
-	 * @param {function(TreeViewEvent)} cb - The callback to remove.
+	 * @param {function(TreeViewEvent) : void} cb - The callback to remove.
 	 */
 	removeEventListener(eventType, cb){
 		let cbs = this.getEventCbs(eventType);

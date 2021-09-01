@@ -110,7 +110,8 @@ export default class NumericGui{
 	}
 
 	get value(){
-		return this.getValue();
+		const castValue = /** @type {number} */ (this.getValue());
+		return castValue;
 	}
 
 	/**

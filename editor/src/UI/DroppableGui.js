@@ -195,7 +195,7 @@ export default class DroppableGui{
 
 	setDisabled(disabled){
 		this.disabled = disabled;
-		this.el.ariaDisabled = disabled;
+		this.el.setAttribute("aria-disabled", disabled);
 		if(disabled){
 			this.el.removeAttribute("tabIndex");
 		}else{

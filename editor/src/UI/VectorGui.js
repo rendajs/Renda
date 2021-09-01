@@ -111,7 +111,8 @@ export default class VectorGui{
 	}
 
 	get value(){
-		return this.getValue();
+		const castValue = /** @type {Vec3} */ (this.getValue());
+		return castValue;
 	}
 
 	fireValueChange(){
