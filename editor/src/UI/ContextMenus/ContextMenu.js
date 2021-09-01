@@ -26,6 +26,7 @@ import Button from "../Button.js";
  * @property {boolean} [reserveIconSpace=false] - If true, all items in the submenu will move to the right in case this item gets a checkmark or bullet.
  * @property {boolean} [showCheckmark=false] - Whether to show a checkmark in front of to the item.
  * @property {boolean} [showBullet=false] - Whether to show a bullet in front of to the item.
+ * @property {string} [icon=null] - The icon to show in front of the item.
  * @property {boolean} [horizontalLine=false] - When true, renders a line instead of the text.
  * @property {ContextMenuStructure | (function(): Promise<ContextMenuStructure>) | function(): ContextMenuStructure} [submenu=null] - The submenu structure to show on hover.
  */
@@ -187,7 +188,7 @@ export default class ContextMenu{
 		let item = new ContextMenuItem(this, opts);
 		this.addedItems.push(item);
 		this.el.appendChild(item.el);
-		this.updateHasResevedIconSpaceItem();
+		this.updateHasReservedIconSpaceItem();
 		return item;
 	}
 
@@ -227,7 +228,7 @@ export default class ContextMenu{
 		this.destructor();
 	}
 
-	updateHasResevedIconSpaceItem() {
+	updateHasReservedIconSpaceItem() {
 		this.hasResevedIconSpaceItem = this.addedItems.some(item => item.reserveIconSpace);
 		for (const item of this.addedItems) {
 			item.updateIconStyle();

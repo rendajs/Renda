@@ -13,6 +13,7 @@ export default class ContextMenuItem{
 		reserveIconSpace = false,
 		showCheckmark = false,
 		showBullet = false,
+		icon = null,
 	} = {}){
 		this.containingContextMenu = containingContextMenu;
 		this.el = document.createElement("div");
@@ -35,6 +36,7 @@ export default class ContextMenuItem{
 		this._reserveIconSpace = reserveIconSpace;
 		this._showCheckmark = showCheckmark;
 		this._showBullet = showBullet;
+		this._icon = icon;
 		this.disabled = disabled;
 		this.updateIconStyle();
 
@@ -84,7 +86,7 @@ export default class ContextMenuItem{
 
 	set reserveIconSpace(value) {
 		this._reserveIconSpace = value;
-		this.containingContextMenu.updateHasResevedIconSpaceItem();
+		this.containingContextMenu.updateHasReservedIconSpaceItem();
 	}
 
 	get showCheckmark() {
@@ -105,17 +107,28 @@ export default class ContextMenuItem{
 		this.updateIconStyle();
 	}
 
+	get icon() {
+		return this._icon;
+	}
+
+	set icon(value) {
+		this._icon = value;
+		this.updateIconStyle();
+	}
+
 	updateIconStyle() {
-		const needsSpace = this.containingContextMenu.hasResevedIconSpaceItem || this.showCheckmark || this.showBullet;
+		const needsSpace = this.containingContextMenu.hasResevedIconSpaceItem || this.showCheckmark || this.showBullet || this.icon;
 		this.iconEl.classList.toggle("hidden", !needsSpace);
 		let iconUrl = null;
 		if (this.showCheckmark) {
-			iconUrl = "contextMenuCheck.svg";
+			iconUrl = "icons/contextMenuCheck.svg";
 		} else if (this.showBullet) {
-			iconUrl = "contextMenuBullet.svg";
+			iconUrl = "icons/contextMenuBullet.svg";
+		} else if (this.icon) {
+			iconUrl = this.icon;
 		}
 		if (iconUrl) {
-			this.iconEl.style.backgroundImage = `url(icons/${iconUrl})`;
+			this.iconEl.style.backgroundImage = `url(${iconUrl})`;
 		} else {
 			this.iconEl.style.backgroundImage = "";
 		}
