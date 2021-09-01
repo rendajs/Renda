@@ -180,13 +180,15 @@ export default class EditorWindowTabs extends EditorWindow{
 		const addTabSubmenu = [];
 		for (const [id, contentWindow] of editor.windowManager.registeredContentWindows) {
 			let text = "<ContentWindow>";
+			let icon = null;
 			if (contentWindow.contentWindowUiName) {
 				text = contentWindow.contentWindowUiName;
+				icon = contentWindow.contentWindowUiIcon;
 			} else if (contentWindow.contentWindowTypeId) {
 				text = "<" + contentWindow.contentWindowTypeId + ">";
 			}
 			addTabSubmenu.push({
-				text,
+				text, icon,
 				onClick: () => {
 					this.addTabType(id, true);
 				},
