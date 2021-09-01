@@ -10,6 +10,7 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 
 	static contentWindowTypeId = "entityEditor";
 	static contentWindowUiName = "Entity Editor";
+	static contentWindowUiIcon = "icons/contentWindowTabs/entityEditor.svg";
 
 	constructor(){
 		super(...arguments);
