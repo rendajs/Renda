@@ -11,6 +11,7 @@ import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
+import ColorizerFilterManager from "./Util/ColorizerFilters/ColorizerFilterManager.js"
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import DevSocketManager from "./Managers/DevSocketManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
@@ -35,6 +36,7 @@ export default class Editor{
 		this.scriptBuilder = new ScriptBuilder();
 		this.assetBundler = new AssetBundler();
 		this.dragManager = new DragManager();
+		this.colorizerFilterManager = new ColorizerFilterManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
 
 		if(IS_DEV_BUILD){
