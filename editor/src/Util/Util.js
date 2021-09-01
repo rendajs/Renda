@@ -84,6 +84,13 @@ export function handleDuplicateName(existingNames, prefix, suffix="", numberPref
 	}
 }
 
+/**
+ * @param {Object} jsonObj
+ * @param {Object} opts
+ * @param {"fileStorage" | "display"} [opts.purpose = "fileStorage"]
+ * @param {number} [opts.maxArrayStringItemLength = 10]
+ * @returns {string}
+ */
 export function toFormattedJsonString(jsonObj, {
 	purpose = "fileStorage",
 	maxArrayStringItemLength = 10, //use -1 to always put string arrays on a single line

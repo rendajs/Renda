@@ -1,6 +1,14 @@
 import TreeView from "../TreeView.js";
 import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
 
+/**
+ * `"default"` uses the default behaviour of PropertiesTreeViewEntries
+ * `"fileStorage"` optimizes for data stored as json in project asset files
+ * `"binaryComposer"` optimizes for data passed to BinaryComposer.objectToBinary
+ * `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components)
+ * @typedef {"default" | "fileStorage" | "binaryComposer" | "script"} SerializableStructureOutputPurpose
+ */
+
 export default class PropertiesTreeView extends TreeView{
 	constructor({
 		rowVisible = false,
@@ -70,11 +78,12 @@ export default class PropertiesTreeView extends TreeView{
 		}
 	}
 
-	//guiOpts has the following possible values:
-	// - "default" uses the default behaviour of PropertiesTreeViewEntries
-	// - "fileStorage" optimizes for data stored as json in project asset files
-	// - "binaryComposer" optimizes for data passed to BinaryComposer.objectToBinary
-	// - "script" optimizes for how in game scripts are most likely to access the data (e.g. Entity Components)
+	/**
+	 * @param {Object} guiOpts
+	 * @param {SerializableStructureOutputPurpose} [guiOpts.purpose = "default"]
+	 * @param {boolean} [guiOpts.stripDefaultValues = false]
+	 * @returns
+	 */
 	getSerializableStructureValues(structure, guiOpts){
 		let {
 			purpose = "default",

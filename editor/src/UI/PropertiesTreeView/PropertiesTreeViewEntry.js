@@ -157,8 +157,14 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		}
 	}
 
-	//if this, returns false, the value be omitted from getSerializableStructureValues
-	//useful for entries such as buttons, labels, etc.
+
+	/**
+	 * Useful for entries such as buttons, labels, etc.
+	 * @param {Object} guiOpts
+	 * @param {import("./PropertiesTreeView.js").SerializableStructureOutputPurpose} [guiOpts.purpose = "default"]
+	 * @param {boolean} [guiOpts.stripDefaultValues = false]
+	 * @returns {boolean} If `true`, the value will be omitted from getSerializableStructureValues.
+	 */
 	omitFromSerializableStuctureValues(guiOpts){
 		if(this.gui instanceof Button){
 			return true;

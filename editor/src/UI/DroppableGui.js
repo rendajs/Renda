@@ -100,6 +100,12 @@ export default class DroppableGui{
 		this.setValue(value);
 	}
 
+	/**
+	 * @param {Object} opts
+	 * @param {boolean} [opts.resolveDefaultAssetLinks = false]
+	 * @param {boolean} [opts.returnLiveAsset = false]
+	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose = "default"]
+	 */
 	getValue({
 		resolveDefaultAssetLinks = false,
 		returnLiveAsset = false,

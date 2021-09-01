@@ -33,6 +33,7 @@ export default class NumericGui{
 		this.suffix = suffix;
 		this.prefix = prefix;
 		this.disabled = disabled;
+		/** @type {Map<number, string>} */
 		this.mappedStringValues = new Map(mappedStringValues);
 		this.inverseMappedStringValues = new Map();
 		for(const [val, str] of mappedStringValues){
@@ -72,7 +73,7 @@ export default class NumericGui{
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
 		this.el.removeEventListener("wheel", this.boundOnWheel);
 		this.el.removeEventListener("input", this.boundOnInput);
-		this.el.removeEventListener("keydown", this.keydown);
+		this.el.removeEventListener("keydown", this.boundOnKeyDown);
 		this.removeEventListeners();
 		this.el = null;
 		this.boundOnFocus = null;
@@ -112,6 +113,12 @@ export default class NumericGui{
 		return this.getValue();
 	}
 
+	/**
+	 * @param {Object} opts
+	 * @param {boolean} [opts.mapNumericValuesToStrings = false] - If true, will return a string if the value is one of `mappedStringValues`
+	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose = "default"]
+	 * @returns {string | number}
+	 */
 	getValue({
 		mapNumericValuesToStrings = false,
 		purpose = "default",

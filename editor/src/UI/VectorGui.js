@@ -86,6 +86,11 @@ export default class VectorGui{
 		this.onValueChangeCbs.push(cb);
 	}
 
+	/**
+	 * @param {Object} opts
+	 * @param {boolean} [opts.getAsArray = false]
+	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose = "default"]
+	 */
 	getValue({
 		getAsArray = false,
 		purpose = "default",

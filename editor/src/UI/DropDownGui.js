@@ -54,7 +54,7 @@ export default class DropDownGui{
 		}
 		const index = this.items.indexOf(value);
 		if(index >= 0){
-			this.el.value = index;
+			this.el.value = "" + index;
 		}else{
 			this.el.value = null;
 		}
@@ -64,6 +64,11 @@ export default class DropDownGui{
 		return this.getValue();
 	}
 
+	/**
+	 * @param {Object} opts
+	 * @param {boolean} [opts.getAsString = false]
+	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose = "default"]
+	 */
 	getValue({
 		getAsString = false,
 		purpose = "default",
