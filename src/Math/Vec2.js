@@ -1,4 +1,11 @@
+import Vec3 from "./Vec3.js";
+import Vec4 from "./Vec4.js";
+
 export default class Vec2{
+	/**
+	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
+	 * @param {number} y
+	 */
 	constructor(x=0, y=0){
 		this.onChangeCbs = new Set();
 		this._x = 0;
@@ -22,8 +29,12 @@ export default class Vec2{
 		this.fireOnChange();
 	}
 
+	/**
+	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
+	 * @param {number} y
+	 */
 	set(x=0, y=0){
-		if(x instanceof Vec2){
+		if(x instanceof Vec2 || x instanceof Vec3 || x instanceof Vec4){
 			let vector = x;
 			x = vector.x;
 			y = vector.y;

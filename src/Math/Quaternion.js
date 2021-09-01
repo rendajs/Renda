@@ -1,6 +1,12 @@
 import Vec3 from "./Vec3.js";
 
 export default class Quaternion{
+	/**
+	 * @param {number | Quaternion} x
+	 * @param {number} y
+	 * @param {number} z
+	 * @param {number} w
+	 */
 	constructor(x=0, y=0, z=0, w=1){
 		this.onChangeCbs = [];
 		this._x = 0;
@@ -10,6 +16,12 @@ export default class Quaternion{
 		this.set(x,y,z,w)
 	}
 
+	/**
+	 * @param {number | Quaternion} x
+	 * @param {number} y
+	 * @param {number} z
+	 * @param {number} w
+	 */
 	set(x=0, y=0, z=0, w=1){
 		if(x instanceof Quaternion){
 			let q = x;

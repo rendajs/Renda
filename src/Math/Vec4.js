@@ -1,7 +1,14 @@
+import Vec2 from "./Vec2.js";
 import Vec3 from "./Vec3.js";
 import Mat4 from "./Mat4.js";
 
 export default class Vec4{
+	/**
+	 * @param {number | Vec3 | Vec4 | number[]} x
+	 * @param {number} y
+	 * @param {number} z
+	 * @param {number} w
+	 */
 	constructor(x=0, y=0, z=0, w=1){
 		this.onChangeCbs = new Set();
 		this._x = 0;
@@ -41,6 +48,12 @@ export default class Vec4{
 		this.fireOnChange();
 	}
 
+	/**
+	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
+	 * @param {number} y
+	 * @param {number} z
+	 * @param {number} w
+	 */
 	set(x=0, y=0, z=0, w=0){
 		if(x instanceof Vec4){
 			let vector = x;
@@ -52,6 +65,12 @@ export default class Vec4{
 			x = vector.x;
 			y = vector.y;
 			z = vector.z;
+			w = 1;
+		}else if(x instanceof Vec2){
+			let vector = x;
+			x = vector.x;
+			y = vector.y;
+			z = 0;
 			w = 1;
 		}else if(Array.isArray(x)){
 			let vector = x;
