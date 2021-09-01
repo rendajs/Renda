@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <g style="stroke: black; stroke-width: 20px; fill: transparent;">
+    <path d="M 70 170 L 250 100 L 430 170 Z"/>
+    <path d="M 130 170 L 130 350 M 210 170 L 210 350 M 290 170 L 290 350 M 370 170 L 370 350" style=""/>
+    <line x1="70" y1="400" x2="430" y2="400"/>
+  </g>
+</svg>
