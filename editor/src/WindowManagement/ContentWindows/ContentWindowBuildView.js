@@ -8,6 +8,7 @@ export default class ContentWindowBuildView extends ContentWindow{
 
 	static contentWindowTypeId = "buildView";
 	static contentWindowUiName = "Build";
+	static contentWindowUiIcon = "icons/contentWindowTabs/buildView.svg";
 
 	constructor(){
 		super(...arguments);
