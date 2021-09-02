@@ -1,4 +1,9 @@
 export default class TextGui{
+	/**
+	 * @param {Object} opts
+	 * @param {string} [opts.placeholder = ""]
+	 * @param {boolean} [opts.disabled = false]
+	 */
 	constructor({
 		placeholder = "",
 		disabled = false,

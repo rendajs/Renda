@@ -79,7 +79,7 @@ export default class PropertiesTreeView extends TreeView{
 	}
 
 	/**
-	 * @param {Object} guiOpts
+	 * @param {Object} [guiOpts]
 	 * @param {SerializableStructureOutputPurpose} [guiOpts.purpose = "default"]
 	 * @param {boolean} [guiOpts.stripDefaultValues = false]
 	 * @returns

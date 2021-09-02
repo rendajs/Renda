@@ -14,7 +14,25 @@ import ProjectAsset from "../../Assets/ProjectAsset.js";
 import {Vec3, Mesh, Material} from "../../../../src/index.js";
 import {prettifyVariableName} from "../../Util/Util.js";
 
-export default class PropertiesTreeViewEntry extends TreeView{
+/**
+ * @typedef {Object} PropertiesTreeViewEntryGuiOptions
+ * @property {string} [label = ""] - The label to show in front of the GUI element.
+ * @property {boolean} [smallLabel = false] - Set to true if you want the value GUI element to take up a bigger portion of the line.
+ */
+
+/**
+ * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset} PropertiesTreeViewEntryType
+ */
+
+export default class PropertiesTreeViewEntry extends TreeView {
+	/**
+	 * @param {Object} opts
+	 * @param {PropertiesTreeViewEntryType} [opts.type]
+	 * @param {*} [opts.defaultValue = undefined]
+	 * @param {PropertiesTreeViewEntryGuiOptions} [opts.guiOpts = {}]
+	 * @param {Object} [opts.arrayOpts = {}]
+	 * @param {Object} [opts.callbacksContext = {}]
+	 */
 	constructor({
 		type = Number,
 		defaultValue = undefined,
@@ -45,10 +63,10 @@ export default class PropertiesTreeViewEntry extends TreeView{
 		//todo: also allow type to be a string
 
 		this.type = type;
-		if(type == String){
+		if(type == String) {
 			this.gui = new TextGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == Vec3){
+		}else  if(type === Vec3){
 			guiOpts.size = 3;
 			this.gui = new VectorGui({
 				defaultValue,

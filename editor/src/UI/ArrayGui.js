@@ -2,7 +2,20 @@ import PropertiesTreeView from "./PropertiesTreeView/PropertiesTreeView.js";
 import ButtonGroup from "../UI/ButtonGroup.js";
 import Button from "./Button.js";
 
+/**
+ * @typedef {Object} ArrayGuiArrayOptions
+ * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} [type = typeof Number]
+ * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryGuiOptions} [guiOpts]
+ */
+
 export default class ArrayGui{
+	/**
+	 *
+	 * @param {Object} opts
+	 * @param {any[]} [opts.value = []]
+	 * @param {ArrayGuiArrayOptions} [opts.arrayOpts = {}]
+	 * @param {boolean} [opts.disabled = false]
+	 */
 	constructor({
 		value = [],
 		arrayOpts = {},
