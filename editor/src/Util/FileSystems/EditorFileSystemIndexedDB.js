@@ -2,6 +2,19 @@ import EditorFileSystem from "./EditorFileSystem.js";
 import IndexedDbUtil from "../IndexedDbUtil.js";
 import md5 from "../../../libs/md5.js";
 
+/**
+ * @typedef {string} EditorFileSystemIndexedDbPointer
+ */
+
+/**
+ * @typedef {Object} EditorFileSystemIndexedDbStoredObject
+ * @property {boolean} [isFile = false]
+ * @property {boolean} [isDir = false]
+ * @property {string} fileName
+ * @property {File} [file]
+ * @property {EditorFileSystemIndexedDbPointer[]} [files]
+ */
+
 export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	constructor(name){
 		super();
@@ -37,20 +50,37 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		await new Promise(r => this.onRootCreateCbs.push(r));
 	}
 
+	/**
+	 * @param {boolean} waitForRootCreate
+	 * @returns {Promise<EditorFileSystemIndexedDbPointer>}
+	 */
 	async getRootPointer(waitForRootCreate = true){
 		if(waitForRootCreate) await this.waitForRootCreate();
 		return await this.db.get("rootPointer", "system");
 	}
 
-	async setRootPointer(value){
-		await this.db.set("rootPointer", value, "system");
+	/**
+	 * @param {EditorFileSystemIndexedDbPointer} pointer
+	 * @returns {Promise<void>}
+	 */
+	async setRootPointer(pointer){
+		await this.db.set("rootPointer", pointer, "system");
 	}
 
+	/**
+	 * @param {EditorFileSystemIndexedDbPointer} pointer
+	 * @returns {Promise<EditorFileSystemIndexedDbStoredObject>}
+	 */
 	async getObject(pointer){
 		if(!pointer) throw new Error("pointer not specified");
 		return await this.db.get(pointer);
 	}
 
+	/**
+	 *
+	 * @param {string[]} path
+	 * @returns {Promise<{pointer: EditorFileSystemIndexedDbPointer, obj: EditorFileSystemIndexedDbStoredObject}>}
+	 */
 	async getObjectFromPath(path = []){
 		let pointer = await this.getRootPointer();
 		let obj = await this.getObject(pointer);
@@ -73,6 +103,10 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		return {pointer, obj};
 	}
 
+	/**
+	 * @param {EditorFileSystemIndexedDbStoredObject} obj
+	 * @returns {Promise<EditorFileSystemIndexedDbPointer>}
+	 */
 	async createObject(obj){
 		let textEncoder = new TextEncoder();
 		let totalBufferLength = 0;
@@ -105,7 +139,8 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 				parsedBytes += buffer.byteLength;
 			}
 		}else if(obj.isFile){
-			contentBuffer = await obj.file.arrayBuffer();
+			const arrayBuffer = await obj.file.arrayBuffer();
+			contentBuffer = new Uint8Array(arrayBuffer);
 		}
 		totalBufferLength += contentBuffer.byteLength;
 
@@ -127,7 +162,15 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		return pointer;
 	}
 
-	async createDir(path = []){
+	async createDir(path = []) {
+		await this.createDirInternal(path);
+	}
+
+	/**
+	 * @param {string[]} path
+	 * @returns {Promise<{obj: EditorFileSystemIndexedDbStoredObject, pointer: EditorFileSystemIndexedDbPointer}[]>}
+	 */
+	async createDirInternal(path = []){
 		let travelledData = await this.findDeepestExisting(path);
 		let recursionDepth = travelledData.length - 1;
 		if(recursionDepth == path.length) return travelledData;
@@ -156,6 +199,10 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		return [...travelledData, ...extraTravelledData];
 	}
 
+	/**
+	 * @param {string[]} path
+	 * @returns {Promise<{obj: EditorFileSystemIndexedDbStoredObject, pointer: EditorFileSystemIndexedDbPointer}[]>}
+	 */
 	async findDeepestExisting(path = []){
 		let currentPointer = await this.getRootPointer();
 		let currentObj = await this.getObject(currentPointer);
@@ -258,7 +305,7 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 
 		//add new pointer to new parent
 		let newParentPath = toPath.slice(0, toPath.length -1);
-		let newParentTravelledData = await this.createDir(newParentPath);
+		let newParentTravelledData = await this.createDirInternal(newParentPath);
 		let newParentObj = newParentTravelledData[newParentTravelledData.length -1];
 		newParentObj.obj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
@@ -275,7 +322,7 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		}
 		file = new File([file], fileName, {type, lastModified});
 		let newParentPath = path.slice(0, path.length -1);
-		let newParentTravelledData = await this.createDir(newParentPath);
+		let newParentTravelledData = await this.createDirInternal(newParentPath);
 		let newPointer = await this.createObject({
 			isFile: true,
 			file,
@@ -287,10 +334,10 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	}
 
 	async readFile(path = []){
-		let obj = await this.getObjectFromPath(path);
-		if(!obj.obj.isFile){
+		let {obj} = await this.getObjectFromPath(path);
+		if(!obj.isFile){
 			throw new Error(obj.fileName+" is not a file");
 		}
-		return obj.obj.file;
+		return obj.file;
 	}
 }

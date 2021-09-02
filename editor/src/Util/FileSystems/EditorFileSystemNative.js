@@ -25,7 +25,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		writable = true,
 		prompt = false,
 	} = {}){
-		let handle = this.handle;
+		let handle = /** @type {FileSystemHandle} */ (this.handle);
 		for(let i=0; i<=path.length; i++){
 			const hasPermission = await this.verifyHandlePermission(handle, {writable, prompt, error: false});
 			if(!hasPermission) return false;
@@ -34,13 +34,14 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 
 			const dirName = path[i];
 			const isLast = i == path.length - 1;
+			const dirHandle = /** @type {FileSystemDirectoryHandle} */ (handle);
 			try{
-				handle = await handle.getDirectoryHandle(dirName);
+				handle = await dirHandle.getDirectoryHandle(dirName);
 			}catch(e){
 				if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
 					if(isLast){
 						try{
-							handle = await handle.getFileHandle(dirName);
+							handle = await dirHandle.getFileHandle(dirName);
 						}catch(e){
 							if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
 								return true;
@@ -72,9 +73,8 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		writable = true,
 		error = true,
 	} = {}){
-		const opts = {
-			mode: writable ? "readwrite" : "read",
-		};
+		const mode = /** @type {"read" | "readwrite"} */ (writable ? "readwrite" : "read");
+		const opts = {mode};
 		if(await handle.queryPermission(opts) == "granted") return true;
 		if(prompt){
 			if(await handle.requestPermission(opts) == "granted") return true;
@@ -160,7 +160,7 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	}
 
 	async createDir(path = []){
-		return await this.getDirHandle(path, {create: true});
+		await this.getDirHandle(path, {create: true});
 	}
 
 	async move(fromPath = [], toPath = []){

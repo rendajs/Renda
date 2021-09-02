@@ -18,6 +18,7 @@ export default class EditorFileSystem{
 
 	/**
 	 * @param {Array<String>} path
+	 * @returns {Promise<void>}
 	 */
 	async createDir(path = []){}
 
