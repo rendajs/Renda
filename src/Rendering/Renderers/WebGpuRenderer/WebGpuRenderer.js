@@ -288,6 +288,7 @@ export default class WebGpuRenderer extends Renderer{
 				}
 				const indexBufferData = meshData.getIndexedBufferGpuCommands();
 				if(indexBufferData){
+					/** @type {GPUIndexFormat} */
 					let indexFormat = null;
 					if(mesh.indexFormat == Mesh.IndexFormat.UINT_16){
 						indexFormat = "uint16";

@@ -257,7 +257,7 @@ export default class ContentWindowProject extends ContentWindow{
 
 	/**
 	 * @param {import("../../UI/TreeView").default} treeView
-	 * @param {boolean removeLast
+	 * @param {boolean} [removeLast = false]
 	 * @returns {Array<string>}
 	 */
 	pathFromTreeView(treeView, removeLast = false){

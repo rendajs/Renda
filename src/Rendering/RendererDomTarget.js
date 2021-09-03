@@ -1,5 +1,5 @@
 export default class RendererDomTarget{
-	constructor(renderer){
+	constructor(renderer, ...args){
 		this.renderer = renderer;
 		this.width = 0;
 		this.height = 0;

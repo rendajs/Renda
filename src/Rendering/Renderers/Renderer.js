@@ -14,6 +14,7 @@ export default class Renderer{
 	render(domTarget, camera){}
 
 	createDomTarget(...args){
-		return new this.constructor.domTargetConstructor(this, ...args);
+		const castConstructor = /** @type {typeof Renderer} */ (this.constructor);
+		return new castConstructor.domTargetConstructor(this, ...args);
 	}
 }

@@ -159,6 +159,7 @@ export default class Vec3{
 		this._y = x * mat4.values[0][1] + y * mat4.values[1][1] + z * mat4.values[2][1] + mat4.values[3][1];
 		this._z = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + mat4.values[3][2];
 		this.fireOnChange();
+		return this;
 	}
 
 	divide(vectorOrScalar){
