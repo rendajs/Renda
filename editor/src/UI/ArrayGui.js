@@ -5,7 +5,7 @@ import Button from "./Button.js";
 /**
  * @typedef {Object} ArrayGuiArrayOptions
  * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} [type = typeof Number]
- * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryGuiOptions} [guiOpts]
+ * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} [guiOpts]
  */
 
 export default class ArrayGui{

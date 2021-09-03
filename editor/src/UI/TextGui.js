@@ -1,8 +1,13 @@
+/**
+ * @typedef {Object} TextGuiOptionsType
+ * @property {string} [placeholder = ""]
+ *
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & TextGuiOptionsType} TextGuiOptions
+ */
+
 export default class TextGui{
 	/**
-	 * @param {Object} opts
-	 * @param {string} [opts.placeholder = ""]
-	 * @param {boolean} [opts.disabled = false]
+	 * @param {TextGuiOptions} opts
 	 */
 	constructor({
 		placeholder = "",

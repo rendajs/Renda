@@ -1,3 +1,13 @@
+/**
+ * @typedef {Object} ButtonGuiOptionsType
+ * @property {string} [text = ""]
+ * @property {string} [icon = ""]
+ * @property {boolean} [hasDownArrow = false]
+ * @property {function(Object) : void} [onClick = null]
+ *
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ButtonGuiOptionsType} ButtonGuiOptions
+ */
+
 export default class Button{
 	constructor({
 		text = null,

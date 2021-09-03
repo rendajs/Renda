@@ -15,9 +15,10 @@ import {Vec3, Mesh, Material} from "../../../../src/index.js";
 import {prettifyVariableName} from "../../Util/Util.js";
 
 /**
- * @typedef {Object} PropertiesTreeViewEntryGuiOptions
+ * @typedef {Object} GuiOptions
  * @property {string} [label = ""] - The label to show in front of the GUI element.
  * @property {boolean} [smallLabel = false] - Set to true if you want the value GUI element to take up a bigger portion of the line.
+ * @property {boolean} [disabled = false]
  */
 
 /**
@@ -32,7 +33,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
  * @property {*} [value]
  * @property {function(function() : void) : void} [onValueChange]
  * @property {function() : void} [destructor]
- * @property {function(*) : void} [setValue]
+ * @property {function} [setValue]
  */
 
 /**
@@ -48,7 +49,7 @@ export default class PropertiesTreeViewEntry extends TreeView {
 	 * @param {Object} opts
 	 * @param {PropertiesTreeViewEntryType} [opts.type]
 	 * @param {*} [opts.defaultValue = undefined]
-	 * @param {PropertiesTreeViewEntryGuiOptions} [opts.guiOpts = {}]
+	 * @param {GuiOptions} [opts.guiOpts = {}]
 	 * @param {Object} [opts.arrayOpts = {}]
 	 * @param {Object} [opts.callbacksContext = {}]
 	 */
@@ -86,9 +87,9 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			this.gui = new TextGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
 		}else  if(type === Vec3){
-			guiOpts.size = 3;
 			this.gui = new VectorGui({
 				defaultValue,
+				size: 3,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
@@ -131,7 +132,8 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			this.gui = new Button({
 				...guiOpts,
 				onClick: () => {
-					if(guiOpts.onClick) guiOpts.onClick(callbacksContext);
+					const castGuiOpts = /** @type {import("../Button.js").ButtonGuiOptions} */ (guiOpts);
+					if(castGuiOpts.onClick) castGuiOpts.onClick(callbacksContext);
 				},
 			});
 			this.valueEl.appendChild(this.gui.el);
