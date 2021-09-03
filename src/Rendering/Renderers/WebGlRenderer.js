@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import Mesh from "../../Core/Mesh.js";
 import MeshAttributeBuffer from "../../Core/MeshAttributeBuffer.js";
 import Mat4 from "../../Math/Mat4.js";
