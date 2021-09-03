@@ -18,38 +18,51 @@ export default class ContentWindowProject extends ContentWindow{
 			text: "+",
 			onClick: () => {
 				const menu = editor.contextMenuManager.createContextMenu([
-					{text: "New Folder", cb: () => {
-						this.createNewDir();
-					}},
-					{text: "Materials", submenu: [
-						{text: "New Material", cb: () => {
-							this.createAsset("JJ:material");
-						}},
-						{text: "New Material Map", cb: () => {
-							this.createAsset("JJ:materialMap");
-						}},
-						{text: "New WebGPU Pipeline Config", cb: () => {
-							this.createAsset("JJ:webGpuPipelineConfig");
-						}},
-					]},
-					{text: "New Mesh", cb: () => {
-						this.createAsset("JJ:mesh");
-					}},
-					{text: "New Vertex State", cb: () => {
-						this.createAsset("JJ:vertexState");
-					}},
-					{text: "New Entity", cb: () => {
-						this.createAsset("JJ:entity");
-					}},
-					{text: "New Asset Bundle", cb: () => {
-						this.createAsset("JJ:assetBundle");
-					}},
-					{text: "New Render Output Config", cb: () => {
-						this.createAsset("JJ:renderOutputConfig");
-					}},
-					{text: "New Render Clustered Lights Config", cb: () => {
-						this.createAsset("JJ:clusteredLightsSetup");
-					}},
+					{
+						text: "New Folder",
+						onClick: () => this.createNewDir(),
+					},
+					{
+						text: "Materials",
+						submenu: [
+							{
+								text: "New Material",
+								onClick: () => this.createAsset("JJ:material"),
+							},
+							{
+								text: "New Material Map",
+								onClick: () => this.createAsset("JJ:materialMap"),
+							},
+							{
+								text: "New WebGPU Pipeline Config",
+								onClick: () => this.createAsset("JJ:webGpuPipelineConfig"),
+							},
+						]
+					},
+					{
+						text: "New Mesh",
+						onClick: () => this.createAsset("JJ:mesh"),
+					},
+					{
+						text: "New Vertex State",
+						onClick: () => this.createAsset("JJ:vertexState"),
+					},
+					{
+						text: "New Entity",
+						onClick: () => this.createAsset("JJ:entity"),
+					},
+					{
+						text: "New Asset Bundle",
+						onClick: () => this.createAsset("JJ:assetBundle"),
+					},
+					{
+						text: "New Render Output Config",
+						onClick: () => this.createAsset("JJ:renderOutputConfig"),
+					},
+					{
+						text: "New Render Clustered Lights Config",
+						onClick: () => this.createAsset("JJ:clusteredLightsSetup"),
+					},
 				]);
 
 				menu.setPos(createButton, "top left");
@@ -136,7 +149,7 @@ export default class ContentWindowProject extends ContentWindow{
 	async updateTreeViewRange(end, start = null, collapsedOnly = true){
 		let treeView = this.treeView;
 		if(start){
-			treeView = this.treeView.findChildFromNamesPath(startUpdatePath);
+			treeView = this.treeView.findChildFromNamesPath(start);
 		}else{
 			start = [];
 		}
