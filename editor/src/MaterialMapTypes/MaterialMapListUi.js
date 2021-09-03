@@ -48,7 +48,10 @@ export default class MaterialMapListUi{
 		}
 	}
 
-	onValueChange(cb){
+	/**
+	 * @param {function(import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent) : void} cb
+	 */
+	onValueChange(cb) {
 		this.treeView.onChildValueChange(cb);
 	}
 

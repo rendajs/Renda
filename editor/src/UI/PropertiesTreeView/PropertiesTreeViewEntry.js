@@ -21,7 +21,26 @@ import {prettifyVariableName} from "../../Util/Util.js";
  */
 
 /**
- * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset} PropertiesTreeViewEntryType
+ * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | "button"} PropertiesTreeViewEntryType
+ */
+
+/**
+ * @typedef {Object} GuiInterface
+ * @property {function(*) : boolean} [isDefaultValue]
+ * @property {boolean} [defaultValue]
+ * @property {function(*) : *} [getValue]
+ * @property {*} [value]
+ * @property {function(function() : void) : void} [onValueChange]
+ * @property {function() : void} [destructor]
+ * @property {function(*) : void} [setValue]
+ */
+
+/**
+ * @typedef {Object} PropertiesTreeViewChangeEventType
+ * @property {*} newValue
+ * @property {PropertiesTreeViewEntry} target
+ *
+ * @typedef {import("../TreeView.js").TreeViewEvent & PropertiesTreeViewChangeEventType} PropertiesTreeViewChangeEvent
  */
 
 export default class PropertiesTreeViewEntry extends TreeView {
@@ -128,18 +147,22 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		//of every gui class, call setValue over here
 
 		this.registerNewEventType("treeViewEntryValueChange");
-		this.gui?.onValueChange?.(newValue => {
-			this.fireEvent("treeViewEntryValueChange", {
-				changedEntry: this,
+		const castGui = /** @type {GuiInterface} */ (this.gui);
+		castGui?.onValueChange?.(newValue => {
+			/** @type {PropertiesTreeViewChangeEvent} */
+			const event = {
+				target: this,
 				newValue,
-			});
+			}
+			this.fireEvent("treeViewEntryValueChange", event);
 		});
 	}
 
 	destructor(){
 		this.label = null;
 		this.valueEl = null;
-		this.gui?.destructor?.();
+		const castGui = /** @type {GuiInterface} */ (this.gui);
+		castGui?.destructor?.();
 		this.gui = null;
 		super.destructor();
 	}
@@ -156,11 +179,13 @@ export default class PropertiesTreeViewEntry extends TreeView {
 				setOnObjectKey: setValueOpts.setOnObjectKey,
 			});
 		}
-		this.gui?.setValue?.(newValue, setValueOpts);
+		const castGui = /** @type {GuiInterface} */ (this.gui);
+		castGui?.setValue?.(newValue, setValueOpts);
 	}
 
 	onValueChange(cb){
-		this.gui?.onValueChange?.(cb);
+		const castGui = /** @type {GuiInterface} */ (this.gui);
+		castGui?.onValueChange?.(cb);
 	}
 
 	get value(){
@@ -168,10 +193,11 @@ export default class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	getValue(guiOpts){
-		if(this.gui.getValue){
-			return this.gui.getValue(guiOpts);
+		const castGui = /** @type {GuiInterface} */ (this.gui);
+		if(castGui.getValue){
+			return castGui.getValue(guiOpts);
 		}else{
-			return this.gui?.value;
+			return castGui?.value;
 		}
 	}
 
@@ -197,10 +223,11 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			stripDefaultValues = false;
 		}
 		if(stripDefaultValues){
-			if(this.gui.isDefaultValue){
-				if(this.gui.isDefaultValue(guiOpts)) return true;
+			const castGui = /** @type {GuiInterface} */ (this.gui);
+			if(castGui.isDefaultValue){
+				if(castGui.isDefaultValue(guiOpts)) return true;
 			}else{
-				if(this.gui.value == this.gui.defaultValue) return true;
+				if(this.gui.value == castGui.defaultValue) return true;
 			}
 		}
 		return false;

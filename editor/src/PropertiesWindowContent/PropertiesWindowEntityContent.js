@@ -123,9 +123,9 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			if(serializableStructure){
 				componentUI.generateFromSerializableStructure(serializableStructure);
 				componentUI.onChildValueChange(e => {
-					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.changedEntry);
-					const scriptValueFromGui = e.changedEntry.getValue({purpose:"script"});
-					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.changedEntry);
+					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.target);
+					const scriptValueFromGui = e.target.getValue({purpose:"script"});
+					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
 					this.notifyEntityEditors(componentGroup.entity, "componentProperty");
 				});
 				componentUI.fillSerializableStructureValues(componentGroup, {

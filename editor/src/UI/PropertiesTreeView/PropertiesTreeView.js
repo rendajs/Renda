@@ -42,7 +42,10 @@ export default class PropertiesTreeView extends TreeView{
 		return item;
 	}
 
-	onChildValueChange(cb){
+	/**
+	 * @param {function(import("./PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent) : void} cb
+	 */
+	onChildValueChange(cb) {
 		this.addEventListener("treeViewEntryValueChange", cb);
 	}
 

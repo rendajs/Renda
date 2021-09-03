@@ -3,7 +3,7 @@ import editor from "../editorInstance.js";
 /**
  * @typedef {Object} TreeViewEvent
  * @property {TreeView} target
- * @property {Event} rawEvent
+ * @property {Event} [rawEvent]
  */
 
 /**
