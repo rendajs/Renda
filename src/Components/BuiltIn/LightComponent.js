@@ -1,5 +1,5 @@
 import Vec3 from "../../Math/Vec3.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import { StorageType } from "../../Util/BinaryComposer.js";
 
 const lightTypes = ["point","directional","spot"];
 
@@ -17,7 +17,7 @@ export default {
 	binaryComposerOpts: {
 		structure: {
 			lightType: lightTypes,
-			color: [BinaryComposer.StructureTypes.FLOAT64],
+			color: [StorageType.FLOAT64],
 		},
 		nameIds: {
 			lightType: 1,

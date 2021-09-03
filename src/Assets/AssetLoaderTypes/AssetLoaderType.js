@@ -11,6 +11,11 @@ export default class AssetLoaderType{
 
 	//this method should parse an ArrayBuffer and return an
 	//instance of the desired class such as a Mesh or Texture
-	/** @returns {Promise<*>} */
-	async parseBuffer(buffer){}
+	/**
+	 *
+	 * @param {ArrayBuffer} buffer
+	 * @param {*} [assetOpts]
+	 * @returns {Promise<*>}
+	 */
+	async parseBuffer(buffer, assetOpts){}
 }

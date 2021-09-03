@@ -1,5 +1,5 @@
 import AssetLoaderType from "./AssetLoaderType.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import BinaryComposer, { StorageType } from "../../Util/BinaryComposer.js";
 import MaterialMapTypeLoader from "../MaterialMapTypeLoader.js";
 import Material from "../../Rendering/Material.js";
 import {isUuid} from "../../Util/Util.js";
@@ -19,10 +19,10 @@ export default class AssetLoaderTypeMaterial extends AssetLoaderType{
 	async parseBuffer(buffer){
 		const materialData = BinaryComposer.binaryToObject(buffer, {
 			structure: {
-				values: [BinaryComposer.StructureTypes.INT8],
+				values: [StorageType.INT8],
 				mapDatas: [{
-					typeUuid: BinaryComposer.StructureTypes.UUID,
-					data: BinaryComposer.StructureTypes.ARRAY_BUFFER,
+					typeUuid: StorageType.UUID,
+					data: StorageType.ARRAY_BUFFER,
 				}],
 			},
 			nameIds: {

@@ -1,5 +1,5 @@
 import Mat4 from "../../Math/Mat4.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import { StorageType } from "../../Util/BinaryComposer.js";
 import RenderOutputConfig from "../../Rendering/RenderOutputConfig.js";
 import ClusteredLightsConfig from "../../Rendering/ClusteredLightsConfig.js";
 
@@ -54,12 +54,12 @@ export default {
 	},
 	binaryComposerOpts: {
 		structure: {
-			fov: BinaryComposer.StructureTypes.FLOAT64,
-			clipNear: BinaryComposer.StructureTypes.FLOAT64,
-			clipFar: BinaryComposer.StructureTypes.FLOAT64,
-			aspect: BinaryComposer.StructureTypes.FLOAT64,
-			renderOutputConfig: BinaryComposer.StructureTypes.ASSET_UUID,
-			clusteredLightsConfig: BinaryComposer.StructureTypes.ASSET_UUID,
+			fov: StorageType.FLOAT64,
+			clipNear: StorageType.FLOAT64,
+			clipFar: StorageType.FLOAT64,
+			aspect: StorageType.FLOAT64,
+			renderOutputConfig: StorageType.ASSET_UUID,
+			clusteredLightsConfig: StorageType.ASSET_UUID,
 		},
 		nameIds: {
 			fov: 1,

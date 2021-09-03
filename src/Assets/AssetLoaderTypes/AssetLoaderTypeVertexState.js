@@ -1,5 +1,5 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import { StorageType } from "../../Util/BinaryComposer.js";
 import VertexState from "../../Rendering/VertexState.js";
 
 export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericStructure{
@@ -12,14 +12,14 @@ export default class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericSt
 		return {
 			structure: {
 				buffers: [{
-					arrayStride: BinaryComposer.StructureTypes.INT16, //todo: support serializing auto value
+					arrayStride: StorageType.INT16, //todo: support serializing auto value
 					stepMode: ["vertex", "instance"],
 					attributes: [{
-						attributeType: BinaryComposer.StructureTypes.INT8,
-						format: BinaryComposer.StructureTypes.INT8,
-						componentCount: BinaryComposer.StructureTypes.INT8,
-						unsigned: BinaryComposer.StructureTypes.BOOL,
-						shaderLocation: BinaryComposer.StructureTypes.INT8, //todo: support serializing auto value
+						attributeType: StorageType.INT8,
+						format: StorageType.INT8,
+						componentCount: StorageType.INT8,
+						unsigned: StorageType.BOOL,
+						shaderLocation: StorageType.INT8, //todo: support serializing auto value
 					}],
 				}],
 			},

@@ -6,6 +6,7 @@ export default class AssetLoader{
 	constructor(){
 		this.bundles = new Set();
 
+		/** @type {Map<string, AssetLoaderType>} */
 		this.registeredLoaderTypes = new Map();
 
 		this.loadedAssets = new Map(); //Map<uuid, WeakRef<asset>>
@@ -17,6 +18,10 @@ export default class AssetLoader{
 		return bundle;
 	}
 
+	/**
+	 * @param {typeof AssetLoaderType} constructor
+	 * @returns {AssetLoaderType}
+	 */
 	registerLoaderType(constructor){
 		//todo: remove these warnings in release builds
 		if(!(constructor.prototype instanceof AssetLoaderType)){
@@ -48,6 +53,7 @@ export default class AssetLoader{
 				}
 			}
 		}
+		/** @type {AssetBundle} */
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			if(this.bundles.size == 0){
 				resolve(null);

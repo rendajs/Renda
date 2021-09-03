@@ -1,5 +1,5 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import { StorageType } from "../../Util/BinaryComposer.js";
 import RenderOutputConfig from "../../Rendering/RenderOutputConfig.js";
 
 export default class AssetLoaderTypeRenderOutputConfig extends AssetLoaderTypeGenericStructure{
@@ -12,7 +12,7 @@ export default class AssetLoaderTypeRenderOutputConfig extends AssetLoaderTypeGe
 		return {
 			structure: {
 				depthStencilFormat: ["stencil8", "depth16unorm", "depth24plus", "depth24plus-stencil8", "depth32float"],
-				multisampleCount: BinaryComposer.StructureTypes.UINT8,
+				multisampleCount: StorageType.UINT8,
 				fragmentTargets: [{
 					format: ["bgra8unorm", "rgba16float"],
 				}],

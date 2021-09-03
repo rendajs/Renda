@@ -1,5 +1,5 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import { StorageType } from "../../Util/BinaryComposer.js";
 import WebGpuPipelineConfig from "../../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js";
 
 export default class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericStructure{
@@ -15,10 +15,10 @@ export default class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderType
 	static get binaryComposerOpts(){
 		return {
 			structure: {
-				vertexShader: BinaryComposer.StructureTypes.ASSET_UUID,
-				fragmentShader: BinaryComposer.StructureTypes.ASSET_UUID,
+				vertexShader: StorageType.ASSET_UUID,
+				fragmentShader: StorageType.ASSET_UUID,
 				primitiveTopology: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
-				preloadVertexStates: [BinaryComposer.StructureTypes.ASSET_UUID],
+				preloadVertexStates: [StorageType.ASSET_UUID],
 			},
 			nameIds: {
 				vertexShader: 1,

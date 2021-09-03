@@ -1,7 +1,6 @@
 import MaterialMapType from "./MaterialMapType.js";
-import {Vec3, SingleInstancePromise, WebGpuPipelineConfig} from "../../../src/index.js";
-import MaterialMapListUi from "./MaterialMapListUi.js";
-import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+import { WebGpuPipelineConfig} from "../../../src/index.js";
+import { StorageType } from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 
 export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
@@ -51,7 +50,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 
 	static assetBundleBinaryComposerOpts = {
 		structure: {
-			forwardPipelineConfig: BinaryComposer.StructureTypes.ASSET_UUID,
+			forwardPipelineConfig: StorageType.ASSET_UUID,
 		},
 		nameIds: {
 			forwardPipelineConfig: 1,

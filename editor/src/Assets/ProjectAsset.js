@@ -2,6 +2,7 @@ import editor from "../editorInstance.js";
 import {SingleInstancePromise, AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/index.js";
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import { StorageType } from "../../../src/Util/BinaryComposer.js";
 
 /**
  * @typedef {Object | String | File} ProjectAssetFileData
@@ -453,7 +454,7 @@ export default class ProjectAsset{
 						value = usedAssetLoaderType.binaryComposerOpts.transformValueHook(args);
 					}
 
-					if(type == BinaryComposer.StructureTypes.ASSET_UUID){
+					if(type == StorageType.ASSET_UUID){
 						referencedUuids.push(value);
 					}
 					return value;

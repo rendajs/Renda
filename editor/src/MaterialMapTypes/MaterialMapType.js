@@ -1,4 +1,4 @@
-import BinaryComposer from "../../../src/Util/BinaryComposer.js";
+import BinaryComposer, { StorageType } from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 
@@ -130,7 +130,7 @@ export default class MaterialMapType{
 					value = this.assetBundleBinaryComposerOpts.transformValueHook(args);
 				}
 
-				if(type == BinaryComposer.StructureTypes.ASSET_UUID){
+				if(type == StorageType.ASSET_UUID){
 					referencedUuids.push(value);
 				}
 				return value;

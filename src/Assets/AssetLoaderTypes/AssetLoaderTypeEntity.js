@@ -1,16 +1,16 @@
 import AssetLoaderType from "./AssetLoaderType.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import BinaryComposer, { StorageType } from "../../Util/BinaryComposer.js";
 import Entity from "../../Core/Entity.js";
 import Mat4 from "../../Math/Mat4.js";
 import defaultComponentTypeManager from "../../Components/defaultComponentTypeManager.js";
 
 const entityBinaryStructure = {
-	name: BinaryComposer.StructureTypes.STRING,
-	matrix: [BinaryComposer.StructureTypes.FLOAT32],
+	name: StorageType.STRING,
+	matrix: [StorageType.FLOAT32],
 	children: [],
 	components: [{
-		uuid: BinaryComposer.StructureTypes.UUID,
-		propertyValues: BinaryComposer.StructureTypes.ARRAY_BUFFER,
+		uuid: StorageType.UUID,
+		propertyValues: StorageType.ARRAY_BUFFER,
 	}],
 };
 entityBinaryStructure.children[0] = entityBinaryStructure;

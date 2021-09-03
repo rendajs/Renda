@@ -1,5 +1,5 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
-import BinaryComposer from "../../Util/BinaryComposer.js";
+import { StorageType } from "../../Util/BinaryComposer.js";
 import ClusteredLightsConfig from "../../Rendering/ClusteredLightsConfig.js";
 
 export default class AssetLoaderTypeClusteredLightsConfig extends AssetLoaderTypeGenericStructure{
@@ -11,8 +11,8 @@ export default class AssetLoaderTypeClusteredLightsConfig extends AssetLoaderTyp
 	static get binaryComposerOpts(){
 		return {
 			structure: {
-				clusterCount: [BinaryComposer.StructureTypes.UINT32],
-				maxLightsPerClusterPass: BinaryComposer.StructureTypes.UINT32,
+				clusterCount: [StorageType.UINT32],
+				maxLightsPerClusterPass: StorageType.UINT32,
 			},
 			nameIds: {
 				clusterCount: 1,

@@ -2,7 +2,7 @@ import ProjectAssetType from "./ProjectAssetType.js";
 import {Material} from "../../../../src/index.js";
 import PropertiesAssetContentMaterial from "../../PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 import editor from "../../editorInstance.js";
-import BinaryComposer from "../../../../src/Util/BinaryComposer.js";
+import BinaryComposer, { StorageType } from "../../../../src/Util/BinaryComposer.js";
 
 export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 
@@ -57,10 +57,10 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 			mapDatas: mapDatas,
 		}, {
 			structure: {
-				values: [BinaryComposer.StructureTypes.INT8],
+				values: [StorageType.INT8],
 				mapDatas: [{
-					typeUuid: BinaryComposer.StructureTypes.UUID,
-					data: BinaryComposer.StructureTypes.ARRAY_BUFFER,
+					typeUuid: StorageType.UUID,
+					data: StorageType.ARRAY_BUFFER,
 				}],
 			},
 			nameIds: {

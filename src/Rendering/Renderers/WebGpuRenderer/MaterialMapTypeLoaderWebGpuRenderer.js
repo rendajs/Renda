@@ -1,4 +1,4 @@
-import BinaryComposer from "../../../Util/BinaryComposer.js";
+import BinaryComposer, { StorageType } from "../../../Util/BinaryComposer.js";
 import MaterialMapTypeLoader from "../../../Assets/MaterialMapTypeLoader.js";
 
 export default class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapTypeLoader{
@@ -14,7 +14,7 @@ export default class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapType
 	async parseBuffer(buffer){
 		return await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
 			structure: {
-				forwardPipelineConfig: BinaryComposer.StructureTypes.ASSET_UUID,
+				forwardPipelineConfig: StorageType.ASSET_UUID,
 			},
 			nameIds: {
 				forwardPipelineConfig: 1,

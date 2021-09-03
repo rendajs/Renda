@@ -2,7 +2,7 @@ import ProjectAssetType from "./ProjectAssetType.js";
 import {Entity, defaultComponentTypeManager, Mesh, Material, Vec2, Vec3, Vec4, Mat4, AssetLoaderTypeEntity} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import ContentWindowEntityEditor from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
-import BinaryComposer from "../../../../src/Util/BinaryComposer.js";
+import BinaryComposer, { StorageType } from "../../../../src/Util/BinaryComposer.js";
 
 export default class ProjectAssetTypeEntity extends ProjectAssetType{
 
@@ -150,7 +150,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 							value = componentData.binaryComposerOpts.transformValueHook(args);
 						}
 
-						if(type == BinaryComposer.StructureTypes.ASSET_UUID){
+						if(type == StorageType.ASSET_UUID){
 							referencedUuids.push(value);
 						}
 						return value;
