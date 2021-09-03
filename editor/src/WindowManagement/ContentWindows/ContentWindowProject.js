@@ -282,7 +282,7 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewEvent} e
+	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDragStart(e){
 		const assetData = await this.getProjectAssetByTreeViewItem(e.target);
@@ -296,7 +296,7 @@ export default class ContentWindowProject extends ContentWindow{
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewEvent} e
+	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDrop(e){
 		const path = this.pathFromTreeView(e.target);

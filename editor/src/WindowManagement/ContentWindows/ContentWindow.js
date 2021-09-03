@@ -39,7 +39,7 @@ export default class ContentWindow{
 
 		this.addedButtons = [];
 
-		if(typeof this.loop == "function"){
+		if(this.loop != ContentWindow.prototype.loop){
 			window.requestAnimationFrame(this._loop.bind(this));
 		}
 	}
@@ -91,4 +91,6 @@ export default class ContentWindow{
 		this.loop();
 		window.requestAnimationFrame(this._loop.bind(this));
 	}
+
+	loop() {}
 }

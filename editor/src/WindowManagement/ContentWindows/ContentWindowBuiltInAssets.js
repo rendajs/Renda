@@ -68,7 +68,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewEvent} e
+	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
 	 */
 	onTreeViewDragStart(e){
 		const projectAsset = this.treeViewAssets.get(e.target);

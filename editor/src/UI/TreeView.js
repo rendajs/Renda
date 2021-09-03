@@ -7,6 +7,13 @@ import editor from "../editorInstance.js";
  */
 
 /**
+ * @typedef {Object} TreeViewDragEventType
+ * @property {DragEvent} rawEvent
+ *
+ * @typedef {TreeViewEvent & TreeViewDragEventType} TreeViewDragEvent
+ */
+
+/**
  * @typedef {Object} TreeViewNameChangeEventType
  * @property {string} oldName
  * @property {string} newName
@@ -863,6 +870,9 @@ export default class TreeView{
 		e.preventDefault();
 	}
 
+	/**
+	 * @param {DragEvent} e
+	 */
 	onDropEvent(e){
 		e.preventDefault();
 		this.fireEvent("drop", {
