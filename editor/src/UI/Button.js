@@ -1,3 +1,5 @@
+import editor from "../editorInstance.js";
+
 /**
  * @typedef {Object} ButtonGuiOptionsType
  * @property {string} [text = ""]
@@ -8,7 +10,7 @@
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ButtonGuiOptionsType} ButtonGuiOptions
  */
 
-export default class Button{
+export default class Button {
 	constructor({
 		text = null,
 		icon = null,
@@ -73,6 +75,9 @@ export default class Button{
 	setIcon(iconUrl) {
 		this.iconEl.style.backgroundImage = `url(${iconUrl})`;
 		this.iconEl.style.display = iconUrl ? null : "none";
+		if (iconUrl) {
+			editor.colorizerFilterManager.applyFilter(this.iconEl, "var(--default-button-text-color)");
+		}
 	}
 
 	/**

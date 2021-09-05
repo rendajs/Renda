@@ -15,10 +15,10 @@
 	--color-highlighted-yellow: #ffa500;
 	--color-highlighted-yellow-text: #000000;
 	--selected-text-color: #ffffff;
-	--default-button-color: #6f6f6f;
-	--default-button-hover-color: #626262;
+	--default-button-color: #464646;
+	--default-button-hover-brightness: 1.2;
 	--default-button-active-color: #565656;
-	--default-button-selected-color: #929292;
+	--default-button-selected-color: #626262;
 	--default-button-text-color: #eaeaea;
 	--default-button-color-disabled: #2f2f2f;
 	--default-button-text-color-disabled: #8d8d8d;
@@ -49,10 +49,10 @@
 		--color-highlighted-yellow: #FFE006;
 		--color-highlighted-yellow-text: #333333;
 		--default-button-color: #dcdcdc;
-		--default-button-hover-color: #c9c9c9;
+		--default-button-hover-brightness: 0.93;
 		--default-button-active-color: #b9b9b9;
 		--default-button-selected-color: #afafaf;
-		--default-button-text-color: #505050;
+		--default-button-text-color: #424242;
 		--default-button-color-disabled: #ececec;
 		--default-button-text-color-disabled: #7f7f7f;
 		--focused-window-border-color: #717171;
@@ -160,8 +160,8 @@ body, html{
 	margin-right: 1px;
 }
 
-.button:hover:not(.disabled){
-	background: var(--default-button-hover-color);
+.button:hover:not(.disabled):not(.selected) {
+	filter: brightness(var(--default-button-hover-brightness));
 }
 .button:active:not(.disabled){
 	background: var(--default-button-active-color);

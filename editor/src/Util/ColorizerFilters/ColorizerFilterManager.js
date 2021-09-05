@@ -37,11 +37,11 @@ export default class ColorizerFilterManager {
 	}
 
 	/**
-	 * @param {string} cssColor Can be any valid CSS color string.
 	 * @param {HTMLElement} element The element to apply the filter to.
+	 * @param {string} cssColor Can be any valid CSS color string.
 	 * @returns {import("./ColorizerFilterUsageReference.js").default}
 	 */
-	applyFilter(cssColor, element) {
+	applyFilter(element, cssColor) {
 		const filter = this.getFilter(cssColor);
 		element.style.filter = `url(#${filter.getFilterId()})`;
 		const existingRef = /** @type {import("./ColorizerFilterUsageReference.js").default} */ (element[this.elementUsageReferenceSym]);
