@@ -10,13 +10,15 @@
 		"build-editor-dependencies": "node editor/buildDependencies.js",
 		"build-editor-dev": "node editor/build.js --dev",
 		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 5070' 'node editor/devSocket/index.js'",
-		"lint": "tsc -p jsconfig.json"
+		"lint": "tsc -p jsconfig.json && eslint ."
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^11.1.0",
 		"@types/wicg-file-system-access": "^2020.9.2",
 		"@webgpu/types": "^0.1.6",
+		"babel-eslint": "^10.1.0",
 		"concurrently": "5.x",
+		"eslint": "^7.32.0",
 		"google-closure-compiler": "^20210505.0.0",
 		"js-md5": "^0.7.3",
 		"rollup": "^2.47.0",
