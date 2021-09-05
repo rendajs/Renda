@@ -11,16 +11,16 @@ import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";
-import ColorizerFilterManager from "./Util/ColorizerFilters/ColorizerFilterManager.js"
+import ColorizerFilterManager from "./Util/ColorizerFilters/ColorizerFilterManager.js";
 import ServiceWorkerManager from "./Managers/ServiceWorkerManager.js";
 import DevSocketManager from "./Managers/DevSocketManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
 
-import {WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager, ShaderBuilder} from "../../src/index.js";
+import {ShaderBuilder, WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager} from "../../src/index.js";
 import editor from "./editorInstance.js";
 
-export default class Editor{
-	constructor(){
+export default class Editor {
+	constructor() {
 		this.renderer = new WebGpuRenderer();
 		this.webGpuShaderBuilder = new ShaderBuilder();
 		this.windowManager = new WindowManager();
@@ -39,42 +39,42 @@ export default class Editor{
 		this.colorizerFilterManager = new ColorizerFilterManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
 
-		if(IS_DEV_BUILD){
+		if (IS_DEV_BUILD) {
 			this.devSocket = new DevSocketManager();
 		}
 
-		for(const component of builtInComponents){
+		for (const component of builtInComponents) {
 			defaultComponentTypeManager.registerComponent(component);
 		}
 
 		this.lastUsedSelectionManager = null;
 	}
 
-	//convenience function for getting selected object in the browser console
-	get selected(){
+	// convenience function for getting selected object in the browser console
+	get selected() {
 		let selectionManager = this.windowManager.lastFocusedContentWindow?.selectionManager;
-		if(selectionManager && selectionManager != this.lastUsedSelectionManager){
+		if (selectionManager && selectionManager != this.lastUsedSelectionManager) {
 			this.lastUsedSelectionManager = selectionManager;
-		}else{
+		} else {
 			selectionManager = this.lastUsedSelectionManager;
 		}
 		const selected = selectionManager?.currentSelectedObjects ?? [];
-		if(selected.length == 0) return null;
-		if(selected.length == 1) return selected[0];
+		if (selected.length == 0) return null;
+		if (selected.length == 1) return selected[0];
 		return [...selected];
 	}
 
-	init(){
+	init() {
 		this.builtInAssetManager.init();
 		defaultEngineAssetsManager.addGetAssetHandler(async (uuid) => {
 			await this.builtInAssetManager.waitForLoad();
 			await this.projectManager.waitForAssetManagerLoad();
 			const projectAsset = this.builtInAssetManager.assets.get(uuid);
-			if(!projectAsset) return null;
+			if (!projectAsset) return null;
 			return await projectAsset.getLiveAsset();
 		});
-		if(IS_DEV_BUILD){
-			this.builtInAssetManager.onAssetChange(uuid => {
+		if (IS_DEV_BUILD) {
+			this.builtInAssetManager.onAssetChange((uuid) => {
 				defaultEngineAssetsManager.notifyAssetChanged(uuid);
 			});
 		}
@@ -87,16 +87,17 @@ export default class Editor{
 		this.materialMapTypeManager.init();
 		this.builtInDefaultAssetLinksManager.init();
 
-		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
+		this.webGpuShaderBuilder.onShaderUuidRequested(async (uuid) => {
 			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);
-			if(projectAsset){
-				if(projectAsset.assetType == "JJ:shaderSource"){
+			if (projectAsset) {
+				if (projectAsset.assetType == "JJ:shaderSource") {
 					return await projectAsset.readAssetData();
 				}
 			}
+			return null;
 		});
 
-		this.projectManager.onExternalChange(async e => {
+		this.projectManager.onExternalChange(async (e) => {
 			const uuid = await this.projectManager.assetManager.getAssetUuidFromPath(e.path);
 			editor.webGpuShaderBuilder.invalidateShader(uuid);
 		});

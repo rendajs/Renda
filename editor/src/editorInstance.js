@@ -1,6 +1,6 @@
 import Editor from "./Editor.js";
 
-let editor = new Editor();
+const editor = new Editor();
 export default editor;
 
 editor.init();
