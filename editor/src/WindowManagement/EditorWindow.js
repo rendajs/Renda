@@ -5,6 +5,7 @@ export default class EditorWindow {
 
 		/** @type {EditorWindow} */
 		this.parent = null;
+		this.isRoot = false;
 
 		this.onFocusedChangeCbs = new Set();
 		this.el.addEventListener("focusin", () => {
@@ -26,7 +27,9 @@ export default class EditorWindow {
 		this.onWorkspaceChangeCbs.clear();
 	}
 
-	setRoot(){
+	setRoot() {
+		this.isRoot = true;
+		this.parent = null;
 		this.el.classList.add("editorWindowRoot");
 	}
 

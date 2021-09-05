@@ -33,6 +33,17 @@ export default class WindowManager {
 		this.reloadCurrentWorkspace();
 	}
 
+	/**
+	 * @param {import("./EditorWindow.js").default} newRootWindow
+	 */
+	replaceRootWindow(newRootWindow) {
+		this.rootWindow.destructor();
+		this.rootWindow = newRootWindow;
+		this.rootWindow.setRoot();
+		document.body.appendChild(this.rootWindow.el);
+		this.rootWindow.updateEls();
+	}
+
 	async reloadCurrentWorkspace(){
 		const workspaceData = await this.workspaceManager.getCurrentWorkspace();
 		this.loadWorkspace(workspaceData);
@@ -91,7 +102,7 @@ export default class WindowManager {
 
 	/**
 	 *
-	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindow
+	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindowData
 	 * @param {import("./EditorWindow.js").default} existingWorkspaceWindow
 	 */
 	parseWorkspaceWindowChildren(workspaceWindowData, existingWorkspaceWindow) {
