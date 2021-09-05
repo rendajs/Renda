@@ -200,6 +200,7 @@ export default class EditorWindowTabs extends EditorWindow {
 		const contextMenuStructure = [
 			{
 				text: "Close Tab",
+				disabled: this.tabs.length <= 1 && this.isRoot,
 				onClick: () => {
 					const index = this.tabsSelectorGroup.buttons.indexOf(button);
 					this.closeTab(index);
@@ -252,7 +253,7 @@ export default class EditorWindowTabs extends EditorWindow {
 						text: `Save '${currentWorkspace}'`,
 						onClick: () => {
 							editor.windowManager.saveWorkspace();
-						}
+						},
 					},
 					{
 						text: `Autosave '${currentWorkspace}'`,
