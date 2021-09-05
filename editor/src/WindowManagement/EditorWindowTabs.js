@@ -3,8 +3,9 @@ import {getElemSize} from "../Util/Util.js";
 import editor from "../editorInstance.js";
 import Button from "../UI/Button.js";
 import ButtonGroup from "../UI/ButtonGroup.js";
+import EditorWindowSplit from "./EditorWindowSplit.js";
 
-export default class EditorWindowTabs extends EditorWindow{
+export default class EditorWindowTabs extends EditorWindow {
 	constructor(){
 		super();
 
@@ -203,9 +204,11 @@ export default class EditorWindowTabs extends EditorWindow{
 					const index = this.tabsSelectorGroup.buttons.indexOf(button);
 					this.closeTab(index);
 					if (this.tabs.length == 0) {
-						// todo: close EditorWindow
+						if (this.parent && this.parent instanceof EditorWindowSplit) {
+							this.parent.unsplitWindow(this);
+						}
 					}
-				}
+				},
 			},
 			{
 				text: "Add Tab",

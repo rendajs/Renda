@@ -1,8 +1,9 @@
-export default class EditorWindow{
-	constructor(){
+export default class EditorWindow {
+	constructor() {
 		this.el = document.createElement("div");
 		this.el.tabIndex = -1;
 
+		/** @type {EditorWindow} */
 		this.parent = null;
 
 		this.onFocusedChangeCbs = new Set();
@@ -47,7 +48,10 @@ export default class EditorWindow{
 
 	onContentWindowRegistered(constructor){}
 
-	setParent(parent){
+	/**
+	 * @param {EditorWindow} parent
+	 */
+	setParent(parent) {
 		this.parent = parent;
 	}
 

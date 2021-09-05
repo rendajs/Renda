@@ -8,7 +8,7 @@ import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 
 /**
  * @typedef {Object} WorkspaceDataWindow
- * @property {string} type
+ * @property {"split" | "tabs"} type
  */
 
 /**

@@ -4,7 +4,7 @@ import ContentWindows from "./ContentWindows/ContentWindows.js";
 import ContentWindow from "./ContentWindows/ContentWindow.js";
 import WorkspaceManager from "./WorkspaceManager.js";
 
-export default class WindowManager{
+export default class WindowManager {
 	constructor(){
 		this.rootWindow = null;
 		this.lastFocusedEditorWindow = null;
@@ -89,13 +89,20 @@ export default class WindowManager{
 		return newWindow;
 	}
 
-	parseWorkspaceWindowChildren(workspaceWindow, existingWorkspaceWindow){
-		if(workspaceWindow.type == "split"){
-			const windowA = this.parseWorkspaceWindow(workspaceWindow.windowA);
-			const windowB = this.parseWorkspaceWindow(workspaceWindow.windowB);
-			existingWorkspaceWindow.setWindows(windowA, windowB);
-			this.parseWorkspaceWindowChildren(workspaceWindow.windowA, existingWorkspaceWindow.windowA);
-			this.parseWorkspaceWindowChildren(workspaceWindow.windowB, existingWorkspaceWindow.windowB);
+	/**
+	 *
+	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindow
+	 * @param {import("./EditorWindow.js").default} existingWorkspaceWindow
+	 */
+	parseWorkspaceWindowChildren(workspaceWindowData, existingWorkspaceWindow) {
+		if (workspaceWindowData.type == "split") {
+			const castWorkspaceWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowSplit} */ (workspaceWindowData);
+			const windowA = this.parseWorkspaceWindow(castWorkspaceWindowData.windowA);
+			const windowB = this.parseWorkspaceWindow(castWorkspaceWindowData.windowB);
+			const castExistingWorkspaceWindow = /** @type {import("./EditorWindowSplit.js").default} */ (existingWorkspaceWindow);
+			castExistingWorkspaceWindow.setWindows(windowA, windowB);
+			this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowA, castExistingWorkspaceWindow.windowA);
+			this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowB, castExistingWorkspaceWindow.windowB);
 		}
 	}
 

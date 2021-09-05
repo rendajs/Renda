@@ -1,7 +1,7 @@
 import EditorWindow from "./EditorWindow.js";
 import {clamp01, mapValue} from "../Util/Util.js";
 
-export default class EditorWindowSplit extends EditorWindow{
+export default class EditorWindowSplit extends EditorWindow {
 	constructor(){
 		super();
 
@@ -136,6 +136,38 @@ export default class EditorWindowSplit extends EditorWindow{
 				yield child;
 			}
 		}
+	}
+
+	/**
+	 * @param {EditorWindow} closedSplitWindow
+	 */
+	unsplitWindow(closedSplitWindow) {
+		if (this.parent && this.parent instanceof EditorWindowSplit) {
+			let remainingWindow;
+			if (closedSplitWindow === this.windowA) {
+				remainingWindow = this.windowB;
+				this.windowB = null;
+			} else if (closedSplitWindow === this.windowB) {
+				remainingWindow = this.windowA;
+				this.windowA = null;
+			}
+			this.parent.replaceSplitWindow(this, remainingWindow);
+		}
+	}
+
+	/**
+	 * @param {EditorWindow} oldSplitWindow
+	 * @param {EditorWindow} newWindow
+	 */
+	replaceSplitWindow(oldSplitWindow, newWindow) {
+		if (this.windowA === oldSplitWindow) {
+			this.windowA = newWindow;
+		} else if (this.windowB === oldSplitWindow) {
+			this.windowB = newWindow;
+		}
+		newWindow.setParent(this);
+		oldSplitWindow.destructor();
+		this.updateEls();
 	}
 
 	onResized(){
