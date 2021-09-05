@@ -1,7 +1,8 @@
+import editor from "../../editorInstance.js";
 import ContextMenu from "./ContextMenu.js";
 
-export default class ContextMenuManager{
-	constructor(){
+export default class ContextMenuManager {
+	constructor() {
 		this.activeContextMenu = null;
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("contextMenuCurtain");
@@ -10,6 +11,25 @@ export default class ContextMenuManager{
 		});
 		document.body.appendChild(this.curtainEl);
 		this.updateCurtainActive();
+	}
+
+	init() {
+		const iconDefaultColorFilter = editor.colorizerFilterManager.getFilter("var(--default-text-color)");
+		this.iconDefaultColorFilterRef = iconDefaultColorFilter.getUsageReference();
+
+		const iconHoverColorFilter = editor.colorizerFilterManager.getFilter("var(--selected-text-color)");
+		this.iconHoverColorFilterRef = iconHoverColorFilter.getUsageReference();
+
+		const styleBlock = document.createElement("style");
+		styleBlock.textContent = `
+			.contextMenuItemIcon {
+				filter: url(#${iconDefaultColorFilter.getFilterId()});
+			}
+			.contextMenuItem:hover:not(.disabled) .contextMenuItemIcon {
+				filter: url(#${iconHoverColorFilter.getFilterId()});
+			}
+		`;
+		document.head.appendChild(styleBlock);
 	}
 
 	get current(){

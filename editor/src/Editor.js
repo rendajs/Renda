@@ -81,6 +81,7 @@ export default class Editor {
 
 		this.renderer.init();
 		this.windowManager.init();
+		this.contextMenuManager.init();
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.componentGizmosManager.init();
