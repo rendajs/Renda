@@ -18,6 +18,8 @@ export default class Button {
 		onClick = null,
 		disabled = false,
 		draggable = false,
+		onDragStart = null,
+		onDragEnd = null,
 	} = {}) {
 		this.iconUrl = icon;
 		this.currentText = text;
@@ -32,6 +34,8 @@ export default class Button {
 		this.disabled = disabled;
 
 		if (draggable) {
+			this.onDragStart = onDragStart;
+			this.onDragEnd = onDragEnd;
 			this.el.draggable = true;
 			this.boundDragStart = this.dragStart.bind(this);
 			this.el.addEventListener("dragstart", this.boundDragStart);
@@ -141,12 +145,17 @@ export default class Button {
 			document.body.appendChild(this.dragFeedbackEl);
 		}
 		e.dataTransfer.setDragImage(this.dragFeedbackEl, this.dragFeedbackEl.offsetWidth / 2, this.dragFeedbackEl.offsetHeight / 2);
+		if (this.onDragStart) this.onDragStart(e);
 	}
 
+	/**
+	 * @param {DragEvent} e
+	 */
 	dragEnd(e) {
 		if (this.dragFeedbackEl) {
 			this.dragFeedbackEl.parentElement.removeChild(this.dragFeedbackEl);
 			this.dragFeedbackEl = null;
 		}
+		if (this.onDragEnd) this.onDragEnd(e);
 	}
 }

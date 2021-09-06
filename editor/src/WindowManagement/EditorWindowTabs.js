@@ -6,7 +6,7 @@ import ButtonGroup from "../UI/ButtonGroup.js";
 import EditorWindowSplit from "./EditorWindowSplit.js";
 
 export default class EditorWindowTabs extends EditorWindow {
-	constructor(){
+	constructor() {
 		super();
 
 		this.el.classList.add("editorWindowTabs");
@@ -27,6 +27,12 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.tabsEl = document.createElement("div");
 		this.tabsEl.classList.add("editorWindowTabsList");
 		this.el.appendChild(this.tabsEl);
+
+		this.tabDragOverlayEl = document.createElement("div");
+		this.tabDragOverlayEl.classList.add("editorWindowTabDragOverlay");
+		this.el.appendChild(this.tabDragOverlayEl);
+
+		this.setTabDragOverlayEnabled(false);
 	}
 
 	destructor(){
@@ -110,15 +116,22 @@ export default class EditorWindowTabs extends EditorWindow {
 		return contentWindow;
 	}
 
-	updateTabSelector(){
-		let prevTabCount = this.tabsSelectorGroup.buttons.length;
-		let deltaCount = this.tabs.length - prevTabCount;
-		if(deltaCount > 0){
-			for(let i=0; i<deltaCount; i++){
-				let tabIndex = prevTabCount + i;
-				let newButton = new Button({
+	updateTabSelector() {
+		const prevTabCount = this.tabsSelectorGroup.buttons.length;
+		const deltaCount = this.tabs.length - prevTabCount;
+		if (deltaCount > 0) {
+			for (let i = 0; i < deltaCount; i++) {
+				const tabIndex = prevTabCount + i;
+				const newButton = new Button({
 					onClick: () => {
 						this.setActiveTabIndex(tabIndex);
+					},
+					draggable: true,
+					onDragStart: () => {
+						editor.windowManager.setTabDragOverlayEnabled(true);
+					},
+					onDragEnd: () => {
+						editor.windowManager.setTabDragOverlayEnabled(false);
 					}
 				});
 				this.tabsSelectorGroup.addButton(newButton);
@@ -166,6 +179,10 @@ export default class EditorWindowTabs extends EditorWindow {
 
 	get activeTab(){
 		return this.tabs[this.activeTabIndex];
+	}
+
+	setTabDragOverlayEnabled(enabled) {
+		this.tabDragOverlayEl.style.display = enabled ? null : "none";
 	}
 
 	onResized(){

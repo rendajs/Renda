@@ -175,12 +175,21 @@ export default class WindowManager {
 		}
 	}
 
-	*allContentWindows(){
-		for(const w of this.allEditorWindows()){
-			if(w instanceof EditorWindowTabs){
-				for(const tab of w.tabs){
-					yield tab;
-				}
+	/**
+	 * @returns {Generator<EditorWindowTabs>}
+	 */
+	*allTabWindows() {
+		for (const w of this.allEditorWindows()) {
+			if (w instanceof EditorWindowTabs) {
+				yield w;
+			}
+		}
+	}
+
+	*allContentWindows() {
+		for (const w of this.allTabWindows()) {
+			for (const tab of w.tabs) {
+				yield tab;
 			}
 		}
 	}
@@ -229,5 +238,14 @@ export default class WindowManager {
 
 	get lastFocusedContentWindow(){
 		return this.lastFocusedEditorWindow?.activeTab || null;
+	}
+
+	/**
+	 * @param {boolean} enabled
+	 */
+	setTabDragOverlayEnabled(enabled) {
+		for (const w of this.allTabWindows()) {
+			w.setTabDragOverlayEnabled(enabled);
+		}
 	}
 }
