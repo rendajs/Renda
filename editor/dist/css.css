@@ -93,10 +93,6 @@ body, html{
 	height: 100%;
 }
 
-.editorWindowSplitResizer{
-	z-index: 100;
-}
-
 .editorWindowTabs{
 	width: 100%;
 	height: 100%;
@@ -115,6 +111,8 @@ body, html{
 
 .editorWindowTabButtonGroup{
 	position: absolute;
+	z-index: 10;
+}
 }
 
 .editorContentWindowTopButtonBar > .button{
@@ -126,7 +124,6 @@ body, html{
 	display: inline-block;
 	overflow: hidden;
 	box-sizing: content-box;
-	z-index: 100;
 	vertical-align: top;
 }
 
@@ -324,14 +321,20 @@ select.textInput:disabled{
 	display: none;
 }
 
-.editorContentWindowTopButtonBar{
+.editorContentWindowTopButtonBar {
 	width: 100%;
-	z-index: 20;
+	z-index: 10;
+	pointer-events: none;
+}
+
+.editorContentWindowTopButtonBar > .button {
+	pointer-events: auto;
 }
 
 .editorContentWindowTopButtonBarSpacer{
 	display: inline-block;
 	vertical-align: top;
+	pointer-events: none;
 }
 
 .editorContentWindowContent{
@@ -344,7 +347,6 @@ select.textInput:disabled{
 	right: 0;
 	top: 0;
 	bottom: 0;
-	z-index: 10;
 }
 
 .treeViewItem{
