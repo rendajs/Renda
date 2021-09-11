@@ -224,6 +224,9 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.fireWorkspaceChangeCbs();
 	}
 
+	/**
+	 * @param {import("./ContentWindows/ContentWindow.js").default} contentWindow
+	 */
 	setActiveContentWindow(contentWindow) {
 		const index = this.tabs.indexOf(contentWindow);
 		this.setActiveTabIndex(index);

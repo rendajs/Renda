@@ -10,7 +10,7 @@ export default class ContentWindowBuildView extends ContentWindow {
 	static contentWindowUiIcon = "icons/contentWindowTabs/buildView.svg";
 
 	constructor() {
-		super(...arguments);
+		super();
 
 		this.setContentBehindTopBar(true);
 

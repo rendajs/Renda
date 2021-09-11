@@ -11,7 +11,7 @@ export default class ContentWindowOutliner extends ContentWindow {
 	static contentWindowUiIcon = "icons/contentWindowTabs/outliner.svg";
 
 	constructor() {
-		super(...arguments);
+		super();
 
 		this.treeView = new TreeView();
 		this.treeView.draggable = true;

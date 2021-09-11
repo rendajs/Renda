@@ -9,7 +9,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowUiIcon = "icons/contentWindowTabs/builtInAssets.svg";
 
 	constructor() {
-		super(...arguments);
+		super();
 
 		this.treeViewAssets = new Map();
 

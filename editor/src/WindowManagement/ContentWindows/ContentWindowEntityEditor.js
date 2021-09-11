@@ -12,7 +12,7 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowUiIcon = "icons/contentWindowTabs/entityEditor.svg";
 
 	constructor() {
-		super(...arguments);
+		super();
 
 		this.setContentBehindTopBar(true);
 

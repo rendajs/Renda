@@ -11,7 +11,7 @@ export default class ContentWindowProject extends ContentWindow {
 	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";
 
 	constructor() {
-		super(...arguments);
+		super();
 
 		const createButton = new Button({
 			text: "+",

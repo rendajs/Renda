@@ -21,7 +21,7 @@ export default class ContentWindow {
 	static contentWindowUiIcon = "icons/generic.svg";
 
 	constructor() {
-		/** @type {import("../EditorWindow.js").default} */
+		/** @type {import("../EditorWindowTabs.js").default} */
 		this.parentEditorWindow = null;
 		this.uuid = generateUuid();
 
@@ -59,7 +59,7 @@ export default class ContentWindow {
 	}
 
 	/**
-	 * @param {import("../EditorWindow.js").default} parentEditorWindow
+	 * @param {import("../EditorWindowTabs.js").default} parentEditorWindow
 	 */
 	attachParentEditorWindow(parentEditorWindow) {
 		this.parentEditorWindow = parentEditorWindow;

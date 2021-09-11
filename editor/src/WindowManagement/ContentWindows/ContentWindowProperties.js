@@ -8,7 +8,7 @@ export default class ContentWindowProperties extends ContentWindow {
 	static contentWindowUiIcon = "icons/contentWindowTabs/properties.svg";
 
 	constructor() {
-		super(...arguments);
+		super();
 
 		this.activeSelectionManager = null;
 		this.activeContent = null;

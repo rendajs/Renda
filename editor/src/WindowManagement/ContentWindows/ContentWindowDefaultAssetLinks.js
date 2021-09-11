@@ -9,7 +9,7 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowUiName = "Default Asset Links";
 
 	constructor() {
-		super(...arguments);
+		super();
 
 		this.builtInAssetLinksTreeView = new PropertiesTreeView();
 		this.builtInAssetLinksTreeView.onChildValueChange(() => this.handleGuiValueChange());
