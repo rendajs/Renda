@@ -44,9 +44,10 @@ export default class WindowManager {
 	replaceRootWindow(newRootWindow) {
 		this.rootWindow.destructor();
 		this.rootWindow = newRootWindow;
-		this.rootWindow.setRoot();
+		this.markRootWindowAsRoot();
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
+		this.saveWorkspace();
 	}
 
 	async reloadCurrentWorkspace() {
@@ -72,18 +73,22 @@ export default class WindowManager {
 		}
 		this.lastFocusedEditorWindow = null;
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
-		this.rootWindow.setRoot();
+		this.markRootWindowAsRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
-		this.rootWindow.onWorkspaceChange(() => {
-			if (!this.isLoadingWorkspace) {
-				this.saveWorkspace();
-			}
-		});
 
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
 
 		this.isLoadingWorkspace = false;
+	}
+
+	markRootWindowAsRoot() {
+		this.rootWindow.setRoot();
+		this.rootWindow.onWorkspaceChange(() => {
+			if (!this.isLoadingWorkspace) {
+				this.saveWorkspace();
+			}
+		});
 	}
 
 	parseWorkspaceWindow(workspaceWindow) {
