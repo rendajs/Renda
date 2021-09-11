@@ -4,13 +4,12 @@ import Button from "../../UI/Button.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../src/index.js";
 
-export default class ContentWindowBuildView extends ContentWindow{
-
+export default class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
 	static contentWindowUiName = "Build";
 	static contentWindowUiIcon = "icons/contentWindowTabs/buildView.svg";
 
-	constructor(){
+	constructor() {
 		super(...arguments);
 
 		this.setContentBehindTopBar(true);
@@ -43,82 +42,82 @@ export default class ContentWindowBuildView extends ContentWindow{
 		this.updateIframeVisibility();
 	}
 
-	destructor(){
+	destructor() {
 		super.destructor();
 
 		this.previewCamDomTarget.destructor();
 		this.iframeEl = null;
 	}
 
-	setAvailableLinkedEntityEditor(){
-		for(const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)){
+	setAvailableLinkedEntityEditor() {
+		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			this.setLinkedEntityEditor(entityEditor);
 			break;
 		}
 	}
 
-	setLinkedEntityEditor(linkedEntityEditor){
-		if(linkedEntityEditor == this.linkedEntityEditor) return;
-		if(this.linkedEntityEditor) this.linkedEntityEditor.removeOnRenderDirty(this.boundMarkPreviewCamRenderDirty);
+	setLinkedEntityEditor(linkedEntityEditor) {
+		if (linkedEntityEditor == this.linkedEntityEditor) return;
+		if (this.linkedEntityEditor) this.linkedEntityEditor.removeOnRenderDirty(this.boundMarkPreviewCamRenderDirty);
 		this.linkedEntityEditor = linkedEntityEditor;
-		if(linkedEntityEditor) linkedEntityEditor.onRenderDirty(this.boundMarkPreviewCamRenderDirty);
+		if (linkedEntityEditor) linkedEntityEditor.onRenderDirty(this.boundMarkPreviewCamRenderDirty);
 		this.updatePreviewCam();
 	}
 
-	markPreviewCamRenderDirty(){
+	markPreviewCamRenderDirty() {
 		this.previewCamRenderDirty = true;
 	}
 
-	updatePreviewCam(){
+	updatePreviewCam() {
 		const lastCam = this.previewCamComponent;
 		let foundCamComponent = null;
-		if(this.linkedEntityEditor){
-			for(const obj of this.linkedEntityEditor.selectionManager.currentSelectedObjects){
-				for(const camComponent of obj.getComponents(CameraComponent)){
+		if (this.linkedEntityEditor) {
+			for (const obj of this.linkedEntityEditor.selectionManager.currentSelectedObjects) {
+				for (const camComponent of obj.getComponents(CameraComponent)) {
 					foundCamComponent = camComponent;
 					break;
 				}
-				if(foundCamComponent) break;
+				if (foundCamComponent) break;
 			}
 
-			if(!foundCamComponent){
-				for(const camComponent of this.linkedEntityEditor.editingEntity.getChildComponents(CameraComponent)){
+			if (!foundCamComponent) {
+				for (const camComponent of this.linkedEntityEditor.editingEntity.getChildComponents(CameraComponent)) {
 					foundCamComponent = camComponent;
 					break;
 				}
 			}
 		}
 		this.previewCamComponent = foundCamComponent;
-		if(lastCam != this.previewCamComponent){
+		if (lastCam != this.previewCamComponent) {
 			this.previewCamRenderDirty = true;
 		}
 	}
 
-	onWindowResize(w, h){
-		this.previewCamDomTarget.resize(w,h);
+	onWindowResize(w, h) {
+		this.previewCamDomTarget.resize(w, h);
 		this.previewCamRenderDirty = true;
 	}
 
-	async updateFrameSrc(){
+	async updateFrameSrc() {
 		const clientId = await editor.serviceWorkerManager.getClientId();
-		this.iframeEl.src = "projectbuilds/"+clientId+"/Build/index.html";
+		this.iframeEl.src = "projectbuilds/" + clientId + "/Build/index.html";
 	}
 
-	loop(){
-		if(this.previewCamRenderDirty){
-			this.updatePreviewCam(); //todo: find a more efficient moment to update this
+	loop() {
+		if (this.previewCamRenderDirty) {
+			this.updatePreviewCam(); // todo: find a more efficient moment to update this
 			this.renderPreviewCam();
 			this.previewCamRenderDirty = false;
 		}
 	}
 
-	renderPreviewCam(){
-		if(this.previewCamComponent){
+	renderPreviewCam() {
+		if (this.previewCamComponent) {
 			this.previewCamDomTarget.render(this.previewCamComponent);
 		}
 	}
 
-	updateIframeVisibility(){
+	updateIframeVisibility() {
 		this.renderTargetElement.style.display = this.isRunning ? "none" : "block";
 		this.iframeEl.style.display = this.isRunning ? null : "none";
 	}

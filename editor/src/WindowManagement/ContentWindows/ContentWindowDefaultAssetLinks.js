@@ -2,14 +2,13 @@ import editor from "../../editorInstance.js";
 import ContentWindow from "./ContentWindow.js";
 import PropertiesTreeView from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import ProjectAsset from "../../Assets/ProjectAsset.js";
-import { generateUuid } from "../../Util/Util.js";
+import {generateUuid} from "../../Util/Util.js";
 
-export default class ContentWindowDefaultAssetLinks extends ContentWindow{
-
+export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";
 	static contentWindowUiName = "Default Asset Links";
 
-	constructor(){
+	constructor() {
 		super(...arguments);
 
 		this.builtInAssetLinksTreeView = new PropertiesTreeView();
@@ -36,13 +35,13 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 		this.loadDefaultAssetLinks();
 	}
 
-	async loadDefaultAssetLinks(){
+	async loadDefaultAssetLinks() {
 		await editor.projectManager.waitForAssetManagerLoad();
 		await editor.projectManager.assetManager.waitForAssetSettingsLoad();
-		if(!this.el) return; //the content window was destructed
+		if (!this.el) return; // the content window was destructed
 
 		this.builtInAssetLinksTreeView.clearChildren();
-		for(const builtInAssetLink of editor.builtInDefaultAssetLinksManager.registeredAssetLinks){
+		for (const builtInAssetLink of editor.builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const item = this.builtInAssetLinksTreeView.addItem({
 				guiOpts: {
 					label: builtInAssetLink.name,
@@ -58,9 +57,9 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 
 		const values = {
 			defaultAssetLinks: [],
-		}
-		for(const [uuid, assetLink] of editor.projectManager.assetManager.defaultAssetLinks){
-			if(assetLink.isBuiltIn) continue;
+		};
+		for (const [uuid, assetLink] of editor.projectManager.assetManager.defaultAssetLinks) {
+			if (assetLink.isBuiltIn) continue;
 			values.defaultAssetLinks.push({
 				name: assetLink.name,
 				originalAsset: assetLink.originalAssetUuid,
@@ -72,9 +71,9 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 		this.isLoadingAssetLinks = false;
 	}
 
-	getAssetLinkGuiStructure(isBuiltIn){
+	getAssetLinkGuiStructure(isBuiltIn) {
 		const typeObj = {};
-		if(!isBuiltIn){
+		if (!isBuiltIn) {
 			typeObj.name = {type: String};
 		}
 		typeObj.originalAsset = {type: ProjectAsset};
@@ -89,14 +88,14 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 		};
 	}
 
-	handleGuiValueChange(){
-		if(this.isLoadingAssetLinks || this.isParsingValueChange) return;
+	handleGuiValueChange() {
+		if (this.isLoadingAssetLinks || this.isParsingValueChange) return;
 		this.isParsingValueChange = true;
 
 		const builtInAssetLinks = [];
 		const assetLinks = [];
 
-		for(const child of this.builtInAssetLinksTreeView.children){
+		for (const child of this.builtInAssetLinksTreeView.children) {
 			const guiValues = child.getValue();
 			builtInAssetLinks.push({
 				defaultAssetUuid: guiValues.defaultAsset,
@@ -105,7 +104,7 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 		}
 
 		const guiValues = this.treeView.getSerializableStructureValues(this.guiStructure);
-		for(const defaultAssetConfig of guiValues.defaultAssetLinks){
+		for (const defaultAssetConfig of guiValues.defaultAssetLinks) {
 			assetLinks.push({
 				name: defaultAssetConfig.name,
 				defaultAssetUuid: defaultAssetConfig.defaultAsset,
@@ -113,11 +112,11 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow{
 			});
 		}
 
-		//save default asset link settings to disk and generate uuids for new links
+		// save default asset link settings to disk and generate uuids for new links
 		const userDefaultAssetLinkUuids = editor.projectManager.assetManager.setDefaultAssetLinks(builtInAssetLinks, assetLinks);
 
 		const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");
-		for(const [i, valueItem] of arrayTreeView.gui.valueItems.entries()){
+		for (const [i, valueItem] of arrayTreeView.gui.valueItems.entries()) {
 			const defaultAssetEntry = valueItem.gui.treeView.getSerializableStructureEntry("defaultAsset");
 			defaultAssetEntry.gui.setValue(userDefaultAssetLinkUuids[i]);
 		}

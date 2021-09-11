@@ -5,13 +5,12 @@ import {Entity} from "../../../../src/index.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import editor from "../../editorInstance.js";
 
-export default class ContentWindowOutliner extends ContentWindow{
-
+export default class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
 	static contentWindowUiName = "Outliner";
 	static contentWindowUiIcon = "icons/contentWindowTabs/outliner.svg";
 
-	constructor(){
+	constructor() {
 		super(...arguments);
 
 		this.treeView = new TreeView();
@@ -24,105 +23,105 @@ export default class ContentWindowOutliner extends ContentWindow{
 
 		this.linkedEntityEditor = null;
 
-		let createEmptyButton = new Button({
+		const createEmptyButton = new Button({
 			text: "Create Emtpy",
 			onClick: () => {
 				this.createNewEmpty();
-			}
+			},
 		});
 		this.addTopBarButton(createEmptyButton);
 
 		this.setAvailableLinkedEntityEditor();
 	}
 
-	destructor(){
+	destructor() {
 		super.destructor();
 		this.treeView.destructor();
 		this.treeView = null;
 		this.linkedEntityEditor = null;
 	}
 
-	get selectionManager(){
+	get selectionManager() {
 		return this.linkedEntityEditor.selectionManager;
 	}
 
-	setAvailableLinkedEntityEditor(){
-		for(const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)){
+	setAvailableLinkedEntityEditor() {
+		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			this.setLinkedEntityEditor(entityEditor);
 			break;
 		}
 	}
 
-	setLinkedEntityEditor(linkedEntityEditor){
+	setLinkedEntityEditor(linkedEntityEditor) {
 		this.linkedEntityEditor = linkedEntityEditor;
 		this.updateTreeView();
 	}
 
-	updateTreeView(){
+	updateTreeView() {
 		let treeData = {};
-		if(this.linkedEntityEditor && this.linkedEntityEditor.editingEntity){
+		if (this.linkedEntityEditor && this.linkedEntityEditor.editingEntity) {
 			treeData = this.treeDataFromEntity(this.linkedEntityEditor.editingEntity);
 		}
 		this.treeView.updateData(treeData);
 	}
 
-	treeDataFromEntity(entity){
-		let treeData = {};
+	treeDataFromEntity(entity) {
+		const treeData = {};
 		treeData.name = entity.name;
 		treeData.children = [];
-		for(const child of entity.getChildren()){
+		for (const child of entity.getChildren()) {
 			treeData.children.push(this.treeDataFromEntity(child));
 		}
 		return treeData;
 	}
 
-	createNewEmpty(){
+	createNewEmpty() {
 		this.createNew("Entity");
 	}
 
-	createNew(name, afterCreate = null){
-		if(!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return;
-		let rootEnt = this.linkedEntityEditor.editingEntity;
+	createNew(name, afterCreate = null) {
+		if (!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return;
+		const rootEnt = this.linkedEntityEditor.editingEntity;
 		let createdAny = false;
-		//todo: use selection manager
-		for(const indicesPath of this.treeView.getSelectionIndices()){
-			let ent = rootEnt.getEntityByIndicesPath(indicesPath);
-			let createdEnt = new Entity(name);
+		// todo: use selection manager
+		for (const indicesPath of this.treeView.getSelectionIndices()) {
+			const ent = rootEnt.getEntityByIndicesPath(indicesPath);
+			const createdEnt = new Entity(name);
 			ent.add(createdEnt);
 			createdAny = true;
 		}
-		if(!createdAny){
-			let createdEnt = new Entity(name);
+		if (!createdAny) {
+			const createdEnt = new Entity(name);
 			rootEnt.add(createdEnt);
 		}
 		this.updateTreeView();
 	}
 
-	getEntityByTreeViewItem(treeView){
-		if(!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return null;
-		let indicesPath = treeView.getIndicesPath();
+	getEntityByTreeViewItem(treeView) {
+		if (!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return null;
+		const indicesPath = treeView.getIndicesPath();
 		return this.linkedEntityEditor.editingEntity.getEntityByIndicesPath(indicesPath);
 	}
 
-	onTreeViewSelectionChange(changes){
-		if(!this.linkedEntityEditor) return;
-		changes.added = changes.added.map(treeView => this.getEntityByTreeViewItem(treeView));
-		changes.removed = changes.removed.map(treeView => this.getEntityByTreeViewItem(treeView));
+	onTreeViewSelectionChange(changes) {
+		if (!this.linkedEntityEditor) return;
+		changes.added = changes.added.map((treeView) => this.getEntityByTreeViewItem(treeView));
+		changes.removed = changes.removed.map((treeView) => this.getEntityByTreeViewItem(treeView));
 		this.selectionManager.changeSelection(changes);
 	}
 
 	/**
 	 * @param {import("../../UI/TreeView.js").TreeViewNameChangeEvent} e
 	 */
-	onTreeViewNameChange(e){
-		let ent = this.getEntityByTreeViewItem(e.target);
+	onTreeViewNameChange(e) {
+		const ent = this.getEntityByTreeViewItem(e.target);
 		ent.name = e.target.name;
 	}
 
 	/**
 	 * @param {import("../../UI/TreeView.js").TreeViewContextMenuEvent} e
 	 */
-	onTreeViewContextMenu(e){
+	onTreeViewContextMenu(e) {
 		const menu = e.showContextMenu();
 		menu.createStructure([
 			{
@@ -132,13 +131,13 @@ export default class ContentWindowOutliner extends ContentWindow{
 					entity.detachParent();
 					this.updateTreeView();
 					this.notifyEntityEditors(entity, "delete");
-				}
+				},
 			},
 		]);
 	}
 
-	notifyEntityEditors(obj, type){
-		if(!this.linkedEntityEditor) return;
+	notifyEntityEditors(obj, type) {
+		if (!this.linkedEntityEditor) return;
 		this.linkedEntityEditor.notifyEntityChanged(obj, type);
 	}
 }

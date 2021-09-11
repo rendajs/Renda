@@ -3,13 +3,12 @@ import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
-export default class ContentWindowBuiltInAssets extends ContentWindow{
-
+export default class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";
 	static contentWindowUiName = "Built-in Assets";
 	static contentWindowUiIcon = "icons/contentWindowTabs/builtInAssets.svg";
 
-	constructor(){
+	constructor() {
 		super(...arguments);
 
 		this.treeViewAssets = new Map();
@@ -31,12 +30,12 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		this.init();
 	}
 
-	async init(){
+	async init() {
 		await editor.builtInAssetManager.waitForLoad();
 		this.updateTreeView();
 	}
 
-	destructor(){
+	destructor() {
 		super.destructor();
 
 		this.treeView.destructor();
@@ -46,23 +45,23 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 		this.selectionManager = null;
 	}
 
-	updateTreeView(){
-		for(const asset of editor.builtInAssetManager.assets.values()){
+	updateTreeView() {
+		for (const asset of editor.builtInAssetManager.assets.values()) {
 			this.addAssetToTreeView(asset, asset.path, this.treeView);
 		}
 	}
 
-	addAssetToTreeView(asset, path, treeView){
+	addAssetToTreeView(asset, path, treeView) {
 		const [name, ...restPath] = path;
 		let child = treeView.getChildByName(name);
-		if(!child){
+		if (!child) {
 			child = treeView.addChild();
 			child.name = path[0];
 			child.collapsed = true;
 		}
-		if(path.length > 1){
+		if (path.length > 1) {
 			this.addAssetToTreeView(asset, restPath, child);
-		}else{
+		} else {
 			this.treeViewAssets.set(child, asset);
 		}
 	}
@@ -70,12 +69,12 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 	/**
 	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
 	 */
-	onTreeViewDragStart(e){
+	onTreeViewDragStart(e) {
 		const projectAsset = this.treeViewAssets.get(e.target);
 		e.rawEvent.dataTransfer.effectAllowed = "all";
 		let assetTypeUuid = "";
 		const assetType = editor.projectAssetTypeManager.getAssetType(projectAsset.assetType);
-		if(assetType){
+		if (assetType) {
 			assetTypeUuid = assetType.typeUuid;
 		}
 		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, projectAsset.uuid);
@@ -84,7 +83,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 	/**
 	 * @param {import("../../UI/TreeView.js").TreeViewContextMenuEvent} e
 	 */
-	onTreeViewContextMenu(e){
+	onTreeViewContextMenu(e) {
 		const menu = e.showContextMenu();
 		menu.createStructure([
 			{
@@ -92,26 +91,26 @@ export default class ContentWindowBuiltInAssets extends ContentWindow{
 				onClick: async () => {
 					const projectAsset = this.treeViewAssets.get(e.target);
 					await navigator.clipboard.writeText(projectAsset.uuid);
-				}
+				},
 			},
 		]);
 	}
 
-	onTreeViewSelectionChange(changes){
+	onTreeViewSelectionChange(changes) {
 		changes.added = this.mapTreeViewArrayToProjectAssets(changes.added);
 		changes.removed = this.mapTreeViewArrayToProjectAssets(changes.removed);
 		this.selectionManager.changeSelection(changes);
 	}
 
-	mapTreeViewArrayToProjectAssets(treeViews){
+	mapTreeViewArrayToProjectAssets(treeViews) {
 		const newArr = [];
-		for(const treeView of treeViews){
+		for (const treeView of treeViews) {
 			newArr.push(this.treeViewAssets.get(treeView));
 		}
 		return newArr;
 	}
 
-	highlightPath(path){
+	highlightPath(path) {
 		const assetTreeView = this.treeView.findChildFromNamesPath(path);
 		assetTreeView.expandWithParents();
 		assetTreeView.highlight();

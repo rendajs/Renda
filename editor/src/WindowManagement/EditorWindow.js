@@ -19,8 +19,8 @@ export default class EditorWindow {
 		this.onWorkspaceChangeCbs = new Set();
 	}
 
-	destructor(){
-		if(this.el && this.el.parentElement){
+	destructor() {
+		if (this.el && this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
@@ -33,23 +33,23 @@ export default class EditorWindow {
 		this.el.classList.add("editorWindowRoot");
 	}
 
-	onFocusedChange(cb){
+	onFocusedChange(cb) {
 		this.onFocusedChangeCbs.add(cb);
 	}
 
-	fireFocusedChange(hasFocus){
-		for(const cb of this.onFocusedChangeCbs){
+	fireFocusedChange(hasFocus) {
+		for (const cb of this.onFocusedChangeCbs) {
 			cb(hasFocus);
 		}
 	}
 
-	focus(){
+	focus() {
 		this.el.focus();
 	}
 
-	updateEls(){}
+	updateEls() {}
 
-	onContentWindowRegistered(constructor){}
+	onContentWindowRegistered(constructor) {}
 
 	/**
 	 * @param {EditorWindow} parent
@@ -58,14 +58,14 @@ export default class EditorWindow {
 		this.parent = parent;
 	}
 
-	getParent(){}
+	getParent() {}
 
 	/**
 	 * @returns {Generator<EditorWindow>}
 	 */
-	*getChildren(){}
+	*getChildren() {}
 
-	onResized(){}
+	onResized() {}
 
 	/**
 	 * @param {function() : void} cb

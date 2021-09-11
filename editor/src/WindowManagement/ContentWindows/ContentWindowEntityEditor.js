@@ -2,26 +2,25 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import ContentWindowBuildView from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
-import {Entity, CameraComponent, GizmoManager, OrbitControls, ClusteredLightsConfig, TranslationGizmo} from "../../../../src/index.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
-export default class ContentWindowEntityEditor extends ContentWindow{
-
+export default class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowTypeId = "entityEditor";
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "icons/contentWindowTabs/entityEditor.svg";
 
-	constructor(){
+	constructor() {
 		super(...arguments);
 
 		this.setContentBehindTopBar(true);
 
-		let saveEntityButton = new Button({
+		const saveEntityButton = new Button({
 			text: "Save",
 			onClick: () => {
 				this.saveEntityAsset();
-			}
+			},
 		});
 		this.addTopBarButton(saveEntityButton);
 
@@ -50,12 +49,12 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.gizmos = new GizmoManager();
 		this.editorScene.add(this.gizmos.entity);
 		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
-		this.currentLinkedGizmos = new Map(); //Map<Entity, Set<Gizmo>>
+		this.currentLinkedGizmos = new Map(); // Map<Entity, Set<Gizmo>>
 
 		this.newEmptyEditingEntity();
 	}
 
-	destructor(){
+	destructor() {
 		super.destructor();
 
 		this.domTarget.destructor();
@@ -66,12 +65,12 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.gizmos.destructor();
 	}
 
-	get editingEntity(){
+	get editingEntity() {
 		return this._editingEntity;
 	}
 
-	set editingEntity(val){
-		if(this._editingEntity){
+	set editingEntity(val) {
+		if (this._editingEntity) {
 			this.editorScene.remove(this._editingEntity);
 		}
 		this._editingEntity = val;
@@ -83,182 +82,182 @@ export default class ContentWindowEntityEditor extends ContentWindow{
 		this.updateLiveAssetChangeListeners();
 	}
 
-	onWindowResize(w, h){
-		this.domTarget.resize(w,h);
+	onWindowResize(w, h) {
+		this.domTarget.resize(w, h);
 
 		this.editorCamComponent.aspect = w / h;
 		this.markRenderDirty();
 	}
 
-	markRenderDirty(notifyExternalRenders = true){
+	markRenderDirty(notifyExternalRenders = true) {
 		this.renderDirty = true;
-		if(notifyExternalRenders){
-			for(const cb of this.onRenderDirtyCbs){
+		if (notifyExternalRenders) {
+			for (const cb of this.onRenderDirtyCbs) {
 				cb();
 			}
 		}
 	}
 
-	onRenderDirty(cb){
+	onRenderDirty(cb) {
 		this.onRenderDirtyCbs.add(cb);
 	}
 
-	removeOnRenderDirty(cb){
+	removeOnRenderDirty(cb) {
 		this.onRenderDirtyCbs.add(cb);
 	}
 
-	newEmptyEditingEntity(){
+	newEmptyEditingEntity() {
 		this.editingEntity = new Entity();
 	}
 
-	loadEntityAsset(entity, entityUuid){
+	loadEntityAsset(entity, entityUuid) {
 		this.editingEntity = entity;
 		this.editingEntityUuid = entityUuid;
 	}
 
-	async saveEntityAsset(){
-		if(!this.editingEntityUuid) return;
+	async saveEntityAsset() {
+		if (!this.editingEntityUuid) return;
 		const asset = await editor.projectManager.assetManager.getProjectAsset(this.editingEntityUuid);
 		await asset.saveLiveAssetData();
 	}
 
-	loop(){
-		if(this.orbitControls){
+	loop() {
+		if (this.orbitControls) {
 			const camChanged = this.orbitControls.loop();
-			if(camChanged){
+			if (camChanged) {
 				this.markRenderDirty(false);
 			}
 		}
 
-		if(this.renderDirty && editor.renderer.isInit){
+		if (this.renderDirty && editor.renderer.isInit) {
 			this.render();
 			this.renderDirty = false;
 		}
 	}
 
-	render(){
+	render() {
 		this.domTarget.render(this.editorCamComponent);
 	}
 
-	updateOutliners(){
-		for(const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)){
+	updateOutliners() {
+		for (const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
 			outliner.setLinkedEntityEditor(this);
 		}
 	}
 
-	updateBuildViews(){
-		for(const buildView of editor.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)){
+	updateBuildViews() {
+		for (const buildView of editor.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)) {
 			buildView.setLinkedEntityEditor(this);
 		}
 	}
 
-	updateGizmos(){
+	updateGizmos() {
 		const unusedEntities = new Map(this.currentLinkedGizmos);
-		for(const entity of this.editingEntity.traverseDown()){
+		for (const entity of this.editingEntity.traverseDown()) {
 			this.updateGizmosForEntity(entity);
 			unusedEntities.delete(entity);
 		}
 
-		for(const [entity, linkedComponentGizmos] of unusedEntities){
-			for(const componentGizmos of linkedComponentGizmos.values()){
+		for (const [entity, linkedComponentGizmos] of unusedEntities) {
+			for (const componentGizmos of linkedComponentGizmos.values()) {
 				componentGizmos.destructor();
 			}
 			this.currentLinkedGizmos.delete(entity);
 		}
 	}
 
-	updateGizmosForEntity(entity, removeAll = false){
+	updateGizmosForEntity(entity, removeAll = false) {
 		let linkedComponentGizmos = this.currentLinkedGizmos.get(entity);
-		if(!linkedComponentGizmos){
+		if (!linkedComponentGizmos) {
 			linkedComponentGizmos = new Map();
 		}
 		const unusedComponentGizmos = new Map(linkedComponentGizmos);
-		if(!removeAll){
-			for(const component of entity.components){
+		if (!removeAll) {
+			for (const component of entity.components) {
 				let componentGizmos = linkedComponentGizmos.get(component);
-				if(!componentGizmos){
+				if (!componentGizmos) {
 					const componentType = component.getComponentData();
 					componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(componentType, component, this.gizmos);
-					if(componentGizmos){
+					if (componentGizmos) {
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
 						linkedComponentGizmos.set(component, componentGizmos);
 					}
-				}else{
+				} else {
 					unusedComponentGizmos.delete(component);
 				}
-				if(componentGizmos){
+				if (componentGizmos) {
 					componentGizmos.componentPropertyChanged();
 				}
 			}
 		}
-		for(const [component, componentGizmos] of unusedComponentGizmos){
+		for (const [component, componentGizmos] of unusedComponentGizmos) {
 			componentGizmos.destructor();
 			linkedComponentGizmos.delete(component);
 		}
-		if(linkedComponentGizmos.size > 0){
+		if (linkedComponentGizmos.size > 0) {
 			this.currentLinkedGizmos.set(entity, linkedComponentGizmos);
-		}else{
+		} else {
 			this.currentLinkedGizmos.delete(entity);
 		}
 	}
 
-	updateGizmoPositionsForEntity(entity){
+	updateGizmoPositionsForEntity(entity) {
 		const linkedComponentGizmos = this.currentLinkedGizmos.get(entity);
-		if(linkedComponentGizmos){
-			for(const componentGizmos of linkedComponentGizmos.values()){
+		if (linkedComponentGizmos) {
+			for (const componentGizmos of linkedComponentGizmos.values()) {
 				componentGizmos.entityMatrixChanged(entity.worldMatrix);
 			}
 		}
 	}
 
-	updateLiveAssetChangeListeners(){
-		for(const {projectAsset, listener} of this.createdLiveAssetChangeListeners){
+	updateLiveAssetChangeListeners() {
+		for (const {projectAsset, listener} of this.createdLiveAssetChangeListeners) {
 			projectAsset.removeOnNewLiveAssetInstance(listener);
 		}
 		this.createdLiveAssetChangeListeners.clear();
 
-		for(const entity of this.editingEntity.traverseDown()){
-			for(const component of entity.components){
+		for (const entity of this.editingEntity.traverseDown()) {
+			for (const component of entity.components) {
 				const componentData = component.getComponentData();
 				this.addComponentLiveAssetListeners(component, componentData.properties, component, true);
 			}
 		}
 	}
 
-	addComponentLiveAssetListeners(rootComponent, structure, data, isRoot=false, parentObject=null, propertyChangeName=null){
-		if(isRoot || structure.type == Object){
-			for(const [name, propertyData] of Object.entries(structure)){
+	addComponentLiveAssetListeners(rootComponent, structure, data, isRoot = false, parentObject = null, propertyChangeName = null) {
+		if (isRoot || structure.type == Object) {
+			for (const [name, propertyData] of Object.entries(structure)) {
 				const dataItem = data[name];
 				this.addComponentLiveAssetListeners(rootComponent, propertyData, data[name], false, data, name);
 			}
-		}else if(structure.type == Array){
-			for(const [i, item] of data.entries()){
+		} else if (structure.type == Array) {
+			for (const [i, item] of data.entries()) {
 				this.addComponentLiveAssetListeners(rootComponent, structure.arrayOpts, item, false, data, i);
 			}
-		}else if(editor.projectAssetTypeManager.constructorHasAssetType(structure.type)){
-			if(data){
+		} else if (editor.projectAssetTypeManager.constructorHasAssetType(structure.type)) {
+			if (data) {
 				const projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(data);
 				const listener = async () => {
 					parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
 					this.notifyEntityChanged(rootComponent.entity, "componentProperty");
-				}
+				};
 				projectAsset.onNewLiveAssetInstance(listener);
 				this.createdLiveAssetChangeListeners.add({projectAsset, listener});
 			}
 		}
 	}
 
-	//type can be "create", "delete", "transform", "component" or "componentProperty"
-	notifyEntityChanged(entity, type){
-		if(!this.editingEntity.containsChild(entity) && type != "delete") return;
+	// type can be "create", "delete", "transform", "component" or "componentProperty"
+	notifyEntityChanged(entity, type) {
+		if (!this.editingEntity.containsChild(entity) && type != "delete") return;
 
 		this.markRenderDirty();
 
-		if(type == "transform"){
+		if (type == "transform") {
 			this.updateGizmoPositionsForEntity(entity);
-		}else if(type == "component" || type == "componentProperty"){
+		} else if (type == "component" || type == "componentProperty") {
 			this.updateGizmosForEntity(entity);
-		}else if(type == "delete"){
+		} else if (type == "delete") {
 			this.updateGizmosForEntity(entity, true);
 		}
 	}
