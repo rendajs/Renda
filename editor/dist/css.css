@@ -123,6 +123,18 @@ body, html{
 	z-index: 10;
 }
 
+.tabDragFeedback {
+	background: var(--color-selected-blue);
+	opacity: 0.4;
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	width: 100px;
+	height: 100px;
+	transform-origin: top left;
+	transition: transform 0.05s linear;
+}
+
 .editorContentWindowTopButtonBar > .button{
 	margin: 5px;
 }

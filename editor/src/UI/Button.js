@@ -6,17 +6,23 @@ import editor from "../editorInstance.js";
  * @property {string} [icon = ""]
  * @property {boolean} [hasDownArrow = false]
  * @property {function(Object) : void} [onClick = null]
+ * @property {boolean} [draggable = false]
+ * @property {function(DragEvent) : void} [onDragStart]
+ * @property {function(DragEvent) : void} [onDragEnd]
  *
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ButtonGuiOptionsType} ButtonGuiOptions
  */
 
 export default class Button {
+	/**
+	 * @param {ButtonGuiOptions} opts
+	 */
 	constructor({
+		disabled = false,
 		text = null,
 		icon = null,
 		hasDownArrow = false,
 		onClick = null,
-		disabled = false,
 		draggable = false,
 		onDragStart = null,
 		onDragEnd = null,

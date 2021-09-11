@@ -22,6 +22,11 @@ export default class WindowManager {
 			this.registerContentWindow(w);
 		}
 
+		this.tabDragFeedbackEl = document.createElement("div");
+		this.tabDragFeedbackEl.classList.add("tabDragFeedback");
+		// this.tabDragFeedbackEl.style.display = "none";
+		document.body.appendChild(this.tabDragFeedbackEl);
+
 		window.addEventListener("resize", () => {
 			if (this.rootWindow) {
 				this.rootWindow.onResized();
@@ -249,5 +254,15 @@ export default class WindowManager {
 		for (const w of this.allTabWindows()) {
 			w.setTabDragOverlayEnabled(enabled);
 		}
+	}
+
+	/**
+	 * @param {number} left
+	 * @param {number} top
+	 * @param {number} width
+	 * @param {number} height
+	 */
+	setTabDragFeedbackRect(left, top, width, height) {
+		this.tabDragFeedbackEl.style.transform = `translate(${left}px, ${top}px) scaleX(${width / 100}) scaleY(${height / 100})`;
 	}
 }

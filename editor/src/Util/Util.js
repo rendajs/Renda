@@ -57,15 +57,19 @@ export function generateUuid() {
 	});
 }
 
-export function parseMimeType(mimeType){
+/**
+ * @param {string} mimeType
+ * @returns {{type: string, subType: string, params: Object.<string, string>} | null}
+ */
+export function parseMimeType(mimeType) {
 	const split = mimeType.split("/");
-	if(split.length < 2) return null;
-	const type = split[0];
-	const subTypeWithParams = split[1];
+	if (split.length < 2) return null;
+	const [type, subTypeWithParams] = split;
 	const paramsSplit = subTypeWithParams.split(";");
 	const [subType, ...paramsStr] = paramsSplit;
-	const params = {}
-	for(const [name, value] of paramsStr.map(p => p.trim().split("="))){
+	/** @type {Object.<string, string>} */
+	const params = {};
+	for (const [name, value] of paramsStr.map((p) => p.trim().split("="))) {
 		params[name] = value;
 	}
 	return {type, subType, params};

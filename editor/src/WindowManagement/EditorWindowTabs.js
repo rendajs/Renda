@@ -1,5 +1,5 @@
 import EditorWindow from "./EditorWindow.js";
-import {getElemSize} from "../Util/Util.js";
+import {getElemSize, iLerp, parseMimeType} from "../Util/Util.js";
 import editor from "../editorInstance.js";
 import Button from "../UI/Button.js";
 import ButtonGroup from "../UI/ButtonGroup.js";
@@ -31,6 +31,13 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.tabDragOverlayEl = document.createElement("div");
 		this.tabDragOverlayEl.classList.add("editorWindowTabDragOverlay");
 		this.el.appendChild(this.tabDragOverlayEl);
+
+		this.lastTabDragOverlayBoundingRect = null;
+
+		this.boundOnTabDragOver = this.onTabDragOver.bind(this);
+		this.tabDragOverlayEl.addEventListener("dragover", this.boundOnTabDragOver);
+		this.boundOnTabDrop = this.onTabDrop.bind(this);
+		this.tabDragOverlayEl.addEventListener("drop", this.boundOnTabDrop);
 
 		this.setTabDragOverlayEnabled(false);
 	}
@@ -127,8 +134,10 @@ export default class EditorWindowTabs extends EditorWindow {
 						this.setActiveTabIndex(tabIndex);
 					},
 					draggable: true,
-					onDragStart: () => {
+					onDragStart: (e) => {
 						editor.windowManager.setTabDragOverlayEnabled(true);
+						e.dataTransfer.effectAllowed = "move";
+						e.dataTransfer.setData("text/jj; dragtype=editorwindowtab", "idk");
 					},
 					onDragEnd: () => {
 						editor.windowManager.setTabDragOverlayEnabled(false);
@@ -181,8 +190,14 @@ export default class EditorWindowTabs extends EditorWindow {
 		return this.tabs[this.activeTabIndex];
 	}
 
+	/**
+	 * @param {boolean} enabled
+	 */
 	setTabDragOverlayEnabled(enabled) {
 		this.tabDragOverlayEl.style.display = enabled ? null : "none";
+		if (enabled) {
+			this.lastTabDragOverlayBoundingRect = this.tabDragOverlayEl.getBoundingClientRect();
+		}
 	}
 
 	onResized() {
@@ -300,5 +315,93 @@ export default class EditorWindowTabs extends EditorWindow {
 
 		const menu = editor.contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos(e.pageX, e.pageY);
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {"center" | "left" | "right" | "top" | "bottom"}
+	 */
+	getTabDragPosition(x, y) {
+		const rect = this.lastTabDragOverlayBoundingRect;
+		const percentX = iLerp(rect.left, rect.right, x);
+		const percentY = iLerp(rect.top, rect.bottom, y);
+
+		if (percentX > 0.25 && percentX < 0.75 && percentY > 0.25 && percentY < 0.75) {
+			return "center";
+		}
+		/** @type {"left" | "right" | "top" | "bottom"} */
+		let closestEdge = null;
+		/** @type {Array<{edge: "left" | "right" | "top" | "bottom", dist: number}>} */
+		const edges = [
+			{
+				edge: "left",
+				dist: percentX,
+			},
+			{
+				edge: "right",
+				dist: 1 - percentX,
+			},
+			{
+				edge: "top",
+				dist: percentY,
+			},
+			{
+				edge: "bottom",
+				dist: 1 - percentY,
+			},
+		];
+
+		let closestEdgeDist = 1;
+		for (const edge of edges) {
+			if (edge.dist < closestEdgeDist) {
+				closestEdgeDist = edge.dist;
+				closestEdge = edge.edge;
+			}
+		}
+		return closestEdge;
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 */
+	onTabDragOver(e) {
+		if (!e.dataTransfer.types.some((mimeType) => this.validateTabDragMimeType(mimeType))) return;
+		e.preventDefault();
+		e.dataTransfer.dropEffect = "move";
+		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
+		let {left, top, width, height} = this.lastTabDragOverlayBoundingRect;
+		if (dragPosition == "left") {
+			width /= 2;
+		} else if (dragPosition == "right") {
+			width /= 2;
+			left += width;
+		} else if (dragPosition == "top") {
+			height /= 2;
+		} else if (dragPosition == "bottom") {
+			height /= 2;
+			top += height;
+		}
+		editor.windowManager.setTabDragFeedbackRect(left, top, width, height);
+	}
+
+	/**
+	 * @param {string} mimeType
+	 * @returns {boolean}
+	 */
+	validateTabDragMimeType(mimeType) {
+		const parsed = parseMimeType(mimeType);
+		if (!parsed) return false;
+		const {type, subType, params} = parsed;
+		if (type != "text" || subType != "jj" || params.dragtype != "editorwindowtab") return false;
+		return true;
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 */
+	onTabDrop(e) {
+		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
+		console.log(dragPosition);
 	}
 }
