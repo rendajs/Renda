@@ -482,24 +482,25 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @param {boolean} splitHorizontal
 	 */
 	splitWindow(emptySide, splitHorizontal) {
-		if (this.parent && this.parent instanceof EditorWindowSplit) {
-			const newSplitWindow = new EditorWindowSplit();
-			newSplitWindow.splitHorizontal = splitHorizontal;
+		const newSplitWindow = new EditorWindowSplit();
+		newSplitWindow.splitHorizontal = splitHorizontal;
 
-			const newTabWindow = new EditorWindowTabs();
-			const oldParent = this.parent;
-			if (emptySide == "left" || emptySide == "top") {
-				newSplitWindow.setWindows(newTabWindow, this);
-			} else if (emptySide == "right" || emptySide == "bottom") {
-				newSplitWindow.setWindows(this, newTabWindow);
-			} else {
-				throw new Error("Invalid emptySide value");
-			}
-
-			oldParent.replaceWindow(this, newSplitWindow);
-			return newTabWindow;
+		const newTabWindow = new EditorWindowTabs();
+		const oldParent = this.parent;
+		if (emptySide == "left" || emptySide == "top") {
+			newSplitWindow.setWindows(newTabWindow, this);
+		} else if (emptySide == "right" || emptySide == "bottom") {
+			newSplitWindow.setWindows(this, newTabWindow);
+		} else {
+			throw new Error("Invalid emptySide value");
 		}
-		return null;
+
+		if (this.isRoot) {
+			editor.windowManager.replaceRootWindow(newSplitWindow, false);
+		} else if (oldParent && oldParent instanceof EditorWindowSplit) {
+			oldParent.replaceWindow(this, newSplitWindow);
+		}
+		return newTabWindow;
 	}
 
 	unsplitParent() {
