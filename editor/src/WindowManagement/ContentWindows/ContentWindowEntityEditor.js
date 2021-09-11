@@ -227,7 +227,6 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 	addComponentLiveAssetListeners(rootComponent, structure, data, isRoot = false, parentObject = null, propertyChangeName = null) {
 		if (isRoot || structure.type == Object) {
 			for (const [name, propertyData] of Object.entries(structure)) {
-				const dataItem = data[name];
 				this.addComponentLiveAssetListeners(rootComponent, propertyData, data[name], false, data, name);
 			}
 		} else if (structure.type == Array) {

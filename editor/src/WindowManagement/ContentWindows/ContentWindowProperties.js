@@ -1,5 +1,4 @@
 import ContentWindow from "./ContentWindow.js";
-import Button from "../../UI/Button.js";
 import editor from "../../editorInstance.js";
 
 export default class ContentWindowProperties extends ContentWindow {

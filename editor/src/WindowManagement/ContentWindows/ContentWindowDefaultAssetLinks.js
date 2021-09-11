@@ -2,7 +2,6 @@ import editor from "../../editorInstance.js";
 import ContentWindow from "./ContentWindow.js";
 import PropertiesTreeView from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import ProjectAsset from "../../Assets/ProjectAsset.js";
-import {generateUuid} from "../../Util/Util.js";
 
 export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";

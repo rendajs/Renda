@@ -66,7 +66,7 @@ export default class Editor {
 
 	init() {
 		this.builtInAssetManager.init();
-		defaultEngineAssetsManager.addGetAssetHandler(async (uuid) => {
+		defaultEngineAssetsManager.addGetAssetHandler(async uuid => {
 			await this.builtInAssetManager.waitForLoad();
 			await this.projectManager.waitForAssetManagerLoad();
 			const projectAsset = this.builtInAssetManager.assets.get(uuid);
@@ -74,7 +74,7 @@ export default class Editor {
 			return await projectAsset.getLiveAsset();
 		});
 		if (IS_DEV_BUILD) {
-			this.builtInAssetManager.onAssetChange((uuid) => {
+			this.builtInAssetManager.onAssetChange(uuid => {
 				defaultEngineAssetsManager.notifyAssetChanged(uuid);
 			});
 		}
@@ -88,7 +88,7 @@ export default class Editor {
 		this.materialMapTypeManager.init();
 		this.builtInDefaultAssetLinksManager.init();
 
-		this.webGpuShaderBuilder.onShaderUuidRequested(async (uuid) => {
+		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);
 			if (projectAsset) {
 				if (projectAsset.assetType == "JJ:shaderSource") {
@@ -98,7 +98,7 @@ export default class Editor {
 			return null;
 		});
 
-		this.projectManager.onExternalChange(async (e) => {
+		this.projectManager.onExternalChange(async e => {
 			const uuid = await this.projectManager.assetManager.getAssetUuidFromPath(e.path);
 			editor.webGpuShaderBuilder.invalidateShader(uuid);
 		});

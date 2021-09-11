@@ -105,8 +105,8 @@ export default class ContentWindowOutliner extends ContentWindow {
 
 	onTreeViewSelectionChange(changes) {
 		if (!this.linkedEntityEditor) return;
-		changes.added = changes.added.map((treeView) => this.getEntityByTreeViewItem(treeView));
-		changes.removed = changes.removed.map((treeView) => this.getEntityByTreeViewItem(treeView));
+		changes.added = changes.added.map(treeView => this.getEntityByTreeViewItem(treeView));
+		changes.removed = changes.removed.map(treeView => this.getEntityByTreeViewItem(treeView));
 		this.selectionManager.changeSelection(changes);
 	}
 
