@@ -438,6 +438,20 @@ export default class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
+	 * @param {Array<string>} uuids
+	 * @param {boolean} [fromOtherTabsOnly = false]
+	 */
+	*uuidsToContentWindows(uuids, fromOtherTabsOnly = false) {
+		for (const uuid of uuids) {
+			if (fromOtherTabsOnly && this.tabs.some(tab => tab.uuid == uuid)) continue;
+			const contentWindow = editor.windowManager.getContentWindowByUuid(uuid);
+			if (contentWindow) {
+				yield contentWindow;
+			}
+		}
+	}
+
+	/**
 	 * @param {DragEvent} e
 	 */
 	async onTabDrop(e) {
@@ -450,13 +464,40 @@ export default class EditorWindowTabs extends EditorWindow {
 		});
 		const tabUuids = await Promise.all(tabUuidPromisess);
 		if (dragPosition == "center") {
-			const tabUuidsFromOtherTab = tabUuids.filter(uuid => !this.tabs.some(tab => tab.uuid == uuid));
-			for (const uuid of tabUuidsFromOtherTab) {
-				const contentWindow = editor.windowManager.getContentWindowByUuid(uuid);
-				if (contentWindow) {
-					this.addExistingContentWindow(contentWindow);
-				}
+			for (const contentWindow of this.uuidsToContentWindows(tabUuids, true)) {
+				this.addExistingContentWindow(contentWindow);
+			}
+		} else {
+			const splitHorizontal = dragPosition == "top" || dragPosition == "bottom";
+			const createdTabWindow = this.splitWindow(dragPosition, splitHorizontal);
+			for (const contentWindow of this.uuidsToContentWindows(tabUuids)) {
+				createdTabWindow.addExistingContentWindow(contentWindow);
 			}
 		}
+	}
+
+	/**
+	 * @param {"left" | "right" | "top" | "bottom"} emptySide
+	 * @param {boolean} splitHorizontal
+	 */
+	splitWindow(emptySide, splitHorizontal) {
+		if (this.parent && this.parent instanceof EditorWindowSplit) {
+			const newSplitWindow = new EditorWindowSplit();
+			newSplitWindow.splitHorizontal = splitHorizontal;
+
+			const newTabWindow = new EditorWindowTabs();
+			const oldParent = this.parent;
+			if (emptySide == "left" || emptySide == "top") {
+				newSplitWindow.setWindows(newTabWindow, this);
+			} else if (emptySide == "right" || emptySide == "bottom") {
+				newSplitWindow.setWindows(this, newTabWindow);
+			} else {
+				throw new Error("Invalid emptySide value");
+			}
+
+			oldParent.replaceWindow(this, newSplitWindow);
+			return newTabWindow;
+		}
+		return null;
 	}
 }

@@ -155,22 +155,22 @@ export default class EditorWindowSplit extends EditorWindow {
 		if (this.isRoot) {
 			editor.windowManager.replaceRootWindow(remainingWindow);
 		} else if (this.parent && this.parent instanceof EditorWindowSplit) {
-			this.parent.replaceSplitWindow(this, remainingWindow);
+			this.parent.replaceWindow(this, remainingWindow);
+			this.destructor();
 		}
 	}
 
 	/**
-	 * @param {EditorWindow} oldSplitWindow
+	 * @param {EditorWindow} oldWindow
 	 * @param {EditorWindow} newWindow
 	 */
-	replaceSplitWindow(oldSplitWindow, newWindow) {
-		if (this.windowA === oldSplitWindow) {
+	replaceWindow(oldWindow, newWindow) {
+		if (this.windowA === oldWindow) {
 			this.windowA = newWindow;
-		} else if (this.windowB === oldSplitWindow) {
+		} else if (this.windowB === oldWindow) {
 			this.windowB = newWindow;
 		}
 		newWindow.setParent(this);
-		oldSplitWindow.destructor();
 		this.updateEls();
 	}
 
