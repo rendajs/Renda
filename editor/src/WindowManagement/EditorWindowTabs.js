@@ -178,12 +178,12 @@ export default class EditorWindowTabs extends EditorWindow {
 					},
 					draggable: true,
 					onDragStart: e => {
-						editor.windowManager.setTabDragOverlayEnabled(true);
+						editor.windowManager.setTabDragEnabled(true);
 						e.dataTransfer.effectAllowed = "move";
 						e.dataTransfer.setData("text/jj; dragtype=editorwindowtab", contentWindow.uuid);
 					},
 					onDragEnd: () => {
-						editor.windowManager.setTabDragOverlayEnabled(false);
+						editor.windowManager.setTabDragEnabled(false);
 					},
 				});
 				this.tabsSelectorGroup.addButton(newButton);

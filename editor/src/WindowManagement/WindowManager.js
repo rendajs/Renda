@@ -24,7 +24,7 @@ export default class WindowManager {
 
 		this.tabDragFeedbackEl = document.createElement("div");
 		this.tabDragFeedbackEl.classList.add("tabDragFeedback");
-		// this.tabDragFeedbackEl.style.display = "none";
+		this.tabDragFeedbackEl.style.display = "none";
 		document.body.appendChild(this.tabDragFeedbackEl);
 
 		window.addEventListener("resize", () => {
@@ -274,10 +274,11 @@ export default class WindowManager {
 	/**
 	 * @param {boolean} enabled
 	 */
-	setTabDragOverlayEnabled(enabled) {
+	setTabDragEnabled(enabled) {
 		for (const w of this.allTabWindows()) {
 			w.setTabDragOverlayEnabled(enabled);
 		}
+		this.tabDragFeedbackEl.style.display = enabled ? null : "none";
 	}
 
 	/**
