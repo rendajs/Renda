@@ -47,12 +47,19 @@ export default class WindowManager {
 		this.markRootWindowAsRoot();
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
-		this.saveWorkspace();
+		this.autoSaveWorkspace();
 	}
 
 	async reloadCurrentWorkspace() {
 		const workspaceData = await this.workspaceManager.getCurrentWorkspace();
 		this.loadWorkspace(workspaceData);
+	}
+
+	async autoSaveWorkspace() {
+		const autoSaveValue = await this.workspaceManager.getAutoSaveValue();
+		if (autoSaveValue) {
+			await this.saveWorkspace();
+		}
 	}
 
 	async saveWorkspace() {
@@ -86,7 +93,7 @@ export default class WindowManager {
 		this.rootWindow.setRoot();
 		this.rootWindow.onWorkspaceChange(() => {
 			if (!this.isLoadingWorkspace) {
-				this.saveWorkspace();
+				this.autoSaveWorkspace();
 			}
 		});
 	}

@@ -98,7 +98,11 @@ export default class WorkspaceManager {
 	 * @param {WorkspaceData} workspaceData
 	 */
 	async saveCurrentWorkspace(workspaceData) {
-		await this.saveWorkspace(await this.getCurrentWorkspaceId(), workspaceData);
+		const newWorkspaceData = {
+			autosaveWorkspace: await this.getAutoSaveValue(),
+			...workspaceData,
+		};
+		await this.saveWorkspace(await this.getCurrentWorkspaceId(), newWorkspaceData);
 	}
 
 	/**
@@ -128,7 +132,7 @@ export default class WorkspaceManager {
 			throw new Error("Cannot delete workspace when it's the only one");
 		}
 		const currentWorkspace = await this.getCurrentWorkspaceId();
-		const newList = list.filter((id) => id != currentWorkspace);
+		const newList = list.filter(id => id != currentWorkspace);
 		await this.setWorkspacesList(newList);
 		await this.setCurrentWorkspaceId(newList[0]); // todo: update windowmanager workspace
 	}
@@ -144,7 +148,7 @@ export default class WorkspaceManager {
 	async setAutoSaveValue(value) {
 		const workspaceData = await this.getCurrentWorkspace();
 		workspaceData.autosaveWorkspace = value;
-		await this.indexedDb.set(await this.getCurrentWorkspaceId(), workspaceData, "workspaces");
+		await this.saveCurrentWorkspace(workspaceData);
 	}
 
 	/**
