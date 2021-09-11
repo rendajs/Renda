@@ -128,9 +128,9 @@ export default class WorkspaceManager {
 			throw new Error("Cannot delete workspace when it's the only one");
 		}
 		const currentWorkspace = await this.getCurrentWorkspaceId();
-		const newList = list.filter(id => id != currentWorkspace);
+		const newList = list.filter((id) => id != currentWorkspace);
 		await this.setWorkspacesList(newList);
-		await this.setCurrentWorkspaceId(newList[0]); //todo: update windowmanager workspace
+		await this.setCurrentWorkspaceId(newList[0]); // todo: update windowmanager workspace
 	}
 
 	async getAutoSaveValue() {
@@ -199,8 +199,8 @@ export default class WorkspaceManager {
 						type: "tabs",
 						tabTypes: ["properties"],
 					},
-				}
-			}
-		}
+				},
+			},
+		};
 	}
 }

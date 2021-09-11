@@ -18,7 +18,7 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.activeTabIndex = -1;
 
 		this.tabsSelectorGroup = new ButtonGroup();
-		this.tabsSelectorGroup.el.classList.add("editorWindowTabButtonGroup")
+		this.tabsSelectorGroup.el.classList.add("editorWindowTabButtonGroup");
 		this.el.appendChild(this.tabsSelectorGroup.el);
 
 		this.boundOnTabsContextMenu = this.onTabsContextMenu.bind(this);
@@ -35,9 +35,9 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.setTabDragOverlayEnabled(false);
 	}
 
-	destructor(){
+	destructor() {
 		this.tabTypes = null;
-		for(const tab of this.tabs){
+		for (const tab of this.tabs) {
 			tab.destructor();
 		}
 		this.tabs = null;
@@ -47,7 +47,7 @@ export default class EditorWindowTabs extends EditorWindow {
 		super.destructor();
 	}
 
-	updateEls(){
+	updateEls() {
 		this.updateTabSelectorSpacer();
 	}
 
@@ -56,10 +56,10 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @param {String} tabType
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
-	setTabType(index, tabType){
+	setTabType(index, tabType) {
 		this.tabTypes[index] = tabType;
-		let constructor = editor.windowManager.getContentWindowConstructorByType(tabType);
-		if(constructor){
+		const constructor = editor.windowManager.getContentWindowConstructorByType(tabType);
+		if (constructor) {
 			return this.loadContentWindow(index, constructor);
 		}
 		return null;
@@ -70,7 +70,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @param {Boolean} activate Whether to set the tab as active.
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
-	addTabType(tabType, activate = false){
+	addTabType(tabType, activate = false) {
 		const index = this.tabTypes.length;
 		const contentWindow = this.setTabType(index, tabType);
 		if (activate) {
@@ -95,9 +95,9 @@ export default class EditorWindowTabs extends EditorWindow {
 	/**
 	 * @param {typeof import("./ContentWindows/ContentWindow.js").default} constructor
 	 */
-	onContentWindowRegistered(constructor){
-		for(let i=0; i<this.tabTypes.length; i++){
-			if(this.tabTypes[i] == constructor.contentWindowTypeId){
+	onContentWindowRegistered(constructor) {
+		for (let i = 0; i < this.tabTypes.length; i++) {
+			if (this.tabTypes[i] == constructor.contentWindowTypeId) {
 				this.loadContentWindow(i, constructor);
 			}
 		}
@@ -108,7 +108,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @param {typeof import("./ContentWindows/ContentWindow.js").default} constructor
 	 * @returns
 	 */
-	loadContentWindow(index, constructor){
+	loadContentWindow(index, constructor) {
 		const contentWindow = new constructor(this);
 		this.tabs[index] = contentWindow;
 		this.tabsEl.appendChild(contentWindow.el);
@@ -132,16 +132,16 @@ export default class EditorWindowTabs extends EditorWindow {
 					},
 					onDragEnd: () => {
 						editor.windowManager.setTabDragOverlayEnabled(false);
-					}
+					},
 				});
 				this.tabsSelectorGroup.addButton(newButton);
 			}
-		}else if(deltaCount < 0){
+		} else if (deltaCount < 0) {
 			for (let i = this.tabsSelectorGroup.buttons.length - 1; i >= this.tabs.length; i--) {
 				this.tabsSelectorGroup.removeButton(i);
 			}
 		}
-		if(deltaCount != 0){
+		if (deltaCount != 0) {
 			this.updateTabSelectorSpacer();
 		}
 
@@ -155,29 +155,29 @@ export default class EditorWindowTabs extends EditorWindow {
 		}
 	}
 
-	updateTabSelectorSpacer(){
-		let [w,h] = getElemSize(this.tabsSelectorGroup.el);
-		for(const tab of this.tabs){
+	updateTabSelectorSpacer() {
+		const [w, h] = getElemSize(this.tabsSelectorGroup.el);
+		for (const tab of this.tabs) {
 			tab.updateTabSelectorSpacer(w, h);
 		}
 	}
 
-	setActiveTabIndex(index){
+	setActiveTabIndex(index) {
 		this.activeTabIndex = index;
-		for(let i=0; i<this.tabs.length; i++){
-			let active = i == index;
+		for (let i = 0; i < this.tabs.length; i++) {
+			const active = i == index;
 			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
 			this.tabs[i].setVisible(active);
 		}
 		this.fireWorkspaceChangeCbs();
 	}
 
-	setActiveContentWindow(contentWindow){
+	setActiveContentWindow(contentWindow) {
 		const index = this.tabs.indexOf(contentWindow);
 		this.setActiveTabIndex(index);
 	}
 
-	get activeTab(){
+	get activeTab() {
 		return this.tabs[this.activeTabIndex];
 	}
 
@@ -185,8 +185,8 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.tabDragOverlayEl.style.display = enabled ? null : "none";
 	}
 
-	onResized(){
-		for(const tab of this.tabs){
+	onResized() {
+		for (const tab of this.tabs) {
 			tab.onResized();
 		}
 	}
@@ -240,7 +240,7 @@ export default class EditorWindowTabs extends EditorWindow {
 
 					const currentWorkspace = await editor.windowManager.workspaceManager.getCurrentWorkspaceId();
 
-					const workspaces = await editor.windowManager.workspaceManager.getWorkspacesList()
+					const workspaces = await editor.windowManager.workspaceManager.getWorkspacesList();
 					for (const workspaceId of workspaces) {
 						workspacesSubmenu.push({
 							text: workspaceId,
@@ -254,47 +254,48 @@ export default class EditorWindowTabs extends EditorWindow {
 
 					let autoSaveValue = await editor.windowManager.workspaceManager.getAutoSaveValue();
 
-					workspacesSubmenu.push({
-						horizontalLine: true,
-					},
-					{
-						text: "Add New Workspace",
-						onClick: () => {
-							const name = prompt("Enter Workspace Name", `Copy of ${currentWorkspace}`);
-							if (name && !workspaces.includes(name)) {
-								editor.windowManager.workspaceManager.addNewWorkspace(name);
-							}
+					workspacesSubmenu.push(
+						{
+							horizontalLine: true,
 						},
-					},
-					{
-						text: `Save '${currentWorkspace}'`,
-						onClick: () => {
-							editor.windowManager.saveWorkspace();
+						{
+							text: "Add New Workspace",
+							onClick: () => {
+								const name = prompt("Enter Workspace Name", `Copy of ${currentWorkspace}`);
+								if (name && !workspaces.includes(name)) {
+									editor.windowManager.workspaceManager.addNewWorkspace(name);
+								}
+							},
 						},
-					},
-					{
-						text: `Autosave '${currentWorkspace}'`,
-						reserveIconSpace: true,
-						showCheckmark: autoSaveValue,
-						onClick: (e) => {
-							e.preventMenuClose();
-							autoSaveValue = !autoSaveValue;
-							e.item.showCheckmark = autoSaveValue;
-							editor.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
+						{
+							text: `Save '${currentWorkspace}'`,
+							onClick: () => {
+								editor.windowManager.saveWorkspace();
+							},
 						},
-					},
-					{
-						text: `Delete '${currentWorkspace}'`,
-						disabled: workspaces.length <= 1,
-						onClick: () => {
-							editor.windowManager.workspaceManager.deleteCurrentWorkspace();
+						{
+							text: `Autosave '${currentWorkspace}'`,
+							reserveIconSpace: true,
+							showCheckmark: autoSaveValue,
+							onClick: (e) => {
+								e.preventMenuClose();
+								autoSaveValue = !autoSaveValue;
+								e.item.showCheckmark = autoSaveValue;
+								editor.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
+							},
 						},
-					}
+						{
+							text: `Delete '${currentWorkspace}'`,
+							disabled: workspaces.length <= 1,
+							onClick: () => {
+								editor.windowManager.workspaceManager.deleteCurrentWorkspace();
+							},
+						}
 					);
 
 					return workspacesSubmenu;
 				},
-			}
+			},
 		];
 
 		const menu = editor.contextMenuManager.createContextMenu(contextMenuStructure);
