@@ -1,3 +1,5 @@
+import {generateUuid} from "../../Util/Util.js";
+
 export default class ContentWindow {
 	/**
 	 * Should be overridden by inherited class.
@@ -18,8 +20,10 @@ export default class ContentWindow {
 	 */
 	static contentWindowUiIcon = "icons/generic.svg";
 
-	constructor(parentEditorWindow) {
-		this.parentEditorWindow = parentEditorWindow;
+	constructor() {
+		/** @type {import("../EditorWindow.js").default} */
+		this.parentEditorWindow = null;
+		this.uuid = generateUuid();
 
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
@@ -52,6 +56,19 @@ export default class ContentWindow {
 			b.destructor();
 		}
 		this.addedButtons = [];
+	}
+
+	/**
+	 * @param {import("../EditorWindow.js").default} parentEditorWindow
+	 */
+	attachParentEditorWindow(parentEditorWindow) {
+		this.parentEditorWindow = parentEditorWindow;
+	}
+
+	detachParentEditorWindow() {
+		if (!this.parentEditorWindow) return;
+		this.parentEditorWindow.contentWindowDetached(this);
+		this.parentEditorWindow = null;
 	}
 
 	setVisible(visible) {

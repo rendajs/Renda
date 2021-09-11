@@ -98,7 +98,7 @@ export default class WindowManager {
 				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
 			newWindow.setActiveTabIndex(workspaceWindow.activeTabIndex || 0);
-			newWindow.onFocusedChange((hasFocus) => {
+			newWindow.onFocusedChange(hasFocus => {
 				if (hasFocus) this.lastFocusedEditorWindow = newWindow;
 			});
 		}
@@ -211,6 +211,17 @@ export default class WindowManager {
 				yield w;
 			}
 		}
+	}
+
+	/**
+	 * @param {string} uuid
+	 * @returns {ContentWindow?}
+	 */
+	getContentWindowByUuid(uuid) {
+		for (const contentWindow of this.allContentWindows()) {
+			if (contentWindow.uuid == uuid) return contentWindow;
+		}
+		return null;
 	}
 
 	/**

@@ -116,11 +116,50 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @returns
 	 */
 	loadContentWindow(index, constructor) {
-		const contentWindow = new constructor(this);
+		const contentWindow = new constructor();
+		this.setExistingContentWindow(index, contentWindow);
+		return contentWindow;
+	}
+
+	/**
+	 * @param {number} index
+	 * @param {import("./ContentWindows/ContentWindow.js").default} contentWindow
+	 */
+	setExistingContentWindow(index, contentWindow) {
+		if (this.tabs[index]) throw new Error("nyi");
+		contentWindow.detachParentEditorWindow();
+		contentWindow.attachParentEditorWindow(this);
 		this.tabs[index] = contentWindow;
+		const castConstructor = /** @type {typeof import("./ContentWindows/ContentWindow.js").default} */ (contentWindow.constructor);
+		this.tabTypes[index] = castConstructor.contentWindowTypeId;
 		this.tabsEl.appendChild(contentWindow.el);
 		this.updateTabSelector();
-		return contentWindow;
+	}
+
+	/**
+	 * @param {import("./ContentWindows/ContentWindow.js").default} contentWindow
+	 * @param {boolean} [activate = true]
+	 */
+	addExistingContentWindow(contentWindow, activate = true) {
+		const index = this.tabTypes.length;
+		this.setExistingContentWindow(index, contentWindow);
+		if (activate) {
+			this.setActiveTabIndex(index);
+		}
+		this.fireWorkspaceChangeCbs();
+	}
+
+	/**
+	 * @param {import("./ContentWindows/ContentWindow.js").default} contentWindow
+	 */
+	contentWindowDetached(contentWindow) {
+		const index = this.tabs.indexOf(contentWindow);
+		if (index >= 0) {
+			this.tabs.splice(index, 1);
+			this.tabTypes.splice(index, 1);
+			this.updateTabSelector();
+			this.fireWorkspaceChangeCbs();
+		}
 	}
 
 	updateTabSelector() {
@@ -129,15 +168,16 @@ export default class EditorWindowTabs extends EditorWindow {
 		if (deltaCount > 0) {
 			for (let i = 0; i < deltaCount; i++) {
 				const tabIndex = prevTabCount + i;
+				const contentWindow = this.tabs[tabIndex];
 				const newButton = new Button({
 					onClick: () => {
 						this.setActiveTabIndex(tabIndex);
 					},
 					draggable: true,
-					onDragStart: (e) => {
+					onDragStart: e => {
 						editor.windowManager.setTabDragOverlayEnabled(true);
 						e.dataTransfer.effectAllowed = "move";
-						e.dataTransfer.setData("text/jj; dragtype=editorwindowtab", "idk");
+						e.dataTransfer.setData("text/jj; dragtype=editorwindowtab", contentWindow.uuid);
 					},
 					onDragEnd: () => {
 						editor.windowManager.setTabDragOverlayEnabled(false);
@@ -292,7 +332,7 @@ export default class EditorWindowTabs extends EditorWindow {
 							text: `Autosave '${currentWorkspace}'`,
 							reserveIconSpace: true,
 							showCheckmark: autoSaveValue,
-							onClick: (e) => {
+							onClick: e => {
 								e.preventMenuClose();
 								autoSaveValue = !autoSaveValue;
 								e.item.showCheckmark = autoSaveValue;
@@ -366,7 +406,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @param {DragEvent} e
 	 */
 	onTabDragOver(e) {
-		if (!e.dataTransfer.types.some((mimeType) => this.validateTabDragMimeType(mimeType))) return;
+		if (!e.dataTransfer.types.some(mimeType => this.validateTabDragMimeType(mimeType))) return;
 		e.preventDefault();
 		e.dataTransfer.dropEffect = "move";
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
@@ -400,8 +440,23 @@ export default class EditorWindowTabs extends EditorWindow {
 	/**
 	 * @param {DragEvent} e
 	 */
-	onTabDrop(e) {
+	async onTabDrop(e) {
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
-		console.log(dragPosition);
+		const tabUuidPromisess = Array.from(e.dataTransfer.items).filter(item => {
+			if (item.kind != "string") return false;
+			return this.validateTabDragMimeType(item.type);
+		}).map(item => {
+			return new Promise(r => item.getAsString(r));
+		});
+		const tabUuids = await Promise.all(tabUuidPromisess);
+		if (dragPosition == "center") {
+			const tabUuidsFromOtherTab = tabUuids.filter(uuid => !this.tabs.some(tab => tab.uuid == uuid));
+			for (const uuid of tabUuidsFromOtherTab) {
+				const contentWindow = editor.windowManager.getContentWindowByUuid(uuid);
+				if (contentWindow) {
+					this.addExistingContentWindow(contentWindow);
+				}
+			}
+		}
 	}
 }

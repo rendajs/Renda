@@ -65,6 +65,11 @@ export default class EditorWindow {
 	 */
 	*getChildren() {}
 
+	/**
+	 * @param {import("./ContentWindows/ContentWindow.js").default} contentWindow
+	 */
+	contentWindowDetached(contentWindow) {}
+
 	onResized() {}
 
 	/**
