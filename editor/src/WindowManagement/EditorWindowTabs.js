@@ -158,6 +158,9 @@ export default class EditorWindowTabs extends EditorWindow {
 			this.tabs.splice(index, 1);
 			this.tabTypes.splice(index, 1);
 			this.updateTabSelector();
+			if (this.tabTypes.length == 0) {
+				this.unsplitParent();
+			}
 			this.fireWorkspaceChangeCbs();
 		}
 	}
@@ -277,9 +280,7 @@ export default class EditorWindowTabs extends EditorWindow {
 					const index = this.tabsSelectorGroup.buttons.indexOf(button);
 					this.closeTab(index);
 					if (this.tabs.length == 0) {
-						if (this.parent && this.parent instanceof EditorWindowSplit) {
-							this.parent.unsplitWindow(this);
-						}
+						this.unsplitParent();
 					}
 				},
 			},
@@ -499,5 +500,11 @@ export default class EditorWindowTabs extends EditorWindow {
 			return newTabWindow;
 		}
 		return null;
+	}
+
+	unsplitParent() {
+		if (this.parent && this.parent instanceof EditorWindowSplit) {
+			this.parent.unsplitWindow(this);
+		}
 	}
 }
