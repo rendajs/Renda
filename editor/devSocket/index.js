@@ -8,22 +8,22 @@ import ClosureCompilerManager from "./ClosureCompilerManager.js";
 const port = 5071;
 
 const httpServer = http.createServer((request, response) => {});
-httpServer.listen(port, function() {});
+httpServer.listen(port, () => {});
 console.log("listening for websocket connections on port " + port);
 
 const wsServer = new WebSocketServer({
 	httpServer,
 	autoAcceptConnections: true,
-	fragmentationThreshold: 1_000_000_000, //1 GB
-	maxReceivedFrameSize: 1_000_000_000, //1 GB
+	fragmentationThreshold: 1_000_000_000, // 1 GB
+	maxReceivedFrameSize: 1_000_000_000, // 1 GB
 });
 const activeConnections = new Set();
 wsServer.on("connect", connection => {
 	activeConnections.add(connection);
 	connection.on("message", e => {
-		if(e.type == "utf8"){
-			const json = JSON.parse(e.utf8Data)
-			if(json.op == "roundTripRequest"){
+		if (e.type == "utf8") {
+			const json = JSON.parse(e.utf8Data);
+			if (json.op == "roundTripRequest") {
 				const responseCb = responseData => {
 					connection.send(JSON.stringify({
 						op: "roundTripResponse",
@@ -32,10 +32,10 @@ wsServer.on("connect", connection => {
 							responseData,
 						},
 					}));
-				}
-				if(json.roundTripOp == "runClosureCompiler"){
+				};
+				if (json.roundTripOp == "runClosureCompiler") {
 					globalThis.closureCompilerManager.compileJs(responseCb, json.data);
-				}else if(json.roundTripOp == "writeBuiltInAsset"){
+				} else if (json.roundTripOp == "writeBuiltInAsset") {
 					globalThis.builtInAssetManager.writeAssetData(json.data.path, json.data.writeData, responseCb);
 				}
 			}
@@ -46,9 +46,9 @@ wsServer.on("close", connection => {
 	activeConnections.delete(connection);
 });
 
-export function sendAllConnections(op, data){
+export function sendAllConnections(op, data) {
 	const str = JSON.stringify({op, data});
-	for(const connection of activeConnections){
+	for (const connection of activeConnections) {
 		connection.sendUTF(str);
 	}
 }
