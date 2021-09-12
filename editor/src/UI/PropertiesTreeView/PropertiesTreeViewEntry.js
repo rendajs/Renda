@@ -31,7 +31,11 @@ import {prettifyVariableName} from "../../Util/Util.js";
  */
 
 /**
- * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | "button"} PropertiesTreeViewEntryType
+ * @typedef {*} DroppableGuiConstructorType
+ */
+
+/**
+ * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | DroppableGuiConstructorType | "button"} PropertiesTreeViewEntryType
  */
 
 /**

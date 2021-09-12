@@ -41,6 +41,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 
 		this.addMapTypeButtonEntry = this.treeView.addItem({
 			type: "button",
+			/** @type {import("../UI/Button.js").ButtonGuiOptions} */
 			guiOpts: {
 				text: "Add Map Type",
 				onClick: () => {

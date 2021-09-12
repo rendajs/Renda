@@ -54,6 +54,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 			this.activeAssetSettingsStructureUi = null;
 		}
 
+		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
 		let settingsStructure = {};
 		let settingsValues = {};
 

@@ -8,6 +8,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		super();
 		this.bundleSettingsTree = this.treeView.addCollapsable("asset bundle settings");
 
+		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
 		this.bundleSettingsStructure = {
 			outputLocation: {
 				type: String,
@@ -17,6 +18,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 			},
 			bundleButton: {
 				type: "button",
+				/** @type {import("../UI/Button.js").ButtonGuiOptions} */
 				guiOpts: {
 					text: "Bundle",
 					onClick: () => {

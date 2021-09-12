@@ -16,6 +16,7 @@ export default class MaterialMapListUi{
 			});
 			const mappedNameEntry = collapsable.addItem({
 				type: String,
+				/** @type {import("../UI/TextGui.js").TextGuiOptions} */
 				guiOpts: {
 					label: "Mapped Name",
 					placeholder: item.name,

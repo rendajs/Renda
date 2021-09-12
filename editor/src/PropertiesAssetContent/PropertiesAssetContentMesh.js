@@ -1,6 +1,5 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../src/index.js";
-import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 
 export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
@@ -9,8 +8,11 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent{
 
 		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
 
+		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
 		this.meshSettingsStructure = {
-			vertexState: {type: VertexState},
+			vertexState: {
+				type: VertexState,
+			},
 			attributes: {
 				type: Array,
 				arrayOpts: {

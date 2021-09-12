@@ -73,7 +73,7 @@ export default class ArrayGui{
 			type: this.type,
 			guiOpts: {
 				smallLabel: true,
-				label: index,
+				label: "" + index,
 				...this.arrayOpts.guiOpts,
 				...extraArrayOpts,
 			},
