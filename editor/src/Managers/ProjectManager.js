@@ -3,6 +3,7 @@ import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.j
 import EditorFileSystemIndexedDB from "../Util/FileSystems/EditorFileSystemIndexedDB.js";
 import AssetManager from "../Assets/AssetManager.js";
 import IndexedDbUtil from "../Util/IndexedDbUtil.js";
+import EditorConnectionServer from "../Network/EditorConnectionServer.js";
 
 export default class ProjectManager {
 	constructor() {
@@ -86,6 +87,21 @@ export default class ProjectManager {
 	suggestCheckExternalChanges() {
 		if (this.currentProjectFileSystem) {
 			this.currentProjectFileSystem.suggestCheckExternalChanges();
+		}
+	}
+
+	/**
+	 * @param {string?} endpoint
+	 */
+	setEditorConnectionServerEndpoint(endpoint) {
+		if (!endpoint && this.editorConnectionServer) {
+			this.editorConnectionServer.destructor();
+			this.editorConnectionServer = null;
+		} else if (endpoint) {
+			if (!this.editorConnectionServer) {
+				this.editorConnectionServer = new EditorConnectionServer();
+			}
+			this.editorConnectionServer.setEndpoint(endpoint);
 		}
 	}
 }
