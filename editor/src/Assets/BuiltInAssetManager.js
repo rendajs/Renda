@@ -2,7 +2,7 @@ import ProjectAsset from "./ProjectAsset.js";
 import {SingleInstancePromise, arrayBufferToBase64} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
-import {toFormattedJsonString} from "../Util/Util.js";
+import toFormattedJsonString from "../Util/toFormattedJsonString.js";
 import AssetManager from "./AssetManager.js";
 
 export default class BuiltInAssetManager{

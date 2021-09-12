@@ -1,4 +1,4 @@
-import {toFormattedJsonString} from "../Util.js";
+import toFormattedJsonString from "../toFormattedJsonString.js";
 
 export default class EditorFileSystem{
 	constructor(){

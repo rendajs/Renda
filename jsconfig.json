@@ -5,5 +5,5 @@
 		"checkJs": true,
 		"typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"]
 	},
-	"files": ["src/index.js", "editor/src/index.js", "editor/devSocket/index.js"]
+	"files": ["src/index.js", "editor/src/index.js"]
 }
