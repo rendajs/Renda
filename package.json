@@ -9,8 +9,8 @@
 		"build-editor": "node editor/build.js",
 		"build-editor-dependencies": "node editor/buildDependencies.js",
 		"build-editor-dev": "node editor/build.js --dev",
-		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js'",
-		"typecheck": "tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p ./jsconfig.json",
+		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold' 'node editor/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js' 'node editor/EditorConnectionDiscovery/index.js'",
+		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
 		"lint": "npm run typecheck && eslint .",
 		"prepare": "husky install",
 		"precommit": "npm run typecheck"
@@ -20,6 +20,7 @@
 		"@types/google-closure-compiler": "^0.0.19",
 		"@types/js-md5": "^0.4.3",
 		"@types/node": "^16.9.1",
+		"@types/websocket": "^1.0.4",
 		"@types/wicg-file-system-access": "^2020.9.2",
 		"@webgpu/types": "^0.1.6",
 		"babel-eslint": "^10.1.0",
