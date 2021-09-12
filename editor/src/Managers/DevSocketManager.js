@@ -1,7 +1,7 @@
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 
-export default class DevSocketManager{
-	constructor(){
+export default class DevSocketManager {
+	constructor() {
 		this.listeners = new Map();
 		this.roundTripCbs = new Set();
 
@@ -22,25 +22,26 @@ export default class DevSocketManager{
 		this.tryConnectionOnce();
 	}
 
-	get connected(){
-		if(!this.ws) return false;
+	get connected() {
+		if (!this.ws) return false;
 		return this.ws.readyState == WebSocket.OPEN;
 	}
 
-	async tryConnectionOnceFn(){
-		const ws = this.ws = new WebSocket("ws://localhost:5071");
+	async tryConnectionOnceFn() {
+		const ws = new WebSocket("ws://localhost:5071");
+		this.ws = ws;
 		this.ws.addEventListener("message", e => {
-			if(this.ws != ws) return;
+			if (this.ws != ws) return;
 			this.handleMessage(e);
 		});
 		return await new Promise(resolve => {
 			this.ws.addEventListener("open", e => {
-				if(this.ws != ws) return;
+				if (this.ws != ws) return;
 				this.connectedOnce = true;
 				resolve(true);
 			});
 			this.ws.addEventListener("close", e => {
-				if(this.ws != ws) return;
+				if (this.ws != ws) return;
 				this.ws = null;
 				resolve(false);
 				this.handleClose();
@@ -48,69 +49,69 @@ export default class DevSocketManager{
 		});
 	}
 
-	async tryConnectionOnce(){
+	async tryConnectionOnce() {
 		return await this.tryConnectionOnceInstance.run();
 	}
 
-	async tryConnectionMultipleFn(){
+	async tryConnectionMultipleFn() {
 		let attempts = 0;
-		while(true){
+		while (true) {
 			attempts++;
-			if(attempts > 3) return false;
+			if (attempts > 3) return false;
 
 			await new Promise(r => setTimeout(r, attempts * 1000));
 
 			const success = await this.tryConnectionOnce();
-			if(success) return true;
+			if (success) return true;
 		}
 	}
 
-	async tryConnectionMultiple(){
+	async tryConnectionMultiple() {
 		return await this.tryConnectionMultipleInstance.run();
 	}
 
-	handleMessage(e){
+	handleMessage(e) {
 		const data = JSON.parse(e.data);
-		if(!data.op) return;
-		if(data.op == "roundTripResponse"){
-			for(const roundTripItem of this.roundTripCbs){
-				if(roundTripItem.id == data.data.roundTripId){
+		if (!data.op) return;
+		if (data.op == "roundTripResponse") {
+			for (const roundTripItem of this.roundTripCbs) {
+				if (roundTripItem.id == data.data.roundTripId) {
 					roundTripItem.cb(data.data.responseData);
 					this.roundTripCbs.delete(roundTripItem);
 				}
 			}
-		}else{
+		} else {
 			const cbs = this.listeners.get(data.op);
-			for(const cb of cbs){
+			for (const cb of cbs) {
 				cb(data.data);
 			}
 		}
 	}
 
-	handleClose(){
-		if(this.connectedOnce){
+	handleClose() {
+		if (this.connectedOnce) {
 			this.tryConnectionMultiple();
 		}
 	}
 
-	addListener(type, cb){
+	addListener(type, cb) {
 		let cbsList = this.listeners.get(type);
-		if(!cbsList){
+		if (!cbsList) {
 			cbsList = new Set();
 			this.listeners.set(type, cbsList);
 		}
 		cbsList.add(cb);
 	}
 
-	async sendRoundTripMessage(op, data){
-		if(!this.connected){
+	async sendRoundTripMessage(op, data) {
+		if (!this.connected) {
 			let success;
-			if(this.connectedOnce){
+			if (this.connectedOnce) {
 				success = await this.tryConnectionMultiple();
-			}else{
+			} else {
 				success = await this.tryConnectionOnce();
 			}
-			if(!success){
+			if (!success) {
 				throw new Error("Failed to connect to devsocket");
 			}
 		}
@@ -124,7 +125,7 @@ export default class DevSocketManager{
 			this.roundTripCbs.add({
 				id: roundTripId,
 				cb: r,
-			})
+			});
 		});
 	}
 }
