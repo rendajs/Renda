@@ -22,6 +22,15 @@ import {prettifyVariableName} from "../../Util/Util.js";
  */
 
 /**
+ * @typedef {Object} PropertiesTreeViewEntryOptions
+ * @property {PropertiesTreeViewEntryType} [opts.type]
+ * @property {*} [opts.defaultValue = undefined]
+ * @property {GuiOptions} [opts.guiOpts = {}]
+ * @property {Object} [opts.arrayOpts = {}]
+ * @property {Object} [opts.callbacksContext = {}]
+ */
+
+/**
  * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | "button"} PropertiesTreeViewEntryType
  */
 
@@ -46,12 +55,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
 
 export default class PropertiesTreeViewEntry extends TreeView {
 	/**
-	 * @param {Object} opts
-	 * @param {PropertiesTreeViewEntryType} [opts.type]
-	 * @param {*} [opts.defaultValue = undefined]
-	 * @param {GuiOptions} [opts.guiOpts = {}]
-	 * @param {Object} [opts.arrayOpts = {}]
-	 * @param {Object} [opts.callbacksContext = {}]
+	 * @param {PropertiesTreeViewEntryOptions} opts
 	 */
 	constructor({
 		type = Number,

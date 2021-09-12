@@ -9,6 +9,10 @@ import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
  * @typedef {"default" | "fileStorage" | "binaryComposer" | "script"} SerializableStructureOutputPurpose
  */
 
+/**
+ * @typedef {Object.<string, import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure
+ */
+
 export default class PropertiesTreeView extends TreeView {
 	constructor({
 		rowVisible = false,
@@ -21,6 +25,7 @@ export default class PropertiesTreeView extends TreeView {
 		});
 		this.fullTreeDisabled = false;
 
+		/** @type {Object.<string, PropertiesTreeViewEntry>} */
 		this.currentSerializableStructureItems = null;
 
 		this.registerNewEventType("treeViewEntryValueChange");
@@ -35,6 +40,10 @@ export default class PropertiesTreeView extends TreeView {
 		return newTreeView;
 	}
 
+	/**
+	 * @param {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions} opts
+	 * @returns {PropertiesTreeViewEntry}
+	 */
 	addItem(opts) {
 		const item = new PropertiesTreeViewEntry(opts);
 		if (this.fullTreeDisabled) item.setDisabled(true);
@@ -49,6 +58,11 @@ export default class PropertiesTreeView extends TreeView {
 		this.addEventListener("treeViewEntryValueChange", cb);
 	}
 
+	/**
+	 * @param {PropertiesTreeViewStructure} structure
+	 * @param {Object} opts
+	 * @param {Object} [opts.callbacksContext = {}]
+	 */
 	generateFromSerializableStructure(structure, {
 		callbacksContext = {},
 	} = {}) {

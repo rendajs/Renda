@@ -70,6 +70,10 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 		this.isLoadingAssetLinks = false;
 	}
 
+	/**
+	 * @param {boolean} isBuiltIn
+	 * @returns {{type: *}}
+	 */
 	getAssetLinkGuiStructure(isBuiltIn) {
 		const typeObj = {};
 		if (!isBuiltIn) {
@@ -115,7 +119,8 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 		const userDefaultAssetLinkUuids = editor.projectManager.assetManager.setDefaultAssetLinks(builtInAssetLinks, assetLinks);
 
 		const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");
-		for (const [i, valueItem] of arrayTreeView.gui.valueItems.entries()) {
+		const arrayGui = /** @type {import("../../UI/ArrayGui.js").default} */(arrayTreeView.gui);
+		for (const [i, valueItem] of arrayGui.valueItems.entries()) {
 			const defaultAssetEntry = valueItem.gui.treeView.getSerializableStructureEntry("defaultAsset");
 			defaultAssetEntry.gui.setValue(userDefaultAssetLinkUuids[i]);
 		}
