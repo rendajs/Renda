@@ -9,11 +9,11 @@ import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
  * @typedef {"default" | "fileStorage" | "binaryComposer" | "script"} SerializableStructureOutputPurpose
  */
 
-export default class PropertiesTreeView extends TreeView{
+export default class PropertiesTreeView extends TreeView {
 	constructor({
 		rowVisible = false,
 		name = "",
-	} = {}){
+	} = {}) {
 		super({
 			name,
 			selectable: false,
@@ -26,8 +26,8 @@ export default class PropertiesTreeView extends TreeView{
 		this.registerNewEventType("treeViewEntryValueChange");
 	}
 
-	addCollapsable(name){
-		let newTreeView = new PropertiesTreeView({
+	addCollapsable(name) {
+		const newTreeView = new PropertiesTreeView({
 			rowVisible: true,
 			name,
 		});
@@ -35,9 +35,9 @@ export default class PropertiesTreeView extends TreeView{
 		return newTreeView;
 	}
 
-	addItem(opts){
-		let item = new PropertiesTreeViewEntry(opts);
-		if(this.fullTreeDisabled) item.setDisabled(true);
+	addItem(opts) {
+		const item = new PropertiesTreeViewEntry(opts);
+		if (this.fullTreeDisabled) item.setDisabled(true);
 		this.addChild(item);
 		return item;
 	}
@@ -51,11 +51,11 @@ export default class PropertiesTreeView extends TreeView{
 
 	generateFromSerializableStructure(structure, {
 		callbacksContext = {},
-	} = {}){
+	} = {}) {
 		this.clearChildren();
 		this.currentSerializableStructureItems = {};
-		for(const [key, itemSettings] of Object.entries(structure)){
-			let guiOpts = {
+		for (const [key, itemSettings] of Object.entries(structure)) {
+			const guiOpts = {
 				label: key,
 				...itemSettings?.guiOpts,
 			};
@@ -68,15 +68,15 @@ export default class PropertiesTreeView extends TreeView{
 		}
 	}
 
-	fillSerializableStructureValues(values, setValueOpts){
-		if(!values) return;
-		for(const [key, value] of Object.entries(values)){
+	fillSerializableStructureValues(values, setValueOpts) {
+		if (!values) return;
+		for (const [key, value] of Object.entries(values)) {
 			const item = this.currentSerializableStructureItems[key];
 			const newSetValueOpts = {
 				...setValueOpts,
 				setOnObject: values,
 				setOnObjectKey: key,
-			}
+			};
 			item?.setValue(value, newSetValueOpts);
 		}
 	}
@@ -87,45 +87,46 @@ export default class PropertiesTreeView extends TreeView{
 	 * @param {boolean} [guiOpts.stripDefaultValues = false]
 	 * @returns
 	 */
-	getSerializableStructureValues(structure, guiOpts){
+	getSerializableStructureValues(structure, guiOpts) {
 		let {
 			purpose = "default",
 			stripDefaultValues = false,
 		} = guiOpts || {};
-		if(purpose == "fileStorage"){
+		if (purpose == "fileStorage") {
 			stripDefaultValues = true;
-		}else if(purpose == "binaryComposer"){
+		} else if (purpose == "binaryComposer") {
 			stripDefaultValues = false;
 		}
 		const values = {};
 		let i = 0;
 		let hasSetOneValue = false;
-		for(const [key, itemSettings] of Object.entries(structure)){
+		for (const key of Object.keys(structure)) {
 			const entry = this.children[i++];
-			if(!entry.omitFromSerializableStuctureValues(guiOpts)){
+			if (!entry.omitFromSerializableStuctureValues(guiOpts)) {
 				values[key] = entry.getValue(guiOpts);
 				hasSetOneValue = true;
 			}
 		}
-		if(stripDefaultValues && !hasSetOneValue) return undefined;
+		if (stripDefaultValues && !hasSetOneValue) return undefined;
 		return values;
 	}
 
-	getSerializableStructureEntry(key){
+	getSerializableStructureEntry(key) {
 		return this.currentSerializableStructureItems[key];
 	}
 
-	getSerializableStructureKeyForEntry(treeViewEntry){
-		for(const [key, entry] of Object.entries(this.currentSerializableStructureItems)){
-			if(treeViewEntry == entry){
+	getSerializableStructureKeyForEntry(treeViewEntry) {
+		for (const [key, entry] of Object.entries(this.currentSerializableStructureItems)) {
+			if (treeViewEntry == entry) {
 				return key;
 			}
 		}
+		return null;
 	}
 
-	setFullTreeDisabled(disabled){
+	setFullTreeDisabled(disabled) {
 		this.fullTreeDisabled = disabled;
-		for(const child of this.children){
+		for (const child of this.children) {
 			child.setDisabled(disabled);
 		}
 	}

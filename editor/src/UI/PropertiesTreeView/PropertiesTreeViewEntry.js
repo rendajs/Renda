@@ -11,7 +11,7 @@ import Button from "../Button.js";
 import ObjectGui from "../ObjectGui.js";
 
 import ProjectAsset from "../../Assets/ProjectAsset.js";
-import {Vec3, Mesh, Material} from "../../../../src/index.js";
+import {Vec3} from "../../../../src/index.js";
 import {prettifyVariableName} from "../../Util/Util.js";
 
 /**
@@ -59,7 +59,7 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		guiOpts = {},
 		arrayOpts = {},
 		callbacksContext = {},
-	} = {}){
+	} = {}) {
 		super({
 			addCustomEl: true,
 			selectable: false,
@@ -80,39 +80,39 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		//todo: also allow type to be a string
+		// todo: also allow type to be a string
 
 		this.type = type;
-		if(type == String) {
+		if (type == String) {
 			this.gui = new TextGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
-		}else  if(type === Vec3){
+		} else if (type === Vec3) {
 			this.gui = new VectorGui({
 				defaultValue,
 				size: 3,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == Number){
+		} else if (type == Number) {
 			this.gui = new NumericGui({
 				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == Boolean){
+		} else if (type == Boolean) {
 			this.gui = new BooleanGui({
 				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		}else if(Array.isArray(type)){
+		} else if (Array.isArray(type)) {
 			this.gui = new DropDownGui({
 				items: type,
 				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		}else if(type == Array){
+		} else if (type == Array) {
 			this.gui = new ArrayGui({
 				arrayOpts,
 				...guiOpts,
@@ -120,7 +120,7 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			this.valueEl.appendChild(this.gui.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
-		}else if(type && type.constructor == Object){
+		} else if (type && type.constructor == Object) {
 			this.gui = new ObjectGui({
 				structure: type,
 				...guiOpts,
@@ -128,16 +128,16 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			this.valueEl.appendChild(this.gui.treeView.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
-		}else if(type == "button"){
+		} else if (type == "button") {
 			this.gui = new Button({
 				...guiOpts,
 				onClick: () => {
 					const castGuiOpts = /** @type {import("../Button.js").ButtonGuiOptions} */ (guiOpts);
-					if(castGuiOpts.onClick) castGuiOpts.onClick(callbacksContext);
+					if (castGuiOpts.onClick) castGuiOpts.onClick(callbacksContext);
 				},
 			});
 			this.valueEl.appendChild(this.gui.el);
-		}else if(editor.projectAssetTypeManager.constructorHasAssetType(type) || type == ProjectAsset){
+		} else if (editor.projectAssetTypeManager.constructorHasAssetType(type) || type == ProjectAsset) {
 			this.gui = new DroppableGui({
 				supportedAssetTypes: [type],
 				...guiOpts,
@@ -145,8 +145,8 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			this.valueEl.appendChild(this.gui.el);
 		}
 
-		//todo: maybe instead of calling setvalue inside the constructor
-		//of every gui class, call setValue over here
+		// todo: maybe instead of calling setvalue inside the constructor
+		// of every gui class, call setValue over here
 
 		this.registerNewEventType("treeViewEntryValueChange");
 		const castGui = /** @type {GuiInterface} */ (this.gui);
@@ -155,12 +155,12 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			const event = {
 				target: this,
 				newValue,
-			}
+			};
 			this.fireEvent("treeViewEntryValueChange", event);
 		});
 	}
 
-	destructor(){
+	destructor() {
 		this.label = null;
 		this.valueEl = null;
 		const castGui = /** @type {GuiInterface} */ (this.gui);
@@ -169,12 +169,12 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		super.destructor();
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.gui?.setDisabled?.(disabled);
 	}
 
-	setValue(newValue, setValueOpts){
-		if(setValueOpts?.beforeValueSetHook){
+	setValue(newValue, setValueOpts) {
+		if (setValueOpts?.beforeValueSetHook) {
 			newValue = setValueOpts.beforeValueSetHook({
 				value: newValue,
 				setOnObject: setValueOpts.setOnObject,
@@ -185,24 +185,23 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		castGui?.setValue?.(newValue, setValueOpts);
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.onValueChange?.(cb);
 	}
 
-	get value(){
+	get value() {
 		return this.getValue();
 	}
 
-	getValue(guiOpts){
+	getValue(guiOpts) {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
-		if(castGui.getValue){
+		if (castGui.getValue) {
 			return castGui.getValue(guiOpts);
-		}else{
+		} else {
 			return castGui?.value;
 		}
 	}
-
 
 	/**
 	 * Useful for entries such as buttons, labels, etc.
@@ -211,25 +210,25 @@ export default class PropertiesTreeViewEntry extends TreeView {
 	 * @param {boolean} [guiOpts.stripDefaultValues = false]
 	 * @returns {boolean} If `true`, the value will be omitted from getSerializableStructureValues.
 	 */
-	omitFromSerializableStuctureValues(guiOpts){
-		if(this.gui instanceof Button){
+	omitFromSerializableStuctureValues(guiOpts) {
+		if (this.gui instanceof Button) {
 			return true;
 		}
 		let {
 			purpose = "default",
 			stripDefaultValues = false,
 		} = guiOpts || {};
-		if(purpose == "fileStorage"){
+		if (purpose == "fileStorage") {
 			stripDefaultValues = true;
-		}else if(purpose == "binaryComposer"){
+		} else if (purpose == "binaryComposer") {
 			stripDefaultValues = false;
 		}
-		if(stripDefaultValues){
+		if (stripDefaultValues) {
 			const castGui = /** @type {GuiInterface} */ (this.gui);
-			if(castGui.isDefaultValue){
-				if(castGui.isDefaultValue(guiOpts)) return true;
-			}else{
-				if(this.gui.value == castGui.defaultValue) return true;
+			if (castGui.isDefaultValue) {
+				if (castGui.isDefaultValue(guiOpts)) return true;
+			} else if (this.gui.value == castGui.defaultValue) {
+				return true;
 			}
 		}
 		return false;
