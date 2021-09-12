@@ -28,7 +28,7 @@ export default class DevSocketManager {
 	}
 
 	async tryConnectionOnceFn() {
-		const ws = new WebSocket("ws://localhost:5071");
+		const ws = new WebSocket("ws://localhost:8081");
 		this.ws = ws;
 		this.ws.addEventListener("message", e => {
 			if (this.ws != ws) return;

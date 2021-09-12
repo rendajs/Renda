@@ -9,7 +9,7 @@
 		"build-editor": "node editor/build.js",
 		"build-editor-dependencies": "node editor/buildDependencies.js",
 		"build-editor-dev": "node editor/build.js --dev",
-		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 5070' 'node editor/devSocket/index.js'",
+		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 8080' 'node editor/devSocket/index.js'",
 		"lint": "tsc -p jsconfig.json && eslint ."
 	},
 	"devDependencies": {

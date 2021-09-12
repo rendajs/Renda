@@ -5,9 +5,9 @@ import http from "http";
 import BuiltInAssetManager from "./BuiltInAssetManager.js";
 import ClosureCompilerManager from "./ClosureCompilerManager.js";
 
-const port = 5071;
+const port = 8081;
 
-const httpServer = http.createServer((request, response) => {});
+const httpServer = http.createServer(() => {});
 httpServer.listen(port, () => {});
 console.log("listening for websocket connections on port " + port);
 

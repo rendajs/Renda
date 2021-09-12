@@ -22,6 +22,6 @@ export default class EditorConnectionServer {
 	}
 
 	static getDefaultEndPoint() {
-		return `ws://${window.location.hostname}:8081`;
+		return `ws://${window.location.hostname}:8082`;
 	}
 }
