@@ -10,7 +10,10 @@
 		"build-editor-dependencies": "node editor/buildDependencies.js",
 		"build-editor-dev": "node editor/build.js --dev",
 		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold' 'node editor/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js'",
-		"lint": "tsc -p editor/devSocket/jsconfig.json && tsc -p jsconfig.json && eslint ."
+		"typecheck": "tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p ./jsconfig.json",
+		"lint": "npm run typecheck && eslint .",
+		"prepare": "husky install",
+		"precommit": "npm run typecheck"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^11.1.0",
@@ -23,6 +26,7 @@
 		"concurrently": "5.x",
 		"eslint": "^7.32.0",
 		"google-closure-compiler": "^20210505.0.0",
+		"husky": "^7.0.0",
 		"js-md5": "^0.7.3",
 		"rollup": "^2.47.0",
 		"serve": "^12.0.1",
