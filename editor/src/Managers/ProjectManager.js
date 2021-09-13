@@ -2,8 +2,16 @@ import editor from "../editorInstance.js";
 import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.js";
 import EditorFileSystemIndexedDB from "../Util/FileSystems/EditorFileSystemIndexedDB.js";
 import AssetManager from "../Assets/AssetManager.js";
-import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 import EditorConnectionServer from "../Network/EditorConnectionServer.js";
+import {generateUuid} from "../Util/Util.js";
+
+/**
+ * @typedef {Object} StoredProjectEntry
+ * @property {"db" | "native" | "remote"} fileSystemType
+ * @property {string} name
+ * @property {string} [dbUuid]
+ * @property {FileSystemDirectoryHandle} [fileSystemHandle]
+ */
 
 export default class ProjectManager {
 	constructor() {
@@ -12,7 +20,8 @@ export default class ProjectManager {
 		this.assetManager = null;
 		this.editorConnectionServer = null;
 
-		this.tmpNativeHandleDb = new IndexedDbUtil("tmpNFShandles");
+		/** @type {Set<function(StoredProjectEntry):void>} */
+		this.onOpenProjectChangedCbs = new Set();
 
 		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
@@ -27,8 +36,9 @@ export default class ProjectManager {
 
 	/**
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").default} fileSystem
+	 * @param {StoredProjectEntry} openProjectChangeEvent
 	 */
-	openProject(fileSystem) {
+	openProject(fileSystem, openProjectChangeEvent) {
 		this.currentProjectFileSystem = fileSystem;
 		// todo remove this event when opening a new fileSystem
 		fileSystem.onExternalChange(e => {
@@ -38,6 +48,7 @@ export default class ProjectManager {
 		});
 		editor.windowManager.reloadCurrentWorkspace();
 		this.reloadAssetManager();
+		this.onOpenProjectChangedCbs.forEach(cb => cb(openProjectChangeEvent));
 	}
 
 	async reloadAssetManager() {
@@ -57,23 +68,54 @@ export default class ProjectManager {
 		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
 	}
 
+	/**
+	 * @param {function(StoredProjectEntry):void} cb
+	 */
+	onOpenProjectChanged(cb) {
+		this.onOpenProjectChangedCbs.add(cb);
+	}
+
+	openNewDbProject() {
+		const uuid = generateUuid();
+		this.openDbProject(uuid);
+	}
+
+	/**
+	 * @param {string} uuid
+	 */
+	openDbProject(uuid) {
+		const fileSystem = new EditorFileSystemIndexedDB(uuid);
+		this.openProject(fileSystem, {
+			fileSystemType: "db",
+			dbUuid: uuid,
+			name: uuid,
+		});
+	}
+
 	async openProjectFromLocalDirectory() {
 		const fileSystem = await EditorFileSystemNative.openUserDir();
-		this.tmpNativeHandleDb.set("lastHandle", fileSystem.handle);
-		this.openProject(fileSystem);
-	}
-
-	async openRecentProjectHandle() {
-		const handle = await this.tmpNativeHandleDb.get("lastHandle");
-		if (handle) {
-			const fileSystem = new EditorFileSystemNative(handle);
-			this.openProject(fileSystem);
+		const permission = await fileSystem.getPermission([], {prompt: true, writable: false});
+		let name = "Unnamed Filesystem";
+		if (permission) {
+			name = fileSystem.handle.name;
 		}
+		this.openProject(fileSystem, {
+			fileSystemType: "native",
+			fileSystemHandle: fileSystem.handle,
+			name,
+		});
 	}
 
-	async openDb() {
-		const fileSystem = new EditorFileSystemIndexedDB("test project");
-		this.openProject(fileSystem);
+	/**
+	 * @param {StoredProjectEntry} projectEntry
+	 */
+	openExistingProject(projectEntry) {
+		if (projectEntry.fileSystemType === "db") {
+			this.openDbProject(projectEntry.dbUuid);
+		} else if (projectEntry.fileSystemType == "native") {
+			const fileSystem = new EditorFileSystemNative(projectEntry.fileSystemHandle);
+			this.openProject(fileSystem, projectEntry);
+		}
 	}
 
 	onExternalChange(cb) {

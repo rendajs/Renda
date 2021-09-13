@@ -1,8 +1,13 @@
 import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 
 export default class ProjectSelector {
+	/** @typedef {import("../Managers/ProjectManager.js").StoredProjectEntry} StoredProjectEntry */
+
 	constructor() {
 		this.visible = true;
+		this.loadedEditor = null;
+		this.onEditorLoadCbs = new Set();
+
 		this.indexedDb = new IndexedDbUtil("projectSelector");
 
 		this.curtainEl = document.createElement("div");
@@ -22,9 +27,18 @@ export default class ProjectSelector {
 		this.actionsList = this.createList("actions", "Start");
 		this.recentList = this.createList("recent", "Recent");
 
-		this.createAction("New Project");
-		this.createAction("Open Project");
-		this.createAction("Recover Last Session");
+		this.createAction("New Project", async () => {
+			const editor = await this.waitForEditor();
+			editor.projectManager.openNewDbProject();
+			this.setVisibility(false);
+		});
+		this.createAction("Open Project", async () => {
+			const editor = await this.waitForEditor();
+			editor.projectManager.openProjectFromLocalDirectory();
+			this.setVisibility(false);
+		});
+
+		this.updateRecentProjectsUi();
 	}
 
 	/**
@@ -49,12 +63,107 @@ export default class ProjectSelector {
 
 	/**
 	 * @param {string} name
+	 * @param {function() : void} onClick
 	 */
-	createAction(name) {
+	createAction(name, onClick) {
+		this.createListButton(this.actionsList, name, onClick);
+	}
+
+	/**
+	 * @param {HTMLUListElement} listEl
+	 * @param {string} name
+	 * @param {function() : void} onClick
+	 */
+	createListButton(listEl, name, onClick) {
 		const item = document.createElement("li");
 		item.classList.add("project-selector-button");
 		item.textContent = name;
-		this.actionsList.appendChild(item);
+		item.addEventListener("click", onClick);
+		listEl.appendChild(item);
+	}
+
+	/**
+	 * @returns {Promise<StoredProjectEntry[]>}
+	 */
+	async getRecentProjects() {
+		let list = await this.indexedDb.get("recentProjectsList");
+		if (!list) list = [];
+		return list;
+	}
+
+	/**
+	 * @param {StoredProjectEntry[]} list
+	 */
+	async setRecentProjects(list) {
+		await this.indexedDb.set("recentProjectsList", list);
+	}
+
+	clearRecentProjectsUi() {
+		while (this.recentList.firstChild) {
+			this.recentList.removeChild(this.recentList.firstChild);
+		}
+	}
+
+	async updateRecentProjectsUi() {
+		const list = await this.getRecentProjects();
+
+		for (const entry of list) {
+			this.createListButton(this.recentList, entry.name, async () => {
+				const editor = await this.waitForEditor();
+				editor.projectManager.openExistingProject(entry);
+				this.setVisibility(false);
+			});
+		}
+	}
+
+	/**
+	 * @returns {Promise<import("../Editor.js").default>}
+	 */
+	async waitForEditor() {
+		if (this.loadedEditor) return this.loadedEditor;
+
+		return new Promise(r => this.onEditorLoadCbs.add(r));
+	}
+
+	/**
+	 * @param {import("../Editor.js").default} editor
+	 */
+	setEditorLoaded(editor) {
+		this.loadedEditor = editor;
+		editor.projectManager.onOpenProjectChanged(entry => {
+			this.addRecentProjectEntry(entry);
+		});
+		this.onEditorLoadCbs.forEach(cb => cb(editor));
+	}
+
+	/**
+	 * @param {StoredProjectEntry} entry
+	 */
+	async addRecentProjectEntry(entry) {
+		/** @type {StoredProjectEntry[]} */
+		let list = await this.getRecentProjects();
+
+		let existingEntries = [];
+		const existingEntriesOfSameType = list.filter(e => e.fileSystemType == entry.fileSystemType);
+		if (entry.fileSystemType == "db") {
+			existingEntries = existingEntriesOfSameType.filter(e => e.dbUuid == entry.dbUuid);
+		} else if (entry.fileSystemType == "native") {
+			const promises = [];
+			for (const existingEntry of existingEntriesOfSameType) {
+				const promise = (async () => {
+					const same = await entry.fileSystemHandle.isSameEntry(existingEntry.fileSystemHandle);
+					return {entry: existingEntry, same};
+				})();
+				promises.push(promise);
+			}
+			const results = await Promise.allSettled(promises);
+			const fulfilledEntries = results.filter(r => r.status == "fulfilled" && r.value.same);
+			const castFulfilledEntries = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntry, same: boolean}>[]} */ (fulfilledEntries);
+			existingEntries = castFulfilledEntries.map(r => r.value.entry);
+		}
+		list = list.filter(e => !existingEntries.includes(e));
+		list.unshift(entry);
+		await this.setRecentProjects(list);
 	}
 
 	/**
@@ -67,6 +176,8 @@ export default class ProjectSelector {
 		if (visible) {
 			document.body.appendChild(this.el);
 			document.body.appendChild(this.curtainEl);
+			this.clearRecentProjectsUi();
+			this.updateRecentProjectsUi();
 		} else {
 			document.body.removeChild(this.el);
 			document.body.removeChild(this.curtainEl);
