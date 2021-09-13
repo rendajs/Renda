@@ -9,7 +9,7 @@
 		"build-editor": "node editor/build.js",
 		"build-editor-dependencies": "node editor/buildDependencies.js",
 		"build-editor-dev": "node editor/build.js --dev",
-		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold' 'node editor/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js' 'node editor/EditorConnectionDiscovery/index.js'",
+		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold' 'node editor/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js' 'node editor/EditorDiscoveryServer/index.js'",
 		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
 		"lint": "npm run typecheck && eslint .",
 		"prepare": "husky install",
