@@ -5,6 +5,7 @@
 	--default-ui-bg-color: #1b1b1b;
 	--panel-borders-color: #272727;
 	--overlay-panel-borders-color: #5a5a5a;
+	--overlay-panel-box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.6);
 	--default-text-color: #bdbdbd;
 	--default-text-color-disabled-context-menu: #5a5a5a;
 	--default-text-color-disabled-textfield: #8d8d8d;
@@ -38,6 +39,7 @@
 		--default-ui-bg-color: #ffffff;
 		--panel-borders-color: #e0e0e0;
 		--overlay-panel-borders-color: #c9c9c9;
+		--overlay-panel-box-shadow: 6px 6px 10px 0px rgba(0,0,0,0.06);
 		--default-text-color: #505050;
 		--default-text-color-disabled-context-menu: #bdbdbd;
 		--default-text-color-disabled-textfield: #7f7f7f;
@@ -81,20 +83,34 @@ body, html{
 	color: var(--default-text-color);
 }
 
+.project-selector-curtain {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 100;
+}
+
 .project-selector-window {
-	width: 1400px;
-	height: 90%;
+	width: 500px;
+	height: 400px;
 	background-color: var(--default-ui-bg-color);
 	position: absolute;
-	z-index: 1000;
+	z-index: 101;
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
 	border-radius: var(--default-border-radius);
-	box-shadow: 0 6px 20px #00000030;
+	border: 1px solid var(--overlay-panel-borders-color);
+	box-shadow: var(--overlay-panel-box-shadow);
+	display: grid;
+	grid-template-columns: 1fr 6fr 1fr 6fr 1fr;
+	grid-template-rows: 160px 1fr;
+	grid-template-areas:
+		". header header header ."
+		". actions-list . recent-list .";
 }
 
-@media (max-width: 1450px), (max-height: 500px) {
+@media (max-width: 650px), (max-height: 500px) {
 	.project-selector-window {
 		width: 100%;
 		height: 100%;
@@ -104,6 +120,49 @@ body, html{
 		border-radius: 0;
 		box-shadow: none;
 	}
+}
+
+@media (max-width: 420px) {
+	.project-selector-window {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"actions-list"
+			"recent-list";
+		padding: 20px;
+		box-sizing: border-box;
+		grid-gap: 10px;
+	}
+
+	.project-selector-title {
+		display: none;
+	}
+}
+
+.project-selector-list {
+	list-style: none;
+	padding: 0;
+}
+
+.project-selector-title {
+	grid-area: header;
+	align-self: end;
+}
+
+.project-selector-actions-list-container {
+	grid-area: actions-list;
+}
+
+.project-selector-recent-list-container {
+	grid-area: recent-list;
+}
+
+.project-selector-list-container > h2 {
+	font-weight: 100;
+	font-size: 25px;
+}
+
+.project-selector-list > li {
+	padding: 4px 0px;
 }
 
 .editorWindowSplitHalf{
@@ -545,7 +604,7 @@ select.textInput:disabled{
 	padding: 3px 0px;
 	white-space: nowrap;
 	border: 1px solid var(--overlay-panel-borders-color);
-	box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.3);
+	box-shadow: var(--overlay-panel-box-shadow);
 }
 
 .contextMenuItem{
