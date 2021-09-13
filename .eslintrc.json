@@ -169,7 +169,7 @@
 			},
 			"AssignmentExpression": {
 				"array": false,
-				"object": true
+				"object": false
 			}
 		}, {
 			"enforceForRenamedProperties": false
