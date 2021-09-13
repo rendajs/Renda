@@ -1,7 +1,7 @@
 import toFormattedJsonString from "../toFormattedJsonString.js";
 
-export default class EditorFileSystem{
-	constructor(){
+export default class EditorFileSystem {
+	constructor() {
 		this.onExternalChangeCbs = new Set();
 	}
 
@@ -9,10 +9,10 @@ export default class EditorFileSystem{
 	 * @param {Array<String>} path
 	 * @returns {Promise<{files: Array<String>, directories: Array<String>}>}
 	 */
-	async readDir(path = []){
+	async readDir(path = []) {
 		return {
-			files: [], //DOMString array of file names
-			directories: [], //DOMString array of directory names
+			files: [], // DOMString array of file names
+			directories: [], // DOMString array of directory names
 		};
 	}
 
@@ -20,25 +20,25 @@ export default class EditorFileSystem{
 	 * @param {Array<String>} path
 	 * @returns {Promise<void>}
 	 */
-	async createDir(path = []){}
+	async createDir(path = []) {}
 
 	/**
 	 * @param {Array<String>} fromPath
 	 * @param {Array<String>} toPath
 	 */
-	async move(fromPath = [], toPath = []){}
+	async move(fromPath = [], toPath = []) {}
 
 	/**
 	 * @param {Array<String>} path
 	 * @param {Boolean} recursive
 	 */
-	async delete(path = [], recursive = false){}
+	async delete(path = [], recursive = false) {}
 
 	/**
 	 * @param {Array<String>} path
 	 * @returns {Promise<File>}
 	 */
-	async readFile(path = []){
+	async readFile(path = []) {
 		return new File([], "");
 	}
 
@@ -47,14 +47,14 @@ export default class EditorFileSystem{
 	 * @param {Array<String>} path
 	 * @param {File} file
 	 */
-	async writeFile(path = [], file = null){}
+	async writeFile(path = [], file = null) {}
 
 	/**
 	 * @param {Array<String>} path
 	 * @param {Boolean} keepExistingData
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
-	async writeFileStream(path = [], keepExistingData = false){
+	async writeFileStream(path = [], keepExistingData = false) {
 		return null;
 	}
 
@@ -62,7 +62,7 @@ export default class EditorFileSystem{
 	 * @param {Array<string>} path
 	 * @returns {Promise<Boolean>}
 	 */
-	async isFile(path = []){
+	async isFile(path = []) {
 		return false;
 	}
 
@@ -70,7 +70,7 @@ export default class EditorFileSystem{
 	 * @param {Array<string>} path
 	 * @returns {Promise<Boolean>}
 	 */
-	async isDir(path = []){
+	async isDir(path = []) {
 		return false;
 	}
 
@@ -78,26 +78,28 @@ export default class EditorFileSystem{
 	 * @param {Array<string>} path
 	 * @returns {Promise<Boolean>}
 	 */
-	async exists(path = []){
+	async exists(path = []) {
 		const isFile = await this.isFile(path);
 		const isDir = await this.isDir(path);
 		return isFile || isDir;
 	}
 
-	onExternalChange(cb){
+	onExternalChange(cb) {
 		this.onExternalChangeCbs.add(cb);
 	}
 
-	fireExternalChange(e){
-		for(const cb of this.onExternalChangeCbs){
+	fireExternalChange(e) {
+		for (const cb of this.onExternalChangeCbs) {
 			cb(e);
 		}
 	}
 
-	//external change events are not guaranteed to fire immediately
-	//calling this method suggests that right now is a good time
-	//to check for external changes
-	suggestCheckExternalChanges(){}
+	/**
+	 * External change events are not guaranteed to fire immediately.
+	 * Calling this method suggests that right now is a good time
+	 * to check for external changes.
+	 */
+	suggestCheckExternalChanges() {}
 
 	/**
 	 * Returns true if the user has permission to read (or write if specified) at the specified path.
@@ -109,14 +111,14 @@ export default class EditorFileSystem{
 	 * @param {Boolean} [opts.prompt=false] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
 	 * @returns {Promise<Boolean>} Whether permissions have been granted or already exist.
 	 */
-	 async getPermission(path = [], {
+	async getPermission(path = [], {
 		writable = true,
 		prompt = false,
-	} = {}){
+	} = {}) {
 		return true;
 	}
 
-	/*util functions*/
+	/* util functions*/
 
 	/**
 	 * @param {Array<String>} path
@@ -126,21 +128,21 @@ export default class EditorFileSystem{
 	 */
 	async writeText(path = [], text = "", {
 		type = "text/plain",
-	} = {}){
-		await this.writeFile(path, new File([text], "", {type}))
+	} = {}) {
+		await this.writeFile(path, new File([text], "", {type}));
 	}
 
 	/**
 	 * @param {Array<String>} path
 	 * @returns {Promise<String>}
 	 */
-	async readText(path = []){
+	async readText(path = []) {
 		const file = await this.readFile(path);
 		return await file.text();
 	}
 
-	async writeJson(path = [], json = {}){
-		let jsonStr = toFormattedJsonString(json);
+	async writeJson(path = [], json = {}) {
+		const jsonStr = toFormattedJsonString(json);
 		await this.writeText(path, jsonStr, {type: "application/json"});
 	}
 
@@ -148,23 +150,23 @@ export default class EditorFileSystem{
 	 * @param {Array<String>} path
 	 * @returns {Promise<?Object>}
 	 */
-	async readJson(path = []){
-		let file = await this.readFile(path);
-		if(file.type == "application/json"){
-			let body = await file.text();
-			let json = JSON.parse(body);
+	async readJson(path = []) {
+		const file = await this.readFile(path);
+		if (file.type == "application/json") {
+			const body = await file.text();
+			const json = JSON.parse(body);
 			return json;
 		}
 		return null;
 	}
 
-	//binary can be a File, Blob, ArrayBuffer or TypedArray
+	// binary can be a File, Blob, ArrayBuffer or TypedArray
 	/**
 	 * @param {Array<String>} path
 	 * @param {BlobPart} binary
 	 */
-	async writeBinary(path = [], binary = null){
+	async writeBinary(path = [], binary = null) {
 		const fileName = path[path.length - 1] || "";
-		await this.writeFile(path, new File([binary], fileName))
+		await this.writeFile(path, new File([binary], fileName));
 	}
 }

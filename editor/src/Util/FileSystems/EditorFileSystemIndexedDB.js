@@ -15,23 +15,23 @@ import md5 from "../../../libs/md5.js";
  * @property {EditorFileSystemIndexedDbPointer[]} [files]
  */
 
-export default class EditorFileSystemIndexedDB extends EditorFileSystem{
-	constructor(name){
+export default class EditorFileSystemIndexedDB extends EditorFileSystem {
+	constructor(name) {
 		super();
 
 		this.name = name;
-		this.db = new IndexedDbUtil("fileSystem_"+this.name, ["objects","system"]);
+		this.db = new IndexedDbUtil("fileSystem_" + this.name, ["objects", "system"]);
 
-		//create root directory
+		// create root directory
 		this.rootCreated = false;
 		this.onRootCreateCbs = [];
 		this.createRoot();
 	}
 
-	async createRoot(){
-		let currentRootPointer = await this.getRootPointer(false);
-		if(!currentRootPointer){
-			let rootPointer = await this.createObject({
+	async createRoot() {
+		const currentRootPointer = await this.getRootPointer(false);
+		if (!currentRootPointer) {
+			const rootPointer = await this.createObject({
 				isDir: true,
 				files: [],
 				fileName: "",
@@ -39,14 +39,14 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 			await this.setRootPointer(rootPointer);
 		}
 		this.rootCreated = true;
-		for(const cb of this.onRootCreateCbs){
+		for (const cb of this.onRootCreateCbs) {
 			cb();
 		}
 		this.onRootCreateCbs = [];
 	}
 
-	async waitForRootCreate(){
-		if(this.rootCreated) return;
+	async waitForRootCreate() {
+		if (this.rootCreated) return;
 		await new Promise(r => this.onRootCreateCbs.push(r));
 	}
 
@@ -54,8 +54,8 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	 * @param {boolean} waitForRootCreate
 	 * @returns {Promise<EditorFileSystemIndexedDbPointer>}
 	 */
-	async getRootPointer(waitForRootCreate = true){
-		if(waitForRootCreate) await this.waitForRootCreate();
+	async getRootPointer(waitForRootCreate = true) {
+		if (waitForRootCreate) await this.waitForRootCreate();
 		return await this.db.get("rootPointer", "system");
 	}
 
@@ -63,7 +63,7 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	 * @param {EditorFileSystemIndexedDbPointer} pointer
 	 * @returns {Promise<void>}
 	 */
-	async setRootPointer(pointer){
+	async setRootPointer(pointer) {
 		await this.db.set("rootPointer", pointer, "system");
 	}
 
@@ -71,8 +71,8 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	 * @param {EditorFileSystemIndexedDbPointer} pointer
 	 * @returns {Promise<EditorFileSystemIndexedDbStoredObject>}
 	 */
-	async getObject(pointer){
-		if(!pointer) throw new Error("pointer not specified");
+	async getObject(pointer) {
+		if (!pointer) throw new Error("pointer not specified");
 		return await this.db.get(pointer);
 	}
 
@@ -81,23 +81,23 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	 * @param {string[]} path
 	 * @returns {Promise<{pointer: EditorFileSystemIndexedDbPointer, obj: EditorFileSystemIndexedDbStoredObject}>}
 	 */
-	async getObjectFromPath(path = []){
+	async getObjectFromPath(path = []) {
 		let pointer = await this.getRootPointer();
 		let obj = await this.getObject(pointer);
-		for(const dir of path){
-			if(!obj.isDir) throw new Error(dir+" is not a directory");
+		for (const dir of path) {
+			if (!obj.isDir) throw new Error(dir + " is not a directory");
 			let foundAny = false;
-			for(const filePointer of obj.files){
-				let fileObj = await this.getObject(filePointer);
-				if(fileObj.fileName == dir){
+			for (const filePointer of obj.files) {
+				const fileObj = await this.getObject(filePointer);
+				if (fileObj.fileName == dir) {
 					pointer = filePointer;
 					obj = fileObj;
 					foundAny = true;
 					break;
 				}
 			}
-			if(!foundAny){
-				throw new Error(dir+" does not exist");
+			if (!foundAny) {
+				throw new Error(dir + " does not exist");
 			}
 		}
 		return {pointer, obj};
@@ -107,57 +107,57 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	 * @param {EditorFileSystemIndexedDbStoredObject} obj
 	 * @returns {Promise<EditorFileSystemIndexedDbPointer>}
 	 */
-	async createObject(obj){
-		let textEncoder = new TextEncoder();
+	async createObject(obj) {
+		const textEncoder = new TextEncoder();
 		let totalBufferLength = 0;
 
-		let fileNameBuffer = textEncoder.encode(obj.fileName);
+		const fileNameBuffer = textEncoder.encode(obj.fileName);
 		totalBufferLength += fileNameBuffer.byteLength;
 
 		let isDirBit = 0;
-		if(obj.isDir){
+		if (obj.isDir) {
 			isDirBit = 1;
-		}else if(obj.isFile){
+		} else if (obj.isFile) {
 			isDirBit = 2;
 		}
-		let isDirBuffer = new Uint8Array([isDirBit]);
+		const isDirBuffer = new Uint8Array([isDirBit]);
 		totalBufferLength += isDirBuffer.byteLength;
 
 		let contentBuffer = null;
-		if(obj.isDir){
-			let contentBuffers = [];
+		if (obj.isDir) {
+			const contentBuffers = [];
 			let contentBufferLength = 0;
-			for(const filePointer of obj.files){
-				let pointerBuffer = textEncoder.encode(filePointer);
+			for (const filePointer of obj.files) {
+				const pointerBuffer = textEncoder.encode(filePointer);
 				contentBuffers.push(pointerBuffer);
 				contentBufferLength += pointerBuffer.byteLength;
 			}
 			contentBuffer = new Uint8Array(contentBufferLength);
 			let parsedBytes = 0;
-			for(const buffer of contentBuffers){
+			for (const buffer of contentBuffers) {
 				contentBuffer.set(buffer, parsedBytes);
 				parsedBytes += buffer.byteLength;
 			}
-		}else if(obj.isFile){
+		} else if (obj.isFile) {
 			const arrayBuffer = await obj.file.arrayBuffer();
 			contentBuffer = new Uint8Array(arrayBuffer);
 		}
 		totalBufferLength += contentBuffer.byteLength;
 
-		let randBuffer = new Uint8Array(32);
-		for(let i=0; i<randBuffer.byteLength; i++){
-			randBuffer[i] = Math.round(Math.random()*255);
+		const randBuffer = new Uint8Array(32);
+		for (let i = 0; i < randBuffer.byteLength; i++) {
+			randBuffer[i] = Math.round(Math.random() * 255);
 		}
 		totalBufferLength += randBuffer.byteLength;
 
-		let allBuffers = [fileNameBuffer, isDirBuffer, contentBuffer, randBuffer];
-		let finalBuffer = new Uint8Array(totalBufferLength);
+		const allBuffers = [fileNameBuffer, isDirBuffer, contentBuffer, randBuffer];
+		const finalBuffer = new Uint8Array(totalBufferLength);
 		let parsedBytes = 0;
-		for(const buffer of allBuffers){
+		for (const buffer of allBuffers) {
 			finalBuffer.set(buffer, parsedBytes);
 			parsedBytes += buffer.byteLength;
 		}
-		let pointer = md5(finalBuffer);
+		const pointer = md5(finalBuffer);
 		await this.db.set(pointer, obj);
 		return pointer;
 	}
@@ -170,30 +170,30 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	 * @param {string[]} path
 	 * @returns {Promise<{obj: EditorFileSystemIndexedDbStoredObject, pointer: EditorFileSystemIndexedDbPointer}[]>}
 	 */
-	async createDirInternal(path = []){
-		let travelledData = await this.findDeepestExisting(path);
-		let recursionDepth = travelledData.length - 1;
-		if(recursionDepth == path.length) return travelledData;
-		let createDirs = path.slice(recursionDepth);
+	async createDirInternal(path = []) {
+		const travelledData = await this.findDeepestExisting(path);
+		const recursionDepth = travelledData.length - 1;
+		if (recursionDepth == path.length) return travelledData;
+		const createDirs = path.slice(recursionDepth);
 		createDirs.reverse();
 		let lastCreatedPointer = null;
-		let extraTravelledData = [];
-		for(const dir of createDirs){
-			let createdObject = {
+		const extraTravelledData = [];
+		for (const dir of createDirs) {
+			const createdObject = {
 				isDir: true,
 				files: [],
 				fileName: dir,
-			}
-			if(lastCreatedPointer){
+			};
+			if (lastCreatedPointer) {
 				createdObject.files.push(lastCreatedPointer);
 			}
 			lastCreatedPointer = await this.createObject(createdObject);
 			extraTravelledData.push({
 				obj: createdObject,
 				pointer: lastCreatedPointer,
-			})
+			});
 		}
-		let lastFoundObject = travelledData[travelledData.length -1].obj;
+		const lastFoundObject = travelledData[travelledData.length - 1].obj;
 		lastFoundObject.files.push(lastCreatedPointer);
 		await this.updateObjectRecursiveUp(travelledData, lastFoundObject);
 		return [...travelledData, ...extraTravelledData];
@@ -203,26 +203,28 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 	 * @param {string[]} path
 	 * @returns {Promise<{obj: EditorFileSystemIndexedDbStoredObject, pointer: EditorFileSystemIndexedDbPointer}[]>}
 	 */
-	async findDeepestExisting(path = []){
+	async findDeepestExisting(path = []) {
 		let currentPointer = await this.getRootPointer();
 		let currentObj = await this.getObject(currentPointer);
-		let travelledData = [{
-			obj: currentObj,
-			pointer: currentPointer,
-		}];
-		let i=0;
-		for(const dirName of path){
+		const travelledData = [
+			{
+				obj: currentObj,
+				pointer: currentPointer,
+			},
+		];
+		let i = 0;
+		for (const dirName of path) {
 			i++;
-			if(currentObj.isFile){
-				if(i < path.length){
-					throw new Error(dirName+" is a file");
+			if (currentObj.isFile) {
+				if (i < path.length) {
+					throw new Error(dirName + " is a file");
 				}
-			}else if(currentObj.isDir){
+			} else if (currentObj.isDir) {
 				let foundChild = false;
-				for(const filePointer of currentObj.files){
-					let childObj = await this.getObject(filePointer);
-					if(!childObj) continue;
-					if(childObj.fileName == dirName){
+				for (const filePointer of currentObj.files) {
+					const childObj = await this.getObject(filePointer);
+					if (!childObj) continue;
+					if (childObj.fileName == dirName) {
 						currentObj = childObj;
 						currentPointer = filePointer;
 						travelledData.push({
@@ -233,7 +235,7 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 						break;
 					}
 				}
-				if(!foundChild){
+				if (!foundChild) {
 					break;
 				}
 			}
@@ -241,102 +243,102 @@ export default class EditorFileSystemIndexedDB extends EditorFileSystem{
 		return travelledData;
 	}
 
-	async updateObjectRecursiveUp(travelledData, newObject){
-		for(let i=travelledData.length -1; i>=0; i--){
-			let item = travelledData[i];
-			let newPointer = await this.updateObject(item.pointer, newObject);
-			if(i > 0){
-				let parentItem = travelledData[i -1];
+	async updateObjectRecursiveUp(travelledData, newObject) {
+		for (let i = travelledData.length - 1; i >= 0; i--) {
+			const item = travelledData[i];
+			const newPointer = await this.updateObject(item.pointer, newObject);
+			if (i > 0) {
+				const parentItem = travelledData[i - 1];
 				newObject = parentItem.obj;
 
-				//remove old pointer from parent dir
-				let oldPointerIndex = newObject.files.indexOf(item.pointer);
+				// remove old pointer from parent dir
+				const oldPointerIndex = newObject.files.indexOf(item.pointer);
 				newObject.files.splice(oldPointerIndex, 1);
 
-				//add new pointer to parent dir
+				// add new pointer to parent dir
 				newObject.files.push(newPointer);
-			}else{
+			} else {
 				await this.setRootPointer(newPointer);
 			}
 		}
 	}
 
-	async updateObject(oldPointer, newObject){
+	async updateObject(oldPointer, newObject) {
 		await this.db.delete(oldPointer);
 		return await this.createObject(newObject);
 	}
 
-	async readDir(path = []){
-		let {obj} = await this.getObjectFromPath(path);
-		let files = [];
-		let directories = [];
-		for(const filePointer of obj.files){
-			let fileObj = await this.getObject(filePointer);
-			if(fileObj.isDir){
+	async readDir(path = []) {
+		const {obj} = await this.getObjectFromPath(path);
+		const files = [];
+		const directories = [];
+		for (const filePointer of obj.files) {
+			const fileObj = await this.getObject(filePointer);
+			if (fileObj.isDir) {
 				directories.push(fileObj.fileName);
-			}else if(fileObj.isFile){
+			} else if (fileObj.isFile) {
 				files.push(fileObj.fileName);
 			}
 		}
 		return {files, directories};
 	}
 
-	async move(fromPath = [], toPath = []){
-		let travelledData = await this.findDeepestExisting(fromPath);
-		let oldObject = travelledData[travelledData.length -1];
-		let parentObjPath = fromPath.slice(0, fromPath.length -1);
-		let parentObjTravelledData = travelledData.slice(0, travelledData.length -1);
+	async move(fromPath = [], toPath = []) {
+		const travelledData = await this.findDeepestExisting(fromPath);
+		const oldObject = travelledData[travelledData.length - 1];
+		const parentObjPath = fromPath.slice(0, fromPath.length - 1);
+		const parentObjTravelledData = travelledData.slice(0, travelledData.length - 1);
 
-		let parentObj = await this.getObjectFromPath(parentObjPath);
+		const parentObj = await this.getObjectFromPath(parentObjPath);
 
-		//remove old pointer
-		let oldPointerIndex = parentObj.obj.files.indexOf(oldObject.pointer);
+		// remove old pointer
+		const oldPointerIndex = parentObj.obj.files.indexOf(oldObject.pointer);
 		parentObj.obj.files.splice(oldPointerIndex, 1);
 		await this.updateObjectRecursiveUp(parentObjTravelledData, parentObj.obj);
 
-		//rename
-		let oldName = fromPath[fromPath.length -1];
-		let newName = toPath[toPath.length -1];
+		// rename
+		const oldName = fromPath[fromPath.length - 1];
+		const newName = toPath[toPath.length - 1];
 		let newPointer = oldObject.pointer;
-		if(oldName != newName){
+		if (oldName != newName) {
 			oldObject.obj.fileName = newName;
 			newPointer = await this.updateObject(oldObject.pointer, oldObject.obj);
 		}
 
-		//add new pointer to new parent
-		let newParentPath = toPath.slice(0, toPath.length -1);
-		let newParentTravelledData = await this.createDirInternal(newParentPath);
-		let newParentObj = newParentTravelledData[newParentTravelledData.length -1];
+		// add new pointer to new parent
+		const newParentPath = toPath.slice(0, toPath.length - 1);
+		const newParentTravelledData = await this.createDirInternal(newParentPath);
+		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
 		newParentObj.obj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
 	}
 
-	async writeFile(path = [], file = null){
-		if(!file) file = new Blob();
-		let fileName = path[path.length -1];
+	async writeFile(path = [], file = null) {
+		if (!file) file = new Blob();
+		const fileName = path[path.length - 1];
 		let type = "";
 		let lastModified = Date.now();
-		if(file instanceof File){
+		if (file instanceof File) {
 			type = file.type;
 			lastModified = file.lastModified;
 		}
 		file = new File([file], fileName, {type, lastModified});
-		let newParentPath = path.slice(0, path.length -1);
-		let newParentTravelledData = await this.createDirInternal(newParentPath);
-		let newPointer = await this.createObject({
+		const newParentPath = path.slice(0, path.length - 1);
+		const newParentTravelledData = await this.createDirInternal(newParentPath);
+		const newPointer = await this.createObject({
 			isFile: true,
 			file,
-			fileName: path[path.length -1],
+			fileName: path[path.length - 1],
 		});
-		let newParentObj = newParentTravelledData[newParentTravelledData.length -1];
+		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
 		newParentObj.obj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
 	}
 
-	async readFile(path = []){
-		let {obj} = await this.getObjectFromPath(path);
-		if(!obj.isFile){
-			throw new Error(obj.fileName+" is not a file");
+	async readFile(path = []) {
+		const {obj} = await this.getObjectFromPath(path);
+		if (!obj.isFile) {
+			throw new Error(obj.fileName + " is not a file");
 		}
 		return obj.file;
 	}

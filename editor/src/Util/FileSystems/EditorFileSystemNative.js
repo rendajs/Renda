@@ -1,22 +1,22 @@
 import EditorFileSystem from "./EditorFileSystem.js";
 import {SingleInstancePromise} from "../../../../src/index.js";
 
-export default class EditorFileSystemNative extends EditorFileSystem{
+export default class EditorFileSystemNative extends EditorFileSystem {
 	/**
 	 * @param {FileSystemDirectoryHandle} handle
 	 */
-	constructor(handle){
+	constructor(handle) {
 		super();
 
 		/** @type {FileSystemDirectoryHandle} */
 		this.handle = handle;
 
 		this.watchTree = new Map();
-		this.updateWatchTreeInstance = new SingleInstancePromise(async _=> await this.updateWatchTree(), {once: false});
-		this.currentlyGettingFileCbs = new Map(); //<path, Set<cb>>
+		this.updateWatchTreeInstance = new SingleInstancePromise(async _ => await this.updateWatchTree(), {once: false});
+		this.currentlyGettingFileCbs = new Map(); // <path, Set<cb>>
 	}
 
-	static async openUserDir(){
+	static async openUserDir() {
 		const directoryHandle = await globalThis.showDirectoryPicker();
 		return new EditorFileSystemNative(directoryHandle);
 	}
@@ -24,39 +24,40 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	async getPermission(path = [], {
 		writable = true,
 		prompt = false,
-	} = {}){
+	} = {}) {
 		let handle = /** @type {FileSystemHandle} */ (this.handle);
-		for(let i=0; i<=path.length; i++){
+		for (let i = 0; i <= path.length; i++) {
 			const hasPermission = await this.verifyHandlePermission(handle, {writable, prompt, error: false});
-			if(!hasPermission) return false;
+			if (!hasPermission) return false;
 
-			if(i == path.length) return true;
+			if (i == path.length) return true;
 
 			const dirName = path[i];
 			const isLast = i == path.length - 1;
 			const dirHandle = /** @type {FileSystemDirectoryHandle} */ (handle);
-			try{
+			try {
 				handle = await dirHandle.getDirectoryHandle(dirName);
-			}catch(e){
-				if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
-					if(isLast){
-						try{
+			} catch (e) {
+				if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
+					if (isLast) {
+						try {
 							handle = await dirHandle.getFileHandle(dirName);
-						}catch(e){
-							if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
+						} catch (e) {
+							if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
 								return true;
-							}else{
+							} else {
 								return false;
 							}
 						}
-					}else{
+					} else {
 						return true;
 					}
-				}else{
+				} else {
 					return false;
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -72,14 +73,14 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		prompt = true,
 		writable = true,
 		error = true,
-	} = {}){
+	} = {}) {
 		const mode = /** @type {"read" | "readwrite"} */ (writable ? "readwrite" : "read");
 		const opts = {mode};
-		if(await handle.queryPermission(opts) == "granted") return true;
-		if(prompt){
-			if(await handle.requestPermission(opts) == "granted") return true;
+		if (await handle.queryPermission(opts) == "granted") return true;
+		if (prompt) {
+			if (await handle.requestPermission(opts) == "granted") return true;
 		}
-		if(error) throw new Error("Not enough file system permissions for this operation.");
+		if (error) throw new Error("Not enough file system permissions for this operation.");
 		return false;
 	}
 
@@ -93,19 +94,19 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	async getDirHandle(path = [], {
 		create = false,
 		overrideError = true,
-	} = {}){
-		let handle = this.handle;
+	} = {}) {
+		let {handle} = this;
 		let parsedPathDepth = 0;
-		for(const dirName of path){
+		for (const dirName of path) {
 			parsedPathDepth++;
 
 			await this.verifyHandlePermission(handle, {writable: create});
-			try{
+			try {
 				handle = await handle.getDirectoryHandle(dirName, {create});
-			}catch(e){
-				if(overrideError){
-					throw new Error("Failed to get directory handle for "+path.slice(0, parsedPathDepth).join("/")+"/");
-				}else{
+			} catch (e) {
+				if (overrideError) {
+					throw new Error("Failed to get directory handle for " + path.slice(0, parsedPathDepth).join("/") + "/");
+				} else {
 					throw e;
 				}
 			}
@@ -124,47 +125,47 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 	async getFileHandle(path = [], {
 		create = false,
 		overrideError = true,
-	} = {}){
+	} = {}) {
 		const {dirPath, fileName} = this.splitDirFileName(path);
 		const dirHandle = await this.getDirHandle(dirPath, {create});
 		await this.verifyHandlePermission(dirHandle, {writable: create});
 		let fileHandle = null;
-		try{
-			if(create) this.setWatchTreeLastModified(path, Date.now() + 1000);
+		try {
+			if (create) this.setWatchTreeLastModified(path, Date.now() + 1000);
 			fileHandle = await dirHandle.getFileHandle(fileName, {create});
-			if(create) this.setWatchTreeLastModified(path);
-		}catch(e){
-			if(overrideError){
-				throw new Error("Failed to get file handle for "+path.join("/"));
-			}else{
+			if (create) this.setWatchTreeLastModified(path);
+		} catch (e) {
+			if (overrideError) {
+				throw new Error("Failed to get file handle for " + path.join("/"));
+			} else {
 				throw e;
 			}
 		}
 		return fileHandle;
 	}
 
-	async readDir(path = []){
+	async readDir(path = []) {
 		const handle = await this.getDirHandle(path);
-		let result = {
+		const result = {
 			files: [],
 			directories: [],
-		}
-		for await (const [name, item] of handle.entries()){
-			if(item.kind == "directory"){
+		};
+		for await (const [name, item] of handle.entries()) {
+			if (item.kind == "directory") {
 				result.directories.push(name);
-			}else if(item.kind == "file"){
+			} else if (item.kind == "file") {
 				result.files.push(name);
 			}
 		}
 		return result;
 	}
 
-	async createDir(path = []){
+	async createDir(path = []) {
 		await this.getDirHandle(path, {create: true});
 	}
 
-	async move(fromPath = [], toPath = []){
-		if(await this.isDir(fromPath)){
+	async move(fromPath = [], toPath = []) {
+		if (await this.isDir(fromPath)) {
 			throw new Error("not yet implemented");
 		}
 		const file = await this.readFile(fromPath);
@@ -172,132 +173,132 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		await this.delete(fromPath);
 	}
 
-	async delete(path = [], recursive = false){
+	async delete(path = [], recursive = false) {
 		let handle = await this.handle;
-		for(const [i, name] of path.entries()){
+		for (const [i, name] of path.entries()) {
 			await this.verifyHandlePermission(handle);
-			if(i == path.length - 1){
+			if (i == path.length - 1) {
 				await this.verifyHandlePermission(handle);
 				await handle.removeEntry(name, {recursive});
-			}else{
+			} else {
 				handle = await handle.getDirectoryHandle(name);
 			}
 		}
 	}
 
-	splitDirFileName(path = []){
+	splitDirFileName(path = []) {
 		const dirPath = path.slice(0, path.length - 1);
 		const fileName = path[path.length - 1];
 		return {dirPath, fileName};
 	}
 
-	async readFile(path = []){
+	async readFile(path = []) {
 		const jointPath = path.join("/");
 		let cbs = this.currentlyGettingFileCbs.get(jointPath);
-		if(cbs){
+		if (cbs) {
 			return await new Promise((resolve, reject) => cbs.add({resolve, reject}));
-		}else{
+		} else {
 			cbs = new Set();
 			this.currentlyGettingFileCbs.set(jointPath, cbs);
 		}
 		let fileContent;
 		let catchedError;
-		try{
+		try {
 			const fileHandle = await this.getFileHandle(path);
 			await this.verifyHandlePermission(fileHandle, {writable: false});
 			fileContent = await fileHandle.getFile();
-		}catch(e){
+		} catch (e) {
 			catchedError = e;
 		}
-		if(catchedError){
-			for(const {reject} of cbs){
+		if (catchedError) {
+			for (const {reject} of cbs) {
 				reject(catchedError);
 			}
-		}else{
-			for(const {resolve} of cbs){
+		} else {
+			for (const {resolve} of cbs) {
 				resolve(fileContent);
 			}
 		}
 		this.currentlyGettingFileCbs.delete(jointPath);
-		if(catchedError){
+		if (catchedError) {
 			throw catchedError;
-		}else{
+		} else {
 			return fileContent;
 		}
 	}
 
-	async writeFile(path = [], file = null){
+	async writeFile(path = [], file = null) {
 		const fileStream = await this.writeFileStream(path);
-		if(!fileStream.locked){
+		if (!fileStream.locked) {
 			await fileStream.write(file);
 			await fileStream.close();
 			this.setWatchTreeLastModified(path);
 		}
 	}
 
-	async writeFileStream(path = [], keepExistingData = false){
+	async writeFileStream(path = [], keepExistingData = false) {
 		const fileHandle = await this.getFileHandle(path, {create: true});
 		await this.verifyHandlePermission(fileHandle);
 		const fileStream = await fileHandle.createWritable({keepExistingData});
 		return fileStream;
 	}
 
-	async isFile(path = []){
-		try{
+	async isFile(path = []) {
+		try {
 			await this.getFileHandle(path, {overrideError: false});
-		}catch(e){
-			if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
+		} catch (e) {
+			if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
 				return false;
-			}else{
+			} else {
 				throw e;
 			}
 		}
 		return true;
 	}
 
-	async isDir(path = []){
-		try{
+	async isDir(path = []) {
+		try {
 			await this.getDirHandle(path, {overrideError: false});
-		}catch(e){
-			if(e.name == "TypeMismatchError" || e.name == "NotFoundError"){
+		} catch (e) {
+			if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
 				return false;
-			}else{
+			} else {
 				throw e;
 			}
 		}
 		return true;
 	}
 
-	//todos:
-	//-don't fire when obtaining read permissions
-	//-fire events when deleting a file
-	//-fire events when creating a directory
-	async suggestCheckExternalChanges(){
+	// todos:
+	// -don't fire when obtaining read permissions
+	// -fire events when deleting a file
+	// -fire events when creating a directory
+	async suggestCheckExternalChanges() {
 		this.updateWatchTreeInstance.run(true);
 	}
 
-	async updateWatchTree(){
+	async updateWatchTree() {
 		const collectedChanges = [];
 
 		await this.traverseWatchTree(this.watchTree, this.handle, collectedChanges);
 
-		for(const change of collectedChanges){
+		for (const change of collectedChanges) {
 			this.fireExternalChange(change);
 		}
 	}
 
-	async traverseWatchTree(watchTree, dirHandle, collectedChanges, traversedPath = []){
-		if(!await this.verifyHandlePermission(dirHandle, {prompt: false, writable: false, error: false})){
+	async traverseWatchTree(watchTree, dirHandle, collectedChanges, traversedPath = []) {
+		if (!await this.verifyHandlePermission(dirHandle, {prompt: false, writable: false, error: false})) {
 			return;
 		}
-		for await (const [name, handle] of dirHandle.entries()){
-			if(!await this.verifyHandlePermission(handle, {prompt: false, writable: false, error: false})){
+		for await (const [name, handle] of dirHandle.entries()) {
+			if (!await this.verifyHandlePermission(handle, {prompt: false, writable: false, error: false})) {
 				continue;
 			}
-			if(handle.kind == "file"){
+			if (handle.kind == "file") {
 				const file = await handle.getFile();
-				const lastModified = file.lastModified;
-				if(!watchTree.has(name) || watchTree.get(name) < lastModified){
+				const {lastModified} = file;
+				if (!watchTree.has(name) || watchTree.get(name) < lastModified) {
 					watchTree.set(name, lastModified);
 					collectedChanges.push({
 						kind: handle.kind,
@@ -305,9 +306,9 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 						type: "changed",
 					});
 				}
-			}else if(handle.kind == "directory"){
+			} else if (handle.kind == "directory") {
 				let dirWatchTree = watchTree.get(name);
-				if(!dirWatchTree){
+				if (!dirWatchTree) {
 					dirWatchTree = new Map();
 					watchTree.set(name, dirWatchTree);
 				}
@@ -317,20 +318,18 @@ export default class EditorFileSystemNative extends EditorFileSystem{
 		}
 	}
 
-	setWatchTreeLastModified(path, lastModified = Date.now()){
+	setWatchTreeLastModified(path, lastModified = Date.now()) {
 		let map = this.watchTree;
-		for(const [i, name] of path.entries()){
+		for (const [i, name] of path.entries()) {
 			const last = i == path.length - 1;
-			if(last){
+			if (last) {
 				map.set(name, lastModified);
-			}else{
-				if(map.has(name)){
-					map = map.get(name);
-				}else{
-					const newMap = new Map();
-					map.set(name, newMap);
-					map = newMap;
-				}
+			} else if (map.has(name)) {
+				map = map.get(name);
+			} else {
+				const newMap = new Map();
+				map.set(name, newMap);
+				map = newMap;
 			}
 		}
 	}

@@ -162,18 +162,6 @@
 		"object-shorthand": "error",
 		"prefer-arrow-callback": "error",
 		"prefer-const": ["error", { "destructuring": "all" }],
-		"prefer-destructuring": ["error", {
-			"VariableDeclarator": {
-				"array": false,
-				"object": true
-			},
-			"AssignmentExpression": {
-				"array": false,
-				"object": false
-			}
-		}, {
-			"enforceForRenamedProperties": false
-		}],
 		"prefer-numeric-literals": "error",
 		"prefer-rest-params": "error",
 		"prefer-spread": "error",
