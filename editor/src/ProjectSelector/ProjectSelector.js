@@ -52,6 +52,7 @@ export default class ProjectSelector {
 	 */
 	createAction(name) {
 		const item = document.createElement("li");
+		item.classList.add("project-selector-button");
 		item.textContent = name;
 		this.actionsList.appendChild(item);
 	}
