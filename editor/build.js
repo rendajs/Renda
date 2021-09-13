@@ -57,9 +57,9 @@ function overrideDefines(definesFilePath, defines) {
 			},
 		});
 		await bundle.write({
-			file: "editor/dist/index.js",
+			dir: "editor/dist/js/",
 			format: "esm",
 		});
-		await setScriptSrc("./index.js");
+		await setScriptSrc("./js/index.js");
 	}
 })();

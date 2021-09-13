@@ -1,7 +1,8 @@
-import editorInstance from "./editorInstance.js";
-import * as Util from "./Util/Util.js";
-
-window["editor"] = editorInstance;
-window["Util"] = Util;
-
+import "./ProjectSelector/instance.js";
 export default {};
+
+(async () => {
+	const module = await import("./editorInstance.js");
+	window["editor"] = module.default;
+})();
+
