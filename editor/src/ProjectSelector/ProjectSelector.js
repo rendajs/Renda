@@ -2,10 +2,12 @@ import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 
 export default class ProjectSelector {
 	constructor() {
+		this.visible = true;
 		this.indexedDb = new IndexedDbUtil("projectSelector");
 
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("project-selector-curtain");
+		this.curtainEl.addEventListener("click", () => this.setVisibility(false));
 		document.body.appendChild(this.curtainEl);
 
 		this.el = document.createElement("div");
@@ -52,5 +54,21 @@ export default class ProjectSelector {
 		const item = document.createElement("li");
 		item.textContent = name;
 		this.actionsList.appendChild(item);
+	}
+
+	/**
+	 * @param {boolean} visible
+	 */
+	setVisibility(visible) {
+		if (visible == this.visible) return;
+		this.visible = visible;
+
+		if (visible) {
+			document.body.appendChild(this.el);
+			document.body.appendChild(this.curtainEl);
+		} else {
+			document.body.removeChild(this.el);
+			document.body.removeChild(this.curtainEl);
+		}
 	}
 }

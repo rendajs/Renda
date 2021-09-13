@@ -4,6 +4,7 @@ import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import {handleDuplicateName} from "../../Util/Util.js";
+import projectSelector from "../../ProjectSelector/instance.js";
 
 export default class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = "project";
@@ -72,18 +73,10 @@ export default class ContentWindowProject extends ContentWindow {
 		const openProjectButton = new Button({
 			text: "Open Project",
 			onClick: () => {
-				editor.projectManager.openProjectFromLocalDirectory();
+				projectSelector.setVisibility(true);
 			},
 		});
 		this.addTopBarButton(openProjectButton);
-
-		const openRecentButton = new Button({
-			text: "Open Recent",
-			onClick: () => {
-				editor.projectManager.openRecentProjectHandle();
-			},
-		});
-		this.addTopBarButton(openRecentButton);
 
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
