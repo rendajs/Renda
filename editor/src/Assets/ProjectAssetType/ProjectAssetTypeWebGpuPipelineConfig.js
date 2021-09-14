@@ -8,10 +8,6 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	static newFileName = "New Pipeline Config";
 
-	constructor(){
-		super(...arguments);
-	}
-
 	static propertiesAssetContentStructure = {
 		vertexShader: {type: ShaderSource},
 		fragmentShader: {type: ShaderSource},

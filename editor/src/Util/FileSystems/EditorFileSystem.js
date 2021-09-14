@@ -160,10 +160,9 @@ export default class EditorFileSystem {
 		return null;
 	}
 
-	// binary can be a File, Blob, ArrayBuffer or TypedArray
 	/**
 	 * @param {Array<String>} path
-	 * @param {BlobPart} binary
+	 * @param {BlobPart} binary - File, Blob, ArrayBuffer or TypedArray
 	 */
 	async writeBinary(path = [], binary = null) {
 		const fileName = path[path.length - 1] || "";

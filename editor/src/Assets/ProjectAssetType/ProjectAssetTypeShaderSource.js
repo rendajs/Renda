@@ -13,8 +13,11 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	static storeInProjectAsText = true;
 	static matchExtensions = ["glsl", "wgsl"];
 
-	constructor(){
-		super(...arguments);
+	/**
+	 * @param  {ConstructorParameters<typeof ProjectAssetType>} args
+	 */
+	constructor(...args){
+		super(...args);
 
 		this.includedUuids = [];
 		this.boundOnShaderInvalidated = null;

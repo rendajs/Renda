@@ -8,10 +8,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 	static typeUuid = "07dcd52e-03a5-4823-b343-16a142c304f6";
 	static newFileName = "New Vertex State";
 
-	constructor(){
-		super(...arguments);
-	}
-
+	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		buffers: {
 			type: Array,
@@ -19,6 +16,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 				type: {
 					arrayStride: {
 						defaultValue: "auto",
+						/** @type {import("../../UI/NumericGui.js").NumericGuiOptions} */
 						guiOpts: {
 							min: -1,
 							step: 1,

@@ -8,8 +8,4 @@ export default class ProjectAssetTypeMaterialMap extends ProjectAssetType{
 	static typeUuid = "dd28f2f7-254c-4447-b041-1770ae451ba9";
 	static newFileName = "New Material Map";
 	static propertiesAssetContentConstructor = PropertiesAssetContentMaterialMap;
-
-	constructor(){
-		super(...arguments);
-	}
 }

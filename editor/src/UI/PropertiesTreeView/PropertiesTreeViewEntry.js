@@ -19,6 +19,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
  * @property {string} [label = ""] - The label to show in front of the GUI element.
  * @property {boolean} [smallLabel = false] - Set to true if you want the value GUI element to take up a bigger portion of the line.
  * @property {boolean} [disabled = false]
+ * @property {*} [defaultValue = null]
  */
 
 /**

@@ -12,8 +12,11 @@ export default class ProjectAssetTypeMesh extends ProjectAssetType{
 	static storeInProjectAsJson = false;
 	static propertiesAssetContentConstructor = PropertiesAssetContentMesh;
 
-	constructor(){
-		super(...arguments);
+	/**
+	 * @param {ConstructorParameters<typeof ProjectAssetType>} args
+	 */
+	constructor(...args){
+		super(...args);
 
 		this.magicHeader = 0x68734D6A;
 	}

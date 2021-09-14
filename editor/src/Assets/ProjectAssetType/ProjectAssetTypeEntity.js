@@ -12,10 +12,6 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType{
 
 	static usedAssetUuidsSymbol = Symbol("used asset uuids");
 
-	constructor(){
-		super(...arguments);
-	}
-
 	static expectedLiveAssetConstructor = Entity;
 
 	async getLiveAssetData(json){

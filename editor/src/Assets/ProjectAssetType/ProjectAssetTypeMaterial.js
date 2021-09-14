@@ -11,10 +11,6 @@ export default class ProjectAssetTypeMaterial extends ProjectAssetType{
 	static newFileName = "New Material";
 	static propertiesAssetContentConstructor = PropertiesAssetContentMaterial;
 
-	constructor(){
-		super(...arguments);
-	}
-
 	static expectedLiveAssetConstructor = Material;
 
 	async getLiveAssetData(materialJson){

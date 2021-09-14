@@ -7,14 +7,12 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 	static typeUuid = "13194e5c-01e8-4ecc-b645-86626b9d5e4c";
 	static newFileName = "New Clustered Lights Config";
 
-	constructor(){
-		super(...arguments);
-	}
-
+	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		clusterCount: {
 			type: Vec3,
 			defaultValue: new Vec3(16,9,24),
+			/** @type {import("../../UI/VectorGui.js").VectorGuiOptions} */
 			guiOpts: {
 				min: 1,
 				step: 1,
@@ -22,6 +20,7 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 		},
 		maxLightsPerClusterPass: {
 			defaultValue: 10,
+			/** @type {import("../../UI/VectorGui.js").VectorGuiOptions} */
 			guiOpts: {
 				min: 1,
 				step: 1,

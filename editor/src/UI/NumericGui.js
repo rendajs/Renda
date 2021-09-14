@@ -1,6 +1,24 @@
 import {mod} from "../Util/Util.js";
 
+/**
+ * @typedef {Object} NumericGuiOptionsType
+ * @property {number} [min = null] - The minimum allowed value.
+ * @property {number} [max = null] - The maximum allowed value.
+ * @property {number} [step = 0] - The stepping interval for allowed values.
+ * @property {number} [stepStart = 0] - The start offset of the stepping interval.
+ * @property {number} [mouseAdjustSpeed = 0.1] - The speed at which the value is adjusted when the mouse is dragged.
+ * @property {number} [scrollAdjustSpeed = 0.1] - The speed at which the value is adjusted when the mouse is scrolled.
+ * @property {string} [suffix = ""] - The suffix to render after the value.
+ * @property {string} [prefix = ""] - The prefix to render before the value.
+ * @property {[number, string][]} [mappedStringValues = []] - The string to return when the numeric value is one of these values.
+ *
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & NumericGuiOptionsType} NumericGuiOptions
+ */
+
 export default class NumericGui{
+	/**
+	 * @param {NumericGuiOptions} opts
+	 */
 	constructor({
 		defaultValue = 0,
 		min = null,

@@ -1,70 +1,102 @@
-export default class ProjectAssetType{
-	//override this with a DOMStrings that functions as an identifier
-	//for this type. This will be stored in various places such as
-	//the asset settings file or the wrapped editor meta data and
-	//is used to identify the type of assets.
-	//This should have the format "namespace:assetType",
-	//for example: "JJ:mesh".
+export default class ProjectAssetType {
+	/**
+	 * Identifier of the assetType. This is stored in various places
+	 * such as the asset settings file or the wrapped editor meta data.
+	 * This should have the format "namespace:assetType", for example: "JJ:mesh".
+	 * @type {?string}
+	 */
 	static type = null;
 
-	//This will be used for storing the asset type in asset bundles.
-	//This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
-	//You can generate a uuid in the editor browser console using Util.generateUuid()
+	/**
+	 * This will be used for storing the asset type in asset bundles.
+	 * This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
+	 * You can generate a uuid in the editor browser console using Util.generateUuid()
+	 * @type {import("../../Util/Util.js").UuidString}
+	 */
 	static typeUuid = null;
 
-
-	//this is used to find out what type an asset is when it isn't json
-	//if this value is omitted and storeInProjectAsJson is false,
-	//`newFileExtension` will be used instead
+	/**
+	 * This is used to find out what type an asset is when it isn't json.
+	 * If this value is omitted and storeInProjectAsJson is false,
+	 * {@linkcode newFileExtension} will be used instead.
+	 * @type {string[]}
+	 */
 	static matchExtensions = [];
 
-	//override these with a string that gets used as file name and extension
-	//when a new project asset of this type is created
+	/**
+	 * Filename used when creating new assets of this type.
+	 * @type {string}
+	 */
 	static newFileName = "New Asset";
+
+	/**
+	 * Extension used when creating new assets of this type.
+	 * @type {string}
+	 */
 	static newFileExtension = "json";
 
 	static storeInProjectAsJson = true;
 	static storeInProjectAsText = false;
 
-	//set this to false if you don't want the editor to
-	//wrap your provided data in ProjectAsset.writeAssetData()
-	//with editor values
+	/**
+	 * Whether the assetdata from {@linkcode saveLiveAssetData} gets wrapped
+	 * in a json object that contains extra editor metadata.
+	 * @type {boolean}
+	 */
 	static wrapProjectJsonWithEditorMetaData = true;
 
-	//the properties window will show ui generated from this structure
-	//this object will be fed into PropertiesTreeView.generateFromSerializableStructure
-	//leave this as null if you don't want to show any ui or if you want to create
-	//custom ui using `propertiesAssetContentConstructor`
+	/** @typedef {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").default} PropertiesTreeView */
+	/**
+	 * The properties window will show ui generated from this structure.
+	 * This object will be fed into {@linkcode PropertiesTreeView.generateFromSerializableStructure}
+	 * Leave this as null if you don't want to show any ui or if you want to create
+	 * custom ui using {@linkcode propertiesAssetContentConstructor}
+	 * @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure}
+	 */
 	static propertiesAssetContentStructure = null;
 
-	//if you want more control over ui rendering in the properties window
-	//you can set this to the constructor of an extended PropertiesAssetContent class
+	/** @typedef {import("../../PropertiesAssetContent/PropertiesAssetContent.js").default} PropertiesAssetContent */
+	/**
+	 * If you want more control over ui rendering in the properties window,
+	 * you can set this to the constructor of an extended {@linkcode PropertiesAssetContent} class.
+	 */
 	static propertiesAssetContentConstructor = null;
 
-	//fill this with asset settings you want to appear in
-	//the properties window
+	/**
+	 * Fill this with asset settings you want to appear in the properties window.
+	 * @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure}
+	 */
 	static assetSettingsStructure = {};
 
-	constructor(projectAsset){
+	/** @typedef {import("../ProjectAsset.js").default} ProjectAsset */
+	/**
+	 * @param {ProjectAsset} projectAsset
+	 */
+	constructor(projectAsset) {
 		this.projectAsset = projectAsset;
 
 		this.boundLiveAssetNeedsReplacement = this.liveAssetNeedsReplacement.bind(this);
 		this.usedLiveAssets = new Set();
 	}
 
-	//this will be called when a new file of this type is created
-	//the returned value will be passed along to saveLiveAssetData()
-	async createNewLiveAssetData(){
+	/**
+	 * This will be called when a new file of this type is created
+	 * the returned value will be passed along to {@linkcode saveLiveAssetData}
+	 * @returns {Promise<{liveAsset: *, editorData: *}>}
+	 */
+	async createNewLiveAssetData() {
 		return {liveAsset: null, editorData: null};
 	}
 
-	//This is used to find out if a specific class could be stored as an asset,
-	//when dragging assets to a DroppableGui for instance.
-	//Set this to the constructor of the type that you expect to return in getLiveAsset()
-	//for example, if getLiveAsset() returns a `new Material()`, this value
-	//should be set to `Material` (without new)
-	//If you don't plan on adding support for loading this asset type at runtime,
-	//you can safely ommit this.
+	/**
+	 * This is used to find out if a specific class could be stored as an asset,
+	 * when dragging assets to a DroppableGui for instance.
+	 * Set this to the constructor of the type that you expect to return in getLiveAsset()
+	 * for example, if getLiveAsset() returns a `new Material()`, this value
+	 * should be set to `Material` (without new)
+	 * If you don't plan on adding support for loading this asset type at runtime,
+	 * you can safely ommit this.
+	 */
 	static expectedLiveAssetConstructor = null;
 
 	/**
@@ -73,62 +105,83 @@ export default class ProjectAssetType{
 	 * This it guaranteed to not get called if a liveAssets already exists,
 	 * i.e. it is only called twice if destroyLiveAssetData gets called first.
 	 * Both `editorData` and `liveAsset` are optional.
-	 * `editorData` will be passed back to saveLiveAssetData()
+	 * `editorData` will be passed back to {@linkcode saveLiveAssetData}
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
 	 * @param {import("../ProjectAsset").ProjectAssetFileData} fileData
 	 * @returns {Promise<{liveAsset?: any, editorData?: any}>}
 	 */
-	async getLiveAssetData(fileData){
+	async getLiveAssetData(fileData) {
 		return {liveAsset: null};
 	}
 
-	//use this to store a liveasset instance in the project folder
-	//the return value will be passed on to ProjectAsset.writeAssetData() so depending
-	//on your configuration you can return a json object, DOMString, or binary data
-	async saveLiveAssetData(liveAsset, editorData){}
+	/**
+	 * use this to store a liveasset instance in the project folder
+	 * the return value will be passed on to {@linkcode ProjectAsset.writeAssetData} so depending
+	 * on your configuration you can return a json object, DOMString, or binary data
+	 * @returns {Promise<Object | string | BlobPart>}
+	 */
+	async saveLiveAssetData(liveAsset, editorData) {}
 
-	//This gets called when the file is changed on disk by an external program.
-	//By default this calls `liveAssetNeedsReplacement()` but you can optionally
-	//override this and reconfigure the current liveAsset manually without creating
-	//a new instance. This might be more efficient if the live asset is used in a lot
-	//of places, or if a new instance sets of a big chain of liveAsset replacements.
-	async fileChangedExternally(){
+	/**
+	 * This gets called when the file is changed on disk by an external program.
+	 * By default this calls `liveAssetNeedsReplacement()` but you can optionally
+	 * override this and reconfigure the current liveAsset manually without creating
+	 * a new instance. This might be more efficient if the live asset is used in a lot
+	 * of places, or if a new instance sets of a big chain of liveAsset replacements.
+	 */
+	async fileChangedExternally() {
 		this.liveAssetNeedsReplacement();
 	}
 
-	//Destroys all current live asset data, informing any objects
-	//that are holding an instance of the liveAsset that they should
-	//request a new instance.
-	liveAssetNeedsReplacement(){
+	/**
+	 * Destroys all current live asset data, informing any objects
+	 * that are holding an instance of the liveAsset that they should
+	 * request a new instance.
+	 */
+	liveAssetNeedsReplacement() {
 		this.projectAsset.liveAssetNeedsReplacement();
 	}
 
-	//you can use this to automacally listen for changes in other projectAsset.
-	//If any of the registered liveAssets get replaced, the liveAsset
-	//of this ProjectAsset automatically gets destroyed and recreated.
-	listenForUsedLiveAssetChanges(projectAsset){
-		if(!projectAsset) return;
+	/**
+	 * You can use this to automacally listen for changes in other projectAsset.
+	 * If any of the registered liveAssets get replaced, the liveAsset
+	 * of this ProjectAsset automatically gets destroyed and recreated.
+	 * @param {ProjectAsset} projectAsset
+	 */
+	listenForUsedLiveAssetChanges(projectAsset) {
+		if (!projectAsset) return;
 		this.usedLiveAssets.add(projectAsset);
 		projectAsset.onNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement);
 	}
 
-	//optionally override this for custom asset destruction
-	destroyLiveAssetData(liveAsset, editorData){
+	/**
+	 * Gets called when a liveAsset is no longer needed.
+	 * You can override this for custom asset destruction.
+	 * @param {*} liveAsset
+	 * @param {*} editorData
+	 */
+	destroyLiveAssetData(liveAsset, editorData) {
 		liveAsset.destructor?.();
-		for(const projectAsset of this.usedLiveAssets){
-			projectAsset.removeOnNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement)
+		for (const projectAsset of this.usedLiveAssets) {
+			projectAsset.removeOnNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement);
 		}
 	}
 
-	//if this asset is a file that can be opened, open it
-	//either in the editor or in an external application
-	async open(){}
+	/**
+	 * If this asset is a file that can be opened, open it
+	 * either in the editor or in an external application
+	 */
+	async open() {}
 
-	//If your asset loader extends AssetLoaderTypeGenericStructure
-	//you don't need to implement createBundledAssetData() below.
-	//the structure values of the AssetLoaderType will be passed on to
-	//BinaryComposer.objectToBinary instead
+	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").default} AssetLoaderTypeGenericStructure */
+	/** @typedef {import("../../../../src/Util/BinaryComposer.js").default} BinaryComposer */
+	/**
+	 * If your asset loader extends {@linkcode AssetLoaderTypeGenericStructure}
+	 * you don't need to implement {@linkcode createBundledAssetData}.
+	 * The structure values of the AssetLoaderType will be passed on to
+	 * {@linkcode BinaryComposer.objectToBinary} instead
+	 */
 	static usedAssetLoaderType = null;
 
 	/**
@@ -143,7 +196,7 @@ export default class ProjectAssetType{
 	 * @param {any} assetSettingOverrides
 	 * @returns {Promise<null | BufferSource | Blob | String>}
 	 */
-	async createBundledAssetData(assetSettingOverrides = {}){
+	async createBundledAssetData(assetSettingOverrides = {}) {
 		return null;
 	}
 
@@ -154,9 +207,9 @@ export default class ProjectAssetType{
 	 * the references from its structure values, will automatically be collected as well.
 	 * @returns {AsyncGenerator<String>}
 	 */
-	async *getReferencedAssetUuids(){}
+	async *getReferencedAssetUuids() {}
 
-	static invalidConfigurationWarning(message){
-		console.warn(message+"\nView ProjectAssetType.js for more info.");
+	static invalidConfigurationWarning(message) {
+		console.warn(message + "\nView ProjectAssetType.js for more info.");
 	}
 }

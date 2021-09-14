@@ -11,6 +11,7 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 	static storeInProjectAsJson = false;
 	static storeInProjectAsText = true;
 
+	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
 	static assetSettingsStructure = {
 		outputLocation: {
 			type: String,
@@ -23,6 +24,7 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 		},
 		buildButton: {
 			type: "button",
+			/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
 			guiOpts: {
 				text: "Build",
 				onClick: async context => {
@@ -55,8 +57,4 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType{
 			}
 		},
 	};
-
-	constructor(){
-		super(...arguments);
-	}
 }
