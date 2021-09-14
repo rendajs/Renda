@@ -227,6 +227,11 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		}
 	}
 
+	/**
+	 * @override
+	 * @param {Array<String>} path
+	 * @param {File | BufferSource | Blob | string} file
+	 */
 	async writeFile(path = [], file = null) {
 		const fileStream = await this.writeFileStream(path);
 		if (!fileStream.locked) {

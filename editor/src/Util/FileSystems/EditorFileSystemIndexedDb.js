@@ -313,6 +313,11 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
 	}
 
+	/**
+	 * @override
+	 * @param {Array<String>} path
+	 * @param {File | BufferSource | Blob | string} file
+	 */
 	async writeFile(path = [], file = null) {
 		if (!file) file = new Blob();
 		const fileName = path[path.length - 1];
@@ -322,12 +327,12 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 			type = file.type;
 			lastModified = file.lastModified;
 		}
-		file = new File([file], fileName, {type, lastModified});
+		const createdFile = new File([file], fileName, {type, lastModified});
 		const newParentPath = path.slice(0, path.length - 1);
 		const newParentTravelledData = await this.createDirInternal(newParentPath);
 		const newPointer = await this.createObject({
 			isFile: true,
-			file,
+			file: createdFile,
 			fileName: path[path.length - 1],
 		});
 		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];

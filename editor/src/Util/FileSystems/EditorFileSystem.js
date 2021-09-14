@@ -45,7 +45,7 @@ export default class EditorFileSystem {
 	/**
 	 * Writes file to the system. Use {@link EditorFileSystem.writeText} for writing strings.
 	 * @param {Array<String>} path
-	 * @param {File} file
+	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async writeFile(path = [], file = null) {}
 
