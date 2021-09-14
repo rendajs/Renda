@@ -13,6 +13,13 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = Entity;
 
+	async createNewLiveAssetData() {
+		return {
+			liveAsset: new Entity(),
+			editorData: null,
+		};
+	}
+
 	async getLiveAssetData(json) {
 		const liveAsset = await this.createEntityFromJsonData(json);
 		return {liveAsset};
