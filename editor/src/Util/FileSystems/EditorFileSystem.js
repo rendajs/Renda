@@ -43,7 +43,9 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * Writes file to the system. Use {@link EditorFileSystem.writeText} for writing strings.
+	 * Writes file to the system, overwrites file if it already exists.
+	 * Use {@link EditorFileSystem.writeText} for writing strings.
+	 * Use {@link EditorFileSystem.writeJson} for writing json Objects.
 	 * @param {Array<String>} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */

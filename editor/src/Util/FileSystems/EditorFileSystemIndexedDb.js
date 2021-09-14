@@ -330,12 +330,27 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 		const createdFile = new File([file], fileName, {type, lastModified});
 		const newParentPath = path.slice(0, path.length - 1);
 		const newParentTravelledData = await this.createDirInternal(newParentPath);
+		const newFileName = path[path.length - 1];
 		const newPointer = await this.createObject({
 			isFile: true,
 			file: createdFile,
-			fileName: path[path.length - 1],
+			fileName: newFileName,
 		});
 		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
+
+		// Remove existing pointer with the same name
+		const deletePointers = [];
+		for (const pointer of newParentObj.obj.files) {
+			const fileObject = await this.getObject(pointer);
+			if (fileObject.fileName == newFileName) {
+				deletePointers.push(pointer);
+			}
+		}
+		newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
+		for (const pointer of deletePointers) {
+			await this.db.delete(pointer);
+		}
+
 		newParentObj.obj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
 	}
