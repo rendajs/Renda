@@ -15,7 +15,7 @@ import md5 from "../../../libs/md5.js";
  * @property {EditorFileSystemIndexedDbPointer[]} [files]
  */
 
-export default class EditorFileSystemIndexedDB extends EditorFileSystem {
+export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	constructor(name) {
 		super();
 

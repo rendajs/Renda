@@ -1,6 +1,6 @@
 import editor from "../editorInstance.js";
 import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.js";
-import EditorFileSystemIndexedDB from "../Util/FileSystems/EditorFileSystemIndexedDB.js";
+import EditorFileSystemIndexedDb from "../Util/FileSystems/EditorFileSystemIndexedDbb.js";
 import AssetManager from "../Assets/AssetManager.js";
 import EditorConnectionServer from "../Network/EditorConnectionServer.js";
 import {generateUuid} from "../Util/Util.js";
@@ -84,7 +84,7 @@ export default class ProjectManager {
 	 * @param {string} uuid
 	 */
 	openDbProject(uuid) {
-		const fileSystem = new EditorFileSystemIndexedDB(uuid);
+		const fileSystem = new EditorFileSystemIndexedDb(uuid);
 		this.openProject(fileSystem, {
 			fileSystemType: "db",
 			dbUuid: uuid,
