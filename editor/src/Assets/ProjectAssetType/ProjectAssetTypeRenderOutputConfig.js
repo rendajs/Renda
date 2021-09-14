@@ -1,14 +1,12 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import editor from "../../editorInstance.js";
-import {RenderOutputConfig, AssetLoaderTypeRenderOutputConfig} from "../../../../src/index.js";
+import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType{
-
+export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static type = "JJ:renderOutputConfig";
 	static typeUuid = "b4c9bbdc-86dc-4270-ae94-780dbaa66976";
 	static newFileName = "New Render Output Config";
 
-	//todo: better support for webgl config
+	// todo: better support for webgl config
 	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		depthStencilFormat: {
@@ -35,7 +33,7 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 	static expectedLiveAssetConstructor = RenderOutputConfig;
 	static usedAssetLoaderType = AssetLoaderTypeRenderOutputConfig;
 
-	async getLiveAssetData(fileData){
+	async getLiveAssetData(fileData) {
 		const liveAsset = new RenderOutputConfig(fileData);
 		return {liveAsset};
 	}

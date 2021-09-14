@@ -1,10 +1,8 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import {ShaderSource} from "../../../../src/index.js";
-import {getNameAndExtension} from "../../Util/FileSystems/PathUtil.js";
 import editor from "../../editorInstance.js";
 
-export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
-
+export default class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static type = "JJ:shaderSource";
 	static typeUuid = "e7253ad6-8459-431f-ac16-609150538a24";
 	static newFileName = "New Shader";
@@ -16,7 +14,7 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 	/**
 	 * @param  {ConstructorParameters<typeof ProjectAssetType>} args
 	 */
-	constructor(...args){
+	constructor(...args) {
 		super(...args);
 
 		this.includedUuids = [];
@@ -25,10 +23,10 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 
 	static expectedLiveAssetConstructor = ShaderSource;
 
-	async getLiveAssetData(source){
+	async getLiveAssetData(source) {
 		const {shaderCode, includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);
 		this.includedUuids = includedUuids;
-		if(!this.boundOnShaderInvalidated){
+		if (!this.boundOnShaderInvalidated) {
 			this.boundOnShaderInvalidated = this.onShaderInvalidated.bind(this);
 			editor.webGpuShaderBuilder.onShaderInvalidated(this.boundOnShaderInvalidated);
 		}
@@ -36,24 +34,24 @@ export default class ProjectAssetTypeShaderSource extends ProjectAssetType{
 		return {liveAsset};
 	}
 
-	destroyLiveAssetData(liveAsset){
+	destroyLiveAssetData(liveAsset) {
 		super.destroyLiveAssetData(liveAsset);
-		if(this.boundOnShaderInvalidated){
+		if (this.boundOnShaderInvalidated) {
 			editor.webGpuShaderBuilder.removeShaderInvalidated(this.boundOnShaderInvalidated);
 			this.boundOnShaderInvalidated = null;
 		}
 	}
 
-	onShaderInvalidated(uuid){
-		if(this.includedUuids.includes(uuid)){
+	onShaderInvalidated(uuid) {
+		if (this.includedUuids.includes(uuid)) {
 			this.liveAssetNeedsReplacement();
 		}
 	}
 
-	async *getReferencedAssetUuids(){
+	async *getReferencedAssetUuids() {
 		const source = await this.projectAsset.readAssetData();
-		const {shaderCode, includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);
-		for(const uuid of includedUuids){
+		const {includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);
+		for (const uuid of includedUuids) {
 			yield uuid;
 		}
 	}

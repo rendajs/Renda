@@ -1,8 +1,7 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import {Vec3, ClusteredLightsConfig, AssetLoaderTypeClusteredLightsConfig} from "../../../../src/index.js";
+import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType{
-
+export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	static type = "JJ:clusteredLightsSetup";
 	static typeUuid = "13194e5c-01e8-4ecc-b645-86626b9d5e4c";
 	static newFileName = "New Clustered Lights Config";
@@ -11,7 +10,7 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 	static propertiesAssetContentStructure = {
 		clusterCount: {
 			type: Vec3,
-			defaultValue: new Vec3(16,9,24),
+			defaultValue: new Vec3(16, 9, 24),
 			/** @type {import("../../UI/VectorGui.js").VectorGuiOptions} */
 			guiOpts: {
 				min: 1,
@@ -36,7 +35,7 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 	 * @param {*} fileData
 	 * @returns
 	 */
-	async getLiveAssetData(fileData){
+	async getLiveAssetData(fileData) {
 		const liveAsset = new ClusteredLightsConfig(fileData);
 		return {liveAsset, editorData: null};
 	}

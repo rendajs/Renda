@@ -1,9 +1,7 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import editor from "../../editorInstance.js";
-import {ShaderSource, VertexState, Mesh, AssetLoaderTypeVertexState} from "../../../../src/index.js";
+import {AssetLoaderTypeVertexState, Mesh, VertexState} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeVertexState extends ProjectAssetType{
-
+export default class ProjectAssetTypeVertexState extends ProjectAssetType {
 	static type = "JJ:vertexState";
 	static typeUuid = "07dcd52e-03a5-4823-b343-16a142c304f6";
 	static newFileName = "New Vertex State";
@@ -75,7 +73,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType{
 	static expectedLiveAssetConstructor = VertexState;
 	static usedAssetLoaderType = AssetLoaderTypeVertexState;
 
-	async getLiveAssetData(fileData){
+	async getLiveAssetData(fileData) {
 		const liveAsset = new VertexState(fileData);
 		return {liveAsset};
 	}
