@@ -1,6 +1,6 @@
 import editor from "../editorInstance.js";
 import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.js";
-import EditorFileSystemIndexedDb from "../Util/FileSystems/EditorFileSystemIndexedDbb.js";
+import EditorFileSystemIndexedDb from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import AssetManager from "../Assets/AssetManager.js";
 import EditorConnectionServer from "../Network/EditorConnectionServer.js";
 import {generateUuid} from "../Util/Util.js";
