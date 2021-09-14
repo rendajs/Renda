@@ -265,6 +265,7 @@ export default class AssetManager{
 
 	async assetMoved(fromPath = [], toPath = []){
 		const asset = await this.getProjectAssetFromPath(fromPath);
+		if(!asset) return;
 		asset.assetMoved(toPath);
 		await this.saveAssetSettings();
 	}
