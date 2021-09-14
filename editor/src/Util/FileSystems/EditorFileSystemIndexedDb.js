@@ -342,4 +342,31 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 		}
 		return obj.file;
 	}
+
+	/**
+	 * @override
+	 * @param {string[]} path
+	 * @returns {Promise<Boolean>}
+	 */
+	async isFile(path = []) {
+		try {
+			const {obj} = await this.getObjectFromPath(path);
+			return obj.isFile;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/**
+	 * @param {string[]} path
+	 * @returns {Promise<Boolean>}
+	 */
+	async isDir(path = []) {
+		try {
+			const {obj} = await this.getObjectFromPath(path);
+			return obj.isDir;
+		} catch (e) {
+			return false;
+		}
+	}
 }

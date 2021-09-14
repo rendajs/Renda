@@ -59,6 +59,8 @@ export default class EditorFileSystem {
 	}
 
 	/**
+	 * Check if a file exists at the specified path, and if it is a file.
+	 * Does not throw when any part of the path doesn't exist.
 	 * @param {Array<string>} path
 	 * @returns {Promise<Boolean>}
 	 */
@@ -67,6 +69,8 @@ export default class EditorFileSystem {
 	}
 
 	/**
+	 * Check if a directory exists at the specified path, and if it is a directory.
+	 * Does not throw when any part of the path doesn't exist.
 	 * @param {Array<string>} path
 	 * @returns {Promise<Boolean>}
 	 */
