@@ -148,13 +148,15 @@ export default class ProjectManager {
 	 * @param {string?} endpoint
 	 */
 	setEditorConnectionServerEndpoint(endpoint) {
-		if (!endpoint && this.editorConnectionServer) {
+		const shouldHaveServer = !!endpoint && !this.currentProjectIsRemote;
+		if (!shouldHaveServer && this.editorConnectionServer) {
 			this.editorConnectionServer.destructor();
 			this.editorConnectionServer = null;
-		} else if (endpoint) {
-			if (!this.editorConnectionServer) {
-				this.editorConnectionServer = new EditorConnectionServer();
-			}
+		} else if (shouldHaveServer && !this.editorConnectionServer) {
+			this.editorConnectionServer = new EditorConnectionServer();
+		}
+
+		if (shouldHaveServer) {
 			this.editorConnectionServer.setEndpoint(endpoint);
 		}
 	}
