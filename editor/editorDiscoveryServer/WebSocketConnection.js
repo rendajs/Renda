@@ -1,4 +1,5 @@
 import generateUuid from "../common/generateUuid.js";
+import main from "./mainInstance.js";
 
 export default class WebSocketConnection {
 	/**
@@ -8,6 +9,10 @@ export default class WebSocketConnection {
 		this.id = generateUuid();
 		/** @type {import("websocket").connection} */
 		this.rawConnection = rawConnection;
+
+		this.firstIsHostMessageReceived = false;
+		this.isHost = false;
+		this.isDiscovering = false;
 
 		this.rawConnection.on("message", this.onMessage.bind(this));
 	}
@@ -26,6 +31,70 @@ export default class WebSocketConnection {
 			console.error("Failed to parse message: " + message.utf8Data);
 		}
 
-		console.log(data);
+		if (!data) return;
+		const {op} = data;
+		if (!op) return;
+
+		if (op == "setIsHost") {
+			const newIsHost = !!data.isHost;
+			if (newIsHost == this.isHost && this.firstIsHostMessageReceived) return;
+			this.isHost = newIsHost;
+			this.firstIsHostMessageReceived = true;
+			if (this.isHost) {
+				this.notifyNearbyClientEditors("nearbyEditorAdded");
+			} else {
+				this.sendNearbyHostEditorsList();
+			}
+		}
+	}
+
+	onClose() {
+		if (this.isHost) {
+			this.notifyNearbyClientEditors("nearbyEditorRemoved");
+		}
+	}
+
+	send(data) {
+		this.rawConnection.send(JSON.stringify(data));
+	}
+
+	getEditorData() {
+		return {
+			id: this.id,
+		};
+	}
+
+	sendNearbyHostEditorsList() {
+		const connectionsData = [];
+		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+			if (!connection.isHost) continue;
+			connectionsData.push(connection.getEditorData());
+		}
+		this.send({
+			op: "nearbyEditorsList",
+			editors: connectionsData,
+		});
+	}
+
+	/**
+	 * @param {"nearbyEditorAdded" | "nearbyEditorRemoved"} op
+	 */
+	notifyNearbyClientEditors(op) {
+		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+			if (connection.isHost) continue;
+
+			connection.sendNearbyEditorChanged(this, op);
+		}
+	}
+
+	/**
+	 * @param {WebSocketConnection} connection
+	 * @param {"nearbyEditorAdded" | "nearbyEditorRemoved"} op
+	 */
+	sendNearbyEditorChanged(connection, op) {
+		this.send({
+			op,
+			editor: connection.getEditorData(),
+		});
 	}
 }

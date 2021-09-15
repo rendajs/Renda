@@ -45,6 +45,11 @@ export default class ProjectManager {
 	async openProject(fileSystem, openProjectChangeEvent) {
 		this.currentProjectFileSystem = fileSystem;
 		this.currentProjectIsRemote = fileSystem instanceof EditorFileSystemRemote;
+
+		if (this.editorConnectionsManager) {
+			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
+		}
+
 		// todo remove this event when opening a new fileSystem
 		fileSystem.onExternalChange(e => {
 			for (const cb of this.onExternalChangeCbs) {
@@ -170,6 +175,7 @@ export default class ProjectManager {
 			this.editorConnectionsManager = null;
 		} else if (shouldHaveServer && !this.editorConnectionsManager) {
 			this.editorConnectionsManager = new EditorConnectionsManager();
+			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
 		}
 
 		if (shouldHaveServer) {

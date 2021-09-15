@@ -7,7 +7,7 @@ export default class Main {
 		/** @type {Map<string, WebSocketConnection>} */
 		this.activeConnections = new Map();
 
-		/** @type {Map<string, WebSocketConnection>} */
+		/** @type {Map<string, Set<WebSocketConnection>>} */
 		this.connectionsByRemoteAddress = new Map();
 
 		this.httpServer = http.createServer(() => {});
@@ -22,7 +22,24 @@ export default class Main {
 		this.wsServer.on("connect", rawConnection => {
 			const connection = new WebSocketConnection(rawConnection);
 			this.activeConnections.set(connection.id, connection);
-			this.connectionsByRemoteAddress.set(connection.remoteAddress, connection);
+			const remoteAddress = connection.remoteAddress;
+
+			let connections = this.connectionsByRemoteAddress.get(remoteAddress);
+			if (!connections) {
+				connections = new Set();
+				this.connectionsByRemoteAddress.set(remoteAddress, connections);
+			}
+			connections.add(connection);
+
+			rawConnection.on("close", () => {
+				connection.onClose();
+				this.activeConnections.delete(connection.id);
+				const connections = this.connectionsByRemoteAddress.get(remoteAddress);
+				connections.delete(connection);
+				if (connections.size <= 0) {
+					this.connectionsByRemoteAddress.delete(remoteAddress);
+				}
+			});
 		});
 	}
 
@@ -31,5 +48,12 @@ export default class Main {
 
 		this.httpServer.listen(port, () => {});
 		console.log("listening for websocket connections on port " + port);
+	}
+
+	*getConnectionsByRemoteAddress(remoteAddress) {
+		const connections = this.connectionsByRemoteAddress.get(remoteAddress);
+		if (connections) {
+			yield* connections;
+		}
 	}
 }
