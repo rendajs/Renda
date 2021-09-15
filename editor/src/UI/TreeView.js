@@ -43,8 +43,8 @@ import editor from "../editorInstance.js";
  * @typedef {TreeViewEvent & TreeViewSelectionChangeEventType} TreeViewSelectionChangeEvent
  */
 
-export default class TreeView{
-	constructor(data = {}){
+export default class TreeView {
+	constructor(data = {}) {
 		this.el = document.createElement("div");
 		this.el.classList.add("treeViewItem");
 
@@ -105,7 +105,7 @@ export default class TreeView{
 		this.childrenEl.classList.add("treeViewChildList");
 		this.el.appendChild(this.childrenEl);
 
-		if(data.addCustomEl){
+		if (data.addCustomEl) {
 			this.customEl = document.createElement("div");
 			this.customEl.classList.add("treeViewCustomEl");
 			this.el.appendChild(this.customEl);
@@ -117,7 +117,7 @@ export default class TreeView{
 		this.parent = data.parent ?? null;
 		this.recursionDepth = 0;
 		this._collapsed = false;
-		this.selectable = data.selectable ?? true; //todo: make this private or a getter/setter
+		this.selectable = data.selectable ?? true; // todo: make this private or a getter/setter
 		this._alwaysShowArrow = false;
 		this.canSelectMultiple = true;
 		this.renameable = false;
@@ -127,12 +127,12 @@ export default class TreeView{
 		this._draggable = false;
 		this.rearrangeable = true;
 
-		if(this.selectable){
-			//todo: update at runtime when this.selectable changes
+		if (this.selectable) {
+			// todo: update at runtime when this.selectable changes
 			this.rowEl.tabIndex = 0;
 		}
 
-		if(data.copySettings){
+		if (data.copySettings) {
 			this.collapsed = data.copySettings.collapsed;
 			this.selectable = data.copySettings.selectable;
 			this.canSelectMultiple = data.copySettings.canSelectMultiple;
@@ -141,18 +141,18 @@ export default class TreeView{
 			this.rearrangeable = data.copySettings.rearrangeable;
 		}
 
-		this.selected = false; //todo: make this private or a getter/setter
+		this.selected = false; // todo: make this private or a getter/setter
 
 		this.lastHighlightTime = 0;
 		this.boundOnBodyClick = this.onBodyClick.bind(this);
 
 		this.eventCbs = new Map();
-		for(const eventType of ["selectionchange", "namechange", "dragstart", "drop", "dblclick", "contextmenu"]){
+		for (const eventType of ["selectionchange", "namechange", "dragstart", "drop", "dblclick", "contextmenu"]) {
 			this.registerNewEventType(eventType);
 		}
 
 		this.updateArrowHidden();
-		if(data) this.updateData(data);
+		if (data) this.updateData(data);
 		this.updatePadding();
 
 		this.hasRootEventListeners = false;
@@ -161,9 +161,9 @@ export default class TreeView{
 		this.updateRowVisibility();
 	}
 
-	destructor(){
+	destructor() {
 		this.destructed = true;
-		if(this.el.parentElement){
+		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.rowEl.removeEventListener("click", this.boundOnRowClick);
@@ -180,7 +180,7 @@ export default class TreeView{
 		this.arrowContainerEl = null;
 		this.arrowEl = null;
 		this.myNameEl = null;
-		for(const b of this.addedButtons){
+		for (const b of this.addedButtons) {
 			b.destructor();
 		}
 		this.addedButtons = [];
@@ -195,7 +195,7 @@ export default class TreeView{
 
 		this.childrenEl = null;
 		this.customEl = null;
-		for(const child of this.children){
+		for (const child of this.children) {
 			child.destructor();
 		}
 		this.children = null;
@@ -207,74 +207,74 @@ export default class TreeView{
 		this.el = null;
 	}
 
-	get name(){
+	get name() {
 		return this._name;
 	}
 
-	set name(value){
+	set name(value) {
 		this._name = value;
 		this.myNameEl.textContent = value;
 	}
 
-	updateData(data = {}){
+	updateData(data = {}) {
 		this.name = data.name || "";
-		if(data.collapsed !== undefined) this.collapsed = data.collapsed;
-		let newChildren = data.children || [];
-		let deltaChildren = newChildren.length - this.children.length;
-		if(deltaChildren > 0){
-			for(let i=0; i<deltaChildren; i++){
+		if (data.collapsed !== undefined) this.collapsed = data.collapsed;
+		const newChildren = data.children || [];
+		const deltaChildren = newChildren.length - this.children.length;
+		if (deltaChildren > 0) {
+			for (let i = 0; i < deltaChildren; i++) {
 				this.addChild();
 			}
-		}else if(deltaChildren < 0){
-			for(let i=this.children.length-1; i>=newChildren.length; i--){
+		} else if (deltaChildren < 0) {
+			for (let i = this.children.length - 1; i >= newChildren.length; i--) {
 				this.removeChildIndex(i);
 			}
 		}
-		for(let i=0; i<this.children.length; i++){
+		for (let i = 0; i < this.children.length; i++) {
 			this.children[i].updateData(newChildren[i]);
 		}
 	}
 
-	addButton(button){
+	addButton(button) {
 		this.addedButtons.push(button);
 		this.buttonsEl.appendChild(button.el);
 	}
 
-	calculateRecursionDepth(){
-		if(this.isRoot){
+	calculateRecursionDepth() {
+		if (this.isRoot) {
 			this.recursionDepth = 0;
-		}else{
+		} else {
 			this.recursionDepth = this.parent.recursionDepth + 1;
-	}
+		}
 		this.updatePadding();
 	}
 
-	updatePadding(){
-		let padding = this.recursionDepth*12 + 18;
-		this.rowEl.style.paddingLeft = padding+"px";
+	updatePadding() {
+		const padding = this.recursionDepth * 12 + 18;
+		this.rowEl.style.paddingLeft = padding + "px";
 	}
 
-	get isRoot(){
+	get isRoot() {
 		return !this.parent;
 	}
 
-	removeChild(child, destructChild = true){
-		for(const [i, c] of this.children.entries()){
-			if(child == c){
+	removeChild(child, destructChild = true) {
+		for (const [i, c] of this.children.entries()) {
+			if (child == c) {
 				this.removeChildIndex(i, destructChild);
 				break;
 			}
 		}
 	}
 
-	removeChildIndex(index, destructChild = true){
-		if(destructChild) this.children[index].destructor();
+	removeChildIndex(index, destructChild = true) {
+		if (destructChild) this.children[index].destructor();
 		this.children.splice(index, 1);
 		this.updateArrowHidden();
 	}
 
-	clearChildren(){
-		for(const child of this.children){
+	clearChildren() {
+		for (const child of this.children) {
 			child.destructor();
 		}
 		this.children = [];
@@ -285,13 +285,13 @@ export default class TreeView{
 	 * @param {TreeView} parent
 	 * @param {boolean} addChild whether a call should be made to parent.addChild()
 	 */
-	setParent(parent, addChild = true){
-		if(parent != this.parent){
-			if(this.parent){
+	setParent(parent, addChild = true) {
+		if (parent != this.parent) {
+			if (this.parent) {
 				this.parent.removeChild(this, false);
 			}
 			this.parent = parent;
-			if(parent && addChild){
+			if (parent && addChild) {
 				parent.addChild(this);
 			}
 
@@ -303,7 +303,7 @@ export default class TreeView{
 	 * @param {?TreeView} treeView the TreeView to insert, creates a new one when null
 	 * @returns {TreeView} the created TreeView
 	 */
-	addChild(treeView = null){
+	addChild(treeView = null) {
 		return this.addChildAtIndex(-1, treeView);
 	}
 
@@ -312,11 +312,11 @@ export default class TreeView{
 	 * @param {?TreeView} treeView the TreeView to insert, creates a new one when null
 	 * @returns {TreeView} the created TreeView
 	 */
-	addChildAtIndex(index = -1, treeView = null){
-		if(index < 0){
+	addChildAtIndex(index = -1, treeView = null) {
+		if (index < 0) {
 			index = this.children.length + index + 1;
 		}
-		if(treeView == null){
+		if (treeView == null) {
 			treeView = new TreeView({
 				copySettings: this,
 				parent: this,
@@ -324,10 +324,10 @@ export default class TreeView{
 		}
 		treeView.setParent(this, false);
 		treeView.calculateRecursionDepth();
-		if(index >= this.children.length){
+		if (index >= this.children.length) {
 			this.children.push(treeView);
 			this.childrenEl.appendChild(treeView.el);
-		}else{
+		} else {
 			this.children.splice(index, 0, treeView);
 			this.childrenEl.insertBefore(treeView.el, this.childrenEl.children[index]);
 		}
@@ -335,78 +335,78 @@ export default class TreeView{
 		return treeView;
 	}
 
-	get arrowVisible(){
+	get arrowVisible() {
 		return this.children.length > 0 || this._alwaysShowArrow;
 	}
 
-	updateArrowHidden(){
-		if(this.destructed) return;
+	updateArrowHidden() {
+		if (this.destructed) return;
 		this.arrowEl.classList.toggle("hidden", !this.arrowVisible);
 	}
 
-	get collapsed(){
+	get collapsed() {
 		return this._collapsed;
 	}
 
-	set collapsed(collapsed){
+	set collapsed(collapsed) {
 		this._collapsed = collapsed;
 		this.childrenEl.style.display = collapsed ? "none" : null;
 		this.arrowContainerEl.classList.toggle("collapsed", collapsed);
 		this.fireOnCollapsedChange();
 	}
 
-	get expanded(){
+	get expanded() {
 		return !this.collapsed;
 	}
 
-	set expanded(value){
+	set expanded(value) {
 		this.collapsed = !value;
 	}
 
-	get rowVisible(){
+	get rowVisible() {
 		return this._rowVisible;
 	}
 
-	set rowVisible(value){
+	set rowVisible(value) {
 		this._rowVisible = value;
 		this.updateRowVisibility();
 	}
 
-	updateRowVisibility(){
+	updateRowVisibility() {
 		this.rowEl.classList.toggle("hidden", !this.rowVisible);
 	}
 
-	get alwaysShowArrow(){
+	get alwaysShowArrow() {
 		return this._alwaysShowArrow;
 	}
 
-	set alwaysShowArrow(value){
+	set alwaysShowArrow(value) {
 		this._alwaysShowArrow = value;
 		this.updateArrowHidden();
 	}
 
-	get draggable(){
+	get draggable() {
 		return this._draggable;
 	}
 
-	set draggable(value){
-		if(this._draggable != value){
+	set draggable(value) {
+		if (this._draggable != value) {
 			this._draggable = value;
 			this.rowEl.draggable = value;
-			if(value){
+			if (value) {
 				this.boundDragStart = this.onDragStart.bind(this);
 				this.rowEl.addEventListener("dragstart", this.boundDragStart);
 				this.boundDragEnd = this.onDragEnd.bind(this);
 				this.rowEl.addEventListener("dragend", this.boundDragEnd);
-			}else{
+			} else {
 				this.rowEl.removeEventListener("dragstart", this.boundDragStart);
 				this.rowEl.removeEventListener("onDragEnd", this.boundDragEnd);
 			}
 		}
 	}
 
-	onDragStart(e){
-		let {el, x, y} = editor.dragManager.createDragFeedbackText({
+	onDragStart(e) {
+		const {el, x, y} = editor.dragManager.createDragFeedbackText({
 			text: this.name,
 		});
 		this.currenDragFeedbackEl = el;
@@ -417,100 +417,100 @@ export default class TreeView{
 		});
 	}
 
-	onDragEnd(e){
-		if(this.currenDragFeedbackEl) editor.dragManager.removeFeedbackEl(this.currenDragFeedbackEl);
+	onDragEnd(e) {
+		if (this.currenDragFeedbackEl) editor.dragManager.removeFeedbackEl(this.currenDragFeedbackEl);
 		this.currenDragFeedbackEl = null;
 	}
 
-	*traverseDown(){
+	*traverseDown() {
 		yield this;
-		for(const child of this.children){
-			for(const c of child.traverseDown()){
+		for (const child of this.children) {
+			for (const c of child.traverseDown()) {
 				yield c;
 			}
 		}
 	}
 
-	*traverseUp(){
+	*traverseUp() {
 		yield this;
-		if(this.parent){
-			for(const p of this.parent.traverseUp()){
+		if (this.parent) {
+			for (const p of this.parent.traverseUp()) {
 				yield p;
 			}
 		}
 	}
 
-	arrowClickEvent(e){
+	arrowClickEvent(e) {
 		e.stopPropagation();
 		this.toggleCollapsed();
 	}
 
-	arrowHoverStartEvent(e){
-		if(!this.arrowVisible) return;
+	arrowHoverStartEvent(e) {
+		if (!this.arrowVisible) return;
 		this.arrowContainerEl.classList.toggle("hover", true);
 	}
 
-	arrowHoverEndEvent(e){
+	arrowHoverEndEvent(e) {
 		this.arrowContainerEl.classList.toggle("hover", false);
 	}
 
-	fireOnCollapsedChange(){
-		for(const cb of this.onCollapsedChangeCbs){
+	fireOnCollapsedChange() {
+		for (const cb of this.onCollapsedChangeCbs) {
 			cb();
 		}
 	}
 
-	onCollapsedChange(cb){
+	onCollapsedChange(cb) {
 		this.onCollapsedChangeCbs.push(cb);
 	}
 
-	toggleCollapsed(){
+	toggleCollapsed() {
 		this.collapsed = !this.collapsed;
 	}
 
-	expandWithParents(){
-		for(const treeView of this.traverseUp()){
+	expandWithParents() {
+		for (const treeView of this.traverseUp()) {
 			treeView.expanded = true;
 		}
 	}
 
-	highlight(){
+	highlight() {
 		this.lastHighlightTime = Date.now();
 		this.rowEl.classList.add("highlighted");
 		document.body.addEventListener("click", this.boundOnBodyClick);
 	}
 
-	onBodyClick(){
-		if(Date.now() - this.lastHighlightTime > 1000){
+	onBodyClick() {
+		if (Date.now() - this.lastHighlightTime > 1000) {
 			this.rowEl.classList.remove("highlighted");
 			document.body.removeEventListener("click", this.boundOnBodyClick);
 		}
 	}
 
-	onRowClick(e){
-		if(this.selectable){
-			if(this.renameable && this.selected){
+	onRowClick(e) {
+		if (this.selectable) {
+			if (this.renameable && this.selected) {
 				this.setTextFieldVisible(true);
-			}else{
+			} else {
 				/** @type {TreeViewSelectionChangeEvent} */
-				let changes = {
+				const changes = {
 					target: this,
 					rawEvent: null,
 					reset: false,
 					added: [],
 					removed: [],
 				};
-				let selectExtra = this.canSelectMultiple && (e.metaKey || e.ctrlKey);
-				if(selectExtra){
-					if(this.selected){
+				const selectExtra = this.canSelectMultiple && (e.metaKey || e.ctrlKey);
+				if (selectExtra) {
+					if (this.selected) {
 						this.deselect();
 						changes.removed = [this];
-					}else{
+					} else {
 						this.select();
 						changes.added = [this];
 					}
-				}else{
-					let root = this.findRoot();
+				} else {
+					const root = this.findRoot();
 					root.deselectAll();
 					this.select();
 					changes.reset = true;
@@ -519,25 +519,25 @@ export default class TreeView{
 
 				this.fireEvent("selectionchange", changes);
 			}
-		}else{
+		} else {
 			this.toggleCollapsed();
 		}
 	}
 
-	onDblClick(e){
+	onDblClick(e) {
 		this.fireEvent("dblclick", {
 			target: this,
 			rawEvent: e,
 		});
 	}
 
-	setTextFieldVisible(textFieldVisible){
-		if(textFieldVisible != this._textFieldVisible){
+	setTextFieldVisible(textFieldVisible) {
+		if (textFieldVisible != this._textFieldVisible) {
 			this._textFieldVisible = textFieldVisible;
-			if(textFieldVisible){
-				let oldName = this.myNameEl.textContent;
+			if (textFieldVisible) {
+				const oldName = this.myNameEl.textContent;
 				this.myNameEl.textContent = "";
-				let textEl = document.createElement("input");
+				const textEl = document.createElement("input");
 				this.renameTextField = textEl;
 				textEl.classList.add("resetInput", "textInput", "buttonLike", "treeViewRenameField");
 				textEl.value = oldName;
@@ -545,22 +545,22 @@ export default class TreeView{
 				textEl.addEventListener("input", () => {
 					this.updateDataRenameValue();
 				});
-				//use "focusout" instead of "blur" to ensure the "focusout" event bubbles to the root treeview
+				// use "focusout" instead of "blur" to ensure the "focusout" event bubbles to the root treeview
 				textEl.addEventListener("focusout", () => {
 					this.setTextFieldVisible(false);
 				});
 				textEl.focus();
 				const dotIndex = oldName.lastIndexOf(".");
-				if(dotIndex <= 0){
+				if (dotIndex <= 0) {
 					textEl.select();
-				}else{
-					textEl.setSelectionRange(0,dotIndex);
+				} else {
+					textEl.setSelectionRange(0, dotIndex);
 				}
-			}else if(this.renameTextField){
-				let newName = this.renameTextField.value;
+			} else if (this.renameTextField) {
+				const newName = this.renameTextField.value;
 				this.myNameEl.removeChild(this.renameTextField);
 				this.renameTextField = null;
-				let oldName = this.name;
+				const oldName = this.name;
 				this.name = newName;
 				/** @type {TreeViewNameChangeEvent} */
 				const event = {
@@ -574,44 +574,44 @@ export default class TreeView{
 		this.updateDataRenameValue();
 	}
 
-	updateDataRenameValue(){
-		if(this.renameTextField){
+	updateDataRenameValue() {
+		if (this.renameTextField) {
 			this.myNameEl.dataset.renameValue = this.renameTextField.value;
-		}else{
+		} else {
 			delete this.myNameEl.dataset.renameValue;
 		}
 	}
 
-	select(){
+	select() {
 		this.selected = true;
 		this.updateSelectedStyle();
 	}
 
-	deselect(){
-		if(!this.selected) return;
+	deselect() {
+		if (!this.selected) return;
 		this.selected = false;
 		this.updateSelectedStyle();
 	}
 
-	updateSelectedStyle(){
+	updateSelectedStyle() {
 		this.rowEl.classList.toggle("selected", this.selected);
-		if(this.selected){
+		if (this.selected) {
 			const root = this.findRoot();
 			this.rowEl.classList.toggle("noFocus", !root.hasFocusWithin);
 		}
 	}
 
-	updateSelectedChildrenStyle(){
-		for(const item of this.getSelectedItems()){
+	updateSelectedChildrenStyle() {
+		for (const item of this.getSelectedItems()) {
 			item.updateSelectedStyle();
 		}
 	}
 
-	updeteRootEventListeners(){
+	updeteRootEventListeners() {
 		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
-		if(this.hasRootEventListeners != needsEventHandlers){
+		if (this.hasRootEventListeners != needsEventHandlers) {
 			this.hasRootEventListeners = needsEventHandlers;
-			if(needsEventHandlers){
+			if (needsEventHandlers) {
 				this.el.addEventListener("focusin", this.boundOnFocusIn);
 				this.el.addEventListener("focusout", this.boundOnFocusOut);
 
@@ -619,7 +619,7 @@ export default class TreeView{
 				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
 				editor.keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
 				editor.keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-			}else{
+			} else {
 				this.el.removeEventListener("focusin", this.boundOnFocusIn);
 				this.el.removeEventListener("focusout", this.boundOnFocusOut);
 
@@ -631,32 +631,32 @@ export default class TreeView{
 		}
 	}
 
-	onFocusIn(){
+	onFocusIn() {
 		this.hasFocusWithin = true;
 		this.updateSelectedChildrenStyle();
 	}
 
-	onFocusOut(){
+	onFocusOut() {
 		this.hasFocusWithin = false;
 		this.updateSelectedChildrenStyle();
 	}
 
-	onSelectPreviousKeyPressed(){
-		if(!this.hasFocusWithin) return;
+	onSelectPreviousKeyPressed() {
+		if (!this.hasFocusWithin) return;
 
 		const item = this.getLastSelectedItem();
-		if(!item) return;
+		if (!item) return;
 
 		const parent = item.parent;
-		if(!parent) return;
+		if (!parent) return;
 		const index = parent.children.indexOf(item);
 		let selectItem = null;
-		if(index == 0){
+		if (index == 0) {
 			selectItem = parent;
-		}else{
+		} else {
 			let deepestItem = parent.children[index - 1];
-			while(true){
-				if(deepestItem.collapsed || deepestItem.children.length <= 0) break;
+			while (true) {
+				if (deepestItem.collapsed || deepestItem.children.length <= 0) break;
 
 				const lastItem = deepestItem.children[deepestItem.children.length - 1];
 				deepestItem = lastItem;
@@ -672,37 +672,37 @@ export default class TreeView{
 			added: [],
 			removed: [],
 		};
-		if(selectItem){
+		if (selectItem) {
 			selectItem.select();
 			changes.added = [selectItem];
 		}
 		this.fireEvent("selectionchange", changes);
 	}
 
-	onSelectNextKeyPressed(){
-		if(!this.hasFocusWithin) return;
+	onSelectNextKeyPressed() {
+		if (!this.hasFocusWithin) return;
 
 		const item = this.getLastSelectedItem();
-		if(!item) return;
+		if (!item) return;
 
 		let selectItem = null;
-		if(item.children.length > 0 && item.expanded){
+		if (item.children.length > 0 && item.expanded) {
 			selectItem = item.children[0];
-		}else{
+		} else {
 			let firstParentWithItemBelow = item;
 			let firstItemWithItemBelowIndex = 0;
-			while(true){
+			while (true) {
 				const parent = firstParentWithItemBelow.parent;
 				const prevParentWithItemBelow = firstParentWithItemBelow;
 				firstParentWithItemBelow = parent;
-				if(!parent) break;
+				if (!parent) break;
 				firstItemWithItemBelowIndex = parent.children.indexOf(prevParentWithItemBelow);
 
-				//If the item is not the last in the list, this item has an item below
-				if(firstItemWithItemBelowIndex < parent.children.length - 1) break;
+				// If the item is not the last in the list, this item has an item below
+				if (firstItemWithItemBelowIndex < parent.children.length - 1) break;
 			}
 
-			if(!firstParentWithItemBelow) return;
+			if (!firstParentWithItemBelow) return;
 			const itemBelow = firstParentWithItemBelow.children[firstItemWithItemBelowIndex + 1];
 			selectItem = itemBelow;
 		}
@@ -715,62 +715,62 @@ export default class TreeView{
 			added: [],
 			removed: [],
 		};
-		if(selectItem){
+		if (selectItem) {
 			selectItem.select();
 			changes.added = [selectItem];
 		}
 		this.fireEvent("selectionchange", changes);
 	}
 
-	onExpandSelectedKeyPressed(){
-		if(!this.hasFocusWithin) return;
+	onExpandSelectedKeyPressed() {
+		if (!this.hasFocusWithin) return;
 
 		const item = this.getLastSelectedItem();
-		if(!item) return;
-		if(item.arrowVisible && !item.expanded){
+		if (!item) return;
+		if (item.arrowVisible && !item.expanded) {
 			item.expanded = true;
-		}else{
+		} else {
 			this.onSelectNextKeyPressed();
 		}
 	}
 
-	onCollapseSelectedKeyPressed(){
-		if(!this.hasFocusWithin) return;
+	onCollapseSelectedKeyPressed() {
+		if (!this.hasFocusWithin) return;
 
 		const item = this.getLastSelectedItem();
-		if(!item) return;
-		if(item.arrowVisible && !item.collapsed){
+		if (!item) return;
+		if (item.arrowVisible && !item.collapsed) {
 			item.collapsed = true;
-		}else{
+		} else {
 			this.onSelectPreviousKeyPressed();
 		}
 	}
 
-	getLastSelectedItem(){
-		//todo: track last clicked item and use that if it is selected
+	getLastSelectedItem() {
+		// todo: track last clicked item and use that if it is selected
 
 		const selectedItem = this.getSelectedItems().next().value;
-		if(selectedItem) return selectedItem;
+		if (selectedItem) return selectedItem;
 
 		return null;
 	}
 
-	*getSelectedItems(){
-		for(const item of this.traverseDown()){
-			if(item.selected){
+	*getSelectedItems() {
+		for (const item of this.traverseDown()) {
+			if (item.selected) {
 				yield item;
 			}
 		}
 	}
 
-	*getSelectionIndices(){
-		for(const item of this.getSelectedItems()){
+	*getSelectionIndices() {
+		for (const item of this.getSelectedItems()) {
 			yield item.getIndicesPath();
 		}
 	}
 
-	*getSelectionPaths(){
-		for(const item of this.getSelectedItems()){
+	*getSelectionPaths() {
+		for (const item of this.getSelectedItems()) {
 			yield item.getNamesPath();
 		}
 	}
@@ -780,12 +780,12 @@ export default class TreeView{
 	 * root in order to get to this TreeView
 	 * @returns Array<number> list of indices
 	 */
-	getIndicesPath(){
-		let path = [];
+	getIndicesPath() {
+		const path = [];
 		let parent = this.parent;
 		let child = this;
-		while(parent){
-			let index = parent.children.indexOf(child);
+		while (parent) {
+			const index = parent.children.indexOf(child);
 			path.push(index);
 			child = parent;
 			parent = parent.parent;
@@ -798,9 +798,9 @@ export default class TreeView{
 	 * traversed down until this element
 	 * @returns {Array<string>} list of TreeView names
 	 */
-	getNamesPath(){
-		let path = [];
-		for(const p of this.traverseUp()){
+	getNamesPath() {
+		const path = [];
+		for (const p of this.traverseUp()) {
 			path.push(p.name);
 		}
 		return path.reverse();
@@ -811,14 +811,14 @@ export default class TreeView{
 	 * @param {Array<string>} path list of TreeView names
 	 * @returns {?TreeView}
 	 */
-	findChildFromNamesPath(path = []){
-		if(path.length <= 0){
+	findChildFromNamesPath(path = []) {
+		if (path.length <= 0) {
 			return this;
-		}else{
+		} else {
 			const child = this.getChildByName(path[0]);
-			if(!child){
+			if (!child) {
 				return null;
-			}else{
+			} else {
 				return child.findChildFromNamesPath(path.slice(1));
 			}
 		}
@@ -827,8 +827,8 @@ export default class TreeView{
 	/**
 	 * @returns {TreeView}
 	 */
-	findRoot(){
-		if(this.parent) return this.parent.findRoot();
+	findRoot() {
+		if (this.parent) return this.parent.findRoot();
 		return this;
 	}
 
@@ -837,14 +837,14 @@ export default class TreeView{
 	 * @param {boolean} recursive whether or not the full tree should be searched, defaults to false
 	 * @returns
 	 */
-	getChildByName(name, recursive = false){
-		if(recursive){
-			for(const child of this.traverseDown()){
-				if(child.name == name) return child;
+	getChildByName(name, recursive = false) {
+		if (recursive) {
+			for (const child of this.traverseDown()) {
+				if (child.name == name) return child;
 			}
-		}else{
-			for(const child of this.children){
-				if(child.name == name) return child;
+		} else {
+			for (const child of this.children) {
+				if (child.name == name) return child;
 			}
 		}
 		return null;
@@ -856,24 +856,24 @@ export default class TreeView{
 	 * @param {boolean} recursive whether or not the full tree should be searched
 	 * @returns {boolean}
 	 */
-	includes(name, recursive = false){
+	includes(name, recursive = false) {
 		return !!this.getChildByName(name, recursive);
 	}
 
-	deselectAll(){
-		for(const view of this.traverseDown()){
+	deselectAll() {
+		for (const view of this.traverseDown()) {
 			view.deselect();
 		}
 	}
 
-	onDragOverEvent(e){
+	onDragOverEvent(e) {
 		e.preventDefault();
 	}
 
 	/**
 	 * @param {DragEvent} e
 	 */
-	onDropEvent(e){
+	onDropEvent(e) {
 		e.preventDefault();
 		this.fireEvent("drop", {
 			target: this,
@@ -881,7 +881,7 @@ export default class TreeView{
 		});
 	}
 
-	onContextMenuEvent(e){
+	onContextMenuEvent(e) {
 		let menuCreated = false;
 		let eventExpired = false;
 		/** @type {TreeViewContextMenuEvent} */
@@ -889,11 +889,11 @@ export default class TreeView{
 			rawEvent: e,
 			target: this,
 			showContextMenu: structure => {
-				if(eventExpired){
+				if (eventExpired) {
 					console.warn("showContextMenu should be called from within the contextmenu event");
 					return null;
 				}
-				if(menuCreated){
+				if (menuCreated) {
 					console.log("showContextMenu can only be called once");
 					return null;
 				}
@@ -909,14 +909,14 @@ export default class TreeView{
 		eventExpired = true;
 	}
 
-	registerNewEventType(name){
+	registerNewEventType(name) {
 		this.eventCbs.set(name, new Set());
 	}
 
-	getEventCbs(eventType){
-		let cbs = this.eventCbs.get(eventType);
-		if(!cbs){
-			console.warn("unknown event type: "+eventType+" for TreeView");
+	getEventCbs(eventType) {
+		const cbs = this.eventCbs.get(eventType);
+		if (!cbs) {
+			console.warn("unknown event type: " + eventType + " for TreeView");
 			return null;
 		}
 		return cbs;
@@ -926,9 +926,9 @@ export default class TreeView{
 	 * @param {string} eventType - The identifier of the event type.
 	 * @param {function(TreeViewEvent) : void} cb - The callback to invoke when the event occurs.
 	 */
-	addEventListener(eventType, cb){
-		let cbs = this.getEventCbs(eventType);
-		if(!cbs) return;
+	addEventListener(eventType, cb) {
+		const cbs = this.getEventCbs(eventType);
+		if (!cbs) return;
 		cbs.add(cb);
 	}
 
@@ -936,9 +936,9 @@ export default class TreeView{
 	 * @param {string} eventType - The identifier of the event type.
 	 * @param {function(TreeViewEvent) : void} cb - The callback to remove.
 	 */
-	removeEventListener(eventType, cb){
-		let cbs = this.getEventCbs(eventType);
-		if(!cbs) return;
+	removeEventListener(eventType, cb) {
+		const cbs = this.getEventCbs(eventType);
+		if (!cbs) return;
 		cbs.delete(cb);
 	}
 
@@ -947,13 +947,13 @@ export default class TreeView{
 	 * @param {string} eventType - The identifier of the event type.
 	 * @param {TreeViewEvent} event - The data to pass to the event callbacks.
 	 */
-	fireEvent(eventType, event){
-		let cbs = this.getEventCbs(eventType);
-		if(cbs){
-			for(const cb of cbs){
+	fireEvent(eventType, event) {
+		const cbs = this.getEventCbs(eventType);
+		if (cbs) {
+			for (const cb of cbs) {
 				cb(event);
 			}
 		}
-		if(this.parent) this.parent.fireEvent(eventType, event);
+		if (this.parent) this.parent.fireEvent(eventType, event);
 	}
 }
