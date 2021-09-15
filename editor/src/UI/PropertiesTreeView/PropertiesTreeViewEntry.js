@@ -36,7 +36,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
  */
 
 /**
- * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | DroppableGuiConstructorType | "button"} PropertiesTreeViewEntryType
+ * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | DroppableGuiConstructorType | "button" | "label"} PropertiesTreeViewEntryType
  */
 
 /**
@@ -146,6 +146,8 @@ export default class PropertiesTreeViewEntry extends TreeView {
 				},
 			});
 			this.valueEl.appendChild(this.gui.el);
+		} else if (type == "label") {
+			this.gui = null;
 		} else if (editor.projectAssetTypeManager.constructorHasAssetType(type) || type == ProjectAsset) {
 			this.gui = new DroppableGui({
 				supportedAssetTypes: [type],

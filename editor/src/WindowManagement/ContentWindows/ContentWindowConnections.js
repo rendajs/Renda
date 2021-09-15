@@ -12,53 +12,55 @@ export default class ContentWindowConnections extends ContentWindow {
 	constructor() {
 		super();
 
-		/** @type {PropertiesTreeViewStructure} */
-		this.headerGuiStructure = {
-			discoveryServer: {
-				type: String,
-				/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
-				guiOpts: {
-					placeholder: EditorConnectionServer.getDefaultEndPoint(),
-				},
-			},
-		};
 		this.headerTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.headerTreeView.el);
-		this.headerTreeView.generateFromSerializableStructure(this.headerGuiStructure);
 
-		/** @type {PropertiesTreeViewStructure} */
-		this.editorHostConnectionServerGuiStructure = {
-			allowIncomingConnections: {
-				type: Boolean,
+		this.discoveryServerEndpointField = this.headerTreeView.addItem({
+			type: String,
+			/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
+			guiOpts: {
+				label: "Discovery Server",
+				placeholder: EditorConnectionServer.getDefaultEndPoint(),
 			},
-		};
-		this.editorHostConnectionTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(this.editorHostConnectionTreeView.el);
-		this.editorHostConnectionTreeView.generateFromSerializableStructure(this.editorHostConnectionServerGuiStructure);
-		this.editorHostConnectionTreeView.onChildValueChange(() => {
-			const guiValues = this.editorHostConnectionTreeView.getSerializableStructureValues(this.editorHostConnectionServerGuiStructure);
-			let endPoint = null;
-			if (guiValues.allowConnections) {
-				if (guiValues.discoveryServer) {
-					endPoint = guiValues.discoveryServer;
-				} else {
-					endPoint = EditorConnectionServer.getDefaultEndPoint();
-				}
-			}
-			editor.projectManager.setEditorConnectionServerEndpoint(endPoint);
+		});
+		this.discoveryServerEndpointField.onValueChange(() => {
+			this.updateConnectionServer();
+		});
+		this.discoveryServerStatusLabel = this.headerTreeView.addItem({
+			type: "label",
+			guiOpts: {
+				label: "Status",
+			},
 		});
 
-		/** @type {PropertiesTreeViewStructure} */
-		this.editorClientConnectionGuiStructure = {
-			test: {
-				type: Boolean,
+		this.editorHostConnectionTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(this.editorHostConnectionTreeView.el);
+		this.allowIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
+			type: Boolean,
+			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
+			guiOpts: {
+				label: "Allow Incoming Connections",
 			},
-		};
+		});
+		this.allowIncomingCheckbox.onValueChange(() => {
+			this.updateConnectionServer();
+		});
+
 		this.editorClientConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.editorClientConnectionTreeView.el);
-		this.editorClientConnectionTreeView.generateFromSerializableStructure(this.editorClientConnectionGuiStructure);
 
 		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
 		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
+	}
+
+	updateConnectionServer() {
+		const allowIncoming = this.allowIncomingCheckbox.getValue();
+
+		let endpoint = null;
+		if (allowIncoming) {
+			endpoint = this.discoveryServerEndpointField.getValue();
+			if (!endpoint) endpoint = EditorConnectionServer.getDefaultEndPoint();
+		}
+		editor.projectManager.setEditorConnectionServerEndpoint(endpoint);
 	}
 }

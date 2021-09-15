@@ -1,8 +1,12 @@
-export default class BooleanGui{
+/**
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} BooleanGuiOptions
+ */
+
+export default class BooleanGui {
 	constructor({
 		defaultValue = false,
 		disabled = false,
-	} = {}){
+	} = {}) {
 		this.defaultValue = defaultValue;
 		this.disabled = disabled;
 
@@ -17,30 +21,30 @@ export default class BooleanGui{
 		this.setValue(defaultValue);
 	}
 
-	destructor(){
+	destructor() {
 		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
 		this.boundFireOnChangeCbs = null;
 	}
 
-	setValue(value){
+	setValue(value) {
 		this.el.checked = value;
 	}
 
-	get value(){
+	get value() {
 		return this.el.checked;
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	fireOnChangeCbs(){
-		for(const cb of this.onValueChangeCbs){
+	fireOnChangeCbs() {
+		for (const cb of this.onValueChangeCbs) {
 			cb(this.value);
 		}
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;
 	}
