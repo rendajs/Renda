@@ -37,6 +37,11 @@ export default class ProjectSelector {
 			editor.projectManager.openProjectFromLocalDirectory();
 			this.setVisibility(false);
 		});
+		this.createAction("Connect Remote Project", async () => {
+			const editor = await this.waitForEditor();
+			editor.projectManager.openNewRemoteProject();
+			this.setVisibility(false);
+		});
 
 		this.updateRecentProjectsUi();
 	}

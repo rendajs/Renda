@@ -124,6 +124,7 @@ export default class TreeView {
 		this._textFieldVisible = false;
 		this.renameTextField = null;
 		this._rowVisible = data.rowVisible ?? true;
+		this._visible = data.visible ?? true;
 		this._draggable = false;
 		this.rearrangeable = true;
 
@@ -370,6 +371,15 @@ export default class TreeView {
 	set rowVisible(value) {
 		this._rowVisible = value;
 		this.updateRowVisibility();
+	}
+
+	get visible() {
+		return this._visible;
+	}
+
+	set visible(value) {
+		this._visible = value;
+		this.el.style.display = value ? null : "none";
 	}
 
 	updateRowVisibility() {

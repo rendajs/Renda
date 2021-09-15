@@ -1,6 +1,7 @@
 import editor from "../editorInstance.js";
 import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.js";
 import EditorFileSystemIndexedDb from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
+import EditorFileSystemRemote from "../Util/FileSystems/EditorFileSystemRemote.js";
 import AssetManager from "../Assets/AssetManager.js";
 import EditorConnectionServer from "../Network/EditorConnectionServer.js";
 import {generateUuid} from "../Util/Util.js";
@@ -17,6 +18,7 @@ export default class ProjectManager {
 	constructor() {
 		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").default} */
 		this.currentProjectFileSystem = null;
+		this.currentProjectIsRemote = false;
 		this.assetManager = null;
 		this.editorConnectionServer = null;
 
@@ -38,16 +40,17 @@ export default class ProjectManager {
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").default} fileSystem
 	 * @param {StoredProjectEntry} openProjectChangeEvent
 	 */
-	openProject(fileSystem, openProjectChangeEvent) {
+	async openProject(fileSystem, openProjectChangeEvent) {
 		this.currentProjectFileSystem = fileSystem;
+		this.currentProjectIsRemote = fileSystem instanceof EditorFileSystemRemote;
 		// todo remove this event when opening a new fileSystem
 		fileSystem.onExternalChange(e => {
 			for (const cb of this.onExternalChangeCbs) {
 				cb(e);
 			}
 		});
-		editor.windowManager.reloadCurrentWorkspace();
-		this.reloadAssetManager();
+		await editor.windowManager.reloadCurrentWorkspace();
+		await this.reloadAssetManager();
 		this.onOpenProjectChangedCbs.forEach(cb => cb(openProjectChangeEvent));
 	}
 
@@ -104,6 +107,15 @@ export default class ProjectManager {
 			fileSystemHandle: fileSystem.handle,
 			name,
 		});
+	}
+
+	async openNewRemoteProject() {
+		const fileSystem = new EditorFileSystemRemote();
+		await this.openProject(fileSystem, {
+			fileSystemType: "remote",
+			name: "Remote Filesystem",
+		});
+		editor.windowManager.focusOrCreateContentWindowType("connections");
 	}
 
 	/**

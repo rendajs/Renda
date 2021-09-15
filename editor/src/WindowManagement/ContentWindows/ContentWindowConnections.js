@@ -7,17 +7,13 @@ export default class ContentWindowConnections extends ContentWindow {
 	static contentWindowTypeId = "connections";
 	static contentWindowUiName = "Connections";
 
+	/** @typedef {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} PropertiesTreeViewStructure */
+
 	constructor() {
 		super();
 
-		this.editorConnectionTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(this.editorConnectionTreeView.el);
-
-		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
-		this.editorConnectionServerGuiStructure = {
-			allowConnections: {
-				type: Boolean,
-			},
+		/** @type {PropertiesTreeViewStructure} */
+		this.headerGuiStructure = {
 			discoveryServer: {
 				type: String,
 				/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
@@ -26,9 +22,21 @@ export default class ContentWindowConnections extends ContentWindow {
 				},
 			},
 		};
-		this.editorConnectionTreeView.generateFromSerializableStructure(this.editorConnectionServerGuiStructure);
-		this.editorConnectionTreeView.onChildValueChange(() => {
-			const guiValues = this.editorConnectionTreeView.getSerializableStructureValues(this.editorConnectionServerGuiStructure);
+		this.headerTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(this.headerTreeView.el);
+		this.headerTreeView.generateFromSerializableStructure(this.headerGuiStructure);
+
+		/** @type {PropertiesTreeViewStructure} */
+		this.editorHostConnectionServerGuiStructure = {
+			allowIncomingConnections: {
+				type: Boolean,
+			},
+		};
+		this.editorHostConnectionTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(this.editorHostConnectionTreeView.el);
+		this.editorHostConnectionTreeView.generateFromSerializableStructure(this.editorHostConnectionServerGuiStructure);
+		this.editorHostConnectionTreeView.onChildValueChange(() => {
+			const guiValues = this.editorHostConnectionTreeView.getSerializableStructureValues(this.editorHostConnectionServerGuiStructure);
 			let endPoint = null;
 			if (guiValues.allowConnections) {
 				if (guiValues.discoveryServer) {
@@ -39,5 +47,18 @@ export default class ContentWindowConnections extends ContentWindow {
 			}
 			editor.projectManager.setEditorConnectionServerEndpoint(endPoint);
 		});
+
+		/** @type {PropertiesTreeViewStructure} */
+		this.editorClientConnectionGuiStructure = {
+			test: {
+				type: Boolean,
+			},
+		};
+		this.editorClientConnectionTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(this.editorClientConnectionTreeView.el);
+		this.editorClientConnectionTreeView.generateFromSerializableStructure(this.editorClientConnectionGuiStructure);
+
+		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
+		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
 	}
 }
