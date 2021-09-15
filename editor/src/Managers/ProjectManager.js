@@ -10,7 +10,7 @@ import {generateUuid} from "../Util/Util.js";
  * @typedef {Object} StoredProjectEntry
  * @property {"db" | "native" | "remote"} fileSystemType
  * @property {string} name
- * @property {string} [dbUuid]
+ * @property {string} [projectUuid]
  * @property {FileSystemDirectoryHandle} [fileSystemHandle]
  */
 
@@ -80,17 +80,10 @@ export default class ProjectManager {
 
 	openNewDbProject() {
 		const uuid = generateUuid();
-		this.openDbProject(uuid);
-	}
-
-	/**
-	 * @param {string} uuid
-	 */
-	openDbProject(uuid) {
 		const fileSystem = new EditorFileSystemIndexedDb(uuid);
 		this.openProject(fileSystem, {
 			fileSystemType: "db",
-			dbUuid: uuid,
+			projectUuid: uuid,
 			name: uuid,
 		});
 	}
@@ -122,12 +115,16 @@ export default class ProjectManager {
 	 * @param {StoredProjectEntry} projectEntry
 	 */
 	openExistingProject(projectEntry) {
+		let fileSystem;
 		if (projectEntry.fileSystemType === "db") {
-			this.openDbProject(projectEntry.dbUuid);
+			fileSystem = new EditorFileSystemIndexedDb(projectEntry.projectUuid);
 		} else if (projectEntry.fileSystemType == "native") {
-			const fileSystem = new EditorFileSystemNative(projectEntry.fileSystemHandle);
-			this.openProject(fileSystem, projectEntry);
+			fileSystem = new EditorFileSystemNative(projectEntry.fileSystemHandle);
+		} else if (projectEntry.fileSystemType == "remote") {
+			fileSystem = new EditorFileSystemRemote();
 		}
+		if (!fileSystem) return;
+		this.openProject(fileSystem, projectEntry);
 	}
 
 	onExternalChange(cb) {

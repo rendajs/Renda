@@ -150,8 +150,8 @@ export default class ProjectSelector {
 
 		let existingEntries = [];
 		const existingEntriesOfSameType = list.filter(e => e.fileSystemType == entry.fileSystemType);
-		if (entry.fileSystemType == "db") {
-			existingEntries = existingEntriesOfSameType.filter(e => e.dbUuid == entry.dbUuid);
+		if (entry.fileSystemType == "db" || entry.fileSystemType == "remote") {
+			existingEntries = existingEntriesOfSameType.filter(e => e.projectUuid == entry.projectUuid);
 		} else if (entry.fileSystemType == "native") {
 			const promises = [];
 			for (const existingEntry of existingEntriesOfSameType) {
