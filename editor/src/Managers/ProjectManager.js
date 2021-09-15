@@ -54,6 +54,7 @@ export default class ProjectManager {
 		await editor.windowManager.reloadCurrentWorkspace();
 		await this.reloadAssetManager();
 		this.onOpenProjectChangedCbs.forEach(cb => cb(openProjectChangeEvent));
+		this.updateEditorConnectionsManager();
 	}
 
 	async reloadAssetManager() {
