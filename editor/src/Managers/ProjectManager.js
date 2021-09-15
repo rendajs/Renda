@@ -3,7 +3,7 @@ import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.j
 import EditorFileSystemIndexedDb from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import EditorFileSystemRemote from "../Util/FileSystems/EditorFileSystemRemote.js";
 import AssetManager from "../Assets/AssetManager.js";
-import EditorConnectionServer from "../Network/EditorConnectionServer.js";
+import EditorConnectionsManager from "../Network/EditorConnectionsManager.js";
 import {generateUuid} from "../Util/Util.js";
 
 /**
@@ -20,7 +20,9 @@ export default class ProjectManager {
 		this.currentProjectFileSystem = null;
 		this.currentProjectIsRemote = false;
 		this.assetManager = null;
-		this.editorConnectionServer = null;
+		this.editorConnectionsAllowIncoming = false;
+		this.editorConnectionsDiscoveryEndpoint = null;
+		this.editorConnectionsManager = null;
 
 		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onOpenProjectChangedCbs = new Set();
@@ -142,19 +144,35 @@ export default class ProjectManager {
 	}
 
 	/**
+	 * @param {boolean} allow
+	 */
+	setEditorConnectionsAllowIncoming(allow) {
+		this.editorConnectionsAllowIncoming = allow;
+		this.updateEditorConnectionsManager();
+	}
+
+	/**
 	 * @param {string?} endpoint
 	 */
-	setEditorConnectionServerEndpoint(endpoint) {
-		const shouldHaveServer = !!endpoint && !this.currentProjectIsRemote;
-		if (!shouldHaveServer && this.editorConnectionServer) {
-			this.editorConnectionServer.destructor();
-			this.editorConnectionServer = null;
-		} else if (shouldHaveServer && !this.editorConnectionServer) {
-			this.editorConnectionServer = new EditorConnectionServer();
+	setEditorConnectionsDiscoveryEndpoint(endpoint) {
+		this.editorConnectionsDiscoveryEndpoint = endpoint;
+		this.updateEditorConnectionsManager();
+	}
+
+	updateEditorConnectionsManager() {
+		const shouldHaveServer = this.currentProjectIsRemote || this.editorConnectionsAllowIncoming;
+		let endpoint = this.editorConnectionsDiscoveryEndpoint;
+		if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
+
+		if (!shouldHaveServer && this.editorConnectionsManager) {
+			this.editorConnectionsManager.destructor();
+			this.editorConnectionsManager = null;
+		} else if (shouldHaveServer && !this.editorConnectionsManager) {
+			this.editorConnectionsManager = new EditorConnectionsManager();
 		}
 
 		if (shouldHaveServer) {
-			this.editorConnectionServer.setEndpoint(endpoint);
+			this.editorConnectionsManager.setEndpoint(endpoint);
 		}
 	}
 }

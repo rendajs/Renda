@@ -1,4 +1,4 @@
-export default class EditorConnectionServer {
+export default class EditorConnectionsManager {
 	constructor() {
 		this.currentEndpoint = null;
 		this.ws = null;
@@ -18,7 +18,9 @@ export default class EditorConnectionServer {
 			this.ws.close();
 			this.ws = null;
 		}
-		this.ws = new WebSocket(endpoint);
+		if (endpoint) {
+			this.ws = new WebSocket(endpoint);
+		}
 	}
 
 	static getDefaultEndPoint() {

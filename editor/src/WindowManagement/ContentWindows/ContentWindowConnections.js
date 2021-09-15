@@ -1,5 +1,5 @@
 import editor from "../../editorInstance.js";
-import EditorConnectionServer from "../../Network/EditorConnectionServer.js";
+import EditorConnectionsManager from "../../Network/EditorConnectionsManager.js";
 import PropertiesTreeView from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import ContentWindow from "./ContentWindow.js";
 
@@ -20,11 +20,11 @@ export default class ContentWindowConnections extends ContentWindow {
 			/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
-				placeholder: EditorConnectionServer.getDefaultEndPoint(),
+				placeholder: EditorConnectionsManager.getDefaultEndPoint(),
 			},
 		});
-		this.discoveryServerEndpointField.onValueChange(() => {
-			this.updateConnectionServer();
+		this.discoveryServerEndpointField.onValueChange(endPoint => {
+			editor.projectManager.setEditorConnectionsDiscoveryEndpoint(endPoint);
 		});
 		this.discoveryServerStatusLabel = this.headerTreeView.addItem({
 			type: "label",
@@ -42,8 +42,8 @@ export default class ContentWindowConnections extends ContentWindow {
 				label: "Allow Incoming Connections",
 			},
 		});
-		this.allowIncomingCheckbox.onValueChange(() => {
-			this.updateConnectionServer();
+		this.allowIncomingCheckbox.onValueChange(allowIncoming => {
+			editor.projectManager.setEditorConnectionsAllowIncoming(allowIncoming);
 		});
 
 		this.editorClientConnectionTreeView = new PropertiesTreeView();
@@ -51,16 +51,5 @@ export default class ContentWindowConnections extends ContentWindow {
 
 		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
 		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
-	}
-
-	updateConnectionServer() {
-		const allowIncoming = this.allowIncomingCheckbox.getValue();
-
-		let endpoint = null;
-		if (allowIncoming) {
-			endpoint = this.discoveryServerEndpointField.getValue();
-			if (!endpoint) endpoint = EditorConnectionServer.getDefaultEndPoint();
-		}
-		editor.projectManager.setEditorConnectionServerEndpoint(endpoint);
 	}
 }
