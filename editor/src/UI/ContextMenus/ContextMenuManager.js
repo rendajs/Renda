@@ -32,8 +32,8 @@ export default class ContextMenuManager {
 		document.head.appendChild(styleBlock);
 	}
 
-	get current(){
-		if(this.activeContextMenu && this.activeContextMenu.el) return this.activeContextMenu;
+	get current() {
+		if (this.activeContextMenu && this.activeContextMenu.el) return this.activeContextMenu;
 		return null;
 	}
 
@@ -41,31 +41,31 @@ export default class ContextMenuManager {
 	 * @param {import("./ContextMenu.js").ContextMenuStructure} structure
 	 * @returns ContextMenu
 	 */
-	createContextMenu(structure = null){
-		if(this.activeContextMenu && this.activeContextMenu.el) return null;
+	createContextMenu(structure = null) {
+		if (this.activeContextMenu && this.activeContextMenu.el) return null;
 
 		this.activeContextMenu = new ContextMenu(this, {structure});
 		this.updateCurtainActive();
 		return this.activeContextMenu;
 	}
 
-	closeCurrent(){
-		if(this.current){
+	closeCurrent() {
+		if (this.current) {
 			this.current.close();
 			return true;
 		}
 		return false;
 	}
 
-	onContextMenuClosed(contextMenu){
-		if(contextMenu == this.activeContextMenu){
+	onContextMenuClosed(contextMenu) {
+		if (contextMenu == this.activeContextMenu) {
 			this.activeContextMenu = null;
 			this.updateCurtainActive();
 		}
 	}
 
-	updateCurtainActive(){
-		let active = !!this.current;
+	updateCurtainActive() {
+		const active = !!this.current;
 		this.curtainEl.style.display = active ? null : "none";
 	}
 }

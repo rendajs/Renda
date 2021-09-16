@@ -1,4 +1,4 @@
-export default class ContextMenuItem{
+export default class ContextMenuItem {
 	/**
 	 * @param {import("./ContextMenu.js").default} containingContextMenu
 	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
@@ -14,7 +14,7 @@ export default class ContextMenuItem{
 		showCheckmark = false,
 		showBullet = false,
 		icon = null,
-	} = {}){
+	} = {}) {
 		this.containingContextMenu = containingContextMenu;
 		this.el = document.createElement("div");
 		this.el.classList.add("contextMenuItem");
@@ -42,22 +42,22 @@ export default class ContextMenuItem{
 
 		/** @type {Set<function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void>} */
 		this.onClickCbs = new Set();
-		if(onClick) this.onClick(onClick);
+		if (onClick) this.onClick(onClick);
 
 		this.onHoverCbs = new Set();
-		if(onHover) this.onHover(onHover);
+		if (onHover) this.onHover(onHover);
 
 		this.el.addEventListener("click", () => {
-			if(this.disabled) return;
+			if (this.disabled) return;
 			let preventMenuClose = false;
-			for(const cb of this.onClickCbs){
+			for (const cb of this.onClickCbs) {
 				/** @type {import("./ContextMenu.js").ContextMenuItemClickEvent} */
 				const event = {
 					item: this,
 					preventMenuClose: () => {
 						preventMenuClose = true;
-					}
-				}
+					},
+				};
 				cb(event);
 			}
 			if (!preventMenuClose) {
@@ -65,13 +65,13 @@ export default class ContextMenuItem{
 			}
 		});
 		this.el.addEventListener("mouseenter", () => {
-			if(this.disabled) return;
-			for(const cb of this.onHoverCbs){
+			if (this.disabled) return;
+			for (const cb of this.onHoverCbs) {
 				cb();
 			}
 		});
 
-		if(showRightArrow){
+		if (showRightArrow) {
 			const arrowEl = document.createElement("div");
 			arrowEl.classList.add("contextMenuRightArrow");
 			this.el.appendChild(arrowEl);
@@ -134,22 +134,22 @@ export default class ContextMenuItem{
 		}
 	}
 
-	destructor(){
+	destructor() {
 		this.onClickCbs.clear();
 	}
 
-	setText(text){
+	setText(text) {
 		this.textEl.textContent = text;
 	}
 
 	/**
 	 * @param {function(import("./ContextMenu.js").ContextMenuItemClickEvent) : void} cb
 	 */
-	onClick(cb){
+	onClick(cb) {
 		this.onClickCbs.add(cb);
 	}
 
-	onHover(cb){
+	onHover(cb) {
 		this.onHoverCbs.add(cb);
 	}
 }

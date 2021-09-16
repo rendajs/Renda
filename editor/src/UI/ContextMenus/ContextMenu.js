@@ -31,7 +31,7 @@ import Button from "../Button.js";
  * @property {ContextMenuStructure | (function(): Promise<ContextMenuStructure>) | function(): ContextMenuStructure} [submenu=null] - The submenu structure to show on hover.
  */
 
-export default class ContextMenu{
+export default class ContextMenu {
 	/**
 	 * @param {import("./ContextMenuManager.js").default} manager
 	 * @param {ContextMenuOptions} opts
@@ -39,7 +39,7 @@ export default class ContextMenu{
 	constructor(manager, {
 		parentMenu = null,
 		structure = null,
-	} = {}){
+	} = {}) {
 		this.manager = manager;
 		this.parentMenu = parentMenu;
 		this.el = document.createElement("div");
@@ -54,110 +54,109 @@ export default class ContextMenu{
 
 		this.hasResevedIconSpaceItem = false;
 
-		if(structure){
+		if (structure) {
 			this.createStructure(structure);
 		}
 	}
 
-	destructor(){
+	destructor() {
 		this.removeSubmenu();
 		this.manager = null;
-		for(const item of this.addedItems){
+		for (const item of this.addedItems) {
 			item.destructor();
 		}
 		this.addedItems = [];
-		if(this.el){
-			if(this.el.parentElement) this.el.parentElement.removeChild(this.el);
+		if (this.el) {
+			if (this.el.parentElement) this.el.parentElement.removeChild(this.el);
 			this.el = null;
 		}
 	}
 
-	removeSubmenu(){
-		if(this.currentSubmenu){
+	removeSubmenu() {
+		if (this.currentSubmenu) {
 			this.currentSubmenu.destructor();
 			this.currentSubmenu = null;
 		}
 	}
 
-	setPos(){
+	setPos() {
 		this.lastPosArguments = Array.from(arguments);
-		let [x,y, clampMode = null] = arguments;
+		let [x, y, clampMode = null] = arguments;
 		let [el, corner = "center", elClampMode = null] = arguments;
-		let [button, buttonCorner, buttonClampMode] = arguments;
-		let [contextMenuItem, contextMenuItemCorner, contextMenuClampMode] = arguments;
+		const [button] = arguments;
+		const [contextMenuItem] = arguments;
 
-		if(elClampMode) clampMode = elClampMode;
+		if (elClampMode) clampMode = elClampMode;
 
-		if(contextMenuItem instanceof ContextMenuItem){
+		if (contextMenuItem instanceof ContextMenuItem) {
 			el = contextMenuItem.el;
-			if(!clampMode) clampMode = "flip";
+			if (!clampMode) clampMode = "flip";
 		}
-		if(button instanceof Button){
+		if (button instanceof Button) {
 			el = button.el;
 		}
-		if(el instanceof HTMLElement){
+		if (el instanceof HTMLElement) {
 			const rect = el.getBoundingClientRect();
 			const corenerArgs = corner.split(" ");
 			let horizontalCorner = "center";
 			let verticalCorner = "center";
-			if(corenerArgs.includes("left")) horizontalCorner = "left";
-			if(corenerArgs.includes("right")) horizontalCorner = "right";
-			if(corenerArgs.includes("top")) verticalCorner = "top";
-			if(corenerArgs.includes("bottom")) verticalCorner = "bottom";
+			if (corenerArgs.includes("left")) horizontalCorner = "left";
+			if (corenerArgs.includes("right")) horizontalCorner = "right";
+			if (corenerArgs.includes("top")) verticalCorner = "top";
+			if (corenerArgs.includes("bottom")) verticalCorner = "bottom";
 
-			if(horizontalCorner == "center"){
+			if (horizontalCorner == "center") {
 				x = rect.x + rect.width / 2;
-			}else if(horizontalCorner == "left"){
+			} else if (horizontalCorner == "left") {
 				x = rect.x;
-			}else if(horizontalCorner == "right"){
+			} else if (horizontalCorner == "right") {
 				x = rect.right;
 			}
-			if(verticalCorner == "center"){
+			if (verticalCorner == "center") {
 				y = rect.y + rect.height / 2;
-			}else if(verticalCorner == "top"){
+			} else if (verticalCorner == "top") {
 				y = rect.top;
-			}else if(verticalCorner == "bottom"){
+			} else if (verticalCorner == "bottom") {
 				y = rect.bottom;
 			}
 
-			if(!clampMode) clampMode = "clamp";
+			if (!clampMode) clampMode = "clamp";
 		}
 
-		if(!clampMode) clampMode = "flip";
+		if (!clampMode) clampMode = "flip";
 
 		const bounds = this.el.getBoundingClientRect();
-		if(clampMode == "flip"){
-			if(x + bounds.width > window.innerWidth){
+		if (clampMode == "flip") {
+			if (x + bounds.width > window.innerWidth) {
 				x -= bounds.width;
 			}
-			if(y + bounds.height > window.innerHeight){
+			if (y + bounds.height > window.innerHeight) {
 				y -= bounds.height;
 			}
-		}else if(clampMode == "clamp"){
+		} else if (clampMode == "clamp") {
 			const deltaX = x + bounds.width - window.innerWidth;
-			if(deltaX > 0){
+			if (deltaX > 0) {
 				x -= deltaX;
 				x = Math.max(0, x);
 			}
 			const deltaY = y + bounds.height - window.innerHeight;
-			if(deltaY > 0){
+			if (deltaY > 0) {
 				y -= deltaY;
 				y = Math.max(0, y);
 			}
 		}
 
-
-		this.el.style.left = x+"px";
-		this.el.style.top = y+"px";
+		this.el.style.left = x + "px";
+		this.el.style.top = y + "px";
 	}
 
 	/**
 	 * @param {ContextMenuStructure} structure
 	 */
-	createStructure(structure){
-		for(const itemSettings of structure){
+	createStructure(structure) {
+		for (const itemSettings of structure) {
 			let createdItem = null;
-			if(itemSettings.submenu){
+			if (itemSettings.submenu) {
 				createdItem = this.addSubMenu(itemSettings);
 				createdItem.onCreateSubmenu(submenu => {
 					if (itemSettings.submenu instanceof Array) {
@@ -173,19 +172,19 @@ export default class ContextMenu{
 						}
 					}
 				});
-			}else{
+			} else {
 				createdItem = this.addItem(itemSettings);
 			}
 		}
-		if(this.lastPosArguments) this.setPos(...this.lastPosArguments);
+		if (this.lastPosArguments) this.setPos(...this.lastPosArguments);
 	}
 
 	/**
 	 * @param {ContextMenuItemOpts} opts
 	 * @returns {ContextMenuItem}
 	 */
-	addItem(opts){
-		let item = new ContextMenuItem(this, opts);
+	addItem(opts) {
+		const item = new ContextMenuItem(this, opts);
 		this.addedItems.push(item);
 		this.el.appendChild(item.el);
 		this.updateHasReservedIconSpaceItem();
@@ -196,7 +195,7 @@ export default class ContextMenu{
 	 * @param {ContextMenuItemOpts} opts
 	 * @returns {ContextMenuSubmenuItem}
 	 */
-	 addSubMenu(opts){
+	addSubMenu(opts) {
 		const item = new ContextMenuSubmenuItem(this, opts);
 		this.addedItems.push(item);
 		this.el.appendChild(item.el);
@@ -207,7 +206,7 @@ export default class ContextMenu{
 	 * @param {ContextMenuSubmenuItem} submenuItem
 	 * @returns {ContextMenu}
 	 */
-	startHoverSubmenu(submenuItem){
+	startHoverSubmenu(submenuItem) {
 		this.removeSubmenu();
 		this.activeSubmenuItem = submenuItem;
 		this.currentSubmenu = new ContextMenu(this.manager, {parentMenu: this});
@@ -215,15 +214,15 @@ export default class ContextMenu{
 		return this.currentSubmenu;
 	}
 
-	onItemClicked(){
-		if(this.parentMenu){
+	onItemClicked() {
+		if (this.parentMenu) {
 			this.parentMenu.onItemClicked();
-		}else{
+		} else {
 			this.close();
 		}
 	}
 
-	close(){
+	close() {
 		this.manager.onContextMenuClosed(this);
 		this.destructor();
 	}
