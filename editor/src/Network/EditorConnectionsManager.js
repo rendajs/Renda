@@ -1,9 +1,23 @@
+/**
+ * @typedef {Object} AvailableEditorData
+ * @property {string} id
+ */
+
+/**
+ * @typedef {Map<string, AvailableEditorData>} AvailableEditorDataList
+ */
+
 export default class EditorConnectionsManager {
 	constructor() {
 		this.currentEndpoint = null;
 		this.ws = null;
 
+		/** @type {AvailableEditorDataList} */
+		this.availableEditorsList = new Map();
+
 		this.onOpenOrErrorCbs = new Set();
+		/** @type {Set<function(AvailableEditorDataList) : void>} */
+		this.onAvailableEditorsChangedCbs = new Set();
 	}
 
 	destructor() {
@@ -32,6 +46,31 @@ export default class EditorConnectionsManager {
 				if (ws != this.ws) return;
 
 				this.fireOpenOrError(true);
+			});
+
+			this.ws.addEventListener("message", e => {
+				if (ws != this.ws) return;
+
+				if (!e.data) return;
+				const data = JSON.parse(e.data);
+				const {op} = data;
+
+				if (op == "nearbyEditorsList") {
+					const {editors} = data;
+					this.availableEditorsList.clear();
+					for (const editor of editors) {
+						this.availableEditorsList.set(editor.id, editor);
+					}
+					this.fireAvailableEditorsChanged();
+				} else if (op == "nearbyEditorAdded") {
+					const {editor} = data;
+					this.availableEditorsList.set(editor.id, editor);
+					this.fireAvailableEditorsChanged();
+				} else if (op == "nearbyEditorRemoved") {
+					const {id} = data;
+					this.availableEditorsList.delete(id);
+					this.fireAvailableEditorsChanged();
+				}
 			});
 		}
 	}
@@ -68,5 +107,20 @@ export default class EditorConnectionsManager {
 			op: "setIsHost",
 			isHost,
 		});
+	}
+
+	/**
+	 * @param {function(AvailableEditorDataList) : void} cb
+	 */
+	onAvailableEditorsChanged(cb) {
+		this.onAvailableEditorsChangedCbs.add(cb);
+	}
+
+	fireAvailableEditorsChanged() {
+		this.onAvailableEditorsChangedCbs.forEach(cb => cb(this.availableEditorsList));
+	}
+
+	startConnectionToEditor(editorId) {
+
 	}
 }

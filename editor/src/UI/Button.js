@@ -1,14 +1,18 @@
 import editor from "../editorInstance.js";
 
 /**
+ * @typedef {object} ButtonGuiCallbacksContext
+ */
+
+/**
  * @typedef {Object} ButtonGuiOptionsType
- * @property {string} [text = ""]
- * @property {string} [icon = ""]
- * @property {boolean} [hasDownArrow = false]
- * @property {function(Object) : void} [onClick = null]
- * @property {boolean} [draggable = false]
- * @property {function(DragEvent) : void} [onDragStart]
- * @property {function(DragEvent) : void} [onDragEnd]
+ * @property {string} [text = ""] The text to show on the button.
+ * @property {string} [icon = ""] The icon to show on the button.
+ * @property {boolean} [hasDownArrow = false] Whether the button should show a down arrow.
+ * @property {function(ButtonGuiCallbacksContext) : void} [onClick = null] The function to call when the button is clicked.
+ * @property {boolean} [draggable = false] Whether the button should be draggable.
+ * @property {function(DragEvent) : void} [onDragStart] The function to call when the button starts getting dragged.
+ * @property {function(DragEvent) : void} [onDragEnd] The function to call when the dragged button is released.
  *
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ButtonGuiOptionsType} ButtonGuiOptions
  */
@@ -82,7 +86,7 @@ export default class Button {
 
 	click(){
 		if(this.disabled) return;
-		if(this.onClick) this.onClick();
+		if(this.onClick) this.onClick({});
 	}
 
 	/**

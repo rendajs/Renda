@@ -49,7 +49,37 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.editorClientConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.editorClientConnectionTreeView.el);
 
+		this.remoteEditorsList = this.editorClientConnectionTreeView.addCollapsable("Editors");
+
 		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
 		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
+
+		if (editor.projectManager.currentProjectIsRemote) {
+			const connectionsManager = editor.projectManager.getEditorConnectionsManager();
+			connectionsManager.onAvailableEditorsChanged(editors => {
+				this.setRemoteEditorsList(editors);
+			});
+		}
+	}
+
+	/**
+	 * @param {import("../../Network/EditorConnectionsManager.js").AvailableEditorDataList} editors
+	 */
+	setRemoteEditorsList(editors) {
+		this.remoteEditorsList.clearChildren();
+		for (const editorData of editors.values()) {
+			const gui = this.remoteEditorsList.addCollapsable(editorData.id);
+			gui.addItem({
+				type: "button",
+				/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
+				guiOpts: {
+					label: "Connect",
+					text: "Connect",
+					onClick: () => {
+						editor.projectManager.editorConnectionsManager.startConnectionToEditor(editorData.id);
+					},
+				},
+			});
+		}
 	}
 }

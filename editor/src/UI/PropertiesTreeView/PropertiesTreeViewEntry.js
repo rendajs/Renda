@@ -16,10 +16,10 @@ import {prettifyVariableName} from "../../Util/Util.js";
 
 /**
  * @typedef {Object} GuiOptions
- * @property {string} [label = ""] - The label to show in front of the GUI element.
- * @property {boolean} [smallLabel = false] - Set to true if you want the value GUI element to take up a bigger portion of the line.
- * @property {boolean} [disabled = false]
- * @property {*} [defaultValue = null]
+ * @property {string} [label = ""] The label to show in front of the GUI element.
+ * @property {boolean} [smallLabel = false] Set to true if you want the value GUI element to take up a bigger portion of the line.
+ * @property {boolean} [disabled = false] Whether the GUI element is disabled.
+ * @property {*} [defaultValue = null] The default value of the GUI element.
  */
 
 /**

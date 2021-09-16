@@ -41,7 +41,7 @@ export default class WebSocketConnection {
 			this.isHost = newIsHost;
 			this.firstIsHostMessageReceived = true;
 			if (this.isHost) {
-				this.notifyNearbyClientEditors("nearbyEditorAdded");
+				this.notifyNearbyClientEditorsAdded();
 			} else {
 				this.sendNearbyHostEditorsList();
 			}
@@ -50,7 +50,7 @@ export default class WebSocketConnection {
 
 	onClose() {
 		if (this.isHost) {
-			this.notifyNearbyClientEditors("nearbyEditorRemoved");
+			this.notifyNearbyClientEditorsRemoved();
 		}
 	}
 
@@ -76,25 +76,39 @@ export default class WebSocketConnection {
 		});
 	}
 
-	/**
-	 * @param {"nearbyEditorAdded" | "nearbyEditorRemoved"} op
-	 */
-	notifyNearbyClientEditors(op) {
+	notifyNearbyClientEditorsAdded() {
 		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (connection.isHost) continue;
 
-			connection.sendNearbyEditorChanged(this, op);
+			connection.sendNearbyEditorAdded(this);
+		}
+	}
+
+	notifyNearbyClientEditorsRemoved() {
+		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+			if (connection.isHost) continue;
+
+			connection.sendNearbyEditorRemoved(this);
 		}
 	}
 
 	/**
 	 * @param {WebSocketConnection} connection
-	 * @param {"nearbyEditorAdded" | "nearbyEditorRemoved"} op
 	 */
-	sendNearbyEditorChanged(connection, op) {
+	sendNearbyEditorAdded(connection) {
 		this.send({
-			op,
+			op: "nearbyEditorAdded",
 			editor: connection.getEditorData(),
+		});
+	}
+
+	/**
+	 * @param {WebSocketConnection} connection
+	 */
+	sendNearbyEditorRemoved(connection) {
+		this.send({
+			op: "nearbyEditorRemoved",
+			id: connection.id,
 		});
 	}
 }

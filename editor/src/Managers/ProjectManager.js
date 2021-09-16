@@ -166,20 +166,25 @@ export default class ProjectManager {
 	}
 
 	updateEditorConnectionsManager() {
-		const shouldHaveServer = this.currentProjectIsRemote || this.editorConnectionsAllowIncoming;
+		const shouldHaveManager = this.currentProjectIsRemote || this.editorConnectionsAllowIncoming;
 		let endpoint = this.editorConnectionsDiscoveryEndpoint;
 		if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
 
-		if (!shouldHaveServer && this.editorConnectionsManager) {
+		if (!shouldHaveManager && this.editorConnectionsManager) {
 			this.editorConnectionsManager.destructor();
 			this.editorConnectionsManager = null;
-		} else if (shouldHaveServer && !this.editorConnectionsManager) {
+		} else if (shouldHaveManager && !this.editorConnectionsManager) {
 			this.editorConnectionsManager = new EditorConnectionsManager();
 			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
 		}
 
-		if (shouldHaveServer) {
+		if (shouldHaveManager) {
 			this.editorConnectionsManager.setEndpoint(endpoint);
 		}
+	}
+
+	getEditorConnectionsManager() {
+		this.updateEditorConnectionsManager();
+		return this.editorConnectionsManager;
 	}
 }

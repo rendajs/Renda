@@ -31,6 +31,10 @@ export default class PropertiesTreeView extends TreeView {
 		this.registerNewEventType("treeViewEntryValueChange");
 	}
 
+	/**
+	 * @param {string} name
+	 * @returns {PropertiesTreeView}
+	 */
 	addCollapsable(name) {
 		const newTreeView = new PropertiesTreeView({
 			rowVisible: true,
