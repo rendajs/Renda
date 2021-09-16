@@ -7,10 +7,18 @@
  * @typedef {Map<string, AvailableEditorData>} AvailableEditorDataList
  */
 
+/**
+ * @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType
+ */
+
 export default class EditorConnectionsManager {
 	constructor() {
 		this.currentEndpoint = null;
 		this.ws = null;
+		/** @type {DiscoveryServerStatusType} */
+		this.discoveryServerStatus = "disconnected";
+		/** @type {Set<function(DiscoveryServerStatusType):void>} */
+		this.onDiscoveryServerStatusChangeCbs = new Set();
 
 		/** @type {AvailableEditorDataList} */
 		this.availableEditorsList = new Map();
@@ -29,6 +37,21 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
+	 * @param {DiscoveryServerStatusType} status
+	 */
+	setDiscoveryServerStatus(status) {
+		this.discoveryServerStatus = status;
+		this.onDiscoveryServerStatusChangeCbs.forEach(cb => cb(status));
+	}
+
+	/**
+	 * @param {function(DiscoveryServerStatusType):void} cb
+	 */
+	onDiscoveryServerStatusChange(cb) {
+		this.onDiscoveryServerStatusChangeCbs.add(cb);
+	}
+
+	/**
 	 * @param {string} endpoint
 	 */
 	setEndpoint(endpoint) {
@@ -40,11 +63,13 @@ export default class EditorConnectionsManager {
 			this.ws = null;
 		}
 		if (endpoint) {
+			this.setDiscoveryServerStatus("connecting");
 			const ws = new WebSocket(endpoint);
 			this.ws = ws;
 			this.ws.addEventListener("open", () => {
 				if (ws != this.ws) return;
 
+				this.setDiscoveryServerStatus("connected");
 				this.fireOpenOrError(true);
 			});
 
@@ -71,6 +96,10 @@ export default class EditorConnectionsManager {
 					this.availableEditorsList.delete(id);
 					this.fireAvailableEditorsChanged();
 				}
+			});
+
+			this.ws.addEventListener("close", () => {
+				this.setDiscoveryServerStatus("disconnected");
 			});
 		}
 	}

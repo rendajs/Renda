@@ -49,17 +49,49 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.editorClientConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.editorClientConnectionTreeView.el);
 
+		this.clientConnectionStatusLabel = this.editorClientConnectionTreeView.addItem({
+			type: "label",
+			guiOpts: {
+				label: "Status",
+			},
+		});
+
 		this.remoteEditorsList = this.editorClientConnectionTreeView.addCollapsable("Editors");
 
 		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
 		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
 
+		editor.projectManager.onCurrentEditorConnectionsManagerChanged(newConnectionsManager => {
+			this.addConnectionsManagerListeners(newConnectionsManager);
+		});
+		this.addConnectionsManagerListeners(editor.projectManager.editorConnectionsManager);
+		this.updateDiscoveryServerStatus("disconnected");
+	}
+
+	/**
+	 * @param {?EditorConnectionsManager} connectionsManager
+	 */
+	addConnectionsManagerListeners(connectionsManager) {
+		if (!connectionsManager) return;
+
+		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
+		connectionsManager.onDiscoveryServerStatusChange(status => {
+			this.updateDiscoveryServerStatus(status);
+		});
+
 		if (editor.projectManager.currentProjectIsRemote) {
-			const connectionsManager = editor.projectManager.getEditorConnectionsManager();
 			connectionsManager.onAvailableEditorsChanged(editors => {
 				this.setRemoteEditorsList(editors);
 			});
 		}
+	}
+
+	/**
+	 *
+	 * @param {import("../../Network/EditorConnectionsManager.js").DiscoveryServerStatusType} status
+	 */
+	updateDiscoveryServerStatus(status) {
+		this.discoveryServerStatusLabel.setValue(status);
 	}
 
 	/**

@@ -23,6 +23,8 @@ export default class ProjectManager {
 		this.editorConnectionsAllowIncoming = false;
 		this.editorConnectionsDiscoveryEndpoint = null;
 		this.editorConnectionsManager = null;
+		/** @type {Set<function(?EditorConnectionsManager):void>} */
+		this.onCurrentEditorConnectionsManagerChangedCbs = new Set();
 
 		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onOpenProjectChangedCbs = new Set();
@@ -173,9 +175,11 @@ export default class ProjectManager {
 		if (!shouldHaveManager && this.editorConnectionsManager) {
 			this.editorConnectionsManager.destructor();
 			this.editorConnectionsManager = null;
+			this.fireCurrentEditorConnectionsManagerChange(null);
 		} else if (shouldHaveManager && !this.editorConnectionsManager) {
 			this.editorConnectionsManager = new EditorConnectionsManager();
 			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
+			this.fireCurrentEditorConnectionsManagerChange(this.editorConnectionsManager);
 		}
 
 		if (shouldHaveManager) {
@@ -186,5 +190,19 @@ export default class ProjectManager {
 	getEditorConnectionsManager() {
 		this.updateEditorConnectionsManager();
 		return this.editorConnectionsManager;
+	}
+
+	/**
+	 * @param {function(?EditorConnectionsManager):void} cb
+	 */
+	onCurrentEditorConnectionsManagerChanged(cb) {
+		this.onCurrentEditorConnectionsManagerChangedCbs.add(cb);
+	}
+
+	/**
+	 * @param {?EditorConnectionsManager} manager
+	 */
+	fireCurrentEditorConnectionsManagerChange(manager) {
+		this.onCurrentEditorConnectionsManagerChangedCbs.forEach(cb => cb(manager));
 	}
 }

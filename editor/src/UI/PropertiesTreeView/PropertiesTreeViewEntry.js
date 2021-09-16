@@ -8,6 +8,7 @@ import TextGui from "../TextGui.js";
 import DroppableGui from "../DroppableGui.js";
 import ArrayGui from "../ArrayGui.js";
 import Button from "../Button.js";
+import LabelGui from "../LabelGui.js";
 import ObjectGui from "../ObjectGui.js";
 
 import ProjectAsset from "../../Assets/ProjectAsset.js";
@@ -48,6 +49,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
  * @property {function(function() : void) : void} [onValueChange]
  * @property {function() : void} [destructor]
  * @property {function} [setValue]
+ * @property {function(boolean) : void} [setDisabled]
  */
 
 /**
@@ -147,7 +149,8 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			});
 			this.valueEl.appendChild(this.gui.el);
 		} else if (type == "label") {
-			this.gui = null;
+			this.gui = new LabelGui(guiOpts);
+			this.valueEl.appendChild(this.gui.el);
 		} else if (editor.projectAssetTypeManager.constructorHasAssetType(type) || type == ProjectAsset) {
 			this.gui = new DroppableGui({
 				supportedAssetTypes: [type],
@@ -180,8 +183,12 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		super.destructor();
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
-		this.gui?.setDisabled?.(disabled);
+		const castGui = /** @type {GuiInterface} */ (this.gui);
+		castGui?.setDisabled?.(disabled);
 	}
 
 	setValue(newValue, setValueOpts) {
@@ -193,7 +200,11 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			});
 		}
 		const castGui = /** @type {GuiInterface} */ (this.gui);
-		castGui?.setValue?.(newValue, setValueOpts);
+		if (castGui?.setValue) {
+			castGui?.setValue(newValue, setValueOpts);
+		} else {
+			castGui.value = newValue;
+		}
 	}
 
 	onValueChange(cb) {
@@ -222,7 +233,7 @@ export default class PropertiesTreeViewEntry extends TreeView {
 	 * @returns {boolean} If `true`, the value will be omitted from getSerializableStructureValues.
 	 */
 	omitFromSerializableStuctureValues(guiOpts) {
-		if (this.gui instanceof Button) {
+		if (this.gui instanceof Button || this.gui instanceof LabelGui) {
 			return true;
 		}
 		let {
