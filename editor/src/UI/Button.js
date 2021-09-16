@@ -62,7 +62,7 @@ export default class Button {
 		this.el.addEventListener("contextmenu", this.boundFireContextMenuCbs);
 	}
 
-	destructor(){
+	destructor() {
 		this.el.removeEventListener("click", this.boundClick);
 		this.el.removeEventListener("contextmenu", this.boundFireContextMenuCbs);
 	}
@@ -84,9 +84,9 @@ export default class Button {
 		return {el, iconEl, textEl};
 	}
 
-	click(){
-		if(this.disabled) return;
-		if(this.onClick) this.onClick({});
+	click() {
+		if (this.disabled) return;
+		if (this.onClick) this.onClick({});
 	}
 
 	/**
@@ -97,11 +97,11 @@ export default class Button {
 		this.textEl.textContent = text;
 	}
 
-	setSelectedHighlight(selected){
+	setSelectedHighlight(selected) {
 		this.el.classList.toggle("selected", selected);
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.classList.toggle("disabled", disabled);
 	}

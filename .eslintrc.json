@@ -6,6 +6,8 @@
 	},
 	"extends": "eslint:recommended",
 	"rules": {
+		"no-constant-condition": ["error", { "checkLoops": false }],
+
 		"array-callback-return": "error",
 		"consistent-return": "error",
 		"curly": ["error", "multi-line", "consistent"],
@@ -15,7 +17,6 @@
 		"no-caller": "error",
 		"no-constructor-return": "error",
 		"no-empty-pattern": "error",
-		"no-eq-null": "error",
 		"no-eval": "error",
 		"no-extend-native": "error",
 		"no-extra-bind": "error",

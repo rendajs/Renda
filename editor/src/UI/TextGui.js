@@ -5,14 +5,14 @@
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & TextGuiOptionsType} TextGuiOptions
  */
 
-export default class TextGui{
+export default class TextGui {
 	/**
 	 * @param {TextGuiOptions} opts
 	 */
 	constructor({
 		placeholder = "",
 		disabled = false,
-	} = {}){
+	} = {}) {
 		this.disabled = disabled;
 
 		this.el = document.createElement("input");
@@ -27,30 +27,30 @@ export default class TextGui{
 		this.setDisabled(disabled);
 	}
 
-	destructor(){
+	destructor() {
 		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
 		this.boundFireOnChangeCbs = null;
 	}
 
-	setValue(value){
+	setValue(value) {
 		this.el.value = value;
 	}
 
-	get value(){
+	get value() {
 		return this.el.value;
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	fireOnChangeCbs(){
-		for(const cb of this.onValueChangeCbs){
+	fireOnChangeCbs() {
+		for (const cb of this.onValueChangeCbs) {
 			cb(this.value);
 		}
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;
 	}

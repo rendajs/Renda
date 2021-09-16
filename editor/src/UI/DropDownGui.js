@@ -1,12 +1,12 @@
 import {prettifyVariableName} from "../Util/Util.js";
 
-export default class DropDownGui{
+export default class DropDownGui {
 	constructor({
 		items = [],
 		defaultValue = null,
 		enumObject = null,
 		disabled = false,
-	} = {}){
+	} = {}) {
 		this.items = items;
 		this.defaultValue = defaultValue;
 		this.disabled = disabled;
@@ -14,11 +14,11 @@ export default class DropDownGui{
 		this.enumObject = enumObject;
 		this.inverseEnumObject = null;
 
-		if(enumObject){
+		if (enumObject) {
 			this.inverseEnumObject = {};
 			this.items = [];
 			itemTexts = [];
-			for(const [key, value] of Object.entries(enumObject)){
+			for (const [key, value] of Object.entries(enumObject)) {
 				this.inverseEnumObject[value] = key;
 				this.items.push(key);
 				itemTexts.push(prettifyVariableName(key));
@@ -27,9 +27,9 @@ export default class DropDownGui{
 
 		this.el = document.createElement("select");
 		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
-		for(const [i, option] of itemTexts.entries()){
+		for (const [i, option] of itemTexts.entries()) {
 			const optionEl = document.createElement("option");
-			optionEl.value = "" + i;
+			optionEl.value = String(i);
 			optionEl.textContent = option;
 			this.el.appendChild(optionEl);
 		}
@@ -41,26 +41,26 @@ export default class DropDownGui{
 		this.setDisabled(disabled);
 	}
 
-	destructor(){
+	destructor() {
 		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
 		this.boundFireOnChangeCbs = null;
 	}
 
-	setValue(value){
-		if(this.enumObject){
-			if(typeof value != "string"){
+	setValue(value) {
+		if (this.enumObject) {
+			if (typeof value != "string") {
 				value = this.inverseEnumObject[value];
 			}
 		}
 		const index = this.items.indexOf(value);
-		if(index >= 0){
-			this.el.value = "" + index;
-		}else{
+		if (index >= 0) {
+			this.el.value = String(index);
+		} else {
 			this.el.value = null;
 		}
 	}
 
-	get value(){
+	get value() {
 		return this.getValue();
 	}
 
@@ -72,30 +72,30 @@ export default class DropDownGui{
 	getValue({
 		getAsString = false,
 		purpose = "default",
-	} = {}){
-		if(purpose == "fileStorage"){
+	} = {}) {
+		if (purpose == "fileStorage") {
 			getAsString = true;
-		}else if(purpose == "binaryComposer"){
+		} else if (purpose == "binaryComposer") {
 			getAsString = false;
 		}
 		let value = this.items[this.el.value];
-		if(this.enumObject && !getAsString){
+		if (this.enumObject && !getAsString) {
 			value = this.enumObject[value];
 		}
 		return value;
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	fireOnChangeCbs(){
-		for(const cb of this.onValueChangeCbs){
+	fireOnChangeCbs() {
+		for (const cb of this.onValueChangeCbs) {
 			cb(this.value);
 		}
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;
 	}

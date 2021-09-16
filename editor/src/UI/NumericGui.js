@@ -1,5 +1,3 @@
-import {mod} from "../Util/Util.js";
-
 /**
  * @typedef {Object} NumericGuiOptionsType
  * @property {number} [min = null] - The minimum allowed value.
@@ -15,7 +13,7 @@ import {mod} from "../Util/Util.js";
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & NumericGuiOptionsType} NumericGuiOptions
  */
 
-export default class NumericGui{
+export default class NumericGui {
 	/**
 	 * @param {NumericGuiOptions} opts
 	 */
@@ -31,11 +29,11 @@ export default class NumericGui{
 		prefix = "",
 		disabled = false,
 
-		//when the numeric value is one of these keys, the mapped string will be displayed in the gui instead
-		//this.getValue() will return a numbel, unless `mapNumericValuesToStrings` or `purpose: "fileStorage"` is set
-		//example value: [[-1, "auto"], [-2, "disabled"]]
+		// when the numeric value is one of these keys, the mapped string will be displayed in the gui instead
+		// this.getValue() will return a numbel, unless `mapNumericValuesToStrings` or `purpose: "fileStorage"` is set
+		// example value: [[-1, "auto"], [-2, "disabled"]]
 		mappedStringValues = [],
-	} = {}){
+	} = {}) {
 		this.el = document.createElement("input");
 		this.el.classList.add("numericGui", "buttonLike", "resetInput", "textInput");
 
@@ -54,7 +52,7 @@ export default class NumericGui{
 		/** @type {Map<number, string>} */
 		this.mappedStringValues = new Map(mappedStringValues);
 		this.inverseMappedStringValues = new Map();
-		for(const [val, str] of mappedStringValues){
+		for (const [val, str] of mappedStringValues) {
 			this.inverseMappedStringValues.set(str, val);
 		}
 
@@ -85,7 +83,7 @@ export default class NumericGui{
 		this.setDisabled(disabled);
 	}
 
-	destructor(){
+	destructor() {
 		this.el.removeEventListener("focus", this.boundOnFocus);
 		this.el.removeEventListener("blur", this.boundOnBlur);
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
@@ -107,27 +105,27 @@ export default class NumericGui{
 
 	setValue(value, {
 		updateTextValue = true,
-	} = {}){
-		if(typeof value == "string"){
-			if(this.inverseMappedStringValues.has(value)){
+	} = {}) {
+		if (typeof value == "string") {
+			if (this.inverseMappedStringValues.has(value)) {
 				this.unroundedValue = this.inverseMappedStringValues.get(value);
-			}else{
+			} else {
 				this.unroundedValue = parseFloat(value);
 			}
-		}else{
+		} else {
 			this.unroundedValue = value;
 		}
-		if(this.min != null) this.unroundedValue = Math.max(this.min, this.unroundedValue);
-		if(this.max != null) this.unroundedValue = Math.min(this.max, this.unroundedValue);
+		if (this.min != null) this.unroundedValue = Math.max(this.min, this.unroundedValue);
+		if (this.max != null) this.unroundedValue = Math.min(this.max, this.unroundedValue);
 		this.internalValue = this.unroundedValue;
-		if(this.step > 0){
-			this.internalValue = Math.round((this.internalValue-this.stepStart)/this.step)*this.step + this.stepStart;
+		if (this.step > 0) {
+			this.internalValue = Math.round((this.internalValue - this.stepStart) / this.step) * this.step + this.stepStart;
 		}
-		if(updateTextValue) this.updateTextValue();
+		if (updateTextValue) this.updateTextValue();
 		this.fireOnChangeCbs();
 	}
 
-	get value(){
+	get value() {
 		const castValue = /** @type {number} */ (this.getValue());
 		return castValue;
 	}
@@ -141,226 +139,226 @@ export default class NumericGui{
 	getValue({
 		mapNumericValuesToStrings = false,
 		purpose = "default",
-	} = {}){
-		if(purpose == "fileStorage"){
+	} = {}) {
+		if (purpose == "fileStorage") {
 			mapNumericValuesToStrings = true;
-		}else if(purpose == "binaryComposer"){
+		} else if (purpose == "binaryComposer") {
 			mapNumericValuesToStrings = false;
 		}
-		if(mapNumericValuesToStrings && this.mappedStringValues.has(this.internalValue)){
+		if (mapNumericValuesToStrings && this.mappedStringValues.has(this.internalValue)) {
 			return this.mappedStringValues.get(this.internalValue);
 		}
 		return this.internalValue;
 	}
 
-	isDefaultValue(){
+	isDefaultValue() {
 		return this.getValue() == this.defaultValue || this.getValue({mapNumericValuesToStrings: true}) == this.defaultValue;
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		this.onValueChangeCbs.push(cb);
 	}
 
-	fireOnChangeCbs(){
-		for(const cb of this.onValueChangeCbs){
+	fireOnChangeCbs() {
+		for (const cb of this.onValueChangeCbs) {
 			cb(this.value);
 		}
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;
 	}
 
-	updateTextValue(){
+	updateTextValue() {
 		const value = this.getValue({mapNumericValuesToStrings: true});
-		if(typeof value == "string"){
+		if (typeof value == "string") {
 			this.el.value = value;
-		}else{
-			this.el.value = this.suffix+value+this.prefix;
+		} else {
+			this.el.value = this.suffix + value + this.prefix;
 		}
 	}
 
-	addEventListeners(){
+	addEventListeners() {
 		window.addEventListener("mousemove", this.boundOnMouseMove);
 		window.addEventListener("mouseup", this.boundOnMouseUp);
 	}
 
-	removeEventListeners(){
+	removeEventListeners() {
 		window.removeEventListener("mousemove", this.boundOnMouseMove);
 		window.removeEventListener("mouseup", this.boundOnMouseUp);
 	}
 
-	onFocus(){
-		if(this.isMouseAdjusting) return;
+	onFocus() {
+		if (this.isMouseAdjusting) return;
 		this.setIsTextAdjusting(true);
-		let valueText = this.el.value;
+		const valueText = this.el.value;
 		this.el.setSelectionRange(this.suffix.length, valueText.length - this.prefix.length);
 	}
 
-	onBlur(e){
+	onBlur(e) {
 		this.setIsTextAdjusting(false);
 		this.updateTextValue();
 		this.unroundedValue = this.internalValue;
 	}
 
-	setIsTextAdjusting(value){
+	setIsTextAdjusting(value) {
 		this.isTextAdjusting = value;
 		this.el.classList.toggle("nocaret", !value);
 	}
 
-	onMouseDown(e){
-		if(this.isTextAdjusting) return;
+	onMouseDown(e) {
+		if (this.isTextAdjusting) return;
 		this.isMouseAdjusting = true;
 		this.hasMovedWhileAdjusting = false;
 		this.el.requestPointerLock();
 		this.addEventListeners();
 	}
 
-	onMouseMove(e){
-		if(!this.isMouseAdjusting) return;
+	onMouseMove(e) {
+		if (!this.isMouseAdjusting) return;
 		e.preventDefault();
 		this.hasMovedWhileAdjusting = true;
 		this.adjustValue(e.movementX, -e.movementY, e, this.mouseAdjustSpeed);
 	}
 
-	onMouseUp(e){
-		if(!this.isMouseAdjusting) return;
+	onMouseUp(e) {
+		if (!this.isMouseAdjusting) return;
 		e.preventDefault();
 		this.isMouseAdjusting = false;
 		document.exitPointerLock();
 		this.removeEventListeners();
-		if(this.hasMovedWhileAdjusting){
+		if (this.hasMovedWhileAdjusting) {
 			this.el.blur();
-		}else{
+		} else {
 			this.onFocus();
 		}
 	}
 
-	adjustValue(x=0, y=0, e=null, adjustSpeed=0.1){
+	adjustValue(x = 0, y = 0, e = null, adjustSpeed = 0.1) {
 		let delta = 0;
 		delta += x * adjustSpeed;
 		delta += y * adjustSpeed;
-		if(e){
-			if(e.ctrlKey || e.metaKey) delta *= 100;
-			if(e.shiftKey) delta *= 10;
-			if(e.altKey) delta *= 0.1;
+		if (e) {
+			if (e.ctrlKey || e.metaKey) delta *= 100;
+			if (e.shiftKey) delta *= 10;
+			if (e.altKey) delta *= 0.1;
 		}
 
-		//round delta to prevent floating point errors from creating many digits
-		//perhaps this could be more elegant, where you look at the amount of digits
-		//in the provided arguments, but this will do for now
-		let big = 10000000000000;
-		delta = Math.round(delta*big)/big;
+		// round delta to prevent floating point errors from creating many digits
+		// perhaps this could be more elegant, where you look at the amount of digits
+		// in the provided arguments, but this will do for now
+		const big = 10000000000000;
+		delta = Math.round(delta * big) / big;
 
-		let oldValue = this.unroundedValue;
+		const oldValue = this.unroundedValue;
 		let newValue = this.unroundedValue + delta;
-		let oldAfterDotLength = this.getNumbersLength(""+oldValue, false);
-		let deltaAfterDotLength = this.getNumbersLength(""+delta, false);
-		let desiredAfterDotLength = Math.max(oldAfterDotLength, deltaAfterDotLength);
-		let roundAmount = Math.pow(10, desiredAfterDotLength);
-		newValue = Math.round(newValue*roundAmount)/roundAmount;
+		const oldAfterDotLength = this.getNumbersLength(String(oldValue), false);
+		const deltaAfterDotLength = this.getNumbersLength(String(delta), false);
+		const desiredAfterDotLength = Math.max(oldAfterDotLength, deltaAfterDotLength);
+		const roundAmount = 10 ** desiredAfterDotLength;
+		newValue = Math.round(newValue * roundAmount) / roundAmount;
 		this.setValue(newValue);
 	}
 
-	onWheel(e){
-		if(this.disabled) return;
+	onWheel(e) {
+		if (this.disabled) return;
 		e.preventDefault();
 		this.adjustValue(-e.deltaX, e.deltaY, e, this.scrollAdjustSpeed);
 		this.el.blur();
 	}
 
-	onInput(){
-		let value = this.parseCurrentValue();
+	onInput() {
+		const value = this.parseCurrentValue();
 		this.setValue(value, {updateTextValue: false});
 	}
 
-	parseCurrentValue(){
+	parseCurrentValue() {
 		let value = this.el.value;
-		if(value.startsWith(this.suffix) && value.endsWith(this.prefix)){
+		if (value.startsWith(this.suffix) && value.endsWith(this.prefix)) {
 			value = value.slice(this.suffix.length);
 			value = value.slice(0, value.length - this.prefix.length);
 		}
-		if(this.inverseMappedStringValues.has(value)) return value;
-		value = value.replace(/[^\d\.\-]/g,"");
+		if (this.inverseMappedStringValues.has(value)) return value;
+		value = value.replace(/[^\d.-]/g, "");
 		return parseFloat(value);
 	}
 
-	onKeyDown(e){
-		if(e.code == "ArrowUp"){
+	onKeyDown(e) {
+		if (e.code == "ArrowUp") {
 			e.preventDefault();
 			this.handleCaretAdjust(1);
-		}else if(e.code == "ArrowDown"){
+		} else if (e.code == "ArrowDown") {
 			e.preventDefault();
 			this.handleCaretAdjust(-1);
 		}
 	}
 
-	handleCaretAdjust(delta){
-		let value = this.el.value;
-		let caretPos = this.el.selectionStart;
+	handleCaretAdjust(delta) {
+		const value = this.el.value;
+		const caretPos = this.el.selectionStart;
 		let foundDigit = null;
 		let digitStart = 0;
 		let digitEnd = 0;
-		let re = /-?(\d+\.\d+|\d+)/g;
-		while(true){
-			let match = re.exec(value);
-			if(!match) break;
-			let start = match.index;
-			let end = start + match[0].length;
-			if(start <= caretPos && end >= caretPos){
-				foundDigit = match[0];
+		const re = /-?(?<digit>\d+\.\d+|\d+)/g;
+		while (true) {
+			const match = re.exec(value);
+			if (!match) break;
+			const start = match.index;
+			const end = start + match.groups.digit.length;
+			if (start <= caretPos && end >= caretPos) {
+				foundDigit = match.groups.digit;
 				digitStart = start;
 				digitEnd = end;
 				break;
 			}
 		}
-		if(foundDigit){
-			let oldValue = parseFloat(foundDigit);
+		if (foundDigit) {
+			const oldValue = parseFloat(foundDigit);
 			let dotIndex = foundDigit.indexOf(".");
-			let hasDot = dotIndex >= 0;
-			if(!hasDot) dotIndex = digitEnd;
+			const hasDot = dotIndex >= 0;
+			if (!hasDot) dotIndex = digitEnd;
 			let digitCaretPos = caretPos - digitStart - dotIndex;
-			if(digitCaretPos > 0) digitCaretPos--;
+			if (digitCaretPos > 0) digitCaretPos--;
 
-			let oldBeforeDotLength = this.getNumbersLength(foundDigit);
-			let oldAfterDotLength = this.getNumbersLength(foundDigit, false);
-			let offset = Math.pow(10, -digitCaretPos - 1);
+			const oldBeforeDotLength = this.getNumbersLength(foundDigit);
+			const oldAfterDotLength = this.getNumbersLength(foundDigit, false);
+			const offset = 10 ** (-digitCaretPos - 1);
 			let newDigit = oldValue + offset * delta;
 
-			//prevent number from getting huge because of floating point errors
+			// prevent number from getting huge because of floating point errors
 			let roundDigitCount = oldAfterDotLength;
-			if(digitCaretPos == oldAfterDotLength) roundDigitCount++; //allow adding extra digits when caret is at the very end
-			let roundAmount = Math.pow(10, roundDigitCount);
-			newDigit = Math.round(newDigit*roundAmount)/roundAmount;
+			if (digitCaretPos == oldAfterDotLength) roundDigitCount++; // allow adding extra digits when caret is at the very end
+			const roundAmount = 10 ** roundDigitCount;
+			newDigit = Math.round(newDigit * roundAmount) / roundAmount;
 
-			let newDigitStr = ""+newDigit;
+			let newDigitStr = String(newDigit);
 
-			//prevent removal of trailing 0 when the caret is currently at the beginning
-			let newBeforeDotLength = this.getNumbersLength(newDigitStr);
-			let beforeDotLengthDelta = oldBeforeDotLength - newBeforeDotLength;
-			if(-digitCaretPos == oldBeforeDotLength){
-				if(newDigit < 0) newDigitStr = newDigitStr.slice(1);
+			// prevent removal of trailing 0 when the caret is currently at the beginning
+			const newBeforeDotLength = this.getNumbersLength(newDigitStr);
+			const beforeDotLengthDelta = oldBeforeDotLength - newBeforeDotLength;
+			if (-digitCaretPos == oldBeforeDotLength) {
+				if (newDigit < 0) newDigitStr = newDigitStr.slice(1);
 				newDigitStr = newDigitStr.padStart(newDigitStr.length + beforeDotLengthDelta, "0");
-				if(newDigit < 0) newDigitStr = "-"+newDigitStr;
+				if (newDigit < 0) newDigitStr = "-" + newDigitStr;
 			}
 
-			//prevent removal of leading 0 when carret is currently at the very end
-			let newAfterDotLength = this.getNumbersLength(newDigitStr, false);
-			let afterDotLengthDelta = oldAfterDotLength - newAfterDotLength;
-			if(digitCaretPos + 1 == oldAfterDotLength && oldAfterDotLength > 0){
-				if(!newDigitStr.includes(".")) newDigitStr = newDigitStr+".";
+			// prevent removal of leading 0 when carret is currently at the very end
+			const newAfterDotLength = this.getNumbersLength(newDigitStr, false);
+			const afterDotLengthDelta = oldAfterDotLength - newAfterDotLength;
+			if (digitCaretPos + 1 == oldAfterDotLength && oldAfterDotLength > 0) {
+				if (!newDigitStr.includes(".")) newDigitStr = newDigitStr + ".";
 				newDigitStr = newDigitStr.padEnd(newDigitStr.length + afterDotLengthDelta, "0");
 			}
 
-			let newValue = value.slice(0, digitStart)+newDigitStr+value.slice(digitEnd, value.length);
+			const newValue = value.slice(0, digitStart) + newDigitStr + value.slice(digitEnd, value.length);
 			this.el.value = newValue;
 
 			let newDotIndex = newDigitStr.indexOf(".");
-			if(newDotIndex < 0) newDotIndex = newDigitStr.length;
+			if (newDotIndex < 0) newDotIndex = newDigitStr.length;
 			let newCaretPosRelativeToDot = digitCaretPos;
-			if(newCaretPosRelativeToDot >= 0) newCaretPosRelativeToDot++;
-			let newCaretPos = digitStart + newDotIndex + newCaretPosRelativeToDot;
+			if (newCaretPosRelativeToDot >= 0) newCaretPosRelativeToDot++;
+			const newCaretPos = digitStart + newDotIndex + newCaretPosRelativeToDot;
 			this.el.selectionStart = newCaretPos;
 			this.el.selectionEnd = newCaretPos + 1;
 
@@ -368,15 +366,16 @@ export default class NumericGui{
 		}
 	}
 
-	//gets the amount of digits before or after the dot
-	getNumbersLength(str, getBefore=true){
-		let beforeDotLengthMatch = /-?(\d+)(\.(\d+))?/.exec(str);
-		if(getBefore){
-			if(!beforeDotLengthMatch) return 1;
-			return beforeDotLengthMatch[1].length;
-		}else{
-			if(!beforeDotLengthMatch || !beforeDotLengthMatch[3]) return 0;
-			return beforeDotLengthMatch[3].length;
+	// gets the amount of digits before or after the dot
+	getNumbersLength(str, getBefore = true) {
+		const beforeDotLengthMatch = /-?(?<whole>\d+)(?:\.(?<decimal>\d+))?/.exec(str);
+		if (getBefore) {
+			if (!beforeDotLengthMatch) return 1;
+			return beforeDotLengthMatch.groups.whole.length;
+		} else {
+			const {decimal} = beforeDotLengthMatch.groups;
+			if (!beforeDotLengthMatch || !decimal) return 0;
+			return decimal.length;
 		}
 	}
 }

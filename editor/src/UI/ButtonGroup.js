@@ -1,15 +1,15 @@
-export default class ButtonGroup{
+export default class ButtonGroup {
 	/**
 	 * @param {...import("./Button.js").default} buttons
 	 */
-	constructor(...buttons){
+	constructor(...buttons) {
 		this.el = document.createElement("div");
 		this.el.classList.add("buttonGroup", "buttonGroupLike");
 
 		/** @type {Array<import("./Button.js").default>} */
 		this.buttons = [];
 
-		for(const button of buttons){
+		for (const button of buttons) {
 			this.addButton(button);
 		}
 
@@ -17,9 +17,9 @@ export default class ButtonGroup{
 		this.onContextMenuCbs = new Set();
 	}
 
-	destructor(){
+	destructor() {
 		this.el = null;
-		for(const button of this.buttons){
+		for (const button of this.buttons) {
 			button.destructor();
 		}
 		this.buttons = [];
@@ -28,7 +28,7 @@ export default class ButtonGroup{
 	/**
 	 * @param {import("./Button.js").default} button
 	 */
-	addButton(button){
+	addButton(button) {
 		this.buttons.push(button);
 		this.el.appendChild(button.el);
 		button.onContextMenu(this.boundFireContextMenuCbs);
@@ -36,11 +36,10 @@ export default class ButtonGroup{
 
 	/**
 	 * @param {Number} buttonIndex
-	 * @returns {?import("./Button.js").default} The removed button
 	 */
 	removeButton(buttonIndex) {
 		const button = this.buttons[buttonIndex];
-		if (!button) return null;
+		if (!button) return;
 
 		this.buttons.splice(buttonIndex, 1);
 		this.el.removeChild(button.el);
@@ -48,7 +47,7 @@ export default class ButtonGroup{
 	}
 
 	fireContextMenuCbs(button, e) {
-		for(const cb of this.onContextMenuCbs){
+		for (const cb of this.onContextMenuCbs) {
 			cb(button, e);
 		}
 	}

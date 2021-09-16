@@ -8,7 +8,7 @@ import Button from "./Button.js";
  * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} [guiOpts]
  */
 
-export default class ArrayGui{
+export default class ArrayGui {
 	/**
 	 *
 	 * @param {Object} opts
@@ -20,7 +20,7 @@ export default class ArrayGui{
 		value = [],
 		arrayOpts = {},
 		disabled = false,
-	} = {}){
+	} = {}) {
 		this.disabled = false;
 
 		this.el = document.createElement("div");
@@ -36,19 +36,16 @@ export default class ArrayGui{
 		this.removeItemButton = new Button({
 			text: "-",
 			onClick: () => {
-				//todo: add support for removing selected entry
-				//check if the index exists instead of try catch
-				try{
-					this.removeItem();
-				}catch(e){}
-			}
+				// todo: add support for removing selected entry
+				this.removeItem();
+			},
 		});
 		this.addRemoveButtonGroup.addButton(this.removeItemButton);
 		this.addItemButton = new Button({
 			text: "+",
 			onClick: () => {
 				this.addItem();
-			}
+			},
 		});
 		this.addRemoveButtonGroup.addButton(this.addItemButton);
 
@@ -56,24 +53,24 @@ export default class ArrayGui{
 		this.el.appendChild(this.treeView.el);
 
 		this.setValue(value);
-		if(disabled) this.setDisabled(true);
+		if (disabled) this.setDisabled(true);
 	}
 
-	destructor(){
-		if(this.el.parentElement){
+	destructor() {
+		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
 	}
 
-	//adds new item to the end of the array
-	addItem(extraArrayOpts = {}){
+	// adds new item to the end of the array
+	addItem(extraArrayOpts = {}) {
 		const index = this.value.length;
 		const addedItem = this.treeView.addItem({
 			type: this.type,
 			guiOpts: {
 				smallLabel: true,
-				label: "" + index,
+				label: String(index),
 				...this.arrayOpts.guiOpts,
 				...extraArrayOpts,
 			},
@@ -81,17 +78,17 @@ export default class ArrayGui{
 		addedItem.onValueChange(() => {
 			this.fireValueChange();
 		});
-		if(this.disabled) addedItem.setDisabled(true);
+		if (this.disabled) addedItem.setDisabled(true);
 		this.valueItems.push(addedItem);
 		this.fireValueChange();
 		return addedItem;
 	}
 
-	//remove array item by index, counts from the back when negative
-	removeItem(index = -1){
-		if(index < 0) index = this.valueItems.length + index;
+	// remove array item by index, counts from the back when negative
+	removeItem(index = -1) {
+		if (index < 0) index = this.valueItems.length + index;
 
-		if(index < 0 || index >= this.valueItems.length){
+		if (index < 0 || index >= this.valueItems.length) {
 			throw new Error(`Failed to remove array item, index ${index} does not exist`);
 		}
 		this.treeView.removeChildIndex(index);
@@ -99,36 +96,36 @@ export default class ArrayGui{
 		this.fireValueChange();
 	}
 
-	setValue(value, setValueOpts){
-		if(!value) value = [];
+	setValue(value, setValueOpts) {
+		if (!value) value = [];
 		const removeCount = this.valueItems.length - value.length;
-		if(removeCount > 0){
-			for(let i=0; i<removeCount; i++){
+		if (removeCount > 0) {
+			for (let i = 0; i < removeCount; i++) {
 				this.removeItem();
 			}
 		}
-		for(const [i, item] of value.entries()){
+		for (const [i, item] of value.entries()) {
 			const newSetValueOpts = {
 				...setValueOpts,
 				setOnObject: value,
 				setOnObjectKey: i,
-			}
-			if(this.valueItems.length <= i){
+			};
+			if (this.valueItems.length <= i) {
 				const addedItem = this.addItem();
 				addedItem.setValue(item, newSetValueOpts);
-			}else{
+			} else {
 				this.valueItems[i].setValue(item, newSetValueOpts);
 			}
 		}
 	}
 
-	getValue(guiOpts){
+	getValue(guiOpts) {
 		const valueArray = [];
-		for(const item of this.valueItems){
+		for (const item of this.valueItems) {
 			let value = null;
-			if(item.gui.getValue){
+			if (item.gui.getValue) {
 				value = item.gui.getValue(guiOpts);
-			}else{
+			} else {
 				value = item.gui.value;
 			}
 			valueArray.push(value);
@@ -136,23 +133,23 @@ export default class ArrayGui{
 		return valueArray;
 	}
 
-	get value(){
+	get value() {
 		return this.getValue();
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		this.onValueChangeCbs.push(cb);
 	}
 
-	fireValueChange(){
-		for(const cb of this.onValueChangeCbs){
+	fireValueChange() {
+		for (const cb of this.onValueChangeCbs) {
 			cb(this.value);
 		}
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.disabled = disabled;
-		for(const item of this.valueItems){
+		for (const item of this.valueItems) {
 			item.setDisabled(disabled);
 		}
 		this.addItemButton.setDisabled(disabled);

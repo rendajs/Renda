@@ -11,7 +11,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/index.js";
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & VectorGuiOptionsType} VectorGuiOptions
  */
 
-export default class VectorGui{
+export default class VectorGui {
 	/**
 	 * @param {VectorGuiOptions} opts
 	 */
@@ -22,13 +22,13 @@ export default class VectorGui{
 		min = null,
 		max = null,
 		step = null,
-	} = {}){
-		if(!defaultValue){
-			if(size == 2){
+	} = {}) {
+		if (!defaultValue) {
+			if (size == 2) {
 				defaultValue = new Vec2();
-			}else if(size == 3){
+			} else if (size == 3) {
 				defaultValue = new Vec3();
-			}else if(size == 4){
+			} else if (size == 4) {
 				defaultValue = new Vec4();
 			}
 		}
@@ -44,7 +44,7 @@ export default class VectorGui{
 		max = this.getGuiOptArray(max);
 		step = this.getGuiOptArray(step);
 
-		for(let i=0; i<size; i++){
+		for (let i = 0; i < size; i++) {
 			const numericGui = new NumericGui({
 				min: min[0],
 				max: max[0],
@@ -59,43 +59,43 @@ export default class VectorGui{
 		this.setDisabled(disabled);
 	}
 
-	destructor(){
-		if(this.el.parentElement){
+	destructor() {
+		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
 		this.el = null;
-		for(const gui of this.numericGuis){
+		for (const gui of this.numericGuis) {
 			gui.destructor();
 		}
 		this.numericGuis = null;
 	}
 
-	getGuiOptArray(value){
-		if(Array.isArray(value)) return value;
-		if(typeof value == "number" || !value){
+	getGuiOptArray(value) {
+		if (Array.isArray(value)) return value;
+		if (typeof value == "number" || !value) {
 			const array = [];
-			for(let i=0; i<this.size; i++){
+			for (let i = 0; i < this.size; i++) {
 				array.push(value);
 			}
 			return array;
-		}else{
+		} else {
 			return value.toArray();
 		}
 	}
 
-	setValue(vector){
+	setValue(vector) {
 		let arr;
-		if(Array.isArray(vector)){
+		if (Array.isArray(vector)) {
 			arr = vector;
-		}else{
+		} else {
 			arr = vector.toArray();
 		}
-		for(let [i, gui] of this.numericGuis.entries()){
+		for (const [i, gui] of this.numericGuis.entries()) {
 			gui.setValue(arr[i]);
 		}
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		this.onValueChangeCbs.push(cb);
 	}
 
@@ -107,48 +107,48 @@ export default class VectorGui{
 	getValue({
 		getAsArray = false,
 		purpose = "default",
-	} = {}){
-		if(purpose == "fileStorage"){
+	} = {}) {
+		if (purpose == "fileStorage") {
 			getAsArray = true;
-		}else if(purpose == "binaryComposer"){
+		} else if (purpose == "binaryComposer") {
 			getAsArray = true;
 		}
-		let numbersArr = this.numericGuis.map(g => g.value);
+		const numbersArr = this.numericGuis.map(g => g.value);
 		let val = null;
-		if(getAsArray){
+		if (getAsArray) {
 			val = numbersArr;
-		}else if(this.numericGuis.length == 3){
+		} else if (this.numericGuis.length == 3) {
 			val = new Vec3(numbersArr);
 		}
 		return val;
 	}
 
-	get value(){
+	get value() {
 		const castValue = /** @type {Vec3} */ (this.getValue());
 		return castValue;
 	}
 
-	fireValueChange(){
-		for(const cb of this.onValueChangeCbs){
+	fireValueChange() {
+		for (const cb of this.onValueChangeCbs) {
 			cb(this.value.clone());
 		}
 	}
 
-	isDefaultValue(guiOpts){
+	isDefaultValue(guiOpts) {
 		const val = this.getValue({
 			...guiOpts,
 			getAsArray: true,
 		});
 		const defaultVal = this.defaultValue.toArray();
-		for(let i=0; i<this.size; i++){
-			if(val[i] != defaultVal[i]) return false;
+		for (let i = 0; i < this.size; i++) {
+			if (val[i] != defaultVal[i]) return false;
 		}
 		return true;
 	}
 
-	setDisabled(disabled){
+	setDisabled(disabled) {
 		this.disabled = disabled;
-		for(const gui of this.numericGuis){
+		for (const gui of this.numericGuis) {
 			gui.setDisabled(disabled);
 		}
 	}
