@@ -25,6 +25,8 @@ export default class ContentWindow {
 		this.parentEditorWindow = null;
 		this.uuid = generateUuid();
 
+		this.destructed = false;
+
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
 
@@ -48,6 +50,7 @@ export default class ContentWindow {
 	}
 
 	destructor() {
+		this.destructed = true;
 		this.el = null;
 		this.topButtonBar = null;
 		this.tabSelectorSpacer = null;

@@ -163,7 +163,9 @@ export default class ContentWindowProject extends ContentWindow {
 	 * @param {Array<string>} path the path this TreeView belongs to
 	 */
 	async updateTreeViewRecursive(treeView, path) {
+		if (this.destructed) return;
 		const fileTree = await this.fileSystem.readDir(path);
+		if (this.destructed) return;
 		for (const dir of fileTree.directories) {
 			if (!treeView.includes(dir)) {
 				const newTreeView = treeView.addChild();
