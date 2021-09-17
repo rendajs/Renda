@@ -7,6 +7,7 @@ import EditorConnectionsManager from "../Network/EditorConnections/EditorConnect
 import {generateUuid} from "../Util/Util.js";
 import GitIgnoreManager from "./GitIgnoreManager.js";
 import ProjectSettingsManager from "./ProjectSettingsManager.js";
+import {SingleInstancePromise} from "../../../src/index.js";
 
 /**
  * @typedef {Object} StoredProjectEntry
@@ -43,6 +44,12 @@ export default class ProjectManager {
 		});
 
 		this.onAssetManagerLoadCbs = new Set();
+
+		this.loadEditorConnectionsAllowIncomingInstance = new SingleInstancePromise(async () => {
+			await this.loadEditorConnectionsAllowIncoming();
+		}, {
+			once: false,
+		});
 	}
 
 	/**
@@ -60,6 +67,8 @@ export default class ProjectManager {
 		this.localProjectSettings.onFileCreated(() => {
 			this.gitIgnoreManager.addEntry(localSettingsPath);
 		});
+
+		this.loadEditorConnectionsAllowIncomingInstance.run();
 
 		if (this.editorConnectionsManager) {
 			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
@@ -169,6 +178,21 @@ export default class ProjectManager {
 	 */
 	setEditorConnectionsAllowIncoming(allow) {
 		this.editorConnectionsAllowIncoming = allow;
+		if (allow) {
+			this.localProjectSettings.set("editorConnectionsAllowIncoming", allow);
+		} else {
+			this.localProjectSettings.delete("editorConnectionsAllowIncoming");
+		}
+		this.updateEditorConnectionsManager();
+	}
+
+	async getEditorConnectionsAllowIncoming() {
+		await this.loadEditorConnectionsAllowIncomingInstance.waitForFinish();
+		return this.editorConnectionsAllowIncoming;
+	}
+
+	async loadEditorConnectionsAllowIncoming() {
+		this.editorConnectionsAllowIncoming = await this.localProjectSettings.get("editorConnectionsAllowIncoming", false);
 		this.updateEditorConnectionsManager();
 	}
 

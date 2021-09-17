@@ -66,6 +66,12 @@ export default class ContentWindowConnections extends ContentWindow {
 		});
 		this.addConnectionsManagerListeners(editor.projectManager.editorConnectionsManager);
 		this.updateDiscoveryServerStatus("disconnected");
+
+		this.loadSettings();
+	}
+
+	async loadSettings() {
+		this.allowIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowIncoming());
 	}
 
 	/**

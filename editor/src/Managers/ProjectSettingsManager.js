@@ -13,7 +13,7 @@ export default class ProjectSettingsManager {
 
 		this.onFileCreatedCbs = new Set();
 
-		this.loadInstance = new SingleInstancePromise(async () => this.load(), {run: true});
+		this.loadInstance = new SingleInstancePromise(async () => await this.load(), {run: true});
 	}
 
 	/**
@@ -21,16 +21,31 @@ export default class ProjectSettingsManager {
 	 * @param {*} value
 	 */
 	async set(key, value) {
+		if (this.currentSettings.has(key)) {
+			const currentValue = this.currentSettings.get(key);
+			if (currentValue === value) return;
+		}
 		this.currentSettings.set(key, value);
 		await this.save();
 	}
 
 	/**
 	 * @param {string} key
+	 */
+	async delete(key) {
+		if (!this.currentSettings.has(key)) return;
+		this.currentSettings.delete(key);
+		await this.save();
+	}
+
+	/**
+	 * @param {string} key
+	 * @param {*} [defaultValue = null]
 	 * @returns {Promise<*>}
 	 */
-	async get(key) {
+	async get(key, defaultValue = null) {
 		await this.loadInstance.waitForFinish();
+		if (!this.currentSettings.has(key)) return defaultValue;
 		return this.currentSettings.get(key);
 	}
 
