@@ -1,3 +1,6 @@
+import EditorConnection from "./EditorConnection.js";
+import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
+
 /**
  * @typedef {Object} AvailableEditorData
  * @property {string} id
@@ -22,6 +25,9 @@ export default class EditorConnectionsManager {
 
 		/** @type {AvailableEditorDataList} */
 		this.availableEditorsList = new Map();
+
+		this.clientConnectionToHost = null;
+		this.hostConnectionsToClient = new Map();
 
 		this.onOpenOrErrorCbs = new Set();
 		/** @type {Set<function(AvailableEditorDataList) : void>} */
@@ -150,6 +156,10 @@ export default class EditorConnectionsManager {
 	}
 
 	startConnectionToEditor(editorId) {
-
+		if (this.clientConnectionToHost) {
+			throw new Error("Already connected to an editor");
+		}
+		const connection = new MessageHandlerWebRtc(editorId, this);
+		this.clientConnectionToHost = new EditorConnection(connection);
 	}
 }

@@ -3,7 +3,7 @@ import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.j
 import EditorFileSystemIndexedDb from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import EditorFileSystemRemote from "../Util/FileSystems/EditorFileSystemRemote.js";
 import AssetManager from "../Assets/AssetManager.js";
-import EditorConnectionsManager from "../Network/EditorConnectionsManager.js";
+import EditorConnectionsManager from "../Network/EditorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../Util/Util.js";
 
 /**

@@ -1,5 +1,5 @@
 import editor from "../../editorInstance.js";
-import EditorConnectionsManager from "../../Network/EditorConnectionsManager.js";
+import EditorConnectionsManager from "../../Network/EditorConnections/EditorConnectionsManager.js";
 import PropertiesTreeView from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import ContentWindow from "./ContentWindow.js";
 
@@ -88,14 +88,14 @@ export default class ContentWindowConnections extends ContentWindow {
 
 	/**
 	 *
-	 * @param {import("../../Network/EditorConnectionsManager.js").DiscoveryServerStatusType} status
+	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").DiscoveryServerStatusType} status
 	 */
 	updateDiscoveryServerStatus(status) {
 		this.discoveryServerStatusLabel.setValue(status);
 	}
 
 	/**
-	 * @param {import("../../Network/EditorConnectionsManager.js").AvailableEditorDataList} editors
+	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} editors
 	 */
 	setRemoteEditorsList(editors) {
 		this.remoteEditorsList.clearChildren();
