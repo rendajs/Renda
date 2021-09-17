@@ -1074,7 +1074,7 @@ export default class BinaryComposer{
 			let subValue = obj[key] || null;
 			subValue = BinaryComposer.resolveBinaryValueLocation(subValue, {
 				value, location, nameIdsMapInverse, variableLengthArrayIndex,
-				transformValueHook,
+				transformValueHook, transformValueHookType,
 			}, locationOffset + 1);
 			obj[key] = subValue;
 		}
