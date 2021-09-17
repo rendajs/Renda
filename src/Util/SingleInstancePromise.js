@@ -1,10 +1,14 @@
-export default class SingleInstancePromise{
+export default class SingleInstancePromise {
+	/**
+	 * @param {function() : Promise} promiseFn
+	 * @param {Object} opts
+	 * @param {boolean} [opts.once = true] If true, the function will only be run once. Repeated calls will return the first result.
+	 * @param {boolean} [opts.run = false] If true, the function will run immediately.
+	 */
 	constructor(promiseFn, {
-		//if this is true, the promise will run only once.
-		//repeating calls to run() will always return the first result.
 		once = true,
 		run = false,
-	} = {}){
+	} = {}) {
 		this.once = once;
 		this.promiseFn = promiseFn;
 		this.isRunning = false;
@@ -12,46 +16,53 @@ export default class SingleInstancePromise{
 		this.onceReturnValue = undefined;
 		this.onRunFinishCbs = new Set();
 
-		if(run) this.run();
+		if (run) this.run();
 	}
 
-	//if `repeatIfRunning` is true and the promise is already running,
-	//it will run again when the first run is done.
-	//calling run() many times will not cause the promise to
-	//run many times, i.e., jobs do not get queued indefinitely, only twice.
-	async run(repeatIfRunning = false){
-		if(this.isRunning){
-			if(repeatIfRunning && !this.once){
+	/**
+	 * Runs the function.
+	 * Calling this many times with `repeatIfRunning` set to true will not cause the promise to
+	 * run many times. I.e., jobs do not get queued indefinitely, only twice.
+	 * @param {boolean} repeatIfRunning If true, the function will run again when the first run is done.
+	 */
+	async run(repeatIfRunning = false) {
+		if (this.isRunning) {
+			if (repeatIfRunning && !this.once) {
 				await new Promise(r => this.onRunFinishCbs.add(r));
 				return await this.run(false);
-			}else{
+			} else {
 				return await new Promise(r => this.onRunFinishCbs.add(r));
 			}
 		}
 
-		if(this.hasRan && this.once){
+		if (this.hasRan && this.once) {
 			return this.onceReturnValue;
 		}
 
 		this.isRunning = true;
-		let result = await this.promiseFn();
+		const result = await this.promiseFn();
 		this.isRunning = false;
 		this.hasRan = true;
 
-		if(this.once){
+		if (this.once) {
 			this.onceReturnValue = result;
 		}
 
 		const onRunFinishCbsCopy = this.onRunFinishCbs;
 		this.onRunFinishCbs = new Set();
-		for(const cb of onRunFinishCbsCopy){
+		for (const cb of onRunFinishCbsCopy) {
 			cb(result);
 		}
 		return result;
 	}
 
-	async waitForFinish(){
-		if(this.hasRan) return;
+	/**
+	 * Returns a promise that will resolve once the function is done running.
+	 * Subsequent runs will resolve immediately.
+	 * @returns {Promise}
+	 */
+	async waitForFinish() {
+		if (this.hasRan) return;
 		await new Promise(r => this.onRunFinishCbs.add(r));
 	}
 }
