@@ -56,4 +56,11 @@ export default class Main {
 			yield* connections;
 		}
 	}
+
+	/**
+	 * @param {string} uuid
+	 */
+	getConnection(uuid) {
+		return this.activeConnections.get(uuid);
+	}
 }

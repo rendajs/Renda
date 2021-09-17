@@ -45,6 +45,12 @@ export default class WebSocketConnection {
 			} else {
 				this.sendNearbyHostEditorsList();
 			}
+		} else if (op == "relayMessage") {
+			const {toUuid, data: relayData} = data;
+			if (!toUuid || !relayData) return;
+			const toConnection = main.getConnection(toUuid);
+			if (!toConnection) return;
+			toConnection.sendRelayData(this.id, relayData);
 		}
 	}
 
@@ -54,6 +60,9 @@ export default class WebSocketConnection {
 		}
 	}
 
+	/**
+	 * @param {*} data
+	 */
 	send(data) {
 		this.rawConnection.send(JSON.stringify(data));
 	}
@@ -109,6 +118,17 @@ export default class WebSocketConnection {
 		this.send({
 			op: "nearbyEditorRemoved",
 			id: connection.id,
+		});
+	}
+
+	/**
+	 * @param {string} fromUuid
+	 * @param {*} data
+	 */
+	sendRelayData(fromUuid, data) {
+		this.send({
+			op: "relayMessage",
+			fromUuid, data,
 		});
 	}
 }

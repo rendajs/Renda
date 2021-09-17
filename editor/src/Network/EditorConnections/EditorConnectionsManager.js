@@ -26,8 +26,8 @@ export default class EditorConnectionsManager {
 		/** @type {AvailableEditorDataList} */
 		this.availableEditorsList = new Map();
 
-		this.clientConnectionToHost = null;
-		this.hostConnectionsToClient = new Map();
+		/** @type {Map<import("../../Util/Util.js").UuidString, EditorConnection>} */
+		this.editorConnections = new Map();
 
 		this.onOpenOrErrorCbs = new Set();
 		/** @type {Set<function(AvailableEditorDataList) : void>} */
@@ -101,6 +101,13 @@ export default class EditorConnectionsManager {
 					const {id} = data;
 					this.availableEditorsList.delete(id);
 					this.fireAvailableEditorsChanged();
+				} else if (op == "relayMessage") {
+					const {fromUuid, data: relayData} = data;
+					const {op: relayOp} = relayData;
+					if (relayOp == "rtcOffer") {
+						const {rtcDescription} = relayData;
+						this.handleRtcOffer(fromUuid, rtcDescription);
+					}
 				}
 			});
 
@@ -114,6 +121,7 @@ export default class EditorConnectionsManager {
 	 * @returns {Promise<boolean>} Whether the connection was opened
 	 */
 	async waitForOpenOrError() {
+		if (this.ws && this.ws.readyState == WebSocket.OPEN) return true;
 		return await new Promise(r => this.onOpenOrErrorCbs.add(r));
 	}
 
@@ -135,16 +143,6 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {boolean} isHost
-	 */
-	sendSetIsHost(isHost) {
-		this.send({
-			op: "setIsHost",
-			isHost,
-		});
-	}
-
-	/**
 	 * @param {function(AvailableEditorDataList) : void} cb
 	 */
 	onAvailableEditorsChanged(cb) {
@@ -155,11 +153,62 @@ export default class EditorConnectionsManager {
 		this.onAvailableEditorsChangedCbs.forEach(cb => cb(this.availableEditorsList));
 	}
 
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} editorId
+	 */
 	startConnectionToEditor(editorId) {
-		if (this.clientConnectionToHost) {
+		if (this.editorConnections.size > 0) {
 			throw new Error("Already connected to an editor");
 		}
-		const connection = new MessageHandlerWebRtc(editorId, this);
-		this.clientConnectionToHost = new EditorConnection(connection);
+		const messageHandler = new MessageHandlerWebRtc(editorId, this, true);
+		const editorConnection = new EditorConnection(messageHandler);
+		this.editorConnections.set(editorId, editorConnection);
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} editorId
+	 * @param {RTCSessionDescriptionInit} rtcDescription
+	 */
+	handleRtcOffer(editorId, rtcDescription) {
+		let editorConnection = this.editorConnections.get(editorId);
+		if (!editorConnection) {
+			const messageHandler = new MessageHandlerWebRtc(editorId, this);
+			editorConnection = new EditorConnection(messageHandler);
+			this.editorConnections.set(editorId, editorConnection);
+		}
+		const handler = /** @type {MessageHandlerWebRtc} */ (editorConnection.messageHandler);
+		handler.handleRtcOffer(rtcDescription);
+	}
+
+	/**
+	 * @param {boolean} isHost
+	 */
+	sendSetIsHost(isHost) {
+		this.send({
+			op: "setIsHost",
+			isHost,
+		});
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} toUuid
+	 * @param {RTCSessionDescriptionInit} rtcDescription
+	 */
+	sendRtcOffer(toUuid, rtcDescription) {
+		this.sendRelayData(toUuid, {
+			op: "rtcOffer",
+			rtcDescription,
+		});
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} toUuid
+	 * @param {*} data
+	 */
+	sendRelayData(toUuid, data) {
+		this.send({
+			op: "relayMessage",
+			toUuid, data,
+		});
 	}
 }
