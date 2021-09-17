@@ -10,30 +10,28 @@ export default class MessageHandlerWebRtc {
 		this.isInitiator = isInitiator;
 
 		this.rtcConnection = new RTCPeerConnection();
-		this.dataChannel = null;
 		this.localDescription = null;
 		this.remoteDescription = null;
+		this.dataChannels = new Map();
 
 		this.rtcConnection.addEventListener("icecandidate", e => {
-			console.log("icecandidate", e);
-		});
-		this.rtcConnection.addEventListener("iceconnectionstatechange", e => {
-			console.log("iceconnectionstatechange", e);
+			this.connectionsManager.sendRtcIceCandidate(this.otherClientUuid, e.candidate);
 		});
 		this.rtcConnection.addEventListener("datachannel", e => {
-			console.log("datachannel", e);
-			this.dataChannel = e.channel;
+			this.dataChannels.set(e.channel.label, e.channel);
 		});
 		this.rtcConnection.addEventListener("connectionstatechange", e => {
-			console.log("connectionstatechange", e);
+			console.log("connectionstatechange", this.rtcConnection.connectionState, e);
 		});
 		this.rtcConnection.addEventListener("negotiationneeded", e => {
-			console.log("negotiationneeded", e);
 			this.initWebRtcConnection();
 		});
 
 		if (this.isInitiator) {
-			this.rtcConnection.createDataChannel("reliable");
+			this.createDataChannel("reliable");
+			this.createDataChannel("unreliable", {
+				maxRetransmits: 0,
+			});
 		}
 	}
 
@@ -42,6 +40,17 @@ export default class MessageHandlerWebRtc {
 
 		this.localDescription = await this.rtcConnection.createOffer();
 		await this.setAndSendDescription(this.localDescription);
+	}
+
+	/**
+	 * @param {string} label
+	 * @param {RTCDataChannelInit} [options]
+	 * @returns {RTCDataChannel}
+	 */
+	createDataChannel(label, options = {}) {
+		const channel = this.rtcConnection.createDataChannel(label, options);
+		this.dataChannels.set(label, channel);
+		return channel;
 	}
 
 	/**
@@ -63,5 +72,13 @@ export default class MessageHandlerWebRtc {
 			this.localDescription = await this.rtcConnection.createAnswer();
 			await this.setAndSendDescription(this.localDescription);
 		}
+	}
+
+	/**
+	 *
+	 * @param {RTCIceCandidateInit} iceCandidate
+	 */
+	async handleRtcIceCandidate(iceCandidate) {
+		this.rtcConnection.addIceCandidate(iceCandidate);
 	}
 }

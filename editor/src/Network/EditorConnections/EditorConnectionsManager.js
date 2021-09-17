@@ -107,6 +107,9 @@ export default class EditorConnectionsManager {
 					if (relayOp == "rtcOffer") {
 						const {rtcDescription} = relayData;
 						this.handleRtcOffer(fromUuid, rtcDescription);
+					} else if (relayOp == "rtcIceCandidate") {
+						const {iceCandidate} = relayData;
+						this.handleRtcIceCandidate(fromUuid, iceCandidate);
 					}
 				}
 			});
@@ -181,12 +184,35 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
+	 * @param {import("../../Util/Util.js").UuidString} editorId
+	 * @param {RTCIceCandidateInit} iceCandidate
+	 */
+	handleRtcIceCandidate(editorId, iceCandidate) {
+		const editorConnection = this.editorConnections.get(editorId);
+		if (!editorConnection) return;
+
+		const handler = /** @type {MessageHandlerWebRtc} */ (editorConnection.messageHandler);
+		handler.handleRtcIceCandidate(iceCandidate);
+	}
+
+	/**
 	 * @param {boolean} isHost
 	 */
 	sendSetIsHost(isHost) {
 		this.send({
 			op: "setIsHost",
 			isHost,
+		});
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} toUuid
+	 * @param {*} data
+	 */
+	sendRelayData(toUuid, data) {
+		this.send({
+			op: "relayMessage",
+			toUuid, data,
 		});
 	}
 
@@ -202,13 +228,14 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
+	 *
 	 * @param {import("../../Util/Util.js").UuidString} toUuid
-	 * @param {*} data
+	 * @param {RTCIceCandidate} iceCandidate
 	 */
-	sendRelayData(toUuid, data) {
-		this.send({
-			op: "relayMessage",
-			toUuid, data,
+	sendRtcIceCandidate(toUuid, iceCandidate) {
+		this.sendRelayData(toUuid, {
+			op: "rtcIceCandidate",
+			iceCandidate,
 		});
 	}
 }
