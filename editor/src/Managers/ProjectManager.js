@@ -5,6 +5,8 @@ import EditorFileSystemRemote from "../Util/FileSystems/EditorFileSystemRemote.j
 import AssetManager from "../Assets/AssetManager.js";
 import EditorConnectionsManager from "../Network/EditorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../Util/Util.js";
+import GitIgnoreManager from "./GitIgnoreManager.js";
+import ProjectSettingsManager from "./ProjectSettingsManager.js";
 
 /**
  * @typedef {Object} StoredProjectEntry
@@ -19,6 +21,9 @@ export default class ProjectManager {
 		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").default} */
 		this.currentProjectFileSystem = null;
 		this.currentProjectIsRemote = false;
+		this.gitIgnoreManager = null;
+		this.projectSettings = null;
+		this.localProjectSettings = null;
 		this.assetManager = null;
 		this.editorConnectionsAllowIncoming = false;
 		this.editorConnectionsDiscoveryEndpoint = null;
@@ -47,6 +52,14 @@ export default class ProjectManager {
 	async openProject(fileSystem, openProjectChangeEvent) {
 		this.currentProjectFileSystem = fileSystem;
 		this.currentProjectIsRemote = fileSystem instanceof EditorFileSystemRemote;
+
+		this.gitIgnoreManager = new GitIgnoreManager(fileSystem);
+		this.projectSettings = new ProjectSettingsManager(fileSystem, ["ProjectSettings", "projectSettings.json"]);
+		const localSettingsPath = ["ProjectSettings", "localProjectSettings.json"];
+		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath);
+		this.localProjectSettings.onFileCreated(() => {
+			this.gitIgnoreManager.addEntry(localSettingsPath);
+		});
 
 		if (this.editorConnectionsManager) {
 			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);

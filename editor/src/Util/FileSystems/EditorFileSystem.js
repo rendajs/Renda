@@ -1,5 +1,9 @@
 import toFormattedJsonString from "../toFormattedJsonString.js";
 
+/**
+ * @typedef {string[]} EditorFileSystemPath
+ */
+
 export default class EditorFileSystem {
 	constructor() {
 		this.onExternalChangeCbs = new Set();
