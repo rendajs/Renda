@@ -16,14 +16,23 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.createHeaderUi();
 		this.createHostConnectionsUi();
 		this.createClientConnectionUi();
+		this.createInspectorConnectionsUi();
 
 		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
 		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
 
-		editor.projectManager.onCurrentEditorConnectionsManagerChanged(newConnectionsManager => {
-			this.addConnectionsManagerListeners(newConnectionsManager);
+		const connectionsManager = editor.projectManager.editorConnectionsManager;
+		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
+		connectionsManager.onDiscoveryServerStatusChange(status => {
+			this.updateDiscoveryServerStatus(status);
 		});
-		this.addConnectionsManagerListeners(editor.projectManager.editorConnectionsManager);
+
+		if (editor.projectManager.currentProjectIsRemote) {
+			connectionsManager.onAvailableRtcConnectionsChanged(editors => {
+				this.setRemoteEditorsList(editors);
+			});
+		}
+
 		this.updateDiscoveryServerStatus("disconnected");
 
 		this.loadSettings();
@@ -78,26 +87,23 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.remoteEditorsList = this.editorClientConnectionTreeView.addCollapsable("Editors");
 	}
 
-	async loadSettings() {
-		this.allowIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowIncoming());
-	}
+	createInspectorConnectionsUi() {
+		this.inspectorConnectionsTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(this.inspectorConnectionsTreeView.el);
 
-	/**
-	 * @param {?EditorConnectionsManager} connectionsManager
-	 */
-	addConnectionsManagerListeners(connectionsManager) {
-		if (!connectionsManager) return;
-
-		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
-		connectionsManager.onDiscoveryServerStatusChange(status => {
-			this.updateDiscoveryServerStatus(status);
+		this.autoConnectInspectorsCheckbox = this.inspectorConnectionsTreeView.addItem({
+			type: Boolean,
+			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
+			guiOpts: {
+				label: "Auto Connect Inspectors",
+			},
 		});
 
-		if (editor.projectManager.currentProjectIsRemote) {
-			connectionsManager.onAvailableRtcConnectionsChanged(editors => {
-				this.setRemoteEditorsList(editors);
-			});
-		}
+		this.inspectorConnectionsList = this.inspectorConnectionsTreeView.addCollapsable("Inspectors");
+	}
+
+	async loadSettings() {
+		this.allowIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowIncoming());
 	}
 
 	/**
@@ -127,5 +133,9 @@ export default class ContentWindowConnections extends ContentWindow {
 				},
 			});
 		}
+	}
+
+	setInspectorConnectionsList(inspectors) {
+
 	}
 }

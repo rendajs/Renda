@@ -28,9 +28,7 @@ export default class ProjectManager {
 		this.assetManager = null;
 		this.editorConnectionsAllowIncoming = false;
 		this.editorConnectionsDiscoveryEndpoint = null;
-		this.editorConnectionsManager = null;
-		/** @type {Set<function(?EditorConnectionsManager):void>} */
-		this.onCurrentEditorConnectionsManagerChangedCbs = new Set();
+		this.editorConnectionsManager = new EditorConnectionsManager();
 
 		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onOpenProjectChangedCbs = new Set();
@@ -70,9 +68,7 @@ export default class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
 
-		if (this.editorConnectionsManager) {
-			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
-		}
+		this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
 
 		// todo remove this event when opening a new fileSystem
 		fileSystem.onExternalChange(e => {
@@ -205,41 +201,19 @@ export default class ProjectManager {
 	}
 
 	updateEditorConnectionsManager() {
-		const shouldHaveManager = this.currentProjectIsRemote || this.editorConnectionsAllowIncoming;
-		let endpoint = this.editorConnectionsDiscoveryEndpoint;
-		if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
-
-		if (!shouldHaveManager && this.editorConnectionsManager) {
-			this.editorConnectionsManager.destructor();
-			this.editorConnectionsManager = null;
-			this.fireCurrentEditorConnectionsManagerChange(null);
-		} else if (shouldHaveManager && !this.editorConnectionsManager) {
-			this.editorConnectionsManager = new EditorConnectionsManager();
-			this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
-			this.fireCurrentEditorConnectionsManagerChange(this.editorConnectionsManager);
-		}
-
-		if (shouldHaveManager) {
+		if (this.currentProjectIsRemote || this.editorConnectionsAllowIncoming) {
+			let endpoint = this.editorConnectionsDiscoveryEndpoint;
+			if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
 			this.editorConnectionsManager.setDiscoveryEndpoint(endpoint);
+		} else {
+			this.editorConnectionsManager.setDiscoveryEndpoint(null);
 		}
+
+		this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
 	}
 
 	getEditorConnectionsManager() {
 		this.updateEditorConnectionsManager();
 		return this.editorConnectionsManager;
-	}
-
-	/**
-	 * @param {function(?EditorConnectionsManager):void} cb
-	 */
-	onCurrentEditorConnectionsManagerChanged(cb) {
-		this.onCurrentEditorConnectionsManagerChangedCbs.add(cb);
-	}
-
-	/**
-	 * @param {?EditorConnectionsManager} manager
-	 */
-	fireCurrentEditorConnectionsManagerChange(manager) {
-		this.onCurrentEditorConnectionsManagerChangedCbs.forEach(cb => cb(manager));
 	}
 }
