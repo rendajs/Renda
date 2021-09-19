@@ -1,5 +1,7 @@
 import EditorConnection from "./EditorConnection.js";
 import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
+import MessageHandlerMessagePort from "./MessageHandlers/MessageHandlerMessagePort.js";
+import {generateUuid} from "../../Util/Util.js";
 
 /**
  * @typedef {"editor" | "inspector"} ConnectionType
@@ -54,6 +56,9 @@ export default class EditorConnectionsManager {
 				const {uuid} = e.data;
 				this.availableConnections.delete(uuid);
 				this.fireAvailableConnectionsChanged();
+			} else if (op == "messagePort") {
+				const {requestUuid, messagePort} = e.data;
+				console.log("messagePort", requestUuid, messagePort);
 			}
 		});
 		this.requestAvailableBroadcastConnections();
@@ -68,6 +73,19 @@ export default class EditorConnectionsManager {
 		this.broadcastChannel.postMessage({
 			op: "requestConnectionInfo",
 		});
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 */
+	requestBroadcastChannelMessageChannel(connectionId) {
+		const requestId = generateUuid();
+		this.broadcastChannel.postMessage({
+			op: "requestMessagePort",
+			requestId,
+			receiverUuid: connectionId,
+		});
+		return requestId;
 	}
 
 	static getDefaultEndPoint() {
@@ -120,7 +138,11 @@ export default class EditorConnectionsManager {
 
 				if (op == "nearbyHostConnectionsList") {
 					const {connections} = data;
-					this.availableConnections.clear();
+					for (const [id, connection] of this.availableConnections) {
+						if (connection.messageHandlerType == "webRtc") {
+							this.availableConnections.delete(id);
+						}
+					}
 					for (const connection of connections) {
 						this.addAvailableWebRtcConnection(connection, false);
 					}
@@ -201,15 +223,24 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} editorId
+	 * @param {import("../../Util/Util.js").UuidString} connectionId
 	 */
-	startRtcConnection(editorId) {
+	startMessagePortConnection(connectionId) {
+		const messageHandler = new MessageHandlerMessagePort(connectionId, this);
+		const editorConnection = new EditorConnection(messageHandler);
+		this.activeConnections.set(connectionId, editorConnection);
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 */
+	startRtcConnection(connectionId) {
 		if (this.activeConnections.size > 0) {
 			throw new Error("Already connected to an editor");
 		}
-		const messageHandler = new MessageHandlerWebRtc(editorId, this, true);
+		const messageHandler = new MessageHandlerWebRtc(connectionId, this, true);
 		const editorConnection = new EditorConnection(messageHandler);
-		this.activeConnections.set(editorId, editorConnection);
+		this.activeConnections.set(connectionId, editorConnection);
 	}
 
 	/**

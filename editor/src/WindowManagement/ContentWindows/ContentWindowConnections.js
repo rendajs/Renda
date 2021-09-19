@@ -27,11 +27,9 @@ export default class ContentWindowConnections extends ContentWindow {
 			this.updateDiscoveryServerStatus(status);
 		});
 
-		if (editor.projectManager.currentProjectIsRemote) {
-			connectionsManager.onAvailableConnectionsChanged(connections => {
-				this.setConnectionLists(connections);
-			});
-		}
+		connectionsManager.onAvailableConnectionsChanged(connections => {
+			this.setConnectionLists(connections);
+		});
 
 		this.updateDiscoveryServerStatus("disconnected");
 
@@ -120,18 +118,38 @@ export default class ContentWindowConnections extends ContentWindow {
 	setConnectionLists(connections) {
 		this.remoteEditorsList.clearChildren();
 		for (const connection of connections.values()) {
-			const gui = this.remoteEditorsList.addCollapsable(connection.id);
-			gui.addItem({
-				type: "button",
-				/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
-				guiOpts: {
-					label: "Connect",
-					text: "Connect",
-					onClick: () => {
-						editor.projectManager.editorConnectionsManager.startRtcConnection(connection.id);
+			if (connection.connectionType == "editor") {
+				const gui = this.remoteEditorsList.addCollapsable(connection.id);
+				gui.addItem({
+					type: "button",
+					/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
+					guiOpts: {
+						label: "Connect",
+						text: "Connect",
+						onClick: () => {
+							editor.projectManager.editorConnectionsManager.startRtcConnection(connection.id);
+						},
 					},
-				},
-			});
+				});
+			}
+		}
+
+		this.inspectorConnectionsList.clearChildren();
+		for (const connection of connections.values()) {
+			if (connection.connectionType == "inspector") {
+				const gui = this.inspectorConnectionsList.addCollapsable(connection.id);
+				gui.addItem({
+					type: "button",
+					/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
+					guiOpts: {
+						label: "Connect",
+						text: "Connect",
+						onClick: () => {
+							editor.projectManager.editorConnectionsManager.startMessagePortConnection(connection.id);
+						},
+					},
+				});
+			}
 		}
 	}
 }

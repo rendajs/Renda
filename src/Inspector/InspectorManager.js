@@ -11,6 +11,14 @@ export default class InspectorManager {
 			const {op} = e.data;
 			if (op == "requestConnectionInfo") {
 				this.broadcastMyInfo();
+			} else if (op == "requestMessagePort") {
+				const {requestId, receiverUuid} = e.data;
+				if (receiverUuid != this.uuid) return;
+				const messageChannel = new MessageChannel();
+				messageChannel.port1.addEventListener("message", e => {
+					console.log("message:", e.data);
+				});
+				this.broadcastMessagePort(messageChannel.port2, requestId);
 			}
 		});
 
@@ -37,6 +45,18 @@ export default class InspectorManager {
 		this.broadcastChannel.postMessage({
 			op: "availableConnectionDisconnect",
 			uuid: this.uuid,
+		});
+	}
+
+	/**
+	 * @param {MessagePort} messagePort
+	 * @param {import("../../editor/src/Util/Util.js").UuidString} requestUuid
+	 */
+	broadcastMessagePort(messagePort, requestUuid) {
+		this.broadcastChannel.postMessage({
+			op: "messagePort",
+			requestUuid,
+			// messagePort,
 		});
 	}
 }
