@@ -115,12 +115,12 @@ export default class ContentWindowConnections extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} editors
+	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} connections
 	 */
-	setConnectionLists(editors) {
+	setConnectionLists(connections) {
 		this.remoteEditorsList.clearChildren();
-		for (const editorData of editors.values()) {
-			const gui = this.remoteEditorsList.addCollapsable(editorData.id);
+		for (const connection of connections.values()) {
+			const gui = this.remoteEditorsList.addCollapsable(connection.id);
 			gui.addItem({
 				type: "button",
 				/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
@@ -128,7 +128,7 @@ export default class ContentWindowConnections extends ContentWindow {
 					label: "Connect",
 					text: "Connect",
 					onClick: () => {
-						editor.projectManager.editorConnectionsManager.startRtcConnection(editorData.id);
+						editor.projectManager.editorConnectionsManager.startRtcConnection(connection.id);
 					},
 				},
 			});

@@ -41,9 +41,9 @@ export default class WebSocketConnection {
 			this.isHost = newIsHost;
 			this.firstIsHostMessageReceived = true;
 			if (this.isHost) {
-				this.notifyNearbyClientEditorsAdded();
+				this.notifyNearbyHostConnectionsAdd();
 			} else {
-				this.sendNearbyHostEditorsList();
+				this.sendNearbyHostConnectionsList();
 			}
 		} else if (op == "relayMessage") {
 			const {toUuid, data: relayData} = data;
@@ -56,7 +56,7 @@ export default class WebSocketConnection {
 
 	onClose() {
 		if (this.isHost) {
-			this.notifyNearbyClientEditorsRemoved();
+			this.notifyNearbyHostConnectionsRemove();
 		}
 	}
 
@@ -67,56 +67,56 @@ export default class WebSocketConnection {
 		this.rawConnection.send(JSON.stringify(data));
 	}
 
-	getEditorData() {
+	getConnectionData() {
 		return {
 			id: this.id,
 		};
 	}
 
-	sendNearbyHostEditorsList() {
+	sendNearbyHostConnectionsList() {
 		const connectionsData = [];
 		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (!connection.isHost) continue;
-			connectionsData.push(connection.getEditorData());
+			connectionsData.push(connection.getConnectionData());
 		}
 		this.send({
-			op: "nearbyEditorsList",
-			editors: connectionsData,
+			op: "nearbyHostConnectionsList",
+			connections: connectionsData,
 		});
 	}
 
-	notifyNearbyClientEditorsAdded() {
+	notifyNearbyHostConnectionsAdd() {
 		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (connection.isHost) continue;
 
-			connection.sendNearbyEditorAdded(this);
+			connection.sendNearbyHostConnectionAdded(this);
 		}
 	}
 
-	notifyNearbyClientEditorsRemoved() {
+	notifyNearbyHostConnectionsRemove() {
 		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (connection.isHost) continue;
 
-			connection.sendNearbyEditorRemoved(this);
+			connection.sendNearbyHostConnectionRemoved(this);
 		}
 	}
 
 	/**
 	 * @param {WebSocketConnection} connection
 	 */
-	sendNearbyEditorAdded(connection) {
+	sendNearbyHostConnectionAdded(connection) {
 		this.send({
-			op: "nearbyEditorAdded",
-			editor: connection.getEditorData(),
+			op: "nearbyHostConnectionAdded",
+			connection: connection.getConnectionData(),
 		});
 	}
 
 	/**
 	 * @param {WebSocketConnection} connection
 	 */
-	sendNearbyEditorRemoved(connection) {
+	sendNearbyHostConnectionRemoved(connection) {
 		this.send({
-			op: "nearbyEditorRemoved",
+			op: "nearbyHostConnectionRemoved",
 			id: connection.id,
 		});
 	}

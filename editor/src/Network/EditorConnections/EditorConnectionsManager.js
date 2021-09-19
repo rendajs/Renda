@@ -113,17 +113,17 @@ export default class EditorConnectionsManager {
 				const data = JSON.parse(e.data);
 				const {op} = data;
 
-				if (op == "nearbyEditorsList") {
-					const {editors} = data;
+				if (op == "nearbyHostConnectionsList") {
+					const {connections} = data;
 					this.availableConnections.clear();
-					for (const editor of editors) {
-						this.addAvailableWebRtcConnection(editor, false);
+					for (const connection of connections) {
+						this.addAvailableWebRtcConnection(connection, false);
 					}
 					this.fireAvailableConnectionsChanged();
-				} else if (op == "nearbyEditorAdded") {
-					const {editor} = data;
-					this.addAvailableWebRtcConnection(editor);
-				} else if (op == "nearbyEditorRemoved") {
+				} else if (op == "nearbyHostConnectionAdded") {
+					const {connection} = data;
+					this.addAvailableWebRtcConnection(connection);
+				} else if (op == "nearbyHostConnectionRemoved") {
 					const {id} = data;
 					this.availableConnections.delete(id);
 					this.fireAvailableConnectionsChanged();
@@ -147,12 +147,12 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {{id: import("../../Util/Util.js").UuidString}} data
+	 * @param {{id: import("../../Util/Util.js").UuidString}} connection
 	 * @param {boolean} [fireAvailableConnectionsChanged = true]
 	 */
-	addAvailableWebRtcConnection(data, fireAvailableConnectionsChanged = true) {
-		this.availableConnections.set(data.id, {
-			id: data.id,
+	addAvailableWebRtcConnection(connection, fireAvailableConnectionsChanged = true) {
+		this.availableConnections.set(connection.id, {
+			id: connection.id,
 			messageHandlerType: "webRtc",
 		});
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
