@@ -42,7 +42,7 @@ export default class EditorConnectionsManager {
 			if (!e.data) return;
 
 			const {op} = e.data;
-			if (op == "inspectorManagerInfo") {
+			if (op == "connectionInfo") {
 				const {uuid, connectionType} = e.data;
 				this.availableConnections.set(uuid, {
 					id: uuid,
@@ -50,7 +50,7 @@ export default class EditorConnectionsManager {
 					connectionType,
 				});
 				this.fireAvailableConnectionsChanged();
-			} else if (op == "inspectorManagerDisconnect") {
+			} else if (op == "availableConnectionDisconnect") {
 				const {uuid} = e.data;
 				this.availableConnections.delete(uuid);
 				this.fireAvailableConnectionsChanged();
@@ -66,7 +66,7 @@ export default class EditorConnectionsManager {
 
 	requestAvailableBroadcastConnections() {
 		this.broadcastChannel.postMessage({
-			op: "requestInspectorManagerInfo",
+			op: "requestConnectionInfo",
 		});
 	}
 

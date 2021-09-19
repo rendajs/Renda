@@ -9,7 +9,7 @@ export default class InspectorManager {
 			if (!e.data) return;
 
 			const {op} = e.data;
-			if (op == "requestInspectorManagerInfo") {
+			if (op == "requestConnectionInfo") {
 				this.broadcastMyInfo();
 			}
 		});
@@ -27,7 +27,7 @@ export default class InspectorManager {
 
 	broadcastMyInfo() {
 		this.broadcastChannel.postMessage({
-			op: "inspectorManagerInfo",
+			op: "connectionInfo",
 			uuid: this.uuid,
 			connectionType: "inspector",
 		});
@@ -35,7 +35,7 @@ export default class InspectorManager {
 
 	broadcastDisconnect() {
 		this.broadcastChannel.postMessage({
-			op: "inspectorManagerDisconnect",
+			op: "availableConnectionDisconnect",
 			uuid: this.uuid,
 		});
 	}
