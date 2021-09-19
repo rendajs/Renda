@@ -32,10 +32,33 @@ export default class EditorConnectionsManager {
 		this.onOpenOrErrorCbs = new Set();
 		/** @type {Set<function(AvailableEditorDataList) : void>} */
 		this.onAvailableEditorsChangedCbs = new Set();
+
+		this.availableBroadcastConnections = new Set();
+		this.broadcastChannel = new BroadcastChannel("editor-discovery");
+		this.broadcastChannel.addEventListener("message", e => {
+			if (!e.data) return;
+
+			const {op} = e.data;
+			if (op == "inspectorManagerInfo") {
+				const {uuid} = e.data;
+				this.availableBroadcastConnections.add(uuid);
+			} else if (op == "inspectorManagerDisconnect") {
+				const {uuid} = e.data;
+				this.availableBroadcastConnections.delete(uuid);
+			}
+		});
+		this.requestAvailableBroadcastConnections();
 	}
 
 	destructor() {
 		this.setEndpoint(null);
+		this.broadcastChannel.close();
+	}
+
+	requestAvailableBroadcastConnections() {
+		this.broadcastChannel.postMessage({
+			op: "requestInspectorManagerInfo",
+		});
 	}
 
 	static getDefaultEndPoint() {
