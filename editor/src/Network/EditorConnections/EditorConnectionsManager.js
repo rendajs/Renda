@@ -3,11 +3,12 @@ import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
 
 /**
  * @typedef {Object} AvailableEditorData
- * @property {string} id
+ * @property {import("../../Util/Util.js").UuidString} id
+ * @property {"webRtc" | "broadcastChannel"} messageHandlerType
  */
 
 /**
- * @typedef {Map<string, AvailableEditorData>} AvailableEditorDataList
+ * @typedef {Map<import("../../Util/Util.js").UuidString, AvailableEditorData>} AvailableEditorDataList
  */
 
 /**
@@ -25,14 +26,13 @@ export default class EditorConnectionsManager {
 		this.onDiscoveryOpenOrErrorCbs = new Set();
 
 		/** @type {AvailableEditorDataList} */
-		this.availableRtcConnections = new Map();
+		this.availableConnections = new Map();
 		/** @type {Set<function(AvailableEditorDataList) : void>} */
 		this.onAvailableRtcConnectionsChangedCbs = new Set();
 
 		/** @type {Map<import("../../Util/Util.js").UuidString, EditorConnection>} */
 		this.activeConnections = new Map();
 
-		this.availableBroadcastConnections = new Set();
 		this.broadcastChannel = new BroadcastChannel("editor-discovery");
 		this.broadcastChannel.addEventListener("message", e => {
 			if (!e.data) return;
@@ -40,10 +40,15 @@ export default class EditorConnectionsManager {
 			const {op} = e.data;
 			if (op == "inspectorManagerInfo") {
 				const {uuid} = e.data;
-				this.availableBroadcastConnections.add(uuid);
+				this.availableConnections.set(uuid, {
+					id: uuid,
+					messageHandlerType: "broadcastChannel",
+				});
+				this.fireAvailableConnectionsChanged();
 			} else if (op == "inspectorManagerDisconnect") {
 				const {uuid} = e.data;
-				this.availableBroadcastConnections.delete(uuid);
+				this.availableConnections.delete(uuid);
+				this.fireAvailableConnectionsChanged();
 			}
 		});
 		this.requestAvailableBroadcastConnections();
@@ -110,19 +115,18 @@ export default class EditorConnectionsManager {
 
 				if (op == "nearbyEditorsList") {
 					const {editors} = data;
-					this.availableRtcConnections.clear();
+					this.availableConnections.clear();
 					for (const editor of editors) {
-						this.availableRtcConnections.set(editor.id, editor);
+						this.addAvailableWebRtcConnection(editor, false);
 					}
-					this.fireAvailableRtcConnectionsChanged();
+					this.fireAvailableConnectionsChanged();
 				} else if (op == "nearbyEditorAdded") {
 					const {editor} = data;
-					this.availableRtcConnections.set(editor.id, editor);
-					this.fireAvailableRtcConnectionsChanged();
+					this.addAvailableWebRtcConnection(editor);
 				} else if (op == "nearbyEditorRemoved") {
 					const {id} = data;
-					this.availableRtcConnections.delete(id);
-					this.fireAvailableRtcConnectionsChanged();
+					this.availableConnections.delete(id);
+					this.fireAvailableConnectionsChanged();
 				} else if (op == "relayMessage") {
 					const {fromUuid, data: relayData} = data;
 					const {op: relayOp} = relayData;
@@ -140,6 +144,18 @@ export default class EditorConnectionsManager {
 				this.setDiscoveryServerStatus("disconnected");
 			});
 		}
+	}
+
+	/**
+	 * @param {{id: import("../../Util/Util.js").UuidString}} data
+	 * @param {boolean} [fireAvailableConnectionsChanged = true]
+	 */
+	addAvailableWebRtcConnection(data, fireAvailableConnectionsChanged = true) {
+		this.availableConnections.set(data.id, {
+			id: data.id,
+			messageHandlerType: "webRtc",
+		});
+		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}
 
 	/**
@@ -170,12 +186,12 @@ export default class EditorConnectionsManager {
 	/**
 	 * @param {function(AvailableEditorDataList) : void} cb
 	 */
-	onAvailableRtcConnectionsChanged(cb) {
+	onAvailableConnectionsChanged(cb) {
 		this.onAvailableRtcConnectionsChangedCbs.add(cb);
 	}
 
-	fireAvailableRtcConnectionsChanged() {
-		this.onAvailableRtcConnectionsChangedCbs.forEach(cb => cb(this.availableRtcConnections));
+	fireAvailableConnectionsChanged() {
+		this.onAvailableRtcConnectionsChangedCbs.forEach(cb => cb(this.availableConnections));
 	}
 
 	/**

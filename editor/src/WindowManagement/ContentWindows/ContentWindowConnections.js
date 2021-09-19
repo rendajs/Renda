@@ -28,8 +28,8 @@ export default class ContentWindowConnections extends ContentWindow {
 		});
 
 		if (editor.projectManager.currentProjectIsRemote) {
-			connectionsManager.onAvailableRtcConnectionsChanged(editors => {
-				this.setRemoteEditorsList(editors);
+			connectionsManager.onAvailableConnectionsChanged(connections => {
+				this.setConnectionLists(connections);
 			});
 		}
 
@@ -117,7 +117,7 @@ export default class ContentWindowConnections extends ContentWindow {
 	/**
 	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} editors
 	 */
-	setRemoteEditorsList(editors) {
+	setConnectionLists(editors) {
 		this.remoteEditorsList.clearChildren();
 		for (const editorData of editors.values()) {
 			const gui = this.remoteEditorsList.addCollapsable(editorData.id);
@@ -133,9 +133,5 @@ export default class ContentWindowConnections extends ContentWindow {
 				},
 			});
 		}
-	}
-
-	setInspectorConnectionsList(inspectors) {
-
 	}
 }
