@@ -7,14 +7,29 @@ export default class ContentWindowConnections extends ContentWindow {
 	static contentWindowTypeId = "connections";
 	static contentWindowUiName = "Connections";
 
-	/** @typedef {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} PropertiesTreeViewStructure */
-
 	constructor() {
 		super();
 
 		this.headerTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.headerTreeView.el);
 
+		this.createHeaderUi();
+		this.createHostConnectionsUi();
+		this.createClientConnectionUi();
+
+		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
+		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
+
+		editor.projectManager.onCurrentEditorConnectionsManagerChanged(newConnectionsManager => {
+			this.addConnectionsManagerListeners(newConnectionsManager);
+		});
+		this.addConnectionsManagerListeners(editor.projectManager.editorConnectionsManager);
+		this.updateDiscoveryServerStatus("disconnected");
+
+		this.loadSettings();
+	}
+
+	createHeaderUi() {
 		this.discoveryServerEndpointField = this.headerTreeView.addItem({
 			type: String,
 			/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
@@ -32,7 +47,9 @@ export default class ContentWindowConnections extends ContentWindow {
 				label: "Status",
 			},
 		});
+	}
 
+	createHostConnectionsUi() {
 		this.editorHostConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.editorHostConnectionTreeView.el);
 		this.allowIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
@@ -45,7 +62,9 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.allowIncomingCheckbox.onValueChange(allowIncoming => {
 			editor.projectManager.setEditorConnectionsAllowIncoming(allowIncoming);
 		});
+	}
 
+	createClientConnectionUi() {
 		this.editorClientConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.editorClientConnectionTreeView.el);
 
@@ -57,17 +76,6 @@ export default class ContentWindowConnections extends ContentWindow {
 		});
 
 		this.remoteEditorsList = this.editorClientConnectionTreeView.addCollapsable("Editors");
-
-		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
-		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
-
-		editor.projectManager.onCurrentEditorConnectionsManagerChanged(newConnectionsManager => {
-			this.addConnectionsManagerListeners(newConnectionsManager);
-		});
-		this.addConnectionsManagerListeners(editor.projectManager.editorConnectionsManager);
-		this.updateDiscoveryServerStatus("disconnected");
-
-		this.loadSettings();
 	}
 
 	async loadSettings() {
