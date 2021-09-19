@@ -2,9 +2,13 @@ import EditorConnection from "./EditorConnection.js";
 import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
 
 /**
+ * @typedef {"editor" | "inspector"} ConnectionType
+ */
+/**
  * @typedef {Object} AvailableEditorData
  * @property {import("../../Util/Util.js").UuidString} id
  * @property {"webRtc" | "broadcastChannel"} messageHandlerType
+ * @property {ConnectionType} connectionType
  */
 
 /**
@@ -33,16 +37,17 @@ export default class EditorConnectionsManager {
 		/** @type {Map<import("../../Util/Util.js").UuidString, EditorConnection>} */
 		this.activeConnections = new Map();
 
-		this.broadcastChannel = new BroadcastChannel("editor-discovery");
+		this.broadcastChannel = new BroadcastChannel("editor-connection-discovery");
 		this.broadcastChannel.addEventListener("message", e => {
 			if (!e.data) return;
 
 			const {op} = e.data;
 			if (op == "inspectorManagerInfo") {
-				const {uuid} = e.data;
+				const {uuid, connectionType} = e.data;
 				this.availableConnections.set(uuid, {
 					id: uuid,
 					messageHandlerType: "broadcastChannel",
+					connectionType,
 				});
 				this.fireAvailableConnectionsChanged();
 			} else if (op == "inspectorManagerDisconnect") {
@@ -147,13 +152,14 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {{id: import("../../Util/Util.js").UuidString}} connection
+	 * @param {{id: import("../../Util/Util.js").UuidString, connectionType: ConnectionType}} connection
 	 * @param {boolean} [fireAvailableConnectionsChanged = true]
 	 */
 	addAvailableWebRtcConnection(connection, fireAvailableConnectionsChanged = true) {
 		this.availableConnections.set(connection.id, {
 			id: connection.id,
 			messageHandlerType: "webRtc",
+			connectionType: connection.connectionType,
 		});
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}

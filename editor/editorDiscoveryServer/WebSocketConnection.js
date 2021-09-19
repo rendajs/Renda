@@ -7,6 +7,7 @@ export default class WebSocketConnection {
 	 */
 	constructor(rawConnection) {
 		this.id = generateUuid();
+		this.connectionType = "editor"; // todo: support for setting this from client
 		/** @type {import("websocket").connection} */
 		this.rawConnection = rawConnection;
 
@@ -70,6 +71,7 @@ export default class WebSocketConnection {
 	getConnectionData() {
 		return {
 			id: this.id,
+			connectionType: this.connectionType,
 		};
 	}
 

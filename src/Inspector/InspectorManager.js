@@ -4,7 +4,7 @@ export default class InspectorManager {
 	constructor() {
 		this.uuid = generateUuid();
 
-		this.broadcastChannel = new BroadcastChannel("editor-discovery");
+		this.broadcastChannel = new BroadcastChannel("editor-connection-discovery");
 		this.broadcastChannel.addEventListener("message", e => {
 			if (!e.data) return;
 
@@ -29,6 +29,7 @@ export default class InspectorManager {
 		this.broadcastChannel.postMessage({
 			op: "inspectorManagerInfo",
 			uuid: this.uuid,
+			connectionType: "inspector",
 		});
 	}
 
