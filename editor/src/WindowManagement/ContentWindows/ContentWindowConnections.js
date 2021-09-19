@@ -86,7 +86,7 @@ export default class ContentWindowConnections extends ContentWindow {
 		});
 
 		if (editor.projectManager.currentProjectIsRemote) {
-			connectionsManager.onAvailableEditorsChanged(editors => {
+			connectionsManager.onAvailableRtcConnectionsChanged(editors => {
 				this.setRemoteEditorsList(editors);
 			});
 		}
@@ -114,7 +114,7 @@ export default class ContentWindowConnections extends ContentWindow {
 					label: "Connect",
 					text: "Connect",
 					onClick: () => {
-						editor.projectManager.editorConnectionsManager.startConnectionToEditor(editorData.id);
+						editor.projectManager.editorConnectionsManager.startRtcConnection(editorData.id);
 					},
 				},
 			});

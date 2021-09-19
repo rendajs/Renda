@@ -17,21 +17,20 @@ import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
 export default class EditorConnectionsManager {
 	constructor() {
 		this.currentEndpoint = null;
-		this.ws = null;
+		this.discoveryWs = null;
 		/** @type {DiscoveryServerStatusType} */
 		this.discoveryServerStatus = "disconnected";
 		/** @type {Set<function(DiscoveryServerStatusType):void>} */
 		this.onDiscoveryServerStatusChangeCbs = new Set();
+		this.onDiscoveryOpenOrErrorCbs = new Set();
 
 		/** @type {AvailableEditorDataList} */
-		this.availableEditorsList = new Map();
+		this.availableRtcConnections = new Map();
+		/** @type {Set<function(AvailableEditorDataList) : void>} */
+		this.onAvailableRtcConnectionsChangedCbs = new Set();
 
 		/** @type {Map<import("../../Util/Util.js").UuidString, EditorConnection>} */
-		this.editorConnections = new Map();
-
-		this.onOpenOrErrorCbs = new Set();
-		/** @type {Set<function(AvailableEditorDataList) : void>} */
-		this.onAvailableEditorsChangedCbs = new Set();
+		this.activeConnections = new Map();
 
 		this.availableBroadcastConnections = new Set();
 		this.broadcastChannel = new BroadcastChannel("editor-discovery");
@@ -51,7 +50,7 @@ export default class EditorConnectionsManager {
 	}
 
 	destructor() {
-		this.setEndpoint(null);
+		this.setDiscoveryEndpoint(null);
 		this.broadcastChannel.close();
 	}
 
@@ -83,27 +82,27 @@ export default class EditorConnectionsManager {
 	/**
 	 * @param {string} endpoint
 	 */
-	setEndpoint(endpoint) {
+	setDiscoveryEndpoint(endpoint) {
 		if (endpoint == this.currentEndpoint) return;
 		this.currentEndpoint = endpoint;
 
-		if (this.ws) {
-			this.ws.close();
-			this.ws = null;
+		if (this.discoveryWs) {
+			this.discoveryWs.close();
+			this.discoveryWs = null;
 		}
 		if (endpoint) {
 			this.setDiscoveryServerStatus("connecting");
 			const ws = new WebSocket(endpoint);
-			this.ws = ws;
-			this.ws.addEventListener("open", () => {
-				if (ws != this.ws) return;
+			this.discoveryWs = ws;
+			this.discoveryWs.addEventListener("open", () => {
+				if (ws != this.discoveryWs) return;
 
 				this.setDiscoveryServerStatus("connected");
 				this.fireOpenOrError(true);
 			});
 
-			this.ws.addEventListener("message", e => {
-				if (ws != this.ws) return;
+			this.discoveryWs.addEventListener("message", e => {
+				if (ws != this.discoveryWs) return;
 
 				if (!e.data) return;
 				const data = JSON.parse(e.data);
@@ -111,19 +110,19 @@ export default class EditorConnectionsManager {
 
 				if (op == "nearbyEditorsList") {
 					const {editors} = data;
-					this.availableEditorsList.clear();
+					this.availableRtcConnections.clear();
 					for (const editor of editors) {
-						this.availableEditorsList.set(editor.id, editor);
+						this.availableRtcConnections.set(editor.id, editor);
 					}
-					this.fireAvailableEditorsChanged();
+					this.fireAvailableRtcConnectionsChanged();
 				} else if (op == "nearbyEditorAdded") {
 					const {editor} = data;
-					this.availableEditorsList.set(editor.id, editor);
-					this.fireAvailableEditorsChanged();
+					this.availableRtcConnections.set(editor.id, editor);
+					this.fireAvailableRtcConnectionsChanged();
 				} else if (op == "nearbyEditorRemoved") {
 					const {id} = data;
-					this.availableEditorsList.delete(id);
-					this.fireAvailableEditorsChanged();
+					this.availableRtcConnections.delete(id);
+					this.fireAvailableRtcConnectionsChanged();
 				} else if (op == "relayMessage") {
 					const {fromUuid, data: relayData} = data;
 					const {op: relayOp} = relayData;
@@ -137,7 +136,7 @@ export default class EditorConnectionsManager {
 				}
 			});
 
-			this.ws.addEventListener("close", () => {
+			this.discoveryWs.addEventListener("close", () => {
 				this.setDiscoveryServerStatus("disconnected");
 			});
 		}
@@ -146,49 +145,49 @@ export default class EditorConnectionsManager {
 	/**
 	 * @returns {Promise<boolean>} Whether the connection was opened
 	 */
-	async waitForOpenOrError() {
-		if (this.ws && this.ws.readyState == WebSocket.OPEN) return true;
-		return await new Promise(r => this.onOpenOrErrorCbs.add(r));
+	async waitForDiscoveryOpenOrError() {
+		if (this.discoveryWs && this.discoveryWs.readyState == WebSocket.OPEN) return true;
+		return await new Promise(r => this.onDiscoveryOpenOrErrorCbs.add(r));
 	}
 
 	/**
 	 * @param {boolean} success
 	 */
 	fireOpenOrError(success) {
-		this.onOpenOrErrorCbs.forEach(cb => cb(success));
-		this.onOpenOrErrorCbs.clear();
+		this.onDiscoveryOpenOrErrorCbs.forEach(cb => cb(success));
+		this.onDiscoveryOpenOrErrorCbs.clear();
 	}
 
 	async send(data) {
-		const open = await this.waitForOpenOrError();
+		const open = await this.waitForDiscoveryOpenOrError();
 		if (!open) return;
 
-		if (this.ws) {
-			this.ws.send(JSON.stringify(data));
+		if (this.discoveryWs) {
+			this.discoveryWs.send(JSON.stringify(data));
 		}
 	}
 
 	/**
 	 * @param {function(AvailableEditorDataList) : void} cb
 	 */
-	onAvailableEditorsChanged(cb) {
-		this.onAvailableEditorsChangedCbs.add(cb);
+	onAvailableRtcConnectionsChanged(cb) {
+		this.onAvailableRtcConnectionsChangedCbs.add(cb);
 	}
 
-	fireAvailableEditorsChanged() {
-		this.onAvailableEditorsChangedCbs.forEach(cb => cb(this.availableEditorsList));
+	fireAvailableRtcConnectionsChanged() {
+		this.onAvailableRtcConnectionsChangedCbs.forEach(cb => cb(this.availableRtcConnections));
 	}
 
 	/**
 	 * @param {import("../../Util/Util.js").UuidString} editorId
 	 */
-	startConnectionToEditor(editorId) {
-		if (this.editorConnections.size > 0) {
+	startRtcConnection(editorId) {
+		if (this.activeConnections.size > 0) {
 			throw new Error("Already connected to an editor");
 		}
 		const messageHandler = new MessageHandlerWebRtc(editorId, this, true);
 		const editorConnection = new EditorConnection(messageHandler);
-		this.editorConnections.set(editorId, editorConnection);
+		this.activeConnections.set(editorId, editorConnection);
 	}
 
 	/**
@@ -196,11 +195,11 @@ export default class EditorConnectionsManager {
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
 	handleRtcOffer(editorId, rtcDescription) {
-		let editorConnection = this.editorConnections.get(editorId);
+		let editorConnection = this.activeConnections.get(editorId);
 		if (!editorConnection) {
 			const messageHandler = new MessageHandlerWebRtc(editorId, this);
 			editorConnection = new EditorConnection(messageHandler);
-			this.editorConnections.set(editorId, editorConnection);
+			this.activeConnections.set(editorId, editorConnection);
 		}
 		const handler = /** @type {MessageHandlerWebRtc} */ (editorConnection.messageHandler);
 		handler.handleRtcOffer(rtcDescription);
@@ -211,7 +210,7 @@ export default class EditorConnectionsManager {
 	 * @param {RTCIceCandidateInit} iceCandidate
 	 */
 	handleRtcIceCandidate(editorId, iceCandidate) {
-		const editorConnection = this.editorConnections.get(editorId);
+		const editorConnection = this.activeConnections.get(editorId);
 		if (!editorConnection) return;
 
 		const handler = /** @type {MessageHandlerWebRtc} */ (editorConnection.messageHandler);

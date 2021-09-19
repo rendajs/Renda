@@ -220,7 +220,7 @@ export default class ProjectManager {
 		}
 
 		if (shouldHaveManager) {
-			this.editorConnectionsManager.setEndpoint(endpoint);
+			this.editorConnectionsManager.setDiscoveryEndpoint(endpoint);
 		}
 	}
 
