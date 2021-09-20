@@ -42,8 +42,6 @@ export default class EditorConnectionsManager {
 		this.internalMessagesWorker.port.addEventListener("message", e => {
 			if (!e.data) return;
 
-			console.log(e.data);
-
 			const {op} = e.data;
 			if (op == "availableClientAdded") {
 				const {clientId, clientType} = e.data;
@@ -52,6 +50,7 @@ export default class EditorConnectionsManager {
 					messageHandlerType: "internal",
 					clientType,
 				});
+				this.fireAvailableConnectionsChanged();
 			} else if (op == "availableClientRemoved") {
 				const {clientId} = e.data;
 				this.availableConnections.delete(clientId);
