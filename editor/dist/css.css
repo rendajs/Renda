@@ -388,11 +388,14 @@ select.textInput:disabled{
 
 .label-gui {
 	display: inline-block;
-	background-color: var(--default-button-color-disabled);
 	color: var(--default-button-text-color);
 	padding: 0px 4px;
 	user-select: text;
 	-webkit-user-select: text;
+}
+
+.label-gui.label-background {
+	background-color: var(--default-button-color-disabled);
 }
 
 .droppableGui{
