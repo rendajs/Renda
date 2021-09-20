@@ -117,27 +117,36 @@ export default class ContentWindowConnections extends ContentWindow {
 	 */
 	setConnectionLists(connections) {
 		this.remoteEditorsList.clearChildren();
-		for (const connection of connections.values()) {
-			if (connection.connectionType == "editor") {
-				const gui = this.remoteEditorsList.addCollapsable(connection.id);
-				gui.addItem({
-					type: "button",
-					/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
-					guiOpts: {
-						label: "Connect",
-						text: "Connect",
-						onClick: () => {
-							editor.projectManager.editorConnectionsManager.startRtcConnection(connection.id);
-						},
-					},
-				});
-			}
-		}
+		this.fillConnectionsList(this.remoteEditorsList, connections, "editor");
 
 		this.inspectorConnectionsList.clearChildren();
+		this.fillConnectionsList(this.inspectorConnectionsList, connections, "inspector");
+	}
+
+	/**
+	 * @param {PropertiesTreeView} listTreeView
+	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} connections
+	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ClientType} allowedClientType
+	 */
+	fillConnectionsList(listTreeView, connections, allowedClientType) {
 		for (const connection of connections.values()) {
-			if (connection.connectionType == "inspector") {
-				const gui = this.inspectorConnectionsList.addCollapsable(connection.id);
+			if (connection.clientType == allowedClientType) {
+				const gui = listTreeView.addCollapsable(connection.id);
+				const label = gui.addItem({
+					type: "label",
+					/** @type {import("../../UI/LabelGui.js").LabelGuiOptions} */
+					guiOpts: {
+						label: "Connection Type",
+						showLabelBackground: false,
+					},
+				});
+				if (connection.messageHandlerType == "internal") {
+					label.setValue("Internal");
+				} else if (connection.messageHandlerType == "webRtc") {
+					label.setValue("WebRTC");
+				} else {
+					label.setValue("Unknown");
+				}
 				gui.addItem({
 					type: "button",
 					/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
@@ -145,7 +154,7 @@ export default class ContentWindowConnections extends ContentWindow {
 						label: "Connect",
 						text: "Connect",
 						onClick: () => {
-							editor.projectManager.editorConnectionsManager.startMessagePortConnection(connection.id);
+							editor.projectManager.editorConnectionsManager.startConnection(connection.id);
 						},
 					},
 				});

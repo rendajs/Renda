@@ -1,16 +1,15 @@
 import EditorConnection from "./EditorConnection.js";
 import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
-import MessageHandlerMessagePort from "./MessageHandlers/MessageHandlerMessagePort.js";
-import {generateUuid} from "../../Util/Util.js";
+import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js";
 
 /**
- * @typedef {"editor" | "inspector"} ConnectionType
+ * @typedef {"editor" | "inspector"} ClientType
  */
 /**
  * @typedef {Object} AvailableEditorData
  * @property {import("../../Util/Util.js").UuidString} id
- * @property {"webRtc" | "broadcastChannel"} messageHandlerType
- * @property {ConnectionType} connectionType
+ * @property {"webRtc" | "internal"} messageHandlerType
+ * @property {ClientType} clientType
  */
 
 /**
@@ -39,53 +38,48 @@ export default class EditorConnectionsManager {
 		/** @type {Map<import("../../Util/Util.js").UuidString, EditorConnection>} */
 		this.activeConnections = new Map();
 
-		this.broadcastChannel = new BroadcastChannel("editor-connection-discovery");
-		this.broadcastChannel.addEventListener("message", e => {
+		this.internalMessagesWorker = new SharedWorker("../../../../src/Inspector/InternalDiscoveryWorker.js", {type: "module"});
+		this.internalMessagesWorker.port.addEventListener("message", e => {
 			if (!e.data) return;
 
+			console.log(e.data);
+
 			const {op} = e.data;
-			if (op == "connectionInfo") {
-				const {uuid, connectionType} = e.data;
-				this.availableConnections.set(uuid, {
-					id: uuid,
-					messageHandlerType: "broadcastChannel",
-					connectionType,
+			if (op == "availableClientAdded") {
+				const {clientId, clientType} = e.data;
+				this.availableConnections.set(clientId, {
+					id: clientId,
+					messageHandlerType: "internal",
+					clientType,
 				});
+			} else if (op == "availableClientRemoved") {
+				const {clientId} = e.data;
+				this.availableConnections.delete(clientId);
 				this.fireAvailableConnectionsChanged();
-			} else if (op == "availableConnectionDisconnect") {
-				const {uuid} = e.data;
-				this.availableConnections.delete(uuid);
-				this.fireAvailableConnectionsChanged();
-			} else if (op == "messagePort") {
-				const {requestUuid, messagePort} = e.data;
-				console.log("messagePort", requestUuid, messagePort);
+			} else if (op == "connectionCreated") {
+				const {clientId, port} = e.data;
+				this.handleInternalConnectionCreation(clientId, port);
 			}
 		});
-		this.requestAvailableBroadcastConnections();
+		this.internalMessagesWorker.port.start();
+		this.internalMessagesWorker.port.postMessage({op: "registerClient", clientType: "editor"});
+
+		window.addEventListener("unload", () => {
+			this.destructor();
+		});
 	}
 
 	destructor() {
 		this.setDiscoveryEndpoint(null);
-		this.broadcastChannel.close();
-	}
-
-	requestAvailableBroadcastConnections() {
-		this.broadcastChannel.postMessage({
-			op: "requestConnectionInfo",
-		});
+		this.internalMessagesWorker.port.postMessage({op: "unregisterClient"});
+		this.internalMessagesWorker.port.close();
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 * @param {import("../../Util/Util.js").UuidString} otherClientId
 	 */
-	requestBroadcastChannelMessageChannel(connectionId) {
-		const requestId = generateUuid();
-		this.broadcastChannel.postMessage({
-			op: "requestMessagePort",
-			requestId,
-			receiverUuid: connectionId,
-		});
-		return requestId;
+	requestInternalMessageChannelConnection(otherClientId) {
+		this.internalMessagesWorker.port.postMessage({op: "requestConnection", otherClientId});
 	}
 
 	static getDefaultEndPoint() {
@@ -174,14 +168,14 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {{id: import("../../Util/Util.js").UuidString, connectionType: ConnectionType}} connection
+	 * @param {{id: import("../../Util/Util.js").UuidString, clientType: ClientType}} connection
 	 * @param {boolean} [fireAvailableConnectionsChanged = true]
 	 */
 	addAvailableWebRtcConnection(connection, fireAvailableConnectionsChanged = true) {
 		this.availableConnections.set(connection.id, {
 			id: connection.id,
 			messageHandlerType: "webRtc",
-			connectionType: connection.connectionType,
+			clientType: connection.clientType,
 		});
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}
@@ -225,22 +219,37 @@ export default class EditorConnectionsManager {
 	/**
 	 * @param {import("../../Util/Util.js").UuidString} connectionId
 	 */
-	startMessagePortConnection(connectionId) {
-		const messageHandler = new MessageHandlerMessagePort(connectionId, this);
-		const editorConnection = new EditorConnection(messageHandler);
-		this.activeConnections.set(connectionId, editorConnection);
+	startConnection(connectionId) {
+		const connectionData = this.availableConnections.get(connectionId);
+		if (!connectionData) return;
+
+		let messageHandler = null;
+		if (connectionData.messageHandlerType == "internal") {
+			messageHandler = new MessageHandlerInternal(connectionId, this, true);
+		} else if (connectionData.messageHandlerType == "webRtc") {
+			messageHandler = new MessageHandlerWebRtc(connectionId, this, true);
+		}
+
+		if (messageHandler) {
+			const editorConnection = new EditorConnection(messageHandler);
+			this.activeConnections.set(connectionId, editorConnection);
+		}
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 *
+	 * @param {import("../../Util/Util.js").UuidString} clientId
+	 * @param {MessagePort} messagePort
 	 */
-	startRtcConnection(connectionId) {
-		if (this.activeConnections.size > 0) {
-			throw new Error("Already connected to an editor");
+	handleInternalConnectionCreation(clientId, messagePort) {
+		let connection = this.activeConnections.get(clientId);
+		if (!connection) {
+			const messageHandler = new MessageHandlerInternal(clientId, this);
+			connection = new EditorConnection(messageHandler);
+			this.activeConnections.set(clientId, connection);
 		}
-		const messageHandler = new MessageHandlerWebRtc(connectionId, this, true);
-		const editorConnection = new EditorConnection(messageHandler);
-		this.activeConnections.set(connectionId, editorConnection);
+		const handler = /** @type {MessageHandlerInternal} */ (connection.messageHandler);
+		handler.assignMessagePort(messagePort);
 	}
 
 	/**

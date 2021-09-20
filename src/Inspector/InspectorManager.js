@@ -24,7 +24,7 @@ export default class InspectorManager {
 
 		this.broadcastMyInfo();
 
-		window.addEventListener("beforeunload", () => {
+		window.addEventListener("unload", () => {
 			this.broadcastDisconnect();
 		});
 	}
@@ -37,7 +37,7 @@ export default class InspectorManager {
 		this.broadcastChannel.postMessage({
 			op: "connectionInfo",
 			uuid: this.uuid,
-			connectionType: "inspector",
+			clientType: "inspector",
 		});
 	}
 
