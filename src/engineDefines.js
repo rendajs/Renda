@@ -29,3 +29,8 @@ export const DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT = true;
  * These uuids are only available in the editor, asset bundles remove default asset links when bundling.
  */
 export const EDITOR_DEFAULTS_IN_COMPONENTS = true;
+
+/** ========== Debug Defines ========== */
+// These are defines that are usually only needed for debug builds.
+
+export const ENABLE_INSPECTOR_SUPPORT = true;

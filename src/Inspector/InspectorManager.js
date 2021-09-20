@@ -1,7 +1,9 @@
 import {generateUuid} from "../../editor/src/Util/Util.js";
+import {ENABLE_INSPECTOR_SUPPORT} from "../engineDefines.js";
 
 export default class InspectorManager {
 	constructor() {
+		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.uuid = generateUuid();
 
 		const url = new URL("./InternalDiscoveryWorker.js", import.meta.url);
@@ -24,6 +26,7 @@ export default class InspectorManager {
 	}
 
 	destructor() {
+		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.internalMessagesWorker.port.postMessage({op: "unregisterClient"});
 		this.internalMessagesWorker.port.close();
 	}
