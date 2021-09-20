@@ -1,10 +1,13 @@
-export default class MessageHandlerWebRtc {
+import MessageHandler from "./MessageHandler.js";
+
+export default class MessageHandlerWebRtc extends MessageHandler {
 	/**
 	 * @param {import("../../../Util/Util.js").UuidString} otherClientUuid
 	 * @param {import("../EditorConnectionsManager.js").default} connectionsManager
 	 * @param {boolean} [isInitiator = false]
 	 */
 	constructor(otherClientUuid, connectionsManager, isInitiator = false) {
+		super();
 		this.otherClientUuid = otherClientUuid;
 		this.connectionsManager = connectionsManager;
 		this.isInitiator = isInitiator;
@@ -18,6 +21,7 @@ export default class MessageHandlerWebRtc {
 			this.connectionsManager.sendRtcIceCandidate(this.otherClientUuid, e.candidate);
 		});
 		this.rtcConnection.addEventListener("datachannel", e => {
+			this.addDataChannelListeners(e.channel);
 			this.dataChannels.set(e.channel.label, e.channel);
 		});
 		this.rtcConnection.addEventListener("connectionstatechange", e => {
@@ -49,8 +53,25 @@ export default class MessageHandlerWebRtc {
 	 */
 	createDataChannel(label, options = {}) {
 		const channel = this.rtcConnection.createDataChannel(label, options);
+		this.addDataChannelListeners(channel);
 		this.dataChannels.set(label, channel);
 		return channel;
+	}
+
+	/**
+	 * @param {RTCDataChannel} channel
+	 */
+	addDataChannelListeners(channel) {
+		channel.addEventListener("message", e => {
+			let json = null;
+			try {
+				json = JSON.parse(e.data);
+			} catch (e) {
+				console.error("Error parsing data channel message", e);
+				return;
+			}
+			this.onMessage(json);
+		});
 	}
 
 	/**
@@ -80,5 +101,13 @@ export default class MessageHandlerWebRtc {
 	 */
 	async handleRtcIceCandidate(iceCandidate) {
 		this.rtcConnection.addIceCandidate(iceCandidate);
+	}
+
+	/**
+	 * @override
+	 * @param {*} data
+	 */
+	send(data) {
+		this.dataChannels.get("reliable").send(JSON.stringify(data));
 	}
 }
