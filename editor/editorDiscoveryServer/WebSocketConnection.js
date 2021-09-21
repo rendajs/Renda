@@ -8,11 +8,12 @@ export default class WebSocketConnection {
 	constructor(rawConnection) {
 		this.id = generateUuid();
 		this.clientType = "editor"; // todo: support for setting this from client
+		this.projectMetaData = null;
 		/** @type {import("websocket").connection} */
 		this.rawConnection = rawConnection;
 
 		this.firstIsHostMessageReceived = false;
-		this.isHost = false;
+		this.isEditorHost = false;
 		this.isDiscovering = false;
 
 		this.rawConnection.on("message", this.onMessage.bind(this));
@@ -36,16 +37,20 @@ export default class WebSocketConnection {
 		const {op} = data;
 		if (!op) return;
 
-		if (op == "setIsHost") {
+		if (op == "setIsEditorHost") {
 			const newIsHost = !!data.isHost;
-			if (newIsHost == this.isHost && this.firstIsHostMessageReceived) return;
-			this.isHost = newIsHost;
+			if (newIsHost == this.isEditorHost && this.firstIsHostMessageReceived) return;
+			this.isEditorHost = newIsHost;
 			this.firstIsHostMessageReceived = true;
-			if (this.isHost) {
+			if (this.isEditorHost) {
 				this.notifyNearbyHostConnectionsAdd();
 			} else {
 				this.sendNearbyHostConnectionsList();
 			}
+		} else if (op == "projectMetaData") {
+			const {projectMetaData} = data;
+			this.projectMetaData = projectMetaData;
+			this.notifyNearbyHostConnectionsUpdateProjectMetaData();
 		} else if (op == "relayMessage") {
 			const {toUuid, data: relayData} = data;
 			if (!toUuid || !relayData) return;
@@ -56,7 +61,7 @@ export default class WebSocketConnection {
 	}
 
 	onClose() {
-		if (this.isHost) {
+		if (this.isEditorHost) {
 			this.notifyNearbyHostConnectionsRemove();
 		}
 	}
@@ -72,13 +77,14 @@ export default class WebSocketConnection {
 		return {
 			id: this.id,
 			clientType: this.clientType,
+			projectMetaData: this.projectMetaData,
 		};
 	}
 
 	sendNearbyHostConnectionsList() {
 		const connectionsData = [];
 		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
-			if (!connection.isHost) continue;
+			if (!connection.isEditorHost) continue;
 			connectionsData.push(connection.getConnectionData());
 		}
 		this.send({
@@ -89,7 +95,7 @@ export default class WebSocketConnection {
 
 	notifyNearbyHostConnectionsAdd() {
 		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
-			if (connection.isHost) continue;
+			if (connection.isEditorHost) continue;
 
 			connection.sendNearbyHostConnectionAdded(this);
 		}
@@ -97,9 +103,17 @@ export default class WebSocketConnection {
 
 	notifyNearbyHostConnectionsRemove() {
 		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
-			if (connection.isHost) continue;
+			if (connection.isEditorHost) continue;
 
 			connection.sendNearbyHostConnectionRemoved(this);
+		}
+	}
+
+	notifyNearbyHostConnectionsUpdateProjectMetaData() {
+		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+			if (connection.isEditorHost) continue;
+
+			connection.sendNearbyHostConnectionUpdateProjectMetaData(this);
 		}
 	}
 
@@ -120,6 +134,18 @@ export default class WebSocketConnection {
 		this.send({
 			op: "nearbyHostConnectionRemoved",
 			id: connection.id,
+		});
+	}
+
+	/**
+	 *
+	 * @param {WebSocketConnection} connection
+	 */
+	sendNearbyHostConnectionUpdateProjectMetaData(connection) {
+		this.send({
+			op: "nearbyHostConnectionUpdateProjectMetaData",
+			id: connection.id,
+			projectMetaData: connection.projectMetaData,
 		});
 	}
 

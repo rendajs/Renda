@@ -3,6 +3,11 @@ import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
 import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js";
 
 /**
+ * @typedef {Object} RemoteEditorMetaData
+ * @property {string} name
+ * @property {import("../../Util/Util.js").UuidString} uuid
+ */
+/**
  * @typedef {"editor" | "inspector"} ClientType
  */
 /**
@@ -10,6 +15,7 @@ import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js"
  * @property {import("../../Util/Util.js").UuidString} id
  * @property {"webRtc" | "internal"} messageHandlerType
  * @property {ClientType} clientType
+ * @property {RemoteEditorMetaData} [projectMetaData]
  */
 
 /**
@@ -113,6 +119,14 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
+	 * @param {RemoteEditorMetaData} metaData
+	 */
+	setProjectMetaData(metaData) {
+		// todo: only change when it changed
+		this.sendProjectMetaData(metaData);
+	}
+
+	/**
 	 * @param {string} endpoint
 	 */
 	setDiscoveryEndpoint(endpoint) {
@@ -159,6 +173,13 @@ export default class EditorConnectionsManager {
 					const {id} = data;
 					this.availableConnections.delete(id);
 					this.fireAvailableConnectionsChanged();
+				} else if (op == "nearbyHostConnectionUpdateMetaData") {
+					const {id, projectMetaData} = data;
+					const connection = this.availableConnections.get(id);
+					if (connection) {
+						connection.projectMetaData = projectMetaData;
+						this.fireAvailableConnectionsChanged();
+					}
 				} else if (op == "relayMessage") {
 					const {fromUuid, data: relayData} = data;
 					const {op: relayOp} = relayData;
@@ -179,7 +200,14 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {{id: import("../../Util/Util.js").UuidString, clientType: ClientType}} connection
+	 * @typedef {Object} AvailableRtcConnectionData
+	 * @property {import("../../Util/Util.js").UuidString} id
+	 * @property {ClientType} clientType
+	 * @property {RemoteEditorMetaData} [projectMetaData]
+	 */
+
+	/**
+	 * @param {AvailableRtcConnectionData} connection
 	 * @param {boolean} [fireAvailableConnectionsChanged = true]
 	 */
 	addAvailableWebRtcConnection(connection, fireAvailableConnectionsChanged = true) {
@@ -187,6 +215,7 @@ export default class EditorConnectionsManager {
 			id: connection.id,
 			messageHandlerType: "webRtc",
 			clientType: connection.clientType,
+			projectMetaData: connection.projectMetaData,
 		});
 		if (fireAvailableConnectionsChanged) this.fireAvailableConnectionsChanged();
 	}
@@ -330,10 +359,20 @@ export default class EditorConnectionsManager {
 	/**
 	 * @param {boolean} isHost
 	 */
-	sendSetIsHost(isHost) {
+	sendSetIsEditorHost(isHost) {
 		this.send({
-			op: "setIsHost",
+			op: "setIsEditorHost",
 			isHost,
+		});
+	}
+
+	/**
+	 * @param {RemoteEditorMetaData} projectMetaData
+	 */
+	sendProjectMetaData(projectMetaData) {
+		this.send({
+			op: "projectMetaData",
+			projectMetaData,
 		});
 	}
 

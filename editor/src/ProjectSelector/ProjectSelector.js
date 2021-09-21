@@ -148,11 +148,13 @@ export default class ProjectSelector {
 		/** @type {StoredProjectEntry[]} */
 		let list = await this.getRecentProjects();
 
-		let existingEntries = [];
+		const existingEntries = new Set();
 		const existingEntriesOfSameType = list.filter(e => e.fileSystemType == entry.fileSystemType);
-		if (entry.fileSystemType == "db" || entry.fileSystemType == "remote") {
-			existingEntries = existingEntriesOfSameType.filter(e => e.projectUuid == entry.projectUuid);
-		} else if (entry.fileSystemType == "native") {
+		const existingEntriesByUuid = existingEntriesOfSameType.filter(e => e.projectUuid == entry.projectUuid);
+		for (const entry of existingEntriesByUuid) {
+			existingEntries.add(entry);
+		}
+		if (entry.fileSystemType == "native") {
 			const promises = [];
 			for (const existingEntry of existingEntriesOfSameType) {
 				const promise = (async () => {
@@ -164,9 +166,12 @@ export default class ProjectSelector {
 			const results = await Promise.allSettled(promises);
 			const fulfilledEntries = results.filter(r => r.status == "fulfilled" && r.value.same);
 			const castFulfilledEntries = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntry, same: boolean}>[]} */ (fulfilledEntries);
-			existingEntries = castFulfilledEntries.map(r => r.value.entry);
+			const existingEntriesByFileSystemHandle = castFulfilledEntries.map(r => r.value.entry);
+			for (const entry of existingEntriesByFileSystemHandle) {
+				existingEntries.add(entry);
+			}
 		}
-		list = list.filter(e => !existingEntries.includes(e));
+		list = list.filter(e => !existingEntries.has(e));
 		list.unshift(entry);
 		await this.setRecentProjects(list);
 	}

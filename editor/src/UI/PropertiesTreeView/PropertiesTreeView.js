@@ -32,10 +32,10 @@ export default class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {string} name
+	 * @param {string} [name = ""]
 	 * @returns {PropertiesTreeView}
 	 */
-	addCollapsable(name) {
+	addCollapsable(name = "") {
 		const newTreeView = new PropertiesTreeView({
 			rowVisible: true,
 			name,

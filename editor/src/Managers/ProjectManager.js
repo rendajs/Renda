@@ -14,7 +14,7 @@ import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
  * @typedef {Object} StoredProjectEntry
  * @property {"db" | "native" | "remote"} fileSystemType
  * @property {string} name
- * @property {string} [projectUuid]
+ * @property {string} projectUuid
  * @property {FileSystemDirectoryHandle} [fileSystemHandle]
  */
 
@@ -87,8 +87,6 @@ export default class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
 
-		this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
-
 		// todo remove this event when opening a new fileSystem
 		fileSystem.onExternalChange(e => {
 			for (const cb of this.onExternalChangeCbs) {
@@ -151,17 +149,21 @@ export default class ProjectManager {
 		if (permission) {
 			name = fileSystem.handle.name;
 		}
+		const projectUuid = generateUuid();
 		this.openProject(fileSystem, {
 			fileSystemType: "native",
 			fileSystemHandle: fileSystem.handle,
+			projectUuid,
 			name,
 		});
 	}
 
 	async openNewRemoteProject() {
 		const fileSystem = new EditorFileSystemRemote();
+		const projectUuid = generateUuid();
 		await this.openProject(fileSystem, {
 			fileSystemType: "remote",
+			projectUuid,
 			name: "Remote Filesystem",
 		});
 		editor.windowManager.focusOrCreateContentWindowType("connections");
@@ -256,7 +258,13 @@ export default class ProjectManager {
 			this.editorConnectionsManager.setDiscoveryEndpoint(null);
 		}
 
-		this.editorConnectionsManager.sendSetIsHost(!this.currentProjectIsRemote);
+		this.editorConnectionsManager.sendSetIsEditorHost(!this.currentProjectIsRemote);
+		if (this.editorConnectionsAllowRemoteIncoming || this.editorConnectionsAllowInternalIncoming) {
+			this.editorConnectionsManager.setProjectMetaData({
+				name: this.currentProjectOpenEvent.name,
+				uuid: this.currentProjectOpenEvent.projectUuid,
+			});
+		}
 	}
 
 	getEditorConnectionsManager() {
