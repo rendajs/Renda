@@ -164,7 +164,7 @@ export default class ContentWindowConnections extends ContentWindow {
 
 			let gui = guisList.get(connection.id);
 			if (!gui) {
-				const treeView = listTreeView.addCollapsable(connection.id);
+				const treeView = listTreeView.addCollapsable();
 				const connectionTypeLabel = treeView.addItem({
 					type: "label",
 					/** @type {import("../../UI/LabelGui.js").LabelGuiOptions} */
@@ -205,6 +205,8 @@ export default class ContentWindowConnections extends ContentWindow {
 			}
 
 			removeGuis.delete(connection.id);
+
+			gui.treeView.name = connection?.projectMetaData?.name || "Unnamed Project";
 
 			const activeConnection = activeConnections.get(connection.id);
 			let status = "Available";
