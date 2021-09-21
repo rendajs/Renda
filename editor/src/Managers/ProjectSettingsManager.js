@@ -51,13 +51,19 @@ export default class ProjectSettingsManager {
 
 	async save() {
 		const settingsObject = {};
+		let hasAny = false;
 		for (const [key, value] of this.currentSettings) {
 			settingsObject[key] = value;
+			hasAny = true;
 		}
 		const exists = await this.fileSystem.isFile(this.filePath);
-		await this.fileSystem.writeJson(this.filePath, settingsObject);
-		if (!exists) {
-			this.onFileCreatedCbs.forEach(cb => cb());
+		if (hasAny) {
+			await this.fileSystem.writeJson(this.filePath, settingsObject);
+			if (!exists) {
+				this.onFileCreatedCbs.forEach(cb => cb());
+			}
+		} else if (exists) {
+			await this.fileSystem.delete(this.filePath);
 		}
 	}
 

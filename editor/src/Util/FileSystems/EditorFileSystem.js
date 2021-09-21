@@ -33,6 +33,7 @@ export default class EditorFileSystem {
 	async move(fromPath = [], toPath = []) {}
 
 	/**
+	 * Deletes a file or directory.
 	 * @param {Array<String>} path
 	 * @param {Boolean} recursive
 	 */
