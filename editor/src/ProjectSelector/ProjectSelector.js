@@ -113,7 +113,16 @@ export default class ProjectSelector {
 		const list = await this.getRecentProjects();
 
 		for (const entry of list) {
-			this.createListButton(this.recentList, entry.name, async () => {
+			let buttonText = "";
+			if (entry.fileSystemType == "native") {
+				buttonText = "Disk: ";
+			} else if (entry.fileSystemType == "db") {
+				buttonText = "Internal: ";
+			} else if (entry.fileSystemType == "remote") {
+				buttonText = "Remote: ";
+			}
+			buttonText += entry.name;
+			this.createListButton(this.recentList, buttonText, async () => {
 				const editor = await this.waitForEditor();
 				editor.projectManager.openExistingProject(entry);
 				this.setVisibility(false);
