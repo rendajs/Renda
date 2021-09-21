@@ -135,7 +135,7 @@ export default class ProjectSelector {
 	 */
 	setEditorLoaded(editor) {
 		this.loadedEditor = editor;
-		editor.projectManager.onOpenProjectChanged(entry => {
+		editor.projectManager.onProjectBecameWorthSaving(entry => {
 			this.addRecentProjectEntry(entry);
 		});
 		this.onEditorLoadCbs.forEach(cb => cb(editor));

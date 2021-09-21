@@ -21,6 +21,8 @@ export default class ProjectManager {
 	constructor() {
 		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").default} */
 		this.currentProjectFileSystem = null;
+		this.currentProjectOpenEvent = null;
+		this.currentProjectIsMarkedAsWorthSaving = false;
 		this.currentProjectIsRemote = false;
 		this.gitIgnoreManager = null;
 		this.projectSettings = null;
@@ -31,7 +33,7 @@ export default class ProjectManager {
 		this.editorConnectionsManager = new EditorConnectionsManager();
 
 		/** @type {Set<function(StoredProjectEntry):void>} */
-		this.onOpenProjectChangedCbs = new Set();
+		this.onProjectBecameWorthSavingCbs = new Set();
 
 		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
@@ -57,6 +59,8 @@ export default class ProjectManager {
 	async openProject(fileSystem, openProjectChangeEvent) {
 		this.currentProjectFileSystem = fileSystem;
 		this.currentProjectIsRemote = fileSystem instanceof EditorFileSystemRemote;
+		this.currentProjectOpenEvent = openProjectChangeEvent;
+		this.currentProjectIsMarkedAsWorthSaving = false;
 
 		this.gitIgnoreManager = new GitIgnoreManager(fileSystem);
 		this.projectSettings = new ProjectSettingsManager(fileSystem, ["ProjectSettings", "projectSettings.json"]);
@@ -78,7 +82,10 @@ export default class ProjectManager {
 		});
 		await editor.windowManager.reloadCurrentWorkspace();
 		await this.reloadAssetManager();
-		this.onOpenProjectChangedCbs.forEach(cb => cb(openProjectChangeEvent));
+		if (openProjectChangeEvent.fileSystemType == "native" || openProjectChangeEvent.fileSystemType == "db") {
+			// todo: only mark db when a file has been created
+			this.markProjectAsWorthSaving();
+		}
 		this.updateEditorConnectionsManager();
 	}
 
@@ -99,11 +106,17 @@ export default class ProjectManager {
 		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
 	}
 
+	markProjectAsWorthSaving() {
+		if (this.currentProjectIsMarkedAsWorthSaving) return;
+		this.currentProjectIsMarkedAsWorthSaving = true;
+		this.onProjectBecameWorthSavingCbs.forEach(cb => cb(this.currentProjectOpenEvent));
+	}
+
 	/**
 	 * @param {function(StoredProjectEntry):void} cb
 	 */
-	onOpenProjectChanged(cb) {
-		this.onOpenProjectChangedCbs.add(cb);
+	onProjectBecameWorthSaving(cb) {
+		this.onProjectBecameWorthSavingCbs.add(cb);
 	}
 
 	openNewDbProject() {
