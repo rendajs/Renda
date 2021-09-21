@@ -8,6 +8,7 @@ import {generateUuid} from "../Util/Util.js";
 import GitIgnoreManager from "./GitIgnoreManager.js";
 import ProjectSettingsManager from "./ProjectSettingsManager.js";
 import {SingleInstancePromise} from "../../../src/index.js";
+import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
 
 /**
  * @typedef {Object} StoredProjectEntry
@@ -28,9 +29,22 @@ export default class ProjectManager {
 		this.projectSettings = null;
 		this.localProjectSettings = null;
 		this.assetManager = null;
+
 		this.editorConnectionsAllowIncoming = false;
 		this.editorConnectionsDiscoveryEndpoint = null;
 		this.editorConnectionsManager = new EditorConnectionsManager();
+		this.editorConnectionsManager.onActiveConnectionsChanged(activeConnections => {
+			let hasEditorConnection = false;
+			for (const connection of activeConnections.values()) {
+				if (connection.connectionState == "connected" && connection instanceof EditorConnection) {
+					hasEditorConnection = true;
+					break;
+				}
+			}
+			if (hasEditorConnection) {
+				this.markProjectAsWorthSaving();
+			}
+		});
 
 		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onProjectBecameWorthSavingCbs = new Set();
