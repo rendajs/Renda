@@ -14,8 +14,9 @@ import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
  * @typedef {Object} StoredProjectEntry
  * @property {"db" | "native" | "remote"} fileSystemType
  * @property {string} name
- * @property {string} projectUuid
+ * @property {import("../Util/Util.js").UuidString} projectUuid
  * @property {FileSystemDirectoryHandle} [fileSystemHandle]
+ * @property {import("../Util/Util.js").UuidString} [remoteProjectUuid]
  */
 
 export default class ProjectManager {
@@ -35,15 +36,22 @@ export default class ProjectManager {
 		this.editorConnectionsDiscoveryEndpoint = null;
 		this.editorConnectionsManager = new EditorConnectionsManager();
 		this.editorConnectionsManager.onActiveConnectionsChanged(activeConnections => {
-			let hasEditorConnection = false;
-			for (const connection of activeConnections.values()) {
+			let remoteMetaData = null;
+			for (const [id, connection] of activeConnections) {
 				if (connection.connectionState == "connected" && connection instanceof EditorConnection) {
-					hasEditorConnection = true;
+					const availableConnection = this.editorConnectionsManager.availableConnections.get(id);
+					if (availableConnection && availableConnection.projectMetaData) {
+						remoteMetaData = availableConnection.projectMetaData;
+					}
+
 					break;
 				}
 			}
-			if (hasEditorConnection) {
-				this.markProjectAsWorthSaving();
+			if (remoteMetaData) {
+				this.currentProjectOpenEvent.name = remoteMetaData.name;
+				this.currentProjectOpenEvent.fileSystemType = "remote";
+				this.currentProjectOpenEvent.remoteProjectUuid = remoteMetaData.uuid;
+				this.markCurrentProjectAsWorthSaving();
 			}
 		});
 
@@ -97,7 +105,7 @@ export default class ProjectManager {
 		await this.reloadAssetManager();
 		if (openProjectChangeEvent.fileSystemType == "native" || openProjectChangeEvent.fileSystemType == "db") {
 			// todo: only mark db when a file has been created
-			this.markProjectAsWorthSaving();
+			this.markCurrentProjectAsWorthSaving();
 		}
 		this.updateEditorConnectionsManager();
 	}
@@ -119,7 +127,7 @@ export default class ProjectManager {
 		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
 	}
 
-	markProjectAsWorthSaving() {
+	markCurrentProjectAsWorthSaving() {
 		if (this.currentProjectIsMarkedAsWorthSaving) return;
 		this.currentProjectIsMarkedAsWorthSaving = true;
 		this.onProjectBecameWorthSavingCbs.forEach(cb => cb(this.currentProjectOpenEvent));
