@@ -30,7 +30,8 @@ export default class ProjectManager {
 		this.localProjectSettings = null;
 		this.assetManager = null;
 
-		this.editorConnectionsAllowIncoming = false;
+		this.editorConnectionsAllowRemoteIncoming = false;
+		this.editorConnectionsAllowInternalIncoming = false;
 		this.editorConnectionsDiscoveryEndpoint = null;
 		this.editorConnectionsManager = new EditorConnectionsManager();
 		this.editorConnectionsManager.onActiveConnectionsChanged(activeConnections => {
@@ -199,8 +200,8 @@ export default class ProjectManager {
 	/**
 	 * @param {boolean} allow
 	 */
-	setEditorConnectionsAllowIncoming(allow) {
-		this.editorConnectionsAllowIncoming = allow;
+	setEditorConnectionsAllowRemoteIncoming(allow) {
+		this.editorConnectionsAllowRemoteIncoming = allow;
 		if (allow) {
 			this.localProjectSettings.set("editorConnectionsAllowIncoming", allow);
 		} else {
@@ -209,13 +210,32 @@ export default class ProjectManager {
 		this.updateEditorConnectionsManager();
 	}
 
-	async getEditorConnectionsAllowIncoming() {
+	async getEditorConnectionsAllowRemoteIncoming() {
 		await this.loadEditorConnectionsAllowIncomingInstance.waitForFinish();
-		return this.editorConnectionsAllowIncoming;
+		return this.editorConnectionsAllowRemoteIncoming;
+	}
+
+	/**
+	 * @param {boolean} allow
+	 */
+	setEditorConnectionsAllowInternalIncoming(allow) {
+		this.editorConnectionsAllowInternalIncoming = allow;
+		if (allow) {
+			this.localProjectSettings.set("editorConnectionsAllowInternalIncoming", allow);
+		} else {
+			this.localProjectSettings.delete("editorConnectionsAllowInternalIncoming");
+		}
+		this.updateEditorConnectionsManager();
+	}
+
+	async getEditorConnectionsAllowInternalIncoming() {
+		await this.loadEditorConnectionsAllowIncomingInstance.waitForFinish();
+		return this.editorConnectionsAllowInternalIncoming;
 	}
 
 	async loadEditorConnectionsAllowIncoming() {
-		this.editorConnectionsAllowIncoming = await this.localProjectSettings.get("editorConnectionsAllowIncoming", false);
+		this.editorConnectionsAllowRemoteIncoming = await this.localProjectSettings.get("editorConnectionsAllowIncoming", false);
+		this.editorConnectionsAllowInternalIncoming = await this.localProjectSettings.get("editorConnectionsAllowInternalIncoming", false);
 		this.updateEditorConnectionsManager();
 	}
 
@@ -228,7 +248,7 @@ export default class ProjectManager {
 	}
 
 	updateEditorConnectionsManager() {
-		if (this.currentProjectIsRemote || this.editorConnectionsAllowIncoming) {
+		if (this.currentProjectIsRemote || this.editorConnectionsAllowRemoteIncoming) {
 			let endpoint = this.editorConnectionsDiscoveryEndpoint;
 			if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
 			this.editorConnectionsManager.setDiscoveryEndpoint(endpoint);

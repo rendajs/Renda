@@ -78,15 +78,27 @@ export default class ContentWindowConnections extends ContentWindow {
 	createHostConnectionsUi() {
 		this.editorHostConnectionTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.editorHostConnectionTreeView.el);
-		this.allowIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
+
+		this.allowRemoteIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
 			type: Boolean,
 			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
-				label: "Allow Incoming Connections",
+				label: "Allow Remote Incoming Connections",
 			},
 		});
-		this.allowIncomingCheckbox.onValueChange(allowIncoming => {
-			editor.projectManager.setEditorConnectionsAllowIncoming(allowIncoming);
+		this.allowRemoteIncomingCheckbox.onValueChange(allowIncoming => {
+			editor.projectManager.setEditorConnectionsAllowRemoteIncoming(allowIncoming);
+		});
+
+		this.allowInternalIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
+			type: Boolean,
+			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
+			guiOpts: {
+				label: "Allow Internal Incoming Connections",
+			},
+		});
+		this.allowInternalIncomingCheckbox.onValueChange(allowIncoming => {
+			editor.projectManager.setEditorConnectionsAllowInternalIncoming(allowIncoming);
 		});
 	}
 
@@ -120,7 +132,8 @@ export default class ContentWindowConnections extends ContentWindow {
 	}
 
 	async loadSettings() {
-		this.allowIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowIncoming());
+		this.allowRemoteIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowRemoteIncoming());
+		this.allowInternalIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowInternalIncoming());
 	}
 
 	/**
