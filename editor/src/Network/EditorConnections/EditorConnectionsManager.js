@@ -15,6 +15,9 @@ import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js"
 /**
  * @typedef {Map<import("../../Util/Util.js").UuidString, AvailableEditorData>} AvailableEditorDataList
  */
+/**
+ * @typedef {Map<import("../../Util/Util.js").UuidString, EditorConnection>} ActiveEditorDataList
+ */
 
 /**
  * @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType
@@ -32,11 +35,13 @@ export default class EditorConnectionsManager {
 
 		/** @type {AvailableEditorDataList} */
 		this.availableConnections = new Map();
-		/** @type {Set<function(AvailableEditorDataList) : void>} */
-		this.onAvailableRtcConnectionsChangedCbs = new Set();
+		/** @type {Set<function() : void>} */
+		this.onAvailableConnectionsChangedCbs = new Set();
 
-		/** @type {Map<import("../../Util/Util.js").UuidString, EditorConnection>} */
+		/** @type {ActiveEditorDataList} */
 		this.activeConnections = new Map();
+		/** @type {Set<function(ActiveEditorDataList) : void>} */
+		this.onActiveConnectionsChangedCbs = new Set();
 
 		this.internalMessagesWorker = new SharedWorker("../../../../src/Inspector/InternalDiscoveryWorker.js", {type: "module"});
 		this.internalMessagesWorker.port.addEventListener("message", e => {
@@ -98,6 +103,13 @@ export default class EditorConnectionsManager {
 	 */
 	onDiscoveryServerStatusChange(cb) {
 		this.onDiscoveryServerStatusChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {function(DiscoveryServerStatusType) : void} cb
+	 */
+	removeOnDiscoveryServerStatusChange(cb) {
+		this.onDiscoveryServerStatusChangeCbs.delete(cb);
 	}
 
 	/**
@@ -205,14 +217,39 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {function(AvailableEditorDataList) : void} cb
+	 * @param {function() : void} cb
 	 */
 	onAvailableConnectionsChanged(cb) {
-		this.onAvailableRtcConnectionsChangedCbs.add(cb);
+		this.onAvailableConnectionsChangedCbs.add(cb);
+	}
+
+	/**
+	 * @param {function() : void} cb
+	 */
+	removeOnAvailableConnectionsChanged(cb) {
+		this.onAvailableConnectionsChangedCbs.delete(cb);
 	}
 
 	fireAvailableConnectionsChanged() {
-		this.onAvailableRtcConnectionsChangedCbs.forEach(cb => cb(this.availableConnections));
+		this.onAvailableConnectionsChangedCbs.forEach(cb => cb());
+	}
+
+	/**
+	 * @param {function(ActiveEditorDataList) : void} cb
+	 */
+	onActiveConnectionsChanged(cb) {
+		this.onActiveConnectionsChangedCbs.add(cb);
+	}
+
+	/**
+	 * @param {function(ActiveEditorDataList) : void} cb
+	 */
+	removeOnActiveConnectionsChanged(cb) {
+		this.onActiveConnectionsChangedCbs.delete(cb);
+	}
+
+	fireActiveConnectionsChanged() {
+		this.onActiveConnectionsChangedCbs.forEach(cb => cb(this.activeConnections));
 	}
 
 	/**
@@ -230,9 +267,23 @@ export default class EditorConnectionsManager {
 		}
 
 		if (messageHandler) {
-			const editorConnection = new EditorConnection(messageHandler);
-			this.activeConnections.set(connectionId, editorConnection);
+			this.addActiveConnection(connectionId, messageHandler);
 		}
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 * @param {import("./MessageHandlers/MessageHandler.js").default} messageHandler
+	 * @return {EditorConnection}
+	 */
+	addActiveConnection(connectionId, messageHandler) {
+		const editorConnection = new EditorConnection(messageHandler);
+		editorConnection.onConnectionStateChange(newState => {
+			this.fireActiveConnectionsChanged();
+		});
+		this.activeConnections.set(connectionId, editorConnection);
+		this.fireActiveConnectionsChanged();
+		return editorConnection;
 	}
 
 	/**
@@ -244,8 +295,7 @@ export default class EditorConnectionsManager {
 		let connection = this.activeConnections.get(clientId);
 		if (!connection) {
 			const messageHandler = new MessageHandlerInternal(clientId, this);
-			connection = new EditorConnection(messageHandler);
-			this.activeConnections.set(clientId, connection);
+			connection = this.addActiveConnection(clientId, messageHandler);
 		}
 		const handler = /** @type {MessageHandlerInternal} */ (connection.messageHandler);
 		handler.assignMessagePort(messagePort);
@@ -259,8 +309,7 @@ export default class EditorConnectionsManager {
 		let editorConnection = this.activeConnections.get(editorId);
 		if (!editorConnection) {
 			const messageHandler = new MessageHandlerWebRtc(editorId, this);
-			editorConnection = new EditorConnection(messageHandler);
-			this.activeConnections.set(editorId, editorConnection);
+			editorConnection = this.addActiveConnection(editorId, messageHandler);
 		}
 		const handler = /** @type {MessageHandlerWebRtc} */ (editorConnection.messageHandler);
 		handler.handleRtcOffer(rtcDescription);

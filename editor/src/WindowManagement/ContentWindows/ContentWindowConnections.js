@@ -3,6 +3,12 @@ import EditorConnectionsManager from "../../Network/EditorConnections/EditorConn
 import PropertiesTreeView from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import ContentWindow from "./ContentWindow.js";
 
+/**
+ * @typedef {Object} ConectionGui
+ * @property {PropertiesTreeView} treeView
+ * @property {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").default} statusLabel
+ */
+
 export default class ContentWindowConnections extends ContentWindow {
 	static contentWindowTypeId = "connections";
 	static contentWindowUiName = "Connections";
@@ -12,6 +18,9 @@ export default class ContentWindowConnections extends ContentWindow {
 
 		this.headerTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.headerTreeView.el);
+
+		this.editorConnectionGuis = new Map();
+		this.inspectorConnectionGuis = new Map();
 
 		this.createHeaderUi();
 		this.createHostConnectionsUi();
@@ -23,17 +32,27 @@ export default class ContentWindowConnections extends ContentWindow {
 
 		const connectionsManager = editor.projectManager.editorConnectionsManager;
 		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
-		connectionsManager.onDiscoveryServerStatusChange(status => {
+		this.boundUpdateDiscoveryServerStatus = status => {
 			this.updateDiscoveryServerStatus(status);
-		});
+		};
+		connectionsManager.onDiscoveryServerStatusChange(this.boundUpdateDiscoveryServerStatus);
 
-		connectionsManager.onAvailableConnectionsChanged(connections => {
-			this.setConnectionLists(connections);
-		});
+		this.boundUpdateConnectionLists = () => {
+			this.updateConnectionLists();
+		};
+		connectionsManager.onAvailableConnectionsChanged(this.boundUpdateConnectionLists);
+		connectionsManager.onActiveConnectionsChanged(this.boundUpdateConnectionLists);
 
 		this.updateDiscoveryServerStatus("disconnected");
 
 		this.loadSettings();
+	}
+
+	destructor() {
+		const connectionsManager = editor.projectManager.editorConnectionsManager;
+		connectionsManager.removeOnDiscoveryServerStatusChange(this.boundUpdateDiscoveryServerStatus);
+		connectionsManager.removeOnAvailableConnectionsChanged(this.boundUpdateConnectionLists);
+		connectionsManager.removeOnActiveConnectionsChanged(this.boundUpdateConnectionLists);
 	}
 
 	createHeaderUi() {
@@ -82,7 +101,7 @@ export default class ContentWindowConnections extends ContentWindow {
 			},
 		});
 
-		this.remoteEditorsList = this.editorClientConnectionTreeView.addCollapsable("Editors");
+		this.editorConnectionsList = this.editorClientConnectionTreeView.addCollapsable("Editors");
 	}
 
 	createInspectorConnectionsUi() {
@@ -112,27 +131,28 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.discoveryServerStatusLabel.setValue(status);
 	}
 
-	/**
-	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} connections
-	 */
-	setConnectionLists(connections) {
-		this.remoteEditorsList.clearChildren();
-		this.fillConnectionsList(this.remoteEditorsList, connections, "editor");
-
-		this.inspectorConnectionsList.clearChildren();
-		this.fillConnectionsList(this.inspectorConnectionsList, connections, "inspector");
+	updateConnectionLists() {
+		const {availableConnections, activeConnections} = editor.projectManager.editorConnectionsManager;
+		this.updateConnectionsList(this.editorConnectionGuis, this.editorConnectionsList, availableConnections, activeConnections, "editor");
+		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, availableConnections, activeConnections, "inspector");
 	}
 
 	/**
+	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView} listTreeView
-	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} connections
+	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} availableConnections
+	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ActiveEditorDataList} activeConnections
 	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ClientType} allowedClientType
 	 */
-	fillConnectionsList(listTreeView, connections, allowedClientType) {
-		for (const connection of connections.values()) {
-			if (connection.clientType == allowedClientType) {
-				const gui = listTreeView.addCollapsable(connection.id);
-				const label = gui.addItem({
+	updateConnectionsList(guisList, listTreeView, availableConnections, activeConnections, allowedClientType) {
+		const removeGuis = new Set(guisList.keys());
+		for (const connection of availableConnections.values()) {
+			if (connection.clientType != allowedClientType) continue;
+
+			let gui = guisList.get(connection.id);
+			if (!gui) {
+				const treeView = listTreeView.addCollapsable(connection.id);
+				const connectionTypeLabel = treeView.addItem({
 					type: "label",
 					/** @type {import("../../UI/LabelGui.js").LabelGuiOptions} */
 					guiOpts: {
@@ -141,13 +161,21 @@ export default class ContentWindowConnections extends ContentWindow {
 					},
 				});
 				if (connection.messageHandlerType == "internal") {
-					label.setValue("Internal");
+					connectionTypeLabel.setValue("Internal");
 				} else if (connection.messageHandlerType == "webRtc") {
-					label.setValue("WebRTC");
+					connectionTypeLabel.setValue("WebRTC");
 				} else {
-					label.setValue("Unknown");
+					connectionTypeLabel.setValue("Unknown");
 				}
-				gui.addItem({
+				const statusLabel = treeView.addItem({
+					type: "label",
+					/** @type {import("../../UI/LabelGui.js").LabelGuiOptions} */
+					guiOpts: {
+						label: "Status",
+					},
+				});
+
+				treeView.addItem({
 					type: "button",
 					/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
 					guiOpts: {
@@ -158,7 +186,25 @@ export default class ContentWindowConnections extends ContentWindow {
 						},
 					},
 				});
+
+				gui = {treeView, statusLabel};
+				guisList.set(connection.id, gui);
 			}
+
+			removeGuis.delete(connection.id);
+
+			const activeConnection = activeConnections.get(connection.id);
+			let status = "Available";
+			if (activeConnection) {
+				if (activeConnection.connectionState == "connecting") {
+					status = "Connecting";
+				} else if (activeConnection.connectionState == "connected") {
+					status = "Connected";
+				} else if (activeConnection.connectionState == "offline") {
+					status = "Offline";
+				}
+			}
+			gui.statusLabel.setValue(status);
 		}
 	}
 }

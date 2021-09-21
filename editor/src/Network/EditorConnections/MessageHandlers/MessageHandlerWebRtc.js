@@ -25,7 +25,17 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 			this.dataChannels.set(e.channel.label, e.channel);
 		});
 		this.rtcConnection.addEventListener("connectionstatechange", e => {
-			console.log("connectionstatechange", this.rtcConnection.connectionState, e);
+			const rtcState = this.rtcConnection.connectionState;
+			/** @type {import("./MessageHandler.js").EditorConnectionState} */
+			let state = "offline";
+			if (rtcState == "new" || rtcState == "connecting") {
+				state = "connecting";
+			} else if (rtcState == "connected") {
+				state = "connected";
+			} else if (rtcState == "disconnected" || rtcState == "failed" || rtcState == "closed") {
+				state = "available";
+			}
+			this.setConnectionState(state);
 		});
 		this.rtcConnection.addEventListener("negotiationneeded", e => {
 			this.initWebRtcConnection();
@@ -70,7 +80,7 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 				console.error("Error parsing data channel message", e);
 				return;
 			}
-			this.onMessage(json);
+			this.handleMessageReceived(json);
 		});
 	}
 
