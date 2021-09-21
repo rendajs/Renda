@@ -188,6 +188,7 @@ export default class ProjectManager {
 			fileSystem = new EditorFileSystemNative(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
 			fileSystem = new EditorFileSystemRemote();
+			this.editorConnectionsManager.waitForAvailableAndConnect(projectEntry.remoteProjectUuid);
 		}
 		if (!fileSystem) return;
 		this.openProject(fileSystem, projectEntry);

@@ -74,6 +74,16 @@ export default class EditorConnectionsManager {
 		this.internalMessagesWorker.port.start();
 		this.internalMessagesWorker.port.postMessage({op: "registerClient", clientType: "editor"});
 
+		this.waitingForAvailableConnectionId = null;
+		this.onAvailableConnectionsChanged(() => {
+			if (!this.waitingForAvailableConnectionId) return;
+			for (const [id, connection] of this.availableConnections) {
+				if (connection.projectMetaData?.uuid == this.waitingForAvailableConnectionId) {
+					this.startConnection(id);
+				}
+			}
+		});
+
 		window.addEventListener("unload", () => {
 			this.destructor();
 		});
@@ -279,6 +289,17 @@ export default class EditorConnectionsManager {
 
 	fireActiveConnectionsChanged() {
 		this.onActiveConnectionsChangedCbs.forEach(cb => cb(this.activeConnections));
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 */
+	waitForAvailableAndConnect(connectionId) {
+		if (this.availableConnections.has(connectionId)) {
+			this.startConnection(connectionId);
+		} else {
+			this.waitingForAvailableConnectionId = connectionId;
+		}
 	}
 
 	/**
