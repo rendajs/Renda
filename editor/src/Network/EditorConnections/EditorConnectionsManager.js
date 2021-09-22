@@ -8,12 +8,15 @@ import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js"
  * @property {import("../../Util/Util.js").UuidString} uuid
  */
 /**
+ * @typedef {"webRtc" | "internal"} MessageHandlerType
+ */
+/**
  * @typedef {"editor" | "inspector"} ClientType
  */
 /**
  * @typedef {Object} AvailableEditorData
  * @property {import("../../Util/Util.js").UuidString} id
- * @property {"webRtc" | "internal"} messageHandlerType
+ * @property {MessageHandlerType} messageHandlerType
  * @property {ClientType} clientType
  * @property {RemoteEditorMetaData} [projectMetaData]
  */
@@ -82,11 +85,14 @@ export default class EditorConnectionsManager {
 		this.internalMessagesWorker.port.start();
 		this.internalMessagesWorker.port.postMessage({op: "registerClient", clientType: "editor"});
 
-		this.waitingForAvailableConnectionId = null;
+		this.waitingForAvailableConnection = null;
 		this.onAvailableConnectionsChanged(() => {
-			if (!this.waitingForAvailableConnectionId) return;
+			if (!this.waitingForAvailableConnection) return;
 			for (const [id, connection] of this.availableConnections) {
-				if (connection.projectMetaData?.uuid == this.waitingForAvailableConnectionId) {
+				if (
+					connection.projectMetaData?.uuid == this.waitingForAvailableConnection.id &&
+					connection.messageHandlerType == this.waitingForAvailableConnection.messageHandlerType
+				) {
 					this.startConnection(id);
 				}
 			}
@@ -309,12 +315,24 @@ export default class EditorConnectionsManager {
 
 	/**
 	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 * @param {MessageHandlerType} messageHandlerType
 	 */
-	waitForAvailableAndConnect(connectionId) {
-		if (this.availableConnections.has(connectionId)) {
-			this.startConnection(connectionId);
+	waitForAvailableAndConnect(connectionId, messageHandlerType) {
+		let existingConnectionId = null;
+		for (const [id, connection] of this.availableConnections) {
+			if (connection.id == connectionId && connection.messageHandlerType == messageHandlerType) {
+				existingConnectionId = id;
+				break;
+			}
+		}
+
+		if (existingConnectionId) {
+			this.startConnection(existingConnectionId);
 		} else {
-			this.waitingForAvailableConnectionId = connectionId;
+			this.waitingForAvailableConnection = {
+				id: connectionId,
+				messageHandlerType,
+			};
 		}
 	}
 

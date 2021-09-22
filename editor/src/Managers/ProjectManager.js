@@ -17,6 +17,7 @@ import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
  * @property {import("../Util/Util.js").UuidString} projectUuid
  * @property {FileSystemDirectoryHandle} [fileSystemHandle]
  * @property {import("../Util/Util.js").UuidString} [remoteProjectUuid]
+ * @property {import("../Network/EditorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
  */
 
 export default class ProjectManager {
@@ -36,21 +37,20 @@ export default class ProjectManager {
 		this.editorConnectionsDiscoveryEndpoint = null;
 		this.editorConnectionsManager = new EditorConnectionsManager();
 		this.editorConnectionsManager.onActiveConnectionsChanged(activeConnections => {
-			let remoteMetaData = null;
+			let pickedConnection = null;
 			for (const [id, connection] of activeConnections) {
 				if (connection.connectionState == "connected" && connection instanceof EditorConnection) {
 					const availableConnection = this.editorConnectionsManager.availableConnections.get(id);
-					if (availableConnection && availableConnection.projectMetaData) {
-						remoteMetaData = availableConnection.projectMetaData;
-					}
-
+					pickedConnection = availableConnection;
 					break;
 				}
 			}
-			if (remoteMetaData) {
-				this.currentProjectOpenEvent.name = remoteMetaData.name;
+			if (pickedConnection && pickedConnection.projectMetaData) {
+				const mataData = pickedConnection.projectMetaData;
+				this.currentProjectOpenEvent.name = mataData.name;
 				this.currentProjectOpenEvent.fileSystemType = "remote";
-				this.currentProjectOpenEvent.remoteProjectUuid = remoteMetaData.uuid;
+				this.currentProjectOpenEvent.remoteProjectUuid = mataData.uuid;
+				this.currentProjectOpenEvent.remoteProjectConnectionType = pickedConnection.messageHandlerType;
 				this.markCurrentProjectAsWorthSaving();
 			}
 		});
@@ -188,7 +188,7 @@ export default class ProjectManager {
 			fileSystem = new EditorFileSystemNative(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
 			fileSystem = new EditorFileSystemRemote();
-			this.editorConnectionsManager.waitForAvailableAndConnect(projectEntry.remoteProjectUuid);
+			this.editorConnectionsManager.waitForAvailableAndConnect(projectEntry.remoteProjectUuid, projectEntry.remoteProjectConnectionType);
 		}
 		if (!fileSystem) return;
 		this.openProject(fileSystem, projectEntry);
