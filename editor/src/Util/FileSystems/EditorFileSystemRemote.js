@@ -34,11 +34,20 @@ export default class EditorFileSystemRemote extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {Array<String>} path
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @returns {Promise<{files: Array<String>, directories: Array<String>}>}
 	 */
 	async readDir(path = []) {
 		await this.waitForConnection();
 		return await this.connection.requestFileSystemReadDir(path);
+	}
+
+	/**
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @returns {Promise<void>}
+	 */
+	async createDir(path = []) {
+		await this.waitForConnection();
+		return await this.connection.requestFileSystemCreateDir(path);
 	}
 }

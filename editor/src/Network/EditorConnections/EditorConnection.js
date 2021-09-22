@@ -61,6 +61,8 @@ export default class EditorConnection {
 
 		if (cmd == "fileSystem.readDir") {
 			handler = this.handleRequestFileSystemReadDir;
+		} else if (cmd == "fileSystem.createDir") {
+			handler = this.handleRequestFileSystemCreateDir;
 		}
 
 		let result = null;
@@ -132,5 +134,19 @@ export default class EditorConnection {
 	 */
 	async handleRequestFileSystemReadDir(path) {
 		return await editor.projectManager.currentProjectFileSystem.readDir(path);
+	}
+
+	/**
+	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async requestFileSystemCreateDir(path) {
+		return await this.sendRequest("fileSystem.createDir", path);
+	}
+
+	/**
+	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async handleRequestFileSystemCreateDir(path) {
+		return await editor.projectManager.currentProjectFileSystem.createDir(path);
 	}
 }
