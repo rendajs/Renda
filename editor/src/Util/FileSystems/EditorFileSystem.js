@@ -4,6 +4,10 @@ import toFormattedJsonString from "../toFormattedJsonString.js";
  * @typedef {string[]} EditorFileSystemPath
  */
 
+/**
+ * @typedef {{files: Array<String>, directories: Array<String>}} EditorFileSystemReadDirResult
+ */
+
 export default class EditorFileSystem {
 	constructor() {
 		this.onExternalChangeCbs = new Set();
@@ -28,7 +32,7 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemPath} path
-	 * @returns {Promise<{files: Array<String>, directories: Array<String>}>}
+	 * @returns {Promise<EditorFileSystemReadDirResult>}
 	 */
 	async readDir(path = []) {
 		return {

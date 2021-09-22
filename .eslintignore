@@ -1,2 +1,3 @@
 editor/dist/js/*
 editor/libs/
+*.ts

@@ -1,4 +1,4 @@
-import editor from "../../editorInstance.js";
+import handlers from "./protocol.js";
 
 export default class EditorConnection {
 	/**
@@ -22,6 +22,11 @@ export default class EditorConnection {
 		this.requestIdCounter = 0;
 		/** @type {Map<number, (data: *, isError: boolean) => void>} */
 		this.onResponseCbs = new Map();
+
+		/** @type {import("./protocol.js").FunctionHandler} */
+		this.call = async (...args) => {
+			this.sendRequest(...args);
+		};
 	}
 
 	/**
@@ -38,8 +43,8 @@ export default class EditorConnection {
 		const {op, data} = messageData;
 
 		if (op == "request") {
-			const {id, cmd, data: requestData} = data;
-			this.handleRequest(id, cmd, requestData);
+			const {id, cmd, args} = data;
+			this.handleRequest(id, cmd, args);
 		} else if (op == "response") {
 			const {id, data: responseData, isError} = data;
 			const cb = this.onResponseCbs.get(id);
@@ -52,24 +57,22 @@ export default class EditorConnection {
 
 	/**
 	 * @param {number} id
-	 * @param {string} cmd
-	 * @param {*} data
+	 * @param {keyof import("./protocol.js").CmdParamsMap} cmd
+	 * @param {Parameters<*>} args
 	 */
-	async handleRequest(id, cmd, data) {
-		/** @type {(data: *) => Promise} */
-		let handler = async () => {};
+	async handleRequest(id, cmd, args) {
+		/** @type {(...rest: *[]) => Promise} */
+		let handler = async (...rest) => {};
 
-		if (cmd == "fileSystem.readDir") {
-			handler = this.handleRequestFileSystemReadDir;
-		} else if (cmd == "fileSystem.createDir") {
-			handler = this.handleRequestFileSystemCreateDir;
+		if (handlers.has(cmd)) {
+			handler = handlers.get(cmd);
 		}
 
 		let result = null;
 		let error = null;
 		let didReject = false;
 		try {
-			result = await handler(data);
+			result = await handler(...args);
 		} catch (e) {
 			error = e;
 			didReject = true;
@@ -88,11 +91,11 @@ export default class EditorConnection {
 
 	/**
 	 * @param {string} cmd
-	 * @param {*} data
+	 * @param {...*} args
 	 */
-	async sendRequest(cmd, data) {
+	async sendRequest(cmd, ...args) {
 		const id = this.requestIdCounter++;
-		this.send("request", {id, cmd, data});
+		this.send("request", {id, cmd, args});
 		return await this.waitForResponse(id);
 	}
 
@@ -118,35 +121,5 @@ export default class EditorConnection {
 	 */
 	sendResponse(id, data, isError = false) {
 		this.send("response", {id, data, isError});
-	}
-
-	/**
-	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
-	 * @returns
-	 */
-	async requestFileSystemReadDir(path) {
-		return await this.sendRequest("fileSystem.readDir", path);
-	}
-
-	/**
-	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
-	 * @returns
-	 */
-	async handleRequestFileSystemReadDir(path) {
-		return await editor.projectManager.currentProjectFileSystem.readDir(path);
-	}
-
-	/**
-	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
-	 */
-	async requestFileSystemCreateDir(path) {
-		return await this.sendRequest("fileSystem.createDir", path);
-	}
-
-	/**
-	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
-	 */
-	async handleRequestFileSystemCreateDir(path) {
-		return await editor.projectManager.currentProjectFileSystem.createDir(path);
 	}
 }
