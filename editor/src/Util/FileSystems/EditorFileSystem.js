@@ -13,7 +13,7 @@ export default class EditorFileSystem {
 	 * Returns true if the user has permission to read (or write if specified) at the specified path.
 	 * If the file/directory does not exist, it still returns true when
 	 * the highest available directory in the path has permissions.
-	 * @param {Array<String>} path The path to get permissions for
+	 * @param {EditorFileSystemPath} path The path to get permissions for
 	 * @param {Object} opts
 	 * @param {Boolean} [opts.writable=true] Check for writable permissions if true.
 	 * @param {Boolean} [opts.prompt=false] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
@@ -27,7 +27,7 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<{files: Array<String>, directories: Array<String>}>}
 	 */
 	async readDir(path = []) {
@@ -38,13 +38,13 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<void>}
 	 */
 	async createDir(path = []) {}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path = []) {
@@ -55,13 +55,13 @@ export default class EditorFileSystem {
 	 * Writes file to the system, overwrites file if it already exists.
 	 * Use {@link EditorFileSystem.writeText} for writing strings.
 	 * Use {@link EditorFileSystem.writeJson} for writing json Objects.
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async writeFile(path = [], file = null) {}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @param {Boolean} keepExistingData
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
@@ -77,7 +77,7 @@ export default class EditorFileSystem {
 
 	/**
 	 * Deletes a file or directory.
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @param {Boolean} recursive
 	 */
 	async delete(path = [], recursive = false) {}
@@ -85,7 +85,7 @@ export default class EditorFileSystem {
 	/**
 	 * Check if a file exists at the specified path, and if it is a file.
 	 * Does not throw when any part of the path doesn't exist.
-	 * @param {Array<string>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<Boolean>}
 	 */
 	async isFile(path = []) {
@@ -95,7 +95,7 @@ export default class EditorFileSystem {
 	/**
 	 * Check if a directory exists at the specified path, and if it is a directory.
 	 * Does not throw when any part of the path doesn't exist.
-	 * @param {Array<string>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<Boolean>}
 	 */
 	async isDir(path = []) {
@@ -103,7 +103,7 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<string>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<Boolean>}
 	 */
 	async exists(path = []) {
@@ -132,7 +132,7 @@ export default class EditorFileSystem {
 	/* ==== util functions ==== */
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @param {String} text
 	 * @param {Object} opts
 	 * @param {String} [opts.type="text/plain"]
@@ -144,7 +144,7 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<String>}
 	 */
 	async readText(path = []) {
@@ -158,7 +158,7 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<?Object>}
 	 */
 	async readJson(path = []) {
@@ -172,7 +172,7 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {EditorFileSystemPath} path
 	 * @param {BlobPart} binary - File, Blob, ArrayBuffer or TypedArray
 	 */
 	async writeBinary(path = [], binary = null) {

@@ -37,20 +37,24 @@ export default class ProjectManager {
 		this.editorConnectionsDiscoveryEndpoint = null;
 		this.editorConnectionsManager = new EditorConnectionsManager();
 		this.editorConnectionsManager.onActiveConnectionsChanged(activeConnections => {
+			let pickedAvailableConnection = null;
 			let pickedConnection = null;
 			for (const [id, connection] of activeConnections) {
 				if (connection.connectionState == "connected" && connection instanceof EditorConnection) {
 					const availableConnection = this.editorConnectionsManager.availableConnections.get(id);
-					pickedConnection = availableConnection;
+					pickedAvailableConnection = availableConnection;
+					pickedConnection = connection;
 					break;
 				}
 			}
-			if (pickedConnection && pickedConnection.projectMetaData) {
-				const mataData = pickedConnection.projectMetaData;
+			if (pickedAvailableConnection && pickedAvailableConnection.projectMetaData) {
+				const mataData = pickedAvailableConnection.projectMetaData;
 				this.currentProjectOpenEvent.name = mataData.name;
 				this.currentProjectOpenEvent.fileSystemType = "remote";
 				this.currentProjectOpenEvent.remoteProjectUuid = mataData.uuid;
-				this.currentProjectOpenEvent.remoteProjectConnectionType = pickedConnection.messageHandlerType;
+				this.currentProjectOpenEvent.remoteProjectConnectionType = pickedAvailableConnection.messageHandlerType;
+				const fileSystem = /** @type {EditorFileSystemRemote} */ (this.currentProjectFileSystem);
+				fileSystem.setConnection(pickedConnection);
 				this.markCurrentProjectAsWorthSaving();
 			}
 		});
