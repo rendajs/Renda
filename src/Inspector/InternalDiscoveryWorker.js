@@ -1,27 +1,21 @@
-import {generateUuid} from "../../editor/src/Util/Util.js";
+import InternalDiscoveryWorkerConnection from "./InternalDiscoveryWorkerConnection.js";
 
-/**
- * @typedef {Object} ActivePortType
- * @property {MessagePort} port
- * @property {string} clientType
- */
-
-/** @type {Map<string, ActivePortType>} */
-const activePorts = new Map();
+/** @type {Map<string, InternalDiscoveryWorkerConnection>} */
+const activeConnections = new Map();
 
 /**
  * @param {import("../../editor/src/Util/Util.js").UuidString} createdClientId
- * @param {MessagePort} messagePort
  */
 function sendAllConnectionAddedMessages(createdClientId) {
-	const {port: createdPort, clientType: createdClientType} = activePorts.get(createdClientId);
-	for (const [id, {port, clientType}] of activePorts) {
+	const {port: createdPort, clientType: createdClientType} = activeConnections.get(createdClientId);
+	for (const [id, {port, clientType, projectMetaData}] of activeConnections) {
 		if (port == createdPort) continue;
 
 		createdPort.postMessage({
 			op: "availableClientAdded",
 			clientId: id,
 			clientType,
+			projectMetaData,
 		});
 		port.postMessage({
 			op: "availableClientAdded",
@@ -31,11 +25,27 @@ function sendAllConnectionAddedMessages(createdClientId) {
 	}
 }
 
+/**
+ * @param {import("../../editor/src/Util/Util.js").UuidString} clientId
+ */
 function sendAllClientRemoved(clientId) {
-	for (const {port} of activePorts.values()) {
+	for (const {port} of activeConnections.values()) {
 		port.postMessage({
 			op: "availableClientRemoved",
 			clientId,
+		});
+	}
+}
+
+/**
+ * @param {InternalDiscoveryWorkerConnection} connection
+ */
+function sendAllProjectMetaData(connection) {
+	for (const {port} of activeConnections.values()) {
+		port.postMessage({
+			op: "projectMetaData",
+			clientId: connection.id,
+			projectMetaData: connection.projectMetaData,
 		});
 	}
 }
@@ -44,33 +54,36 @@ self.addEventListener("connect", event => {
 	const castEvent = /** @type {MessageEvent} */ (event);
 	const [port] = castEvent.ports;
 
-	let createdClientId = null;
+	/** @type {InternalDiscoveryWorkerConnection} */
+	let createdConnection = null;
 	port.addEventListener("message", e => {
 		if (!e.data) return;
 
-		const {op} = e.data;
+		const {data} = e;
+		const {op} = data;
 
-		for (const {port} of activePorts.values()) {
-			port.postMessage(JSON.stringify(e.data));
-		}
 		if (op === "registerClient") {
-			if (createdClientId) return;
-			const {clientType} = e.data;
-			createdClientId = generateUuid();
-			activePorts.set(createdClientId, {port, clientType});
+			if (createdConnection) return;
+			const {clientType} = data;
 
-			sendAllConnectionAddedMessages(createdClientId);
+			createdConnection = new InternalDiscoveryWorkerConnection(port, clientType);
+			activeConnections.set(createdConnection.id, createdConnection);
+			sendAllConnectionAddedMessages(createdConnection.id);
 		} else if (op == "unregisterClient") {
-			port.postMessage(op + createdClientId);
-			if (!createdClientId) return;
-			activePorts.delete(createdClientId);
-			sendAllClientRemoved(createdClientId);
-			port.postMessage("test");
+			if (!createdConnection) return;
+			activeConnections.delete(createdConnection.id);
+			sendAllClientRemoved(createdConnection.id);
+			createdConnection = null;
+		} else if (op == "projectMetaData") {
+			if (!createdConnection) return;
+			const {projectMetaData} = data;
+			createdConnection.setProjectMetaData(projectMetaData);
+			sendAllProjectMetaData(createdConnection);
 		} else if (op == "requestConnection") {
-			if (!createdClientId) return;
+			if (!createdConnection) return;
 
-			const {otherClientId} = e.data;
-			const {port: otherPort} = activePorts.get(otherClientId);
+			const {otherClientId} = data;
+			const {port: otherPort} = activeConnections.get(otherClientId);
 			if (!otherPort) return;
 
 			const messageChannel = new MessageChannel();
@@ -82,7 +95,7 @@ self.addEventListener("connect", event => {
 
 			otherPort.postMessage({
 				op: "connectionCreated",
-				clientId: createdClientId,
+				clientId: createdConnection.id,
 				port: messageChannel.port2,
 			}, [messageChannel.port2]);
 		}

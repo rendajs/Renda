@@ -53,21 +53,29 @@ export default class EditorConnectionsManager {
 		this.internalMessagesWorker.port.addEventListener("message", e => {
 			if (!e.data) return;
 
-			const {op} = e.data;
+			const {data} = e;
+			const {op} = data;
 			if (op == "availableClientAdded") {
-				const {clientId, clientType} = e.data;
+				const {clientId, clientType, projectMetaData} = data;
 				this.availableConnections.set(clientId, {
 					id: clientId,
 					messageHandlerType: "internal",
-					clientType,
+					clientType, projectMetaData,
 				});
 				this.fireAvailableConnectionsChanged();
 			} else if (op == "availableClientRemoved") {
-				const {clientId} = e.data;
+				const {clientId} = data;
 				this.availableConnections.delete(clientId);
 				this.fireAvailableConnectionsChanged();
+			} else if (op == "projectMetaData") {
+				const {clientId, projectMetaData} = data;
+				const connection = this.availableConnections.get(clientId);
+				if (connection) {
+					connection.projectMetaData = projectMetaData;
+					this.fireAvailableConnectionsChanged();
+				}
 			} else if (op == "connectionCreated") {
-				const {clientId, port} = e.data;
+				const {clientId, port} = data;
 				this.handleInternalConnectionCreation(clientId, port);
 			}
 		});
@@ -102,6 +110,13 @@ export default class EditorConnectionsManager {
 		this.internalMessagesWorker.port.postMessage({op: "requestConnection", otherClientId});
 	}
 
+	/**
+	 * @param {RemoteEditorMetaData} projectMetaData
+	 */
+	sendInternalMessageChannelProjectMetaData(projectMetaData) {
+		this.internalMessagesWorker.port.postMessage({op: "projectMetaData", projectMetaData});
+	}
+
 	static getDefaultEndPoint() {
 		return `ws://${window.location.hostname}:8082`;
 	}
@@ -134,6 +149,7 @@ export default class EditorConnectionsManager {
 	setProjectMetaData(metaData) {
 		// todo: only change when it changed
 		this.sendProjectMetaData(metaData);
+		this.sendInternalMessageChannelProjectMetaData(metaData);
 	}
 
 	/**
