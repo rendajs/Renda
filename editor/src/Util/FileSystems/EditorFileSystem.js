@@ -10,6 +10,23 @@ export default class EditorFileSystem {
 	}
 
 	/**
+	 * Returns true if the user has permission to read (or write if specified) at the specified path.
+	 * If the file/directory does not exist, it still returns true when
+	 * the highest available directory in the path has permissions.
+	 * @param {Array<String>} path The path to get permissions for
+	 * @param {Object} opts
+	 * @param {Boolean} [opts.writable=true] Check for writable permissions if true.
+	 * @param {Boolean} [opts.prompt=false] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
+	 * @returns {Promise<Boolean>} Whether permissions have been granted or already exist.
+	 */
+	async getPermission(path = [], {
+		writable = true,
+		prompt = false,
+	} = {}) {
+		return true;
+	}
+
+	/**
 	 * @param {Array<String>} path
 	 * @returns {Promise<{files: Array<String>, directories: Array<String>}>}
 	 */
@@ -25,19 +42,6 @@ export default class EditorFileSystem {
 	 * @returns {Promise<void>}
 	 */
 	async createDir(path = []) {}
-
-	/**
-	 * @param {Array<String>} fromPath
-	 * @param {Array<String>} toPath
-	 */
-	async move(fromPath = [], toPath = []) {}
-
-	/**
-	 * Deletes a file or directory.
-	 * @param {Array<String>} path
-	 * @param {Boolean} recursive
-	 */
-	async delete(path = [], recursive = false) {}
 
 	/**
 	 * @param {Array<String>} path
@@ -64,6 +68,19 @@ export default class EditorFileSystem {
 	async writeFileStream(path = [], keepExistingData = false) {
 		return null;
 	}
+
+	/**
+	 * @param {Array<String>} fromPath
+	 * @param {Array<String>} toPath
+	 */
+	async move(fromPath = [], toPath = []) {}
+
+	/**
+	 * Deletes a file or directory.
+	 * @param {Array<String>} path
+	 * @param {Boolean} recursive
+	 */
+	async delete(path = [], recursive = false) {}
 
 	/**
 	 * Check if a file exists at the specified path, and if it is a file.
@@ -112,24 +129,7 @@ export default class EditorFileSystem {
 	 */
 	suggestCheckExternalChanges() {}
 
-	/**
-	 * Returns true if the user has permission to read (or write if specified) at the specified path.
-	 * If the file/directory does not exist, it still returns true when
-	 * the highest available directory in the path has permissions.
-	 * @param {Array<String>} path The path to get permissions for
-	 * @param {Object} opts
-	 * @param {Boolean} [opts.writable=true] Check for writable permissions if true.
-	 * @param {Boolean} [opts.prompt=false] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
-	 * @returns {Promise<Boolean>} Whether permissions have been granted or already exist.
-	 */
-	async getPermission(path = [], {
-		writable = true,
-		prompt = false,
-	} = {}) {
-		return true;
-	}
-
-	/* util functions*/
+	/* ==== util functions ==== */
 
 	/**
 	 * @param {Array<String>} path
