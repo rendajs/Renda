@@ -10,10 +10,10 @@ import BinaryDecomposer from "./BinaryDecomposer.js";
 
 /**
  * @typedef {Object} BinaryComposerVariableLengthStorageTypes
- * @property {StorageType} [refId = StructureTypes.NULL]
- * @property {StorageType} [array = StructureTypes.UINT8]
- * @property {StorageType} [string = StructureTypes.UINT16]
- * @property {StorageType} [arrayBuffer = StructureTypes.UINT16]
+ * @property {StorageType} [refId = StorageType.NULL]
+ * @property {StorageType} [array = StorageType.UINT8]
+ * @property {StorageType} [string = StorageType.UINT16]
+ * @property {StorageType} [arrayBuffer = StorageType.UINT16]
  */
 
 /**
@@ -197,7 +197,7 @@ export default class BinaryComposer{
 	 * @param {BinaryComposerVariableLengthStorageTypes} [opts.variableLengthStorageTypes = true]
 	 * @param {ObjectToBinaryTransformValueHook} [opts.transformValueHook = null]
 	 * @param {import("../../editor/src/Assets/AssetManager.js").default} [opts.editorAssetManager = null]
-	 * @returns {Object}
+	 * @returns {ArrayBuffer}
 	 */
 	static objectToBinary(data, {
 		structure = null,
@@ -963,8 +963,8 @@ export default class BinaryComposer{
 	 * @param {number} byteOffset
 	 * @param {Object} opts
 	 * @param {boolean} [opts.littleEndian = true]
-	 * @param {StorageType} [opts.stringLengthStorageType = StructureTypes.UINT8]
-	 * @param {StorageType} [opts.arrayBufferLengthStorageType = StructureTypes.UINT8]
+	 * @param {StorageType} [opts.stringLengthStorageType = StorageType.UINT8]
+	 * @param {StorageType} [opts.arrayBufferLengthStorageType = StorageType.UINT8]
 	 * @param {TextDecoder} [opts.textDecoder = new TextDecoder()]
 	 * @returns {{value: *, bytesMoved: number}}
 	 */

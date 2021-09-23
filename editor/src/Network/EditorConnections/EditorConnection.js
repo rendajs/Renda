@@ -1,11 +1,13 @@
-import handlers from "./protocol.js";
+import {BinaryComposer, StorageType} from "../../../../src/index.js";
 
 export default class EditorConnection {
 	/**
 	 * @param {import("./MessageHandlers/MessageHandler.js").default} messageHandler
+	 * @param {import("./ProtocolManager.js").default} protocolManager
 	 */
-	constructor(messageHandler) {
+	constructor(messageHandler, protocolManager) {
 		this.messageHandler = messageHandler;
+		this.protocolManager = protocolManager;
 
 		/** @type {import("./MessageHandlers/MessageHandler.js").EditorConnectionState} */
 		this.connectionState = "offline";
@@ -23,9 +25,41 @@ export default class EditorConnection {
 		/** @type {Map<number, (data: *, isError: boolean) => void>} */
 		this.onResponseCbs = new Map();
 
-		/** @type {import("./protocol.js").FunctionHandler} */
-		this.call = async (...args) => {
-			this.sendRequest(...args);
+		this.sendBinaryOpts = {
+			structure: {
+				op: StorageType.STRING,
+				data: StorageType.ARRAY_BUFFER,
+			},
+			nameIds: {
+				op: 0,
+				data: 1,
+			},
+		};
+
+		this.sendRequestBinaryOpts = {
+			structure: {
+				id: StorageType.UINT32,
+				cmd: StorageType.STRING,
+				data: StorageType.ARRAY_BUFFER,
+			},
+			nameIds: {
+				id: 0,
+				cmd: 1,
+				data: 2,
+			},
+		};
+
+		this.sendResponseBinaryOpts = {
+			structure: {
+				id: StorageType.UINT32,
+				data: StorageType.ARRAY_BUFFER,
+				isError: StorageType.BOOL,
+			},
+			nameIds: {
+				id: 0,
+				data: 1,
+				isError: 2,
+			},
 		};
 	}
 
@@ -40,62 +74,43 @@ export default class EditorConnection {
 	 * @param {*} messageData
 	 */
 	handleMessage(messageData) {
+		if (!this.messageHandler.autoSerializationSupported) {
+			messageData = BinaryComposer.binaryToObject(messageData, this.sendBinaryOpts);
+		}
 		const {op, data} = messageData;
 
 		if (op == "request") {
-			const {id, cmd, args} = data;
-			this.handleRequest(id, cmd, args);
+			this.handleRequest(data);
 		} else if (op == "response") {
-			const {id, data: responseData, isError} = data;
-			const cb = this.onResponseCbs.get(id);
-			if (cb) {
-				this.onResponseCbs.delete(id);
-				cb(responseData, isError);
-			}
+			this.handleResponse(data);
 		}
-	}
-
-	/**
-	 * @param {number} id
-	 * @param {keyof import("./protocol.js").CmdParamsMap} cmd
-	 * @param {Parameters<*>} args
-	 */
-	async handleRequest(id, cmd, args) {
-		/** @type {(...rest: *[]) => Promise} */
-		let handler = async (...rest) => {};
-
-		if (handlers.has(cmd)) {
-			handler = handlers.get(cmd);
-		}
-
-		let result = null;
-		let error = null;
-		let didReject = false;
-		try {
-			result = await handler(...args);
-		} catch (e) {
-			error = e;
-			didReject = true;
-		}
-		const responseData = didReject ? error : result;
-		this.sendResponse(id, responseData, didReject);
 	}
 
 	/**
 	 * @param {string} op
-	 * @param {*} data
+	 * @param {* | ArrayBuffer} data
 	 */
 	send(op, data) {
-		this.messageHandler.send({op, data});
+		/** @type {*} */
+		let sendData = {op, data};
+		if (!this.messageHandler.autoSerializationSupported) {
+			sendData = BinaryComposer.objectToBinary(sendData, this.sendBinaryOpts);
+		}
+		this.messageHandler.send(sendData);
 	}
 
 	/**
 	 * @param {string} cmd
-	 * @param {...*} args
+	 * @param {* | ArrayBuffer} data
 	 */
-	async sendRequest(cmd, ...args) {
+	async sendRequest(cmd, data) {
 		const id = this.requestIdCounter++;
-		this.send("request", {id, cmd, args});
+		/** @type {*} */
+		let sendData = {id, cmd, data};
+		if (!this.messageHandler.autoSerializationSupported) {
+			sendData = BinaryComposer.objectToBinary(sendData, this.sendRequestBinaryOpts);
+		}
+		this.send("request", sendData);
 		return await this.waitForResponse(id);
 	}
 
@@ -115,11 +130,84 @@ export default class EditorConnection {
 	}
 
 	/**
+	 * @param {*} requestData
+	 */
+	async handleRequest(requestData) {
+		if (!this.messageHandler.autoSerializationSupported) {
+			requestData = BinaryComposer.binaryToObject(requestData, this.sendRequestBinaryOpts);
+		}
+		const {id, cmd, data} = requestData;
+
+		let result = null;
+		let error = null;
+		let didReject = false;
+		try {
+			const commandData = this.protocolManager.getRequestHandler(cmd);
+			if (!commandData) {
+				throw new Error(`Unknown command: "${cmd}"`);
+			}
+
+			const handler = commandData.handleRequest;
+			result = await handler(...data);
+		} catch (e) {
+			error = e;
+			didReject = true;
+		}
+		const responseData = didReject ? error : result;
+		this.sendResponse(id, responseData, didReject);
+	}
+
+	/**
 	 * @param {number} id
 	 * @param {*} data
 	 * @param {boolean} [isError]
 	 */
 	sendResponse(id, data, isError = false) {
-		this.send("response", {id, data, isError});
+		/** @type {*} */
+		let sendData = {id, data, isError};
+		if (!this.messageHandler.autoSerializationSupported) {
+			sendData = BinaryComposer.objectToBinary(sendData, this.sendResponseBinaryOpts);
+		}
+		this.send("response", sendData);
+	}
+
+	/**
+	 * @param {*} responseData
+	 */
+	handleResponse(responseData) {
+		if (!this.messageHandler.autoSerializationSupported) {
+			responseData = BinaryComposer.binaryToObject(responseData, this.sendResponseBinaryOpts);
+		}
+		const {id, data, isError} = responseData;
+		const cb = this.onResponseCbs.get(id);
+		if (cb) {
+			this.onResponseCbs.delete(id);
+			cb(data, isError);
+		}
+	}
+
+	async call(cmd, ...args) {
+		const commandData = this.protocolManager.getRequestHandler(cmd);
+		if (!commandData) {
+			throw new Error(`Unknown command: "${cmd}"`);
+		}
+
+		// todo:
+		// if (commandData.preSend) {
+		// 	const preSendArgs = [];
+		// 	if (commandData.needsRequestMetaData) {
+		// 		preSendArgs.push({});
+		// 	}
+		// 	preSendArgs.push(...args);
+		// 	commandData.preSend(...preSendArgs);
+		// }
+
+		let sendData;
+		if (this.messageHandler.autoSerializationSupported) {
+			sendData = [...args];
+		} else {
+			sendData = JSON.stringify(args);
+		}
+		return await this.sendRequest(cmd, sendData);
 	}
 }

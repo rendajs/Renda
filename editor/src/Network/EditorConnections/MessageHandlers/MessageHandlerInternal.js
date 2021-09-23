@@ -10,6 +10,7 @@ export default class MessageHandlerInternal extends MessageHandler {
 		super();
 		this.connectionId = connectionId;
 		this.connectionsManager = connectionsManager;
+		this.autoSerializationSupported = true;
 		this.messagePort = null;
 
 		if (isInitiator) {

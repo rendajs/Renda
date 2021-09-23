@@ -6,6 +6,7 @@ export default class MessageHandler {
 	constructor() {
 		this.onMessageCbs = new Set();
 		this.onConnectionStateChangeCbs = new Set();
+		this.autoSerializationSupported = false;
 	}
 
 	/**

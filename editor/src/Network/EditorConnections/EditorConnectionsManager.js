@@ -1,6 +1,7 @@
 import EditorConnection from "./EditorConnection.js";
 import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
 import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js";
+import ProtocolManager from "./ProtocolManager.js";
 
 /**
  * @typedef {Object} RemoteEditorMetaData
@@ -41,6 +42,8 @@ export default class EditorConnectionsManager {
 		/** @type {Set<function(DiscoveryServerStatusType):void>} */
 		this.onDiscoveryServerStatusChangeCbs = new Set();
 		this.onDiscoveryOpenOrErrorCbs = new Set();
+
+		this.protocol = new ProtocolManager();
 
 		/** @type {AvailableEditorDataList} */
 		this.availableConnections = new Map();
@@ -361,7 +364,7 @@ export default class EditorConnectionsManager {
 	 * @return {EditorConnection}
 	 */
 	addActiveConnection(connectionId, messageHandler) {
-		const editorConnection = new EditorConnection(messageHandler);
+		const editorConnection = new EditorConnection(messageHandler, this.protocol);
 		editorConnection.onConnectionStateChange(newState => {
 			this.fireActiveConnectionsChanged();
 		});
