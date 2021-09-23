@@ -22,7 +22,19 @@ const createDir = {
 	},
 };
 
+/**	@type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
+const readFile = {
+	command: "fileSystem.readFile",
+	/**
+	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	handleRequest: async path => {
+		return await editor.projectManager.currentProjectFileSystem.readFile(path);
+	},
+};
+
 export default [
 	readDir,
 	createDir,
+	readFile,
 ];
