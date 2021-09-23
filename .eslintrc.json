@@ -5,6 +5,7 @@
 		"es2021": true
 	},
 	"extends": "eslint:recommended",
+	"plugins": ["jsdoc"],
 	"rules": {
 		"no-constant-condition": ["error", { "checkLoops": false }],
 
@@ -172,6 +173,8 @@
 		"template-curly-spacing": "error",
 		"yield-star-spacing": "error",
 
-		"no-restricted-syntax": ["error", "BinaryExpression[operator='in']"]
+		"no-restricted-syntax": ["error", "BinaryExpression[operator='in']"],
+
+		"jsdoc/no-undefined-types": "error"
 	}
 }
