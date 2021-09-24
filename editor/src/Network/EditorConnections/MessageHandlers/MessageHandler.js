@@ -1,10 +1,12 @@
 /**
- * @typedef {"offline" | "available" | "connecting" | "connected"} EditorConnectionState
+ * @typedef {"disconnected" | "connecting" | "connected"} EditorConnectionState
  */
 
 export default class MessageHandler {
 	constructor() {
 		this.onMessageCbs = new Set();
+		/** @type {EditorConnectionState} */
+		this.connectionState = "disconnected";
 		this.onConnectionStateChangeCbs = new Set();
 		this.autoSerializationSupported = false;
 	}
@@ -33,6 +35,8 @@ export default class MessageHandler {
 	 * @param {EditorConnectionState} state
 	 */
 	setConnectionState(state) {
+		if (state == this.connectionState) return;
+		this.connectionState = state;
 		this.onConnectionStateChangeCbs.forEach(cb => cb(state));
 	}
 

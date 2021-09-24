@@ -215,7 +215,7 @@ export default class ContentWindowConnections extends ContentWindow {
 					status = "Connecting";
 				} else if (activeConnection.connectionState == "connected") {
 					status = "Connected";
-				} else if (activeConnection.connectionState == "offline") {
+				} else if (activeConnection.connectionState == "disconnected") {
 					status = "Offline";
 				}
 			}

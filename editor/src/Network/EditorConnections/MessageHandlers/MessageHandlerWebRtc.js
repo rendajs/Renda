@@ -25,17 +25,7 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 			this.dataChannels.set(e.channel.label, e.channel);
 		});
 		this.rtcConnection.addEventListener("connectionstatechange", e => {
-			const rtcState = this.rtcConnection.connectionState;
-			/** @type {import("./MessageHandler.js").EditorConnectionState} */
-			let state = "offline";
-			if (rtcState == "new" || rtcState == "connecting") {
-				state = "connecting";
-			} else if (rtcState == "connected") {
-				state = "connected";
-			} else if (rtcState == "disconnected" || rtcState == "failed" || rtcState == "closed") {
-				state = "available";
-			}
-			this.setConnectionState(state);
+			this.updateConnectionState();
 		});
 		this.rtcConnection.addEventListener("negotiationneeded", e => {
 			this.initWebRtcConnection();
@@ -56,6 +46,30 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 		await this.setAndSendDescription(this.localDescription);
 	}
 
+	updateConnectionState() {
+		const rtcState = this.rtcConnection.connectionState;
+		/** @type {import("./MessageHandler.js").EditorConnectionState} */
+		let state = "disconnected";
+		if (rtcState == "new" || rtcState == "connecting") {
+			state = "connecting";
+		} else if (rtcState == "connected") {
+			state = "connecting";
+			if (this.dataChannels.size > 0) {
+				let allConnected = true;
+				for (const channel of this.dataChannels.values()) {
+					if (channel.readyState != "open") {
+						allConnected = false;
+						break;
+					}
+				}
+				if (allConnected) {
+					state = "connected";
+				}
+			}
+		}
+		this.setConnectionState(state);
+	}
+
 	/**
 	 * @param {string} label
 	 * @param {RTCDataChannelInit} [options]
@@ -72,6 +86,9 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 	 * @param {RTCDataChannel} channel
 	 */
 	addDataChannelListeners(channel) {
+		channel.addEventListener("open", e => {
+			this.updateConnectionState();
+		});
 		channel.addEventListener("message", e => {
 			let json = null;
 			try {
