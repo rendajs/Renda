@@ -124,6 +124,20 @@ export default class ProjectSelector {
 				editor.projectManager.openExistingProject(entry);
 				this.setVisibility(false);
 			});
+			let tooltip = "";
+			if (entry.fileSystemType == "native") {
+				tooltip = "File System on Disk";
+			} else if (entry.fileSystemType == "db") {
+				tooltip = "Stored in Cookies";
+			} else if (entry.fileSystemType == "remote") {
+				tooltip = "Remote File System";
+				if (entry.remoteProjectConnectionType == "internal") {
+					tooltip += " (Internal Connection)";
+				} else if (entry.remoteProjectConnectionType == "webRtc") {
+					tooltip += " (WebRTC Connection)";
+				}
+			}
+			el.title = tooltip;
 			el.addEventListener("contextmenu", e => {
 				if (this.loadedEditor) {
 					e.preventDefault();
