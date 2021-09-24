@@ -9,6 +9,9 @@ export default class EditorConnection {
 		this.messageHandler = messageHandler;
 		this.protocolManager = protocolManager;
 
+		this.textEncoder = new TextEncoder();
+		this.textDecoder = new TextDecoder();
+
 		this.messageHandler.onMessage(data => {
 			this.handleMessage(data);
 		});
@@ -144,12 +147,21 @@ export default class EditorConnection {
 			}
 
 			const handler = commandData.handleRequest;
-			result = await handler(...data);
+			let args = data;
+			if (!this.messageHandler.autoSerializationSupported) {
+				const argsJsonStr = this.textDecoder.decode(data);
+				args = JSON.parse(argsJsonStr);
+			}
+			result = await handler(...args);
 		} catch (e) {
 			error = e;
 			didReject = true;
 		}
-		const responseData = didReject ? error : result;
+		let responseData = didReject ? error : result;
+		if (!this.messageHandler.autoSerializationSupported) {
+			const jsonResponseStr = JSON.stringify(responseData);
+			responseData = this.textEncoder.encode(jsonResponseStr);
+		}
 		this.sendResponse(id, responseData, didReject);
 	}
 
@@ -175,10 +187,19 @@ export default class EditorConnection {
 			responseData = BinaryComposer.binaryToObject(responseData, this.sendResponseBinaryOpts);
 		}
 		const {id, data, isError} = responseData;
+		let returnData = data;
+		if (!this.messageHandler.autoSerializationSupported) {
+			const returnDataJsonStr = this.textDecoder.decode(data);
+			if (returnDataJsonStr) {
+				returnData = JSON.parse(returnDataJsonStr);
+			} else {
+				returnData = null;
+			}
+		}
 		const cb = this.onResponseCbs.get(id);
 		if (cb) {
 			this.onResponseCbs.delete(id);
-			cb(data, isError);
+			cb(returnData, isError);
 		}
 	}
 
@@ -202,7 +223,8 @@ export default class EditorConnection {
 		if (this.messageHandler.autoSerializationSupported) {
 			sendData = [...args];
 		} else {
-			sendData = JSON.stringify(args);
+			const jsonStr = JSON.stringify(args);
+			sendData = this.textEncoder.encode(jsonStr);
 		}
 		return await this.sendRequest(cmd, sendData);
 	}

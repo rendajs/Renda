@@ -90,14 +90,7 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 			this.updateConnectionState();
 		});
 		channel.addEventListener("message", e => {
-			let json = null;
-			try {
-				json = JSON.parse(e.data);
-			} catch (e) {
-				console.error("Error parsing data channel message", e);
-				return;
-			}
-			this.handleMessageReceived(json);
+			this.handleMessageReceived(e.data);
 		});
 	}
 
@@ -135,6 +128,6 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 	 * @param {*} data
 	 */
 	send(data) {
-		this.dataChannels.get("reliable").send(JSON.stringify(data));
+		this.dataChannels.get("reliable").send(data);
 	}
 }
