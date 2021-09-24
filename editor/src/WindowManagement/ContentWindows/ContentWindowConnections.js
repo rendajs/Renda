@@ -46,6 +46,7 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.updateDiscoveryServerStatus("disconnected");
 
 		this.loadSettings();
+		this.updateConnectionLists();
 	}
 
 	destructor() {
