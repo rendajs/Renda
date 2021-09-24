@@ -70,6 +70,15 @@
 	}
 }
 
+/* z-imdex values */
+:root {
+	--z-project-selector-curtain: 100;
+	--z-project-selector: calc(var(--z-project-selector-curtain) + 1);
+
+	--z-context-menu-curtain: calc(var(--z-project-selector) + 1);
+	--z-context-menu: calc(var(--z-context-menu-curtain) + 1);
+}
+
 body, html{
 	overflow: hidden;
 	position: relative;
@@ -87,7 +96,7 @@ body, html{
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	z-index: 100;
+	z-index: var(--z-project-selector-curtain);
 }
 
 .project-selector-window {
@@ -95,7 +104,7 @@ body, html{
 	height: 400px;
 	background-color: var(--default-ui-bg-color);
 	position: absolute;
-	z-index: 101;
+	z-index: var(--z-project-selector);
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
@@ -621,12 +630,12 @@ select.textInput:disabled{
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	z-index: 90;
+	z-index: var(--z-context-menu-curtain);
 }
 
 .contextMenu{
 	position: absolute;
-	z-index: 100;
+	z-index: var(--z-context-menu);
 	border-radius: var(--default-border-radius);
 	background: var(--default-ui-bg-color);
 	padding: 3px 0px;
