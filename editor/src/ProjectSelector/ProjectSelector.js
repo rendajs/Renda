@@ -115,16 +115,11 @@ export default class ProjectSelector {
 		}
 
 		for (const entry of list) {
-			let buttonText = "";
-			if (entry.fileSystemType == "native") {
-				buttonText = "Disk: ";
-			} else if (entry.fileSystemType == "db") {
-				buttonText = "Internal: ";
-			} else if (entry.fileSystemType == "remote") {
-				buttonText = "Remote: ";
+			let text = entry.name;
+			if (entry.alias) {
+				text = entry.alias;
 			}
-			buttonText += entry.name;
-			const el = this.createListButton(this.recentList, buttonText, async () => {
+			const el = this.createListButton(this.recentList, text, async () => {
 				const editor = await this.waitForEditor();
 				editor.projectManager.openExistingProject(entry);
 				this.setVisibility(false);
@@ -133,6 +128,13 @@ export default class ProjectSelector {
 				if (this.loadedEditor) {
 					e.preventDefault();
 					const contextMenu = this.loadedEditor.contextMenuManager.createContextMenu([
+						{
+							text: "Change alias",
+							onClick: async () => {
+								const alias = prompt("New alias", entry.name);
+								await this.setRecentProjectAlias(entry, alias);
+							},
+						},
 						{
 							text: "Delete",
 							onClick: () => {
@@ -184,6 +186,21 @@ export default class ProjectSelector {
 		const list = await this.getRecentProjects();
 		const newList = await this.removeProjectEntryFromList(entry, list);
 		await this.setRecentProjects(newList);
+	}
+
+	async setRecentProjectAlias(entry, alias) {
+		const list = await this.getRecentProjects();
+		const promises = [];
+		for (const existingEntry of list) {
+			const promise = (async () => {
+				if (await this.projectEntryEquals(entry, existingEntry)) {
+					existingEntry.alias = alias;
+				}
+			})();
+			promises.push(promise);
+		}
+		await Promise.allSettled(promises);
+		await this.setRecentProjects(list);
 	}
 
 	/**

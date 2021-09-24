@@ -14,6 +14,7 @@ import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
  * @typedef {Object} StoredProjectEntry
  * @property {"db" | "native" | "remote"} fileSystemType
  * @property {string} name
+ * @property {string} [alias = ""]
  * @property {import("../Util/Util.js").UuidString} projectUuid
  * @property {FileSystemDirectoryHandle} [fileSystemHandle]
  * @property {import("../Util/Util.js").UuidString} [remoteProjectUuid]
