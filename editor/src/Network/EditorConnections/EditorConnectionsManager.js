@@ -33,6 +33,12 @@ import ProtocolManager from "./ProtocolManager.js";
  * @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType
  */
 
+/**
+ * @typedef {Object} AvailableConnectionConfig
+ * @property {import("../../Util/Util.js").UuidString} uuid
+ * @property {MessageHandlerType} messageHandlerType
+ */
+
 export default class EditorConnectionsManager {
 	constructor() {
 		this.currentEndpoint = null;
@@ -88,16 +94,12 @@ export default class EditorConnectionsManager {
 		this.internalMessagesWorker.port.start();
 		this.internalMessagesWorker.port.postMessage({op: "registerClient", clientType: "editor"});
 
+		/** @type {?AvailableConnectionConfig} */
 		this.waitingForAvailableConnection = null;
 		this.onAvailableConnectionsChanged(() => {
-			if (!this.waitingForAvailableConnection) return;
-			for (const [id, connection] of this.availableConnections) {
-				if (
-					connection.projectMetaData?.uuid == this.waitingForAvailableConnection.id &&
-					connection.messageHandlerType == this.waitingForAvailableConnection.messageHandlerType
-				) {
-					this.startConnection(id);
-				}
+			const connection = this.findConnectionByAvailableConnectionConfig(this.waitingForAvailableConnection);
+			if (connection) {
+				this.startConnection(connection.id);
 			}
 		});
 
@@ -317,26 +319,31 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} connectionId
-	 * @param {MessageHandlerType} messageHandlerType
+	 * @param {AvailableConnectionConfig} config
 	 */
-	waitForAvailableAndConnect(connectionId, messageHandlerType) {
-		let existingConnectionId = null;
-		for (const [id, connection] of this.availableConnections) {
-			if (connection.id == connectionId && connection.messageHandlerType == messageHandlerType) {
-				existingConnectionId = id;
-				break;
+	waitForAvailableAndConnect(config) {
+		const existingConnection = this.findConnectionByAvailableConnectionConfig(config);
+		if (existingConnection) {
+			this.startConnection(existingConnection.id);
+		} else {
+			this.waitingForAvailableConnection = config;
+		}
+	}
+
+	/**
+	 * @param {AvailableConnectionConfig} config
+	 */
+	findConnectionByAvailableConnectionConfig(config) {
+		if (!config) return null;
+		for (const connection of this.availableConnections.values()) {
+			if (
+				connection.projectMetaData?.uuid == config.uuid &&
+				connection.messageHandlerType == config.messageHandlerType
+			) {
+				return connection;
 			}
 		}
-
-		if (existingConnectionId) {
-			this.startConnection(existingConnectionId);
-		} else {
-			this.waitingForAvailableConnection = {
-				id: connectionId,
-				messageHandlerType,
-			};
-		}
+		return null;
 	}
 
 	/**
