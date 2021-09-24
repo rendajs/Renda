@@ -85,6 +85,7 @@ export default class ProjectSelector {
 		item.textContent = name;
 		item.addEventListener("click", onClick);
 		listEl.appendChild(item);
+		return item;
 	}
 
 	/**
@@ -101,16 +102,17 @@ export default class ProjectSelector {
 	 */
 	async setRecentProjects(list) {
 		await this.indexedDb.set("recentProjectsList", list);
-	}
-
-	clearRecentProjectsUi() {
-		while (this.recentList.firstChild) {
-			this.recentList.removeChild(this.recentList.firstChild);
+		if (this.visible) {
+			await this.updateRecentProjectsUi();
 		}
 	}
 
 	async updateRecentProjectsUi() {
 		const list = await this.getRecentProjects();
+
+		while (this.recentList.firstChild) {
+			this.recentList.removeChild(this.recentList.firstChild);
+		}
 
 		for (const entry of list) {
 			let buttonText = "";
@@ -122,10 +124,25 @@ export default class ProjectSelector {
 				buttonText = "Remote: ";
 			}
 			buttonText += entry.name;
-			this.createListButton(this.recentList, buttonText, async () => {
+			const el = this.createListButton(this.recentList, buttonText, async () => {
 				const editor = await this.waitForEditor();
 				editor.projectManager.openExistingProject(entry);
 				this.setVisibility(false);
+			});
+			el.addEventListener("contextmenu", e => {
+				if (this.loadedEditor) {
+					e.preventDefault();
+					const contextMenu = this.loadedEditor.contextMenuManager.createContextMenu([
+						{
+							text: "Delete",
+							onClick: () => {
+								this.removeRecentProjectsEntry(entry);
+								// todo: Delete internal file systems and show prompt
+							},
+						},
+					]);
+					contextMenu.setPos(e.clientX, e.clientY);
+				}
 			});
 		}
 	}
@@ -154,35 +171,56 @@ export default class ProjectSelector {
 	 * @param {StoredProjectEntry} entry
 	 */
 	async addRecentProjectEntry(entry) {
-		/** @type {StoredProjectEntry[]} */
-		let list = await this.getRecentProjects();
+		const list = await this.getRecentProjects();
+		const newList = await this.removeProjectEntryFromList(entry, list);
+		newList.unshift(entry);
+		await this.setRecentProjects(newList);
+	}
 
-		const existingEntries = new Set();
-		const existingEntriesOfSameType = list.filter(e => e.fileSystemType == entry.fileSystemType);
-		const existingEntriesByUuid = existingEntriesOfSameType.filter(e => e.projectUuid == entry.projectUuid);
-		for (const entry of existingEntriesByUuid) {
-			existingEntries.add(entry);
+	/**
+	 * @param {StoredProjectEntry} entry
+	 */
+	async removeRecentProjectsEntry(entry) {
+		const list = await this.getRecentProjects();
+		const newList = await this.removeProjectEntryFromList(entry, list);
+		await this.setRecentProjects(newList);
+	}
+
+	/**
+	 * @param {StoredProjectEntry} entry1
+	 * @param {StoredProjectEntry} entry2
+	 */
+	async projectEntryEquals(entry1, entry2) {
+		if (entry1.fileSystemType != entry2.fileSystemType) return false;
+		if (entry1.fileSystemType == "native") {
+			return await entry1.fileSystemHandle.isSameEntry(entry2.fileSystemHandle);
+		} else if (entry1.fileSystemType == "db") {
+			return entry1.projectUuid == entry2.projectUuid;
+		} else if (entry1.fileSystemType == "remote") {
+			return entry1.projectUuid == entry2.projectUuid;
 		}
-		if (entry.fileSystemType == "native") {
-			const promises = [];
-			for (const existingEntry of existingEntriesOfSameType) {
-				const promise = (async () => {
-					const same = await entry.fileSystemHandle.isSameEntry(existingEntry.fileSystemHandle);
-					return {entry: existingEntry, same};
-				})();
-				promises.push(promise);
-			}
-			const results = await Promise.allSettled(promises);
-			const fulfilledEntries = results.filter(r => r.status == "fulfilled" && r.value.same);
-			const castFulfilledEntries = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntry, same: boolean}>[]} */ (fulfilledEntries);
-			const existingEntriesByFileSystemHandle = castFulfilledEntries.map(r => r.value.entry);
-			for (const entry of existingEntriesByFileSystemHandle) {
-				existingEntries.add(entry);
-			}
+		return false;
+	}
+
+	/**
+	 * @param {StoredProjectEntry} entry
+	 * @param {StoredProjectEntry[]} list
+	 * @returns {Promise<StoredProjectEntry[]>}
+	 */
+	async removeProjectEntryFromList(entry, list) {
+		const promises = [];
+		for (const existingEntry of list) {
+			const promise = (async () => {
+				const same = await this.projectEntryEquals(entry, existingEntry);
+				return {entry: existingEntry, same};
+			})();
+			promises.push(promise);
 		}
-		list = list.filter(e => !existingEntries.has(e));
-		list.unshift(entry);
-		await this.setRecentProjects(list);
+		const results = await Promise.allSettled(promises);
+		const differentResults = results.filter(r => r.status == "fulfilled" && !r.value.same);
+		const castDifferentResults = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntry, same: boolean}>[]} */ (differentResults);
+		const newList = castDifferentResults.map(r => r.value.entry);
+		return newList;
 	}
 
 	/**
@@ -195,7 +233,6 @@ export default class ProjectSelector {
 		if (visible) {
 			document.body.appendChild(this.el);
 			document.body.appendChild(this.curtainEl);
-			this.clearRecentProjectsUi();
 			this.updateRecentProjectsUi();
 		} else {
 			document.body.removeChild(this.el);
