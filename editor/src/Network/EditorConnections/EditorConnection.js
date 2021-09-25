@@ -137,6 +137,7 @@ export default class EditorConnection {
 		}
 		const {id, cmd, data} = requestData;
 
+		/** @type {ArrayBuffer} */
 		let result = null;
 		let error = null;
 		let didReject = false;
@@ -147,21 +148,41 @@ export default class EditorConnection {
 			}
 
 			const handler = commandData.handleRequest;
+			/** @type {*[]}*/
 			let args = data;
 			if (!this.messageHandler.autoSerializationSupported) {
 				const argsJsonStr = this.textDecoder.decode(data);
 				args = JSON.parse(argsJsonStr);
 			}
-			result = await handler(...args);
+			if (commandData.needsRequestMetaData) {
+				/** @type {import("./ProtocolManager.js").RequestMetaData} */
+				const meta = {
+					autoSerializationSupported: this.messageHandler.autoSerializationSupported,
+				};
+				args.unshift(meta);
+			}
+			const returnResult = await handler(...args);
+
+			let serializeResult = true;
+			const serializeCondition = commandData.responseSerializeCondition || "if-not-supported";
+			if (serializeCondition == "always") {
+				serializeResult = true;
+			} else if (serializeCondition == "if-not-supported") {
+				serializeResult = !this.messageHandler.autoSerializationSupported;
+			} else if (serializeCondition == "never") {
+				serializeResult = false;
+			}
+			if (serializeResult) {
+				const jsonResponseStr = JSON.stringify(returnResult);
+				result = this.textEncoder.encode(jsonResponseStr);
+			} else {
+				result = returnResult;
+			}
 		} catch (e) {
 			error = e;
 			didReject = true;
 		}
-		let responseData = didReject ? error : result;
-		if (!this.messageHandler.autoSerializationSupported) {
-			const jsonResponseStr = JSON.stringify(responseData);
-			responseData = this.textEncoder.encode(jsonResponseStr);
-		}
+		const responseData = didReject ? error : result;
 		this.sendResponse(id, responseData, didReject);
 	}
 
@@ -187,19 +208,10 @@ export default class EditorConnection {
 			responseData = BinaryComposer.binaryToObject(responseData, this.sendResponseBinaryOpts);
 		}
 		const {id, data, isError} = responseData;
-		let returnData = data;
-		if (!this.messageHandler.autoSerializationSupported) {
-			const returnDataJsonStr = this.textDecoder.decode(data);
-			if (returnDataJsonStr) {
-				returnData = JSON.parse(returnDataJsonStr);
-			} else {
-				returnData = null;
-			}
-		}
 		const cb = this.onResponseCbs.get(id);
 		if (cb) {
 			this.onResponseCbs.delete(id);
-			cb(returnData, isError);
+			cb(data, isError);
 		}
 	}
 
@@ -226,6 +238,25 @@ export default class EditorConnection {
 			const jsonStr = JSON.stringify(args);
 			sendData = this.textEncoder.encode(jsonStr);
 		}
-		return await this.sendRequest(cmd, sendData);
+		const responseData = await this.sendRequest(cmd, sendData);
+
+		let returnData = responseData;
+		if (!this.messageHandler.autoSerializationSupported) {
+			if (commandData.handleResponse) {
+				/** @type {import("./ProtocolManager.js").RequestMetaData} */
+				const meta = {
+					autoSerializationSupported: this.messageHandler.autoSerializationSupported,
+				};
+				returnData = commandData.handleResponse(meta, responseData);
+			} else {
+				const returnDataJsonStr = this.textDecoder.decode(responseData);
+				if (returnDataJsonStr) {
+					returnData = JSON.parse(returnDataJsonStr);
+				} else {
+					returnData = null;
+				}
+			}
+		}
+		return returnData;
 	}
 }

@@ -4,8 +4,17 @@ import BinaryDecomposer from "./BinaryDecomposer.js";
  * @typedef {Object} BinaryComposerStructure
  */
 
+/** @typedef {Object.<string, number>} BinaryComposerNameIds */
+
 /**
- * @typedef {Object.<string, number>} BinaryComposerNameIds
+ * @typedef {Object} BinaryComposerObjectToBinaryOptions
+ * @property {BinaryComposerStructure} [structure = null]
+ * @property {BinaryComposerNameIds} [nameIds = null]
+ * @property {boolean} [littleEndian = true]
+ * @property {boolean} [useHeaderByte = true]
+ * @property {BinaryComposerVariableLengthStorageTypes} [variableLengthStorageTypes = true]
+ * @property {ObjectToBinaryTransformValueHook} [transformValueHook = null]
+ * @property {import("../../editor/src/Assets/AssetManager.js").default} [editorAssetManager = null]
  */
 
 /**
@@ -18,25 +27,21 @@ import BinaryDecomposer from "./BinaryDecomposer.js";
 
 /**
  * @typedef {Object} BinaryToObjectTransformValueHookArgs
- * @property {*} value - The value of the property before the transformation.
- * @property {StorageType} type - The type of the property before the transformation.
- * @property {Object} placedOnObject - The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
- * @property {string} placedOnKey - The key of the property.
+ * @property {*} value The value of the property before the transformation.
+ * @property {StorageType} type The type of the property before the transformation.
+ * @property {Object} placedOnObject The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
+ * @property {string} placedOnKey The key of the property.
  */
 
-/**
- * @typedef {function(BinaryToObjectTransformValueHookArgs) : *} BinaryToObjectTransformValueHook
- */
+/** @typedef {function(BinaryToObjectTransformValueHookArgs) : *} BinaryToObjectTransformValueHook */
 
 /**
  * @typedef {Object} ObjectToBinaryTransformValueHookArgs
- * @property {number} type - The type of the property before the transformation.
- * @property {*} value - The value of the property before the transformation.
+ * @property {number} type The type of the property before the transformation.
+ * @property {*} value The value of the property before the transformation.
  */
 
-/**
- * @typedef {function(ObjectToBinaryTransformValueHookArgs) : *} ObjectToBinaryTransformValueHook
- */
+/** @typedef {function(ObjectToBinaryTransformValueHookArgs) : *} ObjectToBinaryTransformValueHook */
 
 /**
  * @typedef {Object} BinaryComposerBinaryDigestible
@@ -189,14 +194,7 @@ export default class BinaryComposer{
 
 	/**
 	 * @param {Object} data
-	 * @param {Object} opts
-	 * @param {BinaryComposerStructure} [opts.structure = null]
-	 * @param {BinaryComposerNameIds} [opts.nameIds = null]
-	 * @param {boolean} [opts.littleEndian = true]
-	 * @param {boolean} [opts.useHeaderByte = true]
-	 * @param {BinaryComposerVariableLengthStorageTypes} [opts.variableLengthStorageTypes = true]
-	 * @param {ObjectToBinaryTransformValueHook} [opts.transformValueHook = null]
-	 * @param {import("../../editor/src/Assets/AssetManager.js").default} [opts.editorAssetManager = null]
+	 * @param {BinaryComposerObjectToBinaryOptions} opts
 	 * @returns {ArrayBuffer}
 	 */
 	static objectToBinary(data, {

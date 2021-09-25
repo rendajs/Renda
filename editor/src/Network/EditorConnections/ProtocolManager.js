@@ -1,16 +1,33 @@
 import autoRegisterRequestHandlers from "./ProtocolRequestHandlers/AutoRegisterRequestHandlers.js";
 
-/** @typedef {"never" | "always" | "as-needed"} BinaryCondition */
+/**
+ * Whether the returned result of a hook should be serialized.
+ * - `always` Serialize the returned value, it will be passed to JSON.stringify before sending.
+ * - `never` Send the returned value as-is.
+ * - `if-not-supported` Serialize the returned value if and only if {@link RequestMetaData.autoSerializationSupported}
+ * is `false` (this is the default).
+ *
+ * You can generally get away with the default if all you're doing is returning a simple object.
+ *
+ * If your return value contains special objects, but one that is still serializable by postMessage:
+ * Use `never` and serialize the returned value yourself if {@link RequestMetaData.autoSerializationSupported}
+ * is `false`, return the serializable object otherwise.
+ * @typedef {"always" | "never" | "if-not-supported"} SerializeCondition
+ */
+
+/**
+ * @typedef {Object} RequestMetaData
+ * @property {boolean} autoSerializationSupported
+ */
 
 /**
  * @typedef {Object} ProtocolManagerRequestHandler
  * @property {string} command
  * @property {boolean} [needsRequestMetaData = false]
  * @property {function} [preSend]
- * @property {BinaryCondition} [requestBinaryCondition = "never"]
+ * @property {SerializeCondition} [responseSerializeCondition = "if-not-supported"]
  * @property {function} handleRequest
- * @property {BinaryCondition} [responseBinaryCondition = "never"]
- * @property {function} [handleResponse]
+ * @property {function(RequestMetaData, ArrayBuffer) : *} [handleResponse]
  */
 
 export default class ProtocolManager {
