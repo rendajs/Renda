@@ -245,7 +245,7 @@ export default class EditorConnectionsManager {
 
 	/**
 	 * @param {AvailableRtcConnectionData} connection
-	 * @param {boolean} [fireAvailableConnectionsChanged = true]
+	 * @param {boolean} [fireAvailableConnectionsChanged]
 	 */
 	addAvailableWebRtcConnection(connection, fireAvailableConnectionsChanged = true) {
 		this.availableConnections.set(connection.id, {
@@ -258,7 +258,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @returns {Promise<boolean>} Whether the connection was opened
+	 * @returns {Promise<boolean>} Whether the connection was opened.
 	 */
 	async waitForDiscoveryOpenOrError() {
 		if (this.discoveryWs && this.discoveryWs.readyState == WebSocket.OPEN) return true;

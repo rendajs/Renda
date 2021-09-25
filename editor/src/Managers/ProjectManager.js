@@ -253,8 +253,13 @@ export default class ProjectManager {
 	}
 
 	async loadEditorConnectionsAllowIncoming() {
-		this.editorConnectionsAllowRemoteIncoming = await this.localProjectSettings.get("editorConnectionsAllowIncoming", false);
-		this.editorConnectionsAllowInternalIncoming = await this.localProjectSettings.get("editorConnectionsAllowInternalIncoming", false);
+		if (this.currentProjectIsRemote) {
+			this.editorConnectionsAllowRemoteIncoming = false;
+			this.editorConnectionsAllowInternalIncoming = false;
+		} else {
+			this.editorConnectionsAllowRemoteIncoming = await this.localProjectSettings.get("editorConnectionsAllowIncoming", false);
+			this.editorConnectionsAllowInternalIncoming = await this.localProjectSettings.get("editorConnectionsAllowInternalIncoming", false);
+		}
 		this.updateEditorConnectionsManager();
 	}
 
