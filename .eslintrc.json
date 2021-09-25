@@ -182,7 +182,10 @@
 		"jsdoc/multiline-blocks": [
 			"error", {
 				"noSingleLineBlocks": true,
-				"singleLineTags": ["typedef", "type"]
+				"noMultilineBlocks": true,
+				"minimumLengthForMultiline": 100,
+				"singleLineTags": ["type", "typedef"],
+				"multilineTags": ["param", "returns"]
 			}
 		],
 		"jsdoc/newline-after-description": ["error", "never"],
