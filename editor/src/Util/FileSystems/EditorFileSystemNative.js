@@ -64,9 +64,9 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	 * Utility function for verifying permissions on a specific handle.
 	 * @param {FileSystemHandle} handle
 	 * @param {Object} opts
-	 * @param {boolean} [opts.prompt=true] - Whether to prompt the user if no permission has been granted yet.
-	 * @param {boolean} [opts.writable=true] - Whether to request write permission.
-	 * @param {boolean} [opts.error=true] - If true, will throw an error if the permission is denied.
+	 * @param {boolean} [opts.prompt] Whether to prompt the user if no permission has been granted yet.
+	 * @param {boolean} [opts.writable] Whether to request write permission.
+	 * @param {boolean} [opts.error] If true, will throw an error if the permission is denied.
 	 * @returns {Promise<Boolean>}
 	 */
 	async verifyHandlePermission(handle, {
@@ -87,8 +87,8 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	/**
 	 * @param {Array<String>} path
 	 * @param {Object} opts
-	 * @param {Boolean} [opts.create=false] - Whether to create the directory if it doesn't exist.
-	 * @param {Boolean} [opts.overrideError=true] - If true, replaces system errors with one that prints the path.
+	 * @param {Boolean} [opts.create] Whether to create the directory if it doesn't exist.
+	 * @param {Boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @returns {Promise<FileSystemDirectoryHandle>}
 	 */
 	async getDirHandle(path = [], {
@@ -118,8 +118,8 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	/**
 	 * @param {Array<String>} path
 	 * @param {Object} opts
-	 * @param {Boolean} [opts.create=false] - Whether to create the file if it doesn't exist.
-	 * @param {Boolean} [opts.overrideError=true] - If true, replaces system errors with one that prints the path.
+	 * @param {Boolean} [opts.create] Whether to create the file if it doesn't exist.
+	 * @param {Boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @returns {Promise<FileSystemFileHandle>}
 	 */
 	async getFileHandle(path = [], {

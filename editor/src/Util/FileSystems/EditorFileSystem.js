@@ -1,12 +1,8 @@
 import toFormattedJsonString from "../toFormattedJsonString.js";
 
-/**
- * @typedef {string[]} EditorFileSystemPath
- */
+/** @typedef {string[]} EditorFileSystemPath */
 
-/**
- * @typedef {{files: Array<String>, directories: Array<String>}} EditorFileSystemReadDirResult
- */
+/** @typedef {{files: Array<String>, directories: Array<String>}} EditorFileSystemReadDirResult */
 
 export default class EditorFileSystem {
 	constructor() {
@@ -17,10 +13,10 @@ export default class EditorFileSystem {
 	 * Returns true if the user has permission to read (or write if specified) at the specified path.
 	 * If the file/directory does not exist, it still returns true when
 	 * the highest available directory in the path has permissions.
-	 * @param {EditorFileSystemPath} path The path to get permissions for
+	 * @param {EditorFileSystemPath} path The path to get permissions for.
 	 * @param {Object} opts
-	 * @param {Boolean} [opts.writable=true] Check for writable permissions if true.
-	 * @param {Boolean} [opts.prompt=false] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
+	 * @param {Boolean} [opts.writable] Check for writable permissions if true.
+	 * @param {Boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
 	 * @returns {Promise<Boolean>} Whether permissions have been granted or already exist.
 	 */
 	async getPermission(path = [], {
@@ -139,7 +135,7 @@ export default class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 * @param {String} text
 	 * @param {Object} opts
-	 * @param {String} [opts.type="text/plain"]
+	 * @param {String} [opts.type]
 	 */
 	async writeText(path = [], text = "", {
 		type = "text/plain",
@@ -177,7 +173,7 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemPath} path
-	 * @param {BlobPart} binary - File, Blob, ArrayBuffer or TypedArray
+	 * @param {BlobPart} binary File, Blob, ArrayBuffer or TypedArray.
 	 */
 	async writeBinary(path = [], binary = null) {
 		const fileName = path[path.length - 1] || "";
