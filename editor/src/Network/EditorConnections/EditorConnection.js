@@ -31,6 +31,7 @@ export default class EditorConnection {
 			},
 		};
 
+		/** @type {import("../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendRequestBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -44,6 +45,7 @@ export default class EditorConnection {
 			},
 		};
 
+		/** @type {import("../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendResponseBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -54,6 +56,18 @@ export default class EditorConnection {
 				id: 0,
 				data: 1,
 				isError: 2,
+			},
+		};
+
+		/** @type {import("../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+		this.sendErrorBinaryOpts = {
+			structure: {
+				name: StorageType.STRING,
+				message: StorageType.STRING,
+			},
+			nameIds: {
+				name: 0,
+				message: 1,
 			},
 		};
 	}
@@ -182,7 +196,17 @@ export default class EditorConnection {
 			error = e;
 			didReject = true;
 		}
-		const responseData = didReject ? error : result;
+		let serializedError = null;
+		if (didReject) {
+			serializedError = {
+				name: error.name,
+				message: error.message,
+			};
+			if (!this.messageHandler.autoSerializationSupported) {
+				serializedError = BinaryComposer.objectToBinary(serializedError, this.sendErrorBinaryOpts);
+			}
+		}
+		const responseData = didReject ? serializedError : result;
 		this.sendResponse(id, responseData, didReject);
 	}
 
@@ -208,10 +232,19 @@ export default class EditorConnection {
 			responseData = BinaryComposer.binaryToObject(responseData, this.sendResponseBinaryOpts);
 		}
 		const {id, data, isError} = responseData;
+		let returnData = data;
+		if (isError) {
+			let errorData = data;
+			if (!this.messageHandler.autoSerializationSupported) {
+				errorData = BinaryComposer.binaryToObject(data, this.sendErrorBinaryOpts);
+			}
+			returnData = new Error(errorData.message);
+			returnData.name = errorData.name;
+		}
 		const cb = this.onResponseCbs.get(id);
 		if (cb) {
 			this.onResponseCbs.delete(id);
-			cb(data, isError);
+			cb(returnData, isError);
 		}
 	}
 
