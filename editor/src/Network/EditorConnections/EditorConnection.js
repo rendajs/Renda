@@ -64,10 +64,12 @@ export default class EditorConnection {
 			structure: {
 				name: StorageType.STRING,
 				message: StorageType.STRING,
+				stack: StorageType.STRING,
 			},
 			nameIds: {
 				name: 0,
 				message: 1,
+				stack: 2,
 			},
 		};
 	}
@@ -201,6 +203,7 @@ export default class EditorConnection {
 			serializedError = {
 				name: error.name,
 				message: error.message,
+				stack: error.stack,
 			};
 			if (!this.messageHandler.autoSerializationSupported) {
 				serializedError = BinaryComposer.objectToBinary(serializedError, this.sendErrorBinaryOpts);
@@ -240,6 +243,7 @@ export default class EditorConnection {
 			}
 			returnData = new Error(errorData.message);
 			returnData.name = errorData.name;
+			returnData.stack = errorData.stack;
 		}
 		const cb = this.onResponseCbs.get(id);
 		if (cb) {
