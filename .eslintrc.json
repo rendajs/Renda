@@ -93,7 +93,13 @@
 		"func-call-spacing": "error",
 		"function-paren-newline": ["error", "multiline"],
 		"implicit-arrow-linebreak": "error",
-		"indent": ["error", "tab"],
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1
+			}
+		],
 		"key-spacing": "error",
 		"keyword-spacing": "error",
 		"linebreak-style": "error",
