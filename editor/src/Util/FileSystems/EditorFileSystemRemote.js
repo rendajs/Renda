@@ -91,4 +91,14 @@ export default class EditorFileSystemRemote extends EditorFileSystem {
 		await this.waitForConnection();
 		return await this.connection.call("fileSystem.exists", path);
 	}
+
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {File | BufferSource | Blob | string} file
+	 */
+	async writeFile(path = [], file = null) {
+		await this.waitForConnection();
+		return await this.connection.call("fileSystem.writeFile", path, file);
+	}
 }

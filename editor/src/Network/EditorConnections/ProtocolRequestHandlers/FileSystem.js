@@ -39,6 +39,29 @@ const serializeFileBinaryOpts = {
 	},
 };
 
+/**
+ * @param {File} file
+ */
+async function serializeFile(file) {
+	return BinaryComposer.objectToBinary({
+		buffer: await file.arrayBuffer(),
+		name: file.name,
+		type: file.type,
+		lastModified: file.lastModified,
+	}, serializeFileBinaryOpts);
+}
+
+/**
+ * @param {ArrayBuffer} buffer
+ */
+function deserializeFile(buffer) {
+	const fileData = BinaryComposer.binaryToObject(buffer, serializeFileBinaryOpts);
+	return new File([fileData.buffer], fileData.name, {
+		type: fileData.type,
+		lastModified: fileData.lastModified,
+	});
+}
+
 /**	@type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
 const readFile = {
 	command: "fileSystem.readFile",
@@ -52,22 +75,61 @@ const readFile = {
 		if (meta.autoSerializationSupported) {
 			return file;
 		} else {
-			const buffer = BinaryComposer.objectToBinary({
-				buffer: await file.arrayBuffer(),
-				name: file.name,
-				type: file.type,
-				lastModified: file.lastModified,
-			}, serializeFileBinaryOpts);
-			return buffer;
+			return await serializeFile(file);
 		}
 	},
 	responseSerializeCondition: "never",
 	handleResponse: async (meta, buffer) => {
-		const fileData = BinaryComposer.binaryToObject(buffer, serializeFileBinaryOpts);
-		return new File([fileData.buffer], fileData.name, {
-			type: fileData.type,
-			lastModified: fileData.lastModified,
-		});
+		return deserializeFile(buffer);
+	},
+};
+
+/** @type {import("../../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+const serializeWriteFileBinaryOpts = {
+	structure: {
+		path: [StorageType.STRING],
+		file: StorageType.ARRAY_BUFFER,
+	},
+	nameIds: {
+		path: 0,
+		file: 1,
+	},
+};
+
+/** @type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
+const writeFile = {
+	command: "fileSystem.writeFile",
+	needsRequestMetaData: true,
+	requestSerializeCondition: "never",
+	/**
+	 * @param {import("../ProtocolManager.js").RequestMetaData} meta
+	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {File} file
+	 */
+	async prepare(meta, path, file) {
+		/** @type {{path: string[], file: File | ArrayBuffer}} */
+		const sendData = {path, file};
+		if (meta.autoSerializationSupported) {
+			return sendData;
+		} else {
+			sendData.file = await serializeFile(file);
+			const buffer = BinaryComposer.objectToBinary(sendData, serializeWriteFileBinaryOpts);
+			return buffer;
+		}
+	},
+	/**
+	 * @param {import("../ProtocolManager.js").RequestMetaData} meta
+	 * @param {*} data
+	 */
+	async handleRequest(meta, data) {
+		if (!meta.autoSerializationSupported) {
+			const buffer = /** @type {ArrayBuffer} */ (data);
+			data = BinaryComposer.binaryToObject(buffer, serializeWriteFileBinaryOpts);
+			data.file = deserializeFile(data.file);
+		}
+		const parsedData = /** @type {{path: string[], file: File}} */ (data);
+		const {path, file} = parsedData;
+		return await editor.projectManager.currentProjectFileSystem.writeFile(path, file);
 	},
 };
 
@@ -108,6 +170,7 @@ export default [
 	readDir,
 	createDir,
 	readFile,
+	writeFile,
 	isFile,
 	isDir,
 	exists,

@@ -145,6 +145,29 @@ export default class EditorConnection {
 	}
 
 	/**
+	 * @returns {import("./ProtocolManager.js").RequestMetaData}
+	 */
+	getRequestMetaData() {
+		return {
+			autoSerializationSupported: this.messageHandler.autoSerializationSupported,
+		};
+	}
+
+	/**
+	 * @param {import("./ProtocolManager.js").SerializeCondition} serializeCondition
+	 */
+	getShouldSerialize(serializeCondition = "if-not-supported") {
+		if (serializeCondition == "always") {
+			return true;
+		} else if (serializeCondition == "if-not-supported") {
+			return !this.messageHandler.autoSerializationSupported;
+		} else if (serializeCondition == "never") {
+			return false;
+		}
+		return false;
+	}
+
+	/**
 	 * @param {*} requestData
 	 */
 	async handleRequest(requestData) {
@@ -153,7 +176,7 @@ export default class EditorConnection {
 		}
 		const {id, cmd, data} = requestData;
 
-		/** @type {ArrayBuffer} */
+		/** @type {*} */
 		let result = null;
 		let error = null;
 		let didReject = false;
@@ -166,29 +189,22 @@ export default class EditorConnection {
 			const handler = commandData.handleRequest;
 			/** @type {*[]}*/
 			let args = data;
-			if (!this.messageHandler.autoSerializationSupported) {
+			if (this.getShouldSerialize(commandData.requestSerializeCondition)) {
 				const argsJsonStr = this.textDecoder.decode(data);
 				args = JSON.parse(argsJsonStr);
 			}
+			if (commandData.prepare) {
+				// The prepare function can return any type so we need to wrap it
+				// in order to pass it as an argument.
+				args = [args];
+			}
 			if (commandData.needsRequestMetaData) {
-				/** @type {import("./ProtocolManager.js").RequestMetaData} */
-				const meta = {
-					autoSerializationSupported: this.messageHandler.autoSerializationSupported,
-				};
+				const meta = this.getRequestMetaData();
 				args.unshift(meta);
 			}
 			const returnResult = await handler(...args);
 
-			let serializeResult = true;
-			const serializeCondition = commandData.responseSerializeCondition || "if-not-supported";
-			if (serializeCondition == "always") {
-				serializeResult = true;
-			} else if (serializeCondition == "if-not-supported") {
-				serializeResult = !this.messageHandler.autoSerializationSupported;
-			} else if (serializeCondition == "never") {
-				serializeResult = false;
-			}
-			if (serializeResult) {
+			if (this.getShouldSerialize(commandData.responseSerializeCondition)) {
 				const jsonResponseStr = JSON.stringify(returnResult);
 				result = this.textEncoder.encode(jsonResponseStr);
 			} else {
@@ -258,32 +274,29 @@ export default class EditorConnection {
 			throw new Error(`Unknown command: "${cmd}"`);
 		}
 
-		// todo:
-		// if (commandData.preSend) {
-		// 	const preSendArgs = [];
-		// 	if (commandData.needsRequestMetaData) {
-		// 		preSendArgs.push({});
-		// 	}
-		// 	preSendArgs.push(...args);
-		// 	commandData.preSend(...preSendArgs);
-		// }
+		const meta = this.getRequestMetaData();
 
-		let sendData;
-		if (this.messageHandler.autoSerializationSupported) {
-			sendData = [...args];
-		} else {
-			const jsonStr = JSON.stringify(args);
+		/** @type {*}*/
+		let sendData = args;
+
+		if (commandData.prepare) {
+			const preSendArgs = [...args];
+			if (commandData.needsRequestMetaData) {
+				preSendArgs.unshift(meta);
+			}
+			sendData = await commandData.prepare(...preSendArgs);
+		}
+
+		if (this.getShouldSerialize(commandData.requestSerializeCondition)) {
+			const jsonStr = JSON.stringify(sendData);
 			sendData = this.textEncoder.encode(jsonStr);
 		}
+
 		const responseData = await this.sendRequest(cmd, sendData);
 
 		let returnData = responseData;
 		if (!this.messageHandler.autoSerializationSupported) {
 			if (commandData.handleResponse) {
-				/** @type {import("./ProtocolManager.js").RequestMetaData} */
-				const meta = {
-					autoSerializationSupported: this.messageHandler.autoSerializationSupported,
-				};
 				returnData = commandData.handleResponse(meta, responseData);
 			} else {
 				const returnDataJsonStr = this.textDecoder.decode(responseData);
