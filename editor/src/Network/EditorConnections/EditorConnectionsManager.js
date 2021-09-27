@@ -8,12 +8,8 @@ import ProtocolManager from "./ProtocolManager.js";
  * @property {string} name
  * @property {import("../../Util/Util.js").UuidString} uuid
  */
-/**
- * @typedef {"webRtc" | "internal"} MessageHandlerType
- */
-/**
- * @typedef {"editor" | "inspector"} ClientType
- */
+/** @typedef {"webRtc" | "internal"} MessageHandlerType */
+/** @typedef {"editor" | "inspector"} ClientType */
 /**
  * @typedef {Object} AvailableEditorData
  * @property {import("../../Util/Util.js").UuidString} id
@@ -22,16 +18,10 @@ import ProtocolManager from "./ProtocolManager.js";
  * @property {RemoteEditorMetaData} [projectMetaData]
  */
 
-/**
- * @typedef {Map<import("../../Util/Util.js").UuidString, AvailableEditorData>} AvailableEditorDataList
- */
-/**
- * @typedef {Map<import("../../Util/Util.js").UuidString, EditorConnection>} ActiveEditorDataList
- */
+/** @typedef {Map<import("../../Util/Util.js").UuidString, AvailableEditorData>} AvailableEditorDataList */
+/** @typedef {Map<import("../../Util/Util.js").UuidString, EditorConnection>} ActiveEditorDataList */
 
-/**
- * @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType
- */
+/** @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType */
 
 /**
  * @typedef {Object} AvailableConnectionConfig
@@ -245,7 +235,7 @@ export default class EditorConnectionsManager {
 
 	/**
 	 * @param {AvailableRtcConnectionData} connection
-	 * @param {boolean} [fireAvailableConnectionsChanged]
+	 * @param {boolean} fireAvailableConnectionsChanged
 	 */
 	addAvailableWebRtcConnection(connection, fireAvailableConnectionsChanged = true) {
 		this.availableConnections.set(connection.id, {

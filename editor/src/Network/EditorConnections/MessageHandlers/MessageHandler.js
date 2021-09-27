@@ -1,6 +1,4 @@
-/**
- * @typedef {"disconnected" | "connecting" | "connected"} EditorConnectionState
- */
+/** @typedef {"disconnected" | "connecting" | "connected"} EditorConnectionState */
 
 export default class MessageHandler {
 	constructor() {

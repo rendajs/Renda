@@ -4,9 +4,9 @@ export default class MessageHandlerInternal extends MessageHandler {
 	/**
 	 * @param {import("../../../Util/Util.js").UuidString} connectionId
 	 * @param {import("../EditorConnectionsManager.js").default} connectionsManager
-	 * @param {boolean} [isInitiator = false]
+	 * @param {boolean} isInitiator
 	 */
-	constructor(connectionId, connectionsManager, isInitiator) {
+	constructor(connectionId, connectionsManager, isInitiator = false) {
 		super();
 		this.connectionId = connectionId;
 		this.connectionsManager = connectionsManager;

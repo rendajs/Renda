@@ -29,7 +29,7 @@ export default class ContextMenuSubmenuItem extends ContextMenuItem {
 	}
 
 	/**
-	 * @param {function(ContextMenu): void} cb - The callback to call when the submenu is created.
+	 * @param {function(ContextMenu): void} cb The callback to call when the submenu is created.
 	 */
 	onCreateSubmenu(cb) {
 		this.onCreateSubmenuCbs.add(cb);

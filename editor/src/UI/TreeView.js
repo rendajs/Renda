@@ -284,7 +284,7 @@ export default class TreeView {
 
 	/**
 	 * @param {TreeView} parent
-	 * @param {boolean} addChild whether a call should be made to parent.addChild()
+	 * @param {boolean} addChild Whether a call should be made to parent.addChild().
 	 */
 	setParent(parent, addChild = true) {
 		if (parent != this.parent) {
@@ -301,17 +301,17 @@ export default class TreeView {
 	}
 
 	/**
-	 * @param {?TreeView} treeView the TreeView to insert, creates a new one when null
-	 * @returns {TreeView} the created TreeView
+	 * @param {?TreeView} treeView The TreeView to insert, creates a new one when null.
+	 * @returns {TreeView} The created TreeView.
 	 */
 	addChild(treeView = null) {
 		return this.addChildAtIndex(-1, treeView);
 	}
 
 	/**
-	 * @param {number} index index to insert the TreeView at, starts counting from the back when negative
-	 * @param {?TreeView} treeView the TreeView to insert, creates a new one when null
-	 * @returns {TreeView} the created TreeView
+	 * @param {number} index Index to insert the TreeView at, starts counting from the back when negative.
+	 * @param {?TreeView} treeView The TreeView to insert, creates a new one when null.
+	 * @returns {TreeView} The created TreeView.
 	 */
 	addChildAtIndex(index = -1, treeView = null) {
 		if (index < 0) {
@@ -432,6 +432,9 @@ export default class TreeView {
 		this.currenDragFeedbackEl = null;
 	}
 
+	/**
+	 * @returns {Generator<TreeView>}
+	 */
 	*traverseDown() {
 		yield this;
 		for (const child of this.children) {
@@ -787,8 +790,8 @@ export default class TreeView {
 
 	/**
 	 * Gets a list of indices that can be traversed from the
-	 * root in order to get to this TreeView
-	 * @returns Array<number> list of indices
+	 * root in order to get to this TreeView.
+	 * @returns {Array<number>} List of indices.
 	 */
 	getIndicesPath() {
 		const path = [];
@@ -805,8 +808,8 @@ export default class TreeView {
 
 	/**
 	 * Gets array of TreeView names from the root
-	 * traversed down until this element
-	 * @returns {Array<string>} list of TreeView names
+	 * traversed down until this element.
+	 * @returns {Array<string>} List of TreeView names.
 	 */
 	getNamesPath() {
 		const path = [];
@@ -817,8 +820,8 @@ export default class TreeView {
 	}
 
 	/**
-	 * Traverses a list of names to find the specified child
-	 * @param {Array<string>} path list of TreeView names
+	 * Traverses a list of names to find the specified child.
+	 * @param {Array<string>} path List of TreeView names.
 	 * @returns {?TreeView}
 	 */
 	findChildFromNamesPath(path = []) {
@@ -843,9 +846,9 @@ export default class TreeView {
 	}
 
 	/**
-	 * @param {string} name the name of the child
-	 * @param {boolean} recursive whether or not the full tree should be searched, defaults to false
-	 * @returns
+	 * @param {string} name The name of the child.
+	 * @param {boolean} recursive Whether or not the full tree should be searched, defaults to false.
+	 * @returns {?TreeView}
 	 */
 	getChildByName(name, recursive = false) {
 		if (recursive) {
@@ -861,9 +864,9 @@ export default class TreeView {
 	}
 
 	/**
-	 * Tests if one of the children contains a TreeView with this name
-	 * @param {string} name name of the child
-	 * @param {boolean} recursive whether or not the full tree should be searched
+	 * Tests if one of the children contains a TreeView with this name.
+	 * @param {string} name Name of the child.
+	 * @param {boolean} recursive Whether or not the full tree should be searched.
 	 * @returns {boolean}
 	 */
 	includes(name, recursive = false) {
@@ -933,8 +936,8 @@ export default class TreeView {
 	}
 
 	/**
-	 * @param {string} eventType - The identifier of the event type.
-	 * @param {function(TreeViewEvent) : void} cb - The callback to invoke when the event occurs.
+	 * @param {string} eventType The identifier of the event type.
+	 * @param {function(TreeViewEvent) : void} cb The callback to invoke when the event occurs.
 	 */
 	addEventListener(eventType, cb) {
 		const cbs = this.getEventCbs(eventType);
@@ -943,8 +946,8 @@ export default class TreeView {
 	}
 
 	/**
-	 * @param {string} eventType - The identifier of the event type.
-	 * @param {function(TreeViewEvent) : void} cb - The callback to remove.
+	 * @param {string} eventType The identifier of the event type.
+	 * @param {function(TreeViewEvent) : void} cb The callback to remove.
 	 */
 	removeEventListener(eventType, cb) {
 		const cbs = this.getEventCbs(eventType);
@@ -953,9 +956,9 @@ export default class TreeView {
 	}
 
 	/**
-	 * Fires an event on this TreeView and its parents
-	 * @param {string} eventType - The identifier of the event type.
-	 * @param {TreeViewEvent} event - The data to pass to the event callbacks.
+	 * Fires an event on this TreeView and its parents.
+	 * @param {string} eventType The identifier of the event type.
+	 * @param {TreeViewEvent} event The data to pass to the event callbacks.
 	 */
 	fireEvent(eventType, event) {
 		const cbs = this.getEventCbs(eventType);

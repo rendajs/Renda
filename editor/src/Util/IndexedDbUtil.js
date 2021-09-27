@@ -1,7 +1,7 @@
 export default class IndexedDbUtil {
 	/**
-	 * @param {string} dbName - The name of the database.
-	 * @param {string[]} objectStoreNames - List of object store names that will be used.
+	 * @param {string} dbName The name of the database.
+	 * @param {string[]} objectStoreNames List of object store names that will be used.
 	 */
 	constructor(dbName = "keyValuesDb", objectStoreNames = ["keyValues"]) {
 		this.dbName = dbName;
@@ -36,8 +36,8 @@ export default class IndexedDbUtil {
 	}
 
 	/**
-	 * @param {string} key - The key to search for.
-	 * @param {string} objectStoreName - The object store to search in.
+	 * @param {string} key The key to search for.
+	 * @param {string} objectStoreName The object store to search in.
 	 * @returns {Promise<*>} The value of the key.
 	 */
 	async get(key, objectStoreName = this.objectStoreNames[0]) {
@@ -60,9 +60,9 @@ export default class IndexedDbUtil {
 
 	/**
 	 * Sets a value for a key.
-	 * @param {string} key - The key to save at.
-	 * @param {*} value - The object to save.
-	 * @param {string} objectStoreName - The object store to save in.
+	 * @param {string} key The key to save at.
+	 * @param {*} value The object to save.
+	 * @param {string} objectStoreName The object store to save in.
 	 * @returns {Promise<void>}
 	 */
 	set(key, value, objectStoreName = this.objectStoreNames[0]) {
@@ -75,10 +75,10 @@ export default class IndexedDbUtil {
 	 * Replaces the value of the key with the value returned by the callback.
 	 * Locks the value between read and write.
 	 * @template T
-	 * @param {string} key - The key to save at.
-	 * @param {function(T) : T} cb - The function to call to get the replaced value to save.
-	 * @param {string} objectStoreName - The object store to save in.
-	 * @param {boolean} deleteEntry - If true, deletes the entry instead of setting it.
+	 * @param {string} key The key to save at.
+	 * @param {function(T) : T} cb The function to call to get the replaced value to save.
+	 * @param {string} objectStoreName The object store to save in.
+	 * @param {boolean} deleteEntry If true, deletes the entry instead of setting it.
 	 * @returns {Promise<void>}
 	 */
 	async getSet(key, cb, objectStoreName = this.objectStoreNames[0], deleteEntry = false) {
@@ -119,8 +119,8 @@ export default class IndexedDbUtil {
 
 	/**
 	 * Deletes an object.
-	 * @param {string} key - The key to delete.
-	 * @param {string} objectStoreName - The object store to search in.
+	 * @param {string} key The key to delete.
+	 * @param {string} objectStoreName The object store to search in.
 	 * @returns {Promise<void>}
 	 */
 	async delete(key, objectStoreName = this.objectStoreNames[0]) {

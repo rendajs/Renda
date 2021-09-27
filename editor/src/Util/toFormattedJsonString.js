@@ -1,8 +1,8 @@
 /**
  * @param {Object} jsonObj
  * @param {Object} opts
- * @param {"fileStorage" | "display"} [opts.purpose = "fileStorage"]
- * @param {number} [opts.maxArrayStringItemLength = 10]
+ * @param {"fileStorage" | "display"} [opts.purpose]
+ * @param {number} [opts.maxArrayStringItemLength]
  * @returns {string}
  */
 export default function toFormattedJsonString(jsonObj, {

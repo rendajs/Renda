@@ -37,21 +37,13 @@ export default class DroppableGui {
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 
-		/**
-		 * @type {?string}
-		 */
+		/** @type {?string}*/
 		this.defaultAssetLinkUuid = null;
-		/**
-		 * @type {?DefaultAssetLink}
-		 */
+		/** @type {?DefaultAssetLink}*/
 		this.defaultAssetLink = null;
-		/**
-		 * @type {?ProjectAsset}
-		 */
+		/** @type {?ProjectAsset}*/
 		this.projectAssetValue = null;
-		/**
-		 * @type {boolean}
-		 */
+		/** @type {boolean}*/
 		this.projectAssetValueDeleted = false;
 		this.setValue(null);
 		this.setDisabled(disabled);
@@ -98,9 +90,9 @@ export default class DroppableGui {
 
 	/**
 	 * @param {Object} opts
-	 * @param {boolean} [opts.resolveDefaultAssetLinks = false]
-	 * @param {boolean} [opts.returnLiveAsset = false]
-	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose = "default"]
+	 * @param {boolean} [opts.resolveDefaultAssetLinks]
+	 * @param {boolean} [opts.returnLiveAsset]
+	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
 	 */
 	getValue({
 		resolveDefaultAssetLinks = false,

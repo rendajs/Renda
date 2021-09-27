@@ -40,7 +40,7 @@ export default class ProjectSettingsManager {
 
 	/**
 	 * @param {string} key
-	 * @param {*} [defaultValue = null]
+	 * @param {*} defaultValue
 	 * @returns {Promise<*>}
 	 */
 	async get(key, defaultValue = null) {

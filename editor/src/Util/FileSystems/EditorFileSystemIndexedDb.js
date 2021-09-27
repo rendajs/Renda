@@ -2,9 +2,7 @@ import EditorFileSystem from "./EditorFileSystem.js";
 import IndexedDbUtil from "../IndexedDbUtil.js";
 import md5 from "../../../libs/md5.js";
 
-/**
- * @typedef {string} EditorFileSystemIndexedDbPointer
- */
+/** @typedef {string} EditorFileSystemIndexedDbPointer */
 
 /**
  * @typedef {Object} EditorFileSystemIndexedDbStoredObject

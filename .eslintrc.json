@@ -6,6 +6,11 @@
 	},
 	"extends": "eslint:recommended",
 	"plugins": ["jsdoc"],
+	"settings": {
+		"jsdoc": {
+			"mode": "typescript"
+		}
+	},
 	"rules": {
 		"no-constant-condition": ["error", { "checkLoops": false }],
 

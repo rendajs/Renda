@@ -4,7 +4,7 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 	/**
 	 * @param {import("../../../Util/Util.js").UuidString} otherClientUuid
 	 * @param {import("../EditorConnectionsManager.js").default} connectionsManager
-	 * @param {boolean} [isInitiator = false]
+	 * @param {boolean} isInitiator
 	 */
 	constructor(otherClientUuid, connectionsManager, isInitiator = false) {
 		super();
@@ -72,7 +72,7 @@ export default class MessageHandlerWebRtc extends MessageHandler {
 
 	/**
 	 * @param {string} label
-	 * @param {RTCDataChannelInit} [options]
+	 * @param {RTCDataChannelInit} options
 	 * @returns {RTCDataChannel}
 	 */
 	createDataChannel(label, options = {}) {

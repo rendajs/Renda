@@ -1,7 +1,7 @@
 import editor from "../editorInstance.js";
 
 /**
- * @typedef {object} ButtonGuiCallbacksContext
+ * @typedef {Object} ButtonGuiCallbacksContext
  */
 
 /**

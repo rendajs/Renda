@@ -232,7 +232,7 @@ export default class EditorConnection {
 	/**
 	 * @param {number} id
 	 * @param {*} data
-	 * @param {boolean} [isError]
+	 * @param {boolean} isError
 	 */
 	sendResponse(id, data, isError = false) {
 		/** @type {*} */

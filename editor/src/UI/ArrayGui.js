@@ -12,9 +12,9 @@ export default class ArrayGui {
 	/**
 	 *
 	 * @param {Object} opts
-	 * @param {any[]} [opts.value = []]
-	 * @param {ArrayGuiArrayOptions} [opts.arrayOpts = {}]
-	 * @param {boolean} [opts.disabled = false]
+	 * @param {any[]} [opts.value]
+	 * @param {ArrayGuiArrayOptions} [opts.arrayOpts]
+	 * @param {boolean} [opts.disabled]
 	 */
 	constructor({
 		value = [],

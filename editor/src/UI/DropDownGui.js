@@ -66,8 +66,8 @@ export default class DropDownGui {
 
 	/**
 	 * @param {Object} opts
-	 * @param {boolean} [opts.getAsString = false]
-	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose = "default"]
+	 * @param {boolean} [opts.getAsString]
+	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
 	 */
 	getValue({
 		getAsString = false,

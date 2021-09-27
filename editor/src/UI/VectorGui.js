@@ -3,10 +3,10 @@ import {Vec2, Vec3, Vec4} from "../../../src/index.js";
 
 /**
  * @typedef {Object} VectorGuiOptionsType
- * @property {2 | 3 | 4} [size = 3] - The amount of components of the vector.
- * @property {number} [min = null] - The minimum allowed value for each component.
- * @property {number} [max = null] - The maximum allowed value for each component.
- * @property {number} [step = null] - The step value for each component.
+ * @property {2 | 3 | 4} [size = 3] The amount of components of the vector.
+ * @property {number} [min = null] The minimum allowed value for each component.
+ * @property {number} [max = null] The maximum allowed value for each component.
+ * @property {number} [step = null] The step value for each component.
  *
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & VectorGuiOptionsType} VectorGuiOptions
  */
@@ -101,8 +101,8 @@ export default class VectorGui {
 
 	/**
 	 * @param {Object} opts
-	 * @param {boolean} [opts.getAsArray = false]
-	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose = "default"]
+	 * @param {boolean} [opts.getAsArray]
+	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
 	 */
 	getValue({
 		getAsArray = false,
