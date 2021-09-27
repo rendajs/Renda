@@ -1,14 +1,12 @@
 import editor from "../editorInstance.js";
-import {SingleInstancePromise, AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/index.js";
+import {AssetLoaderTypeGenericStructure, BinaryComposer, SingleInstancePromise} from "../../../src/index.js";
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
-import { StorageType } from "../../../src/Util/BinaryComposer.js";
+import {StorageType} from "../../../src/Util/BinaryComposer.js";
 
-/**
- * @typedef {Object | String | File} ProjectAssetFileData
- */
+/** @typedef {Object | String | File} ProjectAssetFileData */
 
-export default class ProjectAsset{
+export default class ProjectAsset {
 	constructor({
 		uuid = null,
 		path = [],
@@ -16,11 +14,9 @@ export default class ProjectAsset{
 		assetType = null,
 		forceAssetType = false,
 		isBuiltIn = false,
-	} = {}){
+	} = {}) {
 		this.uuid = uuid;
-		/**
-		 * @type {Array<string>}
-		 */
+		/** @type {Array<string>}*/
 		this.path = path;
 		this.assetSettings = assetSettings;
 		this.assetType = assetType;
@@ -29,7 +25,7 @@ export default class ProjectAsset{
 		this.isBuiltIn = isBuiltIn;
 		/**
 		 * Whether the asset data is no longer available on disk
-		 * null if unknown
+		 * null if unknown.
 		 * @type {?boolean}
 		 */
 		this._deletedState = null;
@@ -42,7 +38,7 @@ export default class ProjectAsset{
 		this.liveAsset = null;
 		this.editorData = null;
 
-		this.initInstance = new SingleInstancePromise(async _=> await this.init());
+		this.initInstance = new SingleInstancePromise(async _ => await this.init());
 		this.initInstance.run();
 
 		this.onNewLiveAssetInstanceCbs = new Set();
@@ -50,7 +46,7 @@ export default class ProjectAsset{
 		this.destructed = false;
 	}
 
-	destructor(){
+	destructor() {
 		this.destructed = true;
 
 		this.destroyLiveAssetData();
@@ -59,18 +55,18 @@ export default class ProjectAsset{
 		this.onNewLiveAssetInstanceCbs.clear();
 	}
 
-	async init(){
-		if(!this.assetType){
-			try{
+	async init() {
+		if (!this.assetType) {
+			try {
 				this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path, this.isBuiltIn);
-			}catch(e){
+			} catch (e) {
 				this.assetType = null;
 			}
 		}
-		if(this.destructed) return;
+		if (this.destructed) return;
 
 		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(this.assetType);
-		if(AssetTypeConstructor){
+		if (AssetTypeConstructor) {
 			this._projectAssetType = new AssetTypeConstructor(this);
 		}
 	}
@@ -79,97 +75,97 @@ export default class ProjectAsset{
 		return /** @type {typeof import("./ProjectAssetType/ProjectAssetType.js").default} */ (this._projectAssetType.constructor);
 	}
 
-	async waitForInit(){
+	async waitForInit() {
 		await this.initInstance.run();
 	}
 
-	async getProjectAssetType(){
+	async getProjectAssetType() {
 		await this.waitForInit();
 		return this._projectAssetType;
 	}
 
-	static async fromJsonData(uuid, assetData){
-		if(!assetData.assetType){
+	static async fromJsonData(uuid, assetData) {
+		if (!assetData.assetType) {
 			assetData.assetType = this.guessAssetTypeFromPath(assetData.path);
 			assetData.forceAssetType = false;
-		};
-		const projectAsset = new ProjectAsset({uuid,...assetData});
+		}
+		const projectAsset = new ProjectAsset({uuid, ...assetData});
 		return projectAsset;
 	}
 
-	static guessAssetTypeFromPath(path = []){
-		if(!path || path.length <= 0) return null;
+	static guessAssetTypeFromPath(path = []) {
+		if (!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
 		const {extension} = getNameAndExtension(fileName);
-		if(extension == "json") return null;
-		for(const assetType of editor.projectAssetTypeManager.getAssetTypesForExtension(extension)){
+		if (extension == "json") return null;
+		for (const assetType of editor.projectAssetTypeManager.getAssetTypesForExtension(extension)) {
 			return assetType.type;
 		}
 		return null;
 	}
 
-	static async guessAssetTypeFromFile(path = [], isBuiltIn = false){
+	static async guessAssetTypeFromFile(path = [], isBuiltIn = false) {
 		const assetType = this.guessAssetTypeFromPath(path);
-		if(assetType) return assetType;
+		if (assetType) return assetType;
 
 		let json;
-		if(isBuiltIn){
+		if (isBuiltIn) {
 			json = await editor.builtInAssetManager.fetchAsset(path);
-		}else{
+		} else {
 			json = await editor.projectManager.currentProjectFileSystem.readJson(path);
 		}
 		return json?.assetType || null;
 	}
 
-	get name(){
+	get name() {
 		return this.path[this.path.length - 1];
 	}
 
-	get editable(){
+	get editable() {
 		return !this.isBuiltIn || editor.builtInAssetManager.allowAssetEditing;
 	}
 
-	//call AssetManager.makeAssetUuidConsistent() to also save
-	//the uuid to asset settings file immediately
-	makeUuidConsistent(){
+	// call AssetManager.makeAssetUuidConsistent() to also save
+	// the uuid to asset settings file immediately
+	makeUuidConsistent() {
 		this.needsConsistentUuid = true;
 	}
 
-	get needsAssetSettingsSave(){
-		if(this.forceAssetType) return true;
-		if(this.needsConsistentUuid) return true;
+	get needsAssetSettingsSave() {
+		if (this.forceAssetType) return true;
+		if (this.needsConsistentUuid) return true;
 
-		//if asset settings contains at least one key it needs to be saved
-		for(const key of Object.keys(this.assetSettings)){
+		// if asset settings contains at least one key it needs to be saved
+		for (const key of Object.keys(this.assetSettings)) {
 			return true;
 		}
 
 		return false;
 	}
 
-	assetMoved(newPath){
+	assetMoved(newPath) {
 		this.path = newPath;
 	}
 
-	toJson(){
+	toJson() {
 		const assetData = {
 			path: this.path,
-		}
-		if(this.forceAssetType){
+		};
+		if (this.forceAssetType) {
 			assetData.assetType = this.assetType;
 		}
-		if(Object.keys(this.assetSettings).length > 0){
+		if (Object.keys(this.assetSettings).length > 0) {
 			assetData.assetSettings = this.assetSettings;
 		}
 		return assetData;
 	}
 
-	async open(){
+	async open() {
 		await this.waitForInit();
 		await this._projectAssetType.open();
 	}
 
-	async createNewLiveAssetData(){
+	async createNewLiveAssetData() {
 		await this.waitForInit();
 		const {liveAsset, editorData} = await this._projectAssetType.createNewLiveAssetData();
 		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
@@ -177,38 +173,38 @@ export default class ProjectAsset{
 	}
 
 	/**
-	 * Returns true if the asset data has been removed from disk
+	 * Returns true if the asset data has been removed from disk.
 	 * @async
 	 * @returns {Promise<boolean>}
 	 */
-	async getIsDeleted(){
-		if(this._deletedState == null){
+	async getIsDeleted() {
+		if (this._deletedState == null) {
 			await this.verifyDeletedState();
 		}
 		return this._deletedState;
 	}
 
-	async verifyDeletedState(){
+	async verifyDeletedState() {
 		await this.waitForInit();
 
 		let exists = false;
-		if(this.isBuiltIn){
+		if (this.isBuiltIn) {
 			exists = await editor.builtInAssetManager.exists(this.path);
-		}else{
+		} else {
 			exists = await editor.projectManager.currentProjectFileSystem.exists(this.path);
 		}
 		this._deletedState = !exists;
 	}
 
-	async getLiveAssetData(){
-		if(this.liveAsset || this.editorData){
+	async getLiveAssetData() {
+		if (this.liveAsset || this.editorData) {
 			return {
 				liveAsset: this.liveAsset,
 				editorData: this.editorData,
-			}
+			};
 		}
 
-		if(this.isGettingLiveAssetData){
+		if (this.isGettingLiveAssetData) {
 			return await new Promise(r => this.onLiveAssetDataGetCbs.add(r));
 		}
 
@@ -218,31 +214,31 @@ export default class ProjectAsset{
 		await this.waitForInit();
 		let fileData = null;
 		let readFailed = false;
-		try{
+		try {
 			fileData = await this.readAssetData();
-		}catch(e){
-			//todo: implement a way to detect if the file has been deleted
-			//and if that's the case give the user an option to remove the uuid
-			//from assetSettings.json
+		} catch (e) {
+			// todo: implement a way to detect if the file has been deleted
+			// and if that's the case give the user an option to remove the uuid
+			// from assetSettings.json
 			readFailed = true;
 		}
 
-		//if destroyLiveAssetData has been called before this Promise was finished
-		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) {
+		// if destroyLiveAssetData has been called before this Promise was finished
+		if (getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) {
 			return await this.getLiveAssetData();
 		}
 
-		if(readFailed){
-			console.warn("error getting live asset for "+this.path.join("/"));
+		if (readFailed) {
+			console.warn("error getting live asset for " + this.path.join("/"));
 			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
 			return {liveAsset: null, editorData: null};
 		}
 
 		const {liveAsset, editorData} = await this._projectAssetType.getLiveAssetData(fileData);
 
-		//if destroyLiveAssetData has been called before this Promise was finished
-		if(getLiveAssetSymbol != this.currentGettingLiveAssetSymbol){
-			if((liveAsset || editorData) && this._projectAssetType){
+		// if destroyLiveAssetData has been called before this Promise was finished
+		if (getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) {
+			if ((liveAsset || editorData) && this._projectAssetType) {
 				this._projectAssetType.destroyLiveAssetData(liveAsset, editorData);
 			}
 			return await this.getLiveAssetData();
@@ -257,59 +253,59 @@ export default class ProjectAsset{
 		return {
 			liveAsset: this.liveAsset,
 			editorData: this.editorData,
-		}
+		};
 	}
 
-	async getLiveAsset(){
+	async getLiveAsset() {
 		const {liveAsset} = await this.getLiveAssetData();
 		return liveAsset;
 	}
 
-	async getEditorData(){
+	async getEditorData() {
 		const {editorData} = await this.getLiveAssetData();
 		return editorData;
 	}
 
-	//returns the currently loaded live asset synchronously
-	//returns null if the liveAsset isn't init yet
-	getLiveAssetImmediate(){
+	// returns the currently loaded live asset synchronously
+	// returns null if the liveAsset isn't init yet
+	getLiveAssetImmediate() {
 		return this.liveAsset;
 	}
 
-	onNewLiveAssetInstance(cb){
+	onNewLiveAssetInstance(cb) {
 		this.onNewLiveAssetInstanceCbs.add(cb);
 	}
 
-	removeOnNewLiveAssetInstance(cb){
+	removeOnNewLiveAssetInstance(cb) {
 		this.onNewLiveAssetInstanceCbs.delete(cb);
 	}
 
-	liveAssetNeedsReplacement(){
+	liveAssetNeedsReplacement() {
 		this.destroyLiveAssetData();
-		for(const cb of this.onNewLiveAssetInstanceCbs){
+		for (const cb of this.onNewLiveAssetInstanceCbs) {
 			cb();
 		}
 	}
 
-	fireOnLiveAssetDataGetCbs(liveAssetData){
-		for(const cb of this.onLiveAssetDataGetCbs){
+	fireOnLiveAssetDataGetCbs(liveAssetData) {
+		for (const cb of this.onLiveAssetDataGetCbs) {
 			cb(liveAssetData);
 		}
 		this.onLiveAssetDataGetCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
 
-	destroyLiveAssetData(){
-		if(this.isGettingLiveAssetData){
+	destroyLiveAssetData() {
+		if (this.isGettingLiveAssetData) {
 			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
 			this.currentGettingLiveAssetSymbol = null;
-		}else if((this.liveAsset || this.editorData) && this._projectAssetType){
+		} else if ((this.liveAsset || this.editorData) && this._projectAssetType) {
 			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.editorData);
 			this.liveAsset = null;
 		}
 	}
 
-	async saveLiveAssetData(){
+	async saveLiveAssetData() {
 		await this.waitForInit();
 		const liveAsset = await this.getLiveAsset();
 		const editorData = await this.getEditorData();
@@ -317,21 +313,21 @@ export default class ProjectAsset{
 		await this.writeAssetData(assetData);
 	}
 
-	async getPropertiesAssetContentConstructor(){
+	async getPropertiesAssetContentConstructor() {
 		await this.waitForInit();
-		if(!this._projectAssetType) return null;
+		if (!this._projectAssetType) return null;
 		return this.projectAssetTypeConstructor.propertiesAssetContentConstructor;
 	}
 
-	async getPropertiesAssetContentStructure(){
+	async getPropertiesAssetContentStructure() {
 		await this.waitForInit();
-		if(!this._projectAssetType) return null;
+		if (!this._projectAssetType) return null;
 		return this.projectAssetTypeConstructor.propertiesAssetContentStructure;
 	}
 
-	async getPropertiesAssetSettingsStructure(){
+	async getPropertiesAssetSettingsStructure() {
 		await this.waitForInit();
-		if(!this._projectAssetType) return null;
+		if (!this._projectAssetType) return null;
 		return this.projectAssetTypeConstructor.assetSettingsStructure;
 	}
 
@@ -340,83 +336,79 @@ export default class ProjectAsset{
 	 * and ProjectAssetType.storeInProjectAsText.
 	 * @returns {Promise<?ProjectAssetFileData>}
 	 */
-	async readAssetData(){
+	async readAssetData() {
 		await this.waitForInit();
 
 		let format = "binary";
-		if(this.projectAssetTypeConstructor.storeInProjectAsJson){
+		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
 			format = "json";
-		}else if(this.projectAssetTypeConstructor.storeInProjectAsText){
+		} else if (this.projectAssetTypeConstructor.storeInProjectAsText) {
 			format = "text";
 		}
 
 		let fileData = null;
-		if(this.isBuiltIn){
+		if (this.isBuiltIn) {
 			fileData = await editor.builtInAssetManager.fetchAsset(this.path, format);
-		}else{
-			if(format == "json"){
-				fileData = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
-			}else if(format == "text"){
-				fileData = await editor.projectManager.currentProjectFileSystem.readText(this.path);
-			}else{
-				fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
-			}
+		} else if (format == "json") {
+			fileData = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
+		} else if (format == "text") {
+			fileData = await editor.projectManager.currentProjectFileSystem.readText(this.path);
+		} else {
+			fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
 		}
 
-		if(format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData){
+		if (format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
 			fileData = fileData.asset || {};
 		}
 		return fileData;
 	}
 
-	async writeAssetData(fileData){
+	async writeAssetData(fileData) {
 		await this.waitForInit();
 
-		if(this.projectAssetTypeConstructor.storeInProjectAsJson){
+		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
 			let json = null;
-			if(this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData){
+			if (this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
 				json = {
 					assetType: this.projectAssetTypeConstructor.type,
 					asset: fileData,
-				}
-			}else{
+				};
+			} else {
 				json = fileData;
 			}
-			if(this.isBuiltIn){
+			if (this.isBuiltIn) {
 				await editor.builtInAssetManager.writeJson(this.path, json);
-			}else{
+			} else {
 				await editor.projectManager.currentProjectFileSystem.writeJson(this.path, json);
 			}
-		}else if(this.projectAssetTypeConstructor.storeInProjectAsText){
-			if(this.isBuiltIn){
+		} else if (this.projectAssetTypeConstructor.storeInProjectAsText) {
+			if (this.isBuiltIn) {
 				await editor.builtInAssetManager.writeText(this.path, fileData);
-			}else{
+			} else {
 				await editor.projectManager.currentProjectFileSystem.writeText(this.path, fileData);
 			}
-		}else{
-			if(this.isBuiltIn){
-				await editor.builtInAssetManager.writeBinary(this.path, fileData);
-			}else{
-				await editor.projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
-			}
+		} else if (this.isBuiltIn) {
+			await editor.builtInAssetManager.writeBinary(this.path, fileData);
+		} else {
+			await editor.projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
 		}
 	}
 
-	async getAssetTypeUuid(){
+	async getAssetTypeUuid() {
 		await this.waitForInit();
 		return this.projectAssetTypeConstructor.typeUuid;
 	}
 
-	async getBundledAssetData(assetSettingOverrides){
+	async getBundledAssetData(assetSettingOverrides) {
 		await this.waitForInit();
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
-		if(!binaryData){
+		if (!binaryData) {
 			const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
-			if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure){
+			if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 				let assetData = await this.readAssetData();
 
 				const structure = this.projectAssetTypeConstructor.propertiesAssetContentStructure;
-				if(structure){
+				if (structure) {
 					const treeView = new PropertiesTreeView();
 					treeView.generateFromSerializableStructure(structure);
 					treeView.fillSerializableStructureValues(assetData);
@@ -429,20 +421,20 @@ export default class ProjectAsset{
 				});
 			}
 		}
-		if(!binaryData){
-			if(this.isBuiltIn){
+		if (!binaryData) {
+			if (this.isBuiltIn) {
 				binaryData = await editor.builtInAssetManager.fetchAsset(this.path, "binary");
-			}else{
+			} else {
 				binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
 			}
 		}
 		return binaryData;
 	}
 
-	async *getReferencedAssetUuids(){
+	async *getReferencedAssetUuids() {
 		await this.waitForInit();
 		const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
-		if(usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure){
+		if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 			const assetData = await this.readAssetData();
 
 			const referencedUuids = [];
@@ -450,29 +442,29 @@ export default class ProjectAsset{
 				...usedAssetLoaderType.binaryComposerOpts,
 				transformValueHook: args => {
 					let {value, type} = args;
-					if(usedAssetLoaderType.binaryComposerOpts.transformValueHook){
+					if (usedAssetLoaderType.binaryComposerOpts.transformValueHook) {
 						value = usedAssetLoaderType.binaryComposerOpts.transformValueHook(args);
 					}
 
-					if(type == StorageType.ASSET_UUID){
+					if (type == StorageType.ASSET_UUID) {
 						referencedUuids.push(value);
 					}
 					return value;
 				},
 			});
-			for(const uuid of referencedUuids){
+			for (const uuid of referencedUuids) {
 				yield uuid;
 			}
 		}
 
-		for await(const uuid of this._projectAssetType.getReferencedAssetUuids()){
+		for await (const uuid of this._projectAssetType.getReferencedAssetUuids()) {
 			yield uuid;
 		}
 	}
 
-	async fileChangedExternally(){
+	async fileChangedExternally() {
 		await this.waitForInit();
-		if(!this._projectAssetType) return;
+		if (!this._projectAssetType) return;
 		await this._projectAssetType.fileChangedExternally();
 	}
 }

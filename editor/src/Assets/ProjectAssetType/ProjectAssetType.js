@@ -10,7 +10,7 @@ export default class ProjectAssetType {
 	/**
 	 * This will be used for storing the asset type in asset bundles.
 	 * This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
-	 * You can generate a uuid in the editor browser console using Util.generateUuid()
+	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
 	 * @type {import("../../Util/Util.js").UuidString}
 	 */
 	static typeUuid = null;
@@ -48,9 +48,9 @@ export default class ProjectAssetType {
 	/** @typedef {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").default} PropertiesTreeView */
 	/**
 	 * The properties window will show ui generated from this structure.
-	 * This object will be fed into {@linkcode PropertiesTreeView.generateFromSerializableStructure}
+	 * This object will be fed into {@linkcode PropertiesTreeView.generateFromSerializableStructure}.
 	 * Leave this as null if you don't want to show any ui or if you want to create
-	 * custom ui using {@linkcode propertiesAssetContentConstructor}
+	 * custom ui using {@linkcode propertiesAssetContentConstructor}.
 	 * @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure}
 	 */
 	static propertiesAssetContentStructure = null;
@@ -81,7 +81,7 @@ export default class ProjectAssetType {
 
 	/**
 	 * This will be called when a new file of this type is created
-	 * the returned value will be passed along to {@linkcode saveLiveAssetData}
+	 * the returned value will be passed along to {@linkcode saveLiveAssetData}.
 	 * @returns {Promise<{liveAsset: *, editorData: *}>}
 	 */
 	async createNewLiveAssetData() {
@@ -91,9 +91,9 @@ export default class ProjectAssetType {
 	/**
 	 * This is used to find out if a specific class could be stored as an asset,
 	 * when dragging assets to a DroppableGui for instance.
-	 * Set this to the constructor of the type that you expect to return in getLiveAsset()
-	 * for example, if getLiveAsset() returns a `new Material()`, this value
-	 * should be set to `Material` (without new)
+	 * Set this to the constructor of the type that you expect to return in getLiveAsset().
+	 * For example, if getLiveAsset() returns a `new Material()`, this value
+	 * should be set to `Material` (without new).
 	 * If you don't plan on adding support for loading this asset type at runtime,
 	 * you can safely ommit this.
 	 */
@@ -103,9 +103,9 @@ export default class ProjectAssetType {
 	 * If you plan on supporting loading live assets in the editor,
 	 * return your liveasset instance and editorData here.
 	 * This it guaranteed to not get called if a liveAssets already exists,
-	 * i.e. it is only called twice if destroyLiveAssetData gets called first.
+	 * i.e. It is only called twice if destroyLiveAssetData gets called first.
 	 * Both `editorData` and `liveAsset` are optional.
-	 * `editorData` will be passed back to {@linkcode saveLiveAssetData}
+	 * `editorData` will be passed back to {@linkcode saveLiveAssetData}.
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
 	 * @param {import("../ProjectAsset").ProjectAssetFileData} fileData
@@ -116,9 +116,11 @@ export default class ProjectAssetType {
 	}
 
 	/**
-	 * use this to store a liveasset instance in the project folder
+	 * Use this to store a liveasset instance in the project folder
 	 * the return value will be passed on to {@linkcode ProjectAsset.writeAssetData} so depending
-	 * on your configuration you can return a json object, DOMString, or binary data
+	 * on your configuration you can return a json object, DOMString, or binary data.
+	 * @param {*} liveAsset
+	 * @param {*} editorData
 	 * @returns {Promise<Object | string | BlobPart>}
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {}
@@ -170,7 +172,7 @@ export default class ProjectAssetType {
 
 	/**
 	 * If this asset is a file that can be opened, open it
-	 * either in the editor or in an external application
+	 * either in the editor or in an external application.
 	 */
 	async open() {}
 
@@ -180,15 +182,15 @@ export default class ProjectAssetType {
 	 * If your asset loader extends {@linkcode AssetLoaderTypeGenericStructure}
 	 * you don't need to implement {@linkcode createBundledAssetData}.
 	 * The structure values of the AssetLoaderType will be passed on to
-	 * {@linkcode BinaryComposer.objectToBinary} instead
+	 * {@linkcode BinaryComposer.objectToBinary} instead.
 	 */
 	static usedAssetLoaderType = null;
 
 	/**
 	 * This method is called when creating asset bundles,
-	 * this is optional when `usedAssetLoaderType` is set
+	 * this is optional when `usedAssetLoaderType` is set.
 	 * You can use this.projectAsset to generate the binary data.
-	 * assetSettingOverrides are changes made to the asset settings from the
+	 * AssetSettingOverrides are changes made to the asset settings from the
 	 * assetbundle that is being generated.
 	 * If this function returns null or undefined, the raw
 	 * asset data as it is stored in the project will be used

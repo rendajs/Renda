@@ -5,13 +5,9 @@ import ProjectAsset from "./ProjectAsset.js";
 
 export default class AssetManager {
 	constructor() {
-		/**
-		 * @type {Map<string, ProjectAsset>}
-		 */
+		/** @type {Map<string, ProjectAsset>}*/
 		this.projectAssets = new Map();
-		/**
-		 * @type {Map<string, DefaultAssetLink>}
-		 */
+		/** @type {Map<string, DefaultAssetLink>}*/
 		this.defaultAssetLinks = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];

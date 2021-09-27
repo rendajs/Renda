@@ -33,7 +33,7 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 	/**
 	 * @override
 	 * @param {*} fileData
-	 * @returns
+	 * @returns {Promise<*>}
 	 */
 	async getLiveAssetData(fileData) {
 		const liveAsset = new ClusteredLightsConfig(fileData);

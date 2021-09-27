@@ -1,5 +1,5 @@
-//Use Util.generateUuid() to generate uuids for the `defaultAssetUuid` value
-//`originalAssetUuid` should be the uuid of a built-in asset
+// Use `Util.generateUuid()` to generate uuids for the `defaultAssetUuid` value
+// `originalAssetUuid` should be the uuid of a built-in asset
 
 export default [
 	{
@@ -16,5 +16,5 @@ export default [
 		name: "Default Clustered Lights Config",
 		defaultAssetUuid: "f676813d-a631-4a39-9bb4-1ea1f291af19",
 		originalAssetUuid: "01ba9a17-bbff-4c12-b234-9eb47c1fcc7c",
-	}
+	},
 ];
