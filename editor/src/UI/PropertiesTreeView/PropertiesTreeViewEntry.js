@@ -198,7 +198,7 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		if (castGui?.setValue) {
 			castGui?.setValue(newValue, setValueOpts);
-		} else {
+		} else if (castGui) {
 			castGui.value = newValue;
 		}
 	}
