@@ -1,18 +1,20 @@
-import {Vec3, Quaternion, Mat4} from "../Math/Math.js";
+import {Mat4, Quaternion, Vec3} from "../Math/Math.js";
 import {Component, defaultComponentTypeManager} from "../Components/Components.js";
 
-export default class Entity{
-	constructor(opts){
-		if(typeof opts == "string"){
+export default class Entity {
+	constructor(opts) {
+		if (typeof opts == "string") {
 			opts = {
 				name: opts,
-			}
+			};
 		}
-		opts = {...{
-			name: "Entity",
-			matrix: null,
-			parent: null,
-		}, ...opts}
+		opts = {
+			...{
+				name: "Entity",
+				matrix: null,
+				parent: null,
+			}, ...opts,
+		};
 		this.name = opts.name;
 		this._parent = null;
 		this._children = [];
@@ -32,26 +34,26 @@ export default class Entity{
 
 		this.setParent(opts.parent, false);
 
-		if(opts.matrix) this.localMatrix = opts.matrix;
+		if (opts.matrix) this.localMatrix = opts.matrix;
 	}
 
-	destructor(){
+	destructor() {
 		this.setParent(null, false);
-		for(const child of this._children){
+		for (const child of this._children) {
 			child.destructor();
 		}
 		this._children = [];
-		for(const component of this.components){
+		for (const component of this.components) {
 			component.destructor();
 		}
 
-		//todo: remove transformation listeners from rot pos scale etc
+		// todo: remove transformation listeners from rot pos scale etc
 	}
 
-	//if the argument already is a component, it will be detached
-	//from the old entity and attached it to this one
-	addComponent(component){
-		if(!(component instanceof Component)){
+	// if the argument already is a component, it will be detached
+	// from the old entity and attached it to this one
+	addComponent(component) {
+		if (!(component instanceof Component)) {
 			component = new Component(...arguments);
 		}
 
@@ -60,72 +62,71 @@ export default class Entity{
 		return component;
 	}
 
-	getComponent(type, componentTypeManager = defaultComponentTypeManager){
-		for(const component of this.getComponents(type, componentTypeManager)){
+	getComponent(type, componentTypeManager = defaultComponentTypeManager) {
+		for (const component of this.getComponents(type, componentTypeManager)) {
 			return component;
 		}
-		return;
 	}
 
-	*getComponents(type, componentTypeManager = defaultComponentTypeManager){
+	*getComponents(type, componentTypeManager = defaultComponentTypeManager) {
 		const component = componentTypeManager.getComponentFromData(type, false);
 		const uuid = component.uuid;
-		for(const component of this.components){
-			if(component.componentUuid == uuid && component.componentTypeManager == componentTypeManager){
+		for (const component of this.components) {
+			if (component.componentUuid == uuid && component.componentTypeManager == componentTypeManager) {
 				yield component;
 			}
 		}
 	}
 
-	*getChildComponents(type, componentTypeManager = defaultComponentTypeManager){
-		for(const child of this.traverseDown()){
-			for(const component of child.getComponents(type, componentTypeManager)){
+	*getChildComponents(type, componentTypeManager = defaultComponentTypeManager) {
+		for (const child of this.traverseDown()) {
+			for (const component of child.getComponents(type, componentTypeManager)) {
 				yield component;
 			}
 		}
 	}
 
-	get parent(){
+	get parent() {
 		return this._parent;
 	}
 
-	set parent(newParent){
+	set parent(newParent) {
 		this.setParent(newParent);
 	}
 
-	get pos(){
+	get pos() {
 		return this._pos;
 	}
 
-	set pos(value){
+	set pos(value) {
 		this._pos.set(value);
 	}
 
-	get rot(){
+	get rot() {
 		return this._rot;
 	}
 
-	set rot(value){
+	set rot(value) {
 		this._rot.set(value);
 	}
 
-	get scale(){
+	get scale() {
 		return this._scale;
 	}
 
-	set scale(value){
+	set scale(value) {
 		this._scale.set(value);
 	}
 
-	get localMatrix(){
-		if(this.localMatrixDirty){
+	get localMatrix() {
+		if (this.localMatrixDirty) {
 			this._localMatrix = Mat4.createPosRotScale(this.pos, this.rot, this.scale);
 			this.localMatrixDirty = false;
 		}
 		return this._localMatrix;
 	}
 
-	set localMatrix(value){
+	set localMatrix(value) {
 		this._localMatrix.set(value);
 		const {pos, rot, scale} = this._localMatrix.decompose();
 		this.pos = pos;
@@ -135,11 +136,11 @@ export default class Entity{
 		this.worldMatrixDirty = true;
 	}
 
-	get worldMatrix(){
-		if(this.localMatrixDirty || this.worldMatrixDirty){
-			if(this.parent){
+	get worldMatrix() {
+		if (this.localMatrixDirty || this.worldMatrixDirty) {
+			if (this.parent) {
 				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
-			}else{
+			} else {
 				this._worldMatrix = this.localMatrix.clone();
 			}
 			this.worldMatrixDirty = false;
@@ -147,113 +148,113 @@ export default class Entity{
 		return this._worldMatrix;
 	}
 
-	markLocalMatrixDirty(){
+	markLocalMatrixDirty() {
 		this.localMatrixDirty = true;
-		for(const child of this.traverseDown()){
+		for (const child of this.traverseDown()) {
 			child.worldMatrixDirty = true;
 		}
 	}
 
-	setParent(newParent, keepWorldPosition = false){
-		if(this._parent){
-			//todo: use slice?
+	setParent(newParent, keepWorldPosition = false) {
+		if (this._parent) {
+			// todo: use slice?
 			this._parent._children = this._parent._children.filter(c => c != this);
 		}
 		this._parent = newParent;
-		if(newParent){
+		if (newParent) {
 			newParent._children.push(this);
 		}
 	}
 
-	detachParent(){
+	detachParent() {
 		this.setParent(null);
 	}
 
-	add(child, keepWorldPosition = false){
+	add(child, keepWorldPosition = false) {
 		child.setParent(this, keepWorldPosition);
 	}
 
-	remove(child){
-		if(child.parent != this) return;
+	remove(child) {
+		if (child.parent != this) return;
 		child.setParent(null);
 	}
 
-	*getChildren(){
-		for(const child of this._children){
+	*getChildren() {
+		for (const child of this._children) {
 			yield child;
 		}
 	}
 
-	get children(){
+	get children() {
 		return Array.from(this.getChildren());
 	}
 
-	getRoot(){
+	getRoot() {
 		let lastParent = this;
-		while(true){
-			if(lastParent.parent){
+		while (true) {
+			if (lastParent.parent) {
 				lastParent = lastParent.parent;
-			}else{
+			} else {
 				break;
 			}
 		}
 		return lastParent;
 	}
 
-	*traverseDown(){
+	*traverseDown() {
 		yield this;
-		for(const child of this._children){
-			for(const c of child.traverseDown()){
+		for (const child of this._children) {
+			for (const c of child.traverseDown()) {
 				yield c;
 			}
 		}
 	}
 
-	*traverseUp(){
+	*traverseUp() {
 		yield this;
-		if(this.parent){
-			for(const entity of this.parent.traverseUp()){
+		if (this.parent) {
+			for (const entity of this.parent.traverseUp()) {
 				yield entity;
 			}
 		}
 	}
 
-	containsChild(child){
-		for(const parent of child.traverseUp()){
-			if(parent == this) return true;
+	containsChild(child) {
+		for (const parent of child.traverseUp()) {
+			if (parent == this) return true;
 		}
 		return false;
 	}
 
-	getEntityByIndicesPath(indexPath, startFrom = 0){
-		if(startFrom >= indexPath.length) return this;
-		let index = indexPath[startFrom];
-		let child = this.children[index];
+	getEntityByIndicesPath(indexPath, startFrom = 0) {
+		if (startFrom >= indexPath.length) return this;
+		const index = indexPath[startFrom];
+		const child = this.children[index];
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
 	}
 
-	getEntityByName(name){
-		for(const child of this.traverseDown()){
-			if(child.name == name) return child;
+	getEntityByName(name) {
+		for (const child of this.traverseDown()) {
+			if (child.name == name) return child;
 		}
 		return null;
 	}
 
-	toJson(editorOpts = null){
-		let json = {
+	toJson(editorOpts = null) {
+		const json = {
 			name: this.name,
 			matrix: this.localMatrix.getFlatArray(),
 			components: [],
 			children: [],
-		}
-		for(const component of this.components){
+		};
+		for (const component of this.components) {
 			json.components.push(component.toJson(editorOpts));
 		}
-		for(const child of this.getChildren()){
+		for (const child of this.getChildren()) {
 			json.children.push(child.toJson(editorOpts));
 		}
-		if(json.components.length <= 0) delete json.components;
-		if(json.children.length <= 0) delete json.children;
+		if (json.components.length <= 0) delete json.components;
+		if (json.children.length <= 0) delete json.children;
 		return json;
 	}
 }

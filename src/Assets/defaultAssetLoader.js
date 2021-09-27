@@ -1,4 +1,4 @@
 import AssetLoader from "./AssetLoader.js";
 
-let defaultAssetLoader = new AssetLoader();
+const defaultAssetLoader = new AssetLoader();
 export default defaultAssetLoader;

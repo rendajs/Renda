@@ -1,4 +1,4 @@
 import EngineAssetsManager from "./EngineAssetsManager.js";
 
-let defaultEngineAssetsManager = new EngineAssetsManager();
+const defaultEngineAssetsManager = new EngineAssetsManager();
 export default defaultEngineAssetsManager;
