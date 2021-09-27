@@ -461,7 +461,7 @@ export default class TreeView {
 	}
 
 	#onDragEnd(e) {
-		if (this.currenDragFeedbackEl) editor.dragManager.removeFeedbackEl(this.currenDragFeedbackEl);
+		if (this.currenDragFeedbackEl) editor.dragManager.removeFeedbackText(this.currenDragFeedbackEl);
 		this.currenDragFeedbackEl = null;
 	}
 

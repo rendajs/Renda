@@ -1,4 +1,7 @@
 export default class DragManager {
+	constructor() {
+		this.createdDragFeedbackEls = new Set();
+	}
 	/**
 	 * @param {Object} opts
 	 * @param {string | string[]} [opts.text]
@@ -24,10 +27,18 @@ export default class DragManager {
 			x = el.offsetWidth / 2;
 			y = el.offsetHeight / 2;
 		}
+		this.createdDragFeedbackEls.add(el);
 		return {el, x, y};
 	}
 
-	removeFeedbackEl(el) {
+	/**
+	 * @param {HTMLDivElement} el
+	 */
+	removeFeedbackText(el) {
+		if (!this.createdDragFeedbackEls.has(el)) {
+			throw new Error("Element not a Drag Feedback Text");
+		}
+		this.createdDragFeedbackEls.delete(el);
 		if (el.parentElement) el.parentElement.removeChild(el);
 	}
 }
