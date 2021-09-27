@@ -5,13 +5,11 @@ import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
  * `"default"` uses the default behaviour of PropertiesTreeViewEntries
  * `"fileStorage"` optimizes for data stored as json in project asset files
  * `"binaryComposer"` optimizes for data passed to BinaryComposer.objectToBinary
- * `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components)
+ * `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components).
  * @typedef {"default" | "fileStorage" | "binaryComposer" | "script"} SerializableStructureOutputPurpose
  */
 
-/**
- * @typedef {Object.<string, import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure
- */
+/** @typedef {Object.<string, import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure */
 
 export default class PropertiesTreeView extends TreeView {
 	constructor({
@@ -32,7 +30,7 @@ export default class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {string} [name = ""]
+	 * @param {string} [name]
 	 * @returns {PropertiesTreeView}
 	 */
 	addCollapsable(name = "") {
@@ -65,7 +63,7 @@ export default class PropertiesTreeView extends TreeView {
 	/**
 	 * @param {PropertiesTreeViewStructure} structure
 	 * @param {Object} opts
-	 * @param {Object} [opts.callbacksContext = {}]
+	 * @param {Object} [opts.callbacksContext]
 	 */
 	generateFromSerializableStructure(structure, {
 		callbacksContext = {},
@@ -100,10 +98,11 @@ export default class PropertiesTreeView extends TreeView {
 	}
 
 	/**
+	 * @param {PropertiesTreeViewStructure} structure
 	 * @param {Object} [guiOpts]
-	 * @param {SerializableStructureOutputPurpose} [guiOpts.purpose = "default"]
-	 * @param {boolean} [guiOpts.stripDefaultValues = false]
-	 * @returns
+	 * @param {SerializableStructureOutputPurpose} [guiOpts.purpose]
+	 * @param {boolean} [guiOpts.stripDefaultValues]
+	 * @returns {*}
 	 */
 	getSerializableStructureValues(structure, guiOpts) {
 		let {

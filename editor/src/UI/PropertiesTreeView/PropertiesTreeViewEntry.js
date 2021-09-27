@@ -25,20 +25,16 @@ import {prettifyVariableName} from "../../Util/Util.js";
 
 /**
  * @typedef {Object} PropertiesTreeViewEntryOptions
- * @property {PropertiesTreeViewEntryType} [opts.type]
- * @property {*} [opts.defaultValue = undefined]
- * @property {GuiOptions} [opts.guiOpts = {}]
- * @property {Object} [opts.arrayOpts = {}]
- * @property {Object} [opts.callbacksContext = {}]
+ * @property {PropertiesTreeViewEntryType} [type]
+ * @property {*} [defaultValue = undefined]
+ * @property {GuiOptions} [guiOpts = {}]
+ * @property {Object} [arrayOpts = {}]
+ * @property {Object} [callbacksContext = {}]
  */
 
-/**
- * @typedef {*} DroppableGuiConstructorType
- */
+/** @typedef {*} DroppableGuiConstructorType */
 
-/**
- * @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | DroppableGuiConstructorType | "button" | "label"} PropertiesTreeViewEntryType
- */
+/** @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | DroppableGuiConstructorType | "button" | "label"} PropertiesTreeViewEntryType */
 
 /**
  * @typedef {Object} GuiInterface
@@ -228,8 +224,8 @@ export default class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * Useful for entries such as buttons, labels, etc.
 	 * @param {Object} guiOpts
-	 * @param {import("./PropertiesTreeView.js").SerializableStructureOutputPurpose} [guiOpts.purpose = "default"]
-	 * @param {boolean} [guiOpts.stripDefaultValues = false]
+	 * @param {import("./PropertiesTreeView.js").SerializableStructureOutputPurpose} [guiOpts.purpose]
+	 * @param {boolean} [guiOpts.stripDefaultValues]
 	 * @returns {boolean} If `true`, the value will be omitted from getSerializableStructureValues.
 	 */
 	omitFromSerializableStuctureValues(guiOpts) {
