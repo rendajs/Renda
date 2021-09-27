@@ -44,6 +44,10 @@ import editor from "../editorInstance.js";
  */
 
 export default class TreeView {
+	#draggable = false;
+	#rearrangeable = false;
+	#elDraggable = false;
+
 	constructor(data = {}) {
 		this.el = document.createElement("div");
 		this.el.classList.add("treeViewItem");
@@ -125,8 +129,6 @@ export default class TreeView {
 		this.renameTextField = null;
 		this._rowVisible = data.rowVisible ?? true;
 		this._visible = data.visible ?? true;
-		this._draggable = false;
-		this.rearrangeable = true;
 
 		if (this.selectable) {
 			// todo: update at runtime when this.selectable changes
@@ -160,6 +162,7 @@ export default class TreeView {
 		this.updeteRootEventListeners();
 
 		this.updateRowVisibility();
+		this.#updateElDraggable();
 	}
 
 	destructor() {
@@ -395,29 +398,59 @@ export default class TreeView {
 		this.updateArrowHidden();
 	}
 
-	get draggable() {
-		return this._draggable;
+	get rearrangeable() {
+		return this.#rearrangeable;
 	}
 
-	set draggable(value) {
-		if (this._draggable != value) {
-			this._draggable = value;
-			this.rowEl.draggable = value;
-			if (value) {
-				this.boundDragStart = this.onDragStart.bind(this);
-				this.rowEl.addEventListener("dragstart", this.boundDragStart);
-				this.boundDragEnd = this.onDragEnd.bind(this);
-				this.rowEl.addEventListener("dragend", this.boundDragEnd);
-			} else {
-				this.rowEl.removeEventListener("dragstart", this.boundDragStart);
-				this.rowEl.removeEventListener("onDragEnd", this.boundDragEnd);
-			}
+	set rearrangeable(value) {
+		if (this.#rearrangeable != value) {
+			this.#rearrangeable = value;
+			this.#updateElDraggable();
 		}
 	}
 
-	onDragStart(e) {
+	get draggable() {
+		return this.#draggable;
+	}
+
+	set draggable(value) {
+		if (this.#draggable != value) {
+			this.#draggable = value;
+			this.#updateElDraggable();
+		}
+	}
+
+	#updateElDraggable() {
+		const draggable = this.draggable || this.rearrangeable;
+		if (draggable == this.#elDraggable) return;
+
+		this.#elDraggable = draggable;
+		this.rowEl.draggable = draggable;
+		if (draggable) {
+			this.boundDragStart = this.#onDragStart.bind(this);
+			this.rowEl.addEventListener("dragstart", this.boundDragStart);
+			this.boundDragEnd = this.#onDragEnd.bind(this);
+			this.rowEl.addEventListener("dragend", this.boundDragEnd);
+		} else {
+			this.rowEl.removeEventListener("dragstart", this.boundDragStart);
+			this.rowEl.removeEventListener("onDragEnd", this.boundDragEnd);
+		}
+	}
+
+	#onDragStart(e) {
+		const root = this.findRoot();
+		const selectedItems = new Set();
+		for (const child of root.getSelectedItems()) {
+			selectedItems.add(child);
+		}
+		let draggingItems = [];
+		if (selectedItems.has(this)) {
+			draggingItems = Array.from(selectedItems);
+		} else {
+			draggingItems = [this];
+		}
 		const {el, x, y} = editor.dragManager.createDragFeedbackText({
-			text: this.name,
+			text: draggingItems.map(item => item.name),
 		});
 		this.currenDragFeedbackEl = el;
 		e.dataTransfer.setDragImage(el, x, y);
@@ -427,7 +460,7 @@ export default class TreeView {
 		});
 	}
 
-	onDragEnd(e) {
+	#onDragEnd(e) {
 		if (this.currenDragFeedbackEl) editor.dragManager.removeFeedbackEl(this.currenDragFeedbackEl);
 		this.currenDragFeedbackEl = null;
 	}
@@ -838,6 +871,7 @@ export default class TreeView {
 	}
 
 	/**
+	 * Traverses up the tree and returns the first item without a parent.
 	 * @returns {TreeView}
 	 */
 	findRoot() {

@@ -614,14 +614,18 @@ select.textInput:disabled{
 	 min-width: 10px;
 }
 
-.dragFeedbackText{
-	background: var(--color-selected-blue);
-	color: var(--selected-text-color);
+.drag-feedback-text-container {
 	position: absolute;
 	z-index: 10000;
-	border-radius: var(--selection-border-radius);
 	transform: translateX(-100%);
+}
+
+.drag-feedback-text{
+	background: var(--color-selected-blue);
+	color: var(--selected-text-color);
+	border-radius: var(--selection-border-radius);
 	padding: 0px var(--default-selection-text-padding);
+	margin-bottom: 1px;
 	max-width: 300px;
 	text-align: center;
 }
