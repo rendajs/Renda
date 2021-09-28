@@ -579,6 +579,30 @@ select.textInput:disabled{
 	display: none;
 }
 
+.treeViewRow.drag-over-feedback, .tree-view-drag-feedback {
+	box-shadow: 0px 0px 0 2px var(--color-selected-blue), inset 0px 0px 0 2px var(--default-text-color);
+}
+
+.tree-view-drag-feedback {
+	height: 6px;
+	position: absolute;
+	width: 100%;
+	border-radius: 8px;
+	pointer-events: none;
+}
+
+.tree-view-drag-feedback.top {
+	top: -3px;
+}
+
+.tree-view-drag-feedback.bottom {
+	bottom: -3px;
+}
+
+.tree-view-drag-feedback:not(.top):not(.bottom) {
+	display: none;
+}
+
 .guiTreeViewEntry{
 	display: flex;
 	width: 100%;

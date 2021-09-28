@@ -243,7 +243,7 @@ export default class DroppableGui {
 	handleDrag(e) {
 		if (this.disabled) return false;
 		if (e.dataTransfer.types.some(mimeType => this.validateMimeType(mimeType))) {
-			e.dataTransfer.dropEffect = "copy";
+			e.dataTransfer.dropEffect = "link";
 			e.preventDefault();
 			return true;
 		}

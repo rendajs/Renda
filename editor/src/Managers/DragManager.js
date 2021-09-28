@@ -1,6 +1,9 @@
+import {generateUuid} from "../Util/Util.js";
+
 export default class DragManager {
 	constructor() {
 		this.createdDragFeedbackEls = new Set();
+		this.draggingData = new Map();
 	}
 	/**
 	 * @param {Object} opts
@@ -40,5 +43,29 @@ export default class DragManager {
 		}
 		this.createdDragFeedbackEls.delete(el);
 		if (el.parentElement) el.parentElement.removeChild(el);
+	}
+
+	/**
+	 * @param {*} data
+	 * @returns {import("../Util/Util.js").UuidString}
+	 */
+	registerDraggingData(data) {
+		const id = generateUuid();
+		this.draggingData.set(id, data);
+		return id;
+	}
+
+	/**
+	 * @param {import("../Util/Util.js").UuidString} id
+	 */
+	getDraggingData(id) {
+		return this.draggingData.get(id);
+	}
+
+	/**
+	 * @param {import("../Util/Util.js").UuidString} id
+	 */
+	unregisterDraggingData(id) {
+		this.draggingData.delete(id);
 	}
 }

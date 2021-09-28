@@ -1,4 +1,5 @@
 import editor from "../editorInstance.js";
+import {iLerp, parseMimeType} from "../Util/Util.js";
 
 /**
  * @typedef {Object} TreeViewEvent
@@ -48,6 +49,18 @@ export default class TreeView {
 	#rearrangeable = false;
 	#elDraggable = false;
 
+	#boundDragStart = null;
+	#boundDragEnd = null;
+	#boundDragEnter = null;
+	#boundDragOver = null;
+	#boundDragLeave = null;
+	#boundDrop = null;
+
+	#currenDragFeedbackText = null;
+	#currentDraggingRearrangeDataId = null;
+
+	#currenDragFeedbackEl = null;
+
 	constructor(data = {}) {
 		this.el = document.createElement("div");
 		this.el.classList.add("treeViewItem");
@@ -62,10 +75,14 @@ export default class TreeView {
 		this.boundOnDblClick = this.onDblClick.bind(this);
 		this.rowEl.addEventListener("dblclick", this.boundOnDblClick.bind(this));
 
-		this.boundOnDragOverEvent = this.onDragOverEvent.bind(this);
-		this.rowEl.addEventListener("dragover", this.boundOnDragOverEvent);
-		this.boundOnDropEvent = this.onDropEvent.bind(this);
-		this.rowEl.addEventListener("drop", this.boundOnDropEvent);
+		this.#boundDragEnter = this.#onDragEnterEvent.bind(this);
+		this.#boundDragOver = this.#onDragOverEvent.bind(this);
+		this.#boundDragLeave = this.#onDragLeaveEvent.bind(this);
+		this.#boundDrop = this.#onDropEvent.bind(this);
+		this.rowEl.addEventListener("dragenter", this.#boundDragEnter);
+		this.rowEl.addEventListener("dragover", this.#boundDragOver);
+		this.rowEl.addEventListener("dragleave", this.#boundDragLeave);
+		this.rowEl.addEventListener("drop", this.#boundDrop);
 
 		this.boundOnContextMenuEvent = this.onContextMenuEvent.bind(this);
 		this.rowEl.addEventListener("contextmenu", this.boundOnContextMenuEvent);
@@ -172,15 +189,19 @@ export default class TreeView {
 		}
 		this.rowEl.removeEventListener("click", this.boundOnRowClick);
 		this.boundOnRowClick = null;
-		this.rowEl.removeEventListener("dragover", this.boundOnDragOverEvent);
-		this.boundOnDragOverEvent = null;
-		this.rowEl.removeEventListener("drop", this.boundOnDropEvent);
-		this.boundOnDropEvent = null;
 		this.rowEl.removeEventListener("contextmenu", this.boundOnContextMenuEvent);
 		this.boundOnContextMenuEvent = null;
-		this.rowEl = null;
 		this.arrowContainerEl.removeEventListener("click", this.boundArrowClickEvent);
 		this.boundArrowClickEvent = null;
+
+		this.rowEl.removeEventListener("dragstart", this.#boundDragStart);
+		this.rowEl.removeEventListener("dragend", this.#boundDragEnd);
+		this.rowEl.removeEventListener("dragenter", this.#boundDragEnter);
+		this.rowEl.removeEventListener("dragover", this.#boundDragOver);
+		this.rowEl.removeEventListener("dragleave", this.#boundDragLeave);
+		this.rowEl.removeEventListener("drop", this.#boundDrop);
+
+		this.rowEl = null;
 		this.arrowContainerEl = null;
 		this.arrowEl = null;
 		this.myNameEl = null;
@@ -427,17 +448,20 @@ export default class TreeView {
 		this.#elDraggable = draggable;
 		this.rowEl.draggable = draggable;
 		if (draggable) {
-			this.boundDragStart = this.#onDragStart.bind(this);
-			this.rowEl.addEventListener("dragstart", this.boundDragStart);
-			this.boundDragEnd = this.#onDragEnd.bind(this);
-			this.rowEl.addEventListener("dragend", this.boundDragEnd);
+			this.#boundDragStart = this.#onDragStartEvent.bind(this);
+			this.#boundDragEnd = this.#onDragEndEvent.bind(this);
+			this.rowEl.addEventListener("dragstart", this.#boundDragStart);
+			this.rowEl.addEventListener("dragend", this.#boundDragEnd);
 		} else {
-			this.rowEl.removeEventListener("dragstart", this.boundDragStart);
-			this.rowEl.removeEventListener("onDragEnd", this.boundDragEnd);
+			this.rowEl.removeEventListener("dragstart", this.#boundDragStart);
+			this.rowEl.removeEventListener("dragend", this.#boundDragEnd);
 		}
 	}
 
-	#onDragStart(e) {
+	/**
+	 * @param {DragEvent} e
+	 */
+	#onDragStartEvent(e) {
 		const root = this.findRoot();
 		const selectedItems = new Set();
 		for (const child of root.getSelectedItems()) {
@@ -449,10 +473,17 @@ export default class TreeView {
 		} else {
 			draggingItems = [this];
 		}
+		if (this.rearrangeable) {
+			e.dataTransfer.effectAllowed = "move";
+			this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData({
+				root, draggingItems,
+			});
+			e.dataTransfer.setData("text/jj; dragtype=rearrangingtreeview", this.#currentDraggingRearrangeDataId);
+		}
 		const {el, x, y} = editor.dragManager.createDragFeedbackText({
 			text: draggingItems.map(item => item.name),
 		});
-		this.currenDragFeedbackEl = el;
+		this.#currenDragFeedbackText = el;
 		e.dataTransfer.setDragImage(el, x, y);
 		this.fireEvent("dragstart", {
 			rawEvent: e,
@@ -460,9 +491,112 @@ export default class TreeView {
 		});
 	}
 
-	#onDragEnd(e) {
-		if (this.currenDragFeedbackEl) editor.dragManager.removeFeedbackText(this.currenDragFeedbackEl);
-		this.currenDragFeedbackEl = null;
+	/**
+	 * @param {DragEvent} e
+	 */
+	#onDragEndEvent(e) {
+		if (this.#currenDragFeedbackText) editor.dragManager.removeFeedbackText(this.#currenDragFeedbackText);
+		this.#currenDragFeedbackText = null;
+		if (this.#currentDraggingRearrangeDataId) editor.dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
+		this.#currentDraggingRearrangeDataId = null;
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 */
+	#onDragEnterEvent(e) {
+		if (this.#validateDragEvent(e)) {
+			e.dataTransfer.dropEffect = "move";
+			e.preventDefault();
+			this.#updateDragFeedback(e);
+		}
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 */
+	#onDragOverEvent(e) {
+		if (this.#validateDragEvent(e)) {
+			e.dataTransfer.dropEffect = "move";
+			e.preventDefault();
+			this.#updateDragFeedback(e);
+		}
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 */
+	#onDragLeaveEvent(e) {
+		this.#removeDragFeedbackEl();
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 */
+	#onDropEvent(e) {
+		e.preventDefault();
+		this.fireEvent("drop", {
+			target: this,
+			rawEvent: e,
+		});
+		this.#removeDragFeedbackEl();
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 * @returns {boolean}
+	 */
+	#validateDragEvent(e) {
+		return e.dataTransfer.types.some(mimeType => this.#validateDragMimeType(mimeType));
+	}
+
+	/**
+	 * @param {string} mimeType
+	 * @returns {boolean}
+	 */
+	#validateDragMimeType(mimeType) {
+		const parsed = parseMimeType(mimeType);
+		if (!parsed) return false;
+		const {type, subType, params} = parsed;
+		if (type != "text" || subType != "jj") return false;
+		if (params.dragtype == "rearrangingtreeview") {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 */
+	#updateDragFeedback(e) {
+		if (!this.#currenDragFeedbackEl) {
+			this.#currenDragFeedbackEl = document.createElement("div");
+			this.#currenDragFeedbackEl.classList.add("tree-view-drag-feedback", "top");
+			this.rowEl.appendChild(this.#currenDragFeedbackEl);
+		}
+		const pos = this.#getDragPosition(e);
+		this.#currenDragFeedbackEl.classList.toggle("top", pos == "top");
+		this.#currenDragFeedbackEl.classList.toggle("bottom", pos == "bottom");
+		this.rowEl.classList.toggle("drag-over-feedback", pos == "middle");
+	}
+
+	/**
+	 * @param {DragEvent} e
+	 * @returns {"top" | "bottom" | "middle"}
+	 */
+	#getDragPosition(e) {
+		const bounds = this.rowEl.getBoundingClientRect();
+		const percent = iLerp(bounds.top, bounds.bottom, e.clientY);
+		if (percent < 0.25) return "top";
+		if (percent > 0.75) return "bottom";
+		return "middle";
+	}
+
+	#removeDragFeedbackEl() {
+		if (!this.#currenDragFeedbackEl) return;
+		this.rowEl.removeChild(this.#currenDragFeedbackEl);
+		this.#currenDragFeedbackEl = null;
+		this.rowEl.classList.remove("drag-over-feedback");
 	}
 
 	/**
@@ -911,21 +1045,6 @@ export default class TreeView {
 		for (const view of this.traverseDown()) {
 			view.deselect();
 		}
-	}
-
-	onDragOverEvent(e) {
-		e.preventDefault();
-	}
-
-	/**
-	 * @param {DragEvent} e
-	 */
-	onDropEvent(e) {
-		e.preventDefault();
-		this.fireEvent("drop", {
-			target: this,
-			rawEvent: e,
-		});
 	}
 
 	onContextMenuEvent(e) {
