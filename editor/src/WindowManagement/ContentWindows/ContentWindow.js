@@ -17,11 +17,12 @@ export default class ContentWindow {
 
 	/**
 	 * The icon that is visible in the tab selector.
+	 * @type {String}
 	 */
 	static contentWindowUiIcon = "icons/generic.svg";
 
 	constructor() {
-		/** @type {import("../EditorWindowTabs.js").default} */
+		/** @type {import("../EditorWindowTabs.js").default}*/
 		this.parentEditorWindow = null;
 		this.uuid = generateUuid();
 

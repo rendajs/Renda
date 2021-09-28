@@ -40,7 +40,7 @@ export default class WindowManager {
 
 	/**
 	 * @param {import("./EditorWindow.js").default} newRootWindow
-	 * @param {boolean} [destructOldRoot = true]
+	 * @param {boolean} [destructOldRoot]
 	 */
 	replaceRootWindow(newRootWindow, destructOldRoot = true) {
 		if (destructOldRoot) this.rootWindow.destructor();

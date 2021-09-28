@@ -23,7 +23,7 @@ export default class ColorizerFilter {
 		feComposite.setAttribute("operator", "in");
 		this.filterEl.appendChild(feComposite);
 
-		this.finalizationRegistry = new FinalizationRegistry((ref) => {
+		this.finalizationRegistry = new FinalizationRegistry(ref => {
 			this.notifyWeakRefDestructed(ref);
 		});
 
@@ -54,7 +54,7 @@ export default class ColorizerFilter {
 	getUsageReference() {
 		const ref = new ColorizerFilterUsageReference(this);
 		const weakRef = new WeakRef(ref);
-		this.finalizationRegistry.register(ref, weakRef, weakRef)
+		this.finalizationRegistry.register(ref, weakRef, weakRef);
 		this.usageReferences.add(weakRef);
 		this.usageReferencesMap.set(ref, weakRef);
 		return ref;

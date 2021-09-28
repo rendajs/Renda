@@ -38,7 +38,9 @@ export default class WorkspaceManager {
 		this.onCurrentWorkspaceIdChangeCbs = new Set();
 	}
 
-	/** @returns {Promise<Array<string>>} */
+	/**
+	 * @returns {Promise<Array<string>>}
+	 */
 	async getWorkspacesList() {
 		const list = await this.indexedDb.get("workspaces", "workspaceSettings");
 		if (!list || list.length <= 0) return ["Default"];
@@ -52,7 +54,9 @@ export default class WorkspaceManager {
 		await this.indexedDb.set("workspaces", value, "workspaceSettings");
 	}
 
-	/** @returns {Promise<string>} */
+	/**
+	 * @returns {Promise<string>}
+	 */
 	async getCurrentWorkspaceId() {
 		if (this.currentWorkSpaceIdCache) return this.currentWorkSpaceIdCache;
 
@@ -89,7 +93,9 @@ export default class WorkspaceManager {
 		return workspaceData;
 	}
 
-	/** @returns {Promise<WorkspaceData>} */
+	/**
+	 * @returns {Promise<WorkspaceData>}
+	 */
 	async getCurrentWorkspace() {
 		return await this.getWorkspace(await this.getCurrentWorkspaceId());
 	}

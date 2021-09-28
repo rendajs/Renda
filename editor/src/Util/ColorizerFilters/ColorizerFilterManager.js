@@ -3,7 +3,7 @@
  */
 
 import ColorizerFilter from "./ColorizerFilter.js";
-import { generateUuid } from "../Util.js";
+import {generateUuid} from "../Util.js";
 
 export default class ColorizerFilterManager {
 	constructor() {
@@ -31,7 +31,7 @@ export default class ColorizerFilterManager {
 		filter.onAllReferencesDestructed(() => {
 			filter.destructor();
 			this.createdFilters.delete(cssColor);
-		})
+		});
 		this.createdFilters.set(cssColor, filter);
 		return filter;
 	}

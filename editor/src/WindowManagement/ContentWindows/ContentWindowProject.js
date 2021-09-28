@@ -119,8 +119,8 @@ export default class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * Updates the path and its children recursively when expanded
-	 * @param {Array<string> | null} path directory to update, updates the root TreeView when omitted
+	 * Updates the path and its children recursively when expanded.
+	 * @param {Array<string> | null} path Directory to update, updates the root TreeView when omitted.
 	 */
 	async updateTreeView(path = null) {
 		let {treeView} = this;
@@ -134,9 +134,9 @@ export default class ContentWindowProject extends ContentWindow {
 
 	/**
 	 * Updates a full range of directories from start to end, useful right before expanding a specific directory.
-	 * @param {Array<string>} end The directory to update, this path is relative to start
+	 * @param {Array<string>} end The directory to update, this path is relative to start.
 	 * @param {?Array<string>} start The directory to start updating from, starts updating from the root when omitted.
-	 * @param {boolean} collapsedOnly when this is true, expanded TreeViews won't be usdated.
+	 * @param {boolean} collapsedOnly When this is true, expanded TreeViews won't be usdated.
 	 */
 	async updateTreeViewRange(end, start = null, collapsedOnly = true) {
 		let {treeView} = this;
@@ -158,9 +158,9 @@ export default class ContentWindowProject extends ContentWindow {
 
 	/**
 	 * Utility function for {@link ContentWindowProject.updateTreeView} that updates
-	 * a TreeView and all expanded children recursively
-	 * @param {TreeView} treeView the TreeView to update
-	 * @param {Array<string>} path the path this TreeView belongs to
+	 * a TreeView and all expanded children recursively.
+	 * @param {TreeView} treeView The TreeView to update.
+	 * @param {Array<string>} path The path this TreeView belongs to.
 	 */
 	async updateTreeViewRecursive(treeView, path) {
 		if (this.destructed) return;
@@ -251,7 +251,7 @@ export default class ContentWindowProject extends ContentWindow {
 
 	/**
 	 * @param {import("../../UI/TreeView").default} treeView
-	 * @param {boolean} [removeLast = false]
+	 * @param {boolean} [removeLast]
 	 * @returns {Array<string>}
 	 */
 	pathFromTreeView(treeView, removeLast = false) {

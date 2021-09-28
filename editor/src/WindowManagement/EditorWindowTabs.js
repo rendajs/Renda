@@ -111,9 +111,10 @@ export default class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
+	 * @template {import("./ContentWindows/ContentWindow.js").default} T
 	 * @param {number} index
-	 * @param {typeof import("./ContentWindows/ContentWindow.js").default} constructor
-	 * @returns
+	 * @param {new () => T} constructor
+	 * @returns {T}
 	 */
 	loadContentWindow(index, constructor) {
 		const contentWindow = new constructor();
@@ -138,7 +139,7 @@ export default class EditorWindowTabs extends EditorWindow {
 
 	/**
 	 * @param {import("./ContentWindows/ContentWindow.js").default} contentWindow
-	 * @param {boolean} [activate = true]
+	 * @param {boolean} [activate]
 	 */
 	addExistingContentWindow(contentWindow, activate = true) {
 		const index = this.tabTypes.length;
@@ -443,7 +444,7 @@ export default class EditorWindowTabs extends EditorWindow {
 
 	/**
 	 * @param {Array<string>} uuids
-	 * @param {boolean} [fromOtherTabsOnly = false]
+	 * @param {boolean} [fromOtherTabsOnly]
 	 */
 	*uuidsToContentWindows(uuids, fromOtherTabsOnly = false) {
 		for (const uuid of uuids) {
