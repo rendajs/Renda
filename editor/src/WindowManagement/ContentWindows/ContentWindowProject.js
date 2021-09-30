@@ -313,6 +313,8 @@ export default class ContentWindowProject extends ContentWindow {
 			if (!e.target.alwaysShowArrow) {
 				e.reject();
 			}
+		} else if (e.kind == "file") {
+			e.accept();
 		}
 	}
 

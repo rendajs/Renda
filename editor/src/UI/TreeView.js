@@ -18,6 +18,7 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  * @typedef {Object} TreeViewValidateDragMimeTypeEventType
  * @property {import("../Util/Util.js").ParsedMimeType} mimeType
  * @property {boolean} isSameTreeView Whether the dragged TreeView is from the same TreeView tree as the drop target.
+ * @property {"string" | "file"} kind
  * @property {function() : void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.
  * @property {function() : void} reject Mark the drag as rejected. If any of the event handlers call `accept()`, this has no effect.
  *
@@ -616,11 +617,11 @@ export default class TreeView {
 			this.#removeDragFeedbackEl();
 
 			const promises = [];
-			for (const data of e.dataTransfer.items) {
-				if (data.kind != "string" || !this.#validateDragMimeType(e, data.type)) continue;
+			for (const item of e.dataTransfer.items) {
+				if (!this.#validateDragItemForRearrange(item)) continue;
 
 				const promise = (async () => {
-					const dataId = await new Promise(r => data.getAsString(r));
+					const dataId = await new Promise(r => item.getAsString(r));
 					const draggingData = editor.dragManager.getDraggingData(dataId);
 					if (!draggingData || !draggingData.draggingItems) return null;
 					return draggingData.draggingItems;
@@ -721,11 +722,10 @@ export default class TreeView {
 					}
 				}
 			}
-			// todo:
-			// this.fireEvent("drop", {
-			// 	target: this,
-			// 	rawEvent: e,
-			// });
+			this.fireEvent("drop", {
+				target: this,
+				rawEvent: e,
+			});
 		}
 	}
 
@@ -734,27 +734,25 @@ export default class TreeView {
 	 * @returns {boolean}
 	 */
 	#validateDragEvent(e) {
-		return e.dataTransfer.types.some(mimeType => this.#validateDragMimeType(e, mimeType));
+		for (const item of e.dataTransfer.items) {
+			const valid = this.#validateDragItem(e, item);
+			if (valid) return true;
+		}
+		return false;
 	}
 
 	/**
 	 * @param {DragEvent} rawEvent
-	 * @param {string} mimeType
+	 * @param {DataTransferItem} item
 	 * @returns {boolean}
 	 */
-	#validateDragMimeType(rawEvent, mimeType) {
+	#validateDragItem(rawEvent, item) {
+		const kind = /** @type {"string" | "file"} */ (item.kind);
+		const mimeType = item.type;
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
 
-		let isSameTreeView = false;
-		const {type, subType, parameters} = parsed;
-		if (type == "text" && subType == "jj") {
-			const root = this.findRoot();
-			const rootUuid = root[TreeView.#dragRootUuidSym];
-			if (rootUuid && parameters.dragtype == "rearrangingtreeview" && parameters.rootuuid == rootUuid) {
-				isSameTreeView = true;
-			}
-		}
+		const isSameTreeView = this.#validateDragItemForRearrange(item);
 
 		let isAcceptingEvents = true;
 		let validateEventAccepted = false;
@@ -763,6 +761,7 @@ export default class TreeView {
 		this.fireEvent("validatedrag", {
 			target: this,
 			rawEvent,
+			kind,
 			mimeType: parsed,
 			isSameTreeView,
 			accept: () => {
@@ -784,6 +783,26 @@ export default class TreeView {
 		if (validateEventRejected) return false;
 
 		return isSameTreeView;
+	}
+
+	/**
+	 * @param {DataTransferItem} item
+	 * @returns {boolean}
+	 */
+	#validateDragItemForRearrange(item) {
+		if (item.kind != "string") return false;
+		const parsed = parseMimeType(item.type);
+		if (!parsed) return false;
+
+		const {type, subType, parameters} = parsed;
+		if (type == "text" && subType == "jj") {
+			const root = this.findRoot();
+			const rootUuid = root[TreeView.#dragRootUuidSym];
+			if (rootUuid && parameters.dragtype == "rearrangingtreeview" && parameters.rootuuid == rootUuid) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
