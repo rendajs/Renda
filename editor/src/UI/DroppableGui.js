@@ -265,12 +265,12 @@ export default class DroppableGui {
 	validateMimeType(mimeType) {
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
-		const {type, subType, params} = parsed;
+		const {type, subType, parameters} = parsed;
 		if (type != "text" || subType != "jj") return false;
 		if (this.supportedAssetTypes.length <= 0) return true;
-		if (params.dragtype == "projectasset") {
+		if (parameters.dragtype == "projectasset") {
 			if (this.supportedAssetTypes.includes(ProjectAsset)) return true;
-			const assetType = editor.projectAssetTypeManager.getAssetTypeByUuid(params.assettype);
+			const assetType = editor.projectAssetTypeManager.getAssetTypeByUuid(parameters.assettype);
 			if (assetType && assetType.expectedLiveAssetConstructor) {
 				return this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
 			}

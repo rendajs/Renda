@@ -63,8 +63,15 @@ export function generateUuid() {
 }
 
 /**
+ * @typedef {Object} ParsedMimeType
+ * @property {string} type
+ * @property {string} subType
+ * @property {Object<string, string>} parameters
+ */
+
+/**
  * @param {string} mimeType
- * @returns {{type: string, subType: string, params: Object.<string, string>} | null}
+ * @returns {?ParsedMimeType}
  */
 export function parseMimeType(mimeType) {
 	const split = mimeType.split("/");
@@ -77,7 +84,7 @@ export function parseMimeType(mimeType) {
 	for (const [name, value] of paramsStr.map(p => p.trim().split("="))) {
 		params[name] = value;
 	}
-	return {type, subType, params};
+	return {type, subType, parameters: params};
 }
 
 export function handleDuplicateName(existingNames, prefix, suffix = "", numberPrefix = " ") {

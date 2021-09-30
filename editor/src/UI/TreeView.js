@@ -723,12 +723,12 @@ export default class TreeView {
 	#validateDragMimeType(mimeType) {
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
-		const {type, subType, params} = parsed;
+		const {type, subType, parameters} = parsed;
 		if (type != "text" || subType != "jj") return false;
 		const root = this.findRoot();
 		const rootUuid = root[TreeView.#dragRootUuidSym];
 		if (!rootUuid) return false;
-		if (params.dragtype == "rearrangingtreeview" && params.rootuuid == rootUuid) {
+		if (parameters.dragtype == "rearrangingtreeview" && parameters.rootuuid == rootUuid) {
 			return true;
 		}
 		return false;

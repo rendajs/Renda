@@ -437,8 +437,8 @@ export default class EditorWindowTabs extends EditorWindow {
 	validateTabDragMimeType(mimeType) {
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
-		const {type, subType, params} = parsed;
-		if (type != "text" || subType != "jj" || params.dragtype != "editorwindowtab") return false;
+		const {type, subType, parameters} = parsed;
+		if (type != "text" || subType != "jj" || parameters.dragtype != "editorwindowtab") return false;
 		return true;
 	}
 
