@@ -54,6 +54,17 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  * @typedef {TreeViewEvent & TreeViewSelectionChangeEventType} TreeViewSelectionChangeEvent
  */
 
+/**
+ * @typedef {Object} TreeViewEventCbMap
+ * @property {TreeViewSelectionChangeEvent} selectionchange
+ * @property {TreeViewNameChangeEvent} namechange
+ * @property {TreeViewDragEvent} dragstart
+ * @property {TreeViewValidateDragMimeTypeEvent} validatedrag
+ * @property {TreeViewDragEvent} drop
+ * @property {TreeViewEvent} dblclick
+ * @property {TreeViewContextMenuEvent} contextmenu
+ */
+
 export default class TreeView {
 	#draggable = false;
 	#rearrangeableOrder = false;
@@ -749,7 +760,7 @@ export default class TreeView {
 		let validateEventAccepted = false;
 		let validateEventRejected = false;
 		/** @type {TreeViewValidateDragMimeTypeEvent} */
-		const validateEvent = {
+		this.fireEvent("validatedrag", {
 			target: this,
 			rawEvent,
 			mimeType: parsed,
@@ -766,8 +777,7 @@ export default class TreeView {
 				}
 				validateEventRejected = true;
 			},
-		};
-		this.fireEvent("validatedrag", validateEvent);
+		});
 		isAcceptingEvents = false;
 
 		if (validateEventAccepted) return true;
@@ -1303,8 +1313,9 @@ export default class TreeView {
 	}
 
 	/**
-	 * @param {string} eventType The identifier of the event type.
-	 * @param {function(TreeViewEvent) : void} cb The callback to invoke when the event occurs.
+	 * @template {keyof TreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {function(TreeViewEventCbMap[T]) : void} cb The callback to invoke when the event occurs.
 	 */
 	addEventListener(eventType, cb) {
 		const cbs = this.getEventCbs(eventType);
@@ -1313,8 +1324,9 @@ export default class TreeView {
 	}
 
 	/**
-	 * @param {string} eventType The identifier of the event type.
-	 * @param {function(TreeViewEvent) : void} cb The callback to remove.
+	 * @template {keyof TreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {function(TreeViewEventCbMap[T]) : void} cb The callback to remove.
 	 */
 	removeEventListener(eventType, cb) {
 		const cbs = this.getEventCbs(eventType);
@@ -1324,8 +1336,9 @@ export default class TreeView {
 
 	/**
 	 * Fires an event on this TreeView and its parents.
-	 * @param {string} eventType The identifier of the event type.
-	 * @param {TreeViewEvent} event The data to pass to the event callbacks.
+	 * @template {keyof TreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {TreeViewEventCbMap[T]} event The data to pass to the event callbacks.
 	 */
 	fireEvent(eventType, event) {
 		const cbs = this.getEventCbs(eventType);

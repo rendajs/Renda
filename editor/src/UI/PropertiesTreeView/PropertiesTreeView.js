@@ -11,6 +11,13 @@ import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
 
 /** @typedef {Object.<string, import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure */
 
+/**
+ * @typedef {Object} PropertiesTreeViewEventCbMapType
+ * @property {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent} propertiestreeviewentryvaluechange
+ *
+ * @typedef {PropertiesTreeViewEventCbMapType & import("../TreeView.js").TreeViewEventCbMap} PropertiesTreeViewEventCbMap
+ */
+
 export default class PropertiesTreeView extends TreeView {
 	constructor({
 		rowVisible = false,
@@ -26,7 +33,7 @@ export default class PropertiesTreeView extends TreeView {
 		/** @type {Object.<string, PropertiesTreeViewEntry>} */
 		this.currentSerializableStructureItems = null;
 
-		this.registerNewEventType("treeViewEntryValueChange");
+		this.registerNewEventType("propertiestreeviewentryvaluechange");
 	}
 
 	/**
@@ -57,7 +64,7 @@ export default class PropertiesTreeView extends TreeView {
 	 * @param {function(import("./PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent) : void} cb
 	 */
 	onChildValueChange(cb) {
-		this.addEventListener("treeViewEntryValueChange", cb);
+		this.addEventListener("propertiestreeviewentryvaluechange", cb);
 	}
 
 	/**
@@ -146,5 +153,39 @@ export default class PropertiesTreeView extends TreeView {
 		for (const child of this.children) {
 			child.setDisabled(disabled);
 		}
+	}
+
+	/**
+	 * @template {keyof PropertiesTreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to invoke when the event occurs.
+	 */
+	addEventListener(eventType, cb) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-rest-params
+		super.addEventListener(...arguments);
+	}
+
+	/**
+	 * @template {keyof PropertiesTreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to remove.
+	 */
+	removeEventListener(eventType, cb) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-rest-params
+		super.removeEventListener(...arguments);
+	}
+
+	/**
+	 * Fires an event on this TreeView and its parents.
+	 * @template {keyof PropertiesTreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {PropertiesTreeViewEventCbMap[T]} event The data to pass to the event callbacks.
+	 */
+	fireEvent(eventType, event) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-rest-params
+		super.fireEvent(...arguments);
 	}
 }

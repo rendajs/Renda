@@ -158,7 +158,7 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		// todo: maybe instead of calling setvalue inside the constructor
 		// of every gui class, call setValue over here
 
-		this.registerNewEventType("treeViewEntryValueChange");
+		this.registerNewEventType("propertiestreeviewentryvaluechange");
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.onValueChange?.(newValue => {
 			/** @type {PropertiesTreeViewChangeEvent} */
@@ -166,7 +166,7 @@ export default class PropertiesTreeViewEntry extends TreeView {
 				target: this,
 				newValue,
 			};
-			this.fireEvent("treeViewEntryValueChange", event);
+			this.fireEvent("propertiestreeviewentryvaluechange", event);
 		});
 	}
 
@@ -250,5 +250,41 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			}
 		}
 		return false;
+	}
+
+	/** @typedef {import("./PropertiesTreeView.js").PropertiesTreeViewEventCbMap} PropertiesTreeViewEventCbMap */
+
+	/**
+	 * @template {keyof PropertiesTreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to invoke when the event occurs.
+	 */
+	addEventListener(eventType, cb) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-rest-params
+		super.addEventListener(...arguments);
+	}
+
+	/**
+	 * @template {keyof PropertiesTreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {function(PropertiesTreeViewEventCbMap[T]) : void} cb The callback to remove.
+	 */
+	removeEventListener(eventType, cb) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-rest-params
+		super.removeEventListener(...arguments);
+	}
+
+	/**
+	 * Fires an event on this TreeView and its parents.
+	 * @template {keyof PropertiesTreeViewEventCbMap} T
+	 * @param {T} eventType The identifier of the event type.
+	 * @param {PropertiesTreeViewEventCbMap[T]} event The data to pass to the event callbacks.
+	 */
+	fireEvent(eventType, event) {
+		// @ts-ignore
+		// eslint-disable-next-line prefer-rest-params
+		super.fireEvent(...arguments);
 	}
 }
