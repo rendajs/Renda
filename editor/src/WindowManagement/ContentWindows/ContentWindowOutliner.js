@@ -14,7 +14,8 @@ export default class ContentWindowOutliner extends ContentWindow {
 		super();
 
 		this.treeView = new TreeView();
-		this.treeView.rearrangeable = true;
+		this.treeView.rearrangeableHierarchy = true;
+		this.treeView.rearrangeableOrder = true;
 		this.treeView.renameable = true;
 		this.contentEl.appendChild(this.treeView.el);
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));

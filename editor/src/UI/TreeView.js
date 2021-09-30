@@ -46,7 +46,8 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
 
 export default class TreeView {
 	#draggable = false;
-	#rearrangeable = false;
+	#rearrangeableOrder = false;
+	#rearrangeableHierarchy = false;
 	#elDraggable = false;
 
 	#boundDragStart = null;
@@ -161,7 +162,8 @@ export default class TreeView {
 			this.canSelectMultiple = data.copySettings.canSelectMultiple;
 			this.renameable = data.copySettings.renameable;
 			this.draggable = data.copySettings.draggable;
-			this.rearrangeable = data.copySettings.rearrangeable;
+			this.#rearrangeableHierarchy = data.copySettings.#rearrangeableHierarchy;
+			this.#rearrangeableOrder = data.copySettings.#rearrangeableOrder;
 		}
 
 		this.selected = false; // todo: make this private or a getter/setter
@@ -457,15 +459,28 @@ export default class TreeView {
 		this.updateArrowHidden();
 	}
 
-	get rearrangeable() {
-		return this.#rearrangeable;
+	get rearrangeableOrder() {
+		return this.#rearrangeableOrder;
 	}
 
-	set rearrangeable(value) {
-		if (this.#rearrangeable != value) {
-			this.#rearrangeable = value;
-			this.#updateElDraggable();
-		}
+	set rearrangeableOrder(value) {
+		if (this.#rearrangeableOrder == value) return;
+		this.#rearrangeableOrder = value;
+		this.#updateElDraggable();
+	}
+
+	get rearrangeableHierarchy() {
+		return this.#rearrangeableHierarchy;
+	}
+
+	set rearrangeableHierarchy(value) {
+		if (this.#rearrangeableHierarchy == value) return;
+		this.#rearrangeableHierarchy = value;
+		this.#updateElDraggable();
+	}
+
+	get rearrangeable() {
+		return this.rearrangeableOrder || this.rearrangeableHierarchy;
 	}
 
 	get draggable() {
@@ -741,8 +756,10 @@ export default class TreeView {
 	#getDragPosition(e) {
 		const bounds = this.rowEl.getBoundingClientRect();
 		const percent = iLerp(bounds.top, bounds.bottom, e.clientY);
-		if (percent < 0.25) return "top";
-		if (percent > 0.75) return "bottom";
+		if (this.rearrangeableOrder) {
+			if (percent < 0.25) return "top";
+			if (percent > 0.75) return "bottom";
+		}
 		return "middle";
 	}
 
