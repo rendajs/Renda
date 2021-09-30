@@ -4,7 +4,8 @@
 		"target": "esnext",
 		"checkJs": true,
 		"typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"],
-		"module": "esnext"
+		"module": "esnext",
+		"useDefineForClassFields": true
 	},
 	"files": ["src/index.js", "src/Inspector/InternalDiscoveryWorker.js", "editor/src/index.js"]
 }

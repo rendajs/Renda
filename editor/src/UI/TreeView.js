@@ -1,5 +1,5 @@
 import editor from "../editorInstance.js";
-import {iLerp, parseMimeType} from "../Util/Util.js";
+import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
 
 /**
  * @typedef {Object} TreeViewEvent
@@ -60,6 +60,8 @@ export default class TreeView {
 	#currentDraggingRearrangeDataId = null;
 
 	#currenDragFeedbackEl = null;
+
+	static #dragRootUuidSym = Symbol("Drag Root Uuid");
 
 	constructor(data = {}) {
 		this.el = document.createElement("div");
@@ -135,6 +137,7 @@ export default class TreeView {
 		this.destructed = false;
 		this._name = "";
 		this.children = [];
+		/** @type {?TreeView} */
 		this.parent = data.parent ?? null;
 		this.recursionDepth = 0;
 		this._collapsed = false;
@@ -184,9 +187,7 @@ export default class TreeView {
 
 	destructor() {
 		this.destructed = true;
-		if (this.el.parentElement) {
-			this.el.parentElement.removeChild(this.el);
-		}
+		this.#removeFromParentElement();
 		this.rowEl.removeEventListener("click", this.boundOnRowClick);
 		this.boundOnRowClick = null;
 		this.rowEl.removeEventListener("contextmenu", this.boundOnContextMenuEvent);
@@ -230,6 +231,12 @@ export default class TreeView {
 		this.eventCbs = null;
 
 		this.el = null;
+	}
+
+	#removeFromParentElement() {
+		if (this.el.parentElement) {
+			this.el.parentElement.removeChild(this.el);
+		}
 	}
 
 	get name() {
@@ -283,6 +290,16 @@ export default class TreeView {
 		return !this.parent;
 	}
 
+	/**
+	 * Returns the index of this TreeView in the parent's children array.
+	 * Returns -1 if this TreeView is the root.
+	 * @returns {number}
+	 */
+	get index() {
+		if (!this.parent) return -1;
+		return this.parent.children.indexOf(this);
+	}
+
 	removeChild(child, destructChild = true) {
 		for (const [i, c] of this.children.entries()) {
 			if (child == c) {
@@ -293,7 +310,9 @@ export default class TreeView {
 	}
 
 	removeChildIndex(index, destructChild = true) {
-		if (destructChild) this.children[index].destructor();
+		const child = this.children[index];
+		if (destructChild) child.destructor();
+		child.#removeFromParentElement();
 		this.children.splice(index, 1);
 		this.updateArrowHidden();
 	}
@@ -311,7 +330,7 @@ export default class TreeView {
 	 * @param {boolean} addChild Whether a call should be made to parent.addChild().
 	 */
 	setParent(parent, addChild = true) {
-		if (parent != this.parent) {
+		if (parent != this.parent || !addChild) {
 			if (this.parent) {
 				this.parent.removeChild(this, false);
 			}
@@ -334,30 +353,49 @@ export default class TreeView {
 
 	/**
 	 * @param {number} index Index to insert the TreeView at, starts counting from the back when negative.
-	 * @param {?TreeView} treeView The TreeView to insert, creates a new one when null.
+	 * @param {?TreeView} newChild The TreeView to insert, creates a new one when null.
 	 * @returns {TreeView} The created TreeView.
 	 */
-	addChildAtIndex(index = -1, treeView = null) {
+	addChildAtIndex(index = -1, newChild = null) {
 		if (index < 0) {
 			index = this.children.length + index + 1;
 		}
-		if (treeView == null) {
-			treeView = new TreeView({
+		if (newChild == null) {
+			newChild = new TreeView({
 				copySettings: this,
 				parent: this,
 			});
 		}
-		treeView.setParent(this, false);
-		treeView.calculateRecursionDepth();
+		newChild.setParent(this, false);
+		newChild.calculateRecursionDepth();
 		if (index >= this.children.length) {
-			this.children.push(treeView);
-			this.childrenEl.appendChild(treeView.el);
+			this.children.push(newChild);
+			this.childrenEl.appendChild(newChild.el);
 		} else {
-			this.children.splice(index, 0, treeView);
-			this.childrenEl.insertBefore(treeView.el, this.childrenEl.children[index]);
+			this.children.splice(index, 0, newChild);
+			this.childrenEl.insertBefore(newChild.el, this.childrenEl.children[index]);
 		}
 		this.updateArrowHidden();
-		return treeView;
+		return newChild;
+	}
+
+	/**
+	 * Adds `newChild` relative to `relativeChild` by `indexOffset` amount.
+	 * @param {TreeView} newChild The TreeView to add.
+	 * @param {TreeView} relativeChild The TreeView to add `newChild` relative to.
+	 * @param {number} indexOffset The amount of indices to offset `newChild` by.
+	 */
+	addChildRelative(newChild, relativeChild, indexOffset = 0) {
+		if (!this.children.includes(relativeChild)) {
+			throw new Error("beforeChild must be a child of this TreeView");
+		}
+
+		newChild.setParent(this, false);
+		newChild.calculateRecursionDepth();
+		let index = this.children.indexOf(relativeChild) + indexOffset;
+		index = clamp(index, 0, this.children.length);
+		this.children.splice(index, 0, newChild);
+		this.childrenEl.insertBefore(newChild.el, this.childrenEl.children[index]);
 	}
 
 	get arrowVisible() {
@@ -475,10 +513,13 @@ export default class TreeView {
 		}
 		if (this.rearrangeable) {
 			e.dataTransfer.effectAllowed = "move";
-			this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData({
-				root, draggingItems,
-			});
-			e.dataTransfer.setData("text/jj; dragtype=rearrangingtreeview", this.#currentDraggingRearrangeDataId);
+			this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData({draggingItems});
+			let rootUuid = root[TreeView.#dragRootUuidSym];
+			if (rootUuid == null) {
+				rootUuid = generateUuid();
+				root[TreeView.#dragRootUuidSym] = rootUuid;
+			}
+			e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 		}
 		const {el, x, y} = editor.dragManager.createDragFeedbackText({
 			text: draggingItems.map(item => item.name),
@@ -533,13 +574,123 @@ export default class TreeView {
 	/**
 	 * @param {DragEvent} e
 	 */
-	#onDropEvent(e) {
-		e.preventDefault();
-		this.fireEvent("drop", {
-			target: this,
-			rawEvent: e,
-		});
-		this.#removeDragFeedbackEl();
+	async #onDropEvent(e) {
+		if (this.#validateDragEvent(e)) {
+			e.preventDefault();
+			this.#removeDragFeedbackEl();
+
+			const promises = [];
+			for (const data of e.dataTransfer.items) {
+				if (data.kind != "string" || !this.#validateDragMimeType(data.type)) continue;
+
+				const promise = (async () => {
+					const dataId = await new Promise(r => data.getAsString(r));
+					const draggingData = editor.dragManager.getDraggingData(dataId);
+					if (!draggingData || !draggingData.draggingItems) return null;
+					return draggingData.draggingItems;
+				})();
+				promises.push(promise);
+			}
+
+			const draggingItems = await Promise.all(promises);
+			const flatDraggingItems = draggingItems.flat();
+
+			const dragPosition = this.#getDragPosition(e);
+			if (dragPosition == "middle") {
+				// Prevent items from moving inside themselves.
+				for (const parent of this.traverseUp()) {
+					if (flatDraggingItems.includes(parent)) {
+						return;
+					}
+				}
+
+				for (const treeView of flatDraggingItems) {
+					this.addChild(treeView);
+				}
+			} else {
+				// If the items are dropped above or below the root, there is no where to put them.
+				if (this.isRoot) return;
+
+				// Prevent items from moving inside themselves.
+				for (const parent of this.traverseUp()) {
+					if (parent == this) continue;
+					if (flatDraggingItems.includes(parent)) {
+						return;
+					}
+				}
+
+				// Step upwards starting from the drop position, until we
+				// Find an item in this parent that hasn't been dragged.
+				let startSteppingIndex = this.index;
+				if (dragPosition == "bottom") {
+					startSteppingIndex++;
+				}
+				startSteppingIndex = Math.max(0, startSteppingIndex);
+
+				// Check if any item below the drop position is not being dragged.
+				let downStepIndex = startSteppingIndex;
+				let foundUndraggedBelow = false;
+				while (downStepIndex < this.parent.children.length) {
+					const child = this.parent.children[downStepIndex];
+					if (!flatDraggingItems.includes(child)) {
+						foundUndraggedBelow = true;
+						break;
+					}
+					downStepIndex++;
+				}
+
+				if (!foundUndraggedBelow) {
+					// If there are no items below the drop position,
+					// we can just add the items to the end.
+					for (const treeView of flatDraggingItems) {
+						this.parent.addChild(treeView);
+					}
+				} else {
+					// Find the first item above the drop position that is not being dragged.
+					let upStepIndex = startSteppingIndex;
+					let relativeToItem = null;
+					let insertBelow = false;
+					while (upStepIndex >= 0) {
+						const child = this.parent.children[upStepIndex];
+						if (!flatDraggingItems.includes(child)) {
+							relativeToItem = child;
+							break;
+						}
+						upStepIndex--;
+						// If we have stepped up at least once, the items
+						// should be inserted below the `relativeToItem`.
+						insertBelow = true;
+					}
+
+					// If there is an item, insert all items next to it.
+					if (relativeToItem) {
+						if (!insertBelow) {
+							for (const treeView of flatDraggingItems) {
+								// Keep inserting right before the `relativeToItem`,
+								// the order will stay correct, because the
+								// `relativeToItem` is shifting down.
+								this.parent.addChildRelative(treeView, relativeToItem);
+							}
+						} else {
+							for (const [i, treeView] of flatDraggingItems.entries()) {
+								this.parent.addChildRelative(treeView, relativeToItem, i + 1);
+							}
+						}
+					} else {
+						// Otherwise, insert all items at the top.
+						for (let i = flatDraggingItems.length - 1; i >= 0; i--) {
+							const treeView = flatDraggingItems[i];
+							this.parent.addChildAtIndex(0, treeView);
+						}
+					}
+				}
+			}
+			// todo:
+			// this.fireEvent("drop", {
+			// 	target: this,
+			// 	rawEvent: e,
+			// });
+		}
 	}
 
 	/**
@@ -559,7 +710,10 @@ export default class TreeView {
 		if (!parsed) return false;
 		const {type, subType, params} = parsed;
 		if (type != "text" || subType != "jj") return false;
-		if (params.dragtype == "rearrangingtreeview") {
+		const root = this.findRoot();
+		const rootUuid = root[TreeView.#dragRootUuidSym];
+		if (!rootUuid) return false;
+		if (params.dragtype == "rearrangingtreeview" && params.rootuuid == rootUuid) {
 			return true;
 		}
 		return false;
@@ -963,6 +1117,7 @@ export default class TreeView {
 	getIndicesPath() {
 		const path = [];
 		let parent = this.parent;
+		/** @type {TreeView} */
 		let child = this;
 		while (parent) {
 			const index = parent.children.indexOf(child);
