@@ -86,6 +86,7 @@ export default class ContentWindowProject extends ContentWindow {
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
+		this.treeView.addEventListener("validatedrag", this.onTreeViewValidateDrag.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
@@ -301,6 +302,18 @@ export default class ContentWindowProject extends ContentWindow {
 			assetTypeUuid = assetType.typeUuid;
 		}
 		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, assetData.uuid);
+	}
+
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewValidateDragMimeTypeEvent} e
+	 */
+	async onTreeViewValidateDrag(e) {
+		if (e.isSameTreeView) {
+			// Only allow dropping on folders.
+			if (!e.target.alwaysShowArrow) {
+				e.reject();
+			}
+		}
 	}
 
 	/**
