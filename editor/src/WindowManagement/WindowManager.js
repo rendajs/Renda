@@ -22,10 +22,10 @@ export default class WindowManager {
 			this.registerContentWindow(w);
 		}
 
+		this.tabDragEnabled = false;
+
 		this.tabDragFeedbackEl = document.createElement("div");
 		this.tabDragFeedbackEl.classList.add("tabDragFeedback");
-		this.tabDragFeedbackEl.style.display = "none";
-		document.body.appendChild(this.tabDragFeedbackEl);
 
 		window.addEventListener("resize", () => {
 			if (this.rootWindow) {
@@ -275,10 +275,17 @@ export default class WindowManager {
 	 * @param {boolean} enabled
 	 */
 	setTabDragEnabled(enabled) {
+		if (enabled == this.tabDragEnabled) return;
+		this.tabDragEnabled = enabled;
+
 		for (const w of this.allTabWindows()) {
 			w.setTabDragOverlayEnabled(enabled);
 		}
-		this.tabDragFeedbackEl.style.display = enabled ? null : "none";
+		if (enabled) {
+			document.body.appendChild(this.tabDragFeedbackEl);
+		} else {
+			document.body.removeChild(this.tabDragFeedbackEl);
+		}
 	}
 
 	/**
