@@ -7,11 +7,20 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  * @property {Event} [rawEvent]
  */
 
+/** @typedef {"top" | "bottom" | "middle"} TreeViewDragPosition */
+
 /**
  * @typedef {Object} TreeViewDragEventType
  * @property {DragEvent} rawEvent
  *
  * @typedef {TreeViewEvent & TreeViewDragEventType} TreeViewDragEvent
+ */
+
+/**
+ * @typedef {Object} TreeViewDropEventType
+ * @property {TreeViewDragPosition} dropPosition
+ *
+ * @typedef {TreeViewDragEvent & TreeViewDropEventType} TreeViewDropEvent
  */
 
 /**
@@ -61,7 +70,7 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  * @property {TreeViewNameChangeEvent} namechange
  * @property {TreeViewDragEvent} dragstart
  * @property {TreeViewValidateDragMimeTypeEvent} validatedrag
- * @property {TreeViewDragEvent} drop
+ * @property {TreeViewDropEvent} drop
  * @property {TreeViewEvent} dblclick
  * @property {TreeViewContextMenuEvent} contextmenu
  */
@@ -725,6 +734,7 @@ export default class TreeView {
 			this.fireEvent("drop", {
 				target: this,
 				rawEvent: e,
+				dropPosition: dragPosition,
 			});
 		}
 	}
@@ -822,7 +832,7 @@ export default class TreeView {
 
 	/**
 	 * @param {DragEvent} e
-	 * @returns {"top" | "bottom" | "middle"}
+	 * @returns {TreeViewDragPosition}
 	 */
 	#getDragPosition(e) {
 		const bounds = this.rowEl.getBoundingClientRect();
