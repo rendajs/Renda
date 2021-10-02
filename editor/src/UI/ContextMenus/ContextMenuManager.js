@@ -9,7 +9,6 @@ export default class ContextMenuManager {
 		this.curtainEl.addEventListener("click", () => {
 			this.closeCurrent();
 		});
-		document.body.appendChild(this.curtainEl);
 		this.updateCurtainActive();
 	}
 
@@ -66,6 +65,10 @@ export default class ContextMenuManager {
 
 	updateCurtainActive() {
 		const active = !!this.current;
-		this.curtainEl.style.display = active ? null : "none";
+		if (active) {
+			document.body.appendChild(this.curtainEl);
+		} else {
+			this.curtainEl.remove();
+		}
 	}
 }
