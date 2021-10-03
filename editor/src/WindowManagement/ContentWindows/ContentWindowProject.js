@@ -95,6 +95,10 @@ export default class ContentWindowProject extends ContentWindow {
 		if (this.fileSystem) {
 			this.updateTreeView();
 			this.updateRootName();
+			this.treeView.renameable = this.fileSystem.rootNameSetSupported;
+			this.fileSystem.onRootNameChange(newName => {
+				this.treeView.name = newName;
+			});
 		}
 
 		this.boundExternalChange = this.externalChange.bind(this);
@@ -120,7 +124,6 @@ export default class ContentWindowProject extends ContentWindow {
 
 	async updateRootName() {
 		this.treeView.name = await this.fileSystem.getRootName();
-		this.treeView.renameable = this.fileSystem.rootNameSetSupported;
 	}
 
 	/**

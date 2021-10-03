@@ -167,7 +167,7 @@ export default class ProjectManager {
 		const uuid = generateUuid();
 		const fileSystem = new EditorFileSystemIndexedDb(uuid);
 		const projectName = "Untitled Project";
-		fileSystem.setRootName(projectName, false);
+		fileSystem.setRootName(projectName);
 		this.openProject(fileSystem, {
 			fileSystemType: "db",
 			projectUuid: uuid,

@@ -74,15 +74,14 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {string} name The new name of the root directory.
-	 * @param {boolean} notifyListeners Whether to fire `onRootNameChange` callbacks.
 	 */
-	async setRootName(name, notifyListeners = true) {
+	async setRootName(name) {
 		const rootPointer = await this.getRootPointer();
 		const rootObj = await this.getObject(rootPointer);
 		rootObj.fileName = name;
 		const newPointer = await this.updateObject(rootPointer, rootObj);
 		await this.setRootPointer(newPointer);
-		super.setRootName(name, notifyListeners);
+		super.setRootName(name);
 	}
 
 	/**

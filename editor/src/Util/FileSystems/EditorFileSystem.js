@@ -81,10 +81,9 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {string} name The new name of the root directory.
-	 * @param {boolean} notifyListeners Whether to fire `onRootNameChange` callbacks.
 	 */
-	async setRootName(name, notifyListeners = true) {
-		if (notifyListeners) this.onRootNameChangeCbs.forEach(cb => cb(name));
+	async setRootName(name) {
+		this.onRootNameChangeCbs.forEach(cb => cb(name));
 	}
 
 	async getRootName() {
