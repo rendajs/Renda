@@ -79,9 +79,6 @@ export default class ContentWindowProject extends ContentWindow {
 		this.addTopBarButton(openProjectButton);
 
 		this.treeView = new TreeView();
-		this.treeView.renameable = true;
-		this.treeView.rearrangeableHierarchy = true;
-		this.treeView.draggable = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
@@ -211,6 +208,8 @@ export default class ContentWindowProject extends ContentWindow {
 	 */
 	setChildTreeViewProperties(treeView) {
 		treeView.renameable = true;
+		treeView.rearrangeableHierarchy = true;
+		treeView.draggable = true;
 	}
 
 	async externalChange(e) {
