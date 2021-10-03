@@ -187,7 +187,7 @@ export default class TreeView {
 		this._name = "";
 		this.children = [];
 		/** @type {?TreeView} */
-		this.parent = data.parent ?? null;
+		this.parent = data.parent ?? null; // todo: make this read only
 		this.recursionDepth = 0;
 		this._collapsed = false;
 		this.selectable = data.selectable ?? true; // todo: make this private or a getter/setter
@@ -362,6 +362,7 @@ export default class TreeView {
 	removeChildIndex(index, destructChild = true) {
 		const child = this.children[index];
 		if (destructChild) child.destructor();
+		child.parent = null;
 		child.#removeFromParentElement();
 		this.children.splice(index, 1);
 		this.updateArrowHidden();

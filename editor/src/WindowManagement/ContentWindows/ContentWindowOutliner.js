@@ -21,6 +21,7 @@ export default class ContentWindowOutliner extends ContentWindow {
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
+		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 
 		this.linkedEntityEditor = null;
 
@@ -98,9 +99,21 @@ export default class ContentWindowOutliner extends ContentWindow {
 		this.updateTreeView();
 	}
 
+	/**
+	 * @param {TreeView} treeView
+	 * @returns {Entity}
+	 */
 	getEntityByTreeViewItem(treeView) {
-		if (!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return null;
 		const indicesPath = treeView.getIndicesPath();
+		return this.getEntityByIndicesPath(indicesPath);
+	}
+
+	/**
+	 * @param {number[]} indicesPath
+	 * @returns {Entity}
+	 */
+	getEntityByIndicesPath(indicesPath) {
+		if (!this.linkedEntityEditor || !this.linkedEntityEditor.editingEntity) return null;
 		return this.linkedEntityEditor.editingEntity.getEntityByIndicesPath(indicesPath);
 	}
 
@@ -135,6 +148,19 @@ export default class ContentWindowOutliner extends ContentWindow {
 				},
 			},
 		]);
+	}
+
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewRearrangeEvent} e
+	 */
+	onTreeViewRearrange(e) {
+		for (const movedItem of e.movedItems) {
+			const entity = this.getEntityByIndicesPath(movedItem.oldIndicesPath);
+			const parentIndicesPath = movedItem.newIndicesPath.slice(0, -1);
+			const insertIndex = movedItem.newIndicesPath.at(-1);
+			const newParent = this.getEntityByIndicesPath(parentIndicesPath);
+			newParent.addAtIndex(entity, insertIndex);
+		}
 	}
 
 	notifyEntityEditors(obj, type) {

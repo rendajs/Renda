@@ -17,6 +17,7 @@ export default class Entity {
 		};
 		this.name = opts.name;
 		this._parent = null;
+		/** @type {Entity[]} */
 		this._children = [];
 		this.components = [];
 
@@ -156,13 +157,23 @@ export default class Entity {
 	}
 
 	setParent(newParent, keepWorldPosition = false) {
+		this._setParentInternal(newParent, keepWorldPosition);
+	}
+
+	/**
+	 * @param {Entity} newParent
+	 * @param {boolean} keepWorldPosition
+	 * @param {boolean} addChild
+	 */
+	_setParentInternal(newParent, keepWorldPosition = false, addChild = true) {
+		if (this._parent == newParent && addChild) return;
+
 		if (this._parent) {
-			// todo: use slice?
-			this._parent._children = this._parent._children.filter(c => c != this);
+			this._parent.remove(this);
 		}
 		this._parent = newParent;
-		if (newParent) {
-			newParent._children.push(this);
+		if (newParent && addChild) {
+			newParent.add(this);
 		}
 	}
 
@@ -170,13 +181,50 @@ export default class Entity {
 		this.setParent(null);
 	}
 
+	/**
+	 * @param {Entity} child
+	 * @param {boolean} keepWorldPosition
+	 */
 	add(child, keepWorldPosition = false) {
-		child.setParent(this, keepWorldPosition);
+		this.addAtIndex(child, -1, keepWorldPosition);
 	}
 
+	/**
+	 * @param {Entity} child
+	 * @param {number} index
+	 * @param {boolean} keepWorldPosition
+	 */
+	addAtIndex(child, index = -1, keepWorldPosition = false) {
+		if (index < 0) {
+			index = this._children.length + index + 1;
+		}
+		child._setParentInternal(this, keepWorldPosition, false);
+		if (index >= this._children.length) {
+			this._children.push(child);
+		} else {
+			this._children.splice(index, 0, child);
+		}
+	}
+
+	/**
+	 * @param {Entity} child
+	 */
 	remove(child) {
-		if (child.parent != this) return;
-		child.setParent(null);
+		for (const [i, c] of this._children.entries()) {
+			if (c == child) {
+				this.removeIndex(i);
+				return;
+			}
+		}
+	}
+
+	/**
+	 * @param {number} index
+	 */
+	removeIndex(index) {
+		const child = this._children[index];
+		child._parent = null;
+		this._children.splice(index, 1);
 	}
 
 	*getChildren() {
