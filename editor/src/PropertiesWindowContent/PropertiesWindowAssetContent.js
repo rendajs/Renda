@@ -1,12 +1,11 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
-import Button from "../UI/Button.js";
 import editor from "../editorInstance.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
 import PropertiesAssetContentGenericStructure from "../PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
-export default class PropertiesWindowAssetContent extends PropertiesWindowContent{
-	constructor(){
+export default class PropertiesWindowAssetContent extends PropertiesWindowContent {
+	constructor() {
 		super();
 
 		this.currentSelection = null;
@@ -21,35 +20,35 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 
 		this.isUpdatingAssetSettingsUi = false;
 		this.assetSettingsTree.onChildValueChange(() => {
-			if(this.isUpdatingAssetSettingsUi) return;
+			if (this.isUpdatingAssetSettingsUi) return;
 			this.saveAssetSettings();
 		});
 	}
 
-	destructor(){
+	destructor() {
 		this.treeView.destructor();
 		this.assetSettingsTree = null;
 		this.assetContentTree = null;
-		if(this.activeAssetSettingsStructureUi) this.activeAssetSettingsStructureUi.destructor();
+		if (this.activeAssetSettingsStructureUi) this.activeAssetSettingsStructureUi.destructor();
 		super.destructor();
 	}
 
-	static get useForTypes(){
+	static get useForTypes() {
 		return [ProjectAsset];
 	}
 
-	selectionChanged(selectedObjects){
+	selectionChanged(selectedObjects) {
 		this.currentSelection = selectedObjects;
 		this.updateAssetSettings();
 		this.updateAssetContent();
 	}
 
-	onAssetContentTypeRegistered(constructor){
+	onAssetContentTypeRegistered(constructor) {
 		this.updateAssetContent();
 	}
 
-	async updateAssetSettings(){
-		if(this.activeAssetSettingsStructureUi){
+	async updateAssetSettings() {
+		if (this.activeAssetSettingsStructureUi) {
 			this.activeAssetSettingsStructureUi.destructor();
 			this.activeAssetSettingsStructureUi = null;
 		}
@@ -58,11 +57,11 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		let settingsStructure = {};
 		let settingsValues = {};
 
-		for(const projectAsset of this.currentSelection){
+		for (const projectAsset of this.currentSelection) {
 			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
 			const values = projectAsset.assetSettings;
-			//todo: handle selecting multiple assets or none
-			if(structure){
+			// todo: handle selecting multiple assets or none
+			if (structure) {
 				settingsStructure = structure;
 				settingsValues = values;
 				break;
@@ -71,7 +70,7 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 
 		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {
 			callbacksContext: {
-				selectedAssets: this.currentSelection
+				selectedAssets: this.currentSelection,
 			},
 		});
 		this.isUpdatingAssetSettingsUi = true;
@@ -79,12 +78,12 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		this.isUpdatingAssetSettingsUi = false;
 	}
 
-	//todo: make sure only one instance runs at a time
-	async saveAssetSettings(){
-		for(const projectAsset of this.currentSelection){
+	// todo: make sure only one instance runs at a time
+	async saveAssetSettings() {
+		for (const projectAsset of this.currentSelection) {
 			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
-			//todo: handle selecting multiple assets or none
-			if(structure){
+			// todo: handle selecting multiple assets or none
+			if (structure) {
 				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {purpose: "fileStorage"});
 				await editor.projectManager.assetManager.saveAssetSettings();
 				break;
@@ -92,27 +91,27 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 		}
 	}
 
-	//todo: make sure only one instance runs at a time
-	async updateAssetContent(){
+	// todo: make sure only one instance runs at a time
+	async updateAssetContent() {
 		let foundStructure = null;
 		let foundStructureType = null;
 		let foundConstructor = null;
-		for(const projectAsset of this.currentSelection){
+		for (const projectAsset of this.currentSelection) {
 			const structureFromAsset = await projectAsset.getPropertiesAssetContentStructure();
-			if(structureFromAsset){
+			if (structureFromAsset) {
 				const assetType = await projectAsset.getProjectAssetType();
-				if(foundStructureType && foundStructureType != assetType){
+				if (foundStructureType && foundStructureType != assetType) {
 					continue;
 				}
 				foundStructure = structureFromAsset;
 				foundStructureType = assetType;
-			}else if(!foundStructure && !foundConstructor){
+			} else if (!foundStructure && !foundConstructor) {
 				foundConstructor = await projectAsset.getPropertiesAssetContentConstructor();
 			}
 		}
 
 		let constructor = foundConstructor;
-		if(foundStructure){
+		if (foundStructure) {
 			constructor = PropertiesAssetContentGenericStructure;
 		}
 
@@ -122,16 +121,16 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 				this.activeAssetContent.constructor != constructor ||
 				(constructor == PropertiesAssetContentGenericStructure && foundStructure != this.activeAssetContent.structure)
 			);
-		if(needsNew || (!constructor && this.activeAssetContent)){
-			if(this.activeAssetContent) this.activeAssetContent.destructor();
+		if (needsNew || (!constructor && this.activeAssetContent)) {
+			if (this.activeAssetContent) this.activeAssetContent.destructor();
 			this.activeAssetContent = null;
 			this.assetContentTree.clearChildren();
 		}
-		if(needsNew){
+		if (needsNew) {
 			this.activeAssetContent = new constructor(foundStructure);
 			this.assetContentTree.addChild(this.activeAssetContent.treeView);
 		}
-		if(this.activeAssetContent){
+		if (this.activeAssetContent) {
 			this.activeAssetContent.selectionUpdated(this.currentSelection);
 		}
 	}
