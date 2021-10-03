@@ -69,6 +69,8 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 		await this.db.set("rootPointer", pointer, "system");
 	}
 
+	rootNameSetSupported = true;
+
 	/**
 	 * @override
 	 * @param {string} name The new name of the root directory.
@@ -83,6 +85,9 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 		super.setRootName(name, notifyListeners);
 	}
 
+	/**
+	 * @override
+	 */
 	async getRootName() {
 		const rootPointer = await this.getRootPointer();
 		const rootObj = await this.getObject(rootPointer);

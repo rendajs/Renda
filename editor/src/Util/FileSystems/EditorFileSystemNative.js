@@ -173,6 +173,13 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		await this.delete(fromPath);
 	}
 
+	/**
+	 * @override
+	 */
+	async getRootName() {
+		return this.handle.name;
+	}
+
 	async delete(path = [], recursive = false) {
 		let handle = await this.handle;
 		for (const [i, name] of path.entries()) {

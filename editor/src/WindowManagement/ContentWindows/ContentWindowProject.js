@@ -123,6 +123,7 @@ export default class ContentWindowProject extends ContentWindow {
 
 	async updateRootName() {
 		this.treeView.name = await this.fileSystem.getRootName();
+		this.treeView.renameable = this.fileSystem.rootNameSetSupported;
 	}
 
 	/**
@@ -176,6 +177,7 @@ export default class ContentWindowProject extends ContentWindow {
 		for (const dir of fileTree.directories) {
 			if (!treeView.includes(dir)) {
 				const newTreeView = treeView.addChild();
+				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.alwaysShowArrow = true;
 				newTreeView.onCollapsedChange(() => {
 					if (!newTreeView.collapsed) {
@@ -190,6 +192,7 @@ export default class ContentWindowProject extends ContentWindow {
 		for (const file of fileTree.files) {
 			if (!treeView.includes(file)) {
 				const newTreeView = treeView.addChild();
+				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.name = file;
 			}
 		}
@@ -201,6 +204,13 @@ export default class ContentWindowProject extends ContentWindow {
 				this.updateTreeViewRecursive(child, newPath);
 			}
 		}
+	}
+
+	/**
+	 * @param {TreeView} treeView
+	 */
+	setChildTreeViewProperties(treeView) {
+		treeView.renameable = true;
 	}
 
 	async externalChange(e) {

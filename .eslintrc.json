@@ -196,7 +196,7 @@
 				"noMultilineBlocks": true,
 				"minimumLengthForMultiline": 100,
 				"singleLineTags": ["type", "typedef"],
-				"multilineTags": ["param", "returns", "fileoverview"]
+				"multilineTags": ["param", "returns", "fileoverview", "override"]
 			}
 		],
 		"jsdoc/newline-after-description": ["error", "never"],

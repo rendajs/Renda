@@ -77,6 +77,8 @@ export default class EditorFileSystem {
 	 */
 	async move(fromPath = [], toPath = []) {}
 
+	rootNameSetSupported = false;
+
 	/**
 	 * @param {string} name The new name of the root directory.
 	 * @param {boolean} notifyListeners Whether to fire `onRootNameChange` callbacks.
