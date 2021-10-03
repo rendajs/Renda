@@ -280,6 +280,10 @@ export default class ContentWindowProject extends ContentWindow {
 	async onTreeViewNameChange(e) {
 		if (e.oldName == e.newName) return;
 		if (e.target == this.treeView) {
+			if (!e.newName) {
+				e.target.name = e.oldName;
+				return;
+			}
 			await this.fileSystem.setRootName(e.newName);
 			return;
 		}
