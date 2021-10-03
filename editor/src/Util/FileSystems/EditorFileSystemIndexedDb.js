@@ -17,13 +17,12 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	/** @typedef {import("./EditorFileSystem.js").EditorFileSystemPath} EditorFileSystemPath */
 
 	/**
-	 * @param {string} name The name of the FileSystem, will be used in the IndexedDB database name.
+	 * @param {string} dbName The name of the FileSystem, will be used in the IndexedDB database name.
 	 */
-	constructor(name) {
+	constructor(dbName) {
 		super();
 
-		this.name = name;
-		this.db = new IndexedDbUtil("fileSystem_" + this.name, ["objects", "system"]);
+		this.db = new IndexedDbUtil("fileSystem_" + dbName, ["objects", "system"]);
 
 		// create root directory
 		this.rootCreated = false;
@@ -71,6 +70,24 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	/**
+	 * @override
+	 * @param {string} name The new name of the root directory.
+	 */
+	async setRootName(name) {
+		const rootPointer = await this.getRootPointer();
+		const rootObj = await this.getObject(rootPointer);
+		rootObj.fileName = name;
+		const newPointer = await this.updateObject(rootPointer, rootObj);
+		await this.setRootPointer(newPointer);
+	}
+
+	async getRootName() {
+		const rootPointer = await this.getRootPointer();
+		const rootObj = await this.getObject(rootPointer);
+		return rootObj.fileName;
+	}
+
+	/**
 	 * @param {EditorFileSystemIndexedDbPointer} pointer
 	 * @returns {Promise<EditorFileSystemIndexedDbStoredObject>}
 	 */
@@ -108,7 +125,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemIndexedDbStoredObject} obj
-	 * @returns {Promise<EditorFileSystemIndexedDbPointer>}
+	 * @returns {Promise<EditorFileSystemIndexedDbPointer>} The pointer to the created object.
 	 */
 	async createObject(obj) {
 		const textEncoder = new TextEncoder();

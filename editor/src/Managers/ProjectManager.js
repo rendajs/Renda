@@ -148,10 +148,12 @@ export default class ProjectManager {
 	openNewDbProject() {
 		const uuid = generateUuid();
 		const fileSystem = new EditorFileSystemIndexedDb(uuid);
+		const projectName = "Untitled Project";
+		fileSystem.setRootName(projectName);
 		this.openProject(fileSystem, {
 			fileSystemType: "db",
 			projectUuid: uuid,
-			name: uuid,
+			name: projectName,
 		});
 	}
 

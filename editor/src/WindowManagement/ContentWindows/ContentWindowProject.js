@@ -80,7 +80,6 @@ export default class ContentWindowProject extends ContentWindow {
 
 		this.treeView = new TreeView();
 		this.treeView.renameable = true;
-		this.treeView.rowVisible = false;
 		this.treeView.rearrangeableHierarchy = true;
 		this.treeView.draggable = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
@@ -98,6 +97,7 @@ export default class ContentWindowProject extends ContentWindow {
 
 		if (this.fileSystem) {
 			this.updateTreeView();
+			this.updateRootName();
 		}
 
 		this.boundExternalChange = this.externalChange.bind(this);
@@ -119,6 +119,10 @@ export default class ContentWindowProject extends ContentWindow {
 
 	get fileSystem() {
 		return editor.projectManager.currentProjectFileSystem;
+	}
+
+	async updateRootName() {
+		this.treeView.name = await this.fileSystem.getRootName();
 	}
 
 	/**
@@ -275,6 +279,10 @@ export default class ContentWindowProject extends ContentWindow {
 	 */
 	async onTreeViewNameChange(e) {
 		if (e.oldName == e.newName) return;
+		if (e.target == this.treeView) {
+			await this.fileSystem.setRootName(e.newName);
+			return;
+		}
 		const path = this.pathFromTreeView(e.target);
 		const oldPath = path.slice();
 		const newPath = path.slice();

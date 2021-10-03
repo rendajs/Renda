@@ -76,6 +76,15 @@ export default class EditorFileSystem {
 	async move(fromPath = [], toPath = []) {}
 
 	/**
+	 * @param {string} name The new name of the root directory.
+	 */
+	async setRootName(name) {}
+
+	async getRootName() {
+		return "";
+	}
+
+	/**
 	 * Deletes a file or directory.
 	 * Will throw if the path does not exist.
 	 * @param {EditorFileSystemPath} path The file or directory to delete.
