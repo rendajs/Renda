@@ -63,6 +63,9 @@ export default class ProjectManager {
 		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onProjectBecameWorthSavingCbs = new Set();
 
+		/** @type {Set<function(StoredProjectEntry):void>} */
+		this.onProjectOpenEntryChangeCbs = new Set();
+
 		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
@@ -106,6 +109,10 @@ export default class ProjectManager {
 				cb(e);
 			}
 		});
+		fileSystem.onRootNameChange(newName => {
+			this.currentProjectOpenEvent.name = newName;
+			this.fireOnProjectOpenEntryChangeCbs();
+		});
 		await editor.windowManager.reloadCurrentWorkspace();
 		await this.reloadAssetManager();
 		if (openProjectChangeEvent.fileSystemType == "native" || openProjectChangeEvent.fileSystemType == "db") {
@@ -145,11 +152,22 @@ export default class ProjectManager {
 		this.onProjectBecameWorthSavingCbs.add(cb);
 	}
 
+	/**
+	 * @param {function(StoredProjectEntry):void} cb
+	 */
+	onProjectOpenEntryChange(cb) {
+		this.onProjectOpenEntryChangeCbs.add(cb);
+	}
+
+	fireOnProjectOpenEntryChangeCbs() {
+		this.onProjectOpenEntryChangeCbs.forEach(cb => cb(this.currentProjectOpenEvent));
+	}
+
 	openNewDbProject() {
 		const uuid = generateUuid();
 		const fileSystem = new EditorFileSystemIndexedDb(uuid);
 		const projectName = "Untitled Project";
-		fileSystem.setRootName(projectName);
+		fileSystem.setRootName(projectName, false);
 		this.openProject(fileSystem, {
 			fileSystemType: "db",
 			projectUuid: uuid,

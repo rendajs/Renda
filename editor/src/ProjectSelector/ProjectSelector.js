@@ -180,6 +180,9 @@ export default class ProjectSelector {
 		editor.projectManager.onProjectBecameWorthSaving(entry => {
 			this.addRecentProjectEntry(entry);
 		});
+		editor.projectManager.onProjectOpenEntryChange(entry => {
+			this.addRecentProjectEntry(entry);
+		});
 		this.onEditorLoadCbs.forEach(cb => cb(editor));
 	}
 

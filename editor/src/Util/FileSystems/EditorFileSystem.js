@@ -7,6 +7,8 @@ import toFormattedJsonString from "../toFormattedJsonString.js";
 export default class EditorFileSystem {
 	constructor() {
 		this.onExternalChangeCbs = new Set();
+		/** @type {Set<function(string):void>} */
+		this.onRootNameChangeCbs = new Set();
 	}
 
 	/**
@@ -77,11 +79,21 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {string} name The new name of the root directory.
+	 * @param {boolean} notifyListeners Whether to fire `onRootNameChange` callbacks.
 	 */
-	async setRootName(name) {}
+	async setRootName(name, notifyListeners = true) {
+		if (notifyListeners) this.onRootNameChangeCbs.forEach(cb => cb(name));
+	}
 
 	async getRootName() {
 		return "";
+	}
+
+	/**
+	 * @param {function(string):void} cb
+	 */
+	async onRootNameChange(cb) {
+		this.onRootNameChangeCbs.add(cb);
 	}
 
 	/**
