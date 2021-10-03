@@ -284,7 +284,7 @@ export default class TreeView {
 	}
 
 	#removeFromParentElement() {
-		if (this.el.parentElement) {
+		if (this.el && this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
 	}
