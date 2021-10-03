@@ -14,6 +14,11 @@ import md5 from "../../../libs/md5.js";
  */
 
 export default class EditorFileSystemIndexedDb extends EditorFileSystem {
+	/** @typedef {import("./EditorFileSystem.js").EditorFileSystemPath} EditorFileSystemPath */
+
+	/**
+	 * @param {string} name The name of the FileSystem, will be used in the IndexedDB database name.
+	 */
 	constructor(name) {
 		super();
 
@@ -283,6 +288,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	async move(fromPath = [], toPath = []) {
 		const travelledData = await this.findDeepestExisting(fromPath);
+		// todo: error if file or directory doesn't exist
 		const oldObject = travelledData[travelledData.length - 1];
 		const parentObjPath = fromPath.slice(0, fromPath.length - 1);
 		const parentObjTravelledData = travelledData.slice(0, travelledData.length - 1);
@@ -309,6 +315,39 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
 		newParentObj.obj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
+	}
+
+	/**
+	 * Deletes a file or directory.
+	 * Will throw if the path does not exist.
+	 * @override
+	 * @param {EditorFileSystemPath} path The file or directory to delete.
+	 * @param {Boolean} recursive Whether to delete all subdirectories and files.
+	 */
+	async delete(path = [], recursive = false) {
+		if (path.length == 0) {
+			throw new Error("Cannot delete root directory");
+		}
+		const travelledData = await this.findDeepestExisting(path);
+		const parentObjTravelledData = travelledData.slice(0, travelledData.length - 1);
+		// todo: error if file or directory doesn't exist
+		const {obj, pointer} = travelledData.at(-1);
+		if (obj.isDir && recursive) {
+			for (const filePointer of obj.files) {
+				const fileObj = await this.getObject(filePointer);
+				const filePath = [...path, fileObj.fileName];
+				if (fileObj.isDir) {
+					await this.delete(filePath, recursive);
+				} else if (fileObj.isFile) {
+					await this.delete(filePath);
+				}
+			}
+		}
+		await this.db.delete(pointer);
+		const parentObj = await this.getObjectFromPath(path.slice(0, path.length - 1));
+		const oldPointerIndex = parentObj.obj.files.indexOf(pointer);
+		parentObj.obj.files.splice(oldPointerIndex, 1);
+		await this.updateObjectRecursiveUp(parentObjTravelledData, parentObj.obj);
 	}
 
 	/**

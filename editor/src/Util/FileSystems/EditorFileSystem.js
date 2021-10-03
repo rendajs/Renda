@@ -77,8 +77,9 @@ export default class EditorFileSystem {
 
 	/**
 	 * Deletes a file or directory.
-	 * @param {EditorFileSystemPath} path
-	 * @param {Boolean} recursive
+	 * Will throw if the path does not exist.
+	 * @param {EditorFileSystemPath} path The file or directory to delete.
+	 * @param {Boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path = [], recursive = false) {}
 
