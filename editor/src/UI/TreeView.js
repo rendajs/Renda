@@ -35,6 +35,22 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  */
 
 /**
+ * @typedef {Object} TreeViewRearrangedItem
+ * @property {number[]} oldIndicesPath
+ * @property {number[]} newIndicesPath
+ * @property {TreeView} treeView
+ * @property {TreeView[]} oldTreeViewsPath
+ * @property {TreeView[]} newTreeViewsPath
+ */
+
+/**
+ * @typedef {Object} TreeViewRearrangeEventType
+ * @property {TreeViewRearrangedItem[]} movedItems
+ *
+ * @typedef {TreeViewEvent & TreeViewRearrangeEventType} TreeViewRearrangeEvent
+ */
+
+/**
  * @typedef {Object} TreeViewNameChangeEventType
  * @property {string} oldName
  * @property {string} newName
@@ -71,6 +87,7 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  * @property {TreeViewDragEvent} dragstart
  * @property {TreeViewValidateDragMimeTypeEvent} validatedrag
  * @property {TreeViewDropEvent} drop
+ * @property {TreeViewRearrangeEvent} rearrange
  * @property {TreeViewEvent} dblclick
  * @property {TreeViewContextMenuEvent} contextmenu
  */
@@ -203,7 +220,7 @@ export default class TreeView {
 		this.boundOnBodyClick = this.onBodyClick.bind(this);
 
 		this.eventCbs = new Map();
-		for (const eventType of ["selectionchange", "namechange", "dragstart", "validatedrag", "drop", "dblclick", "contextmenu"]) {
+		for (const eventType of ["selectionchange", "namechange", "dragstart", "validatedrag", "drop", "rearrange", "dblclick", "contextmenu"]) {
 			this.registerNewEventType(eventType);
 		}
 
@@ -625,6 +642,13 @@ export default class TreeView {
 			e.preventDefault();
 			this.#removeDragFeedbackEl();
 
+			const dragPosition = this.#getDragPosition(e);
+			this.fireEvent("drop", {
+				target: this,
+				rawEvent: e,
+				dropPosition: dragPosition,
+			});
+
 			const promises = [];
 			for (const item of e.dataTransfer.items) {
 				if (!this.#validateDragItemForRearrange(item)) continue;
@@ -633,7 +657,7 @@ export default class TreeView {
 					const dataId = await new Promise(r => item.getAsString(r));
 					const draggingData = editor.dragManager.getDraggingData(dataId);
 					if (!draggingData || !draggingData.draggingItems) return null;
-					return draggingData.draggingItems;
+					return /** @type {TreeView[]} */ (draggingData.draggingItems);
 				})();
 				promises.push(promise);
 			}
@@ -641,7 +665,9 @@ export default class TreeView {
 			const draggingItems = await Promise.all(promises);
 			const flatDraggingItems = draggingItems.flat();
 
-			const dragPosition = this.#getDragPosition(e);
+			const oldIndicesPaths = flatDraggingItems.map(item => item.getIndicesPath());
+			const oldTreeViewsPath = flatDraggingItems.map(item => item.getTreeViewsPath());
+
 			if (dragPosition == "middle") {
 				// Prevent items from moving inside themselves.
 				for (const parent of this.traverseUp()) {
@@ -731,10 +757,25 @@ export default class TreeView {
 					}
 				}
 			}
-			this.fireEvent("drop", {
+
+			const newIndicesPaths = flatDraggingItems.map(item => item.getIndicesPath());
+			const newTreeViewsPath = flatDraggingItems.map(item => item.getTreeViewsPath());
+
+			const movedItems = [];
+			for (let i = 0; i < oldIndicesPaths.length; i++) {
+				/** @type {TreeViewRearrangedItem} */
+				const movedItem = {
+					oldIndicesPath: oldIndicesPaths[i],
+					newIndicesPath: newIndicesPaths[i],
+					treeView: flatDraggingItems[i],
+					oldTreeViewsPath: oldTreeViewsPath[i],
+					newTreeViewsPath: newTreeViewsPath[i],
+				};
+				movedItems.push(movedItem);
+			}
+			this.fireEvent("rearrange", {
 				target: this,
-				rawEvent: e,
-				dropPosition: dragPosition,
+				movedItems,
 			});
 		}
 	}
@@ -1227,14 +1268,21 @@ export default class TreeView {
 	}
 
 	/**
-	 * Gets array of TreeView names from the root
-	 * traversed down until this element.
-	 * @returns {Array<string>} List of TreeView names.
+	 * Gets array of TreeView names from the root traversed down until this element.
+	 * @returns {string[]} List of TreeView names.
 	 */
 	getNamesPath() {
+		return this.getTreeViewsPath().map(treeView => treeView.name);
+	}
+
+	/**
+	 * Gets array of TreeViews from the root traversed down until this element.
+	 * @returns {TreeView[]} List of TreeView names.
+	 */
+	getTreeViewsPath() {
 		const path = [];
-		for (const p of this.traverseUp()) {
-			path.push(p.name);
+		for (const treeView of this.traverseUp()) {
+			path.push(treeView);
 		}
 		return path.reverse();
 	}

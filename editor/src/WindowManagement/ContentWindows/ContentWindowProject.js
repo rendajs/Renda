@@ -88,6 +88,7 @@ export default class ContentWindowProject extends ContentWindow {
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		this.treeView.addEventListener("validatedrag", this.onTreeViewValidateDrag.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
+		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
 
@@ -326,6 +327,18 @@ export default class ContentWindowProject extends ContentWindow {
 		for (const file of e.rawEvent.dataTransfer.files) {
 			const filePath = [...path, file.name];
 			await this.fileSystem.writeFile(filePath, file);
+		}
+	}
+
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewRearrangeEvent} e
+	 */
+	async onTreeViewRearrange(e) {
+		for (const movedItem of e.movedItems) {
+			const oldPath = movedItem.oldTreeViewsPath.map(t => t.name).slice(1);
+			const newPath = movedItem.newTreeViewsPath.map(t => t.name).slice(1);
+			await this.fileSystem.move(oldPath, newPath);
+			await editor.projectManager.assetManager.assetMoved(oldPath, newPath);
 		}
 	}
 
