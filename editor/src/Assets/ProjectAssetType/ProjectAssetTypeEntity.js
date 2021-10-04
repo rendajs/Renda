@@ -53,7 +53,13 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 				const componentUuid = component.uuid;
 				const componentData = defaultComponentTypeManager.getComponentDataForUuid(componentUuid);
 				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, componentData);
-				ent.addComponent(componentData, componentPropertyValues);
+				ent.addComponent(componentData, componentPropertyValues, {
+					editorOpts: {
+						editorAssetTypeManager: editor.projectAssetTypeManager,
+						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
+						assetManager: editor.projectManager.assetManager,
+					},
+				});
 			}
 		}
 		if (jsonData.children) {

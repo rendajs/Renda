@@ -3,7 +3,11 @@ import Vec2 from "../Math/Vec2.js";
 import Vec3 from "../Math/Vec3.js";
 import Vec4 from "../Math/Vec4.js";
 import Mat4 from "../Math/Mat4.js";
-import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
+import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, EDITOR_DEFAULTS_IN_COMPONENTS} from "../engineDefines.js";
+
+const settingDefaultsPromisesSym = Symbol("settingDefaultsPromises");
+const onEditorDefaultsCbsSym = Symbol("onEditorDefaultsCbs");
+const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
 
 /**
  * @unrestricted (Allow adding custom properties to this class)
@@ -26,14 +30,39 @@ export default class Component {
 		}
 		this.entity = null;
 
+		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+			this[editorDefaultsHandledSym] = false;
+			this[settingDefaultsPromisesSym] = [];
+			this[onEditorDefaultsCbsSym] = new Set();
+		}
+
 		const componentData = this.getComponentData();
 		if (componentData && componentData.properties) {
 			this.setDefaultValues(componentData.properties, editorOpts);
 		}
 
+		if (!EDITOR_DEFAULTS_IN_COMPONENTS) {
+			this._applyPropertyValues(propertyValues);
+		} else {
+			this._handleDefaultEditorValues(propertyValues);
+		}
+	}
+
+	_applyPropertyValues(propertyValues) {
 		for (const [propertyName, propertyValue] of Object.entries(propertyValues)) {
 			this[propertyName] = propertyValue;
 		}
+	}
+
+	async _handleDefaultEditorValues(propertyValues) {
+		if (!EDITOR_DEFAULTS_IN_COMPONENTS) return;
+		await Promise.all(this[settingDefaultsPromisesSym]);
+		this._applyPropertyValues(propertyValues);
+
+		this[editorDefaultsHandledSym] = true;
+		this[onEditorDefaultsCbsSym].forEach(cb => cb());
+		delete this[settingDefaultsPromisesSym];
+		delete this[onEditorDefaultsCbsSym];
 	}
 
 	destructor() {
@@ -129,11 +158,13 @@ export default class Component {
 					object[editorOpts.usedAssetUuidsSymbol] = usedAssetUuids;
 				}
 				usedAssetUuids[propertyName] = propertyData.defaultValue;
-				// todo: make the whole method async?
-				(async () => {
+				const promise = (async () => {
 					object[propertyName] = null;
 					object[propertyName] = await editorOpts.assetManager.getLiveAsset(propertyData.defaultValue);
 				})();
+				if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+					this[settingDefaultsPromisesSym].push(promise);
+				}
 			} else {
 				object[propertyName] = propertyData.defaultValue;
 			}
@@ -145,5 +176,11 @@ export default class Component {
 		} else {
 			object[propertyName] = null;
 		}
+	}
+
+	async waitForEditorDefaults() {
+		if (!EDITOR_DEFAULTS_IN_COMPONENTS) return;
+		if (this[editorDefaultsHandledSym]) return;
+		await new Promise(r => this[onEditorDefaultsCbsSym].add(r));
 	}
 }

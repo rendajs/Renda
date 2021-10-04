@@ -11,6 +11,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	constructor() {
 		super();
 
+		/** @type {Entity[]} */
 		this.currentSelection = null;
 
 		this.treeView = new PropertiesTreeView();
@@ -64,15 +65,16 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 				for (const component of defaultComponentTypeManager.getAllComponents()) {
 					menu.addItem({
 						text: component.name || component.uuid,
-						onClick: () => {
+						onClick: async () => {
 							for (const obj of this.currentSelection) {
-								obj.addComponent(component, {}, {
+								const componentInstance = obj.addComponent(component, {}, {
 									editorOpts: {
 										editorAssetTypeManager: editor.projectAssetTypeManager,
 										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 										assetManager: editor.projectManager.assetManager,
 									},
 								});
+								await componentInstance.waitForEditorDefaults();
 								this.notifyEntityEditors(obj, "component");
 							}
 							this.refreshComponents();
