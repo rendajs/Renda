@@ -10,9 +10,31 @@ const onEditorDefaultsCbsSym = Symbol("onEditorDefaultsCbs");
 const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
 
 /**
+ * @typedef {Object} ComponentTypeData
+ * @property {string} uuid
+ * @property {string} name
+ * @property {import("../../editor/src/UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} properties
+ * @property {import("../Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} binaryComposerOpts
+ */
+
+/**
+ * @typedef {Object} ComponentEditorOptions
+ * @property {import("../../editor/src/Assets/ProjectAssetTypeManager.js").default} editorAssetTypeManager
+ * @property {symbol} usedAssetUuidsSymbol
+ * @property {import("../../editor/src/Assets/AssetManager.js").default} assetManager
+ */
+
+/**
  * @unrestricted (Allow adding custom properties to this class)
  */
 export default class Component {
+	/**
+	 * @param {ComponentTypeData} componentType
+	 * @param {Object} propertyValues
+	 * @param {Object} options
+	 * @param {import("./ComponentTypeManager.js").default} [options.componentTypeManager]
+	 * @param {ComponentEditorOptions} [options.editorOpts]
+	 */
 	constructor(componentType, propertyValues = {}, {
 		componentTypeManager = defaultComponentTypeManager,
 		editorOpts = null,

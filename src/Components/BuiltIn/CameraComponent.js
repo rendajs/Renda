@@ -4,12 +4,14 @@ import RenderOutputConfig from "../../Rendering/RenderOutputConfig.js";
 import ClusteredLightsConfig from "../../Rendering/ClusteredLightsConfig.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 
+/** @type {import("../Component.js").ComponentTypeData} */
 const CameraComponent = {
 	uuid: "1a78b3f2-7688-4776-b512-ed1ee2326d8a",
 	name: "Camera",
 	properties: {
 		fov: {
 			defaultValue: 70,
+			/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 			guiOpts: {
 				min: 0,
 				max: 180,
@@ -17,18 +19,21 @@ const CameraComponent = {
 		},
 		clipNear: {
 			defaultValue: 0.01,
+			/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 			guiOpts: {
 				min: 0,
 			},
 		},
 		clipFar: {
 			defaultValue: 1000,
+			/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 			guiOpts: {
 				min: 0,
 			},
 		},
 		aspect: {
 			defaultValue: 1,
+			/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 			guiOpts: {
 				min: 0,
 			},

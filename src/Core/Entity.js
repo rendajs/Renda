@@ -53,9 +53,16 @@ export default class Entity {
 
 	// if the argument already is a component, it will be detached
 	// from the old entity and attached it to this one
-	addComponent(component) {
+	/**
+	 * @template T
+	 * @param {ConstructorParameters<typeof Component>} args
+	 * @returns {Component & {[x: string]: *}}
+	 */
+	addComponent(...args) {
+		const firstArg = /** @type {*} */ (args[0]);
+		let component = /** @type {Component} */ (firstArg);
 		if (!(component instanceof Component)) {
-			component = new Component(...arguments);
+			component = new Component(...args);
 		}
 
 		this.components.push(component);

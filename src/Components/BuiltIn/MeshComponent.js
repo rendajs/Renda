@@ -3,6 +3,7 @@ import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import Material from "../../Rendering/Material.js";
 import {StorageType} from "../../Util/BinaryComposer.js";
 
+/** @type {import("../Component.js").ComponentTypeData} */
 const MeshComponent = {
 	uuid: "c7fc3a04-fa51-49aa-8f04-864c0cebf49c",
 	name: "Mesh",
