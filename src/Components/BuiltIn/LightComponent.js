@@ -1,7 +1,7 @@
 import Vec3 from "../../Math/Vec3.js";
-import { StorageType } from "../../Util/BinaryComposer.js";
+import {StorageType} from "../../Util/BinaryComposer.js";
 
-const lightTypes = ["point","directional","spot"];
+const lightTypes = ["point", "directional", "spot"];
 
 export default {
 	uuid: "b08e7f42-3919-47e4-ae3e-046e99362090",
@@ -12,7 +12,7 @@ export default {
 		},
 		color: {
 			type: Vec3,
-		}
+		},
 	},
 	binaryComposerOpts: {
 		structure: {

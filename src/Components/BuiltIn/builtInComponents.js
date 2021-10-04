@@ -5,11 +5,11 @@ import MeshComponent from "./MeshComponent.js";
 export default [
 	CameraComponent,
 	LightComponent,
-	MeshComponent
+	MeshComponent,
 ];
 
 export {
 	CameraComponent,
 	LightComponent,
-	MeshComponent
+	MeshComponent,
 };
