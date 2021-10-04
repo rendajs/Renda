@@ -190,15 +190,6 @@
 		"jsdoc/check-indentation": "error",
 		"jsdoc/check-param-names": "error",
 		"jsdoc/check-property-names": "error",
-		"jsdoc/multiline-blocks": [
-			"error", {
-				"noSingleLineBlocks": true,
-				"noMultilineBlocks": true,
-				"minimumLengthForMultiline": 100,
-				"singleLineTags": ["type", "typedef"],
-				"multilineTags": ["param", "returns", "fileoverview", "override"]
-			}
-		],
 		"jsdoc/newline-after-description": ["error", "never"],
 		"jsdoc/no-bad-blocks": "error",
 		"jsdoc/no-defaults": "error",
