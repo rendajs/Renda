@@ -2,8 +2,9 @@ import Mat4 from "../../Math/Mat4.js";
 import { StorageType } from "../../Util/BinaryComposer.js";
 import RenderOutputConfig from "../../Rendering/RenderOutputConfig.js";
 import ClusteredLightsConfig from "../../Rendering/ClusteredLightsConfig.js";
+import { EDITOR_DEFAULTS_IN_COMPONENTS } from "../../engineDefines.js";
 
-export default {
+const CameraComponent =  {
 	uuid: "1a78b3f2-7688-4776-b512-ed1ee2326d8a",
 	name: "Camera",
 	properties: {
@@ -71,3 +72,12 @@ export default {
 		},
 	},
 };
+
+
+
+if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+	const defaultClusteredLightsAssetLinkUuid = "f676813d-a631-4a39-9bb4-1ea1f291af19";
+	CameraComponent.properties.clusteredLightsConfig.defaultValue = defaultClusteredLightsAssetLinkUuid;
+}
+
+export default CameraComponent;
