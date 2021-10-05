@@ -227,6 +227,15 @@ export default class WindowManager {
 	}
 
 	/**
+	 * @param {string} type
+	 * @returns {Generator<ContentWindow>}
+	 */
+	*getContentWindowsByType(type) {
+		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
+		yield* this.getContentWindowsByConstructor(contentWindowConstructor);
+	}
+
+	/**
 	 * @param {string} uuid
 	 * @returns {ContentWindow?}
 	 */
