@@ -7,7 +7,7 @@ import CachedMeshData from "./CachedMeshData.js";
 import defaultEngineAssetsManager from "../../../Assets/defaultEngineAssetsManager.js";
 import Mat4 from "../../../Math/Mat4.js";
 import Vec4 from "../../../Math/Vec4.js";
-import { LightComponent, MeshComponent } from "../../../Components/Components.js";
+import {LightComponent, MeshComponent} from "../../../Components/Components.js";
 import Mesh from "../../../Core/Mesh.js";
 import MultiKeyWeakMap from "../../../Util/MultiKeyWeakMap.js";
 import ShaderBuilder from "../../ShaderBuilder.js";
@@ -15,16 +15,14 @@ import ShaderBuilder from "../../ShaderBuilder.js";
 export {default as WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
-
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 
-export default class WebGpuRenderer extends Renderer{
-
-	static get domTargetConstructor(){
+export default class WebGpuRenderer extends Renderer {
+	static get domTargetConstructor() {
 		return WebGpuRendererDomTarget;
 	}
 
-	constructor(){
+	constructor() {
 		super();
 
 		this.maxLights = 512;
@@ -33,7 +31,7 @@ export default class WebGpuRenderer extends Renderer{
 		this.device = null;
 		this.viewBindGroupLayout = null;
 		this.lightsBuffer = null;
-		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			this.computeClusterBoundsBindGroupLayout = null;
 			this.computeClusterLightsBindGroupLayout = null;
 			this.computeClusterBoundsShaderCode = null;
@@ -50,35 +48,35 @@ export default class WebGpuRenderer extends Renderer{
 		this.onInitCbs = new Set();
 
 		this.cachedCameraData = new WeakMap();
-		this.cachedMaterialData = new WeakMap(); //<Material, {cachedData}>
-		this.cachedPipelines = new MultiKeyWeakMap(); //<[WebGpuPipelineConfig, VertexState], WebGpuPipeline>
+		this.cachedMaterialData = new WeakMap(); // <Material, {cachedData}>
+		this.cachedPipelines = new MultiKeyWeakMap(); // <[WebGpuPipelineConfig, VertexState], WebGpuPipeline>
 
 		// (legacy) for every pipeline, maintain a list of objects that the pipeline is used by
 		// this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 
 		this.cachedMeshData = new WeakMap();
 
-		this.cachedShaderModules = new MultiKeyWeakMap(); //<[ShaderSource, clusteredLightsConfig], GPUShaderModule>;
+		this.cachedShaderModules = new MultiKeyWeakMap(); // <[ShaderSource, clusteredLightsConfig], GPUShaderModule>;
 	}
 
-	async init(){
+	async init() {
 		this.adapter = await navigator.gpu.requestAdapter();
 		const device = this.device = await this.adapter.requestDevice();
 
 		this.viewBindGroupLayout = device.createBindGroupLayout({
 			entries: [
 				{
-					binding: 0, //view uniforms
+					binding: 0, // view uniforms
 					visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
 					buffer: {},
 				},
 				{
-					binding: 1, //lights
+					binding: 1, // lights
 					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
 					buffer: {type: "read-only-storage"},
 				},
 				{
-					binding: 2, //cluster light indices
+					binding: 2, // cluster light indices
 					visibility: GPUShaderStage.FRAGMENT,
 					buffer: {type: "storage"},
 				},
@@ -91,11 +89,11 @@ export default class WebGpuRenderer extends Renderer{
 			usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 		});
 
-		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			this.computeClusterBoundsBindGroupLayout = device.createBindGroupLayout({
 				entries: [
 					{
-						binding: 0, //cluster bounds buffer
+						binding: 0, // cluster bounds buffer
 						visibility: GPUShaderStage.COMPUTE,
 						buffer: {type: "storage"},
 					},
@@ -105,18 +103,17 @@ export default class WebGpuRenderer extends Renderer{
 			this.computeClusterLightsBindGroupLayout = device.createBindGroupLayout({
 				entries: [
 					{
-						binding: 0, //cluster bounds buffer
+						binding: 0, // cluster bounds buffer
 						visibility: GPUShaderStage.COMPUTE,
 						buffer: {type: "storage"},
 					},
 					{
-						binding: 1, //cluster lights buffer
+						binding: 1, // cluster lights buffer
 						visibility: GPUShaderStage.COMPUTE,
 						buffer: {type: "storage"},
 					},
 				],
 			});
-
 
 			await defaultEngineAssetsManager.watchAsset("892d56b3-df77-472b-93dd-2c9c38ec2f3d", asset => {
 				this.computeClusterBoundsShaderCode = asset;
@@ -156,7 +153,7 @@ export default class WebGpuRenderer extends Renderer{
 							type: "uniform",
 							hasDynamicOffset: true,
 						},
-					}
+					},
 				],
 			}),
 			totalBufferLength: 65536,
@@ -172,38 +169,38 @@ export default class WebGpuRenderer extends Renderer{
 		});
 
 		this.isInit = true;
-		for(const cb of this.onInitCbs){
+		for (const cb of this.onInitCbs) {
 			cb();
 		}
 		this.onInitCbs.clear();
 	}
 
-	async waitForInit(){
-		if(this.isInit) return;
+	async waitForInit() {
+		if (this.isInit) return;
 		await new Promise(r => this.onInitCbs.add(r));
 	}
 
-	createDomTarget(){
+	createDomTarget() {
 		const domTarget = super.createDomTarget();
 		this.configureSwapChainAsync(domTarget);
 		return domTarget;
 	}
 
-	async configureSwapChainAsync(domTarget){
+	async configureSwapChainAsync(domTarget) {
 		await this.waitForInit();
 		domTarget.gpuReady();
 	}
 
-	render(domTarget, camera){
-		if(!this.isInit) return;
-		if(!domTarget.ready) return;
+	render(domTarget, camera) {
+		if (!this.isInit) return;
+		if (!domTarget.ready) return;
 
-		//todo, support for auto cam aspect based on domTarget size
+		// todo, support for auto cam aspect based on domTarget size
 
-		if(camera.autoUpdateProjectionMatrix){
+		if (camera.autoUpdateProjectionMatrix) {
 			camera.projectionMatrix = Mat4.createDynamicAspectPerspective(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
-		if(camera.renderOutputConfig){
+		if (camera.renderOutputConfig) {
 			domTarget.setRenderOutputConfig(camera.renderOutputConfig);
 		}
 		const outputConfig = domTarget.outputConfig;
@@ -211,22 +208,21 @@ export default class WebGpuRenderer extends Renderer{
 		const meshComponents = [];
 		const lightComponents = [];
 		const rootRenderEntities = [camera.entity.getRoot()];
-		//TODO: don't get root every frame, only when changed
-		//see state of CameraComponent.js in commit 5d2efa1
-		for(const root of rootRenderEntities){
-			for(const child of root.traverseDown()){
-				for(const component of child.getComponents(MeshComponent)){
-					if(!component.mesh || !component.mesh.vertexState) continue;
+		// TODO: don't get root every frame, only when changed
+		// see state of CameraComponent.js in commit 5d2efa1
+		for (const root of rootRenderEntities) {
+			for (const child of root.traverseDown()) {
+				for (const component of child.getComponents(MeshComponent)) {
+					if (!component.mesh || !component.mesh.vertexState) continue;
 					meshComponents.push(component);
 				}
-				for(const component of child.getComponents(LightComponent)){
+				for (const component of child.getComponents(LightComponent)) {
 					lightComponents.push(component);
 				}
 			}
 		}
 
 		const commandEncoder = this.device.createCommandEncoder();
-
 
 		this.viewUniformsBuffer.resetBufferOffset();
 		this.lightsBuffer.resetBufferOffset();
@@ -237,8 +233,8 @@ export default class WebGpuRenderer extends Renderer{
 		const vpMatrix = Mat4.multiplyMatrices(viewMatrix, camera.projectionMatrix);
 		const inverseProjectionMatrix = camera.projectionMatrix.inverse();
 
-		//todo, only update when something changed
-		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width,domTarget.height, 0, 0)); //todo, pass as integer?
+		// todo, only update when something changed
+		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width, domTarget.height, 0, 0)); // todo, pass as integer?
 		this.viewUniformsBuffer.appendData(camera.projectionMatrix);
 		this.viewUniformsBuffer.appendData(inverseProjectionMatrix);
 		this.viewUniformsBuffer.appendData(viewMatrix);
@@ -247,13 +243,13 @@ export default class WebGpuRenderer extends Renderer{
 		this.viewUniformsBuffer.writeToGpu();
 
 		const cameraData = this.getCachedCameraData(camera);
-		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			cameraData.clusterComputeManager.computeLightIndices(commandEncoder);
 		}
 
 		this.lightsBuffer.appendData(lightComponents.length, "u32");
 		this.lightsBuffer.skipBytes(12);
-		for(const light of lightComponents){
+		for (const light of lightComponents) {
 			this.lightsBuffer.appendData(light.entity.pos);
 			this.lightsBuffer.skipBytes(4);
 			this.lightsBuffer.appendData(light.color);
@@ -263,14 +259,14 @@ export default class WebGpuRenderer extends Renderer{
 
 		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
-		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); //todo
+		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); // todo
 
-		for(const [i, meshComponent] of meshComponents.entries()){
-			//todo: group all materials in the current view and render them all grouped
-			for(const material of meshComponent.materials){
-				if(!material || material.destructed) continue; //todo: log a (supressable) warning when the material is destructed
+		for (const [i, meshComponent] of meshComponents.entries()) {
+			// todo: group all materials in the current view and render them all grouped
+			for (const material of meshComponent.materials) {
+				if (!material || material.destructed) continue; // todo: log a (supressable) warning when the material is destructed
 				const materialData = this.getCachedMaterialData(material);
-				if(!materialData.forwardPipelineConfig){
+				if (!materialData.forwardPipelineConfig) {
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
 					materialData.forwardPipelineConfig = mapData.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
@@ -280,24 +276,24 @@ export default class WebGpuRenderer extends Renderer{
 				renderPassEncoder.setBindGroup(2, this.objectUniformsBufferBindGroup, [this.objectUniformsBuffer.currentBufferOffset]);
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
-				for(const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()){
-					if(newBufferData){
+				for (const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()) {
+					if (newBufferData) {
 						this.device.queue.writeBuffer(gpuBuffer, 0, newBufferData);
 					}
 					renderPassEncoder.setVertexBuffer(index, gpuBuffer);
 				}
 				const indexBufferData = meshData.getIndexedBufferGpuCommands();
-				if(indexBufferData){
+				if (indexBufferData) {
 					/** @type {GPUIndexFormat} */
 					let indexFormat = null;
-					if(mesh.indexFormat == Mesh.IndexFormat.UINT_16){
+					if (mesh.indexFormat == Mesh.IndexFormat.UINT_16) {
 						indexFormat = "uint16";
-					}else if(mesh.indexFormat == Mesh.IndexFormat.UINT_32){
+					} else if (mesh.indexFormat == Mesh.IndexFormat.UINT_32) {
 						indexFormat = "uint32";
 					}
 					renderPassEncoder.setIndexBuffer(indexBufferData, indexFormat);
 					renderPassEncoder.drawIndexed(mesh.indexLength, 1, 0, 0, 0);
-				}else{
+				} else {
 					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
 				}
 			}
@@ -310,24 +306,23 @@ export default class WebGpuRenderer extends Renderer{
 		}
 		this.objectUniformsBuffer.writeToGpu();
 
-
 		renderPassEncoder.endPass();
 
 		this.device.queue.submit([commandEncoder.finish()]);
 	}
 
-	getCachedCameraData(camera){
+	getCachedCameraData(camera) {
 		let data = this.cachedCameraData.get(camera);
-		if(!data){
+		if (!data) {
 			data = new CachedCameraData(camera, this);
 			this.cachedCameraData.set(camera, data);
 		}
 		return data;
 	}
 
-	getCachedMaterialData(material){
+	getCachedMaterialData(material) {
 		let data = this.cachedMaterialData.get(material);
-		if(!data){
+		if (!data) {
 			data = {};
 			this.cachedMaterialData.set(material, data);
 			material.onDestructor(() => {
@@ -337,18 +332,18 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	getPipeline(pipelineConfig, vertexState, outputConfig, clusteredLightsConfig){
+	getPipeline(pipelineConfig, vertexState, outputConfig, clusteredLightsConfig) {
 		const keys = [outputConfig, vertexState, pipelineConfig];
-		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig){
+		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 			keys.push(clusteredLightsConfig);
 		}
 		let pipeline = this.cachedPipelines.get(keys);
-		if(!pipeline){
-			let vertexModule, fragmentModule;
-			if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+		if (!pipeline) {
+			let vertexModule; let fragmentModule;
+			if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader, {clusteredLightsConfig});
 				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader, {clusteredLightsConfig});
-			}else{
+			} else {
 				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader);
 				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader);
 			}
@@ -381,14 +376,14 @@ export default class WebGpuRenderer extends Renderer{
 		return pipeline;
 	}
 
-	disposeMaterial(material){
+	disposeMaterial(material) {
 		const materialData = this.getCachedMaterialData(material);
 		this.cachedMaterialData.delete(material);
 		// this.removeUsedByObjectFromPipeline(materialData.forwardPipeline, material);
 	}
 
-	//pipelines cannot be disposed by the webgpu spec at the moment,
-	//leaving this code here just in case it is needed in the future
+	// pipelines cannot be disposed by the webgpu spec at the moment,
+	// leaving this code here just in case it is needed in the future
 
 	// addUsedByObjectToPipeline(pipeline, usedBy){
 	// 	let usedByList = this.pipelinesUsedByLists.get(pipeline);
@@ -421,9 +416,9 @@ export default class WebGpuRenderer extends Renderer{
 	// 	this.pipelinesUsedByLists.delete(pipeline);
 	// }
 
-	getCachedMeshData(mesh){
+	getCachedMeshData(mesh) {
 		let data = this.cachedMeshData.get(mesh);
-		if(!data){
+		if (!data) {
 			data = new CachedMeshData(mesh, this);
 			this.cachedMeshData.set(mesh, data);
 		}
@@ -432,17 +427,17 @@ export default class WebGpuRenderer extends Renderer{
 
 	getCachedShaderModule(shaderSource, {
 		clusteredLightsConfig = null,
-	} = {}){
+	} = {}) {
 		const keys = [shaderSource];
-		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig){
+		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 			keys.push(clusteredLightsConfig);
 		}
 		let data = this.cachedShaderModules.get(keys);
-		if(!data){
+		if (!data) {
 			let code;
-			if(ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig){
+			if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 				code = ShaderBuilder.fillShaderDefines(shaderSource.source, clusteredLightsConfig.getShaderDefines());
-			}else{
+			} else {
 				code = shaderSource.source;
 			}
 			data = this.device.createShaderModule({code});
@@ -451,9 +446,9 @@ export default class WebGpuRenderer extends Renderer{
 		return data;
 	}
 
-	//useful for debugging storage buffers but probably pretty slow
-	//buffer should have GPUBufferUsage.COPY_SRC at creation
-	async inspectBuffer(gpuBuffer, bufferSize){
+	// useful for debugging storage buffers but probably pretty slow
+	// buffer should have GPUBufferUsage.COPY_SRC at creation
+	async inspectBuffer(gpuBuffer, bufferSize) {
 		const readBuffer = this.device.createBuffer({
 			size: bufferSize,
 			usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,

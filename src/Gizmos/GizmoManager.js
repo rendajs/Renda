@@ -3,8 +3,8 @@ import defaultEngineAssetsManager from "../Assets/defaultEngineAssetsManager.js"
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 /** @typedef {import("./Gizmos/Gizmo.js").default} Gizmo */
 
-export default class GizmoManager{
-	constructor(){
+export default class GizmoManager {
+	constructor() {
 		this.entity = new Entity("gizmos");
 		/**
 		 * @type {Set<Gizmo>}
@@ -35,28 +35,28 @@ export default class GizmoManager{
 		});
 	}
 
-	destructor(){
-		for(const gizmo of this.gizmos){
+	destructor() {
+		for (const gizmo of this.gizmos) {
 			this.removeGizmo(gizmo);
 		}
 		this.entity.detachParent();
 	}
 
-	addGizmo(constructor){
+	addGizmo(constructor) {
 		const gizmo = new constructor(this);
 		this.gizmos.add(gizmo);
 		this.entity.add(gizmo.entity);
 		return gizmo;
 	}
 
-	removeGizmo(gizmo){
+	removeGizmo(gizmo) {
 		gizmo.destructor();
 		this.gizmos.delete(gizmo);
 	}
 
-	updateGizmoMaterials(){
-		if(!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
-		for(const gizmo of this.gizmos){
+	updateGizmoMaterials() {
+		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
+		for (const gizmo of this.gizmos) {
 			gizmo.updateMaterials();
 		}
 	}
