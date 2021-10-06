@@ -4,6 +4,8 @@ import Button from "../../UI/Button.js";
 import {Entity} from "../../../../src/index.js";
 import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import editor from "../../editorInstance.js";
+import ProjectAssetTypeEntity from "../../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
+import {parseMimeType} from "../../Util/Util.js";
 
 export default class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
@@ -21,7 +23,9 @@ export default class ContentWindowOutliner extends ContentWindow {
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
+		this.treeView.addEventListener("validatedrag", this.onTreeViewValidatedrag.bind(this));
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
+		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 
 		this.linkedEntityEditor = null;
 
@@ -151,9 +155,32 @@ export default class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewValidateDragEvent} e
+	 */
+	onTreeViewValidatedrag(e) {
+		if (!e.isSameTreeView && this.validateDragMimeType(e.mimeType)) {
+			if (e.mimeType.parameters.dragtype == "projectasset") {
+				e.accept();
+			}
+		}
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").ParsedMimeType} mimeType
+	 * @returns {boolean}
+	 */
+	validateDragMimeType(mimeType) {
+		return mimeType.type == "text" &&
+			mimeType.subType == "jj" &&
+			mimeType.parameters.dragtype == "projectasset" &&
+			mimeType.parameters.assettype == ProjectAssetTypeEntity.typeUuid;
+	}
+
+	/**
 	 * @param {import("../../UI/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	onTreeViewRearrange(e) {
+		console.log("rearrange", e);
 		for (const movedItem of e.movedItems) {
 			const entity = this.getEntityByIndicesPath(movedItem.oldIndicesPath);
 			const parentIndicesPath = movedItem.newIndicesPath.slice(0, -1);
@@ -161,6 +188,22 @@ export default class ContentWindowOutliner extends ContentWindow {
 			const newParent = this.getEntityByIndicesPath(parentIndicesPath);
 			newParent.addAtIndex(entity, insertIndex);
 		}
+	}
+
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
+	 */
+	async onTreeViewDrop(e) {
+		const parent = this.getEntityByTreeViewItem(e.target);
+		for (const item of e.rawEvent.dataTransfer.items) {
+			const mimeType = parseMimeType(item.type);
+			if (this.validateDragMimeType(mimeType)) {
+				const entityAssetUuid = await new Promise(r => item.getAsString(r));
+				const entityAsset = await editor.projectManager.assetManager.getLiveAsset(entityAssetUuid);
+				parent.add(entityAsset);
+			}
+		}
+		this.updateTreeView();
 	}
 
 	notifyEntityEditors(obj, type) {

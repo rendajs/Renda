@@ -24,14 +24,14 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  */
 
 /**
- * @typedef {Object} TreeViewValidateDragMimeTypeEventType
+ * @typedef {Object} TreeViewValidateDragEventType
  * @property {import("../Util/Util.js").ParsedMimeType} mimeType
  * @property {boolean} isSameTreeView Whether the dragged TreeView is from the same TreeView tree as the drop target.
  * @property {"string" | "file"} kind
  * @property {function() : void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.
  * @property {function() : void} reject Mark the drag as rejected. If any of the event handlers call `accept()`, this has no effect.
  *
- * @typedef {TreeViewDragEvent & TreeViewValidateDragMimeTypeEventType} TreeViewValidateDragMimeTypeEvent
+ * @typedef {TreeViewDragEvent & TreeViewValidateDragEventType} TreeViewValidateDragEvent
  */
 
 /**
@@ -85,7 +85,7 @@ import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
  * @property {TreeViewSelectionChangeEvent} selectionchange
  * @property {TreeViewNameChangeEvent} namechange
  * @property {TreeViewDragEvent} dragstart
- * @property {TreeViewValidateDragMimeTypeEvent} validatedrag
+ * @property {TreeViewValidateDragEvent} validatedrag
  * @property {TreeViewDropEvent} drop
  * @property {TreeViewRearrangeEvent} rearrange
  * @property {TreeViewEvent} dblclick
@@ -663,6 +663,8 @@ export default class TreeView {
 				promises.push(promise);
 			}
 
+			if (promises.length <= 0) return;
+
 			const draggingItems = await Promise.all(promises);
 			const flatDraggingItems = draggingItems.flat();
 
@@ -809,7 +811,7 @@ export default class TreeView {
 		let isAcceptingEvents = true;
 		let validateEventAccepted = false;
 		let validateEventRejected = false;
-		/** @type {TreeViewValidateDragMimeTypeEvent} */
+		/** @type {TreeViewValidateDragEvent} */
 		this.fireEvent("validatedrag", {
 			target: this,
 			rawEvent,

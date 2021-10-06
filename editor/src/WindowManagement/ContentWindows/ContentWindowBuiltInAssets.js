@@ -77,7 +77,7 @@ export default class ContentWindowBuiltInAssets extends ContentWindow {
 		if (assetType) {
 			assetTypeUuid = assetType.typeUuid;
 		}
-		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, projectAsset.uuid);
+		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; assettype=${assetTypeUuid}`, projectAsset.uuid);
 	}
 
 	/**

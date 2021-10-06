@@ -326,11 +326,11 @@ export default class ContentWindowProject extends ContentWindow {
 		if (assetType) {
 			assetTypeUuid = assetType.typeUuid;
 		}
-		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, assetData.uuid);
+		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; assettype=${assetTypeUuid}`, assetData.uuid);
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewValidateDragMimeTypeEvent} e
+	 * @param {import("../../UI/TreeView.js").TreeViewValidateDragEvent} e
 	 */
 	async onTreeViewValidateDrag(e) {
 		if (e.isSameTreeView) {

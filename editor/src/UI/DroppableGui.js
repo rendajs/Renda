@@ -207,7 +207,7 @@ export default class DroppableGui {
 			assetTypeUuid = assetType.typeUuid;
 		}
 		const uuid = this.defaultAssetLinkUuid || this.projectAssetValue.uuid;
-		e.dataTransfer.setData(`text/jj; dragtype=projectAsset; assettype=${assetTypeUuid}`, uuid);
+		e.dataTransfer.setData(`text/jj; dragtype=projectasset; assettype=${assetTypeUuid}`, uuid);
 	}
 
 	/**
