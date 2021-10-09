@@ -109,14 +109,20 @@ export default class Entity {
 		}
 	}
 
-	*parents() {
+	*entityParents() {
 		for (const entityParent of this._entityParents) {
 			const parent = entityParent.getParent();
 			if (parent) {
-				yield parent;
+				yield {entityParent, parent};
 			} else {
 				this._entityParents.delete(entityParent);
 			}
+		}
+	}
+
+	*parents() {
+		for (const {parent} of this.entityParents()) {
+			yield parent;
 		}
 	}
 
@@ -428,11 +434,10 @@ export default class Entity {
 			parent: this,
 			traversedPath,
 		};
-		for (const parent of this.parents()) {
+		for (const {parent, entityParent} of this.entityParents()) {
 			traversedPath.unshift({
 				parent,
-				// eslint-disable-next-line no-underscore-dangle
-				index: parent._children.indexOf(this),
+				index: entityParent.index,
 			});
 			for (const result of parent.traverseUp(traversedPath)) {
 				yield result;
