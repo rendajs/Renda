@@ -1,4 +1,5 @@
-import {Mat4, Quaternion, Vec3} from "../Math/Math.js";
+import {Quaternion, Vec3} from "../Math/Math.js";
+import Mat4 from "../Math/Mat4.js";
 import {Component, defaultComponentTypeManager} from "../Components/Components.js";
 import EntityParent from "./EntityParent.js";
 import EntityMatrixCache from "./EntityMatrixCache.js";
@@ -37,10 +38,7 @@ export default class Entity {
 		this._children = [];
 		this.components = [];
 
-		this.localMatrixDirty = false;
 		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirty.bind(this);
-		this._localMatrix = new Mat4();
-		this._worldMatrix = new Mat4();
 		this._pos = new Vec3();
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
 		this._rot = new Quaternion();
@@ -165,36 +163,23 @@ export default class Entity {
 	}
 
 	get localMatrix() {
-		if (this.localMatrixDirty) {
-			this._localMatrix = Mat4.createPosRotScale(this.pos, this.rot, this.scale);
-			this.localMatrixDirty = false;
-		}
-		return this._localMatrix;
+		const {matrixCache} = this._getFirstMatrixCache();
+		return matrixCache.getLocalMatrix(this.pos, this.rot, this.scale);
 	}
 
 	set localMatrix(value) {
-		this._localMatrix.set(value);
-		const {pos, rot, scale} = this._localMatrix.decompose();
+		const {pos, rot, scale} = new Mat4(value).decompose();
 		this.pos = pos;
 		this.rot = rot;
 		this.scale = scale;
-		this.localMatrixDirty = false;
 	}
 
 	get worldMatrix() {
-		if (this.localMatrixDirty) {
-			// todo: support for getting world matrix based on parent
-			if (this.parent) {
-				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
-			} else {
-				this._worldMatrix = this.localMatrix.clone();
-			}
-		}
-		return this._worldMatrix;
+		const {matrixCache, traversedPath} = this._getFirstMatrixCache();
+		return matrixCache.getWorldMatrix(traversedPath, this.pos, this.rot, this.scale);
 	}
 
 	markLocalMatrixDirty() {
-		this.localMatrixDirty = true;
 		this.markAllWorldMatricesDirty();
 	}
 
@@ -203,16 +188,19 @@ export default class Entity {
 	 * Only the instances that are a child of this entity will be marked as dirty.
 	 */
 	markAllWorldMatricesDirty() {
-		const traversedUpPaths = [];
-		for (const {traversedPath} of this.traverseUp()) {
-			if (traversedPath.length > 0 && traversedPath[0].parent.isRoot) {
-				traversedUpPaths.push([...traversedPath]);
-			}
-		}
+		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
 		for (const {child, traversedPath} of this.traverseDown()) {
 			for (const traversedUpPath of traversedUpPaths) {
 				// eslint-disable-next-line no-underscore-dangle
 				child.markWorldMatrixDirty([...traversedUpPath, ...traversedPath]);
+			}
+		}
+	}
+
+	*_getAllRootTraversedUpPaths() {
+		for (const {parent, traversedPath} of this.traverseUp()) {
+			if (parent.isRoot) {
+				yield [...traversedPath];
 			}
 		}
 	}
@@ -222,32 +210,26 @@ export default class Entity {
 	 * @param {TraversedPathEntry[]} traversedPath
 	 */
 	markWorldMatrixDirty(traversedPath) {
-		const entityParentsPath = this._getEntityParentsForTraversedPath(traversedPath);
-
-		const matrixCache = this._getMatrixCache(entityParentsPath);
+		const matrixCache = this._getMatrixCache(traversedPath);
 		matrixCache.worldMatrixDirty = true;
+		matrixCache.localMatrixDirty = true;
 	}
 
 	/**
 	 * @param {TraversedPathEntry[]} traversedPath
 	 */
 	getWorldMatrix(traversedPath) {
-		const entityParentsPath = this._getEntityParentsForTraversedPath(traversedPath);
+		const matrixCache = this._getMatrixCache(traversedPath);
+		return matrixCache.getWorldMatrix(traversedPath, this.pos, this.rot, this.scale);
+	}
 
-		const matrixCache = this._getMatrixCache(entityParentsPath);
-		if (matrixCache.localMatrixDirty || matrixCache.worldMatrixDirty) {
-			const localMatrix = this.localMatrix;
-			if (entityParentsPath.length > 0) {
-				const parent = entityParentsPath[0].getParent();
-				const parentMatrix = parent.getWorldMatrix(traversedPath.slice(0, -1));
-				matrixCache.worldMatrix = Mat4.multiplyMatrices(localMatrix, parentMatrix);
-			} else {
-				matrixCache.worldMatrix = localMatrix.clone();
-			}
-			matrixCache.worldMatrixDirty = false;
-		}
-
-		return matrixCache.worldMatrix;
+	_getFirstMatrixCache() {
+		const traversedPath = this._getAllRootTraversedUpPaths().next().value;
+		if (!traversedPath) return null;
+		return {
+			matrixCache: this._getMatrixCache(traversedPath),
+			traversedPath,
+		};
 	}
 
 	/**
@@ -275,10 +257,11 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {EntityParent<this>[]} entityParents
+	 * @param {TraversedPathEntry[]} traversedPath
 	 * @returns {EntityMatrixCache}
 	 */
-	_getMatrixCache(entityParents) {
+	_getMatrixCache(traversedPath) {
+		const entityParents = this._getEntityParentsForTraversedPath(traversedPath);
 		let cache = this._matrixCaches.get(entityParents);
 		if (!cache) {
 			cache = new EntityMatrixCache();
