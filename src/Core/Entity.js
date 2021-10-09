@@ -179,16 +179,16 @@ export default class Entity {
 		return matrixCache.getWorldMatrix(traversedPath, this.pos, this.rot, this.scale);
 	}
 
-	markLocalMatrixDirty() {
-		this.markAllWorldMatricesDirty();
-	}
-
 	/**
 	 * Marks the world matrix of this entity and all its children as dirty.
 	 * Only the instances that are a child of this entity will be marked as dirty.
 	 */
-	markAllWorldMatricesDirty() {
+	markLocalMatrixDirty() {
 		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
+		for (const traversedUpPath of traversedUpPaths) {
+			const matrixCache = this._getMatrixCache(traversedUpPath);
+			matrixCache.localMatrixDirty = true;
+		}
 		for (const {child, traversedPath} of this.traverseDown()) {
 			for (const traversedUpPath of traversedUpPaths) {
 				// eslint-disable-next-line no-underscore-dangle
@@ -212,7 +212,6 @@ export default class Entity {
 	markWorldMatrixDirty(traversedPath) {
 		const matrixCache = this._getMatrixCache(traversedPath);
 		matrixCache.worldMatrixDirty = true;
-		matrixCache.localMatrixDirty = true;
 	}
 
 	/**
