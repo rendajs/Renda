@@ -1,6 +1,9 @@
+/**
+ * @template {{}} T
+ */
 export default class EntityParent {
 	/**
-	 * @param {import("./Entity.js").default} parent
+	 * @param {T} parent
 	 * @param {number} index
 	 */
 	constructor(parent, index) {

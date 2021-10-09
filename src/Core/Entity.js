@@ -29,7 +29,7 @@ export default class Entity {
 			}, ...opts,
 		};
 		this.name = opts.name;
-		/** @type {Set<EntityParent>} */
+		/** @type {Set<EntityParent<this>>} */
 		this._entityParents = new Set();
 		/** @type {MultiKeyWeakMap<EntityParent[], *>} */
 		this._matrixCaches = new MultiKeyWeakMap();
@@ -39,7 +39,6 @@ export default class Entity {
 
 		this.localMatrixDirty = false;
 		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirty.bind(this);
-		this.worldMatrixDirty = false;
 		this._localMatrix = new Mat4();
 		this._worldMatrix = new Mat4();
 		this._pos = new Vec3();
@@ -115,7 +114,11 @@ export default class Entity {
 	*parents() {
 		for (const entityParent of this._entityParents) {
 			const parent = entityParent.getParent();
-			if (parent) yield parent;
+			if (parent) {
+				yield parent;
+			} else {
+				this._entityParents.delete(entityParent);
+			}
 		}
 	}
 
@@ -125,12 +128,16 @@ export default class Entity {
 	 * @returns {Entity | null}
 	 */
 	get parent() {
-		/** @type {EntityParent | null} */
+		/** @type {EntityParent<this> | null} */
 		const entityParent = this._entityParents.values().next().value;
 		if (entityParent) {
 			return entityParent.getParent();
 		}
 		return null;
+	}
+
+	get isRoot() {
+		return !this.parent;
 	}
 
 	get pos() {
@@ -172,35 +179,84 @@ export default class Entity {
 		this.rot = rot;
 		this.scale = scale;
 		this.localMatrixDirty = false;
-		this.worldMatrixDirty = true;
 	}
 
 	get worldMatrix() {
-		if (this.localMatrixDirty || this.worldMatrixDirty) {
+		if (this.localMatrixDirty) {
 			// todo: support for getting world matrix based on parent
 			if (this.parent) {
 				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
 			} else {
 				this._worldMatrix = this.localMatrix.clone();
 			}
-			this.worldMatrixDirty = false;
 		}
 		return this._worldMatrix;
 	}
 
 	markLocalMatrixDirty() {
 		this.localMatrixDirty = true;
-		for (const {child} of this.traverseDown()) {
-			child.worldMatrixDirty = true;
+		this.markAllWorldMatricesDirty();
+	}
+
+	/**
+	 * Marks the world matrix of this entity and all its children as dirty.
+	 * Only the instances that are a child of this entity will be marked as dirty.
+	 */
+	markAllWorldMatricesDirty() {
+		const traversedUpPaths = [];
+		for (const {traversedPath} of this.traverseUp()) {
+			if (traversedPath.length > 0 && traversedPath[0].parent.isRoot) {
+				traversedUpPaths.push([...traversedPath]);
+			}
 		}
+		for (const {child, traversedPath} of this.traverseDown()) {
+			for (const traversedUpPath of traversedUpPaths) {
+				// eslint-disable-next-line no-underscore-dangle
+				child.markWorldMatrixDirty([...traversedUpPath, ...traversedPath]);
+			}
+		}
+	}
+
+	/**
+	 * Marks the world matrix of this entity dirty based on the traversed parents path.
+	 * @param {TraversedPathEntry[]} traversedPath
+	 */
+	markWorldMatrixDirty(traversedPath) {
+		const entityParentsPath = this._getEntityParentsForTraversedPath(traversedPath);
+
+		const matrixCache = this._getMatrixCache(entityParentsPath);
+		matrixCache.worldMatrixDirty = true;
 	}
 
 	/**
 	 * @param {TraversedPathEntry[]} traversedPath
 	 */
 	getWorldMatrix(traversedPath) {
-		/** @type {EntityParent[]} */
-		const entityParents = [];
+		const entityParentsPath = this._getEntityParentsForTraversedPath(traversedPath);
+
+		const matrixCache = this._getMatrixCache(entityParentsPath);
+		if (matrixCache.localMatrixDirty || matrixCache.worldMatrixDirty) {
+			const localMatrix = this.localMatrix;
+			if (entityParentsPath.length > 0) {
+				const parent = entityParentsPath[0].getParent();
+				const parentMatrix = parent.getWorldMatrix(traversedPath.slice(0, -1));
+				matrixCache.worldMatrix = Mat4.multiplyMatrices(localMatrix, parentMatrix);
+			} else {
+				matrixCache.worldMatrix = localMatrix.clone();
+			}
+			matrixCache.worldMatrixDirty = false;
+		}
+
+		return matrixCache.worldMatrix;
+	}
+
+	/**
+	 * @param {TraversedPathEntry[]} traversedPath
+	 * @param {boolean} failIfIncomplete
+	 */
+	_getEntityParentsForTraversedPath(traversedPath, failIfIncomplete = true) {
+		/** @type {EntityParent<this>[]} */
+		const entityParentsPath = [];
 		let lastParent = this;
 		for (let i = traversedPath.length - 1; i >= 0; i--) {
 			const traversedPathEntry = traversedPath[i];
@@ -208,29 +264,18 @@ export default class Entity {
 			const entityParent = lastParent._getEntityParent(traversedPathEntry);
 			lastParent = traversedPathEntry.parent;
 			if (!entityParent) {
-				throw new Error(`Entity in traversed path (${parent.name}) is not a parent of this entity (${this.name}).`);
+				throw new Error(`Entity in traversed path (${lastParent.name}) is not a parent of this entity (${this.name}).`);
 			}
-			entityParents.push(entityParent);
+			entityParentsPath.push(entityParent);
 		}
-
-		const matrixCache = this._getMatrixCache(entityParents);
-		if (matrixCache.localMatrixDirty || matrixCache.worldMatrixDirty) {
-			const localMatrix = this.localMatrix;
-			if (entityParents.length > 0) {
-				const parent = entityParents[0].getParent();
-				const parentMatrix = parent.getWorldMatrix(traversedPath.slice(0, -1));
-				matrixCache.worldMatrix = Mat4.multiplyMatrices(localMatrix, parentMatrix);
-			} else {
-				matrixCache.worldMatrix = localMatrix.clone();
-			}
-			// matrixCache.worldMatrixDirty = false;
+		if (failIfIncomplete && !lastParent.isRoot) {
+			throw new Error("Traversed path is not complete.");
 		}
-
-		return matrixCache.worldMatrix;
+		return entityParentsPath;
 	}
 
 	/**
-	 * @param {EntityParent[]} entityParents
+	 * @param {EntityParent<this>[]} entityParents
 	 * @returns {EntityMatrixCache}
 	 */
 	_getMatrixCache(entityParents) {
@@ -292,7 +337,7 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {Entity} newParent
+	 * @param {this} newParent
 	 * @param {number} index
 	 */
 	_parentAdded(newParent, index) {
@@ -301,7 +346,7 @@ export default class Entity {
 
 	/**
 	 * @param {TraversedPathEntry} traversedPathEntry
-	 * @returns {EntityParent | null}
+	 * @returns {EntityParent<this> | null}
 	 */
 	_getEntityParent(traversedPathEntry) {
 		for (const entityParent of this._entityParents) {
@@ -392,12 +437,25 @@ export default class Entity {
 		}
 	}
 
-	*traverseUp() {
-		yield this;
+	/**
+	 * @param {TraversedPathEntry[]} traversedPath
+	 * @returns {Generator<{parent: Entity, traversedPath: TraversedPathEntry[]}>}
+	 */
+	*traverseUp(traversedPath = []) {
+		yield {
+			parent: this,
+			traversedPath,
+		};
 		for (const parent of this.parents()) {
-			for (const c of parent.traverseUp()) {
-				yield c;
+			traversedPath.unshift({
+				parent,
+				// eslint-disable-next-line no-underscore-dangle
+				index: parent._children.indexOf(this),
+			});
+			for (const result of parent.traverseUp(traversedPath)) {
+				yield result;
 			}
+			traversedPath.shift();
 		}
 	}
 
