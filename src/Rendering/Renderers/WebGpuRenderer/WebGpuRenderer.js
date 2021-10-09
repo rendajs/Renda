@@ -207,14 +207,16 @@ export default class WebGpuRenderer extends Renderer {
 
 		const meshComponents = [];
 		const lightComponents = [];
+		/** @type {import("../../../Core/Entity.js").default[]} */
 		const rootRenderEntities = [camera.entity.getRoot()];
 		// TODO: don't get root every frame, only when changed
 		// see state of CameraComponent.js in commit 5d2efa1
 		for (const root of rootRenderEntities) {
-			for (const child of root.traverseDown()) {
+			for (const {child, traversedPath} of root.traverseDown()) {
 				for (const component of child.getComponents(MeshComponent)) {
 					if (!component.mesh || !component.mesh.vertexState) continue;
-					meshComponents.push(component);
+					const worldMatrix = child.getWorldMatrix(traversedPath);
+					meshComponents.push({component, worldMatrix});
 				}
 				for (const component of child.getComponents(LightComponent)) {
 					lightComponents.push(component);
@@ -261,7 +263,7 @@ export default class WebGpuRenderer extends Renderer {
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
 		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); // todo
 
-		for (const [i, meshComponent] of meshComponents.entries()) {
+		for (const {component: meshComponent, worldMatrix} of meshComponents.values()) {
 			// todo: group all materials in the current view and render them all grouped
 			for (const material of meshComponent.materials) {
 				if (!material || material.destructed) continue; // todo: log a (supressable) warning when the material is destructed
@@ -298,10 +300,10 @@ export default class WebGpuRenderer extends Renderer {
 				}
 			}
 
-			const mvpMatrix = Mat4.multiplyMatrices(meshComponent.entity.worldMatrix, vpMatrix);
+			const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
 			this.objectUniformsBuffer.appendData(mvpMatrix);
 			this.objectUniformsBuffer.appendData(vpMatrix);
-			this.objectUniformsBuffer.appendData(meshComponent.entity.worldMatrix);
+			this.objectUniformsBuffer.appendData(worldMatrix);
 			this.objectUniformsBuffer.nextBufferOffset();
 		}
 		this.objectUniformsBuffer.writeToGpu();

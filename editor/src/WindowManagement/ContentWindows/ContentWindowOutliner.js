@@ -146,7 +146,8 @@ export default class ContentWindowOutliner extends ContentWindow {
 				text: "Delete",
 				onClick: () => {
 					const entity = this.getEntityByTreeViewItem(e.target);
-					entity.detachParent();
+					// todo:
+					// entity.detachParent();
 					this.updateTreeView();
 					this.notifyEntityEditors(entity, "delete");
 				},

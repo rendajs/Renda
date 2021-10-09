@@ -153,9 +153,9 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 
 	updateGizmos() {
 		const unusedEntities = new Map(this.currentLinkedGizmos);
-		for (const entity of this.editingEntity.traverseDown()) {
-			this.updateGizmosForEntity(entity);
-			unusedEntities.delete(entity);
+		for (const {child} of this.editingEntity.traverseDown()) {
+			this.updateGizmosForEntity(child);
+			unusedEntities.delete(child);
 		}
 
 		for (const [entity, linkedComponentGizmos] of unusedEntities) {
@@ -216,8 +216,8 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.createdLiveAssetChangeListeners.clear();
 
-		for (const entity of this.editingEntity.traverseDown()) {
-			for (const component of entity.components) {
+		for (const {child} of this.editingEntity.traverseDown()) {
+			for (const component of child.components) {
 				const componentData = component.getComponentData();
 				this.addComponentLiveAssetListeners(component, componentData.properties, component, true);
 			}

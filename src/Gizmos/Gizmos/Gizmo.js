@@ -14,7 +14,8 @@ export default class Gizmo {
 	}
 
 	destructor() {
-		this.entity.detachParent();
+		// todo:
+		// this.entity.detachParent();
 	}
 
 	// this is called when the GizmoManager built-in assets have changed

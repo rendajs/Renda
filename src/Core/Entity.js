@@ -1,8 +1,21 @@
 import {Mat4, Quaternion, Vec3} from "../Math/Math.js";
 import {Component, defaultComponentTypeManager} from "../Components/Components.js";
+import EntityParent from "./EntityParent.js";
+import EntityMatrixCache from "./EntityMatrixCache.js";
+import MultiKeyWeakMap from "../Util/MultiKeyWeakMap.js";
+
+/**
+ * @typedef {Object} CreateEntityOptions
+ * @property {string} [name = "Entity"]
+ * @property {Mat4} [matrix = null]
+ * @property {Entity} [parent = null]
+ */
 
 export default class Entity {
-	constructor(opts) {
+	/**
+	 * @param {CreateEntityOptions | string} opts
+	 */
+	constructor(opts = {}) {
 		if (typeof opts == "string") {
 			opts = {
 				name: opts,
@@ -16,7 +29,10 @@ export default class Entity {
 			}, ...opts,
 		};
 		this.name = opts.name;
-		this._parent = null;
+		/** @type {Set<EntityParent>} */
+		this._entityParents = new Set();
+		/** @type {MultiKeyWeakMap<EntityParent[], *>} */
+		this._matrixCaches = new MultiKeyWeakMap();
 		/** @type {Entity[]} */
 		this._children = [];
 		this.components = [];
@@ -33,13 +49,14 @@ export default class Entity {
 		this._scale = Vec3.one;
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
-		this.setParent(opts.parent, false);
-
 		if (opts.matrix) this.localMatrix = opts.matrix;
+		if (opts.parent) {
+			opts.parent.add(this);
+		}
 	}
 
 	destructor() {
-		this.setParent(null, false);
+		// todo: completely remove destructors?
 		for (const child of this._children) {
 			child.destructor();
 		}
@@ -74,6 +91,7 @@ export default class Entity {
 		for (const component of this.getComponents(type, componentTypeManager)) {
 			return component;
 		}
+		return null;
 	}
 
 	*getComponents(type, componentTypeManager = defaultComponentTypeManager) {
@@ -87,19 +105,32 @@ export default class Entity {
 	}
 
 	*getChildComponents(type, componentTypeManager = defaultComponentTypeManager) {
-		for (const child of this.traverseDown()) {
+		for (const {child} of this.traverseDown()) {
 			for (const component of child.getComponents(type, componentTypeManager)) {
 				yield component;
 			}
 		}
 	}
 
-	get parent() {
-		return this._parent;
+	*parents() {
+		for (const entityParent of this._entityParents) {
+			const parent = entityParent.getParent();
+			if (parent) yield parent;
+		}
 	}
 
-	set parent(newParent) {
-		this.setParent(newParent);
+	/**
+	 * Returns the first parent of this entity.
+	 * Null if this entity has no parents.
+	 * @returns {Entity | null}
+	 */
+	get parent() {
+		/** @type {EntityParent | null} */
+		const entityParent = this._entityParents.values().next().value;
+		if (entityParent) {
+			return entityParent.getParent();
+		}
+		return null;
 	}
 
 	get pos() {
@@ -146,6 +177,7 @@ export default class Entity {
 
 	get worldMatrix() {
 		if (this.localMatrixDirty || this.worldMatrixDirty) {
+			// todo: support for getting world matrix based on parent
 			if (this.parent) {
 				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
 			} else {
@@ -158,34 +190,56 @@ export default class Entity {
 
 	markLocalMatrixDirty() {
 		this.localMatrixDirty = true;
-		for (const child of this.traverseDown()) {
+		for (const {child} of this.traverseDown()) {
 			child.worldMatrixDirty = true;
 		}
 	}
 
-	setParent(newParent, keepWorldPosition = false) {
-		this._setParentInternal(newParent, keepWorldPosition);
+	/**
+	 * @param {TraversedPathEntry[]} traversedPath
+	 */
+	getWorldMatrix(traversedPath) {
+		/** @type {EntityParent[]} */
+		const entityParents = [];
+		let lastParent = this;
+		for (let i = traversedPath.length - 1; i >= 0; i--) {
+			const traversedPathEntry = traversedPath[i];
+			// eslint-disable-next-line no-underscore-dangle
+			const entityParent = lastParent._getEntityParent(traversedPathEntry);
+			lastParent = traversedPathEntry.parent;
+			if (!entityParent) {
+				throw new Error(`Entity in traversed path (${parent.name}) is not a parent of this entity (${this.name}).`);
+			}
+			entityParents.push(entityParent);
+		}
+
+		const matrixCache = this._getMatrixCache(entityParents);
+		if (matrixCache.localMatrixDirty || matrixCache.worldMatrixDirty) {
+			const localMatrix = this.localMatrix;
+			if (entityParents.length > 0) {
+				const parent = entityParents[0].getParent();
+				const parentMatrix = parent.getWorldMatrix(traversedPath.slice(0, -1));
+				matrixCache.worldMatrix = Mat4.multiplyMatrices(localMatrix, parentMatrix);
+			} else {
+				matrixCache.worldMatrix = localMatrix.clone();
+			}
+			// matrixCache.worldMatrixDirty = false;
+		}
+
+		return matrixCache.worldMatrix;
 	}
 
 	/**
-	 * @param {Entity} newParent
-	 * @param {boolean} keepWorldPosition
-	 * @param {boolean} addChild
+	 * @param {EntityParent[]} entityParents
+	 * @returns {EntityMatrixCache}
 	 */
-	_setParentInternal(newParent, keepWorldPosition = false, addChild = true) {
-		if (this._parent == newParent && addChild) return;
-
-		if (this._parent) {
-			this._parent.remove(this);
+	_getMatrixCache(entityParents) {
+		let cache = this._matrixCaches.get(entityParents);
+		if (!cache) {
+			cache = new EntityMatrixCache();
+			this._matrixCaches.set(entityParents, cache);
 		}
-		this._parent = newParent;
-		if (newParent && addChild) {
-			newParent.add(this);
-		}
-	}
-
-	detachParent() {
-		this.setParent(null);
+		return cache;
 	}
 
 	/**
@@ -205,11 +259,13 @@ export default class Entity {
 		if (index < 0) {
 			index = this._children.length + index + 1;
 		}
-		child._setParentInternal(this, keepWorldPosition, false);
+		// eslint-disable-next-line no-underscore-dangle
+		child._parentAdded(this, index);
 		if (index >= this._children.length) {
 			this._children.push(child);
 		} else {
 			this._children.splice(index, 0, child);
+			// todo: update indices
 		}
 	}
 
@@ -230,8 +286,45 @@ export default class Entity {
 	 */
 	removeIndex(index) {
 		const child = this._children[index];
-		child._parent = null;
+		// eslint-disable-next-line no-underscore-dangle
+		child._parentRemoved(this);
 		this._children.splice(index, 1);
+	}
+
+	/**
+	 * @param {Entity} newParent
+	 * @param {number} index
+	 */
+	_parentAdded(newParent, index) {
+		this._entityParents.add(new EntityParent(newParent, index));
+	}
+
+	/**
+	 * @param {TraversedPathEntry} traversedPathEntry
+	 * @returns {EntityParent | null}
+	 */
+	_getEntityParent(traversedPathEntry) {
+		for (const entityParent of this._entityParents) {
+			if (
+				entityParent.getParent() == traversedPathEntry.parent &&
+				entityParent.index == traversedPathEntry.index
+			) {
+				return entityParent;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param {Entity} oldParent
+	 */
+	_parentRemoved(oldParent) {
+		for (const entityParent of this._entityParents) {
+			if (entityParent.getParent() == oldParent) {
+				this._entityParents.delete(entityParent);
+				break;
+			}
+		}
 	}
 
 	*getChildren() {
@@ -244,39 +337,77 @@ export default class Entity {
 		return Array.from(this.getChildren());
 	}
 
-	getRoot() {
-		let lastParent = this;
-		while (true) {
-			if (lastParent.parent) {
-				lastParent = lastParent.parent;
-			} else {
-				break;
+	/**
+	 * @returns {Generator<Entity>}
+	 */
+	*getRoots() {
+		const foundRoots = new Set();
+		const parents = new Set(this.parents());
+		if (parents.size == 0) {
+			yield this;
+		} else {
+			for (const parent of parents) {
+				for (const root of parent.getRoots()) {
+					if (!foundRoots.has(root)) {
+						foundRoots.add(root);
+						yield root;
+					}
+				}
 			}
 		}
-		return lastParent;
 	}
 
-	*traverseDown() {
-		yield this;
-		for (const child of this._children) {
-			for (const c of child.traverseDown()) {
-				yield c;
+	/**
+	 * Gets the first found root of this entity, null if this entity has no parents.
+	 * @returns {Entity}
+	 */
+	getRoot() {
+		return this.getRoots().next().value || null;
+	}
+
+	/**
+	 * @typedef {Object} TraversedPathEntry
+	 * @property {this} parent
+	 * @property {number} index
+	 */
+
+	/**
+	 * @param {TraversedPathEntry[]} traversedPath
+	 * @returns {Generator<{child: Entity, traversedPath: TraversedPathEntry[]}>}
+	 */
+	*traverseDown(traversedPath = []) {
+		yield {
+			child: this,
+			traversedPath,
+		};
+		for (const [i, child] of this._children.entries()) {
+			traversedPath.push({
+				parent: this,
+				index: i,
+			});
+			for (const result of child.traverseDown(traversedPath)) {
+				yield result;
 			}
+			traversedPath.pop();
 		}
 	}
 
 	*traverseUp() {
 		yield this;
-		if (this.parent) {
-			for (const entity of this.parent.traverseUp()) {
-				yield entity;
+		for (const parent of this.parents()) {
+			for (const c of parent.traverseUp()) {
+				yield c;
 			}
 		}
 	}
 
+	/**
+	 * @param {Entity} child
+	 * @returns {boolean}
+	 */
 	containsChild(child) {
-		for (const parent of child.traverseUp()) {
-			if (parent == this) return true;
+		for (const {child: c} of this.traverseDown()) {
+			if (c == child) return true;
 		}
 		return false;
 	}
@@ -289,7 +420,7 @@ export default class Entity {
 	}
 
 	getEntityByName(name) {
-		for (const child of this.traverseDown()) {
+		for (const {child} of this.traverseDown()) {
 			if (child.name == name) return child;
 		}
 		return null;
