@@ -1,5 +1,4 @@
 import {Quaternion, Vec3} from "../Math/Math.js";
-import Mat4 from "../Math/Mat4.js";
 import {Component, defaultComponentTypeManager} from "../Components/Components.js";
 import EntityParent from "./EntityParent.js";
 import EntityMatrixCache from "./EntityMatrixCache.js";
@@ -8,7 +7,7 @@ import MultiKeyWeakMap from "../Util/MultiKeyWeakMap.js";
 /**
  * @typedef {Object} CreateEntityOptions
  * @property {string} [name = "Entity"]
- * @property {Mat4} [matrix = null]
+ * @property {import("../Math/Mat4.js").default} [matrix = null]
  * @property {Entity} [parent = null]
  */
 
@@ -38,7 +37,7 @@ export default class Entity {
 		this._children = [];
 		this.components = [];
 
-		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirty.bind(this);
+		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirtyAll.bind(this);
 		this._pos = new Vec3();
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
 		this._rot = new Quaternion();
@@ -174,7 +173,10 @@ export default class Entity {
 	}
 
 	set localMatrix(value) {
-		const {pos, rot, scale} = new Mat4(value).decompose();
+		const {matrixCache} = this._getFirstMatrixCache();
+		matrixCache.setLocalMatrix(value);
+		this.markWorldMatrixDirtyAll();
+		const {pos, rot, scale} = matrixCache.localMatrix.decompose();
 		this.pos = pos;
 		this.rot = rot;
 		this.scale = scale;
@@ -186,15 +188,36 @@ export default class Entity {
 	}
 
 	/**
-	 * Marks the world matrix of this entity and all its children as dirty.
-	 * Only the instances that are a child of this entity will be marked as dirty.
+	 * Marks the local matrix as dirty on this entity and all it's children.
 	 */
-	markLocalMatrixDirty() {
+	markLocalMatrixDirtyAll() {
 		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
+		this._markLocalMatrixDirtyAll(traversedUpPaths);
+		this._markWorldMatrixDirtyAll(traversedUpPaths);
+	}
+
+	/**
+	 * Marks the world matrix of this entity and all its children as dirty.
+	 */
+	markWorldMatrixDirtyAll() {
+		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
+		this._markWorldMatrixDirtyAll(traversedUpPaths);
+	}
+
+	/**
+	 * @param {TraversedPathEntry[][]} traversedUpPaths
+	 */
+	_markLocalMatrixDirtyAll(traversedUpPaths) {
 		for (const traversedUpPath of traversedUpPaths) {
 			const matrixCache = this._getMatrixCache(traversedUpPath);
 			matrixCache.localMatrixDirty = true;
 		}
+	}
+
+	/**
+	 * @param {TraversedPathEntry[][]} traversedUpPaths
+	 */
+	_markWorldMatrixDirtyAll(traversedUpPaths) {
 		for (const {child, traversedPath} of this.traverseDown()) {
 			for (const traversedUpPath of traversedUpPaths) {
 				// eslint-disable-next-line no-underscore-dangle

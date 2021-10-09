@@ -24,6 +24,14 @@ export default class EntityMatrixCache {
 		return this.localMatrix;
 	}
 
+	/**
+	 * @param {ConstructorParameters<typeof Mat4>} value
+	 */
+	setLocalMatrix(...value) {
+		this.localMatrix = new Mat4(...value);
+		this.localMatrixDirty = false;
+	}
+
 	getWorldMatrix(traversedPath, globalPos, globalRot, globalScale) {
 		if (this.localMatrixDirty || this.worldMatrixDirty) {
 			const localMatrix = this.getLocalMatrix(globalPos, globalRot, globalScale);
