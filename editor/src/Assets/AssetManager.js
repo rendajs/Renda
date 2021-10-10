@@ -128,6 +128,7 @@ export default class AssetManager {
 		await this.loadAssetSettings(true);
 		const uuid = generateUuid();
 		const projectAsset = new ProjectAsset({uuid, path, assetType, forceAssetType});
+		await projectAsset.waitForInit();
 		this.projectAssets.set(uuid, projectAsset);
 		if (projectAsset.needsAssetSettingsSave) {
 			this.saveAssetSettings();

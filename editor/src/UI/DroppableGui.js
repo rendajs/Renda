@@ -242,7 +242,10 @@ export default class DroppableGui {
 	 */
 	handleDrag(e) {
 		if (this.disabled) return false;
-		if (e.dataTransfer.types.some(mimeType => this.validateMimeType(mimeType))) {
+		if (e.dataTransfer.types.some(mimeType => {
+			const dragData = this.getDraggingProjectAssetData(mimeType);
+			return this.validateMimeType(dragData);
+		})) {
 			e.dataTransfer.dropEffect = "link";
 			e.preventDefault();
 			return true;
@@ -254,28 +257,63 @@ export default class DroppableGui {
 		e.preventDefault();
 		this.setDragHoverValidStyle(false);
 		for (const mimeType of e.dataTransfer.types) {
-			if (this.validateMimeType(mimeType)) {
-				const assetUuid = e.dataTransfer.getData(mimeType);
+			const dragData = this.getDraggingProjectAssetData(mimeType);
+			if (this.validateMimeType(dragData)) {
+				const assetUuid = dragData.draggingProjectAssetData.assetUuid;
 				this.setValueFromAssetUuid(assetUuid, true);
 				break;
 			}
 		}
 	}
 
-	validateMimeType(mimeType) {
-		const parsed = parseMimeType(mimeType);
-		if (!parsed) return false;
-		const {type, subType, parameters} = parsed;
-		if (type != "text" || subType != "jj") return false;
-		if (this.supportedAssetTypes.length <= 0) return true;
-		if (parameters.dragtype == "projectasset") {
-			if (this.supportedAssetTypes.includes(ProjectAsset)) return true;
-			const assetType = editor.projectAssetTypeManager.getAssetTypeByUuid(parameters.assettype);
-			if (assetType && assetType.expectedLiveAssetConstructor) {
-				return this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
+	/**
+	 * @param {ParsedDraggingProjectAssetData} dragData
+	 * @returns {boolean}
+	 */
+	validateMimeType(dragData) {
+		if (dragData.isEngineType) {
+			if (this.supportedAssetTypes.length <= 0) return true;
+			if (dragData.isProjectAsset) {
+				if (this.supportedAssetTypes.includes(ProjectAsset)) return true;
+
+				if (dragData.draggingProjectAssetData.dataPopulated) {
+					const assetType = dragData.draggingProjectAssetData.assetType;
+					if (assetType && assetType.expectedLiveAssetConstructor) {
+						return this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
+					}
+				}
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * @typedef {Object} ParsedDraggingProjectAssetData
+	 * @property {boolean} isEngineType
+	 * @property {boolean} isProjectAsset
+	 * @property {import("../WindowManagement/ContentWindows/ContentWindowProject.js").DraggingProjectAssetData} draggingProjectAssetData
+	 */
+
+	/**
+	 * @param {string} mimeType
+	 * @returns {ParsedDraggingProjectAssetData}
+	 */
+	getDraggingProjectAssetData(mimeType) {
+		const parsed = parseMimeType(mimeType);
+		let isEngineType = false;
+		let isProjectAsset = false;
+		let draggingProjectAssetData = null;
+		if (parsed) {
+			const {type, subType, parameters} = parsed;
+			isEngineType = (type == "text" && subType == "jj");
+			if (isEngineType) {
+				isProjectAsset = (parameters.dragtype == "projectasset");
+				if (isProjectAsset) {
+					draggingProjectAssetData = editor.dragManager.getDraggingData(parameters.draggingdata);
+				}
+			}
+		}
+		return {isEngineType, isProjectAsset, draggingProjectAssetData};
 	}
 
 	setDragHoverValidStyle(valid) {

@@ -160,21 +160,26 @@ export default class ContentWindowOutliner extends ContentWindow {
 	 */
 	onTreeViewValidatedrag(e) {
 		if (!e.isSameTreeView && this.validateDragMimeType(e.mimeType)) {
-			if (e.mimeType.parameters.dragtype == "projectasset") {
-				e.accept();
-			}
+			e.accept();
 		}
 	}
 
 	/**
 	 * @param {import("../../Util/Util.js").ParsedMimeType} mimeType
-	 * @returns {boolean}
+	 * @returns {import("./ContentWindowProject.js").DraggingProjectAssetData | null}
 	 */
 	validateDragMimeType(mimeType) {
-		return mimeType.type == "text" &&
+		if (mimeType.type == "text" &&
 			mimeType.subType == "jj" &&
-			mimeType.parameters.dragtype == "projectasset" &&
-			mimeType.parameters.assettype == ProjectAssetTypeEntity.typeUuid;
+			mimeType.parameters.dragtype == "projectasset"
+		) {
+			/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
+			const dragData = editor.dragManager.getDraggingData(mimeType.parameters.draggingdata);
+			if (dragData.assetType == ProjectAssetTypeEntity) {
+				return dragData;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -199,8 +204,9 @@ export default class ContentWindowOutliner extends ContentWindow {
 		const parent = this.getEntityByTreeViewItem(e.target);
 		for (const item of e.rawEvent.dataTransfer.items) {
 			const mimeType = parseMimeType(item.type);
-			if (this.validateDragMimeType(mimeType)) {
-				const entityAssetUuid = await new Promise(r => item.getAsString(r));
+			const dragData = this.validateDragMimeType(mimeType);
+			if (dragData) {
+				const entityAssetUuid = dragData.assetUuid;
 				const entityAsset = await editor.projectManager.assetManager.getLiveAsset(entityAssetUuid);
 				parent.add(entityAsset);
 			}

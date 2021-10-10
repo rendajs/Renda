@@ -6,6 +6,13 @@ import SelectionManager from "../../Managers/SelectionManager.js";
 import {handleDuplicateName} from "../../Util/Util.js";
 import projectSelector from "../../ProjectSelector/instance.js";
 
+/**
+ * @typedef {Object} DraggingProjectAssetData
+ * @property {boolean} dataPopulated
+ * @property {*} assetType
+ * @property {import("../../Util/Util.js").UuidString} assetUuid
+ */
+
 export default class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = "project";
 	static contentWindowUiName = "Project Files";
@@ -319,14 +326,20 @@ export default class ContentWindowProject extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDragStart(e) {
-		const assetData = await this.getProjectAssetByTreeViewItem(e.target);
+		/** @type {DraggingProjectAssetData} */
+		const draggingData = {
+			dataPopulated: false,
+			assetType: null,
+			assetUuid: null,
+		};
+		const draggingDataUuid = editor.dragManager.registerDraggingData(draggingData);
+		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 		e.rawEvent.dataTransfer.effectAllowed = "all";
-		let assetTypeUuid = "";
-		const assetType = editor.projectAssetTypeManager.getAssetType(assetData.assetType);
-		if (assetType) {
-			assetTypeUuid = assetType.typeUuid;
-		}
-		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; assettype=${assetTypeUuid}`, assetData.uuid);
+
+		const assetData = await this.getProjectAssetByTreeViewItem(e.target);
+		draggingData.assetType = editor.projectAssetTypeManager.getAssetType(assetData.assetType);
+		draggingData.assetUuid = assetData.uuid;
+		draggingData.dataPopulated = true;
 	}
 
 	/**
