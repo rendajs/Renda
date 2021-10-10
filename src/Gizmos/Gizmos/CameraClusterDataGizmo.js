@@ -2,11 +2,10 @@ import Gizmo from "./Gizmo.js";
 import Mesh from "../../Core/Mesh.js";
 import MeshComponent from "../../Components/BuiltIn/MeshComponent.js";
 import Vec3 from "../../Math/Vec3.js";
-import Vec4 from "../../Math/Vec4.js";
 
-export default class CameraClusterDataGizmo extends Gizmo{
-	constructor(){
-		super(...arguments);
+export default class CameraClusterDataGizmo extends Gizmo {
+	constructor(...args) {
+		super(...args);
 
 		this.boundsMesh = new Mesh();
 		this.boundsMesh.setVertexState(this.gizmoManager.meshVertexState);
@@ -19,20 +18,20 @@ export default class CameraClusterDataGizmo extends Gizmo{
 		});
 	}
 
-	destructor(){
+	destructor() {
 		super.destructor();
 
 		this.boundsMesh.destructor();
 		this.boundsMesh = null;
 	}
 
-	setClusterBoundsData(boundsData){
+	setClusterBoundsData(boundsData) {
 		const vertices = [];
 		const colors = [];
 		const indices = [];
-		for(let i=0; i<boundsData.length; i+=2){
+		for (let i = 0; i < boundsData.length; i += 2) {
 			const min = boundsData[i];
-			const max = boundsData[i+1];
+			const max = boundsData[i + 1];
 			const j = vertices.length;
 			indices.push(
 				j + 0,
@@ -58,20 +57,20 @@ export default class CameraClusterDataGizmo extends Gizmo{
 				j + 7,
 				j + 6,
 				j + 6,
-				j + 4,
+				j + 4
 			);
 			vertices.push(
-				new Vec3(min,min,min),
-				new Vec3(min.x,min.y,max.z),
-				new Vec3(min.x,max.y,min.z),
-				new Vec3(min.x,max.y,max.z),
-				new Vec3(max.x,min.y,min.z),
-				new Vec3(max.x,min.y,max.z),
-				new Vec3(max.x,max.y,min.z),
-				new Vec3(max.x,max.y,max.z),
+				new Vec3(min, min, min),
+				new Vec3(min.x, min.y, max.z),
+				new Vec3(min.x, max.y, min.z),
+				new Vec3(min.x, max.y, max.z),
+				new Vec3(max.x, min.y, min.z),
+				new Vec3(max.x, min.y, max.z),
+				new Vec3(max.x, max.y, min.z),
+				new Vec3(max.x, max.y, max.z)
 			);
-			const col = new Vec3(0.5,0.5,0.5);
-			colors.push(col,col,col,col,col,col,col,col);
+			const col = new Vec3(0.5, 0.5, 0.5);
+			colors.push(col, col, col, col, col, col, col, col);
 		}
 		this.boundsMesh.setVertexCount(vertices.length);
 		this.boundsMesh.setIndexData(indices);

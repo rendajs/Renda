@@ -1,9 +1,9 @@
 import IconGizmo from "./IconGizmo.js";
 import Vec2 from "../../../Math/Vec2.js";
 
-export default class CameraIconGizmo extends IconGizmo{
-	constructor(){
-		super(...arguments);
+export default class CameraIconGizmo extends IconGizmo {
+	constructor(...args) {
+		super(...args);
 
 		this.addCircle(30, 20);
 		this.addCircle(30, 14);
