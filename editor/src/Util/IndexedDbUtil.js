@@ -35,6 +35,11 @@ export default class IndexedDbUtil {
 		return "indexedDBFallback-" + this.dbName + "-" + objectStoreName + "-" + key;
 	}
 
+	async deleteDb() {
+		if (!this.supported) return;
+		await this.promisifyRequest(indexedDB.deleteDatabase(this.dbName));
+	}
+
 	/**
 	 * @param {string} key The key to search for.
 	 * @param {string} objectStoreName The object store to search in.

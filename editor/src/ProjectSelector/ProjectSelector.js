@@ -141,19 +141,28 @@ export default class ProjectSelector {
 			el.addEventListener("contextmenu", e => {
 				if (this.loadedEditor) {
 					e.preventDefault();
+					let deleteText = "Remove from Recents";
+					if (entry.fileSystemType == "db") {
+						deleteText = "Delete";
+					}
 					const contextMenu = this.loadedEditor.contextMenuManager.createContextMenu([
 						{
-							text: "Change alias",
+							text: "Change Alias",
 							onClick: async () => {
-								const alias = prompt("New alias", entry.name);
+								const alias = prompt("New Alias", entry.name);
 								await this.setRecentProjectAlias(entry, alias);
 							},
 						},
 						{
-							text: "Delete",
-							onClick: () => {
+							text: deleteText,
+							onClick: async () => {
+								if (entry.fileSystemType == "db") {
+									const promptResult = confirm("Deleting this project can not be undone. Are you sure?");
+									if (!promptResult) return;
+									const editor = await this.waitForEditor();
+									await editor.projectManager.deleteDbProject(entry.projectUuid);
+								}
 								this.removeRecentProjectsEntry(entry);
-								// todo: Delete internal file systems and show prompt
 							},
 						},
 					]);

@@ -93,6 +93,10 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 		return rootObj.fileName;
 	}
 
+	async deleteDb() {
+		await this.db.deleteDb();
+	}
+
 	/**
 	 * @param {EditorFileSystemIndexedDbPointer} pointer
 	 * @returns {Promise<EditorFileSystemIndexedDbStoredObject>}
