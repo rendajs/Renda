@@ -1,4 +1,5 @@
 import IndexedDbUtil from "../Util/IndexedDbUtil.js";
+import PromiseWaitHelper from "../../../src/Util/PromiseWaitHelper.js";
 
 export default class ProjectSelector {
 	/** @typedef {import("../Managers/ProjectManager.js").StoredProjectEntry} StoredProjectEntry */
@@ -24,8 +25,8 @@ export default class ProjectSelector {
 		titleEl.textContent = "Jespers Wacky Web Engine";
 		this.el.appendChild(titleEl);
 
-		this.actionsList = this.createList("actions", "Start");
-		this.recentList = this.createList("recent", "Recent");
+		this.actionsListEl = this.createList("actions", "Start");
+		this.recentListEl = this.createList("recent", "Recent");
 
 		this.createAction("New Project", async () => {
 			const editor = await this.waitForEditor();
@@ -43,7 +44,12 @@ export default class ProjectSelector {
 			this.setVisibility(false);
 		});
 
+		this.recentProjectsList = null;
+		this.getRecentsWaiter = new PromiseWaitHelper();
+
+		this.startGetRecentProjects();
 		this.updateRecentProjectsUi();
+		this.deleteProjectsNotWorthSaving();
 	}
 
 	/**
@@ -71,7 +77,7 @@ export default class ProjectSelector {
 	 * @param {function() : void} onClick
 	 */
 	createAction(name, onClick) {
-		this.createListButton(this.actionsList, name, onClick);
+		this.createListButton(this.actionsListEl, name, onClick);
 	}
 
 	/**
@@ -88,20 +94,22 @@ export default class ProjectSelector {
 		return item;
 	}
 
+	async startGetRecentProjects() {
+		this.recentProjectsList = await this.indexedDb.get("recentProjectsList");
+		if (!this.recentProjectsList) this.recentProjectsList = [];
+		this.getRecentsWaiter.fire();
+	}
+
 	/**
 	 * @returns {Promise<StoredProjectEntry[]>}
 	 */
 	async getRecentProjects() {
-		let list = await this.indexedDb.get("recentProjectsList");
-		if (!list) list = [];
-		return list;
+		await this.getRecentsWaiter.wait();
+		return this.recentProjectsList;
 	}
 
-	/**
-	 * @param {StoredProjectEntry[]} list
-	 */
-	async setRecentProjects(list) {
-		await this.indexedDb.set("recentProjectsList", list);
+	async saveRecentProjects() {
+		await this.indexedDb.set("recentProjectsList", this.recentProjectsList);
 		if (this.visible) {
 			await this.updateRecentProjectsUi();
 		}
@@ -110,8 +118,8 @@ export default class ProjectSelector {
 	async updateRecentProjectsUi() {
 		const list = await this.getRecentProjects();
 
-		while (this.recentList.firstChild) {
-			this.recentList.removeChild(this.recentList.firstChild);
+		while (this.recentListEl.firstChild) {
+			this.recentListEl.removeChild(this.recentListEl.firstChild);
 		}
 
 		for (const entry of list) {
@@ -122,7 +130,7 @@ export default class ProjectSelector {
 			if (!entry.isWorthSaving) {
 				text += " (empty)";
 			}
-			const el = this.createListButton(this.recentList, text, async () => {
+			const el = this.createListButton(this.recentListEl, text, async () => {
 				const editor = await this.waitForEditor();
 				editor.projectManager.openExistingProject(entry);
 				this.setVisibility(false);
@@ -197,23 +205,37 @@ export default class ProjectSelector {
 		this.onEditorLoadCbs.forEach(cb => cb(editor));
 	}
 
+	async deleteProjectsNotWorthSaving() {
+		const editor = await this.waitForEditor();
+		const recentProjects = await this.getRecentProjects();
+		const promises = [];
+		for (const entry of recentProjects) {
+			if (!entry.isWorthSaving && !editor.projectManager.isCurrentProjectEntry(entry)) {
+				const promise = (async () => {
+					await editor.projectManager.deleteDbProject(entry.projectUuid);
+					this.removeRecentProjectsEntry(entry);
+				})();
+				promises.push(promise);
+			}
+		}
+		await Promise.all(promises);
+	}
+
 	/**
 	 * @param {StoredProjectEntry} entry
 	 */
 	async addRecentProjectEntry(entry) {
-		const list = await this.getRecentProjects();
-		const newList = await this.removeProjectEntryFromList(entry, list);
+		const newList = await this.removeProjectEntryFromList(entry);
 		newList.unshift(entry);
-		await this.setRecentProjects(newList);
+		await this.saveRecentProjects();
 	}
 
 	/**
 	 * @param {StoredProjectEntry} entry
 	 */
 	async removeRecentProjectsEntry(entry) {
-		const list = await this.getRecentProjects();
-		const newList = await this.removeProjectEntryFromList(entry, list);
-		await this.setRecentProjects(newList);
+		await this.removeProjectEntryFromList(entry);
+		await this.saveRecentProjects();
 	}
 
 	async setRecentProjectAlias(entry, alias) {
@@ -228,7 +250,7 @@ export default class ProjectSelector {
 			promises.push(promise);
 		}
 		await Promise.allSettled(promises);
-		await this.setRecentProjects(list);
+		await this.saveRecentProjects();
 	}
 
 	/**
@@ -249,10 +271,10 @@ export default class ProjectSelector {
 
 	/**
 	 * @param {StoredProjectEntry} entry
-	 * @param {StoredProjectEntry[]} list
 	 * @returns {Promise<StoredProjectEntry[]>}
 	 */
-	async removeProjectEntryFromList(entry, list) {
+	async removeProjectEntryFromList(entry) {
+		const list = await this.getRecentProjects();
 		const promises = [];
 		for (const existingEntry of list) {
 			const promise = (async () => {
@@ -262,10 +284,13 @@ export default class ProjectSelector {
 			promises.push(promise);
 		}
 		const results = await Promise.allSettled(promises);
-		const differentResults = results.filter(r => r.status == "fulfilled" && !r.value.same);
-		const castDifferentResults = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntry, same: boolean}>[]} */ (differentResults);
-		const newList = castDifferentResults.map(r => r.value.entry);
-		return newList;
+		const removeResults = results.filter(r => r.status == "fulfilled" && r.value.same);
+		const castRemoveResults = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntry, same: boolean}>[]} */ (removeResults);
+		const removeEntries = castRemoveResults.map(r => r.value.entry);
+		for (const entry of removeEntries) {
+			list.splice(list.indexOf(entry), 1);
+		}
+		return list;
 	}
 
 	/**

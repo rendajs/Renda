@@ -124,6 +124,14 @@ export default class ProjectManager {
 		this.updateEditorConnectionsManager();
 	}
 
+	/**
+	 * @param {StoredProjectEntry} entry
+	 */
+	isCurrentProjectEntry(entry) {
+		if (!this.currentProjectOpenEvent) return false;
+		return this.currentProjectOpenEvent.projectUuid == entry.projectUuid;
+	}
+
 	async reloadAssetManager() {
 		if (this.assetManager) {
 			this.assetManager.destructor();
