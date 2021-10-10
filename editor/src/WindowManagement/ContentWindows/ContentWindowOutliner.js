@@ -181,12 +181,13 @@ export default class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	onTreeViewRearrange(e) {
-		console.log("rearrange", e);
 		for (const movedItem of e.movedItems) {
 			const entity = this.getEntityByIndicesPath(movedItem.oldIndicesPath);
+			const oldParent = this.getEntityByIndicesPath(movedItem.oldIndicesPath.slice(0, -1));
 			const parentIndicesPath = movedItem.newIndicesPath.slice(0, -1);
 			const insertIndex = movedItem.newIndicesPath.at(-1);
 			const newParent = this.getEntityByIndicesPath(parentIndicesPath);
+			oldParent.remove(entity);
 			newParent.addAtIndex(entity, insertIndex);
 		}
 	}
