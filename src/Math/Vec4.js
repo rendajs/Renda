@@ -2,48 +2,48 @@ import Vec2 from "./Vec2.js";
 import Vec3 from "./Vec3.js";
 import Mat4 from "./Mat4.js";
 
-export default class Vec4{
+export default class Vec4 {
 	/**
 	 * @param {number | Vec3 | Vec4 | number[]} x
 	 * @param {number} y
 	 * @param {number} z
 	 * @param {number} w
 	 */
-	constructor(x=0, y=0, z=0, w=1){
+	constructor(x = 0, y = 0, z = 0, w = 1) {
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
 		this._w = 1;
-		this.set(x,y,z,w);
+		this.set(x, y, z, w);
 	}
 
-	get x(){
+	get x() {
 		return this._x;
 	}
-	get y(){
+	get y() {
 		return this._y;
 	}
-	get z(){
+	get z() {
 		return this._z;
 	}
-	get w(){
+	get w() {
 		return this._w;
 	}
 
-	set x(value){
+	set x(value) {
 		this._x = value;
 		this.fireOnChange();
 	}
-	set y(value){
+	set y(value) {
 		this._y = value;
 		this.fireOnChange();
 	}
-	set z(value){
+	set z(value) {
 		this._z = value;
 		this.fireOnChange();
 	}
-	set w(value){
+	set w(value) {
 		this._w = value;
 		this.fireOnChange();
 	}
@@ -54,26 +54,26 @@ export default class Vec4{
 	 * @param {number} z
 	 * @param {number} w
 	 */
-	set(x=0, y=0, z=0, w=0){
-		if(x instanceof Vec4){
-			let vector = x;
+	set(x = 0, y = 0, z = 0, w = 0) {
+		if (x instanceof Vec4) {
+			const vector = x;
 			x = vector.x;
 			y = vector.y;
 			z = vector.z;
-		}else if(x instanceof Vec3){
-			let vector = x;
+		} else if (x instanceof Vec3) {
+			const vector = x;
 			x = vector.x;
 			y = vector.y;
 			z = vector.z;
 			w = 1;
-		}else if(x instanceof Vec2){
-			let vector = x;
+		} else if (x instanceof Vec2) {
+			const vector = x;
 			x = vector.x;
 			y = vector.y;
 			z = 0;
 			w = 1;
-		}else if(Array.isArray(x)){
-			let vector = x;
+		} else if (Array.isArray(x)) {
+			const vector = x;
 			x = vector[0];
 			y = vector[1];
 			z = vector[2];
@@ -86,21 +86,21 @@ export default class Vec4{
 		this.fireOnChange();
 	}
 
-	clone(){
+	clone() {
 		return new Vec4(this);
 	}
 
-	multiply(vectorScalarOrMatrix){
-		if(vectorScalarOrMatrix instanceof Vec4 || vectorScalarOrMatrix instanceof Vec3 || arguments.length == 4 || arguments.length == 3){
+	multiply(vectorScalarOrMatrix) {
+		if (vectorScalarOrMatrix instanceof Vec4 || vectorScalarOrMatrix instanceof Vec3 || arguments.length == 4 || arguments.length == 3) {
 			return this.multiplyVector(new Vec4(...arguments));
-		}else if(vectorScalarOrMatrix instanceof Mat4){
+		} else if (vectorScalarOrMatrix instanceof Mat4) {
 			return this.multiplyMatrix(vectorScalarOrMatrix);
-		}else{
+		} else {
 			return this.multiplyScalar(vectorScalarOrMatrix);
 		}
 	}
 
-	multiplyScalar(scalar){
+	multiplyScalar(scalar) {
 		this._x *= scalar;
 		this._y *= scalar;
 		this._z *= scalar;
@@ -109,7 +109,7 @@ export default class Vec4{
 		return this;
 	}
 
-	multiplyVector(vector){
+	multiplyVector(vector) {
 		this._x *= vector.x;
 		this._y *= vector.y;
 		this._z *= vector.z;
@@ -118,7 +118,7 @@ export default class Vec4{
 		return this;
 	}
 
-	multiplyMatrix(mat4){
+	multiplyMatrix(mat4) {
 		const x = this._x;
 		const y = this._y;
 		const z = this._z;
@@ -130,15 +130,15 @@ export default class Vec4{
 		this.fireOnChange();
 	}
 
-	divide(vectorOrScalar){
-		if(vectorOrScalar instanceof Vec4 || vectorOrScalar instanceof Vec3 || arguments.length == 4 || arguments.length == 3){
+	divide(vectorOrScalar) {
+		if (vectorOrScalar instanceof Vec4 || vectorOrScalar instanceof Vec3 || arguments.length == 4 || arguments.length == 3) {
 			return this.divideVector(new Vec4(...arguments));
-		}else{
+		} else {
 			return this.divideScalar(vectorOrScalar);
 		}
 	}
 
-	divideVector(vector){
+	divideVector(vector) {
 		this._x /= vector.x;
 		this._y /= vector.y;
 		this._z /= vector.z;
@@ -147,7 +147,7 @@ export default class Vec4{
 		return this;
 	}
 
-	divideScalar(scalar){
+	divideScalar(scalar) {
 		this._x /= scalar;
 		this._y /= scalar;
 		this._z /= scalar;
@@ -156,21 +156,20 @@ export default class Vec4{
 		return this;
 	}
 
-
-	toArray(){
+	toArray() {
 		return [this.x, this.y, this.z, this.w];
 	}
 
-	onChange(cb){
+	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
-	removeOnChange(cb){
+	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}
 
-	fireOnChange(){
-		for(const cb of this.onChangeCbs){
+	fireOnChange() {
+		for (const cb of this.onChangeCbs) {
 			cb();
 		}
 	}
