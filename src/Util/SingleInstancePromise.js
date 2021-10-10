@@ -2,8 +2,8 @@ export default class SingleInstancePromise {
 	/**
 	 * @param {function() : Promise} promiseFn
 	 * @param {Object} opts
-	 * @param {boolean} [opts.once = true] If true, the function will only be run once. Repeated calls will return the first result.
-	 * @param {boolean} [opts.run = false] If true, the function will run immediately.
+	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
+	 * @param {boolean} [opts.run] If true, the function will run immediately.
 	 */
 	constructor(promiseFn, {
 		once = true,

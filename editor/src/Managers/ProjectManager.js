@@ -7,8 +7,8 @@ import EditorConnectionsManager from "../Network/EditorConnections/EditorConnect
 import {generateUuid} from "../Util/Util.js";
 import GitIgnoreManager from "./GitIgnoreManager.js";
 import ProjectSettingsManager from "./ProjectSettingsManager.js";
-import {SingleInstancePromise} from "../../../src/index.js";
 import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
+import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 
 /**
  * @typedef {Object} StoredProjectEntry

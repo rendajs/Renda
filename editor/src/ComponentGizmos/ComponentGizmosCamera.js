@@ -1,6 +1,7 @@
 import editor from "../editorInstance.js";
 import ComponentGizmos from "./ComponentGizmos.js";
-import {CameraComponent, defaultComponentTypeManager, CameraIconGizmo, CameraGizmo, CameraClusterDataGizmo, Vec3, SingleInstancePromise} from "../../../src/index.js";
+import {CameraComponent, CameraIconGizmo, CameraGizmo, CameraClusterDataGizmo, Vec3} from "../../../src/index.js";
+import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 
 export default class ComponentGizmosCamera extends ComponentGizmos{
 
