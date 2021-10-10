@@ -96,8 +96,6 @@ export default class ProjectManager {
 		}, {
 			once: false,
 		});
-
-		this.openNewDbProject();
 	}
 
 	/**

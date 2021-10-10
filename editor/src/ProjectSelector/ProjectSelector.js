@@ -53,6 +53,7 @@ export default class ProjectSelector {
 		this.startGetRecentProjects();
 		this.updateRecentProjectsUi();
 		this.deleteProjectsNotWorthSaving();
+		this.openMostRecentProject();
 	}
 
 	/**
@@ -183,6 +184,17 @@ export default class ProjectSelector {
 					contextMenu.setPos(e.clientX, e.clientY);
 				}
 			});
+		}
+	}
+
+	async openMostRecentProject() {
+		const list = await this.getRecentProjects();
+		for (const entry of list) {
+			if (!entry.isWorthSaving) continue;
+			const editor = await this.waitForEditor();
+			editor.projectManager.openExistingProject(entry);
+			this.setVisibility(false);
+			return;
 		}
 	}
 
