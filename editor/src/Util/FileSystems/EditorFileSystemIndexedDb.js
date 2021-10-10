@@ -22,6 +22,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	constructor(dbName) {
 		super();
 
+		this.db = null;
 		this.db = new IndexedDbUtil("fileSystem_" + dbName, ["objects", "system"]);
 
 		// create root directory
@@ -95,7 +96,9 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	async deleteDb() {
 		await this.waitForRootCreate();
-		await this.db.deleteDb();
+		const db = this.db;
+		this.db = null;
+		await db.deleteDb();
 	}
 
 	/**
