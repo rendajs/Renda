@@ -119,6 +119,7 @@ export default class ProjectManager {
 		if (openProjectChangeEvent.fileSystemType == "db" && !this.currentProjectIsMarkedAsWorthSaving) {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
+		this.removeAssetManager();
 		await editor.windowManager.reloadCurrentWorkspace();
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
@@ -132,10 +133,14 @@ export default class ProjectManager {
 		return this.currentProjectOpenEvent.projectUuid == entry.projectUuid;
 	}
 
-	async reloadAssetManager() {
+	removeAssetManager() {
 		if (this.assetManager) {
 			this.assetManager.destructor();
 		}
+		this.assetManager = null;
+	}
+
+	async reloadAssetManager() {
 		this.assetManager = new AssetManager();
 		await this.assetManager.waitForAssetSettingsLoad();
 		for (const cb of this.onAssetManagerLoadCbs) {
