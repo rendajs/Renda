@@ -1,10 +1,9 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
-import {Mesh, Vec3} from "../../../src/index.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
 import editor from "../editorInstance.js";
 
-export default class PropertiesAssetContentAssetBundle extends PropertiesAssetContent{
-	constructor(){
+export default class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
+	constructor() {
 		super();
 		this.bundleSettingsTree = this.treeView.addCollapsable("asset bundle settings");
 
@@ -22,7 +21,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 				guiOpts: {
 					text: "Bundle",
 					onClick: () => {
-						editor.assetBundler.bundle(this.currentSelection[0])
+						editor.assetBundler.bundle(this.currentSelection[0]);
 					},
 				},
 			},
@@ -36,7 +35,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 							defaultValue: true,
 						},
 					},
-				}
+				},
 			},
 			excludeAssets: {
 				type: Array,
@@ -50,16 +49,16 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		this.isUpdatingBundleSettingsTree = false;
 		this.bundleSettingsTree.generateFromSerializableStructure(this.bundleSettingsStructure);
 		this.bundleSettingsTree.onChildValueChange(() => {
-			if(this.isUpdatingBundleSettingsTree) return;
+			if (this.isUpdatingBundleSettingsTree) return;
 			const jsonData = this.getGuiValues();
-			//todo: handle multiple selected items or no selection
+			// todo: handle multiple selected items or no selection
 			this.currentSelection[0].writeAssetData(jsonData);
 		});
 	}
 
-	async selectionUpdated(selectedBundles){
+	async selectionUpdated(selectedBundles) {
 		super.selectionUpdated(selectedBundles);
-		//todo: handle multiple selected items or no selection
+		// todo: handle multiple selected items or no selection
 		const bundle = selectedBundles[0];
 		const guiValues = await bundle.readAssetData();
 		this.isUpdatingBundleSettingsTree = true;
@@ -67,7 +66,7 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		this.isUpdatingBundleSettingsTree = false;
 	}
 
-	getGuiValues(){
+	getGuiValues() {
 		return this.bundleSettingsTree.getSerializableStructureValues(this.bundleSettingsStructure);
 	}
 }

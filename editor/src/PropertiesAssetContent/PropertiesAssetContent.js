@@ -1,21 +1,21 @@
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
-export default class PropertiesAssetContent{
-	constructor(){
+export default class PropertiesAssetContent {
+	constructor() {
 		this.currentSelection = [];
 		this.treeView = new PropertiesTreeView();
 	}
 
-	destructor(){
-		if(this.el){
-			if(this.el.parentElement){
+	destructor() {
+		if (this.el) {
+			if (this.el.parentElement) {
 				this.el.parentElement.removeChild(this.el);
 			}
 			this.el = null;
 		}
 	}
 
-	selectionUpdated(currentSelection){
+	selectionUpdated(currentSelection) {
 		this.currentSelection = currentSelection;
 	}
 }

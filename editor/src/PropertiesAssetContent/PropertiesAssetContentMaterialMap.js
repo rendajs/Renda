@@ -1,9 +1,8 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
-import {Material} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 
-export default class PropertiesAssetContentMaterialMap extends PropertiesAssetContent{
-	constructor(){
+export default class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
+	constructor() {
 		super();
 
 		const mappedNameStruct = {
@@ -23,7 +22,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 				type: Array,
 				arrayOpts: {
 					type: mappedNameStruct,
-				}
+				},
 			},
 		};
 
@@ -46,7 +45,7 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 				text: "Add Map Type",
 				onClick: () => {
 					const menu = editor.contextMenuManager.createContextMenu();
-					for(const typeConstructor of editor.materialMapTypeManager.getAllTypes()){
+					for (const typeConstructor of editor.materialMapTypeManager.getAllTypes()) {
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem({
 							text: typeConstructor.uiName,
@@ -59,16 +58,16 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 					}
 
 					menu.setPos(this.addMapTypeButtonEntry.gui, "top left");
-				}
+				},
 			},
 		});
 
 		this.ignoreValueChange = false;
 	}
 
-	async selectionUpdated(selectedMaps){
+	async selectionUpdated(selectedMaps) {
 		super.selectionUpdated(selectedMaps);
-		//todo: handle multiple selected items or no selection
+		// todo: handle multiple selected items or no selection
 		const map = selectedMaps[0];
 		const mapData = await map.readAssetData();
 		this.ignoreValueChange = true;
@@ -76,56 +75,56 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		this.ignoreValueChange = false;
 	}
 
-	hasTypeConstructor(typeConstructor){
+	hasTypeConstructor(typeConstructor) {
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
 	}
 
 	addMapTypeUuid(uuid, {
 		updateMapListUi = true,
-	} = {}){
+	} = {}) {
 		const constructor = editor.materialMapTypeManager.getTypeByUuid(uuid);
 		return this.addMapType(constructor, {updateMapListUi});
 	}
 
-	addMapType(typeConstructor, {
+	addMapType(TypeConstructor, {
 		updateMapListUi = true,
-	} = {}){
-		if(this.hasTypeConstructor(typeConstructor)){
-			return this.addedMapTypes.get(typeConstructor.typeUuid);
+	} = {}) {
+		if (this.hasTypeConstructor(TypeConstructor)) {
+			return this.addedMapTypes.get(TypeConstructor.typeUuid);
 		}
-		const treeView = this.mapTypesTreeView.addCollapsable(typeConstructor.uiName);
+		const treeView = this.mapTypesTreeView.addCollapsable(TypeConstructor.uiName);
 
-		const typeInstance = new typeConstructor(treeView);
-		this.addedMapTypes.set(typeConstructor.typeUuid, typeInstance);
+		const typeInstance = new TypeConstructor(treeView);
+		this.addedMapTypes.set(TypeConstructor.typeUuid, typeInstance);
 		typeInstance.onValueChange(() => {
-			if(!this.ignoreValueChange){
+			if (!this.ignoreValueChange) {
 				this.saveSelectedAssets();
 			}
 		});
-		if(updateMapListUi) typeInstance.updateMapListUi();
+		if (updateMapListUi) typeInstance.updateMapListUi();
 		return typeInstance;
 	}
 
-	async loadMaps(mapData){
+	async loadMaps(mapData) {
 		const maps = mapData?.maps || [];
-		for(const map of maps){
+		for (const map of maps) {
 			const typeInstance = this.addMapTypeUuid(map.mapTypeId, {updateMapListUi: false});
-			if(map.customData) await typeInstance.customAssetDataFromLoad(map.customData);
+			if (map.customData) await typeInstance.customAssetDataFromLoad(map.customData);
 			await typeInstance.updateMapListUi();
-			if(map.mappedValues) await typeInstance.fillMapListValues(map.mappedValues);
+			if (map.mappedValues) await typeInstance.fillMapListValues(map.mappedValues);
 		}
 	}
 
-	async getAssetData(){
+	async getAssetData() {
 		const data = {
 			maps: [],
 		};
-		for(const [uuid, mapInstance] of this.addedMapTypes){
+		for (const [uuid, mapInstance] of this.addedMapTypes) {
 			const map = {
 				mapTypeId: uuid,
-			}
+			};
 			const customData = await mapInstance.getCustomAssetDataForSaveInternal();
-			if(customData){
+			if (customData) {
 				map.customData = customData;
 			}
 			map.mappedValues = await mapInstance.getMappableValuesForSave();
@@ -134,9 +133,9 @@ export default class PropertiesAssetContentMaterialMap extends PropertiesAssetCo
 		return data;
 	}
 
-	async saveSelectedAssets(){
+	async saveSelectedAssets() {
 		const assetData = await this.getAssetData();
-		for(const asset of this.currentSelection){
+		for (const asset of this.currentSelection) {
 			asset.writeAssetData(assetData);
 		}
 	}
