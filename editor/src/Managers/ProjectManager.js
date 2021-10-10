@@ -103,11 +103,14 @@ export default class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
 
-		// todo remove this event when opening a new fileSystem
+		// todo remove these events when opening a new fileSystem
 		fileSystem.onExternalChange(e => {
 			for (const cb of this.onExternalChangeCbs) {
 				cb(e);
 			}
+		});
+		fileSystem.onBeforeAnyChange(() => {
+			this.markCurrentProjectAsWorthSaving();
 		});
 		fileSystem.onRootNameChange(newName => {
 			this.currentProjectOpenEvent.name = newName;
@@ -115,10 +118,6 @@ export default class ProjectManager {
 		});
 		await editor.windowManager.reloadCurrentWorkspace();
 		await this.reloadAssetManager();
-		if (openProjectChangeEvent.fileSystemType == "native" || openProjectChangeEvent.fileSystemType == "db") {
-			// todo: only mark db when a file has been created
-			this.markCurrentProjectAsWorthSaving();
-		}
 		this.updateEditorConnectionsManager();
 	}
 
@@ -163,12 +162,12 @@ export default class ProjectManager {
 		this.onProjectOpenEntryChangeCbs.forEach(cb => cb(this.currentProjectOpenEvent));
 	}
 
-	openNewDbProject() {
+	async openNewDbProject() {
 		const uuid = generateUuid();
 		const fileSystem = new EditorFileSystemIndexedDb(uuid);
 		const projectName = "Untitled Project";
-		fileSystem.setRootName(projectName);
-		this.openProject(fileSystem, {
+		await fileSystem.setRootName(projectName);
+		await this.openProject(fileSystem, {
 			fileSystemType: "db",
 			projectUuid: uuid,
 			name: projectName,

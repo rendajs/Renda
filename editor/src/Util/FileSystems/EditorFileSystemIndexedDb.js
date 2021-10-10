@@ -194,6 +194,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	async createDir(path = []) {
+		super.createDir(path);
 		await this.createDirInternal(path);
 	}
 
@@ -354,8 +355,9 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 */
 	async delete(path = [], recursive = false) {
 		if (path.length == 0) {
-			throw new Error("Cannot delete root directory");
+			throw new Error("Cannot delete the root directory");
 		}
+		super.delete(path, recursive);
 		const travelledData = await this.findDeepestExisting(path);
 		const parentObjTravelledData = travelledData.slice(0, travelledData.length - 1);
 		// todo: error if file or directory doesn't exist
@@ -384,6 +386,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async writeFile(path = [], file = null) {
+		this.fireOnBeforeAnyChange();
 		if (!file) file = new Blob();
 		const fileName = path[path.length - 1];
 		let type = "";

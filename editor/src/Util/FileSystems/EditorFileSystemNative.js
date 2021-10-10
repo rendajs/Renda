@@ -161,6 +161,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	}
 
 	async createDir(path = []) {
+		super.createDir(path);
 		await this.getDirHandle(path, {create: true});
 	}
 
@@ -181,6 +182,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	}
 
 	async delete(path = [], recursive = false) {
+		super.delete(path, recursive);
 		let handle = await this.handle;
 		for (const [i, name] of path.entries()) {
 			await this.verifyHandlePermission(handle);
@@ -240,6 +242,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async writeFile(path = [], file = null) {
+		super.writeFile(path, file);
 		const fileStream = await this.writeFileStream(path);
 		if (!fileStream.locked) {
 			await fileStream.write(file);
@@ -251,6 +254,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	async writeFileStream(path = [], keepExistingData = false) {
 		const fileHandle = await this.getFileHandle(path, {create: true});
 		await this.verifyHandlePermission(fileHandle);
+		this.fireOnBeforeAnyChange();
 		const fileStream = await fileHandle.createWritable({keepExistingData});
 		return fileStream;
 	}

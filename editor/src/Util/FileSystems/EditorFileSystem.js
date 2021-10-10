@@ -7,6 +7,7 @@ import toFormattedJsonString from "../toFormattedJsonString.js";
 export default class EditorFileSystem {
 	constructor() {
 		this.onExternalChangeCbs = new Set();
+		this.onAnyChangeCbs = new Set();
 		/** @type {Set<function(string):void>} */
 		this.onRootNameChangeCbs = new Set();
 	}
@@ -43,7 +44,9 @@ export default class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<void>}
 	 */
-	async createDir(path = []) {}
+	async createDir(path = []) {
+		this.fireOnBeforeAnyChange();
+	}
 
 	/**
 	 * @param {EditorFileSystemPath} path
@@ -60,7 +63,9 @@ export default class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */
-	async writeFile(path = [], file = null) {}
+	async writeFile(path = [], file = null) {
+		this.fireOnBeforeAnyChange();
+	}
 
 	/**
 	 * @param {EditorFileSystemPath} path
@@ -68,6 +73,7 @@ export default class EditorFileSystem {
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
 	async writeFileStream(path = [], keepExistingData = false) {
+		this.fireOnBeforeAnyChange();
 		return null;
 	}
 
@@ -84,6 +90,7 @@ export default class EditorFileSystem {
 	 */
 	async setRootName(name) {
 		this.onRootNameChangeCbs.forEach(cb => cb(name));
+		this.fireOnBeforeAnyChange();
 	}
 
 	async getRootName() {
@@ -103,7 +110,9 @@ export default class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path The file or directory to delete.
 	 * @param {Boolean} recursive Whether to delete all subdirectories and files.
 	 */
-	async delete(path = [], recursive = false) {}
+	async delete(path = [], recursive = false) {
+		this.fireOnBeforeAnyChange();
+	}
 
 	/**
 	 * Check if a file exists at the specified path, and if it is a file.
@@ -135,14 +144,28 @@ export default class EditorFileSystem {
 		return isFile || isDir;
 	}
 
+	/**
+	 * Fires when a file is changed from outside the application.
+	 * @param {function} cb
+	 */
 	onExternalChange(cb) {
 		this.onExternalChangeCbs.add(cb);
 	}
 
 	fireExternalChange(e) {
-		for (const cb of this.onExternalChangeCbs) {
-			cb(e);
-		}
+		this.onExternalChangeCbs.forEach(cb => cb(e));
+	}
+
+	/**
+	 * Fires when a file is changed either by the application or externally.
+	 * @param {function} cb
+	 */
+	onBeforeAnyChange(cb) {
+		this.onAnyChangeCbs.add(cb);
+	}
+
+	fireOnBeforeAnyChange() {
+		this.onAnyChangeCbs.forEach(cb => cb());
 	}
 
 	/**
