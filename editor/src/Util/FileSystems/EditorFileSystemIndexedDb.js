@@ -17,18 +17,37 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	/** @typedef {import("./EditorFileSystem.js").EditorFileSystemPath} EditorFileSystemPath */
 
 	/**
-	 * @param {string} dbName The name of the FileSystem, will be used in the IndexedDB database name.
+	 * @param {string} fileSystemName The name of the FileSystem, will be used in the IndexedDB database name.
 	 */
-	constructor(dbName) {
+	constructor(fileSystemName) {
 		super();
 
 		this.db = null;
-		this.db = new IndexedDbUtil("fileSystem_" + dbName, ["objects", "system"]);
+		const dbName = EditorFileSystemIndexedDb.getDbName(fileSystemName);
+		this.db = new IndexedDbUtil(dbName, ["objects", "system"]);
 
 		// create root directory
 		this.rootCreated = false;
 		this.onRootCreateCbs = [];
 		this.createRoot();
+	}
+
+	/**
+	 * Checks if the filesystem database with specified name exists.
+	 * @param {string} fileSystemName
+	 * @returns {Promise<boolean>}
+	 */
+	static async exists(fileSystemName) {
+		const dbName = EditorFileSystemIndexedDb.getDbName(fileSystemName);
+		const databases = await indexedDB.databases();
+		return databases.some(db => db.name == dbName);
+	}
+
+	/**
+	 * @param {string} fileSystemName
+	 */
+	static getDbName(fileSystemName) {
+		return "fileSystem_" + fileSystemName;
 	}
 
 	async createRoot() {

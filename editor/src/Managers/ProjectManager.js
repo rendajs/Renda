@@ -176,8 +176,10 @@ export default class ProjectManager {
 	 * @param {import("../Util/Util.js").UuidString} uuid
 	 */
 	async deleteDbProject(uuid) {
-		const fileSystem = new EditorFileSystemIndexedDb(uuid);
-		await fileSystem.deleteDb();
+		if (await EditorFileSystemIndexedDb.exists(uuid)) {
+			const fileSystem = new EditorFileSystemIndexedDb(uuid);
+			await fileSystem.deleteDb();
+		}
 	}
 
 	async openProjectFromLocalDirectory() {

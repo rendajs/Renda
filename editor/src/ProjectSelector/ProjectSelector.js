@@ -160,8 +160,10 @@ export default class ProjectSelector {
 							text: deleteText,
 							onClick: async () => {
 								if (entry.fileSystemType == "db") {
-									const promptResult = confirm("Deleting this project can not be undone. Are you sure?");
-									if (!promptResult) return;
+									if (entry.isWorthSaving) {
+										const promptResult = confirm("Deleting this project can not be undone. Are you sure?");
+										if (!promptResult) return;
+									}
 									const editor = await this.waitForEditor();
 									await editor.projectManager.deleteDbProject(entry.projectUuid);
 								}
