@@ -130,7 +130,9 @@ export default class ContentWindowProject extends ContentWindow {
 	}
 
 	async updateRootName() {
-		this.treeView.name = await this.fileSystem.getRootName();
+		const name = await this.fileSystem.getRootName();
+		if (!this.treeView) return; // destructed
+		this.treeView.name = name;
 	}
 
 	/**

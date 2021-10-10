@@ -45,6 +45,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 	}
 
 	static async *getLinkedAssetsInCustomData(customData){
+		await editor.projectManager.waitForAssetManagerLoad();
 		if(customData.forwardPipelineConfig) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
 	}
 
