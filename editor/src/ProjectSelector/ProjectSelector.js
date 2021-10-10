@@ -47,6 +47,9 @@ export default class ProjectSelector {
 		this.recentProjectsList = null;
 		this.getRecentsWaiter = new PromiseWaitHelper();
 
+		this.isRunningAddRecentProjects = false;
+		this.addRecentProjectsQueue = [];
+
 		this.startGetRecentProjects();
 		this.updateRecentProjectsUi();
 		this.deleteProjectsNotWorthSaving();
@@ -223,9 +226,17 @@ export default class ProjectSelector {
 	 * @param {StoredProjectEntry} entry
 	 */
 	async addRecentProjectEntry(entry) {
-		const newList = await this.removeProjectEntryFromList(entry);
-		newList.unshift(entry);
+		this.addRecentProjectsQueue.push(entry);
+		if (this.isRunningAddRecentProjects) return;
+
+		this.isRunningAddRecentProjects = true;
+		while (this.addRecentProjectsQueue.length > 0) {
+			const entry = this.addRecentProjectsQueue.shift();
+			const newList = await this.removeProjectEntryFromList(entry);
+			newList.unshift(entry);
+		}
 		await this.saveRecentProjects();
+		this.isRunningAddRecentProjects = false;
 	}
 
 	/**
