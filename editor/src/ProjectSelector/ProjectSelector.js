@@ -123,12 +123,10 @@ export default class ProjectSelector {
 		}
 
 		for (const entry of list) {
+			if (!entry.isWorthSaving) continue;
 			let text = entry.name;
 			if (entry.alias) {
 				text = entry.alias;
-			}
-			if (!entry.isWorthSaving) {
-				text += " (empty)";
 			}
 			const el = this.createListButton(this.recentListEl, text, async () => {
 				const editor = await this.waitForEditor();
