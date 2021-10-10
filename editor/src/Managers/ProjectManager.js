@@ -23,6 +23,10 @@ import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
  */
 
 export default class ProjectManager {
+	#boundOnFileSystemExternalChange;
+	#boundOnFileSystemBeforeAnyChange;
+	#boundOnFileSystemRootNameChange;
+
 	constructor() {
 		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").default} */
 		this.currentProjectFileSystem = null;
@@ -61,6 +65,19 @@ export default class ProjectManager {
 			}
 		});
 
+		this.#boundOnFileSystemExternalChange = e => {
+			for (const cb of this.onExternalChangeCbs) {
+				cb(e);
+			}
+		};
+		this.#boundOnFileSystemBeforeAnyChange = () => {
+			this.markCurrentProjectAsWorthSaving();
+		};
+		this.#boundOnFileSystemRootNameChange = newName => {
+			this.currentProjectOpenEvent.name = newName;
+			this.fireOnProjectOpenEntryChangeCbs();
+		};
+
 		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onProjectOpenEntryChangeCbs = new Set();
 
@@ -88,6 +105,11 @@ export default class ProjectManager {
 	 * @param {StoredProjectEntry} openProjectChangeEvent
 	 */
 	async openProject(fileSystem, openProjectChangeEvent) {
+		if (this.currentProjectFileSystem) {
+			this.currentProjectFileSystem.removeOnExternalChange(this.#boundOnFileSystemExternalChange);
+			this.currentProjectFileSystem.removeOnBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
+			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
+		}
 		this.currentProjectFileSystem = fileSystem;
 		this.currentProjectIsRemote = fileSystem instanceof EditorFileSystemRemote;
 		this.currentProjectOpenEvent = openProjectChangeEvent;
@@ -103,19 +125,9 @@ export default class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
 
-		// todo remove these events when opening a new fileSystem
-		fileSystem.onExternalChange(e => {
-			for (const cb of this.onExternalChangeCbs) {
-				cb(e);
-			}
-		});
-		fileSystem.onBeforeAnyChange(() => {
-			this.markCurrentProjectAsWorthSaving();
-		});
-		fileSystem.onRootNameChange(newName => {
-			this.currentProjectOpenEvent.name = newName;
-			this.fireOnProjectOpenEntryChangeCbs();
-		});
+		fileSystem.onExternalChange(this.#boundOnFileSystemExternalChange);
+		fileSystem.onBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
+		fileSystem.onRootNameChange(this.#boundOnFileSystemRootNameChange);
 		if (openProjectChangeEvent.fileSystemType == "db" && !this.currentProjectIsMarkedAsWorthSaving) {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}

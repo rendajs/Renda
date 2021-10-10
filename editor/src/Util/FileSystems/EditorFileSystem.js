@@ -100,8 +100,15 @@ export default class EditorFileSystem {
 	/**
 	 * @param {function(string):void} cb
 	 */
-	async onRootNameChange(cb) {
+	onRootNameChange(cb) {
 		this.onRootNameChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {function(string):void} cb
+	 */
+	removeOnRootNameChange(cb) {
+		this.onRootNameChangeCbs.delete(cb);
 	}
 
 	/**
@@ -152,6 +159,13 @@ export default class EditorFileSystem {
 		this.onExternalChangeCbs.add(cb);
 	}
 
+	/**
+	 * @param {function} cb
+	 */
+	removeOnExternalChange(cb) {
+		this.onExternalChangeCbs.delete(cb);
+	}
+
 	fireExternalChange(e) {
 		this.onExternalChangeCbs.forEach(cb => cb(e));
 	}
@@ -162,6 +176,13 @@ export default class EditorFileSystem {
 	 */
 	onBeforeAnyChange(cb) {
 		this.onAnyChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {function} cb
+	 */
+	removeOnBeforeAnyChange(cb) {
+		this.onAnyChangeCbs.delete(cb);
 	}
 
 	fireOnBeforeAnyChange() {
