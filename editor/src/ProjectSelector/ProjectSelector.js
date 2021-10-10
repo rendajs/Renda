@@ -119,6 +119,9 @@ export default class ProjectSelector {
 			if (entry.alias) {
 				text = entry.alias;
 			}
+			if (!entry.isWorthSaving) {
+				text += " (empty)";
+			}
 			const el = this.createListButton(this.recentList, text, async () => {
 				const editor = await this.waitForEditor();
 				editor.projectManager.openExistingProject(entry);
@@ -186,9 +189,6 @@ export default class ProjectSelector {
 	 */
 	setEditorLoaded(editor) {
 		this.loadedEditor = editor;
-		editor.projectManager.onProjectBecameWorthSaving(entry => {
-			this.addRecentProjectEntry(entry);
-		});
 		editor.projectManager.onProjectOpenEntryChange(entry => {
 			this.addRecentProjectEntry(entry);
 		});

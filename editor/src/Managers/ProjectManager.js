@@ -14,8 +14,9 @@ import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
  * @typedef {Object} StoredProjectEntry
  * @property {"db" | "native" | "remote"} fileSystemType
  * @property {string} name
- * @property {string} [alias = ""]
  * @property {import("../Util/Util.js").UuidString} projectUuid
+ * @property {boolean} isWorthSaving
+ * @property {string} [alias = ""]
  * @property {FileSystemDirectoryHandle} [fileSystemHandle]
  * @property {import("../Util/Util.js").UuidString} [remoteProjectUuid]
  * @property {import("../Network/EditorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
@@ -61,9 +62,6 @@ export default class ProjectManager {
 		});
 
 		/** @type {Set<function(StoredProjectEntry):void>} */
-		this.onProjectBecameWorthSavingCbs = new Set();
-
-		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onProjectOpenEntryChangeCbs = new Set();
 
 		this.onExternalChangeCbs = new Set();
@@ -81,6 +79,8 @@ export default class ProjectManager {
 		}, {
 			once: false,
 		});
+
+		this.openNewDbProject();
 	}
 
 	/**
@@ -116,6 +116,9 @@ export default class ProjectManager {
 			this.currentProjectOpenEvent.name = newName;
 			this.fireOnProjectOpenEntryChangeCbs();
 		});
+		if (openProjectChangeEvent.fileSystemType == "db" && !this.currentProjectIsMarkedAsWorthSaving) {
+			this.fireOnProjectOpenEntryChangeCbs();
+		}
 		await editor.windowManager.reloadCurrentWorkspace();
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
@@ -141,14 +144,8 @@ export default class ProjectManager {
 	markCurrentProjectAsWorthSaving() {
 		if (this.currentProjectIsMarkedAsWorthSaving) return;
 		this.currentProjectIsMarkedAsWorthSaving = true;
-		this.onProjectBecameWorthSavingCbs.forEach(cb => cb(this.currentProjectOpenEvent));
-	}
-
-	/**
-	 * @param {function(StoredProjectEntry):void} cb
-	 */
-	onProjectBecameWorthSaving(cb) {
-		this.onProjectBecameWorthSavingCbs.add(cb);
+		this.currentProjectOpenEvent.isWorthSaving = true;
+		this.fireOnProjectOpenEntryChangeCbs();
 	}
 
 	/**
@@ -171,6 +168,7 @@ export default class ProjectManager {
 			fileSystemType: "db",
 			projectUuid: uuid,
 			name: projectName,
+			isWorthSaving: false,
 		});
 	}
 
@@ -195,6 +193,7 @@ export default class ProjectManager {
 			fileSystemHandle: fileSystem.handle,
 			projectUuid,
 			name,
+			isWorthSaving: false,
 		});
 	}
 
@@ -205,6 +204,7 @@ export default class ProjectManager {
 			fileSystemType: "remote",
 			projectUuid,
 			name: "Remote Filesystem",
+			isWorthSaving: false,
 		});
 		editor.windowManager.focusOrCreateContentWindowType("connections");
 	}
