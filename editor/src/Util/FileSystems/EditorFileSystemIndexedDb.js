@@ -94,6 +94,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	async deleteDb() {
+		await this.waitForRootCreate();
 		await this.db.deleteDb();
 	}
 
