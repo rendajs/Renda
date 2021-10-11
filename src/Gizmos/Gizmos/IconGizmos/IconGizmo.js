@@ -5,6 +5,9 @@ import Vec3 from "../../../Math/Vec3.js";
 import Vec2 from "../../../Math/Vec2.js";
 
 export default class IconGizmo extends Gizmo {
+	/**
+	 * @param  {ConstructorParameters<typeof Gizmo>} args
+	 */
 	constructor(...args) {
 		super(...args);
 

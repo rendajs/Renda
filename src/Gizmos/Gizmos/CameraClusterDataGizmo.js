@@ -4,6 +4,9 @@ import MeshComponent from "../../Components/BuiltIn/MeshComponent.js";
 import Vec3 from "../../Math/Vec3.js";
 
 export default class CameraClusterDataGizmo extends Gizmo {
+	/**
+	 * @param  {ConstructorParameters<typeof Gizmo>} args
+	 */
 	constructor(...args) {
 		super(...args);
 

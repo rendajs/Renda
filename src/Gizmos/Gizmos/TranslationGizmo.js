@@ -4,6 +4,9 @@ import Vec3 from "../../Math/Vec3.js";
 import Gizmo from "./Gizmo.js";
 
 export default class TranslationGizmo extends Gizmo {
+	/**
+	 * @param  {ConstructorParameters<typeof Gizmo>} args
+	 */
 	constructor(...args) {
 		super(...args);
 

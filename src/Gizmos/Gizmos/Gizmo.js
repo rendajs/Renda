@@ -1,6 +1,10 @@
 import Entity from "../../Core/Entity.js";
+import GizmoManager from "../GizmoManager.js";
 
 export default class Gizmo {
+	/**
+	 * @param {GizmoManager} gizmoManager
+	 */
 	constructor(gizmoManager) {
 		this.gizmoManager = gizmoManager;
 		this.entity = new Entity("gizmo (" + this.constructor.name + ")");
@@ -14,8 +18,7 @@ export default class Gizmo {
 	}
 
 	destructor() {
-		// todo:
-		// this.entity.detachParent();
+		this.entity.detachParents();
 	}
 
 	// this is called when the GizmoManager built-in assets have changed

@@ -5,6 +5,9 @@ import Vec3 from "../../Math/Vec3.js";
 import Vec4 from "../../Math/Vec4.js";
 
 export default class CameraGizmo extends Gizmo {
+	/**
+	 * @param  {ConstructorParameters<typeof Gizmo>} args
+	 */
 	constructor(...args) {
 		super(...args);
 

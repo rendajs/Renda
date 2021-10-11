@@ -129,7 +129,7 @@ export default class Entity {
 		}
 	}
 
-	*entityParents() {
+	*_getEntityParents() {
 		for (const entityParent of this._entityParents) {
 			const parent = entityParent.getParent();
 			if (parent) {
@@ -141,7 +141,7 @@ export default class Entity {
 	}
 
 	*parents() {
-		for (const {parent} of this.entityParents()) {
+		for (const {parent} of this._getEntityParents()) {
 			yield parent;
 		}
 	}
@@ -347,6 +347,7 @@ export default class Entity {
 	}
 
 	/**
+	 * Removes a child from this entity.
 	 * @param {Entity} child
 	 */
 	remove(child) {
@@ -359,6 +360,7 @@ export default class Entity {
 	}
 
 	/**
+	 * Removes a child at a specific index from this entity.
 	 * @param {number} index
 	 */
 	removeIndex(index) {
@@ -390,6 +392,23 @@ export default class Entity {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Detaches this entity from all its parents.
+	 */
+	detachParents() {
+		for (const parent of this.parents()) {
+			parent.remove(this);
+		}
+	}
+
+	/**
+	 * Detaches a specific parent from this entity.
+	 * @param {Entity} parent
+	 */
+	detachParent(parent) {
+		parent.remove(this);
 	}
 
 	/**
@@ -478,7 +497,7 @@ export default class Entity {
 			parent: this,
 			traversedPath,
 		};
-		for (const {parent, entityParent} of this.entityParents()) {
+		for (const {parent, entityParent} of this._getEntityParents()) {
 			traversedPath.unshift({
 				parent,
 				index: entityParent.index,

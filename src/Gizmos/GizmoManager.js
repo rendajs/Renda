@@ -39,8 +39,7 @@ export default class GizmoManager {
 		for (const gizmo of this.gizmos) {
 			this.removeGizmo(gizmo);
 		}
-		// todo:
-		// this.entity.detachParent();
+		this.entity.detachParents();
 	}
 
 	addGizmo(constructor) {
