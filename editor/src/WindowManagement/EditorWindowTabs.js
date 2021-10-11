@@ -59,8 +59,8 @@ export default class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @param {Number} index
-	 * @param {String} tabType
+	 * @param {number} index
+	 * @param {string} tabType
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
 	setTabType(index, tabType) {
@@ -73,8 +73,8 @@ export default class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @param {String} tabType The id of the tab type to create.
-	 * @param {Boolean} activate Whether to set the tab as active.
+	 * @param {string} tabType The id of the tab type to create.
+	 * @param {boolean} activate Whether to set the tab as active.
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
 	addTabType(tabType, activate = false) {

@@ -4,20 +4,20 @@ export default class ContentWindow {
 	/**
 	 * Should be overridden by inherited class.
 	 * This name will be used for saving the users workspace.
-	 * @type {String}
+	 * @type {string}
 	 */
 	static contentWindowTypeId = null;
 
 	/**
 	 * Should be overridden by inherited class.
 	 * This name will be visible in the UI.
-	 * @type {String}
+	 * @type {string}
 	 */
 	static contentWindowUiName = null;
 
 	/**
 	 * The icon that is visible in the tab selector.
-	 * @type {String}
+	 * @type {string}
 	 */
 	static contentWindowUiIcon = "icons/generic.svg";
 

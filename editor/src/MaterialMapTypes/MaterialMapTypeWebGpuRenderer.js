@@ -1,15 +1,14 @@
 import MaterialMapType from "./MaterialMapType.js";
-import { WebGpuPipelineConfig} from "../../../src/index.js";
-import { StorageType } from "../../../src/Util/BinaryComposer.js";
+import {WebGpuPipelineConfig} from "../../../src/index.js";
+import {StorageType} from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 
-export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
-
+export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	static uiName = "WebGPU Renderer";
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
 
-	constructor(treeView){
+	constructor(treeView) {
 		super(treeView);
 
 		this.settingsGuiStructure = {
@@ -23,30 +22,30 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		});
 	}
 
-	async customAssetDataFromLoad(customData){
+	async customAssetDataFromLoad(customData) {
 		this.settingsTreeView.fillSerializableStructureValues({
 			forwardPipelineConfig: customData.forwardPipelineConfig,
 		});
 	}
 
-	async getCustomAssetDataForSave(){
+	async getCustomAssetDataForSave() {
 		const settings = this.getSettingsValues();
 		const data = {
 			forwardPipelineConfig: settings.forwardPipelineConfig,
-		}
+		};
 
 		return data;
 	}
 
-	static async getLiveAssetCustomData(customData){
+	static async getLiveAssetCustomData(customData) {
 		let forwardPipelineConfig = null;
-		if(customData.forwardPipelineConfig) forwardPipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		if (customData.forwardPipelineConfig) forwardPipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
 		return {forwardPipelineConfig};
 	}
 
-	static async *getLinkedAssetsInCustomData(customData){
+	static async *getLinkedAssetsInCustomData(customData) {
 		await editor.projectManager.waitForAssetManagerLoad();
-		if(customData.forwardPipelineConfig) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
+		if (customData.forwardPipelineConfig) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
 	}
 
 	static assetBundleBinaryComposerOpts = {
@@ -58,11 +57,11 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType{
 		},
 	}
 
-	static mapDataToAssetBundleData(mapData){
+	static mapDataToAssetBundleData(mapData) {
 		return mapData;
 	}
 
-	getSettingsValues(){
+	getSettingsValues() {
 		return this.settingsTreeView.getSerializableStructureValues(this.settingsGuiStructure);
 	}
 }

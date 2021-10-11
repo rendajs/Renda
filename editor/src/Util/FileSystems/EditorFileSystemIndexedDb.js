@@ -373,7 +373,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * Will throw if the path does not exist.
 	 * @override
 	 * @param {EditorFileSystemPath} path The file or directory to delete.
-	 * @param {Boolean} recursive Whether to delete all subdirectories and files.
+	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path = [], recursive = false) {
 		if (path.length == 0) {
@@ -404,7 +404,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {Array<String>} path
+	 * @param {Array<string>} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async writeFile(path = [], file = null) {
@@ -456,7 +456,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {string[]} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path = []) {
 		try {
@@ -469,7 +469,7 @@ export default class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	/**
 	 * @param {string[]} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path = []) {
 		try {

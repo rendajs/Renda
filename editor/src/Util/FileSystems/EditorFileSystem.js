@@ -2,7 +2,7 @@ import toFormattedJsonString from "../toFormattedJsonString.js";
 
 /** @typedef {string[]} EditorFileSystemPath */
 
-/** @typedef {{files: Array<String>, directories: Array<String>}} EditorFileSystemReadDirResult */
+/** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
 
 export default class EditorFileSystem {
 	constructor() {
@@ -18,9 +18,9 @@ export default class EditorFileSystem {
 	 * the highest available directory in the path has permissions.
 	 * @param {EditorFileSystemPath} path The path to get permissions for.
 	 * @param {Object} opts
-	 * @param {Boolean} [opts.writable] Check for writable permissions if true.
-	 * @param {Boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
-	 * @returns {Promise<Boolean>} Whether permissions have been granted or already exist.
+	 * @param {boolean} [opts.writable] Check for writable permissions if true.
+	 * @param {boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
+	 * @returns {Promise<boolean>} Whether permissions have been granted or already exist.
 	 */
 	async getPermission(path = [], {
 		writable = true,
@@ -69,7 +69,7 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemPath} path
-	 * @param {Boolean} keepExistingData
+	 * @param {boolean} keepExistingData
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
 	async writeFileStream(path = [], keepExistingData = false) {
@@ -78,8 +78,8 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} fromPath
-	 * @param {Array<String>} toPath
+	 * @param {Array<string>} fromPath
+	 * @param {Array<string>} toPath
 	 */
 	async move(fromPath = [], toPath = []) {}
 
@@ -115,7 +115,7 @@ export default class EditorFileSystem {
 	 * Deletes a file or directory.
 	 * Will throw if the path does not exist.
 	 * @param {EditorFileSystemPath} path The file or directory to delete.
-	 * @param {Boolean} recursive Whether to delete all subdirectories and files.
+	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path = [], recursive = false) {
 		this.fireOnBeforeAnyChange();
@@ -125,7 +125,7 @@ export default class EditorFileSystem {
 	 * Check if a file exists at the specified path, and if it is a file.
 	 * Does not throw when any part of the path doesn't exist.
 	 * @param {EditorFileSystemPath} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path = []) {
 		return false;
@@ -135,7 +135,7 @@ export default class EditorFileSystem {
 	 * Check if a directory exists at the specified path, and if it is a directory.
 	 * Does not throw when any part of the path doesn't exist.
 	 * @param {EditorFileSystemPath} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path = []) {
 		return false;
@@ -143,7 +143,7 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemPath} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async exists(path = []) {
 		const isFile = await this.isFile(path);
@@ -153,14 +153,14 @@ export default class EditorFileSystem {
 
 	/**
 	 * Fires when a file is changed from outside the application.
-	 * @param {function} cb
+	 * @param {Function} cb
 	 */
 	onExternalChange(cb) {
 		this.onExternalChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {function} cb
+	 * @param {Function} cb
 	 */
 	removeOnExternalChange(cb) {
 		this.onExternalChangeCbs.delete(cb);
@@ -172,14 +172,14 @@ export default class EditorFileSystem {
 
 	/**
 	 * Fires when a file is changed either by the application or externally.
-	 * @param {function} cb
+	 * @param {Function} cb
 	 */
 	onBeforeAnyChange(cb) {
 		this.onAnyChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {function} cb
+	 * @param {Function} cb
 	 */
 	removeOnBeforeAnyChange(cb) {
 		this.onAnyChangeCbs.delete(cb);
@@ -200,9 +200,9 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemPath} path
-	 * @param {String} text
+	 * @param {string} text
 	 * @param {Object} opts
-	 * @param {String} [opts.type]
+	 * @param {string} [opts.type]
 	 */
 	async writeText(path = [], text = "", {
 		type = "text/plain",
@@ -212,7 +212,7 @@ export default class EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemPath} path
-	 * @returns {Promise<String>}
+	 * @returns {Promise<string>}
 	 */
 	async readText(path = []) {
 		const file = await this.readFile(path);

@@ -65,7 +65,7 @@ export default class EditorFileSystemRemote extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path = []) {
 		await this.waitForConnection();
@@ -75,7 +75,7 @@ export default class EditorFileSystemRemote extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path = []) {
 		await this.waitForConnection();
@@ -85,7 +85,7 @@ export default class EditorFileSystemRemote extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async exists(path = []) {
 		await this.waitForConnection();

@@ -1,12 +1,12 @@
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
-export default class MaterialMapListUi{
+export default class MaterialMapListUi {
 	constructor({
 		items = [],
-	}){
+	}) {
 		this.createdMapListUis = new Map();
 		this.treeView = new PropertiesTreeView({name: "mapList"});
-		for(const item of items){
+		for (const item of items) {
 			const collapsable = this.treeView.addCollapsable(item.name);
 			const visibleEntry = collapsable.addItem({
 				type: Boolean,
@@ -29,18 +29,18 @@ export default class MaterialMapListUi{
 				},
 			});
 
-			this.createdMapListUis.set(item.name, {visibleEntry, mappedNameEntry, defaultValueEntry})
+			this.createdMapListUis.set(item.name, {visibleEntry, mappedNameEntry, defaultValueEntry});
 		}
 	}
 
-	destructor(){
+	destructor() {
 		this.treeView.parent.removeChild(this.treeView);
 	}
 
-	setValues(values){
-		for(const [name, itemData] of Object.entries(values)){
+	setValues(values) {
+		for (const [name, itemData] of Object.entries(values)) {
 			const mapUi = this.createdMapListUis.get(name);
-			if(mapUi){
+			if (mapUi) {
 				const {visibleEntry, mappedNameEntry, defaultValueEntry} = mapUi;
 				visibleEntry.setValue(itemData.visible);
 				mappedNameEntry.setValue(itemData.mappedName);
@@ -56,15 +56,15 @@ export default class MaterialMapListUi{
 		this.treeView.onChildValueChange(cb);
 	}
 
-	getValues(){
+	getValues() {
 		const data = {};
 
-		for(const [name, mapUi] of this.createdMapListUis){
+		for (const [name, mapUi] of this.createdMapListUis) {
 			data[name] = {
 				visible: mapUi.visibleEntry.value,
 				mappedName: mapUi.mappedNameEntry.value,
 				defaultValue: mapUi.defaultValueEntry.value,
-			}
+			};
 		}
 
 		return data;

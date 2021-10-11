@@ -67,7 +67,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	 * @param {boolean} [opts.prompt] Whether to prompt the user if no permission has been granted yet.
 	 * @param {boolean} [opts.writable] Whether to request write permission.
 	 * @param {boolean} [opts.error] If true, will throw an error if the permission is denied.
-	 * @returns {Promise<Boolean>}
+	 * @returns {Promise<boolean>}
 	 */
 	async verifyHandlePermission(handle, {
 		prompt = true,
@@ -85,10 +85,10 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {Array<string>} path
 	 * @param {Object} opts
-	 * @param {Boolean} [opts.create] Whether to create the directory if it doesn't exist.
-	 * @param {Boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
+	 * @param {boolean} [opts.create] Whether to create the directory if it doesn't exist.
+	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @returns {Promise<FileSystemDirectoryHandle>}
 	 */
 	async getDirHandle(path = [], {
@@ -116,10 +116,10 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {Array<String>} path
+	 * @param {Array<string>} path
 	 * @param {Object} opts
-	 * @param {Boolean} [opts.create] Whether to create the file if it doesn't exist.
-	 * @param {Boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
+	 * @param {boolean} [opts.create] Whether to create the file if it doesn't exist.
+	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @returns {Promise<FileSystemFileHandle>}
 	 */
 	async getFileHandle(path = [], {
@@ -238,7 +238,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {Array<String>} path
+	 * @param {Array<string>} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async writeFile(path = [], file = null) {

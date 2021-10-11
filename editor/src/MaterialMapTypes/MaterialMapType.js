@@ -1,21 +1,20 @@
-import BinaryComposer, { StorageType } from "../../../src/Util/BinaryComposer.js";
+import BinaryComposer, {StorageType} from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 
-export default class MaterialMapType{
-
-	//name to be used in the editor ui
-	//this should be a string
+export default class MaterialMapType {
+	// name to be used in the editor ui
+	// this should be a string
 	static uiName = null;
 
-	//This will be used for storing the map type in the MaterialMap asset.
-	//This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
-	//You can generate a uuid in the editor browser console using Util.generateUuid()
+	// This will be used for storing the map type in the MaterialMap asset.
+	// This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
+	// You can generate a uuid in the editor browser console using Util.generateUuid()
 	static typeUuid = null;
 
 	static allowExportInAssetBundles = false;
 
-	constructor(treeView){
+	constructor(treeView) {
 		this.treeView = treeView;
 		this.settingsTreeView = this.treeView.addCollapsable("Map Settings");
 		this.onValueChangeCbs = new Set();
@@ -25,18 +24,18 @@ export default class MaterialMapType{
 		this.lastSavedCustomDataDirty = true;
 	}
 
-	//overide this with your logic to load saved data in your ui
-	async customAssetDataFromLoad(data){}
+	// overide this with your logic to load saved data in your ui
+	async customAssetDataFromLoad(data) {}
 
 	/**
 	 * Override this and return the data you want to save.
 	 * @returns {Promise<?Object>}
 	 */
-	async getCustomAssetDataForSave(){}
+	async getCustomAssetDataForSave() {}
 
-	//fire this whenever a user changes something that
-	//requires the custom data to be saved
-	signalCustomDataChanged(){
+	// fire this whenever a user changes something that
+	// requires the custom data to be saved
+	signalCustomDataChanged() {
 		this.lastSavedCustomDataDirty = true;
 		this.valueChanged();
 	}
@@ -51,32 +50,34 @@ export default class MaterialMapType{
 		return {};
 	}
 
-	//this should yield ProjectAssets that are linked in the custom data
-	//this will be used to replace material instances
-	//in the editor whenever a linked live asset changes (a shader for example)
+	// this should yield ProjectAssets that are linked in the custom data
+	// this will be used to replace material instances
+	// in the editor whenever a linked live asset changes (a shader for example)
 	/**
 	 *
 	 * @param {Object} customData
 	 * @returns {AsyncGenerator<import("../Assets/ProjectAsset.js").default>}
 	 */
-	static async *getLinkedAssetsInCustomData(customData){return []}
+	static async *getLinkedAssetsInCustomData(customData) {}
 
-	//this should return a list of mappable values, this will be used to render the ui
-	//the values will be automatically loaded, saved and exported in assetbundles
-	//customData will be whatever you last returned from getCustomAssetDataForSave()
-	//this should return an array of objects of the following format:
-	//{
+	// this should return a list of mappable values, this will be used to render the ui
+	// the values will be automatically loaded, saved and exported in assetbundles
+	// customData will be whatever you last returned from getCustomAssetDataForSave()
+	// this should return an array of objects of the following format:
+	// {
 	//	name: "value name",
 	//	type: Number, //can be Number, Vec2, Vec3, Vec4 or Mat4
-	//}
-	static async getMappableValues(customData){return []}
+	// }
+	static async getMappableValues(customData) {
+		return [];
+	}
 
-	//Override the 3 items below if you want to be able to export mapData in assetbundles.
-	//usually returning the mapData object itself in mapDataToAssetBundleData() is enough,
-	//unless you want to transform some values first.
-	//mapDataToAssetBundleData() can return an arraybuffer.
-	//you can also return an object if assetBundleBinaryComposerOpts is set,
-	//the values will be converted to binary using BinaryComposer.objectToBinary()
+	// Override the 3 items below if you want to be able to export mapData in assetbundles.
+	// usually returning the mapData object itself in mapDataToAssetBundleData() is enough,
+	// unless you want to transform some values first.
+	// mapDataToAssetBundleData() can return an arraybuffer.
+	// you can also return an object if assetBundleBinaryComposerOpts is set,
+	// the values will be converted to binary using BinaryComposer.objectToBinary()
 
 	static assetBundleBinaryComposerOpts = null;
 
@@ -84,20 +85,20 @@ export default class MaterialMapType{
 	 * @param {Object} mapData
 	 * @returns {?Object}
 	 */
-	static mapDataToAssetBundleData(mapData){
+	static mapDataToAssetBundleData(mapData) {
 		return null;
 	}
 
-	//alternatively you can override this for more control
-	static mapDataToAssetBundleBinary(mapData){
+	// alternatively you can override this for more control
+	static mapDataToAssetBundleBinary(mapData) {
 		const bundleMapData = this.mapDataToAssetBundleData(mapData);
-		if(!bundleMapData){
-			//fail silently, you probaly intended to not export anything
+		if (!bundleMapData) {
+			// fail silently, you probaly intended to not export anything
 			return null;
 		}
-		if(bundleMapData instanceof ArrayBuffer) return bundleMapData;
+		if (bundleMapData instanceof ArrayBuffer) return bundleMapData;
 
-		if(!this.assetBundleBinaryComposerOpts){
+		if (!this.assetBundleBinaryComposerOpts) {
 			console.warn("Failed to export material map, assetBundleBinaryComposerOpts is not set");
 			return null;
 		}
@@ -107,17 +108,17 @@ export default class MaterialMapType{
 		});
 	}
 
-	//alternatively you can override this for more control
-	//this will be used for determining what other assets should be included in a bundle recursively
-	static *getReferencedAssetUuids(mapData){
+	// alternatively you can override this for more control
+	// this will be used for determining what other assets should be included in a bundle recursively
+	static *getReferencedAssetUuids(mapData) {
 		const bundleMapData = this.mapDataToAssetBundleData(mapData);
-		if(!bundleMapData){
-			//fail silently, you probaly intended to not export anything
+		if (!bundleMapData) {
+			// fail silently, you probaly intended to not export anything
 			return;
 		}
-		if(bundleMapData instanceof ArrayBuffer) return;
+		if (bundleMapData instanceof ArrayBuffer) return;
 
-		if(!this.assetBundleBinaryComposerOpts){
+		if (!this.assetBundleBinaryComposerOpts) {
 			console.warn("Failed to find referenced asset uuids, assetBundleBinaryComposerOpts is not set");
 			return;
 		}
@@ -126,33 +127,33 @@ export default class MaterialMapType{
 			...this.assetBundleBinaryComposerOpts,
 			transformValueHook: args => {
 				let {value, type} = args;
-				if(this.assetBundleBinaryComposerOpts.transformValueHook){
+				if (this.assetBundleBinaryComposerOpts.transformValueHook) {
 					value = this.assetBundleBinaryComposerOpts.transformValueHook(args);
 				}
 
-				if(type == StorageType.ASSET_UUID){
+				if (type == StorageType.ASSET_UUID) {
 					referencedUuids.push(value);
 				}
 				return value;
 			},
 		});
-		for(const uuid of referencedUuids){
+		for (const uuid of referencedUuids) {
 			yield uuid;
 		}
 	}
 
-	onValueChange(cb){
+	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
 
-	valueChanged(){
-		for(const cb of this.onValueChangeCbs){
+	valueChanged() {
+		for (const cb of this.onValueChangeCbs) {
 			cb();
 		}
 	}
 
-	async getCustomAssetDataForSaveInternal(){
-		if(this.lastSavedCustomDataDirty){
+	async getCustomAssetDataForSaveInternal() {
+		if (this.lastSavedCustomDataDirty) {
 			const customData = await this.getCustomAssetDataForSave();
 			this.lastSavedCustomData = customData;
 			this.lastSavedCustomDataDirty = false;
@@ -160,8 +161,8 @@ export default class MaterialMapType{
 		return this.lastSavedCustomData;
 	}
 
-	async updateMapListUi(){
-		if(this.mapListUi){
+	async updateMapListUi() {
+		if (this.mapListUi) {
 			this.mapListUi.destructor();
 			this.mapListUi = null;
 		}
@@ -176,21 +177,21 @@ export default class MaterialMapType{
 		});
 	}
 
-	async getMappableValuesForSave(){
+	async getMappableValuesForSave() {
 		return this.mapListUi?.getValues();
 	}
 
-	fillMapListValues(values){
-		if(!this.mapListUi) return;
+	fillMapListValues(values) {
+		if (!this.mapListUi) return;
 		this.mapListUi.setValues(values);
 	}
 
-	static async getMappedValues(customData, mappedValuesData){
-		let mappedValues = [];
+	static async getMappedValues(customData, mappedValuesData) {
+		const mappedValues = [];
 		const mappableValues = await this.getMappableValues(customData);
-		for(const {name, type, defaultValue} of mappableValues){
+		for (const {name, type, defaultValue} of mappableValues) {
 			const mappedValueData = mappedValuesData?.[name];
-			if(mappedValueData?.visible ?? true){
+			if (mappedValueData?.visible ?? true) {
 				mappedValues.push({
 					name: mappedValueData?.mappedName ?? name,
 					defaultValue: mappedValueData?.defaultValue ?? defaultValue,
@@ -201,7 +202,7 @@ export default class MaterialMapType{
 		return mappedValues;
 	}
 
-	static invalidConfigurationWarning(message){
-		console.warn(message+"\nView MaterialMapType.js for more info.");
+	static invalidConfigurationWarning(message) {
+		console.warn(message + "\nView MaterialMapType.js for more info.");
 	}
 }
