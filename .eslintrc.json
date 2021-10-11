@@ -19,6 +19,7 @@
 		"curly": ["error", "multi-line", "consistent"],
 		"default-param-last": "error",
 		"grouped-accessor-pairs": "error",
+		"guard-for-in": "error",
 		"max-classes-per-file": ["error", 1],
 		"no-caller": "error",
 		"no-constructor-return": "error",
@@ -183,8 +184,6 @@
 		"symbol-description": "error",
 		"template-curly-spacing": "error",
 		"yield-star-spacing": "error",
-
-		"no-restricted-syntax": ["error", "BinaryExpression[operator='in']"],
 
 		"jsdoc/check-alignment": "error",
 		"jsdoc/check-indentation": "error",
