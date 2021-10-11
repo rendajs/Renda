@@ -1,3 +1,4 @@
+build
 editor/dist/js/*
 editor/libs/
 *.ts
