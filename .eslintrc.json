@@ -195,7 +195,27 @@
 		"jsdoc/no-bad-blocks": "error",
 		"jsdoc/no-defaults": "error",
 		"jsdoc/no-multi-asterisks": "error",
-		"jsdoc/no-undefined-types": "error",
+		"jsdoc/no-undefined-types": [
+			"error",
+			{
+				"definedTypes": [
+					"ConstructorParameters",
+					"Generator",
+					"AsyncGenerator",
+					"BufferSource",
+					"BlobPart",
+					"FileSystemHandle",
+					"FileSystemFileHandle",
+					"FileSystemDirectoryHandle",
+					"FileSystemWritableFileStream",
+					"RTCSessionDescriptionInit",
+					"RTCSessionDescriptionInit",
+					"RTCIceCandidateInit",
+					"RTCDataChannelInit",
+					"PromiseFulfilledResult"
+				]
+			}
+		],
 		"jsdoc/require-asterisk-prefix": "error",
 		"jsdoc/require-description-complete-sentence": [
 			"error",

@@ -196,7 +196,7 @@ export default class ProjectAssetType {
 	 * asset data as it is stored in the project will be used
 	 * which could be very inefficient.
 	 * @param {any} assetSettingOverrides
-	 * @returns {Promise<null | BufferSource | Blob | String>}
+	 * @returns {Promise<null | BufferSource | Blob | string>}
 	 */
 	async createBundledAssetData(assetSettingOverrides = {}) {
 		return null;
@@ -207,7 +207,7 @@ export default class ProjectAssetType {
 	 * used for determining what other assets should be included in a bundle recursively.
 	 * If `usedAssetLoaderType` has been set to an instance of `AssetLoaderTypeGenericStructure`,
 	 * the references from its structure values, will automatically be collected as well.
-	 * @returns {AsyncGenerator<String>}
+	 * @returns {AsyncGenerator<string>}
 	 */
 	async *getReferencedAssetUuids() {}
 
