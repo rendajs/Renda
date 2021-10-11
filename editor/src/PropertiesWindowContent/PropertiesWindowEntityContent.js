@@ -127,8 +127,9 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					{
 						text: "Remove",
 						onClick: () => {
-							componentGroup.entity.removeComponent(componentGroup);
-							this.notifyEntityEditors(componentGroup.entity, "component");
+							const entity = componentGroup.entity;
+							entity.removeComponent(componentGroup);
+							this.notifyEntityEditors(entity, "component");
 							this.refreshComponents();
 						},
 					},

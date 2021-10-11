@@ -2,9 +2,10 @@ import ContentWindow from "./ContentWindow.js";
 import ContentWindowOutliner from "./ContentWindowOutliner.js";
 import ContentWindowBuildView from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/index.js";
+import {CameraComponent, ClusteredLightsConfig, Component, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
+import ComponentGizmos from "../../ComponentGizmos/ComponentGizmos.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -51,6 +52,7 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		this.gizmos = new GizmoManager();
 		this.editorScene.add(this.gizmos.entity);
 		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
+		/** @type {Map<Entity, Map<Component, ComponentGizmos>>} */
 		this.currentLinkedGizmos = new Map(); // Map<Entity, Set<Gizmo>>
 
 		this.newEmptyEditingEntity();
@@ -173,6 +175,8 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		if (!linkedComponentGizmos) {
 			linkedComponentGizmos = new Map();
 		}
+
+		// Gather unused ComponentGizmos, and create new ones
 		const unusedComponentGizmos = new Map(linkedComponentGizmos);
 		if (!removeAll) {
 			for (const component of entity.components) {
@@ -192,10 +196,13 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 				}
 			}
 		}
+
+		// Remove unused ComponentGizmos
 		for (const [component, componentGizmos] of unusedComponentGizmos) {
 			componentGizmos.destructor();
 			linkedComponentGizmos.delete(component);
 		}
+
 		if (linkedComponentGizmos.size > 0) {
 			this.currentLinkedGizmos.set(entity, linkedComponentGizmos);
 		} else {
