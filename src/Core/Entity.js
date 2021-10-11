@@ -79,8 +79,29 @@ export default class Entity {
 		}
 
 		this.components.push(component);
-		component.attachedToEntity(this);
+		this._componentAttachedToEntity(component, this);
 		return component;
+	}
+
+	/**
+	 * @param {Component} component
+	 */
+	removeComponent(component) {
+		this.components.splice(this.components.indexOf(component), 1);
+		this._componentAttachedToEntity(component, null, false);
+	}
+
+	/**
+	 * @param {Component} component
+	 * @param {Entity} entity
+	 * @param {boolean} callRemoveComponent
+	 */
+	_componentAttachedToEntity(component, entity, callRemoveComponent = true) {
+		if (component.entity == entity) return;
+		if (component.entity && callRemoveComponent) {
+			component.entity.removeComponent(component);
+		}
+		component.entity = entity;
 	}
 
 	getComponent(type, componentTypeManager = defaultComponentTypeManager) {

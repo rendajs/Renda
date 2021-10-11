@@ -6,6 +6,8 @@ import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitContr
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
+/** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
+
 export default class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowTypeId = "entityEditor";
 	static contentWindowUiName = "Entity Editor";
@@ -246,7 +248,10 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		}
 	}
 
-	// type can be "create", "delete", "transform", "component" or "componentProperty"
+	/**
+	 * @param {Entity} entity
+	 * @param {EntityChangedEventType} type
+	 */
 	notifyEntityChanged(entity, type) {
 		if (!this.editingEntity.containsChild(entity) && type != "delete") return;
 

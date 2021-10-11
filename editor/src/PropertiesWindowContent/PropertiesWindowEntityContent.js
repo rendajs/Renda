@@ -111,6 +111,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 
 	refreshComponents() {
 		this.componentsSection.clearChildren();
+		/** @type {import("../../../src/Components/Component.js").default[]} */
 		const componentGroups = [];
 		for (const entity of this.currentSelection) {
 			for (const component of entity.components) {
@@ -118,9 +119,21 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			}
 		}
 		for (const componentGroup of componentGroups) {
-			const componentName = componentGroup.name || componentGroup.uuid;
-			const componentUI = this.componentsSection.addCollapsable(componentName);
 			const componentData = componentGroup.getComponentData();
+			const componentName = componentData?.name || componentData?.uuid || "<unknown>";
+			const componentUI = this.componentsSection.addCollapsable(componentName);
+			componentUI.addEventListener("contextmenu", e => {
+				e.showContextMenu([
+					{
+						text: "Remove",
+						onClick: () => {
+							componentGroup.entity.removeComponent(componentGroup);
+							this.notifyEntityEditors(componentGroup.entity, "component");
+							this.refreshComponents();
+						},
+					},
+				]);
+			});
 			const serializableStructure = componentData?.properties;
 			if (serializableStructure) {
 				componentUI.generateFromSerializableStructure(serializableStructure);
@@ -165,6 +178,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		}
 	}
 
+	/**
+	 * @param {Entity} entity
+	 * @param {import("../WindowManagement/ContentWindows/ContentWindowEntityEditor.js").EntityChangedEventType} type
+	 */
 	notifyEntityEditors(entity, type) {
 		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			entityEditor.notifyEntityChanged(entity, type);

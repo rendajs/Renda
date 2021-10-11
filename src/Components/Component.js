@@ -50,6 +50,7 @@ export default class Component {
 			}
 			this.componentUuid = componentData.uuid;
 		}
+		/** @type {import("../Core/Entity.js").default} */
 		this.entity = null;
 
 		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
@@ -89,10 +90,6 @@ export default class Component {
 
 	destructor() {
 		this.entity = null;
-	}
-
-	attachedToEntity(ent) {
-		this.entity = ent;
 	}
 
 	toJson(editorOpts = null) {
