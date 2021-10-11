@@ -44,7 +44,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
  * @property {*} [value]
  * @property {function(function() : void) : void} [onValueChange]
  * @property {function() : void} [destructor]
- * @property {function} [setValue]
+ * @property {Function} [setValue]
  * @property {function(boolean) : void} [setDisabled]
  */
 

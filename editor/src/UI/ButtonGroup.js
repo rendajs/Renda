@@ -35,7 +35,7 @@ export default class ButtonGroup {
 	}
 
 	/**
-	 * @param {Number} buttonIndex
+	 * @param {number} buttonIndex
 	 */
 	removeButton(buttonIndex) {
 		const button = this.buttons[buttonIndex];
