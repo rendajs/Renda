@@ -24,10 +24,10 @@ import autoRegisterRequestHandlers from "./ProtocolRequestHandlers/AutoRegisterR
  * @typedef {Object} ProtocolManagerRequestHandler
  * @property {string} command
  * @property {SerializeCondition} [requestSerializeCondition = "if-not-supported"]
- * @property {function} [prepare]
+ * @property {Function} [prepare]
  * @property {boolean} [needsRequestMetaData = false]
  * @property {SerializeCondition} [responseSerializeCondition = "if-not-supported"]
- * @property {function} handleRequest
+ * @property {Function} handleRequest
  * @property {function(RequestMetaData, ArrayBuffer) : *} [handleResponse]
  */
 

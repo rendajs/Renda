@@ -1,20 +1,20 @@
 import editor from "../editorInstance.js";
 
-export default class ServiceWorkerManager{
-	constructor(){
+export default class ServiceWorkerManager {
+	constructor() {
 		this.registration = null;
 
 		this.installationFailed = false;
 		this.installSw();
 
-		if(this.supported){
+		if (this.supported) {
 			navigator.serviceWorker.addEventListener("message", async e => {
-				if(e.data.type == "getProjectFile"){
+				if (e.data.type == "getProjectFile") {
 					const {filePath} = e.data;
 					const splitPath = filePath.split("/");
 					const file = await editor.projectManager.currentProjectFileSystem.readFile(splitPath);
-					if(e.ports.length > 0){
-						for(const port of e.ports){
+					if (e.ports.length > 0) {
+						for (const port of e.ports) {
 							port.postMessage(file);
 						}
 					}
@@ -23,33 +23,33 @@ export default class ServiceWorkerManager{
 		}
 	}
 
-	get supported(){
-		return 'serviceWorker' in window.navigator && !this.installationFailed;
+	get supported() {
+		return "serviceWorker" in window.navigator && !this.installationFailed;
 	}
 
-	async installSw(){
-		if(!this.supported) return;
-		try{
+	async installSw() {
+		if (!this.supported) return;
+		try {
 			this.registration = await navigator.serviceWorker.register("sw.js");
-		}catch(e){
+		} catch (e) {
 			console.error("failed to install serviceWorker", e);
 			this.installationFailed = true;
 		}
-		if(this.registration){
+		if (this.registration) {
 			this.registration.onupdatefound = () => {
-				if(this.registration.active != null){
-					let installingWorker = this.registration.installing;
+				if (this.registration.active != null) {
+					const installingWorker = this.registration.installing;
 					installingWorker.onstatechange = () => {
-						if(installingWorker.state == "installed"){
-							//TODO: show update notification
+						if (installingWorker.state == "installed") {
+							// TODO: show update notification
 						}
-					}
+					};
 				}
 			};
 		}
 	}
 
-	async asyncMessage(message){
+	async asyncMessage(message) {
 		await navigator.serviceWorker.ready;
 		const channel = new MessageChannel();
 		this.registration.active.postMessage(message, [channel.port2]);
@@ -62,7 +62,7 @@ export default class ServiceWorkerManager{
 		});
 	}
 
-	async getClientId(){
+	async getClientId() {
 		return await this.asyncMessage({
 			type: "requestClientId",
 		});
