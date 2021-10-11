@@ -1,7 +1,7 @@
 import ShaderBuilder from "../../ShaderBuilder.js";
 
-export default class ClusterComputeManager{
-	constructor(camera, cachedCameraData){
+export default class ClusterComputeManager {
+	constructor(camera, cachedCameraData) {
 		this.camera = camera;
 		this.cachedCameraData = cachedCameraData;
 		this.renderer = this.cachedCameraData.renderer;
@@ -17,20 +17,20 @@ export default class ClusterComputeManager{
 		this.lightIndicesBindGroup = null;
 	}
 
-	get config(){
+	get config() {
 		return this.camera.clusteredLightsConfig;
 	}
 
-	createComputeObjects(){
-		if(this.lastUsedConfig){
+	createComputeObjects() {
+		if (this.lastUsedConfig) {
 			const ref = this.lastUsedConfig.deref();
-			if(ref){
-				if(this.config == ref) return;
+			if (ref) {
+				if (this.config == ref) return;
 			}
 		}
 		this.lastUsedConfig = new WeakRef(this.config);
 
-		//todo: destroy old buffers etc
+		// todo: destroy old buffers etc
 		this.computeBoundsPipeline = this.renderer.device.createComputePipeline({
 			layout: this.renderer.device.createPipelineLayout({
 				bindGroupLayouts: [
@@ -83,8 +83,8 @@ export default class ClusterComputeManager{
 			usage: GPUBufferUsage.STORAGE,
 		});
 
-		//todo: this bindgroup is unnecessary, the indices binding
-		//from the viewBindGroupLayout can be used instead
+		// todo: this bindgroup is unnecessary, the indices binding
+		// from the viewBindGroupLayout can be used instead
 		this.lightIndicesBindGroup = this.renderer.device.createBindGroup({
 			layout: this.renderer.computeClusterLightsBindGroupLayout,
 			entries: [
@@ -104,10 +104,10 @@ export default class ClusterComputeManager{
 		});
 	}
 
-	computeLightIndices(commandEncoder){
+	computeLightIndices(commandEncoder) {
 		this.createComputeObjects();
 
-		//todo, don't compute when the camera projection matrix or cluster count hasn't changed
+		// todo, don't compute when the camera projection matrix or cluster count hasn't changed
 		const computePassEncoder = commandEncoder.beginComputePass();
 		computePassEncoder.setPipeline(this.computeBoundsPipeline);
 		computePassEncoder.setBindGroup(0, this.cachedCameraData.getViewBindGroup());

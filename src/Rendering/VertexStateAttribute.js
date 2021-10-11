@@ -1,21 +1,21 @@
 import Mesh from "../Core/Mesh.js";
 
-export default class VertexStateAttribute{
+export default class VertexStateAttribute {
 	constructor({
 		componentCount = 3,
 		format = Mesh.AttributeFormat.FLOAT32,
 		unsigned = false,
-		shaderLocation = null, //use null|-1|"auto" for auto
+		shaderLocation = null, // use null|-1|"auto" for auto
 		attributeType = null,
-	} = {}){
+	} = {}) {
 		this.componentCount = componentCount;
-		if(typeof format == "string"){
+		if (typeof format == "string") {
 			format = Mesh.AttributeFormat[format];
 		}
 		this.format = format;
 		this.unsigned = unsigned;
 		this.shaderLocation = shaderLocation;
-		if(typeof attributeType == "string"){
+		if (typeof attributeType == "string") {
 			attributeType = Mesh.AttributeType[attributeType];
 		}
 		this.attributeType = attributeType;
@@ -23,27 +23,28 @@ export default class VertexStateAttribute{
 		this.offset = 0;
 	}
 
-	getDescriptor(vertexState, vertexBuffer){
+	getDescriptor(vertexState, vertexBuffer) {
 		const format = this.getDescriptorFormat();
-		const offset = this.offset = vertexBuffer.requestAttributeOffset(this.byteSize);
+		const offset = vertexBuffer.requestAttributeOffset(this.byteSize);
+		this.offset = offset;
 		let shaderLocation = this.shaderLocation;
-		if(shaderLocation == null || shaderLocation == "auto" || shaderLocation == -1){
+		if (shaderLocation == null || shaderLocation == "auto" || shaderLocation == -1) {
 			shaderLocation = vertexState.requestShaderLocationIndex();
 		}
 		return {format, offset, shaderLocation};
 	}
 
-	setOffset(offset){
+	setOffset(offset) {
 		this.offset = offset;
 	}
 
-	get byteSize(){
+	get byteSize() {
 		return this.componentCount * Mesh.getByteLengthForAttributeFormat(this.format);
 	}
 
-	getDescriptorFormat(){
+	getDescriptorFormat() {
 		let str = "";
-		switch(this.format){
+		switch (this.format) {
 			case Mesh.AttributeFormat.INT8:
 			case Mesh.AttributeFormat.INT16:
 			case Mesh.AttributeFormat.INT32:
@@ -51,7 +52,7 @@ export default class VertexStateAttribute{
 			case Mesh.AttributeFormat.NORM16:
 				str += this.unsigned ? "u" : "s";
 		}
-		switch(this.format){
+		switch (this.format) {
 			case Mesh.AttributeFormat.INT8:
 				str += "int8";
 				break;
@@ -74,8 +75,8 @@ export default class VertexStateAttribute{
 				str += "norm8";
 				break;
 		}
-		if(this.componentCount > 1){
-			str += "x"+this.componentCount;
+		if (this.componentCount > 1) {
+			str += "x" + this.componentCount;
 		}
 		return str;
 	}

@@ -1,11 +1,11 @@
 import VertexStateAttribute from "./VertexStateAttribute.js";
 
-export default class VertexStateBuffer{
+export default class VertexStateBuffer {
 	constructor({
 		stepMode = "vertex",
-		arrayStride = null, //use null|-1|"auto" for auto stride
+		arrayStride = null, // use null|-1|"auto" for auto stride
 		attributes = [],
-	} = {}){
+	} = {}) {
 		this.stepMode = stepMode;
 		this._customArrayStride = arrayStride;
 		this.autoArrayStride = arrayStride == null || arrayStride == "auto" || arrayStride == -1;
@@ -13,31 +13,31 @@ export default class VertexStateBuffer{
 		this.requestingAttributeOffset = 0;
 
 		this.attributes = [];
-		for(const attribute of attributes){
+		for (const attribute of attributes) {
 			this.addAttribute(attribute);
 		}
 	}
 
-	addAttribute(opts){
+	addAttribute(opts) {
 		const attribute = new VertexStateAttribute(opts);
 		this.attributes.push(attribute);
 
 		this.calculateAttributeOffsets();
 	}
 
-	get arrayStride(){
-		if(this.autoArrayStride){
+	get arrayStride() {
+		if (this.autoArrayStride) {
 			return this._calculatedArrayStride;
-		}else{
+		} else {
 			return this._customArrayStride;
 		}
 	}
 
-	getDescriptor(vertexState){
+	getDescriptor(vertexState) {
 		const stepMode = this.stepMode;
 		this.requestingAttributeOffset = 0;
 		const attributes = [];
-		for(const attribute of this.attributes){
+		for (const attribute of this.attributes) {
 			attributes.push(attribute.getDescriptor(vertexState, this));
 		}
 		return {
@@ -47,15 +47,15 @@ export default class VertexStateBuffer{
 		};
 	}
 
-	requestAttributeOffset(neededOffset){
+	requestAttributeOffset(neededOffset) {
 		const oldOffset = this.requestingAttributeOffset;
 		this.requestingAttributeOffset += neededOffset;
 		return oldOffset;
 	}
 
-	calculateAttributeOffsets(){
-		let i=0;
-		for(const attribute of this.attributes){
+	calculateAttributeOffsets() {
+		let i = 0;
+		for (const attribute of this.attributes) {
 			attribute.setOffset(i);
 			i += attribute.byteSize;
 		}

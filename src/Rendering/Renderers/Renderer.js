@@ -1,20 +1,18 @@
 import RendererDomTarget from "../RendererDomTarget.js";
 
-export default class Renderer{
-	constructor(){
-	}
-
-	//optionally override this with your own RendererDomTarget class
-	static get domTargetConstructor(){
+export default class Renderer {
+	// optionally override this with your own RendererDomTarget class
+	static get domTargetConstructor() {
 		return RendererDomTarget;
 	}
 
-	async init(){}
+	async init() {}
 
-	render(domTarget, camera){}
+	render(domTarget, camera) {}
 
-	createDomTarget(...args){
+	createDomTarget(...args) {
 		const castConstructor = /** @type {typeof Renderer} */ (this.constructor);
-		return new castConstructor.domTargetConstructor(this, ...args);
+		const DomTarget = castConstructor.domTargetConstructor;
+		return new DomTarget(this, ...args);
 	}
 }

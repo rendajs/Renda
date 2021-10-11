@@ -1,12 +1,12 @@
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
 import ClusterComputeManager from "./ClusterComputeManager.js";
 
-export default class CachedCameraData{
-	constructor(camera, renderer){
+export default class CachedCameraData {
+	constructor(camera, renderer) {
 		this.camera = camera;
 		this.renderer = renderer;
 
-		if(ENABLE_WEBGPU_CLUSTERED_LIGHTS){
+		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			this.clusterComputeManager = new ClusterComputeManager(camera, this);
 			this.lastUsedClusterConfig = null;
 		}
@@ -14,20 +14,20 @@ export default class CachedCameraData{
 		this.viewBindGroup = null;
 	}
 
-	testViewBindGroupDirty(){
-		if(!ENABLE_WEBGPU_CLUSTERED_LIGHTS) return false;
-		if(this.lastUsedClusterConfig){
+	testViewBindGroupDirty() {
+		if (!ENABLE_WEBGPU_CLUSTERED_LIGHTS) return false;
+		if (this.lastUsedClusterConfig) {
 			const ref = this.lastUsedClusterConfig.deref();
-			if(ref){
-				if(this.camera.clusteredLightsConfig == ref) return false;
+			if (ref) {
+				if (this.camera.clusteredLightsConfig == ref) return false;
 			}
 		}
 		this.lastUsedClusterConfig = new WeakRef(this.camera.clusteredLightsConfig);
 		return true;
 	}
 
-	getViewBindGroup(){
-		if(!this.viewBindGroup || this.testViewBindGroupDirty()){
+	getViewBindGroup() {
+		if (!this.viewBindGroup || this.testViewBindGroupDirty()) {
 			this.viewBindGroup = this.renderer.device.createBindGroup({
 				layout: this.renderer.viewBindGroupLayout,
 				entries: [

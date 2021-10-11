@@ -1,22 +1,22 @@
-export default class RendererDomTarget{
-	constructor(renderer, ...args){
+export default class RendererDomTarget {
+	constructor(renderer, ...args) {
 		this.renderer = renderer;
 		this.width = 0;
 		this.height = 0;
 	}
 
-	destructor(){}
+	destructor() {}
 
-	getElement(){
+	getElement() {
 		return null;
 	}
 
-	resize(w,h){
+	resize(w, h) {
 		this.width = w;
 		this.height = h;
 	}
 
-	render(camera){
+	render(camera) {
 		this.renderer.render(this, camera);
 	}
 }

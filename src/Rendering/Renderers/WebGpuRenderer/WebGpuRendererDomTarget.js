@@ -1,14 +1,14 @@
 import RendererDomTarget from "../../RendererDomTarget.js";
 import RenderOutputConfig from "../../RenderOutputConfig.js";
 
-export default class WebGpuRendererDomTarget extends RendererDomTarget{
+export default class WebGpuRendererDomTarget extends RendererDomTarget {
 	constructor(renderer, {
 		depthSupport = true,
-	} = {}){
+	} = {}) {
 		super(...arguments);
 
 		this._outputConfig = new RenderOutputConfig();
-		this.depthSupport = depthSupport; //todo: use output config
+		this.depthSupport = depthSupport; // todo: use output config
 
 		this.canvas = document.createElement("canvas");
 		this.width = this.canvas.width;
@@ -22,65 +22,65 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		this.ready = false;
 
 		this.colorAttachment = {
-			view: null, //will be assigned in getRenderPassDescriptor()
-			resolveTarget: undefined, //will be assigned in getRenderPassDescriptor()
+			view: null, // will be assigned in getRenderPassDescriptor()
+			resolveTarget: undefined, // will be assigned in getRenderPassDescriptor()
 			loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
-		}
+		};
 		this.depthStencilAttachment = null;
-		if(this.depthSupport){
+		if (this.depthSupport) {
 			this.depthStencilAttachment = {
-				view: null, //will be assigned in generateTextures()
+				view: null, // will be assigned in generateTextures()
 				depthLoadValue: 1,
 				depthStoreOp: "store",
 				stencilLoadValue: 1,
 				stencilStoreOp: "store",
-			}
+			};
 		}
 		this.renderPassDescriptor = {
 			colorAttachments: [this.colorAttachment],
 			depthStencilAttachment: this.depthStencilAttachment,
-		}
+		};
 	}
 
-	gpuReady(){
+	gpuReady() {
 		this.swapChainFormat = this.ctx.getPreferredFormat(this.renderer.adapter);
 
 		this.ready = true;
 		this.generateTextures();
 	}
 
-	getElement(){
+	getElement() {
 		return this.canvas;
 	}
 
-	resize(w,h){
-		super.resize(w,h);
+	resize(w, h) {
+		super.resize(w, h);
 		this.canvas.width = w;
 		this.canvas.height = h;
 		this.generateTextures();
 	}
 
-	get outputConfig(){
+	get outputConfig() {
 		return this._outputConfig;
 	}
 
-	setRenderOutputConfig(outputConfig){
-		//todo: add support for cloning config and filling in fragmentTargets
-		//with preferred swapchain format
+	setRenderOutputConfig(outputConfig) {
+		// todo: add support for cloning config and filling in fragmentTargets
+		// with preferred swapchain format
 		this._outputConfig = outputConfig;
 		this.generateTextures();
 	}
 
-	generateTextures(){
-		if(!this.ready) return;
+	generateTextures() {
+		if (!this.ready) return;
 
 		this.swapChain = this.ctx.configure({
 			device: this.renderer.device,
 			format: this.swapChainFormat,
 		});
 
-		if(this.colorTexture) this.colorTexture.destroy();
-		if(this.outputConfig.multisampleCount > 1){
+		if (this.colorTexture) this.colorTexture.destroy();
+		if (this.outputConfig.multisampleCount > 1) {
 			this.colorTexture = this.renderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
@@ -93,8 +93,8 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 			this.colorTextureView = this.colorTexture.createView();
 		}
 
-		if(this.depthTexture) this.depthTexture.destroy();
-		if(this.depthSupport){
+		if (this.depthTexture) this.depthTexture.destroy();
+		if (this.depthSupport) {
 			this.depthTexture = this.renderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
@@ -108,13 +108,13 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget{
 		}
 	}
 
-	getRenderPassDescriptor(){
-		if(!this.ready) return null;
+	getRenderPassDescriptor() {
+		if (!this.ready) return null;
 		const swapChainTextureView = this.ctx.getCurrentTexture().createView();
-		if(this.outputConfig.multisampleCount == 1){
+		if (this.outputConfig.multisampleCount == 1) {
 			this.colorAttachment.view = swapChainTextureView;
 			this.colorAttachment.resolveTarget = undefined;
-		}else{
+		} else {
 			this.colorAttachment.view = this.colorTextureView;
 			this.colorAttachment.resolveTarget = swapChainTextureView;
 		}

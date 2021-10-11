@@ -1,11 +1,11 @@
-export default class WebGpuBufferHelper{
+export default class WebGpuBufferHelper {
 	constructor({
 		device = null,
 		bindGroupLayout = null,
 		bindGroupLength = 512,
 		totalBufferLength = bindGroupLength,
 		usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-	} = {}){
+	} = {}) {
 		this.device = device;
 		this.bindGroupLayout = bindGroupLayout;
 		this.bindGroupLength = bindGroupLength;
@@ -23,25 +23,25 @@ export default class WebGpuBufferHelper{
 		this.dataView = new DataView(this.arrayBuffer);
 	}
 
-	createBindGroup(){
+	createBindGroup() {
 		return this.device.createBindGroup({
 			layout: this.bindGroupLayout,
 			entries: [this.createBindGroupEntry()],
 		});
 	}
 
-	createBindGroupEntry({binding = 0} = {}){
+	createBindGroupEntry({binding = 0} = {}) {
 		return {
 			binding,
 			resource: {
 				buffer: this.gpuBuffer,
 				size: this.bindGroupLength,
-			}
-		}
+			},
+		};
 	}
 
-	appendScalar(val, type = "f32"){
-		switch(type){
+	appendScalar(val, type = "f32") {
+		switch (type) {
 			case "f32":
 			default:
 				this.dataView.setFloat32(this.currentCursorByteIndex, val, true);
@@ -56,31 +56,32 @@ export default class WebGpuBufferHelper{
 		this.currentCursorByteIndex += 4;
 	}
 
-	appendData(data, type = "f32"){
-		if(typeof data == "number"){
+	appendData(data, type = "f32") {
+		if (typeof data == "number") {
 			this.appendScalar(data, type);
-		}else{
-			if(!Array.isArray(data)) data = data.toArray();
-			for(const val of data){
+		} else {
+			if (!Array.isArray(data)) data = data.toArray();
+			for (const val of data) {
 				this.appendScalar(val, type);
 			}
 		}
 	}
 
-	skipBytes(byteLength){
+	skipBytes(byteLength) {
 		this.currentCursorByteIndex += byteLength;
 	}
 
-	nextBufferOffset(offset = this.bindGroupLength){
+	nextBufferOffset(offset = this.bindGroupLength) {
 		this.currentBufferOffset += offset;
 		this.currentCursorByteIndex = this.currentBufferOffset;
 	}
 
-	resetBufferOffset(){
-		this.currentBufferOffset = this.currentCursorByteIndex = 0;
+	resetBufferOffset() {
+		this.currentBufferOffset = 0;
+		this.currentCursorByteIndex = 0;
 	}
 
-	writeToGpu(){
+	writeToGpu() {
 		this.device.queue.writeBuffer(this.gpuBuffer, 0, this.arrayBuffer);
 	}
 }

@@ -1,13 +1,13 @@
 import CachedMeshBufferData from "./CachedMeshBufferData.js";
 
-export default class CachedMeshData{
-	constructor(mesh, renderer){
+export default class CachedMeshData {
+	constructor(mesh, renderer) {
 		this.mesh = mesh;
 		this.renderer = renderer;
 
-		//todo: remove old bufferdata when the list of buffers changes
+		// todo: remove old bufferdata when the list of buffers changes
 		this.buffers = [];
-		for(const meshBuffer of mesh.getBuffers(false)){
+		for (const meshBuffer of mesh.getBuffers(false)) {
 			const bufferData = new CachedMeshBufferData(meshBuffer, this);
 			this.buffers.push(bufferData);
 		}
@@ -15,23 +15,23 @@ export default class CachedMeshData{
 		this.indexBuffer = null;
 		this.createIndexGpuBuffer();
 
-		//todo: remove listeners when gpurenderer is destroyed
+		// todo: remove listeners when gpurenderer is destroyed
 		this.indexBufferDirty = false;
 		this.mesh.onIndexBufferChanged(() => {
 			this.indexBufferDirty = true;
 		});
 	}
 
-	destructor(){
-		//todo
+	destructor() {
+		// todo
 	}
 
-	createIndexGpuBuffer(){
-		if(this.indexBuffer){
+	createIndexGpuBuffer() {
+		if (this.indexBuffer) {
 			this.indexBuffer.destroy();
 			this.indexBuffer = null;
 		}
-		if(this.mesh.indexBuffer){
+		if (this.mesh.indexBuffer) {
 			const indexBuffer = this.renderer.device.createBuffer({
 				size: this.mesh.indexBuffer.byteLength,
 				usage: GPUBufferUsage.INDEX,
@@ -43,18 +43,18 @@ export default class CachedMeshData{
 		}
 	}
 
-	*getBufferGpuCommands(){
-		for(const [i, buffer] of this.buffers.entries()){
+	*getBufferGpuCommands() {
+		for (const [i, buffer] of this.buffers.entries()) {
 			yield {
 				index: i,
 				...buffer.getBufferGpuCommands(),
-			}
+			};
 		}
 	}
 
-	getIndexedBufferGpuCommands(){
-		//todo: support for dynamic indexbuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
-		if(this.indexBufferDirty){
+	getIndexedBufferGpuCommands() {
+		// todo: support for dynamic indexbuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
+		if (this.indexBufferDirty) {
 			this.createIndexGpuBuffer();
 		}
 		return this.indexBuffer;

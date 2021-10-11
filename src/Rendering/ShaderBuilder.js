@@ -1,11 +1,11 @@
-export default class ShaderBuilder{
-	constructor(){
+export default class ShaderBuilder {
+	constructor() {
 		this.shaderLibrary = new Map();
 		this.onShaderUuidRequestedCbs = new Set();
 		this.onShaderInvalidatedCbs = new Set();
 	}
 
-	addShader(uuid, shaderCode){
+	addShader(uuid, shaderCode) {
 		this.shaderLibrary.set(uuid, {
 			shaderCode,
 			builtCode: null,
@@ -13,25 +13,25 @@ export default class ShaderBuilder{
 		});
 	}
 
-	invalidateShader(uuid){
+	invalidateShader(uuid) {
 		this.shaderLibrary.delete(uuid);
 		this.fireOnShaderInvalidated(uuid);
-		for(const [existingUuid, shader] of this.shaderLibrary){
-			if(shader.includedUuids.includes(uuid)){
+		for (const [existingUuid, shader] of this.shaderLibrary) {
+			if (shader.includedUuids.includes(uuid)) {
 				this.invalidateShader(existingUuid);
 			}
 		}
 	}
 
-	async buildShader(shaderCode){
+	async buildShader(shaderCode) {
 		const includedUuids = [];
 		const attemptedUuids = [];
 		const regex = /^\s*#include\s(.+?):?(?::(.+)|$)/gm;
 		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, uuid, params) => {
-			if(attemptedUuids.includes(uuid)) return "";
+			if (attemptedUuids.includes(uuid)) return "";
 			attemptedUuids.push(uuid);
 			const block = await this.getShaderBlock(uuid, {params});
-			if(block){
+			if (block) {
 				includedUuids.push(uuid);
 				return block;
 			}
@@ -40,7 +40,7 @@ export default class ShaderBuilder{
 		return {shaderCode, includedUuids};
 	}
 
-	async replaceAsync(str, regex, fn){
+	async replaceAsync(str, regex, fn) {
 		const promises = [];
 		str.replace(regex, (...args) => {
 			const promise = fn(...args);
@@ -53,50 +53,50 @@ export default class ShaderBuilder{
 	async getShaderBlock(uuid, {
 		params = null,
 		buildRecursive = true,
-	} = {}){
-		//todo, get only specific part of shader
+	} = {}) {
+		// todo, get only specific part of shader
 		const shaderData = await this.getShader(uuid);
-		if(!shaderData){
+		if (!shaderData) {
 			throw new Error(`Shader tried to #include uuid ${uuid} but it could not be found`);
 		}
-		if(buildRecursive){
-			if(shaderData.builtCode){
+		if (buildRecursive) {
+			if (shaderData.builtCode) {
 				return shaderData.builtCode;
-			}else{
+			} else {
 				const {shaderCode, includedUuids} = await this.buildShader(shaderData.shaderCode);
 				shaderData.builtCode = shaderCode;
 				shaderData.includedUuids = includedUuids;
 				return shaderData.builtCode;
 			}
-		}else{
+		} else {
 			return shaderData.shaderCode;
 		}
 	}
 
-	async getShader(uuid){
-		if(!this.shaderLibrary.has(uuid)){
+	async getShader(uuid) {
+		if (!this.shaderLibrary.has(uuid)) {
 			await this.fireShaderUuidRequested(uuid);
 		}
 		return this.shaderLibrary.get(uuid);
 	}
 
-	onShaderUuidRequested(cb){
+	onShaderUuidRequested(cb) {
 		this.onShaderUuidRequestedCbs.add(cb);
 	}
 
-	removeOnShaderUuidRequested(cb){
+	removeOnShaderUuidRequested(cb) {
 		this.onShaderUuidRequestedCbs.delete(cb);
 	}
 
-	async fireShaderUuidRequested(uuid){
+	async fireShaderUuidRequested(uuid) {
 		let unparsedPromiseItems = [];
-		let shaderCode = null;
-		for(const cb of this.onShaderUuidRequestedCbs){
+		const shaderCode = null;
+		for (const cb of this.onShaderUuidRequestedCbs) {
 			const promiseItem = {
 				resolved: false,
 				result: null,
 				promise: null,
-			}
+			};
 			promiseItem.promise = (async () => {
 				promiseItem.result = await cb(uuid);
 				promiseItem.resolved = true;
@@ -104,45 +104,45 @@ export default class ShaderBuilder{
 			})();
 			unparsedPromiseItems.push(promiseItem);
 		}
-		if(unparsedPromiseItems.length <= 0){
+		if (unparsedPromiseItems.length <= 0) {
 			return;
 		}
 		let foundShaderCode = null;
-		while(unparsedPromiseItems.length > 0 && !foundShaderCode){
+		while (unparsedPromiseItems.length > 0 && !foundShaderCode) {
 			const promises = unparsedPromiseItems.map(i => i.promise);
-			try{
+			try {
 				foundShaderCode = await Promise.race(promises);
-			}catch(_){
-				//fail silently
+			} catch (_) {
+				// fail silently
 			}
-			if(foundShaderCode){
+			if (foundShaderCode) {
 				break;
-			}else{
+			} else {
 				unparsedPromiseItems = unparsedPromiseItems.filter(p => !p.resolved);
 			}
 		}
-		if(foundShaderCode){
+		if (foundShaderCode) {
 			this.addShader(uuid, foundShaderCode);
 		}
 	}
 
-	onShaderInvalidated(cb){
+	onShaderInvalidated(cb) {
 		this.onShaderInvalidatedCbs.add(cb);
 	}
 
-	removeShaderInvalidated(cb){
+	removeShaderInvalidated(cb) {
 		this.onShaderInvalidatedCbs.delete(cb);
 	}
 
-	fireOnShaderInvalidated(uuid){
-		for(const cb of this.onShaderInvalidatedCbs){
+	fireOnShaderInvalidated(uuid) {
+		for (const cb of this.onShaderInvalidatedCbs) {
 			cb(uuid);
 		}
 	}
 
-	static fillShaderDefines(shaderCode, defines){
-		for(const [key, value] of Object.entries(defines)){
-			shaderCode = shaderCode.replaceAll("${"+key+"}", value);
+	static fillShaderDefines(shaderCode, defines) {
+		for (const [key, value] of Object.entries(defines)) {
+			shaderCode = shaderCode.replaceAll("${" + key + "}", value);
 		}
 		return shaderCode;
 	}
