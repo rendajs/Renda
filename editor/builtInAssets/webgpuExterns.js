@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 /**
 @fileoverview externs file for webgpu api calls
 @externs

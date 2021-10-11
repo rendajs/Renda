@@ -6,21 +6,21 @@ self.addEventListener("activate", e => {
 self.addEventListener("fetch", e => {
 	const url = new URL(e.request.url);
 	const scopeUrl = new URL(self.registration.scope);
-	if(url.pathname.startsWith(scopeUrl.pathname)){
+	if (url.pathname.startsWith(scopeUrl.pathname)) {
 		const pathname = url.pathname.slice(scopeUrl.pathname.length);
-		if(pathname.startsWith("projectbuilds/")){
+		if (pathname.startsWith("projectbuilds/")) {
 			e.respondWith(getProjectFileResponse(e, pathname));
 		}
 	}
 });
 
-async function getProjectFileResponse(e, pathname){
-	pathname = pathname.slice(14); //remove /projectbuilds/ from url string
+async function getProjectFileResponse(e, pathname) {
+	pathname = pathname.slice(14); // remove /projectbuilds/ from url string
 	const slashIndex = pathname.indexOf("/");
 	const clientId = pathname.slice(0, slashIndex);
-	const filePath = pathname.slice(slashIndex+1);
+	const filePath = pathname.slice(slashIndex + 1);
 	const client = await clients.get(clientId);
-	if(!client){
+	if (!client) {
 		return new Response("Editor client not found", {status: 500});
 	}
 	const file = await asyncMessage(client, {
@@ -34,8 +34,7 @@ async function getProjectFileResponse(e, pathname){
 	});
 }
 
-
-async function asyncMessage(client, message){
+async function asyncMessage(client, message) {
 	const channel = new MessageChannel();
 	client.postMessage(message, [channel.port2]);
 	return await new Promise(resolve => {
@@ -48,10 +47,10 @@ async function asyncMessage(client, message){
 }
 
 self.addEventListener("message", e => {
-	if(e.data.type == "requestClientId"){
+	if (e.data.type == "requestClientId") {
 		const clientId = e.source.id;
-		if(e.ports.length > 0){
-			for(const port of e.ports){
+		if (e.ports.length > 0) {
+			for (const port of e.ports) {
 				port.postMessage(clientId);
 			}
 		}

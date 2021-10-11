@@ -1,24 +1,24 @@
-export default class ComponentTypeManager{
-	constructor(){
-		this.components = new Map(); //Map<uuid, componentData>
+export default class ComponentTypeManager {
+	constructor() {
+		this.components = new Map(); // Map<uuid, componentData>
 	}
 
-	registerComponent(componentData){
-		if(!componentData){
+	registerComponent(componentData) {
+		if (!componentData) {
 			console.warn("registerComponent expects componentData to be an object.");
 			return null;
 		}
-		if(!componentData.uuid){
+		if (!componentData.uuid) {
 			console.warn("Unable to register component, component doesn't have an uuid.");
 			return null;
 		}
 
-		if(componentData && componentData.properties){
-			for(const [propertyName, property] of Object.entries(componentData.properties)){
-				if(!property.type && property.defaultValue != undefined){
-					if(typeof property.defaultValue == "number"){
+		if (componentData && componentData.properties) {
+			for (const [propertyName, property] of Object.entries(componentData.properties)) {
+				if (!property.type && property.defaultValue != undefined) {
+					if (typeof property.defaultValue == "number") {
 						property.type = Number;
-					}else{
+					} else {
 						property.type = property.defaultValue.constructor;
 					}
 				}
@@ -29,21 +29,21 @@ export default class ComponentTypeManager{
 		return componentData;
 	}
 
-	getComponentDataForUuid(uuid){
+	getComponentDataForUuid(uuid) {
 		return this.components.get(uuid);
 	}
 
-	*getAllComponents(){
-		for(const component of this.components.values()){
+	*getAllComponents() {
+		for (const component of this.components.values()) {
 			yield component;
 		}
 	}
 
-	getComponentFromData(componentData, registerIfNotFound = true){
+	getComponentFromData(componentData, registerIfNotFound = true) {
 		const component = this.components.get(componentData.uuid);
-		if(component){
+		if (component) {
 			return component;
-		}else if(registerIfNotFound){
+		} else if (registerIfNotFound) {
 			return this.registerComponent(componentData);
 		}
 	}
