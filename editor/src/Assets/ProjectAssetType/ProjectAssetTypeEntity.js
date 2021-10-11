@@ -137,7 +137,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 * @returns {AsyncGenerator<String>}
+	 * @returns {AsyncGenerator<string>}
 	 */
 	async *getReferencedAssetUuids() {
 		const assetData = await this.projectAsset.readAssetData();

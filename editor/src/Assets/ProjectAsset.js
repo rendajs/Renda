@@ -5,7 +5,7 @@ import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {StorageType} from "../../../src/Util/BinaryComposer.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 
-/** @typedef {Object | String | File} ProjectAssetFileData */
+/** @typedef {Object | string | File} ProjectAssetFileData */
 
 export default class ProjectAsset {
 	constructor({
@@ -137,11 +137,7 @@ export default class ProjectAsset {
 		if (this.needsConsistentUuid) return true;
 
 		// if asset settings contains at least one key it needs to be saved
-		for (const key of Object.keys(this.assetSettings)) {
-			return true;
-		}
-
-		return false;
+		return Object.keys(this.assetSettings).length > 0;
 	}
 
 	assetMoved(newPath) {

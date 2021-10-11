@@ -60,7 +60,7 @@ export default class PropertiesWindowContentManager {
 		if (selectedTypes.size == 0) {
 			return PropertiesWindowEmptyContent;
 		} else if (selectedTypes.size == 1) {
-			const [[onlyType, count]] = selectedTypes; // get the first and only item from selectedTypes
+			const onlyType = selectedTypes.keys().next().value;
 			return onlyType;
 		} else {
 			return PropertiesWindowMultipleContent;

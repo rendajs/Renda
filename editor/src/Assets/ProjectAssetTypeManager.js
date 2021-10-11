@@ -56,10 +56,8 @@ export default class ProjectAssetTypeManager {
 	}
 
 	constructorHasAssetType(constructor) {
-		for (const assetType of this.getAssetTypesForConstructor(constructor)) {
-			return true;
-		}
-		return false;
+		const generatorEmpty = this.getAssetTypesForConstructor(constructor).next().done;
+		return !generatorEmpty;
 	}
 
 	*getAssetTypesForExtension(extension) {
