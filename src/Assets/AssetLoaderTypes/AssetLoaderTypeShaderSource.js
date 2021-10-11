@@ -1,13 +1,12 @@
 import AssetLoaderType from "./AssetLoaderType.js";
 import ShaderSource from "../../Rendering/ShaderSource.js";
 
-export default class AssetLoaderTypeShaderSource extends AssetLoaderType{
-
-	static get typeUuid(){
+export default class AssetLoaderTypeShaderSource extends AssetLoaderType {
+	static get typeUuid() {
 		return "e7253ad6-8459-431f-ac16-609150538a24";
 	}
 
-	constructor(){
+	constructor() {
 		super(...arguments);
 
 		this.builder = null;
@@ -16,30 +15,30 @@ export default class AssetLoaderTypeShaderSource extends AssetLoaderType{
 
 	async parseBuffer(buffer, {
 		raw = false,
-	} = {}){
+	} = {}) {
 		const decoder = new TextDecoder();
 		const shaderCode = decoder.decode(buffer);
-		if(this.builder && !raw){
+		if (this.builder && !raw) {
 			const {shaderCode: newShaderCode} = await this.builder.buildShader(shaderCode);
 			return new ShaderSource(newShaderCode);
-		}else{
+		} else {
 			return shaderCode;
 		}
 	}
 
-	setBuilder(builder){
-		if(this.builder){
-			//todo: also remove this in the destructor of AssetLoaderTypeShader
+	setBuilder(builder) {
+		if (this.builder) {
+			// todo: also remove this in the destructor of AssetLoaderTypeShader
 			this.builder.removeOnShaderUuidRequested(this.boundOnShaderUuidRequested);
 		}
 		this.builder = builder;
 		this.builder.onShaderUuidRequested(this.boundOnShaderUuidRequested);
 	}
 
-	async onShaderUuidRequested(uuid){
+	async onShaderUuidRequested(uuid) {
 		const shader = await this.assetLoader.getAsset(uuid, {
 			assetOpts: {raw: true},
-			createNewInstance: true, //todo: is this necessary?
+			createNewInstance: true, // todo: is this necessary?
 		});
 		return shader;
 	}

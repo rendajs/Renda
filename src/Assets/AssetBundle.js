@@ -4,8 +4,8 @@ import PromiseWaitHelper from "../Util/PromiseWaitHelper.js";
 import {streamAsyncIterator} from "../Util/Util.js";
 import BinaryDecomposer from "../Util/BinaryDecomposer.js";
 
-export default class AssetBundle{
-	constructor(url){
+export default class AssetBundle {
+	constructor(url) {
 		this.url = url;
 
 		this.assetRanges = new Map();
@@ -18,17 +18,17 @@ export default class AssetBundle{
 		this.downloadBuffer = null;
 	}
 
-	async startDownload(){
+	async startDownload() {
 		await this.downloadInstance.run();
 	}
 
-	async waitForLoad(){
+	async waitForLoad() {
 		await this.downloadInstance.waitForFinish();
 	}
 
-	async downloadLogic(){
+	async downloadLogic() {
 		const response = await fetch(this.url);
-		const contentLength = +response.headers.get("Content-Length");
+		const contentLength = Number(response.headers.get("Content-Length"));
 		let receivedLength = 0;
 		const allChunks = new Uint8Array(contentLength);
 		this.downloadBuffer = allChunks.buffer;
@@ -40,25 +40,25 @@ export default class AssetBundle{
 
 		let hasParsedHeader = false;
 
-		//todo: use for await here once it's implemented in most browsers
-		for await(const chunk of streamAsyncIterator(response.body)){
+		// todo: use for await here once it's implemented in most browsers
+		for await (const chunk of streamAsyncIterator(response.body)) {
 			allChunks.set(chunk, receivedLength);
 			receivedLength += chunk.length;
 
-			//parse asset count
-			if(!hasParsedAssetCount && receivedLength >= 4){
+			// parse asset count
+			if (!hasParsedAssetCount && receivedLength >= 4) {
 				hasParsedAssetCount = true;
 				assetCount = bundleDataView.getUint32(0, true);
-				const assetHeaderByteLength = 16 + 16 + 4; //16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
+				const assetHeaderByteLength = 16 + 16 + 4; // 16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
 				headerLength = 4 + assetCount * assetHeaderByteLength;
 			}
 
-			//parse header
-			if(hasParsedAssetCount && !hasParsedHeader && receivedLength >= headerLength){
+			// parse header
+			if (hasParsedAssetCount && !hasParsedHeader && receivedLength >= headerLength) {
 				hasParsedHeader = true;
-				let headerCursor=4;
+				let headerCursor = 4;
 				let prevAssetByteEnd = headerLength;
-				while(headerCursor < headerLength){
+				while (headerCursor < headerLength) {
 					const uuid = BinaryDecomposer.binaryToUuid(allChunks.buffer, headerCursor);
 					headerCursor += 16;
 
@@ -76,45 +76,45 @@ export default class AssetBundle{
 				this.headerWait.fire();
 			}
 
-			if(hasParsedHeader){
-				for(const range of this.assetRanges.values()){
+			if (hasParsedHeader) {
+				for (const range of this.assetRanges.values()) {
 					range.bundleDataReceived(receivedLength);
 				}
 			}
 
-			this.progress = receivedLength/contentLength;
-			for(const cb of this.onProgressCbs){
+			this.progress = receivedLength / contentLength;
+			for (const cb of this.onProgressCbs) {
 				cb(this.progress);
 			}
 		}
 	}
 
-	onProgress(cb){
+	onProgress(cb) {
 		this.onProgressCbs.add(cb);
 	}
 
-	async waitForHeader(){
+	async waitForHeader() {
 		await this.headerWait.wait();
 	}
 
-	async hasAsset(uuid){
+	async hasAsset(uuid) {
 		await this.waitForHeader();
 		const range = this.assetRanges.get(uuid);
 		return !!range;
 	}
 
-	async waitForAssetAvailable(uuid){
+	async waitForAssetAvailable(uuid) {
 		await this.waitForHeader();
 		const range = this.assetRanges.get(uuid);
-		if(!range) return false;
+		if (!range) return false;
 
 		await range.waitForAvailable();
 		return true;
 	}
 
-	async getAsset(uuid){
+	async getAsset(uuid) {
 		const exists = await this.hasAsset(uuid);
-		if(!exists) return null;
+		if (!exists) return null;
 
 		const range = this.assetRanges.get(uuid);
 		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);

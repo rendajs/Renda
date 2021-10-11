@@ -38,10 +38,6 @@ export default class AssetLoaderTypeEntity extends AssetLoaderType {
 		};
 	}
 
-	constructor() {
-		super(...arguments);
-	}
-
 	async parseBuffer(buffer) {
 		const entityData = BinaryComposer.binaryToObject(buffer, AssetLoaderTypeEntity.entityBinaryFormat);
 

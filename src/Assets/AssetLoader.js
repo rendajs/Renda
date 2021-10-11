@@ -26,11 +26,11 @@ export default class AssetLoader {
 		// todo: remove these warnings in release builds
 		if (!(constructor.prototype instanceof AssetLoaderType)) {
 			console.warn("Tried to register AssetLoaderType (" + constructor.name + ") that does not extend the AssetLoaderType class.");
-			return;
+			return null;
 		}
 		if (!isUuid(constructor.typeUuid)) {
 			console.warn("Tried to register AssetLoaderType (" + constructor.name + ") without a valid typeUuid value, override the static type value in order for this loader to function properly.");
-			return;
+			return null;
 		}
 
 		const instance = new constructor(this);
