@@ -7,10 +7,10 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 		super();
 		this.bundleSettingsTree = this.treeView.addCollapsable("asset bundle settings");
 
-		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
+		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.bundleSettingsStructure = {
 			outputLocation: {
-				type: String,
+				type: "string",
 				guiOpts: {
 					label: "Bundle output location",
 				},
@@ -26,24 +26,42 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 				},
 			},
 			assets: {
-				type: Array,
-				arrayOpts: {
-					type: {
-						asset: {type: ProjectAsset},
-						includeChildren: {
-							type: Boolean,
-							defaultValue: true,
+				type: "array",
+				guiOpts: {
+					arrayType: "object",
+					arrayGuiOpts: {
+						structure: {
+							asset: {
+								type: "droppable",
+								guiOpts: {
+									supportedAssetTypes: [ProjectAsset],
+								},
+							},
+							includeChildren: {
+								type: "boolean",
+								defaultValue: true,
+							},
 						},
 					},
 				},
 			},
 			excludeAssets: {
-				type: Array,
-				arrayOpts: {type: ProjectAsset},
+				type: "array",
+				guiOpts: {
+					arrayType: "droppable",
+					arrayGuiOpts: {
+						supportedAssetTypes: [ProjectAsset],
+					},
+				},
 			},
 			excludeAssetsRecursive: {
-				type: Array,
-				arrayOpts: {type: ProjectAsset},
+				type: "array",
+				guiOpts: {
+					arrayType: "droppable",
+					arrayGuiOpts: {
+						supportedAssetTypes: [ProjectAsset],
+					},
+				},
 			},
 		};
 		this.isUpdatingBundleSettingsTree = false;

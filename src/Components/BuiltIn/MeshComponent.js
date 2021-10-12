@@ -9,12 +9,18 @@ const MeshComponent = {
 	name: "Mesh",
 	properties: {
 		mesh: {
-			type: Mesh,
+			type: "droppable",
+			guiOpts: {
+				supportedAssetTypes: [Mesh],
+			},
 		},
 		materials: {
-			type: Array,
-			arrayOpts: {
-				type: Material,
+			type: "array",
+			guiOpts: {
+				arrayType: "droppable",
+				arrayGuiOpts: {
+					supportedAssetTypes: [Material],
+				},
 			},
 		},
 	},

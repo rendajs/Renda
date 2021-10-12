@@ -1,6 +1,18 @@
 import {prettifyVariableName} from "../Util/Util.js";
 
+/**
+ * @typedef {Object} DropDownGuiOptionsType
+ * @property {string[]} [items]
+ * @property {*} [enumObject]
+ *
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & DropDownGuiOptionsType} DropDownGuiOptions
+ */
+
 export default class DropDownGui {
+	/**
+	 *
+	 * @param {DropDownGuiOptions} opts
+	 */
 	constructor({
 		items = [],
 		defaultValue = null,

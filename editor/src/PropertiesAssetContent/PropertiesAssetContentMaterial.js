@@ -7,8 +7,9 @@ export default class PropertiesAssetContentMaterial extends PropertiesAssetConte
 		super();
 		const materialSettingsTree = this.treeView.addCollapsable("material settings");
 		this.mapTreeView = materialSettingsTree.addItem({
-			type: ProjectAsset,
+			type: "droppable",
 			guiOpts: {
+				supportedAssetTypes: [ProjectAsset],
 				label: "Map",
 			},
 		});

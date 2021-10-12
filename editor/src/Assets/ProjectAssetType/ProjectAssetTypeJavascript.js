@@ -10,16 +10,16 @@ export default class ProjectAssetTypeJavascript extends ProjectAssetType {
 	static storeInProjectAsJson = false;
 	static storeInProjectAsText = true;
 
-	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 	static assetSettingsStructure = {
 		outputLocation: {
-			type: String,
+			type: "string",
 			guiOpts: {
 				label: "Build output location",
 			},
 		},
 		useClosureCompiler: {
-			type: Boolean,
+			type: "boolean",
 		},
 		buildButton: {
 			type: "button",

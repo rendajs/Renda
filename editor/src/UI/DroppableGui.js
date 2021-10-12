@@ -1,9 +1,18 @@
 import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
-/** @typedef {import("../Assets/DefaultAssetLink.js").default} DefaultAssetLink */
+
+/**
+ * @typedef {Object} DroppableGuiOptionsType
+ * @property {*[]} [supportedAssetTypes]
+ *
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & DroppableGuiOptionsType} DroppableGuiOptions
+ */
 
 export default class DroppableGui {
+	/**
+	 * @param {DroppableGuiOptions} options
+	 */
 	constructor({
 		supportedAssetTypes = [],
 		// todo: default value support
@@ -39,7 +48,7 @@ export default class DroppableGui {
 
 		/** @type {?string}*/
 		this.defaultAssetLinkUuid = null;
-		/** @type {?DefaultAssetLink}*/
+		/** @type {?import("../Assets/DefaultAssetLink.js").default}*/
 		this.defaultAssetLink = null;
 		/** @type {?ProjectAsset}*/
 		this.projectAssetValue = null;

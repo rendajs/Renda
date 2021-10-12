@@ -1,4 +1,3 @@
-import Mat4 from "../../Math/Mat4.js";
 import {StorageType} from "../../Util/BinaryComposer.js";
 import RenderOutputConfig from "../../Rendering/RenderOutputConfig.js";
 import ClusteredLightsConfig from "../../Rendering/ClusteredLightsConfig.js";
@@ -42,13 +41,19 @@ const CameraComponent = {
 			defaultValue: true,
 		},
 		projectionMatrix: {
-			type: Mat4,
+			// type: Mat4,
 		},
 		renderOutputConfig: {
-			type: RenderOutputConfig,
+			type: "droppable",
+			guiOpts: {
+				supportedAssetTypes: [RenderOutputConfig],
+			},
 		},
 		clusteredLightsConfig: {
-			type: ClusteredLightsConfig,
+			type: "droppable",
+			guiOpts: {
+				supportedAssetTypes: [ClusteredLightsConfig],
+			},
 		},
 		// autoManageRootRenderEntities: {
 		// 	type: "bool",

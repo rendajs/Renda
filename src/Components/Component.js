@@ -13,7 +13,7 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  * @typedef {Object} ComponentTypeData
  * @property {string} uuid
  * @property {string} name
- * @property {import("../../editor/src/UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} properties
+ * @property {import("../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} properties
  * @property {import("../Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} binaryComposerOpts
  */
 

@@ -3,22 +3,22 @@ import ButtonGroup from "../UI/ButtonGroup.js";
 import Button from "./Button.js";
 
 /**
- * @typedef {Object} ArrayGuiArrayOptions
- * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} [type = typeof Number]
- * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} [guiOpts]
+ * @typedef {Object} ArrayGuiOptionsType
+ * @property {any[]} [value]
+ * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} [arrayType]
+ * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptionsGeneric} [arrayGuiOpts]
+ *
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ArrayGuiOptionsType} ArrayGuiOptions
  */
 
 export default class ArrayGui {
 	/**
-	 *
-	 * @param {Object} opts
-	 * @param {any[]} [opts.value]
-	 * @param {ArrayGuiArrayOptions} [opts.arrayOpts]
-	 * @param {boolean} [opts.disabled]
+	 * @param {ArrayGuiOptions} options
 	 */
 	constructor({
-		value = [],
-		arrayOpts = {},
+		value = [], // todo: rename to defaultValue
+		arrayType = "number",
+		arrayGuiOpts = {},
 		disabled = false,
 	} = {}) {
 		this.disabled = false;
@@ -27,8 +27,8 @@ export default class ArrayGui {
 		this.el.classList.add("arrayGui");
 
 		this.valueItems = [];
-		this.type = arrayOpts.type || Number;
-		this.arrayOpts = arrayOpts;
+		this.type = arrayType;
+		this.arrayGuiOpts = arrayGuiOpts;
 		this.onValueChangeCbs = [];
 
 		this.addRemoveButtonGroup = new ButtonGroup();
@@ -71,7 +71,7 @@ export default class ArrayGui {
 			guiOpts: {
 				smallLabel: true,
 				label: String(index),
-				...this.arrayOpts.guiOpts,
+				...this.arrayGuiOpts,
 				...extraArrayOpts,
 			},
 		});

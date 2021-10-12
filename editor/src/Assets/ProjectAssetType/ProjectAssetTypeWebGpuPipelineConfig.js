@@ -7,16 +7,35 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	static newFileName = "New Pipeline Config";
 
+	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
-		vertexShader: {type: ShaderSource},
-		fragmentShader: {type: ShaderSource},
+		vertexShader: {
+			type: "droppable",
+			guiOpts: {
+				supportedAssetTypes: [ShaderSource],
+			},
+		},
+		fragmentShader: {
+			type: "droppable",
+			guiOpts: {
+				supportedAssetTypes: [ShaderSource],
+			},
+		},
 		primitiveTopology: {
-			type: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
+			type: "dropdown",
 			defaultValue: "triangle-list",
+			guiOpts: {
+				items: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
+			},
 		},
 		preloadVertexStates: {
-			type: Array,
-			arrayOpts: {type: VertexState},
+			type: "array",
+			guiOpts: {
+				arrayType: "droppable",
+				arrayGuiOpts: {
+					supportedAssetTypes: [VertexState],
+				},
+			},
 		},
 	};
 

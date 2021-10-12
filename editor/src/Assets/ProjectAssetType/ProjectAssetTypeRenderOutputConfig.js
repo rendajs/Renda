@@ -7,23 +7,33 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 	static newFileName = "New Render Output Config";
 
 	// todo: better support for webgl config
-	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		depthStencilFormat: {
-			type: ["stencil8", "depth16unorm", "depth24plus", "depth24plus-stencil8", "depth32float"],
+			type: "dropdown",
 			defaultValue: "depth24plus",
+			guiOpts: {
+				items: ["stencil8", "depth16unorm", "depth24plus", "depth24plus-stencil8", "depth32float"],
+			},
 		},
 		multisampleCount: {
 			/** @type {import("../../UI/NumericGui.js").NumericGuiOptions} */
 			guiOpts: {min: 1, step: 1},
 		},
 		fragmentTargets: {
-			type: Array,
-			arrayOpts: {
-				type: {
-					format: {
-						type: ["bgra8unorm", "rgba16float"],
-						defaultValue: "bgra8unorm",
+			type: "array",
+			guiOpts: {
+				arrayType: "object",
+				/** @type {import("../../Ui/ObjectGui.js").ObjectGuiOptions} */
+				arrayGuiOpts: {
+					structure: {
+						format: {
+							type: "dropdown",
+							defaultValue: "bgra8unorm",
+							guiOpts: {
+								items: ["bgra8unorm", "rgba16float"],
+							},
+						},
 					},
 				},
 			},

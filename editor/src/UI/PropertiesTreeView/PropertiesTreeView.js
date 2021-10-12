@@ -9,8 +9,6 @@ import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
  * @typedef {"default" | "fileStorage" | "binaryComposer" | "script"} SerializableStructureOutputPurpose
  */
 
-/** @typedef {Object.<string, import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure */
-
 /**
  * @typedef {Object} PropertiesTreeViewEventCbMapType
  * @property {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent} propertiestreeviewentryvaluechange
@@ -68,7 +66,7 @@ export default class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {PropertiesTreeViewStructure} structure
+	 * @param {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} structure
 	 * @param {Object} opts
 	 * @param {Object} [opts.callbacksContext]
 	 */
@@ -105,7 +103,7 @@ export default class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {PropertiesTreeViewStructure} structure
+	 * @param {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} structure
 	 * @param {Object} [guiOpts]
 	 * @param {SerializableStructureOutputPurpose} [guiOpts.purpose]
 	 * @param {boolean} [guiOpts.stripDefaultValues]

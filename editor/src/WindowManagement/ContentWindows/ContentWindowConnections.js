@@ -58,7 +58,7 @@ export default class ContentWindowConnections extends ContentWindow {
 
 	createHeaderUi() {
 		this.discoveryServerEndpointField = this.headerTreeView.addItem({
-			type: String,
+			type: "string",
 			/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
@@ -81,7 +81,7 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.contentEl.appendChild(this.editorHostConnectionTreeView.el);
 
 		this.allowRemoteIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
-			type: Boolean,
+			type: "boolean",
 			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
 				label: "Allow Remote Incoming Connections",
@@ -92,7 +92,7 @@ export default class ContentWindowConnections extends ContentWindow {
 		});
 
 		this.allowInternalIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
-			type: Boolean,
+			type: "boolean",
 			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
 				label: "Allow Internal Incoming Connections",
@@ -122,7 +122,7 @@ export default class ContentWindowConnections extends ContentWindow {
 		this.contentEl.appendChild(this.inspectorConnectionsTreeView.el);
 
 		this.autoConnectInspectorsCheckbox = this.inspectorConnectionsTreeView.addItem({
-			type: Boolean,
+			type: "boolean",
 			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
 				label: "Auto Connect Inspectors",

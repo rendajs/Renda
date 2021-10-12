@@ -8,15 +8,21 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
 
-		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeViewStructure} */
+		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.meshSettingsStructure = {
 			vertexState: {
-				type: VertexState,
+				type: "droppable",
+				guiOpts: {
+					supportedAssetTypes: [VertexState],
+				},
 			},
 			attributes: {
-				type: Array,
-				arrayOpts: {
-					type: Array.from(Object.keys(Mesh.AttributeType)),
+				type: "array",
+				guiOpts: {
+					arrayType: "dropdown",
+					arrayGuiOpts: {
+						items: Array.from(Object.keys(Mesh.AttributeType)),
+					},
 				},
 			},
 		};

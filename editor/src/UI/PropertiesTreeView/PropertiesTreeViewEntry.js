@@ -1,4 +1,3 @@
-import editor from "../../editorInstance.js";
 import TreeView from "../TreeView.js";
 import VectorGui from "../VectorGui.js";
 import NumericGui from "../NumericGui.js";
@@ -11,8 +10,6 @@ import Button from "../Button.js";
 import LabelGui from "../LabelGui.js";
 import ObjectGui from "../ObjectGui.js";
 
-import ProjectAsset from "../../Assets/ProjectAsset.js";
-import {Vec3} from "../../../../src/index.js";
 import {prettifyVariableName} from "../../Util/Util.js";
 
 /**
@@ -24,17 +21,36 @@ import {prettifyVariableName} from "../../Util/Util.js";
  */
 
 /**
- * @typedef {Object} PropertiesTreeViewEntryOptions
+ * @typedef {Object} PropertiesTreeViewGuiOptionsMap
+ * @property {import("../VectorGui.js").VectorGuiOptions} vec3
+ * @property {import("../TextGui.js").TextGuiOptions} string
+ * @property {import("../NumericGui.js").NumericGuiOptions} number
+ * @property {import("../BooleanGui.js").BooleanGuiOptions} boolean
+ * @property {import("../Button.js").ButtonGuiOptions} button
+ * @property {import("../LabelGui.js").LabelGuiOptions} label
+ * @property {import("../DropDownGui.js").DropDownGuiOptions} dropdown
+ * @property {import("../DroppableGui.js").DroppableGuiOptions} droppable
+ * @property {import("../ArrayGui.js").ArrayGuiOptions} array
+ * @property {import("../ObjectGui.js").ObjectGuiOptions} object
+ */
+
+/** @typedef {keyof PropertiesTreeViewGuiOptionsMap} PropertiesTreeViewEntryType */
+/** @typedef {PropertiesTreeViewGuiOptionsMap[PropertiesTreeViewEntryType]} GuiOptionsGeneric */
+
+/**
+ * @template {PropertiesTreeViewEntryType} T
+ * @typedef {Object} PropertiesTreeViewEntryOptionsGeneric
  * @property {PropertiesTreeViewEntryType} [type]
  * @property {*} [defaultValue = undefined]
- * @property {GuiOptions} [guiOpts = {}]
- * @property {Object} [arrayOpts = {}]
+ * @property {PropertiesTreeViewGuiOptionsMap[T]} [guiOpts = {}]
  * @property {Object} [callbacksContext = {}]
  */
 
-/** @typedef {*} DroppableGuiConstructorType */
+/** @typedef {PropertiesTreeViewEntryOptionsGeneric<PropertiesTreeViewEntryType>} PropertiesTreeViewEntryOptions */
 
-/** @typedef {typeof Vec3 | typeof String | typeof Number | typeof Boolean | typeof Array | typeof ProjectAsset | DroppableGuiConstructorType | "button" | "label"} PropertiesTreeViewEntryType */
+/** @typedef {Object.<string,PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure */
+
+// @typedef {"vec3" | typeof String | "number" | typeof Boolean | typeof Array | typeof ProjectAsset | "droppable" | "button" | "label"} PropertiesTreeViewEntryType */
 
 /**
  * @typedef {Object} GuiInterface
@@ -61,10 +77,9 @@ export default class PropertiesTreeViewEntry extends TreeView {
 	 * @param {PropertiesTreeViewEntryOptions} opts
 	 */
 	constructor({
-		type = Number,
+		type = "number",
 		defaultValue = undefined,
 		guiOpts = {},
-		arrayOpts = {},
 		callbacksContext = {},
 	} = {}) {
 		super({
@@ -87,41 +102,37 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		// todo: also allow type to be a string
-
 		this.type = type;
-		if (type == String) {
+		if (type == "string") {
 			this.gui = new TextGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
-		} else if (type === Vec3) {
+		} else if (type === "vec3") {
 			this.gui = new VectorGui({
 				defaultValue,
 				size: 3,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		} else if (type == Number) {
+		} else if (type == "number") {
 			this.gui = new NumericGui({
 				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		} else if (type == Boolean) {
+		} else if (type == "boolean") {
 			this.gui = new BooleanGui({
 				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		} else if (Array.isArray(type)) {
+		} else if (type == "dropdown") {
 			this.gui = new DropDownGui({
-				items: type,
 				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
-		} else if (type == Array) {
+		} else if (type == "array") {
 			this.gui = new ArrayGui({
-				arrayOpts,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
@@ -147,9 +158,8 @@ export default class PropertiesTreeViewEntry extends TreeView {
 		} else if (type == "label") {
 			this.gui = new LabelGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
-		} else if (editor.projectAssetTypeManager.constructorHasAssetType(type) || type == ProjectAsset) {
+		} else if (type == "droppable") {
 			this.gui = new DroppableGui({
-				supportedAssetTypes: [type],
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);

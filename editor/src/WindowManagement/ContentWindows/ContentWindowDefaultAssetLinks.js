@@ -16,10 +16,16 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 
 		this.builtInAssetLinkGuiStructure = this.getAssetLinkGuiStructure(true);
 
+		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.guiStructure = {
 			defaultAssetLinks: {
-				type: Array,
-				arrayOpts: this.getAssetLinkGuiStructure(false),
+				type: "array",
+				guiOpts: {
+					arrayType: "object",
+					arrayGuiOpts: {
+						structure: this.getAssetLinkGuiStructure(false),
+					},
+				},
 			},
 		};
 
@@ -72,23 +78,27 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 
 	/**
 	 * @param {boolean} isBuiltIn
-	 * @returns {{type: *}}
 	 */
 	getAssetLinkGuiStructure(isBuiltIn) {
+		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		const typeObj = {};
 		if (!isBuiltIn) {
-			typeObj.name = {type: String};
+			typeObj.name = {type: "string"};
 		}
-		typeObj.originalAsset = {type: ProjectAsset};
-		typeObj.defaultAsset = {
-			type: ProjectAsset,
+		typeObj.originalAsset = {
+			type: "droppable",
 			guiOpts: {
+				supportedAssetTypes: [ProjectAsset],
+			},
+		};
+		typeObj.defaultAsset = {
+			type: "droppable",
+			guiOpts: {
+				supportedAssetTypes: [ProjectAsset],
 				disabled: true,
 			},
 		};
-		return {
-			type: typeObj,
-		};
+		return typeObj;
 	}
 
 	handleGuiValueChange() {

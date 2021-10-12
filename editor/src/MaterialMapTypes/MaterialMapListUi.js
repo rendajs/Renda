@@ -9,13 +9,13 @@ export default class MaterialMapListUi {
 		for (const item of items) {
 			const collapsable = this.treeView.addCollapsable(item.name);
 			const visibleEntry = collapsable.addItem({
-				type: Boolean,
+				type: "boolean",
 				guiOpts: {
 					label: "Visible",
 				},
 			});
 			const mappedNameEntry = collapsable.addItem({
-				type: String,
+				type: "string",
 				/** @type {import("../UI/TextGui.js").TextGuiOptions} */
 				guiOpts: {
 					label: "Mapped Name",

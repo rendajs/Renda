@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Vec3, defaultComponentTypeManager} from "../../../src/index.js";
+import {Entity, defaultComponentTypeManager} from "../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import DroppableGui from "../UI/DroppableGui.js";
@@ -19,7 +19,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 
 		const entitySection = this.treeView.addCollapsable("Entity");
 		this.positionProperty = entitySection.addItem({
-			type: Vec3,
+			type: "vec3",
 			guiOpts: {
 				label: "Position",
 			},
@@ -32,7 +32,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 
 		this.rotationProperty = entitySection.addItem({
-			type: Vec3,
+			type: "vec3",
 			guiOpts: {
 				label: "Rotation",
 			},
@@ -45,7 +45,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 
 		this.scaleProperty = entitySection.addItem({
-			type: Vec3,
+			type: "vec3",
 			guiOpts: {
 				label: "Scale",
 			},
