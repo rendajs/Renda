@@ -90,7 +90,6 @@ export default class ShaderBuilder {
 
 	async fireShaderUuidRequested(uuid) {
 		let unparsedPromiseItems = [];
-		const shaderCode = null;
 		for (const cb of this.onShaderUuidRequestedCbs) {
 			const promiseItem = {
 				resolved: false,

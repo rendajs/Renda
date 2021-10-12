@@ -379,7 +379,7 @@ export default class WebGpuRenderer extends Renderer {
 	}
 
 	disposeMaterial(material) {
-		const materialData = this.getCachedMaterialData(material);
+		// const materialData = this.getCachedMaterialData(material);
 		this.cachedMaterialData.delete(material);
 		// this.removeUsedByObjectFromPipeline(materialData.forwardPipeline, material);
 	}

@@ -470,7 +470,6 @@ export default class BinaryComposer {
 	 * @param {*} buffer
 	 * @param {*} assetLoader
 	 * @param {*} param2
-	 * @returns
 	 */
 	static async binaryToObjectWithAssetLoader(buffer, assetLoader, {
 		structure = null,
@@ -656,6 +655,8 @@ export default class BinaryComposer {
 				return 0b10;
 			case StorageType.UINT32:
 				return 0b11;
+			default:
+				return 0;
 		}
 	}
 
@@ -669,6 +670,8 @@ export default class BinaryComposer {
 				return StorageType.UINT16;
 			case 0b11:
 				return StorageType.UINT32;
+			default:
+				return 0;
 		}
 	}
 
@@ -813,6 +816,7 @@ export default class BinaryComposer {
 		} else if (type == StorageType.NULL) {
 			return {length: 0};
 		}
+		return {length: 0};
 	}
 
 	static setDataViewValue(dataView, value, type, byteOffset = 0, {
@@ -1037,7 +1041,6 @@ export default class BinaryComposer {
 	 * @param {BinaryToObjectTransformValueHook} [opts.transformValueHook]
 	 * @param {StorageType} [opts.transformValueHookType]
 	 * @param {number} [locationOffset]
-	 * @returns
 	 */
 	static resolveBinaryValueLocation(obj, {
 		value, location, nameIdsMapInverse, variableLengthArrayIndex,

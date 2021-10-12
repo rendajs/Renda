@@ -178,6 +178,8 @@ export default class WebGlRenderer extends Renderer {
 				return this.gl.FLOAT;
 			case MeshAttributeBuffer.ComponentTypes.HALF_FLOAT:
 				return this.gl.HALF_FLOAT;
+			default:
+				throw new Error("Unknown component type");
 		}
 	}
 

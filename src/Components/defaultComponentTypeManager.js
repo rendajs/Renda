@@ -1,4 +1,4 @@
 import ComponentTypeManager from "./ComponentTypeManager.js";
 
-let defaultComponentTypeManager = new ComponentTypeManager();
+const defaultComponentTypeManager = new ComponentTypeManager();
 export default defaultComponentTypeManager;

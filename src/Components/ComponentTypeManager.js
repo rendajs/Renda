@@ -46,5 +46,6 @@ export default class ComponentTypeManager {
 		} else if (registerIfNotFound) {
 			return this.registerComponent(componentData);
 		}
+		return null;
 	}
 }
