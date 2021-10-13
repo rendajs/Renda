@@ -97,8 +97,8 @@ export default class Quaternion {
 		return q;
 	}
 
-	setFromAxisAngle(args) {
-		const q = Quaternion.fromAxisAngle(...arguments);
+	setFromAxisAngle(...args) {
+		const q = Quaternion.fromAxisAngle(...args);
 		this.set(q);
 	}
 
@@ -116,8 +116,8 @@ export default class Quaternion {
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
-	static fromEuler(x, y, z) {
-		const vec = new Vec3(...arguments);
+	static fromEuler(...args) {
+		const vec = new Vec3(...args);
 
 		const c1 = Math.cos(vec.y / 2);
 		const c2 = Math.cos(vec.z / 2);
@@ -153,8 +153,8 @@ export default class Quaternion {
 		return this;
 	}
 
-	rotateAxisAngle(axis, angle) {
-		const q = Quaternion.fromAxisAngle(...arguments);
+	rotateAxisAngle(...args) {
+		const q = Quaternion.fromAxisAngle(...args);
 		this.multiply(q);
 		return this;
 	}
@@ -173,9 +173,9 @@ export default class Quaternion {
 		return this;
 	}
 
-	rotateVector(x, y, z) {
+	rotateVector(...args) {
 		// TODO: optimise: gamedev.stackexchange.com/a/50545/87477
-		const vec = new Vec3(...arguments);
+		const vec = new Vec3(...args);
 		const pin = new Quaternion(vec.x, vec.y, vec.z, 1);
 		const qconj = new Quaternion(this);
 		qconj.invert();

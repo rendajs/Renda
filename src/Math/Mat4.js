@@ -132,8 +132,8 @@ export default class Mat4 {
 		return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	}
 
-	translate(x, y, z) {
-		const vec = new Vec3(...arguments);
+	translate(...args) {
+		const vec = new Vec3(...args);
 		this.values[3][0] += vec.x;
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
@@ -143,8 +143,8 @@ export default class Mat4 {
 		return new Vec3(this.values[3]);
 	}
 
-	setTranslation(x, y, z) {
-		const vec = new Vec3(...arguments);
+	setTranslation(...args) {
+		const vec = new Vec3(...args);
 		this.values[3][0] = vec.x;
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
@@ -209,8 +209,8 @@ export default class Mat4 {
 		return new Vec3(sx, sy, sz);
 	}
 
-	setScale(x, y, z) {
-		const vec = new Vec3(...arguments);
+	setScale(...args) {
+		const vec = new Vec3(...args);
 		this.values[0][0] = vec.x;
 		this.values[1][1] = vec.y;
 		this.values[2][2] = vec.z;
@@ -278,8 +278,8 @@ export default class Mat4 {
 		]);
 	}
 
-	static createTranslation(v) {
-		v = new Vec3(...arguments);
+	static createTranslation(...args) {
+		const v = new Vec3(...args);
 		return new Mat4([
 			[1, 0, 0, 0],
 			[0, 1, 0, 0],
