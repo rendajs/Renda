@@ -48,10 +48,11 @@ export default class ContentWindowDefaultAssetLinks extends ContentWindow {
 		this.builtInAssetLinksTreeView.clearChildren();
 		for (const builtInAssetLink of editor.builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const item = this.builtInAssetLinksTreeView.addItem({
+				type: "object",
 				guiOpts: {
 					label: builtInAssetLink.name,
+					structure: this.builtInAssetLinkGuiStructure,
 				},
-				...this.builtInAssetLinkGuiStructure,
 			});
 			const assetLink = editor.projectManager.assetManager.getDefaultAssetLink(builtInAssetLink.defaultAssetUuid);
 			item.setValue({
