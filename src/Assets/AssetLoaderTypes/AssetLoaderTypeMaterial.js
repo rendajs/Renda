@@ -9,8 +9,11 @@ export default class AssetLoaderTypeMaterial extends AssetLoaderType {
 		return "430f47a8-82cc-4b4c-a664-2360794e80d6";
 	}
 
-	constructor() {
-		super(...arguments);
+	/**
+	 * @param  {ConstructorParameters<typeof AssetLoaderType>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.registeredLoaderTypes = new Map();
 	}

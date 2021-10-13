@@ -79,12 +79,12 @@ export default class ContextMenu {
 		}
 	}
 
-	setPos() {
-		this.lastPosArguments = Array.from(arguments);
-		let [x, y, clampMode = null] = arguments;
-		let [el, corner = "center", elClampMode = null] = arguments;
-		const [button] = arguments;
-		const [contextMenuItem] = arguments;
+	setPos(...args) {
+		this.lastPosArguments = Array.from(args);
+		let [x, y, clampMode = null] = args;
+		let [el, corner = "center", elClampMode = null] = args;
+		const [button] = args;
+		const [contextMenuItem] = args;
 
 		if (elClampMode) clampMode = elClampMode;
 

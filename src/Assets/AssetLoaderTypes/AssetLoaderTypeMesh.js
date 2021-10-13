@@ -7,8 +7,11 @@ export default class AssetLoaderTypeMesh extends AssetLoaderType {
 		return "f202aae6-673a-497d-806d-c2d4752bb146";
 	}
 
-	constructor() {
-		super(...arguments);
+	/**
+	 * @param  {ConstructorParameters<typeof AssetLoaderType>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.magicHeader = 0x68734D6A;
 	}

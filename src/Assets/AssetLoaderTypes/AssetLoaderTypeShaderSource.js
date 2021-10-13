@@ -6,8 +6,11 @@ export default class AssetLoaderTypeShaderSource extends AssetLoaderType {
 		return "e7253ad6-8459-431f-ac16-609150538a24";
 	}
 
-	constructor() {
-		super(...arguments);
+	/**
+	 * @param  {ConstructorParameters<typeof AssetLoaderType>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.builder = null;
 		this.boundOnShaderUuidRequested = this.onShaderUuidRequested.bind(this);
