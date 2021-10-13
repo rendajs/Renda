@@ -51,20 +51,21 @@ export default class Vec3 {
 	get x() {
 		return this._x;
 	}
-	get y() {
-		return this._y;
-	}
-	get z() {
-		return this._z;
-	}
-
 	set x(value) {
 		this._x = value;
 		this.fireOnChange();
 	}
+
+	get y() {
+		return this._y;
+	}
 	set y(value) {
 		this._y = value;
 		this.fireOnChange();
+	}
+
+	get z() {
+		return this._z;
 	}
 	set z(value) {
 		this._z = value;
