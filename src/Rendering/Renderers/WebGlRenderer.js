@@ -27,7 +27,8 @@ export default class WebGlRenderer extends Renderer {
 
 	async init() {
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = this.canvas.height = 300;
+		this.canvas.width = 300;
+		this.canvas.height = 300;
 		this.gl = this.canvas.getContext("webgl");
 		this.gl.enable(this.gl.DEPTH_TEST);
 	}
@@ -40,7 +41,6 @@ export default class WebGlRenderer extends Renderer {
 			camera.projectionMatrix = Mat4.createDynamicAspectPerspective(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
 		}
 		const vpMatrix = Mat4.multiplyMatrices(camera.entity.worldMatrix.inverse(), camera.projectionMatrix);
-		const meshComponents = [];
 		const rootRenderEntities = [camera.entity.getRoot()];
 		// TODO: don't get root every frame, only when changed
 		// see state of CameraComponent.js in commit 5d2efa1

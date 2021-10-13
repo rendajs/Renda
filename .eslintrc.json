@@ -212,7 +212,8 @@
 					"RTCSessionDescriptionInit",
 					"RTCIceCandidateInit",
 					"RTCDataChannelInit",
-					"PromiseFulfilledResult"
+					"PromiseFulfilledResult",
+					"GPUIndexFormat"
 				]
 			}
 		],

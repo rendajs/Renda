@@ -61,7 +61,8 @@ export default class WebGpuRenderer extends Renderer {
 
 	async init() {
 		this.adapter = await navigator.gpu.requestAdapter();
-		const device = this.device = await this.adapter.requestDevice();
+		const device = await this.adapter.requestDevice();
+		this.device = device;
 
 		this.viewBindGroupLayout = device.createBindGroupLayout({
 			entries: [

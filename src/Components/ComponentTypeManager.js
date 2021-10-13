@@ -14,7 +14,7 @@ export default class ComponentTypeManager {
 		}
 
 		if (componentData && componentData.properties) {
-			for (const [propertyName, property] of Object.entries(componentData.properties)) {
+			for (const [, property] of Object.entries(componentData.properties)) {
 				if (!property.type && property.defaultValue != undefined) {
 					if (typeof property.defaultValue == "number") {
 						property.type = Number;
