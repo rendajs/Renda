@@ -13,6 +13,7 @@
 	},
 	"rules": {
 		"no-constant-condition": ["error", { "checkLoops": false }],
+		"no-undef": "off", // Taken care of by TypeScript
 
 		"array-callback-return": "error",
 		"consistent-return": "error",
