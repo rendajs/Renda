@@ -3,14 +3,13 @@ import Vec4 from "./Vec4.js";
 
 export default class Vec2 {
 	/**
-	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
-	 * @param {number} y
+	 * @param {Vec2SetParameters} args
 	 */
-	constructor(x = 0, y = 0) {
+	constructor(...args) {
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
-		this.set(x, y);
+		this.set(...args);
 	}
 
 	get x() {
@@ -30,22 +29,36 @@ export default class Vec2 {
 	}
 
 	/**
-	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
-	 * @param {number} y
+	 * @typedef {() => this} vec2SetEmptySignature
+	 * @typedef {(vec: Vec2) => this} vec2SetVec2Signature
+	 * @typedef {(vec: Vec3) => this} vec2SetVec3Signature
+	 * @typedef {(vec: Vec4) => this} vec2SetVec4Signature
+	 * @typedef {(x: number, y: number) => this} vec2SetNumNumSignature
+	 * @typedef {(xy: [number,number]) => this} vec2SetArraySignature
+	 * @typedef {Parameters<vec2SetEmptySignature> | Parameters<vec2SetVec2Signature> | Parameters<vec2SetVec3Signature> | Parameters<vec2SetVec4Signature> | Parameters<vec2SetNumNumSignature> | Parameters<vec2SetArraySignature>} Vec2SetParameters
 	 */
-	set(x = 0, y = 0) {
-		if (x instanceof Vec2 || x instanceof Vec3 || x instanceof Vec4) {
-			const vector = x;
-			x = vector.x;
-			y = vector.y;
-		} else if (Array.isArray(x)) {
-			const vector = x;
-			x = vector[0];
-			y = vector[1];
+
+	/**
+	 * @param {Vec2SetParameters} args
+	 */
+	set(...args) {
+		if (args.length == 0) {
+			this._x = 0;
+			this._y = 0;
+		} else if (args.length == 1) {
+			const firstArg = args[0];
+			if (firstArg instanceof Vec2 || firstArg instanceof Vec3 || firstArg instanceof Vec4) {
+				this._x = firstArg.x;
+				this._y = firstArg.y;
+			} else if (Array.isArray(firstArg)) {
+				this._x = firstArg[0];
+				this._y = firstArg[1];
+			}
+		} else if (args.length == 2) {
+			this._x = args[0];
+			this._y = args[1];
 		}
 
-		this._x = x;
-		this._y = y;
 		this.fireOnChange();
 	}
 
@@ -53,14 +66,23 @@ export default class Vec2 {
 		return new Vec2(this);
 	}
 
-	multiply(vectorOrScalar) {
-		if (vectorOrScalar instanceof Vec2 || arguments.length == 3) {
-			return this.multiplyVector(new Vec2(...arguments));
+	/**
+	 * @param {Parameters<typeof this.multiplyScalar> | Vec2SetParameters} args
+	 */
+	multiply(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.multiplyScalar(args[0]);
 		} else {
-			return this.multiplyScalar(vectorOrScalar);
+			const castArgs = /** @type {Vec2SetParameters} */ (args);
+			return this.multiplyVector(new Vec2(...castArgs));
 		}
 	}
 
+	/**
+	 * Multiplies the x and y component by this scalar.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
 	multiplyScalar(scalar) {
 		this._x *= scalar;
 		this._y *= scalar;
@@ -68,6 +90,10 @@ export default class Vec2 {
 		return this;
 	}
 
+	/**
+	 * @param {Vec2} vector
+	 * @returns {this}
+	 */
 	multiplyVector(vector) {
 		this._x *= vector.x;
 		this._y *= vector.y;
@@ -75,11 +101,15 @@ export default class Vec2 {
 		return this;
 	}
 
-	add(vectorOrScalar) {
-		if (vectorOrScalar instanceof Vec2 || arguments.length == 3) {
-			return this.addVector(new Vec2(...arguments));
+	/**
+	 * @param {Parameters<typeof this.addScalar> | Vec2SetParameters} args
+	 */
+	add(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.addScalar(args[0]);
 		} else {
-			return this.addScalar(vectorOrScalar);
+			const castArgs = /** @type {Vec2SetParameters} */ (args);
+			return this.addVector(new Vec2(...castArgs));
 		}
 	}
 
