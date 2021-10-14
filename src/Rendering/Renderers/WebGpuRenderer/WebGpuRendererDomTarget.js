@@ -1,11 +1,17 @@
 import RendererDomTarget from "../../RendererDomTarget.js";
 import RenderOutputConfig from "../../RenderOutputConfig.js";
+import WebGpuRenderer from "./WebGpuRenderer.js";
 
 export default class WebGpuRendererDomTarget extends RendererDomTarget {
+	/**
+	 * @param {WebGpuRenderer} renderer
+	 * @param {Object} opts
+	 * @param {boolean} [opts.depthSupport]
+	 */
 	constructor(renderer, {
 		depthSupport = true,
 	} = {}) {
-		super(...arguments);
+		super(renderer);
 
 		this._outputConfig = new RenderOutputConfig();
 		this.depthSupport = depthSupport; // todo: use output config
@@ -42,8 +48,15 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		};
 	}
 
+	/**
+	 * @returns {WebGpuRenderer}
+	 */
+	get castRenderer() {
+		return /** @type {WebGpuRenderer} */ (this.renderer);
+	}
+
 	gpuReady() {
-		this.swapChainFormat = this.ctx.getPreferredFormat(this.renderer.adapter);
+		this.swapChainFormat = this.ctx.getPreferredFormat(this.castRenderer.adapter);
 
 		this.ready = true;
 		this.generateTextures();
@@ -75,13 +88,13 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		if (!this.ready) return;
 
 		this.swapChain = this.ctx.configure({
-			device: this.renderer.device,
+			device: this.castRenderer.device,
 			format: this.swapChainFormat,
 		});
 
 		if (this.colorTexture) this.colorTexture.destroy();
 		if (this.outputConfig.multisampleCount > 1) {
-			this.colorTexture = this.renderer.device.createTexture({
+			this.colorTexture = this.castRenderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,
@@ -95,7 +108,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 
 		if (this.depthTexture) this.depthTexture.destroy();
 		if (this.depthSupport) {
-			this.depthTexture = this.renderer.device.createTexture({
+			this.depthTexture = this.castRenderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,

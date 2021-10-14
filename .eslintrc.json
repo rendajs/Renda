@@ -215,6 +215,7 @@
 					"RTCDataChannelInit",
 					"PromiseFulfilledResult",
 					"GPUIndexFormat",
+					"GPUTextureFormat",
 					"Parameters",
 					"suspiciousCode"
 				]

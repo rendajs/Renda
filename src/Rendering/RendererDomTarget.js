@@ -1,5 +1,11 @@
+import {Renderer} from "./Rendering.js";
+
 export default class RendererDomTarget {
-	constructor(renderer, ...args) {
+	/**
+	 * @param {Renderer} renderer
+	 * @param {...*} extra
+	 */
+	constructor(renderer, ...extra) {
 		this.renderer = renderer;
 		this.width = 0;
 		this.height = 0;
