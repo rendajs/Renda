@@ -75,38 +75,6 @@ export default class Quaternion {
 	}
 
 	/**
-	 * @callback fromAxisAngleVecNumSignature
-	 * @param  {Vec3} axis
-	 * @param  {number} angle
-	 * @returns {Quaternion}
-	 */
-
-	/**
-	 * @callback fromAxisAngleNumNumNumNumSignature
-	 * @param  {number} x
-	 * @param  {number} y
-	 * @param  {number} z
-	 * @param  {number} angle
-	 * @returns {Quaternion}
-	 */
-
-	/**
-	 * @callback fromAxisAngleNumNumNumSignature
-	 * @param  {number} x
-	 * @param  {number} y
-	 * @param  {number} z
-	 * @returns {Quaternion}
-	 */
-
-	/**
-	 * @callback fromAxisAngleVecSignature
-	 * @param  {Vec3} x
-	 * @returns {Quaternion}
-	 */
-
-	/** @typedef {Parameters<fromAxisAngleVecNumSignature> | Parameters<fromAxisAngleNumNumNumNumSignature> | Parameters<fromAxisAngleNumNumNumSignature> | Parameters<fromAxisAngleVecSignature>} FromAxisAngleParameters */
-
-	/**
 	 * @param {FromAxisAngleParameters} args
 	 */
 	static fromAxisAngle(...args) {
@@ -135,6 +103,14 @@ export default class Quaternion {
 		const q = new Quaternion(qx, qy, qz, qw);
 		return q;
 	}
+
+	/**
+	 * @typedef {(axis: Vec3, angle: number) => this} fromAxisAngleVecNumSignature
+	 * @typedef {(x: number, y: number, z: number, angle: number) => this} fromAxisAngleNumNumNumNumSignature
+	 * @typedef {(x: number, y: number, z: number) => this} fromAxisAngleNumNumNumSignature
+	 * @typedef {(axis: Vec3) => this} fromAxisAngleVecSignature
+	 * @typedef {Parameters<fromAxisAngleVecNumSignature> | Parameters<fromAxisAngleNumNumNumNumSignature> | Parameters<fromAxisAngleNumNumNumSignature> | Parameters<fromAxisAngleVecSignature>} FromAxisAngleParameters
+	 */
 
 	/**
 	 * @param {FromAxisAngleParameters} args
