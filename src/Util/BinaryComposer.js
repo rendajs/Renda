@@ -1,7 +1,9 @@
 import BinaryDecomposer from "./BinaryDecomposer.js";
 
 /**
- * @typedef {Object} BinaryComposerStructure
+ * @typedef {{
+ * [key: string]: (StorageType | string[] | StorageType[] | BinaryComposerStructure[])
+ * }} BinaryComposerStructure
  */
 
 /** @typedef {Object.<string, number>} BinaryComposerNameIds */
@@ -52,11 +54,13 @@ import BinaryDecomposer from "./BinaryDecomposer.js";
 
 /** @typedef {{id: number, type: StorageType}} TraversedLocationData */
 
+/** @typedef {BinaryComposerStructure | BinaryComposerStructure[] | StorageType | StorageType[] | string[]} BinaryComposerStructureRef */
+
 /**
  * @typedef {Object} BinaryComposerStructureDigestible
  * @property {StorageType} type
  * @property {TraversedLocationData[]} location
- * @property {BinaryComposerStructure} [structureRef]
+ * @property {BinaryComposerStructureRef} [structureRef]
  * @property {*} [childData]
  * @property {BinaryComposerStructureDigestible} [arrayType]
  * @property {string[]} [enumStrings]
@@ -678,7 +682,7 @@ export default class BinaryComposer {
 	/**
 	 *
 	 * @param {Object} obj The object that needs be converted to binary.
-	 * @param {BinaryComposerStructure} structure The structure that belongs to this object.
+	 * @param {BinaryComposerStructureRef} structure The structure that belongs to this object.
 	 * @param {Object} opts
 	 * @param {Map<*,number>} opts.referenceIds A mapping of objects and an id that they will be using in the binary representation.
 	 * @param {Map<string,number>} opts.nameIdsMap
@@ -701,17 +705,18 @@ export default class BinaryComposer {
 			}
 
 			if (Array.isArray(structure)) {
-				if (typeof structure[0] == "string") {
+				const castStructure = /** @type {(StorageType | BinaryComposerStructure)[]} */ (structure);
+				if (typeof castStructure[0] == "string") {
 					// structure is an array of strings, treat it as an enum
-					const value = structure.indexOf(obj) + 1; // use 0 if the enum value is invalid
-					const {type} = BinaryComposer.requiredStorageTypeForUint(structure.length);
+					const value = castStructure.indexOf(obj) + 1; // use 0 if the enum value is invalid
+					const {type} = BinaryComposer.requiredStorageTypeForUint(castStructure.length);
 					return {value, type};
 				} else {
 					const arr = [];
-					const variableArrayLength = structure.length == 1;
+					const variableArrayLength = castStructure.length == 1;
 					for (let i = 0; i < obj.length; i++) {
 						const structureIndex = variableArrayLength ? 0 : i;
-						arr.push(BinaryComposer.generateBinaryDigestable(obj[i], structure[structureIndex], {referenceIds, nameIdsMap}));
+						arr.push(BinaryComposer.generateBinaryDigestable(obj[i], castStructure[structureIndex], {referenceIds, nameIdsMap}));
 					}
 					return {value: arr, type: StorageType.ARRAY, variableArrayLength};
 				}
@@ -730,7 +735,8 @@ export default class BinaryComposer {
 				return {value: arr, type: StorageType.OBJECT};
 			}
 		} else {
-			return {value: obj, type: structure};
+			const castStructure = /** @type {StorageType} */ (structure);
+			return {value: obj, type: castStructure};
 		}
 	}
 
@@ -881,7 +887,7 @@ export default class BinaryComposer {
 	}
 
 	/**
-	 * @param {BinaryComposerStructure} structure
+	 * @param {BinaryComposerStructureRef} structure
 	 * @param {TraversedLocationData[]} traversedLocationPath
 	 * @param {Object} opts
 	 * @param {Map<string, number>} opts.nameIdsMap
@@ -897,18 +903,20 @@ export default class BinaryComposer {
 			}
 			if (Array.isArray(structure)) {
 				if (typeof structure[0] == "string") {
+					const castStructure = /** @type {string[]} */ (structure);
 					// structure is an array of strings, treat it as an enum
 					const {type} = BinaryComposer.requiredStorageTypeForUint(structure.length);
-					return {type, location: traversedLocationPath, enumStrings: structure};
+					return {type, location: traversedLocationPath, enumStrings: castStructure};
 				} else {
-					const variableArrayLength = structure.length == 1;
+					const castStructure = /** @type {BinaryComposerStructure[] | number[]} */ (structure);
+					const variableArrayLength = castStructure.length == 1;
 					if (variableArrayLength) {
 						const newTraversedLocationPath = [...traversedLocationPath, {id: -1, type: StorageType.ARRAY}];
-						const arrayType = BinaryComposer.generateStructureDigestable(structure[0], newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences});
+						const arrayType = BinaryComposer.generateStructureDigestable(castStructure[0], newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences});
 						return {type: StorageType.ARRAY, arrayType, location: traversedLocationPath};
 					} else {
 						const arr = [];
-						for (const [i, arrayItem] of structure.entries()) {
+						for (const [i, arrayItem] of castStructure.entries()) {
 							const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: StorageType.ARRAY}];
 							arr.push(BinaryComposer.generateStructureDigestable(arrayItem, newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences}));
 						}
@@ -931,7 +939,8 @@ export default class BinaryComposer {
 				return {type: StorageType.OBJECT, childData: arr, location: traversedLocationPath};
 			}
 		} else {
-			return {type: structure, location: traversedLocationPath};
+			const castStructure = /** @type {StorageType} */ (structure);
+			return {type: castStructure, location: traversedLocationPath};
 		}
 	}
 

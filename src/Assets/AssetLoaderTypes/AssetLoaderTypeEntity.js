@@ -4,6 +4,7 @@ import Entity from "../../Core/Entity.js";
 import Mat4 from "../../Math/Mat4.js";
 import defaultComponentTypeManager from "../../Components/defaultComponentTypeManager.js";
 
+/** @type {import("../../Util/BinaryComposer.js").BinaryComposerStructure} */
 const entityBinaryStructure = {
 	name: StorageType.STRING,
 	matrix: [StorageType.FLOAT32],
