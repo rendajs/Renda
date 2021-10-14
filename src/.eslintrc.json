@@ -1,6 +1,10 @@
 {
 	"rules": {
 		// Sometimes this is necessary for closure compiler
-		"quote-props": "off"
+		"quote-props": "off",
+
+		// Closure compiler needs quotes to access named capture groups
+		// So using regular capture groups is preferred
+		"prefer-named-capture-group": "off"
 	}
 }
