@@ -221,7 +221,7 @@ export default class BinaryComposer {
 		}
 
 		const highestReferenceId = sortedReferences.length - 1;
-		const {type: refIdStorageType, refIdLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(highestReferenceId);
+		const {type: refIdStorageType} = BinaryComposer.requiredStorageTypeForUint(highestReferenceId);
 
 		/** @type {BinaryComposerBinaryDigestible[]} */
 		const binaryDigestable = [];
@@ -232,7 +232,7 @@ export default class BinaryComposer {
 
 		const biggestVariableArrayLength = BinaryComposer.findBiggestVariableArrayLength(binaryDigestable);
 		const dataContainsVariableLengthArrays = biggestVariableArrayLength >= 0;
-		const {type: arrayLengthStorageType, bytes: arrayLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(biggestVariableArrayLength);
+		const {type: arrayLengthStorageType} = BinaryComposer.requiredStorageTypeForUint(biggestVariableArrayLength);
 
 		const biggestStringLength = 600; // todo
 		const {type: stringLengthStorageType, bytes: stringLengthByteLength} = BinaryComposer.requiredStorageTypeForUint(biggestStringLength);
