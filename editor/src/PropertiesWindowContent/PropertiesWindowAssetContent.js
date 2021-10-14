@@ -4,6 +4,11 @@ import editor from "../editorInstance.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
 import PropertiesAssetContentGenericStructure from "../PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
+/**
+ * @typedef {Object} PropertiesWindowAssetContentCallbacksContext
+ * @property {*[]} selectedAssets
+ */
+
 export default class PropertiesWindowAssetContent extends PropertiesWindowContent {
 	constructor() {
 		super();
@@ -68,11 +73,12 @@ export default class PropertiesWindowAssetContent extends PropertiesWindowConten
 			}
 		}
 
-		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {
-			callbacksContext: {
-				selectedAssets: this.currentSelection,
-			},
-		});
+		/** @type {PropertiesWindowAssetContentCallbacksContext} */
+		const callbacksContext = {
+			selectedAssets: this.currentSelection,
+		};
+
+		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {callbacksContext});
 		this.isUpdatingAssetSettingsUi = true;
 		this.assetSettingsTree.fillSerializableStructureValues(settingsValues);
 		this.isUpdatingAssetSettingsUi = false;
