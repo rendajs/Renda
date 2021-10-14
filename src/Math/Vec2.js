@@ -42,21 +42,23 @@ export default class Vec2 {
 	 * @param {Vec2SetParameters} args
 	 */
 	set(...args) {
-		if (args.length == 0) {
-			this._x = 0;
-			this._y = 0;
-		} else if (args.length == 1) {
+		this._x = 0;
+		this._y = 0;
+
+		if (args.length == 1) {
 			const arg = args[0];
 			if (arg instanceof Vec2 || arg instanceof Vec3 || arg instanceof Vec4) {
 				this._x = arg.x;
 				this._y = arg.y;
 			} else if (Array.isArray(arg)) {
-				if (args.length >= 1) this._x = arg[0];
-				if (args.length >= 2) this._y = arg[1];
+				this._x = 0;
+				this._y = 0;
+				if (arg.length >= 1) this._x = arg[0];
+				if (arg.length >= 2) this._y = arg[1];
 			}
 		} else if (args.length == 2) {
-			this._x = args[0];
-			this._y = args[1];
+			if (args.length >= 1) this._x = args[0];
+			if (args.length >= 2) this._y = args[1];
 		}
 
 		this.fireOnChange();

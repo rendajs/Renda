@@ -2,20 +2,27 @@ import Vec2 from "./Vec2.js";
 import Vec3 from "./Vec3.js";
 import Mat4 from "./Mat4.js";
 
+/**
+ * @typedef {() => Vec4} vec4SetEmptySignature
+ * @typedef {(vec: Vec2) => Vec4} vec4SetVec2Signature
+ * @typedef {(vec: Vec3) => Vec4} vec4SetVec3Signature
+ * @typedef {(vec: Vec4) => Vec4} vec4SetVec4Signature
+ * @typedef {(x?: number, y?: number, z?: number, w?: number) => Vec4} vec4SetNumNumSignature
+ * @typedef {(xyzw: number[]) => Vec4} vec4SetArraySignature
+ * @typedef {Parameters<vec4SetEmptySignature> | Parameters<vec4SetVec2Signature> | Parameters<vec4SetVec3Signature> | Parameters<vec4SetVec4Signature> | Parameters<vec4SetNumNumSignature> | Parameters<vec4SetArraySignature>} Vec4Parameters
+ */
+
 export default class Vec4 {
 	/**
-	 * @param {number | Vec3 | Vec4 | number[]} x
-	 * @param {number} y
-	 * @param {number} z
-	 * @param {number} w
+	 * @param {Vec4Parameters} args
 	 */
-	constructor(x = 0, y = 0, z = 0, w = 1) {
+	constructor(...args) {
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
 		this._w = 1;
-		this.set(x, y, z, w);
+		this.set(...args);
 	}
 
 	get x() {
@@ -51,40 +58,49 @@ export default class Vec4 {
 	}
 
 	/**
-	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
-	 * @param {number} y
-	 * @param {number} z
-	 * @param {number} w
+	 * @param {Vec4Parameters} args
 	 */
-	set(x = 0, y = 0, z = 0, w = 0) {
-		if (x instanceof Vec4) {
-			const vector = x;
-			x = vector.x;
-			y = vector.y;
-			z = vector.z;
-		} else if (x instanceof Vec3) {
-			const vector = x;
-			x = vector.x;
-			y = vector.y;
-			z = vector.z;
-			w = 1;
-		} else if (x instanceof Vec2) {
-			const vector = x;
-			x = vector.x;
-			y = vector.y;
-			z = 0;
-			w = 1;
-		} else if (Array.isArray(x)) {
-			const vector = x;
-			x = vector[0];
-			y = vector[1];
-			z = vector[2];
+	set(...args) {
+		this._x = 0;
+		this._y = 0;
+		this._z = 0;
+		this._w = 1;
+
+		if (args.length == 1) {
+			const arg = args[0];
+			if (arg instanceof Vec4) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = arg.z;
+				this._w = arg.w;
+			} else if (arg instanceof Vec3) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = arg.z;
+				this._w = 1;
+			} else if (arg instanceof Vec2) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = 0;
+				this._w = 1;
+			} else if (Array.isArray(arg)) {
+				if (arg.length >= 1) this._x = arg[0];
+				if (arg.length >= 2) this._y = arg[1];
+				if (arg.length >= 3) this._z = arg[2];
+				if (arg.length >= 4) this._w = arg[3];
+			} else if (typeof arg == "number") {
+				this._x = arg;
+				this._y = 0;
+				this._z = 0;
+				this._w = 1;
+			}
+		} else {
+			if (args.length >= 1) this._x = args[0];
+			if (args.length >= 2) this._y = args[1];
+			if (args.length >= 3) this._z = args[2];
+			if (args.length >= 4) this._w = args[3];
 		}
 
-		this._x = x;
-		this._y = y;
-		this._z = z;
-		this._w = w;
 		this.fireOnChange();
 	}
 
@@ -92,16 +108,27 @@ export default class Vec4 {
 		return new Vec4(this);
 	}
 
-	multiply(vectorScalarOrMatrix) {
-		if (vectorScalarOrMatrix instanceof Vec4 || vectorScalarOrMatrix instanceof Vec3 || arguments.length == 4 || arguments.length == 3) {
-			return this.multiplyVector(new Vec4(...arguments));
-		} else if (vectorScalarOrMatrix instanceof Mat4) {
-			return this.multiplyMatrix(vectorScalarOrMatrix);
-		} else {
-			return this.multiplyScalar(vectorScalarOrMatrix);
+	/**
+	 * @param {Parameters<typeof this.multiplyScalar> | Parameters<typeof this.multiplyMatrix> | Vec4Parameters} args
+	 */
+	multiply(...args) {
+		if (args.length == 1) {
+			if (typeof args[0] == "number") {
+				return this.multiplyScalar(args[0]);
+			} else if (args[0] instanceof Mat4) {
+				return this.multiplyMatrix(args[0]);
+			}
 		}
+
+		const castArgs = /** @type {Vec4Parameters} */ (args);
+		return this.multiplyVector(new Vec4(...castArgs));
 	}
 
+	/**
+	 * Multiplies components by a scalar.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
 	multiplyScalar(scalar) {
 		this._x *= scalar;
 		this._y *= scalar;
@@ -111,6 +138,11 @@ export default class Vec4 {
 		return this;
 	}
 
+	/**
+	 * Multiplies components by the value of their respective components.
+	 * @param {Vec4} vector
+	 * @returns {this}
+	 */
 	multiplyVector(vector) {
 		this._x *= vector.x;
 		this._y *= vector.y;
@@ -120,6 +152,11 @@ export default class Vec4 {
 		return this;
 	}
 
+	/**
+	 * Multiplies the vector by a matrix.
+	 * @param {Mat4} mat4
+	 * @returns {this}
+	 */
 	multiplyMatrix(mat4) {
 		const x = this._x;
 		const y = this._y;
@@ -130,30 +167,45 @@ export default class Vec4 {
 		this._z = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + w * mat4.values[3][2];
 		this._w = x * mat4.values[0][3] + y * mat4.values[1][3] + z * mat4.values[2][3] + w * mat4.values[3][3];
 		this.fireOnChange();
-	}
-
-	divide(vectorOrScalar) {
-		if (vectorOrScalar instanceof Vec4 || vectorOrScalar instanceof Vec3 || arguments.length == 4 || arguments.length == 3) {
-			return this.divideVector(new Vec4(...arguments));
-		} else {
-			return this.divideScalar(vectorOrScalar);
-		}
-	}
-
-	divideVector(vector) {
-		this._x /= vector.x;
-		this._y /= vector.y;
-		this._z /= vector.z;
-		this._w /= vector.w;
-		this.fireOnChange();
 		return this;
 	}
 
+	/**
+	 * @param {Parameters<typeof this.multiplyScalar> | Vec4Parameters} args
+	 */
+	divide(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.divideScalar(args[0]);
+		} else {
+			const castArgs = /** @type {Vec4Parameters} */ (args);
+			return this.divideVector(new Vec4(...castArgs));
+		}
+	}
+
+	/**
+	 * Divides components by a scalar.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
 	divideScalar(scalar) {
 		this._x /= scalar;
 		this._y /= scalar;
 		this._z /= scalar;
 		this._w /= scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Divides components by the value of their respective components.
+	 * @param {Vec4} vector
+	 * @returns {this}
+	 */
+	divideVector(vector) {
+		this._x /= vector.x;
+		this._y /= vector.y;
+		this._z /= vector.z;
+		this._w /= vector.w;
 		this.fireOnChange();
 		return this;
 	}
