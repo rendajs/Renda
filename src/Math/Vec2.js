@@ -34,7 +34,7 @@ export default class Vec2 {
 	 * @typedef {(vec: Vec3) => this} vec2SetVec3Signature
 	 * @typedef {(vec: Vec4) => this} vec2SetVec4Signature
 	 * @typedef {(x: number, y: number) => this} vec2SetNumNumSignature
-	 * @typedef {(xy: [number,number]) => this} vec2SetArraySignature
+	 * @typedef {(xy: number[]) => this} vec2SetArraySignature
 	 * @typedef {Parameters<vec2SetEmptySignature> | Parameters<vec2SetVec2Signature> | Parameters<vec2SetVec3Signature> | Parameters<vec2SetVec4Signature> | Parameters<vec2SetNumNumSignature> | Parameters<vec2SetArraySignature>} Vec2SetParameters
 	 */
 
@@ -46,13 +46,13 @@ export default class Vec2 {
 			this._x = 0;
 			this._y = 0;
 		} else if (args.length == 1) {
-			const firstArg = args[0];
-			if (firstArg instanceof Vec2 || firstArg instanceof Vec3 || firstArg instanceof Vec4) {
-				this._x = firstArg.x;
-				this._y = firstArg.y;
-			} else if (Array.isArray(firstArg)) {
-				this._x = firstArg[0];
-				this._y = firstArg[1];
+			const arg = args[0];
+			if (arg instanceof Vec2 || arg instanceof Vec3 || arg instanceof Vec4) {
+				this._x = arg.x;
+				this._y = arg.y;
+			} else if (Array.isArray(arg)) {
+				if (args.length >= 1) this._x = arg[0];
+				if (args.length >= 2) this._y = arg[1];
 			}
 		} else if (args.length == 2) {
 			this._x = args[0];
@@ -79,7 +79,7 @@ export default class Vec2 {
 	}
 
 	/**
-	 * Multiplies the x and y component by this scalar.
+	 * Multiplies components by a scalar.
 	 * @param {number} scalar
 	 * @returns {this}
 	 */
@@ -91,6 +91,7 @@ export default class Vec2 {
 	}
 
 	/**
+	 * Multiplies components by the value of their respective components.
 	 * @param {Vec2} vector
 	 * @returns {this}
 	 */
@@ -113,6 +114,11 @@ export default class Vec2 {
 		}
 	}
 
+	/**
+	 * Adds a scalar to each component.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
 	addScalar(scalar) {
 		this._x += scalar;
 		this._y += scalar;
@@ -120,6 +126,11 @@ export default class Vec2 {
 		return this;
 	}
 
+	/**
+	 * Adds components to their respective components.
+	 * @param {Vec2} vector
+	 * @returns {this}
+	 */
 	addVector(vector) {
 		this._x += vector.x;
 		this._y += vector.y;

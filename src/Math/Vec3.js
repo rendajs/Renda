@@ -4,16 +4,14 @@ import Vec4 from "./Vec4.js";
 
 export default class Vec3 {
 	/**
-	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
-	 * @param {number} y
-	 * @param {number} z
+	 * @param {Vec3SetParameters} args
 	 */
-	constructor(x = 0, y = 0, z = 0) {
+	constructor(...args) {
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
-		this.set(x, y, z);
+		this.set(...args);
 	}
 
 	static get left() {
@@ -73,31 +71,48 @@ export default class Vec3 {
 	}
 
 	/**
-	 * @param {number | Vec2 | Vec3 | Vec4 | number[]} x
-	 * @param {number} y
-	 * @param {number} z
+	 * @typedef {() => this} vec3SetEmptySignature
+	 * @typedef {(vec: Vec2) => this} vec3SetVec2Signature
+	 * @typedef {(vec: Vec3) => this} vec3SetVec3Signature
+	 * @typedef {(vec: Vec4) => this} vec3SetVec4Signature
+	 * @typedef {(x?: number, y?: number, z?: number) => this} vec3SetNumNumSignature
+	 * @typedef {(xyz: number[]) => this} vec3SetArraySignature
+	 * @typedef {Parameters<vec3SetEmptySignature> | Parameters<vec3SetVec2Signature> | Parameters<vec3SetVec3Signature> | Parameters<vec3SetVec4Signature> | Parameters<vec3SetNumNumSignature> | Parameters<vec3SetArraySignature>} Vec3SetParameters
 	 */
-	set(x = 0, y = 0, z = 0) {
-		if (x instanceof Vec3 || x instanceof Vec4) {
-			const vector = x;
-			x = vector.x;
-			y = vector.y;
-			z = vector.z;
-		} else if (x instanceof Vec2) {
-			const vector = x;
-			x = vector.x;
-			y = vector.y;
-			z = 0;
-		} else if (Array.isArray(x)) {
-			const vector = x;
-			x = vector[0];
-			y = vector[1];
-			z = vector[2];
+
+	/**
+	 * @param {Vec3SetParameters} args
+	 */
+	set(...args) {
+		if (args.length == 0) {
+			this._x = 0;
+			this._y = 0;
+			this._z = 0;
+		} else if (args.length == 1) {
+			const arg = args[0];
+			if (arg instanceof Vec3 || arg instanceof Vec4) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = arg.z;
+			} else if (arg instanceof Vec2) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = 0;
+			} else if (Array.isArray(arg)) {
+				if (args.length >= 1) this._x = arg[0];
+				if (args.length >= 2) this._y = arg[1];
+				if (args.length >= 3) this._z = arg[2];
+			} else if (typeof arg == "number") {
+				this._x = arg;
+				this._y = 0;
+				this._z = 0;
+			}
+		} else {
+			this._x = args[0];
+			this._y = args[1];
+			this._z = args[2];
 		}
 
-		this._x = x;
-		this._y = y;
-		this._z = z;
 		this.fireOnChange();
 	}
 
@@ -126,16 +141,27 @@ export default class Vec3 {
 		return this;
 	}
 
-	multiply(vectorScalarOrMatrix) {
-		if (vectorScalarOrMatrix instanceof Vec4 || vectorScalarOrMatrix instanceof Vec3 || arguments.length == 4 || arguments.length == 3) {
-			return this.multiplyVector(new Vec3(...arguments));
-		} else if (vectorScalarOrMatrix instanceof Mat4) {
-			return this.multiplyMatrix(vectorScalarOrMatrix);
-		} else {
-			return this.multiplyScalar(vectorScalarOrMatrix);
+	/**
+	 * @param {Parameters<typeof this.multiplyScalar> | Parameters<typeof this.multiplyMatrix> | Vec3SetParameters} args
+	 */
+	multiply(...args) {
+		if (args.length == 1) {
+			if (typeof args[0] == "number") {
+				return this.multiplyScalar(args[0]);
+			} else if (args[0] instanceof Mat4) {
+				return this.multiplyMatrix(args[0]);
+			}
 		}
+
+		const castArgs = /** @type {Vec3SetParameters} */ (args);
+		return this.multiplyVector(new Vec3(...castArgs));
 	}
 
+	/**
+	 * Multiplies components by a scalar.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
 	multiplyScalar(scalar) {
 		this._x *= scalar;
 		this._y *= scalar;
@@ -144,6 +170,11 @@ export default class Vec3 {
 		return this;
 	}
 
+	/**
+	 * Multiplies components by the value of their respective components.
+	 * @param {Vec3} vector
+	 * @returns {this}
+	 */
 	multiplyVector(vector) {
 		this._x *= vector.x;
 		this._y *= vector.y;
@@ -152,6 +183,11 @@ export default class Vec3 {
 		return this;
 	}
 
+	/**
+	 * Multiplies the vector by a matrix.
+	 * @param {Mat4} mat4
+	 * @returns {this}
+	 */
 	multiplyMatrix(mat4) {
 		const x = this._x;
 		const y = this._y;
@@ -163,22 +199,23 @@ export default class Vec3 {
 		return this;
 	}
 
-	divide(vectorOrScalar) {
-		if (vectorOrScalar instanceof Vec4 || vectorOrScalar instanceof Vec3 || arguments.length == 4 || arguments.length == 3) {
-			return this.divideVector(new Vec3(...arguments));
+	/**
+	 * @param {Parameters<typeof this.multiplyScalar> | Vec3SetParameters} args
+	 */
+	divide(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.divideScalar(args[0]);
 		} else {
-			return this.divideScalar(vectorOrScalar);
+			const castArgs = /** @type {Vec3SetParameters} */ (args);
+			return this.divideVector(new Vec3(...castArgs));
 		}
 	}
 
-	divideVector(vector) {
-		this._x /= vector.x;
-		this._y /= vector.y;
-		this._z /= vector.z;
-		this.fireOnChange();
-		return this;
-	}
-
+	/**
+	 * Divides components by a scalar.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
 	divideScalar(scalar) {
 		this._x /= scalar;
 		this._y /= scalar;
@@ -187,14 +224,33 @@ export default class Vec3 {
 		return this;
 	}
 
-	add(vectorOrScalar) {
-		if (vectorOrScalar instanceof Vec4 || vectorOrScalar instanceof Vec3 || arguments.length == 4 || arguments.length == 3) {
-			return this.addVector(new Vec3(...arguments));
+	/**
+	 * Divides components by the value of their respective components.
+	 * @param {Vec3} vector
+	 * @returns {this}
+	 */
+	divideVector(vector) {
+		this._x /= vector.x;
+		this._y /= vector.y;
+		this._z /= vector.z;
+		this.fireOnChange();
+		return this;
+	}
+
+	add(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.addScalar(args[0]);
 		} else {
-			return this.addScalar(vectorOrScalar);
+			const castArgs = /** @type {Vec3SetParameters} */ (args);
+			return this.addVector(new Vec3(...castArgs));
 		}
 	}
 
+	/**
+	 * Adds a scalar to each component.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
 	addScalar(scalar) {
 		this._x += scalar;
 		this._y += scalar;
@@ -203,6 +259,11 @@ export default class Vec3 {
 		return this;
 	}
 
+	/**
+	 * Adds components to their respective components.
+	 * @param {Vec3} vector
+	 * @returns {this}
+	 */
 	addVector(vector) {
 		this._x += vector.x;
 		this._y += vector.y;
