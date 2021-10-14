@@ -213,7 +213,8 @@
 					"RTCIceCandidateInit",
 					"RTCDataChannelInit",
 					"PromiseFulfilledResult",
-					"GPUIndexFormat"
+					"GPUIndexFormat",
+					"Parameters"
 				]
 			}
 		],

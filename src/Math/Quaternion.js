@@ -74,12 +74,51 @@ export default class Quaternion {
 		this.fireOnChange();
 	}
 
-	static fromAxisAngle(axis, angle) {
-		if (arguments.length == 4) {
-			axis = new Vec3(arguments[0], arguments[1], arguments[2]);
-			angle = arguments[3];
-		} else if (arguments.length == 3) {
-			axis = new Vec3(arguments[0], arguments[1], arguments[2]);
+	/**
+	 * @callback fromAxisAngleVecNumSignature
+	 * @param  {Vec3} axis
+	 * @param  {number} angle
+	 * @returns {Quaternion}
+	 */
+
+	/**
+	 * @callback fromAxisAngleNumNumNumNumSignature
+	 * @param  {number} x
+	 * @param  {number} y
+	 * @param  {number} z
+	 * @param  {number} angle
+	 * @returns {Quaternion}
+	 */
+
+	/**
+	 * @callback fromAxisAngleNumNumNumSignature
+	 * @param  {number} x
+	 * @param  {number} y
+	 * @param  {number} z
+	 * @returns {Quaternion}
+	 */
+
+	/**
+	 * @callback fromAxisAngleVecSignature
+	 * @param  {Vec3} x
+	 * @returns {Quaternion}
+	 */
+
+	/** @typedef {Parameters<fromAxisAngleVecNumSignature> | Parameters<fromAxisAngleNumNumNumNumSignature> | Parameters<fromAxisAngleNumNumNumSignature> | Parameters<fromAxisAngleVecSignature>} FromAxisAngleParameters */
+
+	/**
+	 * @param {FromAxisAngleParameters} args
+	 */
+	static fromAxisAngle(...args) {
+		/** @type {Vec3} */
+		let axis;
+		/** @type {number} */
+		let angle;
+		if (args.length == 4) {
+			axis = new Vec3(args[0], args[1], args[2]);
+			angle = args[3];
+		} else if (args.length == 3) {
+			axis = new Vec3(args[0], args[1], args[2]);
 			angle = undefined;
 		}
 		if (angle == undefined) {
@@ -97,9 +136,13 @@ export default class Quaternion {
 		return q;
 	}
 
+	/**
+	 * @param {FromAxisAngleParameters} args
+	 */
 	setFromAxisAngle(...args) {
 		const q = Quaternion.fromAxisAngle(...args);
 		this.set(q);
+		return this;
 	}
 
 	toAxisAngle() {
@@ -153,6 +196,9 @@ export default class Quaternion {
 		return this;
 	}
 
+	/**
+	 * @param {FromAxisAngleParameters} args
+	 */
 	rotateAxisAngle(...args) {
 		const q = Quaternion.fromAxisAngle(...args);
 		this.multiply(q);
