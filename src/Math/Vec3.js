@@ -2,9 +2,19 @@ import Mat4 from "./Mat4.js";
 import Vec2 from "./Vec2.js";
 import Vec4 from "./Vec4.js";
 
+/**
+ * @typedef {() => Vec3} vec3SetEmptySignature
+ * @typedef {(vec: Vec2) => Vec3} vec3SetVec2Signature
+ * @typedef {(vec: Vec3) => Vec3} vec3SetVec3Signature
+ * @typedef {(vec: Vec4) => Vec3} vec3SetVec4Signature
+ * @typedef {(x?: number, y?: number, z?: number) => Vec3} vec3SetNumNumSignature
+ * @typedef {(xyz: number[]) => Vec3} vec3SetArraySignature
+ * @typedef {Parameters<vec3SetEmptySignature> | Parameters<vec3SetVec2Signature> | Parameters<vec3SetVec3Signature> | Parameters<vec3SetVec4Signature> | Parameters<vec3SetNumNumSignature> | Parameters<vec3SetArraySignature>} Vec3Parameters
+ */
+
 export default class Vec3 {
 	/**
-	 * @param {Vec3SetParameters} args
+	 * @param {Vec3Parameters} args
 	 */
 	constructor(...args) {
 		this.onChangeCbs = new Set();
@@ -71,17 +81,7 @@ export default class Vec3 {
 	}
 
 	/**
-	 * @typedef {() => this} vec3SetEmptySignature
-	 * @typedef {(vec: Vec2) => this} vec3SetVec2Signature
-	 * @typedef {(vec: Vec3) => this} vec3SetVec3Signature
-	 * @typedef {(vec: Vec4) => this} vec3SetVec4Signature
-	 * @typedef {(x?: number, y?: number, z?: number) => this} vec3SetNumNumSignature
-	 * @typedef {(xyz: number[]) => this} vec3SetArraySignature
-	 * @typedef {Parameters<vec3SetEmptySignature> | Parameters<vec3SetVec2Signature> | Parameters<vec3SetVec3Signature> | Parameters<vec3SetVec4Signature> | Parameters<vec3SetNumNumSignature> | Parameters<vec3SetArraySignature>} Vec3SetParameters
-	 */
-
-	/**
-	 * @param {Vec3SetParameters} args
+	 * @param {Vec3Parameters} args
 	 */
 	set(...args) {
 		if (args.length == 0) {
@@ -142,7 +142,7 @@ export default class Vec3 {
 	}
 
 	/**
-	 * @param {Parameters<typeof this.multiplyScalar> | Parameters<typeof this.multiplyMatrix> | Vec3SetParameters} args
+	 * @param {Parameters<typeof this.multiplyScalar> | Parameters<typeof this.multiplyMatrix> | Vec3Parameters} args
 	 */
 	multiply(...args) {
 		if (args.length == 1) {
@@ -153,7 +153,7 @@ export default class Vec3 {
 			}
 		}
 
-		const castArgs = /** @type {Vec3SetParameters} */ (args);
+		const castArgs = /** @type {Vec3Parameters} */ (args);
 		return this.multiplyVector(new Vec3(...castArgs));
 	}
 
@@ -200,13 +200,13 @@ export default class Vec3 {
 	}
 
 	/**
-	 * @param {Parameters<typeof this.multiplyScalar> | Vec3SetParameters} args
+	 * @param {Parameters<typeof this.multiplyScalar> | Vec3Parameters} args
 	 */
 	divide(...args) {
 		if (args.length == 1 && typeof args[0] == "number") {
 			return this.divideScalar(args[0]);
 		} else {
-			const castArgs = /** @type {Vec3SetParameters} */ (args);
+			const castArgs = /** @type {Vec3Parameters} */ (args);
 			return this.divideVector(new Vec3(...castArgs));
 		}
 	}
@@ -241,7 +241,7 @@ export default class Vec3 {
 		if (args.length == 1 && typeof args[0] == "number") {
 			return this.addScalar(args[0]);
 		} else {
-			const castArgs = /** @type {Vec3SetParameters} */ (args);
+			const castArgs = /** @type {Vec3Parameters} */ (args);
 			return this.addVector(new Vec3(...castArgs));
 		}
 	}

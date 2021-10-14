@@ -135,6 +135,9 @@ export default class Quaternion {
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
+	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
 	static fromEuler(...args) {
 		const vec = new Vec3(...args);
 
@@ -195,6 +198,9 @@ export default class Quaternion {
 		return this;
 	}
 
+	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
 	rotateVector(...args) {
 		// TODO: optimise: gamedev.stackexchange.com/a/50545/87477
 		const vec = new Vec3(...args);

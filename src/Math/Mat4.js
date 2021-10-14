@@ -132,6 +132,9 @@ export default class Mat4 {
 		return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 	}
 
+	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
 	translate(...args) {
 		const vec = new Vec3(...args);
 		this.values[3][0] += vec.x;
@@ -143,6 +146,9 @@ export default class Mat4 {
 		return new Vec3(this.values[3]);
 	}
 
+	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
 	setTranslation(...args) {
 		const vec = new Vec3(...args);
 		this.values[3][0] = vec.x;
@@ -209,6 +215,9 @@ export default class Mat4 {
 		return new Vec3(sx, sy, sz);
 	}
 
+	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
 	setScale(...args) {
 		const vec = new Vec3(...args);
 		this.values[0][0] = vec.x;
@@ -278,6 +287,9 @@ export default class Mat4 {
 		]);
 	}
 
+	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
 	static createTranslation(...args) {
 		const v = new Vec3(...args);
 		return new Mat4([
