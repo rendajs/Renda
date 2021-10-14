@@ -1,4 +1,5 @@
 {
+	"root": true,
 	"parser": "babel-eslint",
 	"env": {
 		"browser": true,
@@ -214,7 +215,8 @@
 					"RTCDataChannelInit",
 					"PromiseFulfilledResult",
 					"GPUIndexFormat",
-					"Parameters"
+					"Parameters",
+					"suspiciousCode"
 				]
 			}
 		],

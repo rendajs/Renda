@@ -1,0 +1,6 @@
+{
+	"rules": {
+		// Sometimes this is necessary for closure compiler
+		"quote-props": "off"
+	}
+}

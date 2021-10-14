@@ -18,6 +18,6 @@ export default class ClusteredLightsConfig {
 			"clusterCountX": this.clusterCount.x,
 			"clusterCountY": this.clusterCount.y,
 			"clusterCountZ": this.clusterCount.z,
-		}
+		};
 	}
 }
