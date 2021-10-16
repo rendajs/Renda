@@ -11,9 +11,9 @@
 		"build-editor-dev": "node editor/build.js --dev",
 		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold' 'node editor/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js' 'node editor/EditorDiscoveryServer/index.js'",
 		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
-		"lint": "npm run typecheck && eslint .",
+		"lint": "eslint .",
 		"prepare": "husky install",
-		"precommit": "npm run typecheck"
+		"precommit": "git-format-staged --no-write -f 'eslint --stdin --stdin-filename \"{}\" >&2' '*.js' && npm run typecheck"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^11.1.0",
@@ -27,6 +27,7 @@
 		"concurrently": "5.x",
 		"eslint": "^7.32.0",
 		"eslint-plugin-jsdoc": "^36.1.0",
+		"git-format-staged": "^2.1.2",
 		"google-closure-compiler": "^20210505.0.0",
 		"husky": "^7.0.0",
 		"js-md5": "^0.7.3",
