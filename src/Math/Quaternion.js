@@ -82,12 +82,17 @@ export default class Quaternion {
 		let axis;
 		/** @type {number} */
 		let angle;
-		if (args.length == 4) {
-			axis = new Vec3(args[0], args[1], args[2]);
-			angle = args[3];
+		if (args.length == 1) {
+			axis = args[0];
+		} else if (args.length == 2) {
+			axis = args[0];
+			angle = args[1];
 		} else if (args.length == 3) {
 			axis = new Vec3(args[0], args[1], args[2]);
 			angle = undefined;
+		} else if (args.length == 4) {
+			axis = new Vec3(args[0], args[1], args[2]);
+			angle = args[3];
 		}
 		if (angle == undefined) {
 			angle = axis.magnitude;
@@ -105,10 +110,10 @@ export default class Quaternion {
 	}
 
 	/**
-	 * @typedef {(axis: Vec3, angle: number) => this} fromAxisAngleVecNumSignature
-	 * @typedef {(x: number, y: number, z: number, angle: number) => this} fromAxisAngleNumNumNumNumSignature
-	 * @typedef {(x: number, y: number, z: number) => this} fromAxisAngleNumNumNumSignature
 	 * @typedef {(axis: Vec3) => this} fromAxisAngleVecSignature
+	 * @typedef {(axis: Vec3, angle: number) => this} fromAxisAngleVecNumSignature
+	 * @typedef {(x: number, y: number, z: number) => this} fromAxisAngleNumNumNumSignature
+	 * @typedef {(x: number, y: number, z: number, angle: number) => this} fromAxisAngleNumNumNumNumSignature
 	 * @typedef {Parameters<fromAxisAngleVecNumSignature> | Parameters<fromAxisAngleNumNumNumNumSignature> | Parameters<fromAxisAngleNumNumNumSignature> | Parameters<fromAxisAngleVecSignature>} FromAxisAngleParameters
 	 */
 
