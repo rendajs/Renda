@@ -64,7 +64,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 				const menu = editor.contextMenuManager.createContextMenu();
 				for (const component of defaultComponentTypeManager.getAllComponents()) {
 					menu.addItem({
-						text: component.name || component.uuid,
+						text: component.componentName || component.uuid,
 						onClick: async () => {
 							for (const obj of this.currentSelection) {
 								const componentInstance = obj.addComponent(component, {}, {
