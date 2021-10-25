@@ -52,7 +52,7 @@ export default class AssetLoaderTypeEntity extends AssetLoaderType {
 			parent,
 		});
 		for (const entityComponentData of data.components) {
-			const componentData = defaultComponentTypeManager.getComponentDataForUuid(entityComponentData.uuid);
+			const componentData = defaultComponentTypeManager.getComponentConstructorForUuid(entityComponentData.uuid);
 			const propertyValues = await BinaryComposer.binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, componentData.binaryComposerOpts);
 			entity.addComponent(entityComponentData.uuid, propertyValues);
 		}

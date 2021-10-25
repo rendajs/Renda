@@ -1,35 +1,32 @@
+import {isUuid} from "../index.js";
+import {Component} from "./Components.js";
+
 export default class ComponentTypeManager {
 	constructor() {
 		this.components = new Map(); // Map<uuid, componentData>
 	}
 
-	registerComponent(componentData) {
-		if (!componentData) {
-			console.warn("registerComponent expects componentData to be an object.");
-			return null;
+	/**
+	 * @param {typeof Component} constructor
+	 */
+	registerComponent(constructor) {
+		if (!(constructor.prototype instanceof Component)) {
+			console.warn("Tried to register Component (" + constructor.name + ") that does not extend the Component class.");
+			return;
 		}
-		if (!componentData.uuid) {
-			console.warn("Unable to register component, component doesn't have an uuid.");
-			return null;
-		}
-
-		if (componentData && componentData.properties) {
-			for (const [, property] of Object.entries(componentData.properties)) {
-				if (!property.type && property.defaultValue != undefined) {
-					if (typeof property.defaultValue == "number") {
-						property.type = Number;
-					} else {
-						property.type = property.defaultValue.constructor;
-					}
-				}
-			}
+		if (!isUuid(constructor.uuid)) {
+			console.warn("Tried to register Component (" + constructor.name + ") without a valid uuid value, override the static uuid value in order for this loader to function properly.");
+			return;
 		}
 
-		this.components.set(componentData.uuid, componentData);
-		return componentData;
+		this.components.set(constructor.uuid, constructor);
 	}
 
-	getComponentDataForUuid(uuid) {
+	/**
+	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @returns {typeof Component}
+	 */
+	getComponentConstructorForUuid(uuid) {
 		return this.components.get(uuid);
 	}
 
@@ -37,15 +34,5 @@ export default class ComponentTypeManager {
 		for (const component of this.components.values()) {
 			yield component;
 		}
-	}
-
-	getComponentFromData(componentData, registerIfNotFound = true) {
-		const component = this.components.get(componentData.uuid);
-		if (component) {
-			return component;
-		} else if (registerIfNotFound) {
-			return this.registerComponent(componentData);
-		}
-		return null;
 	}
 }

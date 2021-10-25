@@ -206,7 +206,9 @@ export default class WebGpuRenderer extends Renderer {
 		}
 		const outputConfig = domTarget.outputConfig;
 
+		/** @type {{component: MeshComponent, worldMatrix: Mat4}[]} */
 		const meshComponents = [];
+		/** @type {LightComponent[]} */
 		const lightComponents = [];
 		/** @type {import("../../../Core/Entity.js").default[]} */
 		const rootRenderEntities = [camera.entity.getRoot()];

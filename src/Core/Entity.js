@@ -35,6 +35,7 @@ export default class Entity {
 		this._matrixCaches = new MultiKeyWeakMap();
 		/** @type {Entity[]} */
 		this._children = [];
+		/** @type {Component[]} */
 		this.components = [];
 
 		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirtyAll.bind(this);
@@ -49,6 +50,17 @@ export default class Entity {
 		if (opts.parent) {
 			opts.parent.add(this);
 		}
+
+		/**
+		 * @typedef {<T extends Component>(componentConstructor: new () => T, ...rest: ConstructorParameters<typeof Component>) => T} addComponentConstructorSignature
+		 * @typedef {<T extends Component>(componentInstance: T) => T} addComponentInstanceSignature
+		 * @typedef {(componentUuid: string, ...rest: ConstructorParameters<typeof Component>) => Component} addComponentUuidSignature
+		 */
+
+		/** @type {addComponentConstructorSignature & addComponentInstanceSignature & addComponentUuidSignature} */
+		this.addComponent = (...args) => {
+			return this._addComponent(...args);
+		};
 	}
 
 	destructor() {
@@ -64,19 +76,33 @@ export default class Entity {
 		// todo: remove transformation listeners from rot pos scale etc
 	}
 
-	// if the argument already is a component, it will be detached
-	// from the old entity and attached it to this one
 	/**
-	 * @template T
-	 * @param {ConstructorParameters<typeof Component>} args
-	 * @returns {Component & {[x: string]: *}}
+	 * @param  {...any} args
+	 * @returns {*}
 	 */
-	addComponent(...args) {
+	_addComponent(...args) {
 		const firstArg = /** @type {*} */ (args[0]);
-		let component = /** @type {Component} */ (firstArg);
-		if (!(component instanceof Component)) {
-			component = new Component(...args);
+		/** @type {Component} */
+		let component;
+		if (firstArg instanceof Component) {
+			component = firstArg;
+		} else {
+			let CompenentConstructor = null;
+			if (typeof firstArg == "string") {
+				CompenentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(firstArg);
+			} else if (firstArg.prototype instanceof Component) {
+				CompenentConstructor = firstArg;
+			}
+			if (!CompenentConstructor) {
+				throw new TypeError("Invalid arguments. addComponent takes a Component constructor, Component instance or Component uuid.");
+			}
+
+			const [, ...restArgs] = args;
+			component = new CompenentConstructor(...restArgs);
 		}
+
+		// let component = /** @type {Component} */ (firstArg);
+		// if (!(component instanceof Component)) {
 
 		this.components.push(component);
 		this._componentAttachedToEntity(component, this);
@@ -104,26 +130,39 @@ export default class Entity {
 		component.entity = entity;
 	}
 
-	getComponent(type, componentTypeManager = defaultComponentTypeManager) {
-		for (const component of this.getComponents(type, componentTypeManager)) {
+	/**
+	 * @template {Component} T
+	 * @param {new () => T} componentConstructor
+	 * @returns {T}
+	 */
+	getComponent(componentConstructor) {
+		for (const component of this.getComponents(componentConstructor)) {
 			return component;
 		}
 		return null;
 	}
 
-	*getComponents(type, componentTypeManager = defaultComponentTypeManager) {
-		const component = componentTypeManager.getComponentFromData(type, false);
-		const uuid = component.uuid;
+	/**
+	 * @template {Component} T
+	 * @param {new () => T} componentConstructor
+	 * @returns {Generator<T>}
+	 */
+	*getComponents(componentConstructor) {
 		for (const component of this.components) {
-			if (component.componentUuid == uuid && component.componentTypeManager == componentTypeManager) {
+			if (component instanceof componentConstructor) {
 				yield component;
 			}
 		}
 	}
 
-	*getChildComponents(type, componentTypeManager = defaultComponentTypeManager) {
+	/**
+	 * @template {Component} T
+	 * @param {new () => T} componentConstructor
+	 * @returns {Generator<T>}
+	 */
+	*getChildComponents(componentConstructor) {
 		for (const {child} of this.traverseDown()) {
-			for (const component of child.getComponents(type, componentTypeManager)) {
+			for (const component of child.getComponents(componentConstructor)) {
 				yield component;
 			}
 		}

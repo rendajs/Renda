@@ -1,4 +1,3 @@
-import defaultComponentTypeManager from "./defaultComponentTypeManager.js";
 import Vec2 from "../Math/Vec2.js";
 import Vec3 from "../Math/Vec3.js";
 import Vec4 from "../Math/Vec4.js";
@@ -28,28 +27,32 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  * @unrestricted (Allow adding custom properties to this class)
  */
 export default class Component {
+	static get componentName() {
+		return null;
+	}
+	static get uuid() {
+		return null;
+	}
 	/**
-	 * @param {ComponentTypeData} componentType
-	 * @param {Object} propertyValues
+	 * @returns {import("../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure}
+	 */
+	static get guiStructure() {
+		return null;
+	}
+	/**
+	 * @returns {import("../Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 */
+	static get binaryComposerOpts() {
+		return null;
+	}
+	/**
+	 * @param {Object.<string, *>} propertyValues
 	 * @param {Object} options
-	 * @param {import("./ComponentTypeManager.js").default} [options.componentTypeManager]
 	 * @param {ComponentEditorOptions} [options.editorOpts]
 	 */
-	constructor(componentType, propertyValues = {}, {
-		componentTypeManager = defaultComponentTypeManager,
+	constructor(propertyValues = {}, {
 		editorOpts = null,
 	} = {}) {
-		this.componentTypeManager = componentTypeManager;
-
-		if (typeof componentType == "string") {
-			this.componentUuid = componentType;
-		} else {
-			const componentData = this.componentTypeManager.getComponentFromData(componentType);
-			if (!componentData) {
-				throw new Error("Unable to create new component type");
-			}
-			this.componentUuid = componentData.uuid;
-		}
 		/** @type {import("../Core/Entity.js").default} */
 		this.entity = null;
 
@@ -59,9 +62,10 @@ export default class Component {
 			this[onEditorDefaultsCbsSym] = new Set();
 		}
 
-		const componentData = this.getComponentData();
-		if (componentData && componentData.properties) {
-			this.setDefaultValues(componentData.properties, editorOpts);
+		const castConstructor = /** @type {typeof Component} */ (this.constructor);
+		const structure = castConstructor.guiStructure;
+		if (structure) {
+			this._setDefaultValues(castConstructor.guiStructure, editorOpts);
 		}
 
 		if (!EDITOR_DEFAULTS_IN_COMPONENTS) {
@@ -94,14 +98,15 @@ export default class Component {
 
 	toJson(editorOpts = null) {
 		const propertyValues = {};
-		const componentData = this.getComponentData();
-		if (componentData && componentData.properties) {
-			for (const propertyName of Object.keys(componentData.properties)) {
+		const castConstructor = /** @type {typeof Component} */ (this.constructor);
+		const structure = castConstructor.guiStructure;
+		if (structure) {
+			for (const propertyName of Object.keys(structure)) {
 				propertyValues[propertyName] = this.propertyToJson(this, propertyName, editorOpts);
 			}
 		}
 		const componentJson = {
-			uuid: this.componentUuid,
+			uuid: castConstructor.uuid,
 			propertyValues,
 		};
 		return componentJson;
@@ -142,11 +147,7 @@ export default class Component {
 		return propertyValue;
 	}
 
-	getComponentData() {
-		return this.componentTypeManager.getComponentDataForUuid(this.componentUuid);
-	}
-
-	setDefaultValues(properties, editorOpts = null) {
+	_setDefaultValues(properties, editorOpts = null) {
 		for (const [propertyName, propertyData] of Object.entries(properties)) {
 			this.setPropertyDefaultValue(this, propertyName, propertyData, editorOpts);
 		}

@@ -119,8 +119,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			}
 		}
 		for (const componentGroup of componentGroups) {
-			const componentData = componentGroup.getComponentData();
-			const componentName = componentData?.name || componentData?.uuid || "<unknown>";
+			const componentConstructor = /** @type {typeof import("../../../src/Components/Component.js").default} */ (componentGroup.constructor);
+			const componentName = componentConstructor?.name || componentConstructor?.uuid || "<unknown>";
 			const componentUI = this.componentsSection.addCollapsable(componentName);
 			componentUI.addEventListener("contextmenu", e => {
 				e.showContextMenu([
@@ -135,7 +135,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					},
 				]);
 			});
-			const serializableStructure = componentData?.properties;
+			const serializableStructure = componentConstructor?.guiStructure;
 			if (serializableStructure) {
 				componentUI.generateFromSerializableStructure(serializableStructure);
 				componentUI.onChildValueChange(e => {

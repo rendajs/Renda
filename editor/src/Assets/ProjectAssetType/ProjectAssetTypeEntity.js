@@ -1,5 +1,5 @@
 import ProjectAssetType from "./ProjectAssetType.js";
-import {AssetLoaderTypeEntity, Entity, Mat4, Vec2, Vec3, Vec4, defaultComponentTypeManager} from "../../../../src/index.js";
+import {AssetLoaderTypeEntity, Entity, Vec3, defaultComponentTypeManager} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import ContentWindowEntityEditor from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
@@ -51,9 +51,9 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.components) {
 			for (const component of jsonData.components) {
 				const componentUuid = component.uuid;
-				const componentData = defaultComponentTypeManager.getComponentDataForUuid(componentUuid);
-				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, componentData);
-				ent.addComponent(componentData, componentPropertyValues, {
+				const ComponentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(componentUuid);
+				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure);
+				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					editorOpts: {
 						editorAssetTypeManager: editor.projectAssetTypeManager,
 						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
@@ -71,37 +71,50 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		return ent;
 	}
 
-	async getComponentPropertyValuesFromJson(jsonData, componentData) {
-		const componentProperties = componentData?.properties;
+	/**
+	 * @param {*} jsonData
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} componentProperties
+	 */
+	async getComponentPropertyValuesFromJson(jsonData, componentProperties) {
 		const newPropertyValues = {};
 		if (componentProperties) {
 			for (const [name, propertyData] of Object.entries(componentProperties)) {
-				await this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData);
+				await this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData.type, propertyData.guiOpts);
 			}
 		}
 		return newPropertyValues;
 	}
 
-	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyData) {
+	/**
+	 *
+	 * @param {*} newParentObject
+	 * @param {*} originalParentObject
+	 * @param {string} propertyKey
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} propertyType
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} propertyGuiOpts
+	 */
+	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts) {
 		const propertyValue = originalParentObject[propertyKey];
 		let newPropertyValue = propertyValue;
 		if (propertyValue == null) {
 			newPropertyValue = null;
-		} else if (propertyData.type == Array) {
+		} else if (propertyType == "array") {
 			const newArr = [];
+			const arrayGuiOpts = /** @type {import("../../UI/ArrayGui.js").ArrayGuiOptions} */ (propertyGuiOpts);
 			for (const i of propertyValue.keys()) {
-				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, propertyData.arrayOpts);
+				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts);
 			}
 			newPropertyValue = newArr;
-		} else if (propertyData.type == Vec2) {
-			newPropertyValue = new Vec2(...propertyValue);
-		} else if (propertyData.type == Vec3) {
+		// todo: support for other types
+		// } else if (propertyType == "vec2") {
+		// 	newPropertyValue = new Vec2(...propertyValue);
+		} else if (propertyType == "vec3") {
 			newPropertyValue = new Vec3(...propertyValue);
-		} else if (propertyData.type == Vec4) {
-			newPropertyValue = new Vec4(...propertyValue);
-		} else if (propertyData.type == Mat4) {
-			newPropertyValue = new Mat4(propertyValue);
-		} else if (editor.projectAssetTypeManager.constructorHasAssetType(propertyData.type)) {
+		// } else if (propertyType == "vec4") {
+		// 	newPropertyValue = new Vec4(...propertyValue);
+		// } else if (propertyType == "mat4") {
+		// 	newPropertyValue = new Mat4(propertyValue);
+		} else if (propertyType == "droppable") {
 			newPropertyValue = await editor.projectManager.assetManager.getLiveAsset(propertyValue);
 			let usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 			if (!usedAssetUuids) {
@@ -122,9 +135,9 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 	generateComponentArrayBuffers(entityData) {
 		if (entityData.components) {
 			for (const component of entityData.components) {
-				const componentData = defaultComponentTypeManager.getComponentDataForUuid(component.uuid);
+				const componentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(component.uuid);
 				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, {
-					...componentData.binaryComposerOpts,
+					...componentConstructor.binaryComposerOpts,
 					editorAssetManager: editor.projectManager.assetManager,
 				});
 			}
@@ -149,14 +162,14 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 	*getReferencedAssetUuidsForEntityData(entityData) {
 		if (entityData.components) {
 			for (const component of entityData.components) {
-				const componentData = defaultComponentTypeManager.getComponentDataForUuid(component.uuid);
+				const componentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(component.uuid);
 				const referencedUuids = [];
 				BinaryComposer.objectToBinary(component.propertyValues, {
-					...componentData.binaryComposerOpts,
+					...componentConstructor.binaryComposerOpts,
 					transformValueHook: args => {
 						let {value, type} = args;
-						if (componentData.binaryComposerOpts.transformValueHook) {
-							value = componentData.binaryComposerOpts.transformValueHook(args);
+						if (componentConstructor.binaryComposerOpts.transformValueHook) {
+							value = componentConstructor.binaryComposerOpts.transformValueHook(args);
 						}
 
 						if (type == StorageType.ASSET_UUID) {

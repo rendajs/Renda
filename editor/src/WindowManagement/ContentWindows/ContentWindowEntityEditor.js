@@ -44,6 +44,7 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
 
 		this.editingEntityUuid = null;
+		/** @type {Entity} */
 		this._editingEntity = null;
 		this.selectionManager = new SelectionManager();
 
@@ -170,6 +171,10 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		}
 	}
 
+	/**
+	 * @param {Entity} entity
+	 * @param {boolean} removeAll
+	 */
 	updateGizmosForEntity(entity, removeAll = false) {
 		let linkedComponentGizmos = this.currentLinkedGizmos.get(entity);
 		if (!linkedComponentGizmos) {
@@ -180,10 +185,11 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		const unusedComponentGizmos = new Map(linkedComponentGizmos);
 		if (!removeAll) {
 			for (const component of entity.components) {
-				let componentGizmos = linkedComponentGizmos.get(component);
+				const componentGizmos = linkedComponentGizmos.get(component);
 				if (!componentGizmos) {
-					const componentType = component.getComponentData();
-					componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(componentType, component, this.gizmos);
+					// todo:
+					// const componentType = component.getComponentData();
+					// componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(componentType, component, this.gizmos);
 					if (componentGizmos) {
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
 						linkedComponentGizmos.set(component, componentGizmos);
@@ -227,8 +233,8 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 
 		for (const {child} of this.editingEntity.traverseDown()) {
 			for (const component of child.components) {
-				const componentData = component.getComponentData();
-				this.addComponentLiveAssetListeners(component, componentData.properties, component, true);
+				const componentConstructor = /** @type {typeof Component} */ (component.constructor);
+				this.addComponentLiveAssetListeners(component, componentConstructor.guiStructure, component, true);
 			}
 		}
 	}
