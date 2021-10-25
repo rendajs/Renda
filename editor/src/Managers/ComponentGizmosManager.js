@@ -2,8 +2,11 @@ import autoRegisterComponentGizmos from "../ComponentGizmos/AutoRegisterComponen
 import ComponentGizmos from "../ComponentGizmos/ComponentGizmos.js";
 
 export default class ComponentGizmosManager {
+	/** @typedef {typeof import("../../../src/Components/Component.js").default} ComponentType */
+
 	constructor() {
-		this.componentGizmos = new Map(); // Map<componentType, ComponentGizmos>
+		/** @type {Map<ComponentType, typeof ComponentGizmos>} */
+		this.componentGizmos = new Map();
 	}
 
 	init() {
@@ -26,13 +29,21 @@ export default class ComponentGizmosManager {
 		this.componentGizmos.set(constructor.componentType, constructor);
 	}
 
-	getComponentGizmos(componentType) {
+	/**
+	 * @param {ComponentType} componentType
+	 */
+	getComponentGizmosConstructor(componentType) {
 		return this.componentGizmos.get(componentType);
 	}
 
+	/**
+	 * @param {ComponentType} componentType
+	 * @param {import("../../../src/Components/Component.js").default} component
+	 * @param {import("../../../src/Gizmos/GizmoManager.js").default} gizmoManager
+	 */
 	createComponentGizmosInstance(componentType, component, gizmoManager) {
-		const constructor = this.getComponentGizmos(componentType);
-		if (!constructor) return null;
-		return new constructor(component, gizmoManager);
+		const ComponentGizmosConstructor = this.getComponentGizmosConstructor(componentType);
+		if (!ComponentGizmosConstructor) return null;
+		return new ComponentGizmosConstructor(component, gizmoManager);
 	}
 }

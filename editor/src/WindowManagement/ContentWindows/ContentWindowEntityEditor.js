@@ -185,11 +185,10 @@ export default class ContentWindowEntityEditor extends ContentWindow {
 		const unusedComponentGizmos = new Map(linkedComponentGizmos);
 		if (!removeAll) {
 			for (const component of entity.components) {
-				const componentGizmos = linkedComponentGizmos.get(component);
+				let componentGizmos = linkedComponentGizmos.get(component);
 				if (!componentGizmos) {
-					// todo:
-					// const componentType = component.getComponentData();
-					// componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(componentType, component, this.gizmos);
+					const componentConstructor = /** @type {typeof Component} */ (component.constructor);
+					componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
 					if (componentGizmos) {
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
 						linkedComponentGizmos.set(component, componentGizmos);
