@@ -40,7 +40,7 @@ export function getElemSize(el) {
 	return [w, h];
 }
 
-/** @typedef {string} UuidString */
+/** @typedef {string & {}} UuidString */
 
 /**
  * Https://stackoverflow.com/a/8809472/3625298.
