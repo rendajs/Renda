@@ -52,7 +52,7 @@ export default class Entity {
 		}
 
 		/**
-		 * @typedef {<T extends Component>(componentConstructor: new () => T, ...rest: ConstructorParameters<typeof Component>) => T} addComponentConstructorSignature
+		 * @typedef {<C extends Component, A extends any[]>(componentConstructor: new (...args: A) => C, ...args: A) => C} addComponentConstructorSignature
 		 * @typedef {<T extends Component>(componentInstance: T) => T} addComponentInstanceSignature
 		 * @typedef {(componentUuid: string, ...rest: ConstructorParameters<typeof Component>) => Component} addComponentUuidSignature
 		 */
@@ -77,7 +77,7 @@ export default class Entity {
 	}
 
 	/**
-	 * @param  {...any} args
+	 * @param {...any} args
 	 * @returns {*}
 	 */
 	_addComponent(...args) {

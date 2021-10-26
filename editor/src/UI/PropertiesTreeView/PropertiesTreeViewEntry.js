@@ -41,7 +41,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
  * @template {PropertiesTreeViewEntryType} T
  * @typedef {Object} PropertiesTreeViewEntryOptionsGeneric
  * @property {PropertiesTreeViewEntryType} [type]
- * @property {*} [defaultValue = undefined]
+ * @property {*} [defaultValue = undefined] The initial value of the gui when the structure is created.
  * @property {PropertiesTreeViewGuiOptionsMap[T]} [guiOpts = {}]
  * @property {Object} [callbacksContext = {}]
  */

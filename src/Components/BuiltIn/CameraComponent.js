@@ -104,10 +104,11 @@ export default class CameraComponent extends Component {
 	}
 
 	/**
-	 * @param {ConstructorParameters<typeof Component>} args
+	 * @param {*} propertyValues
+	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
-	constructor(...args) {
-		super(...args);
+	constructor(propertyValues = {}, ...args) {
+		super();
 
 		this.fov = 90;
 		this.clipNear = 0.01;
@@ -117,6 +118,8 @@ export default class CameraComponent extends Component {
 		this.projectionMatrix = new Mat4();
 		this.renderOutputConfig = null;
 		this.clusteredLightsConfig = null;
+
+		this.initValues(propertyValues, ...args);
 	}
 }
 

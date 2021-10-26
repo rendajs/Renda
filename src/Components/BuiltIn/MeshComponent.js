@@ -1,8 +1,7 @@
 import Mesh from "../../Core/Mesh.js";
+import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {StorageType} from "../../index.js";
-// import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import Material from "../../Rendering/Material.js";
-// import {StorageType} from "../../Util/BinaryComposer.js";
 import {Component} from "../Components.js";
 
 export default class MeshComponent extends Component {
@@ -15,10 +14,10 @@ export default class MeshComponent extends Component {
 
 	/**
 	 * @override
-	 * @returns {import("../../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure}
 	 */
 	static get guiStructure() {
-		return {
+		/** @type {import("../../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		const structure = {
 			mesh: {
 				type: "droppable",
 				guiOpts: {
@@ -35,6 +34,11 @@ export default class MeshComponent extends Component {
 				},
 			},
 		};
+		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+			const defaultMaterialAssetLinkUuid = "f1e469e3-b463-4542-952a-091487bf5b4a";
+			structure.materials.defaultValue = [defaultMaterialAssetLinkUuid];
+		}
+		return structure;
 	}
 
 	/**
@@ -54,17 +58,23 @@ export default class MeshComponent extends Component {
 	}
 
 	/**
-	 * @param {ConstructorParameters<typeof Component>} args
+	 * @typedef {Object} MeshComponentPropertyValues
+	 * @property {Mesh} [mesh]
+	 * @property {Material[]} [materials]
 	 */
-	constructor(...args) {
-		super(...args);
 
+	/**
+	 * @param {MeshComponentPropertyValues} propertyValues
+	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
+	 */
+	constructor(propertyValues = {}, ...args) {
+		super();
+
+		/** @type {Mesh} */
 		this.mesh = null;
+		/** @type {Material[]} */
 		this.materials = [];
+
+		this.initValues(propertyValues, ...args);
 	}
 }
-
-// if (EDITOR_DEFAULTS_IN_COMPONENTS) {
-// 	const defaultMaterialAssetLinkUuid = "f1e469e3-b463-4542-952a-091487bf5b4a";
-// 	MeshComponent.properties.materials.defaultValue = [defaultMaterialAssetLinkUuid];
-// }

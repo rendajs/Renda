@@ -48,12 +48,15 @@ export default class LightComponent extends Component {
 	}
 
 	/**
-	 * @param {ConstructorParameters<typeof Component>} args
+	 * @param {*} propertyValues
+	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
-	constructor(...args) {
-		super(...args);
+	constructor(propertyValues = {}, ...args) {
+		super();
 
 		this.type = lightTypes[0];
 		this.color = new Vec3(1, 1, 1);
+
+		this.initValues(propertyValues, ...args);
 	}
 }
