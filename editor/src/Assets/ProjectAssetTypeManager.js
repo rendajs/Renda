@@ -3,7 +3,10 @@ import ProjectAssetType from "./ProjectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/Util/Util.js";
 
 export default class ProjectAssetTypeManager {
+	/** @typedef {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} ProjectAssetTypeIdentifier */
+
 	constructor() {
+		/** @type {Map<ProjectAssetTypeIdentifier, typeof ProjectAssetType>} */
 		this.registeredAssetTypes = new Map();
 	}
 
@@ -13,6 +16,9 @@ export default class ProjectAssetTypeManager {
 		}
 	}
 
+	/**
+	 * @param {typeof ProjectAssetType} constructor
+	 */
 	registerAssetType(constructor) {
 		if (!(constructor.prototype instanceof ProjectAssetType)) {
 			console.warn("Tried to register project asset type (" + constructor.name + ") that does not extend ProjectAssetType class.");
@@ -34,10 +40,16 @@ export default class ProjectAssetTypeManager {
 		this.registeredAssetTypes.set(constructor.type, constructor);
 	}
 
+	/**
+	 * @param {ProjectAssetTypeIdentifier} type
+	 */
 	getAssetType(type) {
 		return this.registeredAssetTypes.get(type);
 	}
 
+	/**
+	 * @param {import("../Util/Util.js").UuidString} uuid
+	 */
 	getAssetTypeByUuid(uuid) {
 		for (const assetType of this.registeredAssetTypes.values()) {
 			if (assetType.typeUuid == uuid) {

@@ -1,9 +1,11 @@
+/** @typedef {string & {}} ProjectAssetTypeIdentifier */
+
 export default class ProjectAssetType {
 	/**
 	 * Identifier of the assetType. This is stored in various places
 	 * such as the asset settings file or the wrapped editor meta data.
 	 * This should have the format "namespace:assetType", for example: "JJ:mesh".
-	 * @type {?string}
+	 * @type {ProjectAssetTypeIdentifier}
 	 */
 	static type = null;
 

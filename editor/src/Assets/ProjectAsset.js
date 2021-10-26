@@ -16,6 +16,7 @@ export default class ProjectAsset {
 		forceAssetType = false,
 		isBuiltIn = false,
 	} = {}) {
+		/** @type {import("../Util/Util.js").UuidString} */
 		this.uuid = uuid;
 		/** @type {Array<string>}*/
 		this.path = path;

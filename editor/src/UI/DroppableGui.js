@@ -46,7 +46,7 @@ export default class DroppableGui {
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 
-		/** @type {?string}*/
+		/** @type {import("../Util/Util.js").UuidString}*/
 		this.defaultAssetLinkUuid = null;
 		/** @type {?import("../Assets/DefaultAssetLink.js").default}*/
 		this.defaultAssetLink = null;
@@ -210,13 +210,17 @@ export default class DroppableGui {
 		e.dataTransfer.setDragImage(el, x, y);
 
 		e.dataTransfer.effectAllowed = "all";
-		let assetTypeUuid = "";
 		const assetType = editor.projectAssetTypeManager.getAssetType(this.projectAssetValue.assetType);
-		if (assetType) {
-			assetTypeUuid = assetType.typeUuid;
-		}
-		const uuid = this.defaultAssetLinkUuid || this.projectAssetValue.uuid;
-		e.dataTransfer.setData(`text/jj; dragtype=projectasset; assettype=${assetTypeUuid}`, uuid);
+		const assetUuid = this.defaultAssetLinkUuid || this.projectAssetValue.uuid;
+
+		/** @type {import("../WindowManagement/ContentWindows/ContentWindowProject.js").DraggingProjectAssetData} */
+		const draggingData = {
+			dataPopulated: true,
+			assetType,
+			assetUuid,
+		};
+		const draggingDataUuid = editor.dragManager.registerDraggingData(draggingData);
+		e.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 	}
 
 	/**
