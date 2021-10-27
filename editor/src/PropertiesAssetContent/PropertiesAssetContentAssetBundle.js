@@ -39,7 +39,9 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 							},
 							includeChildren: {
 								type: "boolean",
-								defaultValue: true,
+								guiOpts: {
+									defaultValue: true,
+								},
 							},
 						},
 					},

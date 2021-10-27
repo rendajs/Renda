@@ -15,19 +15,19 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType {
 				arrayGuiOpts: {
 					structure: {
 						arrayStride: {
-							defaultValue: "auto",
 							/** @type {import("../../UI/NumericGui.js").NumericGuiOptions} */
 							guiOpts: {
 								min: -1,
 								step: 1,
 								mappedStringValues: [[-1, "auto"]],
+								defaultValue: "auto",
 							},
 						},
 						stepMode: {
 							type: "dropdown",
-							defaultValue: "vertex",
 							guiOpts: {
 								items: ["vertex", "instance"],
+								defaultValue: "vertex",
 							},
 						},
 						attributes: {
@@ -44,29 +44,32 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType {
 										},
 										format: {
 											type: "dropdown",
-											defaultValue: Mesh.AttributeFormat.FLOAT32,
 											guiOpts: {
 												enumObject: Mesh.AttributeFormat,
+												defaultValue: Mesh.AttributeFormat.FLOAT32,
 											},
 										},
 										componentCount: {
-											defaultValue: 3,
+											type: "number",
 											guiOpts: {
 												min: 1,
 												step: 1,
 												max: 4,
+												defaultValue: 3,
 											},
 										},
 										unsigned: {
 											type: "boolean",
-											defaultValue: false,
+											guiOpts: {
+												defaultValue: false,
+											},
 										},
 										shaderLocation: {
-											defaultValue: "auto",
 											guiOpts: {
 												min: -1,
 												step: 1,
 												mappedStringValues: [[-1, "auto"]],
+												defaultValue: "auto",
 											},
 										},
 									},

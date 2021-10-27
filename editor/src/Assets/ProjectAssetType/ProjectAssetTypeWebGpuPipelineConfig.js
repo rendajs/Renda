@@ -23,9 +23,9 @@ export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetTy
 		},
 		primitiveTopology: {
 			type: "dropdown",
-			defaultValue: "triangle-list",
 			guiOpts: {
 				items: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
+				defaultValue: "triangle-list",
 			},
 		},
 		preloadVertexStates: {

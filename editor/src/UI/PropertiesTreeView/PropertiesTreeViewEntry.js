@@ -41,7 +41,6 @@ import {prettifyVariableName} from "../../Util/Util.js";
  * @template {PropertiesTreeViewEntryType} T
  * @typedef {Object} PropertiesTreeViewEntryOptionsGeneric
  * @property {PropertiesTreeViewEntryType} [type]
- * @property {*} [defaultValue = undefined] The initial value of the gui when the structure is created.
  * @property {PropertiesTreeViewGuiOptionsMap[T]} [guiOpts = {}]
  * @property {Object} [callbacksContext = {}]
  */
@@ -78,7 +77,6 @@ export default class PropertiesTreeViewEntry extends TreeView {
 	 */
 	constructor({
 		type = "number",
-		defaultValue = undefined,
 		guiOpts = {},
 		callbacksContext = {},
 	} = {}) {
@@ -108,26 +106,22 @@ export default class PropertiesTreeViewEntry extends TreeView {
 			this.valueEl.appendChild(this.gui.el);
 		} else if (type === "vec3") {
 			this.gui = new VectorGui({
-				defaultValue,
 				size: 3,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
 		} else if (type == "number") {
 			this.gui = new NumericGui({
-				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
 		} else if (type == "boolean") {
 			this.gui = new BooleanGui({
-				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
 		} else if (type == "dropdown") {
 			this.gui = new DropDownGui({
-				defaultValue,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);

@@ -4,6 +4,7 @@ import {prettifyVariableName} from "../Util/Util.js";
  * @typedef {Object} DropDownGuiOptionsType
  * @property {string[]} [items]
  * @property {*} [enumObject]
+ * @property {string} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  *
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & DropDownGuiOptionsType} DropDownGuiOptions
  */

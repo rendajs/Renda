@@ -175,16 +175,22 @@ export default class Component {
 	 * @param {*} editorOpts
 	 */
 	setPropertyDefaultValue(object, propertyName, propertyData, editorOpts = null) {
+		let defaultValue;
+		if (propertyData && propertyData.guiOpts) {
+			defaultValue = propertyData.guiOpts.defaultValue;
+		}
 		if (propertyData.type == "array") {
 			const array = [];
-			if (propertyData.defaultValue) {
+			if (defaultValue) {
 				const arrayGuiOptions = /** @type {import("../../editor/src/UI/ArrayGui.js").ArrayGuiOptions} */ (propertyData.guiOpts);
-				for (const [i, value] of Object.entries(propertyData.defaultValue)) {
+				for (const [i, value] of Object.entries(defaultValue)) {
 					/** @type {import("../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions} */
 					const childPropertyData = {
 						type: arrayGuiOptions.arrayType,
-						guiOpts: arrayGuiOptions.arrayGuiOpts,
-						defaultValue: value,
+						guiOpts: {
+							...arrayGuiOptions.arrayGuiOpts,
+							defaultValue: value,
+						},
 					};
 					if (DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT) {
 						this.setPropertyDefaultValue(array, i, childPropertyData, editorOpts);
@@ -194,10 +200,10 @@ export default class Component {
 				}
 			}
 			object[propertyName] = array;
-		} else if (propertyData.defaultValue != undefined) {
+		} else if (defaultValue != undefined) {
 			let resolveDroppableAsset = false;
 			if (
-				typeof propertyData.defaultValue == "string" &&
+				typeof defaultValue == "string" &&
 				propertyData.type == "droppable" &&
 				DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT &&
 				editorOpts && editorOpts.editorAssetTypeManager &&
@@ -219,16 +225,16 @@ export default class Component {
 					usedAssetUuids = {};
 					object[editorOpts.usedAssetUuidsSymbol] = usedAssetUuids;
 				}
-				usedAssetUuids[propertyName] = propertyData.defaultValue;
+				usedAssetUuids[propertyName] = defaultValue;
 				const promise = (async () => {
 					object[propertyName] = null;
-					object[propertyName] = await editorOpts.assetManager.getLiveAsset(propertyData.defaultValue);
+					object[propertyName] = await editorOpts.assetManager.getLiveAsset(defaultValue);
 				})();
 				if (EDITOR_DEFAULTS_IN_COMPONENTS) {
 					this[settingDefaultsPromisesSym].push(promise);
 				}
 			} else {
-				object[propertyName] = propertyData.defaultValue;
+				object[propertyName] = defaultValue;
 			}
 		} else if (propertyData.type == "dropdown") {
 			object[propertyName] = propertyData.type[0];

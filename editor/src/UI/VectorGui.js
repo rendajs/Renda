@@ -7,6 +7,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/index.js";
  * @property {number} [min = null] The minimum allowed value for each component.
  * @property {number} [max = null] The maximum allowed value for each component.
  * @property {number} [step = null] The step value for each component.
+ * @property {Vec2 | Vec3 | Vec4} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  *
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & VectorGuiOptionsType} VectorGuiOptions
  */

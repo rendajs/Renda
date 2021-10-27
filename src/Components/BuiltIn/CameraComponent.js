@@ -28,31 +28,33 @@ export default class CameraComponent extends Component {
 			},
 			clipNear: {
 				type: "number",
-				defaultValue: 0.01,
 				/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 				guiOpts: {
 					min: 0,
+					defaultValue: 0.01,
 				},
 			},
 			clipFar: {
 				type: "number",
-				defaultValue: 1000,
 				/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 				guiOpts: {
 					min: 0,
+					defaultValue: 1000,
 				},
 			},
 			aspect: {
 				type: "number",
-				defaultValue: 1,
 				/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 				guiOpts: {
 					min: 0,
+					defaultValue: 1,
 				},
 			},
 			autoUpdateProjectionMatrix: {
 				type: "boolean",
-				defaultValue: true,
+				guiOpts: {
+					defaultValue: true,
+				},
 			},
 			projectionMatrix: {
 				// type: Mat4,
