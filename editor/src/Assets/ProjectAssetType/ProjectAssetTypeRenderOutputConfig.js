@@ -11,26 +11,23 @@ export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType
 	static propertiesAssetContentStructure = {
 		depthStencilFormat: {
 			type: "dropdown",
-			/** @type {import("../../UI/DropDownGui.js").DropDownGuiOptions} */
 			guiOpts: {
 				items: ["stencil8", "depth16unorm", "depth24plus", "depth24plus-stencil8", "depth32float"],
 				defaultValue: "depth24plus",
 			},
 		},
 		multisampleCount: {
-			/** @type {import("../../UI/NumericGui.js").NumericGuiOptions} */
+			type: "number",
 			guiOpts: {min: 1, step: 1},
 		},
 		fragmentTargets: {
 			type: "array",
 			guiOpts: {
 				arrayType: "object",
-				/** @type {import("../../Ui/ObjectGui.js").ObjectGuiOptions} */
 				arrayGuiOpts: {
 					structure: {
 						format: {
 							type: "dropdown",
-							/** @type {import("../../UI/DropDownGui.js").DropDownGuiOptions} */
 							guiOpts: {
 								items: ["bgra8unorm", "rgba16float"],
 								defaultValue: "bgra8unorm",

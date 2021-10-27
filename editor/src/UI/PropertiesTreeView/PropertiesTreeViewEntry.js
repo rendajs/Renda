@@ -35,17 +35,17 @@ import {prettifyVariableName} from "../../Util/Util.js";
  */
 
 /** @typedef {keyof PropertiesTreeViewGuiOptionsMap} PropertiesTreeViewEntryType */
-/** @typedef {PropertiesTreeViewGuiOptionsMap[PropertiesTreeViewEntryType]} GuiOptionsGeneric */
 
 /**
- * @template {PropertiesTreeViewEntryType} T
- * @typedef {Object} PropertiesTreeViewEntryOptionsGeneric
- * @property {PropertiesTreeViewEntryType} [type]
- * @property {PropertiesTreeViewGuiOptionsMap[T]} [guiOpts = {}]
- * @property {Object} [callbacksContext = {}]
+ * @template T
+ * @typedef {T extends keyof PropertiesTreeViewGuiOptionsMap ? {
+ * type?: T,
+ * guiOpts?: PropertiesTreeViewGuiOptionsMap[T],
+ * callbacksContext?: Object,
+ * } : never} PropertiesTreeViewEntryOptionsGeneric
  */
 
-/** @typedef {PropertiesTreeViewEntryOptionsGeneric<PropertiesTreeViewEntryType>} PropertiesTreeViewEntryOptions */
+/** @typedef {PropertiesTreeViewEntryOptionsGeneric<keyof PropertiesTreeViewGuiOptionsMap>} PropertiesTreeViewEntryOptions */
 
 /** @typedef {Object.<string,PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure */
 

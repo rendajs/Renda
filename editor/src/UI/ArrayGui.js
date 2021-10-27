@@ -3,11 +3,17 @@ import ButtonGroup from "../UI/ButtonGroup.js";
 import Button from "./Button.js";
 
 /**
- * @typedef {Object} ArrayGuiOptionsType
- * @property {any[]} [value]
- * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} [arrayType]
- * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptionsGeneric} [arrayGuiOpts]
- *
+ * @template T
+ * @typedef {T extends keyof import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap ? {
+ * value?: any[],
+ * arrayType?: T,
+ * arrayGuiOpts?: import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap[T],
+ * } : never} ArrayGuiOptionsTypeGeneric
+ */
+
+/** @typedef {ArrayGuiOptionsTypeGeneric<keyof import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap>} ArrayGuiOptionsType */
+
+/**
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ArrayGuiOptionsType} ArrayGuiOptions
  */
 

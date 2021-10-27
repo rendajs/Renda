@@ -17,7 +17,6 @@ export default class PropertiesAssetContentAssetBundle extends PropertiesAssetCo
 			},
 			bundleButton: {
 				type: "button",
-				/** @type {import("../UI/Button.js").ButtonGuiOptions} */
 				guiOpts: {
 					text: "Bundle",
 					onClick: () => {

@@ -15,7 +15,7 @@ export default class ProjectAssetTypeVertexState extends ProjectAssetType {
 				arrayGuiOpts: {
 					structure: {
 						arrayStride: {
-							/** @type {import("../../UI/NumericGui.js").NumericGuiOptions} */
+							type: "number",
 							guiOpts: {
 								min: -1,
 								step: 1,

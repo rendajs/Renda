@@ -10,7 +10,6 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 	static propertiesAssetContentStructure = {
 		clusterCount: {
 			type: "vec3",
-			/** @type {import("../../UI/VectorGui.js").VectorGuiOptions} */
 			guiOpts: {
 				min: 1,
 				step: 1,
@@ -19,7 +18,6 @@ export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetT
 		},
 		maxLightsPerClusterPass: {
 			type: "number",
-			/** @type {import("../../UI/NumericGui.js").NumericGuiOptions} */
 			guiOpts: {
 				min: 1,
 				step: 1,

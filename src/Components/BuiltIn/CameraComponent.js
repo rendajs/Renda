@@ -28,7 +28,6 @@ export default class CameraComponent extends Component {
 			},
 			clipNear: {
 				type: "number",
-				/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 				guiOpts: {
 					min: 0,
 					defaultValue: 0.01,
@@ -36,7 +35,6 @@ export default class CameraComponent extends Component {
 			},
 			clipFar: {
 				type: "number",
-				/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 				guiOpts: {
 					min: 0,
 					defaultValue: 1000,
@@ -44,7 +42,6 @@ export default class CameraComponent extends Component {
 			},
 			aspect: {
 				type: "number",
-				/** @type {import("../../../editor/src/UI/NumericGui.js").NumericGuiOptions} */
 				guiOpts: {
 					min: 0,
 					defaultValue: 1,
