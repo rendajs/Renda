@@ -12,17 +12,14 @@ import Button from "./Button.js";
  */
 
 /** @typedef {ArrayGuiOptionsTypeGeneric<keyof import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap>} ArrayGuiOptionsType */
-
-/**
- * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ArrayGuiOptionsType} ArrayGuiOptions
- */
+/** @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ArrayGuiOptionsType} ArrayGuiOptions */
 
 export default class ArrayGui {
 	/**
 	 * @param {ArrayGuiOptions} options
 	 */
 	constructor({
-		value = [], // todo: rename to defaultValue
+		defaultValue = [],
 		arrayType = "number",
 		arrayGuiOpts = {},
 		disabled = false,
@@ -58,7 +55,7 @@ export default class ArrayGui {
 		this.treeView = new PropertiesTreeView();
 		this.el.appendChild(this.treeView.el);
 
-		this.setValue(value);
+		this.setValue(defaultValue);
 		if (disabled) this.setDisabled(true);
 	}
 

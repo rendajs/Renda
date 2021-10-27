@@ -11,7 +11,6 @@ import {prettifyVariableName} from "../Util/Util.js";
 
 export default class DropDownGui {
 	/**
-	 *
 	 * @param {DropDownGuiOptions} opts
 	 */
 	constructor({
