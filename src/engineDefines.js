@@ -34,3 +34,13 @@ export const EDITOR_DEFAULTS_IN_COMPONENTS = true;
 // These are defines that are usually only needed for debug builds.
 
 export const ENABLE_INSPECTOR_SUPPORT = true;
+
+/**
+ * When false, strips out the strings and Error object of thrown errors and will throw `null` instead.
+ */
+export const DEBUG_INCLUDE_ERROR_MESSAGES = true;
+
+/**
+ * When false, strips out thrown errors entirely.
+ */
+export const DEBUG_INCLUDE_ERROR_THROWS = true;

@@ -5,6 +5,9 @@
 
 		// Closure compiler needs quotes to access named capture groups
 		// So using regular capture groups is preferred
-		"prefer-named-capture-group": "off"
+		"prefer-named-capture-group": "off",
+
+		// Required for DEBUG_INCLUDE_ERROR_MESSAGES
+		"no-throw-literal": "off"
 	}
 }

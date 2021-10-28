@@ -1,3 +1,4 @@
+import {DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS} from "../engineDefines.js";
 import MeshAttributeBuffer from "./MeshAttributeBuffer.js";
 
 export default class Mesh {
@@ -48,6 +49,7 @@ export default class Mesh {
 		};
 	}
 
+	// eslint-disable-next-line consistent-return
 	static getByteLengthForAttributeFormat(format) {
 		switch (format) {
 			case Mesh.AttributeFormat.INT8:
@@ -59,7 +61,13 @@ export default class Mesh {
 			case Mesh.AttributeFormat.FLOAT32:
 				return 4;
 			default:
-				throw new Error("Invalid format");
+				if (DEBUG_INCLUDE_ERROR_THROWS) {
+					if (DEBUG_INCLUDE_ERROR_MESSAGES) {
+						throw new Error("Invalid format");
+					} else {
+						throw null;
+					}
+				}
 		}
 	}
 
