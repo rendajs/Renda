@@ -35,7 +35,7 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
 /**
  * @unrestricted (Allow adding custom properties to this class)
  */
-export default class Component {
+export class Component {
 	static get componentName() {
 		return null;
 	}

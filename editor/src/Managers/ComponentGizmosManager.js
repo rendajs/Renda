@@ -2,7 +2,7 @@ import autoRegisterComponentGizmos from "../ComponentGizmos/AutoRegisterComponen
 import ComponentGizmos from "../ComponentGizmos/ComponentGizmos.js";
 
 export default class ComponentGizmosManager {
-	/** @typedef {typeof import("../../../src/Components/Component.js").default} ComponentType */
+	/** @typedef {typeof import("../../../src/Components/Component.js").Component} ComponentType */
 
 	constructor() {
 		/** @type {Map<ComponentType, typeof ComponentGizmos>} */
@@ -38,7 +38,7 @@ export default class ComponentGizmosManager {
 
 	/**
 	 * @param {ComponentType} componentType
-	 * @param {import("../../../src/Components/Component.js").default} component
+	 * @param {import("../../../src/Components/Component.js").Component} component
 	 * @param {import("../../../src/Gizmos/GizmoManager.js").default} gizmoManager
 	 */
 	createComponentGizmosInstance(componentType, component, gizmoManager) {
