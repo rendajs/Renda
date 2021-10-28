@@ -28,7 +28,7 @@
 		"eslint": "^7.32.0",
 		"eslint-plugin-jsdoc": "^36.1.0",
 		"git-format-staged": "^2.1.2",
-		"google-closure-compiler": "^20210505.0.0",
+		"google-closure-compiler": "^20210907.0.0",
 		"husky": "^7.0.0",
 		"js-md5": "^0.7.3",
 		"rollup": "^2.47.0",
