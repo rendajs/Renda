@@ -145,11 +145,15 @@ export default class ScriptBuilder {
 				logText += error.description;
 			}
 
+			let needsContext = false;
 			if (error.line >= 0) {
 				logText += "\n%c";
 				logStyles.push(codeStyle);
 				const startLine = Math.max(0, error.line - 5);
 				const endLine = Math.min(lines.length - 1, error.line + 5);
+				if (startLine > endLine) {
+					needsContext = true;
+				}
 				for (let i = startLine; i < endLine; i++) {
 					const line = lines[i];
 					const spacesLine = line.replace(/\t/g, "    ");
@@ -169,6 +173,10 @@ export default class ScriptBuilder {
 						logStyles.push(codeBackground + "color: red;", codeStyle);
 					}
 				}
+			}
+
+			if (needsContext) {
+				logText += error.context;
 			}
 
 			if (error.level == "error") {
