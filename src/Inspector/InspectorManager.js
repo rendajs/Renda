@@ -6,7 +6,11 @@ export default class InspectorManager {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.uuid = generateUuid();
 
+		/* #if _IS_CLOSURE_BUILD
+		const url = new URL("./InternalDiscoveryWorker.js");
+		//#else */
 		const url = new URL("./InternalDiscoveryWorker.js", import.meta.url);
+		// #endif
 		this.internalMessagesWorker = new SharedWorker(url.href, {type: "module"});
 		this.internalMessagesWorker.port.addEventListener("message", e => {
 			if (!e.data) return;

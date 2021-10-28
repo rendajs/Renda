@@ -1,6 +1,9 @@
+
+// #if !_IS_CLOSURE_BUILD
 /**
  * @template {{}} T
  */
+// #endif
 export default class EntityParent {
 	/**
 	 * @param {T} parent

@@ -130,11 +130,13 @@ export default class Entity {
 		component.entity = entity;
 	}
 
+	// #if !_IS_CLOSURE_BUILD
 	/**
 	 * @template {Component} T
 	 * @param {new () => T} componentConstructor
 	 * @returns {T}
 	 */
+	// #endif
 	getComponent(componentConstructor) {
 		for (const component of this.getComponents(componentConstructor)) {
 			return component;
@@ -142,11 +144,13 @@ export default class Entity {
 		return null;
 	}
 
+	// #if !_IS_CLOSURE_BUILD
 	/**
 	 * @template {Component} T
 	 * @param {new () => T} componentConstructor
 	 * @returns {Generator<T>}
 	 */
+	// #endif
 	*getComponents(componentConstructor) {
 		for (const component of this.components) {
 			if (component instanceof componentConstructor) {
@@ -155,11 +159,13 @@ export default class Entity {
 		}
 	}
 
+	// #if !_IS_CLOSURE_BUILD
 	/**
 	 * @template {Component} T
 	 * @param {new () => T} componentConstructor
 	 * @returns {Generator<T>}
 	 */
+	// #endif
 	*getChildComponents(componentConstructor) {
 		for (const {child} of this.traverseDown()) {
 			for (const component of child.getComponents(componentConstructor)) {
