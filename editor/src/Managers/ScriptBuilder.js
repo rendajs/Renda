@@ -1,5 +1,7 @@
-import rollup from "../../libs/rollup.browser.js";
+import transpiledRollup from "../../libs/rollup.browser.js";
 import editor from "../editorInstance.js";
+
+const rollup = /** @type {import("../../../node_modules/rollup/dist/rollup.js")} */ (transpiledRollup);
 
 export default class ScriptBuilder {
 	async buildScript(inputPath, outputPath, {
@@ -8,6 +10,7 @@ export default class ScriptBuilder {
 		const bundle = await rollup.rollup({
 			input: inputPath.join("/"),
 			plugins: [this.resolveScripts()],
+			preserveEntrySignatures: false,
 		});
 		const {output: rollupOutput} = await bundle.generate({
 			format: "esm",
