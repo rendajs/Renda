@@ -25,5 +25,10 @@ const autoRegisterShortcutCommands = [
 		defaultKeys: ["enter", "f2"],
 		conditions: "treeViewSelected",
 	},
+	{
+		command: "treeView.cancelRename",
+		defaultKeys: "escape",
+		conditions: "treeViewRenaming",
+	},
 ];
 export {autoRegisterShortcutCommands};

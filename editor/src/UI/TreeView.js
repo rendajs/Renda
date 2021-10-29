@@ -166,6 +166,7 @@ export default class TreeView {
 		this.boundOnExpandSelectedKeyPressed = this.onExpandSelectedKeyPressed.bind(this);
 		this.boundOnCollapseSelectedKeyPressed = this.onCollapseSelectedKeyPressed.bind(this);
 		this.boundOnToggleRenameKeyPressed = this.onToggleRenameKeyPressed.bind(this);
+		this.boundOnCancelRenameKeyPressed = this.onCancelRenameKeyPressed.bind(this);
 
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
@@ -1011,8 +1012,14 @@ export default class TreeView {
 
 	/**
 	 * @param {boolean} textFieldVisible
+	 * @param {Object} opts
+	 * @param {boolean} [opts.applyName] Whether to apply the new name of the textfield to the tree view.
+	 * @param {boolean} [opts.focusRowEl] Whether to focus on the row element, after hiding the text field.
 	 */
-	setTextFieldVisible(textFieldVisible) {
+	setTextFieldVisible(textFieldVisible, {
+		applyName = true,
+		focusRowEl = false,
+	} = {}) {
 		if (textFieldVisible != this.#textFieldVisible) {
 			this.#textFieldVisible = textFieldVisible;
 			if (textFieldVisible) {
@@ -1041,15 +1048,23 @@ export default class TreeView {
 				const newName = this.renameTextField.value;
 				this.myNameEl.removeChild(this.renameTextField);
 				this.renameTextField = null;
-				const oldName = this.name;
-				this.name = newName;
-				/** @type {TreeViewNameChangeEvent} */
-				const event = {
-					target: this,
-					rawEvent: null,
-					oldName, newName,
-				};
-				this.fireEvent("namechange", event);
+				if (applyName) {
+					const oldName = this.name;
+					this.name = newName;
+					/** @type {TreeViewNameChangeEvent} */
+					const event = {
+						target: this,
+						rawEvent: null,
+						oldName, newName,
+					};
+					this.fireEvent("namechange", event);
+				} else {
+					this.myNameEl.textContent = this.name;
+				}
+
+				if (focusRowEl) {
+					this.rowEl.focus();
+				}
 			}
 		}
 		this.updateDataRenameValue();
@@ -1101,6 +1116,7 @@ export default class TreeView {
 				editor.keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
 				editor.keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
 				editor.keyboardShortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				editor.keyboardShortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			} else {
 				this.el.removeEventListener("focusin", this.boundOnFocusIn);
 				this.el.removeEventListener("focusout", this.boundOnFocusOut);
@@ -1110,6 +1126,7 @@ export default class TreeView {
 				editor.keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
 				editor.keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
 				editor.keyboardShortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			}
 		}
 	}
@@ -1236,10 +1253,21 @@ export default class TreeView {
 		if (!item) return;
 		if (!item.renameable) return;
 
-		item.setTextFieldVisible(!item.#textFieldVisible);
-		if (!item.#textFieldVisible) {
-			item.rowEl.focus();
-		}
+		item.setTextFieldVisible(!item.#textFieldVisible, {
+			focusRowEl: true,
+		});
+	}
+
+	onCancelRenameKeyPressed() {
+		if (!this.hasFocusWithin) return;
+
+		const item = this.getLastSelectedItem();
+		if (!item) return;
+
+		item.setTextFieldVisible(false, {
+			applyName: false,
+			focusRowEl: true,
+		});
 	}
 
 	getLastSelectedItem() {

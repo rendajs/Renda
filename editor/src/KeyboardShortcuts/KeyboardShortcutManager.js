@@ -164,6 +164,9 @@ export default class KeyboardShortcutManager {
 		return arr.join("+");
 	}
 
+	/**
+	 * @param {string} key
+	 */
 	mapKeyCode(key) {
 		if (key.startsWith("Arrow")) {
 			return key.slice(5).toLowerCase();
@@ -171,8 +174,6 @@ export default class KeyboardShortcutManager {
 			return key.slice(5).toLowerCase();
 		} else if (key.startsWith("Key")) {
 			return key.slice(3).toLowerCase();
-		} else if (/^F\d+$/.test(key)) {
-			return key.toLowerCase();
 		}
 		switch (key) {
 			case "MetaLeft":
@@ -187,10 +188,8 @@ export default class KeyboardShortcutManager {
 			case "ControlLeft":
 			case "ControlRight":
 				return "ctrl";
-			case "Enter":
-				return "enter";
 			default:
-				return key;
+				return key.toLowerCase();
 		}
 	}
 
