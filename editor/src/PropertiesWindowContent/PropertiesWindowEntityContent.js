@@ -6,12 +6,13 @@ import DroppableGui from "../UI/DroppableGui.js";
 import editor from "../editorInstance.js";
 import ContentWindowEntityEditor from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import ProjectAssetTypeEntity from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
+import {EntitySelection} from "../Misc/EntitySelection.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	constructor() {
 		super();
 
-		/** @type {Entity[]} */
+		/** @type {EntitySelection[]} */
 		this.currentSelection = null;
 
 		this.treeView = new PropertiesTreeView();
@@ -39,13 +40,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.positionProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
-			for (const obj of this.currentSelection) {
+			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
-					obj.pos = newValue;
+					entity.pos = newValue;
 				} else if (this.editingModeGui.value == "instance") {
-					obj.setInstancePos(newValue);
+					entity.setInstancePos(newValue);
 				}
-				this.notifyEntityEditors(obj, "transform");
+				this.notifyEntityEditors(entity, "transform");
 			}
 		});
 
@@ -57,13 +58,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.rotationProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
-			for (const obj of this.currentSelection) {
+			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
-					obj.rot.setFromAxisAngle(newValue);
+					entity.rot.setFromAxisAngle(newValue);
 				} else if (this.editingModeGui.value == "instance") {
-					// obj.setInstanceRot(newValue);
+					// entity.setInstanceRot(newValue);
 				}
-				this.notifyEntityEditors(obj, "transform");
+				this.notifyEntityEditors(entity, "transform");
 			}
 		});
 
@@ -75,13 +76,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.scaleProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
-			for (const obj of this.currentSelection) {
+			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
-					obj.scale = newValue;
+					entity.scale = newValue;
 				} else if (this.editingModeGui.value == "instance") {
-					// obj.setInstanceScale(newValue);
+					// entity.setInstanceScale(newValue);
 				}
-				this.notifyEntityEditors(obj, "transform");
+				this.notifyEntityEditors(entity, "transform");
 			}
 		});
 
@@ -94,8 +95,8 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					menu.addItem({
 						text: component.componentName || component.uuid,
 						onClick: async () => {
-							for (const obj of this.currentSelection) {
-								const componentInstance = obj.addComponent(component, {}, {
+							for (const {entity} of this.currentSelection) {
+								const componentInstance = entity.addComponent(component, {}, {
 									editorOpts: {
 										editorAssetTypeManager: editor.projectAssetTypeManager,
 										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
@@ -103,7 +104,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 									},
 								});
 								await componentInstance.waitForEditorDefaults();
-								this.notifyEntityEditors(obj, "component");
+								this.notifyEntityEditors(entity, "component");
 							}
 							this.refreshComponents();
 							this.componentsSection.collapsed = false;
@@ -126,9 +127,12 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	}
 
 	static get useForTypes() {
-		return [Entity];
+		return [EntitySelection];
 	}
 
+	/**
+	 * @param {EntitySelection[]} selectedObjects
+	 */
 	selectionChanged(selectedObjects) {
 		this.currentSelection = selectedObjects;
 		this.updateTransformationValues();
@@ -138,9 +142,10 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 	updateTransformationValues() {
 		this.isSettingTransformationValues = true;
 		if (this.editingModeGui.value == "global") {
-			this.positionProperty.setValue(this.currentSelection[0].pos);
-			this.rotationProperty.setValue(this.currentSelection[0].rot.toAxisAngle());
-			this.scaleProperty.setValue(this.currentSelection[0].scale);
+			const entity = this.currentSelection[0].entity;
+			this.positionProperty.setValue(entity.pos);
+			this.rotationProperty.setValue(entity.rot.toAxisAngle());
+			this.scaleProperty.setValue(entity.scale);
 		} else if (this.editingModeGui.value == "instance") {
 			this.positionProperty.setValue([0, 0, 0]);
 			this.rotationProperty.setValue([0, 0, 0]);
@@ -153,7 +158,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.componentsSection.clearChildren();
 		/** @type {import("../../../src/Components/Component.js").Component[]} */
 		const componentGroups = [];
-		for (const entity of this.currentSelection) {
+		for (const {entity} of this.currentSelection) {
 			for (const component of entity.components) {
 				componentGroups.push(component);
 			}

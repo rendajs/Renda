@@ -1,0 +1,23 @@
+/**
+ * @typedef {Object} EntitySelectionMetaData
+ * @property {import("../UI/TreeView.js").default} outlinerTreeView
+ */
+
+/**
+ * Helper class used to attach metadata to selected entities.
+ *
+ * Since entities can have multiple instances, it is possible for them to be selected
+ * multiple times. But in order to make modifications to transform data of
+ * specific instances, we need to know its chain of parent entities.
+ * This class allows us to attach TreeViews from the outliner to the entities.
+ */
+export class EntitySelection {
+	/**
+	 * @param {import("../../../src/Core/Entity.js").default} entity
+	 * @param {EntitySelectionMetaData} metaData
+	 */
+	constructor(entity, metaData) {
+		this.entity = entity;
+		this.metaData = metaData;
+	}
+}

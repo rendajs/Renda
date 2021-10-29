@@ -6,6 +6,7 @@ import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
 import editor from "../../editorInstance.js";
 import ProjectAssetTypeEntity from "../../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../Util/Util.js";
+import {EntitySelection} from "../../Misc/EntitySelection.js";
 
 export default class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
@@ -122,11 +123,30 @@ export default class ContentWindowOutliner extends ContentWindow {
 		return this.linkedEntityEditor.editingEntity.getEntityByIndicesPath(indicesPath);
 	}
 
-	onTreeViewSelectionChange(changes) {
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} e
+	 */
+	onTreeViewSelectionChange(e) {
 		if (!this.linkedEntityEditor) return;
-		changes.added = changes.added.map(treeView => this.getEntityByTreeViewItem(treeView));
-		changes.removed = changes.removed.map(treeView => this.getEntityByTreeViewItem(treeView));
-		this.selectionManager.changeSelection(changes);
+		/** @type {import("../../Managers/SelectionManager.js").SelectionManagerSelectionChangeData<EntitySelection>} */
+		const changeData = {
+			added: this.mapSelectionChangeData(e.added),
+			removed: this.mapSelectionChangeData(e.removed),
+			reset: e.reset,
+		};
+		this.selectionManager.changeSelection(changeData);
+	}
+
+	/**
+	 * @param {TreeView[]} treeViews
+	 */
+	mapSelectionChangeData(treeViews) {
+		return treeViews.map(treeView => {
+			const entity = this.getEntityByTreeViewItem(treeView);
+			return new EntitySelection(entity, {
+				outlinerTreeView: treeView,
+			});
+		});
 	}
 
 	/**

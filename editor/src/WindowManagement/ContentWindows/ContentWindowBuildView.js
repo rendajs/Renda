@@ -36,6 +36,7 @@ export default class ContentWindowBuildView extends ContentWindow {
 		});
 		this.addTopBarButton(loadFrameButton);
 
+		/** @type {ContentWindowEntityEditor} */
 		this.linkedEntityEditor = null;
 		this.setAvailableLinkedEntityEditor();
 
@@ -72,8 +73,8 @@ export default class ContentWindowBuildView extends ContentWindow {
 		const lastCam = this.previewCamComponent;
 		let foundCamComponent = null;
 		if (this.linkedEntityEditor) {
-			for (const obj of this.linkedEntityEditor.selectionManager.currentSelectedObjects) {
-				for (const camComponent of obj.getComponents(CameraComponent)) {
+			for (const {entity} of this.linkedEntityEditor.selectionManager.currentSelectedObjects) {
+				for (const camComponent of entity.getComponents(CameraComponent)) {
 					foundCamComponent = camComponent;
 					break;
 				}
