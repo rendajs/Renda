@@ -11,6 +11,7 @@ import LabelGui from "../LabelGui.js";
 import ObjectGui from "../ObjectGui.js";
 
 import {prettifyVariableName} from "../../Util/Util.js";
+import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 
 /**
  * @typedef {Object} GuiOptions
@@ -27,6 +28,7 @@ import {prettifyVariableName} from "../../Util/Util.js";
  * @property {import("../NumericGui.js").NumericGuiOptions} number
  * @property {import("../BooleanGui.js").BooleanGuiOptions} boolean
  * @property {import("../Button.js").ButtonGuiOptions} button
+ * @property {import("../ButtonSelectorGui.js").ButtonSelectorGuiOptions} buttonSelector
  * @property {import("../LabelGui.js").LabelGuiOptions} label
  * @property {import("../DropDownGui.js").DropDownGuiOptions} dropdown
  * @property {import("../DroppableGui.js").DroppableGuiOptions} droppable
@@ -147,6 +149,11 @@ export default class PropertiesTreeViewEntry extends TreeView {
 					const castGuiOpts = /** @type {import("../Button.js").ButtonGuiOptions} */ (guiOpts);
 					if (castGuiOpts.onClick) castGuiOpts.onClick(callbacksContext);
 				},
+			});
+			this.valueEl.appendChild(this.gui.el);
+		} else if (type == "buttonSelector") {
+			this.gui = new ButtonSelectorGui({
+				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);
 		} else if (type == "label") {
