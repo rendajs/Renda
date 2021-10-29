@@ -254,6 +254,13 @@ export default class Entity {
 	}
 
 	/**
+	 * @param {Vec3} pos
+	 */
+	setInstancePos(pos) {
+		// todo
+	}
+
+	/**
 	 * Marks the local matrix as dirty on this entity and all it's children.
 	 */
 	markLocalMatrixDirtyAll() {

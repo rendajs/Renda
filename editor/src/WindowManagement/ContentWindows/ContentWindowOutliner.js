@@ -27,6 +27,7 @@ export default class ContentWindowOutliner extends ContentWindow {
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 
+		/** @type {ContentWindowEntityEditor} */
 		this.linkedEntityEditor = null;
 
 		const createEmptyButton = new Button({

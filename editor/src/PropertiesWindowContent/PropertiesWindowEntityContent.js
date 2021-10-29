@@ -18,6 +18,19 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		this.el.appendChild(this.treeView.el);
 
 		const entitySection = this.treeView.addCollapsable("Entity");
+
+		this.editingModeGui = entitySection.addItem({
+			type: "buttonSelector",
+			guiOpts: {
+				label: "Editing mode",
+				items: ["global", "instance"],
+			},
+		});
+		this.editingModeGui.onValueChange(() => {
+			this.updateTransformationValues();
+		});
+
+		this.isSettingTransformationValues = false;
 		this.positionProperty = entitySection.addItem({
 			type: "vec3",
 			guiOpts: {
@@ -25,8 +38,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			},
 		});
 		this.positionProperty.onValueChange(newValue => {
+			if (this.isSettingTransformationValues) return;
 			for (const obj of this.currentSelection) {
-				obj.pos = newValue;
+				if (this.editingModeGui.value == "global") {
+					obj.pos = newValue;
+				} else if (this.editingModeGui.value == "instance") {
+					obj.setInstancePos(newValue);
+				}
 				this.notifyEntityEditors(obj, "transform");
 			}
 		});
@@ -38,8 +56,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			},
 		});
 		this.rotationProperty.onValueChange(newValue => {
+			if (this.isSettingTransformationValues) return;
 			for (const obj of this.currentSelection) {
-				obj.rot.setFromAxisAngle(newValue);
+				if (this.editingModeGui.value == "global") {
+					obj.rot.setFromAxisAngle(newValue);
+				} else if (this.editingModeGui.value == "instance") {
+					// obj.setInstanceRot(newValue);
+				}
 				this.notifyEntityEditors(obj, "transform");
 			}
 		});
@@ -51,8 +74,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			},
 		});
 		this.scaleProperty.onValueChange(newValue => {
+			if (this.isSettingTransformationValues) return;
 			for (const obj of this.currentSelection) {
-				obj.scale = newValue;
+				if (this.editingModeGui.value == "global") {
+					obj.scale = newValue;
+				} else if (this.editingModeGui.value == "instance") {
+					// obj.setInstanceScale(newValue);
+				}
 				this.notifyEntityEditors(obj, "transform");
 			}
 		});
@@ -103,10 +131,22 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 
 	selectionChanged(selectedObjects) {
 		this.currentSelection = selectedObjects;
-		this.positionProperty.setValue(selectedObjects[0].pos);
-		this.rotationProperty.setValue(selectedObjects[0].rot.toAxisAngle());
-		this.scaleProperty.setValue(selectedObjects[0].scale);
+		this.updateTransformationValues();
 		this.refreshComponents();
+	}
+
+	updateTransformationValues() {
+		this.isSettingTransformationValues = true;
+		if (this.editingModeGui.value == "global") {
+			this.positionProperty.setValue(this.currentSelection[0].pos);
+			this.rotationProperty.setValue(this.currentSelection[0].rot.toAxisAngle());
+			this.scaleProperty.setValue(this.currentSelection[0].scale);
+		} else if (this.editingModeGui.value == "instance") {
+			this.positionProperty.setValue([0, 0, 0]);
+			this.rotationProperty.setValue([0, 0, 0]);
+			this.scaleProperty.setValue([1, 1, 1]);
+		}
+		this.isSettingTransformationValues = false;
 	}
 
 	refreshComponents() {
