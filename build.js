@@ -2,6 +2,7 @@
 
 import {rollup} from "rollup";
 import jscc from "rollup-plugin-jscc";
+import cleanup from "rollup-plugin-cleanup";
 
 (async () => {
 	const bundle = await rollup({
@@ -12,6 +13,7 @@ import jscc from "rollup-plugin-jscc";
 					_IS_CLOSURE_BUILD: true,
 				},
 			}),
+			cleanup(),
 		],
 		onwarn: message => {
 			if (message.code == "CIRCULAR_DEPENDENCY") return;
