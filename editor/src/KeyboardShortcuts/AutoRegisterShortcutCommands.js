@@ -19,4 +19,9 @@ export default [
 		defaultKeys: "left",
 		conditions: "treeViewSelected",
 	},
+	{
+		command: "treeView.toggleRename",
+		defaultKeys: "enter",
+		conditions: "treeViewSelected",
+	},
 ];

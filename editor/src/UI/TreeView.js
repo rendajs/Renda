@@ -110,6 +110,8 @@ export default class TreeView {
 
 	#currenDragFeedbackEl = null;
 
+	#textFieldVisible = false;
+
 	static #dragRootUuidSym = Symbol("Drag Root Uuid");
 
 	constructor(data = {}) {
@@ -163,6 +165,7 @@ export default class TreeView {
 		this.boundOnSelectNextKeyPressed = this.onSelectNextKeyPressed.bind(this);
 		this.boundOnExpandSelectedKeyPressed = this.onExpandSelectedKeyPressed.bind(this);
 		this.boundOnCollapseSelectedKeyPressed = this.onCollapseSelectedKeyPressed.bind(this);
+		this.boundOnToggleRenameKeyPressed = this.onToggleRenameKeyPressed.bind(this);
 
 		this.myNameEl = document.createElement("div");
 		this.myNameEl.classList.add("treeViewName");
@@ -194,7 +197,6 @@ export default class TreeView {
 		this._alwaysShowArrow = false;
 		this.canSelectMultiple = true;
 		this.renameable = false;
-		this._textFieldVisible = false;
 		this.renameTextField = null;
 		this._rowVisible = data.rowVisible ?? true;
 		this._visible = data.visible ?? true;
@@ -1007,9 +1009,12 @@ export default class TreeView {
 		});
 	}
 
+	/**
+	 * @param {boolean} textFieldVisible
+	 */
 	setTextFieldVisible(textFieldVisible) {
-		if (textFieldVisible != this._textFieldVisible) {
-			this._textFieldVisible = textFieldVisible;
+		if (textFieldVisible != this.#textFieldVisible) {
+			this.#textFieldVisible = textFieldVisible;
 			if (textFieldVisible) {
 				const oldName = this.myNameEl.textContent;
 				this.myNameEl.textContent = "";
@@ -1095,6 +1100,7 @@ export default class TreeView {
 				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
 				editor.keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
 				editor.keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				editor.keyboardShortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
 			} else {
 				this.el.removeEventListener("focusin", this.boundOnFocusIn);
 				this.el.removeEventListener("focusout", this.boundOnFocusOut);
@@ -1103,6 +1109,7 @@ export default class TreeView {
 				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
 				editor.keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
 				editor.keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				editor.keyboardShortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
 			}
 		}
 	}
@@ -1219,6 +1226,19 @@ export default class TreeView {
 			item.collapsed = true;
 		} else {
 			this.onSelectPreviousKeyPressed();
+		}
+	}
+
+	onToggleRenameKeyPressed() {
+		if (!this.hasFocusWithin) return;
+
+		const item = this.getLastSelectedItem();
+		if (!item) return;
+		if (!item.renameable) return;
+
+		item.setTextFieldVisible(!item.#textFieldVisible);
+		if (!item.#textFieldVisible) {
+			item.rowEl.focus();
 		}
 	}
 

@@ -182,6 +182,8 @@ export default class KeyboardShortcutManager {
 			case "ControlLeft":
 			case "ControlRight":
 				return "ctrl";
+			case "Enter":
+				return "enter";
 			default:
 				return key;
 		}
