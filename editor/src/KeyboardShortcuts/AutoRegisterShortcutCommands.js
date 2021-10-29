@@ -22,7 +22,7 @@ const autoRegisterShortcutCommands = [
 	},
 	{
 		command: "treeView.toggleRename",
-		defaultKeys: "enter",
+		defaultKeys: ["enter", "f2"],
 		conditions: "treeViewSelected",
 	},
 ];

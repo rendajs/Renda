@@ -171,6 +171,8 @@ export default class KeyboardShortcutManager {
 			return key.slice(5).toLowerCase();
 		} else if (key.startsWith("Key")) {
 			return key.slice(3).toLowerCase();
+		} else if (/^F\d+$/.test(key)) {
+			return key.toLowerCase();
 		}
 		switch (key) {
 			case "MetaLeft":
