@@ -1,10 +1,11 @@
 import ShortcutCommand from "./ShortcutCommand.js";
-import AutoRegisterShortcutCommands from "./AutoRegisterShortcutCommands.js";
+import {autoRegisterShortcutCommands} from "./AutoRegisterShortcutCommands.js";
 
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 
 export default class KeyboardShortcutManager {
 	constructor() {
+		/** @type {Set<ShortcutCommand>} */
 		this.registeredCommands = new Set();
 		this.sequenceMap = {
 			childNodes: new Map(),
@@ -16,11 +17,12 @@ export default class KeyboardShortcutManager {
 		this.currentPressedSequenceHighestLength = 0;
 		this.currentPressedSequence = [];
 
+		/** @type {Set<ShortcutCommand>} */
 		this.currentActiveHoldStateCommands = new Set();
 
 		this.commandListeners = new Map();
 
-		for (const commandOpts of AutoRegisterShortcutCommands) {
+		for (const commandOpts of autoRegisterShortcutCommands) {
 			this.registerCommand(commandOpts, false);
 		}
 		this.rebuildSequenceMap();
@@ -43,23 +45,25 @@ export default class KeyboardShortcutManager {
 		this.sequenceMap.childNodes.clear();
 		this.sequenceMap.commands.clear();
 		for (const command of this.registeredCommands) {
-			const sequence = command.parsedSequence;
-			if (!sequence || sequence.length == 0) continue;
+			const sequences = command.parsedSequences;
+			if (!sequences || sequences.length == 0) continue;
 
-			let currentMapNode = this.sequenceMap;
-			for (const bit of sequence) {
-				const joinedBit = bit.join("+");
-				let childNode = currentMapNode.childNodes.get(joinedBit);
-				if (!childNode) {
-					childNode = {
-						childNodes: new Map(),
-						commands: new Set(),
-					};
-					currentMapNode.childNodes.set(joinedBit, childNode);
+			for (const sequence of sequences) {
+				let currentMapNode = this.sequenceMap;
+				for (const bit of sequence) {
+					const joinedBit = bit.join("+");
+					let childNode = currentMapNode.childNodes.get(joinedBit);
+					if (!childNode) {
+						childNode = {
+							childNodes: new Map(),
+							commands: new Set(),
+						};
+						currentMapNode.childNodes.set(joinedBit, childNode);
+					}
+					currentMapNode = childNode;
 				}
-				currentMapNode = childNode;
+				currentMapNode.commands.add(command);
 			}
-			currentMapNode.commands.add(command);
 		}
 	}
 
@@ -73,11 +77,10 @@ export default class KeyboardShortcutManager {
 				if (command.holdType == "hold" || command.holdType == "smart") {
 					if (!command.holdStateActive) continue;
 
-					if (
-						command.parsedSequence &&
-						command.parsedSequence.length > 0 &&
-						command.parsedSequence[command.parsedSequence.length - 1].includes(keyName)
-					) {
+					if (command.parsedSequences && command.parsedSequences.length > 0) {
+						for (const sequence of command.parsedSequences) {
+							sequence[command.parsedSequences.length - 1].includes(keyName);
+						}
 						if (!command.testAllowSmartHoldDeactivate()) continue;
 						command.setHoldStateActive(false);
 						this.fireCommand(command);

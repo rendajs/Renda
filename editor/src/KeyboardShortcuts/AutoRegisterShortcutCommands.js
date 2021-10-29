@@ -1,4 +1,5 @@
-export default [
+/** @type {import("./ShortcutCommand.js").ShortcutCommandOptions[]} */
+const autoRegisterShortcutCommands = [
 	{
 		command: "treeView.selection.up",
 		defaultKeys: "up",
@@ -25,3 +26,4 @@ export default [
 		conditions: "treeViewSelected",
 	},
 ];
+export {autoRegisterShortcutCommands};

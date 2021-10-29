@@ -1,14 +1,31 @@
+/**
+ * - `single` Only fire command once.
+ * - `hold` Activate when the key is down, and deactivate when it is up.
+ * - `toggle` Activate when the key is down, and deactivate when it is down a second time.
+ * - `smart` Same as "hold" but uses "toggle" when the key is pressed only briefly.
+ * @typedef {"single" | "hold" | "toggle" | "smart"} ShortcutCommandHoldType
+ */
+
+/**
+ * @typedef {Object} ShortcutCommandOptions
+ * @property {string} [name] User friendly name of the command.
+ * @property {string} command The id of the command.
+ * @property {string | string[]} [defaultKeys] The the keys that trigger the command.
+ * @property {string} [conditions] The conditions to check for before triggering the command.
+ * @property {ShortcutCommandHoldType} [holdType = "single"] How to deal with keys being held down.
+ */
+
+/** @typedef {string[][]} ShortcutCommandSequence */
+
 export default class ShortcutCommand {
+	/**
+	 * @param {ShortcutCommandOptions} opts
+	 */
 	constructor({
 		name = null,
 		command = null,
 		defaultKeys = null,
 		conditions = "",
-
-		// single - only fire command once
-		// hold - activate when the key is down, and deactivate when it is up
-		// toggle - activate when the key is down, and deactivate when it is down a second time
-		// smart - same as "hold" but uses "toggle" when the key is pressed only briefly
 		holdType = "single",
 	}) {
 		this.name = name;
@@ -19,12 +36,21 @@ export default class ShortcutCommand {
 
 		this.holdStateActive = false;
 		this.holdStateActiveStartTime = -Infinity;
-		this.parsedSequence = null;
+		/** @type {ShortcutCommandSequence[]} */
+		this.parsedSequences = [];
 		this.parseSequence();
 	}
 
 	parseSequence() {
-		this.parsedSequence = this.defaultKeys.split(" ").map(bit => bit.split("+"));
+		this.parsedSequences = [];
+		let keys = this.defaultKeys;
+		if (!Array.isArray(keys)) {
+			keys = [keys];
+		}
+		for (const keySequence of keys) {
+			const parsedSequence = keySequence.split(" ").map(bit => bit.split("+"));
+			this.parsedSequences.push(parsedSequence);
+		}
 	}
 
 	testAllowSmartHoldDeactivate() {
