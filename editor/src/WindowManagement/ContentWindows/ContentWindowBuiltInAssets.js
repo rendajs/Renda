@@ -3,7 +3,7 @@ import TreeView from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 
-export default class ContentWindowBuiltInAssets extends ContentWindow {
+export class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";
 	static contentWindowUiName = "Built-in Assets";
 	static contentWindowUiIcon = "icons/contentWindowTabs/builtInAssets.svg";

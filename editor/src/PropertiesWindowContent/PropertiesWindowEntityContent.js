@@ -4,7 +4,7 @@ import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import DroppableGui from "../UI/DroppableGui.js";
 import editor from "../editorInstance.js";
-import ContentWindowEntityEditor from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import ProjectAssetTypeEntity from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../Misc/EntitySelection.js";
 

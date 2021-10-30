@@ -384,10 +384,10 @@ export default class DroppableGui {
 					let assetLinksWindow;
 					if (this.projectAssetValue.isBuiltIn) {
 						const contentWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");
-						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowBuiltInAssets.js").default} */ (contentWindow);
+						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
 					} else {
 						const contentWindow = editor.windowManager.focusOrCreateContentWindowType("project");
-						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowProject.js").default} */ (contentWindow);
+						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
 					}
 					assetLinksWindow.highlightPath(this.projectAssetValue.path);
 				}

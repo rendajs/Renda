@@ -13,7 +13,7 @@ import projectSelector from "../../ProjectSelector/instance.js";
  * @property {import("../../Util/Util.js").UuidString} assetUuid
  */
 
-export default class ContentWindowProject extends ContentWindow {
+export class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = "project";
 	static contentWindowUiName = "Project Files";
 	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";

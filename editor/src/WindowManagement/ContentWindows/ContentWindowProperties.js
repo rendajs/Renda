@@ -1,7 +1,7 @@
 import ContentWindow from "./ContentWindow.js";
 import editor from "../../editorInstance.js";
 
-export default class ContentWindowProperties extends ContentWindow {
+export class ContentWindowProperties extends ContentWindow {
 	static contentWindowTypeId = "properties";
 	static contentWindowUiName = "Properties";
 	static contentWindowUiIcon = "icons/contentWindowTabs/properties.svg";

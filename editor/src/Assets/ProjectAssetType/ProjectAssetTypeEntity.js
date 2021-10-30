@@ -1,7 +1,7 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import {AssetLoaderTypeEntity, Entity, Vec3, defaultComponentTypeManager} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
-import ContentWindowEntityEditor from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
 
 export default class ProjectAssetTypeEntity extends ProjectAssetType {

@@ -2,13 +2,13 @@ import ContentWindow from "./ContentWindow.js";
 import TreeView from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
 import {Entity} from "../../../../src/index.js";
-import ContentWindowEntityEditor from "./ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import editor from "../../editorInstance.js";
 import ProjectAssetTypeEntity from "../../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../Util/Util.js";
 import {EntitySelection} from "../../Misc/EntitySelection.js";
 
-export default class ContentWindowOutliner extends ContentWindow {
+export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
 	static contentWindowUiName = "Outliner";
 	static contentWindowUiIcon = "icons/contentWindowTabs/outliner.svg";

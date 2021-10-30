@@ -1,6 +1,6 @@
 import ContentWindow from "./ContentWindow.js";
-import ContentWindowOutliner from "./ContentWindowOutliner.js";
-import ContentWindowBuildView from "./ContentWindowBuildView.js";
+import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
+import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Component, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
@@ -9,7 +9,7 @@ import ComponentGizmos from "../../ComponentGizmos/ComponentGizmos.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
-export default class ContentWindowEntityEditor extends ContentWindow {
+export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowTypeId = "entityEditor";
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "icons/contentWindowTabs/entityEditor.svg";

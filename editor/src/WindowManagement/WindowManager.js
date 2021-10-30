@@ -1,6 +1,6 @@
 import EditorWindowSplit from "./EditorWindowSplit.js";
 import EditorWindowTabs from "./EditorWindowTabs.js";
-import ContentWindows from "./ContentWindows/ContentWindows.js";
+import {contentWindows} from "./ContentWindows/ContentWindows.js";
 import ContentWindow from "./ContentWindows/ContentWindow.js";
 import WorkspaceManager from "./WorkspaceManager.js";
 
@@ -18,7 +18,7 @@ export default class WindowManager {
 		/** @type {Map<string, typeof ContentWindow>} */
 		this.registeredContentWindows = new Map();
 
-		for (const w of ContentWindows) {
+		for (const w of contentWindows) {
 			this.registerContentWindow(w);
 		}
 

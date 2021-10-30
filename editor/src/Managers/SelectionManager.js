@@ -1,5 +1,5 @@
 import editor from "../editorInstance.js";
-import ContentWindowProperties from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
+import {ContentWindowProperties} from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
 
 /**
  * @template T
