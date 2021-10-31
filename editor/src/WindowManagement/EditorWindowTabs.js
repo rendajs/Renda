@@ -16,6 +16,8 @@ export default class EditorWindowTabs extends EditorWindow {
 		/** @type {Array<import("./ContentWindows/ContentWindow.js").default>} */
 		this.tabs = [];
 		this.activeTabIndex = -1;
+		/** @type {Set<() => void>} */
+		this.onTabChangeCbs = new Set();
 
 		this.tabsSelectorGroup = new ButtonGroup();
 		this.tabsSelectorGroup.el.classList.add("editorWindowTabButtonGroup");
@@ -222,6 +224,7 @@ export default class EditorWindowTabs extends EditorWindow {
 			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
 			this.tabs[i].setVisible(active);
 		}
+		this.fireActiveTabChange();
 		this.fireWorkspaceChangeCbs();
 	}
 
@@ -510,6 +513,19 @@ export default class EditorWindowTabs extends EditorWindow {
 	unsplitParent() {
 		if (this.parent && this.parent instanceof EditorWindowSplit) {
 			this.parent.unsplitWindow(this);
+		}
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onTabChange(cb) {
+		this.onTabChangeCbs.add(cb);
+	}
+
+	fireActiveTabChange() {
+		for (const cb of this.onTabChangeCbs) {
+			cb();
 		}
 	}
 }

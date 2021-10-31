@@ -52,7 +52,8 @@ export default class Editor {
 
 	// convenience function for getting selected object in the browser console
 	get selected() {
-		let selectionManager = this.windowManager.lastFocusedContentWindow?.selectionManager;
+		const contentWindow = /** @type {any} */ (this.windowManager.lastFocusedContentWindow);
+		let selectionManager = contentWindow?.selectionManager;
 		if (selectionManager && selectionManager != this.lastUsedSelectionManager) {
 			this.lastUsedSelectionManager = selectionManager;
 		} else {

@@ -7,7 +7,8 @@ import WorkspaceManager from "./WorkspaceManager.js";
 export default class WindowManager {
 	constructor() {
 		this.rootWindow = null;
-		this.lastFocusedEditorWindow = null;
+		/** @type {WeakRef<ContentWindow>[]} */
+		this.lastFocusedContentWindows = [];
 
 		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
@@ -79,7 +80,7 @@ export default class WindowManager {
 		if (this.rootWindow) {
 			this.rootWindow.destructor();
 		}
-		this.lastFocusedEditorWindow = null;
+		this.lastFocusedContentWindows = [];
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.markRootWindowAsRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
@@ -100,22 +101,43 @@ export default class WindowManager {
 	}
 
 	parseWorkspaceWindow(workspaceWindow) {
+		/** @type {import("./EditorWindow.js").default} */
 		let newWindow = null;
 		if (workspaceWindow.type == "split") {
 			newWindow = new EditorWindowSplit();
-			newWindow.splitHorizontal = workspaceWindow.splitHorizontal;
-			newWindow.splitPercentage = workspaceWindow.splitPercentage;
+			const castWindow = /** @type {EditorWindowSplit} */ (newWindow);
+			castWindow.splitHorizontal = workspaceWindow.splitHorizontal;
+			castWindow.splitPercentage = workspaceWindow.splitPercentage;
 		} else if (workspaceWindow.type == "tabs") {
 			newWindow = new EditorWindowTabs();
+			const castWindow = /** @type {EditorWindowTabs} */ (newWindow);
 			for (let i = 0; i < workspaceWindow.tabTypes.length; i++) {
-				newWindow.setTabType(i, workspaceWindow.tabTypes[i]);
+				castWindow.setTabType(i, workspaceWindow.tabTypes[i]);
 			}
-			newWindow.setActiveTabIndex(workspaceWindow.activeTabIndex || 0);
-			newWindow.onFocusedChange(hasFocus => {
-				if (hasFocus) this.lastFocusedEditorWindow = newWindow;
+			castWindow.setActiveTabIndex(workspaceWindow.activeTabIndex || 0);
+			castWindow.onTabChange(() => {
+				this.addContentWindowToLastFocused(castWindow.activeTab);
+			});
+			castWindow.onFocusedChange(hasFocus => {
+				if (hasFocus) {
+					this.addContentWindowToLastFocused(castWindow.activeTab);
+				}
 			});
 		}
 		return newWindow;
+	}
+
+	/**
+	 * @param {ContentWindow} contentWindow
+	 */
+	addContentWindowToLastFocused(contentWindow) {
+		for (const existingWeakRef of [...this.lastFocusedContentWindows]) {
+			const existing = existingWeakRef.deref();
+			if (!existing || existing == contentWindow) {
+				this.lastFocusedContentWindows.splice(this.lastFocusedContentWindows.indexOf(existingWeakRef), 1);
+			}
+		}
+		this.lastFocusedContentWindows.unshift(new WeakRef(contentWindow));
 	}
 
 	/**
@@ -277,7 +299,11 @@ export default class WindowManager {
 	}
 
 	get lastFocusedContentWindow() {
-		return this.lastFocusedEditorWindow?.activeTab || null;
+		for (const contentWindow of this.lastFocusedContentWindows) {
+			const ref = contentWindow.deref();
+			if (ref) return ref;
+		}
+		return null;
 	}
 
 	/**

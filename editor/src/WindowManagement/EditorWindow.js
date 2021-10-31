@@ -33,6 +33,9 @@ export default class EditorWindow {
 		this.el.classList.add("editorWindowRoot");
 	}
 
+	/**
+	 * @param {(hasFocus: boolean) => void} cb
+	 */
 	onFocusedChange(cb) {
 		this.onFocusedChangeCbs.add(cb);
 	}

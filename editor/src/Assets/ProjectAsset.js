@@ -158,6 +158,10 @@ export default class ProjectAsset {
 		return assetData;
 	}
 
+	/**
+	 * If this asset is a file that can be opened, open it
+	 * either in the editor or in an external application.
+	 */
 	async open() {
 		await this.waitForInit();
 		await this._projectAssetType.open();
