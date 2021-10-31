@@ -17,6 +17,10 @@ export default class RendererDomTarget {
 		return null;
 	}
 
+	/**
+	 * @param {number} w Width.
+	 * @param {number} h Height.
+	 */
 	resize(w, h) {
 		this.width = w;
 		this.height = h;

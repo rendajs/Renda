@@ -66,6 +66,11 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		return this.canvas;
 	}
 
+	/**
+	 * @override
+	 * @param {number} w Width.
+	 * @param {number} h Height.
+	 */
 	resize(w, h) {
 		super.resize(w, h);
 		this.canvas.width = w;
@@ -93,7 +98,8 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		});
 
 		if (this.colorTexture) this.colorTexture.destroy();
-		if (this.outputConfig.multisampleCount > 1) {
+		this.colorTexture = null;
+		if (this.outputConfig.multisampleCount > 1 && this.width > 0 && this.height > 0) {
 			this.colorTexture = this.castRenderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
@@ -107,7 +113,8 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		}
 
 		if (this.depthTexture) this.depthTexture.destroy();
-		if (this.depthSupport) {
+		this.depthTexture = null;
+		if (this.depthSupport && this.width > 0 && this.height > 0) {
 			this.depthTexture = this.castRenderer.device.createTexture({
 				size: {
 					width: this.canvas.width,
