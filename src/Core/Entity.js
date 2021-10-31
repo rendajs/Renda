@@ -5,6 +5,14 @@ import EntityMatrixCache from "./EntityMatrixCache.js";
 import MultiKeyWeakMap from "../Util/MultiKeyWeakMap.js";
 
 /**
+ * @typedef {Object} TraversedEntityParentPathEntry
+ * @property {Entity} parent
+ * @property {number} index
+ */
+
+/** @typedef {TraversedEntityParentPathEntry[]} TraversedEntityParentPath */
+
+/**
  * @typedef {Object} CreateEntityOptions
  * @property {string} [name = "Entity"]
  * @property {import("../Math/Mat4.js").default} [matrix = null]
@@ -29,7 +37,7 @@ export default class Entity {
 			}, ...opts,
 		};
 		this.name = opts.name;
-		/** @type {Set<EntityParent<this>>} */
+		/** @type {Set<EntityParent>} */
 		this._entityParents = new Set();
 		/** @type {MultiKeyWeakMap<EntityParent[], *>} */
 		this._matrixCaches = new MultiKeyWeakMap();
@@ -197,7 +205,7 @@ export default class Entity {
 	 * @returns {Entity | null}
 	 */
 	get parent() {
-		/** @type {EntityParent<this> | null} */
+		/** @type {EntityParent | null} */
 		const entityParent = this._entityParents.values().next().value;
 		if (entityParent) {
 			return entityParent.getParent();
@@ -334,7 +342,7 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedPathEntry[][]} traversedUpPaths
+	 * @param {TraversedEntityParentPath[]} traversedUpPaths
 	 */
 	_markLocalMatrixDirtyAll(traversedUpPaths) {
 		for (const traversedUpPath of traversedUpPaths) {
@@ -344,7 +352,7 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedPathEntry[][]} traversedUpPaths
+	 * @param {TraversedEntityParentPath[]} traversedUpPaths
 	 */
 	_markWorldMatrixDirtyAll(traversedUpPaths) {
 		for (const {child, traversedPath} of this.traverseDown()) {
@@ -365,7 +373,7 @@ export default class Entity {
 
 	/**
 	 * Marks the world matrix of this entity dirty based on the traversed parents path.
-	 * @param {TraversedPathEntry[]} traversedPath
+	 * @param {TraversedEntityParentPath} traversedPath
 	 */
 	markWorldMatrixDirty(traversedPath) {
 		const matrixCache = this._getMatrixCache(traversedPath);
@@ -373,7 +381,7 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedPathEntry[]} traversedPath
+	 * @param {TraversedEntityParentPath} traversedPath
 	 */
 	getWorldMatrix(traversedPath) {
 		const matrixCache = this._getMatrixCache(traversedPath);
@@ -390,12 +398,13 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedPathEntry[]} traversedPath
+	 * @param {TraversedEntityParentPath} traversedPath
 	 * @param {boolean} failIfIncomplete
 	 */
 	_getEntityParentsForTraversedPath(traversedPath, failIfIncomplete = true) {
-		/** @type {EntityParent<this>[]} */
+		/** @type {EntityParent[]} */
 		const entityParentsPath = [];
+		/** @type {Entity} */
 		let lastParent = this;
 		for (let i = traversedPath.length - 1; i >= 0; i--) {
 			const traversedPathEntry = traversedPath[i];
@@ -414,7 +423,7 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedPathEntry[]} traversedPath
+	 * @param {TraversedEntityParentPath} traversedPath
 	 * @returns {EntityMatrixCache}
 	 */
 	_getMatrixCache(traversedPath) {
@@ -487,8 +496,8 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedPathEntry} traversedPathEntry
-	 * @returns {EntityParent<this> | null}
+	 * @param {TraversedEntityParentPathEntry} traversedPathEntry
+	 * @returns {EntityParent | null}
 	 */
 	_getEntityParent(traversedPathEntry) {
 		for (const entityParent of this._entityParents) {
@@ -570,14 +579,8 @@ export default class Entity {
 	}
 
 	/**
-	 * @typedef {Object} TraversedPathEntry
-	 * @property {this} parent
-	 * @property {number} index
-	 */
-
-	/**
-	 * @param {TraversedPathEntry[]} traversedPath
-	 * @returns {Generator<{child: Entity, traversedPath: TraversedPathEntry[]}>}
+	 * @param {TraversedEntityParentPath} traversedPath
+	 * @returns {Generator<{child: Entity, traversedPath: TraversedEntityParentPath}>}
 	 */
 	*traverseDown(traversedPath = []) {
 		yield {
@@ -597,8 +600,8 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedPathEntry[]} traversedPath
-	 * @returns {Generator<{parent: Entity, traversedPath: TraversedPathEntry[]}>}
+	 * @param {TraversedEntityParentPath} traversedPath
+	 * @returns {Generator<{parent: Entity, traversedPath: TraversedEntityParentPath}>}
 	 */
 	*traverseUp(traversedPath = []) {
 		yield {

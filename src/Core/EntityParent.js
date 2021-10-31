@@ -1,11 +1,6 @@
-// #if !_IS_CLOSURE_BUILD
-/**
- * @template {{}} T
- */
-// #endif
 export default class EntityParent {
 	/**
-	 * @param {T} parent
+	 * @param {import("./Entity.js").default} parent
 	 * @param {number} index
 	 */
 	constructor(parent, index) {

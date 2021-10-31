@@ -32,6 +32,12 @@ export default class EntityMatrixCache {
 		this.localMatrixDirty = false;
 	}
 
+	/**
+	 * @param {import("./Entity.js").TraversedEntityParentPath} traversedPath
+	 * @param {Vec3} globalPos
+	 * @param {Quaternion} globalRot
+	 * @param {Vec3} globalScale
+	 */
 	getWorldMatrix(traversedPath, globalPos, globalRot, globalScale) {
 		if (this.localMatrixDirty || this.worldMatrixDirty) {
 			const localMatrix = this.getLocalMatrix(globalPos, globalRot, globalScale);
