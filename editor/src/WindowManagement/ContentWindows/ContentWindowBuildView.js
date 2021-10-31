@@ -44,6 +44,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	}
 
 	destructor() {
+		this.setLinkedEntityEditor(null);
 		super.destructor();
 
 		this.previewCamDomTarget.destructor();

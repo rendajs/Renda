@@ -109,7 +109,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	removeOnRenderDirty(cb) {
-		this.onRenderDirtyCbs.add(cb);
+		this.onRenderDirtyCbs.delete(cb);
 	}
 
 	newEmptyEditingEntity() {
