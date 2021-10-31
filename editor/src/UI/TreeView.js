@@ -966,10 +966,15 @@ export default class TreeView {
 		}
 	}
 
+	/**
+	 * @param {PointerEvent} e
+	 */
 	onRowClick(e) {
 		if (this.selectable) {
 			if (this.renameable && this.selected) {
-				this.setTextFieldVisible(true);
+				if (e.target == this.myNameEl) {
+					this.setTextFieldVisible(true);
+				}
 			} else {
 				/** @type {TreeViewSelectionChangeEvent} */
 				const changes = {
