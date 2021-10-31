@@ -9,6 +9,7 @@ import GitIgnoreManager from "./GitIgnoreManager.js";
 import ProjectSettingsManager from "./ProjectSettingsManager.js";
 import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
+import {ContentWindowConnections} from "../WindowManagement/ContentWindows/ContentWindowConnections.js";
 
 /**
  * @typedef {Object} StoredProjectEntry
@@ -231,7 +232,7 @@ export default class ProjectManager {
 			name: "Remote Filesystem",
 			isWorthSaving: false,
 		});
-		editor.windowManager.focusOrCreateContentWindowType("connections");
+		editor.windowManager.focusOrCreateContentWindow(ContentWindowConnections);
 	}
 
 	/**

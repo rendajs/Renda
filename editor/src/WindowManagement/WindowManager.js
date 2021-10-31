@@ -314,25 +314,17 @@ export default class WindowManager {
 	}
 
 	/**
-	 * @param {string} type
-	 * @returns {ContentWindow}
+	 * Focuses on the most suitable content window of the specified type.
+	 * Creates one if it doesn't exist.
+	 * @template {ContentWindow} T
+	 * @param {new () => T} contentWindowConstructor
+	 * @returns {T}
 	 */
-	focusOrCreateContentWindowType(type) {
-		// todo: use getOrCreateContentWindowByConstructor instead
-		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
-		let foundContentWindow = null;
-		for (const contentWindow of this.getContentWindowsByConstructor(contentWindowConstructor)) {
-			foundContentWindow = contentWindow;
-			break;
-		}
-		if (!foundContentWindow) {
-			foundContentWindow = this.createNewContentWindow(type);
-		}
-		if (!foundContentWindow) return null;
-
-		foundContentWindow.parentEditorWindow.focus();
-		foundContentWindow.parentEditorWindow.setActiveContentWindow(foundContentWindow);
-		return foundContentWindow;
+	focusOrCreateContentWindow(contentWindowConstructor) {
+		const contentWindow = this.getMostSuitableContentWindowByConstructor(contentWindowConstructor);
+		contentWindow.parentEditorWindow.focus();
+		contentWindow.parentEditorWindow.setActiveContentWindow(contentWindow);
+		return contentWindow;
 	}
 
 	createNewContentWindow(type) {

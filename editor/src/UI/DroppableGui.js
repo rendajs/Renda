@@ -1,6 +1,9 @@
 import editor from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
+import {ContentWindowDefaultAssetLinks} from "../WindowManagement/ContentWindows/ContentWindowDefaultAssetLinks.js";
+import {ContentWindowBuiltInAssets} from "../WindowManagement/ContentWindows/ContentWindowBuiltInAssets.js";
+import {ContentWindowProject} from "../WindowManagement/ContentWindows/ContentWindowProject.js";
 
 /**
  * @typedef {Object} DroppableGuiOptionsType
@@ -379,14 +382,14 @@ export default class DroppableGui {
 				if (this.defaultAssetLink) {
 					// todo: highlight assetLink
 					// eslint-disable-next-line no-unused-vars
-					const assetLinksWindow = editor.windowManager.focusOrCreateContentWindowType("defaultAssetLinks");
+					const assetLinksWindow = editor.windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
 				} else if (this.projectAssetValue) {
 					let assetLinksWindow;
 					if (this.projectAssetValue.isBuiltIn) {
-						const contentWindow = editor.windowManager.focusOrCreateContentWindowType("builtInAssets");
+						const contentWindow = editor.windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
 						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
 					} else {
-						const contentWindow = editor.windowManager.focusOrCreateContentWindowType("project");
+						const contentWindow = editor.windowManager.focusOrCreateContentWindow(ContentWindowProject);
 						assetLinksWindow = /** @type {import("../WindowManagement/ContentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
 					}
 					assetLinksWindow.highlightPath(this.projectAssetValue.path);
