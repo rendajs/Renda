@@ -269,6 +269,7 @@ export default class Entity {
 	setInstancePos(pos, parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
 		entityParent.overridePos = pos.clone();
+		this.markLocalMatrixDirtyInstance(parent, index);
 	}
 
 	/**
@@ -290,6 +291,7 @@ export default class Entity {
 	setInstanceRot(rot, parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
 		entityParent.overrideRot = rot.clone();
+		this.markLocalMatrixDirtyInstance(parent, index);
 	}
 
 	/**
@@ -311,6 +313,7 @@ export default class Entity {
 	setInstanceScale(scale, parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
 		entityParent.overrideScale = scale.clone();
+		this.markLocalMatrixDirtyInstance(parent, index);
 	}
 
 	/**
@@ -329,8 +332,8 @@ export default class Entity {
 	 */
 	markLocalMatrixDirtyAll() {
 		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
-		this._markLocalMatrixDirtyAll(traversedUpPaths);
-		this._markWorldMatrixDirtyAll(traversedUpPaths);
+		this._markLocalMatrixDirtyPaths(traversedUpPaths);
+		this._markWorldMatrixDirtyPaths(traversedUpPaths);
 	}
 
 	/**
@@ -338,13 +341,23 @@ export default class Entity {
 	 */
 	markWorldMatrixDirtyAll() {
 		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
-		this._markWorldMatrixDirtyAll(traversedUpPaths);
+		this._markWorldMatrixDirtyPaths(traversedUpPaths);
+	}
+
+	/**
+	 * @param {this} parent The parent to mark the local matrix as dirty for.
+	 * @param {number} index The index of this entity in the parent.
+	 */
+	markLocalMatrixDirtyInstance(parent, index) {
+		const traversedUpPaths = Array.from(this._getInstanceRootTraversedUpPaths(parent, index));
+		this._markLocalMatrixDirtyPaths(traversedUpPaths);
+		this._markWorldMatrixDirtyPaths(traversedUpPaths);
 	}
 
 	/**
 	 * @param {TraversedEntityParentPath[]} traversedUpPaths
 	 */
-	_markLocalMatrixDirtyAll(traversedUpPaths) {
+	_markLocalMatrixDirtyPaths(traversedUpPaths) {
 		for (const traversedUpPath of traversedUpPaths) {
 			const matrixCache = this._getMatrixCache(traversedUpPath);
 			matrixCache.localMatrixDirty = true;
@@ -354,7 +367,7 @@ export default class Entity {
 	/**
 	 * @param {TraversedEntityParentPath[]} traversedUpPaths
 	 */
-	_markWorldMatrixDirtyAll(traversedUpPaths) {
+	_markWorldMatrixDirtyPaths(traversedUpPaths) {
 		for (const {child, traversedPath} of this.traverseDown()) {
 			for (const traversedUpPath of traversedUpPaths) {
 				// eslint-disable-next-line no-underscore-dangle
@@ -363,9 +376,29 @@ export default class Entity {
 		}
 	}
 
+	/**
+	 * Gets the traversed path of all the roots that this entity is a child of.
+	 */
 	*_getAllRootTraversedUpPaths() {
 		for (const {parent, traversedPath} of this.traverseUp()) {
 			if (parent.isRoot) {
+				yield [...traversedPath];
+			}
+		}
+	}
+
+	/**
+	 * Same as {@link _getAllRootTraversedUpPaths}, but for a specific instance.
+	 * @param {this} parent
+	 * @param {number} index
+	 */
+	*_getInstanceRootTraversedUpPaths(parent, index) {
+		for (const {parent: traversedParent, traversedPath, ignoreBranch} of this.traverseUp()) {
+			if (parent == traversedParent && traversedPath[0].index != index) {
+				ignoreBranch();
+				continue;
+			}
+			if (traversedParent.isRoot) {
 				yield [...traversedPath];
 			}
 		}
@@ -600,14 +633,26 @@ export default class Entity {
 	}
 
 	/**
+	 * @typedef {Object} TraverseUpResult
+	 * @property {Entity} parent The parent of the entity.
+	 * @property {TraversedEntityParentPath} traversedPath The traversed path starting from the currently iterated parent to the entity.
+	 * @property {() => void} ignoreBranch Call this if you wish to stop the iteration for a specific branch. This will prevent iteration all parent nodes starting from this branch while still being able to iterate over the siblings.
+	 */
+
+	/**
 	 * @param {TraversedEntityParentPath} traversedPath
-	 * @returns {Generator<{parent: Entity, traversedPath: TraversedEntityParentPath}>}
+	 * @returns {Generator<TraverseUpResult>}
 	 */
 	*traverseUp(traversedPath = []) {
+		let didIgnoreBranch = false;
 		yield {
 			parent: this,
 			traversedPath,
+			ignoreBranch: () => {
+				didIgnoreBranch = true;
+			},
 		};
+		if (didIgnoreBranch) return;
 		for (const {parent, entityParent} of this._getEntityParents()) {
 			traversedPath.unshift({
 				parent,
