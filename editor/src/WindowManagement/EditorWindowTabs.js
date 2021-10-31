@@ -6,15 +6,16 @@ import ButtonGroup from "../UI/ButtonGroup.js";
 import EditorWindowSplit from "./EditorWindowSplit.js";
 
 export default class EditorWindowTabs extends EditorWindow {
+	/** @type {Array<string>} */
+	#intendedTabTypes = [];
+	/** @type {import("../Util/Util.js").UuidString[]} */
+	#intendedTabUuids = [];
+
 	constructor() {
 		super();
 
 		this.el.classList.add("editorWindowTabs");
 
-		/** @type {Array<string>} */
-		this.tabTypes = []; // todo: rename intendedTabTypes and make private
-		/** @type {import("../Util/Util.js").UuidString[]} */
-		this.intendedTabUuids = [];
 		/** @type {Array<import("./ContentWindows/ContentWindow.js").default>} */
 		this.tabs = [];
 		this.activeTabIndex = -1;
@@ -47,7 +48,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	}
 
 	destructor() {
-		this.tabTypes = null;
+		this.#intendedTabTypes = null;
 		for (const tab of this.tabs) {
 			tab.destructor();
 		}
@@ -69,8 +70,8 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
 	setTabType(index, tabType, uuid) {
-		this.tabTypes[index] = tabType;
-		this.intendedTabUuids[index] = uuid;
+		this.#intendedTabTypes[index] = tabType;
+		this.#intendedTabUuids[index] = uuid;
 		const constructor = editor.windowManager.getContentWindowConstructorByType(tabType);
 		if (constructor) {
 			return this.loadContentWindow(index, constructor, uuid);
@@ -84,7 +85,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
 	addTabType(tabType, activate = false) {
-		const index = this.tabTypes.length;
+		const index = this.#intendedTabTypes.length;
 		const contentWindow = this.setTabType(index, tabType, generateUuid());
 		if (activate) {
 			this.setActiveTabIndex(index);
@@ -100,7 +101,7 @@ export default class EditorWindowTabs extends EditorWindow {
 		const contentWindow = this.tabs[tabIndex];
 		contentWindow.destructor();
 		this.tabs.splice(tabIndex, 1);
-		this.tabTypes.splice(tabIndex, 1);
+		this.#intendedTabTypes.splice(tabIndex, 1);
 		this.updateTabSelector();
 		this.fireWorkspaceChangeCbs();
 	}
@@ -109,9 +110,9 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @param {typeof import("./ContentWindows/ContentWindow.js").default} constructor
 	 */
 	onContentWindowRegistered(constructor) {
-		for (let i = 0; i < this.tabTypes.length; i++) {
-			if (this.tabTypes[i] == constructor.contentWindowTypeId) {
-				let uuid = this.intendedTabUuids[i];
+		for (let i = 0; i < this.#intendedTabTypes.length; i++) {
+			if (this.#intendedTabTypes[i] == constructor.contentWindowTypeId) {
+				let uuid = this.#intendedTabUuids[i];
 				if (!uuid) uuid = generateUuid();
 				this.loadContentWindow(i, constructor, uuid);
 			}
@@ -142,7 +143,7 @@ export default class EditorWindowTabs extends EditorWindow {
 		contentWindow.attachParentEditorWindow(this);
 		this.tabs[index] = contentWindow;
 		const castConstructor = /** @type {typeof import("./ContentWindows/ContentWindow.js").default} */ (contentWindow.constructor);
-		this.tabTypes[index] = castConstructor.contentWindowTypeId;
+		this.#intendedTabTypes[index] = castConstructor.contentWindowTypeId;
 		this.tabsEl.appendChild(contentWindow.el);
 		this.updateTabSelector();
 	}
@@ -152,7 +153,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @param {boolean} [activate]
 	 */
 	addExistingContentWindow(contentWindow, activate = true) {
-		const index = this.tabTypes.length;
+		const index = this.#intendedTabTypes.length;
 		this.setExistingContentWindow(index, contentWindow);
 		if (activate) {
 			this.setActiveTabIndex(index);
@@ -167,9 +168,9 @@ export default class EditorWindowTabs extends EditorWindow {
 		const index = this.tabs.indexOf(contentWindow);
 		if (index >= 0) {
 			this.tabs.splice(index, 1);
-			this.tabTypes.splice(index, 1);
+			this.#intendedTabTypes.splice(index, 1);
 			this.updateTabSelector();
-			if (this.tabTypes.length == 0) {
+			if (this.#intendedTabTypes.length == 0) {
 				this.unsplitParent();
 			}
 			this.fireWorkspaceChangeCbs();

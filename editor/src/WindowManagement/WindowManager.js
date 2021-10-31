@@ -184,7 +184,7 @@ export default class WindowManager {
 			/** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */
 			const data = {
 				type: "tabs",
-				tabTypes: workspaceWindow.tabTypes,
+				tabTypes: workspaceWindow.tabs.map(tab => /** @type {typeof ContentWindow} */ (tab.constructor).contentWindowTypeId),
 				activeTabIndex: workspaceWindow.activeTabIndex,
 				tabUuids: workspaceWindow.tabs.map(tab => tab.uuid),
 			};
