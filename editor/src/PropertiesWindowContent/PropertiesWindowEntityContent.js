@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, defaultComponentTypeManager} from "../../../src/index.js";
+import {Entity, Quaternion, defaultComponentTypeManager} from "../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import DroppableGui from "../UI/DroppableGui.js";
@@ -40,11 +40,12 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.positionProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
-			for (const {entity} of this.currentSelection) {
+			for (const {entity, metaData} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.pos = newValue;
 				} else if (this.editingModeGui.value == "instance") {
-					entity.setInstancePos(newValue);
+					const {parent, index} = this.getParentDataFromEntitySelectionMetaData(metaData);
+					entity.setInstancePos(newValue, parent, index);
 				}
 				this.notifyEntityEditors(entity, "transform");
 			}
@@ -58,11 +59,13 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.rotationProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
-			for (const {entity} of this.currentSelection) {
+			for (const {entity, metaData} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.rot.setFromAxisAngle(newValue);
 				} else if (this.editingModeGui.value == "instance") {
-					// entity.setInstanceRot(newValue);
+					const {parent, index} = this.getParentDataFromEntitySelectionMetaData(metaData);
+					const quat = Quaternion.fromAxisAngle(newValue);
+					entity.setInstanceRot(quat, parent, index);
 				}
 				this.notifyEntityEditors(entity, "transform");
 			}
@@ -76,11 +79,12 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 		});
 		this.scaleProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
-			for (const {entity} of this.currentSelection) {
+			for (const {entity, metaData} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.scale = newValue;
 				} else if (this.editingModeGui.value == "instance") {
-					// entity.setInstanceScale(newValue);
+					const {parent, index} = this.getParentDataFromEntitySelectionMetaData(metaData);
+					entity.setInstanceScale(newValue, parent, index);
 				}
 				this.notifyEntityEditors(entity, "transform");
 			}
@@ -147,11 +151,41 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 			this.rotationProperty.setValue(entity.rot.toAxisAngle());
 			this.scaleProperty.setValue(entity.scale);
 		} else if (this.editingModeGui.value == "instance") {
-			this.positionProperty.setValue([0, 0, 0]);
-			this.rotationProperty.setValue([0, 0, 0]);
-			this.scaleProperty.setValue([1, 1, 1]);
+			const firstEntitySelection = this.currentSelection[0];
+			const {parent, index} = this.getParentDataFromEntitySelectionMetaData(firstEntitySelection.metaData);
+
+			const pos = firstEntitySelection.entity.getInstancePos(parent, index);
+			if (pos) {
+				this.positionProperty.setValue(pos);
+			} else {
+				this.positionProperty.setValue([0, 0, 0]);
+			}
+
+			const rot = firstEntitySelection.entity.getInstanceRot(parent, index);
+			if (rot) {
+				this.rotationProperty.setValue(rot.toAxisAngle());
+			} else {
+				this.rotationProperty.setValue([0, 0, 0]);
+			}
+
+			const scale = firstEntitySelection.entity.getInstanceScale(parent, index);
+			if (scale) {
+				this.scaleProperty.setValue(scale);
+			} else {
+				this.scaleProperty.setValue([1, 1, 1]);
+			}
 		}
 		this.isSettingTransformationValues = false;
+	}
+
+	/**
+	 * @param {import("../Misc/EntitySelection.js").EntitySelectionMetaData} metaData
+	 */
+	getParentDataFromEntitySelectionMetaData(metaData) {
+		const parentTreeView = metaData.outlinerTreeView.parent;
+		const parent = metaData.outliner.getEntityByTreeViewItem(parentTreeView);
+		const index = metaData.outlinerTreeView.index;
+		return {parent, index};
 	}
 
 	refreshComponents() {

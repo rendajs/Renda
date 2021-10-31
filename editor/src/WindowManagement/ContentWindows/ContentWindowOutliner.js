@@ -145,6 +145,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			const entity = this.getEntityByTreeViewItem(treeView);
 			return new EntitySelection(entity, {
 				outlinerTreeView: treeView,
+				outliner: this,
 			});
 		});
 	}

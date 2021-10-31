@@ -255,9 +255,65 @@ export default class Entity {
 
 	/**
 	 * @param {Vec3} pos
+	 * @param {this} parent The parent to set the position for.
+	 * @param {number} index The index of this entity in the parent.
 	 */
-	setInstancePos(pos) {
-		// todo
+	setInstancePos(pos, parent, index) {
+		const entityParent = this._getEntityParent({parent, index});
+		entityParent.overridePos = pos.clone();
+	}
+
+	/**
+	 * @param {this} parent The parent to get the position for.
+	 * @param {number} index The index of this entity in the parent.
+	 */
+	getInstancePos(parent, index) {
+		const entityParent = this._getEntityParent({parent, index});
+		const pos = entityParent.overridePos;
+		if (pos) return pos.clone();
+		return null;
+	}
+
+	/**
+	 * @param {Quaternion} rot
+	 * @param {this} parent The parent to set the rotation for.
+	 * @param {number} index The index of this entity in the parent.
+	 */
+	setInstanceRot(rot, parent, index) {
+		const entityParent = this._getEntityParent({parent, index});
+		entityParent.overrideRot = rot.clone();
+	}
+
+	/**
+	 * @param {this} parent The parent to get the rotation for.
+	 * @param {number} index The index of this entity in the parent.
+	 */
+	getInstanceRot(parent, index) {
+		const entityParent = this._getEntityParent({parent, index});
+		const rot = entityParent.overrideRot;
+		if (rot) return rot.clone();
+		return null;
+	}
+
+	/**
+	 * @param {Vec3} scale
+	 * @param {this} parent The parent to set the scale for.
+	 * @param {number} index The index of this entity in the parent.
+	 */
+	setInstanceScale(scale, parent, index) {
+		const entityParent = this._getEntityParent({parent, index});
+		entityParent.overrideScale = scale.clone();
+	}
+
+	/**
+	 * @param {this} parent The parent to get the scale for.
+	 * @param {number} index The index of this entity in the parent.
+	 */
+	getInstanceScale(parent, index) {
+		const entityParent = this._getEntityParent({parent, index});
+		const scale = entityParent.overrideScale;
+		if (scale) return scale.clone();
+		return null;
 	}
 
 	/**
