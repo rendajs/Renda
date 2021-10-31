@@ -111,6 +111,8 @@ export default class TreeView {
 	#currenDragFeedbackEl = null;
 
 	#textFieldVisible = false;
+	#lastTextFocusOutWasFromRow = false;
+	#lastTextFocusOutTime = 0;
 
 	static #dragRootUuidSym = Symbol("Drag Root Uuid");
 
@@ -972,7 +974,12 @@ export default class TreeView {
 	onRowClick(e) {
 		if (this.selectable) {
 			if (this.renameable && this.selected) {
-				if (e.target == this.myNameEl) {
+				let wasFromRowBlur = false;
+				if (this.#lastTextFocusOutWasFromRow && Date.now() < this.#lastTextFocusOutTime + 300) {
+					wasFromRowBlur = true;
+					this.#lastTextFocusOutWasFromRow = false;
+				}
+				if (e.target == this.myNameEl || (this.name == "" && !wasFromRowBlur)) {
 					this.setTextFieldVisible(true);
 				}
 			} else {
@@ -1039,7 +1046,11 @@ export default class TreeView {
 					this.updateDataRenameValue();
 				});
 				// use "focusout" instead of "blur" to ensure the "focusout" event bubbles to the root treeview
-				textEl.addEventListener("focusout", () => {
+				textEl.addEventListener("focusout", e => {
+					this.#lastTextFocusOutWasFromRow = e.relatedTarget == this.rowEl;
+					if (this.#lastTextFocusOutWasFromRow) {
+						this.#lastTextFocusOutTime = Date.now();
+					}
 					this.setTextFieldVisible(false);
 				});
 				textEl.focus();
