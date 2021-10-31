@@ -178,6 +178,7 @@ export default class WindowManager {
 				type: "tabs",
 				tabTypes: workspaceWindow.tabTypes,
 				activeTabIndex: workspaceWindow.activeTabIndex,
+				tabUuids: workspaceWindow.tabs.map(tab => tab.uuid),
 			};
 			return data;
 		}
