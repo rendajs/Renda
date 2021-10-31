@@ -1,5 +1,3 @@
-import {generateUuid} from "../../Util/Util.js";
-
 export default class ContentWindow {
 	/**
 	 * Should be overridden by inherited class.
@@ -24,7 +22,7 @@ export default class ContentWindow {
 	constructor() {
 		/** @type {import("../EditorWindowTabs.js").default}*/
 		this.parentEditorWindow = null;
-		this.uuid = generateUuid();
+		this.uuid = null;
 
 		this.destructed = false;
 

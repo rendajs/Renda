@@ -3,6 +3,7 @@ import EditorWindowTabs from "./EditorWindowTabs.js";
 import {contentWindows} from "./ContentWindows/ContentWindows.js";
 import ContentWindow from "./ContentWindows/ContentWindow.js";
 import WorkspaceManager from "./WorkspaceManager.js";
+import {generateUuid} from "../Util/Util.js";
 
 export default class WindowManager {
 	constructor() {
@@ -100,21 +101,28 @@ export default class WindowManager {
 		});
 	}
 
-	parseWorkspaceWindow(workspaceWindow) {
+	/**
+	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindowData
+	 */
+	parseWorkspaceWindow(workspaceWindowData) {
 		/** @type {import("./EditorWindow.js").default} */
 		let newWindow = null;
-		if (workspaceWindow.type == "split") {
+		if (workspaceWindowData.type == "split") {
 			newWindow = new EditorWindowSplit();
 			const castWindow = /** @type {EditorWindowSplit} */ (newWindow);
-			castWindow.splitHorizontal = workspaceWindow.splitHorizontal;
-			castWindow.splitPercentage = workspaceWindow.splitPercentage;
-		} else if (workspaceWindow.type == "tabs") {
+			const castWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowSplit} */ (workspaceWindowData);
+			castWindow.splitHorizontal = castWindowData.splitHorizontal;
+			castWindow.splitPercentage = castWindowData.splitPercentage;
+		} else if (workspaceWindowData.type == "tabs") {
 			newWindow = new EditorWindowTabs();
 			const castWindow = /** @type {EditorWindowTabs} */ (newWindow);
-			for (let i = 0; i < workspaceWindow.tabTypes.length; i++) {
-				castWindow.setTabType(i, workspaceWindow.tabTypes[i]);
+			const castWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */ (workspaceWindowData);
+			for (let i = 0; i < castWindowData.tabTypes.length; i++) {
+				let uuid = castWindowData.tabUuids[i];
+				if (!uuid) uuid = generateUuid();
+				castWindow.setTabType(i, castWindowData.tabTypes[i], uuid);
 			}
-			castWindow.setActiveTabIndex(workspaceWindow.activeTabIndex || 0);
+			castWindow.setActiveTabIndex(castWindowData.activeTabIndex || 0);
 			castWindow.onTabChange(() => {
 				this.addContentWindowToLastFocused(castWindow.activeTab);
 			});

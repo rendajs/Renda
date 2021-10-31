@@ -1,5 +1,5 @@
 import EditorWindow from "./EditorWindow.js";
-import {getElemSize, iLerp, parseMimeType} from "../Util/Util.js";
+import {generateUuid, getElemSize, iLerp, parseMimeType} from "../Util/Util.js";
 import editor from "../editorInstance.js";
 import Button from "../UI/Button.js";
 import ButtonGroup from "../UI/ButtonGroup.js";
@@ -12,7 +12,9 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.el.classList.add("editorWindowTabs");
 
 		/** @type {Array<string>} */
-		this.tabTypes = [];
+		this.tabTypes = []; // todo: rename intendedTabTypes and make private
+		/** @type {import("../Util/Util.js").UuidString[]} */
+		this.intendedTabUuids = [];
 		/** @type {Array<import("./ContentWindows/ContentWindow.js").default>} */
 		this.tabs = [];
 		this.activeTabIndex = -1;
@@ -63,13 +65,15 @@ export default class EditorWindowTabs extends EditorWindow {
 	/**
 	 * @param {number} index
 	 * @param {string} tabType
+	 * @param {import("../Util/Util.js").UuidString} uuid
 	 * @returns {?import("./ContentWindows/ContentWindow.js").default}
 	 */
-	setTabType(index, tabType) {
+	setTabType(index, tabType, uuid) {
 		this.tabTypes[index] = tabType;
+		this.intendedTabUuids[index] = uuid;
 		const constructor = editor.windowManager.getContentWindowConstructorByType(tabType);
 		if (constructor) {
-			return this.loadContentWindow(index, constructor);
+			return this.loadContentWindow(index, constructor, uuid);
 		}
 		return null;
 	}
@@ -81,7 +85,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	 */
 	addTabType(tabType, activate = false) {
 		const index = this.tabTypes.length;
-		const contentWindow = this.setTabType(index, tabType);
+		const contentWindow = this.setTabType(index, tabType, generateUuid());
 		if (activate) {
 			this.setActiveTabIndex(index);
 		}
@@ -107,7 +111,9 @@ export default class EditorWindowTabs extends EditorWindow {
 	onContentWindowRegistered(constructor) {
 		for (let i = 0; i < this.tabTypes.length; i++) {
 			if (this.tabTypes[i] == constructor.contentWindowTypeId) {
-				this.loadContentWindow(i, constructor);
+				let uuid = this.intendedTabUuids[i];
+				if (!uuid) uuid = generateUuid();
+				this.loadContentWindow(i, constructor, uuid);
 			}
 		}
 	}
@@ -116,10 +122,12 @@ export default class EditorWindowTabs extends EditorWindow {
 	 * @template {import("./ContentWindows/ContentWindow.js").default} T
 	 * @param {number} index
 	 * @param {new () => T} constructor
+	 * @param {import("../Util/Util.js").UuidString} uuid
 	 * @returns {T}
 	 */
-	loadContentWindow(index, constructor) {
+	loadContentWindow(index, constructor, uuid) {
 		const contentWindow = new constructor();
+		contentWindow.uuid = uuid;
 		this.setExistingContentWindow(index, contentWindow);
 		return contentWindow;
 	}
