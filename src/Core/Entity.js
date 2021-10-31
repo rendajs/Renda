@@ -242,8 +242,8 @@ export default class Entity {
 	}
 
 	get localMatrix() {
-		const {matrixCache} = this._getFirstMatrixCache();
-		return matrixCache.getLocalMatrix(this.pos, this.rot, this.scale);
+		const {matrixCache, traversedPath} = this._getFirstMatrixCache();
+		return matrixCache.getLocalMatrix(this, traversedPath);
 	}
 
 	set localMatrix(value) {
@@ -258,7 +258,7 @@ export default class Entity {
 
 	get worldMatrix() {
 		const {matrixCache, traversedPath} = this._getFirstMatrixCache();
-		return matrixCache.getWorldMatrix(traversedPath, this.pos, this.rot, this.scale);
+		return matrixCache.getWorldMatrix(this, traversedPath);
 	}
 
 	/**
@@ -278,9 +278,7 @@ export default class Entity {
 	 */
 	getInstancePos(parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
-		const pos = entityParent.overridePos;
-		if (pos) return pos.clone();
-		return null;
+		return entityParent.overridePos?.clone() ?? null;
 	}
 
 	/**
@@ -300,9 +298,7 @@ export default class Entity {
 	 */
 	getInstanceRot(parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
-		const rot = entityParent.overrideRot;
-		if (rot) return rot.clone();
-		return null;
+		return entityParent.overrideRot?.clone() ?? null;
 	}
 
 	/**
@@ -322,9 +318,19 @@ export default class Entity {
 	 */
 	getInstanceScale(parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
-		const scale = entityParent.overrideScale;
-		if (scale) return scale.clone();
-		return null;
+		return entityParent.overrideScale?.clone() ?? null;
+	}
+
+	/**
+	 * @param {this} parent The parent to get the data for.
+	 * @param {number} index The index of this entity in the parent.
+	 */
+	getInstancePosRotScale(parent, index) {
+		const entityParent = this._getEntityParent({parent, index});
+		const pos = entityParent.overridePos?.clone() ?? null;
+		const rot = entityParent.overrideRot?.clone() ?? null;
+		const scale = entityParent.overrideScale?.clone() ?? null;
+		return {pos, rot, scale};
 	}
 
 	/**
@@ -418,7 +424,7 @@ export default class Entity {
 	 */
 	getWorldMatrix(traversedPath) {
 		const matrixCache = this._getMatrixCache(traversedPath);
-		return matrixCache.getWorldMatrix(traversedPath, this.pos, this.rot, this.scale);
+		return matrixCache.getWorldMatrix(this, traversedPath);
 	}
 
 	_getFirstMatrixCache() {

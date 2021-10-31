@@ -8,17 +8,23 @@ export default class EntityMatrixCache {
 		this.worldMatrix = null;
 	}
 
-	/** @typedef {import("../Math/Vec3.js").default} Vec3 */
-	/** @typedef {import("../Math/Quaternion.js").default} Quaternion */
-
 	/**
-	 * @param {Vec3} globalPos
-	 * @param {Quaternion} globalRot
-	 * @param {Vec3} globalScale
+	 * @param {import("./Entity.js").default} entity The entity that the matrix is meant for.
+	 * @param {import("./Entity.js").TraversedEntityParentPath} traversedPath The traversed parent path to this entity.
 	 */
-	getLocalMatrix(globalPos, globalRot, globalScale) {
+	getLocalMatrix(entity, traversedPath) {
 		if (this.localMatrixDirty) {
-			this.localMatrix = Mat4.createPosRotScale(globalPos, globalRot, globalScale);
+			let pos = entity.pos;
+			let rot = entity.rot;
+			let scale = entity.scale;
+			if (traversedPath.length > 0) {
+				const parentEntry = traversedPath.at(-1);
+				const {pos: instancePos, rot: instanceRot, scale: instanceScale} = entity.getInstancePosRotScale(parentEntry.parent, parentEntry.index);
+				if (instancePos) pos = instancePos;
+				if (instanceRot) rot = instanceRot;
+				if (instanceScale) scale = instanceScale;
+			}
+			this.localMatrix = Mat4.createPosRotScale(pos, rot, scale);
 			this.localMatrixDirty = false;
 		}
 		return this.localMatrix;
@@ -33,14 +39,12 @@ export default class EntityMatrixCache {
 	}
 
 	/**
-	 * @param {import("./Entity.js").TraversedEntityParentPath} traversedPath
-	 * @param {Vec3} globalPos
-	 * @param {Quaternion} globalRot
-	 * @param {Vec3} globalScale
+	 * @param {import("./Entity.js").default} entity The entity that the matrix is meant for.
+	 * @param {import("./Entity.js").TraversedEntityParentPath} traversedPath The traversed parent path to this entity.
 	 */
-	getWorldMatrix(traversedPath, globalPos, globalRot, globalScale) {
+	getWorldMatrix(entity, traversedPath) {
 		if (this.localMatrixDirty || this.worldMatrixDirty) {
-			const localMatrix = this.getLocalMatrix(globalPos, globalRot, globalScale);
+			const localMatrix = this.getLocalMatrix(entity, traversedPath);
 			if (traversedPath.length > 0) {
 				const parent = traversedPath.at(-1).parent;
 				const parentMatrix = parent.getWorldMatrix(traversedPath.slice(0, -1));
