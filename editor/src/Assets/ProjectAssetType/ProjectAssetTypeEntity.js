@@ -35,9 +35,8 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	async open() {
 		const entity = await this.projectAsset.getLiveAsset();
-		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
-			entityEditor.loadEntityAsset(entity, this.projectAsset.uuid);
-		}
+		const entityEditor = editor.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);
+		entityEditor.loadEntityAsset(entity, this.projectAsset.uuid);
 	}
 
 	async createEntityFromJsonData(jsonData) {

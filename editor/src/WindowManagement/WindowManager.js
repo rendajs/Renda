@@ -249,6 +249,51 @@ export default class WindowManager {
 	}
 
 	/**
+	 * Get the first content window of the given type.
+	 * @template {ContentWindow} T
+	 * @param {new () => T} contentWindowConstructor
+	 * @param {boolean} create Whether to create a new content window if none exist.
+	 * @returns {T}
+	 */
+	getOrCreateContentWindowByConstructor(contentWindowConstructor, create = true) {
+		for (const w of this.getContentWindowsByConstructor(contentWindowConstructor)) {
+			return w;
+		}
+		if (create) {
+			for (const w of this.allEditorWindows()) {
+				if (w instanceof EditorWindowTabs) {
+					const castConstructorAny = /** @type {*} */ (contentWindowConstructor);
+					const castConstructor = /** @type {typeof ContentWindow} */ (castConstructorAny);
+					const created = w.addTabType(castConstructor.contentWindowTypeId);
+					/* eslint-disable jsdoc/no-undefined-types */
+					return /** @type {T} */ (created);
+					/* eslint-enable jsdoc/no-undefined-types */
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get the last focused content window of the specefied type.
+	 * If no content window of the type has ever been focused, returns the first available content window of that type.
+	 * @template {ContentWindow} T
+	 * @param {new () => T} contentWindowConstructor
+	 * @param {boolean} create Whether to create a new content window if none exist.
+	 * @returns {T}
+	 */
+	getMostSuitableContentWindowByConstructor(contentWindowConstructor, create = true) {
+		for (const weakRef of this.lastFocusedContentWindows) {
+			const ref = weakRef.deref();
+			if (!ref) continue;
+			if (ref instanceof contentWindowConstructor) {
+				return ref;
+			}
+		}
+		return this.getOrCreateContentWindowByConstructor(contentWindowConstructor, create);
+	}
+
+	/**
 	 * @param {string} type
 	 * @returns {Generator<ContentWindow>}
 	 */
@@ -273,6 +318,7 @@ export default class WindowManager {
 	 * @returns {ContentWindow}
 	 */
 	focusOrCreateContentWindowType(type) {
+		// todo: use getOrCreateContentWindowByConstructor instead
 		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
 		let foundContentWindow = null;
 		for (const contentWindow of this.getContentWindowsByConstructor(contentWindowConstructor)) {
