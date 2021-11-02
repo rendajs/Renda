@@ -42,6 +42,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorCamComponent.clusteredLightsConfig = new ClusteredLightsConfig();
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
+		this.orbitControlsValuesDirty = false;
+		this.lastOrbitControlsValuesChangeTime = 0;
 
 		this.editingEntityUuid = null;
 		/** @type {Entity} */
@@ -158,6 +160,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
 				this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
 				this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
+				this.orbitControlsValuesDirty = true;
+				this.lastOrbitControlsValuesChangeTime = Date.now();
+			}
+
+			if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
+				this.persistentData.flush();
+				this.orbitControlsValuesDirty = false;
 			}
 		}
 
