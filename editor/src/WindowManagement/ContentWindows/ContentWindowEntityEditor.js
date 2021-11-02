@@ -116,9 +116,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editingEntity = new Entity();
 	}
 
+	/**
+	 * @param {Entity} entity
+	 * @param {import("../../Util/Util.js").UuidString} entityUuid
+	 */
 	loadEntityAsset(entity, entityUuid) {
 		this.editingEntity = entity;
 		this.editingEntityUuid = entityUuid;
+		this.persistentData.set("loadedEntityUuid", entityUuid);
 	}
 
 	async saveEntityAsset() {

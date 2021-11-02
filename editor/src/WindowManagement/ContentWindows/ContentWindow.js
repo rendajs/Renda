@@ -1,3 +1,5 @@
+import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
+
 export default class ContentWindow {
 	/**
 	 * Should be overridden by inherited class.
@@ -23,6 +25,10 @@ export default class ContentWindow {
 		/** @type {import("../EditorWindowTabs.js").default}*/
 		this.parentEditorWindow = null;
 		this.uuid = null;
+		/** @type {import("../WindowManager.js").default} */
+		this.windowManager = null;
+
+		this.persistentData = new ContentWindowPersistentData();
 
 		this.destructed = false;
 

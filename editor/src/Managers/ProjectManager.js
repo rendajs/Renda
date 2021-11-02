@@ -28,6 +28,8 @@ export default class ProjectManager {
 	#boundOnFileSystemBeforeAnyChange;
 	#boundOnFileSystemRootNameChange;
 
+	#boundSaveContentWindowPersistentData;
+
 	constructor() {
 		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").default} */
 		this.currentProjectFileSystem = null;
@@ -35,7 +37,16 @@ export default class ProjectManager {
 		this.currentProjectIsMarkedAsWorthSaving = false;
 		this.currentProjectIsRemote = false;
 		this.gitIgnoreManager = null;
+		/**
+		 * Used for settings that are generally expected to be stored in the project's repository.
+		 * @type {ProjectSettingsManager}
+		 */
 		this.projectSettings = null;
+		/**
+		 * Used for settings that are generally supposed to stay on the user's machine,
+		 * rather than get saved in the project repository.
+		 * @type {ProjectSettingsManager}
+		 */
 		this.localProjectSettings = null;
 		this.assetManager = null;
 
@@ -77,6 +88,10 @@ export default class ProjectManager {
 		this.#boundOnFileSystemRootNameChange = newName => {
 			this.currentProjectOpenEvent.name = newName;
 			this.fireOnProjectOpenEntryChangeCbs();
+		};
+
+		this.#boundSaveContentWindowPersistentData = async data => {
+			this.localProjectSettings.set("contentWindowPersistentData", data);
 		};
 
 		/** @type {Set<function(StoredProjectEntry):void>} */
@@ -131,7 +146,9 @@ export default class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
+		editor.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		await editor.windowManager.reloadCurrentWorkspace();
+		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
 	}

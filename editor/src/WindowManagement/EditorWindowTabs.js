@@ -129,6 +129,8 @@ export default class EditorWindowTabs extends EditorWindow {
 	loadContentWindow(index, constructor, uuid) {
 		const contentWindow = new constructor();
 		contentWindow.uuid = uuid;
+		contentWindow.windowManager = this.windowManager;
+		contentWindow.persistentData.setWindowManager(this.windowManager);
 		this.setExistingContentWindow(index, contentWindow);
 		return contentWindow;
 	}

@@ -6,6 +6,9 @@ import WorkspaceManager from "./WorkspaceManager.js";
 import {generateUuid} from "../Util/Util.js";
 
 export default class WindowManager {
+	/** @type {Set<(data: any) => Promise<void>>} */
+	#onContentWindowPersistentDataFlushRequestCbs = new Set();
+
 	constructor() {
 		this.rootWindow = null;
 		/** @type {WeakRef<ContentWindow>[]} */
@@ -75,6 +78,9 @@ export default class WindowManager {
 		return {rootWindow};
 	}
 
+	/**
+	 * @param {import("./WorkspaceManager.js").WorkspaceData} workspace
+	 */
 	loadWorkspace(workspace) {
 		this.isLoadingWorkspace = true;
 
@@ -90,6 +96,43 @@ export default class WindowManager {
 		this.rootWindow.updateEls();
 
 		this.isLoadingWorkspace = false;
+	}
+
+	getContentWindowPersistentData() {
+		const datas = [];
+		for (const contentWindow of this.allContentWindows()) {
+			if (!contentWindow.persistentData.isEmpty()) {
+				datas.push({
+					id: contentWindow.uuid,
+					type: /** @type {typeof ContentWindow} */ (contentWindow.constructor).contentWindowTypeId,
+					data: contentWindow.persistentData.getAll(),
+				});
+			}
+		}
+		return datas;
+	}
+
+	async requestContentWindowPersistentDataFlush() {
+		const data = this.getContentWindowPersistentData();
+		const promises = [];
+		for (const cb of this.#onContentWindowPersistentDataFlushRequestCbs) {
+			promises.push(cb(data));
+		}
+		await Promise.all(promises);
+	}
+
+	/**
+	 * @param {(data: any) => Promise<void>} cb
+	 */
+	onContentWindowPersistentDataFlushRequest(cb) {
+		this.#onContentWindowPersistentDataFlushRequestCbs.add(cb);
+	}
+
+	/**
+	 * @param {(data: any) => Promise<void>} cb
+	 */
+	removeOnContentWindowPersistentDataFlushRequest(cb) {
+		this.#onContentWindowPersistentDataFlushRequestCbs.delete(cb);
 	}
 
 	markRootWindowAsRoot() {
@@ -109,12 +152,14 @@ export default class WindowManager {
 		let newWindow = null;
 		if (workspaceWindowData.type == "split") {
 			newWindow = new EditorWindowSplit();
+			newWindow.windowManager = this;
 			const castWindow = /** @type {EditorWindowSplit} */ (newWindow);
 			const castWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowSplit} */ (workspaceWindowData);
 			castWindow.splitHorizontal = castWindowData.splitHorizontal;
 			castWindow.splitPercentage = castWindowData.splitPercentage;
 		} else if (workspaceWindowData.type == "tabs") {
 			newWindow = new EditorWindowTabs();
+			newWindow.windowManager = this;
 			const castWindow = /** @type {EditorWindowTabs} */ (newWindow);
 			const castWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */ (workspaceWindowData);
 			for (let i = 0; i < castWindowData.tabTypes.length; i++) {

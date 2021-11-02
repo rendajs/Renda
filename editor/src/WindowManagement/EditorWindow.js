@@ -5,6 +5,8 @@ export default class EditorWindow {
 
 		/** @type {EditorWindow} */
 		this.parent = null;
+		/** @type {import("./WindowManager.js").default} */
+		this.windowManager = null;
 		this.isRoot = false;
 
 		this.onFocusedChangeCbs = new Set();
