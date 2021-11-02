@@ -64,6 +64,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
 		const assetUuid = await editor.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);
 		this.loadEntityAsset(assetUuid);
+
+		this.orbitControls.lookPos = await this.persistentData.get("orbitLookPos");
+		this.orbitControls.lookRot = await this.persistentData.get("orbitLookRot");
+		const dist = await this.persistentData.get("orbitLookDist");
+		if (dist != undefined) {
+			this.orbitControls.lookDist = dist;
+		}
 	}
 
 	destructor() {
@@ -148,6 +155,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
 				this.markRenderDirty(false);
+				this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
+				this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
+				this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
 			}
 		}
 

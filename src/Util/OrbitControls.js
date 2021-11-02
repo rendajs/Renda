@@ -6,13 +6,45 @@ export default class OrbitControls {
 		this.camera = cameraEntity;
 
 		this.camTransformDirty = true;
-		this.lookPos = new Vec3();
-		this.lookRot = new Quaternion();
-		this.lookDist = 3;
+		this._boundMarkTransformDirty = this.markTransformDirty.bind(this);
+		this._lookPos = new Vec3();
+		this._lookPos.onChange(this._boundMarkTransformDirty);
+		this._lookRot = new Quaternion();
+		this._lookRot.onChange(this._boundMarkTransformDirty);
+		this._lookDist = 3;
 
 		this.boundOnWheel = this.onWheel.bind(this);
 		this.addedEventElements = [];
 		if (eventElement) this.addEventElement(eventElement);
+	}
+
+	get lookPos() {
+		return this._lookPos;
+	}
+
+	set lookPos(val) {
+		this._lookPos.set(val);
+	}
+
+	get lookRot() {
+		return this._lookRot;
+	}
+
+	set lookRot(val) {
+		this._lookRot.set(val);
+	}
+
+	get lookDist() {
+		return this._lookDist;
+	}
+
+	set lookDist(val) {
+		this._lookDist = val;
+		this.markTransformDirty();
+	}
+
+	markTransformDirty() {
+		this.camTransformDirty = true;
 	}
 
 	destructor() {
@@ -31,9 +63,6 @@ export default class OrbitControls {
 		e.preventDefault();
 		const dx = e.deltaX;
 		const dy = e.deltaY;
-		if (dx != 0 || dy != 0) {
-			this.camTransformDirty = true;
-		}
 		if (e.ctrlKey) {
 			this.lookDist += e.deltaY * 0.01;
 		} else if (e.shiftKey) {

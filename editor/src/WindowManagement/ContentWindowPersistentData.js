@@ -80,5 +80,6 @@ export class ContentWindowPersistentData {
 		}
 		this.#onDataLoadCbs.forEach(cb => cb());
 		this.#onDataLoadCbs.clear();
+		this.#dataLoaded = true;
 	}
 }
