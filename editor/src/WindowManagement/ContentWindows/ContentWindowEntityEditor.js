@@ -57,7 +57,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Map<Entity, Map<Component, ComponentGizmos>>} */
 		this.currentLinkedGizmos = new Map(); // Map<Entity, Set<Gizmo>>
 
-		this.newEmptyEditingEntity();
+		this.loadPersistentData();
+	}
+
+	async loadPersistentData() {
+		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
+		const assetUuid = await editor.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);
+		this.loadEntityAsset(assetUuid);
 	}
 
 	destructor() {
@@ -117,13 +123,18 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	/**
-	 * @param {Entity} entity
 	 * @param {import("../../Util/Util.js").UuidString} entityUuid
 	 */
-	loadEntityAsset(entity, entityUuid) {
+	async loadEntityAsset(entityUuid) {
+		const projectAsset = await editor.projectManager.assetManager.getProjectAsset(entityUuid);
+		if (!projectAsset) {
+			this.newEmptyEditingEntity();
+			return;
+		}
+		const entity = await projectAsset.getLiveAsset();
 		this.editingEntity = entity;
 		this.editingEntityUuid = entityUuid;
-		this.persistentData.set("loadedEntityUuid", entityUuid);
+		this.persistentData.set("loadedEntityPath", projectAsset.path);
 	}
 
 	async saveEntityAsset() {

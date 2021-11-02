@@ -205,7 +205,10 @@ export default class AssetManager {
 		return uuid;
 	}
 
-	async getAssetUuidFromPath(path = []) {
+	/**
+	 * @param {string[]} path
+	 */
+	async getAssetUuidFromPath(path) {
 		const projectAsset = await this.getProjectAssetFromPath(path);
 		if (!projectAsset) return null;
 		return projectAsset.uuid;
@@ -239,7 +242,12 @@ export default class AssetManager {
 		return asset.path.slice();
 	}
 
-	static testPathMatch(path1 = [], path2 = []) {
+	/**
+	 * @param {string[]} path1
+	 * @param {string[]} path2
+	 */
+	static testPathMatch(path1, path2) {
+		if (!path1 || !path2) return false;
 		if (path1.length != path2.length) return false;
 		for (let i = 0; i < path1.length; i++) {
 			if (path1[i] != path2[i]) return false;
@@ -247,7 +255,11 @@ export default class AssetManager {
 		return true;
 	}
 
-	async getProjectAssetFromPath(path = [], registerIfNecessary = true) {
+	/**
+	 * @param {string[]} path
+	 * @param {boolean} registerIfNecessary
+	 */
+	async getProjectAssetFromPath(path, registerIfNecessary = true) {
 		await this.loadAssetSettings(true);
 		for (const asset of this.projectAssets.values()) {
 			if (AssetManager.testPathMatch(path, asset.path)) {
