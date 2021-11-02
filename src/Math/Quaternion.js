@@ -1,40 +1,69 @@
+import Vec2 from "./Vec2.js";
 import Vec3 from "./Vec3.js";
+import Vec4 from "./Vec4.js";
+
+/**
+ * @typedef {() => Quaternion} quatSetEmptySignature
+ * @typedef {(vec: Quaternion) => Quaternion} quatSetQuatSignature
+ * @typedef {(vec: Vec2) => Quaternion} quatSetVec2Signature
+ * @typedef {(vec: Vec3) => Quaternion} quatSetVec3Signature
+ * @typedef {(vec: Vec4) => Quaternion} quatSetVec4Signature
+ * @typedef {(x?: number, y?: number, z?: number, w?: number) => Quaternion} quatSetNumNumNumNumSignature
+ * @typedef {(xyzw: number[]) => Quaternion} quatSetArraySignature
+ * @typedef {Parameters<quatSetEmptySignature> | Parameters<quatSetQuatSignature> | Parameters<quatSetVec2Signature> | Parameters<quatSetVec3Signature> | Parameters<quatSetVec4Signature> | Parameters<quatSetNumNumNumNumSignature> | Parameters<quatSetArraySignature>} QuatParameters
+ */
 
 export default class Quaternion {
 	/**
-	 * @param {number | Quaternion} x
-	 * @param {number} y
-	 * @param {number} z
-	 * @param {number} w
+	 * @param {QuatParameters} args
 	 */
-	constructor(x = 0, y = 0, z = 0, w = 1) {
-		this.onChangeCbs = [];
+	constructor(...args) {
+		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
 		this._w = 1;
-		this.set(x, y, z, w);
+		this.set(...args);
 	}
 
 	/**
-	 * @param {number | Quaternion} x
-	 * @param {number} y
-	 * @param {number} z
-	 * @param {number} w
+	 * @param {QuatParameters} args
 	 */
-	set(x = 0, y = 0, z = 0, w = 1) {
-		if (x instanceof Quaternion) {
-			const q = x;
-			x = q.x;
-			y = q.y;
-			z = q.z;
-			w = q.w;
+	set(...args) {
+		if (args.length == 1) {
+			const arg = args[0];
+			if (arg instanceof Quaternion) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = arg.z;
+				this._w = arg.w;
+			} else if (arg instanceof Vec4) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = arg.z;
+				this._w = arg.w;
+			} else if (arg instanceof Vec3) {
+				this._x = arg.x;
+				this._y = arg.y;
+				this._z = arg.z;
+			} else if (arg instanceof Vec2) {
+				this._x = arg.x;
+				this._y = arg.y;
+			} else if (Array.isArray(arg)) {
+				if (arg.length >= 1) this._x = arg[0];
+				if (arg.length >= 2) this._y = arg[1];
+				if (arg.length >= 3) this._z = arg[2];
+				if (arg.length >= 4) this._w = arg[3];
+			} else if (typeof arg == "number") {
+				this._x = arg;
+			}
+		} else {
+			if (args.length >= 1) this._x = args[0];
+			if (args.length >= 2) this._y = args[1];
+			if (args.length >= 3) this._z = args[2];
+			if (args.length >= 4) this._w = args[3];
 		}
 
-		this._x = x;
-		this._y = y;
-		this._z = z;
-		this._w = w;
 		this.fireOnChange();
 	}
 
@@ -222,20 +251,19 @@ export default class Quaternion {
 		return newVec;
 	}
 
+	toArray() {
+		return [this.x, this.y, this.z, this.w];
+	}
+
 	onChange(cb) {
-		this.onChangeCbs.push(cb);
+		this.onChangeCbs.add(cb);
 	}
 
 	removeOnChange(cb) {
-		const index = this.onChangeCbs.indexOf(cb);
-		if (index >= 0) {
-			this.onChangeCbs.splice(index, 1);
-		}
+		this.onChangeCbs.delete(cb);
 	}
 
 	fireOnChange() {
-		for (const cb of this.onChangeCbs) {
-			cb();
-		}
+		this.onChangeCbs.forEach(cb => cb());
 	}
 }

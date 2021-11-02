@@ -61,11 +61,6 @@ export default class Vec4 {
 	 * @param {Vec4Parameters} args
 	 */
 	set(...args) {
-		this._x = 0;
-		this._y = 0;
-		this._z = 0;
-		this._w = 1;
-
 		if (args.length == 1) {
 			const arg = args[0];
 			if (arg instanceof Vec4) {
@@ -77,12 +72,9 @@ export default class Vec4 {
 				this._x = arg.x;
 				this._y = arg.y;
 				this._z = arg.z;
-				this._w = 1;
 			} else if (arg instanceof Vec2) {
 				this._x = arg.x;
 				this._y = arg.y;
-				this._z = 0;
-				this._w = 1;
 			} else if (Array.isArray(arg)) {
 				if (arg.length >= 1) this._x = arg[0];
 				if (arg.length >= 2) this._y = arg[1];
@@ -90,9 +82,6 @@ export default class Vec4 {
 				if (arg.length >= 4) this._w = arg[3];
 			} else if (typeof arg == "number") {
 				this._x = arg;
-				this._y = 0;
-				this._z = 0;
-				this._w = 1;
 			}
 		} else {
 			if (args.length >= 1) this._x = args[0];
