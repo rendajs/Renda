@@ -149,8 +149,14 @@ export default class ProjectManager {
 		editor.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		await editor.windowManager.reloadCurrentWorkspace();
 		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+		this.loadContentWindowPersistentData();
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
+	}
+
+	async loadContentWindowPersistentData() {
+		const data = await this.localProjectSettings.get("contentWindowPersistentData");
+		editor.windowManager.setContentWindowPersistentData(data);
 	}
 
 	/**

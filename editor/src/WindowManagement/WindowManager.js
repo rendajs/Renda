@@ -112,6 +112,51 @@ export default class WindowManager {
 		return datas;
 	}
 
+	/**
+	 * @param {{id: import("../Util/Util.js").UuidString, type: string, data: any}[]} datas
+	 */
+	setContentWindowPersistentData(datas = []) {
+		const datasSet = new Set(datas);
+		const contentWindows = new Set(this.allContentWindows());
+
+		// Set data based on ContentWindow uuid
+		for (const data of datasSet) {
+			let contentWindow = null;
+			for (const c of contentWindows) {
+				if (c.uuid == data.id) {
+					contentWindow = c;
+					break;
+				}
+			}
+			if (contentWindow) {
+				contentWindow.persistentData.setAll(data.data);
+				contentWindows.delete(contentWindow);
+				datasSet.delete(data);
+			}
+		}
+
+		// Set data based on ContentWindow type
+		for (const data of datasSet) {
+			let contentWindow = null;
+			for (const c of contentWindows) {
+				if (/** @type {typeof ContentWindow} */ (c.constructor).contentWindowTypeId == data.type) {
+					contentWindow = c;
+					break;
+				}
+			}
+			if (contentWindow) {
+				contentWindow.persistentData.setAll(data.data);
+				contentWindows.delete(contentWindow);
+				datasSet.delete(data);
+			}
+		}
+
+		// Set empty data for the remaining ContentWindows
+		for (const contentWindow of contentWindows) {
+			contentWindow.persistentData.setAll({});
+		}
+	}
+
 	async requestContentWindowPersistentDataFlush() {
 		const data = this.getContentWindowPersistentData();
 		const promises = [];

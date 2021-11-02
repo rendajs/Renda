@@ -24,6 +24,11 @@ export default class ContentWindow {
 	constructor() {
 		/** @type {import("../EditorWindowTabs.js").default}*/
 		this.parentEditorWindow = null;
+		/**
+		 * The instance uuid of the ContentWindow.
+		 * This is used for dragging tabs and associating the ContentWindow with the persistent data.
+		 * @type {import("../../Util/Util.js").UuidString}
+		 */
 		this.uuid = null;
 		/** @type {import("../WindowManager.js").default} */
 		this.windowManager = null;
