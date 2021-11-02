@@ -118,7 +118,7 @@ export default class WindowManager {
 			const castWindow = /** @type {EditorWindowTabs} */ (newWindow);
 			const castWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */ (workspaceWindowData);
 			for (let i = 0; i < castWindowData.tabTypes.length; i++) {
-				let uuid = castWindowData.tabUuids[i];
+				let uuid = castWindowData.tabUuids?.[i];
 				if (!uuid) uuid = generateUuid();
 				castWindow.setTabType(i, castWindowData.tabTypes[i], uuid);
 			}
