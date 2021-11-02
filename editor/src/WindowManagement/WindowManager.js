@@ -13,6 +13,7 @@ export default class WindowManager {
 		this.rootWindow = null;
 		/** @type {WeakRef<ContentWindow>[]} */
 		this.lastFocusedContentWindows = [];
+		this.lastFocusedContentWindow = null;
 
 		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
@@ -88,6 +89,7 @@ export default class WindowManager {
 			this.rootWindow.destructor();
 		}
 		this.lastFocusedContentWindows = [];
+		this.lastFocusedContentWindow = null;
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.markRootWindowAsRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
@@ -236,6 +238,7 @@ export default class WindowManager {
 			}
 		}
 		this.lastFocusedContentWindows.unshift(new WeakRef(contentWindow));
+		this.lastFocusedContentWindow = contentWindow;
 	}
 
 	/**
@@ -431,14 +434,6 @@ export default class WindowManager {
 			if (w instanceof EditorWindowTabs) {
 				return w.addTabType(type);
 			}
-		}
-		return null;
-	}
-
-	get lastFocusedContentWindow() {
-		for (const contentWindow of this.lastFocusedContentWindows) {
-			const ref = contentWindow.deref();
-			if (ref) return ref;
 		}
 		return null;
 	}
