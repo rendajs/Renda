@@ -170,7 +170,7 @@ export class ContentWindowOutliner extends ContentWindow {
 					const parentTreeView = e.target.parent;
 					const parentEntity = this.getEntityByTreeViewItem(parentTreeView);
 					const index = e.target.index;
-					parentEntity.removeIndex(index);
+					parentEntity.removeAtIndex(index);
 					this.updateTreeView();
 					const entity = this.getEntityByTreeViewItem(e.target);
 					this.notifyEntityEditors(entity, "delete");

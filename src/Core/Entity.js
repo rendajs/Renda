@@ -510,7 +510,7 @@ export default class Entity {
 	remove(child) {
 		for (const [i, c] of this._children.entries()) {
 			if (c == child) {
-				this.removeIndex(i);
+				this.removeAtIndex(i);
 				return;
 			}
 		}
@@ -520,11 +520,16 @@ export default class Entity {
 	 * Removes a child at a specific index from this entity.
 	 * @param {number} index
 	 */
-	removeIndex(index) {
+	removeAtIndex(index) {
 		const child = this._children[index];
 		// eslint-disable-next-line no-underscore-dangle
 		child._parentRemoved(this);
 		this._children.splice(index, 1);
+		// Shift all indices of the siblings after the removed one.
+		for (let i = index; i < this._children.length; i++) {
+			// eslint-disable-next-line no-underscore-dangle
+			this._children[i]._parentIndexChanged(this, i + 1, i);
+		}
 	}
 
 	/**
@@ -533,6 +538,16 @@ export default class Entity {
 	 */
 	_parentAdded(newParent, index) {
 		this._entityParents.add(new EntityParent(newParent, index));
+	}
+
+	/**
+	 * @param {this} parent
+	 * @param {number} oldIndex
+	 * @param {number} newIndex
+	 */
+	_parentIndexChanged(parent, oldIndex, newIndex) {
+		const entityParent = this._getEntityParent({parent, index: oldIndex});
+		entityParent.index = newIndex;
 	}
 
 	/**
