@@ -524,7 +524,7 @@ export default class Entity {
 	removeAtIndex(index) {
 		const child = this._children[index];
 		// eslint-disable-next-line no-underscore-dangle
-		child._parentRemoved(this);
+		child._parentRemoved(this, index);
 		this._children.splice(index, 1);
 		// Shift all indices of the siblings after the removed one.
 		for (let i = index; i < this._children.length; i++) {
@@ -586,10 +586,11 @@ export default class Entity {
 
 	/**
 	 * @param {Entity} oldParent
+	 * @param {number} oldIndex
 	 */
-	_parentRemoved(oldParent) {
+	_parentRemoved(oldParent, oldIndex) {
 		for (const entityParent of this._entityParents) {
-			if (entityParent.getParent() == oldParent) {
+			if (entityParent.getParent() == oldParent && entityParent.index == oldIndex) {
 				this._entityParents.delete(entityParent);
 				break;
 			}
