@@ -7,6 +7,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	 * @property {boolean} init If false, the file/directory has not been checked yet and shouldn't fire an external
 	 * change callback when the last change time is older.
 	 * @property {number} lastModified
+	 * @property {"file" | "directory"} kind
 	 * @property {Map<string, WatchTreeNode>} children
 	 */
 
@@ -23,6 +24,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		this.watchTree = {
 			init: false,
 			lastModified: 0,
+			kind: "directory",
 			children: new Map(),
 		};
 		this.updateWatchTreeInstance = new SingleInstancePromise(async _ => await this.updateWatchTree(), {once: false});
@@ -300,8 +302,6 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		return true;
 	}
 
-	// todos:
-	// -fire events when deleting a file
 	async suggestCheckExternalChanges() {
 		this.updateWatchTreeInstance.run(true);
 	}
@@ -328,7 +328,9 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 			return false;
 		}
 		let allChecked = true;
+		const deletedNodes = new Set(watchTree.children.keys());
 		for await (const [name, handle] of dirHandle.entries()) {
+			deletedNodes.delete(name);
 			if (!await this.verifyHandlePermission(handle, {prompt: false, writable: false, error: false})) {
 				allChecked = false;
 				continue;
@@ -354,6 +356,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 					watchTree.children.set(name, {
 						init: true,
 						lastModified,
+						kind: handle.kind,
 						children: new Map(),
 					});
 				}
@@ -370,6 +373,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 					dirWatchTree = {
 						init: false,
 						lastModified: 0,
+						kind: handle.kind,
 						children: new Map(),
 					};
 					watchTree.children.set(name, dirWatchTree);
@@ -380,6 +384,15 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 					allChecked = false;
 				}
 			}
+		}
+		for (const name of deletedNodes) {
+			const deletingNode = watchTree.children.get(name);
+			collectedChanges.push({
+				kind: deletingNode.kind,
+				path: [...traversedPath, name],
+				type: "deleted",
+			});
+			watchTree.children.delete(name);
 		}
 		if (allChecked) {
 			watchTree.init = true;
@@ -399,6 +412,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 				node.children.set(name, {
 					init: true,
 					lastModified,
+					kind: "file",
 					children: new Map(),
 				});
 			} else if (node.children.has(name)) {
@@ -408,6 +422,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 				const newNode = {
 					init: false,
 					lastModified,
+					kind: "directory",
 					children: new Map(),
 				};
 				node.children.set(name, newNode);
