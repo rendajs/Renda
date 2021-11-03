@@ -4,6 +4,13 @@ import toFormattedJsonString from "../toFormattedJsonString.js";
 
 /** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
 
+/**
+ * @typedef {Object} FileSystemExternalChangeEvent
+ * @property {"file" | "directory"} kind
+ * @property {string[]} path
+ * @property {"changed" | "created" | "deleted"} type
+ */
+
 export default class EditorFileSystem {
 	constructor() {
 		this.onExternalChangeCbs = new Set();
@@ -166,6 +173,9 @@ export default class EditorFileSystem {
 		this.onExternalChangeCbs.delete(cb);
 	}
 
+	/**
+	 * @param {FileSystemExternalChangeEvent} e
+	 */
 	fireExternalChange(e) {
 		this.onExternalChangeCbs.forEach(cb => cb(e));
 	}

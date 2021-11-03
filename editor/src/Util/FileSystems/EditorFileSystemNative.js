@@ -3,6 +3,14 @@ import EditorFileSystem from "./EditorFileSystem.js";
 
 export default class EditorFileSystemNative extends EditorFileSystem {
 	/**
+	 * @typedef {Object} WatchTreeNode
+	 * @property {boolean} init If false, the file/directory has not been checked yet and shouldn't fire an external
+	 * change callback when the last change time is older.
+	 * @property {number} lastModified
+	 * @property {Map<string, WatchTreeNode>} children
+	 */
+
+	/**
 	 * @param {FileSystemDirectoryHandle} handle
 	 */
 	constructor(handle) {
@@ -11,9 +19,16 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		/** @type {FileSystemDirectoryHandle} */
 		this.handle = handle;
 
-		this.watchTree = new Map();
+		/** @type {WatchTreeNode} */
+		this.watchTree = {
+			init: false,
+			lastModified: 0,
+			children: new Map(),
+		};
 		this.updateWatchTreeInstance = new SingleInstancePromise(async _ => await this.updateWatchTree(), {once: false});
 		this.currentlyGettingFileCbs = new Map(); // <path, Set<cb>>
+
+		this.updateWatchTreeInstance.run(true);
 	}
 
 	static async openUserDir() {
@@ -303,49 +318,89 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		}
 	}
 
+	/**
+	 * @param {WatchTreeNode} watchTree
+	 * @param {FileSystemDirectoryHandle} dirHandle
+	 * @param {import("./EditorFileSystem.js").FileSystemExternalChangeEvent[]} collectedChanges
+	 * @param {string[]} traversedPath
+	 * @returns {Promise<boolean>} True if the file/dir and all of it's children were checked correctly.
+	 */
 	async traverseWatchTree(watchTree, dirHandle, collectedChanges, traversedPath = []) {
 		if (!await this.verifyHandlePermission(dirHandle, {prompt: false, writable: false, error: false})) {
-			return;
+			return false;
 		}
+		let allChecked = true;
 		for await (const [name, handle] of dirHandle.entries()) {
 			if (!await this.verifyHandlePermission(handle, {prompt: false, writable: false, error: false})) {
+				allChecked = false;
 				continue;
 			}
 			if (handle.kind == "file") {
 				const file = await handle.getFile();
 				const {lastModified} = file;
-				if (!watchTree.has(name) || watchTree.get(name) < lastModified) {
-					watchTree.set(name, lastModified);
+				const childNode = watchTree.children.get(name);
+				if (childNode && childNode.init && childNode.lastModified < lastModified) {
 					collectedChanges.push({
 						kind: handle.kind,
 						path: [...traversedPath, name],
 						type: "changed",
 					});
 				}
+				if (!childNode || childNode.lastModified < lastModified) {
+					watchTree.children.set(name, {
+						init: true,
+						lastModified,
+						children: new Map(),
+					});
+				}
 			} else if (handle.kind == "directory") {
-				let dirWatchTree = watchTree.get(name);
+				let dirWatchTree = watchTree.children.get(name);
 				if (!dirWatchTree) {
-					dirWatchTree = new Map();
-					watchTree.set(name, dirWatchTree);
+					dirWatchTree = {
+						init: false,
+						lastModified: 0,
+						children: new Map(),
+					};
+					watchTree.children.set(name, dirWatchTree);
 				}
 				const newTraversedPath = [...traversedPath, name];
-				await this.traverseWatchTree(dirWatchTree, handle, collectedChanges, newTraversedPath);
+				const success = await this.traverseWatchTree(dirWatchTree, handle, collectedChanges, newTraversedPath);
+				if (!success) {
+					allChecked = false;
+				}
 			}
 		}
+		if (allChecked) {
+			watchTree.init = true;
+		}
+		return allChecked;
 	}
 
+	/**
+	 * @param {string[]} path
+	 * @param {number} lastModified
+	 */
 	setWatchTreeLastModified(path, lastModified = Date.now()) {
-		let map = this.watchTree;
+		let node = this.watchTree;
 		for (const [i, name] of path.entries()) {
 			const last = i == path.length - 1;
 			if (last) {
-				map.set(name, lastModified);
-			} else if (map.has(name)) {
-				map = map.get(name);
+				node.children.set(name, {
+					init: true,
+					lastModified,
+					children: new Map(),
+				});
+			} else if (node.children.has(name)) {
+				node = node.children.get(name);
 			} else {
-				const newMap = new Map();
-				map.set(name, newMap);
-				map = newMap;
+				/** @type {WatchTreeNode} */
+				const newNode = {
+					init: false,
+					lastModified,
+					children: new Map(),
+				};
+				node.children.set(name, newNode);
+				node = newNode;
 			}
 		}
 	}
