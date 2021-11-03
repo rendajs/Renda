@@ -504,6 +504,7 @@ export default class Entity {
 
 	/**
 	 * Removes a child from this entity.
+	 * If the same child is attached multiple times, the first instance will be removed.
 	 * @param {Entity} child
 	 */
 	remove(child) {

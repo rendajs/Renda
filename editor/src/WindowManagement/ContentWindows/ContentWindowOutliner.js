@@ -167,10 +167,12 @@ export class ContentWindowOutliner extends ContentWindow {
 			{
 				text: "Delete",
 				onClick: () => {
-					const entity = this.getEntityByTreeViewItem(e.target);
-					// todo:
-					// entity.detachParent();
+					const parentTreeView = e.target.parent;
+					const parentEntity = this.getEntityByTreeViewItem(parentTreeView);
+					const index = e.target.index;
+					parentEntity.removeIndex(index);
 					this.updateTreeView();
+					const entity = this.getEntityByTreeViewItem(e.target);
 					this.notifyEntityEditors(entity, "delete");
 				},
 			},
@@ -214,7 +216,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			const parentIndicesPath = movedItem.newIndicesPath.slice(0, -1);
 			const insertIndex = movedItem.newIndicesPath.at(-1);
 			const newParent = this.getEntityByIndicesPath(parentIndicesPath);
-			oldParent.remove(entity);
+			oldParent.remove(entity); // todo: remove at index
 			newParent.addAtIndex(entity, insertIndex);
 		}
 	}
