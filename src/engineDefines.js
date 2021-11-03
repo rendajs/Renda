@@ -19,6 +19,12 @@ export const ENABLE_WEBGPU_CLUSTERED_LIGHTS = true;
 export const ENGINE_ASSETS_LIVE_UPDATES_SUPPORT = true;
 
 /**
+ * Enables support for exporting child Entity assets as a single uuid when
+ * exporting an Entity with Entity.toJson().
+ */
+export const ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT = true;
+
+/**
  * Support for storing default asset link uuids as metadata in entities.
  * This is only needed in the editor since only the editor can handle default asset links.
  */

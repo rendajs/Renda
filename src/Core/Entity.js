@@ -3,6 +3,7 @@ import {Component, defaultComponentTypeManager} from "../Components/Components.j
 import EntityParent from "./EntityParent.js";
 import EntityMatrixCache from "./EntityMatrixCache.js";
 import MultiKeyWeakMap from "../Util/MultiKeyWeakMap.js";
+import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
 
 /**
  * @typedef {Object} TraversedEntityParentPathEntry
@@ -722,8 +723,21 @@ export default class Entity {
 		for (const component of this.components) {
 			json.components.push(component.toJson(editorOpts));
 		}
-		for (const child of this.getChildren()) {
-			json.children.push(child.toJson(editorOpts));
+		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && editorOpts && editorOpts.entityAssetRootUuidSymbol) {
+			const sym = editorOpts.entityAssetRootUuidSymbol;
+			for (const child of this.getChildren()) {
+				if (child[sym]) {
+					json.children.push({
+						assetUuid: child[sym],
+					});
+				} else {
+					json.children.push(child.toJson(editorOpts));
+				}
+			}
+		} else {
+			for (const child of this.getChildren()) {
+				json.children.push(child.toJson(editorOpts));
+			}
 		}
 		if (json.components.length <= 0) delete json.components;
 		if (json.children.length <= 0) delete json.children;

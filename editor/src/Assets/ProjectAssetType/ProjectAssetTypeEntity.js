@@ -4,6 +4,8 @@ import editor from "../../editorInstance.js";
 import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
 
+const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
+
 export default class ProjectAssetTypeEntity extends ProjectAssetType {
 	static type = "JJ:entity";
 	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";
@@ -14,14 +16,17 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 	static expectedLiveAssetConstructor = Entity;
 
 	async createNewLiveAssetData() {
+		const liveAsset = new Entity();
+		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {
-			liveAsset: new Entity(),
+			liveAsset,
 			editorData: null,
 		};
 	}
 
 	async getLiveAssetData(json) {
 		const liveAsset = await this.createEntityFromJsonData(json);
+		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {liveAsset};
 	}
 
@@ -30,6 +35,7 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 			assetManager: editor.projectManager.assetManager,
 			assetTypeManager: editor.projectAssetTypeManager,
 			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
+			entityAssetRootUuidSymbol,
 		});
 	}
 
