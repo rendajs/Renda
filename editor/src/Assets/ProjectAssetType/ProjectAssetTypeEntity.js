@@ -48,6 +48,11 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (!jsonData) {
 			return new Entity();
 		}
+		if (jsonData.assetUuid) {
+			const entityAsset = await editor.projectManager.assetManager.getLiveAsset(jsonData.assetUuid);
+			if (!entityAsset) return new Entity();
+			return entityAsset;
+		}
 		const ent = new Entity({
 			name: jsonData.name || "",
 			matrix: jsonData.matrix,
