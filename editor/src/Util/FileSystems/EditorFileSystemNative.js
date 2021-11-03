@@ -345,6 +345,12 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 						path: [...traversedPath, name],
 						type: "changed",
 					});
+				} else if ((!childNode || !childNode.init) && watchTree.init) {
+					collectedChanges.push({
+						kind: handle.kind,
+						path: [...traversedPath, name],
+						type: "created",
+					});
 				}
 				if (!childNode || childNode.lastModified < lastModified) {
 					watchTree.children.set(name, {
