@@ -1,3 +1,4 @@
+import {SingleInstancePromise} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid, handleDuplicateName} from "../Util/Util.js";
 import DefaultAssetLink from "./DefaultAssetLink.js";
@@ -14,10 +15,17 @@ export default class AssetManager {
 
 		this.assetSettingsLoaded = false;
 		this.waitForAssetSettingsLoadCbs = new Set();
-		this.loadAssetSettings();
 
 		this.boundExternalChange = this.externalChange.bind(this);
 		editor.projectManager.onExternalChange(this.boundExternalChange);
+
+		this.loadAssetSettingsFromUserEvent = false;
+		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
+			await this.loadAssetSettingsInstanceFn();
+		}, {
+			once: false,
+			run: true,
+		});
 	}
 
 	destructor() {
@@ -34,9 +42,14 @@ export default class AssetManager {
 	}
 
 	async loadAssetSettings(fromUserEvent = false) {
+		this.loadAssetSettingsFromUserEvent = fromUserEvent;
+		await this.loadAssetSettingsInstance.run();
+	}
+
+	async loadAssetSettingsInstanceFn() {
 		if (this.assetSettingsLoaded) return;
 
-		if (!fromUserEvent) {
+		if (!this.loadAssetSettingsFromUserEvent) {
 			const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath);
 			if (!hasPermissions) return;
 		}
