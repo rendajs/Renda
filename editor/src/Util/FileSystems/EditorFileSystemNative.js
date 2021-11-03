@@ -301,9 +301,7 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	}
 
 	// todos:
-	// -don't fire when obtaining read permissions
 	// -fire events when deleting a file
-	// -fire events when creating a directory
 	async suggestCheckExternalChanges() {
 		this.updateWatchTreeInstance.run(true);
 	}
@@ -335,10 +333,10 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 				allChecked = false;
 				continue;
 			}
+			const childNode = watchTree.children.get(name);
 			if (handle.kind == "file") {
 				const file = await handle.getFile();
 				const {lastModified} = file;
-				const childNode = watchTree.children.get(name);
 				if (childNode && childNode.init && childNode.lastModified < lastModified) {
 					collectedChanges.push({
 						kind: handle.kind,
@@ -360,6 +358,13 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 					});
 				}
 			} else if (handle.kind == "directory") {
+				if ((!childNode || !childNode.init) && watchTree.init) {
+					collectedChanges.push({
+						kind: handle.kind,
+						path: [...traversedPath, name],
+						type: "created",
+					});
+				}
 				let dirWatchTree = watchTree.children.get(name);
 				if (!dirWatchTree) {
 					dirWatchTree = {
