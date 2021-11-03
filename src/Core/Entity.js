@@ -726,14 +726,28 @@ export default class Entity {
 		}
 		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && editorOpts && editorOpts.entityAssetRootUuidSymbol) {
 			const sym = editorOpts.entityAssetRootUuidSymbol;
+			let i = 0;
 			for (const child of this.getChildren()) {
 				if (child[sym]) {
-					json.children.push({
+					const childJson = {
 						assetUuid: child[sym],
-					});
+					};
+					// eslint-disable-next-line no-underscore-dangle
+					const entityParent = child._getEntityParent({parent: this, index: i});
+					if (entityParent.overridePos) {
+						childJson.pos = entityParent.overridePos.toArray();
+					}
+					if (entityParent.overrideRot) {
+						childJson.rot = entityParent.overrideRot.toArray();
+					}
+					if (entityParent.overrideScale) {
+						childJson.scale = entityParent.overrideScale.toArray();
+					}
+					json.children.push(childJson);
 				} else {
 					json.children.push(child.toJson(editorOpts));
 				}
+				i++;
 			}
 		} else {
 			for (const child of this.getChildren()) {
