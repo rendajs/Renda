@@ -153,7 +153,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * Updates a full range of directories from start to end, useful right before expanding a specific directory.
 	 * @param {Array<string>} end The directory to update, this path is relative to start.
 	 * @param {?Array<string>} start The directory to start updating from, starts updating from the root when omitted.
-	 * @param {boolean} collapsedOnly When this is true, expanded TreeViews won't be usdated.
+	 * @param {boolean} collapsedOnly When this is true, expanded TreeViews won't be updated.
 	 */
 	async updateTreeViewRange(end, start = null, collapsedOnly = true) {
 		let {treeView} = this;
@@ -181,6 +181,7 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	async updateTreeViewRecursive(treeView, path) {
 		if (this.destructed) return;
+		if (treeView.collapsed) return;
 		const fileTree = await this.fileSystem.readDir(path);
 		if (this.destructed) return;
 		for (const dir of fileTree.directories) {
@@ -208,7 +209,7 @@ export class ContentWindowProject extends ContentWindow {
 		for (const child of [...treeView.children]) {
 			if (!fileTree.directories.includes(child.name) && !fileTree.files.includes(child.name)) {
 				treeView.removeChild(child);
-			} else if (child.alwaysShowArrow && child.expanded) { // if the TreeView is a directory
+			} else if (child.alwaysShowArrow) { // if the TreeView is a directory
 				const newPath = [...path, child.name];
 				this.updateTreeViewRecursive(child, newPath);
 			}
@@ -224,8 +225,14 @@ export class ContentWindowProject extends ContentWindow {
 		treeView.draggable = true;
 	}
 
+	/**
+	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
+	 */
 	async externalChange(e) {
-		// todo: update treeview
+		if (e.type == "created" || e.type == "deleted") {
+			const parentPath = e.path.slice(0, -1);
+			await this.updateTreeView(parentPath);
+		}
 	}
 
 	async getProjectAssetByTreeViewItem(treeView) {
