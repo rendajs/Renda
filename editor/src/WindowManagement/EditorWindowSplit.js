@@ -72,10 +72,10 @@ export default class EditorWindowSplit extends EditorWindow {
 		if (this.windowA.el) this.elA.appendChild(this.windowA.el);
 		if (this.windowB.el) this.elB.appendChild(this.windowB.el);
 
-		this.updateSplit();
-
 		this.windowA.updateEls();
 		this.windowB.updateEls();
+
+		this.updateSplit();
 	}
 
 	updateSplit() {
@@ -90,8 +90,6 @@ export default class EditorWindowSplit extends EditorWindow {
 		this.elB.style.flexGrow = String(1 - this.splitPercentage);
 		this.elA.style.flexBasis = "0";
 		this.elB.style.flexBasis = "0";
-
-		this.onResized();
 	}
 
 	onResizerDown(e) {
@@ -117,6 +115,7 @@ export default class EditorWindowSplit extends EditorWindow {
 	setNewSplitPercentage(newPercentage) {
 		this.splitPercentage = clamp01(newPercentage);
 		this.updateSplit();
+		this.onResized();
 	}
 
 	onResizerUp(e) {

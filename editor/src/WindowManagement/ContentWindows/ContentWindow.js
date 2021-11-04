@@ -108,6 +108,10 @@ export default class ContentWindow {
 		this.onWindowResize(this.contentWidth, this.contentHeight);
 	}
 
+	/**
+	 * @param {number} w
+	 * @param {number} h
+	 */
 	onWindowResize(w, h) {}
 
 	addTopBarButton(button) {

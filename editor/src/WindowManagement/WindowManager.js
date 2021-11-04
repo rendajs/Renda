@@ -54,6 +54,7 @@ export default class WindowManager {
 		this.markRootWindowAsRoot();
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
+		this.rootWindow.onResized();
 		this.autoSaveWorkspace();
 	}
 
@@ -96,6 +97,7 @@ export default class WindowManager {
 
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
+		this.rootWindow.onResized();
 
 		this.isLoadingWorkspace = false;
 	}
