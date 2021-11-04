@@ -1,4 +1,4 @@
-import {Quaternion, Vec3} from "../Math/Math.js";
+import {Quat, Vec3} from "../Math/Math.js";
 import {Component, defaultComponentTypeManager} from "../Components/Components.js";
 import EntityParent from "./EntityParent.js";
 import EntityMatrixCache from "./EntityMatrixCache.js";
@@ -50,7 +50,7 @@ export default class Entity {
 		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirtyAll.bind(this);
 		this._pos = new Vec3();
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
-		this._rot = new Quaternion();
+		this._rot = new Quat();
 		this._rot.onChange(this.boundMarkLocalMatrixDirty);
 		this._scale = Vec3.one;
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
@@ -283,13 +283,13 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {Quaternion} rot
+	 * @param {Quat} rot
 	 * @param {this} parent The parent to set the rotation for.
 	 * @param {number} index The index of this entity in the parent.
 	 */
 	setInstanceRot(rot, parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
-		entityParent.overrideRot = new Quaternion(rot);
+		entityParent.overrideRot = new Quat(rot);
 		this.markLocalMatrixDirtyInstance(parent, index);
 	}
 

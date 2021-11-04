@@ -1,4 +1,4 @@
-import Quaternion from "../Math/Quaternion.js";
+import Quat from "../Math/Quat.js";
 import Vec3 from "../Math/Vec3.js";
 
 export default class OrbitControls {
@@ -9,7 +9,7 @@ export default class OrbitControls {
 		this._boundMarkTransformDirty = this.markTransformDirty.bind(this);
 		this._lookPos = new Vec3();
 		this._lookPos.onChange(this._boundMarkTransformDirty);
-		this._lookRot = new Quaternion();
+		this._lookRot = new Quat();
 		this._lookRot.onChange(this._boundMarkTransformDirty);
 		this._lookDist = 3;
 

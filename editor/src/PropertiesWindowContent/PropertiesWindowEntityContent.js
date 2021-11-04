@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import {Entity, Quaternion, defaultComponentTypeManager} from "../../../src/index.js";
+import {Entity, Quat, defaultComponentTypeManager} from "../../../src/index.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
 import DroppableGui from "../UI/DroppableGui.js";
@@ -64,7 +64,7 @@ export default class PropertiesWindowEntityContent extends PropertiesWindowConte
 					entity.rot.setFromAxisAngle(newValue);
 				} else if (this.editingModeGui.value == "instance") {
 					const {parent, index} = this.getParentDataFromEntitySelectionMetaData(metaData);
-					const quat = Quaternion.fromAxisAngle(newValue);
+					const quat = Quat.fromAxisAngle(newValue);
 					entity.setInstanceRot(quat, parent, index);
 				}
 				this.notifyEntityEditors(entity, "transform");

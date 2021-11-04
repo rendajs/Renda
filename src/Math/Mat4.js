@@ -1,5 +1,5 @@
 import Vec3 from "./Vec3.js";
-import Quaternion from "./Quaternion.js";
+import Quat from "./Quat.js";
 
 export default class Mat4 {
 	constructor(values = null) {
@@ -173,7 +173,7 @@ export default class Mat4 {
 		const m21 = this.values[1][2] / scale.z;
 		const m22 = this.values[2][2] / scale.z;
 
-		const q = new Quaternion();
+		const q = new Quat();
 		const trace = m00 + m11 + m22;
 
 		if (trace > 0) {

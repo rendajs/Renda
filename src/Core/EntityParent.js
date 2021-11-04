@@ -8,7 +8,7 @@ export default class EntityParent {
 		this.index = index;
 		/** @type {import("../Math/Vec3.js").default} */
 		this.overridePos = null;
-		/** @type {import("../Math/Quaternion.js").default} */
+		/** @type {import("../Math/Quat.js").default} */
 		this.overrideRot = null;
 		/** @type {import("../Math/Vec3.js").default} */
 		this.overrideScale = null;

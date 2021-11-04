@@ -3,17 +3,17 @@ import Vec3 from "./Vec3.js";
 import Vec4 from "./Vec4.js";
 
 /**
- * @typedef {() => Quaternion} quatSetEmptySignature
- * @typedef {(vec: Quaternion) => Quaternion} quatSetQuatSignature
- * @typedef {(vec: Vec2) => Quaternion} quatSetVec2Signature
- * @typedef {(vec: Vec3) => Quaternion} quatSetVec3Signature
- * @typedef {(vec: Vec4) => Quaternion} quatSetVec4Signature
- * @typedef {(x?: number, y?: number, z?: number, w?: number) => Quaternion} quatSetNumNumNumNumSignature
- * @typedef {(xyzw: number[]) => Quaternion} quatSetArraySignature
+ * @typedef {() => Quat} quatSetEmptySignature
+ * @typedef {(vec: Quat) => Quat} quatSetQuatSignature
+ * @typedef {(vec: Vec2) => Quat} quatSetVec2Signature
+ * @typedef {(vec: Vec3) => Quat} quatSetVec3Signature
+ * @typedef {(vec: Vec4) => Quat} quatSetVec4Signature
+ * @typedef {(x?: number, y?: number, z?: number, w?: number) => Quat} quatSetNumNumNumNumSignature
+ * @typedef {(xyzw: number[]) => Quat} quatSetArraySignature
  * @typedef {Parameters<quatSetEmptySignature> | Parameters<quatSetQuatSignature> | Parameters<quatSetVec2Signature> | Parameters<quatSetVec3Signature> | Parameters<quatSetVec4Signature> | Parameters<quatSetNumNumNumNumSignature> | Parameters<quatSetArraySignature>} QuatParameters
  */
 
-export default class Quaternion {
+export default class Quat {
 	/**
 	 * @param {QuatParameters} args
 	 */
@@ -32,7 +32,7 @@ export default class Quaternion {
 	set(...args) {
 		if (args.length == 1) {
 			const arg = args[0];
-			if (arg instanceof Quaternion) {
+			if (arg instanceof Quat) {
 				this._x = arg.x;
 				this._y = arg.y;
 				this._z = arg.z;
@@ -68,7 +68,7 @@ export default class Quaternion {
 	}
 
 	clone() {
-		return new Quaternion(this);
+		return new Quat(this);
 	}
 
 	get x() {
@@ -128,13 +128,13 @@ export default class Quaternion {
 		}
 		const vec = axis.clone();
 		vec.normalize();
-		if (isNaN(vec.x) || isNaN(vec.y) || isNaN(vec.z)) return new Quaternion();
+		if (isNaN(vec.x) || isNaN(vec.y) || isNaN(vec.z)) return new Quat();
 		const s = Math.sin(angle / 2);
 		const qx = vec.x * s;
 		const qy = vec.y * s;
 		const qz = vec.z * s;
 		const qw = Math.cos(angle / 2);
-		const q = new Quaternion(qx, qy, qz, qw);
+		const q = new Quat(qx, qy, qz, qw);
 		return q;
 	}
 
@@ -150,7 +150,7 @@ export default class Quaternion {
 	 * @param {FromAxisAngleParameters} args
 	 */
 	setFromAxisAngle(...args) {
-		const q = Quaternion.fromAxisAngle(...args);
+		const q = Quat.fromAxisAngle(...args);
 		this.set(q);
 		return this;
 	}
@@ -187,11 +187,11 @@ export default class Quaternion {
 		const qz = c1 * s2 * c3 - s1 * c2 * s3;
 		const qw = c1 * c2 * c3 - s1 * s2 * s3;
 
-		return new Quaternion(qx, qy, qz, qw);
+		return new Quat(qx, qy, qz, qw);
 	}
 
 	static multiplyQuaternions(q1, q2) {
-		return new Quaternion(
+		return new Quat(
 			q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
 			q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
 			q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
@@ -200,12 +200,12 @@ export default class Quaternion {
 	}
 
 	preMultiply(q) {
-		this.set(Quaternion.multiplyQuaternions(q, this));
+		this.set(Quat.multiplyQuaternions(q, this));
 		return this;
 	}
 
 	multiply(q) {
-		this.set(Quaternion.multiplyQuaternions(this, q));
+		this.set(Quat.multiplyQuaternions(this, q));
 		return this;
 	}
 
@@ -213,7 +213,7 @@ export default class Quaternion {
 	 * @param {FromAxisAngleParameters} args
 	 */
 	rotateAxisAngle(...args) {
-		const q = Quaternion.fromAxisAngle(...args);
+		const q = Quat.fromAxisAngle(...args);
 		this.multiply(q);
 		return this;
 	}
@@ -238,10 +238,10 @@ export default class Quaternion {
 	rotateVector(...args) {
 		// TODO: optimise: gamedev.stackexchange.com/a/50545/87477
 		const vec = new Vec3(...args);
-		const pin = new Quaternion(vec.x, vec.y, vec.z, 1);
-		const qconj = new Quaternion(this);
+		const pin = new Quat(vec.x, vec.y, vec.z, 1);
+		const qconj = new Quat(this);
 		qconj.invert();
-		const pout = Quaternion.multiplyQuaternions(qconj, Quaternion.multiplyQuaternions(pin, this));
+		const pout = Quat.multiplyQuaternions(qconj, Quat.multiplyQuaternions(pin, this));
 		const newVec = new Vec3(
 			pout.x,
 			pout.y,
