@@ -218,7 +218,9 @@ export default class WindowManager {
 			}
 			castWindow.setActiveTabIndex(castWindowData.activeTabIndex || 0);
 			castWindow.onTabChange(() => {
-				this.addContentWindowToLastFocused(castWindow.activeTab);
+				if (castWindow.activeTab) {
+					this.addContentWindowToLastFocused(castWindow.activeTab);
+				}
 			});
 			castWindow.onFocusedChange(hasFocus => {
 				if (hasFocus) {
