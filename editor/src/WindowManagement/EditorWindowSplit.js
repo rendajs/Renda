@@ -72,10 +72,10 @@ export default class EditorWindowSplit extends EditorWindow {
 		if (this.windowA.el) this.elA.appendChild(this.windowA.el);
 		if (this.windowB.el) this.elB.appendChild(this.windowB.el);
 
+		this.updateSplit();
+
 		this.windowA.updateEls();
 		this.windowB.updateEls();
-
-		this.updateSplit();
 	}
 
 	updateSplit() {
