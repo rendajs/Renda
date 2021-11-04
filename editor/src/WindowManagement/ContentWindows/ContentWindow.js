@@ -104,11 +104,13 @@ export default class ContentWindow {
 		return this.contentEl.clientHeight;
 	}
 
-	onResized() {
+	fireOnWindowResize() {
 		this.onWindowResize(this.contentWidth, this.contentHeight);
 	}
 
 	/**
+	 * This will be called once when the content window is attached to the dom,
+	 * and subsequently when the window is resized.
 	 * @param {number} w
 	 * @param {number} h
 	 */

@@ -103,6 +103,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.updateLiveAssetChangeListeners();
 	}
 
+	/**
+	 * @override
+	 * @param {number} w
+	 * @param {number} h
+	 */
 	onWindowResize(w, h) {
 		this.domTarget.resize(w, h);
 
