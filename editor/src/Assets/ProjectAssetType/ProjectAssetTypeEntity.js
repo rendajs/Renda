@@ -48,11 +48,6 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (!jsonData) {
 			return new Entity();
 		}
-		if (jsonData.assetUuid) {
-			const entityAsset = await editor.projectManager.assetManager.getLiveAsset(jsonData.assetUuid);
-			if (!entityAsset) return new Entity();
-			return entityAsset;
-		}
 		const ent = new Entity({
 			name: jsonData.name || "",
 			matrix: jsonData.matrix,
@@ -73,8 +68,24 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		}
 		if (jsonData.children) {
 			for (const childJson of jsonData.children) {
-				const child = await this.createEntityFromJsonData(childJson);
-				ent.add(child);
+				if (childJson.assetUuid) {
+					/** @type {Entity} */
+					let child = await editor.projectManager.assetManager.getLiveAsset(childJson.assetUuid);
+					if (!child) child = new Entity();
+					ent.add(child);
+					if (childJson.pos) {
+						child.setInstancePos(childJson.pos, ent, ent.childCount - 1);
+					}
+					if (childJson.rot) {
+						child.setInstanceRot(childJson.rot, ent, ent.childCount - 1);
+					}
+					if (childJson.scale) {
+						child.setInstanceScale(childJson.scale, ent, ent.childCount - 1);
+					}
+				} else {
+					const child = await this.createEntityFromJsonData(childJson);
+					ent.add(child);
+				}
 			}
 		}
 		return ent;

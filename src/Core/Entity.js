@@ -269,7 +269,7 @@ export default class Entity {
 	 */
 	setInstancePos(pos, parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
-		entityParent.overridePos = pos.clone();
+		entityParent.overridePos = new Vec3(pos);
 		this.markLocalMatrixDirtyInstance(parent, index);
 	}
 
@@ -289,7 +289,7 @@ export default class Entity {
 	 */
 	setInstanceRot(rot, parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
-		entityParent.overrideRot = rot.clone();
+		entityParent.overrideRot = new Quaternion(rot);
 		this.markLocalMatrixDirtyInstance(parent, index);
 	}
 
@@ -309,7 +309,7 @@ export default class Entity {
 	 */
 	setInstanceScale(scale, parent, index) {
 		const entityParent = this._getEntityParent({parent, index});
-		entityParent.overrideScale = scale.clone();
+		entityParent.overrideScale = new Vec3(scale);
 		this.markLocalMatrixDirtyInstance(parent, index);
 	}
 
@@ -605,6 +605,10 @@ export default class Entity {
 
 	get children() {
 		return Array.from(this.getChildren());
+	}
+
+	get childCount() {
+		return this._children.length;
 	}
 
 	/**
