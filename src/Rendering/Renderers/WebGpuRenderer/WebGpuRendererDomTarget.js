@@ -21,7 +21,6 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.height = this.canvas.height;
 		this.ctx = this.canvas.getContext("webgpu");
 		this.swapChainFormat = null;
-		this.swapChain = null;
 		this.colorTexture = null;
 		this.colorTextureView = null;
 		this.depthTexture = null;
@@ -72,6 +71,10 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 	 * @param {number} h Height.
 	 */
 	resize(w, h) {
+		if (w <= 0 || h <= 0) {
+			// todo: support sizes of zero
+			throw new Error("A domtarget size of zero is not supported.");
+		}
 		super.resize(w, h);
 		this.canvas.width = w;
 		this.canvas.height = h;
@@ -92,7 +95,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 	generateTextures() {
 		if (!this.ready) return;
 
-		this.swapChain = this.ctx.configure({
+		this.ctx.configure({
 			device: this.castRenderer.device,
 			format: this.swapChainFormat,
 		});
