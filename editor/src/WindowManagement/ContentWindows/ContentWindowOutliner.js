@@ -37,7 +37,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				this.createNewEmpty();
 			},
 		});
-		this.addTopBarButton(createEmptyButton);
+		this.addTopBarEl(createEmptyButton.el);
 
 		this.setAvailableLinkedEntityEditor();
 	}

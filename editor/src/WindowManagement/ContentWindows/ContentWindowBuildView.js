@@ -34,7 +34,7 @@ export class ContentWindowBuildView extends ContentWindow {
 				this.updateIframeVisibility();
 			},
 		});
-		this.addTopBarButton(loadFrameButton);
+		this.addTopBarEl(loadFrameButton.el);
 
 		/** @type {ContentWindowEntityEditor} */
 		this.linkedEntityEditor = null;

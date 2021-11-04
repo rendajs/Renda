@@ -52,8 +52,6 @@ export default class ContentWindow {
 		this.contentEl.classList.add("editorContentWindowContent");
 		this.el.appendChild(this.contentEl);
 
-		this.addedButtons = [];
-
 		if (this.loop != ContentWindow.prototype.loop) {
 			window.requestAnimationFrame(this._loop.bind(this));
 		}
@@ -65,10 +63,6 @@ export default class ContentWindow {
 		this.topButtonBar = null;
 		this.tabSelectorSpacer = null;
 		this.contentEl = null;
-		for (const b of this.addedButtons) {
-			b.destructor();
-		}
-		this.addedButtons = [];
 	}
 
 	/**
@@ -116,9 +110,11 @@ export default class ContentWindow {
 	 */
 	onWindowResize(w, h) {}
 
-	addTopBarButton(button) {
-		this.addedButtons.push(button);
-		this.topButtonBar.appendChild(button.el);
+	/**
+	 * @param {HTMLElement} element
+	 */
+	addTopBarEl(element) {
+		this.topButtonBar.appendChild(element);
 	}
 
 	_loop() {

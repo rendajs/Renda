@@ -243,10 +243,6 @@ body, html{
 	transition: transform 0.05s linear;
 }
 
-.editorContentWindowTopButtonBar > .button{
-	margin: 5px;
-}
-
 .buttonGroup{
 	margin: 5px;
 	display: inline-block;
@@ -467,8 +463,9 @@ select.textInput:disabled{
 	pointer-events: none;
 }
 
-.editorContentWindowTopButtonBar > .button {
+.editorContentWindowTopButtonBar > *:not(.editorContentWindowTopButtonBarSpacer) {
 	pointer-events: auto;
+	margin: 5px;
 }
 
 .editorContentWindowTopButtonBarSpacer{

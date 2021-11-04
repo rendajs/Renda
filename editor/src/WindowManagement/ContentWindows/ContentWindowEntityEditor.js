@@ -25,7 +25,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				this.saveEntityAsset();
 			},
 		});
-		this.addTopBarButton(saveEntityButton);
+		this.addTopBarEl(saveEntityButton.el);
 
 		this.domTarget = editor.renderer.createDomTarget();
 		const renderTargetElement = this.domTarget.getElement();

@@ -75,7 +75,7 @@ export class ContentWindowProject extends ContentWindow {
 				menu.setPos(createButton, "top left");
 			},
 		});
-		this.addTopBarButton(createButton);
+		this.addTopBarEl(createButton.el);
 
 		const openProjectButton = new Button({
 			text: "Open Project",
@@ -83,7 +83,7 @@ export class ContentWindowProject extends ContentWindow {
 				projectSelector.setVisibility(true);
 			},
 		});
-		this.addTopBarButton(openProjectButton);
+		this.addTopBarEl(openProjectButton.el);
 
 		this.treeView = new TreeView();
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
