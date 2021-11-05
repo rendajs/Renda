@@ -108,11 +108,14 @@ export default class DropDownGui {
 
 	/**
 	 * @param {Object} opts
-	 * @param {boolean} [opts.getAsString]
+	 * @param {boolean} [opts.getAsString] If an enumObject is set, this controls whether the number or string of
+	 * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
+	 * dropdown items is returned.
 	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
+	 * @returns {number | string}
 	 */
 	getValue({
-		getAsString = false,
+		getAsString = true,
 		purpose = "default",
 	} = {}) {
 		if (purpose == "fileStorage") {
@@ -120,13 +123,26 @@ export default class DropDownGui {
 		} else if (purpose == "binaryComposer") {
 			getAsString = false;
 		}
-		let value = this.items[this.el.value];
-		if (this.enumObject && !getAsString) {
-			value = this.enumObject[value];
+
+		if (this.enumObject) {
+			const enumObjectStrValue = this.items[this.el.selectedIndex];
+			if (getAsString) {
+				return enumObjectStrValue;
+			} else {
+				return this.enumObject[enumObjectStrValue];
+			}
+		} else {
+			if (getAsString) {
+				return this.el.value;
+			} else {
+				return this.el.selectedIndex;
+			}
 		}
-		return value;
 	}
 
+	/**
+	 * @param {(selectedIndex: string) => void} cb
+	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
