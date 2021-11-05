@@ -88,22 +88,29 @@ export default class DropDownGui {
 		}
 	}
 
+	/**
+	 * If an enumObject is set, you can pass either the string representation of the enumObject or the number.
+	 * If no enumObject is set, you can pass either the index or the value of the dropdown items.
+	 * @param {number | string} value
+	 */
 	setValue(value) {
 		if (this.enumObject) {
 			if (typeof value != "string") {
 				value = this.inverseEnumObject[value];
 			}
-		}
-		const index = this.items.indexOf(value);
-		if (index >= 0) {
-			this.el.value = String(index);
+			const index = this.items.indexOf(value);
+			if (index >= 0) {
+				this.el.selectedIndex = index;
+			} else {
+				this.el.value = null;
+			}
 		} else {
-			this.el.value = null;
+			if (typeof value == "number") {
+				this.el.selectedIndex = value;
+			} else {
+				this.el.value = value;
+			}
 		}
-	}
-
-	get value() {
-		return this.getValue();
 	}
 
 	/**
@@ -138,6 +145,14 @@ export default class DropDownGui {
 				return this.el.selectedIndex;
 			}
 		}
+	}
+
+	get value() {
+		return this.getValue();
+	}
+
+	set value(value) {
+		this.setValue(value);
 	}
 
 	/**

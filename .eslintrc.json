@@ -115,7 +115,6 @@
 		"new-cap": "error",
 		"new-parens": "error",
 		"no-array-constructor": "error",
-		"no-lonely-if": "error",
 		"no-multi-assign": "error",
 		"no-multiple-empty-lines": ["error", { "max": 1 }],
 		"no-nested-ternary": "error",
