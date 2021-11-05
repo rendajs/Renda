@@ -7,6 +7,7 @@ import editor from "../../editorInstance.js";
 import ProjectAssetTypeEntity from "../../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../Util/Util.js";
 import {EntitySelection} from "../../Misc/EntitySelection.js";
+import DropDownGui from "../../UI/DropDownGui.js";
 
 export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
@@ -32,13 +33,24 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.linkedEntityEditor = null;
 
 		const createEmptyButton = new Button({
-			text: "Create Emtpy",
+			text: "+",
 			onClick: () => {
 				this.createNewEmpty();
 			},
 		});
 		this.addTopBarEl(createEmptyButton.el);
 
+		this.availableEntityEditorUuids = [];
+		this.selectEntityEditorDropDown = new DropDownGui();
+		this.addTopBarEl(this.selectEntityEditorDropDown.el);
+		this.selectEntityEditorDropDown.onValueChange(() => {
+			const index = this.selectEntityEditorDropDown.getValue({getAsString: false});
+			const uuid = this.availableEntityEditorUuids[index];
+			const entityEditor = /** @type {ContentWindowEntityEditor} */ (editor.windowManager.getContentWindowByUuid(uuid));
+			this.setLinkedEntityEditor(entityEditor);
+		});
+
+		this.updateAvailableEntityEditorsList();
 		this.setAvailableLinkedEntityEditor();
 	}
 
@@ -53,13 +65,39 @@ export class ContentWindowOutliner extends ContentWindow {
 		return this.linkedEntityEditor.selectionManager;
 	}
 
-	setAvailableLinkedEntityEditor() {
+	updateAvailableEntityEditorsList() {
+		this.availableEntityEditorUuids = [];
+		const dropDownItems = [];
 		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+			this.availableEntityEditorUuids.push(entityEditor.uuid);
+
+			let entityAssetName = null;
+			if (entityEditor.editingEntityUuid) {
+				const editingEntityAsset = editor.projectManager.assetManager.getProjectAssetImmediate(entityEditor.editingEntityUuid);
+				if (editingEntityAsset) {
+					entityAssetName = editingEntityAsset.fileName;
+				} else {
+					entityAssetName = "<missing>";
+				}
+			} else {
+				entityAssetName = "<empty>";
+			}
+			dropDownItems.push(entityAssetName);
+		}
+		this.selectEntityEditorDropDown.setItems(dropDownItems);
+	}
+
+	setAvailableLinkedEntityEditor() {
+		const entityEditor = editor.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor, false);
+		if (entityEditor) {
 			this.setLinkedEntityEditor(entityEditor);
-			break;
+			this.selectEntityEditorDropDown.value = this.availableEntityEditorUuids.indexOf(entityEditor.uuid);
 		}
 	}
 
+	/**
+	 * @param {ContentWindowEntityEditor} linkedEntityEditor
+	 */
 	setLinkedEntityEditor(linkedEntityEditor) {
 		this.linkedEntityEditor = linkedEntityEditor;
 		this.updateTreeView();

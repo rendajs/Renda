@@ -48,6 +48,7 @@ export default class ProjectManager {
 		 * @type {ProjectSettingsManager}
 		 */
 		this.localProjectSettings = null;
+		/** @type {AssetManager} */
 		this.assetManager = null;
 
 		this.editorConnectionsAllowRemoteIncoming = false;
