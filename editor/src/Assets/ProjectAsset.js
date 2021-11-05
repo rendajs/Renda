@@ -119,7 +119,7 @@ export default class ProjectAsset {
 		return json?.assetType || null;
 	}
 
-	get name() {
+	get fileName() {
 		return this.path[this.path.length - 1];
 	}
 

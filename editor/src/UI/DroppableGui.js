@@ -402,7 +402,7 @@ export default class DroppableGui {
 	}
 
 	get visibleAssetName() {
-		return this.defaultAssetLink?.name || this.projectAssetValue?.name || "";
+		return this.defaultAssetLink?.name || this.projectAssetValue?.fileName || "";
 	}
 
 	updateContent() {
