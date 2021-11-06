@@ -77,10 +77,15 @@ export class ContentWindowOutliner extends ContentWindow {
 		return this.linkedEntityEditor.selectionManager;
 	}
 
-	entityEditorUpdated() {
+	/**
+	 * @param {import("../WindowManager.js").ContentWindowEvent} e
+	 */
+	entityEditorUpdated(e) {
 		this.updateAvailableEntityEditorsList();
 		if (!this.linkedEntityEditor || this.linkedEntityEditor.destructed) {
 			this.setAvailableLinkedEntityEditor();
+		} else if (e.target == this.linkedEntityEditor) {
+			this.updateTreeView();
 		}
 	}
 

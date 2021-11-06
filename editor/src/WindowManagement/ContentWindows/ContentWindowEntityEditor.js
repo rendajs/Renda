@@ -99,7 +99,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.updateGizmos();
 		this.markRenderDirty();
 		for (const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
-			outliner.entityEditorUpdated();
+			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateBuildViews();
 		this.updateLiveAssetChangeListeners();
