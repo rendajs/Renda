@@ -403,7 +403,7 @@ export default class WindowManager {
 	getMostSuitableContentWindowByConstructor(contentWindowConstructor, create = true) {
 		for (const weakRef of this.lastFocusedContentWindows) {
 			const ref = weakRef.deref();
-			if (!ref) continue;
+			if (!ref || ref.destructed) continue;
 			if (ref instanceof contentWindowConstructor) {
 				return ref;
 			}

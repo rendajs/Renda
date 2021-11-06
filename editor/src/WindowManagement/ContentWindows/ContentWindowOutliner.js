@@ -79,7 +79,7 @@ export class ContentWindowOutliner extends ContentWindow {
 
 	entityEditorUpdated() {
 		this.updateAvailableEntityEditorsList();
-		if (!this.linkedEntityEditor) {
+		if (!this.linkedEntityEditor || this.linkedEntityEditor.destructed) {
 			this.setAvailableLinkedEntityEditor();
 		}
 	}
