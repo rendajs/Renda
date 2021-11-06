@@ -4,6 +4,7 @@ import editor from "../editorInstance.js";
 import Button from "../UI/Button.js";
 import ButtonGroup from "../UI/ButtonGroup.js";
 import EditorWindowSplit from "./EditorWindowSplit.js";
+import ContentWindow from "./ContentWindows/ContentWindow.js";
 
 export default class EditorWindowTabs extends EditorWindow {
 	/** @type {Array<string>} */
@@ -53,16 +54,17 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.isInit = true;
 
 		for (const contentWindow of this.tabs) {
-			contentWindow.init();
+			this.initContentWindow(contentWindow);
 		}
 	}
 
 	destructor() {
 		this.#intendedTabTypes = null;
-		for (const tab of this.tabs) {
-			tab.destructor();
-		}
+		const tabs = this.tabs;
 		this.tabs = null;
+		for (const tab of tabs) {
+			this.destructContentWindow(tab);
+		}
 		this.tabsSelectorGroup.destructor();
 		this.tabsSelectorGroup = null;
 		this.tabsEl = null;
@@ -110,10 +112,10 @@ export default class EditorWindowTabs extends EditorWindow {
 	closeTab(tabIndex) {
 		const contentWindow = this.tabs[tabIndex];
 		this.tabsEl.removeChild(contentWindow.el);
-		contentWindow.destructor();
 		this.tabs.splice(tabIndex, 1);
 		this.#intendedTabTypes.splice(tabIndex, 1);
 		this.updateTabSelector();
+		this.destructContentWindow(contentWindow);
 		this.fireWorkspaceChangeCbs();
 	}
 
@@ -144,10 +146,32 @@ export default class EditorWindowTabs extends EditorWindow {
 		contentWindow.persistentData.setWindowManager(this.windowManager);
 		this.setExistingContentWindow(index, contentWindow);
 		if (this.isInit) {
-			contentWindow.init();
+			this.initContentWindow(contentWindow);
 			contentWindow.fireOnWindowResize();
 		}
 		return contentWindow;
+	}
+
+	/**
+	 * @param {ContentWindow} contentWindow
+	 */
+	initContentWindow(contentWindow) {
+		contentWindow.init();
+		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		this.windowManager.contentWindowAddedHandler.fireEvent(castConstructor, {
+			target: contentWindow,
+		});
+	}
+
+	/**
+	 * @param {ContentWindow} contentWindow
+	 */
+	destructContentWindow(contentWindow) {
+		contentWindow.destructor();
+		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		this.windowManager.contentWindowRemovedHandler.fireEvent(castConstructor, {
+			target: contentWindow,
+		});
 	}
 
 	/**

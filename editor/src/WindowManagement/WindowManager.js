@@ -4,10 +4,21 @@ import {contentWindows} from "./ContentWindows/ContentWindows.js";
 import ContentWindow from "./ContentWindows/ContentWindow.js";
 import WorkspaceManager from "./WorkspaceManager.js";
 import {generateUuid} from "../Util/Util.js";
+import {EventHandler} from "../../../src/Util/EventHandler.js";
+
+/**
+ * @typedef {Object} ContentWindowEvent
+ * @property {ContentWindow} target
+ */
 
 export default class WindowManager {
 	/** @type {Set<(data: any) => Promise<void>>} */
-	#onContentWindowPersistentDataFlushRequestCbs = new Set();
+	onContentWindowPersistentDataFlushRequestCbs = new Set();
+
+	/** @type {EventHandler<typeof ContentWindow, ContentWindowEvent>} */
+	contentWindowAddedHandler = new EventHandler();
+	/** @type {EventHandler<typeof ContentWindow, ContentWindowEvent>} */
+	contentWindowRemovedHandler = new EventHandler();
 
 	constructor() {
 		this.rootWindow = null;
@@ -165,7 +176,7 @@ export default class WindowManager {
 	async requestContentWindowPersistentDataFlush() {
 		const data = this.getContentWindowPersistentData();
 		const promises = [];
-		for (const cb of this.#onContentWindowPersistentDataFlushRequestCbs) {
+		for (const cb of this.onContentWindowPersistentDataFlushRequestCbs) {
 			promises.push(cb(data));
 		}
 		await Promise.all(promises);
@@ -175,14 +186,14 @@ export default class WindowManager {
 	 * @param {(data: any) => Promise<void>} cb
 	 */
 	onContentWindowPersistentDataFlushRequest(cb) {
-		this.#onContentWindowPersistentDataFlushRequestCbs.add(cb);
+		this.onContentWindowPersistentDataFlushRequestCbs.add(cb);
 	}
 
 	/**
 	 * @param {(data: any) => Promise<void>} cb
 	 */
 	removeOnContentWindowPersistentDataFlushRequest(cb) {
-		this.#onContentWindowPersistentDataFlushRequestCbs.delete(cb);
+		this.onContentWindowPersistentDataFlushRequestCbs.delete(cb);
 	}
 
 	markRootWindowAsRoot() {
