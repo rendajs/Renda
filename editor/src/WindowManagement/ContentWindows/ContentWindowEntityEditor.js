@@ -62,10 +62,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.loadPersistentData();
 	}
 
-	init() {
-		this.updateOutliners();
-	}
-
 	async loadPersistentData() {
 		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
 		const assetUuid = await editor.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);
@@ -102,7 +98,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorScene.add(val);
 		this.updateGizmos();
 		this.markRenderDirty();
-		this.updateOutliners();
+		for (const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
+			outliner.entityEditorUpdated();
+		}
 		this.updateBuildViews();
 		this.updateLiveAssetChangeListeners();
 	}
@@ -187,12 +185,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	render() {
 		this.domTarget.render(this.editorCamComponent);
-	}
-
-	updateOutliners() {
-		for (const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
-			outliner.entityEditorUpdated();
-		}
 	}
 
 	updateBuildViews() {

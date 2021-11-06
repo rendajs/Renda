@@ -54,12 +54,20 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.selectEntityEditorDropDownContainer.style.display = "inline-block";
 		this.addTopBarEl(this.selectEntityEditorDropDownContainer);
 
+		this.boundEntityEditorUpdated = this.entityEditorUpdated.bind(this);
 		this.updateAvailableEntityEditorsList();
 		this.setAvailableLinkedEntityEditor();
 	}
 
+	init() {
+		this.windowManager.contentWindowAddedHandler.addEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
+		this.windowManager.contentWindowRemovedHandler.addEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
+	}
+
 	destructor() {
 		super.destructor();
+		this.windowManager.contentWindowAddedHandler.removeEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
+		this.windowManager.contentWindowRemovedHandler.removeEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
 		this.treeView.destructor();
 		this.treeView = null;
 		this.linkedEntityEditor = null;
