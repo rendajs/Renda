@@ -108,7 +108,7 @@ export default class DropDownGui {
 			if (typeof value == "number") {
 				this.el.selectedIndex = value;
 			} else {
-				this.el.value = value;
+				this.el.selectedIndex = this.items.indexOf(value);
 			}
 		}
 	}
@@ -140,7 +140,7 @@ export default class DropDownGui {
 			}
 		} else {
 			if (getAsString) {
-				return this.el.value;
+				return this.items[this.el.selectedIndex];
 			} else {
 				return this.el.selectedIndex;
 			}
