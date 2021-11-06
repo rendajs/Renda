@@ -110,6 +110,9 @@ export class ContentWindowOutliner extends ContentWindow {
 		}
 		if (dropDownItems.length > 1) {
 			this.selectEntityEditorDropDown.setItems(dropDownItems);
+			if (this.linkedEntityEditor) {
+				this.selectEntityEditorDropDown.value = this.availableEntityEditorUuids.indexOf(this.linkedEntityEditor.uuid);
+			}
 			this.selectEntityEditorDropDownContainer.appendChild(this.selectEntityEditorDropDown.el);
 		} else if (this.selectEntityEditorDropDownContainer.hasChildNodes()) {
 			this.selectEntityEditorDropDownContainer.removeChild(this.selectEntityEditorDropDown.el);
