@@ -42,13 +42,17 @@ export class ContentWindowOutliner extends ContentWindow {
 
 		this.availableEntityEditorUuids = [];
 		this.selectEntityEditorDropDown = new DropDownGui();
-		this.addTopBarEl(this.selectEntityEditorDropDown.el);
 		this.selectEntityEditorDropDown.onValueChange(() => {
 			const index = this.selectEntityEditorDropDown.getValue({getAsString: false});
 			const uuid = this.availableEntityEditorUuids[index];
 			const entityEditor = /** @type {ContentWindowEntityEditor} */ (editor.windowManager.getContentWindowByUuid(uuid));
 			this.setLinkedEntityEditor(entityEditor);
 		});
+		this.selectEntityEditorDropDownContainer = document.createElement("div");
+		// todo: there's probably a prettier way to do this but I don't know how right now
+		// maybe items in the top bar should use flexbox?
+		this.selectEntityEditorDropDownContainer.style.display = "inline-block";
+		this.addTopBarEl(this.selectEntityEditorDropDownContainer);
 
 		this.updateAvailableEntityEditorsList();
 		this.setAvailableLinkedEntityEditor();
@@ -91,7 +95,12 @@ export class ContentWindowOutliner extends ContentWindow {
 			}
 			dropDownItems.push(entityAssetName);
 		}
-		this.selectEntityEditorDropDown.setItems(dropDownItems);
+		if (dropDownItems.length > 1) {
+			this.selectEntityEditorDropDown.setItems(dropDownItems);
+			this.selectEntityEditorDropDownContainer.appendChild(this.selectEntityEditorDropDown.el);
+		} else if (this.selectEntityEditorDropDownContainer.hasChildNodes()) {
+			this.selectEntityEditorDropDownContainer.removeChild(this.selectEntityEditorDropDown.el);
+		}
 	}
 
 	setAvailableLinkedEntityEditor() {
