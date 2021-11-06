@@ -65,6 +65,13 @@ export class ContentWindowOutliner extends ContentWindow {
 		return this.linkedEntityEditor.selectionManager;
 	}
 
+	entityEditorUpdated() {
+		this.updateAvailableEntityEditorsList();
+		if (!this.linkedEntityEditor) {
+			this.setAvailableLinkedEntityEditor();
+		}
+	}
+
 	updateAvailableEntityEditorsList() {
 		this.availableEntityEditorUuids = [];
 		const dropDownItems = [];

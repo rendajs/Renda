@@ -146,8 +146,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			return;
 		}
 		const entity = await projectAsset.getLiveAsset();
-		this.editingEntity = entity;
 		this.editingEntityUuid = entityUuid;
+		this.editingEntity = entity;
 		this.persistentData.set("loadedEntityPath", projectAsset.path);
 	}
 
@@ -187,7 +187,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	updateOutliners() {
 		for (const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
-			outliner.setLinkedEntityEditor(this);
+			outliner.entityEditorUpdated();
 		}
 	}
 
