@@ -62,6 +62,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.loadPersistentData();
 	}
 
+	init() {
+		this.updateOutliners();
+	}
+
 	async loadPersistentData() {
 		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
 		const assetUuid = await editor.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);

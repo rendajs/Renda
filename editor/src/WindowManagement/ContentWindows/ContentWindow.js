@@ -57,6 +57,12 @@ export default class ContentWindow {
 		}
 	}
 
+	/**
+	 * Gets called after the content window is attached to the dom,
+	 * {@link onWindowResize} will be called once after this.
+	 */
+	init() {}
+
 	destructor() {
 		this.destructed = true;
 		this.el = null;

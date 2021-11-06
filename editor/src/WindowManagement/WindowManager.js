@@ -97,6 +97,7 @@ export default class WindowManager {
 
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
+		this.rootWindow.init();
 		this.rootWindow.onResized();
 
 		this.isLoadingWorkspace = false;

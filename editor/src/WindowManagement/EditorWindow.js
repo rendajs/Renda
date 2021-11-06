@@ -29,6 +29,8 @@ export default class EditorWindow {
 		this.onWorkspaceChangeCbs.clear();
 	}
 
+	init() {}
+
 	setRoot() {
 		this.isRoot = true;
 		this.parent = null;

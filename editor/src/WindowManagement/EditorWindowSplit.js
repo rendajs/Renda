@@ -48,6 +48,11 @@ export default class EditorWindowSplit extends EditorWindow {
 		this.windowB.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
 	}
 
+	init() {
+		if (this.windowA) this.windowA.init();
+		if (this.windowB) this.windowB.init();
+	}
+
 	destructor() {
 		if (this.windowA) this.windowA.destructor();
 		if (this.windowB) this.windowB.destructor();

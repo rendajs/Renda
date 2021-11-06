@@ -44,9 +44,17 @@ export default class EditorWindowTabs extends EditorWindow {
 		this.boundOnTabDrop = this.onTabDrop.bind(this);
 		this.tabDragOverlayEl.addEventListener("drop", this.boundOnTabDrop);
 
-		this.resizedCalledOnce = false;
+		this.isInit = false;
 
 		this.setTabDragOverlayEnabled(false);
+	}
+
+	init() {
+		this.isInit = true;
+
+		for (const contentWindow of this.tabs) {
+			contentWindow.init();
+		}
 	}
 
 	destructor() {
@@ -134,7 +142,8 @@ export default class EditorWindowTabs extends EditorWindow {
 		contentWindow.windowManager = this.windowManager;
 		contentWindow.persistentData.setWindowManager(this.windowManager);
 		this.setExistingContentWindow(index, contentWindow);
-		if (this.resizedCalledOnce) {
+		if (this.isInit) {
+			contentWindow.init();
 			contentWindow.fireOnWindowResize();
 		}
 		return contentWindow;
@@ -267,8 +276,6 @@ export default class EditorWindowTabs extends EditorWindow {
 	}
 
 	onResized() {
-		this.resizedCalledOnce = true;
-
 		for (const tab of this.tabs) {
 			tab.fireOnWindowResize();
 		}
