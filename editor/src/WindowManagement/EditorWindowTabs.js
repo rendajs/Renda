@@ -109,6 +109,7 @@ export default class EditorWindowTabs extends EditorWindow {
 	 */
 	closeTab(tabIndex) {
 		const contentWindow = this.tabs[tabIndex];
+		this.tabsEl.removeChild(contentWindow.el);
 		contentWindow.destructor();
 		this.tabs.splice(tabIndex, 1);
 		this.#intendedTabTypes.splice(tabIndex, 1);
