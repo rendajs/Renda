@@ -192,6 +192,11 @@ export default class WebGpuRenderer extends Renderer {
 		domTarget.gpuReady();
 	}
 
+	/**
+	 * @override
+	 * @param {WebGpuRendererDomTarget} domTarget
+	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").default} camera
+	 */
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready) return;
@@ -262,7 +267,8 @@ export default class WebGpuRenderer extends Renderer {
 		}
 		this.lightsBuffer.writeToGpu();
 
-		const renderPassEncoder = commandEncoder.beginRenderPass(domTarget.getRenderPassDescriptor());
+		const renderPassDescriptor = domTarget.getRenderPassDescriptor();
+		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
 		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); // todo
 

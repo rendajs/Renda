@@ -8,6 +8,11 @@ export default class Renderer {
 
 	async init() {}
 
+	/**
+	 * Renders a scene from a camera to a dom target.
+	 * @param {RendererDomTarget} domTarget
+	 * @param {import("../../Components/BuiltIn/CameraComponent.js").default} camera
+	 */
 	render(domTarget, camera) {}
 
 	createDomTarget(...args) {

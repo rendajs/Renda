@@ -26,6 +26,9 @@ export default class RendererDomTarget {
 		this.height = h;
 	}
 
+	/**
+	 * @param {import("../Components/BuiltIn/CameraComponent.js").default} camera
+	 */
 	render(camera) {
 		if (this.width <= 0 || this.height <= 0) {
 			// If we try to render while the size is invalid, all sorts of things might break.

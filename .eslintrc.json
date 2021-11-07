@@ -215,6 +215,9 @@
 					"PromiseFulfilledResult",
 					"GPUIndexFormat",
 					"GPUTextureFormat",
+					"GPURenderPassColorAttachment",
+					"GPURenderPassDepthStencilAttachment",
+					"GPURenderPassDescriptor",
 					"Parameters",
 					"suspiciousCode"
 				]

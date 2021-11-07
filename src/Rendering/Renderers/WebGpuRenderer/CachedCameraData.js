@@ -2,6 +2,10 @@ import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
 import ClusterComputeManager from "./ClusterComputeManager.js";
 
 export default class CachedCameraData {
+	/**
+	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").default} camera
+	 * @param {import("./WebGpuRenderer.js").default} renderer
+	 */
 	constructor(camera, renderer) {
 		this.camera = camera;
 		this.renderer = renderer;

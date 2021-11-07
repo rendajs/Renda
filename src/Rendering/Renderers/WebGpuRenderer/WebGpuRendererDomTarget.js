@@ -26,11 +26,14 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.depthTexture = null;
 		this.ready = false;
 
+		/** @type {GPURenderPassColorAttachment} */
 		this.colorAttachment = {
 			view: null, // will be assigned in getRenderPassDescriptor()
 			resolveTarget: undefined, // will be assigned in getRenderPassDescriptor()
 			loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
+			storeOp: "store",
 		};
+		/** @type {GPURenderPassDepthStencilAttachment?} */
 		this.depthStencilAttachment = null;
 		if (this.depthSupport) {
 			this.depthStencilAttachment = {
@@ -41,6 +44,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 				stencilStoreOp: "store",
 			};
 		}
+		/** @type {GPURenderPassDescriptor} */
 		this.renderPassDescriptor = {
 			colorAttachments: [this.colorAttachment],
 			depthStencilAttachment: this.depthStencilAttachment,
@@ -127,6 +131,9 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		}
 	}
 
+	/**
+	 * @returns {GPURenderPassDescriptor?}
+	 */
 	getRenderPassDescriptor() {
 		if (!this.ready) return null;
 		const swapChainTextureView = this.ctx.getCurrentTexture().createView();
