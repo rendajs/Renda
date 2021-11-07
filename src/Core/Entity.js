@@ -401,7 +401,7 @@ export default class Entity {
 	 */
 	*_getInstanceRootTraversedUpPaths(parent, index) {
 		for (const {parent: traversedParent, traversedPath, ignoreBranch} of this.traverseUp()) {
-			if (parent == traversedParent && traversedPath[0].index != index) {
+			if (parent == traversedParent && traversedPath.length > 0 && traversedPath[0].index != index) {
 				ignoreBranch();
 				continue;
 			}
