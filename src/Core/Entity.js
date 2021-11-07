@@ -47,13 +47,13 @@ export default class Entity {
 		/** @type {Component[]} */
 		this.components = [];
 
-		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirtyAll.bind(this);
+		this.boundMarkLocalMatrixDirtyAll = this.markLocalMatrixDirtyAll.bind(this);
 		this._pos = new Vec3();
-		this._pos.onChange(this.boundMarkLocalMatrixDirty);
+		this._pos.onChange(this.boundMarkLocalMatrixDirtyAll);
 		this._rot = new Quat();
-		this._rot.onChange(this.boundMarkLocalMatrixDirty);
+		this._rot.onChange(this.boundMarkLocalMatrixDirtyAll);
 		this._scale = Vec3.one;
-		this._scale.onChange(this.boundMarkLocalMatrixDirty);
+		this._scale.onChange(this.boundMarkLocalMatrixDirtyAll);
 
 		if (opts.matrix) this.localMatrix = opts.matrix;
 		if (opts.parent) {
