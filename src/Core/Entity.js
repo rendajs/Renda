@@ -640,23 +640,74 @@ export default class Entity {
 	}
 
 	/**
-	 * @param {TraversedEntityParentPath} traversedPath
+	 * @typedef {Object} TraversionContext
+	 * @property {TraversedEntityParentPath} traversedPath
+	 * @property {Entity} [passedSelfReference]
+	 * @property {number} passedSelfReferenceCount
+	 */
+
+	/**
+	 * @typedef {Object} TraverseOptions
+	 * @property {number} [maxRecursionDepth = Infinity]
+	 * @property {number} [maxInstanceRecursionDepth = 100]
+	 */
+
+	/**
+	 * @param {TraverseOptions} opts
 	 * @returns {Generator<{child: Entity, traversedPath: TraversedEntityParentPath}>}
 	 */
-	*traverseDown(traversedPath = []) {
+	*traverseDown({
+		maxRecursionDepth = Infinity,
+		maxInstanceRecursionDepth = 100,
+	} = {}) {
+		yield* this.#traverseDown({
+			maxRecursionDepth,
+			maxInstanceRecursionDepth,
+		}, {
+			traversedPath: [],
+			passedSelfReferenceCount: 0,
+		});
+	}
+
+	/**
+	 * @param {TraverseOptions} opts
+	 * @param {TraversionContext} ctx
+	 * @returns {Generator<{child: Entity, traversedPath: TraversedEntityParentPath}>}
+	 */
+	*#traverseDown(opts, ctx) {
 		yield {
 			child: this,
-			traversedPath,
+			traversedPath: ctx.traversedPath,
 		};
+
+		if (ctx.traversedPath.length > opts.maxRecursionDepth) return;
+
+		if (ctx.passedSelfReference) {
+			if (ctx.passedSelfReference == this) {
+				ctx.passedSelfReferenceCount++;
+			}
+		} else {
+			for (const entry of ctx.traversedPath) {
+				if (entry.parent == this) {
+					ctx.passedSelfReference = this;
+				}
+			}
+		}
+		if (ctx.passedSelfReferenceCount > opts.maxInstanceRecursionDepth) return;
+
 		for (const [i, child] of this._children.entries()) {
-			traversedPath.push({
+			ctx.traversedPath.push({
 				parent: this,
 				index: i,
 			});
-			for (const result of child.traverseDown(traversedPath)) {
+			const prevPassedSelfReference = ctx.passedSelfReference;
+			const prevPassedInstanceEntityCount = ctx.passedSelfReferenceCount;
+			for (const result of child.#traverseDown(opts, ctx)) {
 				yield result;
 			}
-			traversedPath.pop();
+			ctx.traversedPath.pop();
+			ctx.passedSelfReference = prevPassedSelfReference;
+			ctx.passedSelfReferenceCount = prevPassedInstanceEntityCount;
 		}
 	}
 
@@ -668,28 +719,66 @@ export default class Entity {
 	 */
 
 	/**
-	 * @param {TraversedEntityParentPath} traversedPath
+	 * @param {TraverseOptions} opts
 	 * @returns {Generator<TraverseUpResult>}
 	 */
-	*traverseUp(traversedPath = []) {
+	*traverseUp({
+		maxRecursionDepth = Infinity,
+		maxInstanceRecursionDepth = 100,
+	} = {}) {
+		yield* this.#traverseUp({
+			maxRecursionDepth,
+			maxInstanceRecursionDepth,
+		}, {
+			traversedPath: [],
+			passedSelfReferenceCount: 0,
+		});
+	}
+
+	/**
+	 * @param {TraverseOptions} opts
+	 * @param {TraversionContext} ctx
+	 * @returns {Generator<TraverseUpResult>}
+	 */
+	*#traverseUp(opts, ctx) {
 		let didIgnoreBranch = false;
 		yield {
 			parent: this,
-			traversedPath,
+			traversedPath: ctx.traversedPath,
 			ignoreBranch: () => {
 				didIgnoreBranch = true;
 			},
 		};
 		if (didIgnoreBranch) return;
+
+		if (ctx.traversedPath.length > opts.maxRecursionDepth) return;
+
+		if (ctx.passedSelfReference) {
+			if (ctx.passedSelfReference == this) {
+				ctx.passedSelfReferenceCount++;
+			}
+		} else {
+			for (const entry of ctx.traversedPath) {
+				if (entry.parent == this) {
+					ctx.passedSelfReference = this;
+				}
+			}
+		}
+		if (ctx.passedSelfReferenceCount > opts.maxInstanceRecursionDepth) return;
+
 		for (const {parent, entityParent} of this._getEntityParents()) {
-			traversedPath.unshift({
+			ctx.traversedPath.unshift({
 				parent,
 				index: entityParent.index,
 			});
-			for (const result of parent.traverseUp(traversedPath)) {
+			const prevPassedSelfReference = ctx.passedSelfReference;
+			const prevPassedInstanceEntityCount = ctx.passedSelfReferenceCount;
+			for (const result of parent.#traverseUp(opts, ctx)) {
 				yield result;
 			}
-			traversedPath.shift();
+			ctx.traversedPath.shift();
+			ctx.passedSelfReference = prevPassedSelfReference;
+			ctx.passedSelfReferenceCount = prevPassedInstanceEntityCount;
 		}
 	}
 
