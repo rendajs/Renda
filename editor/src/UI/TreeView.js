@@ -374,7 +374,7 @@ export default class TreeView {
 	}
 
 	clearChildren() {
-		for (const child of this.children) {
+		for (const child of [...this.children]) {
 			child.destructor();
 		}
 		this.children = [];
