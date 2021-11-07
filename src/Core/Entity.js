@@ -499,7 +499,11 @@ export default class Entity {
 			this._children.push(child);
 		} else {
 			this._children.splice(index, 0, child);
-			// todo: update indices
+			// Shift all indices of the siblings after the added child.
+			for (let i = index + 1; i < this._children.length; i++) {
+				// eslint-disable-next-line no-underscore-dangle
+				this._children[i]._parentIndexChanged(this, i - 1, i);
+			}
 		}
 	}
 
