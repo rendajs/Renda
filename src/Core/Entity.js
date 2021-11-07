@@ -662,7 +662,7 @@ export default class Entity {
 	 */
 	*traverseDown({
 		maxRecursionDepth = Infinity,
-		maxInstanceRecursionDepth = 100,
+		maxInstanceRecursionDepth = 30,
 	} = {}) {
 		yield* this.#traverseDown({
 			maxRecursionDepth,
@@ -728,7 +728,7 @@ export default class Entity {
 	 */
 	*traverseUp({
 		maxRecursionDepth = Infinity,
-		maxInstanceRecursionDepth = 100,
+		maxInstanceRecursionDepth = 30,
 	} = {}) {
 		yield* this.#traverseUp({
 			maxRecursionDepth,
