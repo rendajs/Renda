@@ -24,8 +24,12 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		};
 	}
 
-	async getLiveAssetData(json) {
-		const liveAsset = await this.createEntityFromJsonData(json);
+	/**
+	 * @param {*} json
+	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 */
+	async getLiveAssetData(json, recursionTracker) {
+		const liveAsset = await this.createEntityFromJsonData(json, recursionTracker);
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {liveAsset};
 	}
@@ -44,7 +48,11 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		await entityEditor.loadEntityAsset(this.projectAsset.uuid);
 	}
 
-	async createEntityFromJsonData(jsonData) {
+	/**
+	 * @param {*} jsonData
+	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 */
+	async createEntityFromJsonData(jsonData, recursionTracker) {
 		if (!jsonData) {
 			return new Entity();
 		}
@@ -69,21 +77,24 @@ export default class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.children) {
 			for (const childJson of jsonData.children) {
 				if (childJson.assetUuid) {
-					/** @type {Entity} */
-					let child = await editor.projectManager.assetManager.getLiveAsset(childJson.assetUuid);
-					if (!child) child = new Entity();
-					ent.add(child);
-					if (childJson.pos) {
-						child.setInstancePos(childJson.pos, ent, ent.childCount - 1);
-					}
-					if (childJson.rot) {
-						child.setInstanceRot(childJson.rot, ent, ent.childCount - 1);
-					}
-					if (childJson.scale) {
-						child.setInstanceScale(childJson.scale, ent, ent.childCount - 1);
-					}
+					const insertionIndex = ent.childCount;
+					ent.add(new Entity());
+					recursionTracker.getLiveAsset(childJson.assetUuid, child => {
+						if (!child) child = new Entity();
+						ent.removeAtIndex(insertionIndex); // Remove the old dummy entity
+						ent.addAtIndex(child, insertionIndex);
+						if (childJson.pos) {
+							child.setInstancePos(childJson.pos, ent, insertionIndex);
+						}
+						if (childJson.rot) {
+							child.setInstanceRot(childJson.rot, ent, insertionIndex);
+						}
+						if (childJson.scale) {
+							child.setInstanceScale(childJson.scale, ent, insertionIndex);
+						}
+					});
 				} else {
-					const child = await this.createEntityFromJsonData(childJson);
+					const child = await this.createEntityFromJsonData(childJson, recursionTracker);
 					ent.add(child);
 				}
 			}
