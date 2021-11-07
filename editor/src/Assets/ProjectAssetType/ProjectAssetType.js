@@ -1,5 +1,11 @@
 /** @typedef {string & {}} ProjectAssetTypeIdentifier */
 
+/**
+ * @typedef {Object} LiveAssetData
+ * @property {*} [liveAsset]
+ * @property {*} [editorData]
+ */
+
 export default class ProjectAssetType {
 	/**
 	 * Identifier of the assetType. This is stored in various places
@@ -84,7 +90,7 @@ export default class ProjectAssetType {
 	/**
 	 * This will be called when a new file of this type is created
 	 * the returned value will be passed along to {@linkcode saveLiveAssetData}.
-	 * @returns {Promise<{liveAsset: *, editorData: *}>}
+	 * @returns {Promise<LiveAssetData>}
 	 */
 	async createNewLiveAssetData() {
 		return {liveAsset: null, editorData: null};
@@ -111,9 +117,10 @@ export default class ProjectAssetType {
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
 	 * @param {import("../ProjectAsset").ProjectAssetFileData} fileData
-	 * @returns {Promise<{liveAsset?: any, editorData?: any}>}
+	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @returns {Promise<LiveAssetData>}
 	 */
-	async getLiveAssetData(fileData) {
+	async getLiveAssetData(fileData, recursionTracker) {
 		return {liveAsset: null};
 	}
 

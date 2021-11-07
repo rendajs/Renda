@@ -301,11 +301,25 @@ export default class AssetManager {
 
 	}
 
+	/**
+	 * @param {import("../Util/Util.js").UuidString} uuid
+	 */
 	async getLiveAsset(uuid) {
 		const projectAsset = await this.getProjectAsset(uuid);
 		if (!projectAsset) return null;
 
 		return await projectAsset.getLiveAsset();
+	}
+
+	/**
+	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 */
+	async getLiveAssetData(uuid, recursionTracker = null) {
+		const projectAsset = await this.getProjectAsset(uuid);
+		if (!projectAsset) return null;
+
+		return await projectAsset.getLiveAssetData(recursionTracker);
 	}
 
 	getProjectAssetForLiveAsset(liveAsset) {

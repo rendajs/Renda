@@ -4,6 +4,7 @@ import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {StorageType} from "../../../src/Util/BinaryComposer.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
+import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker.js";
 
 /** @typedef {Object | string | File} ProjectAssetFileData */
 
@@ -198,7 +199,10 @@ export default class ProjectAsset {
 		this._deletedState = !exists;
 	}
 
-	async getLiveAssetData() {
+	/**
+	 * @param {RecursionTracker} recursionTracker
+	 */
+	async getLiveAssetData(recursionTracker = null) {
 		if (this.liveAsset || this.editorData) {
 			return {
 				liveAsset: this.liveAsset,
@@ -227,7 +231,7 @@ export default class ProjectAsset {
 
 		// if destroyLiveAssetData has been called before this Promise was finished
 		if (getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) {
-			return await this.getLiveAssetData();
+			return await this.getLiveAssetData(recursionTracker);
 		}
 
 		if (readFailed) {
@@ -236,14 +240,26 @@ export default class ProjectAsset {
 			return {liveAsset: null, editorData: null};
 		}
 
-		const {liveAsset, editorData} = await this._projectAssetType.getLiveAssetData(fileData);
+		const isRootRecursionTracker = !recursionTracker;
+		if (!recursionTracker) {
+			recursionTracker = new RecursionTracker(editor.projectManager.assetManager, this.uuid);
+		}
+
+		const {liveAsset, editorData} = await this._projectAssetType.getLiveAssetData(fileData, recursionTracker);
+
+		if (isRootRecursionTracker) {
+			if (recursionTracker.rootLoadingAsset) {
+				recursionTracker.rootLoadingAsset.setLoadedAssetData({liveAsset, editorData});
+			}
+			await recursionTracker.waitForAll();
+		}
 
 		// if destroyLiveAssetData has been called before this Promise was finished
 		if (getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) {
 			if ((liveAsset || editorData) && this._projectAssetType) {
 				this._projectAssetType.destroyLiveAssetData(liveAsset, editorData);
 			}
-			return await this.getLiveAssetData();
+			return await this.getLiveAssetData(recursionTracker);
 		}
 
 		this.liveAsset = liveAsset || null;
@@ -258,13 +274,19 @@ export default class ProjectAsset {
 		};
 	}
 
-	async getLiveAsset() {
-		const {liveAsset} = await this.getLiveAssetData();
+	/**
+	 * @param {RecursionTracker} recursionTracker
+	 */
+	async getLiveAsset(recursionTracker = null) {
+		const {liveAsset} = await this.getLiveAssetData(recursionTracker);
 		return liveAsset;
 	}
 
-	async getEditorData() {
-		const {editorData} = await this.getLiveAssetData();
+	/**
+	 * @param {RecursionTracker} recursionTracker
+	 */
+	async getEditorData(recursionTracker = null) {
+		const {editorData} = await this.getLiveAssetData(recursionTracker);
 		return editorData;
 	}
 
