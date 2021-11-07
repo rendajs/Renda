@@ -136,11 +136,42 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	updateTreeView() {
-		let treeData = {};
 		if (this.linkedEntityEditor && this.linkedEntityEditor.editingEntity) {
-			treeData = this.treeDataFromEntity(this.linkedEntityEditor.editingEntity);
+			this.updateTreeViewRecursive(this.treeView, this.linkedEntityEditor.editingEntity, {
+				passedEntities: [],
+			});
 		}
-		this.treeView.updateData(treeData);
+	}
+
+	/**
+	 * @param {TreeView} treeView
+	 * @param {Entity} entity
+	 * @param {{passedEntities: Entity[]}} ctx
+	 */
+	updateTreeViewRecursive(treeView, entity, ctx) {
+		treeView.name = entity.name;
+		treeView.clearChildren();
+
+		if (!treeView.collapsed) {
+			for (const child of entity.getChildren()) {
+				const childTreeView = treeView.addChild();
+				if (ctx.passedEntities.includes(child)) {
+					childTreeView.collapsed = true;
+					childTreeView.alwaysShowArrow = true;
+					const passedEntitiesClone = [...ctx.passedEntities];
+					childTreeView.onCollapsedChange(() => {
+						if (!childTreeView.collapsed) {
+							this.updateTreeViewRecursive(childTreeView, child, {
+								passedEntities: passedEntitiesClone,
+							});
+						}
+					});
+				}
+				ctx.passedEntities.push(child);
+				this.updateTreeViewRecursive(childTreeView, child, ctx);
+				ctx.passedEntities.pop();
+			}
+		}
 	}
 
 	treeDataFromEntity(entity) {
