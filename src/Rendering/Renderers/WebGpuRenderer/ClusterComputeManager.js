@@ -1,6 +1,10 @@
 import ShaderBuilder from "../../ShaderBuilder.js";
 
 export default class ClusterComputeManager {
+	/**
+	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").default} camera
+	 * @param {import("./CachedCameraData.js").default} cachedCameraData
+	 */
 	constructor(camera, cachedCameraData) {
 		this.camera = camera;
 		this.cachedCameraData = cachedCameraData;
@@ -32,7 +36,9 @@ export default class ClusterComputeManager {
 
 		// todo: destroy old buffers etc
 		this.computeBoundsPipeline = this.renderer.device.createComputePipeline({
+			label: "ClusteredComputeManager computeBoundsPipeline",
 			layout: this.renderer.device.createPipelineLayout({
+				label: "ClusteredComputeManager computeBoundsPipelineLayout",
 				bindGroupLayouts: [
 					this.renderer.viewBindGroupLayout,
 					this.renderer.computeClusterBoundsBindGroupLayout,
@@ -40,6 +46,7 @@ export default class ClusterComputeManager {
 			}),
 			compute: {
 				module: this.renderer.device.createShaderModule({
+					label: "ClusteredComputeManager computeBoundsShaderModule",
 					code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterBoundsShaderCode.source, this.config.getShaderDefines()),
 				}),
 				entryPoint: "main",
@@ -47,11 +54,13 @@ export default class ClusterComputeManager {
 		});
 
 		this.boundsBuffer = this.renderer.device.createBuffer({
+			label: "ClusteredComputeManager boundsBuffer",
 			size: this.config.totalClusterCount * 32,
 			usage: GPUBufferUsage.STORAGE,
 		});
 
 		this.boundsBindGroup = this.renderer.device.createBindGroup({
+			label: "ClusteredComputeManager boundsBindGroup",
 			layout: this.renderer.computeClusterBoundsBindGroupLayout,
 			entries: [
 				{
@@ -65,6 +74,7 @@ export default class ClusterComputeManager {
 
 		this.computeLightIndicesPipeline = this.renderer.device.createComputePipeline({
 			layout: this.renderer.device.createPipelineLayout({
+				label: "ClusteredComputeManager computeLightIndicesPipeline",
 				bindGroupLayouts: [
 					this.renderer.viewBindGroupLayout,
 					this.renderer.computeClusterLightsBindGroupLayout,
@@ -72,6 +82,7 @@ export default class ClusterComputeManager {
 			}),
 			compute: {
 				module: this.renderer.device.createShaderModule({
+					label: "ClusteredComputeManager computeLightIndicesShaderModule",
 					code: ShaderBuilder.fillShaderDefines(this.renderer.computeClusterLightsShaderCode.source, this.config.getShaderDefines()),
 				}),
 				entryPoint: "main",
@@ -79,6 +90,7 @@ export default class ClusterComputeManager {
 		});
 
 		this.lightIndicesBuffer = this.renderer.device.createBuffer({
+			label: "ClusteredComputeManager lightIndicesBuffer",
 			size: (this.config.maxLightsPerClusterPass * 4 + 4) * this.config.totalClusterCount,
 			usage: GPUBufferUsage.STORAGE,
 		});
@@ -86,6 +98,7 @@ export default class ClusterComputeManager {
 		// todo: this bindgroup is unnecessary, the indices binding
 		// from the viewBindGroupLayout can be used instead
 		this.lightIndicesBindGroup = this.renderer.device.createBindGroup({
+			label: "ClusteredComputeManager lightIndicesBindGroup",
 			layout: this.renderer.computeClusterLightsBindGroupLayout,
 			entries: [
 				{

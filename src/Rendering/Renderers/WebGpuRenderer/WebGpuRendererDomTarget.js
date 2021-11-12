@@ -104,6 +104,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.colorTexture = null;
 		if (this.outputConfig.multisampleCount > 1 && this.width > 0 && this.height > 0) {
 			this.colorTexture = this.castRenderer.device.createTexture({
+				label: "WebGpuDomTarget colorTexture",
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,
@@ -119,6 +120,7 @@ export default class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.depthTexture = null;
 		if (this.depthSupport && this.width > 0 && this.height > 0) {
 			this.depthTexture = this.castRenderer.device.createTexture({
+				label: "WebGpuDomTarget depthTexture",
 				size: {
 					width: this.canvas.width,
 					height: this.canvas.height,

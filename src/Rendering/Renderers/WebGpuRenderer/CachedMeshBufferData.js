@@ -1,4 +1,9 @@
 export default class CachedMeshBufferData {
+	/**
+	 *
+	 * @param {import("../../../Core/MeshAttributeBuffer.js").default} meshBuffer
+	 * @param {import("./CachedMeshData.js").default} meshData
+	 */
 	constructor(meshBuffer, meshData) {
 		this.meshBuffer = meshBuffer;
 		this.meshData = meshData;
@@ -24,6 +29,7 @@ export default class CachedMeshBufferData {
 		}
 		const size = this.meshBuffer.buffer.byteLength;
 		this.gpuBuffer = this.meshData.renderer.device.createBuffer({
+			label: "meshBufferDataBuffer",
 			size,
 			usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, // todo: only use copy_dst when buffer updates are actually expected
 			mappedAtCreation: true,

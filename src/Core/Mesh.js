@@ -3,6 +3,7 @@ import MeshAttributeBuffer from "./MeshAttributeBuffer.js";
 
 export default class Mesh {
 	constructor() {
+		/** @type {MeshAttributeBuffer[]} */
 		this._buffers = [];
 		this._unusedBuffers = new Map();
 		this._vertexState = null;
@@ -185,6 +186,10 @@ export default class Mesh {
 		return unusedBuffer;
 	}
 
+	/**
+	 * @param {boolean} includeUnused
+	 * @returns {Generator<MeshAttributeBuffer>}
+	 */
 	*getBuffers(includeUnused = true) {
 		for (const buffer of this._buffers) {
 			yield buffer;

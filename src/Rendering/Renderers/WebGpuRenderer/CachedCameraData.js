@@ -33,15 +33,11 @@ export default class CachedCameraData {
 	getViewBindGroup() {
 		if (!this.viewBindGroup || this.testViewBindGroupDirty()) {
 			this.viewBindGroup = this.renderer.device.createBindGroup({
+				label: "viewBindGroup",
 				layout: this.renderer.viewBindGroupLayout,
 				entries: [
-					{
-						binding: 0,
-						resource: {
-							buffer: this.renderer.viewUniformsBuffer.gpuBuffer,
-						},
-					},
-					this.renderer.lightsBuffer.createBindGroupEntry({binding: 1}),
+					this.renderer.viewUniformsBuffer.getCurrentChunk().createBindGroupEntry({binding: 0}),
+					this.renderer.lightsBuffer.getCurrentChunk().createBindGroupEntry({binding: 1}),
 					{
 						binding: 2,
 						resource: {

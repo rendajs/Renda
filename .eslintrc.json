@@ -218,6 +218,11 @@
 					"GPURenderPassColorAttachment",
 					"GPURenderPassDepthStencilAttachment",
 					"GPURenderPassDescriptor",
+					"GPUDevice",
+					"GPUBindGroupLayout",
+					"GPUBufferUsage",
+					"GPUBuffer",
+					"GPUBindGroup",
 					"Parameters",
 					"suspiciousCode"
 				]

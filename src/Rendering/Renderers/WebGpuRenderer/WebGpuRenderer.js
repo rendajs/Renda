@@ -1,7 +1,7 @@
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
 import Renderer from "../Renderer.js";
 import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
-import WebGpuBufferHelper from "./WebGpuBufferHelper.js";
+import {WebGpuChunkedBuffer} from "./GpuBufferHelper/WebGpuChunkedBuffer.js";
 import CachedCameraData from "./CachedCameraData.js";
 import CachedMeshData from "./CachedMeshData.js";
 import defaultEngineAssetsManager from "../../../Assets/defaultEngineAssetsManager.js";
@@ -39,9 +39,7 @@ export default class WebGpuRenderer extends Renderer {
 		}
 		this.viewUniformsBuffer = null;
 		this.materialUniformsBuffer = null;
-		this.materialUniformsBufferBindGroup = null;
 		this.objectUniformsBuffer = null;
-		this.objectUniformsBufferBindGroup = null;
 		this.pipelineLayout = null;
 
 		this.isInit = false;
@@ -65,6 +63,7 @@ export default class WebGpuRenderer extends Renderer {
 		this.device = device;
 
 		this.viewBindGroupLayout = device.createBindGroupLayout({
+			label: "viewBindGroupLayout",
 			entries: [
 				{
 					binding: 0, // view uniforms
@@ -84,14 +83,17 @@ export default class WebGpuRenderer extends Renderer {
 			],
 		});
 
-		this.lightsBuffer = new WebGpuBufferHelper({
+		this.lightsBuffer = new WebGpuChunkedBuffer({
 			device,
+			label: "lights",
 			bindGroupLength: 2048,
+			chunkSize: 2048,
 			usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
 		});
 
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			this.computeClusterBoundsBindGroupLayout = device.createBindGroupLayout({
+				label: "computeClusterBoundsBindGroupLayout",
 				entries: [
 					{
 						binding: 0, // cluster bounds buffer
@@ -102,6 +104,7 @@ export default class WebGpuRenderer extends Renderer {
 			});
 
 			this.computeClusterLightsBindGroupLayout = device.createBindGroupLayout({
+				label: "computeClusterLightsBindGroupLayout",
 				entries: [
 					{
 						binding: 0, // cluster bounds buffer
@@ -124,14 +127,17 @@ export default class WebGpuRenderer extends Renderer {
 			});
 		}
 
-		this.viewUniformsBuffer = new WebGpuBufferHelper({
+		this.viewUniformsBuffer = new WebGpuChunkedBuffer({
 			device,
+			label: "viewUniforms",
 			bindGroupLayout: this.viewBindGroupLayout,
 		});
 
-		this.materialUniformsBuffer = new WebGpuBufferHelper({
+		this.materialUniformsBuffer = new WebGpuChunkedBuffer({
 			device,
+			label: "materialUniforms",
 			bindGroupLayout: device.createBindGroupLayout({
+				label: "materialUniformsBufferBindGroupLayout",
 				entries: [
 					{
 						binding: 0,
@@ -141,11 +147,12 @@ export default class WebGpuRenderer extends Renderer {
 				],
 			}),
 		});
-		this.materialUniformsBufferBindGroup = this.materialUniformsBuffer.createBindGroup();
 
-		this.objectUniformsBuffer = new WebGpuBufferHelper({
+		this.objectUniformsBuffer = new WebGpuChunkedBuffer({
 			device,
+			label: "objectUniforms",
 			bindGroupLayout: device.createBindGroupLayout({
+				label: "objectUniformsBufferBindGroupLayout",
 				entries: [
 					{
 						binding: 0,
@@ -157,11 +164,11 @@ export default class WebGpuRenderer extends Renderer {
 					},
 				],
 			}),
-			totalBufferLength: 65536,
+			chunkSize: 65536,
 		});
-		this.objectUniformsBufferBindGroup = this.objectUniformsBuffer.createBindGroup();
 
 		this.pipelineLayout = device.createPipelineLayout({
+			label: "default pipeline layout",
 			bindGroupLayouts: [
 				this.viewBindGroupLayout,
 				this.materialUniformsBuffer.bindGroupLayout,
@@ -232,12 +239,14 @@ export default class WebGpuRenderer extends Renderer {
 			}
 		}
 
-		const commandEncoder = this.device.createCommandEncoder();
+		const commandEncoder = this.device.createCommandEncoder({
+			label: "default command encoder",
+		});
 
-		this.viewUniformsBuffer.resetBufferOffset();
-		this.lightsBuffer.resetBufferOffset();
-		this.materialUniformsBuffer.resetBufferOffset();
-		this.objectUniformsBuffer.resetBufferOffset();
+		this.viewUniformsBuffer.resetEntryLocation();
+		this.lightsBuffer.resetEntryLocation();
+		this.materialUniformsBuffer.resetEntryLocation();
+		this.objectUniformsBuffer.resetEntryLocation();
 
 		const viewMatrix = camera.entity.worldMatrix.inverse();
 		const vpMatrix = Mat4.multiplyMatrices(viewMatrix, camera.projectionMatrix);
@@ -250,7 +259,7 @@ export default class WebGpuRenderer extends Renderer {
 		this.viewUniformsBuffer.appendData(viewMatrix);
 		this.viewUniformsBuffer.appendData(new Vec4(camera.clipNear, camera.clipFar));
 
-		this.viewUniformsBuffer.writeToGpu();
+		this.viewUniformsBuffer.writeAllChunksToGpu();
 
 		const cameraData = this.getCachedCameraData(camera);
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
@@ -265,12 +274,13 @@ export default class WebGpuRenderer extends Renderer {
 			this.lightsBuffer.appendData(light.color);
 			this.lightsBuffer.skipBytes(4);
 		}
-		this.lightsBuffer.writeToGpu();
+		this.lightsBuffer.writeAllChunksToGpu();
 
 		const renderPassDescriptor = domTarget.getRenderPassDescriptor();
 		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
-		renderPassEncoder.setBindGroup(1, this.materialUniformsBufferBindGroup); // todo
+		const {bindGroup} = this.materialUniformsBuffer.getCurrentEntryLocation();
+		renderPassEncoder.setBindGroup(1, bindGroup);
 
 		for (const {component: meshComponent, worldMatrix} of meshComponents.values()) {
 			// todo: group all materials in the current view and render them all grouped
@@ -284,7 +294,8 @@ export default class WebGpuRenderer extends Renderer {
 				}
 				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, meshComponent.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 				renderPassEncoder.setPipeline(forwardPipeline);
-				renderPassEncoder.setBindGroup(2, this.objectUniformsBufferBindGroup, [this.objectUniformsBuffer.currentBufferOffset]);
+				const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
+				renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
 				const mesh = meshComponent.mesh;
 				const meshData = this.getCachedMeshData(mesh);
 				for (const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()) {
@@ -313,9 +324,9 @@ export default class WebGpuRenderer extends Renderer {
 			this.objectUniformsBuffer.appendData(mvpMatrix);
 			this.objectUniformsBuffer.appendData(vpMatrix);
 			this.objectUniformsBuffer.appendData(worldMatrix);
-			this.objectUniformsBuffer.nextBufferOffset();
+			this.objectUniformsBuffer.nextEntryLocation();
 		}
-		this.objectUniformsBuffer.writeToGpu();
+		this.objectUniformsBuffer.writeAllChunksToGpu();
 
 		renderPassEncoder.endPass();
 
@@ -359,6 +370,8 @@ export default class WebGpuRenderer extends Renderer {
 				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader);
 			}
 			pipeline = this.device.createRenderPipeline({
+				// todo: add better label
+				label: "Material Pipeline",
 				layout: this.pipelineLayout,
 				vertex: {
 					module: vertexModule,
@@ -427,6 +440,9 @@ export default class WebGpuRenderer extends Renderer {
 	// 	this.pipelinesUsedByLists.delete(pipeline);
 	// }
 
+	/**
+	 * @param {Mesh} mesh
+	 */
 	getCachedMeshData(mesh) {
 		let data = this.cachedMeshData.get(mesh);
 		if (!data) {
@@ -457,14 +473,21 @@ export default class WebGpuRenderer extends Renderer {
 		return data;
 	}
 
-	// useful for debugging storage buffers but probably pretty slow
-	// buffer should have GPUBufferUsage.COPY_SRC at creation
+	/**
+	 * Useful for debugging storage buffers but probably pretty slow.
+	 * Buffer should have GPUBufferUsage.COPY_SRC at creation.
+	 * @param {GPUBuffer} gpuBuffer
+	 * @param {number} bufferSize
+	 */
 	async inspectBuffer(gpuBuffer, bufferSize) {
 		const readBuffer = this.device.createBuffer({
+			label: gpuBuffer.label + "-inspectorCopy",
 			size: bufferSize,
 			usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
 		});
-		const commandEncoder = this.device.createCommandEncoder();
+		const commandEncoder = this.device.createCommandEncoder({
+			label: "inspectBufferCommandEncoder",
+		});
 		commandEncoder.copyBufferToBuffer(gpuBuffer, 0, readBuffer, 0, bufferSize);
 		const gpuCommands = commandEncoder.finish();
 		this.device.queue.submit([gpuCommands]);

@@ -1,6 +1,11 @@
 import CachedMeshBufferData from "./CachedMeshBufferData.js";
 
 export default class CachedMeshData {
+	/**
+	 *
+	 * @param {import("../../../Core/Mesh.js").default} mesh
+	 * @param {import("./WebGpuRenderer.js").default} renderer
+	 */
 	constructor(mesh, renderer) {
 		this.mesh = mesh;
 		this.renderer = renderer;
@@ -33,6 +38,7 @@ export default class CachedMeshData {
 		}
 		if (this.mesh.indexBuffer) {
 			const indexBuffer = this.renderer.device.createBuffer({
+				label: "CachedMeshDataIndexBuffer",
 				size: this.mesh.indexBuffer.byteLength,
 				usage: GPUBufferUsage.INDEX,
 				mappedAtCreation: true,
