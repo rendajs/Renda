@@ -2,29 +2,29 @@ const rulesDirPlugin = require("eslint-plugin-rulesdir");
 rulesDirPlugin.RULES_DIR = "./eslint-rules";
 
 module.exports = {
-	"root": true,
-	"parser": "babel-eslint",
-	"env": {
-		"browser": true,
-		"es2021": true
+	root: true,
+	parser: "babel-eslint",
+	env: {
+		browser: true,
+		es2021: true,
 	},
-	"extends": "eslint:recommended",
-	"plugins": [
+	extends: "eslint:recommended",
+	plugins: [
 		"jsdoc",
-		"rulesdir"
+		"rulesdir",
 	],
-	"settings": {
-		"jsdoc": {
-			"mode": "typescript"
-		}
+	settings: {
+		jsdoc: {
+			mode: "typescript",
+		},
 	},
-	"rules": {
-		"no-constant-condition": ["error", { "checkLoops": false }],
+	rules: {
+		"no-constant-condition": ["error", {checkLoops: false}],
 		"no-undef": "off", // Taken care of by TypeScript
 
 		"array-callback-return": "error",
 		"consistent-return": "error",
-		"curly": ["error", "multi-line", "consistent"],
+		curly: ["error", "multi-line", "consistent"],
 		"default-param-last": "error",
 		"grouped-accessor-pairs": "error",
 		"guard-for-in": "error",
@@ -37,8 +37,8 @@ module.exports = {
 		"no-extra-bind": "error",
 		"no-extra-label": "error",
 		"no-floating-decimal": "error",
-		"no-implicit-coercion": ["error", { "allow": ["!!"] }],
-		"no-implicit-globals": ["error", { "lexicalBindings": true }],
+		"no-implicit-coercion": ["error", {allow: ["!!"]}],
+		"no-implicit-globals": ["error", {lexicalBindings: true}],
 		"no-implied-eval": "error",
 		"no-invalid-this": "error",
 		"no-multi-spaces": "error",
@@ -61,45 +61,45 @@ module.exports = {
 		"prefer-named-capture-group": "error",
 		"prefer-promise-reject-errors": "error",
 		"prefer-regex-literals": "error",
-		"radix": "error",
-		"yoda": "error",
+		radix: "error",
+		yoda: "error",
 		"no-undef-init": "error",
-		"no-unused-vars": ["error", { "args": "none", "vars": "local" }],
+		"no-unused-vars": ["error", {args: "none", vars: "local"}],
 		"no-use-before-define": "error",
 
-		"array-bracket-newline": ["error", { "multiline": true }],
+		"array-bracket-newline": ["error", {multiline: true}],
 		"array-bracket-spacing": ["error", "never"],
 		"array-element-newline": [
 			"error",
 			{
-				"ArrayExpression": "consistent",
-				"ArrayPattern": "consistent"
-			}
+				ArrayExpression: "consistent",
+				ArrayPattern: "consistent",
+			},
 		],
 		"brace-style": "error",
-		"camelcase": [
+		camelcase: [
 			"error",
 			{
-				"properties": "always",
-				"ignoreImports": true
-			}
+				properties: "always",
+				ignoreImports: true,
+			},
 		],
 		"comma-dangle": [
 			"error",
 			{
-				"arrays": "always-multiline",
-				"objects": "always-multiline",
-				"imports": "always-multiline",
-				"exports": "always-multiline",
-				"functions": "never"
-			}
+				arrays: "always-multiline",
+				objects: "always-multiline",
+				imports: "always-multiline",
+				exports: "always-multiline",
+				functions: "never",
+			},
 		],
 		"comma-spacing": [
 			"error",
 			{
-				"before": false,
-				"after": true
-			}
+				before: false,
+				after: true,
+			},
 		],
 		"comma-style": ["error", "last"],
 		"computed-property-spacing": "error",
@@ -107,12 +107,12 @@ module.exports = {
 		"func-call-spacing": "error",
 		"function-paren-newline": ["error", "multiline"],
 		"implicit-arrow-linebreak": "error",
-		"indent": [
+		indent: [
 			"error",
 			"tab",
 			{
-				"SwitchCase": 1
-			}
+				SwitchCase: 1,
+			},
 		],
 		"key-spacing": "error",
 		"keyword-spacing": "error",
@@ -122,19 +122,19 @@ module.exports = {
 		"new-parens": "error",
 		"no-array-constructor": "error",
 		"no-multi-assign": "error",
-		"no-multiple-empty-lines": ["error", { "max": 1 }],
+		"no-multiple-empty-lines": ["error", {max: 1}],
 		"no-nested-ternary": "error",
 		"no-new-object": "error",
 		"no-trailing-spaces": "error",
-		"no-underscore-dangle": ["error", {"allowAfterThis": true}],
+		"no-underscore-dangle": ["error", {allowAfterThis: true}],
 		"no-unneeded-ternary": "error",
 		"no-whitespace-before-property": "error",
 		"object-curly-newline": [
 			"error",
 			{
-				"multiline": true,
-				"consistent": true
-			}
+				multiline: true,
+				consistent: true,
+			},
 		],
 		"object-curly-spacing": "error",
 		"one-var": ["error", "never"],
@@ -143,27 +143,27 @@ module.exports = {
 		"prefer-exponentiation-operator": "error",
 		"prefer-object-spread": "error",
 		"quote-props": ["error", "as-needed"],
-		"quotes": ["error", "double", { "avoidEscape": true }],
-		"semi": "error",
+		quotes: ["error", "double", {avoidEscape: true}],
+		semi: "error",
 		"semi-spacing": "error",
 		"semi-style": "error",
 		"space-before-blocks": "error",
 		"space-before-function-paren": [
 			"error",
 			{
-				"named": "never",
-				"anonymous": "never",
-				"asyncArrow": "always"
-			}
+				named: "never",
+				anonymous: "never",
+				asyncArrow: "always",
+			},
 		],
 		"space-in-parens": "error",
 		"space-infix-ops": "error",
 		"space-unary-ops": [
 			"error",
 			{
-				"words": true,
-				"nonwords": false
-			}
+				words: true,
+				nonwords: false,
+			},
 		],
 		"spaced-comment": ["error", "always"],
 		"switch-colon-spacing": "error",
@@ -176,18 +176,18 @@ module.exports = {
 		"no-duplicate-imports": "error",
 		"no-new-symbol": "error",
 		"no-this-before-super": "error",
-		"no-useless-computed-key": ["error", { "enforceForClassMembers": true }],
+		"no-useless-computed-key": ["error", {enforceForClassMembers: true}],
 		"no-useless-constructor": "error",
 		"no-useless-rename": "error",
 		"no-var": "error",
 		"object-shorthand": "error",
 		"prefer-arrow-callback": "error",
-		"prefer-const": ["error", { "destructuring": "all" }],
+		"prefer-const": ["error", {destructuring: "all"}],
 		"prefer-numeric-literals": "error",
 		"prefer-rest-params": "error",
 		"prefer-spread": "error",
 		"rest-spread-spacing": "error",
-		"sort-imports": ["error", { "ignoreDeclarationSort": true }],
+		"sort-imports": ["error", {ignoreDeclarationSort: true}],
 		"symbol-description": "error",
 		"template-curly-spacing": "error",
 		"yield-star-spacing": "error",
@@ -204,7 +204,7 @@ module.exports = {
 		"jsdoc/no-undefined-types": [
 			"error",
 			{
-				"definedTypes": [
+				definedTypes: [
 					"ConstructorParameters",
 					"Generator",
 					"AsyncGenerator",
@@ -230,19 +230,19 @@ module.exports = {
 					"GPUBuffer",
 					"GPUBindGroup",
 					"Parameters",
-					"suspiciousCode"
-				]
-			}
+					"suspiciousCode",
+				],
+			},
 		],
 		"jsdoc/require-asterisk-prefix": "error",
 		"jsdoc/require-description-complete-sentence": [
 			"error",
-			{ "newlineBeforeCapsAssumesBadSentenceEnd": true }
+			{newlineBeforeCapsAssumesBadSentenceEnd: true},
 		],
 		"jsdoc/require-hyphen-before-param-description": [
 			"error",
 			"never",
-			{ "tags": { "*": "never"} }
+			{tags: {"*": "never"}},
 		],
 		"jsdoc/require-param-name": "error",
 		"jsdoc/require-param-type": "error",
@@ -252,5 +252,5 @@ module.exports = {
 		"jsdoc/require-property-type": "error",
 		"jsdoc/require-returns-check": "error",
 		"jsdoc/require-returns-type": "error",
-	}
-}
+	},
+};
