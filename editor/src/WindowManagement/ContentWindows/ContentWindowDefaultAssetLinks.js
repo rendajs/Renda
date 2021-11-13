@@ -6,6 +6,7 @@ import ProjectAsset from "../../Assets/ProjectAsset.js";
 export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";
 	static contentWindowUiName = "Default Asset Links";
+	static contentWindowUiIcon = "icons/contentWindowTabs/defaultAssetLinks.svg";
 
 	constructor() {
 		super();
