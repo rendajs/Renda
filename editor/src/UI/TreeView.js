@@ -1,5 +1,6 @@
 import editor from "../editorInstance.js";
-import {clamp, generateUuid, iLerp, parseMimeType} from "../Util/Util.js";
+import {generateUuid, parseMimeType} from "../Util/Util.js";
+import {clamp, iLerp} from "../../../src/Util/Util.js";
 
 /**
  * @typedef {Object} TreeViewEvent

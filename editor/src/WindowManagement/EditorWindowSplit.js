@@ -1,5 +1,5 @@
 import EditorWindow from "./EditorWindow.js";
-import {clamp01, mapValue} from "../Util/Util.js";
+import {clamp01, mapValue} from "../../../src/Util/Util.js";
 import editor from "../editorInstance.js";
 
 export default class EditorWindowSplit extends EditorWindow {
