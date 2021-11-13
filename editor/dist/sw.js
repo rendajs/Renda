@@ -3,16 +3,17 @@ self.addEventListener("install", e => {
 self.addEventListener("activate", e => {
 });
 
-self.addEventListener("fetch", e => {
-	const url = new URL(e.request.url);
-	const scopeUrl = new URL(self.registration.scope);
-	if (url.pathname.startsWith(scopeUrl.pathname)) {
-		const pathname = url.pathname.slice(scopeUrl.pathname.length);
-		if (pathname.startsWith("projectbuilds/")) {
-			e.respondWith(getProjectFileResponse(e, pathname));
-		}
-	}
-});
+async function asyncMessage(client, message) {
+	const channel = new MessageChannel();
+	client.postMessage(message, [channel.port2]);
+	return await new Promise(resolve => {
+		channel.port1.addEventListener("message", e => {
+			channel.port1.close();
+			resolve(e.data);
+		});
+		channel.port1.start();
+	});
+}
 
 async function getProjectFileResponse(e, pathname) {
 	pathname = pathname.slice(14); // remove /projectbuilds/ from url string
@@ -34,17 +35,16 @@ async function getProjectFileResponse(e, pathname) {
 	});
 }
 
-async function asyncMessage(client, message) {
-	const channel = new MessageChannel();
-	client.postMessage(message, [channel.port2]);
-	return await new Promise(resolve => {
-		channel.port1.addEventListener("message", e => {
-			channel.port1.close();
-			resolve(e.data);
-		});
-		channel.port1.start();
-	});
-}
+self.addEventListener("fetch", e => {
+	const url = new URL(e.request.url);
+	const scopeUrl = new URL(self.registration.scope);
+	if (url.pathname.startsWith(scopeUrl.pathname)) {
+		const pathname = url.pathname.slice(scopeUrl.pathname.length);
+		if (pathname.startsWith("projectbuilds/")) {
+			e.respondWith(getProjectFileResponse(e, pathname));
+		}
+	}
+});
 
 self.addEventListener("message", e => {
 	if (e.data.type == "requestClientId") {
