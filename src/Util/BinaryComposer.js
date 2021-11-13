@@ -377,10 +377,10 @@ export default class BinaryComposer {
 				const stringLengthStorageTypeBits = (customStorageTypesByte >> 4) & 0b00000011;
 				const arrayBufferLengthStorageTypeBits = (customStorageTypesByte >> 6) & 0b00000011;
 
-				refIdStorageType = this.variableLengthBitsToStorageType(refIdStorageTypeBits);
-				arrayLengthStorageType = this.variableLengthBitsToStorageType(arrayLengthStorageTypeBits);
-				stringLengthStorageType = this.variableLengthBitsToStorageType(stringLengthStorageTypeBits);
-				arrayBufferLengthStorageType = this.variableLengthBitsToStorageType(arrayBufferLengthStorageTypeBits);
+				refIdStorageType = BinaryComposer.variableLengthBitsToStorageType(refIdStorageTypeBits);
+				arrayLengthStorageType = BinaryComposer.variableLengthBitsToStorageType(arrayLengthStorageTypeBits);
+				stringLengthStorageType = BinaryComposer.variableLengthBitsToStorageType(stringLengthStorageTypeBits);
+				arrayBufferLengthStorageType = BinaryComposer.variableLengthBitsToStorageType(arrayBufferLengthStorageTypeBits);
 			}
 		}
 		const textDecoder = new TextDecoder();
