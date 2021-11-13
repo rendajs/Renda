@@ -10,6 +10,8 @@ export default class Mat4 {
 			[0, 0, 0, 1],
 		];
 		this.set(values);
+
+		this.flatArrayBufferCache = null;
 	}
 
 	set(values) {
@@ -43,6 +45,8 @@ export default class Mat4 {
 				[0, 0, 0, 1],
 			];
 		}
+
+		this.markFlatArrayBuffersDirty();
 	}
 
 	getFlatArray() {
@@ -51,6 +55,31 @@ export default class Mat4 {
 
 	toArray() {
 		return this.getFlatArray();
+	}
+
+	/**
+	 * Same as flat array but stored in a TypedArray.
+	 * The values are cached if the matrix is not changed. Making it more
+	 * efficient when used for sending to the gpu for instance.
+	 * @param {import("../Rendering/Renderers/WebGpuRenderer/GpuBufferHelper/WebGpuChunkedBuffer.js").AppendFormat} format
+	 * @param {boolean} littleEndian
+	 */
+	getFlatArrayBuffer(format = "f32", littleEndian = true) {
+		if (!this.flatArrayBufferCache) {
+			this.flatArrayBufferCache = new Uint8Array(64);
+			const dataView = new DataView(this.flatArrayBufferCache.buffer);
+			let i = 0;
+			for (const val of this.getFlatArray()) {
+				dataView.setFloat32(i, val, littleEndian);
+				i += 4;
+			}
+		}
+
+		return this.flatArrayBufferCache;
+	}
+
+	markFlatArrayBuffersDirty() {
+		this.flatArrayBufferCache = null;
 	}
 
 	clone() {
@@ -101,6 +130,7 @@ export default class Mat4 {
 		this.values[3][1] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
 		this.values[3][2] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
 		this.values[3][3] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
+		this.markFlatArrayBuffersDirty();
 		return this;
 	}
 
@@ -140,6 +170,7 @@ export default class Mat4 {
 		this.values[3][0] += vec.x;
 		this.values[3][1] += vec.y;
 		this.values[3][2] += vec.z;
+		this.markFlatArrayBuffersDirty();
 	}
 
 	getTranslation() {
@@ -154,6 +185,7 @@ export default class Mat4 {
 		this.values[3][0] = vec.x;
 		this.values[3][1] = vec.y;
 		this.values[3][2] = vec.z;
+		this.markFlatArrayBuffersDirty();
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
@@ -223,6 +255,7 @@ export default class Mat4 {
 		this.values[0][0] = vec.x;
 		this.values[1][1] = vec.y;
 		this.values[2][2] = vec.z;
+		this.markFlatArrayBuffersDirty();
 	}
 
 	decompose() {
@@ -387,5 +420,6 @@ export default class Mat4 {
 	multiplyMatrix(otherMatrix) {
 		const newMat = Mat4.multiplyMatrices(this, otherMatrix);
 		this.values = newMat.values;
+		this.markFlatArrayBuffersDirty();
 	}
 }

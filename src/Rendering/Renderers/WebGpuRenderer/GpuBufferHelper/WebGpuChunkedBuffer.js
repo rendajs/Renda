@@ -128,9 +128,11 @@ export class WebGpuChunkedBuffer {
 	 * @param {AppendFormat} type
 	 */
 	appendMatrix(matrix, type = "f32") {
-		for (const val of matrix.getFlatArray()) {
-			this.appendScalar(val, type);
-		}
+		const buffer = matrix.getFlatArrayBuffer(type);
+		const chunk = this.getCurrentChunk();
+		const view = new Uint8Array(chunk.arrayBuffer);
+		view.set(buffer, this.currentCursorByteIndex);
+		this.currentCursorByteIndex += buffer.byteLength;
 	}
 
 	appendData(data, type = "f32") {
