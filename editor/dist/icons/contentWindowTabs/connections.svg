@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <g style="stroke: black; stroke-width: 20px; fill: transparent; stroke-linecap: round;">
+    <path d="M 70 170 C 70 170 120 80 250 80 C 370 80 430 170 430 170"/>
+    <path d="M 130 250 C 130 250 170 180 250 180 C 330 180 370 250 370 250"/>
+    <polyline style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px;" points="70 170 250 400 430 170"/>
+    <circle style="" cx="250" cy="330" r="50"/>
+  </g>
+</svg>

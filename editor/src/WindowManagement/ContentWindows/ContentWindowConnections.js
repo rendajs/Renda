@@ -12,6 +12,7 @@ import ContentWindow from "./ContentWindow.js";
 export class ContentWindowConnections extends ContentWindow {
 	static contentWindowTypeId = "connections";
 	static contentWindowUiName = "Connections";
+	static contentWindowUiIcon = "icons/contentWindowTabs/connections.svg";
 
 	constructor() {
 		super();
