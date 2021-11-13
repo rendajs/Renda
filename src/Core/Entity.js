@@ -664,7 +664,7 @@ export default class Entity {
 		maxRecursionDepth = Infinity,
 		maxInstanceRecursionDepth = 30,
 	} = {}) {
-		yield* this.#traverseDown({
+		yield* this._traverseDown({
 			maxRecursionDepth,
 			maxInstanceRecursionDepth,
 		}, {
@@ -678,7 +678,7 @@ export default class Entity {
 	 * @param {TraversionContext} ctx
 	 * @returns {Generator<{child: Entity, traversedPath: TraversedEntityParentPath}>}
 	 */
-	*#traverseDown(opts, ctx) {
+	*_traverseDown(opts, ctx) {
 		yield {
 			child: this,
 			traversedPath: ctx.traversedPath,
@@ -706,7 +706,8 @@ export default class Entity {
 			});
 			const prevPassedSelfReference = ctx.passedSelfReference;
 			const prevPassedInstanceEntityCount = ctx.passedSelfReferenceCount;
-			for (const result of child.#traverseDown(opts, ctx)) {
+			// eslint-disable-next-line no-underscore-dangle
+			for (const result of child._traverseDown(opts, ctx)) {
 				yield result;
 			}
 			ctx.traversedPath.pop();
@@ -730,7 +731,7 @@ export default class Entity {
 		maxRecursionDepth = Infinity,
 		maxInstanceRecursionDepth = 30,
 	} = {}) {
-		yield* this.#traverseUp({
+		yield* this._traverseUp({
 			maxRecursionDepth,
 			maxInstanceRecursionDepth,
 		}, {
@@ -744,7 +745,7 @@ export default class Entity {
 	 * @param {TraversionContext} ctx
 	 * @returns {Generator<TraverseUpResult>}
 	 */
-	*#traverseUp(opts, ctx) {
+	*_traverseUp(opts, ctx) {
 		let didIgnoreBranch = false;
 		yield {
 			parent: this,
@@ -777,7 +778,8 @@ export default class Entity {
 			});
 			const prevPassedSelfReference = ctx.passedSelfReference;
 			const prevPassedInstanceEntityCount = ctx.passedSelfReferenceCount;
-			for (const result of parent.#traverseUp(opts, ctx)) {
+			// eslint-disable-next-line no-underscore-dangle
+			for (const result of parent._traverseUp(opts, ctx)) {
 				yield result;
 			}
 			ctx.traversedPath.shift();
