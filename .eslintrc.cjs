@@ -1,4 +1,7 @@
-{
+const rulesDirPlugin = require("eslint-plugin-rulesdir");
+rulesDirPlugin.RULES_DIR = "./eslint-rules";
+
+module.exports = {
 	"root": true,
 	"parser": "babel-eslint",
 	"env": {
@@ -6,7 +9,10 @@
 		"es2021": true
 	},
 	"extends": "eslint:recommended",
-	"plugins": ["jsdoc"],
+	"plugins": [
+		"jsdoc",
+		"rulesdir"
+	],
 	"settings": {
 		"jsdoc": {
 			"mode": "typescript"
@@ -245,6 +251,6 @@
 		"jsdoc/require-property-name": "error",
 		"jsdoc/require-property-type": "error",
 		"jsdoc/require-returns-check": "error",
-		"jsdoc/require-returns-type": "error"
+		"jsdoc/require-returns-type": "error",
 	}
 }
