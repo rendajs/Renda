@@ -18,7 +18,7 @@ export default class EntityMatrixCache {
 			let rot = entity.rot;
 			let scale = entity.scale;
 			if (traversedPath.length > 0) {
-				const parentEntry = traversedPath.at(-1);
+				const parentEntry = traversedPath[traversedPath.length - 1];
 				const {pos: instancePos, rot: instanceRot, scale: instanceScale} = entity.getInstancePosRotScale(parentEntry.parent, parentEntry.index);
 				if (instancePos) pos = instancePos;
 				if (instanceRot) rot = instanceRot;
@@ -46,7 +46,7 @@ export default class EntityMatrixCache {
 		if (this.localMatrixDirty || this.worldMatrixDirty) {
 			const localMatrix = this.getLocalMatrix(entity, traversedPath);
 			if (traversedPath.length > 0) {
-				const parent = traversedPath.at(-1).parent;
+				const parent = traversedPath[traversedPath.length - 1].parent;
 				const parentMatrix = parent.getWorldMatrix(traversedPath.slice(0, -1));
 				this.worldMatrix = Mat4.multiplyMatrices(localMatrix, parentMatrix);
 			} else {
