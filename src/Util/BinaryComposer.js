@@ -296,10 +296,10 @@ export default class BinaryComposer {
 			byteOffset += BinaryComposer.setDataViewValue(dataView, headerByte, StorageType.UINT8, byteOffset, {littleEndian});
 
 			if (hasCustomVariableLengthStorageTypes) {
-				const refIdStorageTypeBits = this.variableLengthStorageTypeToBits(refIdStorageType);
-				const arrayLengthStorageTypeBits = this.variableLengthStorageTypeToBits(arrayLengthStorageType);
-				const stringLengthStorageTypeBits = this.variableLengthStorageTypeToBits(stringLengthStorageType);
-				const arrayBufferLengthStorageTypeBits = this.variableLengthStorageTypeToBits(arrayBufferLengthStorageType);
+				const refIdStorageTypeBits = BinaryComposer.variableLengthStorageTypeToBits(refIdStorageType);
+				const arrayLengthStorageTypeBits = BinaryComposer.variableLengthStorageTypeToBits(arrayLengthStorageType);
+				const stringLengthStorageTypeBits = BinaryComposer.variableLengthStorageTypeToBits(stringLengthStorageType);
+				const arrayBufferLengthStorageTypeBits = BinaryComposer.variableLengthStorageTypeToBits(arrayBufferLengthStorageType);
 
 				let customStorageTypesByte = 0;
 				customStorageTypesByte |= refIdStorageTypeBits;
