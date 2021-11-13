@@ -11,7 +11,9 @@ export default class Mat4 {
 		];
 		this.set(values);
 
-		this.flatArrayBufferCache = null;
+		/** @type {Map<string, Uint8Array>} */
+		this.flatArrayBufferCache = new Map();
+		this.oldCache = null;
 	}
 
 	set(values) {
@@ -65,21 +67,38 @@ export default class Mat4 {
 	 * @param {boolean} littleEndian
 	 */
 	getFlatArrayBuffer(format = "f32", littleEndian = true) {
-		if (!this.flatArrayBufferCache) {
-			this.flatArrayBufferCache = new Uint8Array(64);
-			const dataView = new DataView(this.flatArrayBufferCache.buffer);
+		let cacheKey = format;
+		if (littleEndian) cacheKey += "LE";
+		let buffer = this.flatArrayBufferCache.get(cacheKey);
+		if (!buffer) {
+			buffer = new Uint8Array(64);
+			this.flatArrayBufferCache.set(cacheKey, buffer);
+			const dataView = new DataView(buffer.buffer);
 			let i = 0;
 			for (const val of this.getFlatArray()) {
-				dataView.setFloat32(i, val, littleEndian);
+				switch (format) {
+					case "f32":
+					default:
+						dataView.setFloat32(i, val, littleEndian);
+						break;
+					case "i32":
+						dataView.setInt32(i, val, littleEndian);
+						break;
+					case "u32":
+						dataView.setUint32(i, val, littleEndian);
+						break;
+				}
+
 				i += 4;
 			}
 		}
 
-		return this.flatArrayBufferCache;
+		return buffer;
 	}
 
 	markFlatArrayBuffersDirty() {
-		this.flatArrayBufferCache = null;
+		this.flatArrayBufferCache = new Map();
+		this.oldCache = null;
 	}
 
 	clone() {
