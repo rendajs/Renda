@@ -321,9 +321,9 @@ export default class WebGpuRenderer extends Renderer {
 			}
 
 			const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
-			this.objectUniformsBuffer.appendData(mvpMatrix);
-			this.objectUniformsBuffer.appendData(vpMatrix);
-			this.objectUniformsBuffer.appendData(worldMatrix);
+			this.objectUniformsBuffer.appendMatrix(mvpMatrix);
+			this.objectUniformsBuffer.appendMatrix(vpMatrix);
+			this.objectUniformsBuffer.appendMatrix(worldMatrix);
 			this.objectUniformsBuffer.nextEntryLocation();
 		}
 		this.objectUniformsBuffer.writeAllChunksToGpu();

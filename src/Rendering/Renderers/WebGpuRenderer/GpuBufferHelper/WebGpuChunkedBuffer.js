@@ -1,6 +1,10 @@
 import {WebGpuChunkedBufferChunk} from "./WebGpuChunkedBufferChunk.js";
 
 /**
+ * @typedef {"f32" | "i32" | "u32"} AppendFormat
+ */
+
+/**
  * Helper class for creating multiple WebGPU buffers (chunks) that share a similar bindgroup layout.
  * This class creates and destroys buffers based on your usage. If your data is to long
  * to fit in a single buffer, a new buffer is created.
@@ -117,6 +121,16 @@ export class WebGpuChunkedBuffer {
 				break;
 		}
 		this.currentCursorByteIndex += 4;
+	}
+
+	/**
+	 * @param {import("../../../../Math/Mat4.js").default} matrix
+	 * @param {AppendFormat} type
+	 */
+	appendMatrix(matrix, type = "f32") {
+		for (const val of matrix.getFlatArray()) {
+			this.appendScalar(val, type);
+		}
 	}
 
 	appendData(data, type = "f32") {
