@@ -6,6 +6,7 @@ export default class InspectorManager {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.uuid = generateUuid();
 
+		// @rollup-plugin-resolve-url-objects
 		/* #if _IS_CLOSURE_BUILD
 		const url = new URL("./InternalDiscoveryWorker.js");
 		//#else */
