@@ -3,6 +3,10 @@ import editor from "../editorInstance.js";
 
 const rollup = /** @type {import("../../../node_modules/rollup/dist/rollup.js")} */ (transpiledRollup);
 
+/**
+ * @typedef {"project" | "engine" | "remote"} ScriptType
+ */
+
 export default class ScriptBuilder {
 	async buildScript(inputPath, outputPath, {
 		useClosureCompiler = true,
@@ -193,36 +197,38 @@ export default class ScriptBuilder {
 	}
 
 	resolveScripts() {
-		const context = this;
+		const scriptBuilder = this;
 		return {
 			name: "editor-resolve-scripts",
 			resolveId(source, importer, opts) {
 				const importerInfo = this.getModuleInfo(importer);
-				let scriptType = null;
-				const [sourceType, sourceNoType] = context.getPathType(source);
+				let {scriptType, sourcePath} = scriptBuilder.getPathType(source);
 				const importerType = importerInfo?.meta?.editorResolve?.scriptType ?? null;
-				scriptType = sourceType || importerType || null;
-				if (sourceNoType == "JJ") {
-					scriptType = ScriptBuilder.PathTypes.ENGINE;
-				}
-				if (!scriptType) scriptType = ScriptBuilder.PathTypes.PROJECT;
+				scriptType = scriptType || importerType || null;
 
-				let importerPathArr = [];
-				if (importer && importerType == sourceType) {
-					importerPathArr = importer.split("/");
-					importerPathArr.pop();
+				let resolvedPathArr = [];
+
+				if (sourcePath == "JJ") {
+					scriptType = "engine";
+					sourcePath = "/build/index.js";
 				}
-				const pathArr = [...importerPathArr];
-				const sourcePathArr = sourceNoType.split("/");
+
+				if (!scriptType) scriptType = "project";
+
+				if (importer && importerType == scriptType) {
+					resolvedPathArr = importer.split("/");
+					resolvedPathArr.pop();
+				}
+				const sourcePathArr = sourcePath.split("/");
 				for (const dir of sourcePathArr) {
 					if (dir == ".") continue;
 					if (dir == "..") {
-						pathArr.pop();
+						resolvedPathArr.pop();
 					} else {
-						pathArr.push(dir);
+						resolvedPathArr.push(dir);
 					}
 				}
-				const resolvedPath = pathArr.join("/");
+				const resolvedPath = resolvedPathArr.join("/");
 				return {
 					id: resolvedPath,
 					meta: {
@@ -234,8 +240,9 @@ export default class ScriptBuilder {
 			},
 			async load(id) {
 				const moduleInfo = this.getModuleInfo(id);
+				/** @type {ScriptType} */
 				const scriptType = moduleInfo.meta.editorResolve.scriptType;
-				if (scriptType == ScriptBuilder.PathTypes.PROJECT) {
+				if (scriptType == "project") {
 					try {
 						const file = await editor.projectManager.currentProjectFileSystem.readFile(id.split("/"));
 						const text = await file.text();
@@ -243,8 +250,8 @@ export default class ScriptBuilder {
 					} catch (e) {
 						console.error("unable to read file at " + id + " it may not exist.");
 					}
-				} else if (scriptType == ScriptBuilder.PathTypes.ENGINE) {
-					const resp = await fetch("/build/game-engine.js");
+				} else if (scriptType == "engine") {
+					const resp = await fetch(id);
 					return await resp.text();
 				}
 				return null;
@@ -252,28 +259,37 @@ export default class ScriptBuilder {
 		};
 	}
 
-	static get PathTypes() {
-		return {
-			PROJECT: "project",
-			ENGINE: "engine",
-			REMOTE: "remote",
-		};
-	}
+	/**
+	 * @typedef {Object} GetPathTypeResult
+	 * @property {ScriptType} scriptType
+	 * @property {string} sourcePath
+	 */
 
-	getPathType(path) {
-		if (path) {
-			const splitPath = path.split("/");
+	/**
+	 * Splits the rollup id using the `:` character.
+	 * @param {string} id
+	 * @returns {GetPathTypeResult}
+	 */
+	getPathType(id) {
+		if (id) {
+			const splitPath = id.split("/");
 			if (splitPath.length > 0) {
 				const splitFirst = splitPath[0].split(":");
 				if (splitFirst.length > 1) {
-					const type = splitFirst[0];
-					if (Object.values(ScriptBuilder.PathTypes).includes(type)) {
-						const pathNoType = path.slice(type.length + 1);
-						return [type, pathNoType];
+					const type = /** @type {ScriptType} */ (splitFirst[0]);
+					if (type == "project" || type == "engine" || type == "remote") {
+						const pathNoType = id.slice(type.length + 1);
+						return {
+							scriptType: type,
+							sourcePath: pathNoType,
+						};
 					}
 				}
 			}
 		}
-		return [null, path];
+		return {
+			scriptType: null,
+			sourcePath: id,
+		};
 	}
 }

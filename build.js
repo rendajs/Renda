@@ -21,7 +21,7 @@ import cleanup from "rollup-plugin-cleanup";
 		},
 	});
 	await bundle.write({
-		file: "build/game-engine.js",
+		dir: "build/",
 		format: "esm",
 	});
 })();
