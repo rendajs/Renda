@@ -140,13 +140,15 @@ export class ContentWindowProject extends ContentWindow {
 	 * @param {Array<string> | null} path Directory to update, updates the root TreeView when omitted.
 	 */
 	async updateTreeView(path = null) {
-		let {treeView} = this;
+		let treeView = this.treeView;
 		let updatePath = [];
 		if (path) {
 			treeView = this.treeView.findChildFromNamesPath(path);
 			updatePath = path;
 		}
-		await this.updateTreeViewRecursive(treeView, updatePath);
+		if (treeView) {
+			await this.updateTreeViewRecursive(treeView, updatePath);
+		}
 	}
 
 	/**
