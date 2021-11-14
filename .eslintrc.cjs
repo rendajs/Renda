@@ -3,7 +3,10 @@ rulesDirPlugin.RULES_DIR = "./eslint-rules";
 
 module.exports = {
 	root: true,
-	parser: "babel-eslint",
+	parser: "@babel/eslint-parser",
+	parserOptions: {
+		requireConfigFile: false,
+	},
 	env: {
 		browser: true,
 		es2021: true,
