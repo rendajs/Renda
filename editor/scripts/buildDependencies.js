@@ -4,6 +4,7 @@ import {rollup} from "rollup";
 import path from "path";
 import commonjs from "@rollup/plugin-commonjs";
 import {fileURLToPath} from "url";
+import {nodeResolve} from "@rollup/plugin-node-resolve";
 
 function ignore(ignoreList) {
 	const emptyModuleId = "ignore_empty_module_placeholder";
@@ -64,6 +65,10 @@ const libs = [
 		output: "rollup.browser.js",
 		plugins: [removeSourceMaps()],
 	},
+	{
+		input: "../../node_modules/rollup-plugin-resolve-url-objects/main.js",
+		output: "rollup-plugin-resolve-url-objects.js",
+	},
 ];
 
 (async () => {
@@ -73,7 +78,7 @@ const libs = [
 		const inputPath = path.resolve(dirname, lib.input);
 		console.log("bundling " + lib.input);
 		const libPlugins = lib.plugins || [];
-		const plugins = [...libPlugins, commonjs(), ignore(["fs"]), addHeader("// @ts-nocheck\n\n")];
+		const plugins = [...libPlugins, commonjs(), ignore(["fs"]), addHeader("// @ts-nocheck\n\n"), nodeResolve()];
 		const bundle = await rollup({
 			input: inputPath,
 			plugins,

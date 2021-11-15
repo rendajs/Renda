@@ -1,5 +1,6 @@
 import transpiledRollup from "../../libs/rollup.browser.js";
 import editor from "../editorInstance.js";
+import resolveUrlObjects from "../../libs/rollup-plugin-resolve-url-objects.js";
 
 const rollup = /** @type {import("../../../node_modules/rollup/dist/rollup.js")} */ (transpiledRollup);
 
@@ -13,7 +14,7 @@ export default class ScriptBuilder {
 	} = {}) {
 		const bundle = await rollup.rollup({
 			input: inputPath.join("/"),
-			plugins: [this.resolveScripts()],
+			plugins: [this.resolveScripts(), resolveUrlObjects()],
 			preserveEntrySignatures: false,
 		});
 		const {output: rollupOutput} = await bundle.generate({
@@ -206,6 +207,7 @@ export default class ScriptBuilder {
 				const importerType = importerInfo?.meta?.editorResolve?.scriptType ?? null;
 				scriptType = scriptType || importerType || null;
 
+				const originalIsRelative = !sourcePath.startsWith("/");
 				let resolvedPathArr = [];
 
 				if (sourcePath == "JJ") {
@@ -215,7 +217,7 @@ export default class ScriptBuilder {
 
 				if (!scriptType) scriptType = "project";
 
-				if (importer && importerType == scriptType) {
+				if (importer && importerType == scriptType && originalIsRelative) {
 					resolvedPathArr = importer.split("/");
 					resolvedPathArr.pop();
 				}
