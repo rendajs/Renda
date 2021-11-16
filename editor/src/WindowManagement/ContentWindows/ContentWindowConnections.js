@@ -160,7 +160,7 @@ export class ContentWindowConnections extends ContentWindow {
 	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ClientType} allowedClientType
 	 */
 	updateConnectionsList(guisList, listTreeView, availableConnections, activeConnections, allowedClientType) {
-		const removeGuis = new Set(guisList.keys());
+		const removeGuiIds = new Set(guisList.keys());
 		for (const connection of availableConnections.values()) {
 			if (connection.clientType != allowedClientType) continue;
 
@@ -206,7 +206,7 @@ export class ContentWindowConnections extends ContentWindow {
 				guisList.set(connection.id, gui);
 			}
 
-			removeGuis.delete(connection.id);
+			removeGuiIds.delete(connection.id);
 
 			gui.treeView.name = connection?.projectMetaData?.name || "Unnamed Project";
 
@@ -222,6 +222,14 @@ export class ContentWindowConnections extends ContentWindow {
 				}
 			}
 			gui.statusLabel.setValue(status);
+		}
+
+		for (const removeGuiId of removeGuiIds) {
+			const gui = guisList.get(removeGuiId);
+			if (gui) {
+				listTreeView.removeChild(gui.treeView);
+			}
+			guisList.delete(removeGuiId);
 		}
 	}
 }
