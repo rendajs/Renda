@@ -1,10 +1,14 @@
+/**
+ * @fileoverview This is the entry point for the editorDiscovery SharedWorker.
+ */
+
 import InternalDiscoveryWorkerConnection from "./InternalDiscoveryWorkerConnection.js";
 
 /** @type {Map<string, InternalDiscoveryWorkerConnection>} */
 const activeConnections = new Map();
 
 /**
- * @param {import("../../editor/src/Util/Util.js").UuidString} createdClientId
+ * @param {import("../../../Util/Util.js").UuidString} createdClientId
  */
 function sendAllConnectionAddedMessages(createdClientId) {
 	const {port: createdPort, clientType: createdClientType} = activeConnections.get(createdClientId);
@@ -26,7 +30,7 @@ function sendAllConnectionAddedMessages(createdClientId) {
 }
 
 /**
- * @param {import("../../editor/src/Util/Util.js").UuidString} clientId
+ * @param {import("../../../Util/Util.js").UuidString} clientId
  */
 function sendAllClientRemoved(clientId) {
 	for (const {port} of activeConnections.values()) {

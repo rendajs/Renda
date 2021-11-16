@@ -2,6 +2,7 @@ import EditorConnection from "./EditorConnection.js";
 import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
 import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js";
 import ProtocolManager from "./ProtocolManager.js";
+import {InternalDiscoveryManager} from "../../../../src/index.js";
 
 /**
  * @typedef {Object} RemoteEditorMetaData
@@ -51,11 +52,8 @@ export default class EditorConnectionsManager {
 		/** @type {Set<function(ActiveEditorDataList) : void>} */
 		this.onActiveConnectionsChangedCbs = new Set();
 
-		this.internalMessagesWorker = new SharedWorker("../../../../src/Inspector/InternalDiscoveryWorker.js", {type: "module"});
-		this.internalMessagesWorker.port.addEventListener("message", e => {
-			if (!e.data) return;
-
-			const {data} = e;
+		this.internalDiscovery = new InternalDiscoveryManager();
+		this.internalDiscovery.onMessage(data => {
 			const {op} = data;
 			if (op == "availableClientAdded") {
 				const {clientId, clientType, projectMetaData} = data;
@@ -81,8 +79,7 @@ export default class EditorConnectionsManager {
 				this.handleInternalConnectionCreation(clientId, port);
 			}
 		});
-		this.internalMessagesWorker.port.start();
-		this.internalMessagesWorker.port.postMessage({op: "registerClient", clientType: "editor"});
+		this.internalDiscovery.postMessage({op: "registerClient", clientType: "editor"});
 
 		/** @type {?AvailableConnectionConfig} */
 		this.waitingForAvailableConnection = null;
@@ -100,22 +97,22 @@ export default class EditorConnectionsManager {
 
 	destructor() {
 		this.setDiscoveryEndpoint(null);
-		this.internalMessagesWorker.port.postMessage({op: "unregisterClient"});
-		this.internalMessagesWorker.port.close();
+		this.internalDiscovery.postMessage({op: "unregisterClient"});
+		this.internalDiscovery.destructor();
 	}
 
 	/**
 	 * @param {import("../../Util/Util.js").UuidString} otherClientId
 	 */
 	requestInternalMessageChannelConnection(otherClientId) {
-		this.internalMessagesWorker.port.postMessage({op: "requestConnection", otherClientId});
+		this.internalDiscovery.postMessage({op: "requestConnection", otherClientId});
 	}
 
 	/**
 	 * @param {RemoteEditorMetaData} projectMetaData
 	 */
 	sendInternalMessageChannelProjectMetaData(projectMetaData) {
-		this.internalMessagesWorker.port.postMessage({op: "projectMetaData", projectMetaData});
+		this.internalDiscovery.postMessage({op: "projectMetaData", projectMetaData});
 	}
 
 	static getDefaultEndPoint() {

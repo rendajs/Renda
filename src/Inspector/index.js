@@ -1,1 +1,1 @@
-export {default as InspectorManager} from "./InspectorManager.js";
+export {InternalDiscoveryManager} from "./InternalDiscoveryManager.js";

@@ -1,4 +1,4 @@
-import {generateUuid} from "../../editor/src/Util/Util.js";
+import {generateUuid} from "../../../Util/Util.js";
 
 export default class InternalDiscoveryWorkerConnection {
 	/**

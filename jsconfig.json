@@ -7,8 +7,6 @@
 		"module": "esnext",
 		"useDefineForClassFields": true
 	},
-	"include": [
-		"src/**/*.js"
-	],
-	"files": ["src/index.js", "src/Inspector/InternalDiscoveryWorker.js", "editor/src/index.js"]
+	"include": ["src/**/*.js", "editor/src/**/*.js"],
+	"files": ["src/index.js", "editor/src/Network/EditorConnections/InternalDiscovery/InternalDiscoveryWorker.js", "editor/src/index.js"]
 }
