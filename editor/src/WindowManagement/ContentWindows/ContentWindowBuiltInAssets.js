@@ -46,6 +46,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	}
 
 	updateTreeView() {
+		if (this.destructed) return;
 		for (const asset of editor.builtInAssetManager.assets.values()) {
 			this.addAssetToTreeView(asset, asset.path, this.treeView);
 		}
