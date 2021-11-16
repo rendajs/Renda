@@ -3,6 +3,7 @@
 import {rollup} from "rollup";
 import {promises as fs} from "fs";
 import process from "process";
+import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 
 const isDevBuild = process.argv.includes("--dev");
 
@@ -11,10 +12,9 @@ const defines = {
 	IS_DEV_BUILD: isDevBuild,
 };
 
-async function setScriptSrc(src) {
-	const filePath = "editor/dist/index.html";
+async function setScriptSrc(filePath, tagComment, src) {
 	const data = await fs.readFile(filePath, {encoding: "utf8"});
-	let startPos = data.indexOf("<!--editor script tag-->");
+	let startPos = data.indexOf(`<!--${tagComment}-->`);
 	const searchStr = "<script type=\"module\" src=\"";
 	startPos = data.indexOf(searchStr, startPos);
 	startPos += searchStr.length;
@@ -41,16 +41,25 @@ function overrideDefines(definesFilePath, defines) {
 
 (async () => {
 	if (isDevBuild) {
+		setScriptSrc("editor/dist/index.html", "editor script tag", "../src/index.js");
+		setScriptSrc("editor/dist/internalDiscovery/index.html", "discovery script tag", "../src/Network/EditorConnections/InternalDiscovery/internalDiscovery.js");
 		try {
 			await fs.unlink("editor/dist/index.js");
 		} catch (e) {
 			// fail silently
 		}
-		await setScriptSrc("../src/index.js");
 	} else {
+		setScriptSrc("editor/dist/index.html", "editor script tag", "./js/index.js");
+		setScriptSrc("editor/dist/internalDiscovery/index.html", "discovery script tag", "./js/internalDiscovery.js");
 		const bundle = await rollup({
-			input: "editor/src/index.js",
-			plugins: [overrideDefines("editor/src/editorDefines.js", defines)],
+			input: [
+				"editor/src/index.js",
+				"editor/src/Network/EditorConnections/InternalDiscovery/internalDiscovery.js",
+			],
+			plugins: [
+				overrideDefines("editor/src/editorDefines.js", defines),
+				resolveUrlObjects(),
+			],
 			onwarn: message => {
 				if (message.code == "CIRCULAR_DEPENDENCY") return;
 				console.error(message.message);
@@ -60,6 +69,5 @@ function overrideDefines(definesFilePath, defines) {
 			dir: "editor/dist/js/",
 			format: "esm",
 		});
-		await setScriptSrc("./js/index.js");
 	}
 })();

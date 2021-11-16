@@ -4,6 +4,7 @@
  */
 
 // Create the worker
+// @rollup-plugin-resolve-url-objects
 const url = new URL("./InternalDiscoveryWorker.js", import.meta.url);
 const worker = new SharedWorker(url.href, {type: "module"});
 
