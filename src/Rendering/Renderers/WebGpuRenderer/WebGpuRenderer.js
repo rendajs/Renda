@@ -45,6 +45,7 @@ export default class WebGpuRenderer extends Renderer {
 		this.isInit = false;
 		this.onInitCbs = new Set();
 
+		/** @type {WeakMap<import("../../../Components/BuiltIn/CameraComponent.js").default, CachedCameraData>} */
 		this.cachedCameraData = new WeakMap();
 		this.cachedMaterialData = new WeakMap(); // <Material, {cachedData}>
 		this.cachedPipelines = new MultiKeyWeakMap(); // <[WebGpuPipelineConfig, VertexState], WebGpuPipeline>
@@ -333,6 +334,9 @@ export default class WebGpuRenderer extends Renderer {
 		this.device.queue.submit([commandEncoder.finish()]);
 	}
 
+	/**
+	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").default} camera
+	 */
 	getCachedCameraData(camera) {
 		let data = this.cachedCameraData.get(camera);
 		if (!data) {
