@@ -40,7 +40,7 @@ module.exports = {
 		"no-extra-bind": "error",
 		"no-extra-label": "error",
 		"no-floating-decimal": "error",
-		"no-implicit-coercion": ["error", {allow: ["!!"]}],
+		"no-implicit-coercion": ["error", {allow: ["!!", "*"]}],
 		"no-implicit-globals": ["error", {lexicalBindings: true}],
 		"no-implied-eval": "error",
 		"no-invalid-this": "error",

@@ -111,7 +111,7 @@ export default class MeshAttributeBuffer {
 				}
 				for (const [i, pos] of data.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
-					setFunction(i * this.arrayStride + attributeSettings.offset + Number(valueByteSize), pos.y, true);
+					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 				}
 			} else if (data[0] instanceof Vec3) {
 				if (attributeSettings.componentCount != 3) {
@@ -119,7 +119,7 @@ export default class MeshAttributeBuffer {
 				}
 				for (const [i, pos] of data.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
-					setFunction(i * this.arrayStride + attributeSettings.offset + Number(valueByteSize), pos.y, true);
+					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
 				}
 			}
@@ -145,7 +145,7 @@ export default class MeshAttributeBuffer {
 			let i = 0;
 			while (i <= this.buffer.byteLength - this.arrayStride) {
 				const x = getFunction(i + attributeSettings.offset + valueByteSize * 0, true);
-				const y = getFunction(i + attributeSettings.offset + Number(valueByteSize), true);
+				const y = getFunction(i + attributeSettings.offset + valueByteSize * 1, true);
 				const z = getFunction(i + attributeSettings.offset + valueByteSize * 2, true);
 				yield new Vec3(x, y, z);
 				i += this.arrayStride;
