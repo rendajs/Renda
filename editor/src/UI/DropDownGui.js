@@ -74,6 +74,7 @@ export default class DropDownGui {
 	}
 
 	updateOptions() {
+		const oldValue = this.getValue();
 		// Clear existing options
 		while (this.el.firstChild) {
 			this.el.removeChild(this.el.firstChild);
@@ -86,6 +87,8 @@ export default class DropDownGui {
 			optionEl.textContent = option;
 			this.el.appendChild(optionEl);
 		}
+
+		this.setValue(oldValue);
 	}
 
 	/**
