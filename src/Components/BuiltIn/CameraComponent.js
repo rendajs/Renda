@@ -1,9 +1,9 @@
-// import {StorageType} from "../../Util/BinaryComposer.js";
+import {StorageType} from "../../Util/BinaryComposer.js";
 import RenderOutputConfig from "../../Rendering/RenderOutputConfig.js";
 import ClusteredLightsConfig from "../../Rendering/ClusteredLightsConfig.js";
-// import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
+import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {Component} from "../Components.js";
-import {Mat4, StorageType} from "../../index.js";
+import {Mat4} from "../../index.js";
 
 export default class CameraComponent extends Component {
 	static get componentName() {
@@ -15,10 +15,10 @@ export default class CameraComponent extends Component {
 
 	/**
 	 * @override
-	 * @returns {import("../../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure}
 	 */
 	static get guiStructure() {
-		return {
+		/** @type {import("../../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		const structure = {
 			fov: {
 				type: "number",
 				guiOpts: {
@@ -73,6 +73,13 @@ export default class CameraComponent extends Component {
 			// 	type: "array",
 			// }
 		};
+
+		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+			const defaultClusteredLightsConfigAssetLinkUuid = "f676813d-a631-4a39-9bb4-1ea1f291af19";
+			structure.clusteredLightsConfig.guiOpts.defaultValue = defaultClusteredLightsConfigAssetLinkUuid;
+		}
+
+		return structure;
 	}
 
 	/**
