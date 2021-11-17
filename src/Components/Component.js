@@ -92,7 +92,17 @@ export class Component {
 
 	_applyPropertyValues(propertyValues) {
 		for (const [propertyName, propertyValue] of Object.entries(propertyValues)) {
-			this[propertyName] = propertyValue;
+			const existingValue = this[propertyName];
+			if (
+				existingValue instanceof Vec2 ||
+				existingValue instanceof Vec3 ||
+				existingValue instanceof Vec4 ||
+				existingValue instanceof Mat4
+			) {
+				existingValue.set(propertyValue);
+			} else {
+				this[propertyName] = propertyValue;
+			}
 		}
 	}
 
