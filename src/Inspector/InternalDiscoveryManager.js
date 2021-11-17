@@ -1,10 +1,8 @@
-import {generateUuid} from "../../editor/src/Util/Util.js";
 import {ENABLE_INSPECTOR_SUPPORT} from "../engineDefines.js";
 
 export class InternalDiscoveryManager {
 	constructor() {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
-		this.uuid = generateUuid();
 		this.destructed = false;
 
 		this.iframeLoaded = false;
@@ -69,7 +67,14 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @typedef {{
+	 * op: string,
+	 * [x: string]: any,
+	 * }} OnMessageData
+	 */
+
+	/**
+	 * @param {(data: OnMessageData) => void} cb
 	 */
 	onMessage(cb) {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;

@@ -12,10 +12,14 @@ const worker = new SharedWorker(url.href, {type: "module"});
 worker.port.addEventListener("message", e => {
 	if (!e.data) return;
 
+	let transferables = [];
+	if (e.data.op == "connectionCreated") {
+		transferables = [e.data.port];
+	}
 	window.parent.postMessage({
 		op: "workerMessageReceived",
 		data: e.data,
-	}, "*");
+	}, "*", transferables);
 });
 worker.port.start();
 
