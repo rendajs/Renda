@@ -25,13 +25,17 @@ export default class ClusterComputeManager {
 		return this.camera.clusteredLightsConfig;
 	}
 
+	/**
+	 * @returns {boolean} True if the config is ready to be used.
+	 */
 	createComputeObjects() {
 		if (this.lastUsedConfig) {
 			const ref = this.lastUsedConfig.deref();
 			if (ref) {
-				if (this.config == ref) return;
+				if (this.config == ref) return true;
 			}
 		}
+		if (!this.config) return false;
 		this.lastUsedConfig = new WeakRef(this.config);
 
 		// todo: destroy old buffers etc
@@ -115,10 +119,17 @@ export default class ClusterComputeManager {
 				},
 			],
 		});
+
+		return true;
 	}
 
+	/**
+	 * @param {GPUCommandEncoder} commandEncoder
+	 * @returns {boolean} True if the indices were sucesfully computed.
+	 */
 	computeLightIndices(commandEncoder) {
-		this.createComputeObjects();
+		const ready = this.createComputeObjects();
+		if (!ready) return false;
 
 		// todo, don't compute when the camera projection matrix or cluster count hasn't changed
 		const computePassEncoder = commandEncoder.beginComputePass();
@@ -134,5 +145,7 @@ export default class ClusterComputeManager {
 		computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
 		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 		computePassEncoder.endPass();
+
+		return true;
 	}
 }

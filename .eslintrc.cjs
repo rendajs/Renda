@@ -233,6 +233,7 @@ module.exports = {
 					"GPUBufferUsage",
 					"GPUBuffer",
 					"GPUBindGroup",
+					"GPUCommandEncoder",
 					"Parameters",
 					"suspiciousCode",
 				],
