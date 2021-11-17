@@ -28,9 +28,7 @@ export class InternalDiscoveryManager {
 	destructor() {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.destructed = true;
-		this._sendMessageInternal({
-			op: "destructor",
-		});
+		this._sendMessageInternal("destructor");
 	}
 
 	/**
@@ -40,7 +38,8 @@ export class InternalDiscoveryManager {
 		if (e.source != this.iframe.contentWindow) return;
 		if (!e.data) return;
 
-		const {op, data} = e.data;
+		const op = e.data["op"];
+		const data = e.data["data"];
 
 		if (op == "inspectorDiscoveryLoaded") {
 			this.iframeLoaded = true;
@@ -57,18 +56,16 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @typedef {Object} IframeMessageData
-	 * @property {string} op
-	 * @property {*} [data]
-	 */
-
-	/**
-	 * @param {IframeMessageData} data
+	 * @param {string} op
+	 * @param {*} data
 	 * @param {boolean} waitForLoad
 	 */
-	async _sendMessageInternal(data, waitForLoad = true) {
+	async _sendMessageInternal(op, data = null, waitForLoad = true) {
 		if (waitForLoad) await this._waitForIframeLoad();
-		this.iframe.contentWindow.postMessage(data, "*");
+		const message = {};
+		message["op"] = op;
+		if (data) message["data"] = data;
+		this.iframe.contentWindow.postMessage(message, "*");
 	}
 
 	/**
@@ -81,9 +78,6 @@ export class InternalDiscoveryManager {
 
 	postMessage(data) {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
-		this._sendMessageInternal({
-			op: "postWorkerMessage",
-			data,
-		});
+		this._sendMessageInternal("postWorkerMessage", data);
 	}
 }

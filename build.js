@@ -2,7 +2,7 @@
 
 import {rollup} from "rollup";
 import jscc from "rollup-plugin-jscc";
-// import cleanup from "rollup-plugin-cleanup";
+import cleanup from "rollup-plugin-cleanup";
 import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 
 (async () => {
@@ -12,10 +12,10 @@ import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 			resolveUrlObjects(),
 			jscc({
 				values: {
-					_IS_CLOSURE_BUILD: false,
+					_IS_CLOSURE_BUILD: true,
 				},
 			}),
-			// cleanup(),
+			cleanup(),
 		],
 		onwarn: message => {
 			if (message.code == "CIRCULAR_DEPENDENCY") return;
