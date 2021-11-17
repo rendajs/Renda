@@ -53,9 +53,6 @@ export default class CameraComponent extends Component {
 					defaultValue: true,
 				},
 			},
-			projectionMatrix: {
-				// type: Mat4,
-			},
 			renderOutputConfig: {
 				type: "droppable",
 				guiOpts: {
