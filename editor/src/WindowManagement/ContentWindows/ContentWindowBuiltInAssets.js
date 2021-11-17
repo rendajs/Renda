@@ -70,15 +70,18 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	/**
 	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
 	 */
-	onTreeViewDragStart(e) {
+	async onTreeViewDragStart(e) {
 		const projectAsset = this.treeViewAssets.get(e.target);
+
+		/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
+		const draggingData = {
+			dataPopulated: true,
+			assetType: editor.projectAssetTypeManager.getAssetType(projectAsset.assetType),
+			assetUuid: projectAsset.uuid,
+		};
+		const draggingDataUuid = editor.dragManager.registerDraggingData(draggingData);
+		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 		e.rawEvent.dataTransfer.effectAllowed = "all";
-		let assetTypeUuid = "";
-		const assetType = editor.projectAssetTypeManager.getAssetType(projectAsset.assetType);
-		if (assetType) {
-			assetTypeUuid = assetType.typeUuid;
-		}
-		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; assettype=${assetTypeUuid}`, projectAsset.uuid);
 	}
 
 	/**
