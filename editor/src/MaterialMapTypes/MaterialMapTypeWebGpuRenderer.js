@@ -1,9 +1,9 @@
-import MaterialMapType from "./MaterialMapType.js";
+import {MaterialMapType} from "./MaterialMapType.js";
 import {WebGpuPipelineConfig} from "../../../src/index.js";
 import {StorageType} from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 
-export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
+export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	static uiName = "WebGPU Renderer";
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
@@ -55,7 +55,7 @@ export default class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 		nameIds: {
 			forwardPipelineConfig: 1,
 		},
-	}
+	};
 
 	static mapDataToAssetBundleData(mapData) {
 		return mapData;

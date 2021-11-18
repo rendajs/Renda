@@ -1,9 +1,9 @@
-import MaterialMapType from "./MaterialMapType.js";
+import {MaterialMapType} from "./MaterialMapType.js";
 import {ShaderSource, Vec3} from "../../../src/index.js";
 import {StorageType} from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 
-export default class MaterialMapTypeWebGlRenderer extends MaterialMapType {
+export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 	static uiName = "WebGL Renderer";
 	static typeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
 	static allowExportInAssetBundles = true;
@@ -67,7 +67,7 @@ export default class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 			vertUuid: 1,
 			fragUuid: 2,
 		},
-	}
+	};
 
 	static mapDataToAssetBundleData(mapData) {
 		return {

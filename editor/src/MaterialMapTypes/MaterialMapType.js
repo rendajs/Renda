@@ -2,7 +2,7 @@ import BinaryComposer, {StorageType} from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 import MaterialMapListUi from "./MaterialMapListUi.js";
 
-export default class MaterialMapType {
+export class MaterialMapType {
 	// name to be used in the editor ui
 	// this should be a string
 	static uiName = null;
