@@ -6,6 +6,9 @@ import {MaterialMapListUi} from "./MaterialMapListUi.js";
  * @fileoverview Instances of MaterialMapType take care of rendering ui in the
  * properties window for a MaterialMap. Registering it causes an extra entry to
  * be added to the 'Add Map Type' button.
+ *
+ * There are also a few static methods related to mappable values. These take
+ * care of showing ui for materials.
  */
 
 export class MaterialMapType {
@@ -56,31 +59,38 @@ export class MaterialMapType {
 	/**
 	 * Use this to convert customData to something that is more easily usable.
 	 * For instance load assets from their id.
-	 * @param {Object} customData
+	 * @param {*} customData
 	 * @returns {Promise<Object>}
 	 */
 	static async getLiveAssetCustomData(customData) {
 		return {};
 	}
 
-	// this should yield ProjectAssets that are linked in the custom data
-	// this will be used to replace material instances
-	// in the editor whenever a linked live asset changes (a shader for example)
 	/**
-	 *
-	 * @param {Object} customData
+	 * This should yield ProjectAssets that are linked in the custom data.
+	 * This will be used to replace material instances in the editor whenever a
+	 * linked live asset changes (a shader for example).
+	 * @param {*} customData
 	 * @returns {AsyncGenerator<import("../Assets/ProjectAsset.js").default>}
 	 */
 	static async *getLinkedAssetsInCustomData(customData) {}
 
-	// this should return a list of mappable values, this will be used to render the ui
-	// the values will be automatically loaded, saved and exported in assetbundles
-	// customData will be whatever you last returned from getCustomAssetDataForSave()
-	// this should return an array of objects of the following format:
-	// {
-	//	name: "value name",
-	//	type: Number, //can be Number, Vec2, Vec3, Vec4 or Mat4
-	// }
+	/**
+	 * @typedef {Object} MappableValue
+	 * @property {string} name
+	 * @property {number | import("../../../src/Math/Vec2.js").default | import("../../../src/Math/Vec3.js").default | import("../../../src/Math/Vec4.js").default | import("../../../src/Math/Mat4.js").default} type
+	 * @property {*} [defaultValue]
+	 */
+
+	/**
+	 * This will be used to render the mapping ui in MaterialMaps, as well as
+	 * the values ui in Materials. The values of materials will be automatically
+	 * loaded, saved and exported in assetbundles.
+	 * `customData` will be whatever you last returned from
+	 * {@link getCustomAssetDataForSave}.
+	 * @param {*} customData
+	 * @returns {Promise<MappableValue[]>}
+	 */
 	static async getMappableValues(customData) {
 		return [];
 	}
