@@ -2,18 +2,31 @@ import BinaryComposer, {StorageType} from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 import {MaterialMapListUi} from "./MaterialMapListUi.js";
 
+/**
+ * @fileoverview Instances of MaterialMapType take care of rendering ui in the
+ * properties window for a MaterialMap. Registering it causes an extra entry to
+ * be added to the 'Add Map Type' button.
+ */
+
 export class MaterialMapType {
-	// name to be used in the editor ui
-	// this should be a string
+	/**
+	 * Name that will be shown in the editor ui.
+	 * @type {string}
+	 */
 	static uiName = null;
 
-	// This will be used for storing the map type in the MaterialMap asset.
-	// This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
-	// You can generate a uuid in the editor browser console using Util.generateUuid()
+	/**
+	 * This will be used for storing the map type in the MaterialMap asset.
+	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
+	 * @type {import("../Util/Util.js").UuidString}
+	 */
 	static typeUuid = null;
 
 	static allowExportInAssetBundles = false;
 
+	/**
+	 * @param {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} treeView
+	 */
 	constructor(treeView) {
 		this.treeView = treeView;
 		this.settingsTreeView = this.treeView.addCollapsable("Map Settings");

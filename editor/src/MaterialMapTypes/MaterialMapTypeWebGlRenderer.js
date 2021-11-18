@@ -11,12 +11,19 @@ export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 	constructor(treeView) {
 		super(treeView);
 
+		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.settingsGuiStructure = {
 			vertexShader: {
-				type: ShaderSource,
+				type: "droppable",
+				guiOpts: {
+					supportedAssetTypes: [ShaderSource],
+				},
 			},
 			fragmentShader: {
-				type: ShaderSource,
+				type: "droppable",
+				guiOpts: {
+					supportedAssetTypes: [ShaderSource],
+				},
 			},
 		};
 
