@@ -1,6 +1,6 @@
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 
-export default class MaterialMapListUi {
+export class MaterialMapListUi {
 	constructor({
 		items = [],
 	}) {
