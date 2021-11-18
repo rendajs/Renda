@@ -1,7 +1,7 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import editor from "../editorInstance.js";
 
-export default class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
+export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	constructor() {
 		super();
 

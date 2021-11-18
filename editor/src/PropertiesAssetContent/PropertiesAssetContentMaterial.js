@@ -2,7 +2,7 @@ import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
 import editor from "../editorInstance.js";
 
-export default class PropertiesAssetContentMaterial extends PropertiesAssetContent {
+export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	constructor() {
 		super();
 		const materialSettingsTree = this.treeView.addCollapsable("material settings");

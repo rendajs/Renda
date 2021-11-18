@@ -1,10 +1,10 @@
 import ProjectAssetType from "./ProjectAssetType.js";
 import {Material} from "../../../../src/index.js";
-import PropertiesAssetContentMaterial from "../../PropertiesAssetContent/PropertiesAssetContentMaterial.js";
+import {PropertiesAssetContentMaterial} from "../../PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 import editor from "../../editorInstance.js";
 import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
 
-export default class ProjectAssetTypeMaterial extends ProjectAssetType {
+export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	static type = "JJ:material";
 	static typeUuid = "430f47a8-82cc-4b4c-a664-2360794e80d6";
 	static newFileName = "New Material";
