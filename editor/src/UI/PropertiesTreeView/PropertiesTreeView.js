@@ -1,5 +1,5 @@
 import {TreeView} from "../TreeView.js";
-import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
+import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 
 /**
  * `"default"` uses the default behaviour of PropertiesTreeViewEntries

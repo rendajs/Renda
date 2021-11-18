@@ -73,7 +73,7 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  * @typedef {import("../TreeView.js").TreeViewEvent & PropertiesTreeViewChangeEventType} PropertiesTreeViewChangeEvent
  */
 
-export default class PropertiesTreeViewEntry extends TreeView {
+export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * @param {PropertiesTreeViewEntryOptions} opts
 	 */
