@@ -53,7 +53,7 @@ export default class ProjectAssetType {
 	 */
 	static wrapProjectJsonWithEditorMetaData = true;
 
-	/** @typedef {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").default} PropertiesTreeView */
+	/** @typedef {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} PropertiesTreeView */
 	/**
 	 * The properties window will show ui generated from this structure.
 	 * This object will be fed into {@linkcode PropertiesTreeView.generateFromSerializableStructure}.

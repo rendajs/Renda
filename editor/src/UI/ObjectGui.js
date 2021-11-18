@@ -1,4 +1,4 @@
-import PropertiesTreeView from "./PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @typedef {Object} ObjectGuiOptionsType

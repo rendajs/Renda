@@ -16,7 +16,7 @@ import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
  * @typedef {PropertiesTreeViewEventCbMapType & import("../TreeView.js").TreeViewEventCbMap} PropertiesTreeViewEventCbMap
  */
 
-export default class PropertiesTreeView extends TreeView {
+export class PropertiesTreeView extends TreeView {
 	constructor({
 		rowVisible = false,
 		name = "",

@@ -1,5 +1,5 @@
 import PropertiesWindowContent from "./PropertiesWindowContent.js";
-import PropertiesTreeView from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import editor from "../editorInstance.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
 import PropertiesAssetContentGenericStructure from "../PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";

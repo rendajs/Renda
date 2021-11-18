@@ -1,4 +1,4 @@
-import PropertiesTreeView from "./PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
 import ButtonGroup from "../UI/ButtonGroup.js";
 import Button from "./Button.js";
 
