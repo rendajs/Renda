@@ -257,5 +257,7 @@ module.exports = {
 		"jsdoc/require-property-type": "error",
 		"jsdoc/require-returns-check": "error",
 		"jsdoc/require-returns-type": "error",
+
+		"rulesdir/no-default-exports": "warn",
 	},
 };
