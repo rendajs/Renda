@@ -1,4 +1,4 @@
-import autoRegisterRequestHandlers from "./ProtocolRequestHandlers/AutoRegisterRequestHandlers.js";
+import autoRegisterRequestHandlers from "./ProtocolRequestHandlers/autoRegisterRequestHandlers1.js";
 
 /**
  * Whether the returned result of a hook should be serialized.

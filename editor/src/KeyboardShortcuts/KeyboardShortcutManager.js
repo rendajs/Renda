@@ -1,5 +1,5 @@
 import ShortcutCommand from "./ShortcutCommand.js";
-import {autoRegisterShortcutCommands} from "./AutoRegisterShortcutCommands.js";
+import {autoRegisterShortcutCommands} from "./autoRegisterShortcutCommands1.js";
 
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 

@@ -1,4 +1,4 @@
-import autoRegisterContentWindows from "../PropertiesWindowContent/AutoRegisterContentWindows.js";
+import autoRegisterContentWindows from "../PropertiesWindowContent/autoRegisterContentWindows1.js";
 import PropertiesWindowContent from "../PropertiesWindowContent/PropertiesWindowContent.js";
 import {ContentWindowProperties} from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
 import PropertiesWindowEmptyContent from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
