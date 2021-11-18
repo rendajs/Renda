@@ -1,4 +1,4 @@
-import TreeView from "../TreeView.js";
+import {TreeView} from "../TreeView.js";
 import PropertiesTreeViewEntry from "./PropertiesTreeViewEntry.js";
 
 /**

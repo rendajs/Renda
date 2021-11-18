@@ -1,5 +1,5 @@
 import ContentWindow from "./ContentWindow.js";
-import TreeView from "../../UI/TreeView.js";
+import {TreeView} from "../../UI/TreeView.js";
 import Button from "../../UI/Button.js";
 import {Entity} from "../../../../src/index.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";

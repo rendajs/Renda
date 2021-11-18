@@ -1,5 +1,5 @@
 import ContentWindow from "./ContentWindow.js";
-import TreeView from "../../UI/TreeView.js";
+import {TreeView} from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
@@ -287,7 +287,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView").default} treeView
+	 * @param {import("../../UI/TreeView").TreeView} treeView
 	 * @param {boolean} [removeLast]
 	 * @returns {Array<string>}
 	 */

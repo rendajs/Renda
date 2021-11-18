@@ -1,4 +1,4 @@
-import TreeView from "../TreeView.js";
+import {TreeView} from "../TreeView.js";
 import VectorGui from "../VectorGui.js";
 import NumericGui from "../NumericGui.js";
 import BooleanGui from "../BooleanGui.js";

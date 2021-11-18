@@ -93,7 +93,7 @@ import {clamp, iLerp} from "../../../src/Util/Util.js";
  * @property {TreeViewContextMenuEvent} contextmenu
  */
 
-export default class TreeView {
+export class TreeView {
 	#draggable = false;
 	#rearrangeableOrder = false;
 	#rearrangeableHierarchy = false;
