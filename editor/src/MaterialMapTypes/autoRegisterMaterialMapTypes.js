@@ -1,4 +1,9 @@
 import {MaterialMapTypeWebGlRenderer} from "./MaterialMapTypeWebGlRenderer.js";
 import {MaterialMapTypeWebGpuRenderer} from "./MaterialMapTypeWebGpuRenderer.js";
 
-export default [MaterialMapTypeWebGlRenderer, MaterialMapTypeWebGpuRenderer];
+const autoRegisterMaterialMapTypes = [
+	MaterialMapTypeWebGlRenderer,
+	MaterialMapTypeWebGpuRenderer,
+];
+
+export {autoRegisterMaterialMapTypes};
