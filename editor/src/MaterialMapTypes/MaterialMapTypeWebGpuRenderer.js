@@ -11,8 +11,14 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	constructor(treeView) {
 		super(treeView);
 
+		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.settingsGuiStructure = {
-			forwardPipelineConfig: {type: WebGpuPipelineConfig},
+			forwardPipelineConfig: {
+				type: "droppable",
+				guiOpts: {
+					supportedAssetTypes: [WebGpuPipelineConfig],
+				},
+			},
 		};
 
 		this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);
