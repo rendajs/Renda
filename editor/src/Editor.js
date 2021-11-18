@@ -4,7 +4,7 @@ import KeyboardShortcutManager from "./KeyboardShortcuts/KeyboardShortcutManager
 import PropertiesWindowContentManager from "./Managers/PropertiesWindowContentManager.js";
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
 import ComponentGizmosManager from "./Managers/ComponentGizmosManager.js";
-import MaterialMapTypeManager from "./Managers/MaterialMapTypeManager.js";
+import {MaterialMapTypeManager} from "./Managers/MaterialMapTypeManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import BuiltInDefaultAssetLinksManager from "./Assets/BuiltInDefaultAssetLinksManager.js";
 import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";

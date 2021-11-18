@@ -3,7 +3,7 @@ import {MaterialMapType} from "../MaterialMapTypes/MaterialMapType.js";
 import {isUuid} from "../../../src/Util/Util.js";
 import editor from "../editorInstance.js";
 
-export default class MaterialMapTypeManager {
+export class MaterialMapTypeManager {
 	constructor() {
 		this.registeredMapTypes = new Map();
 	}
