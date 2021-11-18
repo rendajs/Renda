@@ -1,4 +1,4 @@
-import autoRegisterComponentGizmos from "../ComponentGizmos/autoRegisterComponentGizmos1.js";
+import autoRegisterComponentGizmos from "../ComponentGizmos/autoRegisterComponentGizmos.js";
 import ComponentGizmos from "../ComponentGizmos/ComponentGizmos.js";
 
 export default class ComponentGizmosManager {

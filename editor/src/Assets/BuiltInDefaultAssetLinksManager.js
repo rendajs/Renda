@@ -1,4 +1,4 @@
-import autoRegisterDefaultAssetLinks from "./autoRegisterBuiltInDefaultAssetLinks1.js";
+import autoRegisterDefaultAssetLinks from "./autoRegisterBuiltInDefaultAssetLinks.js";
 
 export default class BuiltInDefaultAssetLinksManager {
 	constructor() {
