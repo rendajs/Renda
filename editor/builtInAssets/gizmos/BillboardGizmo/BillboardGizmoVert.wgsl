@@ -1,4 +1,6 @@
+// file://./../../shaders/wgsl/materials/structs/viewUniforms.wgsl
 // @import 41eaba39-e2aa-48a3-8deb-47f410542bc2
+// file://./../../shaders/wgsl/materials/structs/modelUniforms.wgsl
 // @import 08a38e5b-b2b9-44be-9194-f404f815445f
 
 struct VertexInput {
