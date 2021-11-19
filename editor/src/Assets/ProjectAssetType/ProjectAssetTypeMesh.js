@@ -3,7 +3,7 @@ import PropertiesAssetContentMesh from "../../PropertiesAssetContent/PropertiesA
 import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 
-export default class ProjectAssetTypeMesh extends ProjectAssetType {
+export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "JJ:mesh";
 	static typeUuid = "f202aae6-673a-497d-806d-c2d4752bb146";
 	static newFileName = "New Mesh";

@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
+export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	static type = "JJ:clusteredLightsSetup";
 	static typeUuid = "13194e5c-01e8-4ecc-b645-86626b9d5e4c";
 	static newFileName = "New Clustered Lights Config";

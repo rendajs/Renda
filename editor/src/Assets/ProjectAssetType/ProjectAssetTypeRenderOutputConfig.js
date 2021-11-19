@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
+export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static type = "JJ:renderOutputConfig";
 	static typeUuid = "b4c9bbdc-86dc-4270-ae94-780dbaa66976";
 	static newFileName = "New Render Output Config";

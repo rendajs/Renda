@@ -6,7 +6,7 @@ import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.j
 
 const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
 
-export default class ProjectAssetTypeEntity extends ProjectAssetType {
+export class ProjectAssetTypeEntity extends ProjectAssetType {
 	static type = "JJ:entity";
 	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";
 	static newFileName = "New Entity";

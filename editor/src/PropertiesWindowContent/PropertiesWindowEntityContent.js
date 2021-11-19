@@ -5,7 +5,7 @@ import Button from "../UI/Button.js";
 import DroppableGui from "../UI/DroppableGui.js";
 import editor from "../editorInstance.js";
 import {ContentWindowEntityEditor} from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
-import ProjectAssetTypeEntity from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeEntity} from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../Misc/EntitySelection.js";
 
 export default class PropertiesWindowEntityContent extends PropertiesWindowContent {

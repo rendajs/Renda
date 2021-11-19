@@ -2,7 +2,7 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 import editor from "../../editorInstance.js";
 import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/index.js";
 
-export default class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
+export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	static type = "JJ:webGpuPipelineConfig";
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	static newFileName = "New Pipeline Config";
