@@ -64,12 +64,18 @@ export class ShaderBuilder {
 		const regex = new RegExp(re, "gm");
 		shaderCode = await this.replaceAllAsync(shaderCode, regex, async match => {
 			const uuid = match.groups["uuid"];
-			if (attemptedUuids.includes(uuid)) return "";
-			attemptedUuids.push(uuid);
-			const block = await this.getShaderBlock(uuid);
-			if (block) {
-				includedUuids.push(uuid);
-				return block;
+			const path = match.groups["path"];
+			if (uuid) {
+				if (attemptedUuids.includes(uuid)) return "";
+				attemptedUuids.push(uuid);
+				const block = await this.getShaderBlock(uuid);
+				if (block) {
+					includedUuids.push(uuid);
+					return block;
+				}
+			} else if (path) {
+				const unquotedPath = path.substring(1, path.length - 1);
+				return unquotedPath; // todo
 			}
 			return "";
 		});
