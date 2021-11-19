@@ -5,10 +5,15 @@
  * @property {import("../../editor/src/Util/Util.js").UuidString[]} includedUuids
  */
 
+/**
+ * @typedef {(uuid: import("../../editor/src/Util/Util.js").UuidString) => Promise<string>} ShaderUuidRequestedHook
+ */
+
 export class ShaderBuilder {
 	constructor() {
 		/** @type {Map<import("../../editor/src/Util/Util.js").UuidString, ShaderLibraryItem>} */
 		this.shaderLibrary = new Map();
+		/** @type {Set<ShaderUuidRequestedHook>} */
 		this.onShaderUuidRequestedCbs = new Set();
 		this.onShaderInvalidatedCbs = new Set();
 	}
@@ -137,17 +142,35 @@ export class ShaderBuilder {
 		return this.shaderLibrary.get(uuid);
 	}
 
-	onShaderUuidRequested(cb) {
-		this.onShaderUuidRequestedCbs.add(cb);
+	/**
+	 * @param {ShaderUuidRequestedHook} hook
+	 */
+	onShaderUuidRequested(hook) {
+		this.onShaderUuidRequestedCbs.add(hook);
 	}
 
-	removeOnShaderUuidRequested(cb) {
-		this.onShaderUuidRequestedCbs.delete(cb);
+	/**
+	 * @param {ShaderUuidRequestedHook} hook
+	 */
+	removeOnShaderUuidRequested(hook) {
+		this.onShaderUuidRequestedCbs.delete(hook);
 	}
 
+	/**
+	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 */
 	async fireShaderUuidRequested(uuid) {
+		/**
+		 * @typedef {Object} PromiseItem
+		 * @property {boolean} resolved
+		 * @property {string} result
+		 * @property {Promise<string>} promise
+		 */
+
+		/** @type {PromiseItem[]} */
 		let unparsedPromiseItems = [];
 		for (const cb of this.onShaderUuidRequestedCbs) {
+			/** @type {PromiseItem} */
 			const promiseItem = {
 				resolved: false,
 				result: null,
@@ -163,6 +186,7 @@ export class ShaderBuilder {
 		if (unparsedPromiseItems.length <= 0) {
 			return;
 		}
+		/** @type {string} */
 		let foundShaderCode = null;
 		while (unparsedPromiseItems.length > 0 && !foundShaderCode) {
 			const promises = unparsedPromiseItems.map(i => i.promise);
