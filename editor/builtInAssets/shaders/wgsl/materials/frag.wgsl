@@ -1,8 +1,8 @@
 // file://./structs/lightUniforms.wgsl
-#include 8cd64104-1d45-4536-972a-5685a2523725
+// @import 8cd64104-1d45-4536-972a-5685a2523725
 
 // file://./structs/viewUniforms.wgsl
-#include 41eaba39-e2aa-48a3-8deb-47f410542bc2
+// @import 41eaba39-e2aa-48a3-8deb-47f410542bc2
 
 //todo: import this from clusterBoundsStruct.wgsl
 struct ClusterLightIndices {

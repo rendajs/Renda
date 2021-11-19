@@ -50,7 +50,7 @@ export class ShaderBuilder {
 		/** @type {import("../../editor/src/Util/Util.js").UuidString[]} */
 		const includedUuids = [];
 		const attemptedUuids = [];
-		const regex = /^\s*#include\s(.+?):?(?::(.+)|$)/gm;
+		const regex = /^\s*\/\/\s*@import\s(.+?):?(?::(.+)|$)/gm;
 		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, uuid, params) => {
 			if (attemptedUuids.includes(uuid)) return "";
 			attemptedUuids.push(uuid);
