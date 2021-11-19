@@ -10,7 +10,7 @@ import Vec4 from "../../../Math/Vec4.js";
 import {LightComponent, MeshComponent} from "../../../Components/Components.js";
 import Mesh from "../../../Core/Mesh.js";
 import MultiKeyWeakMap from "../../../Util/MultiKeyWeakMap.js";
-import ShaderBuilder from "../../ShaderBuilder.js";
+import {ShaderBuilder} from "../../ShaderBuilder.js";
 
 export {default as WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";

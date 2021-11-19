@@ -1,4 +1,4 @@
-export default class ShaderBuilder {
+export class ShaderBuilder {
 	constructor() {
 		this.shaderLibrary = new Map();
 		this.onShaderUuidRequestedCbs = new Set();
