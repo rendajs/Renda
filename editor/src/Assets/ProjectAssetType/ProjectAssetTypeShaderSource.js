@@ -2,7 +2,7 @@ import ProjectAssetType from "./ProjectAssetType.js";
 import {ShaderSource} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 
-export default class ProjectAssetTypeShaderSource extends ProjectAssetType {
+export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static type = "JJ:shaderSource";
 	static typeUuid = "e7253ad6-8459-431f-ac16-609150538a24";
 	static newFileName = "New Shader";

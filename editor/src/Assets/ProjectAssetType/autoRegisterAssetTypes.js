@@ -6,7 +6,7 @@ import {ProjectAssetTypeMaterial} from "./ProjectAssetTypeMaterial.js";
 import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
 import ProjectAssetTypeMesh from "./ProjectAssetTypeMesh.js";
 import ProjectAssetTypeRenderOutputConfig from "./ProjectAssetTypeRenderOutputConfig.js";
-import ProjectAssetTypeShaderSource from "./ProjectAssetTypeShaderSource.js";
+import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
 import ProjectAssetTypeVertexState from "./ProjectAssetTypeVertexState.js";
 import ProjectAssetTypeWebGpuPipelineConfig from "./ProjectAssetTypeWebGpuPipelineConfig.js";
 
