@@ -1,10 +1,22 @@
+/**
+ * @typedef {Object} ShaderLibraryItem
+ * @property {string} shaderCode
+ * @property {string} builtCode
+ * @property {import("../../editor/src/Util/Util.js").UuidString[]} includedUuids
+ */
+
 export class ShaderBuilder {
 	constructor() {
+		/** @type {Map<import("../../editor/src/Util/Util.js").UuidString, ShaderLibraryItem>} */
 		this.shaderLibrary = new Map();
 		this.onShaderUuidRequestedCbs = new Set();
 		this.onShaderInvalidatedCbs = new Set();
 	}
 
+	/**
+	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @param {string} shaderCode
+	 */
 	addShader(uuid, shaderCode) {
 		this.shaderLibrary.set(uuid, {
 			shaderCode,
@@ -13,6 +25,9 @@ export class ShaderBuilder {
 		});
 	}
 
+	/**
+	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 */
 	invalidateShader(uuid) {
 		this.shaderLibrary.delete(uuid);
 		this.fireOnShaderInvalidated(uuid);
@@ -23,14 +38,30 @@ export class ShaderBuilder {
 		}
 	}
 
+	/**
+	 * @param {string} shaderCode
+	 */
 	async buildShader(shaderCode) {
+		/** @type {import("../../editor/src/Util/Util.js").UuidString[]} */
 		const includedUuids = [];
 		const attemptedUuids = [];
-		const regex = /^\s*#include\s(.+?):?(?::(.+)|$)/gm;
-		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, uuid, params) => {
+
+		/* eslint-disable indent */
+		let re = "^\\s*"; // Allow whitespaces at the beginning
+		re += "#include"; // `#include` prefix
+		re += "\\s+"; // At least one whitespace
+		re += "(?:"; // Start main include
+			re += "(?<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"; // Capture uuid
+			re += "|"; // Or
+			re += "(?<path>\".*\")"; // Capture path
+		re += ")"; // End main include
+		/* eslint-enable indent */
+		const regex = new RegExp(re, "gm");
+		shaderCode = await this.replaceAllAsync(shaderCode, regex, async match => {
+			const uuid = match.groups["uuid"];
 			if (attemptedUuids.includes(uuid)) return "";
 			attemptedUuids.push(uuid);
-			const block = await this.getShaderBlock(uuid, {params});
+			const block = await this.getShaderBlock(uuid);
 			if (block) {
 				includedUuids.push(uuid);
 				return block;
@@ -40,18 +71,41 @@ export class ShaderBuilder {
 		return {shaderCode, includedUuids};
 	}
 
-	async replaceAsync(str, regex, fn) {
+	/**
+	 * @param {string} str
+	 * @param {RegExp} regex
+	 * @param {(match: *) => Promise<str>} replaceFunction
+	 */
+	async replaceAllAsync(str, regex, replaceFunction) {
 		const promises = [];
-		str.replace(regex, (...args) => {
-			const promise = fn(...args);
+		const replaceIndices = [];
+		const replaceLengths = [];
+		let flags = regex.flags;
+		if (!flags.includes("g")) flags += "g";
+		const regexClone = new RegExp(regex.source, flags);
+		for (const match of str.matchAll(regexClone)) {
+			const promise = replaceFunction(match);
 			promises.push(promise);
-		});
-		const replaceData = await Promise.all(promises);
-		return str.replace(regex, () => replaceData.shift());
+			replaceIndices.push(match.index);
+			replaceLengths.push(match[0].length);
+		}
+		const replaceStrings = await Promise.all(promises);
+		let result = str;
+		for (let i = replaceIndices.length - 1; i >= 0; i--) {
+			const index = replaceIndices[i];
+			const length = replaceLengths[i];
+			const replaceString = replaceStrings[i];
+			result = result.substring(0, index) + replaceString + result.substring(index + length);
+		}
+		return result;
 	}
 
+	/**
+	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @param {Object} options
+	 * @param {boolean} [options.buildRecursive]
+	 */
 	async getShaderBlock(uuid, {
-		params = null,
 		buildRecursive = true,
 	} = {}) {
 		// todo, get only specific part of shader
@@ -73,6 +127,9 @@ export class ShaderBuilder {
 		}
 	}
 
+	/**
+	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 */
 	async getShader(uuid) {
 		if (!this.shaderLibrary.has(uuid)) {
 			await this.fireShaderUuidRequested(uuid);
