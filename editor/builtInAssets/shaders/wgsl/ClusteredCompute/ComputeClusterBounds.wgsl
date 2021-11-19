@@ -1,5 +1,10 @@
+// file://./../materials/structs/viewUniforms.wgsl
 #include 41eaba39-e2aa-48a3-8deb-47f410542bc2
+
+// file://./../materials/structs/lightUniforms.wgsl
 #include 8cd64104-1d45-4536-972a-5685a2523725
+
+// file://./ClusterBoundsStruct.wgsl
 #include 26ace8e7-7181-4e44-b507-f723b3567e9d
 
 let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);

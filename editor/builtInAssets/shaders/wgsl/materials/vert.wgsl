@@ -1,3 +1,4 @@
+// file://./structs/modelUniforms.wgsl
 #include 08a38e5b-b2b9-44be-9194-f404f815445f
 
 struct VertexInput {
