@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeEntity, Entity, Vec3, defaultComponentTypeManager} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";

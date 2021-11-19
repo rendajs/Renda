@@ -33,7 +33,7 @@ export default class ProjectAsset {
 		 */
 		this._deletedState = null;
 
-		/** @type {import("./ProjectAssetType/ProjectAssetType.js").default} */
+		/** @type {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType} */
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
@@ -75,7 +75,7 @@ export default class ProjectAsset {
 	}
 
 	get projectAssetTypeConstructor() {
-		return /** @type {typeof import("./ProjectAssetType/ProjectAssetType.js").default} */ (this._projectAssetType.constructor);
+		return /** @type {typeof import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType} */ (this._projectAssetType.constructor);
 	}
 
 	async waitForInit() {

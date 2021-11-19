@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import PropertiesAssetContentAssetBundle from "../../PropertiesAssetContent/PropertiesAssetContentAssetBundle.js";
 
 export default class ProjectAssetTypeAssetBundle extends ProjectAssetType {

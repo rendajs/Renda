@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/index.js";
 import {PropertiesAssetContentMaterial} from "../../PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 import editor from "../../editorInstance.js";

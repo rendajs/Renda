@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {ShaderSource} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 

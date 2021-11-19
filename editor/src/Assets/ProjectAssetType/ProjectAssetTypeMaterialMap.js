@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {PropertiesAssetContentMaterialMap} from "../../PropertiesAssetContent/PropertiesAssetContentMaterialMap.js";
 
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {

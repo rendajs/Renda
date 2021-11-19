@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {

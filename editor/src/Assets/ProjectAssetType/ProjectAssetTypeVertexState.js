@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeVertexState, Mesh, VertexState} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeVertexState extends ProjectAssetType {

@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {getNameAndExtension} from "../../Util/FileSystems/PathUtil.js";
 import editor from "../../editorInstance.js";
 

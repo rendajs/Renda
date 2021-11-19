@@ -1,5 +1,5 @@
 import autoRegisterAssetTypes from "./ProjectAssetType/autoRegisterAssetTypes.js";
-import ProjectAssetType from "./ProjectAssetType/ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/Util/Util.js";
 
 export default class ProjectAssetTypeManager {

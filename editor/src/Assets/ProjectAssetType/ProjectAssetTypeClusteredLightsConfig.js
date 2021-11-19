@@ -1,4 +1,4 @@
-import ProjectAssetType from "./ProjectAssetType.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from "../../../../src/index.js";
 
 export default class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {

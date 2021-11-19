@@ -6,7 +6,7 @@
  * @property {*} [editorData]
  */
 
-export default class ProjectAssetType {
+export class ProjectAssetType {
 	/**
 	 * Identifier of the assetType. This is stored in various places
 	 * such as the asset settings file or the wrapped editor meta data.
