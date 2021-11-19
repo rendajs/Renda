@@ -81,6 +81,10 @@ export default class ProjectAssetType {
 	 * @param {ProjectAsset} projectAsset
 	 */
 	constructor(projectAsset) {
+		/**
+		 * You can use this in any of the hook methods of a ProjectAssetType.
+		 * If you need access to the path or uuid of an asset for instance.
+		 */
 		this.projectAsset = projectAsset;
 
 		this.boundLiveAssetNeedsReplacement = this.liveAssetNeedsReplacement.bind(this);
@@ -198,7 +202,8 @@ export default class ProjectAssetType {
 	/**
 	 * This method is called when creating asset bundles,
 	 * this is optional when `usedAssetLoaderType` is set.
-	 * You can use this.projectAsset to generate the binary data.
+	 * You can use this.projectAsset to generate the binary data, {@link ProjectAsset.readAssetData}
+	 * or {@link ProjectAsset.getLiveAssetData} for example.
 	 * AssetSettingOverrides are changes made to the asset settings from the
 	 * assetbundle that is being generated.
 	 * If this function returns null or undefined, the raw
