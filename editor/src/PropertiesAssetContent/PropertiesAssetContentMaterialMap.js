@@ -35,6 +35,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			},
 		};
 
+		/** @type {Map<import("../Util/Util.js").UuidString, import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType>} */
 		this.addedMapTypes = new Map();
 		this.mapTypesTreeView = this.treeView.addCollapsable("Map Types");
 
@@ -104,7 +105,10 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		const castConstructorAny = /** @type {*} */ (TypeConstructor);
 		const CastConstructor = /** @type {typeof import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} */ (castConstructorAny);
 		if (this.hasTypeConstructor(CastConstructor)) {
-			return this.addedMapTypes.get(CastConstructor.typeUuid);
+			// eslint-disable-next-line jsdoc/no-undefined-types
+			const typeInstance = this.addedMapTypes.get(CastConstructor.typeUuid);
+			const castInstance = /** @type {T} */ (typeInstance);
+			return castInstance;
 		}
 		const treeView = this.mapTypesTreeView.addCollapsable(CastConstructor.uiName);
 
