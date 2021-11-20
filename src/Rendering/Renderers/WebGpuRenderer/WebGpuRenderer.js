@@ -17,6 +17,11 @@ export {MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpu
 
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 
+/**
+ * @typedef {Object} CachedMaterialData
+ * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} forwardPipelineConfig
+ */
+
 export class WebGpuRenderer extends Renderer {
 	static get domTargetConstructor() {
 		return WebGpuRendererDomTarget;
@@ -47,8 +52,12 @@ export class WebGpuRenderer extends Renderer {
 
 		/** @type {WeakMap<import("../../../Components/BuiltIn/CameraComponent.js").default, CachedCameraData>} */
 		this.cachedCameraData = new WeakMap();
-		this.cachedMaterialData = new WeakMap(); // <Material, {cachedData}>
-		this.cachedPipelines = new MultiKeyWeakMap(); // <[WebGpuPipelineConfig, VertexState], WebGpuPipeline>
+
+		/** @type {WeakMap<import("../../Material.js").default, CachedMaterialData>} */
+		this.cachedMaterialData = new WeakMap();
+
+		/** @type {MultiKeyWeakMap<*[], GPURenderPipeline>} */
+		this.cachedPipelines = new MultiKeyWeakMap();
 
 		// (legacy) for every pipeline, maintain a list of objects that the pipeline is used by
 		// this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
@@ -308,6 +317,7 @@ export class WebGpuRenderer extends Renderer {
 			for (const {component: meshComponent, worldMatrix} of renderDatas) {
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {
+					/** @type {import("./MaterialMapTypeLoaderWebGpuRenderer.js").WebGpuMaterialMap} */
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
 					materialData.forwardPipelineConfig = mapData.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
@@ -365,10 +375,16 @@ export class WebGpuRenderer extends Renderer {
 		return data;
 	}
 
+	/**
+	 * @param {import("../../Material.js").default} material
+	 */
 	getCachedMaterialData(material) {
+		/** @type {CachedMaterialData} */
 		let data = this.cachedMaterialData.get(material);
 		if (!data) {
-			data = {};
+			data = {
+				forwardPipelineConfig: null,
+			};
 			this.cachedMaterialData.set(material, data);
 			material.onDestructor(() => {
 				this.disposeMaterial(material);
@@ -377,7 +393,14 @@ export class WebGpuRenderer extends Renderer {
 		return data;
 	}
 
+	/**
+	 * @param {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} pipelineConfig
+	 * @param {import("../../VertexState.js").default} vertexState
+	 * @param {import("../../RenderOutputConfig.js").default} outputConfig
+	 * @param {import("../../ClusteredLightsConfig.js").default} clusteredLightsConfig
+	 */
 	getPipeline(pipelineConfig, vertexState, outputConfig, clusteredLightsConfig) {
+		/** @type {*[]} */
 		const keys = [outputConfig, vertexState, pipelineConfig];
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 			keys.push(clusteredLightsConfig);

@@ -120,6 +120,7 @@ export default class CameraComponent extends Component {
 		this.autoUpdateProjectionMatrix = true;
 		this.projectionMatrix = new Mat4();
 		this.renderOutputConfig = null;
+		/** @type {ClusteredLightsConfig} */
 		this.clusteredLightsConfig = null;
 
 		this.initValues(propertyValues, ...args);

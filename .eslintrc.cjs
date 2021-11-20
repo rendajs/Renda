@@ -209,6 +209,7 @@ module.exports = {
 			{
 				definedTypes: [
 					"ConstructorParameters",
+					"Iterable",
 					"Generator",
 					"AsyncGenerator",
 					"BufferSource",
@@ -234,6 +235,9 @@ module.exports = {
 					"GPUBuffer",
 					"GPUBindGroup",
 					"GPUCommandEncoder",
+					"GPUPrimitiveTopology",
+					"GPURenderPipeline",
+					"GPUColorTargetState",
 					"Parameters",
 					"suspiciousCode",
 				],

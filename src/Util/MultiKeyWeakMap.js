@@ -36,18 +36,28 @@ export default class MultiKeyWeakMap {
 		return this;
 	}
 
+	/**
+	 * @param {K} keys
+	 * @returns {V}
+	 */
 	get(keys) {
 		const map = this.getLastMap(keys);
 		if (!map) return undefined;
 		return map.get(endNode);
 	}
 
+	/**
+	 * @param {K} keys
+	 */
 	has(keys) {
 		const map = this.getLastMap(keys);
 		if (!map) return false;
 		return map.has(endNode);
 	}
 
+	/**
+	 * @param {K} keys
+	 */
 	delete(keys) {
 		const map = this.getLastMap(keys);
 		if (!map) return false;
