@@ -3,8 +3,8 @@
 import Mesh from "../../Core/Mesh.js";
 import MeshAttributeBuffer from "../../Core/MeshAttributeBuffer.js";
 import Mat4 from "../../Math/Mat4.js";
-import WebGlShader from "../WebGlShader.js";
-import Renderer from "./Renderer.js";
+import {WebGlShader} from "../WebGlShader.js";
+import {Renderer} from "./Renderer.js";
 
 export class WebGlRenderer extends Renderer {
 	static materialMapWebGlTypeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
