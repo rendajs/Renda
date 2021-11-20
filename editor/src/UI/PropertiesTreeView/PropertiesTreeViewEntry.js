@@ -23,7 +23,9 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 
 /**
  * @typedef {Object} PropertiesTreeViewGuiOptionsMap
+ * @property {import("../VectorGui.js").VectorGuiOptions} vec2
  * @property {import("../VectorGui.js").VectorGuiOptions} vec3
+ * @property {import("../VectorGui.js").VectorGuiOptions} vec4
  * @property {import("../TextGui.js").TextGuiOptions} string
  * @property {import("../NumericGui.js").NumericGuiOptions} number
  * @property {import("../BooleanGui.js").BooleanGuiOptions} boolean
@@ -106,9 +108,21 @@ export class PropertiesTreeViewEntry extends TreeView {
 		if (type == "string") {
 			this.gui = new TextGui(guiOpts);
 			this.valueEl.appendChild(this.gui.el);
+		} else if (type === "vec2") {
+			this.gui = new VectorGui({
+				size: 2,
+				...guiOpts,
+			});
+			this.valueEl.appendChild(this.gui.el);
 		} else if (type === "vec3") {
 			this.gui = new VectorGui({
 				size: 3,
+				...guiOpts,
+			});
+			this.valueEl.appendChild(this.gui.el);
+		} else if (type === "vec4") {
+			this.gui = new VectorGui({
+				size: 4,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(this.gui.el);

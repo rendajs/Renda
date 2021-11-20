@@ -121,11 +121,11 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 			let mappableValueType = "number";
 			if (isVector) {
 				if (vectorSize == 2) {
-					mappableValueType = "vec3";
+					mappableValueType = "vec2";
 				} else if (vectorSize == 3) {
 					mappableValueType = "vec3";
 				} else if (vectorSize == 4) {
-					mappableValueType = "vec3";
+					mappableValueType = "vec4";
 				}
 			} else if (isMatrix) {
 				// todo implement matrix ui
