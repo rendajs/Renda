@@ -219,8 +219,14 @@ export class WebGpuRenderer extends Renderer {
 		}
 		const outputConfig = domTarget.outputConfig;
 
-		/** @type {{component: MeshComponent, worldMatrix: Mat4}[]} */
-		const meshComponents = [];
+		/**
+		 * @typedef {Object} MeshRenderData
+		 * @property {MeshComponent} component
+		 * @property {Mat4} worldMatrix
+		 */
+
+		/** @type {MeshRenderData[]} */
+		const meshRenderDatas = [];
 		/** @type {LightComponent[]} */
 		const lightComponents = [];
 		/** @type {import("../../../Core/Entity.js").default[]} */
@@ -232,7 +238,7 @@ export class WebGpuRenderer extends Renderer {
 				for (const component of child.getComponents(MeshComponent)) {
 					if (!component.mesh || !component.mesh.vertexState) continue;
 					const worldMatrix = child.getWorldMatrix(traversedPath);
-					meshComponents.push({component, worldMatrix});
+					meshRenderDatas.push({component, worldMatrix});
 				}
 				for (const component of child.getComponents(LightComponent)) {
 					lightComponents.push(component);
@@ -284,10 +290,22 @@ export class WebGpuRenderer extends Renderer {
 		const {bindGroup} = this.materialUniformsBuffer.getCurrentEntryLocation();
 		renderPassEncoder.setBindGroup(1, bindGroup);
 
-		for (const {component: meshComponent, worldMatrix} of meshComponents.values()) {
-			// todo: group all materials in the current view and render them all grouped
-			for (const material of meshComponent.materials) {
+		/** @type {Map<import("../../Material.js").default, MeshRenderData[]>} */
+		const materialRenderDatas = new Map();
+		for (const renderData of meshRenderDatas) {
+			for (const material of renderData.component.materials) {
 				if (!material || material.destructed) continue; // todo: log a (supressable) warning when the material is destructed
+				let renderDatas = materialRenderDatas.get(material);
+				if (!renderDatas) {
+					renderDatas = [];
+					materialRenderDatas.set(material, renderDatas);
+				}
+				renderDatas.push(renderData);
+			}
+		}
+
+		for (const [material, renderDatas] of materialRenderDatas) {
+			for (const {component: meshComponent, worldMatrix} of renderDatas) {
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {
 					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
@@ -320,13 +338,13 @@ export class WebGpuRenderer extends Renderer {
 				} else {
 					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
 				}
-			}
 
-			const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
-			this.objectUniformsBuffer.appendMatrix(mvpMatrix);
-			this.objectUniformsBuffer.appendMatrix(vpMatrix);
-			this.objectUniformsBuffer.appendMatrix(worldMatrix);
-			this.objectUniformsBuffer.nextEntryLocation();
+				const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
+				this.objectUniformsBuffer.appendMatrix(mvpMatrix);
+				this.objectUniformsBuffer.appendMatrix(vpMatrix);
+				this.objectUniformsBuffer.appendMatrix(worldMatrix);
+				this.objectUniformsBuffer.nextEntryLocation();
+			}
 		}
 		this.objectUniformsBuffer.writeAllChunksToGpu();
 
