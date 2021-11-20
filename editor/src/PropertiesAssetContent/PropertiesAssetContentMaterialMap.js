@@ -79,6 +79,11 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
 	}
 
+	/**
+	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {Object} options
+	 * @param {boolean} [options.updateMapListUi]
+	 */
 	addMapTypeUuid(uuid, {
 		updateMapListUi = true,
 	} = {}) {
@@ -86,16 +91,25 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		return this.addMapType(constructor, {updateMapListUi});
 	}
 
+	/**
+	 * @template {import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} T
+	 * @param {new (...args: *) => T} TypeConstructor
+	 * @param {Object} options
+	 * @param {boolean} [options.updateMapListUi]
+	 * @returns {T}
+	 */
 	addMapType(TypeConstructor, {
 		updateMapListUi = true,
 	} = {}) {
-		if (this.hasTypeConstructor(TypeConstructor)) {
-			return this.addedMapTypes.get(TypeConstructor.typeUuid);
+		const castConstructorAny = /** @type {*} */ (TypeConstructor);
+		const CastConstructor = /** @type {typeof import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} */ (castConstructorAny);
+		if (this.hasTypeConstructor(CastConstructor)) {
+			return this.addedMapTypes.get(CastConstructor.typeUuid);
 		}
-		const treeView = this.mapTypesTreeView.addCollapsable(TypeConstructor.uiName);
+		const treeView = this.mapTypesTreeView.addCollapsable(CastConstructor.uiName);
 
 		const typeInstance = new TypeConstructor(treeView);
-		this.addedMapTypes.set(TypeConstructor.typeUuid, typeInstance);
+		this.addedMapTypes.set(CastConstructor.typeUuid, typeInstance);
 		typeInstance.onValueChange(() => {
 			if (!this.ignoreValueChange) {
 				this.saveSelectedAssets();

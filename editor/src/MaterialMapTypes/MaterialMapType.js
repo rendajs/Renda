@@ -46,11 +46,15 @@ export class MaterialMapType {
 		this.lastSavedCustomDataDirty = true;
 	}
 
-	// overide this with your logic to load saved data in your ui
-	async customAssetDataFromLoad(data) {}
+	/**
+	 * Overide this with your logic to load saved data in your MaterialMap ui.
+	 * @param {*} customData
+	 */
+	async customAssetDataFromLoad(customData) {}
 
 	/**
 	 * Override this and return the data you want to save.
+	 * This gets called when a MaterialMap is going to be saved.
 	 * @returns {Promise<?Object>}
 	 */
 	async getCustomAssetDataForSave() {}
@@ -75,7 +79,7 @@ export class MaterialMapType {
 	 * loaded, saved and exported in assetbundles.
 	 * `customData` will be whatever you last returned from
 	 * {@link getCustomAssetDataForSave}.
-	 * @param {*} customData
+	 * @param {*} customData The customData as stored on disk.
 	 * @returns {Promise<MappableValue[]>}
 	 */
 	static async getMappableValues(customData) {
