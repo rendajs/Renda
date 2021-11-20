@@ -299,22 +299,12 @@ export class WebGpuRenderer extends Renderer {
 		const {bindGroup} = this.materialUniformsBuffer.getCurrentEntryLocation();
 		renderPassEncoder.setBindGroup(1, bindGroup);
 
-		/** @type {Map<import("../../Material.js").default, MeshRenderData[]>} */
+		/** @type {Map<import("../../Material.js").default, Map<GPURenderPipeline, MeshRenderData[]>>} */
 		const materialRenderDatas = new Map();
 		for (const renderData of meshRenderDatas) {
 			for (const material of renderData.component.materials) {
 				if (!material || material.destructed) continue; // todo: log a (supressable) warning when the material is destructed
-				let renderDatas = materialRenderDatas.get(material);
-				if (!renderDatas) {
-					renderDatas = [];
-					materialRenderDatas.set(material, renderDatas);
-				}
-				renderDatas.push(renderData);
-			}
-		}
 
-		for (const [material, renderDatas] of materialRenderDatas) {
-			for (const {component: meshComponent, worldMatrix} of renderDatas) {
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {
 					/** @type {import("./MaterialMapTypeLoaderWebGpuRenderer.js").WebGpuMaterialMap} */
@@ -322,38 +312,58 @@ export class WebGpuRenderer extends Renderer {
 					materialData.forwardPipelineConfig = mapData.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
-				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, meshComponent.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
-				renderPassEncoder.setPipeline(forwardPipeline);
-				const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
-				renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
-				const mesh = meshComponent.mesh;
-				const meshData = this.getCachedMeshData(mesh);
-				for (const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()) {
-					if (newBufferData) {
-						this.device.queue.writeBuffer(gpuBuffer, 0, newBufferData);
-					}
-					renderPassEncoder.setVertexBuffer(index, gpuBuffer);
-				}
-				const indexBufferData = meshData.getIndexedBufferGpuCommands();
-				if (indexBufferData) {
-					/** @type {GPUIndexFormat} */
-					let indexFormat = null;
-					if (mesh.indexFormat == Mesh.IndexFormat.UINT_16) {
-						indexFormat = "uint16";
-					} else if (mesh.indexFormat == Mesh.IndexFormat.UINT_32) {
-						indexFormat = "uint32";
-					}
-					renderPassEncoder.setIndexBuffer(indexBufferData, indexFormat);
-					renderPassEncoder.drawIndexed(mesh.indexLength, 1, 0, 0, 0);
-				} else {
-					renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
+				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
+
+				let pipelines = materialRenderDatas.get(material);
+				if (!pipelines) {
+					pipelines = new Map();
+					materialRenderDatas.set(material, pipelines);
 				}
 
-				const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
-				this.objectUniformsBuffer.appendMatrix(mvpMatrix);
-				this.objectUniformsBuffer.appendMatrix(vpMatrix);
-				this.objectUniformsBuffer.appendMatrix(worldMatrix);
-				this.objectUniformsBuffer.nextEntryLocation();
+				let renderDatas = pipelines.get(forwardPipeline);
+				if (!renderDatas) {
+					renderDatas = [];
+					pipelines.set(forwardPipeline, renderDatas);
+				}
+				renderDatas.push(renderData);
+			}
+		}
+
+		for (const [, pipelines] of materialRenderDatas) {
+			for (const [pipeline, renderDatas] of pipelines) {
+				renderPassEncoder.setPipeline(pipeline);
+				for (const {component: meshComponent, worldMatrix} of renderDatas) {
+					const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
+					renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
+					const mesh = meshComponent.mesh;
+					const meshData = this.getCachedMeshData(mesh);
+					for (const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()) {
+						if (newBufferData) {
+							this.device.queue.writeBuffer(gpuBuffer, 0, newBufferData);
+						}
+						renderPassEncoder.setVertexBuffer(index, gpuBuffer);
+					}
+					const indexBufferData = meshData.getIndexedBufferGpuCommands();
+					if (indexBufferData) {
+						/** @type {GPUIndexFormat} */
+						let indexFormat = null;
+						if (mesh.indexFormat == Mesh.IndexFormat.UINT_16) {
+							indexFormat = "uint16";
+						} else if (mesh.indexFormat == Mesh.IndexFormat.UINT_32) {
+							indexFormat = "uint32";
+						}
+						renderPassEncoder.setIndexBuffer(indexBufferData, indexFormat);
+						renderPassEncoder.drawIndexed(mesh.indexLength, 1, 0, 0, 0);
+					} else {
+						renderPassEncoder.draw(mesh.vertexCount, 1, 0, 0);
+					}
+
+					const mvpMatrix = Mat4.multiplyMatrices(worldMatrix, vpMatrix);
+					this.objectUniformsBuffer.appendMatrix(mvpMatrix);
+					this.objectUniformsBuffer.appendMatrix(vpMatrix);
+					this.objectUniformsBuffer.appendMatrix(worldMatrix);
+					this.objectUniformsBuffer.nextEntryLocation();
+				}
 			}
 		}
 		this.objectUniformsBuffer.writeAllChunksToGpu();
