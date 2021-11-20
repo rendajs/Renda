@@ -1,10 +1,10 @@
 import AssetLoaderType from "./AssetLoaderType.js";
 import BinaryComposer, {StorageType} from "../../Util/BinaryComposer.js";
 import MaterialMapTypeLoader from "../MaterialMapTypeLoader.js";
-import Material from "../../Rendering/Material.js";
+import {Material} from "../../Rendering/Material.js";
 import {isUuid} from "../../Util/Util.js";
 
-export default class AssetLoaderTypeMaterial extends AssetLoaderType {
+export class AssetLoaderTypeMaterial extends AssetLoaderType {
 	static get typeUuid() {
 		return "430f47a8-82cc-4b4c-a664-2360794e80d6";
 	}

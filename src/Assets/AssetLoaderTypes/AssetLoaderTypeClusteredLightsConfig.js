@@ -1,8 +1,8 @@
 import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
 import {StorageType} from "../../Util/BinaryComposer.js";
-import ClusteredLightsConfig from "../../Rendering/ClusteredLightsConfig.js";
+import {ClusteredLightsConfig} from "../../Rendering/ClusteredLightsConfig.js";
 
-export default class AssetLoaderTypeClusteredLightsConfig extends AssetLoaderTypeGenericStructure {
+export class AssetLoaderTypeClusteredLightsConfig extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {
 		return "13194e5c-01e8-4ecc-b645-86626b9d5e4c";
 	}

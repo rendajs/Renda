@@ -1,5 +1,5 @@
-import RendererDomTarget from "../../RendererDomTarget.js";
-import RenderOutputConfig from "../../RenderOutputConfig.js";
+import {RendererDomTarget} from "../../RendererDomTarget.js";
+import {RenderOutputConfig} from "../../RenderOutputConfig.js";
 import {WebGpuRenderer} from "./WebGpuRenderer.js";
 
 export class WebGpuRendererDomTarget extends RendererDomTarget {

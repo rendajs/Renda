@@ -1,6 +1,6 @@
 import {Renderer} from "./Rendering.js";
 
-export default class RendererDomTarget {
+export class RendererDomTarget {
 	/**
 	 * @param {Renderer} renderer
 	 * @param {...*} extra

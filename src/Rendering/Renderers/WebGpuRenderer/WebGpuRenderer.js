@@ -1,5 +1,5 @@
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
-import Renderer from "../Renderer.js";
+import {Renderer} from "../Renderer.js";
 import {WebGpuRendererDomTarget} from "./WebGpuRendererDomTarget.js";
 import {WebGpuChunkedBuffer} from "./GpuBufferHelper/WebGpuChunkedBuffer.js";
 import {CachedCameraData} from "./CachedCameraData.js";
@@ -53,7 +53,7 @@ export class WebGpuRenderer extends Renderer {
 		/** @type {WeakMap<import("../../../Components/BuiltIn/CameraComponent.js").default, CachedCameraData>} */
 		this.cachedCameraData = new WeakMap();
 
-		/** @type {WeakMap<import("../../Material.js").default, CachedMaterialData>} */
+		/** @type {WeakMap<import("../../Material.js").Material, CachedMaterialData>} */
 		this.cachedMaterialData = new WeakMap();
 
 		/** @type {MultiKeyWeakMap<*[], GPURenderPipeline>} */
@@ -300,7 +300,7 @@ export class WebGpuRenderer extends Renderer {
 		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
 
-		/** @type {Map<import("../../Material.js").default, Map<GPURenderPipeline, MeshRenderData[]>>} */
+		/** @type {Map<import("../../Material.js").Material, Map<GPURenderPipeline, MeshRenderData[]>>} */
 		const materialRenderDatas = new Map();
 		for (const renderData of meshRenderDatas) {
 			for (const material of renderData.component.materials) {
@@ -395,7 +395,7 @@ export class WebGpuRenderer extends Renderer {
 	}
 
 	/**
-	 * @param {import("../../Material.js").default} material
+	 * @param {import("../../Material.js").Material} material
 	 */
 	getCachedMaterialData(material) {
 		/** @type {CachedMaterialData} */
@@ -414,9 +414,9 @@ export class WebGpuRenderer extends Renderer {
 
 	/**
 	 * @param {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} pipelineConfig
-	 * @param {import("../../VertexState.js").default} vertexState
-	 * @param {import("../../RenderOutputConfig.js").default} outputConfig
-	 * @param {import("../../ClusteredLightsConfig.js").default} clusteredLightsConfig
+	 * @param {import("../../VertexState.js").VertexState} vertexState
+	 * @param {import("../../RenderOutputConfig.js").RenderOutputConfig} outputConfig
+	 * @param {import("../../ClusteredLightsConfig.js").ClusteredLightsConfig} clusteredLightsConfig
 	 */
 	getPipeline(pipelineConfig, vertexState, outputConfig, clusteredLightsConfig) {
 		/** @type {*[]} */

@@ -1,6 +1,6 @@
 import Vec3 from "../Math/Vec3.js";
 
-export default class ClusteredLightsConfig {
+export class ClusteredLightsConfig {
 	constructor({
 		clusterCount = [16, 9, 24],
 		maxLightsPerClusterPass = 10,

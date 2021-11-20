@@ -1,6 +1,6 @@
-import VertexStateBuffer from "./VertexStateBuffer.js";
+import {VertexStateBuffer} from "./VertexStateBuffer.js";
 
-export default class VertexState {
+export class VertexState {
 	constructor({
 		buffers = [],
 	} = {}) {

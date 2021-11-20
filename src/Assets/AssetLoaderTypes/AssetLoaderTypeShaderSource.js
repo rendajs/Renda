@@ -1,7 +1,7 @@
 import AssetLoaderType from "./AssetLoaderType.js";
-import ShaderSource from "../../Rendering/ShaderSource.js";
+import {ShaderSource} from "../../Rendering/ShaderSource.js";
 
-export default class AssetLoaderTypeShaderSource extends AssetLoaderType {
+export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	static get typeUuid() {
 		return "e7253ad6-8459-431f-ac16-609150538a24";
 	}

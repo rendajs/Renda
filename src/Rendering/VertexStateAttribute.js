@@ -1,6 +1,6 @@
 import Mesh from "../Core/Mesh.js";
 
-export default class VertexStateAttribute {
+export class VertexStateAttribute {
 	constructor({
 		componentCount = 3,
 		format = Mesh.AttributeFormat.FLOAT32,

@@ -6,7 +6,7 @@ export default class Mesh {
 		/** @type {MeshAttributeBuffer[]} */
 		this._buffers = [];
 		this._unusedBuffers = new Map();
-		/** @type {import("../Rendering/VertexState.js").default} */
+		/** @type {import("../Rendering/VertexState.js").VertexState} */
 		this._vertexState = null;
 		this.indexBuffer = null;
 		this.indexFormat = Mesh.IndexFormat.UINT_16;

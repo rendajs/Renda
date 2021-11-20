@@ -1,6 +1,6 @@
-import VertexStateAttribute from "./VertexStateAttribute.js";
+import {VertexStateAttribute} from "./VertexStateAttribute.js";
 
-export default class VertexStateBuffer {
+export class VertexStateBuffer {
 	constructor({
 		stepMode = "vertex",
 		arrayStride = null, // use null|-1|"auto" for auto stride

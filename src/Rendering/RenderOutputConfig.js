@@ -1,4 +1,4 @@
-export default class RenderOutputConfig {
+export class RenderOutputConfig {
 	/**
 	 * @param {Object} options
 	 * @param {GPUTextureFormat} [options.depthStencilFormat]

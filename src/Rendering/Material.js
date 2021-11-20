@@ -1,4 +1,4 @@
-export default class Material {
+export class Material {
 	constructor({
 		customMapDatas = new Map(),
 	} = {}) {

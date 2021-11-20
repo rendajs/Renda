@@ -1,4 +1,4 @@
-export default class WebGlShader {
+export class WebGlShader {
 	constructor(renderer, vertSource, fragSource) {
 		this.renderer = renderer;
 		this.gl = renderer.gl;

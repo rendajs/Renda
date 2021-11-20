@@ -1,4 +1,4 @@
-export default class ShaderSource {
+export class ShaderSource {
 	constructor(source) {
 		this.source = source;
 	}

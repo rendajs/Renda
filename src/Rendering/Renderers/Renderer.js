@@ -1,6 +1,6 @@
-import RendererDomTarget from "../RendererDomTarget.js";
+import {RendererDomTarget} from "../RendererDomTarget.js";
 
-export default class Renderer {
+export class Renderer {
 	// optionally override this with your own RendererDomTarget class
 	static get domTargetConstructor() {
 		return RendererDomTarget;
