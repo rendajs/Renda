@@ -1,8 +1,8 @@
 import RendererDomTarget from "../../RendererDomTarget.js";
 import RenderOutputConfig from "../../RenderOutputConfig.js";
-import WebGpuRenderer from "./WebGpuRenderer.js";
+import {WebGpuRenderer} from "./WebGpuRenderer.js";
 
-export default class WebGpuRendererDomTarget extends RendererDomTarget {
+export class WebGpuRendererDomTarget extends RendererDomTarget {
 	/**
 	 * @param {WebGpuRenderer} renderer
 	 * @param {Object} opts

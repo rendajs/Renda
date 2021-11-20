@@ -1,8 +1,8 @@
-export default class CachedMeshBufferData {
+export class CachedMeshBufferData {
 	/**
 	 *
 	 * @param {import("../../../Core/MeshAttributeBuffer.js").default} meshBuffer
-	 * @param {import("./CachedMeshData.js").default} meshData
+	 * @param {import("./CachedMeshData.js").CachedMeshData} meshData
 	 */
 	constructor(meshBuffer, meshData) {
 		this.meshBuffer = meshBuffer;

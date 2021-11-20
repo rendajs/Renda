@@ -1,10 +1,10 @@
-import CachedMeshBufferData from "./CachedMeshBufferData.js";
+import {CachedMeshBufferData} from "./CachedMeshBufferData.js";
 
-export default class CachedMeshData {
+export class CachedMeshData {
 	/**
 	 *
 	 * @param {import("../../../Core/Mesh.js").default} mesh
-	 * @param {import("./WebGpuRenderer.js").default} renderer
+	 * @param {import("./WebGpuRenderer.js").WebGpuRenderer} renderer
 	 */
 	constructor(mesh, renderer) {
 		this.mesh = mesh;

@@ -1,9 +1,9 @@
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
 import Renderer from "../Renderer.js";
-import WebGpuRendererDomTarget from "./WebGpuRendererDomTarget.js";
+import {WebGpuRendererDomTarget} from "./WebGpuRendererDomTarget.js";
 import {WebGpuChunkedBuffer} from "./GpuBufferHelper/WebGpuChunkedBuffer.js";
-import CachedCameraData from "./CachedCameraData.js";
-import CachedMeshData from "./CachedMeshData.js";
+import {CachedCameraData} from "./CachedCameraData.js";
+import {CachedMeshData} from "./CachedMeshData.js";
 import defaultEngineAssetsManager from "../../../Assets/defaultEngineAssetsManager.js";
 import Mat4 from "../../../Math/Mat4.js";
 import Vec4 from "../../../Math/Vec4.js";
@@ -12,12 +12,12 @@ import Mesh from "../../../Core/Mesh.js";
 import MultiKeyWeakMap from "../../../Util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
 
-export {default as WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
-export {default as MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
+export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
+export {MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
 
 export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 
-export default class WebGpuRenderer extends Renderer {
+export class WebGpuRenderer extends Renderer {
 	static get domTargetConstructor() {
 		return WebGpuRendererDomTarget;
 	}

@@ -1,9 +1,9 @@
 import {ShaderBuilder} from "../../ShaderBuilder.js";
 
-export default class ClusterComputeManager {
+export class ClusterComputeManager {
 	/**
 	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").default} camera
-	 * @param {import("./CachedCameraData.js").default} cachedCameraData
+	 * @param {import("./CachedCameraData.js").CachedCameraData} cachedCameraData
 	 */
 	constructor(camera, cachedCameraData) {
 		this.camera = camera;
