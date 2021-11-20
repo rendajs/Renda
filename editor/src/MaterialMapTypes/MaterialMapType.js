@@ -11,6 +11,13 @@ import {MaterialMapListUi} from "./MaterialMapListUi.js";
  * care of showing ui for materials.
  */
 
+/**
+ * @typedef {Object} MaterialMapTypeMappableValue
+ * @property {string} name
+ * @property {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type
+ * @property {*} [defaultValue]
+ */
+
 export class MaterialMapType {
 	/* ==== Material Map UI related methods ==== */
 
@@ -67,20 +74,13 @@ export class MaterialMapType {
 	}
 
 	/**
-	 * @typedef {Object} MappableValue
-	 * @property {string} name
-	 * @property {number | import("../../../src/Math/Vec2.js").default | import("../../../src/Math/Vec3.js").default | import("../../../src/Math/Vec4.js").default | import("../../../src/Math/Mat4.js").default} type
-	 * @property {*} [defaultValue]
-	 */
-
-	/**
 	 * This will be used to render the mapping ui in MaterialMaps, as well as
 	 * the values ui in Materials. The values of materials will be automatically
 	 * loaded, saved and exported in assetbundles.
 	 * `customData` will be whatever you last returned from
 	 * {@link getCustomAssetDataForSave}.
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {Promise<MappableValue[]>}
+	 * @returns {Promise<MaterialMapTypeMappableValue[]>}
 	 */
 	static async getMappableValues(customData) {
 		return [];
