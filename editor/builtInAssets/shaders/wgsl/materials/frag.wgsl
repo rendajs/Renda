@@ -39,6 +39,12 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 }
 
 
+[[block]] struct MaterialUniforms {
+	test : vec4<f32>;
+};
+[[group(1), binding(0)]] var<uniform> materialUniforms : MaterialUniforms;
+
+
 struct FragmentInput {
 	[[location(0)]] vWorldPos : vec3<f32>;
 	[[location(1)]] normal : vec3<f32>;
@@ -70,6 +76,7 @@ fn main(input : FragmentInput) -> FragmentOutput {
 
 	var gamma : f32 = 1.0/2.2;
 	color = pow(color, vec3<f32>(gamma, gamma, gamma));
+	color = color + materialUniforms.test.rgb;
 	var fragOut : FragmentOutput;
 	fragOut.outColor = vec4<f32>(color, 1.0);
 	let clusterCoord : vec3<u32> = getClusterCoord(input.fragCoord);

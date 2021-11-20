@@ -106,18 +106,22 @@ export class WebGpuChunkedBuffer {
 		}
 	}
 
-	appendScalar(val, type = "f32") {
+	/**
+	 * @param {number} scalar
+	 * @param {AppendFormat} type
+	 */
+	appendScalar(scalar, type = "f32") {
 		const chunk = this.getCurrentChunk();
 		switch (type) {
 			case "f32":
 			default:
-				chunk.dataView.setFloat32(this.currentCursorByteIndex, val, true);
+				chunk.dataView.setFloat32(this.currentCursorByteIndex, scalar, true);
 				break;
 			case "i32":
-				chunk.dataView.setInt32(this.currentCursorByteIndex, val, true);
+				chunk.dataView.setInt32(this.currentCursorByteIndex, scalar, true);
 				break;
 			case "u32":
-				chunk.dataView.setUint32(this.currentCursorByteIndex, val, true);
+				chunk.dataView.setUint32(this.currentCursorByteIndex, scalar, true);
 				break;
 		}
 		this.currentCursorByteIndex += 4;
@@ -135,6 +139,10 @@ export class WebGpuChunkedBuffer {
 		this.currentCursorByteIndex += buffer.byteLength;
 	}
 
+	/**
+	 * @param {number | number[] | import("../../../../Math/Vec2.js").default | import("../../../../Math/Vec3.js").default | import("../../../../Math/Vec4.js").default | import("../../../../Math/Mat4.js").default} data
+	 * @param {AppendFormat} type
+	 */
 	appendData(data, type = "f32") {
 		if (typeof data == "number") {
 			this.appendScalar(data, type);

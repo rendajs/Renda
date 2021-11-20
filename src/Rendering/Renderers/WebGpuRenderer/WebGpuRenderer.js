@@ -151,8 +151,11 @@ export class WebGpuRenderer extends Renderer {
 				entries: [
 					{
 						binding: 0,
-						visibility: GPUShaderStage.VERTEX,
-						buffer: {},
+						visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
+						buffer: {
+							type: "uniform",
+							hasDynamicOffset: true,
+						},
 					},
 				],
 			}),
@@ -296,8 +299,6 @@ export class WebGpuRenderer extends Renderer {
 		const renderPassDescriptor = domTarget.getRenderPassDescriptor();
 		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
-		const {bindGroup} = this.materialUniformsBuffer.getCurrentEntryLocation();
-		renderPassEncoder.setBindGroup(1, bindGroup);
 
 		/** @type {Map<import("../../Material.js").default, Map<GPURenderPipeline, MeshRenderData[]>>} */
 		const materialRenderDatas = new Map();
@@ -330,6 +331,11 @@ export class WebGpuRenderer extends Renderer {
 		}
 
 		for (const [, pipelines] of materialRenderDatas) {
+			const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
+			renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
+
+			this.materialUniformsBuffer.appendData(new Vec4(0, 0, 0.2, 1), "f32");
+
 			for (const [pipeline, renderDatas] of pipelines) {
 				renderPassEncoder.setPipeline(pipeline);
 				for (const {component: meshComponent, worldMatrix} of renderDatas) {
@@ -365,7 +371,10 @@ export class WebGpuRenderer extends Renderer {
 					this.objectUniformsBuffer.nextEntryLocation();
 				}
 			}
+
+			this.materialUniformsBuffer.nextEntryLocation();
 		}
+		this.materialUniformsBuffer.writeAllChunksToGpu();
 		this.objectUniformsBuffer.writeAllChunksToGpu();
 
 		renderPassEncoder.endPass();
