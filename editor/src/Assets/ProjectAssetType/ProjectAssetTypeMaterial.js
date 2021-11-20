@@ -39,12 +39,14 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		const mapData = await mapAsset.readAssetData();
 		for (const map of mapData.maps) {
 			const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
-			const arrayBuffer = mapType.mapDataToAssetBundleBinary(map.customData);
-			if (!arrayBuffer) continue;
-			mapDatas.push({
-				typeUuid: map.mapTypeId,
-				data: arrayBuffer,
-			});
+			if (mapType.allowExportInAssetBundles) {
+				const arrayBuffer = mapType.mapDataToAssetBundleBinary(map.customData);
+				if (!arrayBuffer) continue;
+				mapDatas.push({
+					typeUuid: map.mapTypeId,
+					data: arrayBuffer,
+				});
+			}
 		}
 
 		return BinaryComposer.objectToBinary({

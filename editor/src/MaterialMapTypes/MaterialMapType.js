@@ -12,6 +12,8 @@ import {MaterialMapListUi} from "./MaterialMapListUi.js";
  */
 
 export class MaterialMapType {
+	/* ==== Material Map UI related methods ==== */
+
 	/**
 	 * Name that will be shown in the editor ui.
 	 * @type {string}
@@ -25,6 +27,10 @@ export class MaterialMapType {
 	 */
 	static typeUuid = null;
 
+	/**
+	 * If you set this to true you should at least implement {@link mapDataToAssetBundleBinary}
+	 * or set a structure in {@link assetBundleBinaryComposerOpts}.
+	 */
 	static allowExportInAssetBundles = false;
 
 	/**
@@ -57,25 +63,6 @@ export class MaterialMapType {
 	}
 
 	/**
-	 * Use this to convert customData to something that is more easily usable.
-	 * For instance load assets from their id.
-	 * @param {*} customData
-	 * @returns {Promise<Object>}
-	 */
-	static async getLiveAssetCustomData(customData) {
-		return {};
-	}
-
-	/**
-	 * This should yield ProjectAssets that are linked in the custom data.
-	 * This will be used to replace material instances in the editor whenever a
-	 * linked live asset changes (a shader for example).
-	 * @param {*} customData
-	 * @returns {AsyncGenerator<import("../Assets/ProjectAsset.js").default>}
-	 */
-	static async *getLinkedAssetsInCustomData(customData) {}
-
-	/**
 	 * @typedef {Object} MappableValue
 	 * @property {string} name
 	 * @property {number | import("../../../src/Math/Vec2.js").default | import("../../../src/Math/Vec3.js").default | import("../../../src/Math/Vec4.js").default | import("../../../src/Math/Mat4.js").default} type
@@ -95,31 +82,45 @@ export class MaterialMapType {
 		return [];
 	}
 
-	// Override the 3 items below if you want to be able to export mapData in assetbundles.
-	// usually returning the mapData object itself in mapDataToAssetBundleData() is enough,
-	// unless you want to transform some values first.
-	// mapDataToAssetBundleData() can return an arraybuffer.
-	// you can also return an object if assetBundleBinaryComposerOpts is set,
-	// the values will be converted to binary using BinaryComposer.objectToBinary()
-
-	static assetBundleBinaryComposerOpts = null;
+	/* ==== Material instance related methods ==== */
 
 	/**
-	 * @param {Object} mapData
-	 * @returns {?Object}
+	 * Use this to convert customData as stored on disk to data that lives
+	 * in Material instances.
+	 * For instance, assets are stored on disk as uuid. Use this to load the
+	 * assets and store them in the Material.
+	 * @param {*} customData The customData as stored on disk.
+	 * @returns {Promise<Object>} The data to be stored in the Material.
 	 */
-	static mapDataToAssetBundleData(mapData) {
-		return null;
+	static async getLiveAssetCustomData(customData) {
+		return {};
 	}
 
-	// alternatively you can override this for more control
-	static mapDataToAssetBundleBinary(mapData) {
-		const bundleMapData = this.mapDataToAssetBundleData(mapData);
+	/**
+	 * This should yield ProjectAssets that are linked in the custom data.
+	 * This will be used to replace material instances in the editor whenever a
+	 * linked live asset changes (a shader for example).
+	 * @param {*} customData The customData as stored on disk.
+	 * @returns {AsyncGenerator<import("../Assets/ProjectAsset.js").default>}
+	 */
+	static async *getLinkedAssetsInCustomData(customData) {}
+
+	/* ==== AssetBundle related methods ==== */
+
+	/**
+	 * This gets called when a material needs to get bundled.
+	 * By default this turns the result of {@link mapDataToAssetBundleData} into
+	 * an ArrayBuffer using {@link BinaryComposer.objectToBinary}. But you can
+	 * override this and return your custom ArrayBuffer.
+	 * @param {*} customData The customData as stored on disk.
+	 * @returns {ArrayBuffer} The binary data to be stored in the material asset.
+	 */
+	static mapDataToAssetBundleBinary(customData) {
+		const bundleMapData = this.mapDataToAssetBundleData(customData);
 		if (!bundleMapData) {
 			// fail silently, you probaly intended to not export anything
 			return null;
 		}
-		if (bundleMapData instanceof ArrayBuffer) return bundleMapData;
 
 		if (!this.assetBundleBinaryComposerOpts) {
 			console.warn("Failed to export material map, assetBundleBinaryComposerOpts is not set");
@@ -131,8 +132,31 @@ export class MaterialMapType {
 		});
 	}
 
-	// alternatively you can override this for more control
-	// this will be used for determining what other assets should be included in a bundle recursively
+	/**
+	 * This gets called when a material needs to get bundled.
+	 * You can use this to make some final modifications to the customData
+	 * before it gets passed on to {@link mapDataToAssetBundleBinary}.
+	 * Usually it is ok to leave this as is.
+	 * @param {Object} customData The customData as stored on disk.
+	 * @returns {?Object} The modified customData.
+	 */
+	static mapDataToAssetBundleData(customData) {
+		return customData;
+	}
+
+	/**
+	 * If you don't override {@link mapDataToAssetBundleBinary} or {@link mapDataToAssetBundleData},
+	 * these are the default options for {@link BinaryComposer.objectToBinary}.
+	 * If you want support for exporting your custom data in assetbundles, you
+	 * should provide a structure here.
+	 * @type {import("../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 */
+	static assetBundleBinaryComposerOpts = null;
+
+	/* ==== Misc ==== */
+
+	// todo: I don't know why this is here. It seems awfully similar to
+	// getLinkedAssetsInCustomData. I think we can combine them.
 	static *getReferencedAssetUuids(mapData) {
 		const bundleMapData = this.mapDataToAssetBundleData(mapData);
 		if (!bundleMapData) {
