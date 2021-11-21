@@ -1,4 +1,4 @@
-import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../../UI/PropertiesTreeView/PropertiesTreeView.js";
 
 export class MaterialMapListUi {
 	constructor({
@@ -16,7 +16,7 @@ export class MaterialMapListUi {
 			});
 			const mappedNameEntry = collapsable.addItem({
 				type: "string",
-				/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
+				/** @type {import("../../../UI/TextGui.js").TextGuiOptions} */
 				guiOpts: {
 					label: "Mapped Name",
 					placeholder: item.name,
@@ -50,7 +50,7 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {function(import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent) : void} cb
+	 * @param {function(import("../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent) : void} cb
 	 */
 	onValueChange(cb) {
 		this.treeView.onChildValueChange(cb);

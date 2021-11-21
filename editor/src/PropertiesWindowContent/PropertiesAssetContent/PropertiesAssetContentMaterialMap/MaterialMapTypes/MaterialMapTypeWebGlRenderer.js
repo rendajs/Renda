@@ -1,7 +1,7 @@
 import {MaterialMapType} from "./MaterialMapType.js";
-import {ShaderSource, Vec3} from "../../../../src/index.js";
-import {StorageType} from "../../../../src/Util/BinaryComposer.js";
-import editor from "../../editorInstance.js";
+import {ShaderSource, Vec3} from "../../../../../../src/index.js";
+import {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
+import editor from "../../../../editorInstance.js";
 
 export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 	static uiName = "WebGL Renderer";
@@ -11,7 +11,7 @@ export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 	constructor() {
 		super();
 
-		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.settingsGuiStructure = {
 			vertexShader: {
 				type: "droppable",

@@ -1,5 +1,5 @@
 import {PropertiesTreeView} from "../../../UI/PropertiesTreeView/PropertiesTreeView.js";
-import {MaterialMapListUi} from "../../../Assets/MaterialMapTypes/MaterialMapListUi.js";
+import {MaterialMapListUi} from "./MaterialMapListUi.js";
 import {PropertiesMaterialMapContentGenericStructure} from "./PropertiesMaterialMapContent/PropertiesMaterialMapContentGenericStructure.js";
 
 /**
@@ -8,7 +8,7 @@ import {PropertiesMaterialMapContentGenericStructure} from "./PropertiesMaterial
  */
 export class MaterialMapTypeEntry {
 	/**
-	 * @param {typeof import("../../../Assets/MaterialMapTypes/MaterialMapType.js").MaterialMapType} typeConstructor
+	 * @param {typeof import("./MaterialMapTypes/MaterialMapType.js").MaterialMapType} typeConstructor
 	 */
 	constructor(typeConstructor) {
 		this.typeConstructor = typeConstructor;

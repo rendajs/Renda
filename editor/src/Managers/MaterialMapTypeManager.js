@@ -1,5 +1,5 @@
-import {autoRegisterMaterialMapTypes} from "../Assets/MaterialMapTypes/autoRegisterMaterialMapTypes.js";
-import {MaterialMapType} from "../Assets/MaterialMapTypes/MaterialMapType.js";
+import {autoRegisterMaterialMapTypes} from "../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/autoRegisterMaterialMapTypes.js";
+import {MaterialMapType} from "../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js";
 import {isUuid} from "../../../src/Util/Util.js";
 import editor from "../editorInstance.js";
 

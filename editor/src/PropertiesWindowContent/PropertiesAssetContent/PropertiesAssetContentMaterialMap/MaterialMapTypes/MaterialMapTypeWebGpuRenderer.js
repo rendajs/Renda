@@ -1,11 +1,11 @@
 import {MaterialMapType} from "./MaterialMapType.js";
-import {StorageType} from "../../../../src/Util/BinaryComposer.js";
-import editor from "../../editorInstance.js";
-import {WebGpuPipelineConfig} from "../../../../src/index.js";
+import {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
+import editor from "../../../../editorInstance.js";
+import {WebGpuPipelineConfig} from "../../../../../../src/index.js";
 
 /**
  * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData
- * @property {import("../../Util/Util.js").UuidString} forwardPipelineConfig
+ * @property {import("../../../../Util/Util.js").UuidString} forwardPipelineConfig
  */
 
 export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
@@ -13,7 +13,7 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
 
-	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 	static settingsStructure = {
 		forwardPipelineConfig: {
 			type: "droppable",
@@ -28,7 +28,7 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	 * @override
 	 */
 	static async getMappableValues(customData) {
-		/** @type {import("../../../../src/Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
+		/** @type {import("../../../../../../src/Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
 		const pipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
 		/** @type {Map<string, import("./MaterialMapType.js").MaterialMapTypeMappableValue>} */
 		const mappableValues = new Map();
@@ -37,7 +37,7 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	}
 
 	/**
-	 * @param {import("../../../../src/Rendering/ShaderSource.js").ShaderSource} shader
+	 * @param {import("../../../../../../src/Rendering/ShaderSource.js").ShaderSource} shader
 	 * @param {Map<string, import("./MaterialMapType.js").MaterialMapTypeMappableValue>} mappableValues
 	 */
 	static fillMappableValuesForShader(shader, mappableValues) {
@@ -81,7 +81,7 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 					type = matrixMatch.groups.matrixType;
 				}
 			}
-			/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} */
+			/** @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} */
 			let mappableValueType = "number";
 			if (isVector) {
 				if (vectorSize == 2) {

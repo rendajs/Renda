@@ -16,7 +16,7 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 	}
 
 	/**
-	 * @param {import("../../../../Assets/MaterialMapTypes/MaterialMapTypeWebGpuRenderer.js").MaterialMapTypeWebGpuRendererSavedCustomData} customData
+	 * @param {import("../MaterialMapTypes/MaterialMapTypeWebGpuRenderer.js").MaterialMapTypeWebGpuRendererSavedCustomData} customData
 	 * @override
 	 */
 	async customAssetDataFromLoad(customData) {
