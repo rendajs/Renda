@@ -1,6 +1,6 @@
 import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 
-export default class PropertiesAssetContent {
+export class PropertiesAssetContent {
 	constructor() {
 		this.currentSelection = [];
 		this.treeView = new PropertiesTreeView();

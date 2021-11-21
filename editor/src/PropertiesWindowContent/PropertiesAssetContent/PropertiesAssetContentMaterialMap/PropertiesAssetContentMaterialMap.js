@@ -1,4 +1,4 @@
-import PropertiesAssetContent from "../PropertiesAssetContent.js";
+import {PropertiesAssetContent} from "../PropertiesAssetContent.js";
 import editor from "../../../editorInstance.js";
 import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
 

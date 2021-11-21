@@ -1,4 +1,4 @@
-import PropertiesWindowContent from "./PropertiesWindowContent.js";
+import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 
-export default class PropertiesWindowMultipleContent extends PropertiesWindowContent {
+export class PropertiesWindowMultipleContent extends PropertiesWindowContent {
 }

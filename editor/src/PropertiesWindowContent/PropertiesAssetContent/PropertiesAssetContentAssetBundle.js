@@ -1,8 +1,8 @@
-import PropertiesAssetContent from "./PropertiesAssetContent.js";
+import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import ProjectAsset from "../../Assets/ProjectAsset.js";
 import editor from "../../editorInstance.js";
 
-export default class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
+export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 	constructor() {
 		super();
 		this.bundleSettingsTree = this.treeView.addCollapsable("asset bundle settings");

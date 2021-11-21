@@ -1,6 +1,6 @@
-import PropertiesAssetContent from "./PropertiesAssetContent.js";
+import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 
-export default class PropertiesAssetContentGenericStructure extends PropertiesAssetContent {
+export class PropertiesAssetContentGenericStructure extends PropertiesAssetContent {
 	constructor(structure) {
 		super();
 

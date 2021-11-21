@@ -1,4 +1,4 @@
-export default class PropertiesWindowContent {
+export class PropertiesWindowContent {
 	constructor() {
 		this.el = document.createElement("div");
 	}

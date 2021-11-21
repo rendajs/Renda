@@ -1,8 +1,8 @@
-import PropertiesAssetContent from "./PropertiesAssetContent.js";
+import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 
-export default class PropertiesAssetContentMesh extends PropertiesAssetContent {
+export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 	constructor() {
 		super();
 

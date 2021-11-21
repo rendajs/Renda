@@ -1,4 +1,4 @@
-import PropertiesWindowContent from "./PropertiesWindowContent.js";
+import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {Entity, Quat, defaultComponentTypeManager} from "../../../src/index.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import Button from "../UI/Button.js";
@@ -8,7 +8,7 @@ import {ContentWindowEntityEditor} from "../WindowManagement/ContentWindows/Cont
 import {ProjectAssetTypeEntity} from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../Misc/EntitySelection.js";
 
-export default class PropertiesWindowEntityContent extends PropertiesWindowContent {
+export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	constructor() {
 		super();
 

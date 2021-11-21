@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import PropertiesAssetContentAssetBundle from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentAssetBundle.js";
+import {PropertiesAssetContentAssetBundle} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentAssetBundle.js";
 
 export class ProjectAssetTypeAssetBundle extends ProjectAssetType {
 	static type = "JJ:assetBundle";

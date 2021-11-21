@@ -1,11 +1,11 @@
-import autoRegisterContentWindows from "../PropertiesWindowContent/autoRegisterContentWindows.js";
-import PropertiesWindowContent from "../PropertiesWindowContent/PropertiesWindowContent.js";
+import {autoRegisterContentWindows} from "../PropertiesWindowContent/autoRegisterContentWindows.js";
+import {PropertiesWindowContent} from "../PropertiesWindowContent/PropertiesWindowContent.js";
 import {ContentWindowProperties} from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
-import PropertiesWindowEmptyContent from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
-import PropertiesWindowMultipleContent from "../PropertiesWindowContent/PropertiesWindowMultipleContent.js";
+import {PropertiesWindowEmptyContent} from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
+import {PropertiesWindowMultipleContent} from "../PropertiesWindowContent/PropertiesWindowMultipleContent.js";
 import editor from "../editorInstance.js";
 
-export default class PropertiesWindowContentManager {
+export class PropertiesWindowContentManager {
 	constructor() {
 		this.registeredContentTypes = new Map();
 	}

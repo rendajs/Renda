@@ -1,15 +1,15 @@
-import PropertiesWindowContent from "./PropertiesWindowContent.js";
+import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import editor from "../editorInstance.js";
 import ProjectAsset from "../Assets/ProjectAsset.js";
-import PropertiesAssetContentGenericStructure from "./PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
+import {PropertiesAssetContentGenericStructure} from "./PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
 /**
  * @typedef {Object} PropertiesWindowAssetContentCallbacksContext
  * @property {*[]} selectedAssets
  */
 
-export default class PropertiesWindowAssetContent extends PropertiesWindowContent {
+export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 	constructor() {
 		super();
 
