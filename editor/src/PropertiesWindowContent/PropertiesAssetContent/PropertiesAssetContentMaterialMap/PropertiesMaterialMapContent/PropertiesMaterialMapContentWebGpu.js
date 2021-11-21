@@ -1,10 +1,10 @@
-import {WebGpuPipelineConfig} from "../../../../../src/index.js";
+import {WebGpuPipelineConfig} from "../../../../../../src/index.js";
 import {PropertiesMaterialMapContent} from "./PropertiesMaterialMapContent.js";
 
 export class PropertiesMaterialMapContentWebGpu extends PropertiesMaterialMapContent {
 	constructor() {
 		super();
-		/** @type {import("../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.settingsGuiStructure = {
 			forwardPipelineConfig: {
 				type: "droppable",
@@ -21,7 +21,7 @@ export class PropertiesMaterialMapContentWebGpu extends PropertiesMaterialMapCon
 	}
 
 	/**
-	 * @param {import("../../../Assets/MaterialMapTypes/MaterialMapTypeWebGpuRenderer.js").MaterialMapTypeWebGpuRendererSavedCustomData} customData
+	 * @param {import("../../../../Assets/MaterialMapTypes/MaterialMapTypeWebGpuRenderer.js").MaterialMapTypeWebGpuRendererSavedCustomData} customData
 	 * @override
 	 */
 	async customAssetDataFromLoad(customData) {

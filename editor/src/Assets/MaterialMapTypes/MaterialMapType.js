@@ -2,24 +2,18 @@ import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.j
 import editor from "../../editorInstance.js";
 
 /**
- * @fileoverview Instances of MaterialMapType take care of rendering ui in the
- * properties window for a MaterialMap. Registering it causes an extra entry to
- * be added to the 'Add Map Type' button.
- *
- * There are also a few static methods related to mappable values. These take
- * care of showing ui for materials.
- */
-
-/**
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
  * @property {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type
  * @property {*} [defaultValue]
  */
 
+/**
+ * Registered MaterialMapTypes with MaterialMapTypeManager.registerMapType should
+ * extend this class. Extended classes are responsible for converting data between
+ * what's stored on disk, in memory in live assets, or as binary in assetbundles.
+ */
 export class MaterialMapType {
-	/* ==== Material Map UI related methods ==== */
-
 	/**
 	 * Name that will be shown in the editor ui.
 	 * @type {string}
@@ -42,21 +36,9 @@ export class MaterialMapType {
 	/**
 	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
 	 * This will be used to render the material map settings in the properties window.
-	 * @type {typeof import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
+	 * @type {typeof import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
 	 */
 	static propertiesMaterialMapContentConstructor = null;
-
-	/**
-	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} treeView
-	 */
-	constructor(treeView) {
-		this.treeView = treeView;
-		this.settingsTreeView = this.treeView.addCollapsable("Map Settings");
-		this.onValueChangeCbs = new Set();
-		this.mapListTreeView = this.treeView.addCollapsable("Map List");
-		this.mapListUi = null;
-		this.lastSavedCustomData = null;
-	}
 
 	/**
 	 * This will be used to render the mapping ui in MaterialMaps, as well as

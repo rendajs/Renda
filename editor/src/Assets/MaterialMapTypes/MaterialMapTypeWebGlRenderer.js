@@ -8,8 +8,8 @@ export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 	static typeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
 	static allowExportInAssetBundles = true;
 
-	constructor(treeView) {
-		super(treeView);
+	constructor() {
+		super();
 
 		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.settingsGuiStructure = {
@@ -27,29 +27,29 @@ export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 			},
 		};
 
-		this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);
-		this.settingsTreeView.onChildValueChange(() => {
-			// todo
-		});
+		// todo
+		// this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);
+		// this.settingsTreeView.onChildValueChange(() => {
+		// });
 	}
 
-	async customAssetDataFromLoad(customData) {
-		let vertexShader = null;
-		let fragmentShader = null;
-		if (customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
-		if (customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
-		this.settingsTreeView.fillSerializableStructureValues({vertexShader, fragmentShader});
-	}
+	// async customAssetDataFromLoad(customData) {
+	// 	let vertexShader = null;
+	// 	let fragmentShader = null;
+	// 	if (customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
+	// 	if (customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
+	// 	this.settingsTreeView.fillSerializableStructureValues({vertexShader, fragmentShader});
+	// }
 
-	async getCustomAssetDataForSave() {
-		const settings = this.getSettingsValues();
-		const data = {
-			vertexShader: settings.vertexShader?.uuid || null,
-			fragmentShader: settings.fragmentShader?.uuid || null,
-		};
+	// async getCustomAssetDataForSave() {
+	// 	const settings = this.getSettingsValues();
+	// 	const data = {
+	// 		vertexShader: settings.vertexShader?.uuid || null,
+	// 		fragmentShader: settings.fragmentShader?.uuid || null,
+	// 	};
 
-		return data;
-	}
+	// 	return data;
+	// }
 
 	static async getLiveAssetCustomData(customData) {
 		let vertexShader = null;
@@ -82,9 +82,9 @@ export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 		};
 	}
 
-	getSettingsValues() {
-		return this.settingsTreeView.getSerializableStructureValues(this.settingsGuiStructure);
-	}
+	// getSettingsValues() {
+	// 	return this.settingsTreeView.getSerializableStructureValues(this.settingsGuiStructure);
+	// }
 
 	static async getMappableValues(customData) {
 		const itemsMap = new Map();

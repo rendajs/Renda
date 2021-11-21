@@ -1,7 +1,7 @@
 import {MaterialMapType} from "./MaterialMapType.js";
 import {StorageType} from "../../../../src/Util/BinaryComposer.js";
 import editor from "../../editorInstance.js";
-import {PropertiesMaterialMapContentWebGpu} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesMaterialMapContent/PropertiesMaterialMapContentWebGpu.js";
+import {PropertiesMaterialMapContentWebGpu} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContentWebGpu.js";
 
 /**
  * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData

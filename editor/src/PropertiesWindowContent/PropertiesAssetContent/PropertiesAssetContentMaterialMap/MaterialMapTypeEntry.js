@@ -1,9 +1,13 @@
-import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
-import {MaterialMapListUi} from "./MaterialMapListUi.js";
+import {PropertiesTreeView} from "../../../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {MaterialMapListUi} from "../../../Assets/MaterialMapTypes/MaterialMapListUi.js";
 
-export class PropertiesAssetContentMaterialMapTypeEntry {
+/**
+ * This class is instantiated for every added MaterialMapType in a PropertiesAssetContentMaterialMap.
+ * This class is essentially a container for a MaterialMapListUi and an extended PropertiesMaterialMapContent.
+ */
+export class MaterialMapTypeEntry {
 	/**
-	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} typeConstructor
+	 * @param {typeof import("../../../Assets/MaterialMapTypes/MaterialMapType.js").MaterialMapType} typeConstructor
 	 */
 	constructor(typeConstructor) {
 		this.typeConstructor = typeConstructor;
@@ -26,7 +30,7 @@ export class PropertiesAssetContentMaterialMapTypeEntry {
 		this.propertiesContentInstance.customAssetDataFromLoad(customData);
 	}
 
-	async getCustomAssetDataForSaveInternal() {
+	async getCustomAssetDataForSave() {
 		if (this.lastSavedCustomDataDirty) {
 			const customData = await this.propertiesContentInstance.getCustomAssetDataForSave();
 			this.lastSavedCustomData = customData;
@@ -42,7 +46,7 @@ export class PropertiesAssetContentMaterialMapTypeEntry {
 		}
 
 		this.mapListUi = new MaterialMapListUi({
-			items: await this.typeConstructor.getMappableValues(await this.getCustomAssetDataForSaveInternal()),
+			items: await this.typeConstructor.getMappableValues(await this.getCustomAssetDataForSave()),
 		});
 		this.mapListTreeView.addChild(this.mapListUi.treeView);
 		this.mapListUi.onValueChange(() => {

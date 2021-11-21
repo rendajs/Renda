@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentMaterialMap} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap.js";
+import {PropertiesAssetContentMaterialMap} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static type = "JJ:materialMap";
