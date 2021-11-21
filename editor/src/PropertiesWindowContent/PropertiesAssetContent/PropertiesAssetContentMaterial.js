@@ -51,11 +51,11 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async updateMapValues() {
 		this.mapValuesTreeView.clearChildren();
 		const mapValues = await editor.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
-		for (const [name, valueData] of mapValues) {
+		for (const valueData of mapValues) {
 			this.mapValuesTreeView.addItem({
 				type: valueData.type,
 				guiOpts: {
-					label: name,
+					label: valueData.name,
 				},
 			});
 		}

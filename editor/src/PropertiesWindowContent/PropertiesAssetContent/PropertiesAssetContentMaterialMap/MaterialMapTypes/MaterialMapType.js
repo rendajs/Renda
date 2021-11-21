@@ -9,6 +9,13 @@ import editor from "../../../../editorInstance.js";
  */
 
 /**
+ * @typedef {Object} MaterialMapTypeMappedMaterialValue
+ * @property {string} name
+ * @property {*} defaultValue
+ * @property {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type
+ */
+
+/**
  * Registered MaterialMapTypes with MaterialMapTypeManager.registerMapType should
  * extend this class. Extended classes are responsible for converting data between
  * what's stored on disk, in memory in live assets, or as binary in assetbundles.
@@ -169,7 +176,12 @@ export class MaterialMapType {
 		}
 	}
 
+	/**
+	 * @param {*} customData
+	 * @param {import("../../../../Managers/MaterialMapTypeManager.js").MaterialMapMappedValues} mappedValuesData
+	 */
 	static async getMappedValues(customData, mappedValuesData) {
+		/** @type {MaterialMapTypeMappedMaterialValue[]} */
 		const mappedValues = [];
 		const mappableValues = await this.getMappableValues(customData);
 		for (const {name, type, defaultValue} of mappableValues) {

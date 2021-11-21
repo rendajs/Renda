@@ -3,6 +3,27 @@ import {MaterialMapType} from "../PropertiesWindowContent/PropertiesAssetContent
 import {isUuid} from "../../../src/Util/Util.js";
 import editor from "../editorInstance.js";
 
+/**
+ * @typedef {Object} MaterialMapAssetData
+ * @property {MaterialMapTypeData[]} maps
+ */
+
+/**
+ * @typedef {Object} MaterialMapTypeData
+ * @property {import("../Util/Util.js").UuidString} mapTypeId
+ * @property {*} customData
+ * @property {MaterialMapMappedValues} mappedValues
+ */
+
+/** @typedef {Object.<string, MaterialMapMappedValue>} MaterialMapMappedValues */
+
+/**
+ * @typedef {Object} MaterialMapMappedValue
+ * @property {boolean} visible
+ * @property {string} mappedName
+ * @property {*} defaultValue
+ */
+
 export class MaterialMapTypeManager {
 	constructor() {
 		this.registeredMapTypes = new Map();
@@ -57,12 +78,18 @@ export class MaterialMapTypeManager {
 		return this.registeredMapTypes.get(uuid);
 	}
 
+	/**
+	 * @param {import("../Util/Util.js").UuidString} mapAssetUuid
+	 * @returns {Promise<import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappedMaterialValue[]>}
+	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
 		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapAssetUuid);
 		if (!mapAsset) return [];
+		/** @type {Map<string, import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappedMaterialValue>} */
 		const mapValues = new Map();
-		if (await mapAsset.getIsDeleted()) return mapValues;
+		if (await mapAsset.getIsDeleted()) return [];
+		/** @type {MaterialMapAssetData} */
 		const mapData = await mapAsset.readAssetData();
 		for (const mapType of mapData.maps) {
 			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
@@ -71,7 +98,7 @@ export class MaterialMapTypeManager {
 				mapValues.set(value.name, value);
 			}
 		}
-		return mapValues;
+		return Array.from(mapValues.values());
 	}
 
 	async getDataForMapProjectAsset(mapAsset) {
