@@ -113,15 +113,14 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 
 		const entry = new MaterialMapTypeEntry(MaterialMapTypeConstructor);
 		this.mapTypesTreeView.addChild(entry.treeView);
-		// const treeView = this.mapTypesTreeView.addCollapsable(MaterialMapTypeConstructor.uiName);
 
 		this.addedMapTypes.set(MaterialMapTypeConstructor.typeUuid, entry);
-		// typeInstance.onValueChange(() => {
-		// 	if (!this.ignoreValueChange) {
-		// 		this.saveSelectedAssets();
-		// 	}
-		// });
-		// if (updateMapListUi) typeInstance.updateMapListUi();
+		entry.onValueChange(() => {
+			if (!this.ignoreValueChange) {
+				this.saveSelectedAssets();
+			}
+		});
+		if (updateMapListUi) entry.updateMapListUi();
 		return entry;
 	}
 
