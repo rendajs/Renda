@@ -80,13 +80,13 @@ export class MaterialMapTypeManager {
 
 	/**
 	 * @param {import("../Util/Util.js").UuidString} mapAssetUuid
-	 * @returns {Promise<import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappedMaterialValue[]>}
+	 * @returns {Promise<import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappableValue[]>}
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
 		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapAssetUuid);
 		if (!mapAsset) return [];
-		/** @type {Map<string, import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappedMaterialValue>} */
+		/** @type {Map<string, import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();
 		if (await mapAsset.getIsDeleted()) return [];
 		/** @type {MaterialMapAssetData} */
