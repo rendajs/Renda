@@ -56,6 +56,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				type: valueData.type,
 				guiOpts: {
 					label: valueData.name,
+					defaultValue: valueData.defaultValue,
 				},
 			});
 		}
