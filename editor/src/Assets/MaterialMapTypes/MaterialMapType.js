@@ -1,5 +1,5 @@
-import BinaryComposer, {StorageType} from "../../../src/Util/BinaryComposer.js";
-import editor from "../editorInstance.js";
+import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
+import editor from "../../editorInstance.js";
 
 /**
  * @fileoverview Instances of MaterialMapType take care of rendering ui in the
@@ -13,7 +13,7 @@ import editor from "../editorInstance.js";
 /**
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
- * @property {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type
+ * @property {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type
  * @property {*} [defaultValue]
  */
 
@@ -29,7 +29,7 @@ export class MaterialMapType {
 	/**
 	 * This will be used for storing the map type in the MaterialMap asset.
 	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
-	 * @type {import("../Util/Util.js").UuidString}
+	 * @type {import("../../Util/Util.js").UuidString}
 	 */
 	static typeUuid = null;
 
@@ -42,12 +42,12 @@ export class MaterialMapType {
 	/**
 	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
 	 * This will be used to render the material map settings in the properties window.
-	 * @type {typeof import("../PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
+	 * @type {typeof import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
 	 */
 	static propertiesMaterialMapContentConstructor = null;
 
 	/**
-	 * @param {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} treeView
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} treeView
 	 */
 	constructor(treeView) {
 		this.treeView = treeView;
@@ -90,7 +90,7 @@ export class MaterialMapType {
 	 * This will be used to replace material instances in the editor whenever a
 	 * linked live asset changes (a shader for example).
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {AsyncGenerator<import("../Assets/ProjectAsset.js").default>}
+	 * @returns {AsyncGenerator<import("../ProjectAsset.js").default>}
 	 */
 	static async *getLinkedAssetsInCustomData(customData) {}
 
@@ -138,7 +138,7 @@ export class MaterialMapType {
 	 * these are the default options for {@link BinaryComposer.objectToBinary}.
 	 * If you want support for exporting your custom data in assetbundles, you
 	 * should provide a structure here.
-	 * @type {import("../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @type {import("../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
 	 */
 	static assetBundleBinaryComposerOpts = null;
 

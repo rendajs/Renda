@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import PropertiesAssetContentMesh from "../../PropertiesAssetContent/PropertiesAssetContentMesh.js";
+import PropertiesAssetContentMesh from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMesh.js";
 import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
 

@@ -1,4 +1,4 @@
-import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {MaterialMapListUi} from "./MaterialMapListUi.js";
 
 export class PropertiesAssetContentMaterialMapTypeEntry {

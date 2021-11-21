@@ -1,6 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
-import {Mesh, VertexState} from "../../../src/index.js";
-import editor from "../editorInstance.js";
+import {Mesh, VertexState} from "../../../../src/index.js";
+import editor from "../../editorInstance.js";
 
 export default class PropertiesAssetContentMesh extends PropertiesAssetContent {
 	constructor() {
@@ -8,7 +8,7 @@ export default class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
 
-		/** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		this.meshSettingsStructure = {
 			vertexState: {
 				type: "droppable",

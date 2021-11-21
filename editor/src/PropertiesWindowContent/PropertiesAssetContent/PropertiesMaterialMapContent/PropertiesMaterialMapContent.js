@@ -1,5 +1,5 @@
 
-import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../../UI/PropertiesTreeView/PropertiesTreeView.js";
 
 /**
  * This is the base class for ui rendered in the properties window for material maps.
@@ -7,7 +7,7 @@ import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js
 export class PropertiesMaterialMapContent {
 	constructor() {
 		this.treeView = new PropertiesTreeView();
-		/** @type {import("../MaterialMapTypes/PropertiesAssetContentMaterialMapTypeEntry.js").PropertiesAssetContentMaterialMapTypeEntry} */
+		/** @type {import("../../../Assets/MaterialMapTypes/PropertiesAssetContentMaterialMapTypeEntry.js").PropertiesAssetContentMaterialMapTypeEntry} */
 		this.mapTypeEntry = null;
 	}
 

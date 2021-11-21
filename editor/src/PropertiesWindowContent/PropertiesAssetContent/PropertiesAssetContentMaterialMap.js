@@ -1,6 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
-import editor from "../editorInstance.js";
-import {PropertiesAssetContentMaterialMapTypeEntry} from "../MaterialMapTypes/PropertiesAssetContentMaterialMapTypeEntry.js";
+import editor from "../../editorInstance.js";
+import {PropertiesAssetContentMaterialMapTypeEntry} from "../../Assets/MaterialMapTypes/PropertiesAssetContentMaterialMapTypeEntry.js";
 
 export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	constructor() {
@@ -36,13 +36,13 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			},
 		};
 
-		/** @type {Map<import("../Util/Util.js").UuidString, PropertiesAssetContentMaterialMapTypeEntry>} */
+		/** @type {Map<import("../../Util/Util.js").UuidString, PropertiesAssetContentMaterialMapTypeEntry>} */
 		this.addedMapTypes = new Map();
 		this.mapTypesTreeView = this.treeView.addCollapsable("Map Types");
 
 		this.addMapTypeButtonEntry = this.treeView.addItem({
 			type: "button",
-			/** @type {import("../UI/Button.js").ButtonGuiOptions} */
+			/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
 			guiOpts: {
 				text: "Add Map Type",
 				onClick: () => {
@@ -78,14 +78,14 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {typeof import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} typeConstructor
+	 * @param {typeof import("../../Assets/MaterialMapTypes/MaterialMapType.js").MaterialMapType} typeConstructor
 	 */
 	hasTypeConstructor(typeConstructor) {
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../Util/Util.js").UuidString} uuid
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */
@@ -97,7 +97,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {typeof import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} MaterialMapTypeConstructor
+	 * @param {typeof import("../../Assets/MaterialMapTypes/MaterialMapType.js").MaterialMapType} MaterialMapTypeConstructor
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */

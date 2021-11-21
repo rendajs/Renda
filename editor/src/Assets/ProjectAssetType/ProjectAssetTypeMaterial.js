@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/index.js";
-import {PropertiesAssetContentMaterial} from "../../PropertiesAssetContent/PropertiesAssetContentMaterial.js";
+import {PropertiesAssetContentMaterial} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 import editor from "../../editorInstance.js";
 import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
 

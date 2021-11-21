@@ -1,6 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
-import ProjectAsset from "../Assets/ProjectAsset.js";
-import editor from "../editorInstance.js";
+import ProjectAsset from "../../Assets/ProjectAsset.js";
+import editor from "../../editorInstance.js";
 
 export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	constructor() {
@@ -29,7 +29,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		const mapData = await map.readAssetData();
 		this.isUpdatingUi = true;
 
-		const gui = /** @type {import("../UI/DroppableGui.js").default} */ (this.mapTreeView.gui);
+		const gui = /** @type {import("../../UI/DroppableGui.js").default} */ (this.mapTreeView.gui);
 		await gui.setValueFromAssetUuid(mapData?.map);
 		this.updateMapValues();
 
