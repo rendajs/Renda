@@ -50,8 +50,9 @@ export class MaterialMapTypeEntry {
 			this.mapListUi = null;
 		}
 
+		const mappableValues = await this.typeConstructor.getMappableValues(await this.getCustomAssetDataForSave());
 		this.mapListUi = new MaterialMapListUi({
-			items: await this.typeConstructor.getMappableValues(await this.getCustomAssetDataForSave()),
+			items: mappableValues,
 		});
 		this.mapListTreeView.addChild(this.mapListUi.treeView);
 		this.mapListUi.onValueChange(() => {

@@ -10,9 +10,11 @@ export default class TextGui {
 	 * @param {TextGuiOptions} opts
 	 */
 	constructor({
+		defaultValue = "",
 		placeholder = "",
 		disabled = false,
 	} = {}) {
+		this.defaultValue = defaultValue;
 		this.disabled = disabled;
 
 		this.el = document.createElement("input");
@@ -24,6 +26,7 @@ export default class TextGui {
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
 
+		this.setValue(defaultValue);
 		this.setDisabled(disabled);
 	}
 
