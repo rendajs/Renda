@@ -1,18 +1,13 @@
-import {WebGpuPipelineConfig} from "../../../../../../src/index.js";
 import {PropertiesMaterialMapContent} from "./PropertiesMaterialMapContent.js";
 
-export class PropertiesMaterialMapContentWebGpu extends PropertiesMaterialMapContent {
-	constructor() {
+export class PropertiesMaterialMapContentGenericStructure extends PropertiesMaterialMapContent {
+	/**
+	 * @param {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} structure
+	 */
+	constructor(structure) {
 		super();
-		/** @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
-		this.settingsGuiStructure = {
-			forwardPipelineConfig: {
-				type: "droppable",
-				guiOpts: {
-					supportedAssetTypes: [WebGpuPipelineConfig],
-				},
-			},
-		};
+
+		this.settingsGuiStructure = structure;
 
 		this.treeView.generateFromSerializableStructure(this.settingsGuiStructure);
 		this.treeView.onChildValueChange(() => {

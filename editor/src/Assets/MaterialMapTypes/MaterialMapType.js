@@ -34,6 +34,15 @@ export class MaterialMapType {
 	static allowExportInAssetBundles = false;
 
 	/**
+	 * Set this to a structure to automatically load and save data for this map type.
+	 * This is optional if {@link propertiesMaterialMapContentConstructor} is set.
+	 * @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure}
+	 */
+	static settingsStructure = null;
+
+	/**
+	 * If you prefer more control, you can set this to the constructor of an PropertiesMaterialMapContent.
+	 * This is optional if {@link settingsStructure} is set.
 	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
 	 * This will be used to render the material map settings in the properties window.
 	 * @type {typeof import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}

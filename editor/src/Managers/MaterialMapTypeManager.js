@@ -28,8 +28,10 @@ export class MaterialMapTypeManager {
 			return;
 		}
 
-		if (constructor.propertiesMaterialMapContentConstructor == null || typeof constructor.propertiesMaterialMapContentConstructor != "function") {
-			constructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + ") invalid propertiesMaterialMapContentConstructor value.");
+		const hasMapContentConstructor = constructor.propertiesMaterialMapContentConstructor != null && typeof constructor.propertiesMaterialMapContentConstructor == "function";
+		const hasSettingsStructure = constructor.settingsStructure != null && typeof constructor.settingsStructure == "object";
+		if (!hasMapContentConstructor && !hasSettingsStructure) {
+			constructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + "). The material map should at least have a settingsStructure or a propertiesMaterialMapContentConstructor.");
 			return;
 		}
 

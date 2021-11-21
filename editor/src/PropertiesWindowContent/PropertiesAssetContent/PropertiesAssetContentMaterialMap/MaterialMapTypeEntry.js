@@ -1,5 +1,6 @@
 import {PropertiesTreeView} from "../../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {MaterialMapListUi} from "../../../Assets/MaterialMapTypes/MaterialMapListUi.js";
+import {PropertiesMaterialMapContentGenericStructure} from "./PropertiesMaterialMapContent/PropertiesMaterialMapContentGenericStructure.js";
 
 /**
  * This class is instantiated for every added MaterialMapType in a PropertiesAssetContentMaterialMap.
@@ -13,7 +14,11 @@ export class MaterialMapTypeEntry {
 		this.typeConstructor = typeConstructor;
 
 		const PropertiesContentConstructor = typeConstructor.propertiesMaterialMapContentConstructor;
-		this.propertiesContentInstance = new PropertiesContentConstructor();
+		if (PropertiesContentConstructor) {
+			this.propertiesContentInstance = new PropertiesContentConstructor();
+		} else {
+			this.propertiesContentInstance = new PropertiesMaterialMapContentGenericStructure(typeConstructor.settingsStructure);
+		}
 		this.propertiesContentInstance.mapTypeEntry = this;
 
 		this.treeView = new PropertiesTreeView();

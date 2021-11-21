@@ -1,7 +1,7 @@
 import {MaterialMapType} from "./MaterialMapType.js";
 import {StorageType} from "../../../../src/Util/BinaryComposer.js";
 import editor from "../../editorInstance.js";
-import {PropertiesMaterialMapContentWebGpu} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContentWebGpu.js";
+import {WebGpuPipelineConfig} from "../../../../src/index.js";
 
 /**
  * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData
@@ -12,7 +12,16 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	static uiName = "WebGPU Renderer";
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
-	static propertiesMaterialMapContentConstructor = PropertiesMaterialMapContentWebGpu;
+
+	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+	static settingsStructure = {
+		forwardPipelineConfig: {
+			type: "droppable",
+			guiOpts: {
+				supportedAssetTypes: [WebGpuPipelineConfig],
+			},
+		},
+	};
 
 	/**
 	 * @param {MaterialMapTypeWebGpuRendererSavedCustomData} customData
