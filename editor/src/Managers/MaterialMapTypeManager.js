@@ -14,6 +14,9 @@ export class MaterialMapTypeManager {
 		}
 	}
 
+	/**
+	 * @param {typeof MaterialMapType} constructor
+	 */
 	registerMapType(constructor) {
 		if (!(constructor.prototype instanceof MaterialMapType)) {
 			console.warn("Tried to register a MaterialMapType type (" + constructor.name + ") that does not extend MaterialMapType class.");
@@ -22,6 +25,11 @@ export class MaterialMapTypeManager {
 
 		if (constructor.uiName == null || typeof constructor.uiName != "string") {
 			constructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + ") invalid uiName value.");
+			return;
+		}
+
+		if (constructor.propertiesMaterialMapContentConstructor == null || typeof constructor.propertiesMaterialMapContentConstructor != "function") {
+			constructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + ") invalid propertiesMaterialMapContentConstructor value.");
 			return;
 		}
 

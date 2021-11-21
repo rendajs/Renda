@@ -29,8 +29,7 @@ export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
 
 		this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);
 		this.settingsTreeView.onChildValueChange(() => {
-			this.updateMapListUi();
-			this.signalCustomDataChanged();
+			// todo
 		});
 	}
 

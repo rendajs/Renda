@@ -1,5 +1,6 @@
 import PropertiesAssetContent from "./PropertiesAssetContent.js";
 import editor from "../editorInstance.js";
+import {PropertiesAssetContentMaterialMapTypeEntry} from "../MaterialMapTypes/PropertiesAssetContentMaterialMapTypeEntry.js";
 
 export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	constructor() {
@@ -35,7 +36,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			},
 		};
 
-		/** @type {Map<import("../Util/Util.js").UuidString, import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType>} */
+		/** @type {Map<import("../Util/Util.js").UuidString, PropertiesAssetContentMaterialMapTypeEntry>} */
 		this.addedMapTypes = new Map();
 		this.mapTypesTreeView = this.treeView.addCollapsable("Map Types");
 
@@ -76,6 +77,9 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		this.ignoreValueChange = false;
 	}
 
+	/**
+	 * @param {typeof import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} typeConstructor
+	 */
 	hasTypeConstructor(typeConstructor) {
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
 	}
@@ -93,34 +97,29 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @template {import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} T
-	 * @param {new (...args: *) => T} TypeConstructor
+	 * @param {typeof import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} MaterialMapTypeConstructor
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
-	 * @returns {T}
 	 */
-	addMapType(TypeConstructor, {
+	addMapType(MaterialMapTypeConstructor, {
 		updateMapListUi = true,
 	} = {}) {
-		const castConstructorAny = /** @type {*} */ (TypeConstructor);
-		const CastConstructor = /** @type {typeof import("../MaterialMapTypes/MaterialMapType.js").MaterialMapType} */ (castConstructorAny);
-		if (this.hasTypeConstructor(CastConstructor)) {
-			// eslint-disable-next-line jsdoc/no-undefined-types
-			const typeInstance = this.addedMapTypes.get(CastConstructor.typeUuid);
-			const castInstance = /** @type {T} */ (typeInstance);
-			return castInstance;
+		if (this.hasTypeConstructor(MaterialMapTypeConstructor)) {
+			return this.addedMapTypes.get(MaterialMapTypeConstructor.typeUuid);
 		}
-		const treeView = this.mapTypesTreeView.addCollapsable(CastConstructor.uiName);
 
-		const typeInstance = new TypeConstructor(treeView);
-		this.addedMapTypes.set(CastConstructor.typeUuid, typeInstance);
-		typeInstance.onValueChange(() => {
-			if (!this.ignoreValueChange) {
-				this.saveSelectedAssets();
-			}
-		});
-		if (updateMapListUi) typeInstance.updateMapListUi();
-		return typeInstance;
+		const entry = new PropertiesAssetContentMaterialMapTypeEntry(MaterialMapTypeConstructor);
+		this.mapTypesTreeView.addChild(entry.treeView);
+		// const treeView = this.mapTypesTreeView.addCollapsable(MaterialMapTypeConstructor.uiName);
+
+		this.addedMapTypes.set(MaterialMapTypeConstructor.typeUuid, entry);
+		// typeInstance.onValueChange(() => {
+		// 	if (!this.ignoreValueChange) {
+		// 		this.saveSelectedAssets();
+		// 	}
+		// });
+		// if (updateMapListUi) typeInstance.updateMapListUi();
+		return entry;
 	}
 
 	async loadMaps(mapData) {

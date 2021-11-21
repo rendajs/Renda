@@ -1,6 +1,5 @@
 import BinaryComposer, {StorageType} from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
-import {MaterialMapListUi} from "./MaterialMapListUi.js";
 
 /**
  * @fileoverview Instances of MaterialMapType take care of rendering ui in the
@@ -41,6 +40,13 @@ export class MaterialMapType {
 	static allowExportInAssetBundles = false;
 
 	/**
+	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
+	 * This will be used to render the material map settings in the properties window.
+	 * @type {typeof import("../PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
+	 */
+	static propertiesMaterialMapContentConstructor = null;
+
+	/**
 	 * @param {import("../UI/PropertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} treeView
 	 */
 	constructor(treeView) {
@@ -50,27 +56,6 @@ export class MaterialMapType {
 		this.mapListTreeView = this.treeView.addCollapsable("Map List");
 		this.mapListUi = null;
 		this.lastSavedCustomData = null;
-		this.lastSavedCustomDataDirty = true;
-	}
-
-	/**
-	 * Overide this with your logic to load saved data in your MaterialMap ui.
-	 * @param {*} customData
-	 */
-	async customAssetDataFromLoad(customData) {}
-
-	/**
-	 * Override this and return the data you want to save.
-	 * This gets called when a MaterialMap is going to be saved.
-	 * @returns {Promise<?Object>}
-	 */
-	async getCustomAssetDataForSave() {}
-
-	// fire this whenever a user changes something that
-	// requires the custom data to be saved
-	signalCustomDataChanged() {
-		this.lastSavedCustomDataDirty = true;
-		this.valueChanged();
 	}
 
 	/**
@@ -191,50 +176,6 @@ export class MaterialMapType {
 		for (const uuid of referencedUuids) {
 			yield uuid;
 		}
-	}
-
-	onValueChange(cb) {
-		this.onValueChangeCbs.add(cb);
-	}
-
-	valueChanged() {
-		for (const cb of this.onValueChangeCbs) {
-			cb();
-		}
-	}
-
-	async getCustomAssetDataForSaveInternal() {
-		if (this.lastSavedCustomDataDirty) {
-			const customData = await this.getCustomAssetDataForSave();
-			this.lastSavedCustomData = customData;
-			this.lastSavedCustomDataDirty = false;
-		}
-		return this.lastSavedCustomData;
-	}
-
-	async updateMapListUi() {
-		if (this.mapListUi) {
-			this.mapListUi.destructor();
-			this.mapListUi = null;
-		}
-
-		const constr = /** @type {typeof MaterialMapType} */ (this.constructor);
-		this.mapListUi = new MaterialMapListUi({
-			items: await constr.getMappableValues(await this.getCustomAssetDataForSaveInternal()),
-		});
-		this.mapListTreeView.addChild(this.mapListUi.treeView);
-		this.mapListUi.onValueChange(() => {
-			this.valueChanged();
-		});
-	}
-
-	async getMappableValuesForSave() {
-		return this.mapListUi?.getValues();
-	}
-
-	fillMapListValues(values) {
-		if (!this.mapListUi) return;
-		this.mapListUi.setValues(values);
 	}
 
 	static async getMappedValues(customData, mappedValuesData) {
