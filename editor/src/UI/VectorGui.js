@@ -118,8 +118,12 @@ export default class VectorGui {
 		let val = null;
 		if (getAsArray) {
 			val = numbersArr;
+		} else if (this.numericGuis.length == 2) {
+			val = new Vec2(numbersArr);
 		} else if (this.numericGuis.length == 3) {
 			val = new Vec3(numbersArr);
+		} else if (this.numericGuis.length == 4) {
+			val = new Vec4(numbersArr);
 		}
 		return val;
 	}

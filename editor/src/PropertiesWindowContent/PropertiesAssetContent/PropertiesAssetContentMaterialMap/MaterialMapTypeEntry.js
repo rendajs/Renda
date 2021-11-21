@@ -75,7 +75,7 @@ export class MaterialMapTypeEntry {
 		}
 	}
 
-	async getMappableValuesForSave() {
-		return this.mapListUi?.getValues();
+	async getMappedValuesForSave() {
+		return this.mapListUi?.getModifiedValuesForSave();
 	}
 }

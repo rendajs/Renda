@@ -146,7 +146,10 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			if (customData) {
 				map.customData = customData;
 			}
-			map.mappedValues = await mapInstance.getMappableValuesForSave();
+			const mappedValues = await mapInstance.getMappedValuesForSave();
+			if (mappedValues) {
+				map.mappedValues = mappedValues;
+			}
 			data.maps.push(map);
 		}
 		return data;

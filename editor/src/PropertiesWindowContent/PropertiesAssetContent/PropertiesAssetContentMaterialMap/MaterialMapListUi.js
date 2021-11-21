@@ -42,9 +42,15 @@ export class MaterialMapListUi {
 			const mapUi = this.createdMapListUis.get(name);
 			if (mapUi) {
 				const {visibleEntry, mappedNameEntry, defaultValueEntry} = mapUi;
-				visibleEntry.setValue(itemData.visible);
-				mappedNameEntry.setValue(itemData.mappedName);
-				defaultValueEntry.setValue(itemData.defaultValue);
+				if (itemData.visible !== undefined) {
+					visibleEntry.setValue(itemData.visible);
+				}
+				if (itemData.mappedName !== undefined) {
+					mappedNameEntry.setValue(itemData.mappedName);
+				}
+				if (itemData.defaultValue !== undefined) {
+					defaultValueEntry.setValue(itemData.defaultValue);
+				}
 			}
 		}
 	}
@@ -56,17 +62,35 @@ export class MaterialMapListUi {
 		this.treeView.onChildValueChange(cb);
 	}
 
-	getValues() {
-		const data = {};
+	getModifiedValuesForSave() {
+		const datas = {};
 
+		let hasOneOrMoreMappedValues = false;
 		for (const [name, mapUi] of this.createdMapListUis) {
-			data[name] = {
-				visible: mapUi.visibleEntry.value,
-				mappedName: mapUi.mappedNameEntry.value,
-				defaultValue: mapUi.defaultValueEntry.value,
-			};
+			const data = {};
+			let modified = false;
+			if (!mapUi.visibleEntry.value) {
+				data.visible = false;
+				modified = true;
+			}
+			if (mapUi.mappedNameEntry.value) {
+				data.mappedName = mapUi.mappedNameEntry.value;
+				modified = true;
+			}
+			if (mapUi.defaultValueEntry.value) {
+				data.defaultValue = mapUi.defaultValueEntry.getValue({getAsArray: true});
+				modified = true;
+			}
+			if (modified) {
+				datas[name] = data;
+				hasOneOrMoreMappedValues = true;
+			}
 		}
 
-		return data;
+		if (hasOneOrMoreMappedValues) {
+			return datas;
+		} else {
+			return null;
+		}
 	}
 }
