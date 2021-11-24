@@ -1,7 +1,7 @@
 import {BinaryComposer, StorageType, isUuid} from "../../index.js";
 import {MaterialMap} from "../../Rendering/MaterialMap.js";
 import {MaterialMapTypeSettings} from "../../Rendering/MaterialMapTypeSettings.js";
-import MaterialMapTypeLoader from "../MaterialMapTypeLoader.js";
+import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import AssetLoaderType from "./AssetLoaderType.js";
 
 export class AssetLoaderTypeMaterialMap extends AssetLoaderType {

@@ -1,6 +1,6 @@
 import {MaterialMapTypeSettings} from "../Rendering/MaterialMapTypeSettings.js";
 
-export default class MaterialMapTypeLoader {
+export class MaterialMapTypeLoader {
 	// this should return the same uuid as the typeUuid of your MaterialMapType
 	static get typeUuid() {
 		return null;
