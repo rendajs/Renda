@@ -1,3 +1,4 @@
+import {MaterialMapTypeSettings} from "../../../../../../src/Rendering/MaterialMapTypeSettings.js";
 import BinaryComposer, {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
 import editor from "../../../../editorInstance.js";
 
@@ -70,10 +71,10 @@ export class MaterialMapType {
 	 * For instance, assets are stored on disk as uuid. Use this to load the
 	 * assets and store them in the Material.
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {Promise<Object>} The data to be stored in the Material.
+	 * @returns {Promise<MaterialMapTypeSettings>} The data to be stored in the Material.
 	 */
-	static async getLiveAssetCustomData(customData) {
-		return {};
+	static async getLiveAssetSettingsInstance(customData) {
+		return null;
 	}
 
 	/**

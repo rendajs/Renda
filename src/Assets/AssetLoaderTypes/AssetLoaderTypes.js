@@ -3,6 +3,7 @@ export {AssetLoaderTypeClusteredLightsConfig} from "./AssetLoaderTypeClusteredLi
 export {default as AssetLoaderTypeEntity} from "./AssetLoaderTypeEntity.js";
 export {default as AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
 export {AssetLoaderTypeMaterial} from "./AssetLoaderTypeMaterial.js";
+export {AssetLoaderTypeMaterialMap} from "./AssetLoaderTypeMaterialMap.js";
 export {default as AssetLoaderTypeMesh} from "./AssetLoaderTypeMesh.js";
 export {AssetLoaderTypeRenderOutputConfig} from "./AssetLoaderTypeRenderOutputConfig.js";
 export {AssetLoaderTypeShaderSource} from "./AssetLoaderTypeShaderSource.js";

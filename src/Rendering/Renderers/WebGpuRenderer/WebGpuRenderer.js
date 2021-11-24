@@ -11,11 +11,10 @@ import {LightComponent, MeshComponent} from "../../../Components/Components.js";
 import Mesh from "../../../Core/Mesh.js";
 import MultiKeyWeakMap from "../../../Util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
+import {MaterialMapTypeSettingsWebGpu} from "./MaterialMapTypeSettingsWebGpu.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
-
-export const materialMapWebGpuTypeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 
 /**
  * @typedef {Object} CachedMaterialData
@@ -308,9 +307,8 @@ export class WebGpuRenderer extends Renderer {
 
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {
-					/** @type {import("./MaterialMapTypeLoaderWebGpuRenderer.js").WebGpuMaterialMap} */
-					const mapData = material.customMapDatas.get(materialMapWebGpuTypeUuid);
-					materialData.forwardPipelineConfig = mapData.forwardPipelineConfig;
+					const webgpuMap = material.materialMap.getMapTypeInstance(MaterialMapTypeSettingsWebGpu);
+					materialData.forwardPipelineConfig = webgpuMap.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
 				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);

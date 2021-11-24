@@ -2,6 +2,7 @@ import {MaterialMapType} from "./MaterialMapType.js";
 import {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
 import editor from "../../../../editorInstance.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/index.js";
+import {MaterialMapTypeSettingsWebGpu} from "../../../../../../src/Rendering/Renderers/WebGpuRenderer/MaterialMapTypeSettingsWebGpu.js";
 
 /**
  * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData
@@ -102,10 +103,14 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 		}
 	}
 
-	static async getLiveAssetCustomData(customData) {
+	/**
+	 * @override
+	 */
+	static async getLiveAssetSettingsInstance(customData) {
+		/** @type {WebGpuPipelineConfig} */
 		let forwardPipelineConfig = null;
 		if (customData.forwardPipelineConfig) forwardPipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
-		return {forwardPipelineConfig};
+		return new MaterialMapTypeSettingsWebGpu({forwardPipelineConfig});
 	}
 
 	static async *getLinkedAssetsInCustomData(customData) {

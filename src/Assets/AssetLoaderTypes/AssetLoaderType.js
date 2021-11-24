@@ -8,10 +8,9 @@ export default class AssetLoaderType {
 		this.assetLoader = assetLoader;
 	}
 
-	// this method should parse an ArrayBuffer and return an
-	// instance of the desired class such as a Mesh or Texture
 	/**
-	 *
+	 * This method should parse an ArrayBuffer and return an
+	 * instance of the desired class such as a Mesh or Texture.
 	 * @param {ArrayBuffer} buffer
 	 * @param {*} [assetOpts]
 	 * @returns {Promise<*>}

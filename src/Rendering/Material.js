@@ -1,8 +1,11 @@
+import {MaterialMap} from "./MaterialMap.js";
+
 export class Material {
-	constructor({
-		customMapDatas = new Map(),
-	} = {}) {
-		this.customMapDatas = customMapDatas;
+	/**
+	 * @param {MaterialMap} materialMap
+	 */
+	constructor(materialMap) {
+		this.materialMap = materialMap;
 		this.onDestructorCbs = new Set();
 
 		this.destructed = false;
@@ -14,7 +17,6 @@ export class Material {
 		}
 		this.onDestructorCbs.clear();
 
-		this.customMapDatas = null;
 		this.destructed = true;
 	}
 

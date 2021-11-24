@@ -12,61 +12,39 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = Material;
 
+	/**
+	 * @override
+	 * @param {*} materialJson
+	 */
 	async getLiveAssetData(materialJson) {
-		let customMapDatas = null;
+		let materialMap = null;
 		if (materialJson.map) {
-			const map = await editor.projectManager.assetManager.getProjectAsset(materialJson.map);
-			const {mapDatas, linkedProjectAssets} = await editor.materialMapTypeManager.getDataForMapProjectAsset(map);
-			customMapDatas = mapDatas;
-			for (const projectAsset of linkedProjectAssets) {
-				this.listenForUsedLiveAssetChanges(projectAsset);
-			}
+			materialMap = await editor.projectManager.assetManager.getLiveAsset(materialJson.map);
 		}
 
-		const material = new Material({
-			customMapDatas,
-		});
+		const material = new Material(materialMap);
 		return {liveAsset: material};
 	}
 
+	/**
+	 * @override
+	 */
 	async createBundledAssetData() {
 		const assetData = await this.projectAsset.readAssetData();
 		const mapUuid = assetData.map;
 		if (!mapUuid) return "";
-		const mapDatas = [];
-
-		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapUuid);
-		const mapData = await mapAsset.readAssetData();
-		for (const map of mapData.maps) {
-			const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
-			if (mapType.allowExportInAssetBundles) {
-				const arrayBuffer = mapType.mapDataToAssetBundleBinary(map.customData);
-				if (!arrayBuffer) continue;
-				mapDatas.push({
-					typeUuid: map.mapTypeId,
-					data: arrayBuffer,
-				});
-			}
-		}
 
 		return BinaryComposer.objectToBinary({
+			map: mapUuid,
 			values: [], // todo
-			mapDatas,
 		}, {
 			structure: {
+				map: StorageType.ASSET_UUID,
 				values: [StorageType.INT8],
-				mapDatas: [
-					{
-						typeUuid: StorageType.UUID,
-						data: StorageType.ARRAY_BUFFER,
-					},
-				],
 			},
 			nameIds: {
-				values: 1,
-				mapDatas: 2,
-				typeUuid: 3,
-				data: 4,
+				map: 1,
+				values: 2,
 			},
 		});
 	}
@@ -74,15 +52,6 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async *getReferencedAssetUuids() {
 		const assetData = await this.projectAsset.readAssetData();
 		const mapUuid = assetData.map;
-		if (!mapUuid) return;
-
-		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapUuid);
-		const mapData = await mapAsset.readAssetData();
-		for (const map of mapData.maps) {
-			const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
-			for (const uuid of mapType.getReferencedAssetUuids(map.customData)) {
-				yield uuid;
-			}
-		}
+		if (mapUuid) yield mapUuid;
 	}
 }
