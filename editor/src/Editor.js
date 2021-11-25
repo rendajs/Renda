@@ -4,7 +4,7 @@ import KeyboardShortcutManager from "./KeyboardShortcuts/KeyboardShortcutManager
 import {PropertiesWindowContentManager} from "./Managers/PropertiesWindowContentManager.js";
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
 import ComponentGizmosManager from "./Managers/ComponentGizmosManager.js";
-import {MaterialMapTypeManager} from "./Managers/MaterialMapTypeManager.js";
+import {MaterialMapTypeSerializerManager} from "./Managers/MaterialMapTypeSerializerManager.js";
 import ProjectManager from "./Managers/ProjectManager.js";
 import BuiltInDefaultAssetLinksManager from "./Assets/BuiltInDefaultAssetLinksManager.js";
 import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
@@ -29,7 +29,7 @@ export default class Editor {
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.componentGizmosManager = new ComponentGizmosManager();
-		this.materialMapTypeManager = new MaterialMapTypeManager();
+		this.materialMapTypeManager = new MaterialMapTypeSerializerManager();
 		this.projectManager = new ProjectManager();
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
 		this.builtInAssetManager = new BuiltInAssetManager();

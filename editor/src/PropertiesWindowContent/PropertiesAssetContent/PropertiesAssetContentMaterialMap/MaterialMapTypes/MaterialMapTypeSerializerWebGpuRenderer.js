@@ -1,4 +1,4 @@
-import {MaterialMapType} from "./MaterialMapType.js";
+import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
 import editor from "../../../../editorInstance.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/index.js";
@@ -9,7 +9,7 @@ import {MaterialMapTypeSettingsWebGpu} from "../../../../../../src/Rendering/Ren
  * @property {import("../../../../Util/Util.js").UuidString} forwardPipelineConfig
  */
 
-export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
+export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSerializer {
 	static uiName = "WebGPU Renderer";
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
@@ -31,7 +31,7 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 	static async getMappableValues(customData) {
 		/** @type {import("../../../../../../src/Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
 		const pipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
-		/** @type {Map<string, import("./MaterialMapType.js").MaterialMapTypeMappableValue>} */
+		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mappableValues = new Map();
 		this.fillMappableValuesForShader(pipelineConfig.fragmentShader, mappableValues);
 		return Array.from(mappableValues.values());
@@ -39,7 +39,7 @@ export class MaterialMapTypeWebGpuRenderer extends MaterialMapType {
 
 	/**
 	 * @param {import("../../../../../../src/Rendering/ShaderSource.js").ShaderSource} shader
-	 * @param {Map<string, import("./MaterialMapType.js").MaterialMapTypeMappableValue>} mappableValues
+	 * @param {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} mappableValues
 	 */
 	static fillMappableValuesForShader(shader, mappableValues) {
 		if (!shader) return;

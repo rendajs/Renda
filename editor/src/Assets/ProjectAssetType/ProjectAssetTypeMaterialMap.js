@@ -16,7 +16,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../../Managers/MaterialMapTypeManager.js").MaterialMapAssetData} fileData
+	 * @param {import("../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
 	 * @param {RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
@@ -43,7 +43,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	async createBundledAssetData() {
 		const mapDatas = [];
 
-		/** @type {import("../../Managers/MaterialMapTypeManager.js").MaterialMapAssetData} */
+		/** @type {import("../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
@@ -82,7 +82,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @override
 	 */
 	async *getReferencedAssetUuids() {
-		/** @type {import("../../Managers/MaterialMapTypeManager.js").MaterialMapAssetData} */
+		/** @type {import("../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {

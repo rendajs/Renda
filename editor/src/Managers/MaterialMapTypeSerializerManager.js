@@ -1,5 +1,5 @@
-import {autoRegisterMaterialMapTypes} from "../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/autoRegisterMaterialMapTypes.js";
-import {MaterialMapType} from "../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js";
+import {autoRegisterMaterialMapTypeSerializers} from "../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/autoRegisterMaterialMapTypeSerializers.js";
+import {MaterialMapTypeSerializer} from "../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js";
 import {isUuid} from "../../../src/Util/Util.js";
 import editor from "../editorInstance.js";
 
@@ -24,22 +24,22 @@ import editor from "../editorInstance.js";
  * @property {*} defaultValue
  */
 
-export class MaterialMapTypeManager {
+export class MaterialMapTypeSerializerManager {
 	constructor() {
 		this.registeredMapTypes = new Map();
 	}
 
 	init() {
-		for (const t of autoRegisterMaterialMapTypes) {
+		for (const t of autoRegisterMaterialMapTypeSerializers) {
 			this.registerMapType(t);
 		}
 	}
 
 	/**
-	 * @param {typeof MaterialMapType} constructor
+	 * @param {typeof MaterialMapTypeSerializer} constructor
 	 */
 	registerMapType(constructor) {
-		if (!(constructor.prototype instanceof MaterialMapType)) {
+		if (!(constructor.prototype instanceof MaterialMapTypeSerializer)) {
 			console.warn("Tried to register a MaterialMapType type (" + constructor.name + ") that does not extend MaterialMapType class.");
 			return;
 		}
@@ -72,7 +72,7 @@ export class MaterialMapTypeManager {
 
 	/**
 	 * @param {string} uuid
-	 * @returns {typeof MaterialMapType}
+	 * @returns {typeof MaterialMapTypeSerializer}
 	 */
 	getTypeByUuid(uuid) {
 		return this.registeredMapTypes.get(uuid);
@@ -80,13 +80,13 @@ export class MaterialMapTypeManager {
 
 	/**
 	 * @param {import("../Util/Util.js").UuidString} mapAssetUuid
-	 * @returns {Promise<import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappableValue[]>}
+	 * @returns {Promise<import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
 		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapAssetUuid);
 		if (!mapAsset) return [];
-		/** @type {Map<string, import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapType.js").MaterialMapTypeMappableValue>} */
+		/** @type {Map<string, import("../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();
 		if (await mapAsset.getIsDeleted()) return [];
 		/** @type {MaterialMapAssetData} */

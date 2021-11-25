@@ -14,7 +14,7 @@ import editor from "../../../../editorInstance.js";
  * extend this class. Extended classes are responsible for converting data between
  * what's stored on disk, in memory in live assets, or as binary in assetbundles.
  */
-export class MaterialMapType {
+export class MaterialMapTypeSerializer {
 	/**
 	 * Name that will be shown in the editor ui.
 	 * @type {string}
@@ -172,7 +172,7 @@ export class MaterialMapType {
 
 	/**
 	 * @param {*} customData
-	 * @param {import("../../../../Managers/MaterialMapTypeManager.js").MaterialMapMappedValues} mappedValuesData
+	 * @param {import("../../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapMappedValues} mappedValuesData
 	 */
 	static async getMappedValues(customData, mappedValuesData) {
 		/** @type {MaterialMapTypeMappableValue[]} */

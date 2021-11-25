@@ -1,9 +1,9 @@
-import {MaterialMapType} from "./MaterialMapType.js";
+import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {ShaderSource, Vec3} from "../../../../../../src/index.js";
 import {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
 import editor from "../../../../editorInstance.js";
 
-export class MaterialMapTypeWebGlRenderer extends MaterialMapType {
+export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
 	static typeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
 	static allowExportInAssetBundles = true;
