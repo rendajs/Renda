@@ -1,4 +1,4 @@
-import {MaterialMapTypeSettings} from "../Rendering/MaterialMapTypeSettings.js";
+import {MaterialMapType} from "../Rendering/MaterialMapType.js";
 
 /**
  * Base class for MaterialMapType loaders.
@@ -18,7 +18,7 @@ export class MaterialMapTypeLoader {
 
 	/**
 	 * @param {ArrayBuffer} buffer
-	 * @returns {Promise<MaterialMapTypeSettings>}
+	 * @returns {Promise<MaterialMapType>}
 	 */
 	async parseBuffer(buffer) {
 		return null;

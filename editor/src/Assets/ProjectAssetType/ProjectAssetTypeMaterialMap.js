@@ -3,7 +3,7 @@ import {PropertiesAssetContentMaterialMap} from "../../PropertiesWindowContent/P
 import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
 import {RecursionTracker} from "../LiveAssetDataRecursionTracker/RecursionTracker.js";
 import editor from "../../editorInstance.js";
-import {MaterialMapTypeSettings} from "../../../../src/Rendering/MaterialMapTypeSettings.js";
+import {MaterialMapType} from "../../../../src/Rendering/MaterialMapType.js";
 import {BinaryComposer, StorageType} from "../../../../src/index.js";
 
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
@@ -20,7 +20,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @param {RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		/** @type {MaterialMapTypeSettings[]} */
+		/** @type {MaterialMapType[]} */
 		const mapTypeSettings = [];
 		if (fileData.maps) {
 			for (const map of fileData.maps) {

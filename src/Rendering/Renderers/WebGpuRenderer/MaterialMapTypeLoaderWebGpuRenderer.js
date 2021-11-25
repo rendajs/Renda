@@ -1,6 +1,6 @@
 import BinaryComposer, {StorageType} from "../../../Util/BinaryComposer.js";
 import {MaterialMapTypeLoader} from "../../../Assets/MaterialMapTypeLoader.js";
-import {MaterialMapTypeSettingsWebGpu} from "./MaterialMapTypeSettingsWebGpu.js";
+import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
 
 /**
  * @typedef {Object} WebGpuMaterialMap
@@ -24,6 +24,6 @@ export class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapTypeLoader {
 				forwardPipelineConfig: 1,
 			},
 		});
-		return new MaterialMapTypeSettingsWebGpu(settings);
+		return new MaterialMapTypeWebGpu(settings);
 	}
 }

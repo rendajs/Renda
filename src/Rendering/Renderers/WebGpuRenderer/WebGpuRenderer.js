@@ -11,7 +11,7 @@ import {LightComponent, MeshComponent} from "../../../Components/Components.js";
 import Mesh from "../../../Core/Mesh.js";
 import MultiKeyWeakMap from "../../../Util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
-import {MaterialMapTypeSettingsWebGpu} from "./MaterialMapTypeSettingsWebGpu.js";
+import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
@@ -307,7 +307,7 @@ export class WebGpuRenderer extends Renderer {
 
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {
-					const webgpuMap = material.materialMap.getMapTypeInstance(MaterialMapTypeSettingsWebGpu);
+					const webgpuMap = material.materialMap.getMapTypeInstance(MaterialMapTypeWebGpu);
 					materialData.forwardPipelineConfig = webgpuMap.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}

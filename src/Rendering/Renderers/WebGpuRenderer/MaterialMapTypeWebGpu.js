@@ -1,7 +1,7 @@
-import {MaterialMapTypeSettings} from "../../MaterialMapTypeSettings.js";
+import {MaterialMapType} from "../../MaterialMapType.js";
 import {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 
-export class MaterialMapTypeSettingsWebGpu extends MaterialMapTypeSettings {
+export class MaterialMapTypeWebGpu extends MaterialMapType {
 	/**
 	 * @param {Object} options
 	 * @param {WebGpuPipelineConfig} [options.forwardPipelineConfig]

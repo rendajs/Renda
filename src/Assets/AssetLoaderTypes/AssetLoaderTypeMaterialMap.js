@@ -1,6 +1,6 @@
 import {BinaryComposer, StorageType, isUuid} from "../../index.js";
 import {MaterialMap} from "../../Rendering/MaterialMap.js";
-import {MaterialMapTypeSettings} from "../../Rendering/MaterialMapTypeSettings.js";
+import {MaterialMapType} from "../../Rendering/MaterialMapType.js";
 import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import AssetLoaderType from "./AssetLoaderType.js";
 
@@ -40,7 +40,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 			},
 		});
 
-		/** @type {MaterialMapTypeSettings[]} */
+		/** @type {MaterialMapType[]} */
 		const materialMapTypes = [];
 		for (const mapData of materialMapData.mapDatas) {
 			const mapLoader = this.registeredLoaderTypes.get(mapData.typeUuid);
