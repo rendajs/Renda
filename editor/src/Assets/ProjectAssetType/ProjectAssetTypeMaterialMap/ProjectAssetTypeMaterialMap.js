@@ -1,10 +1,10 @@
-import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentMaterialMap} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
-import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
-import {RecursionTracker} from "../LiveAssetDataRecursionTracker/RecursionTracker.js";
-import editor from "../../editorInstance.js";
-import {MaterialMapType} from "../../../../src/Rendering/MaterialMapType.js";
-import {BinaryComposer, StorageType} from "../../../../src/index.js";
+import {ProjectAssetType} from "../ProjectAssetType.js";
+import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
+import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
+import {RecursionTracker} from "../../LiveAssetDataRecursionTracker/RecursionTracker.js";
+import editor from "../../../editorInstance.js";
+import {MaterialMapType} from "../../../../../src/Rendering/MaterialMapType.js";
+import {BinaryComposer, StorageType} from "../../../../../src/index.js";
 
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static type = "JJ:materialMap";
@@ -16,7 +16,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
+	 * @param {import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
 	 * @param {RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
@@ -43,7 +43,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	async createBundledAssetData() {
 		const mapDatas = [];
 
-		/** @type {import("../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
@@ -82,7 +82,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @override
 	 */
 	async *getReferencedAssetUuids() {
-		/** @type {import("../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {

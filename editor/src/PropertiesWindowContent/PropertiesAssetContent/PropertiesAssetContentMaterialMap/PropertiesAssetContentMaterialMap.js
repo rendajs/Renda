@@ -81,7 +81,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {typeof import("./MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
+	 * @param {typeof import("../../../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	hasTypeConstructor(typeConstructor) {
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
@@ -100,7 +100,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {typeof import("./MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
+	 * @param {typeof import("../../../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */

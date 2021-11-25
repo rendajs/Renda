@@ -46,7 +46,7 @@ export class MaterialMapTypeSerializer {
 	 * This is optional if {@link settingsStructure} is set.
 	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
 	 * This will be used to render the material map settings in the properties window.
-	 * @type {typeof import("../PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
+	 * @type {typeof import("../../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
 	 */
 	static propertiesMaterialMapContentConstructor = null;
 
@@ -82,7 +82,7 @@ export class MaterialMapTypeSerializer {
 	 * This will be used to replace material instances in the editor whenever a
 	 * linked live asset changes (a shader for example).
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {AsyncGenerator<import("../../../../Assets/ProjectAsset.js").default>}
+	 * @returns {AsyncGenerator<import("../../../ProjectAsset.js").default>}
 	 */
 	static async *getLinkedAssetsInCustomData(customData) {}
 
