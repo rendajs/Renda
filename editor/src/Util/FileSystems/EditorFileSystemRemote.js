@@ -1,6 +1,6 @@
-import EditorFileSystem from "./EditorFileSystem.js";
+import {EditorFileSystem} from "./EditorFileSystem.js";
 
-export default class EditorFileSystemRemote extends EditorFileSystem {
+export class EditorFileSystemRemote extends EditorFileSystem {
 	constructor() {
 		super();
 

@@ -1,11 +1,11 @@
 import editor from "../editorInstance.js";
-import EditorFileSystemNative from "../Util/FileSystems/EditorFileSystemNative.js";
-import EditorFileSystemIndexedDb from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
-import EditorFileSystemRemote from "../Util/FileSystems/EditorFileSystemRemote.js";
+import {EditorFileSystemNative} from "../Util/FileSystems/EditorFileSystemNative.js";
+import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
+import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
 import {AssetManager} from "../Assets/AssetManager.js";
 import EditorConnectionsManager from "../Network/EditorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../Util/Util.js";
-import GitIgnoreManager from "./GitIgnoreManager.js";
+import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
@@ -31,7 +31,7 @@ export class ProjectManager {
 	#boundSaveContentWindowPersistentData;
 
 	constructor() {
-		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").default} */
+		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} */
 		this.currentProjectFileSystem = null;
 		this.currentProjectOpenEvent = null;
 		this.currentProjectIsMarkedAsWorthSaving = false;
@@ -116,7 +116,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").default} fileSystem
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 * @param {StoredProjectEntry} openProjectChangeEvent
 	 * @param {boolean} fromUserGesture
 	 */

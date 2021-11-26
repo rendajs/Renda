@@ -1,7 +1,7 @@
 import SingleInstancePromise from "../../../../src/Util/SingleInstancePromise.js";
-import EditorFileSystem from "./EditorFileSystem.js";
+import {EditorFileSystem} from "./EditorFileSystem.js";
 
-export default class EditorFileSystemNative extends EditorFileSystem {
+export class EditorFileSystemNative extends EditorFileSystem {
 	/**
 	 * @typedef {Object} WatchTreeNode
 	 * @property {boolean} init If false, the file/directory has not been checked yet and shouldn't fire an external

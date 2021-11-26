@@ -11,7 +11,7 @@ import toFormattedJsonString from "../toFormattedJsonString.js";
  * @property {"changed" | "created" | "deleted"} type
  */
 
-export default class EditorFileSystem {
+export class EditorFileSystem {
 	constructor() {
 		this.onExternalChangeCbs = new Set();
 		this.onAnyChangeCbs = new Set();

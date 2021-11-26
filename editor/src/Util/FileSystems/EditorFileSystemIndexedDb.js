@@ -1,4 +1,4 @@
-import EditorFileSystem from "./EditorFileSystem.js";
+import {EditorFileSystem} from "./EditorFileSystem.js";
 import IndexedDbUtil from "../IndexedDbUtil.js";
 import md5 from "../../../libs/md5.js";
 
@@ -13,7 +13,7 @@ import md5 from "../../../libs/md5.js";
  * @property {EditorFileSystemIndexedDbPointer[]} [files]
  */
 
-export default class EditorFileSystemIndexedDb extends EditorFileSystem {
+export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	/** @typedef {import("./EditorFileSystem.js").EditorFileSystemPath} EditorFileSystemPath */
 
 	/**

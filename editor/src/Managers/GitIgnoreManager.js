@@ -1,6 +1,6 @@
-export default class GitIgnoreManager {
+export class GitIgnoreManager {
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").default} fileSystem
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} ignereFilePath
 	 */
 	constructor(fileSystem, ignereFilePath = [".gitignore"]) {
