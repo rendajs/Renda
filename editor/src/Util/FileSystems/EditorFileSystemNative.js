@@ -12,6 +12,13 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	 */
 
 	/**
+	 * @typedef {Object} PermissionGrantedListener
+	 * @property {Function} resolve
+	 * @property {string[]} path
+	 * @property {boolean} writable
+	 */
+
+	/**
 	 * @param {FileSystemDirectoryHandle} handle
 	 */
 	constructor(handle) {
@@ -30,6 +37,8 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		this.updateWatchTreeInstance = new SingleInstancePromise(async _ => await this.updateWatchTree(), {once: false});
 		this.currentlyGettingFileCbs = new Map(); // <path, Set<cb>>
 
+		/** @type {Set<PermissionGrantedListener>} */
+		this.onPermissionGrantedListeners = new Set();
 		this.updateWatchTreeInstance.run(true);
 	}
 
@@ -78,6 +87,39 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 	}
 
 	/**
+	 * @override
+	 */
+	async waitForPermission(path = [], {
+		writable = true,
+	} = {}) {
+		await new Promise(resolve => {
+			this.onPermissionGrantedListeners.add({
+				resolve,
+				path,
+				writable,
+			});
+		});
+	}
+
+	/**
+	 * Iterates over the waitForPermission promises and resolves the ones that
+	 * should be resolved.
+	 * @param {boolean} writable
+	 */
+	checkOnPermissionGrantedListeners(writable) {
+		for (const listener of this.onPermissionGrantedListeners) {
+			if (!listener.writable || listener.writable == writable) {
+				(async () => {
+					if (await this.getPermission(listener.path, {writable: listener.writable})) {
+						listener.resolve();
+						this.onPermissionGrantedListeners.delete(listener);
+					}
+				})();
+			}
+		}
+	}
+
+	/**
 	 * Utility function for verifying permissions on a specific handle.
 	 * @param {FileSystemHandle} handle
 	 * @param {Object} opts
@@ -95,7 +137,10 @@ export default class EditorFileSystemNative extends EditorFileSystem {
 		const opts = {mode};
 		if (await handle.queryPermission(opts) == "granted") return true;
 		if (prompt) {
-			if (await handle.requestPermission(opts) == "granted") return true;
+			if (await handle.requestPermission(opts) == "granted") {
+				this.checkOnPermissionGrantedListeners(writable);
+				return true;
+			}
 		}
 		if (error) throw new Error("Not enough file system permissions for this operation.");
 		return false;

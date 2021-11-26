@@ -19,7 +19,7 @@ export class AssetManager {
 		this.boundExternalChange = this.externalChange.bind(this);
 		editor.projectManager.onExternalChange(this.boundExternalChange);
 
-		this.loadAssetSettingsFromUserEvent = false;
+		this.loadAssetSettingsFromUserGesture = false;
 		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
 			await this.loadAssetSettingsInstanceFn();
 		}, {
@@ -41,15 +41,15 @@ export class AssetManager {
 		return editor.builtInAssetManager.assets;
 	}
 
-	async loadAssetSettings(fromUserEvent = false) {
-		this.loadAssetSettingsFromUserEvent = fromUserEvent;
+	async loadAssetSettings(fromUserGesture = false) {
+		this.loadAssetSettingsFromUserGesture = fromUserGesture;
 		await this.loadAssetSettingsInstance.run();
 	}
 
 	async loadAssetSettingsInstanceFn() {
 		if (this.assetSettingsLoaded) return;
 
-		if (!this.loadAssetSettingsFromUserEvent) {
+		if (!this.loadAssetSettingsFromUserGesture) {
 			const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath);
 			if (!hasPermissions) return;
 		}

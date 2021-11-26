@@ -4,8 +4,9 @@ export class ProjectSettingsManager {
 	/**
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").default} fileSystem
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
+	 * @param {boolean} fromUserGesture
 	 */
-	constructor(fileSystem, filePath) {
+	constructor(fileSystem, filePath, fromUserGesture = false) {
 		this.fileSystem = fileSystem;
 		this.filePath = filePath;
 
@@ -13,7 +14,9 @@ export class ProjectSettingsManager {
 
 		this.onFileCreatedCbs = new Set();
 
-		this.loadInstance = new SingleInstancePromise(async () => await this.load(), {run: true});
+		this.isLoadingFromUserGesture = false;
+		this.loadInstance = new SingleInstancePromise(async () => await this.loadFn());
+		this.load(fromUserGesture);
 	}
 
 	/**
@@ -21,6 +24,7 @@ export class ProjectSettingsManager {
 	 * @param {*} value
 	 */
 	async set(key, value) {
+		await this.loadInstance.waitForFinish();
 		if (this.currentSettings.has(key)) {
 			const currentValue = this.currentSettings.get(key);
 			if (currentValue === value) return;
@@ -33,6 +37,7 @@ export class ProjectSettingsManager {
 	 * @param {string} key
 	 */
 	async delete(key) {
+		await this.loadInstance.waitForFinish();
 		if (!this.currentSettings.has(key)) return;
 		this.currentSettings.delete(key);
 		await this.save();
@@ -67,7 +72,15 @@ export class ProjectSettingsManager {
 		}
 	}
 
-	async load() {
+	async load(fromUserGesture = false) {
+		this.isLoadingFromUserGesture = fromUserGesture;
+		this.loadInstance.run();
+	}
+
+	async loadFn() {
+		if (!this.isLoadingFromUserGesture) {
+			await this.fileSystem.waitForPermission(this.filePath, {writable: false});
+		}
 		const isFile = await this.fileSystem.isFile(this.filePath);
 		if (!isFile) return;
 

@@ -20,20 +20,41 @@ export default class EditorFileSystem {
 	}
 
 	/**
-	 * Returns true if the user has permission to read (or write if specified) at the specified path.
-	 * If the file/directory does not exist, it still returns true when
-	 * the highest available directory in the path has permissions.
+	 * Any calls to a file system might show a permission prompt if the relevant
+	 * files don't have granted permission yet. These prompts require a user
+	 * gesture, therefore you should always call this method to check if permission
+	 * has been granted when calling without a user gesture. When you do so make sure
+	 * `prompt` is false.
+	 * Additionaly you can also call this in advance from a user gesture with
+	 * `prompt` set to true.
 	 * @param {EditorFileSystemPath} path The path to get permissions for.
 	 * @param {Object} opts
 	 * @param {boolean} [opts.writable] Check for writable permissions if true.
 	 * @param {boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
-	 * @returns {Promise<boolean>} Whether permissions have been granted or already exist.
+	 * @returns {Promise<boolean>} True permissions have been granted or already exist.
+	 * If the file/directory does not exist, true is still returned when
+	 * the highest available directory in the path has granted permissions.
 	 */
 	async getPermission(path = [], {
 		writable = true,
 		prompt = false,
 	} = {}) {
 		return true;
+	}
+
+	/**
+	 * Resolves once permission has been granted. Note that you still need to call
+	 * {@link EditorFileSystem.getPermission} or any other method that requires
+	 * permission in order to trigger the permission prompt.
+	 * This is useful in a scenario where you want to access a file but the running
+	 * code is not triggered by a user gesture.
+	 * @param {EditorFileSystemPath} path The path to get permissions for.
+	 * @param {Object} opts
+	 * @param {boolean} [opts.writable] Check for writable permissions if true.
+	 */
+	async waitForPermission(path = [], {
+		writable = true,
+	} = {}) {
 	}
 
 	/**

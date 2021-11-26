@@ -118,8 +118,9 @@ export class ProjectManager {
 	/**
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").default} fileSystem
 	 * @param {StoredProjectEntry} openProjectChangeEvent
+	 * @param {boolean} fromUserGesture
 	 */
-	async openProject(fileSystem, openProjectChangeEvent) {
+	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture = false) {
 		if (this.currentProjectFileSystem) {
 			this.currentProjectFileSystem.removeOnExternalChange(this.#boundOnFileSystemExternalChange);
 			this.currentProjectFileSystem.removeOnBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
@@ -131,9 +132,9 @@ export class ProjectManager {
 		this.currentProjectIsMarkedAsWorthSaving = false;
 
 		this.gitIgnoreManager = new GitIgnoreManager(fileSystem);
-		this.projectSettings = new ProjectSettingsManager(fileSystem, ["ProjectSettings", "projectSettings.json"]);
+		this.projectSettings = new ProjectSettingsManager(fileSystem, ["ProjectSettings", "projectSettings.json"], fromUserGesture);
 		const localSettingsPath = ["ProjectSettings", "localProjectSettings.json"];
-		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath);
+		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath, fromUserGesture);
 		this.localProjectSettings.onFileCreated(() => {
 			this.gitIgnoreManager.addEntry(localSettingsPath);
 		});
@@ -217,7 +218,7 @@ export class ProjectManager {
 			projectUuid: uuid,
 			name: projectName,
 			isWorthSaving: false,
-		});
+		}, true);
 	}
 
 	/**
@@ -255,7 +256,7 @@ export class ProjectManager {
 			projectUuid,
 			name: "Remote Filesystem",
 			isWorthSaving: false,
-		});
+		}, true);
 		editor.windowManager.focusOrCreateContentWindow(ContentWindowConnections);
 	}
 
