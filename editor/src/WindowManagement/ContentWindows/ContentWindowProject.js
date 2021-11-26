@@ -100,7 +100,7 @@ export class ContentWindowProject extends ContentWindow {
 		this.selectionManager = new SelectionManager();
 
 		if (this.fileSystem) {
-			this.updateTreeView();
+			this.initialUpdateTreView();
 			this.updateRootName();
 			this.treeView.renameable = this.fileSystem.rootNameSetSupported;
 			this.fileSystem.onRootNameChange(newName => {
@@ -133,6 +133,11 @@ export class ContentWindowProject extends ContentWindow {
 		const name = await this.fileSystem.getRootName();
 		if (!this.treeView) return; // destructed
 		this.treeView.name = name;
+	}
+
+	async initialUpdateTreView() {
+		await this.fileSystem.waitForPermission([], {writable: false});
+		await this.updateTreeView();
 	}
 
 	/**
@@ -184,6 +189,8 @@ export class ContentWindowProject extends ContentWindow {
 	async updateTreeViewRecursive(treeView, path) {
 		if (this.destructed) return;
 		if (treeView.collapsed) return;
+		const hasPermissions = await this.fileSystem.getPermission(path, {writable: false});
+		if (!hasPermissions) return;
 		const fileTree = await this.fileSystem.readDir(path);
 		if (this.destructed) return;
 		for (const dir of fileTree.directories) {
