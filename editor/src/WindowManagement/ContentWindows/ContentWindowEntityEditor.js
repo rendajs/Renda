@@ -59,13 +59,15 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Map<Entity, Map<Component, ComponentGizmos>>} */
 		this.currentLinkedGizmos = new Map(); // Map<Entity, Set<Gizmo>>
 
+		this.persistentDataLoaded = false;
+		this.ignoreNextPersistentDataOrbitChange = false;
 		this.loadPersistentData();
 	}
 
 	async loadPersistentData() {
 		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
 		const assetUuid = await editor.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);
-		this.loadEntityAsset(assetUuid);
+		this.loadEntityAsset(assetUuid, true);
 
 		this.orbitControls.lookPos = await this.persistentData.get("orbitLookPos");
 		this.orbitControls.lookRot = await this.persistentData.get("orbitLookRot");
@@ -73,6 +75,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (dist != undefined) {
 			this.orbitControls.lookDist = dist;
 		}
+		this.ignoreNextPersistentDataOrbitChange = true;
+		this.persistentDataLoaded = true;
 	}
 
 	destructor() {
@@ -140,8 +144,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	/**
 	 * @param {import("../../Util/Util.js").UuidString} entityUuid
+	 * @param {boolean} fromContentWindowLoad
 	 */
-	async loadEntityAsset(entityUuid) {
+	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
 		const projectAsset = await editor.projectManager.assetManager.getProjectAsset(entityUuid);
 		if (!projectAsset) {
 			this.newEmptyEditingEntity();
@@ -150,7 +155,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const entity = await projectAsset.getLiveAsset();
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
-		this.persistentData.set("loadedEntityPath", projectAsset.path);
+		if (!fromContentWindowLoad) {
+			this.persistentData.set("loadedEntityPath", projectAsset.path);
+		}
 	}
 
 	async saveEntityAsset() {
@@ -164,15 +171,22 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
 				this.markRenderDirty(false);
-				this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
-				this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
-				this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
+				if (this.persistentDataLoaded) {
+					this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
+					this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
+					this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
+				}
 				this.orbitControlsValuesDirty = true;
 				this.lastOrbitControlsValuesChangeTime = Date.now();
 			}
 
 			if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
-				this.persistentData.flush();
+				if (this.persistentDataLoaded) {
+					if (!this.ignoreNextPersistentDataOrbitChange) {
+						this.persistentData.flush();
+					}
+					this.ignoreNextPersistentDataOrbitChange = false;
+				}
 				this.orbitControlsValuesDirty = false;
 			}
 		}
