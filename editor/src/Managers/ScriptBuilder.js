@@ -8,7 +8,7 @@ const rollup = /** @type {import("../../../node_modules/rollup/dist/rollup.js")}
  * @typedef {"project" | "engine" | "remote"} ScriptType
  */
 
-export default class ScriptBuilder {
+export class ScriptBuilder {
 	async buildScript(inputPath, outputPath, {
 		useClosureCompiler = true,
 	} = {}) {

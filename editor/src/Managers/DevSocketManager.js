@@ -1,6 +1,6 @@
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 
-export default class DevSocketManager {
+export class DevSocketManager {
 	constructor() {
 		this.listeners = new Map();
 		this.roundTripCbs = new Set();
