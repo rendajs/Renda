@@ -1,7 +1,7 @@
 import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 import PromiseWaitHelper from "../../../src/Util/PromiseWaitHelper.js";
 
-export default class ProjectSelector {
+export class ProjectSelector {
 	/** @typedef {import("../Managers/ProjectManager.js").StoredProjectEntry} StoredProjectEntry */
 
 	constructor() {
@@ -199,7 +199,7 @@ export default class ProjectSelector {
 	}
 
 	/**
-	 * @returns {Promise<import("../Editor.js").default>}
+	 * @returns {Promise<import("../Editor.js").Editor>}
 	 */
 	async waitForEditor() {
 		if (this.loadedEditor) return this.loadedEditor;
@@ -208,7 +208,7 @@ export default class ProjectSelector {
 	}
 
 	/**
-	 * @param {import("../Editor.js").default} editor
+	 * @param {import("../Editor.js").Editor} editor
 	 */
 	setEditorLoaded(editor) {
 		this.loadedEditor = editor;

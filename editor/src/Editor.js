@@ -5,7 +5,7 @@ import {PropertiesWindowContentManager} from "./Managers/PropertiesWindowContent
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";
 import ComponentGizmosManager from "./Managers/ComponentGizmosManager.js";
 import {MaterialMapTypeSerializerManager} from "./Managers/MaterialMapTypeSerializerManager.js";
-import ProjectManager from "./Managers/ProjectManager.js";
+import {ProjectManager} from "./Managers/ProjectManager.js";
 import BuiltInDefaultAssetLinksManager from "./Assets/BuiltInDefaultAssetLinksManager.js";
 import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
@@ -19,7 +19,7 @@ import {IS_DEV_BUILD} from "./editorDefines.js";
 import {ShaderBuilder, WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager} from "../../src/index.js";
 import editor from "./editorInstance.js";
 
-export default class Editor {
+export class Editor {
 	constructor() {
 		this.renderer = new WebGpuRenderer();
 		this.webGpuShaderBuilder = new ShaderBuilder();

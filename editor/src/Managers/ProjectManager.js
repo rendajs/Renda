@@ -6,7 +6,7 @@ import AssetManager from "../Assets/AssetManager.js";
 import EditorConnectionsManager from "../Network/EditorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../Util/Util.js";
 import GitIgnoreManager from "./GitIgnoreManager.js";
-import ProjectSettingsManager from "./ProjectSettingsManager.js";
+import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../WindowManagement/ContentWindows/ContentWindowConnections.js";
@@ -23,7 +23,7 @@ import {ContentWindowConnections} from "../WindowManagement/ContentWindows/Conte
  * @property {import("../Network/EditorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
  */
 
-export default class ProjectManager {
+export class ProjectManager {
 	#boundOnFileSystemExternalChange;
 	#boundOnFileSystemBeforeAnyChange;
 	#boundOnFileSystemRootNameChange;

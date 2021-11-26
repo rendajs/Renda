@@ -4,7 +4,7 @@ import editor from "../../editorInstance.js";
 import Button from "../../UI/Button.js";
 import SelectionManager from "../../Managers/SelectionManager.js";
 import {handleDuplicateName} from "../../Util/Util.js";
-import projectSelector from "../../ProjectSelector/instance.js";
+import {projectSelector} from "../../ProjectSelector/instance.js";
 
 /**
  * @typedef {Object} DraggingProjectAssetData

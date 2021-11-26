@@ -1,5 +1,5 @@
-import ProjectSelector from "./ProjectSelector.js";
+import {ProjectSelector} from "./ProjectSelector.js";
 
 const projectSelector = new ProjectSelector();
 
-export default projectSelector;
+export {projectSelector};

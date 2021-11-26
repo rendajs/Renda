@@ -1,6 +1,6 @@
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 
-export default class ProjectSettingsManager {
+export class ProjectSettingsManager {
 	/**
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").default} fileSystem
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath

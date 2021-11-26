@@ -1,4 +1,4 @@
-import projectSelector from "./ProjectSelector/instance.js";
+import {projectSelector} from "./ProjectSelector/instance.js";
 export default {};
 
 (async () => {
