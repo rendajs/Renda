@@ -4,9 +4,9 @@ import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 import editor from "../editorInstance.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
 import toFormattedJsonString from "../Util/toFormattedJsonString.js";
-import AssetManager from "./AssetManager.js";
+import {AssetManager} from "./AssetManager.js";
 
-export default class BuiltInAssetManager {
+export class BuiltInAssetManager {
 	constructor() {
 		/** @type {Map<string, ProjectAsset>}*/
 		this.assets = new Map();

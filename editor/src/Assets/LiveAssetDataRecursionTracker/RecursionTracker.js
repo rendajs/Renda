@@ -2,7 +2,7 @@ import {LoadingAsset} from "./LoadingAsset.js";
 
 export class RecursionTracker {
 	/**
-	 * @param {import("../AssetManager.js").default} assetManager
+	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {import("../../Util/Util.js").UuidString} rootUuid
 	 */
 	constructor(assetManager, rootUuid) {

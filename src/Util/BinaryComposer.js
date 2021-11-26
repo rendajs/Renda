@@ -16,7 +16,7 @@ import BinaryDecomposer from "./BinaryDecomposer.js";
  * @property {boolean} [useHeaderByte = true]
  * @property {BinaryComposerVariableLengthStorageTypes} [variableLengthStorageTypes = true]
  * @property {ObjectToBinaryTransformValueHook} [transformValueHook = null]
- * @property {import("../../editor/src/Assets/AssetManager.js").default} [editorAssetManager = null]
+ * @property {import("../../editor/src/Assets/AssetManager.js").AssetManager} [editorAssetManager = null]
  */
 
 /**

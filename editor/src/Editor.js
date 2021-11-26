@@ -7,7 +7,7 @@ import ComponentGizmosManager from "./Managers/ComponentGizmosManager.js";
 import {MaterialMapTypeSerializerManager} from "./Managers/MaterialMapTypeSerializerManager.js";
 import {ProjectManager} from "./Managers/ProjectManager.js";
 import BuiltInDefaultAssetLinksManager from "./Assets/BuiltInDefaultAssetLinksManager.js";
-import BuiltInAssetManager from "./Assets/BuiltInAssetManager.js";
+import {BuiltInAssetManager} from "./Assets/BuiltInAssetManager.js";
 import ScriptBuilder from "./Managers/ScriptBuilder.js";
 import AssetBundler from "./Managers/AssetBundler.js";
 import DragManager from "./Managers/DragManager.js";

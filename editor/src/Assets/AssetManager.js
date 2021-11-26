@@ -4,7 +4,7 @@ import {generateUuid, handleDuplicateName} from "../Util/Util.js";
 import DefaultAssetLink from "./DefaultAssetLink.js";
 import ProjectAsset from "./ProjectAsset.js";
 
-export default class AssetManager {
+export class AssetManager {
 	constructor() {
 		/** @type {Map<string, ProjectAsset>}*/
 		this.projectAssets = new Map();
