@@ -3,6 +3,7 @@ import Vec3 from "../Math/Vec3.js";
 import Vec4 from "../Math/Vec4.js";
 import Mat4 from "../Math/Mat4.js";
 import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, EDITOR_DEFAULTS_IN_COMPONENTS} from "../engineDefines.js";
+import {mathTypeToJson} from "../Math/MathTypes.js";
 
 const settingDefaultsPromisesSym = Symbol("settingDefaultsPromises");
 const onEditorDefaultsCbsSym = Symbol("onEditorDefaultsCbs");
@@ -147,11 +148,9 @@ export class Component {
 			return mappedArray;
 		}
 
-		// todo, use a global list of math types
-		if (propertyValue instanceof Vec2 || propertyValue instanceof Vec3 || propertyValue instanceof Vec4) {
-			return propertyValue.toArray();
-		} else if (propertyValue instanceof Mat4) {
-			return propertyValue.getFlatArray();
+		const replacedMathType = mathTypeToJson(propertyValue);
+		if (replacedMathType) {
+			return replacedMathType;
 		}
 
 		if (DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT && propertyValue && editorOpts && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.assetTypeManager && editorOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)) {
