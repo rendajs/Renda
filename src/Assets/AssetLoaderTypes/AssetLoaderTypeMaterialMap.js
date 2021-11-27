@@ -1,6 +1,5 @@
 import {BinaryComposer, StorageType, isUuid} from "../../index.js";
 import {MaterialMap} from "../../Rendering/MaterialMap.js";
-import {MaterialMapType} from "../../Rendering/MaterialMapType.js";
 import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import AssetLoaderType from "./AssetLoaderType.js";
 
@@ -40,7 +39,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 			},
 		});
 
-		/** @type {MaterialMapType[]} */
+		/** @type {import("../../Rendering/MaterialMap.js").MaterialMapTypeData[]} */
 		const materialMapTypes = [];
 		for (const mapData of materialMapData.mapDatas) {
 			const mapLoader = this.registeredLoaderTypes.get(mapData.typeUuid);
@@ -49,8 +48,11 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 				console.warn(`Unable to load material map, no mapLoader found for ${mapData.typeUuid}. Make sure to add a MaterialMapTypeLoader using registerMaterialMapTypeLoader()`);
 				continue;
 			}
-			const parsedMapData = await mapLoader.parseBuffer(mapData.data);
-			materialMapTypes.push(parsedMapData);
+			const mapType = await mapLoader.parseBuffer(mapData.data);
+			materialMapTypes.push({
+				mapType,
+				mappedValues: {}, // todo
+			});
 		}
 		const material = new MaterialMap({
 			materialMapTypes,

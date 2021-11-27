@@ -3,8 +3,7 @@ import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowConten
 import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
 import {RecursionTracker} from "../../LiveAssetDataRecursionTracker/RecursionTracker.js";
 import editor from "../../../editorInstance.js";
-import {MaterialMapType} from "../../../../../src/Rendering/MaterialMapType.js";
-import {BinaryComposer, StorageType} from "../../../../../src/index.js";
+import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/index.js";
 
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static type = "JJ:materialMap";
@@ -20,17 +19,53 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @param {RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		/** @type {MaterialMapType[]} */
-		const mapTypeSettings = [];
+		/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapTypeData[]} */
+		const materialMapTypes = [];
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
-				const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
-				const typeSettings = await mapType.getLiveAssetSettingsInstance(map.customData);
-				mapTypeSettings.push(typeSettings);
+				const typeSerializer = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = await typeSerializer.getLiveAssetSettingsInstance(map.customData);
+				/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapMappedValues} */
+				const mappedValues = {};
+				/** @type {Object.<string, import("../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType>} */
+				const types = {};
+				for (const mappedValue of await typeSerializer.getMappableValues(map.customData)) {
+					mappedValues[mappedValue.name] = {
+						mappedName: mappedValue.name,
+						defaultValue: mappedValue.defaultValue,
+					};
+					types[mappedValue.name] = mappedValue.type;
+				}
+				for (const [key, mappedValue] of Object.entries(map.mappedValues)) {
+					if (mappedValue.visible == false) {
+						delete mappedValues[key];
+					} else {
+						if (mappedValue.mappedName) {
+							mappedValues[key].mappedName = mappedValue.mappedName;
+						}
+						if (mappedValue.defaultValue !== undefined) {
+							mappedValues[key].defaultValue = mappedValue.defaultValue;
+						}
+					}
+				}
+				for (const [key, mappedValue] of Object.entries(mappedValues)) {
+					const type = types[key];
+					if (type == "vec2") {
+						mappedValue.defaultValue = new Vec2(mappedValue.defaultValue);
+					} else if (type == "vec3") {
+						mappedValue.defaultValue = new Vec3(mappedValue.defaultValue);
+					} else if (type == "vec4") {
+						mappedValue.defaultValue = new Vec4(mappedValue.defaultValue);
+					}
+				}
+				materialMapTypes.push({
+					mapType,
+					mappedValues,
+				});
 			}
 		}
 		const materialMap = new MaterialMap({
-			materialMapTypes: mapTypeSettings,
+			materialMapTypes,
 		});
 		return {
 			liveAsset: materialMap,

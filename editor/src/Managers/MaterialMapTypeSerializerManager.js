@@ -4,24 +4,24 @@ import {isUuid} from "../../../src/Util/Util.js";
 import editor from "../editorInstance.js";
 
 /**
+ * @typedef {Object} MaterialMapMappedValueAssetData
+ * @property {boolean} [visible]
+ * @property {string} [mappedName]
+ * @property {*} [defaultValue]
+ */
+
+/** @typedef {Object.<string, MaterialMapMappedValueAssetData>} MaterialMapMappedValuesAssetData */
+
+/**
  * @typedef {Object} MaterialMapAssetData
- * @property {MaterialMapTypeData[]} maps
+ * @property {MaterialMapTypeAssetData[]} maps
  */
 
 /**
- * @typedef {Object} MaterialMapTypeData
+ * @typedef {Object} MaterialMapTypeAssetData
  * @property {import("../Util/Util.js").UuidString} mapTypeId
  * @property {*} customData
- * @property {MaterialMapMappedValues} mappedValues
- */
-
-/** @typedef {Object.<string, MaterialMapMappedValue>} MaterialMapMappedValues */
-
-/**
- * @typedef {Object} MaterialMapMappedValue
- * @property {boolean} visible
- * @property {string} mappedName
- * @property {*} defaultValue
+ * @property {MaterialMapMappedValuesAssetData} mappedValues
  */
 
 export class MaterialMapTypeSerializerManager {

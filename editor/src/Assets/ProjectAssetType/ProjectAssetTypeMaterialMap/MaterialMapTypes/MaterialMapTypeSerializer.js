@@ -172,7 +172,7 @@ export class MaterialMapTypeSerializer {
 
 	/**
 	 * @param {*} customData
-	 * @param {import("../../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapMappedValues} mappedValuesData
+	 * @param {import("../../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} mappedValuesData
 	 */
 	static async getMappedValues(customData, mappedValuesData) {
 		/** @type {MaterialMapTypeMappableValue[]} */
