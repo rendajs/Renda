@@ -26,4 +26,14 @@ export class MaterialMap {
 		const castInstance = /** @type {T extends MaterialMapType ? T : never} */ (instance);
 		return castInstance;
 	}
+
+	/**
+	 * @param {string} key
+	 * @returns {Generator<[typeof MaterialMapType, string]>}
+	 */
+	*mapProperty(key) {
+		for (const mapType of this.mapTypes.keys()) {
+			yield [mapType, key];
+		}
+	}
 }

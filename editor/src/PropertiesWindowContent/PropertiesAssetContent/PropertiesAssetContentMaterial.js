@@ -5,7 +5,7 @@ import editor from "../../editorInstance.js";
 /**
  * @typedef {Object} MaterialAssetData
  * @property {import("../../Util/Util.js").UuidString} map
- * @property {Object.<string, *>} mapValues
+ * @property {Object.<string, *>} [properties]
  */
 
 export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
@@ -19,14 +19,12 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				label: "Map",
 			},
 		});
-
-		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
-		this.currentMapValuesStructure = null;
-		this.mapValuesTreeView = materialTree.addCollapsable("map values");
-		materialTree.onChildValueChange(() => {
+		this.mapTreeView.onValueChange(() => {
 			if (this.isUpdatingUi) return;
 			this.saveAsset();
 		});
+
+		this.mapValuesTreeView = materialTree.addCollapsable("map values");
 
 		this.isUpdatingUi = false;
 	}
@@ -41,20 +39,18 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 		const gui = /** @type {import("../../UI/DroppableGui.js").default} */ (this.mapTreeView.gui);
 		await gui.setValueFromAssetUuid(mapData?.map);
-		this.loadMapValues(mapData?.mapValues);
+		await this.loadMapValues(mapData?.properties);
 
 		this.isUpdatingUi = false;
 	}
 
-	saveAsset() {
+	async saveAsset() {
 		// todo: handle multiple selected items or no selection
-		const assetData = {};
-		assetData.map = this.mapTreeView.value;
-		const mapValues = this.mapValuesTreeView.getSerializableStructureValues(this.currentMapValuesStructure, {purpose: "fileStorage"});
-		if (mapValues) {
-			assetData.mapValues = mapValues;
+		const asset = this.currentSelection[0];
+		const {liveAsset} = await asset.getLiveAssetData();
+		if (liveAsset) {
+			await asset.saveLiveAssetData();
 		}
-		this.currentSelection[0].writeAssetData(assetData);
 	}
 
 	async selectionUpdated(selectedMaterials) {
@@ -65,21 +61,35 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	/**
 	 * @param {Object.<string, *>} mapValues
 	 */
-	async loadMapValues(mapValues) {
+	async loadMapValues(mapValues = {}) {
 		this.mapValuesTreeView.clearChildren();
 		const mappableValues = await editor.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
-		const structure = {};
 		for (const valueData of mappableValues) {
-			structure[valueData.name] = {
+			const entry = this.mapValuesTreeView.addItem({
 				type: valueData.type,
 				guiOpts: {
+					label: valueData.name,
 					defaultValue: valueData.defaultValue,
 				},
-			};
+			});
+			const value = mapValues[valueData.name];
+			if (value !== undefined) {
+				entry.setValue(value);
+			}
+			entry.onValueChange(async newValue => {
+				if (this.isUpdatingUi) return;
+
+				// todo: support multiselect
+				const asset = this.currentSelection[0];
+				const {liveAsset} = await asset.getLiveAssetData();
+				const liveMaterial = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
+				liveMaterial.setProperties({
+					[valueData.name]: newValue,
+				});
+
+				this.saveAsset();
+			});
 		}
-		this.currentMapValuesStructure = structure;
-		this.mapValuesTreeView.generateFromSerializableStructure(structure);
-		this.mapValuesTreeView.fillSerializableStructureValues(mapValues);
 	}
 }

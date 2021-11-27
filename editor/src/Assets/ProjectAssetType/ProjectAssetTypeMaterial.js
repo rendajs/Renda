@@ -3,6 +3,7 @@ import {Material} from "../../../../src/index.js";
 import {PropertiesAssetContentMaterial} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 import editor from "../../editorInstance.js";
 import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
+import {mathTypeToJson} from "../../../../src/Math/MathTypes.js";
 
 export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	static type = "JJ:material";
@@ -15,6 +16,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {*} materialJson
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData>}
 	 */
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
@@ -23,7 +25,38 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		}
 
 		const material = new Material(materialMap);
-		return {liveAsset: material};
+		return {
+			liveAsset: material,
+			editorData: {
+				mapUuid: materialJson.map,
+			},
+		};
+	}
+
+	/**
+	 * @param {Material} liveAsset
+	 * @param {*} editorData
+	 * @override
+	 */
+	async saveLiveAssetData(liveAsset, editorData) {
+		/** @type {import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
+		const assetData = {};
+		assetData.map = editorData.mapUuid;
+		const modifiedProperties = {};
+		let hasModifiedProperty = false;
+		for (const [key, value] of liveAsset.getAllProperties()) {
+			hasModifiedProperty = true;
+			let storeValue = value;
+			const mathType = mathTypeToJson(value);
+			if (mathType) {
+				storeValue = mathType;
+			}
+			modifiedProperties[key] = storeValue;
+		}
+		if (hasModifiedProperty) {
+			assetData.properties = modifiedProperties;
+		}
+		return assetData;
 	}
 
 	/**
