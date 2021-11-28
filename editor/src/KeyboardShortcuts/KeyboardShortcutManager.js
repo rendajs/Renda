@@ -1,10 +1,14 @@
 import {ShortcutCommand} from "./ShortcutCommand.js";
 import {autoRegisterShortcutCommands} from "./autoRegisterShortcutCommands.js";
+import {autoRegisterShortcutConditions} from "./autoRegisterShortcutConditions.js";
+import {ShortcutCondition} from "./ShortcutCondition.js";
 
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 
 export class KeyboardShortcutManager {
 	constructor() {
+		/** @type {Map<string, ShortcutCondition>} */
+		this.registeredConditions = new Map();
 		/** @type {Set<ShortcutCommand>} */
 		this.registeredCommands = new Set();
 		this.sequenceMap = {
@@ -22,6 +26,10 @@ export class KeyboardShortcutManager {
 
 		this.commandListeners = new Map();
 
+		for (const condition of autoRegisterShortcutConditions) {
+			this.registerCondition(condition);
+		}
+
 		for (const commandOpts of autoRegisterShortcutCommands) {
 			this.registerCommand(commandOpts, false);
 		}
@@ -33,6 +41,22 @@ export class KeyboardShortcutManager {
 		document.body.addEventListener("keyup", e => {
 			this.onKeyEvent(e, false);
 		});
+	}
+
+	/**
+	 * @param {import("./ShortcutCondition.js").ShortcutConditionOptions} opts
+	 */
+	registerCondition(opts) {
+		const condition = new ShortcutCondition(opts);
+		this.registeredConditions.set(condition.name, condition);
+		return condition;
+	}
+
+	/**
+	 * @param {string} name
+	 */
+	getCondition(name) {
+		return this.registeredConditions.get(name);
 	}
 
 	registerCommand(opts, rebuildSequenceMap = true) {

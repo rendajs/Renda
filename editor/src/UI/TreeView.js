@@ -1,6 +1,7 @@
 import editor from "../editorInstance.js";
 import {generateUuid, parseMimeType} from "../Util/Util.js";
 import {clamp, iLerp} from "../../../src/Util/Util.js";
+import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutConditionValueSetter.js";
 
 /**
  * @typedef {Object} TreeViewEvent
@@ -114,6 +115,8 @@ export class TreeView {
 	#textFieldVisible = false;
 	#lastTextFocusOutWasFromRow = false;
 	#lastTextFocusOutTime = 0;
+	/** @type {ShorcutConditionValueSetter<boolean>} */
+	#treeViewRenamingShortcutCondition = null;
 
 	static #dragRootUuidSym = Symbol("Drag Root Uuid");
 
@@ -266,6 +269,10 @@ export class TreeView {
 			b.destructor();
 		}
 		this.addedButtons = [];
+		if (this.#treeViewRenamingShortcutCondition) {
+			this.#treeViewRenamingShortcutCondition.destructor();
+			this.#treeViewRenamingShortcutCondition = null;
+		}
 
 		this.updeteRootEventListeners();
 		this.boundOnFocusIn = null;
@@ -1081,6 +1088,19 @@ export class TreeView {
 
 				if (focusRowEl) {
 					this.rowEl.focus();
+				}
+			}
+			if (textFieldVisible) {
+				if (!this.#treeViewRenamingShortcutCondition) {
+					const condition = editor.keyboardShortcutManager.getCondition("treeView.renaming");
+					const valueSetter = /** @type {ShorcutConditionValueSetter<boolean>} */ (condition.requestValueSetter());
+					this.#treeViewRenamingShortcutCondition = valueSetter;
+					this.#treeViewRenamingShortcutCondition.setValue(true);
+				}
+			} else {
+				if (this.#treeViewRenamingShortcutCondition) {
+					this.#treeViewRenamingShortcutCondition.destructor();
+					this.#treeViewRenamingShortcutCondition = null;
 				}
 			}
 		}
