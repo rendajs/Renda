@@ -328,4 +328,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.updateGizmosForEntity(entity, true);
 		}
 	}
+
+	notifyMaterialChanged() {
+		this.markRenderDirty();
+	}
 }

@@ -1,6 +1,7 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import ProjectAsset from "../../Assets/ProjectAsset.js";
 import editor from "../../editorInstance.js";
+import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -21,6 +22,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		});
 		this.mapTreeView.onValueChange(() => {
 			if (this.isUpdatingUi) return;
+			this.notifyEntityEditorsMaterialChanged();
 			this.saveAsset();
 		});
 
@@ -89,8 +91,15 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 					[valueData.name]: newValue,
 				});
 
+				this.notifyEntityEditorsMaterialChanged();
 				this.saveAsset();
 			});
+		}
+	}
+
+	notifyEntityEditorsMaterialChanged() {
+		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+			entityEditor.notifyMaterialChanged();
 		}
 	}
 }
