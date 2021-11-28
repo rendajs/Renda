@@ -16,10 +16,20 @@ export class KeyboardShortcutManager {
 			commands: new Set(),
 		};
 
+		/**
+		 * @type {Set<string>}
+		 */
 		this.currentPressedKeys = new Set();
 		this.currentPressedSequenceIndex = 0;
 		this.currentPressedSequenceHighestLength = 0;
 		this.currentPressedSequence = [];
+		/**
+		 * List of keys that caused a command to fire in the last cycle.
+		 * This is to make sure other commands can fire while the previous key
+		 * is still held down.
+		 * @type {Set<string>}
+		 */
+		this.currentConsumedKeys = new Set();
 
 		/** @type {Set<ShortcutCommand>} */
 		this.currentActiveHoldStateCommands = new Set();
@@ -96,6 +106,10 @@ export class KeyboardShortcutManager {
 		}
 	}
 
+	/**
+	 * @param {KeyboardEvent} e
+	 * @param {boolean} down
+	 */
 	onKeyEvent(e, down) {
 		const keyName = this.mapKeyCode(e.code);
 		if (down) {
@@ -116,6 +130,7 @@ export class KeyboardShortcutManager {
 					}
 				}
 			}
+			this.currentConsumedKeys.delete(keyName);
 			const deleted = this.currentPressedKeys.delete(keyName);
 			if (!deleted) return;
 
@@ -162,6 +177,7 @@ export class KeyboardShortcutManager {
 				}
 				this.fireCommand(command);
 				this.clearCurrentSequence();
+				this.currentConsumedKeys.add(keyName);
 				e.preventDefault();
 				break;
 			}
@@ -176,12 +192,16 @@ export class KeyboardShortcutManager {
 	}
 
 	getCurrentSequenceBit() {
-		const arr = Array.from(this.currentPressedKeys);
+		const keys = new Set(this.currentPressedKeys);
+		for (const consumedKey of this.currentConsumedKeys) {
+			keys.delete(consumedKey);
+		}
+		const arr = Array.from(keys);
 		arr.sort((a, b) => {
 			const indexA = modifierKeysOrder.indexOf(a);
 			const indexB = modifierKeysOrder.indexOf(b);
 			if (indexA == -1 && indexB == -1) {
-				return a - b;
+				return a.localeCompare(b);
 			} else if (indexB == -1) {
 				return -1;
 			} else if (indexA == -1) {
