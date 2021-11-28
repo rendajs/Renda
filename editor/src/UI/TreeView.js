@@ -116,7 +116,10 @@ export class TreeView {
 	#lastTextFocusOutWasFromRow = false;
 	#lastTextFocusOutTime = 0;
 	/** @type {ShorcutConditionValueSetter<boolean>} */
-	#treeViewRenamingShortcutCondition = null;
+	#renamingShortcutCondition = null;
+
+	/** @type {ShorcutConditionValueSetter<boolean>} */
+	#focusSelectedShortcutCondition = null;
 
 	static #dragRootUuidSym = Symbol("Drag Root Uuid");
 
@@ -233,6 +236,12 @@ export class TreeView {
 			this.registerNewEventType(eventType);
 		}
 
+		const renamingCondition = editor.keyboardShortcutManager.getCondition("treeView.renaming");
+		this.#renamingShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
+
+		const focusSelectedCondition = editor.keyboardShortcutManager.getCondition("treeView.focusSelected");
+		this.#focusSelectedShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
+
 		this.updateArrowHidden();
 		if (data) this.updateData(data);
 		this.updatePadding();
@@ -269,10 +278,10 @@ export class TreeView {
 			b.destructor();
 		}
 		this.addedButtons = [];
-		if (this.#treeViewRenamingShortcutCondition) {
-			this.#treeViewRenamingShortcutCondition.destructor();
-			this.#treeViewRenamingShortcutCondition = null;
-		}
+		this.#renamingShortcutCondition.destructor();
+		this.#renamingShortcutCondition = null;
+		this.#focusSelectedShortcutCondition.destructor();
+		this.#focusSelectedShortcutCondition = null;
 
 		this.updeteRootEventListeners();
 		this.boundOnFocusIn = null;
@@ -1090,19 +1099,7 @@ export class TreeView {
 					this.rowEl.focus();
 				}
 			}
-			if (textFieldVisible) {
-				if (!this.#treeViewRenamingShortcutCondition) {
-					const condition = editor.keyboardShortcutManager.getCondition("treeView.renaming");
-					const valueSetter = /** @type {ShorcutConditionValueSetter<boolean>} */ (condition.requestValueSetter());
-					this.#treeViewRenamingShortcutCondition = valueSetter;
-					this.#treeViewRenamingShortcutCondition.setValue(true);
-				}
-			} else {
-				if (this.#treeViewRenamingShortcutCondition) {
-					this.#treeViewRenamingShortcutCondition.destructor();
-					this.#treeViewRenamingShortcutCondition = null;
-				}
-			}
+			this.#renamingShortcutCondition.setValue(textFieldVisible);
 		}
 		this.updateDataRenameValue();
 	}
@@ -1117,26 +1114,30 @@ export class TreeView {
 
 	select() {
 		this.selected = true;
-		this.updateSelectedStyle();
+		this.updateFocusSelected();
 	}
 
 	deselect() {
 		if (!this.selected) return;
 		this.selected = false;
-		this.updateSelectedStyle();
+		this.updateFocusSelected();
 	}
 
-	updateSelectedStyle() {
+	updateFocusSelected() {
 		this.rowEl.classList.toggle("selected", this.selected);
+		let focusSelected = false;
 		if (this.selected) {
 			const root = this.findRoot();
-			this.rowEl.classList.toggle("noFocus", !root.hasFocusWithin);
+			const focus = root.hasFocusWithin;
+			this.rowEl.classList.toggle("noFocus", !focus);
+			if (focus) focusSelected = true;
 		}
+		this.#focusSelectedShortcutCondition.setValue(focusSelected);
 	}
 
 	updateSelectedChildrenStyle() {
 		for (const item of this.getSelectedItems()) {
-			item.updateSelectedStyle();
+			item.updateFocusSelected();
 		}
 	}
 

@@ -1,7 +1,7 @@
 /** @type {import("./ShortcutCondition.js").ShortcutConditionOptions[]} */
 
 const autoRegisterShortcutConditions = [
-	"treeViewSelected",
+	"treeView.focusSelected",
 	"treeView.renaming",
 	"numericValueFocus",
 ];
