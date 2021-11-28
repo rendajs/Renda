@@ -326,6 +326,7 @@ export class AssetManager {
 		// this method doesn't need a loadAssetSettings call because there
 		// is no way to get liveAssets without loading the settings anyway.
 		// So we can keep this method sync.
+		if (!liveAsset) return null;
 		for (const projectAsset of this.projectAssets.values()) {
 			if (projectAsset.liveAsset == liveAsset) return projectAsset;
 		}

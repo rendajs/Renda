@@ -303,7 +303,7 @@ export class WebGpuRenderer extends Renderer {
 		const materialRenderDatas = new Map();
 		for (const renderData of meshRenderDatas) {
 			for (const material of renderData.component.materials) {
-				if (!material || material.destructed) continue; // todo: log a (supressable) warning when the material is destructed
+				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {

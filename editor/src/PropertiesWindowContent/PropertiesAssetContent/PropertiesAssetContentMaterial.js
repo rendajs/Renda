@@ -20,8 +20,17 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				label: "Map",
 			},
 		});
-		this.mapTreeView.onValueChange(() => {
+		this.mapTreeView.onValueChange(async () => {
 			if (this.isUpdatingUi) return;
+
+			// todo: support multiselect
+			const asset = this.currentSelection[0];
+			const {liveAsset} = await asset.getLiveAssetData();
+			const liveMaterial = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
+
+			const mapAsset = this.mapTreeView.getValue({purpose: "script"});
+			liveMaterial.setMaterialMap(mapAsset);
+
 			this.notifyEntityEditorsMaterialChanged();
 			this.saveAsset();
 		});

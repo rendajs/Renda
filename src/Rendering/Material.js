@@ -37,9 +37,28 @@ export class Material {
 	}
 
 	/**
+	 * Replaces the current material map and transfers the necessary properties.
+	 * Properties that are not used by this material map will be removed.
+	 * @param {MaterialMap} materialMap
+	 */
+	setMaterialMap(materialMap) {
+		this.materialMap = materialMap || null;
+		const oldProperties = {};
+		for (const [key, value] of this.properties) {
+			oldProperties[key] = value;
+		}
+		this.properties = new Map();
+		this.mappedProperties = new Map();
+
+		this.setProperties(oldProperties);
+	}
+
+	/**
 	 * @param {Object.<string, *>} setObject
 	 */
 	setProperties(setObject) {
+		if (!this.materialMap) return;
+
 		for (const [key, value] of Object.entries(setObject)) {
 			let existingValue = this.properties.get(key);
 			if (!existingValue) {
@@ -87,7 +106,11 @@ export class Material {
 	 * @param {typeof MaterialMapType} mapType
 	 */
 	*getAllMappedProperties(mapType) {
+		if (!this.materialMap) return;
+
 		const mappedProperties = this.mappedProperties.get(mapType);
+		if (!mappedProperties) return;
+
 		for (const originalName of this.materialMap.getAllOriginalNames(mapType)) {
 			let value = null;
 			if (mappedProperties) {

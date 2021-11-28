@@ -25,23 +25,17 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		}
 
 		const material = new Material(materialMap, materialJson.properties);
-		return {
-			liveAsset: material,
-			editorData: {
-				mapUuid: materialJson.map,
-			},
-		};
+		return {liveAsset: material};
 	}
 
 	/**
 	 * @param {Material} liveAsset
-	 * @param {*} editorData
 	 * @override
 	 */
-	async saveLiveAssetData(liveAsset, editorData) {
+	async saveLiveAssetData(liveAsset) {
 		/** @type {import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
-		assetData.map = editorData.mapUuid;
+		assetData.map = editor.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
 		const modifiedProperties = {};
 		let hasModifiedProperty = false;
 		for (const [key, value] of liveAsset.getAllProperties()) {
