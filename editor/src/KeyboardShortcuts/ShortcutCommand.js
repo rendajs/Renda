@@ -1,3 +1,5 @@
+import {KeyboardShortcutManager} from "./KeyboardShortcutManager.js";
+
 /**
  * - `single` Only fire command once.
  * - `hold` Activate when the key is down, and deactivate when it is up.
@@ -19,15 +21,17 @@
 
 export class ShortcutCommand {
 	/**
+	 * @param {KeyboardShortcutManager} shortcutManager
 	 * @param {ShortcutCommandOptions} opts
 	 */
-	constructor({
+	constructor(shortcutManager, {
 		name = null,
 		command = null,
 		defaultKeys = null,
 		conditions = "",
 		holdType = "single",
 	}) {
+		this.shortcutManager = shortcutManager;
 		this.name = name;
 		this.command = command;
 		this.defaultKeys = defaultKeys;
@@ -70,5 +74,18 @@ export class ShortcutCommand {
 			this.holdStateActiveStartTime = performance.now();
 		}
 		return true;
+	}
+
+	verifyCondtions() {
+		// todo:
+		// - support &&
+		// - support ||
+		// - support !
+		// - support ()
+		// - support string conditions
+		if (!this.conditions) return true;
+		const condition = this.shortcutManager.getCondition(this.conditions);
+		if (!condition) return false;
+		return condition.value;
 	}
 }

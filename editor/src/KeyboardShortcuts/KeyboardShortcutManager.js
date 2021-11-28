@@ -49,6 +49,10 @@ export class KeyboardShortcutManager {
 	registerCondition(opts) {
 		const condition = new ShortcutCondition(opts);
 		this.registeredConditions.set(condition.name, condition);
+		condition.onValueChange(() => {
+			// todo: update only the section of the sequence map that is affected
+			this.rebuildSequenceMap();
+		});
 		return condition;
 	}
 
@@ -60,7 +64,7 @@ export class KeyboardShortcutManager {
 	}
 
 	registerCommand(opts, rebuildSequenceMap = true) {
-		const command = new ShortcutCommand(opts);
+		const command = new ShortcutCommand(this, opts);
 		this.registeredCommands.add(command);
 		if (rebuildSequenceMap) this.rebuildSequenceMap();
 	}
@@ -69,6 +73,7 @@ export class KeyboardShortcutManager {
 		this.sequenceMap.childNodes.clear();
 		this.sequenceMap.commands.clear();
 		for (const command of this.registeredCommands) {
+			if (!command.verifyCondtions()) continue;
 			const sequences = command.parsedSequences;
 			if (!sequences || sequences.length == 0) continue;
 
@@ -136,7 +141,7 @@ export class KeyboardShortcutManager {
 		let currentMapNode = this.sequenceMap;
 		for (const bit of this.currentPressedSequence) {
 			const childNode = currentMapNode.childNodes.get(bit);
-			if (childNode) {
+			if (childNode && (childNode.commands.size > 0 || childNode.childNodes.size > 0)) {
 				currentMapNode = childNode;
 			} else {
 				sequenceHasCommands = false;

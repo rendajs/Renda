@@ -3,32 +3,32 @@ const autoRegisterShortcutCommands = [
 	{
 		command: "treeView.selection.up",
 		defaultKeys: "up",
-		conditions: "treeViewSelected",
+		conditions: "treeView.focusSelected",
 	},
 	{
 		command: "treeView.selection.down",
 		defaultKeys: "down",
-		conditions: "treeViewSelected",
+		conditions: "treeView.focusSelected",
 	},
 	{
 		command: "treeView.expandSelected",
 		defaultKeys: "right",
-		conditions: "treeViewSelected",
+		conditions: "treeView.focusSelected",
 	},
 	{
 		command: "treeView.collapseSelected",
 		defaultKeys: "left",
-		conditions: "treeViewSelected",
+		conditions: "treeView.focusSelected",
 	},
 	{
 		command: "treeView.toggleRename",
 		defaultKeys: ["enter", "f2"],
-		conditions: "treeViewSelected",
+		conditions: "treeView.focusSelected",
 	},
 	{
 		command: "treeView.cancelRename",
 		defaultKeys: "escape",
-		conditions: "treeViewRenaming",
+		conditions: "treeView.renaming",
 	},
 ];
 export {autoRegisterShortcutCommands};

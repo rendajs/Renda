@@ -23,6 +23,9 @@ export class ShortcutCondition {
 		/** @type {Set<ShorcutConditionValueSetter>} */
 		this.valueSetters = new Set();
 
+		/** @type {Set<Function>} */
+		this.onValueChangeCbs = new Set();
+
 		/** @type {boolean | string[]} */
 		this.value = null;
 		this.updateCurrentValue();
@@ -50,6 +53,7 @@ export class ShortcutCondition {
 	}
 
 	updateCurrentValue() {
+		const previousValue = this.value;
 		const setters = Array.from(this.valueSetters).filter(setter => setter.value != null).sort((a, b) => b.priority - a.priority);
 		if (setters.length == 0) {
 			if (this.type == "boolean") {
@@ -76,5 +80,15 @@ export class ShortcutCondition {
 				this.value = castSetters.map(setter => setter.value);
 			}
 		}
+		if (this.value != previousValue) {
+			this.onValueChangeCbs.forEach(cb => cb(this.value));
+		}
+	}
+
+	/**
+	 * @param {Function} cb
+	 */
+	onValueChange(cb) {
+		this.onValueChangeCbs.add(cb);
 	}
 }
