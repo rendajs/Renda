@@ -1,8 +1,8 @@
-import EditorWindowSplit from "./EditorWindowSplit.js";
-import EditorWindowTabs from "./EditorWindowTabs.js";
+import {EditorWindowSplit} from "./EditorWindowSplit.js";
+import {EditorWindowTabs} from "./EditorWindowTabs.js";
 import {contentWindows} from "./ContentWindows/ContentWindows.js";
-import ContentWindow from "./ContentWindows/ContentWindow.js";
-import WorkspaceManager from "./WorkspaceManager.js";
+import {ContentWindow} from "./ContentWindows/ContentWindow.js";
+import {WorkspaceManager} from "./WorkspaceManager.js";
 import {generateUuid} from "../Util/Util.js";
 import {EventHandler} from "../../../src/Util/EventHandler.js";
 
@@ -11,7 +11,7 @@ import {EventHandler} from "../../../src/Util/EventHandler.js";
  * @property {ContentWindow} target
  */
 
-export default class WindowManager {
+export class WindowManager {
 	/** @type {Set<(data: any) => Promise<void>>} */
 	onContentWindowPersistentDataFlushRequestCbs = new Set();
 
@@ -56,7 +56,7 @@ export default class WindowManager {
 	}
 
 	/**
-	 * @param {import("./EditorWindow.js").default} newRootWindow
+	 * @param {import("./EditorWindow.js").EditorWindow} newRootWindow
 	 * @param {boolean} [destructOldRoot]
 	 */
 	replaceRootWindow(newRootWindow, destructOldRoot = true) {
@@ -209,7 +209,7 @@ export default class WindowManager {
 	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindowData
 	 */
 	parseWorkspaceWindow(workspaceWindowData) {
-		/** @type {import("./EditorWindow.js").default} */
+		/** @type {import("./EditorWindow.js").EditorWindow} */
 		let newWindow = null;
 		if (workspaceWindowData.type == "split") {
 			newWindow = new EditorWindowSplit();
@@ -260,14 +260,14 @@ export default class WindowManager {
 	/**
 	 *
 	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindowData
-	 * @param {import("./EditorWindow.js").default} existingWorkspaceWindow
+	 * @param {import("./EditorWindow.js").EditorWindow} existingWorkspaceWindow
 	 */
 	parseWorkspaceWindowChildren(workspaceWindowData, existingWorkspaceWindow) {
 		if (workspaceWindowData.type == "split") {
 			const castWorkspaceWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowSplit} */ (workspaceWindowData);
 			const windowA = this.parseWorkspaceWindow(castWorkspaceWindowData.windowA);
 			const windowB = this.parseWorkspaceWindow(castWorkspaceWindowData.windowB);
-			const castExistingWorkspaceWindow = /** @type {import("./EditorWindowSplit.js").default} */ (existingWorkspaceWindow);
+			const castExistingWorkspaceWindow = /** @type {import("./EditorWindowSplit.js").EditorWindowSplit} */ (existingWorkspaceWindow);
 			castExistingWorkspaceWindow.setWindows(windowA, windowB);
 			this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowA, castExistingWorkspaceWindow.windowA);
 			this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowB, castExistingWorkspaceWindow.windowB);
@@ -275,7 +275,7 @@ export default class WindowManager {
 	}
 
 	/**
-	 * @param {import("./EditorWindow.js").default} workspaceWindow
+	 * @param {import("./EditorWindow.js").EditorWindow} workspaceWindow
 	 * @returns {import("./WorkspaceManager.js").WorkspaceDataWindow}
 	 */
 	serializeWorkspaceWindow(workspaceWindow) {

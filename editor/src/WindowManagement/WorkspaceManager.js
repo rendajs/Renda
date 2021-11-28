@@ -30,7 +30,7 @@ import IndexedDbUtil from "../Util/IndexedDbUtil.js";
  * @typedef {WorkspaceDataWindow & WorkspaceDataWindowTabsType} WorkspaceDataWindowTabs
  */
 
-export default class WorkspaceManager {
+export class WorkspaceManager {
 	constructor() {
 		this.indexedDb = new IndexedDbUtil("workspaces", ["workspaces", "workspaceSettings"]);
 

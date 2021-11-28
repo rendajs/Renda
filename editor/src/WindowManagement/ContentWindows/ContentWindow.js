@@ -1,6 +1,6 @@
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
 
-export default class ContentWindow {
+export class ContentWindow {
 	/**
 	 * Should be overridden by inherited class.
 	 * This name will be used for saving the users workspace.
@@ -22,7 +22,7 @@ export default class ContentWindow {
 	static contentWindowUiIcon = "icons/generic.svg";
 
 	constructor() {
-		/** @type {import("../EditorWindowTabs.js").default}*/
+		/** @type {import("../EditorWindowTabs.js").EditorWindowTabs}*/
 		this.parentEditorWindow = null;
 		/**
 		 * The instance uuid of the ContentWindow.
@@ -30,7 +30,7 @@ export default class ContentWindow {
 		 * @type {import("../../Util/Util.js").UuidString}
 		 */
 		this.uuid = null;
-		/** @type {import("../WindowManager.js").default} */
+		/** @type {import("../WindowManager.js").WindowManager} */
 		this.windowManager = null;
 
 		this.persistentData = new ContentWindowPersistentData();
@@ -72,7 +72,7 @@ export default class ContentWindow {
 	}
 
 	/**
-	 * @param {import("../EditorWindowTabs.js").default} parentEditorWindow
+	 * @param {import("../EditorWindowTabs.js").EditorWindowTabs} parentEditorWindow
 	 */
 	attachParentEditorWindow(parentEditorWindow) {
 		this.parentEditorWindow = parentEditorWindow;

@@ -1,4 +1,4 @@
-import ContentWindow from "./ContentWindow.js";
+import {ContentWindow} from "./ContentWindow.js";
 import editor from "../../editorInstance.js";
 
 export class ContentWindowProperties extends ContentWindow {

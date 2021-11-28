@@ -3,11 +3,11 @@ export class ContentWindowPersistentData {
 	#onWindowManagerCbs = new Set();
 	#dataLoaded = false;
 	#onDataLoadCbs = new Set();
-	/** @type {import("./WindowManager.js").default} */
+	/** @type {import("./WindowManager.js").WindowManager} */
 	#windowManager = null;
 
 	/**
-	 * @param {import("./WindowManager.js").default} windowManager
+	 * @param {import("./WindowManager.js").WindowManager} windowManager
 	 */
 	setWindowManager(windowManager) {
 		this.#windowManager = windowManager;

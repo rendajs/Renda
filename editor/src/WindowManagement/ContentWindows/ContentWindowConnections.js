@@ -1,7 +1,7 @@
 import editor from "../../editorInstance.js";
 import EditorConnectionsManager from "../../Network/EditorConnections/EditorConnectionsManager.js";
 import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
-import ContentWindow from "./ContentWindow.js";
+import {ContentWindow} from "./ContentWindow.js";
 
 /**
  * @typedef {Object} ConectionGui

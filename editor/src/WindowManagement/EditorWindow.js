@@ -1,11 +1,11 @@
-export default class EditorWindow {
+export class EditorWindow {
 	constructor() {
 		this.el = document.createElement("div");
 		this.el.tabIndex = -1;
 
 		/** @type {EditorWindow} */
 		this.parent = null;
-		/** @type {import("./WindowManager.js").default} */
+		/** @type {import("./WindowManager.js").WindowManager} */
 		this.windowManager = null;
 		this.isRoot = false;
 
@@ -73,7 +73,7 @@ export default class EditorWindow {
 	*getChildren() {}
 
 	/**
-	 * @param {import("./ContentWindows/ContentWindow.js").default} contentWindow
+	 * @param {import("./ContentWindows/ContentWindow.js").ContentWindow} contentWindow
 	 */
 	contentWindowDetached(contentWindow) {}
 

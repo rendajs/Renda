@@ -1,4 +1,4 @@
-import ContentWindow from "./ContentWindow.js";
+import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
 import editor from "../../editorInstance.js";
 import SelectionManager from "../../Managers/SelectionManager.js";

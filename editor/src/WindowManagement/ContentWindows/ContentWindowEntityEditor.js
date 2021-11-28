@@ -1,4 +1,4 @@
-import ContentWindow from "./ContentWindow.js";
+import {ContentWindow} from "./ContentWindow.js";
 import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import Button from "../../UI/Button.js";
