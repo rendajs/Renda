@@ -17,7 +17,7 @@
 
 /** @typedef {string[][]} ShortcutCommandSequence */
 
-export default class ShortcutCommand {
+export class ShortcutCommand {
 	/**
 	 * @param {ShortcutCommandOptions} opts
 	 */

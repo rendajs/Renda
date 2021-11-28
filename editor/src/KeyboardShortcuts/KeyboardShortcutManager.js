@@ -1,9 +1,9 @@
-import ShortcutCommand from "./ShortcutCommand.js";
+import {ShortcutCommand} from "./ShortcutCommand.js";
 import {autoRegisterShortcutCommands} from "./autoRegisterShortcutCommands.js";
 
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 
-export default class KeyboardShortcutManager {
+export class KeyboardShortcutManager {
 	constructor() {
 		/** @type {Set<ShortcutCommand>} */
 		this.registeredCommands = new Set();
