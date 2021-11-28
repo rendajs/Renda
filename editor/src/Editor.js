@@ -1,5 +1,5 @@
 import {WindowManager} from "./WindowManagement/WindowManager.js";
-import ContextMenuManager from "./UI/ContextMenus/ContextMenuManager.js";
+import {ContextMenuManager} from "./UI/ContextMenus/ContextMenuManager.js";
 import KeyboardShortcutManager from "./KeyboardShortcuts/KeyboardShortcutManager.js";
 import {PropertiesWindowContentManager} from "./Managers/PropertiesWindowContentManager.js";
 import ProjectAssetTypeManager from "./Assets/ProjectAssetTypeManager.js";

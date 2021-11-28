@@ -1,7 +1,7 @@
-import ContextMenuItem from "./ContextMenuItem.js";
+import {ContextMenuItem} from "./ContextMenuItem.js";
 
-export default class ContextMenuSubmenuItem extends ContextMenuItem {
-	/** @typedef {import("./ContextMenu.js").default} ContextMenu */
+export class ContextMenuSubmenuItem extends ContextMenuItem {
+	/** @typedef {import("./ContextMenu.js").ContextMenu} ContextMenu */
 
 	/**
 	 * @param {ContextMenu} containingContextMenu

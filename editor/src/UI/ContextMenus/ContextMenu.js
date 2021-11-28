@@ -1,5 +1,5 @@
-import ContextMenuItem from "./ContextMenuItem.js";
-import ContextMenuSubmenuItem from "./ContextMenuSubmenuItem.js";
+import {ContextMenuItem} from "./ContextMenuItem.js";
+import {ContextMenuSubmenuItem} from "./ContextMenuSubmenuItem.js";
 import {Button} from "../Button.js";
 
 /**
@@ -31,9 +31,9 @@ import {Button} from "../Button.js";
  * @property {ContextMenuStructure | (function(): Promise<ContextMenuStructure>) | function(): ContextMenuStructure} [submenu=null] The submenu structure to show on hover.
  */
 
-export default class ContextMenu {
+export class ContextMenu {
 	/**
-	 * @param {import("./ContextMenuManager.js").default} manager
+	 * @param {import("./ContextMenuManager.js").ContextMenuManager} manager
 	 * @param {ContextMenuOptions} opts
 	 */
 	constructor(manager, {

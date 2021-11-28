@@ -1,6 +1,6 @@
-export default class ContextMenuItem {
+export class ContextMenuItem {
 	/**
-	 * @param {import("./ContextMenu.js").default} containingContextMenu
+	 * @param {import("./ContextMenu.js").ContextMenu} containingContextMenu
 	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
 	 */
 	constructor(containingContextMenu, {

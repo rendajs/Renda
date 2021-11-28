@@ -62,7 +62,7 @@ import {clamp, iLerp} from "../../../src/Util/Util.js";
 /**
  * @callback showContextMenuCallback
  * @param {import("./ContextMenus/ContextMenu.js").ContextMenuStructure} [structure]
- * @returns {import("./ContextMenus/ContextMenu.js").default}
+ * @returns {import("./ContextMenus/ContextMenu.js").ContextMenu}
  */
 
 /**

@@ -1,7 +1,7 @@
 import editor from "../../editorInstance.js";
-import ContextMenu from "./ContextMenu.js";
+import {ContextMenu} from "./ContextMenu.js";
 
-export default class ContextMenuManager {
+export class ContextMenuManager {
 	constructor() {
 		this.activeContextMenu = null;
 		this.curtainEl = document.createElement("div");
