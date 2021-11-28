@@ -4,8 +4,9 @@ import {MaterialMapType} from "./MaterialMapType.js";
 export class Material {
 	/**
 	 * @param {MaterialMap} materialMap
+	 * @param {Object.<string, *>} properties
 	 */
-	constructor(materialMap) {
+	constructor(materialMap, properties = {}) {
 		this.materialMap = materialMap;
 		this.onDestructorCbs = new Set();
 		this.destructed = false;
@@ -14,6 +15,8 @@ export class Material {
 		this.properties = new Map();
 		/** @type {Map<typeof MaterialMapType, Map<string, *>>} */
 		this.mappedProperties = new Map();
+
+		this.setProperties(properties);
 	}
 
 	destructor() {
@@ -38,15 +41,38 @@ export class Material {
 	 */
 	setProperties(setObject) {
 		for (const [key, value] of Object.entries(setObject)) {
-			this.properties.set(key, value);
-			for (const [mapType, mappedKey] of this.materialMap.mapProperty(key)) {
-				let mappedProperties = this.mappedProperties.get(mapType);
-				if (!mappedProperties) {
-					mappedProperties = new Map();
-					this.mappedProperties.set(mapType, mappedProperties);
+			let existingValue = this.properties.get(key);
+			if (!existingValue) {
+				existingValue = this.materialMap.getDefaultValue(key);
+				if (typeof existingValue != "number") {
+					existingValue = existingValue.clone();
 				}
-				mappedProperties.set(mappedKey, value);
+				this._setMappedProperty(key, existingValue);
 			}
+
+			if (typeof existingValue == "number") {
+				existingValue = value;
+				this._setMappedProperty(key, value);
+				this.properties.set(key, value);
+			} else {
+				existingValue.set(value);
+			}
+		}
+	}
+
+	/**
+	 * @param {string} key
+	 * @param {*} value
+	 */
+	_setMappedProperty(key, value) {
+		this.properties.set(key, value);
+		for (const [mapType, originalKey] of this.materialMap.mapProperty(key)) {
+			let mappedProperties = this.mappedProperties.get(mapType);
+			if (!mappedProperties) {
+				mappedProperties = new Map();
+				this.mappedProperties.set(mapType, mappedProperties);
+			}
+			mappedProperties.set(originalKey, value);
 		}
 	}
 
@@ -55,5 +81,19 @@ export class Material {
 	 */
 	*getAllProperties() {
 		yield* this.properties.entries();
+	}
+
+	/**
+	 * @param {typeof MaterialMapType} mapType
+	 */
+	*getAllMappedProperties(mapType) {
+		const mappedProperties = this.mappedProperties.get(mapType);
+		for (const originalName of this.materialMap.getAllOriginalNames(mapType)) {
+			let value = null;
+			if (mappedProperties) {
+				value = mappedProperties.get(originalName);
+			}
+			yield [originalName, value];
+		}
 	}
 }

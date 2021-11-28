@@ -26,30 +26,7 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 				},
 			},
 		};
-
-		// todo
-		// this.settingsTreeView.generateFromSerializableStructure(this.settingsGuiStructure);
-		// this.settingsTreeView.onChildValueChange(() => {
-		// });
 	}
-
-	// async customAssetDataFromLoad(customData) {
-	// 	let vertexShader = null;
-	// 	let fragmentShader = null;
-	// 	if (customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
-	// 	if (customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
-	// 	this.settingsTreeView.fillSerializableStructureValues({vertexShader, fragmentShader});
-	// }
-
-	// async getCustomAssetDataForSave() {
-	// 	const settings = this.getSettingsValues();
-	// 	const data = {
-	// 		vertexShader: settings.vertexShader?.uuid || null,
-	// 		fragmentShader: settings.fragmentShader?.uuid || null,
-	// 	};
-
-	// 	return data;
-	// }
 
 	static async getLiveAssetCustomData(customData) {
 		let vertexShader = null;
@@ -81,10 +58,6 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 			fragUuid: mapData.fragmentShader,
 		};
 	}
-
-	// getSettingsValues() {
-	// 	return this.settingsTreeView.getSerializableStructureValues(this.settingsGuiStructure);
-	// }
 
 	static async getMappableValues(customData) {
 		const itemsMap = new Map();

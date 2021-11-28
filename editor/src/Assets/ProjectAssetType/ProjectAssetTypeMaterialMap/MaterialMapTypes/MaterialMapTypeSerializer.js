@@ -6,7 +6,7 @@ import editor from "../../../../editorInstance.js";
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
  * @property {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type
- * @property {*} [defaultValue]
+ * @property {import("../../../../../../src/Rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
  */
 
 /**

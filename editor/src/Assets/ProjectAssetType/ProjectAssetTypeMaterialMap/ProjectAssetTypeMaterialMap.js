@@ -27,14 +27,27 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 				const mapType = await typeSerializer.getLiveAssetSettingsInstance(map.customData);
 				/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapMappedValues} */
 				const mappedValues = {};
-				/** @type {Object.<string, import("../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType>} */
-				const types = {};
 				for (const mappedValue of await typeSerializer.getMappableValues(map.customData)) {
+					let defaultValue = mappedValue.defaultValue;
+					if (defaultValue) {
+						if (typeof defaultValue != "number") {
+							defaultValue = defaultValue.clone();
+						}
+					} else {
+						if (mappedValue.type == "number") {
+							defaultValue = 0;
+						} else if (mappedValue.type == "vec2") {
+							defaultValue = new Vec2();
+						} else if (mappedValue.type == "vec3") {
+							defaultValue = new Vec3();
+						} else if (mappedValue.type == "vec4") {
+							defaultValue = new Vec4();
+						}
+					}
 					mappedValues[mappedValue.name] = {
 						mappedName: mappedValue.name,
-						defaultValue: mappedValue.defaultValue,
+						defaultValue,
 					};
-					types[mappedValue.name] = mappedValue.type;
 				}
 				for (const [key, mappedValue] of Object.entries(map.mappedValues)) {
 					if (mappedValue.visible == false) {
@@ -44,18 +57,13 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 							mappedValues[key].mappedName = mappedValue.mappedName;
 						}
 						if (mappedValue.defaultValue !== undefined) {
-							mappedValues[key].defaultValue = mappedValue.defaultValue;
+							const defaultValue = mappedValues[key].defaultValue;
+							if (typeof defaultValue == "number") {
+								mappedValues[key].defaultValue = mappedValue.defaultValue;
+							} else {
+								defaultValue.set(mappedValue.defaultValue);
+							}
 						}
-					}
-				}
-				for (const [key, mappedValue] of Object.entries(mappedValues)) {
-					const type = types[key];
-					if (type == "vec2") {
-						mappedValue.defaultValue = new Vec2(mappedValue.defaultValue);
-					} else if (type == "vec3") {
-						mappedValue.defaultValue = new Vec3(mappedValue.defaultValue);
-					} else if (type == "vec4") {
-						mappedValue.defaultValue = new Vec4(mappedValue.defaultValue);
 					}
 				}
 				materialMapTypes.push({

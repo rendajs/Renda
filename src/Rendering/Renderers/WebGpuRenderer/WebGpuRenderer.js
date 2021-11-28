@@ -328,11 +328,13 @@ export class WebGpuRenderer extends Renderer {
 			}
 		}
 
-		for (const [, pipelines] of materialRenderDatas) {
+		for (const [material, pipelines] of materialRenderDatas) {
 			const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
 			renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
 
-			this.materialUniformsBuffer.appendData(new Vec4(0, 0, 0.2, 1), "f32");
+			for (const [, value] of material.getAllMappedProperties(MaterialMapTypeWebGpu)) {
+				this.materialUniformsBuffer.appendData(value, "f32");
+			}
 
 			for (const [pipeline, renderDatas] of pipelines) {
 				renderPassEncoder.setPipeline(pipeline);

@@ -68,6 +68,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		for (const valueData of mappableValues) {
 			const entry = this.mapValuesTreeView.addItem({
 				type: valueData.type,
+				/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} */
 				guiOpts: {
 					label: valueData.name,
 					defaultValue: valueData.defaultValue,
