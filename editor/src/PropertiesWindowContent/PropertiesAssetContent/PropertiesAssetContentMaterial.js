@@ -1,7 +1,7 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import ProjectAsset from "../../Assets/ProjectAsset.js";
 import editor from "../../editorInstance.js";
 import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -16,7 +16,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		this.mapTreeView = materialTree.addItem({
 			type: "droppable",
 			guiOpts: {
-				supportedAssetTypes: [ProjectAsset],
+				supportedAssetTypes: [MaterialMap],
 				label: "Map",
 			},
 		});
@@ -45,7 +45,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	 * @returns {Promise<import("../../../../src/Rendering/Material.js").Material>}
 	 */
 	async getFirstSelectedLiveAsset() {
-		/** @type {ProjectAsset} */
+		/** @type {import("../../Assets/ProjectAsset.js").default} */
 		const asset = this.currentSelection[0];
 		const liveAsset = await asset.getLiveAsset();
 		const material = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
