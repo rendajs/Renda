@@ -31,6 +31,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			const mapAsset = this.mapTreeView.getValue({purpose: "script"});
 			liveMaterial.setMaterialMap(mapAsset);
 
+			await this.loadMapValues();
 			this.notifyEntityEditorsMaterialChanged();
 			this.saveAsset();
 		});
@@ -40,17 +41,26 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		this.isUpdatingUi = false;
 	}
 
+	/**
+	 * @returns {Promise<import("../../../../src/Rendering/Material.js").Material>}
+	 */
+	async getFirstSelectedLiveAsset() {
+		/** @type {ProjectAsset} */
+		const asset = this.currentSelection[0];
+		const liveAsset = await asset.getLiveAsset();
+		const material = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
+		return material;
+	}
+
 	async loadAsset() {
 		// todo: handle multiple selected items or no selection
 
-		const map = this.currentSelection[0];
-		/** @type {MaterialAssetData} */
-		const mapData = await map.readAssetData();
 		this.isUpdatingUi = true;
 
+		const material = await this.getFirstSelectedLiveAsset();
 		const gui = /** @type {import("../../UI/DroppableGui.js").DroppableGui} */ (this.mapTreeView.gui);
-		await gui.setValueFromAssetUuid(mapData?.map);
-		await this.loadMapValues(mapData?.properties);
+		await gui.setValue(material.materialMap);
+		await this.loadMapValues();
 
 		this.isUpdatingUi = false;
 	}
@@ -69,11 +79,13 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		this.loadAsset();
 	}
 
-	/**
-	 * @param {Object.<string, *>} mapValues
-	 */
-	async loadMapValues(mapValues = {}) {
+	async loadMapValues() {
 		this.mapValuesTreeView.clearChildren();
+		const material = await this.getFirstSelectedLiveAsset();
+		const currentMaterialValues = {};
+		for (const [key, value] of material.getAllProperties()) {
+			currentMaterialValues[key] = value;
+		}
 		const mappableValues = await editor.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
@@ -85,7 +97,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 					defaultValue: valueData.defaultValue,
 				},
 			});
-			const value = mapValues[valueData.name];
+			const value = currentMaterialValues[valueData.name];
 			if (value !== undefined) {
 				entry.setValue(value);
 			}
