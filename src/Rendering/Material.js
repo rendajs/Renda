@@ -109,12 +109,14 @@ export class Material {
 		if (!this.materialMap) return;
 
 		const mappedProperties = this.mappedProperties.get(mapType);
-		if (!mappedProperties) return;
 
 		for (const originalName of this.materialMap.getAllOriginalNames(mapType)) {
 			let value = null;
-			if (mappedProperties) {
+			if (mappedProperties && mappedProperties.has(originalName)) {
 				value = mappedProperties.get(originalName);
+			}
+			if (value == null) {
+				value = this.materialMap.getDefaultValue(originalName);
 			}
 			yield [originalName, value];
 		}
