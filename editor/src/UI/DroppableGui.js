@@ -12,7 +12,7 @@ import {ContentWindowProject} from "../WindowManagement/ContentWindows/ContentWi
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & DroppableGuiOptionsType} DroppableGuiOptions
  */
 
-export default class DroppableGui {
+export class DroppableGui {
 	/**
 	 * @param {DroppableGuiOptions} options
 	 */

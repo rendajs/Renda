@@ -1,8 +1,8 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {Entity, Quat, defaultComponentTypeManager} from "../../../src/index.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
-import Button from "../UI/Button.js";
-import DroppableGui from "../UI/DroppableGui.js";
+import {Button} from "../UI/Button.js";
+import {DroppableGui} from "../UI/DroppableGui.js";
 import editor from "../editorInstance.js";
 import {ContentWindowEntityEditor} from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import {ProjectAssetTypeEntity} from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";

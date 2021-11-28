@@ -1,6 +1,6 @@
 import ContextMenuItem from "./ContextMenuItem.js";
 import ContextMenuSubmenuItem from "./ContextMenuSubmenuItem.js";
-import Button from "../Button.js";
+import {Button} from "../Button.js";
 
 /**
  * @typedef {Object} ContextMenuOptions

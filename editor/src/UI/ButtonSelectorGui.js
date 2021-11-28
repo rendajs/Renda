@@ -1,6 +1,6 @@
 import {prettifyVariableName} from "../Util/Util.js";
-import Button from "./Button.js";
-import ButtonGroup from "./ButtonGroup.js";
+import {Button} from "./Button.js";
+import {ButtonGroup} from "./ButtonGroup.js";
 
 /**
  * @typedef {Object} ButtonSelectorGuiOptionsType

@@ -14,7 +14,7 @@
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & NumericGuiOptionsType} NumericGuiOptions
  */
 
-export default class NumericGui {
+export class NumericGui {
 	/**
 	 * @param {NumericGuiOptions} opts
 	 */

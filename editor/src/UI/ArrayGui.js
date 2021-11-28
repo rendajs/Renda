@@ -1,6 +1,6 @@
 import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
-import ButtonGroup from "../UI/ButtonGroup.js";
-import Button from "./Button.js";
+import {ButtonGroup} from "../UI/ButtonGroup.js";
+import {Button} from "./Button.js";
 
 /**
  * @template T
@@ -14,7 +14,7 @@ import Button from "./Button.js";
 /** @typedef {ArrayGuiOptionsTypeGeneric<keyof import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap>} ArrayGuiOptionsType */
 /** @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ArrayGuiOptionsType} ArrayGuiOptions */
 
-export default class ArrayGui {
+export class ArrayGui {
 	/**
 	 * @param {ArrayGuiOptions} options
 	 */

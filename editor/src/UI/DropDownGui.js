@@ -9,7 +9,7 @@ import {prettifyVariableName} from "../Util/Util.js";
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & DropDownGuiOptionsType} DropDownGuiOptions
  */
 
-export default class DropDownGui {
+export class DropDownGui {
 	/**
 	 * @param {DropDownGuiOptions} opts
 	 */

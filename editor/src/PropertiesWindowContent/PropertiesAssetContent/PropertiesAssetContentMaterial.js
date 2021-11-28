@@ -48,7 +48,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		const mapData = await map.readAssetData();
 		this.isUpdatingUi = true;
 
-		const gui = /** @type {import("../../UI/DroppableGui.js").default} */ (this.mapTreeView.gui);
+		const gui = /** @type {import("../../UI/DroppableGui.js").DroppableGui} */ (this.mapTreeView.gui);
 		await gui.setValueFromAssetUuid(mapData?.map);
 		await this.loadMapValues(mapData?.properties);
 

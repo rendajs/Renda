@@ -1,12 +1,12 @@
-export default class ButtonGroup {
+export class ButtonGroup {
 	/**
-	 * @param {...import("./Button.js").default} buttons
+	 * @param {...import("./Button.js").Button} buttons
 	 */
 	constructor(...buttons) {
 		this.el = document.createElement("div");
 		this.el.classList.add("buttonGroup", "buttonGroupLike");
 
-		/** @type {Array<import("./Button.js").default>} */
+		/** @type {Array<import("./Button.js").Button>} */
 		this.buttons = [];
 
 		for (const button of buttons) {
@@ -26,7 +26,7 @@ export default class ButtonGroup {
 	}
 
 	/**
-	 * @param {import("./Button.js").default} button
+	 * @param {import("./Button.js").Button} button
 	 */
 	addButton(button) {
 		this.buttons.push(button);

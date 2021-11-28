@@ -1,4 +1,4 @@
-import NumericGui from "./NumericGui.js";
+import {NumericGui} from "./NumericGui.js";
 import {Vec2, Vec3, Vec4} from "../../../src/index.js";
 
 /**
@@ -12,7 +12,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/index.js";
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & VectorGuiOptionsType} VectorGuiOptions
  */
 
-export default class VectorGui {
+export class VectorGui {
 	/**
 	 * @param {VectorGuiOptions} opts
 	 */

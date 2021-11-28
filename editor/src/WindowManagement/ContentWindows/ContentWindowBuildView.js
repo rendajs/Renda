@@ -1,6 +1,6 @@
 import editor from "../../editorInstance.js";
 import {ContentWindow} from "./ContentWindow.js";
-import Button from "../../UI/Button.js";
+import {Button} from "../../UI/Button.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../src/index.js";
 

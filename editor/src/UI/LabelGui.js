@@ -5,7 +5,7 @@
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & LabelGuiOptionsType} LabelGuiOptions
  */
 
-export default class LabelGui {
+export class LabelGui {
 	/**
 	 * @param {LabelGuiOptions} opts
 	 */

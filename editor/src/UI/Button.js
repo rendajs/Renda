@@ -20,7 +20,7 @@ import editor from "../editorInstance.js";
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ButtonGuiOptionsType<TCallbacksContext>} ButtonGuiOptionsWithCallbacksContext<TCallbacksContext>
  */
 
-export default class Button {
+export class Button {
 	/**
 	 * @param {ButtonGuiOptions} opts
 	 */
