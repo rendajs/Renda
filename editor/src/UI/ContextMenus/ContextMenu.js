@@ -129,8 +129,9 @@ export class ContextMenu {
 			el = options.item.el;
 			if (!corner) corner = "top left";
 		}
+		let elRect = null;
 		if (el instanceof HTMLElement) {
-			const rect = el.getBoundingClientRect();
+			elRect = el.getBoundingClientRect();
 			if (!corner) corner = "center";
 			const corenerArgs = corner.split(" ");
 			const castCornerArgs = /** @type {(ContextMenuSetPosHorizontalCorner | ContextMenuSetPosVerticalCorner)[]} */ (corenerArgs);
@@ -144,18 +145,18 @@ export class ContextMenu {
 			if (castCornerArgs.includes("bottom")) verticalCorner = "bottom";
 
 			if (horizontalCorner == "center") {
-				x = rect.x + rect.width / 2;
+				x = elRect.x + elRect.width / 2;
 			} else if (horizontalCorner == "left") {
-				x = rect.x;
+				x = elRect.x;
 			} else if (horizontalCorner == "right") {
-				x = rect.right;
+				x = elRect.right;
 			}
 			if (verticalCorner == "center") {
-				y = rect.y + rect.height / 2;
+				y = elRect.y + elRect.height / 2;
 			} else if (verticalCorner == "top") {
-				y = rect.top;
+				y = elRect.top;
 			} else if (verticalCorner == "bottom") {
-				y = rect.bottom;
+				y = elRect.bottom;
 			}
 
 			if (!clampMode) clampMode = "clamp";
@@ -167,9 +168,15 @@ export class ContextMenu {
 		if (clampMode == "flip") {
 			if (x + bounds.width > window.innerWidth) {
 				x -= bounds.width;
+				if (preventElementCover && elRect) {
+					x -= elRect.width;
+				}
 			}
 			if (y + bounds.height > window.innerHeight) {
 				y -= bounds.height;
+				if (preventElementCover && elRect) {
+					y -= elRect.height;
+				}
 			}
 		} else if (clampMode == "clamp") {
 			const deltaX = x + bounds.width - window.innerWidth;
