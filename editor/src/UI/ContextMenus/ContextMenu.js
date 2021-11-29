@@ -16,6 +16,22 @@ import {Button} from "../Button.js";
  * @property {function() : void} preventMenuClose
  */
 
+/** @typedef {"flip" | "clamp"} ContextMenuSetPosClampMode */
+
+/**
+ * @typedef {"left" | "center" | "right"} ContextMenuSetPosHorizontalCorner
+ * @typedef {"top" | "center" | "bottom"} ContextMenuSetPosVerticalCorner
+ * @typedef {ContextMenuSetPosHorizontalCorner | ContextMenuSetPosVerticalCorner | `${ContextMenuSetPosHorizontalCorner} ${ContextMenuSetPosVerticalCorner}` | `${ContextMenuSetPosVerticalCorner} ${ContextMenuSetPosHorizontalCorner}`} ContextMenuSetPosCorner
+ */
+
+/**
+ * @typedef {(x: number, y: number, clampMode?: ContextMenuSetPosClampMode) => void} contextMenuSetPosXYClampModeSignature
+ * @typedef {(el: HTMLElement, corner?: ContextMenuSetPosCorner, clampMode?: ContextMenuSetPosClampMode) => void} contextMenuSetPosElCornerClampModeSignature
+ * @typedef {(button: Button, corner?: ContextMenuSetPosCorner) => void} contextMenuSetPosButtonCornerSignature
+ * @typedef {(contextMenuItem: ContextMenuItem, corner?: ContextMenuSetPosCorner) => void} contextMenuSetPosContextMenuItemCornerSignature
+ * @typedef {Parameters<contextMenuSetPosXYClampModeSignature> | Parameters<contextMenuSetPosElCornerClampModeSignature> | Parameters<contextMenuSetPosButtonCornerSignature> | Parameters<contextMenuSetPosContextMenuItemCornerSignature>} ContextMenuSetPosParameters
+ */
+
 /**
  * @typedef {Object} ContextMenuItemOpts
  * @property {string} [text=""] The text to display in the item.
@@ -49,7 +65,9 @@ export class ContextMenu {
 		/** @type {Array<ContextMenuItem>} */
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
+		/** @type {ContextMenu} */
 		this.currentSubmenu = null;
+		/** @type {ContextMenuSetPosParameters} */
 		this.lastPosArguments = null;
 
 		this.hasResevedIconSpaceItem = false;
@@ -79,12 +97,24 @@ export class ContextMenu {
 		}
 	}
 
+	/**
+	 * @param  {ContextMenuSetPosParameters} args
+	 */
 	setPos(...args) {
-		this.lastPosArguments = Array.from(args);
+		this.lastPosArguments = [...args];
+
+		/* eslint-disable no-self-assign */
 		let [x, y, clampMode = null] = args;
+		x = /** @type {number} */ (x);
+		y = /** @type {number} */ (y);
 		let [el, corner = "center", elClampMode = null] = args;
-		const [button] = args;
-		const [contextMenuItem] = args;
+		el = /** @type {HTMLElement} */ (el);
+		corner = /** @type {ContextMenuSetPosCorner} */ (corner);
+		let [button] = args;
+		button = /** @type {Button} */ (button);
+		let [contextMenuItem] = args;
+		contextMenuItem = /** @type {ContextMenuItem} */ (contextMenuItem);
+		/* eslint-enable no-self-assign */
 
 		if (elClampMode) clampMode = elClampMode;
 
@@ -97,13 +127,17 @@ export class ContextMenu {
 		}
 		if (el instanceof HTMLElement) {
 			const rect = el.getBoundingClientRect();
-			const corenerArgs = corner.split(" ");
+			const castCorner = /** @type {ContextMenuSetPosCorner} */ (corner);
+			const corenerArgs = castCorner.split(" ");
+			const castCornerArgs = /** @type {(ContextMenuSetPosHorizontalCorner | ContextMenuSetPosVerticalCorner)[]} */ (corenerArgs);
+			/** @type {ContextMenuSetPosHorizontalCorner} */
 			let horizontalCorner = "center";
+			/** @type {ContextMenuSetPosVerticalCorner} */
 			let verticalCorner = "center";
-			if (corenerArgs.includes("left")) horizontalCorner = "left";
-			if (corenerArgs.includes("right")) horizontalCorner = "right";
-			if (corenerArgs.includes("top")) verticalCorner = "top";
-			if (corenerArgs.includes("bottom")) verticalCorner = "bottom";
+			if (castCornerArgs.includes("left")) horizontalCorner = "left";
+			if (castCornerArgs.includes("right")) horizontalCorner = "right";
+			if (castCornerArgs.includes("top")) verticalCorner = "top";
+			if (castCornerArgs.includes("bottom")) verticalCorner = "bottom";
 
 			if (horizontalCorner == "center") {
 				x = rect.x + rect.width / 2;
