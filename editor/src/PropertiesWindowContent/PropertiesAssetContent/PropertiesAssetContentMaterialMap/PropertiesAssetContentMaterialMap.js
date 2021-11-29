@@ -62,7 +62,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 						});
 					}
 
-					menu.setPos(this.addMapTypeButtonEntry.gui, "top left");
+					menu.setPos({item: this.addMapTypeButtonEntry.gui});
 				},
 			},
 		});

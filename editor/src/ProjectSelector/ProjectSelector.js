@@ -181,7 +181,7 @@ export class ProjectSelector {
 							},
 						},
 					]);
-					contextMenu.setPos(e.clientX, e.clientY);
+					contextMenu.setPos({x: e.clientX, y: e.clientY});
 				}
 			});
 		}

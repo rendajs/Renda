@@ -398,7 +398,7 @@ export class DroppableGui {
 			disabled: this.projectAssetValueDeleted,
 		});
 		const menu = editor.contextMenuManager.createContextMenu(contextMenuStructure);
-		menu.setPos(e.pageX, e.pageY);
+		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 
 	get visibleAssetName() {

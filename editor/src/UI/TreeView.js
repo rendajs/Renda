@@ -1457,7 +1457,7 @@ export class TreeView {
 				menuCreated = true;
 				e.preventDefault();
 				const menu = editor.contextMenuManager.createContextMenu(structure);
-				menu.setPos(e.pageX, e.pageY);
+				menu.setPos({x: e.pageX, y: e.pageY});
 				return menu;
 			},
 		};

@@ -16,20 +16,18 @@ import {Button} from "../Button.js";
  * @property {function() : void} preventMenuClose
  */
 
-/** @typedef {"flip" | "clamp"} ContextMenuSetPosClampMode */
+/**
+ * `"clamp"`: Clamp the menu to the screen.
+ * `"flip"`: Moves the menu so that the corner is now on the opposite side.
+ * If an element is provided, rather than a position, the menu will also be moved
+ * in a way to keep the element visible.
+ * @typedef {"flip" | "clamp"} ContextMenuSetPosClampMode
+ */
 
 /**
  * @typedef {"left" | "center" | "right"} ContextMenuSetPosHorizontalCorner
  * @typedef {"top" | "center" | "bottom"} ContextMenuSetPosVerticalCorner
  * @typedef {ContextMenuSetPosHorizontalCorner | ContextMenuSetPosVerticalCorner | `${ContextMenuSetPosHorizontalCorner} ${ContextMenuSetPosVerticalCorner}` | `${ContextMenuSetPosVerticalCorner} ${ContextMenuSetPosHorizontalCorner}`} ContextMenuSetPosCorner
- */
-
-/**
- * @typedef {(x: number, y: number, clampMode?: ContextMenuSetPosClampMode) => void} contextMenuSetPosXYClampModeSignature
- * @typedef {(el: HTMLElement, corner?: ContextMenuSetPosCorner, clampMode?: ContextMenuSetPosClampMode) => void} contextMenuSetPosElCornerClampModeSignature
- * @typedef {(button: Button, corner?: ContextMenuSetPosCorner) => void} contextMenuSetPosButtonCornerSignature
- * @typedef {(contextMenuItem: ContextMenuItem, corner?: ContextMenuSetPosCorner) => void} contextMenuSetPosContextMenuItemCornerSignature
- * @typedef {Parameters<contextMenuSetPosXYClampModeSignature> | Parameters<contextMenuSetPosElCornerClampModeSignature> | Parameters<contextMenuSetPosButtonCornerSignature> | Parameters<contextMenuSetPosContextMenuItemCornerSignature>} ContextMenuSetPosParameters
  */
 
 /**
@@ -67,7 +65,7 @@ export class ContextMenu {
 		this.activeSubmenuItem = null;
 		/** @type {ContextMenu} */
 		this.currentSubmenu = null;
-		/** @type {ContextMenuSetPosParameters} */
+		/** @type {ContextMenuSetPosOpts} */
 		this.lastPosArguments = null;
 
 		this.hasResevedIconSpaceItem = false;
@@ -98,37 +96,43 @@ export class ContextMenu {
 	}
 
 	/**
-	 * @param  {ContextMenuSetPosParameters} args
+	 * @typedef {Object} ContextMenuSetPosOpts
+	 * @property {number} [x]
+	 * @property {number} [y]
+	 * @property {HTMLElement | Button | ContextMenuItem} [item]
+	 * @property {ContextMenuSetPosCorner} [corner]
+	 * @property {ContextMenuSetPosClampMode} [clampMode]
+	 * @property {boolean} [preventElementCover] When true, will move the menu out of the way
+	 * when the menu would otherwise cover the element as a result of the clamp mode. Only works
+	 * with clamp mode "flip".
 	 */
-	setPos(...args) {
-		this.lastPosArguments = [...args];
 
-		/* eslint-disable no-self-assign */
-		let [x, y, clampMode = null] = args;
-		x = /** @type {number} */ (x);
-		y = /** @type {number} */ (y);
-		let [el, corner = "center", elClampMode = null] = args;
-		el = /** @type {HTMLElement} */ (el);
-		corner = /** @type {ContextMenuSetPosCorner} */ (corner);
-		let [button] = args;
-		button = /** @type {Button} */ (button);
-		let [contextMenuItem] = args;
-		contextMenuItem = /** @type {ContextMenuItem} */ (contextMenuItem);
-		/* eslint-enable no-self-assign */
+	/**
+	 * @param  {ContextMenuSetPosOpts} options
+	 */
+	setPos(options) {
+		this.lastPosArguments = {...options};
 
-		if (elClampMode) clampMode = elClampMode;
+		let x = options.x;
+		let y = options.y;
+		let corner = options.corner;
+		let clampMode = options.clampMode;
+		let preventElementCover = options.preventElementCover;
+		let el = null;
 
-		if (contextMenuItem instanceof ContextMenuItem) {
-			el = contextMenuItem.el;
+		if (options.item instanceof ContextMenuItem) {
+			el = options.item.el;
 			if (!clampMode) clampMode = "flip";
+			if (preventElementCover == undefined) preventElementCover = true;
 		}
-		if (button instanceof Button) {
-			el = button.el;
+		if (options.item instanceof Button) {
+			el = options.item.el;
+			if (!corner) corner = "top left";
 		}
 		if (el instanceof HTMLElement) {
 			const rect = el.getBoundingClientRect();
-			const castCorner = /** @type {ContextMenuSetPosCorner} */ (corner);
-			const corenerArgs = castCorner.split(" ");
+			if (!corner) corner = "center";
+			const corenerArgs = corner.split(" ");
 			const castCornerArgs = /** @type {(ContextMenuSetPosHorizontalCorner | ContextMenuSetPosVerticalCorner)[]} */ (corenerArgs);
 			/** @type {ContextMenuSetPosHorizontalCorner} */
 			let horizontalCorner = "center";
@@ -210,7 +214,7 @@ export class ContextMenu {
 				createdItem = this.addItem(itemSettings);
 			}
 		}
-		if (this.lastPosArguments) this.setPos(...this.lastPosArguments);
+		if (this.lastPosArguments) this.setPos(this.lastPosArguments);
 	}
 
 	/**
@@ -244,7 +248,10 @@ export class ContextMenu {
 		this.removeSubmenu();
 		this.activeSubmenuItem = submenuItem;
 		this.currentSubmenu = new ContextMenu(this.manager, {parentMenu: this});
-		this.currentSubmenu.setPos(submenuItem, "top right");
+		this.currentSubmenu.setPos({
+			item: submenuItem,
+			corner: "top right",
+		});
 		return this.currentSubmenu;
 	}
 
