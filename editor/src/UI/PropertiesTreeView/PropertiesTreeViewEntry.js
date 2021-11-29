@@ -38,6 +38,23 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  * @property {import("../ObjectGui.js").ObjectGuiOptions} object
  */
 
+/**
+ * @typedef {Object} PropertiesTreeViewGuiMap
+ * @property {import("../VectorGui.js").VectorGui} vec2
+ * @property {import("../VectorGui.js").VectorGui} vec3
+ * @property {import("../VectorGui.js").VectorGui} vec4
+ * @property {import("../TextGui.js").TextGui} string
+ * @property {import("../NumericGui.js").NumericGui} number
+ * @property {import("../BooleanGui.js").BooleanGui} boolean
+ * @property {import("../Button.js").Button} button
+ * @property {import("../ButtonSelectorGui.js").ButtonSelectorGui} buttonSelector
+ * @property {import("../LabelGui.js").LabelGui} label
+ * @property {import("../DropDownGui.js").DropDownGui} dropdown
+ * @property {import("../DroppableGui.js").DroppableGui} droppable
+ * @property {import("../ArrayGui.js").ArrayGui} array
+ * @property {import("../ObjectGui.js").ObjectGui} object
+ */
+
 /** @typedef {keyof PropertiesTreeViewGuiOptionsMap} PropertiesTreeViewEntryType */
 
 /**
@@ -75,15 +92,18 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  * @typedef {import("../TreeView.js").TreeViewEvent & PropertiesTreeViewChangeEventType} PropertiesTreeViewChangeEvent
  */
 
+/**
+ * @template {PropertiesTreeViewEntryOptions} T
+ */
 export class PropertiesTreeViewEntry extends TreeView {
 	/**
-	 * @param {PropertiesTreeViewEntryOptions} opts
+	 * @param {T} opts
 	 */
 	constructor({
 		type = "number",
 		guiOpts = {},
 		callbacksContext = {},
-	} = {}) {
+	}) {
 		super({
 			addCustomEl: true,
 			selectable: false,
@@ -104,81 +124,87 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
+		/** @type {PropertiesTreeViewGuiMap[T["type"]]} */
+		this.gui = null;
+
 		this.type = type;
+		/** @type {*} */
+		let setGui = null;
 		if (type == "string") {
-			this.gui = new TextGui(guiOpts);
-			this.valueEl.appendChild(this.gui.el);
+			setGui = new TextGui(guiOpts);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type === "vec2") {
-			this.gui = new VectorGui({
+			setGui = new VectorGui({
 				size: 2,
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type === "vec3") {
-			this.gui = new VectorGui({
+			setGui = new VectorGui({
 				size: 3,
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type === "vec4") {
-			this.gui = new VectorGui({
+			setGui = new VectorGui({
 				size: 4,
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type == "number") {
-			this.gui = new NumericGui({
+			setGui = new NumericGui({
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type == "boolean") {
-			this.gui = new BooleanGui({
+			setGui = new BooleanGui({
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type == "dropdown") {
-			this.gui = new DropDownGui({
+			setGui = new DropDownGui({
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type == "array") {
-			this.gui = new ArrayGui({
+			setGui = new ArrayGui({
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
 		} else if (type == "object") {
-			this.gui = new ObjectGui({
+			setGui = new ObjectGui({
 				structure: type,
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.treeView.el);
+			this.valueEl.appendChild(setGui.treeView.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
 		} else if (type == "button") {
-			this.gui = new Button({
+			setGui = new Button({
 				...guiOpts,
 				onClick: () => {
 					const castGuiOpts = /** @type {import("../Button.js").ButtonGuiOptions} */ (guiOpts);
 					if (castGuiOpts.onClick) castGuiOpts.onClick(callbacksContext);
 				},
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type == "buttonSelector") {
-			this.gui = new ButtonSelectorGui({
+			setGui = new ButtonSelectorGui({
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type == "label") {
-			this.gui = new LabelGui(guiOpts);
-			this.valueEl.appendChild(this.gui.el);
+			setGui = new LabelGui(guiOpts);
+			this.valueEl.appendChild(setGui.el);
 		} else if (type == "droppable") {
-			this.gui = new DroppableGui({
+			setGui = new DroppableGui({
 				...guiOpts,
 			});
-			this.valueEl.appendChild(this.gui.el);
+			this.valueEl.appendChild(setGui.el);
 		}
+		this.gui = setGui;
 
 		// todo: maybe instead of calling setvalue inside the constructor
 		// of every gui class, call setValue over here
