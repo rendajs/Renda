@@ -6,6 +6,11 @@ import {PropertiesTreeView} from "../../../UI/PropertiesTreeView/PropertiesTreeV
  * @property {PropertiesTreeView} treeView
  */
 
+/**
+ * Responsible for rendering the list UI for mapped properties.
+ * Each property contains a visibility checkbox, a textfield for the mapped name,
+ * and a default value.
+ */
 export class MaterialMapListUi {
 	/**
 	 * @param {Object} options

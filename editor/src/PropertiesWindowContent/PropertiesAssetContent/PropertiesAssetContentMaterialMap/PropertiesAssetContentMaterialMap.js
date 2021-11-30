@@ -1,6 +1,7 @@
 import {PropertiesAssetContent} from "../PropertiesAssetContent.js";
 import editor from "../../../editorInstance.js";
 import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
+import {ProjectAsset} from "../../../Assets/ProjectAsset.js";
 
 /**
  * Responsible for rendering the ui in the properties window for MaterialMaps.
@@ -157,8 +158,13 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 
 	async saveSelectedAssets() {
 		const assetData = await this.getAssetData();
-		for (const asset of this.currentSelection) {
-			asset.writeAssetData(assetData);
+		/** @type {Iterable<ProjectAsset>} */
+		const selectedAssets = this.currentSelection;
+		for (const asset of selectedAssets) {
+			(async () => {
+				await asset.writeAssetData(assetData);
+				asset.liveAssetNeedsReplacement();
+			})();
 		}
 	}
 }
