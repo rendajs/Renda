@@ -21,7 +21,11 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
 		if (materialJson.map) {
-			materialMap = await editor.projectManager.assetManager.getLiveAsset(materialJson.map);
+			const materialMapAsset = await editor.projectManager.assetManager.getProjectAsset(materialJson.map);
+			if (materialMapAsset) {
+				materialMap = await materialMapAsset.getLiveAsset();
+				this.listenForUsedLiveAssetChanges(materialMapAsset);
+			}
 		}
 
 		const material = new Material(materialMap, materialJson.properties);
