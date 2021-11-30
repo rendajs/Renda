@@ -36,12 +36,7 @@ export class SelectionManager {
 			}
 		}
 
-		this.updatePropertyWindows();
-	}
-
-	updatePropertyWindows() {
-		for (const propertyWindow of editor.windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
-			propertyWindow.onSelectionChanged(this);
-		}
+		const propertyiesWindow = editor.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowProperties, false);
+		propertyiesWindow.onSelectionChanged(this);
 	}
 }
