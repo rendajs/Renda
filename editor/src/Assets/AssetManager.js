@@ -1,8 +1,8 @@
 import {SingleInstancePromise} from "../../../src/index.js";
 import editor from "../editorInstance.js";
 import {generateUuid, handleDuplicateName} from "../Util/Util.js";
-import DefaultAssetLink from "./DefaultAssetLink.js";
-import ProjectAsset from "./ProjectAsset.js";
+import {DefaultAssetLink} from "./DefaultAssetLink.js";
+import {ProjectAsset} from "./ProjectAsset.js";
 
 export class AssetManager {
 	constructor() {

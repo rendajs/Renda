@@ -1,4 +1,4 @@
-export default class DefaultAssetLink {
+export class DefaultAssetLink {
 	constructor({
 		name = "",
 		defaultAssetUuid = null,

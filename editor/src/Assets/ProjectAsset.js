@@ -8,7 +8,7 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
 
 /** @typedef {Object | string | File} ProjectAssetFileData */
 
-export default class ProjectAsset {
+export class ProjectAsset {
 	constructor({
 		uuid = null,
 		path = [],

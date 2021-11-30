@@ -82,7 +82,7 @@ export class MaterialMapTypeSerializer {
 	 * This will be used to replace material instances in the editor whenever a
 	 * linked live asset changes (a shader for example).
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {AsyncGenerator<import("../../../ProjectAsset.js").default>}
+	 * @returns {AsyncGenerator<import("../../../ProjectAsset.js").ProjectAsset>}
 	 */
 	static async *getLinkedAssetsInCustomData(customData) {}
 

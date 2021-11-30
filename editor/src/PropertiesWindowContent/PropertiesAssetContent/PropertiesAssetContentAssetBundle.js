@@ -1,5 +1,5 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import ProjectAsset from "../../Assets/ProjectAsset.js";
+import {ProjectAsset} from "../../Assets/ProjectAsset.js";
 import editor from "../../editorInstance.js";
 
 export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {

@@ -4,7 +4,7 @@ import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../UI/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Component, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/index.js";
 import editor from "../../editorInstance.js";
-import SelectionManager from "../../Managers/SelectionManager.js";
+import {SelectionManager} from "../../Managers/SelectionManager.js";
 import ComponentGizmos from "../../ComponentGizmos/ComponentGizmos.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */

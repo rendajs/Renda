@@ -1,7 +1,7 @@
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
 import editor from "../editorInstance.js";
 
-export default class AssetBundler {
+export class AssetBundler {
 	async bundle(bundleProjectAsset) {
 		const bundleData = await bundleProjectAsset.readAssetData();
 		const assetUuids = await this.getAllAssetUuids(bundleData.assets, new Set(bundleData.excludeAssets), new Set(bundleData.excludeAssetsRecursive));

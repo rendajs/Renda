@@ -1,6 +1,6 @@
 import {generateUuid} from "../Util/Util.js";
 
-export default class DragManager {
+export class DragManager {
 	constructor() {
 		this.createdDragFeedbackEls = new Set();
 		this.draggingData = new Map();

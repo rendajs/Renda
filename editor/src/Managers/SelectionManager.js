@@ -13,7 +13,7 @@ import {ContentWindowProperties} from "../WindowManagement/ContentWindows/Conten
  * Manages selections and notifies listeners when the selection changes.
  * @template T The expected type of selected items.
  */
-export default class SelectionManager {
+export class SelectionManager {
 	constructor() {
 		/** @type {T[]} */
 		this.currentSelectedObjects = [];

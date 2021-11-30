@@ -1,7 +1,7 @@
 import autoRegisterComponentGizmos from "../ComponentGizmos/autoRegisterComponentGizmos.js";
 import ComponentGizmos from "../ComponentGizmos/ComponentGizmos.js";
 
-export default class ComponentGizmosManager {
+export class ComponentGizmosManager {
 	/** @typedef {typeof import("../../../src/Components/Component.js").Component} ComponentType */
 
 	constructor() {

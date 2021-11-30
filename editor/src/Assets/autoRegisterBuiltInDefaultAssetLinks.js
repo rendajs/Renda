@@ -1,7 +1,7 @@
 // Use `Util.generateUuid()` to generate uuids for the `defaultAssetUuid` value
 // `originalAssetUuid` should be the uuid of a built-in asset
 
-export default [
+const autoRegisterBuiltInDefaultAssetLinks = [
 	{
 		name: "Default Material",
 		defaultAssetUuid: "f1e469e3-b463-4542-952a-091487bf5b4a",
@@ -18,3 +18,5 @@ export default [
 		originalAssetUuid: "01ba9a17-bbff-4c12-b234-9eb47c1fcc7c",
 	},
 ];
+
+export {autoRegisterBuiltInDefaultAssetLinks};

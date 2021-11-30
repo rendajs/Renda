@@ -1,12 +1,12 @@
-import autoRegisterDefaultAssetLinks from "./autoRegisterBuiltInDefaultAssetLinks.js";
+import {autoRegisterBuiltInDefaultAssetLinks} from "./autoRegisterBuiltInDefaultAssetLinks.js";
 
-export default class BuiltInDefaultAssetLinksManager {
+export class BuiltInDefaultAssetLinksManager {
 	constructor() {
 		this.registeredAssetLinks = new Set();
 	}
 
 	init() {
-		for (const assetLink of autoRegisterDefaultAssetLinks) {
+		for (const assetLink of autoRegisterBuiltInDefaultAssetLinks) {
 			this.registerAssetLink(assetLink);
 		}
 	}

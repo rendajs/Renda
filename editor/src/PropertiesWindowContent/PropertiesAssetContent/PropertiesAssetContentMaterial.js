@@ -45,7 +45,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	 * @returns {Promise<import("../../../../src/Rendering/Material.js").Material>}
 	 */
 	async getFirstSelectedLiveAsset() {
-		/** @type {import("../../Assets/ProjectAsset.js").default} */
+		/** @type {import("../../Assets/ProjectAsset.js").ProjectAsset} */
 		const asset = this.currentSelection[0];
 		const liveAsset = await asset.getLiveAsset();
 		const material = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);

@@ -19,7 +19,7 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
 
 /**
  * @typedef {Object} ComponentEditorOptions
- * @property {import("../../editor/src/Assets/ProjectAssetTypeManager.js").default} editorAssetTypeManager
+ * @property {import("../../editor/src/Assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} editorAssetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
  * @property {import("../../editor/src/Assets/AssetManager.js").AssetManager} assetManager
  */

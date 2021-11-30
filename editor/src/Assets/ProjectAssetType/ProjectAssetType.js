@@ -76,7 +76,7 @@ export class ProjectAssetType {
 	 */
 	static assetSettingsStructure = {};
 
-	/** @typedef {import("../ProjectAsset.js").default} ProjectAsset */
+	/** @typedef {import("../ProjectAsset.js").ProjectAsset} ProjectAsset */
 	/**
 	 * @param {ProjectAsset} projectAsset
 	 */

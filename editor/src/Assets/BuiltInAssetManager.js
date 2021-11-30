@@ -1,4 +1,4 @@
-import ProjectAsset from "./ProjectAsset.js";
+import {ProjectAsset} from "./ProjectAsset.js";
 import {arrayBufferToBase64} from "../../../src/index.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
 import editor from "../editorInstance.js";

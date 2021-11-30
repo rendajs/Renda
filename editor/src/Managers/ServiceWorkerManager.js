@@ -1,6 +1,6 @@
 import editor from "../editorInstance.js";
 
-export default class ServiceWorkerManager {
+export class ServiceWorkerManager {
 	constructor() {
 		this.registration = null;
 
