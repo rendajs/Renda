@@ -5,7 +5,6 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "node build.js",
 		"build-editor": "node editor/scripts/build.js",
 		"build-editor-dependencies": "node editor/scripts/buildDependencies.js",
 		"build-editor-dev": "node editor/scripts/build.js --dev",

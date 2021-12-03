@@ -1,15 +1,16 @@
-#!/usr/bin/env node
+#!/usr/bin/env deno
 
-import {rollup} from "rollup";
-import jscc from "rollup-plugin-jscc";
-import cleanup from "rollup-plugin-cleanup";
-import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
+import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
+
+const require = createRequire(import.meta.url);
+const {rollup} = require("rollup");
+const jscc = require("rollup-plugin-jscc");
+const cleanup = require("rollup-plugin-cleanup");
 
 (async () => {
 	const bundle = await rollup({
 		input: "src/index.js",
 		plugins: [
-			resolveUrlObjects(),
 			jscc({
 				values: {
 					_IS_CLOSURE_BUILD: true,
