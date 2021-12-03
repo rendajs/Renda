@@ -13,7 +13,6 @@
 		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
 		"lint": "eslint .",
 		"prepare": "husky install",
-		"test": "jest",
 		"precommit": "git-format-staged --no-write -f 'eslint --stdin --stdin-filename \"{}\" >&2' '*.js' && npm run typecheck"
 	},
 	"devDependencies": {
@@ -21,7 +20,6 @@
 		"@rollup/plugin-commonjs": "^11.1.0",
 		"@rollup/plugin-node-resolve": "^13.0.6",
 		"@types/google-closure-compiler": "^0.0.19",
-		"@types/jest": "^27.0.3",
 		"@types/js-md5": "^0.4.3",
 		"@types/node": "^16.9.1",
 		"@types/websocket": "^1.0.4",
@@ -34,7 +32,6 @@
 		"git-format-staged": "^2.1.2",
 		"google-closure-compiler": "^20210907.0.0",
 		"husky": "^7.0.0",
-		"jest": "^27.4.0",
 		"js-md5": "^0.7.3",
 		"rollup": "^2.60.0",
 		"rollup-plugin-cleanup": "^3.2.1",
