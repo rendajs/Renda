@@ -48,6 +48,19 @@
 				"editor/scripts/build.js",
 				"--dev"
 			]
+		},
+		{
+			"label": "build editor dependencies",
+			"type": "deno",
+			"command": "run",
+			"args": [
+				"--unstable",
+				"--allow-read",
+				"--allow-write",
+				"--allow-env=NODE_DEBUG",
+				"editor/scripts/buildDependencies.js",
+				"--dev"
+			]
 		}
 	]
 }

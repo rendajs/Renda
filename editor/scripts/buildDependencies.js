@@ -1,10 +1,14 @@
 #!/usr/bin/env node
 
-import {rollup} from "rollup";
-import path from "path";
-import commonjs from "@rollup/plugin-commonjs";
-import {fileURLToPath} from "url";
-import {nodeResolve} from "@rollup/plugin-node-resolve";
+import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
+import {dirname, fromFileUrl, resolve} from "https://deno.land/std@0.117.0/path/mod.ts";
+
+// import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
+
+const require = createRequire(import.meta.url);
+const {rollup} = require("rollup");
+const commonjs = require("@rollup/plugin-commonjs");
+const {nodeResolve} = require("@rollup/plugin-node-resolve");
 
 function ignore(ignoreList) {
 	const emptyModuleId = "ignore_empty_module_placeholder";
@@ -72,10 +76,10 @@ const libs = [
 ];
 
 (async () => {
-	const dirname = path.dirname(fileURLToPath(import.meta.url));
+	const scriptDir = dirname(fromFileUrl(import.meta.url));
 
 	for (const lib of libs) {
-		const inputPath = path.resolve(dirname, lib.input);
+		const inputPath = resolve(scriptDir, lib.input);
 		console.log("bundling " + lib.input);
 		const libPlugins = lib.plugins || [];
 		const plugins = [...libPlugins, commonjs(), ignore(["fs"]), addHeader("// @ts-nocheck\n\n"), nodeResolve()];
@@ -85,7 +89,7 @@ const libs = [
 		});
 		console.log("writing to " + lib.output);
 		await bundle.write({
-			file: path.resolve(dirname, "../libs", lib.output),
+			file: resolve(scriptDir, "../libs", lib.output),
 			format: "esm",
 		});
 	}
