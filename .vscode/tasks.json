@@ -25,6 +25,29 @@
 				"--allow-write",
 				"scripts/build.js",
 			]
+		},
+		{
+			"label": "build editor",
+			"type": "deno",
+			"command": "run",
+			"args": [
+				"--unstable",
+				"--allow-read",
+				"--allow-write",
+				"editor/scripts/build.js",
+			]
+		},
+		{
+			"label": "build editor dev",
+			"type": "deno",
+			"command": "run",
+			"args": [
+				"--unstable",
+				"--allow-read",
+				"--allow-write",
+				"editor/scripts/build.js",
+				"--dev"
+			]
 		}
 	]
 }

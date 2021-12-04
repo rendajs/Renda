@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
-import {rollup} from "rollup";
-import {promises as fs} from "fs";
-import process from "process";
-import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
+import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
 
-const isDevBuild = process.argv.includes("--dev");
+// import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
+
+const require = createRequire(import.meta.url);
+const {rollup} = require("rollup");
+
+const isDevBuild = Deno.args.includes("--dev");
 
 const defines = {
 	EDITOR_ENV: isDevBuild ? "dev" : "production",
@@ -13,14 +15,17 @@ const defines = {
 };
 
 async function setScriptSrc(filePath, tagComment, src) {
-	const data = await fs.readFile(filePath, {encoding: "utf8"});
+	const textDecoder = new TextDecoder();
+	const fileData = await Deno.readFile(filePath, {encoding: "utf8"});
+	const data = textDecoder.decode(fileData);
 	let startPos = data.indexOf(`<!--${tagComment}-->`);
 	const searchStr = "<script type=\"module\" src=\"";
 	startPos = data.indexOf(searchStr, startPos);
 	startPos += searchStr.length;
 	const endPos = data.indexOf("\"></script>", startPos);
 	const newData = data.substring(0, startPos) + src + data.substring(endPos, data.length);
-	await fs.writeFile(filePath, newData);
+	const textEncoder = new TextEncoder();
+	await Deno.writeFile(filePath, textEncoder.encode(newData));
 }
 
 function overrideDefines(definesFilePath, defines) {
@@ -44,8 +49,8 @@ function overrideDefines(definesFilePath, defines) {
 		setScriptSrc("editor/dist/index.html", "editor script tag", "../src/index.js");
 		setScriptSrc("editor/dist/internalDiscovery/index.html", "discovery script tag", "../src/Network/EditorConnections/InternalDiscovery/internalDiscovery.js");
 		try {
-			await fs.unlink("editor/dist/index.js");
-		} catch (e) {
+			await Deno.remove("editor/dist/index.js");
+		} catch {
 			// fail silently
 		}
 	} else {
@@ -58,7 +63,8 @@ function overrideDefines(definesFilePath, defines) {
 			],
 			plugins: [
 				overrideDefines("editor/src/editorDefines.js", defines),
-				resolveUrlObjects(),
+				// todo:
+				// resolveUrlObjects(),
 			],
 			onwarn: message => {
 				if (message.code == "CIRCULAR_DEPENDENCY") return;

@@ -3,6 +3,7 @@
  * The page is expected to be loaded in an iframe.
  */
 
+// todo: fix this with deno
 // Create the worker
 // @rollup-plugin-resolve-url-objects
 const url = new URL("./InternalDiscoveryWorker.js", import.meta.url);

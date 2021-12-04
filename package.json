@@ -5,9 +5,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build-editor": "node editor/scripts/build.js",
 		"build-editor-dependencies": "node editor/scripts/buildDependencies.js",
-		"build-editor-dev": "node editor/scripts/build.js --dev",
 		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold' 'node editor/scripts/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js' 'node editor/EditorDiscoveryServer/index.js'",
 		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
 		"lint": "eslint .",
