@@ -8,11 +8,13 @@
 		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold' 'node editor/scripts/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/index.js' 'node editor/EditorDiscoveryServer/index.js'",
 		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
 		"lint": "eslint .",
+		"test": "playwright test",
 		"prepare": "husky install",
 		"precommit": "git-format-staged --no-write -f 'eslint --stdin --stdin-filename \"{}\" >&2' '*.js' && npm run typecheck"
 	},
 	"devDependencies": {
 		"@babel/eslint-parser": "^7.16.3",
+		"@playwright/test": "^1.17.1",
 		"@rollup/plugin-commonjs": "^11.1.0",
 		"@rollup/plugin-node-resolve": "^13.0.6",
 		"@types/google-closure-compiler": "^0.0.19",

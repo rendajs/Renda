@@ -1,7 +1,8 @@
+import {expect, test} from "@playwright/test";
 import {Material} from "../../../src/Rendering/Material.js";
 
-describe("A new Material", () => {
-	it("should not yield anything in getAllProperties()", () => {
+test.describe("A new Material", () => {
+	test("should not yield anything in getAllProperties()", () => {
 		const material = new Material();
 
 		const done = material.getAllProperties().next().done;
