@@ -1,3 +1,5 @@
+import {Timeout} from "../../../src/Util/Timeout.js";
+
 /**
  * @typedef {Object} NumericGuiOptionsType
  * @property {number} [min = null] The minimum allowed value.
@@ -60,6 +62,10 @@ export class NumericGui {
 		this.isMouseAdjusting = false;
 		this.hasMovedWhileAdjusting = false;
 		this.isTextAdjusting = false;
+
+		this.noCursorTimeout = new Timeout(1000, () => {
+			this.el.classList.remove("no-cursor");
+		});
 
 		this.onValueChangeCbs = [];
 
@@ -264,6 +270,8 @@ export class NumericGui {
 
 	onWheel(e) {
 		if (this.disabled) return;
+		this.el.classList.add("no-cursor");
+		this.noCursorTimeout.start();
 		e.preventDefault();
 		this.adjustValue(-e.deltaX, e.deltaY, e, this.scrollAdjustSpeed);
 		this.el.blur();

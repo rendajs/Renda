@@ -367,6 +367,10 @@ select.textInput:disabled{
 	text-shadow: 0 0 0 var(--default-text-color);
 }
 
+.numericGui.no-cursor {
+	cursor: none;
+}
+
 .vectorGui{
 	display: flex;
 }
