@@ -69,6 +69,7 @@ export class NumericGui {
 
 		this.onValueChangeCbs = [];
 
+		this.boundShowCursor = this.showCursor.bind(this);
 		this.boundOnFocus = this.onFocus.bind(this);
 		this.boundOnBlur = this.onBlur.bind(this);
 		this.boundOnMouseDown = this.onMouseDown.bind(this);
@@ -77,6 +78,9 @@ export class NumericGui {
 		this.boundOnWheel = this.onWheel.bind(this);
 		this.boundOnInput = this.onInput.bind(this);
 		this.boundOnKeyDown = this.onKeyDown.bind(this);
+		this.el.addEventListener("mouseenter", this.boundShowCursor);
+		this.el.addEventListener("mouseleave", this.boundShowCursor);
+		this.el.addEventListener("mousemove", this.boundShowCursor);
 		this.el.addEventListener("focus", this.boundOnFocus);
 		this.el.addEventListener("blur", this.boundOnBlur);
 		this.el.addEventListener("mousedown", this.boundOnMouseDown);
@@ -91,6 +95,9 @@ export class NumericGui {
 	}
 
 	destructor() {
+		this.el.removeEventListener("mouseenter", this.boundShowCursor);
+		this.el.removeEventListener("mouseleave", this.boundShowCursor);
+		this.el.removeEventListener("mousemove", this.boundShowCursor);
 		this.el.removeEventListener("focus", this.boundOnFocus);
 		this.el.removeEventListener("blur", this.boundOnBlur);
 		this.el.removeEventListener("mousedown", this.boundOnMouseDown);
@@ -270,11 +277,19 @@ export class NumericGui {
 
 	onWheel(e) {
 		if (this.disabled) return;
-		this.el.classList.add("no-cursor");
+		this.hideCursor();
 		this.noCursorTimeout.start();
 		e.preventDefault();
 		this.adjustValue(-e.deltaX, e.deltaY, e, this.scrollAdjustSpeed);
 		this.el.blur();
+	}
+
+	hideCursor() {
+		this.el.classList.add("no-cursor");
+	}
+
+	showCursor() {
+		this.el.classList.remove("no-cursor");
 	}
 
 	onInput() {
