@@ -1,3 +1,4 @@
+import {EDITOR_ENV} from "../../editorDefines.js";
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
 
 export class ContentWindow {
@@ -39,6 +40,11 @@ export class ContentWindow {
 
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
+
+		if (EDITOR_ENV == "dev") {
+			const castConstructor = /** @type {typeof ContentWindow} */ (this.constructor);
+			this.el.dataset.contentWindowTypeId = castConstructor.contentWindowTypeId;
+		}
 
 		this.topButtonBar = document.createElement("div");
 		this.topButtonBar.classList.add("editorContentWindowTopButtonBar");

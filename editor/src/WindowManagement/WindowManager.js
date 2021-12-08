@@ -5,6 +5,7 @@ import {ContentWindow} from "./ContentWindows/ContentWindow.js";
 import {WorkspaceManager} from "./WorkspaceManager.js";
 import {generateUuid} from "../Util/Util.js";
 import {EventHandler} from "../../../src/Util/EventHandler.js";
+import {EDITOR_ENV} from "../editorDefines.js";
 
 /**
  * @typedef {Object} ContentWindowEvent
@@ -428,6 +429,37 @@ export class WindowManager {
 		for (const contentWindow of this.allContentWindows()) {
 			if (contentWindow.uuid == uuid) return contentWindow;
 		}
+		return null;
+	}
+
+	/* eslint-disable jsdoc/require-description-complete-sentence */
+	/**
+	 * Utility function for quickly getting a reference to an EditorWindow or ContentWindow.
+	 * Used by tests and useful for debugging.
+	 *
+	 * Usage in the javascript console:
+	 * ```js
+	 * editor.windowManager.getWindowByElement($0)
+	 * ```
+	 * @param {HTMLElement} el
+	 */
+	/* eslint-enable jsdoc/require-description-complete-sentence */
+	getWindowByElement(el) {
+		if (EDITOR_ENV != "dev") return null;
+
+		for (const w of this.allEditorWindows()) {
+			if (el == w.el) return w;
+			if (w instanceof EditorWindowSplit) {
+				if (el == w.elA || el == w.elB || el == w.resizer) return w;
+			} else if (w instanceof EditorWindowTabs) {
+				if (el == w.tabsEl) return w;
+			}
+		}
+
+		for (const w of this.allContentWindows()) {
+			if (el == w.el || el == w.contentEl) return w;
+		}
+
 		return null;
 	}
 

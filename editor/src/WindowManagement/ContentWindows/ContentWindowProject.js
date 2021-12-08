@@ -99,8 +99,13 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.selectionManager = new SelectionManager();
 
+		this.rootNameInit = false;
+		this.treeViewInit = false;
+		this.initCbsCalled = false;
+		this.onInitCbs = new Set();
+
 		if (this.fileSystem) {
-			this.initialUpdateTreView();
+			this.initialUpdateTreeView();
 			this.updateRootName();
 			this.treeView.renameable = this.fileSystem.rootNameSetSupported;
 			this.fileSystem.onRootNameChange(newName => {
@@ -133,11 +138,31 @@ export class ContentWindowProject extends ContentWindow {
 		const name = await this.fileSystem.getRootName();
 		if (!this.treeView) return; // destructed
 		this.treeView.name = name;
+		this.rootNameInit = true;
+		this.updateInit();
 	}
 
-	async initialUpdateTreView() {
+	async initialUpdateTreeView() {
 		await this.fileSystem.waitForPermission([], {writable: false});
 		await this.updateTreeView();
+		this.treeViewInit = true;
+		this.updateInit();
+	}
+
+	get isInit() {
+		return this.rootNameInit && this.treeViewInit;
+	}
+
+	async waitForInit() {
+		if (this.isInit) return;
+		await new Promise(r => this.onInitCbs.add(r));
+	}
+
+	updateInit() {
+		if (!this.isInit) return;
+		if (this.initCbsCalled) return;
+		this.initCbsCalled = true;
+		this.onInitCbs.forEach(cb => cb());
 	}
 
 	/**
