@@ -40,9 +40,6 @@ test("It should open the most recent project on page load", async ({page}) => {
 		await page.keyboard.type(newProjectName);
 		await page.keyboard.press("Enter");
 
-		// todo: fix enter key not submitting the new name
-		await page.click("body");
-
 		// todo: wait for new name to be saved to indexeddb
 		await new Promise(resolve => setTimeout(resolve, 100));
 	});
