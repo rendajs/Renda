@@ -1,0 +1,6 @@
+{
+	"rules": {
+		// Useful for mocking or stubbing error messages
+		"no-throw-literal": "off"
+	}
+}

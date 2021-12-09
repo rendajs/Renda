@@ -92,6 +92,8 @@ export class EditorFileSystemNative extends EditorFileSystem {
 	async waitForPermission(path = [], {
 		writable = true,
 	} = {}) {
+		const hasPermission = await this.getPermission(path, {writable});
+		if (hasPermission) return;
 		await new Promise(resolve => {
 			this.onPermissionGrantedListeners.add({
 				resolve,
