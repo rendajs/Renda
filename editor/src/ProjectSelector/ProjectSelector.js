@@ -30,7 +30,7 @@ export class ProjectSelector {
 
 		this.createAction("New Project", async () => {
 			const editor = await this.waitForEditor();
-			await editor.projectManager.openNewDbProject();
+			editor.projectManager.openNewDbProject();
 			this.setVisibility(false);
 		});
 		this.createAction("Open Project", async () => {

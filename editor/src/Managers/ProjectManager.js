@@ -98,6 +98,10 @@ export class ProjectManager {
 		/** @type {Set<function(StoredProjectEntry):void>} */
 		this.onProjectOpenEntryChangeCbs = new Set();
 
+		/** @type {Set<Function>} */
+		this.onProjectOpenCbs = new Set();
+		this.hasOpeneProject = false;
+
 		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
@@ -121,6 +125,7 @@ export class ProjectManager {
 	 * @param {boolean} fromUserGesture
 	 */
 	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture = false) {
+		// todo: handle multiple calls to openProject by cancelling any current running calls.
 		if (this.currentProjectFileSystem) {
 			this.currentProjectFileSystem.removeOnExternalChange(this.#boundOnFileSystemExternalChange);
 			this.currentProjectFileSystem.removeOnBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
@@ -154,6 +159,10 @@ export class ProjectManager {
 		this.loadContentWindowPersistentData();
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
+
+		this.hasOpeneProject = true;
+		this.onProjectOpenCbs.forEach(cb => cb());
+		this.onProjectOpenCbs.clear();
 	}
 
 	async loadContentWindowPersistentData() {
@@ -206,6 +215,15 @@ export class ProjectManager {
 
 	fireOnProjectOpenEntryChangeCbs() {
 		this.onProjectOpenEntryChangeCbs.forEach(cb => cb(this.currentProjectOpenEvent));
+	}
+
+	/**
+	 * Waits for {@link openProject} to finish.
+	 * @param {boolean} allowExisting Whether it should resolve immediately if a project is already open.
+	 */
+	async waitForProjectOpen(allowExisting = true) {
+		if (allowExisting && this.hasOpeneProject) return;
+		await new Promise(r => this.onProjectOpenCbs.add(r));
 	}
 
 	async openNewDbProject() {
