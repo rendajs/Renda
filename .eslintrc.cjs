@@ -255,7 +255,12 @@ module.exports = {
 		],
 		"jsdoc/require-param-name": "error",
 		"jsdoc/require-param-type": "error",
-		"jsdoc/require-param": "error",
+		"jsdoc/require-param": [
+			"error",
+			{
+				unnamedRootBase: ["options", "arg", "config"],
+			},
+		],
 		"jsdoc/require-property": "error",
 		"jsdoc/require-property-name": "error",
 		"jsdoc/require-property-type": "error",
