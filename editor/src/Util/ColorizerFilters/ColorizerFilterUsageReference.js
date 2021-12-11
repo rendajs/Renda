@@ -1,6 +1,6 @@
-export default class ColorizerFilterUsageReference {
+export class ColorizerFilterUsageReference {
 	/**
-	 * @param {import("./ColorizerFilter.js").default} filter
+	 * @param {import("./ColorizerFilter.js").ColorizerFilter} filter
 	 */
 	constructor(filter) {
 		this.filter = filter;

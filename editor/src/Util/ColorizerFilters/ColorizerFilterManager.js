@@ -2,10 +2,10 @@
  * @fileoverview Manages SVG filters that can be used for applying colors to icons.
  */
 
-import ColorizerFilter from "./ColorizerFilter.js";
+import {ColorizerFilter} from "./ColorizerFilter.js";
 import {generateUuid} from "../Util.js";
 
-export default class ColorizerFilterManager {
+export class ColorizerFilterManager {
 	constructor() {
 		this.containerEl = document.createElement("div");
 		this.containerEl.style.width = "0";
@@ -39,12 +39,12 @@ export default class ColorizerFilterManager {
 	/**
 	 * @param {HTMLElement} element The element to apply the filter to.
 	 * @param {string} cssColor Can be any valid CSS color string.
-	 * @returns {import("./ColorizerFilterUsageReference.js").default}
+	 * @returns {import("./ColorizerFilterUsageReference.js").ColorizerFilterUsageReference}
 	 */
 	applyFilter(element, cssColor) {
 		const filter = this.getFilter(cssColor);
 		element.style.filter = `url(#${filter.getFilterId()})`;
-		const existingRef = /** @type {import("./ColorizerFilterUsageReference.js").default} */ (element[this.elementUsageReferenceSym]);
+		const existingRef = /** @type {import("./ColorizerFilterUsageReference.js").ColorizerFilterUsageReference} */ (element[this.elementUsageReferenceSym]);
 		if (existingRef) existingRef.destructor();
 		const ref = filter.getUsageReference();
 		element[this.elementUsageReferenceSym] = ref;

@@ -1,6 +1,6 @@
-import ColorizerFilterUsageReference from "./ColorizerFilterUsageReference.js";
+import {ColorizerFilterUsageReference} from "./ColorizerFilterUsageReference.js";
 
-export default class ColorizerFilter {
+export class ColorizerFilter {
 	/**
 	 * @param {string} cssColor
 	 * @param {HTMLElement} containerEl
