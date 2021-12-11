@@ -27,6 +27,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
+		/** @type {SelectionManager<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
 		this.selectionManager = new SelectionManager();
 
 		this.init();
@@ -102,12 +103,20 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		]);
 	}
 
-	onTreeViewSelectionChange(changes) {
-		changes.added = this.mapTreeViewArrayToProjectAssets(changes.added);
-		changes.removed = this.mapTreeViewArrayToProjectAssets(changes.removed);
+	/**
+	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
+	 */
+	onTreeViewSelectionChange(treeViewChanges) {
+		/** @type {import("../../Managers/SelectionManager.js").SelectionManagerSelectionChangeData<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
+		const changes = {};
+		changes.added = this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
+		changes.removed = this.mapTreeViewArrayToProjectAssets(treeViewChanges.removed);
 		this.selectionManager.changeSelection(changes);
 	}
 
+	/**
+	 * @param {Iterable<TreeView>} treeViews
+	 */
 	mapTreeViewArrayToProjectAssets(treeViews) {
 		const newArr = [];
 		for (const treeView of treeViews) {
