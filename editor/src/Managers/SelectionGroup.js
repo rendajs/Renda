@@ -3,7 +3,7 @@ import {ContentWindowProperties} from "../WindowManagement/ContentWindows/Conten
 
 /**
  * @template T
- * @typedef {Object} SelectionManagerSelectionChangeData
+ * @typedef {Object} SelectionChangeData
  * @property {boolean} [reset = false] If true, the selected items array will be cleared.
  * @property {T[]} [added] List of items that were added to the selection.
  * @property {T[]} [removed] List of items that were removed from the selection.
@@ -13,7 +13,7 @@ import {ContentWindowProperties} from "../WindowManagement/ContentWindows/Conten
  * Manages selections and notifies listeners when the selection changes.
  * @template T The expected type of selected items.
  */
-export class SelectionManager {
+export class SelectionGroup {
 	constructor() {
 		/** @type {T[]} */
 		this.currentSelectedObjects = [];
@@ -24,7 +24,7 @@ export class SelectionManager {
 	}
 
 	/**
-	 * @param {SelectionManagerSelectionChangeData<T>} changes
+	 * @param {SelectionChangeData<T>} changes
 	 */
 	changeSelection(changes) {
 		if (changes.reset) this.currentSelectedObjects = [];

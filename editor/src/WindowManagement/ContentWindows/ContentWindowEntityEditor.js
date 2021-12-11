@@ -3,7 +3,7 @@ import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../UI/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Component, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/index.js";
-import {SelectionManager} from "../../Managers/SelectionManager.js";
+import {SelectionGroup} from "../../Managers/SelectionGroup.js";
 import ComponentGizmos from "../../ComponentGizmos/ComponentGizmos.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
@@ -50,8 +50,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editingEntityUuid = null;
 		/** @type {Entity} */
 		this._editingEntity = null;
-		/** @type {SelectionManager<import("../../Misc/EntitySelection.js").EntitySelection>} */
-		this.selectionManager = new SelectionManager();
+		/** @type {SelectionGroup<import("../../Misc/EntitySelection.js").EntitySelection>} */
+		this.selectionManager = new SelectionGroup();
 
 		this.createdLiveAssetChangeListeners = new Set();
 

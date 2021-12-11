@@ -231,7 +231,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	onTreeViewSelectionChange(e) {
 		if (!this.linkedEntityEditor) return;
-		/** @type {import("../../Managers/SelectionManager.js").SelectionManagerSelectionChangeData<EntitySelection>} */
+		/** @type {import("../../Managers/SelectionGroup.js").SelectionChangeData<EntitySelection>} */
 		const changeData = {
 			added: this.mapSelectionChangeData(e.added),
 			removed: this.mapSelectionChangeData(e.removed),

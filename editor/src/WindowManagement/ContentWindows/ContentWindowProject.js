@@ -1,7 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
-import {SelectionManager} from "../../Managers/SelectionManager.js";
+import {SelectionGroup} from "../../Managers/SelectionGroup.js";
 import {handleDuplicateName} from "../../Util/Util.js";
 import {projectSelector} from "../../ProjectSelector/instance.js";
 
@@ -99,8 +99,8 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		/** @type {SelectionManager<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
-		this.selectionManager = new SelectionManager();
+		/** @type {SelectionGroup<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
+		this.selectionManager = new SelectionGroup();
 
 		this.rootNameInit = false;
 		this.treeViewInit = false;
@@ -340,7 +340,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
-		/** @type {import("../../Managers/SelectionManager.js").SelectionManagerSelectionChangeData<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
+		/** @type {import("../../Managers/SelectionGroup.js").SelectionChangeData<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
 		const changes = {};
 		changes.added = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
 		changes.removed = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.removed);
