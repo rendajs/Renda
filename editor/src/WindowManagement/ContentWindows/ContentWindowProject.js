@@ -1,6 +1,5 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
-import editor from "../../editorInstance.js";
 import {Button} from "../../UI/Button.js";
 import {SelectionManager} from "../../Managers/SelectionManager.js";
 import {handleDuplicateName} from "../../Util/Util.js";
@@ -27,7 +26,7 @@ export class ContentWindowProject extends ContentWindow {
 		const createButton = new Button({
 			text: "+",
 			onClick: () => {
-				const menu = editor.contextMenuManager.createContextMenu([
+				const menu = this.editorInstance.contextMenuManager.createContextMenu([
 					{
 						text: "New Folder",
 						onClick: () => this.createNewDir(),
@@ -117,7 +116,7 @@ export class ContentWindowProject extends ContentWindow {
 		}
 
 		this.boundExternalChange = this.externalChange.bind(this);
-		editor.projectManager.onExternalChange(this.boundExternalChange);
+		this.editorInstance.projectManager.onExternalChange(this.boundExternalChange);
 	}
 
 	destructor() {
@@ -129,12 +128,12 @@ export class ContentWindowProject extends ContentWindow {
 		this.selectionManager.destructor();
 		this.selectionManager = null;
 
-		editor.projectManager.removeOnExternalChange(this.boundExternalChange);
+		this.editorInstance.projectManager.removeOnExternalChange(this.boundExternalChange);
 		this.boundExternalChange = null;
 	}
 
 	get fileSystem() {
-		return editor.projectManager.currentProjectFileSystem;
+		return this.editorInstance.projectManager.currentProjectFileSystem;
 	}
 
 	async updateRootName() {
@@ -274,7 +273,7 @@ export class ContentWindowProject extends ContentWindow {
 
 	async getProjectAssetByTreeViewItem(treeView) {
 		const path = this.pathFromTreeView(treeView);
-		const projectAsset = await editor.projectManager.assetManager.getProjectAssetFromPath(path);
+		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAssetFromPath(path);
 		return projectAsset;
 	}
 
@@ -304,7 +303,7 @@ export class ContentWindowProject extends ContentWindow {
 
 	async createAsset(assetType) {
 		const selectedPath = this.getSelectedParentPathForCreate();
-		await editor.projectManager.assetManager.createNewAsset(selectedPath, assetType);
+		await this.editorInstance.projectManager.assetManager.createNewAsset(selectedPath, assetType);
 		await this.updateTreeView(selectedPath);
 	}
 
@@ -365,7 +364,7 @@ export class ContentWindowProject extends ContentWindow {
 			e.target.name = e.oldName;
 			throw err;
 		}
-		await editor.projectManager.assetManager.assetMoved(oldPath, newPath);
+		await this.editorInstance.projectManager.assetManager.assetMoved(oldPath, newPath);
 	}
 
 	/**
@@ -378,12 +377,12 @@ export class ContentWindowProject extends ContentWindow {
 			assetType: null,
 			assetUuid: null,
 		};
-		const draggingDataUuid = editor.dragManager.registerDraggingData(draggingData);
+		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
 		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 		e.rawEvent.dataTransfer.effectAllowed = "all";
 
 		const assetData = await this.getProjectAssetByTreeViewItem(e.target);
-		draggingData.assetType = editor.projectAssetTypeManager.getAssetType(assetData.assetType);
+		draggingData.assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetData.assetType);
 		draggingData.assetUuid = assetData.uuid;
 		draggingData.dataPopulated = true;
 	}
@@ -421,7 +420,7 @@ export class ContentWindowProject extends ContentWindow {
 			const oldPath = movedItem.oldTreeViewsPath.map(t => t.name).slice(1);
 			const newPath = movedItem.newTreeViewsPath.map(t => t.name).slice(1);
 			await this.fileSystem.move(oldPath, newPath);
-			await editor.projectManager.assetManager.assetMoved(oldPath, newPath);
+			await this.editorInstance.projectManager.assetManager.assetMoved(oldPath, newPath);
 		}
 	}
 
@@ -430,7 +429,7 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	async onTreeViewDblClick(e) {
 		const path = this.pathFromTreeView(e.target);
-		const projectAsset = await editor.projectManager.assetManager.getProjectAssetFromPath(path);
+		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAssetFromPath(path);
 		projectAsset.open();
 	}
 
@@ -443,14 +442,14 @@ export class ContentWindowProject extends ContentWindow {
 			{
 				text: "Copy asset UUID", onClick: async () => {
 					const path = this.pathFromTreeView(e.target);
-					const uuid = await editor.projectManager.assetManager.getAssetUuidFromPath(path);
+					const uuid = await this.editorInstance.projectManager.assetManager.getAssetUuidFromPath(path);
 					await navigator.clipboard.writeText(uuid);
 				},
 			},
 			{
 				text: "Delete", onClick: async () => {
 					const path = this.pathFromTreeView(e.target);
-					await editor.projectManager.assetManager.deleteAsset(path);
+					await this.editorInstance.projectManager.assetManager.deleteAsset(path);
 					const parentPath = path.slice(0, path.length - 1);
 					await this.updateTreeView(parentPath);
 				},

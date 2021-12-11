@@ -1,4 +1,3 @@
-import editor from "../../editorInstance.js";
 import EditorConnectionsManager from "../../Network/EditorConnections/EditorConnectionsManager.js";
 import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
@@ -31,10 +30,10 @@ export class ContentWindowConnections extends ContentWindow {
 		this.createClientConnectionUi();
 		this.createInspectorConnectionsUi();
 
-		this.editorHostConnectionTreeView.visible = !editor.projectManager.currentProjectIsRemote;
-		this.editorClientConnectionTreeView.visible = editor.projectManager.currentProjectIsRemote;
+		this.editorHostConnectionTreeView.visible = !this.editorInstance.projectManager.currentProjectIsRemote;
+		this.editorClientConnectionTreeView.visible = this.editorInstance.projectManager.currentProjectIsRemote;
 
-		const connectionsManager = editor.projectManager.editorConnectionsManager;
+		const connectionsManager = this.editorInstance.projectManager.editorConnectionsManager;
 		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
 		this.boundUpdateDiscoveryServerStatus = status => {
 			this.updateDiscoveryServerStatus(status);
@@ -54,7 +53,7 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	destructor() {
-		const connectionsManager = editor.projectManager.editorConnectionsManager;
+		const connectionsManager = this.editorInstance.projectManager.editorConnectionsManager;
 		connectionsManager.removeOnDiscoveryServerStatusChange(this.boundUpdateDiscoveryServerStatus);
 		connectionsManager.removeOnAvailableConnectionsChanged(this.boundUpdateConnectionLists);
 		connectionsManager.removeOnActiveConnectionsChanged(this.boundUpdateConnectionLists);
@@ -70,7 +69,7 @@ export class ContentWindowConnections extends ContentWindow {
 			},
 		});
 		this.discoveryServerEndpointField.onValueChange(endPoint => {
-			editor.projectManager.setEditorConnectionsDiscoveryEndpoint(endPoint);
+			this.editorInstance.projectManager.setEditorConnectionsDiscoveryEndpoint(endPoint);
 		});
 		this.discoveryServerStatusLabel = this.headerTreeView.addItem({
 			type: "label",
@@ -92,7 +91,7 @@ export class ContentWindowConnections extends ContentWindow {
 			},
 		});
 		this.allowRemoteIncomingCheckbox.onValueChange(allowIncoming => {
-			editor.projectManager.setEditorConnectionsAllowRemoteIncoming(allowIncoming);
+			this.editorInstance.projectManager.setEditorConnectionsAllowRemoteIncoming(allowIncoming);
 		});
 
 		this.allowInternalIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
@@ -103,7 +102,7 @@ export class ContentWindowConnections extends ContentWindow {
 			},
 		});
 		this.allowInternalIncomingCheckbox.onValueChange(allowIncoming => {
-			editor.projectManager.setEditorConnectionsAllowInternalIncoming(allowIncoming);
+			this.editorInstance.projectManager.setEditorConnectionsAllowInternalIncoming(allowIncoming);
 		});
 	}
 
@@ -137,8 +136,8 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	async loadSettings() {
-		this.allowRemoteIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowRemoteIncoming());
-		this.allowInternalIncomingCheckbox.setValue(await editor.projectManager.getEditorConnectionsAllowInternalIncoming());
+		this.allowRemoteIncomingCheckbox.setValue(await this.editorInstance.projectManager.getEditorConnectionsAllowRemoteIncoming());
+		this.allowInternalIncomingCheckbox.setValue(await this.editorInstance.projectManager.getEditorConnectionsAllowInternalIncoming());
 	}
 
 	/**
@@ -150,7 +149,7 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	updateConnectionLists() {
-		const {availableConnections, activeConnections} = editor.projectManager.editorConnectionsManager;
+		const {availableConnections, activeConnections} = this.editorInstance.projectManager.editorConnectionsManager;
 		this.updateConnectionsList(this.editorConnectionGuis, this.editorConnectionsList, availableConnections, activeConnections, "editor");
 		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, availableConnections, activeConnections, "inspector");
 	}
@@ -200,7 +199,7 @@ export class ContentWindowConnections extends ContentWindow {
 						label: "Connect",
 						text: "Connect",
 						onClick: () => {
-							editor.projectManager.editorConnectionsManager.startConnection(connection.id);
+							this.editorInstance.projectManager.editorConnectionsManager.startConnection(connection.id);
 						},
 					},
 				});

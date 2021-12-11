@@ -1,6 +1,5 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
-import editor from "../../editorInstance.js";
 import {SelectionManager} from "../../Managers/SelectionManager.js";
 
 export class ContentWindowBuiltInAssets extends ContentWindow {
@@ -34,7 +33,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	}
 
 	async init() {
-		await editor.builtInAssetManager.waitForLoad();
+		await this.editorInstance.builtInAssetManager.waitForLoad();
 		this.updateTreeView();
 	}
 
@@ -50,7 +49,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 
 	updateTreeView() {
 		if (this.destructed) return;
-		for (const asset of editor.builtInAssetManager.assets.values()) {
+		for (const asset of this.editorInstance.builtInAssetManager.assets.values()) {
 			this.addAssetToTreeView(asset, asset.path, this.treeView);
 		}
 	}
@@ -79,10 +78,10 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
 		const draggingData = {
 			dataPopulated: true,
-			assetType: editor.projectAssetTypeManager.getAssetType(projectAsset.assetType),
+			assetType: this.editorInstance.projectAssetTypeManager.getAssetType(projectAsset.assetType),
 			assetUuid: projectAsset.uuid,
 		};
-		const draggingDataUuid = editor.dragManager.registerDraggingData(draggingData);
+		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
 		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 		e.rawEvent.dataTransfer.effectAllowed = "all";
 	}

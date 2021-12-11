@@ -1,5 +1,4 @@
 import {ContentWindow} from "./ContentWindow.js";
-import editor from "../../editorInstance.js";
 
 export class ContentWindowProperties extends ContentWindow {
 	static contentWindowTypeId = "properties";
@@ -36,7 +35,7 @@ export class ContentWindowProperties extends ContentWindow {
 		if (!this.activeSelectionManager) return;
 		const selectedObjects = this.activeSelectionManager.currentSelectedObjects;
 
-		const PropertiesWindowContent = editor.propertiesWindowContentManager.getContentTypeForObjects(selectedObjects);
+		const PropertiesWindowContent = this.editorInstance.propertiesWindowContentManager.getContentTypeForObjects(selectedObjects);
 		if (!this.activeContent || this.activeContent.constructor != PropertiesWindowContent) {
 			if (this.activeContent) this.activeContent.destructor();
 			this.activeContent = new PropertiesWindowContent();
