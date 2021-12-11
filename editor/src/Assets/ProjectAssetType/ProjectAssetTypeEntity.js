@@ -64,7 +64,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const component of jsonData.components) {
 				const componentUuid = component.uuid;
 				const ComponentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(componentUuid);
-				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure);
+				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					editorOpts: {
 						editorAssetTypeManager: editor.projectAssetTypeManager,
@@ -105,12 +105,13 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	/**
 	 * @param {*} jsonData
 	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} componentProperties
+	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async getComponentPropertyValuesFromJson(jsonData, componentProperties) {
+	async getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
 		const newPropertyValues = {};
 		if (componentProperties) {
 			for (const [name, propertyData] of Object.entries(componentProperties)) {
-				await this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData.type, propertyData.guiOpts);
+				await this.fillComponentPropertyValueFromJson(newPropertyValues, jsonData, name, propertyData.type, propertyData.guiOpts, recursionTracker);
 			}
 		}
 		return newPropertyValues;
@@ -123,38 +124,42 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {string} propertyKey
 	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} propertyType
 	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} propertyGuiOpts
+	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts) {
+	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {
 		const propertyValue = originalParentObject[propertyKey];
-		let newPropertyValue = propertyValue;
 		if (propertyValue == null) {
-			newPropertyValue = null;
+			newParentObject[propertyKey] = null;
 		} else if (propertyType == "array") {
 			const newArr = [];
 			const arrayGuiOpts = /** @type {import("../../UI/ArrayGui.js").ArrayGuiOptions} */ (propertyGuiOpts);
 			for (const i of propertyValue.keys()) {
-				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts);
+				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts, recursionTracker);
 			}
-			newPropertyValue = newArr;
+			newParentObject[propertyKey] = newArr;
 		// todo: support for other types
 		// } else if (propertyType == "vec2") {
 		// 	newPropertyValue = new Vec2(...propertyValue);
 		} else if (propertyType == "vec3") {
-			newPropertyValue = new Vec3(...propertyValue);
+			newParentObject[propertyKey] = new Vec3(...propertyValue);
 		// } else if (propertyType == "vec4") {
 		// 	newPropertyValue = new Vec4(...propertyValue);
 		// } else if (propertyType == "mat4") {
 		// 	newPropertyValue = new Mat4(propertyValue);
 		} else if (propertyType == "droppable") {
-			newPropertyValue = await editor.projectManager.assetManager.getLiveAsset(propertyValue);
+			recursionTracker.getLiveAsset(propertyValue, liveAsset => {
+				if (!liveAsset) liveAsset = null;
+				newParentObject[propertyKey] = liveAsset;
+			}, {repeatOnLiveAssetChange: true});
 			let usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 			if (!usedAssetUuids) {
 				usedAssetUuids = {};
 				newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = usedAssetUuids;
 			}
 			usedAssetUuids[propertyKey] = propertyValue;
+		} else {
+			newParentObject[propertyKey] = propertyValue;
 		}
-		newParentObject[propertyKey] = newPropertyValue;
 	}
 
 	async createBundledAssetData() {
