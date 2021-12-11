@@ -14,8 +14,23 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
  * @property {WeakRef<ProjectAsset>} registeredOnAsset
  */
 
+/**
+ * @typedef {Object} ProjectAssetOptions
+ * @property {import("../Util/Util.js").UuidString} [uuid]
+ * @property {string[]} [path]
+ * @property {*} [assetSettings]
+ * @property {*} [assetType]
+ * @property {boolean} [forceAssetType]
+ * @property {boolean} [isBuiltIn]
+ */
+
 export class ProjectAsset {
-	constructor({
+	/**
+	 * @param {import("./AssetManager.js").AssetManager} assetManager
+	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
+	 * @param {ProjectAssetOptions} options
+	 */
+	constructor(assetManager, assetTypeManager, {
 		uuid = null,
 		path = [],
 		assetSettings = {},
@@ -23,6 +38,8 @@ export class ProjectAsset {
 		forceAssetType = false,
 		isBuiltIn = false,
 	} = {}) {
+		this.assetManager = assetManager;
+		this.assetTypeManager = assetTypeManager;
 		/** @type {import("../Util/Util.js").UuidString} */
 		this.uuid = uuid;
 		/** @type {Array<string>}*/
@@ -94,9 +111,9 @@ export class ProjectAsset {
 		}
 		if (this.destructed) return;
 
-		const AssetTypeConstructor = editor.projectAssetTypeManager.getAssetType(this.assetType);
+		const AssetTypeConstructor = this.assetTypeManager.getAssetType(this.assetType);
 		if (AssetTypeConstructor) {
-			this._projectAssetType = new AssetTypeConstructor(this);
+			this._projectAssetType = new AssetTypeConstructor(this, this.assetManager, this.assetTypeManager);
 		}
 	}
 
@@ -113,12 +130,18 @@ export class ProjectAsset {
 		return this._projectAssetType;
 	}
 
-	static async fromJsonData(uuid, assetData) {
+	/**
+	 * @param {import("./AssetManager.js").AssetManager} assetManager
+	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
+	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {ProjectAssetOptions} assetData
+	 */
+	static async fromJsonData(assetManager, assetTypeManager, uuid, assetData) {
 		if (!assetData.assetType) {
 			assetData.assetType = this.guessAssetTypeFromPath(assetData.path);
 			assetData.forceAssetType = false;
 		}
-		const projectAsset = new ProjectAsset({uuid, ...assetData});
+		const projectAsset = new ProjectAsset(assetManager, assetTypeManager, {uuid, ...assetData});
 		return projectAsset;
 	}
 
@@ -191,7 +214,7 @@ export class ProjectAsset {
 	 */
 	async open() {
 		await this.waitForInit();
-		await this._projectAssetType.open();
+		await this._projectAssetType.open(editor.windowManager);
 	}
 
 	async createNewLiveAssetData() {
@@ -269,7 +292,7 @@ export class ProjectAsset {
 
 		const isRootRecursionTracker = !recursionTracker;
 		if (!recursionTracker) {
-			recursionTracker = new RecursionTracker(editor.projectManager.assetManager, this.uuid);
+			recursionTracker = new RecursionTracker(this.assetManager, this.uuid);
 		}
 
 		recursionTracker.pushProjectAssetToStack(this);
@@ -515,7 +538,7 @@ export class ProjectAsset {
 
 				binaryData = BinaryComposer.objectToBinary(assetData, {
 					...usedAssetLoaderType.binaryComposerOpts,
-					editorAssetManager: editor.projectManager.assetManager,
+					editorAssetManager: this.assetManager,
 				});
 			}
 		}

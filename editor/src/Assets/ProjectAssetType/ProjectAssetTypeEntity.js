@@ -1,6 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeEntity, Entity, Vec3, defaultComponentTypeManager} from "../../../../src/index.js";
-import editor from "../../editorInstance.js";
 import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
 
@@ -36,15 +35,19 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	async saveLiveAssetData(liveAsset, editorData) {
 		return liveAsset.toJson({
-			assetManager: editor.projectManager.assetManager,
-			assetTypeManager: editor.projectAssetTypeManager,
+			assetManager: this.assetManager,
+			assetTypeManager: this.projectAssetTypeManager,
 			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 			entityAssetRootUuidSymbol,
 		});
 	}
 
-	async open() {
-		const entityEditor = editor.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);
+	/**
+	 * @override
+	 * @param {import("../../WindowManagement/WindowManager.js").WindowManager} windowManager
+	 */
+	async open(windowManager) {
+		const entityEditor = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);
 		await entityEditor.loadEntityAsset(this.projectAsset.uuid);
 	}
 
@@ -67,9 +70,9 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					editorOpts: {
-						editorAssetTypeManager: editor.projectAssetTypeManager,
+						editorAssetTypeManager: this.projectAssetTypeManager,
 						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
-						assetManager: editor.projectManager.assetManager,
+						assetManager: this.assetManager,
 					},
 				});
 			}
@@ -174,7 +177,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				const componentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(component.uuid);
 				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,
-					editorAssetManager: editor.projectManager.assetManager,
+					editorAssetManager: this.assetManager,
 				});
 			}
 		}

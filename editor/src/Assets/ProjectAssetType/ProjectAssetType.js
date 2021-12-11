@@ -79,13 +79,17 @@ export class ProjectAssetType {
 	/** @typedef {import("../ProjectAsset.js").ProjectAsset} ProjectAsset */
 	/**
 	 * @param {ProjectAsset} projectAsset
+	 * @param {import("../AssetManager.js").AssetManager} projectAssetTypeManager
+	 * @param {import("../ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
 	 */
-	constructor(projectAsset) {
+	constructor(projectAsset, projectAssetTypeManager, assetTypeManager) {
 		/**
 		 * You can use this in any of the hook methods of a ProjectAssetType.
 		 * If you need access to the path or uuid of an asset for instance.
 		 */
 		this.projectAsset = projectAsset;
+		this.assetManager = projectAssetTypeManager;
+		this.projectAssetTypeManager = assetTypeManager;
 
 		this.boundLiveAssetNeedsReplacement = this.liveAssetNeedsReplacement.bind(this);
 		this.usedLiveAssets = new Set();
@@ -186,8 +190,9 @@ export class ProjectAssetType {
 	/**
 	 * If this asset is a file that can be opened, open it
 	 * either in the editor or in an external application.
+	 * @param {import("../../WindowManagement/WindowManager.js").WindowManager} windowManager
 	 */
-	async open() {}
+	async open(windowManager) {}
 
 	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").default} AssetLoaderTypeGenericStructure */
 	/** @typedef {import("../../../../src/Util/BinaryComposer.js").default} BinaryComposer */

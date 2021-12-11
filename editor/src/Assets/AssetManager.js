@@ -64,7 +64,7 @@ export class AssetManager {
 			const json = await this.fileSystem.readJson(this.assetSettingsPath);
 			if (json) {
 				for (const [uuid, assetData] of Object.entries(json.assets)) {
-					const projectAsset = await ProjectAsset.fromJsonData(uuid, assetData);
+					const projectAsset = await ProjectAsset.fromJsonData(this, editor.projectAssetTypeManager, uuid, assetData);
 					if (projectAsset) {
 						projectAsset.makeUuidConsistent();
 						this.projectAssets.set(uuid, projectAsset);
@@ -140,7 +140,7 @@ export class AssetManager {
 	async registerAsset(path, assetType = null, forceAssetType = false) {
 		await this.loadAssetSettings(true);
 		const uuid = generateUuid();
-		const projectAsset = new ProjectAsset({uuid, path, assetType, forceAssetType});
+		const projectAsset = new ProjectAsset(this, editor.projectAssetTypeManager, {uuid, path, assetType, forceAssetType});
 		await projectAsset.waitForInit();
 		this.projectAssets.set(uuid, projectAsset);
 		if (projectAsset.needsAssetSettingsSave) {
