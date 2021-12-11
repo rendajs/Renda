@@ -34,6 +34,7 @@ export class ContentWindowProperties extends ContentWindow {
 	 * @param {import("../../Managers/SelectionManager.js").SelectionChangeData} changeData
 	 */
 	onSelectionChanged(changeData) {
+		if (!this.isMostSuitableContentWindow()) return;
 		this.activeSelectionGroup = changeData.activeSelectionGroup;
 		this.updateCurrentContentType();
 	}

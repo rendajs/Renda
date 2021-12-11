@@ -127,6 +127,12 @@ export class ContentWindow {
 	 */
 	onWindowResize(w, h) {}
 
+	isMostSuitableContentWindow() {
+		const castConstructor = /** @type {typeof ContentWindow} */ (this.constructor);
+		const mostSuitable = this.windowManager.getMostSuitableContentWindowByConstructor(castConstructor, false);
+		return mostSuitable == this;
+	}
+
 	/**
 	 * @param {HTMLElement} element
 	 */
