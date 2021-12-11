@@ -1,5 +1,32 @@
 import {LoadingAsset} from "./LoadingAsset.js";
 
+{
+	/** @typedef {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} ProjectAssetType */
+}
+
+/* eslint-disable jsdoc/require-description-complete-sentence */
+/**
+ * @typedef {Object} GetLiveAssetDataOptions
+ * @property {boolean} [repeatOnLiveAssetChange = false] Repeats the callback if the live asset changes.
+ * This is useful when your callback assigns the live asset to an object. Repeat calls will
+ * cause the property to be overwritten. This only works when code doesn't make assumptions about
+ * a permanent value of the property. E.g. a material asset can change and the renderer
+ * will happily comply. Because materials are expected to be changable from user code. But shader
+ * source live assets for instance are heavily cached, because we can't recompile a shader every
+ * time it's needed for rendering an object. So replacing shader source live assets won't work
+ * with this method because cache wouldn't be invalidated.
+ *
+ * In such a case you should opt for {@linkcode ProjectAssetType.liveAssetNeedsReplacement} or
+ * {@linkcode ProjectAssetType.listenForUsedLiveAssetChanges}. This will completely replace the
+ * live asset with a newly generated one. This will invalidate caches and propagate up to
+ * any live assets that are able to dynamically replace live asset properties.
+ */
+/* eslint-enable jsdoc/require-description-complete-sentence */
+
+/**
+ * @typedef {(liveAssetData: import("../ProjectAssetType/ProjectAssetType.js").LiveAssetData) => void} LiveAssetDataCallback
+ */
+
 export class RecursionTracker {
 	/**
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
@@ -9,6 +36,17 @@ export class RecursionTracker {
 		this.assetManager = assetManager;
 		this.rootUuid = rootUuid;
 
+		/** @typedef {import("../ProjectAsset.js").ProjectAsset} ProjectAsset */
+
+		/**
+		 * Stack for keeping track what the currently loading ProjectAsset is.
+		 * Used for assigning {@linkcode ProjectAsset.onNewLiveAssetInstance} callbacks
+		 * to the correct ProjectAsset instance. This way the callbacks can be properly
+		 * unregistered when the ProjectAsset is destroyed.
+		 * @type {import("../ProjectAsset.js").ProjectAsset[]}
+		 */
+		this.projectAssetStack = [];
+
 		/** @type {LoadingAsset} */
 		this.rootLoadingAsset = null;
 
@@ -17,10 +55,33 @@ export class RecursionTracker {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} uuid
-	 * @param {(liveAssetData: import("../ProjectAssetType/ProjectAssetType.js").LiveAssetData) => void} cb
+	 * @param {import("../ProjectAsset.js").ProjectAsset} projectAsset
 	 */
-	getLiveAssetData(uuid, cb) {
+	pushProjectAssetToStack(projectAsset) {
+		this.projectAssetStack.push(projectAsset);
+	}
+
+	popProjectAssetFromStack() {
+		this.projectAssetStack.pop();
+	}
+
+	/**
+	 * @param {import("../../Util/Util.js").UuidString} uuid
+	 * @param {LiveAssetDataCallback} cb
+	 * @param {GetLiveAssetDataOptions} options
+	 */
+	getLiveAssetData(uuid, cb, {
+		repeatOnLiveAssetChange = false,
+	} = {}) {
+		if (repeatOnLiveAssetChange) {
+			/**
+			 * Since this is the most recent ProjectAsset, this is essentially
+			 * the ProjectAsset that `getLiveAssetData()` is called from.
+			 */
+			const currentProjectAsset = this.projectAssetStack[this.projectAssetStack.length - 1];
+			currentProjectAsset.registerRecursionTrackerLiveAssetChange(this.assetManager, uuid, cb);
+		}
+
 		let loadingAsset = this.loadingLiveAssets.get(uuid);
 		if (!loadingAsset) {
 			loadingAsset = new LoadingAsset(uuid);
@@ -37,13 +98,13 @@ export class RecursionTracker {
 	/**
 	 * @param {import("../../Util/Util.js").UuidString} uuid
 	 * @param {(liveAsset: *) => void} cb
+	 * @param {GetLiveAssetDataOptions} options
 	 */
-	getLiveAsset(uuid, cb) {
+	getLiveAsset(uuid, cb, options = {}) {
 		this.getLiveAssetData(uuid, liveAssetData => {
-			cb(liveAssetData.liveAsset);
-		});
+			cb(liveAssetData.liveAsset ?? null);
+		}, options);
 	}
-
 	async waitForAll() {
 		const promises = [];
 		for (const loadingAsset of this.loadingLiveAssets.values()) {

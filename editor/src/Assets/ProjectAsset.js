@@ -8,6 +8,12 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
 
 /** @typedef {Object | string | File} ProjectAssetFileData */
 
+/**
+ * @typedef {Object} RegisteredRecursionTrackerLiveAssetHandler
+ * @property {() => void} registeredCallback
+ * @property {WeakRef<ProjectAsset>} registeredOnAsset
+ */
+
 export class ProjectAsset {
 	constructor({
 		uuid = null,
@@ -44,7 +50,26 @@ export class ProjectAsset {
 		this.initInstance = new SingleInstancePromise(async _ => await this.init());
 		this.initInstance.run();
 
+		/** @type {Set<() => void>} */
 		this.onNewLiveAssetInstanceCbs = new Set();
+
+		/**
+		 * Whenever {@linkcode RecursionTracker.getLiveAssetData} is called with
+		 * `repeatOnLiveAssetChange`, a handler is registered with {@linkcode onNewLiveAssetInstance}.
+		 * To ensure all handlers are removed again when the live asset
+		 * is unloaded or the ProjectAsset is destructed, we keep track of an
+		 * extra list of registered handlers.
+		 *
+		 * So there's two lists:
+		 * - {@linkcode onNewLiveAssetInstanceCbs} - The actual handlers, stored
+		 * on ProjectAsset A, fired when ProjectAsset A changes.
+		 * - {@linkcode registeredLiveAssetChangeHandlers} - The registered handlers.
+		 * Stored on ProjectAsset B, never actually fired
+		 * by logic on ProjectAsset B, only used for unregistering.
+		 * @type {Set<RegisteredRecursionTrackerLiveAssetHandler>}
+		 */
+		this.registeredLiveAssetChangeHandlers = new Set();
+		this.currentRecursionTrackerLiveAssetChangeSym = null;
 
 		this.destructed = false;
 	}
@@ -56,6 +81,7 @@ export class ProjectAsset {
 		this.assetSettings = null;
 		this._projectAssetType = null;
 		this.onNewLiveAssetInstanceCbs.clear();
+		this.clearRecursionTrackerLiveAssetChangeHandlers();
 	}
 
 	async init() {
@@ -201,6 +227,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {RecursionTracker} recursionTracker
+	 * @returns {Promise<import("./ProjectAssetType/ProjectAssetType.js").LiveAssetData>}
 	 */
 	async getLiveAssetData(recursionTracker = null) {
 		if (this.liveAsset || this.editorData) {
@@ -245,7 +272,11 @@ export class ProjectAsset {
 			recursionTracker = new RecursionTracker(editor.projectManager.assetManager, this.uuid);
 		}
 
+		recursionTracker.pushProjectAssetToStack(this);
+
 		const {liveAsset, editorData} = await this._projectAssetType.getLiveAssetData(fileData, recursionTracker);
+
+		recursionTracker.popProjectAssetFromStack();
 
 		if (isRootRecursionTracker) {
 			if (recursionTracker.rootLoadingAsset) {
@@ -259,6 +290,7 @@ export class ProjectAsset {
 			if ((liveAsset || editorData) && this._projectAssetType) {
 				this._projectAssetType.destroyLiveAssetData(liveAsset, editorData);
 			}
+			this.clearRecursionTrackerLiveAssetChangeHandlers();
 			return await this.getLiveAssetData(recursionTracker);
 		}
 
@@ -296,10 +328,16 @@ export class ProjectAsset {
 		return this.liveAsset;
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onNewLiveAssetInstance(cb) {
 		this.onNewLiveAssetInstanceCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	removeOnNewLiveAssetInstance(cb) {
 		this.onNewLiveAssetInstanceCbs.delete(cb);
 	}
@@ -319,12 +357,48 @@ export class ProjectAsset {
 		this.isGettingLiveAssetData = false;
 	}
 
+	/**
+	 * @param {import("./AssetManager.js").AssetManager} assetManager
+	 * @param {import("../Util/Util.js").UuidString} assetUuid The asset to monitor for changes.
+	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback} cb
+	 */
+	async registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {
+		const sym = this.currentRecursionTrackerLiveAssetChangeSym;
+		const projectAsset = await assetManager.getProjectAsset(assetUuid);
+
+		// If either this projectAsset was destructed or its liveAsset was reloaded.
+		if (sym != this.currentRecursionTrackerLiveAssetChangeSym) return;
+
+		const registeredCallback = async () => {
+			const liveAssetData = await projectAsset.getLiveAssetData();
+			if (sym != this.currentRecursionTrackerLiveAssetChangeSym) return;
+			cb(liveAssetData);
+		};
+		projectAsset.onNewLiveAssetInstance(registeredCallback);
+		this.registeredLiveAssetChangeHandlers.add({
+			registeredCallback,
+			registeredOnAsset: new WeakRef(projectAsset),
+		});
+	}
+
+	clearRecursionTrackerLiveAssetChangeHandlers() {
+		for (const handler of this.registeredLiveAssetChangeHandlers) {
+			const projectAsset = handler.registeredOnAsset.deref();
+			if (projectAsset) {
+				projectAsset.removeOnNewLiveAssetInstance(handler.registeredCallback);
+			}
+		}
+		this.registeredLiveAssetChangeHandlers.clear();
+		this.currentRecursionTrackerLiveAssetChangeSym = Symbol("recursionTrackerLiveAssetChange");
+	}
+
 	destroyLiveAssetData() {
 		if (this.isGettingLiveAssetData) {
 			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
 			this.currentGettingLiveAssetSymbol = null;
 		} else if ((this.liveAsset || this.editorData) && this._projectAssetType) {
 			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.editorData);
+			this.clearRecursionTrackerLiveAssetChangeHandlers();
 			this.liveAsset = null;
 		}
 	}
