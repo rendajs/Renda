@@ -227,6 +227,7 @@ export class EditorWindowTabs extends EditorWindow {
 				const tabIndex = prevTabCount + i;
 				const contentWindow = this.tabs[tabIndex];
 				const newButton = new Button({
+					colorizerFilterManager: editor.colorizerFilterManager,
 					onClick: () => {
 						this.setActiveTabIndex(tabIndex);
 					},

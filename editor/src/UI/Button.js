@@ -1,10 +1,9 @@
-import editor from "../editorInstance.js";
-
 /**
  * @template TCallbacksContext
  * @typedef {Object} ButtonGuiOptionsType
  * @property {string} [text = ""] The text to show on the button.
  * @property {string} [icon = ""] The icon to show on the button.
+ * @property {import("../Util/ColorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} [colorizerFilterManager = null] The colorizer filter manager if you want theme support for icons to work.
  * @property {boolean} [hasDownArrow = false] Whether the button should show a down arrow.
  * @property {function(TCallbacksContext) : void} [onClick = null] The function to call when the button is clicked.
  * @property {boolean} [draggable = false] Whether the button should be draggable.
@@ -28,6 +27,7 @@ export class Button {
 		disabled = false,
 		text = null,
 		icon = null,
+		colorizerFilterManager = null,
 		hasDownArrow = false,
 		onClick = null,
 		draggable = false,
@@ -35,6 +35,7 @@ export class Button {
 		onDragEnd = null,
 	} = {}) {
 		this.iconUrl = icon;
+		this.colorizerFilterManager = colorizerFilterManager;
 		this.currentText = text;
 		const {el, iconEl, textEl} = this.createButtonEl();
 		this.el = el;
@@ -117,11 +118,14 @@ export class Button {
 		this.applyIconToEl(this.iconEl);
 	}
 
+	/**
+	 * @param {HTMLElement} el
+	 */
 	applyIconToEl(el) {
 		el.style.backgroundImage = `url(${this.iconUrl})`;
 		el.style.display = this.iconUrl ? null : "none";
-		if (this.iconUrl) {
-			editor.colorizerFilterManager.applyFilter(el, "var(--default-button-text-color)");
+		if (this.iconUrl && this.colorizerFilterManager) {
+			this.colorizerFilterManager.applyFilter(el, "var(--default-button-text-color)");
 		}
 	}
 
