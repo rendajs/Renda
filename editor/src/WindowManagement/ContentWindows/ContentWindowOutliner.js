@@ -3,7 +3,6 @@ import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
 import {Entity} from "../../../../src/index.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
-import editor from "../../editorInstance.js";
 import {ProjectAssetTypeEntity} from "../../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../Util/Util.js";
 import {EntitySelection} from "../../Misc/EntitySelection.js";
@@ -48,7 +47,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.selectEntityEditorDropDown.onValueChange(() => {
 			const index = this.selectEntityEditorDropDown.getValue({getAsString: false});
 			const uuid = this.availableEntityEditorUuids[index];
-			const entityEditor = /** @type {ContentWindowEntityEditor} */ (editor.windowManager.getContentWindowByUuid(uuid));
+			const entityEditor = /** @type {ContentWindowEntityEditor} */ (this.editorInstance.windowManager.getContentWindowByUuid(uuid));
 			this.setLinkedEntityEditor(entityEditor);
 		});
 		this.selectEntityEditorDropDownContainer = document.createElement("div");
@@ -95,12 +94,12 @@ export class ContentWindowOutliner extends ContentWindow {
 	updateAvailableEntityEditorsList() {
 		this.availableEntityEditorUuids = [];
 		const dropDownItems = [];
-		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			this.availableEntityEditorUuids.push(entityEditor.uuid);
 
 			let entityAssetName = null;
 			if (entityEditor.editingEntityUuid) {
-				const editingEntityAsset = editor.projectManager.assetManager.getProjectAssetImmediate(entityEditor.editingEntityUuid);
+				const editingEntityAsset = this.editorInstance.projectManager.assetManager.getProjectAssetImmediate(entityEditor.editingEntityUuid);
 				if (editingEntityAsset) {
 					entityAssetName = editingEntityAsset.fileName;
 				} else {
@@ -123,7 +122,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	setAvailableLinkedEntityEditor() {
-		const entityEditor = editor.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor, false);
+		const entityEditor = this.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor, false);
 		if (entityEditor) {
 			this.setLinkedEntityEditor(entityEditor);
 			this.selectEntityEditorDropDown.value = this.availableEntityEditorUuids.indexOf(entityEditor.uuid);
@@ -302,7 +301,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			mimeType.parameters.dragtype == "projectasset"
 		) {
 			/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
-			const dragData = editor.dragManager.getDraggingData(mimeType.parameters.draggingdata);
+			const dragData = this.editorInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata);
 			if (dragData.assetType == ProjectAssetTypeEntity) {
 				return dragData;
 			}
@@ -335,7 +334,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			const dragData = this.validateDragMimeType(mimeType);
 			if (dragData) {
 				const entityAssetUuid = dragData.assetUuid;
-				const entityAsset = await editor.projectManager.assetManager.getLiveAsset(entityAssetUuid);
+				const entityAsset = await this.editorInstance.projectManager.assetManager.getLiveAsset(entityAssetUuid);
 				parent.add(entityAsset);
 			}
 		}

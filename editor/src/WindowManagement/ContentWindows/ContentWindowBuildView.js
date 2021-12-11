@@ -1,4 +1,3 @@
-import editor from "../../editorInstance.js";
 import {ContentWindow} from "./ContentWindow.js";
 import {Button} from "../../UI/Button.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
@@ -17,7 +16,7 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		this.setContentBehindTopBar(true);
 
-		this.previewCamDomTarget = editor.renderer.createDomTarget();
+		this.previewCamDomTarget = this.editorInstance.renderer.createDomTarget();
 		this.renderTargetElement = this.previewCamDomTarget.getElement();
 		this.contentEl.appendChild(this.renderTargetElement);
 		this.previewCamComponent = null;
@@ -55,7 +54,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	}
 
 	setAvailableLinkedEntityEditor() {
-		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			this.setLinkedEntityEditor(entityEditor);
 			break;
 		}
@@ -104,7 +103,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	}
 
 	async updateFrameSrc() {
-		const clientId = await editor.serviceWorkerManager.getClientId();
+		const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
 		this.iframeEl.src = "projectbuilds/" + clientId + "/Build/index.html";
 	}
 
