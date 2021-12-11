@@ -356,7 +356,7 @@ export class WindowManager {
 
 	/**
 	 * @template {ContentWindow} T
-	 * @param {new () => T} contentWindowConstructor
+	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
 	 * @returns {Generator<T>}
 	 */
 	*getContentWindowsByConstructor(contentWindowConstructor) {
@@ -370,7 +370,7 @@ export class WindowManager {
 	/**
 	 * Get the first content window of the given type.
 	 * @template {ContentWindow} T
-	 * @param {new () => T} contentWindowConstructor
+	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
 	 * @param {boolean} create Whether to create a new content window if none exist.
 	 * @returns {T}
 	 */
@@ -397,7 +397,7 @@ export class WindowManager {
 	 * Get the last focused content window of the specefied type.
 	 * If no content window of the type has ever been focused, returns the first available content window of that type.
 	 * @template {ContentWindow} T
-	 * @param {new () => T} contentWindowConstructor
+	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
 	 * @param {boolean} create Whether to create a new content window if none exist.
 	 * @returns {T}
 	 */
@@ -467,7 +467,7 @@ export class WindowManager {
 	 * Focuses on the most suitable content window of the specified type.
 	 * Creates one if it doesn't exist.
 	 * @template {ContentWindow} T
-	 * @param {new () => T} contentWindowConstructor
+	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
 	 * @returns {T}
 	 */
 	focusOrCreateContentWindow(contentWindowConstructor) {

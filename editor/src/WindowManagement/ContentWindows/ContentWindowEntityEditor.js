@@ -3,7 +3,6 @@ import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../UI/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Component, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/index.js";
-import editor from "../../editorInstance.js";
 import {SelectionManager} from "../../Managers/SelectionManager.js";
 import ComponentGizmos from "../../ComponentGizmos/ComponentGizmos.js";
 
@@ -14,8 +13,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "icons/contentWindowTabs/entityEditor.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.setContentBehindTopBar(true);
 
@@ -27,7 +29,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 		this.addTopBarEl(saveEntityButton.el);
 
-		this.domTarget = editor.renderer.createDomTarget();
+		this.domTarget = this.editorInstance.renderer.createDomTarget();
 		const renderTargetElement = this.domTarget.getElement();
 		renderTargetElement.style.display = "block";
 		this.contentEl.appendChild(renderTargetElement);
@@ -66,7 +68,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	async loadPersistentData() {
 		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
-		const assetUuid = await editor.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);
+		const assetUuid = await this.editorInstance.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);
 		this.loadEntityAsset(assetUuid, true);
 
 		this.orbitControls.lookPos = await this.persistentData.get("orbitLookPos");
@@ -102,7 +104,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorScene.add(val);
 		this.updateGizmos();
 		this.markRenderDirty();
-		for (const outliner of editor.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
+		for (const outliner of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
 			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateBuildViews();
@@ -147,7 +149,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {boolean} fromContentWindowLoad
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
-		const projectAsset = await editor.projectManager.assetManager.getProjectAsset(entityUuid);
+		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(entityUuid);
 		if (!projectAsset) {
 			this.newEmptyEditingEntity();
 			return;
@@ -162,7 +164,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	async saveEntityAsset() {
 		if (!this.editingEntityUuid) return;
-		const asset = await editor.projectManager.assetManager.getProjectAsset(this.editingEntityUuid);
+		const asset = await this.editorInstance.projectManager.assetManager.getProjectAsset(this.editingEntityUuid);
 		await asset.saveLiveAssetData();
 	}
 
@@ -191,7 +193,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			}
 		}
 
-		if (this.renderDirty && editor.renderer.isInit) {
+		if (this.renderDirty && this.editorInstance.renderer.isInit) {
 			this.render();
 			this.renderDirty = false;
 		}
@@ -202,7 +204,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	updateBuildViews() {
-		for (const buildView of editor.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)) {
+		for (const buildView of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)) {
 			buildView.setLinkedEntityEditor(this);
 		}
 	}
@@ -239,7 +241,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				let componentGizmos = linkedComponentGizmos.get(component);
 				if (!componentGizmos) {
 					const componentConstructor = /** @type {typeof Component} */ (component.constructor);
-					componentGizmos = editor.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
+					componentGizmos = this.editorInstance.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
 					if (componentGizmos) {
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
 						linkedComponentGizmos.set(component, componentGizmos);
@@ -298,9 +300,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			for (const [i, item] of data.entries()) {
 				this.addComponentLiveAssetListeners(rootComponent, structure.arrayOpts, item, false, data, i);
 			}
-		} else if (editor.projectAssetTypeManager.constructorHasAssetType(structure.type)) {
+		} else if (this.editorInstance.projectAssetTypeManager.constructorHasAssetType(structure.type)) {
 			if (data) {
-				const projectAsset = editor.projectManager.assetManager.getProjectAssetForLiveAsset(data);
+				const projectAsset = this.editorInstance.projectManager.assetManager.getProjectAssetForLiveAsset(data);
 				const listener = async () => {
 					parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
 					this.notifyEntityChanged(rootComponent.entity, "componentProperty");

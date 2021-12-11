@@ -18,8 +18,11 @@ export class ContentWindowProject extends ContentWindow {
 	static contentWindowUiName = "Project Files";
 	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		const createButton = new Button({
 			text: "+",

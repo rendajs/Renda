@@ -14,8 +14,11 @@ export class ContentWindowConnections extends ContentWindow {
 	static contentWindowUiName = "Connections";
 	static contentWindowUiIcon = "icons/contentWindowTabs/connections.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.headerTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.headerTreeView.el);

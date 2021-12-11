@@ -8,8 +8,11 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowUiName = "Built-in Assets";
 	static contentWindowUiIcon = "icons/contentWindowTabs/builtInAssets.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.treeViewAssets = new Map();
 

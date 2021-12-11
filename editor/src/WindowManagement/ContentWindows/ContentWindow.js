@@ -22,7 +22,14 @@ export class ContentWindow {
 	 */
 	static contentWindowUiIcon = "icons/generic.svg";
 
-	constructor() {
+	/**
+	 * @param {import("../../Editor.js").Editor} editorInstance
+	 * @param {import("../WindowManager.js").WindowManager} windowManager
+	 */
+	constructor(editorInstance, windowManager) {
+		this.editorInstance = editorInstance;
+		this.windowManager = windowManager;
+
 		/** @type {import("../EditorWindowTabs.js").EditorWindowTabs}*/
 		this.parentEditorWindow = null;
 		/**
@@ -31,8 +38,6 @@ export class ContentWindow {
 		 * @type {import("../../Util/Util.js").UuidString}
 		 */
 		this.uuid = null;
-		/** @type {import("../WindowManager.js").WindowManager} */
-		this.windowManager = null;
 
 		this.persistentData = new ContentWindowPersistentData();
 

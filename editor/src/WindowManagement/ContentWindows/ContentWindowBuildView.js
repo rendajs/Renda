@@ -9,8 +9,11 @@ export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowUiName = "Build";
 	static contentWindowUiIcon = "icons/contentWindowTabs/buildView.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.setContentBehindTopBar(true);
 

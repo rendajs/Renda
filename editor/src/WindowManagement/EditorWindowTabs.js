@@ -136,12 +136,12 @@ export class EditorWindowTabs extends EditorWindow {
 	/**
 	 * @template {import("./ContentWindows/ContentWindow.js").ContentWindow} T
 	 * @param {number} index
-	 * @param {new () => T} constructor
+	 * @param {new (...args: ConstructorParameters<typeof import("./ContentWindows/ContentWindow.js").ContentWindow>) => T} constructor
 	 * @param {import("../Util/Util.js").UuidString} uuid
 	 * @returns {T}
 	 */
 	loadContentWindow(index, constructor, uuid) {
-		const contentWindow = new constructor();
+		const contentWindow = new constructor(editor, this.windowManager);
 		contentWindow.uuid = uuid;
 		contentWindow.windowManager = this.windowManager;
 		contentWindow.persistentData.setWindowManager(this.windowManager);

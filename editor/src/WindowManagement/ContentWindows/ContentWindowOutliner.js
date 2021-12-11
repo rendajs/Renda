@@ -14,8 +14,11 @@ export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowUiName = "Outliner";
 	static contentWindowUiIcon = "icons/contentWindowTabs/outliner.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.treeView = new TreeView();
 		this.treeView.rearrangeableHierarchy = true;

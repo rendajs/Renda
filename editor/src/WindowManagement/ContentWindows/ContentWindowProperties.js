@@ -6,8 +6,11 @@ export class ContentWindowProperties extends ContentWindow {
 	static contentWindowUiName = "Properties";
 	static contentWindowUiIcon = "icons/contentWindowTabs/properties.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.activeSelectionManager = null;
 		this.activeContent = null;

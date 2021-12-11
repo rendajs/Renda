@@ -8,8 +8,11 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowUiName = "Default Asset Links";
 	static contentWindowUiIcon = "icons/contentWindowTabs/defaultAssetLinks.svg";
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof ContentWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.builtInAssetLinksTreeView = new PropertiesTreeView();
 		this.builtInAssetLinksTreeView.onChildValueChange(() => this.handleGuiValueChange());
