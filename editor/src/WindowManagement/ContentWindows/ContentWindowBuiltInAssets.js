@@ -109,6 +109,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	onTreeViewSelectionChange(treeViewChanges) {
 		/** @type {import("../../Managers/SelectionGroup.js").SelectionChangeData<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
 		const changes = {};
+		changes.reset = treeViewChanges.reset;
 		changes.added = this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
 		changes.removed = this.mapTreeViewArrayToProjectAssets(treeViewChanges.removed);
 		this.selectionManager.changeSelection(changes);
