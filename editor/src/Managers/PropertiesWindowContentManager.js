@@ -39,6 +39,7 @@ export class PropertiesWindowContentManager {
 			this.registeredContentTypes.set(t, constructor);
 		}
 
+		// todo: make this a callback that properties window register
 		for (const w of editor.windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
 			w.onContentTypeRegistered(constructor);
 		}

@@ -1,12 +1,14 @@
-import editor from "../editorInstance.js";
-import {ContentWindowProperties} from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
-
 /**
  * @template T
- * @typedef {Object} SelectionChangeData
+ * @typedef {Object} SelectionGroupChangeData
  * @property {boolean} [reset = false] If true, the selected items array will be cleared.
  * @property {T[]} [added] List of items that were added to the selection.
  * @property {T[]} [removed] List of items that were removed from the selection.
+ */
+
+/**
+ * @template T
+ * @typedef {(changes: SelectionGroupChangeData<T>) => void} SelectionChangeCallback
  */
 
 /**
@@ -14,17 +16,30 @@ import {ContentWindowProperties} from "../WindowManagement/ContentWindows/Conten
  * @template T The expected type of selected items.
  */
 export class SelectionGroup {
-	constructor() {
+	/**
+	 * @param {import("./SelectionManager.js").SelectionManager} selectionManager
+	 */
+	constructor(selectionManager) {
+		this.selectionManager = selectionManager;
 		/** @type {T[]} */
 		this.currentSelectedObjects = [];
+
+		/** @type {Set<SelectionChangeCallback<T>>} */
+		this.onSelectionChangeCbs = new Set();
+
+		this.destructed = false;
 	}
 
 	destructor() {
+		if (this.destructed) return;
+		this.destructed = true;
+		this.selectionManager.removeSelectionGroup(this);
 		this.currentSelectedObjects = null;
+		this.onSelectionChangeCbs.clear();
 	}
 
 	/**
-	 * @param {SelectionChangeData<T>} changes
+	 * @param {SelectionGroupChangeData<T>} changes
 	 */
 	changeSelection(changes) {
 		if (changes.reset) this.currentSelectedObjects = [];
@@ -36,7 +51,21 @@ export class SelectionGroup {
 			}
 		}
 
-		const propertyiesWindow = editor.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowProperties, false);
-		propertyiesWindow.onSelectionChanged(this);
+		this.onSelectionChangeCbs.forEach(cb => cb(changes));
+	}
+
+	/**
+	 * Sets this group as the currently active group.
+	 * This will notify any listeners and update ui according to the current selection.
+	 */
+	activate() {
+		this.selectionManager.setActiveSelectionGroup(this);
+	}
+
+	/**
+	 * @param {SelectionChangeCallback<T>} cb
+	 */
+	onSelectionChange(cb) {
+		this.onSelectionChangeCbs.add(cb);
 	}
 }

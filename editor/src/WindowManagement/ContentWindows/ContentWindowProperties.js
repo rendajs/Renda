@@ -11,29 +11,36 @@ export class ContentWindowProperties extends ContentWindow {
 	constructor(...args) {
 		super(...args);
 
-		this.activeSelectionManager = null;
+		this.activeSelectionGroup = null;
 		this.activeContent = null;
+
+		this.boundOnSelectionChanged = this.onSelectionChanged.bind(this);
+		this.editorInstance.selectionManager.onSelectionChange(this.boundOnSelectionChanged);
 	}
 
 	destructor() {
 		super.destructor();
-		this.activeSelectionManager = null;
+		this.activeSelectionGroup = null;
 		if (this.activeContent) this.activeContent.destructor();
 		this.activeContent = null;
+		this.editorInstance.selectionManager.removeOnSelectionChange(this.boundOnSelectionChanged);
 	}
 
 	onContentTypeRegistered(constructor) {
 		this.updateCurrentContentType();
 	}
 
-	onSelectionChanged(selectionManager) {
-		this.activeSelectionManager = selectionManager;
+	/**
+	 * @param {import("../../Managers/SelectionManager.js").SelectionChangeData} changeData
+	 */
+	onSelectionChanged(changeData) {
+		this.activeSelectionGroup = changeData.activeSelectionGroup;
 		this.updateCurrentContentType();
 	}
 
 	updateCurrentContentType() {
-		if (!this.activeSelectionManager) return;
-		const selectedObjects = this.activeSelectionManager.currentSelectedObjects;
+		if (!this.activeSelectionGroup) return;
+		const selectedObjects = this.activeSelectionGroup.currentSelectedObjects;
 
 		const PropertiesWindowContent = this.editorInstance.propertiesWindowContentManager.getContentTypeForObjects(selectedObjects);
 		if (!this.activeContent || this.activeContent.constructor != PropertiesWindowContent) {

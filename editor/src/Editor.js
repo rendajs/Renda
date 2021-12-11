@@ -1,4 +1,5 @@
 import {WindowManager} from "./WindowManagement/WindowManager.js";
+import {SelectionManager} from "./Managers/SelectionManager.js";
 import {ContextMenuManager} from "./UI/ContextMenus/ContextMenuManager.js";
 import {KeyboardShortcutManager} from "./KeyboardShortcuts/KeyboardShortcutManager.js";
 import {PropertiesWindowContentManager} from "./Managers/PropertiesWindowContentManager.js";
@@ -24,6 +25,7 @@ export class Editor {
 		this.renderer = new WebGpuRenderer();
 		this.webGpuShaderBuilder = new ShaderBuilder();
 		this.windowManager = new WindowManager();
+		this.selectionManager = new SelectionManager();
 		this.contextMenuManager = new ContextMenuManager();
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
