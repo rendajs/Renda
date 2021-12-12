@@ -1,12 +1,12 @@
 import BinaryComposer from "../../../src/Util/BinaryComposer.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 export class AssetBundler {
 	async bundle(bundleProjectAsset) {
 		const bundleData = await bundleProjectAsset.readAssetData();
 		const assetUuids = await this.getAllAssetUuids(bundleData.assets, new Set(bundleData.excludeAssets), new Set(bundleData.excludeAssetsRecursive));
 
-		const bundleFileStream = await editor.projectManager.currentProjectFileSystem.writeFileStream(bundleData.outputLocation.split("/"));
+		const bundleFileStream = await getEditorInstance().projectManager.currentProjectFileSystem.writeFileStream(bundleData.outputLocation.split("/"));
 		if (bundleFileStream.locked) {
 			throw new Error("Failed to write bundle, file is locked.");
 		}
@@ -29,7 +29,7 @@ export class AssetBundler {
 			headerIntView.set(new Uint8Array(binaryUuid), headerCursor);
 			headerCursor += 16;
 
-			const asset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
+			const asset = await getEditorInstance().projectManager.assetManager.getProjectAsset(assetUuid);
 
 			const assetTypeUuid = await asset.getAssetTypeUuid();
 			const binaryAssetTypeUuid = BinaryComposer.uuidToBinary(assetTypeUuid);
@@ -68,13 +68,13 @@ export class AssetBundler {
 	}
 
 	async *collectAllReferences(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive) {
-		const projectAsset = await editor.projectManager.assetManager.getProjectAsset(assetUuid);
+		const projectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(assetUuid);
 		if (projectAsset) {
 			if (foundUuids.has(assetUuid) || excludeUuidsRecursive.has(assetUuid)) return;
 			if (!excludeUuids.has(assetUuid)) yield assetUuid;
 			for await (const referenceUuid of projectAsset.getReferencedAssetUuids()) {
 				for await (const subReferenceUuid of this.collectAllReferences(referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
-					yield editor.projectManager.assetManager.resolveDefaultAssetLinkUuid(subReferenceUuid);
+					yield getEditorInstance().projectManager.assetManager.resolveDefaultAssetLinkUuid(subReferenceUuid);
 				}
 			}
 		}

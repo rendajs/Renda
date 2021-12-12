@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {PropertiesAssetContentMesh} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMesh.js";
 import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/index.js";
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "JJ:mesh";
@@ -24,7 +24,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		const defaultVertexStateAssetUuid = "ad4146d6-f709-422e-b93e-5beb51e38fe4";
 		const mesh = new Mesh();
 		mesh.setVertexCount(24);
-		const vertexStateLiveAsset = await editor.projectManager.assetManager.getLiveAsset(defaultVertexStateAssetUuid);
+		const vertexStateLiveAsset = await getEditorInstance().projectManager.assetManager.getLiveAsset(defaultVertexStateAssetUuid);
 		mesh.setVertexState(vertexStateLiveAsset);
 		mesh.setIndexData([0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7, 8, 9, 10, 9, 10, 11, 12, 13, 14, 13, 14, 15, 16, 17, 18, 17, 18, 19, 20, 21, 22, 21, 22, 23]);
 		mesh.setVertexData(Mesh.AttributeType.POSITION, [
@@ -110,7 +110,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		const mesh = new Mesh();
 
 		const vertexStateUuid = decomposer.getUuid();
-		const layoutProjectAsset = await editor.projectManager.assetManager.getProjectAsset(vertexStateUuid);
+		const layoutProjectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(vertexStateUuid);
 		if (layoutProjectAsset) {
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
 			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
@@ -201,12 +201,12 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 	async createBundledAssetData(assetSettingOverrides = {}) {
 		const {liveAsset, editorData} = await this.projectAsset.getLiveAssetData();
-		const vertexStateUuid = editor.projectManager.assetManager.resolveDefaultAssetLinkUuid(editorData?.vertexStateUuid);
+		const vertexStateUuid = getEditorInstance().projectManager.assetManager.resolveDefaultAssetLinkUuid(editorData?.vertexStateUuid);
 		return this.meshToBuffer(liveAsset, vertexStateUuid);
 	}
 
 	async *getReferencedAssetUuids() {
 		const mesh = await this.projectAsset.getLiveAsset();
-		yield editor.projectManager.assetManager.getAssetUuidFromLiveAsset(mesh.vertexState);
+		yield getEditorInstance().projectManager.assetManager.getAssetUuidFromLiveAsset(mesh.vertexState);
 	}
 }

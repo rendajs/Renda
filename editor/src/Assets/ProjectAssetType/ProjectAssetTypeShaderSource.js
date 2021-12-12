@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {ShaderSource} from "../../../../src/index.js";
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static type = "JJ:shaderSource";
@@ -24,11 +24,11 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static expectedLiveAssetConstructor = ShaderSource;
 
 	async getLiveAssetData(source) {
-		const {shaderCode, includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);
+		const {shaderCode, includedUuids} = await getEditorInstance().webGpuShaderBuilder.buildShader(source);
 		this.includedUuids = includedUuids;
 		if (!this.boundOnShaderInvalidated) {
 			this.boundOnShaderInvalidated = this.onShaderInvalidated.bind(this);
-			editor.webGpuShaderBuilder.onShaderInvalidated(this.boundOnShaderInvalidated);
+			getEditorInstance().webGpuShaderBuilder.onShaderInvalidated(this.boundOnShaderInvalidated);
 		}
 		const liveAsset = new ShaderSource(shaderCode);
 		return {liveAsset};
@@ -37,7 +37,7 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	destroyLiveAssetData(liveAsset) {
 		super.destroyLiveAssetData(liveAsset);
 		if (this.boundOnShaderInvalidated) {
-			editor.webGpuShaderBuilder.removeShaderInvalidated(this.boundOnShaderInvalidated);
+			getEditorInstance().webGpuShaderBuilder.removeShaderInvalidated(this.boundOnShaderInvalidated);
 			this.boundOnShaderInvalidated = null;
 		}
 	}
@@ -50,7 +50,7 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 
 	async *getReferencedAssetUuids() {
 		const source = await this.projectAsset.readAssetData();
-		const {includedUuids} = await editor.webGpuShaderBuilder.buildShader(source);
+		const {includedUuids} = await getEditorInstance().webGpuShaderBuilder.buildShader(source);
 		for (const uuid of includedUuids) {
 			yield uuid;
 		}

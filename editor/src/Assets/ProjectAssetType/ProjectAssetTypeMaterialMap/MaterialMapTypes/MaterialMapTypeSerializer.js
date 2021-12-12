@@ -1,6 +1,6 @@
 import {MaterialMapType} from "../../../../../../src/Rendering/MaterialMapType.js";
 import BinaryComposer, {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
-import editor from "../../../../editorInstance.js";
+import {getEditorInstance} from "../../../../editorInstance.js";
 
 /**
  * @typedef {Object} MaterialMapTypeMappableValue
@@ -109,7 +109,7 @@ export class MaterialMapTypeSerializer {
 		}
 		return BinaryComposer.objectToBinary(bundleMapData, {
 			...this.assetBundleBinaryComposerOpts,
-			editorAssetManager: editor.projectManager.assetManager,
+			editorAssetManager: getEditorInstance().projectManager.assetManager,
 		});
 	}
 

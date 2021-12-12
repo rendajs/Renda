@@ -1,4 +1,4 @@
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 export class ServiceWorkerManager {
 	constructor() {
@@ -12,7 +12,7 @@ export class ServiceWorkerManager {
 				if (e.data.type == "getProjectFile") {
 					const {filePath} = e.data;
 					const splitPath = filePath.split("/");
-					const file = await editor.projectManager.currentProjectFileSystem.readFile(splitPath);
+					const file = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(splitPath);
 					if (e.ports.length > 0) {
 						for (const port of e.ports) {
 							port.postMessage(file);

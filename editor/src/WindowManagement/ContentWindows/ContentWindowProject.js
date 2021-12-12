@@ -3,7 +3,7 @@ import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
 import {SelectionGroup} from "../../Managers/SelectionGroup.js";
 import {handleDuplicateName} from "../../Util/Util.js";
-import {projectSelector} from "../../ProjectSelector/instance.js";
+import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorInstance.js";
 
 /**
  * @typedef {Object} DraggingProjectAssetData
@@ -82,7 +82,7 @@ export class ContentWindowProject extends ContentWindow {
 		const openProjectButton = new Button({
 			text: "Open Project",
 			onClick: () => {
-				projectSelector.setVisibility(true);
+				getProjectSelectorInstance().setVisibility(true);
 			},
 		});
 		this.addTopBarEl(openProjectButton.el);

@@ -1,7 +1,7 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {ShaderSource, Vec3} from "../../../../../../src/index.js";
 import {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
-import editor from "../../../../editorInstance.js";
+import {getEditorInstance} from "../../../../editorInstance.js";
 
 export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
@@ -31,14 +31,14 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	static async getLiveAssetCustomData(customData) {
 		let vertexShader = null;
 		let fragmentShader = null;
-		if (customData.vertexShader) vertexShader = await editor.projectManager.assetManager.getLiveAsset(customData.vertexShader);
-		if (customData.fragmentShader) fragmentShader = await editor.projectManager.assetManager.getLiveAsset(customData.fragmentShader);
+		if (customData.vertexShader) vertexShader = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.vertexShader);
+		if (customData.fragmentShader) fragmentShader = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.fragmentShader);
 		return {vertexShader, fragmentShader};
 	}
 
 	static async *getLinkedAssetsInCustomData(customData) {
-		if (customData.vertexShader) yield editor.projectManager.assetManager.getProjectAsset(customData.vertexShader);
-		if (customData.fragmentShader) yield editor.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
+		if (customData.vertexShader) yield getEditorInstance().projectManager.assetManager.getProjectAsset(customData.vertexShader);
+		if (customData.fragmentShader) yield getEditorInstance().projectManager.assetManager.getProjectAsset(customData.fragmentShader);
 	}
 
 	static assetBundleBinaryComposerOpts = {
@@ -73,7 +73,7 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	}
 
 	static async addShaderUniformsToMap(shaderUuid, itemsMap) {
-		const shaderAsset = await editor.projectManager.assetManager.getProjectAsset(shaderUuid);
+		const shaderAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(shaderUuid);
 		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
 			itemsMap.set(name, {type});
 		}

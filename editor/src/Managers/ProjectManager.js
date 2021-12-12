@@ -1,4 +1,4 @@
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {EditorFileSystemNative} from "../Util/FileSystems/EditorFileSystemNative.js";
 import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
@@ -153,9 +153,9 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		editor.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
-		await editor.windowManager.reloadCurrentWorkspace();
-		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+		getEditorInstance().windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+		await getEditorInstance().windowManager.reloadCurrentWorkspace();
+		getEditorInstance().windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		this.loadContentWindowPersistentData();
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
@@ -167,7 +167,7 @@ export class ProjectManager {
 
 	async loadContentWindowPersistentData() {
 		const data = await this.localProjectSettings.get("contentWindowPersistentData");
-		editor.windowManager.setContentWindowPersistentData(data);
+		getEditorInstance().windowManager.setContentWindowPersistentData(data);
 	}
 
 	/**
@@ -275,7 +275,7 @@ export class ProjectManager {
 			name: "Remote Filesystem",
 			isWorthSaving: false,
 		}, true);
-		editor.windowManager.focusOrCreateContentWindow(ContentWindowConnections);
+		getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
 	}
 
 	/**

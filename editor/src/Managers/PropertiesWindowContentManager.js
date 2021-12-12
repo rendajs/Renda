@@ -3,7 +3,7 @@ import {PropertiesWindowContent} from "../PropertiesWindowContent/PropertiesWind
 import {ContentWindowProperties} from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
 import {PropertiesWindowEmptyContent} from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
 import {PropertiesWindowMultipleContent} from "../PropertiesWindowContent/PropertiesWindowMultipleContent.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 export class PropertiesWindowContentManager {
 	constructor() {
@@ -40,7 +40,7 @@ export class PropertiesWindowContentManager {
 		}
 
 		// todo: make this a callback that properties window register
-		for (const w of editor.windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
+		for (const w of getEditorInstance().windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
 			w.onContentTypeRegistered(constructor);
 		}
 	}

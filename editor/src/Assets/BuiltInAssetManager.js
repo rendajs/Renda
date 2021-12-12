@@ -1,7 +1,7 @@
 import {ProjectAsset} from "./ProjectAsset.js";
 import {arrayBufferToBase64} from "../../../src/index.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
 import toFormattedJsonString from "../Util/toFormattedJsonString.js";
 import {AssetManager} from "./AssetManager.js";
@@ -26,7 +26,7 @@ export class BuiltInAssetManager {
 					continue;
 				}
 				assetData.isBuiltIn = true;
-				const projectAsset = await ProjectAsset.fromJsonData(editor.projectManager.assetManager, editor.projectAssetTypeManager, uuid, assetData);
+				const projectAsset = await ProjectAsset.fromJsonData(getEditorInstance().projectManager.assetManager, getEditorInstance().projectAssetTypeManager, uuid, assetData);
 				if (projectAsset) {
 					projectAsset.onNewLiveAssetInstance(() => {
 						for (const cb of this.onAssetChangeCbs) {
@@ -46,13 +46,13 @@ export class BuiltInAssetManager {
 
 	init() {
 		if (IS_DEV_BUILD) {
-			editor.devSocket.addListener("builtInAssetChange", data => {
+			getEditorInstance().devSocket.addListener("builtInAssetChange", data => {
 				const asset = this.assets.get(data.uuid);
 				if (asset) {
 					asset.fileChangedExternally();
 				}
 			});
-			editor.devSocket.addListener("builtInAssetListUpdate", () => {
+			getEditorInstance().devSocket.addListener("builtInAssetListUpdate", () => {
 				this.loadAssetsInstance.run(true);
 			});
 		}
@@ -64,7 +64,7 @@ export class BuiltInAssetManager {
 
 	get allowAssetEditing() {
 		if (!IS_DEV_BUILD) return false;
-		return editor.devSocket.connected;
+		return getEditorInstance().devSocket.connected;
 	}
 
 	async exists(path) {
@@ -107,7 +107,7 @@ export class BuiltInAssetManager {
 
 	async writeBinary(path, arrayBuffer) {
 		if (!IS_DEV_BUILD) return;
-		await editor.devSocket.sendRoundTripMessage("writeBuiltInAsset", {
+		await getEditorInstance().devSocket.sendRoundTripMessage("writeBuiltInAsset", {
 			path,
 			writeData: arrayBufferToBase64(arrayBuffer),
 		});

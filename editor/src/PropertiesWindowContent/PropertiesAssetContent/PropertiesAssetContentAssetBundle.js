@@ -1,6 +1,6 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {ProjectAsset} from "../../Assets/ProjectAsset.js";
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 	constructor() {
@@ -20,7 +20,7 @@ export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 				guiOpts: {
 					text: "Bundle",
 					onClick: () => {
-						editor.assetBundler.bundle(this.currentSelection[0]);
+						getEditorInstance().assetBundler.bundle(this.currentSelection[0]);
 					},
 				},
 			},

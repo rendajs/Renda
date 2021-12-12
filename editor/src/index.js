@@ -1,11 +1,20 @@
-import {projectSelector} from "./ProjectSelector/instance.js";
+import {getProjectSelectorInstance, initProjectSelector} from "./ProjectSelector/projectSelectorInstance.js";
 export {};
 
+initProjectSelector();
+const projectSelector = getProjectSelectorInstance();
 globalThis["projectSelector"] = projectSelector;
 
 (async () => {
+	const module = await import("./Util/Util.js");
+	window["Util"] = module;
+})();
+
+(async () => {
 	const module = await import("./editorInstance.js");
-	globalThis["editor"] = module.default;
-	projectSelector.setEditorLoaded(module.default);
+	module.initEditor();
+	const editor = module.getEditorInstance();
+	globalThis["editor"] = editor;
+	projectSelector.setEditorLoaded(editor);
 })();
 

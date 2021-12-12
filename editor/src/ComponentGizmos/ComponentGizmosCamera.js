@@ -1,4 +1,4 @@
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import ComponentGizmos from "./ComponentGizmos.js";
 import {CameraClusterDataGizmo, CameraComponent, CameraGizmo, CameraIconGizmo, Vec3} from "../../../src/index.js";
 import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
@@ -25,8 +25,8 @@ export default class ComponentGizmosCamera extends ComponentGizmos {
 
 	async updateClusterBounds() {
 		const clusterDataGizmo = this.createdGizmos[2];
-		const clusterComputeManager = editor.renderer.getCachedCameraData(this.component).clusterComputeManager;
-		const buffer = await editor.renderer.inspectBuffer(clusterComputeManager.boundsBuffer, clusterComputeManager.config.totalClusterCount * 32);
+		const clusterComputeManager = getEditorInstance().renderer.getCachedCameraData(this.component).clusterComputeManager;
+		const buffer = await getEditorInstance().renderer.inspectBuffer(clusterComputeManager.boundsBuffer, clusterComputeManager.config.totalClusterCount * 32);
 
 		const clusterBoundsData = [];
 		const dataView = new DataView(buffer);

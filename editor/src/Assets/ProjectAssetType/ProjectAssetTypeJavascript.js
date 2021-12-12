@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {getNameAndExtension} from "../../Util/FileSystems/PathUtil.js";
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 export class ProjectAssetTypeJavascript extends ProjectAssetType {
 	static type = "JJ:javascript";
@@ -48,8 +48,8 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 							const buildOpts = {
 								useClosureCompiler: asset?.assetSettings?.useClosureCompiler ?? false,
 							};
-							await editor.projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
-							await editor.scriptBuilder.buildScript(asset.path, outputPath, buildOpts);
+							await getEditorInstance().projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
+							await getEditorInstance().scriptBuilder.buildScript(asset.path, outputPath, buildOpts);
 						}
 					}
 				},

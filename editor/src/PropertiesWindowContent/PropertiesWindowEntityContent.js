@@ -3,7 +3,7 @@ import {Entity, Quat, defaultComponentTypeManager} from "../../../src/index.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {Button} from "../UI/Button.js";
 import {DroppableGui} from "../UI/DroppableGui.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {ContentWindowEntityEditor} from "../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import {ProjectAssetTypeEntity} from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../Misc/EntitySelection.js";
@@ -94,7 +94,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		const createComponentButton = new Button({
 			text: "+",
 			onClick: () => {
-				const menu = editor.contextMenuManager.createContextMenu();
+				const menu = getEditorInstance().contextMenuManager.createContextMenu();
 				for (const component of defaultComponentTypeManager.getAllComponents()) {
 					menu.addItem({
 						text: component.componentName || component.uuid,
@@ -102,9 +102,9 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 							for (const {entity} of this.currentSelection) {
 								const componentInstance = entity.addComponent(component, {}, {
 									editorOpts: {
-										editorAssetTypeManager: editor.projectAssetTypeManager,
+										editorAssetTypeManager: getEditorInstance().projectAssetTypeManager,
 										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
-										assetManager: editor.projectManager.assetManager,
+										assetManager: getEditorInstance().projectManager.assetManager,
 									},
 								});
 								await componentInstance.waitForEditorDefaults();
@@ -225,7 +225,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 				});
 				componentUI.fillSerializableStructureValues(componentGroup, {
 					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
-						if (value && editor.projectAssetTypeManager.constructorHasAssetType(value.constructor)) {
+						if (value && getEditorInstance().projectAssetTypeManager.constructorHasAssetType(value.constructor)) {
 							const usedAssetUuids = setOnObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 							if (usedAssetUuids) {
 								const uuid = usedAssetUuids[setOnObjectKey];
@@ -263,7 +263,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	 * @param {import("../WindowManagement/ContentWindows/ContentWindowEntityEditor.js").EntityChangedEventType} type
 	 */
 	notifyEntityEditors(entity, type) {
-		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of getEditorInstance().windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}

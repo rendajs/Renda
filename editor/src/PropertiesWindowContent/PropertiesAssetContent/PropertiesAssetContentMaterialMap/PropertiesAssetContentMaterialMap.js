@@ -1,5 +1,5 @@
 import {PropertiesAssetContent} from "../PropertiesAssetContent.js";
-import editor from "../../../editorInstance.js";
+import {getEditorInstance} from "../../../editorInstance.js";
 import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
 import {ProjectAsset} from "../../../Assets/ProjectAsset.js";
 
@@ -50,8 +50,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			guiOpts: {
 				text: "Add Map Type",
 				onClick: () => {
-					const menu = editor.contextMenuManager.createContextMenu();
-					for (const typeConstructor of editor.materialMapTypeManager.getAllTypes()) {
+					const menu = getEditorInstance().contextMenuManager.createContextMenu();
+					for (const typeConstructor of getEditorInstance().materialMapTypeManager.getAllTypes()) {
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem({
 							text: typeConstructor.uiName,
@@ -96,7 +96,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	addMapTypeUuid(uuid, {
 		updateMapListUi = true,
 	} = {}) {
-		const constructor = editor.materialMapTypeManager.getTypeByUuid(uuid);
+		const constructor = getEditorInstance().materialMapTypeManager.getTypeByUuid(uuid);
 		return this.addMapType(constructor, {updateMapListUi});
 	}
 

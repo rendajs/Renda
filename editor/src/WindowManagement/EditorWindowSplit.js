@@ -1,6 +1,6 @@
 import {EditorWindow} from "./EditorWindow.js";
 import {clamp01, mapValue} from "../../../src/Util/Util.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 export class EditorWindowSplit extends EditorWindow {
 	constructor() {
@@ -157,7 +157,7 @@ export class EditorWindowSplit extends EditorWindow {
 			this.windowA = null;
 		}
 		if (this.isRoot) {
-			editor.windowManager.replaceRootWindow(remainingWindow);
+			getEditorInstance().windowManager.replaceRootWindow(remainingWindow);
 		} else if (this.parent && this.parent instanceof EditorWindowSplit) {
 			this.parent.replaceWindow(this, remainingWindow);
 			this.destructor();

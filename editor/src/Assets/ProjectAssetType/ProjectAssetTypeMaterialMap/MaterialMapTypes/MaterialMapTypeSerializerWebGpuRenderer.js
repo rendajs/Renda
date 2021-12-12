@@ -1,6 +1,6 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
-import editor from "../../../../editorInstance.js";
+import {getEditorInstance} from "../../../../editorInstance.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/index.js";
 import {MaterialMapTypeWebGpu} from "../../../../../../src/Rendering/Renderers/WebGpuRenderer/MaterialMapTypeWebGpu.js";
 
@@ -30,7 +30,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	 */
 	static async getMappableValues(customData) {
 		/** @type {import("../../../../../../src/Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
-		const pipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		const pipelineConfig = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
 		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mappableValues = new Map();
 		this.fillMappableValuesForShader(pipelineConfig.fragmentShader, mappableValues);
@@ -109,13 +109,13 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	static async getLiveAssetSettingsInstance(customData) {
 		/** @type {WebGpuPipelineConfig} */
 		let forwardPipelineConfig = null;
-		if (customData.forwardPipelineConfig) forwardPipelineConfig = await editor.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		if (customData.forwardPipelineConfig) forwardPipelineConfig = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
 		return new MaterialMapTypeWebGpu({forwardPipelineConfig});
 	}
 
 	static async *getLinkedAssetsInCustomData(customData) {
-		await editor.projectManager.waitForAssetManagerLoad();
-		if (customData.forwardPipelineConfig) yield editor.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
+		await getEditorInstance().projectManager.waitForAssetManagerLoad();
+		if (customData.forwardPipelineConfig) yield getEditorInstance().projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
 	}
 
 	static assetBundleBinaryComposerOpts = {

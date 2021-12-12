@@ -1,6 +1,6 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../../src/index.js";
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 	constructor() {
@@ -66,7 +66,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		const {liveAsset, editorData} = await asset.getLiveAssetData();
 		editorData.vertexStateUuid = settings.vertexState;
 		if (liveAsset) {
-			const vertexStateLiveAsset = await editor.projectManager.assetManager.getLiveAsset(settings.vertexState);
+			const vertexStateLiveAsset = await getEditorInstance().projectManager.assetManager.getLiveAsset(settings.vertexState);
 			liveAsset.setVertexState(vertexStateLiveAsset);
 			await asset.saveLiveAssetData();
 		}

@@ -18,7 +18,7 @@ import {DevSocketManager} from "./Managers/DevSocketManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
 
 import {ShaderBuilder, WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager} from "../../src/index.js";
-import editor from "./editorInstance.js";
+import {getEditorInstance} from "./editorInstance.js";
 
 export class Editor {
 	constructor() {
@@ -103,7 +103,7 @@ export class Editor {
 
 		this.projectManager.onExternalChange(async e => {
 			const uuid = await this.projectManager.assetManager.getAssetUuidFromPath(e.path);
-			editor.webGpuShaderBuilder.invalidateShader(uuid);
+			getEditorInstance().webGpuShaderBuilder.invalidateShader(uuid);
 		});
 	}
 }

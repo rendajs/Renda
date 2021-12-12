@@ -1,4 +1,4 @@
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/index.js";
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
@@ -150,7 +150,7 @@ export class ProjectAsset {
 		const fileName = path[path.length - 1];
 		const {extension} = getNameAndExtension(fileName);
 		if (extension == "json") return null;
-		for (const assetType of editor.projectAssetTypeManager.getAssetTypesForExtension(extension)) {
+		for (const assetType of getEditorInstance().projectAssetTypeManager.getAssetTypesForExtension(extension)) {
 			return assetType.type;
 		}
 		return null;
@@ -162,9 +162,9 @@ export class ProjectAsset {
 
 		let json;
 		if (isBuiltIn) {
-			json = await editor.builtInAssetManager.fetchAsset(path);
+			json = await getEditorInstance().builtInAssetManager.fetchAsset(path);
 		} else {
-			json = await editor.projectManager.currentProjectFileSystem.readJson(path);
+			json = await getEditorInstance().projectManager.currentProjectFileSystem.readJson(path);
 		}
 		return json?.assetType || null;
 	}
@@ -174,7 +174,7 @@ export class ProjectAsset {
 	}
 
 	get editable() {
-		return !this.isBuiltIn || editor.builtInAssetManager.allowAssetEditing;
+		return !this.isBuiltIn || getEditorInstance().builtInAssetManager.allowAssetEditing;
 	}
 
 	// call AssetManager.makeAssetUuidConsistent() to also save
@@ -214,7 +214,7 @@ export class ProjectAsset {
 	 */
 	async open() {
 		await this.waitForInit();
-		await this._projectAssetType.open(editor.windowManager);
+		await this._projectAssetType.open(getEditorInstance().windowManager);
 	}
 
 	async createNewLiveAssetData() {
@@ -241,9 +241,9 @@ export class ProjectAsset {
 
 		let exists = false;
 		if (this.isBuiltIn) {
-			exists = await editor.builtInAssetManager.exists(this.path);
+			exists = await getEditorInstance().builtInAssetManager.exists(this.path);
 		} else {
-			exists = await editor.projectManager.currentProjectFileSystem.exists(this.path);
+			exists = await getEditorInstance().projectManager.currentProjectFileSystem.exists(this.path);
 		}
 		this._deletedState = !exists;
 	}
@@ -469,13 +469,13 @@ export class ProjectAsset {
 
 		let fileData = null;
 		if (this.isBuiltIn) {
-			fileData = await editor.builtInAssetManager.fetchAsset(this.path, format);
+			fileData = await getEditorInstance().builtInAssetManager.fetchAsset(this.path, format);
 		} else if (format == "json") {
-			fileData = await editor.projectManager.currentProjectFileSystem.readJson(this.path);
+			fileData = await getEditorInstance().projectManager.currentProjectFileSystem.readJson(this.path);
 		} else if (format == "text") {
-			fileData = await editor.projectManager.currentProjectFileSystem.readText(this.path);
+			fileData = await getEditorInstance().projectManager.currentProjectFileSystem.readText(this.path);
 		} else {
-			fileData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+			fileData = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(this.path);
 		}
 
 		if (format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
@@ -498,20 +498,20 @@ export class ProjectAsset {
 				json = fileData;
 			}
 			if (this.isBuiltIn) {
-				await editor.builtInAssetManager.writeJson(this.path, json);
+				await getEditorInstance().builtInAssetManager.writeJson(this.path, json);
 			} else {
-				await editor.projectManager.currentProjectFileSystem.writeJson(this.path, json);
+				await getEditorInstance().projectManager.currentProjectFileSystem.writeJson(this.path, json);
 			}
 		} else if (this.projectAssetTypeConstructor.storeInProjectAsText) {
 			if (this.isBuiltIn) {
-				await editor.builtInAssetManager.writeText(this.path, fileData);
+				await getEditorInstance().builtInAssetManager.writeText(this.path, fileData);
 			} else {
-				await editor.projectManager.currentProjectFileSystem.writeText(this.path, fileData);
+				await getEditorInstance().projectManager.currentProjectFileSystem.writeText(this.path, fileData);
 			}
 		} else if (this.isBuiltIn) {
-			await editor.builtInAssetManager.writeBinary(this.path, fileData);
+			await getEditorInstance().builtInAssetManager.writeBinary(this.path, fileData);
 		} else {
-			await editor.projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
+			await getEditorInstance().projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
 		}
 	}
 
@@ -544,9 +544,9 @@ export class ProjectAsset {
 		}
 		if (!binaryData) {
 			if (this.isBuiltIn) {
-				binaryData = await editor.builtInAssetManager.fetchAsset(this.path, "binary");
+				binaryData = await getEditorInstance().builtInAssetManager.fetchAsset(this.path, "binary");
 			} else {
-				binaryData = await editor.projectManager.currentProjectFileSystem.readFile(this.path);
+				binaryData = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(this.path);
 			}
 		}
 		return binaryData;

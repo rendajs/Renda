@@ -1,5 +1,5 @@
 import {BinaryComposer, StorageType} from "../../../../../src/index.js";
-import editor from "../../../editorInstance.js";
+import {getEditorInstance} from "../../../editorInstance.js";
 
 /** @type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
 const readDir = {
@@ -8,7 +8,7 @@ const readDir = {
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	handleRequest: async path => {
-		return await editor.projectManager.currentProjectFileSystem.readDir(path);
+		return await getEditorInstance().projectManager.currentProjectFileSystem.readDir(path);
 	},
 };
 
@@ -19,7 +19,7 @@ const createDir = {
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	handleRequest: async path => {
-		return await editor.projectManager.currentProjectFileSystem.createDir(path);
+		return await getEditorInstance().projectManager.currentProjectFileSystem.createDir(path);
 	},
 };
 
@@ -71,7 +71,7 @@ const readFile = {
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	handleRequest: async (meta, path) => {
-		const file = await editor.projectManager.currentProjectFileSystem.readFile(path);
+		const file = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(path);
 		if (meta.autoSerializationSupported) {
 			return file;
 		} else {
@@ -129,7 +129,7 @@ const writeFile = {
 		}
 		const parsedData = /** @type {{path: string[], file: File}} */ (data);
 		const {path, file} = parsedData;
-		return await editor.projectManager.currentProjectFileSystem.writeFile(path, file);
+		return await getEditorInstance().projectManager.currentProjectFileSystem.writeFile(path, file);
 	},
 };
 
@@ -140,7 +140,7 @@ const isFile = {
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	handleRequest: async path => {
-		return await editor.projectManager.currentProjectFileSystem.isFile(path);
+		return await getEditorInstance().projectManager.currentProjectFileSystem.isFile(path);
 	},
 };
 
@@ -151,7 +151,7 @@ const isDir = {
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	handleRequest: async path => {
-		return await editor.projectManager.currentProjectFileSystem.isDir(path);
+		return await getEditorInstance().projectManager.currentProjectFileSystem.isDir(path);
 	},
 };
 
@@ -162,7 +162,7 @@ const exists = {
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	handleRequest: async path => {
-		return await editor.projectManager.currentProjectFileSystem.exists(path);
+		return await getEditorInstance().projectManager.currentProjectFileSystem.exists(path);
 	},
 };
 

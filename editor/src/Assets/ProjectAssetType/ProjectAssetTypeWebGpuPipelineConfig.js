@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/index.js";
 
 export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
@@ -43,8 +43,8 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfig;
 
 	async getLiveAssetData(fileData) {
-		const fragmentShader = await editor.projectManager.assetManager.getProjectAsset(fileData.fragmentShader);
-		const vertexShader = await editor.projectManager.assetManager.getProjectAsset(fileData.vertexShader);
+		const fragmentShader = await getEditorInstance().projectManager.assetManager.getProjectAsset(fileData.fragmentShader);
+		const vertexShader = await getEditorInstance().projectManager.assetManager.getProjectAsset(fileData.vertexShader);
 		this.listenForUsedLiveAssetChanges(fragmentShader);
 		this.listenForUsedLiveAssetChanges(vertexShader);
 		const liveAsset = new WebGpuPipelineConfig({

@@ -1,5 +1,5 @@
 import transpiledRollup from "../../libs/rollup.browser.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import resolveUrlObjects from "../../libs/rollup-plugin-resolve-url-objects.js";
 
 const rollup = /** @type {import("../../../node_modules/rollup/dist/rollup.js")} */ (transpiledRollup);
@@ -38,12 +38,12 @@ export class ScriptBuilder {
 				if (chunk.map) {
 					const sourcemapName = chunk.fileName + ".map";
 					const sourcemapPath = [...outputPath, sourcemapName];
-					editor.projectManager.currentProjectFileSystem.writeText(sourcemapPath, JSON.stringify(chunk.map));
+					getEditorInstance().projectManager.currentProjectFileSystem.writeText(sourcemapPath, JSON.stringify(chunk.map));
 
 					code += "\n\n//# sourceMappingURL=./" + sourcemapName;
 				}
 
-				editor.projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
+				getEditorInstance().projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
 			}
 			// todo: handle chunkOrAsset.type == "asset"
 		}
@@ -51,7 +51,7 @@ export class ScriptBuilder {
 
 	async runClosureCompiler(rollupOutput, outputPath) {
 		const rollupCode = rollupOutput[0].code;
-		const externsAsset = await editor.projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
+		const externsAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
 		const webGpuExterns = await externsAsset.readAssetData();
 		const inputFiles = rollupOutput.map(chunk => {
 			return {
@@ -67,7 +67,7 @@ export class ScriptBuilder {
 			src: webGpuExterns,
 		});
 		// todo: also make this work in production builds
-		const {stdErr, stdOut} = await editor.devSocket.sendRoundTripMessage("runClosureCompiler", {
+		const {stdErr, stdOut} = await getEditorInstance().devSocket.sendRoundTripMessage("runClosureCompiler", {
 			inputFiles,
 			args: {
 				/* eslint-disable camelcase */
@@ -118,12 +118,12 @@ export class ScriptBuilder {
 				if (file.source_map) {
 					const sourcemapName = fileName + ".map";
 					const sourcemapPath = [...outputPath, sourcemapName];
-					editor.projectManager.currentProjectFileSystem.writeText(sourcemapPath, file.source_map);
+					getEditorInstance().projectManager.currentProjectFileSystem.writeText(sourcemapPath, file.source_map);
 
 					code += "\n\n//# sourceMappingURL=./" + sourcemapName;
 				}
 
-				editor.projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
+				getEditorInstance().projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
 			}
 		}
 	}
@@ -246,7 +246,7 @@ export class ScriptBuilder {
 				const scriptType = moduleInfo.meta.editorResolve.scriptType;
 				if (scriptType == "project") {
 					try {
-						const file = await editor.projectManager.currentProjectFileSystem.readFile(id.split("/"));
+						const file = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(id.split("/"));
 						const text = await file.text();
 						return text;
 					} catch (e) {

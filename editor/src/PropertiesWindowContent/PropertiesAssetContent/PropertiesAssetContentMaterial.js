@@ -1,5 +1,5 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
 import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
 
@@ -86,7 +86,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		for (const [key, value] of material.getAllProperties()) {
 			currentMaterialValues[key] = value;
 		}
-		const mappableValues = await editor.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
+		const mappableValues = await getEditorInstance().materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
 			const entry = this.mapValuesTreeView.addItem({
@@ -119,7 +119,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	notifyEntityEditorsMaterialChanged() {
-		for (const entityEditor of editor.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of getEditorInstance().windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			entityEditor.notifyMaterialChanged();
 		}
 	}

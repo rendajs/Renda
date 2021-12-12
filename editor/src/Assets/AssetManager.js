@@ -1,5 +1,5 @@
 import {SingleInstancePromise} from "../../../src/index.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {generateUuid, handleDuplicateName} from "../Util/Util.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
@@ -17,7 +17,7 @@ export class AssetManager {
 		this.waitForAssetSettingsLoadCbs = new Set();
 
 		this.boundExternalChange = this.externalChange.bind(this);
-		editor.projectManager.onExternalChange(this.boundExternalChange);
+		getEditorInstance().projectManager.onExternalChange(this.boundExternalChange);
 
 		this.loadAssetSettingsFromUserGesture = false;
 		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
@@ -29,16 +29,16 @@ export class AssetManager {
 	}
 
 	destructor() {
-		editor.projectManager.removeOnExternalChange(this.boundExternalChange);
+		getEditorInstance().projectManager.removeOnExternalChange(this.boundExternalChange);
 		this.boundExternalChange = null;
 	}
 
 	get fileSystem() {
-		return editor.projectManager.currentProjectFileSystem;
+		return getEditorInstance().projectManager.currentProjectFileSystem;
 	}
 
 	get builtInAssets() {
-		return editor.builtInAssetManager.assets;
+		return getEditorInstance().builtInAssetManager.assets;
 	}
 
 	async loadAssetSettings(fromUserGesture = false) {
@@ -54,7 +54,7 @@ export class AssetManager {
 			if (!hasPermissions) return;
 		}
 
-		for (const builtInAssetLink of editor.builtInDefaultAssetLinksManager.registeredAssetLinks) {
+		for (const builtInAssetLink of getEditorInstance().builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const defaultAssetLink = new DefaultAssetLink(builtInAssetLink);
 			defaultAssetLink.setBuiltIn(true, builtInAssetLink.originalAssetUuid);
 			this.defaultAssetLinks.set(builtInAssetLink.defaultAssetUuid, defaultAssetLink);
@@ -64,7 +64,7 @@ export class AssetManager {
 			const json = await this.fileSystem.readJson(this.assetSettingsPath);
 			if (json) {
 				for (const [uuid, assetData] of Object.entries(json.assets)) {
-					const projectAsset = await ProjectAsset.fromJsonData(this, editor.projectAssetTypeManager, uuid, assetData);
+					const projectAsset = await ProjectAsset.fromJsonData(this, getEditorInstance().projectAssetTypeManager, uuid, assetData);
 					if (projectAsset) {
 						projectAsset.makeUuidConsistent();
 						this.projectAssets.set(uuid, projectAsset);
@@ -120,7 +120,7 @@ export class AssetManager {
 	}
 
 	async createNewAsset(parentPath, assetType) {
-		const type = editor.projectAssetTypeManager.getAssetType(assetType);
+		const type = getEditorInstance().projectAssetTypeManager.getAssetType(assetType);
 		let fileName = type.newFileName + "." + type.newFileExtension;
 
 		if (this.fileSystem.exists([...parentPath, fileName])) {
@@ -140,7 +140,7 @@ export class AssetManager {
 	async registerAsset(path, assetType = null, forceAssetType = false) {
 		await this.loadAssetSettings(true);
 		const uuid = generateUuid();
-		const projectAsset = new ProjectAsset(this, editor.projectAssetTypeManager, {uuid, path, assetType, forceAssetType});
+		const projectAsset = new ProjectAsset(this, getEditorInstance().projectAssetTypeManager, {uuid, path, assetType, forceAssetType});
 		await projectAsset.waitForInit();
 		this.projectAssets.set(uuid, projectAsset);
 		if (projectAsset.needsAssetSettingsSave) {

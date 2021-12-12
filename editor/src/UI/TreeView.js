@@ -1,4 +1,4 @@
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {generateUuid, parseMimeType} from "../Util/Util.js";
 import {clamp, iLerp} from "../../../src/Util/Util.js";
 import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutConditionValueSetter.js";
@@ -236,10 +236,10 @@ export class TreeView {
 			this.registerNewEventType(eventType);
 		}
 
-		const renamingCondition = editor.keyboardShortcutManager.getCondition("treeView.renaming");
+		const renamingCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.renaming");
 		this.#renamingShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
 
-		const focusSelectedCondition = editor.keyboardShortcutManager.getCondition("treeView.focusSelected");
+		const focusSelectedCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.focusSelected");
 		this.#focusSelectedShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
 
 		this.updateArrowHidden();
@@ -599,7 +599,7 @@ export class TreeView {
 		}
 		if (this.rearrangeable) {
 			e.dataTransfer.effectAllowed = "move";
-			this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData({draggingItems});
+			this.#currentDraggingRearrangeDataId = getEditorInstance().dragManager.registerDraggingData({draggingItems});
 			let rootUuid = root[TreeView.#dragRootUuidSym];
 			if (rootUuid == null) {
 				rootUuid = generateUuid();
@@ -607,7 +607,7 @@ export class TreeView {
 			}
 			e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 		}
-		const {el, x, y} = editor.dragManager.createDragFeedbackText({
+		const {el, x, y} = getEditorInstance().dragManager.createDragFeedbackText({
 			text: draggingItems.map(item => item.name),
 		});
 		this.#currenDragFeedbackText = el;
@@ -622,9 +622,9 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragEndEvent(e) {
-		if (this.#currenDragFeedbackText) editor.dragManager.removeFeedbackText(this.#currenDragFeedbackText);
+		if (this.#currenDragFeedbackText) getEditorInstance().dragManager.removeFeedbackText(this.#currenDragFeedbackText);
 		this.#currenDragFeedbackText = null;
-		if (this.#currentDraggingRearrangeDataId) editor.dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
+		if (this.#currentDraggingRearrangeDataId) getEditorInstance().dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
 		this.#currentDraggingRearrangeDataId = null;
 	}
 
@@ -678,7 +678,7 @@ export class TreeView {
 
 				const promise = (async () => {
 					const dataId = await new Promise(r => item.getAsString(r));
-					const draggingData = editor.dragManager.getDraggingData(dataId);
+					const draggingData = getEditorInstance().dragManager.getDraggingData(dataId);
 					if (!draggingData || !draggingData.draggingItems) return null;
 					return /** @type {TreeView[]} */ (draggingData.draggingItems);
 				})();
@@ -1149,22 +1149,22 @@ export class TreeView {
 				this.el.addEventListener("focusin", this.boundOnFocusIn);
 				this.el.addEventListener("focusout", this.boundOnFocusOut);
 
-				editor.keyboardShortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				editor.keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				editor.keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				editor.keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				editor.keyboardShortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				editor.keyboardShortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				getEditorInstance().keyboardShortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				getEditorInstance().keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				getEditorInstance().keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				getEditorInstance().keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				getEditorInstance().keyboardShortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				getEditorInstance().keyboardShortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			} else {
 				this.el.removeEventListener("focusin", this.boundOnFocusIn);
 				this.el.removeEventListener("focusout", this.boundOnFocusOut);
 
-				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				editor.keyboardShortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			}
 		}
 	}
@@ -1456,7 +1456,7 @@ export class TreeView {
 
 				menuCreated = true;
 				e.preventDefault();
-				const menu = editor.contextMenuManager.createContextMenu(structure);
+				const menu = getEditorInstance().contextMenuManager.createContextMenu(structure);
 				menu.setPos({x: e.pageX, y: e.pageY});
 				return menu;
 			},

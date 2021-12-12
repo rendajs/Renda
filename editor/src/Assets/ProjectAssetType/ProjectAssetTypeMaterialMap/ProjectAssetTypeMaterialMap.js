@@ -2,7 +2,7 @@ import {ProjectAssetType} from "../ProjectAssetType.js";
 import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
 import {RecursionTracker} from "../../LiveAssetDataRecursionTracker/RecursionTracker.js";
-import editor from "../../../editorInstance.js";
+import {getEditorInstance} from "../../../editorInstance.js";
 import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/index.js";
 
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
@@ -23,7 +23,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const materialMapTypes = [];
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
-				const typeSerializer = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const typeSerializer = getEditorInstance().materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				const mapType = await typeSerializer.getLiveAssetSettingsInstance(map.customData);
 				/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapMappedValues} */
 				const mappedValues = {};
@@ -90,7 +90,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
-				const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = getEditorInstance().materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				if (mapType.allowExportInAssetBundles) {
 					const arrayBuffer = mapType.mapDataToAssetBundleBinary(map.customData);
 					if (!arrayBuffer) continue;
@@ -129,7 +129,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
-				const mapType = editor.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = getEditorInstance().materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				for (const uuid of mapType.getReferencedAssetUuids(map.customData)) {
 					yield uuid;
 				}

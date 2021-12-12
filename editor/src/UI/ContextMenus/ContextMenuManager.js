@@ -1,4 +1,4 @@
-import editor from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 import {ContextMenu} from "./ContextMenu.js";
 
 export class ContextMenuManager {
@@ -13,10 +13,10 @@ export class ContextMenuManager {
 	}
 
 	init() {
-		const iconDefaultColorFilter = editor.colorizerFilterManager.getFilter("var(--default-text-color)");
+		const iconDefaultColorFilter = getEditorInstance().colorizerFilterManager.getFilter("var(--default-text-color)");
 		this.iconDefaultColorFilterRef = iconDefaultColorFilter.getUsageReference();
 
-		const iconHoverColorFilter = editor.colorizerFilterManager.getFilter("var(--selected-text-color)");
+		const iconHoverColorFilter = getEditorInstance().colorizerFilterManager.getFilter("var(--selected-text-color)");
 		this.iconHoverColorFilterRef = iconHoverColorFilter.getUsageReference();
 
 		const styleBlock = document.createElement("style");

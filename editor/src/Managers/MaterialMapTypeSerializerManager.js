@@ -1,7 +1,7 @@
 import {autoRegisterMaterialMapTypeSerializers} from "../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/autoRegisterMaterialMapTypeSerializers.js";
 import {MaterialMapTypeSerializer} from "../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js";
 import {isUuid} from "../../../src/Util/Util.js";
-import editor from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 /**
  * @typedef {Object} MaterialMapMappedValueAssetData
@@ -84,7 +84,7 @@ export class MaterialMapTypeSerializerManager {
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
-		const mapAsset = await editor.projectManager.assetManager.getProjectAsset(mapAssetUuid);
+		const mapAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(mapAssetUuid);
 		if (!mapAsset) return [];
 		/** @type {Map<string, import("../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();
