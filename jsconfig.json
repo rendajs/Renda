@@ -8,5 +8,9 @@
 		"useDefineForClassFields": true
 	},
 	"include": ["src/**/*.js", "editor/src/**/*.js"],
-	"files": ["src/index.js", "editor/src/Network/EditorConnections/InternalDiscovery/InternalDiscoveryWorker.js", "editor/src/index.js"]
+	"files": [
+		"src/index.js",
+		"editor/src/Network/EditorConnections/InternalDiscovery/InternalDiscoveryWorker.js",
+		"editor/src/main.js"
+	]
 }
