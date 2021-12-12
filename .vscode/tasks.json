@@ -27,7 +27,7 @@
 			]
 		},
 		{
-			"label": "build editor",
+			"label": "editor build",
 			"type": "deno",
 			"command": "run",
 			"args": [
@@ -38,7 +38,7 @@
 			]
 		},
 		{
-			"label": "build editor dev",
+			"label": "editor build dev",
 			"type": "deno",
 			"command": "run",
 			"args": [
@@ -50,7 +50,7 @@
 			]
 		},
 		{
-			"label": "build editor dependencies",
+			"label": "editor build dependencies",
 			"type": "deno",
 			"command": "run",
 			"args": [
@@ -60,6 +60,16 @@
 				"--allow-env=NODE_DEBUG",
 				"editor/scripts/buildDependencies.js",
 				"--dev"
+			]
+		},
+		{
+			"label": "editor test unit",
+			"type": "deno",
+			"command": "test",
+			"args": [
+				"--unstable",
+				"--allow-read",
+				"editor/test/unit",
 			]
 		}
 	]

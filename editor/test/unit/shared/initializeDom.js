@@ -1,4 +1,4 @@
-import {JSDOM} from "jsdom";
+import {JSDOM} from "https://esm.sh/jsdom@19.0.0";
 
 export function initializeDom() {
 	const jsdom = new JSDOM();

@@ -1,9 +1,9 @@
-import {expect, test} from "@playwright/test";
+import {describe, expect, it, run} from "https://deno.land/x/tincan/mod.ts";
 import {NumericGui} from "../../../../src/UI/NumericGui.js";
 import {initializeDom} from "../../shared/initializeDom.js";
 
-test.describe("A numeric gui", () => {
-	test("should hide the cursor when scrolling.", () => {
+describe("A numeric gui", () => {
+	it("should hide the cursor when scrolling.", () => {
 		const window = initializeDom();
 		const numericGui = new NumericGui();
 
@@ -13,7 +13,7 @@ test.describe("A numeric gui", () => {
 		expect(numericGui.el.classList.contains("no-cursor")).toBe(true);
 	});
 
-	test("should show the cursor when moving the mouse after scrolling.", () => {
+	it("should show the cursor when moving the mouse after scrolling.", () => {
 		const window = initializeDom();
 		const numericGui = new NumericGui();
 
@@ -25,3 +25,5 @@ test.describe("A numeric gui", () => {
 		expect(numericGui.el.classList.contains("no-cursor")).toBe(false);
 	});
 });
+
+run();

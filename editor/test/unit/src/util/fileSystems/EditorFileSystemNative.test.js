@@ -1,4 +1,4 @@
-import {expect, test} from "@playwright/test";
+import {describe, expect, it, run} from "https://deno.land/x/tincan/mod.ts";
 import {EditorFileSystemNative} from "../../../../../src/Util/FileSystems/EditorFileSystemNative.js";
 
 class FakeHandle {
@@ -57,8 +57,8 @@ class FakeHandle {
 	}
 }
 
-test.describe("waitForPermission()", async () => {
-	test("should resolve when permission is granted", async () => {
+describe("waitForPermission()", async () => {
+	it("should resolve when permission is granted", async () => {
 		const path = ["root", "file"];
 		const stubRootHandle = new FakeHandle("directory", "");
 		stubRootHandle.addFakeEntry("directory", "root").addFakeEntry("file", "file");
@@ -71,3 +71,5 @@ test.describe("waitForPermission()", async () => {
 		await expect(permisionPromise).resolves.toBe(undefined);
 	});
 });
+
+run();
