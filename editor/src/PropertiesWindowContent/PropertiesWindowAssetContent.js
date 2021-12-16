@@ -10,8 +10,11 @@ import {PropertiesAssetContentGenericStructure} from "./PropertiesAssetContent/P
  */
 
 export class PropertiesWindowAssetContent extends PropertiesWindowContent {
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof PropertiesWindowContent>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.currentSelection = null;
 		this.activeAssetContent = null;

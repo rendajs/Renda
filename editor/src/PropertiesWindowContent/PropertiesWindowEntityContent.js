@@ -9,8 +9,11 @@ import {ProjectAssetTypeEntity} from "../Assets/ProjectAssetType/ProjectAssetTyp
 import {EntitySelection} from "../Misc/EntitySelection.js";
 
 export class PropertiesWindowEntityContent extends PropertiesWindowContent {
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof PropertiesWindowContent>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		/** @type {EntitySelection[]} */
 		this.currentSelection = null;

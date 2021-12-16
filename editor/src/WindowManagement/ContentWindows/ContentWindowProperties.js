@@ -46,7 +46,7 @@ export class ContentWindowProperties extends ContentWindow {
 		const PropertiesWindowContent = this.editorInstance.propertiesWindowContentManager.getContentTypeForObjects(selectedObjects);
 		if (!this.activeContent || this.activeContent.constructor != PropertiesWindowContent) {
 			if (this.activeContent) this.activeContent.destructor();
-			this.activeContent = new PropertiesWindowContent();
+			this.activeContent = new PropertiesWindowContent(this.editorInstance, this.windowManager);
 			this.contentEl.appendChild(this.activeContent.el);
 		}
 
