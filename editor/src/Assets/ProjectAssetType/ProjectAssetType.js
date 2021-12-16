@@ -78,11 +78,13 @@ export class ProjectAssetType {
 
 	/** @typedef {import("../ProjectAsset.js").ProjectAsset} ProjectAsset */
 	/**
+	 * @param {import("../../Editor.js").Editor} editorInstance
 	 * @param {ProjectAsset} projectAsset
 	 * @param {import("../AssetManager.js").AssetManager} projectAssetTypeManager
 	 * @param {import("../ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
 	 */
-	constructor(projectAsset, projectAssetTypeManager, assetTypeManager) {
+	constructor(editorInstance, projectAsset, projectAssetTypeManager, assetTypeManager) {
+		this.editorInstance = editorInstance;
 		/**
 		 * You can use this in any of the hook methods of a ProjectAssetType.
 		 * If you need access to the path or uuid of an asset for instance.

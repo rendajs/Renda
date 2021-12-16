@@ -113,7 +113,7 @@ export class ProjectAsset {
 
 		const AssetTypeConstructor = this.assetTypeManager.getAssetType(this.assetType);
 		if (AssetTypeConstructor) {
-			this._projectAssetType = new AssetTypeConstructor(this, this.assetManager, this.assetTypeManager);
+			this._projectAssetType = new AssetTypeConstructor(getEditorInstance(), this, this.assetManager, this.assetTypeManager);
 		}
 	}
 

@@ -1,7 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/index.js";
 import {PropertiesAssetContentMaterial} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js";
-import {getEditorInstance} from "../../editorInstance.js";
 import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/Math/MathTypes.js";
 
@@ -21,7 +20,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
 		if (materialJson.map) {
-			const materialMapAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(materialJson.map);
+			const materialMapAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(materialJson.map);
 			if (materialMapAsset) {
 				materialMap = await materialMapAsset.getLiveAsset();
 				this.listenForUsedLiveAssetChanges(materialMapAsset);
@@ -39,7 +38,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async saveLiveAssetData(liveAsset) {
 		/** @type {import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
-		assetData.map = getEditorInstance().projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
+		assetData.map = this.editorInstance.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
 		const modifiedProperties = {};
 		let hasModifiedProperty = false;
 		for (const [key, value] of liveAsset.getAllProperties()) {
