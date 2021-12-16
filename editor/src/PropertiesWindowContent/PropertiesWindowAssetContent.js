@@ -1,6 +1,5 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
-import {getEditorInstance} from "../editorInstance.js";
 import {ProjectAsset} from "../Assets/ProjectAsset.js";
 import {PropertiesAssetContentGenericStructure} from "./PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
@@ -94,7 +93,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 			// todo: handle selecting multiple assets or none
 			if (structure) {
 				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {purpose: "fileStorage"});
-				await getEditorInstance().projectManager.assetManager.saveAssetSettings();
+				await this.editorInstance.projectManager.assetManager.saveAssetSettings();
 				break;
 			}
 		}
