@@ -1,13 +1,12 @@
 import {Entity} from "../Core/Entity.js";
 import defaultEngineAssetsManager from "../Assets/defaultEngineAssetsManager.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
-/** @typedef {import("./Gizmos/Gizmo.js").default} Gizmo */
 
-export default class GizmoManager {
+export class GizmoManager {
 	constructor() {
 		this.entity = new Entity("gizmos");
 		/**
-		 * @type {Set<Gizmo>}
+		 * @type {Set<import("./Gizmos/Gizmo.js").Gizmo>}
 		 */
 		this.gizmos = new Set();
 

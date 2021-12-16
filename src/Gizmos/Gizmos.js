@@ -1,8 +1,9 @@
-export {default as CameraClusterDataGizmo} from "./Gizmos/CameraClusterDataGizmo.js";
-export {default as CameraGizmo} from "./Gizmos/CameraGizmo.js";
-export {default as CameraIconGizmo} from "./Gizmos/IconGizmos/CameraIconGizmo.js";
-export {default as GizmoManager} from "./GizmoManager.js";
-export {default as Gizmo} from "./Gizmos/Gizmo.js";
-export {default as IconGizmo} from "./Gizmos/IconGizmos/IconGizmo.js";
-export {default as LightIconGizmo} from "./Gizmos/IconGizmos/LightIconGizmo.js";
-export {default as TranslationGizmo} from "./Gizmos/TranslationGizmo.js";
+export {GizmoManager} from "./GizmoManager.js";
+export {Gizmo} from "./Gizmos/Gizmo.js";
+
+export {CameraClusterDataGizmo} from "./Gizmos/CameraClusterDataGizmo.js";
+export {CameraGizmo} from "./Gizmos/CameraGizmo.js";
+export {CameraIconGizmo} from "./Gizmos/IconGizmos/CameraIconGizmo.js";
+export {IconGizmo} from "./Gizmos/IconGizmos/IconGizmo.js";
+export {LightIconGizmo} from "./Gizmos/IconGizmos/LightIconGizmo.js";
+export {TranslationGizmo} from "./Gizmos/TranslationGizmo.js";

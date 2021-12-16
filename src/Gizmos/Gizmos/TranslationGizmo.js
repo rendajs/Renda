@@ -1,9 +1,9 @@
 import {MeshComponent} from "../../Components/Components.js";
 import {Mesh} from "../../Core/Mesh.js";
 import Vec3 from "../../Math/Vec3.js";
-import Gizmo from "./Gizmo.js";
+import {Gizmo} from "./Gizmo.js";
 
-export default class TranslationGizmo extends Gizmo {
+export class TranslationGizmo extends Gizmo {
 	/**
 	 * @param  {ConstructorParameters<typeof Gizmo>} args
 	 */

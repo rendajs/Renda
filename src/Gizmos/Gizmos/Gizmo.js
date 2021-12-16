@@ -1,9 +1,8 @@
 import {Entity} from "../../Core/Entity.js";
-import GizmoManager from "../GizmoManager.js";
 
-export default class Gizmo {
+export class Gizmo {
 	/**
-	 * @param {GizmoManager} gizmoManager
+	 * @param {import("../GizmoManager.js").GizmoManager} gizmoManager
 	 */
 	constructor(gizmoManager) {
 		this.gizmoManager = gizmoManager;

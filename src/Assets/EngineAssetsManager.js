@@ -1,7 +1,7 @@
 import defaultAssetLoader from "./defaultAssetLoader.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 
-export default class EngineAssetsManager {
+export class EngineAssetsManager {
 	constructor() {
 		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
 		this.getAssetHandlers = new Set();

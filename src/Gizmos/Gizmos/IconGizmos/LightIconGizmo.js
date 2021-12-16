@@ -1,7 +1,7 @@
-import IconGizmo from "./IconGizmo.js";
+import {IconGizmo} from "./IconGizmo.js";
 import Vec2 from "../../../Math/Vec2.js";
 
-export default class LightIconGizmo extends IconGizmo {
+export class LightIconGizmo extends IconGizmo {
 	/**
 	 * @param  {ConstructorParameters<typeof IconGizmo>} args
 	 */
