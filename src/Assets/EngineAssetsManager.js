@@ -1,9 +1,13 @@
-import defaultAssetLoader from "./defaultAssetLoader.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 
 export class EngineAssetsManager {
-	constructor() {
+	/**
+	 * @param {import("./AssetLoader.js").AssetLoader} assetLoader
+	 */
+	constructor(assetLoader) {
 		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
+		this.assetLoader = assetLoader;
+
 		this.getAssetHandlers = new Set();
 
 		this.watchingAssetCbs = new Map(); // <uuid, Set<cb>>
@@ -16,7 +20,7 @@ export class EngineAssetsManager {
 				if (result) return result;
 			}
 		}
-		return await defaultAssetLoader.getAsset(...args);
+		return await this.assetLoader.getAsset(...args);
 	}
 
 	async watchAsset(uuid, onAssetChangeCb) {

@@ -18,11 +18,12 @@ import {IS_DEV_BUILD} from "./editorDefines.js";
 import {DevSocketManager} from "./Managers/DevSocketManager.js";
 import ComponentTypeManager from "../../src/Components/ComponentTypeManager.js";
 
-import {ShaderBuilder, WebGpuRenderer, builtInComponents, defaultEngineAssetsManager} from "../../src/index.js";
+import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/index.js";
 
 export class Editor {
 	constructor() {
-		this.renderer = new WebGpuRenderer();
+		this.engineAssetManager = new EngineAssetsManager(new AssetLoader());
+		this.renderer = new WebGpuRenderer(this.engineAssetManager);
 		this.webGpuShaderBuilder = new ShaderBuilder();
 		this.windowManager = new WindowManager();
 		this.selectionManager = new SelectionManager();
@@ -70,7 +71,7 @@ export class Editor {
 
 	init() {
 		this.builtInAssetManager.init();
-		defaultEngineAssetsManager.addGetAssetHandler(async uuid => {
+		this.engineAssetManager.addGetAssetHandler(async uuid => {
 			await this.builtInAssetManager.waitForLoad();
 			await this.projectManager.waitForAssetManagerLoad();
 			const projectAsset = this.builtInAssetManager.assets.get(uuid);
@@ -79,7 +80,7 @@ export class Editor {
 		});
 		if (IS_DEV_BUILD) {
 			this.builtInAssetManager.onAssetChange(uuid => {
-				defaultEngineAssetsManager.notifyAssetChanged(uuid);
+				this.engineAssetManager.notifyAssetChanged(uuid);
 			});
 		}
 

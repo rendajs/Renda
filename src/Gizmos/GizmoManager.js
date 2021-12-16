@@ -1,9 +1,11 @@
 import {Entity} from "../Core/Entity.js";
-import defaultEngineAssetsManager from "../Assets/defaultEngineAssetsManager.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 
 export class GizmoManager {
-	constructor() {
+	/**
+	 * @param {import("../Assets/EngineAssetsManager.js").EngineAssetsManager} engineAssetsManager
+	 */
+	constructor(engineAssetsManager) {
 		this.entity = new Entity("gizmos");
 		/**
 		 * @type {Set<import("./Gizmos/Gizmo.js").Gizmo>}
@@ -16,19 +18,19 @@ export class GizmoManager {
 		this.billboardMaterial = null;
 		this.meshMaterial = null;
 
-		defaultEngineAssetsManager.watchAsset("9d9ebd2e-c657-4252-b7af-b5889a4986c3", asset => {
+		engineAssetsManager.watchAsset("9d9ebd2e-c657-4252-b7af-b5889a4986c3", asset => {
 			this.billboardVertexState = asset;
 			this.updateGizmoMaterials();
 		});
-		defaultEngineAssetsManager.watchAsset("6ebfe5aa-6754-406e-a238-ec052eefa7df", asset => {
+		engineAssetsManager.watchAsset("6ebfe5aa-6754-406e-a238-ec052eefa7df", asset => {
 			this.billboardMaterial = asset;
 			this.updateGizmoMaterials();
 		});
-		defaultEngineAssetsManager.watchAsset("2a5ca9e6-6790-441b-8764-a07fbb438d1a", asset => {
+		engineAssetsManager.watchAsset("2a5ca9e6-6790-441b-8764-a07fbb438d1a", asset => {
 			this.meshVertexState = asset;
 			this.updateGizmoMaterials();
 		});
-		defaultEngineAssetsManager.watchAsset("47f64a6d-9629-4921-8b1a-a244af1aa568", asset => {
+		engineAssetsManager.watchAsset("47f64a6d-9629-4921-8b1a-a244af1aa568", asset => {
 			this.meshMaterial = asset;
 			this.updateGizmoMaterials();
 		});

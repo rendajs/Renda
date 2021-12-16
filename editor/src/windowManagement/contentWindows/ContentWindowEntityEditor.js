@@ -55,7 +55,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.createdLiveAssetChangeListeners = new Set();
 
-		this.gizmos = new GizmoManager();
+		this.gizmos = new GizmoManager(this.editorInstance.engineAssetManager);
 		this.editorScene.add(this.gizmos.entity);
 		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
 		/** @type {Map<Entity, Map<Component, ComponentGizmos>>} */

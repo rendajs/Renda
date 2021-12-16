@@ -4,7 +4,6 @@ import {WebGpuRendererDomTarget} from "./WebGpuRendererDomTarget.js";
 import {WebGpuChunkedBuffer} from "./GpuBufferHelper/WebGpuChunkedBuffer.js";
 import {CachedCameraData} from "./CachedCameraData.js";
 import {CachedMeshData} from "./CachedMeshData.js";
-import defaultEngineAssetsManager from "../../../Assets/defaultEngineAssetsManager.js";
 import Mat4 from "../../../Math/Mat4.js";
 import Vec4 from "../../../Math/Vec4.js";
 import {LightComponent, MeshComponent} from "../../../Components/Components.js";
@@ -26,8 +25,13 @@ export class WebGpuRenderer extends Renderer {
 		return WebGpuRendererDomTarget;
 	}
 
-	constructor() {
+	/**
+	 * @param {import("../../../index.js").EngineAssetsManager} engineAssetManager
+	 */
+	constructor(engineAssetManager) {
 		super();
+
+		this.engineAssetManager = engineAssetManager;
 
 		this.maxLights = 512;
 
@@ -128,10 +132,10 @@ export class WebGpuRenderer extends Renderer {
 				],
 			});
 
-			await defaultEngineAssetsManager.watchAsset("892d56b3-df77-472b-93dd-2c9c38ec2f3d", asset => {
+			await this.engineAssetManager.watchAsset("892d56b3-df77-472b-93dd-2c9c38ec2f3d", asset => {
 				this.computeClusterBoundsShaderCode = asset;
 			});
-			await defaultEngineAssetsManager.watchAsset("a2b8172d-d910-47e9-8d3b-2a8ea3280153", asset => {
+			await this.engineAssetManager.watchAsset("a2b8172d-d910-47e9-8d3b-2a8ea3280153", asset => {
 				this.computeClusterLightsShaderCode = asset;
 			});
 		}
