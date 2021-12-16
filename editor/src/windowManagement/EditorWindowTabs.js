@@ -5,7 +5,7 @@ import {getEditorInstance} from "../editorInstance.js";
 import {Button} from "../UI/Button.js";
 import {ButtonGroup} from "../UI/ButtonGroup.js";
 import {EditorWindowSplit} from "./EditorWindowSplit.js";
-import {ContentWindow} from "./ContentWindows/ContentWindow.js";
+import {ContentWindow} from "./contentWindows/ContentWindow.js";
 
 export class EditorWindowTabs extends EditorWindow {
 	/** @type {Array<string>} */
@@ -18,7 +18,7 @@ export class EditorWindowTabs extends EditorWindow {
 
 		this.el.classList.add("editorWindowTabs");
 
-		/** @type {Array<import("./ContentWindows/ContentWindow.js").ContentWindow>} */
+		/** @type {Array<import("./contentWindows/ContentWindow.js").ContentWindow>} */
 		this.tabs = [];
 		this.activeTabIndex = -1;
 		/** @type {Set<() => void>} */
@@ -80,7 +80,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {number} index
 	 * @param {string} tabType
 	 * @param {import("../Util/Util.js").UuidString} uuid
-	 * @returns {?import("./ContentWindows/ContentWindow.js").ContentWindow}
+	 * @returns {?import("./contentWindows/ContentWindow.js").ContentWindow}
 	 */
 	setTabType(index, tabType, uuid) {
 		this.#intendedTabTypes[index] = tabType;
@@ -95,7 +95,7 @@ export class EditorWindowTabs extends EditorWindow {
 	/**
 	 * @param {string} tabType The id of the tab type to create.
 	 * @param {boolean} activate Whether to set the tab as active.
-	 * @returns {?import("./ContentWindows/ContentWindow.js").ContentWindow}
+	 * @returns {?import("./contentWindows/ContentWindow.js").ContentWindow}
 	 */
 	addTabType(tabType, activate = false) {
 		const index = this.#intendedTabTypes.length;
@@ -121,7 +121,7 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @param {typeof import("./ContentWindows/ContentWindow.js").ContentWindow} constructor
+	 * @param {typeof import("./contentWindows/ContentWindow.js").ContentWindow} constructor
 	 */
 	onContentWindowRegistered(constructor) {
 		for (let i = 0; i < this.#intendedTabTypes.length; i++) {
@@ -134,9 +134,9 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @template {import("./ContentWindows/ContentWindow.js").ContentWindow} T
+	 * @template {import("./contentWindows/ContentWindow.js").ContentWindow} T
 	 * @param {number} index
-	 * @param {new (...args: ConstructorParameters<typeof import("./ContentWindows/ContentWindow.js").ContentWindow>) => T} constructor
+	 * @param {new (...args: ConstructorParameters<typeof import("./contentWindows/ContentWindow.js").ContentWindow>) => T} constructor
 	 * @param {import("../Util/Util.js").UuidString} uuid
 	 * @returns {T}
 	 */
@@ -177,21 +177,21 @@ export class EditorWindowTabs extends EditorWindow {
 
 	/**
 	 * @param {number} index
-	 * @param {import("./ContentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
 	 */
 	setExistingContentWindow(index, contentWindow) {
 		if (this.tabs[index]) throw new Error("nyi");
 		contentWindow.detachParentEditorWindow();
 		contentWindow.attachParentEditorWindow(this);
 		this.tabs[index] = contentWindow;
-		const castConstructor = /** @type {typeof import("./ContentWindows/ContentWindow.js").ContentWindow} */ (contentWindow.constructor);
+		const castConstructor = /** @type {typeof import("./contentWindows/ContentWindow.js").ContentWindow} */ (contentWindow.constructor);
 		this.#intendedTabTypes[index] = castConstructor.contentWindowTypeId;
 		this.tabsEl.appendChild(contentWindow.el);
 		this.updateTabSelector();
 	}
 
 	/**
-	 * @param {import("./ContentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
 	 * @param {boolean} [activate]
 	 */
 	addExistingContentWindow(contentWindow, activate = true) {
@@ -204,7 +204,7 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @param {import("./ContentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
 	 */
 	contentWindowDetached(contentWindow) {
 		const index = this.tabs.indexOf(contentWindow);
@@ -257,7 +257,7 @@ export class EditorWindowTabs extends EditorWindow {
 		}
 
 		for (let i = 0; i < this.tabs.length; i++) {
-			const contentWindowType = /** @type {typeof import("./ContentWindows/ContentWindow.js").ContentWindow} */ (this.tabs[i].constructor);
+			const contentWindowType = /** @type {typeof import("./contentWindows/ContentWindow.js").ContentWindow} */ (this.tabs[i].constructor);
 			this.tabsSelectorGroup.buttons[i].setIcon(contentWindowType.contentWindowUiIcon);
 		}
 	}
@@ -281,7 +281,7 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @param {import("./ContentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
 	 */
 	setActiveContentWindow(contentWindow) {
 		const index = this.tabs.indexOf(contentWindow);

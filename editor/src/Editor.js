@@ -1,4 +1,4 @@
-import {WindowManager} from "./WindowManagement/WindowManager.js";
+import {WindowManager} from "./windowManagement/WindowManager.js";
 import {SelectionManager} from "./Managers/SelectionManager.js";
 import {ContextMenuManager} from "./UI/ContextMenus/ContextMenuManager.js";
 import {KeyboardShortcutManager} from "./KeyboardShortcuts/KeyboardShortcutManager.js";

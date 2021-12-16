@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeEntity, Entity, Vec3, defaultComponentTypeManager} from "../../../../src/index.js";
-import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
 
 const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
@@ -44,7 +44,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../../WindowManagement/WindowManager.js").WindowManager} windowManager
+	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
 		const entityEditor = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);

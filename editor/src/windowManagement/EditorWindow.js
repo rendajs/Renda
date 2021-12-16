@@ -73,7 +73,7 @@ export class EditorWindow {
 	*getChildren() {}
 
 	/**
-	 * @param {import("./ContentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
 	 */
 	contentWindowDetached(contentWindow) {}
 

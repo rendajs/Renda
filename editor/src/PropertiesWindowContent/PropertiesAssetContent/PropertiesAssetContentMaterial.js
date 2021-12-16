@@ -1,6 +1,6 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {getEditorInstance} from "../../editorInstance.js";
-import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
 
 /**

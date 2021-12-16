@@ -1,7 +1,7 @@
 export class PropertiesWindowContent {
 	/**
 	 * @param {import("../Editor.js").Editor} editorInstance
-	 * @param {import("../WindowManagement/WindowManager.js").WindowManager} windowManager
+	 * @param {import("../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	constructor(editorInstance, windowManager) {
 		this.editorInstance = editorInstance;

@@ -1,6 +1,6 @@
 import {autoRegisterContentWindows} from "../PropertiesWindowContent/autoRegisterContentWindows.js";
 import {PropertiesWindowContent} from "../PropertiesWindowContent/PropertiesWindowContent.js";
-import {ContentWindowProperties} from "../WindowManagement/ContentWindows/ContentWindowProperties.js";
+import {ContentWindowProperties} from "../windowManagement/contentWindows/ContentWindowProperties.js";
 import {PropertiesWindowEmptyContent} from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
 import {PropertiesWindowMultipleContent} from "../PropertiesWindowContent/PropertiesWindowMultipleContent.js";
 import {getEditorInstance} from "../editorInstance.js";

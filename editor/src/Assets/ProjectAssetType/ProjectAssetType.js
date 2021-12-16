@@ -190,7 +190,7 @@ export class ProjectAssetType {
 	/**
 	 * If this asset is a file that can be opened, open it
 	 * either in the editor or in an external application.
-	 * @param {import("../../WindowManagement/WindowManager.js").WindowManager} windowManager
+	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {}
 
