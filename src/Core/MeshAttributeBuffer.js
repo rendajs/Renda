@@ -1,8 +1,8 @@
 import Vec2 from "../Math/Vec2.js";
 import Vec3 from "../Math/Vec3.js";
-import Mesh from "./Mesh.js";
+import {Mesh} from "./Mesh.js";
 
-export default class MeshAttributeBuffer {
+export class MeshAttributeBuffer {
 	constructor({
 		arrayStride = null,
 		attributes = [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: null}],

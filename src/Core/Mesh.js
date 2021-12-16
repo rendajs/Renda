@@ -1,7 +1,7 @@
 import {DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS} from "../engineDefines.js";
-import MeshAttributeBuffer from "./MeshAttributeBuffer.js";
+import {MeshAttributeBuffer} from "./MeshAttributeBuffer.js";
 
-export default class Mesh {
+export class Mesh {
 	constructor() {
 		/** @type {MeshAttributeBuffer[]} */
 		this._buffers = [];

@@ -1,4 +1,4 @@
-import Entity from "../../Core/Entity.js";
+import {Entity} from "../../Core/Entity.js";
 import GizmoManager from "../GizmoManager.js";
 
 export default class Gizmo {

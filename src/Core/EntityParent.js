@@ -1,6 +1,6 @@
-export default class EntityParent {
+export class EntityParent {
 	/**
-	 * @param {import("./Entity.js").default} parent
+	 * @param {import("./Entity.js").Entity} parent
 	 * @param {number} index
 	 */
 	constructor(parent, index) {

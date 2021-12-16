@@ -1,4 +1,4 @@
-import Entity from "../Core/Entity.js";
+import {Entity} from "../Core/Entity.js";
 import defaultEngineAssetsManager from "../Assets/defaultEngineAssetsManager.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 /** @typedef {import("./Gizmos/Gizmo.js").default} Gizmo */

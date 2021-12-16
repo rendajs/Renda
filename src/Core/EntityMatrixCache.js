@@ -1,6 +1,6 @@
 import Mat4 from "../Math/Mat4.js";
 
-export default class EntityMatrixCache {
+export class EntityMatrixCache {
 	constructor() {
 		this.localMatrixDirty = true;
 		this.worldMatrixDirty = true;
@@ -9,7 +9,7 @@ export default class EntityMatrixCache {
 	}
 
 	/**
-	 * @param {import("./Entity.js").default} entity The entity that the matrix is meant for.
+	 * @param {import("./Entity.js").Entity} entity The entity that the matrix is meant for.
 	 * @param {import("./Entity.js").TraversedEntityParentPath} traversedPath The traversed parent path to this entity.
 	 */
 	getLocalMatrix(entity, traversedPath) {
@@ -39,7 +39,7 @@ export default class EntityMatrixCache {
 	}
 
 	/**
-	 * @param {import("./Entity.js").default} entity The entity that the matrix is meant for.
+	 * @param {import("./Entity.js").Entity} entity The entity that the matrix is meant for.
 	 * @param {import("./Entity.js").TraversedEntityParentPath} traversedPath The traversed parent path to this entity.
 	 */
 	getWorldMatrix(entity, traversedPath) {

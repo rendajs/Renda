@@ -1,7 +1,7 @@
 import {Quat, Vec3} from "../Math/Math.js";
 import {Component} from "../Components/Components.js";
-import EntityParent from "./EntityParent.js";
-import EntityMatrixCache from "./EntityMatrixCache.js";
+import {EntityParent} from "./EntityParent.js";
+import {EntityMatrixCache} from "./EntityMatrixCache.js";
 import MultiKeyWeakMap from "../util/MultiKeyWeakMap.js";
 import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
 import ComponentTypeManager from "../Components/ComponentTypeManager.js";
@@ -21,7 +21,7 @@ import ComponentTypeManager from "../Components/ComponentTypeManager.js";
  * @property {Entity} [parent = null]
  */
 
-export default class Entity {
+export class Entity {
 	/**
 	 * @param {CreateEntityOptions | string} opts
 	 */

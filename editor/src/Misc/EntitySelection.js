@@ -14,7 +14,7 @@
  */
 export class EntitySelection {
 	/**
-	 * @param {import("../../../src/Core/Entity.js").default} entity
+	 * @param {import("../../../src/Core/Entity.js").Entity} entity
 	 * @param {EntitySelectionMetaData} metaData
 	 */
 	constructor(entity, metaData) {
