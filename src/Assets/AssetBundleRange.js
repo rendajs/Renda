@@ -1,6 +1,6 @@
 import PromiseWaitHelper from "../util/PromiseWaitHelper.js";
 
-export default class AssetBundleRange {
+export class AssetBundleRange {
 	constructor({
 		typeUuid = null,
 		byteStart = 0,

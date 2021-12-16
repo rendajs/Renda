@@ -1,4 +1,4 @@
-import AssetBundle from "./AssetBundle.js";
+import {AssetBundle} from "./AssetBundle.js";
 import {AssetLoaderType} from "./AssetLoaderTypes/AssetLoaderType.js";
 import {isUuid} from "../util/util.js";
 
