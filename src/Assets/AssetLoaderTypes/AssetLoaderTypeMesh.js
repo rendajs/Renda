@@ -1,5 +1,5 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
-import {Mesh} from "../../Core/Mesh.js";
+import {Mesh} from "../../core/Mesh.js";
 import BinaryDecomposer from "../../util/BinaryDecomposer.js";
 
 export class AssetLoaderTypeMesh extends AssetLoaderType {

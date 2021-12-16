@@ -60,7 +60,7 @@ export class Component {
 	 * @param {Parameters<Component["initValues"]>} args
 	 */
 	constructor(...args) {
-		/** @type {import("../Core/Entity.js").Entity} */
+		/** @type {import("../core/Entity.js").Entity} */
 		this.entity = null;
 
 		if (EDITOR_DEFAULTS_IN_COMPONENTS) {

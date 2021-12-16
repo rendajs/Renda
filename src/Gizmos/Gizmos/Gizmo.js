@@ -1,4 +1,4 @@
-import {Entity} from "../../Core/Entity.js";
+import {Entity} from "../../core/Entity.js";
 
 export class Gizmo {
 	/**

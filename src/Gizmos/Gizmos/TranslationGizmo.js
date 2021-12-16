@@ -1,5 +1,5 @@
 import {MeshComponent} from "../../Components/Components.js";
-import {Mesh} from "../../Core/Mesh.js";
+import {Mesh} from "../../core/Mesh.js";
 import Vec3 from "../../Math/Vec3.js";
 import {Gizmo} from "./Gizmo.js";
 

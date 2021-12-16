@@ -7,7 +7,7 @@ import {CachedMeshData} from "./CachedMeshData.js";
 import Mat4 from "../../../Math/Mat4.js";
 import Vec4 from "../../../Math/Vec4.js";
 import {LightComponent, MeshComponent} from "../../../Components/Components.js";
-import {Mesh} from "../../../Core/Mesh.js";
+import {Mesh} from "../../../core/Mesh.js";
 import MultiKeyWeakMap from "../../../util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
 import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
@@ -244,7 +244,7 @@ export class WebGpuRenderer extends Renderer {
 		const meshRenderDatas = [];
 		/** @type {LightComponent[]} */
 		const lightComponents = [];
-		/** @type {import("../../../Core/Entity.js").Entity[]} */
+		/** @type {import("../../../core/Entity.js").Entity[]} */
 		const rootRenderEntities = [camera.entity.getRoot()];
 		// TODO: don't get root every frame, only when changed
 		// see state of CameraComponent.js in commit 5d2efa1

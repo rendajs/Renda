@@ -1,4 +1,4 @@
-import {Mesh} from "../../Core/Mesh.js";
+import {Mesh} from "../../core/Mesh.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {StorageType} from "../../index.js";
 import {Material} from "../../Rendering/Material.js";

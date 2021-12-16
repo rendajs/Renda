@@ -1,4 +1,4 @@
-import {Entity} from "../Core/Entity.js";
+import {Entity} from "../core/Entity.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 
 export class GizmoManager {

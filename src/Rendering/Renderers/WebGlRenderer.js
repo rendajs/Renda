@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-import {Mesh} from "../../Core/Mesh.js";
-import {MeshAttributeBuffer} from "../../Core/MeshAttributeBuffer.js";
+import {Mesh} from "../../core/Mesh.js";
+import {MeshAttributeBuffer} from "../../core/MeshAttributeBuffer.js";
 import Mat4 from "../../Math/Mat4.js";
 import {WebGlShader} from "../WebGlShader.js";
 import {Renderer} from "./Renderer.js";
