@@ -1,5 +1,5 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {Entity, Quat, defaultComponentTypeManager} from "../../../src/index.js";
+import {Entity, Quat} from "../../../src/index.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {Button} from "../UI/Button.js";
 import {DroppableGui} from "../UI/DroppableGui.js";
@@ -97,7 +97,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 			text: "+",
 			onClick: () => {
 				const menu = this.editorInstance.contextMenuManager.createContextMenu();
-				for (const component of defaultComponentTypeManager.getAllComponents()) {
+				for (const component of this.editorInstance.componentTypeManager.getAllComponents()) {
 					menu.addItem({
 						text: component.componentName || component.uuid,
 						onClick: async () => {

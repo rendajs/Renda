@@ -1,9 +1,10 @@
 import {Quat, Vec3} from "../Math/Math.js";
-import {Component, defaultComponentTypeManager} from "../Components/Components.js";
+import {Component} from "../Components/Components.js";
 import EntityParent from "./EntityParent.js";
 import EntityMatrixCache from "./EntityMatrixCache.js";
 import MultiKeyWeakMap from "../util/MultiKeyWeakMap.js";
 import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
+import ComponentTypeManager from "../Components/ComponentTypeManager.js";
 
 /**
  * @typedef {Object} TraversedEntityParentPathEntry
@@ -61,7 +62,7 @@ export default class Entity {
 		}
 
 		/**
-		 * @typedef {<C extends Component, A extends any[]>(componentConstructor: new (...args: A) => C, ...args: A) => C} addComponentConstructorSignature
+		 * @typedef {<C extends Component, A extends ConstructorParameters<typeof Component>>(componentConstructor: new (...args: A) => C, ...args: A) => C} addComponentConstructorSignature
 		 * @typedef {<T extends Component>(componentInstance: T) => T} addComponentInstanceSignature
 		 * @typedef {(componentUuid: string, ...rest: ConstructorParameters<typeof Component>) => Component} addComponentUuidSignature
 		 */
@@ -97,8 +98,8 @@ export default class Entity {
 			component = firstArg;
 		} else {
 			let CompenentConstructor = null;
-			if (typeof firstArg == "string") {
-				CompenentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(firstArg);
+			if (firstArg instanceof ComponentTypeManager) {
+				CompenentConstructor = firstArg.getComponentConstructorForUuid(args[1]);
 			} else if (firstArg.prototype instanceof Component) {
 				CompenentConstructor = firstArg;
 			}

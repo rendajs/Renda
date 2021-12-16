@@ -2,7 +2,6 @@ import AssetLoaderType from "./AssetLoaderType.js";
 import BinaryComposer, {StorageType} from "../../util/BinaryComposer.js";
 import Entity from "../../Core/Entity.js";
 import Mat4 from "../../Math/Mat4.js";
-import defaultComponentTypeManager from "../../Components/defaultComponentTypeManager.js";
 
 /** @type {import("../../util/BinaryComposer.js").BinaryComposerStructure} */
 const entityBinaryStructure = {
@@ -32,6 +31,22 @@ export default class AssetLoaderTypeEntity extends AssetLoaderType {
 		return "0654611f-c908-4ec0-8bbf-c109a33c0914";
 	}
 
+	/**
+	 * @param  {ConstructorParameters<typeof AssetLoaderType>} args
+	 */
+	constructor(...args) {
+		super(...args);
+
+		this.componentTypeManager = null;
+	}
+
+	/**
+	 * @param {import("../../Components/ComponentTypeManager.js").default} manager
+	 */
+	setComponentTypeManager(manager) {
+		this.componentTypeManager = manager;
+	}
+
 	static get entityBinaryFormat() {
 		return {
 			structure: entityBinaryStructure,
@@ -52,9 +67,9 @@ export default class AssetLoaderTypeEntity extends AssetLoaderType {
 			parent,
 		});
 		for (const entityComponentData of data.components) {
-			const componentData = defaultComponentTypeManager.getComponentConstructorForUuid(entityComponentData.uuid);
-			const propertyValues = await BinaryComposer.binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, componentData.binaryComposerOpts);
-			entity.addComponent(entityComponentData.uuid, propertyValues);
+			const ComponentConstructor = this.componentTypeManager.getComponentConstructorForUuid(entityComponentData.uuid);
+			const propertyValues = await BinaryComposer.binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binaryComposerOpts);
+			entity.addComponent(ComponentConstructor, propertyValues);
 		}
 		for (const child of data.children) {
 			await this.createEntityFromData(child, entity);

@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeEntity, Entity, Vec3, defaultComponentTypeManager} from "../../../../src/index.js";
+import {AssetLoaderTypeEntity, Entity, Vec3} from "../../../../src/index.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
 
@@ -66,7 +66,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.components) {
 			for (const component of jsonData.components) {
 				const componentUuid = component.uuid;
-				const ComponentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(componentUuid);
+				const ComponentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(componentUuid);
 				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					editorOpts: {
@@ -174,7 +174,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	generateComponentArrayBuffers(entityData) {
 		if (entityData.components) {
 			for (const component of entityData.components) {
-				const componentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(component.uuid);
+				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,
 					editorAssetManager: this.assetManager,
@@ -201,7 +201,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	*getReferencedAssetUuidsForEntityData(entityData) {
 		if (entityData.components) {
 			for (const component of entityData.components) {
-				const componentConstructor = defaultComponentTypeManager.getComponentConstructorForUuid(component.uuid);
+				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				const referencedUuids = [];
 				BinaryComposer.objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,

@@ -14,11 +14,11 @@ import {AssetBundler} from "./Managers/AssetBundler.js";
 import {DragManager} from "./Managers/DragManager.js";
 import {ColorizerFilterManager} from "./Util/ColorizerFilters/ColorizerFilterManager.js";
 import {ServiceWorkerManager} from "./Managers/ServiceWorkerManager.js";
-import {DevSocketManager} from "./Managers/DevSocketManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
+import {DevSocketManager} from "./Managers/DevSocketManager.js";
+import ComponentTypeManager from "../../src/Components/ComponentTypeManager.js";
 
-import {ShaderBuilder, WebGpuRenderer, builtInComponents, defaultComponentTypeManager, defaultEngineAssetsManager} from "../../src/index.js";
-import {getEditorInstance} from "./editorInstance.js";
+import {ShaderBuilder, WebGpuRenderer, builtInComponents, defaultEngineAssetsManager} from "../../src/index.js";
 
 export class Editor {
 	constructor() {
@@ -45,8 +45,9 @@ export class Editor {
 			this.devSocket = new DevSocketManager();
 		}
 
+		this.componentTypeManager = new ComponentTypeManager();
 		for (const component of builtInComponents) {
-			defaultComponentTypeManager.registerComponent(component);
+			this.componentTypeManager.registerComponent(component);
 		}
 
 		this.lastUsedSelectionManager = null;
@@ -103,7 +104,7 @@ export class Editor {
 
 		this.projectManager.onExternalChange(async e => {
 			const uuid = await this.projectManager.assetManager.getAssetUuidFromPath(e.path);
-			getEditorInstance().webGpuShaderBuilder.invalidateShader(uuid);
+			this.webGpuShaderBuilder.invalidateShader(uuid);
 		});
 	}
 }
