@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeEntity, Entity, Vec3, defaultComponentTypeManager} from "../../../../src/index.js";
 import {ContentWindowEntityEditor} from "../../WindowManagement/ContentWindows/ContentWindowEntityEditor.js";
-import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
+import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
 
 const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
 

@@ -1,6 +1,6 @@
 import AssetBundle from "./AssetBundle.js";
 import AssetLoaderType from "./AssetLoaderTypes/AssetLoaderType.js";
-import {isUuid} from "../Util/Util.js";
+import {isUuid} from "../util/util.js";
 
 export default class AssetLoader {
 	constructor() {

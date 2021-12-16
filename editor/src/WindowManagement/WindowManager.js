@@ -4,7 +4,7 @@ import {contentWindows} from "./ContentWindows/ContentWindows.js";
 import {ContentWindow} from "./ContentWindows/ContentWindow.js";
 import {WorkspaceManager} from "./WorkspaceManager.js";
 import {generateUuid} from "../Util/Util.js";
-import {EventHandler} from "../../../src/Util/EventHandler.js";
+import {EventHandler} from "../../../src/util/EventHandler.js";
 import {EDITOR_ENV} from "../editorDefines.js";
 
 /**

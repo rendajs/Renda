@@ -1,4 +1,4 @@
-import BinaryComposer, {StorageType} from "../../../Util/BinaryComposer.js";
+import BinaryComposer, {StorageType} from "../../../util/BinaryComposer.js";
 import {MaterialMapTypeLoader} from "../../../Assets/MaterialMapTypeLoader.js";
 import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
 

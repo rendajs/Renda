@@ -1,5 +1,5 @@
 import {MaterialMapType} from "../../../../../../src/Rendering/MaterialMapType.js";
-import BinaryComposer, {StorageType} from "../../../../../../src/Util/BinaryComposer.js";
+import BinaryComposer, {StorageType} from "../../../../../../src/util/BinaryComposer.js";
 import {getEditorInstance} from "../../../../editorInstance.js";
 
 /**
@@ -130,7 +130,7 @@ export class MaterialMapTypeSerializer {
 	 * these are the default options for {@link BinaryComposer.objectToBinary}.
 	 * If you want support for exporting your custom data in assetbundles, you
 	 * should provide a structure here.
-	 * @type {import("../../../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @type {import("../../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
 	 */
 	static assetBundleBinaryComposerOpts = null;
 

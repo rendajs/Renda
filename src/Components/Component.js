@@ -14,7 +14,7 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  * @property {string} uuid
  * @property {string} name
  * @property {import("../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} properties
- * @property {import("../Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} binaryComposerOpts
+ * @property {import("../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} binaryComposerOpts
  */
 
 /**
@@ -50,7 +50,7 @@ export class Component {
 		return null;
 	}
 	/**
-	 * @returns {import("../Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @returns {import("../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
 	 */
 	static get binaryComposerOpts() {
 		return null;

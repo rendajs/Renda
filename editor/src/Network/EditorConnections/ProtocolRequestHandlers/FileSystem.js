@@ -23,7 +23,7 @@ const createDir = {
 	},
 };
 
-/** @type {import("../../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+/** @type {import("../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 const serializeFileBinaryOpts = {
 	structure: {
 		buffer: StorageType.ARRAY_BUFFER,
@@ -84,7 +84,7 @@ const readFile = {
 	},
 };
 
-/** @type {import("../../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+/** @type {import("../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 const serializeWriteFileBinaryOpts = {
 	structure: {
 		path: [StorageType.STRING],

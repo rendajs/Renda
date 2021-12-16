@@ -1,6 +1,6 @@
 import {EditorWindow} from "./EditorWindow.js";
 import {generateUuid, getElemSize, parseMimeType} from "../Util/Util.js";
-import {iLerp} from "../../../src/Util/Util.js";
+import {iLerp} from "../../../src/util/util.js";
 import {getEditorInstance} from "../editorInstance.js";
 import {Button} from "../UI/Button.js";
 import {ButtonGroup} from "../UI/ButtonGroup.js";

@@ -1,4 +1,4 @@
-import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
+import SingleInstancePromise from "../../../src/util/SingleInstancePromise.js";
 
 export class DevSocketManager {
 	constructor() {

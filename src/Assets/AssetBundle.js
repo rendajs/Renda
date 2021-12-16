@@ -1,8 +1,8 @@
 import AssetBundleRange from "./AssetBundleRange.js";
-import SingleInstancePromise from "../Util/SingleInstancePromise.js";
-import PromiseWaitHelper from "../Util/PromiseWaitHelper.js";
-import {streamAsyncIterator} from "../Util/Util.js";
-import BinaryDecomposer from "../Util/BinaryDecomposer.js";
+import SingleInstancePromise from "../util/SingleInstancePromise.js";
+import PromiseWaitHelper from "../util/PromiseWaitHelper.js";
+import {streamAsyncIterator} from "../util/util.js";
+import BinaryDecomposer from "../util/BinaryDecomposer.js";
 
 export default class AssetBundle {
 	constructor(url) {

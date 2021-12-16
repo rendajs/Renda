@@ -42,7 +42,7 @@ export default class MeshComponent extends Component {
 	}
 
 	/**
-	 * @returns {import("../../Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @returns {import("../../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
 	 */
 	static get binaryComposerOpts() {
 		return {

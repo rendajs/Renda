@@ -1,5 +1,5 @@
 import AssetLoaderType from "./AssetLoaderType.js";
-import BinaryComposer, {StorageType} from "../../Util/BinaryComposer.js";
+import BinaryComposer, {StorageType} from "../../util/BinaryComposer.js";
 import {Material} from "../../Rendering/Material.js";
 
 export class AssetLoaderTypeMaterial extends AssetLoaderType {

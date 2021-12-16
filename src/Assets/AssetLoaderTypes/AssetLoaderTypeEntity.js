@@ -1,10 +1,10 @@
 import AssetLoaderType from "./AssetLoaderType.js";
-import BinaryComposer, {StorageType} from "../../Util/BinaryComposer.js";
+import BinaryComposer, {StorageType} from "../../util/BinaryComposer.js";
 import Entity from "../../Core/Entity.js";
 import Mat4 from "../../Math/Mat4.js";
 import defaultComponentTypeManager from "../../Components/defaultComponentTypeManager.js";
 
-/** @type {import("../../Util/BinaryComposer.js").BinaryComposerStructure} */
+/** @type {import("../../util/BinaryComposer.js").BinaryComposerStructure} */
 const entityBinaryStructure = {
 	name: StorageType.STRING,
 	matrix: [StorageType.FLOAT32],

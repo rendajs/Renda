@@ -5,4 +5,4 @@ export * from "./Gizmos/Gizmos.js";
 export * from "./Inspector/index.js";
 export * from "./Math/Math.js";
 export * from "./Rendering/Rendering.js";
-export * from "./Util/Util.js";
+export * from "./util/util.js";

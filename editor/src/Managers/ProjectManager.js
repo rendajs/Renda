@@ -8,7 +8,7 @@ import {generateUuid} from "../Util/Util.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
-import SingleInstancePromise from "../../../src/Util/SingleInstancePromise.js";
+import SingleInstancePromise from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../WindowManagement/ContentWindows/ContentWindowConnections.js";
 
 /**

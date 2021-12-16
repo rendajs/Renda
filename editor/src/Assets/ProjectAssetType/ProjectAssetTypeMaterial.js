@@ -2,7 +2,7 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/index.js";
 import {PropertiesAssetContentMaterial} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {getEditorInstance} from "../../editorInstance.js";
-import BinaryComposer, {StorageType} from "../../../../src/Util/BinaryComposer.js";
+import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/Math/MathTypes.js";
 
 export class ProjectAssetTypeMaterial extends ProjectAssetType {

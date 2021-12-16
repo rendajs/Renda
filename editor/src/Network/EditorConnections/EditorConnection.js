@@ -31,7 +31,7 @@ export default class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendRequestBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -45,7 +45,7 @@ export default class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendResponseBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -59,7 +59,7 @@ export default class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/Util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendErrorBinaryOpts = {
 			structure: {
 				name: StorageType.STRING,
