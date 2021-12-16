@@ -1,4 +1,4 @@
-import AssetLoaderType from "./AssetLoaderType.js";
+import {AssetLoaderType} from "./AssetLoaderType.js";
 import {ShaderSource} from "../../Rendering/ShaderSource.js";
 
 export class AssetLoaderTypeShaderSource extends AssetLoaderType {

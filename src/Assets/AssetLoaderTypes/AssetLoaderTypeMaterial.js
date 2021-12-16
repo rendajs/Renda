@@ -1,4 +1,4 @@
-import AssetLoaderType from "./AssetLoaderType.js";
+import {AssetLoaderType} from "./AssetLoaderType.js";
 import BinaryComposer, {StorageType} from "../../util/BinaryComposer.js";
 import {Material} from "../../Rendering/Material.js";
 

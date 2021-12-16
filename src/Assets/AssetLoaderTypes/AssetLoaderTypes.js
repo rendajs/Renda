@@ -1,11 +1,11 @@
-export {default as AssetLoaderType} from "./AssetLoaderType.js";
+export {AssetLoaderType} from "./AssetLoaderType.js";
 export {AssetLoaderTypeClusteredLightsConfig} from "./AssetLoaderTypeClusteredLightsConfig.js";
-export {default as AssetLoaderTypeEntity} from "./AssetLoaderTypeEntity.js";
-export {default as AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
+export {AssetLoaderTypeEntity} from "./AssetLoaderTypeEntity.js";
+export {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
 export {AssetLoaderTypeMaterial} from "./AssetLoaderTypeMaterial.js";
 export {AssetLoaderTypeMaterialMap} from "./AssetLoaderTypeMaterialMap.js";
-export {default as AssetLoaderTypeMesh} from "./AssetLoaderTypeMesh.js";
+export {AssetLoaderTypeMesh} from "./AssetLoaderTypeMesh.js";
 export {AssetLoaderTypeRenderOutputConfig} from "./AssetLoaderTypeRenderOutputConfig.js";
 export {AssetLoaderTypeShaderSource} from "./AssetLoaderTypeShaderSource.js";
 export {AssetLoaderTypeVertexState} from "./AssetLoaderTypeVertexState.js";
-export {default as AssetLoaderTypeWebGpuPipelineConfig} from "./AssetLoaderTypeWebGpuPipelineConfig.js";
+export {AssetLoaderTypeWebGpuPipelineConfig} from "./AssetLoaderTypeWebGpuPipelineConfig.js";

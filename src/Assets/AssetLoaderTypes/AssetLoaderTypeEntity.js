@@ -1,4 +1,4 @@
-import AssetLoaderType from "./AssetLoaderType.js";
+import {AssetLoaderType} from "./AssetLoaderType.js";
 import BinaryComposer, {StorageType} from "../../util/BinaryComposer.js";
 import Entity from "../../Core/Entity.js";
 import Mat4 from "../../Math/Mat4.js";
@@ -26,7 +26,7 @@ const entityBinaryNameIds = {
 	propertyValues: 6,
 };
 
-export default class AssetLoaderTypeEntity extends AssetLoaderType {
+export class AssetLoaderTypeEntity extends AssetLoaderType {
 	static get typeUuid() {
 		return "0654611f-c908-4ec0-8bbf-c109a33c0914";
 	}

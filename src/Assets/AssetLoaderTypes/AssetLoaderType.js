@@ -1,4 +1,4 @@
-export default class AssetLoaderType {
+export class AssetLoaderType {
 	// this should be the same as the uuid used in ProjectAssetType.js
 	static get typeUuid() {
 		return null;

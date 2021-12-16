@@ -1,8 +1,8 @@
-import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
+import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
 import {StorageType} from "../../util/BinaryComposer.js";
 import {WebGpuPipelineConfig} from "../../Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js";
 
-export default class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericStructure {
+export class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {
 		return "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	}

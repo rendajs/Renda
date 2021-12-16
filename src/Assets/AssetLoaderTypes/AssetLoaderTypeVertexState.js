@@ -1,4 +1,4 @@
-import AssetLoaderTypeGenericStructure from "./AssetLoaderTypeGenericStructure.js";
+import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
 import {StorageType} from "../../util/BinaryComposer.js";
 import {VertexState} from "../../Rendering/VertexState.js";
 

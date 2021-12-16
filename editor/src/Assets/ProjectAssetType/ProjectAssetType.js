@@ -196,7 +196,7 @@ export class ProjectAssetType {
 	 */
 	async open(windowManager) {}
 
-	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").default} AssetLoaderTypeGenericStructure */
+	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").AssetLoaderTypeGenericStructure} AssetLoaderTypeGenericStructure */
 	/** @typedef {import("../../../../src/util/BinaryComposer.js").default} BinaryComposer */
 	/**
 	 * If your asset loader extends {@linkcode AssetLoaderTypeGenericStructure}
