@@ -1,19 +1,27 @@
-import {describe, expect, it, run} from "https://deno.land/x/tincan/mod.ts";
+import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
 import {NumericGui} from "../../../../src/UI/NumericGui.js";
 import {initializeDom} from "../../shared/initializeDom.js";
 
-describe("A numeric gui", () => {
-	it("should hide the cursor when scrolling.", () => {
+Deno.test({
+	name: "Hide cursor when scrolling",
+	sanitizeOps: false,
+	sanitizeResources: false,
+	fn: () => {
 		const window = initializeDom();
 		const numericGui = new NumericGui();
 
 		const wheelEvent = new window.WheelEvent("wheel", {deltaY: 1});
 		numericGui.el.dispatchEvent(wheelEvent);
 
-		expect(numericGui.el.classList.contains("no-cursor")).toBe(true);
-	});
+		assertEquals(numericGui.el.classList.contains("no-cursor"), true);
+	},
+});
 
-	it("should show the cursor when moving the mouse after scrolling.", () => {
+Deno.test({
+	name: "Show the cursor when moving mouse after scrolling",
+	sanitizeOps: false,
+	sanitizeResources: false,
+	fn: () => {
 		const window = initializeDom();
 		const numericGui = new NumericGui();
 
@@ -22,8 +30,7 @@ describe("A numeric gui", () => {
 		const mouseEvent = new window.MouseEvent("mousemove");
 		numericGui.el.dispatchEvent(mouseEvent);
 
-		expect(numericGui.el.classList.contains("no-cursor")).toBe(false);
-	});
+		assertEquals(numericGui.el.classList.contains("no-cursor"), false);
+	},
 });
 
-run();

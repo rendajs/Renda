@@ -1,4 +1,4 @@
-import {describe, expect, it, run} from "https://deno.land/x/tincan/mod.ts";
+import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
 import {EditorFileSystemNative} from "../../../../../src/Util/FileSystems/EditorFileSystemNative.js";
 
 class FakeHandle {
@@ -57,19 +57,16 @@ class FakeHandle {
 	}
 }
 
-describe("waitForPermission()", async () => {
-	it("should resolve when permission is granted", async () => {
-		const path = ["root", "file"];
-		const stubRootHandle = new FakeHandle("directory", "");
-		stubRootHandle.addFakeEntry("directory", "root").addFakeEntry("file", "file");
-		const fs = new EditorFileSystemNative(stubRootHandle);
+Deno.test("should resolve when permission is granted", async () => {
+	const path = ["root", "file"];
+	const stubRootHandle = new FakeHandle("directory", "");
+	stubRootHandle.addFakeEntry("directory", "root").addFakeEntry("file", "file");
+	const fs = new EditorFileSystemNative(stubRootHandle);
 
-		const permisionPromise = fs.waitForPermission(path);
+	const permisionPromise = fs.waitForPermission(path);
 
-		await fs.getPermission(path);
+	await fs.getPermission(path);
 
-		await expect(permisionPromise).resolves.toBe(undefined);
-	});
+	const permissionPromiseResult = await permisionPromise;
+	assertEquals(permissionPromiseResult, undefined);
 });
-
-run();
