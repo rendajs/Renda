@@ -14,63 +14,6 @@
 			"runOptions": {
 				"runOn": "folderOpen"
 			}
-		},
-		{
-			"label": "build",
-			"type": "deno",
-			"command": "run",
-			"args": [
-				"--unstable",
-				"--allow-read",
-				"--allow-write",
-				"scripts/build.js",
-			]
-		},
-		{
-			"label": "editor build",
-			"type": "deno",
-			"command": "run",
-			"args": [
-				"--unstable",
-				"--allow-read",
-				"--allow-write",
-				"editor/scripts/build.js",
-			]
-		},
-		{
-			"label": "editor build dev",
-			"type": "deno",
-			"command": "run",
-			"args": [
-				"--unstable",
-				"--allow-read",
-				"--allow-write",
-				"editor/scripts/build.js",
-				"--dev"
-			]
-		},
-		{
-			"label": "editor build dependencies",
-			"type": "deno",
-			"command": "run",
-			"args": [
-				"--unstable",
-				"--allow-read",
-				"--allow-write",
-				"--allow-env=NODE_DEBUG",
-				"editor/scripts/buildDependencies.js",
-				"--dev"
-			]
-		},
-		{
-			"label": "editor test unit",
-			"type": "deno",
-			"command": "test",
-			"args": [
-				"--unstable",
-				"--allow-read",
-				"editor/test/unit",
-			]
 		}
 	]
 }
