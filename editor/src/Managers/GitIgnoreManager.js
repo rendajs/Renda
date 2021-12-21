@@ -12,6 +12,7 @@ export class GitIgnoreManager {
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async addEntry(path) {
+		/** @type {string[]} */
 		let lines = [];
 		if (await this.fileSystem.isFile(this.ignereFilePath)) {
 			const currentIgnore = await this.fileSystem.readText(this.ignereFilePath);

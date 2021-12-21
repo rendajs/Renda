@@ -11,8 +11,11 @@ import toFormattedJsonString from "../toFormattedJsonString.js";
  * @property {"changed" | "created" | "deleted"} type
  */
 
+/** @typedef {(e: FileSystemExternalChangeEvent) => any} FileSystemExternalChangeCallback */
+
 export class EditorFileSystem {
 	constructor() {
+		/** @type {Set<FileSystemExternalChangeCallback>} */
 		this.onExternalChangeCbs = new Set();
 		this.onAnyChangeCbs = new Set();
 		/** @type {Set<function(string):void>} */
@@ -181,14 +184,14 @@ export class EditorFileSystem {
 
 	/**
 	 * Fires when a file is changed from outside the application.
-	 * @param {Function} cb
+	 * @param {FileSystemExternalChangeCallback} cb
 	 */
 	onExternalChange(cb) {
 		this.onExternalChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {Function} cb
+	 * @param {FileSystemExternalChangeCallback} cb
 	 */
 	removeOnExternalChange(cb) {
 		this.onExternalChangeCbs.delete(cb);
@@ -250,6 +253,10 @@ export class EditorFileSystem {
 		return await file.text();
 	}
 
+	/**
+	 * @param {EditorFileSystemPath} path
+	 * @param {any} json
+	 */
 	async writeJson(path = [], json = {}) {
 		const jsonStr = toFormattedJsonString(json);
 		await this.writeText(path, jsonStr, {type: "application/json"});

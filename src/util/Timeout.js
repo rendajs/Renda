@@ -61,7 +61,7 @@ export class Timeout {
 /**
  * Utility function for waiting inside of promises.
  * @param {number} ms How long to wait for the promise to resolve.
- * @returns {Promise} A promise that resolves after the specified time.
+ * @returns {Promise<void>} A promise that resolves after the specified time.
  */
 export function wait(ms) {
 	return new Promise((resolve, reject) => {

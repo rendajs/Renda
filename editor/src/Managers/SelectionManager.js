@@ -2,7 +2,7 @@ import {SelectionGroup} from "./SelectionGroup.js";
 
 /**
  * @typedef {Object} SelectionChangeData
- * @property {SelectionGroup} activeSelectionGroup
+ * @property {SelectionGroup<any>} activeSelectionGroup
  * @property {import("./SelectionGroup.js").SelectionGroupChangeData<any>} [changeData]
  */
 
@@ -13,10 +13,10 @@ import {SelectionGroup} from "./SelectionGroup.js";
  */
 export class SelectionManager {
 	constructor() {
-		/** @type {Set<SelectionGroup>} */
+		/** @type {Set<SelectionGroup<any>>} */
 		this.selectionGroups = new Set();
 
-		/** @type {SelectionGroup} */
+		/** @type {SelectionGroup<any>} */
 		this.activeGroup = null;
 
 		/** @type {Set<SelectionChangeCallback>} */
@@ -44,7 +44,7 @@ export class SelectionManager {
 	}
 
 	/**
-	 * @param {SelectionGroup} group
+	 * @param {SelectionGroup<any>} group
 	 */
 	removeSelectionGroup(group) {
 		group.destructor();
@@ -52,7 +52,7 @@ export class SelectionManager {
 	}
 
 	/**
-	 * @param {SelectionGroup} group
+	 * @param {SelectionGroup<any>} group
 	 * @param {boolean} fireSelectionChangeCbs
 	 */
 	setActiveSelectionGroup(group, fireSelectionChangeCbs = true) {

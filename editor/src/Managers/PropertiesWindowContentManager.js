@@ -16,6 +16,9 @@ export class PropertiesWindowContentManager {
 		}
 	}
 
+	/**
+	 * @param {typeof PropertiesWindowContent} constructor
+	 */
 	registerContentType(constructor) {
 		if (!(constructor.prototype instanceof PropertiesWindowContent)) {
 			console.warn("Tried to register properties content type (" + constructor.name + ") that does not extend PropertiesWindowContent class.");
@@ -45,6 +48,10 @@ export class PropertiesWindowContentManager {
 		}
 	}
 
+	/**
+	 * @param {any[]} objects
+	 * @returns {typeof PropertiesWindowContent}
+	 */
 	getContentTypeForObjects(objects) {
 		const selectedTypes = new Map();
 		for (const obj of objects) {

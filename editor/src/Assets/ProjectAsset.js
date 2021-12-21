@@ -145,6 +145,9 @@ export class ProjectAsset {
 		return projectAsset;
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	static guessAssetTypeFromPath(path = []) {
 		if (!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
@@ -156,6 +159,10 @@ export class ProjectAsset {
 		return null;
 	}
 
+	/**
+	 * @param {string[]} path
+	 * @param {boolean} isBuiltIn
+	 */
 	static async guessAssetTypeFromFile(path = [], isBuiltIn = false) {
 		const assetType = this.guessAssetTypeFromPath(path);
 		if (assetType) return assetType;
@@ -191,6 +198,9 @@ export class ProjectAsset {
 		return Object.keys(this.assetSettings).length > 0;
 	}
 
+	/**
+	 * @param {string[]} newPath
+	 */
 	assetMoved(newPath) {
 		this.path = newPath;
 	}
@@ -552,12 +562,16 @@ export class ProjectAsset {
 		return binaryData;
 	}
 
+	/**
+	 * @returns {AsyncGenerator<import("../Util/Util.js").UuidString>}
+	 */
 	async *getReferencedAssetUuids() {
 		await this.waitForInit();
 		const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
 		if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 			const assetData = await this.readAssetData();
 
+			/** @type {import("../Util/Util.js").UuidString[]} */
 			const referencedUuids = [];
 			BinaryComposer.objectToBinary(assetData, {
 				...usedAssetLoaderType.binaryComposerOpts,

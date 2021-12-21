@@ -10,6 +10,7 @@ export class ProjectSettingsManager {
 		this.fileSystem = fileSystem;
 		this.filePath = filePath;
 
+		/** @type {Map<string, any>} */
 		this.currentSettings = new Map();
 
 		this.onFileCreatedCbs = new Set();
@@ -21,7 +22,7 @@ export class ProjectSettingsManager {
 
 	/**
 	 * @param {string} key
-	 * @param {*} value
+	 * @param {any} value
 	 */
 	async set(key, value) {
 		await this.loadInstance.waitForFinish();
@@ -55,6 +56,7 @@ export class ProjectSettingsManager {
 	}
 
 	async save() {
+		/** @type {Object.<string, any>} */
 		const settingsObject = {};
 		let hasAny = false;
 		for (const [key, value] of this.currentSettings) {

@@ -97,7 +97,9 @@ export class Editor {
 			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);
 			if (projectAsset) {
 				if (projectAsset.assetType == "JJ:shaderSource") {
-					return await projectAsset.readAssetData();
+					const assetData = await projectAsset.readAssetData();
+					const assetDataStr = /** @type {string} */ (assetData);
+					return assetDataStr;
 				}
 			}
 			return null;

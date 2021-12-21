@@ -78,6 +78,7 @@ export class ProjectManager {
 			}
 		});
 
+		/** @type {(e: import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent) => void} */
 		this.#boundOnFileSystemExternalChange = e => {
 			for (const cb of this.onExternalChangeCbs) {
 				cb(e);
@@ -86,6 +87,7 @@ export class ProjectManager {
 		this.#boundOnFileSystemBeforeAnyChange = () => {
 			this.markCurrentProjectAsWorthSaving();
 		};
+		/** @type {(newName: string) => void} */
 		this.#boundOnFileSystemRootNameChange = newName => {
 			this.currentProjectOpenEvent.name = newName;
 			this.fireOnProjectOpenEntryChangeCbs();
@@ -102,6 +104,7 @@ export class ProjectManager {
 		this.onProjectOpenCbs = new Set();
 		this.hasOpeneProject = false;
 
+		/** @type {Set<import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback>} */
 		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
@@ -298,10 +301,16 @@ export class ProjectManager {
 		this.openProject(fileSystem, projectEntry);
 	}
 
+	/**
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 */
 	onExternalChange(cb) {
 		this.onExternalChangeCbs.add(cb);
 	}
 
+	/**
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 */
 	removeOnExternalChange(cb) {
 		this.onExternalChangeCbs.delete(cb);
 	}

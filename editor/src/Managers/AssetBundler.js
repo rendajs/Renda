@@ -53,7 +53,13 @@ export class AssetBundler {
 		await bundleFileStream.close();
 	}
 
+	/**
+	 * @param {any} assetsList
+	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuids
+	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuidsRecursive
+	 */
 	async getAllAssetUuids(assetsList, excludeUuids, excludeUuidsRecursive) {
+		/** @type {Set<import("../Util/Util.js").UuidString>} */
 		const foundUuids = new Set();
 		for (const assetData of assetsList) {
 			if (assetData.includeChildren) {
@@ -67,6 +73,13 @@ export class AssetBundler {
 		return foundUuids;
 	}
 
+	/**
+	 * @param {import("../Util/Util.js").UuidString} assetUuid
+	 * @param {Set<import("../Util/Util.js").UuidString>} foundUuids
+	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuids
+	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuidsRecursive
+	 * @returns {AsyncGenerator<import("../Util/Util.js").UuidString>}
+	 */
 	async *collectAllReferences(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive) {
 		const projectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(assetUuid);
 		if (projectAsset) {

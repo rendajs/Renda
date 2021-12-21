@@ -15,6 +15,9 @@ export class ComponentGizmosManager {
 		}
 	}
 
+	/**
+	 * @param {typeof ComponentGizmos} constructor
+	 */
 	registerComponentGizmos(constructor) {
 		if (!(constructor.prototype instanceof ComponentGizmos)) {
 			console.warn("Tried to register ComponentGizmos (" + constructor.name + ") that does not extend ComponentGizmos class.");

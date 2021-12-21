@@ -203,13 +203,17 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {string} defaultAssetUuid
+	 * @param {import("../Util/Util.js").UuidString} defaultAssetUuid
 	 * @returns {DefaultAssetLink}
 	 */
 	getDefaultAssetLink(defaultAssetUuid) {
 		return this.defaultAssetLinks.get(defaultAssetUuid);
 	}
 
+	/**
+	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @returns {import("../Util/Util.js").UuidString}
+	 */
 	resolveDefaultAssetLinkUuid(uuid) {
 		const defaultAssetLink = this.getDefaultAssetLink(uuid);
 		if (defaultAssetLink) {

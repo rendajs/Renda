@@ -5,7 +5,9 @@
 		"checkJs": true,
 		"typeRoots": ["./node_modules/@webgpu/types", "./node_modules/@types"],
 		"module": "esnext",
-		"useDefineForClassFields": true
+		"useDefineForClassFields": true,
+		// "strictNullChecks": true,
+		// "noImplicitAny": true,
 	},
 	"include": ["src/**/*.js", "editor/src/**/*.js"],
 	"files": [
