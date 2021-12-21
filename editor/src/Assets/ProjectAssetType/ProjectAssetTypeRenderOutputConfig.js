@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../../src/index.js";
+import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../../src/mod.js";
 
 export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static type = "JJ:renderOutputConfig";

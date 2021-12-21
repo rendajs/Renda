@@ -212,7 +212,7 @@ export class ScriptBuilder {
 
 				if (sourcePath == "JJ") {
 					scriptType = "engine";
-					sourcePath = "/build/index.js";
+					sourcePath = "/build/mod.js";
 				}
 
 				if (!scriptType) scriptType = "project";

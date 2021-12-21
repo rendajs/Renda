@@ -1,8 +1,8 @@
 import {Mesh} from "../../core/Mesh.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
-import {StorageType} from "../../index.js";
+import {StorageType} from "../../mod.js";
 import {Material} from "../../Rendering/Material.js";
-import {Component} from "../Components.js";
+import {Component} from "../mod.js";
 
 export default class MeshComponent extends Component {
 	static get componentName() {

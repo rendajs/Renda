@@ -1,5 +1,5 @@
-import {Quat, Vec3} from "../Math/Math.js";
-import {Component} from "../Components/Components.js";
+import {Quat, Vec3} from "../Math/mod.js";
+import {Component} from "../Components/mod.js";
 import {EntityParent} from "./EntityParent.js";
 import {EntityMatrixCache} from "./EntityMatrixCache.js";
 import MultiKeyWeakMap from "../util/MultiKeyWeakMap.js";

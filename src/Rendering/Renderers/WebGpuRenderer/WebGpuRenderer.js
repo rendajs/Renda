@@ -6,7 +6,7 @@ import {CachedCameraData} from "./CachedCameraData.js";
 import {CachedMeshData} from "./CachedMeshData.js";
 import Mat4 from "../../../Math/Mat4.js";
 import Vec4 from "../../../Math/Vec4.js";
-import {LightComponent, MeshComponent} from "../../../Components/Components.js";
+import {LightComponent, MeshComponent} from "../../../Components/mod.js";
 import {Mesh} from "../../../core/Mesh.js";
 import MultiKeyWeakMap from "../../../util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
@@ -26,7 +26,7 @@ export class WebGpuRenderer extends Renderer {
 	}
 
 	/**
-	 * @param {import("../../../index.js").EngineAssetsManager} engineAssetManager
+	 * @param {import("../../../mod.js").EngineAssetsManager} engineAssetManager
 	 */
 	constructor(engineAssetManager) {
 		super();

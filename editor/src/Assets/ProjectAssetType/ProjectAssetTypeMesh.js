@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {PropertiesAssetContentMesh} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMesh.js";
-import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/index.js";
+import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.js";
 
 export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "JJ:mesh";

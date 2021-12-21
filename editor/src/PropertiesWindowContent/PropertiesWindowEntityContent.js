@@ -1,5 +1,5 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {Entity, Quat} from "../../../src/index.js";
+import {Entity, Quat} from "../../../src/mod.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {Button} from "../UI/Button.js";
 import {DroppableGui} from "../UI/DroppableGui.js";

@@ -1,6 +1,6 @@
 import {autoRegisterMaterialMapTypeSerializers} from "../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/autoRegisterMaterialMapTypeSerializers.js";
 import {MaterialMapTypeSerializer} from "../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js";
-import {isUuid} from "../../../src/util/util.js";
+import {isUuid} from "../../../src/util/mod.js";
 import {getEditorInstance} from "../editorInstance.js";
 
 /**

@@ -1,7 +1,7 @@
-import {StorageType} from "../../index.js";
+import {StorageType} from "../../mod.js";
 import Vec3 from "../../Math/Vec3.js";
 // import {StorageType} from "../../Util/BinaryComposer.js";
-import {Component} from "../Components.js";
+import {Component} from "../mod.js";
 
 const lightTypes = ["point", "directional", "spot"];
 

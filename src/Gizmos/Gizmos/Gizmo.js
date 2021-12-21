@@ -10,7 +10,7 @@ export class Gizmo {
 	}
 
 	/**
-	 * @param {import("../../index.js").Mat4} val
+	 * @param {import("../../mod.js").Mat4} val
 	 */
 	set matrix(val) {
 		this.entity.localMatrix = val;

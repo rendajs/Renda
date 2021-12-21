@@ -1,4 +1,4 @@
-import {BinaryComposer, StorageType, isUuid} from "../../index.js";
+import {BinaryComposer, StorageType, isUuid} from "../../mod.js";
 import {MaterialMap} from "../../Rendering/MaterialMap.js";
 import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import {AssetLoaderType} from "./AssetLoaderType.js";

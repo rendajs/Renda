@@ -1,5 +1,5 @@
 import {getEditorInstance} from "../editorInstance.js";
-import {AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/index.js";
+import {AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/mod.js";
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {StorageType} from "../../../src/util/BinaryComposer.js";

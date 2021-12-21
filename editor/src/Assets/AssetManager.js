@@ -1,4 +1,4 @@
-import {SingleInstancePromise} from "../../../src/index.js";
+import {SingleInstancePromise} from "../../../src/mod.js";
 import {getEditorInstance} from "../editorInstance.js";
 import {generateUuid, handleDuplicateName} from "../Util/Util.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";

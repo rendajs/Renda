@@ -2,8 +2,8 @@ import {StorageType} from "../../util/BinaryComposer.js";
 import {RenderOutputConfig} from "../../Rendering/RenderOutputConfig.js";
 import {ClusteredLightsConfig} from "../../Rendering/ClusteredLightsConfig.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
-import {Component} from "../Components.js";
-import {Mat4} from "../../index.js";
+import {Component} from "../mod.js";
+import {Mat4} from "../../mod.js";
 
 export default class CameraComponent extends Component {
 	static get componentName() {

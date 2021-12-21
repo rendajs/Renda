@@ -1,6 +1,6 @@
 import {autoRegisterAssetTypes} from "./ProjectAssetType/autoRegisterAssetTypes.js";
 import {ProjectAssetType} from "./ProjectAssetType/ProjectAssetType.js";
-import {isUuid} from "../../../src/util/util.js";
+import {isUuid} from "../../../src/util/mod.js";
 
 export class ProjectAssetTypeManager {
 	/** @typedef {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} ProjectAssetTypeIdentifier */

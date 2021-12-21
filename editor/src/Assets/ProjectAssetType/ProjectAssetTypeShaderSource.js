@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {ShaderSource} from "../../../../src/index.js";
+import {ShaderSource} from "../../../../src/mod.js";
 
 export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static type = "JJ:shaderSource";

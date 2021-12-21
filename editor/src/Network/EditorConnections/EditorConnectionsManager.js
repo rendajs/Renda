@@ -2,7 +2,7 @@ import EditorConnection from "./EditorConnection.js";
 import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
 import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js";
 import ProtocolManager from "./ProtocolManager.js";
-import {InternalDiscoveryManager} from "../../../../src/index.js";
+import {InternalDiscoveryManager} from "../../../../src/mod.js";
 
 /**
  * @typedef {Object} RemoteEditorMetaData

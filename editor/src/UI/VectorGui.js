@@ -1,5 +1,5 @@
 import {NumericGui} from "./NumericGui.js";
-import {Vec2, Vec3, Vec4} from "../../../src/index.js";
+import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
 
 /**
  * @typedef {Object} VectorGuiOptionsType

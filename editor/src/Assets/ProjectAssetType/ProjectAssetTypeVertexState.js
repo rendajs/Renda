@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeVertexState, Mesh, VertexState} from "../../../../src/index.js";
+import {AssetLoaderTypeVertexState, Mesh, VertexState} from "../../../../src/mod.js";
 
 export class ProjectAssetTypeVertexState extends ProjectAssetType {
 	static type = "JJ:vertexState";

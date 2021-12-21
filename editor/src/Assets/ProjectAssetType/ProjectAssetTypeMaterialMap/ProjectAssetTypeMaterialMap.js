@@ -3,7 +3,7 @@ import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowConten
 import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
 import {RecursionTracker} from "../../LiveAssetDataRecursionTracker/RecursionTracker.js";
 import {getEditorInstance} from "../../../editorInstance.js";
-import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/index.js";
+import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static type = "JJ:materialMap";

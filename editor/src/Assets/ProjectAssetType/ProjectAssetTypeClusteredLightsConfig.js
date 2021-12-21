@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from "../../../../src/index.js";
+import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from "../../../../src/mod.js";
 
 export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	static type = "JJ:clusteredLightsSetup";

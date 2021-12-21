@@ -1,4 +1,4 @@
-import {Renderer} from "./Rendering.js";
+import {Renderer} from "./mod.js";
 
 export class RendererDomTarget {
 	/**

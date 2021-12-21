@@ -1,6 +1,6 @@
 import {getEditorInstance} from "../editorInstance.js";
 import {generateUuid, parseMimeType} from "../Util/Util.js";
-import {clamp, iLerp} from "../../../src/util/util.js";
+import {clamp, iLerp} from "../../../src/util/mod.js";
 import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutConditionValueSetter.js";
 
 /**

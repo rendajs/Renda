@@ -6,7 +6,7 @@ import jscc from "https://esm.sh/rollup-plugin-jscc@2.0.0";
 
 (async () => {
 	const bundle = await rollup({
-		input: "src/index.js",
+		input: "src/mod.js",
 		plugins: [
 			jscc({
 				values: {

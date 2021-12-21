@@ -9,7 +9,7 @@
 	},
 	"include": ["src/**/*.js", "editor/src/**/*.js"],
 	"files": [
-		"src/index.js",
+		"src/mod.js",
 		"editor/src/Network/EditorConnections/InternalDiscovery/InternalDiscoveryWorker.js",
 		"editor/src/main.js"
 	]

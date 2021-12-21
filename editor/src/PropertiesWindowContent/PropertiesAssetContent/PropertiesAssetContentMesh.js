@@ -1,5 +1,5 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {Mesh, VertexState} from "../../../../src/index.js";
+import {Mesh, VertexState} from "../../../../src/mod.js";
 import {getEditorInstance} from "../../editorInstance.js";
 
 export class PropertiesAssetContentMesh extends PropertiesAssetContent {

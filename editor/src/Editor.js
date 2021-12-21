@@ -18,7 +18,7 @@ import {IS_DEV_BUILD} from "./editorDefines.js";
 import {DevSocketManager} from "./Managers/DevSocketManager.js";
 import ComponentTypeManager from "../../src/Components/ComponentTypeManager.js";
 
-import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/index.js";
+import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
 
 export class Editor {
 	constructor() {

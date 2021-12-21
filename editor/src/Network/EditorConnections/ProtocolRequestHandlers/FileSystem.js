@@ -1,4 +1,4 @@
-import {BinaryComposer, StorageType} from "../../../../../src/index.js";
+import {BinaryComposer, StorageType} from "../../../../../src/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 
 /** @type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */

@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeEntity, Entity, Vec3} from "../../../../src/index.js";
+import {AssetLoaderTypeEntity, Entity, Vec3} from "../../../../src/mod.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
 
