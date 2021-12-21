@@ -1,12 +1,13 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env
 
 import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
 import {dirname, fromFileUrl, resolve} from "https://deno.land/std@0.117.0/path/mod.ts";
 
+import {rollup} from "https://esm.sh/rollup@2.61.1";
+
 // import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 
 const require = createRequire(import.meta.url);
-const {rollup} = require("rollup");
 const commonjs = require("@rollup/plugin-commonjs");
 const {nodeResolve} = require("@rollup/plugin-node-resolve");
 
