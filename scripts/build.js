@@ -21,7 +21,7 @@ import jscc from "https://esm.sh/rollup-plugin-jscc@2.0.0";
 		},
 	});
 	await bundle.write({
-		dir: "build/",
+		dir: "dist/",
 		format: "esm",
 	});
 })();
