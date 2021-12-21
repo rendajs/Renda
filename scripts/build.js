@@ -1,11 +1,8 @@
-#!/usr/bin/env deno
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write
 
-import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
-
-const require = createRequire(import.meta.url);
-const {rollup} = require("rollup");
-const jscc = require("rollup-plugin-jscc");
-const cleanup = require("rollup-plugin-cleanup");
+import {rollup} from "https://esm.sh/rollup@2.61.1";
+import cleanup from "https://esm.sh/rollup-plugin-cleanup@3.2.1";
+import jscc from "https://esm.sh/rollup-plugin-jscc@2.0.0";
 
 (async () => {
 	const bundle = await rollup({
