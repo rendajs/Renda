@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/mod.js";
 import {PropertiesAssetContentMaterial} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js";
-import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
+import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/Math/MathTypes.js";
 
 /**

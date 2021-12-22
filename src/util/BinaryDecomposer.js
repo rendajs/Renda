@@ -1,4 +1,4 @@
-export default class BinaryDecomposer {
+export class BinaryDecomposer {
 	constructor(buffer, {
 		littleEndian = true,
 	} = {}) {

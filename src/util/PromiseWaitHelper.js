@@ -1,4 +1,4 @@
-export default class PromiseWaitHelper {
+export class PromiseWaitHelper {
 	constructor({
 		once = true,
 	} = {}) {

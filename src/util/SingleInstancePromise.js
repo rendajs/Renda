@@ -1,4 +1,4 @@
-export default class SingleInstancePromise {
+export class SingleInstancePromise {
 	/**
 	 * @param {function() : Promise} promiseFn
 	 * @param {Object} opts

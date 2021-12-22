@@ -4,7 +4,7 @@ const endNode = {};
  * @template K
  * @template V
  */
-export default class MultiKeyWeakMap {
+export class MultiKeyWeakMap {
 	constructor(iterable) {
 		this.maps = new WeakMap();
 		if (iterable) {

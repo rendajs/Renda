@@ -1,6 +1,6 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
 import {Mesh} from "../../core/Mesh.js";
-import BinaryDecomposer from "../../util/BinaryDecomposer.js";
+import {BinaryDecomposer} from "../../util/BinaryDecomposer.js";
 
 export class AssetLoaderTypeMesh extends AssetLoaderType {
 	static get typeUuid() {

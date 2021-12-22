@@ -221,7 +221,7 @@ export class ProjectAssetType {
 	async open(windowManager) {}
 
 	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").AssetLoaderTypeGenericStructure} AssetLoaderTypeGenericStructure */
-	/** @typedef {import("../../../../src/util/BinaryComposer.js").default} BinaryComposer */
+	/** @typedef {import("../../../../src/util/BinaryComposer.js").BinaryComposer} BinaryComposer */
 	/**
 	 * If your asset loader extends {@linkcode AssetLoaderTypeGenericStructure}
 	 * you don't need to implement {@linkcode createBundledAssetData}.

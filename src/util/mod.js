@@ -1,8 +1,8 @@
-export {StorageType, default as BinaryComposer} from "./BinaryComposer.js";
-export {default as BinaryDecomposer} from "./BinaryDecomposer.js";
-export {default as MultiKeyWeakMap} from "./MultiKeyWeakMap.js";
-export {default as OrbitControls} from "./OrbitControls.js";
-export {default as SingleInstancePromise} from "./SingleInstancePromise.js";
+export {StorageType, BinaryComposer} from "./BinaryComposer.js";
+export {BinaryDecomposer} from "./BinaryDecomposer.js";
+export {MultiKeyWeakMap} from "./MultiKeyWeakMap.js";
+export {OrbitControls} from "./OrbitControls.js";
+export {SingleInstancePromise} from "./SingleInstancePromise.js";
 
 /**
  * Clamps a value between `min` and `max`.

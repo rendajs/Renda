@@ -1,4 +1,4 @@
-import BinaryComposer from "../../../src/util/BinaryComposer.js";
+import {BinaryComposer} from "../../../src/util/BinaryComposer.js";
 import {getEditorInstance} from "../editorInstance.js";
 
 export class AssetBundler {

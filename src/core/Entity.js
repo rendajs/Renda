@@ -2,7 +2,7 @@ import {Quat, Vec3} from "../Math/mod.js";
 import {Component} from "../Components/mod.js";
 import {EntityParent} from "./EntityParent.js";
 import {EntityMatrixCache} from "./EntityMatrixCache.js";
-import MultiKeyWeakMap from "../util/MultiKeyWeakMap.js";
+import {MultiKeyWeakMap} from "../util/MultiKeyWeakMap.js";
 import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
 import {ComponentTypeManager} from "../Components/ComponentTypeManager.js";
 

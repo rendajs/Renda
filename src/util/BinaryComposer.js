@@ -1,4 +1,4 @@
-import BinaryDecomposer from "./BinaryDecomposer.js";
+import {BinaryDecomposer} from "./BinaryDecomposer.js";
 
 /**
  * @typedef {{
@@ -89,7 +89,7 @@ export const StorageType = {
 	NULL: 16,
 };
 
-export default class BinaryComposer {
+export class BinaryComposer {
 	constructor({
 		littleEndian = true,
 	} = {}) {

@@ -1,5 +1,5 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
-import BinaryComposer from "../../util/BinaryComposer.js";
+import {BinaryComposer} from "../../util/BinaryComposer.js";
 
 export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 	static get binaryComposerOpts() {

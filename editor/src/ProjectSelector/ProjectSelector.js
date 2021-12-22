@@ -1,5 +1,5 @@
 import IndexedDbUtil from "../Util/IndexedDbUtil.js";
-import PromiseWaitHelper from "../../../src/util/PromiseWaitHelper.js";
+import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
 
 export class ProjectSelector {
 	/** @typedef {import("../Managers/ProjectManager.js").StoredProjectEntry} StoredProjectEntry */

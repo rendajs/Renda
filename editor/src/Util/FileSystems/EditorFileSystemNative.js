@@ -1,4 +1,4 @@
-import SingleInstancePromise from "../../../../src/util/SingleInstancePromise.js";
+import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.js";
 import {EditorFileSystem} from "./EditorFileSystem.js";
 
 export class EditorFileSystemNative extends EditorFileSystem {

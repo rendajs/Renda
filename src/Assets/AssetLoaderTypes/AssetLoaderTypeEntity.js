@@ -1,5 +1,5 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
-import BinaryComposer, {StorageType} from "../../util/BinaryComposer.js";
+import {BinaryComposer, StorageType} from "../../util/BinaryComposer.js";
 import {Entity} from "../../core/Entity.js";
 import Mat4 from "../../Math/Mat4.js";
 

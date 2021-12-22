@@ -8,7 +8,7 @@ import Mat4 from "../../../Math/Mat4.js";
 import Vec4 from "../../../Math/Vec4.js";
 import {LightComponent, MeshComponent} from "../../../Components/mod.js";
 import {Mesh} from "../../../core/Mesh.js";
-import MultiKeyWeakMap from "../../../util/MultiKeyWeakMap.js";
+import {MultiKeyWeakMap} from "../../../util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
 import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
 

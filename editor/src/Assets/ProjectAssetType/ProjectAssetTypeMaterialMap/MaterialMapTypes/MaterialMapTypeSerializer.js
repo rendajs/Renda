@@ -1,5 +1,5 @@
 import {MaterialMapType} from "../../../../../../src/Rendering/MaterialMapType.js";
-import BinaryComposer, {StorageType} from "../../../../../../src/util/BinaryComposer.js";
+import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComposer.js";
 import {getEditorInstance} from "../../../../editorInstance.js";
 
 /**

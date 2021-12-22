@@ -3,7 +3,7 @@ import {AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/mod.
 import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {StorageType} from "../../../src/util/BinaryComposer.js";
-import SingleInstancePromise from "../../../src/util/SingleInstancePromise.js";
+import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker.js";
 
 /** @typedef {ProjectAsset<any>} ProjectAssetAny */

@@ -1,4 +1,4 @@
-import PromiseWaitHelper from "../util/PromiseWaitHelper.js";
+import {PromiseWaitHelper} from "../util/PromiseWaitHelper.js";
 
 export class AssetBundleRange {
 	constructor({

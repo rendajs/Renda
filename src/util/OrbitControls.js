@@ -1,7 +1,7 @@
 import Quat from "../Math/Quat.js";
 import Vec3 from "../Math/Vec3.js";
 
-export default class OrbitControls {
+export class OrbitControls {
 	constructor(cameraEntity, eventElement) {
 		this.camera = cameraEntity;
 
