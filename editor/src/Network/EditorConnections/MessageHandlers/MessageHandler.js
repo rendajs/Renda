@@ -1,6 +1,6 @@
 /** @typedef {"disconnected" | "connecting" | "connected"} EditorConnectionState */
 
-export default class MessageHandler {
+export class MessageHandler {
 	constructor() {
 		this.onMessageCbs = new Set();
 		/** @type {EditorConnectionState} */

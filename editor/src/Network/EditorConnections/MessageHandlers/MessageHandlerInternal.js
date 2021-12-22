@@ -1,9 +1,9 @@
-import MessageHandler from "./MessageHandler.js";
+import {MessageHandler} from "./MessageHandler.js";
 
-export default class MessageHandlerInternal extends MessageHandler {
+export class MessageHandlerInternal extends MessageHandler {
 	/**
 	 * @param {import("../../../../../src/util/mod.js").UuidString} connectionId
-	 * @param {import("../EditorConnectionsManager.js").default} connectionsManager
+	 * @param {import("../EditorConnectionsManager.js").EditorConnectionsManager} connectionsManager
 	 * @param {boolean} isInitiator
 	 */
 	constructor(connectionId, connectionsManager, isInitiator = false) {

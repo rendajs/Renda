@@ -1,4 +1,4 @@
-export default class ComponentGizmos {
+export class ComponentGizmos {
 	// set this to the componentType as used by the component manager (not the component uuid)
 	static componentType = null;
 

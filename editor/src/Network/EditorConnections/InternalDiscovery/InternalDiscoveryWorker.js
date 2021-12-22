@@ -2,7 +2,7 @@
  * @fileoverview This is the entry point for the editorDiscovery SharedWorker.
  */
 
-import InternalDiscoveryWorkerConnection from "./InternalDiscoveryWorkerConnection.js";
+import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnection.js";
 
 /** @type {Map<string, InternalDiscoveryWorkerConnection>} */
 const activeConnections = new Map();

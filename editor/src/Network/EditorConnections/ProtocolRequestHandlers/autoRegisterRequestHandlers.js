@@ -1,5 +1,6 @@
-import fileSystemHandlers from "./FileSystem.js";
+import {fileSystemProtocolHandlers} from "./FileSystem.js";
 
 /** @type {import("../ProtocolManager.js").ProtocolManagerRequestHandler[]} */
-const autoRegisterRequestHandlers = [...fileSystemHandlers];
-export default autoRegisterRequestHandlers;
+const autoRegisterRequestHandlers = [...fileSystemProtocolHandlers];
+
+export {autoRegisterRequestHandlers};

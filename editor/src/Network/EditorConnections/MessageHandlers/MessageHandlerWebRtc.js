@@ -1,9 +1,9 @@
-import MessageHandler from "./MessageHandler.js";
+import {MessageHandler} from "./MessageHandler.js";
 
-export default class MessageHandlerWebRtc extends MessageHandler {
+export class MessageHandlerWebRtc extends MessageHandler {
 	/**
 	 * @param {import("../../../../../src/util/mod.js").UuidString} otherClientUuid
-	 * @param {import("../EditorConnectionsManager.js").default} connectionsManager
+	 * @param {import("../EditorConnectionsManager.js").EditorConnectionsManager} connectionsManager
 	 * @param {boolean} isInitiator
 	 */
 	constructor(otherClientUuid, connectionsManager, isInitiator = false) {

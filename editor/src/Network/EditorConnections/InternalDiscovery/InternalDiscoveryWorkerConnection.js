@@ -1,6 +1,6 @@
 import {generateUuid} from "../../../../../src/util/mod.js";
 
-export default class InternalDiscoveryWorkerConnection {
+export class InternalDiscoveryWorkerConnection {
 	/**
 	 * @param {MessagePort} port
 	 * @param {string} clientType

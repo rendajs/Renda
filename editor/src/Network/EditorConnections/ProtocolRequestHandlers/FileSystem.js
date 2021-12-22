@@ -166,7 +166,7 @@ const exists = {
 	},
 };
 
-export default [
+const fileSystemProtocolHandlers = [
 	readDir,
 	createDir,
 	readFile,
@@ -175,3 +175,5 @@ export default [
 	isDir,
 	exists,
 ];
+
+export {fileSystemProtocolHandlers};

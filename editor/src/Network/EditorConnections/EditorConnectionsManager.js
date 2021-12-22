@@ -1,7 +1,7 @@
-import EditorConnection from "./EditorConnection.js";
-import MessageHandlerWebRtc from "./MessageHandlers/MessageHandlerWebRtc.js";
-import MessageHandlerInternal from "./MessageHandlers/MessageHandlerInternal.js";
-import ProtocolManager from "./ProtocolManager.js";
+import {EditorConnection} from "./EditorConnection.js";
+import {MessageHandlerWebRtc} from "./MessageHandlers/MessageHandlerWebRtc.js";
+import {MessageHandlerInternal} from "./MessageHandlers/MessageHandlerInternal.js";
+import {ProtocolManager} from "./ProtocolManager.js";
 import {InternalDiscoveryManager} from "../../../../src/mod.js";
 
 /**
@@ -30,7 +30,7 @@ import {InternalDiscoveryManager} from "../../../../src/mod.js";
  * @property {MessageHandlerType} messageHandlerType
  */
 
-export default class EditorConnectionsManager {
+export class EditorConnectionsManager {
 	constructor() {
 		this.currentEndpoint = null;
 		this.discoveryWs = null;
@@ -354,7 +354,7 @@ export default class EditorConnectionsManager {
 
 	/**
 	 * @param {import("../../../../src/util/mod.js").UuidString} connectionId
-	 * @param {import("./MessageHandlers/MessageHandler.js").default} messageHandler
+	 * @param {import("./MessageHandlers/MessageHandler.js").MessageHandler} messageHandler
 	 * @return {EditorConnection}
 	 */
 	addActiveConnection(connectionId, messageHandler) {

@@ -1,4 +1,4 @@
-import autoRegisterRequestHandlers from "./ProtocolRequestHandlers/autoRegisterRequestHandlers.js";
+import {autoRegisterRequestHandlers} from "./ProtocolRequestHandlers/autoRegisterRequestHandlers.js";
 
 /**
  * Whether the returned result of a hook should be serialized.
@@ -31,7 +31,7 @@ import autoRegisterRequestHandlers from "./ProtocolRequestHandlers/autoRegisterR
  * @property {function(RequestMetaData, ArrayBuffer) : *} [handleResponse]
  */
 
-export default class ProtocolManager {
+export class ProtocolManager {
 	constructor() {
 		/** @type {Map<string, ProtocolManagerRequestHandler>} */
 		this.registeredRequestHandlers = new Map();

@@ -1,4 +1,4 @@
-import EditorConnectionsManager from "../../Network/EditorConnections/EditorConnectionsManager.js";
+import {EditorConnectionsManager} from "../../Network/EditorConnections/EditorConnectionsManager.js";
 import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 

@@ -1,9 +1,9 @@
 import {BinaryComposer, StorageType} from "../../../../src/mod.js";
 
-export default class EditorConnection {
+export class EditorConnection {
 	/**
-	 * @param {import("./MessageHandlers/MessageHandler.js").default} messageHandler
-	 * @param {import("./ProtocolManager.js").default} protocolManager
+	 * @param {import("./MessageHandlers/MessageHandler.js").MessageHandler} messageHandler
+	 * @param {import("./ProtocolManager.js").ProtocolManager} protocolManager
 	 */
 	constructor(messageHandler, protocolManager) {
 		this.messageHandler = messageHandler;

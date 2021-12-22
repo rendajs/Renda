@@ -3,11 +3,11 @@ import {EditorFileSystemNative} from "../Util/FileSystems/EditorFileSystemNative
 import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
 import {AssetManager} from "../Assets/AssetManager.js";
-import EditorConnectionsManager from "../Network/EditorConnections/EditorConnectionsManager.js";
+import {EditorConnectionsManager} from "../Network/EditorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
-import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
+import {EditorConnection} from "../Network/EditorConnections/EditorConnection.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 
