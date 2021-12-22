@@ -1,6 +1,6 @@
 import {Editor} from "./Editor.js";
 
-/** @type {Editor} */
+/** @type {Editor?} */
 let editorInstance = null;
 
 export function initEditor() {

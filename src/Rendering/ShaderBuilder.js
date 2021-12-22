@@ -6,7 +6,7 @@
  */
 
 /**
- * @typedef {(uuid: import("../../editor/src/../../src/util/mod.js").UuidString) => Promise<string>} ShaderUuidRequestedHook
+ * @typedef {(uuid: import("../../editor/src/../../src/util/mod.js").UuidString) => Promise<string?>} ShaderUuidRequestedHook
  */
 
 export class ShaderBuilder {
@@ -31,9 +31,10 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} uuid
+	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString?} uuid
 	 */
 	invalidateShader(uuid) {
+		if (!uuid) return;
 		this.shaderLibrary.delete(uuid);
 		this.fireOnShaderInvalidated(uuid);
 		for (const [existingUuid, shader] of this.shaderLibrary) {

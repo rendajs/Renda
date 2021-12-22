@@ -4,6 +4,10 @@ export {};
 initProjectSelector();
 const projectSelector = getProjectSelectorInstance();
 globalThis["projectSelector"] = projectSelector;
+/** @type {typeof import("../../src/util/mod.js")?} */
+globalThis["Util"] = null;
+/** @type {import("./Editor.js").Editor?} */
+globalThis["editor"] = null;
 
 (async () => {
 	// We'll assign some modules to the global scope so that they can be used in the browser console.
@@ -18,6 +22,8 @@ globalThis["projectSelector"] = projectSelector;
 	module.initEditor();
 	const editor = module.getEditorInstance();
 	globalThis["editor"] = editor;
-	projectSelector.setEditorLoaded(editor);
+	if (editor) {
+		projectSelector.setEditorLoaded(editor);
+	}
 })();
 
