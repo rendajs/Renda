@@ -263,6 +263,6 @@ module.exports = {
 		"jsdoc/require-returns-check": "error",
 		"jsdoc/require-returns-type": "error",
 
-		"rulesdir/no-default-exports": "warn",
+		"rulesdir/no-default-exports": "error",
 	},
 };
