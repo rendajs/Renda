@@ -84,7 +84,8 @@ export class MaterialMapTypeSerializerManager {
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
-		const mapAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(mapAssetUuid);
+		const mapProjectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(mapAssetUuid);
+		const mapAsset = /** @type {import("../Assets/ProjectAsset.js").ProjectAsset<import("../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} */ (mapProjectAsset);
 		if (!mapAsset) return [];
 		/** @type {Map<string, import("../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();

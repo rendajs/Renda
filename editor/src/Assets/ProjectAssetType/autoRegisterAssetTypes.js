@@ -10,6 +10,7 @@ import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
 import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
 import {ProjectAssetTypeWebGpuPipelineConfig} from "./ProjectAssetTypeWebGpuPipelineConfig.js";
 
+/** @type {import("./ProjectAssetType.js").ProjectAssetTypeConstructor<any>[]} */
 const autoRegisterAssetTypes = [
 	ProjectAssetTypeAssetBundle,
 	ProjectAssetTypeClusteredLightsConfig,

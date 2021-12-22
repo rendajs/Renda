@@ -1,6 +1,7 @@
 import {autoRegisterAssetTypes} from "./ProjectAssetType/autoRegisterAssetTypes.js";
 import {ProjectAssetType} from "./ProjectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/util/mod.js";
+import {ProjectAssetTypeMaterial} from "./ProjectAssetType/ProjectAssetTypeMaterial.js";
 
 export class ProjectAssetTypeManager {
 	/** @typedef {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} ProjectAssetTypeIdentifier */
@@ -14,30 +15,33 @@ export class ProjectAssetTypeManager {
 		for (const t of autoRegisterAssetTypes) {
 			this.registerAssetType(t);
 		}
+		this.registerAssetType(ProjectAssetTypeMaterial);
 	}
 
 	/**
-	 * @param {typeof ProjectAssetType} constructor
+	 * @template T
+	 * @param {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<T>} constructor
 	 */
 	registerAssetType(constructor) {
+		const castConstructor = /** @type {typeof ProjectAssetType} */ (constructor);
 		if (!(constructor.prototype instanceof ProjectAssetType)) {
 			console.warn("Tried to register project asset type (" + constructor.name + ") that does not extend ProjectAssetType class.");
 			return;
 		}
-		if (constructor.type == null) {
-			constructor.invalidConfigurationWarning("Tried to register project asset type (" + constructor.name + ") with no type value, override the static type value in order for this asset type to function properly.");
+		if (castConstructor.type == null) {
+			castConstructor.invalidConfigurationWarning("Tried to register project asset type (" + castConstructor.name + ") with no type value, override the static type value in order for this asset type to function properly.");
 			return;
 		}
-		if (!constructor.type.includes(":") || constructor.type.split(":")[0].length <= 0) {
-			constructor.invalidConfigurationWarning("Tried to register project asset type (" + constructor.name + ") without a namespace in the type value.");
+		if (!castConstructor.type.includes(":") || castConstructor.type.split(":")[0].length <= 0) {
+			castConstructor.invalidConfigurationWarning("Tried to register project asset type (" + castConstructor.name + ") without a namespace in the type value.");
 			return;
 		}
-		if (!isUuid(constructor.typeUuid)) {
-			constructor.invalidConfigurationWarning("Tried to register project asset type (" + constructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this asset type to function properly.");
+		if (!isUuid(castConstructor.typeUuid)) {
+			castConstructor.invalidConfigurationWarning("Tried to register project asset type (" + castConstructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this asset type to function properly.");
 			return;
 		}
 
-		this.registeredAssetTypes.set(constructor.type, constructor);
+		this.registeredAssetTypes.set(castConstructor.type, castConstructor);
 	}
 
 	/**

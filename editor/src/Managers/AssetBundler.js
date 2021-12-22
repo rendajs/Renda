@@ -2,6 +2,9 @@ import BinaryComposer from "../../../src/util/BinaryComposer.js";
 import {getEditorInstance} from "../editorInstance.js";
 
 export class AssetBundler {
+	/**
+	 * @param {import("../Assets/ProjectAsset.js").ProjectAsset<import("../Assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>} bundleProjectAsset
+	 */
 	async bundle(bundleProjectAsset) {
 		const bundleData = await bundleProjectAsset.readAssetData();
 		const assetUuids = await this.getAllAssetUuids(bundleData.assets, new Set(bundleData.excludeAssets), new Set(bundleData.excludeAssetsRecursive));
@@ -54,7 +57,7 @@ export class AssetBundler {
 	}
 
 	/**
-	 * @param {any} assetsList
+	 * @param {import("../Assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").AssetBundleDiskDataAsset[]} assetsList
 	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuids
 	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuidsRecursive
 	 */

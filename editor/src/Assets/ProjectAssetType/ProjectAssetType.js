@@ -1,11 +1,30 @@
 /** @typedef {string & {}} ProjectAssetTypeIdentifier */
 
+/** @typedef {ProjectAssetType<any, any, any>} ProjectAssetTypeAny */
 /**
- * @typedef {Object} LiveAssetData
- * @property {*} [liveAsset]
- * @property {*} [editorData]
+ * @template T
+ * @typedef {new (...args: ConstructorParameters<typeof ProjectAssetType>) => ProjectAssetType<T>} ProjectAssetTypeConstructor
  */
 
+/**
+ * @template TLiveAsset
+ * @template TEditorData
+ * @typedef {Object} LiveAssetData
+ * @property {TLiveAsset} [liveAsset]
+ * @property {TEditorData} [editorData]
+ */
+
+/**
+ * @typedef {LiveAssetData<any, any>} LiveAssetDataAny
+ */
+
+/** @typedef {Object | string | BlobPart} ProjectAssetDiskData */
+
+/**
+ * @template {any} TLiveAsset
+ * @template {any} TEditorData
+ * @template {ProjectAssetDiskData} TFileData
+ */
 export class ProjectAssetType {
 	/**
 	 * Identifier of the assetType. This is stored in various places
@@ -76,7 +95,9 @@ export class ProjectAssetType {
 	 */
 	static assetSettingsStructure = {};
 
-	/** @typedef {import("../ProjectAsset.js").ProjectAsset} ProjectAsset */
+	/* eslint-disable jsdoc/no-undefined-types */
+	/** @typedef {import("../ProjectAsset.js").ProjectAsset<ProjectAssetType<TLiveAsset, TEditorData, TFileData>>} ProjectAsset */
+	/* eslint-enable jsdoc/no-undefined-types */
 	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
 	 * @param {ProjectAsset} projectAsset
@@ -100,7 +121,7 @@ export class ProjectAssetType {
 	/**
 	 * This will be called when a new file of this type is created
 	 * the returned value will be passed along to {@linkcode saveLiveAssetData}.
-	 * @returns {Promise<LiveAssetData>}
+	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
 	async createNewLiveAssetData() {
 		return {liveAsset: null, editorData: null};
@@ -126,9 +147,9 @@ export class ProjectAssetType {
 	 * `editorData` will be passed back to {@linkcode saveLiveAssetData}.
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
-	 * @param {import("../ProjectAsset").ProjectAssetFileData} fileData
+	 * @param {TFileData} fileData
 	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<LiveAssetData>}
+	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
 		return {liveAsset: null};
@@ -140,9 +161,11 @@ export class ProjectAssetType {
 	 * on your configuration you can return a json object, DOMString, or binary data.
 	 * @param {*} liveAsset
 	 * @param {*} editorData
-	 * @returns {Promise<Object | string | BlobPart>}
+	 * @returns {Promise<TFileData>}
 	 */
-	async saveLiveAssetData(liveAsset, editorData) {}
+	async saveLiveAssetData(liveAsset, editorData) {
+		return null;
+	}
 
 	/**
 	 * This gets called when the file is changed on disk by an external program.
@@ -168,7 +191,8 @@ export class ProjectAssetType {
 	 * You can use this to automacally listen for changes in other projectAsset.
 	 * If any of the registered liveAssets get replaced, the liveAsset
 	 * of this ProjectAsset automatically gets destroyed and recreated.
-	 * @param {ProjectAsset} projectAsset
+	 * @template {import("../ProjectAsset.js").ProjectAsset<any>} T
+	 * @param {T} projectAsset
 	 */
 	listenForUsedLiveAssetChanges(projectAsset) {
 		if (!projectAsset) return;
@@ -232,6 +256,11 @@ export class ProjectAssetType {
 	 */
 	async *getReferencedAssetUuids() {}
 
+	/**
+	 * Used internally to log a message with a stacktrace that leads
+	 * to this file.
+	 * @param {string} message
+	 */
 	static invalidConfigurationWarning(message) {
 		console.warn(message + "\nView ProjectAssetType.js for more info.");
 	}

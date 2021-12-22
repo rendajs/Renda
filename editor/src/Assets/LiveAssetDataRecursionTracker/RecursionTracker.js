@@ -24,7 +24,21 @@ import {LoadingAsset} from "./LoadingAsset.js";
 /* eslint-enable jsdoc/require-description-complete-sentence */
 
 /**
- * @typedef {(liveAssetData: import("../ProjectAssetType/ProjectAssetType.js").LiveAssetData) => void} LiveAssetDataCallback
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} T
+ * @typedef {T extends import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType
+ */
+/**
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} T
+ * @typedef {T extends import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType
+ */
+/**
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} T
+ * @typedef {import("../ProjectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<T>, EditorDataType<T>>} LiveAssetData
+ */
+
+/**
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} TProjectAssetType
+ * @typedef {(liveAssetData: LiveAssetData<TProjectAssetType>) => void} LiveAssetDataCallback
  */
 
 export class RecursionTracker {
@@ -66,8 +80,9 @@ export class RecursionTracker {
 	}
 
 	/**
+	 * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
 	 * @param {import("../../Util/Util.js").UuidString} uuid
-	 * @param {LiveAssetDataCallback} cb
+	 * @param {LiveAssetDataCallback<TProjectAssetType>} cb
 	 * @param {GetLiveAssetDataOptions} options
 	 */
 	getLiveAssetData(uuid, cb, {

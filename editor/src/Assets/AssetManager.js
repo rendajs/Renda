@@ -64,7 +64,7 @@ export class AssetManager {
 			const json = await this.fileSystem.readJson(this.assetSettingsPath);
 			if (json) {
 				for (const [uuid, assetData] of Object.entries(json.assets)) {
-					const projectAsset = await ProjectAsset.fromJsonData(this, getEditorInstance().projectAssetTypeManager, uuid, assetData);
+					const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, getEditorInstance().projectAssetTypeManager, uuid, assetData);
 					if (projectAsset) {
 						projectAsset.makeUuidConsistent();
 						this.projectAssets.set(uuid, projectAsset);
@@ -307,6 +307,7 @@ export class AssetManager {
 
 	/**
 	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @returns {Promise<any>}
 	 */
 	async getLiveAsset(uuid) {
 		const projectAsset = await this.getProjectAsset(uuid);

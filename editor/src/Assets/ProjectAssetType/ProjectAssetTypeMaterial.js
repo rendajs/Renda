@@ -4,6 +4,9 @@ import {PropertiesAssetContentMaterial} from "../../PropertiesWindowContent/Prop
 import BinaryComposer, {StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/Math/MathTypes.js";
 
+/**
+ * @extends {ProjectAssetType<Material, null, import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
+ */
 export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	static type = "JJ:material";
 	static typeUuid = "430f47a8-82cc-4b4c-a664-2360794e80d6";
@@ -15,11 +18,12 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {*} materialJson
-	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData>}
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Material, null>>}
 	 */
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
 		if (materialJson.map) {
+			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} */
 			const materialMapAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(materialJson.map);
 			if (materialMapAsset) {
 				materialMap = await materialMapAsset.getLiveAsset();

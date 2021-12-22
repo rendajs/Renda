@@ -6,12 +6,12 @@ import {StorageType} from "../../../src/util/BinaryComposer.js";
 import SingleInstancePromise from "../../../src/util/SingleInstancePromise.js";
 import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker.js";
 
-/** @typedef {Object | string | File} ProjectAssetFileData */
+/** @typedef {ProjectAsset<any>} ProjectAssetAny */
 
 /**
  * @typedef {Object} RegisteredRecursionTrackerLiveAssetHandler
  * @property {() => void} registeredCallback
- * @property {WeakRef<ProjectAsset>} registeredOnAsset
+ * @property {WeakRef<ProjectAssetAny>} registeredOnAsset
  */
 
 /**
@@ -24,7 +24,15 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
  * @property {boolean} [isBuiltIn]
  */
 
+/**
+ * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
+ */
 export class ProjectAsset {
+	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType */
+	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType */
+	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U> ? U :never} FileDataType */
+	/** @typedef {import("./ProjectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} LiveAssetData */
+
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
@@ -56,15 +64,18 @@ export class ProjectAsset {
 		 */
 		this._deletedState = null;
 
-		/** @type {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType} */
+		/** @type {T} */
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
+		/** @type {Set<(liveAssetData: LiveAssetData) => any>} */
 		this.onLiveAssetDataGetCbs = new Set();
+		/** @type {LiveAssetType} */
 		this.liveAsset = null;
+		/** @type {EditorDataType} */
 		this.editorData = null;
 
-		this.initInstance = new SingleInstancePromise(async _ => await this.init());
+		this.initInstance = new SingleInstancePromise(async () => await this.init());
 		this.initInstance.run();
 
 		/** @type {Set<() => void>} */
@@ -113,7 +124,11 @@ export class ProjectAsset {
 
 		const AssetTypeConstructor = this.assetTypeManager.getAssetType(this.assetType);
 		if (AssetTypeConstructor) {
-			this._projectAssetType = new AssetTypeConstructor(getEditorInstance(), this, this.assetManager, this.assetTypeManager);
+			const projectAssetType = new AssetTypeConstructor(getEditorInstance(), this, this.assetManager, this.assetTypeManager);
+			/* eslint-disable jsdoc/no-undefined-types */
+			const castProjectAssetType = /** @type {T} */ (projectAssetType);
+			/* eslint-enable jsdoc/no-undefined-types */
+			this._projectAssetType = castProjectAssetType;
 		}
 	}
 
@@ -136,7 +151,7 @@ export class ProjectAsset {
 	 * @param {import("../Util/Util.js").UuidString} uuid
 	 * @param {ProjectAssetOptions} assetData
 	 */
-	static async fromJsonData(assetManager, assetTypeManager, uuid, assetData) {
+	static async guessAssetTypeAndCreate(assetManager, assetTypeManager, uuid, assetData) {
 		if (!assetData.assetType) {
 			assetData.assetType = this.guessAssetTypeFromPath(assetData.path);
 			assetData.forceAssetType = false;
@@ -260,7 +275,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {RecursionTracker} recursionTracker
-	 * @returns {Promise<import("./ProjectAssetType/ProjectAssetType.js").LiveAssetData>}
+	 * @returns {Promise<LiveAssetData>}
 	 */
 	async getLiveAssetData(recursionTracker = null) {
 		if (this.liveAsset || this.editorData) {
@@ -341,6 +356,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {RecursionTracker} recursionTracker
+	 * @returns {Promise<LiveAssetType>}
 	 */
 	async getLiveAsset(recursionTracker = null) {
 		const {liveAsset} = await this.getLiveAssetData(recursionTracker);
@@ -349,6 +365,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {RecursionTracker} recursionTracker
+	 * @returns {Promise<EditorDataType>}
 	 */
 	async getEditorData(recursionTracker = null) {
 		const {editorData} = await this.getLiveAssetData(recursionTracker);
@@ -382,6 +399,9 @@ export class ProjectAsset {
 		}
 	}
 
+	/**
+	 * @param {LiveAssetData} liveAssetData
+	 */
 	fireOnLiveAssetDataGetCbs(liveAssetData) {
 		for (const cb of this.onLiveAssetDataGetCbs) {
 			cb(liveAssetData);
@@ -391,12 +411,16 @@ export class ProjectAsset {
 	}
 
 	/**
+	 * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("../Util/Util.js").UuidString} assetUuid The asset to monitor for changes.
-	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback} cb
+	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback<TProjectAssetType>} cb
 	 */
 	async registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {
 		const sym = this.currentRecursionTrackerLiveAssetChangeSym;
+		/* eslint-disable jsdoc/no-undefined-types */
+		/** @type {ProjectAsset<TProjectAssetType>} */
+		/* eslint-enable jsdoc/no-undefined-types */
 		const projectAsset = await assetManager.getProjectAsset(assetUuid);
 
 		// If either this projectAsset was destructed or its liveAsset was reloaded.
@@ -465,7 +489,7 @@ export class ProjectAsset {
 	/**
 	 * The returned type depends on the value of ProjectAssetType.storeInProjectAsJson
 	 * and ProjectAssetType.storeInProjectAsText.
-	 * @returns {Promise<?ProjectAssetFileData>}
+	 * @returns {Promise<FileDataType>}
 	 */
 	async readAssetData() {
 		await this.waitForInit();
@@ -494,6 +518,9 @@ export class ProjectAsset {
 		return fileData;
 	}
 
+	/**
+	 * @param {FileDataType} fileData
+	 */
 	async writeAssetData(fileData) {
 		await this.waitForInit();
 
@@ -516,12 +543,14 @@ export class ProjectAsset {
 			if (this.isBuiltIn) {
 				await getEditorInstance().builtInAssetManager.writeText(this.path, fileData);
 			} else {
-				await getEditorInstance().projectManager.currentProjectFileSystem.writeText(this.path, fileData);
+				const fileDataStr = /** @type {string} */ (fileData);
+				await getEditorInstance().projectManager.currentProjectFileSystem.writeText(this.path, fileDataStr);
 			}
 		} else if (this.isBuiltIn) {
 			await getEditorInstance().builtInAssetManager.writeBinary(this.path, fileData);
 		} else {
-			await getEditorInstance().projectManager.currentProjectFileSystem.writeBinary(this.path, fileData);
+			const fileDataBlob = /** @type {BlobPart} */ (fileData);
+			await getEditorInstance().projectManager.currentProjectFileSystem.writeBinary(this.path, fileDataBlob);
 		}
 	}
 

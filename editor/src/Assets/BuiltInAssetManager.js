@@ -26,7 +26,7 @@ export class BuiltInAssetManager {
 					continue;
 				}
 				assetData.isBuiltIn = true;
-				const projectAsset = await ProjectAsset.fromJsonData(getEditorInstance().projectManager.assetManager, getEditorInstance().projectAssetTypeManager, uuid, assetData);
+				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(getEditorInstance().projectManager.assetManager, getEditorInstance().projectAssetTypeManager, uuid, assetData);
 				if (projectAsset) {
 					projectAsset.onNewLiveAssetInstance(() => {
 						for (const cb of this.onAssetChangeCbs) {

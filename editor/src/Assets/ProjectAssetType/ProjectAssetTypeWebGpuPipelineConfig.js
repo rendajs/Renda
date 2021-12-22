@@ -42,7 +42,9 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfig;
 
 	async getLiveAssetData(fileData) {
+		/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>} */
 		const fragmentShader = await this.editorInstance.projectManager.assetManager.getProjectAsset(fileData.fragmentShader);
+		/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>} */
 		const vertexShader = await this.editorInstance.projectManager.assetManager.getProjectAsset(fileData.vertexShader);
 		this.listenForUsedLiveAssetChanges(fragmentShader);
 		this.listenForUsedLiveAssetChanges(vertexShader);
