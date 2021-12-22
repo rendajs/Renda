@@ -38,7 +38,7 @@ export class ProjectAssetType {
 	 * This will be used for storing the asset type in asset bundles.
 	 * This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
 	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
-	 * @type {import("../../Util/Util.js").UuidString}
+	 * @type {import("../../../../src/util/mod.js").UuidString}
 	 */
 	static typeUuid = null;
 

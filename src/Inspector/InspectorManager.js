@@ -16,7 +16,7 @@ export class InspectorManager {
 	}
 
 	/**
-	 * @param {import("../../editor/src/Util/Util.js").UuidString} clientId
+	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} clientId
 	 * @param {MessagePort} port
 	 */
 	handleConnectionCreated(clientId, port) {

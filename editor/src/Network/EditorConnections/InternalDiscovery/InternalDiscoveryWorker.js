@@ -8,7 +8,7 @@ import InternalDiscoveryWorkerConnection from "./InternalDiscoveryWorkerConnecti
 const activeConnections = new Map();
 
 /**
- * @param {import("../../../Util/Util.js").UuidString} createdClientId
+ * @param {import("../../../../../src/util/mod.js").UuidString} createdClientId
  */
 function sendAllConnectionAddedMessages(createdClientId) {
 	const {port: createdPort, clientType: createdClientType} = activeConnections.get(createdClientId);
@@ -30,7 +30,7 @@ function sendAllConnectionAddedMessages(createdClientId) {
 }
 
 /**
- * @param {import("../../../Util/Util.js").UuidString} clientId
+ * @param {import("../../../../../src/util/mod.js").UuidString} clientId
  */
 function sendAllClientRemoved(clientId) {
 	for (const {port} of activeConnections.values()) {

@@ -44,7 +44,7 @@ import {LoadingAsset} from "./LoadingAsset.js";
 export class RecursionTracker {
 	/**
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
-	 * @param {import("../../Util/Util.js").UuidString} rootUuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} rootUuid
 	 */
 	constructor(assetManager, rootUuid) {
 		this.assetManager = assetManager;
@@ -64,7 +64,7 @@ export class RecursionTracker {
 		/** @type {LoadingAsset} */
 		this.rootLoadingAsset = null;
 
-		/** @type {Map<import("../../Util/Util.js").UuidString, LoadingAsset>} */
+		/** @type {Map<import("../../../../src/util/mod.js").UuidString, LoadingAsset>} */
 		this.loadingLiveAssets = new Map();
 	}
 
@@ -81,7 +81,7 @@ export class RecursionTracker {
 
 	/**
 	 * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
-	 * @param {import("../../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
 	 * @param {LiveAssetDataCallback<TProjectAssetType>} cb
 	 * @param {GetLiveAssetDataOptions} options
 	 */
@@ -111,7 +111,7 @@ export class RecursionTracker {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
 	 * @param {(liveAsset: *) => void} cb
 	 * @param {GetLiveAssetDataOptions} options
 	 */

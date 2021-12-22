@@ -3,7 +3,7 @@
  */
 
 import {ColorizerFilter} from "./ColorizerFilter.js";
-import {generateUuid} from "../Util.js";
+import {generateUuid} from "../../../../src/util/mod.js";
 
 export class ColorizerFilterManager {
 	constructor() {

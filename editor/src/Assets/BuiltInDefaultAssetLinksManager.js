@@ -3,8 +3,8 @@ import {autoRegisterBuiltInDefaultAssetLinks} from "./autoRegisterBuiltInDefault
 /**
  * @typedef {Object} AssetLinkConfig
  * @property {string} name
- * @property {import("../Util/Util.js").UuidString} defaultAssetUuid
- * @property {import("../Util/Util.js").UuidString} originalAssetUuid
+ * @property {import("../../../src/util/mod.js").UuidString} defaultAssetUuid
+ * @property {import("../../../src/util/mod.js").UuidString} originalAssetUuid
  */
 
 export class BuiltInDefaultAssetLinksManager {

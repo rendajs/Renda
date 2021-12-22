@@ -40,7 +40,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			},
 		};
 
-		/** @type {Map<import("../../../Util/Util.js").UuidString, MaterialMapTypeEntry>} */
+		/** @type {Map<import("../../../../../src/util/mod.js").UuidString, MaterialMapTypeEntry>} */
 		this.addedMapTypes = new Map();
 		this.mapTypesTreeView = this.treeView.addCollapsable("Map Types");
 
@@ -89,7 +89,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {import("../../../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../../../src/util/mod.js").UuidString} uuid
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */

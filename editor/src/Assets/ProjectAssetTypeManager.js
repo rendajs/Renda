@@ -52,7 +52,7 @@ export class ProjectAssetTypeManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 */
 	getAssetTypeByUuid(uuid) {
 		for (const assetType of this.registeredAssetTypes.values()) {

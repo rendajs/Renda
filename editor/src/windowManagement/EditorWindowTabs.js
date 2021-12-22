@@ -1,6 +1,6 @@
 import {EditorWindow} from "./EditorWindow.js";
-import {generateUuid, getElemSize, parseMimeType} from "../Util/Util.js";
-import {iLerp} from "../../../src/util/mod.js";
+import {getElemSize, parseMimeType} from "../Util/Util.js";
+import {generateUuid, iLerp} from "../../../src/util/mod.js";
 import {getEditorInstance} from "../editorInstance.js";
 import {Button} from "../UI/Button.js";
 import {ButtonGroup} from "../UI/ButtonGroup.js";
@@ -10,7 +10,7 @@ import {ContentWindow} from "./contentWindows/ContentWindow.js";
 export class EditorWindowTabs extends EditorWindow {
 	/** @type {Array<string>} */
 	#intendedTabTypes = [];
-	/** @type {import("../Util/Util.js").UuidString[]} */
+	/** @type {import("../../../src/util/mod.js").UuidString[]} */
 	#intendedTabUuids = [];
 
 	constructor() {
@@ -79,7 +79,7 @@ export class EditorWindowTabs extends EditorWindow {
 	/**
 	 * @param {number} index
 	 * @param {string} tabType
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 * @returns {?import("./contentWindows/ContentWindow.js").ContentWindow}
 	 */
 	setTabType(index, tabType, uuid) {
@@ -137,7 +137,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @template {import("./contentWindows/ContentWindow.js").ContentWindow} T
 	 * @param {number} index
 	 * @param {new (...args: ConstructorParameters<typeof import("./contentWindows/ContentWindow.js").ContentWindow>) => T} constructor
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 * @returns {T}
 	 */
 	loadContentWindow(index, constructor, uuid) {

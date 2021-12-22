@@ -1,6 +1,6 @@
 export class LoadingAsset {
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
 	 */
 	constructor(uuid) {
 		this.uuid = uuid;

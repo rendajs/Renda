@@ -24,7 +24,7 @@ import IndexedDbUtil from "../Util/IndexedDbUtil.js";
 /**
  * @typedef {Object} WorkspaceDataWindowTabsType
  * @property {string[]} tabTypes
- * @property {import("../Util/Util.js").UuidString[]} tabUuids
+ * @property {import("../../../src/util/mod.js").UuidString[]} tabUuids
  * @property {number} [activeTabIndex]
  *
  * @typedef {WorkspaceDataWindow & WorkspaceDataWindowTabsType} WorkspaceDataWindowTabs

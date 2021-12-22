@@ -9,7 +9,7 @@ import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorI
  * @typedef {Object} DraggingProjectAssetData
  * @property {boolean} dataPopulated
  * @property {typeof import("../../Assets/ProjectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
- * @property {import("../../Util/Util.js").UuidString} assetUuid
+ * @property {import("../../../../src/util/mod.js").UuidString} assetUuid
  */
 
 export class ContentWindowProject extends ContentWindow {

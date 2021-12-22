@@ -3,7 +3,7 @@ import {EditorWindowTabs} from "./EditorWindowTabs.js";
 import {contentWindows} from "./contentWindows/ContentWindows.js";
 import {ContentWindow} from "./contentWindows/ContentWindow.js";
 import {WorkspaceManager} from "./WorkspaceManager.js";
-import {generateUuid} from "../Util/Util.js";
+import {generateUuid} from "../../../src/util/mod.js";
 import {EventHandler} from "../../../src/util/EventHandler.js";
 import {EDITOR_ENV} from "../editorDefines.js";
 
@@ -130,7 +130,7 @@ export class WindowManager {
 	}
 
 	/**
-	 * @param {{id: import("../Util/Util.js").UuidString, type: string, data: any}[]} datas
+	 * @param {{id: import("../../../src/util/mod.js").UuidString, type: string, data: any}[]} datas
 	 */
 	setContentWindowPersistentData(datas = []) {
 		const datasSet = new Set(datas);

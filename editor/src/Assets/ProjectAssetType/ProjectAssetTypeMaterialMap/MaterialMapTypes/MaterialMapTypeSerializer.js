@@ -24,7 +24,7 @@ export class MaterialMapTypeSerializer {
 	/**
 	 * This will be used for storing the map type in the MaterialMap asset.
 	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
-	 * @type {import("../../../../Util/Util.js").UuidString}
+	 * @type {import("../../../../../../src/util/mod.js").UuidString}
 	 */
 	static typeUuid = null;
 

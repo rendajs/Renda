@@ -1,4 +1,4 @@
-import {generateUuid} from "../Util/Util.js";
+import {generateUuid} from "../../../src/util/mod.js";
 
 export class DragManager {
 	constructor() {
@@ -47,7 +47,7 @@ export class DragManager {
 
 	/**
 	 * @param {*} data
-	 * @returns {import("../Util/Util.js").UuidString}
+	 * @returns {import("../../../src/util/mod.js").UuidString}
 	 */
 	registerDraggingData(data) {
 		const id = generateUuid();
@@ -56,14 +56,14 @@ export class DragManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} id
+	 * @param {import("../../../src/util/mod.js").UuidString} id
 	 */
 	getDraggingData(id) {
 		return this.draggingData.get(id);
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} id
+	 * @param {import("../../../src/util/mod.js").UuidString} id
 	 */
 	unregisterDraggingData(id) {
 		this.draggingData.delete(id);

@@ -5,13 +5,13 @@ import {PropertiesAssetContentAssetBundle} from "../../PropertiesWindowContent/P
  * @typedef {Object} AssetBundleDiskData
  * @property {string} outputLocation
  * @property {AssetBundleDiskDataAsset[]} assets
- * @property {import("../../Util/Util.js").UuidString[]} excludeAssets
- * @property {import("../../Util/Util.js").UuidString[]} excludeAssetsRecursive
+ * @property {import("../../../../src/util/mod.js").UuidString[]} excludeAssets
+ * @property {import("../../../../src/util/mod.js").UuidString[]} excludeAssetsRecursive
  */
 
 /**
  * @typedef {Object} AssetBundleDiskDataAsset
- * @property {import("../../Util/Util.js").UuidString} asset
+ * @property {import("../../../../src/util/mod.js").UuidString} asset
  * @property {boolean} includeChildren
  */
 

@@ -14,7 +14,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	constructor(...args) {
 		super(...args);
 
-		/** @type {Map<import("../../../editor/src/Util/Util.js").UuidString, MaterialMapTypeLoader>} */
+		/** @type {Map<import("../../../editor/src/../../src/util/mod.js").UuidString, MaterialMapTypeLoader>} */
 		this.registeredLoaderTypes = new Map();
 	}
 

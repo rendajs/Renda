@@ -2,7 +2,7 @@ import MessageHandler from "./MessageHandler.js";
 
 export default class MessageHandlerInternal extends MessageHandler {
 	/**
-	 * @param {import("../../../Util/Util.js").UuidString} connectionId
+	 * @param {import("../../../../../src/util/mod.js").UuidString} connectionId
 	 * @param {import("../EditorConnectionsManager.js").default} connectionsManager
 	 * @param {boolean} isInitiator
 	 */

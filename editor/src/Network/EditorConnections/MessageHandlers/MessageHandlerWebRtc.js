@@ -2,7 +2,7 @@ import MessageHandler from "./MessageHandler.js";
 
 export default class MessageHandlerWebRtc extends MessageHandler {
 	/**
-	 * @param {import("../../../Util/Util.js").UuidString} otherClientUuid
+	 * @param {import("../../../../../src/util/mod.js").UuidString} otherClientUuid
 	 * @param {import("../EditorConnectionsManager.js").default} connectionsManager
 	 * @param {boolean} isInitiator
 	 */

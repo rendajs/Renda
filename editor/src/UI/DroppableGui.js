@@ -49,7 +49,7 @@ export class DroppableGui {
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 
-		/** @type {import("../Util/Util.js").UuidString}*/
+		/** @type {import("../../../src/util/mod.js").UuidString}*/
 		this.defaultAssetLinkUuid = null;
 		/** @type {?import("../Assets/DefaultAssetLink.js").DefaultAssetLink}*/
 		this.defaultAssetLink = null;

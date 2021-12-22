@@ -5,7 +5,7 @@ import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
 
 /**
  * @typedef {Object} MaterialAssetData
- * @property {import("../../Util/Util.js").UuidString} map
+ * @property {import("../../../../src/util/mod.js").UuidString} map
  * @property {Object.<string, *>} [properties]
  */
 

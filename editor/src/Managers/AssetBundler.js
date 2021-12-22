@@ -58,11 +58,11 @@ export class AssetBundler {
 
 	/**
 	 * @param {import("../Assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").AssetBundleDiskDataAsset[]} assetsList
-	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuids
-	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuidsRecursive
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuids
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuidsRecursive
 	 */
 	async getAllAssetUuids(assetsList, excludeUuids, excludeUuidsRecursive) {
-		/** @type {Set<import("../Util/Util.js").UuidString>} */
+		/** @type {Set<import("../../../src/util/mod.js").UuidString>} */
 		const foundUuids = new Set();
 		for (const assetData of assetsList) {
 			if (assetData.includeChildren) {
@@ -77,11 +77,11 @@ export class AssetBundler {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} assetUuid
-	 * @param {Set<import("../Util/Util.js").UuidString>} foundUuids
-	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuids
-	 * @param {Set<import("../Util/Util.js").UuidString>} excludeUuidsRecursive
-	 * @returns {AsyncGenerator<import("../Util/Util.js").UuidString>}
+	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} foundUuids
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuids
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuidsRecursive
+	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
 	 */
 	async *collectAllReferences(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive) {
 		const projectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(assetUuid);

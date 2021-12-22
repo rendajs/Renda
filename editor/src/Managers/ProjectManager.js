@@ -4,7 +4,7 @@ import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemInd
 import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
 import {AssetManager} from "../Assets/AssetManager.js";
 import EditorConnectionsManager from "../Network/EditorConnections/EditorConnectionsManager.js";
-import {generateUuid} from "../Util/Util.js";
+import {generateUuid} from "../../../src/util/mod.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import EditorConnection from "../Network/EditorConnections/EditorConnection.js";
@@ -15,11 +15,11 @@ import {ContentWindowConnections} from "../windowManagement/contentWindows/Conte
  * @typedef {Object} StoredProjectEntry
  * @property {"db" | "native" | "remote"} fileSystemType
  * @property {string} name
- * @property {import("../Util/Util.js").UuidString} projectUuid
+ * @property {import("../../../src/util/mod.js").UuidString} projectUuid
  * @property {boolean} isWorthSaving
  * @property {string} [alias = ""]
  * @property {FileSystemDirectoryHandle} [fileSystemHandle]
- * @property {import("../Util/Util.js").UuidString} [remoteProjectUuid]
+ * @property {import("../../../src/util/mod.js").UuidString} [remoteProjectUuid]
  * @property {import("../Network/EditorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
  */
 
@@ -243,7 +243,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 */
 	async deleteDbProject(uuid) {
 		if (await EditorFileSystemIndexedDb.exists(uuid)) {

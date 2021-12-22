@@ -6,7 +6,7 @@ import {MaterialMapTypeWebGpu} from "../../../../../../src/Rendering/Renderers/W
 
 /**
  * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData
- * @property {import("../../../../Util/Util.js").UuidString} forwardPipelineConfig
+ * @property {import("../../../../../../src/util/mod.js").UuidString} forwardPipelineConfig
  */
 
 export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSerializer {

@@ -16,7 +16,7 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
 
 /**
  * @typedef {Object} ProjectAssetOptions
- * @property {import("../Util/Util.js").UuidString} [uuid]
+ * @property {import("../../../src/util/mod.js").UuidString} [uuid]
  * @property {string[]} [path]
  * @property {*} [assetSettings]
  * @property {*} [assetType]
@@ -55,7 +55,7 @@ export class ProjectAsset {
 	} = {}) {
 		this.assetManager = assetManager;
 		this.assetTypeManager = assetTypeManager;
-		/** @type {import("../Util/Util.js").UuidString} */
+		/** @type {import("../../../src/util/mod.js").UuidString} */
 		this.uuid = uuid;
 		/** @type {Array<string>}*/
 		this.path = path;
@@ -156,7 +156,7 @@ export class ProjectAsset {
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 * @param {ProjectAssetOptions} assetData
 	 */
 	static async guessAssetTypeAndCreate(assetManager, assetTypeManager, uuid, assetData) {
@@ -425,7 +425,7 @@ export class ProjectAsset {
 	/**
 	 * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
-	 * @param {import("../Util/Util.js").UuidString} assetUuid The asset to monitor for changes.
+	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid The asset to monitor for changes.
 	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback<TProjectAssetType>} cb
 	 */
 	async registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {
@@ -607,7 +607,7 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * @returns {AsyncGenerator<import("../Util/Util.js").UuidString>}
+	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
 	 */
 	async *getReferencedAssetUuids() {
 		await this.waitForInit();
@@ -615,7 +615,7 @@ export class ProjectAsset {
 		if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 			const assetData = await this.readAssetData();
 
-			/** @type {import("../Util/Util.js").UuidString[]} */
+			/** @type {import("../../../src/util/mod.js").UuidString[]} */
 			const referencedUuids = [];
 			BinaryComposer.objectToBinary(assetData, {
 				...usedAssetLoaderType.binaryComposerOpts,

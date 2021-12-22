@@ -3,7 +3,7 @@ import {Component} from "./mod.js";
 
 export default class ComponentTypeManager {
 	constructor() {
-		/** @type {Map<import("../../editor/src/Util/Util.js").UuidString, typeof Component>} */
+		/** @type {Map<import("../../editor/src/../../src/util/mod.js").UuidString, typeof Component>} */
 		this.components = new Map();
 	}
 
@@ -24,7 +24,7 @@ export default class ComponentTypeManager {
 	}
 
 	/**
-	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} uuid
 	 * @returns {typeof Component}
 	 */
 	getComponentConstructorForUuid(uuid) {

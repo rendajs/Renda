@@ -35,7 +35,7 @@ export class ContentWindow {
 		/**
 		 * The instance uuid of the ContentWindow.
 		 * This is used for dragging tabs and associating the ContentWindow with the persistent data.
-		 * @type {import("../../Util/Util.js").UuidString}
+		 * @type {import("../../../../src/util/mod.js").UuidString}
 		 */
 		this.uuid = null;
 

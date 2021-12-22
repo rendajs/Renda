@@ -145,7 +145,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} entityUuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} entityUuid
 	 * @param {boolean} fromContentWindowLoad
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {

@@ -7,26 +7,26 @@ import {InternalDiscoveryManager} from "../../../../src/mod.js";
 /**
  * @typedef {Object} RemoteEditorMetaData
  * @property {string} name
- * @property {import("../../Util/Util.js").UuidString} uuid
+ * @property {import("../../../../src/util/mod.js").UuidString} uuid
  */
 /** @typedef {"webRtc" | "internal"} MessageHandlerType */
 /** @typedef {"editor" | "inspector"} ClientType */
 /**
  * @typedef {Object} AvailableEditorData
- * @property {import("../../Util/Util.js").UuidString} id
+ * @property {import("../../../../src/util/mod.js").UuidString} id
  * @property {MessageHandlerType} messageHandlerType
  * @property {ClientType} clientType
  * @property {RemoteEditorMetaData} [projectMetaData]
  */
 
-/** @typedef {Map<import("../../Util/Util.js").UuidString, AvailableEditorData>} AvailableEditorDataList */
-/** @typedef {Map<import("../../Util/Util.js").UuidString, EditorConnection>} ActiveEditorDataList */
+/** @typedef {Map<import("../../../../src/util/mod.js").UuidString, AvailableEditorData>} AvailableEditorDataList */
+/** @typedef {Map<import("../../../../src/util/mod.js").UuidString, EditorConnection>} ActiveEditorDataList */
 
 /** @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType */
 
 /**
  * @typedef {Object} AvailableConnectionConfig
- * @property {import("../../Util/Util.js").UuidString} uuid
+ * @property {import("../../../../src/util/mod.js").UuidString} uuid
  * @property {MessageHandlerType} messageHandlerType
  */
 
@@ -102,7 +102,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} otherClientId
+	 * @param {import("../../../../src/util/mod.js").UuidString} otherClientId
 	 */
 	requestInternalMessageChannelConnection(otherClientId) {
 		this.internalDiscovery.postMessage({op: "requestConnection", otherClientId});
@@ -225,7 +225,7 @@ export default class EditorConnectionsManager {
 
 	/**
 	 * @typedef {Object} AvailableRtcConnectionData
-	 * @property {import("../../Util/Util.js").UuidString} id
+	 * @property {import("../../../../src/util/mod.js").UuidString} id
 	 * @property {ClientType} clientType
 	 * @property {RemoteEditorMetaData} [projectMetaData]
 	 */
@@ -334,7 +334,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 * @param {import("../../../../src/util/mod.js").UuidString} connectionId
 	 */
 	startConnection(connectionId) {
 		const connectionData = this.availableConnections.get(connectionId);
@@ -353,7 +353,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} connectionId
+	 * @param {import("../../../../src/util/mod.js").UuidString} connectionId
 	 * @param {import("./MessageHandlers/MessageHandler.js").default} messageHandler
 	 * @return {EditorConnection}
 	 */
@@ -369,7 +369,7 @@ export default class EditorConnectionsManager {
 
 	/**
 	 *
-	 * @param {import("../../Util/Util.js").UuidString} clientId
+	 * @param {import("../../../../src/util/mod.js").UuidString} clientId
 	 * @param {MessagePort} messagePort
 	 */
 	handleInternalConnectionCreation(clientId, messagePort) {
@@ -383,7 +383,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} editorId
+	 * @param {import("../../../../src/util/mod.js").UuidString} editorId
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
 	handleRtcOffer(editorId, rtcDescription) {
@@ -397,7 +397,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} editorId
+	 * @param {import("../../../../src/util/mod.js").UuidString} editorId
 	 * @param {RTCIceCandidateInit} iceCandidate
 	 */
 	handleRtcIceCandidate(editorId, iceCandidate) {
@@ -429,7 +429,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} toUuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} toUuid
 	 * @param {*} data
 	 */
 	sendRelayData(toUuid, data) {
@@ -440,7 +440,7 @@ export default class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").UuidString} toUuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} toUuid
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
 	sendRtcOffer(toUuid, rtcDescription) {
@@ -452,7 +452,7 @@ export default class EditorConnectionsManager {
 
 	/**
 	 *
-	 * @param {import("../../Util/Util.js").UuidString} toUuid
+	 * @param {import("../../../../src/util/mod.js").UuidString} toUuid
 	 * @param {RTCIceCandidate} iceCandidate
 	 */
 	sendRtcIceCandidate(toUuid, iceCandidate) {

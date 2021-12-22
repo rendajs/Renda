@@ -2,16 +2,16 @@
  * @typedef {Object} ShaderLibraryItem
  * @property {string} shaderCode
  * @property {string} builtCode
- * @property {import("../../editor/src/Util/Util.js").UuidString[]} includedUuids
+ * @property {import("../../editor/src/../../src/util/mod.js").UuidString[]} includedUuids
  */
 
 /**
- * @typedef {(uuid: import("../../editor/src/Util/Util.js").UuidString) => Promise<string>} ShaderUuidRequestedHook
+ * @typedef {(uuid: import("../../editor/src/../../src/util/mod.js").UuidString) => Promise<string>} ShaderUuidRequestedHook
  */
 
 export class ShaderBuilder {
 	constructor() {
-		/** @type {Map<import("../../editor/src/Util/Util.js").UuidString, ShaderLibraryItem>} */
+		/** @type {Map<import("../../editor/src/../../src/util/mod.js").UuidString, ShaderLibraryItem>} */
 		this.shaderLibrary = new Map();
 		/** @type {Set<ShaderUuidRequestedHook>} */
 		this.onShaderUuidRequestedCbs = new Set();
@@ -19,7 +19,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} uuid
 	 * @param {string} shaderCode
 	 */
 	addShader(uuid, shaderCode) {
@@ -31,7 +31,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} uuid
 	 */
 	invalidateShader(uuid) {
 		this.shaderLibrary.delete(uuid);
@@ -47,7 +47,7 @@ export class ShaderBuilder {
 	 * @param {string} shaderCode
 	 */
 	async buildShader(shaderCode) {
-		/** @type {import("../../editor/src/Util/Util.js").UuidString[]} */
+		/** @type {import("../../editor/src/../../src/util/mod.js").UuidString[]} */
 		const includedUuids = [];
 		const attemptedUuids = [];
 		const regex = /^\s*\/\/\s*@import\s(.+?):?(?::(.+)|$)/gm;
@@ -98,7 +98,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} uuid
 	 */
 	async getShader(uuid) {
 		if (!this.shaderLibrary.has(uuid)) {
@@ -122,7 +122,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../../editor/src/Util/Util.js").UuidString} uuid
+	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} uuid
 	 */
 	async fireShaderUuidRequested(uuid) {
 		/**

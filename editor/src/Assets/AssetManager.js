@@ -1,6 +1,7 @@
 import {SingleInstancePromise} from "../../../src/mod.js";
 import {getEditorInstance} from "../editorInstance.js";
-import {generateUuid, handleDuplicateName} from "../Util/Util.js";
+import {handleDuplicateName} from "../Util/Util.js";
+import {generateUuid} from "../../../src/util/mod.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
 
@@ -203,7 +204,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} defaultAssetUuid
+	 * @param {import("../../../src/util/mod.js").UuidString} defaultAssetUuid
 	 * @returns {DefaultAssetLink}
 	 */
 	getDefaultAssetLink(defaultAssetUuid) {
@@ -211,8 +212,8 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} uuid
-	 * @returns {import("../Util/Util.js").UuidString}
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
+	 * @returns {import("../../../src/util/mod.js").UuidString}
 	 */
 	resolveDefaultAssetLinkUuid(uuid) {
 		const defaultAssetLink = this.getDefaultAssetLink(uuid);
@@ -306,7 +307,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 * @returns {Promise<any>}
 	 */
 	async getLiveAsset(uuid) {
@@ -317,7 +318,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} uuid
+	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(uuid, recursionTracker = null) {

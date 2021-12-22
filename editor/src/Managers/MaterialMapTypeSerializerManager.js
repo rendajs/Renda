@@ -19,7 +19,7 @@ import {getEditorInstance} from "../editorInstance.js";
 
 /**
  * @typedef {Object} MaterialMapTypeAssetData
- * @property {import("../Util/Util.js").UuidString} mapTypeId
+ * @property {import("../../../src/util/mod.js").UuidString} mapTypeId
  * @property {*} customData
  * @property {MaterialMapMappedValuesAssetData} mappedValues
  */
@@ -79,7 +79,7 @@ export class MaterialMapTypeSerializerManager {
 	}
 
 	/**
-	 * @param {import("../Util/Util.js").UuidString} mapAssetUuid
+	 * @param {import("../../../src/util/mod.js").UuidString} mapAssetUuid
 	 * @returns {Promise<import("../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
