@@ -1,4 +1,4 @@
-export default class IndexedDbUtil {
+export class IndexedDbUtil {
 	/**
 	 * @param {string} dbName The name of the database.
 	 * @param {string[]} objectStoreNames List of object store names that will be used.

@@ -1,5 +1,5 @@
 import {EditorFileSystem} from "./EditorFileSystem.js";
-import IndexedDbUtil from "../IndexedDbUtil.js";
+import {IndexedDbUtil} from "../../../../src/mod.js";
 import md5 from "../../../libs/md5.js";
 
 /** @typedef {string} EditorFileSystemIndexedDbPointer */

@@ -1,4 +1,4 @@
-import IndexedDbUtil from "../Util/IndexedDbUtil.js";
+import {IndexedDbUtil} from "../../../src/mod.js";
 import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
 
 export class ProjectSelector {
