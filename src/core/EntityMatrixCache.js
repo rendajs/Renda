@@ -1,4 +1,4 @@
-import Mat4 from "../Math/Mat4.js";
+import {Mat4} from "../Math/Mat4.js";
 
 export class EntityMatrixCache {
 	constructor() {

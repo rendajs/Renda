@@ -1,7 +1,7 @@
-import Vec3 from "./Vec3.js";
-import Vec4 from "./Vec4.js";
+import {Vec3} from "./Vec3.js";
+import {Vec4} from "./Vec4.js";
 
-export default class Vec2 {
+export class Vec2 {
 	/**
 	 * @param {Vec2SetParameters} args
 	 */

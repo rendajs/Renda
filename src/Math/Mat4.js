@@ -1,7 +1,7 @@
-import Vec3 from "./Vec3.js";
-import Quat from "./Quat.js";
+import {Vec3} from "./Vec3.js";
+import {Quat} from "./Quat.js";
 
-export default class Mat4 {
+export class Mat4 {
 	constructor(values = null) {
 		this.values = [
 			[1, 0, 0, 0],

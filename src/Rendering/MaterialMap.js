@@ -1,6 +1,6 @@
 import {MaterialMapType} from "./MaterialMapType.js";
 
-/** @typedef {number | import("../Math/Vec2.js").default | import("../Math/Vec3.js").default | import("../Math/Vec4.js").default | import("../Math/Quat.js").default} MappableMaterialTypes */
+/** @typedef {number | import("../Math/Vec2.js").Vec2 | import("../Math/Vec3.js").Vec3 | import("../Math/Vec4.js").Vec4 | import("../Math/Quat.js").Quat} MappableMaterialTypes */
 
 /**
  * @typedef {Object} MaterialMapMappedValue

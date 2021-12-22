@@ -1,6 +1,6 @@
-import Vec2 from "./Vec2.js";
-import Vec3 from "./Vec3.js";
-import Vec4 from "./Vec4.js";
+import {Vec2} from "./Vec2.js";
+import {Vec3} from "./Vec3.js";
+import {Vec4} from "./Vec4.js";
 
 /**
  * @typedef {() => Quat} quatSetEmptySignature
@@ -13,7 +13,7 @@ import Vec4 from "./Vec4.js";
  * @typedef {Parameters<quatSetEmptySignature> | Parameters<quatSetQuatSignature> | Parameters<quatSetVec2Signature> | Parameters<quatSetVec3Signature> | Parameters<quatSetVec4Signature> | Parameters<quatSetNumNumNumNumSignature> | Parameters<quatSetArraySignature>} QuatParameters
  */
 
-export default class Quat {
+export class Quat {
 	/**
 	 * @param {QuatParameters} args
 	 */

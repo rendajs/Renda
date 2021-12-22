@@ -17,7 +17,7 @@ import {ComponentTypeManager} from "../Components/ComponentTypeManager.js";
 /**
  * @typedef {Object} CreateEntityOptions
  * @property {string} [name = "Entity"]
- * @property {import("../Math/Mat4.js").default} [matrix = null]
+ * @property {import("../Math/Mat4.js").Mat4} [matrix = null]
  * @property {Entity} [parent = null]
  */
 

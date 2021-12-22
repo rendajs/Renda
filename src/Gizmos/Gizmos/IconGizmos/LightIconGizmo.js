@@ -1,5 +1,5 @@
 import {IconGizmo} from "./IconGizmo.js";
-import Vec2 from "../../../Math/Vec2.js";
+import {Vec2} from "../../../Math/Vec2.js";
 
 export class LightIconGizmo extends IconGizmo {
 	/**

@@ -1,6 +1,6 @@
-import Mat4 from "./Mat4.js";
-import Vec2 from "./Vec2.js";
-import Vec4 from "./Vec4.js";
+import {Mat4} from "./Mat4.js";
+import {Vec2} from "./Vec2.js";
+import {Vec4} from "./Vec4.js";
 
 /**
  * @typedef {() => Vec3} vec3SetEmptySignature
@@ -12,7 +12,7 @@ import Vec4 from "./Vec4.js";
  * @typedef {Parameters<vec3SetEmptySignature> | Parameters<vec3SetVec2Signature> | Parameters<vec3SetVec3Signature> | Parameters<vec3SetVec4Signature> | Parameters<vec3SetNumNumSignature> | Parameters<vec3SetArraySignature>} Vec3Parameters
  */
 
-export default class Vec3 {
+export class Vec3 {
 	/**
 	 * @param {Vec3Parameters} args
 	 */

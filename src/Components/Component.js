@@ -1,7 +1,7 @@
-import Vec2 from "../Math/Vec2.js";
-import Vec3 from "../Math/Vec3.js";
-import Vec4 from "../Math/Vec4.js";
-import Mat4 from "../Math/Mat4.js";
+import {Vec2} from "../Math/Vec2.js";
+import {Vec3} from "../Math/Vec3.js";
+import {Vec4} from "../Math/Vec4.js";
+import {Mat4} from "../Math/Mat4.js";
 import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, EDITOR_DEFAULTS_IN_COMPONENTS} from "../engineDefines.js";
 import {mathTypeToJson} from "../Math/MathTypes.js";
 

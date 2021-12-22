@@ -1,7 +1,7 @@
 import {Gizmo} from "./Gizmo.js";
 import {Mesh} from "../../core/Mesh.js";
 import {MeshComponent} from "../../Components/BuiltIn/MeshComponent.js";
-import Vec3 from "../../Math/Vec3.js";
+import {Vec3} from "../../Math/Vec3.js";
 
 export class CameraClusterDataGizmo extends Gizmo {
 	/**
