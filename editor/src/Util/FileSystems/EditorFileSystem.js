@@ -1,4 +1,4 @@
-import toFormattedJsonString from "../toFormattedJsonString.js";
+import {toFormattedJsonString} from "../../../../src/mod.js";
 
 /** @typedef {string[]} EditorFileSystemPath */
 

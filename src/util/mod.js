@@ -4,6 +4,7 @@ export {IndexedDbUtil} from "./IndexedDbUtil.js";
 export {MultiKeyWeakMap} from "./MultiKeyWeakMap.js";
 export {OrbitControls} from "./OrbitControls.js";
 export {SingleInstancePromise} from "./SingleInstancePromise.js";
+export {toFormattedJsonString} from "./toFormattedJsonString.js";
 
 /**
  * Clamps a value between `min` and `max`.

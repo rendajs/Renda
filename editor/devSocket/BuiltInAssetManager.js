@@ -3,7 +3,7 @@ import path from "path";
 import {fileURLToPath} from "url";
 import {sendAllConnections} from "./index.js";
 import {base64ToArrayBuffer, generateUuid} from "./Util.js";
-import toFormattedJsonString from "../src/Util/toFormattedJsonString.js";
+import {toFormattedJsonString} from "../../src/util/toFormattedJsonString.js";
 import md5 from "js-md5";
 
 export default class BuiltInAssetManager {

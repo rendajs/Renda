@@ -1,11 +1,14 @@
 /**
+ * Parses an object to a json string and formats it nicely.
+ * This keeps things mostly similar to `JSON.stringify` but it collapses small
+ * arrays and objects into a single line.
  * @param {Object} jsonObj
  * @param {Object} opts
  * @param {"fileStorage" | "display"} [opts.purpose]
  * @param {number} [opts.maxArrayStringItemLength]
  * @returns {string}
  */
-export default function toFormattedJsonString(jsonObj, {
+export function toFormattedJsonString(jsonObj, {
 	purpose = "fileStorage",
 	maxArrayStringItemLength = 10, // use -1 to always put string arrays on a single line
 } = {}) {
@@ -48,6 +51,7 @@ export default function toFormattedJsonString(jsonObj, {
 		prevTabCount = tabCount;
 	}
 
+	// If the root object is a non-empty object, and the purpose is "fileStorage", don't collapse it.
 	if (removeNewLineIndents.length == 1 && removeNewLineIndents[0].isObjectIndent && removeNewLineIndents[0].start == 1 && purpose == "fileStorage") {
 		removeNewLineIndents = [];
 	}

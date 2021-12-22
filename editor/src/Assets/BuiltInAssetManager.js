@@ -1,9 +1,8 @@
 import {ProjectAsset} from "./ProjectAsset.js";
-import {arrayBufferToBase64} from "../../../src/mod.js";
+import {arrayBufferToBase64, toFormattedJsonString} from "../../../src/mod.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {getEditorInstance} from "../editorInstance.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
-import toFormattedJsonString from "../Util/toFormattedJsonString.js";
 import {AssetManager} from "./AssetManager.js";
 
 export class BuiltInAssetManager {
