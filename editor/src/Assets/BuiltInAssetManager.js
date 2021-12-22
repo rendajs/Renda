@@ -1,7 +1,6 @@
 import {ProjectAsset} from "./ProjectAsset.js";
 import {arrayBufferToBase64, toFormattedJsonString} from "../../../src/mod.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
-import {getEditorInstance} from "../editorInstance.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
 import {AssetManager} from "./AssetManager.js";
 
@@ -24,7 +23,11 @@ import {AssetManager} from "./AssetManager.js";
  * renderer for instance.
  */
 export class BuiltInAssetManager {
-	constructor() {
+	/**
+	 * @param {AssetManager} assetManager
+	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
+	 */
+	constructor(assetManager, projectAssetTypeManager) {
 		/** @type {Map<import("../../../src/mod.js").UuidString, import("./ProjectAsset.js").ProjectAssetAny>}*/
 		this.assets = new Map();
 		this.basePath = "../builtInAssets/";
@@ -46,7 +49,7 @@ export class BuiltInAssetManager {
 					continue;
 				}
 				assetData.isBuiltIn = true;
-				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(getEditorInstance().projectManager.assetManager, getEditorInstance().projectAssetTypeManager, uuid, assetData);
+				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(assetManager, projectAssetTypeManager, uuid, assetData);
 				if (projectAsset) {
 					projectAsset.onNewLiveAssetInstance(() => {
 						if (!this.onAssetChangeCbs) return;

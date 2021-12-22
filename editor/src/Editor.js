@@ -35,7 +35,7 @@ export class Editor {
 		this.materialMapTypeManager = new MaterialMapTypeSerializerManager();
 		this.projectManager = new ProjectManager();
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
-		this.builtInAssetManager = new BuiltInAssetManager();
+		this.builtInAssetManager = new BuiltInAssetManager(this.projectManager.assetManager, this.projectAssetTypeManager);
 		this.scriptBuilder = new ScriptBuilder();
 		this.assetBundler = new AssetBundler();
 		this.dragManager = new DragManager();
