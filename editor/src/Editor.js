@@ -70,7 +70,9 @@ export class Editor {
 	}
 
 	init() {
-		this.builtInAssetManager.init();
+		if (IS_DEV_BUILD && this.devSocket) {
+			this.builtInAssetManager.init(this.devSocket);
+		}
 		this.engineAssetManager.addGetAssetHandler(async uuid => {
 			await this.builtInAssetManager.waitForLoad();
 			await this.projectManager.waitForAssetManagerLoad();

@@ -214,6 +214,7 @@ module.exports = {
 					"AsyncGenerator",
 					"BufferSource",
 					"BlobPart",
+					"ArrayBufferLike",
 					"MessageEventSource",
 					"FileSystemHandle",
 					"FileSystemFileHandle",

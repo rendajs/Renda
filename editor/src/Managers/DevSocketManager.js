@@ -94,6 +94,11 @@ export class DevSocketManager {
 		}
 	}
 
+	/**
+	 * Listen for socket messages of a specific type.
+	 * @param {string} type
+	 * @param {(data: any) => any} cb
+	 */
 	addListener(type, cb) {
 		let cbsList = this.listeners.get(type);
 		if (!cbsList) {

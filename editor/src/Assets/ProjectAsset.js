@@ -506,6 +506,7 @@ export class ProjectAsset {
 	async readAssetData() {
 		await this.waitForInit();
 
+		/** @type {"json" | "text" | "binary"} */
 		let format = "binary";
 		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
 			format = "json";
