@@ -240,7 +240,7 @@ export class ProjectAssetType {
 	 * If this function returns null or undefined, the raw
 	 * asset data as it is stored in the project will be used
 	 * which could be very inefficient.
-	 * @param {any} assetSettingOverrides
+	 * @param {Object} assetSettingOverrides
 	 * @returns {Promise<null | BufferSource | Blob | string>}
 	 */
 	async createBundledAssetData(assetSettingOverrides = {}) {

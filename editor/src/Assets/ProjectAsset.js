@@ -25,6 +25,13 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
  */
 
 /**
+ * @typedef {Object} ProjectAssetJsonData
+ * @property {string[]} path
+ * @property {string} [assetType]
+ * @property {Object} [assetSettings]
+ */
+
+/**
  * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
  */
 export class ProjectAsset {
@@ -53,6 +60,7 @@ export class ProjectAsset {
 		/** @type {Array<string>}*/
 		this.path = path;
 		this.assetSettings = assetSettings;
+		/** @type {string | null} */
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
@@ -175,8 +183,11 @@ export class ProjectAsset {
 	}
 
 	/**
+	 * Reads the asset data from disk and if it is stored as json, wrapped with
+	 * editor metadata, returns the asset type from the metadata.
 	 * @param {string[]} path
 	 * @param {boolean} isBuiltIn
+	 * @returns {Promise<string | null>}
 	 */
 	static async guessAssetTypeFromFile(path = [], isBuiltIn = false) {
 		const assetType = this.guessAssetTypeFromPath(path);
@@ -221,10 +232,11 @@ export class ProjectAsset {
 	}
 
 	toJson() {
+		/** @type {ProjectAssetJsonData} */
 		const assetData = {
 			path: this.path,
 		};
-		if (this.forceAssetType) {
+		if (this.forceAssetType && this.assetType) {
 			assetData.assetType = this.assetType;
 		}
 		if (Object.keys(this.assetSettings).length > 0) {
@@ -559,7 +571,10 @@ export class ProjectAsset {
 		return this.projectAssetTypeConstructor.typeUuid;
 	}
 
-	async getBundledAssetData(assetSettingOverrides) {
+	/**
+	 * @param {Object} assetSettingOverrides
+	 */
+	async getBundledAssetData(assetSettingOverrides = {}) {
 		await this.waitForInit();
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
 		if (!binaryData) {
