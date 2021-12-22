@@ -4,7 +4,7 @@ import {StorageType} from "../../mod.js";
 import {Material} from "../../Rendering/Material.js";
 import {Component} from "../mod.js";
 
-export default class MeshComponent extends Component {
+export class MeshComponent extends Component {
 	static get componentName() {
 		return "Mesh";
 	}

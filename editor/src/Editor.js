@@ -16,7 +16,7 @@ import {ColorizerFilterManager} from "./Util/ColorizerFilters/ColorizerFilterMan
 import {ServiceWorkerManager} from "./Managers/ServiceWorkerManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
 import {DevSocketManager} from "./Managers/DevSocketManager.js";
-import ComponentTypeManager from "../../src/Components/ComponentTypeManager.js";
+import {ComponentTypeManager} from "../../src/Components/ComponentTypeManager.js";
 
 import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
 

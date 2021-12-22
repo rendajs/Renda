@@ -1,7 +1,7 @@
 import {isUuid} from "../mod.js";
 import {Component} from "./mod.js";
 
-export default class ComponentTypeManager {
+export class ComponentTypeManager {
 	constructor() {
 		/** @type {Map<import("../../editor/src/../../src/util/mod.js").UuidString, typeof Component>} */
 		this.components = new Map();

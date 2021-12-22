@@ -5,7 +5,7 @@ import {Component} from "../mod.js";
 
 const lightTypes = ["point", "directional", "spot"];
 
-export default class LightComponent extends Component {
+export class LightComponent extends Component {
 	static get componentName() {
 		return "Light";
 	}

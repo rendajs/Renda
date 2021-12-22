@@ -27,7 +27,7 @@ export class RendererDomTarget {
 	}
 
 	/**
-	 * @param {import("../Components/BuiltIn/CameraComponent.js").default} camera
+	 * @param {import("../Components/BuiltIn/CameraComponent.js").CameraComponent} camera
 	 */
 	render(camera) {
 		if (this.width <= 0 || this.height <= 0) {

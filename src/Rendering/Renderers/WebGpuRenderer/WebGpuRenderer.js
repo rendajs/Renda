@@ -53,7 +53,7 @@ export class WebGpuRenderer extends Renderer {
 		this.isInit = false;
 		this.onInitCbs = new Set();
 
-		/** @type {WeakMap<import("../../../Components/BuiltIn/CameraComponent.js").default, CachedCameraData>} */
+		/** @type {WeakMap<import("../../../Components/BuiltIn/CameraComponent.js").CameraComponent, CachedCameraData>} */
 		this.cachedCameraData = new WeakMap();
 
 		/** @type {WeakMap<import("../../Material.js").Material, CachedMaterialData>} */
@@ -218,7 +218,7 @@ export class WebGpuRenderer extends Renderer {
 	/**
 	 * @override
 	 * @param {WebGpuRendererDomTarget} domTarget
-	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").default} camera
+	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").CameraComponent} camera
 	 */
 	render(domTarget, camera) {
 		if (!this.isInit) return;
@@ -387,7 +387,7 @@ export class WebGpuRenderer extends Renderer {
 	}
 
 	/**
-	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").default} camera
+	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").CameraComponent} camera
 	 */
 	getCachedCameraData(camera) {
 		let data = this.cachedCameraData.get(camera);

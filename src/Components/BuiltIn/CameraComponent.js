@@ -5,7 +5,7 @@ import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {Component} from "../mod.js";
 import {Mat4} from "../../mod.js";
 
-export default class CameraComponent extends Component {
+export class CameraComponent extends Component {
 	static get componentName() {
 		return "Camera";
 	}
