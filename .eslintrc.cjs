@@ -244,10 +244,6 @@ module.exports = {
 			},
 		],
 		"jsdoc/require-asterisk-prefix": "error",
-		"jsdoc/require-description-complete-sentence": [
-			"error",
-			{newlineBeforeCapsAssumesBadSentenceEnd: true},
-		],
 		"jsdoc/require-hyphen-before-param-description": [
 			"error",
 			"never",
