@@ -189,7 +189,13 @@ export class ProjectManager {
 	}
 
 	async reloadAssetManager() {
-		this.assetManager = new AssetManager();
+		if (!this.currentProjectFileSystem) {
+			throw new Error("Unable to reload the asset manager. No active file system.");
+		}
+		const builtInAssetManager = getEditorInstance().builtInAssetManager;
+		const builtInDefaultAssetLinksManager = getEditorInstance().builtInDefaultAssetLinksManager;
+		const projectAssetTypeManager = getEditorInstance().projectAssetTypeManager;
+		this.assetManager = new AssetManager(this, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, this.currentProjectFileSystem);
 		await this.assetManager.waitForAssetSettingsLoad();
 		for (const cb of this.onAssetManagerLoadCbs) {
 			cb();

@@ -286,7 +286,7 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * @param {RecursionTracker} recursionTracker
+	 * @param {RecursionTracker?} recursionTracker
 	 * @returns {Promise<LiveAssetData>}
 	 */
 	async getLiveAssetData(recursionTracker = null) {

@@ -1,13 +1,25 @@
 import {SingleInstancePromise} from "../../../src/mod.js";
-import {getEditorInstance} from "../editorInstance.js";
 import {handleDuplicateName} from "../Util/Util.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
 
 export class AssetManager {
-	constructor() {
-		/** @type {Map<string, ProjectAsset>}*/
+	/**
+	 * @param {import("../Managers/ProjectManager.js").ProjectManager} projectManager
+	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
+	 * @param {import("./BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} builtInDefaultAssetLinksManager
+	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 */
+	constructor(projectManager, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, fileSystem) {
+		this.projectManager = projectManager;
+		this.builtInAssetManager = builtInAssetManager;
+		this.builtInDefaultAssetLinksManager = builtInDefaultAssetLinksManager;
+		this.projectAssetTypeManager = projectAssetTypeManager;
+		this.fileSystem = fileSystem;
+
+		/** @type {Map<string, import("./ProjectAsset.js").ProjectAssetAny>}*/
 		this.projectAssets = new Map();
 		/** @type {Map<string, DefaultAssetLink>}*/
 		this.defaultAssetLinks = new Map();
@@ -18,7 +30,7 @@ export class AssetManager {
 		this.waitForAssetSettingsLoadCbs = new Set();
 
 		this.boundExternalChange = this.externalChange.bind(this);
-		getEditorInstance().projectManager.onExternalChange(this.boundExternalChange);
+		this.fileSystem.onExternalChange(this.boundExternalChange);
 
 		this.loadAssetSettingsFromUserGesture = false;
 		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
@@ -30,16 +42,11 @@ export class AssetManager {
 	}
 
 	destructor() {
-		getEditorInstance().projectManager.removeOnExternalChange(this.boundExternalChange);
-		this.boundExternalChange = null;
-	}
-
-	get fileSystem() {
-		return getEditorInstance().projectManager.currentProjectFileSystem;
+		this.fileSystem.removeOnExternalChange(this.boundExternalChange);
 	}
 
 	get builtInAssets() {
-		return getEditorInstance().builtInAssetManager.assets;
+		return this.builtInAssetManager.assets;
 	}
 
 	async loadAssetSettings(fromUserGesture = false) {
@@ -55,7 +62,7 @@ export class AssetManager {
 			if (!hasPermissions) return;
 		}
 
-		for (const builtInAssetLink of getEditorInstance().builtInDefaultAssetLinksManager.registeredAssetLinks) {
+		for (const builtInAssetLink of this.builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const defaultAssetLink = new DefaultAssetLink(builtInAssetLink);
 			defaultAssetLink.setBuiltIn(true, builtInAssetLink.originalAssetUuid);
 			this.defaultAssetLinks.set(builtInAssetLink.defaultAssetUuid, defaultAssetLink);
@@ -65,7 +72,7 @@ export class AssetManager {
 			const json = await this.fileSystem.readJson(this.assetSettingsPath);
 			if (json) {
 				for (const [uuid, assetData] of Object.entries(json.assets)) {
-					const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, getEditorInstance().projectAssetTypeManager, uuid, assetData);
+					const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, uuid, assetData);
 					if (projectAsset) {
 						projectAsset.makeUuidConsistent();
 						this.projectAssets.set(uuid, projectAsset);
@@ -120,11 +127,17 @@ export class AssetManager {
 		await this.fileSystem.writeJson(this.assetSettingsPath, assetSettings);
 	}
 
+	/**
+	 * @param {string[]} parentPath
+	 * @param {string} assetType
+	 */
 	async createNewAsset(parentPath, assetType) {
-		const type = getEditorInstance().projectAssetTypeManager.getAssetType(assetType);
+		const type = this.projectAssetTypeManager.getAssetType(assetType);
+		if (!type) return;
+
 		let fileName = type.newFileName + "." + type.newFileExtension;
 
-		if (this.fileSystem.exists([...parentPath, fileName])) {
+		if (await this.fileSystem.exists([...parentPath, fileName])) {
 			const existingFiles = await this.fileSystem.readDir(parentPath);
 			fileName = handleDuplicateName(existingFiles, type.newFileName, "." + type.newFileExtension);
 		}
@@ -134,14 +147,22 @@ export class AssetManager {
 		await projectAsset.createNewLiveAssetData();
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	async deleteAsset(path) {
 		await this.fileSystem.delete(path, true);
 	}
 
+	/**
+	 * @param {string[]} path
+	 * @param {string?} assetType
+	 * @param {boolean} forceAssetType
+	 */
 	async registerAsset(path, assetType = null, forceAssetType = false) {
 		await this.loadAssetSettings(true);
 		const uuid = generateUuid();
-		const projectAsset = new ProjectAsset(this, getEditorInstance().projectAssetTypeManager, {uuid, path, assetType, forceAssetType});
+		const projectAsset = new ProjectAsset(this, this.projectAssetTypeManager, {uuid, path, assetType, forceAssetType});
 		await projectAsset.waitForInit();
 		this.projectAssets.set(uuid, projectAsset);
 		if (projectAsset.needsAssetSettingsSave) {
@@ -150,12 +171,18 @@ export class AssetManager {
 		return projectAsset;
 	}
 
+	/**
+	 * @param {import("./ProjectAsset.js").ProjectAssetAny} asset
+	 */
 	async makeAssetUuidConsistent(asset) {
 		if (!asset || asset.needsConsistentUuid || asset.isBuiltIn) return;
 		asset.makeUuidConsistent();
 		await this.saveAssetSettings();
 	}
 
+	/**
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
+	 */
 	async externalChange(e) {
 		const projectAsset = await this.getProjectAssetFromPath(e.path, this.assetSettingsLoaded);
 		if (projectAsset) {
@@ -205,10 +232,10 @@ export class AssetManager {
 
 	/**
 	 * @param {import("../../../src/util/mod.js").UuidString} defaultAssetUuid
-	 * @returns {DefaultAssetLink}
+	 * @returns {DefaultAssetLink?}
 	 */
 	getDefaultAssetLink(defaultAssetUuid) {
-		return this.defaultAssetLinks.get(defaultAssetUuid);
+		return this.defaultAssetLinks.get(defaultAssetUuid) ?? null;
 	}
 
 	/**
@@ -234,20 +261,26 @@ export class AssetManager {
 
 	/**
 	 * @param {string} uuid
-	 * @returns {Promise<ProjectAsset>}
+	 * @returns {Promise<import("./ProjectAsset.js").ProjectAssetAny?>}
 	 */
 	async getProjectAsset(uuid) {
 		await this.loadAssetSettings(true);
 		return this.getProjectAssetImmediate(uuid);
 	}
 
+	/**
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 */
 	getProjectAssetImmediate(uuid) {
 		if (!this.assetSettingsLoaded) return null;
 
 		uuid = this.resolveDefaultAssetLinkUuid(uuid);
-		return this.projectAssets.get(uuid) || this.builtInAssets.get(uuid);
+		return this.projectAssets.get(uuid) ?? this.builtInAssets.get(uuid) ?? null;
 	}
 
+	/**
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 */
 	async getAssetPathFromUuid(uuid) {
 		await this.loadAssetSettings(true);
 		const asset = this.projectAssets.get(uuid);
@@ -291,6 +324,10 @@ export class AssetManager {
 		return null;
 	}
 
+	/**
+	 * @param {string[]} fromPath
+	 * @param {string[]} toPath
+	 */
 	async assetMoved(fromPath = [], toPath = []) {
 		const asset = await this.getProjectAssetFromPath(fromPath);
 		if (!asset) return;
@@ -298,10 +335,17 @@ export class AssetManager {
 		await this.saveAssetSettings();
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	async getAssetSettings(path = []) {
 		await this.loadAssetSettings(true);
 	}
 
+	/**
+	 * @param {string[]} path
+	 * @param {*} settings
+	 */
 	setAssetSettings(path = [], settings = {}) {
 
 	}
@@ -319,7 +363,7 @@ export class AssetManager {
 
 	/**
 	 * @param {import("../../../src/util/mod.js").UuidString} uuid
-	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker?} recursionTracker
 	 */
 	async getLiveAssetData(uuid, recursionTracker = null) {
 		const projectAsset = await this.getProjectAsset(uuid);
@@ -328,6 +372,9 @@ export class AssetManager {
 		return await projectAsset.getLiveAssetData(recursionTracker);
 	}
 
+	/**
+	 * @param {any} liveAsset
+	 */
 	getProjectAssetForLiveAsset(liveAsset) {
 		// this method doesn't need a loadAssetSettings call because there
 		// is no way to get liveAssets without loading the settings anyway.
@@ -342,6 +389,9 @@ export class AssetManager {
 		return null;
 	}
 
+	/**
+	 * @param {any} liveAsset
+	 */
 	getAssetUuidFromLiveAsset(liveAsset) {
 		const projectAsset = this.getProjectAssetForLiveAsset(liveAsset);
 		if (projectAsset) {

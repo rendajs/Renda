@@ -305,6 +305,9 @@ export class ContentWindowProject extends ContentWindow {
 		return selectedPath;
 	}
 
+	/**
+	 * @param {string} assetType
+	 */
 	async createAsset(assetType) {
 		const selectedPath = this.getSelectedParentPathForCreate();
 		await this.editorInstance.projectManager.assetManager.createNewAsset(selectedPath, assetType);
