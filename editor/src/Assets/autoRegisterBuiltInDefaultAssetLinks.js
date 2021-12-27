@@ -1,6 +1,11 @@
-// Use `Util.generateUuid()` to generate uuids for the `defaultAssetUuid` value
-// `originalAssetUuid` should be the uuid of a built-in asset
+/**
+ * @typedef {Object} BuiltInDefaultAssetLink
+ * @property {string} name
+ * @property {import("../../../src/util/mod.js").UuidString} originalAssetUuid Use `Util.generateUuid()` to generate this.
+ * @property {import("../../../src/util/mod.js").UuidString} defaultAssetUuid This should be the uuid of a built-in asset.
+ */
 
+/** @type {BuiltInDefaultAssetLink[]} */
 const autoRegisterBuiltInDefaultAssetLinks = [
 	{
 		name: "Default Material",

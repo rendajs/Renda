@@ -1,27 +1,40 @@
+/**
+ * @typedef {Object} AssetLinkConfig
+ * @property {string?} [name]
+ * @property {import("../../../src/util/mod.js").UuidString?} [originalAssetUuid]
+ */
+
 export class DefaultAssetLink {
+	/**
+	 * @param {AssetLinkConfig} assetLinkConfig
+	 */
 	constructor({
 		name = "",
-		defaultAssetUuid = null,
 		originalAssetUuid = null,
-		builtInOriginalAssetUuid = null,
 	} = {}) {
 		this.name = name;
-		this.defaultAssetUuid = defaultAssetUuid;
 		this.originalAssetUuid = originalAssetUuid;
-		this.builtInOriginalAssetUuid = builtInOriginalAssetUuid;
+		/** @type {import("../../../src/mod.js").UuidString?} */
+		this.builtInOriginalAssetUuid = null;
 		this.isBuiltIn = false;
 	}
 
-	setBuiltIn(builtIn, builtInOriginalAssetUuid) {
+	/**
+	 * @param {boolean} builtIn
+	 */
+	setBuiltIn(builtIn) {
 		this.isBuiltIn = builtIn;
-		this.builtInOriginalAssetUuid = builtInOriginalAssetUuid;
+		this.builtInOriginalAssetUuid = this.originalAssetUuid;
 	}
 
+	/**
+	 * @param {AssetLinkConfig} data
+	 */
 	setUserData({name, originalAssetUuid}) {
 		if (!this.isBuiltIn) {
-			this.name = name;
+			this.name = name ?? "";
 		}
-		this.originalAssetUuid = originalAssetUuid;
+		this.originalAssetUuid = originalAssetUuid ?? null;
 	}
 
 	toJson() {

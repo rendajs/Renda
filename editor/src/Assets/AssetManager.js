@@ -4,6 +4,18 @@ import {generateUuid} from "../../../src/util/mod.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
 
+/**
+ * @typedef {Object} SetDefaultBuiltInAssetLinkData
+ * @property {import("../../../src/mod.js").UuidString} defaultAssetUuid
+ * @property {import("../../../src/mod.js").UuidString} originalAssetUuid
+ */
+/**
+ * @typedef {Object} SetDefaultAssetLinkData
+ * @property {string} name
+ * @property {import("../../../src/mod.js").UuidString} defaultAssetUuid
+ * @property {import("../../../src/mod.js").UuidString} originalAssetUuid
+ */
+
 export class AssetManager {
 	/**
 	 * @param {import("../Managers/ProjectManager.js").ProjectManager} projectManager
@@ -19,9 +31,9 @@ export class AssetManager {
 		this.projectAssetTypeManager = projectAssetTypeManager;
 		this.fileSystem = fileSystem;
 
-		/** @type {Map<string, import("./ProjectAsset.js").ProjectAssetAny>}*/
+		/** @type {Map<import("../../../src/mod.js").UuidString, import("./ProjectAsset.js").ProjectAssetAny>}*/
 		this.projectAssets = new Map();
-		/** @type {Map<string, DefaultAssetLink>}*/
+		/** @type {Map<import("../../../src/mod.js").UuidString, DefaultAssetLink>}*/
 		this.defaultAssetLinks = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
@@ -64,18 +76,21 @@ export class AssetManager {
 
 		for (const builtInAssetLink of this.builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const defaultAssetLink = new DefaultAssetLink(builtInAssetLink);
-			defaultAssetLink.setBuiltIn(true, builtInAssetLink.originalAssetUuid);
+			defaultAssetLink.setBuiltIn(true);
 			this.defaultAssetLinks.set(builtInAssetLink.defaultAssetUuid, defaultAssetLink);
 		}
 
 		if (await this.fileSystem.isFile(this.assetSettingsPath)) {
+			/** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
 			const json = await this.fileSystem.readJson(this.assetSettingsPath);
 			if (json) {
-				for (const [uuid, assetData] of Object.entries(json.assets)) {
-					const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, uuid, assetData);
-					if (projectAsset) {
-						projectAsset.makeUuidConsistent();
-						this.projectAssets.set(uuid, projectAsset);
+				if (json.assets) {
+					for (const [uuid, assetData] of Object.entries(json.assets)) {
+						const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, uuid, assetData);
+						if (projectAsset) {
+							projectAsset.makeUuidConsistent();
+							this.projectAssets.set(uuid, projectAsset);
+						}
 					}
 				}
 
@@ -85,7 +100,7 @@ export class AssetManager {
 						if (existingDefaultAssetLink) {
 							existingDefaultAssetLink.setUserData(defaultAssetData);
 						} else {
-							const defaultAssetLink = new DefaultAssetLink({defaultAssetUuid, ...defaultAssetData});
+							const defaultAssetLink = new DefaultAssetLink(defaultAssetData);
 							this.defaultAssetLinks.set(defaultAssetUuid, defaultAssetLink);
 						}
 					}
@@ -104,14 +119,22 @@ export class AssetManager {
 	}
 
 	async saveAssetSettings() {
+		/** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
 		const assetSettings = {};
+
+		let hasAssets = false;
+		/** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData["assets"]} */
 		const assets = {};
-		assetSettings.assets = assets;
 		for (const [uuid, projectAsset] of this.projectAssets) {
 			if (projectAsset.needsAssetSettingsSave) {
 				assets[uuid] = projectAsset.toJson();
+				hasAssets = true;
 			}
 		}
+		if (hasAssets) {
+			assetSettings.assets = assets;
+		}
+
 		assetSettings.defaultAssetLinks = {};
 		let savedDefaultAssetLinksCount = 0;
 		for (const [defaultAssetUuid, assetLink] of this.defaultAssetLinks) {
@@ -196,6 +219,10 @@ export class AssetManager {
 		}
 	}
 
+	/**
+	 * @param {SetDefaultBuiltInAssetLinkData[]} builtInDefaultAssetLinks
+	 * @param {SetDefaultAssetLinkData[]} defaultAssetLinks
+	 */
 	setDefaultAssetLinks(builtInDefaultAssetLinks, defaultAssetLinks) {
 		const unsetAssetLinkUuids = new Set(this.defaultAssetLinks.keys());
 		for (const {defaultAssetUuid, originalAssetUuid} of builtInDefaultAssetLinks) {
@@ -203,7 +230,7 @@ export class AssetManager {
 			if (existingDefaultAssetLink) {
 				existingDefaultAssetLink.setUserData({name: "", originalAssetUuid});
 			} else {
-				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink({defaultAssetUuid, originalAssetUuid}));
+				this.defaultAssetLinks.set(defaultAssetUuid, new DefaultAssetLink({originalAssetUuid}));
 			}
 		}
 		const userDefaultAssetLinkUuids = [];
@@ -244,7 +271,7 @@ export class AssetManager {
 	 */
 	resolveDefaultAssetLinkUuid(uuid) {
 		const defaultAssetLink = this.getDefaultAssetLink(uuid);
-		if (defaultAssetLink) {
+		if (defaultAssetLink && defaultAssetLink.originalAssetUuid) {
 			return this.resolveDefaultAssetLinkUuid(defaultAssetLink.originalAssetUuid);
 		}
 		return uuid;

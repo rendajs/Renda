@@ -58,23 +58,25 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 				},
 			});
 			const assetLink = this.editorInstance.projectManager.assetManager.getDefaultAssetLink(builtInAssetLink.defaultAssetUuid);
+			const originalAsset = assetLink && assetLink.originalAssetUuid;
 			item.setValue({
-				originalAsset: assetLink.originalAssetUuid,
+				originalAsset,
 				defaultAsset: builtInAssetLink.defaultAssetUuid,
 			});
 		}
 
-		const values = {
-			defaultAssetLinks: [],
-		};
+		const defaultAssetLinks = [];
 		for (const [uuid, assetLink] of this.editorInstance.projectManager.assetManager.defaultAssetLinks) {
 			if (assetLink.isBuiltIn) continue;
-			values.defaultAssetLinks.push({
+			defaultAssetLinks.push({
 				name: assetLink.name,
 				originalAsset: assetLink.originalAssetUuid,
 				defaultAsset: uuid,
 			});
 		}
+		const values = {
+			defaultAssetLinks,
+		};
 		this.isLoadingAssetLinks = true;
 		this.treeView.fillSerializableStructureValues(values);
 		this.isLoadingAssetLinks = false;
@@ -109,7 +111,9 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		if (this.isLoadingAssetLinks || this.isParsingValueChange) return;
 		this.isParsingValueChange = true;
 
+		/** @type {import("../../Assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */
 		const builtInAssetLinks = [];
+		/** @type {import("../../Assets/AssetManager.js").SetDefaultAssetLinkData[]} */
 		const assetLinks = [];
 
 		for (const child of this.builtInAssetLinksTreeView.children) {

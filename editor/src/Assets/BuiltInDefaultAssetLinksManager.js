@@ -1,15 +1,8 @@
 import {autoRegisterBuiltInDefaultAssetLinks} from "./autoRegisterBuiltInDefaultAssetLinks.js";
 
-/**
- * @typedef {Object} AssetLinkConfig
- * @property {string} name
- * @property {import("../../../src/util/mod.js").UuidString} defaultAssetUuid
- * @property {import("../../../src/util/mod.js").UuidString} originalAssetUuid
- */
-
 export class BuiltInDefaultAssetLinksManager {
 	constructor() {
-		/** @type {Set<AssetLinkConfig>} */
+		/** @type {Set<import("./autoRegisterBuiltInDefaultAssetLinks.js").BuiltInDefaultAssetLink>} */
 		this.registeredAssetLinks = new Set();
 	}
 
@@ -20,7 +13,7 @@ export class BuiltInDefaultAssetLinksManager {
 	}
 
 	/**
-	 * @param {AssetLinkConfig} assetLink
+	 * @param {import("./autoRegisterBuiltInDefaultAssetLinks.js").BuiltInDefaultAssetLink} assetLink
 	 */
 	registerAssetLink(assetLink) {
 		this.registeredAssetLinks.add(assetLink);

@@ -8,7 +8,12 @@
 		"useDefineForClassFields": true,
 		// "strict": true,
 	},
-	"include": ["src/**/*.js", "editor/src/**/*.js"],
+	"include": [
+		"src/**/*.js",
+		"src/**/*.ts",
+		"editor/src/**/*.js",
+		"editor/src/**/*.ts",
+	],
 	"files": [
 		"src/mod.js",
 		"editor/src/Network/EditorConnections/InternalDiscovery/InternalDiscoveryWorker.js",
