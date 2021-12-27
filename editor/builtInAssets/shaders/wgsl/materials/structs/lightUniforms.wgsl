@@ -2,7 +2,7 @@ struct Light {
 	pos : vec3<f32>;
 	col : vec3<f32>;
 };
-[[block]] struct LightUniforms {
+struct LightUniforms {
 	lightCount : u32;
 	lights : [[stride(32)]] array<Light, 10>;
 };

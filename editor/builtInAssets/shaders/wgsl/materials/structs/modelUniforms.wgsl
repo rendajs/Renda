@@ -1,4 +1,4 @@
-[[block]] struct ModelUniforms {
+struct ModelUniforms {
 	mvp : mat4x4<f32>;
 	vp : mat4x4<f32>;
 	m : mat4x4<f32>;

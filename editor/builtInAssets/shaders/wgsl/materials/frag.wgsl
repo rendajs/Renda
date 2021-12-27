@@ -9,7 +9,7 @@ struct ClusterLightIndices {
 	lightCount : u32;
 	indices : [[stride(4)]] array<u32, ${maxLightsPerClusterPass}>;
 };
-[[block]] struct ClusterLightIndicesArray {
+struct ClusterLightIndicesArray {
 	clusters : [[stride(${clusterLightIndicesStride})]] array<ClusterLightIndices, ${totalClusterCount}>;
 };
 [[group(0), binding(2)]] var<storage,read> clusterLightIndices : ClusterLightIndicesArray;
@@ -39,7 +39,7 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 }
 
 
-[[block]] struct MaterialUniforms {
+struct MaterialUniforms {
 	test : vec4<f32>;
 };
 [[group(1), binding(0)]] var<uniform> materialUniforms : MaterialUniforms;

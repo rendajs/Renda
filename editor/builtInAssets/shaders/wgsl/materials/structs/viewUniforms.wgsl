@@ -1,4 +1,4 @@
-[[block]] struct ViewUniforms {
+struct ViewUniforms {
 	screenSize : vec4<f32>;
 	projectionMatrix : mat4x4<f32>;
 	inverseProjectionMatrix : mat4x4<f32>;
