@@ -189,7 +189,7 @@ export class ProjectAsset {
 		if (!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
 		const {extension} = getNameAndExtension(fileName);
-		if (extension == "json") return null;
+		if (extension == "json" || !extension) return null;
 		for (const assetType of projectAssetTypeManager.getAssetTypesForExtension(extension)) {
 			return assetType.type;
 		}

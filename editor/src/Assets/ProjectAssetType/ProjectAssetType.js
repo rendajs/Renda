@@ -2,9 +2,12 @@
 
 /** @typedef {ProjectAssetType<any, any, any>} ProjectAssetTypeAny */
 /**
- * @template T
- * @typedef {new (...args: ConstructorParameters<typeof ProjectAssetType>) => ProjectAssetType<T>} ProjectAssetTypeConstructor
+ * @template {any} TLiveAsset
+ * @template {any} TEditorData
+ * @template {ProjectAssetDiskData} TFileData
+ * @typedef {new (...args: any) => ProjectAssetType<TLiveAsset, TEditorData, TFileData>} ProjectAssetTypeConstructor
  */
+/** @typedef {ProjectAssetTypeConstructor<any, any, any>} ProjectAssetTypeConstructorAny */
 
 /**
  * @template TLiveAsset

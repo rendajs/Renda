@@ -19,8 +19,10 @@ export class ProjectAssetTypeManager {
 	}
 
 	/**
-	 * @template T
-	 * @param {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<T>} constructor
+	 * @template {any} TLiveAsset
+	 * @template {any} TEditorData
+	 * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetDiskData} TFileData
+	 * @param {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<TLiveAsset, TEditorData, TFileData>} constructor
 	 */
 	registerAssetType(constructor) {
 		const castConstructor = /** @type {typeof ProjectAssetType} */ (constructor);
@@ -63,6 +65,9 @@ export class ProjectAssetTypeManager {
 		return null;
 	}
 
+	/**
+	 * @param {new (...args: any) => any} constructor
+	 */
 	*getAssetTypesForConstructor(constructor) {
 		for (const assetType of this.registeredAssetTypes.values()) {
 			if (assetType.expectedLiveAssetConstructor == constructor) {
@@ -71,11 +76,17 @@ export class ProjectAssetTypeManager {
 		}
 	}
 
+	/**
+	 * @param {new (...args: any) => any} constructor
+	 */
 	constructorHasAssetType(constructor) {
 		const generatorEmpty = this.getAssetTypesForConstructor(constructor).next().done;
 		return !generatorEmpty;
 	}
 
+	/**
+	 * @param {string} extension
+	 */
 	*getAssetTypesForExtension(extension) {
 		for (const assetType of this.registeredAssetTypes.values()) {
 			if (assetType.matchExtensions.length > 0) {
