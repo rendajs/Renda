@@ -2,6 +2,9 @@ import {AssetLoaderType} from "./AssetLoaderType.js";
 import {BinaryComposer} from "../../util/BinaryComposer.js";
 
 export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
+	/**
+	 * @returns {import("../../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions?}
+	 */
 	static get binaryComposerOpts() {
 		return null;
 	}

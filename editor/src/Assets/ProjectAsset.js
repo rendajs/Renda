@@ -16,7 +16,7 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
 
 /**
  * @typedef {Object} ProjectAssetOptions
- * @property {import("../../../src/util/mod.js").UuidString} [uuid]
+ * @property {import("../../../src/util/mod.js").UuidString} uuid
  * @property {string[]} [path]
  * @property {*} [assetSettings]
  * @property {*} [assetType]
@@ -43,18 +43,31 @@ export class ProjectAsset {
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
+	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem?} fileSystem
 	 * @param {ProjectAssetOptions} options
 	 */
-	constructor(assetManager, assetTypeManager, {
-		uuid = null,
+	constructor(assetManager, assetTypeManager, builtInAssetManager, fileSystem, {
+		uuid,
 		path = [],
 		assetSettings = {},
 		assetType = null,
 		forceAssetType = false,
 		isBuiltIn = false,
-	} = {}) {
+	}) {
 		this.assetManager = assetManager;
 		this.assetTypeManager = assetTypeManager;
+		this.builtInAssetManager = builtInAssetManager;
+
+		if (!fileSystem && !isBuiltIn) {
+			throw new Error("fileSystem can only be null for builtIn assets");
+		}
+		/**
+		 * This is null for builtIn assets.
+		 * @type {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem?}
+		 */
+		this.fileSystem = fileSystem;
+
 		/** @type {import("../../../src/util/mod.js").UuidString} */
 		this.uuid = uuid;
 		/** @type {Array<string>}*/
@@ -65,22 +78,16 @@ export class ProjectAsset {
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
 		this.isBuiltIn = isBuiltIn;
-		/**
-		 * Whether the asset data is no longer available on disk
-		 * null if unknown.
-		 * @type {?boolean}
-		 */
-		this._deletedState = null;
 
-		/** @type {T} */
+		/** @type {T?} */
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
 		/** @type {Set<(liveAssetData: LiveAssetData) => any>} */
 		this.onLiveAssetDataGetCbs = new Set();
-		/** @type {LiveAssetType} */
+		/** @type {LiveAssetType?} */
 		this.liveAsset = null;
-		/** @type {EditorDataType} */
+		/** @type {EditorDataType?} */
 		this.editorData = null;
 
 		this.initInstance = new SingleInstancePromise(async () => await this.init());
@@ -123,24 +130,29 @@ export class ProjectAsset {
 	async init() {
 		if (!this.assetType) {
 			try {
-				this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.path, this.isBuiltIn);
+				this.assetType = await ProjectAsset.guessAssetTypeFromFile(this.builtInAssetManager, this.assetTypeManager, this.fileSystem, this.path, this.isBuiltIn);
 			} catch (e) {
 				this.assetType = null;
 			}
 		}
 		if (this.destructed) return;
 
-		const AssetTypeConstructor = this.assetTypeManager.getAssetType(this.assetType);
-		if (AssetTypeConstructor) {
-			const projectAssetType = new AssetTypeConstructor(getEditorInstance(), this, this.assetManager, this.assetTypeManager);
-			/* eslint-disable jsdoc/no-undefined-types */
-			const castProjectAssetType = /** @type {T} */ (projectAssetType);
-			/* eslint-enable jsdoc/no-undefined-types */
-			this._projectAssetType = castProjectAssetType;
+		if (this.assetType) {
+			const AssetTypeConstructor = this.assetTypeManager.getAssetType(this.assetType);
+			if (AssetTypeConstructor) {
+				const projectAssetType = new AssetTypeConstructor(getEditorInstance(), this, this.assetManager, this.assetTypeManager);
+				/* eslint-disable jsdoc/no-undefined-types */
+				const castProjectAssetType = /** @type {T} */ (projectAssetType);
+				/* eslint-enable jsdoc/no-undefined-types */
+				this._projectAssetType = castProjectAssetType;
+			}
 		}
 	}
 
 	get projectAssetTypeConstructor() {
+		if (!this._projectAssetType) {
+			return null;
+		}
 		return /** @type {typeof import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType} */ (this._projectAssetType.constructor);
 	}
 
@@ -156,27 +168,29 @@ export class ProjectAsset {
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
-	 * @param {import("../../../src/util/mod.js").UuidString} uuid
+	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem?} fileSystem
 	 * @param {ProjectAssetOptions} assetData
 	 */
-	static async guessAssetTypeAndCreate(assetManager, assetTypeManager, uuid, assetData) {
+	static async guessAssetTypeAndCreate(assetManager, assetTypeManager, builtInAssetManager, fileSystem, assetData) {
 		if (!assetData.assetType) {
-			assetData.assetType = this.guessAssetTypeFromPath(assetData.path);
+			assetData.assetType = this.guessAssetTypeFromPath(assetTypeManager, assetData.path);
 			assetData.forceAssetType = false;
 		}
-		const projectAsset = new ProjectAsset(assetManager, assetTypeManager, {uuid, ...assetData});
+		const projectAsset = new ProjectAsset(assetManager, assetTypeManager, builtInAssetManager, fileSystem, assetData);
 		return projectAsset;
 	}
 
 	/**
+	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
 	 * @param {string[]} path
 	 */
-	static guessAssetTypeFromPath(path = []) {
+	static guessAssetTypeFromPath(projectAssetTypeManager, path = []) {
 		if (!path || path.length <= 0) return null;
 		const fileName = path[path.length - 1];
 		const {extension} = getNameAndExtension(fileName);
 		if (extension == "json") return null;
-		for (const assetType of getEditorInstance().projectAssetTypeManager.getAssetTypesForExtension(extension)) {
+		for (const assetType of projectAssetTypeManager.getAssetTypesForExtension(extension)) {
 			return assetType.type;
 		}
 		return null;
@@ -185,19 +199,22 @@ export class ProjectAsset {
 	/**
 	 * Reads the asset data from disk and if it is stored as json, wrapped with
 	 * editor metadata, returns the asset type from the metadata.
+	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
+	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem?} fileSystem Can be null for built-in assets only.
 	 * @param {string[]} path
 	 * @param {boolean} isBuiltIn
 	 * @returns {Promise<string | null>}
 	 */
-	static async guessAssetTypeFromFile(path = [], isBuiltIn = false) {
-		const assetType = this.guessAssetTypeFromPath(path);
+	static async guessAssetTypeFromFile(builtInAssetManager, projectAssetTypeManager, fileSystem, path = [], isBuiltIn = false) {
+		const assetType = this.guessAssetTypeFromPath(projectAssetTypeManager, path);
 		if (assetType) return assetType;
 
 		let json;
-		if (isBuiltIn) {
-			json = await getEditorInstance().builtInAssetManager.fetchAsset(path);
+		if (isBuiltIn || !fileSystem) {
+			json = await builtInAssetManager.fetchAsset(path);
 		} else {
-			json = await getEditorInstance().projectManager.currentProjectFileSystem.readJson(path);
+			json = await fileSystem.readJson(path);
 		}
 		return json?.assetType || null;
 	}
@@ -207,7 +224,7 @@ export class ProjectAsset {
 	}
 
 	get editable() {
-		return !this.isBuiltIn || getEditorInstance().builtInAssetManager.allowAssetEditing;
+		return !this.isBuiltIn || this.builtInAssetManager.allowAssetEditing;
 	}
 
 	// call AssetManager.makeAssetUuidConsistent() to also save
@@ -248,14 +265,18 @@ export class ProjectAsset {
 	/**
 	 * If this asset is a file that can be opened, open it
 	 * either in the editor or in an external application.
+	 * @param {import("../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
-	async open() {
+	async open(windowManager) {
 		await this.waitForInit();
-		await this._projectAssetType.open(getEditorInstance().windowManager);
+		if (this._projectAssetType) {
+			await this._projectAssetType.open(windowManager);
+		}
 	}
 
 	async createNewLiveAssetData() {
 		await this.waitForInit();
+		if (!this._projectAssetType) return;
 		const {liveAsset, editorData} = await this._projectAssetType.createNewLiveAssetData();
 		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
 		await this.writeAssetData(assetData);
@@ -267,22 +288,15 @@ export class ProjectAsset {
 	 * @returns {Promise<boolean>}
 	 */
 	async getIsDeleted() {
-		if (this._deletedState == null) {
-			await this.verifyDeletedState();
-		}
-		return this._deletedState;
-	}
-
-	async verifyDeletedState() {
 		await this.waitForInit();
 
 		let exists = false;
-		if (this.isBuiltIn) {
-			exists = await getEditorInstance().builtInAssetManager.exists(this.path);
+		if (this.isBuiltIn || !this.fileSystem) {
+			exists = await this.builtInAssetManager.exists(this.path);
 		} else {
-			exists = await getEditorInstance().projectManager.currentProjectFileSystem.exists(this.path);
+			exists = await this.fileSystem.exists(this.path);
 		}
-		this._deletedState = !exists;
+		return !exists;
 	}
 
 	/**
@@ -291,10 +305,15 @@ export class ProjectAsset {
 	 */
 	async getLiveAssetData(recursionTracker = null) {
 		if (this.liveAsset || this.editorData) {
-			return {
-				liveAsset: this.liveAsset,
-				editorData: this.editorData,
-			};
+			/** @type {LiveAssetData} */
+			const liveAssetData = {};
+			if (this.liveAsset) {
+				liveAssetData.liveAsset = this.liveAsset;
+			}
+			if (this.editorData) {
+				liveAssetData.editorData = this.editorData;
+			}
+			return liveAssetData;
 		}
 
 		if (this.isGettingLiveAssetData) {
@@ -304,7 +323,10 @@ export class ProjectAsset {
 		this.isGettingLiveAssetData = true;
 		const getLiveAssetSymbol = Symbol("get liveAsset");
 		this.currentGettingLiveAssetSymbol = getLiveAssetSymbol;
+
 		await this.waitForInit();
+		if (!this._projectAssetType) return {};
+
 		let fileData = null;
 		let readFailed = false;
 		try {
@@ -323,8 +345,8 @@ export class ProjectAsset {
 
 		if (readFailed) {
 			console.warn("error getting live asset for " + this.path.join("/"));
-			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
-			return {liveAsset: null, editorData: null};
+			this.fireOnLiveAssetDataGetCbs({});
+			return {};
 		}
 
 		const isRootRecursionTracker = !recursionTracker;
@@ -354,34 +376,34 @@ export class ProjectAsset {
 			return await this.getLiveAssetData(recursionTracker);
 		}
 
-		this.liveAsset = liveAsset || null;
-		this.editorData = editorData || null;
-		this.fireOnLiveAssetDataGetCbs({
-			liveAsset: this.liveAsset,
-			editorData: this.editorData,
-		});
-		return {
-			liveAsset: this.liveAsset,
-			editorData: this.editorData,
-		};
+		/** @type {LiveAssetData} */
+		const liveAssetData = {};
+		if (liveAsset) {
+			liveAssetData.liveAsset = liveAsset;
+		}
+		if (editorData) {
+			liveAssetData.editorData = editorData;
+		}
+		this.fireOnLiveAssetDataGetCbs(liveAssetData);
+		return liveAssetData;
 	}
 
 	/**
-	 * @param {RecursionTracker} recursionTracker
-	 * @returns {Promise<LiveAssetType>}
+	 * @param {RecursionTracker?} recursionTracker
+	 * @returns {Promise<LiveAssetType?>}
 	 */
 	async getLiveAsset(recursionTracker = null) {
 		const {liveAsset} = await this.getLiveAssetData(recursionTracker);
-		return liveAsset;
+		return liveAsset ?? null;
 	}
 
 	/**
-	 * @param {RecursionTracker} recursionTracker
-	 * @returns {Promise<EditorDataType>}
+	 * @param {RecursionTracker?} recursionTracker
+	 * @returns {Promise<EditorDataType?>}
 	 */
 	async getEditorData(recursionTracker = null) {
 		const {editorData} = await this.getLiveAssetData(recursionTracker);
-		return editorData;
+		return editorData ?? null;
 	}
 
 	// returns the currently loaded live asset synchronously
@@ -431,9 +453,11 @@ export class ProjectAsset {
 	async registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {
 		const sym = this.currentRecursionTrackerLiveAssetChangeSym;
 		/* eslint-disable jsdoc/no-undefined-types */
-		/** @type {ProjectAsset<TProjectAssetType>} */
+		/** @type {ProjectAsset<TProjectAssetType>?} */
 		/* eslint-enable jsdoc/no-undefined-types */
 		const projectAsset = await assetManager.getProjectAsset(assetUuid);
+
+		if (!projectAsset) return;
 
 		// If either this projectAsset was destructed or its liveAsset was reloaded.
 		if (sym != this.currentRecursionTrackerLiveAssetChangeSym) return;
@@ -463,7 +487,7 @@ export class ProjectAsset {
 
 	destroyLiveAssetData() {
 		if (this.isGettingLiveAssetData) {
-			this.fireOnLiveAssetDataGetCbs({liveAsset: null, editorData: null});
+			this.fireOnLiveAssetDataGetCbs({});
 			this.currentGettingLiveAssetSymbol = null;
 		} else if ((this.liveAsset || this.editorData) && this._projectAssetType) {
 			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.editorData);
@@ -474,6 +498,7 @@ export class ProjectAsset {
 
 	async saveLiveAssetData() {
 		await this.waitForInit();
+		if (!this._projectAssetType) return;
 		const liveAsset = await this.getLiveAsset();
 		const editorData = await this.getEditorData();
 		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
@@ -482,19 +507,19 @@ export class ProjectAsset {
 
 	async getPropertiesAssetContentConstructor() {
 		await this.waitForInit();
-		if (!this._projectAssetType) return null;
+		if (!this.projectAssetTypeConstructor) return null;
 		return this.projectAssetTypeConstructor.propertiesAssetContentConstructor;
 	}
 
 	async getPropertiesAssetContentStructure() {
 		await this.waitForInit();
-		if (!this._projectAssetType) return null;
+		if (!this.projectAssetTypeConstructor) return null;
 		return this.projectAssetTypeConstructor.propertiesAssetContentStructure;
 	}
 
 	async getPropertiesAssetSettingsStructure() {
 		await this.waitForInit();
-		if (!this._projectAssetType) return null;
+		if (!this.projectAssetTypeConstructor) return null;
 		return this.projectAssetTypeConstructor.assetSettingsStructure;
 	}
 
@@ -506,6 +531,10 @@ export class ProjectAsset {
 	async readAssetData() {
 		await this.waitForInit();
 
+		if (!this.projectAssetTypeConstructor) {
+			throw new Error("Unable to read asset data without a ProjectAssetType");
+		}
+
 		/** @type {"json" | "text" | "binary"} */
 		let format = "binary";
 		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
@@ -515,14 +544,14 @@ export class ProjectAsset {
 		}
 
 		let fileData = null;
-		if (this.isBuiltIn) {
-			fileData = await getEditorInstance().builtInAssetManager.fetchAsset(this.path, format);
+		if (this.isBuiltIn || !this.fileSystem) {
+			fileData = await this.builtInAssetManager.fetchAsset(this.path, format);
 		} else if (format == "json") {
-			fileData = await getEditorInstance().projectManager.currentProjectFileSystem.readJson(this.path);
+			fileData = await this.fileSystem.readJson(this.path);
 		} else if (format == "text") {
-			fileData = await getEditorInstance().projectManager.currentProjectFileSystem.readText(this.path);
+			fileData = await this.fileSystem.readText(this.path);
 		} else {
-			fileData = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(this.path);
+			fileData = await this.fileSystem.readFile(this.path);
 		}
 
 		if (format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
@@ -537,6 +566,10 @@ export class ProjectAsset {
 	async writeAssetData(fileData) {
 		await this.waitForInit();
 
+		if (!this.projectAssetTypeConstructor) {
+			throw new Error("Unable to write asset data without a ProjectAssetType");
+		}
+
 		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
 			let json = null;
 			if (this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
@@ -547,28 +580,29 @@ export class ProjectAsset {
 			} else {
 				json = fileData;
 			}
-			if (this.isBuiltIn) {
-				await getEditorInstance().builtInAssetManager.writeJson(this.path, json);
+			if (this.isBuiltIn || !this.fileSystem) {
+				await this.builtInAssetManager.writeJson(this.path, json);
 			} else {
-				await getEditorInstance().projectManager.currentProjectFileSystem.writeJson(this.path, json);
+				await this.fileSystem.writeJson(this.path, json);
 			}
 		} else if (this.projectAssetTypeConstructor.storeInProjectAsText) {
-			if (this.isBuiltIn) {
-				await getEditorInstance().builtInAssetManager.writeText(this.path, fileData);
+			if (this.isBuiltIn || !this.fileSystem) {
+				await this.builtInAssetManager.writeText(this.path, fileData);
 			} else {
 				const fileDataStr = /** @type {string} */ (fileData);
-				await getEditorInstance().projectManager.currentProjectFileSystem.writeText(this.path, fileDataStr);
+				await this.fileSystem.writeText(this.path, fileDataStr);
 			}
-		} else if (this.isBuiltIn) {
-			await getEditorInstance().builtInAssetManager.writeBinary(this.path, fileData);
+		} else if (this.isBuiltIn || !this.fileSystem) {
+			await this.builtInAssetManager.writeBinary(this.path, fileData);
 		} else {
 			const fileDataBlob = /** @type {BlobPart} */ (fileData);
-			await getEditorInstance().projectManager.currentProjectFileSystem.writeBinary(this.path, fileDataBlob);
+			await this.fileSystem.writeBinary(this.path, fileDataBlob);
 		}
 	}
 
 	async getAssetTypeUuid() {
 		await this.waitForInit();
+		if (!this.projectAssetTypeConstructor) return null;
 		return this.projectAssetTypeConstructor.typeUuid;
 	}
 
@@ -577,6 +611,8 @@ export class ProjectAsset {
 	 */
 	async getBundledAssetData(assetSettingOverrides = {}) {
 		await this.waitForInit();
+		if (!this.projectAssetTypeConstructor || !this._projectAssetType) return null;
+
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
 		if (!binaryData) {
 			const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
@@ -591,17 +627,21 @@ export class ProjectAsset {
 					assetData = treeView.getSerializableStructureValues(structure, {purpose: "binaryComposer"});
 				}
 
+				const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
+				if (!castAssetLoaderType.binaryComposerOpts) {
+					throw new Error("Failed to get bundled asset data. `binaryComposerOpts` is not implemented.");
+				}
 				binaryData = BinaryComposer.objectToBinary(assetData, {
-					...usedAssetLoaderType.binaryComposerOpts,
+					...castAssetLoaderType.binaryComposerOpts,
 					editorAssetManager: this.assetManager,
 				});
 			}
 		}
 		if (!binaryData) {
-			if (this.isBuiltIn) {
-				binaryData = await getEditorInstance().builtInAssetManager.fetchAsset(this.path, "binary");
+			if (this.isBuiltIn || !this.fileSystem) {
+				binaryData = await this.builtInAssetManager.fetchAsset(this.path, "binary");
 			} else {
-				binaryData = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(this.path);
+				binaryData = await this.fileSystem.readFile(this.path);
 			}
 		}
 		return binaryData;
@@ -612,18 +652,27 @@ export class ProjectAsset {
 	 */
 	async *getReferencedAssetUuids() {
 		await this.waitForInit();
+		if (!this.projectAssetTypeConstructor || !this._projectAssetType) return;
+
 		const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
 		if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 			const assetData = await this.readAssetData();
 
+			const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
+			if (!castAssetLoaderType.binaryComposerOpts) {
+				throw new Error("Failed to get referenced asset uuids. `binaryComposerOpts` is not implemented.");
+			}
+
+			const binaryComposerOpts = castAssetLoaderType.binaryComposerOpts;
+
 			/** @type {import("../../../src/util/mod.js").UuidString[]} */
 			const referencedUuids = [];
 			BinaryComposer.objectToBinary(assetData, {
-				...usedAssetLoaderType.binaryComposerOpts,
+				...binaryComposerOpts,
 				transformValueHook: args => {
 					let {value, type} = args;
-					if (usedAssetLoaderType.binaryComposerOpts.transformValueHook) {
-						value = usedAssetLoaderType.binaryComposerOpts.transformValueHook(args);
+					if (binaryComposerOpts.transformValueHook) {
+						value = binaryComposerOpts.transformValueHook(args);
 					}
 
 					if (type == StorageType.ASSET_UUID) {

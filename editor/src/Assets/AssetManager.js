@@ -86,7 +86,7 @@ export class AssetManager {
 			if (json) {
 				if (json.assets) {
 					for (const [uuid, assetData] of Object.entries(json.assets)) {
-						const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, uuid, assetData);
+						const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, {uuid, ...assetData});
 						if (projectAsset) {
 							projectAsset.makeUuidConsistent();
 							this.projectAssets.set(uuid, projectAsset);
@@ -185,7 +185,7 @@ export class AssetManager {
 	async registerAsset(path, assetType = null, forceAssetType = false) {
 		await this.loadAssetSettings(true);
 		const uuid = generateUuid();
-		const projectAsset = new ProjectAsset(this, this.projectAssetTypeManager, {uuid, path, assetType, forceAssetType});
+		const projectAsset = new ProjectAsset(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, {uuid, path, assetType, forceAssetType});
 		await projectAsset.waitForInit();
 		this.projectAssets.set(uuid, projectAsset);
 		if (projectAsset.needsAssetSettingsSave) {
@@ -209,7 +209,7 @@ export class AssetManager {
 	async externalChange(e) {
 		const projectAsset = await this.getProjectAssetFromPath(e.path, this.assetSettingsLoaded);
 		if (projectAsset) {
-			const guessedType = await ProjectAsset.guessAssetTypeFromFile(e.path);
+			const guessedType = await ProjectAsset.guessAssetTypeFromFile(this.builtInAssetManager, this.projectAssetTypeManager, this.fileSystem, e.path);
 			if (guessedType != projectAsset.assetType) {
 				// todo
 				console.warn("not yet implemented: changing assetType");

@@ -443,7 +443,7 @@ export class ContentWindowProject extends ContentWindow {
 	async onTreeViewDblClick(e) {
 		const path = this.pathFromTreeView(e.target);
 		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAssetFromPath(path);
-		projectAsset.open();
+		projectAsset.open(this.windowManager);
 	}
 
 	/**

@@ -35,6 +35,7 @@ export class AssetBundler {
 			const asset = await getEditorInstance().projectManager.assetManager.getProjectAsset(assetUuid);
 
 			const assetTypeUuid = await asset.getAssetTypeUuid();
+			if (!assetTypeUuid) continue;
 			const binaryAssetTypeUuid = BinaryComposer.uuidToBinary(assetTypeUuid);
 			headerIntView.set(new Uint8Array(binaryAssetTypeUuid), headerCursor);
 			headerCursor += 16;

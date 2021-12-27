@@ -227,6 +227,7 @@ export class ProjectAssetType {
 	 * you don't need to implement {@linkcode createBundledAssetData}.
 	 * The structure values of the AssetLoaderType will be passed on to
 	 * {@linkcode BinaryComposer.objectToBinary} instead.
+	 * @type {typeof import("../../../../src/mod.js").AssetLoaderType?}
 	 */
 	static usedAssetLoaderType = null;
 

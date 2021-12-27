@@ -49,7 +49,7 @@ export class BuiltInAssetManager {
 					continue;
 				}
 				assetData.isBuiltIn = true;
-				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(assetManager, projectAssetTypeManager, uuid, assetData);
+				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(assetManager, projectAssetTypeManager, this, null, {uuid, ...assetData});
 				if (projectAsset) {
 					projectAsset.onNewLiveAssetInstance(() => {
 						if (!this.onAssetChangeCbs) return;
