@@ -8,7 +8,7 @@ import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorI
 /**
  * @typedef {Object} DraggingProjectAssetData
  * @property {boolean} dataPopulated
- * @property {typeof import("../../Assets/ProjectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
+ * @property {typeof import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
  * @property {import("../../../../src/util/mod.js").UuidString} assetUuid
  */
 
@@ -99,7 +99,7 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		/** @type {SelectionGroup<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
+		/** @type {SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAsset>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.rootNameInit = false;
@@ -343,7 +343,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
-		/** @type {import("../../Managers/SelectionGroup.js").SelectionGroupChangeData<import("../../Assets/ProjectAsset.js").ProjectAsset>} */
+		/** @type {import("../../Managers/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAsset>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
 		changes.added = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);

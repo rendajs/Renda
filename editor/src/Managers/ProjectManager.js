@@ -2,7 +2,7 @@ import {getEditorInstance} from "../editorInstance.js";
 import {EditorFileSystemNative} from "../Util/FileSystems/EditorFileSystemNative.js";
 import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
-import {AssetManager} from "../Assets/AssetManager.js";
+import {AssetManager} from "../assets/AssetManager.js";
 import {EditorConnectionsManager} from "../Network/EditorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";

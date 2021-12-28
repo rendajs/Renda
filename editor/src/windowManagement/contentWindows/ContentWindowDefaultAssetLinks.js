@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
-import {ProjectAsset} from "../../Assets/ProjectAsset.js";
+import {ProjectAsset} from "../../assets/ProjectAsset.js";
 
 export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";
@@ -111,9 +111,9 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		if (this.isLoadingAssetLinks || this.isParsingValueChange) return;
 		this.isParsingValueChange = true;
 
-		/** @type {import("../../Assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */
+		/** @type {import("../../assets/AssetManager.js").SetDefaultBuiltInAssetLinkData[]} */
 		const builtInAssetLinks = [];
-		/** @type {import("../../Assets/AssetManager.js").SetDefaultAssetLinkData[]} */
+		/** @type {import("../../assets/AssetManager.js").SetDefaultAssetLinkData[]} */
 		const assetLinks = [];
 
 		for (const child of this.builtInAssetLinksTreeView.children) {

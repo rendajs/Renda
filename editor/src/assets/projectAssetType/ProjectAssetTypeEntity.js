@@ -31,7 +31,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	/**
 	 * @param {*} json
-	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(json, recursionTracker) {
 		/** @type {EntityWithAssetRootUuid} */
@@ -64,7 +64,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	/**
 	 * @param {*} jsonData
-	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async createEntityFromJsonData(jsonData, recursionTracker) {
 		if (!jsonData) {
@@ -119,7 +119,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	/**
 	 * @param {*} jsonData
 	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} componentProperties
-	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
 		const newPropertyValues = {};
@@ -138,7 +138,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {string} propertyKey
 	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType | undefined} propertyType
 	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions | undefined} propertyGuiOpts
-	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {
 		const propertyValue = originalParentObject[propertyKey];

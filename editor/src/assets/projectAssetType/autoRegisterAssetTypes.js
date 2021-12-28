@@ -3,7 +3,7 @@ import {ProjectAssetTypeClusteredLightsConfig} from "./ProjectAssetTypeClustered
 import {ProjectAssetTypeEntity} from "./ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeJavascript} from "./ProjectAssetTypeJavascript.js";
 import {ProjectAssetTypeMaterial} from "./ProjectAssetTypeMaterial.js";
-import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
+import {ProjectAssetTypeMaterialMap} from "./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
 import {ProjectAssetTypeMesh} from "./ProjectAssetTypeMesh.js";
 import {ProjectAssetTypeRenderOutputConfig} from "./ProjectAssetTypeRenderOutputConfig.js";
 import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";

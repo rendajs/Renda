@@ -1,6 +1,6 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
-import {ProjectAsset} from "../Assets/ProjectAsset.js";
+import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {PropertiesAssetContentGenericStructure} from "./PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
 /**

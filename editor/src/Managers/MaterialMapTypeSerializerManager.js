@@ -1,5 +1,5 @@
-import {autoRegisterMaterialMapTypeSerializers} from "../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/autoRegisterMaterialMapTypeSerializers.js";
-import {MaterialMapTypeSerializer} from "../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js";
+import {autoRegisterMaterialMapTypeSerializers} from "../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/autoRegisterMaterialMapTypeSerializers.js";
+import {MaterialMapTypeSerializer} from "../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js";
 import {isUuid} from "../../../src/util/mod.js";
 import {getEditorInstance} from "../editorInstance.js";
 
@@ -80,14 +80,14 @@ export class MaterialMapTypeSerializerManager {
 
 	/**
 	 * @param {import("../../../src/util/mod.js").UuidString} mapAssetUuid
-	 * @returns {Promise<import("../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
+	 * @returns {Promise<import("../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
 		const mapProjectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(mapAssetUuid);
-		const mapAsset = /** @type {import("../Assets/ProjectAsset.js").ProjectAsset<import("../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} */ (mapProjectAsset);
+		const mapAsset = /** @type {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/ProjectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} */ (mapProjectAsset);
 		if (!mapAsset) return [];
-		/** @type {Map<string, import("../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
+		/** @type {Map<string, import("../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();
 		if (await mapAsset.getIsDeleted()) return [];
 		/** @type {MaterialMapAssetData} */

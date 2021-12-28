@@ -4,7 +4,7 @@ import {getNameAndExtension} from "../Util/FileSystems/PathUtil.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {StorageType} from "../../../src/util/BinaryComposer.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
-import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker.js";
+import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker.js";
 
 /** @typedef {ProjectAsset<any>} ProjectAssetAny */
 
@@ -32,14 +32,14 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
  */
 
 /**
- * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
+ * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
  */
 export class ProjectAsset {
-	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any, any> ? U :never} LiveAssetType */
-	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any, any> ? U :never} EditorDataType */
-	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U, any> ? U :never} FileDataType */
-	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
-	/** @typedef {import("./ProjectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} LiveAssetData */
+	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any, any> ? U :never} LiveAssetType */
+	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any, any> ? U :never} EditorDataType */
+	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U, any> ? U :never} FileDataType */
+	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
+	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} LiveAssetData */
 
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
@@ -154,7 +154,7 @@ export class ProjectAsset {
 		if (!this._projectAssetType) {
 			return null;
 		}
-		return /** @type {typeof import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType} */ (this._projectAssetType.constructor);
+		return /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (this._projectAssetType.constructor);
 	}
 
 	async waitForInit() {
@@ -449,10 +449,10 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
+	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid The asset to monitor for changes.
-	 * @param {import("./LiveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback<TProjectAssetType>} cb
+	 * @param {import("./liveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback<TProjectAssetType>} cb
 	 */
 	async registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {
 		const sym = this.currentRecursionTrackerLiveAssetChangeSym;

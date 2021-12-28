@@ -8,7 +8,7 @@ export class LoadingAsset {
 		this.isLoaded = false;
 		this.loadedAssetData = null;
 
-		/** @type {Set<(liveAssetData: import("../ProjectAssetType/ProjectAssetType.js").LiveAssetDataAny?) => void>} */
+		/** @type {Set<(liveAssetData: import("../projectAssetType/ProjectAssetType.js").LiveAssetDataAny?) => void>} */
 		this.onLoadCbs = new Set();
 	}
 
@@ -22,7 +22,7 @@ export class LoadingAsset {
 	}
 
 	/**
-	 * @param {(liveAssetData: import("../ProjectAssetType/ProjectAssetType.js").LiveAssetDataAny?) => void} cb
+	 * @param {(liveAssetData: import("../projectAssetType/ProjectAssetType.js").LiveAssetDataAny?) => void} cb
 	 */
 	onLoad(cb) {
 		if (this.isLoaded) {
@@ -37,7 +37,7 @@ export class LoadingAsset {
 	}
 
 	/**
-	 * @param {import("../ProjectAssetType/ProjectAssetType.js").LiveAssetDataAny?} loadedAssetData
+	 * @param {import("../projectAssetType/ProjectAssetType.js").LiveAssetDataAny?} loadedAssetData
 	 */
 	setLoadedAssetData(loadedAssetData) {
 		this.loadedAssetData = loadedAssetData;

@@ -3,7 +3,7 @@ import {getEditorInstance} from "../editorInstance.js";
 
 export class AssetBundler {
 	/**
-	 * @param {import("../Assets/ProjectAsset.js").ProjectAsset<import("../Assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>} bundleProjectAsset
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>} bundleProjectAsset
 	 */
 	async bundle(bundleProjectAsset) {
 		const bundleData = await bundleProjectAsset.readAssetData();
@@ -58,7 +58,7 @@ export class AssetBundler {
 	}
 
 	/**
-	 * @param {import("../Assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").AssetBundleDiskDataAsset[]} assetsList
+	 * @param {import("../assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").AssetBundleDiskDataAsset[]} assetsList
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuids
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuidsRecursive
 	 */

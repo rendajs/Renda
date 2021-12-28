@@ -149,7 +149,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {boolean} fromContentWindowLoad
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
-		/** @type {import("../../Assets/ProjectAsset.js").ProjectAsset<import("../../Assets/ProjectAssetType/ProjectAssetTypeEntity.js").ProjectAssetTypeEntity>} */
+		/** @type {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/ProjectAssetType/ProjectAssetTypeEntity.js").ProjectAssetTypeEntity>} */
 		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(entityUuid);
 		if (!projectAsset) {
 			this.newEmptyEditingEntity();

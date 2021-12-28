@@ -160,7 +160,7 @@ export class ProjectAssetType {
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
 	 * @param {TGetFileData} fileData The result returned from {@linkcode ProjectAsset.readAssetData}.
-	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {

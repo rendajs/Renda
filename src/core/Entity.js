@@ -55,8 +55,8 @@ import {ComponentTypeManager} from "../Components/ComponentTypeManager.js";
 
 /**
  * @typedef {Object} EntityToJsonOptions
- * @property {import("../../editor/src/Assets/AssetManager.js").AssetManager} assetManager
- * @property {import("../../editor/src/Assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
+ * @property {import("../../editor/src/assets/AssetManager.js").AssetManager} assetManager
+ * @property {import("../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
  * @property {symbol} entityAssetRootUuidSymbol
  */

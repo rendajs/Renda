@@ -4,7 +4,7 @@ import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js
 import {Button} from "../UI/Button.js";
 import {DroppableGui} from "../UI/DroppableGui.js";
 import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/ContentWindowEntityEditor.js";
-import {ProjectAssetTypeEntity} from "../Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeEntity} from "../assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../Misc/EntitySelection.js";
 
 export class PropertiesWindowEntityContent extends PropertiesWindowContent {

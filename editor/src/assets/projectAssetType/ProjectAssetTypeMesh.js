@@ -109,7 +109,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {Blob} blob
-	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh, ProjectAssetTypeMeshEditorData>>}
 	 */
 	async getLiveAssetData(blob, recursionTracker) {

@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "../ProjectAssetType.js";
 import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
-import {RecursionTracker} from "../../LiveAssetDataRecursionTracker/RecursionTracker.js";
+import {RecursionTracker} from "../../liveAssetDataRecursionTracker/RecursionTracker.js";
 import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 
 /**

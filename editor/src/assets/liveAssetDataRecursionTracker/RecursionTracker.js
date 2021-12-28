@@ -24,20 +24,20 @@ import {LoadingAsset} from "./LoadingAsset.js";
 /* eslint-enable jsdoc/require-description-complete-sentence */
 
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
- * @typedef {T extends import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType
+ * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
+ * @typedef {T extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType
  */
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
- * @typedef {T extends import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType
+ * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
+ * @typedef {T extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType
  */
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
- * @typedef {import("../ProjectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<T>, EditorDataType<T>>} LiveAssetData
+ * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
+ * @typedef {import("../projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<T>, EditorDataType<T>>} LiveAssetData
  */
 
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
+ * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
  * @typedef {(liveAssetData: LiveAssetData<TProjectAssetType>?) => void} LiveAssetDataCallback
  */
 
@@ -80,7 +80,7 @@ export class RecursionTracker {
 	}
 
 	/**
-	 * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
+	 * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
 	 * @param {LiveAssetDataCallback<TProjectAssetType>} cb
 	 * @param {GetLiveAssetDataOptions} options

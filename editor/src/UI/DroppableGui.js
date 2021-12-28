@@ -1,6 +1,6 @@
 import {getEditorInstance} from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
-import {ProjectAsset} from "../Assets/ProjectAsset.js";
+import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
 import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/ContentWindowBuiltInAssets.js";
 import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
@@ -51,7 +51,7 @@ export class DroppableGui {
 
 		/** @type {import("../../../src/util/mod.js").UuidString}*/
 		this.defaultAssetLinkUuid = null;
-		/** @type {?import("../Assets/DefaultAssetLink.js").DefaultAssetLink}*/
+		/** @type {?import("../assets/DefaultAssetLink.js").DefaultAssetLink}*/
 		this.defaultAssetLink = null;
 		/** @type {?ProjectAsset}*/
 		this.projectAssetValue = null;

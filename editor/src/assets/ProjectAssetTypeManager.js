@@ -1,10 +1,10 @@
-import {autoRegisterAssetTypes} from "./ProjectAssetType/autoRegisterAssetTypes.js";
-import {ProjectAssetType} from "./ProjectAssetType/ProjectAssetType.js";
+import {autoRegisterAssetTypes} from "./projectAssetType/autoRegisterAssetTypes.js";
+import {ProjectAssetType} from "./projectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/util/mod.js";
-import {ProjectAssetTypeMaterial} from "./ProjectAssetType/ProjectAssetTypeMaterial.js";
+import {ProjectAssetTypeMaterial} from "./projectAssetType/ProjectAssetTypeMaterial.js";
 
 export class ProjectAssetTypeManager {
-	/** @typedef {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} ProjectAssetTypeIdentifier */
+	/** @typedef {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} ProjectAssetTypeIdentifier */
 
 	constructor() {
 		/** @type {Map<ProjectAssetTypeIdentifier, typeof ProjectAssetType>} */
@@ -21,8 +21,8 @@ export class ProjectAssetTypeManager {
 	/**
 	 * @template {any} TLiveAsset
 	 * @template {any} TEditorData
-	 * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetDiskDataType} TFileData
-	 * @param {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<TLiveAsset, TEditorData, TFileData>} constructor
+	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetDiskDataType} TFileData
+	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<TLiveAsset, TEditorData, TFileData>} constructor
 	 */
 	registerAssetType(constructor) {
 		const castConstructor = /** @type {typeof ProjectAssetType} */ (constructor);

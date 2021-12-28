@@ -1,7 +1,7 @@
 import {PropertiesAssetContent} from "../PropertiesAssetContent.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
-import {ProjectAsset} from "../../../Assets/ProjectAsset.js";
+import {ProjectAsset} from "../../../assets/ProjectAsset.js";
 
 /**
  * Responsible for rendering the ui in the properties window for MaterialMaps.
@@ -82,7 +82,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {typeof import("../../../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
+	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	hasTypeConstructor(typeConstructor) {
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
@@ -101,7 +101,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {typeof import("../../../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
+	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */

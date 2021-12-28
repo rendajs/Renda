@@ -8,7 +8,7 @@ import {PropertiesMaterialMapContentGenericStructure} from "./PropertiesMaterial
  */
 export class MaterialMapTypeEntry {
 	/**
-	 * @param {typeof import("../../../Assets/ProjectAssetType/ProjectAssetTypeMaterialMap/MaterialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
+	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	constructor(typeConstructor) {
 		this.typeConstructor = typeConstructor;
