@@ -6,4 +6,4 @@
  * Import this file before any other files from the editor.
  */
 
-import "../../../src/editorInstance.js";
+import "../../../../editor/src/editorInstance.js";

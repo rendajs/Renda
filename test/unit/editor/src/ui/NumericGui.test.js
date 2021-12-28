@@ -1,5 +1,5 @@
 import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
-import {NumericGui} from "../../../../src/UI/NumericGui.js";
+import {NumericGui} from "../../../../../editor/src/UI/NumericGui.js";
 import {initializeDom} from "../../shared/initializeDom.js";
 
 Deno.test({

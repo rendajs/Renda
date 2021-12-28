@@ -1,6 +1,6 @@
 import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
-import {ProjectAssetTypeEntity} from "../../../../../src/Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeEntity} from "../../../../../../editor/src/Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 
 Deno.test("reload component values when changed", async () => {
 	const fakeUuid = "00000000-0000-0000-0000-000000000000";
