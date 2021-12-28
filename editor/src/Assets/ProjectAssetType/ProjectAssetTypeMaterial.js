@@ -23,7 +23,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
 		if (materialJson.map) {
-			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} */
+			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>?} */
 			const materialMapAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(materialJson.map);
 			if (materialMapAsset) {
 				materialMap = await materialMapAsset.getLiveAsset();
@@ -42,7 +42,11 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async saveLiveAssetData(liveAsset) {
 		/** @type {import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
-		assetData.map = this.editorInstance.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
+		const mapUuid = this.editorInstance.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
+		if (mapUuid) {
+			assetData.map = mapUuid;
+		}
+		/** @type {Object.<any, any>} */
 		const modifiedProperties = {};
 		let hasModifiedProperty = false;
 		for (const [key, value] of liveAsset.getAllProperties()) {

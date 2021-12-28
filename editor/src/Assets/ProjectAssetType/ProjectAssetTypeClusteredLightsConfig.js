@@ -1,6 +1,10 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from "../../../../src/mod.js";
 
+// todo: better types for generics
+/**
+ * @extends {ProjectAssetType<null, null, any>}
+ */
 export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	static type = "JJ:clusteredLightsSetup";
 	static typeUuid = "13194e5c-01e8-4ecc-b645-86626b9d5e4c";

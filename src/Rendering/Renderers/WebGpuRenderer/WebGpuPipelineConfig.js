@@ -1,8 +1,8 @@
 export class WebGpuPipelineConfig {
 	/**
 	 * @param {Object} options
-	 * @param {import("../../ShaderSource.js").ShaderSource} [options.fragmentShader]
-	 * @param {import("../../ShaderSource.js").ShaderSource} [options.vertexShader]
+	 * @param {import("../../ShaderSource.js").ShaderSource?} [options.fragmentShader]
+	 * @param {import("../../ShaderSource.js").ShaderSource?} [options.vertexShader]
 	 * @param {GPUPrimitiveTopology} [options.primitiveTopology]
 	 */
 	constructor({

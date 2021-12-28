@@ -5,6 +5,10 @@ import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.j
 
 const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
 
+// todo: better types for generics
+/**
+ * @extends {ProjectAssetType<Entity, null, any>}
+ */
 export class ProjectAssetTypeEntity extends ProjectAssetType {
 	static type = "JJ:entity";
 	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";

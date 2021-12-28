@@ -9,6 +9,8 @@
  */
 /** @typedef {ProjectAssetTypeConstructor<any, any, any>} ProjectAssetTypeConstructorAny */
 
+/** @typedef {[import("../../Editor.js").Editor, import("../ProjectAsset.js").ProjectAssetAny, import("../AssetManager.js").AssetManager, import("../ProjectAssetTypeManager.js").ProjectAssetTypeManager]} ProjectAssetTypeConstructorParametersAny */
+
 /**
  * @template TLiveAsset
  * @template TEditorData
@@ -33,7 +35,7 @@ export class ProjectAssetType {
 	 * Identifier of the assetType. This is stored in various places
 	 * such as the asset settings file or the wrapped editor meta data.
 	 * This should have the format "namespace:assetType", for example: "JJ:mesh".
-	 * @type {ProjectAssetTypeIdentifier}
+	 * @type {?ProjectAssetTypeIdentifier}
 	 */
 	static type = null;
 
@@ -41,7 +43,7 @@ export class ProjectAssetType {
 	 * This will be used for storing the asset type in asset bundles.
 	 * This should have the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
 	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
-	 * @type {import("../../../../src/util/mod.js").UuidString}
+	 * @type {import("../../../../src/util/mod.js").UuidString?}
 	 */
 	static typeUuid = null;
 
@@ -81,7 +83,7 @@ export class ProjectAssetType {
 	 * This object will be fed into {@linkcode PropertiesTreeView.generateFromSerializableStructure}.
 	 * Leave this as null if you don't want to show any ui or if you want to create
 	 * custom ui using {@linkcode propertiesAssetContentConstructor}.
-	 * @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure}
+	 * @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure?}
 	 */
 	static propertiesAssetContentStructure = null;
 
@@ -89,6 +91,7 @@ export class ProjectAssetType {
 	/**
 	 * If you want more control over ui rendering in the properties window,
 	 * you can set this to the constructor of an extended {@linkcode PropertiesAssetContent} class.
+	 * @type {typeof import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent?}
 	 */
 	static propertiesAssetContentConstructor = null;
 
@@ -127,7 +130,7 @@ export class ProjectAssetType {
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
 	async createNewLiveAssetData() {
-		return {liveAsset: null, editorData: null};
+		return {};
 	}
 
 	/**
@@ -138,6 +141,7 @@ export class ProjectAssetType {
 	 * should be set to `Material` (without new).
 	 * If you don't plan on adding support for loading this asset type at runtime,
 	 * you can safely ommit this.
+	 * @type {(new (...args: any) => any)?}
 	 */
 	static expectedLiveAssetConstructor = null;
 
@@ -155,7 +159,7 @@ export class ProjectAssetType {
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		return {liveAsset: null};
+		return {};
 	}
 
 	/**
@@ -164,7 +168,7 @@ export class ProjectAssetType {
 	 * on your configuration you can return a json object, DOMString, or binary data.
 	 * @param {*} liveAsset
 	 * @param {*} editorData
-	 * @returns {Promise<TFileData>}
+	 * @returns {Promise<TFileData?>}
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {
 		return null;
@@ -195,7 +199,7 @@ export class ProjectAssetType {
 	 * If any of the registered liveAssets get replaced, the liveAsset
 	 * of this ProjectAsset automatically gets destroyed and recreated.
 	 * @template {import("../ProjectAsset.js").ProjectAsset<any>} T
-	 * @param {T} projectAsset
+	 * @param {T?} projectAsset
 	 */
 	listenForUsedLiveAssetChanges(projectAsset) {
 		if (!projectAsset) return;
@@ -209,8 +213,8 @@ export class ProjectAssetType {
 	 * @param {*} liveAsset
 	 * @param {*} editorData
 	 */
-	destroyLiveAssetData(liveAsset, editorData) {
-		liveAsset.destructor?.();
+	destroyLiveAssetData(liveAsset = null, editorData = null) {
+		liveAsset?.destructor?.();
 		for (const projectAsset of this.usedLiveAssets) {
 			projectAsset.removeOnNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement);
 		}
@@ -230,7 +234,7 @@ export class ProjectAssetType {
 	 * you don't need to implement {@linkcode createBundledAssetData}.
 	 * The structure values of the AssetLoaderType will be passed on to
 	 * {@linkcode BinaryComposer.objectToBinary} instead.
-	 * @type {typeof import("../../../../src/mod.js").AssetLoaderType?}
+	 * @type {(new (...args: any) => import("../../../../src/mod.js").AssetLoaderType)?}
 	 */
 	static usedAssetLoaderType = null;
 

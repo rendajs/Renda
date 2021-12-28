@@ -2,6 +2,14 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 import {PropertiesAssetContentMesh} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMesh.js";
 import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.js";
 
+/**
+ * @typedef {Object} ProjectAssetTypeMeshEditorData
+ * @property {import("../../../../src/mod.js").UuidString} vertexStateUuid
+ */
+
+/**
+ * @extends {ProjectAssetType<Mesh, ProjectAssetTypeMeshEditorData, any>}
+ */
 export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "JJ:mesh";
 	static typeUuid = "f202aae6-673a-497d-806d-c2d4752bb146";
@@ -11,7 +19,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static propertiesAssetContentConstructor = PropertiesAssetContentMesh;
 
 	/**
-	 * @param {ConstructorParameters<typeof ProjectAssetType>} args
+	 * @param {import("./ProjectAssetType.js").ProjectAssetTypeConstructorParametersAny} args
 	 */
 	constructor(...args) {
 		super(...args);

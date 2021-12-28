@@ -1,6 +1,10 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../../src/mod.js";
 
+// todo: better types for generics
+/**
+ * @extends {ProjectAssetType<RenderOutputConfig, null, any>}
+ */
 export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static type = "JJ:renderOutputConfig";
 	static typeUuid = "b4c9bbdc-86dc-4270-ae94-780dbaa66976";
@@ -42,6 +46,11 @@ export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static expectedLiveAssetConstructor = RenderOutputConfig;
 	static usedAssetLoaderType = AssetLoaderTypeRenderOutputConfig;
 
+	/**
+	 * @override
+	 * @param {*} fileData
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<RenderOutputConfig, null>>}
+	 */
 	async getLiveAssetData(fileData) {
 		const liveAsset = new RenderOutputConfig(fileData);
 		return {liveAsset};

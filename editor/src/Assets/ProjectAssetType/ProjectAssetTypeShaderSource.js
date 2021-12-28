@@ -1,6 +1,9 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {ShaderSource} from "../../../../src/mod.js";
 
+/**
+ * @extends {ProjectAssetType<ShaderSource, null, string>}
+ */
 export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static type = "JJ:shaderSource";
 	static typeUuid = "e7253ad6-8459-431f-ac16-609150538a24";
@@ -11,17 +14,23 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static matchExtensions = ["glsl", "wgsl"];
 
 	/**
-	 * @param  {ConstructorParameters<typeof ProjectAssetType>} args
+	 * @param {import("./ProjectAssetType.js").ProjectAssetTypeConstructorParametersAny} args
 	 */
 	constructor(...args) {
 		super(...args);
 
+		/** @type {import("../../../../src/mod.js").UuidString[]} */
 		this.includedUuids = [];
 		this.boundOnShaderInvalidated = null;
 	}
 
 	static expectedLiveAssetConstructor = ShaderSource;
 
+	/**
+	 * @override
+	 * @param {string} source
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<ShaderSource, null>>}
+	 */
 	async getLiveAssetData(source) {
 		const {shaderCode, includedUuids} = await this.editorInstance.webGpuShaderBuilder.buildShader(source);
 		this.includedUuids = includedUuids;
@@ -33,6 +42,10 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 		return {liveAsset};
 	}
 
+	/**
+	 * @override
+	 * @param {ShaderSource} liveAsset
+	 */
 	destroyLiveAssetData(liveAsset) {
 		super.destroyLiveAssetData(liveAsset);
 		if (this.boundOnShaderInvalidated) {
@@ -41,6 +54,9 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 		}
 	}
 
+	/**
+	 * @param {import("../../../../src/mod.js").UuidString} uuid
+	 */
 	onShaderInvalidated(uuid) {
 		if (this.includedUuids.includes(uuid)) {
 			this.liveAssetNeedsReplacement();
