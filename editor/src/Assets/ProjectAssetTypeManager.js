@@ -21,7 +21,7 @@ export class ProjectAssetTypeManager {
 	/**
 	 * @template {any} TLiveAsset
 	 * @template {any} TEditorData
-	 * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetDiskData} TFileData
+	 * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetDiskDataType} TFileData
 	 * @param {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<TLiveAsset, TEditorData, TFileData>} constructor
 	 */
 	registerAssetType(constructor) {

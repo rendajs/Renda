@@ -8,7 +8,7 @@ import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.
  */
 
 /**
- * @extends {ProjectAssetType<Mesh, ProjectAssetTypeMeshEditorData, Blob>}
+ * @extends {ProjectAssetType<Mesh, ProjectAssetTypeMeshEditorData, "binary">}
  */
 export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "JJ:mesh";

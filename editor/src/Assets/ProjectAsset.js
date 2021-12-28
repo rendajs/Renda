@@ -35,9 +35,10 @@ import {RecursionTracker} from "./LiveAssetDataRecursionTracker/RecursionTracker
  * @template {import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
  */
 export class ProjectAsset {
-	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType */
-	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType */
-	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U> ? U :never} FileDataType */
+	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any, any> ? U :never} LiveAssetType */
+	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any, any> ? U :never} EditorDataType */
+	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U, any> ? U :never} FileDataType */
+	/** @typedef {T extends import("./ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
 	/** @typedef {import("./ProjectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} LiveAssetData */
 
 	/**
@@ -72,6 +73,7 @@ export class ProjectAsset {
 		this.uuid = uuid;
 		/** @type {Array<string>}*/
 		this.path = path;
+		/** @type {AssetSettigsType} */
 		this.assetSettings = assetSettings;
 		/** @type {string | null} */
 		this.assetType = assetType;
@@ -121,7 +123,6 @@ export class ProjectAsset {
 		this.destructed = true;
 
 		this.destroyLiveAssetData();
-		this.assetSettings = null;
 		this._projectAssetType = null;
 		this.onNewLiveAssetInstanceCbs.clear();
 		this.clearRecursionTrackerLiveAssetChangeHandlers();
@@ -233,6 +234,9 @@ export class ProjectAsset {
 		this.needsConsistentUuid = true;
 	}
 
+	/**
+	 * @returns {boolean}
+	 */
 	get needsAssetSettingsSave() {
 		if (this.forceAssetType) return true;
 		if (this.needsConsistentUuid) return true;

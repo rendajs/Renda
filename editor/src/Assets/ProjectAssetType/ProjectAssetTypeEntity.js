@@ -44,12 +44,13 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {Entity} liveAsset
 	 */
 	async saveLiveAssetData(liveAsset) {
-		return liveAsset.toJson({
+		const entityData = liveAsset.toJson({
 			assetManager: this.assetManager,
 			assetTypeManager: this.projectAssetTypeManager,
 			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 			entityAssetRootUuidSymbol,
 		});
+		return /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
 	}
 
 	/**

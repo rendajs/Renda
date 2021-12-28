@@ -1,13 +1,14 @@
 /** @typedef {string & {}} ProjectAssetTypeIdentifier */
 
-/** @typedef {ProjectAssetType<any, any, any>} ProjectAssetTypeAny */
+/** @typedef {ProjectAssetType<any, any, any, any>} ProjectAssetTypeAny */
 /**
  * @template {any} TLiveAsset
  * @template {any} TEditorData
- * @template {ProjectAssetDiskData} TFileData
- * @typedef {new (...args: any) => ProjectAssetType<TLiveAsset, TEditorData, TFileData>} ProjectAssetTypeConstructor
+ * @template {ProjectAssetDiskDataType} TFileData
+ * @template {any} [TAssetSettings = null]
+ * @typedef {new (...args: any) => ProjectAssetType<TLiveAsset, TEditorData, TFileData, TAssetSettings>} ProjectAssetTypeConstructor
  */
-/** @typedef {ProjectAssetTypeConstructor<any, any, any>} ProjectAssetTypeConstructorAny */
+/** @typedef {ProjectAssetTypeConstructor<any, any, any, any>} ProjectAssetTypeConstructorAny */
 
 /** @typedef {[import("../../Editor.js").Editor, import("../ProjectAsset.js").ProjectAssetAny, import("../AssetManager.js").AssetManager, import("../ProjectAssetTypeManager.js").ProjectAssetTypeManager]} ProjectAssetTypeConstructorParametersAny */
 
@@ -23,12 +24,13 @@
  * @typedef {LiveAssetData<any, any>} LiveAssetDataAny
  */
 
-/** @typedef {Object | string | BlobPart} ProjectAssetDiskData */
+/** @typedef {Object | string | "binary"} ProjectAssetDiskDataType */
 
 /**
  * @template {any} TLiveAsset
  * @template {any} TEditorData
- * @template {ProjectAssetDiskData} TFileData
+ * @template {ProjectAssetDiskDataType} TFileData
+ * @template {any} [TAssetSettings = null]
  */
 export class ProjectAssetType {
 	/**
@@ -102,7 +104,7 @@ export class ProjectAssetType {
 	static assetSettingsStructure = {};
 
 	/* eslint-disable jsdoc/no-undefined-types */
-	/** @typedef {import("../ProjectAsset.js").ProjectAsset<ProjectAssetType<TLiveAsset, TEditorData, TFileData>>} ProjectAsset */
+	/** @typedef {import("../ProjectAsset.js").ProjectAsset<ProjectAssetType<TLiveAsset, TEditorData, TFileData, TAssetSettings>>} ProjectAsset */
 	/* eslint-enable jsdoc/no-undefined-types */
 	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
@@ -145,6 +147,9 @@ export class ProjectAssetType {
 	 */
 	static expectedLiveAssetConstructor = null;
 
+	/** @typedef {TFileData extends "binary" ? Blob : TFileData} TGetFileData */
+	/** @typedef {TFileData extends "binary" ? BlobPart : TFileData} TSaveFileData */
+
 	/**
 	 * If you plan on supporting loading live assets in the editor,
 	 * return your liveasset instance and editorData here.
@@ -154,7 +159,7 @@ export class ProjectAssetType {
 	 * `editorData` will be passed back to {@linkcode saveLiveAssetData}.
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
-	 * @param {TFileData} fileData The result returned from {@linkcode ProjectAsset.readAssetData}.
+	 * @param {TGetFileData} fileData The result returned from {@linkcode ProjectAsset.readAssetData}.
 	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
@@ -168,7 +173,7 @@ export class ProjectAssetType {
 	 * on your configuration you can return a json object, DOMString, or binary data.
 	 * @param {*} liveAsset
 	 * @param {*} editorData
-	 * @returns {Promise<ProjectAssetDiskData?>}
+	 * @returns {Promise<TSaveFileData?>}
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {
 		return null;

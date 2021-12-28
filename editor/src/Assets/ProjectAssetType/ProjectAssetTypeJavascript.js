@@ -2,9 +2,15 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 import {getNameAndExtension} from "../../Util/FileSystems/PathUtil.js";
 import {getEditorInstance} from "../../editorInstance.js";
 
+/**
+ * @typedef {Object} AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings
+ * @property {string} outputLocation
+ * @property {boolean} useClosureCompiler
+ */
+
 // todo: better types for generics
 /**
- * @extends {ProjectAssetType<null, null, any>}
+ * @extends {ProjectAssetType<null, null, any, AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings>}
  */
 export class ProjectAssetTypeJavascript extends ProjectAssetType {
 	static type = "JJ:javascript";
@@ -31,7 +37,8 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 			guiOpts: {
 				text: "Build",
 				onClick: async context => {
-					for (const asset of context.selectedAssets) {
+					const castSelected = /** @type {import("../ProjectAsset.js").ProjectAsset<ProjectAssetTypeJavascript>[]} */ (context.selectedAssets);
+					for (const asset of castSelected) {
 						let outputPath = null;
 						const outputLocation = asset?.assetSettings?.outputLocation;
 						if (outputLocation) {
@@ -52,8 +59,10 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 							const buildOpts = {
 								useClosureCompiler: asset?.assetSettings?.useClosureCompiler ?? false,
 							};
-							await getEditorInstance().projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
-							await getEditorInstance().scriptBuilder.buildScript(asset.path, outputPath, buildOpts);
+							const editor = getEditorInstance();
+							if (!editor || !editor.projectManager.currentProjectFileSystem) return;
+							await editor.projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
+							await editor.scriptBuilder.buildScript(asset.path, outputPath, buildOpts);
 						}
 					}
 				},
