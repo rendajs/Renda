@@ -21,6 +21,46 @@ import {ComponentTypeManager} from "../Components/ComponentTypeManager.js";
  * @property {Entity} [parent = null]
  */
 
+/**
+ * @typedef {Object} EntityJsonDataBase
+ * @property {string} [name]
+ */
+
+/**
+ * @typedef {Object} EntityJsonDataInlineEntityTypes
+ * @property {number[]} matrix
+ * @property {EntityJsonDataComponent[]} components
+ * @property {EntityJsonData[]} children
+ *
+ * @typedef {EntityJsonDataBase & EntityJsonDataInlineEntityTypes} EntityJsonDataInlineEntity
+ */
+
+/**
+ * @typedef {Object} EntityJsonDataAssetEntityTypes
+ * @property {import("../mod.js").UuidString} assetUuid
+ * @property {number[]} [pos]
+ * @property {number[]} [rot]
+ * @property {number[]} [scale]
+ *
+ * @typedef {EntityJsonDataBase & EntityJsonDataAssetEntityTypes} EntityJsonDataAssetEntity
+ */
+
+/** @typedef {EntityJsonDataInlineEntity | EntityJsonDataAssetEntity} EntityJsonData */
+
+/**
+ * @typedef {Object} EntityJsonDataComponent
+ * @property {import("../mod.js").UuidString} uuid
+ * @property {Object.<string, any>} propertyValues
+ */
+
+/**
+ * @typedef {Object} EntityToJsonOptions
+ * @property {import("../../editor/src/Assets/AssetManager.js").AssetManager} assetManager
+ * @property {import("../../editor/src/Assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
+ * @property {symbol} usedAssetUuidsSymbol
+ * @property {symbol} entityAssetRootUuidSymbol
+ */
+
 export class Entity {
 	/**
 	 * @param {CreateEntityOptions | string} opts
@@ -814,7 +854,14 @@ export class Entity {
 		return null;
 	}
 
+	/**
+	 * @param {EntityToJsonOptions?} editorOpts
+	 * @returns {EntityJsonData}
+	 */
 	toJson(editorOpts = null) {
+		/** @typedef {Entity & {[x: symbol] : any}} EntityWithAssetRootUuid */
+
+		/** @type {EntityJsonDataInlineEntity} */
 		const json = {
 			name: this.name,
 			matrix: this.localMatrix.getFlatArray(),
@@ -829,6 +876,7 @@ export class Entity {
 			let i = 0;
 			for (const child of this.getChildren()) {
 				if (child[sym]) {
+					/** @type {EntityJsonDataAssetEntity} */
 					const childJson = {
 						assetUuid: child[sym],
 					};

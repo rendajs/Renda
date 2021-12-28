@@ -154,7 +154,7 @@ export class ProjectAssetType {
 	 * `editorData` will be passed back to {@linkcode saveLiveAssetData}.
 	 * You can use this to store extra data that can be manipulated by the editor.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
-	 * @param {TFileData} fileData
+	 * @param {TFileData} fileData The result returned from {@linkcode ProjectAsset.readAssetData}.
 	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
@@ -168,7 +168,7 @@ export class ProjectAssetType {
 	 * on your configuration you can return a json object, DOMString, or binary data.
 	 * @param {*} liveAsset
 	 * @param {*} editorData
-	 * @returns {Promise<TFileData?>}
+	 * @returns {Promise<ProjectAssetDiskData?>}
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {
 		return null;

@@ -8,7 +8,7 @@ import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.
  */
 
 /**
- * @extends {ProjectAssetType<Mesh, ProjectAssetTypeMeshEditorData, any>}
+ * @extends {ProjectAssetType<Mesh, ProjectAssetTypeMeshEditorData, Blob>}
  */
 export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "JJ:mesh";
@@ -106,17 +106,24 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = Mesh;
 
-	async getLiveAssetData(blob) {
+	/**
+	 * @override
+	 * @param {Blob} blob
+	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh, ProjectAssetTypeMeshEditorData>>}
+	 */
+	async getLiveAssetData(blob, recursionTracker) {
 		// todo: remove all of this and reuse the code in AssetLoaderTypeMesh
 		const arrayBuffer = await blob.arrayBuffer();
 		const decomposer = new BinaryDecomposer(arrayBuffer);
-		if (decomposer.getUint32() != this.magicHeader) return null;
+		if (decomposer.getUint32() != this.magicHeader) return {};
 		if (decomposer.getUint16() != 1) {
 			throw new Error("mesh version is too new");
 		}
 		const mesh = new Mesh();
 
 		const vertexStateUuid = decomposer.getUuid();
+		if (!vertexStateUuid) return {};
 		const layoutProjectAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(vertexStateUuid);
 		if (layoutProjectAsset) {
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
@@ -163,6 +170,10 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		};
 	}
 
+	/**
+	 * @param {Mesh} liveAsset
+	 * @param {import("../../../../src/mod.js").UuidString} vertexStateUuid
+	 */
 	meshToBuffer(liveAsset, vertexStateUuid) {
 		const composer = new BinaryComposer();
 		composer.appendUint32(this.magicHeader); // magic header: jMsh
@@ -196,24 +207,45 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 				composer.appendUint8(attribute.componentCount);
 				composer.appendUint32(attribute.offset);
 			}
-			composer.appendUint32(buffer.buffer.byteLength);
-			composer.appendBuffer(buffer.buffer);
+			const arrayBuffer = buffer.buffer;
+			if (!arrayBuffer) {
+				composer.appendUint32(0);
+			} else {
+				composer.appendUint32(arrayBuffer.byteLength);
+				composer.appendBuffer(arrayBuffer);
+			}
 		}
 		return composer.getFullBuffer();
 	}
 
+	/**
+	 * @override
+	 * @param {Mesh} liveAsset
+	 * @param {ProjectAssetTypeMeshEditorData} editorData
+	 * @returns {Promise<ArrayBuffer>}
+	 */
 	async saveLiveAssetData(liveAsset, editorData) {
 		return this.meshToBuffer(liveAsset, editorData?.vertexStateUuid);
 	}
 
+	/**
+	 * @override
+	 * @param {Object} assetSettingOverrides
+	 * @returns {Promise<ArrayBuffer?>}
+	 */
 	async createBundledAssetData(assetSettingOverrides = {}) {
 		const {liveAsset, editorData} = await this.projectAsset.getLiveAssetData();
-		const vertexStateUuid = this.editorInstance.projectManager.assetManager.resolveDefaultAssetLinkUuid(editorData?.vertexStateUuid);
+		if (!liveAsset) return null;
+		let vertexStateUuid = editorData?.vertexStateUuid;
+		if (!vertexStateUuid) return null;
+		vertexStateUuid = this.editorInstance.projectManager.assetManager.resolveDefaultAssetLinkUuid(vertexStateUuid);
 		return this.meshToBuffer(liveAsset, vertexStateUuid);
 	}
 
 	async *getReferencedAssetUuids() {
 		const mesh = await this.projectAsset.getLiveAsset();
-		yield this.editorInstance.projectManager.assetManager.getAssetUuidFromLiveAsset(mesh.vertexState);
+		if (!mesh) return;
+		const uuid = this.editorInstance.projectManager.assetManager.getAssetUuidFromLiveAsset(mesh.vertexState);
+		if (uuid) yield uuid;
 	}
 }

@@ -1,13 +1,12 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeEntity, Entity, Vec3} from "../../../../src/mod.js";
+import {AssetLoaderTypeEntity, BinaryComposer, Entity, StorageType, Vec3} from "../../../../src/mod.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
-import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.js";
 
 const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
 
 // todo: better types for generics
 /**
- * @extends {ProjectAssetType<Entity, null, any>}
+ * @extends {ProjectAssetType<Entity, null, import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity>}
  */
 export class ProjectAssetTypeEntity extends ProjectAssetType {
 	static type = "JJ:entity";
@@ -18,7 +17,10 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = Entity;
 
+	/** @typedef {Entity & {[entityAssetRootUuidSymbol]? : import("../../../../src/mod.js").UuidString}} EntityWithAssetRootUuid */
+
 	async createNewLiveAssetData() {
+		/** @type {EntityWithAssetRootUuid} */
 		const liveAsset = new Entity();
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {
@@ -32,12 +34,16 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(json, recursionTracker) {
+		/** @type {EntityWithAssetRootUuid} */
 		const liveAsset = await this.createEntityFromJsonData(json, recursionTracker);
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {liveAsset};
 	}
 
-	async saveLiveAssetData(liveAsset, editorData) {
+	/**
+	 * @param {Entity} liveAsset
+	 */
+	async saveLiveAssetData(liveAsset) {
 		return liveAsset.toJson({
 			assetManager: this.assetManager,
 			assetTypeManager: this.projectAssetTypeManager,
@@ -129,8 +135,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {*} newParentObject
 	 * @param {*} originalParentObject
 	 * @param {string} propertyKey
-	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} propertyType
-	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} propertyGuiOpts
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType | undefined} propertyType
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions | undefined} propertyGuiOpts
 	 * @param {import("../LiveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {
@@ -138,6 +144,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (propertyValue == null) {
 			newParentObject[propertyKey] = null;
 		} else if (propertyType == "array") {
+			/** @type {any[]} */
 			const newArr = [];
 			const arrayGuiOpts = /** @type {import("../../UI/ArrayGui.js").ArrayGuiOptions} */ (propertyGuiOpts);
 			for (const i of propertyValue.keys()) {
@@ -175,9 +182,13 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		return BinaryComposer.objectToBinary(assetData, AssetLoaderTypeEntity.entityBinaryFormat);
 	}
 
+	/**
+	 * @param {import("../../../../src/core/Entity.js").EntityJsonData} entityData
+	 */
 	generateComponentArrayBuffers(entityData) {
-		if (entityData.components) {
-			for (const component of entityData.components) {
+		const castEntityData = /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
+		if (castEntityData.components) {
+			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,
@@ -185,8 +196,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				});
 			}
 		}
-		if (entityData.children) {
-			for (const child of entityData.children) {
+		if (castEntityData.children) {
+			for (const child of castEntityData.children) {
 				this.generateComponentArrayBuffers(child);
 			}
 		}
@@ -202,10 +213,17 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		}
 	}
 
+	/**
+	 * @param {import("../../../../src/core/Entity.js").EntityJsonData} entityData
+	 * @returns {Generator<import("../../../../src/mod.js").UuidString>}
+	 */
 	*getReferencedAssetUuidsForEntityData(entityData) {
-		if (entityData.components) {
-			for (const component of entityData.components) {
+		const castEntityData = /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
+
+		if (castEntityData.components) {
+			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
+				/** @type {import("../../../../src/mod.js").UuidString[]} */
 				const referencedUuids = [];
 				BinaryComposer.objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,
@@ -226,8 +244,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				}
 			}
 		}
-		if (entityData.children) {
-			for (const child of entityData.children) {
+		if (castEntityData.children) {
+			for (const child of castEntityData.children) {
 				for (const uuid of this.getReferencedAssetUuidsForEntityData(child)) {
 					yield uuid;
 				}

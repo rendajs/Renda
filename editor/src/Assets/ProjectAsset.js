@@ -524,8 +524,10 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * The returned type depends on the value of ProjectAssetType.storeInProjectAsJson
-	 * and ProjectAssetType.storeInProjectAsText.
+	 * The returned type depends on the `ProjectAssetType` configuration.
+	 * - If `ProjectAssetType.storeInProjectAsJson` is `true`, the returned type is a JSON object.
+	 * - If `ProjectAssetType.storeInProjectAsText` is `true`, the returned type is a string.
+	 * - Returns a BlobPart otherwise.
 	 * @returns {Promise<FileDataType>}
 	 */
 	async readAssetData() {
