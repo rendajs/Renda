@@ -24,21 +24,21 @@ import {LoadingAsset} from "./LoadingAsset.js";
 /* eslint-enable jsdoc/require-description-complete-sentence */
 
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} T
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
  * @typedef {T extends import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType
  */
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} T
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
  * @typedef {T extends import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType
  */
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} T
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
  * @typedef {import("../ProjectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<T>, EditorDataType<T>>} LiveAssetData
  */
 
 /**
- * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetType} TProjectAssetType
- * @typedef {(liveAssetData: LiveAssetData<TProjectAssetType>) => void} LiveAssetDataCallback
+ * @template {import("../ProjectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
+ * @typedef {(liveAssetData: LiveAssetData<TProjectAssetType>?) => void} LiveAssetDataCallback
  */
 
 export class RecursionTracker {
@@ -50,18 +50,18 @@ export class RecursionTracker {
 		this.assetManager = assetManager;
 		this.rootUuid = rootUuid;
 
-		/** @typedef {import("../ProjectAsset.js").ProjectAsset} ProjectAsset */
+		/** @typedef {import("../ProjectAsset.js").ProjectAssetAny} ProjectAsset */
 
 		/**
 		 * Stack for keeping track what the currently loading ProjectAsset is.
 		 * Used for assigning {@linkcode ProjectAsset.onNewLiveAssetInstance} callbacks
 		 * to the correct ProjectAsset instance. This way the callbacks can be properly
 		 * unregistered when the ProjectAsset is destroyed.
-		 * @type {import("../ProjectAsset.js").ProjectAsset[]}
+		 * @type {ProjectAsset[]}
 		 */
 		this.projectAssetStack = [];
 
-		/** @type {LoadingAsset} */
+		/** @type {LoadingAsset?} */
 		this.rootLoadingAsset = null;
 
 		/** @type {Map<import("../../../../src/util/mod.js").UuidString, LoadingAsset>} */
@@ -69,7 +69,7 @@ export class RecursionTracker {
 	}
 
 	/**
-	 * @param {import("../ProjectAsset.js").ProjectAsset} projectAsset
+	 * @param {import("../ProjectAsset.js").ProjectAssetAny} projectAsset
 	 */
 	pushProjectAssetToStack(projectAsset) {
 		this.projectAssetStack.push(projectAsset);
@@ -117,7 +117,7 @@ export class RecursionTracker {
 	 */
 	getLiveAsset(uuid, cb, options = {}) {
 		this.getLiveAssetData(uuid, liveAssetData => {
-			cb(liveAssetData.liveAsset ?? null);
+			cb(liveAssetData?.liveAsset ?? null);
 		}, options);
 	}
 	async waitForAll() {
