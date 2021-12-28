@@ -1,6 +1,5 @@
 import {MaterialMapType} from "../../../../../../src/Rendering/MaterialMapType.js";
 import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComposer.js";
-import {getEditorInstance} from "../../../../editorInstance.js";
 
 /**
  * @typedef {Object} MaterialMapTypeMappableValue
@@ -17,14 +16,14 @@ import {getEditorInstance} from "../../../../editorInstance.js";
 export class MaterialMapTypeSerializer {
 	/**
 	 * Name that will be shown in the editor ui.
-	 * @type {string}
+	 * @type {string?}
 	 */
 	static uiName = null;
 
 	/**
 	 * This will be used for storing the map type in the MaterialMap asset.
 	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
-	 * @type {import("../../../../../../src/util/mod.js").UuidString}
+	 * @type {import("../../../../../../src/util/mod.js").UuidString?}
 	 */
 	static typeUuid = null;
 
@@ -37,7 +36,7 @@ export class MaterialMapTypeSerializer {
 	/**
 	 * Set this to a structure to automatically load and save data for this map type.
 	 * This is optional if {@link propertiesMaterialMapContentConstructor} is set.
-	 * @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure}
+	 * @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure?}
 	 */
 	static settingsStructure = null;
 
@@ -46,7 +45,7 @@ export class MaterialMapTypeSerializer {
 	 * This is optional if {@link settingsStructure} is set.
 	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
 	 * This will be used to render the material map settings in the properties window.
-	 * @type {typeof import("../../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent}
+	 * @type {typeof import("../../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent?}
 	 */
 	static propertiesMaterialMapContentConstructor = null;
 
@@ -56,10 +55,11 @@ export class MaterialMapTypeSerializer {
 	 * loaded, saved and exported in assetbundles.
 	 * `customData` will be whatever you last returned from
 	 * {@link getCustomAssetDataForSave}.
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {Promise<MaterialMapTypeMappableValue[]>}
 	 */
-	static async getMappableValues(customData) {
+	static async getMappableValues(editorInstance, customData) {
 		return [];
 	}
 
@@ -70,10 +70,11 @@ export class MaterialMapTypeSerializer {
 	 * in Material instances.
 	 * For instance, assets are stored on disk as uuid. Use this to load the
 	 * assets and store them in the Material.
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {Promise<MaterialMapType>} The data to be stored in the Material.
+	 * @returns {Promise<MaterialMapType?>} The data to be stored in the Material.
 	 */
-	static async getLiveAssetSettingsInstance(customData) {
+	static async getLiveAssetSettingsInstance(editorInstance, customData) {
 		return null;
 	}
 
@@ -81,10 +82,11 @@ export class MaterialMapTypeSerializer {
 	 * This should yield ProjectAssets that are linked in the custom data.
 	 * This will be used to replace material instances in the editor whenever a
 	 * linked live asset changes (a shader for example).
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {AsyncGenerator<import("../../../ProjectAsset.js").ProjectAsset>}
+	 * @returns {AsyncGenerator<import("../../../ProjectAsset.js").ProjectAssetAny?>}
 	 */
-	static async *getLinkedAssetsInCustomData(customData) {}
+	static async *getLinkedAssetsInCustomData(editorInstance, customData) {}
 
 	/* ==== AssetBundle related methods ==== */
 
@@ -93,10 +95,11 @@ export class MaterialMapTypeSerializer {
 	 * By default this turns the result of {@link mapDataToAssetBundleData} into
 	 * an ArrayBuffer using {@link BinaryComposer.objectToBinary}. But you can
 	 * override this and return your custom ArrayBuffer.
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {ArrayBuffer} The binary data to be stored in the material asset.
+	 * @returns {ArrayBuffer?} The binary data to be stored in the material asset.
 	 */
-	static mapDataToAssetBundleBinary(customData) {
+	static mapDataToAssetBundleBinary(editorInstance, customData) {
 		const bundleMapData = this.mapDataToAssetBundleData(customData);
 		if (!bundleMapData) {
 			// fail silently, you probaly intended to not export anything
@@ -109,7 +112,7 @@ export class MaterialMapTypeSerializer {
 		}
 		return BinaryComposer.objectToBinary(bundleMapData, {
 			...this.assetBundleBinaryComposerOpts,
-			editorAssetManager: getEditorInstance().projectManager.assetManager,
+			editorAssetManager: editorInstance.projectManager.assetManager,
 		});
 	}
 
@@ -130,7 +133,7 @@ export class MaterialMapTypeSerializer {
 	 * these are the default options for {@link BinaryComposer.objectToBinary}.
 	 * If you want support for exporting your custom data in assetbundles, you
 	 * should provide a structure here.
-	 * @type {import("../../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @type {import("../../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions?}
 	 */
 	static assetBundleBinaryComposerOpts = null;
 
@@ -138,6 +141,9 @@ export class MaterialMapTypeSerializer {
 
 	// todo: I don't know why this is here. It seems awfully similar to
 	// getLinkedAssetsInCustomData. I think we can combine them.
+	/**
+	 * @param {any} mapData
+	 */
 	static *getReferencedAssetUuids(mapData) {
 		const bundleMapData = this.mapDataToAssetBundleData(mapData);
 		if (!bundleMapData) {
@@ -146,17 +152,19 @@ export class MaterialMapTypeSerializer {
 		}
 		if (bundleMapData instanceof ArrayBuffer) return;
 
-		if (!this.assetBundleBinaryComposerOpts) {
+		const binaryComposerOpts = this.assetBundleBinaryComposerOpts;
+		if (!binaryComposerOpts) {
 			console.warn("Failed to find referenced asset uuids, assetBundleBinaryComposerOpts is not set");
 			return;
 		}
+		/** @type {import("../../../../../../src/mod.js").UuidString[]} */
 		const referencedUuids = [];
 		BinaryComposer.objectToBinary(bundleMapData, {
-			...this.assetBundleBinaryComposerOpts,
+			...binaryComposerOpts,
 			transformValueHook: args => {
 				let {value, type} = args;
-				if (this.assetBundleBinaryComposerOpts.transformValueHook) {
-					value = this.assetBundleBinaryComposerOpts.transformValueHook(args);
+				if (binaryComposerOpts.transformValueHook) {
+					value = binaryComposerOpts.transformValueHook(args);
 				}
 
 				if (type == StorageType.ASSET_UUID) {
@@ -171,13 +179,14 @@ export class MaterialMapTypeSerializer {
 	}
 
 	/**
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {*} customData
 	 * @param {import("../../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} mappedValuesData
 	 */
-	static async getMappedValues(customData, mappedValuesData) {
+	static async getMappedValues(editorInstance, customData, mappedValuesData) {
 		/** @type {MaterialMapTypeMappableValue[]} */
 		const mappedValues = [];
-		const mappableValues = await this.getMappableValues(customData);
+		const mappableValues = await this.getMappableValues(editorInstance, customData);
 		for (const {name, type, defaultValue} of mappableValues) {
 			const mappedValueData = mappedValuesData?.[name];
 			if (mappedValueData?.visible ?? true) {
@@ -191,6 +200,9 @@ export class MaterialMapTypeSerializer {
 		return mappedValues;
 	}
 
+	/**
+	 * @param {string} message
+	 */
 	static invalidConfigurationWarning(message) {
 		console.warn(message + "\nView MaterialMapType.js for more info.");
 	}

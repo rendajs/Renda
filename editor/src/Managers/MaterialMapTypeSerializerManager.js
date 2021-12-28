@@ -94,7 +94,7 @@ export class MaterialMapTypeSerializerManager {
 		const mapData = await mapAsset.readAssetData();
 		for (const mapType of mapData.maps) {
 			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
-			const values = await mapTypeConstructor.getMappedValues(mapType.customData, mapType.mappedValues);
+			const values = await mapTypeConstructor.getMappedValues(getEditorInstance(), mapType.customData, mapType.mappedValues);
 			for (const value of values) {
 				mapValues.set(value.name, value);
 			}

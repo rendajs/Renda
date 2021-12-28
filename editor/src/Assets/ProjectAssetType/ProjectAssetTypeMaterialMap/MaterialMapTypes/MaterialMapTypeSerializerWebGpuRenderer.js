@@ -1,6 +1,5 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {StorageType} from "../../../../../../src/util/BinaryComposer.js";
-import {getEditorInstance} from "../../../../editorInstance.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
 import {MaterialMapTypeWebGpu} from "../../../../../../src/Rendering/Renderers/WebGpuRenderer/MaterialMapTypeWebGpu.js";
 
@@ -25,15 +24,18 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	};
 
 	/**
-	 * @param {MaterialMapTypeWebGpuRendererSavedCustomData} customData
 	 * @override
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {MaterialMapTypeWebGpuRendererSavedCustomData} customData
 	 */
-	static async getMappableValues(customData) {
+	static async getMappableValues(editorInstance, customData) {
 		/** @type {import("../../../../../../src/Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
-		const pipelineConfig = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		const pipelineConfig = await editorInstance.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
 		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mappableValues = new Map();
-		this.fillMappableValuesForShader(pipelineConfig.fragmentShader, mappableValues);
+		if (pipelineConfig.fragmentShader) {
+			this.fillMappableValuesForShader(pipelineConfig.fragmentShader, mappableValues);
+		}
 		return Array.from(mappableValues.values());
 	}
 
@@ -45,7 +47,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 		if (!shader) return;
 		const blockRegex = /struct\s+MaterialUniforms\s*{(?<uniformsBlock>[\s\S]+?)}\s*;/;
 		const match = shader.source.match(blockRegex);
-		if (!match) return;
+		if (!match || !match.groups) return;
 		const uniformsBlock = match.groups.uniformsBlock;
 		if (!uniformsBlock) return;
 		let membersRegex = "";
@@ -60,6 +62,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 		const vectorTypeRegex = /vec(?<vectorSize>[234])<(?<vectorType>\S+)>/;
 		const matrixTypeRegex = /mat(?<rows>[234])x(?<columns>[234])<(?<matrixType>\S+)>/;
 		for (const match of uniformsBlock.matchAll(new RegExp(membersRegex, "g"))) {
+			if (!match.groups) continue;
 			const identifier = match.groups.identifier;
 			let type = match.groups.type;
 			if (!identifier || !type) continue;
@@ -69,13 +72,13 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 			let isMatrix = false;
 			// let matrixRows = 0;
 			// let matrixColumns = 0;
-			if (vectorMatch) {
+			if (vectorMatch && vectorMatch.groups) {
 				isVector = true;
 				vectorSize = Number(vectorMatch.groups.vectorSize);
 				type = vectorMatch.groups.vectorType;
 			} else {
 				const matrixMatch = match[0].match(matrixTypeRegex);
-				if (matrixMatch) {
+				if (matrixMatch && matrixMatch.groups) {
 					isMatrix = true;
 					// matrixRows = Number(matrixMatch.groups.rows);
 					// matrixColumns = Number(matrixMatch.groups.columns);
@@ -105,17 +108,24 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 
 	/**
 	 * @override
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {*} customData
 	 */
-	static async getLiveAssetSettingsInstance(customData) {
-		/** @type {WebGpuPipelineConfig} */
+	static async getLiveAssetSettingsInstance(editorInstance, customData) {
+		/** @type {WebGpuPipelineConfig?} */
 		let forwardPipelineConfig = null;
-		if (customData.forwardPipelineConfig) forwardPipelineConfig = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		if (customData.forwardPipelineConfig) forwardPipelineConfig = await editorInstance.projectManager.assetManager.getLiveAsset(customData.forwardPipelineConfig);
 		return new MaterialMapTypeWebGpu({forwardPipelineConfig});
 	}
 
-	static async *getLinkedAssetsInCustomData(customData) {
-		await getEditorInstance().projectManager.waitForAssetManagerLoad();
-		if (customData.forwardPipelineConfig) yield getEditorInstance().projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
+	/**
+	 * @override
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {*} customData
+	 */
+	static async *getLinkedAssetsInCustomData(editorInstance, customData) {
+		await editorInstance.projectManager.waitForAssetManagerLoad();
+		if (customData.forwardPipelineConfig) yield editorInstance.projectManager.assetManager.getProjectAsset(customData.forwardPipelineConfig);
 	}
 
 	static assetBundleBinaryComposerOpts = {

@@ -2,9 +2,11 @@ import {ProjectAssetType} from "../ProjectAssetType.js";
 import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
 import {RecursionTracker} from "../../LiveAssetDataRecursionTracker/RecursionTracker.js";
-import {getEditorInstance} from "../../../editorInstance.js";
 import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 
+/**
+ * @extends {ProjectAssetType<MaterialMap, null, import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
+ */
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static type = "JJ:materialMap";
 	static typeUuid = "dd28f2f7-254c-4447-b041-1770ae451ba9";
@@ -23,11 +25,14 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const materialMapTypes = [];
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
-				const typeSerializer = getEditorInstance().materialMapTypeManager.getTypeByUuid(map.mapTypeId);
-				const mapType = await typeSerializer.getLiveAssetSettingsInstance(map.customData);
+				const typeSerializer = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = await typeSerializer.getLiveAssetSettingsInstance(this.editorInstance, map.customData);
+
+				if (!mapType) continue;
+
 				/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapMappedValues} */
 				const mappedValues = {};
-				for (const mappedValue of await typeSerializer.getMappableValues(map.customData)) {
+				for (const mappedValue of await typeSerializer.getMappableValues(this.editorInstance, map.customData)) {
 					let defaultValue = mappedValue.defaultValue;
 					if (defaultValue) {
 						if (typeof defaultValue != "number") {
@@ -44,10 +49,12 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 							defaultValue = new Vec4();
 						}
 					}
-					mappedValues[mappedValue.name] = {
-						mappedName: mappedValue.name,
-						defaultValue,
-					};
+					if (defaultValue) {
+						mappedValues[mappedValue.name] = {
+							mappedName: mappedValue.name,
+							defaultValue,
+						};
+					}
 				}
 				for (const [key, mappedValue] of Object.entries(map.mappedValues)) {
 					if (mappedValue.visible == false) {
@@ -90,9 +97,9 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
-				const mapType = getEditorInstance().materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				if (mapType.allowExportInAssetBundles) {
-					const arrayBuffer = mapType.mapDataToAssetBundleBinary(map.customData);
+					const arrayBuffer = mapType.mapDataToAssetBundleBinary(this.editorInstance, map.customData);
 					if (!arrayBuffer) continue;
 					mapDatas.push({
 						typeUuid: map.mapTypeId,
@@ -129,7 +136,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
-				const mapType = getEditorInstance().materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				for (const uuid of mapType.getReferencedAssetUuids(map.customData)) {
 					yield uuid;
 				}

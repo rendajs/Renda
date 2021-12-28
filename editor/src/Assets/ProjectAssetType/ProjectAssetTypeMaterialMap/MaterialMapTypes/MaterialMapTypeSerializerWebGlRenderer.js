@@ -1,7 +1,6 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {ShaderSource, Vec3} from "../../../../../../src/mod.js";
 import {StorageType} from "../../../../../../src/util/BinaryComposer.js";
-import {getEditorInstance} from "../../../../editorInstance.js";
 
 export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
@@ -28,17 +27,14 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 		};
 	}
 
-	static async getLiveAssetCustomData(customData) {
-		let vertexShader = null;
-		let fragmentShader = null;
-		if (customData.vertexShader) vertexShader = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.vertexShader);
-		if (customData.fragmentShader) fragmentShader = await getEditorInstance().projectManager.assetManager.getLiveAsset(customData.fragmentShader);
-		return {vertexShader, fragmentShader};
-	}
-
-	static async *getLinkedAssetsInCustomData(customData) {
-		if (customData.vertexShader) yield getEditorInstance().projectManager.assetManager.getProjectAsset(customData.vertexShader);
-		if (customData.fragmentShader) yield getEditorInstance().projectManager.assetManager.getProjectAsset(customData.fragmentShader);
+	/**
+	 * @override
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {*} customData
+	 */
+	static async *getLinkedAssetsInCustomData(editorInstance, customData) {
+		if (customData.vertexShader) yield editorInstance.projectManager.assetManager.getProjectAsset(customData.vertexShader);
+		if (customData.fragmentShader) yield editorInstance.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
 	}
 
 	static assetBundleBinaryComposerOpts = {
@@ -52,6 +48,9 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 		},
 	};
 
+	/**
+	 * @param {*} mapData
+	 */
 	static mapDataToAssetBundleData(mapData) {
 		return {
 			vertUuid: mapData.vertexShader,
@@ -59,10 +58,15 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 		};
 	}
 
-	static async getMappableValues(customData) {
+	/**
+	 * @override
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {*} customData
+	 */
+	static async getMappableValues(editorInstance, customData) {
 		const itemsMap = new Map();
-		await this.addShaderUniformsToMap(customData.vertexShader, itemsMap);
-		await this.addShaderUniformsToMap(customData.fragmentShader, itemsMap);
+		await this.addShaderUniformsToMap(editorInstance, customData.vertexShader, itemsMap);
+		await this.addShaderUniformsToMap(editorInstance, customData.fragmentShader, itemsMap);
 
 		const items = [];
 		for (const [name, itemData] of itemsMap) {
@@ -72,22 +76,36 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 		return items;
 	}
 
-	static async addShaderUniformsToMap(shaderUuid, itemsMap) {
-		const shaderAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(shaderUuid);
+	/**
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../../../../src/mod.js").UuidString} shaderUuid
+	 * @param {Map<string, *>} itemsMap
+	 */
+	static async addShaderUniformsToMap(editorInstance, shaderUuid, itemsMap) {
+		/** @type {import("../../../ProjectAsset.js").ProjectAsset<import("../../ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
+		const shaderAsset = await editorInstance.projectManager.assetManager.getProjectAsset(shaderUuid);
 		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
 			itemsMap.set(name, {type});
 		}
 	}
 
+	/**
+	 * @param {import("../../../ProjectAsset.js").ProjectAsset<import("../../ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} asset
+	 */
 	static async getMapItemsIteratorFromShaderAsset(asset) {
 		if (!asset) return [];
 		const shader = await asset.getLiveAsset();
+		if (!shader) return [];
 		return this.getMapItemsFromShaderSource(shader.source);
 	}
 
+	/**
+	 * @param {string} shaderSrc
+	 */
 	static *getMapItemsFromShaderSource(shaderSrc) {
 		const re = /^\s*uniform\s(?<type>.+?)\s+(?<name>.+?)\s*;/gm;
 		for (const result of shaderSrc.matchAll(re)) {
+			if (!result.groups) continue;
 			const name = result.groups.name;
 			let type = null;
 			if (result.groups.type == "float") {

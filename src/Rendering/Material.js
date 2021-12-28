@@ -3,7 +3,7 @@ import {MaterialMapType} from "./MaterialMapType.js";
 
 export class Material {
 	/**
-	 * @param {MaterialMap} materialMap
+	 * @param {MaterialMap?} materialMap
 	 * @param {Object.<string, *>} properties
 	 */
 	constructor(materialMap, properties = {}) {

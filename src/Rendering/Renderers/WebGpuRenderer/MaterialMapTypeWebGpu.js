@@ -4,7 +4,7 @@ import {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export class MaterialMapTypeWebGpu extends MaterialMapType {
 	/**
 	 * @param {Object} options
-	 * @param {WebGpuPipelineConfig} [options.forwardPipelineConfig]
+	 * @param {WebGpuPipelineConfig?} [options.forwardPipelineConfig]
 	 */
 	constructor({
 		forwardPipelineConfig = null,
