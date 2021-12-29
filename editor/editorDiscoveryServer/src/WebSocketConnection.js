@@ -1,36 +1,35 @@
-import generateUuid from "../common/generateUuid.js";
-import main from "./mainInstance.js";
+import {generateUuid} from "../../../src/util/mod.js";
 
-export default class WebSocketConnection {
+export class WebSocketConnection {
 	/**
-	 * @param {import("websocket").connection} rawConnection
+	 * @param {import("./WebSocketManager.js").WebSocketManager} webSocketManager
+	 * @param {string} remoteAddress
+	 * @param {WebSocket} rawConnection
 	 */
-	constructor(rawConnection) {
+	constructor(webSocketManager, remoteAddress, rawConnection) {
+		this.webSocketManager = webSocketManager;
+		this.remoteAddress = remoteAddress;
 		this.id = generateUuid();
 		this.clientType = "editor"; // todo: support for setting this from client
 		this.projectMetaData = null;
-		/** @type {import("websocket").connection} */
 		this.rawConnection = rawConnection;
 
 		this.firstIsHostMessageReceived = false;
 		this.isEditorHost = false;
 		this.isDiscovering = false;
 
-		this.rawConnection.on("message", this.onMessage.bind(this));
+		this.rawConnection.addEventListener("message", this.onMessage.bind(this));
 	}
 
-	get remoteAddress() {
-		return this.rawConnection.remoteAddress;
-	}
-
+	/**
+	 * @param {MessageEvent} message
+	 */
 	onMessage(message) {
-		if (message.type != "utf8") return;
-
 		let data = null;
 		try {
-			data = JSON.parse(message.utf8Data);
+			data = JSON.parse(message.data);
 		} catch (e) {
-			console.error("Failed to parse message: " + message.utf8Data);
+			console.error("Failed to parse message: " + message.data);
 		}
 
 		if (!data) return;
@@ -54,7 +53,7 @@ export default class WebSocketConnection {
 		} else if (op == "relayMessage") {
 			const {toUuid, data: relayData} = data;
 			if (!toUuid || !relayData) return;
-			const toConnection = main.getConnection(toUuid);
+			const toConnection = this.webSocketManager.getConnection(toUuid);
 			if (!toConnection) return;
 			toConnection.sendRelayData(this.id, relayData);
 		}
@@ -83,7 +82,7 @@ export default class WebSocketConnection {
 
 	sendNearbyHostConnectionsList() {
 		const connectionsData = [];
-		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (!connection.isEditorHost) continue;
 			connectionsData.push(connection.getConnectionData());
 		}
@@ -94,7 +93,7 @@ export default class WebSocketConnection {
 	}
 
 	notifyNearbyHostConnectionsAdd() {
-		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (connection.isEditorHost) continue;
 
 			connection.sendNearbyHostConnectionAdded(this);
@@ -102,7 +101,7 @@ export default class WebSocketConnection {
 	}
 
 	notifyNearbyHostConnectionsRemove() {
-		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (connection.isEditorHost) continue;
 
 			connection.sendNearbyHostConnectionRemoved(this);
@@ -110,7 +109,7 @@ export default class WebSocketConnection {
 	}
 
 	notifyNearbyHostConnectionsUpdateProjectMetaData() {
-		for (const connection of main.getConnectionsByRemoteAddress(this.remoteAddress)) {
+		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
 			if (connection.isEditorHost) continue;
 
 			connection.sendNearbyHostConnectionUpdateProjectMetaData(this);

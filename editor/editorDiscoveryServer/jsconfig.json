@@ -1,10 +1,13 @@
 {
 	"compilerOptions": {
-		"lib": ["esnext"],
+		"lib": ["dom", "dom.iterable", "esnext"],
 		"target": "esnext",
-		"module": "esnext",
 		"checkJs": true,
-		"moduleResolution": "node"
+		"typeRoots": ["../../node_modules/@webgpu/types", "../../node_modules/@types"],
+		"module": "esnext",
+		"useDefineForClassFields": true,
+		// "strictsrc/index.js
 	},
-	"files": ["./index.js"]
+	"files": ["src/main.js"],
+	"include": ["src/**/*.js"],
 }
