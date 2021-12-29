@@ -5,8 +5,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "concurrently --names 'BUILD,SERVE,DEVSOCKET,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold' 'editor/scripts/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/devSocket/main.js' 'node editor/EditorDiscoveryServer/index.js'",
-		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/devSocket/jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
+		"dev": "concurrently --names 'BUILD,SERVE,EDITORDISCOVERY' -c 'bgBlue.bold,bgGreen.bold,bgMagenta.bold' 'editor/scripts/build.js --dev' 'serve -l 8080 --no-port-switching -n' 'node editor/EditorDiscoveryServer/index.js'",
+		"typecheck": "tsc --noEmit -p ./jsconfig.json && tsc --noEmit -p editor/editorDiscoveryServer/jsconfig.json",
 		"lint": "eslint .",
 		"test": "playwright test",
 		"prepare": "husky install",

@@ -1,31 +1,32 @@
-import fsSync, {promises as fs} from "fs";
-import path from "path";
-import {fileURLToPath} from "url";
-import {sendAllConnections} from "./main.js";
-import {base64ToArrayBuffer, generateUuid} from "./Util.js";
-import {toFormattedJsonString} from "../../src/util/toFormattedJsonString.js";
-import md5 from "js-md5";
+import {base64ToArrayBuffer, generateUuid} from "../../../src/util/mod.js";
+import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
+import md5 from "https://esm.sh/js-md5@0.7.3";
+import {basename, dirname, fromFileUrl, join, relative, resolve} from "https://deno.land/std@0.119.0/path/mod.ts";
 
-export default class BuiltInAssetManager {
+export class BuiltInAssetManager {
 	constructor() {
-		const dirname = path.dirname(fileURLToPath(import.meta.url));
-		this.builtInAssetsPath = path.resolve(dirname, "../builtInAssets/");
-		this.assetSettingsPath = path.resolve(this.builtInAssetsPath, "assetSettings.json");
+		const scriptDir = dirname(fromFileUrl(import.meta.url));
+		this.builtInAssetsPath = resolve(scriptDir, "../../builtInAssets/");
+		this.assetSettingsPath = resolve(this.builtInAssetsPath, "assetSettings.json");
 
 		this.assetSettingsLoaded = false;
+		/** @type {Map<import("../../../src/util/mod.js").UuidString, any>}*/
 		this.assetSettings = new Map();
+		/** @type {Map<string, import("../../../src/util/mod.js").UuidString>} */
 		this.fileHashes = new Map(); // <md5, uuid>
 		this.assetSettingsJustSaved = false;
+		/** @type {Set<(op: string, data: any) => any>} */
+		this.onWebsocketBroadcastNeededCbs = new Set();
 		this.loadAssetSettings();
 		this.watch();
 	}
 
 	async loadAssetSettings() {
-		const str = await fs.readFile(this.assetSettingsPath, {encoding: "utf8"});
+		const str = await Deno.readTextFile(this.assetSettingsPath);
 		let data;
 		try {
 			data = JSON.parse(str);
-		} catch (e) {
+		} catch {
 			console.error("[BuiltInAssetManager] parsing asset settings failed");
 			return;
 		}
@@ -34,9 +35,9 @@ export default class BuiltInAssetManager {
 		for (const [uuid, assetData] of Object.entries(data.assets)) {
 			this.assetSettings.set(uuid, assetData);
 			if (assetData.path) {
-				const fullPath = path.resolve(this.builtInAssetsPath, ...assetData.path);
+				const fullPath = resolve(this.builtInAssetsPath, ...assetData.path);
 				(async () => {
-					const fileBuffer = await fs.readFile(fullPath);
+					const fileBuffer = await Deno.readFile(fullPath);
 					const hash = md5(fileBuffer);
 					this.fileHashes.set(hash, uuid);
 				})();
@@ -46,9 +47,11 @@ export default class BuiltInAssetManager {
 		this.assetSettingsLoaded = true;
 	}
 
-	watch() {
+	async watch() {
 		console.log("[BuiltInAssetManager] watching for file changes in " + this.builtInAssetsPath);
-		fsSync.watch(this.builtInAssetsPath, {recursive: true}, (eventType, relPath) => {
+		const watcher = Deno.watchFs(this.builtInAssetsPath);
+		for await (const event of watcher) {
+			const relPath = relative(this.builtInAssetsPath, event.paths[0]);
 			if (relPath == "assetSettings.json") {
 				if (this.assetSettingsJustSaved) {
 					this.assetSettingsJustSaved = false;
@@ -61,30 +64,33 @@ export default class BuiltInAssetManager {
 			if (!this.assetSettingsLoaded) return;
 
 			this.handleFileChange(relPath);
-		});
+		}
 	}
 
+	/**
+	 * @param {string} relPath
+	 */
 	async handleFileChange(relPath) {
-		const filename = path.basename(relPath);
+		const filename = basename(relPath);
 		if (filename.startsWith(".")) return;
-		const fullPath = path.resolve(this.builtInAssetsPath, relPath);
+		const fullPath = resolve(this.builtInAssetsPath, relPath);
 		let stat = null;
 		try {
-			stat = await fs.stat(fullPath);
+			stat = await Deno.stat(fullPath);
 		} catch (e) {
 			stat = null;
 		}
-		if (stat && stat.isDirectory()) {
-			const entries = await fs.readdir(fullPath);
-			for (const entry of entries) {
-				await this.handleFileChange(path.join(relPath, entry));
+		if (stat && stat.isDirectory) {
+			const entries = Deno.readDir(fullPath);
+			for await (const entry of entries) {
+				await this.handleFileChange(join(relPath, entry.name));
 			}
 			return;
 		}
 
 		let newHash = null;
 		if (stat) {
-			const fileBuffer = await fs.readFile(fullPath);
+			const fileBuffer = await Deno.readFile(fullPath);
 			newHash = md5(fileBuffer);
 		}
 
@@ -99,13 +105,14 @@ export default class BuiltInAssetManager {
 				}
 			}
 		}
-		if (!stat) {
+		if (!stat || !newHash) {
 			if (this.deleteAssetSettings(pathArr)) {
 				assetSettingsNeedsUpdate = true;
 			}
 		} else if (!uuid) {
-			if (this.fileHashes.has(newHash)) {
-				uuid = this.fileHashes.get(newHash);
+			const fileUuid = this.fileHashes.get(newHash);
+			if (fileUuid) {
+				uuid = fileUuid;
 				const assetSettings = this.assetSettings.get(uuid);
 				if (assetSettings) {
 					assetSettings.path = pathArr;
@@ -128,7 +135,7 @@ export default class BuiltInAssetManager {
 		}
 
 		if (uuid) {
-			sendAllConnections("builtInAssetChange", {
+			this.sendAllConnections("builtInAssetChange", {
 				uuid,
 			});
 		}
@@ -136,6 +143,7 @@ export default class BuiltInAssetManager {
 
 	async saveAssetSettings(notifySocket = true) {
 		if (!this.assetSettingsLoaded) return;
+		/** @type {Object.<import("../../../src/util/mod.js").UuidString, any>} */
 		const assets = {};
 		const uuidPaths = new Map();
 		for (const [uuid, assetSettings] of this.assetSettings) {
@@ -180,13 +188,16 @@ export default class BuiltInAssetManager {
 		const json = {assets};
 		const str = toFormattedJsonString(json, {maxArrayStringItemLength: -1});
 		this.assetSettingsJustSaved = true;
-		await fs.writeFile(this.assetSettingsPath, str);
+		await Deno.writeTextFile(this.assetSettingsPath, str);
 
 		if (notifySocket) {
-			sendAllConnections("builtInAssetListUpdate");
+			this.sendAllConnections("builtInAssetListUpdate");
 		}
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	deleteAssetSettings(path) {
 		if (!this.assetSettingsLoaded) return false;
 		let assetSettingsNeedsUpdate = false;
@@ -199,25 +210,36 @@ export default class BuiltInAssetManager {
 		return assetSettingsNeedsUpdate;
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	createAssetSettings(path) {
 		const uuid = generateUuid();
 		this.assetSettings.set(uuid, {path});
 		return uuid;
 	}
 
-	async writeAssetData(pathArr, base64Data, responsecb) {
-		const fullPath = path.resolve(this.builtInAssetsPath, ...pathArr);
+	/**
+	 * @param {string[]} path
+	 * @param {string} base64Data
+	 */
+	async writeAssetData(path, base64Data) {
+		const fullPath = resolve(this.builtInAssetsPath, ...path);
 		const buffer = base64ToArrayBuffer(base64Data);
 		let success = false;
 		try {
-			await fs.writeFile(fullPath, new Uint8Array(buffer));
+			await Deno.writeFile(fullPath, new Uint8Array(buffer));
 			success = true;
 		} catch (e) {
 			console.error(e);
 		}
-		responsecb(success);
+		return success;
 	}
 
+	/**
+	 * @param {string[]} path
+	 * @param {string[]} startsWithPath
+	 */
 	testPathStartsWith(path, startsWithPath) {
 		if (path.length < startsWithPath.length) return false;
 		for (const [i, name] of startsWithPath.entries()) {
@@ -226,6 +248,9 @@ export default class BuiltInAssetManager {
 		return true;
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	getAssetSettingsUuidForPath(path) {
 		for (const [uuid, assetSettings] of this.assetSettings) {
 			if (this.testPathMatch(path, assetSettings.path)) {
@@ -235,11 +260,32 @@ export default class BuiltInAssetManager {
 		return null;
 	}
 
+	/**
+	 * @param {string[]} path1
+	 * @param {string[]} path2
+	 */
 	testPathMatch(path1 = [], path2 = []) {
 		if (path1.length != path2.length) return false;
 		for (let i = 0; i < path1.length; i++) {
 			if (path1[i] != path2[i]) return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @param {string} op
+	 * @param {any} data
+	 */
+	sendAllConnections(op, data = null) {
+		this.onWebsocketBroadcastNeededCbs.forEach(cb => cb(op, data));
+	}
+
+	/**
+	 * This callback is fired when the builtin asset manager wishes
+	 * to send a message to all connected clients.
+	 * @param {(op: string, data: any) => any} cb
+	 */
+	onWebsocketBroadcastNeeded(cb) {
+		this.onWebsocketBroadcastNeededCbs.add(cb);
 	}
 }

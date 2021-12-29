@@ -241,6 +241,7 @@ module.exports = {
 					"GPUColorTargetState",
 					"Parameters",
 					"suspiciousCode",
+					"Deno",
 				],
 			},
 		],
