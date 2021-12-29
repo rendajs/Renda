@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write
 
 import {server as WebSocketServer} from "websocket";
 import http from "http";

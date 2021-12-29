@@ -6,5 +6,5 @@
 		"checkJs": true,
 		"moduleResolution": "node"
 	},
-	"files": ["./index.js"]
+	"files": ["main.js"]
 }

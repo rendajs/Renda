@@ -1,7 +1,7 @@
 import fsSync, {promises as fs} from "fs";
 import path from "path";
 import {fileURLToPath} from "url";
-import {sendAllConnections} from "./index.js";
+import {sendAllConnections} from "./main.js";
 import {base64ToArrayBuffer, generateUuid} from "./Util.js";
 import {toFormattedJsonString} from "../../src/util/toFormattedJsonString.js";
 import md5 from "js-md5";
