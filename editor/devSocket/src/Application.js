@@ -19,5 +19,9 @@ export class Application {
 		this.webSocketManager.regisTerRoundTripOp("runClosureCompiler", async data => {
 			return await this.closureCompilerManager.compileJs(data);
 		});
+
+		this.builtInAssetManager.onWebsocketBroadcastNeeded((op, data) => {
+			this.webSocketManager.sendAllConnections(op, data);
+		});
 	}
 }
