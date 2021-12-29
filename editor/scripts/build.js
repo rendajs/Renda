@@ -2,6 +2,9 @@
 
 import {rollup} from "https://esm.sh/rollup@2.61.1";
 
+import {setCwd} from "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js";
+setCwd();
+
 const isDevBuild = Deno.args.includes("--dev");
 
 const defines = {
@@ -41,23 +44,23 @@ function overrideDefines(definesFilePath, defines) {
 
 (async () => {
 	if (isDevBuild) {
-		setScriptSrc("editor/dist/index.html", "editor script tag", "../src/main.js");
-		setScriptSrc("editor/dist/internalDiscovery/index.html", "discovery script tag", "../src/Network/EditorConnections/InternalDiscovery/internalDiscovery.js");
+		setScriptSrc("../dist/index.html", "editor script tag", "../src/main.js");
+		setScriptSrc("../dist/internalDiscovery/index.html", "discovery script tag", "../src/Network/EditorConnections/InternalDiscovery/internalDiscovery.js");
 		try {
-			await Deno.remove("editor/dist/main.js");
+			await Deno.remove("../dist/main.js");
 		} catch {
 			// fail silently
 		}
 	} else {
-		setScriptSrc("editor/dist/index.html", "editor script tag", "./js/main.js");
-		setScriptSrc("editor/dist/internalDiscovery/index.html", "discovery script tag", "./js/internalDiscovery.js");
+		setScriptSrc("../dist/index.html", "editor script tag", "./js/main.js");
+		setScriptSrc("../dist/internalDiscovery/index.html", "discovery script tag", "./js/internalDiscovery.js");
 		const bundle = await rollup({
 			input: [
-				"editor/src/main.js",
-				"editor/src/Network/EditorConnections/InternalDiscovery/internalDiscovery.js",
+				"../src/main.js",
+				"../src/Network/EditorConnections/InternalDiscovery/internalDiscovery.js",
 			],
 			plugins: [
-				overrideDefines("editor/src/editorDefines.js", defines),
+				overrideDefines("../src/editorDefines.js", defines),
 				// todo:
 				// resolveUrlObjects(),
 			],
@@ -67,7 +70,7 @@ function overrideDefines(definesFilePath, defines) {
 			},
 		});
 		await bundle.write({
-			dir: "editor/dist/js/",
+			dir: "../dist/js/",
 			format: "esm",
 		});
 	}
