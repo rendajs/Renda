@@ -10,6 +10,10 @@ const onEditorDefaultsCbsSym = Symbol("onEditorDefaultsCbs");
 const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
 
 /**
+ * @typedef {new (...args: any) => Component} ComponentConstructor
+ */
+
+/**
  * @typedef {Object} ComponentTypeData
  * @property {string} uuid
  * @property {string} name

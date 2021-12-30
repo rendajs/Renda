@@ -1,12 +1,18 @@
-import {getEditorInstance} from "../../editorInstance.js";
 import {ComponentGizmos} from "./ComponentGizmos.js";
 import {CameraClusterDataGizmo, CameraComponent, CameraGizmo, CameraIconGizmo, Vec3} from "../../../../src/mod.js";
 import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.js";
+import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../../src/engineDefines.js";
 
+/**
+ * @extends {ComponentGizmos<CameraComponent>}
+ */
 export class ComponentGizmosCamera extends ComponentGizmos {
 	static componentType = CameraComponent;
 	static requiredGizmos = [CameraIconGizmo, CameraGizmo, CameraClusterDataGizmo];
 
+	/**
+	 * @param {import("./ComponentGizmos.js").ComponentGizmosConstructorParameters<CameraComponent>} args
+	 */
 	constructor(...args) {
 		super(...args);
 
@@ -24,9 +30,11 @@ export class ComponentGizmosCamera extends ComponentGizmos {
 	}
 
 	async updateClusterBounds() {
+		if (!ENABLE_WEBGPU_CLUSTERED_LIGHTS) return;
 		const clusterDataGizmo = this.createdGizmos[2];
-		const clusterComputeManager = getEditorInstance().renderer.getCachedCameraData(this.component).clusterComputeManager;
-		const buffer = await getEditorInstance().renderer.inspectBuffer(clusterComputeManager.boundsBuffer, clusterComputeManager.config.totalClusterCount * 32);
+		const clusterComputeManager = this.editor.renderer.getCachedCameraData(this.component).clusterComputeManager;
+		if (!clusterComputeManager || !clusterComputeManager.boundsBuffer || !clusterComputeManager.config) return;
+		const buffer = await this.editor.renderer.inspectBuffer(clusterComputeManager.boundsBuffer, clusterComputeManager.config.totalClusterCount * 32);
 
 		const clusterBoundsData = [];
 		const dataView = new DataView(buffer);

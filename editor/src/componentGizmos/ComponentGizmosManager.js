@@ -1,11 +1,12 @@
+import {getEditorInstanceCertain} from "../editorInstance.js";
 import {autoRegisterComponentGizmos} from "./autoRegisterComponentGizmos.js";
 import {ComponentGizmos} from "./gizmos/ComponentGizmos.js";
 
 export class ComponentGizmosManager {
-	/** @typedef {typeof import("../../../src/Components/Component.js").Component} ComponentType */
+	/** @typedef {import("../../../src/Components/Component.js").ComponentConstructor} ComponentConstructor */
 
 	constructor() {
-		/** @type {Map<ComponentType, typeof ComponentGizmos>} */
+		/** @type {Map<ComponentConstructor, typeof ComponentGizmos>} */
 		this.componentGizmos = new Map();
 	}
 
@@ -16,37 +17,39 @@ export class ComponentGizmosManager {
 	}
 
 	/**
-	 * @param {typeof ComponentGizmos} constructor
+	 * @param {import("./gizmos/ComponentGizmos.js").ComponentGizmosConstructorAny} constructor
 	 */
 	registerComponentGizmos(constructor) {
+		const castConstructor = /** @type {typeof ComponentGizmos} */ (constructor);
 		if (!(constructor.prototype instanceof ComponentGizmos)) {
 			console.warn("Tried to register ComponentGizmos (" + constructor.name + ") that does not extend ComponentGizmos class.");
 			return;
 		}
 
-		if (constructor.componentType == null) {
-			constructor.invalidConfigurationWarning("Failed to register ComponentGizmos (" + constructor.name + ") componentType value not set.");
+		if (castConstructor.componentType == null) {
+			castConstructor.invalidConfigurationWarning("Failed to register ComponentGizmos (" + constructor.name + ") componentType value not set.");
 			return;
 		}
 
-		this.componentGizmos.set(constructor.componentType, constructor);
+		this.componentGizmos.set(castConstructor.componentType, castConstructor);
 	}
 
 	/**
-	 * @param {ComponentType} componentType
+	 * @param {ComponentConstructor} componentType
 	 */
 	getComponentGizmosConstructor(componentType) {
 		return this.componentGizmos.get(componentType);
 	}
 
 	/**
-	 * @param {ComponentType} componentType
+	 * @param {ComponentConstructor} componentType
 	 * @param {import("../../../src/Components/Component.js").Component} component
 	 * @param {import("../../../src/Gizmos/GizmoManager.js").GizmoManager} gizmoManager
 	 */
 	createComponentGizmosInstance(componentType, component, gizmoManager) {
 		const ComponentGizmosConstructor = this.getComponentGizmosConstructor(componentType);
 		if (!ComponentGizmosConstructor) return null;
-		return new ComponentGizmosConstructor(component, gizmoManager);
+		const editor = getEditorInstanceCertain();
+		return new ComponentGizmosConstructor(editor, component, gizmoManager);
 	}
 }
