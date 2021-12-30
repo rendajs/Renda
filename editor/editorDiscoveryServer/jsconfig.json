@@ -6,7 +6,7 @@
 		"typeRoots": ["../../node_modules/@webgpu/types", "../../node_modules/@types"],
 		"module": "esnext",
 		"useDefineForClassFields": true,
-		// "strictsrc/index.js
+		"strict": true
 	},
 	"files": ["src/main.js"],
 	"include": ["src/**/*.js"],

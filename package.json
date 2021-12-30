@@ -7,9 +7,7 @@
 	"scripts": {
 		"typecheck": "tsc --noEmit -p ./jsconfig.json",
 		"lint": "eslint .",
-		"test": "playwright test",
-		"prepare": "husky install",
-		"precommit": "git-format-staged --no-write -f 'eslint --stdin --stdin-filename \"{}\" >&2' '*.js' && npm run typecheck"
+		"test": "playwright test"
 	},
 	"devDependencies": {
 		"@babel/eslint-parser": "^7.16.3",
@@ -26,9 +24,7 @@
 		"eslint": "^8.2.0",
 		"eslint-plugin-jsdoc": "^37.0.3",
 		"eslint-plugin-rulesdir": "github:not-an-aardvark/eslint-plugin-rulesdir",
-		"git-format-staged": "^2.1.2",
 		"google-closure-compiler": "^20210907.0.0",
-		"husky": "^7.0.0",
 		"js-md5": "^0.7.3",
 		"jsdom": "^19.0.0",
 		"rollup": "^2.60.0",
