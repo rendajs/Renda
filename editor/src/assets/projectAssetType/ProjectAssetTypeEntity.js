@@ -78,6 +78,9 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const component of jsonData.components) {
 				const componentUuid = component.uuid;
 				const ComponentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(componentUuid);
+				if (!ComponentConstructor) {
+					throw new Error(`Unable to create component with uuid ${componentUuid}. Unknown component type.`);
+				}
 				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					editorOpts: {
@@ -118,10 +121,11 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	/**
 	 * @param {*} jsonData
-	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} componentProperties
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure?} componentProperties
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
+		/** @type {Object.<string, unknown>} */
 		const newPropertyValues = {};
 		if (componentProperties) {
 			for (const [name, propertyData] of Object.entries(componentProperties)) {
@@ -191,6 +195,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (castEntityData.components) {
 			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
+				if (!componentConstructor) continue;
 				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,
 					editorAssetManager: this.assetManager,
@@ -224,14 +229,17 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (castEntityData.components) {
 			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
+				if (!componentConstructor) continue;
+				const binaryComposerOpts = componentConstructor.binaryComposerOpts;
+				if (!binaryComposerOpts) continue;
 				/** @type {import("../../../../src/mod.js").UuidString[]} */
 				const referencedUuids = [];
 				BinaryComposer.objectToBinary(component.propertyValues, {
-					...componentConstructor.binaryComposerOpts,
+					...binaryComposerOpts,
 					transformValueHook: args => {
 						let {value, type} = args;
-						if (componentConstructor.binaryComposerOpts.transformValueHook) {
-							value = componentConstructor.binaryComposerOpts.transformValueHook(args);
+						if (binaryComposerOpts.transformValueHook) {
+							value = binaryComposerOpts.transformValueHook(args);
 						}
 
 						if (type == StorageType.ASSET_UUID) {

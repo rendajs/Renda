@@ -38,7 +38,7 @@ export class ProjectAssetTypeManager {
 			castConstructor.invalidConfigurationWarning("Tried to register project asset type (" + castConstructor.name + ") without a namespace in the type value.");
 			return;
 		}
-		if (!isUuid(castConstructor.typeUuid)) {
+		if (!castConstructor.typeUuid || !isUuid(castConstructor.typeUuid)) {
 			castConstructor.invalidConfigurationWarning("Tried to register project asset type (" + castConstructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this asset type to function properly.");
 			return;
 		}
