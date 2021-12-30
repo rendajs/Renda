@@ -1,7 +1,7 @@
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 import {ComponentGizmos} from "./ComponentGizmos.js";
-import {CameraClusterDataGizmo, CameraComponent, CameraGizmo, CameraIconGizmo, Vec3} from "../../../src/mod.js";
-import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
+import {CameraClusterDataGizmo, CameraComponent, CameraGizmo, CameraIconGizmo, Vec3} from "../../../../src/mod.js";
+import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.js";
 
 export class ComponentGizmosCamera extends ComponentGizmos {
 	static componentType = CameraComponent;

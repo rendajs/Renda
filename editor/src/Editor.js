@@ -4,7 +4,7 @@ import {ContextMenuManager} from "./UI/ContextMenus/ContextMenuManager.js";
 import {KeyboardShortcutManager} from "./KeyboardShortcuts/KeyboardShortcutManager.js";
 import {PropertiesWindowContentManager} from "./Managers/PropertiesWindowContentManager.js";
 import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";
-import {ComponentGizmosManager} from "./Managers/ComponentGizmosManager.js";
+import {ComponentGizmosManager} from "./componentGizmos/ComponentGizmosManager.js";
 import {MaterialMapTypeSerializerManager} from "./Managers/MaterialMapTypeSerializerManager.js";
 import {ProjectManager} from "./Managers/ProjectManager.js";
 import {BuiltInDefaultAssetLinksManager} from "./assets/BuiltInDefaultAssetLinksManager.js";

@@ -1,4 +1,4 @@
-import {autoRegisterAssetTypes} from "./projectAssetType/autoRegisterAssetTypes.js";
+import {autoRegisterAssetTypes} from "./autoRegisterAssetTypes.js";
 import {ProjectAssetType} from "./projectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/util/mod.js";
 import {ProjectAssetTypeMaterial} from "./projectAssetType/ProjectAssetTypeMaterial.js";
