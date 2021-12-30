@@ -76,7 +76,8 @@ export class CameraComponent extends Component {
 
 		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
 			const defaultClusteredLightsConfigAssetLinkUuid = "f676813d-a631-4a39-9bb4-1ea1f291af19";
-			structure.clusteredLightsConfig.guiOpts.defaultValue = defaultClusteredLightsConfigAssetLinkUuid;
+			const guiOpts = /** @type {import("../../../editor/src/UI/DroppableGui.js").DroppableGuiOptions} */ (structure.clusteredLightsConfig.guiOpts);
+			guiOpts.defaultValue = defaultClusteredLightsConfigAssetLinkUuid;
 		}
 
 		return structure;
@@ -120,7 +121,7 @@ export class CameraComponent extends Component {
 		this.autoUpdateProjectionMatrix = true;
 		this.projectionMatrix = new Mat4();
 		this.renderOutputConfig = null;
-		/** @type {ClusteredLightsConfig} */
+		/** @type {ClusteredLightsConfig?} */
 		this.clusteredLightsConfig = null;
 
 		this.initValues(propertyValues, ...args);

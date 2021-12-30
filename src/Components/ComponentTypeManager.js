@@ -15,20 +15,21 @@ export class ComponentTypeManager {
 			console.warn("Tried to register Component (" + constructor.name + ") that does not extend the Component class.");
 			return;
 		}
-		if (!isUuid(constructor.uuid)) {
+		const uuid = constructor.uuid;
+		if (!uuid || !isUuid(uuid)) {
 			console.warn("Tried to register Component (" + constructor.name + ") without a valid uuid value, override the static uuid value in order for this loader to function properly.");
 			return;
 		}
 
-		this.components.set(constructor.uuid, constructor);
+		this.components.set(uuid, constructor);
 	}
 
 	/**
-	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} uuid
-	 * @returns {typeof Component}
+	 * @param {import("../mod.js").UuidString} uuid
+	 * @returns {typeof Component?}
 	 */
 	getComponentConstructorForUuid(uuid) {
-		return this.components.get(uuid);
+		return this.components.get(uuid) ?? null;
 	}
 
 	*getAllComponents() {

@@ -209,6 +209,7 @@ module.exports = {
 			{
 				definedTypes: [
 					"ConstructorParameters",
+					"unknown",
 					"Iterable",
 					"Generator",
 					"AsyncGenerator",

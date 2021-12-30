@@ -36,7 +36,8 @@ export class MeshComponent extends Component {
 		};
 		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
 			const defaultMaterialAssetLinkUuid = "f1e469e3-b463-4542-952a-091487bf5b4a";
-			structure.materials.guiOpts.defaultValue = [defaultMaterialAssetLinkUuid];
+			const guiOpts = /** @type {import("../../../editor/src/UI/ArrayGui.js").ArrayGuiOptions} */ (structure.materials.guiOpts);
+			guiOpts.defaultValue = [defaultMaterialAssetLinkUuid];
 		}
 		return structure;
 	}
@@ -70,7 +71,7 @@ export class MeshComponent extends Component {
 	constructor(propertyValues = {}, ...args) {
 		super();
 
-		/** @type {Mesh} */
+		/** @type {Mesh?} */
 		this.mesh = null;
 		/** @type {Material[]} */
 		this.materials = [];

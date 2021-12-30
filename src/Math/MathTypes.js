@@ -15,7 +15,7 @@ export const mathTypes = [
 /**
  * Converts math types into something that can be stored in JSON.stringify.
  * If the value is not a math type, returns null.
- * @param {Vec2 | Vec3 | Vec4 | Quat | Mat4} value
+ * @param {Vec2 | Vec3 | Vec4 | Quat | Mat4 | any} value
  * @returns {number[] | null}
  */
 export function mathTypeToJson(value) {
