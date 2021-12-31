@@ -8,6 +8,11 @@ import {ShorcutConditionValueSetter} from "./ShorcutConditionValueSetter.js";
 
 /** @typedef {ShortcutConditionOptionsObject | string} ShortcutConditionOptions */
 
+/**
+ * A condition that commands check for to see if they should be enabled. Only a
+ * single instance exists for each condition.
+ * The value of a condition can not be set directly. Use a value setter instead.
+ */
 export class ShortcutCondition {
 	/**
 	 * @param {ShortcutConditionOptions} options
@@ -20,13 +25,13 @@ export class ShortcutCondition {
 		this.name = options.name;
 		this.type = options.type || "boolean";
 
-		/** @type {Set<ShorcutConditionValueSetter>} */
+		/** @type {Set<ShorcutConditionValueSetter<any>} */
 		this.valueSetters = new Set();
 
 		/** @type {Set<Function>} */
 		this.onValueChangeCbs = new Set();
 
-		/** @type {boolean | string[]} */
+		/** @type {boolean | string[] | null} */
 		this.value = null;
 		this.updateCurrentValue();
 	}
@@ -44,7 +49,7 @@ export class ShortcutCondition {
 	}
 
 	/**
-	 * @param {ShorcutConditionValueSetter} valueSetter
+	 * @param {ShorcutConditionValueSetter<any>} valueSetter
 	 */
 	destroyValueSetter(valueSetter) {
 		valueSetter.destructor();
@@ -77,7 +82,8 @@ export class ShortcutCondition {
 				this.value = value;
 			} else if (this.type == "string") {
 				const castSetters = /** @type {ShorcutConditionValueSetter<string>[]} */ (setters);
-				this.value = castSetters.map(setter => setter.value);
+				const values = castSetters.map(setter => setter.value).filter(value => !!value);
+				this.value = /** @type {string[]} */ (values);
 			}
 		}
 		if (this.value != previousValue) {

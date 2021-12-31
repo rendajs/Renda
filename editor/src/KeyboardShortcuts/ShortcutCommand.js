@@ -10,15 +10,19 @@ import {KeyboardShortcutManager} from "./KeyboardShortcutManager.js";
 
 /**
  * @typedef {Object} ShortcutCommandOptions
- * @property {string} [name] User friendly name of the command.
- * @property {string} command The id of the command.
- * @property {string | string[]} [defaultKeys] The the keys that trigger the command.
+ * @property {string?} [name] User friendly name of the command.
+ * @property {string?} command The id of the command.
+ * @property {string | string[] | null} [defaultKeys] The the keys that trigger the command.
  * @property {string} [conditions] The conditions to check for before triggering the command.
  * @property {ShortcutCommandHoldType} [holdType = "single"] How to deal with keys being held down.
  */
 
 /** @typedef {string[][]} ShortcutCommandSequence */
 
+/**
+ * A single command registered in the shortcut manager.
+ * This contains the full configuration of a command.
+ */
 export class ShortcutCommand {
 	/**
 	 * @param {KeyboardShortcutManager} shortcutManager
@@ -48,6 +52,7 @@ export class ShortcutCommand {
 	parseSequence() {
 		this.parsedSequences = [];
 		let keys = this.defaultKeys;
+		if (!keys) keys = [];
 		if (!Array.isArray(keys)) {
 			keys = [keys];
 		}
@@ -65,6 +70,9 @@ export class ShortcutCommand {
 		return true;
 	}
 
+	/**
+	 * @param {boolean} active
+	 */
 	setHoldStateActive(active) {
 		if (this.holdType == "single") return false;
 		if (this.holdStateActive == active) return false;
@@ -86,6 +94,6 @@ export class ShortcutCommand {
 		if (!this.conditions) return true;
 		const condition = this.shortcutManager.getCondition(this.conditions);
 		if (!condition) return false;
-		return condition.value;
+		return !!condition.value;
 	}
 }

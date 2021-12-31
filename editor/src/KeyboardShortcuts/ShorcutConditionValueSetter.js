@@ -1,6 +1,9 @@
 import {ShortcutCondition} from "./ShortcutCondition.js";
 
 /**
+ * A single valueSetter is used to control the value of ShortcutConditions.
+ * This is to ensure multiple places in the code can control the value of a
+ * condition.
  * @template {boolean | string} T
  */
 export class ShorcutConditionValueSetter {
@@ -26,6 +29,14 @@ export class ShorcutConditionValueSetter {
 	}
 
 	/**
+	 * #### For boolean conditions
+	 * If the value of all ValueSetters for a condition are null, the default
+	 * value of the condition is used. Otherwise, the value of the ValueSetter
+	 * with the highest priority is used.
+	 *
+	 * #### For string conditions
+	 * The value of the condition will be an array of all the values of the
+	 * ValueSetters, excluding the ones that are set to null or an empty string.
 	 * @param {T | null} value
 	 */
 	setValue(value) {

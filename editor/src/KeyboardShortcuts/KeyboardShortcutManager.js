@@ -5,12 +5,34 @@ import {ShortcutCondition} from "./ShortcutCondition.js";
 
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 
+/**
+ * Responsible for managing keyboard shortcuts and their corresponding commands.
+ * This class keeps track of pressed keys and what order they were pressed in.
+ * This allows for configuring complex shortcuts that require multiple
+ * keystrokes in order to fire.
+ * Commands can also be configured to only fire under certain conditions. That
+ * way keystrokes don't get consumed when they are not needed, making sure
+ * normal browser events still fire.
+ */
 export class KeyboardShortcutManager {
+	/**
+	 * We keep a tree of every shortcut and what keys need to be pressed to trigger
+	 * it. That way we can quickly check if no shortcuts are available anymore
+	 * without having to iterate over the full list of shortcuts.
+	 * We want to know if commands need multiple keystrokes before the full
+	 * sequence is performed, because we need to peventDefault() the key events
+	 * when a key is part of a valid sequence.
+	 * @typedef {Object} ShortcutSequenceTreeNode
+	 * @property {Map<string, ShortcutSequenceTreeNode>} childNodes
+	 * @property {Set<ShortcutCommand>} commands
+	 */
+
 	constructor() {
 		/** @type {Map<string, ShortcutCondition>} */
 		this.registeredConditions = new Map();
 		/** @type {Set<ShortcutCommand>} */
 		this.registeredCommands = new Set();
+		/** @type {ShortcutSequenceTreeNode} */
 		this.sequenceMap = {
 			childNodes: new Map(),
 			commands: new Set(),
@@ -22,6 +44,7 @@ export class KeyboardShortcutManager {
 		this.currentPressedKeys = new Set();
 		this.currentPressedSequenceIndex = 0;
 		this.currentPressedSequenceHighestLength = 0;
+		/** @type {string[]} */
 		this.currentPressedSequence = [];
 		/**
 		 * List of keys that caused a command to fire in the last cycle.
@@ -73,6 +96,10 @@ export class KeyboardShortcutManager {
 		return this.registeredConditions.get(name);
 	}
 
+	/**
+	 * @param {import("./ShortcutCommand.js").ShortcutCommandOptions} opts
+	 * @param {boolean} rebuildSequenceMap
+	 */
 	registerCommand(opts, rebuildSequenceMap = true) {
 		const command = new ShortcutCommand(this, opts);
 		this.registeredCommands.add(command);
@@ -242,6 +269,11 @@ export class KeyboardShortcutManager {
 		}
 	}
 
+	/**
+	 * Add an event listener for a specific command.
+	 * @param {string} command The identifier of the command.
+	 * @param {() => any} cb The callback to fire when the command is triggered.
+	 */
 	onCommand(command, cb) {
 		let listeners = this.commandListeners.get(command);
 		if (!listeners) {
@@ -251,6 +283,11 @@ export class KeyboardShortcutManager {
 		listeners.add(cb);
 	}
 
+	/**
+	 * Remove an event listener for a specific command.
+	 * @param {string} command The identifier of the command.
+	 * @param {() => any} cb
+	 */
 	removeOnCommand(command, cb) {
 		const listeners = this.commandListeners.get(command);
 		if (listeners) {
@@ -261,6 +298,9 @@ export class KeyboardShortcutManager {
 		}
 	}
 
+	/**
+	 * @param {ShortcutCommand} command
+	 */
 	fireCommand(command) {
 		const listeners = this.commandListeners.get(command.command);
 		if (listeners) {
