@@ -36,7 +36,7 @@ export class MaterialMapTypeSerializerManager {
 	}
 
 	/**
-	 * @param {typeof MaterialMapTypeSerializer} constructor
+	 * @param {import("../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializerConstructor} constructor
 	 */
 	registerMapType(constructor) {
 		if (!(constructor.prototype instanceof MaterialMapTypeSerializer)) {
@@ -44,24 +44,26 @@ export class MaterialMapTypeSerializerManager {
 			return;
 		}
 
-		if (constructor.uiName == null || typeof constructor.uiName != "string") {
-			constructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + ") invalid uiName value.");
+		const castConstructor = /** @type {typeof MaterialMapTypeSerializer} */ (constructor);
+
+		if (castConstructor.uiName == null || typeof castConstructor.uiName != "string") {
+			castConstructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + ") invalid uiName value.");
 			return;
 		}
 
-		const hasMapContentConstructor = constructor.propertiesMaterialMapContentConstructor != null && typeof constructor.propertiesMaterialMapContentConstructor == "function";
-		const hasSettingsStructure = constructor.settingsStructure != null && typeof constructor.settingsStructure == "object";
+		const hasMapContentConstructor = castConstructor.propertiesMaterialMapContentConstructor != null && typeof castConstructor.propertiesMaterialMapContentConstructor == "function";
+		const hasSettingsStructure = castConstructor.settingsStructure != null && typeof castConstructor.settingsStructure == "object";
 		if (!hasMapContentConstructor && !hasSettingsStructure) {
-			constructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + "). The material map should at least have a settingsStructure or a propertiesMaterialMapContentConstructor.");
+			castConstructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + "). The material map should at least have a settingsStructure or a propertiesMaterialMapContentConstructor.");
 			return;
 		}
 
-		if (!isUuid(constructor.typeUuid)) {
-			constructor.invalidConfigurationWarning("Tried to register MaterialMapType (" + constructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this MaterialMapType to function properly.");
+		if (castConstructor.typeUuid && !isUuid(castConstructor.typeUuid)) {
+			castConstructor.invalidConfigurationWarning("Tried to register MaterialMapType (" + constructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this MaterialMapType to function properly.");
 			return;
 		}
 
-		this.registeredMapTypes.set(constructor.typeUuid, constructor);
+		this.registeredMapTypes.set(castConstructor.typeUuid, constructor);
 	}
 
 	*getAllTypes() {

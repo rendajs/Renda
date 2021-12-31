@@ -86,7 +86,9 @@ export class ProjectSettingsManager {
 		const isFile = await this.fileSystem.isFile(this.filePath);
 		if (!isFile) return;
 
+		/** @type {Object.<string, any>?} */
 		const settingsObject = await this.fileSystem.readJson(this.filePath);
+		if (!settingsObject) return;
 		for (const [key, value] of Object.entries(settingsObject)) {
 			this.currentSettings.set(key, value);
 		}

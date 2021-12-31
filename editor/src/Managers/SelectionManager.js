@@ -16,7 +16,7 @@ export class SelectionManager {
 		/** @type {Set<SelectionGroup<any>>} */
 		this.selectionGroups = new Set();
 
-		/** @type {SelectionGroup<any>} */
+		/** @type {SelectionGroup<any>?} */
 		this.activeGroup = null;
 
 		/** @type {Set<SelectionChangeCallback>} */

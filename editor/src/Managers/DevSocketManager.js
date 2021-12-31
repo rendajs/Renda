@@ -35,12 +35,12 @@ export class DevSocketManager {
 			this.handleMessage(e);
 		});
 		return await new Promise(resolve => {
-			this.ws.addEventListener("open", e => {
+			ws.addEventListener("open", e => {
 				if (this.ws != ws) return;
 				this.connectedOnce = true;
 				resolve(true);
 			});
-			this.ws.addEventListener("close", e => {
+			ws.addEventListener("close", e => {
 				if (this.ws != ws) return;
 				this.ws = null;
 				resolve(false);
@@ -70,6 +70,9 @@ export class DevSocketManager {
 		return await this.tryConnectionMultipleInstance.run();
 	}
 
+	/**
+	 * @param {MessageEvent<any>} e
+	 */
 	handleMessage(e) {
 		const data = JSON.parse(e.data);
 		if (!data.op) return;
@@ -108,15 +111,19 @@ export class DevSocketManager {
 		cbsList.add(cb);
 	}
 
+	/**
+	 * @param {string} op
+	 * @param {unknown} data
+	 */
 	async sendRoundTripMessage(op, data) {
-		if (!this.connected) {
+		if (!this.connected || !this.ws) {
 			let success;
 			if (this.connectedOnce) {
 				success = await this.tryConnectionMultiple();
 			} else {
 				success = await this.tryConnectionOnce();
 			}
-			if (!success) {
+			if (!success || !this.ws) {
 				throw new Error("Failed to connect to devsocket");
 			}
 		}

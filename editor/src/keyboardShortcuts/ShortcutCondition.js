@@ -25,7 +25,7 @@ export class ShortcutCondition {
 		this.name = options.name;
 		this.type = options.type || "boolean";
 
-		/** @type {Set<ShorcutConditionValueSetter<any>} */
+		/** @type {Set<ShorcutConditionValueSetter<any>>} */
 		this.valueSetters = new Set();
 
 		/** @type {Set<Function>} */

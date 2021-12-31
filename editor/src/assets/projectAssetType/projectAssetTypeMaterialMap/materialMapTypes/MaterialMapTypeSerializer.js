@@ -2,6 +2,10 @@ import {MaterialMapType} from "../../../../../../src/Rendering/MaterialMapType.j
 import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComposer.js";
 
 /**
+ * @typedef {new (...args: any) => MaterialMapTypeSerializer} MaterialMapTypeSerializerConstructor
+ */
+
+/**
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
  * @property {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type

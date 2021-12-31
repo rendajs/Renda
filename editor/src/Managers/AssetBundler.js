@@ -1,15 +1,15 @@
 import {BinaryComposer} from "../../../src/util/BinaryComposer.js";
-import {getEditorInstance} from "../editorInstance.js";
 
 export class AssetBundler {
 	/**
+	 * @param {import("../assets/AssetManager.js").AssetManager} assetManager
 	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>} bundleProjectAsset
 	 */
-	async bundle(bundleProjectAsset) {
+	async bundle(assetManager, bundleProjectAsset) {
 		const bundleData = await bundleProjectAsset.readAssetData();
-		const assetUuids = await this.getAllAssetUuids(bundleData.assets, new Set(bundleData.excludeAssets), new Set(bundleData.excludeAssetsRecursive));
+		const assetUuids = await this.getAllAssetUuids(assetManager, bundleData.assets, new Set(bundleData.excludeAssets), new Set(bundleData.excludeAssetsRecursive));
 
-		const bundleFileStream = await getEditorInstance().projectManager.currentProjectFileSystem.writeFileStream(bundleData.outputLocation.split("/"));
+		const bundleFileStream = await assetManager.fileSystem.writeFileStream(bundleData.outputLocation.split("/"));
 		if (bundleFileStream.locked) {
 			throw new Error("Failed to write bundle, file is locked.");
 		}
@@ -28,19 +28,23 @@ export class AssetBundler {
 		await bundleFileStream.write(header);
 
 		for (const assetUuid of assetUuids) {
+			const asset = await assetManager.getProjectAsset(assetUuid);
+			if (!asset) continue;
+
+			const assetTypeUuid = await asset.getAssetTypeUuid();
+			if (!assetTypeUuid) continue;
+
+			const assetData = await asset.getBundledAssetData();
+			if (!assetData) continue;
+
 			const binaryUuid = BinaryComposer.uuidToBinary(assetUuid);
 			headerIntView.set(new Uint8Array(binaryUuid), headerCursor);
 			headerCursor += 16;
 
-			const asset = await getEditorInstance().projectManager.assetManager.getProjectAsset(assetUuid);
-
-			const assetTypeUuid = await asset.getAssetTypeUuid();
-			if (!assetTypeUuid) continue;
 			const binaryAssetTypeUuid = BinaryComposer.uuidToBinary(assetTypeUuid);
 			headerIntView.set(new Uint8Array(binaryAssetTypeUuid), headerCursor);
 			headerCursor += 16;
 
-			const assetData = await asset.getBundledAssetData();
 			let dataSizeBytes = 0;
 			if (assetData instanceof Blob) {
 				dataSizeBytes = assetData.size;
@@ -58,16 +62,17 @@ export class AssetBundler {
 	}
 
 	/**
+	 * @param {import("../assets/AssetManager.js").AssetManager} assetManager
 	 * @param {import("../assets/ProjectAssetType/ProjectAssetTypeAssetBundle.js").AssetBundleDiskDataAsset[]} assetsList
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuids
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuidsRecursive
 	 */
-	async getAllAssetUuids(assetsList, excludeUuids, excludeUuidsRecursive) {
+	async getAllAssetUuids(assetManager, assetsList, excludeUuids, excludeUuidsRecursive) {
 		/** @type {Set<import("../../../src/util/mod.js").UuidString>} */
 		const foundUuids = new Set();
 		for (const assetData of assetsList) {
 			if (assetData.includeChildren) {
-				for await (const uuid of this.collectAllReferences(assetData.asset, foundUuids, excludeUuids, excludeUuidsRecursive)) {
+				for await (const uuid of this.collectAllReferences(assetManager, assetData.asset, foundUuids, excludeUuids, excludeUuidsRecursive)) {
 					foundUuids.add(uuid);
 				}
 			} else {
@@ -78,20 +83,21 @@ export class AssetBundler {
 	}
 
 	/**
+	 * @param {import("../assets/AssetManager.js").AssetManager} assetManager
 	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} foundUuids
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuids
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuidsRecursive
 	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
 	 */
-	async *collectAllReferences(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive) {
-		const projectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(assetUuid);
+	async *collectAllReferences(assetManager, assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive) {
+		const projectAsset = await assetManager.getProjectAsset(assetUuid);
 		if (projectAsset) {
 			if (foundUuids.has(assetUuid) || excludeUuidsRecursive.has(assetUuid)) return;
 			if (!excludeUuids.has(assetUuid)) yield assetUuid;
 			for await (const referenceUuid of projectAsset.getReferencedAssetUuids()) {
-				for await (const subReferenceUuid of this.collectAllReferences(referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
-					yield getEditorInstance().projectManager.assetManager.resolveDefaultAssetLinkUuid(subReferenceUuid);
+				for await (const subReferenceUuid of this.collectAllReferences(assetManager, referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
+					yield assetManager.resolveDefaultAssetLinkUuid(subReferenceUuid);
 				}
 			}
 		}

@@ -8,20 +8,21 @@ export class ComponentTypeManager {
 	}
 
 	/**
-	 * @param {typeof Component} constructor
+	 * @param {import("./Component.js").ComponentConstructor} constructor
 	 */
 	registerComponent(constructor) {
 		if (!(constructor.prototype instanceof Component)) {
 			console.warn("Tried to register Component (" + constructor.name + ") that does not extend the Component class.");
 			return;
 		}
-		const uuid = constructor.uuid;
+		const castConstructor = /** @type {typeof Component} */ (constructor);
+		const uuid = castConstructor.uuid;
 		if (!uuid || !isUuid(uuid)) {
 			console.warn("Tried to register Component (" + constructor.name + ") without a valid uuid value, override the static uuid value in order for this loader to function properly.");
 			return;
 		}
 
-		this.components.set(uuid, constructor);
+		this.components.set(uuid, castConstructor);
 	}
 
 	/**

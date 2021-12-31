@@ -34,7 +34,7 @@ export class SelectionGroup {
 		if (this.destructed) return;
 		this.destructed = true;
 		this.selectionManager.removeSelectionGroup(this);
-		this.currentSelectedObjects = null;
+		this.currentSelectedObjects = [];
 		this.onSelectionChangeCbs.clear();
 	}
 
@@ -43,11 +43,15 @@ export class SelectionGroup {
 	 */
 	changeSelection(changes) {
 		if (changes.reset) this.currentSelectedObjects = [];
-		this.currentSelectedObjects.push(...changes.added);
-		for (const removed of changes.removed) {
-			for (let i = this.currentSelectedObjects.length - 1; i >= 0; i--) {
-				const obj = this.currentSelectedObjects[i];
-				if (obj == removed) this.currentSelectedObjects.splice(i, 1);
+		if (changes.added) {
+			this.currentSelectedObjects.push(...changes.added);
+		}
+		if (changes.removed) {
+			for (const removed of changes.removed) {
+				for (let i = this.currentSelectedObjects.length - 1; i >= 0; i--) {
+					const obj = this.currentSelectedObjects[i];
+					if (obj == removed) this.currentSelectedObjects.splice(i, 1);
+				}
 			}
 		}
 

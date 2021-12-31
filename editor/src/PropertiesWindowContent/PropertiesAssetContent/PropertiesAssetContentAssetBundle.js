@@ -20,7 +20,8 @@ export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 				guiOpts: {
 					text: "Bundle",
 					onClick: () => {
-						getEditorInstance().assetBundler.bundle(this.currentSelection[0]);
+						const editor = getEditorInstance();
+						editor.assetBundler.bundle(editor.projectManager.assetManager, this.currentSelection[0]);
 					},
 				},
 			},
