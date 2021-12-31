@@ -62,7 +62,7 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 							const editor = getEditorInstance();
 							if (!editor || !editor.projectManager.currentProjectFileSystem) return;
 							await editor.projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
-							await editor.scriptBuilder.buildScript(asset.path, outputPath, buildOpts);
+							await editor.scriptBuilder.buildScript(asset.path, outputPath, editor.projectManager.currentProjectFileSystem, editor.devSocket ?? null, buildOpts);
 						}
 					}
 				},

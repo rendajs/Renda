@@ -1,20 +1,35 @@
 import transpiledRollup from "../../libs/rollup.browser.js";
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstanceCertain} from "../editorInstance.js";
 import resolveUrlObjects from "../../libs/rollup-plugin-resolve-url-objects.js";
 
 const rollup = /** @type {import("../../../node_modules/rollup/dist/rollup.js")} */ (transpiledRollup);
 
 /**
- * @typedef {"project" | "engine" | "remote"} ScriptType
+ * @typedef {"project" | "engine" | "remote" | null} ScriptType
+ */
+
+/**
+ * @typedef {Object} ScriptBuilderOptions
+ * @property {boolean} [useClosureCompiler]
  */
 
 export class ScriptBuilder {
-	async buildScript(inputPath, outputPath, {
+	/**
+	 * @typedef {[import("../../../node_modules/rollup/dist/rollup.js").OutputChunk, ...(import("../../../node_modules/rollup/dist/rollup.js").OutputChunk | import("../../../node_modules/rollup/dist/rollup.js").OutputAsset)[]]} RollupOutput
+	 */
+	/**
+	 * @param {string[]} inputPath
+	 * @param {string[]} outputPath
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("./DevSocketManager.js").DevSocketManager?} devSocket
+	 * @param {ScriptBuilderOptions} options
+	 */
+	async buildScript(inputPath, outputPath, fileSystem, devSocket, {
 		useClosureCompiler = true,
 	} = {}) {
 		const bundle = await rollup.rollup({
 			input: inputPath.join("/"),
-			plugins: [this.resolveScripts(), resolveUrlObjects()],
+			plugins: [this.resolveScripts(fileSystem), resolveUrlObjects()],
 			preserveEntrySignatures: false,
 		});
 		const {output: rollupOutput} = await bundle.generate({
@@ -23,13 +38,21 @@ export class ScriptBuilder {
 		});
 
 		if (!useClosureCompiler) {
-			this.writeRollupOutput(rollupOutput, outputPath);
+			this.writeRollupOutput(rollupOutput, outputPath, fileSystem);
 		} else {
-			await this.runClosureCompiler(rollupOutput, outputPath);
+			if (!devSocket) {
+				throw new Error("DevSocketManager is required to build with closure compiler");
+			}
+			await this.runClosureCompiler(fileSystem, devSocket, rollupOutput, outputPath);
 		}
 	}
 
-	writeRollupOutput(rollupOutput, outputPath) {
+	/**
+	 * @param {RollupOutput} rollupOutput
+	 * @param {string[]} outputPath
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 */
+	writeRollupOutput(rollupOutput, outputPath, fileSystem) {
 		for (const chunkOrAsset of rollupOutput) {
 			if (chunkOrAsset.type == "chunk") {
 				const chunk = chunkOrAsset;
@@ -38,22 +61,39 @@ export class ScriptBuilder {
 				if (chunk.map) {
 					const sourcemapName = chunk.fileName + ".map";
 					const sourcemapPath = [...outputPath, sourcemapName];
-					getEditorInstance().projectManager.currentProjectFileSystem.writeText(sourcemapPath, JSON.stringify(chunk.map));
+					fileSystem.writeText(sourcemapPath, JSON.stringify(chunk.map));
 
 					code += "\n\n//# sourceMappingURL=./" + sourcemapName;
 				}
 
-				getEditorInstance().projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
+				fileSystem.writeText(codeOutputPath, code);
 			}
 			// todo: handle chunkOrAsset.type == "asset"
 		}
 	}
 
-	async runClosureCompiler(rollupOutput, outputPath) {
+	/**
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("./DevSocketManager.js").DevSocketManager} devSocket
+	 * @param {RollupOutput} rollupOutput
+	 * @param {string[]} outputPath
+	 */
+	async runClosureCompiler(fileSystem, devSocket, rollupOutput, outputPath) {
 		const rollupCode = rollupOutput[0].code;
-		const externsAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
-		const webGpuExterns = await externsAsset.readAssetData();
-		const inputFiles = rollupOutput.map(chunk => {
+		const chunks = rollupOutput.filter(chunkOrAsset => chunkOrAsset.type == "chunk");
+		const castChunks = /** @type {import("../../../node_modules/rollup/dist/rollup.js").OutputChunk[]} */ (chunks);
+
+		/**
+		 * @typedef {Object} ClosureInputFile
+		 * @property {string} path
+		 * @property {string} src
+		 * @property {string} [sourceMap]
+		 * @property {string} [chunkName]
+		 * @property {string[]} [chunkDependencies]
+		 */
+
+		/** @type {ClosureInputFile[]} */
+		const inputFiles = castChunks.map(chunk => {
 			return {
 				path: chunk.fileName,
 				src: chunk.code,
@@ -62,12 +102,18 @@ export class ScriptBuilder {
 				chunkDependencies: chunk.dynamicImports,
 			};
 		});
-		inputFiles.push({
-			path: "webGpuExterns.js",
-			src: webGpuExterns,
-		});
+
+		/** @type {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/projectAssetType/ProjectAssetTypeJavascript.js").ProjectAssetTypeJavascript>?} */
+		const externsAsset = await getEditorInstanceCertain().projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
+		if (externsAsset) {
+			const webGpuExterns = await externsAsset.readAssetData();
+			inputFiles.push({
+				path: "webGpuExterns.js",
+				src: webGpuExterns,
+			});
+		}
 		// todo: also make this work in production builds
-		const {stdErr, stdOut} = await getEditorInstance().devSocket.sendRoundTripMessage("runClosureCompiler", {
+		const {stdErr, stdOut} = await devSocket.sendRoundTripMessage("runClosureCompiler", {
 			inputFiles,
 			args: {
 				/* eslint-disable camelcase */
@@ -118,16 +164,30 @@ export class ScriptBuilder {
 				if (file.source_map) {
 					const sourcemapName = fileName + ".map";
 					const sourcemapPath = [...outputPath, sourcemapName];
-					getEditorInstance().projectManager.currentProjectFileSystem.writeText(sourcemapPath, file.source_map);
+					fileSystem.writeText(sourcemapPath, file.source_map);
 
 					code += "\n\n//# sourceMappingURL=./" + sourcemapName;
 				}
 
-				getEditorInstance().projectManager.currentProjectFileSystem.writeText(codeOutputPath, code);
+				fileSystem.writeText(codeOutputPath, code);
 			}
 		}
 	}
 
+	/**
+	 * @typedef {Object} ClosureCompilerError
+	 * @property {string} [key]
+	 * @property {string} [description]
+	 * @property {number} line
+	 * @property {number} column
+	 * @property {string} context
+	 * @property {"error" | "warning" | "info"} level
+	 */
+
+	/**
+	 * @param {ClosureCompilerError[]} errors
+	 * @param {string} code
+	 */
 	printCodeErrors(errors, code) {
 		if (errors.length == 0) return;
 
@@ -197,17 +257,25 @@ export class ScriptBuilder {
 		}
 	}
 
-	resolveScripts() {
+	/**
+	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @return {import("../../../node_modules/rollup/dist/rollup.js").Plugin}
+	 */
+	resolveScripts(fileSystem) {
 		const scriptBuilder = this;
 		return {
 			name: "editor-resolve-scripts",
 			resolveId(source, importer, opts) {
-				const importerInfo = this.getModuleInfo(importer);
+				const castThis = /** @type {import("../../../node_modules/rollup/dist/rollup.js").PluginContext} */ (/** @type {unknown} */ (this));
+				if (!importer) return null;
+				const importerInfo = castThis.getModuleInfo(importer);
 				let {scriptType, sourcePath} = scriptBuilder.getPathType(source);
+				/** @type {ScriptType} */
 				const importerType = importerInfo?.meta?.editorResolve?.scriptType ?? null;
 				scriptType = scriptType || importerType || null;
 
 				const originalIsRelative = !sourcePath.startsWith("/");
+				/** @type {string[]} */
 				let resolvedPathArr = [];
 
 				if (sourcePath == "JJ") {
@@ -241,12 +309,13 @@ export class ScriptBuilder {
 				};
 			},
 			async load(id) {
-				const moduleInfo = this.getModuleInfo(id);
+				const castThis = /** @type {import("../../../node_modules/rollup/dist/rollup.js").PluginContext} */ (/** @type {unknown} */ (this));
+				const moduleInfo = castThis.getModuleInfo(id);
 				/** @type {ScriptType} */
-				const scriptType = moduleInfo.meta.editorResolve.scriptType;
+				const scriptType = moduleInfo?.meta?.editorResolve?.scriptType ?? null;
 				if (scriptType == "project") {
 					try {
-						const file = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(id.split("/"));
+						const file = await fileSystem.readFile(id.split("/"));
 						const text = await file.text();
 						return text;
 					} catch (e) {
