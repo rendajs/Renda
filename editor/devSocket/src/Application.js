@@ -13,10 +13,10 @@ export class Application {
 	init() {
 		this.webSocketManager.init();
 
-		this.webSocketManager.regisTerRoundTripOp("writeBuiltInAsset", async data => {
+		this.webSocketManager.registerRoundTripOp("writeBuiltInAsset", async data => {
 			return await this.builtInAssetManager.writeAssetData(data.path, data.writeData);
 		});
-		this.webSocketManager.regisTerRoundTripOp("runClosureCompiler", async data => {
+		this.webSocketManager.registerRoundTripOp("runClosureCompiler", async data => {
 			return await this.closureCompilerManager.compileJs(data);
 		});
 

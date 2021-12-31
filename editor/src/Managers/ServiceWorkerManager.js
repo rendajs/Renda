@@ -1,4 +1,4 @@
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstanceCertain} from "../editorInstance.js";
 
 export class ServiceWorkerManager {
 	constructor() {
@@ -12,7 +12,13 @@ export class ServiceWorkerManager {
 				if (e.data.type == "getProjectFile") {
 					const {filePath} = e.data;
 					const splitPath = filePath.split("/");
-					const file = await getEditorInstance().projectManager.currentProjectFileSystem.readFile(splitPath);
+					const fileSystem = getEditorInstanceCertain().projectManager.currentProjectFileSystem;
+					let file;
+					if (fileSystem) {
+						file = await fileSystem.readFile(splitPath);
+					} else {
+						file = null;
+					}
 					if (e.ports.length > 0) {
 						for (const port of e.ports) {
 							port.postMessage(file);
@@ -35,23 +41,32 @@ export class ServiceWorkerManager {
 			console.error("failed to install serviceWorker", e);
 			this.installationFailed = true;
 		}
-		if (this.registration) {
-			this.registration.onupdatefound = () => {
-				if (this.registration.active != null) {
-					const installingWorker = this.registration.installing;
-					installingWorker.onstatechange = () => {
-						if (installingWorker.state == "installed") {
-							// TODO: show update notification
-						}
-					};
+		const registration = this.registration;
+		if (registration) {
+			registration.onupdatefound = () => {
+				if (registration.active != null) {
+					const installingWorker = registration.installing;
+					if (installingWorker) {
+						installingWorker.onstatechange = () => {
+							if (installingWorker.state == "installed") {
+								// TODO: show update notification
+							}
+						};
+					}
 				}
 			};
 		}
 	}
 
-	async asyncMessage(message) {
+	/**
+	 * @param {any} message
+	 */
+	async roundTripMessage(message) {
 		await navigator.serviceWorker.ready;
 		const channel = new MessageChannel();
+		if (!this.registration || !this.registration.active) {
+			throw new Error("Failed to send message, no active service worker.");
+		}
 		this.registration.active.postMessage(message, [channel.port2]);
 		return await new Promise(resolve => {
 			channel.port1.addEventListener("message", e => {
@@ -63,7 +78,7 @@ export class ServiceWorkerManager {
 	}
 
 	async getClientId() {
-		return await this.asyncMessage({
+		return await this.roundTripMessage({
 			type: "requestClientId",
 		});
 	}

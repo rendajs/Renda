@@ -1,7 +1,7 @@
 import {getEditorInstance} from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
-import {ShorcutConditionValueSetter} from "../keyboardShortcuts/ShorcutConditionValueSetter.js";
+import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutConditionValueSetter.js";
 
 /**
  * @typedef {Object} TreeViewEvent

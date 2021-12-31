@@ -82,7 +82,7 @@ export class WebSocketManager {
 	 * @param {string} op
 	 * @param {(data: any) => any} cb
 	 */
-	regisTerRoundTripOp(op, cb) {
+	registerRoundTripOp(op, cb) {
 		this.registeredRoundTripOps.set(op, cb);
 	}
 }
