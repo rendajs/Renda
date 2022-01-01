@@ -138,7 +138,7 @@ export class ProjectSelector {
 				this.setVisibility(false);
 			});
 			let tooltip = "";
-			if (entry.fileSystemType == "native") {
+			if (entry.fileSystemType == "fsa") {
 				tooltip = "File System on Disk";
 			} else if (entry.fileSystemType == "db") {
 				tooltip = "Stored in Cookies";
@@ -280,7 +280,7 @@ export class ProjectSelector {
 	 */
 	async projectEntryEquals(entry1, entry2) {
 		if (entry1.fileSystemType != entry2.fileSystemType) return false;
-		if (entry1.fileSystemType == "native") {
+		if (entry1.fileSystemType == "fsa") {
 			return await entry1.fileSystemHandle.isSameEntry(entry2.fileSystemHandle);
 		} else if (entry1.fileSystemType == "db") {
 			return entry1.projectUuid == entry2.projectUuid;

@@ -1,5 +1,5 @@
 import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
-import {EditorFileSystemNative} from "../../../../../../editor/src/Util/FileSystems/EditorFileSystemNative.js";
+import {EditorFileSystemFsa} from "../../../../../../editor/src/Util/FileSystems/EditorFileSystemFsa.js";
 
 class FakeHandle {
 	/** @type {FakeHandle[]} */
@@ -61,7 +61,7 @@ Deno.test("should resolve when permission is granted", async () => {
 	const path = ["root", "file"];
 	const stubRootHandle = new FakeHandle("directory", "");
 	stubRootHandle.addFakeEntry("directory", "root").addFakeEntry("file", "file");
-	const fs = new EditorFileSystemNative(stubRootHandle);
+	const fs = new EditorFileSystemFsa(stubRootHandle);
 
 	const permisionPromise = fs.waitForPermission(path);
 

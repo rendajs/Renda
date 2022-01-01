@@ -1,5 +1,5 @@
 import {getEditorInstanceCertain} from "../editorInstance.js";
-import {EditorFileSystemNative} from "../Util/FileSystems/EditorFileSystemNative.js";
+import {EditorFileSystemFsa} from "../Util/FileSystems/EditorFileSystemFsa.js";
 import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
 import {AssetManager} from "../assets/AssetManager.js";
@@ -13,7 +13,7 @@ import {ContentWindowConnections} from "../windowManagement/contentWindows/Conte
 
 /**
  * @typedef {Object} StoredProjectEntry
- * @property {"db" | "native" | "remote"} fileSystemType
+ * @property {"db" | "fsa" | "remote"} fileSystemType
  * @property {string} name
  * @property {import("../../../src/util/mod.js").UuidString} projectUuid
  * @property {boolean} isWorthSaving
@@ -283,7 +283,7 @@ export class ProjectManager {
 	}
 
 	async openProjectFromLocalDirectory() {
-		const fileSystem = await EditorFileSystemNative.openUserDir();
+		const fileSystem = await EditorFileSystemFsa.openUserDir();
 		const permission = await fileSystem.getPermission([], {prompt: true, writable: false});
 		let name = "Unnamed Filesystem";
 		if (permission) {
@@ -291,7 +291,7 @@ export class ProjectManager {
 		}
 		const projectUuid = generateUuid();
 		this.openProject(fileSystem, {
-			fileSystemType: "native",
+			fileSystemType: "fsa",
 			fileSystemHandle: fileSystem.handle,
 			projectUuid,
 			name,
@@ -318,8 +318,8 @@ export class ProjectManager {
 		let fileSystem;
 		if (projectEntry.fileSystemType === "db") {
 			fileSystem = new EditorFileSystemIndexedDb(projectEntry.projectUuid);
-		} else if (projectEntry.fileSystemType == "native") {
-			fileSystem = new EditorFileSystemNative(projectEntry.fileSystemHandle);
+		} else if (projectEntry.fileSystemType == "fsa") {
+			fileSystem = new EditorFileSystemFsa(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
 			fileSystem = new EditorFileSystemRemote();
 			this.editorConnectionsManager.waitForAvailableAndConnect({
