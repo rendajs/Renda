@@ -12,16 +12,43 @@ import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js"
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 
 /**
- * @typedef {Object} StoredProjectEntry
- * @property {"db" | "fsa" | "remote"} fileSystemType
+ * @typedef {Object} StoredProjectEntryBase
  * @property {string} name
  * @property {import("../../../src/util/mod.js").UuidString} projectUuid
- * @property {boolean} isWorthSaving
+ * @property {boolean} [isWorthSaving = false]
  * @property {string} [alias = ""]
- * @property {FileSystemDirectoryHandle} [fileSystemHandle]
+ */
+
+/**
+ * @typedef {{}} StoredProjectEntryDbProps
+ */
+
+/**
+ * @typedef {Object} StoredProjectEntryFsaProps
+ * @property {FileSystemDirectoryHandle} fileSystemHandle
+ */
+
+/**
+ * @typedef {Object} StoredProjectEntryRemoteProps
  * @property {import("../../../src/util/mod.js").UuidString} [remoteProjectUuid]
  * @property {import("../Network/EditorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
  */
+
+/**
+ * @typedef {Object} StoredProjectEntryMap
+ * @property {StoredProjectEntryDbProps} db
+ * @property {StoredProjectEntryFsaProps} fsa
+ * @property {StoredProjectEntryRemoteProps} remote
+ */
+
+/** @typedef {keyof StoredProjectEntryMap} FsType */
+
+/**
+ * @template T
+ * @typedef {T extends FsType ? {fileSystemType: T} & StoredProjectEntryBase & StoredProjectEntryMap[T] : never} StoredProjectEntry
+ */
+
+/** @typedef {StoredProjectEntry<FsType>} StoredProjectEntryAny */
 
 export class ProjectManager {
 	#boundOnFileSystemExternalChange;
@@ -33,6 +60,7 @@ export class ProjectManager {
 	constructor() {
 		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} */
 		this.currentProjectFileSystem = null;
+		/** @type {StoredProjectEntryAny?} */
 		this.currentProjectOpenEvent = null;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 		this.currentProjectIsRemote = false;
@@ -67,14 +95,17 @@ export class ProjectManager {
 				}
 			}
 			if (pickedConnection && pickedAvailableConnection && pickedAvailableConnection.projectMetaData) {
-				const mataData = pickedAvailableConnection.projectMetaData;
+				const metaData = pickedAvailableConnection.projectMetaData;
 				if (!this.currentProjectOpenEvent) {
 					throw new Error("An active connection was made before a project entry was created.");
 				}
-				this.currentProjectOpenEvent.name = mataData.name;
-				this.currentProjectOpenEvent.fileSystemType = "remote";
-				this.currentProjectOpenEvent.remoteProjectUuid = mataData.uuid;
-				this.currentProjectOpenEvent.remoteProjectConnectionType = pickedAvailableConnection.messageHandlerType;
+				this.currentProjectOpenEvent = {
+					name: metaData.name,
+					fileSystemType: "remote",
+					projectUuid: this.currentProjectOpenEvent.projectUuid,
+					remoteProjectUuid: metaData.uuid,
+					remoteProjectConnectionType: pickedAvailableConnection.messageHandlerType,
+				};
 				const fileSystem = /** @type {EditorFileSystemRemote} */ (this.currentProjectFileSystem);
 				fileSystem.setConnection(pickedConnection);
 				this.markCurrentProjectAsWorthSaving();
@@ -105,7 +136,7 @@ export class ProjectManager {
 			this.localProjectSettings.set("contentWindowPersistentData", data);
 		};
 
-		/** @type {Set<function(StoredProjectEntry):void>} */
+		/** @type {Set<(entry: StoredProjectEntryAny) => any>} */
 		this.onProjectOpenEntryChangeCbs = new Set();
 
 		/** @type {Set<Function>} */
@@ -132,7 +163,7 @@ export class ProjectManager {
 
 	/**
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
-	 * @param {StoredProjectEntry} openProjectChangeEvent
+	 * @param {StoredProjectEntryAny} openProjectChangeEvent
 	 * @param {boolean} fromUserGesture
 	 */
 	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture = false) {
@@ -182,7 +213,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {StoredProjectEntry} entry
+	 * @param {StoredProjectEntryAny} entry
 	 */
 	isCurrentProjectEntry(entry) {
 		if (!this.currentProjectOpenEvent) return false;
@@ -238,7 +269,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {function(StoredProjectEntry):void} cb
+	 * @param {(entry: StoredProjectEntryAny) => any} cb
 	 */
 	onProjectOpenEntryChange(cb) {
 		this.onProjectOpenEntryChangeCbs.add(cb);
@@ -312,7 +343,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {StoredProjectEntry} projectEntry
+	 * @param {StoredProjectEntryAny} projectEntry
 	 */
 	openExistingProject(projectEntry) {
 		let fileSystem;
@@ -322,6 +353,10 @@ export class ProjectManager {
 			fileSystem = new EditorFileSystemFsa(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
 			fileSystem = new EditorFileSystemRemote();
+			console.log(projectEntry);
+			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
+				throw new Error("Unable to open remote project. Remote project data is corrupt.");
+			}
 			this.editorConnectionsManager.waitForAvailableAndConnect({
 				uuid: projectEntry.remoteProjectUuid,
 				messageHandlerType: projectEntry.remoteProjectConnectionType,
