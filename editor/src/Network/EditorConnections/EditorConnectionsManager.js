@@ -42,12 +42,19 @@ export class EditorConnectionsManager {
 
 		this.protocol = new ProtocolManager();
 
-		/** @type {AvailableEditorDataList} */
+		/**
+		 * List of available editors that are visible via a discovery service
+		 * but the editors are not necessarily connected yet.
+		 * @type {AvailableEditorDataList}
+		 */
 		this.availableConnections = new Map();
 		/** @type {Set<function() : void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
 
-		/** @type {ActiveEditorDataList} */
+		/**
+		 * The list of connections the client is currently connected to.
+		 * @type {ActiveEditorDataList}
+		 */
 		this.activeConnections = new Map();
 		/** @type {Set<function(ActiveEditorDataList) : void>} */
 		this.onActiveConnectionsChangedCbs = new Set();
@@ -142,6 +149,9 @@ export class EditorConnectionsManager {
 	}
 
 	/**
+	 * Notifies any discovery services about the current metadata of a project.
+	 * This is to make it possible for other clients to render the name etc.
+	 * before the actual connection is being made.
 	 * @param {RemoteEditorMetaData} metaData
 	 */
 	setProjectMetaData(metaData) {
@@ -151,7 +161,7 @@ export class EditorConnectionsManager {
 	}
 
 	/**
-	 * @param {string} endpoint
+	 * @param {string?} endpoint
 	 */
 	setDiscoveryEndpoint(endpoint) {
 		if (endpoint == this.currentEndpoint) return;
@@ -288,6 +298,10 @@ export class EditorConnectionsManager {
 	}
 
 	/**
+	 * Fires when the list of active connections changes.
+	 * A connection is considered active when messages can be sent. I.e.
+	 * available connections from a discovery service are not listed here
+	 * unless they are also connected.
 	 * @param {function(ActiveEditorDataList) : void} cb
 	 */
 	onActiveConnectionsChanged(cb) {

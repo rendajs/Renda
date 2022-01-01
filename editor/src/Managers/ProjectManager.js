@@ -1,4 +1,4 @@
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstanceCertain} from "../editorInstance.js";
 import {EditorFileSystemNative} from "../Util/FileSystems/EditorFileSystemNative.js";
 import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
 import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
@@ -66,8 +66,11 @@ export class ProjectManager {
 					break;
 				}
 			}
-			if (pickedAvailableConnection && pickedAvailableConnection.projectMetaData) {
+			if (pickedConnection && pickedAvailableConnection && pickedAvailableConnection.projectMetaData) {
 				const mataData = pickedAvailableConnection.projectMetaData;
+				if (!this.currentProjectOpenEvent) {
+					throw new Error("An active connection was made before a project entry was created.");
+				}
 				this.currentProjectOpenEvent.name = mataData.name;
 				this.currentProjectOpenEvent.fileSystemType = "remote";
 				this.currentProjectOpenEvent.remoteProjectUuid = mataData.uuid;
@@ -89,11 +92,16 @@ export class ProjectManager {
 		};
 		/** @type {(newName: string) => void} */
 		this.#boundOnFileSystemRootNameChange = newName => {
+			if (!this.currentProjectOpenEvent) {
+				throw new Error("Cannot change the name of a remote project before it has been created.");
+			}
 			this.currentProjectOpenEvent.name = newName;
 			this.fireOnProjectOpenEntryChangeCbs();
 		};
 
+		/** @type {(data: any) => Promise<void>} */
 		this.#boundSaveContentWindowPersistentData = async data => {
+			if (!this.localProjectSettings) return;
 			this.localProjectSettings.set("contentWindowPersistentData", data);
 		};
 
@@ -139,12 +147,13 @@ export class ProjectManager {
 		this.currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 
-		this.gitIgnoreManager = new GitIgnoreManager(fileSystem);
+		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
+		this.gitIgnoreManager = gitIgnoreManager;
 		this.projectSettings = new ProjectSettingsManager(fileSystem, ["ProjectSettings", "projectSettings.json"], fromUserGesture);
 		const localSettingsPath = ["ProjectSettings", "localProjectSettings.json"];
 		this.localProjectSettings = new ProjectSettingsManager(fileSystem, localSettingsPath, fromUserGesture);
 		this.localProjectSettings.onFileCreated(() => {
-			this.gitIgnoreManager.addEntry(localSettingsPath);
+			gitIgnoreManager.addEntry(localSettingsPath);
 		});
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
@@ -156,21 +165,20 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		getEditorInstance().windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
-		await getEditorInstance().windowManager.reloadCurrentWorkspace();
-		getEditorInstance().windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
-		this.loadContentWindowPersistentData();
+		const editor = getEditorInstanceCertain();
+		editor.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+		await editor.windowManager.reloadCurrentWorkspace();
+		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+
+		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
+		editor.windowManager.setContentWindowPersistentData(contentWindowPersistentData);
+
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
 
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
 		this.onProjectOpenCbs.clear();
-	}
-
-	async loadContentWindowPersistentData() {
-		const data = await this.localProjectSettings.get("contentWindowPersistentData");
-		getEditorInstance().windowManager.setContentWindowPersistentData(data);
 	}
 
 	/**
@@ -192,9 +200,10 @@ export class ProjectManager {
 		if (!this.currentProjectFileSystem) {
 			throw new Error("Unable to reload the asset manager. No active file system.");
 		}
-		const builtInAssetManager = getEditorInstance().builtInAssetManager;
-		const builtInDefaultAssetLinksManager = getEditorInstance().builtInDefaultAssetLinksManager;
-		const projectAssetTypeManager = getEditorInstance().projectAssetTypeManager;
+		const editor = getEditorInstanceCertain();
+		const builtInAssetManager = editor.builtInAssetManager;
+		const builtInDefaultAssetLinksManager = editor.builtInDefaultAssetLinksManager;
+		const projectAssetTypeManager = editor.projectAssetTypeManager;
 		this.assetManager = new AssetManager(this, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, this.currentProjectFileSystem);
 		await this.assetManager.waitForAssetSettingsLoad();
 		for (const cb of this.onAssetManagerLoadCbs) {
@@ -222,7 +231,7 @@ export class ProjectManager {
 	}
 
 	markCurrentProjectAsWorthSaving() {
-		if (this.currentProjectIsMarkedAsWorthSaving) return;
+		if (this.currentProjectIsMarkedAsWorthSaving || !this.currentProjectOpenEvent) return;
 		this.currentProjectIsMarkedAsWorthSaving = true;
 		this.currentProjectOpenEvent.isWorthSaving = true;
 		this.fireOnProjectOpenEntryChangeCbs();
@@ -236,7 +245,9 @@ export class ProjectManager {
 	}
 
 	fireOnProjectOpenEntryChangeCbs() {
-		this.onProjectOpenEntryChangeCbs.forEach(cb => cb(this.currentProjectOpenEvent));
+		const entry = this.currentProjectOpenEvent;
+		if (!entry) return;
+		this.onProjectOpenEntryChangeCbs.forEach(cb => cb(entry));
 	}
 
 	/**
@@ -297,7 +308,7 @@ export class ProjectManager {
 			name: "Remote Filesystem",
 			isWorthSaving: false,
 		}, true);
-		getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
+		getEditorInstanceCertain().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
 	}
 
 	/**
@@ -340,15 +351,23 @@ export class ProjectManager {
 		}
 	}
 
+	assertLocalSettingsExists() {
+		if (!this.localProjectSettings) {
+			throw new Error("Unable to get local project settings. Is there no project open?");
+		}
+		return this.localProjectSettings;
+	}
+
 	/**
 	 * @param {boolean} allow
 	 */
 	setEditorConnectionsAllowRemoteIncoming(allow) {
+		const settings = this.assertLocalSettingsExists();
 		this.editorConnectionsAllowRemoteIncoming = allow;
 		if (allow) {
-			this.localProjectSettings.set("editorConnectionsAllowIncoming", allow);
+			settings.set("editorConnectionsAllowIncoming", allow);
 		} else {
-			this.localProjectSettings.delete("editorConnectionsAllowIncoming");
+			settings.delete("editorConnectionsAllowIncoming");
 		}
 		this.updateEditorConnectionsManager();
 	}
@@ -362,11 +381,12 @@ export class ProjectManager {
 	 * @param {boolean} allow
 	 */
 	setEditorConnectionsAllowInternalIncoming(allow) {
+		const settings = this.assertLocalSettingsExists();
 		this.editorConnectionsAllowInternalIncoming = allow;
 		if (allow) {
-			this.localProjectSettings.set("editorConnectionsAllowInternalIncoming", allow);
+			settings.set("editorConnectionsAllowInternalIncoming", allow);
 		} else {
-			this.localProjectSettings.delete("editorConnectionsAllowInternalIncoming");
+			settings.delete("editorConnectionsAllowInternalIncoming");
 		}
 		this.updateEditorConnectionsManager();
 	}
@@ -381,8 +401,9 @@ export class ProjectManager {
 			this.editorConnectionsAllowRemoteIncoming = false;
 			this.editorConnectionsAllowInternalIncoming = false;
 		} else {
-			this.editorConnectionsAllowRemoteIncoming = await this.localProjectSettings.get("editorConnectionsAllowIncoming", false);
-			this.editorConnectionsAllowInternalIncoming = await this.localProjectSettings.get("editorConnectionsAllowInternalIncoming", false);
+			const settings = this.assertLocalSettingsExists();
+			this.editorConnectionsAllowRemoteIncoming = await settings.get("editorConnectionsAllowIncoming", false);
+			this.editorConnectionsAllowInternalIncoming = await settings.get("editorConnectionsAllowInternalIncoming", false);
 		}
 		this.updateEditorConnectionsManager();
 	}
@@ -396,7 +417,9 @@ export class ProjectManager {
 	}
 
 	updateEditorConnectionsManager() {
-		if (this.currentProjectIsRemote || this.editorConnectionsAllowRemoteIncoming) {
+		const hasValidProject = !!this.currentProjectOpenEvent;
+
+		if (hasValidProject && (this.currentProjectIsRemote || this.editorConnectionsAllowRemoteIncoming)) {
 			let endpoint = this.editorConnectionsDiscoveryEndpoint;
 			if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
 			this.editorConnectionsManager.setDiscoveryEndpoint(endpoint);
@@ -405,11 +428,13 @@ export class ProjectManager {
 		}
 
 		this.editorConnectionsManager.sendSetIsEditorHost(!this.currentProjectIsRemote);
-		if (this.editorConnectionsAllowRemoteIncoming || this.editorConnectionsAllowInternalIncoming) {
-			this.editorConnectionsManager.setProjectMetaData({
-				name: this.currentProjectOpenEvent.name,
-				uuid: this.currentProjectOpenEvent.projectUuid,
-			});
+		if (hasValidProject && (this.editorConnectionsAllowRemoteIncoming || this.editorConnectionsAllowInternalIncoming)) {
+			if (this.currentProjectOpenEvent) {
+				this.editorConnectionsManager.setProjectMetaData({
+					name: this.currentProjectOpenEvent.name,
+					uuid: this.currentProjectOpenEvent.projectUuid,
+				});
+			}
 		}
 	}
 
