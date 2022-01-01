@@ -104,7 +104,11 @@ export class ScriptBuilder {
 		});
 
 		/** @type {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/projectAssetType/ProjectAssetTypeJavascript.js").ProjectAssetTypeJavascript>?} */
-		const externsAsset = await getEditorInstanceCertain().projectManager.assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
+		let externsAsset = null;
+		const assetManager = getEditorInstanceCertain().projectManager.assetManager;
+		if (assetManager) {
+			externsAsset = await assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
+		}
 		if (externsAsset) {
 			const webGpuExterns = await externsAsset.readAssetData();
 			inputFiles.push({

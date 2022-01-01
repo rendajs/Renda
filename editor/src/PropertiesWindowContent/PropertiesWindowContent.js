@@ -19,7 +19,10 @@ export class PropertiesWindowContent {
 		}
 	}
 
-	// Override this with a array of types that this window content should be used for
+	/**
+	 * Override this with an array of types that this window content should be used for
+	 * @returns {(new (...args: any) => any)[]?}
+	 */
 	static get useForTypes() {
 		return null;
 	}

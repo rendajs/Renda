@@ -29,13 +29,13 @@ export class Editor {
 		this.selectionManager = new SelectionManager();
 		this.contextMenuManager = new ContextMenuManager();
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
-		this.propertiesWindowContentManager = new PropertiesWindowContentManager();
+		this.propertiesWindowContentManager = new PropertiesWindowContentManager(this.windowManager);
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.componentGizmosManager = new ComponentGizmosManager();
 		this.materialMapTypeManager = new MaterialMapTypeSerializerManager();
 		this.projectManager = new ProjectManager();
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
-		this.builtInAssetManager = new BuiltInAssetManager(this.projectManager.assetManager, this.projectAssetTypeManager);
+		this.builtInAssetManager = new BuiltInAssetManager(this.projectAssetTypeManager);
 		this.scriptBuilder = new ScriptBuilder();
 		this.assetBundler = new AssetBundler();
 		this.dragManager = new DragManager();
@@ -96,7 +96,8 @@ export class Editor {
 		this.builtInDefaultAssetLinksManager.init();
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
-			const projectAsset = await this.projectManager.assetManager.getProjectAsset(uuid);
+			const assetManager = await this.projectManager.getAssetManager();
+			const projectAsset = await assetManager.getProjectAsset(uuid);
 			if (projectAsset) {
 				if (projectAsset.assetType == "JJ:shaderSource") {
 					const assetData = await projectAsset.readAssetData();
@@ -108,7 +109,8 @@ export class Editor {
 		});
 
 		this.projectManager.onExternalChange(async e => {
-			const uuid = await this.projectManager.assetManager.getAssetUuidFromPath(e.path);
+			const assetManager = await this.projectManager.getAssetManager();
+			const uuid = await assetManager.getAssetUuidFromPath(e.path);
 			this.webGpuShaderBuilder.invalidateShader(uuid);
 		});
 	}

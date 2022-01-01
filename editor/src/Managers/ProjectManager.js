@@ -208,6 +208,19 @@ export class ProjectManager {
 		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
 	}
 
+	/**
+	 * If the asset manager doesn't exist, waits for it to load and returns it.
+	 * Throws an error
+	 */
+	async getAssetManager() {
+		if (this.assetManager) return this.assetManager;
+		await this.waitForAssetManagerLoad();
+		if (!this.assetManager) {
+			throw new Error("Error: assetManager doesn't exist.");
+		}
+		return this.assetManager;
+	}
+
 	markCurrentProjectAsWorthSaving() {
 		if (this.currentProjectIsMarkedAsWorthSaving) return;
 		this.currentProjectIsMarkedAsWorthSaving = true;

@@ -3,10 +3,14 @@ import {PropertiesWindowContent} from "../PropertiesWindowContent/PropertiesWind
 import {ContentWindowProperties} from "../windowManagement/contentWindows/ContentWindowProperties.js";
 import {PropertiesWindowEmptyContent} from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
 import {PropertiesWindowMultipleContent} from "../PropertiesWindowContent/PropertiesWindowMultipleContent.js";
-import {getEditorInstance} from "../editorInstance.js";
 
 export class PropertiesWindowContentManager {
-	constructor() {
+	/**
+	 *
+	 * @param {import("../windowManagement/WindowManager.js").WindowManager} windowManager
+	 */
+	constructor(windowManager) {
+		this.windowManager = windowManager;
 		this.registeredContentTypes = new Map();
 	}
 
@@ -43,7 +47,7 @@ export class PropertiesWindowContentManager {
 		}
 
 		// todo: make this a callback that properties window register
-		for (const w of getEditorInstance().windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
+		for (const w of this.windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
 			w.onContentTypeRegistered(constructor);
 		}
 	}
