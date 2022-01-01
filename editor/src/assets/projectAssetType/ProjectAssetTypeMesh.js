@@ -31,7 +31,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		const defaultVertexStateAssetUuid = "ad4146d6-f709-422e-b93e-5beb51e38fe4";
 		const mesh = new Mesh();
 		mesh.setVertexCount(24);
-		const vertexStateLiveAsset = await this.editorInstance.projectManager.assetManager.getLiveAsset(defaultVertexStateAssetUuid);
+		const vertexStateLiveAsset = await this.assetManager.getLiveAsset(defaultVertexStateAssetUuid);
 		mesh.setVertexState(vertexStateLiveAsset);
 		mesh.setIndexData([0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7, 8, 9, 10, 9, 10, 11, 12, 13, 14, 13, 14, 15, 16, 17, 18, 17, 18, 19, 20, 21, 22, 21, 22, 23]);
 		mesh.setVertexData(Mesh.AttributeType.POSITION, [
@@ -124,7 +124,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 		const vertexStateUuid = decomposer.getUuid();
 		if (!vertexStateUuid) return {};
-		const layoutProjectAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(vertexStateUuid);
+		const layoutProjectAsset = await this.assetManager.getProjectAsset(vertexStateUuid);
 		if (layoutProjectAsset) {
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
 			this.listenForUsedLiveAssetChanges(layoutProjectAsset);
@@ -238,14 +238,14 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		if (!liveAsset) return null;
 		let vertexStateUuid = editorData?.vertexStateUuid;
 		if (!vertexStateUuid) return null;
-		vertexStateUuid = this.editorInstance.projectManager.assetManager.resolveDefaultAssetLinkUuid(vertexStateUuid);
+		vertexStateUuid = this.assetManager.resolveDefaultAssetLinkUuid(vertexStateUuid);
 		return this.meshToBuffer(liveAsset, vertexStateUuid);
 	}
 
 	async *getReferencedAssetUuids() {
 		const mesh = await this.projectAsset.getLiveAsset();
 		if (!mesh) return;
-		const uuid = this.editorInstance.projectManager.assetManager.getAssetUuidFromLiveAsset(mesh.vertexState);
+		const uuid = this.assetManager.getAssetUuidFromLiveAsset(mesh.vertexState);
 		if (uuid) yield uuid;
 	}
 }

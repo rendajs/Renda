@@ -30,11 +30,12 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	/**
 	 * @override
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData
 	 */
-	static async *getLinkedAssetsInCustomData(editorInstance, customData) {
-		if (customData.vertexShader) yield editorInstance.projectManager.assetManager.getProjectAsset(customData.vertexShader);
-		if (customData.fragmentShader) yield editorInstance.projectManager.assetManager.getProjectAsset(customData.fragmentShader);
+	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
+		if (customData.vertexShader) yield assetManager.getProjectAsset(customData.vertexShader);
+		if (customData.fragmentShader) yield assetManager.getProjectAsset(customData.fragmentShader);
 	}
 
 	static assetBundleBinaryComposerOpts = {
@@ -61,12 +62,13 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	/**
 	 * @override
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData
 	 */
-	static async getMappableValues(editorInstance, customData) {
+	static async getMappableValues(editorInstance, assetManager, customData) {
 		const itemsMap = new Map();
-		await this.addShaderUniformsToMap(editorInstance, customData.vertexShader, itemsMap);
-		await this.addShaderUniformsToMap(editorInstance, customData.fragmentShader, itemsMap);
+		await this.addShaderUniformsToMap(assetManager, customData.vertexShader, itemsMap);
+		await this.addShaderUniformsToMap(assetManager, customData.fragmentShader, itemsMap);
 
 		const items = [];
 		for (const [name, itemData] of itemsMap) {
@@ -77,13 +79,13 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	}
 
 	/**
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {import("../../../../../../src/mod.js").UuidString} shaderUuid
 	 * @param {Map<string, *>} itemsMap
 	 */
-	static async addShaderUniformsToMap(editorInstance, shaderUuid, itemsMap) {
+	static async addShaderUniformsToMap(assetManager, shaderUuid, itemsMap) {
 		/** @type {import("../../../ProjectAsset.js").ProjectAsset<import("../../ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
-		const shaderAsset = await editorInstance.projectManager.assetManager.getProjectAsset(shaderUuid);
+		const shaderAsset = await assetManager.getProjectAsset(shaderUuid);
 		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
 			itemsMap.set(name, {type});
 		}

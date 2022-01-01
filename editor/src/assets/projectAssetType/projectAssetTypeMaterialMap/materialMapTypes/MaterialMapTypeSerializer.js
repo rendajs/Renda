@@ -60,10 +60,11 @@ export class MaterialMapTypeSerializer {
 	 * `customData` will be whatever you last returned from
 	 * {@link getCustomAssetDataForSave}.
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {Promise<MaterialMapTypeMappableValue[]>}
 	 */
-	static async getMappableValues(editorInstance, customData) {
+	static async getMappableValues(editorInstance, assetManager, customData) {
 		return [];
 	}
 
@@ -75,10 +76,11 @@ export class MaterialMapTypeSerializer {
 	 * For instance, assets are stored on disk as uuid. Use this to load the
 	 * assets and store them in the Material.
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {Promise<MaterialMapType?>} The data to be stored in the Material.
 	 */
-	static async getLiveAssetSettingsInstance(editorInstance, customData) {
+	static async getLiveAssetSettingsInstance(editorInstance, assetManager, customData) {
 		return null;
 	}
 
@@ -87,10 +89,11 @@ export class MaterialMapTypeSerializer {
 	 * This will be used to replace material instances in the editor whenever a
 	 * linked live asset changes (a shader for example).
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {AsyncGenerator<import("../../../ProjectAsset.js").ProjectAssetAny?>}
 	 */
-	static async *getLinkedAssetsInCustomData(editorInstance, customData) {}
+	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {}
 
 	/* ==== AssetBundle related methods ==== */
 
@@ -100,10 +103,11 @@ export class MaterialMapTypeSerializer {
 	 * an ArrayBuffer using {@link BinaryComposer.objectToBinary}. But you can
 	 * override this and return your custom ArrayBuffer.
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {ArrayBuffer?} The binary data to be stored in the material asset.
 	 */
-	static mapDataToAssetBundleBinary(editorInstance, customData) {
+	static mapDataToAssetBundleBinary(editorInstance, assetManager, customData) {
 		const bundleMapData = this.mapDataToAssetBundleData(customData);
 		if (!bundleMapData) {
 			// fail silently, you probaly intended to not export anything
@@ -116,7 +120,7 @@ export class MaterialMapTypeSerializer {
 		}
 		return BinaryComposer.objectToBinary(bundleMapData, {
 			...this.assetBundleBinaryComposerOpts,
-			editorAssetManager: editorInstance.projectManager.assetManager,
+			editorAssetManager: assetManager,
 		});
 	}
 
@@ -184,13 +188,14 @@ export class MaterialMapTypeSerializer {
 
 	/**
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData
 	 * @param {import("../../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} mappedValuesData
 	 */
-	static async getMappedValues(editorInstance, customData, mappedValuesData) {
+	static async getMappedValues(editorInstance, assetManager, customData, mappedValuesData) {
 		/** @type {MaterialMapTypeMappableValue[]} */
 		const mappedValues = [];
-		const mappableValues = await this.getMappableValues(editorInstance, customData);
+		const mappableValues = await this.getMappableValues(editorInstance, assetManager, customData);
 		for (const {name, type, defaultValue} of mappableValues) {
 			const mappedValueData = mappedValuesData?.[name];
 			if (mappedValueData?.visible ?? true) {

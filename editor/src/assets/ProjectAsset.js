@@ -32,6 +32,10 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  */
 
 /**
+ * A single project asset stores data such as the path, uuid, asset settings, etc.
+ * Live asset creation/destruction is also managed from this class.
+ * The specifics of handling different types of assets is implemented from
+ * extended `ProjectAssetType` classes.
  * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
  */
 export class ProjectAsset {

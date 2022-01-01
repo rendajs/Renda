@@ -27,6 +27,26 @@
 /** @typedef {Object | string | "binary"} ProjectAssetDiskDataType */
 
 /**
+ * ProjectAssetTypes are classes that are extended and implemented by different
+ * types of assets. It is intended to configure behaviour like parsing data
+ * before reading/writing to disk and creating live assets among other things.
+ *
+ * If all you want to do is create an asset type that stores basic data with
+ * basic properties ui, see `ProjectAssetTypeWebGpuPipelineConfig` for a good
+ * example on how to do this.
+ *
+ * For a more complicated example, see `ProjectAssetTypeMaterial`.
+ *
+ * If you want an asset that is not a live asset, but only available in the
+ * editor, have a look at `ProjectAssetTypeAssetBundle`. It only configures
+ * a minimal amount. Most of it is implemented in its
+ * `propertiesAssetContentConstructor`.
+ *
+ * Live assets should have the same type as what is created by AssetLoaderTypes
+ * when running a project. If you want to add extra properties to live assets,
+ * it is recommended to do so using symbols.
+ *
+ * New instances of this class are generally instantiated at {@linkcode ProjectAsset.init}.
  * @template {any} TLiveAsset
  * @template {any} TEditorData
  * @template {ProjectAssetDiskDataType} TFileData
@@ -109,17 +129,17 @@ export class ProjectAssetType {
 	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
 	 * @param {ProjectAsset} projectAsset
-	 * @param {import("../AssetManager.js").AssetManager} projectAssetTypeManager
+	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {import("../ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
 	 */
-	constructor(editorInstance, projectAsset, projectAssetTypeManager, assetTypeManager) {
+	constructor(editorInstance, projectAsset, assetManager, assetTypeManager) {
 		this.editorInstance = editorInstance;
 		/**
 		 * You can use this in any of the hook methods of a ProjectAssetType.
 		 * If you need access to the path or uuid of an asset for instance.
 		 */
 		this.projectAsset = projectAsset;
-		this.assetManager = projectAssetTypeManager;
+		this.assetManager = assetManager;
 		this.projectAssetTypeManager = assetTypeManager;
 
 		this.boundLiveAssetNeedsReplacement = this.liveAssetNeedsReplacement.bind(this);

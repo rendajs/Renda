@@ -39,16 +39,16 @@ export class ProjectManager {
 		this.gitIgnoreManager = null;
 		/**
 		 * Used for settings that are generally expected to be stored in the project's repository.
-		 * @type {ProjectSettingsManager}
+		 * @type {ProjectSettingsManager?}
 		 */
 		this.projectSettings = null;
 		/**
 		 * Used for settings that are generally supposed to stay on the user's machine,
 		 * rather than get saved in the project repository.
-		 * @type {ProjectSettingsManager}
+		 * @type {ProjectSettingsManager?}
 		 */
 		this.localProjectSettings = null;
-		/** @type {AssetManager} */
+		/** @type {AssetManager?} */
 		this.assetManager = null;
 
 		this.editorConnectionsAllowRemoteIncoming = false;

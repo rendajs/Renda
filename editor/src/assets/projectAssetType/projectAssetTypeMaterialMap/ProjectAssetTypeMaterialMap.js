@@ -26,13 +26,13 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
 				const typeSerializer = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
-				const mapType = await typeSerializer.getLiveAssetSettingsInstance(this.editorInstance, map.customData);
+				const mapType = await typeSerializer.getLiveAssetSettingsInstance(this.editorInstance, this.assetManager, map.customData);
 
 				if (!mapType) continue;
 
 				/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapMappedValues} */
 				const mappedValues = {};
-				for (const mappedValue of await typeSerializer.getMappableValues(this.editorInstance, map.customData)) {
+				for (const mappedValue of await typeSerializer.getMappableValues(this.editorInstance, this.assetManager, map.customData)) {
 					let defaultValue = mappedValue.defaultValue;
 					if (defaultValue) {
 						if (typeof defaultValue != "number") {
@@ -99,7 +99,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 			for (const map of assetData.maps) {
 				const mapType = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				if (mapType.allowExportInAssetBundles) {
-					const arrayBuffer = mapType.mapDataToAssetBundleBinary(this.editorInstance, map.customData);
+					const arrayBuffer = mapType.mapDataToAssetBundleBinary(this.editorInstance, this.assetManager, map.customData);
 					if (!arrayBuffer) continue;
 					mapDatas.push({
 						typeUuid: map.mapTypeId,

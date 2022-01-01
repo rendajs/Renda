@@ -24,7 +24,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		let materialMap = null;
 		if (materialJson.map) {
 			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>?} */
-			const materialMapAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(materialJson.map);
+			const materialMapAsset = await this.assetManager.getProjectAsset(materialJson.map);
 			if (materialMapAsset) {
 				materialMap = await materialMapAsset.getLiveAsset();
 				this.listenForUsedLiveAssetChanges(materialMapAsset);
@@ -42,7 +42,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async saveLiveAssetData(liveAsset) {
 		/** @type {import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
-		const mapUuid = this.editorInstance.projectManager.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
+		const mapUuid = this.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
 		if (mapUuid) {
 			assetData.map = mapUuid;
 		}
