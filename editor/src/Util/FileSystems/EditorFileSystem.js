@@ -112,8 +112,8 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {string[]} fromPath
-	 * @param {string[]} toPath
+	 * @param {EditorFileSystemPath} fromPath
+	 * @param {EditorFileSystemPath} toPath
 	 */
 	async move(fromPath, toPath) {}
 

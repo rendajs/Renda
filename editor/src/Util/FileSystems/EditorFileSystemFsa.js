@@ -34,7 +34,7 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 			kind: "directory",
 			children: new Map(),
 		};
-		this.updateWatchTreeInstance = new SingleInstancePromise(async _ => await this.updateWatchTree(), {once: false});
+		this.updateWatchTreeInstance = new SingleInstancePromise(async () => await this.updateWatchTree(), {once: false});
 		this.currentlyGettingFileCbs = new Map(); // <path, Set<cb>>
 
 		/** @type {Set<PermissionGrantedListener>} */
@@ -47,7 +47,14 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		return new EditorFileSystemFsa(directoryHandle);
 	}
 
-	async getPermission(path = [], {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {Object} opts
+	 * @param {boolean} [opts.writable] Check for writable permissions if true.
+	 * @param {boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
+	 */
+	async getPermission(path, {
 		writable = true,
 		prompt = false,
 	} = {}) {
@@ -64,12 +71,12 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 			try {
 				handle = await dirHandle.getDirectoryHandle(dirName);
 			} catch (e) {
-				if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
+				if (e instanceof DOMException && (e.name == "TypeMismatchError" || e.name == "NotFoundError")) {
 					if (isLast) {
 						try {
 							handle = await dirHandle.getFileHandle(dirName);
 						} catch (e) {
-							if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
+							if (e instanceof DOMException && (e.name == "TypeMismatchError" || e.name == "NotFoundError")) {
 								return true;
 							} else {
 								return false;
@@ -88,8 +95,9 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 
 	/**
 	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path The path to get permissions for.
 	 */
-	async waitForPermission(path = [], {
+	async waitForPermission(path, {
 		writable = true,
 	} = {}) {
 		const hasPermission = await this.getPermission(path, {writable});
@@ -155,7 +163,7 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @returns {Promise<FileSystemDirectoryHandle>}
 	 */
-	async getDirHandle(path = [], {
+	async getDirHandle(path, {
 		create = false,
 		overrideError = true,
 	} = {}) {
@@ -208,8 +216,13 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		return fileHandle;
 	}
 
-	async readDir(path = []) {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async readDir(path) {
 		const handle = await this.getDirHandle(path);
+		/** @type {import("./EditorFileSystem.js").EditorFileSystemReadDirResult} */
 		const result = {
 			files: [],
 			directories: [],
@@ -224,11 +237,20 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		return result;
 	}
 
-	async createDir(path = []) {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async createDir(path) {
 		super.createDir(path);
 		await this.getDirHandle(path, {create: true});
 	}
 
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} fromPath
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} toPath
+	 */
 	async move(fromPath = [], toPath = []) {
 		if (await this.isDir(fromPath)) {
 			throw new Error("not yet implemented");
@@ -245,7 +267,11 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		return this.handle.name;
 	}
 
-	async delete(path = [], recursive = false) {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async delete(path, recursive = false) {
 		super.delete(path, recursive);
 		let handle = await this.handle;
 		for (const [i, name] of path.entries()) {
@@ -259,13 +285,20 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		}
 	}
 
-	splitDirFileName(path = []) {
+	/**
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	splitDirFileName(path) {
 		const dirPath = path.slice(0, path.length - 1);
 		const fileName = path[path.length - 1];
 		return {dirPath, fileName};
 	}
 
-	async readFile(path = []) {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async readFile(path) {
 		const jointPath = path.join("/");
 		let cbs = this.currentlyGettingFileCbs.get(jointPath);
 		if (cbs) {
@@ -305,7 +338,7 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 	 * @param {Array<string>} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */
-	async writeFile(path = [], file = null) {
+	async writeFile(path, file) {
 		super.writeFile(path, file);
 		const fileStream = await this.writeFileStream(path);
 		if (!fileStream.locked) {
@@ -315,7 +348,11 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		}
 	}
 
-	async writeFileStream(path = [], keepExistingData = false) {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async writeFileStream(path, keepExistingData = false) {
 		const fileHandle = await this.getFileHandle(path, {create: true});
 		await this.verifyHandlePermission(fileHandle);
 		this.fireOnBeforeAnyChange();
@@ -323,11 +360,15 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		return fileStream;
 	}
 
-	async isFile(path = []) {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async isFile(path) {
 		try {
 			await this.getFileHandle(path, {overrideError: false});
 		} catch (e) {
-			if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
+			if (e instanceof DOMException && (e.name == "TypeMismatchError" || e.name == "NotFoundError")) {
 				return false;
 			} else {
 				throw e;
@@ -336,11 +377,15 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		return true;
 	}
 
-	async isDir(path = []) {
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 */
+	async isDir(path) {
 		try {
 			await this.getDirHandle(path, {overrideError: false});
 		} catch (e) {
-			if (e.name == "TypeMismatchError" || e.name == "NotFoundError") {
+			if (e instanceof DOMException && (e.name == "TypeMismatchError" || e.name == "NotFoundError")) {
 				return false;
 			} else {
 				throw e;
@@ -349,11 +394,15 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		return true;
 	}
 
+	/**
+	 * @override
+	 */
 	async suggestCheckExternalChanges() {
 		this.updateWatchTreeInstance.run(true);
 	}
 
 	async updateWatchTree() {
+		/** @type {import("./EditorFileSystem.js").FileSystemExternalChangeEvent[]} */
 		const collectedChanges = [];
 
 		await this.traverseWatchTree(this.watchTree, this.handle, collectedChanges);
@@ -434,11 +483,13 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		}
 		for (const name of deletedNodes) {
 			const deletingNode = watchTree.children.get(name);
-			collectedChanges.push({
-				kind: deletingNode.kind,
-				path: [...traversedPath, name],
-				type: "deleted",
-			});
+			if (deletingNode) {
+				collectedChanges.push({
+					kind: deletingNode.kind,
+					path: [...traversedPath, name],
+					type: "deleted",
+				});
+			}
 			watchTree.children.delete(name);
 		}
 		if (allChecked) {
@@ -462,18 +513,21 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 					kind: "file",
 					children: new Map(),
 				});
-			} else if (node.children.has(name)) {
-				node = node.children.get(name);
 			} else {
-				/** @type {WatchTreeNode} */
-				const newNode = {
-					init: false,
-					lastModified,
-					kind: "directory",
-					children: new Map(),
-				};
-				node.children.set(name, newNode);
-				node = newNode;
+				const childNode = node.children.get(name);
+				if (childNode) {
+					node = childNode;
+				} else {
+					/** @type {WatchTreeNode} */
+					const newNode = {
+						init: false,
+						lastModified,
+						kind: "directory",
+						children: new Map(),
+					};
+					node.children.set(name, newNode);
+					node = newNode;
+				}
 			}
 		}
 	}

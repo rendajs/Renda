@@ -18,7 +18,7 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	}
 
 	updateConnected() {
-		const connected = this.connection && this.connection.connectionState == "connected";
+		const connected = !!this.connection && this.connection.connectionState == "connected";
 		if (connected != this.connected) {
 			this.connected = connected;
 			if (connected) {
@@ -28,8 +28,10 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	}
 
 	async waitForConnection() {
-		if (this.connected) return;
+		if (this.connected && this.connection) return this.connection;
 		await new Promise(r => this.onConnectedCbs.add(r));
+		if (!this.connection) throw new Error("Assertion failed: Connection doesn't exist.");
+		return this.connection;
 	}
 
 	/**
@@ -37,9 +39,9 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @returns {Promise<import("./EditorFileSystem.js").EditorFileSystemReadDirResult>}
 	 */
-	async readDir(path = []) {
-		await this.waitForConnection();
-		return await this.connection.call("fileSystem.readDir", path);
+	async readDir(path) {
+		const connection = await this.waitForConnection();
+		return await connection.call("fileSystem.readDir", path);
 	}
 
 	/**
@@ -47,9 +49,9 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @returns {Promise<void>}
 	 */
-	async createDir(path = []) {
-		await this.waitForConnection();
-		return await this.connection.call("fileSystem.createDir", path);
+	async createDir(path) {
+		const connection = await this.waitForConnection();
+		return await connection.call("fileSystem.createDir", path);
 	}
 
 	/**
@@ -57,9 +59,9 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
-	async readFile(path = []) {
-		await this.waitForConnection();
-		return await this.connection.call("fileSystem.readFile", path);
+	async readFile(path) {
+		const connection = await this.waitForConnection();
+		return await connection.call("fileSystem.readFile", path);
 	}
 
 	/**
@@ -67,9 +69,9 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
-	async isFile(path = []) {
-		await this.waitForConnection();
-		return await this.connection.call("fileSystem.isFile", path);
+	async isFile(path) {
+		const connection = await this.waitForConnection();
+		return await connection.call("fileSystem.isFile", path);
 	}
 
 	/**
@@ -77,9 +79,9 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
-	async isDir(path = []) {
-		await this.waitForConnection();
-		return await this.connection.call("fileSystem.isDir", path);
+	async isDir(path) {
+		const connection = await this.waitForConnection();
+		return await connection.call("fileSystem.isDir", path);
 	}
 
 	/**
@@ -87,9 +89,9 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
-	async exists(path = []) {
-		await this.waitForConnection();
-		return await this.connection.call("fileSystem.exists", path);
+	async exists(path) {
+		const connection = await this.waitForConnection();
+		return await connection.call("fileSystem.exists", path);
 	}
 
 	/**
@@ -97,8 +99,8 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */
-	async writeFile(path = [], file = null) {
-		await this.waitForConnection();
-		return await this.connection.call("fileSystem.writeFile", path, file);
+	async writeFile(path, file) {
+		const connection = await this.waitForConnection();
+		return await connection.call("fileSystem.writeFile", path, file);
 	}
 }
