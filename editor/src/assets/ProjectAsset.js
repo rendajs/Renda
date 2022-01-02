@@ -414,8 +414,11 @@ export class ProjectAsset {
 		return editorData ?? null;
 	}
 
-	// returns the currently loaded live asset synchronously
-	// returns null if the liveAsset isn't init yet
+	/**
+	 * Returns the currently loaded live asset synchronously.
+	 * Returns null if the liveAsset isn't loaded yet.
+	 * @returns {LiveAssetType?}
+	 */
 	getLiveAssetImmediate() {
 		return this.liveAsset;
 	}

@@ -21,7 +21,7 @@ export function getElemSize(el) {
 
 /**
  * @param {string} mimeType
- * @returns {?ParsedMimeType}
+ * @returns {ParsedMimeType?}
  */
 export function parseMimeType(mimeType) {
 	const split = mimeType.split("/");

@@ -8,8 +8,8 @@ import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorI
 /**
  * @typedef {Object} DraggingProjectAssetData
  * @property {boolean} dataPopulated
- * @property {typeof import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType?} assetType
- * @property {import("../../../../src/util/mod.js").UuidString} assetUuid
+ * @property {typeof import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType?} assetType Is null when data hasn't been populated yet.
+ * @property {import("../../../../src/util/mod.js").UuidString?} assetUuid Is null when data hasn't been populated yet.
  */
 
 export class ContentWindowProject extends ContentWindow {
@@ -99,7 +99,7 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		/** @type {SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAsset>} */
+		/** @type {SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.rootNameInit = false;
@@ -124,17 +124,17 @@ export class ContentWindowProject extends ContentWindow {
 		super.destructor();
 
 		this.treeView.destructor();
-		this.treeView = null;
-
 		this.selectionManager.destructor();
-		this.selectionManager = null;
 
 		this.editorInstance.projectManager.removeOnExternalChange(this.boundExternalChange);
-		this.boundExternalChange = null;
 	}
 
 	get fileSystem() {
-		return this.editorInstance.projectManager.currentProjectFileSystem;
+		const fs = this.editorInstance.projectManager.currentProjectFileSystem;
+		if (!fs) {
+			throw new Error("Operation failed, no active fileSystem.");
+		}
+		return fs;
 	}
 
 	async updateRootName() {
@@ -173,7 +173,9 @@ export class ContentWindowProject extends ContentWindow {
 	 * @param {Array<string> | null} path Directory to update, updates the root TreeView when omitted.
 	 */
 	async updateTreeView(path = null) {
+		/** @type {TreeView?} */
 		let treeView = this.treeView;
+		/** @type {string[]} */
 		let updatePath = [];
 		if (path) {
 			treeView = this.treeView.findChildFromNamesPath(path);
@@ -188,19 +190,28 @@ export class ContentWindowProject extends ContentWindow {
 	 * Updates a full range of directories from start to end, useful right before expanding a specific directory.
 	 * @param {Array<string>} end The directory to update, this path is relative to start.
 	 * @param {?Array<string>} start The directory to start updating from, starts updating from the root when omitted.
-	 * @param {boolean} collapsedOnly When this is true, expanded TreeViews won't be updated.
+	 * @param {boolean} updateAll When this is false, expanded TreeViews won't be updated. Expanded TreeViews
+	 * should already be updated so you generally won't need to use this.
 	 */
-	async updateTreeViewRange(end, start = null, collapsedOnly = true) {
+	async updateTreeViewRange(end, start = null, updateAll = false) {
 		let {treeView} = this;
 		if (start) {
-			treeView = this.treeView.findChildFromNamesPath(start);
+			const childTreeView = this.treeView.findChildFromNamesPath(start);
+			if (!childTreeView) {
+				throw new Error("Could not find start path in treeView.");
+			}
+			treeView = childTreeView;
 		} else {
 			start = [];
 		}
 		for (let i = 0; i < end.length; i++) {
 			const name = end[i];
-			treeView = treeView.getChildByName(name);
-			if (!collapsedOnly || treeView.collapsed) {
+			const childTreeView = treeView.getChildByName(name);
+			if (!childTreeView) {
+				throw new Error("Assertion failed, could not find childTreeView.");
+			}
+			treeView = childTreeView;
+			if (updateAll || treeView.collapsed) {
 				const path = end.slice(0, i + 1);
 				if (!treeView.alwaysShowArrow) return; // if the TreeView is not a directory
 				await this.updateTreeViewRecursive(treeView, [...start, ...path]);
@@ -272,9 +283,13 @@ export class ContentWindowProject extends ContentWindow {
 		}
 	}
 
+	/**
+	 * @param {TreeView} treeView
+	 */
 	async getProjectAssetByTreeViewItem(treeView) {
 		const path = this.pathFromTreeView(treeView);
-		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAssetFromPath(path);
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		const projectAsset = await assetManager.getProjectAssetFromPath(path);
 		return projectAsset;
 	}
 
@@ -284,7 +299,9 @@ export class ContentWindowProject extends ContentWindow {
 	async mapTreeViewArrayToProjectAssets(treeViews) {
 		const newArr = [];
 		for (const treeView of treeViews) {
-			newArr.push(await this.getProjectAssetByTreeViewItem(treeView));
+			const projectAsset = await this.getProjectAssetByTreeViewItem(treeView);
+			if (!projectAsset) continue;
+			newArr.push(projectAsset);
 		}
 		return newArr;
 	}
@@ -310,14 +327,15 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	async createAsset(assetType) {
 		const selectedPath = this.getSelectedParentPathForCreate();
-		await this.editorInstance.projectManager.assetManager.createNewAsset(selectedPath, assetType);
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		await assetManager.createNewAsset(selectedPath, assetType);
 		await this.updateTreeView(selectedPath);
 	}
 
 	async createNewDir() {
 		const selectedPath = this.getSelectedParentPathForCreate();
 		let folderName = "New Folder";
-		if (this.fileSystem.exists([...selectedPath, folderName])) {
+		if (await this.fileSystem.exists([...selectedPath, folderName])) {
 			const existingFiles = await this.fileSystem.readDir(selectedPath);
 			folderName = handleDuplicateName(existingFiles, folderName);
 		}
@@ -343,7 +361,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
-		/** @type {import("../../Managers/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAsset>} */
+		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
 		changes.added = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
@@ -377,7 +395,8 @@ export class ContentWindowProject extends ContentWindow {
 			e.target.name = e.oldName;
 			throw err;
 		}
-		await this.editorInstance.projectManager.assetManager.assetMoved(oldPath, newPath);
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		await assetManager.assetMoved(oldPath, newPath);
 	}
 
 	/**
@@ -391,11 +410,15 @@ export class ContentWindowProject extends ContentWindow {
 			assetUuid: null,
 		};
 		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
+		if (!e.rawEvent.dataTransfer) return;
 		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 		e.rawEvent.dataTransfer.effectAllowed = "all";
 
 		const assetData = await this.getProjectAssetByTreeViewItem(e.target);
-		draggingData.assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetData.assetType);
+		if (!assetData) return;
+		if (assetData.assetType) {
+			draggingData.assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetData.assetType);
+		}
 		draggingData.assetUuid = assetData.uuid;
 		draggingData.dataPopulated = true;
 	}
@@ -418,6 +441,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDrop(e) {
+		if (!e.rawEvent.dataTransfer) return;
 		const path = this.pathFromTreeView(e.target);
 		for (const file of e.rawEvent.dataTransfer.files) {
 			const filePath = [...path, file.name];
@@ -433,7 +457,8 @@ export class ContentWindowProject extends ContentWindow {
 			const oldPath = movedItem.oldTreeViewsPath.map(t => t.name).slice(1);
 			const newPath = movedItem.newTreeViewsPath.map(t => t.name).slice(1);
 			await this.fileSystem.move(oldPath, newPath);
-			await this.editorInstance.projectManager.assetManager.assetMoved(oldPath, newPath);
+			const assetManager = await this.editorInstance.projectManager.getAssetManager();
+			await assetManager.assetMoved(oldPath, newPath);
 		}
 	}
 
@@ -442,8 +467,11 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	async onTreeViewDblClick(e) {
 		const path = this.pathFromTreeView(e.target);
-		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAssetFromPath(path);
-		projectAsset.open(this.windowManager);
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		const projectAsset = await assetManager.getProjectAssetFromPath(path);
+		if (projectAsset) {
+			projectAsset.open(this.windowManager);
+		}
 	}
 
 	/**
@@ -455,14 +483,17 @@ export class ContentWindowProject extends ContentWindow {
 			{
 				text: "Copy asset UUID", onClick: async () => {
 					const path = this.pathFromTreeView(e.target);
-					const uuid = await this.editorInstance.projectManager.assetManager.getAssetUuidFromPath(path);
+					const assetManager = await this.editorInstance.projectManager.getAssetManager();
+					const uuid = await assetManager.getAssetUuidFromPath(path);
+					if (!uuid) return;
 					await navigator.clipboard.writeText(uuid);
 				},
 			},
 			{
 				text: "Delete", onClick: async () => {
 					const path = this.pathFromTreeView(e.target);
-					await this.editorInstance.projectManager.assetManager.deleteAsset(path);
+					const assetManager = await this.editorInstance.projectManager.getAssetManager();
+					await assetManager.deleteAsset(path);
 					const parentPath = path.slice(0, path.length - 1);
 					await this.updateTreeView(parentPath);
 				},
@@ -470,6 +501,9 @@ export class ContentWindowProject extends ContentWindow {
 		]);
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	async highlightPath(path) {
 		await this.updateTreeViewRange(path);
 		const assetTreeView = this.treeView.findChildFromNamesPath(path);

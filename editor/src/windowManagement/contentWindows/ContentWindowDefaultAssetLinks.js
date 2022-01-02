@@ -45,7 +45,8 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 
 	async loadDefaultAssetLinks() {
 		await this.editorInstance.projectManager.waitForAssetManagerLoad();
-		await this.editorInstance.projectManager.assetManager.waitForAssetSettingsLoad();
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		await assetManager.waitForAssetSettingsLoad();
 		if (!this.el) return; // the content window was destructed
 
 		this.builtInAssetLinksTreeView.clearChildren();
@@ -57,7 +58,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 					structure: this.builtInAssetLinkGuiStructure,
 				},
 			});
-			const assetLink = this.editorInstance.projectManager.assetManager.getDefaultAssetLink(builtInAssetLink.defaultAssetUuid);
+			const assetLink = assetManager.getDefaultAssetLink(builtInAssetLink.defaultAssetUuid);
 			const originalAsset = assetLink && assetLink.originalAssetUuid;
 			item.setValue({
 				originalAsset,
@@ -66,7 +67,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		}
 
 		const defaultAssetLinks = [];
-		for (const [uuid, assetLink] of this.editorInstance.projectManager.assetManager.defaultAssetLinks) {
+		for (const [uuid, assetLink] of assetManager.defaultAssetLinks) {
 			if (assetLink.isBuiltIn) continue;
 			defaultAssetLinks.push({
 				name: assetLink.name,
@@ -134,7 +135,8 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		}
 
 		// save default asset link settings to disk and generate uuids for new links
-		const userDefaultAssetLinkUuids = this.editorInstance.projectManager.assetManager.setDefaultAssetLinks(builtInAssetLinks, assetLinks);
+		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		const userDefaultAssetLinkUuids = assetManager.setDefaultAssetLinks(builtInAssetLinks, assetLinks);
 
 		const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");
 		const arrayGui = /** @type {import("../../UI/ArrayGui.js").ArrayGui} */(arrayTreeView.gui);

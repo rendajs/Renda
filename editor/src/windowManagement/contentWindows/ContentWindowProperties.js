@@ -12,6 +12,7 @@ export class ContentWindowProperties extends ContentWindow {
 		super(...args);
 
 		this.activeSelectionGroup = null;
+		/** @type {import("../../PropertiesWindowContent/PropertiesWindowContent.js").PropertiesWindowContent?} */
 		this.activeContent = null;
 
 		this.boundOnSelectionChanged = this.onSelectionChanged.bind(this);
@@ -26,12 +27,12 @@ export class ContentWindowProperties extends ContentWindow {
 		this.editorInstance.selectionManager.removeOnSelectionChange(this.boundOnSelectionChanged);
 	}
 
-	onContentTypeRegistered(constructor) {
+	onContentTypeRegistered() {
 		this.updateCurrentContentType();
 	}
 
 	/**
-	 * @param {import("../../Managers/SelectionManager.js").SelectionChangeData} changeData
+	 * @param {import("../../Misc/SelectionManager.js").SelectionChangeData} changeData
 	 */
 	onSelectionChanged(changeData) {
 		if (!this.isMostSuitableContentWindow()) return;

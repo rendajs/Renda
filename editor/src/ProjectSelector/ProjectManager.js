@@ -250,13 +250,17 @@ export class ProjectManager {
 
 	/**
 	 * If the asset manager doesn't exist, waits for it to load and returns it.
-	 * Throws an error
+	 * Throws an error if it still doesn't exist after loading.
 	 */
 	async getAssetManager() {
 		if (this.assetManager) return this.assetManager;
 		await this.waitForAssetManagerLoad();
+		return this.assertAssetManagerExists();
+	}
+
+	assertAssetManagerExists() {
 		if (!this.assetManager) {
-			throw new Error("Error: assetManager doesn't exist.");
+			throw new Error("Assertion failed: assetManager doesn't exist.");
 		}
 		return this.assetManager;
 	}
