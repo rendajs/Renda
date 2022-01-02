@@ -6,7 +6,7 @@ import {Button} from "./Button.js";
  * @template T
  * @typedef {T extends keyof import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap ? {
  * value?: any[],
- * arrayType?: T,
+ * arrayType: T,
  * arrayGuiOpts?: import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap[T],
  * } : never} ArrayGuiOptionsTypeGeneric
  */

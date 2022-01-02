@@ -48,7 +48,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.lastOrbitControlsValuesChangeTime = 0;
 
 		this.editingEntityUuid = null;
-		/** @type {Entity} */
+		/** @type {Entity?} */
 		this._editingEntity = null;
 		/** @type {SelectionGroup<import("../../Misc/EntitySelection.js").EntitySelection>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
@@ -58,8 +58,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.gizmos = new GizmoManager(this.editorInstance.engineAssetManager);
 		this.editorScene.add(this.gizmos.entity);
 		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
-		/** @type {Map<Entity, Map<Component, ComponentGizmos>>} */
-		this.currentLinkedGizmos = new Map(); // Map<Entity, Set<Gizmo>>
+		/** @type {Map<Entity, Map<Component, ComponentGizmos<any>>>} */
+		this.currentLinkedGizmos = new Map();
 
 		this.persistentDataLoaded = false;
 		this.ignoreNextPersistentDataOrbitChange = false;
@@ -68,16 +68,19 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	async loadPersistentData() {
 		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
-		const assetUuid = await this.editorInstance.projectManager.assetManager.getAssetUuidFromPath(loadedEntityPath);
-		this.loadEntityAsset(assetUuid, true);
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		const assetUuid = await assetManager.getAssetUuidFromPath(loadedEntityPath);
+		if (assetUuid) {
+			this.loadEntityAsset(assetUuid, true);
 
-		this.orbitControls.lookPos = await this.persistentData.get("orbitLookPos");
-		this.orbitControls.lookRot = await this.persistentData.get("orbitLookRot");
-		const dist = await this.persistentData.get("orbitLookDist");
-		if (dist != undefined) {
-			this.orbitControls.lookDist = dist;
+			this.orbitControls.lookPos = await this.persistentData.get("orbitLookPos");
+			this.orbitControls.lookRot = await this.persistentData.get("orbitLookRot");
+			const dist = await this.persistentData.get("orbitLookDist");
+			if (dist != undefined) {
+				this.orbitControls.lookDist = dist;
+			}
+			this.ignoreNextPersistentDataOrbitChange = true;
 		}
-		this.ignoreNextPersistentDataOrbitChange = true;
 		this.persistentDataLoaded = true;
 	}
 
@@ -88,7 +91,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorScene.destructor();
 		this._editingEntity = null;
 		this.selectionManager.destructor();
-		this.selectionManager = null;
 		this.gizmos.destructor();
 	}
 
@@ -101,7 +103,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.editorScene.remove(this._editingEntity);
 		}
 		this._editingEntity = val;
-		this.editorScene.add(val);
+		if (val) {
+			this.editorScene.add(val);
+		}
 		this.updateGizmos();
 		this.markRenderDirty();
 		for (const outliner of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
@@ -132,10 +136,16 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onRenderDirty(cb) {
 		this.onRenderDirtyCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	removeOnRenderDirty(cb) {
 		this.onRenderDirtyCbs.delete(cb);
 	}
@@ -149,8 +159,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {boolean} fromContentWindowLoad
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
-		/** @type {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/ProjectAssetType/ProjectAssetTypeEntity.js").ProjectAssetTypeEntity>} */
-		const projectAsset = await this.editorInstance.projectManager.assetManager.getProjectAsset(entityUuid);
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		/** @type {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/ProjectAssetType/ProjectAssetTypeEntity.js").ProjectAssetTypeEntity>?} */
+		const projectAsset = await assetManager.getProjectAsset(entityUuid);
 		if (!projectAsset) {
 			this.newEmptyEditingEntity();
 			return;
@@ -165,7 +176,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	async saveEntityAsset() {
 		if (!this.editingEntityUuid) return;
-		const asset = await this.editorInstance.projectManager.assetManager.getProjectAsset(this.editingEntityUuid);
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		const asset = await assetManager.getProjectAsset(this.editingEntityUuid);
+		if (!asset) return;
 		await asset.saveLiveAssetData();
 	}
 
@@ -212,9 +225,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	updateGizmos() {
 		const unusedEntities = new Map(this.currentLinkedGizmos);
-		for (const {child} of this.editingEntity.traverseDown()) {
-			this.updateGizmosForEntity(child);
-			unusedEntities.delete(child);
+		if (this.editingEntity) {
+			for (const {child} of this.editingEntity.traverseDown()) {
+				this.updateGizmosForEntity(child);
+				unusedEntities.delete(child);
+			}
 		}
 
 		for (const [entity, linkedComponentGizmos] of unusedEntities) {
@@ -239,7 +254,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const unusedComponentGizmos = new Map(linkedComponentGizmos);
 		if (!removeAll) {
 			for (const component of entity.components) {
-				let componentGizmos = linkedComponentGizmos.get(component);
+				let componentGizmos = linkedComponentGizmos.get(component) ?? null;
 				if (!componentGizmos) {
 					const componentConstructor = /** @type {typeof Component} */ (component.constructor);
 					componentGizmos = this.editorInstance.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
@@ -269,6 +284,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 	}
 
+	/**
+	 * @param {Entity} entity
+	 */
 	updateGizmoPositionsForEntity(entity) {
 		const linkedComponentGizmos = this.currentLinkedGizmos.get(entity);
 		if (linkedComponentGizmos) {
@@ -284,32 +302,76 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.createdLiveAssetChangeListeners.clear();
 
-		for (const {child} of this.editingEntity.traverseDown()) {
-			for (const component of child.components) {
-				const componentConstructor = /** @type {typeof Component} */ (component.constructor);
-				this.addComponentLiveAssetListeners(component, componentConstructor.guiStructure, component, true);
+		if (this.editingEntity) {
+			for (const {child} of this.editingEntity.traverseDown()) {
+				for (const component of child.components) {
+					const componentConstructor = /** @type {typeof Component} */ (component.constructor);
+					if (componentConstructor.guiStructure) {
+						const castComponentA = /** @type {unknown} */ (component);
+						const castComponentB = /** @type {Object.<string, unknown>} */ (castComponentA);
+						/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions} */
+						const structure = {
+							type: "object",
+							guiOpts: {
+								structure: componentConstructor.guiStructure,
+							},
+						};
+						this.addComponentLiveAssetListeners(component, structure, castComponentB);
+					}
+				}
 			}
 		}
 	}
 
-	addComponentLiveAssetListeners(rootComponent, structure, data, isRoot = false, parentObject = null, propertyChangeName = null) {
-		if (isRoot || structure.type == Object) {
-			for (const [name, propertyData] of Object.entries(structure)) {
-				this.addComponentLiveAssetListeners(rootComponent, propertyData, data[name], false, data, name);
+	/**
+	 * @param {Component} rootComponent
+	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions} structure
+	 * @param {Object.<string | number, unknown>} data
+	 * @param {Object.<string | number, unknown>?} parentObject
+	 * @param {string | number | null} propertyChangeName
+	 */
+	addComponentLiveAssetListeners(rootComponent, structure, data, parentObject = null, propertyChangeName = null) {
+		if (structure.type == "object") {
+			const guiOpts = structure.guiOpts;
+			if (guiOpts) {
+				const childStructure = guiOpts.structure;
+				if (childStructure) {
+					for (const [name, propertyStructure] of Object.entries(childStructure)) {
+						const childData = data[name];
+						if (childData && typeof childData == "object") {
+							const castChildData = /** @type {Object.<string, unknown>} */ (childData);
+							this.addComponentLiveAssetListeners(rootComponent, propertyStructure, castChildData, data, name);
+						}
+					}
+				}
 			}
-		} else if (structure.type == Array) {
-			for (const [i, item] of data.entries()) {
-				this.addComponentLiveAssetListeners(rootComponent, structure.arrayOpts, item, false, data, i);
-			}
-		} else if (this.editorInstance.projectAssetTypeManager.constructorHasAssetType(structure.type)) {
-			if (data) {
-				const projectAsset = this.editorInstance.projectManager.assetManager.getProjectAssetForLiveAsset(data);
-				const listener = async () => {
-					parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
-					this.notifyEntityChanged(rootComponent.entity, "componentProperty");
+		} else if (structure.type == "array" && Array.isArray(data)) {
+			const arrayType = structure.guiOpts?.arrayType;
+			if (arrayType) {
+				/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+				const arrayStructure = {
+					type: arrayType,
+					guiOpts: structure.guiOpts?.arrayGuiOpts,
 				};
-				projectAsset.onNewLiveAssetInstance(listener);
-				this.createdLiveAssetChangeListeners.add({projectAsset, listener});
+				for (const [i, item] of data.entries()) {
+					this.addComponentLiveAssetListeners(rootComponent, arrayStructure, item, data, i);
+				}
+			}
+		} else if (structure.type == "droppable") {
+			if (data) {
+				const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+				const projectAsset = assetManager.getProjectAssetForLiveAsset(data);
+				if (projectAsset) {
+					const listener = async () => {
+						if (!propertyChangeName) return;
+						parentObject[propertyChangeName] = await projectAsset.getLiveAsset();
+						if (rootComponent.entity) {
+							this.notifyEntityChanged(rootComponent.entity, "componentProperty");
+						}
+					};
+					projectAsset.onNewLiveAssetInstance(listener);
+					this.createdLiveAssetChangeListeners.add({projectAsset, listener});
+				}
 			}
 		}
 	}
@@ -319,6 +381,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {EntityChangedEventType} type
 	 */
 	notifyEntityChanged(entity, type) {
+		if (!this.editingEntity) return;
 		if (!this.editingEntity.containsChild(entity) && type != "delete") return;
 
 		this.markRenderDirty();

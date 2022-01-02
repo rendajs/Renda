@@ -86,7 +86,7 @@ export class ContentWindowBuildView extends ContentWindow {
 				if (foundCamComponent) break;
 			}
 
-			if (!foundCamComponent) {
+			if (!foundCamComponent && this.linkedEntityEditor.editingEntity) {
 				for (const camComponent of this.linkedEntityEditor.editingEntity.getChildComponents(CameraComponent)) {
 					foundCamComponent = camComponent;
 					break;

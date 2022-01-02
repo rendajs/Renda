@@ -69,6 +69,7 @@ export class ProjectAssetTypeVertexState extends ProjectAssetType {
 											},
 										},
 										shaderLocation: {
+											type: "number",
 											guiOpts: {
 												min: -1,
 												step: 1,

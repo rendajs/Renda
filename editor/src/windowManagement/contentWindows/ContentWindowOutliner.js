@@ -337,7 +337,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			const mimeType = parseMimeType(item.type);
 			if (!mimeType) continue;
 			const dragData = this.validateDragMimeType(mimeType);
-			if (dragData) {
+			if (dragData && dragData.dataPopulated && dragData.assetUuid) {
 				const entityAssetUuid = dragData.assetUuid;
 				const assetManager = await this.editorInstance.projectManager.getAssetManager();
 				const entityAsset = await assetManager.getLiveAsset(entityAssetUuid);

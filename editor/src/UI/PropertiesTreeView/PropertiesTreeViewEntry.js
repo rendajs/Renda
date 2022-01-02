@@ -60,7 +60,7 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 /**
  * @template T
  * @typedef {T extends keyof PropertiesTreeViewGuiOptionsMap ? {
- * type?: T,
+ * type: T,
  * guiOpts?: PropertiesTreeViewGuiOptionsMap[T],
  * callbacksContext?: Object,
  * } : never} PropertiesTreeViewEntryOptionsGeneric
