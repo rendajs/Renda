@@ -116,33 +116,51 @@ export class DropDownGui {
 		}
 	}
 
+	/** @typedef {"default" | "fileStorage" | "binaryComposer"} GetValuePurpose */
+
 	/**
-	 * @param {Object} opts
-	 * @param {boolean} [opts.getAsString] If an enumObject is set, this controls whether the number or string of
+	 * @template {boolean} T
+	 * @template {GetValuePurpose} U
+	 * @typedef {Object} GetValueOptions
+	 * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
 	 * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
 	 * dropdown items is returned.
-	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
-	 * @returns {number | string}
+	 * @property {U} [purpose = "default"]
+	 */
+
+	/**
+	 * @template {boolean} [T = true]
+	 * @template {GetValuePurpose} [U = "default"]
+	 * @param {GetValueOptions<T, U>} opts
+	 * @returns {U extends "fileStorage" ? string :
+	 * U extends "binaryComposer" ? number :
+	 * U extends "default" | undefined ? (
+	 *   T extends true ? string :
+	 *   T extends false ? number :
+	 *   T extends undefined ? string :
+	 *   number
+	 * ) : string}
 	 */
 	getValue({
-		getAsString = true,
-		purpose = "default",
+		getAsString = /** @type {T} */ (true),
+		purpose = /** @type {U} */ ("default"),
 	} = {}) {
+		let getAsStringValue = /** @type {boolean} */ (getAsString);
 		if (purpose == "fileStorage") {
-			getAsString = true;
+			getAsStringValue = true;
 		} else if (purpose == "binaryComposer") {
-			getAsString = false;
+			getAsStringValue = false;
 		}
 
 		if (this.enumObject) {
 			const enumObjectStrValue = this.items[this.el.selectedIndex];
-			if (getAsString) {
+			if (getAsStringValue) {
 				return enumObjectStrValue;
 			} else {
 				return this.enumObject[enumObjectStrValue];
 			}
 		} else {
-			if (getAsString) {
+			if (getAsStringValue) {
 				return this.items[this.el.selectedIndex];
 			} else {
 				return this.el.selectedIndex;
@@ -154,6 +172,9 @@ export class DropDownGui {
 		return this.getValue();
 	}
 
+	/**
+	 * @param {number | string} value
+	 */
 	set value(value) {
 		this.setValue(value);
 	}

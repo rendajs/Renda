@@ -196,7 +196,7 @@ module.exports = {
 		"yield-star-spacing": "error",
 
 		"jsdoc/check-alignment": "error",
-		"jsdoc/check-indentation": "error",
+		"jsdoc/check-indentation": ["error", {excludeTags: ["returns"]}],
 		"jsdoc/check-param-names": "error",
 		"jsdoc/check-property-names": "error",
 		"jsdoc/check-types": "error",
