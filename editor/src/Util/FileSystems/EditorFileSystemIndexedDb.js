@@ -2,15 +2,39 @@ import {EditorFileSystem} from "./EditorFileSystem.js";
 import {IndexedDbUtil} from "../../../../src/mod.js";
 import md5 from "../../../libs/md5.js";
 
-/** @typedef {string} EditorFileSystemIndexedDbPointer */
+/** @typedef {string & {}} EditorFileSystemIndexedDbPointer */
 
 /**
- * @typedef {Object} EditorFileSystemIndexedDbStoredObject
+ * @typedef {Object} EditorFileSystemIndexedDbStoredObjectBase
  * @property {boolean} [isFile = false]
  * @property {boolean} [isDir = false]
  * @property {string} fileName
- * @property {File} [file]
- * @property {EditorFileSystemIndexedDbPointer[]} [files]
+ */
+
+/**
+ * @typedef {Object} EditorFileSystemIndexedDbStoredObjectFileType
+ * @property {true} isFile
+ * @property {false} [isDir = false]
+ * @property {File} file
+ *
+ * @typedef {EditorFileSystemIndexedDbStoredObjectBase & EditorFileSystemIndexedDbStoredObjectFileType} EditorFileSystemIndexedDbStoredObjectFile
+ */
+
+/**
+ * @typedef {Object} EditorFileSystemIndexedDbStoredObjectDirType
+ * @property {true} isDir
+ * @property {false} [isFile = false]
+ * @property {EditorFileSystemIndexedDbPointer[]} files
+ *
+ * @typedef {EditorFileSystemIndexedDbStoredObjectBase & EditorFileSystemIndexedDbStoredObjectDirType} EditorFileSystemIndexedDbStoredObjectDir
+ */
+
+/** @typedef {EditorFileSystemIndexedDbStoredObjectFile | EditorFileSystemIndexedDbStoredObjectDir} EditorFileSystemIndexedDbStoredObject */
+
+/**
+ * @typedef {Object} EditorFileSystemIndexedDbTravelledDataItem
+ * @property {EditorFileSystemIndexedDbStoredObject} obj
+ * @property {EditorFileSystemIndexedDbPointer} pointer
  */
 
 export class EditorFileSystemIndexedDb extends EditorFileSystem {
@@ -22,14 +46,33 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	constructor(fileSystemName) {
 		super();
 
-		this.db = null;
 		const dbName = EditorFileSystemIndexedDb.getDbName(fileSystemName);
+		/**
+		 * Null if the db has been deleted.
+		 * @type {IndexedDbUtil?}
+		 */
 		this.db = new IndexedDbUtil(dbName, ["objects", "system"]);
 
 		// create root directory
 		this.rootCreated = false;
+		/** @type {((...args: any) => any)[]} */
 		this.onRootCreateCbs = [];
 		this.createRoot();
+	}
+
+	assertDbExists() {
+		if (!this.db) {
+			throw new Error("Operation can't be performed. Db has been deleted.");
+		}
+		return this.db;
+	}
+
+	/**
+	 * @param {EditorFileSystemIndexedDbStoredObject} obj
+	 */
+	assertIsDir(obj) {
+		if (!obj.isDir) throw new Error(`Couldn't perform operation, ${obj.fileName} is not a directory.`);
+		return obj;
 	}
 
 	/**
@@ -78,7 +121,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 */
 	async getRootPointer(waitForRootCreate = true) {
 		if (waitForRootCreate) await this.waitForRootCreate();
-		return await this.db.get("rootPointer", "system");
+		const db = this.assertDbExists();
+		return await db.get("rootPointer", "system");
 	}
 
 	/**
@@ -86,7 +130,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @returns {Promise<void>}
 	 */
 	async setRootPointer(pointer) {
-		await this.db.set("rootPointer", pointer, "system");
+		const db = this.assertDbExists();
+		await db.set("rootPointer", pointer, "system");
 	}
 
 	rootNameSetSupported = true;
@@ -115,7 +160,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	async deleteDb() {
 		await this.waitForRootCreate();
-		const db = this.db;
+		const db = this.assertDbExists();
 		this.db = null;
 		await db.deleteDb();
 	}
@@ -126,7 +171,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 */
 	async getObject(pointer) {
 		if (!pointer) throw new Error("pointer not specified");
-		return await this.db.get(pointer);
+		const db = this.assertDbExists();
+		return await db.get(pointer);
 	}
 
 	/**
@@ -134,13 +180,13 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {string[]} path
 	 * @returns {Promise<{pointer: EditorFileSystemIndexedDbPointer, obj: EditorFileSystemIndexedDbStoredObject}>}
 	 */
-	async getObjectFromPath(path = []) {
+	async getObjectFromPath(path) {
 		let pointer = await this.getRootPointer();
 		let obj = await this.getObject(pointer);
+		const dirObj = this.assertIsDir(obj);
 		for (const dir of path) {
-			if (!obj.isDir) throw new Error(dir + " is not a directory");
 			let foundAny = false;
-			for (const filePointer of obj.files) {
+			for (const filePointer of dirObj.files) {
 				const fileObj = await this.getObject(filePointer);
 				if (fileObj.fileName == dir) {
 					pointer = filePointer;
@@ -194,6 +240,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		} else if (obj.isFile) {
 			const arrayBuffer = await obj.file.arrayBuffer();
 			contentBuffer = new Uint8Array(arrayBuffer);
+		} else {
+			throw new Error("Couldn't create object because it is neither a file nor a directory.");
 		}
 		totalBufferLength += contentBuffer.byteLength;
 
@@ -211,20 +259,28 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 			parsedBytes += buffer.byteLength;
 		}
 		const pointer = md5(finalBuffer);
-		await this.db.set(pointer, obj);
+		const db = this.assertDbExists();
+		await db.set(pointer, obj);
 		return pointer;
 	}
 
-	async createDir(path = []) {
+	/**
+	 * @override
+	 * @param {EditorFileSystemPath} path
+	 */
+	async createDir(path) {
 		super.createDir(path);
 		await this.createDirInternal(path);
 	}
 
 	/**
+	 * Same as createDir but returns travelled data.
+	 * It is internal because the publicly facing api does not need to know
+	 * about travelled data.
 	 * @param {string[]} path
-	 * @returns {Promise<{obj: EditorFileSystemIndexedDbStoredObject, pointer: EditorFileSystemIndexedDbPointer}[]>}
+	 * @returns {Promise<EditorFileSystemIndexedDbTravelledDataItem[]>}
 	 */
-	async createDirInternal(path = []) {
+	async createDirInternal(path) {
 		const travelledData = await this.findDeepestExisting(path);
 		const recursionDepth = travelledData.length - 1;
 		if (recursionDepth == path.length) return travelledData;
@@ -233,6 +289,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		let lastCreatedPointer = null;
 		const extraTravelledData = [];
 		for (const dir of createDirs) {
+			/** @type {EditorFileSystemIndexedDbStoredObjectDir} */
 			const createdObject = {
 				isDir: true,
 				files: [],
@@ -248,16 +305,22 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 			});
 		}
 		const lastFoundObject = travelledData[travelledData.length - 1].obj;
-		lastFoundObject.files.push(lastCreatedPointer);
-		await this.updateObjectRecursiveUp(travelledData, lastFoundObject);
+		const lastFoundObjectDir = this.assertIsDir(lastFoundObject);
+		if (!lastCreatedPointer) {
+			throw new Error("Failed to get file pointer");
+			// This should never be called because we already checked if the
+			// directory existed above at `if (recursionDepth == path.length)`
+		}
+		lastFoundObjectDir.files.push(lastCreatedPointer);
+		await this.updateObjectRecursiveUp(travelledData, lastFoundObjectDir);
 		return [...travelledData, ...extraTravelledData];
 	}
 
 	/**
 	 * @param {string[]} path
-	 * @returns {Promise<{obj: EditorFileSystemIndexedDbStoredObject, pointer: EditorFileSystemIndexedDbPointer}[]>}
+	 * @returns {Promise<EditorFileSystemIndexedDbTravelledDataItem[]>}
 	 */
-	async findDeepestExisting(path = []) {
+	async findDeepestExisting(path) {
 		let currentPointer = await this.getRootPointer();
 		let currentObj = await this.getObject(currentPointer);
 		const travelledData = [
@@ -297,36 +360,50 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		return travelledData;
 	}
 
-	async updateObjectRecursiveUp(travelledData, newObject) {
+	/**
+	 * @param {EditorFileSystemIndexedDbTravelledDataItem[]} travelledData
+	 * @param {EditorFileSystemIndexedDbStoredObjectDir} parentObject
+	 */
+	async updateObjectRecursiveUp(travelledData, parentObject) {
 		for (let i = travelledData.length - 1; i >= 0; i--) {
 			const item = travelledData[i];
-			const newPointer = await this.updateObject(item.pointer, newObject);
+			const newPointer = await this.updateObject(item.pointer, parentObject);
 			if (i > 0) {
 				const parentItem = travelledData[i - 1];
-				newObject = parentItem.obj;
+				parentObject = /** @type {EditorFileSystemIndexedDbStoredObjectDir} */ (parentItem.obj);
 
 				// remove old pointer from parent dir
-				const oldPointerIndex = newObject.files.indexOf(item.pointer);
-				newObject.files.splice(oldPointerIndex, 1);
+				const oldPointerIndex = parentObject.files.indexOf(item.pointer);
+				parentObject.files.splice(oldPointerIndex, 1);
 
 				// add new pointer to parent dir
-				newObject.files.push(newPointer);
+				parentObject.files.push(newPointer);
 			} else {
 				await this.setRootPointer(newPointer);
 			}
 		}
 	}
 
+	/**
+	 * @param {EditorFileSystemIndexedDbPointer} oldPointer
+	 * @param {EditorFileSystemIndexedDbStoredObject} newObject
+	 */
 	async updateObject(oldPointer, newObject) {
-		await this.db.delete(oldPointer);
+		const db = this.assertDbExists();
+		await db.delete(oldPointer);
 		return await this.createObject(newObject);
 	}
 
-	async readDir(path = []) {
+	/**
+	 * @override
+	 * @param {EditorFileSystemPath} path
+	 */
+	async readDir(path) {
 		const {obj} = await this.getObjectFromPath(path);
+		const dirObj = this.assertIsDir(obj);
 		const files = [];
 		const directories = [];
-		for (const filePointer of obj.files) {
+		for (const filePointer of dirObj.files) {
 			const fileObj = await this.getObject(filePointer);
 			if (fileObj.isDir) {
 				directories.push(fileObj.fileName);
@@ -337,7 +414,12 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		return {files, directories};
 	}
 
-	async move(fromPath = [], toPath = []) {
+	/**
+	 * @override
+	 * @param {string[]} fromPath
+	 * @param {string[]} toPath
+	 */
+	async move(fromPath, toPath) {
 		const travelledData = await this.findDeepestExisting(fromPath);
 		// todo: error if file or directory doesn't exist
 		const oldObject = travelledData[travelledData.length - 1];
@@ -345,11 +427,12 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		const parentObjTravelledData = travelledData.slice(0, travelledData.length - 1);
 
 		const parentObj = await this.getObjectFromPath(parentObjPath);
+		const parentDirObj = this.assertIsDir(parentObj.obj);
 
 		// remove old pointer
-		const oldPointerIndex = parentObj.obj.files.indexOf(oldObject.pointer);
-		parentObj.obj.files.splice(oldPointerIndex, 1);
-		await this.updateObjectRecursiveUp(parentObjTravelledData, parentObj.obj);
+		const oldPointerIndex = parentDirObj.files.indexOf(oldObject.pointer);
+		parentDirObj.files.splice(oldPointerIndex, 1);
+		await this.updateObjectRecursiveUp(parentObjTravelledData, parentDirObj);
 
 		// rename
 		const oldName = fromPath[fromPath.length - 1];
@@ -364,8 +447,9 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		const newParentPath = toPath.slice(0, toPath.length - 1);
 		const newParentTravelledData = await this.createDirInternal(newParentPath);
 		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
-		newParentObj.obj.files.push(newPointer);
-		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
+		const newParentDirObj = this.assertIsDir(newParentObj.obj);
+		newParentDirObj.files.push(newPointer);
+		await this.updateObjectRecursiveUp(newParentTravelledData, newParentDirObj);
 	}
 
 	/**
@@ -375,7 +459,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {EditorFileSystemPath} path The file or directory to delete.
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
-	async delete(path = [], recursive = false) {
+	async delete(path, recursive = false) {
 		if (path.length == 0) {
 			throw new Error("Cannot delete the root directory");
 		}
@@ -383,7 +467,11 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		const travelledData = await this.findDeepestExisting(path);
 		const parentObjTravelledData = travelledData.slice(0, travelledData.length - 1);
 		// todo: error if file or directory doesn't exist
-		const {obj, pointer} = travelledData.at(-1);
+		const lastTravelledItem = travelledData.at(-1);
+		if (!lastTravelledItem) {
+			throw new Error("Cannot delete the root directory");
+		}
+		const {obj, pointer} = lastTravelledItem;
 		if (obj.isDir && recursive) {
 			for (const filePointer of obj.files) {
 				const fileObj = await this.getObject(filePointer);
@@ -395,11 +483,13 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 				}
 			}
 		}
-		await this.db.delete(pointer);
+		const db = this.assertDbExists();
+		await db.delete(pointer);
 		const parentObj = await this.getObjectFromPath(path.slice(0, path.length - 1));
-		const oldPointerIndex = parentObj.obj.files.indexOf(pointer);
-		parentObj.obj.files.splice(oldPointerIndex, 1);
-		await this.updateObjectRecursiveUp(parentObjTravelledData, parentObj.obj);
+		const parentDirObj = this.assertIsDir(parentObj.obj);
+		const oldPointerIndex = parentDirObj.files.indexOf(pointer);
+		parentDirObj.files.splice(oldPointerIndex, 1);
+		await this.updateObjectRecursiveUp(parentObjTravelledData, parentDirObj);
 	}
 
 	/**
@@ -407,7 +497,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {Array<string>} path
 	 * @param {File | BufferSource | Blob | string} file
 	 */
-	async writeFile(path = [], file = null) {
+	async writeFile(path, file) {
 		this.fireOnBeforeAnyChange();
 		if (!file) file = new Blob();
 		const fileName = path[path.length - 1];
@@ -427,25 +517,32 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 			fileName: newFileName,
 		});
 		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
+		const newParentDirObj = this.assertIsDir(newParentObj.obj);
 
 		// Remove existing pointer with the same name
+		/** @type {EditorFileSystemIndexedDbPointer[]} */
 		const deletePointers = [];
-		for (const pointer of newParentObj.obj.files) {
+		for (const pointer of newParentDirObj.files) {
 			const fileObject = await this.getObject(pointer);
 			if (fileObject.fileName == newFileName) {
 				deletePointers.push(pointer);
 			}
 		}
-		newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
+		newParentDirObj.files = newParentDirObj.files.filter(pointer => !deletePointers.includes(pointer));
+		const db = this.assertDbExists();
 		for (const pointer of deletePointers) {
-			await this.db.delete(pointer);
+			await db.delete(pointer);
 		}
 
-		newParentObj.obj.files.push(newPointer);
-		await this.updateObjectRecursiveUp(newParentTravelledData, newParentObj.obj);
+		newParentDirObj.files.push(newPointer);
+		await this.updateObjectRecursiveUp(newParentTravelledData, newParentDirObj);
 	}
 
-	async readFile(path = []) {
+	/**
+	 * @override
+	 * @param {string[]} path
+	 */
+	async readFile(path) {
 		const {obj} = await this.getObjectFromPath(path);
 		if (!obj.isFile) {
 			throw new Error(obj.fileName + " is not a file");
@@ -456,12 +553,11 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {string[]} path
-	 * @returns {Promise<boolean>}
 	 */
-	async isFile(path = []) {
+	async isFile(path) {
 		try {
 			const {obj} = await this.getObjectFromPath(path);
-			return obj.isFile;
+			return !!obj.isFile;
 		} catch (e) {
 			return false;
 		}
@@ -469,12 +565,11 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	/**
 	 * @param {string[]} path
-	 * @returns {Promise<boolean>}
 	 */
-	async isDir(path = []) {
+	async isDir(path) {
 		try {
 			const {obj} = await this.getObjectFromPath(path);
-			return obj.isDir;
+			return !!obj.isDir;
 		} catch (e) {
 			return false;
 		}
