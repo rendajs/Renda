@@ -2,7 +2,7 @@ import transpiledRollup from "../../libs/rollup.browser.js";
 import {getEditorInstanceCertain} from "../editorInstance.js";
 import resolveUrlObjects from "../../libs/rollup-plugin-resolve-url-objects.js";
 
-const rollup = /** @type {import("rollup")} */ (transpiledRollup);
+const rollup = /** @type {import("../../../node_modules/rollup/dist/rollup.js")} */ (transpiledRollup);
 
 /**
  * @typedef {"project" | "engine" | "remote" | null} ScriptType
@@ -15,7 +15,7 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
 
 export class ScriptBuilder {
 	/**
-	 * @typedef {[import("rollup").OutputChunk, ...(import("rollup").OutputChunk | import("rollup").OutputAsset)[]]} RollupOutput
+	 * @typedef {[import("../../../node_modules/rollup/dist/rollup.js").OutputChunk, ...(import("../../../node_modules/rollup/dist/rollup.js").OutputChunk | import("../../../node_modules/rollup/dist/rollup.js").OutputAsset)[]]} RollupOutput
 	 */
 	/**
 	 * @param {string[]} inputPath
@@ -81,7 +81,7 @@ export class ScriptBuilder {
 	async runClosureCompiler(fileSystem, devSocket, rollupOutput, outputPath) {
 		const rollupCode = rollupOutput[0].code;
 		const chunks = rollupOutput.filter(chunkOrAsset => chunkOrAsset.type == "chunk");
-		const castChunks = /** @type {import("rollup").OutputChunk[]} */ (chunks);
+		const castChunks = /** @type {import("../../../node_modules/rollup/dist/rollup.js").OutputChunk[]} */ (chunks);
 
 		/**
 		 * @typedef {Object} ClosureInputFile
@@ -263,14 +263,14 @@ export class ScriptBuilder {
 
 	/**
 	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
-	 * @return {import("rollup").Plugin}
+	 * @return {import("../../../node_modules/rollup/dist/rollup.js").Plugin}
 	 */
 	resolveScripts(fileSystem) {
 		const scriptBuilder = this;
 		return {
 			name: "editor-resolve-scripts",
 			resolveId(source, importer, opts) {
-				const castThis = /** @type {import("rollup").PluginContext} */ (/** @type {unknown} */ (this));
+				const castThis = /** @type {import("../../../node_modules/rollup/dist/rollup.js").PluginContext} */ (/** @type {unknown} */ (this));
 				if (!importer) return null;
 				const importerInfo = castThis.getModuleInfo(importer);
 				let {scriptType, sourcePath} = scriptBuilder.getPathType(source);
@@ -313,7 +313,7 @@ export class ScriptBuilder {
 				};
 			},
 			async load(id) {
-				const castThis = /** @type {import("rollup").PluginContext} */ (/** @type {unknown} */ (this));
+				const castThis = /** @type {import("../../../node_modules/rollup/dist/rollup.js").PluginContext} */ (/** @type {unknown} */ (this));
 				const moduleInfo = castThis.getModuleInfo(id);
 				/** @type {ScriptType} */
 				const scriptType = moduleInfo?.meta?.editorResolve?.scriptType ?? null;
