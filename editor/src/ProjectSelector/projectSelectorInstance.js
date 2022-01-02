@@ -1,6 +1,6 @@
 import {ProjectSelector} from "./ProjectSelector.js";
 
-/** @type {ProjectSelector} */
+/** @type {ProjectSelector?} */
 let projectSelectorInstance = null;
 
 export function initProjectSelector() {
@@ -8,5 +8,6 @@ export function initProjectSelector() {
 }
 
 export function getProjectSelectorInstance() {
+	if (!projectSelectorInstance) throw new Error("ProjectSelector not initialized.");
 	return projectSelectorInstance;
 }

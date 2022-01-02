@@ -2,7 +2,7 @@ import {IndexedDbUtil} from "../../../src/mod.js";
 import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
 
 export class ProjectSelector {
-	/** @typedef {import("../Managers/ProjectManager.js").StoredProjectEntry} StoredProjectEntry */
+	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
 
 	constructor() {
 		this.visible = true;
@@ -44,10 +44,12 @@ export class ProjectSelector {
 			this.setVisibility(false);
 		});
 
+		/** @type {StoredProjectEntryAny[]?} */
 		this.recentProjectsList = null;
 		this.getRecentsWaiter = new PromiseWaitHelper();
 
 		this.isRunningAddRecentProjects = false;
+		/** @type {StoredProjectEntryAny[]} */
 		this.addRecentProjectsQueue = [];
 
 		this.startGetRecentProjects();
@@ -105,10 +107,13 @@ export class ProjectSelector {
 	}
 
 	/**
-	 * @returns {Promise<StoredProjectEntry[]>}
+	 * @returns {Promise<StoredProjectEntryAny[]>}
 	 */
 	async getRecentProjects() {
 		await this.getRecentsWaiter.wait();
+		if (!this.recentProjectsList) {
+			throw new Error("Failed to initialize recent projects list.");
+		}
 		return this.recentProjectsList;
 	}
 
@@ -163,7 +168,9 @@ export class ProjectSelector {
 							text: "Change Alias",
 							onClick: async () => {
 								const alias = prompt("New Alias", entry.name);
-								await this.setRecentProjectAlias(entry, alias);
+								if (alias) {
+									await this.setRecentProjectAlias(entry, alias);
+								}
 							},
 						},
 						{
@@ -235,7 +242,7 @@ export class ProjectSelector {
 	}
 
 	/**
-	 * @param {StoredProjectEntry} entry
+	 * @param {StoredProjectEntryAny} entry
 	 */
 	async addRecentProjectEntry(entry) {
 		this.addRecentProjectsQueue.push(entry);
@@ -244,6 +251,7 @@ export class ProjectSelector {
 		this.isRunningAddRecentProjects = true;
 		while (this.addRecentProjectsQueue.length > 0) {
 			const entry = this.addRecentProjectsQueue.shift();
+			if (!entry) break;
 			const newList = await this.removeProjectEntryFromList(entry);
 			newList.unshift(entry);
 		}
@@ -252,13 +260,17 @@ export class ProjectSelector {
 	}
 
 	/**
-	 * @param {StoredProjectEntry} entry
+	 * @param {StoredProjectEntryAny} entry
 	 */
 	async removeRecentProjectsEntry(entry) {
 		await this.removeProjectEntryFromList(entry);
 		await this.saveRecentProjects();
 	}
 
+	/**
+	 * @param {StoredProjectEntryAny} entry
+	 * @param {string} alias
+	 */
 	async setRecentProjectAlias(entry, alias) {
 		const list = await this.getRecentProjects();
 		const promises = [];
@@ -275,12 +287,12 @@ export class ProjectSelector {
 	}
 
 	/**
-	 * @param {StoredProjectEntry} entry1
-	 * @param {StoredProjectEntry} entry2
+	 * @param {StoredProjectEntryAny} entry1
+	 * @param {StoredProjectEntryAny} entry2
 	 */
 	async projectEntryEquals(entry1, entry2) {
 		if (entry1.fileSystemType != entry2.fileSystemType) return false;
-		if (entry1.fileSystemType == "fsa") {
+		if (entry1.fileSystemType == "fsa" && entry2.fileSystemType == "fsa") {
 			return await entry1.fileSystemHandle.isSameEntry(entry2.fileSystemHandle);
 		} else if (entry1.fileSystemType == "db") {
 			return entry1.projectUuid == entry2.projectUuid;
@@ -291,8 +303,8 @@ export class ProjectSelector {
 	}
 
 	/**
-	 * @param {StoredProjectEntry} entry
-	 * @returns {Promise<StoredProjectEntry[]>}
+	 * @param {StoredProjectEntryAny} entry
+	 * @returns {Promise<StoredProjectEntryAny[]>}
 	 */
 	async removeProjectEntryFromList(entry) {
 		const list = await this.getRecentProjects();
@@ -306,7 +318,7 @@ export class ProjectSelector {
 		}
 		const results = await Promise.allSettled(promises);
 		const removeResults = results.filter(r => r.status == "fulfilled" && r.value.same);
-		const castRemoveResults = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntry, same: boolean}>[]} */ (removeResults);
+		const castRemoveResults = /** @type {PromiseFulfilledResult<{entry: StoredProjectEntryAny, same: boolean}>[]} */ (removeResults);
 		const removeEntries = castRemoveResults.map(r => r.value.entry);
 		for (const entry of removeEntries) {
 			list.splice(list.indexOf(entry), 1);
