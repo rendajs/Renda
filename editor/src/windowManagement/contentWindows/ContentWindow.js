@@ -7,14 +7,14 @@ export class ContentWindow {
 	 * This name will be used for saving the users workspace.
 	 * @type {string}
 	 */
-	static contentWindowTypeId = null;
+	static contentWindowTypeId = "";
 
 	/**
 	 * Should be overridden by inherited class.
 	 * This name will be visible in the UI.
 	 * @type {string}
 	 */
-	static contentWindowUiName = null;
+	static contentWindowUiName = "";
 
 	/**
 	 * The icon that is visible in the tab selector.
@@ -25,19 +25,19 @@ export class ContentWindow {
 	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
 	 * @param {import("../WindowManager.js").WindowManager} windowManager
+	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
 	 */
-	constructor(editorInstance, windowManager) {
+	constructor(editorInstance, windowManager, uuid) {
 		this.editorInstance = editorInstance;
 		this.windowManager = windowManager;
 
-		/** @type {import("../EditorWindowTabs.js").EditorWindowTabs}*/
+		/** @type {import("../EditorWindowTabs.js").EditorWindowTabs?} */
 		this.parentEditorWindow = null;
 		/**
 		 * The instance uuid of the ContentWindow.
 		 * This is used for dragging tabs and associating the ContentWindow with the persistent data.
-		 * @type {import("../../../../src/util/mod.js").UuidString}
 		 */
-		this.uuid = null;
+		this.uuid = uuid;
 
 		this.persistentData = new ContentWindowPersistentData();
 
@@ -76,10 +76,6 @@ export class ContentWindow {
 
 	destructor() {
 		this.destructed = true;
-		this.el = null;
-		this.topButtonBar = null;
-		this.tabSelectorSpacer = null;
-		this.contentEl = null;
 	}
 
 	/**
@@ -95,15 +91,28 @@ export class ContentWindow {
 		this.parentEditorWindow = null;
 	}
 
+	/**
+	 * @param {boolean} visible
+	 */
 	setVisible(visible) {
 		this.el.classList.toggle("hidden", !visible);
 	}
 
+	/**
+	 * @param {number} w
+	 * @param {number} h
+	 */
 	updateTabSelectorSpacer(w, h) {
 		this.tabSelectorSpacer.style.width = w + "px";
 		this.tabSelectorSpacer.style.height = h + "px";
 	}
 
+	/**
+	 * Changes the behaviour of where the content window is rendered.
+	 * If true the buttons of the top bar will be rendered on top of the
+	 * content and the content will be extended to the top edge of the window.
+	 * @param {boolean} value
+	 */
 	setContentBehindTopBar(value) {
 		this.contentEl.classList.toggle("behindTopButtonBar", value);
 	}

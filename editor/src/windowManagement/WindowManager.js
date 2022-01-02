@@ -323,7 +323,7 @@ export class WindowManager {
 			console.warn("Tried to register content window (" + constructor.name + ") that does not extend ContentWindow class.");
 			return;
 		}
-		if (typeof constructor.contentWindowTypeId != "string") {
+		if (!constructor.contentWindowTypeId) {
 			console.warn("Tried to register content window (" + constructor.name + ") with no type id, override the static contentWindowTypeId property in order for this content window to function properly");
 			return;
 		}
@@ -489,6 +489,7 @@ export class WindowManager {
 	focusOrCreateContentWindow(contentWindowConstructor) {
 		const contentWindow = this.getMostSuitableContentWindowByConstructor(contentWindowConstructor);
 		if (!contentWindow) throw new Error("Failed to create content window.");
+		if (!contentWindow.parentEditorWindow) throw new Error("Assertion failed, content window has no parent window.");
 		contentWindow.parentEditorWindow.focus();
 		contentWindow.parentEditorWindow.setActiveContentWindow(contentWindow);
 		return contentWindow;

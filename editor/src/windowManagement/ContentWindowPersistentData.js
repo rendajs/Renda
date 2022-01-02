@@ -1,9 +1,10 @@
 export class ContentWindowPersistentData {
 	#data = new Map();
+	/** @type {Set<(windowManager: import("./WindowManager.js").WindowManager) => any>} */
 	#onWindowManagerCbs = new Set();
 	#dataLoaded = false;
 	#onDataLoadCbs = new Set();
-	/** @type {import("./WindowManager.js").WindowManager} */
+	/** @type {import("./WindowManager.js").WindowManager?} */
 	#windowManager = null;
 
 	/**
@@ -11,13 +12,13 @@ export class ContentWindowPersistentData {
 	 */
 	setWindowManager(windowManager) {
 		this.#windowManager = windowManager;
-		this.#onWindowManagerCbs.forEach(cb => cb());
+		this.#onWindowManagerCbs.forEach(cb => cb(windowManager));
 		this.#onWindowManagerCbs.clear();
 	}
 
 	async #waitForWindowManager() {
-		if (this.#windowManager) return;
-		await new Promise(r => this.#onWindowManagerCbs.add(r));
+		if (this.#windowManager) return this.#windowManager;
+		return await new Promise(r => this.#onWindowManagerCbs.add(r));
 	}
 
 	async #waitForDataLoad() {
@@ -50,8 +51,8 @@ export class ContentWindowPersistentData {
 	 * Writes the data to local project settings.
 	 */
 	async flush() {
-		await this.#waitForWindowManager();
-		await this.#windowManager.requestContentWindowPersistentDataFlush();
+		const windowManager = await this.#waitForWindowManager();
+		await windowManager.requestContentWindowPersistentDataFlush();
 	}
 
 	isEmpty() {
@@ -62,6 +63,7 @@ export class ContentWindowPersistentData {
 	 * Used by the WindowManager when saving the data.
 	 */
 	getAll() {
+		/** @type {Object.<string, unknown>} */
 		const data = {};
 		for (const [k, v] of this.#data) {
 			data[k] = v;

@@ -143,9 +143,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @returns {T}
 	 */
 	loadContentWindow(index, constructor, uuid) {
-		const contentWindow = new constructor(getEditorInstanceCertain(), this.windowManager);
-		contentWindow.uuid = uuid;
-		contentWindow.windowManager = this.windowManager;
+		const contentWindow = new constructor(getEditorInstanceCertain(), this.windowManager, uuid);
 		contentWindow.persistentData.setWindowManager(this.windowManager);
 		this.setExistingContentWindow(index, contentWindow);
 		if (this.isInit) {
@@ -182,7 +180,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
 	 */
 	setExistingContentWindow(index, contentWindow) {
-		if (this.tabs[index]) throw new Error("nyi");
+		if (this.tabs[index]) throw new Error("Replacing existing content windows is not yet implemented.");
 		contentWindow.detachParentEditorWindow();
 		contentWindow.attachParentEditorWindow(this);
 		this.tabs[index] = contentWindow;
