@@ -66,22 +66,20 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  * } : never} PropertiesTreeViewEntryOptionsGeneric
  */
 
-/** @typedef {PropertiesTreeViewEntryOptionsGeneric<keyof PropertiesTreeViewGuiOptionsMap>} PropertiesTreeViewEntryOptions */
+/** @typedef {PropertiesTreeViewEntryOptionsGeneric<PropertiesTreeViewEntryType>} PropertiesTreeViewEntryOptions */
 
 /** @typedef {Object.<string,PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure */
 
-// @typedef {"vec3" | typeof String | "number" | typeof Boolean | typeof Array | typeof ProjectAsset | "droppable" | "button" | "label"} PropertiesTreeViewEntryType */
-
 /**
  * @typedef {Object} GuiInterface
- * @property {function(*) : boolean} [isDefaultValue]
+ * @property {(...args: any) => boolean} [isDefaultValue]
  * @property {boolean} [defaultValue]
- * @property {function(*) : *} [getValue]
+ * @property {(...args: any) => any} [getValue]
  * @property {*} [value]
- * @property {function(function() : void) : void} [onValueChange]
- * @property {function() : void} [destructor]
- * @property {Function} [setValue]
- * @property {function(boolean) : void} [setDisabled]
+ * @property {function((value: any) => any) : void} [onValueChange]
+ * @property {() => any} [destructor]
+ * @property {(value: any) => any} [setValue]
+ * @property {(disabled: boolean) => any} [setDisabled]
  */
 
 /**
@@ -93,11 +91,11 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 
 /**
- * @template {PropertiesTreeViewEntryOptions} T
+ * @template {PropertiesTreeViewEntryType} T
  */
 export class PropertiesTreeViewEntry extends TreeView {
 	/**
-	 * @param {T} opts
+	 * @param {PropertiesTreeViewEntryOptionsGeneric<T>} opts
 	 */
 	constructor({
 		type = "number",
@@ -124,7 +122,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		/** @type {PropertiesTreeViewGuiMap[T["type"]]} */
+		/** @type {PropertiesTreeViewGuiMap[T]?} */
 		this.gui = null;
 
 		this.type = type;
@@ -238,7 +236,17 @@ export class PropertiesTreeViewEntry extends TreeView {
 		castGui?.setDisabled?.(disabled);
 	}
 
-	setValue(newValue, setValueOpts) {
+	/**
+	 * @typedef {PropertiesTreeViewGuiMap[T] extends {value: any} ? PropertiesTreeViewGuiMap[T]["value"] :
+	 * PropertiesTreeViewGuiMap[T] extends {getValue: (...args: any) => any} ? ReturnType<PropertiesTreeViewGuiMap[T]["getValue"]> :
+	 * never} GuiValueType
+	 */
+
+	/**
+	 * @param {GuiValueType} newValue
+	 * @param {*} setValueOpts
+	 */
+	setValue(newValue, setValueOpts = {}) {
 		if (setValueOpts?.beforeValueSetHook) {
 			newValue = setValueOpts.beforeValueSetHook({
 				value: newValue,
@@ -254,6 +262,9 @@ export class PropertiesTreeViewEntry extends TreeView {
 		}
 	}
 
+	/**
+	 * @param {(value: GuiValueType) => any} cb
+	 */
 	onValueChange(cb) {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.onValueChange?.(cb);
@@ -263,12 +274,16 @@ export class PropertiesTreeViewEntry extends TreeView {
 		return this.getValue();
 	}
 
-	getValue(guiOpts) {
-		const castGui = /** @type {GuiInterface} */ (this.gui);
-		if (castGui.getValue) {
-			return castGui.getValue(guiOpts);
+	/**
+	 * @param {any} guiOpts
+	 * @returns {GuiValueType}
+	 */
+	getValue(guiOpts = {}) {
+		if (!this.gui) return null;
+		if (this.gui.getValue) {
+			return this.gui.getValue(guiOpts);
 		} else {
-			return castGui?.value;
+			return this.gui?.value;
 		}
 	}
 

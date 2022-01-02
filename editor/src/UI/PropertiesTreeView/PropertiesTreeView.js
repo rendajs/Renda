@@ -48,8 +48,8 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @template {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions} T
-	 * @param {T} opts
+	 * @template {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} T
+	 * @param {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptionsGeneric<T>} opts
 	 */
 	addItem(opts) {
 		const item = new PropertiesTreeViewEntry(opts);
