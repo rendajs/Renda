@@ -37,7 +37,7 @@ export class ColorizerFilter {
 	destructor() {
 		this.usageReferences.clear();
 		this.allReferencesDestructedCbs.clear();
-		this.svgEl.parentElement.removeChild(this.svgEl);
+		if (this.svgEl.parentElement) this.svgEl.parentElement.removeChild(this.svgEl);
 	}
 
 	/**
@@ -65,6 +65,7 @@ export class ColorizerFilter {
 	 */
 	notifyReferenceDestructed(ref) {
 		const weakRef = this.usageReferencesMap.get(ref);
+		if (!weakRef) return;
 		this.notifyWeakRefDestructed(weakRef);
 		this.usageReferencesMap.delete(ref);
 	}

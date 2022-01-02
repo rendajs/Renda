@@ -5,6 +5,8 @@
 import {ColorizerFilter} from "./ColorizerFilter.js";
 import {generateUuid} from "../../../../src/util/mod.js";
 
+const elementUsageReferenceSym = Symbol("colorizer filter usage reference");
+
 export class ColorizerFilterManager {
 	constructor() {
 		this.containerEl = document.createElement("div");
@@ -15,8 +17,6 @@ export class ColorizerFilterManager {
 
 		/** @type {Map<string,ColorizerFilter>} */
 		this.createdFilters = new Map();
-
-		this.elementUsageReferenceSym = Symbol("colorizer filter usage reference");
 	}
 
 	/**
@@ -24,7 +24,8 @@ export class ColorizerFilterManager {
 	 * @returns {ColorizerFilter}
 	 */
 	getFilter(cssColor) {
-		if (this.createdFilters.has(cssColor)) return this.createdFilters.get(cssColor);
+		const existingFilter = this.createdFilters.get(cssColor);
+		if (existingFilter) return existingFilter;
 
 		const filter = new ColorizerFilter(cssColor, this.containerEl);
 		filter.setFilterId("colorizerFilter-" + generateUuid());
@@ -36,18 +37,20 @@ export class ColorizerFilterManager {
 		return filter;
 	}
 
+	/** @typedef {HTMLElement & {[elementUsageReferenceSym]: import("./ColorizerFilterUsageReference.js").ColorizerFilterUsageReference}} ElWithSym */
+
 	/**
 	 * @param {HTMLElement} element The element to apply the filter to.
 	 * @param {string} cssColor Can be any valid CSS color string.
-	 * @returns {import("./ColorizerFilterUsageReference.js").ColorizerFilterUsageReference}
 	 */
 	applyFilter(element, cssColor) {
 		const filter = this.getFilter(cssColor);
 		element.style.filter = `url(#${filter.getFilterId()})`;
-		const existingRef = /** @type {import("./ColorizerFilterUsageReference.js").ColorizerFilterUsageReference} */ (element[this.elementUsageReferenceSym]);
+		const castEl = /** @type {ElWithSym} */ (element);
+		const existingRef = castEl[elementUsageReferenceSym];
 		if (existingRef) existingRef.destructor();
 		const ref = filter.getUsageReference();
-		element[this.elementUsageReferenceSym] = ref;
+		castEl[elementUsageReferenceSym] = ref;
 		return ref;
 	}
 }
