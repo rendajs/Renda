@@ -1,10 +1,12 @@
 import {EditorWindow} from "./EditorWindow.js";
 import {clamp01, mapValue} from "../../../src/util/mod.js";
-import {getEditorInstance} from "../editorInstance.js";
 
 export class EditorWindowSplit extends EditorWindow {
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof EditorWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.el.classList.add("editorWindowSplit");
 
@@ -36,16 +38,16 @@ export class EditorWindowSplit extends EditorWindow {
 	}
 
 	/**
-	 * @param {EditorWindow} windowA
-	 * @param {EditorWindow} windowB
+	 * @param {EditorWindow?} windowA
+	 * @param {EditorWindow?} windowB
 	 */
 	setWindows(windowA, windowB) {
 		this.windowA = windowA;
 		this.windowB = windowB;
-		this.windowA.setParent(this);
-		this.windowB.setParent(this);
-		this.windowA.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
-		this.windowB.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
+		if (this.windowA) this.windowA.setParent(this);
+		if (this.windowB) this.windowB.setParent(this);
+		if (this.windowA) this.windowA.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
+		if (this.windowB) this.windowB.onWorkspaceChange(() => this.fireWorkspaceChangeCbs());
 	}
 
 	init() {
@@ -58,11 +60,8 @@ export class EditorWindowSplit extends EditorWindow {
 		if (this.windowB) this.windowB.destructor();
 		this.windowA = null;
 		this.windowB = null;
-		this.elA = null;
 		this.onResizerUp();
 		this.resizer.removeEventListener("mousedown", this.boundOnResizerDown);
-		this.resizer = null;
-		this.elB = null;
 		super.destructor();
 	}
 
@@ -74,20 +73,20 @@ export class EditorWindowSplit extends EditorWindow {
 			this.elB.removeChild(this.elB.firstChild);
 		}
 
-		if (this.windowA.el) this.elA.appendChild(this.windowA.el);
-		if (this.windowB.el) this.elB.appendChild(this.windowB.el);
+		if (this.windowA?.el) this.elA.appendChild(this.windowA.el);
+		if (this.windowB?.el) this.elB.appendChild(this.windowB.el);
 
 		this.updateSplit();
 
-		this.windowA.updateEls();
-		this.windowB.updateEls();
+		this.windowA?.updateEls();
+		this.windowB?.updateEls();
 	}
 
 	updateSplit() {
 		this.el.style.flexDirection = this.splitHorizontal ? "column" : "row";
 
-		this.resizer.style.width = this.splitHorizontal ? null : "3px";
-		this.resizer.style.height = this.splitHorizontal ? "3px" : null;
+		this.resizer.style.width = this.splitHorizontal ? "" : "3px";
+		this.resizer.style.height = this.splitHorizontal ? "3px" : "";
 		this.resizer.style.cursor = this.splitHorizontal ? "row-resize" : "col-resize";
 		this.resizer.style.transform = this.splitHorizontal ? "scale(1, 2.5)" : "scale(2.5, 1)";
 
@@ -97,14 +96,18 @@ export class EditorWindowSplit extends EditorWindow {
 		this.elB.style.flexBasis = "0";
 	}
 
-	onResizerDown(e) {
+	onResizerDown() {
 		this.isResizing = true;
 		this.resizeStartBounds = this.el.getBoundingClientRect();
 		window.addEventListener("mouseup", this.boundOnResizerUp);
 		window.addEventListener("mousemove", this.boundOnResizerMove);
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	onResizerMove(e) {
+		if (!this.resizeStartBounds) return;
 		this.calcNewPercentage(
 			this.splitHorizontal ? this.resizeStartBounds.top : this.resizeStartBounds.left,
 			this.splitHorizontal ? this.resizeStartBounds.bottom : this.resizeStartBounds.right,
@@ -112,18 +115,26 @@ export class EditorWindowSplit extends EditorWindow {
 		);
 	}
 
+	/**
+	 * @param {number} boundStart
+	 * @param {number} boundEnd
+	 * @param {number} newValue
+	 */
 	calcNewPercentage(boundStart, boundEnd, newValue) {
 		const newPercentage = mapValue(boundStart, boundEnd, 0, 1, newValue);
 		this.setNewSplitPercentage(newPercentage);
 	}
 
+	/**
+	 * @param {number} newPercentage
+	 */
 	setNewSplitPercentage(newPercentage) {
 		this.splitPercentage = clamp01(newPercentage);
 		this.updateSplit();
 		this.onResized();
 	}
 
-	onResizerUp(e) {
+	onResizerUp() {
 		this.isResizing = false;
 		window.removeEventListener("mouseup", this.boundOnResizerUp);
 		window.removeEventListener("mousemove", this.boundOnResizerMove);
@@ -156,8 +167,11 @@ export class EditorWindowSplit extends EditorWindow {
 			remainingWindow = this.windowA;
 			this.windowA = null;
 		}
+		if (!remainingWindow) {
+			throw new Error("closedSplitWindow is not a child of this split window.");
+		}
 		if (this.isRoot) {
-			getEditorInstance().windowManager.replaceRootWindow(remainingWindow);
+			this.windowManager.replaceRootWindow(remainingWindow);
 		} else if (this.parent && this.parent instanceof EditorWindowSplit) {
 			this.parent.replaceWindow(this, remainingWindow);
 			this.destructor();

@@ -1,7 +1,7 @@
 import {EditorWindow} from "./EditorWindow.js";
 import {getElemSize, parseMimeType} from "../Util/Util.js";
 import {generateUuid, iLerp} from "../../../src/util/mod.js";
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstanceCertain} from "../editorInstance.js";
 import {Button} from "../UI/Button.js";
 import {ButtonGroup} from "../UI/ButtonGroup.js";
 import {EditorWindowSplit} from "./EditorWindowSplit.js";
@@ -13,8 +13,11 @@ export class EditorWindowTabs extends EditorWindow {
 	/** @type {import("../../../src/util/mod.js").UuidString[]} */
 	#intendedTabUuids = [];
 
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof EditorWindow>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.el.classList.add("editorWindowTabs");
 
@@ -60,15 +63,13 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	destructor() {
-		this.#intendedTabTypes = null;
+		this.#intendedTabTypes = [];
 		const tabs = this.tabs;
-		this.tabs = null;
+		this.tabs = [];
 		for (const tab of tabs) {
 			this.destructContentWindow(tab);
 		}
 		this.tabsSelectorGroup.destructor();
-		this.tabsSelectorGroup = null;
-		this.tabsEl = null;
 		super.destructor();
 	}
 
@@ -85,7 +86,7 @@ export class EditorWindowTabs extends EditorWindow {
 	setTabType(index, tabType, uuid) {
 		this.#intendedTabTypes[index] = tabType;
 		this.#intendedTabUuids[index] = uuid;
-		const constructor = getEditorInstance().windowManager.getContentWindowConstructorByType(tabType);
+		const constructor = this.windowManager.getContentWindowConstructorByType(tabType);
 		if (constructor) {
 			return this.loadContentWindow(index, constructor, uuid);
 		}
@@ -121,6 +122,7 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
+	 * @override
 	 * @param {typeof import("./contentWindows/ContentWindow.js").ContentWindow} constructor
 	 */
 	onContentWindowRegistered(constructor) {
@@ -141,7 +143,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @returns {T}
 	 */
 	loadContentWindow(index, constructor, uuid) {
-		const contentWindow = new constructor(getEditorInstance(), this.windowManager);
+		const contentWindow = new constructor(getEditorInstanceCertain(), this.windowManager);
 		contentWindow.uuid = uuid;
 		contentWindow.windowManager = this.windowManager;
 		contentWindow.persistentData.setWindowManager(this.windowManager);
@@ -227,18 +229,19 @@ export class EditorWindowTabs extends EditorWindow {
 				const tabIndex = prevTabCount + i;
 				const contentWindow = this.tabs[tabIndex];
 				const newButton = new Button({
-					colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+					colorizerFilterManager: getEditorInstanceCertain().colorizerFilterManager,
 					onClick: () => {
 						this.setActiveTabIndex(tabIndex);
 					},
 					draggable: true,
 					onDragStart: e => {
-						getEditorInstance().windowManager.setTabDragEnabled(true);
+						if (!e.dataTransfer) return;
+						this.windowManager.setTabDragEnabled(true);
 						e.dataTransfer.effectAllowed = "move";
 						e.dataTransfer.setData("text/jj; dragtype=editorwindowtab", contentWindow.uuid);
 					},
 					onDragEnd: () => {
-						getEditorInstance().windowManager.setTabDragEnabled(false);
+						this.windowManager.setTabDragEnabled(false);
 					},
 				});
 				this.tabsSelectorGroup.addButton(newButton);
@@ -269,6 +272,9 @@ export class EditorWindowTabs extends EditorWindow {
 		}
 	}
 
+	/**
+	 * @param {number} index
+	 */
 	setActiveTabIndex(index) {
 		this.activeTabIndex = index;
 		for (let i = 0; i < this.tabs.length; i++) {
@@ -296,9 +302,11 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {boolean} enabled
 	 */
 	setTabDragOverlayEnabled(enabled) {
-		this.tabDragOverlayEl.style.display = enabled ? null : "none";
+		this.tabDragOverlayEl.style.display = enabled ? "" : "none";
 		if (enabled) {
 			this.lastTabDragOverlayBoundingRect = this.tabDragOverlayEl.getBoundingClientRect();
+		} else {
+			this.lastTabDragOverlayBoundingRect = null;
 		}
 	}
 
@@ -308,12 +316,16 @@ export class EditorWindowTabs extends EditorWindow {
 		}
 	}
 
+	/**
+	 * @param {Button} button
+	 * @param {MouseEvent} e
+	 */
 	onTabsContextMenu(button, e) {
 		e.preventDefault();
 
 		/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
 		const addTabSubmenu = [];
-		for (const [id, contentWindow] of getEditorInstance().windowManager.registeredContentWindows) {
+		for (const [id, contentWindow] of this.windowManager.registeredContentWindows) {
 			let text = "<ContentWindow>";
 			let icon = null;
 			if (contentWindow.contentWindowUiName) {
@@ -353,21 +365,21 @@ export class EditorWindowTabs extends EditorWindow {
 					/** @type {import("../UI/ContextMenus/ContextMenu.js").ContextMenuStructure} */
 					const workspacesSubmenu = [];
 
-					const currentWorkspace = await getEditorInstance().windowManager.workspaceManager.getCurrentWorkspaceId();
+					const currentWorkspace = await this.windowManager.workspaceManager.getCurrentWorkspaceId();
 
-					const workspaces = await getEditorInstance().windowManager.workspaceManager.getWorkspacesList();
+					const workspaces = await this.windowManager.workspaceManager.getWorkspacesList();
 					for (const workspaceId of workspaces) {
 						workspacesSubmenu.push({
 							text: workspaceId,
 							reserveIconSpace: true,
 							showBullet: workspaceId == currentWorkspace,
 							onClick: () => {
-								getEditorInstance().windowManager.workspaceManager.setCurrentWorkspaceId(workspaceId);
+								this.windowManager.workspaceManager.setCurrentWorkspaceId(workspaceId);
 							},
 						});
 					}
 
-					let autoSaveValue = await getEditorInstance().windowManager.workspaceManager.getAutoSaveValue();
+					let autoSaveValue = await this.windowManager.workspaceManager.getAutoSaveValue();
 
 					workspacesSubmenu.push(
 						{
@@ -378,14 +390,14 @@ export class EditorWindowTabs extends EditorWindow {
 							onClick: () => {
 								const name = prompt("Enter Workspace Name", `Copy of ${currentWorkspace}`);
 								if (name && !workspaces.includes(name)) {
-									getEditorInstance().windowManager.workspaceManager.addNewWorkspace(name);
+									this.windowManager.workspaceManager.addNewWorkspace(name);
 								}
 							},
 						},
 						{
 							text: `Save '${currentWorkspace}'`,
 							onClick: () => {
-								getEditorInstance().windowManager.saveWorkspace();
+								this.windowManager.saveWorkspace();
 							},
 						},
 						{
@@ -396,14 +408,14 @@ export class EditorWindowTabs extends EditorWindow {
 								e.preventMenuClose();
 								autoSaveValue = !autoSaveValue;
 								e.item.showCheckmark = autoSaveValue;
-								getEditorInstance().windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
+								this.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
 							},
 						},
 						{
 							text: `Delete '${currentWorkspace}'`,
 							disabled: workspaces.length <= 1,
 							onClick: () => {
-								getEditorInstance().windowManager.workspaceManager.deleteCurrentWorkspace();
+								this.windowManager.workspaceManager.deleteCurrentWorkspace();
 							},
 						}
 					);
@@ -413,7 +425,7 @@ export class EditorWindowTabs extends EditorWindow {
 			},
 		];
 
-		const menu = getEditorInstance().contextMenuManager.createContextMenu(contextMenuStructure);
+		const menu = getEditorInstanceCertain().contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 
@@ -423,6 +435,9 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @returns {"center" | "left" | "right" | "top" | "bottom"}
 	 */
 	getTabDragPosition(x, y) {
+		if (!this.lastTabDragOverlayBoundingRect) {
+			throw new Error("Unable to get tab drag position, tab drag overlay is not enabled.");
+		}
 		const rect = this.lastTabDragOverlayBoundingRect;
 		const percentX = iLerp(rect.left, rect.right, x);
 		const percentY = iLerp(rect.top, rect.bottom, y);
@@ -431,7 +446,7 @@ export class EditorWindowTabs extends EditorWindow {
 			return "center";
 		}
 		/** @type {"left" | "right" | "top" | "bottom"} */
-		let closestEdge = null;
+		let closestEdge = "left";
 		/** @type {Array<{edge: "left" | "right" | "top" | "bottom", dist: number}>} */
 		const edges = [
 			{
@@ -466,7 +481,9 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {DragEvent} e
 	 */
 	onTabDragOver(e) {
+		if (!e.dataTransfer) return;
 		if (!e.dataTransfer.types.some(mimeType => this.validateTabDragMimeType(mimeType))) return;
+		if (!this.lastTabDragOverlayBoundingRect) return;
 		e.preventDefault();
 		e.dataTransfer.dropEffect = "move";
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
@@ -482,7 +499,7 @@ export class EditorWindowTabs extends EditorWindow {
 			height /= 2;
 			top += height;
 		}
-		getEditorInstance().windowManager.setTabDragFeedbackRect(left, top, width, height);
+		this.windowManager.setTabDragFeedbackRect(left, top, width, height);
 	}
 
 	/**
@@ -504,7 +521,7 @@ export class EditorWindowTabs extends EditorWindow {
 	*uuidsToContentWindows(uuids, fromOtherTabsOnly = false) {
 		for (const uuid of uuids) {
 			if (fromOtherTabsOnly && this.tabs.some(tab => tab.uuid == uuid)) continue;
-			const contentWindow = getEditorInstance().windowManager.getContentWindowByUuid(uuid);
+			const contentWindow = this.windowManager.getContentWindowByUuid(uuid);
 			if (contentWindow) {
 				yield contentWindow;
 			}
@@ -515,6 +532,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {DragEvent} e
 	 */
 	async onTabDrop(e) {
+		if (!e.dataTransfer) return;
 		const dragPosition = this.getTabDragPosition(e.pageX, e.pageY);
 		const tabUuidPromisess = Array.from(e.dataTransfer.items).filter(item => {
 			if (item.kind != "string") return false;
@@ -541,10 +559,10 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {boolean} splitHorizontal
 	 */
 	splitWindow(emptySide, splitHorizontal) {
-		const newSplitWindow = new EditorWindowSplit();
+		const newSplitWindow = new EditorWindowSplit(this.windowManager);
 		newSplitWindow.splitHorizontal = splitHorizontal;
 
-		const newTabWindow = new EditorWindowTabs();
+		const newTabWindow = new EditorWindowTabs(this.windowManager);
 		const oldParent = this.parent;
 		if (emptySide == "left" || emptySide == "top") {
 			newSplitWindow.setWindows(newTabWindow, this);
@@ -555,7 +573,7 @@ export class EditorWindowTabs extends EditorWindow {
 		}
 
 		if (this.isRoot) {
-			getEditorInstance().windowManager.replaceRootWindow(newSplitWindow, false);
+			this.windowManager.replaceRootWindow(newSplitWindow, false);
 		} else if (oldParent && oldParent instanceof EditorWindowSplit) {
 			oldParent.replaceWindow(this, newSplitWindow);
 		}

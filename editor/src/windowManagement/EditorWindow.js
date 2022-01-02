@@ -1,14 +1,17 @@
 export class EditorWindow {
-	constructor() {
+	/**
+	 * @param {import("./WindowManager.js").WindowManager} windowManager
+	 */
+	constructor(windowManager) {
 		this.el = document.createElement("div");
 		this.el.tabIndex = -1;
 
-		/** @type {EditorWindow} */
+		/** @type {EditorWindow?} */
 		this.parent = null;
-		/** @type {import("./WindowManager.js").WindowManager} */
-		this.windowManager = null;
+		this.windowManager = windowManager;
 		this.isRoot = false;
 
+		/** @type {Set<(hasFocus: boolean) => any>} */
 		this.onFocusedChangeCbs = new Set();
 		this.el.addEventListener("focusin", () => {
 			this.fireFocusedChange(true);
@@ -25,7 +28,6 @@ export class EditorWindow {
 		if (this.el && this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
-		this.el = null;
 		this.onWorkspaceChangeCbs.clear();
 	}
 
@@ -38,12 +40,15 @@ export class EditorWindow {
 	}
 
 	/**
-	 * @param {(hasFocus: boolean) => void} cb
+	 * @param {(hasFocus: boolean) => any} cb
 	 */
 	onFocusedChange(cb) {
 		this.onFocusedChangeCbs.add(cb);
 	}
 
+	/**
+	 * @param {boolean} hasFocus
+	 */
 	fireFocusedChange(hasFocus) {
 		for (const cb of this.onFocusedChangeCbs) {
 			cb(hasFocus);
@@ -56,6 +61,9 @@ export class EditorWindow {
 
 	updateEls() {}
 
+	/**
+	 * @param {typeof import("./contentWindows/ContentWindow.js").ContentWindow} constructor
+	 */
 	onContentWindowRegistered(constructor) {}
 
 	/**

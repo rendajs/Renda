@@ -61,13 +61,20 @@ export class WindowManager {
 	 * @param {boolean} [destructOldRoot]
 	 */
 	replaceRootWindow(newRootWindow, destructOldRoot = true) {
-		if (destructOldRoot) this.rootWindow.destructor();
+		if (this.rootWindow) {
+			if (destructOldRoot) this.rootWindow.destructor();
+		}
 		this.rootWindow = newRootWindow;
 		this.markRootWindowAsRoot();
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
 		this.rootWindow.onResized();
 		this.autoSaveWorkspace();
+	}
+
+	assertHasRootWindow() {
+		if (!this.rootWindow) throw new Error("No root window loaded.");
+		return this.rootWindow;
 	}
 
 	async reloadCurrentWorkspace() {
@@ -88,7 +95,8 @@ export class WindowManager {
 	}
 
 	getCurrentWorkspaceData() {
-		const rootWindow = this.serializeWorkspaceWindow(this.rootWindow);
+		const rw = this.assertHasRootWindow();
+		const rootWindow = this.serializeWorkspaceWindow(rw);
 		return {rootWindow};
 	}
 
@@ -198,8 +206,9 @@ export class WindowManager {
 	}
 
 	markRootWindowAsRoot() {
-		this.rootWindow.setRoot();
-		this.rootWindow.onWorkspaceChange(() => {
+		const rootWindow = this.assertHasRootWindow();
+		rootWindow.setRoot();
+		rootWindow.onWorkspaceChange(() => {
 			if (!this.isLoadingWorkspace) {
 				this.autoSaveWorkspace();
 			}
@@ -207,21 +216,22 @@ export class WindowManager {
 	}
 
 	/**
-	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindowData
+	 * @template {import("./WorkspaceManager.js").WorkspaceDataWindow?} T
+	 * @param {T} workspaceWindowData
+	 * @returns {T extends import("./WorkspaceManager.js").WorkspaceDataWindow ? import("./EditorWindow.js").EditorWindow : null}
 	 */
 	parseWorkspaceWindow(workspaceWindowData) {
-		/** @type {import("./EditorWindow.js").EditorWindow} */
+		if (!workspaceWindowData) return /** @type {any} */ (null);
+		/** @type {import("./EditorWindow.js").EditorWindow?} */
 		let newWindow = null;
 		if (workspaceWindowData.type == "split") {
-			newWindow = new EditorWindowSplit();
-			newWindow.windowManager = this;
+			newWindow = new EditorWindowSplit(this);
 			const castWindow = /** @type {EditorWindowSplit} */ (newWindow);
 			const castWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowSplit} */ (workspaceWindowData);
 			castWindow.splitHorizontal = castWindowData.splitHorizontal;
 			castWindow.splitPercentage = castWindowData.splitPercentage;
 		} else if (workspaceWindowData.type == "tabs") {
-			newWindow = new EditorWindowTabs();
-			newWindow.windowManager = this;
+			newWindow = new EditorWindowTabs(this);
 			const castWindow = /** @type {EditorWindowTabs} */ (newWindow);
 			const castWindowData = /** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */ (workspaceWindowData);
 			for (let i = 0; i < castWindowData.tabTypes.length; i++) {
@@ -240,8 +250,10 @@ export class WindowManager {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
+		} else {
+			throw new Error("Workspace has an invalid window type: " + workspaceWindowData.type);
 		}
-		return newWindow;
+		return /** @type {any} */ (newWindow);
 	}
 
 	/**
@@ -259,7 +271,6 @@ export class WindowManager {
 	}
 
 	/**
-	 *
 	 * @param {import("./WorkspaceManager.js").WorkspaceDataWindow} workspaceWindowData
 	 * @param {import("./EditorWindow.js").EditorWindow} existingWorkspaceWindow
 	 */
@@ -270,14 +281,15 @@ export class WindowManager {
 			const windowB = this.parseWorkspaceWindow(castWorkspaceWindowData.windowB);
 			const castExistingWorkspaceWindow = /** @type {import("./EditorWindowSplit.js").EditorWindowSplit} */ (existingWorkspaceWindow);
 			castExistingWorkspaceWindow.setWindows(windowA, windowB);
-			this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowA, castExistingWorkspaceWindow.windowA);
-			this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowB, castExistingWorkspaceWindow.windowB);
+			if (castWorkspaceWindowData.windowA && windowA) this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowA, windowA);
+			if (castWorkspaceWindowData.windowB && windowB) this.parseWorkspaceWindowChildren(castWorkspaceWindowData.windowB, windowB);
 		}
 	}
 
 	/**
-	 * @param {import("./EditorWindow.js").EditorWindow} workspaceWindow
-	 * @returns {import("./WorkspaceManager.js").WorkspaceDataWindow}
+	 * @template {import("./EditorWindow.js").EditorWindow?} T
+	 * @param {T} workspaceWindow
+	 * @returns {T extends import("./EditorWindow.js").EditorWindow ? import("./WorkspaceManager.js").WorkspaceDataWindow : null}
 	 */
 	serializeWorkspaceWindow(workspaceWindow) {
 		if (workspaceWindow instanceof EditorWindowSplit) {
@@ -289,7 +301,7 @@ export class WindowManager {
 				windowA: this.serializeWorkspaceWindow(workspaceWindow.windowA),
 				windowB: this.serializeWorkspaceWindow(workspaceWindow.windowB),
 			};
-			return data;
+			return /** @type {any} */ (data);
 		} else if (workspaceWindow instanceof EditorWindowTabs) {
 			/** @type {import("./WorkspaceManager.js").WorkspaceDataWindowTabs} */
 			const data = {
@@ -298,9 +310,9 @@ export class WindowManager {
 				activeTabIndex: workspaceWindow.activeTabIndex,
 				tabUuids: workspaceWindow.tabs.map(tab => tab.uuid),
 			};
-			return data;
+			return /** @type {any} */ (data);
 		}
-		return null;
+		return /** @type {any} */ (null);
 	}
 
 	/**
@@ -323,6 +335,9 @@ export class WindowManager {
 		}
 	}
 
+	/**
+	 * @param {string} type
+	 */
 	getContentWindowConstructorByType(type) {
 		return this.registeredContentWindows.get(type);
 	}
@@ -372,7 +387,7 @@ export class WindowManager {
 	 * @template {ContentWindow} T
 	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
 	 * @param {boolean} create Whether to create a new content window if none exist.
-	 * @returns {T}
+	 * @returns {T?}
 	 */
 	getOrCreateContentWindowByConstructor(contentWindowConstructor, create = true) {
 		for (const w of this.getContentWindowsByConstructor(contentWindowConstructor)) {
@@ -399,7 +414,7 @@ export class WindowManager {
 	 * @template {ContentWindow} T
 	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
 	 * @param {boolean} create Whether to create a new content window if none exist.
-	 * @returns {T}
+	 * @returns {T?}
 	 */
 	getMostSuitableContentWindowByConstructor(contentWindowConstructor, create = true) {
 		for (const weakRef of this.lastFocusedContentWindows) {
@@ -418,6 +433,7 @@ export class WindowManager {
 	 */
 	*getContentWindowsByType(type) {
 		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
+		if (!contentWindowConstructor) return;
 		yield* this.getContentWindowsByConstructor(contentWindowConstructor);
 	}
 
@@ -472,18 +488,10 @@ export class WindowManager {
 	 */
 	focusOrCreateContentWindow(contentWindowConstructor) {
 		const contentWindow = this.getMostSuitableContentWindowByConstructor(contentWindowConstructor);
+		if (!contentWindow) throw new Error("Failed to create content window.");
 		contentWindow.parentEditorWindow.focus();
 		contentWindow.parentEditorWindow.setActiveContentWindow(contentWindow);
 		return contentWindow;
-	}
-
-	createNewContentWindow(type) {
-		for (const w of this.allEditorWindows()) {
-			if (w instanceof EditorWindowTabs) {
-				return w.addTabType(type);
-			}
-		}
-		return null;
 	}
 
 	/**

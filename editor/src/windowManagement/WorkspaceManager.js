@@ -15,8 +15,8 @@ import {IndexedDbUtil} from "../../../src/mod.js";
  * @typedef {Object} WorkspaceDataWindowSplitType
  * @property {boolean} splitHorizontal
  * @property {number} splitPercentage
- * @property {WorkspaceDataWindow} windowA
- * @property {WorkspaceDataWindow} windowB
+ * @property {WorkspaceDataWindow?} windowA
+ * @property {WorkspaceDataWindow?} windowB
  *
  * @typedef {WorkspaceDataWindow & WorkspaceDataWindowSplitType} WorkspaceDataWindowSplit
  */
