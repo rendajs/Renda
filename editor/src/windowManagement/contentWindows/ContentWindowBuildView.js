@@ -38,7 +38,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		});
 		this.addTopBarEl(loadFrameButton.el);
 
-		/** @type {ContentWindowEntityEditor} */
+		/** @type {ContentWindowEntityEditor?} */
 		this.linkedEntityEditor = null;
 		this.setAvailableLinkedEntityEditor();
 
@@ -50,7 +50,6 @@ export class ContentWindowBuildView extends ContentWindow {
 		super.destructor();
 
 		this.previewCamDomTarget.destructor();
-		this.iframeEl = null;
 	}
 
 	setAvailableLinkedEntityEditor() {
@@ -60,6 +59,9 @@ export class ContentWindowBuildView extends ContentWindow {
 		}
 	}
 
+	/**
+	 * @param {ContentWindowEntityEditor?} linkedEntityEditor
+	 */
 	setLinkedEntityEditor(linkedEntityEditor) {
 		if (linkedEntityEditor == this.linkedEntityEditor) return;
 		if (this.linkedEntityEditor) this.linkedEntityEditor.removeOnRenderDirty(this.boundMarkPreviewCamRenderDirty);
@@ -97,6 +99,10 @@ export class ContentWindowBuildView extends ContentWindow {
 		}
 	}
 
+	/**
+	 * @param {number} w
+	 * @param {number} h
+	 */
 	onWindowResize(w, h) {
 		this.previewCamDomTarget.resize(w, h);
 		this.previewCamRenderDirty = true;
@@ -123,6 +129,6 @@ export class ContentWindowBuildView extends ContentWindow {
 
 	updateIframeVisibility() {
 		this.renderTargetElement.style.display = this.isRunning ? "none" : "block";
-		this.iframeEl.style.display = this.isRunning ? null : "none";
+		this.iframeEl.style.display = this.isRunning ? "" : "none";
 	}
 }

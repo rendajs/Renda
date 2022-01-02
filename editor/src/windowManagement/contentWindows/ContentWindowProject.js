@@ -8,7 +8,7 @@ import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorI
 /**
  * @typedef {Object} DraggingProjectAssetData
  * @property {boolean} dataPopulated
- * @property {typeof import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
+ * @property {typeof import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType?} assetType
  * @property {import("../../../../src/util/mod.js").UuidString} assetUuid
  */
 

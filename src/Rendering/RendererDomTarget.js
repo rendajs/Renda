@@ -13,7 +13,11 @@ export class RendererDomTarget {
 
 	destructor() {}
 
+	/**
+	 * @returns {HTMLElement}
+	 */
 	getElement() {
+		throw new Error("Abstract RenderDomTarget cannot create elements.");
 		return null;
 	}
 

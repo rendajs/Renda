@@ -50,7 +50,7 @@ export class ProjectAssetTypeManager {
 	 * @param {ProjectAssetTypeIdentifier} type
 	 */
 	getAssetType(type) {
-		return this.registeredAssetTypes.get(type);
+		return this.registeredAssetTypes.get(type) ?? null;
 	}
 
 	/**

@@ -59,7 +59,9 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 */
 	async open(windowManager) {
 		const entityEditor = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);
-		await entityEditor.loadEntityAsset(this.projectAsset.uuid);
+		if (entityEditor) {
+			await entityEditor.loadEntityAsset(this.projectAsset.uuid);
+		}
 	}
 
 	/**

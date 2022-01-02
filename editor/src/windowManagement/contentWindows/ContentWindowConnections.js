@@ -5,7 +5,7 @@ import {ContentWindow} from "./ContentWindow.js";
 /**
  * @typedef {Object} ConectionGui
  * @property {PropertiesTreeView} treeView
- * @property {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry} statusLabel
+ * @property {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../UI/LabelGui.js").LabelGuiOptions>} statusLabel
  */
 
 export class ContentWindowConnections extends ContentWindow {
@@ -25,16 +25,29 @@ export class ContentWindowConnections extends ContentWindow {
 		this.editorConnectionGuis = new Map();
 		this.inspectorConnectionGuis = new Map();
 
-		this.createHeaderUi();
-		this.createHostConnectionsUi();
-		this.createClientConnectionUi();
-		this.createInspectorConnectionsUi();
+		const {discoveryServerStatusLabel} = this.createHeaderUi();
+		this.discoveryServerStatusLabel = discoveryServerStatusLabel;
+
+		const {editorHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox} = this.createHostConnectionsUi();
+		this.editorHostConnectionTreeView = editorHostConnectionTreeView;
+		this.allowRemoteIncomingCheckbox = allowRemoteIncomingCheckbox;
+		this.allowInternalIncomingCheckbox = allowInternalIncomingCheckbox;
+
+		const {editorClientConnectionTreeView, editorConnectionsList} = this.createClientConnectionUi();
+		this.editorClientConnectionTreeView = editorClientConnectionTreeView;
+		this.editorConnectionsList = editorConnectionsList;
+
+		const {inspectorConnectionsList} = this.createInspectorConnectionsUi();
+		this.inspectorConnectionsList = inspectorConnectionsList;
 
 		this.editorHostConnectionTreeView.visible = !this.editorInstance.projectManager.currentProjectIsRemote;
 		this.editorClientConnectionTreeView.visible = this.editorInstance.projectManager.currentProjectIsRemote;
 
 		const connectionsManager = this.editorInstance.projectManager.editorConnectionsManager;
 		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
+		/**
+		 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").DiscoveryServerStatusType} status
+		 */
 		this.boundUpdateDiscoveryServerStatus = status => {
 			this.updateDiscoveryServerStatus(status);
 		};
@@ -60,7 +73,7 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	createHeaderUi() {
-		this.discoveryServerEndpointField = this.headerTreeView.addItem({
+		const discoveryServerEndpointField = this.headerTreeView.addItem({
 			type: "string",
 			/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
 			guiOpts: {
@@ -68,71 +81,72 @@ export class ContentWindowConnections extends ContentWindow {
 				placeholder: EditorConnectionsManager.getDefaultEndPoint(),
 			},
 		});
-		this.discoveryServerEndpointField.onValueChange(endPoint => {
+		discoveryServerEndpointField.onValueChange(endPoint => {
 			this.editorInstance.projectManager.setEditorConnectionsDiscoveryEndpoint(endPoint);
 		});
-		this.discoveryServerStatusLabel = this.headerTreeView.addItem({
+		const discoveryServerStatusLabel = this.headerTreeView.addItem({
 			type: "label",
 			guiOpts: {
 				label: "Status",
 			},
 		});
+		return {discoveryServerStatusLabel};
 	}
 
 	createHostConnectionsUi() {
-		this.editorHostConnectionTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(this.editorHostConnectionTreeView.el);
+		const editorHostConnectionTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(editorHostConnectionTreeView.el);
 
-		this.allowRemoteIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
+		const allowRemoteIncomingCheckbox = editorHostConnectionTreeView.addItem({
 			type: "boolean",
 			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
 				label: "Allow Remote Incoming Connections",
 			},
 		});
-		this.allowRemoteIncomingCheckbox.onValueChange(allowIncoming => {
+		allowRemoteIncomingCheckbox.onValueChange(allowIncoming => {
 			this.editorInstance.projectManager.setEditorConnectionsAllowRemoteIncoming(allowIncoming);
 		});
 
-		this.allowInternalIncomingCheckbox = this.editorHostConnectionTreeView.addItem({
+		const allowInternalIncomingCheckbox = editorHostConnectionTreeView.addItem({
 			type: "boolean",
 			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
 				label: "Allow Internal Incoming Connections",
 			},
 		});
-		this.allowInternalIncomingCheckbox.onValueChange(allowIncoming => {
+		allowInternalIncomingCheckbox.onValueChange(allowIncoming => {
 			this.editorInstance.projectManager.setEditorConnectionsAllowInternalIncoming(allowIncoming);
 		});
+
+		return {editorHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox};
 	}
 
 	createClientConnectionUi() {
-		this.editorClientConnectionTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(this.editorClientConnectionTreeView.el);
+		const editorClientConnectionTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(editorClientConnectionTreeView.el);
 
-		this.clientConnectionStatusLabel = this.editorClientConnectionTreeView.addItem({
-			type: "label",
-			guiOpts: {
-				label: "Status",
-			},
-		});
+		// todo: add status label for client connection
 
-		this.editorConnectionsList = this.editorClientConnectionTreeView.addCollapsable("Editors");
+		const editorConnectionsList = editorClientConnectionTreeView.addCollapsable("Editors");
+		return {editorClientConnectionTreeView, editorConnectionsList};
 	}
 
 	createInspectorConnectionsUi() {
-		this.inspectorConnectionsTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(this.inspectorConnectionsTreeView.el);
+		const inspectorConnectionsTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(inspectorConnectionsTreeView.el);
 
-		this.autoConnectInspectorsCheckbox = this.inspectorConnectionsTreeView.addItem({
-			type: "boolean",
-			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
-			guiOpts: {
-				label: "Auto Connect Inspectors",
-			},
-		});
+		// todo: make this work
+		// this.autoConnectInspectorsCheckbox = inspectorConnectionsTreeView.addItem({
+		// 	type: "boolean",
+		// 	/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
+		// 	guiOpts: {
+		// 		label: "Auto Connect Inspectors",
+		// 	},
+		// });
 
-		this.inspectorConnectionsList = this.inspectorConnectionsTreeView.addCollapsable("Inspectors");
+		const inspectorConnectionsList = inspectorConnectionsTreeView.addCollapsable("Inspectors");
+		return {inspectorConnectionsList};
 	}
 
 	async loadSettings() {
@@ -186,7 +200,6 @@ export class ContentWindowConnections extends ContentWindow {
 				}
 				const statusLabel = treeView.addItem({
 					type: "label",
-					/** @type {import("../../UI/LabelGui.js").LabelGuiOptions} */
 					guiOpts: {
 						label: "Status",
 					},

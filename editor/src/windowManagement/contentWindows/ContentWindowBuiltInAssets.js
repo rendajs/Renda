@@ -13,6 +13,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	constructor(...args) {
 		super(...args);
 
+		/** @type {Map<TreeView, import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		this.treeViewAssets = new Map();
 
 		this.treeView = new TreeView();
@@ -27,7 +28,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		/** @type {SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAsset>} */
+		/** @type {SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.init();
@@ -42,10 +43,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		super.destructor();
 
 		this.treeView.destructor();
-		this.treeView = null;
-
 		this.selectionManager.destructor();
-		this.selectionManager = null;
 	}
 
 	updateTreeView() {
@@ -55,6 +53,11 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		}
 	}
 
+	/**
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAssetAny} asset
+	 * @param {string[]} path
+	 * @param {TreeView} treeView
+	 */
 	addAssetToTreeView(asset, path, treeView) {
 		const [name, ...restPath] = path;
 		let child = treeView.getChildByName(name);
@@ -75,16 +78,22 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	 */
 	async onTreeViewDragStart(e) {
 		const projectAsset = this.treeViewAssets.get(e.target);
+		if (!projectAsset) return;
+
+		let assetType = null;
+		if (projectAsset.assetType) assetType = this.editorInstance.projectAssetTypeManager.getAssetType(projectAsset.assetType);
 
 		/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
 		const draggingData = {
 			dataPopulated: true,
-			assetType: this.editorInstance.projectAssetTypeManager.getAssetType(projectAsset.assetType),
+			assetType,
 			assetUuid: projectAsset.uuid,
 		};
 		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
-		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
-		e.rawEvent.dataTransfer.effectAllowed = "all";
+		if (e.rawEvent.dataTransfer) {
+			e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
+			e.rawEvent.dataTransfer.effectAllowed = "all";
+		}
 	}
 
 	/**
@@ -97,6 +106,9 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 				text: "Copy asset UUID",
 				onClick: async () => {
 					const projectAsset = this.treeViewAssets.get(e.target);
+					if (!projectAsset) {
+						throw new Error("Asset does not exist.");
+					}
 					await navigator.clipboard.writeText(projectAsset.uuid);
 				},
 			},
@@ -107,7 +119,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	onTreeViewSelectionChange(treeViewChanges) {
-		/** @type {import("../../Managers/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAsset>} */
+		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
 		changes.added = this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
@@ -121,14 +133,21 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	mapTreeViewArrayToProjectAssets(treeViews) {
 		const newArr = [];
 		for (const treeView of treeViews) {
-			newArr.push(this.treeViewAssets.get(treeView));
+			const asset = this.treeViewAssets.get(treeView);
+			if (!asset) continue;
+			newArr.push(asset);
 		}
 		return newArr;
 	}
 
+	/**
+	 * @param {string[]} path
+	 */
 	highlightPath(path) {
 		const assetTreeView = this.treeView.findChildFromNamesPath(path);
-		assetTreeView.expandWithParents();
-		assetTreeView.highlight();
+		if (assetTreeView) {
+			assetTreeView.expandWithParents();
+			assetTreeView.highlight();
+		}
 	}
 }
