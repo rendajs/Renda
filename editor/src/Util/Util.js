@@ -1,3 +1,7 @@
+/**
+ * @param {HTMLElement} el
+ * @return {[width: number, height: number]}
+ */
 export function getElemSize(el) {
 	let w = el.offsetWidth;
 	let h = el.offsetHeight;
@@ -37,19 +41,61 @@ export function parseMimeType(mimeType) {
 	return {type, subType, parameters: params};
 }
 
-export function handleDuplicateName(existingNames, prefix, suffix = "", numberPrefix = " ") {
+/**
+ * Utility function for creating new files while making sure there are no
+ * name clashes.
+ *
+ * ## Usage
+ *
+ * ### Basic
+ * ```js
+ * for (let i = 0; i < 3; i++) {
+ *   handleDuplicateFileName(["existingFile.txt"], "myNewFile", ".txt", "-")
+ * }
+ * ```
+ * Will result in `myNewFile.txt`, `myNewFile 1.txt`, `myNewFile 2.txt`.
+ *
+ * ### Using numberPrefix
+ * ```js
+ * for (let i = 0; i < 3; i++) {
+ *   handleDuplicateFileName(["existingFile.txt"], "myNewFile", ".txt", "-")
+ * }
+ * ```
+ * Will result in `myNewFile.txt`, `myNewFile-1.txt`, `myNewFile-2.txt`.
+ *
+ * ### Using a read directory result
+ * ```js
+ * const existingFiles = await myFileSystem.readDir(["some", "path"]);
+ * handleDuplicateFileName(existingFiles, "myNewFile", ".txt")
+ * ```
+ * @param {import("./FileSystems/EditorFileSystem.js").EditorFileSystemReadDirResult | string[]} existingNames
+ * @param {string} prefix The text that you want the name of the file to start with.
+ * @param {string} suffix The text that you want the name of the file to end with.
+ * @param {string} numberPrefix In case a number is inserted, this text will be inserted before the number.
+ */
+export function handleDuplicateFileName(existingNames, prefix, suffix = "", numberPrefix = " ") {
 	if (!Array.isArray(existingNames) && typeof existingNames == "object" && existingNames.files && existingNames.directories) {
 		existingNames = [...existingNames.files, ...existingNames.directories];
 	}
-	if (!existingNames.includes(prefix + suffix)) return prefix + suffix;
+	const castExistingNames = /** @type {string[]} */ (existingNames);
+	if (!castExistingNames.includes(prefix + suffix)) return prefix + suffix;
 	let i = 0;
 	while (true) {
 		i++;
 		const newName = prefix + numberPrefix + i + suffix;
-		if (!existingNames.includes(newName)) return newName;
+		if (!castExistingNames.includes(newName)) return newName;
 	}
 }
 
+/**
+ * Converts variables from camel case to title case.
+ *
+ * ## Usage
+ * ```js
+ * prettifyVariableName("myCoolVariable") // "My Cool Variable"
+ * ```
+ * @param {string} variableName
+ */
 export function prettifyVariableName(variableName) {
 	variableName = String(variableName);
 	const words = variableName.split(/(?<=[a-z])(?=[A-Z]+)/);

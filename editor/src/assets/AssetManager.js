@@ -1,5 +1,5 @@
 import {SingleInstancePromise} from "../../../src/mod.js";
-import {handleDuplicateName} from "../Util/Util.js";
+import {handleDuplicateFileName} from "../Util/Util.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
@@ -162,7 +162,7 @@ export class AssetManager {
 
 		if (await this.fileSystem.exists([...parentPath, fileName])) {
 			const existingFiles = await this.fileSystem.readDir(parentPath);
-			fileName = handleDuplicateName(existingFiles, type.newFileName, "." + type.newFileExtension);
+			fileName = handleDuplicateFileName(existingFiles, type.newFileName, "." + type.newFileExtension);
 		}
 		const newPath = [...parentPath, fileName];
 

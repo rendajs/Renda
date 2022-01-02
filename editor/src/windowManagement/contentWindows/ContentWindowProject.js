@@ -2,7 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
 import {SelectionGroup} from "../../Misc/SelectionGroup.js";
-import {handleDuplicateName} from "../../Util/Util.js";
+import {handleDuplicateFileName} from "../../Util/Util.js";
 import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorInstance.js";
 
 /**
@@ -337,7 +337,7 @@ export class ContentWindowProject extends ContentWindow {
 		let folderName = "New Folder";
 		if (await this.fileSystem.exists([...selectedPath, folderName])) {
 			const existingFiles = await this.fileSystem.readDir(selectedPath);
-			folderName = handleDuplicateName(existingFiles, folderName);
+			folderName = handleDuplicateFileName(existingFiles, folderName);
 		}
 		const newPath = [...selectedPath, folderName];
 		await this.fileSystem.createDir(newPath);
