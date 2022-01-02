@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
-import {SelectionGroup} from "../../Managers/SelectionGroup.js";
+import {SelectionGroup} from "../../Misc/SelectionGroup.js";
 
 export class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";

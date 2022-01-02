@@ -5,7 +5,7 @@ import {RecursionTracker} from "../../liveAssetDataRecursionTracker/RecursionTra
 import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 
 /**
- * @extends {ProjectAssetType<MaterialMap, null, import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
+ * @extends {ProjectAssetType<MaterialMap, null, import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
  */
 export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static type = "JJ:materialMap";
@@ -17,7 +17,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
+	 * @param {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
 	 * @param {RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
@@ -93,7 +93,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	async createBundledAssetData() {
 		const mapDatas = [];
 
-		/** @type {import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
@@ -132,7 +132,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @override
 	 */
 	async *getReferencedAssetUuids() {
-		/** @type {import("../../../Managers/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {

@@ -3,7 +3,7 @@ import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../UI/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Component, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/mod.js";
-import {SelectionGroup} from "../../Managers/SelectionGroup.js";
+import {SelectionGroup} from "../../Misc/SelectionGroup.js";
 import {ComponentGizmos} from "../../componentGizmos/gizmos/ComponentGizmos.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */

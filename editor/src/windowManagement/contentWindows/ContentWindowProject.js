@@ -1,7 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
-import {SelectionGroup} from "../../Managers/SelectionGroup.js";
+import {SelectionGroup} from "../../Misc/SelectionGroup.js";
 import {handleDuplicateName} from "../../Util/Util.js";
 import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorInstance.js";
 

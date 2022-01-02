@@ -18,7 +18,7 @@ import {ProjectAsset} from "./ProjectAsset.js";
 
 export class AssetManager {
 	/**
-	 * @param {import("../Managers/ProjectManager.js").ProjectManager} projectManager
+	 * @param {import("../ProjectSelector/ProjectManager.js").ProjectManager} projectManager
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
 	 * @param {import("./BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} builtInDefaultAssetLinksManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
