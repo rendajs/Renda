@@ -13,6 +13,7 @@ const worker = new SharedWorker(url.href, {type: "module"});
 worker.port.addEventListener("message", e => {
 	if (!e.data) return;
 
+	/** @type {Transferable[]} */
 	let transferables = [];
 	if (e.data.op == "connectionCreated") {
 		transferables = [e.data.port];

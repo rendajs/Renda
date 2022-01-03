@@ -8,10 +8,13 @@ import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnec
 const activeConnections = new Map();
 
 /**
- * @param {import("../../../../../src/util/mod.js").UuidString} createdClientId
+ * When a client registers itself, this gets called.
+ * This broadcasts the existence of the client to all other clients.
+ * And sends a list of all other clients to the new client.
+ * @param {InternalDiscoveryWorkerConnection} createdConnection
  */
-function sendAllConnectionAddedMessages(createdClientId) {
-	const {port: createdPort, clientType: createdClientType} = activeConnections.get(createdClientId);
+function sendAllConnectionAddedMessages(createdConnection) {
+	const {port: createdPort, clientType: createdClientType} = createdConnection;
 	for (const [id, {port, clientType, projectMetaData}] of activeConnections) {
 		if (port == createdPort) continue;
 
@@ -23,7 +26,7 @@ function sendAllConnectionAddedMessages(createdClientId) {
 		});
 		port.postMessage({
 			op: "availableClientAdded",
-			clientId: createdClientId,
+			clientId: createdConnection.id,
 			clientType: createdClientType,
 		});
 	}
@@ -58,7 +61,7 @@ self.addEventListener("connect", event => {
 	const castEvent = /** @type {MessageEvent} */ (event);
 	const [port] = castEvent.ports;
 
-	/** @type {InternalDiscoveryWorkerConnection} */
+	/** @type {InternalDiscoveryWorkerConnection?} */
 	let createdConnection = null;
 	port.addEventListener("message", e => {
 		if (!e.data) return;
@@ -72,7 +75,7 @@ self.addEventListener("connect", event => {
 
 			createdConnection = new InternalDiscoveryWorkerConnection(port, clientType);
 			activeConnections.set(createdConnection.id, createdConnection);
-			sendAllConnectionAddedMessages(createdConnection.id);
+			sendAllConnectionAddedMessages(createdConnection);
 		} else if (op == "unregisterClient") {
 			if (!createdConnection) return;
 			activeConnections.delete(createdConnection.id);
@@ -87,7 +90,9 @@ self.addEventListener("connect", event => {
 			if (!createdConnection) return;
 
 			const {otherClientId} = data;
-			const {port: otherPort} = activeConnections.get(otherClientId);
+			const otherConnection = activeConnections.get(otherClientId);
+			if (!otherConnection) return;
+			const {port: otherPort} = otherConnection;
 			if (!otherPort) return;
 
 			const messageChannel = new MessageChannel();

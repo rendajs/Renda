@@ -36,6 +36,7 @@ export class MessageHandlerInternal extends MessageHandler {
 	 * @param {*} data
 	 */
 	send(data) {
+		if (!this.messagePort) return;
 		this.messagePort.postMessage(data);
 	}
 }

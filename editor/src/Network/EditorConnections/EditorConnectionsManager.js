@@ -32,6 +32,7 @@ import {InternalDiscoveryManager} from "../../../../src/mod.js";
 
 export class EditorConnectionsManager {
 	constructor() {
+		/** @type {string?} */
 		this.currentEndpoint = null;
 		this.discoveryWs = null;
 		/** @type {DiscoveryServerStatusType} */
@@ -88,9 +89,17 @@ export class EditorConnectionsManager {
 		});
 		this.internalDiscovery.postMessage({op: "registerClient", clientType: "editor"});
 
-		/** @type {?AvailableConnectionConfig} */
+		/**
+		 * When the user opens a recent project that is a remote project,
+		 * this is set to the config needed to connect to the remote project
+		 * once it becomes available. Every time the available connections
+		 * list changes, this is checked. If the list contains a connection
+		 * that matches this config, the connection is made.
+		 * @type {AvailableConnectionConfig?}
+		 */
 		this.waitingForAvailableConnection = null;
 		this.onAvailableConnectionsChanged(() => {
+			if (!this.waitingForAvailableConnection) return;
 			const connection = this.findConnectionByAvailableConnectionConfig(this.waitingForAvailableConnection);
 			if (connection) {
 				this.startConnection(connection.id);
@@ -270,6 +279,9 @@ export class EditorConnectionsManager {
 		this.onDiscoveryOpenOrErrorCbs.clear();
 	}
 
+	/**
+	 * @param {unknown} data
+	 */
 	async send(data) {
 		const open = await this.waitForDiscoveryOpenOrError();
 		if (!open) return;
@@ -320,6 +332,9 @@ export class EditorConnectionsManager {
 	}
 
 	/**
+	 * Waits for a connection to any discovery services and once a connection is
+	 * available in the list of available connection matches this config, a
+	 * connection is made to that available connection.
 	 * @param {AvailableConnectionConfig} config
 	 */
 	waitForAvailableAndConnect(config) {

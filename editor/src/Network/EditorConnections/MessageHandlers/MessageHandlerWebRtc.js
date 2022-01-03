@@ -18,7 +18,9 @@ export class MessageHandlerWebRtc extends MessageHandler {
 		this.dataChannels = new Map();
 
 		this.rtcConnection.addEventListener("icecandidate", e => {
-			this.connectionsManager.sendRtcIceCandidate(this.otherClientUuid, e.candidate);
+			if (e.candidate) {
+				this.connectionsManager.sendRtcIceCandidate(this.otherClientUuid, e.candidate);
+			}
 		});
 		this.rtcConnection.addEventListener("datachannel", e => {
 			this.addDataChannelListeners(e.channel);
@@ -42,8 +44,8 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	async initWebRtcConnection() {
 		if (!this.isInitiator) return;
 
-		this.localDescription = await this.rtcConnection.createOffer();
-		await this.setAndSendDescription(this.localDescription);
+		const localDescription = await this.rtcConnection.createOffer();
+		await this.setAndSendDescription(localDescription);
 	}
 
 	updateConnectionState() {
@@ -95,11 +97,12 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	/**
-	 * @param {RTCSessionDescriptionInit} rtcDescription
+	 * @param {RTCSessionDescriptionInit} localDescription
 	 */
-	async setAndSendDescription(rtcDescription) {
-		await this.rtcConnection.setLocalDescription(rtcDescription);
-		this.connectionsManager.sendRtcOffer(this.otherClientUuid, this.localDescription);
+	async setAndSendDescription(localDescription) {
+		this.localDescription = localDescription;
+		await this.rtcConnection.setLocalDescription(localDescription);
+		this.connectionsManager.sendRtcOffer(this.otherClientUuid, localDescription);
 	}
 
 	/**
@@ -110,8 +113,8 @@ export class MessageHandlerWebRtc extends MessageHandler {
 		await this.rtcConnection.setRemoteDescription(rtcDescription);
 
 		if (rtcDescription.type == "offer") {
-			this.localDescription = await this.rtcConnection.createAnswer();
-			await this.setAndSendDescription(this.localDescription);
+			const localDescription = await this.rtcConnection.createAnswer();
+			await this.setAndSendDescription(localDescription);
 		}
 	}
 

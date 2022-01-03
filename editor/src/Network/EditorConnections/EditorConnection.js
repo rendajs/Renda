@@ -17,7 +17,7 @@ export class EditorConnection {
 		});
 
 		this.requestIdCounter = 0;
-		/** @type {Map<number, (data: *, isError: boolean) => void>} */
+		/** @type {Map<number, (data: unknown, isError: boolean) => void>} */
 		this.onResponseCbs = new Map();
 
 		this.sendBinaryOpts = {
@@ -116,7 +116,7 @@ export class EditorConnection {
 
 	/**
 	 * @param {string} cmd
-	 * @param {* | ArrayBuffer} data
+	 * @param {unknown | ArrayBuffer} data
 	 */
 	async sendRequest(cmd, data) {
 		const id = this.requestIdCounter++;
@@ -133,7 +133,8 @@ export class EditorConnection {
 	 * @param {number} id
 	 */
 	async waitForResponse(id) {
-		return await new Promise((resolve, reject) => {
+		/** @type {unknown} */
+		const response = await new Promise((resolve, reject) => {
 			this.onResponseCbs.set(id, (data, isError) => {
 				if (isError) {
 					reject(data);
@@ -142,6 +143,7 @@ export class EditorConnection {
 				}
 			});
 		});
+		return response;
 	}
 
 	/**
@@ -214,13 +216,28 @@ export class EditorConnection {
 			error = e;
 			didReject = true;
 		}
+		/** @type {{name: string, message: string, stack: string} | ArrayBuffer | null} */
 		let serializedError = null;
 		if (didReject) {
-			serializedError = {
-				name: error.name,
-				message: error.message,
-				stack: error.stack,
-			};
+			if (error instanceof Error) {
+				serializedError = {
+					name: error.name,
+					message: error.message,
+					stack: error.stack ?? "",
+				};
+			} else if (typeof error == "string") {
+				serializedError = {
+					name: "Error",
+					message: error,
+					stack: "",
+				};
+			} else {
+				serializedError = {
+					name: "Error",
+					message: JSON.stringify(error),
+					stack: "",
+				};
+			}
 			if (!this.messageHandler.autoSerializationSupported) {
 				serializedError = BinaryComposer.objectToBinary(serializedError, this.sendErrorBinaryOpts);
 			}
@@ -268,6 +285,10 @@ export class EditorConnection {
 		}
 	}
 
+	/**
+	 * @param {string} cmd
+	 * @param  {...unknown} args
+	 */
 	async call(cmd, ...args) {
 		const commandData = this.protocolManager.getRequestHandler(cmd);
 		if (!commandData) {
@@ -296,10 +317,11 @@ export class EditorConnection {
 
 		let returnData = responseData;
 		if (!this.messageHandler.autoSerializationSupported) {
+			const responseBuffer = /** @type {ArrayBuffer} */ (responseData);
 			if (commandData.handleResponse) {
-				returnData = commandData.handleResponse(meta, responseData);
+				returnData = commandData.handleResponse(meta, responseBuffer);
 			} else {
-				const returnDataJsonStr = this.textDecoder.decode(responseData);
+				const returnDataJsonStr = this.textDecoder.decode(responseBuffer);
 				if (returnDataJsonStr) {
 					returnData = JSON.parse(returnDataJsonStr);
 				} else {

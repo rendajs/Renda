@@ -217,6 +217,7 @@ module.exports = {
 					"BlobPart",
 					"ArrayBufferLike",
 					"MessageEventSource",
+					"Transferable",
 					"FileSystemHandle",
 					"FileSystemFileHandle",
 					"FileSystemDirectoryHandle",
