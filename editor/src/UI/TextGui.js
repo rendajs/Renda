@@ -22,6 +22,7 @@ export class TextGui {
 		this.el.spellcheck = false;
 		this.el.placeholder = placeholder;
 
+		/** @type {Set<(value: string) => any>} */
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
@@ -32,9 +33,11 @@ export class TextGui {
 
 	destructor() {
 		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
-		this.boundFireOnChangeCbs = null;
 	}
 
+	/**
+	 * @param {string} value
+	 */
 	setValue(value) {
 		this.el.value = value;
 	}
@@ -43,6 +46,9 @@ export class TextGui {
 		return this.el.value;
 	}
 
+	/**
+	 * @param {(value: string) => any} cb
+	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
@@ -53,6 +59,9 @@ export class TextGui {
 		}
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;

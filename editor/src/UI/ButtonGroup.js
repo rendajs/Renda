@@ -14,11 +14,11 @@ export class ButtonGroup {
 		}
 
 		this.boundFireContextMenuCbs = this.fireContextMenuCbs.bind(this);
+		/** @type {Set<import("./Button.js").ContextMenuCallback>} */
 		this.onContextMenuCbs = new Set();
 	}
 
 	destructor() {
-		this.el = null;
 		for (const button of this.buttons) {
 			button.destructor();
 		}
@@ -46,12 +46,19 @@ export class ButtonGroup {
 		button.removeOnContextMenu(this.boundFireContextMenuCbs);
 	}
 
+	/**
+	 * @param {import("./Button.js").Button} button
+	 * @param {MouseEvent} e
+	 */
 	fireContextMenuCbs(button, e) {
 		for (const cb of this.onContextMenuCbs) {
 			cb(button, e);
 		}
 	}
 
+	/**
+	 * @param {import("./Button.js").ContextMenuCallback} cb
+	 */
 	onContextMenu(cb) {
 		this.onContextMenuCbs.add(cb);
 	}

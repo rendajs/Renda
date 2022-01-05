@@ -70,7 +70,11 @@ export class ButtonSelectorGui {
 	 * @param {string?} value
 	 */
 	setValue(value) {
-		this.currentValueIndex = this.items.indexOf(value);
+		if (value == null) {
+			this.currentValueIndex = -1;
+		} else {
+			this.currentValueIndex = this.items.indexOf(value);
+		}
 		if (this.currentValueIndex == -1 && !this.allowSelectNone) {
 			this.currentValueIndex = 0;
 		}

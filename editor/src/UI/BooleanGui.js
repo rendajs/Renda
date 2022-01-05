@@ -21,9 +21,11 @@ export class BooleanGui {
 
 	destructor() {
 		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
-		this.boundFireOnChangeCbs = null;
 	}
 
+	/**
+	 * @param {boolean} value
+	 */
 	setValue(value) {
 		this.el.checked = value;
 	}
@@ -32,6 +34,9 @@ export class BooleanGui {
 		return this.el.checked;
 	}
 
+	/**
+	 * @param {(value: boolean) => any} cb
+	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}
@@ -42,6 +47,9 @@ export class BooleanGui {
 		}
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;
