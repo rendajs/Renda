@@ -17,42 +17,84 @@ import {autoRegisterRequestHandlers} from "./ProtocolRequestHandlers/autoRegiste
 
 /**
  * @typedef {Object} RequestMetaData
- * @property {boolean} autoSerializationSupported
+ * @property {boolean} autoSerializationSupported Whether serialization is supported by the message handler. For
+ * instance, WebSockets have no built-in serialization because all data is sent as string or binary. But
+ * `window.postMessage` and `MessageChannel` do have built-in serialization by the browser.
  */
 
+// This procedure is needed to not leak types in the global scope while still
+// being able to use it in `@linkcode`
+let EditorConnection;
+{
+	const x = /** @type {import("./EditorConnection.js").EditorConnection?} */ (null);
+	// eslint-disable-next-line no-unused-vars
+	EditorConnection = x;
+}
+
 /**
+ * An object that can be registered on the ProtocolManager. It contains several configurable properties and hooks
+ * needed for sending roundtrip requests on EditorConnections.
+ *
+ * ### Hooks
+ *
+ * Hooks are called in the following order:
+ *
+ * - `prepare`: Called on the client before the request is sent. It should
+ * return data that will be sent to the server.
+ * - `handleRequest`: Called on the server when a request is received. It should
+ * return response data that will be sent back to the client.
+ * - `handleResponse`: Called on the client when a response is received. It
+ * should return data that you want {@linkcode EditorConnection.call} to return.
+ *
+ * Only `handleRequest` is required, the rest is optional. If a hook is omitted,
+ * a best attempt at serializing the arguments and return values will be made.
+ *
+ * More info on how to serialize the return values of these hooks at {@linkcode SerializeCondition}.
+ * @template {string} TCommand
+ * @template {true | false} TNeedsRequestMetaData
+ * @template {((...args: any) => any) | undefined} TPrepareSignature
+ * @template {(...args: any) => any} THandleRequestSignature
+ * @template {((meta: RequestMetaData, buffer: ArrayBuffer) => any) | undefined} THandleResponseSignature
  * @typedef {Object} ProtocolManagerRequestHandler
- * @property {string} command
+ * @property {TCommand} command
  * @property {SerializeCondition} [requestSerializeCondition = "if-not-supported"]
- * @property {Function} [prepare]
- * @property {boolean} [needsRequestMetaData = false]
+ * @property {TPrepareSignature} [prepare] Called on the client before the request is sent.
+ * @property {TNeedsRequestMetaData} [needsRequestMetaData = false] If true, adds an extra argument to the hooks with metadata.
  * @property {SerializeCondition} [responseSerializeCondition = "if-not-supported"]
- * @property {Function} handleRequest
- * @property {function(RequestMetaData, ArrayBuffer) : *} [handleResponse]
+ * @property {THandleRequestSignature} handleRequest Called on the server when a request is received.
+ * @property {THandleResponseSignature} [handleResponse] Called on the client when a response is received.
  */
+
+/** @typedef {ProtocolManagerRequestHandler<any, any, any, any, any>} ProtocolManagerRequestHandlerAny */
 
 export class ProtocolManager {
 	constructor() {
-		/** @type {Map<string, ProtocolManagerRequestHandler>} */
+		/** @type {Map<string, ProtocolManagerRequestHandlerAny>} */
 		this.registeredRequestHandlers = new Map();
 
 		for (const handler of autoRegisterRequestHandlers) {
-			this.registerRequestHandler(handler.command, handler);
+			this.registerRequestHandler(handler);
 		}
 	}
 
 	/**
-	 * @param {string} cmd
-	 * @param {ProtocolManagerRequestHandler} requestHandler
+	 * @param {ProtocolManagerRequestHandlerAny} requestHandler
 	 */
-	registerRequestHandler(cmd, requestHandler) {
-		this.registeredRequestHandlers.set(cmd, requestHandler);
+	registerRequestHandler(requestHandler) {
+		this.registeredRequestHandlers.set(requestHandler.command, requestHandler);
 	}
 
 	/**
-	 * @param {string} cmd
+	 * @template {string} TCommand
+	 * @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerType<TCommand>} getRequestHandlerType
+	 */
+
+	/**
+	 * @template {string} TCommand
+	 * @param {TCommand} cmd
 	 */
 	getRequestHandler(cmd) {
-		return this.registeredRequestHandlers.get(cmd);
+		const handler = this.registeredRequestHandlers.get(cmd) || null;
+		return /** @type {getRequestHandlerType<TCommand> extends null ? ProtocolManagerRequestHandlerAny? : getRequestHandlerType<TCommand>} */ (handler);
 	}
 }

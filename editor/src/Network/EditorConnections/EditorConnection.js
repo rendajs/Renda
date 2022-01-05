@@ -114,8 +114,21 @@ export class EditorConnection {
 		this.messageHandler.send(sendData);
 	}
 
+	/** @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").HandlerCommands} HandlerCommands */
+
 	/**
-	 * @param {string} cmd
+	 * @template {HandlerCommands} TCommand
+	 * @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerArgs<TCommand>} getRequestHandlerArgs
+	 */
+
+	/**
+	 * @template {HandlerCommands} TCommand
+	 * @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerReturnType<TCommand>} getRequestHandlerReturnType
+	 */
+
+	/**
+	 * @template {HandlerCommands} TCommand
+	 * @param {TCommand} cmd
 	 * @param {unknown | ArrayBuffer} data
 	 */
 	async sendRequest(cmd, data) {
@@ -126,7 +139,8 @@ export class EditorConnection {
 			sendData = BinaryComposer.objectToBinary(sendData, this.sendRequestBinaryOpts);
 		}
 		this.send("request", sendData);
-		return await this.waitForResponse(id);
+		const response = await this.waitForResponse(id);
+		return /** @type {getRequestHandlerReturnType<TCommand>} */ (response);
 	}
 
 	/**
@@ -183,13 +197,14 @@ export class EditorConnection {
 		let error = null;
 		let didReject = false;
 		try {
-			const commandData = this.protocolManager.getRequestHandler(cmd);
+			const commandDataAny = this.protocolManager.getRequestHandler(cmd);
+			const commandData = /** @type {import("./ProtocolManager.js").ProtocolManagerRequestHandlerAny} */ (commandDataAny);
 			if (!commandData) {
 				throw new Error(`Unknown command: "${cmd}"`);
 			}
 
 			const handler = commandData.handleRequest;
-			/** @type {*[]}*/
+			/** @type {unknown[]}*/
 			let args = data;
 			if (this.getShouldSerialize(commandData.requestSerializeCondition)) {
 				const argsJsonStr = this.textDecoder.decode(data);
@@ -286,8 +301,12 @@ export class EditorConnection {
 	}
 
 	/**
-	 * @param {string} cmd
-	 * @param  {...unknown} args
+	 * Makes a roundtrip request to a to the connection. Arguments and the
+	 * return value is either automatically serialized/deserialized by the
+	 * ProtocolManager, or they are handled by registered request handlers.
+	 * @template {HandlerCommands} TCommand
+	 * @param {TCommand} cmd
+	 * @param {getRequestHandlerArgs<TCommand>} args
 	 */
 	async call(cmd, ...args) {
 		const commandData = this.protocolManager.getRequestHandler(cmd);
@@ -297,10 +316,11 @@ export class EditorConnection {
 
 		const meta = this.getRequestMetaData();
 
-		/** @type {*}*/
+		/** @type {any} */
 		let sendData = args;
 
 		if (commandData.prepare) {
+			/** @type {unknown[]} */
 			const preSendArgs = [...args];
 			if (commandData.needsRequestMetaData) {
 				preSendArgs.unshift(meta);
@@ -319,14 +339,15 @@ export class EditorConnection {
 		if (!this.messageHandler.autoSerializationSupported) {
 			const responseBuffer = /** @type {ArrayBuffer} */ (responseData);
 			if (commandData.handleResponse) {
-				returnData = commandData.handleResponse(meta, responseBuffer);
+				/** @type {unknown[]} */
+				const args = [responseBuffer];
+				if (commandData.needsRequestMetaData) {
+					args.unshift(meta);
+				}
+				returnData = commandData.handleResponse(...args);
 			} else {
 				const returnDataJsonStr = this.textDecoder.decode(responseBuffer);
-				if (returnDataJsonStr) {
-					returnData = JSON.parse(returnDataJsonStr);
-				} else {
-					returnData = null;
-				}
+				returnData = JSON.parse(returnDataJsonStr);
 			}
 		}
 		return returnData;

@@ -1,5 +1,6 @@
 import {BinaryComposer, StorageType} from "../../../../../src/mod.js";
 import {getEditorInstanceCertain} from "../../../editorInstance.js";
+import {createRequestHandler} from "./createRequestHandler.js";
 
 function getCurrentFileSystem() {
 	const fs = getEditorInstanceCertain().projectManager.currentProjectFileSystem;
@@ -7,8 +8,7 @@ function getCurrentFileSystem() {
 	return fs;
 }
 
-/** @type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
-const readDir = {
+const readDir = createRequestHandler({
 	command: "fileSystem.readDir",
 	/**
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
@@ -16,10 +16,9 @@ const readDir = {
 	handleRequest: async path => {
 		return await getCurrentFileSystem().readDir(path);
 	},
-};
+});
 
-/** @type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
-const createDir = {
+const createDir = createRequestHandler({
 	command: "fileSystem.createDir",
 	/**
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
@@ -27,7 +26,7 @@ const createDir = {
 	handleRequest: async path => {
 		return await getCurrentFileSystem().createDir(path);
 	},
-};
+});
 
 /** @type {import("../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 const serializeFileBinaryOpts = {
@@ -68,8 +67,7 @@ function deserializeFile(buffer) {
 	});
 }
 
-/**	@type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
-const readFile = {
+const readFile = createRequestHandler({
 	command: "fileSystem.readFile",
 	needsRequestMetaData: true,
 	/**
@@ -88,7 +86,7 @@ const readFile = {
 	handleResponse: async (meta, buffer) => {
 		return deserializeFile(buffer);
 	},
-};
+});
 
 /** @type {import("../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
 const serializeWriteFileBinaryOpts = {
@@ -102,8 +100,7 @@ const serializeWriteFileBinaryOpts = {
 	},
 };
 
-/** @type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
-const writeFile = {
+const writeFile = createRequestHandler({
 	command: "fileSystem.writeFile",
 	needsRequestMetaData: true,
 	requestSerializeCondition: "never",
@@ -137,10 +134,9 @@ const writeFile = {
 		const {path, file} = parsedData;
 		return await getCurrentFileSystem().writeFile(path, file);
 	},
-};
+});
 
-/**	@type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
-const isFile = {
+const isFile = createRequestHandler({
 	command: "fileSystem.isFile",
 	/**
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
@@ -148,10 +144,9 @@ const isFile = {
 	handleRequest: async path => {
 		return await getCurrentFileSystem().isFile(path);
 	},
-};
+});
 
-/**	@type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
-const isDir = {
+const isDir = createRequestHandler({
 	command: "fileSystem.isDir",
 	/**
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
@@ -159,10 +154,9 @@ const isDir = {
 	handleRequest: async path => {
 		return await getCurrentFileSystem().isDir(path);
 	},
-};
+});
 
-/**	@type {import("../ProtocolManager.js").ProtocolManagerRequestHandler} */
-const exists = {
+const exists = createRequestHandler({
 	command: "fileSystem.exists",
 	/**
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
@@ -170,7 +164,7 @@ const exists = {
 	handleRequest: async path => {
 		return await getCurrentFileSystem().exists(path);
 	},
-};
+});
 
 const fileSystemProtocolHandlers = [
 	readDir,

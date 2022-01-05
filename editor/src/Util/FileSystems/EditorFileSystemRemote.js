@@ -37,7 +37,6 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @returns {Promise<import("./EditorFileSystem.js").EditorFileSystemReadDirResult>}
 	 */
 	async readDir(path) {
 		const connection = await this.waitForConnection();
