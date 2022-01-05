@@ -116,11 +116,11 @@ export class DropDownGui {
 		}
 	}
 
-	/** @typedef {"default" | "fileStorage" | "binaryComposer"} GetValuePurpose */
+	/** @typedef {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} SerializableStructureOutputPurpose */
 
 	/**
 	 * @template {boolean} T
-	 * @template {GetValuePurpose} U
+	 * @template {SerializableStructureOutputPurpose} U
 	 * @typedef {Object} GetValueOptions
 	 * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
 	 * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
@@ -130,7 +130,7 @@ export class DropDownGui {
 
 	/**
 	 * @template {boolean} [T = true]
-	 * @template {GetValuePurpose} [U = "default"]
+	 * @template {SerializableStructureOutputPurpose} [U = "default"]
 	 * @param {GetValueOptions<T, U>} opts
 	 * @returns {U extends "fileStorage" ? string :
 	 * U extends "binaryComposer" ? number :

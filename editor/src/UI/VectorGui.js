@@ -16,12 +16,6 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  */
 
 /**
- * @typedef {Object} VectorGuiGetValueOptions
- * @property {boolean} [getAsArray]
- * @property {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [purpose]
- */
-
-/**
  * @template {Vec2 | Vec3 | Vec4} T
  */
 export class VectorGui {
@@ -123,21 +117,45 @@ export class VectorGui {
 		this.onValueChangeCbs.push(cb);
 	}
 
+	/** @typedef {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} SerializableStructureOutputPurpose */
+
 	/**
-	 * @param {VectorGuiGetValueOptions} options
+	 * @template {boolean} U
+	 * @template {SerializableStructureOutputPurpose} V
+	 * @typedef {Object} VectorGuiGetValueOptions
+	 * @property {U} [getAsArray = false]
+	 * @property {V} [purpose = "default"]
+	 */
+
+	/* eslint-disable jsdoc/no-undefined-types */
+	/**
+	 * @template {boolean} [U = false]
+	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @typedef {V extends "fileStorage" ? number[] :
+	 * 		V extends "binaryComposer" ? number[] :
+	 * 		U extends true ? number[] :
+	 * T} VectorGuiGetValueReturn
+	 */
+
+	/**
+	 * @template {boolean} [U = false]
+	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @param {VectorGuiGetValueOptions<U, V>} options
+	 * @returns {VectorGuiGetValueReturn<U, V>}
 	 */
 	getValue({
-		getAsArray = false,
-		purpose = "default",
+		getAsArray = /** @type {U} */ (false),
+		purpose = /** @type {V} */ ("default"),
 	} = {}) {
+		let getAsArrayValue = /** @type {boolean} */ (getAsArray);
 		if (purpose == "fileStorage") {
-			getAsArray = true;
+			getAsArrayValue = true;
 		} else if (purpose == "binaryComposer") {
-			getAsArray = true;
+			getAsArrayValue = true;
 		}
 		const numbersArr = this.numericGuis.map(g => g.value);
 		let val = null;
-		if (getAsArray) {
+		if (getAsArrayValue) {
 			val = numbersArr;
 		} else if (this.numericGuis.length == 2) {
 			val = new Vec2(numbersArr);
@@ -146,7 +164,15 @@ export class VectorGui {
 		} else if (this.numericGuis.length == 4) {
 			val = new Vec4(numbersArr);
 		}
-		return val;
+		return /** @type {VectorGuiGetValueReturn<U, V>} */ (val);
+	}
+	/* eslint-enable jsdoc/no-undefined-types */
+
+	test() {
+		/** @type {VectorGui<Vec2>} */
+		const gui = new VectorGui();
+		const x = gui.getValue({getAsArray: false});
+		console.log(x);
 	}
 
 	get value() {
@@ -161,8 +187,11 @@ export class VectorGui {
 		}
 	}
 
+	/* eslint-disable jsdoc/no-undefined-types */
 	/**
-	 * @param {VectorGuiGetValueOptions} guiOpts
+	 * @template {boolean} [U = false]
+	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @param {VectorGuiGetValueOptions<U, V>} guiOpts
 	 */
 	isDefaultValue(guiOpts) {
 		const val = this.getValue({
@@ -175,6 +204,7 @@ export class VectorGui {
 		}
 		return true;
 	}
+	/* eslint-enable jsdoc/no-undefined-types */
 
 	/**
 	 * @param {boolean} disabled
