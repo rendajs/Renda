@@ -107,15 +107,21 @@ const writeFile = createRequestHandler({
 	/**
 	 * @param {import("../ProtocolManager.js").RequestMetaData} meta
 	 * @param {import("../../../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {File} file
+	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async prepare(meta, path, file) {
-		/** @type {{path: string[], file: File | ArrayBuffer}} */
+		/** @type {{path: string[], file: File | BufferSource | Blob | string}} */
 		const sendData = {path, file};
 		if (meta.autoSerializationSupported) {
 			return sendData;
 		} else {
-			sendData.file = await serializeFile(file);
+			let sendFile;
+			if (!(file instanceof File)) {
+				sendFile = new File([file], "", {type: "application/octet-stream"});
+			} else {
+				sendFile = file;
+			}
+			sendData.file = await serializeFile(sendFile);
 			const buffer = BinaryComposer.objectToBinary(sendData, serializeWriteFileBinaryOpts);
 			return buffer;
 		}
