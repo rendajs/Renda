@@ -3,12 +3,12 @@
  * @typedef {Object} ButtonGuiOptionsType
  * @property {string} [text = ""] The text to show on the button.
  * @property {string} [icon = ""] The icon to show on the button.
- * @property {import("../Util/ColorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} [colorizerFilterManager = null] The colorizer filter manager if you want theme support for icons to work.
+ * @property {import("../Util/ColorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager?} [colorizerFilterManager = null] The colorizer filter manager if you want theme support for icons to work.
  * @property {boolean} [hasDownArrow = false] Whether the button should show a down arrow.
- * @property {function(TCallbacksContext) : void} [onClick = null] The function to call when the button is clicked.
+ * @property {((ctx: TCallbacksContext) => any)?} [onClick = null] The function to call when the button is clicked.
  * @property {boolean} [draggable = false] Whether the button should be draggable.
- * @property {function(DragEvent) : void} [onDragStart] The function to call when the button starts getting dragged.
- * @property {function(DragEvent) : void} [onDragEnd] The function to call when the dragged button is released.
+ * @property {((event: DragEvent) => any)?} [onDragStart] The function to call when the button starts getting dragged.
+ * @property {((event: DragEvent) => any)?} [onDragEnd] The function to call when the dragged button is released.
  */
 
 /**
@@ -19,14 +19,16 @@
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ButtonGuiOptionsType<TCallbacksContext>} ButtonGuiOptionsWithCallbacksContext<TCallbacksContext>
  */
 
+/** @typedef {(button: Button, event: MouseEvent) => any} ContextMenuCallback */
+
 export class Button {
 	/**
 	 * @param {ButtonGuiOptions} opts
 	 */
 	constructor({
 		disabled = false,
-		text = null,
-		icon = null,
+		text = "",
+		icon = "",
 		colorizerFilterManager = null,
 		hasDownArrow = false,
 		onClick = null,
@@ -60,6 +62,7 @@ export class Button {
 
 		this.setDisabled(disabled);
 
+		/** @type {Set<ContextMenuCallback>} */
 		this.onContextMenuCbs = new Set();
 
 		this.boundFireContextMenuCbs = this.fireContextMenuCbs.bind(this);
@@ -101,10 +104,16 @@ export class Button {
 		this.textEl.textContent = text;
 	}
 
+	/**
+	 * @param {boolean} selected
+	 */
 	setSelectedHighlight(selected) {
 		this.el.classList.toggle("selected", selected);
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.classList.toggle("disabled", disabled);
@@ -123,7 +132,7 @@ export class Button {
 	 */
 	applyIconToEl(el) {
 		el.style.backgroundImage = `url(${this.iconUrl})`;
-		el.style.display = this.iconUrl ? null : "none";
+		el.style.display = this.iconUrl ? "" : "none";
 		if (this.iconUrl && this.colorizerFilterManager) {
 			this.colorizerFilterManager.applyFilter(el, "var(--default-button-text-color)");
 		}
@@ -136,16 +145,25 @@ export class Button {
 		this.iconEl.style.backgroundSize = `${size * 100}%`;
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	fireContextMenuCbs(e) {
 		for (const cb of this.onContextMenuCbs) {
 			cb(this, e);
 		}
 	}
 
+	/**
+	 * @param {ContextMenuCallback} cb
+	 */
 	onContextMenu(cb) {
 		this.onContextMenuCbs.add(cb);
 	}
 
+	/**
+	 * @param {ContextMenuCallback} cb
+	 */
 	removeOnContextMenu(cb) {
 		this.onContextMenuCbs.delete(cb);
 	}
@@ -161,7 +179,9 @@ export class Button {
 			el.style.transform = "translateX(-100%)";
 			document.body.appendChild(this.dragFeedbackEl);
 		}
-		e.dataTransfer.setDragImage(this.dragFeedbackEl, this.dragFeedbackEl.offsetWidth / 2, this.dragFeedbackEl.offsetHeight / 2);
+		if (e.dataTransfer) {
+			e.dataTransfer.setDragImage(this.dragFeedbackEl, this.dragFeedbackEl.offsetWidth / 2, this.dragFeedbackEl.offsetHeight / 2);
+		}
 		if (this.onDragStart) this.onDragStart(e);
 	}
 
@@ -170,7 +190,9 @@ export class Button {
 	 */
 	dragEnd(e) {
 		if (this.dragFeedbackEl) {
-			this.dragFeedbackEl.parentElement.removeChild(this.dragFeedbackEl);
+			if (this.dragFeedbackEl.parentElement) {
+				this.dragFeedbackEl.parentElement.removeChild(this.dragFeedbackEl);
+			}
 			this.dragFeedbackEl = null;
 		}
 		if (this.onDragEnd) this.onDragEnd(e);
