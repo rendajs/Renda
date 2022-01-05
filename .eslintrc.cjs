@@ -197,7 +197,6 @@ module.exports = {
 
 		"jsdoc/check-alignment": "error",
 		"jsdoc/check-indentation": ["error", {excludeTags: ["returns"]}],
-		"jsdoc/check-param-names": "error",
 		"jsdoc/check-property-names": "error",
 		"jsdoc/check-types": "error",
 		"jsdoc/newline-after-description": ["error", "never"],
@@ -252,14 +251,6 @@ module.exports = {
 			"error",
 			"never",
 			{tags: {"*": "never"}},
-		],
-		"jsdoc/require-param-name": "error",
-		"jsdoc/require-param-type": "error",
-		"jsdoc/require-param": [
-			"error",
-			{
-				unnamedRootBase: ["options", "arg", "config"],
-			},
 		],
 		"jsdoc/require-property": "error",
 		"jsdoc/require-property-name": "error",
