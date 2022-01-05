@@ -1,4 +1,4 @@
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstanceCertain} from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutConditionValueSetter.js";
@@ -30,8 +30,8 @@ import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutCondition
  * @property {import("../Util/Util.js").ParsedMimeType} mimeType
  * @property {boolean} isSameTreeView Whether the dragged TreeView is from the same TreeView tree as the drop target.
  * @property {"string" | "file"} kind
- * @property {function() : void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.
- * @property {function() : void} reject Mark the drag as rejected. If any of the event handlers call `accept()`, this has no effect.
+ * @property {() => void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.
+ * @property {() => void} reject Mark the drag as rejected. If any of the event handlers call `accept()`, this has no effect.
  *
  * @typedef {TreeViewDragEvent & TreeViewValidateDragEventType} TreeViewValidateDragEvent
  */
@@ -94,34 +94,41 @@ import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutCondition
  * @property {TreeViewContextMenuEvent} contextmenu
  */
 
+/**
+ * @typedef {TreeViewEventCbMap[keyof TreeViewEventCbMap]} AllTreeViewEvents
+ */
+
+const dragRootUuidSymbol = Symbol("Drag Root Uuid");
+
 export class TreeView {
 	#draggable = false;
 	#rearrangeableOrder = false;
 	#rearrangeableHierarchy = false;
 	#elDraggable = false;
 
-	#boundDragStart = null;
-	#boundDragEnd = null;
-	#boundDragEnter = null;
-	#boundDragOver = null;
-	#boundDragLeave = null;
-	#boundDrop = null;
+	#boundDragStart;
+	#boundDragEnd;
+	#boundDragEnter;
+	#boundDragOver;
+	#boundDragLeave;
+	#boundDrop;
 
+	/** @type {HTMLDivElement?} */
 	#currenDragFeedbackText = null;
+	/** @type {import("../../../src/mod.js").UuidString?} */
 	#currentDraggingRearrangeDataId = null;
 
+	/** @type {HTMLDivElement?} */
 	#currenDragFeedbackEl = null;
 
 	#textFieldVisible = false;
 	#lastTextFocusOutWasFromRow = false;
 	#lastTextFocusOutTime = 0;
 	/** @type {ShorcutConditionValueSetter<boolean>} */
-	#renamingShortcutCondition = null;
+	#renamingShortcutCondition;
 
 	/** @type {ShorcutConditionValueSetter<boolean>} */
-	#focusSelectedShortcutCondition = null;
-
-	static #dragRootUuidSym = Symbol("Drag Root Uuid");
+	#focusSelectedShortcutCondition;
 
 	constructor(data = {}) {
 		this.el = document.createElement("div");
@@ -137,6 +144,8 @@ export class TreeView {
 		this.boundOnDblClick = this.onDblClick.bind(this);
 		this.rowEl.addEventListener("dblclick", this.boundOnDblClick.bind(this));
 
+		this.#boundDragStart = this.#onDragStartEvent.bind(this);
+		this.#boundDragEnd = this.#onDragEndEvent.bind(this);
 		this.#boundDragEnter = this.#onDragEnterEvent.bind(this);
 		this.#boundDragOver = this.#onDragOverEvent.bind(this);
 		this.#boundDragLeave = this.#onDragLeaveEvent.bind(this);
@@ -157,6 +166,7 @@ export class TreeView {
 		this.arrowEl.classList.add("treeViewArrow");
 		this.arrowContainerEl.appendChild(this.arrowEl);
 
+		/** @type {(() => any)[]} */
 		this.onCollapsedChangeCbs = [];
 		this.boundArrowClickEvent = this.arrowClickEvent.bind(this);
 		this.arrowContainerEl.addEventListener("click", this.boundArrowClickEvent);
@@ -181,6 +191,7 @@ export class TreeView {
 		this.myNameEl.classList.add("treeViewName");
 		this.rowEl.appendChild(this.myNameEl);
 
+		/** @type {import("./Button.js").Button[]} */
 		this.addedButtons = [];
 		this.buttonsEl = document.createElement("div");
 		this.buttonsEl.classList.add("treeViewButtons");
@@ -198,6 +209,7 @@ export class TreeView {
 
 		this.destructed = false;
 		this._name = "";
+		/** @type {TreeView[]} */
 		this.children = [];
 		/** @type {?TreeView} */
 		this.parent = data.parent ?? null; // todo: make this read only
@@ -231,15 +243,16 @@ export class TreeView {
 		this.lastHighlightTime = 0;
 		this.boundOnBodyClick = this.onBodyClick.bind(this);
 
+		/** @type {Map<string, Set<(event: AllTreeViewEvents) => void>>} */
 		this.eventCbs = new Map();
 		for (const eventType of ["selectionchange", "namechange", "dragstart", "validatedrag", "drop", "rearrange", "dblclick", "contextmenu"]) {
 			this.registerNewEventType(eventType);
 		}
 
-		const renamingCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.renaming");
+		const renamingCondition = getEditorInstanceCertain().keyboardShortcutManager.getCondition("treeView.renaming");
 		this.#renamingShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
 
-		const focusSelectedCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.focusSelected");
+		const focusSelectedCondition = getEditorInstanceCertain().keyboardShortcutManager.getCondition("treeView.focusSelected");
 		this.#focusSelectedShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
 
 		this.updateArrowHidden();
@@ -247,7 +260,7 @@ export class TreeView {
 		this.updatePadding();
 
 		this.hasRootEventListeners = false;
-		this.updeteRootEventListeners();
+		this.updateRootEventListeners();
 
 		this.updateRowVisibility();
 		this.#updateElDraggable();
@@ -257,11 +270,8 @@ export class TreeView {
 		this.destructed = true;
 		this.#removeFromParentElement();
 		this.rowEl.removeEventListener("click", this.boundOnRowClick);
-		this.boundOnRowClick = null;
 		this.rowEl.removeEventListener("contextmenu", this.boundOnContextMenuEvent);
-		this.boundOnContextMenuEvent = null;
 		this.arrowContainerEl.removeEventListener("click", this.boundArrowClickEvent);
-		this.boundArrowClickEvent = null;
 
 		this.rowEl.removeEventListener("dragstart", this.#boundDragStart);
 		this.rowEl.removeEventListener("dragend", this.#boundDragEnd);
@@ -270,39 +280,20 @@ export class TreeView {
 		this.rowEl.removeEventListener("dragleave", this.#boundDragLeave);
 		this.rowEl.removeEventListener("drop", this.#boundDrop);
 
-		this.rowEl = null;
-		this.arrowContainerEl = null;
-		this.arrowEl = null;
-		this.myNameEl = null;
 		for (const b of this.addedButtons) {
 			b.destructor();
 		}
 		this.addedButtons = [];
 		this.#renamingShortcutCondition.destructor();
-		this.#renamingShortcutCondition = null;
 		this.#focusSelectedShortcutCondition.destructor();
-		this.#focusSelectedShortcutCondition = null;
 
-		this.updeteRootEventListeners();
-		this.boundOnFocusIn = null;
-		this.boundOnFocusOut = null;
-		this.boundOnSelectPreviousKeyPressed = null;
-		this.boundOnSelectNextKeyPressed = null;
-		this.boundOnExpandSelectedKeyPressed = null;
-		this.boundOnCollapseSelectedKeyPressed = null;
+		this.updateRootEventListeners();
 
-		this.childrenEl = null;
-		this.customEl = null;
 		for (const child of this.children) {
 			child.destructor();
 		}
-		this.children = null;
+		this.children = [];
 		this.setParent(null);
-
-		this.onCollapsedChangeCbs = null;
-		this.eventCbs = null;
-
-		this.el = null;
 	}
 
 	#removeFromParentElement() {
@@ -339,13 +330,20 @@ export class TreeView {
 		}
 	}
 
+	/**
+	 * @param {import("./Button.js").Button} button
+	 */
 	addButton(button) {
 		this.addedButtons.push(button);
 		this.buttonsEl.appendChild(button.el);
 	}
 
-	calculateRecursionDepth() {
-		if (this.isRoot) {
+	/**
+	 * Updates the value of recursionDepth and updates the indentation amount
+	 * of the element.
+	 */
+	updateRecursionDepth() {
+		if (this.isRoot || !this.parent) {
 			this.recursionDepth = 0;
 		} else {
 			this.recursionDepth = this.parent.recursionDepth + 1;
@@ -372,6 +370,9 @@ export class TreeView {
 		return this.parent.children.indexOf(this);
 	}
 
+	/**
+	 * @param {this} child
+	 */
 	removeChild(child, destructChild = true) {
 		for (const [i, c] of this.children.entries()) {
 			if (child == c) {
@@ -381,6 +382,9 @@ export class TreeView {
 		}
 	}
 
+	/**
+	 * @param {number} index
+	 */
 	removeChildIndex(index, destructChild = true) {
 		const child = this.children[index];
 		if (destructChild) child.destructor();
@@ -399,7 +403,7 @@ export class TreeView {
 	}
 
 	/**
-	 * @param {TreeView} parent
+	 * @param {TreeView?} parent
 	 * @param {boolean} addChild Whether a call should be made to parent.addChild().
 	 */
 	setParent(parent, addChild = true) {
@@ -412,7 +416,7 @@ export class TreeView {
 				parent.addChild(this);
 			}
 
-			this.updeteRootEventListeners();
+			this.updateRootEventListeners();
 		}
 	}
 
@@ -440,7 +444,7 @@ export class TreeView {
 			});
 		}
 		newChild.setParent(this, false);
-		newChild.calculateRecursionDepth();
+		newChild.updateRecursionDepth();
 		if (index >= this.children.length) {
 			this.children.push(newChild);
 			this.childrenEl.appendChild(newChild.el);
@@ -464,7 +468,7 @@ export class TreeView {
 		}
 
 		newChild.setParent(this, false);
-		newChild.calculateRecursionDepth();
+		newChild.updateRecursionDepth();
 		let index = this.children.indexOf(relativeChild) + indexOffset;
 		index = clamp(index, 0, this.children.length);
 		this.children.splice(index, 0, newChild);
@@ -486,7 +490,7 @@ export class TreeView {
 
 	set collapsed(collapsed) {
 		this._collapsed = collapsed;
-		this.childrenEl.style.display = collapsed ? "none" : null;
+		this.childrenEl.style.display = collapsed ? "none" : "";
 		this.arrowContainerEl.classList.toggle("collapsed", collapsed);
 		this.fireOnCollapsedChange();
 	}
@@ -514,7 +518,7 @@ export class TreeView {
 
 	set visible(value) {
 		this._visible = value;
-		this.el.style.display = value ? null : "none";
+		this.el.style.display = value ? "" : "none";
 	}
 
 	updateRowVisibility() {
@@ -572,8 +576,6 @@ export class TreeView {
 		this.#elDraggable = draggable;
 		this.rowEl.draggable = draggable;
 		if (draggable) {
-			this.#boundDragStart = this.#onDragStartEvent.bind(this);
-			this.#boundDragEnd = this.#onDragEndEvent.bind(this);
 			this.rowEl.addEventListener("dragstart", this.#boundDragStart);
 			this.rowEl.addEventListener("dragend", this.#boundDragEnd);
 		} else {
@@ -581,6 +583,10 @@ export class TreeView {
 			this.rowEl.removeEventListener("dragend", this.#boundDragEnd);
 		}
 	}
+
+	/**
+	 * @typedef {TreeView & {[dragRootUuidSymbol] : import("../../../src/mod.js").UuidString}} TreeViewWithDragRoot
+	 */
 
 	/**
 	 * @param {DragEvent} e
@@ -597,21 +603,24 @@ export class TreeView {
 		} else {
 			draggingItems = [this];
 		}
-		if (this.rearrangeable) {
-			e.dataTransfer.effectAllowed = "move";
-			this.#currentDraggingRearrangeDataId = getEditorInstance().dragManager.registerDraggingData({draggingItems});
-			let rootUuid = root[TreeView.#dragRootUuidSym];
-			if (rootUuid == null) {
-				rootUuid = generateUuid();
-				root[TreeView.#dragRootUuidSym] = rootUuid;
+		if (e.dataTransfer) {
+			if (this.rearrangeable) {
+				e.dataTransfer.effectAllowed = "move";
+				this.#currentDraggingRearrangeDataId = getEditorInstanceCertain().dragManager.registerDraggingData({draggingItems});
+				const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
+				let rootUuid = castRoot[dragRootUuidSymbol];
+				if (rootUuid == null) {
+					rootUuid = generateUuid();
+					castRoot[dragRootUuidSymbol] = rootUuid;
+				}
+				e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 			}
-			e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
+			const {el, x, y} = getEditorInstanceCertain().dragManager.createDragFeedbackText({
+				text: draggingItems.map(item => item.name),
+			});
+			this.#currenDragFeedbackText = el;
+			e.dataTransfer.setDragImage(el, x, y);
 		}
-		const {el, x, y} = getEditorInstance().dragManager.createDragFeedbackText({
-			text: draggingItems.map(item => item.name),
-		});
-		this.#currenDragFeedbackText = el;
-		e.dataTransfer.setDragImage(el, x, y);
 		this.fireEvent("dragstart", {
 			rawEvent: e,
 			target: this,
@@ -622,9 +631,9 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragEndEvent(e) {
-		if (this.#currenDragFeedbackText) getEditorInstance().dragManager.removeFeedbackText(this.#currenDragFeedbackText);
+		if (this.#currenDragFeedbackText) getEditorInstanceCertain().dragManager.removeFeedbackText(this.#currenDragFeedbackText);
 		this.#currenDragFeedbackText = null;
-		if (this.#currentDraggingRearrangeDataId) getEditorInstance().dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
+		if (this.#currentDraggingRearrangeDataId) getEditorInstanceCertain().dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
 		this.#currentDraggingRearrangeDataId = null;
 	}
 
@@ -632,7 +641,7 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragEnterEvent(e) {
-		if (this.#validateDragEvent(e)) {
+		if (this.#validateDragEvent(e) && e.dataTransfer) {
 			e.dataTransfer.dropEffect = "move";
 			e.preventDefault();
 			this.#updateDragFeedback(e);
@@ -643,7 +652,7 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragOverEvent(e) {
-		if (this.#validateDragEvent(e)) {
+		if (this.#validateDragEvent(e) && e.dataTransfer) {
 			e.dataTransfer.dropEffect = "move";
 			e.preventDefault();
 			this.#updateDragFeedback(e);
@@ -673,22 +682,25 @@ export class TreeView {
 			});
 
 			const promises = [];
-			for (const item of e.dataTransfer.items) {
-				if (!this.#validateDragItemForRearrange(item)) continue;
+			if (e.dataTransfer) {
+				for (const item of e.dataTransfer.items) {
+					if (!this.#validateDragItemForRearrange(item)) continue;
 
-				const promise = (async () => {
-					const dataId = await new Promise(r => item.getAsString(r));
-					const draggingData = getEditorInstance().dragManager.getDraggingData(dataId);
-					if (!draggingData || !draggingData.draggingItems) return null;
-					return /** @type {TreeView[]} */ (draggingData.draggingItems);
-				})();
-				promises.push(promise);
+					const promise = (async () => {
+						const dataId = await new Promise(r => item.getAsString(r));
+						const draggingData = getEditorInstanceCertain().dragManager.getDraggingData(dataId);
+						if (!draggingData || !draggingData.draggingItems) return null;
+						return /** @type {TreeView[]} */ (draggingData.draggingItems);
+					})();
+					promises.push(promise);
+				}
 			}
 
 			if (promises.length <= 0) return;
 
 			const draggingItems = await Promise.all(promises);
-			const flatDraggingItems = draggingItems.flat();
+			const flatDraggingItemsNonNull = draggingItems.flat().filter(item => item != null);
+			const flatDraggingItems = /** @type {TreeView[]} */ (flatDraggingItemsNonNull);
 
 			const oldIndicesPaths = flatDraggingItems.map(item => item.getIndicesPath());
 			const oldTreeViewsPath = flatDraggingItems.map(item => item.getTreeViewsPath());
@@ -706,7 +718,7 @@ export class TreeView {
 				}
 			} else {
 				// If the items are dropped above or below the root, there is no where to put them.
-				if (this.isRoot) return;
+				if (this.isRoot || !this.parent) return;
 
 				// Prevent items from moving inside themselves.
 				for (const parent of this.traverseUp()) {
@@ -810,6 +822,7 @@ export class TreeView {
 	 * @returns {boolean}
 	 */
 	#validateDragEvent(e) {
+		if (!e.dataTransfer) return false;
 		for (const item of e.dataTransfer.items) {
 			const valid = this.#validateDragItem(e, item);
 			if (valid) return true;
@@ -873,7 +886,8 @@ export class TreeView {
 		const {type, subType, parameters} = parsed;
 		if (type == "text" && subType == "jj") {
 			const root = this.findRoot();
-			const rootUuid = root[TreeView.#dragRootUuidSym];
+			const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
+			const rootUuid = castRoot[dragRootUuidSymbol];
 			if (rootUuid && parameters.dragtype == "rearrangingtreeview" && parameters.rootuuid == rootUuid) {
 				return true;
 			}
@@ -929,6 +943,9 @@ export class TreeView {
 		}
 	}
 
+	/**
+	 * @returns {Generator<TreeView>}
+	 */
 	*traverseUp() {
 		yield this;
 		if (this.parent) {
@@ -938,17 +955,20 @@ export class TreeView {
 		}
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	arrowClickEvent(e) {
 		e.stopPropagation();
 		this.toggleCollapsed();
 	}
 
-	arrowHoverStartEvent(e) {
+	arrowHoverStartEvent() {
 		if (!this.arrowVisible) return;
 		this.arrowContainerEl.classList.toggle("hover", true);
 	}
 
-	arrowHoverEndEvent(e) {
+	arrowHoverEndEvent() {
 		this.arrowContainerEl.classList.toggle("hover", false);
 	}
 
@@ -958,6 +978,9 @@ export class TreeView {
 		}
 	}
 
+	/**
+	 * @param {() => any} cb
+	 */
 	onCollapsedChange(cb) {
 		this.onCollapsedChangeCbs.push(cb);
 	}
@@ -986,7 +1009,7 @@ export class TreeView {
 	}
 
 	/**
-	 * @param {PointerEvent} e
+	 * @param {MouseEvent} e
 	 */
 	onRowClick(e) {
 		if (this.selectable) {
@@ -1003,7 +1026,6 @@ export class TreeView {
 				/** @type {TreeViewSelectionChangeEvent} */
 				const changes = {
 					target: this,
-					rawEvent: null,
 					reset: false,
 					added: [],
 					removed: [],
@@ -1032,6 +1054,9 @@ export class TreeView {
 		}
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	onDblClick(e) {
 		this.fireEvent("dblclick", {
 			target: this,
@@ -1052,7 +1077,7 @@ export class TreeView {
 		if (textFieldVisible != this.#textFieldVisible) {
 			this.#textFieldVisible = textFieldVisible;
 			if (textFieldVisible) {
-				const oldName = this.myNameEl.textContent;
+				const oldName = this.myNameEl.textContent ?? "";
 				this.myNameEl.textContent = "";
 				const textEl = document.createElement("input");
 				this.renameTextField = textEl;
@@ -1087,7 +1112,6 @@ export class TreeView {
 					/** @type {TreeViewNameChangeEvent} */
 					const event = {
 						target: this,
-						rawEvent: null,
 						oldName, newName,
 					};
 					this.fireEvent("namechange", event);
@@ -1141,30 +1165,31 @@ export class TreeView {
 		}
 	}
 
-	updeteRootEventListeners() {
+	updateRootEventListeners() {
 		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
 		if (this.hasRootEventListeners != needsEventHandlers) {
 			this.hasRootEventListeners = needsEventHandlers;
+			const shortcutManager = getEditorInstanceCertain().keyboardShortcutManager;
 			if (needsEventHandlers) {
 				this.el.addEventListener("focusin", this.boundOnFocusIn);
 				this.el.addEventListener("focusout", this.boundOnFocusOut);
 
-				getEditorInstance().keyboardShortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				getEditorInstance().keyboardShortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				getEditorInstance().keyboardShortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				getEditorInstance().keyboardShortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				getEditorInstance().keyboardShortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				getEditorInstance().keyboardShortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				shortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				shortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				shortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				shortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				shortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				shortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			} else {
 				this.el.removeEventListener("focusin", this.boundOnFocusIn);
 				this.el.removeEventListener("focusout", this.boundOnFocusOut);
 
-				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				getEditorInstance().keyboardShortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				shortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				shortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				shortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				shortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				shortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				shortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			}
 		}
 	}
@@ -1205,7 +1230,6 @@ export class TreeView {
 		/** @type {TreeViewSelectionChangeEvent} */
 		const changes = {
 			target: this,
-			rawEvent: null,
 			reset: true,
 			added: [],
 			removed: [],
@@ -1248,7 +1272,6 @@ export class TreeView {
 		/** @type {TreeViewSelectionChangeEvent} */
 		const changes = {
 			target: this,
-			rawEvent: null,
 			reset: true,
 			added: [],
 			removed: [],
@@ -1437,6 +1460,9 @@ export class TreeView {
 		}
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	onContextMenuEvent(e) {
 		let menuCreated = false;
 		let eventExpired = false;
@@ -1446,17 +1472,15 @@ export class TreeView {
 			target: this,
 			showContextMenu: structure => {
 				if (eventExpired) {
-					console.warn("showContextMenu should be called from within the contextmenu event");
-					return null;
+					throw new Error("showContextMenu should be called from within the contextmenu event");
 				}
 				if (menuCreated) {
-					console.log("showContextMenu can only be called once");
-					return null;
+					throw new Error("showContextMenu can only be called once");
 				}
 
 				menuCreated = true;
 				e.preventDefault();
-				const menu = getEditorInstance().contextMenuManager.createContextMenu(structure);
+				const menu = getEditorInstanceCertain().contextMenuManager.createContextMenu(structure);
 				menu.setPos({x: e.pageX, y: e.pageY});
 				return menu;
 			},
@@ -1465,10 +1489,16 @@ export class TreeView {
 		eventExpired = true;
 	}
 
+	/**
+	 * @param {string} name
+	 */
 	registerNewEventType(name) {
 		this.eventCbs.set(name, new Set());
 	}
 
+	/**
+	 * @param {string} eventType
+	 */
 	getEventCbs(eventType) {
 		const cbs = this.eventCbs.get(eventType);
 		if (!cbs) {
@@ -1481,23 +1511,25 @@ export class TreeView {
 	/**
 	 * @template {keyof TreeViewEventCbMap} T
 	 * @param {T} eventType The identifier of the event type.
-	 * @param {function(TreeViewEventCbMap[T]) : void} cb The callback to invoke when the event occurs.
+	 * @param {(event: TreeViewEventCbMap[T]) => void} cb The callback to invoke when the event occurs.
 	 */
 	addEventListener(eventType, cb) {
 		const cbs = this.getEventCbs(eventType);
 		if (!cbs) return;
-		cbs.add(cb);
+		const castCb = /** @type {(event: AllTreeViewEvents) => any} */ (cb);
+		cbs.add(castCb);
 	}
 
 	/**
 	 * @template {keyof TreeViewEventCbMap} T
 	 * @param {T} eventType The identifier of the event type.
-	 * @param {function(TreeViewEventCbMap[T]) : void} cb The callback to remove.
+	 * @param {(event: TreeViewEventCbMap[T]) => void} cb The callback to remove.
 	 */
 	removeEventListener(eventType, cb) {
 		const cbs = this.getEventCbs(eventType);
 		if (!cbs) return;
-		cbs.delete(cb);
+		const castCb = /** @type {(event: AllTreeViewEvents) => any} */ (cb);
+		cbs.delete(castCb);
 	}
 
 	/**
