@@ -1,7 +1,7 @@
 /**
  * @typedef {Object} NumericGuiOptionsType
- * @property {number} [min = null] The minimum allowed value.
- * @property {number} [max = null] The maximum allowed value.
+ * @property {number?} [min = null] The minimum allowed value.
+ * @property {number?} [max = null] The maximum allowed value.
  * @property {number} [step = 0] The stepping interval for allowed values.
  * @property {number} [stepStart = 0] The start offset of the stepping interval.
  * @property {number} [mouseAdjustSpeed = 0.1] The speed at which the value is adjusted when the mouse is dragged.
@@ -61,6 +61,7 @@ export class NumericGui {
 		this.hasMovedWhileAdjusting = false;
 		this.isTextAdjusting = false;
 
+		/** @type {((value: number) => any)[]} */
 		this.onValueChangeCbs = [];
 
 		this.boundShowCursor = this.showCursor.bind(this);
@@ -99,18 +100,12 @@ export class NumericGui {
 		this.el.removeEventListener("input", this.boundOnInput);
 		this.el.removeEventListener("keydown", this.boundOnKeyDown);
 		this.removeEventListeners();
-		this.el = null;
-		this.boundOnFocus = null;
-		this.boundOnBlur = null;
-		this.boundOnMouseDown = null;
-		this.boundOnMouseMove = null;
-		this.boundOnMouseUp = null;
-		this.boundOnWheel = null;
-		this.boundOnInput = null;
-		this.boundOnKeyDown = null;
-		this.onValueChangeCbs = null;
+		this.onValueChangeCbs = [];
 	}
 
+	/**
+	 * @param {number | string} value
+	 */
 	setValue(value, {
 		updateTextValue = true,
 	} = {}) {
@@ -153,8 +148,9 @@ export class NumericGui {
 		} else if (purpose == "binaryComposer") {
 			mapNumericValuesToStrings = false;
 		}
-		if (mapNumericValuesToStrings && this.mappedStringValues.has(this.internalValue)) {
-			return this.mappedStringValues.get(this.internalValue);
+		if (mapNumericValuesToStrings) {
+			const stringValue = this.mappedStringValues.get(this.internalValue);
+			if (stringValue) return stringValue;
 		}
 		return this.internalValue;
 	}
@@ -163,6 +159,9 @@ export class NumericGui {
 		return this.getValue() == this.defaultValue || this.getValue({mapNumericValuesToStrings: true}) == this.defaultValue;
 	}
 
+	/**
+	 * @param {(value: number) => any} cb
+	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.push(cb);
 	}
@@ -173,6 +172,9 @@ export class NumericGui {
 		}
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;
@@ -204,18 +206,21 @@ export class NumericGui {
 		this.el.setSelectionRange(this.suffix.length, valueText.length - this.prefix.length);
 	}
 
-	onBlur(e) {
+	onBlur() {
 		this.setIsTextAdjusting(false);
 		this.updateTextValue();
 		this.unroundedValue = this.internalValue;
 	}
 
+	/**
+	 * @param {boolean} value
+	 */
 	setIsTextAdjusting(value) {
 		this.isTextAdjusting = value;
 		this.el.classList.toggle("nocaret", !value);
 	}
 
-	onMouseDown(e) {
+	onMouseDown() {
 		if (this.isTextAdjusting) return;
 		this.isMouseAdjusting = true;
 		this.hasMovedWhileAdjusting = false;
@@ -223,6 +228,9 @@ export class NumericGui {
 		this.addEventListeners();
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	onMouseMove(e) {
 		if (!this.isMouseAdjusting) return;
 		e.preventDefault();
@@ -230,6 +238,9 @@ export class NumericGui {
 		this.adjustValue(e.movementX, -e.movementY, e, this.mouseAdjustSpeed);
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	onMouseUp(e) {
 		if (!this.isMouseAdjusting) return;
 		e.preventDefault();
@@ -243,6 +254,9 @@ export class NumericGui {
 		}
 	}
 
+	/**
+	 * @param {MouseEvent?} e
+	 */
 	adjustValue(x = 0, y = 0, e = null, adjustSpeed = 0.1) {
 		let delta = 0;
 		delta += x * adjustSpeed;
@@ -269,6 +283,9 @@ export class NumericGui {
 		this.setValue(newValue);
 	}
 
+	/**
+	 * @param {WheelEvent} e
+	 */
 	onWheel(e) {
 		if (this.disabled) return;
 		this.hideCursor();
@@ -301,6 +318,9 @@ export class NumericGui {
 		return parseFloat(value);
 	}
 
+	/**
+	 * @param {KeyboardEvent} e
+	 */
 	onKeyDown(e) {
 		if (e.code == "ArrowUp") {
 			e.preventDefault();
@@ -311,9 +331,13 @@ export class NumericGui {
 		}
 	}
 
+	/**
+	 * @param {number} delta
+	 */
 	handleCaretAdjust(delta) {
 		const value = this.el.value;
 		const caretPos = this.el.selectionStart;
+		if (caretPos == null) return;
 		let foundDigit = null;
 		let digitStart = 0;
 		let digitEnd = 0;
@@ -322,6 +346,7 @@ export class NumericGui {
 			const match = re.exec(value);
 			if (!match) break;
 			const start = match.index;
+			if (!match.groups) continue;
 			const end = start + match.groups.digit.length;
 			if (start <= caretPos && end >= caretPos) {
 				foundDigit = match.groups.digit;
@@ -383,13 +408,17 @@ export class NumericGui {
 		}
 	}
 
-	// gets the amount of digits before or after the dot
+	/**
+	 * Gets the amount of digits before or after the dot.
+	 * @param {string} str
+	 */
 	getNumbersLength(str, getBefore = true) {
 		const beforeDotLengthMatch = /-?(?<whole>\d+)(?:\.(?<decimal>\d+))?/.exec(str);
 		if (getBefore) {
-			if (!beforeDotLengthMatch) return 1;
+			if (!beforeDotLengthMatch || !beforeDotLengthMatch.groups) return 1;
 			return beforeDotLengthMatch.groups.whole.length;
 		} else {
+			if (!beforeDotLengthMatch || !beforeDotLengthMatch.groups) return 0;
 			const {decimal} = beforeDotLengthMatch.groups;
 			if (!beforeDotLengthMatch || !decimal) return 0;
 			return decimal.length;

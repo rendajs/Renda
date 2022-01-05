@@ -2,19 +2,31 @@ import {NumericGui} from "./NumericGui.js";
 import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
 
 /**
+ * @template {Vec2 | Vec3 | Vec4} T
  * @typedef {Object} VectorGuiOptionsType
  * @property {2 | 3 | 4} [size = 3] The amount of components of the vector.
- * @property {number} [min = null] The minimum allowed value for each component.
- * @property {number} [max = null] The maximum allowed value for each component.
- * @property {number} [step = null] The step value for each component.
- * @property {Vec2 | Vec3 | Vec4} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
- *
- * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & VectorGuiOptionsType} VectorGuiOptions
+ * @property {number[] | number | T | null} [min = null] The minimum allowed value for each component.
+ * @property {number[] | number | T | null} [max = null] The maximum allowed value for each component.
+ * @property {number[] | number | T | null} [step = null] The step value for each component.
+ * @property {T} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
+ */
+/**
+ * @template {Vec2 | Vec3 | Vec4} T
+ * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & VectorGuiOptionsType<T>} VectorGuiOptions
  */
 
+/**
+ * @typedef {Object} VectorGuiGetValueOptions
+ * @property {boolean} [getAsArray]
+ * @property {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [purpose]
+ */
+
+/**
+ * @template {Vec2 | Vec3 | Vec4} T
+ */
 export class VectorGui {
 	/**
-	 * @param {VectorGuiOptions} opts
+	 * @param {VectorGuiOptions<T>} opts
 	 */
 	constructor({
 		defaultValue = null,
@@ -37,19 +49,20 @@ export class VectorGui {
 		this.el = document.createElement("div");
 		this.el.classList.add("vectorGui", "buttonGroupLike");
 		this.numericGuis = [];
+		/** @type {((value: T) => any)[]} */
 		this.onValueChangeCbs = [];
 		this.disabled = false;
 		this.size = size;
 
-		min = this.getGuiOptArray(min);
-		max = this.getGuiOptArray(max);
-		step = this.getGuiOptArray(step);
+		const minArr = this.getGuiOptArray(min);
+		const maxArr = this.getGuiOptArray(max);
+		const stepArr = this.getGuiOptArray(step);
 
 		for (let i = 0; i < size; i++) {
 			const numericGui = new NumericGui({
-				min: min[0],
-				max: max[0],
-				step: step[0],
+				min: minArr[0],
+				max: maxArr[0],
+				step: stepArr[0],
 			});
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
@@ -64,16 +77,20 @@ export class VectorGui {
 		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
-		this.el = null;
 		for (const gui of this.numericGuis) {
 			gui.destructor();
 		}
-		this.numericGuis = null;
 	}
 
+	/**
+	 * Utility function for converting a value for the gui options to an array.
+	 * @param {number[] | number | T | null} value
+	 * @returns {number[]}
+	 */
 	getGuiOptArray(value) {
 		if (Array.isArray(value)) return value;
-		if (typeof value == "number" || !value) {
+		if (!value) value = 0;
+		if (typeof value == "number") {
 			const array = [];
 			for (let i = 0; i < this.size; i++) {
 				array.push(value);
@@ -84,26 +101,30 @@ export class VectorGui {
 		}
 	}
 
-	setValue(vector) {
+	/**
+	 * @param {T | number[]} value
+	 */
+	setValue(value) {
 		let arr;
-		if (Array.isArray(vector)) {
-			arr = vector;
+		if (Array.isArray(value)) {
+			arr = [...value];
 		} else {
-			arr = vector.toArray();
+			arr = value.toArray();
 		}
 		for (const [i, gui] of this.numericGuis.entries()) {
 			gui.setValue(arr[i]);
 		}
 	}
 
+	/**
+	 * @param {(value: T) => any} cb
+	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.push(cb);
 	}
 
 	/**
-	 * @param {Object} opts
-	 * @param {boolean} [opts.getAsArray]
-	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
+	 * @param {VectorGuiGetValueOptions} options
 	 */
 	getValue({
 		getAsArray = false,
@@ -129,16 +150,20 @@ export class VectorGui {
 	}
 
 	get value() {
-		const castValue = /** @type {Vec3} */ (this.getValue());
+		const castValue = /** @type {T} */ (this.getValue());
 		return castValue;
 	}
 
 	fireValueChange() {
 		for (const cb of this.onValueChangeCbs) {
-			cb(this.value.clone());
+			const value = /** @type {T} */ (this.value.clone());
+			cb(value);
 		}
 	}
 
+	/**
+	 * @param {VectorGuiGetValueOptions} guiOpts
+	 */
 	isDefaultValue(guiOpts) {
 		const val = this.getValue({
 			...guiOpts,
@@ -151,6 +176,9 @@ export class VectorGui {
 		return true;
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		for (const gui of this.numericGuis) {
