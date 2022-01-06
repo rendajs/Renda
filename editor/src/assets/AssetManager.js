@@ -195,7 +195,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("./ProjectAsset.js").ProjectAssetAny} asset
+	 * @param {import("./ProjectAsset.js").ProjectAssetAny?} asset
 	 */
 	async makeAssetUuidConsistent(asset) {
 		if (!asset || asset.needsConsistentUuid || asset.isBuiltIn) return;

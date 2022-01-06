@@ -1,4 +1,4 @@
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstanceCertain} from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
@@ -12,7 +12,14 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & DroppableGuiOptionsType} DroppableGuiOptions
  */
 
+/**
+ * @template {unknown} T
+ */
 export class DroppableGui {
+	/**
+	 * @typedef {(value: import("../../../src/mod.js").UuidString?) => void} OnValueChangeCallback
+	 */
+
 	/**
 	 * @param {DroppableGuiOptions} options
 	 */
@@ -25,6 +32,7 @@ export class DroppableGui {
 
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
+		/** @type {OnValueChangeCallback[]} */
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = supportedAssetTypes;
@@ -49,11 +57,11 @@ export class DroppableGui {
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 
-		/** @type {import("../../../src/util/mod.js").UuidString}*/
+		/** @type {import("../../../src/util/mod.js").UuidString?}*/
 		this.defaultAssetLinkUuid = null;
-		/** @type {?import("../assets/DefaultAssetLink.js").DefaultAssetLink}*/
+		/** @type {import("../assets/DefaultAssetLink.js").DefaultAssetLink?}*/
 		this.defaultAssetLink = null;
-		/** @type {?ProjectAsset}*/
+		/** @type {import("../assets/ProjectAsset.js").ProjectAssetAny?}*/
 		this.projectAssetValue = null;
 		/** @type {boolean}*/
 		this.projectAssetValueDeleted = false;
@@ -70,69 +78,91 @@ export class DroppableGui {
 		this.el.removeEventListener("drop", this.boundOnDrop);
 		this.el.removeEventListener("keydown", this.boundOnKeyDown);
 		this.el.removeEventListener("contextmenu", this.boundOnContextMenu);
-		this.boundOnDragStart = null;
-		this.boundOnDragEnter = null;
-		this.boundOnDragOver = null;
-		this.boundOnDragEnd = null;
-		this.boundOnDragLeave = null;
-		this.boundOnDrop = null;
-		this.boundOnKeyDown = null;
-		this.boundOnContextMenu = null;
 		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
-		this.el = null;
 	}
 
+	/**
+	 * @param {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
+	 */
 	setValue(value) {
 		let projectAsset = null;
 		this.setDefaultAssetLinkUuid(null);
 		if (value) {
+			const assetManager = getEditorInstanceCertain().projectManager.assertAssetManagerExists();
 			if (typeof value == "string") {
 				this.setDefaultAssetLinkUuid(value);
-				projectAsset = getEditorInstance().projectManager.assetManager.getProjectAssetImmediate(value);
+				projectAsset = assetManager.getProjectAssetImmediate(value);
 			} else if (value instanceof ProjectAsset) {
 				projectAsset = value;
 			} else {
-				projectAsset = getEditorInstance().projectManager.assetManager.getProjectAssetForLiveAsset(value);
+				projectAsset = assetManager.getProjectAssetForLiveAsset(value);
 			}
 		}
 		this.setValueFromProjectAsset(projectAsset, false);
 	}
 
+	/** @typedef {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} SerializableStructureOutputPurpose */
+
 	/**
-	 * @param {Object} opts
-	 * @param {boolean} [opts.resolveDefaultAssetLinks]
-	 * @param {boolean} [opts.returnLiveAsset]
-	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
+	 * @template {boolean} U
+	 * @template {SerializableStructureOutputPurpose} V
+	 * @typedef {Object} DroppableGuiGetValueOptions
+	 * @property {boolean} [resolveDefaultAssetLinks = false]
+	 * @property {U} [returnLiveAsset = false]
+	 * @property {V} [purpose = "default"]
+	 */
+
+	/**
+	 * @template {boolean} [U = false]
+	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @typedef {V extends "script" ? T? :
+	 * 		U extends true ? T? :
+	 * import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
+	 */
+
+	/**
+	 * @template {boolean} [U = false]
+	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @param {DroppableGuiGetValueOptions<U, V>} options
+	 * @returns {DroppableGuiGetValueReturn<U, V>}
 	 */
 	getValue({
 		resolveDefaultAssetLinks = false,
-		returnLiveAsset = false,
-		purpose = "default",
+		returnLiveAsset = /** @type {U} */ (false),
+		purpose = /** @type {V} */ ("default"),
 	} = {}) {
 		if (purpose == "script") {
-			returnLiveAsset = true;
+			returnLiveAsset = /** @type {U} */ (true);
 		}
+		let returnValue;
 		if (returnLiveAsset) {
-			return this.projectAssetValue?.getLiveAssetImmediate() || null;
+			returnValue = this.projectAssetValue?.getLiveAssetImmediate() || null;
 		} else if (!resolveDefaultAssetLinks && this.defaultAssetLinkUuid) {
-			return this.defaultAssetLinkUuid;
+			returnValue = this.defaultAssetLinkUuid;
 		} else {
-			return this.projectAssetValue?.uuid;
+			returnValue = this.projectAssetValue?.uuid;
 		}
+		return /** @type {DroppableGuiGetValueReturn<U, V>} */ (returnValue);
 	}
 
+	/**
+	 * @param {T | import("../../../src/mod.js").UuidString | null} value
+	 */
 	set value(value) {
 		this.setValue(value);
 	}
 
+	/**
+	 * @returns {import("../../../src/mod.js").UuidString?}
+	 */
 	get value() {
 		return this.getValue();
 	}
 
 	/**
-	 * @param {ProjectAsset} projectAsset
+	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny?} projectAsset
 	 * @param {boolean} clearDefaultAssetLink
 	 */
 	setValueFromProjectAsset(projectAsset, clearDefaultAssetLink = true) {
@@ -155,13 +185,17 @@ export class DroppableGui {
 		this.updateContent();
 	}
 
+	/**
+	 * @param {import("../../../src/util/mod.js").UuidString?} uuid
+	 */
 	async setValueFromAssetUuid(uuid, preloadLiveAsset = false) {
 		if (!uuid) {
 			this.setValueFromProjectAsset(null);
 			this.value = null;
 		} else {
-			const projectAsset = await getEditorInstance().projectManager.assetManager.getProjectAsset(uuid);
-			await getEditorInstance().projectManager.assetManager.makeAssetUuidConsistent(projectAsset);
+			const assetManager = getEditorInstanceCertain().projectManager.assertAssetManagerExists();
+			const projectAsset = await assetManager.getProjectAsset(uuid);
+			await assetManager.makeAssetUuidConsistent(projectAsset);
 			if (preloadLiveAsset) {
 				// get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
 				await projectAsset?.getLiveAsset();
@@ -171,9 +205,12 @@ export class DroppableGui {
 		}
 	}
 
+	/**
+	 * @param {import("../../../src/util/mod.js").UuidString?} uuid
+	 */
 	setDefaultAssetLinkUuid(uuid) {
 		if (uuid) {
-			this.defaultAssetLink = getEditorInstance().projectManager.assetManager.getDefaultAssetLink(uuid);
+			this.defaultAssetLink = getEditorInstanceCertain().projectManager.assertAssetManagerExists().getDefaultAssetLink(uuid);
 		} else {
 			this.defaultAssetLink = null;
 		}
@@ -185,6 +222,9 @@ export class DroppableGui {
 		}
 	}
 
+	/**
+	 * @param {OnValueChangeCallback} cb
+	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.push(cb);
 	}
@@ -195,9 +235,12 @@ export class DroppableGui {
 		}
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
-		this.el.setAttribute("aria-disabled", disabled);
+		this.el.setAttribute("aria-disabled", disabled ? "true" : "false");
 		if (disabled) {
 			this.el.removeAttribute("tabIndex");
 		} else {
@@ -205,16 +248,33 @@ export class DroppableGui {
 		}
 	}
 
+	/**
+	 * @param {DragEvent} e
+	 */
 	onDragStart(e) {
-		const {el, x, y} = getEditorInstance().dragManager.createDragFeedbackText({
+		const dragManager = getEditorInstanceCertain().dragManager;
+		if (!e.dataTransfer) return;
+
+		let assetUuid = null;
+		if (this.defaultAssetLinkUuid) {
+			assetUuid = this.defaultAssetLinkUuid;
+		} else if (this.projectAssetValue) {
+			assetUuid = this.projectAssetValue.uuid;
+		}
+
+		if (!assetUuid) return;
+
+		const {el, x, y} = dragManager.createDragFeedbackText({
 			text: this.visibleAssetName,
 		});
 		this.currenDragFeedbackEl = el;
 		e.dataTransfer.setDragImage(el, x, y);
 
 		e.dataTransfer.effectAllowed = "all";
-		const assetType = getEditorInstance().projectAssetTypeManager.getAssetType(this.projectAssetValue.assetType);
-		const assetUuid = this.defaultAssetLinkUuid || this.projectAssetValue.uuid;
+		let assetType = null;
+		if (this.projectAssetValue) {
+			assetType = this.projectAssetValue.projectAssetTypeConstructor;
+		}
 
 		/** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */
 		const draggingData = {
@@ -222,7 +282,7 @@ export class DroppableGui {
 			assetType,
 			assetUuid,
 		};
-		const draggingDataUuid = getEditorInstance().dragManager.registerDraggingData(draggingData);
+		const draggingDataUuid = dragManager.registerDraggingData(draggingData);
 		e.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 	}
 
@@ -244,7 +304,7 @@ export class DroppableGui {
 	}
 
 	onDragEnd() {
-		if (this.currenDragFeedbackEl) getEditorInstance().dragManager.removeFeedbackText(this.currenDragFeedbackEl);
+		if (this.currenDragFeedbackEl) getEditorInstanceCertain().dragManager.removeFeedbackText(this.currenDragFeedbackEl);
 		this.currenDragFeedbackEl = null;
 	}
 
@@ -258,10 +318,13 @@ export class DroppableGui {
 	 */
 	handleDrag(e) {
 		if (this.disabled) return false;
-		if (e.dataTransfer.types.some(mimeType => {
+		if (!e.dataTransfer) return false;
+
+		const hasValidMimeType = e.dataTransfer.types.some(mimeType => {
 			const dragData = this.getDraggingProjectAssetData(mimeType);
 			return this.validateMimeType(dragData);
-		})) {
+		});
+		if (hasValidMimeType) {
 			e.dataTransfer.dropEffect = "link";
 			e.preventDefault();
 			return true;
@@ -269,9 +332,14 @@ export class DroppableGui {
 		return false;
 	}
 
+	/**
+	 * @param {DragEvent} e
+	 */
 	onDrop(e) {
 		e.preventDefault();
 		this.setDragHoverValidStyle(false);
+		if (!e.dataTransfer) return;
+
 		for (const mimeType of e.dataTransfer.types) {
 			const dragData = this.getDraggingProjectAssetData(mimeType);
 			if (this.validateMimeType(dragData)) {
@@ -325,24 +393,34 @@ export class DroppableGui {
 			if (isEngineType) {
 				isProjectAsset = (parameters.dragtype == "projectasset");
 				if (isProjectAsset) {
-					draggingProjectAssetData = getEditorInstance().dragManager.getDraggingData(parameters.draggingdata);
+					draggingProjectAssetData = getEditorInstanceCertain().dragManager.getDraggingData(parameters.draggingdata);
 				}
 			}
 		}
 		return {isEngineType, isProjectAsset, draggingProjectAssetData};
 	}
 
+	/**
+	 * @param {boolean} valid
+	 */
 	setDragHoverValidStyle(valid) {
 		this.el.classList.toggle("dragHovering", valid);
 	}
 
+	/**
+	 * @param {KeyboardEvent} e
+	 */
 	onKeyDown(e) {
 		if (this.disabled) return;
+		// Todo: use shortcutmanager
 		if (e.code == "Backspace" || e.code == "Delete") {
 			this.setValue(null);
 		}
 	}
 
+	/**
+	 * @param {MouseEvent} e
+	 */
 	onContextMenu(e) {
 		e.preventDefault();
 		if (!this.projectAssetValue) return;
@@ -357,12 +435,13 @@ export class DroppableGui {
 			});
 		}
 		const copyAssetUuidText = "Copy asset UUID";
-		if (this.defaultAssetLinkUuid) {
+		const defaultAssetLink = this.defaultAssetLinkUuid;
+		if (defaultAssetLink) {
 			contextMenuStructure.push({
 				text: copyAssetUuidText,
 				onClick: async () => {
 					if (this.projectAssetValue) {
-						await navigator.clipboard.writeText(this.defaultAssetLinkUuid);
+						await navigator.clipboard.writeText(defaultAssetLink);
 					}
 				},
 			});
@@ -379,17 +458,18 @@ export class DroppableGui {
 		contextMenuStructure.push({
 			text: "View location",
 			onClick: async () => {
+				const windowManager = getEditorInstanceCertain().windowManager;
 				if (this.defaultAssetLink) {
 					// todo: highlight assetLink
 					// eslint-disable-next-line no-unused-vars
-					const assetLinksWindow = getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
+					const assetLinksWindow = windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
 				} else if (this.projectAssetValue) {
 					let assetLinksWindow;
 					if (this.projectAssetValue.isBuiltIn) {
-						const contentWindow = getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
+						const contentWindow = windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
 						assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
 					} else {
-						const contentWindow = getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowProject);
+						const contentWindow = windowManager.focusOrCreateContentWindow(ContentWindowProject);
 						assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
 					}
 					assetLinksWindow.highlightPath(this.projectAssetValue.path);
@@ -397,7 +477,7 @@ export class DroppableGui {
 			},
 			disabled: this.projectAssetValueDeleted,
 		});
-		const menu = getEditorInstance().contextMenuManager.createContextMenu(contextMenuStructure);
+		const menu = getEditorInstanceCertain().contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 
@@ -406,7 +486,7 @@ export class DroppableGui {
 	}
 
 	updateContent() {
-		const filled = this.projectAssetValue && !this.projectAssetValueDeleted;
+		const filled = !!this.projectAssetValue && !this.projectAssetValueDeleted;
 		this.el.classList.toggle("empty", !filled);
 		this.el.classList.toggle("filled", filled);
 		if (!this.projectAssetValueDeleted) {
