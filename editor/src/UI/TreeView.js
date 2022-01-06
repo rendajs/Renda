@@ -201,6 +201,7 @@ export class TreeView {
 		this.childrenEl.classList.add("treeViewChildList");
 		this.el.appendChild(this.childrenEl);
 
+		this.customEl = null;
 		if (data.addCustomEl) {
 			this.customEl = document.createElement("div");
 			this.customEl.classList.add("treeViewCustomEl");

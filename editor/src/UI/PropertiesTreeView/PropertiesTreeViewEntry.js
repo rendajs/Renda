@@ -23,9 +23,9 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 
 /**
  * @typedef {Object} PropertiesTreeViewGuiOptionsMap
- * @property {import("../VectorGui.js").VectorGuiOptions} vec2
- * @property {import("../VectorGui.js").VectorGuiOptions} vec3
- * @property {import("../VectorGui.js").VectorGuiOptions} vec4
+ * @property {import("../VectorGui.js").VectorGuiOptions<import("../../../../src/mod.js").Vec2>} vec2
+ * @property {import("../VectorGui.js").VectorGuiOptions<import("../../../../src/mod.js").Vec3>} vec3
+ * @property {import("../VectorGui.js").VectorGuiOptions<import("../../../../src/mod.js").Vec4>} vec4
  * @property {import("../TextGui.js").TextGuiOptions} string
  * @property {import("../NumericGui.js").NumericGuiOptions} number
  * @property {import("../BooleanGui.js").BooleanGuiOptions} boolean
@@ -40,9 +40,9 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 
 /**
  * @typedef {Object} PropertiesTreeViewGuiMap
- * @property {import("../VectorGui.js").VectorGui} vec2
- * @property {import("../VectorGui.js").VectorGui} vec3
- * @property {import("../VectorGui.js").VectorGui} vec4
+ * @property {import("../VectorGui.js").VectorGui<import("../../../../src/mod.js").Vec2>} vec2
+ * @property {import("../VectorGui.js").VectorGui<import("../../../../src/mod.js").Vec3>} vec3
+ * @property {import("../VectorGui.js").VectorGui<import("../../../../src/mod.js").Vec4>} vec4
  * @property {import("../TextGui.js").TextGui} string
  * @property {import("../NumericGui.js").NumericGui} number
  * @property {import("../BooleanGui.js").BooleanGui} boolean
@@ -50,7 +50,7 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  * @property {import("../ButtonSelectorGui.js").ButtonSelectorGui} buttonSelector
  * @property {import("../LabelGui.js").LabelGui} label
  * @property {import("../DropDownGui.js").DropDownGui} dropdown
- * @property {import("../DroppableGui.js").DroppableGui} droppable
+ * @property {import("../DroppableGui.js").DroppableGui<unknown>} droppable
  * @property {import("../ArrayGui.js").ArrayGui} array
  * @property {import("../ObjectGui.js").ObjectGui} object
  */
@@ -83,11 +83,15 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 
 /**
+ * @template {PropertiesTreeViewEntryType} T
  * @typedef {Object} PropertiesTreeViewChangeEventType
  * @property {*} newValue
- * @property {PropertiesTreeViewEntry} target
- *
- * @typedef {import("../TreeView.js").TreeViewEvent & PropertiesTreeViewChangeEventType} PropertiesTreeViewChangeEvent
+ * @property {PropertiesTreeViewEntry<T>} target
+ */
+
+/**
+ * @template {PropertiesTreeViewEntryType} T
+ * @typedef {import("../TreeView.js").TreeViewEvent & PropertiesTreeViewChangeEventType<T>} PropertiesTreeViewChangeEvent
  */
 
 /**
@@ -98,7 +102,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	 * @param {PropertiesTreeViewEntryOptionsGeneric<T>} opts
 	 */
 	constructor({
-		type = "number",
+		type,
 		guiOpts = {},
 		callbacksContext = {},
 	}) {
@@ -108,13 +112,15 @@ export class PropertiesTreeViewEntry extends TreeView {
 			rowVisible: false,
 		});
 
+		if (!this.customEl) throw new Error("Assertion failed, PropertiesTreeViewEntry should always have a customEl.");
+
 		this.customEl.classList.add("guiTreeViewEntry");
 
 		const smallLabel = guiOpts.smallLabel ?? false;
 		this.label = document.createElement("div");
 		this.label.classList.add("guiTreeViewEntryLabel");
 		this.label.classList.toggle("smallLabel", smallLabel);
-		this.label.textContent = prettifyVariableName(guiOpts.label) ?? "";
+		this.label.textContent = prettifyVariableName(guiOpts.label);
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");
@@ -124,6 +130,11 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 		/** @type {PropertiesTreeViewGuiMap[T]?} */
 		this.gui = null;
+
+		/**
+		 * @template {PropertiesTreeViewEntryType} U
+		 * @typedef {PropertiesTreeViewGuiOptionsMap[U]} GetGuiOpts
+		 */
 
 		this.type = type;
 		/** @type {*} */
@@ -150,8 +161,9 @@ export class PropertiesTreeViewEntry extends TreeView {
 			});
 			this.valueEl.appendChild(setGui.el);
 		} else if (type == "number") {
+			const castGuiOpts = /** @type {GetGuiOpts<typeof type>} */ (guiOpts);
 			setGui = new NumericGui({
-				...guiOpts,
+				...castGuiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);
 		} else if (type == "boolean") {
@@ -165,8 +177,9 @@ export class PropertiesTreeViewEntry extends TreeView {
 			});
 			this.valueEl.appendChild(setGui.el);
 		} else if (type == "array") {
+			const castGuiOpts = /** @type {GetGuiOpts<typeof type>} */ (guiOpts);
 			setGui = new ArrayGui({
-				...guiOpts,
+				...castGuiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);
 			this.label.classList.add("multiLine");
@@ -183,7 +196,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 			setGui = new Button({
 				...guiOpts,
 				onClick: () => {
-					const castGuiOpts = /** @type {import("../Button.js").ButtonGuiOptions} */ (guiOpts);
+					const castGuiOpts = /** @type {GetGuiOpts<typeof type>} */ (guiOpts);
 					if (castGuiOpts.onClick) castGuiOpts.onClick(callbacksContext);
 				},
 			});
@@ -210,7 +223,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.registerNewEventType("propertiestreeviewentryvaluechange");
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.onValueChange?.(newValue => {
-			/** @type {PropertiesTreeViewChangeEvent} */
+			/** @type {PropertiesTreeViewChangeEvent<T>} */
 			const event = {
 				target: this,
 				newValue,
@@ -220,8 +233,6 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	destructor() {
-		this.label = null;
-		this.valueEl = null;
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.destructor?.();
 		this.gui = null;
