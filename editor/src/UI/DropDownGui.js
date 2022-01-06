@@ -3,7 +3,7 @@ import {prettifyVariableName} from "../Util/Util.js";
 /**
  * @typedef {Object} DropDownGuiOptionsType
  * @property {string[]} [items]
- * @property {Object.<string, number>} [enumObject]
+ * @property {Object.<string, number>?} [enumObject]
  * @property {string | number} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  *
  * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & DropDownGuiOptionsType} DropDownGuiOptions
@@ -24,7 +24,7 @@ export class DropDownGui {
 		this.defaultValue = defaultValue;
 		this.disabled = disabled;
 		this.enumObject = enumObject;
-		/** @type {Object.<number, string>} */
+		/** @type {Object.<number, string>?} */
 		this.inverseEnumObject = null;
 
 		this.el = document.createElement("select");
@@ -42,7 +42,6 @@ export class DropDownGui {
 
 	destructor() {
 		this.el.removeEventListener("change", this.boundFireOnChangeCbs);
-		this.boundFireOnChangeCbs = null;
 	}
 
 	/**
@@ -97,7 +96,7 @@ export class DropDownGui {
 	 * @param {number | string} value
 	 */
 	setValue(value) {
-		if (this.enumObject) {
+		if (this.enumObject && this.inverseEnumObject) {
 			if (typeof value != "string") {
 				value = this.inverseEnumObject[value];
 			}
@@ -105,7 +104,10 @@ export class DropDownGui {
 			if (index >= 0) {
 				this.el.selectedIndex = index;
 			} else {
-				this.el.value = null;
+				// todo: If an option exist without a value, it will be selected
+				// here, instead we want to generate a value that does not exist
+				// in the options list.
+				this.el.value = "";
 			}
 		} else {
 			if (typeof value == "number") {
@@ -129,17 +131,23 @@ export class DropDownGui {
 	 */
 
 	/**
-	 * @template {boolean} [T = true]
-	 * @template {SerializableStructureOutputPurpose} [U = "default"]
-	 * @param {GetValueOptions<T, U>} opts
-	 * @returns {U extends "fileStorage" ? string :
+	 * @template {boolean} T
+	 * @template {SerializableStructureOutputPurpose} U
+	 * @typedef {U extends "fileStorage" ? string :
 	 * U extends "binaryComposer" ? number :
 	 * U extends "default" | undefined ? (
 	 *   T extends true ? string :
 	 *   T extends false ? number :
 	 *   T extends undefined ? string :
 	 *   number
-	 * ) : string}
+	 * ) : string} GetValueReturn
+	 */
+
+	/**
+	 * @template {boolean} [T = true]
+	 * @template {SerializableStructureOutputPurpose} [U = "default"]
+	 * @param {GetValueOptions<T, U>} opts
+	 * @returns {GetValueReturn<T, U>}
 	 */
 	getValue({
 		getAsString = /** @type {T} */ (true),
@@ -152,20 +160,22 @@ export class DropDownGui {
 			getAsStringValue = false;
 		}
 
+		let returnValue;
 		if (this.enumObject) {
 			const enumObjectStrValue = this.items[this.el.selectedIndex];
 			if (getAsStringValue) {
-				return enumObjectStrValue;
+				returnValue = enumObjectStrValue;
 			} else {
-				return this.enumObject[enumObjectStrValue];
+				returnValue = this.enumObject[enumObjectStrValue];
 			}
 		} else {
 			if (getAsStringValue) {
-				return this.items[this.el.selectedIndex];
+				returnValue = this.items[this.el.selectedIndex];
 			} else {
-				return this.el.selectedIndex;
+				returnValue = this.el.selectedIndex;
 			}
 		}
+		return /** @type {GetValueReturn<T, U>} */ (returnValue);
 	}
 
 	get value() {
@@ -192,6 +202,9 @@ export class DropDownGui {
 		}
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.disabled = disabled;
