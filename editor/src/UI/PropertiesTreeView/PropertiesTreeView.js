@@ -11,7 +11,7 @@ import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 
 /**
  * @typedef {Object} PropertiesTreeViewEventCbMapType
- * @property {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent} propertiestreeviewentryvaluechange
+ * @property {import("./types.js").PropertiesTreeViewChangeEvent} propertiestreeviewentryvaluechange
  *
  * @typedef {PropertiesTreeViewEventCbMapType & import("../TreeView.js").TreeViewEventCbMap} PropertiesTreeViewEventCbMap
  */
@@ -48,8 +48,8 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @template {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} T
-	 * @param {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptionsGeneric<T>} opts
+	 * @template {import("./types.js").PropertiesTreeViewEntryType} T
+	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T>} opts
 	 */
 	addItem(opts) {
 		const item = new PropertiesTreeViewEntry(opts);
@@ -59,14 +59,14 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {function(import("./PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent) : void} cb
+	 * @param {function(import("./types.js").PropertiesTreeViewChangeEvent) : void} cb
 	 */
 	onChildValueChange(cb) {
 		this.addEventListener("propertiestreeviewentryvaluechange", cb);
 	}
 
 	/**
-	 * @param {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} structure
+	 * @param {import("./types.js").PropertiesTreeViewStructure} structure
 	 * @param {Object} opts
 	 * @param {Object} [opts.callbacksContext]
 	 */
@@ -103,7 +103,7 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} structure
+	 * @param {import("./types.js").PropertiesTreeViewStructure} structure
 	 * @param {Object} [guiOpts]
 	 * @param {SerializableStructureOutputPurpose} [guiOpts.purpose]
 	 * @param {boolean} [guiOpts.stripDefaultValues]

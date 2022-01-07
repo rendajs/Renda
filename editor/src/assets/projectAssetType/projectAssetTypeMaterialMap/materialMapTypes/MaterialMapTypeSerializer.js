@@ -8,7 +8,7 @@ import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComp
 /**
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
- * @property {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryType} type
+ * @property {import("../../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryType} type
  * @property {import("../../../../../../src/Rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
  */
 
@@ -40,7 +40,7 @@ export class MaterialMapTypeSerializer {
 	/**
 	 * Set this to a structure to automatically load and save data for this map type.
 	 * This is optional if {@link propertiesMaterialMapContentConstructor} is set.
-	 * @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure?}
+	 * @type {import("../../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static settingsStructure = null;
 

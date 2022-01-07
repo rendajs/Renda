@@ -87,11 +87,11 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			currentMaterialValues[key] = value;
 		}
 		const mappableValues = await getEditorInstance().materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
-		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
 			const entry = this.mapValuesTreeView.addItem({
 				type: valueData.type,
-				/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} */
+				/** @type {import("../../UI/PropertiesTreeView/types.js").GuiOptionsBase} */
 				guiOpts: {
 					label: valueData.name,
 					defaultValue: valueData.defaultValue,

@@ -14,63 +14,6 @@ import {prettifyVariableName} from "../../Util/Util.js";
 import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 
 /**
- * @typedef {Object} GuiOptions
- * @property {string} [label = ""] The label to show in front of the GUI element.
- * @property {boolean} [smallLabel = false] Set to true if you want the value GUI element to take up a bigger portion of the line.
- * @property {boolean} [disabled = false] Whether the GUI element is disabled.
- * @property {*} [defaultValue = null] The default value of the GUI element.
- */
-
-/**
- * @typedef {Object} PropertiesTreeViewGuiOptionsMap
- * @property {import("../VectorGui.js").VectorGuiOptions<import("../../../../src/mod.js").Vec2>} vec2
- * @property {import("../VectorGui.js").VectorGuiOptions<import("../../../../src/mod.js").Vec3>} vec3
- * @property {import("../VectorGui.js").VectorGuiOptions<import("../../../../src/mod.js").Vec4>} vec4
- * @property {import("../TextGui.js").TextGuiOptions} string
- * @property {import("../NumericGui.js").NumericGuiOptions} number
- * @property {import("../BooleanGui.js").BooleanGuiOptions} boolean
- * @property {import("../Button.js").ButtonGuiOptions} button
- * @property {import("../ButtonSelectorGui.js").ButtonSelectorGuiOptions} buttonSelector
- * @property {import("../LabelGui.js").LabelGuiOptions} label
- * @property {import("../DropDownGui.js").DropDownGuiOptions} dropdown
- * @property {import("../DroppableGui.js").DroppableGuiOptions} droppable
- * @property {import("../ArrayGui.js").ArrayGuiOptions} array
- * @property {import("../ObjectGui.js").ObjectGuiOptions} object
- */
-
-/**
- * @typedef {Object} PropertiesTreeViewGuiMap
- * @property {import("../VectorGui.js").VectorGui<import("../../../../src/mod.js").Vec2>} vec2
- * @property {import("../VectorGui.js").VectorGui<import("../../../../src/mod.js").Vec3>} vec3
- * @property {import("../VectorGui.js").VectorGui<import("../../../../src/mod.js").Vec4>} vec4
- * @property {import("../TextGui.js").TextGui} string
- * @property {import("../NumericGui.js").NumericGui} number
- * @property {import("../BooleanGui.js").BooleanGui} boolean
- * @property {import("../Button.js").Button} button
- * @property {import("../ButtonSelectorGui.js").ButtonSelectorGui} buttonSelector
- * @property {import("../LabelGui.js").LabelGui} label
- * @property {import("../DropDownGui.js").DropDownGui} dropdown
- * @property {import("../DroppableGui.js").DroppableGui<unknown>} droppable
- * @property {import("../ArrayGui.js").ArrayGui} array
- * @property {import("../ObjectGui.js").ObjectGui} object
- */
-
-/** @typedef {keyof PropertiesTreeViewGuiOptionsMap} PropertiesTreeViewEntryType */
-
-/**
- * @template T
- * @typedef {T extends keyof PropertiesTreeViewGuiOptionsMap ? {
- * type: T,
- * guiOpts?: PropertiesTreeViewGuiOptionsMap[T],
- * callbacksContext?: Object,
- * } : never} PropertiesTreeViewEntryOptionsGeneric
- */
-
-/** @typedef {PropertiesTreeViewEntryOptionsGeneric<PropertiesTreeViewEntryType>} PropertiesTreeViewEntryOptions */
-
-/** @typedef {Object.<string,PropertiesTreeViewEntryOptions>} PropertiesTreeViewStructure */
-
-/**
  * @typedef {Object} GuiInterface
  * @property {(...args: any) => boolean} [isDefaultValue]
  * @property {boolean} [defaultValue]
@@ -83,23 +26,11 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 
 /**
- * @template {PropertiesTreeViewEntryType} T
- * @typedef {Object} PropertiesTreeViewChangeEventType
- * @property {*} newValue
- * @property {PropertiesTreeViewEntry<T>} target
- */
-
-/**
- * @template {PropertiesTreeViewEntryType} T
- * @typedef {import("../TreeView.js").TreeViewEvent & PropertiesTreeViewChangeEventType<T>} PropertiesTreeViewChangeEvent
- */
-
-/**
- * @template {PropertiesTreeViewEntryType} T
+ * @template {import("./types.js").PropertiesTreeViewEntryType} T
  */
 export class PropertiesTreeViewEntry extends TreeView {
 	/**
-	 * @param {PropertiesTreeViewEntryOptionsGeneric<T>} opts
+	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T>} opts
 	 */
 	constructor({
 		type,
@@ -128,12 +59,12 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		/** @type {PropertiesTreeViewGuiMap[T]?} */
+		/** @type {import("./types.js").PropertiesTreeViewGuiOptionsMap[T]?} */
 		this.gui = null;
 
 		/**
-		 * @template {PropertiesTreeViewEntryType} U
-		 * @typedef {PropertiesTreeViewGuiOptionsMap[U]} GetGuiOpts
+		 * @template {import("./types.js").PropertiesTreeViewEntryType} U
+		 * @typedef {import("./types.js").PropertiesTreeViewGuiOptionsMap[U]} GetGuiOpts
 		 */
 
 		this.type = type;
@@ -223,7 +154,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.registerNewEventType("propertiestreeviewentryvaluechange");
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.onValueChange?.(newValue => {
-			/** @type {PropertiesTreeViewChangeEvent<T>} */
+			/** @type {import("./types.js").PropertiesTreeViewChangeEvent<T>} */
 			const event = {
 				target: this,
 				newValue,
@@ -246,12 +177,6 @@ export class PropertiesTreeViewEntry extends TreeView {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.setDisabled?.(disabled);
 	}
-
-	/**
-	 * @typedef {PropertiesTreeViewGuiMap[T] extends {value: any} ? PropertiesTreeViewGuiMap[T]["value"] :
-	 * PropertiesTreeViewGuiMap[T] extends {getValue: (...args: any) => any} ? ReturnType<PropertiesTreeViewGuiMap[T]["getValue"]> :
-	 * never} GuiValueType
-	 */
 
 	/**
 	 * @param {GuiValueType} newValue

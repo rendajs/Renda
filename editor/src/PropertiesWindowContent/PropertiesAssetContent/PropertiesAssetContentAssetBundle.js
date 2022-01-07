@@ -7,7 +7,7 @@ export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 		super();
 		this.bundleSettingsTree = this.treeView.addCollapsable("asset bundle settings");
 
-		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		this.bundleSettingsStructure = {
 			outputLocation: {
 				type: "string",

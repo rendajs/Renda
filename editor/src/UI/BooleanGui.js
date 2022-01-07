@@ -1,4 +1,4 @@
-/** @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions} BooleanGuiOptions */
+/** @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase} BooleanGuiOptions */
 
 export class BooleanGui {
 	constructor({

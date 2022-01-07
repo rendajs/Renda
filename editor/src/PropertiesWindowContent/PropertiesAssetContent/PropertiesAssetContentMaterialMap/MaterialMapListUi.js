@@ -2,7 +2,7 @@ import {PropertiesTreeView} from "../../../UI/PropertiesTreeView/PropertiesTreeV
 
 /**
  * @typedef {Object} MappableItem
- * @property {import("../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} structure
+ * @property {import("../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} structure
  * @property {PropertiesTreeView} treeView
  */
 
@@ -24,7 +24,7 @@ export class MaterialMapListUi {
 		this.treeView = new PropertiesTreeView({name: "mapList"});
 		for (const item of items) {
 			const mappableItemTreeView = this.treeView.addCollapsable(item.name);
-			/** @type {import("../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+			/** @type {import("../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 			const structure = {
 				visible: {
 					type: "boolean",
@@ -65,7 +65,7 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {function(import("../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewChangeEvent) : void} cb
+	 * @param {function(import("../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewChangeEvent) : void} cb
 	 */
 	onValueChange(cb) {
 		this.treeView.onChildValueChange(cb);

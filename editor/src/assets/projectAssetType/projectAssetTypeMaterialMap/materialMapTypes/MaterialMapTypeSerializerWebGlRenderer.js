@@ -10,7 +10,7 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	constructor() {
 		super();
 
-		/** @type {import("../../../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		this.settingsGuiStructure = {
 			vertexShader: {
 				type: "droppable",

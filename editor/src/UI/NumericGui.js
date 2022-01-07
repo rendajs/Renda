@@ -11,7 +11,7 @@
  * @property {[number, string][]} [mappedStringValues = []] The string to return when the numeric value is one of these values.
  * @property {number | string} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  *
- * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & NumericGuiOptionsType} NumericGuiOptions
+ * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & NumericGuiOptionsType} NumericGuiOptions
  */
 
 export class NumericGui {

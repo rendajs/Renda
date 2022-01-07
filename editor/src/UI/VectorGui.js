@@ -12,7 +12,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  */
 /**
  * @template {Vec2 | Vec3 | Vec4} T
- * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & VectorGuiOptionsType<T>} VectorGuiOptions
+ * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & VectorGuiOptionsType<T>} VectorGuiOptions
  */
 
 /**

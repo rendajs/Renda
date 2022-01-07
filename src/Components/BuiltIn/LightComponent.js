@@ -15,7 +15,7 @@ export class LightComponent extends Component {
 
 	/**
 	 * @override
-	 * @returns {import("../../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure}
+	 * @returns {import("../../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure}
 	 */
 	static get guiStructure() {
 		return {

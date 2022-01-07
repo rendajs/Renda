@@ -19,7 +19,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 
 		this.builtInAssetLinkGuiStructure = this.getAssetLinkGuiStructure(true);
 
-		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		this.guiStructure = {
 			defaultAssetLinks: {
 				type: "array",
@@ -87,7 +87,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	 * @param {boolean} isBuiltIn
 	 */
 	getAssetLinkGuiStructure(isBuiltIn) {
-		/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		const typeObj = {};
 		if (!isBuiltIn) {
 			typeObj.name = {type: "string"};

@@ -4,15 +4,15 @@ import {Button} from "./Button.js";
 
 /**
  * @template T
- * @typedef {T extends keyof import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap ? {
+ * @typedef {T extends keyof import("./PropertiesTreeView/types.js").PropertiesTreeViewGuiOptionsMap ? {
  * value?: any[],
  * arrayType: T,
- * arrayGuiOpts?: import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap[T],
+ * arrayGuiOpts?: import("./PropertiesTreeView/types.js").PropertiesTreeViewGuiOptionsMap[T],
  * } : never} ArrayGuiOptionsTypeGeneric
  */
 
-/** @typedef {ArrayGuiOptionsTypeGeneric<keyof import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewGuiOptionsMap>} ArrayGuiOptionsType */
-/** @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ArrayGuiOptionsType} ArrayGuiOptions */
+/** @typedef {ArrayGuiOptionsTypeGeneric<keyof import("./PropertiesTreeView/types.js").PropertiesTreeViewGuiOptionsMap>} ArrayGuiOptionsType */
+/** @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ArrayGuiOptionsType} ArrayGuiOptions */
 
 export class ArrayGui {
 	/**

@@ -309,7 +309,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					if (componentConstructor.guiStructure) {
 						const castComponentA = /** @type {unknown} */ (component);
 						const castComponentB = /** @type {Object.<string, unknown>} */ (castComponentA);
-						/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions} */
+						/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 						const structure = {
 							type: "object",
 							guiOpts: {
@@ -325,7 +325,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	/**
 	 * @param {Component} rootComponent
-	 * @param {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptions} structure
+	 * @param {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptions} structure
 	 * @param {Object.<string | number, unknown>} data
 	 * @param {Object.<string | number, unknown>?} parentObject
 	 * @param {string | number | null} propertyChangeName
@@ -348,7 +348,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		} else if (structure.type == "array" && Array.isArray(data)) {
 			const arrayType = structure.guiOpts?.arrayType;
 			if (arrayType) {
-				/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+				/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
 				const arrayStructure = {
 					type: arrayType,
 					guiOpts: structure.guiOpts?.arrayGuiOpts,

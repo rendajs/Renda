@@ -20,7 +20,7 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 	static storeInProjectAsJson = false;
 	static storeInProjectAsText = true;
 
-	/** @type {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static assetSettingsStructure = {
 		outputLocation: {
 			type: "string",

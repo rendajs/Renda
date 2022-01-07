@@ -17,7 +17,7 @@ export class CameraComponent extends Component {
 	 * @override
 	 */
 	static get guiStructure() {
-		/** @type {import("../../../editor/src/UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		const structure = {
 			fov: {
 				type: "number",

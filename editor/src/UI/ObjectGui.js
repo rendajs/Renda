@@ -2,9 +2,9 @@ import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @typedef {Object} ObjectGuiOptionsType
- * @property {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewStructure} [structure]
+ * @property {import("./PropertiesTreeView/types.js").PropertiesTreeViewStructure} [structure]
  *
- * @typedef {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiOptions & ObjectGuiOptionsType} ObjectGuiOptions
+ * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ObjectGuiOptionsType} ObjectGuiOptions
  */
 
 export class ObjectGui {
