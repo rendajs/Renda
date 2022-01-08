@@ -6,14 +6,17 @@ import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/Con
 import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
 
 /**
+ * @template {(new (...args: any) => any)[]} T
  * @typedef {Object} DroppableGuiOptionsType
- * @property {*[]} [supportedAssetTypes]
- *
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & DroppableGuiOptionsType} DroppableGuiOptions
+ * @property {T} [supportedAssetTypes]
+ */
+/**
+ * @template {(new (...args: any) => any)[]} T
+ * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & DroppableGuiOptionsType<T>} DroppableGuiOptions
  */
 
 /**
- * @template {unknown} T
+ * @template {(new (...args: any) => any)[]} T
  */
 export class DroppableGui {
 	/**
@@ -21,10 +24,14 @@ export class DroppableGui {
 	 */
 
 	/**
-	 * @param {DroppableGuiOptions} options
+	 * @typedef {T extends (new (...args: any) => infer R)[] ? R : never} SupportedAssetTypes
+	 */
+
+	/**
+	 * @param {DroppableGuiOptions<T>} options
 	 */
 	constructor({
-		supportedAssetTypes = [],
+		supportedAssetTypes = /** @type {any} */ ([]),
 		// todo: default value support
 		disabled = false,
 	} = {}) {
@@ -35,7 +42,7 @@ export class DroppableGui {
 		/** @type {OnValueChangeCallback[]} */
 		this.onValueChangeCbs = [];
 
-		this.supportedAssetTypes = supportedAssetTypes;
+		this.supportedAssetTypes = /** @type {any[]} */ (supportedAssetTypes);
 
 		this.currenDragFeedbackEl = null;
 
@@ -84,7 +91,7 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @param {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
+	 * @param {SupportedAssetTypes | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
 	 */
 	setValue(value) {
 		let projectAsset = null;
@@ -117,8 +124,8 @@ export class DroppableGui {
 	/**
 	 * @template {boolean} [U = false]
 	 * @template {SerializableStructureOutputPurpose} [V = "default"]
-	 * @typedef {V extends "script" ? T? :
-	 * 		U extends true ? T? :
+	 * @typedef {V extends "script" ? SupportedAssetTypes? :
+	 * 		U extends true ? SupportedAssetTypes? :
 	 * import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
 	 */
 
@@ -148,7 +155,7 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @param {T | import("../../../src/mod.js").UuidString | null} value
+	 * @param {SupportedAssetTypes | import("../../../src/mod.js").UuidString | null} value
 	 */
 	set value(value) {
 		this.setValue(value);
