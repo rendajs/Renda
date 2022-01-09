@@ -26,11 +26,22 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 
 /**
- * @template {import("./types.js").PropertiesTreeViewEntryType} T
+ * @template T
  */
 export class PropertiesTreeViewEntry extends TreeView {
 	/**
-	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T>} opts
+	 * @template {import("./types.js").GuiTypes} T
+	 * @template TOpts
+	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T, TOpts>} opts
+	 */
+	static of(opts) {
+		const x = new PropertiesTreeViewEntry(opts);
+		return /** @type {import("./types.js").TreeViewEntryFactoryReturnType<T, TOpts>} */ (x);
+	}
+
+	/**
+	 * @private
+	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<any>} opts
 	 */
 	constructor({
 		type,
@@ -59,12 +70,12 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		/** @type {import("./types.js").PropertiesTreeViewGuiOptionsMap[T]?} */
+		/** @type {T?} */
 		this.gui = null;
 
 		/**
-		 * @template {import("./types.js").PropertiesTreeViewEntryType} U
-		 * @typedef {import("./types.js").PropertiesTreeViewGuiOptionsMap[U]} GetGuiOpts
+		 * @template {import("./types.js").GuiTypes} U
+		 * @typedef {import("./types.js").GetGuiOptions<U>} GetGuiOpts
 		 */
 
 		this.type = type;
@@ -141,7 +152,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 			setGui = new LabelGui(guiOpts);
 			this.valueEl.appendChild(setGui.el);
 		} else if (type == "droppable") {
-			setGui = new DroppableGui({
+			setGui = DroppableGui.of({
 				...guiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);

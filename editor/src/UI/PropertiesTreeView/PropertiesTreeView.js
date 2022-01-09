@@ -48,11 +48,11 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").PropertiesTreeViewEntryType} T
+	 * @template {import("./types.js").GuiTypes} T
 	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T>} opts
 	 */
 	addItem(opts) {
-		const item = new PropertiesTreeViewEntry(opts);
+		const item = PropertiesTreeViewEntry.of(opts);
 		if (this.fullTreeDisabled) item.setDisabled(true);
 		this.addChild(item);
 		return item;

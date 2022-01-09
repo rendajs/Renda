@@ -6,32 +6,51 @@ import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/Con
 import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
 
 /**
- * @template {(new (...args: any) => any)[]} T
+ * @template {new (...args: any) => any} T
  * @typedef {Object} DroppableGuiOptionsType
- * @property {T} [supportedAssetTypes]
+ * @property {T[]} [supportedAssetTypes]
  */
 /**
- * @template {(new (...args: any) => any)[]} T
+ * @template {new (...args: any) => any} T
  * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & DroppableGuiOptionsType<T>} DroppableGuiOptions
  */
 
 /**
- * @template {(new (...args: any) => any)[]} T
+ * @template T
+ * @typedef {T extends DroppableGuiOptions<any> ?
+ * 		T["supportedAssetTypes"] extends (new (...args: any) => infer A)[] ?
+ * 			A :
+ * 			never :
+ * 		never} GuiOptionsToTemplate
+ */
+
+/**
+ * @template TOpts
+ * @typedef {DroppableGui<GuiOptionsToTemplate<TOpts>>} GetGuiReturnTypeForOptions
+ */
+
+/**
+ * @template T
  */
 export class DroppableGui {
+	/**
+	 * @template {new (...args: any) => any} T
+	 * @param {DroppableGuiOptions<T>} opts
+	 */
+	static of(opts) {
+		return /** @type {DroppableGui<InstanceType<T>>} */ (new DroppableGui(opts));
+	}
+
 	/**
 	 * @typedef {(value: import("../../../src/mod.js").UuidString?) => void} OnValueChangeCallback
 	 */
 
 	/**
-	 * @typedef {T extends (new (...args: any) => infer R)[] ? R : never} SupportedAssetTypes
-	 */
-
-	/**
-	 * @param {DroppableGuiOptions<T>} options
+	 * @private
+	 * @param {DroppableGuiOptions<new (...args: any) => any>} options
 	 */
 	constructor({
-		supportedAssetTypes = /** @type {any} */ ([]),
+		supportedAssetTypes = [],
 		// todo: default value support
 		disabled = false,
 	} = {}) {
@@ -91,7 +110,7 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @param {SupportedAssetTypes | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
+	 * @param {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
 	 */
 	setValue(value) {
 		let projectAsset = null;
@@ -124,9 +143,11 @@ export class DroppableGui {
 	/**
 	 * @template {boolean} [U = false]
 	 * @template {SerializableStructureOutputPurpose} [V = "default"]
-	 * @typedef {V extends "script" ? SupportedAssetTypes? :
-	 * 		U extends true ? SupportedAssetTypes? :
-	 * import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
+	 * @typedef {V extends "script" ?
+	 * 		T? :
+	 * 		U extends true ?
+	 * 			T? :
+	 * 			import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
 	 */
 
 	/**
@@ -155,7 +176,7 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @param {SupportedAssetTypes | import("../../../src/mod.js").UuidString | null} value
+	 * @param {T | import("../../../src/mod.js").UuidString | null} value
 	 */
 	set value(value) {
 		this.setValue(value);
