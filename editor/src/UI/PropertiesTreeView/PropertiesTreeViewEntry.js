@@ -21,8 +21,22 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  * @property {*} [value]
  * @property {function((value: any) => any) : void} [onValueChange]
  * @property {() => any} [destructor]
- * @property {(value: any) => any} [setValue]
+ * @property {(value: any, options: any) => any} [setValue]
  * @property {(disabled: boolean) => any} [setDisabled]
+ */
+
+/**
+ * @typedef SetValueOptionsExta
+ * @property {(data: BeforeValueSetHookData) => any} [beforeValueSetHook]
+ * @property {any} [setOnObject]
+ * @property {string} [setOnObjectKey]
+ */
+
+/**
+ * @typedef BeforeValueSetHookData
+ * @property {unknown} value
+ * @property {any} setOnObject
+ * @property {string} setOnObjectKey
  */
 
 /**
@@ -190,11 +204,11 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @param {GuiValueType} newValue
-	 * @param {*} setValueOpts
+	 * @param {import("./types.js").SetValueType<T>} newValue
+	 * @param {import("./types.js").SetValueOptionsType<T> & SetValueOptionsExta} setValueOpts
 	 */
 	setValue(newValue, setValueOpts = {}) {
-		if (setValueOpts?.beforeValueSetHook) {
+		if (setValueOpts?.beforeValueSetHook && setValueOpts.setOnObject != undefined && setValueOpts.setOnObjectKey != undefined) {
 			newValue = setValueOpts.beforeValueSetHook({
 				value: newValue,
 				setOnObject: setValueOpts.setOnObject,
@@ -210,7 +224,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @param {(value: GuiValueType) => any} cb
+	 * @param {(value: import("./types.js").GetValueType<T>) => any} cb
 	 */
 	onValueChange(cb) {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
@@ -222,15 +236,17 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @param {any} guiOpts
-	 * @returns {GuiValueType}
+	 * @template {import("./types.js").GetValueOptionsType<T>} TOpts
+	 * @param {TOpts} guiOpts
+	 * @returns {import("./types.js").GetValueType<T, TOpts>}
 	 */
-	getValue(guiOpts = {}) {
-		if (!this.gui) return null;
-		if (this.gui.getValue) {
-			return this.gui.getValue(guiOpts);
+	getValue(guiOpts = /** @type {TOpts} */ ({})) {
+		if (!this.gui) return /** @type {import("./types.js").GetValueType<T, TOpts>} */ (null);
+		const castGui = /** @type {GuiInterface} */ (this.gui);
+		if (castGui.getValue) {
+			return castGui.getValue(guiOpts);
 		} else {
-			return this.gui?.value;
+			return castGui?.value;
 		}
 	}
 
@@ -259,7 +275,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 			const castGui = /** @type {GuiInterface} */ (this.gui);
 			if (castGui.isDefaultValue) {
 				if (castGui.isDefaultValue(guiOpts)) return true;
-			} else if (this.gui.value == castGui.defaultValue) {
+			} else if (castGui.value == castGui.defaultValue) {
 				return true;
 			}
 		}

@@ -9,6 +9,58 @@ import {prettifyVariableName} from "../Util/Util.js";
  * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & DropDownGuiOptionsType} DropDownGuiOptions
  */
 
+/**
+ * @template {boolean} [T = true]
+ * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [U = "default"]
+ * @typedef {Object} GetValueOptions
+ * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
+ * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
+ * dropdown items is returned.
+ * @property {U} [purpose = "default"]
+ */
+
+/**
+ * @template T
+ * @template U
+ * @typedef GetValueOptionsNoDefaults
+ * @property {T} [getAsString]
+ * @property {U} [purpose]
+ */
+
+/**
+ * @template {boolean} [T = true]
+ * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [U = "default"]
+ * @typedef {U extends "fileStorage" ? string :
+ * U extends "binaryComposer" ? number :
+ * U extends "default" | undefined ? (
+ *   T extends true ? string :
+ *   T extends false ? number :
+ *   T extends undefined ? string :
+ *   number
+ * ) : string} GetValueReturn
+ */
+
+/**
+ * @template T
+ * @template U
+ * @typedef {unknown extends T ? U : T} ReplaceUnknown
+ */
+
+/**
+ * @template TOpts
+ * @typedef {TOpts extends GetValueOptionsNoDefaults<infer T, infer U> ?
+ * 		ReplaceUnknown<T, true> extends infer TDefaulted ?
+ * 			ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 				TDefaulted extends boolean ?
+ * 					UDefaulted extends import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose ?
+ * 						GetValueReturn<TDefaulted, UDefaulted> :
+ * 						never :
+ * 					never :
+ * 				never :
+ * 			never :
+ * 		never} GetDropDownValueTypeForOptions
+ */
+
 export class DropDownGui {
 	/**
 	 * @param {DropDownGuiOptions} opts
@@ -118,34 +170,9 @@ export class DropDownGui {
 		}
 	}
 
-	/** @typedef {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} SerializableStructureOutputPurpose */
-
-	/**
-	 * @template {boolean} T
-	 * @template {SerializableStructureOutputPurpose} U
-	 * @typedef {Object} GetValueOptions
-	 * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
-	 * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
-	 * dropdown items is returned.
-	 * @property {U} [purpose = "default"]
-	 */
-
-	/**
-	 * @template {boolean} T
-	 * @template {SerializableStructureOutputPurpose} U
-	 * @typedef {U extends "fileStorage" ? string :
-	 * U extends "binaryComposer" ? number :
-	 * U extends "default" | undefined ? (
-	 *   T extends true ? string :
-	 *   T extends false ? number :
-	 *   T extends undefined ? string :
-	 *   number
-	 * ) : string} GetValueReturn
-	 */
-
 	/**
 	 * @template {boolean} [T = true]
-	 * @template {SerializableStructureOutputPurpose} [U = "default"]
+	 * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [U = "default"]
 	 * @param {GetValueOptions<T, U>} opts
 	 * @returns {GetValueReturn<T, U>}
 	 */

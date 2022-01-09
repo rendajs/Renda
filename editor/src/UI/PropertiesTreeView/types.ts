@@ -1,9 +1,9 @@
-import { Material, Vec2, Vec3, Vec4, VertexState } from "../../../../src/mod.js";
+import { Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
 import { ArrayGui, ArrayGuiOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";
 import { Button, ButtonGuiOptions } from "../Button.js";
 import { ButtonSelectorGui, ButtonSelectorGuiOptions } from "../ButtonSelectorGui.js";
-import { DropDownGui, DropDownGuiOptions } from "../DropDownGui.js";
+import { DropDownGui, DropDownGuiOptions, GetDropDownValueTypeForOptions } from "../DropDownGui.js";
 import { DroppableGui, DroppableGuiOptions, GetGuiReturnTypeForOptions } from "../DroppableGui.js";
 import { LabelGui, LabelGuiOptions } from "../LabelGui.js";
 import { NumericGui, NumericGuiOptions } from "../NumericGui.js";
@@ -11,7 +11,7 @@ import { ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
 import { TextGui, TextGuiOptions } from "../TextGui.js";
 import { TreeViewEvent } from "../TreeView.js";
 import { VectorGui, VectorGuiOptions } from "../VectorGui.js";
-import { PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
+import { GuiInterface, PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
 
 export type GuiOptionsBase = {
 	label?: string,
@@ -91,7 +91,7 @@ export type GetGuiOptions<T extends GuiTypes, TOpts = any> =
 
 export type TreeViewEntryFactoryReturnType<T extends GuiTypes, TOpts> =
 	T extends "droppable" ?
-		GetGuiReturnTypeForOptions<TOpts> :
+		PropertiesTreeViewEntry<GetGuiReturnTypeForOptions<TOpts>> :
 		PropertiesTreeViewEntry<GuisMap[T]["instance"]>;
 
 // The following is used for autocompletion while filling in arguments for a
@@ -117,3 +117,27 @@ type PropertiesTreeViewChangeEventType<T extends GuiTypes> = {
 }
 
 export type PropertiesTreeViewChangeEvent<T extends GuiTypes> = TreeViewEvent & PropertiesTreeViewChangeEventType<T>
+
+type SetValueTypeHelper<T extends GuiInterface> =
+	T extends {setValue: (value: infer V, opts: infer O) => any} ?
+		[V, O] :
+	T extends {value: infer V} ?
+		[V, never] :
+	never;
+
+export type SetValueType<T extends GuiInterface> = SetValueTypeHelper<T>[0];
+export type SetValueOptionsType<T extends GuiInterface> = SetValueTypeHelper<T>[1];
+
+export type GetValueOptionsType<T extends GuiInterface> =
+	T extends {getValue: (opts: infer O) => any} ?
+		O :
+	never;
+
+export type GetValueType<T extends GuiInterface, TOpts = any> =
+	T extends DropDownGui ?
+		GetDropDownValueTypeForOptions<TOpts> :
+	T extends {getValue: (...args: any) => infer R} ?
+		R :
+	T extends {value: infer V} ?
+		V :
+	never;
