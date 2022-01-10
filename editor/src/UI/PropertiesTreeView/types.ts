@@ -203,12 +203,10 @@ export type StructureToSetObject<T extends PropertiesTreeViewStructure> = {
 	[x in keyof T]: SetValueType<GetGuiInstanceForOpts<T[x]>>;
 }
 
-type PropertiesTreeViewChangeEventType<T extends GuiTypes> = {
-    newValue: any;
-    target: PropertiesTreeViewEntry<T>;
+export type PropertiesTreeViewChangeEvent<T extends PropertiesTreeViewStructure> = TreeViewEvent & {
+	newValue: StructureToGetObject<T, {}>;
+	target: PropertiesTreeViewEntry<T>;
 }
-
-export type PropertiesTreeViewChangeEvent<T extends GuiTypes> = TreeViewEvent & PropertiesTreeViewChangeEventType<T>
 
 type SetValueTypeHelper<T extends GuiInterface> =
 	T extends {setValue: (value: infer V, opts: infer O) => any} ?

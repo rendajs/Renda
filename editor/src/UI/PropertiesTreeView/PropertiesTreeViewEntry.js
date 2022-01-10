@@ -282,7 +282,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		return false;
 	}
 
-	/** @typedef {import("./PropertiesTreeView.js").PropertiesTreeViewEventCbMap} PropertiesTreeViewEventCbMap */
+	/** @typedef {import("./PropertiesTreeView.js").PropertiesTreeViewEventCbMap<any>} PropertiesTreeViewEventCbMap */
 
 	/**
 	 * @template {keyof PropertiesTreeViewEventCbMap} T
