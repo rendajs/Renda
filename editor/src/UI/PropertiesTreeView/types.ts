@@ -11,7 +11,7 @@ import { ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
 import { TextGui, TextGuiOptions } from "../TextGui.js";
 import { TreeViewEvent } from "../TreeView.js";
 import { VectorGui, VectorGuiOptions } from "../VectorGui.js";
-import { GuiInterface, PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
+import { BeforeValueSetHookData, GuiInterface, PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
 
 export type GuiOptionsBase = {
 	label?: string,
@@ -205,19 +205,21 @@ export type PropertiesTreeViewChangeEvent<T extends GuiTypes> = TreeViewEvent & 
 
 type SetValueTypeHelper<T extends GuiInterface> =
 	T extends {setValue: (value: infer V, opts: infer O) => any} ?
-		[V, O] :
+		unknown extends O ?
+			[V, {}] :
+			[V, O] :
 	T extends {value: infer V} ?
 		[V, never] :
 	never;
 
 export type SetValueType<T extends GuiInterface> = SetValueTypeHelper<T>[0];
-export type SetValueOptionsType<T extends GuiInterface> = SetValueTypeHelper<T>[1];
+export type SetValueOptionsType<T extends GuiInterface> = SetValueTypeHelper<T>[1] & BaseSetValueOptions;
 
 export type GetValueOptionsType<T extends GuiInterface> =
 	T extends {getValue: (opts: infer O) => any} ?
 		unknown extends O ?
 			never :
-			O :
+			O & BaseGetValueOptions :
 		never;
 
 export type GetValueType<T extends GuiInterface, TOpts = any> =
@@ -239,18 +241,26 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
  */
 export type TreeViewStructureOutputPurpose = "default" | "fileStorage" | "binaryComposer" | "script";
 
-type BaseGuiOptions = {
+type BaseGetValueOptions = {
 	purpose?: TreeViewStructureOutputPurpose;
 	stripDefaultValues?: boolean;
+}
+
+type BaseSetValueOptions = {
+	beforeValueSetHook?: (data: BeforeValueSetHookData) => any,
+	setOnObject?: any,
+	setOnObjectKey?: string,
 }
 
 type UnionToIntersection<U> =
 	(U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
 
-type AllPossibleGuiOptsHelper = BaseGuiOptions | GetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>;
-export type AllPossibleGuiOpts = UnionToIntersection<Partial<NonNullable<AllPossibleGuiOptsHelper>>>
+type FlattenAllPossibleOptsHelper<T> = UnionToIntersection<Partial<NonNullable<T>>>
 
-export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewStructure, TGuiOpts extends AllPossibleGuiOpts = {}> =
+export type AllPossibleGetValueOpts = FlattenAllPossibleOptsHelper<GetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>>;
+export type AllPossibleSetValueOpts = FlattenAllPossibleOptsHelper<SetValueOptionsType<GuiTypeInstances>>;
+
+export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewStructure, TGuiOpts extends AllPossibleGetValueOpts = {}> =
 	TGuiOpts["stripDefaultValues"] extends true ?
 		StructureToObject<TStructure, TGuiOpts> | undefined :
 	TGuiOpts["purpose"] extends "fileStorage" ?

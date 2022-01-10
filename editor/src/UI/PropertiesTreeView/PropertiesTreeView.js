@@ -99,6 +99,7 @@ export class PropertiesTreeView extends TreeView {
 
 	/**
 	 * @param {T} values
+	 * @param {import("./types.js").AllPossibleSetValueOpts} [setValueOpts]
 	 */
 	fillSerializableStructureValues(values, setValueOpts) {
 		if (!values) return;
@@ -117,7 +118,7 @@ export class PropertiesTreeView extends TreeView {
 	// when setting via generateFromSerializableStructure
 	/**
 	 * @template {import("./types.js").PropertiesTreeViewStructure} TStructure
-	 * @template {import("./types.js").AllPossibleGuiOpts} [TGuiOpts = {}]
+	 * @template {import("./types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
 	 * @param {TStructure} structure
 	 * @param {TGuiOpts} [guiOpts]
 	 * @returns {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>}
@@ -156,6 +157,9 @@ export class PropertiesTreeView extends TreeView {
 		return this.currentSerializableStructureItems[key];
 	}
 
+	/**
+	 * @param {PropertiesTreeViewEntry<any>} treeViewEntry
+	 */
 	getSerializableStructureKeyForEntry(treeViewEntry) {
 		for (const [key, entry] of Object.entries(this.currentSerializableStructureItems)) {
 			if (treeViewEntry == entry) {

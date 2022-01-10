@@ -205,7 +205,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 
 	/**
 	 * @param {import("./types.js").SetValueType<T>} newValue
-	 * @param {import("./types.js").SetValueOptionsType<T> & SetValueOptionsExta} setValueOpts
+	 * @param {import("./types.js").SetValueOptionsType<T>} setValueOpts
 	 */
 	setValue(newValue, setValueOpts = {}) {
 		if (setValueOpts?.beforeValueSetHook && setValueOpts.setOnObject != undefined && setValueOpts.setOnObjectKey != undefined) {
