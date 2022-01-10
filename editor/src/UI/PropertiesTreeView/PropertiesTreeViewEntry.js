@@ -253,8 +253,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * Useful for entries that should not have a value such as buttons, labels, etc.
 	 * Is also used for stripping default values.
-	 * @param {Object} guiOpts
-	 * @param {import("./PropertiesTreeView.js").SerializableStructureOutputPurpose} [guiOpts.purpose]
+	 * @param {Object} [guiOpts]
+	 * @param {import("./types.js").TreeViewStructureOutputPurpose} [guiOpts.purpose]
 	 * @param {boolean} [guiOpts.stripDefaultValues]
 	 * @returns {boolean} If `true`, the value will be omitted from getSerializableStructureValues.
 	 */

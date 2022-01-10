@@ -2,14 +2,6 @@ import {TreeView} from "../TreeView.js";
 import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 
 /**
- * `"default"` uses the default behaviour of PropertiesTreeViewEntries
- * `"fileStorage"` optimizes for data stored as json in project asset files
- * `"binaryComposer"` optimizes for data passed to BinaryComposer.objectToBinary
- * `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components).
- * @typedef {"default" | "fileStorage" | "binaryComposer" | "script"} SerializableStructureOutputPurpose
- */
-
-/**
  * @typedef {Object} PropertiesTreeViewEventCbMapType
  * @property {import("./types.js").PropertiesTreeViewChangeEvent} propertiestreeviewentryvaluechange
  *
@@ -31,7 +23,7 @@ export class PropertiesTreeView extends TreeView {
 	static withStructure(structure, ...opts) {
 		const treeView = new PropertiesTreeView(...opts);
 		treeView.generateFromSerializableStructure(structure);
-		return /** @type {PropertiesTreeView<import("./types.js").StructureToObject<T>>} */ (treeView);
+		return /** @type {PropertiesTreeView<import("./types.js").StructureToObject<T, any>>} */ (treeView);
 	}
 
 	constructor({
@@ -45,15 +37,14 @@ export class PropertiesTreeView extends TreeView {
 		});
 		this.fullTreeDisabled = false;
 
-		/** @type {Object.<string, PropertiesTreeViewEntry>} */
-		this.currentSerializableStructureItems = null;
+		/** @type {Object.<string, PropertiesTreeViewEntry<any>>} */
+		this.currentSerializableStructureItems = {};
 
 		this.registerNewEventType("propertiestreeviewentryvaluechange");
 	}
 
 	/**
 	 * @param {string} [name]
-	 * @returns {PropertiesTreeView}
 	 */
 	addCollapsable(name = "") {
 		const newTreeView = new PropertiesTreeView({
@@ -106,6 +97,9 @@ export class PropertiesTreeView extends TreeView {
 		}
 	}
 
+	/**
+	 * @param {T} values
+	 */
 	fillSerializableStructureValues(values, setValueOpts) {
 		if (!values) return;
 		for (const [key, value] of Object.entries(values)) {
@@ -126,32 +120,38 @@ export class PropertiesTreeView extends TreeView {
 	 * @template {import("./types.js").AllPossibleGuiOpts} [TGuiOpts = {}]
 	 * @param {TStructure} structure
 	 * @param {TGuiOpts} [guiOpts]
-	 * @returns {import("./types.js").StructureToObject<TStructure, TGuiOpts>}
+	 * @returns {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>}
 	 */
 	getSerializableStructureValues(structure, guiOpts) {
-		let {
-			purpose = "default",
-			stripDefaultValues = false,
-		} = guiOpts || {};
+		const purpose = guiOpts?.purpose ?? "default";
+		let stripDefaultValues = guiOpts?.stripDefaultValues ?? false;
 		if (purpose == "fileStorage") {
 			stripDefaultValues = true;
 		} else if (purpose == "binaryComposer") {
 			stripDefaultValues = false;
 		}
+		/** @type {Object.<string, unknown>} */
 		const values = {};
 		let i = 0;
 		let hasSetOneValue = false;
 		for (const key of Object.keys(structure)) {
 			const entry = this.children[i++];
-			if (!entry.omitFromSerializableStuctureValues(guiOpts)) {
-				values[key] = entry.getValue(guiOpts);
-				hasSetOneValue = true;
+			if (entry instanceof PropertiesTreeViewEntry) {
+				const castEntry = /** @type {PropertiesTreeViewEntry<import("./types.js").GuiTypeInstances>} */ (entry);
+				if (!castEntry.omitFromSerializableStuctureValues(guiOpts)) {
+					values[key] = castEntry.getValue(guiOpts);
+					hasSetOneValue = true;
+				}
 			}
 		}
-		if (stripDefaultValues && !hasSetOneValue) return undefined;
-		return values;
+		if (stripDefaultValues && !hasSetOneValue) return /** @type {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>} */ (undefined);
+		return /** @type {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>} */ (values);
 	}
 
+	// todo: make this take a @template?
+	/**
+	 * @param {string} key
+	 */
 	getSerializableStructureEntry(key) {
 		return this.currentSerializableStructureItems[key];
 	}
@@ -165,10 +165,15 @@ export class PropertiesTreeView extends TreeView {
 		return null;
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setFullTreeDisabled(disabled) {
 		this.fullTreeDisabled = disabled;
 		for (const child of this.children) {
-			child.setDisabled(disabled);
+			if (child instanceof PropertiesTreeViewEntry) {
+				child.setDisabled(disabled);
+			}
 		}
 	}
 

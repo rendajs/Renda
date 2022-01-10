@@ -231,4 +231,28 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
 		V :
 	never;
 
-export type AllPossibleGuiOpts = GetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>;
+/**
+ * `"default"` uses the default behaviour of PropertiesTreeViewEntries
+ * `"fileStorage"` optimizes for data stored as json in project asset files
+ * `"binaryComposer"` optimizes for data passed to BinaryComposer.objectToBinary
+ * `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components).
+ */
+export type TreeViewStructureOutputPurpose = "default" | "fileStorage" | "binaryComposer" | "script";
+
+type BaseGuiOptions = {
+	purpose?: TreeViewStructureOutputPurpose;
+	stripDefaultValues?: boolean;
+}
+
+type UnionToIntersection<U> =
+	(U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
+
+type AllPossibleGuiOptsHelper = BaseGuiOptions | GetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>;
+export type AllPossibleGuiOpts = UnionToIntersection<Partial<NonNullable<AllPossibleGuiOptsHelper>>>
+
+export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewStructure, TGuiOpts extends AllPossibleGuiOpts = {}> =
+	TGuiOpts["stripDefaultValues"] extends true ?
+		StructureToObject<TStructure, TGuiOpts> | undefined :
+	TGuiOpts["purpose"] extends "fileStorage" ?
+		StructureToObject<TStructure, TGuiOpts> | undefined :
+	StructureToObject<TStructure, TGuiOpts>;

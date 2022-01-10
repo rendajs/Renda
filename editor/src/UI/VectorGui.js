@@ -117,7 +117,7 @@ export class VectorGui {
 		this.onValueChangeCbs.push(cb);
 	}
 
-	/** @typedef {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} SerializableStructureOutputPurpose */
+	/** @typedef {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} SerializableStructureOutputPurpose */
 
 	/**
 	 * @template {boolean} U

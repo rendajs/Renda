@@ -17,7 +17,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
 
 /**
  * @template {boolean} U
- * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} V
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
  * @typedef {Object} DroppableGuiGetValueOptions
  * @property {boolean} [resolveDefaultAssetLinks = false]
  * @property {U} [returnLiveAsset = false]
@@ -27,7 +27,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
 /**
  * @template T
  * @template {boolean} [U = false]
- * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [V = "default"]
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
  * @typedef {V extends "script" ?
  * 		T? :
  * 		U extends true ?
@@ -65,7 +65,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
  * 		TDefaulted extends boolean ?
  * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
- * 			UDefaulted extends import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose ?
+ * 			UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
  * 				TDroppableInstance extends DroppableGui<infer TAssetType> ?
  * 				DroppableGuiGetValueReturn<TAssetType, TDefaulted, UDefaulted> :
  * never : never : never : never : never} GetDroppableValueTypeForOptions
@@ -173,7 +173,7 @@ export class DroppableGui {
 
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [V = "default"]
+	 * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {DroppableGuiGetValueOptions<U, V>} options
 	 * @returns {DroppableGuiGetValueReturn<T, U, V>}
 	 */

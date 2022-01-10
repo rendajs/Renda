@@ -136,7 +136,7 @@ export class NumericGui {
 	/**
 	 * @param {Object} opts
 	 * @param {boolean} [opts.mapNumericValuesToStrings] If true, will return a string if the value is one of `mappedStringValues`.
-	 * @param {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [opts.purpose]
+	 * @param {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [opts.purpose]
 	 * @returns {string | number}
 	 */
 	getValue({

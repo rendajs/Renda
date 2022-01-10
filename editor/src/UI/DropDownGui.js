@@ -11,7 +11,7 @@ import {prettifyVariableName} from "../Util/Util.js";
 
 /**
  * @template {boolean} [T = true]
- * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [U = "default"]
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {Object} GetValueOptions
  * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
  * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
@@ -29,7 +29,7 @@ import {prettifyVariableName} from "../Util/Util.js";
 
 /**
  * @template {boolean} [T = true]
- * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [U = "default"]
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {U extends "fileStorage" ? string :
  * U extends "binaryComposer" ? number :
  * U extends "default" | undefined ? (
@@ -46,7 +46,7 @@ import {prettifyVariableName} from "../Util/Util.js";
  * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, true> extends infer TDefaulted ?
  * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
  * 				TDefaulted extends boolean ?
- * 					UDefaulted extends import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose ?
+ * 					UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
  * 						GetValueReturn<TDefaulted, UDefaulted> :
  * 						never :
  * 					never :
@@ -166,7 +166,7 @@ export class DropDownGui {
 
 	/**
 	 * @template {boolean} [T = true]
-	 * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [U = "default"]
+	 * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
 	 * @param {GetValueOptions<T, U>} opts
 	 * @returns {GetValueReturn<T, U>}
 	 */
