@@ -192,8 +192,15 @@ export type PropertiesTreeViewStructure = {
  * }
  * ```
  */
-export type StructureToObject<T extends PropertiesTreeViewStructure, TGuiOpts> = {
+export type StructureToGetObject<T extends PropertiesTreeViewStructure, TGuiOpts> = {
 	[x in keyof T]: GetValueType<GetGuiInstanceForOpts<T[x]>, TGuiOpts>;
+}
+
+/**
+ * Same as StructureToGetObject but with SetValue GuiOpts.
+ */
+export type StructureToSetObject<T extends PropertiesTreeViewStructure> = {
+	[x in keyof T]: SetValueType<GetGuiInstanceForOpts<T[x]>>;
 }
 
 type PropertiesTreeViewChangeEventType<T extends GuiTypes> = {
@@ -262,7 +269,7 @@ export type AllPossibleSetValueOpts = FlattenAllPossibleOptsHelper<SetValueOptio
 
 export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewStructure, TGuiOpts extends AllPossibleGetValueOpts = {}> =
 	TGuiOpts["stripDefaultValues"] extends true ?
-		StructureToObject<TStructure, TGuiOpts> | undefined :
+		StructureToGetObject<TStructure, TGuiOpts> | undefined :
 	TGuiOpts["purpose"] extends "fileStorage" ?
-		StructureToObject<TStructure, TGuiOpts> | undefined :
-	StructureToObject<TStructure, TGuiOpts>;
+		StructureToGetObject<TStructure, TGuiOpts> | undefined :
+	StructureToGetObject<TStructure, TGuiOpts>;

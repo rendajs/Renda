@@ -23,7 +23,7 @@ export class PropertiesTreeView extends TreeView {
 	static withStructure(structure, ...opts) {
 		const treeView = new PropertiesTreeView(...opts);
 		treeView.generateFromSerializableStructure(structure);
-		return /** @type {PropertiesTreeView<import("./types.js").StructureToObject<T, any>>} */ (treeView);
+		return /** @type {PropertiesTreeView<T>} */ (treeView);
 	}
 
 	constructor({
@@ -98,7 +98,7 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @param {T} values
+	 * @param {import("./types.js").StructureToSetObject<T>} values
 	 * @param {import("./types.js").AllPossibleSetValueOpts} [setValueOpts]
 	 */
 	fillSerializableStructureValues(values, setValueOpts) {
@@ -114,8 +114,6 @@ export class PropertiesTreeView extends TreeView {
 		}
 	}
 
-	// Todo: get rid of the structure param, the structure should be remembered
-	// when setting via generateFromSerializableStructure
 	/**
 	 * @template {import("./types.js").PropertiesTreeViewStructure} TStructure
 	 * @template {import("./types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
