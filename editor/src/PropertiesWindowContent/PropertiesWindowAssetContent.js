@@ -17,7 +17,6 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 
 		this.currentSelection = null;
 		this.activeAssetContent = null;
-		this.activeAssetSettingsStructureUi = null;
 
 		this.treeView = new PropertiesTreeView();
 		this.el.appendChild(this.treeView.el);
@@ -34,9 +33,6 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 
 	destructor() {
 		this.treeView.destructor();
-		this.assetSettingsTree = null;
-		this.assetContentTree = null;
-		if (this.activeAssetSettingsStructureUi) this.activeAssetSettingsStructureUi.destructor();
 		super.destructor();
 	}
 
@@ -55,11 +51,6 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 	}
 
 	async updateAssetSettings() {
-		if (this.activeAssetSettingsStructureUi) {
-			this.activeAssetSettingsStructureUi.destructor();
-			this.activeAssetSettingsStructureUi = null;
-		}
-
 		/** @type {import("../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		let settingsStructure = {};
 		let settingsValues = {};

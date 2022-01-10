@@ -11,11 +11,8 @@ export class PropertiesWindowContent {
 	}
 
 	destructor() {
-		if (this.el) {
-			if (this.el.parentElement) {
-				this.el.parentElement.removeChild(this.el);
-			}
-			this.el = null;
+		if (this.el.parentElement) {
+			this.el.parentElement.removeChild(this.el);
 		}
 	}
 
@@ -27,5 +24,8 @@ export class PropertiesWindowContent {
 		return null;
 	}
 
+	/**
+	 * @param {any[]} selectedObjects
+	 */
 	selectionChanged(selectedObjects) {}
 }

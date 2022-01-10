@@ -1,7 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
-import {SelectionGroup} from "../../Misc/SelectionGroup.js";
 import {handleDuplicateFileName} from "../../Util/Util.js";
 import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorInstance.js";
 
@@ -99,7 +98,7 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		/** @type {SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
+		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.rootNameInit = false;

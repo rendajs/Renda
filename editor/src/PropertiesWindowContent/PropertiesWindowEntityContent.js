@@ -137,6 +137,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	}
 
 	/**
+	 * @override
 	 * @param {EntitySelection[]} selectedObjects
 	 */
 	selectionChanged(selectedObjects) {
