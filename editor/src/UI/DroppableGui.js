@@ -16,6 +16,35 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  */
 
 /**
+ * @template {boolean} U
+ * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} V
+ * @typedef {Object} DroppableGuiGetValueOptions
+ * @property {boolean} [resolveDefaultAssetLinks = false]
+ * @property {U} [returnLiveAsset = false]
+ * @property {V} [purpose = "default"]
+ */
+
+/**
+ * @template T
+ * @template {boolean} [U = false]
+ * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [V = "default"]
+ * @typedef {V extends "script" ?
+ * 		T? :
+ * 		U extends true ?
+ * 			T? :
+ * 			import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
+ */
+
+/**
+ * @template U
+ * @template V
+ * @typedef {Object} DroppableGuiGetValueOptionsNoConstraints
+ * @property {boolean} [resolveDefaultAssetLinks]
+ * @property {U} [returnLiveAsset]
+ * @property {V} [purpose]
+ */
+
+/**
  * @template T
  * @typedef {T extends DroppableGuiOptions<any> ?
  * 		T["supportedAssetTypes"] extends (new (...args: any) => infer A)[] ?
@@ -27,6 +56,19 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
 /**
  * @template TOpts
  * @typedef {DroppableGui<GuiOptionsToTemplate<TOpts>>} GetGuiReturnTypeForOptions
+ */
+
+/**
+ * @template TDroppableInstance
+ * @template TOpts
+ * @typedef {TOpts extends DroppableGuiGetValueOptionsNoConstraints<infer T, infer U> ?
+ * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
+ * 		TDefaulted extends boolean ?
+ * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 			UDefaulted extends import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose ?
+ * 				TDroppableInstance extends DroppableGui<infer TAssetType> ?
+ * 				DroppableGuiGetValueReturn<TAssetType, TDefaulted, UDefaulted> :
+ * never : never : never : never : never} GetDroppableValueTypeForOptions
  */
 
 /**
@@ -129,32 +171,11 @@ export class DroppableGui {
 		this.setValueFromProjectAsset(projectAsset, false);
 	}
 
-	/** @typedef {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} SerializableStructureOutputPurpose */
-
-	/**
-	 * @template {boolean} U
-	 * @template {SerializableStructureOutputPurpose} V
-	 * @typedef {Object} DroppableGuiGetValueOptions
-	 * @property {boolean} [resolveDefaultAssetLinks = false]
-	 * @property {U} [returnLiveAsset = false]
-	 * @property {V} [purpose = "default"]
-	 */
-
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {SerializableStructureOutputPurpose} [V = "default"]
-	 * @typedef {V extends "script" ?
-	 * 		T? :
-	 * 		U extends true ?
-	 * 			T? :
-	 * 			import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
-	 */
-
-	/**
-	 * @template {boolean} [U = false]
-	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @template {import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose} [V = "default"]
 	 * @param {DroppableGuiGetValueOptions<U, V>} options
-	 * @returns {DroppableGuiGetValueReturn<U, V>}
+	 * @returns {DroppableGuiGetValueReturn<T, U, V>}
 	 */
 	getValue({
 		resolveDefaultAssetLinks = false,
@@ -172,7 +193,7 @@ export class DroppableGui {
 		} else {
 			returnValue = this.projectAssetValue?.uuid;
 		}
-		return /** @type {DroppableGuiGetValueReturn<U, V>} */ (returnValue);
+		return /** @type {DroppableGuiGetValueReturn<T, U, V>} */ (returnValue);
 	}
 
 	/**

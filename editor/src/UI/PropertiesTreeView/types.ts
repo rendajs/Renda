@@ -1,10 +1,10 @@
-import { Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { Material, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
 import { ArrayGui, ArrayGuiOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";
 import { Button, ButtonGuiOptions } from "../Button.js";
 import { ButtonSelectorGui, ButtonSelectorGuiOptions } from "../ButtonSelectorGui.js";
 import { DropDownGui, DropDownGuiOptions, GetDropDownValueTypeForOptions } from "../DropDownGui.js";
-import { DroppableGui, DroppableGuiOptions, GetGuiReturnTypeForOptions } from "../DroppableGui.js";
+import { DroppableGui, DroppableGuiOptions, GetDroppableValueTypeForOptions, GetGuiReturnTypeForOptions } from "../DroppableGui.js";
 import { LabelGui, LabelGuiOptions } from "../LabelGui.js";
 import { NumericGui, NumericGuiOptions } from "../NumericGui.js";
 import { ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
@@ -19,6 +19,8 @@ export type GuiOptionsBase = {
 	disabled?: boolean,
 	defaultValue?: any,
 }
+
+export type ReplaceUnknown<T, U> = unknown extends T ? U : T;
 
 type GuisMap = {
 	vec2: {
@@ -70,7 +72,7 @@ type GuisMap = {
 		options: ArrayGuiOptions,
 	},
 	object: {
-		instance: ObjectGui,
+		instance: ObjectGui<any>,
 		options: ObjectGuiOptions,
 	},
 }
@@ -82,6 +84,44 @@ type InverseGuisMapHelperGeneric<T> = T extends GuiTypes ?
 type InverseGuisMap = InverseGuisMapHelperGeneric<GuiTypes>;
 export type GuiTypeInstances = InverseGuisMap[1]["instance"];
 
+/**
+ * Results in gui type id and guiOpts and returns an instance with the proper generics set.
+ *
+ * ### Usage
+ * ```ts
+ * GetGuiInstanceForTypeAndOpts<"droppable", {
+ * 	supportedAssetTypes: [Material],
+ * }>
+ * ```
+ * results in
+ * ```ts
+ * DroppableGui<Material>
+ * ```
+ */
+type GetGuiInstanceForTypeAndOpts<T extends GuiTypes, TOpts> =
+	T extends "droppable" ?
+		GetGuiReturnTypeForOptions<TOpts> :
+		GuisMap[T]["instance"];
+
+/**
+ * Takes an options object and results in an instance with the proper generics set.
+ *
+ * ### Usage
+ * ```ts
+ * GetGuiInstanceForOpts<{
+ * 	type: "droppable",
+ * 	guiOpts: {
+ * 		supportedAssetTypes: [Material],
+ * 	},
+ * }>
+ * ```
+ * results in
+ * ```ts
+ * DroppableGui<Material>
+ * ```
+ */
+type GetGuiInstanceForOpts<T extends PropertiesTreeViewEntryOptions> = GetGuiInstanceForTypeAndOpts<T["type"], T["guiOpts"]>;
+
 export type GetGuiOptions<T extends GuiTypes, TOpts = any> =
 	T extends "droppable" ?
 		TOpts extends DroppableGuiOptions<any> ?
@@ -89,13 +129,33 @@ export type GetGuiOptions<T extends GuiTypes, TOpts = any> =
 			never :
 		NonNullable<GuisMap[T]["options"]>;
 
-export type TreeViewEntryFactoryReturnType<T extends GuiTypes, TOpts> =
-	T extends "droppable" ?
-		PropertiesTreeViewEntry<GetGuiReturnTypeForOptions<TOpts>> :
-		PropertiesTreeViewEntry<GuisMap[T]["instance"]>;
+export type TreeViewEntryFactoryReturnType<T extends GuiTypes, TOpts> = PropertiesTreeViewEntry<GetGuiInstanceForTypeAndOpts<T, TOpts>>;
 
-// The following is used for autocompletion while filling in arguments for a
-// PropertiesTreeViewEntry.
+// The following types are used for autocompletion while filling in arguments
+// for a PropertiesTreeViewEntry.
+
+/**
+ * Gets the structure for a specific GuiType and it's guiOpts value.
+ *
+ * ### Usage
+ *
+ * ```ts
+ * PropertiesTreeViewEntryOptionsGeneric<"droppable", {
+ * 	supportedAssetTypes: [Material],
+ * }>;
+ * ```
+ * results in
+ * ```ts
+ * {
+ * 	type: "droppable",
+ * 	guiOpts: {
+ * 		supportedAssetTypes: [Material],
+ * 	},
+ * }
+ * ```
+ * Can also be used to infer the type and guiOpts value. For an example of this
+ * see {@linkcode PropertiesTreeViewEntry.of}.
+ */
 export type PropertiesTreeViewEntryOptionsGeneric<T extends GuiTypes, TOpts = any> = T extends GuiTypes ? {
     type: T;
     guiOpts?: GetGuiOptions<T, TOpts>;
@@ -103,12 +163,37 @@ export type PropertiesTreeViewEntryOptionsGeneric<T extends GuiTypes, TOpts = an
 } : never;
 export type PropertiesTreeViewEntryOptions = PropertiesTreeViewEntryOptionsGeneric<GuiTypes>;
 
-export type GetGuiInstanceForOpts<T extends PropertiesTreeViewEntryOptions> = GuisMap[T["type"]] extends {getTypeForOpts: infer F} ?
-	F :
-	never;
-
 export type PropertiesTreeViewStructure = {
     [x: string]: PropertiesTreeViewEntryOptions;
+}
+
+/**
+ * Converts a TreeView Structure to the return type when getting the value of
+ * a PropertiesTreeView or ObjectGui.
+ *
+ * ### Usage
+ *
+ * ```ts
+ * StructureToObject<{
+ * 	a: {
+ * 		type: "droppable",
+ * 		guiOpts: {
+ * 			supportedAssetTypes: [Material],
+ * 		},
+ * 	},
+ * }, {
+ * 	returnLiveAsset: true,
+ * }>;
+ * ```
+ * results in
+ * ```ts
+ * {
+ * 	a: Material,
+ * }
+ * ```
+ */
+export type StructureToObject<T extends PropertiesTreeViewStructure, TGuiOpts> = {
+	[x in keyof T]: GetValueType<GetGuiInstanceForOpts<T[x]>, TGuiOpts>;
 }
 
 type PropertiesTreeViewChangeEventType<T extends GuiTypes> = {
@@ -130,14 +215,20 @@ export type SetValueOptionsType<T extends GuiInterface> = SetValueTypeHelper<T>[
 
 export type GetValueOptionsType<T extends GuiInterface> =
 	T extends {getValue: (opts: infer O) => any} ?
-		O :
-	never;
+		unknown extends O ?
+			never :
+			O :
+		never;
 
 export type GetValueType<T extends GuiInterface, TOpts = any> =
 	T extends DropDownGui ?
 		GetDropDownValueTypeForOptions<TOpts> :
+	T extends DroppableGui<any> ?
+		GetDroppableValueTypeForOptions<T, TOpts> :
 	T extends {getValue: (...args: any) => infer R} ?
 		R :
 	T extends {value: infer V} ?
 		V :
 	never;
+
+export type AllPossibleGuiOpts = GetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>;

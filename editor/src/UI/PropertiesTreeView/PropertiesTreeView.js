@@ -16,7 +16,24 @@ import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
  * @typedef {PropertiesTreeViewEventCbMapType & import("../TreeView.js").TreeViewEventCbMap} PropertiesTreeViewEventCbMap
  */
 
+/**
+ * @template T
+ */
 export class PropertiesTreeView extends TreeView {
+	/**
+	 * Creates a new PropertiesTreeView and applies the structure. This is
+	 * useful if you want to create a PropertiesTreeView with the correct
+	 * generic argument set automatically.
+	 * @template {import("./types.js").PropertiesTreeViewStructure} T
+	 * @param {T} structure
+	 * @param {ConstructorParameters<typeof PropertiesTreeView>} opts
+	 */
+	static withStructure(structure, ...opts) {
+		const treeView = new PropertiesTreeView(...opts);
+		treeView.generateFromSerializableStructure(structure);
+		return /** @type {PropertiesTreeView<import("./types.js").StructureToObject<T>>} */ (treeView);
+	}
+
 	constructor({
 		rowVisible = false,
 		name = "",
@@ -102,12 +119,14 @@ export class PropertiesTreeView extends TreeView {
 		}
 	}
 
+	// Todo: get rid of the structure param, the structure should be remembered
+	// when setting via generateFromSerializableStructure
 	/**
-	 * @param {import("./types.js").PropertiesTreeViewStructure} structure
-	 * @param {Object} [guiOpts]
-	 * @param {SerializableStructureOutputPurpose} [guiOpts.purpose]
-	 * @param {boolean} [guiOpts.stripDefaultValues]
-	 * @returns {*}
+	 * @template {import("./types.js").PropertiesTreeViewStructure} TStructure
+	 * @template {import("./types.js").AllPossibleGuiOpts} [TGuiOpts = {}]
+	 * @param {TStructure} structure
+	 * @param {TGuiOpts} [guiOpts]
+	 * @returns {import("./types.js").StructureToObject<TStructure, TGuiOpts>}
 	 */
 	getSerializableStructureValues(structure, guiOpts) {
 		let {

@@ -7,6 +7,9 @@ import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
  * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ObjectGuiOptionsType} ObjectGuiOptions
  */
 
+/**
+ * @template T
+ */
 export class ObjectGui {
 	constructor({
 		structure = {},
@@ -15,8 +18,7 @@ export class ObjectGui {
 	} = {}) {
 		this.disabled = false;
 		this.structure = structure;
-		this.treeView = new PropertiesTreeView();
-		this.treeView.generateFromSerializableStructure(structure);
+		this.treeView = PropertiesTreeView.withStructure(structure);
 		this.onValueChangeCbs = new Set();
 		this.treeView.onChildValueChange(() => {
 			this.fireValueChange();

@@ -22,7 +22,7 @@ import {prettifyVariableName} from "../Util/Util.js";
 /**
  * @template T
  * @template U
- * @typedef GetValueOptionsNoDefaults
+ * @typedef GetValueOptionsNoConstraints
  * @property {T} [getAsString]
  * @property {U} [purpose]
  */
@@ -41,16 +41,10 @@ import {prettifyVariableName} from "../Util/Util.js";
  */
 
 /**
- * @template T
- * @template U
- * @typedef {unknown extends T ? U : T} ReplaceUnknown
- */
-
-/**
  * @template TOpts
- * @typedef {TOpts extends GetValueOptionsNoDefaults<infer T, infer U> ?
- * 		ReplaceUnknown<T, true> extends infer TDefaulted ?
- * 			ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * @typedef {TOpts extends GetValueOptionsNoConstraints<infer T, infer U> ?
+ * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, true> extends infer TDefaulted ?
+ * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
  * 				TDefaulted extends boolean ?
  * 					UDefaulted extends import("./PropertiesTreeView/PropertiesTreeView.js").SerializableStructureOutputPurpose ?
  * 						GetValueReturn<TDefaulted, UDefaulted> :
