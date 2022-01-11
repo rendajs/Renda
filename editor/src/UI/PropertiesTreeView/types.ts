@@ -1,4 +1,5 @@
 import { Material, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { UnionToIntersection } from "../../../../src/util/types.js";
 import { ArrayGui, ArrayGuiOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";
 import { Button, ButtonGuiOptions } from "../Button.js";
@@ -256,9 +257,6 @@ type BaseSetValueOptions = {
 	setOnObject?: any,
 	setOnObjectKey?: string,
 }
-
-type UnionToIntersection<U> =
-	(U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
 
 type FlattenAllPossibleOptsHelper<T> = UnionToIntersection<Partial<NonNullable<T>>>
 
