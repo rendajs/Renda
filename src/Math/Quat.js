@@ -10,7 +10,7 @@ import {Vec4} from "./Vec4.js";
  * @typedef {(vec: Vec4) => Quat} quatSetVec4Signature
  * @typedef {(x?: number, y?: number, z?: number, w?: number) => Quat} quatSetNumNumNumNumSignature
  * @typedef {(xyzw: number[]) => Quat} quatSetArraySignature
- * @typedef {Parameters<quatSetEmptySignature> | Parameters<quatSetQuatSignature> | Parameters<quatSetVec2Signature> | Parameters<quatSetVec3Signature> | Parameters<quatSetVec4Signature> | Parameters<quatSetNumNumNumNumSignature> | Parameters<quatSetArraySignature>} QuatParameters
+ * @typedef {import("./types.js").MergeParameters<quatSetEmptySignature | quatSetQuatSignature | quatSetVec2Signature | quatSetVec3Signature | quatSetVec4Signature | quatSetNumNumNumNumSignature | quatSetArraySignature>} QuatParameters
  */
 
 /**
@@ -147,7 +147,7 @@ export class Quat {
 	 * @typedef {(axis: Vec3, angle: number) => this} fromAxisAngleVecNumSignature
 	 * @typedef {(x: number, y: number, z: number) => this} fromAxisAngleNumNumNumSignature
 	 * @typedef {(x: number, y: number, z: number, angle: number) => this} fromAxisAngleNumNumNumNumSignature
-	 * @typedef {Parameters<fromAxisAngleVecNumSignature> | Parameters<fromAxisAngleNumNumNumNumSignature> | Parameters<fromAxisAngleNumNumNumSignature> | Parameters<fromAxisAngleVecSignature>} FromAxisAngleParameters
+	 * @typedef {import("./types.js").MergeParameters<fromAxisAngleVecNumSignature | fromAxisAngleNumNumNumNumSignature | fromAxisAngleNumNumNumSignature | fromAxisAngleVecSignature>} FromAxisAngleParameters
 	 */
 
 	/**

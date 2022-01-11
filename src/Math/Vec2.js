@@ -35,7 +35,7 @@ export class Vec2 {
 	 * @typedef {(vec: Vec4) => this} vec2SetVec4Signature
 	 * @typedef {(x: number, y: number) => this} vec2SetNumNumSignature
 	 * @typedef {(xy: number[]) => this} vec2SetArraySignature
-	 * @typedef {Parameters<vec2SetEmptySignature> | Parameters<vec2SetVec2Signature> | Parameters<vec2SetVec3Signature> | Parameters<vec2SetVec4Signature> | Parameters<vec2SetNumNumSignature> | Parameters<vec2SetArraySignature>} Vec2SetParameters
+	 * @typedef {import("./types.js").MergeParameters<vec2SetEmptySignature | vec2SetVec2Signature | vec2SetVec3Signature | vec2SetVec4Signature | vec2SetNumNumSignature | vec2SetArraySignature>} Vec2SetParameters
 	 */
 
 	/**
