@@ -73,7 +73,7 @@ type GuisMap = {
 	},
 	object: {
 		instance: ObjectGui<any>,
-		options: ObjectGuiOptions,
+		options: ObjectGuiOptions<any>,
 	},
 }
 export type GuiTypes = keyof GuisMap;
@@ -263,7 +263,7 @@ type UnionToIntersection<U> =
 type FlattenAllPossibleOptsHelper<T> = UnionToIntersection<Partial<NonNullable<T>>>
 
 export type AllPossibleGetValueOpts = FlattenAllPossibleOptsHelper<GetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>>;
-export type AllPossibleSetValueOpts = FlattenAllPossibleOptsHelper<SetValueOptionsType<GuiTypeInstances>>;
+export type AllPossibleSetValueOpts = FlattenAllPossibleOptsHelper<SetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>>;
 
 export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewStructure, TGuiOpts extends AllPossibleGetValueOpts = {}> =
 	TGuiOpts["stripDefaultValues"] extends true ?

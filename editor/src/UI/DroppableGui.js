@@ -63,12 +63,17 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @template TOpts
  * @typedef {TOpts extends DroppableGuiGetValueOptionsNoConstraints<infer T, infer U> ?
  * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
- * 		TDefaulted extends boolean ?
- * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
- * 			UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
- * 				TDroppableInstance extends DroppableGui<infer TAssetType> ?
- * 				DroppableGuiGetValueReturn<TAssetType, TDefaulted, UDefaulted> :
- * never : never : never : never : never} GetDroppableValueTypeForOptions
+ * 			TDefaulted extends boolean ?
+ * 				import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 					UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 						TDroppableInstance extends DroppableGui<infer TAssetType> ?
+ * 							DroppableGuiGetValueReturn<TAssetType, TDefaulted, UDefaulted> :
+ * 							never :
+ * 						never :
+ * 					never :
+ * 				never :
+ * 			never :
+ * 		never} GetDroppableValueTypeForOptions
  */
 
 /**
