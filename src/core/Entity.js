@@ -259,26 +259,44 @@ export class Entity {
 		return !this.parent;
 	}
 
+	/**
+	 * @returns {Vec3}
+	 */
 	get pos() {
 		return this._pos;
 	}
 
+	/**
+	 * @param {import("../Math/Vec3.js").Vec3ParameterSingle} value
+	 */
 	set pos(value) {
 		this._pos.set(value);
 	}
 
+	/**
+	 * @returns {Quat}
+	 */
 	get rot() {
 		return this._rot;
 	}
 
+	/**
+	 * @param {import("../Math/Quat.js").QuatParameterSingle} value
+	 */
 	set rot(value) {
 		this._rot.set(value);
 	}
 
+	/**
+	 * @returns {Vec3}
+	 */
 	get scale() {
 		return this._scale;
 	}
 
+	/**
+	 * @param {import("../Math/Vec3.js").Vec3ParameterSingle} value
+	 */
 	set scale(value) {
 		this._scale.set(value);
 	}
@@ -304,7 +322,7 @@ export class Entity {
 	}
 
 	/**
-	 * @param {Vec3} pos
+	 * @param {import("../Math/Vec3.js").Vec3ParameterSingle} pos
 	 * @param {this} parent The parent to set the position for.
 	 * @param {number} index The index of this entity in the parent.
 	 */

@@ -1,4 +1,4 @@
-import { Material, Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
+import { Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
 import { UnionToIntersection } from "../../../../src/util/types.js";
 import { ArrayGui, ArrayGuiOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";

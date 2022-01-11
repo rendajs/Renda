@@ -12,6 +12,10 @@ import {Vec4} from "./Vec4.js";
  * @typedef {Parameters<vec3SetEmptySignature> | Parameters<vec3SetVec2Signature> | Parameters<vec3SetVec3Signature> | Parameters<vec3SetVec4Signature> | Parameters<vec3SetNumNumSignature> | Parameters<vec3SetArraySignature>} Vec3Parameters
  */
 
+/**
+ * @typedef {import("./types.js").GetFirstParam<Vec3Parameters>} Vec3ParameterSingle
+ */
+
 export class Vec3 {
 	/**
 	 * @param {Vec3Parameters} args

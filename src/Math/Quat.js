@@ -13,6 +13,10 @@ import {Vec4} from "./Vec4.js";
  * @typedef {Parameters<quatSetEmptySignature> | Parameters<quatSetQuatSignature> | Parameters<quatSetVec2Signature> | Parameters<quatSetVec3Signature> | Parameters<quatSetVec4Signature> | Parameters<quatSetNumNumNumNumSignature> | Parameters<quatSetArraySignature>} QuatParameters
  */
 
+/**
+ * @typedef {import("./types.js").GetFirstParam<QuatParameters>} QuatParameterSingle
+ */
+
 export class Quat {
 	/**
 	 * @param {QuatParameters} args
