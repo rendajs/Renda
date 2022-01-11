@@ -16,6 +16,11 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 		super(...args);
 
 		this.currentSelection = null;
+		/**
+		 * An instance of PropertiesAssetContent that is currently being used
+		 * to render the asset ui in the properties window for the current selection.
+		 * @type {import("./PropertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent?}
+		 */
 		this.activeAssetContent = null;
 
 		this.treeView = new PropertiesTreeView();
@@ -40,19 +45,22 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 		return [ProjectAsset];
 	}
 
+	/**
+	 * @override
+	 * @param {ProjectAsset<any>[]} selectedObjects
+	 */
 	selectionChanged(selectedObjects) {
 		this.currentSelection = selectedObjects;
 		this.updateAssetSettings();
 		this.updateAssetContent();
 	}
 
-	onAssetContentTypeRegistered(constructor) {
-		this.updateAssetContent();
-	}
-
 	async updateAssetSettings() {
+		if (!this.currentSelection) return;
+
 		/** @type {import("../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		let settingsStructure = {};
+		/** @type {unknown} */
 		let settingsValues = {};
 
 		for (const projectAsset of this.currentSelection) {
@@ -73,18 +81,21 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 
 		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {callbacksContext});
 		this.isUpdatingAssetSettingsUi = true;
-		this.assetSettingsTree.fillSerializableStructureValues(settingsValues);
+		const castSettingsValues = /** @type {import("../UI/PropertiesTreeView/types.js").StructureToSetObject<any>} */ (settingsValues);
+		this.assetSettingsTree.fillSerializableStructureValues(castSettingsValues);
 		this.isUpdatingAssetSettingsUi = false;
 	}
 
 	// todo: make sure only one instance runs at a time
 	async saveAssetSettings() {
+		if (!this.currentSelection) return;
 		for (const projectAsset of this.currentSelection) {
 			const structure = await projectAsset.getPropertiesAssetSettingsStructure();
 			// todo: handle selecting multiple assets or none
 			if (structure) {
 				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {purpose: "fileStorage"});
-				await this.editorInstance.projectManager.assetManager.saveAssetSettings();
+				const assetManager = await this.editorInstance.projectManager.getAssetManager();
+				await assetManager.saveAssetSettings();
 				break;
 			}
 		}
@@ -95,6 +106,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 		let foundStructure = null;
 		let foundStructureType = null;
 		let foundConstructor = null;
+		if (!this.currentSelection) return;
 		for (const projectAsset of this.currentSelection) {
 			const structureFromAsset = await projectAsset.getPropertiesAssetContentStructure();
 			if (structureFromAsset) {
@@ -114,19 +126,34 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 			constructor = PropertiesAssetContentGenericStructure;
 		}
 
-		const needsNew = constructor &&
-			(
-				!this.activeAssetContent ||
-				this.activeAssetContent.constructor != constructor ||
-				(constructor == PropertiesAssetContentGenericStructure && foundStructure != this.activeAssetContent.structure)
-			);
-		if (needsNew || (!constructor && this.activeAssetContent)) {
+		let needsNew = false;
+		if (constructor) {
+			// If there is no assetcontent created yet
+			if (!this.activeAssetContent) needsNew = true;
+
+			// If the assetcontent is of a different type
+			if (this.activeAssetContent?.constructor != constructor) needsNew = true;
+
+			// If both new and old are of type GenericStructure, but the structure is different
+			if (constructor == PropertiesAssetContentGenericStructure && this.activeAssetContent instanceof PropertiesAssetContentGenericStructure) {
+				if (foundStructure != this.activeAssetContent.structure) needsNew = true;
+			}
+		}
+
+		// Destroy existing assetcontent if needed
+		if (this.activeAssetContent && (needsNew || !constructor)) {
 			if (this.activeAssetContent) this.activeAssetContent.destructor();
 			this.activeAssetContent = null;
 			this.assetContentTree.clearChildren();
 		}
-		if (needsNew) {
-			this.activeAssetContent = new constructor(foundStructure);
+
+		// Create new assetcontent if needed
+		if (needsNew && constructor) {
+			if (constructor == PropertiesAssetContentGenericStructure && foundStructure) {
+				this.activeAssetContent = new PropertiesAssetContentGenericStructure(foundStructure);
+			} else {
+				this.activeAssetContent = new constructor();
+			}
 			this.assetContentTree.addChild(this.activeAssetContent.treeView);
 		}
 		if (this.activeAssetContent) {
