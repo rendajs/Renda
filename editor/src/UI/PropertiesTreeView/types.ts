@@ -11,7 +11,7 @@ import { NumericGui, NumericGuiOptions } from "../NumericGui.js";
 import { ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
 import { TextGui, TextGuiOptions } from "../TextGui.js";
 import { TreeViewEvent } from "../TreeView.js";
-import { VectorGui, VectorGuiOptions } from "../VectorGui.js";
+import { GetVectorValueTypeForOptions, VectorGui, VectorGuiOptions } from "../VectorGui.js";
 import { BeforeValueSetHookData, GuiInterface, PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
 
 export type GuiOptionsBase = {
@@ -206,7 +206,7 @@ export type StructureToSetObject<T extends PropertiesTreeViewStructure> = {
 
 export type PropertiesTreeViewChangeEvent<T extends PropertiesTreeViewStructure> = TreeViewEvent & {
 	newValue: StructureToGetObject<T, {}>;
-	target: PropertiesTreeViewEntry<T>;
+	target: PropertiesTreeViewEntry<any>;
 }
 
 type SetValueTypeHelper<T extends GuiInterface> =
@@ -224,11 +224,13 @@ export type SetValueOptionsType<T extends GuiInterface> = SetValueTypeHelper<T>[
 export type GetValueOptionsType<T extends GuiInterface> =
 	T extends {getValue: (opts: infer O) => any} ?
 		unknown extends O ?
-			never :
+			{} :
 			O & BaseGetValueOptions :
-		never;
+		{};
 
 export type GetValueType<T extends GuiInterface, TOpts = any> =
+	T extends VectorGui<infer TVectorType> ?
+		GetVectorValueTypeForOptions<TVectorType, TOpts> :
 	T extends DropDownGui ?
 		GetDropDownValueTypeForOptions<TOpts> :
 	T extends DroppableGui<any> ?

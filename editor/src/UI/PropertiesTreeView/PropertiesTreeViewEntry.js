@@ -40,13 +40,14 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 
 /**
- * @template T
+ * @template {import("./types.js").GuiTypeInstances} T
  */
 export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * @template {import("./types.js").GuiTypes} T
 	 * @template TOpts
 	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T, TOpts>} opts
+	 * @returns {import("./types.js").TreeViewEntryFactoryReturnType<T, TOpts>}
 	 */
 	static of(opts) {
 		const x = new PropertiesTreeViewEntry(opts);
@@ -236,11 +237,11 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").GetValueOptionsType<T>} TOpts
-	 * @param {TOpts} guiOpts
+	 * @template {import("./types.js").GetValueOptionsType<T>} [TOpts = {}]
+	 * @param {TOpts & import("./types.js").GetValueOptionsType<T>} guiOpts
 	 * @returns {import("./types.js").GetValueType<T, TOpts>}
 	 */
-	getValue(guiOpts = /** @type {TOpts} */ ({})) {
+	getValue(guiOpts = /** @type {TOpts & import("./types.js").GetValueOptionsType<T>} */ ({})) {
 		if (!this.gui) return /** @type {import("./types.js").GetValueType<T, TOpts>} */ (null);
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		if (castGui.getValue) {

@@ -16,6 +16,49 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  */
 
 /**
+ * @template {boolean} U
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
+ * @typedef {Object} VectorGuiGetValueOptions
+ * @property {U} [getAsArray = false]
+ * @property {V} [purpose = "default"]
+ */
+
+/**
+ * @template U
+ * @template V
+ * @typedef {Object} VectorGuiGetValueOptionsNoConstraints
+ * @property {U} [getAsArray]
+ * @property {V} [purpose]
+ */
+
+/* eslint-disable jsdoc/no-undefined-types */
+/**
+ * @template {Vec2 | Vec3 | Vec4} T
+ * @template {boolean} [U = false]
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+ * @typedef {V extends "fileStorage" ? number[] :
+ * 		V extends "binaryComposer" ? number[] :
+ * 		U extends true ? number[] :
+ * T} VectorGuiGetValueReturn
+ */
+
+/**
+ * @template {Vec2 | Vec3 | Vec4} TVecType
+ * @template TOpts
+ * @typedef {TOpts extends VectorGuiGetValueOptionsNoConstraints<infer T, infer U> ?
+ * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
+ * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 				TDefaulted extends boolean ?
+ * 					UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 						VectorGuiGetValueReturn<TVecType, TDefaulted, UDefaulted> :
+ * 						never :
+ * 					never :
+ * 				never :
+ * 			never :
+ * 		never} GetVectorValueTypeForOptions
+ */
+
+/**
  * @template {Vec2 | Vec3 | Vec4} T
  */
 export class VectorGui {
@@ -117,31 +160,10 @@ export class VectorGui {
 		this.onValueChangeCbs.push(cb);
 	}
 
-	/** @typedef {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} SerializableStructureOutputPurpose */
-
-	/**
-	 * @template {boolean} U
-	 * @template {SerializableStructureOutputPurpose} V
-	 * @typedef {Object} VectorGuiGetValueOptions
-	 * @property {U} [getAsArray = false]
-	 * @property {V} [purpose = "default"]
-	 */
-
-	/* eslint-disable jsdoc/no-undefined-types */
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {SerializableStructureOutputPurpose} [V = "default"]
-	 * @typedef {V extends "fileStorage" ? number[] :
-	 * 		V extends "binaryComposer" ? number[] :
-	 * 		U extends true ? number[] :
-	 * T} VectorGuiGetValueReturn
-	 */
-
-	/**
-	 * @template {boolean} [U = false]
-	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {VectorGuiGetValueOptions<U, V>} options
-	 * @returns {VectorGuiGetValueReturn<U, V>}
 	 */
 	getValue({
 		getAsArray = /** @type {U} */ (false),
@@ -164,7 +186,7 @@ export class VectorGui {
 		} else if (this.numericGuis.length == 4) {
 			val = new Vec4(numbersArr);
 		}
-		return /** @type {VectorGuiGetValueReturn<U, V>} */ (val);
+		return /** @type {VectorGuiGetValueReturn<T, U, V>} */ (val);
 	}
 	/* eslint-enable jsdoc/no-undefined-types */
 
@@ -190,7 +212,7 @@ export class VectorGui {
 	/* eslint-disable jsdoc/no-undefined-types */
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {SerializableStructureOutputPurpose} [V = "default"]
+	 * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {VectorGuiGetValueOptions<U, V>} guiOpts
 	 */
 	isDefaultValue(guiOpts) {

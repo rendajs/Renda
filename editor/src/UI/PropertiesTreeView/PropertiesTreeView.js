@@ -61,7 +61,8 @@ export class PropertiesTreeView extends TreeView {
 
 	/**
 	 * @template {import("./types.js").GuiTypes} T
-	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T>} opts
+	 * @template [TOpts = {}]
+	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T, TOpts>} opts
 	 */
 	addItem(opts) {
 		const item = PropertiesTreeViewEntry.of(opts);
