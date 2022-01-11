@@ -237,7 +237,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").GetValueOptionsType<T>} [TOpts = {}]
+	 * @template {import("./types.js").GetValueOptionsType<T>} [TOpts = import("./types.js").GetValueOptionsType<T> & {}]
 	 * @param {TOpts & import("./types.js").GetValueOptionsType<T>} guiOpts
 	 * @returns {import("./types.js").GetValueType<T, TOpts>}
 	 */

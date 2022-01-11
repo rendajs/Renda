@@ -190,6 +190,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	 */
 	getParentDataFromEntitySelectionMetaData(metaData) {
 		const parentTreeView = metaData.outlinerTreeView.parent;
+		if (!parentTreeView) throw new Error("Failed to get parent data: TreeView has no parent.");
 		const parent = metaData.outliner.getEntityByTreeViewItem(parentTreeView);
 		const index = metaData.outlinerTreeView.index;
 		return {parent, index};
@@ -230,6 +231,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 				componentUI.generateFromSerializableStructure(serializableStructure);
 				componentUI.onChildValueChange(e => {
 					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.target);
+					if (!propertyName) return;
 					const scriptValueFromGui = e.target.getValue({purpose: "script"});
 					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
 					if (componentGroup.entity) {

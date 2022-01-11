@@ -4,7 +4,7 @@ import {ContentWindow} from "./ContentWindow.js";
 
 /**
  * @typedef {Object} ConectionGui
- * @property {PropertiesTreeView} treeView
+ * @property {PropertiesTreeView<any>} treeView
  * @property {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../UI/LabelGui.js").LabelGui>} statusLabel
  */
 
@@ -170,7 +170,7 @@ export class ContentWindowConnections extends ContentWindow {
 
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
-	 * @param {PropertiesTreeView} listTreeView
+	 * @param {PropertiesTreeView<any>} listTreeView
 	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} availableConnections
 	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ActiveEditorDataList} activeConnections
 	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ClientType} allowedClientType
@@ -185,7 +185,6 @@ export class ContentWindowConnections extends ContentWindow {
 				const treeView = listTreeView.addCollapsable();
 				const connectionTypeLabel = treeView.addItem({
 					type: "label",
-					/** @type {import("../../UI/LabelGui.js").LabelGuiOptions} */
 					guiOpts: {
 						label: "Connection Type",
 						showLabelBackground: false,
@@ -207,7 +206,6 @@ export class ContentWindowConnections extends ContentWindow {
 
 				treeView.addItem({
 					type: "button",
-					/** @type {import("../../UI/Button.js").ButtonGuiOptions} */
 					guiOpts: {
 						label: "Connect",
 						text: "Connect",
