@@ -4,7 +4,7 @@ export class ContextMenuItem {
 	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
 	 */
 	constructor(containingContextMenu, {
-		text = "",
+		text,
 		onClick = null,
 		onHover = null,
 		disabled = false,

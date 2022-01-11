@@ -1,5 +1,5 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {Entity, Quat} from "../../../src/mod.js";
+import {Quat} from "../../../src/mod.js";
 import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {Button} from "../UI/Button.js";
 import {DroppableGui} from "../UI/DroppableGui.js";
@@ -14,7 +14,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	constructor(...args) {
 		super(...args);
 
-		/** @type {EntitySelection[]} */
+		/** @type {EntitySelection[]?} */
 		this.currentSelection = null;
 
 		this.treeView = new PropertiesTreeView();
@@ -42,6 +42,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		});
 		this.positionProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
+			if (!this.currentSelection) return;
 			for (const {entity, metaData} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.pos = newValue;
@@ -61,6 +62,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		});
 		this.rotationProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
+			if (!this.currentSelection) return;
 			for (const {entity, metaData} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.rot.setFromAxisAngle(newValue);
@@ -81,6 +83,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		});
 		this.scaleProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
+			if (!this.currentSelection) return;
 			for (const {entity, metaData} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.scale = newValue;
@@ -99,14 +102,15 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 				const menu = this.editorInstance.contextMenuManager.createContextMenu();
 				for (const component of this.editorInstance.componentTypeManager.getAllComponents()) {
 					menu.addItem({
-						text: component.componentName || component.uuid,
+						text: component.componentName || component.uuid || "",
 						onClick: async () => {
+							if (!this.currentSelection) return;
 							for (const {entity} of this.currentSelection) {
 								const componentInstance = entity.addComponent(component, {}, {
 									editorOpts: {
 										editorAssetTypeManager: this.editorInstance.projectAssetTypeManager,
 										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
-										assetManager: this.editorInstance.projectManager.assetManager,
+										assetManager: this.editorInstance.projectManager.assertAssetManagerExists(),
 									},
 								});
 								await componentInstance.waitForEditorDefaults();
@@ -126,9 +130,6 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 
 	destructor() {
 		this.treeView.destructor();
-		this.positionProperty = null;
-		this.rotationProperty = null;
-		this.scaleProperty = null;
 		super.destructor();
 	}
 
@@ -148,6 +149,9 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 
 	updateTransformationValues() {
 		this.isSettingTransformationValues = true;
+		if (!this.currentSelection) return;
+
+		// todo: support multiple selections
 		if (this.editingModeGui.value == "global") {
 			const entity = this.currentSelection[0].entity;
 			this.positionProperty.setValue(entity.pos);
@@ -193,6 +197,8 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 
 	refreshComponents() {
 		this.componentsSection.clearChildren();
+		if (!this.currentSelection) return;
+
 		/** @type {import("../../../src/Components/Component.js").Component[]} */
 		const componentGroups = [];
 		for (const {entity} of this.currentSelection) {
@@ -210,8 +216,10 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 						text: "Remove",
 						onClick: () => {
 							const entity = componentGroup.entity;
-							entity.removeComponent(componentGroup);
-							this.notifyEntityEditors(entity, "component");
+							if (entity) {
+								entity.removeComponent(componentGroup);
+								this.notifyEntityEditors(entity, "component");
+							}
 							this.refreshComponents();
 						},
 					},
@@ -224,7 +232,9 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.target);
 					const scriptValueFromGui = e.target.getValue({purpose: "script"});
 					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
-					this.notifyEntityEditors(componentGroup.entity, "componentProperty");
+					if (componentGroup.entity) {
+						this.notifyEntityEditors(componentGroup.entity, "componentProperty");
+					}
 				});
 				componentUI.fillSerializableStructureValues(componentGroup, {
 					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
@@ -242,11 +252,19 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		}
 	}
 
+	/**
+	 * @param {any} object
+	 * @param {string | number} propertyName
+	 * @param {any} scriptValue
+	 * @param {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} guiEntry
+	 */
 	mapFromDroppableGuiValues(object, propertyName, scriptValue, guiEntry) {
 		if (Array.isArray(scriptValue)) {
+			const castGuiEntry = /** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../UI/ArrayGui.js").ArrayGui>} */ (guiEntry);
+			/** @type {unknown[]} */
 			const newScriptValue = [];
 			for (const [i, item] of scriptValue.entries()) {
-				this.mapFromDroppableGuiValues(newScriptValue, i, item, guiEntry.gui.valueItems[i]);
+				this.mapFromDroppableGuiValues(newScriptValue, i, item, castGuiEntry.gui?.valueItems[i]);
 			}
 			scriptValue = newScriptValue;
 		}
@@ -262,7 +280,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	}
 
 	/**
-	 * @param {Entity} entity
+	 * @param {import("../../../src/mod.js").Entity} entity
 	 * @param {import("../windowManagement/contentWindows/ContentWindowEntityEditor.js").EntityChangedEventType} type
 	 */
 	notifyEntityEditors(entity, type) {
