@@ -37,14 +37,13 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 export class PropertiesTreeViewEntry extends TreeView {
 	/**
-	 * @template {import("./types.js").GuiTypes} T
-	 * @template TOpts
-	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T, TOpts>} opts
-	 * @returns {import("./types.js").TreeViewEntryFactoryReturnType<T, TOpts>}
+	 * @template {import("./types.js").PropertiesTreeViewEntryOptions} T
+	 * @param {T} opts
+	 * @returns {import("./types.js").TreeViewEntryFactoryReturnType<T>}
 	 */
 	static of(opts) {
 		const x = new PropertiesTreeViewEntry(opts);
-		return /** @type {import("./types.js").TreeViewEntryFactoryReturnType<T, TOpts>} */ (x);
+		return /** @type {import("./types.js").TreeViewEntryFactoryReturnType<T>} */ (x);
 	}
 
 	/**

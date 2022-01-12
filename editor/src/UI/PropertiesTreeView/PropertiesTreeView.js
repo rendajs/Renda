@@ -23,6 +23,7 @@ export class PropertiesTreeView extends TreeView {
 	 * @template {import("./types.js").PropertiesTreeViewStructure} T
 	 * @param {T} structure
 	 * @param {ConstructorParameters<typeof PropertiesTreeView>} opts
+	 * @returns {PropertiesTreeView<T>}
 	 */
 	static withStructure(structure, ...opts) {
 		const treeView = new PropertiesTreeView(...opts);
@@ -60,9 +61,9 @@ export class PropertiesTreeView extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").GuiTypes} T
-	 * @template [TOpts = {}]
-	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<T, TOpts>} opts
+	 * @template {import("./types.js").PropertiesTreeViewEntryOptions} T
+	 * @param {T} opts
+	 * @returns {import("./types.js").TreeViewEntryFactoryReturnType<T>}
 	 */
 	addItem(opts) {
 		const item = PropertiesTreeViewEntry.of(opts);
@@ -89,15 +90,18 @@ export class PropertiesTreeView extends TreeView {
 		this.clearChildren();
 		this.currentSerializableStructureItems = {};
 		for (const [key, itemSettings] of Object.entries(structure)) {
+			/** @type {import("./types.js").GuiTypeOptions} */
 			const guiOpts = {
 				label: key,
 				...itemSettings?.guiOpts,
 			};
-			const addedItem = this.addItem({
+			const options = {
 				...itemSettings,
 				guiOpts,
 				callbacksContext,
-			});
+			};
+			const castOptions = /** @type {import("./types.js").PropertiesTreeViewEntryOptions} */ (options);
+			const addedItem = this.addItem(castOptions);
 			this.currentSerializableStructureItems[key] = addedItem;
 		}
 	}

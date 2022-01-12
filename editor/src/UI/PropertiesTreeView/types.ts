@@ -84,6 +84,7 @@ type InverseGuisMapHelperGeneric<T> = T extends GuiTypes ?
 	never;
 type InverseGuisMap = InverseGuisMapHelperGeneric<GuiTypes>;
 export type GuiTypeInstances = InverseGuisMap[1]["instance"];
+export type GuiTypeOptions = InverseGuisMap[1]["options"];
 
 /**
  * Results in gui type id and guiOpts and returns an instance with the proper generics set.
@@ -128,11 +129,15 @@ type GetGuiInstanceForOpts<T extends PropertiesTreeViewEntryOptions> = GetGuiIns
 export type GetGuiOptions<T extends GuiTypes, TOpts = any> =
 	T extends "droppable" ?
 		TOpts extends DroppableGuiOptions<any> ?
-			TOpts :
+			DroppableGuiOptions<any> :
 			never :
-		NonNullable<GuisMap[T]["options"]>;
+	T extends "object" ?
+		TOpts extends ObjectGuiOptions<PropertiesTreeViewStructure> ?
+			ObjectGuiOptions<PropertiesTreeViewStructure> :
+			never :
+	NonNullable<GuisMap[T]["options"]>;
 
-export type TreeViewEntryFactoryReturnType<T extends GuiTypes, TOpts> = PropertiesTreeViewEntry<GetGuiInstanceForTypeAndOpts<T, TOpts>>;
+export type TreeViewEntryFactoryReturnType<T extends PropertiesTreeViewEntryOptions> = PropertiesTreeViewEntry<GetGuiInstanceForOpts<T>>;
 
 // The following types are used for autocompletion while filling in arguments
 // for a PropertiesTreeViewEntry.
