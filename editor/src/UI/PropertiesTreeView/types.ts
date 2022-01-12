@@ -255,7 +255,7 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
  */
 export type TreeViewStructureOutputPurpose = "default" | "fileStorage" | "binaryComposer" | "script";
 
-type BaseGetValueOptions = {
+export type BaseGetValueOptions = {
 	purpose?: TreeViewStructureOutputPurpose;
 	stripDefaultValues?: boolean;
 }

@@ -26,13 +26,6 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 
 /**
- * @typedef SetValueOptionsExta
- * @property {(data: BeforeValueSetHookData) => any} [beforeValueSetHook]
- * @property {any} [setOnObject]
- * @property {string} [setOnObjectKey]
- */
-
-/**
  * @typedef BeforeValueSetHookData
  * @property {unknown} value
  * @property {any} setOnObject
@@ -237,8 +230,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @template {import("./types.js").GetValueOptionsType<T>} [TOpts = import("./types.js").GetValueOptionsType<T> & {}]
-	 * @param {TOpts & import("./types.js").GetValueOptionsType<T>} guiOpts
+	 * @template {import("./types.js").GetValueOptionsType<T> | {}} [TOpts = {}]
+	 * @param {TOpts | import("./types.js").GetValueOptionsType<T> | import("./types.js").BaseGetValueOptions} guiOpts
 	 * @returns {import("./types.js").GetValueType<T, TOpts>}
 	 */
 	getValue(guiOpts = /** @type {TOpts & import("./types.js").GetValueOptionsType<T>} */ ({})) {
