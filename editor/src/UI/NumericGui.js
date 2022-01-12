@@ -14,6 +14,51 @@
  * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & NumericGuiOptionsType} NumericGuiOptions
  */
 
+/**
+ * @template {boolean} [T = false]
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @typedef NumericGuiGetValueOptions
+ * @property {T} [mapNumericValuesToStrings = true] If true, will return a string if the value is one of `mappedStringValues`.
+ * @property {U} [purpose = "default"]
+ */
+
+/**
+ * @template T
+ * @template U
+ * @typedef NumericGuiGetValueOptionsNoConstraints
+ * @property {T} [mapNumericValuesToStrings]
+ * @property {U} [purpose]
+ */
+
+/**
+ * @template {boolean} [T = false]
+ * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @typedef {U extends "fileStorage" ?
+ * 		number | string :
+ * 	U extends "binaryComposer" ?
+ * 		number :
+ * U extends "default" | undefined ? (
+ *   T extends true ? number | string :
+ *   T extends false ? number :
+ *   number
+ * ) : number} NumericGuiGetValueReturn
+ */
+
+/**
+ * @template TOpts
+ * @typedef {TOpts extends NumericGuiGetValueOptionsNoConstraints<infer T, infer U> ?
+ * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
+ * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 				TDefaulted extends boolean ?
+ * 					UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 						NumericGuiGetValueReturn<TDefaulted, UDefaulted> :
+ * 						never :
+ * 					never :
+ * 				never :
+ * 			never :
+ * 		never} GetNumericGuiValueTypeForOptions
+ */
+
 export class NumericGui {
 	/**
 	 * @param {NumericGuiOptions} opts
@@ -134,25 +179,26 @@ export class NumericGui {
 	}
 
 	/**
-	 * @param {Object} opts
-	 * @param {boolean} [opts.mapNumericValuesToStrings] If true, will return a string if the value is one of `mappedStringValues`.
-	 * @param {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [opts.purpose]
-	 * @returns {string | number}
+	 * @template {boolean} [T = false]
+	 * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+	 * @param {NumericGuiGetValueOptions<T, U>} opts
+	 * @returns {NumericGuiGetValueReturn<T, U>}
 	 */
 	getValue({
-		mapNumericValuesToStrings = false,
-		purpose = "default",
+		mapNumericValuesToStrings = /** @type {T} */ (false),
+		purpose = /** @type {U} */ ("default"),
 	} = {}) {
+		let mapNumerics = /** @type {boolean} */ (mapNumericValuesToStrings);
 		if (purpose == "fileStorage") {
-			mapNumericValuesToStrings = true;
+			mapNumerics = true;
 		} else if (purpose == "binaryComposer") {
-			mapNumericValuesToStrings = false;
+			mapNumerics = false;
 		}
-		if (mapNumericValuesToStrings) {
+		if (mapNumerics) {
 			const stringValue = this.mappedStringValues.get(this.internalValue);
-			if (stringValue) return stringValue;
+			if (stringValue) return /** @type {NumericGuiGetValueReturn<T, U>} */ (stringValue);
 		}
-		return this.internalValue;
+		return /** @type {NumericGuiGetValueReturn<T, U>} */ (this.internalValue);
 	}
 
 	isDefaultValue() {

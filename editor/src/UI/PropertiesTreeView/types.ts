@@ -7,7 +7,7 @@ import { ButtonSelectorGui, ButtonSelectorGuiOptions } from "../ButtonSelectorGu
 import { DropDownGui, DropDownGuiOptions, GetDropDownValueTypeForOptions } from "../DropDownGui.js";
 import { DroppableGui, DroppableGuiOptions, GetDroppableValueTypeForOptions, GetGuiReturnTypeForOptions } from "../DroppableGui.js";
 import { LabelGui, LabelGuiOptions } from "../LabelGui.js";
-import { NumericGui, NumericGuiOptions } from "../NumericGui.js";
+import { GetNumericGuiValueTypeForOptions, NumericGui, NumericGuiGetValueReturn, NumericGuiOptions } from "../NumericGui.js";
 import { GetObjectGuiForOptions, GetObjectValueTypeForOptions, ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
 import { TextGui, TextGuiOptions } from "../TextGui.js";
 import { TreeViewEvent } from "../TreeView.js";
@@ -233,6 +233,8 @@ export type GetValueOptionsType<T extends GuiInterface> =
 export type GetValueType<T extends GuiInterface, TOpts = any> =
 	T extends VectorGui<infer TVectorType> ?
 		GetVectorValueTypeForOptions<TVectorType, TOpts> :
+	T extends NumericGui ?
+		GetNumericGuiValueTypeForOptions<TOpts> :
 	T extends DropDownGui ?
 		GetDropDownValueTypeForOptions<TOpts> :
 	T extends DroppableGui<any> ?
