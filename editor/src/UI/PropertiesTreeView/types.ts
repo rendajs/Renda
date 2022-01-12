@@ -8,7 +8,7 @@ import { DropDownGui, DropDownGuiOptions, GetDropDownValueTypeForOptions } from 
 import { DroppableGui, DroppableGuiOptions, GetDroppableValueTypeForOptions, GetGuiReturnTypeForOptions } from "../DroppableGui.js";
 import { LabelGui, LabelGuiOptions } from "../LabelGui.js";
 import { NumericGui, NumericGuiOptions } from "../NumericGui.js";
-import { ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
+import { GetObjectGuiForOptions, GetObjectValueTypeForOptions, ObjectGui, ObjectGuiOptions } from "../ObjectGui.js";
 import { TextGui, TextGuiOptions } from "../TextGui.js";
 import { TreeViewEvent } from "../TreeView.js";
 import { GetVectorValueTypeForOptions, VectorGui, VectorGuiOptions } from "../VectorGui.js";
@@ -102,7 +102,9 @@ export type GuiTypeInstances = InverseGuisMap[1]["instance"];
 type GetGuiInstanceForTypeAndOpts<T extends GuiTypes, TOpts> =
 	T extends "droppable" ?
 		GetGuiReturnTypeForOptions<TOpts> :
-		GuisMap[T]["instance"];
+	T extends "object" ?
+		GetObjectGuiForOptions<TOpts> :
+	GuisMap[T]["instance"];
 
 /**
  * Takes an options object and results in an instance with the proper generics set.
@@ -235,6 +237,8 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
 		GetDropDownValueTypeForOptions<TOpts> :
 	T extends DroppableGui<any> ?
 		GetDroppableValueTypeForOptions<T, TOpts> :
+	T extends ObjectGui<any> ?
+		GetObjectValueTypeForOptions<T, TOpts> :
 	T extends {getValue: (...args: any) => infer R} ?
 		R :
 	T extends {value: infer V} ?

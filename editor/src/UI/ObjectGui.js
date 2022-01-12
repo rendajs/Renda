@@ -12,6 +12,28 @@ import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
  */
 
 /**
+ * @template TOpts
+ * @typedef {TOpts extends {structure: infer S} ?
+ * 	S extends import("./PropertiesTreeView/types.js").PropertiesTreeViewStructure ?
+ * 		S :
+ * 		never :
+ * 	never} GuiOptionsToTemplate
+ */
+
+/**
+ * @template TOpts
+ * @typedef {ObjectGui<GuiOptionsToTemplate<TOpts>>} GetObjectGuiForOptions
+ */
+
+/**
+ * @template TObjectGuiInstance
+ * @template TOpts
+ * @typedef {TObjectGuiInstance extends ObjectGui<infer TStructure> ?
+ * 		import("./PropertiesTreeView/types.js").GetStructureValuesReturnType<TStructure, TOpts> :
+ * 		never} GetObjectValueTypeForOptions
+ */
+
+/**
  * @template {import("./PropertiesTreeView/types.js").PropertiesTreeViewStructure} T
  */
 export class ObjectGui {

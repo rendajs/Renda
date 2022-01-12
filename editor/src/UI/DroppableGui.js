@@ -25,6 +25,15 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  */
 
 /**
+ * @template U
+ * @template V
+ * @typedef {Object} DroppableGuiGetValueOptionsNoConstraints
+ * @property {boolean} [resolveDefaultAssetLinks]
+ * @property {U} [returnLiveAsset]
+ * @property {V} [purpose]
+ */
+
+/**
  * @template T
  * @template {boolean} [U = false]
  * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
@@ -33,15 +42,6 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * 		U extends true ?
  * 			T? :
  * 			import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
- */
-
-/**
- * @template U
- * @template V
- * @typedef {Object} DroppableGuiGetValueOptionsNoConstraints
- * @property {boolean} [resolveDefaultAssetLinks]
- * @property {U} [returnLiveAsset]
- * @property {V} [purpose]
  */
 
 /**
