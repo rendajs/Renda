@@ -40,6 +40,7 @@ export class ObjectGui {
 	/**
 	 * @typedef {(value: import("./PropertiesTreeView/types.js").GetStructureValuesReturnType<T, {}>) => void} OnValueChangeCallback
 	 */
+
 	/**
 	 * @param {ObjectGuiOptions<T>} options
 	 */

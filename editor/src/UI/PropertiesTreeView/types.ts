@@ -1,6 +1,6 @@
 import { Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
 import { UnionToIntersection } from "../../../../src/util/types.js";
-import { ArrayGui, ArrayGuiOptions } from "../ArrayGui.js";
+import { ArrayGui, ArrayGuiOptions, GetArrayGuiForOptions, GetArrayGuiValueTypeForOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";
 import { Button, ButtonGuiOptions } from "../Button.js";
 import { ButtonSelectorGui, ButtonSelectorGuiOptions } from "../ButtonSelectorGui.js";
@@ -69,14 +69,17 @@ type GuisMap = {
 		options: DroppableGuiOptions<any>,
 	},
 	array: {
-		instance: ArrayGui,
-		options: ArrayGuiOptions,
+		instance: ArrayGui<any>,
+		options: ArrayGuiOptions<any>,
 	},
 	object: {
 		instance: ObjectGui<any>,
 		options: ObjectGuiOptions<any>,
 	},
 }
+
+type NonCircularInstances = VectorGui<Vec2> | VectorGui<Vec3> | VectorGui<Vec4> | TextGui | NumericGui | BooleanGui | Button | ButtonSelectorGui | LabelGui | DropDownGui | DroppableGui<any>
+
 export type GuiTypes = keyof GuisMap;
 
 type InverseGuisMapHelperGeneric<T> = T extends GuiTypes ?
@@ -105,6 +108,8 @@ type GetGuiInstanceForTypeAndOpts<T extends GuiTypes, TOpts> =
 		GetGuiReturnTypeForOptions<TOpts> :
 	T extends "object" ?
 		GetObjectGuiForOptions<TOpts> :
+	T extends "array" ?
+		GetArrayGuiForOptions<TOpts> :
 	GuisMap[T]["instance"];
 
 /**
@@ -126,6 +131,10 @@ type GetGuiInstanceForTypeAndOpts<T extends GuiTypes, TOpts> =
  */
 type GetGuiInstanceForOpts<T extends PropertiesTreeViewEntryOptions> = GetGuiInstanceForTypeAndOpts<T["type"], T["guiOpts"]>;
 
+// If your gui options get lost and converted to plain types,
+// (such as "number" | "vec3" | "string" getting converted to plain `string`)
+// when entering the options in a structure (such as `PropertiesTreeView.addItem`
+// and `PropertiesTreeViewEntry.of`) you'll need to implement your logic here.
 export type GetGuiOptions<T extends GuiTypes, TOpts = any> =
 	T extends "droppable" ?
 		TOpts extends DroppableGuiOptions<any> ?
@@ -134,6 +143,10 @@ export type GetGuiOptions<T extends GuiTypes, TOpts = any> =
 	T extends "object" ?
 		TOpts extends ObjectGuiOptions<PropertiesTreeViewStructure> ?
 			ObjectGuiOptions<PropertiesTreeViewStructure> :
+			never :
+	T extends "array" ?
+		TOpts extends ArrayGuiOptions<GuiTypes> ?
+			ArrayGuiOptions<GuiTypes> :
 			never :
 	NonNullable<GuisMap[T]["options"]>;
 
@@ -235,6 +248,18 @@ export type GetValueOptionsType<T extends GuiInterface> =
 			O & BaseGetValueOptions :
 		{};
 
+// If you want to return a specific type based on what options were used,
+// You'll need to add a type with custom logic here.
+//
+// T is the gui type, if your gui type has a generic, these might be set here
+// so you can use them. For instance, DroppableGui<Material>. So you can infer
+// Material from the instance and use it. Though if you want this to work
+// you'll need to add your gui to `GetGuiInstanceForTypeAndOpts`.
+//
+// TOpts is the raw options object that was passed in.
+// For instance {returnLiveAsset: true, purpose: "default"}, or {} if no
+// options were passed in. Use this to return a specific type based on the
+// options.
 export type GetValueType<T extends GuiInterface, TOpts = any> =
 	T extends VectorGui<infer TVectorType> ?
 		GetVectorValueTypeForOptions<TVectorType, TOpts> :
@@ -246,6 +271,8 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
 		GetDroppableValueTypeForOptions<T, TOpts> :
 	T extends ObjectGui<any> ?
 		GetObjectValueTypeForOptions<T, TOpts> :
+	T extends ArrayGui<any> ?
+		GetArrayGuiValueTypeForOptions<T, TOpts> :
 	T extends {getValue: (...args: any) => infer R} ?
 		R :
 	T extends {value: infer V} ?
@@ -273,8 +300,8 @@ type BaseSetValueOptions = {
 
 type FlattenAllPossibleOptsHelper<T> = UnionToIntersection<Partial<NonNullable<T>>>
 
-export type AllPossibleGetValueOpts = FlattenAllPossibleOptsHelper<GetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>>;
-export type AllPossibleSetValueOpts = FlattenAllPossibleOptsHelper<SetValueOptionsType<Exclude<GuiTypeInstances, ObjectGui<any>>>>;
+export type AllPossibleGetValueOpts = FlattenAllPossibleOptsHelper<GetValueOptionsType<NonCircularInstances>>;
+export type AllPossibleSetValueOpts = FlattenAllPossibleOptsHelper<SetValueOptionsType<NonCircularInstances>>;
 
 export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewStructure, TGuiOpts extends AllPossibleGetValueOpts = {}> =
 	TGuiOpts["stripDefaultValues"] extends true ?
@@ -282,3 +309,6 @@ export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewSt
 	TGuiOpts["purpose"] extends "fileStorage" ?
 		StructureToGetObject<TStructure, TGuiOpts> | undefined :
 	StructureToGetObject<TStructure, TGuiOpts>;
+
+export type GetArrayStructureValuesReturnType<TStructure extends ArrayGuiOptions<any>, TGuiOpts extends AllPossibleGetValueOpts = {}> =
+	GetValueType<GetGuiInstanceForTypeAndOpts<TStructure["arrayType"], TStructure["arrayGuiOpts"]>, TGuiOpts>[];

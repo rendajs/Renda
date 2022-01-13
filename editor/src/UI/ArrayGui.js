@@ -3,27 +3,46 @@ import {ButtonGroup} from "../UI/ButtonGroup.js";
 import {Button} from "./Button.js";
 
 /**
- * @template T
- * @typedef {T extends keyof import("./PropertiesTreeView/types.js").GuisMap ? {
- * value?: any[],
- * arrayType: T,
- * arrayGuiOpts?: import("./PropertiesTreeView/types.js").GuisMap[T],
- * } : never} ArrayGuiOptionsTypeGeneric
+ * @template {import("./PropertiesTreeView/types.js").GuiTypes} T
+ * @typedef {T extends import("./PropertiesTreeView/types.js").GuiTypes ?
+ * 	{
+ * 		arrayType: T,
+ * 		arrayGuiOpts?: import("./PropertiesTreeView/types.js").GetGuiOptions<T>,
+ * 		value?: any[],
+ * 	} :
+ * never} ArrayGuiOptionsType
+ */
+/**
+ * @template {import("./PropertiesTreeView/types.js").GuiTypes} T
+ * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ArrayGuiOptionsType<T>} ArrayGuiOptions
  */
 
-/** @typedef {ArrayGuiOptionsTypeGeneric<keyof import("./PropertiesTreeView/types.js").GuisMap>} ArrayGuiOptionsType */
-/** @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ArrayGuiOptionsType} ArrayGuiOptions */
+/**
+ * @template TOpts
+ * @typedef {TOpts extends ArrayGuiOptions<import("./PropertiesTreeView/types.js").GuiTypes> ? ArrayGui<TOpts> : never} GetArrayGuiForOptions
+ */
 
+/**
+ * @template TObjectGuiInstance
+ * @template TOpts
+ * @typedef {TObjectGuiInstance extends ArrayGui<infer TStructure> ?
+ * 		import("./PropertiesTreeView/types.js").GetArrayStructureValuesReturnType<TStructure, TOpts> :
+ * 		never} GetArrayGuiValueTypeForOptions
+ */
+
+/**
+ * @template {ArrayGuiOptions<import("./PropertiesTreeView/types.js").GuiTypes>} T
+ */
 export class ArrayGui {
 	/**
-	 * @param {ArrayGuiOptions} options
+	 * @param {T} options
 	 */
 	constructor({
 		defaultValue = [],
-		arrayType = "number",
+		arrayType,
 		arrayGuiOpts = {},
 		disabled = false,
-	} = {}) {
+	}) {
 		this.disabled = false;
 
 		this.el = document.createElement("div");
@@ -122,6 +141,11 @@ export class ArrayGui {
 		}
 	}
 
+	/**
+	 * @template {import("./PropertiesTreeView/types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
+	 * @param {TGuiOpts} [guiOpts]
+	 * @returns {import("./PropertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, TGuiOpts>}
+	 */
 	getValue(guiOpts) {
 		const valueArray = [];
 		for (const item of this.valueItems) {
