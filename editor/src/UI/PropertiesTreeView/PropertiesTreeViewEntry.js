@@ -29,7 +29,7 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  * @typedef BeforeValueSetHookData
  * @property {unknown} value
  * @property {any} setOnObject
- * @property {string} setOnObjectKey
+ * @property {string | number} setOnObjectKey
  */
 
 /**

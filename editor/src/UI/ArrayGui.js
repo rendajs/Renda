@@ -35,6 +35,10 @@ import {Button} from "./Button.js";
  */
 export class ArrayGui {
 	/**
+	 * @typedef {(value: import("./PropertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}>) => void} OnValueChangeCallback
+	 */
+
+	/**
 	 * @param {T} options
 	 */
 	constructor({
@@ -48,10 +52,12 @@ export class ArrayGui {
 		this.el = document.createElement("div");
 		this.el.classList.add("arrayGui");
 
+		/** @type {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>[]} */
 		this.valueItems = [];
 		this.type = arrayType;
 		this.arrayGuiOpts = arrayGuiOpts;
-		this.onValueChangeCbs = [];
+		/** @type {Set<OnValueChangeCallback>} */
+		this.onValueChangeCbs = new Set();
 
 		this.addRemoveButtonGroup = new ButtonGroup();
 		this.el.appendChild(this.addRemoveButtonGroup.el);
@@ -82,13 +88,13 @@ export class ArrayGui {
 		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
-		this.el = null;
 	}
 
 	// adds new item to the end of the array
 	addItem(extraArrayOpts = {}) {
 		const index = this.value.length;
-		const addedItem = this.treeView.addItem({
+		/** @type {import("./PropertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+		const addItemOpts = {
 			type: this.type,
 			guiOpts: {
 				smallLabel: true,
@@ -96,7 +102,8 @@ export class ArrayGui {
 				...this.arrayGuiOpts,
 				...extraArrayOpts,
 			},
-		});
+		};
+		const addedItem = this.treeView.addItem(addItemOpts);
 		addedItem.onValueChange(() => {
 			this.fireValueChange();
 		});
@@ -118,6 +125,10 @@ export class ArrayGui {
 		this.fireValueChange();
 	}
 
+	/**
+	 * @param {import("./PropertiesTreeView/types.js").ArrayStructureToSetObject<T>} value
+	 * @param {import("./PropertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
+	 */
 	setValue(value, setValueOpts) {
 		if (!value) value = [];
 		const removeCount = this.valueItems.length - value.length;
@@ -126,7 +137,9 @@ export class ArrayGui {
 				this.removeItem();
 			}
 		}
-		for (const [i, item] of value.entries()) {
+		const castValueAny = /** @type {any[]} */ (value);
+		for (const [i, item] of castValueAny.entries()) {
+			/** @type {import("./PropertiesTreeView/types.js").BaseSetValueOptions} */
 			const newSetValueOpts = {
 				...setValueOpts,
 				setOnObject: value,
@@ -164,16 +177,20 @@ export class ArrayGui {
 		return this.getValue();
 	}
 
+	/**
+	 * @param {OnValueChangeCallback} cb
+	 */
 	onValueChange(cb) {
-		this.onValueChangeCbs.push(cb);
+		this.onValueChangeCbs.add(cb);
 	}
 
 	fireValueChange() {
-		for (const cb of this.onValueChangeCbs) {
-			cb(this.value);
-		}
+		this.onValueChangeCbs.forEach(cb => cb(this.value));
 	}
 
+	/**
+	 * @param {boolean} disabled
+	 */
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		for (const item of this.valueItems) {

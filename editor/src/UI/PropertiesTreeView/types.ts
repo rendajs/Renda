@@ -292,10 +292,10 @@ export type BaseGetValueOptions = {
 	stripDefaultValues?: boolean;
 }
 
-type BaseSetValueOptions = {
+export type BaseSetValueOptions = {
 	beforeValueSetHook?: (data: BeforeValueSetHookData) => any,
 	setOnObject?: any,
-	setOnObjectKey?: string,
+	setOnObjectKey?: string | number,
 }
 
 type FlattenAllPossibleOptsHelper<T> = UnionToIntersection<Partial<NonNullable<T>>>
@@ -310,5 +310,15 @@ export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewSt
 		StructureToGetObject<TStructure, TGuiOpts> | undefined :
 	StructureToGetObject<TStructure, TGuiOpts>;
 
+export type ArrayStructureToSetObject<TStructure extends ArrayGuiOptions<any>> =
+	SetValueType<GetGuiInstanceForTypeAndOpts<TStructure["arrayType"], TStructure["arrayGuiOpts"]>>[];
+
 export type GetArrayStructureValuesReturnType<TStructure extends ArrayGuiOptions<any>, TGuiOpts extends AllPossibleGetValueOpts = {}> =
 	GetValueType<GetGuiInstanceForTypeAndOpts<TStructure["arrayType"], TStructure["arrayGuiOpts"]>, TGuiOpts>[];
+
+
+type Res = StructureToSetObject<{
+    a: {
+        type: "number";
+    };
+}>
