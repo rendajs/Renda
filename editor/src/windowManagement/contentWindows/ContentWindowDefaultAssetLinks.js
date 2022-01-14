@@ -1,6 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 import {ProjectAsset} from "../../assets/ProjectAsset.js";
+import {createTreeViewEntryOptions, createTreeViewStructure} from "../../UI/PropertiesTreeView/createStructureHelpers.js";
 
 export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";
@@ -17,10 +18,15 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		this.builtInAssetLinksTreeView.onChildValueChange(() => this.handleGuiValueChange());
 		this.contentEl.appendChild(this.builtInAssetLinksTreeView.el);
 
-		this.builtInAssetLinkGuiStructure = this.getAssetLinkGuiStructure(true);
+		this.builtInAssetLinkGuiStructure = createTreeViewEntryOptions({
+			type: "object",
+			guiOpts: {
+				label: "todo", // todo: get name from builtInAssetLink.name
+				structure: this.getAssetLinkGuiStructure(true),
+			},
+		});
 
-		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
-		this.guiStructure = {
+		this.guiStructure = createTreeViewStructure({
 			defaultAssetLinks: {
 				type: "array",
 				guiOpts: {
@@ -30,11 +36,10 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 					},
 				},
 			},
-		};
+		});
 
-		this.treeView = new PropertiesTreeView();
+		this.treeView = PropertiesTreeView.withStructure(this.guiStructure);
 		this.contentEl.appendChild(this.treeView.el);
-		this.treeView.generateFromSerializableStructure(this.guiStructure);
 
 		this.isLoadingAssetLinks = true;
 		this.isParsingValueChange = false;
@@ -51,13 +56,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 
 		this.builtInAssetLinksTreeView.clearChildren();
 		for (const builtInAssetLink of this.editorInstance.builtInDefaultAssetLinksManager.registeredAssetLinks) {
-			const item = this.builtInAssetLinksTreeView.addItem({
-				type: "object",
-				guiOpts: {
-					label: builtInAssetLink.name,
-					structure: this.builtInAssetLinkGuiStructure,
-				},
-			});
+			const item = this.builtInAssetLinksTreeView.addItem(this.builtInAssetLinkGuiStructure);
 			const assetLink = assetManager.getDefaultAssetLink(builtInAssetLink.defaultAssetUuid);
 			const originalAsset = assetLink && assetLink.originalAssetUuid;
 			item.setValue({
@@ -70,7 +69,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		for (const [uuid, assetLink] of assetManager.defaultAssetLinks) {
 			if (assetLink.isBuiltIn) continue;
 			defaultAssetLinks.push({
-				name: assetLink.name,
+				name: assetLink.name || "",
 				originalAsset: assetLink.originalAssetUuid,
 				defaultAsset: uuid,
 			});
@@ -84,28 +83,42 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	}
 
 	/**
-	 * @param {boolean} isBuiltIn
+	 * @template {boolean} T
+	 * @param {T} isBuiltIn
 	 */
 	getAssetLinkGuiStructure(isBuiltIn) {
-		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
-		const typeObj = {};
-		if (!isBuiltIn) {
-			typeObj.name = {type: "string"};
+		const nameStructure = createTreeViewStructure({
+			name: {
+				type: "string",
+			},
+		});
+		const restStructure = createTreeViewStructure({
+			originalAsset: {
+				type: "droppable",
+				guiOpts: {
+					supportedAssetTypes: [ProjectAsset],
+				},
+			},
+			defaultAsset: {
+				type: "droppable",
+				guiOpts: {
+					supportedAssetTypes: [ProjectAsset],
+					disabled: true,
+				},
+			},
+		});
+		let fullStructure = {};
+		if (isBuiltIn) {
+			fullStructure = {
+				...restStructure,
+			};
+		} else {
+			fullStructure = {
+				...nameStructure,
+				...restStructure,
+			};
 		}
-		typeObj.originalAsset = {
-			type: "droppable",
-			guiOpts: {
-				supportedAssetTypes: [ProjectAsset],
-			},
-		};
-		typeObj.defaultAsset = {
-			type: "droppable",
-			guiOpts: {
-				supportedAssetTypes: [ProjectAsset],
-				disabled: true,
-			},
-		};
-		return typeObj;
+		return /** @type {T extends true ? typeof restStructure : (typeof nameStructure & typeof restStructure)} */ (fullStructure);
 	}
 
 	handleGuiValueChange() {
@@ -118,7 +131,9 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		const assetLinks = [];
 
 		for (const child of this.builtInAssetLinksTreeView.children) {
-			const guiValues = child.getValue();
+			const castChild = /** @type {import("../../UI/PropertiesTreeView/types.js").TreeViewEntryFactoryReturnType<typeof this.builtInAssetLinkGuiStructure>} */ (child);
+			const guiValues = castChild.getValue();
+			if (!guiValues.defaultAsset) continue;
 			builtInAssetLinks.push({
 				defaultAssetUuid: guiValues.defaultAsset,
 				originalAssetUuid: guiValues.originalAsset,

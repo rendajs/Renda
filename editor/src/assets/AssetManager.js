@@ -7,13 +7,13 @@ import {ProjectAsset} from "./ProjectAsset.js";
 /**
  * @typedef {Object} SetDefaultBuiltInAssetLinkData
  * @property {import("../../../src/mod.js").UuidString} defaultAssetUuid
- * @property {import("../../../src/mod.js").UuidString} originalAssetUuid
+ * @property {import("../../../src/mod.js").UuidString?} originalAssetUuid
  */
 /**
  * @typedef {Object} SetDefaultAssetLinkData
  * @property {string} name
- * @property {import("../../../src/mod.js").UuidString} defaultAssetUuid
- * @property {import("../../../src/mod.js").UuidString} originalAssetUuid
+ * @property {import("../../../src/mod.js").UuidString?} defaultAssetUuid
+ * @property {import("../../../src/mod.js").UuidString?} originalAssetUuid
  */
 
 export class AssetManager {

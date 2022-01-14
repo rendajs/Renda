@@ -13,7 +13,7 @@ import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
  */
 
 /**
- * @template {import("./types.js").PropertiesTreeViewStructure} T
+ * @template {import("./types.js").PropertiesTreeViewStructure} [T = any]
  */
 export class PropertiesTreeView extends TreeView {
 	/**
