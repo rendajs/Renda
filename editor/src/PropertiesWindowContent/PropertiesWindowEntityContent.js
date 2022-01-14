@@ -238,13 +238,17 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 						this.notifyEntityEditors(componentGroup.entity, "componentProperty");
 					}
 				});
-				componentUI.fillSerializableStructureValues(componentGroup, {
+				const castComponentGroup = /** @type {any} */ (componentGroup);
+				componentUI.fillSerializableStructureValues(castComponentGroup, {
 					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
-						if (value && this.editorInstance.projectAssetTypeManager.constructorHasAssetType(value.constructor)) {
-							const usedAssetUuids = setOnObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
-							if (usedAssetUuids) {
-								const uuid = usedAssetUuids[setOnObjectKey];
-								if (uuid) return uuid;
+						if (value) {
+							const castValue = /** @type {any} */ (value);
+							if (this.editorInstance.projectAssetTypeManager.constructorHasAssetType(castValue.constructor)) {
+								const usedAssetUuids = setOnObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
+								if (usedAssetUuids) {
+									const uuid = usedAssetUuids[setOnObjectKey];
+									if (uuid) return uuid;
+								}
 							}
 						}
 						return value;
@@ -262,11 +266,12 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	 */
 	mapFromDroppableGuiValues(object, propertyName, scriptValue, guiEntry) {
 		if (Array.isArray(scriptValue)) {
-			const castGuiEntry = /** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../UI/ArrayGui.js").ArrayGui>} */ (guiEntry);
+			const castGuiEntry = /** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../UI/ArrayGui.js").ArrayGui<any>>} */ (guiEntry);
 			/** @type {unknown[]} */
 			const newScriptValue = [];
 			for (const [i, item] of scriptValue.entries()) {
-				this.mapFromDroppableGuiValues(newScriptValue, i, item, castGuiEntry.gui?.valueItems[i]);
+				if (!castGuiEntry.gui) continue;
+				this.mapFromDroppableGuiValues(newScriptValue, i, item, castGuiEntry.gui.valueItems[i]);
 			}
 			scriptValue = newScriptValue;
 		}

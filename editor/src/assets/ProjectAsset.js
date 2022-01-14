@@ -630,6 +630,7 @@ export class ProjectAsset {
 		if (!binaryData) {
 			const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
 			if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
+				/** @type {FileDataType} */
 				let assetData = await this.readAssetData();
 
 				const structure = this.projectAssetTypeConstructor.propertiesAssetContentStructure;
@@ -637,7 +638,8 @@ export class ProjectAsset {
 					const treeView = new PropertiesTreeView();
 					treeView.generateFromSerializableStructure(structure);
 					treeView.fillSerializableStructureValues(assetData);
-					assetData = treeView.getSerializableStructureValues(structure, {purpose: "binaryComposer"});
+					const newAssetData = treeView.getSerializableStructureValues(structure, {purpose: "binaryComposer"});
+					assetData = /** @type {FileDataType} */ (newAssetData);
 				}
 
 				const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);

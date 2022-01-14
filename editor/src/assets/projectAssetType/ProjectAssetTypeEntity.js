@@ -153,7 +153,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		} else if (propertyType == "array") {
 			/** @type {any[]} */
 			const newArr = [];
-			const arrayGuiOpts = /** @type {import("../../UI/ArrayGui.js").ArrayGuiOptions} */ (propertyGuiOpts);
+			const arrayGuiOpts = /** @type {import("../../UI/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyGuiOpts);
 			for (const i of propertyValue.keys()) {
 				await this.fillComponentPropertyValueFromJson(newArr, propertyValue, i, arrayGuiOpts.arrayType, arrayGuiOpts.arrayGuiOpts, recursionTracker);
 			}
