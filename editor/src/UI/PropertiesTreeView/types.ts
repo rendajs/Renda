@@ -310,15 +310,17 @@ export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewSt
 		StructureToGetObject<TStructure, TGuiOpts> | undefined :
 	StructureToGetObject<TStructure, TGuiOpts>;
 
-export type ArrayStructureToSetObject<TStructure extends ArrayGuiOptions<any>> =
-	SetValueType<GetGuiInstanceForTypeAndOpts<TStructure["arrayType"], TStructure["arrayGuiOpts"]>>[];
+export type GetSerializableStructureEntryReturn<TStructure extends PropertiesTreeViewStructure, TKey extends keyof TStructure> =
+	PropertiesTreeViewEntry<GetGuiInstanceForOpts<TStructure[TKey]>>
 
-export type GetArrayStructureValuesReturnType<TStructure extends ArrayGuiOptions<any>, TGuiOpts extends AllPossibleGetValueOpts = {}> =
-	GetValueType<GetGuiInstanceForTypeAndOpts<TStructure["arrayType"], TStructure["arrayGuiOpts"]>, TGuiOpts>[];
+type GetGuiInstanceForArrayGuiOptions<T extends ArrayGuiOptions<any>> =
+	GetGuiInstanceForTypeAndOpts<T["arrayType"], T["arrayGuiOpts"]>;
 
+export type ArrayStructureToSetObject<TArrayGuiOpts extends ArrayGuiOptions<any>> =
+	SetValueType<GetGuiInstanceForArrayGuiOptions<TArrayGuiOpts>>[];
 
-type Res = StructureToSetObject<{
-    a: {
-        type: "number";
-    };
-}>
+export type GetArrayStructureValuesReturnType<TArrayGuiOpts extends ArrayGuiOptions<any>, TGuiOpts extends AllPossibleGetValueOpts = {}> =
+	GetValueType<GetGuiInstanceForArrayGuiOptions<TArrayGuiOpts>, TGuiOpts>[];
+
+export type GetArrayValueItemType<TArrayGuiOpts extends ArrayGuiOptions<any>> =
+	PropertiesTreeViewEntry<GetGuiInstanceForArrayGuiOptions<TArrayGuiOpts>>;

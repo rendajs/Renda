@@ -156,12 +156,14 @@ export class PropertiesTreeView extends TreeView {
 		return /** @type {import("./types.js").GetStructureValuesReturnType<TStructure, TGuiOpts>} */ (values);
 	}
 
-	// todo: make this take a @template?
 	/**
-	 * @param {string} key
+	 * @template {keyof T} TKey
+	 * @param {TKey} key
+	 * @returns {import("./types.js").GetSerializableStructureEntryReturn<T, TKey>}
 	 */
 	getSerializableStructureEntry(key) {
-		return this.currentSerializableStructureItems[key];
+		const castKey = /** @type {string} */ (key);
+		return this.currentSerializableStructureItems[castKey];
 	}
 
 	/**

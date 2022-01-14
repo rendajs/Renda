@@ -52,7 +52,7 @@ export class ArrayGui {
 		this.el = document.createElement("div");
 		this.el.classList.add("arrayGui");
 
-		/** @type {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>[]} */
+		/** @type {import("./PropertiesTreeView/types.js").GetArrayValueItemType<T>[]} */
 		this.valueItems = [];
 		this.type = arrayType;
 		this.arrayGuiOpts = arrayGuiOpts;
@@ -149,7 +149,8 @@ export class ArrayGui {
 				const addedItem = this.addItem();
 				addedItem.setValue(item, newSetValueOpts);
 			} else {
-				this.valueItems[i].setValue(item, newSetValueOpts);
+				const gui = /** @type {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} */ (this.valueItems[i]);
+				gui.setValue(item, newSetValueOpts);
 			}
 		}
 	}
@@ -163,10 +164,11 @@ export class ArrayGui {
 		const valueArray = [];
 		for (const item of this.valueItems) {
 			let value = null;
-			if (item.gui.getValue) {
-				value = item.gui.getValue(guiOpts);
+			const gui = /** @type {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiInterface} */ (item.gui);
+			if (gui.getValue) {
+				value = gui.getValue(guiOpts);
 			} else {
-				value = item.gui.value;
+				value = gui.value;
 			}
 			valueArray.push(value);
 		}
