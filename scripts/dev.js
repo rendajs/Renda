@@ -31,7 +31,7 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 	console.log("Running first time setup...");
 
 	const getDenoTypesProcess = Deno.run({
-		cmd: ["deno", "types"],
+		cmd: ["deno", "types", "--unstable"],
 		stdout: "piped",
 	});
 	const typesContent = await getDenoTypesProcess.output();
