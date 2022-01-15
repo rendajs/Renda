@@ -1,7 +1,6 @@
 import {ProjectAssetType} from "../ProjectAssetType.js";
 import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
-import {RecursionTracker} from "../../liveAssetDataRecursionTracker/RecursionTracker.js";
 import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 
 /**
@@ -18,7 +17,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
-	 * @param {RecursionTracker} recursionTracker
+	 * @param {import("../../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
 		/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapTypeData[]} */
@@ -56,19 +55,21 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 						};
 					}
 				}
-				for (const [key, mappedValue] of Object.entries(map.mappedValues)) {
-					if (mappedValue.visible == false) {
-						delete mappedValues[key];
-					} else {
-						if (mappedValue.mappedName) {
-							mappedValues[key].mappedName = mappedValue.mappedName;
-						}
-						if (mappedValue.defaultValue !== undefined) {
-							const defaultValue = mappedValues[key].defaultValue;
-							if (typeof defaultValue == "number") {
-								mappedValues[key].defaultValue = mappedValue.defaultValue;
-							} else {
-								defaultValue.set(mappedValue.defaultValue);
+				if (map.mappedValues) {
+					for (const [key, mappedValue] of Object.entries(map.mappedValues)) {
+						if (mappedValue.visible == false) {
+							delete mappedValues[key];
+						} else {
+							if (mappedValue.mappedName) {
+								mappedValues[key].mappedName = mappedValue.mappedName;
+							}
+							if (mappedValue.defaultValue !== undefined) {
+								const defaultValue = mappedValues[key].defaultValue;
+								if (typeof defaultValue == "number") {
+									mappedValues[key].defaultValue = mappedValue.defaultValue;
+								} else {
+									defaultValue.set(mappedValue.defaultValue);
+								}
 							}
 						}
 					}
