@@ -86,7 +86,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 					type = matrixMatch.groups.matrixType;
 				}
 			}
-			/** @type {import("../../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryType} */
+			/** @type {import("../../../../UI/PropertiesTreeView/types.js").GuiTypes} */
 			let mappableValueType = "number";
 			if (isVector) {
 				if (vectorSize == 2) {

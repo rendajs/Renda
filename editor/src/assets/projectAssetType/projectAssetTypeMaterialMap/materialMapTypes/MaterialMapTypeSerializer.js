@@ -1,4 +1,3 @@
-import {MaterialMapType} from "../../../../../../src/Rendering/MaterialMapType.js";
 import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComposer.js";
 
 /**
@@ -8,7 +7,7 @@ import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComp
 /**
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
- * @property {import("../../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryType} type
+ * @property {import("../../../../UI/PropertiesTreeView/types.js").GuiTypes} type
  * @property {import("../../../../../../src/Rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
  */
 
@@ -78,7 +77,7 @@ export class MaterialMapTypeSerializer {
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {Promise<MaterialMapType?>} The data to be stored in the Material.
+	 * @returns {Promise<import("../../../../../../src/Rendering/MaterialMapType.js").MaterialMapType?>} The data to be stored in the Material.
 	 */
 	static async getLiveAssetSettingsInstance(editorInstance, assetManager, customData) {
 		return null;

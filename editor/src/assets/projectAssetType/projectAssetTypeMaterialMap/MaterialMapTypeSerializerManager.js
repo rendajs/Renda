@@ -106,20 +106,4 @@ export class MaterialMapTypeSerializerManager {
 		}
 		return Array.from(mapValues.values());
 	}
-
-	async getDataForMapProjectAsset(mapAsset) {
-		const mapData = await mapAsset.readAssetData();
-		const mapDatas = new Map();
-		const linkedProjectAssets = new Set();
-		for (const mapType of mapData.maps) {
-			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
-			const customData = await mapTypeConstructor.getLiveAssetSettingsInstance(mapType.customData);
-			mapDatas.set(mapType.mapTypeId, customData);
-
-			for await (const projectAsset of mapTypeConstructor.getLinkedAssetsInCustomData(mapType.customData)) {
-				linkedProjectAssets.add(projectAsset);
-			}
-		}
-		return {mapDatas, linkedProjectAssets};
-	}
 }

@@ -100,14 +100,15 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		const mappableValues = await this.editorInstance.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
-			const entry = this.mapValuesTreeView.addItem({
+			/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+			const addItemOpts = {
 				type: valueData.type,
-				/** @type {import("../../UI/PropertiesTreeView/types.js").GuiOptionsBase} */
 				guiOpts: {
 					label: valueData.name,
 					defaultValue: valueData.defaultValue,
 				},
-			});
+			};
+			const entry = this.mapValuesTreeView.addItem(addItemOpts);
 			const value = currentMaterialValues[valueData.name];
 			if (value !== undefined) {
 				entry.setValue(value);
