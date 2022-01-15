@@ -5,3 +5,5 @@ package-lock.json
 dist
 editor/dist/js/*
 editor/libs/
+.denoTypes/@types/*
+scripts/lastDevInitHash.txt

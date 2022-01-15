@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"target": "esnext",
+		"checkJs": true,
+		"module": "esnext",
+		"useDefineForClassFields": true,
+		"strict": true,
+		"typeRoots": [
+			"../node_modules/@webgpu/types",
+			"../node_modules/@types",
+			"../../.denoTypes/@types",
+		],
+	},
+	"include": [
+		"**/*.js",
+		"**/*.ts",
+	]
+}
