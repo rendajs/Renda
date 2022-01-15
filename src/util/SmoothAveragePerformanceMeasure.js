@@ -8,6 +8,11 @@ import {lerp} from "./mod.js";
  * `PerformanceMeasure.smoothDuration`.
  */
 export class SmoothAveragePerformanceMeasure {
+	/**
+	 * @param {Object} options
+	 * @param {string?} [options.label]
+	 * @param {number} [options.smoothness]
+	 */
 	constructor({
 		label = null,
 		smoothness = 0.98,

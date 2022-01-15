@@ -21,7 +21,6 @@ export class Timeout {
 	destructor() {
 		this.stop();
 		this.isDestructed = true;
-		this.cb = null;
 	}
 
 	get isRunning() {

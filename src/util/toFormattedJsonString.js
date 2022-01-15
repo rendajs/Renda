@@ -1,4 +1,19 @@
 /**
+ * @param {string} str
+ */
+function countTabs(str) {
+	let tabCount = 0;
+	for (const char of str) {
+		if (char == "\t") {
+			tabCount++;
+		} else {
+			break;
+		}
+	}
+	return tabCount;
+}
+
+/**
  * Parses an object to a json string and formats it nicely.
  * This keeps things mostly similar to `JSON.stringify` but it collapses small
  * arrays and objects into a single line.
@@ -12,18 +27,6 @@ export function toFormattedJsonString(jsonObj, {
 	purpose = "fileStorage",
 	maxArrayStringItemLength = 10, // use -1 to always put string arrays on a single line
 } = {}) {
-	const countTabs = str => {
-		let tabCount = 0;
-		for (const char of str) {
-			if (char == "\t") {
-				tabCount++;
-			} else {
-				break;
-			}
-		}
-		return tabCount;
-	};
-
 	const jsonStr = JSON.stringify(jsonObj, null, "\t");
 
 	const splitStr = jsonStr.split("\n");

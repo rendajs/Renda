@@ -2,6 +2,10 @@ import {Quat} from "../Math/Quat.js";
 import {Vec3} from "../Math/Vec3.js";
 
 export class OrbitControls {
+	/**
+	 * @param {import("../core/Entity.js").Entity} cameraEntity
+	 * @param {HTMLElement} eventElement
+	 */
 	constructor(cameraEntity, eventElement) {
 		this.camera = cameraEntity;
 
@@ -14,6 +18,7 @@ export class OrbitControls {
 		this._lookDist = 3;
 
 		this.boundOnWheel = this.onWheel.bind(this);
+		/** @type {HTMLElement[]} */
 		this.addedEventElements = [];
 		if (eventElement) this.addEventElement(eventElement);
 	}
@@ -51,14 +56,19 @@ export class OrbitControls {
 		for (const elem of this.addedEventElements) {
 			elem.removeEventListener("wheel", this.boundOnWheel);
 		}
-		this.boundOnWheel = null;
 	}
 
+	/**
+	 * @param {HTMLElement} elem
+	 */
 	addEventElement(elem) {
 		this.addedEventElements.push(elem);
 		elem.addEventListener("wheel", this.boundOnWheel);
 	}
 
+	/**
+	 * @param {WheelEvent} e
+	 */
 	onWheel(e) {
 		e.preventDefault();
 		const dx = e.deltaX;

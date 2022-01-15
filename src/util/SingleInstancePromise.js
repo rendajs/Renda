@@ -1,6 +1,9 @@
+/**
+ * @template TReturn
+ */
 export class SingleInstancePromise {
 	/**
-	 * @param {function() : Promise} promiseFn
+	 * @param {() => Promise<TReturn>} promiseFn
 	 * @param {Object} opts
 	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
 	 * @param {boolean} [opts.run] If true, the function will run immediately.
@@ -24,6 +27,7 @@ export class SingleInstancePromise {
 	 * Calling this many times with `repeatIfRunning` set to true will not cause the promise to
 	 * run many times. I.e., jobs do not get queued indefinitely, only twice.
 	 * @param {boolean} repeatIfRunning If true, the function will run again when the first run is done.
+	 * @returns {Promise<TReturn>}
 	 */
 	async run(repeatIfRunning = false) {
 		if (this.isRunning) {
@@ -36,7 +40,7 @@ export class SingleInstancePromise {
 		}
 
 		if (this.hasRan && this.once) {
-			return this.onceReturnValue;
+			return /** @type {TReturn} */ (this.onceReturnValue);
 		}
 
 		this.isRunning = true;
@@ -59,7 +63,7 @@ export class SingleInstancePromise {
 	/**
 	 * Returns a promise that will resolve once the function is done running.
 	 * Subsequent runs will resolve immediately.
-	 * @returns {Promise}
+	 * @returns {Promise<void>}
 	 */
 	async waitForFinish() {
 		if (this.hasRan) return;
