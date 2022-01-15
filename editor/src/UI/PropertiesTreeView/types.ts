@@ -189,6 +189,16 @@ export type PropertiesTreeViewStructure = {
 }
 
 /**
+ * I don't know why, but TypeScript complaints if `StructureToGetObject` and
+ * `StructureToSetObject` extend `PropertiesTreeViewStructure` for their first
+ * generic argument. Using this instead seems to fix it somehow without breaking
+ * anything else.
+ */
+type StringKeyMap = {
+	[x: string]: any;
+}
+
+/**
  * Converts a TreeView Structure to the return type when getting the value of
  * a PropertiesTreeView or ObjectGui.
  *
@@ -213,14 +223,14 @@ export type PropertiesTreeViewStructure = {
  * }
  * ```
  */
-export type StructureToGetObject<T extends PropertiesTreeViewStructure, TGuiOpts> = {
+type StructureToGetObject<T extends StringKeyMap, TGuiOpts> = {
 	[x in keyof T]: GetValueType<GetGuiInstanceForOpts<T[x]>, TGuiOpts>;
 }
 
 /**
  * Same as StructureToGetObject but with SetValue GuiOpts.
  */
-export type StructureToSetObject<T extends PropertiesTreeViewStructure> = {
+export type StructureToSetObject<T extends StringKeyMap> = {
 	[x in keyof T]: SetValueType<GetGuiInstanceForOpts<T[x]>>;
 }
 
