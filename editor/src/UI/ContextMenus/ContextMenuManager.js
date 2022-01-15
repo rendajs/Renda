@@ -1,22 +1,23 @@
-import {getEditorInstance} from "../../editorInstance.js";
 import {ContextMenu} from "./ContextMenu.js";
 
 export class ContextMenuManager {
-	constructor() {
+	/**
+	 *
+	 * @param {import("../../Util/ColorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} colorizerFilterManager
+	 */
+	constructor(colorizerFilterManager) {
 		this.activeContextMenu = null;
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("contextMenuCurtain");
 		this.curtainEl.addEventListener("click", () => {
 			this.closeCurrent();
 		});
-		this.updateCurtainActive();
-	}
 
-	init() {
-		const iconDefaultColorFilter = getEditorInstance().colorizerFilterManager.getFilter("var(--default-text-color)");
+		const iconDefaultColorFilter = colorizerFilterManager.getFilter("var(--default-text-color)");
+		const iconHoverColorFilter = colorizerFilterManager.getFilter("var(--selected-text-color)");
+
+		// References are kept around to ensure the filters don't get garbage collected.
 		this.iconDefaultColorFilterRef = iconDefaultColorFilter.getUsageReference();
-
-		const iconHoverColorFilter = getEditorInstance().colorizerFilterManager.getFilter("var(--selected-text-color)");
 		this.iconHoverColorFilterRef = iconHoverColorFilter.getUsageReference();
 
 		const styleBlock = document.createElement("style");
@@ -29,6 +30,8 @@ export class ContextMenuManager {
 			}
 		`;
 		document.head.appendChild(styleBlock);
+
+		this.updateCurtainActive();
 	}
 
 	get current() {
@@ -37,8 +40,8 @@ export class ContextMenuManager {
 	}
 
 	/**
-	 * @param {import("./ContextMenu.js").ContextMenuStructure} structure
-	 * @returns {ContextMenu}
+	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
+	 * @returns {ContextMenu?} Null if another context menu is already open.
 	 */
 	createContextMenu(structure = null) {
 		if (this.activeContextMenu && this.activeContextMenu.el) return null;
@@ -56,6 +59,9 @@ export class ContextMenuManager {
 		return false;
 	}
 
+	/**
+	 * @param {ContextMenu} contextMenu
+	 */
 	onContextMenuClosed(contextMenu) {
 		if (contextMenu == this.activeContextMenu) {
 			this.activeContextMenu = null;

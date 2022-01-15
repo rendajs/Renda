@@ -4,7 +4,7 @@ export class ContextMenuItem {
 	 * @param {import("./ContextMenu.js").ContextMenuItemOpts} opts
 	 */
 	constructor(containingContextMenu, {
-		text,
+		text = "",
 		onClick = null,
 		onHover = null,
 		disabled = false,
@@ -138,6 +138,9 @@ export class ContextMenuItem {
 		this.onClickCbs.clear();
 	}
 
+	/**
+	 * @param {string} text
+	 */
 	setText(text) {
 		this.textEl.textContent = text;
 	}
@@ -149,6 +152,9 @@ export class ContextMenuItem {
 		this.onClickCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onHover(cb) {
 		this.onHoverCbs.add(cb);
 	}

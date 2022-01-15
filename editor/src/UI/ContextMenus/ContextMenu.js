@@ -4,11 +4,11 @@ import {Button} from "../Button.js";
 
 /**
  * @typedef {Object} ContextMenuOptions
- * @property {ContextMenu} [parentMenu=null]
- * @property {ContextMenuStructure} [structure=null]
+ * @property {ContextMenu?} [parentMenu = null]
+ * @property {ContextMenuStructure?} [structure = null]
  */
 
-/** @typedef {Array<ContextMenuItemOpts | {horizond}>} ContextMenuStructure */
+/** @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure */
 
 /**
  * @typedef {Object} ContextMenuItemClickEvent
@@ -33,8 +33,8 @@ import {Button} from "../Button.js";
 /**
  * @typedef {Object} ContextMenuItemOpts
  * @property {string} [text=""] The text to display in the item.
- * @property {function(ContextMenuItemClickEvent): void} [onClick=null] The function to call when the item is clicked.
- * @property {function(): void} [onHover=null] The function to call when the item is hovered over.
+ * @property {((event: ContextMenuItemClickEvent) => void)?} [onClick = null] The function to call when the item is clicked.
+ * @property {(() => void)?} [onHover=null] The function to call when the item is hovered over.
  * @property {boolean} [disabled=false] Whether the item should start disabled.
  * @property {boolean} [showRightArrow=false] Whether to arrow on the right of the text should be shown.
  * @property {boolean} [reserveIconSpace=false] If true, all items in the submenu will move to the right in case this item gets a checkmark or bullet.
@@ -63,9 +63,9 @@ export class ContextMenu {
 		/** @type {Array<ContextMenuItem>} */
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
-		/** @type {ContextMenu} */
+		/** @type {ContextMenu?} */
 		this.currentSubmenu = null;
-		/** @type {ContextMenuSetPosOpts} */
+		/** @type {ContextMenuSetPosOpts?} */
 		this.lastPosArguments = null;
 
 		this.hasResevedIconSpaceItem = false;
@@ -77,14 +77,12 @@ export class ContextMenu {
 
 	destructor() {
 		this.removeSubmenu();
-		this.manager = null;
 		for (const item of this.addedItems) {
 			item.destructor();
 		}
 		this.addedItems = [];
 		if (this.el) {
 			if (this.el.parentElement) this.el.parentElement.removeChild(this.el);
-			this.el = null;
 		}
 	}
 
@@ -161,6 +159,9 @@ export class ContextMenu {
 
 			if (!clampMode) clampMode = "clamp";
 		}
+
+		if (x == undefined) x = 0;
+		if (y == undefined) y = 0;
 
 		if (!clampMode) clampMode = "flip";
 

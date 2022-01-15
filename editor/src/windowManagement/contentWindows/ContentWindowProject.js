@@ -73,7 +73,7 @@ export class ContentWindowProject extends ContentWindow {
 					},
 				]);
 
-				menu.setPos({item: createButton});
+				if (menu) menu.setPos({item: createButton});
 			},
 		});
 		this.addTopBarEl(createButton.el);

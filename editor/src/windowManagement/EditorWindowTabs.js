@@ -5,13 +5,15 @@ import {getEditorInstanceCertain} from "../editorInstance.js";
 import {Button} from "../UI/Button.js";
 import {ButtonGroup} from "../UI/ButtonGroup.js";
 import {EditorWindowSplit} from "./EditorWindowSplit.js";
-import {ContentWindow} from "./contentWindows/ContentWindow.js";
 
 export class EditorWindowTabs extends EditorWindow {
 	/** @type {Array<string>} */
 	#intendedTabTypes = [];
 	/** @type {import("../../../src/util/mod.js").UuidString[]} */
 	#intendedTabUuids = [];
+
+	/** @typedef {import("./contentWindows/ContentWindow.js").ContentWindow} ContentWindow */
+	/** @typedef {typeof import("./contentWindows/ContentWindow.js").ContentWindow} ContentWindowConstructor */
 
 	/**
 	 * @param {ConstructorParameters<typeof EditorWindow>} args
@@ -21,7 +23,7 @@ export class EditorWindowTabs extends EditorWindow {
 
 		this.el.classList.add("editorWindowTabs");
 
-		/** @type {Array<import("./contentWindows/ContentWindow.js").ContentWindow>} */
+		/** @type {Array<ContentWindow>} */
 		this.tabs = [];
 		this.activeTabIndex = -1;
 		/** @type {Set<() => void>} */
@@ -81,7 +83,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {number} index
 	 * @param {string} tabType
 	 * @param {import("../../../src/util/mod.js").UuidString} uuid
-	 * @returns {?import("./contentWindows/ContentWindow.js").ContentWindow}
+	 * @returns {ContentWindow?}
 	 */
 	setTabType(index, tabType, uuid) {
 		this.#intendedTabTypes[index] = tabType;
@@ -96,7 +98,7 @@ export class EditorWindowTabs extends EditorWindow {
 	/**
 	 * @param {string} tabType The id of the tab type to create.
 	 * @param {boolean} activate Whether to set the tab as active.
-	 * @returns {?import("./contentWindows/ContentWindow.js").ContentWindow}
+	 * @returns {ContentWindow?}
 	 */
 	addTabType(tabType, activate = false) {
 		const index = this.#intendedTabTypes.length;
@@ -123,7 +125,7 @@ export class EditorWindowTabs extends EditorWindow {
 
 	/**
 	 * @override
-	 * @param {typeof import("./contentWindows/ContentWindow.js").ContentWindow} constructor
+	 * @param {ContentWindowConstructor} constructor
 	 */
 	onContentWindowRegistered(constructor) {
 		for (let i = 0; i < this.#intendedTabTypes.length; i++) {
@@ -136,9 +138,9 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @template {import("./contentWindows/ContentWindow.js").ContentWindow} T
+	 * @template {ContentWindow} T
 	 * @param {number} index
-	 * @param {new (...args: ConstructorParameters<typeof import("./contentWindows/ContentWindow.js").ContentWindow>) => T} constructor
+	 * @param {new (...args: ConstructorParameters<ContentWindowConstructor>) => T} constructor
 	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 * @returns {T}
 	 */
@@ -158,7 +160,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 */
 	initContentWindow(contentWindow) {
 		contentWindow.init();
-		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		const castConstructor = /** @type {ContentWindowConstructor} */ (contentWindow.constructor);
 		this.windowManager.contentWindowAddedHandler.fireEvent(castConstructor, {
 			target: contentWindow,
 		});
@@ -169,7 +171,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 */
 	destructContentWindow(contentWindow) {
 		contentWindow.destructor();
-		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		const castConstructor = /** @type {ContentWindowConstructor} */ (contentWindow.constructor);
 		this.windowManager.contentWindowRemovedHandler.fireEvent(castConstructor, {
 			target: contentWindow,
 		});
@@ -177,21 +179,21 @@ export class EditorWindowTabs extends EditorWindow {
 
 	/**
 	 * @param {number} index
-	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {ContentWindow} contentWindow
 	 */
 	setExistingContentWindow(index, contentWindow) {
 		if (this.tabs[index]) throw new Error("Replacing existing content windows is not yet implemented.");
 		contentWindow.detachParentEditorWindow();
 		contentWindow.attachParentEditorWindow(this);
 		this.tabs[index] = contentWindow;
-		const castConstructor = /** @type {typeof import("./contentWindows/ContentWindow.js").ContentWindow} */ (contentWindow.constructor);
+		const castConstructor = /** @type {ContentWindowConstructor} */ (contentWindow.constructor);
 		this.#intendedTabTypes[index] = castConstructor.contentWindowTypeId;
 		this.tabsEl.appendChild(contentWindow.el);
 		this.updateTabSelector();
 	}
 
 	/**
-	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {ContentWindow} contentWindow
 	 * @param {boolean} [activate]
 	 */
 	addExistingContentWindow(contentWindow, activate = true) {
@@ -204,7 +206,7 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {ContentWindow} contentWindow
 	 */
 	contentWindowDetached(contentWindow) {
 		const index = this.tabs.indexOf(contentWindow);
@@ -258,7 +260,7 @@ export class EditorWindowTabs extends EditorWindow {
 		}
 
 		for (let i = 0; i < this.tabs.length; i++) {
-			const contentWindowType = /** @type {typeof import("./contentWindows/ContentWindow.js").ContentWindow} */ (this.tabs[i].constructor);
+			const contentWindowType = /** @type {ContentWindowConstructor} */ (this.tabs[i].constructor);
 			this.tabsSelectorGroup.buttons[i].setIcon(contentWindowType.contentWindowUiIcon);
 		}
 	}
@@ -285,7 +287,7 @@ export class EditorWindowTabs extends EditorWindow {
 	}
 
 	/**
-	 * @param {import("./contentWindows/ContentWindow.js").ContentWindow} contentWindow
+	 * @param {ContentWindow} contentWindow
 	 */
 	setActiveContentWindow(contentWindow) {
 		const index = this.tabs.indexOf(contentWindow);
@@ -424,7 +426,7 @@ export class EditorWindowTabs extends EditorWindow {
 		];
 
 		const menu = getEditorInstanceCertain().contextMenuManager.createContextMenu(contextMenuStructure);
-		menu.setPos({x: e.pageX, y: e.pageY});
+		if (menu) menu.setPos({x: e.pageX, y: e.pageY});
 	}
 
 	/**

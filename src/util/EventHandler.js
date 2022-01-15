@@ -1,4 +1,10 @@
 /**
+ * A helper class for registering and triggering events on a map of different types.
+ * TRegisterType is the type of the map key.
+ * TEventType is the type used for the first parameter of the callbacks.
+ * It is not recommended to use this class for events where the types are known
+ * in advance, as this makes it more difficult to track down where specific events
+ * are fired and where callbacks are being used.
  * @template TRegisterType
  * @template TEvent
  */

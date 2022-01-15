@@ -27,7 +27,8 @@ export class Editor {
 		this.webGpuShaderBuilder = new ShaderBuilder();
 		this.windowManager = new WindowManager();
 		this.selectionManager = new SelectionManager();
-		this.contextMenuManager = new ContextMenuManager();
+		this.colorizerFilterManager = new ColorizerFilterManager();
+		this.contextMenuManager = new ContextMenuManager(this.colorizerFilterManager);
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager(this.windowManager);
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
@@ -39,7 +40,6 @@ export class Editor {
 		this.scriptBuilder = new ScriptBuilder();
 		this.assetBundler = new AssetBundler();
 		this.dragManager = new DragManager();
-		this.colorizerFilterManager = new ColorizerFilterManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
 
 		if (IS_DEV_BUILD) {
@@ -88,7 +88,6 @@ export class Editor {
 
 		this.renderer.init();
 		this.windowManager.init();
-		this.contextMenuManager.init();
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.componentGizmosManager.init();
