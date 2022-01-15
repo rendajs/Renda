@@ -1,6 +1,7 @@
-#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net
+#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --unstable
 
 import {createHash} from "https://deno.land/std@0.118.0/hash/mod.ts";
+import {dirname, join} from "https://deno.land/std@0.121.0/path/mod.ts";
 import {setCwd} from "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js";
 setCwd();
 
@@ -9,6 +10,10 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://esm.sh/rollup@2.61.1",
 	"https://unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts",
 	"https://esm.sh/rollup-plugin-jscc@2.0.0",
+	"https://deno.land/std@0.118.0/hash/mod.ts",
+	"https://deno.land/std@0.121.0/path/mod.ts",
+	"https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",
+	"https://deno.land/std@0.118.0/testing/asserts.ts",
 ];
 
 const thisScriptContent = await Deno.readFile("./dev.js");
@@ -71,6 +76,18 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 					if (typesUrl) {
 						const dtsResponse = await fetch(typesUrl);
 						await createDts(url, await dtsResponse.text());
+					} else {
+						const emitResult = await Deno.emit(url, {
+							compilerOptions: {
+								declaration: true,
+							},
+						});
+						for (const [fileUrl, fileContent] of Object.entries(emitResult.files)) {
+							const path = join("../.denoTypes/urlImports/emitted/", fileUrl);
+							const dir = dirname(path);
+							await Deno.mkdir(dir, {recursive: true});
+							await Deno.writeTextFile(path, fileContent);
+						}
 					}
 				}
 			}
@@ -82,8 +99,6 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 
 	console.log("First time set up done.");
 }
-
-Deno.exit();
 
 Deno.chdir("..");
 

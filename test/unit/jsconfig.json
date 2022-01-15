@@ -11,6 +11,9 @@
 			"../node_modules/@types",
 			"../../.denoTypes/@types",
 		],
+		"paths": {
+			"https://deno.land/std@0.118.0/testing/asserts.ts": ["../../.denoTypes/urlImports/emitted/https:/deno.land/std@0.118.0/testing/asserts.ts"],
+		},
 	},
 	"include": [
 		"**/*.js",
