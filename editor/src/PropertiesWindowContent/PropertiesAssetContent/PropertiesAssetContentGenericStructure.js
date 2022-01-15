@@ -41,7 +41,8 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 		const assetData = await asset.readAssetData();
 		this.isUpdatingUi = true;
 
-		this.assetTreeView.fillSerializableStructureValues(assetData);
+		const castAssetData = /** @type {Object.<string, unknown>} */ (assetData);
+		this.assetTreeView.fillSerializableStructureValues(castAssetData);
 
 		this.isUpdatingUi = false;
 	}

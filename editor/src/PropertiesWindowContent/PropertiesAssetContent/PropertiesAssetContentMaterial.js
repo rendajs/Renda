@@ -51,7 +51,6 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	 * @returns {Promise<import("../../../../src/Rendering/Material.js").Material>}
 	 */
 	async getFirstSelectedLiveAsset() {
-		/** @type {import("../../assets/ProjectAsset.js").ProjectAsset} */
 		const asset = this.currentSelection[0];
 		const liveAsset = await asset.getLiveAsset();
 		const material = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
@@ -64,8 +63,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		this.isUpdatingUi = true;
 
 		const material = await this.getFirstSelectedLiveAsset();
-		const gui = /** @type {import("../../UI/DroppableGui.js").DroppableGui} */ (this.mapTreeView.gui);
-		await gui.setValue(material.materialMap);
+		this.mapTreeView.gui.setValue(material.materialMap);
 		await this.loadMapValues();
 
 		this.isUpdatingUi = false;
@@ -92,10 +90,13 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async loadMapValues() {
 		this.mapValuesTreeView.clearChildren();
 		const material = await this.getFirstSelectedLiveAsset();
+		/** @type {Object.<string, unknown>} */
 		const currentMaterialValues = {};
 		for (const [key, value] of material.getAllProperties()) {
 			currentMaterialValues[key] = value;
 		}
+		if (!this.mapTreeView.value) return;
+
 		const mappableValues = await this.editorInstance.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {

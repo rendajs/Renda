@@ -77,9 +77,6 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.valueEl.classList.toggle("smallLabel", smallLabel);
 		this.customEl.appendChild(this.valueEl);
 
-		/** @type {T?} */
-		this.gui = null;
-
 		/**
 		 * @template {import("./types.js").GuiTypes} U
 		 * @typedef {import("./types.js").GetGuiOptions<U>} GetGuiOpts
@@ -164,6 +161,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 			});
 			this.valueEl.appendChild(setGui.el);
 		}
+
+		/** @type {T} */
 		this.gui = setGui;
 
 		// todo: maybe instead of calling setvalue inside the constructor
@@ -184,7 +183,6 @@ export class PropertiesTreeViewEntry extends TreeView {
 	destructor() {
 		const castGui = /** @type {GuiInterface} */ (this.gui);
 		castGui?.destructor?.();
-		this.gui = null;
 		super.destructor();
 	}
 

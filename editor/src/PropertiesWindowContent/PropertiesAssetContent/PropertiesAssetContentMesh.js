@@ -1,5 +1,6 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../../src/mod.js";
+import {createTreeViewStructure} from "../../UI/PropertiesTreeView/createStructureHelpers.js";
 
 /**
  * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeMesh.js").ProjectAssetTypeMesh>}
@@ -13,8 +14,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
 
-		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
-		this.meshSettingsStructure = {
+		this.meshSettingsStructure = createTreeViewStructure({
 			vertexState: {
 				type: "droppable",
 				guiOpts: {
@@ -30,7 +30,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 					},
 				},
 			},
-		};
+		});
 
 		this.meshSettingsTree.generateFromSerializableStructure(this.meshSettingsStructure);
 		this.meshSettingsTree.onChildValueChange(() => {
@@ -48,11 +48,13 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		const {liveAsset, editorData} = await asset.getLiveAssetData();
 		this.isUpdatingUi = true;
 
-		if (liveAsset) {
+		if (liveAsset && editorData) {
 			const attributeNames = [];
 			for (const attributeBuffer of liveAsset.getBuffers()) {
-				const name = Mesh.getAttributeNameForType(attributeBuffer.attributeType);
-				attributeNames.push(name);
+				for (const attribute of attributeBuffer.attributes) {
+					const name = Mesh.getAttributeNameForType(attribute.attributeType);
+					attributeNames.push(name);
+				}
 			}
 			this.meshSettingsTree.fillSerializableStructureValues({
 				vertexState: editorData.vertexStateUuid,
@@ -69,9 +71,13 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		// todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
 		const {liveAsset, editorData} = await asset.getLiveAssetData();
-		editorData.vertexStateUuid = settings.vertexState;
-		if (liveAsset) {
-			const vertexStateLiveAsset = await this.editorInstance.projectManager.assertAssetManagerExists().getLiveAsset(settings.vertexState);
+		if (liveAsset && editorData) {
+			editorData.vertexStateUuid = settings.vertexState;
+			/** @type {VertexState?} */
+			let vertexStateLiveAsset = null;
+			if (settings.vertexState) {
+				vertexStateLiveAsset = await this.editorInstance.projectManager.assertAssetManagerExists().getLiveAsset(settings.vertexState);
+			}
 			liveAsset.setVertexState(vertexStateLiveAsset);
 			await asset.saveLiveAssetData();
 		}

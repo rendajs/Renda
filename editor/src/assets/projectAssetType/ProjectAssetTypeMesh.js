@@ -4,7 +4,7 @@ import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.
 
 /**
  * @typedef {Object} ProjectAssetTypeMeshEditorData
- * @property {import("../../../../src/mod.js").UuidString} vertexStateUuid
+ * @property {import("../../../../src/mod.js").UuidString?} vertexStateUuid
  */
 
 /**
@@ -172,7 +172,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 	/**
 	 * @param {Mesh} liveAsset
-	 * @param {import("../../../../src/mod.js").UuidString} vertexStateUuid
+	 * @param {import("../../../../src/mod.js").UuidString?} vertexStateUuid
 	 */
 	meshToBuffer(liveAsset, vertexStateUuid) {
 		const composer = new BinaryComposer();

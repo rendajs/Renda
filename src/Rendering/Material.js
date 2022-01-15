@@ -39,7 +39,7 @@ export class Material {
 	/**
 	 * Replaces the current material map and transfers the necessary properties.
 	 * Properties that are not used by this material map will be removed.
-	 * @param {MaterialMap} materialMap
+	 * @param {MaterialMap?} materialMap
 	 */
 	setMaterialMap(materialMap) {
 		this.materialMap = materialMap || null;

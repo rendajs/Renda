@@ -270,7 +270,6 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 			/** @type {unknown[]} */
 			const newScriptValue = [];
 			for (const [i, item] of scriptValue.entries()) {
-				if (!castGuiEntry.gui) continue;
 				this.mapFromDroppableGuiValues(newScriptValue, i, item, castGuiEntry.gui.valueItems[i]);
 			}
 			scriptValue = newScriptValue;
