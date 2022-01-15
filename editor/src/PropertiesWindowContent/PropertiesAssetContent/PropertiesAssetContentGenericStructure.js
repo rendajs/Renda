@@ -1,8 +1,15 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 
+/**
+ * @extends {PropertiesAssetContent<any>}
+ */
 export class PropertiesAssetContentGenericStructure extends PropertiesAssetContent {
-	constructor(structure) {
-		super();
+	/**
+	 * @param {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
+	 */
+	constructor(structure, ...args) {
+		super(...args);
 
 		this.structure = structure;
 
@@ -16,6 +23,10 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 		this.isUpdatingUi = false;
 	}
 
+	/**
+	 * @override
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedAssets
+	 */
 	async selectionUpdated(selectedAssets) {
 		super.selectionUpdated(selectedAssets);
 		await this.loadAsset();

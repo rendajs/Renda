@@ -19,7 +19,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 		/**
 		 * An instance of PropertiesAssetContent that is currently being used
 		 * to render the asset ui in the properties window for the current selection.
-		 * @type {import("./PropertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent?}
+		 * @type {import("./PropertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>?}
 		 */
 		this.activeAssetContent = null;
 
@@ -150,9 +150,9 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 		// Create new assetcontent if needed
 		if (needsNew && constructor) {
 			if (constructor == PropertiesAssetContentGenericStructure && foundStructure) {
-				this.activeAssetContent = new PropertiesAssetContentGenericStructure(foundStructure);
+				this.activeAssetContent = new PropertiesAssetContentGenericStructure(foundStructure, this.editorInstance);
 			} else {
-				this.activeAssetContent = new constructor();
+				this.activeAssetContent = new constructor(this.editorInstance);
 			}
 			this.assetContentTree.addChild(this.activeAssetContent.treeView);
 		}

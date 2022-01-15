@@ -1,14 +1,20 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {ProjectAsset} from "../../assets/ProjectAsset.js";
-import {getEditorInstance} from "../../editorInstance.js";
+import {createTreeViewStructure} from "../../UI/PropertiesTreeView/createStructureHelpers.js";
 
+/**
+ * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>}
+ */
 export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
+	 */
+	constructor(...args) {
+		super(...args);
+
 		this.bundleSettingsTree = this.treeView.addCollapsable("asset bundle settings");
 
-		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
-		this.bundleSettingsStructure = {
+		this.bundleSettingsStructure = createTreeViewStructure({
 			outputLocation: {
 				type: "string",
 				guiOpts: {
@@ -20,8 +26,8 @@ export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 				guiOpts: {
 					text: "Bundle",
 					onClick: () => {
-						const editor = getEditorInstance();
-						editor.assetBundler.bundle(editor.projectManager.assetManager, this.currentSelection[0]);
+						const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+						this.editorInstance.assetBundler.bundle(assetManager, this.currentSelection[0]);
 					},
 				},
 			},
@@ -65,7 +71,7 @@ export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 					},
 				},
 			},
-		};
+		});
 		this.isUpdatingBundleSettingsTree = false;
 		this.bundleSettingsTree.generateFromSerializableStructure(this.bundleSettingsStructure);
 		this.bundleSettingsTree.onChildValueChange(() => {
@@ -76,6 +82,10 @@ export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 		});
 	}
 
+	/**
+	 * @override
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/projectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>[]} selectedBundles
+	 */
 	async selectionUpdated(selectedBundles) {
 		super.selectionUpdated(selectedBundles);
 		// todo: handle multiple selected items or no selection

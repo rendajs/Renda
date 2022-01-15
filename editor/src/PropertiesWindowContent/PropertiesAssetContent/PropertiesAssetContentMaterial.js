@@ -1,5 +1,4 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {getEditorInstance} from "../../editorInstance.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
 
@@ -9,9 +8,16 @@ import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
  * @property {Object.<string, *>} [properties]
  */
 
+/**
+ * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeMaterial.js").ProjectAssetTypeMaterial>}
+ */
 export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
+	 */
+	constructor(...args) {
+		super(...args);
+
 		const materialTree = this.treeView.addCollapsable("material");
 		this.mapTreeView = materialTree.addItem({
 			type: "droppable",
@@ -74,6 +80,10 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		}
 	}
 
+	/**
+	 * @override
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedMaterials
+	 */
 	async selectionUpdated(selectedMaterials) {
 		super.selectionUpdated(selectedMaterials);
 		this.loadAsset();
@@ -86,7 +96,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		for (const [key, value] of material.getAllProperties()) {
 			currentMaterialValues[key] = value;
 		}
-		const mappableValues = await getEditorInstance().materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
+		const mappableValues = await this.editorInstance.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
 			const entry = this.mapValuesTreeView.addItem({
@@ -119,7 +129,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	notifyEntityEditorsMaterialChanged() {
-		for (const entityEditor of getEditorInstance().windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			entityEditor.notifyMaterialChanged();
 		}
 	}

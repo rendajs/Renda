@@ -1,20 +1,25 @@
 import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
 
+/**
+ * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TAssetType
+ */
 export class PropertiesAssetContent {
-	constructor() {
+	/**
+	 * @param {import("../../Editor.js").Editor} editorInstance
+	 */
+	constructor(editorInstance) {
+		this.editorInstance = editorInstance;
+
+		/** @type {import("../../assets/ProjectAsset.js").ProjectAsset<TAssetType>[]} */
 		this.currentSelection = [];
 		this.treeView = new PropertiesTreeView();
 	}
 
-	destructor() {
-		if (this.el) {
-			if (this.el.parentElement) {
-				this.el.parentElement.removeChild(this.el);
-			}
-			this.el = null;
-		}
-	}
+	destructor() {}
 
+	/**
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<TAssetType>[]} currentSelection
+	 */
 	selectionUpdated(currentSelection) {
 		this.currentSelection = currentSelection;
 	}

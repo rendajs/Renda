@@ -1,10 +1,15 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../../src/mod.js";
-import {getEditorInstance} from "../../editorInstance.js";
 
+/**
+ * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeMesh.js").ProjectAssetTypeMesh>}
+ */
 export class PropertiesAssetContentMesh extends PropertiesAssetContent {
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
 
@@ -66,12 +71,16 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		const {liveAsset, editorData} = await asset.getLiveAssetData();
 		editorData.vertexStateUuid = settings.vertexState;
 		if (liveAsset) {
-			const vertexStateLiveAsset = await getEditorInstance().projectManager.assetManager.getLiveAsset(settings.vertexState);
+			const vertexStateLiveAsset = await this.editorInstance.projectManager.assertAssetManagerExists().getLiveAsset(settings.vertexState);
 			liveAsset.setVertexState(vertexStateLiveAsset);
 			await asset.saveLiveAssetData();
 		}
 	}
 
+	/**
+	 * @override
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedAssets
+	 */
 	async selectionUpdated(selectedAssets) {
 		super.selectionUpdated(selectedAssets);
 		this.loadAssetData();
