@@ -93,7 +93,9 @@ export class KeyboardShortcutManager {
 	 * @param {string} name
 	 */
 	getCondition(name) {
-		return this.registeredConditions.get(name);
+		const condition = this.registeredConditions.get(name);
+		if (!condition) throw new Error(`Shortcut Condition with name "${name}" not found.`);
+		return condition;
 	}
 
 	/**

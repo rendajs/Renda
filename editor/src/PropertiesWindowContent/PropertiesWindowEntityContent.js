@@ -100,7 +100,6 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 			text: "+",
 			onClick: () => {
 				const menu = this.editorInstance.contextMenuManager.createContextMenu();
-				if (!menu) return;
 				for (const component of this.editorInstance.componentTypeManager.getAllComponents()) {
 					menu.addItem({
 						text: component.componentName || component.uuid || "",

@@ -1,7 +1,23 @@
 import {getEditorInstanceCertain} from "../editorInstance.js";
 import {parseMimeType} from "../Util/Util.js";
 import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
-import {ShorcutConditionValueSetter} from "../KeyboardShortcuts/ShorcutConditionValueSetter.js";
+
+/**
+ * @typedef TreeViewInitData
+ * @property {string} [name]
+ * @property {TreeView} [parent]
+ * @property {boolean} [addCustomEl = false]
+ * @property {boolean} [selectable = true]
+ * @property {boolean} [collapsed = false]
+ * @property {boolean} [rowVisible = true]
+ * @property {boolean} [visible = true]
+ * @property {TreeView} [copySettings]
+ * @property {TreeViewInitData[]} [children]
+ */
+
+/**
+ * @typedef {Pick<TreeViewInitData, "name" | "collapsed" | "children">} TreeViewUpdateData
+ */
 
 /**
  * @typedef {Object} TreeViewEvent
@@ -124,12 +140,15 @@ export class TreeView {
 	#textFieldVisible = false;
 	#lastTextFocusOutWasFromRow = false;
 	#lastTextFocusOutTime = 0;
-	/** @type {ShorcutConditionValueSetter<boolean>} */
+	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */
 	#renamingShortcutCondition;
 
-	/** @type {ShorcutConditionValueSetter<boolean>} */
+	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */
 	#focusSelectedShortcutCondition;
 
+	/**
+	 * @param {TreeViewInitData} data
+	 */
 	constructor(data = {}) {
 		this.el = document.createElement("div");
 		this.el.classList.add("treeViewItem");
@@ -215,10 +234,14 @@ export class TreeView {
 		/** @type {?TreeView} */
 		this.parent = data.parent ?? null; // todo: make this read only
 		this.recursionDepth = 0;
+		/** @type {boolean} */
 		this._collapsed = false;
+		/** @type {boolean} */
 		this.selectable = data.selectable ?? true; // todo: make this private or a getter/setter
 		this._alwaysShowArrow = false;
+		/** @type {boolean} */
 		this.canSelectMultiple = true;
+		/** @type {boolean} */
 		this.renameable = false;
 		this.renameTextField = null;
 		this._rowVisible = data.rowVisible ?? true;
@@ -251,10 +274,10 @@ export class TreeView {
 		}
 
 		const renamingCondition = getEditorInstanceCertain().keyboardShortcutManager.getCondition("treeView.renaming");
-		this.#renamingShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
+		this.#renamingShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
 
 		const focusSelectedCondition = getEditorInstanceCertain().keyboardShortcutManager.getCondition("treeView.focusSelected");
-		this.#focusSelectedShortcutCondition = /** @type {ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
+		this.#focusSelectedShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
 
 		this.updateArrowHidden();
 		if (data) this.updateData(data);
@@ -312,6 +335,9 @@ export class TreeView {
 		this.myNameEl.textContent = value;
 	}
 
+	/**
+	 * @param {TreeViewUpdateData} data
+	 */
 	updateData(data = {}) {
 		this.name = data.name || "";
 		if (data.collapsed !== undefined) this.collapsed = data.collapsed;
@@ -1252,11 +1278,13 @@ export class TreeView {
 		if (item.children.length > 0 && item.expanded) {
 			selectItem = item.children[0];
 		} else {
+			/** @type {TreeView?} */
 			let firstParentWithItemBelow = item;
 			let firstItemWithItemBelowIndex = 0;
 			while (true) {
-				const parent = firstParentWithItemBelow.parent;
-				const prevParentWithItemBelow = firstParentWithItemBelow;
+				const castFirstParentWithItemBelow = /** @type {TreeView} */ (firstParentWithItemBelow);
+				const parent = castFirstParentWithItemBelow.parent;
+				const prevParentWithItemBelow = castFirstParentWithItemBelow;
 				firstParentWithItemBelow = parent;
 				if (!parent) break;
 				firstItemWithItemBelowIndex = parent.children.indexOf(prevParentWithItemBelow);

@@ -53,7 +53,6 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 				text: "Add Map Type",
 				onClick: () => {
 					const menu = this.editorInstance.contextMenuManager.createContextMenu();
-					if (!menu) return;
 					for (const typeConstructor of this.editorInstance.materialMapTypeManager.getAllTypes()) {
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem({

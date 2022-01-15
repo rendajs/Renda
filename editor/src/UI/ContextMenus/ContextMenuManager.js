@@ -41,10 +41,11 @@ export class ContextMenuManager {
 
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
-	 * @returns {ContextMenu?} Null if another context menu is already open.
 	 */
 	createContextMenu(structure = null) {
-		if (this.activeContextMenu && this.activeContextMenu.el) return null;
+		if (this.activeContextMenu && this.activeContextMenu.el) {
+			throw new Error("Cannot create a context menu while one is already open.");
+		}
 
 		this.activeContextMenu = new ContextMenu(this, {structure});
 		this.updateCurtainActive();
