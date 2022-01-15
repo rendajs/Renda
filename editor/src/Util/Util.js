@@ -36,7 +36,7 @@ export function parseMimeType(mimeType) {
 	/** @type {Object.<string, string>} */
 	const params = {};
 	for (const [name, value] of paramsStr.map(p => p.trim().split("="))) {
-		params[name] = value;
+		params[name.toLowerCase()] = value;
 	}
 	return {type, subType, parameters: params};
 }
