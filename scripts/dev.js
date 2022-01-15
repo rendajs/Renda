@@ -86,7 +86,13 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 							const path = join("../.denoTypes/urlImports/emitted/", fileUrl);
 							const dir = dirname(path);
 							await Deno.mkdir(dir, {recursive: true});
-							await Deno.writeTextFile(path, fileContent);
+							let newFileContent;
+							if (fileUrl.endsWith(".js")) {
+								newFileContent = "// @ts-nocheck\n" + fileContent;
+							} else {
+								newFileContent = fileContent;
+							}
+							await Deno.writeTextFile(path, newFileContent);
 						}
 					}
 				}
