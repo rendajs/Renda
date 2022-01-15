@@ -6,10 +6,12 @@ import {PropertiesTreeView} from "../../../../UI/PropertiesTreeView/PropertiesTr
  * the properties window when a material map is selected.
  */
 export class PropertiesMaterialMapContent {
-	constructor() {
+	/**
+	 * @param {import("../MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
+	 */
+	constructor(mapTypeEntry) {
+		this.mapTypeEntry = mapTypeEntry;
 		this.treeView = new PropertiesTreeView();
-		/** @type {import("../MaterialMapTypeEntry.js").MaterialMapTypeEntry} */
-		this.mapTypeEntry = null;
 	}
 
 	/**
@@ -21,9 +23,11 @@ export class PropertiesMaterialMapContent {
 	/**
 	 * Override this and return the data you want to save.
 	 * This gets called when a MaterialMap is going to be saved.
-	 * @returns {Promise<?Object>}
+	 * @returns {Promise<Object?>}
 	 */
-	async getCustomAssetDataForSave() {}
+	async getCustomAssetDataForSave() {
+		throw new Error("Base class");
+	}
 
 	/**
 	 * Fire this whenever a user changes something that

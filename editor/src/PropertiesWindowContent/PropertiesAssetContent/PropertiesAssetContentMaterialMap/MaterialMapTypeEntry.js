@@ -8,22 +8,27 @@ import {PropertiesMaterialMapContentGenericStructure} from "./PropertiesMaterial
  */
 export class MaterialMapTypeEntry {
 	/**
+	 * @param {import("../../../Editor.js").Editor} editorInstance
 	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
-	constructor(typeConstructor) {
+	constructor(editorInstance, typeConstructor) {
+		this.editorInstance = editorInstance;
 		this.typeConstructor = typeConstructor;
 
 		const PropertiesContentConstructor = typeConstructor.propertiesMaterialMapContentConstructor;
 		if (PropertiesContentConstructor) {
-			this.propertiesContentInstance = new PropertiesContentConstructor();
+			this.propertiesContentInstance = new PropertiesContentConstructor(this);
 		} else {
-			this.propertiesContentInstance = new PropertiesMaterialMapContentGenericStructure(typeConstructor.settingsStructure);
+			if (!typeConstructor.settingsStructure) {
+				throw new Error("typeConstructor.settingsStructure is not set");
+			}
+			this.propertiesContentInstance = new PropertiesMaterialMapContentGenericStructure(this, typeConstructor.settingsStructure);
 		}
-		this.propertiesContentInstance.mapTypeEntry = this;
 
 		this.treeView = new PropertiesTreeView();
 		this.settingsTreeView = this.treeView.addCollapsable("Map Settings");
 		this.settingsTreeView.addChild(this.propertiesContentInstance.treeView);
+		/** @type {Set<() => void>} */
 		this.onValueChangeCbs = new Set();
 		this.mapListTreeView = this.treeView.addCollapsable("Map List");
 		this.mapListUi = null;
@@ -31,6 +36,9 @@ export class MaterialMapTypeEntry {
 		this.lastSavedCustomDataDirty = true;
 	}
 
+	/**
+	 * @param {any} customData
+	 */
 	async customAssetDataFromLoad(customData) {
 		this.propertiesContentInstance.customAssetDataFromLoad(customData);
 	}
@@ -50,7 +58,8 @@ export class MaterialMapTypeEntry {
 			this.mapListUi = null;
 		}
 
-		const mappableValues = await this.typeConstructor.getMappableValues(await this.getCustomAssetDataForSave());
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		const mappableValues = await this.typeConstructor.getMappableValues(this.editorInstance, assetManager, await this.getCustomAssetDataForSave());
 		this.mapListUi = new MaterialMapListUi({
 			items: mappableValues,
 		});
@@ -60,11 +69,17 @@ export class MaterialMapTypeEntry {
 		});
 	}
 
+	/**
+	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
+	 */
 	fillMapListValues(values) {
 		if (!this.mapListUi) return;
 		this.mapListUi.setValues(values);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
 	}

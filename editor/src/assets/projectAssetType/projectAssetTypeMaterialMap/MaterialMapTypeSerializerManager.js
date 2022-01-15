@@ -20,8 +20,8 @@ import {getEditorInstance} from "../../../editorInstance.js";
 /**
  * @typedef {Object} MaterialMapTypeAssetData
  * @property {import("../../../../../src/util/mod.js").UuidString} mapTypeId
- * @property {*} customData
- * @property {MaterialMapMappedValuesAssetData} mappedValues
+ * @property {*} [customData]
+ * @property {MaterialMapMappedValuesAssetData} [mappedValues]
  */
 
 export class MaterialMapTypeSerializerManager {

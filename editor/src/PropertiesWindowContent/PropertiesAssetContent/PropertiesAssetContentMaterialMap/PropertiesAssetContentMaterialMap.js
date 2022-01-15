@@ -1,14 +1,16 @@
 import {PropertiesAssetContent} from "../PropertiesAssetContent.js";
-import {getEditorInstance} from "../../../editorInstance.js";
 import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
-import {ProjectAsset} from "../../../assets/ProjectAsset.js";
 
 /**
  * Responsible for rendering the ui in the properties window for MaterialMaps.
+ * @extends {PropertiesAssetContent<import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>}
  */
 export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
-	constructor() {
-		super();
+	/**
+	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
+	 */
+	constructor(...args) {
+		super(...args);
 
 		const mappedNameStruct = {
 			from: {
@@ -50,8 +52,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			guiOpts: {
 				text: "Add Map Type",
 				onClick: () => {
-					const menu = getEditorInstance().contextMenuManager.createContextMenu();
-					for (const typeConstructor of getEditorInstance().materialMapTypeManager.getAllTypes()) {
+					const menu = this.editorInstance.contextMenuManager.createContextMenu();
+					for (const typeConstructor of this.editorInstance.materialMapTypeManager.getAllTypes()) {
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem({
 							text: typeConstructor.uiName,
@@ -71,6 +73,10 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		this.ignoreValueChange = false;
 	}
 
+	/**
+	 * @override
+	 * @param {import("../../../assets/ProjectAsset.js").ProjectAsset<import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>[]} selectedMaps
+	 */
 	async selectionUpdated(selectedMaps) {
 		super.selectionUpdated(selectedMaps);
 		// todo: handle multiple selected items or no selection
@@ -85,6 +91,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	hasTypeConstructor(typeConstructor) {
+		if (!typeConstructor.typeUuid) return false;
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
 	}
 
@@ -96,7 +103,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	addMapTypeUuid(uuid, {
 		updateMapListUi = true,
 	} = {}) {
-		const constructor = getEditorInstance().materialMapTypeManager.getTypeByUuid(uuid);
+		const constructor = this.editorInstance.materialMapTypeManager.getTypeByUuid(uuid);
 		return this.addMapType(constructor, {updateMapListUi});
 	}
 
@@ -108,11 +115,14 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	addMapType(MaterialMapTypeConstructor, {
 		updateMapListUi = true,
 	} = {}) {
+		if (!MaterialMapTypeConstructor.typeUuid) throw new Error("MaterialMapTypeConstructor.typeUuid is not set");
+
 		if (this.hasTypeConstructor(MaterialMapTypeConstructor)) {
-			return this.addedMapTypes.get(MaterialMapTypeConstructor.typeUuid);
+			const typeConstructor = this.addedMapTypes.get(MaterialMapTypeConstructor.typeUuid);
+			if (typeConstructor) return typeConstructor;
 		}
 
-		const entry = new MaterialMapTypeEntry(MaterialMapTypeConstructor);
+		const entry = new MaterialMapTypeEntry(this.editorInstance, MaterialMapTypeConstructor);
 		this.mapTypesTreeView.addChild(entry.treeView);
 
 		this.addedMapTypes.set(MaterialMapTypeConstructor.typeUuid, entry);
@@ -125,6 +135,9 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		return entry;
 	}
 
+	/**
+	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} mapData
+	 */
 	async loadMaps(mapData) {
 		const maps = mapData?.maps || [];
 		for (const map of maps) {
@@ -136,10 +149,12 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	async getAssetData() {
+		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const data = {
 			maps: [],
 		};
 		for (const [uuid, mapInstance] of this.addedMapTypes) {
+			/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
 			const map = {
 				mapTypeId: uuid,
 			};
@@ -158,7 +173,6 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 
 	async saveSelectedAssets() {
 		const assetData = await this.getAssetData();
-		/** @type {Iterable<ProjectAsset>} */
 		const selectedAssets = this.currentSelection;
 		for (const asset of selectedAssets) {
 			(async () => {

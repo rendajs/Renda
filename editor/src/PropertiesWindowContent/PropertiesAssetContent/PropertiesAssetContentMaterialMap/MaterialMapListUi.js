@@ -52,9 +52,12 @@ export class MaterialMapListUi {
 	}
 
 	destructor() {
-		this.treeView.parent.removeChild(this.treeView);
+		if (this.treeView.parent) this.treeView.parent.removeChild(this.treeView);
 	}
 
+	/**
+	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
+	 */
 	setValues(values) {
 		for (const [name, itemData] of Object.entries(values)) {
 			const mapUi = this.createdMapListUis.get(name);
@@ -65,13 +68,14 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {function(import("../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewChangeEvent) : void} cb
+	 * @param {function(import("../../../UI/PropertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>) : void} cb
 	 */
 	onValueChange(cb) {
 		this.treeView.onChildValueChange(cb);
 	}
 
 	getModifiedValuesForSave() {
+		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} */
 		const datas = {};
 
 		let hasOneOrMoreMappedValues = false;

@@ -7,7 +7,11 @@ export class AssetBundler {
 	 */
 	async bundle(assetManager, bundleProjectAsset) {
 		const bundleData = await bundleProjectAsset.readAssetData();
-		const assetUuids = await this.getAllAssetUuids(assetManager, bundleData.assets, new Set(bundleData.excludeAssets), new Set(bundleData.excludeAssetsRecursive));
+		const excludeAssets = bundleData.excludeAssets.filter(uuid => uuid != null);
+		const castExcludeAssets = /** @type {import("../../../src/mod.js").UuidString[]} */ (excludeAssets);
+		const excludeAssetsRecursive = bundleData.excludeAssetsRecursive.filter(uuid => uuid != null);
+		const castExcludeAssetsRecursive = /** @type {import("../../../src/mod.js").UuidString[]} */ (excludeAssetsRecursive);
+		const assetUuids = await this.getAllAssetUuids(assetManager, bundleData.assets, new Set(castExcludeAssets), new Set(castExcludeAssetsRecursive));
 
 		const bundleFileStream = await assetManager.fileSystem.writeFileStream(bundleData.outputLocation.split("/"));
 		if (bundleFileStream.locked) {
@@ -71,6 +75,7 @@ export class AssetBundler {
 		/** @type {Set<import("../../../src/util/mod.js").UuidString>} */
 		const foundUuids = new Set();
 		for (const assetData of assetsList) {
+			if (!assetData.asset) continue;
 			if (assetData.includeChildren) {
 				for await (const uuid of this.collectAllReferences(assetManager, assetData.asset, foundUuids, excludeUuids, excludeUuidsRecursive)) {
 					foundUuids.add(uuid);
