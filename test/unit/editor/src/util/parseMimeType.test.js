@@ -58,3 +58,11 @@ Deno.test("Parameter names should be converted to lowercase, values shouldn't", 
 		},
 	});
 });
+
+Deno.test("Invalid MimeType", () => {
+	const mimeType = "invalid";
+
+	const resultMimeType = parseMimeType(mimeType);
+
+	assertEquals(resultMimeType, null);
+});
