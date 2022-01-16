@@ -3,12 +3,27 @@
 	"tasks": [
 		{
 			"label": "Development",
+			"detail": "Init a dev environment and start server processes locally.",
 			"type": "shell",
-			"command": "${workspaceFolder}/scripts/dev.js",
 			"problemMatcher": [],
+			"command": "${workspaceFolder}/scripts/dev.js",
 			"runOptions": {
 				"runOn": "folderOpen"
 			},
+		},
+		{
+			"label": "Test",
+			"detail": "Run all tests.",
+			"type": "shell",
+			"problemMatcher": [],
+			"command": "${workspaceFolder}/scripts/test.js",
+		},
+		{
+			"label": "Coverage",
+			"detail": "Run all tests and generate a coverage report.",
+			"type": "shell",
+			"problemMatcher": [],
+			"command": "${workspaceFolder}/scripts/test.js --coverage --html",
 		}
 	]
 }
