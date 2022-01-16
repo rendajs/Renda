@@ -6,7 +6,7 @@ export class Material {
 	 * @param {MaterialMap?} materialMap
 	 * @param {Object.<string, *>} properties
 	 */
-	constructor(materialMap, properties = {}) {
+	constructor(materialMap = null, properties = {}) {
 		this.materialMap = materialMap;
 		this.onDestructorCbs = new Set();
 		this.destructed = false;

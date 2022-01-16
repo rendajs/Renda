@@ -10,6 +10,10 @@ Deno.test("reload component values when changed", async () => {
 
 	class FakeRecursionTracker {
 		onChangeCbs = new Set();
+		/**
+		 * @param {import("../../../../../../src/util/mod.js").UuidString} uuid
+		 * @param {(mesh: {}?) => void} cb
+		 */
 		getLiveAsset(uuid, cb, {repeatOnLiveAssetChange = false}) {
 			if (uuid == fakeUuid) {
 				cb(initialMesh);
@@ -23,11 +27,12 @@ Deno.test("reload component values when changed", async () => {
 	const originalComponentData = {
 		mesh: fakeUuid,
 	};
+	/** @type {any} */
 	const newComponentData = {};
 	const fakeRecursionTracker = new FakeRecursionTracker();
-	const assetType = new ProjectAssetTypeEntity({}, {}, {}, {});
+	const assetType = new ProjectAssetTypeEntity(/** @type {any} */({}), /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
 
-	assetType.fillComponentPropertyValueFromJson(newComponentData, originalComponentData, "mesh", "droppable", {}, fakeRecursionTracker);
+	assetType.fillComponentPropertyValueFromJson(newComponentData, originalComponentData, "mesh", "droppable", {}, /** @type {any} */ (fakeRecursionTracker));
 
 	fakeRecursionTracker.onChangeCbs.forEach(cb => cb(replacedMesh));
 

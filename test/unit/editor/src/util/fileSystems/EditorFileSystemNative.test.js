@@ -5,6 +5,10 @@ class FakeHandle {
 	/** @type {FakeHandle[]} */
 	#entries = [];
 
+	/**
+	 * @param {string} kind
+	 * @param {string} name
+	 */
 	constructor(kind, name) {
 		this.kind = kind;
 		this.name = name;
@@ -18,6 +22,10 @@ class FakeHandle {
 		return "granted";
 	}
 
+	/**
+	 * @param {string} kind
+	 * @param {string} name
+	 */
 	addFakeEntry(kind, name) {
 		const entry = new FakeHandle(kind, name);
 		this.#entries.push(entry);
@@ -30,14 +38,24 @@ class FakeHandle {
 		}
 	}
 
+	/**
+	 * @param {string} name
+	 */
 	async getDirectoryHandle(name) {
 		return this.#getHandle("directory", name);
 	}
 
+	/**
+	 * @param {string} name
+	 */
 	async getFileHandle(name) {
 		return this.#getHandle("file", name);
 	}
 
+	/**
+	 * @param {string} kind
+	 * @param {string} name
+	 */
 	#getHandle(kind, name) {
 		for (const entry of this.#entries) {
 			if (entry.name == name) {
