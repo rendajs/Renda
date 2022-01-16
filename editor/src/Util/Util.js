@@ -99,7 +99,8 @@ export function handleDuplicateFileName(existingNames, prefix, suffix = "", numb
 export function prettifyVariableName(variableName) {
 	if (!variableName) return "";
 	variableName = String(variableName);
-	const words = variableName.split(/(?<=[a-z])(?=[A-Z]+)/);
+	let words = variableName.split(/(?<=[a-z])(?=[A-Z\s]+)/);
+	words = words.map(word => word.trim());
 	const capitalizedWords = words.map(w => {
 		if (w && w.length != 0) {
 			return w[0].toUpperCase() + w.slice(1).toLowerCase();
