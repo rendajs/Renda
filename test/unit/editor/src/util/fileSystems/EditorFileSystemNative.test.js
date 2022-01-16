@@ -42,12 +42,12 @@ class FakeHandle {
 		for (const entry of this.#entries) {
 			if (entry.name == name) {
 				if (entry.kind != kind) {
-					throw {name: "TypeMismatchError"};
+					throw new DOMException("", "TypeMismatchError");
 				}
 				return entry;
 			}
 		}
-		throw {name: "NotFoundError"};
+		throw new DOMException("", "NotFoundError");
 	}
 
 	getFile() {
