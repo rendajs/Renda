@@ -20,7 +20,7 @@ export class ScriptBuilder {
 	/**
 	 * @param {string[]} inputPath
 	 * @param {string[]} outputPath
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 * @param {import("../Network/DevSocketManager.js").DevSocketManager?} devSocket
 	 * @param {ScriptBuilderOptions} options
 	 */
@@ -50,7 +50,7 @@ export class ScriptBuilder {
 	/**
 	 * @param {RollupOutput} rollupOutput
 	 * @param {string[]} outputPath
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 */
 	writeRollupOutput(rollupOutput, outputPath, fileSystem) {
 		for (const chunkOrAsset of rollupOutput) {
@@ -73,7 +73,7 @@ export class ScriptBuilder {
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 * @param {import("../Network/DevSocketManager.js").DevSocketManager} devSocket
 	 * @param {RollupOutput} rollupOutput
 	 * @param {string[]} outputPath
@@ -262,7 +262,7 @@ export class ScriptBuilder {
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 * @return {import("../../../node_modules/rollup/dist/rollup.js").Plugin}
 	 */
 	resolveScripts(fileSystem) {

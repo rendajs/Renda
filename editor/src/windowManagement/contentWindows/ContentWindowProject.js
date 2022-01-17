@@ -1,7 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
-import {handleDuplicateFileName} from "../../Util/Util.js";
+import {handleDuplicateFileName} from "../../util/util.js";
 import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorInstance.js";
 
 /**
@@ -273,7 +273,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
+	 * @param {import("../../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
 	 */
 	async externalChange(e) {
 		if (e.type == "created" || e.type == "deleted") {

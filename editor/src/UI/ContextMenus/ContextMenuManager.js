@@ -3,7 +3,7 @@ import {ContextMenu} from "./ContextMenu.js";
 export class ContextMenuManager {
 	/**
 	 *
-	 * @param {import("../../Util/ColorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} colorizerFilterManager
+	 * @param {import("../../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} colorizerFilterManager
 	 */
 	constructor(colorizerFilterManager) {
 		this.activeContextMenu = null;

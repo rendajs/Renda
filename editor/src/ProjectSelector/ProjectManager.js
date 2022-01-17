@@ -1,7 +1,7 @@
 import {getEditorInstanceCertain} from "../editorInstance.js";
-import {EditorFileSystemFsa} from "../Util/FileSystems/EditorFileSystemFsa.js";
-import {EditorFileSystemIndexedDb} from "../Util/FileSystems/EditorFileSystemIndexedDb.js";
-import {EditorFileSystemRemote} from "../Util/FileSystems/EditorFileSystemRemote.js";
+import {EditorFileSystemFsa} from "../util/fileSystems/EditorFileSystemFsa.js";
+import {EditorFileSystemIndexedDb} from "../util/fileSystems/EditorFileSystemIndexedDb.js";
+import {EditorFileSystemRemote} from "../util/fileSystems/EditorFileSystemRemote.js";
 import {AssetManager} from "../assets/AssetManager.js";
 import {EditorConnectionsManager} from "../Network/EditorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
@@ -58,7 +58,7 @@ export class ProjectManager {
 	#boundSaveContentWindowPersistentData;
 
 	constructor() {
-		/** @type {?import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} */
+		/** @type {?import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} */
 		this.currentProjectFileSystem = null;
 		/** @type {StoredProjectEntryAny?} */
 		this.currentProjectOpenEvent = null;
@@ -112,7 +112,7 @@ export class ProjectManager {
 			}
 		});
 
-		/** @type {(e: import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent) => void} */
+		/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent) => void} */
 		this.#boundOnFileSystemExternalChange = e => {
 			for (const cb of this.onExternalChangeCbs) {
 				cb(e);
@@ -143,7 +143,7 @@ export class ProjectManager {
 		this.onProjectOpenCbs = new Set();
 		this.hasOpeneProject = false;
 
-		/** @type {Set<import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback>} */
+		/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback>} */
 		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
@@ -162,7 +162,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 * @param {StoredProjectEntryAny} openProjectChangeEvent
 	 * @param {boolean} fromUserGesture
 	 */
@@ -371,14 +371,14 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
 	 */
 	onExternalChange(cb) {
 		this.onExternalChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
 	 */
 	removeOnExternalChange(cb) {
 		this.onExternalChangeCbs.delete(cb);

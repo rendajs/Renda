@@ -10,7 +10,7 @@ import {Button} from "../Button.js";
 import {LabelGui} from "../LabelGui.js";
 import {ObjectGui} from "../ObjectGui.js";
 
-import {prettifyVariableName} from "../../Util/Util.js";
+import {prettifyVariableName} from "../../util/util.js";
 import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 
 /**

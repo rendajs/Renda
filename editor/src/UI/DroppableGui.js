@@ -1,5 +1,5 @@
 import {getEditorInstanceCertain} from "../editorInstance.js";
-import {parseMimeType} from "../Util/Util.js";
+import {parseMimeType} from "../util/util.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
 import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/ContentWindowBuiltInAssets.js";

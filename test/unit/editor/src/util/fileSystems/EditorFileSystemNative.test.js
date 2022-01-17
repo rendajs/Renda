@@ -1,5 +1,5 @@
 import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
-import {EditorFileSystemFsa} from "../../../../../../editor/src/Util/FileSystems/EditorFileSystemFsa.js";
+import {EditorFileSystemFsa} from "../../../../../../editor/src/util/fileSystems/EditorFileSystemFsa.js";
 
 class FakeHandle {
 	/** @type {FakeHandle[]} */

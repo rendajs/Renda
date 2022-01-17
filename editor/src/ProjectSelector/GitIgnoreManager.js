@@ -1,7 +1,7 @@
 export class GitIgnoreManager {
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} ignereFilePath
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} ignereFilePath
 	 */
 	constructor(fileSystem, ignereFilePath = [".gitignore"]) {
 		this.fileSystem = fileSystem;
@@ -9,7 +9,7 @@ export class GitIgnoreManager {
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async addEntry(path) {
 		/** @type {string[]} */

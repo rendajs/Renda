@@ -1,5 +1,5 @@
 import {getEditorInstanceCertain} from "../editorInstance.js";
-import {parseMimeType} from "../Util/Util.js";
+import {parseMimeType} from "../util/util.js";
 import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 
 /**
@@ -43,7 +43,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 
 /**
  * @typedef {Object} TreeViewValidateDragEventType
- * @property {import("../Util/Util.js").ParsedMimeType} mimeType
+ * @property {import("../util/util.js").ParsedMimeType} mimeType
  * @property {boolean} isSameTreeView Whether the dragged TreeView is from the same TreeView tree as the drop target.
  * @property {"string" | "file"} kind
  * @property {() => void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.

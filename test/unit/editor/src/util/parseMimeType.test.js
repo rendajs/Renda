@@ -1,5 +1,5 @@
 import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
-import {parseMimeType} from "../../../../../editor/src/Util/Util.js";
+import {parseMimeType} from "../../../../../editor/src/util/util.js";
 
 Deno.test("Basic mime", () => {
 	const mimeType = "type/subType";

@@ -1,5 +1,5 @@
 import {SingleInstancePromise} from "../../../src/mod.js";
-import {handleDuplicateFileName} from "../Util/Util.js";
+import {handleDuplicateFileName} from "../util/util.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
@@ -22,7 +22,7 @@ export class AssetManager {
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
 	 * @param {import("./BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} builtInDefaultAssetLinksManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
 	 */
 	constructor(projectManager, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, fileSystem) {
 		this.projectManager = projectManager;
@@ -204,7 +204,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../Util/FileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
 	 */
 	async externalChange(e) {
 		const projectAsset = await this.getProjectAssetFromPath(e.path, this.assetSettingsLoaded);

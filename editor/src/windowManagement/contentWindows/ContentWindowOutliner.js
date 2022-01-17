@@ -4,7 +4,7 @@ import {Button} from "../../UI/Button.js";
 import {Entity} from "../../../../src/mod.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {ProjectAssetTypeEntity} from "../../assets/ProjectAssetType/ProjectAssetTypeEntity.js";
-import {parseMimeType} from "../../Util/Util.js";
+import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../Misc/EntitySelection.js";
 import {DropDownGui} from "../../UI/DropDownGui.js";
 
@@ -292,7 +292,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../Util/Util.js").ParsedMimeType} mimeType
+	 * @param {import("../../util/util.js").ParsedMimeType} mimeType
 	 * @returns {import("./ContentWindowProject.js").DraggingProjectAssetData | null}
 	 */
 	validateDragMimeType(mimeType) {

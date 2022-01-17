@@ -12,7 +12,7 @@ import {BuiltInAssetManager} from "./assets/BuiltInAssetManager.js";
 import {ScriptBuilder} from "./Misc/ScriptBuilder.js";
 import {AssetBundler} from "./assets/AssetBundler.js";
 import {DragManager} from "./Misc/DragManager.js";
-import {ColorizerFilterManager} from "./Util/ColorizerFilters/ColorizerFilterManager.js";
+import {ColorizerFilterManager} from "./util/colorizerFilters/ColorizerFilterManager.js";
 import {ServiceWorkerManager} from "./Misc/ServiceWorkerManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
 import {DevSocketManager} from "./Network/DevSocketManager.js";

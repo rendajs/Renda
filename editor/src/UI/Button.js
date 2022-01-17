@@ -3,7 +3,7 @@
  * @typedef {Object} ButtonGuiOptionsType
  * @property {string} [text = ""] The text to show on the button.
  * @property {string} [icon = ""] The icon to show on the button.
- * @property {import("../Util/ColorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager?} [colorizerFilterManager = null] The colorizer filter manager if you want theme support for icons to work.
+ * @property {import("../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager?} [colorizerFilterManager = null] The colorizer filter manager if you want theme support for icons to work.
  * @property {boolean} [hasDownArrow = false] Whether the button should show a down arrow.
  * @property {((ctx: TCallbacksContext) => any)?} [onClick = null] The function to call when the button is clicked.
  * @property {boolean} [draggable = false] Whether the button should be draggable.

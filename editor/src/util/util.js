@@ -80,7 +80,7 @@ export function parseMimeType(mimeType) {
  * const existingFiles = await myFileSystem.readDir(["some", "path"]);
  * handleDuplicateFileName(existingFiles, "myNewFile", ".txt")
  * ```
- * @param {import("./FileSystems/EditorFileSystem.js").EditorFileSystemReadDirResult | string[]} existingNames
+ * @param {import("./fileSystems/EditorFileSystem.js").EditorFileSystemReadDirResult | string[]} existingNames
  * @param {string} prefix The text that you want the name of the file to start with. This is usually the name of the file.
  * @param {string} suffix The text that you want the name of the file to end with. This is usually the extension of the file.
  * @param {string} numberPrefix In case a number is inserted, this text will be inserted before the number.

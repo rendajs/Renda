@@ -1,4 +1,4 @@
-import {prettifyVariableName} from "../Util/Util.js";
+import {prettifyVariableName} from "../util/util.js";
 import {Button} from "./Button.js";
 import {ButtonGroup} from "./ButtonGroup.js";
 

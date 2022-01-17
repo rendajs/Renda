@@ -1,5 +1,5 @@
 import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
-import {handleDuplicateFileName} from "../../../../../editor/src/Util/Util.js";
+import {handleDuplicateFileName} from "../../../../../editor/src/util/util.js";
 
 Deno.test("No existing", () => {
 	const result = handleDuplicateFileName([], "existingFile", ".txt");
@@ -39,7 +39,7 @@ Deno.test("Custom numberPrefix", () => {
 });
 
 Deno.test("Using EditorFileSystemReadDirResult", () => {
-	/** @type {import("../../../../../editor/src/Util/FileSystems/EditorFileSystem.js").EditorFileSystemReadDirResult} */
+	/** @type {import("../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemReadDirResult} */
 	const readDirResult = {
 		directories: [],
 		files: ["existingFile.txt"],
