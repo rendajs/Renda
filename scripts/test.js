@@ -18,7 +18,13 @@ if (needsHtmlCoverageReport) {
 
 const testCommand = ["deno", "test", "--no-check", "--allow-read", "--unstable", ...filters];
 if (needsCoverage) {
-	await Deno.remove(".coverage/denoCoverage", {recursive: true});
+	try {
+		await Deno.remove(".coverage/denoCoverage", {recursive: true});
+	} catch (e) {
+		if (!(e instanceof Deno.errors.NotFound)) {
+			throw e;
+		}
+	}
 	testCommand.push("--coverage=.coverage/denoCoverage");
 }
 const testProcess = Deno.run({
