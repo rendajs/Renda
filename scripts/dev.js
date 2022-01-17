@@ -40,9 +40,13 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 		cmd: ["deno", "types", "--unstable"],
 		stdout: "piped",
 	});
-	const typesContent = await getDenoTypesProcess.output();
+	const typesBuffer = await getDenoTypesProcess.output();
+	const typesContent = new TextDecoder().decode(typesBuffer);
+	let lines = typesContent.split("\n");
+	lines = lines.filter(line => !line.startsWith("/// <reference"));
+	const newTypesContent = lines.join("\n");
 	await Deno.mkdir("../.denoTypes/@types/deno-types/", {recursive: true});
-	await Deno.writeFile("../.denoTypes/@types/deno-types/index.d.ts", typesContent);
+	await Deno.writeTextFile("../.denoTypes/@types/deno-types/index.d.ts", newTypesContent);
 
 	/**
 	 * @param {string} url
