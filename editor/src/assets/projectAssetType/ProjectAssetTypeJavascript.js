@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {getNameAndExtension} from "../../util/fileSystems/PathUtil.js";
+import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
 import {getEditorInstance} from "../../editorInstance.js";
 
 /**
