@@ -5,9 +5,11 @@ setCwd();
 
 Deno.chdir("..");
 
-const filters = Deno.args.filter(arg => !arg.startsWith("--"));
-if (filters.length <= 0) {
-	filters.push("test/unit");
+const filteredArgs = ["--coverage", "--html"];
+
+const extraArgs = Deno.args.filter(arg => !filteredArgs.includes(arg));
+if (extraArgs.length <= 0) {
+	extraArgs.push("test/unit");
 }
 
 let needsCoverage = Deno.args.includes("--coverage");
@@ -16,7 +18,7 @@ if (needsHtmlCoverageReport) {
 	needsCoverage = true;
 }
 
-const testCommand = ["deno", "test", "--no-check", "--allow-read", "--unstable", ...filters];
+const testCommand = ["deno", "test", "--no-check", "--allow-read", "--unstable", ...extraArgs];
 if (needsCoverage) {
 	try {
 		await Deno.remove(".coverage/denoCoverage", {recursive: true});
