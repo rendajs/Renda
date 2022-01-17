@@ -1,4 +1,5 @@
 /**
+ * Computes the size of an element including the borders, margin and padding.
  * @param {HTMLElement} el
  * @return {[width: number, height: number]}
  */
@@ -7,12 +8,23 @@ export function getElemSize(el) {
 	let h = el.offsetHeight;
 	const style = window.getComputedStyle(el);
 
-	w = ["margin-left", "margin-right", "border-left", "border-right", "padding-left", "padding-right"]
-		.map(k => parseInt(style.getPropertyValue(k), 10))
-		.reduce((prev, cur) => prev + cur, w);
-	h = ["margin-top", "margin-bottom", "border-top", "border-bottom", "padding-top", "padding-bottom"]
-		.map(k => parseInt(style.getPropertyValue(k), 10))
-		.reduce((prev, cur) => prev + cur, h);
+	const styleNames = ["margin", "border", "padding"];
+	for (const styleName of styleNames) {
+		const styleNames2 = [`${styleName}-left`, `${styleName}-right`];
+		for (const styleName2 of styleNames2) {
+			const value = style.getPropertyValue(styleName2);
+			if (value) {
+				w += parseInt(value, 10);
+			}
+		}
+		const styleNames3 = [`${styleName}-top`, `${styleName}-bottom`];
+		for (const styleName3 of styleNames3) {
+			const value = style.getPropertyValue(styleName3);
+			if (value) {
+				h += parseInt(value, 10);
+			}
+		}
+	}
 	return [w, h];
 }
 
