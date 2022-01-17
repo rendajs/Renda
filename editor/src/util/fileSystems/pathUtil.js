@@ -9,7 +9,7 @@ export function getNameAndExtension(fileName) {
 	if (dotIndex < 0) {
 		return {name: fileName, extension: null};
 	}
-	const name = fileName.substr(0, dotIndex);
-	const extension = fileName.substr(dotIndex + 1);
+	const name = fileName.substring(0, dotIndex);
+	const extension = fileName.substring(dotIndex + 1);
 	return {name, extension};
 }
