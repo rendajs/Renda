@@ -8,6 +8,7 @@ export class ColorizerFilterUsageReference {
 	}
 
 	destructor() {
+		if (this.destructed) return;
 		this.destructed = true;
 		this.filter.notifyReferenceDestructed(this);
 	}

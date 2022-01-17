@@ -1,6 +1,10 @@
 {
 	"rules": {
 		// Useful for mocking or stubbing error messages
-		"no-throw-literal": "off"
+		"no-throw-literal": "off",
+
+		// This is ok in unit tests
+		"no-new": "off",
+		"max-classes-per-file": "off"
 	}
 }
