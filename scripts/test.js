@@ -56,11 +56,23 @@ if (!testStatus.success) {
 }
 
 if (needsCoverage) {
-	console.log("Applying fake-imports coverage map.");
-	const p = Deno.run({
-		cmd: ["deno", "run", "--allow-read", "--no-check", "--allow-write", "https://raw.githubusercontent.com/jespertheend/fake-imports/main/applyCoverage.js", FAKE_IMPORTS_COVERAGE_DIR, DENO_COVERAGE_DIR],
-	});
-	await p.status();
+	let coverageMapExists = true;
+	try {
+		await Deno.stat(FAKE_IMPORTS_COVERAGE_DIR);
+	} catch (e) {
+		if (e instanceof Deno.errors.NotFound) {
+			coverageMapExists = false;
+		} else {
+			throw e;
+		}
+	}
+	if (coverageMapExists) {
+		console.log("Applying fake-imports coverage map.");
+		const p = Deno.run({
+			cmd: ["deno", "run", "--allow-read", "--no-check", "--allow-write", "https://raw.githubusercontent.com/jespertheend/fake-imports/main/applyCoverage.js", FAKE_IMPORTS_COVERAGE_DIR, DENO_COVERAGE_DIR],
+		});
+		await p.status();
+	}
 
 	console.log("Generating lcov.info...");
 	const coverageProcess = Deno.run({
