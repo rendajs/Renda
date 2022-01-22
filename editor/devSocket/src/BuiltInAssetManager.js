@@ -1,6 +1,6 @@
 import {base64ToArrayBuffer, generateUuid} from "../../../src/util/mod.js";
 import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
-import md5 from "https://esm.sh/js-md5@0.7.3";
+import {createHash} from "https://deno.land/std@0.118.0/hash/mod.ts";
 import {basename, dirname, fromFileUrl, join, relative, resolve} from "https://deno.land/std@0.119.0/path/mod.ts";
 
 export class BuiltInAssetManager {
@@ -38,17 +38,16 @@ export class BuiltInAssetManager {
 				const fullPath = resolve(this.builtInAssetsPath, ...assetData.path);
 				(async () => {
 					const fileBuffer = await Deno.readFile(fullPath);
-					const hash = md5(fileBuffer);
-					this.fileHashes.set(hash, uuid);
+					const hash = createHash("md5");
+					hash.update(fileBuffer);
+					this.fileHashes.set(hash.toString(), uuid);
 				})();
 			}
 		}
-		console.log("[BuiltInAssetManager] Asset settings loaded");
 		this.assetSettingsLoaded = true;
 	}
 
 	async watch() {
-		console.log("[BuiltInAssetManager] watching for file changes in " + this.builtInAssetsPath);
 		const watcher = Deno.watchFs(this.builtInAssetsPath);
 		for await (const event of watcher) {
 			const relPath = relative(this.builtInAssetsPath, event.paths[0]);
@@ -91,7 +90,9 @@ export class BuiltInAssetManager {
 		let newHash = null;
 		if (stat) {
 			const fileBuffer = await Deno.readFile(fullPath);
-			newHash = md5(fileBuffer);
+			const hash = createHash("md5");
+			hash.update(fileBuffer);
+			newHash = hash.toString();
 		}
 
 		const pathArr = relPath.split("/");
