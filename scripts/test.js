@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --no-check --allow-run --allow-read --allow-write --allow-env
 
-import {join} from "https://deno.land/std@0.119.0/path/mod.ts";
+import {join} from "https://deno.land/std@0.121.0/path/mod.ts";
 import {setCwd} from "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js";
 setCwd();
 
@@ -64,7 +64,7 @@ if (needsCoverage) {
 
 	console.log("Generating lcov.info...");
 	const coverageProcess = Deno.run({
-		cmd: ["deno", "coverage", DENO_COVERAGE_DIR, "--lcov",  "--exclude=test/unit"],
+		cmd: ["deno", "coverage", DENO_COVERAGE_DIR, "--lcov", "--exclude=test/unit"],
 		stdout: "piped",
 	});
 	const lcov = await coverageProcess.output();

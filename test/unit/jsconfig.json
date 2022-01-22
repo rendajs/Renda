@@ -14,6 +14,7 @@
 		"paths": {
 			"https://deno.land/std@0.118.0/testing/asserts.ts": ["../../.denoTypes/urlImports/emitted/https:/deno.land/std@0.118.0/testing/asserts.ts"],
 			"https://deno.land/x/fake_imports@v0.0.6/mod.js": ["../../.denoTypes/urlImports/emitted/https:/deno.land/x/fake_imports@v0.0.6/mod.js"],
+			"https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js": ["../../.denoTypes/urlImports/emitted/https:/raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js"],
 		},
 	},
 	"include": [
