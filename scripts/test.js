@@ -40,7 +40,7 @@ if (!testStatus.success) {
 if (needsCoverage) {
 	console.log("Generating lcov.info...");
 	const coverageProcess = Deno.run({
-		cmd: ["deno", "coverage", ".coverage/denoCoverage", "--lcov"],
+		cmd: ["deno", "coverage", ".coverage/denoCoverage", "--lcov", "--exclude=test/unit"],
 		stdout: "piped",
 	});
 	const lcov = await coverageProcess.output();
