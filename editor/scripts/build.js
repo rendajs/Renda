@@ -1,6 +1,6 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env
 
-import {rollup} from "https://esm.sh/rollup@2.61.1";
+import {rollup} from "https://esm.sh/rollup@2.61.1?pin=v64";
 
 import {setCwd} from "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js";
 setCwd();

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --unstable
+#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check=remote --unstable
 
 import {createHash} from "https://deno.land/std@0.118.0/hash/mod.ts";
 import {dirname, join} from "https://deno.land/std@0.121.0/path/mod.ts";
@@ -36,6 +36,8 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 
 	console.log("Running first time setup...");
 
+	// Create types for Deno so that we can use the deno api without errors from tsc.
+	console.log("Generating Deno types...");
 	const getDenoTypesProcess = Deno.run({
 		cmd: ["deno", "types", "--unstable"],
 		stdout: "piped",
@@ -48,6 +50,8 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 	await Deno.mkdir("../.denoTypes/@types/deno-types/", {recursive: true});
 	await Deno.writeTextFile("../.denoTypes/@types/deno-types/index.d.ts", newTypesContent);
 
+	// Download types from url imports, so that tsc doesn't complain when importing from urls.
+	// This way we can develop without errors when the Deno extension is disabled.
 	/**
 	 * @param {string} url
 	 * @param {string} dtsContent
@@ -66,6 +70,7 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 		console.log(`Created ${fileName}`);
 	}
 
+	console.log("Downloading types from url imports...");
 	await Deno.mkdir("../.denoTypes/urlImports/", {recursive: true});
 	/** @type {Promise<void>[]} */
 	const typeFetchPromises = [];
@@ -107,6 +112,13 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 	}
 
 	await Promise.all(typeFetchPromises);
+
+	// Run first time setup for the editor
+	console.log("Running first time setup for editor...");
+	const setupProcess = Deno.run({
+		cmd: ["../editor/scripts/buildDependencies.js"],
+	});
+	await setupProcess.status();
 
 	console.log("First time set up done.");
 }

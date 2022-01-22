@@ -3,7 +3,7 @@
 import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
 import {dirname, fromFileUrl, resolve} from "https://deno.land/std@0.117.0/path/mod.ts";
 
-import {rollup} from "https://esm.sh/rollup@2.61.1";
+import {rollup} from "https://esm.sh/rollup@2.61.1?pin=v64";
 
 // import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 
@@ -76,22 +76,20 @@ const libs = [
 	},
 ];
 
-(async () => {
-	const scriptDir = dirname(fromFileUrl(import.meta.url));
+const scriptDir = dirname(fromFileUrl(import.meta.url));
 
-	for (const lib of libs) {
-		const inputPath = resolve(scriptDir, lib.input);
-		console.log("bundling " + lib.input);
-		const libPlugins = lib.plugins || [];
-		const plugins = [...libPlugins, commonjs(), ignore(["fs"]), addHeader("// @ts-nocheck\n\n"), nodeResolve()];
-		const bundle = await rollup({
-			input: inputPath,
-			plugins,
-		});
-		console.log("writing to " + lib.output);
-		await bundle.write({
-			file: resolve(scriptDir, "../libs", lib.output),
-			format: "esm",
-		});
-	}
-})();
+for (const lib of libs) {
+	const inputPath = resolve(scriptDir, lib.input);
+	console.log("bundling " + lib.input);
+	const libPlugins = lib.plugins || [];
+	const plugins = [...libPlugins, commonjs(), ignore(["fs"]), addHeader("// @ts-nocheck\n\n"), nodeResolve()];
+	const bundle = await rollup({
+		input: inputPath,
+		plugins,
+	});
+	console.log("writing to " + lib.output);
+	await bundle.write({
+		file: resolve(scriptDir, "../libs", lib.output),
+		format: "esm",
+	});
+}
