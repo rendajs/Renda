@@ -129,7 +129,7 @@ const buildProcess = Deno.run({
 	cmd: ["./editor/scripts/build.js", "--dev"],
 });
 const serverProcess = Deno.run({
-	cmd: ["deno", "run", "--allow-net", "--allow-read", "https://deno.land/std@0.119.0/http/file_server.ts", "-p 8080"],
+	cmd: ["deno", "run", "--allow-net", "--allow-read", "https://deno.land/std@0.122.0/http/file_server.ts", "-p 8080", "--quiet"],
 });
 const devSocketProcess = Deno.run({
 	cmd: ["./editor/devSocket/src/main.js"],
