@@ -67,7 +67,14 @@ module.exports = {
 		radix: "error",
 		yoda: "error",
 		"no-undef-init": "error",
-		"no-unused-vars": ["error", {args: "none", vars: "local"}],
+		"no-unused-vars": [
+			"error",
+			{
+				args: "none",
+				vars: "local",
+				varsIgnorePattern: "^_$",
+			},
+		],
 		"no-use-before-define": "error",
 
 		"array-bracket-newline": ["error", {multiline: true}],
