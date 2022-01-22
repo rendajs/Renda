@@ -347,11 +347,12 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 	async writeFile(path, file) {
 		super.writeFile(path, file);
 		const fileStream = await this.writeFileStream(path);
-		if (!fileStream.locked) {
-			await fileStream.write(file);
-			await fileStream.close();
-			this.setWatchTreeLastModified(path);
+		if (fileStream.locked) {
+			throw new Error("File is locked, writing after lock is not yet implemented");
 		}
+		await fileStream.write(file);
+		await fileStream.close();
+		this.setWatchTreeLastModified(path);
 	}
 
 	/**

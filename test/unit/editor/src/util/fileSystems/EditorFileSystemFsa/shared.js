@@ -59,22 +59,26 @@ export class FakeHandle {
 	/**
 	 * @param {string} name
 	 */
-	async getDirectoryHandle(name) {
-		return this.#getHandle("directory", name);
+	async getDirectoryHandle(name, {
+		create = false,
+	} = {}) {
+		return this.#getHandle("directory", name, create);
 	}
 
 	/**
 	 * @param {string} name
 	 */
-	async getFileHandle(name) {
-		return this.#getHandle("file", name);
+	async getFileHandle(name, {
+		create = false,
+	} = {}) {
+		return this.#getHandle("file", name, create);
 	}
 
 	/**
 	 * @param {string} kind
 	 * @param {string} name
 	 */
-	#getHandle(kind, name) {
+	#getHandle(kind, name, create = false) {
 		for (const entry of this.#entries) {
 			if (entry.name == name) {
 				if (entry.kind != kind) {
@@ -83,18 +87,47 @@ export class FakeHandle {
 				return entry;
 			}
 		}
+		if (create) {
+			return this.addFakeEntry(kind, name);
+		}
 		throw new DOMException("", "NotFoundError");
 	}
 
 	getFile() {
-		return {
-			lastModified: 0,
-		};
+		return new File([], "");
+	}
+
+	/**
+	 * @param {string} name
+	 */
+	async removeEntry(name, {
+		recursive = false,
+	} = {}) {
+		for (const entry of this.#entries) {
+			if (entry.name == name) {
+				let hasChildren = false;
+				for await (const _ of entry.entries()) {
+					hasChildren = true;
+					break;
+				}
+				if (hasChildren && !recursive) {
+					throw new DOMException("", "InvalidModificationError");
+				}
+				this.#entries.splice(this.#entries.indexOf(entry), 1);
+				return;
+			}
+		}
+		throw new DOMException("", "NotFoundError");
+	}
+
+	createWritable() {
+		const stream = new WritableStream();
+		return stream.getWriter();
 	}
 }
 
 export function createBasicFs() {
-	const rootHandle = new FakeHandle("directory", "");
+	const rootHandle = new FakeHandle("directory", "actualRoot");
 	const rootDirHandle = rootHandle.addFakeEntry("directory", "root");
 	const fileHandle1 = rootDirHandle.addFakeEntry("file", "file1");
 	const fileHandle2 = rootDirHandle.addFakeEntry("file", "file2");
