@@ -609,7 +609,7 @@ export class ProjectAsset {
 			await this.builtInAssetManager.writeBinary(this.path, fileData);
 		} else {
 			const fileDataBlob = /** @type {BlobPart} */ (fileData);
-			await this.fileSystem.writeBinary(this.path, fileDataBlob);
+			await this.fileSystem.writeFile(this.path, fileDataBlob);
 		}
 	}
 

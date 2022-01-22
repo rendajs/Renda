@@ -1,4 +1,4 @@
-import {toFormattedJsonString} from "../../../../src/mod.js";
+import {toFormattedJsonString} from "../../../../src/util/toFormattedJsonString.js";
 
 /** @typedef {string[]} EditorFileSystemPath */
 
@@ -277,14 +277,5 @@ export class EditorFileSystem {
 			return json;
 		}
 		return null;
-	}
-
-	/**
-	 * @param {EditorFileSystemPath} path
-	 * @param {BlobPart} binary File, Blob, ArrayBuffer or TypedArray.
-	 */
-	async writeBinary(path, binary) {
-		const fileName = path[path.length - 1] || "";
-		await this.writeFile(path, new File([binary], fileName));
 	}
 }

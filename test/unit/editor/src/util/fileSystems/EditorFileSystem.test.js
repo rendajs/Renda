@@ -1,5 +1,6 @@
 import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
 import {EditorFileSystem} from "../../../../../../editor/src/util/fileSystems/EditorFileSystem.js";
+import {Importer} from "https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js";
 
 Deno.test({
 	name: "writeText",
@@ -46,5 +47,84 @@ Deno.test({
 		const text = await fs.readText(["text.txt"]);
 
 		assertEquals(text, "Hello World!");
+	},
+});
+
+Deno.test({
+	name: "writeJson",
+	fn: async () => {
+		const importer = new Importer(import.meta.url);
+		importer.fakeModule("../../../../../../src/util/toFormattedJsonString.js", `
+			export const toFormattedJsonString = (json) => JSON.stringify(json);
+		`);
+		/** @type {{path: import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, text: string}[]} */
+		const writeCalls = [];
+
+		const {EditorFileSystem: EditorFileSystem2} = await importer.import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js");
+		const CastEditorFileSystem = /** @type {typeof EditorFileSystem} */ (EditorFileSystem2);
+		class ImplementedFileSystem extends CastEditorFileSystem {
+			/**
+			 * @override
+			 * @param {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {string} text
+			 */
+			async writeText(path, text) {
+				writeCalls.push({path, text});
+			}
+		}
+
+		const fs = new ImplementedFileSystem();
+		fs.writeJson(["file.json"], {hello: "world"});
+
+		assertEquals(writeCalls, [
+			{
+				path: ["file.json"],
+				text: '{"hello":"world"}',
+			},
+		]);
+
+		await importer.finishCoverageMapWrites();
+	},
+});
+
+Deno.test({
+	name: "readJson",
+	fn: async () => {
+		class ImplementedFileSystem extends EditorFileSystem {
+			/**
+			 * @override
+			 * @param {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 */
+			async readFile(path) {
+				assertEquals(path, ["data.json"]);
+				return new File(['{"hello":"world"}'], "", {type: "application/json"});
+			}
+		}
+
+		const fs = new ImplementedFileSystem();
+		const text = await fs.readJson(["data.json"]);
+
+		assertEquals(text, {hello: "world"});
+	},
+});
+
+Deno.test({
+	name: "readJson Returns null when mimeType is not application/json",
+	fn: async () => {
+		class ImplementedFileSystem extends EditorFileSystem {
+			/**
+			 * @override
+			 * @param {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 */
+			async readFile(path) {
+				assertEquals(path, ["data.json"]);
+				return new File(['{"hello":"world"}'], "", {type: "text/plain"});
+			}
+		}
+
+		const fs = new ImplementedFileSystem();
+		const text = await fs.readJson(["data.json"]);
+
+		assertEquals(text, null);
 	},
 });
