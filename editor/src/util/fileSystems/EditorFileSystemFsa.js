@@ -176,10 +176,13 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 			try {
 				handle = await handle.getDirectoryHandle(dirName, {create});
 			} catch (e) {
+				const error = /** @type {any} */ (e);
 				if (overrideError) {
-					throw new Error("Failed to get directory handle for " + path.slice(0, parsedPathDepth).join("/") + "/");
+					const pathStr = path.slice(0, parsedPathDepth).join("/") + "/";
+					const message = `Failed to get directory handle for ${pathStr}`;
+					throw new Error(message, {cause: error});
 				} else {
-					throw e;
+					throw error;
 				}
 			}
 		}
@@ -207,10 +210,13 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 			fileHandle = await dirHandle.getFileHandle(fileName, {create});
 			if (create) this.setWatchTreeLastModified(path);
 		} catch (e) {
+			const error = /** @type {any} */ (e);
 			if (overrideError) {
-				throw new Error("Failed to get file handle for " + path.join("/"));
+				const pathStr = path.join("/");
+				const message = `Failed to get file handle for ${pathStr}`;
+				throw new Error(message, {cause: error});
 			} else {
-				throw e;
+				throw error;
 			}
 		}
 		return fileHandle;
