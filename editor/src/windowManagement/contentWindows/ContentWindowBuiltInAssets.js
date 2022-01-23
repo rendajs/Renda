@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
-import {SelectionGroup} from "../../Misc/SelectionGroup.js";
+import {SelectionGroup} from "../../misc/SelectionGroup.js";
 
 export class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";
@@ -119,7 +119,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	onTreeViewSelectionChange(treeViewChanges) {
-		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
+		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
 		changes.added = this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);

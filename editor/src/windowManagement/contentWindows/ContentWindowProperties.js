@@ -32,7 +32,7 @@ export class ContentWindowProperties extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../Misc/SelectionManager.js").SelectionChangeData} changeData
+	 * @param {import("../../misc/SelectionManager.js").SelectionChangeData} changeData
 	 */
 	onSelectionChanged(changeData) {
 		if (!this.isMostSuitableContentWindow()) return;

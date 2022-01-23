@@ -5,7 +5,7 @@ import {Button} from "../UI/Button.js";
 import {DroppableGui} from "../UI/DroppableGui.js";
 import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {ProjectAssetTypeEntity} from "../assets/ProjectAssetType/ProjectAssetTypeEntity.js";
-import {EntitySelection} from "../Misc/EntitySelection.js";
+import {EntitySelection} from "../misc/EntitySelection.js";
 
 export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	/**
@@ -186,7 +186,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	}
 
 	/**
-	 * @param {import("../Misc/EntitySelection.js").EntitySelectionMetaData} metaData
+	 * @param {import("../misc/EntitySelection.js").EntitySelectionMetaData} metaData
 	 */
 	getParentDataFromEntitySelectionMetaData(metaData) {
 		const parentTreeView = metaData.outlinerTreeView.parent;

@@ -98,7 +98,7 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
+		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.rootNameInit = false;
@@ -361,7 +361,7 @@ export class ContentWindowProject extends ContentWindow {
 	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
-		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
+		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
 		changes.added = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);

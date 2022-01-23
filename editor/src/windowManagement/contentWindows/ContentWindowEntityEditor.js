@@ -48,7 +48,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editingEntityUuid = null;
 		/** @type {Entity?} */
 		this._editingEntity = null;
-		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroup<import("../../Misc/EntitySelection.js").EntitySelection>} */
+		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../misc/EntitySelection.js").EntitySelection>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.createdLiveAssetChangeListeners = new Set();

@@ -5,7 +5,7 @@ import {Entity} from "../../../../src/mod.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {ProjectAssetTypeEntity} from "../../assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../util/util.js";
-import {EntitySelection} from "../../Misc/EntitySelection.js";
+import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../UI/DropDownGui.js";
 
 export class ContentWindowOutliner extends ContentWindow {
@@ -228,7 +228,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	onTreeViewSelectionChange(e) {
 		if (!this.linkedEntityEditor || !this.selectionManager) return;
-		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroupChangeData<EntitySelection>} */
+		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<EntitySelection>} */
 		const changeData = {
 			added: this.mapSelectionChangeData(e.added),
 			removed: this.mapSelectionChangeData(e.removed),
