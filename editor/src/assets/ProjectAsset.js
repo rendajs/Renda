@@ -384,6 +384,9 @@ export class ProjectAsset {
 			return await this.getLiveAssetData(recursionTracker);
 		}
 
+		this.liveAsset = liveAsset;
+		this.editorData = editorData;
+
 		/** @type {LiveAssetData} */
 		const liveAssetData = {};
 		if (liveAsset) {
