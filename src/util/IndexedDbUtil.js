@@ -1,9 +1,21 @@
+/**
+ * @typedef IndexedDbUtilOptions
+ * @property {string[]} [objectStoreNames] List of object store names that will be used.
+ * @property {boolean} [enableLocalStorageFallback] Whether to fallback to local storage if IndexedDB fails to open.
+ * The LocalStorage fallback will use JSON.stringify to store the data. So you should only use this if you don't
+ * use simple types in your data.
+ * If IndexedDB is not supported and this value is false, an error will be thrown from the constructor.
+ */
+
 export class IndexedDbUtil {
 	/**
 	 * @param {string} dbName The name of the database.
-	 * @param {string[]} objectStoreNames List of object store names that will be used.
+	 * @param {IndexedDbUtilOptions} options
 	 */
-	constructor(dbName = "keyValuesDb", objectStoreNames = ["keyValues"]) {
+	constructor(dbName = "keyValuesDb", {
+		objectStoreNames = ["keyValues"],
+		enableLocalStorageFallback = false,
+	} = {}) {
 		this.dbName = dbName;
 		this.objectStoreNames = objectStoreNames;
 
@@ -17,7 +29,9 @@ export class IndexedDbUtil {
 			};
 			this.supported = true;
 		} catch (e) {
-			console.log("error while opening indexedDB: ", e);
+			if (!enableLocalStorageFallback) {
+				throw e;
+			}
 		}
 	}
 

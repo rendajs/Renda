@@ -32,7 +32,9 @@ import {IndexedDbUtil} from "../../../src/mod.js";
 
 export class WorkspaceManager {
 	constructor() {
-		this.indexedDb = new IndexedDbUtil("workspaces", ["workspaces", "workspaceSettings"]);
+		this.indexedDb = new IndexedDbUtil("workspaces", {
+			objectStoreNames: ["workspaces", "workspaceSettings"],
+		});
 
 		this.currentWorkSpaceIdCache = null;
 		/** @type {Set<function() : void>} */

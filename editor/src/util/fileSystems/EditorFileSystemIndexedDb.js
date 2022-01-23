@@ -51,7 +51,9 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		 * Null if the db has been deleted.
 		 * @type {IndexedDbUtil?}
 		 */
-		this.db = new IndexedDbUtil(dbName, ["objects", "system"]);
+		this.db = new IndexedDbUtil(dbName, {
+			objectStoreNames: ["objects", "system"],
+		});
 
 		// create root directory
 		this.rootCreated = false;
