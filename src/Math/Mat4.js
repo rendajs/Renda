@@ -1,22 +1,41 @@
 import {Vec3} from "./Vec3.js";
 import {Quat} from "./Quat.js";
 
+/**
+ * @typedef {() => Mat4} mat4SetEmptySignature
+ * @typedef {(buffer: Float32Array) => Mat4} mat4SetFloat32ArraySignature
+ * @typedef {(mat: Mat4) => Mat4} mat4SetMat4Signature
+ * @typedef {(vec: number[]) => Mat4} mat4SetNumArraySignature
+ * @typedef {(vec: number[][]) => Mat4} mat4SetNumArrayArraySignature
+ * @typedef {import("./types.js").MergeParameters<mat4SetEmptySignature | mat4SetFloat32ArraySignature | mat4SetMat4Signature | mat4SetNumArraySignature | mat4SetNumArrayArraySignature>} Mat4Parameters
+ */
+
+/**
+ * @typedef {import("./types.js").GetFirstParam<Mat4Parameters>} Mat4ParameterSingle
+ */
+
 export class Mat4 {
-	constructor(values = null) {
+	/**
+	 * @param {Mat4Parameters} args
+	 */
+	constructor(...args) {
 		this.values = [
 			[1, 0, 0, 0],
 			[0, 1, 0, 0],
 			[0, 0, 1, 0],
 			[0, 0, 0, 1],
 		];
-		this.set(values);
+		this.set(...args);
 
 		/** @type {Map<string, Uint8Array>} */
 		this.flatArrayBufferCache = new Map();
-		this.oldCache = null;
 	}
 
-	set(values) {
+	/**
+	 * @param {Mat4Parameters} args
+	 */
+	set(...args) {
+		const values = args[0];
 		if (values && values.constructor === Float32Array) {
 			this.values = [
 				[values[0], values[1], values[2], values[3]],
@@ -30,7 +49,7 @@ export class Mat4 {
 		if (values instanceof Mat4) {
 			flatValue = values.getFlatArray();
 		} else if (Array.isArray(values) && values.length == 16) {
-			flatValue = values;
+			flatValue = /** @type {number[]} */ (values);
 		}
 		if (flatValue) {
 			this.values = [
@@ -40,7 +59,8 @@ export class Mat4 {
 				[flatValue[12], flatValue[13], flatValue[14], flatValue[15]],
 			];
 		} else {
-			this.values = values || [
+			const castValues = /** @type {number[][]} */ (values);
+			this.values = castValues || [
 				[1, 0, 0, 0],
 				[0, 1, 0, 0],
 				[0, 0, 1, 0],
@@ -98,7 +118,6 @@ export class Mat4 {
 
 	markFlatArrayBuffersDirty() {
 		this.flatArrayBufferCache = new Map();
-		this.oldCache = null;
 	}
 
 	clone() {
@@ -208,7 +227,10 @@ export class Mat4 {
 	}
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-	getRotation(scale = null) {
+	/**
+	 * @param {Vec3} [scale]
+	 */
+	getRotation(scale) {
 		if (!scale) scale = this.getScale();
 
 		let sX = scale.x;
@@ -312,6 +334,9 @@ export class Mat4 {
 		return mat;
 	}
 
+	/**
+	 * @param {number} angle
+	 */
 	static createRotationX(angle) {
 		return new Mat4([
 			[1, 0, 0, 0],
@@ -321,6 +346,9 @@ export class Mat4 {
 		]);
 	}
 
+	/**
+	 * @param {number} angle
+	 */
 	static createRotationY(angle) {
 		return new Mat4([
 			[Math.cos(-angle), 0, Math.sin(-angle), 0],
@@ -330,6 +358,9 @@ export class Mat4 {
 		]);
 	}
 
+	/**
+	 * @param {number} angle
+	 */
 	static createRotationZ(angle) {
 		return new Mat4([
 			[Math.cos(-angle), -Math.sin(-angle), 0, 0],
@@ -352,6 +383,11 @@ export class Mat4 {
 		]);
 	}
 
+	/**
+	 * @param {Vec3} pos
+	 * @param {Quat} rot
+	 * @param {Vec3} scale
+	 */
 	static createPosRotScale(pos, rot, scale) {
 		const x = rot.x;
 		const y = rot.y;
@@ -404,6 +440,10 @@ export class Mat4 {
 		]);
 	}
 
+	/**
+	 * @param {Mat4} a1
+	 * @param {Mat4} a2
+	 */
 	static multiplyMatrices(a1, a2) {
 		const v1 = a1.values;
 		const v2 = a2.values;
@@ -436,6 +476,9 @@ export class Mat4 {
 		]);
 	}
 
+	/**
+	 * @param {Mat4} otherMatrix
+	 */
 	multiplyMatrix(otherMatrix) {
 		const newMat = Mat4.multiplyMatrices(this, otherMatrix);
 		this.values = newMat.values;
