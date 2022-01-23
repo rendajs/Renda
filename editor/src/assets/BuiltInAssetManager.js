@@ -70,7 +70,7 @@ export class BuiltInAssetManager {
 	}
 
 	/**
-	 * @param {import("../Network/DevSocketManager.js").DevSocketManager} devSocket
+	 * @param {import("../network/DevSocketManager.js").DevSocketManager} devSocket
 	 */
 	init(devSocket) {
 		if (IS_DEV_BUILD) {

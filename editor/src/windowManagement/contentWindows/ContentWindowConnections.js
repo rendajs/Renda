@@ -1,4 +1,4 @@
-import {EditorConnectionsManager} from "../../Network/EditorConnections/EditorConnectionsManager.js";
+import {EditorConnectionsManager} from "../../network/editorConnections/EditorConnectionsManager.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 
@@ -46,7 +46,7 @@ export class ContentWindowConnections extends ContentWindow {
 		const connectionsManager = this.editorInstance.projectManager.editorConnectionsManager;
 		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
 		/**
-		 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").DiscoveryServerStatusType} status
+		 * @param {import("../../network/editorConnections/EditorConnectionsManager.js").DiscoveryServerStatusType} status
 		 */
 		this.boundUpdateDiscoveryServerStatus = status => {
 			this.updateDiscoveryServerStatus(status);
@@ -156,7 +156,7 @@ export class ContentWindowConnections extends ContentWindow {
 
 	/**
 	 *
-	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").DiscoveryServerStatusType} status
+	 * @param {import("../../network/editorConnections/EditorConnectionsManager.js").DiscoveryServerStatusType} status
 	 */
 	updateDiscoveryServerStatus(status) {
 		this.discoveryServerStatusLabel.setValue(status);
@@ -171,9 +171,9 @@ export class ContentWindowConnections extends ContentWindow {
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView<any>} listTreeView
-	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").AvailableEditorDataList} availableConnections
-	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ActiveEditorDataList} activeConnections
-	 * @param {import("../../Network/EditorConnections/EditorConnectionsManager.js").ClientType} allowedClientType
+	 * @param {import("../../network/editorConnections/EditorConnectionsManager.js").AvailableEditorDataList} availableConnections
+	 * @param {import("../../network/editorConnections/EditorConnectionsManager.js").ActiveEditorDataList} activeConnections
+	 * @param {import("../../network/editorConnections/EditorConnectionsManager.js").ClientType} allowedClientType
 	 */
 	updateConnectionsList(guisList, listTreeView, availableConnections, activeConnections, allowedClientType) {
 		const removeGuiIds = new Set(guisList.keys());

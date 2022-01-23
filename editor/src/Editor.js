@@ -15,7 +15,7 @@ import {DragManager} from "./misc/DragManager.js";
 import {ColorizerFilterManager} from "./util/colorizerFilters/ColorizerFilterManager.js";
 import {ServiceWorkerManager} from "./misc/ServiceWorkerManager.js";
 import {IS_DEV_BUILD} from "./editorDefines.js";
-import {DevSocketManager} from "./Network/DevSocketManager.js";
+import {DevSocketManager} from "./network/DevSocketManager.js";
 import {ComponentTypeManager} from "../../src/Components/ComponentTypeManager.js";
 
 import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";

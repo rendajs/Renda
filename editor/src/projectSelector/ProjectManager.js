@@ -3,11 +3,11 @@ import {EditorFileSystemFsa} from "../util/fileSystems/EditorFileSystemFsa.js";
 import {EditorFileSystemIndexedDb} from "../util/fileSystems/EditorFileSystemIndexedDb.js";
 import {EditorFileSystemRemote} from "../util/fileSystems/EditorFileSystemRemote.js";
 import {AssetManager} from "../assets/AssetManager.js";
-import {EditorConnectionsManager} from "../Network/EditorConnections/EditorConnectionsManager.js";
+import {EditorConnectionsManager} from "../network/editorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
-import {EditorConnection} from "../Network/EditorConnections/EditorConnection.js";
+import {EditorConnection} from "../network/editorConnections/EditorConnection.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 
@@ -31,7 +31,7 @@ import {ContentWindowConnections} from "../windowManagement/contentWindows/Conte
 /**
  * @typedef {Object} StoredProjectEntryRemoteProps
  * @property {import("../../../src/util/mod.js").UuidString} [remoteProjectUuid]
- * @property {import("../Network/EditorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
+ * @property {import("../network/editorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
  */
 
 /**

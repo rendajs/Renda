@@ -21,7 +21,7 @@ export class ScriptBuilder {
 	 * @param {string[]} inputPath
 	 * @param {string[]} outputPath
 	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
-	 * @param {import("../Network/DevSocketManager.js").DevSocketManager?} devSocket
+	 * @param {import("../network/DevSocketManager.js").DevSocketManager?} devSocket
 	 * @param {ScriptBuilderOptions} options
 	 */
 	async buildScript(inputPath, outputPath, fileSystem, devSocket, {
@@ -74,7 +74,7 @@ export class ScriptBuilder {
 
 	/**
 	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
-	 * @param {import("../Network/DevSocketManager.js").DevSocketManager} devSocket
+	 * @param {import("../network/DevSocketManager.js").DevSocketManager} devSocket
 	 * @param {RollupOutput} rollupOutput
 	 * @param {string[]} outputPath
 	 */

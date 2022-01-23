@@ -2,7 +2,7 @@ import {BinaryComposer, StorageType} from "../../../../src/mod.js";
 
 export class EditorConnection {
 	/**
-	 * @param {import("./MessageHandlers/MessageHandler.js").MessageHandler} messageHandler
+	 * @param {import("./messageHandlers/MessageHandler.js").MessageHandler} messageHandler
 	 * @param {import("./ProtocolManager.js").ProtocolManager} protocolManager
 	 */
 	constructor(messageHandler, protocolManager) {
@@ -75,7 +75,7 @@ export class EditorConnection {
 	}
 
 	/**
-	 * @param {function(import("./MessageHandlers/MessageHandler.js").EditorConnectionState) : void} cb
+	 * @param {function(import("./messageHandlers/MessageHandler.js").EditorConnectionState) : void} cb
 	 */
 	onConnectionStateChange(cb) {
 		this.messageHandler.onConnectionStateChange(cb);
@@ -114,16 +114,16 @@ export class EditorConnection {
 		this.messageHandler.send(sendData);
 	}
 
-	/** @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").HandlerCommands} HandlerCommands */
+	/** @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").HandlerCommands} HandlerCommands */
 
 	/**
 	 * @template {HandlerCommands} TCommand
-	 * @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerArgs<TCommand>} getRequestHandlerArgs
+	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerArgs<TCommand>} getRequestHandlerArgs
 	 */
 
 	/**
 	 * @template {HandlerCommands} TCommand
-	 * @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerReturnType<TCommand>} getRequestHandlerReturnType
+	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerReturnType<TCommand>} getRequestHandlerReturnType
 	 */
 
 	/**

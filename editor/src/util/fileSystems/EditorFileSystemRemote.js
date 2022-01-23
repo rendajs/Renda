@@ -9,7 +9,7 @@ export class EditorFileSystemRemote extends EditorFileSystem {
 		this.onConnectedCbs = new Set();
 	}
 	/**
-	 * @param {import("../../Network/EditorConnections/EditorConnection.js").EditorConnection} connection
+	 * @param {import("../../network/editorConnections/EditorConnection.js").EditorConnection} connection
 	 */
 	setConnection(connection) {
 		this.connection = connection;

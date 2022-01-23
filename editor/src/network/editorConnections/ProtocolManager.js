@@ -1,4 +1,4 @@
-import {autoRegisterRequestHandlers} from "./ProtocolRequestHandlers/autoRegisterRequestHandlers.js";
+import {autoRegisterRequestHandlers} from "./protocolRequestHandlers/autoRegisterRequestHandlers.js";
 
 /**
  * Whether the returned result of a hook should be serialized.
@@ -86,7 +86,7 @@ export class ProtocolManager {
 
 	/**
 	 * @template {string} TCommand
-	 * @typedef {import("./ProtocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerType<TCommand>} getRequestHandlerType
+	 * @typedef {import("./protocolRequestHandlers/getRequestHandlerType.js").getRequestHandlerType<TCommand>} getRequestHandlerType
 	 */
 
 	/**

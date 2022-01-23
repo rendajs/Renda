@@ -1,6 +1,6 @@
 import {EditorConnection} from "./EditorConnection.js";
-import {MessageHandlerWebRtc} from "./MessageHandlers/MessageHandlerWebRtc.js";
-import {MessageHandlerInternal} from "./MessageHandlers/MessageHandlerInternal.js";
+import {MessageHandlerWebRtc} from "./messageHandlers/MessageHandlerWebRtc.js";
+import {MessageHandlerInternal} from "./messageHandlers/MessageHandlerInternal.js";
 import {ProtocolManager} from "./ProtocolManager.js";
 import {InternalDiscoveryManager} from "../../../../src/mod.js";
 
@@ -383,7 +383,7 @@ export class EditorConnectionsManager {
 
 	/**
 	 * @param {import("../../../../src/util/mod.js").UuidString} connectionId
-	 * @param {import("./MessageHandlers/MessageHandler.js").MessageHandler} messageHandler
+	 * @param {import("./messageHandlers/MessageHandler.js").MessageHandler} messageHandler
 	 * @return {EditorConnection}
 	 */
 	addActiveConnection(connectionId, messageHandler) {
