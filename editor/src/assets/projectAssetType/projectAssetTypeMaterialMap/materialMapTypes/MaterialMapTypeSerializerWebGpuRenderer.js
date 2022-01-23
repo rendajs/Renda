@@ -13,7 +13,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
 
-	/** @type {import("../../../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static settingsStructure = {
 		forwardPipelineConfig: {
 			type: "droppable",
@@ -86,7 +86,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 					type = matrixMatch.groups.matrixType;
 				}
 			}
-			/** @type {import("../../../../UI/propertiesTreeView/types.js").GuiTypes} */
+			/** @type {import("../../../../ui/propertiesTreeView/types.js").GuiTypes} */
 			let mappableValueType = "number";
 			if (isVector) {
 				if (vectorSize == 2) {

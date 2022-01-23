@@ -1,12 +1,12 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../UI/TreeView.js";
-import {Button} from "../../UI/Button.js";
+import {TreeView} from "../../ui/TreeView.js";
+import {Button} from "../../ui/Button.js";
 import {Entity} from "../../../../src/mod.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {ProjectAssetTypeEntity} from "../../assets/ProjectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
-import {DropDownGui} from "../../UI/DropDownGui.js";
+import {DropDownGui} from "../../ui/DropDownGui.js";
 
 export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
@@ -224,7 +224,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewSelectionChangeEvent} e
 	 */
 	onTreeViewSelectionChange(e) {
 		if (!this.linkedEntityEditor || !this.selectionManager) return;
@@ -251,7 +251,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewNameChangeEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewNameChangeEvent} e
 	 */
 	onTreeViewNameChange(e) {
 		const ent = this.getEntityByTreeViewItem(e.target);
@@ -259,7 +259,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewContextMenuEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
 	onTreeViewContextMenu(e) {
 		const menu = e.showContextMenu();
@@ -283,7 +283,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewValidateDragEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewValidateDragEvent} e
 	 */
 	onTreeViewValidatedrag(e) {
 		if (!e.isSameTreeView && this.validateDragMimeType(e.mimeType)) {
@@ -310,7 +310,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewRearrangeEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	onTreeViewRearrange(e) {
 		for (const movedItem of e.movedItems) {
@@ -328,7 +328,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDrop(e) {
 		const parent = this.getEntityByTreeViewItem(e.target);

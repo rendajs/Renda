@@ -2,8 +2,8 @@ import {EditorWindow} from "./EditorWindow.js";
 import {getElemSize, parseMimeType} from "../util/util.js";
 import {generateUuid, iLerp} from "../../../src/util/mod.js";
 import {getEditorInstanceCertain} from "../editorInstance.js";
-import {Button} from "../UI/Button.js";
-import {ButtonGroup} from "../UI/ButtonGroup.js";
+import {Button} from "../ui/Button.js";
+import {ButtonGroup} from "../ui/ButtonGroup.js";
 import {EditorWindowSplit} from "./EditorWindowSplit.js";
 
 export class EditorWindowTabs extends EditorWindow {
@@ -323,7 +323,7 @@ export class EditorWindowTabs extends EditorWindow {
 	onTabsContextMenu(button, e) {
 		e.preventDefault();
 
-		/** @type {import("../UI/contextMenus/ContextMenu.js").ContextMenuStructure} */
+		/** @type {import("../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
 		const addTabSubmenu = [];
 		for (const [id, contentWindow] of this.windowManager.registeredContentWindows) {
 			let text = "<ContentWindow>";
@@ -342,7 +342,7 @@ export class EditorWindowTabs extends EditorWindow {
 			});
 		}
 
-		/** @type {import("../UI/contextMenus/ContextMenu.js").ContextMenuStructure} */
+		/** @type {import("../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [
 			{
 				text: "Close Tab",
@@ -362,7 +362,7 @@ export class EditorWindowTabs extends EditorWindow {
 			{
 				text: "Workspaces",
 				submenu: async () => {
-					/** @type {import("../UI/contextMenus/ContextMenu.js").ContextMenuStructure} */
+					/** @type {import("../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
 					const workspacesSubmenu = [];
 
 					const currentWorkspace = await this.windowManager.workspaceManager.getCurrentWorkspaceId();

@@ -16,7 +16,7 @@ export class MeshComponent extends Component {
 	 * @override
 	 */
 	static get guiStructure() {
-		/** @type {import("../../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		const structure = {
 			mesh: {
 				type: "droppable",
@@ -36,7 +36,7 @@ export class MeshComponent extends Component {
 		};
 		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
 			const defaultMaterialAssetLinkUuid = "f1e469e3-b463-4542-952a-091487bf5b4a";
-			const guiOpts = /** @type {import("../../../editor/src/UI/ArrayGui.js").ArrayGuiOptions} */ (structure.materials.guiOpts);
+			const guiOpts = /** @type {import("../../../editor/src/ui/ArrayGui.js").ArrayGuiOptions} */ (structure.materials.guiOpts);
 			guiOpts.defaultValue = [defaultMaterialAssetLinkUuid];
 		}
 		return structure;

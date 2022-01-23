@@ -1,5 +1,5 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../UI/TreeView.js";
+import {TreeView} from "../../ui/TreeView.js";
 import {SelectionGroup} from "../../misc/SelectionGroup.js";
 
 export class ContentWindowBuiltInAssets extends ContentWindow {
@@ -74,7 +74,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDragStart(e) {
 		const projectAsset = this.treeViewAssets.get(e.target);
@@ -97,7 +97,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewContextMenuEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
 	onTreeViewContextMenu(e) {
 		const menu = e.showContextMenu();
@@ -116,7 +116,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
+	 * @param {import("../../ui/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	onTreeViewSelectionChange(treeViewChanges) {
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */

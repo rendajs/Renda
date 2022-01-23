@@ -10,7 +10,7 @@ export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	static typeUuid = "13194e5c-01e8-4ecc-b645-86626b9d5e4c";
 	static newFileName = "New Clustered Lights Config";
 
-	/** @type {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		clusterCount: {
 			type: "vec3",

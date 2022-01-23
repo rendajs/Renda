@@ -1,5 +1,5 @@
 import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
-import {ButtonGroup} from "../UI/ButtonGroup.js";
+import {ButtonGroup} from "./ButtonGroup.js";
 import {Button} from "./Button.js";
 
 /**

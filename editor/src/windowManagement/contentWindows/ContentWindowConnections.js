@@ -1,11 +1,11 @@
 import {EditorConnectionsManager} from "../../Network/EditorConnections/EditorConnectionsManager.js";
-import {PropertiesTreeView} from "../../UI/propertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 
 /**
  * @typedef {Object} ConectionGui
  * @property {PropertiesTreeView<any>} treeView
- * @property {import("../../UI/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../UI/LabelGui.js").LabelGui>} statusLabel
+ * @property {import("../../ui/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
  */
 
 export class ContentWindowConnections extends ContentWindow {
@@ -75,7 +75,7 @@ export class ContentWindowConnections extends ContentWindow {
 	createHeaderUi() {
 		const discoveryServerEndpointField = this.headerTreeView.addItem({
 			type: "string",
-			/** @type {import("../../UI/TextGui.js").TextGuiOptions} */
+			/** @type {import("../../ui/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
 				placeholder: EditorConnectionsManager.getDefaultEndPoint(),
@@ -99,7 +99,7 @@ export class ContentWindowConnections extends ContentWindow {
 
 		const allowRemoteIncomingCheckbox = editorHostConnectionTreeView.addItem({
 			type: "boolean",
-			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
+			/** @type {import("../../ui/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
 				label: "Allow Remote Incoming Connections",
 			},
@@ -110,7 +110,7 @@ export class ContentWindowConnections extends ContentWindow {
 
 		const allowInternalIncomingCheckbox = editorHostConnectionTreeView.addItem({
 			type: "boolean",
-			/** @type {import("../../UI/BooleanGui.js").BooleanGuiOptions} */
+			/** @type {import("../../ui/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
 				label: "Allow Internal Incoming Connections",
 			},

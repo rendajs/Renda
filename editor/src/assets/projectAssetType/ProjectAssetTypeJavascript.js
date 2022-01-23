@@ -20,7 +20,7 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 	static storeInProjectAsJson = false;
 	static storeInProjectAsText = true;
 
-	/** @type {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static assetSettingsStructure = {
 		outputLocation: {
 			type: "string",
@@ -33,7 +33,7 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 		},
 		buildButton: {
 			type: "button",
-			/** @type {import("../../UI/Button.js").ButtonGuiOptionsWithCallbacksContext<import("../../PropertiesWindowContent/PropertiesWindowAssetContent.js").PropertiesWindowAssetContentCallbacksContext>} */
+			/** @type {import("../../ui/Button.js").ButtonGuiOptionsWithCallbacksContext<import("../../PropertiesWindowContent/PropertiesWindowAssetContent.js").PropertiesWindowAssetContentCallbacksContext>} */
 			guiOpts: {
 				text: "Build",
 				onClick: async context => {

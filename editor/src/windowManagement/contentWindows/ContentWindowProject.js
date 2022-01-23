@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {TreeView} from "../../UI/TreeView.js";
-import {Button} from "../../UI/Button.js";
+import {TreeView} from "../../ui/TreeView.js";
+import {Button} from "../../ui/Button.js";
 import {handleDuplicateFileName} from "../../util/util.js";
 import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorInstance.js";
 
@@ -346,7 +346,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView").TreeView} treeView
+	 * @param {import("../../ui/TreeView").TreeView} treeView
 	 * @param {boolean} [removeLast]
 	 * @returns {Array<string>}
 	 */
@@ -358,7 +358,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
+	 * @param {import("../../ui/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
@@ -370,7 +370,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewNameChangeEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewNameChangeEvent} e
 	 */
 	async onTreeViewNameChange(e) {
 		if (e.oldName == e.newName) return;
@@ -400,7 +400,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDragStart(e) {
 		/** @type {DraggingProjectAssetData} */
@@ -424,7 +424,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewValidateDragEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewValidateDragEvent} e
 	 */
 	async onTreeViewValidateDrag(e) {
 		if (e.isSameTreeView) {
@@ -438,7 +438,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewDragEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
 	 */
 	async onTreeViewDrop(e) {
 		if (!e.rawEvent.dataTransfer) return;
@@ -450,7 +450,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewRearrangeEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	async onTreeViewRearrange(e) {
 		for (const movedItem of e.movedItems) {
@@ -463,7 +463,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewEvent} e
 	 */
 	async onTreeViewDblClick(e) {
 		const path = this.pathFromTreeView(e.target);
@@ -475,7 +475,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../UI/TreeView.js").TreeViewContextMenuEvent} e
+	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
 	onTreeViewContextMenu(e) {
 		const menu = e.showContextMenu();

@@ -3,7 +3,7 @@ import {PropertiesMaterialMapContent} from "./PropertiesMaterialMapContent.js";
 export class PropertiesMaterialMapContentGenericStructure extends PropertiesMaterialMapContent {
 	/**
 	 * @param {import("../MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
-	 * @param {import("../../../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("../../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
 	 */
 	constructor(mapTypeEntry, structure) {
 		super(mapTypeEntry);

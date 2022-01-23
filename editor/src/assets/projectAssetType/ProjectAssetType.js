@@ -99,13 +99,13 @@ export class ProjectAssetType {
 	 */
 	static wrapProjectJsonWithEditorMetaData = true;
 
-	/** @typedef {import("../../UI/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} PropertiesTreeView */
+	/** @typedef {import("../../ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} PropertiesTreeView */
 	/**
 	 * The properties window will show ui generated from this structure.
 	 * This object will be fed into {@linkcode PropertiesTreeView.generateFromSerializableStructure}.
 	 * Leave this as null if you don't want to show any ui or if you want to create
 	 * custom ui using {@linkcode propertiesAssetContentConstructor}.
-	 * @type {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static propertiesAssetContentStructure = null;
 
@@ -119,7 +119,7 @@ export class ProjectAssetType {
 
 	/**
 	 * Fill this with asset settings you want to appear in the properties window.
-	 * @type {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure}
+	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure}
 	 */
 	static assetSettingsStructure = {};
 

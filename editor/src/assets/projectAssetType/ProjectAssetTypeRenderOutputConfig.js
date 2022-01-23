@@ -11,7 +11,7 @@ export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static newFileName = "New Render Output Config";
 
 	// todo: better support for webgl config
-	/** @type {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {
 		depthStencilFormat: {
 			type: "dropdown",

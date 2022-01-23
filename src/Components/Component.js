@@ -17,7 +17,7 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  * @typedef {Object} ComponentTypeData
  * @property {string} uuid
  * @property {string} name
- * @property {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
+ * @property {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
  * @property {import("../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} binaryComposerOpts
  */
 
@@ -55,7 +55,7 @@ export class Component {
 		return null;
 	}
 	/**
-	 * @returns {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @returns {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static get guiStructure() {
 		return null;
@@ -221,7 +221,7 @@ export class Component {
 
 	/**
 	 *
-	 * @param {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
+	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
 	 * @param {ComponentEditorOptions?} editorOpts
 	 */
 	_setDefaultValues(properties, editorOpts = null) {
@@ -233,7 +233,7 @@ export class Component {
 	/**
 	 * @param {Object.<string | number, unknown>} object
 	 * @param {string} propertyName
-	 * @param {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
+	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
 	 * @param {ComponentEditorOptions?} editorOpts
 	 */
 	setPropertyDefaultValue(object, propertyName, propertyData, editorOpts = null) {
@@ -245,9 +245,9 @@ export class Component {
 			/** @type {unknown[]} */
 			const array = [];
 			if (defaultValue) {
-				const arrayGuiOptions = /** @type {import("../../editor/src/UI/ArrayGui.js").ArrayGuiOptions} */ (propertyData.guiOpts);
+				const arrayGuiOptions = /** @type {import("../../editor/src/ui/ArrayGui.js").ArrayGuiOptions} */ (propertyData.guiOpts);
 				for (const [i, value] of Object.entries(defaultValue)) {
-					/** @type {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+					/** @type {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 					const childPropertyData = {
 						type: arrayGuiOptions.arrayType,
 						guiOpts: {
@@ -273,7 +273,7 @@ export class Component {
 				editorOpts.usedAssetUuidsSymbol &&
 				editorOpts.assetManager
 			) {
-				const droppableGuiOptions = /** @type {import("../../editor/src/UI/DroppableGui.js").DroppableGuiOptions} */ (propertyData.guiOpts);
+				const droppableGuiOptions = /** @type {import("../../editor/src/ui/DroppableGui.js").DroppableGuiOptions} */ (propertyData.guiOpts);
 				if (droppableGuiOptions.supportedAssetTypes) {
 					for (const assetType of droppableGuiOptions.supportedAssetTypes) {
 						if (editorOpts.editorAssetTypeManager.constructorHasAssetType(assetType)) {

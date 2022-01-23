@@ -1,5 +1,5 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {Button} from "../../UI/Button.js";
+import {Button} from "../../ui/Button.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../src/mod.js";
 

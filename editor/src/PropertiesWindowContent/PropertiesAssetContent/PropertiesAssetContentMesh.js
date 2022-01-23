@@ -1,6 +1,6 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../../src/mod.js";
-import {createTreeViewStructure} from "../../UI/propertiesTreeView/createStructureHelpers.js";
+import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
 /**
  * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeMesh.js").ProjectAssetTypeMesh>}

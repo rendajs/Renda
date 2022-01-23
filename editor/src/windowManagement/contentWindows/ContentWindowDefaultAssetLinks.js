@@ -1,7 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {PropertiesTreeView} from "../../UI/propertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {ProjectAsset} from "../../assets/ProjectAsset.js";
-import {createTreeViewEntryOptions, createTreeViewStructure} from "../../UI/propertiesTreeView/createStructureHelpers.js";
+import {createTreeViewEntryOptions, createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
 export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";
@@ -131,7 +131,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		const assetLinks = [];
 
 		for (const child of this.builtInAssetLinksTreeView.children) {
-			const castChild = /** @type {import("../../UI/propertiesTreeView/types.js").TreeViewEntryFactoryReturnType<typeof this.builtInAssetLinkGuiStructure>} */ (child);
+			const castChild = /** @type {import("../../ui/propertiesTreeView/types.js").TreeViewEntryFactoryReturnType<typeof this.builtInAssetLinkGuiStructure>} */ (child);
 			const guiValues = castChild.getValue();
 			if (!guiValues.defaultAsset) continue;
 			builtInAssetLinks.push({

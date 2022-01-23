@@ -1,4 +1,4 @@
-import {PropertiesTreeView} from "../../UI/propertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TAssetType
