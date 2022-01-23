@@ -2,9 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../UI/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Component, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/mod.js";
-import {SelectionGroup} from "../../Misc/SelectionGroup.js";
-import {ComponentGizmos} from "../../componentGizmos/gizmos/ComponentGizmos.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/mod.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -50,7 +48,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editingEntityUuid = null;
 		/** @type {Entity?} */
 		this._editingEntity = null;
-		/** @type {SelectionGroup<import("../../Misc/EntitySelection.js").EntitySelection>} */
+		/** @type {import("../../Misc/SelectionGroup.js").SelectionGroup<import("../../Misc/EntitySelection.js").EntitySelection>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.createdLiveAssetChangeListeners = new Set();
@@ -58,7 +56,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.gizmos = new GizmoManager(this.editorInstance.engineAssetManager);
 		this.editorScene.add(this.gizmos.entity);
 		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
-		/** @type {Map<Entity, Map<Component, ComponentGizmos<any>>>} */
+		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmos<any>>>} */
 		this.currentLinkedGizmos = new Map();
 
 		this.persistentDataLoaded = false;
@@ -256,7 +254,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			for (const component of entity.components) {
 				let componentGizmos = linkedComponentGizmos.get(component) ?? null;
 				if (!componentGizmos) {
-					const componentConstructor = /** @type {typeof Component} */ (component.constructor);
+					const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
 					componentGizmos = this.editorInstance.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
 					if (componentGizmos) {
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
@@ -305,7 +303,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (this.editingEntity) {
 			for (const {child} of this.editingEntity.traverseDown()) {
 				for (const component of child.components) {
-					const componentConstructor = /** @type {typeof Component} */ (component.constructor);
+					const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
 					if (componentConstructor.guiStructure) {
 						const castComponentA = /** @type {unknown} */ (component);
 						const castComponentB = /** @type {Object.<string, unknown>} */ (castComponentA);
@@ -324,7 +322,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	/**
-	 * @param {Component} rootComponent
+	 * @param {import("../../../../src/mod.js").Component} rootComponent
 	 * @param {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptions} structure
 	 * @param {Object.<string | number, unknown>} data
 	 * @param {Object.<string | number, unknown>?} parentObject
