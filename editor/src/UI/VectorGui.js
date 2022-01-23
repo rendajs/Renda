@@ -97,9 +97,9 @@ export class VectorGui {
 
 		for (let i = 0; i < size; i++) {
 			const numericGui = new NumericGui({
-				min: minArr[0],
-				max: maxArr[0],
-				step: stepArr[0],
+				min: minArr[i],
+				max: maxArr[i],
+				step: stepArr[i] || 0,
 			});
 			this.numericGuis.push(numericGui);
 			this.el.appendChild(numericGui.el);
@@ -122,12 +122,10 @@ export class VectorGui {
 	/**
 	 * Utility function for converting a value for the gui options to an array.
 	 * @param {number[] | number | T | null} value
-	 * @returns {number[]}
 	 */
 	getGuiOptArray(value) {
 		if (Array.isArray(value)) return value;
-		if (!value) value = 0;
-		if (typeof value == "number") {
+		if (typeof value == "number" || !value) {
 			const array = [];
 			for (let i = 0; i < this.size; i++) {
 				array.push(value);
