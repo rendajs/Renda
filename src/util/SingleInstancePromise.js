@@ -69,4 +69,14 @@ export class SingleInstancePromise {
 		if (this.hasRan) return;
 		await new Promise(r => this.onRunFinishCbs.add(r));
 	}
+
+	/**
+	 * Returns a promise that will resolve once the function is done running.
+	 * Resolves immediately if the function is not running, either because its
+	 * dono or if it has already run.
+	 */
+	async waitForFinishIfRunning() {
+		if (!this.isRunning) return;
+		await new Promise(r => this.onRunFinishCbs.add(r));
+	}
 }

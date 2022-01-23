@@ -206,8 +206,19 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 		await this.verifyHandlePermission(dirHandle, {writable: create});
 		let fileHandle = null;
 		try {
+			// Set a timestamp slightly in the future, the File System Access API will
+			// create a file for us and we don't know what lastModified value it will use,
+			// but it likely won't be more than a second.
 			if (create) this.setWatchTreeLastModified(path, Date.now() + 1000);
+
 			fileHandle = await dirHandle.getFileHandle(fileName, {create});
+
+			// Now set the timestamp to the actual current time, in case the
+			// previous time was too far in the future. Otherwise actual changes
+			// within this second will not fire watch events.
+			// We don't actually know the exact lastModified value of the file
+			// without reading it, but that's fine. The current time will always
+			// be later than the lastModified value of the file.
 			if (create) this.setWatchTreeLastModified(path);
 		} catch (e) {
 			const error = /** @type {any} */ (e);
@@ -404,7 +415,7 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 	/**
 	 * @override
 	 */
-	async suggestCheckExternalChanges() {
+	suggestCheckExternalChanges() {
 		this.updateWatchTreeInstance.run(true);
 	}
 
@@ -506,6 +517,9 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 	}
 
 	/**
+	 * Set the lastModified value of a specific watchTree node.
+	 * Useful if you want to pevent watch events from firing when files were
+	 * changed from this application rather than externally.
 	 * @param {string[]} path
 	 * @param {number} lastModified
 	 */

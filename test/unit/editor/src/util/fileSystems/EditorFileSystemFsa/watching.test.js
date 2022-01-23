@@ -1,0 +1,219 @@
+import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {createBasicFs} from "./shared.js";
+
+/**
+ * @param  {Parameters<typeof createBasicFs>} args
+ */
+async function initListener(...args) {
+	const basicFs = createBasicFs(...args);
+
+	/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent[]} */
+	const changeEvents = [];
+	basicFs.fs.onExternalChange(e => changeEvents.push(e));
+
+	await basicFs.fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+	return {...basicFs, changeEvents};
+}
+
+Deno.test({
+	name: "No external changes when loading for the first time",
+	fn: async () => {
+		const {fs} = createBasicFs();
+
+		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent[]} */
+		const changeEvents = [];
+		fs.onExternalChange(e => changeEvents.push(e));
+		fs.suggestCheckExternalChanges();
+
+		assertEquals(changeEvents.length, 0);
+	},
+});
+
+Deno.test({
+	name: "Changed file",
+	fn: async () => {
+		const {fs, fileHandle1, changeEvents} = await initListener();
+
+		fileHandle1.mockLastModifiedValue(1);
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, [
+			{
+				kind: "file",
+				path: ["root", "file1"],
+				type: "changed",
+			},
+		]);
+	},
+});
+
+Deno.test({
+	name: "Removed file",
+	fn: async () => {
+		const {fs, onlyFilesDirHandle, changeEvents} = await initListener();
+
+		onlyFilesDirHandle.removeEntry("subfile1");
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, [
+			{
+				kind: "file",
+				path: ["root", "onlyfiles", "subfile1"],
+				type: "deleted",
+			},
+		]);
+	},
+});
+
+Deno.test({
+	name: "Created file",
+	fn: async () => {
+		const {fs, onlyFilesDirHandle, changeEvents} = await initListener();
+
+		onlyFilesDirHandle.addFakeEntry("file", "newfile");
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, [
+			{
+				kind: "file",
+				path: ["root", "onlyfiles", "newfile"],
+				type: "created",
+			},
+		]);
+	},
+});
+
+Deno.test({
+	name: "Created directory",
+	fn: async () => {
+		const {fs, onlyFilesDirHandle, changeEvents} = await initListener();
+
+		onlyFilesDirHandle.addFakeEntry("directory", "newdir");
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, [
+			{
+				kind: "directory",
+				path: ["root", "onlyfiles", "newdir"],
+				type: "created",
+			},
+		]);
+	},
+});
+
+Deno.test({
+	name: "No permission",
+	fn: async () => {
+		const {fs, onlyFilesDirHandle, changeEvents} = await initListener(basicFs => {
+			basicFs.rootDirHandle.mockPermissionState("denied");
+		});
+
+		onlyFilesDirHandle.removeEntry("subfile1");
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, []);
+	},
+});
+
+Deno.test({
+	name: "Permission granted after prompt, should not cause change events",
+	fn: async () => {
+		const {fs, fileHandle1, changeEvents} = await initListener(basicFs => {
+			basicFs.rootHandle.mockPermissionState("prompt", "granted");
+		});
+
+		fileHandle1.mockLastModifiedValue(1);
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		await fs.getPermission(["root", "file1"], {
+			prompt: true,
+		});
+
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, []);
+	},
+});
+
+Deno.test({
+	name: "Permission partially granted",
+	fn: async () => {
+		const {fs, changeEvents, onlyFilesDirHandle, onlyDirsDirHandle} = await initListener(basicFs => {
+			basicFs.onlyDirsDirHandle.mockPermissionState("denied");
+		});
+
+		onlyFilesDirHandle.addFakeEntry("file", "newfile");
+		onlyDirsDirHandle.addFakeEntry("file", "newfile");
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, [
+			{
+				kind: "file",
+				path: ["root", "onlyfiles", "newfile"],
+				type: "created",
+			},
+		]);
+	},
+});
+
+Deno.test({
+	name: "Creating files from application shouldn't trigger watch events",
+	fn: async () => {
+		const {fs, changeEvents} = await initListener();
+
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		await fs.writeFile(["root", "newfile"], new File([], ""));
+
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, []);
+	},
+});
+
+Deno.test({
+	name: "Getting write file stream shouldn't trigger watch events",
+	fn: async () => {
+		const {fs, changeEvents} = await initListener();
+
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		await fs.writeFileStream(["root", "newfile"]);
+
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, []);
+	},
+});
+
+// TODO: Fix this bug
+Deno.test({
+	name: "Creating file in recursive subdirectory from application shouldn't trigger watch events",
+	ignore: true,
+	fn: async () => {
+		const {fs, changeEvents} = await initListener();
+
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		await fs.writeFile(["root", "nonexistent", "newfile"], new File([], ""));
+
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, []);
+	},
+});

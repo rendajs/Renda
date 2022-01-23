@@ -7,6 +7,8 @@ export class FakeHandle {
 	#mockedQueryPermissionState = "granted";
 	#mockedRequestPermissionState = "granted";
 
+	#lastModified = 0;
+
 	/**
 	 * @param {string} kind
 	 * @param {string} name
@@ -38,6 +40,13 @@ export class FakeHandle {
 		} else {
 			this.#mockedRequestPermissionState = queryState;
 		}
+	}
+
+	/**
+	 * @param {number} value
+	 */
+	mockLastModifiedValue(value) {
+		this.#lastModified = value;
 	}
 
 	/**
@@ -94,7 +103,7 @@ export class FakeHandle {
 	}
 
 	getFile() {
-		return new File([], "");
+		return new File([], "", {lastModified: this.#lastModified});
 	}
 
 	/**
@@ -126,7 +135,25 @@ export class FakeHandle {
 	}
 }
 
-export function createBasicFs() {
+/**
+ * @typedef BasicFsData
+ * @property {FileSystemDirectoryHandle & FakeHandle} rootHandle
+ * @property {FileSystemDirectoryHandle & FakeHandle} rootDirHandle
+ * @property {FileSystemFileHandle & FakeHandle} fileHandle1
+ * @property {FileSystemFileHandle & FakeHandle} fileHandle2
+ * @property {FileSystemDirectoryHandle & FakeHandle} onlyFilesDirHandle
+ * @property {FileSystemFileHandle & FakeHandle} subFileHandle1
+ * @property {FileSystemFileHandle & FakeHandle} subFileHandle2
+ * @property {FileSystemDirectoryHandle & FakeHandle} onlyDirsDirHandle
+ * @property {FileSystemDirectoryHandle & FakeHandle} subDirHandle1
+ * @property {FileSystemDirectoryHandle & FakeHandle} subDirHandle2
+ */
+
+/**
+ * @param {((basicFs: BasicFsData) => void)?} beforeCreateHook A hook that fires right before the FileSystem is created.
+ * Useful for setting permissions before the FileSystem watch tree is created.
+ */
+export function createBasicFs(beforeCreateHook = null) {
 	const rootHandle = new FakeHandle("directory", "actualRoot");
 	const rootDirHandle = rootHandle.addFakeEntry("directory", "root");
 	const fileHandle1 = rootDirHandle.addFakeEntry("file", "file1");
@@ -153,10 +180,8 @@ export function createBasicFs() {
 	const castSubDirHandle1 = /** @type {FileSystemDirectoryHandle & FakeHandle} */ (subDirHandle1);
 	const castSubDirHandle2 = /** @type {FileSystemDirectoryHandle & FakeHandle} */ (subDirHandle2);
 
-	const fs = new EditorFileSystemFsa(/** @type {any} */ (rootHandle));
-
-	return {
-		fs,
+	/** @type {BasicFsData} */
+	const basicFs = {
 		rootHandle: castRootHandle,
 		rootDirHandle: castRootDirHandle,
 		fileHandle1: castFileHandle1,
@@ -169,5 +194,14 @@ export function createBasicFs() {
 		onlyDirsDirHandle: castOnlyDirsDirHandle,
 		subDirHandle1: castSubDirHandle1,
 		subDirHandle2: castSubDirHandle2,
+	};
+
+	if (beforeCreateHook) beforeCreateHook(basicFs);
+
+	const fs = new EditorFileSystemFsa(/** @type {any} */ (rootHandle));
+
+	return {
+		fs,
+		...basicFs,
 	};
 }
