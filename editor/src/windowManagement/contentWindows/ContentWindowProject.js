@@ -106,11 +106,12 @@ export class ContentWindowProject extends ContentWindow {
 		this.initCbsCalled = false;
 		this.onInitCbs = new Set();
 
-		if (this.fileSystem) {
+		const fs = this.editorInstance.projectManager.currentProjectFileSystem;
+		if (fs) {
 			this.initialUpdateTreeView();
 			this.updateRootName();
-			this.treeView.renameable = this.fileSystem.rootNameSetSupported;
-			this.fileSystem.onRootNameChange(newName => {
+			this.treeView.renameable = fs.rootNameSetSupported;
+			fs.onRootNameChange(newName => {
 				this.treeView.name = newName;
 			});
 		}
