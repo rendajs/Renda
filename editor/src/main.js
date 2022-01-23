@@ -1,4 +1,4 @@
-import {getProjectSelectorInstance, initProjectSelector} from "./ProjectSelector/projectSelectorInstance.js";
+import {getProjectSelectorInstance, initProjectSelector} from "./projectSelector/projectSelectorInstance.js";
 export {};
 
 initProjectSelector();

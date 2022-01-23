@@ -2,7 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../UI/TreeView.js";
 import {Button} from "../../UI/Button.js";
 import {handleDuplicateFileName} from "../../util/util.js";
-import {getProjectSelectorInstance} from "../../ProjectSelector/projectSelectorInstance.js";
+import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorInstance.js";
 
 /**
  * @typedef {Object} DraggingProjectAssetData

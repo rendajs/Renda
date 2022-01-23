@@ -6,7 +6,7 @@ import {PropertiesWindowContentManager} from "./PropertiesWindowContent/Properti
 import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";
 import {ComponentGizmosManager} from "./componentGizmos/ComponentGizmosManager.js";
 import {MaterialMapTypeSerializerManager} from "./assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js";
-import {ProjectManager} from "./ProjectSelector/ProjectManager.js";
+import {ProjectManager} from "./projectSelector/ProjectManager.js";
 import {BuiltInDefaultAssetLinksManager} from "./assets/BuiltInDefaultAssetLinksManager.js";
 import {BuiltInAssetManager} from "./assets/BuiltInAssetManager.js";
 import {ScriptBuilder} from "./misc/ScriptBuilder.js";
