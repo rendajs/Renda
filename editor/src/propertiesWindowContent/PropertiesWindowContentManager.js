@@ -1,8 +1,8 @@
-import {autoRegisterContentWindows} from "../PropertiesWindowContent/autoRegisterContentWindows.js";
-import {PropertiesWindowContent} from "../PropertiesWindowContent/PropertiesWindowContent.js";
+import {autoRegisterContentWindows} from "./autoRegisterContentWindows.js";
+import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {ContentWindowProperties} from "../windowManagement/contentWindows/ContentWindowProperties.js";
-import {PropertiesWindowEmptyContent} from "../PropertiesWindowContent/PropertiesWindowEmptyContent.js";
-import {PropertiesWindowMultipleContent} from "../PropertiesWindowContent/PropertiesWindowMultipleContent.js";
+import {PropertiesWindowEmptyContent} from "./PropertiesWindowEmptyContent.js";
+import {PropertiesWindowMultipleContent} from "./PropertiesWindowMultipleContent.js";
 
 export class PropertiesWindowContentManager {
 	/**

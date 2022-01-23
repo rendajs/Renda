@@ -48,7 +48,7 @@ export class MaterialMapTypeSerializer {
 	 * This is optional if {@link settingsStructure} is set.
 	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
 	 * This will be used to render the material map settings in the properties window.
-	 * @type {typeof import("../../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent?}
+	 * @type {typeof import("../../../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/propertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent?}
 	 */
 	static propertiesMaterialMapContentConstructor = null;
 

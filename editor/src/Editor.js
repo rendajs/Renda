@@ -2,7 +2,7 @@ import {WindowManager} from "./windowManagement/WindowManager.js";
 import {SelectionManager} from "./misc/SelectionManager.js";
 import {ContextMenuManager} from "./ui/ContextMenus/ContextMenuManager.js";
 import {KeyboardShortcutManager} from "./KeyboardShortcuts/KeyboardShortcutManager.js";
-import {PropertiesWindowContentManager} from "./PropertiesWindowContent/PropertiesWindowContentManager.js";
+import {PropertiesWindowContentManager} from "./propertiesWindowContent/PropertiesWindowContentManager.js";
 import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";
 import {ComponentGizmosManager} from "./componentGizmos/ComponentGizmosManager.js";
 import {MaterialMapTypeSerializerManager} from "./assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js";

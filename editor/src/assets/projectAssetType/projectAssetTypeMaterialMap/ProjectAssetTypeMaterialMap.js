@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "../ProjectAssetType.js";
-import {PropertiesAssetContentMaterialMap} from "../../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
+import {PropertiesAssetContentMaterialMap} from "../../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
 import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 

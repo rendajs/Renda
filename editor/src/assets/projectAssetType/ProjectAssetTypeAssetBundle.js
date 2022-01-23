@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentAssetBundle} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentAssetBundle.js";
+import {PropertiesAssetContentAssetBundle} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentAssetBundle.js";
 
 /**
  * @typedef {Object} AssetBundleDiskData

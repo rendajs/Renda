@@ -12,7 +12,7 @@ export class ContentWindowProperties extends ContentWindow {
 		super(...args);
 
 		this.activeSelectionGroup = null;
-		/** @type {import("../../PropertiesWindowContent/PropertiesWindowContent.js").PropertiesWindowContent?} */
+		/** @type {import("../../propertiesWindowContent/PropertiesWindowContent.js").PropertiesWindowContent?} */
 		this.activeContent = null;
 
 		this.boundOnSelectionChanged = this.onSelectionChanged.bind(this);

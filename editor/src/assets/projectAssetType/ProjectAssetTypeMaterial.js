@@ -1,11 +1,11 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/mod.js";
-import {PropertiesAssetContentMaterial} from "../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js";
+import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/Math/MathTypes.js";
 
 /**
- * @extends {ProjectAssetType<Material, null, import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
+ * @extends {ProjectAssetType<Material, null, import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
  */
 export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	static type = "JJ:material";
@@ -40,7 +40,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	 * @override
 	 */
 	async saveLiveAssetData(liveAsset) {
-		/** @type {import("../../PropertiesWindowContent/PropertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
+		/** @type {import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
 		const mapUuid = this.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
 		if (mapUuid) {
