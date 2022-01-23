@@ -21,6 +21,11 @@ export class IndexedDbUtil {
 		}
 	}
 
+	/**
+	 * @template T
+	 * @param {IDBRequest<T>} request
+	 * @returns {Promise<T>}
+	 */
 	async promisifyRequest(request) {
 		if (request.readyState == "done") return request.result;
 		return await new Promise((resolve, reject) => {
@@ -31,6 +36,10 @@ export class IndexedDbUtil {
 		});
 	}
 
+	/**
+	 * @param {string} key
+	 * @param {string} objectStoreName
+	 */
 	getLocalStorageName(key, objectStoreName = this.objectStoreNames[0]) {
 		return "indexedDBFallback-" + this.dbName + "-" + objectStoreName + "-" + key;
 	}
@@ -48,6 +57,7 @@ export class IndexedDbUtil {
 	async get(key, objectStoreName = this.objectStoreNames[0]) {
 		if (!this.supported) {
 			let val = localStorage.getItem(this.getLocalStorageName(key, objectStoreName));
+			if (val === null) return null;
 			try {
 				val = JSON.parse(val);
 			} catch (e) {
@@ -55,7 +65,7 @@ export class IndexedDbUtil {
 			}
 			return val;
 		}
-		const request = await indexedDB.open(this.dbName);
+		const request = indexedDB.open(this.dbName);
 		const db = await this.promisifyRequest(request);
 		const transaction = db.transaction(objectStoreName, "readonly");
 		const objectStore = transaction.objectStore(objectStoreName);
@@ -79,9 +89,11 @@ export class IndexedDbUtil {
 	/**
 	 * Replaces the value of the key with the value returned by the callback.
 	 * Locks the value between read and write.
+	 * The parameter of the callback will be undefined if the key does not exist
+	 * yet, otherwise it will be the value of the key.
 	 * @template T
 	 * @param {string} key The key to save at.
-	 * @param {function(T) : T} cb The function to call to get the replaced value to save.
+	 * @param {(value: T | undefined) => T} cb The function to call to get the replaced value to save.
 	 * @param {string} objectStoreName The object store to save in.
 	 * @param {boolean} deleteEntry If true, deletes the entry instead of setting it.
 	 * @returns {Promise<void>}
@@ -117,7 +129,7 @@ export class IndexedDbUtil {
 				await this.promisifyRequest(cursorRequest);
 			}
 		} else {
-			const putRequest = objectStore.put(cb(null), key);
+			const putRequest = objectStore.put(cb(undefined), key);
 			await this.promisifyRequest(putRequest);
 		}
 	}
