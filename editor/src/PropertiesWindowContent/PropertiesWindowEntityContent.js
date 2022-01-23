@@ -1,6 +1,6 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {Quat} from "../../../src/mod.js";
-import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../UI/propertiesTreeView/PropertiesTreeView.js";
 import {Button} from "../UI/Button.js";
 import {DroppableGui} from "../UI/DroppableGui.js";
 import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/ContentWindowEntityEditor.js";
@@ -262,11 +262,11 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	 * @param {any} object
 	 * @param {string | number} propertyName
 	 * @param {any} scriptValue
-	 * @param {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} guiEntry
+	 * @param {import("../UI/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} guiEntry
 	 */
 	mapFromDroppableGuiValues(object, propertyName, scriptValue, guiEntry) {
 		if (Array.isArray(scriptValue)) {
-			const castGuiEntry = /** @type {import("../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../UI/ArrayGui.js").ArrayGui<any>>} */ (guiEntry);
+			const castGuiEntry = /** @type {import("../UI/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../UI/ArrayGui.js").ArrayGui<any>>} */ (guiEntry);
 			/** @type {unknown[]} */
 			const newScriptValue = [];
 			for (const [i, item] of scriptValue.entries()) {

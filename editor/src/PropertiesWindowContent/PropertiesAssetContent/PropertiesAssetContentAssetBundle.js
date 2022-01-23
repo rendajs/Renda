@@ -1,6 +1,6 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {ProjectAsset} from "../../assets/ProjectAsset.js";
-import {createTreeViewStructure} from "../../UI/PropertiesTreeView/createStructureHelpers.js";
+import {createTreeViewStructure} from "../../UI/propertiesTreeView/createStructureHelpers.js";
 
 /**
  * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>}

@@ -6,12 +6,12 @@ import {prettifyVariableName} from "../util/util.js";
  * @property {Object.<string, number>?} [enumObject]
  * @property {string | number} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  *
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & DropDownGuiOptionsType} DropDownGuiOptions
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & DropDownGuiOptionsType} DropDownGuiOptions
  */
 
 /**
  * @template {boolean} [T = true]
- * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {Object} GetValueOptions
  * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
  * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
@@ -29,7 +29,7 @@ import {prettifyVariableName} from "../util/util.js";
 
 /**
  * @template {boolean} [T = true]
- * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+ * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {U extends "fileStorage" ? string :
  * U extends "binaryComposer" ? number :
  * U extends "default" | undefined ? (
@@ -43,10 +43,10 @@ import {prettifyVariableName} from "../util/util.js";
 /**
  * @template TOpts
  * @typedef {TOpts extends GetValueOptionsNoConstraints<infer T, infer U> ?
- * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, true> extends infer TDefaulted ?
- * 			import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 		import("./propertiesTreeView/types.js").ReplaceUnknown<T, true> extends infer TDefaulted ?
+ * 			import("./propertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
  * 				TDefaulted extends boolean ?
- * 					UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 					UDefaulted extends import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
  * 						GetValueReturn<TDefaulted, UDefaulted> :
  * 						never :
  * 					never :
@@ -166,7 +166,7 @@ export class DropDownGui {
 
 	/**
 	 * @template {boolean} [T = true]
-	 * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
+	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
 	 * @param {GetValueOptions<T, U>} opts
 	 * @returns {GetValueReturn<T, U>}
 	 */

@@ -17,7 +17,7 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  * @typedef {Object} ComponentTypeData
  * @property {string} uuid
  * @property {string} name
- * @property {import("../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} properties
+ * @property {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
  * @property {import("../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} binaryComposerOpts
  */
 
@@ -55,7 +55,7 @@ export class Component {
 		return null;
 	}
 	/**
-	 * @returns {import("../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @returns {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static get guiStructure() {
 		return null;
@@ -221,7 +221,7 @@ export class Component {
 
 	/**
 	 *
-	 * @param {import("../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} properties
+	 * @param {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
 	 * @param {ComponentEditorOptions?} editorOpts
 	 */
 	_setDefaultValues(properties, editorOpts = null) {
@@ -233,7 +233,7 @@ export class Component {
 	/**
 	 * @param {Object.<string | number, unknown>} object
 	 * @param {string} propertyName
-	 * @param {import("../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
+	 * @param {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
 	 * @param {ComponentEditorOptions?} editorOpts
 	 */
 	setPropertyDefaultValue(object, propertyName, propertyData, editorOpts = null) {
@@ -247,7 +247,7 @@ export class Component {
 			if (defaultValue) {
 				const arrayGuiOptions = /** @type {import("../../editor/src/UI/ArrayGui.js").ArrayGuiOptions} */ (propertyData.guiOpts);
 				for (const [i, value] of Object.entries(defaultValue)) {
-					/** @type {import("../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+					/** @type {import("../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 					const childPropertyData = {
 						type: arrayGuiOptions.arrayType,
 						guiOpts: {

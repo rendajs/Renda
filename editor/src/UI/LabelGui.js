@@ -2,7 +2,7 @@
  * @typedef {Object} LabelGuiOptionsType
  * @property {boolean} [showLabelBackground = true] Whether to show a background around the label text.
  *
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & LabelGuiOptionsType} LabelGuiOptions
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & LabelGuiOptionsType} LabelGuiOptions
  */
 
 export class LabelGui {

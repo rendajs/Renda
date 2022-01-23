@@ -1,11 +1,11 @@
 import {EditorConnectionsManager} from "../../Network/EditorConnections/EditorConnectionsManager.js";
-import {PropertiesTreeView} from "../../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../UI/propertiesTreeView/PropertiesTreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 
 /**
  * @typedef {Object} ConectionGui
  * @property {PropertiesTreeView<any>} treeView
- * @property {import("../../UI/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../UI/LabelGui.js").LabelGui>} statusLabel
+ * @property {import("../../UI/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../UI/LabelGui.js").LabelGui>} statusLabel
  */
 
 export class ContentWindowConnections extends ContentWindow {

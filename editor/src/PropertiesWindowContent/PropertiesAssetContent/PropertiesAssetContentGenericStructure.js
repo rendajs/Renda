@@ -5,7 +5,7 @@ import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
  */
 export class PropertiesAssetContentGenericStructure extends PropertiesAssetContent {
 	/**
-	 * @param {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
 	constructor(structure, ...args) {

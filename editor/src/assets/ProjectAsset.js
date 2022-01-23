@@ -1,7 +1,7 @@
 import {getEditorInstanceCertain} from "../editorInstance.js";
 import {AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/mod.js";
 import {getNameAndExtension} from "../util/fileSystems/pathUtil.js";
-import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../UI/propertiesTreeView/PropertiesTreeView.js";
 import {StorageType} from "../../../src/util/BinaryComposer.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker.js";

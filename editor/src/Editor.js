@@ -1,6 +1,6 @@
 import {WindowManager} from "./windowManagement/WindowManager.js";
 import {SelectionManager} from "./misc/SelectionManager.js";
-import {ContextMenuManager} from "./UI/ContextMenus/ContextMenuManager.js";
+import {ContextMenuManager} from "./UI/contextMenus/ContextMenuManager.js";
 import {KeyboardShortcutManager} from "./KeyboardShortcuts/KeyboardShortcutManager.js";
 import {PropertiesWindowContentManager} from "./PropertiesWindowContent/PropertiesWindowContentManager.js";
 import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";

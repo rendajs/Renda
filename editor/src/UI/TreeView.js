@@ -78,8 +78,8 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 
 /**
  * @callback showContextMenuCallback
- * @param {import("./ContextMenus/ContextMenu.js").ContextMenuStructure} [structure]
- * @returns {import("./ContextMenus/ContextMenu.js").ContextMenu}
+ * @param {import("./contextMenus/ContextMenu.js").ContextMenuStructure} [structure]
+ * @returns {import("./contextMenus/ContextMenu.js").ContextMenu}
  */
 
 /**

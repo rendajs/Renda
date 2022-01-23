@@ -16,7 +16,7 @@ export class MeshComponent extends Component {
 	 * @override
 	 */
 	static get guiStructure() {
-		/** @type {import("../../../editor/src/UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../../editor/src/UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		const structure = {
 			mesh: {
 				type: "droppable",

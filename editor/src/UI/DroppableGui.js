@@ -12,12 +12,12 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  */
 /**
  * @template {new (...args: any) => any} T
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & DroppableGuiOptionsType<T>} DroppableGuiOptions
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & DroppableGuiOptionsType<T>} DroppableGuiOptions
  */
 
 /**
  * @template {boolean} U
- * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
+ * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
  * @typedef {Object} DroppableGuiGetValueOptions
  * @property {boolean} [resolveDefaultAssetLinks = false]
  * @property {U} [returnLiveAsset = false]
@@ -36,7 +36,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
 /**
  * @template T
  * @template {boolean} [U = false]
- * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+ * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
  * @typedef {V extends "script" ?
  * 		T? :
  * 		U extends true ?
@@ -62,10 +62,10 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @template TDroppableInstance
  * @template TOpts
  * @typedef {TOpts extends DroppableGuiGetValueOptionsNoConstraints<infer T, infer U> ?
- * 		import("./PropertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
+ * 		import("./propertiesTreeView/types.js").ReplaceUnknown<T, false> extends infer TDefaulted ?
  * 			TDefaulted extends boolean ?
- * 				import("./PropertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
- * 					UDefaulted extends import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
+ * 				import("./propertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
+ * 					UDefaulted extends import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
  * 						TDroppableInstance extends DroppableGui<infer TAssetType> ?
  * 							DroppableGuiGetValueReturn<TAssetType, TDefaulted, UDefaulted> :
  * 							never :
@@ -178,7 +178,7 @@ export class DroppableGui {
 
 	/**
 	 * @template {boolean} [U = false]
-	 * @template {import("./PropertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
+	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {DroppableGuiGetValueOptions<U, V>} options
 	 * @returns {DroppableGuiGetValueReturn<T, U, V>}
 	 */
@@ -478,7 +478,7 @@ export class DroppableGui {
 	onContextMenu(e) {
 		e.preventDefault();
 		if (!this.projectAssetValue) return;
-		/** @type {import("./ContextMenus/ContextMenu.js").ContextMenuStructure} */
+		/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
 		if (!this.disabled) {
 			contextMenuStructure.push({

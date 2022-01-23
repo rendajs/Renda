@@ -1,20 +1,20 @@
-import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
 
 /**
- * @template {import("./PropertiesTreeView/types.js").PropertiesTreeViewStructure} T
+ * @template {import("./propertiesTreeView/types.js").PropertiesTreeViewStructure} T
  * @typedef {Object} ObjectGuiOptionsType
  * @property {T} [structure]
- * @property {import("./PropertiesTreeView/types.js").StructureToSetObject<T>} [value]
+ * @property {import("./propertiesTreeView/types.js").StructureToSetObject<T>} [value]
  */
 /**
- * @template {import("./PropertiesTreeView/types.js").PropertiesTreeViewStructure} T
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ObjectGuiOptionsType<T>} ObjectGuiOptions
+ * @template {import("./propertiesTreeView/types.js").PropertiesTreeViewStructure} T
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ObjectGuiOptionsType<T>} ObjectGuiOptions
  */
 
 /**
  * @template TOpts
  * @typedef {TOpts extends {structure: infer S} ?
- * 	S extends import("./PropertiesTreeView/types.js").PropertiesTreeViewStructure ?
+ * 	S extends import("./propertiesTreeView/types.js").PropertiesTreeViewStructure ?
  * 		S :
  * 		never :
  * 	never} GuiOptionsToTemplate
@@ -29,16 +29,16 @@ import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
  * @template TObjectGuiInstance
  * @template TOpts
  * @typedef {TObjectGuiInstance extends ObjectGui<infer TStructure> ?
- * 		import("./PropertiesTreeView/types.js").GetStructureValuesReturnType<TStructure, TOpts> :
+ * 		import("./propertiesTreeView/types.js").GetStructureValuesReturnType<TStructure, TOpts> :
  * 		never} GetObjectValueTypeForOptions
  */
 
 /**
- * @template {import("./PropertiesTreeView/types.js").PropertiesTreeViewStructure} T
+ * @template {import("./propertiesTreeView/types.js").PropertiesTreeViewStructure} T
  */
 export class ObjectGui {
 	/**
-	 * @typedef {(value: import("./PropertiesTreeView/types.js").GetStructureValuesReturnType<T, {}>) => void} OnValueChangeCallback
+	 * @typedef {(value: import("./propertiesTreeView/types.js").GetStructureValuesReturnType<T, {}>) => void} OnValueChangeCallback
 	 */
 
 	/**
@@ -46,7 +46,7 @@ export class ObjectGui {
 	 */
 	constructor({
 		structure = /** @type {T} */ ({}),
-		value = /** @type {import("./PropertiesTreeView/types.js").StructureToSetObject<T>} */ ({}),
+		value = /** @type {import("./propertiesTreeView/types.js").StructureToSetObject<T>} */ ({}),
 		disabled = false,
 	} = {}) {
 		this.disabled = false;
@@ -63,21 +63,21 @@ export class ObjectGui {
 	}
 
 	/**
-	 * @param {import("./PropertiesTreeView/types.js").StructureToSetObject<T>} value
-	 * @param {import("./PropertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
+	 * @param {import("./propertiesTreeView/types.js").StructureToSetObject<T>} value
+	 * @param {import("./propertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
 	 */
 	setValue(value, setValueOpts) {
 		this.treeView.fillSerializableStructureValues(value, setValueOpts);
 	}
 
 	/**
-	 * @template {import("./PropertiesTreeView/types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
+	 * @template {import("./propertiesTreeView/types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
 	 * @param {TGuiOpts} [guiOpts]
-	 * @returns {import("./PropertiesTreeView/types.js").GetStructureValuesReturnType<T, TGuiOpts>}
+	 * @returns {import("./propertiesTreeView/types.js").GetStructureValuesReturnType<T, TGuiOpts>}
 	 */
 	getValue(guiOpts) {
 		const result = this.treeView.getSerializableStructureValues(this.structure, guiOpts);
-		return /** @type {import("./PropertiesTreeView/types.js").GetStructureValuesReturnType<T, TGuiOpts>} */ (result);
+		return /** @type {import("./propertiesTreeView/types.js").GetStructureValuesReturnType<T, TGuiOpts>} */ (result);
 	}
 
 	get value() {

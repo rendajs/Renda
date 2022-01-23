@@ -1,5 +1,5 @@
 
-import {PropertiesTreeView} from "../../../../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../../../UI/propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * Responsible for rendering settings ui for a specicic MaterialMap type in

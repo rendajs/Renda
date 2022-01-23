@@ -123,7 +123,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 
 	/**
 	 * @param {*} jsonData
-	 * @param {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure?} componentProperties
+	 * @param {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure?} componentProperties
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
@@ -142,8 +142,8 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {*} newParentObject
 	 * @param {*} originalParentObject
 	 * @param {string} propertyKey
-	 * @param {import("../../UI/PropertiesTreeView/types.js").GuiTypes | undefined} propertyType
-	 * @param {import("../../UI/PropertiesTreeView/types.js").GuiOptionsBase | undefined} propertyGuiOpts
+	 * @param {import("../../UI/propertiesTreeView/types.js").GuiTypes | undefined} propertyType
+	 * @param {import("../../UI/propertiesTreeView/types.js").GuiOptionsBase | undefined} propertyGuiOpts
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async fillComponentPropertyValueFromJson(newParentObject, originalParentObject, propertyKey, propertyType, propertyGuiOpts, recursionTracker) {

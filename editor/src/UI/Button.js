@@ -12,11 +12,11 @@
  */
 
 /**
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ButtonGuiOptionsType<*>} ButtonGuiOptions
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonGuiOptionsType<*>} ButtonGuiOptions
  */
 /**
  * @template TCallbacksContext
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ButtonGuiOptionsType<TCallbacksContext>} ButtonGuiOptionsWithCallbacksContext<TCallbacksContext>
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonGuiOptionsType<TCallbacksContext>} ButtonGuiOptionsWithCallbacksContext<TCallbacksContext>
  */
 
 /** @typedef {(button: Button, event: MouseEvent) => any} ContextMenuCallback */

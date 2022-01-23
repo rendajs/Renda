@@ -98,9 +98,9 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		if (!this.mapTreeView.value) return;
 
 		const mappableValues = await this.editorInstance.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
-		/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
-			/** @type {import("../../UI/PropertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+			/** @type {import("../../UI/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
 			const addItemOpts = {
 				type: valueData.type,
 				guiOpts: {

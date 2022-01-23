@@ -1,5 +1,5 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {PropertiesTreeView} from "../UI/PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../UI/propertiesTreeView/PropertiesTreeView.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {PropertiesAssetContentGenericStructure} from "./PropertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
@@ -58,7 +58,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 	async updateAssetSettings() {
 		if (!this.currentSelection) return;
 
-		/** @type {import("../UI/PropertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../UI/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		let settingsStructure = {};
 		/** @type {unknown} */
 		let settingsValues = {};
@@ -81,7 +81,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 
 		this.assetSettingsTree.generateFromSerializableStructure(settingsStructure, {callbacksContext});
 		this.isUpdatingAssetSettingsUi = true;
-		const castSettingsValues = /** @type {import("../UI/PropertiesTreeView/types.js").StructureToSetObject<any>} */ (settingsValues);
+		const castSettingsValues = /** @type {import("../UI/propertiesTreeView/types.js").StructureToSetObject<any>} */ (settingsValues);
 		this.assetSettingsTree.fillSerializableStructureValues(castSettingsValues);
 		this.isUpdatingAssetSettingsUi = false;
 	}

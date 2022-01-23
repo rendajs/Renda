@@ -1,41 +1,41 @@
-import {PropertiesTreeView} from "./PropertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
 import {ButtonGroup} from "../UI/ButtonGroup.js";
 import {Button} from "./Button.js";
 
 /**
- * @template {import("./PropertiesTreeView/types.js").GuiTypes} T
- * @typedef {T extends import("./PropertiesTreeView/types.js").GuiTypes ?
+ * @template {import("./propertiesTreeView/types.js").GuiTypes} T
+ * @typedef {T extends import("./propertiesTreeView/types.js").GuiTypes ?
  * 	{
  * 		arrayType: T,
- * 		arrayGuiOpts?: import("./PropertiesTreeView/types.js").GetGuiOptions<T>,
+ * 		arrayGuiOpts?: import("./propertiesTreeView/types.js").GetGuiOptions<T>,
  * 		value?: any[],
  * 	} :
  * never} ArrayGuiOptionsType
  */
 /**
- * @template {import("./PropertiesTreeView/types.js").GuiTypes} T
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & ArrayGuiOptionsType<T>} ArrayGuiOptions
+ * @template {import("./propertiesTreeView/types.js").GuiTypes} T
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ArrayGuiOptionsType<T>} ArrayGuiOptions
  */
 
 /**
  * @template TOpts
- * @typedef {TOpts extends ArrayGuiOptions<import("./PropertiesTreeView/types.js").GuiTypes> ? ArrayGui<TOpts> : never} GetArrayGuiForOptions
+ * @typedef {TOpts extends ArrayGuiOptions<import("./propertiesTreeView/types.js").GuiTypes> ? ArrayGui<TOpts> : never} GetArrayGuiForOptions
  */
 
 /**
  * @template TObjectGuiInstance
  * @template TOpts
  * @typedef {TObjectGuiInstance extends ArrayGui<infer TStructure> ?
- * 		import("./PropertiesTreeView/types.js").GetArrayStructureValuesReturnType<TStructure, TOpts> :
+ * 		import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<TStructure, TOpts> :
  * 		never} GetArrayGuiValueTypeForOptions
  */
 
 /**
- * @template {ArrayGuiOptions<import("./PropertiesTreeView/types.js").GuiTypes>} T
+ * @template {ArrayGuiOptions<import("./propertiesTreeView/types.js").GuiTypes>} T
  */
 export class ArrayGui {
 	/**
-	 * @typedef {(value: import("./PropertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}>) => void} OnValueChangeCallback
+	 * @typedef {(value: import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}>) => void} OnValueChangeCallback
 	 */
 
 	/**
@@ -52,7 +52,7 @@ export class ArrayGui {
 		this.el = document.createElement("div");
 		this.el.classList.add("arrayGui");
 
-		/** @type {import("./PropertiesTreeView/types.js").GetArrayValueItemType<T>[]} */
+		/** @type {import("./propertiesTreeView/types.js").GetArrayValueItemType<T>[]} */
 		this.valueItems = [];
 		this.type = arrayType;
 		this.arrayGuiOpts = arrayGuiOpts;
@@ -93,7 +93,7 @@ export class ArrayGui {
 	// adds new item to the end of the array
 	addItem(extraArrayOpts = {}) {
 		const index = this.value.length;
-		/** @type {import("./PropertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+		/** @type {import("./propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
 		const addItemOpts = {
 			type: this.type,
 			guiOpts: {
@@ -126,8 +126,8 @@ export class ArrayGui {
 	}
 
 	/**
-	 * @param {import("./PropertiesTreeView/types.js").ArrayStructureToSetObject<T>} value
-	 * @param {import("./PropertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
+	 * @param {import("./propertiesTreeView/types.js").ArrayStructureToSetObject<T>} value
+	 * @param {import("./propertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
 	 */
 	setValue(value, setValueOpts) {
 		if (!value) value = [];
@@ -139,7 +139,7 @@ export class ArrayGui {
 		}
 		const castValueAny = /** @type {any[]} */ (value);
 		for (const [i, item] of castValueAny.entries()) {
-			/** @type {import("./PropertiesTreeView/types.js").BaseSetValueOptions} */
+			/** @type {import("./propertiesTreeView/types.js").BaseSetValueOptions} */
 			const newSetValueOpts = {
 				...setValueOpts,
 				setOnObject: value,
@@ -149,22 +149,22 @@ export class ArrayGui {
 				const addedItem = this.addItem();
 				addedItem.setValue(item, newSetValueOpts);
 			} else {
-				const gui = /** @type {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} */ (this.valueItems[i]);
+				const gui = /** @type {import("./propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} */ (this.valueItems[i]);
 				gui.setValue(item, newSetValueOpts);
 			}
 		}
 	}
 
 	/**
-	 * @template {import("./PropertiesTreeView/types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
+	 * @template {import("./propertiesTreeView/types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
 	 * @param {TGuiOpts} [guiOpts]
-	 * @returns {import("./PropertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, TGuiOpts>}
+	 * @returns {import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, TGuiOpts>}
 	 */
 	getValue(guiOpts) {
 		const valueArray = [];
 		for (const item of this.valueItems) {
 			let value = null;
-			const gui = /** @type {import("./PropertiesTreeView/PropertiesTreeViewEntry.js").GuiInterface} */ (item.gui);
+			const gui = /** @type {import("./propertiesTreeView/PropertiesTreeViewEntry.js").GuiInterface} */ (item.gui);
 			if (gui.getValue) {
 				value = gui.getValue(guiOpts);
 			} else {

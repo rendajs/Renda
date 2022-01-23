@@ -2,7 +2,7 @@
  * @typedef {Object} TextGuiOptionsType
  * @property {string} [placeholder = ""] The text to show when the textfield is empty.
  *
- * @typedef {import("./PropertiesTreeView/types.js").GuiOptionsBase & TextGuiOptionsType} TextGuiOptions
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & TextGuiOptionsType} TextGuiOptions
  */
 
 export class TextGui {
