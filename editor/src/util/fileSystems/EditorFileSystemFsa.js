@@ -431,6 +431,9 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 	}
 
 	/**
+	 * Traverse the file tree and check if the entries still match that of the
+	 * watch tree. If not, the file has been changed externally and we'll fire
+	 * an external change event.
 	 * @param {WatchTreeNode} watchTree
 	 * @param {FileSystemDirectoryHandle} dirHandle
 	 * @param {import("./EditorFileSystem.js").FileSystemExternalChangeEvent[]} collectedChanges
@@ -541,7 +544,7 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 				} else {
 					/** @type {WatchTreeNode} */
 					const newNode = {
-						init: false,
+						init: true,
 						lastModified,
 						kind: "directory",
 						children: new Map(),

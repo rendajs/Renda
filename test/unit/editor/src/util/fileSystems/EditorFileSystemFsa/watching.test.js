@@ -107,6 +107,25 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Removed directory",
+	fn: async () => {
+		const {fs, onlyDirsDirHandle, changeEvents} = await initListener();
+
+		onlyDirsDirHandle.removeEntry("subdir1");
+		fs.suggestCheckExternalChanges();
+		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
+
+		assertEquals(changeEvents, [
+			{
+				kind: "directory",
+				path: ["root", "onlydirs", "subdir1"],
+				type: "deleted",
+			},
+		]);
+	},
+});
+
+Deno.test({
 	name: "No permission",
 	fn: async () => {
 		const {fs, onlyFilesDirHandle, changeEvents} = await initListener(basicFs => {
@@ -199,10 +218,8 @@ Deno.test({
 	},
 });
 
-// TODO: Fix this bug
 Deno.test({
 	name: "Creating file in recursive subdirectory from application shouldn't trigger watch events",
-	ignore: true,
 	fn: async () => {
 		const {fs, changeEvents} = await initListener();
 
