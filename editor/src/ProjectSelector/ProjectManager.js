@@ -201,11 +201,11 @@ export class ProjectManager {
 		await editor.windowManager.reloadCurrentWorkspace();
 		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 
-		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
-		editor.windowManager.setContentWindowPersistentData(contentWindowPersistentData);
-
 		await this.reloadAssetManager();
 		this.updateEditorConnectionsManager();
+
+		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
+		editor.windowManager.setContentWindowPersistentData(contentWindowPersistentData);
 
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
