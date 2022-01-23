@@ -150,7 +150,7 @@ export class ContentWindow {
 	}
 
 	_loop() {
-		if (!this.el) return; // if destructed
+		if (this.destructed) return;
 		this.loop();
 		window.requestAnimationFrame(this._loop.bind(this));
 	}
