@@ -21,6 +21,7 @@ export class Vec3 {
 	 * @param {Vec3Parameters} args
 	 */
 	constructor(...args) {
+		/** @type {Set<() => void>} */
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
@@ -115,14 +116,20 @@ export class Vec3 {
 				this._z = 0;
 			}
 		} else {
-			if (args.length >= 1) this._x = args[0];
-			if (args.length >= 2) this._y = args[1];
-			if (args.length >= 3) this._z = args[2];
+			const x = args[0];
+			const y = args[1];
+			const z = args[2];
+			if (x != undefined) this._x = x;
+			if (y != undefined) this._y = y;
+			if (z != undefined) this._z = z;
 		}
 
 		this.fireOnChange();
 	}
 
+	/**
+	 * @returns {Vec3}
+	 */
 	clone() {
 		return new Vec3(this);
 	}
@@ -244,6 +251,12 @@ export class Vec3 {
 		return this;
 	}
 
+	/**
+	 * If a single number is provided, adds the number to each component.
+	 * Otherwise the arguments are converted to a Vector and each of its
+	 * components are added to this vector.
+	 * @param {Parameters<typeof this.addScalar> | Vec3Parameters} args
+	 */
 	add(...args) {
 		if (args.length == 1 && typeof args[0] == "number") {
 			return this.addScalar(args[0]);
@@ -283,10 +296,16 @@ export class Vec3 {
 		return [this.x, this.y, this.z];
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}

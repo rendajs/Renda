@@ -17,6 +17,7 @@ export class Vec4 {
 	 * @param {Vec4Parameters} args
 	 */
 	constructor(...args) {
+		/** @type {Set<() => void>} */
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
@@ -84,10 +85,14 @@ export class Vec4 {
 				this._x = arg;
 			}
 		} else {
-			if (args.length >= 1) this._x = args[0];
-			if (args.length >= 2) this._y = args[1];
-			if (args.length >= 3) this._z = args[2];
-			if (args.length >= 4) this._w = args[3];
+			const x = args[0];
+			const y = args[1];
+			const z = args[2];
+			const w = args[3];
+			if (x != undefined) this._x = x;
+			if (y != undefined) this._y = y;
+			if (z != undefined) this._z = z;
+			if (w != undefined) this._w = w;
 		}
 
 		this.fireOnChange();
@@ -203,10 +208,16 @@ export class Vec4 {
 		return [this.x, this.y, this.z, this.w];
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}

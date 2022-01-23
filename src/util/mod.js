@@ -82,6 +82,9 @@ export function mapValue(fromMin, fromMax, toMin, toMax, value, performClamp = f
 	return lerp(toMin, toMax, lerpedVal);
 }
 
+/**
+ * @param {ReadableStream} stream
+ */
 export async function *streamAsyncIterator(stream) {
 	const reader = stream.getReader();
 	try {
@@ -125,6 +128,9 @@ export function isUuid(uuidStr) {
 	return re.test(uuidStr);
 }
 
+/**
+ * @param {ArrayBufferLike} buffer
+ */
 export function arrayBufferToBase64(buffer) {
 	let binaryStr = "";
 	const bytes = new Uint8Array(buffer);
@@ -135,6 +141,9 @@ export function arrayBufferToBase64(buffer) {
 	return btoa(binaryStr);
 }
 
+/**
+ * @param {string} base64
+ */
 export function base64ToArrayBuffer(base64) {
 	const binaryStr = atob(base64);
 	const length = binaryStr.length;

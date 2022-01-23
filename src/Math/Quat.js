@@ -22,6 +22,7 @@ export class Quat {
 	 * @param {QuatParameters} args
 	 */
 	constructor(...args) {
+		/** @type {Set<() => void>} */
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
@@ -62,10 +63,14 @@ export class Quat {
 				this._x = arg;
 			}
 		} else {
-			if (args.length >= 1) this._x = args[0];
-			if (args.length >= 2) this._y = args[1];
-			if (args.length >= 3) this._z = args[2];
-			if (args.length >= 4) this._w = args[3];
+			const x = args[0];
+			const y = args[1];
+			const z = args[2];
+			const w = args[3];
+			if (x != undefined) this._x = x;
+			if (y != undefined) this._y = y;
+			if (z != undefined) this._z = z;
+			if (w != undefined) this._w = w;
 		}
 
 		this.fireOnChange();
@@ -113,7 +118,7 @@ export class Quat {
 	static fromAxisAngle(...args) {
 		/** @type {Vec3} */
 		let axis;
-		/** @type {number} */
+		/** @type {number | undefined} */
 		let angle;
 		if (args.length == 1) {
 			axis = args[0];
@@ -126,6 +131,8 @@ export class Quat {
 		} else if (args.length == 4) {
 			axis = new Vec3(args[0], args[1], args[2]);
 			angle = args[3];
+		} else {
+			throw new Error("Invalid arguments");
 		}
 		if (angle == undefined) {
 			angle = axis.magnitude;
@@ -174,7 +181,7 @@ export class Quat {
 
 	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
 	/**
-	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 * @param {import("./Vec3.js").Vec3Parameters} args
 	 */
 	static fromEuler(...args) {
 		const vec = new Vec3(...args);
@@ -194,6 +201,10 @@ export class Quat {
 		return new Quat(qx, qy, qz, qw);
 	}
 
+	/**
+	 * @param {Quat} q1
+	 * @param {Quat} q2
+	 */
 	static multiplyQuaternions(q1, q2) {
 		return new Quat(
 			q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
@@ -203,11 +214,17 @@ export class Quat {
 		);
 	}
 
+	/**
+	 * @param {Quat} q
+	 */
 	preMultiply(q) {
 		this.set(Quat.multiplyQuaternions(q, this));
 		return this;
 	}
 
+	/**
+	 * @param {Quat} q
+	 */
 	multiply(q) {
 		this.set(Quat.multiplyQuaternions(this, q));
 		return this;
@@ -259,10 +276,16 @@ export class Quat {
 		return [this.x, this.y, this.z, this.w];
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}

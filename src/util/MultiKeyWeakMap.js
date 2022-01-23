@@ -1,11 +1,14 @@
 const endNode = {};
 
 /**
- * @template K
- * @template V
+ * @template {any[]} [K = unknown[]]
+ * @template [V = unknown]
  */
 export class MultiKeyWeakMap {
-	constructor(iterable) {
+	/**
+	 * @param {Iterable<[K, V]>} iterable
+	 */
+	constructor(iterable = []) {
 		this.maps = new WeakMap();
 		if (iterable) {
 			for (const [keys, value] of iterable) {
@@ -14,7 +17,17 @@ export class MultiKeyWeakMap {
 		}
 	}
 
-	getLastMap(keys, create = false) {
+	/**
+	 * @template {boolean} C
+	 * @typedef {C extends true ? WeakMap<Object, any> : WeakMap<Object, any> | undefined} GetLastMapReturnType
+	 */
+
+	/**
+	 * @template {boolean} C
+	 * @param {K} keys
+	 * @param {C} create
+	 */
+	getLastMap(keys, create = /** @type {C} */ (false)) {
 		let map = this.maps;
 		for (const key of keys) {
 			if (map.has(key)) {
@@ -24,12 +37,16 @@ export class MultiKeyWeakMap {
 				map.set(key, newMap);
 				map = newMap;
 			} else {
-				return undefined;
+				return /** @type {GetLastMapReturnType<C>} */ (undefined);
 			}
 		}
-		return map;
+		return /** @type {GetLastMapReturnType<C>} */ (map);
 	}
 
+	/**
+	 * @param {K} keys
+	 * @param {V} value
+	 */
 	set(keys, value) {
 		const map = this.getLastMap(keys, true);
 		map.set(endNode, value);
@@ -38,7 +55,7 @@ export class MultiKeyWeakMap {
 
 	/**
 	 * @param {K} keys
-	 * @returns {V}
+	 * @returns {V | undefined}
 	 */
 	get(keys) {
 		const map = this.getLastMap(keys);

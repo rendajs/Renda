@@ -3,7 +3,7 @@ import {Vec4} from "./Vec4.js";
 
 export class Vec2 {
 	/**
-	 * @param {Vec2SetParameters} args
+	 * @param {Vec2Parameters} args
 	 */
 	constructor(...args) {
 		this.onChangeCbs = new Set();
@@ -35,11 +35,11 @@ export class Vec2 {
 	 * @typedef {(vec: Vec4) => this} vec2SetVec4Signature
 	 * @typedef {(x: number, y: number) => this} vec2SetNumNumSignature
 	 * @typedef {(xy: number[]) => this} vec2SetArraySignature
-	 * @typedef {import("./types.js").MergeParameters<vec2SetEmptySignature | vec2SetVec2Signature | vec2SetVec3Signature | vec2SetVec4Signature | vec2SetNumNumSignature | vec2SetArraySignature>} Vec2SetParameters
+	 * @typedef {import("./types.js").MergeParameters<vec2SetEmptySignature | vec2SetVec2Signature | vec2SetVec3Signature | vec2SetVec4Signature | vec2SetNumNumSignature | vec2SetArraySignature>} Vec2Parameters
 	 */
 
 	/**
-	 * @param {Vec2SetParameters} args
+	 * @param {Vec2Parameters} args
 	 */
 	set(...args) {
 		this._x = 0;
@@ -69,13 +69,13 @@ export class Vec2 {
 	}
 
 	/**
-	 * @param {Parameters<typeof this.multiplyScalar> | Vec2SetParameters} args
+	 * @param {Parameters<typeof this.multiplyScalar> | Vec2Parameters} args
 	 */
 	multiply(...args) {
 		if (args.length == 1 && typeof args[0] == "number") {
 			return this.multiplyScalar(args[0]);
 		} else {
-			const castArgs = /** @type {Vec2SetParameters} */ (args);
+			const castArgs = /** @type {Vec2Parameters} */ (args);
 			return this.multiplyVector(new Vec2(...castArgs));
 		}
 	}
@@ -105,13 +105,16 @@ export class Vec2 {
 	}
 
 	/**
-	 * @param {Parameters<typeof this.addScalar> | Vec2SetParameters} args
+	 * If a single number is provided, adds the number to each component.
+	 * Otherwise the arguments are converted to a Vector and each of its
+	 * components are added to this vector.
+	 * @param {Parameters<typeof this.addScalar> | Vec2Parameters} args
 	 */
 	add(...args) {
 		if (args.length == 1 && typeof args[0] == "number") {
 			return this.addScalar(args[0]);
 		} else {
-			const castArgs = /** @type {Vec2SetParameters} */ (args);
+			const castArgs = /** @type {Vec2Parameters} */ (args);
 			return this.addVector(new Vec2(...castArgs));
 		}
 	}

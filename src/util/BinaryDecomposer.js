@@ -1,4 +1,7 @@
 export class BinaryDecomposer {
+	/**
+	 * @param {ArrayBuffer} buffer
+	 */
 	constructor(buffer, {
 		littleEndian = true,
 	} = {}) {
@@ -44,6 +47,9 @@ export class BinaryDecomposer {
 		return val;
 	}
 
+	/**
+	 * @param {number} byteLength
+	 */
 	getBuffer(byteLength) {
 		const buffer = this.dataView.buffer.slice(this.cursor, this.cursor + byteLength);
 		this.cursor += byteLength;
@@ -54,14 +60,21 @@ export class BinaryDecomposer {
 		return BinaryDecomposer.binaryToUuid(this.getBuffer(16));
 	}
 
+	/**
+	 * @param {ArrayBufferLike} buffer
+	 */
 	static binaryToUuid(buffer, offset = 0) {
+		/** @type {Uint8Array} */
+		let bufferView;
 		if (!ArrayBuffer.isView(buffer)) {
-			buffer = new Uint8Array(buffer);
+			bufferView = new Uint8Array(buffer);
+		} else {
+			bufferView = /** @type {Uint8Array} */ (buffer);
 		}
 		let allZeros = true;
 		let str = "";
 		for (let i = 0; i < 16; i++) {
-			const intValue = buffer[offset + i];
+			const intValue = bufferView[offset + i];
 			if (intValue != 0) allZeros = false;
 			str += intValue.toString(16).padStart(2, "0");
 			if (i == 3 || i == 5 || i == 7 || i == 9) str += "-";
