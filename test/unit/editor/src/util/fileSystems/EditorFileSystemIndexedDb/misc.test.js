@@ -32,3 +32,17 @@ Deno.test({
 		await finishCoverageMapWrites();
 	},
 });
+
+Deno.test({
+	name: "getRootName() should return the value passed in setRootName()",
+	fn: async () => {
+		const fs = await createFs();
+		await fs.setRootName("theRootName");
+
+		const result = await fs.getRootName();
+
+		assertEquals(result, "theRootName");
+
+		await finishCoverageMapWrites();
+	},
+});
