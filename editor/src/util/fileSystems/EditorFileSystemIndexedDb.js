@@ -185,9 +185,9 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	async getObjectFromPath(path) {
 		let pointer = await this.getRootPointer();
 		let obj = await this.getObject(pointer);
-		const dirObj = this.assertIsDir(obj);
 		for (const dir of path) {
 			let foundAny = false;
+			const dirObj = this.assertIsDir(obj);
 			for (const filePointer of dirObj.files) {
 				const fileObj = await this.getObject(filePointer);
 				if (fileObj.fileName == dir) {
