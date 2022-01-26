@@ -269,6 +269,7 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} toPath
 	 */
 	async move(fromPath = [], toPath = []) {
+		super.move(fromPath, toPath);
 		if (await this.isDir(fromPath)) {
 			throw new Error("not yet implemented");
 		}

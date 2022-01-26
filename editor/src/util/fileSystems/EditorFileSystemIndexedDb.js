@@ -422,6 +422,9 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {string[]} toPath
 	 */
 	async move(fromPath, toPath) {
+		super.move(fromPath, toPath);
+		this.fireOnBeforeAnyChange();
+
 		const travelledData = await this.findDeepestExisting(fromPath);
 		// todo: error if file or directory doesn't exist
 		const oldObject = travelledData[travelledData.length - 1];
