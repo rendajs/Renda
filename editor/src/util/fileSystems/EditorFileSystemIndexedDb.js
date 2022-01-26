@@ -425,6 +425,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		super.move(fromPath, toPath);
 		this.fireOnBeforeAnyChange();
 
+		// todo: error when this operation would overwrite existing files
+
 		const travelledData = await this.findDeepestExisting(fromPath);
 		// todo: error if file or directory doesn't exist
 		const oldObject = travelledData[travelledData.length - 1];

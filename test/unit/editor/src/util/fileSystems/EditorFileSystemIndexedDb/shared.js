@@ -35,10 +35,29 @@ export async function getEditorFileSystemIndexedDb() {
 	return loadedEditorFileSystemIndexedDb;
 }
 
-export async function createFs() {
+export async function createFs(name = "fs") {
 	const EditorFileSystemIndexedDb = await getEditorFileSystemIndexedDb();
 
-	const fs = new EditorFileSystemIndexedDb("fs");
+	const fs = new EditorFileSystemIndexedDb(name);
+
+	return fs;
+}
+
+let lastCreatedFsNameId = 0;
+export async function createBasicFs() {
+	lastCreatedFsNameId++;
+	const fs = await createFs(`fileSystem_${lastCreatedFsNameId}`);
+	await fs.createDir(["root"]);
+	await fs.writeText(["root", "file1"], "hello");
+	await fs.writeText(["root", "file2"], "hello");
+
+	await fs.createDir(["root", "onlyfiles"]);
+	await fs.writeText(["root", "onlyfiles", "subfile1"], "hello");
+	await fs.writeText(["root", "onlyfiles", "subfile2"], "hello");
+
+	await fs.createDir(["root", "onlydirs"]);
+	await fs.createDir(["root", "onlydirs", "subdir1"]);
+	await fs.createDir(["root", "onlydirs", "subdir2"]);
 
 	return fs;
 }
