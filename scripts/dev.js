@@ -91,6 +91,7 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 						const emitResult = await Deno.emit(url, {
 							compilerOptions: {
 								declaration: true,
+								removeComments: false,
 							},
 						});
 						for (const [fileUrl, fileContent] of Object.entries(emitResult.files)) {
