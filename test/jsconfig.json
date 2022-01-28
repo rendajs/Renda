@@ -9,12 +9,13 @@
 		"typeRoots": [
 			"../node_modules/@webgpu/types",
 			"../node_modules/@types",
-			"../../.denoTypes/@types",
+			"../.denoTypes/@types",
 		],
 		"paths": {
-			"https://deno.land/std@0.118.0/testing/asserts.ts": ["../../.denoTypes/urlImports/emitted/https:/deno.land/std@0.118.0/testing/asserts.ts"],
-			"https://deno.land/x/fake_imports@v0.0.6/mod.js": ["../../.denoTypes/urlImports/emitted/https:/deno.land/x/fake_imports@v0.0.6/mod.js"],
-			"https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js": ["../../.denoTypes/urlImports/emitted/https:/raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js"],
+			"https://deno.land/std@0.118.0/testing/asserts.ts": ["../.denoTypes/urlImports/emitted/https:/deno.land/std@0.118.0/testing/asserts.ts"],
+			"https://deno.land/x/fake_imports@v0.0.6/mod.js": ["../.denoTypes/urlImports/emitted/https:/deno.land/x/fake_imports@v0.0.6/mod.js"],
+			"https://deno.land/x/puppeteer@9.0.2/mod.ts": ["../.denoTypes/urlImports/emitted/https:/deno.land/x/puppeteer@9.0.2/mod.ts.js"],
+			"https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js": ["../.denoTypes/urlImports/emitted/https:/raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js"],
 		},
 	},
 	"include": [

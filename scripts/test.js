@@ -35,7 +35,7 @@ if (needsHtmlCoverageReport) {
 	needsCoverage = true;
 }
 
-const denoTestArgs = ["deno", "test", "--no-check", "--allow-read", "--unstable"];
+const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable"];
 const applicationArgs = [];
 if (needsCoverage) {
 	await removeMaybeDirectory(DENO_COVERAGE_DIR);
