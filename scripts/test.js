@@ -22,11 +22,22 @@ async function removeMaybeDirectory(path) {
 	}
 }
 
-const filteredArgs = ["--coverage", "--html"];
+/**
+ * Arguments only used by this script.
+ */
+const SCRIPT_ARGS = [
+	"--coverage",
+	"--html",
+];
 
-const extraArgs = Deno.args.filter(arg => !filteredArgs.includes(arg));
-if (extraArgs.length <= 0) {
-	extraArgs.push("test/unit");
+/**
+ * Args that are passed to the tests themselves.
+ */
+const APPLICATION_ARGS = ["--no-headless"];
+
+const extraDenoTestArgs = Deno.args.filter(arg => !SCRIPT_ARGS.includes(arg) && !APPLICATION_ARGS.includes(arg));
+if (extraDenoTestArgs.length <= 0) {
+	extraDenoTestArgs.push("test/");
 }
 
 let needsCoverage = Deno.args.includes("--coverage");
@@ -36,16 +47,23 @@ if (needsHtmlCoverageReport) {
 }
 
 const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable"];
-const applicationArgs = [];
+const applicationArgs = new Set();
+for (const arg of Deno.args) {
+	if (APPLICATION_ARGS.includes(arg)) {
+		applicationArgs.add(arg);
+	}
+}
+if (Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk")) {
+	applicationArgs.add("--no-headless");
+}
 if (needsCoverage) {
 	await removeMaybeDirectory(DENO_COVERAGE_DIR);
 	await removeMaybeDirectory(FAKE_IMPORTS_COVERAGE_DIR);
-	denoTestArgs.push("--allow-write");
 	denoTestArgs.push(`--coverage=${DENO_COVERAGE_DIR}`);
 	const coverageMapPath = join(Deno.cwd(), FAKE_IMPORTS_COVERAGE_DIR);
-	applicationArgs.push(`--fi-coverage-map=${coverageMapPath}`);
+	applicationArgs.add(`--fi-coverage-map=${coverageMapPath}`);
 }
-denoTestArgs.push(...extraArgs);
+denoTestArgs.push(...extraDenoTestArgs);
 const cmd = [...denoTestArgs, "--", ...applicationArgs];
 
 console.log(`Running: ${cmd.join(" ")}`);

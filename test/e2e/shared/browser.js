@@ -7,7 +7,12 @@ export async function init() {
 		throw new Error("Browser already initialized.");
 	}
 
-	browser = await puppeteer.launch();
+	let headless = true;
+	if (Deno.args.includes("--no-headless")) {
+		headless = false;
+	}
+
+	browser = await puppeteer.launch({headless});
 }
 
 export async function getContext() {
