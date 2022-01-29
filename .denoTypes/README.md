@@ -8,5 +8,5 @@ or if the contents of the script have changed since the last run. Though if you
 add a new import somewhere, you'll still need to manually update the `"paths"`
 property in any `jsconfig.json` so that it points to the newly generated file.
 
-You can also run `./scripts/dev.js --force-fti` to force the generation of these
+You can also run `./scripts/dev.js --force-fts` to force the generation of these
 files, even when nothing changed.

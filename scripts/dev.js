@@ -32,7 +32,7 @@ try {
 	// Asume this script has never been run before
 }
 
-if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
+if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
 	console.log("changed");
 	await Deno.writeTextFile(HASH_STORAGE_PATH, currentHash);
 
@@ -52,42 +52,52 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 	await Deno.mkdir("../.denoTypes/@types/deno-types/", {recursive: true});
 	await Deno.writeTextFile("../.denoTypes/@types/deno-types/index.d.ts", newTypesContent);
 
-	// Download types from url imports, so that tsc doesn't complain when importing from urls.
-	// This way we can develop without errors when the Deno extension is disabled.
+	// The following downloads third party dependencies using either one of the following methods:
+	// - A single .d.ts file.
+	//   If the url ends with .d.ts, only the main entry point will be downloaded
+	// - from the x-typescript-types header.
+	//   If the main entry point fetch request contains this header, its types will be downloaded
+	//   as well. This works on sites like esm.sh. The types of the main entry point are expected
+	//   to contain all types of the package, so additional requests of sub-imports are not downloaded.
+	// - Using `Deno.emit`
+	//   Finally, as a last resort, `Deno.emit` is used to download the types of the package.
+	//   This works on sites like deno.land and unpkg.com. The files of the packages are expected
+	//   to be either .ts, or .js with .d.ts included. Though I suppose JSDoc types might also work.
+	//   `Deno.emit` only emits .d.ts files from .ts files, so if a file is .d.ts, we manually check
+	//   for triple slash directives and download the files accordingly.
 	/**
 	 * @param {string} url
 	 * @param {string} dtsContent
 	 */
-	async function createDts(url, dtsContent) {
-		const urlObj = new URL(url);
-		let fileName = urlObj.pathname;
-		if (fileName.startsWith("/")) {
-			fileName = fileName.substring(1);
-		}
-		fileName = fileName.replaceAll("/", "_");
-		if (!fileName.endsWith(".d.ts")) {
-			fileName += ".d.ts";
-		}
-		await Deno.writeTextFile(`../.denoTypes/urlImports/${fileName}`, dtsContent);
-		console.log(`Created ${fileName}`);
+	async function writeTypesFile(url, dtsContent) {
+		let filePath = url;
+		filePath = filePath.replaceAll(":", "_");
+		// if (!fileName.endsWith(".d.ts")) {
+		// 	fileName += ".d.ts";
+		// }
+		const fullPath = join("../.denoTypes/urlImports", filePath);
+		const dir = dirname(fullPath);
+		await Deno.mkdir(dir, {recursive: true});
+		await Deno.writeTextFile(fullPath, dtsContent);
 	}
 
 	console.log("Downloading types from url imports...");
-	await Deno.mkdir("../.denoTypes/urlImports/", {recursive: true});
 	/** @type {Promise<void>[]} */
 	const typeFetchPromises = [];
+	const tripleSlashReferences = new Set();
+	const referenceTypesRegex = /\/\/\/\s*<\s*reference\s*types\s*=\s*['"](?<url>.*)['"]\s*\/\s*>$/gm;
 	for (const url of DOWNLOAD_TYPE_URLS) {
 		const promise = (async () => {
 			console.log(`Fetching types for "${url}"`);
 			const tsResponse = await fetch(url);
 			if (tsResponse.ok) {
 				if (url.endsWith(".d.ts")) {
-					await createDts(url, await tsResponse.text());
+					await writeTypesFile(url, await tsResponse.text());
 				} else {
 					const typesUrl = tsResponse.headers.get("x-typescript-types");
 					if (typesUrl) {
 						const dtsResponse = await fetch(typesUrl);
-						await createDts(url, await dtsResponse.text());
+						await writeTypesFile(url, await dtsResponse.text());
 					} else {
 						const emitResult = await Deno.emit(url, {
 							compilerOptions: {
@@ -96,16 +106,20 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 							},
 						});
 						for (const [fileUrl, fileContent] of Object.entries(emitResult.files)) {
-							const path = join("../.denoTypes/urlImports/emitted/", fileUrl);
-							const dir = dirname(path);
-							await Deno.mkdir(dir, {recursive: true});
+							for (const match of fileContent.matchAll(referenceTypesRegex)) {
+								const relativeUrl = match.groups?.url;
+								if (relativeUrl) {
+									const absoluteUrl = new URL(relativeUrl, fileUrl);
+									tripleSlashReferences.add(absoluteUrl.href);
+								}
+							}
 							let newFileContent;
 							if (fileUrl.endsWith(".js")) {
 								newFileContent = "// @ts-nocheck\n" + fileContent;
 							} else {
 								newFileContent = fileContent;
 							}
-							await Deno.writeTextFile(path, newFileContent);
+							await writeTypesFile(fileUrl, newFileContent);
 						}
 					}
 				}
@@ -115,6 +129,19 @@ if (currentHash != previousHash || Deno.args.includes("--force-fti")) {
 	}
 
 	await Promise.all(typeFetchPromises);
+
+	const tripleSlashReferencePromises = [];
+	console.log("Fetching .d.ts files from triple slash references in Deno.emit results...");
+	for (const url of tripleSlashReferences) {
+		const promise = (async () => {
+			const tsResponse = await fetch(url);
+			if (tsResponse.ok) {
+				await writeTypesFile(url, await tsResponse.text());
+			}
+		})();
+		tripleSlashReferencePromises.push(promise);
+	}
+	await Promise.all(tripleSlashReferencePromises);
 
 	// Run first time setup for the editor
 	console.log("Running first time setup for editor...");

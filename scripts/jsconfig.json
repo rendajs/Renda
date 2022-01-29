@@ -14,9 +14,9 @@
 			"https://esm.sh/rollup@2.61.1": ["../.denoTypes/urlImports/rollup@2.61.1"],
 			"https://esm.sh/rollup-plugin-jscc@2.0.0": ["../.denoTypes/urlImports/rollup-plugin-jscc@2.0.0.d.ts"],
 			"https://esm.sh/rollup-plugin-cleanup@3.2.1": ["../.denoTypes/urlImports/rollup-plugin-cleanup@3.2.1_index.d.ts"],
-			"https://deno.land/x/chdir_anywhere@v0.0.2/mod.js": ["../.denoTypes/urlImports/emitted/https:/deno.land/x/chdir_anywhere@v0.0.2/mod.js"],
-			"https://deno.land/std@0.121.0/path/mod.ts": ["../.denoTypes/urlImports/emitted/https:/deno.land/std@0.121.0/path/mod.ts"],
-			"https://deno.land/std@0.118.0/hash/mod.ts": ["../.denoTypes/urlImports/emitted/https:/deno.land/std@0.118.0/hash/mod.ts"],
+			"https://deno.land/x/chdir_anywhere@v0.0.2/mod.js": ["../.denoTypes/urlImports/https_/deno.land/x/chdir_anywhere@v0.0.2/mod.js"],
+			"https://deno.land/std@0.121.0/path/mod.ts": ["../.denoTypes/urlImports/https_/deno.land/std@0.121.0/path/mod.ts"],
+			"https://deno.land/std@0.118.0/hash/mod.ts": ["../.denoTypes/urlImports/https_/deno.land/std@0.118.0/hash/mod.ts"],
 		},
 	},
 	"include": [
