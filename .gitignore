@@ -7,5 +7,5 @@ editor/dist/js/*
 editor/libs/
 .denoTypes/@types
 .denoTypes/urlImports
-scripts/lastDevInitHash.txt
+.lastDevInitHash
 .coverage

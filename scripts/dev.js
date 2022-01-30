@@ -4,7 +4,9 @@ import {dirname, join} from "path";
 import {setCwd} from "chdir-anywhere";
 setCwd();
 
-const HASH_STORAGE_PATH = "./lastDevInitHash.txt";
+Deno.chdir("..");
+
+const HASH_STORAGE_PATH = ".lastDevInitHash";
 const DOWNLOAD_TYPE_URLS = [
 	"https://esm.sh/rollup@2.61.1?pin=v64",
 	"https://esm.sh/rollup-plugin-jscc@2.0.0",
@@ -28,7 +30,7 @@ async function hash(data) {
 	return hashHex;
 }
 
-const thisScriptContent = await Deno.readFile("./dev.js");
+const thisScriptContent = await Deno.readFile("./scripts/dev.js");
 const textEncoder = new TextEncoder();
 const denoVersionBuffer = textEncoder.encode(Deno.version.deno);
 const hashBuffer = new Uint8Array(thisScriptContent.byteLength + denoVersionBuffer.byteLength);
@@ -61,8 +63,8 @@ if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
 	let lines = typesContent.split("\n");
 	lines = lines.filter(line => !line.startsWith("/// <reference"));
 	const newTypesContent = lines.join("\n");
-	await Deno.mkdir("../.denoTypes/@types/deno-types/", {recursive: true});
-	await Deno.writeTextFile("../.denoTypes/@types/deno-types/index.d.ts", newTypesContent);
+	await Deno.mkdir(".denoTypes/@types/deno-types/", {recursive: true});
+	await Deno.writeTextFile(".denoTypes/@types/deno-types/index.d.ts", newTypesContent);
 
 	// The following downloads third party dependencies using either one of the following methods:
 	// - A single .d.ts file.
@@ -84,10 +86,7 @@ if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
 	async function writeTypesFile(url, dtsContent) {
 		let filePath = url;
 		filePath = filePath.replaceAll(":", "_");
-		// if (!fileName.endsWith(".ts")) {
-		// 	fileName += ".d.ts";
-		// }
-		const fullPath = join("../.denoTypes/urlImports", filePath);
+		const fullPath = join(".denoTypes/urlImports", filePath);
 		const dir = dirname(fullPath);
 		await Deno.mkdir(dir, {recursive: true});
 		await Deno.writeTextFile(fullPath, dtsContent);
@@ -158,14 +157,12 @@ if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
 	// Run first time setup for the editor
 	console.log("Running first time setup for editor...");
 	const setupProcess = Deno.run({
-		cmd: ["../editor/scripts/buildDependencies.js"],
+		cmd: ["./editor/scripts/buildDependencies.js"],
 	});
 	await setupProcess.status();
 
 	console.log("First time set up done.");
 }
-
-Deno.chdir("..");
 
 const buildProcess = Deno.run({
 	cmd: ["./editor/scripts/build.js", "--dev"],
