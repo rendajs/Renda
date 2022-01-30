@@ -1,9 +1,9 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env --import-map=importmap.json
 
 import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
-import {dirname, fromFileUrl, resolve} from "https://deno.land/std@0.117.0/path/mod.ts";
+import {dirname, fromFileUrl, resolve} from "path";
 
-import {rollup} from "https://esm.sh/rollup@2.61.1?pin=v64";
+import {rollup} from "rollup";
 
 // import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 

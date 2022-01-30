@@ -1,12 +1,17 @@
 {
+	"extends": "../../jsconfig.paths.json",
 	"compilerOptions": {
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"target": "esnext",
 		"checkJs": true,
-		"typeRoots": ["../../node_modules/@webgpu/types", "../../node_modules/@types"],
 		"module": "esnext",
 		"useDefineForClassFields": true,
-		"strict": true
+		"strict": true,
+		"typeRoots": [
+			"../../node_modules/@types",
+			"../../.denoTypes/@types",
+		],
+		"baseUrl": "../../",
 	},
 	"files": ["src/main.js"],
 	"include": ["src/**/*.js"],

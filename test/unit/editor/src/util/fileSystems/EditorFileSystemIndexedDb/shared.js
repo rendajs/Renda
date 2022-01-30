@@ -1,4 +1,4 @@
-import {Importer} from "https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js";
+import {Importer} from "fake-imports";
 
 /** @type {Importer?} */
 let importer = null;

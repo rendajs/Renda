@@ -15,8 +15,6 @@
 		"@rollup/plugin-node-resolve": "^13.0.6",
 		"@types/google-closure-compiler": "^0.0.19",
 		"@types/js-md5": "^0.4.3",
-		"@types/node": "^16.9.1",
-		"@types/websocket": "^1.0.4",
 		"@types/wicg-file-system-access": "^2020.9.5",
 		"@webgpu/types": "^0.1.6",
 		"eslint": "^8.2.0",

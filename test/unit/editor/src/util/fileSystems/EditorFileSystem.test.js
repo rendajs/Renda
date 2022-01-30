@@ -1,6 +1,6 @@
-import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assertEquals} from "asserts";
 import {EditorFileSystem} from "../../../../../../editor/src/util/fileSystems/EditorFileSystem.js";
-import {Importer} from "https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js";
+import {Importer} from "fake-imports";
 
 Deno.test({
 	name: "writeText",

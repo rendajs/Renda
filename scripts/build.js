@@ -1,8 +1,8 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env --no-check
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env --no-check --import-map=importmap.json
 
-import {rollup} from "https://esm.sh/rollup@2.61.1?pin=v64";
-import cleanup from "https://esm.sh/rollup-plugin-cleanup@3.2.1?pin=v64";
-import jscc from "https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v64";
+import {rollup} from "rollup";
+import cleanup from "rollup-plugin-cleanup";
+import jscc from "rollup-plugin-jscc";
 
 (async () => {
 	console.log("Building engine...");

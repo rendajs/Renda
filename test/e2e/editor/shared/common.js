@@ -1,7 +1,7 @@
 import {click} from "../../shared/util.js";
 
 /**
- * @param {import("https://deno.land/x/puppeteer@9.0.2/mod.ts").Page} page
+ * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
  */
 export async function waitForEditorLoad(page, testContext) {
@@ -14,7 +14,7 @@ export async function waitForEditorLoad(page, testContext) {
 }
 
 /**
- * @param {import("https://deno.land/x/puppeteer@9.0.2/mod.ts").Page} page
+ * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
  * @param {boolean} allowExisting Whether it should resolve immediately if a project is already open.
  */
@@ -31,7 +31,7 @@ export async function waitForProjectOpen(page, testContext, allowExisting = true
 
 /**
  * Opens the editor page and creates a new empty project.
- * @param {import("https://deno.land/x/puppeteer@9.0.2/mod.ts").Page} page
+ * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
  * @returns {Promise<void>} A promise that resolves when the editor is loaded and project fully opened.
  */

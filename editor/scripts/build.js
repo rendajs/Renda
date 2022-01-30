@@ -1,8 +1,8 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env --import-map=importmap.json
 
-import {rollup} from "https://esm.sh/rollup@2.61.1?pin=v64";
+import {rollup} from "rollup";
 
-import {setCwd} from "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js";
+import {setCwd} from "chdir-anywhere";
 setCwd();
 
 const isDevBuild = Deno.args.includes("--dev");

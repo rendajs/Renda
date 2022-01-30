@@ -1,4 +1,4 @@
-import {assert} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assert} from "asserts";
 import {EditorFileSystemFsa} from "../../../../../../../editor/src/util/fileSystems/EditorFileSystemFsa.js";
 import {FakeHandle} from "./shared.js";
 

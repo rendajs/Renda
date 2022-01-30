@@ -1,5 +1,5 @@
 import {createBasicFs, createFs, finishCoverageMapWrites} from "./shared.js";
-import {assert, assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assert, assertEquals} from "asserts";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",

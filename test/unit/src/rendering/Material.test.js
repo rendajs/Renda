@@ -1,4 +1,4 @@
-import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assertEquals} from "asserts";
 import {Material} from "../../../../src/Rendering/Material.js";
 
 Deno.test("Empty getAllProperties() for new materials", () => {

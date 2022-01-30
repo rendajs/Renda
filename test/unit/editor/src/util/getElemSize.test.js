@@ -1,4 +1,4 @@
-import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assertEquals} from "asserts";
 import {getElemSize} from "../../../../../editor/src/util/util.js";
 
 const originalGetComputedStyle = globalThis.getComputedStyle;

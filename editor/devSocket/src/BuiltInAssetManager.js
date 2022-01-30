@@ -1,7 +1,7 @@
 import {base64ToArrayBuffer, generateUuid} from "../../../src/util/mod.js";
 import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
-import {createHash} from "https://deno.land/std@0.118.0/hash/mod.ts";
-import {basename, dirname, fromFileUrl, join, relative, resolve} from "https://deno.land/std@0.119.0/path/mod.ts";
+import {createHash} from "hash";
+import {basename, dirname, fromFileUrl, join, relative, resolve} from "path";
 
 export class BuiltInAssetManager {
 	constructor() {

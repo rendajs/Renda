@@ -1,20 +1,20 @@
-#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check=remote --unstable
+#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check=remote --unstable --import-map=importmap.json
 
-import {createHash} from "https://deno.land/std@0.118.0/hash/mod.ts";
-import {dirname, join} from "https://deno.land/std@0.121.0/path/mod.ts";
-import {setCwd} from "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js";
+import {createHash} from "hash";
+import {dirname, join} from "path";
+import {setCwd} from "chdir-anywhere";
 setCwd();
 
 const HASH_STORAGE_PATH = "./lastDevInitHash.txt";
 const DOWNLOAD_TYPE_URLS = [
-	"https://esm.sh/rollup@2.61.1",
-	"https://unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts",
+	"https://esm.sh/rollup@2.61.1?pin=v64",
 	"https://esm.sh/rollup-plugin-jscc@2.0.0",
+	"https://unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts",
 	"https://deno.land/std@0.118.0/hash/mod.ts",
 	"https://deno.land/std@0.121.0/path/mod.ts",
 	"https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",
 	"https://deno.land/std@0.118.0/testing/asserts.ts",
-	"https://deno.land/x/fake_imports@v0.0.6/mod.js",
+	"https://deno.land/x/fake-imports@v0.0.6/mod.js",
 	"https://deno.land/x/puppeteer@9.0.2/mod.ts",
 	"https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js",
 ];
@@ -72,7 +72,7 @@ if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
 	async function writeTypesFile(url, dtsContent) {
 		let filePath = url;
 		filePath = filePath.replaceAll(":", "_");
-		// if (!fileName.endsWith(".d.ts")) {
+		// if (!fileName.endsWith(".ts")) {
 		// 	fileName += ".d.ts";
 		// }
 		const fullPath = join("../.denoTypes/urlImports", filePath);
@@ -97,7 +97,7 @@ if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
 					const typesUrl = tsResponse.headers.get("x-typescript-types");
 					if (typesUrl) {
 						const dtsResponse = await fetch(typesUrl);
-						await writeTypesFile(url, await dtsResponse.text());
+						await writeTypesFile(typesUrl, await dtsResponse.text());
 					} else {
 						const emitResult = await Deno.emit(url, {
 							compilerOptions: {

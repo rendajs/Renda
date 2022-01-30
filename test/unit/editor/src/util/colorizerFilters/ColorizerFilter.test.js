@@ -1,4 +1,4 @@
-import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assertEquals} from "asserts";
 import {ColorizerFilter} from "../../../../../../editor/src/util/colorizerFilters/ColorizerFilter.js";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../../../shared/mockWeakRef.js";
 import {initializeDom} from "../../../shared/initializeDom.js";

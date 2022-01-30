@@ -1,4 +1,5 @@
 {
+	"extends": "../jsconfig.paths.json",
 	"compilerOptions": {
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"target": "esnext",
@@ -11,12 +12,7 @@
 			"../node_modules/@types",
 			"../.denoTypes/@types",
 		],
-		"paths": {
-			"https://deno.land/std@0.118.0/testing/asserts.ts": ["../.denoTypes/urlImports/https_/deno.land/std@0.118.0/testing/asserts.ts"],
-			"https://deno.land/x/fake_imports@v0.0.6/mod.js": ["../.denoTypes/urlImports/https_/deno.land/x/fake_imports@v0.0.6/mod.js"],
-			"https://deno.land/x/puppeteer@9.0.2/mod.ts": ["../.denoTypes/urlImports/https_/deno.land/x/puppeteer@9.0.2/mod.ts.js"],
-			"https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js": ["../.denoTypes/urlImports/https_/raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js"],
-		},
+		"baseUrl": "../",
 	},
 	"include": [
 		"**/*.js",

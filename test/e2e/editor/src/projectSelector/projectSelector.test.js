@@ -1,4 +1,4 @@
-import {assertEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assertEquals} from "asserts";
 import {getContext, init} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/common.js";
 import {waitFor} from "../../../shared/util.js";

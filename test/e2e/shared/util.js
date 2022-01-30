@@ -8,7 +8,7 @@
 /**
  * Gets an element from the page using a selector.
  * Throws an error if the element doesn't exist after the timeout.
- * @param {import("https://deno.land/x/puppeteer@9.0.2/mod.ts").Page} page
+ * @param {import("puppeteer").Page} page
  * @param {string} selector
  * @param {WaitForOptions} options
  */
@@ -23,7 +23,7 @@ export async function waitFor(page, selector, options = {}) {
 /**
  * Waits until an element exists and clicks it.
  * Throws an error if the element doesn't exist after the timeout.
- * @param {import("https://deno.land/x/puppeteer@9.0.2/mod.ts").Page} page
+ * @param {import("puppeteer").Page} page
  * @param {string} selector
  */
 export async function click(page, selector) {

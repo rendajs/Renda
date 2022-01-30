@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertNotEquals, assertStrictEquals} from "https://deno.land/std@0.118.0/testing/asserts.ts";
+import {assert, assertEquals, assertNotEquals, assertStrictEquals} from "asserts";
 import {ColorizerFilterManager} from "../../../../../../editor/src/util/colorizerFilters/ColorizerFilterManager.js";
 import {initializeDom} from "../../../shared/initializeDom.js";
 
