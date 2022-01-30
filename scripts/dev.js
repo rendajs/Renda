@@ -1,6 +1,5 @@
 #!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check=remote --unstable --import-map=importmap.json
 
-import {createHash} from "hash";
 import {dirname, join} from "path";
 import {setCwd} from "chdir-anywhere";
 setCwd();
@@ -19,11 +18,24 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://raw.githubusercontent.com/jespertheend/fake-imports/main/mod.js",
 ];
 
+/**
+ * @param {Uint8Array} data
+ */
+async function hash(data) {
+	const hash = await crypto.subtle.digest("SHA-256", data);
+	const hashArray = Array.from(new Uint8Array(hash));
+	const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+	return hashHex;
+}
+
 const thisScriptContent = await Deno.readFile("./dev.js");
-const hash = createHash("md5");
-hash.update(Deno.version.deno);
-hash.update(thisScriptContent);
-const currentHash = hash.toString();
+const textEncoder = new TextEncoder();
+const denoVersionBuffer = textEncoder.encode(Deno.version.deno);
+const hashBuffer = new Uint8Array(thisScriptContent.byteLength + denoVersionBuffer.byteLength);
+hashBuffer.set(thisScriptContent, 0);
+hashBuffer.set(denoVersionBuffer, thisScriptContent.byteLength);
+
+const currentHash = await hash(hashBuffer);
 
 let previousHash = null;
 try {
