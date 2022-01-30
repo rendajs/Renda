@@ -271,8 +271,10 @@ export class ScriptBuilder {
 			name: "editor-resolve-scripts",
 			resolveId(source, importer, opts) {
 				const castThis = /** @type {import("node_modules/rollup/dist/rollup.js").PluginContext} */ (/** @type {unknown} */ (this));
-				if (!importer) return null;
-				const importerInfo = castThis.getModuleInfo(importer);
+				let importerInfo = null;
+				if (importer) {
+					importerInfo = castThis.getModuleInfo(importer);
+				}
 				let {scriptType, sourcePath} = scriptBuilder.getPathType(source);
 				/** @type {ScriptType} */
 				const importerType = importerInfo?.meta?.editorResolve?.scriptType ?? null;
