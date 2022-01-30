@@ -18,8 +18,8 @@ fn screen2View(screen : vec2<f32>) -> vec3<f32> {
 }
 
 //todo: use a more efficient workgroup size
-[[stage(compute), workgroup_size(1u,1u,1u)]]
-fn main([[builtin(global_invocation_id)]] globalId : vec3<u32>) {
+@stage(compute) @workgroup_size(1u,1u,1u)
+fn main(@builtin(global_invocation_id) globalId : vec3<u32>) {
 	let clusterSize : vec3<f32> = vec3<f32>(1.0, 1.0, 1.0) / vec3<f32>(clusterCount.xyz);
 
 	let minPointScreen : vec2<f32> = vec2<f32>(globalId.xy) * clusterSize.xy;

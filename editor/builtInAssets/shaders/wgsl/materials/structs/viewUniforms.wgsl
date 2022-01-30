@@ -5,4 +5,5 @@ struct ViewUniforms {
 	viewMatrix : mat4x4<f32>;
 	clippingPanes : vec4<f32>;
 };
-[[group(0), binding(0)]] var<uniform> viewUniforms : ViewUniforms;
+@group(0) @binding(0)
+var<uniform> viewUniforms : ViewUniforms;

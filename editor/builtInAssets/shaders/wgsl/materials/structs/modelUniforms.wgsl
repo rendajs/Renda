@@ -3,4 +3,5 @@ struct ModelUniforms {
 	vp : mat4x4<f32>;
 	m : mat4x4<f32>;
 };
-[[group(2), binding(0)]] var<uniform> modelUniforms : ModelUniforms;
+@group(2) @binding(0)
+var<uniform> modelUniforms : ModelUniforms;

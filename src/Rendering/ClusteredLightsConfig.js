@@ -14,7 +14,6 @@ export class ClusteredLightsConfig {
 		return {
 			"totalClusterCount": this.totalClusterCount,
 			"maxLightsPerClusterPass": this.maxLightsPerClusterPass,
-			"clusterLightIndicesStride": this.maxLightsPerClusterPass * 4 + 4,
 			"clusterCountX": this.clusterCount.x,
 			"clusterCountY": this.clusterCount.y,
 			"clusterCountZ": this.clusterCount.z,

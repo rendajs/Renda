@@ -7,12 +7,13 @@
 //todo: import this from clusterBoundsStruct.wgsl
 struct ClusterLightIndices {
 	lightCount : u32;
-	indices : [[stride(4)]] array<u32, ${maxLightsPerClusterPass}>;
+	indices: array<u32, ${maxLightsPerClusterPass}>;
 };
 struct ClusterLightIndicesArray {
-	clusters : [[stride(${clusterLightIndicesStride})]] array<ClusterLightIndices, ${totalClusterCount}>;
+	clusters: array<ClusterLightIndices, ${totalClusterCount}>;
 };
-[[group(0), binding(2)]] var<storage,read> clusterLightIndices : ClusterLightIndicesArray;
+@group(0) @binding(2)
+var<storage,read> clusterLightIndices : ClusterLightIndicesArray;
 
 fn depthToLinear(z : f32) -> f32 {
 	// let m : mat4x4<f32> = viewUniforms.projectionMatrix;
@@ -42,20 +43,21 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 struct MaterialUniforms {
 	test : vec4<f32>;
 };
-[[group(1), binding(0)]] var<uniform> materialUniforms : MaterialUniforms;
+@group(1) @binding(0)
+var<uniform> materialUniforms : MaterialUniforms;
 
 
 struct FragmentInput {
-	[[location(0)]] vWorldPos : vec3<f32>;
-	[[location(1)]] normal : vec3<f32>;
-	[[builtin(position)]] fragCoord : vec4<f32>;
+	@location(0) vWorldPos : vec3<f32>;
+	@location(1) normal : vec3<f32>;
+	@builtin(position) fragCoord : vec4<f32>;
 };
 
 struct FragmentOutput {
-	[[location(0)]] outColor : vec4<f32>;
+	@location(0) outColor : vec4<f32>;
 };
 
-[[stage(fragment)]]
+@stage(fragment)
 fn main(input : FragmentInput) -> FragmentOutput {
 	var color : vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
 
