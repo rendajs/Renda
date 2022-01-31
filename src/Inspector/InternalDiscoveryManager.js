@@ -1,8 +1,7 @@
 import {ENABLE_INSPECTOR_SUPPORT} from "../engineDefines.js";
 
-export class InternalDiscoveryManager {
+class InternalDiscoveryManager {
 	constructor() {
-		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.destructed = false;
 
 		this.iframeLoaded = false;
@@ -24,7 +23,6 @@ export class InternalDiscoveryManager {
 	}
 
 	destructor() {
-		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.destructed = true;
 		this._sendMessageInternal("destructor");
 	}
@@ -63,6 +61,9 @@ export class InternalDiscoveryManager {
 		const message = {};
 		message["op"] = op;
 		if (data) message["data"] = data;
+		if (!this.iframe.contentWindow) {
+			throw new Error("Failed to send message to internal discovery: iframe is not loaded.");
+		}
 		this.iframe.contentWindow.postMessage(message, "*");
 	}
 
@@ -77,12 +78,18 @@ export class InternalDiscoveryManager {
 	 * @param {(data: OnMessageData) => void} cb
 	 */
 	onMessage(cb) {
-		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this.onMessageCbs.add(cb);
 	}
 
 	postMessage(data) {
-		if (!ENABLE_INSPECTOR_SUPPORT) return;
 		this._sendMessageInternal("postWorkerMessage", data);
 	}
 }
+
+let exportedManager = null;
+if (ENABLE_INSPECTOR_SUPPORT) {
+	exportedManager = InternalDiscoveryManager;
+}
+const castManager = /** @type {typeof InternalDiscoveryManager} */ (exportedManager);
+
+export {castManager as InternalDiscoveryManager};
