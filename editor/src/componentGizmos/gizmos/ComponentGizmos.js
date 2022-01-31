@@ -1,10 +1,10 @@
 /**
  * @template {import("../../../../src/mod.js").Component} T
- * @template {import("../../../../src/Gizmos/Gizmos/Gizmo.js").Gizmo[]} TRequiredGizmos
+ * @template {import("../../../../src/gizmos/gizmos/Gizmo.js").Gizmo[]} TRequiredGizmos
  * @typedef {new (...args: any) => ComponentGizmos<T, TRequiredGizmos>} ComponentGizmosConstructor
  */
-/** @typedef {ComponentGizmosConstructor<import("../../../../src/mod.js").Component, import("../../../../src/Gizmos/Gizmos/Gizmo.js").Gizmo[]>} ComponentGizmosConstructorAny */
-/** @typedef {ComponentGizmos<import("../../../../src/mod.js").Component, import("../../../../src/Gizmos/Gizmos/Gizmo.js").Gizmo[]>} ComponentGizmosAny */
+/** @typedef {ComponentGizmosConstructor<import("../../../../src/mod.js").Component, import("../../../../src/gizmos/gizmos/Gizmo.js").Gizmo[]>} ComponentGizmosConstructorAny */
+/** @typedef {ComponentGizmos<import("../../../../src/mod.js").Component, import("../../../../src/gizmos/gizmos/Gizmo.js").Gizmo[]>} ComponentGizmosAny */
 
 /**
  * @template {import("../../../../src/mod.js").Component} T
@@ -13,7 +13,7 @@
 
 /**
  * @template {import("../../../../src/mod.js").Component} T
- * @template {import("../../../../src/Gizmos/Gizmos/Gizmo.js").Gizmo[]} TRequiredGizmos
+ * @template {import("../../../../src/gizmos/gizmos/Gizmo.js").Gizmo[]} TRequiredGizmos
  */
 export class ComponentGizmos {
 	/**
@@ -24,7 +24,7 @@ export class ComponentGizmos {
 
 	/**
 	 * These will automatically be created and destroyed with the component/entity.
-	 * @type {(new (...args: any) => import("../../../../src/Gizmos/Gizmos/Gizmo.js").Gizmo)[]}
+	 * @type {(new (...args: any) => import("../../../../src/gizmos/gizmos/Gizmo.js").Gizmo)[]}
 	 */
 	static requiredGizmos = [];
 

@@ -44,7 +44,7 @@ export class ComponentGizmosManager {
 	/**
 	 * @param {ComponentConstructor} componentType
 	 * @param {import("../../../src/Components/Component.js").Component} component
-	 * @param {import("../../../src/Gizmos/GizmoManager.js").GizmoManager} gizmoManager
+	 * @param {import("../../../src/gizmos/GizmoManager.js").GizmoManager} gizmoManager
 	 */
 	createComponentGizmosInstance(componentType, component, gizmoManager) {
 		const ComponentGizmosConstructor = this.getComponentGizmosConstructor(componentType);

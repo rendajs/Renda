@@ -8,7 +8,7 @@ export class GizmoManager {
 	constructor(engineAssetsManager) {
 		this.entity = new Entity("gizmos");
 		/**
-		 * @type {Set<import("./Gizmos/Gizmo.js").Gizmo>}
+		 * @type {Set<import("./gizmos/Gizmo.js").Gizmo>}
 		 */
 		this.gizmos = new Set();
 
@@ -44,7 +44,7 @@ export class GizmoManager {
 	}
 
 	/**
-	 * @template {import("./Gizmos/Gizmo.js").Gizmo} T
+	 * @template {import("./gizmos/Gizmo.js").Gizmo} T
 	 * @param {new (...args: any) => T} constructor
 	 * @returns {T}
 	 */
@@ -56,7 +56,7 @@ export class GizmoManager {
 	}
 
 	/**
-	 * @param {import("./Gizmos/Gizmo.js").Gizmo} gizmo
+	 * @param {import("./gizmos/Gizmo.js").Gizmo} gizmo
 	 */
 	removeGizmo(gizmo) {
 		gizmo.destructor();
