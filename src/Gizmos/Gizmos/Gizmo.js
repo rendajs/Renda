@@ -1,9 +1,5 @@
 import {Entity} from "../../core/Entity.js";
 
-/**
- * @typedef {new (...args: any) => Gizmo} GizmoConstructor
- */
-
 export class Gizmo {
 	/**
 	 * @param {import("../GizmoManager.js").GizmoManager} gizmoManager

@@ -14,8 +14,11 @@ export class IconGizmo extends Gizmo {
 		this.mesh = new Mesh();
 		this.mesh.setVertexState(this.gizmoManager.billboardVertexState);
 
+		/** @type {number[]} */
 		this.indices = [];
+		/** @type {Vec2[]} */
 		this.positions = [];
+		/** @type {Vec3[]} */
 		this.colors = [];
 
 		this.meshComponent = this.entity.addComponent(MeshComponent, {
@@ -28,7 +31,6 @@ export class IconGizmo extends Gizmo {
 		super.destructor();
 
 		this.mesh.destructor();
-		this.mesh = null;
 	}
 
 	updateMesh() {
@@ -38,6 +40,10 @@ export class IconGizmo extends Gizmo {
 		this.mesh.setVertexData(Mesh.AttributeType.COLOR, this.colors);
 	}
 
+	/**
+	 * @param {number} segments
+	 * @param {number} radius
+	 */
 	addCircle(segments, radius, origin = new Vec2()) {
 		const startIndex = this.positions.length;
 		for (let i = 0; i < segments; i++) {
@@ -58,6 +64,10 @@ export class IconGizmo extends Gizmo {
 		}
 	}
 
+	/**
+	 * @param {Vec2} start
+	 * @param {Vec2} end
+	 */
 	addLine(start, end) {
 		const startIndex = this.positions.length;
 		this.positions.push(start, end);

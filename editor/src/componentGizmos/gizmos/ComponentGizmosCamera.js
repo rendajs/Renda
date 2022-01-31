@@ -4,7 +4,7 @@ import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.
 import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../../src/engineDefines.js";
 
 /**
- * @extends {ComponentGizmos<CameraComponent>}
+ * @extends {ComponentGizmos<CameraComponent, [CameraIconGizmo, CameraGizmo, CameraClusterDataGizmo]>}
  */
 export class ComponentGizmosCamera extends ComponentGizmos {
 	static componentType = CameraComponent;

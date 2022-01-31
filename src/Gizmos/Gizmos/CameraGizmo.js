@@ -40,9 +40,11 @@ export class CameraGizmo extends Gizmo {
 		super.destructor();
 
 		this.mesh.destructor();
-		this.mesh = null;
 	}
 
+	/**
+	 * @param {import("../../Math/Mat4.js").Mat4} projection
+	 */
 	setProjectionMatrix(projection) {
 		const positionsCube = [
 			new Vec3(-1, -1, 0),

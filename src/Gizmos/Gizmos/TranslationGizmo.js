@@ -50,7 +50,6 @@ export class TranslationGizmo extends Gizmo {
 		super.destructor();
 
 		this.arrowMesh.destructor();
-		this.arrowMesh = null;
 	}
 
 	updateMaterials() {

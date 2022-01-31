@@ -25,9 +25,11 @@ export class CameraClusterDataGizmo extends Gizmo {
 		super.destructor();
 
 		this.boundsMesh.destructor();
-		this.boundsMesh = null;
 	}
 
+	/**
+	 * @param {Vec3[]} boundsData
+	 */
 	setClusterBoundsData(boundsData) {
 		const vertices = [];
 		const colors = [];
@@ -63,7 +65,7 @@ export class CameraClusterDataGizmo extends Gizmo {
 				j + 4
 			);
 			vertices.push(
-				new Vec3(min, min, min),
+				new Vec3(min.x, min.y, min.z),
 				new Vec3(min.x, min.y, max.z),
 				new Vec3(min.x, max.y, min.z),
 				new Vec3(min.x, max.y, max.z),

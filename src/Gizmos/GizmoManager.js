@@ -43,6 +43,11 @@ export class GizmoManager {
 		this.entity.detachParents();
 	}
 
+	/**
+	 * @template {import("./Gizmos/Gizmo.js").Gizmo} T
+	 * @param {new (...args: any) => T} constructor
+	 * @returns {T}
+	 */
 	addGizmo(constructor) {
 		const gizmo = new constructor(this);
 		this.gizmos.add(gizmo);
@@ -50,6 +55,9 @@ export class GizmoManager {
 		return gizmo;
 	}
 
+	/**
+	 * @param {import("./Gizmos/Gizmo.js").Gizmo} gizmo
+	 */
 	removeGizmo(gizmo) {
 		gizmo.destructor();
 		this.gizmos.delete(gizmo);
