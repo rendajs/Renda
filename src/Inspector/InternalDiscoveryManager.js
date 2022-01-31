@@ -1,5 +1,38 @@
 import {ENABLE_INSPECTOR_SUPPORT} from "../engineDefines.js";
 
+/**
+ * @typedef {{
+ * 	availableClientAdded: {
+ * 		clientId: import("../mod.js").UuidString,
+ * 		clientType: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType,
+ * 		projectMetaData: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?,
+ * 	},
+ * 	availableClientRemoved: {
+ * 		clientId: import("../mod.js").UuidString,
+ * 	},
+ * 	projectMetaData: {
+ * 		clientId: import("../mod.js").UuidString,
+ * 		projectMetaData: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?,
+ * 	},
+ * 	connectionCreated: {
+ * 		clientId: import("../mod.js").UuidString,
+ * 		port: MessagePort,
+ * 	},
+ * }} InternalDiscoveryClientMessages
+ */
+
+/** @typedef {keyof InternalDiscoveryClientMessages} InternalDiscoveryClientMessageOp */
+/**
+ * @template {InternalDiscoveryClientMessageOp} T
+ * @typedef {T extends InternalDiscoveryClientMessageOp ?
+ * 	InternalDiscoveryClientMessages[T] extends null ?
+ * 		{op: T} :
+ * 		{op: T} &
+ * 		InternalDiscoveryClientMessages[T] :
+ * never} InternalDiscoveryClientMessageHelper
+ */
+/** @typedef {InternalDiscoveryClientMessageHelper<InternalDiscoveryClientMessageOp>} InternalDiscoveryClientMessage */
+
 class InternalDiscoveryManager {
 	constructor() {
 		this.destructed = false;
@@ -24,7 +57,7 @@ class InternalDiscoveryManager {
 
 	destructor() {
 		this.destructed = true;
-		this._sendMessageInternal("destructor");
+		this._sendMessageInternal("destructor", null);
 	}
 
 	/**
@@ -52,15 +85,14 @@ class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @param {string} op
-	 * @param {*} data
+	 * @template {import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscovery.js").InternalDiscoveryWindowMessageOp} T
+	 * @param {T} op
+	 * @param {import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscovery.js").InternalDiscoveryWindowMessages[T]} data
 	 * @param {boolean} waitForLoad
 	 */
-	async _sendMessageInternal(op, data = null, waitForLoad = true) {
+	async _sendMessageInternal(op, data, waitForLoad = true) {
 		if (waitForLoad) await this._waitForIframeLoad();
-		const message = {};
-		message["op"] = op;
-		if (data) message["data"] = data;
+		const message = {op, data};
 		if (!this.iframe.contentWindow) {
 			throw new Error("Failed to send message to internal discovery: iframe is not loaded.");
 		}
@@ -68,19 +100,15 @@ class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @typedef {{
-	 * op: string,
-	 * [x: string]: any,
-	 * }} OnMessageData
-	 */
-
-	/**
-	 * @param {(data: OnMessageData) => void} cb
+	 * @param {(data: InternalDiscoveryClientMessage) => void} cb
 	 */
 	onMessage(cb) {
 		this.onMessageCbs.add(cb);
 	}
 
+	/**
+	 * @param {import("../../editor/src/network/editorConnections/internalDiscovery/InternalDiscoveryWorker.js").InternalDiscoveryWorkerMessage} data
+	 */
 	postMessage(data) {
 		this._sendMessageInternal("postWorkerMessage", data);
 	}

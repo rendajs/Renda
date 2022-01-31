@@ -3,6 +3,23 @@
  * The page is expected to be loaded in an iframe.
  */
 
+/**
+ * @typedef {{
+ * 	postWorkerMessage: import("./InternalDiscoveryWorker.js").InternalDiscoveryWorkerMessage,
+ * 	destructor: null,
+ * }} InternalDiscoveryWindowMessages
+ */
+
+/** @typedef {keyof InternalDiscoveryWindowMessages} InternalDiscoveryWindowMessageOp */
+/**
+ * @template {InternalDiscoveryWindowMessageOp} T
+ * @typedef {T extends InternalDiscoveryWindowMessageOp ? {
+ * 	op: T,
+ * 	data: InternalDiscoveryWindowMessages[T],
+ * } : never} InternalDiscoveryWindowMessageHelper
+ */
+/** @typedef {InternalDiscoveryWindowMessageHelper<InternalDiscoveryWindowMessageOp>} InternalDiscoveryWindowMessage */
+
 // todo: fix this with deno
 // Create the worker
 // @rollup-plugin-resolve-url-objects
@@ -41,7 +58,10 @@ window.addEventListener("unload", () => {
 window.addEventListener("message", e => {
 	if (!e.data) return;
 
-	const {op, data} = e.data;
+	/** @type {InternalDiscoveryWindowMessage} */
+	const message = e.data;
+
+	const {op, data} = message;
 
 	if (op == "postWorkerMessage") {
 		worker.port.postMessage(data);

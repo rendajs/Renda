@@ -16,7 +16,7 @@ import {InternalDiscoveryManager} from "../../../../src/Inspector/InternalDiscov
  * @property {import("../../../../src/util/mod.js").UuidString} id
  * @property {MessageHandlerType} messageHandlerType
  * @property {ClientType} clientType
- * @property {RemoteEditorMetaData} [projectMetaData]
+ * @property {RemoteEditorMetaData?} projectMetaData
  */
 
 /** @typedef {Map<import("../../../../src/util/mod.js").UuidString, AvailableEditorData>} AvailableEditorDataList */
@@ -68,18 +68,17 @@ export class EditorConnectionsManager {
 				this.availableConnections.set(clientId, {
 					id: clientId,
 					messageHandlerType: "internal",
-					clientType, projectMetaData,
+					clientType,
+					projectMetaData: projectMetaData || null,
 				});
 				this.fireAvailableConnectionsChanged();
 			} else if (op == "availableClientRemoved") {
-				const {clientId} = data;
-				this.availableConnections.delete(clientId);
+				this.availableConnections.delete(data.clientId);
 				this.fireAvailableConnectionsChanged();
 			} else if (op == "projectMetaData") {
-				const {clientId, projectMetaData} = data;
-				const connection = this.availableConnections.get(clientId);
+				const connection = this.availableConnections.get(data.clientId);
 				if (connection) {
-					connection.projectMetaData = projectMetaData;
+					connection.projectMetaData = data.projectMetaData;
 					this.fireAvailableConnectionsChanged();
 				}
 			} else if (op == "connectionCreated") {
@@ -246,7 +245,7 @@ export class EditorConnectionsManager {
 	 * @typedef {Object} AvailableRtcConnectionData
 	 * @property {import("../../../../src/util/mod.js").UuidString} id
 	 * @property {ClientType} clientType
-	 * @property {RemoteEditorMetaData} [projectMetaData]
+	 * @property {RemoteEditorMetaData?} projectMetaData
 	 */
 
 	/**

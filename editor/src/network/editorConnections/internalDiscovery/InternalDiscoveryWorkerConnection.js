@@ -8,7 +8,7 @@ import {generateUuid} from "../../../../../src/util/mod.js";
 export class InternalDiscoveryWorkerConnection {
 	/**
 	 * @param {MessagePort} port
-	 * @param {string} clientType
+	 * @param {import("../EditorConnectionsManager.js").ClientType} clientType
 	 */
 	constructor(port, clientType) {
 		this.id = generateUuid();
@@ -27,5 +27,13 @@ export class InternalDiscoveryWorkerConnection {
 	 */
 	setProjectMetaData(projectMetaData) {
 		this.projectMetaData = projectMetaData;
+	}
+
+	/**
+	 * @param {import("../../../../../src/Inspector/InternalDiscoveryManager.js").InternalDiscoveryClientMessage} message
+	 * @param {Transferable[]} transfer
+	 */
+	postMessage(message, transfer = []) {
+		this.port.postMessage(message, transfer);
 	}
 }

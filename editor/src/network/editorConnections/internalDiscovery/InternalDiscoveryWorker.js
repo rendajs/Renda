@@ -2,9 +2,36 @@
  * @fileoverview This is the entry point for the editorDiscovery SharedWorker.
  */
 
+/**
+ * @typedef {{
+ * 	registerClient: {
+ * 		clientType: import("../EditorConnectionsManager.js").ClientType,
+ * 	},
+ * 	unregisterClient: null,
+ * 	projectMetaData: {
+ * 		projectMetaData: import("../EditorConnectionsManager.js").RemoteEditorMetaData,
+ * 	},
+ * 	requestConnection: {
+ * 		otherClientId: import("../../../../../src/mod.js").UuidString,
+ * 	},
+ * }} InternalDiscoveryWorkerMessages
+ */
+
+/** @typedef {keyof InternalDiscoveryWorkerMessages} InternalDiscoveryWorkerMessageOp */
+/**
+ * @template {InternalDiscoveryWorkerMessageOp} T
+ * @typedef {T extends InternalDiscoveryWorkerMessageOp ?
+ * 	InternalDiscoveryWorkerMessages[T] extends null ?
+ * 		{op: T} :
+ * 		{op: T} &
+ * 		InternalDiscoveryWorkerMessages[T] :
+ * never} InternalDiscoveryWorkerMessageHelper
+ */
+/** @typedef {InternalDiscoveryWorkerMessageHelper<InternalDiscoveryWorkerMessageOp>} InternalDiscoveryWorkerMessage */
+
 import {InternalDiscoveryWorkerConnection} from "./InternalDiscoveryWorkerConnection.js";
 
-/** @type {Map<string, InternalDiscoveryWorkerConnection>} */
+/** @type {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} */
 const activeConnections = new Map();
 
 /**
@@ -14,20 +41,20 @@ const activeConnections = new Map();
  * @param {InternalDiscoveryWorkerConnection} createdConnection
  */
 function sendAllConnectionAddedMessages(createdConnection) {
-	const {port: createdPort, clientType: createdClientType} = createdConnection;
-	for (const [id, {port, clientType, projectMetaData}] of activeConnections) {
-		if (port == createdPort) continue;
+	for (const [id, activeConnection] of activeConnections) {
+		if (activeConnection.port == createdConnection.port) continue;
 
-		createdPort.postMessage({
+		createdConnection.postMessage({
 			op: "availableClientAdded",
 			clientId: id,
-			clientType,
-			projectMetaData,
+			clientType: activeConnection.clientType,
+			projectMetaData: activeConnection.projectMetaData,
 		});
-		port.postMessage({
+		activeConnection.postMessage({
 			op: "availableClientAdded",
 			clientId: createdConnection.id,
-			clientType: createdClientType,
+			clientType: createdConnection.clientType,
+			projectMetaData: null,
 		});
 	}
 }
@@ -36,8 +63,8 @@ function sendAllConnectionAddedMessages(createdConnection) {
  * @param {import("../../../../../src/util/mod.js").UuidString} clientId
  */
 function sendAllClientRemoved(clientId) {
-	for (const {port} of activeConnections.values()) {
-		port.postMessage({
+	for (const connection of activeConnections.values()) {
+		connection.postMessage({
 			op: "availableClientRemoved",
 			clientId,
 		});
@@ -48,8 +75,8 @@ function sendAllClientRemoved(clientId) {
  * @param {InternalDiscoveryWorkerConnection} connection
  */
 function sendAllProjectMetaData(connection) {
-	for (const {port} of activeConnections.values()) {
-		port.postMessage({
+	for (const connection of activeConnections.values()) {
+		connection.postMessage({
 			op: "projectMetaData",
 			clientId: connection.id,
 			projectMetaData: connection.projectMetaData,
@@ -66,14 +93,14 @@ self.addEventListener("connect", event => {
 	port.addEventListener("message", e => {
 		if (!e.data) return;
 
-		const {data} = e;
-		const {op} = data;
+		/** @type {InternalDiscoveryWorkerMessage} */
+		const message = e.data;
+		const op = message.op;
 
 		if (op === "registerClient") {
 			if (createdConnection) return;
-			const {clientType} = data;
 
-			createdConnection = new InternalDiscoveryWorkerConnection(port, clientType);
+			createdConnection = new InternalDiscoveryWorkerConnection(port, message.clientType);
 			activeConnections.set(createdConnection.id, createdConnection);
 			sendAllConnectionAddedMessages(createdConnection);
 		} else if (op == "unregisterClient") {
@@ -83,26 +110,25 @@ self.addEventListener("connect", event => {
 			createdConnection = null;
 		} else if (op == "projectMetaData") {
 			if (!createdConnection) return;
-			const {projectMetaData} = data;
-			createdConnection.setProjectMetaData(projectMetaData);
+			createdConnection.setProjectMetaData(message.projectMetaData);
 			sendAllProjectMetaData(createdConnection);
 		} else if (op == "requestConnection") {
 			if (!createdConnection) return;
 
-			const {otherClientId} = data;
+			const otherClientId = message.otherClientId;
 			const otherConnection = activeConnections.get(otherClientId);
 			if (!otherConnection) return;
-			const {port: otherPort} = otherConnection;
-			if (!otherPort) return;
 
 			const messageChannel = new MessageChannel();
-			port.postMessage({
+			/** @type {import("../../../../../src/Inspector/InternalDiscoveryManager.js").InternalDiscoveryClientMessage} */
+			const sendMessage = {
 				op: "connectionCreated",
 				clientId: otherClientId,
 				port: messageChannel.port1,
-			}, [messageChannel.port1]);
+			};
+			port.postMessage(sendMessage, [messageChannel.port1]);
 
-			otherPort.postMessage({
+			otherConnection.postMessage({
 				op: "connectionCreated",
 				clientId: createdConnection.id,
 				port: messageChannel.port2,
