@@ -1,19 +1,17 @@
-import {MaterialMap} from "./MaterialMap.js";
-import {MaterialMapType} from "./MaterialMapType.js";
-
 export class Material {
 	/**
-	 * @param {MaterialMap?} materialMap
+	 * @param {import("./MaterialMap.js").MaterialMap?} materialMap
 	 * @param {Object.<string, *>} properties
 	 */
 	constructor(materialMap = null, properties = {}) {
 		this.materialMap = materialMap;
+		/** @type {Set<() => void>} */
 		this.onDestructorCbs = new Set();
 		this.destructed = false;
 
-		/** @type {Map<string, *>} */
+		/** @type {Map<string, import("./MaterialMap.js").MappableMaterialTypes>} */
 		this.properties = new Map();
-		/** @type {Map<typeof MaterialMapType, Map<string, *>>} */
+		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, Map<string, *>>} */
 		this.mappedProperties = new Map();
 
 		this.setProperties(properties);
@@ -28,10 +26,16 @@ export class Material {
 		this.destructed = true;
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	onDestructor(cb) {
 		this.onDestructorCbs.add(cb);
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
 	removeOnDestructor(cb) {
 		this.onDestructorCbs.delete(cb);
 	}
@@ -39,10 +43,11 @@ export class Material {
 	/**
 	 * Replaces the current material map and transfers the necessary properties.
 	 * Properties that are not used by this material map will be removed.
-	 * @param {MaterialMap?} materialMap
+	 * @param {import("./MaterialMap.js").MaterialMap?} materialMap
 	 */
 	setMaterialMap(materialMap) {
 		this.materialMap = materialMap || null;
+		/** @type {Object.<string, import("./MaterialMap.js").MappableMaterialTypes>} */
 		const oldProperties = {};
 		for (const [key, value] of this.properties) {
 			oldProperties[key] = value;
@@ -60,10 +65,10 @@ export class Material {
 		if (!this.materialMap) return;
 
 		for (const [key, value] of Object.entries(setObject)) {
-			let existingValue = this.properties.get(key);
+			let existingValue = this.properties.get(key) || null;
 			if (!existingValue) {
 				existingValue = this.materialMap.getDefaultValue(key);
-				if (typeof existingValue != "number") {
+				if (existingValue && typeof existingValue != "number") {
 					existingValue = existingValue.clone();
 				}
 				this._setMappedProperty(key, existingValue);
@@ -73,7 +78,7 @@ export class Material {
 				existingValue = value;
 				this._setMappedProperty(key, value);
 				this.properties.set(key, value);
-			} else {
+			} else if (existingValue) {
 				existingValue.set(value);
 			}
 		}
@@ -85,6 +90,7 @@ export class Material {
 	 */
 	_setMappedProperty(key, value) {
 		this.properties.set(key, value);
+		if (!this.materialMap) return;
 		for (const [mapType, originalKey] of this.materialMap.mapProperty(key)) {
 			let mappedProperties = this.mappedProperties.get(mapType);
 			if (!mappedProperties) {
@@ -103,7 +109,7 @@ export class Material {
 	}
 
 	/**
-	 * @param {typeof MaterialMapType} mapType
+	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 */
 	*getAllMappedProperties(mapType) {
 		if (!this.materialMap) return;

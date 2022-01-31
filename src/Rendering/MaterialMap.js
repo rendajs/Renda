@@ -1,5 +1,3 @@
-import {MaterialMapType} from "./MaterialMapType.js";
-
 /** @typedef {number | import("../Math/Vec2.js").Vec2 | import("../Math/Vec3.js").Vec3 | import("../Math/Vec4.js").Vec4 | import("../Math/Quat.js").Quat} MappableMaterialTypes */
 
 /**
@@ -12,7 +10,7 @@ import {MaterialMapType} from "./MaterialMapType.js";
 
 /**
  * @typedef {Object} MaterialMapTypeData
- * @property {MaterialMapType} mapType
+ * @property {import("./MaterialMapType.js").MaterialMapType} mapType
  * @property {MaterialMapMappedValues} mappedValues
  */
 
@@ -24,12 +22,12 @@ export class MaterialMap {
 	constructor({
 		materialMapTypes = [],
 	} = {}) {
-		/** @type {Map<typeof MaterialMapType, MaterialMapType>} */
+		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, import("./MaterialMapType.js").MaterialMapType>} */
 		this.mapTypes = new Map();
-		/** @type {Map<typeof MaterialMapType, Map<string, MaterialMapMappedValue>>} */
+		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, Map<string, MaterialMapMappedValue>>} */
 		this.inverseMappedData = new Map();
 		for (const {mapType, mappedValues} of materialMapTypes) {
-			const castConstructor = /** @type {typeof MaterialMapType} */ (mapType.constructor);
+			const castConstructor = /** @type {typeof import("./MaterialMapType.js").MaterialMapType} */ (mapType.constructor);
 			this.mapTypes.set(castConstructor, mapType);
 			/** @type {Map<string, MaterialMapMappedValue>} */
 			const mappedNamesMap = new Map();
@@ -44,13 +42,13 @@ export class MaterialMap {
 	}
 
 	/**
-	 * @template {MaterialMapType} T
+	 * @template {import("./MaterialMapType.js").MaterialMapType} T
 	 * @param {new (...args: *) => T} mapType
 	 * @returns {T}
 	 */
 	getMapTypeInstance(mapType) {
 		const instance = this.mapTypes.get(mapType);
-		const castInstance = /** @type {T extends MaterialMapType ? T : never} */ (instance);
+		const castInstance = /** @type {T extends import("./MaterialMapType.js").MaterialMapType ? T : never} */ (instance);
 		return castInstance;
 	}
 
@@ -58,11 +56,12 @@ export class MaterialMap {
 	 * Maps a property name to the original name as needed by the map type.
 	 * Iterates over all map types and yields the original name per map type.
 	 * @param {string} key
-	 * @returns {Generator<[typeof MaterialMapType, string]>}
+	 * @returns {Generator<[typeof import("./MaterialMapType.js").MaterialMapType, string]>}
 	 */
 	*mapProperty(key) {
 		for (const [mapType, mappedDatas] of this.inverseMappedData) {
 			const mappedData = mappedDatas.get(key);
+			if (!mappedData) continue;
 			yield [mapType, mappedData.mappedName];
 		}
 	}
@@ -84,7 +83,7 @@ export class MaterialMap {
 	}
 
 	/**
-	 * @param {typeof MaterialMapType} mapType
+	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 */
 	*getAllOriginalNames(mapType) {
 		const mappedDatas = this.inverseMappedData.get(mapType);
