@@ -6,5 +6,6 @@
 	"deno.config": "deno.json",
 	"coverage-gutters.coverageFileNames": [
 		"lcov.info"
-	]
+	],
+	"javascript.preferences.importModuleSpecifier": "relative"
 }
