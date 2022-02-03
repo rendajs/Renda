@@ -245,7 +245,7 @@ export class Component {
 			/** @type {unknown[]} */
 			const array = [];
 			if (defaultValue) {
-				const arrayGuiOptions = /** @type {import("../../editor/src/ui/ArrayGui.js").ArrayGuiOptions} */ (propertyData.guiOpts);
+				const arrayGuiOptions = /** @type {import("../../editor/src/ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyData.guiOpts);
 				for (const [i, value] of Object.entries(defaultValue)) {
 					/** @type {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 					const childPropertyData = {
@@ -273,7 +273,7 @@ export class Component {
 				editorOpts.usedAssetUuidsSymbol &&
 				editorOpts.assetManager
 			) {
-				const droppableGuiOptions = /** @type {import("../../editor/src/ui/DroppableGui.js").DroppableGuiOptions} */ (propertyData.guiOpts);
+				const droppableGuiOptions = /** @type {import("../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<(new (...args: any) => unknown)>} */ (propertyData.guiOpts);
 				if (droppableGuiOptions.supportedAssetTypes) {
 					for (const assetType of droppableGuiOptions.supportedAssetTypes) {
 						if (editorOpts.editorAssetTypeManager.constructorHasAssetType(assetType)) {
