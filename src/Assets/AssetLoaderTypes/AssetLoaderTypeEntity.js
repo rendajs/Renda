@@ -41,7 +41,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 	}
 
 	/**
-	 * @param {import("../../Components/ComponentTypeManager.js").ComponentTypeManager} manager
+	 * @param {import("../../components/ComponentTypeManager.js").ComponentTypeManager} manager
 	 */
 	setComponentTypeManager(manager) {
 		this.componentTypeManager = manager;

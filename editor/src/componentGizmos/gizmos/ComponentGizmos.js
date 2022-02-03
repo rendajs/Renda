@@ -18,7 +18,7 @@
 export class ComponentGizmos {
 	/**
 	 * Set this to the Constructor of the component that this gizmo should be used for.
-	 * @type {import("../../../../src/Components/Component.js").ComponentConstructor?}
+	 * @type {import("../../../../src/components/Component.js").ComponentConstructor?}
 	 */
 	static componentType = null;
 

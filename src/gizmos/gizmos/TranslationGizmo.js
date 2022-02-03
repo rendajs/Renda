@@ -1,4 +1,4 @@
-import {MeshComponent} from "../../Components/mod.js";
+import {MeshComponent} from "../../components/mod.js";
 import {Mesh} from "../../core/Mesh.js";
 import {Vec3} from "../../Math/Vec3.js";
 import {Gizmo} from "./Gizmo.js";

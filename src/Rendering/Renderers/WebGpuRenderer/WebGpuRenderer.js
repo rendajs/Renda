@@ -6,7 +6,7 @@ import {CachedCameraData} from "./CachedCameraData.js";
 import {CachedMeshData} from "./CachedMeshData.js";
 import {Mat4} from "../../../Math/Mat4.js";
 import {Vec4} from "../../../Math/Vec4.js";
-import {LightComponent, MeshComponent} from "../../../Components/mod.js";
+import {LightComponent, MeshComponent} from "../../../components/mod.js";
 import {Mesh} from "../../../core/Mesh.js";
 import {MultiKeyWeakMap} from "../../../util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
@@ -53,7 +53,7 @@ export class WebGpuRenderer extends Renderer {
 		this.isInit = false;
 		this.onInitCbs = new Set();
 
-		/** @type {WeakMap<import("../../../Components/BuiltIn/CameraComponent.js").CameraComponent, CachedCameraData>} */
+		/** @type {WeakMap<import("../../../components/builtIn/CameraComponent.js").CameraComponent, CachedCameraData>} */
 		this.cachedCameraData = new WeakMap();
 
 		/** @type {WeakMap<import("../../Material.js").Material, CachedMaterialData>} */
@@ -218,7 +218,7 @@ export class WebGpuRenderer extends Renderer {
 	/**
 	 * @override
 	 * @param {WebGpuRendererDomTarget} domTarget
-	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").CameraComponent} camera
+	 * @param {import("../../../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 */
 	render(domTarget, camera) {
 		if (!this.isInit) return;
@@ -387,7 +387,7 @@ export class WebGpuRenderer extends Renderer {
 	}
 
 	/**
-	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").CameraComponent} camera
+	 * @param {import("../../../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 */
 	getCachedCameraData(camera) {
 		let data = this.cachedCameraData.get(camera);

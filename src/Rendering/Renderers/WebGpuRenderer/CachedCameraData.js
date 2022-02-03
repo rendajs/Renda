@@ -3,7 +3,7 @@ import {ClusterComputeManager} from "./ClusterComputeManager.js";
 
 export class CachedCameraData {
 	/**
-	 * @param {import("../../../Components/BuiltIn/CameraComponent.js").CameraComponent} camera
+	 * @param {import("../../../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 * @param {import("./WebGpuRenderer.js").WebGpuRenderer} renderer
 	 */
 	constructor(camera, renderer) {

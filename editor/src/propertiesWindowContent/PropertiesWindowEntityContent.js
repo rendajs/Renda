@@ -200,7 +200,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		this.componentsSection.clearChildren();
 		if (!this.currentSelection) return;
 
-		/** @type {import("../../../src/Components/Component.js").Component[]} */
+		/** @type {import("../../../src/components/Component.js").Component[]} */
 		const componentGroups = [];
 		for (const {entity} of this.currentSelection) {
 			for (const component of entity.components) {
@@ -208,7 +208,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 			}
 		}
 		for (const componentGroup of componentGroups) {
-			const componentConstructor = /** @type {typeof import("../../../src/Components/Component.js").Component} */ (componentGroup.constructor);
+			const componentConstructor = /** @type {typeof import("../../../src/components/Component.js").Component} */ (componentGroup.constructor);
 			const componentName = componentConstructor?.name || componentConstructor?.uuid || "<unknown>";
 			const componentUI = this.componentsSection.addCollapsable(componentName);
 			componentUI.addEventListener("contextmenu", e => {

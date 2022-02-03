@@ -1,5 +1,5 @@
 export * from "./Assets/mod.js";
-export * from "./Components/mod.js";
+export * from "./components/mod.js";
 export * from "./core/mod.js";
 export * from "./gizmos/mod.js";
 export * from "./Inspector/mod.js";

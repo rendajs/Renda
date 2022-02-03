@@ -11,7 +11,7 @@ export class Renderer {
 	/**
 	 * Renders a scene from a camera to a dom target.
 	 * @param {RendererDomTarget} domTarget
-	 * @param {import("../../Components/BuiltIn/CameraComponent.js").CameraComponent} camera
+	 * @param {import("../../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 */
 	render(domTarget, camera) {}
 
