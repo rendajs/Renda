@@ -3,6 +3,7 @@ import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {StorageType} from "../../mod.js";
 import {Material} from "../../Rendering/Material.js";
 import {Component} from "../mod.js";
+import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 
 export class MeshComponent extends Component {
 	static get componentName() {
@@ -16,8 +17,7 @@ export class MeshComponent extends Component {
 	 * @override
 	 */
 	static get guiStructure() {
-		/** @type {import("../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
-		const structure = {
+		const structure = createTreeViewStructure({
 			mesh: {
 				type: "droppable",
 				guiOpts: {
@@ -33,7 +33,7 @@ export class MeshComponent extends Component {
 					},
 				},
 			},
-		};
+		});
 		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
 			const defaultMaterialAssetLinkUuid = "f1e469e3-b463-4542-952a-091487bf5b4a";
 			const guiOpts = /** @type {import("../../../editor/src/ui/ArrayGui.js").ArrayGuiOptions<"droppable">} */ (structure.materials.guiOpts);
@@ -59,13 +59,7 @@ export class MeshComponent extends Component {
 	}
 
 	/**
-	 * @typedef {Object} MeshComponentPropertyValues
-	 * @property {Mesh} [mesh]
-	 * @property {Material[]} [materials]
-	 */
-
-	/**
-	 * @param {MeshComponentPropertyValues} propertyValues
+	 * @param {import("../types.js").ComponentPropertyValues<typeof MeshComponent>} propertyValues
 	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
 	constructor(propertyValues = {}, ...args) {

@@ -4,6 +4,7 @@ import {ClusteredLightsConfig} from "../../Rendering/ClusteredLightsConfig.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {Component} from "../mod.js";
 import {Mat4} from "../../mod.js";
+import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 
 export class CameraComponent extends Component {
 	static get componentName() {
@@ -17,8 +18,7 @@ export class CameraComponent extends Component {
 	 * @override
 	 */
 	static get guiStructure() {
-		/** @type {import("../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
-		const structure = {
+		const structure = createTreeViewStructure({
 			fov: {
 				type: "number",
 				guiOpts: {
@@ -72,7 +72,7 @@ export class CameraComponent extends Component {
 			// rootRenderEntities: {
 			// 	type: "array",
 			// }
-		};
+		});
 
 		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
 			const defaultClusteredLightsConfigAssetLinkUuid = "f676813d-a631-4a39-9bb4-1ea1f291af19";
@@ -108,7 +108,7 @@ export class CameraComponent extends Component {
 	}
 
 	/**
-	 * @param {*} propertyValues
+	 * @param {import("../types.js").ComponentPropertyValues<typeof CameraComponent>} propertyValues
 	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
 	constructor(propertyValues = {}, ...args) {

@@ -2,6 +2,7 @@ import {StorageType} from "../../mod.js";
 import {Vec3} from "../../Math/Vec3.js";
 // import {StorageType} from "../../Util/BinaryComposer.js";
 import {Component} from "../mod.js";
+import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 
 const lightTypes = ["point", "directional", "spot"];
 
@@ -15,10 +16,9 @@ export class LightComponent extends Component {
 
 	/**
 	 * @override
-	 * @returns {import("../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure}
 	 */
 	static get guiStructure() {
-		return {
+		return createTreeViewStructure({
 			lightType: {
 				type: "dropdown",
 				guiOpts: {
@@ -28,7 +28,7 @@ export class LightComponent extends Component {
 			color: {
 				type: "vec3",
 			},
-		};
+		});
 	}
 
 	/**
@@ -48,7 +48,7 @@ export class LightComponent extends Component {
 	}
 
 	/**
-	 * @param {*} propertyValues
+	 * @param {import("../types.js").ComponentPropertyValues<typeof LightComponent>} propertyValues
 	 * @param {import("../Component.js").ComponentConstructorRestArgs} args
 	 */
 	constructor(propertyValues = {}, ...args) {
