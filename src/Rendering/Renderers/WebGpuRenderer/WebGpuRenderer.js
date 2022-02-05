@@ -226,9 +226,7 @@ export class WebGpuRenderer extends Renderer {
 
 		// todo, support for auto cam aspect based on domTarget size
 
-		if (camera.autoUpdateProjectionMatrix) {
-			camera.projectionMatrix = Mat4.createDynamicAspectPerspective(camera.fov, camera.clipNear, camera.clipFar, camera.aspect);
-		}
+		camera.updateProjectionMatrixIfEnabled();
 		if (camera.renderOutputConfig) {
 			domTarget.setRenderOutputConfig(camera.renderOutputConfig);
 		}
