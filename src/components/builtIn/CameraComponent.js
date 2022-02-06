@@ -5,7 +5,7 @@ import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {Component} from "../Component.js";
 import {Mat4} from "../../math/Mat4.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
-import {worldToScreenPos} from "../../util/worldToScreenPos.js";
+import {getRaycastRayFromScreenPos, worldToScreenPos} from "../../util/cameraUtil.js";
 
 export class CameraComponent extends Component {
 	static get componentName() {
@@ -140,6 +140,14 @@ export class CameraComponent extends Component {
 	worldToScreenPos(worldPos) {
 		this.updateProjectionMatrixIfEnabled();
 		return worldToScreenPos(worldPos, this.projectionMatrix, this.entity?.worldMatrix);
+	}
+
+	/**
+	 * @param {import("../../Math/Vec3.js").Vec3ParameterSingle} screenPos
+	 */
+	getRaycastRayFromScreenPos(screenPos) {
+		this.updateProjectionMatrixIfEnabled();
+		return getRaycastRayFromScreenPos(screenPos, this.projectionMatrix, this.entity?.worldMatrix);
 	}
 }
 
