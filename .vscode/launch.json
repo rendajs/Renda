@@ -14,6 +14,12 @@
 			"runtimeExecutable": "canary",
 			"url": "http://localhost:8080/editor/dist/",
 			"webRoot": "${workspaceFolder}"
+		},
+		{
+			"name": "Attach Deno test",
+			"port": 9229,
+			"request": "attach",
+			"type": "pwa-node"
 		}
 	]
 }
