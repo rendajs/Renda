@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals, assertNotStrictEquals} from "asserts";
 import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 
 Deno.test({
@@ -118,6 +118,7 @@ Deno.test({
 		const vec2 = vec.clone();
 
 		assertEquals(vec2.toArray(), [1, 2]);
+		assertNotStrictEquals(vec, vec2);
 	},
 });
 
