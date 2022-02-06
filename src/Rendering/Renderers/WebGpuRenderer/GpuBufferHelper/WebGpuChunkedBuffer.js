@@ -128,7 +128,7 @@ export class WebGpuChunkedBuffer {
 	}
 
 	/**
-	 * @param {import("../../../../Math/Mat4.js").Mat4} matrix
+	 * @param {import("../../../../math/Mat4.js").Mat4} matrix
 	 * @param {AppendFormat} type
 	 */
 	appendMatrix(matrix, type = "f32") {
@@ -140,7 +140,7 @@ export class WebGpuChunkedBuffer {
 	}
 
 	/**
-	 * @param {number | number[] | import("../../../../Math/Vec2.js").Vec2 | import("../../../../Math/Vec3.js").Vec3 | import("../../../../Math/Vec4.js").Vec4 | import("../../../../Math/Mat4.js").Mat4} data
+	 * @param {number | number[] | import("../../../../math/Vec2.js").Vec2 | import("../../../../math/Vec3.js").Vec3 | import("../../../../math/Vec4.js").Vec4 | import("../../../../math/Mat4.js").Mat4} data
 	 * @param {AppendFormat} type
 	 */
 	appendData(data, type = "f32") {

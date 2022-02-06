@@ -1,5 +1,5 @@
-import {Quat} from "../Math/Quat.js";
-import {Vec3} from "../Math/Vec3.js";
+import {Quat} from "../math/Quat.js";
+import {Vec3} from "../math/Vec3.js";
 
 export class OrbitControls {
 	/**

@@ -1,6 +1,6 @@
 import {assert, assertEquals} from "asserts";
-import {Mat4} from "../../../../src/Math/Mat4.js";
-import {Vec3} from "../../../../src/Math/Vec3.js";
+import {Mat4} from "../../../../src/math/Mat4.js";
+import {Vec3} from "../../../../src/math/Vec3.js";
 import {worldToScreenPos} from "../../../../src/util/worldToScreenPos.js";
 
 Deno.test({

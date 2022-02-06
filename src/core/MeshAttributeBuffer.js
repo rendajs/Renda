@@ -1,5 +1,5 @@
-import {Vec2} from "../Math/Vec2.js";
-import {Vec3} from "../Math/Vec3.js";
+import {Vec2} from "../math/Vec2.js";
+import {Vec3} from "../math/Vec3.js";
 import {Mesh} from "./Mesh.js";
 
 export class MeshAttributeBuffer {

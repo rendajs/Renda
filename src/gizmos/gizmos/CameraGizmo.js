@@ -1,8 +1,8 @@
 import {Gizmo} from "./Gizmo.js";
 import {Mesh} from "../../core/Mesh.js";
 import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {Vec3} from "../../Math/Vec3.js";
-import {Vec4} from "../../Math/Vec4.js";
+import {Vec3} from "../../math/Vec3.js";
+import {Vec4} from "../../math/Vec4.js";
 
 export class CameraGizmo extends Gizmo {
 	/**
@@ -43,7 +43,7 @@ export class CameraGizmo extends Gizmo {
 	}
 
 	/**
-	 * @param {import("../../Math/Mat4.js").Mat4} projection
+	 * @param {import("../../math/Mat4.js").Mat4} projection
 	 */
 	setProjectionMatrix(projection) {
 		const positionsCube = [

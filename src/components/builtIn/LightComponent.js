@@ -1,5 +1,5 @@
 import {StorageType} from "../../mod.js";
-import {Vec3} from "../../Math/Vec3.js";
+import {Vec3} from "../../math/Vec3.js";
 // import {StorageType} from "../../Util/BinaryComposer.js";
 import {Component} from "../mod.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";

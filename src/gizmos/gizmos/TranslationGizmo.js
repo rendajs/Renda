@@ -1,6 +1,6 @@
 import {MeshComponent} from "../../components/mod.js";
 import {Mesh} from "../../core/Mesh.js";
-import {Vec3} from "../../Math/Vec3.js";
+import {Vec3} from "../../math/Vec3.js";
 import {Gizmo} from "./Gizmo.js";
 
 export class TranslationGizmo extends Gizmo {

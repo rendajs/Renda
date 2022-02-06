@@ -1,8 +1,8 @@
 import {Gizmo} from "../Gizmo.js";
 import {Mesh} from "../../../core/Mesh.js";
 import {MeshComponent} from "../../../components/builtIn/MeshComponent.js";
-import {Vec3} from "../../../Math/Vec3.js";
-import {Vec2} from "../../../Math/Vec2.js";
+import {Vec3} from "../../../math/Vec3.js";
+import {Vec2} from "../../../math/Vec2.js";
 
 export class IconGizmo extends Gizmo {
 	/**

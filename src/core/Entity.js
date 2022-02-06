@@ -1,4 +1,4 @@
-import {Quat, Vec3} from "../Math/mod.js";
+import {Quat, Vec3} from "../math/mod.js";
 import {Component} from "../components/mod.js";
 import {EntityParent} from "./EntityParent.js";
 import {EntityMatrixCache} from "./EntityMatrixCache.js";
@@ -17,7 +17,7 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 /**
  * @typedef {Object} CreateEntityOptions
  * @property {string} [name = "Entity"]
- * @property {import("../Math/Mat4.js").Mat4} [matrix = null]
+ * @property {import("../math/Mat4.js").Mat4} [matrix = null]
  * @property {Entity} [parent = null]
  */
 
@@ -267,7 +267,7 @@ export class Entity {
 	}
 
 	/**
-	 * @param {import("../Math/Vec3.js").Vec3ParameterSingle} value
+	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} value
 	 */
 	set pos(value) {
 		this._pos.set(value);
@@ -281,7 +281,7 @@ export class Entity {
 	}
 
 	/**
-	 * @param {import("../Math/Quat.js").QuatParameterSingle} value
+	 * @param {import("../math/Quat.js").QuatParameterSingle} value
 	 */
 	set rot(value) {
 		this._rot.set(value);
@@ -295,7 +295,7 @@ export class Entity {
 	}
 
 	/**
-	 * @param {import("../Math/Vec3.js").Vec3ParameterSingle} value
+	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} value
 	 */
 	set scale(value) {
 		this._scale.set(value);
@@ -322,7 +322,7 @@ export class Entity {
 	}
 
 	/**
-	 * @param {import("../Math/Vec3.js").Vec3ParameterSingle} pos
+	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} pos
 	 * @param {this} parent The parent to set the position for.
 	 * @param {number} index The index of this entity in the parent.
 	 */

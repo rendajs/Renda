@@ -1,6 +1,6 @@
 import {assert, assertEquals, assertNotEquals} from "asserts";
 import {CameraComponent} from "../../../../../src/components/builtIn/CameraComponent.js";
-import {Vec3} from "../../../../../src/Math/Vec3.js";
+import {Vec3} from "../../../../../src/math/Vec3.js";
 import {Entity} from "../../../../../src/core/Entity.js";
 
 Deno.test({

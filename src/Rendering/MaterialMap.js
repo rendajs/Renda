@@ -1,4 +1,4 @@
-/** @typedef {number | import("../Math/Vec2.js").Vec2 | import("../Math/Vec3.js").Vec3 | import("../Math/Vec4.js").Vec4 | import("../Math/Quat.js").Quat} MappableMaterialTypes */
+/** @typedef {number | import("../math/Vec2.js").Vec2 | import("../math/Vec3.js").Vec3 | import("../math/Vec4.js").Vec4 | import("../math/Quat.js").Quat} MappableMaterialTypes */
 
 /**
  * @typedef {Object} MaterialMapMappedValue

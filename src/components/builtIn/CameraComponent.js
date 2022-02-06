@@ -3,7 +3,7 @@ import {RenderOutputConfig} from "../../Rendering/RenderOutputConfig.js";
 import {ClusteredLightsConfig} from "../../Rendering/ClusteredLightsConfig.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {Component} from "../Component.js";
-import {Mat4} from "../../Math/Mat4.js";
+import {Mat4} from "../../math/Mat4.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {worldToScreenPos} from "../../util/worldToScreenPos.js";
 
@@ -135,7 +135,7 @@ export class CameraComponent extends Component {
 	}
 
 	/**
-	 * @param {import("../../Math/Vec3.js").Vec3} worldPos
+	 * @param {import("../../math/Vec3.js").Vec3} worldPos
 	 */
 	worldToScreenPos(worldPos) {
 		this.updateProjectionMatrixIfEnabled();
