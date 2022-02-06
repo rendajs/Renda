@@ -292,6 +292,45 @@ export class Vec3 {
 		return this;
 	}
 
+	/**
+	 * If a single number is provided, subtracts the number from each component.
+	 * Otherwise the arguments are converted to a Vector and each of its
+	 * components are subtracted from this vector.
+	 * @param {Parameters<typeof this.subScalar> | Vec3Parameters} args
+	 */
+	sub(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.subScalar(args[0]);
+		} else {
+			const castArgs = /** @type {Vec3Parameters} */ (args);
+			return this.subVector(new Vec3(...castArgs));
+		}
+	}
+
+	/**
+	 * Subtracts a scalar from each component.
+	 * @param {number} scalar
+	 */
+	subScalar(scalar) {
+		this._x -= scalar;
+		this._y -= scalar;
+		this._z -= scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Subtracts components from their respective components.
+	 * @param {Vec3} vector
+	 */
+	subVector(vector) {
+		this._x -= vector.x;
+		this._y -= vector.y;
+		this._z -= vector.z;
+		this.fireOnChange();
+		return this;
+	}
+
 	toArray() {
 		return [this.x, this.y, this.z];
 	}
