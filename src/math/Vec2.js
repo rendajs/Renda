@@ -122,7 +122,6 @@ export class Vec2 {
 	/**
 	 * Adds a scalar to each component.
 	 * @param {number} scalar
-	 * @returns {this}
 	 */
 	addScalar(scalar) {
 		this._x += scalar;
@@ -134,11 +133,47 @@ export class Vec2 {
 	/**
 	 * Adds components to their respective components.
 	 * @param {Vec2} vector
-	 * @returns {this}
 	 */
 	addVector(vector) {
 		this._x += vector.x;
 		this._y += vector.y;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * If a single number is provided, subtracts the number from each component.
+	 * Otherwise the arguments are converted to a Vector and each of its
+	 * components are subtracted from this vector.
+	 * @param {Parameters<typeof this.subScalar> | Vec2Parameters} args
+	 */
+	sub(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.subScalar(args[0]);
+		} else {
+			const castArgs = /** @type {Vec2Parameters} */ (args);
+			return this.subVector(new Vec2(...castArgs));
+		}
+	}
+
+	/**
+	 * Subtracts a scalar from each component.
+	 * @param {number} scalar
+	 */
+	subScalar(scalar) {
+		this._x -= scalar;
+		this._y -= scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Subtracts components from their respective components.
+	 * @param {Vec2} vector
+	 */
+	subVector(vector) {
+		this._x -= vector.x;
+		this._y -= vector.y;
 		this.fireOnChange();
 		return this;
 	}

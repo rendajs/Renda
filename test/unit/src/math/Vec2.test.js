@@ -231,6 +231,56 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "sub() with single number",
+	fn() {
+		const vec = new Vec2(3, 4);
+		vec.sub(2);
+
+		assertEquals(vec.toArray(), [1, 2]);
+	},
+});
+
+Deno.test({
+	name: "sub() with Vec2",
+	fn() {
+		const vec = new Vec2(3, 4);
+		vec.sub(new Vec2(1, 2));
+
+		assertEquals(vec.toArray(), [2, 2]);
+	},
+});
+
+Deno.test({
+	name: "sub() with array",
+	fn() {
+		const vec = new Vec2(2, 3);
+		vec.sub([1, 2]);
+
+		assertEquals(vec.toArray(), [1, 1]);
+	},
+});
+
+Deno.test({
+	name: "subScalar()",
+	fn() {
+		const vec = new Vec2(4, 5);
+		vec.subScalar(2);
+
+		assertEquals(vec.toArray(), [2, 3]);
+	},
+});
+
+Deno.test({
+	name: "subVector()",
+	fn() {
+		const vec = new Vec2(4, 5);
+		vec.subVector(new Vec2(2, 3));
+
+		assertEquals(vec.toArray(), [2, 2]);
+	},
+});
+
 // ======== onChange Callbacks ========
 
 Deno.test({
