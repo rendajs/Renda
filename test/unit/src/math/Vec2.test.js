@@ -499,3 +499,44 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "onChange fires when sub() is called",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+
+		const vec = new Vec2();
+		vec.onChange(cb);
+		vec.sub([2, 2]);
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when subScalar() is called",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+
+		const vec = new Vec2();
+		vec.onChange(cb);
+		vec.subScalar(2);
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when subVector() is called",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+
+		const vec = new Vec2();
+		vec.onChange(cb);
+		vec.subVector(new Vec2(2, 2));
+
+		assertEquals(fireCount, 1);
+	},
+});
