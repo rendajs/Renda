@@ -147,6 +147,20 @@ export class Vec2 {
 		return [this.x, this.y];
 	}
 
+	/**
+	 * @param {() => void} cb
+	 */
+	onChange(cb) {
+		this.onChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnChange(cb) {
+		this.onChangeCbs.delete(cb);
+	}
+
 	fireOnChange() {
 		for (const cb of this.onChangeCbs) {
 			cb();
