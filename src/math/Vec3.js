@@ -23,6 +23,7 @@ export class Vec3 {
 	constructor(...args) {
 		/** @type {Set<() => void>} */
 		this.onChangeCbs = new Set();
+		this._disableOnChange = false;
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
@@ -125,6 +126,7 @@ export class Vec3 {
 		}
 
 		this.fireOnChange();
+		return this;
 	}
 
 	/**
@@ -377,6 +379,33 @@ export class Vec3 {
 		return this._x * other.x + this._y * other.y + this._z * other.z;
 	}
 
+	/**
+	 * Projects this vector (a) on another vector (b) and sets the value
+	 * of this vector to the result.
+	 * ```js
+	 *     a ^
+	 *      /.
+	 *     / .
+	 *    /  .
+	 *   o---+---> b
+	 *   o--->
+	 *       c
+	 * ```
+	 * In this example `c` is the projection of `a` on `b`.
+	 *
+	 * @param {Vec3Parameters} v
+	 */
+	projectOnVector(...v) {
+		const other = new Vec3(...v);
+		const magnitude = other.magnitude;
+		const scalar = this.dot(other) / magnitude ** 2;
+		this._disableOnChange = true;
+		this.set(other).multiplyScalar(scalar);
+		this._disableOnChange = false;
+		this.fireOnChange();
+		return this;
+	}
+
 	toArray() {
 		return [this.x, this.y, this.z];
 	}
@@ -396,6 +425,7 @@ export class Vec3 {
 	}
 
 	fireOnChange() {
+		if (this._disableOnChange) return;
 		for (const cb of this.onChangeCbs) {
 			cb();
 		}
