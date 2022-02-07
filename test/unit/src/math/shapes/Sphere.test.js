@@ -154,3 +154,108 @@ Deno.test({
 		assertNotStrictEquals(sphere, clonedSphere);
 	},
 });
+
+// ======== onChange Callbacks ========
+
+Deno.test({
+	name: "onChange fires once when added multiple times",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+
+		const sphere = new Sphere();
+		sphere.onChange(cb);
+		sphere.onChange(cb);
+		sphere.set(1, 1, 1);
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange doesn't fire when removed",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+
+		const sphere = new Sphere();
+		sphere.onChange(cb);
+		sphere.removeOnChange(cb);
+		sphere.set(1, 1, 1);
+
+		assertEquals(fireCount, 0);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when the radius changes",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const sphere = new Sphere();
+		sphere.onChange(cb);
+
+		sphere.radius = 5;
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when the position changes",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const sphere = new Sphere();
+		sphere.onChange(cb);
+
+		sphere.pos = [1, 2, 3];
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when a single component of the position changes",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const sphere = new Sphere();
+		sphere.onChange(cb);
+
+		sphere.pos.x = 1;
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange keeps working when changing the position",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const sphere = new Sphere();
+		sphere.onChange(cb);
+
+		sphere.pos = new Vec3(1, 2, 3);
+		sphere.pos.x = 2;
+		sphere.pos = new Vec3(3, 2, 3);
+		sphere.pos.x = 4;
+
+		assertEquals(fireCount, 4);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when set() is called",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const sphere = new Sphere();
+		sphere.onChange(cb);
+
+		sphere.set(1, [1, 2, 3]);
+
+		assertEquals(fireCount, 1);
+	},
+});

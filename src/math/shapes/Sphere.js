@@ -28,6 +28,7 @@ export class Sphere {
 		this.onChangeCbs = new Set();
 		this._radius = 1;
 		this._pos = new Vec3();
+		this._pos.onChange(() => this.fireOnChange());
 		this.set(...args);
 	}
 
