@@ -331,6 +331,52 @@ export class Vec3 {
 		return this;
 	}
 
+	/**
+	 * Computes the dot product between this vector and another vector.
+	 *
+	 * [Dot product visualisation](https://falstad.com/dotproduct/)
+	 *
+	 * - When the two vectors point in opposite directions (i.e. the angle is greater than 90º), the dot product is negative.
+	 * ```none
+	 *    ^
+	 *     \
+	 *      \ 110º
+	 *       o---->
+	 * ```
+	 * - When the two vectors point in the same direction (i.e. the angle is less than 90º), the dot product is positive.
+	 * ```none
+	 *      ^
+	 *     /
+	 *    / 70º
+	 *   o---->
+	 * ```
+	 * - When the two vectors are perpendicular, the dot product is zero.
+	 * ```none
+	 *   ^
+	 *   |
+	 *   | 90º
+	 *   o---->
+	 * ```
+	 * - The dot product returns the same value regardless of the order of the vectors.
+	 * - If one vector is normalized, the dot product is essentially the length
+	 * of the other vector, projected on the normalized one.
+	 * ```none
+	 *    b ^
+	 *     /.
+	 *    / .
+	 *   o--+---> a
+	 *   o-->
+	 *      c
+	 * ```
+	 * In this example the dot product of `a` and `b` is the length of `c`.
+	 *
+	 * @param  {Vec3Parameters} v
+	 */
+	dot(...v) {
+		const other = new Vec3(...v);
+		return this._x * other.x + this._y * other.y + this._z * other.z;
+	}
+
 	toArray() {
 		return [this.x, this.y, this.z];
 	}

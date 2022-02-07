@@ -206,7 +206,6 @@ module.exports = {
 		"jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef"]}],
 		"jsdoc/check-property-names": "error",
 		"jsdoc/check-types": "error",
-		"jsdoc/newline-after-description": ["error", "never"],
 		"jsdoc/no-bad-blocks": "error",
 		"jsdoc/no-defaults": "error",
 		"jsdoc/no-multi-asterisks": "error",
