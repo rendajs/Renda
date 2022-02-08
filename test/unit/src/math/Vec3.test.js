@@ -241,6 +241,25 @@ Deno.test({
 });
 
 Deno.test({
+	name: "distanceTo()",
+	fn() {
+		const tests = [
+			{a: [0, 0, 0], b: [0, 0, 0], expected: 0},
+			{a: [1, 0, 0], b: [0, 0, 0], expected: 1},
+			{a: [0, 5, 0], b: [0, 0, 0], expected: 5},
+			{a: [-5, 0, 0], b: [5, 0, 0], expected: 10},
+			{a: [1, 0, 2], b: [0, -2, -1], expected: 3.74},
+		];
+
+		for (const {a, b, expected} of tests) {
+			const vec = new Vec3(a);
+			const dist = vec.distanceTo(b);
+			assertAlmostEquals(dist, expected);
+		}
+	},
+});
+
+Deno.test({
 	name: "multiply() with single number",
 	fn() {
 		const vec = new Vec3(2, 3, 4);

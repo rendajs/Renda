@@ -158,6 +158,15 @@ export class Vec3 {
 	}
 
 	/**
+	 * @param {Vec3Parameters} otherVec
+	 */
+	distanceTo(...otherVec) {
+		const other = new Vec3(...otherVec);
+		other.sub(this);
+		return other.magnitude;
+	}
+
+	/**
 	 * @param {Parameters<typeof this.multiplyScalar> | Parameters<typeof this.multiplyMatrix> | Vec3Parameters} args
 	 */
 	multiply(...args) {
