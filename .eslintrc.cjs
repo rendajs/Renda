@@ -26,7 +26,6 @@ module.exports = {
 		"no-undef": "off", // Taken care of by TypeScript
 
 		"array-callback-return": "error",
-		"consistent-return": "error",
 		curly: ["error", "multi-line", "consistent"],
 		"default-param-last": "error",
 		"grouped-accessor-pairs": "error",
@@ -218,7 +217,6 @@ module.exports = {
 		"jsdoc/require-property": "error",
 		"jsdoc/require-property-name": "error",
 		"jsdoc/require-property-type": "error",
-		"jsdoc/require-returns-check": "error",
 		"jsdoc/require-returns-type": "error",
 
 		"rulesdir/no-default-exports": "error",
