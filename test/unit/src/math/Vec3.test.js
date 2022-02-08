@@ -1,5 +1,6 @@
 import {assertEquals, assertNotStrictEquals} from "asserts";
 import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {assertAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
 	name: "Should be 0,0,3 by default",
@@ -194,6 +195,48 @@ Deno.test({
 
 		assertEquals(vec2.toArray(), [1, 2, 3]);
 		assertNotStrictEquals(vec, vec2);
+	},
+});
+
+Deno.test({
+	name: "get magnitude",
+	fn() {
+		const tests = [
+			{vec: [0, 0, 0], expected: 0},
+			{vec: [1, 0, 0], expected: 1},
+			{vec: [0, 5, 0], expected: 5},
+			{vec: [0, 0, -6], expected: 6},
+			{vec: [1, 2, 3], expected: 3.74},
+		];
+
+		for (const {vec, expected} of tests) {
+			const vec3 = new Vec3(vec);
+			assertAlmostEquals(vec3.magnitude, expected);
+		}
+	},
+});
+
+Deno.test({
+	name: "set magnitude",
+	fn() {
+		const tests = [
+			{vec: [0, 0, 0], magnitude: 1, expected: [0, 0, 0]},
+			{vec: [1, 0, 0], magnitude: 5, expected: [5, 0, 0]},
+			{vec: [0, 5, 0], magnitude: 1, expected: [0, 1, 0]},
+			{vec: [1, 1, 1], magnitude: 0, expected: [0, 0, 0]},
+			{vec: [5, 0, 0], magnitude: 5, expected: [5, 0, 0]},
+			{vec: [1, 1, 1], magnitude: 5, expected: [2.9, 2.9, 2.9]},
+			{vec: [1, 2, 3], magnitude: 10, expected: [2.7, 5.3, 8.0]},
+		];
+
+		for (const {vec, magnitude, expected} of tests) {
+			const vec3 = new Vec3(vec);
+			vec3.magnitude = magnitude;
+			const vecArr = vec3.toArray();
+			for (let i = 0; i < 3; i++) {
+				assertAlmostEquals(vecArr[i], expected[i]);
+			}
+		}
 	},
 });
 
