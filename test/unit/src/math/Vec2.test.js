@@ -1,5 +1,6 @@
 import {assertEquals, assertNotStrictEquals} from "asserts";
 import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
 	name: "Should be 0,0 by default",
@@ -119,6 +120,86 @@ Deno.test({
 
 		assertEquals(vec2.toArray(), [1, 2]);
 		assertNotStrictEquals(vec, vec2);
+	},
+});
+
+Deno.test({
+	name: "get magnitude",
+	fn() {
+		const tests = [
+			{vec: [0, 0], expected: 0},
+			{vec: [1, 0], expected: 1},
+			{vec: [0, 5], expected: 5},
+			{vec: [0, -6], expected: 6},
+			{vec: [1, 2], expected: 2.23},
+		];
+
+		for (const {vec, expected} of tests) {
+			const vec2 = new Vec2(vec);
+			assertAlmostEquals(vec2.magnitude, expected);
+		}
+	},
+});
+
+Deno.test({
+	name: "set magnitude",
+	fn() {
+		const tests = [
+			{vec: [0, 0], magnitude: 1, expected: [0, 0]},
+			{vec: [1, 0], magnitude: 5, expected: [5, 0]},
+			{vec: [0, 5], magnitude: 1, expected: [0, 1]},
+			{vec: [1, 1], magnitude: 0, expected: [0, 0]},
+			{vec: [5, 0], magnitude: 5, expected: [5, 0]},
+			{vec: [1, 1], magnitude: 5, expected: [3.5, 3.5]},
+			{vec: [1, 2], magnitude: 10, expected: [4.5, 8.9]},
+		];
+
+		for (const {vec, magnitude, expected} of tests) {
+			const vec2 = new Vec2(vec);
+			vec2.magnitude = magnitude;
+			const vecArr = vec2.toArray();
+			for (let i = 0; i < 2; i++) {
+				assertAlmostEquals(vecArr[i], expected[i]);
+			}
+		}
+	},
+});
+
+Deno.test({
+	name: "normalize()",
+	fn() {
+		const tests = [
+			{vec: [0, 0], expected: [0, 0]},
+			{vec: [1, 0], expected: [1, 0]},
+			{vec: [5, 0], expected: [1, 0]},
+			{vec: [5, 5], expected: [0.7, 0.7]},
+			{vec: [0, -5], expected: [0, -1]},
+		];
+
+		for (const {vec, expected} of tests) {
+			const vec2 = new Vec2(vec);
+			vec2.normalize();
+			assertVecAlmostEquals(vec2, expected);
+		}
+	},
+});
+
+Deno.test({
+	name: "distanceTo()",
+	fn() {
+		const tests = [
+			{a: [0, 0], b: [0, 0], expected: 0},
+			{a: [1, 0], b: [0, 0], expected: 1},
+			{a: [0, 5], b: [0, 0], expected: 5},
+			{a: [-5, 0], b: [5, 0], expected: 10},
+			{a: [1, 0], b: [0, -2], expected: 2.23},
+		];
+
+		for (const {a, b, expected} of tests) {
+			const vec = new Vec2(a);
+			const dist = vec.distanceTo(b);
+			assertAlmostEquals(dist, expected);
+		}
 	},
 });
 

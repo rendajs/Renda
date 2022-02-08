@@ -68,6 +68,34 @@ export class Vec2 {
 		return new Vec2(this);
 	}
 
+	get magnitude() {
+		return Math.sqrt(this.x ** 2 + this.y ** 2);
+	}
+
+	set magnitude(value) {
+		const diff = value / this.magnitude;
+		if (diff == 1) return;
+		this._x *= diff;
+		this._y *= diff;
+		if (isNaN(this.x)) this._x = 0;
+		if (isNaN(this.y)) this._y = 0;
+		this.fireOnChange();
+	}
+
+	normalize() {
+		this.magnitude = 1;
+		return this;
+	}
+
+	/**
+	 * @param {Vec2Parameters} otherVec
+	 */
+	distanceTo(...otherVec) {
+		const other = new Vec2(...otherVec);
+		other.sub(this);
+		return other.magnitude;
+	}
+
 	/**
 	 * @param {Parameters<typeof this.multiplyScalar> | Vec2Parameters} args
 	 */

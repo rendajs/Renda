@@ -9,6 +9,14 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  * @param {number} expected
  */
 export function assertAlmostEquals(actual, expected, tolerance = 0.1, msg = "") {
+	if (typeof actual != "number") {
+		if (msg) throw new AssertionError(msg);
+		throw new AssertionError(`${actual} is not a number`);
+	}
+	if (typeof expected != "number") {
+		if (msg) throw new AssertionError(msg);
+		throw new AssertionError(`${expected} is not a number`);
+	}
 	if (Math.abs(actual - expected) > tolerance) {
 		let message = msg;
 		if (!message) {
@@ -60,7 +68,6 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.1, msg = "
 	const expectedVec = arrayToVector(expected, msg);
 	let dist;
 	if (actualVec instanceof Vec2 && expectedVec instanceof Vec2) {
-		// @ts-expect-error
 		dist = actualVec.distanceTo(expectedVec);
 	} else if (actualVec instanceof Vec3 && expectedVec instanceof Vec3) {
 		dist = actualVec.distanceTo(expectedVec);

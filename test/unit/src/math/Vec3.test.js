@@ -1,6 +1,6 @@
 import {assertEquals, assertNotStrictEquals} from "asserts";
 import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
-import {assertAlmostEquals} from "../../shared/asserts.js";
+import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
 	name: "Should be 0,0,3 by default",
@@ -236,6 +236,25 @@ Deno.test({
 			for (let i = 0; i < 3; i++) {
 				assertAlmostEquals(vecArr[i], expected[i]);
 			}
+		}
+	},
+});
+
+Deno.test({
+	name: "normalize()",
+	fn() {
+		const tests = [
+			{vec: [0, 0, 0], expected: [0, 0, 0]},
+			{vec: [1, 0, 0], expected: [1, 0, 0]},
+			{vec: [5, 0, 0], expected: [1, 0, 0]},
+			{vec: [5, 5, 5], expected: [0.6, 0.6, 0.6]},
+			{vec: [0, -5, 0], expected: [0, -1, 0]},
+		];
+
+		for (const {vec, expected} of tests) {
+			const vec3 = new Vec3(vec);
+			vec3.normalize();
+			assertVecAlmostEquals(vec3, expected);
 		}
 	},
 });
