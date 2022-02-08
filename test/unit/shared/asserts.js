@@ -17,7 +17,8 @@ export function assertAlmostEquals(actual, expected, tolerance = 0.1, msg = "") 
 		if (msg) throw new AssertionError(msg);
 		throw new AssertionError(`${expected} is not a number`);
 	}
-	if (Math.abs(actual - expected) > tolerance) {
+	const hasNaN = isNaN(actual) || isNaN(expected);
+	if (Math.abs(actual - expected) > tolerance || hasNaN) {
 		let message = msg;
 		if (!message) {
 			message = `Expected value to be close to ${expected} but got ${actual}`;
@@ -67,13 +68,23 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.1, msg = "
 	const actualVec = arrayToVector(actual, msg);
 	const expectedVec = arrayToVector(expected, msg);
 	let dist;
+	let hasNaN = false;
 	if (actualVec instanceof Vec2 && expectedVec instanceof Vec2) {
 		dist = actualVec.distanceTo(expectedVec);
+		if (isNaN(actualVec.x) || isNaN(actualVec.y) || isNaN(expectedVec.x) || isNaN(expectedVec.y)) {
+			hasNaN = true;
+		}
 	} else if (actualVec instanceof Vec3 && expectedVec instanceof Vec3) {
 		dist = actualVec.distanceTo(expectedVec);
+		if (isNaN(actualVec.x) || isNaN(actualVec.y) || isNaN(actualVec.z) || isNaN(expectedVec.x) || isNaN(expectedVec.y) || isNaN(expectedVec.z)) {
+			hasNaN = true;
+		}
 	} else if (actualVec instanceof Vec4 && expectedVec instanceof Vec4) {
 		// @ts-expect-error
 		dist = actualVec.distanceTo(expectedVec);
+		if (isNaN(actualVec.x) || isNaN(actualVec.y) || isNaN(actualVec.z) || isNaN(actualVec.w) || isNaN(expectedVec.x) || isNaN(expectedVec.y) || isNaN(expectedVec.z) || isNaN(expectedVec.w)) {
+			hasNaN = true;
+		}
 	} else {
 		if (msg) {
 			throw new AssertionError(msg);
@@ -83,7 +94,7 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.1, msg = "
 		}
 		throw new AssertionError(`Two vectors are not of the same type: ${actual.constructor.name} and ${expected.constructor.name}`);
 	}
-	if (dist > tolerance) {
+	if (dist > tolerance || hasNaN) {
 		let message = msg;
 		if (!message) {
 			message = `Expected value to be close to ${expectedVec.toArray()} but got ${actualVec.toArray()}`;

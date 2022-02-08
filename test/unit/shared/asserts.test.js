@@ -14,7 +14,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "assertAlmostEquals() throw",
+	name: "assertAlmostEquals() throws",
 	fn() {
 		assertThrows(() => {
 			assertAlmostEquals(1.0, 1.1);
@@ -24,6 +24,9 @@ Deno.test({
 		});
 		assertThrows(() => {
 			assertAlmostEquals(-10.0, 100);
+		});
+		assertThrows(() => {
+			assertAlmostEquals(NaN, 0);
 		});
 	},
 });
@@ -50,6 +53,12 @@ Deno.test({
 		});
 		assertThrows(() => {
 			assertVecAlmostEquals([0, 0, 0], [11, 0, 0], 10);
+		});
+		assertThrows(() => {
+			assertVecAlmostEquals([NaN, 0, 0], [0, 0, 0]);
+		});
+		assertThrows(() => {
+			assertVecAlmostEquals([NaN, 0, 0], [NaN, 0, 0]);
 		});
 	},
 });
