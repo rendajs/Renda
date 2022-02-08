@@ -85,6 +85,74 @@ export class Sphere {
 	}
 
 	/**
+	 * Casts a ray from `start` towards `dir` and returns a raycast result.
+	 * Returns null when the ray does not intersect the sphere.
+	 * @param {Vec3} start
+	 * @param {Vec3} dir
+	 * @returns {import("../types.js").RaycastResult?}
+	 */
+	raycast(start, dir) {
+		//   A           C
+		//    +---------+
+		//     \ -__    |
+		//      \   --__|
+		//       \      + D
+		//        \     |
+		//         \    |
+		//          \   |
+		//           \  |
+		//            \ |
+		//             \|
+		//              + B
+		//
+		// A is the center of the sphere
+		// BC is the ray pointing upwards
+		// D is the point where the ray hits the sphere
+		// AD is the radius of the sphere
+		//
+		// Initially only the following lengths are known:
+		// - |AB| Distance from sphere center to ray start
+		// - |AD| The radius of the sphere
+
+		const ab = start.clone().sub(this.pos);
+		const abLength = ab.magnitude;
+		// If |AB| < |AD|, the ray starts inside the sphere.
+		if (abLength < this.radius) {
+			return {
+				dist: 0,
+				pos: start.clone(),
+			};
+		}
+
+		// First we project AB onto the ray, this gives us BC, which we now know the lenth of.
+		const bc = ab.clone().projectOnVector(dir);
+		const bcLength = bc.magnitude;
+
+		// Then using the pytagorean theorem we can calculate |AC| using |AB| and |BC|.
+		const ac = Math.sqrt(abLength ** 2 - bcLength ** 2);
+
+		// If |AC| is bigger than the radius of the sphere, the ray doesn't hit the sphere.
+		if (ac > this.radius) {
+			return null;
+		}
+
+		// Using the pytagorean theorem again we can calculate |CD| using |AC| and |AD|.
+		const cd = Math.sqrt(this.radius ** 2 - ac ** 2);
+
+		// Finally we calculate |BD| by subtracting |CD| from |BC|. Which gives us the length of the ray.
+		const bd = bcLength - cd;
+
+		// Finally we can calculate the position of the intersection point.
+		const dirWithLength = dir.clone();
+		dirWithLength.magnitude = bd;
+		const hit = start.clone().add(dirWithLength);
+		return {
+			pos: hit,
+			dist: bd,
+		};
+	}
+
+	/**
 	 * @param {() => void} cb
 	 */
 	onChange(cb) {

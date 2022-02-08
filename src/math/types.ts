@@ -1,3 +1,5 @@
+import type { Vec3 } from "./Vec3";
+
 export type GetFirstParam<T> = T extends [infer P] ? P : never;
 
 /**
@@ -7,3 +9,8 @@ export type GetFirstParam<T> = T extends [infer P] ? P : never;
  * the union of first parameters.
  */
 export type MergeParameters<T extends (...args: any) => any> = Parameters<T> | [GetFirstParam<Parameters<T>>];
+
+export interface RaycastResult {
+	pos: Vec3;
+	dist: number;
+}

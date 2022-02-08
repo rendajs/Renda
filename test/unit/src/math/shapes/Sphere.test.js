@@ -1,5 +1,6 @@
-import {assertEquals, assertNotStrictEquals} from "asserts";
+import {assertEquals, assertExists, assertNotStrictEquals} from "asserts";
 import {Sphere, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
+import {assertAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 Deno.test({
 	name: "Should be radius 1, pos 0,0,0 by default",
@@ -152,6 +153,64 @@ Deno.test({
 		assertEquals(clonedSphere.radius, 5);
 		assertEquals(clonedSphere.pos.toArray(), [1, 2, 3]);
 		assertNotStrictEquals(sphere, clonedSphere);
+	},
+});
+
+Deno.test({
+	name: "raycast() hit",
+	fn() {
+		const sphere = new Sphere();
+		const start = new Vec3(-5, 0, 0);
+		const dir = new Vec3(1, 0, 0);
+
+		const result = sphere.raycast(start, dir);
+
+		assertExists(result);
+		assertEquals(result.dist, 4);
+		assertEquals(result.pos.toArray(), [-1, 0, 0]);
+	},
+});
+
+Deno.test({
+	name: "raycast() miss",
+	fn() {
+		const sphere = new Sphere();
+		const start = new Vec3(-5, 10, 0);
+		const dir = new Vec3(1, 0, 0);
+
+		const result = sphere.raycast(start, dir);
+
+		assertEquals(result, null);
+	},
+});
+
+Deno.test({
+	name: "raycast() more complex",
+	fn() {
+		const sphere = new Sphere(5, [0, 10, 0]);
+		const start = new Vec3(-5, 9, 0);
+		const dir = new Vec3(1, 0, 0);
+
+		const result = sphere.raycast(start, dir);
+
+		assertExists(result);
+		assertAlmostEquals(result.dist, 0.1);
+		assertVecAlmostEquals(result.pos, [-4.9, 9, 0]);
+	},
+});
+
+Deno.test({
+	name: "raycast() start inside sphere",
+	fn() {
+		const sphere = new Sphere(5, [0, 10, 0]);
+		const start = new Vec3(-1, 10, 0);
+		const dir = new Vec3(1, 0, 0);
+
+		const result = sphere.raycast(start, dir);
+
+		assertExists(result);
+		assertEquals(result.dist, 0);
+		assertVecAlmostEquals(result.pos, [-1, 10, 0]);
 	},
 });
 
