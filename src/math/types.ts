@@ -14,3 +14,7 @@ export interface RaycastResult {
 	pos: Vec3;
 	dist: number;
 }
+
+export interface RaycastShape {
+	raycast(start: Vec3, dir: Vec3): RaycastResult | null;
+}

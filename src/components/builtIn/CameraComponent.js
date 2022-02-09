@@ -3,6 +3,7 @@ import {RenderOutputConfig} from "../../Rendering/RenderOutputConfig.js";
 import {ClusteredLightsConfig} from "../../Rendering/ClusteredLightsConfig.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {Component} from "../Component.js";
+import {Vec4} from "../../math/Vec4.js";
 import {Mat4} from "../../math/Mat4.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {getRaycastRayFromScreenPos, worldToScreenPos} from "../../util/cameraUtil.js";
@@ -143,11 +144,12 @@ export class CameraComponent extends Component {
 	}
 
 	/**
-	 * @param {import("../../Math/Vec3.js").Vec3ParameterSingle} screenPos
+	 * @param {import("../../math/Vec3.js").Vec3Parameters} screenPos
 	 */
-	getRaycastRayFromScreenPos(screenPos) {
+	getRaycastRayFromScreenPos(...screenPos) {
 		this.updateProjectionMatrixIfEnabled();
-		return getRaycastRayFromScreenPos(screenPos, this.projectionMatrix, this.entity?.worldMatrix);
+		const vec = new Vec4(...screenPos);
+		return getRaycastRayFromScreenPos(vec, this.projectionMatrix, this.entity?.worldMatrix);
 	}
 }
 
