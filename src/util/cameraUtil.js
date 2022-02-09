@@ -3,9 +3,9 @@ import {Vec4} from "../math/Vec4.js";
 
 /**
  * Converts world coordinates to screen coordinates using the given camera matrices.
- * @param {import("../Math/Vec3.js").Vec3} worldPos
- * @param {import("../Math/Mat4.js").Mat4} camProjectionMatrix
- * @param {import("../Math/Mat4.js").Mat4?} [camWorldMatrix]
+ * @param {import("../math/Vec3.js").Vec3} worldPos
+ * @param {import("../math/Mat4.js").Mat4} camProjectionMatrix
+ * @param {import("../math/Mat4.js").Mat4?} [camWorldMatrix]
  */
 export function worldToScreenPos(worldPos, camProjectionMatrix, camWorldMatrix = null) {
 	const pos = worldPos.clone();
@@ -19,9 +19,9 @@ export function worldToScreenPos(worldPos, camProjectionMatrix, camWorldMatrix =
 
 /**
  * Generates a ray from a screen position and camera matrices.
- * @param {import("../Math/Vec3.js").Vec3ParameterSingle} screenPos
- * @param {import("../Math/Mat4.js").Mat4} camProjectionMatrix
- * @param {import("../Math/Mat4.js").Mat4?} camWorldMatrix
+ * @param {import("../math/Vec3.js").Vec3ParameterSingle} screenPos The screen position in [-1, 1] range.
+ * @param {import("../math/Mat4.js").Mat4} camProjectionMatrix
+ * @param {import("../math/Mat4.js").Mat4?} camWorldMatrix
  */
 export function getRaycastRayFromScreenPos(screenPos, camProjectionMatrix, camWorldMatrix = null) {
 	const start4 = new Vec4(screenPos);
@@ -42,4 +42,25 @@ export function getRaycastRayFromScreenPos(screenPos, camProjectionMatrix, camWo
 	dir.sub(start);
 	dir.normalize();
 	return {start, dir};
+}
+
+import {Vec2} from "../mod.js";
+import {mapValue} from "./mod.js";
+
+/**
+ * Maps coordinates from element space to the [-1, 1] range.
+ * Useful for creating raycast rays.
+ * @param {HTMLElement} el
+ * @param {import("../math/Vec2.js").Vec2Parameters} elementSpace
+ */
+export function elementSpaceToScreenSpace(el, ...elementSpace) {
+	const {x, y} = new Vec2(...elementSpace);
+	const style = globalThis.getComputedStyle(el);
+	const paddingLeft = parseFloat(style.paddingLeft);
+	const paddingTop = parseFloat(style.paddingTop);
+
+	const xRel = mapValue(paddingLeft, el.clientWidth + paddingLeft, -1, 1, x);
+	const yRel = mapValue(paddingTop, el.clientHeight + paddingTop, -1, 1, y);
+
+	return new Vec2(xRel, yRel);
 }

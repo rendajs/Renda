@@ -1,6 +1,20 @@
 import {Vec3} from "./Vec3.js";
 import {Vec4} from "./Vec4.js";
 
+/**
+ * @typedef {() => Vec2} vec2SetEmptySignature
+ * @typedef {(vec: Vec2) => Vec2} vec2SetVec2Signature
+ * @typedef {(vec: Vec3) => Vec2} vec2SetVec3Signature
+ * @typedef {(vec: Vec4) => Vec2} vec2SetVec4Signature
+ * @typedef {(x: number, y: number) => Vec2} vec2SetNumNumSignature
+ * @typedef {(xy: number[]) => Vec2} vec2SetArraySignature
+ * @typedef {import("./types.js").MergeParameters<vec2SetEmptySignature | vec2SetVec2Signature | vec2SetVec3Signature | vec2SetVec4Signature | vec2SetNumNumSignature | vec2SetArraySignature>} Vec2Parameters
+ */
+
+/**
+ * @typedef {import("./types.js").GetFirstParam<Vec2Parameters>} Vec2ParameterSingle
+ */
+
 export class Vec2 {
 	/**
 	 * @param {Vec2Parameters} args
@@ -27,16 +41,6 @@ export class Vec2 {
 		this._y = value;
 		this.fireOnChange();
 	}
-
-	/**
-	 * @typedef {() => this} vec2SetEmptySignature
-	 * @typedef {(vec: Vec2) => this} vec2SetVec2Signature
-	 * @typedef {(vec: Vec3) => this} vec2SetVec3Signature
-	 * @typedef {(vec: Vec4) => this} vec2SetVec4Signature
-	 * @typedef {(x: number, y: number) => this} vec2SetNumNumSignature
-	 * @typedef {(xy: number[]) => this} vec2SetArraySignature
-	 * @typedef {import("./types.js").MergeParameters<vec2SetEmptySignature | vec2SetVec2Signature | vec2SetVec3Signature | vec2SetVec4Signature | vec2SetNumNumSignature | vec2SetArraySignature>} Vec2Parameters
-	 */
 
 	/**
 	 * @param {Vec2Parameters} args
