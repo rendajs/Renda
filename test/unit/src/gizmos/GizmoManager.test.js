@@ -1,5 +1,9 @@
-import {assert, assertEquals, assertExists, assertStrictEquals} from "asserts";
+import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "asserts";
 import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
+import {screenSpaceToElementSpace} from "../../../../src/util/cameraUtil.js";
+import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
+import {PointerEvent} from "../../shared/fakeDom/FakePointerEvent.js";
+import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "../../shared/fakeDom/mockGetComputedStyle.js";
 import {Gizmo, getFakeEngineAssetsManager, initBasicSetup} from "./shared.js";
 
 class ExtendedGizmo extends Gizmo {
@@ -78,5 +82,96 @@ Deno.test({
 		manager.destroyPointerDevice(pointer);
 
 		assertEquals(manager.pointerDevices.size, 0);
+	},
+});
+
+Deno.test({
+	name: "addPointerEventListeners",
+	fn() {
+		installMockGetComputedStyle();
+
+		const {manager, draggable, cam} = initBasicSetup();
+		const screenPos = draggable.getScreenPos(cam);
+		const el = new HtmlElement({
+			clientWidth: 100,
+			clientHeight: 100,
+		});
+		const screenPosElemSpace = screenSpaceToElementSpace(el, screenPos);
+
+		manager.addPointerEventListeners(el, cam);
+
+		const moveEvent1 = new PointerEvent("pointermove", {
+			clientX: 0,
+			clientY: 0,
+		});
+		el.dispatchEvent(moveEvent1);
+
+		const moveEvent2 = new PointerEvent("pointermove", {
+			clientX: screenPosElemSpace.x,
+			clientY: screenPosElemSpace.y,
+		});
+		el.dispatchEvent(moveEvent2);
+
+		assertEquals(draggable.isHovering, true);
+
+		const moveEvent3 = new PointerEvent("pointermove", {
+			clientX: 0,
+			clientY: 0,
+		});
+		el.dispatchEvent(moveEvent3);
+
+		assertEquals(draggable.isHovering, false);
+
+		uninstallMockGetComputedStyle();
+	},
+});
+
+Deno.test({
+	name: "addPointerEventListeners should throw when already added",
+	fn() {
+		const {manager, cam} = initBasicSetup();
+		const el = new HtmlElement();
+
+		manager.addPointerEventListeners(el, cam);
+		assertThrows(() => {
+			manager.addPointerEventListeners(el, cam);
+		});
+	},
+});
+
+Deno.test({
+	name: "removePointerEventListeners while hovering stops the hover",
+	fn() {
+		installMockGetComputedStyle();
+
+		const {manager, draggable, cam} = initBasicSetup();
+		const screenPos = draggable.getScreenPos(cam);
+		const el = new HtmlElement({
+			clientWidth: 100,
+			clientHeight: 100,
+		});
+		const screenPosElemSpace = screenSpaceToElementSpace(el, screenPos);
+
+		manager.addPointerEventListeners(el, cam);
+
+		const moveEvent1 = new PointerEvent("pointermove", {
+			clientX: 0,
+			clientY: 0,
+		});
+		el.dispatchEvent(moveEvent1);
+
+		const moveEvent2 = new PointerEvent("pointermove", {
+			clientX: screenPosElemSpace.x,
+			clientY: screenPosElemSpace.y,
+		});
+		el.dispatchEvent(moveEvent2);
+
+		assertEquals(draggable.isHovering, true);
+
+		manager.removePointerEventListeners(el);
+
+		assertEquals(draggable.isHovering, false);
+
+		uninstallMockGetComputedStyle();
 	},
 });

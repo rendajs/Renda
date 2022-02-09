@@ -2,6 +2,7 @@ import {Entity} from "../core/Entity.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 import {GizmoDraggable} from "./GizmoDraggable.js";
 import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
+import {ListeningGizmoPointerElement} from "./ListeningGizmoPointerElement.js";
 
 export class GizmoManager {
 	/**
@@ -25,6 +26,13 @@ export class GizmoManager {
 
 		/** @type {Set<import("./GizmoDraggable.js").GizmoDraggable>} */
 		this.draggables = new Set();
+
+		/**
+		 * A list of elements and its data for which addPointerEventListeners
+		 * has been called.
+		 * @type {Map<HTMLElement, ListeningGizmoPointerElement>}
+		 */
+		this.listeningPointerElements = new Map();
 
 		this.billboardVertexState = null;
 		this.meshVertexState = null;
@@ -127,5 +135,40 @@ export class GizmoManager {
 			}
 		}
 		return closestDraggable;
+	}
+
+	/**
+	 * Adds the required event listeners to the given element.
+	 * This removes the need for a lot of boilerplate code in your application.
+	 * However, you'll need to implement this yourself if you want to use the
+	 * events yourself in more complex ways, such as extra raycasts for clicking
+	 * other (non-gizmo) objects, and you want more fine grained control over
+	 * when events fire on the gizmomanager.
+	 *
+	 * Be sure to call {@linkcode removePointerEventListeners} when you remove
+	 * the element from the dom. Otherwise some gizmos might stay stuck in the
+	 * hovering or dragging state.
+	 *
+	 * @param {HTMLElement} element
+	 * @param {import("../components/builtIn/CameraComponent.js").CameraComponent} camera
+	 */
+	addPointerEventListeners(element, camera, addEvents = true) {
+		if (this.listeningPointerElements.has(element)) {
+			throw new Error("Element is already listening for pointer events");
+		}
+		const listeningElement = new ListeningGizmoPointerElement(this, element, camera);
+		this.listeningPointerElements.set(element, listeningElement);
+		if (addEvents) listeningElement.addEventListeners();
+		return listeningElement;
+	}
+
+	/**
+	 * @param {HTMLElement} element
+	 */
+	removePointerEventListeners(element) {
+		const pointerElement = this.listeningPointerElements.get(element);
+		this.listeningPointerElements.delete(element);
+		if (!pointerElement) return;
+		pointerElement.removeEventListeners();
 	}
 }

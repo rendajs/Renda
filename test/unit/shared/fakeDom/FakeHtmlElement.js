@@ -1,4 +1,4 @@
-export class FakeHtmlElement {
+export class FakeHtmlElement extends EventTarget {
 	constructor({
 		paddingLeft = "0px",
 		paddingRight = "0px",
@@ -7,6 +7,8 @@ export class FakeHtmlElement {
 		clientWidth = 100,
 		clientHeight = 100,
 	} = {}) {
+		super();
+
 		this.style = {
 			paddingLeft, paddingRight, paddingTop, paddingBottom,
 		};

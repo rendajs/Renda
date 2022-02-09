@@ -55,6 +55,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.gizmos = new GizmoManager(this.editorInstance.engineAssetManager);
 		this.editorScene.add(this.gizmos.entity);
+		this.gizmos.addPointerEventListeners(renderTargetElement, this.editorCamComponent);
+
 		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
 		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
