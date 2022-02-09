@@ -64,3 +64,21 @@ export function elementSpaceToScreenSpace(el, ...elementSpace) {
 
 	return new Vec2(xRel, yRel);
 }
+
+/**
+ * Maps coordinates from [-1, 1] range to element space.
+ *
+ * @param {HTMLElement} el
+ * @param  {import("../math/Vec2.js").Vec2Parameters} screenSpace
+ */
+export function screenSpaceToElementSpace(el, ...screenSpace) {
+	const {x, y} = new Vec2(...screenSpace);
+	const style = globalThis.getComputedStyle(el);
+	const paddingLeft = parseFloat(style.paddingLeft);
+	const paddingTop = parseFloat(style.paddingTop);
+
+	const xRel = mapValue(-1, 1, paddingLeft, el.clientWidth + paddingLeft, x);
+	const yRel = mapValue(-1, 1, paddingTop, el.clientHeight + paddingTop, y);
+
+	return new Vec2(xRel, yRel);
+}

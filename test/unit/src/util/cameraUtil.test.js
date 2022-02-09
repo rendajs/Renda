@@ -1,6 +1,6 @@
 import {assert, assertEquals} from "asserts";
 import {Mat4, Vec2, Vec3} from "../../../../src/mod.js";
-import {elementSpaceToScreenSpace, getRaycastRayFromScreenPos, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
+import {elementSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToElementSpace, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
 import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
 import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "../../shared/fakeDom/mockGetComputedStyle.js";
@@ -114,7 +114,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "elemntSpaceToScreenSpace()",
+	name: "elementSpaceToScreenSpace()",
 	fn: () => {
 		installMockGetComputedStyle();
 		const el = new HtmlElement({
@@ -136,7 +136,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "elemntSpaceToScreenSpace() out of bounds",
+	name: "elementSpaceToScreenSpace() out of bounds",
 	fn: () => {
 		installMockGetComputedStyle();
 		const el = new HtmlElement({
@@ -152,7 +152,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "elemntSpaceToScreenSpace() with padding, left top",
+	name: "elementSpaceToScreenSpace() with padding, left top",
 	fn: () => {
 		installMockGetComputedStyle();
 		const el = new HtmlElement({
@@ -170,7 +170,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "elemntSpaceToScreenSpace() with padding, right bottom",
+	name: "elementSpaceToScreenSpace() with padding, right bottom",
 	fn: () => {
 		installMockGetComputedStyle();
 		const el = new HtmlElement({
@@ -182,6 +182,80 @@ Deno.test({
 
 		const screen1 = elementSpaceToScreenSpace(el, 100, 100);
 		assertVecAlmostEquals(screen1, [1, 1]);
+
+		uninstallMockGetComputedStyle();
+	},
+});
+
+Deno.test({
+	name: "screenSpaceToElementSpace()",
+	fn: () => {
+		installMockGetComputedStyle();
+		const el = new HtmlElement({
+			clientWidth: 100,
+			clientHeight: 100,
+		});
+
+		const screen1 = screenSpaceToElementSpace(el, 0, 0);
+		assertVecAlmostEquals(screen1, [50, 50]);
+
+		const screen2 = screenSpaceToElementSpace(el, [-1, -1]);
+		assertVecAlmostEquals(screen2, [0, 0]);
+
+		const screen3 = screenSpaceToElementSpace(el, new Vec2(1, 1));
+		assertVecAlmostEquals(screen3, [100, 100]);
+
+		uninstallMockGetComputedStyle();
+	},
+});
+
+Deno.test({
+	name: "screenSpaceToElementSpace() out of bounds",
+	fn: () => {
+		installMockGetComputedStyle();
+		const el = new HtmlElement({
+			clientWidth: 100,
+			clientHeight: 100,
+		});
+
+		const screen = screenSpaceToElementSpace(el, 2, 2);
+		assertVecAlmostEquals(screen, [150, 150]);
+
+		uninstallMockGetComputedStyle();
+	},
+});
+
+Deno.test({
+	name: "screenSpaceToElementSpace() with padding, left top",
+	fn: () => {
+		installMockGetComputedStyle();
+		const el = new HtmlElement({
+			clientWidth: 100,
+			clientHeight: 100,
+			paddingLeft: "50px",
+			paddingTop: "50px",
+		});
+
+		const screen1 = screenSpaceToElementSpace(el, -2, -2);
+		assertVecAlmostEquals(screen1, [0, 0]);
+
+		uninstallMockGetComputedStyle();
+	},
+});
+
+Deno.test({
+	name: "screenSpaceToElementSpace() with padding, right bottom",
+	fn: () => {
+		installMockGetComputedStyle();
+		const el = new HtmlElement({
+			clientWidth: 100,
+			clientHeight: 100,
+			paddingRight: "50px",
+			paddingBottom: "50px",
+		});
+
+		const screen1 = screenSpaceToElementSpace(el, 1, 1);
+		assertVecAlmostEquals(screen1, [100, 100]);
 
 		uninstallMockGetComputedStyle();
 	},
