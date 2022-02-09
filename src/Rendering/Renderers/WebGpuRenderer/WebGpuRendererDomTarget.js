@@ -30,7 +30,8 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.colorAttachment = {
 			view: null, // will be assigned in getRenderPassDescriptor()
 			resolveTarget: undefined, // will be assigned in getRenderPassDescriptor()
-			loadValue: {r: 0, g: 0.2, b: 0.5, a: 1},
+			loadOp: "clear",
+			clearValue: {r: 0, g: 0.2, b: 0.5, a: 1},
 			storeOp: "store",
 		};
 		/** @type {GPURenderPassDepthStencilAttachment?} */
@@ -38,9 +39,11 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 		if (this.depthSupport) {
 			this.depthStencilAttachment = {
 				view: null, // will be assigned in generateTextures()
-				depthLoadValue: 1,
+				depthLoadOp: "clear",
+				depthClearValue: 1,
 				depthStoreOp: "store",
-				stencilLoadValue: 1,
+				stencilLoadOp: "clear",
+				stencilClearValue: 1,
 				stencilStoreOp: "store",
 			};
 		}

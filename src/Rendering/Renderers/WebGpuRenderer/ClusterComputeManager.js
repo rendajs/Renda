@@ -144,7 +144,7 @@ export class ClusterComputeManager {
 		computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
 		computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
 		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
-		computePassEncoder.endPass();
+		computePassEncoder.end();
 
 		return true;
 	}

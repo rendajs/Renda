@@ -379,7 +379,7 @@ export class WebGpuRenderer extends Renderer {
 		this.materialUniformsBuffer.writeAllChunksToGpu();
 		this.objectUniformsBuffer.writeAllChunksToGpu();
 
-		renderPassEncoder.endPass();
+		renderPassEncoder.end();
 
 		this.device.queue.submit([commandEncoder.finish()]);
 	}

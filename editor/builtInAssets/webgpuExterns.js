@@ -365,7 +365,8 @@ var GPURenderPassDescriptor;
 	@typedef {{
 		view: GPUTextureView,
 		resolveTarget: GPUTextureView,
-		loadValue: (GPUColor|Array<number>|string),
+		loadOp: string,
+		clearValue: (GPUColor|Array<number>|string),
 		storeOp: string,
 	}}
 */
@@ -384,10 +385,12 @@ var GPUColor;
 /**
 	@typedef {{
 		view: GPUTextureView,
-		depthLoadValue: (string|number),
+		depthLoadOp: string,
+		depthClearValue: (string|number),
 		depthStoreOp: string,
 		depthReadOnly: boolean,
-		stencilLoadValue: (string|number),
+		stencilLoadOp: string,
+		stencilClearValue: (string|number),
 		stencilStoreOp: string,
 		stencilReadOnly: boolean,
 	}}
@@ -439,7 +442,7 @@ class GPUComputePassEncoder{
 	*/
 	dispatch(x,y,z){}
 
-	endPass(){}
+	end(){}
 }
 
 class GPURenderPassEncoder{
