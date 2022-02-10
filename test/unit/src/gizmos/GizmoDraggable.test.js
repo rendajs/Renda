@@ -113,3 +113,60 @@ Deno.test({
 		assertEquals(draggable.isHovering, false);
 	},
 });
+
+Deno.test({
+	name: "onIsHoveringChange()",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		/** @type {boolean[]} */
+		const cbResults = [];
+
+		draggable.onIsHoveringChange(isHovering => {
+			cbResults.push(draggable.isHovering);
+		});
+
+		draggable.pointerOver(mockPointer1);
+		draggable.pointerOut(mockPointer1);
+
+		assertEquals(cbResults, [true, false]);
+	},
+});
+
+Deno.test({
+	name: "onIsHoveringChange() doesn't fire when there's no change",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		/** @type {boolean[]} */
+		const cbResults = [];
+
+		draggable.onIsHoveringChange(isHovering => {
+			cbResults.push(draggable.isHovering);
+		});
+
+		draggable.pointerOver(mockPointer1);
+		draggable.pointerOver(mockPointer2);
+		draggable.pointerOut(mockPointer1);
+		draggable.pointerOut(mockPointer2);
+
+		assertEquals(cbResults, [true, false]);
+	},
+});
+
+Deno.test({
+	name: "removeOnIsHoveringChange()",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+
+		draggable.onIsHoveringChange(cb);
+		draggable.removeOnIsHoveringChange(cb);
+
+		draggable.pointerOver(mockPointer1);
+		draggable.pointerOut(mockPointer1);
+
+		assertEquals(callbackCalled, false);
+	},
+});

@@ -1,5 +1,7 @@
 import {Vec3} from "../math/Vec3.js";
 
+/** @typedef {(isHovering: boolean) => void} OnIsHoveringChangeCb */
+
 export class GizmoDraggable {
 	/** @typedef {import("../components/builtIn/CameraComponent.js").CameraComponent} CameraComponent */
 	/**
@@ -13,6 +15,8 @@ export class GizmoDraggable {
 
 		this.pos = new Vec3();
 		this._isHovering = false;
+		/** @type {Set<OnIsHoveringChangeCb>} */
+		this._onIsHoveringChangeCbs = new Set();
 		/** @type {Set<import("./GizmoPointerDevice.js").GizmoPointerDevice>} */
 		this._hoveringPointers = new Set();
 
@@ -76,6 +80,24 @@ export class GizmoDraggable {
 	}
 
 	_updateIsHovering() {
-		this._isHovering = this._hoveringPointers.size > 0;
+		const isHovering = this._hoveringPointers.size > 0;
+		if (isHovering != this._isHovering) {
+			this._isHovering = isHovering;
+			this._onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
+		}
+	}
+
+	/**
+	 * @param {OnIsHoveringChangeCb} cb
+	 */
+	onIsHoveringChange(cb) {
+		this._onIsHoveringChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnIsHoveringChangeCb} cb
+	 */
+	removeOnIsHoveringChange(cb) {
+		this._onIsHoveringChangeCbs.delete(cb);
 	}
 }
