@@ -13,7 +13,7 @@ Deno.test({
 		const screenPos = draggable.getScreenPos(cam);
 		const screenPos2 = new Vec2(screenPos);
 
-		assertVecAlmostEquals(screenPos2, [0, 0]);
+		assertVecAlmostEquals(screenPos2, [0.5, 0.5]);
 	},
 });
 

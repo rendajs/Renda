@@ -19,7 +19,7 @@ class MockDraggable {
 }
 
 /**
- * The MockGizmoManager will hit any raycasts within -0.5 to 0.5.
+ * The MockGizmoManager will hit any raycasts within 0.25 to 0.75.
  */
 class MockGizmoManager {
 	/**
@@ -28,7 +28,7 @@ class MockGizmoManager {
 	 */
 	raycastDraggables(camera, ...screenSpace) {
 		const vec = new Vec3(...screenSpace);
-		if (vec.x < -0.5 || vec.x > 0.5 || vec.y < -0.5 || vec.y > 0.5) {
+		if (vec.x < 0.25 || vec.x > 0.75 || vec.y < 0.25 || vec.y > 0.75) {
 			return null;
 		}
 

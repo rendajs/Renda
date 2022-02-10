@@ -12,7 +12,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 1, 1), projectionMatrix, worldMatrix);
 
-		assertEquals([pos.x, pos.y], [0, 0]);
+		assertEquals([pos.x, pos.y], [0.5, 0.5]);
 	},
 });
 
@@ -23,7 +23,7 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 0, 1), projectionMatrix);
 
-		assertEquals([pos.x, pos.y], [0, 0]);
+		assertEquals([pos.x, pos.y], [0.5, 0.5]);
 	},
 });
 
@@ -34,8 +34,8 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, 0.1, 1), projectionMatrix);
 
-		assertEquals(pos.x, 0);
-		assert(pos.y > 0, "pos.y > 0");
+		assertEquals(pos.x, 0.5);
+		assert(pos.y < 0.5, "pos.y < 0.5");
 	},
 });
 
@@ -46,8 +46,8 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0, -0.1, 1), projectionMatrix);
 
-		assertEquals(pos.x, 0);
-		assert(pos.y < 0, "pos.y < 0");
+		assertEquals(pos.x, 0.5);
+		assert(pos.y > 0.5, "pos.y > 0.5");
 	},
 });
 
@@ -58,8 +58,8 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(-0.1, 0, 1), projectionMatrix);
 
-		assert(pos.x < 0, "pos.x < 0");
-		assertEquals(pos.y, 0);
+		assert(pos.x < 0.5, "pos.x < 0.5");
+		assertEquals(pos.y, 0.5);
 	},
 });
 
@@ -70,8 +70,8 @@ Deno.test({
 
 		const pos = worldToScreenPos(new Vec3(0.1, 0, 1), projectionMatrix);
 
-		assert(pos.x > 0, "pos.x > 0");
-		assertEquals(pos.y, 0);
+		assert(pos.x > 0.5, "pos.x > 0.5");
+		assertEquals(pos.y, 0.5);
 	},
 });
 
@@ -80,11 +80,11 @@ Deno.test({
 	fn: () => {
 		const worldMatrix = Mat4.createTranslation(0, 1, 0);
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
-		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.5, 0.5), projectionMatrix, worldMatrix);
+		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix, worldMatrix);
 
 		assertVecAlmostEquals(start, [0.5, 1.5, 1], 0.0001);
 		assertAlmostEquals(dir.magnitude, 1, 0.0001, "dir.magnitude is not normalized");
-		assertVecAlmostEquals(dir, [0.4, 0.5, 0.8]);
+		assertVecAlmostEquals(dir, [0.4, -0.5, 0.8]);
 	},
 });
 
@@ -92,11 +92,11 @@ Deno.test({
 	name: "getRaycastRayFromScreenPos, no world matrix",
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
-		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.5, 0.5), projectionMatrix);
+		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix);
 
 		assertVecAlmostEquals(start, [0.5, 0.5, 1], 0.0001);
 		assertAlmostEquals(dir.magnitude, 1, 0.0001, "dir.magnitude is not normalized");
-		assertVecAlmostEquals(dir, [0.4, 0.4, 0.8]);
+		assertVecAlmostEquals(dir, [0.4, -0.4, 0.8]);
 	},
 });
 
@@ -111,10 +111,10 @@ Deno.test({
 		});
 
 		const screen1 = domSpaceToScreenSpace(el, 150, 150);
-		assertVecAlmostEquals(screen1, [0, 0]);
+		assertVecAlmostEquals(screen1, [0.5, 0.5]);
 
 		const screen2 = domSpaceToScreenSpace(el, [100, 100]);
-		assertVecAlmostEquals(screen2, [-1, -1]);
+		assertVecAlmostEquals(screen2, [0, 0]);
 
 		const screen3 = domSpaceToScreenSpace(el, new Vec2(200, 200));
 		assertVecAlmostEquals(screen3, [1, 1]);
@@ -132,7 +132,7 @@ Deno.test({
 		});
 
 		const screen = domSpaceToScreenSpace(el, 250, 250);
-		assertVecAlmostEquals(screen, [2, 2]);
+		assertVecAlmostEquals(screen, [1.5, 1.5]);
 	},
 });
 
@@ -149,7 +149,7 @@ Deno.test({
 		});
 
 		const screen1 = domSpaceToScreenSpace(el, 100, 100);
-		assertVecAlmostEquals(screen1, [-2, -2]);
+		assertVecAlmostEquals(screen1, [-0.5, -0.5]);
 	},
 });
 
@@ -180,10 +180,10 @@ Deno.test({
 			clientHeight: 100,
 		});
 
-		const domPos1 = screenSpaceToDomSpace(el, 0, 0);
+		const domPos1 = screenSpaceToDomSpace(el, 0.5, 0.5);
 		assertVecAlmostEquals(domPos1, [150, 150]);
 
-		const domPos2 = screenSpaceToDomSpace(el, [-1, -1]);
+		const domPos2 = screenSpaceToDomSpace(el, [0, 0]);
 		assertVecAlmostEquals(domPos2, [100, 100]);
 
 		const domPos3 = screenSpaceToDomSpace(el, new Vec2(1, 1));
@@ -201,7 +201,7 @@ Deno.test({
 			clientHeight: 100,
 		});
 
-		const domPos = screenSpaceToDomSpace(el, 2, 2);
+		const domPos = screenSpaceToDomSpace(el, 1.5, 1.5);
 		assertVecAlmostEquals(domPos, [250, 250]);
 	},
 });
@@ -218,7 +218,7 @@ Deno.test({
 			paddingTop: 50,
 		});
 
-		const domPos = screenSpaceToDomSpace(el, -2, -2);
+		const domPos = screenSpaceToDomSpace(el, -0.5, -0.5);
 		assertVecAlmostEquals(domPos, [100, 100]);
 	},
 });
