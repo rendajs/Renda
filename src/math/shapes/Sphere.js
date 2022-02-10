@@ -92,7 +92,7 @@ export class Sphere {
 	 * @returns {import("../types.js").RaycastResult?}
 	 */
 	raycast(start, dir) {
-		//   A           C
+		//   B           C
 		//    +---------+
 		//     \ -__    |
 		//      \   --__|
@@ -103,20 +103,20 @@ export class Sphere {
 		//           \  |
 		//            \ |
 		//             \|
-		//              + B
+		//              + A
 		//
-		// A is the center of the sphere
-		// BC is the ray pointing upwards
+		// B is the center of the sphere
+		// AC is the ray pointing upwards
 		// D is the point where the ray hits the sphere
-		// AD is the radius of the sphere
+		// BD is the radius of the sphere
 		//
 		// Initially only the following lengths are known:
 		// - |AB| Distance from sphere center to ray start
-		// - |AD| The radius of the sphere
+		// - |BD| The radius of the sphere
 
 		const ab = this.pos.clone().sub(start);
 		const abLength = ab.magnitude;
-		// If |AB| < |AD|, the ray starts inside the sphere.
+		// If |AB| < |BD|, the ray starts inside the sphere.
 		if (abLength < this.radius) {
 			return {
 				dist: 0,
@@ -124,37 +124,37 @@ export class Sphere {
 			};
 		}
 
-		// First we project AB onto the ray, this gives us BC, which we now know the lenth of.
-		const bc = ab.clone().projectOnVector(dir);
+		// First we project AB onto the ray, this gives us AC.
+		const ac = ab.clone().projectOnVector(dir);
 
 		// If the ray is pointing away from the sphere, there is no collision.
-		if (bc.dot(dir) < 0) {
+		if (ac.dot(dir) < 0) {
 			return null;
 		}
 
-		const bcLength = bc.magnitude;
+		const acLength = ac.magnitude;
 
-		// Then using the pytagorean theorem we can calculate |AC| using |AB| and |BC|.
-		const ac = Math.sqrt(abLength ** 2 - bcLength ** 2);
+		// Then using the pytagorean theorem we can calculate |BC| using |AB| and |AC|.
+		const bcLength = Math.sqrt(abLength ** 2 - acLength ** 2);
 
-		// If |AC| is bigger than the radius of the sphere, the ray doesn't hit the sphere.
-		if (ac > this.radius) {
+		// If |BC| is bigger than the radius of the sphere, the ray doesn't hit the sphere.
+		if (bcLength > this.radius) {
 			return null;
 		}
 
-		// Using the pytagorean theorem again we can calculate |CD| using |AC| and |AD|.
-		const cd = Math.sqrt(this.radius ** 2 - ac ** 2);
+		// Using the pytagorean theorem again we can calculate |CD| using |BC| and |BD|.
+		const cdLength = Math.sqrt(this.radius ** 2 - bcLength ** 2);
 
-		// Finally we calculate |BD| by subtracting |CD| from |BC|. Which gives us the length of the ray.
-		const bd = bcLength - cd;
+		// Now we calculate |AD| by subtracting |CD| from |AC|. Which gives us the length of the ray.
+		const adLength = acLength - cdLength;
 
 		// Finally we can calculate the position of the intersection point.
 		const dirWithLength = dir.clone();
-		dirWithLength.magnitude = bd;
+		dirWithLength.magnitude = adLength;
 		const hit = start.clone().add(dirWithLength);
 		return {
 			pos: hit,
-			dist: bd,
+			dist: adLength,
 		};
 	}
 
