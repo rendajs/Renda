@@ -55,12 +55,10 @@ import {mapValue} from "./mod.js";
  */
 export function elementSpaceToScreenSpace(el, ...elementSpace) {
 	const {x, y} = new Vec2(...elementSpace);
-	const style = globalThis.getComputedStyle(el);
-	const paddingLeft = parseFloat(style.paddingLeft);
-	const paddingTop = parseFloat(style.paddingTop);
+	const rect = el.getBoundingClientRect();
 
-	const xRel = mapValue(paddingLeft, el.clientWidth + paddingLeft, -1, 1, x);
-	const yRel = mapValue(paddingTop, el.clientHeight + paddingTop, -1, 1, y);
+	const xRel = mapValue(rect.left, rect.right, -1, 1, x);
+	const yRel = mapValue(rect.top, rect.bottom, -1, 1, y);
 
 	return new Vec2(xRel, yRel);
 }
@@ -73,12 +71,10 @@ export function elementSpaceToScreenSpace(el, ...elementSpace) {
  */
 export function screenSpaceToElementSpace(el, ...screenSpace) {
 	const {x, y} = new Vec2(...screenSpace);
-	const style = globalThis.getComputedStyle(el);
-	const paddingLeft = parseFloat(style.paddingLeft);
-	const paddingTop = parseFloat(style.paddingTop);
+	const rect = el.getBoundingClientRect();
 
-	const xRel = mapValue(-1, 1, paddingLeft, el.clientWidth + paddingLeft, x);
-	const yRel = mapValue(-1, 1, paddingTop, el.clientHeight + paddingTop, y);
+	const xRel = mapValue(-1, 1, rect.left, rect.right, x);
+	const yRel = mapValue(-1, 1, rect.top, rect.bottom, y);
 
 	return new Vec2(xRel, yRel);
 }
