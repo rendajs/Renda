@@ -114,7 +114,7 @@ export class Sphere {
 		// - |AB| Distance from sphere center to ray start
 		// - |AD| The radius of the sphere
 
-		const ab = start.clone().sub(this.pos);
+		const ab = this.pos.clone().sub(start);
 		const abLength = ab.magnitude;
 		// If |AB| < |AD|, the ray starts inside the sphere.
 		if (abLength < this.radius) {
@@ -126,6 +126,12 @@ export class Sphere {
 
 		// First we project AB onto the ray, this gives us BC, which we now know the lenth of.
 		const bc = ab.clone().projectOnVector(dir);
+
+		// If the ray is pointing away from the sphere, there is no collision.
+		if (bc.dot(dir) < 0) {
+			return null;
+		}
+
 		const bcLength = bc.magnitude;
 
 		// Then using the pytagorean theorem we can calculate |AC| using |AB| and |BC|.

@@ -185,6 +185,19 @@ Deno.test({
 });
 
 Deno.test({
+	name: "raycast() away from sphere",
+	fn() {
+		const sphere = new Sphere();
+		const start = new Vec3(-5, 0, 0);
+		const dir = new Vec3(-1, 0, 0);
+
+		const restult = sphere.raycast(start, dir);
+
+		assertEquals(restult, null);
+	},
+});
+
+Deno.test({
 	name: "raycast() more complex",
 	fn() {
 		const sphere = new Sphere(5, [0, 10, 0]);
