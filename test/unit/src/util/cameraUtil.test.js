@@ -1,7 +1,7 @@
 import {assert, assertEquals} from "asserts";
 import {Mat4, Vec2, Vec3} from "../../../../src/mod.js";
 import {domSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToDomSpace, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
-import {assertVecAlmostEquals} from "../../shared/asserts.js";
+import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
 
 Deno.test({
@@ -82,15 +82,9 @@ Deno.test({
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
 		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.5, 0.5), projectionMatrix, worldMatrix);
 
-		assert(start.x > 0.49 && start.x < 0.51, "start.x is not near 0.5");
-		assert(start.y > 1.49 && start.y < 1.51, "start.y is not near 1.5");
-		assert(start.z > 0.99 && start.z < 1.01, "start.z is not near 1.0");
-
-		assert(dir.magnitude > 0.99 && dir.magnitude < 1.01, "dir.magnitude is not normalized");
-
-		assert(dir.x > 0.3 && dir.x < 0.5, "dir.x is not near 0.4");
-		assert(dir.y > 0.3 && dir.y < 0.5, "dir.y is not near 0.4");
-		assert(dir.z > 0.7 && dir.z < 0.9, "dir.z is not near 0.8");
+		assertVecAlmostEquals(start, [0.5, 1.5, 1], 0.0001);
+		assertAlmostEquals(dir.magnitude, 1, 0.0001, "dir.magnitude is not normalized");
+		assertVecAlmostEquals(dir, [0.4, 0.5, 0.8]);
 	},
 });
 
@@ -100,15 +94,9 @@ Deno.test({
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
 		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.5, 0.5), projectionMatrix);
 
-		assert(start.x > 0.49 && start.x < 0.51, "start.x is not near 0.5");
-		assert(start.y > 0.49 && start.y < 0.51, "start.y is not near 0.5");
-		assert(start.z > 0.99 && start.z < 1.01, "start.z is not near 1.0");
-
-		assert(dir.magnitude > 0.99 && dir.magnitude < 1.01, "dir.magnitude is not normalized");
-
-		assert(dir.x > 0.3 && dir.x < 0.5, "dir.x is not near 0.4");
-		assert(dir.y > 0.3 && dir.y < 0.5, "dir.y is not near 0.4");
-		assert(dir.z > 0.7 && dir.z < 0.9, "dir.z is not near 0.8");
+		assertVecAlmostEquals(start, [0.5, 0.5, 1], 0.0001);
+		assertAlmostEquals(dir.magnitude, 1, 0.0001, "dir.magnitude is not normalized");
+		assertVecAlmostEquals(dir, [0.4, 0.4, 0.8]);
 	},
 });
 

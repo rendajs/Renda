@@ -59,8 +59,8 @@ function assertIsVector(vec, msg) {
 }
 
 /**
- * @param {Vec2 | Vec3 | Vec4 | number[]} actual
- * @param {unknown} expected
+ * @param {unknown} actual
+ * @param {Vec2 | Vec3 | Vec4 | number[]} expected
  */
 export function assertVecAlmostEquals(actual, expected, tolerance = 0.1, msg = "") {
 	assertIsVector(actual, msg);
