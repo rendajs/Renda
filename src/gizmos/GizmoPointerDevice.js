@@ -1,4 +1,4 @@
-import {elementSpaceToScreenSpace} from "../util/cameraUtil.js";
+import {domSpaceToScreenSpace} from "../util/cameraUtil.js";
 
 export class GizmoPointerDevice {
 	/**
@@ -32,7 +32,7 @@ export class GizmoPointerDevice {
 	 * @param {PointerEvent} event
 	 */
 	handle2dEvent(camera, element, event) {
-		const screenSpace = elementSpaceToScreenSpace(element, event.clientX, event.clientY);
+		const screenSpace = domSpaceToScreenSpace(element, event.clientX, event.clientY);
 		const hit = this.gizmoManager.raycastDraggables(camera, screenSpace);
 
 		if (hit != this.currentlyHoveringDraggable) {

@@ -1,6 +1,6 @@
 import {assert, assertEquals} from "asserts";
 import {Mat4, Vec2, Vec3} from "../../../../src/mod.js";
-import {elementSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToElementSpace, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
+import {domSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToDomSpace, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
 import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
 
@@ -113,7 +113,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "elementSpaceToScreenSpace()",
+	name: "domSpaceToScreenSpace()",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -122,19 +122,19 @@ Deno.test({
 			clientHeight: 100,
 		});
 
-		const screen1 = elementSpaceToScreenSpace(el, 150, 150);
+		const screen1 = domSpaceToScreenSpace(el, 150, 150);
 		assertVecAlmostEquals(screen1, [0, 0]);
 
-		const screen2 = elementSpaceToScreenSpace(el, [100, 100]);
+		const screen2 = domSpaceToScreenSpace(el, [100, 100]);
 		assertVecAlmostEquals(screen2, [-1, -1]);
 
-		const screen3 = elementSpaceToScreenSpace(el, new Vec2(200, 200));
+		const screen3 = domSpaceToScreenSpace(el, new Vec2(200, 200));
 		assertVecAlmostEquals(screen3, [1, 1]);
 	},
 });
 
 Deno.test({
-	name: "elementSpaceToScreenSpace() out of bounds",
+	name: "domSpaceToScreenSpace() out of bounds",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -143,13 +143,13 @@ Deno.test({
 			clientHeight: 100,
 		});
 
-		const screen = elementSpaceToScreenSpace(el, 250, 250);
+		const screen = domSpaceToScreenSpace(el, 250, 250);
 		assertVecAlmostEquals(screen, [2, 2]);
 	},
 });
 
 Deno.test({
-	name: "elementSpaceToScreenSpace() with padding, left top",
+	name: "domSpaceToScreenSpace() with padding, left top",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -160,13 +160,13 @@ Deno.test({
 			paddingTop: 50,
 		});
 
-		const screen1 = elementSpaceToScreenSpace(el, 100, 100);
+		const screen1 = domSpaceToScreenSpace(el, 100, 100);
 		assertVecAlmostEquals(screen1, [-2, -2]);
 	},
 });
 
 Deno.test({
-	name: "elementSpaceToScreenSpace() with padding, right bottom",
+	name: "domSpaceToScreenSpace() with padding, right bottom",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -177,13 +177,13 @@ Deno.test({
 			paddingBottom: 50,
 		});
 
-		const screen1 = elementSpaceToScreenSpace(el, 200, 200);
+		const screen1 = domSpaceToScreenSpace(el, 200, 200);
 		assertVecAlmostEquals(screen1, [1, 1]);
 	},
 });
 
 Deno.test({
-	name: "screenSpaceToElementSpace()",
+	name: "screenSpaceToDomSpace()",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -192,19 +192,19 @@ Deno.test({
 			clientHeight: 100,
 		});
 
-		const screen1 = screenSpaceToElementSpace(el, 0, 0);
-		assertVecAlmostEquals(screen1, [150, 150]);
+		const domPos1 = screenSpaceToDomSpace(el, 0, 0);
+		assertVecAlmostEquals(domPos1, [150, 150]);
 
-		const screen2 = screenSpaceToElementSpace(el, [-1, -1]);
-		assertVecAlmostEquals(screen2, [100, 100]);
+		const domPos2 = screenSpaceToDomSpace(el, [-1, -1]);
+		assertVecAlmostEquals(domPos2, [100, 100]);
 
-		const screen3 = screenSpaceToElementSpace(el, new Vec2(1, 1));
-		assertVecAlmostEquals(screen3, [200, 200]);
+		const domPos3 = screenSpaceToDomSpace(el, new Vec2(1, 1));
+		assertVecAlmostEquals(domPos3, [200, 200]);
 	},
 });
 
 Deno.test({
-	name: "screenSpaceToElementSpace() out of bounds",
+	name: "screenSpaceToDomSpace() out of bounds",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -213,13 +213,13 @@ Deno.test({
 			clientHeight: 100,
 		});
 
-		const screen = screenSpaceToElementSpace(el, 2, 2);
-		assertVecAlmostEquals(screen, [250, 250]);
+		const domPos = screenSpaceToDomSpace(el, 2, 2);
+		assertVecAlmostEquals(domPos, [250, 250]);
 	},
 });
 
 Deno.test({
-	name: "screenSpaceToElementSpace() with padding, left top",
+	name: "screenSpaceToDomSpace() with padding, left top",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -230,13 +230,13 @@ Deno.test({
 			paddingTop: 50,
 		});
 
-		const screen1 = screenSpaceToElementSpace(el, -2, -2);
-		assertVecAlmostEquals(screen1, [100, 100]);
+		const domPos = screenSpaceToDomSpace(el, -2, -2);
+		assertVecAlmostEquals(domPos, [100, 100]);
 	},
 });
 
 Deno.test({
-	name: "screenSpaceToElementSpace() with padding, right bottom",
+	name: "screenSpaceToDomSpace() with padding, right bottom",
 	fn: () => {
 		const el = new HtmlElement({
 			x: 100,
@@ -247,7 +247,7 @@ Deno.test({
 			paddingBottom: 50,
 		});
 
-		const screen1 = screenSpaceToElementSpace(el, 1, 1);
-		assertVecAlmostEquals(screen1, [200, 200]);
+		const domPos = screenSpaceToDomSpace(el, 1, 1);
+		assertVecAlmostEquals(domPos, [200, 200]);
 	},
 });

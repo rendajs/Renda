@@ -1,6 +1,6 @@
 import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "asserts";
 import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
-import {screenSpaceToElementSpace} from "../../../../src/util/cameraUtil.js";
+import {screenSpaceToDomSpace} from "../../../../src/util/cameraUtil.js";
 import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
 import {PointerEvent} from "../../shared/fakeDom/FakePointerEvent.js";
 import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "../../shared/fakeDom/mockGetComputedStyle.js";
@@ -96,7 +96,7 @@ Deno.test({
 			clientWidth: 100,
 			clientHeight: 100,
 		});
-		const screenPosElemSpace = screenSpaceToElementSpace(el, screenPos);
+		const screenPosElemSpace = screenSpaceToDomSpace(el, screenPos);
 
 		manager.addPointerEventListeners(el, cam);
 
@@ -150,7 +150,7 @@ Deno.test({
 			clientWidth: 100,
 			clientHeight: 100,
 		});
-		const screenPosElemSpace = screenSpaceToElementSpace(el, screenPos);
+		const screenPosElemSpace = screenSpaceToDomSpace(el, screenPos);
 
 		manager.addPointerEventListeners(el, cam);
 

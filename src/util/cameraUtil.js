@@ -48,13 +48,15 @@ import {Vec2} from "../mod.js";
 import {mapValue} from "./mod.js";
 
 /**
- * Maps coordinates from element space to the [-1, 1] range.
+ * Maps coordinates from dom space to the [-1, 1] range. Where the input
+ * coordinates are relative to the viewport of the dom. I.e. the `clientX`,
+ * `clientY`, `x`, and `y` properties of MouseEvents.
  * Useful for creating raycast rays.
  * @param {HTMLElement} el
- * @param {import("../math/Vec2.js").Vec2Parameters} elementSpace
+ * @param {import("../math/Vec2.js").Vec2Parameters} domPosition
  */
-export function elementSpaceToScreenSpace(el, ...elementSpace) {
-	const {x, y} = new Vec2(...elementSpace);
+export function domSpaceToScreenSpace(el, ...domPosition) {
+	const {x, y} = new Vec2(...domPosition);
 	const rect = el.getBoundingClientRect();
 
 	const xRel = mapValue(rect.left, rect.right, -1, 1, x);
@@ -64,12 +66,13 @@ export function elementSpaceToScreenSpace(el, ...elementSpace) {
 }
 
 /**
- * Maps coordinates from [-1, 1] range to element space.
+ * Maps coordinates from [-1, 1] range to the coordinate system used by the
+ * viewport of the dom.
  *
  * @param {HTMLElement} el
  * @param  {import("../math/Vec2.js").Vec2Parameters} screenSpace
  */
-export function screenSpaceToElementSpace(el, ...screenSpace) {
+export function screenSpaceToDomSpace(el, ...screenSpace) {
 	const {x, y} = new Vec2(...screenSpace);
 	const rect = el.getBoundingClientRect();
 
