@@ -31,7 +31,7 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 			view: null, // will be assigned in getRenderPassDescriptor()
 			resolveTarget: undefined, // will be assigned in getRenderPassDescriptor()
 			loadOp: "clear",
-			clearValue: {r: 0, g: 0.2, b: 0.5, a: 1},
+			clearValue: {r: 0, g: 0, b: 0, a: 1},
 			storeOp: "store",
 		};
 		/** @type {GPURenderPassDepthStencilAttachment?} */
