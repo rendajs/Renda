@@ -2,12 +2,22 @@ import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Mesh} from "./Mesh.js";
 
+/** @typedef {() => void} OnBufferChangedCallback */
+
+/**
+ * @typedef MeshAttributeSettings
+ * @property {number} offset
+ * @property {import("./Mesh.js").AttributeFormat} format
+ * @property {number} componentCount
+ * @property {import("./Mesh.js").AttributeType?} attributeType
+ */
+
 export class MeshAttributeBuffer {
 	constructor({
-		arrayStride = null,
-		attributes = [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: null}],
+		arrayStride = /** @type {number?} */ (null),
+		attributes = /** @type {MeshAttributeSettings[]} */ ([{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: null}]),
 		isUnused = false,
-		arrayBuffer = null,
+		arrayBuffer = /** @type {ArrayBuffer?} */ (null),
 	} = {}) {
 		if (isUnused && attributes.length != 1) {
 			throw new Error("Unused attribute buffers must have exactly 1 attribute");
@@ -19,9 +29,11 @@ export class MeshAttributeBuffer {
 		this.setArrayStride(arrayStride);
 
 		this.buffer = arrayBuffer;
+		/** @type {ArrayBuffer?} */
 		this._currentDataViewBuffer = null;
 		this._dataView = null;
 
+		/** @type {Set<OnBufferChangedCallback>} */
 		this.onBufferChangedCbs = new Set();
 	}
 
@@ -29,6 +41,9 @@ export class MeshAttributeBuffer {
 		// todo
 	}
 
+	/**
+	 * @param {number?} arrayStride
+	 */
 	setArrayStride(arrayStride) {
 		if (arrayStride != null) {
 			this.arrayStride = arrayStride;
@@ -53,10 +68,17 @@ export class MeshAttributeBuffer {
 		return this._dataView;
 	}
 
+	/**
+	 * @param {import("./Mesh.js").AttributeType} attributeType
+	 */
 	hasAttributeType(attributeType) {
 		return !!this.getAttributeSettings(attributeType);
 	}
 
+	/**
+	 * @param {import("./Mesh.js").AttributeType} attributeType
+	 * @returns {MeshAttributeSettings?}
+	 */
 	getAttributeSettings(attributeType) {
 		for (const attribute of this.attributes) {
 			if (attribute.attributeType == attributeType) {
@@ -66,6 +88,9 @@ export class MeshAttributeBuffer {
 		return null;
 	}
 
+	/**
+	 * @param {number} vertexCount
+	 */
 	setVertexCount(vertexCount) {
 		const length = vertexCount * this.arrayStride;
 		const oldBuffer = this.buffer;
@@ -78,8 +103,8 @@ export class MeshAttributeBuffer {
 	}
 
 	/**
-	 * @param {Object} attributeType
-	 * @param {Object} data
+	 * @param {import("./Mesh.js").AttributeType} attributeType
+	 * @param {ArrayBufferLike | number[] | Vec2[] | Vec3[]} data
 	 * @suppress {suspiciousCode}
 	 */
 	setVertexData(attributeType, data) {
@@ -132,7 +157,11 @@ export class MeshAttributeBuffer {
 		this.fireBufferChanged();
 	}
 
+	/**
+	 * @param {import("./Mesh.js").AttributeType} attributeType
+	 */
 	*getVertexData(attributeType) {
+		if (!this.buffer) return;
 		const attributeSettings = this.getAttributeSettings(attributeType);
 		if (!attributeSettings) return;
 
@@ -154,6 +183,9 @@ export class MeshAttributeBuffer {
 		}
 	}
 
+	/**
+	 * @param {OnBufferChangedCallback} cb
+	 */
 	onBufferChanged(cb) {
 		this.onBufferChangedCbs.add(cb);
 	}

@@ -1,6 +1,10 @@
 import {DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS} from "../engineDefines.js";
 import {MeshAttributeBuffer} from "./MeshAttributeBuffer.js";
 
+// TODO: make these an enum
+/** @typedef {number} AttributeType */
+/** @typedef {number} AttributeFormat */
+
 export class Mesh {
 	constructor() {
 		/** @type {MeshAttributeBuffer[]} */
