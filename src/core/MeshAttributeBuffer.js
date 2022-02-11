@@ -42,7 +42,8 @@ export class MeshAttributeBuffer {
 	}
 
 	getDataView() {
-		if (this._currentDataViewBuffer != !this.buffer) {
+		// todo: what should happen if the buffer doesn't exist yet?
+		if (this._currentDataViewBuffer != this.buffer) {
 			this._dataView = null;
 		}
 		if (!this._dataView) {
@@ -70,7 +71,7 @@ export class MeshAttributeBuffer {
 		const oldBuffer = this.buffer;
 		this.buffer = new ArrayBuffer(length);
 		if (oldBuffer) {
-			new Uint8Array(this.buffer).set(oldBuffer);
+			new Uint8Array(this.buffer).set(new Uint8Array(oldBuffer));
 		}
 
 		this.fireBufferChanged();
@@ -96,7 +97,7 @@ export class MeshAttributeBuffer {
 			// todo
 		} else if (Array.isArray(data)) {
 			if (data.length <= 0) {
-				return;
+				this.buffer = new ArrayBuffer(0);
 			} else if (typeof data[0] == "number") {
 				let i = 0;
 				while (i < data.length) {
