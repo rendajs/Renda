@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals, assertThrows} from "asserts";
 import {Mesh, MeshAttributeBuffer, Vec2, Vec3} from "../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
 
@@ -262,6 +262,77 @@ Deno.test({
 		assertEquals(dataView.getFloat32(12, true), 4);
 		assertEquals(dataView.getFloat32(16, true), 5);
 		assertEquals(dataView.getFloat32(20, true), 6);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() should throw when the attribute type is not present",
+	fn() {
+		const buffer = new MeshAttributeBuffer();
+		buffer.setVertexCount(2);
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(1, 2, 3), new Vec3(4, 5, 6)]);
+		});
+	},
+});
+
+Deno.test({
+	name: "setVertexData() should throw when data doesn't match the component count (1)",
+	fn() {
+		const buffer = new MeshAttributeBuffer({
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
+		});
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
+		});
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
+		});
+	},
+});
+
+Deno.test({
+	name: "setVertexData() should throw when data doesn't match the component count (2)",
+	fn() {
+		const buffer = new MeshAttributeBuffer({
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
+		});
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec3(), new Vec3()]);
+		});
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
+		});
+	},
+});
+
+Deno.test({
+	name: "setVertexData() should throw when data doesn't match the component count (3)",
+	fn() {
+		const buffer = new MeshAttributeBuffer({
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2]);
+		});
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(), new Vec2()]);
+		});
+		assertThrows(() => {
+			buffer.setVertexData(Mesh.AttributeType.POSITION, /** @type {any} */ ([null, null]));
+		});
 	},
 });
 

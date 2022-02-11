@@ -103,12 +103,32 @@ export class MeshAttributeBuffer {
 	}
 
 	/**
+	 * @param {boolean} assertion
+	 * @param {string} expectedText
+	 * @param {number[] | Vec2[] | Vec3[]} dataArray
+	 */
+	_assertVertexDataType(assertion, expectedText, dataArray) {
+		if (!assertion) {
+			let dataType;
+			if (dataArray[0]) {
+				dataType = dataArray[0].constructor.name;
+			} else {
+				dataType = String(dataArray[0]);
+			}
+			throw new TypeError(`The VertexState for this attribute has a componentCount of 1, expected ${expectedText} array but received ${dataType}`);
+		}
+	}
+
+	/**
 	 * @param {import("./Mesh.js").AttributeType} attributeType
 	 * @param {ArrayBufferLike | number[] | Vec2[] | Vec3[]} data
 	 * @suppress {suspiciousCode}
 	 */
 	setVertexData(attributeType, data) {
 		const attributeSettings = this.getAttributeSettings(attributeType);
+		if (!attributeSettings) {
+			throw new Error("Attribute type not found in vertex state");
+		}
 		const dataView = this.getDataView();
 
 		// todo: pick function based on attributeSettings.format
@@ -123,35 +143,33 @@ export class MeshAttributeBuffer {
 		} else if (Array.isArray(data)) {
 			if (data.length <= 0) {
 				this.buffer = new ArrayBuffer(0);
-			} else if (typeof data[0] == "number") {
+			} else if (attributeSettings.componentCount == 1) {
 				let i = 0;
-				while (i < data.length) {
+				this._assertVertexDataType(typeof data[0] == "number", "a number", data);
+				const castData = /** @type {number[]} */ (data);
+				while (i < castData.length) {
 					for (let j = 0; j < attributeSettings.componentCount; j++) {
-						setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * j, data[i], true);
+						setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * j, castData[i], true);
 					}
 					i++;
 				}
-			} else if (data[0] instanceof Vec2) {
-				if (attributeSettings.componentCount != 2) {
-					throw new TypeError("Vec2 array expected");
-				}
-				for (const [i, pos] of data.entries()) {
+			} else if (attributeSettings.componentCount == 2) {
+				this._assertVertexDataType(data[0] instanceof Vec2, "Vec2", data);
+				const castData = /** @type {Vec2[]} */ (data);
+				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 				}
-			} else if (data[0] instanceof Vec3) {
-				if (attributeSettings.componentCount != 3) {
-					throw new TypeError("Vec3 array expected");
-				}
-				for (const [i, pos] of data.entries()) {
+			} else if (attributeSettings.componentCount == 3) {
+				this._assertVertexDataType(data[0] instanceof Vec3, "Vec3", data);
+				const castData = /** @type {Vec3[]} */ (data);
+				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
 				}
 			}
 			// todo: support more vector types
-		} else {
-			throw new TypeError("invalid data type");
 		}
 
 		this.fireBufferChanged();
