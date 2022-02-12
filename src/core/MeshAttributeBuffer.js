@@ -15,7 +15,7 @@ import {Mesh} from "./Mesh.js";
 export class MeshAttributeBuffer {
 	constructor({
 		arrayStride = /** @type {number?} */ (null),
-		attributes = /** @type {MeshAttributeSettings[]} */ ([{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: null}]),
+		attributes = /** @type {MeshAttributeSettings[]} */ ([]),
 		isUnused = false,
 		arrayBuffer = new ArrayBuffer(0),
 	} = {}) {

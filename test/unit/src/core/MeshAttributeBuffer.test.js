@@ -3,17 +3,6 @@ import {Mesh, MeshAttributeBuffer, Vec2, Vec3} from "../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
-	name: "Defaults to one float attribute",
-	fn() {
-		const buffer = new MeshAttributeBuffer();
-
-		assertEquals(buffer.attributes.length, 1);
-		assertEquals(buffer.attributes[0].offset, 0);
-		assertEquals(buffer.attributes[0].format, Mesh.AttributeFormat.FLOAT32);
-	},
-});
-
-Deno.test({
 	name: "throw an error when creating an unused buffer with not exactly one attribute",
 	fn() {
 		assertThrows(() => {
