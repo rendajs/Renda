@@ -1,4 +1,5 @@
 import {DEBUG_INCLUDE_ERROR_MESSAGES, DEBUG_INCLUDE_ERROR_THROWS} from "../engineDefines.js";
+import {neverNoOp} from "../util/neverNoOp.js";
 import {MeshAttributeBuffer} from "./MeshAttributeBuffer.js";
 
 // TODO: make these an enum
@@ -6,21 +7,34 @@ import {MeshAttributeBuffer} from "./MeshAttributeBuffer.js";
 /** @typedef {number} AttributeFormat */
 /** @typedef {number} IndexFormat */
 
+/**
+ * @typedef UnusedAttributeBufferOptions
+ * @property {AttributeFormat} [unusedFormat = Mesh.AttributeFormat.FLOAT32]
+ * @property {number} [unusedComponentCount = 3]
+ */
+
+/** @typedef {() => void} OnIndexBufferChangeCallback */
+
 export class Mesh {
 	constructor() {
 		/** @type {MeshAttributeBuffer[]} */
 		this._buffers = [];
 		this._unusedBuffers = new Map();
-		/** @type {import("../Rendering/VertexState.js").VertexState} */
+		/** @type {import("../Rendering/VertexState.js").VertexState?} */
 		this._vertexState = null;
 		this.indexBuffer = new ArrayBuffer(0);
+		/** @type {ArrayBuffer?} */
 		this._currentDataViewIndexBuffer = null;
 		this._dataView = null;
 		this.indexFormat = Mesh.IndexFormat.UINT_16;
-		this.indexLength = 0;
+		/**
+		 * The total number of incices in the index buffer.
+		 */
+		this.indexCount = 0;
 
 		this.vertexCount = 0;
 
+		/** @type {Set<OnIndexBufferChangeCallback>} */
 		this.onIndexBufferChangeCbs = new Set();
 	}
 
@@ -58,7 +72,9 @@ export class Mesh {
 		};
 	}
 
-	// eslint-disable-next-line consistent-return
+	/**
+	 * @param {AttributeFormat} format
+	 */
 	static getByteLengthForAttributeFormat(format) {
 		switch (format) {
 			case Mesh.AttributeFormat.INT8:
@@ -76,14 +92,22 @@ export class Mesh {
 					} else {
 						throw null;
 					}
+				} else {
+					neverNoOp();
 				}
 		}
 	}
 
+	/**
+	 * @param {AttributeFormat} format
+	 */
 	static getBitLengthForAttributeFormat(format) {
 		return Mesh.getByteLengthForAttributeFormat(format) * 8;
 	}
 
+	/**
+	 * @param {AttributeType} typeId
+	 */
 	static getAttributeNameForType(typeId) {
 		for (const [name, type] of Object.entries(Mesh.AttributeType)) {
 			if (type == typeId) return name;
@@ -125,30 +149,36 @@ export class Mesh {
 		return this._dataView;
 	}
 
+	/**
+	 * @param {ArrayBufferLike | number[]} data
+	 */
 	setIndexData(data) {
 		if (data instanceof ArrayBuffer) {
 			// data already has the correct format
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
-				this.indexLength = data.byteLength / 2;
+				this.indexCount = data.byteLength / 2;
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
-				this.indexLength = data.byteLength / 4;
+				this.indexCount = data.byteLength / 4;
 			}
 			this.indexBuffer = data;
 		} else if (ArrayBuffer.isView(data)) {
+			let byteCount = 0;
 			if (data instanceof Uint16Array) {
 				this.indexFormat = Mesh.IndexFormat.UINT_16;
+				byteCount = 2;
 			} else if (data instanceof Uint32Array) {
 				this.indexFormat = Mesh.IndexFormat.UINT_32;
+				byteCount = 4;
 			} else {
 				throw new TypeError(`Unsupported TypedArray type, received a ${data.constructor.name} but only Uint16Array and Uint32Array are supported.`);
 			}
-			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-			this.indexLength = data.length;
-			this.indexBuffer = data;
+			const slicedData = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+			this.indexCount = slicedData.byteLength / byteCount;
+			this.indexBuffer = slicedData;
 		} else if (Array.isArray(data)) {
 			let valueByteSize;
 			let setFunction;
-			this.indexLength = data.length;
+			this.indexCount = data.length;
 			let bufferLength = 0;
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
 				bufferLength = data.length * 2;
@@ -198,6 +228,9 @@ export class Mesh {
 		}
 	}
 
+	/**
+	 * @param {number} vertexCount
+	 */
 	setVertexCount(vertexCount) {
 		this.vertexCount = vertexCount;
 		for (const buffer of this.getBuffers()) {
@@ -205,6 +238,11 @@ export class Mesh {
 		}
 	}
 
+	/**
+	 * @param {AttributeType} attributeType
+	 * @param {ArrayBufferLike | number[] | import("../math/Vec2.js").Vec2[] | import("../math/Vec3.js").Vec3[]} data
+	 * @param {UnusedAttributeBufferOptions} [opts]
+	 */
 	setVertexData(attributeType, data, opts) {
 		const buffer = this.getBufferForAttributeType(attributeType, opts);
 		if (buffer) {
@@ -214,11 +252,17 @@ export class Mesh {
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
 	// I don't think it makes sense to expose isUnused functionality here.
+	/**
+	 * @param {ConstructorParameters<typeof MeshAttributeBuffer>[0]} attributeBufferOpts
+	 */
 	setBufferData(attributeBufferOpts) {
 		const attributeBuffer = new MeshAttributeBuffer(attributeBufferOpts);
 		this.setAttributeBufferData(attributeBuffer);
 	}
 
+	/**
+	 * @param {MeshAttributeBuffer} attributeBuffer
+	 */
 	setAttributeBufferData(attributeBuffer) {
 		// todo: there's probably still some performance that can be gained here
 		// currently it's decomposing the buffer into vectors and turning
@@ -226,6 +270,10 @@ export class Mesh {
 		// can simply copy or move all the bytes at once
 
 		for (const attribute of attributeBuffer.attributes) {
+			if (attribute.attributeType == null) {
+				// TODO: handle converting attribute data when the attribute type is not specified
+				continue;
+			}
 			const arr = Array.from(attributeBuffer.getVertexData(attribute.attributeType));
 			this.setVertexData(attribute.attributeType, arr, {
 				unusedFormat: attribute.format,
@@ -234,6 +282,10 @@ export class Mesh {
 		}
 	}
 
+	/**
+	 * @param {AttributeType} attributeType
+	 * @param {UnusedAttributeBufferOptions} options
+	 */
 	getBufferForAttributeType(attributeType, {
 		unusedFormat = Mesh.AttributeFormat.FLOAT32,
 		unusedComponentCount = 3,
@@ -279,6 +331,9 @@ export class Mesh {
 		return this._vertexState;
 	}
 
+	/**
+	 * @param {import("../Rendering/VertexState.js").VertexState} vertexState
+	 */
 	setVertexState(vertexState) {
 		this._vertexState = vertexState;
 
@@ -312,6 +367,9 @@ export class Mesh {
 		}
 	}
 
+	/**
+	 * @param {OnIndexBufferChangeCallback} cb
+	 */
 	onIndexBufferChange(cb) {
 		this.onIndexBufferChangeCbs.add(cb);
 	}

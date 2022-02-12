@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "asserts";
 import {Mesh, Vec3} from "../../../../src/mod.js";
 
 Deno.test({
@@ -125,6 +125,8 @@ Deno.test({
 
 		const data = Array.from(mesh.getIndexData());
 		assertEquals(data, [1, 2]);
+		assertEquals(mesh.indexFormat, Mesh.IndexFormat.UINT_32);
+		assertEquals(mesh.indexCount, 2);
 	},
 });
 
@@ -139,6 +141,7 @@ Deno.test({
 		const data = Array.from(mesh.getIndexData());
 		assertEquals(data, [1, 2]);
 		assertEquals(mesh.indexFormat, Mesh.IndexFormat.UINT_16);
+		assertEquals(mesh.indexCount, 2);
 	},
 });
 
@@ -153,6 +156,7 @@ Deno.test({
 		const data = Array.from(mesh.getIndexData());
 		assertEquals(data, [1, 2]);
 		assertEquals(mesh.indexFormat, Mesh.IndexFormat.UINT_32);
+		assertEquals(mesh.indexCount, 2);
 	},
 });
 
@@ -202,6 +206,7 @@ Deno.test({
 		const data = Array.from(mesh.getIndexData());
 		assertEquals(data, [1, 2]);
 		assertEquals(mesh.indexFormat, Mesh.IndexFormat.UINT_16);
+		assertEquals(mesh.indexCount, 2);
 	},
 });
 
@@ -216,6 +221,7 @@ Deno.test({
 		const data = Array.from(mesh.getIndexData());
 		assertEquals(data, [1, 2]);
 		assertEquals(mesh.indexFormat, Mesh.IndexFormat.UINT_32);
+		assertEquals(mesh.indexCount, 2);
 	},
 });
 
@@ -256,11 +262,14 @@ Deno.test({
 });
 
 class FakeVertexState {
+	/**
+	 * @param {unknown[]} buffers
+	 */
 	constructor(buffers) {
 		this.buffers = buffers;
 	}
 }
-const mockVertexStateSingleAttribute = new FakeVertexState([
+const mockVertexStateSingleAttribute = /** @type {import("../../../../src/mod.js").VertexState} */ (new FakeVertexState([
 	{
 		attributes: new Map([
 			[
@@ -274,8 +283,8 @@ const mockVertexStateSingleAttribute = new FakeVertexState([
 			],
 		]),
 	},
-]);
-const mockVertexStateTwoAttributes = new FakeVertexState([
+]));
+const mockVertexStateTwoAttributes = /** @type {import("../../../../src/mod.js").VertexState} */ (new FakeVertexState([
 	{
 		attributes: new Map([
 			[
@@ -298,7 +307,7 @@ const mockVertexStateTwoAttributes = new FakeVertexState([
 			],
 		]),
 	},
-]);
+]));
 
 Deno.test({
 	name: "setVertexCount() with attributes from VertexState",
