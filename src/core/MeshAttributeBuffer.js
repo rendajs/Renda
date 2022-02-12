@@ -17,7 +17,7 @@ export class MeshAttributeBuffer {
 		arrayStride = /** @type {number?} */ (null),
 		attributes = /** @type {MeshAttributeSettings[]} */ ([{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: null}]),
 		isUnused = false,
-		arrayBuffer = /** @type {ArrayBuffer?} */ (null),
+		arrayBuffer = new ArrayBuffer(0),
 	} = {}) {
 		if (isUnused && attributes.length != 1) {
 			throw new Error("Unused attribute buffers must have exactly 1 attribute");
