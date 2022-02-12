@@ -57,7 +57,6 @@ export class MeshAttributeBuffer {
 	}
 
 	getDataView() {
-		// todo: what should happen if the buffer doesn't exist yet?
 		if (this._currentDataViewBuffer != this.buffer) {
 			this._dataView = null;
 		}
@@ -179,7 +178,6 @@ export class MeshAttributeBuffer {
 	 * @param {import("./Mesh.js").AttributeType} attributeType
 	 */
 	*getVertexData(attributeType) {
-		if (!this.buffer) return;
 		const attributeSettings = this.getAttributeSettings(attributeType);
 		if (!attributeSettings) return;
 

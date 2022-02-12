@@ -13,6 +13,8 @@ export class Mesh {
 		/** @type {import("../Rendering/VertexState.js").VertexState} */
 		this._vertexState = null;
 		this.indexBuffer = null;
+		this._currentDataViewIndexBuffer = null;
+		this._dataView = null;
 		this.indexFormat = Mesh.IndexFormat.UINT_16;
 		this.indexLength = 0;
 
@@ -88,6 +90,17 @@ export class Mesh {
 		return typeId;
 	}
 
+	getDataView() {
+		if (this._currentDataViewIndexBuffer != this.indexBuffer) {
+			this._dataView = null;
+		}
+		if (!this._dataView) {
+			this._dataView = new DataView(this.indexBuffer);
+			this._currentDataViewIndexBuffer = this.indexBuffer;
+		}
+		return this._dataView;
+	}
+
 	setIndexData(data) {
 		if (data instanceof ArrayBuffer) {
 			// data already has the correct format
@@ -96,39 +109,65 @@ export class Mesh {
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
 				this.indexLength = data.byteLength / 4;
 			}
+			this.indexBuffer = data;
 		} else if (ArrayBuffer.isView(data)) {
 			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
 			this.indexLength = data.length;
 			if (data instanceof Uint32Array) {
 				this.indexFormat = Mesh.IndexFormat.UINT_32;
 			}
+			this.indexBuffer = data;
 		} else if (Array.isArray(data)) {
+			let valueByteSize;
+			let setFunction;
 			this.indexLength = data.length;
 			let bufferLength = 0;
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
 				bufferLength = data.length * 2;
+				valueByteSize = 2;
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
 				bufferLength = data.length * 4;
+				valueByteSize = 4;
+			} else {
+				throw new Error("Invalid index format.");
 			}
-			const newBuffer = new ArrayBuffer(bufferLength);
-			const dataView = new DataView(newBuffer);
+			this.indexBuffer = new ArrayBuffer(bufferLength);
+			const dataView = this.getDataView();
 			if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
-				for (let i = 0; i < data.length; i++) {
-					dataView.setUint16(i * 2, data[i], true);
-				}
+				setFunction = dataView.setUint16.bind(dataView);
 			} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
-				for (let i = 0; i < data.length; i++) {
-					dataView.setUint32(i * 4, data[i], true);
-				}
+				setFunction = dataView.setUint32.bind(dataView);
+			} else {
+				throw new Error("Invalid index format.");
 			}
-			data = newBuffer;
-		}
-
-		if (!(data instanceof ArrayBuffer)) {
+			for (let i = 0; i < data.length; i++) {
+				setFunction(i * valueByteSize, data[i], true);
+			}
+		} else {
 			throw new TypeError("invalid data type");
 		}
-		this.indexBuffer = data;
 		this.fireIndexBufferChanged();
+	}
+
+	*getIndexData() {
+		const dataView = this.getDataView();
+
+		let getFunction;
+		let valueByteSize = 4;
+		if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
+			getFunction = dataView.getUint16.bind(dataView);
+			valueByteSize = 2;
+		} else if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
+			getFunction = dataView.getUint32.bind(dataView);
+			valueByteSize = 4;
+		} else {
+			throw new Error("Invalid index format.");
+		}
+		let i = 0;
+		while (i < this.indexBuffer.byteLength) {
+			yield getFunction(i, true);
+			i += valueByteSize;
+		}
 	}
 
 	setVertexCount(vertexCount) {
