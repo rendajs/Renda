@@ -411,3 +411,30 @@ Deno.test({
 		assertVecAlmostEquals(result[1], [4, 5, 6]);
 	},
 });
+
+Deno.test({
+	name: "getVertexData() yielding different AttributeFormats",
+	fn() {
+		const formats = [
+			// Mesh.AttributeFormat.FLOAT16, (not yet supported)
+			Mesh.AttributeFormat.FLOAT32,
+			Mesh.AttributeFormat.INT8,
+			Mesh.AttributeFormat.INT16,
+			Mesh.AttributeFormat.INT32,
+			// Mesh.AttributeFormat.NORM8, (not yet supported)
+			// Mesh.AttributeFormat.NORM16, (not yet supported)
+		];
+
+		for (const format of formats) {
+			const buffer = new MeshAttributeBuffer(mockMesh, {
+				attributes: [{offset: 0, format, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+			});
+			buffer.setVertexCount(3);
+			buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2, 3]);
+
+			const result = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+
+			assertEquals(result, [1, 2, 3]);
+		}
+	},
+});

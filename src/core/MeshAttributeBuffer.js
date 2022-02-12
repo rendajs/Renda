@@ -152,9 +152,31 @@ export class MeshAttributeBuffer {
 		}
 		const dataView = this.getDataView();
 
-		// todo: pick function based on attributeSettings.format
-		const setFunction = dataView.setFloat32.bind(dataView);
-		const valueByteSize = 4;
+		const valueByteSize = Mesh.getByteLengthForAttributeFormat(attributeSettings.format);
+
+		let setFunction;
+		switch (attributeSettings.format) {
+			case Mesh.AttributeFormat.INT8:
+				setFunction = dataView.setInt8.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.INT16:
+				setFunction = dataView.setInt16.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.INT32:
+				setFunction = dataView.setInt32.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.FLOAT16:
+				throw new Error("Float16 is not yet implemented");
+			case Mesh.AttributeFormat.FLOAT32:
+				setFunction = dataView.setFloat32.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.NORM8:
+				throw new Error("Norm8 is not yet implemented");
+			case Mesh.AttributeFormat.NORM16:
+				throw new Error("Norm16 is not yet implemented");
+			default:
+				throw new Error("Unknown format");
+		}
 
 		if (data instanceof ArrayBuffer) {
 			// todo: implement and remove the @suppress for this function
@@ -190,7 +212,7 @@ export class MeshAttributeBuffer {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 2, pos.z, true);
 				}
 			}
-			// todo: support more vector types
+			// todo: support more Vec4
 		}
 
 		this.fireBufferChanged();
@@ -205,9 +227,32 @@ export class MeshAttributeBuffer {
 
 		const dataView = this.getDataView();
 
-		// todo: pick function based on attributeSettings.format
-		const getFunction = dataView.getFloat32.bind(dataView);
-		const valueByteSize = 4;
+		const valueByteSize = Mesh.getByteLengthForAttributeFormat(attributeSettings.format);
+
+		let getFunction;
+		switch (attributeSettings.format) {
+			case Mesh.AttributeFormat.INT8:
+				getFunction = dataView.getInt8.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.INT16:
+				getFunction = dataView.getInt16.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.INT32:
+				getFunction = dataView.getInt32.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.FLOAT16:
+				throw new Error("Float16 is not yet implemented");
+			case Mesh.AttributeFormat.FLOAT32:
+				getFunction = dataView.getFloat32.bind(dataView);
+				break;
+			case Mesh.AttributeFormat.NORM8:
+				throw new Error("Norm8 is not yet implemented");
+			case Mesh.AttributeFormat.NORM16:
+				throw new Error("Norm16 is not yet implemented");
+			default:
+				throw new Error("Unknown format");
+		}
+
 		if (attributeSettings.componentCount == 1) {
 			let i = 0;
 			while (i <= this.buffer.byteLength - this.arrayStride) {
