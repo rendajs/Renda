@@ -156,7 +156,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 			}
 			const bufferLength = decomposer.getUint32();
 			const buffer = decomposer.getBuffer(bufferLength);
-			mesh.setBufferData({
+			mesh.copyBufferData({
 				arrayBuffer: buffer,
 				attributes,
 			});

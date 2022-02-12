@@ -9,16 +9,20 @@ import {Mesh} from "./Mesh.js";
  * @property {number} offset
  * @property {import("./Mesh.js").AttributeFormat} format
  * @property {number} componentCount
- * @property {import("./Mesh.js").AttributeType?} attributeType
+ * @property {import("./Mesh.js").AttributeType} attributeType
  */
 
 export class MeshAttributeBuffer {
-	constructor({
+	/**
+	 * @param {import("./Mesh.js").Mesh} mesh
+	 */
+	constructor(mesh, {
 		arrayStride = /** @type {number?} */ (null),
 		attributes = /** @type {MeshAttributeSettings[]} */ ([]),
 		isUnused = false,
 		arrayBuffer = new ArrayBuffer(0),
 	} = {}) {
+		this.mesh = mesh;
 		if (isUnused && attributes.length != 1) {
 			throw new Error("Unused attribute buffers must have exactly 1 attribute");
 		}
@@ -103,10 +107,11 @@ export class MeshAttributeBuffer {
 
 	/**
 	 * @param {boolean} assertion
+	 * @param {MeshAttributeSettings} attributeSettings
 	 * @param {string} expectedText
 	 * @param {number[] | Vec2[] | Vec3[]} dataArray
 	 */
-	_assertVertexDataType(assertion, expectedText, dataArray) {
+	_assertVertexDataType(assertion, attributeSettings, expectedText, dataArray) {
 		if (!assertion) {
 			let dataType;
 			if (dataArray[0] != null && dataArray[0] != undefined) {
@@ -114,7 +119,24 @@ export class MeshAttributeBuffer {
 			} else {
 				dataType = String(dataArray[0]);
 			}
-			throw new TypeError(`The VertexState for this attribute has a componentCount of 1, expected ${expectedText} array but received ${dataType}`);
+			const expectedSentence = `Expected a ${expectedText} array but received a ${dataType} array.`;
+			let extraSentence;
+			const attributeName = Mesh.getAttributeNameForType(attributeSettings.attributeType);
+			if (this.isUnused) {
+				let firstPart;
+				let addVertexStatePart;
+				if (this.mesh.vertexState == null) {
+					firstPart = "The mesh has no vertex state.";
+					addVertexStatePart = `add a VertexState with "${attributeName}" attribute`;
+				} else {
+					firstPart = `The provided VertexState doesn't contain a "${attributeName}" attribute.`;
+					addVertexStatePart = `add a "${attributeName}" attribute to the VertexState`;
+				}
+				extraSentence = `${firstPart} Either set the \`unusedComponentCount\` option of \`setVertexData()\` to ${attributeSettings.componentCount}, ${addVertexStatePart}, or provide a ${expectedText} array.`;
+			} else {
+				extraSentence = `The VertexState for this attribute has a componentCount of ${attributeSettings.componentCount}. Either set the componentCount of "${attributeName}" in your VertexState to ${attributeSettings.componentCount}, or provide a ${expectedText} array.`;
+			}
+			throw new TypeError(`${expectedSentence} ${extraSentence}`);
 		}
 	}
 
@@ -144,7 +166,7 @@ export class MeshAttributeBuffer {
 				this.buffer = new ArrayBuffer(0);
 			} else if (attributeSettings.componentCount == 1) {
 				let i = 0;
-				this._assertVertexDataType(typeof data[0] == "number", "a number", data);
+				this._assertVertexDataType(typeof data[0] == "number", attributeSettings, "a number", data);
 				const castData = /** @type {number[]} */ (data);
 				while (i < castData.length) {
 					for (let j = 0; j < attributeSettings.componentCount; j++) {
@@ -153,14 +175,14 @@ export class MeshAttributeBuffer {
 					i++;
 				}
 			} else if (attributeSettings.componentCount == 2) {
-				this._assertVertexDataType(data[0] instanceof Vec2, "Vec2", data);
+				this._assertVertexDataType(data[0] instanceof Vec2, attributeSettings, "Vec2", data);
 				const castData = /** @type {Vec2[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 1, pos.y, true);
 				}
 			} else if (attributeSettings.componentCount == 3) {
-				this._assertVertexDataType(data[0] instanceof Vec3, "Vec3", data);
+				this._assertVertexDataType(data[0] instanceof Vec3, attributeSettings, "Vec3", data);
 				const castData = /** @type {Vec3[]} */ (data);
 				for (const [i, pos] of castData.entries()) {
 					setFunction(i * this.arrayStride + attributeSettings.offset + valueByteSize * 0, pos.x, true);

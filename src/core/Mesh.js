@@ -253,17 +253,17 @@ export class Mesh {
 	// TODO: change the signature so that you can only provide an ArrayBuffer
 	// I don't think it makes sense to expose isUnused functionality here.
 	/**
-	 * @param {ConstructorParameters<typeof MeshAttributeBuffer>[0]} attributeBufferOpts
+	 * @param {ConstructorParameters<typeof MeshAttributeBuffer>[1]} attributeBufferOpts
 	 */
-	setBufferData(attributeBufferOpts) {
-		const attributeBuffer = new MeshAttributeBuffer(attributeBufferOpts);
-		this.setAttributeBufferData(attributeBuffer);
+	copyBufferData(attributeBufferOpts) {
+		const attributeBuffer = new MeshAttributeBuffer(this, attributeBufferOpts);
+		this.copyAttributeBufferData(attributeBuffer);
 	}
 
 	/**
 	 * @param {MeshAttributeBuffer} attributeBuffer
 	 */
-	setAttributeBufferData(attributeBuffer) {
+	copyAttributeBufferData(attributeBuffer) {
 		// todo: there's probably still some performance that can be gained here
 		// currently it's decomposing the buffer into vectors and turning
 		// it back into a buffer, if the buffer doesn't need to be changed it
@@ -296,7 +296,7 @@ export class Mesh {
 			}
 		}
 
-		const unusedBuffer = new MeshAttributeBuffer({
+		const unusedBuffer = new MeshAttributeBuffer(this, {
 			attributes: [
 				{
 					offset: 0,
@@ -353,7 +353,7 @@ export class Mesh {
 						attributeType,
 					});
 				}
-				const buffer = new MeshAttributeBuffer({
+				const buffer = new MeshAttributeBuffer(this, {
 					arrayStride: bufferDescriptor.arrayStride,
 					attributes,
 				});
@@ -363,7 +363,7 @@ export class Mesh {
 		}
 
 		for (const buffer of oldBuffers) {
-			this.setAttributeBufferData(buffer);
+			this.copyAttributeBufferData(buffer);
 		}
 	}
 
