@@ -272,8 +272,9 @@ export class Mesh {
 				// TODO: handle converting attribute data when the attribute type is not specified
 				continue;
 			}
-			const arr = Array.from(attributeBuffer.getVertexData(attribute.attributeType));
-			this.setVertexData(attribute.attributeType, arr, {
+			const array = Array.from(attributeBuffer.getVertexData(attribute.attributeType));
+			const castArray = /** @type {number[] | import("../math/Vec2.js").Vec2[] | import("../math/Vec3.js").Vec3[]} */ (array);
+			this.setVertexData(attribute.attributeType, castArray, {
 				unusedFormat: attribute.format,
 				unusedComponentCount: attribute.componentCount,
 			});
