@@ -364,6 +364,38 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getVertexData() yielding numbers",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(3);
+		buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2, 3]);
+
+		const result = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+
+		assertEquals(result, [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "getVertexData() yielding Vec2",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 2, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(2);
+		buffer.setVertexData(Mesh.AttributeType.POSITION, [new Vec2(1, 2), new Vec2(4, 5)]);
+
+		const result = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+
+		assertEquals(result.length, 2);
+		assertVecAlmostEquals(result[0], [1, 2]);
+		assertVecAlmostEquals(result[1], [4, 5]);
+	},
+});
+
+Deno.test({
 	name: "getVertexData() yielding Vec3",
 	fn() {
 		const buffer = new MeshAttributeBuffer(mockMesh, {

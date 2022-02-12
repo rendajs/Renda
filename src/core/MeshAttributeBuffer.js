@@ -208,8 +208,21 @@ export class MeshAttributeBuffer {
 		// todo: pick function based on attributeSettings.format
 		const getFunction = dataView.getFloat32.bind(dataView);
 		const valueByteSize = 4;
-		// todo, add cases for different component counts
-		if (attributeSettings.componentCount == 3) {
+		if (attributeSettings.componentCount == 1) {
+			let i = 0;
+			while (i <= this.buffer.byteLength - this.arrayStride) {
+				yield getFunction(i + attributeSettings.offset, true);
+				i += this.arrayStride;
+			}
+		} else if (attributeSettings.componentCount == 2) {
+			let i = 0;
+			while (i <= this.buffer.byteLength - this.arrayStride) {
+				const x = getFunction(i + attributeSettings.offset + valueByteSize * 0, true);
+				const y = getFunction(i + attributeSettings.offset + valueByteSize * 1, true);
+				yield new Vec2(x, y);
+				i += this.arrayStride;
+			}
+		} else if (attributeSettings.componentCount == 3) {
 			let i = 0;
 			while (i <= this.buffer.byteLength - this.arrayStride) {
 				const x = getFunction(i + attributeSettings.offset + valueByteSize * 0, true);
