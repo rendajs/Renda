@@ -4,6 +4,7 @@ import {MeshAttributeBuffer} from "./MeshAttributeBuffer.js";
 // TODO: make these an enum
 /** @typedef {number} AttributeType */
 /** @typedef {number} AttributeFormat */
+/** @typedef {number} IndexFormat */
 
 export class Mesh {
 	constructor() {
@@ -12,7 +13,7 @@ export class Mesh {
 		this._unusedBuffers = new Map();
 		/** @type {import("../Rendering/VertexState.js").VertexState} */
 		this._vertexState = null;
-		this.indexBuffer = null;
+		this.indexBuffer = new ArrayBuffer(0);
 		this._currentDataViewIndexBuffer = null;
 		this._dataView = null;
 		this.indexFormat = Mesh.IndexFormat.UINT_16;
@@ -20,7 +21,7 @@ export class Mesh {
 
 		this.vertexCount = 0;
 
-		this.onIndexBufferChangedCbs = new Set();
+		this.onIndexBufferChangeCbs = new Set();
 	}
 
 	destructor() {
@@ -90,6 +91,29 @@ export class Mesh {
 		return typeId;
 	}
 
+	/**
+	 * This changes the index format of the mesh. If an index buffer has already
+	 * been set, it will be converted to the new format.
+	 * @param {IndexFormat} indexFormat
+	 */
+	setIndexFormat(indexFormat) {
+		if (indexFormat == this.indexFormat) return;
+
+		if (this.indexBuffer.byteLength > 0) {
+			let typedArray;
+			if (this.indexFormat == Mesh.IndexFormat.UINT_32) {
+				typedArray = Uint16Array.from(new Uint32Array(this.indexBuffer));
+			} else if (this.indexFormat == Mesh.IndexFormat.UINT_16) {
+				typedArray = Uint32Array.from(new Uint16Array(this.indexBuffer));
+			} else {
+				throw new Error("Invalid index format.");
+			}
+			this.setIndexData(typedArray);
+		} else {
+			this.indexFormat = indexFormat;
+		}
+	}
+
 	getDataView() {
 		if (this._currentDataViewIndexBuffer != this.indexBuffer) {
 			this._dataView = null;
@@ -111,11 +135,15 @@ export class Mesh {
 			}
 			this.indexBuffer = data;
 		} else if (ArrayBuffer.isView(data)) {
+			if (data instanceof Uint16Array) {
+				this.indexFormat = Mesh.IndexFormat.UINT_16;
+			} else if (data instanceof Uint32Array) {
+				this.indexFormat = Mesh.IndexFormat.UINT_32;
+			} else {
+				throw new TypeError(`Unsupported TypedArray type, received a ${data.constructor.name} but only Uint16Array and Uint32Array are supported.`);
+			}
 			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
 			this.indexLength = data.length;
-			if (data instanceof Uint32Array) {
-				this.indexFormat = Mesh.IndexFormat.UINT_32;
-			}
 			this.indexBuffer = data;
 		} else if (Array.isArray(data)) {
 			let valueByteSize;
@@ -184,6 +212,8 @@ export class Mesh {
 		}
 	}
 
+	// TODO: change the signature so that you can only provide an ArrayBuffer
+	// I don't think it makes sense to expose isUnused functionality here.
 	setBufferData(attributeBufferOpts) {
 		const attributeBuffer = new MeshAttributeBuffer(attributeBufferOpts);
 		this.setAttributeBufferData(attributeBuffer);
@@ -282,12 +312,12 @@ export class Mesh {
 		}
 	}
 
-	onIndexBufferChanged(cb) {
-		this.onIndexBufferChangedCbs.add(cb);
+	onIndexBufferChange(cb) {
+		this.onIndexBufferChangeCbs.add(cb);
 	}
 
 	fireIndexBufferChanged() {
-		for (const cb of this.onIndexBufferChangedCbs) {
+		for (const cb of this.onIndexBufferChangeCbs) {
 			cb();
 		}
 	}

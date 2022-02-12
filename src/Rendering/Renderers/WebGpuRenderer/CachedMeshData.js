@@ -22,7 +22,7 @@ export class CachedMeshData {
 
 		// todo: remove listeners when gpurenderer is destroyed
 		this.indexBufferDirty = false;
-		this.mesh.onIndexBufferChanged(() => {
+		this.mesh.onIndexBufferChange(() => {
 			this.indexBufferDirty = true;
 		});
 	}

@@ -109,7 +109,7 @@ export class MeshAttributeBuffer {
 	_assertVertexDataType(assertion, expectedText, dataArray) {
 		if (!assertion) {
 			let dataType;
-			if (dataArray[0]) {
+			if (dataArray[0] != null && dataArray[0] != undefined) {
 				dataType = dataArray[0].constructor.name;
 			} else {
 				dataType = String(dataArray[0]);
