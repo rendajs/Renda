@@ -188,16 +188,25 @@ Deno.test({
 });
 
 Deno.test({
-	name: "setVertexData() empty array should clear the buffer",
+	name: "setVertexData() shouldn't affect other attributes",
 	fn() {
 		const buffer = new MeshAttributeBuffer(mockMesh, {
-			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 3, attributeType: Mesh.AttributeType.POSITION}],
-			arrayBuffer: new ArrayBuffer(12),
+			attributes: [
+				{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION},
+				{offset: 4, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.NORMAL},
+			],
 		});
+		buffer.setVertexCount(3);
 
-		buffer.setVertexData(Mesh.AttributeType.POSITION, []);
+		buffer.setVertexData(Mesh.AttributeType.POSITION, [1, 2, 3]);
 
-		assertEquals(buffer.buffer?.byteLength, 0);
+		buffer.setVertexData(Mesh.AttributeType.NORMAL, [4, 5, 6]);
+		const positionData1 = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+		assertEquals(positionData1, [1, 2, 3]);
+
+		buffer.setVertexData(Mesh.AttributeType.NORMAL, []);
+		const positionData2 = Array.from(buffer.getVertexData(Mesh.AttributeType.POSITION));
+		assertEquals(positionData2, [1, 2, 3]);
 	},
 });
 

@@ -185,7 +185,7 @@ export class MeshAttributeBuffer {
 			// todo
 		} else if (Array.isArray(data)) {
 			if (data.length <= 0) {
-				this.buffer = new ArrayBuffer(0);
+				return;
 			} else if (attributeSettings.componentCount == 1) {
 				let i = 0;
 				this._assertVertexDataType(typeof data[0] == "number", attributeSettings, "a number", data);

@@ -245,9 +245,7 @@ export class Mesh {
 	 */
 	setVertexData(attributeType, data, opts) {
 		const buffer = this.getBufferForAttributeType(attributeType, opts);
-		if (buffer) {
-			buffer.setVertexData(attributeType, data);
-		}
+		buffer.setVertexData(attributeType, data);
 	}
 
 	// TODO: change the signature so that you can only provide an ArrayBuffer
