@@ -83,7 +83,7 @@ export class Mat4 {
 	 * Same as flat array but stored in a TypedArray.
 	 * The values are cached if the matrix is not changed. Making it more
 	 * efficient when used for sending to the gpu for instance.
-	 * @param {import("../Rendering/Renderers/WebGpuRenderer/GpuBufferHelper/WebGpuChunkedBuffer.js").AppendFormat} format
+	 * @param {import("../rendering/renderers/webGpu/bufferHelper/WebGpuChunkedBuffer.js").AppendFormat} format
 	 * @param {boolean} littleEndian
 	 */
 	getFlatArrayBuffer(format = "f32", littleEndian = true) {

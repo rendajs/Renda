@@ -1,4 +1,4 @@
-import {MaterialMapType} from "../Rendering/MaterialMapType.js";
+import {MaterialMapType} from "../rendering/MaterialMapType.js";
 
 /**
  * Base class for MaterialMapType loaders.

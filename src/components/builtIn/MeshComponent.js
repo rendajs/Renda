@@ -1,7 +1,7 @@
 import {Mesh} from "../../core/Mesh.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {StorageType} from "../../mod.js";
-import {Material} from "../../Rendering/Material.js";
+import {Material} from "../../rendering/Material.js";
 import {Component} from "../mod.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 

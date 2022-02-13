@@ -1,6 +1,6 @@
 import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
 import {StorageType} from "../../util/BinaryComposer.js";
-import {VertexState} from "../../Rendering/VertexState.js";
+import {VertexState} from "../../rendering/VertexState.js";
 
 export class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {

@@ -1,6 +1,6 @@
 import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
 import {StorageType} from "../../util/BinaryComposer.js";
-import {RenderOutputConfig} from "../../Rendering/RenderOutputConfig.js";
+import {RenderOutputConfig} from "../../rendering/RenderOutputConfig.js";
 
 export class AssetLoaderTypeRenderOutputConfig extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {

@@ -1,6 +1,6 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
-import {MaterialMap} from "../../../../src/Rendering/MaterialMap.js";
+import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -32,7 +32,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			// todo: support multiselect
 			const asset = this.currentSelection[0];
 			const {liveAsset} = await asset.getLiveAssetData();
-			const liveMaterial = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
+			const liveMaterial = /** @type {import("../../../../src/rendering/Material.js").Material} */ (liveAsset);
 
 			const mapAsset = this.mapTreeView.getValue({purpose: "script"});
 			liveMaterial.setMaterialMap(mapAsset);
@@ -48,12 +48,12 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @returns {Promise<import("../../../../src/Rendering/Material.js").Material>}
+	 * @returns {Promise<import("../../../../src/rendering/Material.js").Material>}
 	 */
 	async getFirstSelectedLiveAsset() {
 		const asset = this.currentSelection[0];
 		const liveAsset = await asset.getLiveAsset();
-		const material = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
+		const material = /** @type {import("../../../../src/rendering/Material.js").Material} */ (liveAsset);
 		return material;
 	}
 
@@ -119,7 +119,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 				// todo: support multiselect
 				const asset = this.currentSelection[0];
 				const {liveAsset} = await asset.getLiveAssetData();
-				const liveMaterial = /** @type {import("../../../../src/Rendering/Material.js").Material} */ (liveAsset);
+				const liveMaterial = /** @type {import("../../../../src/rendering/Material.js").Material} */ (liveAsset);
 				liveMaterial.setProperties({
 					[valueData.name]: newValue,
 				});

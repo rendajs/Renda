@@ -1,5 +1,5 @@
 import {assertEquals} from "asserts";
-import {Material} from "../../../../src/Rendering/Material.js";
+import {Material} from "../../../../src/rendering/Material.js";
 
 Deno.test("Empty getAllProperties() for new materials", () => {
 	const material = new Material();

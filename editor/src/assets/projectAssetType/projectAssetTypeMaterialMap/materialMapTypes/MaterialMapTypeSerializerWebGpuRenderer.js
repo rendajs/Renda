@@ -1,7 +1,7 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {StorageType} from "../../../../../../src/util/BinaryComposer.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
-import {MaterialMapTypeWebGpu} from "../../../../../../src/Rendering/Renderers/WebGpuRenderer/MaterialMapTypeWebGpu.js";
+import {MaterialMapTypeWebGpu} from "../../../../../../src/rendering/renderers/webGpu/MaterialMapTypeWebGpu.js";
 
 /**
  * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData
@@ -30,7 +30,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	 * @param {MaterialMapTypeWebGpuRendererSavedCustomData} customData
 	 */
 	static async getMappableValues(editorInstance, assetManager, customData) {
-		/** @type {import("../../../../../../src/Rendering/Renderers/WebGpuRenderer/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
+		/** @type {import("../../../../../../src/rendering/Renderers/webGpu/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
 		const pipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig);
 		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mappableValues = new Map();
@@ -41,7 +41,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	}
 
 	/**
-	 * @param {import("../../../../../../src/Rendering/ShaderSource.js").ShaderSource} shader
+	 * @param {import("../../../../../../src/rendering/ShaderSource.js").ShaderSource} shader
 	 * @param {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} mappableValues
 	 */
 	static fillMappableValuesForShader(shader, mappableValues) {

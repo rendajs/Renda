@@ -20,7 +20,7 @@ export class Mesh {
 		/** @type {MeshAttributeBuffer[]} */
 		this._buffers = [];
 		this._unusedBuffers = new Map();
-		/** @type {import("../Rendering/VertexState.js").VertexState?} */
+		/** @type {import("../rendering/VertexState.js").VertexState?} */
 		this._vertexState = null;
 		this.indexBuffer = new ArrayBuffer(0);
 		/** @type {ArrayBuffer?} */
@@ -331,7 +331,7 @@ export class Mesh {
 	}
 
 	/**
-	 * @param {import("../Rendering/VertexState.js").VertexState} vertexState
+	 * @param {import("../rendering/VertexState.js").VertexState} vertexState
 	 */
 	setVertexState(vertexState) {
 		this._vertexState = vertexState;

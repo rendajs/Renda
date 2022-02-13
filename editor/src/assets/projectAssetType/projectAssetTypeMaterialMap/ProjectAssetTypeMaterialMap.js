@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "../ProjectAssetType.js";
 import {PropertiesAssetContentMaterialMap} from "../../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
-import {MaterialMap} from "../../../../../src/Rendering/MaterialMap.js";
+import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
 import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 
 /**
@@ -20,7 +20,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @param {import("../../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapTypeData[]} */
+		/** @type {import("../../../../../src/rendering/MaterialMap.js").MaterialMapTypeData[]} */
 		const materialMapTypes = [];
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
@@ -29,7 +29,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 
 				if (!mapType) continue;
 
-				/** @type {import("../../../../../src/Rendering/MaterialMap.js").MaterialMapMappedValues} */
+				/** @type {import("../../../../../src/rendering/MaterialMap.js").MaterialMapMappedValues} */
 				const mappedValues = {};
 				for (const mappedValue of await typeSerializer.getMappableValues(this.editorInstance, this.assetManager, map.customData)) {
 					let defaultValue = mappedValue.defaultValue;

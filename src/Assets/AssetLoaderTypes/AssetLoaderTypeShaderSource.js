@@ -1,5 +1,5 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
-import {ShaderSource} from "../../Rendering/ShaderSource.js";
+import {ShaderSource} from "../../rendering/ShaderSource.js";
 
 export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	static get typeUuid() {

@@ -1,6 +1,6 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
 import {BinaryComposer, StorageType} from "../../util/BinaryComposer.js";
-import {Material} from "../../Rendering/Material.js";
+import {Material} from "../../rendering/Material.js";
 
 export class AssetLoaderTypeMaterial extends AssetLoaderType {
 	static get typeUuid() {
