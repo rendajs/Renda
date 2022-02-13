@@ -4,6 +4,8 @@ import {GizmoDraggable} from "./GizmoDraggable.js";
 import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
 import {ListeningGizmoPointerElement} from "./ListeningGizmoPointerElement.js";
 
+/** @typedef {(gizmo: import("./gizmos/Gizmo.js").Gizmo) => void} OnGizmoNeedsRenderCb */
+
 export class GizmoManager {
 	/**
 	 * A GizmoManager is responsible for the creation and destruction of Gizmos,
@@ -27,6 +29,9 @@ export class GizmoManager {
 		/** @type {Set<import("./GizmoDraggable.js").GizmoDraggable>} */
 		this.draggables = new Set();
 
+		/** @type {Set<OnGizmoNeedsRenderCb>} */
+		this.onGizmoNeedsRenderCbs = new Set();
+
 		/**
 		 * A list of elements and its data for which addPointerEventListeners
 		 * has been called.
@@ -37,6 +42,7 @@ export class GizmoManager {
 		this.billboardVertexState = null;
 		this.meshVertexState = null;
 
+		/** @type {import("../mod.js").Material?} */
 		this.billboardMaterial = null;
 		this.meshMaterial = null;
 
@@ -170,5 +176,26 @@ export class GizmoManager {
 		this.listeningPointerElements.delete(element);
 		if (!pointerElement) return;
 		pointerElement.removeEventListeners();
+	}
+
+	/**
+	 * @param {import("./gizmos/Gizmo.js").Gizmo} gizmo
+	 */
+	gizmoNeedsRender(gizmo) {
+		this.onGizmoNeedsRenderCbs.forEach(cb => cb(gizmo));
+	}
+
+	/**
+	 * @param {OnGizmoNeedsRenderCb} cb
+	 */
+	onGizmoNeedsRender(cb) {
+		this.onGizmoNeedsRenderCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnGizmoNeedsRenderCb} cb
+	 */
+	removeOnGizmoNeedsRender(cb) {
+		this.onGizmoNeedsRenderCbs.delete(cb);
 	}
 }

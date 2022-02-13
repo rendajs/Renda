@@ -175,3 +175,42 @@ Deno.test({
 		uninstallMockGetComputedStyle();
 	},
 });
+
+Deno.test({
+	name: "gizmoNeedsRender() should fire onGizmoNeedsRender() callbacks",
+	fn() {
+		const manager = new GizmoManager(getFakeEngineAssetsManager());
+		const mockGizmo = new ExtendedGizmo();
+
+		/** @type {unknown[]} */
+		const calls = [];
+		manager.onGizmoNeedsRender(gizmo => {
+			calls.push(gizmo);
+		});
+
+		manager.gizmoNeedsRender(mockGizmo);
+
+		assertEquals(calls.length, 1);
+		assertStrictEquals(calls[0], mockGizmo);
+	},
+});
+
+Deno.test({
+	name: "gizmoNeedsRender() should not fire removed callbacks",
+	fn() {
+		const manager = new GizmoManager(getFakeEngineAssetsManager());
+		const mockGizmo = new ExtendedGizmo();
+
+		const calls = [];
+		/** @type {import("../../../../src/gizmos/GizmoManager.js").OnGizmoNeedsRenderCb} */
+		const cb = gizmo => {
+			calls.push(gizmo);
+		};
+		manager.onGizmoNeedsRender(cb);
+		manager.removeOnGizmoNeedsRender(cb);
+
+		manager.gizmoNeedsRender(mockGizmo);
+
+		assertEquals(calls.length, 0);
+	},
+});

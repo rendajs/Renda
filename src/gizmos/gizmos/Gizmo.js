@@ -23,4 +23,12 @@ export class Gizmo {
 	// this is called when the GizmoManager built-in assets have changed
 	// update your mesh components accordingly
 	updateMaterials() {}
+
+	/**
+	 * Call this to let the renderer know that the gizmo has been changed and
+	 * needs to be rendered again.
+	 */
+	gizmoNeedsRender() {
+		this.gizmoManager.gizmoNeedsRender(this);
+	}
 }
