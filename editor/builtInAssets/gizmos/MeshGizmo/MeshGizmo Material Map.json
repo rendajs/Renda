@@ -7,7 +7,11 @@
 				"customData": {
 					"forwardPipelineConfig": "f9704f9a-92b3-4525-9870-3fca18605614"
 				},
-				"mappedValues": {}
+				"mappedValues": {
+					"colorMultiplier": {
+						"defaultValue": [1, 1, 1]
+					}
+				}
 			}
 		]
 	}
