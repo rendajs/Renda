@@ -227,7 +227,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "setProperty() should create new instances of vectors",
+	name: "setProperty() should not create new instances of vectors",
 	fn() {
 		const material = new Material(mockMaterialMap);
 
@@ -244,12 +244,12 @@ Deno.test({
 		const propertyVec4 = material.getProperty("unusedVec4");
 		const propertyColor = material.getProperty("colorMappedName");
 
-		assertNotStrictEquals(propertyVec2, vec2);
-		assertNotStrictEquals(propertyVec3, vec3);
-		assertNotStrictEquals(propertyVec4, vec4);
+		assertStrictEquals(propertyVec2, vec2);
+		assertStrictEquals(propertyVec3, vec3);
+		assertStrictEquals(propertyVec4, vec4);
 
-		assertNotStrictEquals(propertyColor, vec3);
-		assertNotStrictEquals(propertyColor, propertyVec3);
+		assertStrictEquals(propertyColor, vec3);
+		assertStrictEquals(propertyColor, propertyVec3);
 	},
 });
 

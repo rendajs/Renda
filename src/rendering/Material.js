@@ -102,9 +102,6 @@ export class Material {
 		const existingValue = this.properties.get(key) || null;
 
 		if (existingValue == null || typeof existingValue == "number" || !this._isSameType(value, existingValue)) {
-			if (typeof value != "number") {
-				value = value.clone();
-			}
 			this.properties.set(key, value);
 			if (this._materialMap) {
 				for (const [mapType, mappedData] of this._materialMap.mapProperty(key)) {
@@ -230,7 +227,11 @@ export class Material {
 		const clone = new Material();
 		clone.setMaterialMap(this.materialMap);
 		for (const [key, value] of this.getAllProperties()) {
-			clone.setProperty(key, value);
+			let newValue = value;
+			if (typeof value != "number") {
+				newValue = value.clone();
+			}
+			clone.setProperty(key, newValue);
 		}
 		return clone;
 	}
