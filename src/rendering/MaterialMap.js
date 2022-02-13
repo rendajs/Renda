@@ -24,6 +24,9 @@ export class MaterialMap {
 	} = {}) {
 		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, import("./MaterialMapType.js").MaterialMapType>} */
 		this.mapTypes = new Map();
+
+		// TODO: add support for mapping multiple properties to the same name
+		// Currently inverseMappedData values get overwritten if two names are the same.
 		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, Map<string, MaterialMapMappedValue>>} */
 		this.inverseMappedData = new Map();
 		for (const {mapType, mappedValues} of materialMapTypes) {
@@ -53,44 +56,25 @@ export class MaterialMap {
 	}
 
 	/**
-	 * Maps a property name to the original name as needed by the map type.
-	 * Iterates over all map types and yields the original name per map type.
+	 * Iterates over all map types and yields the original names for this key.
 	 * @param {string} key
-	 * @returns {Generator<[typeof import("./MaterialMapType.js").MaterialMapType, string]>}
+	 * @returns {Generator<[typeof import("./MaterialMapType.js").MaterialMapType, MaterialMapMappedValue]>}
 	 */
 	*mapProperty(key) {
 		for (const [mapType, mappedDatas] of this.inverseMappedData) {
 			const mappedData = mappedDatas.get(key);
 			if (!mappedData) continue;
-			yield [mapType, mappedData.mappedName];
+			yield [mapType, mappedData];
 		}
-	}
-
-	/**
-	 * Gets the default value from the first found map type that contains the property.
-	 * Mapped values should not be able to contain multiple properties with the same name
-	 * but a different default value, so returning the first one is fine.
-	 * @param {string} key
-	 */
-	getDefaultValue(key) {
-		for (const mappedDatas of this.inverseMappedData.values()) {
-			const mappedData = mappedDatas.get(key);
-			if (mappedData) {
-				return mappedData.defaultValue;
-			}
-		}
-		return null;
 	}
 
 	/**
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 */
-	*getAllOriginalNames(mapType) {
+	*getMappedDatas(mapType) {
 		const mappedDatas = this.inverseMappedData.get(mapType);
 		if (mappedDatas) {
-			for (const mappedData of mappedDatas.values()) {
-				yield mappedData.mappedName;
-			}
+			yield* mappedDatas.values();
 		}
 	}
 }
