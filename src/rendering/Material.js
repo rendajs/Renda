@@ -4,7 +4,7 @@ export class Material {
 	 * @param {Object.<string, *>} properties
 	 */
 	constructor(materialMap = null, properties = {}) {
-		this.materialMap = materialMap;
+		this._materialMap = materialMap;
 		/** @type {Set<() => void>} */
 		this.onDestructorCbs = new Set();
 		this.destructed = false;
@@ -48,7 +48,7 @@ export class Material {
 	 * @param {import("./MaterialMap.js").MaterialMap?} materialMap
 	 */
 	setMaterialMap(materialMap) {
-		this.materialMap = materialMap;
+		this._materialMap = materialMap;
 		/** @type {Object.<string, import("./MaterialMap.js").MappableMaterialTypes>} */
 		const oldProperties = {};
 		for (const [key, value] of this.properties) {
@@ -58,6 +58,10 @@ export class Material {
 		this.mappedProperties = new Map();
 
 		this.setProperties(oldProperties);
+	}
+
+	get materialMap() {
+		return this._materialMap;
 	}
 
 	/**
@@ -85,8 +89,8 @@ export class Material {
 		let mappedDatas = null;
 
 		// Check if the new value matches the type of the configured default value.
-		if (this.materialMap) {
-			mappedDatas = Array.from(this.materialMap.mapProperty(key));
+		if (this._materialMap) {
+			mappedDatas = Array.from(this._materialMap.mapProperty(key));
 			for (const [mapType, mappedData] of mappedDatas) {
 				const isSameType = this._isSameType(value, mappedData.defaultValue);
 				if (!isSameType) {
@@ -102,8 +106,8 @@ export class Material {
 				value = value.clone();
 			}
 			this.properties.set(key, value);
-			if (this.materialMap) {
-				for (const [mapType, mappedData] of this.materialMap.mapProperty(key)) {
+			if (this._materialMap) {
+				for (const [mapType, mappedData] of this._materialMap.mapProperty(key)) {
 					let mappedProperties = this.mappedProperties.get(mapType);
 					if (!mappedProperties) {
 						mappedProperties = new Map();
@@ -196,11 +200,11 @@ export class Material {
 	 * @returns {Generator<[string, import("./MaterialMap.js").MappableMaterialTypes]>}
 	 */
 	*getAllMappedProperties(mapType) {
-		if (!this.materialMap) return;
+		if (!this._materialMap) return;
 
 		const mappedProperties = this.mappedProperties.get(mapType);
 
-		for (const mappedData of this.materialMap.getMappedDatas(mapType)) {
+		for (const mappedData of this._materialMap.getMappedDatas(mapType)) {
 			yield [mappedData.mappedName, this._getValueFromMappedData(mappedData, mappedProperties)];
 		}
 	}
@@ -210,15 +214,24 @@ export class Material {
 	 * @param {string} mappedName
 	 */
 	getMappedProperty(mapType, mappedName) {
-		if (!this.materialMap) return null;
+		if (!this._materialMap) return null;
 
 		const mappedProperties = this.mappedProperties.get(mapType);
 
-		for (const mappeddata of this.materialMap.getMappedDatas(mapType)) {
+		for (const mappeddata of this._materialMap.getMappedDatas(mapType)) {
 			if (mappeddata.mappedName == mappedName) {
 				return this._getValueFromMappedData(mappeddata, mappedProperties);
 			}
 		}
 		return null;
+	}
+
+	clone() {
+		const clone = new Material();
+		clone.setMaterialMap(this.materialMap);
+		for (const [key, value] of this.getAllProperties()) {
+			clone.setProperty(key, value);
+		}
+		return clone;
 	}
 }

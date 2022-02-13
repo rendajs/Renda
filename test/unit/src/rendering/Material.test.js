@@ -1,4 +1,4 @@
-import {assertEquals, assertNotStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "asserts";
 import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {Material} from "../../../../src/rendering/Material.js";
 import {MaterialMapType} from "../../../../src/rendering/MaterialMapType.js";
@@ -283,5 +283,65 @@ Deno.test({
 		const result = material.getMappedProperty(FakeMaterialMapType, "notInTheMaterialMap");
 
 		assertEquals(result, null);
+	},
+});
+
+Deno.test({
+	name: "clone() creates a new instance with a copy of all unused properties",
+	fn() {
+		const material = new Material();
+		const vecA = new Vec3(0, 0.5, 1);
+		const vecB = new Vec2(0, 0.5);
+		material.setProperties({
+			propA: vecA,
+			propB: vecB,
+			propC: 5,
+		});
+
+		const newMaterial = material.clone();
+
+		assertNotStrictEquals(material, newMaterial);
+
+		const propA = material.getProperty("propA");
+		const newPropA = newMaterial.getProperty("propA");
+		assertNotStrictEquals(propA, newPropA);
+		assertVecAlmostEquals(propA, vecA);
+
+		const propB = material.getProperty("propB");
+		const newPropB = newMaterial.getProperty("propB");
+		assertNotStrictEquals(propB, newPropB);
+		assertVecAlmostEquals(propB, vecB);
+
+		const propC = material.getProperty("propC");
+		assertEquals(propC, 5);
+	},
+});
+
+Deno.test({
+	name: "clone() creates a new instance with a copy of all mapped properties",
+	fn() {
+		const material = new Material(mockMaterialMap);
+		const vecA = new Vec3(0, 0.5, 1);
+		material.setProperties({
+			colorMappedName: vecA,
+		});
+
+		const newMaterial = material.clone();
+
+		assertNotStrictEquals(material, newMaterial);
+		assertStrictEquals(material.materialMap, newMaterial.materialMap);
+
+		const propA = material.getProperty("colorMappedName");
+		const newPropA = newMaterial.getProperty("colorMappedName");
+		assertNotStrictEquals(propA, newPropA);
+		assertVecAlmostEquals(propA, vecA);
+		const mappedPropA = material.getMappedProperty(FakeMaterialMapType, "colorOriginalName");
+		const newMappedPropA = newMaterial.getMappedProperty(FakeMaterialMapType, "colorOriginalName");
+		assertNotStrictEquals(mappedPropA, newMappedPropA);
+
+		const propB = material.getProperty("floatMappedName");
+		assertEquals(propB, null);
+		const mappedPropB = material.getMappedProperty(FakeMaterialMapType, "floatOriginalName");
+		assertEquals(mappedPropB, 0);
 	},
 });
