@@ -170,3 +170,127 @@ Deno.test({
 		assertEquals(callbackCalled, false);
 	},
 });
+
+Deno.test({
+	name: "onDrag fires when dragging",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+		draggable.onDrag(cb);
+
+		draggable.pointerDown(mockPointer1, new Vec2(0, 0));
+		draggable.pointerMove(mockPointer1, new Vec2(0, 0));
+
+		assertEquals(callbackCalled, true);
+	},
+});
+
+Deno.test({
+	name: "onDrag doesn't fire for move events without a pointer down event",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+		draggable.onDrag(cb);
+
+		draggable.pointerMove(mockPointer1, new Vec2(0, 0));
+
+		assertEquals(callbackCalled, false);
+	},
+});
+
+Deno.test({
+	name: "onDrag doesn't fire for move events from a pointerDevice that is not dragging",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+		draggable.onDrag(cb);
+
+		draggable.pointerDown(mockPointer1, new Vec2(0, 0));
+		draggable.pointerMove(mockPointer2, new Vec2(0, 0));
+
+		assertEquals(callbackCalled, false);
+	},
+});
+
+Deno.test({
+	name: "onDrag doesn't fire for move events from a pointerDevice that has stopped dragging",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+		draggable.onDrag(cb);
+
+		draggable.pointerDown(mockPointer1, new Vec2(0, 0));
+		draggable.pointerUp(mockPointer1, new Vec2(0, 0));
+		draggable.pointerMove(mockPointer1, new Vec2(0, 0));
+
+		assertEquals(callbackCalled, false);
+	},
+});
+
+Deno.test({
+	name: "pointerDown is ignored when another pointer device is already dragging",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+		draggable.onDrag(cb);
+
+		draggable.pointerDown(mockPointer1, new Vec2(0, 0));
+		draggable.pointerDown(mockPointer2, new Vec2(0, 0));
+		draggable.pointerMove(mockPointer2, new Vec2(0, 0));
+
+		assertEquals(callbackCalled, false);
+	},
+});
+
+Deno.test({
+	name: "pointerUp is ignored when coming from another pointer device",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+		draggable.onDrag(cb);
+
+		draggable.pointerDown(mockPointer1, new Vec2(0, 0));
+		draggable.pointerUp(mockPointer2, new Vec2(0, 0));
+		draggable.pointerMove(mockPointer1, new Vec2(0, 0));
+
+		assertEquals(callbackCalled, true);
+	},
+});
+
+Deno.test({
+	name: "onDrag doesn't fire on removed event listeners",
+	fn() {
+		const draggable = new GizmoDraggable(mockGizmoManager);
+		let callCount = 0;
+		const cb = () => {
+			callCount++;
+		};
+
+		draggable.onDrag(cb);
+		draggable.pointerDown(mockPointer1, new Vec2(0, 0));
+		draggable.pointerMove(mockPointer1, new Vec2(0, 0));
+		assertEquals(callCount, 1);
+
+		draggable.removeOnDrag(cb);
+		draggable.pointerMove(mockPointer1, new Vec2(0, 0));
+		assertEquals(callCount, 1);
+	},
+});

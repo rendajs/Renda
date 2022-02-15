@@ -1,6 +1,7 @@
 import {Vec3} from "../math/Vec3.js";
 
 /** @typedef {(isHovering: boolean) => void} OnIsHoveringChangeCb */
+/** @typedef {() => void} OnDragCb */
 
 export class GizmoDraggable {
 	/** @typedef {import("../components/builtIn/CameraComponent.js").CameraComponent} CameraComponent */
@@ -19,6 +20,23 @@ export class GizmoDraggable {
 		this._onIsHoveringChangeCbs = new Set();
 		/** @type {Set<import("./GizmoPointerDevice.js").GizmoPointerDevice>} */
 		this._hoveringPointers = new Set();
+
+		/**
+		 * @private
+		 * @type {import("./GizmoPointerDevice.js").GizmoPointerDevice?}
+		 */
+		this.activeDraggingPointer = null;
+		/**
+		 * @private
+		 * @type {import("../math/Vec2.js").Vec2?}
+		 */
+		this.dragStartScreenPos = null;
+
+		/**
+		 * @private
+		 * @type {Set<OnDragCb>}
+		 */
+		this.onDragCbs = new Set();
 
 		/** @type {Set<import("../math/types.js").RaycastShape>} */
 		this.shapes = new Set();
@@ -89,14 +107,35 @@ export class GizmoDraggable {
 
 	/**
 	 * @param {import("./GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
+	 * @param {import("../math/Vec2.js").Vec2} screenPos
 	 */
-	pointerDown(pointerDevice) {
+	pointerDown(pointerDevice, screenPos) {
+		if (this.activeDraggingPointer) return;
+
+		this.activeDraggingPointer = pointerDevice;
+		this.dragStartScreenPos = screenPos.clone();
 	}
 
 	/**
 	 * @param {import("./GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
+	 * @param {import("../math/Vec2.js").Vec2} screenPos
 	 */
-	pointerUp(pointerDevice) {
+	pointerUp(pointerDevice, screenPos) {
+		if (this.activeDraggingPointer != pointerDevice) return;
+
+		this.activeDraggingPointer = null;
+		this.dragStartScreenPos = null;
+	}
+
+	/**
+	 * @param {import("./GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
+	 * @param {import("../math/Vec2.js").Vec2} screenPos
+	 */
+	pointerMove(pointerDevice, screenPos) {
+		if (this.activeDraggingPointer != pointerDevice) return;
+		if (!this.dragStartScreenPos) return;
+
+		this.onDragCbs.forEach(cb => cb());
 	}
 
 	/**
@@ -111,5 +150,19 @@ export class GizmoDraggable {
 	 */
 	removeOnIsHoveringChange(cb) {
 		this._onIsHoveringChangeCbs.delete(cb);
+	}
+
+	/**
+	 * @param {OnDragCb} cb
+	 */
+	onDrag(cb) {
+		this.onDragCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnDragCb} cb
+	 */
+	removeOnDrag(cb) {
+		this.onDragCbs.delete(cb);
 	}
 }

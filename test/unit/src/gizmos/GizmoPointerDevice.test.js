@@ -11,6 +11,7 @@ class MockDraggable {
 		this.outCallCount = 0;
 		this.downCallCount = 0;
 		this.upCallCount = 0;
+		this.moveCallCount = 0;
 	}
 	pointerOver() {
 		this.overCallCount++;
@@ -23,6 +24,9 @@ class MockDraggable {
 	}
 	pointerUp() {
 		this.upCallCount++;
+	}
+	pointerMove() {
+		this.moveCallCount++;
 	}
 }
 
@@ -139,7 +143,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "down and up events notify draggables",
+	name: "down, up and move events notify draggables",
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
 
@@ -153,12 +157,21 @@ Deno.test({
 		assertEquals(mockDraggable.downCallCount, 1);
 		assertEquals(mockDraggable.upCallCount, 0);
 
-		const event2 = new PointerEvent("pointerup", {
+		const event2 = new PointerEvent("pointermove", {
+			clientX: 50,
+			clientY: 51,
+			buttons: 1,
+		});
+		pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
+		assertEquals(pointerDevice.hasActiveButton, true);
+		assertEquals(mockDraggable.moveCallCount, 1);
+
+		const event3 = new PointerEvent("pointerup", {
 			clientX: 50,
 			clientY: 50,
 			buttons: 0,
 		});
-		pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
+		pointerDevice.handle2dEvent(stubCamera, stubElement, event3);
 		assertEquals(pointerDevice.hasActiveButton, false);
 		assertEquals(mockDraggable.upCallCount, 1);
 

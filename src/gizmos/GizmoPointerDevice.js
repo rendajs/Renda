@@ -61,16 +61,20 @@ export class GizmoPointerDevice {
 			}
 		}
 
+		if (this._activeButtonDraggable) {
+			this._activeButtonDraggable.pointerMove(this, screenSpace);
+		}
+
 		if (hasActiveButton != this._hasActiveButton) {
 			this._hasActiveButton = hasActiveButton;
 			if (hasActiveButton) {
 				if (this._currentlyHoveringDraggable) {
-					this._currentlyHoveringDraggable.pointerDown(this);
+					this._currentlyHoveringDraggable.pointerDown(this, screenSpace);
 					this._activeButtonDraggable = this._currentlyHoveringDraggable;
 				}
 			} else {
 				if (this._activeButtonDraggable) {
-					this._activeButtonDraggable.pointerUp(this);
+					this._activeButtonDraggable.pointerUp(this, screenSpace);
 					this._activeButtonDraggable = null;
 				}
 			}
