@@ -136,7 +136,7 @@ Deno.test({
 
 		for (const {vec, expected} of tests) {
 			const vec2 = new Vec2(vec);
-			assertAlmostEquals(vec2.magnitude, expected);
+			assertAlmostEquals(vec2.magnitude, expected, 0.1);
 		}
 	},
 });
@@ -159,7 +159,7 @@ Deno.test({
 			vec2.magnitude = magnitude;
 			const vecArr = vec2.toArray();
 			for (let i = 0; i < 2; i++) {
-				assertAlmostEquals(vecArr[i], expected[i]);
+				assertAlmostEquals(vecArr[i], expected[i], 0.1);
 			}
 		}
 	},
@@ -179,7 +179,7 @@ Deno.test({
 		for (const {vec, expected} of tests) {
 			const vec2 = new Vec2(vec);
 			vec2.normalize();
-			assertVecAlmostEquals(vec2, expected);
+			assertVecAlmostEquals(vec2, expected, 0.1);
 		}
 	},
 });
@@ -198,7 +198,7 @@ Deno.test({
 		for (const {a, b, expected} of tests) {
 			const vec = new Vec2(a);
 			const dist = vec.distanceTo(b);
-			assertAlmostEquals(dist, expected);
+			assertAlmostEquals(dist, expected, 0.1);
 		}
 	},
 });

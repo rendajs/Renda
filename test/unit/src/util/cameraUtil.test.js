@@ -99,9 +99,9 @@ Deno.test({
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
 		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix, worldMatrix);
 
-		assertVecAlmostEquals(start, [0.5, 1.5, 1], 0.0001);
-		assertAlmostEquals(dir.magnitude, 1, 0.0001, "dir.magnitude is not normalized");
-		assertVecAlmostEquals(dir, [0.4, -0.5, 0.8]);
+		assertVecAlmostEquals(start, [0.5, 1.5, 1]);
+		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir.magnitude is not normalized");
+		assertVecAlmostEquals(dir, [0.4, -0.5, 0.8], 0.1);
 	},
 });
 
@@ -111,9 +111,9 @@ Deno.test({
 		const projectionMatrix = Mat4.createPerspective(90, 1, 10);
 		const {start, dir} = getRaycastRayFromScreenPos(new Vec2(0.75, 0.75), projectionMatrix);
 
-		assertVecAlmostEquals(start, [0.5, 0.5, 1], 0.0001);
-		assertAlmostEquals(dir.magnitude, 1, 0.0001, "dir.magnitude is not normalized");
-		assertVecAlmostEquals(dir, [0.4, -0.4, 0.8]);
+		assertVecAlmostEquals(start, [0.5, 0.5, 1]);
+		assertAlmostEquals(dir.magnitude, 1, 0.00001, "dir.magnitude is not normalized");
+		assertVecAlmostEquals(dir, [0.4, -0.4, 0.8], 0.1);
 	},
 });
 

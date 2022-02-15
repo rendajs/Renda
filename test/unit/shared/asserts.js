@@ -8,7 +8,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  * @param {number} actual
  * @param {number} expected
  */
-export function assertAlmostEquals(actual, expected, tolerance = 0.1, msg = "") {
+export function assertAlmostEquals(actual, expected, tolerance = 0.00001, msg = "") {
 	if (typeof actual != "number") {
 		if (msg) throw new AssertionError(msg);
 		throw new AssertionError(`${actual} is not a number`);
@@ -62,7 +62,7 @@ function assertIsVector(vec, msg) {
  * @param {unknown} actual
  * @param {Vec2 | Vec3 | Vec4 | number[]} expected
  */
-export function assertVecAlmostEquals(actual, expected, tolerance = 0.1, msg = "") {
+export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg = "") {
 	assertIsVector(actual, msg);
 	assertIsVector(expected, msg);
 	const actualVec = arrayToVector(actual, msg);

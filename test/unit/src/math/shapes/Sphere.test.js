@@ -207,8 +207,8 @@ Deno.test({
 		const result = sphere.raycast(start, dir);
 
 		assertExists(result);
-		assertAlmostEquals(result.dist, 0.1);
-		assertVecAlmostEquals(result.pos, [-4.9, 9, 0]);
+		assertAlmostEquals(result.dist, 0.1, 0.1);
+		assertVecAlmostEquals(result.pos, [-4.9, 9, 0], 0.1);
 	},
 });
 
