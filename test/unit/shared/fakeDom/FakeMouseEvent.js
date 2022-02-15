@@ -8,6 +8,7 @@ export class FakeMouseEvent extends Event {
 
 		this.clientX = eventInit?.clientX ?? 0;
 		this.clientY = eventInit?.clientY ?? 0;
+		this.buttons = eventInit?.buttons ?? 0;
 	}
 }
 

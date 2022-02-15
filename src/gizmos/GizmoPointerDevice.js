@@ -12,7 +12,12 @@ export class GizmoPointerDevice {
 		this.gizmoManager = gizmoManager;
 
 		/** @type {import("./GizmoDraggable.js").GizmoDraggable?} */
-		this.currentlyHoveringDraggable = null;
+		this._currentlyHoveringDraggable = null;
+
+		/** @type {import("./GizmoDraggable.js").GizmoDraggable?} */
+		this._activeButtonDraggable = null;
+
+		this._hasActiveButton = false;
 
 		this.destructed = false;
 	}
@@ -20,10 +25,18 @@ export class GizmoPointerDevice {
 	destructor() {
 		this.destructed = true;
 
-		if (this.currentlyHoveringDraggable) {
-			this.currentlyHoveringDraggable.pointerOut(this);
-			this.currentlyHoveringDraggable = null;
+		if (this._currentlyHoveringDraggable) {
+			this._currentlyHoveringDraggable.pointerOut(this);
+			this._currentlyHoveringDraggable = null;
 		}
+	}
+
+	get hasActiveButton() {
+		return this._hasActiveButton;
+	}
+
+	get currentlyHoveringDraggable() {
+		return this._currentlyHoveringDraggable;
 	}
 
 	/**
@@ -34,16 +47,32 @@ export class GizmoPointerDevice {
 	handle2dEvent(camera, element, event) {
 		const screenSpace = domSpaceToScreenSpace(element, event.clientX, event.clientY);
 		const hit = this.gizmoManager.raycastDraggables(camera, screenSpace);
+		const hasActiveButton = event.buttons !== 0;
 
-		if (hit != this.currentlyHoveringDraggable) {
-			if (this.currentlyHoveringDraggable) {
-				this.currentlyHoveringDraggable.pointerOut(this);
-				this.currentlyHoveringDraggable = null;
+		if (hit != this._currentlyHoveringDraggable) {
+			if (this._currentlyHoveringDraggable) {
+				this._currentlyHoveringDraggable.pointerOut(this);
+				this._currentlyHoveringDraggable = null;
 			}
 
 			if (hit) {
-				this.currentlyHoveringDraggable = hit;
+				this._currentlyHoveringDraggable = hit;
 				hit.pointerOver(this);
+			}
+		}
+
+		if (hasActiveButton != this._hasActiveButton) {
+			this._hasActiveButton = hasActiveButton;
+			if (hasActiveButton) {
+				if (this._currentlyHoveringDraggable) {
+					this._currentlyHoveringDraggable.pointerDown(this);
+					this._activeButtonDraggable = this._currentlyHoveringDraggable;
+				}
+			} else {
+				if (this._activeButtonDraggable) {
+					this._activeButtonDraggable.pointerUp(this);
+					this._activeButtonDraggable = null;
+				}
 			}
 		}
 	}

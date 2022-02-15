@@ -20,11 +20,15 @@ export class ListeningGizmoPointerElement {
 	addEventListeners() {
 		this.isListening = true;
 		this.element.addEventListener("pointermove", this.boundOnPointerEvent);
+		this.element.addEventListener("pointerdown", this.boundOnPointerEvent);
+		this.element.addEventListener("pointerup", this.boundOnPointerEvent);
 	}
 
 	removeEventListeners() {
 		this.isListening = false;
 		this.element.removeEventListener("pointermove", this.boundOnPointerEvent);
+		this.element.removeEventListener("pointerdown", this.boundOnPointerEvent);
+		this.element.removeEventListener("pointerup", this.boundOnPointerEvent);
 
 		for (const device of this.createdPointerDevices.values()) {
 			this.gizmoManager.destroyPointerDevice(device);

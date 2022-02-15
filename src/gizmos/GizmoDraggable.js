@@ -88,6 +88,18 @@ export class GizmoDraggable {
 	}
 
 	/**
+	 * @param {import("./GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
+	 */
+	pointerDown(pointerDevice) {
+	}
+
+	/**
+	 * @param {import("./GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
+	 */
+	pointerUp(pointerDevice) {
+	}
+
+	/**
 	 * @param {OnIsHoveringChangeCb} cb
 	 */
 	onIsHoveringChange(cb) {
