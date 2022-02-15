@@ -9,15 +9,16 @@ import {Vec4} from "../math/Vec4.js";
  * @param {import("../math/Mat4.js").Mat4?} [camWorldMatrix]
  */
 export function worldToScreenPos(worldPos, camProjectionMatrix, camWorldMatrix = null) {
-	const pos = worldPos.clone();
+	const pos = new Vec4(worldPos);
 	if (camWorldMatrix) {
 		pos.multiply(camWorldMatrix.inverse());
 	}
 	pos.multiply(camProjectionMatrix);
-	pos.divide(pos.z);
+	pos.x /= pos.w;
+	pos.y /= pos.w;
 	pos.x = (pos.x + 1) / 2;
 	pos.y = (1 - pos.y) / 2;
-	return pos;
+	return new Vec3(pos.x, pos.y, pos.w);
 }
 
 /**
