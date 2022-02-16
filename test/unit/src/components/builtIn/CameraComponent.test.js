@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertNotEquals} from "asserts";
+import {assertEquals, assertNotEquals} from "asserts";
 import {CameraComponent, Entity, Vec2, Vec3} from "../../../../../src/mod.js";
 import {assertAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
 
@@ -48,7 +48,7 @@ Deno.test({
 
 		const pos = cam.worldToScreenPos(new Vec3(0, 1, 1));
 
-		assertEquals([pos.x, pos.y], [0.5, 0.5]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, 1]);
 	},
 });
 
@@ -59,7 +59,7 @@ Deno.test({
 
 		const pos = cam.worldToScreenPos(new Vec3(0, 0, 1));
 
-		assertEquals([pos.x, pos.y], [0.5, 0.5]);
+		assertVecAlmostEquals(pos, [0.5, 0.5, 1]);
 	},
 });
 
@@ -70,8 +70,7 @@ Deno.test({
 
 		const pos = cam.worldToScreenPos(new Vec3(0, 0.1, 1));
 
-		assertEquals(pos.x, 0.5);
-		assert(pos.y < 0.5, "pos.y < 0.5");
+		assertVecAlmostEquals(pos, [0.5, 0.45, 1], 0.01);
 	},
 });
 
