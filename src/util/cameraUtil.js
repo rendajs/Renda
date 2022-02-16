@@ -4,6 +4,7 @@ import {Vec4} from "../math/Vec4.js";
 /**
  * Converts world coordinates to screen coordinates using the given camera matrices.
  * Screen coordinates are in the range [0, 1] with y axis down.
+ * The returned z component will be the distance from the camera.
  * @param {import("../math/Vec3.js").Vec3} worldPos
  * @param {import("../math/Mat4.js").Mat4} camProjectionMatrix
  * @param {import("../math/Mat4.js").Mat4?} [camWorldMatrix]
@@ -19,6 +20,29 @@ export function worldToScreenPos(worldPos, camProjectionMatrix, camWorldMatrix =
 	pos.x = (pos.x + 1) / 2;
 	pos.y = (1 - pos.y) / 2;
 	return new Vec3(pos.x, pos.y, pos.w);
+}
+
+/**
+ * Converts screen coordinates to world coordinates using the given camera matrices.
+ * The z component of the screen position will be used as the distance from the camera.
+ * The returned screen coordinates are in the range [0, 1] with y axis down.
+ * @param {import("../math/Vec3.js").Vec3} screenPos
+ * @param {import("../math/Mat4.js").Mat4} camProjectionMatrix
+ * @param {import("../math/Mat4.js").Mat4?} [camWorldMatrix]
+ */
+export function screenToWorldPos(screenPos, camProjectionMatrix, camWorldMatrix = null) {
+	const pos = new Vec4(screenPos);
+	pos.x = (pos.x * 2) - 1;
+	pos.y = 1 - (pos.y * 2);
+	pos.w = pos.z;
+	pos.z = 1;
+	const inverseProjection = camProjectionMatrix.inverse();
+	pos.multiply(inverseProjection);
+	pos.w = 1;
+	if (camWorldMatrix) {
+		pos.multiply(camWorldMatrix);
+	}
+	return new Vec3(pos);
 }
 
 /**
