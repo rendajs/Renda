@@ -41,7 +41,7 @@ export function initBasicSetup() {
 	const cam = cameraObject.addComponent(CameraComponent);
 
 	const manager = new GizmoManager(getFakeEngineAssetsManager());
-	const draggable = manager.createDraggable();
+	const draggable = manager.createDraggable("move");
 	const sphere = new Sphere();
 	draggable.addRaycastShape(sphere);
 	return {manager, draggable, cam};

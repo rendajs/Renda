@@ -1,6 +1,6 @@
 import {Entity} from "../core/Entity.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
-import {GizmoDraggable} from "./GizmoDraggable.js";
+import {GizmoDraggable} from "./draggables/GizmoDraggable.js";
 import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
 import {ListeningGizmoPointerElement} from "./ListeningGizmoPointerElement.js";
 
@@ -26,7 +26,7 @@ export class GizmoManager {
 		/** @type {Set<GizmoPointerDevice>} */
 		this.pointerDevices = new Set();
 
-		/** @type {Set<import("./GizmoDraggable.js").GizmoDraggable>} */
+		/** @type {Set<import("./draggables/GizmoDraggable.js").GizmoDraggable>} */
 		this.draggables = new Set();
 
 		/** @type {Set<OnGizmoNeedsRenderCb>} */
@@ -119,10 +119,14 @@ export class GizmoManager {
 		device.destructor();
 	}
 
-	createDraggable() {
+	/**
+	 * @template {import("./draggables/GizmoDraggable.js").GizmoDraggableType} [T = "move"]
+	 * @param {T} draggableType
+	 */
+	createDraggable(draggableType) {
 		const draggable = new GizmoDraggable(this);
 		this.draggables.add(draggable);
-		return draggable;
+		return /** @type {import("./draggables/GizmoDraggable.js").GetGizmoDraggableType<T>} */ (draggable);
 	}
 
 	/**

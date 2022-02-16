@@ -83,7 +83,7 @@ export class TranslationGizmo extends Gizmo {
 		this.arrowMesh.setVertexData(Mesh.AttributeType.COLOR, colors);
 		this.arrowMesh.setVertexData(Mesh.AttributeType.POSITION, positions);
 
-		this.centerDraggable = this.gizmoManager.createDraggable();
+		this.centerDraggable = this.gizmoManager.createDraggable("move");
 		const sphere = new Sphere();
 		this.centerDraggable.addRaycastShape(sphere);
 		this.centerDraggable.onIsHoveringChange(isHovering => {
