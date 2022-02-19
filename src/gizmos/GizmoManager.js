@@ -1,6 +1,6 @@
 import {Entity} from "../core/Entity.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
-import {GizmoDraggable} from "./draggables/GizmoDraggable.js";
+import {MoveGizmoDraggable} from "./draggables/MoveGizmoDraggable.js";
 import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
 import {ListeningGizmoPointerElement} from "./ListeningGizmoPointerElement.js";
 
@@ -124,7 +124,12 @@ export class GizmoManager {
 	 * @param {T} draggableType
 	 */
 	createDraggable(draggableType) {
-		const draggable = new GizmoDraggable(this);
+		let draggable;
+		if (draggableType == "move") {
+			draggable = new MoveGizmoDraggable(this);
+		} else {
+			throw new Error(`Unknown draggable type: ${draggableType}`);
+		}
 		this.draggables.add(draggable);
 		return /** @type {import("./draggables/GizmoDraggable.js").GetGizmoDraggableType<T>} */ (draggable);
 	}
