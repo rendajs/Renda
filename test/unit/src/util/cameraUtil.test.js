@@ -1,4 +1,4 @@
-import {Mat4, Vec2, Vec3} from "../../../../src/mod.js";
+import {Mat4, Quat, Vec2, Vec3} from "../../../../src/mod.js";
 import {domSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToDomSpace, screenToWorldPos, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
 import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
@@ -178,6 +178,36 @@ Deno.test({
 		const pos = screenToWorldPos(new Vec3(0.75, 0.5, 1), projectionMatrix);
 
 		assertVecAlmostEquals(pos, [0.5, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "worldToScreenPos should stay the same when converting back with screenToWorldPos",
+	fn() {
+		const projectionMatrix = Mat4.createPerspective(90, 1, 1000);
+
+		const worldMatrices = [
+			{worldPos: [0, 0, 0], worldRot: [0, 0, 0, 1]},
+			{worldPos: [0, 1, 0], worldRot: [0, 0, 0, 1]},
+			{worldPos: [0, 0, -1], worldRot: [0, 0, 0, 1]},
+			{worldPos: [3, 0, -2], worldRot: [0, 0.2474, 0, 0.9689]},
+		];
+		const positions = [
+			[0.5, 0, 1],
+			[0, 1, 1],
+			[0, -0.5, 2],
+			[3, 0, 10],
+		];
+		for (const {worldPos, worldRot} of worldMatrices) {
+			const worldMatrix = Mat4.createPosRotScale(new Vec3(worldPos), new Quat(worldRot), new Vec3(1, 1, 1));
+
+			for (const position of positions) {
+				const pos = new Vec3(position);
+				const pos2 = worldToScreenPos(pos, projectionMatrix, worldMatrix);
+				const pos3 = screenToWorldPos(pos2, projectionMatrix, worldMatrix);
+				assertVecAlmostEquals(pos3, pos);
+			}
+		}
 	},
 });
 

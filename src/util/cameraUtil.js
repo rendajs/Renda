@@ -32,10 +32,11 @@ export function worldToScreenPos(worldPos, camProjectionMatrix, camWorldMatrix =
  */
 export function screenToWorldPos(screenPos, camProjectionMatrix, camWorldMatrix = null) {
 	const pos = new Vec4(screenPos);
+	pos.w = pos.z;
 	pos.x = (pos.x * 2) - 1;
 	pos.y = 1 - (pos.y * 2);
-	pos.w = pos.z;
-	pos.z = 1;
+	pos.x *= pos.w;
+	pos.y *= pos.w;
 	const inverseProjection = camProjectionMatrix.inverse();
 	pos.multiply(inverseProjection);
 	pos.w = 1;
