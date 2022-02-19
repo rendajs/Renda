@@ -53,9 +53,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = worldToScreenPos(new Vec3(0, 0.1, 1), projectionMatrix);
+		const pos = worldToScreenPos(new Vec3(0, 0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.45, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0.25, 1]);
 	},
 });
 
@@ -64,9 +64,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = worldToScreenPos(new Vec3(0, -0.1, 1), projectionMatrix);
+		const pos = worldToScreenPos(new Vec3(0, -0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.5, 0.55, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0.75, 1]);
 	},
 });
 
@@ -75,9 +75,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = worldToScreenPos(new Vec3(-0.1, 0, 1), projectionMatrix);
+		const pos = worldToScreenPos(new Vec3(-0.5, 0, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.45, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0.25, 0.5, 1]);
 	},
 });
 
@@ -86,9 +86,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = worldToScreenPos(new Vec3(0.1, 0, 1), projectionMatrix);
+		const pos = worldToScreenPos(new Vec3(0.5, 0, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.55, 0.5, 1]);
+		assertVecAlmostEquals(pos, [0.75, 0.5, 1]);
 	},
 });
 
@@ -142,9 +142,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = screenToWorldPos(new Vec3(0.5, 0.45, 1), projectionMatrix);
+		const pos = screenToWorldPos(new Vec3(0.5, 0.25, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0, 0.1, 1]);
+		assertVecAlmostEquals(pos, [0, 0.5, 1]);
 	},
 });
 
@@ -153,9 +153,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = screenToWorldPos(new Vec3(0.5, 0.55, 1), projectionMatrix);
+		const pos = screenToWorldPos(new Vec3(0.5, 0.75, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0, -0.1, 1]);
+		assertVecAlmostEquals(pos, [0, -0.5, 1]);
 	},
 });
 
@@ -164,9 +164,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = screenToWorldPos(new Vec3(0.45, 0.5, 1), projectionMatrix);
+		const pos = screenToWorldPos(new Vec3(0.25, 0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [-0.1, 0, 1]);
+		assertVecAlmostEquals(pos, [-0.5, 0, 1]);
 	},
 });
 
@@ -175,9 +175,9 @@ Deno.test({
 	fn: () => {
 		const projectionMatrix = Mat4.createPerspective(90, 0.01, 1000);
 
-		const pos = screenToWorldPos(new Vec3(0.55, 0.5, 1), projectionMatrix);
+		const pos = screenToWorldPos(new Vec3(0.75, 0.5, 1), projectionMatrix);
 
-		assertVecAlmostEquals(pos, [0.1, 0, 1]);
+		assertVecAlmostEquals(pos, [0.5, 0, 1]);
 	},
 });
 
