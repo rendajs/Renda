@@ -87,7 +87,7 @@ if (needsCoverage) {
 	if (coverageMapExists) {
 		console.log("Applying fake-imports coverage map.");
 		const p = Deno.run({
-			cmd: ["deno", "run", "--allow-read", "--no-check", "--allow-write", "https://deno.land/x/fake_imports@v0.1.0/applyCoverageMap.js", FAKE_IMPORTS_COVERAGE_DIR, DENO_COVERAGE_DIR],
+			cmd: ["deno", "run", "--allow-read", "--no-check", "--allow-write", "https://deno.land/x/fake_imports@v0.1.1/applyCoverageMap.js", FAKE_IMPORTS_COVERAGE_DIR, DENO_COVERAGE_DIR],
 		});
 		await p.status();
 	}
