@@ -3,7 +3,7 @@ import {GizmoDraggable} from "./GizmoDraggable.js";
 
 /**
  * @typedef GizmoDragMoveEvent
- * @property {Vec3} delta
+ * @property {Vec3} delta The change in world position since the last event.
  */
 
 /**
@@ -52,12 +52,17 @@ export class MoveGizmoDraggable extends GizmoDraggable {
 	handlePointerMove(pointerDevice, eventData) {
 		if (!this.dragStartScreenPos) return;
 
+		/** The amount dragged in screen space since the start of the drag. */
 		const screenDelta = eventData.screenPos.clone().sub(this.dragStartScreenPos);
 
+		/** The desired new screen position of the draggable */
 		const newScreenPos = this.dragStartScreenPos.clone();
 		newScreenPos.add(screenDelta.x, screenDelta.y);
+
+		/** The desired new world position of the draggable */
 		const newWorldPos = eventData.camera.screenToWorldPos(newScreenPos);
 
+		/** The change in world position since the last event. */
 		const deltaWorldPos = newWorldPos.clone().sub(this.prevDragWorldPos);
 		this.prevDragWorldPos.set(newWorldPos);
 
