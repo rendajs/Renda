@@ -105,5 +105,6 @@ Deno.test({
 
 		assertEquals(calls.length, 1);
 		assertVecAlmostEquals(calls[0].delta, [0.2, 0, 0]);
+		assertVecAlmostEquals(draggable.pos, [0.2, 0, 0]);
 	},
 });

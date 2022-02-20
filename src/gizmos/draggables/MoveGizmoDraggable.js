@@ -65,6 +65,7 @@ export class MoveGizmoDraggable extends GizmoDraggable {
 		const moveEvent = {
 			delta: deltaWorldPos,
 		};
+		this.pos.add(deltaWorldPos);
 		this.fireDragCallbacks(moveEvent);
 	}
 }
