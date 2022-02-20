@@ -9,10 +9,23 @@ export class Gizmo {
 		this.entity = new Entity("gizmo (" + this.constructor.name + ")");
 	}
 
+	get pos() {
+		return this.entity.pos;
+	}
+
+	set pos(val) {
+		this.entity.pos = val;
+	}
+
+	// TODO: add a way to set rotation and scale
+
 	/**
 	 * @param {import("../../mod.js").Mat4} val
 	 */
 	set matrix(val) {
+		// TODO: this is a bit weird, gizmos should have a function for
+		// setting the matrix and each gizmo should be able to configure
+		// if only position, rotation or scale should be applied
 		this.entity.localMatrix = val;
 	}
 

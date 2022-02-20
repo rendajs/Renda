@@ -1,5 +1,6 @@
 import {assertEquals, assertStrictEquals} from "asserts";
-import {Entity, Gizmo} from "../../../../../src/mod.js";
+import {Entity, Gizmo, Vec3} from "../../../../../src/mod.js";
+import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 
 function createFakeGizmoManager() {
 	/** @type {Gizmo[]} */
@@ -52,5 +53,31 @@ Deno.test({
 
 		assertEquals(needsRenderCalls.length, 1);
 		assertStrictEquals(needsRenderCalls[0], gizmo);
+	},
+});
+
+Deno.test({
+	name: "modifying gizmo pos changes the entity position",
+	fn() {
+		const {gizmoManager} = createFakeGizmoManager();
+		const gizmo = new ExtendedGizmo(gizmoManager);
+
+		gizmo.pos.set(1, 2, 3);
+
+		assertVecAlmostEquals(gizmo.entity.pos, [1, 2, 3]);
+		assertVecAlmostEquals(gizmo.pos, [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "setting gizmo pos changes the entity position",
+	fn() {
+		const {gizmoManager} = createFakeGizmoManager();
+		const gizmo = new ExtendedGizmo(gizmoManager);
+
+		gizmo.pos = new Vec3(1, 2, 3);
+
+		assertVecAlmostEquals(gizmo.entity.pos, [1, 2, 3]);
+		assertVecAlmostEquals(gizmo.pos, [1, 2, 3]);
 	},
 });
