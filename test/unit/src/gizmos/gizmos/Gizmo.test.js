@@ -1,20 +1,8 @@
 import {assertEquals, assertStrictEquals} from "asserts";
 import {Entity, Gizmo, Vec3} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import {createFakeGizmoManager} from "../shared.js";
 
-function createFakeGizmoManager() {
-	/** @type {Gizmo[]} */
-	const needsRenderCalls = [];
-	const gizmoManager = /** @type {import("../../../../../src/mod.js").GizmoManager} */ ({
-		gizmoNeedsRender(gizmo) {
-			needsRenderCalls.push(gizmo);
-		},
-	});
-	return {
-		gizmoManager,
-		needsRenderCalls,
-	};
-}
 class ExtendedGizmo extends Gizmo {
 
 }

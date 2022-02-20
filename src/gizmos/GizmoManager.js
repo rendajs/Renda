@@ -44,6 +44,7 @@ export class GizmoManager {
 
 		/** @type {import("../mod.js").Material?} */
 		this.billboardMaterial = null;
+		/** @type {import("../mod.js").Material?} */
 		this.meshMaterial = null;
 
 		engineAssetsManager.watchAsset("9d9ebd2e-c657-4252-b7af-b5889a4986c3", asset => {

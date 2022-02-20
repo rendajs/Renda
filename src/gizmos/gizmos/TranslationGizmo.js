@@ -110,7 +110,11 @@ export class TranslationGizmo extends Gizmo {
 
 	updateMaterials() {
 		this.arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
-		this.meshComponent.materials = [this.gizmoManager.meshMaterial];
+		if (this.gizmoManager.meshMaterial) {
+			this.meshComponent.materials = [this.gizmoManager.meshMaterial];
+		} else {
+			this.meshComponent.materials = [];
+		}
 
 		this.circleMesh.setVertexState(this.gizmoManager.billboardVertexState);
 		/** @type {import("../../mod.js").Material[]} */
