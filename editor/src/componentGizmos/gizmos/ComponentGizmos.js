@@ -64,11 +64,4 @@ export class ComponentGizmos {
 			gizmo.matrix = matrix;
 		}
 	}
-
-	/**
-	 * @param {string} message
-	 */
-	static invalidConfigurationWarning(message) {
-		console.warn(message + "\nView ComponentGizmos.js for more info.");
-	}
 }

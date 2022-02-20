@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertExists, assertStrictEquals} from "asserts";
+import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "asserts";
 import {ComponentGizmosManager} from "../../../../../editor/src/componentGizmos/ComponentGizmosManager.js";
 import {CameraComponent} from "../../../../../src/mod.js";
 import {Importer} from "fake-imports";
@@ -33,6 +33,7 @@ async function basicSetup() {
 		componentGizmosManager,
 		stubGizmoManager,
 		ExtendedComponentGizmos,
+		ComponentGizmos,
 		CameraComponent,
 		MockComponentConstructor,
 		async waitForFinish() {
@@ -62,6 +63,34 @@ Deno.test({
 		const result = componentGizmosManager.getComponentGizmosConstructor(MockComponentConstructor);
 
 		assertStrictEquals(result, ExtendedComponentGizmos);
+
+		await waitForFinish();
+	},
+});
+
+Deno.test({
+	name: "registerComponentGizmos() throws if the ComponentGizmos class does not extend ComponentGizmos",
+	async fn() {
+		const {componentGizmosManager, waitForFinish} = await basicSetup();
+
+		assertThrows(() => componentGizmosManager.registerComponentGizmos(/** @type {any} */ ({})));
+
+		await waitForFinish();
+	},
+});
+
+Deno.test({
+	name: "registerComponentGizmos() throws if the ComponentGizmos class does not have `componentType` set",
+	async fn() {
+		const {componentGizmosManager, waitForFinish, ComponentGizmos} = await basicSetup();
+
+		/**
+		 * @extends {ComponentGizmos<any, []>}
+		 */
+		class ExtendedComponentGizmos extends ComponentGizmos {
+		}
+
+		assertThrows(() => componentGizmosManager.registerComponentGizmos(ExtendedComponentGizmos));
 
 		await waitForFinish();
 	},

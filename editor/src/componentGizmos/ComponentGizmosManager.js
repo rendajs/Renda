@@ -22,13 +22,11 @@ export class ComponentGizmosManager {
 	registerComponentGizmos(constructor) {
 		const castConstructor = /** @type {typeof ComponentGizmos} */ (constructor);
 		if (!(constructor.prototype instanceof ComponentGizmos)) {
-			console.warn("Tried to register ComponentGizmos (" + constructor.name + ") that does not extend ComponentGizmos class.");
-			return;
+			throw new Error(`Tried to register ComponentGizmos (${constructor.name}) that does not extend ComponentGizmos class.`);
 		}
 
 		if (castConstructor.componentType == null) {
-			castConstructor.invalidConfigurationWarning("Failed to register ComponentGizmos (" + constructor.name + ") componentType value not set.");
-			return;
+			throw new Error(`Failed to register ComponentGizmos (${constructor.name}) componentType value not set.`);
 		}
 
 		this.componentGizmos.set(castConstructor.componentType, castConstructor);
