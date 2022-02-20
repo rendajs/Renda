@@ -3,19 +3,20 @@ import {ComponentGizmosManager} from "../../../../../editor/src/componentGizmos/
 import {CameraComponent} from "../../../../../src/mod.js";
 import {Importer} from "fake-imports";
 
+const importer = new Importer(import.meta.url);
+importer.fakeModule("../../../../../editor/src/editorInstance.js", `
+	export function getEditorInstanceCertain() {
+		return {}
+	};
+`);
+importer.fakeModule("../../../../../editor/src/componentGizmos/autoRegisterComponentGizmos.js", `
+	export const autoRegisterComponentGizmos = [];
+`);
+const {ComponentGizmosManager: ComponentGizmosManager2} = await importer.import("../../../../../editor/src/componentGizmos/ComponentGizmosManager.js");
+const {ComponentGizmos} = await importer.import("../../../../../editor/src/componentGizmos/gizmos/ComponentGizmos.js");
+
 async function basicSetup() {
-	const importer = new Importer(import.meta.url);
-	importer.fakeModule("../../../../../editor/src/editorInstance.js", `
-		export function getEditorInstanceCertain() {
-			return {}
-		};
-	`);
-	importer.fakeModule("../../../../../editor/src/componentGizmos/autoRegisterComponentGizmos.js", `
-		export const autoRegisterComponentGizmos = [];
-	`);
-	const {ComponentGizmosManager} = await importer.import("../../../../../editor/src/componentGizmos/ComponentGizmosManager.js");
-	const {ComponentGizmos} = await importer.import("../../../../../editor/src/componentGizmos/gizmos/ComponentGizmos.js");
-	const componentGizmosManager = new ComponentGizmosManager();
+	const componentGizmosManager = new ComponentGizmosManager2();
 
 	const MockComponentConstructor = /** @type {typeof import("../../../../../src/mod.js").Component} */ (class FakeComponent {});
 	const stubGizmoManager = /** @type {import("../../../../../src/mod.js").GizmoManager} */ ({});
@@ -33,7 +34,6 @@ async function basicSetup() {
 		componentGizmosManager,
 		stubGizmoManager,
 		ExtendedComponentGizmos,
-		ComponentGizmos,
 		CameraComponent,
 		MockComponentConstructor,
 		async waitForFinish() {
@@ -82,7 +82,7 @@ Deno.test({
 Deno.test({
 	name: "registerComponentGizmos() throws if the ComponentGizmos class does not have `componentType` set",
 	async fn() {
-		const {componentGizmosManager, waitForFinish, ComponentGizmos} = await basicSetup();
+		const {componentGizmosManager, waitForFinish} = await basicSetup();
 
 		/**
 		 * @extends {ComponentGizmos<any, []>}
