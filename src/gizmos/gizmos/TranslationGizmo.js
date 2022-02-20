@@ -94,6 +94,10 @@ export class TranslationGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
+		this.centerDraggable.onDrag(e => {
+			this.pos.add(e.delta);
+			this.gizmoNeedsRender();
+		});
 
 		this.updateMaterials();
 	}
