@@ -379,7 +379,8 @@ export class Vec3 {
 	 *   o-->
 	 *      c
 	 * ```
-	 * In this example the dot product of `a` and `b` is the length of `c`.
+	 * In this example `a` is normalised. The dot product of `a` and `b` is the
+	 * length of `c`.
 	 *
 	 * @param  {Vec3Parameters} v
 	 */

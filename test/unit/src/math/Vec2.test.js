@@ -423,6 +423,25 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "dot()",
+	fn() {
+		const tests = [
+			{a: [0, 0], b: [0, 0], result: 0},
+			{a: [1, 2], b: [4, 5], result: 14},
+			{a: [-5, 3], b: [8, 3], result: -31},
+			{a: [1, 1], b: [1, 1], result: 2},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec2(a);
+			const dot = vec.dot(b);
+
+			assertEquals(dot, result, `${a} dot ${b} should be ${result} but was ${dot}`);
+		}
+	},
+});
+
 // ======== onChange Callbacks ========
 
 Deno.test({
