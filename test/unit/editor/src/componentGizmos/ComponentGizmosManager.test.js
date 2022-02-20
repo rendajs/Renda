@@ -14,6 +14,7 @@ importer.fakeModule("../../../../../editor/src/componentGizmos/autoRegisterCompo
 `);
 const {ComponentGizmosManager: ComponentGizmosManager2} = await importer.import("../../../../../editor/src/componentGizmos/ComponentGizmosManager.js");
 const {ComponentGizmos} = await importer.import("../../../../../editor/src/componentGizmos/gizmos/ComponentGizmos.js");
+await importer.finishCoverageMapWrites();
 
 async function basicSetup() {
 	const componentGizmosManager = new ComponentGizmosManager2();
@@ -36,9 +37,6 @@ async function basicSetup() {
 		ExtendedComponentGizmos,
 		CameraComponent,
 		MockComponentConstructor,
-		async waitForFinish() {
-			await importer.finishCoverageMapWrites();
-		},
 	};
 }
 
@@ -57,32 +55,28 @@ Deno.test({
 Deno.test({
 	name: "Registering a ComponentGizmos class",
 	async fn() {
-		const {componentGizmosManager, waitForFinish, ExtendedComponentGizmos, MockComponentConstructor} = await basicSetup();
+		const {componentGizmosManager, ExtendedComponentGizmos, MockComponentConstructor} = await basicSetup();
 
 		componentGizmosManager.registerComponentGizmos(ExtendedComponentGizmos);
 		const result = componentGizmosManager.getComponentGizmosConstructor(MockComponentConstructor);
 
 		assertStrictEquals(result, ExtendedComponentGizmos);
-
-		await waitForFinish();
 	},
 });
 
 Deno.test({
 	name: "registerComponentGizmos() throws if the ComponentGizmos class does not extend ComponentGizmos",
 	async fn() {
-		const {componentGizmosManager, waitForFinish} = await basicSetup();
+		const {componentGizmosManager} = await basicSetup();
 
 		assertThrows(() => componentGizmosManager.registerComponentGizmos(/** @type {any} */ ({})));
-
-		await waitForFinish();
 	},
 });
 
 Deno.test({
 	name: "registerComponentGizmos() throws if the ComponentGizmos class does not have `componentType` set",
 	async fn() {
-		const {componentGizmosManager, waitForFinish} = await basicSetup();
+		const {componentGizmosManager} = await basicSetup();
 
 		/**
 		 * @extends {ComponentGizmos<any, []>}
@@ -91,15 +85,13 @@ Deno.test({
 		}
 
 		assertThrows(() => componentGizmosManager.registerComponentGizmos(ExtendedComponentGizmos));
-
-		await waitForFinish();
 	},
 });
 
 Deno.test({
 	name: "createComponentGizmosInstance()",
 	async fn() {
-		const {componentGizmosManager, waitForFinish, ExtendedComponentGizmos, MockComponentConstructor, stubGizmoManager} = await basicSetup();
+		const {componentGizmosManager, ExtendedComponentGizmos, MockComponentConstructor, stubGizmoManager} = await basicSetup();
 
 		componentGizmosManager.registerComponentGizmos(ExtendedComponentGizmos);
 
@@ -107,8 +99,6 @@ Deno.test({
 		const gizmosInstance = componentGizmosManager.createComponentGizmosInstance(MockComponentConstructor, component, stubGizmoManager);
 
 		assert(gizmosInstance instanceof ExtendedComponentGizmos, "Returned value is not an instance of ExtendedComponentGizmos");
-
-		await waitForFinish();
 	},
 });
 
