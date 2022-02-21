@@ -107,6 +107,20 @@ export class Vec4 {
 		return new Vec4(this);
 	}
 
+	/**
+	 * Creates a new Vec2 instance with the same components as this vector.
+	 */
+	toVec2() {
+		return new Vec2(this);
+	}
+
+	/**
+	 * Creates a new Vec3 instance with the same components as this vector.
+	 */
+	toVec3() {
+		return new Vec3(this);
+	}
+
 	get magnitude() {
 		return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2 + this.w ** 2);
 	}

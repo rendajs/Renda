@@ -227,6 +227,26 @@ Deno.test({
 });
 
 Deno.test({
+	name: "toVec2()",
+	fn() {
+		const vec4 = new Vec4(1, 2, 3, 4);
+		const vec2 = vec4.toVec2();
+
+		assertVecAlmostEquals(vec2, [1, 2]);
+	},
+});
+
+Deno.test({
+	name: "toVec3()",
+	fn() {
+		const vec4 = new Vec4(1, 2, 3, 4);
+		const vec3 = vec4.toVec3();
+
+		assertVecAlmostEquals(vec3, [1, 2, 3]);
+	},
+});
+
+Deno.test({
 	name: "get magnitude",
 	fn() {
 		const tests = [

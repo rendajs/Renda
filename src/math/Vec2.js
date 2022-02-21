@@ -72,6 +72,21 @@ export class Vec2 {
 		return new Vec2(this);
 	}
 
+	/**
+	 * Creates a new Vec3 instance with the same components as this vector.
+	 */
+	toVec3() {
+		return new Vec3(this);
+	}
+
+	/**
+	 * Creates a new Vec4 instance with the same components as this vector and
+	 * the w component set to 1.
+	 */
+	toVec4() {
+		return new Vec4(this);
+	}
+
 	get magnitude() {
 		return Math.sqrt(this.x ** 2 + this.y ** 2);
 	}
