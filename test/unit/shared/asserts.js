@@ -80,7 +80,6 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 			hasNaN = true;
 		}
 	} else if (actualVec instanceof Vec4 && expectedVec instanceof Vec4) {
-		// @ts-expect-error
 		dist = actualVec.distanceTo(expectedVec);
 		if (isNaN(actualVec.x) || isNaN(actualVec.y) || isNaN(actualVec.z) || isNaN(actualVec.w) || isNaN(expectedVec.x) || isNaN(expectedVec.y) || isNaN(expectedVec.z) || isNaN(expectedVec.w)) {
 			hasNaN = true;

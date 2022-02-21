@@ -19,6 +19,7 @@ export class Vec4 {
 	constructor(...args) {
 		/** @type {Set<() => void>} */
 		this.onChangeCbs = new Set();
+		this._disableOnChange = false;
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
@@ -96,10 +97,46 @@ export class Vec4 {
 		}
 
 		this.fireOnChange();
+		return this;
 	}
 
+	/**
+	 * @returns {Vec4}
+	 */
 	clone() {
 		return new Vec4(this);
+	}
+
+	get magnitude() {
+		return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2 + this.w ** 2);
+	}
+
+	set magnitude(value) {
+		const diff = value / this.magnitude;
+		if (diff == 1) return;
+		this._x *= diff;
+		this._y *= diff;
+		this._z *= diff;
+		this._w *= diff;
+		if (isNaN(this.x)) this._x = 0;
+		if (isNaN(this.y)) this._y = 0;
+		if (isNaN(this.z)) this._z = 0;
+		if (isNaN(this.w)) this._w = 0;
+		this.fireOnChange();
+	}
+
+	normalize() {
+		this.magnitude = 1;
+		return this;
+	}
+
+	/**
+	 * @param {Vec4Parameters} otherVec
+	 */
+	distanceTo(...otherVec) {
+		const other = new Vec4(...otherVec);
+		other.sub(this);
+		return other.magnitude;
 	}
 
 	/**
@@ -204,6 +241,164 @@ export class Vec4 {
 		return this;
 	}
 
+	/**
+	 * If a single number is provided, adds the number to each component.
+	 * Otherwise the arguments are converted to a Vector and each of its
+	 * components are added to this vector.
+	 * @param {Parameters<typeof this.addScalar> | Vec4Parameters} args
+	 */
+	add(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.addScalar(args[0]);
+		} else {
+			const castArgs = /** @type {Vec4Parameters} */ (args);
+			return this.addVector(new Vec4(...castArgs));
+		}
+	}
+
+	/**
+	 * Adds a scalar to each component.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
+	addScalar(scalar) {
+		this._x += scalar;
+		this._y += scalar;
+		this._z += scalar;
+		this._w += scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Adds components to their respective components.
+	 * @param {Vec4} vector
+	 * @returns {this}
+	 */
+	addVector(vector) {
+		this._x += vector.x;
+		this._y += vector.y;
+		this._z += vector.z;
+		this._w += vector.w;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * If a single number is provided, subtracts the number from each component.
+	 * Otherwise the arguments are converted to a Vector and each of its
+	 * components are subtracted from this vector.
+	 * @param {Parameters<typeof this.subScalar> | Vec4Parameters} args
+	 */
+	sub(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.subScalar(args[0]);
+		} else {
+			const castArgs = /** @type {Vec4Parameters} */ (args);
+			return this.subVector(new Vec4(...castArgs));
+		}
+	}
+
+	/**
+	 * Subtracts a scalar from each component.
+	 * @param {number} scalar
+	 */
+	subScalar(scalar) {
+		this._x -= scalar;
+		this._y -= scalar;
+		this._z -= scalar;
+		this._w -= scalar;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Subtracts components from their respective components.
+	 * @param {Vec4} vector
+	 */
+	subVector(vector) {
+		this._x -= vector.x;
+		this._y -= vector.y;
+		this._z -= vector.z;
+		this._w -= vector.w;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Computes the dot product between this vector and another vector.
+	 *
+	 * [Dot product visualisation](https://falstad.com/dotproduct/)
+	 *
+	 * - When the two vectors point in opposite directions (i.e. the angle is greater than 90º), the dot product is negative.
+	 * ```none
+	 *    ^
+	 *     \
+	 *      \ 110º
+	 *       o---->
+	 * ```
+	 * - When the two vectors point in the same direction (i.e. the angle is less than 90º), the dot product is positive.
+	 * ```none
+	 *      ^
+	 *     /
+	 *    / 70º
+	 *   o---->
+	 * ```
+	 * - When the two vectors are perpendicular, the dot product is zero.
+	 * ```none
+	 *   ^
+	 *   |
+	 *   | 90º
+	 *   o---->
+	 * ```
+	 * - The dot product returns the same value regardless of the order of the vectors.
+	 * - If one vector is normalized, the dot product is essentially the length
+	 * of the other vector, projected on the normalized one.
+	 * ```none
+	 *    b ^
+	 *     /.
+	 *    / .
+	 *   o--+---> a
+	 *   o-->
+	 *      c
+	 * ```
+	 * In this example `a` is normalised. The dot product of `a` and `b` is the
+	 * length of `c`.
+	 *
+	 * @param  {Vec4Parameters} v
+	 */
+	dot(...v) {
+		const other = new Vec4(...v);
+		return this._x * other.x + this._y * other.y + this._z * other.z + this._w * other.w;
+	}
+
+	/**
+	 * Projects this vector (a) on another vector (b) and sets the value
+	 * of this vector to the result.
+	 * ```js
+	 *     a ^
+	 *      /.
+	 *     / .
+	 *    /  .
+	 *   o---+---> b
+	 *   o--->
+	 *       c
+	 * ```
+	 * In this example `c` is the projection of `a` on `b`.
+	 *
+	 * @param {Vec4Parameters} v
+	 */
+	projectOnVector(...v) {
+		const other = new Vec4(...v);
+		const magnitude = other.magnitude;
+		const scalar = this.dot(other) / magnitude ** 2;
+		this._disableOnChange = true;
+		this.set(other).multiplyScalar(scalar);
+		this._disableOnChange = false;
+		this.fireOnChange();
+		return this;
+	}
+
 	toArray() {
 		return [this.x, this.y, this.z, this.w];
 	}
@@ -223,6 +418,7 @@ export class Vec4 {
 	}
 
 	fireOnChange() {
+		if (this._disableOnChange) return;
 		for (const cb of this.onChangeCbs) {
 			cb();
 		}
