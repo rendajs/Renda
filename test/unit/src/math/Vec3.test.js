@@ -548,6 +548,45 @@ Deno.test({
 });
 
 Deno.test({
+	name: "cross()",
+	fn() {
+		const tests = [
+			{a: [0, 0, 0], b: [0, 0, 0], result: [0, 0, 0]},
+			{a: [1, 0, 0], b: [0, 1, 0], result: [0, 0, 1]},
+			{a: [2, 0, 0], b: [0, 2, 0], result: [0, 0, 4]},
+			{a: [2, 2, 0], b: [0, 2, 0], result: [0, 0, 4]},
+			{a: [0, 2, 0], b: [0, 2, 0], result: [0, 0, 0]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec3(a);
+			const cross = vec.cross(b);
+
+			assertVecAlmostEquals(cross, result, 0.0001, `${a} cross ${b} should be ${result} but was ${cross.toArray()}`);
+		}
+	},
+});
+
+Deno.test({
+	name: "crossVectors()",
+	fn() {
+		const tests = [
+			{a: [0, 0, 0], b: [0, 0, 0], result: [0, 0, 0]},
+			{a: [1, 0, 0], b: [0, 1, 0], result: [0, 0, 1]},
+			{a: [2, 0, 0], b: [0, 2, 0], result: [0, 0, 4]},
+			{a: [2, 2, 0], b: [0, 2, 0], result: [0, 0, 4]},
+			{a: [0, 2, 0], b: [0, 2, 0], result: [0, 0, 0]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const cross = Vec3.crossVectors(a, b);
+
+			assertVecAlmostEquals(cross, result, 0.0001, `${a} cross ${b} should be ${result} but was ${cross.toArray()}`);
+		}
+	},
+});
+
+Deno.test({
 	name: "projectOnVector()",
 	fn() {
 		const tests = [
@@ -785,6 +824,36 @@ Deno.test({
 		vec.subVector(new Vec3(2, 2, 2));
 
 		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when cross() is called",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const vec = new Vec3(1, 1, 1);
+		vec.onChange(cb);
+
+		vec.cross(new Vec3(2, 2, 2));
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange doesn't fire when crossVector() is called",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const vecA = new Vec3(1, 1, 1);
+		const vecB = new Vec3(2, 2, 2);
+		vecA.onChange(cb);
+		vecB.onChange(cb);
+
+		Vec3.crossVectors(vecA, vecB);
+
+		assertEquals(fireCount, 0);
 	},
 });
 

@@ -405,6 +405,49 @@ export class Vec3 {
 	}
 
 	/**
+	 * Computes the cross product between two vectors.
+	 *
+	 * [Cross product visualisation](https://www.geogebra.org/m/psMTGDgc)
+	 *
+	 * #### Cross product properties
+	 * - The result of the cross product is perpendicular to both input vectors.
+	 * - The order of the input vectors is important, when you change the order,
+	 * the length is the same, but the direction is reversed.
+	 * - When the two vectors point in the same direction, the result is [0, 0, 0].
+	 * - When the two vectors point in the exact opposite directions, the result is [0, 0, 0].
+	 * - If either one of the input vectors is zero, the result is [0, 0, 0].
+	 * - The length of the cross product is the area of a parallelogram with the
+	 * two vectors as sides.
+	 * - The result is not guaranteed to be normalized, even if the input
+	 * vectors are.
+	 * @param  {Vec3Parameters} v
+	 */
+	cross(...v) {
+		const other = new Vec3(...v);
+		const x = this._y * other.z - this._z * other.y;
+		const y = this._z * other.x - this._x * other.z;
+		const z = this._x * other.y - this._y * other.x;
+		this._x = x;
+		this._y = y;
+		this._z = z;
+		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Performs the cross product between two vectors and returns a copy of the result.
+	 *
+	 * For more info see {@linkcode Vec3.cross}.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static crossVectors(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.cross(vecB);
+	}
+
+	/**
 	 * Projects this vector (a) on another vector (b) and sets the value
 	 * of this vector to the result.
 	 * ```js
