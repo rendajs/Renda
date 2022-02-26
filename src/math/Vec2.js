@@ -66,6 +66,7 @@ export class Vec2 {
 		}
 
 		this.fireOnChange();
+		return this;
 	}
 
 	clone() {
@@ -270,6 +271,41 @@ export class Vec2 {
 	dot(...v) {
 		const other = new Vec2(...v);
 		return this._x * other.x + this._y * other.y;
+	}
+
+	/**
+	 * Projects this vector (a) on another vector (b) and sets the value
+	 * of this vector to the result.
+	 * ```none
+	 *      a ^
+	 *       /.
+	 *      / .
+	 *     /  .
+	 *    /   .
+	 *   o----+-----> b
+	 *   o---->
+	 *        c
+	 * ```
+	 *
+	 * In this example `c` is the projection of `a` on `b`:
+	 *
+	 * ```js
+	 * const a = new Vec2();
+	 * const b = new Vec2();
+	 * const c = a.clone().projectOnVector(b);
+	 * ```
+	 *
+	 * @param {Vec2Parameters} v
+	 */
+	projectOnVector(...v) {
+		const other = new Vec2(...v);
+		other.normalize();
+		const dot = this.dot(other);
+		this._disableOnChange = true;
+		this.set(other).multiplyScalar(dot);
+		this._disableOnChange = false;
+		this.fireOnChange();
+		return this;
 	}
 
 	toArray() {

@@ -462,6 +462,32 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "projectOnVector()",
+	fn() {
+		const tests = [
+			{a: [2, 2], b: [1, 0], result: [2, 0]},
+			{a: [2, 2], b: [-1, 0], result: [2, 0]},
+			{a: [-2, -2], b: [1, 0], result: [-2, 0]},
+			{a: [0, 2], b: [2, 2], result: [1, 1]},
+			{a: [0, 4], b: [2, 2], result: [2, 2]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec2(a);
+			vec.projectOnVector(b);
+
+			const rounded = vec.toArray();
+			for (let i = 0; i < rounded.length; i++) {
+				rounded[i] = Math.round(rounded[i] * 100) / 100;
+				// if the value is -0, convert it to 0
+				if (rounded[i] == 0) rounded[i] = 0;
+			}
+			assertEquals(rounded, result, `${a} projected on ${b} should be ${result} but was ${rounded}`);
+		}
+	},
+});
+
 // ======== onChange Callbacks ========
 
 Deno.test({
