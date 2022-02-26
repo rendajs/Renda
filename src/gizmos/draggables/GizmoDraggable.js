@@ -12,6 +12,7 @@ import {Vec3} from "../../math/Vec3.js";
 /**
  * @typedef GizmoDraggableTypes
  * @property {import("./MoveGizmoDraggable.js").MoveGizmoDraggable} move
+ * @property {import("./MoveAxisGizmoDraggable.js").MoveAxisGizmoDraggable} move-axis
  */
 
 /** @typedef {keyof GizmoDraggableTypes} GizmoDraggableType */

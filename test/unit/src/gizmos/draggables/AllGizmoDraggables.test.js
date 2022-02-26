@@ -1,5 +1,6 @@
 import {assertEquals} from "asserts";
 import {MoveGizmoDraggable} from "../../../../../src/gizmos/draggables/MoveGizmoDraggable.js";
+import {MoveAxisGizmoDraggable} from "../../../../../src/gizmos/draggables/MoveAxisGizmoDraggable.js";
 import {Vec2} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 import {basicSetup} from "./shared.js";
@@ -10,7 +11,10 @@ import {basicSetup} from "./shared.js";
  * type, add the constructor of your draggable to the array in this file.
  */
 
-const draggableTypes = [MoveGizmoDraggable];
+const draggableTypes = [
+	MoveGizmoDraggable,
+	MoveAxisGizmoDraggable,
+];
 
 Deno.test({
 	name: "down up without move doesn't fire drag callbacks",
