@@ -465,10 +465,10 @@ export class Vec3 {
 	 */
 	projectOnVector(...v) {
 		const other = new Vec3(...v);
-		const magnitude = other.magnitude;
-		const scalar = this.dot(other) / magnitude ** 2;
+		other.normalize();
+		const dot = this.dot(other);
 		this._disableOnChange = true;
-		this.set(other).multiplyScalar(scalar);
+		this.set(other).multiplyScalar(dot);
 		this._disableOnChange = false;
 		this.fireOnChange();
 		return this;
