@@ -613,6 +613,33 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "rejectFromVector()",
+	fn() {
+		const tests = [
+			{a: [2, 2, 0], b: [1, 0, 0], result: [0, 2, 0]},
+			{a: [2, 2, 0], b: [-1, 0, 0], result: [0, 2, 0]},
+			{a: [-2, -2, 0], b: [1, 0, 0], result: [0, -2, 0]},
+			{a: [0, 2, 0], b: [2, 2, 0], result: [-1, 1, 0]},
+			{a: [0, 4, 0], b: [2, 2, 0], result: [-2, 2, 0]},
+			{a: [0, 3, 0], b: [4, 4, 4], result: [-1, 2, -1]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec3(a);
+			vec.rejectFromVector(b);
+
+			const rounded = vec.toArray();
+			for (let i = 0; i < rounded.length; i++) {
+				rounded[i] = Math.round(rounded[i] * 100) / 100;
+				// if the value is -0, convert it to 0
+				if (rounded[i] == 0) rounded[i] = 0;
+			}
+			assertEquals(rounded, result, `${a} projected on ${b} should be ${result} but was ${rounded}`);
+		}
+	},
+});
+
 // ======== onChange Callbacks ========
 
 Deno.test({
@@ -866,6 +893,20 @@ Deno.test({
 		vec.onChange(cb);
 
 		vec.projectOnVector(1, 1, 1);
+
+		assertEquals(fireCount, 1);
+	},
+});
+
+Deno.test({
+	name: "onChange fires when rejectFromVector() is called",
+	fn() {
+		let fireCount = 0;
+		const cb = () => fireCount++;
+		const vec = new Vec3();
+		vec.onChange(cb);
+
+		vec.rejectFromVector(1, 1, 1);
 
 		assertEquals(fireCount, 1);
 	},

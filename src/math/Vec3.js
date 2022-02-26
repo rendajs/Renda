@@ -450,16 +450,24 @@ export class Vec3 {
 	/**
 	 * Projects this vector (a) on another vector (b) and sets the value
 	 * of this vector to the result.
-	 * ```js
-	 *     a ^
-	 *      /.
-	 *     / .
-	 *    /  .
-	 *   o---+---> b
-	 *   o--->
-	 *       c
+	 * ```none
+	 *      a ^
+	 *       /.
+	 *      / .
+	 *     /  .
+	 *    /   .
+	 *   o----+-----> b
+	 *   o---->
+	 *        c
 	 * ```
-	 * In this example `c` is the projection of `a` on `b`.
+	 *
+	 * In this example `c` is the projection of `a` on `b`:
+	 *
+	 * ```js
+	 * const a = new Vec3();
+	 * const b = new Vec3();
+	 * const c = a.clone().projectOnVector(b);
+	 * ```
 	 *
 	 * @param {Vec3Parameters} v
 	 */
@@ -471,6 +479,28 @@ export class Vec3 {
 		this.set(other).multiplyScalar(dot);
 		this._disableOnChange = false;
 		this.fireOnChange();
+		return this;
+	}
+
+	/**
+	 * Vector rejection is similar to projection, but it returns a vector
+	 * perpendicular to the projection.
+	 * ```none
+	 *      a ^  ^ c
+	 *       /.  |
+	 *      / .  |
+	 *     /  .  |
+	 *    /   .  o
+	 *   o----+----> b
+	 * ```
+	 *
+	 * In this example `c` is the rejection of `a` from `b`:
+	 *
+	 * @param  {Vec3Parameters} v
+	 */
+	rejectFromVector(...v) {
+		const projection = this.clone().projectOnVector(...v);
+		this.sub(projection);
 		return this;
 	}
 
