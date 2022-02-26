@@ -1,6 +1,13 @@
 {
 	"configurations": [
 		{
+			"name": "Attach Deno test",
+			"port": 9229,
+			"request": "attach",
+			"type": "pwa-node",
+			"restart": true,
+		},
+		{
 			"name": "Launch Chrome",
 			"request": "launch",
 			"type": "pwa-chrome",
@@ -15,11 +22,5 @@
 			"url": "http://localhost:8080/editor/dist/",
 			"webRoot": "${workspaceFolder}"
 		},
-		{
-			"name": "Attach Deno test",
-			"port": 9229,
-			"request": "attach",
-			"type": "pwa-node"
-		}
 	]
 }
