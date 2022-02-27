@@ -21,18 +21,22 @@ Deno.test({
 	fn() {
 		const {translationGizmo, initEngineAssets} = basicSetup({initEngineAssets: false});
 
-		assertEquals(translationGizmo.arrowMesh.vertexState, null);
 		assertEquals(translationGizmo.circleMesh.vertexState, null);
-		assertEquals(translationGizmo.meshComponent.materials, []);
+		assertEquals(translationGizmo.arrowMesh.vertexState, null);
 		assertEquals(translationGizmo.circleMeshComponent.materials, []);
+		assertEquals(translationGizmo.xArrowMesh.materials, []);
+		assertEquals(translationGizmo.yArrowMesh.materials, []);
+		assertEquals(translationGizmo.zArrowMesh.materials, []);
 
 		initEngineAssets();
 		translationGizmo.updateMaterials();
 
-		assertExists(translationGizmo.arrowMesh.vertexState);
 		assertExists(translationGizmo.circleMesh.vertexState);
-		assertEquals(translationGizmo.meshComponent.materials.length, 1);
+		assertExists(translationGizmo.arrowMesh.vertexState);
 		assertEquals(translationGizmo.circleMeshComponent.materials.length, 1);
+		assertEquals(translationGizmo.xArrowMesh.materials.length, 1);
+		assertEquals(translationGizmo.yArrowMesh.materials.length, 1);
+		assertEquals(translationGizmo.zArrowMesh.materials.length, 1);
 	},
 });
 
@@ -50,6 +54,18 @@ Deno.test({
 });
 
 Deno.test({
+	name: "default material colors are correct",
+	fn() {
+		const {translationGizmo} = basicSetup();
+
+		assertVecAlmostEquals(translationGizmo.circleMaterialColor, new Vec3(1, 1, 1));
+		assertVecAlmostEquals(translationGizmo.xArrowColor, new Vec3(1, 0.15, 0.15));
+		assertVecAlmostEquals(translationGizmo.yArrowColor, new Vec3(0.2, 1, 0.2));
+		assertVecAlmostEquals(translationGizmo.zArrowColor, new Vec3(0.3, 0.3, 1));
+	},
+});
+
+Deno.test({
 	name: "hovering over the center draggable shows hover feedback",
 	fn() {
 		const {translationGizmo, createdDraggables} = basicSetup();
@@ -61,12 +77,75 @@ Deno.test({
 		centerDraggable.fireIsHoveringChange(true);
 
 		const color2 = translationGizmo.circleMeshComponent.materials[0].getProperty("colorMultiplier");
-		assertVecAlmostEquals(color2, [1, 0.5, 0]);
+		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		centerDraggable.fireIsHoveringChange(false);
 
 		const color3 = translationGizmo.circleMeshComponent.materials[0].getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [1, 1, 1]);
+	},
+});
+
+Deno.test({
+	name: "hovering over the x arrow draggable shows hover feedback",
+	fn() {
+		const {translationGizmo, createdDraggables} = basicSetup();
+
+		const xDraggable = createdDraggables[1];
+		const color1 = translationGizmo.xArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color1, [1, 0.15, 0.15]);
+
+		xDraggable.fireIsHoveringChange(true);
+
+		const color2 = translationGizmo.xArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color2, [1, 0.7, 0]);
+
+		xDraggable.fireIsHoveringChange(false);
+
+		const color3 = translationGizmo.xArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color3, [1, 0.15, 0.15]);
+	},
+});
+
+Deno.test({
+	name: "hovering over the y arrow draggable shows hover feedback",
+	fn() {
+		const {translationGizmo, createdDraggables} = basicSetup();
+
+		const yDraggable = createdDraggables[2];
+		const color1 = translationGizmo.yArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color1, [0.2, 1, 0.2]);
+
+		yDraggable.fireIsHoveringChange(true);
+
+		const color2 = translationGizmo.yArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color2, [1, 0.7, 0]);
+
+		yDraggable.fireIsHoveringChange(false);
+
+		const color3 = translationGizmo.yArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color3, [0.2, 1, 0.2]);
+	},
+});
+
+Deno.test({
+	name: "hovering over the z arrow draggable shows hover feedback",
+	fn() {
+		const {translationGizmo, createdDraggables} = basicSetup();
+
+		const zDraggable = createdDraggables[3];
+		const color1 = translationGizmo.zArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color1, [0.3, 0.3, 1]);
+
+		zDraggable.fireIsHoveringChange(true);
+
+		const color2 = translationGizmo.zArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color2, [1, 0.7, 0]);
+
+		zDraggable.fireIsHoveringChange(false);
+
+		const color3 = translationGizmo.zArrowMesh.materials[0].getProperty("colorMultiplier");
+		assertVecAlmostEquals(color3, [0.3, 0.3, 1]);
 	},
 });
 
@@ -90,5 +169,36 @@ Deno.test({
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [0, 1, 1]);
+	},
+});
+
+Deno.test({
+	name: "dragging the axis draggables updates the gizmo position",
+	fn() {
+		const {translationGizmo, createdDraggables} = basicSetup();
+
+		const xDraggable = createdDraggables[1];
+		const yDraggable = createdDraggables[2];
+		const zDraggable = createdDraggables[3];
+
+		assertVecAlmostEquals(translationGizmo.pos, [0, 0, 0]);
+
+		xDraggable.fireOnDrag({
+			delta: xDraggable.axis.clone(),
+		});
+
+		assertVecAlmostEquals(translationGizmo.pos, [1, 0, 0]);
+
+		yDraggable.fireOnDrag({
+			delta: yDraggable.axis.clone(),
+		});
+
+		assertVecAlmostEquals(translationGizmo.pos, [1, 1, 0]);
+
+		zDraggable.fireOnDrag({
+			delta: zDraggable.axis.clone(),
+		});
+
+		assertVecAlmostEquals(translationGizmo.pos, [1, 1, 1]);
 	},
 });

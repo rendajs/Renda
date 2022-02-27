@@ -4,6 +4,14 @@ import {Vec2} from "../../math/Vec2.js";
 import {Vec3} from "../../math/Vec3.js";
 import {Sphere} from "../../math/shapes/Sphere.js";
 import {Gizmo} from "./Gizmo.js";
+import {Entity} from "../../mod.js";
+
+// TODO: place these somewhere more global
+const whiteColor = new Vec3(1, 1, 1);
+const redColor = new Vec3(1, 0.15, 0.15);
+const greenColor = new Vec3(0.2, 1, 0.2);
+const blueColor = new Vec3(0.3, 0.3, 1);
+const hoverColor = new Vec3(1, 0.7, 0);
 
 export class TranslationGizmo extends Gizmo {
 	/**
@@ -12,32 +20,10 @@ export class TranslationGizmo extends Gizmo {
 	constructor(...args) {
 		super(...args);
 
-		this.arrowMesh = new Mesh();
-		this.arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
-
-		const indices = [0, 1, 2, 3, 4, 5];
-		const colors = [
-			new Vec3(1, 0.15, 0.15),
-			new Vec3(1, 0.15, 0.15),
-
-			new Vec3(0.15, 1, 0.15),
-			new Vec3(0.15, 1, 0.15),
-
-			new Vec3(0.15, 0.15, 1),
-			new Vec3(0.15, 0.15, 1),
-		];
-		const positions = [
-			new Vec3(0, 0, 0),
-			new Vec3(1, 0, 0),
-
-			new Vec3(0, 0, 0),
-			new Vec3(0, 1, 0),
-
-			new Vec3(0, 0, 0),
-			new Vec3(0, 0, 1),
-		];
-
-		this.circleMaterialColor = new Vec3(1, 1, 1);
+		this.circleMaterialColor = new Vec3(whiteColor);
+		this.xArrowColor = new Vec3(redColor);
+		this.yArrowColor = new Vec3(greenColor);
+		this.zArrowColor = new Vec3(blueColor);
 
 		const circleSegmentCount = 32;
 		const circleColors = [];
@@ -73,24 +59,14 @@ export class TranslationGizmo extends Gizmo {
 			materials: [],
 		});
 
-		this.meshComponent = this.entity.addComponent(MeshComponent, {
-			mesh: this.arrowMesh,
-			materials: [this.gizmoManager.meshMaterial],
-		});
-
-		this.arrowMesh.setVertexCount(8);
-		this.arrowMesh.setIndexData(indices);
-		this.arrowMesh.setVertexData(Mesh.AttributeType.COLOR, colors);
-		this.arrowMesh.setVertexData(Mesh.AttributeType.POSITION, positions);
-
 		this.centerDraggable = this.gizmoManager.createDraggable("move");
-		const sphere = new Sphere();
+		const sphere = new Sphere(0.5);
 		this.centerDraggable.addRaycastShape(sphere);
 		this.centerDraggable.onIsHoveringChange(isHovering => {
 			if (isHovering) {
-				this.circleMaterialColor.set(1, 0.5, 0);
+				this.circleMaterialColor.set(hoverColor);
 			} else {
-				this.circleMaterialColor.set(1, 1, 1);
+				this.circleMaterialColor.set(whiteColor);
 			}
 			this.gizmoNeedsRender();
 		});
@@ -98,6 +74,41 @@ export class TranslationGizmo extends Gizmo {
 			this.pos.add(e.delta);
 			this.gizmoNeedsRender();
 		});
+
+		this.arrowMesh = new Mesh();
+		this.arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
+
+		const arrowColors = [
+			new Vec3(1, 1, 1),
+			new Vec3(1, 1, 1),
+		];
+		const arrowPositions = [
+			new Vec3(0, 0, 0),
+			new Vec3(1, 0, 0),
+		];
+		this.arrowMesh.setVertexCount(8);
+		this.arrowMesh.setIndexData([0, 1]);
+		this.arrowMesh.setVertexData(Mesh.AttributeType.COLOR, arrowColors);
+		this.arrowMesh.setVertexData(Mesh.AttributeType.POSITION, arrowPositions);
+
+		const meshX = this.createArrow({
+			axis: new Vec3(1, 0, 0),
+			colorInstance: this.xArrowColor,
+			defaultColor: redColor,
+		});
+		const meshY = this.createArrow({
+			axis: new Vec3(0, 1, 0),
+			colorInstance: this.yArrowColor,
+			defaultColor: greenColor,
+		});
+		const meshZ = this.createArrow({
+			axis: new Vec3(0, 0, 1),
+			colorInstance: this.zArrowColor,
+			defaultColor: blueColor,
+		});
+		this.xArrowMesh = meshX;
+		this.yArrowMesh = meshY;
+		this.zArrowMesh = meshZ;
 
 		this.updateMaterials();
 	}
@@ -111,9 +122,20 @@ export class TranslationGizmo extends Gizmo {
 	updateMaterials() {
 		this.arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
 		if (this.gizmoManager.meshMaterial) {
-			this.meshComponent.materials = [this.gizmoManager.meshMaterial];
+			const material = this.gizmoManager.meshMaterial;
+			const xMaterial = material.clone();
+			const yMaterial = material.clone();
+			const zMaterial = material.clone();
+			xMaterial.setProperty("colorMultiplier", this.xArrowColor);
+			yMaterial.setProperty("colorMultiplier", this.yArrowColor);
+			zMaterial.setProperty("colorMultiplier", this.zArrowColor);
+			this.xArrowMesh.materials = [xMaterial];
+			this.yArrowMesh.materials = [yMaterial];
+			this.zArrowMesh.materials = [zMaterial];
 		} else {
-			this.meshComponent.materials = [];
+			this.xArrowMesh.materials = [];
+			this.yArrowMesh.materials = [];
+			this.zArrowMesh.materials = [];
 		}
 
 		this.circleMesh.setVertexState(this.gizmoManager.billboardVertexState);
@@ -125,5 +147,52 @@ export class TranslationGizmo extends Gizmo {
 			circleMaterials = [circleMaterial];
 		}
 		this.circleMeshComponent.materials = circleMaterials;
+	}
+
+	/**
+	 * @param {Object} options
+	 * @param {Vec3} options.axis
+	 * @param {Vec3} options.colorInstance The Vec3 instance that should be changed when hovering.
+	 * @param {Vec3} options.defaultColor The color of the arrow when not hovering
+	 */
+	createArrow({
+		axis,
+		colorInstance,
+		defaultColor,
+	}) {
+		const entity = new Entity();
+		const meshComponent = entity.addComponent(MeshComponent, {
+			mesh: this.arrowMesh,
+			materials: [this.gizmoManager.meshMaterial],
+		});
+		// Create a rotation axis perpendicular to the axis that we want the
+		// arrow to point along, and a [1,0,0] vector, since that is the
+		// direction of the mesh.
+		const rotationAxis = Vec3.right.cross(axis);
+		// if the axis in the right direction, there's no need to rotate the object.
+		if (rotationAxis.magnitude > 0) {
+			entity.rot.setFromAxisAngle(rotationAxis, Math.PI / 2);
+		}
+		this.entity.add(entity);
+
+		const draggable = this.gizmoManager.createDraggable("move-axis");
+		const sphere = new Sphere(0.5);
+		draggable.addRaycastShape(sphere);
+		draggable.axis.set(axis);
+		draggable.onIsHoveringChange(isHovering => {
+			if (isHovering) {
+				colorInstance.set(hoverColor);
+			} else {
+				colorInstance.set(defaultColor);
+			}
+			this.gizmoNeedsRender();
+		});
+		draggable.onDrag(e => {
+			this.pos.add(e.delta);
+			this.gizmoNeedsRender();
+		});
+		draggable.pos.set(axis);
+
+		return meshComponent;
 	}
 }

@@ -1,5 +1,5 @@
 import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
-import {CameraComponent, Material, Sphere, VertexState} from "../../../../src/mod.js";
+import {CameraComponent, Material, Sphere, Vec3, VertexState} from "../../../../src/mod.js";
 import {Entity} from "../../../../src/core/Entity.js";
 
 export class FakeEngineAssetsManager {
@@ -63,6 +63,9 @@ export function createFakeGizmoManager({
 			this.onIsHoveringChangeCbs = new Set();
 			/** @type {Set<OnDragCallback>} */
 			this.onDragCbs = new Set();
+
+			this.axis = new Vec3();
+			this.pos = new Vec3();
 		}
 
 		addRaycastShape() {}
