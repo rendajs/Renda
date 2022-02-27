@@ -2,6 +2,8 @@
 
 import {dirname, join} from "path";
 import {setCwd} from "chdir-anywhere";
+import {serveDir} from "https://deno.land/std@0.127.0/http/file_server.ts";
+import {serve} from "https://deno.land/std@0.127.0/http/server.ts";
 setCwd();
 
 Deno.chdir("..");
@@ -19,6 +21,8 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://deno.land/x/puppeteer@9.0.2/mod.ts",
 	"https://deno.land/x/fake_imports@v0.1.0/mod.js",
 	"https://deno.land/std@0.110.0/node/module.ts",
+	"https://deno.land/std@0.127.0/http/file_server.ts",
+	"https://deno.land/std@0.127.0/http/server.ts",
 ];
 
 /**
@@ -47,7 +51,7 @@ try {
 	// Asume this script has never been run before
 }
 
-if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
+if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.args.includes("--no-fts")) {
 	console.log("changed");
 	await Deno.writeTextFile(HASH_STORAGE_PATH, currentHash);
 
@@ -168,9 +172,6 @@ if (currentHash != previousHash || Deno.args.includes("--force-fts")) {
 const buildProcess = Deno.run({
 	cmd: ["./editor/scripts/build.js", "--dev"],
 });
-const serverProcess = Deno.run({
-	cmd: ["deno", "run", "--allow-net", "--allow-read", "https://deno.land/std@0.122.0/http/file_server.ts", "-p 8080", "--quiet"],
-});
 const devSocketProcess = Deno.run({
 	cmd: ["./editor/devSocket/src/main.js"],
 });
@@ -179,6 +180,17 @@ const editorDiscoveryProcess = Deno.run({
 });
 
 await buildProcess.status();
-await serverProcess.status();
 await devSocketProcess.status();
 await editorDiscoveryProcess.status();
+
+const port = 8080;
+const fsRoot = Deno.cwd();
+serve(request => {
+	return serveDir(request, {
+		fsRoot,
+		showDirListing: true,
+		showDotfiles: true,
+		quiet: true,
+	});
+}, {port});
+console.log(`Server listening on localhost:${port}`);

@@ -10,7 +10,9 @@
 			"rollup": [".denoTypes/urlImports/https_/cdn.esm.sh/v64/rollup@2.61.1/dist/rollup.d.ts"],
 			"rollup-plugin-jscc": [".denoTypes/urlImports/https_/cdn.esm.sh/v64/rollup-plugin-jscc@2.0.0/index.d.ts"],
 			"rollup-plugin-cleanup": [".denoTypes/urlImports/https_/unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts"],
-			"std/node/module.ts": [".denoTypes/urlImports/https_/deno.land/std@0.110.0/node/module.ts.js"]
+			"std/node/module.ts": [".denoTypes/urlImports/https_/deno.land/std@0.110.0/node/module.ts.js"],
+			"https://deno.land/std@0.127.0/http/file_server.ts": [".denoTypes/urlImports/https_/deno.land/std@0.127.0/http/file_server.ts"],
+			"https://deno.land/std@0.127.0/http/server.ts": [".denoTypes/urlImports/https_/deno.land/std@0.127.0/http/server.ts"],
 		}
 	}
 }
