@@ -8,6 +8,7 @@
 		"puppeteer": "https://deno.land/x/puppeteer@9.0.2/mod.ts",
 		"rollup": "https://esm.sh/rollup@2.61.1?pin=v64",
 		"rollup-plugin-jscc": "https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v64",
-		"rollup-plugin-cleanup": "https://esm.sh/rollup-plugin-cleanup@3.2.1?pin=v64"
+		"rollup-plugin-cleanup": "https://esm.sh/rollup-plugin-cleanup@3.2.1?pin=v64",
+		"std/node/": "https://deno.land/std@0.110.0/node/"
 	}
 }

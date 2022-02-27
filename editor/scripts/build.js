@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env --import-map=importmap.json
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --import-map=importmap.json
 
 import {rollup} from "rollup";
 
@@ -12,9 +12,14 @@ const defines = {
 	IS_DEV_BUILD: isDevBuild,
 };
 
+/**
+ * @param {string} filePath
+ * @param {string} tagComment
+ * @param {string} src
+ */
 async function setScriptSrc(filePath, tagComment, src) {
 	const textDecoder = new TextDecoder();
-	const fileData = await Deno.readFile(filePath, {encoding: "utf8"});
+	const fileData = await Deno.readFile(filePath);
 	const data = textDecoder.decode(fileData);
 	let startPos = data.indexOf(`<!--${tagComment}-->`);
 	const searchStr = "<script type=\"module\" src=\"";
@@ -26,6 +31,11 @@ async function setScriptSrc(filePath, tagComment, src) {
 	await Deno.writeFile(filePath, textEncoder.encode(newData));
 }
 
+/**
+ * @param {string} definesFilePath
+ * @param {Object.<string, unknown>} defines
+ * @returns {import("rollup").Plugin}
+ */
 function overrideDefines(definesFilePath, defines) {
 	return {
 		name: "editor-replace-defines",

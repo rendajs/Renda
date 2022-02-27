@@ -346,7 +346,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../ui/TreeView").TreeView} treeView
+	 * @param {import("../../ui/TreeView.js").TreeView} treeView
 	 * @param {boolean} [removeLast]
 	 * @returns {Array<string>}
 	 */

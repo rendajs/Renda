@@ -1,16 +1,23 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-env --import-map=importmap.json
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check --import-map=importmap.json
 
-import {createRequire} from "https://deno.land/std@0.110.0/node/module.ts";
+import {createRequire} from "std/node/module.ts";
 import {dirname, fromFileUrl, resolve} from "path";
-
 import {rollup} from "rollup";
 
 // import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 
 const require = createRequire(import.meta.url);
+// @ts-expect-error
 const commonjs = require("@rollup/plugin-commonjs");
+// @ts-expect-error
 const {nodeResolve} = require("@rollup/plugin-node-resolve");
 
+/**
+ * Small Rollup plugin for replacing the content of certain imports with an empty object.
+ * This is to strip a way imports that are only accessible via node such as "fs".
+ * @param {string[]} ignoreList
+ * @returns {import("rollup").Plugin}
+ */
 function ignore(ignoreList) {
 	const emptyModuleId = "ignore_empty_module_placeholder";
 	const emptyModule = "export default {}";
@@ -36,7 +43,14 @@ function ignore(ignoreList) {
 	};
 }
 
+/**
+ * Small Rollup plugin for removing the # sourceMappingURL comment at the bottom of every file.
+ * @returns {import("rollup").Plugin}
+ */
 function removeSourceMaps() {
+	/**
+	 * @param {string} code
+	 */
 	function executeRemoval(code) {
 		return code.replace(/^\s*\/\/# sourceMappingURL=.*/gm, "");
 	}
@@ -51,6 +65,11 @@ function removeSourceMaps() {
 	};
 }
 
+/**
+ * Small plugin for adding a string at the top of every file.
+ * @param {string} headerCode
+ * @returns {import("rollup").Plugin}
+ */
 function addHeader(headerCode) {
 	return {
 		name: "add-header",
