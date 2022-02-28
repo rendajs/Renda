@@ -229,7 +229,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	updateGizmos() {
 		const unusedEntities = new Map(this.currentLinkedGizmos);
 		if (this.editingEntity) {
-			for (const {child} of this.editingEntity.traverseDown()) {
+			for (const child of this.editingEntity.traverseDown()) {
 				this.updateGizmosForEntity(child);
 				unusedEntities.delete(child);
 			}
@@ -306,7 +306,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.createdLiveAssetChangeListeners.clear();
 
 		if (this.editingEntity) {
-			for (const {child} of this.editingEntity.traverseDown()) {
+			for (const child of this.editingEntity.traverseDown()) {
 				for (const component of child.components) {
 					const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
 					if (componentConstructor.guiStructure) {

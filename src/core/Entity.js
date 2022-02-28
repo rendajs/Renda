@@ -1,24 +1,15 @@
-import {Quat, Vec3} from "../math/mod.js";
+import {Mat4} from "../math/Mat4.js";
+import {Quat} from "../math/Quat.js";
+import {Vec3} from "../math/Vec3.js";
 import {Component} from "../components/mod.js";
-import {EntityParent} from "./EntityParent.js";
-import {EntityMatrixCache} from "./EntityMatrixCache.js";
-import {MultiKeyWeakMap} from "../util/MultiKeyWeakMap.js";
 import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
 import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
- * @typedef {Object} TraversedEntityParentPathEntry
- * @property {Entity} parent
- * @property {number} index
- */
-
-/** @typedef {TraversedEntityParentPathEntry[]} TraversedEntityParentPath */
-
-/**
  * @typedef {Object} CreateEntityOptions
  * @property {string} [name = "Entity"]
- * @property {import("../math/Mat4.js").Mat4} [matrix = null]
- * @property {Entity} [parent = null]
+ * @property {import("../math/Mat4.js").Mat4?} [matrix = null]
+ * @property {Entity?} [parent = null]
  */
 
 /**
@@ -79,22 +70,29 @@ export class Entity {
 			}, ...opts,
 		};
 		this.name = opts.name;
-		/** @type {Set<EntityParent>} */
-		this._entityParents = new Set();
-		/** @type {MultiKeyWeakMap<EntityParent[], *>} */
-		this._matrixCaches = new MultiKeyWeakMap();
+		/** @type {Entity?} */
+		this._parent = null;
 		/** @type {Entity[]} */
 		this._children = [];
 		/** @type {Component[]} */
 		this.components = [];
 
-		this.boundMarkLocalMatrixDirtyAll = this.markLocalMatrixDirtyAll.bind(this);
+		/** @private */
+		this.localMatrixDirty = false;
+		/** @private */
+		this._localMatrix = new Mat4();
+		/** @private */
+		this.worldMatrixDirty = false;
+		/** @private */
+		this._worldMatrix = new Mat4();
+
+		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirty.bind(this);
 		this._pos = new Vec3();
-		this._pos.onChange(this.boundMarkLocalMatrixDirtyAll);
+		this._pos.onChange(this.boundMarkLocalMatrixDirty);
 		this._rot = new Quat();
-		this._rot.onChange(this.boundMarkLocalMatrixDirtyAll);
+		this._rot.onChange(this.boundMarkLocalMatrixDirty);
 		this._scale = Vec3.one;
-		this._scale.onChange(this.boundMarkLocalMatrixDirtyAll);
+		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
 		if (opts.matrix) this.localMatrix = opts.matrix;
 		if (opts.parent) {
@@ -108,7 +106,7 @@ export class Entity {
 		 */
 
 		/** @type {addComponentConstructorSignature & addComponentInstanceSignature & addComponentUuidSignature} */
-		this.addComponent = (...args) => {
+		this.addComponent = (/** @type {any} */ ...args) => {
 			return this._addComponent(...args);
 		};
 	}
@@ -184,7 +182,7 @@ export class Entity {
 	/**
 	 * @template {Component} T
 	 * @param {new () => T} componentConstructor
-	 * @returns {T}
+	 * @returns {T?}
 	 */
 	// #endif
 	getComponent(componentConstructor) {
@@ -217,42 +215,38 @@ export class Entity {
 	 */
 	// #endif
 	*getChildComponents(componentConstructor) {
-		for (const {child} of this.traverseDown()) {
+		for (const child of this.traverseDown()) {
 			for (const component of child.getComponents(componentConstructor)) {
 				yield component;
 			}
 		}
 	}
 
-	*_getEntityParents() {
-		for (const entityParent of this._entityParents) {
-			const parent = entityParent.getParent();
-			if (parent) {
-				yield {entityParent, parent};
-			} else {
-				this._entityParents.delete(entityParent);
-			}
-		}
+	get parent() {
+		return this._parent;
 	}
 
-	*parents() {
-		for (const {parent} of this._getEntityParents()) {
-			yield parent;
-		}
+	set parent(parent) {
+		this.setParentInternal(parent);
 	}
 
 	/**
-	 * Returns the first parent of this entity.
-	 * Null if this entity has no parents.
-	 * @returns {Entity | null}
+	 * Changes the current parent of this entity. If there is already a parent,
+	 * this will make sure it gets removed from that parent properly.
+	 *
+	 * @private
+	 * @param {Entity?} newParent
 	 */
-	get parent() {
-		/** @type {EntityParent | null} */
-		const entityParent = this._entityParents.values().next().value;
-		if (entityParent) {
-			return entityParent.getParent();
+	setParentInternal(newParent, keepWorldPosition = false, addChild = true) {
+		if (this._parent == newParent && addChild) return;
+
+		if (this._parent) {
+			this._parent.remove(this);
 		}
-		return null;
+		this._parent = newParent;
+		if (newParent && addChild) {
+			newParent.add(this);
+		}
 	}
 
 	get isRoot() {
@@ -302,237 +296,55 @@ export class Entity {
 	}
 
 	get localMatrix() {
-		const {matrixCache, traversedPath} = this._getFirstMatrixCache();
-		return matrixCache.getLocalMatrix(this, traversedPath);
+		if (this.localMatrixDirty) {
+			const pos = this.pos;
+			const rot = this.rot;
+			const scale = this.scale;
+			this._localMatrix = Mat4.createPosRotScale(pos, rot, scale);
+			this.localMatrixDirty = false;
+		}
+		return this._localMatrix.clone();
 	}
 
 	set localMatrix(value) {
-		const {matrixCache} = this._getFirstMatrixCache();
-		matrixCache.setLocalMatrix(value);
-		this.markWorldMatrixDirtyAll();
-		const {pos, rot, scale} = matrixCache.localMatrix.decompose();
+		this._localMatrix.set(value);
+		this.localMatrixDirty = false;
+		const {pos, rot, scale} = this._localMatrix.decompose();
 		this.pos = pos;
 		this.rot = rot;
 		this.scale = scale;
 	}
 
 	get worldMatrix() {
-		const {matrixCache, traversedPath} = this._getFirstMatrixCache();
-		return matrixCache.getWorldMatrix(this, traversedPath);
+		if (this.localMatrixDirty || this.worldMatrixDirty) {
+			if (this.parent) {
+				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
+			} else {
+				this._worldMatrix = this.localMatrix.clone();
+			}
+			this.worldMatrixDirty = false;
+		}
+		return this._worldMatrix.clone();
 	}
 
 	/**
-	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} pos
-	 * @param {this} parent The parent to set the position for.
-	 * @param {number} index The index of this entity in the parent.
+	 * Marks the local matrix as dirty on this entity and the world matrix of all it's children.
 	 */
-	setInstancePos(pos, parent, index) {
-		const entityParent = this._getEntityParent({parent, index});
-		entityParent.overridePos = new Vec3(pos);
-		this.markLocalMatrixDirtyInstance(parent, index);
-	}
-
-	/**
-	 * @param {this} parent The parent to get the position for.
-	 * @param {number} index The index of this entity in the parent.
-	 */
-	getInstancePos(parent, index) {
-		const entityParent = this._getEntityParent({parent, index});
-		return entityParent.overridePos?.clone() ?? null;
-	}
-
-	/**
-	 * @param {Quat} rot
-	 * @param {this} parent The parent to set the rotation for.
-	 * @param {number} index The index of this entity in the parent.
-	 */
-	setInstanceRot(rot, parent, index) {
-		const entityParent = this._getEntityParent({parent, index});
-		entityParent.overrideRot = new Quat(rot);
-		this.markLocalMatrixDirtyInstance(parent, index);
-	}
-
-	/**
-	 * @param {this} parent The parent to get the rotation for.
-	 * @param {number} index The index of this entity in the parent.
-	 */
-	getInstanceRot(parent, index) {
-		const entityParent = this._getEntityParent({parent, index});
-		return entityParent.overrideRot?.clone() ?? null;
-	}
-
-	/**
-	 * @param {Vec3} scale
-	 * @param {this} parent The parent to set the scale for.
-	 * @param {number} index The index of this entity in the parent.
-	 */
-	setInstanceScale(scale, parent, index) {
-		const entityParent = this._getEntityParent({parent, index});
-		entityParent.overrideScale = new Vec3(scale);
-		this.markLocalMatrixDirtyInstance(parent, index);
-	}
-
-	/**
-	 * @param {this} parent The parent to get the scale for.
-	 * @param {number} index The index of this entity in the parent.
-	 */
-	getInstanceScale(parent, index) {
-		const entityParent = this._getEntityParent({parent, index});
-		return entityParent.overrideScale?.clone() ?? null;
-	}
-
-	/**
-	 * @param {this} parent The parent to get the data for.
-	 * @param {number} index The index of this entity in the parent.
-	 */
-	getInstancePosRotScale(parent, index) {
-		const entityParent = this._getEntityParent({parent, index});
-		const pos = entityParent.overridePos?.clone() ?? null;
-		const rot = entityParent.overrideRot?.clone() ?? null;
-		const scale = entityParent.overrideScale?.clone() ?? null;
-		return {pos, rot, scale};
-	}
-
-	/**
-	 * Marks the local matrix as dirty on this entity and all it's children.
-	 */
-	markLocalMatrixDirtyAll() {
-		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
-		this._markLocalMatrixDirtyPaths(traversedUpPaths);
-		this._markWorldMatrixDirtyPaths(traversedUpPaths);
+	markLocalMatrixDirty() {
+		this.localMatrixDirty = true;
+		for (const child of this.traverseDown()) {
+			child.worldMatrixDirty = true;
+		}
 	}
 
 	/**
 	 * Marks the world matrix of this entity and all its children as dirty.
 	 */
-	markWorldMatrixDirtyAll() {
-		const traversedUpPaths = Array.from(this._getAllRootTraversedUpPaths());
-		this._markWorldMatrixDirtyPaths(traversedUpPaths);
-	}
-
-	/**
-	 * @param {this} parent The parent to mark the local matrix as dirty for.
-	 * @param {number} index The index of this entity in the parent.
-	 */
-	markLocalMatrixDirtyInstance(parent, index) {
-		const traversedUpPaths = Array.from(this._getInstanceRootTraversedUpPaths(parent, index));
-		this._markLocalMatrixDirtyPaths(traversedUpPaths);
-		this._markWorldMatrixDirtyPaths(traversedUpPaths);
-	}
-
-	/**
-	 * @param {TraversedEntityParentPath[]} traversedUpPaths
-	 */
-	_markLocalMatrixDirtyPaths(traversedUpPaths) {
-		for (const traversedUpPath of traversedUpPaths) {
-			const matrixCache = this._getMatrixCache(traversedUpPath);
-			matrixCache.localMatrixDirty = true;
+	markWorldMatrixDirty() {
+		this.worldMatrixDirty = true;
+		for (const child of this.traverseDown()) {
+			child.worldMatrixDirty = true;
 		}
-	}
-
-	/**
-	 * @param {TraversedEntityParentPath[]} traversedUpPaths
-	 */
-	_markWorldMatrixDirtyPaths(traversedUpPaths) {
-		for (const {child, traversedPath} of this.traverseDown()) {
-			for (const traversedUpPath of traversedUpPaths) {
-				// eslint-disable-next-line no-underscore-dangle
-				child.markWorldMatrixDirty([...traversedUpPath, ...traversedPath]);
-			}
-		}
-	}
-
-	/**
-	 * Gets the traversed path of all the roots that this entity is a child of.
-	 */
-	*_getAllRootTraversedUpPaths() {
-		for (const {parent, traversedPath} of this.traverseUp()) {
-			if (parent.isRoot) {
-				yield [...traversedPath];
-			}
-		}
-	}
-
-	/**
-	 * Same as {@link _getAllRootTraversedUpPaths}, but for a specific instance.
-	 * @param {this} parent
-	 * @param {number} index
-	 */
-	*_getInstanceRootTraversedUpPaths(parent, index) {
-		for (const {parent: traversedParent, traversedPath, ignoreBranch} of this.traverseUp()) {
-			if (parent == traversedParent && traversedPath.length > 0 && traversedPath[0].index != index) {
-				ignoreBranch();
-				continue;
-			}
-			if (traversedParent.isRoot) {
-				yield [...traversedPath];
-			}
-		}
-	}
-
-	/**
-	 * Marks the world matrix of this entity dirty based on the traversed parents path.
-	 * @param {TraversedEntityParentPath} traversedPath
-	 */
-	markWorldMatrixDirty(traversedPath) {
-		const matrixCache = this._getMatrixCache(traversedPath);
-		matrixCache.worldMatrixDirty = true;
-	}
-
-	/**
-	 * @param {TraversedEntityParentPath} traversedPath
-	 */
-	getWorldMatrix(traversedPath) {
-		const matrixCache = this._getMatrixCache(traversedPath);
-		return matrixCache.getWorldMatrix(this, traversedPath);
-	}
-
-	_getFirstMatrixCache() {
-		const traversedPath = this._getAllRootTraversedUpPaths().next().value;
-		if (!traversedPath) return null;
-		return {
-			matrixCache: this._getMatrixCache(traversedPath),
-			traversedPath,
-		};
-	}
-
-	/**
-	 * @param {TraversedEntityParentPath} traversedPath
-	 * @param {boolean} failIfIncomplete
-	 */
-	_getEntityParentsForTraversedPath(traversedPath, failIfIncomplete = true) {
-		/** @type {EntityParent[]} */
-		const entityParentsPath = [];
-		/** @type {Entity} */
-		let lastParent = this;
-		for (let i = traversedPath.length - 1; i >= 0; i--) {
-			const traversedPathEntry = traversedPath[i];
-			// eslint-disable-next-line no-underscore-dangle
-			const entityParent = lastParent._getEntityParent(traversedPathEntry);
-			lastParent = traversedPathEntry.parent;
-			if (!entityParent) {
-				throw new Error(`Entity in traversed path (${lastParent.name}) is not a parent of this entity (${this.name}).`);
-			}
-			entityParentsPath.push(entityParent);
-		}
-		if (failIfIncomplete && !lastParent.isRoot) {
-			throw new Error("Traversed path is not complete.");
-		}
-		return entityParentsPath;
-	}
-
-	/**
-	 * @param {TraversedEntityParentPath} traversedPath
-	 * @returns {EntityMatrixCache}
-	 */
-	_getMatrixCache(traversedPath) {
-		const entityParents = this._getEntityParentsForTraversedPath(traversedPath);
-		let cache = this._matrixCaches.get(entityParents);
-		if (!cache) {
-			cache = new EntityMatrixCache();
-			this._matrixCaches.set(entityParents, cache);
-		}
-		return cache;
 	}
 
 	/**
@@ -552,17 +364,11 @@ export class Entity {
 		if (index < 0) {
 			index = this._children.length + index + 1;
 		}
-		// eslint-disable-next-line no-underscore-dangle
-		child._parentAdded(this, index);
+		child.setParentInternal(this, keepWorldPosition, false);
 		if (index >= this._children.length) {
 			this._children.push(child);
 		} else {
 			this._children.splice(index, 0, child);
-			// Shift all indices of the siblings after the added child.
-			for (let i = index + 1; i < this._children.length; i++) {
-				// eslint-disable-next-line no-underscore-dangle
-				this._children[i]._parentIndexChanged(this, i - 1, i);
-			}
 		}
 	}
 
@@ -587,77 +393,15 @@ export class Entity {
 	removeAtIndex(index) {
 		const child = this._children[index];
 		// eslint-disable-next-line no-underscore-dangle
-		child._parentRemoved(this, index);
+		child._parent = null;
 		this._children.splice(index, 1);
-		// Shift all indices of the siblings after the removed one.
-		for (let i = index; i < this._children.length; i++) {
-			// eslint-disable-next-line no-underscore-dangle
-			this._children[i]._parentIndexChanged(this, i + 1, i);
-		}
 	}
 
 	/**
-	 * @param {this} newParent
-	 * @param {number} index
+	 * Removes the parent from this entity and this child from the parent.
 	 */
-	_parentAdded(newParent, index) {
-		this._entityParents.add(new EntityParent(newParent, index));
-	}
-
-	/**
-	 * @param {this} parent
-	 * @param {number} oldIndex
-	 * @param {number} newIndex
-	 */
-	_parentIndexChanged(parent, oldIndex, newIndex) {
-		const entityParent = this._getEntityParent({parent, index: oldIndex});
-		entityParent.index = newIndex;
-	}
-
-	/**
-	 * @param {TraversedEntityParentPathEntry} traversedPathEntry
-	 * @returns {EntityParent | null}
-	 */
-	_getEntityParent(traversedPathEntry) {
-		for (const entityParent of this._entityParents) {
-			if (
-				entityParent.getParent() == traversedPathEntry.parent &&
-				entityParent.index == traversedPathEntry.index
-			) {
-				return entityParent;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Detaches this entity from all its parents.
-	 */
-	detachParents() {
-		for (const parent of this.parents()) {
-			parent.remove(this);
-		}
-	}
-
-	/**
-	 * Detaches a specific parent from this entity.
-	 * @param {Entity} parent
-	 */
-	detachParent(parent) {
-		parent.remove(this);
-	}
-
-	/**
-	 * @param {Entity} oldParent
-	 * @param {number} oldIndex
-	 */
-	_parentRemoved(oldParent, oldIndex) {
-		for (const entityParent of this._entityParents) {
-			if (entityParent.getParent() == oldParent && entityParent.index == oldIndex) {
-				this._entityParents.delete(entityParent);
-				break;
-			}
-		}
+	detachParent() {
+		this.parent = null;
 	}
 
 	*getChildren() {
@@ -674,176 +418,36 @@ export class Entity {
 		return this._children.length;
 	}
 
+	getRoot() {
+		/** @type {Entity} */
+		let lastParent = this;
+		while (true) {
+			if (lastParent.parent) {
+				lastParent = lastParent.parent;
+			} else {
+				break;
+			}
+		}
+		return lastParent;
+	}
+
 	/**
 	 * @returns {Generator<Entity>}
 	 */
-	*getRoots() {
-		const foundRoots = new Set();
-		const parents = new Set(this.parents());
-		if (parents.size == 0) {
-			yield this;
-		} else {
-			for (const parent of parents) {
-				for (const root of parent.getRoots()) {
-					if (!foundRoots.has(root)) {
-						foundRoots.add(root);
-						yield root;
-					}
-				}
-			}
+	*traverseDown() {
+		yield this;
+		for (const child of this._children) {
+			yield* child.traverseDown();
 		}
 	}
 
 	/**
-	 * Gets the first found root of this entity, null if this entity has no parents.
-	 * @returns {Entity}
+	 * @returns {Generator<Entity>}
 	 */
-	getRoot() {
-		return this.getRoots().next().value || null;
-	}
-
-	/**
-	 * @typedef {Object} TraversionContext
-	 * @property {TraversedEntityParentPath} traversedPath
-	 * @property {Entity} [passedSelfReference]
-	 * @property {number} passedSelfReferenceCount
-	 */
-
-	/**
-	 * @typedef {Object} TraverseOptions
-	 * @property {number} [maxRecursionDepth = Infinity]
-	 * @property {number} [maxInstanceRecursionDepth = 100]
-	 */
-
-	/**
-	 * @param {TraverseOptions} opts
-	 * @returns {Generator<{child: Entity, traversedPath: TraversedEntityParentPath}>}
-	 */
-	*traverseDown({
-		maxRecursionDepth = Infinity,
-		maxInstanceRecursionDepth = 30,
-	} = {}) {
-		yield* this._traverseDown({
-			maxRecursionDepth,
-			maxInstanceRecursionDepth,
-		}, {
-			traversedPath: [],
-			passedSelfReferenceCount: 0,
-		});
-	}
-
-	/**
-	 * @param {TraverseOptions} opts
-	 * @param {TraversionContext} ctx
-	 * @returns {Generator<{child: Entity, traversedPath: TraversedEntityParentPath}>}
-	 */
-	*_traverseDown(opts, ctx) {
-		yield {
-			child: this,
-			traversedPath: ctx.traversedPath,
-		};
-
-		if (ctx.traversedPath.length > opts.maxRecursionDepth) return;
-
-		if (ctx.passedSelfReference) {
-			if (ctx.passedSelfReference == this) {
-				ctx.passedSelfReferenceCount++;
-			}
-		} else {
-			for (const entry of ctx.traversedPath) {
-				if (entry.parent == this) {
-					ctx.passedSelfReference = this;
-				}
-			}
-		}
-		if (ctx.passedSelfReferenceCount > opts.maxInstanceRecursionDepth) return;
-
-		for (const [i, child] of this._children.entries()) {
-			ctx.traversedPath.push({
-				parent: this,
-				index: i,
-			});
-			const prevPassedSelfReference = ctx.passedSelfReference;
-			const prevPassedInstanceEntityCount = ctx.passedSelfReferenceCount;
-			// eslint-disable-next-line no-underscore-dangle
-			for (const result of child._traverseDown(opts, ctx)) {
-				yield result;
-			}
-			ctx.traversedPath.pop();
-			ctx.passedSelfReference = prevPassedSelfReference;
-			ctx.passedSelfReferenceCount = prevPassedInstanceEntityCount;
-		}
-	}
-
-	/**
-	 * @typedef {Object} TraverseUpResult
-	 * @property {Entity} parent The parent of the entity.
-	 * @property {TraversedEntityParentPath} traversedPath The traversed path starting from the currently iterated parent to the entity.
-	 * @property {() => void} ignoreBranch Call this if you wish to stop the iteration for a specific branch. This will prevent iteration all parent nodes starting from this branch while still being able to iterate over the siblings.
-	 */
-
-	/**
-	 * @param {TraverseOptions} opts
-	 * @returns {Generator<TraverseUpResult>}
-	 */
-	*traverseUp({
-		maxRecursionDepth = Infinity,
-		maxInstanceRecursionDepth = 30,
-	} = {}) {
-		yield* this._traverseUp({
-			maxRecursionDepth,
-			maxInstanceRecursionDepth,
-		}, {
-			traversedPath: [],
-			passedSelfReferenceCount: 0,
-		});
-	}
-
-	/**
-	 * @param {TraverseOptions} opts
-	 * @param {TraversionContext} ctx
-	 * @returns {Generator<TraverseUpResult>}
-	 */
-	*_traverseUp(opts, ctx) {
-		let didIgnoreBranch = false;
-		yield {
-			parent: this,
-			traversedPath: ctx.traversedPath,
-			ignoreBranch: () => {
-				didIgnoreBranch = true;
-			},
-		};
-		if (didIgnoreBranch) return;
-
-		if (ctx.traversedPath.length > opts.maxRecursionDepth) return;
-
-		if (ctx.passedSelfReference) {
-			if (ctx.passedSelfReference == this) {
-				ctx.passedSelfReferenceCount++;
-			}
-		} else {
-			for (const entry of ctx.traversedPath) {
-				if (entry.parent == this) {
-					ctx.passedSelfReference = this;
-				}
-			}
-		}
-		if (ctx.passedSelfReferenceCount > opts.maxInstanceRecursionDepth) return;
-
-		for (const {parent, entityParent} of this._getEntityParents()) {
-			ctx.traversedPath.unshift({
-				parent,
-				index: entityParent.index,
-			});
-			const prevPassedSelfReference = ctx.passedSelfReference;
-			const prevPassedInstanceEntityCount = ctx.passedSelfReferenceCount;
-			// eslint-disable-next-line no-underscore-dangle
-			for (const result of parent._traverseUp(opts, ctx)) {
-				yield result;
-			}
-			ctx.traversedPath.shift();
-			ctx.passedSelfReference = prevPassedSelfReference;
-			ctx.passedSelfReferenceCount = prevPassedInstanceEntityCount;
+	*traverseUp() {
+		yield this;
+		if (this.parent) {
+			yield* this.parent.traverseUp();
 		}
 	}
 
@@ -852,12 +456,16 @@ export class Entity {
 	 * @returns {boolean}
 	 */
 	containsChild(child) {
-		for (const {child: c} of this.traverseDown()) {
+		for (const c of this.traverseDown()) {
 			if (c == child) return true;
 		}
 		return false;
 	}
 
+	/**
+	 * @param {number[]} indexPath
+	 * @returns {Entity}
+	 */
 	getEntityByIndicesPath(indexPath, startFrom = 0) {
 		if (startFrom >= indexPath.length) return this;
 		const index = indexPath[startFrom];
@@ -865,8 +473,11 @@ export class Entity {
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
 	}
 
+	/**
+	 * @param {string} name
+	 */
 	getEntityByName(name) {
-		for (const {child} of this.traverseDown()) {
+		for (const child of this.traverseDown()) {
 			if (child.name == name) return child;
 		}
 		return null;
@@ -891,29 +502,16 @@ export class Entity {
 		}
 		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && editorOpts && editorOpts.entityAssetRootUuidSymbol) {
 			const sym = editorOpts.entityAssetRootUuidSymbol;
-			let i = 0;
 			for (const child of this.getChildren()) {
 				if (child[sym]) {
 					/** @type {EntityJsonDataAssetEntity} */
 					const childJson = {
 						assetUuid: child[sym],
 					};
-					// eslint-disable-next-line no-underscore-dangle
-					const entityParent = child._getEntityParent({parent: this, index: i});
-					if (entityParent.overridePos) {
-						childJson.pos = entityParent.overridePos.toArray();
-					}
-					if (entityParent.overrideRot) {
-						childJson.rot = entityParent.overrideRot.toArray();
-					}
-					if (entityParent.overrideScale) {
-						childJson.scale = entityParent.overrideScale.toArray();
-					}
 					json.children.push(childJson);
 				} else {
 					json.children.push(child.toJson(editorOpts));
 				}
-				i++;
 			}
 		} else {
 			for (const child of this.getChildren()) {

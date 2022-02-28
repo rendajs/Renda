@@ -247,10 +247,10 @@ export class WebGpuRenderer extends Renderer {
 		// TODO: don't get root every frame, only when changed
 		// see state of CameraComponent.js in commit 5d2efa1
 		for (const root of rootRenderEntities) {
-			for (const {child, traversedPath} of root.traverseDown()) {
+			for (const child of root.traverseDown()) {
 				for (const component of child.getComponents(MeshComponent)) {
 					if (!component.mesh || !component.mesh.vertexState) continue;
-					const worldMatrix = child.getWorldMatrix(traversedPath);
+					const worldMatrix = child.worldMatrix;
 					meshRenderDatas.push({component, worldMatrix});
 				}
 				for (const component of child.getComponents(LightComponent)) {

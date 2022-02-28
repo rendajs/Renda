@@ -1,5 +1,4 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {Quat} from "../../../src/mod.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
 import {Button} from "../ui/Button.js";
 import {DroppableGui} from "../ui/DroppableGui.js";
@@ -43,12 +42,11 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		this.positionProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
 			if (!this.currentSelection) return;
-			for (const {entity, metaData} of this.currentSelection) {
+			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.pos = newValue;
 				} else if (this.editingModeGui.value == "instance") {
-					const {parent, index} = this.getParentDataFromEntitySelectionMetaData(metaData);
-					entity.setInstancePos(newValue, parent, index);
+					throw new Error("Not implemented");
 				}
 				this.notifyEntityEditors(entity, "transform");
 			}
@@ -63,13 +61,11 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		this.rotationProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
 			if (!this.currentSelection) return;
-			for (const {entity, metaData} of this.currentSelection) {
+			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.rot.setFromAxisAngle(newValue);
 				} else if (this.editingModeGui.value == "instance") {
-					const {parent, index} = this.getParentDataFromEntitySelectionMetaData(metaData);
-					const quat = Quat.fromAxisAngle(newValue);
-					entity.setInstanceRot(quat, parent, index);
+					throw new Error("Not implemented");
 				}
 				this.notifyEntityEditors(entity, "transform");
 			}
@@ -84,12 +80,11 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 		this.scaleProperty.onValueChange(newValue => {
 			if (this.isSettingTransformationValues) return;
 			if (!this.currentSelection) return;
-			for (const {entity, metaData} of this.currentSelection) {
+			for (const {entity} of this.currentSelection) {
 				if (this.editingModeGui.value == "global") {
 					entity.scale = newValue;
 				} else if (this.editingModeGui.value == "instance") {
-					const {parent, index} = this.getParentDataFromEntitySelectionMetaData(metaData);
-					entity.setInstanceScale(newValue, parent, index);
+					throw new Error("Not implemented");
 				}
 				this.notifyEntityEditors(entity, "transform");
 			}
@@ -158,29 +153,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 			this.rotationProperty.setValue(entity.rot.toAxisAngle());
 			this.scaleProperty.setValue(entity.scale);
 		} else if (this.editingModeGui.value == "instance") {
-			const firstEntitySelection = this.currentSelection[0];
-			const {parent, index} = this.getParentDataFromEntitySelectionMetaData(firstEntitySelection.metaData);
-
-			const pos = firstEntitySelection.entity.getInstancePos(parent, index);
-			if (pos) {
-				this.positionProperty.setValue(pos);
-			} else {
-				this.positionProperty.setValue([0, 0, 0]);
-			}
-
-			const rot = firstEntitySelection.entity.getInstanceRot(parent, index);
-			if (rot) {
-				this.rotationProperty.setValue(rot.toAxisAngle());
-			} else {
-				this.rotationProperty.setValue([0, 0, 0]);
-			}
-
-			const scale = firstEntitySelection.entity.getInstanceScale(parent, index);
-			if (scale) {
-				this.scaleProperty.setValue(scale);
-			} else {
-				this.scaleProperty.setValue([1, 1, 1]);
-			}
+			throw new Error("Not implemented");
 		}
 		this.isSettingTransformationValues = false;
 	}

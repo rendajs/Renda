@@ -70,7 +70,7 @@ export class GizmoManager {
 		for (const gizmo of this.gizmos) {
 			this.removeGizmo(gizmo);
 		}
-		this.entity.detachParents();
+		this.entity.detachParent();
 	}
 
 	/**
