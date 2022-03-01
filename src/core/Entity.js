@@ -244,6 +244,7 @@ export class Entity {
 			this._parent.remove(this);
 		}
 		this._parent = newParent;
+		this.markWorldMatrixDirty();
 		if (newParent && addChild) {
 			newParent.add(this);
 		}
@@ -329,6 +330,7 @@ export class Entity {
 
 	/**
 	 * Marks the local matrix as dirty on this entity and the world matrix of all it's children.
+	 * @private
 	 */
 	markLocalMatrixDirty() {
 		this.localMatrixDirty = true;
@@ -339,6 +341,7 @@ export class Entity {
 
 	/**
 	 * Marks the world matrix of this entity and all its children as dirty.
+	 * @private
 	 */
 	markWorldMatrixDirty() {
 		this.worldMatrixDirty = true;

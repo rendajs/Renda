@@ -370,7 +370,7 @@ Deno.test({
 	name: "localMatrix is identiy by default",
 	fn() {
 		const entity = new Entity();
-		assertEquals(entity.localMatrix.toArray(), new Mat4().toArray());
+		assertMatAlmostEquals(entity.worldMatrix, new Mat4());
 	},
 });
 
@@ -426,5 +426,169 @@ Deno.test({
 		const entity = new Entity();
 		entity.scale.set(1, 2, 3);
 		assertMatAlmostEquals(entity.localMatrix, [1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "worldMatrix is identiy by default",
+	fn() {
+		const entity = new Entity();
+		assertMatAlmostEquals(entity.worldMatrix, new Mat4());
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when position is set",
+	fn() {
+		const entity = new Entity();
+		entity.pos = new Vec3(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when position is changed",
+	fn() {
+		const entity = new Entity();
+		entity.pos.set(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when rotation is set",
+	fn() {
+		const entity = new Entity();
+		entity.rot = Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when rotation is changed",
+	fn() {
+		const entity = new Entity();
+		const rot = Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2);
+		entity.rot.set(rot);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when scale is set",
+	fn() {
+		const entity = new Entity();
+		entity.scale = new Vec3(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when scale is changed",
+	fn() {
+		const entity = new Entity();
+		entity.scale.set(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when parent position is set",
+	fn() {
+		const parent = new Entity();
+		const entity = new Entity();
+		parent.add(entity);
+		parent.pos = new Vec3(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when parent position is changed",
+	fn() {
+		const parent = new Entity();
+		const entity = new Entity();
+		parent.add(entity);
+		parent.pos.set(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when parent rotation is set",
+	fn() {
+		const parent = new Entity();
+		const entity = new Entity();
+		parent.add(entity);
+		parent.rot = Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when parent rotation is changed",
+	fn() {
+		const parent = new Entity();
+		const entity = new Entity();
+		parent.add(entity);
+		const rot = Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2);
+		parent.rot.set(rot);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when parent scale is set",
+	fn() {
+		const parent = new Entity();
+		const entity = new Entity();
+		parent.add(entity);
+		parent.scale = new Vec3(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when parent scale is changed",
+	fn() {
+		const parent = new Entity();
+		const entity = new Entity();
+		parent.add(entity);
+		parent.scale.set(1, 2, 3);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when entity is added as child",
+	fn() {
+		const parent = new Entity();
+		parent.pos.set(1, 2, 3);
+		const entity = new Entity();
+		parent.add(entity);
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when the parent is set",
+	fn() {
+		const parent = new Entity();
+		parent.pos.set(1, 2, 3);
+		const entity = new Entity();
+		entity.parent = parent;
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 2, 3, 1]);
+	},
+});
+
+Deno.test({
+	name: "compute worldMatrix when the parent is removed",
+	fn() {
+		const parent = new Entity();
+		parent.pos.set(1, 2, 3);
+		const entity = new Entity();
+		entity.parent = parent;
+		entity.parent = null;
+		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 	},
 });
