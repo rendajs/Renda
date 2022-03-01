@@ -102,7 +102,7 @@ export class Entity {
 		/**
 		 * @typedef {<C extends Component, A extends ConstructorParameters<typeof Component>>(componentConstructor: new (...args: A) => C, ...args: A) => C} addComponentConstructorSignature
 		 * @typedef {<T extends Component>(componentInstance: T) => T} addComponentInstanceSignature
-		 * @typedef {(componentUuid: string, ...rest: ConstructorParameters<typeof Component>) => Component} addComponentUuidSignature
+		 * @typedef {(componentTypeManager: ComponentTypeManager, componentUuid: string, ...rest: ConstructorParameters<typeof Component>) => Component} addComponentUuidSignature
 		 */
 
 		/** @type {addComponentConstructorSignature & addComponentInstanceSignature & addComponentUuidSignature} */
@@ -135,25 +135,24 @@ export class Entity {
 		if (firstArg instanceof Component) {
 			component = firstArg;
 		} else {
-			let CompenentConstructor = null;
+			let ComponentConstructor = null;
 			if (firstArg instanceof ComponentTypeManager) {
-				CompenentConstructor = firstArg.getComponentConstructorForUuid(args[1]);
+				ComponentConstructor = firstArg.getComponentConstructorForUuid(args[1]);
+				if (!ComponentConstructor) {
+					throw new Error("Component uuid not found, make sure it registered with the ComponentTypeManager.");
+				}
 			} else if (firstArg.prototype instanceof Component) {
-				CompenentConstructor = firstArg;
-			}
-			if (!CompenentConstructor) {
-				throw new TypeError("Invalid arguments. addComponent takes a Component constructor, Component instance or Component uuid.");
+				ComponentConstructor = firstArg;
 			}
 
 			const [, ...restArgs] = args;
-			component = new CompenentConstructor(...restArgs);
+			component = new ComponentConstructor(...restArgs);
 		}
 
-		// let component = /** @type {Component} */ (firstArg);
-		// if (!(component instanceof Component)) {
-
-		this.components.push(component);
-		this._componentAttachedToEntity(component, this);
+		if (!this.components.includes(component)) {
+			this.components.push(component);
+			this._componentAttachedToEntity(component, this);
+		}
 		return component;
 	}
 
@@ -166,8 +165,9 @@ export class Entity {
 	}
 
 	/**
+	 * @private
 	 * @param {Component} component
-	 * @param {Entity} entity
+	 * @param {Entity?} entity
 	 * @param {boolean} callRemoveComponent
 	 */
 	_componentAttachedToEntity(component, entity, callRemoveComponent = true) {
@@ -308,11 +308,11 @@ export class Entity {
 
 	set localMatrix(value) {
 		this._localMatrix.set(value);
-		this.localMatrixDirty = false;
 		const {pos, rot, scale} = this._localMatrix.decompose();
 		this.pos = pos;
 		this.rot = rot;
 		this.scale = scale;
+		this.localMatrixDirty = false;
 	}
 
 	get worldMatrix() {
