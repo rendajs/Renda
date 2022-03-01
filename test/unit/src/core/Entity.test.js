@@ -35,18 +35,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "setting parent after creation",
-	fn() {
-		const parent = new Entity();
-		const entity = new Entity();
-		entity.parent = parent;
-		assertStrictEquals(entity.parent, parent);
-		assertEquals(parent.children.length, 1);
-		assertStrictEquals(parent.children[0], entity);
-	},
-});
-
-Deno.test({
 	name: "setting local matrix via constructor options",
 	fn() {
 		const matrix = Mat4.createPosRotScale(new Vec3(1, 2, 3), Quat.fromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2), new Vec3(4, 5, 6));
@@ -590,5 +578,248 @@ Deno.test({
 		entity.parent = parent;
 		entity.parent = null;
 		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "add a child",
+	fn() {
+		const parent = new Entity();
+		const child = new Entity();
+
+		parent.add(child);
+
+		assertEquals(parent.children.length, 1);
+		assertStrictEquals(parent.children[0], child);
+		assertStrictEquals(child.parent, parent);
+	},
+});
+
+Deno.test({
+	name: "addAtIndex",
+	fn() {
+		const child1 = new Entity();
+		const child2 = new Entity();
+		const child3 = new Entity();
+		const parent = new Entity();
+		parent.add(child1);
+		parent.add(child2);
+
+		parent.addAtIndex(child3, 1);
+
+		assertEquals(parent.children.length, 3);
+		assertStrictEquals(parent.children[0], child1);
+		assertStrictEquals(parent.children[1], child3);
+		assertStrictEquals(parent.children[2], child2);
+		assertStrictEquals(child1.parent, parent);
+		assertStrictEquals(child2.parent, parent);
+		assertStrictEquals(child3.parent, parent);
+	},
+});
+
+Deno.test({
+	name: "remove child",
+	fn() {
+		const child1 = new Entity();
+		const child2 = new Entity();
+		const child3 = new Entity();
+		const parent = new Entity();
+		parent.add(child1);
+		parent.add(child2);
+		parent.add(child3);
+
+		parent.remove(child2);
+
+		assertEquals(parent.children.length, 2);
+		assertStrictEquals(parent.children[0], child1);
+		assertStrictEquals(parent.children[1], child3);
+		assertStrictEquals(child1.parent, parent);
+		assertStrictEquals(child3.parent, parent);
+		assertEquals(child2.parent, null);
+	},
+});
+
+Deno.test({
+	name: "removeAtIndex",
+	fn() {
+		const child1 = new Entity();
+		const child2 = new Entity();
+		const child3 = new Entity();
+		const parent = new Entity();
+		parent.add(child1);
+		parent.add(child2);
+		parent.add(child3);
+
+		parent.removeAtIndex(1);
+
+		assertEquals(parent.children.length, 2);
+		assertStrictEquals(parent.children[0], child1);
+		assertStrictEquals(parent.children[1], child3);
+		assertStrictEquals(child1.parent, parent);
+		assertStrictEquals(child3.parent, parent);
+		assertEquals(child2.parent, null);
+	},
+});
+
+Deno.test({
+	name: "detachParent",
+	fn() {
+		const child = new Entity();
+		const parent = new Entity();
+		parent.add(child);
+
+		child.detachParent();
+
+		assertEquals(child.parent, null);
+		assertEquals(parent.children.length, 0);
+	},
+});
+
+Deno.test({
+	name: "getChildren()",
+	fn() {
+		const child1 = new Entity();
+		const child2 = new Entity();
+		const child3 = new Entity();
+		const parent = new Entity();
+		parent.add(child1);
+		parent.add(child2);
+		parent.add(child3);
+
+		const children = Array.from(parent.getChildren());
+
+		assertEquals(children.length, 3);
+		assertStrictEquals(children[0], child1);
+		assertStrictEquals(children[1], child2);
+		assertStrictEquals(children[2], child3);
+	},
+});
+
+Deno.test({
+	name: "childCount",
+	fn() {
+		const parent = new Entity();
+		parent.add(new Entity());
+		parent.add(new Entity());
+		parent.add(new Entity());
+
+		assertEquals(parent.childCount, 3);
+	},
+});
+
+Deno.test({
+	name: "modifying children array doesn't work",
+	fn() {
+		const child1 = new Entity();
+		const child2 = new Entity();
+		const parent = new Entity();
+		parent.add(child1);
+
+		parent.children.push(child2);
+
+		assertEquals(parent.children.length, 1);
+		assertStrictEquals(parent.children[0], child1);
+	},
+});
+
+Deno.test({
+	name: "getRoot()",
+	fn() {
+		const entity1 = new Entity();
+		const entity2 = new Entity();
+		const entity3 = new Entity();
+		entity1.add(entity2);
+		entity2.add(entity3);
+
+		const root = entity3.getRoot();
+
+		assertStrictEquals(root, entity1);
+	},
+});
+
+Deno.test({
+	name: "traverseDown()",
+	fn() {
+		const root = new Entity();
+
+		const entity1 = new Entity();
+		const entity1A = new Entity();
+		const entity1B = new Entity();
+		root.add(entity1);
+		entity1.add(entity1A);
+		entity1.add(entity1B);
+
+		const entity2 = new Entity();
+		root.add(entity2);
+
+		const entity3 = new Entity();
+		const entity3A = new Entity();
+		const entity3B = new Entity();
+		const entity3C = new Entity();
+		root.add(entity3);
+		entity3.add(entity3A);
+		entity3.add(entity3B);
+		entity3.add(entity3C);
+
+		const entities = Array.from(root.traverseDown());
+
+		const expected = [
+			root,
+			entity1,
+			entity1A,
+			entity1B,
+			entity2,
+			entity3,
+			entity3A,
+			entity3B,
+			entity3C,
+		];
+		assertEquals(entities.length, expected.length);
+		for (let i = 0; i < entities.length; i++) {
+			assertStrictEquals(entities[i], expected[i]);
+		}
+	},
+});
+
+Deno.test({
+	name: "traverseUp()",
+	fn() {
+		const entity1 = new Entity();
+		const entity2 = new Entity();
+		const entity3 = new Entity();
+		entity1.add(entity2);
+		entity2.add(entity3);
+
+		const entities = Array.from(entity3.traverseUp());
+
+		assertEquals(entities.length, 3);
+		assertStrictEquals(entities[0], entity3);
+		assertStrictEquals(entities[1], entity2);
+		assertStrictEquals(entities[2], entity1);
+	},
+});
+
+Deno.test({
+	name: "containsChild() true",
+	fn() {
+		const parent = new Entity();
+		const child = new Entity();
+		parent.add(child);
+
+		const result = parent.containsChild(child);
+
+		assertEquals(result, true);
+	},
+});
+
+Deno.test({
+	name: "containsChild() false",
+	fn() {
+		const parent = new Entity();
+		const child = new Entity();
+
+		const result = parent.containsChild(child);
+
+		assertEquals(result, false);
 	},
 });
