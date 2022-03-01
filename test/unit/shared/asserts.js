@@ -1,5 +1,5 @@
 import {AssertionError} from "asserts";
-import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
+import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
 
 /**
  * Make an assertion that `actual` and `expected` are almost numbers.
@@ -99,5 +99,43 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 			message = `Expected value to be close to ${expectedVec.toArray()} but got ${actualVec.toArray()}`;
 		}
 		throw new AssertionError(message);
+	}
+}
+
+/**
+ * @param {Mat4} mat
+ */
+function matrixToString(mat) {
+	if (mat instanceof Mat4) {
+		return "[" + mat.toArray().join(", ") + "]";
+	} else {
+		return `"${mat}"`;
+	}
+}
+
+/**
+ * @param {Mat4 | number[]} actual
+ * @param {Mat4 | number[]} expected
+ */
+export function assertMatAlmostEquals(actual, expected, tolerance = 0.00001, msg = "") {
+	if (!actual) {
+		throw new TypeError(`Actual does not have the correct type: ${matrixToString(actual)}`);
+	}
+	if (!expected) {
+		throw new TypeError(`Expected does not have the correct type: ${matrixToString(expected)}`);
+	}
+	const mat1 = new Mat4(actual);
+	const mat2 = new Mat4(expected);
+	const array1 = mat1.toArray();
+	const array2 = mat2.toArray();
+	if (array1.length != array2.length) {
+		throw new Error(`Matrices are not of the same size: ${matrixToString(mat1)} and ${matrixToString(mat2)}`);
+	}
+	for (let i = 0; i < array1.length; i++) {
+		let message = msg;
+		if (!message) {
+			message = `Expected matrix to be close to ${matrixToString(mat2)} but got ${matrixToString(mat1)}. Item with index ${i} doesn't match. (tolerance = ${tolerance})`;
+		}
+		assertAlmostEquals(array1[i], array2[i], tolerance, message);
 	}
 }

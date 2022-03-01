@@ -1,6 +1,6 @@
 import {assertThrows} from "asserts";
-import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
-import {assertAlmostEquals, assertVecAlmostEquals} from "./asserts.js";
+import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
+import {assertAlmostEquals, assertMatAlmostEquals, assertVecAlmostEquals} from "./asserts.js";
 
 Deno.test({
 	name: "assertAlmostEquals() doesn't throw",
@@ -106,6 +106,88 @@ Deno.test({
 		});
 		assertThrows(() => {
 			assertVecAlmostEquals([NaN, 0, 0], [NaN, 0, 0]);
+		});
+	},
+});
+
+Deno.test({
+	name: "assertMatAlmostEquals doesn't throw",
+	fn() {
+		const mat1 = new Mat4();
+		assertMatAlmostEquals(mat1, mat1);
+
+		const mat2a = new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+		const mat2b = mat2a.clone();
+		assertMatAlmostEquals(mat2a, mat2a);
+		assertMatAlmostEquals(mat2a, mat2b);
+
+		const mat3a = new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+		const mat3bValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+		for (let i = 0; i < mat3bValues.length; i++) {
+			mat3bValues[i] += 1e-10;
+		}
+		const mat3b = new Mat4(mat3bValues);
+		assertMatAlmostEquals(mat3a, mat3b);
+
+		const mat4a = new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+		const mat4b = new Mat4([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]);
+		assertMatAlmostEquals(mat4a, mat4b, 2);
+
+		const mat5a = new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+		const mat5b = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+		assertMatAlmostEquals(mat5a, mat5b);
+	},
+});
+
+Deno.test({
+	name: "assertMatAlmostEquals throws when the values are incorrect",
+	fn() {
+		assertThrows(() => {
+			assertMatAlmostEquals(new Mat4(), new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]));
+		});
+		assertThrows(() => {
+			assertMatAlmostEquals(new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]), new Mat4());
+		});
+		assertThrows(() => {
+			assertMatAlmostEquals(new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]), new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17]));
+		});
+		assertThrows(() => {
+			const mat1 = new Mat4([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+			const mat2Values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+			for (let i = 0; i < mat2Values.length; i++) {
+				mat2Values[i] += 1e-10;
+			}
+			const mat2 = new Mat4(mat2Values);
+			assertMatAlmostEquals(mat1, mat2, 0);
+		});
+		assertThrows(() => {
+			const values1 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+			const values2 = [1, null, null, null, null, 1, null, null, null, null, 1, null, null, null, null, 1];
+			assertMatAlmostEquals(new Mat4(values1), new Mat4(/** @type {any} */(values2)));
+		});
+	},
+});
+Deno.test({
+	name: "assertMatAlmostEquals throws when the parameters are not a matrix",
+	fn() {
+		const values = [
+			new Vec4(),
+			[1, 2, 3, 4],
+			[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+			null,
+			undefined,
+			{},
+			[],
+			"",
+			0,
+		];
+		for (const value of values) {
+			assertThrows(() => {
+				assertMatAlmostEquals(new Mat4(), /** @type {any} */(value));
+			});
+		}
+		assertThrows(() => {
+			assertMatAlmostEquals(/** @type {any} */(null), new Mat4());
 		});
 	},
 });
