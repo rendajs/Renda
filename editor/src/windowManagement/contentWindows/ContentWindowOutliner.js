@@ -190,9 +190,10 @@ export class ContentWindowOutliner extends ContentWindow {
 		let createdAny = false;
 		// todo: use selection manager
 		for (const indicesPath of this.treeView.getSelectionIndices()) {
-			const ent = rootEnt.getEntityByIndicesPath(indicesPath);
+			const entity = rootEnt.getEntityByIndicesPath(indicesPath);
+			if (!entity) continue;
 			const createdEnt = new Entity(name);
-			ent.add(createdEnt);
+			entity.add(createdEnt);
 			createdAny = true;
 		}
 		if (!createdAny) {

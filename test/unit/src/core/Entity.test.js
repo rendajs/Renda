@@ -809,3 +809,50 @@ Deno.test({
 		assertEquals(result, false);
 	},
 });
+
+function createGetEntityByIndicesPath() {
+	const root = new Entity();
+
+	const child1 = root.add(new Entity());
+	root.add(new Entity());
+
+	const child2 = child1.add(new Entity());
+	child1.add(new Entity());
+
+	child2.add(new Entity());
+	child2.add(new Entity());
+	const child3 = child2.add(new Entity());
+
+	return {root, child1, child2, child3};
+}
+
+Deno.test({
+	name: "getEntityByIndicesPath()",
+	fn() {
+		const {root, child3} = createGetEntityByIndicesPath();
+
+		const entity = root.getEntityByIndicesPath([0, 0, 2]);
+
+		assertStrictEquals(entity, child3);
+	},
+});
+
+Deno.test({
+	name: "getEntityByIndicesPath() invalid indices",
+	fn() {
+		const {root} = createGetEntityByIndicesPath();
+
+		const paths = [
+			[0, 100],
+			[0, -1],
+			[-1],
+			[0, 0, 2, 100],
+		];
+
+		for (const path of paths) {
+			const result = root.getEntityByIndicesPath(path);
+
+			assertEquals(result, null);
+		}
+	},
+});

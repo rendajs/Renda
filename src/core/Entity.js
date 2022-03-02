@@ -468,11 +468,12 @@ export class Entity {
 
 	/**
 	 * @param {number[]} indexPath
-	 * @returns {Entity}
+	 * @returns {Entity?}
 	 */
 	getEntityByIndicesPath(indexPath, startFrom = 0) {
 		if (startFrom >= indexPath.length) return this;
 		const index = indexPath[startFrom];
+		if (index < 0 || index > this._children.length) return null;
 		const child = this.children[index];
 		return child.getEntityByIndicesPath(indexPath, startFrom + 1);
 	}
