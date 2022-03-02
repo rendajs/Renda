@@ -810,18 +810,18 @@ Deno.test({
 	},
 });
 
-function createGetEntityByIndicesPath() {
-	const root = new Entity();
+function createBasicStructure() {
+	const root = new Entity("root");
 
-	const child1 = root.add(new Entity());
+	const child1 = root.add(new Entity("child1"));
 	root.add(new Entity());
 
-	const child2 = child1.add(new Entity());
+	const child2 = child1.add(new Entity("child2"));
 	child1.add(new Entity());
 
 	child2.add(new Entity());
 	child2.add(new Entity());
-	const child3 = child2.add(new Entity());
+	const child3 = child2.add(new Entity("child3"));
 
 	return {root, child1, child2, child3};
 }
@@ -829,7 +829,7 @@ function createGetEntityByIndicesPath() {
 Deno.test({
 	name: "getEntityByIndicesPath()",
 	fn() {
-		const {root, child3} = createGetEntityByIndicesPath();
+		const {root, child3} = createBasicStructure();
 
 		const entity = root.getEntityByIndicesPath([0, 0, 2]);
 
@@ -840,7 +840,7 @@ Deno.test({
 Deno.test({
 	name: "getEntityByIndicesPath() invalid indices",
 	fn() {
-		const {root} = createGetEntityByIndicesPath();
+		const {root} = createBasicStructure();
 
 		const paths = [
 			[0, 100],
@@ -854,5 +854,27 @@ Deno.test({
 
 			assertEquals(result, null);
 		}
+	},
+});
+
+Deno.test({
+	name: "getEntityByName()",
+	fn() {
+		const {root, child1, child2, child3} = createBasicStructure();
+
+		const rootResult = root.getEntityByName("root");
+		assertStrictEquals(rootResult, root);
+
+		const child1Result = root.getEntityByName("child1");
+		assertStrictEquals(child1Result, child1);
+
+		const child2Result = root.getEntityByName("child2");
+		assertStrictEquals(child2Result, child2);
+
+		const child3Result = root.getEntityByName("child3");
+		assertStrictEquals(child3Result, child3);
+
+		const nonExistentResult = root.getEntityByName("non-existent");
+		assertEquals(nonExistentResult, null);
 	},
 });

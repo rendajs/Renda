@@ -479,6 +479,7 @@ export class Entity {
 	}
 
 	/**
+	 * Recursively searches for an entity with the given name and returns it.
 	 * @param {string} name
 	 */
 	getEntityByName(name) {
