@@ -680,13 +680,10 @@ Deno.test({
 Deno.test({
 	name: "getChildren()",
 	fn() {
-		const child1 = new Entity();
-		const child2 = new Entity();
-		const child3 = new Entity();
 		const parent = new Entity();
-		parent.add(child1);
-		parent.add(child2);
-		parent.add(child3);
+		const child1 = parent.add(new Entity());
+		const child2 = parent.add(new Entity());
+		const child3 = parent.add(new Entity());
 
 		const children = Array.from(parent.getChildren());
 
@@ -728,10 +725,8 @@ Deno.test({
 	name: "getRoot()",
 	fn() {
 		const entity1 = new Entity();
-		const entity2 = new Entity();
-		const entity3 = new Entity();
-		entity1.add(entity2);
-		entity2.add(entity3);
+		const entity2 = entity1.add(new Entity());
+		const entity3 = entity2.add(new Entity());
 
 		const root = entity3.getRoot();
 
@@ -744,24 +739,16 @@ Deno.test({
 	fn() {
 		const root = new Entity();
 
-		const entity1 = new Entity();
-		const entity1A = new Entity();
-		const entity1B = new Entity();
-		root.add(entity1);
-		entity1.add(entity1A);
-		entity1.add(entity1B);
+		const entity1 = root.add(new Entity());
+		const entity1A = entity1.add(new Entity());
+		const entity1B = entity1.add(new Entity());
 
-		const entity2 = new Entity();
-		root.add(entity2);
+		const entity2 = root.add(new Entity());
 
-		const entity3 = new Entity();
-		const entity3A = new Entity();
-		const entity3B = new Entity();
-		const entity3C = new Entity();
-		root.add(entity3);
-		entity3.add(entity3A);
-		entity3.add(entity3B);
-		entity3.add(entity3C);
+		const entity3 = root.add(new Entity());
+		const entity3A = entity3.add(new Entity());
+		const entity3B = entity3.add(new Entity());
+		const entity3C = entity3.add(new Entity());
 
 		const entities = Array.from(root.traverseDown());
 
@@ -787,10 +774,8 @@ Deno.test({
 	name: "traverseUp()",
 	fn() {
 		const entity1 = new Entity();
-		const entity2 = new Entity();
-		const entity3 = new Entity();
-		entity1.add(entity2);
-		entity2.add(entity3);
+		const entity2 = entity1.add(new Entity());
+		const entity3 = entity2.add(new Entity());
 
 		const entities = Array.from(entity3.traverseUp());
 
@@ -805,8 +790,7 @@ Deno.test({
 	name: "containsChild() true",
 	fn() {
 		const parent = new Entity();
-		const child = new Entity();
-		parent.add(child);
+		const child = parent.add(new Entity());
 
 		const result = parent.containsChild(child);
 
