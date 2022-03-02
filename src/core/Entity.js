@@ -355,7 +355,7 @@ export class Entity {
 	 * @param {boolean} keepWorldPosition
 	 */
 	add(child, keepWorldPosition = false) {
-		this.addAtIndex(child, -1, keepWorldPosition);
+		return this.addAtIndex(child, -1, keepWorldPosition);
 	}
 
 	/**
@@ -373,6 +373,7 @@ export class Entity {
 		} else {
 			this._children.splice(index, 0, child);
 		}
+		return child;
 	}
 
 	/**

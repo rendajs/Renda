@@ -587,11 +587,12 @@ Deno.test({
 		const parent = new Entity();
 		const child = new Entity();
 
-		parent.add(child);
+		const added = parent.add(child);
 
 		assertEquals(parent.children.length, 1);
 		assertStrictEquals(parent.children[0], child);
 		assertStrictEquals(child.parent, parent);
+		assertStrictEquals(added, child);
 	},
 });
 
@@ -605,12 +606,13 @@ Deno.test({
 		parent.add(child1);
 		parent.add(child2);
 
-		parent.addAtIndex(child3, 1);
+		const added = parent.addAtIndex(child3, 1);
 
 		assertEquals(parent.children.length, 3);
 		assertStrictEquals(parent.children[0], child1);
 		assertStrictEquals(parent.children[1], child3);
 		assertStrictEquals(parent.children[2], child2);
+		assertStrictEquals(added, child3);
 		assertStrictEquals(child1.parent, parent);
 		assertStrictEquals(child2.parent, parent);
 		assertStrictEquals(child3.parent, parent);
