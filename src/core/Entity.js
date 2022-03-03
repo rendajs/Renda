@@ -86,13 +86,35 @@ export class Entity {
 		/** @private */
 		this._worldMatrix = new Mat4();
 
+		/** @private */
 		this.boundMarkLocalMatrixDirty = this.markLocalMatrixDirty.bind(this);
+		/** @private */
 		this._pos = new Vec3();
 		this._pos.onChange(this.boundMarkLocalMatrixDirty);
+		/** @private */
 		this._rot = new Quat();
 		this._rot.onChange(this.boundMarkLocalMatrixDirty);
+		/** @private */
 		this._scale = Vec3.one;
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
+
+		/** @private */
+		this.boundOnWorldPosChange = this.onWorldPosChange.bind(this);
+		/** @private */
+		this._worldPos = new Vec3();
+		this._worldPos.onChange(this.boundOnWorldPosChange);
+
+		/** @private */
+		this.boundOnWorldRotChange = this.onWorldRotChange.bind(this);
+		/** @private */
+		this._worldRot = new Quat();
+		this._worldRot.onChange(this.boundOnWorldRotChange);
+
+		/** @private */
+		this.boundOnWorldScaleChange = this.onWorldScaleChange.bind(this);
+		/** @private */
+		this._worldScale = new Vec3();
+		this._worldScale.onChange(this.boundOnWorldScaleChange);
 
 		if (opts.matrix) this.localMatrix = opts.matrix;
 		if (opts.parent) {
@@ -296,6 +318,54 @@ export class Entity {
 		this._scale.set(value);
 	}
 
+	/**
+	 * @returns {Vec3}
+	 */
+	get worldPos() {
+		this.updateWorldMatrixIfDirty();
+		return this._worldPos;
+	}
+
+	/**
+	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} value
+	 */
+	set worldPos(value) {
+		this.updateWorldMatrixIfDirty();
+		this._worldPos.set(value);
+	}
+
+	/**
+	 * @returns {Quat}
+	 */
+	get worldRot() {
+		this.updateWorldMatrixIfDirty();
+		return this._worldRot;
+	}
+
+	/**
+	 * @param {import("../math/Quat.js").QuatParameterSingle} value
+	 */
+	set worldRot(value) {
+		this.updateWorldMatrixIfDirty();
+		this._worldRot.set(value);
+	}
+
+	/**
+	 * @returns {Vec3}
+	 */
+	get worldScale() {
+		this.updateWorldMatrixIfDirty();
+		return this._worldScale;
+	}
+
+	/**
+	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} value
+	 */
+	set worldScale(value) {
+		this.updateWorldMatrixIfDirty();
+		this._worldScale.set(value);
+	}
+
 	get localMatrix() {
 		if (this.localMatrixDirty) {
 			const pos = this.pos;
@@ -317,14 +387,7 @@ export class Entity {
 	}
 
 	get worldMatrix() {
-		if (this.localMatrixDirty || this.worldMatrixDirty) {
-			if (this.parent) {
-				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
-			} else {
-				this._worldMatrix = this.localMatrix.clone();
-			}
-			this.worldMatrixDirty = false;
-		}
+		this.updateWorldMatrixIfDirty();
 		return this._worldMatrix.clone();
 	}
 
@@ -348,6 +411,68 @@ export class Entity {
 		for (const child of this.traverseDown()) {
 			child.worldMatrixDirty = true;
 		}
+	}
+
+	/**
+	 * Updates the world matrix as well as the world position, rotation and
+	 * scale of this entity.
+	 * @private
+	 */
+	updateWorldMatrixIfDirty() {
+		if (this.localMatrixDirty || this.worldMatrixDirty) {
+			if (this.parent) {
+				this._worldMatrix = Mat4.multiplyMatrices(this.localMatrix, this.parent.worldMatrix);
+			} else {
+				this._worldMatrix = this.localMatrix.clone();
+			}
+			this.worldMatrixDirty = false;
+		}
+		const {pos, rot, scale} = this._worldMatrix.decompose();
+		this._worldPos.set(pos);
+		this._worldRot.set(rot);
+		this._worldScale.set(scale);
+	}
+
+	/**
+	 * @private
+	 * @param {number} changedComponents
+	 */
+	onWorldPosChange(changedComponents) {
+		const newLocalPos = this._worldPos.clone();
+
+		if (this.parent) {
+			const parentMat = this.parent.worldMatrix.inverse();
+			newLocalPos.multiply(parentMat);
+		}
+		this.pos = newLocalPos;
+	}
+
+	/**
+	 * @private
+	 */
+	onWorldRotChange() {
+		const newLocalRot = this._worldRot.clone();
+
+		if (this.parent) {
+			const parentMat = this.parent.worldMatrix.inverse();
+			newLocalRot.preMultiply(parentMat.getRotation());
+		}
+		this.rot = newLocalRot;
+	}
+
+	/**
+	 * @private
+	 * @param {number} changedComponents
+	 */
+	onWorldScaleChange(changedComponents) {
+		const newLocalScale = this._worldScale.clone();
+
+		if (this.parent) {
+			const parentMat = this.parent.worldMatrix.inverse();
+			const parentScale = parentMat.getScale();
+			newLocalScale.multiply(parentScale);
+		}
+		this.scale = newLocalScale;
 	}
 
 	/**
