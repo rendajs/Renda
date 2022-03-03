@@ -2,6 +2,8 @@ import {Mat4} from "./Mat4.js";
 import {Vec2} from "./Vec2.js";
 import {Vec4} from "./Vec4.js";
 
+/** @typedef {(changedComponents: number) => void} OnVectorChangeCallback */
+
 /**
  * @typedef {() => Vec3} vec3SetEmptySignature
  * @typedef {(vec: Vec2) => Vec3} vec3SetVec2Signature
@@ -21,9 +23,8 @@ export class Vec3 {
 	 * @param {Vec3Parameters} args
 	 */
 	constructor(...args) {
-		/** @type {Set<() => void>} */
+		/** @type {Set<OnVectorChangeCallback>} */
 		this.onChangeCbs = new Set();
-		this._disableOnChange = false;
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
@@ -67,7 +68,7 @@ export class Vec3 {
 	}
 	set x(value) {
 		this._x = value;
-		this.fireOnChange();
+		this.fireOnChange(0x100);
 	}
 
 	get y() {
@@ -75,7 +76,7 @@ export class Vec3 {
 	}
 	set y(value) {
 		this._y = value;
-		this.fireOnChange();
+		this.fireOnChange(0x010);
 	}
 
 	get z() {
@@ -83,13 +84,16 @@ export class Vec3 {
 	}
 	set z(value) {
 		this._z = value;
-		this.fireOnChange();
+		this.fireOnChange(0x001);
 	}
 
 	/**
 	 * @param {Vec3Parameters} args
 	 */
 	set(...args) {
+		const prevX = this._x;
+		const prevY = this._y;
+		const prevZ = this._z;
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
@@ -125,7 +129,11 @@ export class Vec3 {
 			if (z != undefined) this._z = z;
 		}
 
-		this.fireOnChange();
+		let changedComponents = 0x000;
+		if (this._x != prevX) changedComponents |= 0x100;
+		if (this._y != prevY) changedComponents |= 0x010;
+		if (this._z != prevZ) changedComponents |= 0x001;
+		if (changedComponents != 0x000) this.fireOnChange(changedComponents);
 		return this;
 	}
 
@@ -158,13 +166,13 @@ export class Vec3 {
 	set magnitude(value) {
 		const diff = value / this.magnitude;
 		if (diff == 1) return;
-		this._x *= diff;
-		this._y *= diff;
-		this._z *= diff;
-		if (isNaN(this.x)) this._x = 0;
-		if (isNaN(this.y)) this._y = 0;
-		if (isNaN(this.z)) this._z = 0;
-		this.fireOnChange();
+		let x = this._x * diff;
+		let y = this._y * diff;
+		let z = this._z * diff;
+		if (isNaN(x)) x = 0;
+		if (isNaN(y)) y = 0;
+		if (isNaN(z)) z = 0;
+		this.set(x, y, z);
 	}
 
 	normalize() {
@@ -203,11 +211,10 @@ export class Vec3 {
 	 * @returns {this}
 	 */
 	multiplyScalar(scalar) {
-		this._x *= scalar;
-		this._y *= scalar;
-		this._z *= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x * scalar;
+		const y = this._y * scalar;
+		const z = this._z * scalar;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -216,11 +223,10 @@ export class Vec3 {
 	 * @returns {this}
 	 */
 	multiplyVector(vector) {
-		this._x *= vector.x;
-		this._y *= vector.y;
-		this._z *= vector.z;
-		this.fireOnChange();
-		return this;
+		const x = this._x * vector.x;
+		const y = this._y * vector.y;
+		const z = this._z * vector.z;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -232,11 +238,10 @@ export class Vec3 {
 		const x = this._x;
 		const y = this._y;
 		const z = this._z;
-		this._x = x * mat4.values[0][0] + y * mat4.values[1][0] + z * mat4.values[2][0] + mat4.values[3][0];
-		this._y = x * mat4.values[0][1] + y * mat4.values[1][1] + z * mat4.values[2][1] + mat4.values[3][1];
-		this._z = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + mat4.values[3][2];
-		this.fireOnChange();
-		return this;
+		const newX = x * mat4.values[0][0] + y * mat4.values[1][0] + z * mat4.values[2][0] + mat4.values[3][0];
+		const newY = x * mat4.values[0][1] + y * mat4.values[1][1] + z * mat4.values[2][1] + mat4.values[3][1];
+		const newZ = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + mat4.values[3][2];
+		return this.set(newX, newY, newZ);
 	}
 
 	/**
@@ -257,11 +262,10 @@ export class Vec3 {
 	 * @returns {this}
 	 */
 	divideScalar(scalar) {
-		this._x /= scalar;
-		this._y /= scalar;
-		this._z /= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x / scalar;
+		const y = this._y / scalar;
+		const z = this._z / scalar;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -270,11 +274,10 @@ export class Vec3 {
 	 * @returns {this}
 	 */
 	divideVector(vector) {
-		this._x /= vector.x;
-		this._y /= vector.y;
-		this._z /= vector.z;
-		this.fireOnChange();
-		return this;
+		const x = this._x / vector.x;
+		const y = this._y / vector.y;
+		const z = this._z / vector.z;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -298,11 +301,10 @@ export class Vec3 {
 	 * @returns {this}
 	 */
 	addScalar(scalar) {
-		this._x += scalar;
-		this._y += scalar;
-		this._z += scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x + scalar;
+		const y = this._y + scalar;
+		const z = this._z + scalar;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -311,11 +313,10 @@ export class Vec3 {
 	 * @returns {this}
 	 */
 	addVector(vector) {
-		this._x += vector.x;
-		this._y += vector.y;
-		this._z += vector.z;
-		this.fireOnChange();
-		return this;
+		const x = this._x + vector.x;
+		const y = this._y + vector.y;
+		const z = this._z + vector.z;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -338,11 +339,10 @@ export class Vec3 {
 	 * @param {number} scalar
 	 */
 	subScalar(scalar) {
-		this._x -= scalar;
-		this._y -= scalar;
-		this._z -= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x - scalar;
+		const y = this._y - scalar;
+		const z = this._z - scalar;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -350,11 +350,10 @@ export class Vec3 {
 	 * @param {Vec3} vector
 	 */
 	subVector(vector) {
-		this._x -= vector.x;
-		this._y -= vector.y;
-		this._z -= vector.z;
-		this.fireOnChange();
-		return this;
+		const x = this._x - vector.x;
+		const y = this._y - vector.y;
+		const z = this._z - vector.z;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -427,11 +426,7 @@ export class Vec3 {
 		const x = this._y * other.z - this._z * other.y;
 		const y = this._z * other.x - this._x * other.z;
 		const z = this._x * other.y - this._y * other.x;
-		this._x = x;
-		this._y = y;
-		this._z = z;
-		this.fireOnChange();
-		return this;
+		return this.set(x, y, z);
 	}
 
 	/**
@@ -475,11 +470,8 @@ export class Vec3 {
 		const other = new Vec3(...v);
 		other.normalize();
 		const dot = this.dot(other);
-		this._disableOnChange = true;
-		this.set(other).multiplyScalar(dot);
-		this._disableOnChange = false;
-		this.fireOnChange();
-		return this;
+		other.multiplyScalar(dot);
+		return this.set(other);
 	}
 
 	/**
@@ -509,23 +501,41 @@ export class Vec3 {
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * Registers a callback that is called when this vector changes.
+	 * The first argument is a bitmask indicating which components of the vector
+	 * have changed.
+	 * For instance, `0x100` if the first component changed, `0x010` if the
+	 * second component changed, `0x001` if the third component changed, and
+	 * `0x111` if all components changed.
+	 *
+	 * #### Usage
+	 * ```js
+	 * const v = new Vec3();
+	 * v.onChange(changedComponents => {
+	 * 	if (changedComponents & 0x100) {
+	 * 		console.log("x changed!");
+	 * 	}
+	 * });
+	 * ```
+	 * @param {OnVectorChangeCallback} cb
 	 */
 	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @param {OnVectorChangeCallback} cb
 	 */
 	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}
 
-	fireOnChange() {
-		if (this._disableOnChange) return;
+	/**
+	 * @param {number} changedComponents
+	 */
+	fireOnChange(changedComponents) {
 		for (const cb of this.onChangeCbs) {
-			cb();
+			cb(changedComponents);
 		}
 	}
 }

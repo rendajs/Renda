@@ -20,6 +20,7 @@ export class Vec2 {
 	 * @param {Vec2Parameters} args
 	 */
 	constructor(...args) {
+		/** @type {Set<import("./Vec3.js").OnVectorChangeCallback>} */
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
@@ -31,7 +32,7 @@ export class Vec2 {
 	}
 	set x(value) {
 		this._x = value;
-		this.fireOnChange();
+		this.fireOnChange(0x10);
 	}
 
 	get y() {
@@ -39,13 +40,15 @@ export class Vec2 {
 	}
 	set y(value) {
 		this._y = value;
-		this.fireOnChange();
+		this.fireOnChange(0x01);
 	}
 
 	/**
 	 * @param {Vec2Parameters} args
 	 */
 	set(...args) {
+		const prevX = this._x;
+		const prevY = this._y;
 		this._x = 0;
 		this._y = 0;
 
@@ -65,7 +68,10 @@ export class Vec2 {
 			if (args.length >= 2) this._y = args[1];
 		}
 
-		this.fireOnChange();
+		let changedComponents = 0x00;
+		if (this._x != prevX) changedComponents |= 0x10;
+		if (this._y != prevY) changedComponents |= 0x01;
+		if (changedComponents != 0x00) this.fireOnChange(changedComponents);
 		return this;
 	}
 
@@ -95,11 +101,11 @@ export class Vec2 {
 	set magnitude(value) {
 		const diff = value / this.magnitude;
 		if (diff == 1) return;
-		this._x *= diff;
-		this._y *= diff;
-		if (isNaN(this.x)) this._x = 0;
-		if (isNaN(this.y)) this._y = 0;
-		this.fireOnChange();
+		let x = this._x * diff;
+		let y = this._y * diff;
+		if (isNaN(x)) x = 0;
+		if (isNaN(y)) y = 0;
+		this.set(x, y);
 	}
 
 	normalize() {
@@ -134,10 +140,9 @@ export class Vec2 {
 	 * @returns {this}
 	 */
 	multiplyScalar(scalar) {
-		this._x *= scalar;
-		this._y *= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x * scalar;
+		const y = this._y * scalar;
+		return this.set(x, y);
 	}
 
 	/**
@@ -146,10 +151,9 @@ export class Vec2 {
 	 * @returns {this}
 	 */
 	multiplyVector(vector) {
-		this._x *= vector.x;
-		this._y *= vector.y;
-		this.fireOnChange();
-		return this;
+		const x = this._x * vector.x;
+		const y = this._y * vector.y;
+		return this.set(x, y);
 	}
 
 	/**
@@ -172,10 +176,9 @@ export class Vec2 {
 	 * @param {number} scalar
 	 */
 	addScalar(scalar) {
-		this._x += scalar;
-		this._y += scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x + scalar;
+		const y = this._y + scalar;
+		return this.set(x, y);
 	}
 
 	/**
@@ -183,10 +186,9 @@ export class Vec2 {
 	 * @param {Vec2} vector
 	 */
 	addVector(vector) {
-		this._x += vector.x;
-		this._y += vector.y;
-		this.fireOnChange();
-		return this;
+		const x = this._x + vector.x;
+		const y = this._y + vector.y;
+		return this.set(x, y);
 	}
 
 	/**
@@ -209,10 +211,9 @@ export class Vec2 {
 	 * @param {number} scalar
 	 */
 	subScalar(scalar) {
-		this._x -= scalar;
-		this._y -= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x - scalar;
+		const y = this._y - scalar;
+		return this.set(x, y);
 	}
 
 	/**
@@ -220,10 +221,9 @@ export class Vec2 {
 	 * @param {Vec2} vector
 	 */
 	subVector(vector) {
-		this._x -= vector.x;
-		this._y -= vector.y;
-		this.fireOnChange();
-		return this;
+		const x = this._x - vector.x;
+		const y = this._y - vector.y;
+		return this.set(x, y);
 	}
 
 	/**
@@ -301,11 +301,8 @@ export class Vec2 {
 		const other = new Vec2(...v);
 		other.normalize();
 		const dot = this.dot(other);
-		this._disableOnChange = true;
-		this.set(other).multiplyScalar(dot);
-		this._disableOnChange = false;
-		this.fireOnChange();
-		return this;
+		other.multiplyScalar(dot);
+		return this.set(other);
 	}
 
 	toArray() {
@@ -313,22 +310,40 @@ export class Vec2 {
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * Registers a callback that is called when this vector changes.
+	 * The first argument is a bitmask indicating which components of the vector
+	 * have changed.
+	 * For instance, `0x10` if the first component changed, `0x01` if the
+	 * second component changed, and `0x11` if all components changed.
+	 *
+	 * #### Usage
+	 * ```js
+	 * const v = new Vec2();
+	 * v.onChange(changedComponents => {
+	 * 	if (changedComponents & 0x10) {
+	 * 		console.log("x changed!");
+	 * 	}
+	 * });
+	 * ```
+	 * @param {import("./Vec3.js").OnVectorChangeCallback} cb
 	 */
 	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @param {import("./Vec3.js").OnVectorChangeCallback} cb
 	 */
 	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}
 
-	fireOnChange() {
+	/**
+	 * @param {number} changedComponents
+	 */
+	fireOnChange(changedComponents) {
 		for (const cb of this.onChangeCbs) {
-			cb();
+			cb(changedComponents);
 		}
 	}
 }

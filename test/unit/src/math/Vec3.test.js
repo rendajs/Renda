@@ -1,5 +1,5 @@
 import {assertEquals, assertNotStrictEquals} from "asserts";
-import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {Mat4, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
@@ -663,8 +663,8 @@ Deno.test({
 		let fireCount = 0;
 		const cb = () => fireCount++;
 		const vec = new Vec3();
-
 		vec.onChange(cb);
+
 		vec.removeOnChange(cb);
 		vec.set(1, 1, 1);
 
@@ -673,241 +673,134 @@ Deno.test({
 });
 
 Deno.test({
-	name: "onChange fires when x changes",
+	name: "onChange fires when components are changed",
 	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
+		/** @type {number[]} */
+		const fireResults = [];
+		/** @type {number[]} */
+		const expectedResult = [];
 		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.onChange(component => {
+			fireResults.push(component);
+		});
 
-		vec.x = 1;
+		vec.x = 2;
+		expectedResult.push(0x100);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.y = 3;
+		expectedResult.push(0x010);
 
-Deno.test({
-	name: "onChange fires when y changes",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.z = 4;
+		expectedResult.push(0x001);
 
-		vec.y = 1;
+		vec.set(1, 2, 3);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.set(3, 4, 5);
+		expectedResult.push(0x111);
 
-Deno.test({
-	name: "onChange fires when z changes",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.set(3, 4, 6);
+		expectedResult.push(0x001);
 
-		vec.z = 1;
+		vec.clone();
+		// clone doesn't fire change event
+		// We'll push -1 to both arrays in case this part and the previous
+		// part of the test have a swapped result.
+		fireResults.push(-1);
+		expectedResult.push(-1);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.multiply(1);
+		// multiplying with 1 doesn't fire the callback
+		fireResults.push(-1);
+		expectedResult.push(-1);
 
-Deno.test({
-	name: "onChange fires when set() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.magnitude = 2;
+		expectedResult.push(0x111);
 
-		vec.set(1, 1, 1);
+		vec.set(1, 0, 0);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.magnitude = 2;
+		expectedResult.push(0x100);
 
-Deno.test({
-	name: "onChange fires when multiply() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.normalize();
+		expectedResult.push(0x100);
 
-		vec.multiply(2, 2, 2);
+		vec.set(1, 2, 3);
+		vec.multiply(2);
+		expectedResult.push(0x011);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
-
-Deno.test({
-	name: "onChange fires when multiplyScalar() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.multiply([1, 2, 1]);
+		expectedResult.push(0x010);
 
 		vec.multiplyScalar(2);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.multiplyVector(new Vec3(1, 2, 1));
+		expectedResult.push(0x010);
 
-Deno.test({
-	name: "onChange fires when multiplyVector() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		const mat = new Mat4();
+		vec.multiply(mat);
+		vec.multiplyMatrix(mat);
+		// multiplying with identity matrix doesn't fire the callback
+		fireResults.push(-1);
+		expectedResult.push(-1);
 
-		vec.multiplyVector(new Vec3(2, 2));
+		const mat2 = Mat4.createTranslation(1, 2, 3);
+		vec.multiplyMatrix(mat2);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.divide(1);
+		// divide by 1 doesn't fire the callback
+		fireResults.push(-1);
+		expectedResult.push(-1);
 
-Deno.test({
-	name: "onChange fires when add() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.divide([1, 2, 1]);
+		expectedResult.push(0x010);
 
-		vec.add([2, 2, 2]);
+		vec.divideScalar(2);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.add(new Vec2(1, 2));
+		expectedResult.push(0x110);
 
-Deno.test({
-	name: "onChange fires when addScalar() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.add([0, 0, 1]);
+		expectedResult.push(0x001);
 
-		vec.addScalar(2);
+		vec.addScalar(1);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.addVector(new Vec3(0, 0, 1));
+		expectedResult.push(0x001);
 
-Deno.test({
-	name: "onChange fires when addVector() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.sub(1);
+		expectedResult.push(0x111);
 
-		vec.addVector(new Vec3(2, 2, 2));
+		vec.subScalar(1);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.subVector(new Vec3(0, 1, 0));
+		expectedResult.push(0x010);
 
-Deno.test({
-	name: "onChange fires when sub() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		vec.cross(1, 2, 3);
+		expectedResult.push(0x111);
 
-		vec.sub([2, 2, 2]);
+		vec.set(1, 2, 3);
+		vec.projectOnVector(3, 2, 1);
+		expectedResult.push(0x111);
+		expectedResult.push(0x111);
 
-		assertEquals(fireCount, 1);
-	},
-});
+		vec.set(1, 2, 3);
+		vec.rejectFromVector(3, 2, 1);
+		expectedResult.push(0x111);
+		expectedResult.push(0x111);
 
-Deno.test({
-	name: "onChange fires when subScalar() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
+		Vec3.crossVectors(vec, vec);
+		// static crossVectors shouldn't fire the callback
+		fireResults.push(-1);
+		expectedResult.push(-1);
 
-		vec.subScalar(2);
-
-		assertEquals(fireCount, 1);
-	},
-});
-
-Deno.test({
-	name: "onChange fires when subVector() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
-
-		vec.subVector(new Vec3(2, 2, 2));
-
-		assertEquals(fireCount, 1);
-	},
-});
-
-Deno.test({
-	name: "onChange fires when cross() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3(1, 1, 1);
-		vec.onChange(cb);
-
-		vec.cross(new Vec3(2, 2, 2));
-
-		assertEquals(fireCount, 1);
-	},
-});
-
-Deno.test({
-	name: "onChange doesn't fire when crossVector() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vecA = new Vec3(1, 1, 1);
-		const vecB = new Vec3(2, 2, 2);
-		vecA.onChange(cb);
-		vecB.onChange(cb);
-
-		Vec3.crossVectors(vecA, vecB);
-
-		assertEquals(fireCount, 0);
-	},
-});
-
-Deno.test({
-	name: "onChange fires when projectOnVector() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
-
-		vec.projectOnVector(1, 1, 1);
-
-		assertEquals(fireCount, 1);
-	},
-});
-
-Deno.test({
-	name: "onChange fires when rejectFromVector() is called",
-	fn() {
-		let fireCount = 0;
-		const cb = () => fireCount++;
-		const vec = new Vec3();
-		vec.onChange(cb);
-
-		vec.rejectFromVector(1, 1, 1);
-
-		assertEquals(fireCount, 1);
+		assertEquals(fireResults, expectedResult);
 	},
 });

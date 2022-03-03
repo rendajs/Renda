@@ -17,9 +17,8 @@ export class Vec4 {
 	 * @param {Vec4Parameters} args
 	 */
 	constructor(...args) {
-		/** @type {Set<() => void>} */
+		/** @type {Set<import("./Vec3.js").OnVectorChangeCallback>} */
 		this.onChangeCbs = new Set();
-		this._disableOnChange = false;
 		this._x = 0;
 		this._y = 0;
 		this._z = 0;
@@ -32,7 +31,7 @@ export class Vec4 {
 	}
 	set x(value) {
 		this._x = value;
-		this.fireOnChange();
+		this.fireOnChange(0x1000);
 	}
 
 	get y() {
@@ -40,7 +39,7 @@ export class Vec4 {
 	}
 	set y(value) {
 		this._y = value;
-		this.fireOnChange();
+		this.fireOnChange(0x0100);
 	}
 
 	get z() {
@@ -48,7 +47,7 @@ export class Vec4 {
 	}
 	set z(value) {
 		this._z = value;
-		this.fireOnChange();
+		this.fireOnChange(0x0010);
 	}
 
 	get w() {
@@ -56,13 +55,18 @@ export class Vec4 {
 	}
 	set w(value) {
 		this._w = value;
-		this.fireOnChange();
+		this.fireOnChange(0x0001);
 	}
 
 	/**
 	 * @param {Vec4Parameters} args
 	 */
 	set(...args) {
+		const prevX = this._x;
+		const prevY = this._y;
+		const prevZ = this._z;
+		const prevW = this._w;
+
 		if (args.length == 1) {
 			const arg = args[0];
 			if (arg instanceof Vec4) {
@@ -96,7 +100,12 @@ export class Vec4 {
 			if (w != undefined) this._w = w;
 		}
 
-		this.fireOnChange();
+		let changedComponents = 0x0000;
+		if (this._x != prevX) changedComponents |= 0x1000;
+		if (this._y != prevY) changedComponents |= 0x0100;
+		if (this._z != prevZ) changedComponents |= 0x0010;
+		if (this._w != prevW) changedComponents |= 0x0001;
+		if (changedComponents != 0x0000) this.fireOnChange(changedComponents);
 		return this;
 	}
 
@@ -128,15 +137,15 @@ export class Vec4 {
 	set magnitude(value) {
 		const diff = value / this.magnitude;
 		if (diff == 1) return;
-		this._x *= diff;
-		this._y *= diff;
-		this._z *= diff;
-		this._w *= diff;
-		if (isNaN(this.x)) this._x = 0;
-		if (isNaN(this.y)) this._y = 0;
-		if (isNaN(this.z)) this._z = 0;
-		if (isNaN(this.w)) this._w = 0;
-		this.fireOnChange();
+		let x = this._x * diff;
+		let y = this._y * diff;
+		let z = this._z * diff;
+		let w = this._w * diff;
+		if (isNaN(x)) x = 0;
+		if (isNaN(y)) y = 0;
+		if (isNaN(z)) z = 0;
+		if (isNaN(w)) w = 0;
+		this.set(x, y, z, w);
 	}
 
 	normalize() {
@@ -175,12 +184,11 @@ export class Vec4 {
 	 * @returns {this}
 	 */
 	multiplyScalar(scalar) {
-		this._x *= scalar;
-		this._y *= scalar;
-		this._z *= scalar;
-		this._w *= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x * scalar;
+		const y = this._y * scalar;
+		const z = this._z * scalar;
+		const w = this._w * scalar;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -189,12 +197,11 @@ export class Vec4 {
 	 * @returns {this}
 	 */
 	multiplyVector(vector) {
-		this._x *= vector.x;
-		this._y *= vector.y;
-		this._z *= vector.z;
-		this._w *= vector.w;
-		this.fireOnChange();
-		return this;
+		const x = this._x * vector.x;
+		const y = this._y * vector.y;
+		const z = this._z * vector.z;
+		const w = this._w * vector.w;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -207,12 +214,11 @@ export class Vec4 {
 		const y = this._y;
 		const z = this._z;
 		const w = this._w;
-		this._x = x * mat4.values[0][0] + y * mat4.values[1][0] + z * mat4.values[2][0] + w * mat4.values[3][0];
-		this._y = x * mat4.values[0][1] + y * mat4.values[1][1] + z * mat4.values[2][1] + w * mat4.values[3][1];
-		this._z = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + w * mat4.values[3][2];
-		this._w = x * mat4.values[0][3] + y * mat4.values[1][3] + z * mat4.values[2][3] + w * mat4.values[3][3];
-		this.fireOnChange();
-		return this;
+		const newX = x * mat4.values[0][0] + y * mat4.values[1][0] + z * mat4.values[2][0] + w * mat4.values[3][0];
+		const newY = x * mat4.values[0][1] + y * mat4.values[1][1] + z * mat4.values[2][1] + w * mat4.values[3][1];
+		const newZ = x * mat4.values[0][2] + y * mat4.values[1][2] + z * mat4.values[2][2] + w * mat4.values[3][2];
+		const newW = x * mat4.values[0][3] + y * mat4.values[1][3] + z * mat4.values[2][3] + w * mat4.values[3][3];
+		return this.set(newX, newY, newZ, newW);
 	}
 
 	/**
@@ -233,12 +239,11 @@ export class Vec4 {
 	 * @returns {this}
 	 */
 	divideScalar(scalar) {
-		this._x /= scalar;
-		this._y /= scalar;
-		this._z /= scalar;
-		this._w /= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x / scalar;
+		const y = this._y / scalar;
+		const z = this._z / scalar;
+		const w = this._w / scalar;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -247,12 +252,11 @@ export class Vec4 {
 	 * @returns {this}
 	 */
 	divideVector(vector) {
-		this._x /= vector.x;
-		this._y /= vector.y;
-		this._z /= vector.z;
-		this._w /= vector.w;
-		this.fireOnChange();
-		return this;
+		const x = this._x / vector.x;
+		const y = this._y / vector.y;
+		const z = this._z / vector.z;
+		const w = this._w / vector.w;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -276,12 +280,11 @@ export class Vec4 {
 	 * @returns {this}
 	 */
 	addScalar(scalar) {
-		this._x += scalar;
-		this._y += scalar;
-		this._z += scalar;
-		this._w += scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x + scalar;
+		const y = this._y + scalar;
+		const z = this._z + scalar;
+		const w = this._w + scalar;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -290,12 +293,11 @@ export class Vec4 {
 	 * @returns {this}
 	 */
 	addVector(vector) {
-		this._x += vector.x;
-		this._y += vector.y;
-		this._z += vector.z;
-		this._w += vector.w;
-		this.fireOnChange();
-		return this;
+		const x = this._x + vector.x;
+		const y = this._y + vector.y;
+		const z = this._z + vector.z;
+		const w = this._w + vector.w;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -318,12 +320,11 @@ export class Vec4 {
 	 * @param {number} scalar
 	 */
 	subScalar(scalar) {
-		this._x -= scalar;
-		this._y -= scalar;
-		this._z -= scalar;
-		this._w -= scalar;
-		this.fireOnChange();
-		return this;
+		const x = this._x - scalar;
+		const y = this._y - scalar;
+		const z = this._z - scalar;
+		const w = this._w - scalar;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -331,12 +332,11 @@ export class Vec4 {
 	 * @param {Vec4} vector
 	 */
 	subVector(vector) {
-		this._x -= vector.x;
-		this._y -= vector.y;
-		this._z -= vector.z;
-		this._w -= vector.w;
-		this.fireOnChange();
-		return this;
+		const x = this._x - vector.x;
+		const y = this._y - vector.y;
+		const z = this._z - vector.z;
+		const w = this._w - vector.w;
+		return this.set(x, y, z, w);
 	}
 
 	/**
@@ -404,13 +404,10 @@ export class Vec4 {
 	 */
 	projectOnVector(...v) {
 		const other = new Vec4(...v);
-		const magnitude = other.magnitude;
-		const scalar = this.dot(other) / magnitude ** 2;
-		this._disableOnChange = true;
-		this.set(other).multiplyScalar(scalar);
-		this._disableOnChange = false;
-		this.fireOnChange();
-		return this;
+		other.normalize();
+		const dot = this.dot(other);
+		other.multiplyScalar(dot);
+		return this.set(other);
 	}
 
 	toArray() {
@@ -418,23 +415,41 @@ export class Vec4 {
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * Registers a callback that is called when this vector changes.
+	 * The first argument is a bitmask indicating which components of the vector
+	 * have changed.
+	 * For instance, `0x100` if the first component changed, `0x010` if the
+	 * second component changed, `0x001` if the third component changed, and
+	 * `0x111` if all components changed.
+	 *
+	 * #### Usage
+	 * ```js
+	 * const v = new Vec3();
+	 * v.onChange(changedComponents => {
+	 * 	if (changedComponents & 0x100) {
+	 * 		console.log("x changed!");
+	 * 	}
+	 * });
+	 * ```
+	 * @param {import("./Vec3.js").OnVectorChangeCallback} cb
 	 */
 	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @param {import("./Vec3.js").OnVectorChangeCallback} cb
 	 */
 	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}
 
-	fireOnChange() {
-		if (this._disableOnChange) return;
+	/**
+	 * @param {number} changedComponents
+	 */
+	fireOnChange(changedComponents) {
 		for (const cb of this.onChangeCbs) {
-			cb();
+			cb(changedComponents);
 		}
 	}
 }
