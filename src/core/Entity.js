@@ -438,13 +438,34 @@ export class Entity {
 	 * @param {number} changedComponents
 	 */
 	onWorldPosChange(changedComponents) {
-		const newLocalPos = this._worldPos.clone();
+		let pos;
+
+		if (changedComponents == 0x111) {
+			pos = this._worldPos.clone();
+		} else {
+			// The current world position might be old, so if only a single
+			// component has changed, we want to update the world matrix and
+			// only use the changed component.
+			const desiredWorldPos = this._worldPos.clone();
+			this.updateWorldMatrixIfDirty();
+			pos = this._worldPos.clone();
+
+			if (changedComponents & 0x100) {
+				pos.x = desiredWorldPos.x;
+			}
+			if (changedComponents & 0x010) {
+				pos.y = desiredWorldPos.y;
+			}
+			if (changedComponents & 0x001) {
+				pos.z = desiredWorldPos.z;
+			}
+		}
 
 		if (this.parent) {
 			const parentMat = this.parent.worldMatrix.inverse();
-			newLocalPos.multiply(parentMat);
+			pos.multiply(parentMat);
 		}
-		this.pos = newLocalPos;
+		this.pos = pos;
 	}
 
 	/**
@@ -465,14 +486,35 @@ export class Entity {
 	 * @param {number} changedComponents
 	 */
 	onWorldScaleChange(changedComponents) {
-		const newLocalScale = this._worldScale.clone();
+		let scale;
+
+		if (changedComponents == 0x111) {
+			scale = this._worldScale.clone();
+		} else {
+			// The current world scale might be old, so if only a single
+			// component has changed, we want to update the world matrix and
+			// only use the changed component.
+			const desiredWorldScale = this._worldScale.clone();
+			this.updateWorldMatrixIfDirty();
+			scale = this._worldScale.clone();
+
+			if (changedComponents & 0x100) {
+				scale.x = desiredWorldScale.x;
+			}
+			if (changedComponents & 0x010) {
+				scale.y = desiredWorldScale.y;
+			}
+			if (changedComponents & 0x001) {
+				scale.z = desiredWorldScale.z;
+			}
+		}
 
 		if (this.parent) {
 			const parentMat = this.parent.worldMatrix.inverse();
 			const parentScale = parentMat.getScale();
-			newLocalScale.multiply(parentScale);
+			scale.multiply(parentScale);
 		}
-		this.scale = newLocalScale;
+		this.scale = scale;
 	}
 
 	/**

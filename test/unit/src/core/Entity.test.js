@@ -145,6 +145,21 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "set world position on a single component",
+	fn() {
+		const parent = new Entity();
+		parent.pos.set(1, 2, 3);
+		const child = parent.add(new Entity());
+
+		const ref = child.worldPos;
+		parent.pos.set(0, 0, 0);
+		ref.x = 1;
+
+		assertVecAlmostEquals(child.pos, [1, 0, 0]);
+	},
+});
+
 // ==== World rotation =========================================================
 
 // TODO: These are broken right now, presumably because in the localMatrix
@@ -249,6 +264,21 @@ Deno.test({
 		child.scale.set(0.5, 0.5, 0.5);
 
 		assertVecAlmostEquals(child.worldScale, [1, 1, 1]);
+	},
+});
+
+Deno.test({
+	name: "set world scale on a single component",
+	fn() {
+		const parent = new Entity();
+		parent.scale.set(2, 2, 2);
+		const child = parent.add(new Entity());
+
+		const ref = child.worldScale;
+		parent.scale.set(1, 1, 1);
+		ref.x = 3;
+
+		assertVecAlmostEquals(child.scale, [3, 1, 1]);
 	},
 });
 
