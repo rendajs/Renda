@@ -1,11 +1,12 @@
-#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check=remote --unstable --import-map=importmap.json
+#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check --unstable --import-map=importmap.json
 
-import {dirname, join} from "path";
+import {dirname, join, resolve} from "path";
 import {setCwd} from "chdir-anywhere";
 import {serveDir} from "https://deno.land/std@0.127.0/http/file_server.ts";
 import {serve} from "https://deno.land/std@0.127.0/http/server.ts";
-setCwd();
+import {Application as DevSocket} from "../editor/devSocket/src/Application.js";
 
+setCwd();
 Deno.chdir("..");
 
 const HASH_STORAGE_PATH = ".lastDevInitHash";
@@ -172,20 +173,26 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 const buildProcess = Deno.run({
 	cmd: ["./editor/scripts/build.js", "--dev"],
 });
-const devSocketProcess = Deno.run({
-	cmd: ["./editor/devSocket/src/main.js"],
-});
-const editorDiscoveryProcess = Deno.run({
-	cmd: ["./editor/editorDiscoveryServer/src/main.js"],
-});
+// const editorDiscoveryProcess = Deno.run({
+// 	cmd: ["./editor/editorDiscoveryServer/src/main.js"],
+// });
 
 await buildProcess.status();
-await devSocketProcess.status();
-await editorDiscoveryProcess.status();
+// await editorDiscoveryProcess.status();
+
+const builtInAssetsPath = resolve(Deno.cwd(), "./editor/builtInAssets/");
+const devSocket = new DevSocket({
+	builtInAssetsPath,
+});
+devSocket.init();
 
 const port = 8080;
 const fsRoot = Deno.cwd();
 serve(request => {
+	const url = new URL(request.url);
+	if (url.pathname == "/devSocket") {
+		return devSocket.webSocketManager.handleRequest(request);
+	}
 	return serveDir(request, {
 		fsRoot,
 		showDirListing: true,

@@ -1,3 +1,5 @@
+import {serve} from "https://deno.land/std@0.127.0/http/server.ts";
+
 export class WebSocketManager {
 	constructor() {
 		/** @type {Set<WebSocket>} */
@@ -7,29 +9,29 @@ export class WebSocketManager {
 		this.registeredRoundTripOps = new Map();
 	}
 
-	async init() {
-		const listener = Deno.listen({port: 8081});
-		for await (const conn of listener) {
-			this.handleHttp(conn);
-		}
+	/**
+	 * @param {number} port
+	 */
+	async startServer(port) {
+		serve(request => {
+			return this.handleRequest(request);
+		}, {port});
+		console.log(`DevSocket listening on port ${port}`);
 	}
 
 	/**
-	 * @param {Deno.Conn} conn
+	 * @param {Request} request
 	 */
-	async handleHttp(conn) {
-		const httpConn = Deno.serveHttp(conn);
-		for await (const e of httpConn) {
-			const {socket, response} = Deno.upgradeWebSocket(e.request);
-			this.activeConnections.add(socket);
-			socket.addEventListener("message", e => {
-				this.handleWebSocketMessage(e);
-			});
-			socket.addEventListener("close", () => {
-				this.activeConnections.delete(socket);
-			});
-			e.respondWith(response);
-		}
+	handleRequest(request) {
+		const {socket, response} = Deno.upgradeWebSocket(request);
+		this.activeConnections.add(socket);
+		socket.addEventListener("message", e => {
+			this.handleWebSocketMessage(e);
+		});
+		socket.addEventListener("close", () => {
+			this.activeConnections.delete(socket);
+		});
+		return response;
 	}
 
 	/**

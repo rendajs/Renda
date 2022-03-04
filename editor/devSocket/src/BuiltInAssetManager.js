@@ -13,9 +13,15 @@ async function hash(data) {
 }
 
 export class BuiltInAssetManager {
-	constructor() {
+	constructor({
+		builtInAssetsPath = /** @type {string?} */ (null),
+	}) {
 		const scriptDir = dirname(fromFileUrl(import.meta.url));
-		this.builtInAssetsPath = resolve(scriptDir, "../../builtInAssets/");
+		if (builtInAssetsPath == null) {
+			this.builtInAssetsPath = resolve(scriptDir, "../../builtInAssets/");
+		} else {
+			this.builtInAssetsPath = builtInAssetsPath;
+		}
 		this.assetSettingsPath = resolve(this.builtInAssetsPath, "assetSettings.json");
 
 		this.assetSettingsLoaded = false;

@@ -1,4 +1,8 @@
-#!/usr/bin/env -S deno run --unstable --allow-net --allow-read --allow-write --allow-run --import-map=importmap.json
+#!/usr/bin/env -S deno run --unstable --no-check --allow-net --allow-read --allow-write --allow-run --import-map=importmap.json
 
-import {init} from "./mainInstance.js";
-init();
+import {Application} from "./Application.js";
+
+const app = new Application({
+	port: 8081,
+});
+app.init();
