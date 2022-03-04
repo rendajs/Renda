@@ -1,4 +1,4 @@
-import {Vec3} from "../../mod.js";
+import {Vec3} from "../../math/Vec3.js";
 import {GizmoDraggable} from "./GizmoDraggable.js";
 
 /**

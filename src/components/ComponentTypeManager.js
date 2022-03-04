@@ -1,5 +1,5 @@
-import {isUuid} from "../mod.js";
-import {Component} from "./mod.js";
+import {isUuid} from "../util/mod.js";
+import {Component} from "./Component.js";
 
 export class ComponentTypeManager {
 	constructor() {
