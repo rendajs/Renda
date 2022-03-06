@@ -1,9 +1,15 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/mod.js";
 
-// todo: better types for generics
 /**
- * @extends {ProjectAssetType<WebGpuPipelineConfig, null, any>}
+ * @typedef WebGpuPipelineConfigAssetData
+ * @property {import("../../../../src/mod.js").UuidString} [vertexShader]
+ * @property {import("../../../../src/mod.js").UuidString} [fragmentShader]
+ * @property {"point-list" | "line-list" | "line-strip" | "triangle-list" | "triangle-strip"} [primitiveTopology]
+ */
+
+/**
+ * @extends {ProjectAssetType<WebGpuPipelineConfig, null, WebGpuPipelineConfigAssetData>}
  */
 export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	static type = "JJ:webGpuPipelineConfig";
@@ -47,23 +53,38 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {*} fileData
+	 * @param {WebGpuPipelineConfigAssetData} fileData
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<WebGpuPipelineConfig, null>>}
 	 */
-	async getLiveAssetData(fileData) {
-		/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
-		const fragmentShaderAsset = await this.assetManager.getProjectAsset(fileData.fragmentShader);
-		/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
-		const vertexShaderAsset = await this.assetManager.getProjectAsset(fileData.vertexShader);
+	async getLiveAssetData(fileData, recursionTracker) {
+		let fragmentShaderAsset = null;
+		if (fileData.fragmentShader) {
+			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
+			fragmentShaderAsset = await this.assetManager.getProjectAsset(fileData.fragmentShader);
+		}
+		let vertexShaderAsset = null;
+		if (fileData.vertexShader) {
+			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
+			vertexShaderAsset = await this.assetManager.getProjectAsset(fileData.vertexShader);
+		}
 		this.listenForUsedLiveAssetChanges(fragmentShaderAsset);
 		this.listenForUsedLiveAssetChanges(vertexShaderAsset);
+		// TODO: add capability for asset type assertions in getLiveAsset()
+		// TODO: use recursionTracker, but find a way to combine it with listenForUsedLiveAssetChanges
 		let vertexShader = null;
 		let fragmentShader = null;
 		if (vertexShaderAsset) {
-			vertexShader = await vertexShaderAsset.getLiveAsset();
+			const shader = await vertexShaderAsset.getLiveAsset();
+			if (shader instanceof ShaderSource) {
+				vertexShader = shader;
+			}
 		}
 		if (fragmentShaderAsset) {
-			fragmentShader = await fragmentShaderAsset.getLiveAsset();
+			const shader = await fragmentShaderAsset.getLiveAsset();
+			if (shader instanceof ShaderSource) {
+				fragmentShader = shader;
+			}
 		}
 		const liveAsset = new WebGpuPipelineConfig({
 			vertexShader, fragmentShader,

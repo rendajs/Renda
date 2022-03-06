@@ -28,6 +28,10 @@ export class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericS
 		};
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} buffer
+	 */
 	async parseBuffer(buffer) {
 		const data = await super.parseBuffer(buffer);
 		return new WebGpuPipelineConfig(data);
