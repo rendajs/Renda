@@ -65,7 +65,7 @@ export function createFakeGizmoManager({
 			this.onDragCbs = new Set();
 
 			this.axis = new Vec3();
-			this.pos = new Vec3();
+			this.entity = new Entity();
 		}
 
 		addRaycastShape() {}

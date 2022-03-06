@@ -26,6 +26,5 @@ Deno.test({
 
 		assertEquals(calls.length, 1);
 		assertVecAlmostEquals(calls[0].delta, [0.198, 0, -0.019], 0.001);
-		assertVecAlmostEquals(draggable.pos, [0.198, 0, -0.019], 0.001);
 	},
 });

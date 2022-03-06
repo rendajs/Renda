@@ -13,7 +13,7 @@ Deno.test({
 		const {gizmoManager} = createFakeGizmoManager();
 		const gizmo = new ExtendedGizmo(gizmoManager);
 
-		assertEquals(gizmo.entity.name, "gizmo (ExtendedGizmo)");
+		assertEquals(gizmo.entity.name, "Gizmo (ExtendedGizmo)");
 	},
 });
 

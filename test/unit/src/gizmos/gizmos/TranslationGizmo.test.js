@@ -202,3 +202,17 @@ Deno.test({
 		assertVecAlmostEquals(translationGizmo.pos, [1, 1, 1]);
 	},
 });
+
+Deno.test({
+	name: "draggable positions are relative to the gizmo",
+	fn() {
+		const {translationGizmo, createdDraggables} = basicSetup();
+
+		translationGizmo.entity.pos.set(1, 1, 1);
+
+		assertVecAlmostEquals(createdDraggables[0].entity.worldPos, [1, 1, 1]);
+		assertVecAlmostEquals(createdDraggables[1].entity.worldPos, [2, 1, 1]);
+		assertVecAlmostEquals(createdDraggables[2].entity.worldPos, [1, 2, 1]);
+		assertVecAlmostEquals(createdDraggables[3].entity.worldPos, [1, 1, 2]);
+	},
+});

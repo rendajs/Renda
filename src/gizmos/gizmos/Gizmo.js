@@ -6,7 +6,7 @@ export class Gizmo {
 	 */
 	constructor(gizmoManager) {
 		this.gizmoManager = gizmoManager;
-		this.entity = new Entity("gizmo (" + this.constructor.name + ")");
+		this.entity = new Entity("Gizmo (" + this.constructor.name + ")");
 	}
 
 	get pos() {

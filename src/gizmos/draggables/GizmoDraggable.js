@@ -1,4 +1,4 @@
-import {Vec3} from "../../math/Vec3.js";
+import {Entity} from "../../core/Entity.js";
 
 /** @typedef {(isHovering: boolean) => void} OnIsHoveringChangeCb */
 
@@ -37,7 +37,7 @@ export class GizmoDraggable {
 	constructor(gizmoManager) {
 		this.gizmoManager = gizmoManager;
 
-		this.pos = new Vec3();
+		this.entity = new Entity("GizmoDraggable (" + this.constructor.name + ")");
 		this._isHovering = false;
 		/** @type {Set<OnIsHoveringChangeCb>} */
 		this._onIsHoveringChangeCbs = new Set();
@@ -68,7 +68,7 @@ export class GizmoDraggable {
 	 * @param {import("../../Components/builtIn/CameraComponent.js").CameraComponent} camera
 	 */
 	getScreenPos(camera) {
-		return camera.worldToScreenPos(this.pos);
+		return camera.worldToScreenPos(this.entity.pos);
 	}
 
 	/**
@@ -79,11 +79,12 @@ export class GizmoDraggable {
 	}
 
 	/**
-	 * @param {Vec3} start
-	 * @param {Vec3} dir
+	 * @param {import("../../math/Vec3.js").Vec3} start
+	 * @param {import("../../math/Vec3.js").Vec3} dir
 	 */
 	raycast(start, dir) {
-		start = start.clone().sub(this.pos);
+		const mat = this.entity.worldMatrix.inverse();
+		start = start.clone().multiply(mat);
 
 		let closestResult = null;
 		let closestDist = Infinity;

@@ -34,10 +34,10 @@ export class MoveAxisGizmoDraggable extends GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerEventData} eventData
 	 */
 	handlePointerDown(pointerDevice, eventData) {
-		this.dragStartWorldPos = this.pos.clone();
-		this.dragStartScreenPos = eventData.camera.worldToScreenPos(this.pos).toVec2();
+		this.dragStartWorldPos = this.entity.worldPos.clone();
+		this.dragStartScreenPos = eventData.camera.worldToScreenPos(this.dragStartWorldPos).toVec2();
 		this.dragStartScreenPosPointer = eventData.screenPos;
-		this.prevDragWorldPos.set(this.pos);
+		this.prevDragWorldPos.set(this.dragStartWorldPos);
 	}
 
 	/**
@@ -72,11 +72,10 @@ export class MoveAxisGizmoDraggable extends GizmoDraggable {
 		const ray = eventData.camera.getRaycastRayFromScreenPos(newScreenPos);
 
 		const newWorldPos = closestPointBetweenLines(this.dragStartWorldPos, this.axis, ray.start, ray.dir);
-		this.pos.set(newWorldPos);
 
 		/** The change in world position since the last event. */
-		const deltaWorldPos = this.pos.clone().sub(this.prevDragWorldPos);
-		this.prevDragWorldPos.set(this.pos);
+		const deltaWorldPos = newWorldPos.clone().sub(this.prevDragWorldPos);
+		this.prevDragWorldPos.set(newWorldPos);
 
 		/** @type {import("./MoveGizmoDraggable.js").GizmoDragMoveEvent} */
 		const moveEvent = {

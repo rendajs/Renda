@@ -33,7 +33,7 @@ export class MoveGizmoDraggable extends GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerEventData} eventData
 	 */
 	handlePointerDown(pointerDevice, eventData) {
-		this.dragStartScreenPos = eventData.camera.worldToScreenPos(this.pos);
+		this.dragStartScreenPos = eventData.camera.worldToScreenPos(this.entity.worldPos);
 		const worldPos = eventData.camera.screenToWorldPos(new Vec3(eventData.screenPos.x, eventData.screenPos.y, this.dragStartScreenPos.z));
 		this.prevDragWorldPos.set(worldPos);
 	}
@@ -70,7 +70,6 @@ export class MoveGizmoDraggable extends GizmoDraggable {
 		const moveEvent = {
 			delta: deltaWorldPos,
 		};
-		this.pos.add(deltaWorldPos);
 		this.fireDragCallbacks(moveEvent);
 	}
 }

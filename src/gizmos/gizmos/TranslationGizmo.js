@@ -62,6 +62,7 @@ export class TranslationGizmo extends Gizmo {
 		this.centerDraggable = this.gizmoManager.createDraggable("move");
 		const sphere = new Sphere(0.5);
 		this.centerDraggable.addRaycastShape(sphere);
+		this.entity.add(this.centerDraggable.entity);
 		this.centerDraggable.onIsHoveringChange(isHovering => {
 			if (isHovering) {
 				this.circleMaterialColor.set(hoverColor);
@@ -176,6 +177,8 @@ export class TranslationGizmo extends Gizmo {
 		this.entity.add(entity);
 
 		const draggable = this.gizmoManager.createDraggable("move-axis");
+		this.entity.add(draggable.entity);
+		draggable.entity.pos.set(axis);
 		const sphere = new Sphere(0.5);
 		draggable.addRaycastShape(sphere);
 		draggable.axis.set(axis);
@@ -191,7 +194,6 @@ export class TranslationGizmo extends Gizmo {
 			this.pos.add(e.delta);
 			this.gizmoNeedsRender();
 		});
-		draggable.pos.set(axis);
 
 		return meshComponent;
 	}
