@@ -80,10 +80,10 @@ export class DropDownGui {
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
 		if (enumObject) this.setEnumObject(enumObject);
+		this.updateOptions();
+
 		this.setValue(defaultValue);
 		this.setDisabled(disabled);
-
-		this.updateOptions();
 	}
 
 	destructor() {
