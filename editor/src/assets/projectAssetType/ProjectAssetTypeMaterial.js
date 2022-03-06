@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {Material} from "../../../../src/mod.js";
+import {Material} from "../../../../src/rendering/Material.js";
 import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
@@ -36,30 +36,38 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	}
 
 	/**
-	 * @param {Material} liveAsset
 	 * @override
+	 * @param {Material?} liveAsset
+	 * @param {null} editorData
 	 */
-	async saveLiveAssetData(liveAsset) {
+	async saveLiveAssetData(liveAsset, editorData) {
 		/** @type {import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
-		const mapUuid = this.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
+		let mapUuid = null;
+		if (liveAsset) {
+			mapUuid = this.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
+		}
 		if (mapUuid) {
 			assetData.map = mapUuid;
 		}
-		/** @type {Object.<any, any>} */
-		const modifiedProperties = {};
-		let hasModifiedProperty = false;
-		for (const [key, value] of liveAsset.getAllProperties()) {
-			hasModifiedProperty = true;
-			let storeValue = value;
-			const mathType = mathTypeToJson(value);
-			if (mathType) {
-				storeValue = mathType;
+		if (liveAsset) {
+			/** @type {Object.<string, unknown>} */
+			const modifiedProperties = {};
+			let hasModifiedProperty = false;
+			for (const [key, value] of liveAsset.getAllProperties()) {
+				hasModifiedProperty = true;
+				let storeValue = null;
+				const mathType = mathTypeToJson(value);
+				if (mathType) {
+					storeValue = mathType;
+				} else {
+					storeValue = value;
+				}
+				modifiedProperties[key] = storeValue;
 			}
-			modifiedProperties[key] = storeValue;
-		}
-		if (hasModifiedProperty) {
-			assetData.properties = modifiedProperties;
+			if (hasModifiedProperty) {
+				assetData.properties = modifiedProperties;
+			}
 		}
 		return assetData;
 	}
