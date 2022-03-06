@@ -86,7 +86,7 @@ export class WebGpuRenderer extends Renderer {
 				{
 					binding: 1, // lights
 					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
-					buffer: {type: "read-only-storage"},
+					buffer: {type: "storage"},
 				},
 				{
 					binding: 2, // cluster light indices
