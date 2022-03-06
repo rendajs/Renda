@@ -450,8 +450,8 @@ export class WebGpuRenderer extends Renderer {
 				},
 				depthStencil: {
 					format: outputConfig.depthStencilFormat,
-					depthCompare: "less",
-					depthWriteEnabled: true,
+					depthCompare: pipelineConfig.depthCompareFunction,
+					depthWriteEnabled: pipelineConfig.depthWriteEnabled,
 				},
 				multisample: {
 					count: outputConfig.multisampleCount,

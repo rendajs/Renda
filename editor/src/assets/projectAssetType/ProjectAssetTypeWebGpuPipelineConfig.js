@@ -5,7 +5,9 @@ import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPi
  * @typedef WebGpuPipelineConfigAssetData
  * @property {import("../../../../src/mod.js").UuidString} [vertexShader]
  * @property {import("../../../../src/mod.js").UuidString} [fragmentShader]
- * @property {"point-list" | "line-list" | "line-strip" | "triangle-list" | "triangle-strip"} [primitiveTopology]
+ * @property {GPUPrimitiveTopology} [primitiveTopology]
+ * @property {GPUCompareFunction} [depthCompareFunction]
+ * @property {boolean} [depthWriteEnabled]
  */
 
 /**
@@ -35,6 +37,19 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			guiOpts: {
 				items: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
 				defaultValue: "triangle-list",
+			},
+		},
+		depthCompareFunction: {
+			type: "dropdown",
+			guiOpts: {
+				items: AssetLoaderTypeWebGpuPipelineConfig.compareFunction,
+				defaultValue: "less",
+			},
+		},
+		depthWriteEnabled: {
+			type: "boolean",
+			guiOpts: {
+				defaultValue: true,
 			},
 		},
 		preloadVertexStates: {
@@ -89,6 +104,8 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 		const liveAsset = new WebGpuPipelineConfig({
 			vertexShader, fragmentShader,
 			primitiveTopology: fileData.primitiveTopology,
+			depthCompareFunction: fileData.depthCompareFunction,
+			depthWriteEnabled: fileData.depthWriteEnabled,
 		});
 		return {liveAsset};
 	}

@@ -11,6 +11,10 @@ export class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericS
 		return ["point-list", "line-list", "line-strip", "triangle-list", "triangle-strip"];
 	}
 
+	static get compareFunction() {
+		return ["never", "less", "equal", "less-equal", "greater", "not-equal", "greater-equal", "always"];
+	}
+
 	static get binaryComposerOpts() {
 		return {
 			structure: {
