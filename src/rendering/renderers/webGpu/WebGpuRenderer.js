@@ -257,6 +257,7 @@ export class WebGpuRenderer extends Renderer {
 		 * @property {Mat4} worldMatrix
 		 */
 
+		// Collect all objects in the scene
 		/** @type {MeshRenderData[]} */
 		const meshRenderDatas = [];
 		/** @type {LightComponent[]} */
@@ -327,8 +328,9 @@ export class WebGpuRenderer extends Renderer {
 		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
 
-		/** @type {Map<import("../../Material.js").Material, Map<GPURenderPipeline, MeshRenderData[]>>} */
-		const materialRenderDatas = new Map();
+		// Group all meshes by pipeline and material
+		/** @type {Map<GPURenderPipeline, Map<import("../../Material.js").Material, MeshRenderData[]>>} */
+		const pipelineRenderDatas = new Map();
 		for (const renderData of meshRenderDatas) {
 			if (!renderData.component.mesh || !renderData.component.mesh.vertexState) continue;
 			for (const material of renderData.component.materials) {
@@ -343,31 +345,31 @@ export class WebGpuRenderer extends Renderer {
 				if (!materialData.forwardPipelineConfig || !materialData.forwardPipelineConfig.vertexShader || !materialData.forwardPipelineConfig.fragmentShader) continue;
 				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 
-				let pipelines = materialRenderDatas.get(material);
-				if (!pipelines) {
-					pipelines = new Map();
-					materialRenderDatas.set(material, pipelines);
+				let materials = pipelineRenderDatas.get(forwardPipeline);
+				if (!materials) {
+					materials = new Map();
+					pipelineRenderDatas.set(forwardPipeline, materials);
 				}
 
-				let renderDatas = pipelines.get(forwardPipeline);
+				let renderDatas = materials.get(material);
 				if (!renderDatas) {
 					renderDatas = [];
-					pipelines.set(forwardPipeline, renderDatas);
+					materials.set(material, renderDatas);
 				}
 				renderDatas.push(renderData);
 			}
 		}
 
-		for (const [material, pipelines] of materialRenderDatas) {
-			const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
-			renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
+		for (const [pipeline, materials] of pipelineRenderDatas) {
+			renderPassEncoder.setPipeline(pipeline);
 
-			for (const [, value] of material.getAllMappedProperties(MaterialMapTypeWebGpu)) {
-				this.materialUniformsBuffer.appendData(value, "f32");
-			}
+			for (const [material, renderDatas] of materials) {
+				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
+				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
+				for (const [, value] of material.getAllMappedProperties(MaterialMapTypeWebGpu)) {
+					this.materialUniformsBuffer.appendData(value, "f32");
+				}
 
-			for (const [pipeline, renderDatas] of pipelines) {
-				renderPassEncoder.setPipeline(pipeline);
 				for (const {component: meshComponent, worldMatrix} of renderDatas) {
 					const mesh = meshComponent.mesh;
 					if (!mesh) continue;
@@ -403,9 +405,8 @@ export class WebGpuRenderer extends Renderer {
 					this.objectUniformsBuffer.appendMatrix(worldMatrix);
 					this.objectUniformsBuffer.nextEntryLocation();
 				}
+				this.materialUniformsBuffer.nextEntryLocation();
 			}
-
-			this.materialUniformsBuffer.nextEntryLocation();
 		}
 		this.materialUniformsBuffer.writeAllChunksToGpu();
 		this.objectUniformsBuffer.writeAllChunksToGpu();
