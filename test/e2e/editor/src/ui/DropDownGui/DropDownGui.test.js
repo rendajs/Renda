@@ -1,8 +1,8 @@
 import {assertEquals} from "asserts";
-import {init, openBasicScriptPage} from "../../../../shared/browser.js";
+import {initBrowser, openBasicScriptPage} from "../../../../shared/browser.js";
 import {waitFor} from "../../../../shared/util.js";
 
-await init();
+await initBrowser();
 
 Deno.test({
 	name: "Creates the element with the correct defaultValue",

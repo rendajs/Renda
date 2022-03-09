@@ -1,9 +1,9 @@
 import {assertEquals} from "asserts";
-import {getContext, init} from "../../../shared/browser.js";
+import {getContext, initBrowser} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/common.js";
 import {waitFor} from "../../../shared/util.js";
 
-await init();
+await initBrowser();
 
 Deno.test({
 	name: "Rename a project and refresh the page, it should open the latest project",

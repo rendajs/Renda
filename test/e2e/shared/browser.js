@@ -2,9 +2,21 @@ import puppeteer from "puppeteer";
 
 const MAIN_PAGE_URL = "http://localhost:8080/";
 
+/**
+ * A collection of sanitizer options for tests that are using puppeteer.
+ * Use this of setting sanitizer options yourself so that they can easily be
+ * modified globally in the future. This is in case new sanitizers are added
+ * to Deno. Or if a way is added to easily find out where async ops are being
+ * leaked.
+ */
+export const puppeteerSanitizers = {
+	sanitizeOps: false,
+	sanitizeExit: false,
+};
+
 /** @type {import("puppeteer").Browser?} */
 let browser = null;
-export async function init() {
+export async function initBrowser() {
 	if (browser) {
 		throw new Error("Browser already initialized.");
 	}
