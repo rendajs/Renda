@@ -8,6 +8,7 @@ import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPi
  * @property {GPUPrimitiveTopology} [primitiveTopology]
  * @property {GPUCompareFunction} [depthCompareFunction]
  * @property {boolean} [depthWriteEnabled]
+ * @property {number} [renderOrder]
  */
 
 /**
@@ -50,6 +51,13 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			type: "boolean",
 			guiOpts: {
 				defaultValue: true,
+			},
+		},
+		renderOrder: {
+			type: "number",
+			guiOpts: {
+				defaultValue: 0,
+				step: 1,
 			},
 		},
 		preloadVertexStates: {
@@ -106,6 +114,7 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			primitiveTopology: fileData.primitiveTopology,
 			depthCompareFunction: fileData.depthCompareFunction,
 			depthWriteEnabled: fileData.depthWriteEnabled,
+			renderOrder: fileData.renderOrder,
 		});
 		return {liveAsset};
 	}

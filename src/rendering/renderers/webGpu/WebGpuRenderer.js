@@ -328,8 +328,14 @@ export class WebGpuRenderer extends Renderer {
 		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
 
+		/**
+		 * @typedef PipelineRenderData
+		 * @property {Map<import("../../Material.js").Material, MeshRenderData[]>} materialRenderDatas
+		 * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} forwardPipelineConfig
+		 */
+
 		// Group all meshes by pipeline and material
-		/** @type {Map<GPURenderPipeline, Map<import("../../Material.js").Material, MeshRenderData[]>>} */
+		/** @type {Map<GPURenderPipeline, PipelineRenderData>} */
 		const pipelineRenderDatas = new Map();
 		for (const renderData of meshRenderDatas) {
 			if (!renderData.component.mesh || !renderData.component.mesh.vertexState) continue;
@@ -345,25 +351,36 @@ export class WebGpuRenderer extends Renderer {
 				if (!materialData.forwardPipelineConfig || !materialData.forwardPipelineConfig.vertexShader || !materialData.forwardPipelineConfig.fragmentShader) continue;
 				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 
-				let materials = pipelineRenderDatas.get(forwardPipeline);
-				if (!materials) {
-					materials = new Map();
-					pipelineRenderDatas.set(forwardPipeline, materials);
+				let pipelineRenderData = pipelineRenderDatas.get(forwardPipeline);
+				if (!pipelineRenderData) {
+					pipelineRenderData = {
+						materialRenderDatas: new Map(),
+						forwardPipelineConfig: materialData.forwardPipelineConfig,
+					};
+					pipelineRenderDatas.set(forwardPipeline, pipelineRenderData);
 				}
 
-				let renderDatas = materials.get(material);
+				let renderDatas = pipelineRenderData.materialRenderDatas.get(material);
 				if (!renderDatas) {
 					renderDatas = [];
-					materials.set(material, renderDatas);
+					pipelineRenderData.materialRenderDatas.set(material, renderDatas);
 				}
 				renderDatas.push(renderData);
 			}
 		}
 
-		for (const [pipeline, materials] of pipelineRenderDatas) {
+		// Sort meshes by pipeline
+		const sortedPipelineRenderDatas = Array.from(pipelineRenderDatas.entries());
+		sortedPipelineRenderDatas.sort((a, b) => {
+			const aConfig = a[1].forwardPipelineConfig;
+			const bConfig = b[1].forwardPipelineConfig;
+			return aConfig.renderOrder - bConfig.renderOrder;
+		});
+
+		for (const [pipeline, pipelineRenderData] of sortedPipelineRenderDatas) {
 			renderPassEncoder.setPipeline(pipeline);
 
-			for (const [material, renderDatas] of materials) {
+			for (const [material, renderDatas] of pipelineRenderData.materialRenderDatas) {
 				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
 				for (const [, value] of material.getAllMappedProperties(MaterialMapTypeWebGpu)) {
