@@ -36,6 +36,9 @@ export class CachedMeshData {
 			this.indexBuffer.destroy();
 			this.indexBuffer = null;
 		}
+		if (!this.renderer.isInit || !this.renderer.device) {
+			throw new Error("Failed to create gpu buffer: renderer not initialized");
+		}
 		if (this.mesh.indexBuffer) {
 			const indexBuffer = this.renderer.device.createBuffer({
 				label: "CachedMeshDataIndexBuffer",
@@ -62,6 +65,9 @@ export class CachedMeshData {
 		// todo: support for dynamic indexbuffer updates using GPUBufferUsage.COPY_DST and device.queue.writeBuffer
 		if (this.indexBufferDirty) {
 			this.createIndexGpuBuffer();
+		}
+		if (!this.indexBuffer) {
+			throw new Error("Assertion failed: index buffer was not created");
 		}
 		return this.indexBuffer;
 	}

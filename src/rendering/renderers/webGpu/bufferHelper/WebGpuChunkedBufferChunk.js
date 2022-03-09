@@ -14,7 +14,7 @@ export class WebGpuChunkedBufferChunk {
 			usage: this.chunkedBuffer.usage,
 		});
 
-		/** @type {GPUBindGroup} */
+		/** @type {GPUBindGroup?} */
 		this.bindGroup = null;
 	}
 

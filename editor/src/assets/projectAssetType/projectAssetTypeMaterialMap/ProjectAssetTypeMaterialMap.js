@@ -34,7 +34,11 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 				for (const mappedValue of await typeSerializer.getMappableValues(this.editorInstance, this.assetManager, map.customData)) {
 					let defaultValue = mappedValue.defaultValue;
 					if (defaultValue) {
-						if (typeof defaultValue != "number") {
+						if (typeof defaultValue == "number") {
+							// value doesn't need to be cloned
+						} else if (defaultValue instanceof Array) {
+							defaultValue = [...defaultValue];
+						} else {
 							defaultValue = defaultValue.clone();
 						}
 					} else {
@@ -67,6 +71,8 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 								const defaultValue = mappedValues[key].defaultValue;
 								if (typeof defaultValue == "number") {
 									mappedValues[key].defaultValue = mappedValue.defaultValue;
+								} else if (defaultValue instanceof Array) {
+									mappedValues[key].defaultValue = [...mappedValue.defaultValue];
 								} else {
 									defaultValue.set(mappedValue.defaultValue);
 								}

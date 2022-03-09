@@ -12,9 +12,9 @@ import {WebGpuChunkedBufferChunk} from "./WebGpuChunkedBufferChunk.js";
 export class WebGpuChunkedBuffer {
 	/**
 	 * @param {Object} opts
-	 * @param {GPUDevice} [opts.device] The WebGPU device to create buffers for.
+	 * @param {GPUDevice} opts.device The WebGPU device to create buffers for.
 	 * @param {string} [opts.label] The label to use for debugging.
-	 * @param {GPUBindGroupLayout} [opts.bindGroupLayout] The bind group layout to use.
+	 * @param {GPUBindGroupLayout?} [opts.bindGroupLayout] The bind group layout to use.
 	 * This can be omitted, but you won't be able to create bindGroups. You can
 	 * still manually create bindGroups using `createBindGroupEntry`.
 	 * @param {number} [opts.bindGroupLength] The length of the bind groups in bytes. Only a single portion of the buffer
@@ -23,13 +23,13 @@ export class WebGpuChunkedBuffer {
 	 * @param {GPUBufferUsage | number} [opts.usage] The usage of the bindgroups.
 	 */
 	constructor({
-		device = null,
+		device,
 		label = "ChunkedBuffer",
 		bindGroupLayout = null,
 		bindGroupLength = 512,
 		chunkSize = 512,
 		usage = GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-	} = {}) {
+	}) {
 		if (bindGroupLength > chunkSize) {
 			throw new Error("bindGroupLength must be smaller than chunkSize");
 		}
@@ -68,6 +68,9 @@ export class WebGpuChunkedBuffer {
 	 * Gets the current bind group and offset to be passed along to {@link GPUProgrammablePassEncoder.setBindGroup}.
 	 */
 	getCurrentEntryLocation() {
+		if (!this.bindGroupLayout) {
+			throw new Error("Cannot get entry location for Chunked buffers without a bindGroupLayout");
+		}
 		const chunk = this.getCurrentChunk();
 		return {
 			bindGroup: chunk.getBindGroup(this.bindGroupLayout),
@@ -140,7 +143,7 @@ export class WebGpuChunkedBuffer {
 	}
 
 	/**
-	 * @param {number | number[] | import("../../../../math/Vec2.js").Vec2 | import("../../../../math/Vec3.js").Vec3 | import("../../../../math/Vec4.js").Vec4 | import("../../../../math/Mat4.js").Mat4} data
+	 * @param {import("../../../MaterialMap.js").MappableMaterialTypes | import("../../../../math/Mat4.js").Mat4} data
 	 * @param {AppendFormat} type
 	 */
 	appendData(data, type = "f32") {
@@ -154,6 +157,9 @@ export class WebGpuChunkedBuffer {
 		}
 	}
 
+	/**
+	 * @param {number} byteLength
+	 */
 	skipBytes(byteLength) {
 		this.currentCursorByteIndex += byteLength;
 	}

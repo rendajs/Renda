@@ -228,7 +228,11 @@ export class Material {
 		clone.setMaterialMap(this.materialMap);
 		for (const [key, value] of this.getAllProperties()) {
 			let newValue = value;
-			if (typeof value != "number") {
+			if (typeof value == "number") {
+				// value doesn't need to be cloned
+			} else if (value instanceof Array) {
+				newValue = [...value];
+			} else {
 				newValue = value.clone();
 			}
 			clone.setProperty(key, newValue);

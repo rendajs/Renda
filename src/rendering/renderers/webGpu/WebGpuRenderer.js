@@ -17,9 +17,12 @@ export {MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpu
 
 /**
  * @typedef {Object} CachedMaterialData
- * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} forwardPipelineConfig
+ * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig?} forwardPipelineConfig
  */
 
+/**
+ * @extends {Renderer<WebGpuRendererDomTarget>}
+ */
 export class WebGpuRenderer extends Renderer {
 	static get domTargetConstructor() {
 		return WebGpuRendererDomTarget;
@@ -65,13 +68,18 @@ export class WebGpuRenderer extends Renderer {
 		// (legacy) for every pipeline, maintain a list of objects that the pipeline is used by
 		// this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
 
+		/** @type {WeakMap<Mesh, CachedMeshData>} */
 		this.cachedMeshData = new WeakMap();
 
-		this.cachedShaderModules = new MultiKeyWeakMap(); // <[ShaderSource, clusteredLightsConfig], GPUShaderModule>;
+		/** @type {MultiKeyWeakMap<unknown[], GPUShaderModule>} */
+		this.cachedShaderModules = new MultiKeyWeakMap();
 	}
 
 	async init() {
 		this.adapter = await navigator.gpu.requestAdapter();
+		if (!this.adapter) {
+			throw new Error("Unable to get GPU adapter.");
+		}
 		const device = await this.adapter.requestDevice();
 		this.device = device;
 
@@ -146,40 +154,44 @@ export class WebGpuRenderer extends Renderer {
 			bindGroupLayout: this.viewBindGroupLayout,
 		});
 
+		this.materialUniformsBindGroupLayout = device.createBindGroupLayout({
+			label: "materialUniformsBufferBindGroupLayout",
+			entries: [
+				{
+					binding: 0,
+					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
+					buffer: {
+						type: "uniform",
+						hasDynamicOffset: true,
+					},
+				},
+			],
+		});
+
 		this.materialUniformsBuffer = new WebGpuChunkedBuffer({
 			device,
 			label: "materialUniforms",
-			bindGroupLayout: device.createBindGroupLayout({
-				label: "materialUniformsBufferBindGroupLayout",
-				entries: [
-					{
-						binding: 0,
-						visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
-						buffer: {
-							type: "uniform",
-							hasDynamicOffset: true,
-						},
+			bindGroupLayout: this.materialUniformsBindGroupLayout,
+		});
+
+		this.objectUniformsBindGroupLayout = device.createBindGroupLayout({
+			label: "objectUniformsBufferBindGroupLayout",
+			entries: [
+				{
+					binding: 0,
+					visibility: GPUShaderStage.VERTEX,
+					buffer: {
+						type: "uniform",
+						hasDynamicOffset: true,
 					},
-				],
-			}),
+				},
+			],
 		});
 
 		this.objectUniformsBuffer = new WebGpuChunkedBuffer({
 			device,
 			label: "objectUniforms",
-			bindGroupLayout: device.createBindGroupLayout({
-				label: "objectUniformsBufferBindGroupLayout",
-				entries: [
-					{
-						binding: 0,
-						visibility: GPUShaderStage.VERTEX,
-						buffer: {
-							type: "uniform",
-							hasDynamicOffset: true,
-						},
-					},
-				],
-			}),
+			bindGroupLayout: this.objectUniformsBindGroupLayout,
 			chunkSize: 65536,
 		});
 
@@ -187,8 +199,8 @@ export class WebGpuRenderer extends Renderer {
 			label: "default pipeline layout",
 			bindGroupLayouts: [
 				this.viewBindGroupLayout,
-				this.materialUniformsBuffer.bindGroupLayout,
-				this.objectUniformsBuffer.bindGroupLayout,
+				this.materialUniformsBindGroupLayout,
+				this.objectUniformsBindGroupLayout,
 			],
 		});
 
@@ -210,6 +222,9 @@ export class WebGpuRenderer extends Renderer {
 		return domTarget;
 	}
 
+	/**
+	 * @param {import("./WebGpuRendererDomTarget.js").WebGpuRendererDomTarget} domTarget
+	 */
 	async configureSwapChainAsync(domTarget) {
 		await this.waitForInit();
 		domTarget.gpuReady();
@@ -223,6 +238,10 @@ export class WebGpuRenderer extends Renderer {
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready) return;
+		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer) {
+			// All these objects should exist when this.isInit is true, which we already checked for above.
+			throw new Error("Assertion failed, some required objects do not exist");
+		}
 
 		// todo, support for auto cam aspect based on domTarget size
 
@@ -242,6 +261,7 @@ export class WebGpuRenderer extends Renderer {
 		const meshRenderDatas = [];
 		/** @type {LightComponent[]} */
 		const lightComponents = [];
+		if (!camera.entity) return;
 		/** @type {import("../../../core/Entity.js").Entity[]} */
 		const rootRenderEntities = [camera.entity.getRoot()];
 		// TODO: don't get root every frame, only when changed
@@ -282,7 +302,7 @@ export class WebGpuRenderer extends Renderer {
 		this.viewUniformsBuffer.writeAllChunksToGpu();
 
 		const cameraData = this.getCachedCameraData(camera);
-		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
+		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && cameraData.clusterComputeManager) {
 			const success = cameraData.clusterComputeManager.computeLightIndices(commandEncoder);
 			if (!success) return;
 		}
@@ -290,6 +310,7 @@ export class WebGpuRenderer extends Renderer {
 		this.lightsBuffer.appendData(lightComponents.length, "u32");
 		this.lightsBuffer.skipBytes(12);
 		for (const light of lightComponents) {
+			if (!light.entity) continue;
 			this.lightsBuffer.appendData(light.entity.pos);
 			this.lightsBuffer.skipBytes(4);
 			this.lightsBuffer.appendData(light.color);
@@ -298,12 +319,18 @@ export class WebGpuRenderer extends Renderer {
 		this.lightsBuffer.writeAllChunksToGpu();
 
 		const renderPassDescriptor = domTarget.getRenderPassDescriptor();
+		if (!renderPassDescriptor) {
+			// This should only be null if domTarget.ready is false, which we already
+			// checked at the start of this function.
+			throw new Error("Assertion failed, renderPassDescriptor does not exist");
+		}
 		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
 
 		/** @type {Map<import("../../Material.js").Material, Map<GPURenderPipeline, MeshRenderData[]>>} */
 		const materialRenderDatas = new Map();
 		for (const renderData of meshRenderDatas) {
+			if (!renderData.component.mesh || !renderData.component.mesh.vertexState) continue;
 			for (const material of renderData.component.materials) {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
@@ -313,6 +340,7 @@ export class WebGpuRenderer extends Renderer {
 					materialData.forwardPipelineConfig = webgpuMap.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
+				if (!materialData.forwardPipelineConfig || !materialData.forwardPipelineConfig.vertexShader || !materialData.forwardPipelineConfig.fragmentShader) continue;
 				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 
 				let pipelines = materialRenderDatas.get(material);
@@ -341,9 +369,10 @@ export class WebGpuRenderer extends Renderer {
 			for (const [pipeline, renderDatas] of pipelines) {
 				renderPassEncoder.setPipeline(pipeline);
 				for (const {component: meshComponent, worldMatrix} of renderDatas) {
+					const mesh = meshComponent.mesh;
+					if (!mesh) continue;
 					const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
 					renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
-					const mesh = meshComponent.mesh;
 					const meshData = this.getCachedMeshData(mesh);
 					for (const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()) {
 						if (newBufferData) {
@@ -353,12 +382,14 @@ export class WebGpuRenderer extends Renderer {
 					}
 					const indexBufferData = meshData.getIndexedBufferGpuCommands();
 					if (indexBufferData) {
-						/** @type {GPUIndexFormat} */
+						/** @type {GPUIndexFormat?} */
 						let indexFormat = null;
 						if (mesh.indexFormat == Mesh.IndexFormat.UINT_16) {
 							indexFormat = "uint16";
 						} else if (mesh.indexFormat == Mesh.IndexFormat.UINT_32) {
 							indexFormat = "uint32";
+						} else {
+							throw new Error(`Mesh has an invalid index format: ${mesh.indexFormat}`);
 						}
 						renderPassEncoder.setIndexBuffer(indexBufferData, indexFormat);
 						renderPassEncoder.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
@@ -400,7 +431,6 @@ export class WebGpuRenderer extends Renderer {
 	 * @param {import("../../Material.js").Material} material
 	 */
 	getCachedMaterialData(material) {
-		/** @type {CachedMaterialData} */
 		let data = this.cachedMaterialData.get(material);
 		if (!data) {
 			data = {
@@ -418,9 +448,18 @@ export class WebGpuRenderer extends Renderer {
 	 * @param {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} pipelineConfig
 	 * @param {import("../../VertexState.js").VertexState} vertexState
 	 * @param {import("../../RenderOutputConfig.js").RenderOutputConfig} outputConfig
-	 * @param {import("../../ClusteredLightsConfig.js").ClusteredLightsConfig} clusteredLightsConfig
+	 * @param {import("../../ClusteredLightsConfig.js").ClusteredLightsConfig?} clusteredLightsConfig
 	 */
 	getPipeline(pipelineConfig, vertexState, outputConfig, clusteredLightsConfig) {
+		if (!pipelineConfig.vertexShader) {
+			throw new Error("Failed to create pipeline, pipeline config has no vertex shader");
+		}
+		if (!pipelineConfig.fragmentShader) {
+			throw new Error("Failed to create pipeline, pipeline config has no fragment shader");
+		}
+		if (!this.isInit || !this.device || !this.pipelineLayout) {
+			throw new Error("Renderer is not initialized");
+		}
 		/** @type {*[]} */
 		const keys = [outputConfig, vertexState, pipelineConfig];
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
@@ -428,7 +467,8 @@ export class WebGpuRenderer extends Renderer {
 		}
 		let pipeline = this.cachedPipelines.get(keys);
 		if (!pipeline) {
-			let vertexModule; let fragmentModule;
+			let vertexModule;
+			let fragmentModule;
 			if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader, {clusteredLightsConfig});
 				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader, {clusteredLightsConfig});
@@ -467,6 +507,9 @@ export class WebGpuRenderer extends Renderer {
 		return pipeline;
 	}
 
+	/**
+	 * @param {import("../../Material.js").Material} material
+	 */
 	disposeMaterial(material) {
 		// const materialData = this.getCachedMaterialData(material);
 		this.cachedMaterialData.delete(material);
@@ -519,9 +562,13 @@ export class WebGpuRenderer extends Renderer {
 		return data;
 	}
 
+	/**
+	 * @param {import("../../ShaderSource.js").ShaderSource} shaderSource
+	 */
 	getCachedShaderModule(shaderSource, {
-		clusteredLightsConfig = null,
+		clusteredLightsConfig = /** @type {import("../../ClusteredLightsConfig.js").ClusteredLightsConfig?} */ (null),
 	} = {}) {
+		/** @type {unknown[]} */
 		const keys = [shaderSource];
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 			keys.push(clusteredLightsConfig);
@@ -533,6 +580,9 @@ export class WebGpuRenderer extends Renderer {
 				code = ShaderBuilder.fillShaderDefines(shaderSource.source, clusteredLightsConfig.getShaderDefines());
 			} else {
 				code = shaderSource.source;
+			}
+			if (!this.device) {
+				throw new Error("Assertion failed, gpu device is not initialized");
 			}
 			data = this.device.createShaderModule({code});
 			this.cachedShaderModules.set(keys, data);
@@ -547,6 +597,9 @@ export class WebGpuRenderer extends Renderer {
 	 * @param {number} bufferSize
 	 */
 	async inspectBuffer(gpuBuffer, bufferSize) {
+		if (!this.device) {
+			throw new Error("Assertion failed, gpu device is not initialized");
+		}
 		const readBuffer = this.device.createBuffer({
 			label: gpuBuffer.label + "-inspectorCopy",
 			size: bufferSize,

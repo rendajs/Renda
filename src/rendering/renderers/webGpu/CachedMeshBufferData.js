@@ -28,6 +28,9 @@ export class CachedMeshBufferData {
 			this.gpuBuffer.destroy();
 		}
 		const size = this.meshBuffer.buffer.byteLength;
+		if (!this.meshData.renderer.isInit || !this.meshData.renderer.device) {
+			throw new Error("Failed to create gpu buffer: renderer not initialized");
+		}
 		this.gpuBuffer = this.meshData.renderer.device.createBuffer({
 			label: "meshBufferDataBuffer",
 			size,
@@ -47,6 +50,9 @@ export class CachedMeshBufferData {
 			}
 			newBufferData = this.meshBuffer.buffer;
 			this.bufferDirty = false;
+		}
+		if (!this.gpuBuffer) {
+			throw new Error("Assertion failed: buffer was not created");
 		}
 		return {
 			gpuBuffer: this.gpuBuffer,

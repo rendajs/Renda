@@ -1,5 +1,9 @@
 import {RendererDomTarget} from "../RendererDomTarget.js";
 
+/**
+ * @template {RendererDomTarget} [TDomTarget = RendererDomTarget]
+ * @template {unknown[]} [TDomTargetArgs = []]
+ */
 export class Renderer {
 	// optionally override this with your own RendererDomTarget class
 	static get domTargetConstructor() {
@@ -15,9 +19,12 @@ export class Renderer {
 	 */
 	render(domTarget, camera) {}
 
+	/**
+	 * @param  {TDomTargetArgs} args
+	 */
 	createDomTarget(...args) {
 		const castConstructor = /** @type {typeof Renderer} */ (this.constructor);
-		const DomTarget = castConstructor.domTargetConstructor;
+		const DomTarget = /** @type {new (...args: unknown[]) => TDomTarget} */ (castConstructor.domTargetConstructor);
 		return new DomTarget(this, ...args);
 	}
 }
