@@ -93,7 +93,7 @@ if (needsCoverage) {
 	}
 
 	console.log("Generating lcov.info...");
-	const includeRegex = `^file://${Deno.cwd()}/(src|editor/src)`;
+	const includeRegex = `^file://${Deno.cwd()}/(src|editor/src|editor/devSocket/src)`;
 	const coverageProcess = Deno.run({
 		cmd: ["deno", "coverage", DENO_COVERAGE_DIR, "--lcov", `--include=${includeRegex}`],
 		stdout: "piped",
