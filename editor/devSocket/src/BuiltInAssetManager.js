@@ -49,16 +49,21 @@ export class BuiltInAssetManager {
 		}
 		this.assetSettings.clear();
 		this.fileHashes.clear();
+		/** @type {Promise<void>[]} */
+		const promises = [];
 		for (const [uuid, assetData] of Object.entries(data.assets)) {
 			this.assetSettings.set(uuid, assetData);
 			if (assetData.path) {
 				const fullPath = resolve(this.builtInAssetsPath, ...assetData.path);
-				(async () => {
+				const promise = (async () => {
 					const fileBuffer = await Deno.readFile(fullPath);
 					this.fileHashes.set(await hash(fileBuffer), uuid);
 				})();
+				promises.push(promise);
 			}
 		}
+		await Promise.all(promises);
+
 		this.assetSettingsLoaded = true;
 	}
 
