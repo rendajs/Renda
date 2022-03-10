@@ -91,7 +91,7 @@ export async function hover(page, selector) {
 }
 
 /**
- * Waits until an element exists and clicks it.
+ * Waits until an element exists, scrolls to it and clicks it.
  * Throws an error if the element doesn't exist after the timeout.
  * @param {import("puppeteer").Page} page
  * @param {string | import("puppeteer").ElementHandle} selector

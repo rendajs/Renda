@@ -42,9 +42,6 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 				depthLoadOp: "clear",
 				depthClearValue: 1,
 				depthStoreOp: "store",
-				stencilLoadOp: "clear",
-				stencilClearValue: 1,
-				stencilStoreOp: "store",
 			};
 		}
 		/** @type {GPURenderPassDescriptor} */
