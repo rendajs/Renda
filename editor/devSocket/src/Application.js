@@ -24,6 +24,8 @@ export class Application {
 
 		this.webSocketManager = new WebSocketManager();
 		this.builtInAssetManager = new BuiltInAssetManager({builtInAssetsPath});
+		this.builtInAssetManager.loadAssetSettings();
+		this.builtInAssetManager.watch();
 		this.closureCompilerManager = new ClosureCompilerManager();
 	}
 

@@ -13,8 +13,12 @@ async function hash(data) {
 }
 
 export class BuiltInAssetManager {
+	/**
+	 * @param {Object} options
+	 * @param {string?} options.builtInAssetsPath
+	 */
 	constructor({
-		builtInAssetsPath = /** @type {string?} */ (null),
+		builtInAssetsPath = null,
 	}) {
 		const scriptDir = dirname(fromFileUrl(import.meta.url));
 		if (builtInAssetsPath == null) {
@@ -32,8 +36,6 @@ export class BuiltInAssetManager {
 		this.assetSettingsJustSaved = false;
 		/** @type {Set<(op: string, data: any) => any>} */
 		this.onWebsocketBroadcastNeededCbs = new Set();
-		this.loadAssetSettings();
-		this.watch();
 	}
 
 	async loadAssetSettings() {
