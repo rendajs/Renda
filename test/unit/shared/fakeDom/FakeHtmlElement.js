@@ -1,8 +1,12 @@
+import {DomTokenList} from "./FakeDomTokenList.js";
+
 export class FakeHtmlElement extends EventTarget {
 	#x;
 	#y;
 	#paddingLeft;
 	#paddingTop;
+	/** @type {Map<string, string>} */
+	#attributes = new Map();
 
 	constructor({
 		x = 0,
@@ -29,6 +33,7 @@ export class FakeHtmlElement extends EventTarget {
 		this.#paddingTop = paddingTop;
 		this.clientWidth = clientWidth;
 		this.clientHeight = clientHeight;
+		this.classList = new DomTokenList();
 	}
 
 	getBoundingClientRect() {
@@ -43,6 +48,22 @@ export class FakeHtmlElement extends EventTarget {
 			width: this.clientWidth,
 			height: this.clientHeight,
 		};
+	}
+
+	/**
+	 * @param {string} name
+	 * @param {string} value
+	 */
+	setAttribute(name, value) {
+		name = name.toLowerCase();
+		this.#attributes.set(name, value);
+	}
+
+	/**
+	 * @param {string} name
+	 */
+	getAttribute(name) {
+		return this.#attributes.get(name.toLowerCase()) || null;
 	}
 }
 

@@ -82,7 +82,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
 export class DroppableGui {
 	/**
 	 * @template {new (...args: any) => any} T
-	 * @param {DroppableGuiOptions<T>} opts
+	 * @param {DroppableGuiOptions<T>} [opts]
 	 */
 	static of(opts) {
 		return /** @type {DroppableGui<InstanceType<T>>} */ (new DroppableGui(opts));
@@ -93,6 +93,7 @@ export class DroppableGui {
 	 */
 
 	/**
+	 * This constructor does not infer the correct generics, use `DroppableGui.of()` instead.
 	 * @private
 	 * @param {DroppableGuiOptions<new (...args: any) => any>} options
 	 */
