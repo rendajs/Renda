@@ -220,7 +220,7 @@ export class DroppableGui {
 		} else if (!resolveDefaultAssetLinks && this.defaultAssetLinkUuid) {
 			returnValue = this.defaultAssetLinkUuid;
 		} else {
-			returnValue = this.projectAssetValue?.uuid;
+			returnValue = this.projectAssetValue?.uuid || null;
 		}
 		return /** @type {DroppableGuiGetValueReturn<T, U, V>} */ (returnValue);
 	}
