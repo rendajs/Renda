@@ -33,7 +33,12 @@ export class BuiltInAssetManager {
 		this.assetSettings = new Map();
 		/** @type {Map<string, import("../../../src/util/mod.js").UuidString>} */
 		this.fileHashes = new Map(); // <md5, uuid>
-		this.assetSettingsJustSaved = false;
+		/**
+		 * Time in millisecond when the asset settings file was changed on disk
+		 * by this application. This is used to ignore watch events that are
+		 * triggered by the application itself.
+		 */
+		this.lastAssetSettingsSaveTime = -Infinity;
 		/** @type {Set<(op: string, data: any) => any>} */
 		this.onWebsocketBroadcastNeededCbs = new Set();
 	}
@@ -72,9 +77,7 @@ export class BuiltInAssetManager {
 		for await (const event of watcher) {
 			const relPath = relative(this.builtInAssetsPath, event.paths[0]);
 			if (relPath == "assetSettings.json") {
-				if (this.assetSettingsJustSaved) {
-					this.assetSettingsJustSaved = false;
-				} else {
+				if (Date.now() - this.lastAssetSettingsSaveTime > 1000) {
 					console.log("[BuiltInAssetManager] External assetSettings.json change, reloading asset settings...");
 					this.loadAssetSettings();
 				}
@@ -206,7 +209,7 @@ export class BuiltInAssetManager {
 		}
 		const json = {assets};
 		const str = toFormattedJsonString(json, {maxArrayStringItemLength: -1});
-		this.assetSettingsJustSaved = true;
+		this.lastAssetSettingsSaveTime = Date.now();
 		await Deno.writeTextFile(this.assetSettingsPath, str);
 
 		if (notifySocket) {
