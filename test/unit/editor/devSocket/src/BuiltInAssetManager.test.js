@@ -118,10 +118,18 @@ function uninstallMockDenoCalls() {
 	Deno.readDir = originalDenoReadDir;
 }
 
-async function basicSetup() {
+/**
+ * @param {Object} options
+ * @param {unknown} [options.initialAssetSettings]
+ * @param {[string, Uint8Array | string][]} [options.initialFiles]
+ */
+async function basicSetup({
+	initialAssetSettings = {assets: {}},
+	initialFiles = [],
+} = {}) {
 	/** @type {Map<string, Uint8Array | string>} */
-	const files = new Map();
-	files.set("/assets/assetSettings.json", JSON.stringify({assets: []}));
+	const files = new Map(initialFiles);
+	files.set("/assets/assetSettings.json", JSON.stringify(initialAssetSettings));
 	/** @type {{path: string, text: string}[]} */
 	const writeTextFileCalls = [];
 	const {triggerWatchEvent} = installMockDenoCalls({
@@ -189,6 +197,7 @@ async function basicSetup() {
 	manager.watch();
 
 	return {
+		manager,
 		uninstall() {
 			uninstallMockDenoCalls();
 		},
@@ -315,3 +324,102 @@ Deno.test({
 		uninstall();
 	},
 });
+
+Deno.test({
+	name: "externally modifying assetSettings.json",
+	async fn() {
+		const {manager, uninstall, triggerWatchEvent, files} = await basicSetup({
+			initialAssetSettings: {
+				assets: {
+					"00000000-0000-0000-0000-000000000000": {
+						path: ["existingFile.dat"],
+					},
+				},
+			},
+			initialFiles: [["/assets/existingFile.dat", new Uint8Array([0, 1, 2])]],
+		});
+
+		assertEquals(Array.from(manager.assetSettings), [
+			[
+				"00000000-0000-0000-0000-000000000000",
+				{
+					path: ["existingFile.dat"],
+				},
+			],
+		]);
+		assertEquals(Array.from(manager.fileHashes), [["ae4b3280e56e2faf83f414a6e3dabe9d5fbe18976544c05fed121accb85b53fc", "00000000-0000-0000-0000-000000000000"]]);
+
+		files.set("/assets/assetSettings.json", JSON.stringify({
+			assets: {
+				"00000000-0000-0000-0000-ffffffffffff": {
+					path: ["existingFile.dat"],
+				},
+			},
+		}));
+		triggerWatchEvent({
+			kind: "modify",
+			paths: ["/assets/assetSettings.json"],
+		});
+
+		await waitForMicrotasks();
+
+		assertEquals(Array.from(manager.assetSettings), [
+			[
+				"00000000-0000-0000-0000-ffffffffffff",
+				{
+					path: ["existingFile.dat"],
+				},
+			],
+		]);
+		assertEquals(Array.from(manager.fileHashes), [["ae4b3280e56e2faf83f414a6e3dabe9d5fbe18976544c05fed121accb85b53fc", "00000000-0000-0000-0000-ffffffffffff"]]);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "externally modifying assetSettings.json and then adding a file",
+	async fn() {
+		const {uninstall, triggerWatchEvent, files, writeTextFileCalls} = await basicSetup({
+			initialAssetSettings: {
+				assets: {
+					"00000000-0000-0000-0000-000000000000": {
+						path: ["existingFile.dat"],
+					},
+				},
+			},
+			initialFiles: [["/assets/existingFile.dat", new Uint8Array([0, 1, 2])]],
+		});
+
+		files.set("/assets/assetSettings.json", JSON.stringify({
+			assets: {
+				"00000000-0000-0000-0000-ffffffffffff": {
+					path: ["existingFile.dat"],
+				},
+			},
+		}));
+		triggerWatchEvent({
+			kind: "modify",
+			paths: ["/assets/assetSettings.json"],
+		});
+
+		await waitForMicrotasks();
+
+		files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3]));
+		triggerWatchEvent({
+			kind: "create",
+			paths: ["/assets/newFile.dat"],
+		});
+
+		await waitForMicrotasks();
+
+		assertEquals(writeTextFileCalls.length, 1);
+		assertEquals(writeTextFileCalls[0].path, "/assets/assetSettings.json");
+		const assetSettings = JSON.parse(writeTextFileCalls[0].text);
+		assertExists(assetSettings.assets);
+		assertEquals(Object.entries(assetSettings.assets).length, 2);
+
+		uninstall();
+	},
+});
+

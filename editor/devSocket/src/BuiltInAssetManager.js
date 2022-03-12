@@ -78,11 +78,11 @@ export class BuiltInAssetManager {
 					console.log("[BuiltInAssetManager] External assetSettings.json change, reloading asset settings...");
 					this.loadAssetSettings();
 				}
-				return;
+			} else {
+				if (this.assetSettingsLoaded) {
+					this.handleFileChange(relPath);
+				}
 			}
-			if (!this.assetSettingsLoaded) return;
-
-			this.handleFileChange(relPath);
 		}
 	}
 
