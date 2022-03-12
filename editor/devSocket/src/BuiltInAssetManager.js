@@ -16,9 +16,11 @@ export class BuiltInAssetManager {
 	/**
 	 * @param {Object} options
 	 * @param {string?} options.builtInAssetsPath
+	 * @param {boolean} [options.verbose]
 	 */
 	constructor({
 		builtInAssetsPath = null,
+		verbose = false,
 	}) {
 		const scriptDir = dirname(fromFileUrl(import.meta.url));
 		if (builtInAssetsPath == null) {
@@ -27,6 +29,8 @@ export class BuiltInAssetManager {
 			this.builtInAssetsPath = builtInAssetsPath;
 		}
 		this.assetSettingsPath = resolve(this.builtInAssetsPath, "assetSettings.json");
+
+		this.verbose = verbose;
 
 		this.assetSettingsLoaded = false;
 		/** @type {Map<import("../../../src/util/mod.js").UuidString, any>}*/
@@ -78,7 +82,7 @@ export class BuiltInAssetManager {
 			const relPath = relative(this.builtInAssetsPath, event.paths[0]);
 			if (relPath == "assetSettings.json") {
 				if (Date.now() - this.lastAssetSettingsSaveTime > 1000) {
-					console.log("[BuiltInAssetManager] External assetSettings.json change, reloading asset settings...");
+					if (this.verbose) console.log("[BuiltInAssetManager] External assetSettings.json change, reloading asset settings...");
 					this.loadAssetSettings();
 				}
 			} else {

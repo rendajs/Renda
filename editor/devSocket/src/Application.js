@@ -23,7 +23,7 @@ export class Application {
 		this.port = port;
 
 		this.webSocketManager = new WebSocketManager();
-		this.builtInAssetManager = new BuiltInAssetManager({builtInAssetsPath});
+		this.builtInAssetManager = new BuiltInAssetManager({builtInAssetsPath, verbose: true});
 		this.builtInAssetManager.loadAssetSettings();
 		this.builtInAssetManager.watch();
 		this.closureCompilerManager = new ClosureCompilerManager();
