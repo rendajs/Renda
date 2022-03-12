@@ -6,8 +6,17 @@ import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/Con
 import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
 
 /**
+ * @typedef DroppableGuiDependencies
+ * @property {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
+ * @property {import("../misc/DragManager.js").DragManager} dragManager
+ * @property {import("../windowManagement/WindowManager.js").WindowManager} windowManager
+ * @property {import("./contextMenus/ContextMenuManager.js").ContextMenuManager} contextMenuManager
+ */
+
+/**
  * @template {new (...args: any) => any} T
  * @typedef {Object} DroppableGuiOptionsType
+ * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstanceCertain()
  * @property {T[]} [supportedAssetTypes]
  */
 /**
@@ -98,10 +107,24 @@ export class DroppableGui {
 	 * @param {DroppableGuiOptions<new (...args: any) => any>} options
 	 */
 	constructor({
+		dependencies = undefined,
 		supportedAssetTypes = [],
 		// todo: default value support
 		disabled = false,
 	} = {}) {
+		if (!dependencies) {
+			dependencies = {
+				projectManager: getEditorInstanceCertain().projectManager,
+				dragManager: getEditorInstanceCertain().dragManager,
+				windowManager: getEditorInstanceCertain().windowManager,
+				contextMenuManager: getEditorInstanceCertain().contextMenuManager,
+			};
+		}
+		this.projectManager = dependencies.projectManager;
+		this.dragManager = dependencies.dragManager;
+		this.windowManager = dependencies.windowManager;
+		this.contextMenuManager = dependencies.contextMenuManager;
+
 		this.disabled = disabled;
 
 		this.el = document.createElement("div");
@@ -164,7 +187,7 @@ export class DroppableGui {
 		let projectAsset = null;
 		this.setDefaultAssetLinkUuid(null);
 		if (value) {
-			const assetManager = getEditorInstanceCertain().projectManager.assertAssetManagerExists();
+			const assetManager = this.projectManager.assertAssetManagerExists();
 			if (typeof value == "string") {
 				this.setDefaultAssetLinkUuid(value);
 				projectAsset = assetManager.getProjectAssetImmediate(value);
@@ -232,6 +255,9 @@ export class DroppableGui {
 		this.updateDeletedState();
 	}
 
+	/**
+	 * @private
+	 */
 	async updateDeletedState() {
 		this.projectAssetValueDeleted = false;
 		if (this.projectAssetValue) {
@@ -248,7 +274,7 @@ export class DroppableGui {
 			this.setValueFromProjectAsset(null);
 			this.value = null;
 		} else {
-			const assetManager = getEditorInstanceCertain().projectManager.assertAssetManagerExists();
+			const assetManager = this.projectManager.assertAssetManagerExists();
 			const projectAsset = await assetManager.getProjectAsset(uuid);
 			await assetManager.makeAssetUuidConsistent(projectAsset);
 			if (preloadLiveAsset) {
@@ -261,11 +287,12 @@ export class DroppableGui {
 	}
 
 	/**
+	 * @private
 	 * @param {import("../../../src/util/mod.js").UuidString?} uuid
 	 */
 	setDefaultAssetLinkUuid(uuid) {
 		if (uuid) {
-			this.defaultAssetLink = getEditorInstanceCertain().projectManager.assertAssetManagerExists().getDefaultAssetLink(uuid);
+			this.defaultAssetLink = this.projectManager.assertAssetManagerExists().getDefaultAssetLink(uuid);
 		} else {
 			this.defaultAssetLink = null;
 		}
@@ -307,7 +334,6 @@ export class DroppableGui {
 	 * @param {DragEvent} e
 	 */
 	onDragStart(e) {
-		const dragManager = getEditorInstanceCertain().dragManager;
 		if (!e.dataTransfer) return;
 
 		let assetUuid = null;
@@ -319,7 +345,7 @@ export class DroppableGui {
 
 		if (!assetUuid) return;
 
-		const {el, x, y} = dragManager.createDragFeedbackText({
+		const {el, x, y} = this.dragManager.createDragFeedbackText({
 			text: this.visibleAssetName,
 		});
 		this.currenDragFeedbackEl = el;
@@ -337,7 +363,7 @@ export class DroppableGui {
 			assetType,
 			assetUuid,
 		};
-		const draggingDataUuid = dragManager.registerDraggingData(draggingData);
+		const draggingDataUuid = this.dragManager.registerDraggingData(draggingData);
 		e.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 	}
 
@@ -359,7 +385,7 @@ export class DroppableGui {
 	}
 
 	onDragEnd() {
-		if (this.currenDragFeedbackEl) getEditorInstanceCertain().dragManager.removeFeedbackText(this.currenDragFeedbackEl);
+		if (this.currenDragFeedbackEl) this.dragManager.removeFeedbackText(this.currenDragFeedbackEl);
 		this.currenDragFeedbackEl = null;
 	}
 
@@ -448,7 +474,7 @@ export class DroppableGui {
 			if (isEngineType) {
 				isProjectAsset = (parameters.dragtype == "projectasset");
 				if (isProjectAsset) {
-					draggingProjectAssetData = getEditorInstanceCertain().dragManager.getDraggingData(parameters.draggingdata);
+					draggingProjectAssetData = this.dragManager.getDraggingData(parameters.draggingdata);
 				}
 			}
 		}
@@ -513,18 +539,17 @@ export class DroppableGui {
 		contextMenuStructure.push({
 			text: "View location",
 			onClick: async () => {
-				const windowManager = getEditorInstanceCertain().windowManager;
 				if (this.defaultAssetLink) {
 					// todo: highlight assetLink
 					// eslint-disable-next-line no-unused-vars
-					const assetLinksWindow = windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
+					const assetLinksWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
 				} else if (this.projectAssetValue) {
 					let assetLinksWindow;
 					if (this.projectAssetValue.isBuiltIn) {
-						const contentWindow = windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
+						const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
 						assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
 					} else {
-						const contentWindow = windowManager.focusOrCreateContentWindow(ContentWindowProject);
+						const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowProject);
 						assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
 					}
 					assetLinksWindow.highlightPath(this.projectAssetValue.path);
@@ -532,7 +557,7 @@ export class DroppableGui {
 			},
 			disabled: this.projectAssetValueDeleted,
 		});
-		const menu = getEditorInstanceCertain().contextMenuManager.createContextMenu(contextMenuStructure);
+		const menu = this.contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 
