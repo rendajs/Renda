@@ -500,6 +500,7 @@ export class DroppableGui {
 	}
 
 	/**
+	 * @private
 	 * @param {MouseEvent} e
 	 */
 	onContextMenu(e) {

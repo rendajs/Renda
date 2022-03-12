@@ -65,6 +65,13 @@ export class FakeHtmlElement extends EventTarget {
 	getAttribute(name) {
 		return this.#attributes.get(name.toLowerCase()) || null;
 	}
+
+	/**
+	 * @param {string} name
+	 */
+	removeAttribute(name) {
+		return this.#attributes.delete(name.toLowerCase());
+	}
 }
 
 const cast = /** @type {typeof FakeHtmlElement & typeof HTMLElement & (new (...args: any) => FakeHtmlElement & HTMLElement)} */(FakeHtmlElement);

@@ -1,7 +1,7 @@
 export class FakeMouseEvent extends Event {
 	/**
 	 * @param {ConstructorParameters<typeof MouseEvent>[0]} type
-	 * @param {ConstructorParameters<typeof MouseEvent>[1]} eventInit
+	 * @param {ConstructorParameters<typeof MouseEvent>[1]} [eventInit]
 	 */
 	constructor(type, eventInit) {
 		super(type, eventInit);

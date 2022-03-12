@@ -1,7 +1,9 @@
-import {assertEquals, assertStrictEquals} from "asserts";
+import {assertEquals, assertExists, assertStrictEquals} from "asserts";
 import {ProjectAsset} from "../../../../../editor/src/assets/ProjectAsset.js";
 import {DroppableGui} from "../../../../../editor/src/ui/DroppableGui.js";
 import {installFakeDocument, uninstallFakeDocument} from "../../../shared/fakeDom/FakeDocument.js";
+import {FakeMouseEvent} from "../../../shared/fakeDom/FakeMouseEvent.js";
+import {assertContextMenuStructureEquals} from "../../shared/contextMenuHelpers.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
@@ -51,7 +53,7 @@ const mockProjectManager = /** @type {import("../../../../../editor/src/projectS
 });
 
 /** @type {import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies} */
-const dependencies = {
+const defaultDroppableDependencies = {
 	projectManager: mockProjectManager,
 	dragManager: /** @type {import("../../../../../editor/src/misc/DragManager.js").DragManager} */ ({}),
 	windowManager: /** @type {import("../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({}),
@@ -61,10 +63,16 @@ const dependencies = {
 /**
  * @param {Object} options
  * @param {"basic" | "defaultAssetLink" | "none"} [options.valueType]
+ * @param {Partial<import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies>} [options.extraMocks]
  */
 function createBasicGui({
 	valueType = "basic",
+	extraMocks = {},
 } = {}) {
+	const dependencies = {
+		...defaultDroppableDependencies,
+		...extraMocks,
+	};
 	const gui = DroppableGui.of({dependencies});
 	if (valueType == "basic") {
 		gui.setValue(BASIC_ASSET_UUID);
@@ -274,5 +282,104 @@ Deno.test({
 		assertStrictEquals(result, mockLiveAsset);
 
 		uninstallFakeDocument();
+	},
+});
+
+/**
+ * @param {Parameters<typeof createBasicGui>[0]} [basicGuiOptions]
+ */
+function basicSetupForContextMenus(basicGuiOptions) {
+	installFakeDocument();
+	/** @type {(import("../../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure?)[]} */
+	const createContextMenuCalls = [];
+	const mockContextMenuManager = /** @type {import("../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({
+		createContextMenu(structure = null) {
+			createContextMenuCalls.push(structure);
+			return {
+				setPos(options) {},
+			};
+		},
+	});
+	const gui = createBasicGui({
+		...basicGuiOptions,
+		extraMocks: {
+			contextMenuManager: mockContextMenuManager,
+		},
+	});
+
+	return {
+		gui,
+		createContextMenuCalls,
+		uninstall() {
+			uninstallFakeDocument();
+		},
+	};
+}
+
+Deno.test({
+	name: "context menu event creates a new context menu",
+	fn() {
+		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus();
+		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+
+		assertExists(createContextMenuCalls[0]);
+		assertContextMenuStructureEquals(createContextMenuCalls[0], [
+			{text: "Unlink"},
+			{text: "Copy asset UUID"},
+			{text: "View location"},
+		]);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu on a disabled gui",
+	fn() {
+		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus();
+		gui.setDisabled(true);
+		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+
+		assertExists(createContextMenuCalls[0]);
+		assertContextMenuStructureEquals(createContextMenuCalls[0], [
+			{text: "Copy asset UUID"},
+			{text: "View location"},
+		]);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu without a value set",
+	fn() {
+		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
+			valueType: "none",
+		});
+		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+
+		assertEquals(createContextMenuCalls.length, 0);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu with a default asset link set",
+	fn() {
+		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
+			valueType: "defaultAssetLink",
+		});
+		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+
+		assertExists(createContextMenuCalls[0]);
+		assertContextMenuStructureEquals(createContextMenuCalls[0], [
+			{text: "Unlink"},
+			{text: "Copy asset UUID"},
+			{text: "Copy resolved asset link UUID"},
+			{text: "View location"},
+		]);
+
+		uninstall();
 	},
 });
