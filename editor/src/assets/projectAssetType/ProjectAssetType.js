@@ -288,13 +288,4 @@ export class ProjectAssetType {
 	 * @returns {AsyncGenerator<string>}
 	 */
 	async *getReferencedAssetUuids() {}
-
-	/**
-	 * Used internally to log a message with a stacktrace that leads
-	 * to this file.
-	 * @param {string} message
-	 */
-	static invalidConfigurationWarning(message) {
-		console.warn(message + "\nView ProjectAssetType.js for more info.");
-	}
 }
