@@ -4,10 +4,18 @@ export function createMockDependencies() {
 	const assetManager = /** @type {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({});
 	const assetTypeManager = /** @type {import("../../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({});
 
+	const projectAssetTypeArgs = /** @type {const} */ ([
+		editor,
+		projectAsset,
+		assetManager,
+		assetTypeManager,
+	]);
+
 	return {
 		editor,
 		projectAsset,
 		assetManager,
 		assetTypeManager,
+		projectAssetTypeArgs,
 	};
 }

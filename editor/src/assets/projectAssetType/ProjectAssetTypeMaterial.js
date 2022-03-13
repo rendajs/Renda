@@ -17,12 +17,12 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {*} materialJson
+	 * @param {import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData?} materialJson
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Material, null>>}
 	 */
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
-		if (materialJson.map) {
+		if (materialJson?.map) {
 			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>?} */
 			const materialMapAsset = await this.assetManager.getProjectAsset(materialJson.map);
 			if (materialMapAsset) {
@@ -31,7 +31,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 			}
 		}
 
-		const material = new Material(materialMap, materialJson.properties);
+		const material = new Material(materialMap, materialJson?.properties);
 		return {liveAsset: material};
 	}
 
