@@ -3,7 +3,7 @@ import {ProjectAsset} from "../../../../../editor/src/assets/ProjectAsset.js";
 import {DroppableGui} from "../../../../../editor/src/ui/DroppableGui.js";
 import {installFakeDocument, uninstallFakeDocument} from "../../../shared/fakeDom/FakeDocument.js";
 import {FakeMouseEvent} from "../../../shared/fakeDom/FakeMouseEvent.js";
-import {assertContextMenuStructureEquals} from "../../shared/contextMenuHelpers.js";
+import {assertContextMenuStructureEquals, triggerContextMenuItem} from "../../shared/contextMenuHelpers.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
@@ -90,6 +90,22 @@ Deno.test({
 
 		assertEquals(gui.disabled, false);
 		assertEquals(gui.el.getAttribute("aria-disabled"), "false");
+
+		uninstallFakeDocument();
+	},
+});
+
+Deno.test({
+	name: "setValue() to null",
+	fn() {
+		installFakeDocument();
+		const gui = createBasicGui();
+
+		gui.setValue(null);
+
+		assertEquals(gui.projectAssetValue, null);
+		assertEquals(gui.defaultAssetLink, null);
+		assertEquals(gui.defaultAssetLinkUuid, null);
 
 		uninstallFakeDocument();
 	},
@@ -379,6 +395,25 @@ Deno.test({
 			{text: "Copy resolved asset link UUID"},
 			{text: "View location"},
 		]);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "unlink via context menu",
+	async fn() {
+		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
+			valueType: "defaultAssetLink",
+		});
+		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+
+		assertExists(createContextMenuCalls[0]);
+		await triggerContextMenuItem(createContextMenuCalls[0], ["Unlink"]);
+
+		assertEquals(gui.projectAssetValue, null);
+		assertEquals(gui.defaultAssetLink, null);
+		assertEquals(gui.defaultAssetLinkUuid, null);
 
 		uninstall();
 	},
