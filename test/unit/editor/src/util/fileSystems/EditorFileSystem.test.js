@@ -109,7 +109,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "readJson Returns null when mimeType is not application/json",
+	name: "readJson tries to parse as json even when mimeType is not application/json",
 	fn: async () => {
 		class ImplementedFileSystem extends EditorFileSystem {
 			/**
@@ -125,6 +125,6 @@ Deno.test({
 		const fs = new ImplementedFileSystem();
 		const text = await fs.readJson(["data.json"]);
 
-		assertEquals(text, null);
+		assertEquals(text, {hello: "world"});
 	},
 });
