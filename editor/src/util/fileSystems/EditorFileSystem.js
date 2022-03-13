@@ -69,8 +69,8 @@ export class EditorFileSystem {
 	 */
 	async readDir(path) {
 		return {
-			files: [], // DOMString array of file names
-			directories: [], // DOMString array of directory names
+			files: [],
+			directories: [],
 		};
 	}
 
@@ -273,11 +273,8 @@ export class EditorFileSystem {
 	 */
 	async readJson(path) {
 		const file = await this.readFile(path);
-		if (file.type == "application/json") {
-			const body = await file.text();
-			const json = JSON.parse(body);
-			return json;
-		}
-		return null;
+		const body = await file.text();
+		const json = JSON.parse(body);
+		return json;
 	}
 }
