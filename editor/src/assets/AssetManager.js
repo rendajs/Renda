@@ -33,6 +33,8 @@ export class AssetManager {
 
 		/** @type {Map<import("../../../src/mod.js").UuidString, import("./ProjectAsset.js").ProjectAssetAny>}*/
 		this.projectAssets = new Map();
+		/** @type {WeakMap<object, import("./ProjectAsset.js").ProjectAssetAny>} */
+		this.embeddedAssets = new WeakMap();
 		/** @type {Map<import("../../../src/mod.js").UuidString, DefaultAssetLink>}*/
 		this.defaultAssetLinks = new Map();
 
@@ -178,16 +180,28 @@ export class AssetManager {
 	}
 
 	/**
+	 * @private
+	 * @param {Partial<import("./ProjectAsset.js").ProjectAssetOptions>} options
+	 */
+	projectAssetFactory(options) {
+		const uuid = generateUuid();
+		const newOptions = {
+			uuid,
+			...options,
+		};
+		return new ProjectAsset(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, newOptions);
+	}
+
+	/**
 	 * @param {string[]} path
 	 * @param {string?} assetType
 	 * @param {boolean} forceAssetType
 	 */
 	async registerAsset(path, assetType = null, forceAssetType = false) {
 		await this.loadAssetSettings(true);
-		const uuid = generateUuid();
-		const projectAsset = new ProjectAsset(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, {uuid, path, assetType, forceAssetType});
+		const projectAsset = this.projectAssetFactory({path, assetType, forceAssetType});
 		await projectAsset.waitForInit();
-		this.projectAssets.set(uuid, projectAsset);
+		this.projectAssets.set(projectAsset.uuid, projectAsset);
 		if (projectAsset.needsAssetSettingsSave) {
 			this.saveAssetSettings();
 		}
@@ -425,5 +439,17 @@ export class AssetManager {
 			return projectAsset.uuid;
 		}
 		return null;
+	}
+
+	/**
+	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} assetType
+	 */
+	createEmbeddedAsset(assetType) {
+		const projectAsset = this.projectAssetFactory({
+			assetType,
+			forceAssetType: true,
+			isEmbedded: true,
+		});
+		return projectAsset;
 	}
 }

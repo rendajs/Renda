@@ -22,6 +22,7 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  * @property {*} [assetType]
  * @property {boolean} [forceAssetType]
  * @property {boolean} [isBuiltIn]
+ * @property {boolean} [isEmbedded]
  */
 
 /**
@@ -59,6 +60,7 @@ export class ProjectAsset {
 		assetType = null,
 		forceAssetType = false,
 		isBuiltIn = false,
+		isEmbedded = false,
 	}) {
 		this.assetManager = assetManager;
 		this.assetTypeManager = assetTypeManager;
@@ -84,6 +86,7 @@ export class ProjectAsset {
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
 		this.isBuiltIn = isBuiltIn;
+		this.isEmbedded = isEmbedded;
 
 		/** @type {T?} */
 		this._projectAssetType = null;

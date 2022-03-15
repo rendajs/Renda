@@ -3,6 +3,7 @@ import {ProjectAsset} from "../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
 import {assertInstanceOf} from "../../../shared/asserts.js";
+import {createMockProjectAssetType} from "./shared/createMockProjectAssetType.js";
 
 const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
 const BASIC_ASSET_TYPE = "test:basicassettype";
@@ -10,23 +11,6 @@ const BASIC_ASSET_EXTENSION = "basicassetextension";
 const UNKNOWN_ASSET_EXTENSION = "unknownassetextension";
 
 injectMockEditorInstance(/** @type {any} */ ({}));
-
-/**
- * @param {string} type
- */
-function createMockAssetType(type) {
-	class ProjectAssetType {
-		static type = type;
-	}
-
-	const castUnknown = /** @type {unknown} */ (ProjectAssetType);
-	const castProjectAssetType = /** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (castUnknown);
-
-	return {
-		MockProjectAssetType: ProjectAssetType,
-		ProjectAssetType: castProjectAssetType,
-	};
-}
 
 /**
  * @typedef GetMocksOptions
@@ -41,7 +25,7 @@ function getMocks({
 } = {}) {
 	const mockAssetManager = /** @type {import("../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({});
 
-	const {MockProjectAssetType, ProjectAssetType} = createMockAssetType(BASIC_ASSET_TYPE);
+	const {MockProjectAssetType, ProjectAssetType} = createMockProjectAssetType(BASIC_ASSET_TYPE);
 
 	const mockProjectAssetTypeManager = /** @type {import("../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({
 		*getAssetTypesForExtension(extension) {
@@ -327,5 +311,20 @@ Deno.test({
 		});
 
 		assertEquals(projectAsset.needsAssetSettingsSave, true);
+	},
+});
+
+// ==== embedded assets ========================================================
+
+Deno.test({
+	name: "creating with isEmbedded true",
+	fn() {
+		const {projectAsset} = basicSetup({
+			extraProjectAssetOpts: {
+				isEmbedded: true,
+			},
+		});
+
+		assertEquals(projectAsset.isEmbedded, true);
 	},
 });

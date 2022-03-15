@@ -1,10 +1,15 @@
 import {assertEquals, assertExists} from "asserts";
 import {AssetManager} from "../../../../../editor/src/assets/AssetManager.js";
+import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import {createMockProjectAssetType} from "./shared/createMockProjectAssetType.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
+const BASIC_PROJECTASSETTYPE = "test:basicprojectassettype";
 const ASSET_SETTINGS_PATH = ["ProjectSettings", "assetSettings.json"];
+
+injectMockEditorInstance(/** @type {any} */ ({}));
 
 async function basicSetup() {
 	const mockProjectManager = /** @type {import("../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
@@ -12,7 +17,17 @@ async function basicSetup() {
 	const mockBuiltInDefaultAssetLinksManager = /** @type {import("../../../../../editor/src/assets/BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} */ ({
 		registeredAssetLinks: new Set(),
 	});
-	const mockProjectAssetTypeManager = /** @type {import("../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({});
+
+	const {MockProjectAssetType, ProjectAssetType} = createMockProjectAssetType(BASIC_PROJECTASSETTYPE);
+
+	const mockProjectAssetTypeManager = /** @type {import("../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({
+		getAssetType(type) {
+			if (type == BASIC_PROJECTASSETTYPE) {
+				return ProjectAssetType;
+			}
+			return null;
+		},
+	});
 
 	const mockFileSystem = new EditorFileSystemMemory();
 	await mockFileSystem.writeJson(ASSET_SETTINGS_PATH, {
@@ -30,6 +45,8 @@ async function basicSetup() {
 	return {
 		assetManager,
 		mockFileSystem,
+		MockProjectAssetType,
+		ProjectAssetType,
 	};
 }
 
@@ -116,5 +133,17 @@ Deno.test({
 		assertExists(assetSettings);
 		assertExists(assetSettings.assets);
 		assertEquals(Object.entries(assetSettings.assets).length, 2);
+	},
+});
+
+Deno.test({
+	name: "createEmbeddedAsset()",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE);
+
+		assertEquals(embeddedAsset.isEmbedded, true);
+		assertEquals(embeddedAsset.assetType, BASIC_PROJECTASSETTYPE);
 	},
 });
