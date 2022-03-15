@@ -23,3 +23,11 @@ export function getEditorInstanceCertain() {
 	if (!editorInstance) throw new Error("Editor instance not initialized.");
 	return editorInstance;
 }
+
+/**
+ * Use this for unit tests to mock the editor instance.
+ * @param {Editor} editor
+ */
+export function injectMockEditorInstance(editor) {
+	editorInstance = editor;
+}
