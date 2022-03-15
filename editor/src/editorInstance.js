@@ -8,10 +8,6 @@ export function initEditor() {
 	editorInstance.init();
 }
 
-export function getEditorInstance() {
-	return editorInstance;
-}
-
 // todo: Eventually only getEditorInstanceCertain() should be used and renamed
 // to getEditorInstance(). But because TS throws an error when
 // getEditorInstance() is used without checking if it is null, it is quite
