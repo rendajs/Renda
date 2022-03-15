@@ -3,7 +3,7 @@ import {arrayBufferToBase64, toFormattedJsonString} from "../../../src/mod.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {IS_DEV_BUILD} from "../editorDefines.js";
 import {AssetManager} from "./AssetManager.js";
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 /**
  * @typedef {(uuid: import("../../../src/mod.js").UuidString) => any} BuiltInAssetChangeCallback
@@ -49,7 +49,7 @@ export class BuiltInAssetManager {
 					continue;
 				}
 				assetData.isBuiltIn = true;
-				const assetManager = await getEditorInstanceCertain().projectManager.getAssetManager();
+				const assetManager = await getEditorInstance().projectManager.getAssetManager();
 				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(assetManager, projectAssetTypeManager, this, null, {uuid, ...assetData});
 				if (projectAsset) {
 					projectAsset.onNewLiveAssetInstance(() => {

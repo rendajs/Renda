@@ -1,4 +1,4 @@
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {EditorFileSystemFsa} from "../util/fileSystems/EditorFileSystemFsa.js";
 import {EditorFileSystemIndexedDb} from "../util/fileSystems/EditorFileSystemIndexedDb.js";
 import {EditorFileSystemRemote} from "../util/fileSystems/EditorFileSystemRemote.js";
@@ -196,7 +196,7 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		const editor = getEditorInstanceCertain();
+		const editor = getEditorInstance();
 		editor.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		await editor.windowManager.reloadCurrentWorkspace();
 		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
@@ -231,7 +231,7 @@ export class ProjectManager {
 		if (!this.currentProjectFileSystem) {
 			throw new Error("Unable to reload the asset manager. No active file system.");
 		}
-		const editor = getEditorInstanceCertain();
+		const editor = getEditorInstance();
 		const builtInAssetManager = editor.builtInAssetManager;
 		const builtInDefaultAssetLinksManager = editor.builtInDefaultAssetLinksManager;
 		const projectAssetTypeManager = editor.projectAssetTypeManager;
@@ -343,7 +343,7 @@ export class ProjectManager {
 			name: "Remote Filesystem",
 			isWorthSaving: false,
 		}, true);
-		getEditorInstanceCertain().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
+		getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
 	}
 
 	/**

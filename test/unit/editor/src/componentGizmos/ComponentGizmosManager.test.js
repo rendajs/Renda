@@ -5,7 +5,7 @@ import {Importer} from "fake-imports";
 
 const importer = new Importer(import.meta.url);
 importer.fakeModule("../../../../../editor/src/editorInstance.js", `
-	export function getEditorInstanceCertain() {
+	export function getEditorInstance() {
 		return {}
 	};
 `);

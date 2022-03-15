@@ -1,4 +1,4 @@
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {autoRegisterComponentGizmos} from "./autoRegisterComponentGizmos.js";
 import {ComponentGizmos} from "./gizmos/ComponentGizmos.js";
 
@@ -47,7 +47,7 @@ export class ComponentGizmosManager {
 	createComponentGizmosInstance(componentType, component, gizmoManager) {
 		const ComponentGizmosConstructor = this.getComponentGizmosConstructor(componentType);
 		if (!ComponentGizmosConstructor) return null;
-		const editor = getEditorInstanceCertain();
+		const editor = getEditorInstance();
 		return new ComponentGizmosConstructor(editor, component, gizmoManager);
 	}
 }

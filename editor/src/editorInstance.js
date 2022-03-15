@@ -3,19 +3,25 @@ import {Editor} from "./Editor.js";
 /** @type {Editor?} */
 let editorInstance = null;
 
+/**
+ * Initializes the editor. This should only be called once by whatever created
+ * the application. This sets a lot of things in motion, and therefore this
+ * shouldn't be called from unit tests.
+ */
 export function initEditor() {
 	editorInstance = new Editor();
 	editorInstance.init();
 }
 
-// todo: Eventually only getEditorInstanceCertain() should be used and renamed
-// to getEditorInstance(). But because TS throws an error when
-// getEditorInstance() is used without checking if it is null, it is quite
-// convenient to find all places where it is being used.
-// We want to use `getEditorInstance()` as little as possible
-// and move to dependency injection. So we won't rename this until all
-// places where it is used are revised.
-export function getEditorInstanceCertain() {
+/**
+ * Gets the editor instance. This should be used sparingly, as it difficult to
+ * deal with in unit tests. You should always use dependency injection where
+ * possible. This will throw if {@linkcode initEditor} hasn't been called yet.
+ * So you shouldn't use this in code that runs from the `Editor` constructor.
+ * If you do wish to use this, make sure to mock the editor instance using
+ * {@linkcode injectMockEditorInstance} in unit tests.
+ */
+export function getEditorInstance() {
 	if (!editorInstance) throw new Error("Editor instance not initialized.");
 	return editorInstance;
 }

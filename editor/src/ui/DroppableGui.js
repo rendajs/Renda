@@ -1,4 +1,4 @@
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {parseMimeType} from "../util/util.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
@@ -16,7 +16,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
 /**
  * @template {new (...args: any) => any} T
  * @typedef {Object} DroppableGuiOptionsType
- * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstanceCertain()
+ * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstance()
  * @property {T[]} [supportedAssetTypes]
  */
 /**
@@ -114,10 +114,10 @@ export class DroppableGui {
 	} = {}) {
 		if (!dependencies) {
 			dependencies = {
-				projectManager: getEditorInstanceCertain().projectManager,
-				dragManager: getEditorInstanceCertain().dragManager,
-				windowManager: getEditorInstanceCertain().windowManager,
-				contextMenuManager: getEditorInstanceCertain().contextMenuManager,
+				projectManager: getEditorInstance().projectManager,
+				dragManager: getEditorInstance().dragManager,
+				windowManager: getEditorInstance().windowManager,
+				contextMenuManager: getEditorInstance().contextMenuManager,
 			};
 		}
 		this.projectManager = dependencies.projectManager;

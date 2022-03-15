@@ -1,4 +1,4 @@
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {parseMimeType} from "../util/util.js";
 import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 
@@ -273,10 +273,10 @@ export class TreeView {
 			this.registerNewEventType(eventType);
 		}
 
-		const renamingCondition = getEditorInstanceCertain().keyboardShortcutManager.getCondition("treeView.renaming");
+		const renamingCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.renaming");
 		this.#renamingShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
 
-		const focusSelectedCondition = getEditorInstanceCertain().keyboardShortcutManager.getCondition("treeView.focusSelected");
+		const focusSelectedCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.focusSelected");
 		this.#focusSelectedShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
 
 		this.updateArrowHidden();
@@ -633,7 +633,7 @@ export class TreeView {
 		if (e.dataTransfer) {
 			if (this.rearrangeable) {
 				e.dataTransfer.effectAllowed = "move";
-				this.#currentDraggingRearrangeDataId = getEditorInstanceCertain().dragManager.registerDraggingData({draggingItems});
+				this.#currentDraggingRearrangeDataId = getEditorInstance().dragManager.registerDraggingData({draggingItems});
 				const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
 				let rootUuid = castRoot[dragRootUuidSymbol];
 				if (rootUuid == null) {
@@ -642,7 +642,7 @@ export class TreeView {
 				}
 				e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 			}
-			const {el, x, y} = getEditorInstanceCertain().dragManager.createDragFeedbackText({
+			const {el, x, y} = getEditorInstance().dragManager.createDragFeedbackText({
 				text: draggingItems.map(item => item.name),
 			});
 			this.#currenDragFeedbackText = el;
@@ -658,9 +658,9 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragEndEvent(e) {
-		if (this.#currenDragFeedbackText) getEditorInstanceCertain().dragManager.removeFeedbackText(this.#currenDragFeedbackText);
+		if (this.#currenDragFeedbackText) getEditorInstance().dragManager.removeFeedbackText(this.#currenDragFeedbackText);
 		this.#currenDragFeedbackText = null;
-		if (this.#currentDraggingRearrangeDataId) getEditorInstanceCertain().dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
+		if (this.#currentDraggingRearrangeDataId) getEditorInstance().dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
 		this.#currentDraggingRearrangeDataId = null;
 	}
 
@@ -715,7 +715,7 @@ export class TreeView {
 
 					const promise = (async () => {
 						const dataId = await new Promise(r => item.getAsString(r));
-						const draggingData = getEditorInstanceCertain().dragManager.getDraggingData(dataId);
+						const draggingData = getEditorInstance().dragManager.getDraggingData(dataId);
 						if (!draggingData || !draggingData.draggingItems) return null;
 						return /** @type {TreeView[]} */ (draggingData.draggingItems);
 					})();
@@ -1196,7 +1196,7 @@ export class TreeView {
 		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
 		if (this.hasRootEventListeners != needsEventHandlers) {
 			this.hasRootEventListeners = needsEventHandlers;
-			const shortcutManager = getEditorInstanceCertain().keyboardShortcutManager;
+			const shortcutManager = getEditorInstance().keyboardShortcutManager;
 			if (needsEventHandlers) {
 				this.el.addEventListener("focusin", this.boundOnFocusIn);
 				this.el.addEventListener("focusout", this.boundOnFocusOut);
@@ -1509,7 +1509,7 @@ export class TreeView {
 
 				menuCreated = true;
 				e.preventDefault();
-				const menu = getEditorInstanceCertain().contextMenuManager.createContextMenu(structure);
+				const menu = getEditorInstance().contextMenuManager.createContextMenu(structure);
 				menu.setPos({x: e.pageX, y: e.pageY});
 				return menu;
 			},

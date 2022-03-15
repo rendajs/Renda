@@ -1,5 +1,5 @@
 import transpiledRollup from "../../libs/rollup.browser.js";
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import resolveUrlObjects from "../../libs/rollup-plugin-resolve-url-objects.js";
 
 const rollup = /** @type {import("node_modules/rollup/dist/rollup.js")} */ (transpiledRollup);
@@ -105,7 +105,7 @@ export class ScriptBuilder {
 
 		/** @type {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/projectAssetType/ProjectAssetTypeJavascript.js").ProjectAssetTypeJavascript>?} */
 		let externsAsset = null;
-		const assetManager = getEditorInstanceCertain().projectManager.assetManager;
+		const assetManager = getEditorInstance().projectManager.assetManager;
 		if (assetManager) {
 			externsAsset = await assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391");
 		}

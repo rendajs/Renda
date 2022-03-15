@@ -1,4 +1,4 @@
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/mod.js";
 import {getNameAndExtension} from "../util/fileSystems/pathUtil.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
@@ -145,7 +145,7 @@ export class ProjectAsset {
 		if (this.assetType) {
 			const AssetTypeConstructor = this.assetTypeManager.getAssetType(this.assetType);
 			if (AssetTypeConstructor) {
-				const projectAssetType = new AssetTypeConstructor(getEditorInstanceCertain(), this, this.assetManager, this.assetTypeManager);
+				const projectAssetType = new AssetTypeConstructor(getEditorInstance(), this, this.assetManager, this.assetTypeManager);
 				/* eslint-disable jsdoc/no-undefined-types */
 				const castProjectAssetType = /** @type {T} */ (projectAssetType);
 				/* eslint-enable jsdoc/no-undefined-types */

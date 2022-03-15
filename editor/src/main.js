@@ -20,7 +20,7 @@ globalThis["editor"] = null;
 (async () => {
 	const module = await import("./editorInstance.js");
 	module.initEditor();
-	const editor = module.getEditorInstanceCertain();
+	const editor = module.getEditorInstance();
 	globalThis["editor"] = editor;
 	if (editor) {
 		projectSelector.setEditorLoaded(editor);

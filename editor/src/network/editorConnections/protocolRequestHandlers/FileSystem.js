@@ -1,9 +1,9 @@
 import {BinaryComposer, StorageType} from "../../../../../src/mod.js";
-import {getEditorInstanceCertain} from "../../../editorInstance.js";
+import {getEditorInstance} from "../../../editorInstance.js";
 import {createRequestHandler} from "./createRequestHandler.js";
 
 function getCurrentFileSystem() {
-	const fs = getEditorInstanceCertain().projectManager.currentProjectFileSystem;
+	const fs = getEditorInstance().projectManager.currentProjectFileSystem;
 	if (!fs) throw new Error("Assertion failed: no active file system.");
 	return fs;
 }

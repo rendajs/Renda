@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
-import {getEditorInstanceCertain} from "../../editorInstance.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 /**
  * @typedef {Object} AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings
@@ -59,7 +59,7 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 							const buildOpts = {
 								useClosureCompiler: asset?.assetSettings?.useClosureCompiler ?? false,
 							};
-							const editor = getEditorInstanceCertain();
+							const editor = getEditorInstance();
 							if (!editor.projectManager.currentProjectFileSystem) return;
 							await editor.projectManager.currentProjectFileSystem.getPermission(outputPath, {writable: true, prompt: true});
 							await editor.scriptBuilder.buildScript(asset.path, outputPath, editor.projectManager.currentProjectFileSystem, editor.devSocket ?? null, buildOpts);

@@ -1,4 +1,4 @@
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 export class ServiceWorkerManager {
 	constructor() {
@@ -12,7 +12,7 @@ export class ServiceWorkerManager {
 				if (e.data.type == "getProjectFile") {
 					const {filePath} = e.data;
 					const splitPath = filePath.split("/");
-					const fileSystem = getEditorInstanceCertain().projectManager.currentProjectFileSystem;
+					const fileSystem = getEditorInstance().projectManager.currentProjectFileSystem;
 					let file;
 					if (fileSystem) {
 						file = await fileSystem.readFile(splitPath);

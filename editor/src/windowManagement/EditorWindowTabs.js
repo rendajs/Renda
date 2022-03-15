@@ -1,7 +1,7 @@
 import {EditorWindow} from "./EditorWindow.js";
 import {getElemSize, parseMimeType} from "../util/util.js";
 import {generateUuid, iLerp} from "../../../src/util/mod.js";
-import {getEditorInstanceCertain} from "../editorInstance.js";
+import {getEditorInstance} from "../editorInstance.js";
 import {Button} from "../ui/Button.js";
 import {ButtonGroup} from "../ui/ButtonGroup.js";
 import {EditorWindowSplit} from "./EditorWindowSplit.js";
@@ -145,7 +145,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @returns {T}
 	 */
 	loadContentWindow(index, constructor, uuid) {
-		const contentWindow = new constructor(getEditorInstanceCertain(), this.windowManager, uuid);
+		const contentWindow = new constructor(getEditorInstance(), this.windowManager, uuid);
 		contentWindow.persistentData.setWindowManager(this.windowManager);
 		this.setExistingContentWindow(index, contentWindow);
 		if (this.isInit) {
@@ -229,7 +229,7 @@ export class EditorWindowTabs extends EditorWindow {
 				const tabIndex = prevTabCount + i;
 				const contentWindow = this.tabs[tabIndex];
 				const newButton = new Button({
-					colorizerFilterManager: getEditorInstanceCertain().colorizerFilterManager,
+					colorizerFilterManager: getEditorInstance().colorizerFilterManager,
 					onClick: () => {
 						this.setActiveTabIndex(tabIndex);
 					},
@@ -425,7 +425,7 @@ export class EditorWindowTabs extends EditorWindow {
 			},
 		];
 
-		const menu = getEditorInstanceCertain().contextMenuManager.createContextMenu(contextMenuStructure);
+		const menu = getEditorInstance().contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 
