@@ -377,6 +377,47 @@ Deno.test({
 	},
 });
 
+Deno.test({
+	name: "onLiveAssetDataChanged()",
+	async fn() {
+		const {projectAsset} = basicSetup();
+		/** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetDataAny[]} */
+		const calls = [];
+		projectAsset.onLiveAssetDataChanged(liveAsset => {
+			calls.push(liveAsset);
+		});
+
+		const liveAssetData = await projectAsset.getLiveAssetData();
+		assertEquals(calls.length, 1);
+		assertStrictEquals(calls[0].liveAsset, liveAssetData.liveAsset);
+		assertStrictEquals(calls[0].editorData, liveAssetData.editorData);
+
+		projectAsset.destroyLiveAssetData();
+
+		const liveAssetData2 = await projectAsset.getLiveAssetData();
+		assertEquals(calls.length, 2);
+		assertStrictEquals(calls[1].liveAsset, liveAssetData2.liveAsset);
+		assertStrictEquals(calls[1].editorData, liveAssetData2.editorData);
+	},
+});
+
+Deno.test({
+	name: "onLiveAssetDataChanged() doesn't fire when removed",
+	async fn() {
+		const {projectAsset} = basicSetup();
+		let callbackCalled = false;
+		const cb = () => {
+			callbackCalled = true;
+		};
+		projectAsset.onLiveAssetDataChanged(cb);
+		projectAsset.removeOnLiveAssetDataChanged(cb);
+
+		await projectAsset.getLiveAssetData();
+
+		assertEquals(callbackCalled, false);
+	},
+});
+
 // ==== embedded assets ========================================================
 
 Deno.test({

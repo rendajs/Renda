@@ -48,6 +48,8 @@ export function createMockProjectAssetType(type) {
 				},
 			};
 		}
+
+		destroyLiveAssetData() {}
 	}
 
 	const castUnknown = /** @type {unknown} */ (ProjectAssetType);

@@ -33,6 +33,10 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  */
 
 /**
+ * @typedef {(liveAssetData: LiveAssetData) => void} LiveAssetDataChangedCallback
+ */
+
+/**
  * A single project asset stores data such as the path, uuid, asset settings, etc.
  * Live asset creation/destruction is also managed from this class.
  * The specifics of handling different types of assets is implemented from
@@ -92,8 +96,10 @@ export class ProjectAsset {
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
-		/** @type {Set<(liveAssetData: LiveAssetData) => any>} */
+		/** @type {Set<LiveAssetDataChangedCallback>} */
 		this.onLiveAssetDataGetCbs = new Set();
+		/** @type {Set<LiveAssetDataChangedCallback>} */
+		this.onLiveAssetDataGetPromiseCbs = new Set();
 		/** @type {LiveAssetType?} */
 		this.liveAsset = null;
 		/** @type {EditorDataType?} */
@@ -328,7 +334,7 @@ export class ProjectAsset {
 		}
 
 		if (this.isGettingLiveAssetData) {
-			return await new Promise(r => this.onLiveAssetDataGetCbs.add(r));
+			return await new Promise(r => this.onLiveAssetDataGetPromiseCbs.add(r));
 		}
 
 		this.isGettingLiveAssetData = true;
@@ -453,13 +459,27 @@ export class ProjectAsset {
 	}
 
 	/**
+	 * @param {LiveAssetDataChangedCallback} cb
+	 */
+	onLiveAssetDataChanged(cb) {
+		this.onLiveAssetDataGetCbs.add(cb);
+	}
+
+	/**
+	 * @param {LiveAssetDataChangedCallback} cb
+	 */
+	removeOnLiveAssetDataChanged(cb) {
+		this.onLiveAssetDataGetCbs.delete(cb);
+	}
+
+	/**
+	 * @private
 	 * @param {LiveAssetData} liveAssetData
 	 */
 	fireOnLiveAssetDataGetCbs(liveAssetData) {
-		for (const cb of this.onLiveAssetDataGetCbs) {
-			cb(liveAssetData);
-		}
-		this.onLiveAssetDataGetCbs.clear();
+		this.onLiveAssetDataGetCbs.forEach(cb => cb(liveAssetData));
+		this.onLiveAssetDataGetPromiseCbs.forEach(cb => cb(liveAssetData));
+		this.onLiveAssetDataGetPromiseCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
 
