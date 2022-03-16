@@ -24,17 +24,17 @@ function getMocks({
 } = {}) {
 	const mockAssetManager = /** @type {import("../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({});
 
-	const {MockProjectAssetType, ProjectAssetType} = createMockProjectAssetType(BASIC_ASSET_TYPE);
+	const projectAssetTypeMocks = createMockProjectAssetType(BASIC_ASSET_TYPE);
 
 	const mockProjectAssetTypeManager = /** @type {import("../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({
 		*getAssetTypesForExtension(extension) {
 			if (extension == BASIC_ASSET_EXTENSION) {
-				yield ProjectAssetType;
+				yield projectAssetTypeMocks.ProjectAssetType;
 			}
 		},
 		getAssetType(type) {
 			if (type == BASIC_ASSET_TYPE) {
-				return ProjectAssetType;
+				return projectAssetTypeMocks.ProjectAssetType;
 			}
 			return null;
 		},
@@ -51,7 +51,7 @@ function getMocks({
 		mockProjectAssetTypeManager,
 		mockBuiltInAssetManager,
 		fileSystem,
-		MockProjectAssetType, ProjectAssetType,
+		...projectAssetTypeMocks,
 		projectAssetArgs: /** @type {const} */ ([
 			mockAssetManager,
 			mockProjectAssetTypeManager,
@@ -62,27 +62,41 @@ function getMocks({
 }
 
 /**
+ * @template {boolean} [TIsKnown = true]
  * @param {Object} options
  * @param {Partial<import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetOptions>} [options.extraProjectAssetOpts]
  * @param {GetMocksOptions} [options.mocksOptions]
- * @param {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} [options.assetType]
+ * @param {TIsKnown} [options.isKnownAssetType]
  */
 function basicSetup({
 	extraProjectAssetOpts,
 	mocksOptions,
-	assetType,
+	isKnownAssetType = /** @type {TIsKnown} */ (true),
 } = {}) {
 	const mocks = getMocks(mocksOptions);
+
+	const extension = isKnownAssetType ? BASIC_ASSET_EXTENSION : UNKNOWN_ASSET_EXTENSION;
+	const assetPath = ["path", "to", `asset.${extension}`];
 	const projectAsset = new ProjectAsset(...mocks.projectAssetArgs, {
 		uuid: BASIC_UUID,
-		path: ["path", "to", `asset.${UNKNOWN_ASSET_EXTENSION}`],
-		assetType,
+		path: assetPath,
 		...extraProjectAssetOpts,
 	});
 
+	if (isKnownAssetType) {
+		mocks.fileSystem.writeJson(assetPath, {
+			assetType: BASIC_ASSET_TYPE,
+			asset: {
+				num: 42,
+				str: "foo",
+			},
+		});
+	}
+
+	const castProjectAsset = /** @type {TIsKnown extends true ? ProjectAsset<import("./shared/createMockProjectAssetType.js").MockProjectAssetType> : import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (projectAsset);
 	return {
 		mocks,
-		projectAsset,
+		projectAsset: castProjectAsset,
 	};
 }
 
@@ -321,11 +335,53 @@ Deno.test({
 Deno.test({
 	name: "getLiveAssetData throws if the asset doesn't have an ProjectAssetType set",
 	async fn() {
-		const {projectAsset} = basicSetup();
+		const {projectAsset} = basicSetup({isKnownAssetType: false});
 
 		await assertRejects(async () => {
 			await projectAsset.getLiveAssetData();
 		}, Error, `Failed to get live asset data for asset at "path/to/asset.${UNKNOWN_ASSET_EXTENSION}" because the asset type couldn't be determined. Make sure your asset type is registered in the ProjectAssetTypeManager.`);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() returns the asset data",
+	async fn() {
+		const {projectAsset, mocks} = basicSetup();
+
+		const liveAssetData = await projectAsset.getLiveAssetData();
+		assertInstanceOf(liveAssetData.liveAsset, mocks.MockProjectAssetTypeLiveAsset);
+		assertEquals(liveAssetData.liveAsset.num, 42);
+		assertEquals(liveAssetData.liveAsset.str, "foo");
+		assertEquals(liveAssetData.editorData, {
+			editorNum: 42,
+			editorStr: "foo",
+		});
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() returns existing data if it's already been loaded",
+	async fn() {
+		const {projectAsset} = basicSetup();
+
+		const liveAssetData1 = await projectAsset.getLiveAssetData();
+		const liveAssetData2 = await projectAsset.getLiveAssetData();
+		assertStrictEquals(liveAssetData1.liveAsset, liveAssetData2.liveAsset);
+		assertStrictEquals(liveAssetData1.editorData, liveAssetData2.editorData);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() returns existing data if it is currently being loaded",
+	async fn() {
+		const {projectAsset} = basicSetup();
+
+		const promise1 = projectAsset.getLiveAssetData();
+		const promise2 = projectAsset.getLiveAssetData();
+		const liveAssetData1 = await promise1;
+		const liveAssetData2 = await promise2;
+		assertStrictEquals(liveAssetData1.liveAsset, liveAssetData2.liveAsset);
+		assertStrictEquals(liveAssetData1.editorData, liveAssetData2.editorData);
 	},
 });
 
