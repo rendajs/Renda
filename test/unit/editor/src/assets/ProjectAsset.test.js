@@ -3,9 +3,10 @@ import {ProjectAsset} from "../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
 import {createMockProjectAssetType} from "./shared/createMockProjectAssetType.js";
+import {createMockProjectAssetTypeManager} from "./shared/createMockProjectAssetTypeManager.js";
 
 const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
-const BASIC_ASSET_TYPE = "test:basicassettype";
+const BASIC_PROJECTASSETTYPE = "test:basicassettype";
 const BASIC_ASSET_EXTENSION = "basicassetextension";
 const UNKNOWN_ASSET_EXTENSION = "unknownassetextension";
 
@@ -24,20 +25,11 @@ function getMocks({
 } = {}) {
 	const mockAssetManager = /** @type {import("../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({});
 
-	const projectAssetTypeMocks = createMockProjectAssetType(BASIC_ASSET_TYPE);
+	const projectAssetTypeMocks = createMockProjectAssetType(BASIC_PROJECTASSETTYPE);
 
-	const mockProjectAssetTypeManager = /** @type {import("../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({
-		*getAssetTypesForExtension(extension) {
-			if (extension == BASIC_ASSET_EXTENSION) {
-				yield projectAssetTypeMocks.ProjectAssetType;
-			}
-		},
-		getAssetType(type) {
-			if (type == BASIC_ASSET_TYPE) {
-				return projectAssetTypeMocks.ProjectAssetType;
-			}
-			return null;
-		},
+	const mockProjectAssetTypeManager = createMockProjectAssetTypeManager({
+		BASIC_ASSET_EXTENSION, BASIC_PROJECTASSETTYPE,
+		ProjectAssetType: projectAssetTypeMocks.ProjectAssetType,
 	});
 
 	const mockBuiltInAssetManager = /** @type {import("../../../../../editor/src/assets/BuiltInAssetManager.js").BuiltInAssetManager} */ ({
@@ -85,7 +77,7 @@ function basicSetup({
 
 	if (isKnownAssetType) {
 		mocks.fileSystem.writeJson(assetPath, {
-			assetType: BASIC_ASSET_TYPE,
+			assetType: BASIC_PROJECTASSETTYPE,
 			asset: {
 				num: 42,
 				str: "foo",
@@ -124,7 +116,7 @@ Deno.test({
 		const projectAssetType = await projectAsset.getProjectAssetType();
 		assertExists(projectAssetType);
 		assertInstanceOf(projectAssetType, MockProjectAssetType);
-		assertEquals(projectAsset.assetType, BASIC_ASSET_TYPE);
+		assertEquals(projectAsset.assetType, BASIC_PROJECTASSETTYPE);
 		assertStrictEquals(projectAsset.projectAssetTypeConstructor, MockProjectAssetType);
 	},
 });
@@ -182,7 +174,7 @@ Deno.test({
 		const {mockProjectAssetTypeManager} = getMocks();
 
 		const result = ProjectAsset.guessAssetTypeFromPath(mockProjectAssetTypeManager, ["path", "to", `asset.${BASIC_ASSET_EXTENSION}`]);
-		assertEquals(result, BASIC_ASSET_TYPE);
+		assertEquals(result, BASIC_PROJECTASSETTYPE);
 	},
 });
 
@@ -204,7 +196,7 @@ Deno.test({
 		const {mockProjectAssetTypeManager, mockBuiltInAssetManager, fileSystem} = getMocks();
 
 		const result = await ProjectAsset.guessAssetTypeFromFile(mockBuiltInAssetManager, mockProjectAssetTypeManager, fileSystem, ["path", "to", `asset.${BASIC_ASSET_EXTENSION}`]);
-		assertEquals(result, BASIC_ASSET_TYPE);
+		assertEquals(result, BASIC_PROJECTASSETTYPE);
 	},
 });
 
@@ -214,11 +206,11 @@ Deno.test({
 		const {mockProjectAssetTypeManager, mockBuiltInAssetManager, fileSystem} = getMocks();
 		const path = ["path", "to", "asset.json"];
 		await fileSystem.writeJson(path, {
-			assetType: BASIC_ASSET_TYPE,
+			assetType: BASIC_PROJECTASSETTYPE,
 		});
 
 		const result = await ProjectAsset.guessAssetTypeFromFile(mockBuiltInAssetManager, mockProjectAssetTypeManager, fileSystem, path);
-		assertEquals(result, BASIC_ASSET_TYPE);
+		assertEquals(result, BASIC_PROJECTASSETTYPE);
 	},
 });
 
@@ -321,7 +313,7 @@ Deno.test({
 	fn() {
 		const {projectAsset} = basicSetup({
 			extraProjectAssetOpts: {
-				assetType: BASIC_ASSET_TYPE,
+				assetType: BASIC_PROJECTASSETTYPE,
 				forceAssetType: true,
 			},
 		});

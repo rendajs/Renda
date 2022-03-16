@@ -1,46 +1,53 @@
-import {assertEquals, assertExists} from "asserts";
+import {assertEquals, assertExists, assertStrictEquals} from "asserts";
 import {AssetManager} from "../../../../../editor/src/assets/AssetManager.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {createMockProjectAssetType} from "./shared/createMockProjectAssetType.js";
+import {createMockProjectAssetTypeManager} from "./shared/createMockProjectAssetTypeManager.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
+const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
+const BASIC_ASSET_PATH = ["path", "to", "asset.json"];
 const BASIC_PROJECTASSETTYPE = "test:basicprojectassettype";
 const ASSET_SETTINGS_PATH = ["ProjectSettings", "assetSettings.json"];
 
 injectMockEditorInstance(/** @type {any} */ ({}));
 
-async function basicSetup() {
+async function basicSetup({
+	waitForAssetSettingsLoad = true,
+} = {}) {
 	const mockProjectManager = /** @type {import("../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
-	const mockBuiltinAssetManager = /** @type {import("../../../../../editor/src/assets/BuiltInAssetManager.js").BuiltInAssetManager} */ ({});
+
+	const mockBuiltinAssetManager = /** @type {import("../../../../../editor/src/assets/BuiltInAssetManager.js").BuiltInAssetManager} */ ({
+		assets: new Map(),
+	});
+
 	const mockBuiltInDefaultAssetLinksManager = /** @type {import("../../../../../editor/src/assets/BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} */ ({
 		registeredAssetLinks: new Set(),
 	});
 
 	const {MockProjectAssetType, ProjectAssetType} = createMockProjectAssetType(BASIC_PROJECTASSETTYPE);
 
-	const mockProjectAssetTypeManager = /** @type {import("../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({
-		getAssetType(type) {
-			if (type == BASIC_PROJECTASSETTYPE) {
-				return ProjectAssetType;
-			}
-			return null;
-		},
+	const mockProjectAssetTypeManager = createMockProjectAssetTypeManager({
+		BASIC_ASSET_EXTENSION, BASIC_PROJECTASSETTYPE,
+		ProjectAssetType,
 	});
 
 	const mockFileSystem = new EditorFileSystemMemory();
 	await mockFileSystem.writeJson(ASSET_SETTINGS_PATH, {
 		assets: {
 			[BASIC_ASSET_UUID]: {
-				path: ["path", "to", "asset.json"],
+				path: BASIC_ASSET_PATH,
 			},
 		},
 	});
-	await mockFileSystem.writeJson(["path", "to", "asset.json"], {});
+	await mockFileSystem.writeJson(BASIC_ASSET_PATH, {
+		assetType: BASIC_PROJECTASSETTYPE,
+	});
 
 	const assetManager = new AssetManager(mockProjectManager, mockBuiltinAssetManager, mockBuiltInDefaultAssetLinksManager, mockProjectAssetTypeManager, mockFileSystem);
-	await assetManager.waitForAssetSettingsLoad();
+	if (waitForAssetSettingsLoad) await assetManager.waitForAssetSettingsLoad();
 
 	return {
 		assetManager,
@@ -137,6 +144,63 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getAssetUuidFromPath()",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		const result = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH);
+
+		assertEquals(result, BASIC_ASSET_UUID);
+	},
+});
+
+Deno.test({
+	name: "getAssetUuidFromPath() non existent",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		const result = await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"]);
+
+		assertEquals(result, null);
+	},
+});
+
+Deno.test({
+	name: "getProjectAsset()",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		const asset = await assetManager.getProjectAsset(BASIC_ASSET_UUID);
+
+		assertExists(asset);
+	},
+});
+
+Deno.test({
+	name: "getProjectAssetImmediate() when asset settings are not loaded returns null",
+	async fn() {
+		const {assetManager} = await basicSetup({waitForAssetSettingsLoad: false});
+
+		const asset = assetManager.getProjectAssetImmediate(BASIC_ASSET_UUID);
+
+		assertEquals(asset, null);
+
+		await assetManager.waitForAssetSettingsLoad();
+	},
+});
+
+Deno.test({
+	name: "getAssetPathFromUuid()",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		const path = await assetManager.getAssetPathFromUuid(BASIC_ASSET_UUID);
+
+		assertEquals(path, BASIC_ASSET_PATH);
+	},
+});
+
+Deno.test({
 	name: "createEmbeddedAsset()",
 	async fn() {
 		const {assetManager} = await basicSetup();
@@ -145,5 +209,35 @@ Deno.test({
 
 		assertEquals(embeddedAsset.isEmbedded, true);
 		assertEquals(embeddedAsset.assetType, BASIC_PROJECTASSETTYPE);
+	},
+});
+
+Deno.test({
+	name: "getProjectAssetForLiveAsset() with null",
+	async fn() {
+		const {assetManager} = await basicSetup();
+		const projectAsset = assetManager.getProjectAssetForLiveAsset(null);
+		assertEquals(projectAsset, null);
+	},
+});
+
+Deno.test({
+	name: "getProjectAssetForLiveAsset() with live asset from project",
+	async fn() {
+		const {assetManager} = await basicSetup();
+		const projectAsset = await assetManager.getProjectAsset(BASIC_ASSET_UUID);
+		assertExists(projectAsset);
+		const liveAsset = await projectAsset.getLiveAsset();
+		const result = assetManager.getProjectAssetForLiveAsset(liveAsset);
+		assertStrictEquals(result, projectAsset);
+	},
+});
+
+Deno.test({
+	name: "getProjectAssetForLiveAsset() with non-live asset",
+	async fn() {
+		const {assetManager} = await basicSetup();
+		const actual = assetManager.getProjectAssetForLiveAsset({});
+		assertEquals(actual, null);
 	},
 });
