@@ -152,7 +152,12 @@ module.exports = {
 		"prefer-exponentiation-operator": "error",
 		"prefer-object-spread": "error",
 		"quote-props": ["error", "as-needed"],
-		quotes: ["error", "double", {avoidEscape: true}],
+		quotes: [
+			"error", "double", {
+				avoidEscape: true,
+				allowTemplateLiterals: true,
+			},
+		],
 		semi: "error",
 		"semi-spacing": "error",
 		"semi-style": "error",

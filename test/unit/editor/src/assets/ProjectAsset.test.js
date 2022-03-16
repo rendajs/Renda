@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertExists, assertRejects, assertStrictEquals, assertThrows} from "asserts";
 import {ProjectAsset} from "../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
@@ -66,15 +66,18 @@ function getMocks({
  * @param {Object} options
  * @param {Partial<import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetOptions>} [options.extraProjectAssetOpts]
  * @param {GetMocksOptions} [options.mocksOptions]
+ * @param {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} [options.assetType]
  */
 function basicSetup({
 	extraProjectAssetOpts,
 	mocksOptions,
+	assetType,
 } = {}) {
 	const mocks = getMocks(mocksOptions);
 	const projectAsset = new ProjectAsset(...mocks.projectAssetArgs, {
 		uuid: BASIC_UUID,
 		path: ["path", "to", `asset.${UNKNOWN_ASSET_EXTENSION}`],
+		assetType,
 		...extraProjectAssetOpts,
 	});
 
@@ -311,6 +314,19 @@ Deno.test({
 		});
 
 		assertEquals(projectAsset.needsAssetSettingsSave, true);
+	},
+});
+
+// ==== live assets ============================================================
+
+Deno.test({
+	name: "getLiveAssetData throws if the asset doesn't have an ProjectAssetType set",
+	async fn() {
+		const {projectAsset} = basicSetup();
+
+		await assertRejects(async () => {
+			await projectAsset.getLiveAssetData();
+		}, Error, `Failed to get live asset data for asset at "path/to/asset.${UNKNOWN_ASSET_EXTENSION}" because the asset type couldn't be determined. Make sure your asset type is registered in the ProjectAssetTypeManager.`);
 	},
 });
 

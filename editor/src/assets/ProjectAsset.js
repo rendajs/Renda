@@ -19,7 +19,7 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  * @property {import("../../../src/util/mod.js").UuidString} uuid
  * @property {string[]} [path]
  * @property {*} [assetSettings]
- * @property {*} [assetType]
+ * @property {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier?} [assetType]
  * @property {boolean} [forceAssetType]
  * @property {boolean} [isBuiltIn]
  * @property {boolean} [isEmbedded]
@@ -81,7 +81,7 @@ export class ProjectAsset {
 		this.path = path;
 		/** @type {AssetSettigsType} */
 		this.assetSettings = assetSettings;
-		/** @type {string | null} */
+		/** @type {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | null} */
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
@@ -336,7 +336,9 @@ export class ProjectAsset {
 		this.currentGettingLiveAssetSymbol = getLiveAssetSymbol;
 
 		await this.waitForInit();
-		if (!this._projectAssetType) return {};
+		if (!this._projectAssetType) {
+			throw new Error(`Failed to get live asset data for asset at "${this.path.join("/")}" because the asset type couldn't be determined. Make sure your asset type is registered in the ProjectAssetTypeManager.`);
+		}
 
 		let fileData = null;
 		let readFailed = false;
