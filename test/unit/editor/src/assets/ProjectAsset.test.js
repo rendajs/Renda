@@ -394,10 +394,13 @@ Deno.test({
 
 		projectAsset.destroyLiveAssetData();
 
-		const liveAssetData2 = await projectAsset.getLiveAssetData();
 		assertEquals(calls.length, 2);
-		assertStrictEquals(calls[1].liveAsset, liveAssetData2.liveAsset);
-		assertStrictEquals(calls[1].editorData, liveAssetData2.editorData);
+		assertEquals(calls[1], {});
+
+		const liveAssetData2 = await projectAsset.getLiveAssetData();
+		assertEquals(calls.length, 3);
+		assertStrictEquals(calls[2].liveAsset, liveAssetData2.liveAsset);
+		assertStrictEquals(calls[2].editorData, liveAssetData2.editorData);
 	},
 });
 

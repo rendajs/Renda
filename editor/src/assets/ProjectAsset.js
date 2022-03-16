@@ -525,8 +525,8 @@ export class ProjectAsset {
 	}
 
 	destroyLiveAssetData() {
+		this.fireOnLiveAssetDataGetCbs({});
 		if (this.isGettingLiveAssetData) {
-			this.fireOnLiveAssetDataGetCbs({});
 			this.currentGettingLiveAssetSymbol = null;
 		} else if ((this.liveAsset || this.editorData) && this._projectAssetType) {
 			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.editorData);
