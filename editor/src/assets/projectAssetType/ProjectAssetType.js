@@ -123,9 +123,8 @@ export class ProjectAssetType {
 	 */
 	static assetSettingsStructure = {};
 
-	/* eslint-disable jsdoc/no-undefined-types */
 	/** @typedef {import("../ProjectAsset.js").ProjectAsset<ProjectAssetType<TLiveAsset, TEditorData, TFileData, TAssetSettings>>} ProjectAsset */
-	/* eslint-enable jsdoc/no-undefined-types */
+
 	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
 	 * @param {ProjectAsset} projectAsset
@@ -143,6 +142,7 @@ export class ProjectAssetType {
 		this.projectAssetTypeManager = assetTypeManager;
 
 		this.boundLiveAssetNeedsReplacement = this.liveAssetNeedsReplacement.bind(this);
+		/** @type {Set<ProjectAsset>} */
 		this.usedLiveAssets = new Set();
 	}
 
@@ -229,7 +229,7 @@ export class ProjectAssetType {
 	listenForUsedLiveAssetChanges(projectAsset) {
 		if (!projectAsset) return;
 		this.usedLiveAssets.add(projectAsset);
-		projectAsset.onNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement);
+		projectAsset.onLiveAssetNeedsReplacement(this.boundLiveAssetNeedsReplacement);
 	}
 
 	/**
@@ -241,7 +241,7 @@ export class ProjectAssetType {
 	destroyLiveAssetData(liveAsset = null, editorData = null) {
 		liveAsset?.destructor?.();
 		for (const projectAsset of this.usedLiveAssets) {
-			projectAsset.removeOnNewLiveAssetInstance(this.boundLiveAssetNeedsReplacement);
+			projectAsset.removeOnLiveAssetNeedsReplacement(this.boundLiveAssetNeedsReplacement);
 		}
 	}
 

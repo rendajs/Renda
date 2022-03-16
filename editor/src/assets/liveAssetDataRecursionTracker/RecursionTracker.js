@@ -54,7 +54,7 @@ export class RecursionTracker {
 
 		/**
 		 * Stack for keeping track what the currently loading ProjectAsset is.
-		 * Used for assigning {@linkcode ProjectAsset.onNewLiveAssetInstance} callbacks
+		 * Used for assigning {@linkcode ProjectAsset.onLiveAssetNeedsReplacement} callbacks
 		 * to the correct ProjectAsset instance. This way the callbacks can be properly
 		 * unregistered when the ProjectAsset is destroyed.
 		 * @type {ProjectAsset[]}

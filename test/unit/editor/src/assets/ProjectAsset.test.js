@@ -378,12 +378,12 @@ Deno.test({
 });
 
 Deno.test({
-	name: "onLiveAssetDataChanged()",
+	name: "onLiveAssetDataChange()",
 	async fn() {
 		const {projectAsset} = basicSetup();
 		/** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetDataAny[]} */
 		const calls = [];
-		projectAsset.onLiveAssetDataChanged(liveAsset => {
+		projectAsset.onLiveAssetDataChange(liveAsset => {
 			calls.push(liveAsset);
 		});
 
@@ -405,15 +405,15 @@ Deno.test({
 });
 
 Deno.test({
-	name: "onLiveAssetDataChanged() doesn't fire when removed",
+	name: "onLiveAssetDataChange() doesn't fire when removed",
 	async fn() {
 		const {projectAsset} = basicSetup();
 		let callbackCalled = false;
 		const cb = () => {
 			callbackCalled = true;
 		};
-		projectAsset.onLiveAssetDataChanged(cb);
-		projectAsset.removeOnLiveAssetDataChanged(cb);
+		projectAsset.onLiveAssetDataChange(cb);
+		projectAsset.removeOnLiveAssetDataChange(cb);
 
 		await projectAsset.getLiveAssetData();
 

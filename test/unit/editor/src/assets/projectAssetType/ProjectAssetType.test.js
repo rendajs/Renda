@@ -9,13 +9,13 @@ function createMockProjectAsset({
 	liveAssetNeedsReplacementCb = null,
 } = {}) {
 	/** @type {Set<() => void>} */
-	const onNewLiveAssetInstanceCbs = new Set();
+	const onLiveAssetNeedsReplacementCbs = new Set();
 	const mockProjectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ ({
-		onNewLiveAssetInstance(cb) {
-			onNewLiveAssetInstanceCbs.add(cb);
+		onLiveAssetNeedsReplacement(cb) {
+			onLiveAssetNeedsReplacementCbs.add(cb);
 		},
-		removeOnNewLiveAssetInstance(cb) {
-			onNewLiveAssetInstanceCbs.delete(cb);
+		removeOnLiveAssetNeedsReplacement(cb) {
+			onLiveAssetNeedsReplacementCbs.delete(cb);
 		},
 		liveAssetNeedsReplacement() {
 			if (liveAssetNeedsReplacementCb) liveAssetNeedsReplacementCb();
@@ -23,8 +23,8 @@ function createMockProjectAsset({
 	});
 	return {
 		mockProjectAsset,
-		fireOnNewLiveAssetInstanceCbs() {
-			onNewLiveAssetInstanceCbs.forEach(cb => cb());
+		fireOnLiveAssetNeedsReplacementCbs() {
+			onLiveAssetNeedsReplacementCbs.forEach(cb => cb());
 		},
 	};
 }
@@ -91,12 +91,12 @@ Deno.test({
 	fn() {
 		const {projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount} = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
-		const {mockProjectAsset, fireOnNewLiveAssetInstanceCbs} = createMockProjectAsset();
+		const {mockProjectAsset, fireOnLiveAssetNeedsReplacementCbs} = createMockProjectAsset();
 
 		projectAssetType.listenForUsedLiveAssetChanges(mockProjectAsset);
 		assertEquals(getLiveAssetNeedsReplacementCallCount(), 0);
 
-		fireOnNewLiveAssetInstanceCbs();
+		fireOnLiveAssetNeedsReplacementCbs();
 
 		assertEquals(getLiveAssetNeedsReplacementCallCount(), 1);
 	},
@@ -119,11 +119,11 @@ Deno.test({
 	fn() {
 		const {projectAssetTypeArgs, getLiveAssetNeedsReplacementCallCount} = getMocks();
 		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
-		const {mockProjectAsset, fireOnNewLiveAssetInstanceCbs} = createMockProjectAsset();
+		const {mockProjectAsset, fireOnLiveAssetNeedsReplacementCbs} = createMockProjectAsset();
 
 		projectAssetType.listenForUsedLiveAssetChanges(mockProjectAsset);
 		projectAssetType.destroyLiveAssetData();
-		fireOnNewLiveAssetInstanceCbs();
+		fireOnLiveAssetNeedsReplacementCbs();
 
 		assertEquals(getLiveAssetNeedsReplacementCallCount(), 0);
 	},

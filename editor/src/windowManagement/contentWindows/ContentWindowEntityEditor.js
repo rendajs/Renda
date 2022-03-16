@@ -51,6 +51,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../misc/EntitySelection.js").EntitySelection>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
+		/** @type {Set<{projectAsset: import("../../assets/ProjectAsset.js").ProjectAssetAny, listener: () => void}>} */
 		this.createdLiveAssetChangeListeners = new Set();
 
 		this.gizmos = new GizmoManager(this.editorInstance.engineAssetManager);
@@ -301,7 +302,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	updateLiveAssetChangeListeners() {
 		for (const {projectAsset, listener} of this.createdLiveAssetChangeListeners) {
-			projectAsset.removeOnNewLiveAssetInstance(listener);
+			projectAsset.removeOnLiveAssetNeedsReplacement(listener);
 		}
 		this.createdLiveAssetChangeListeners.clear();
 
@@ -372,7 +373,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 							this.notifyEntityChanged(rootComponent.entity, "componentProperty");
 						}
 					};
-					projectAsset.onNewLiveAssetInstance(listener);
+					projectAsset.onLiveAssetNeedsReplacement(listener);
 					this.createdLiveAssetChangeListeners.add({projectAsset, listener});
 				}
 			}

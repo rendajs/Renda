@@ -52,7 +52,7 @@ export class BuiltInAssetManager {
 				const assetManager = await getEditorInstance().projectManager.getAssetManager();
 				const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(assetManager, projectAssetTypeManager, this, null, {uuid, ...assetData});
 				if (projectAsset) {
-					projectAsset.onNewLiveAssetInstance(() => {
+					projectAsset.onLiveAssetNeedsReplacement(() => {
 						if (!this.onAssetChangeCbs) return;
 						for (const cb of this.onAssetChangeCbs) {
 							cb(uuid);
