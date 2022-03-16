@@ -1,8 +1,7 @@
-import {assertEquals, assertExists, assertRejects, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertExists, assertInstanceOf, assertRejects, assertStrictEquals, assertThrows} from "asserts";
 import {ProjectAsset} from "../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
-import {assertInstanceOf} from "../../../shared/asserts.js";
 import {createMockProjectAssetType} from "./shared/createMockProjectAssetType.js";
 
 const BASIC_UUID = "00000000-0000-0000-0000-000000000000";

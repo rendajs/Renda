@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"paths": {
-			"asserts": [".denoTypes/urlImports/https_/deno.land/std@0.118.0/testing/asserts.ts"],
+			"asserts": [".denoTypes/urlImports/https_/deno.land/std@0.130.0/testing/asserts.ts"],
 			"path": [".denoTypes/urlImports/https_/deno.land/std@0.121.0/path/mod.ts"],
 			"hash": [".denoTypes/urlImports/https_/deno.land/std@0.118.0/hash/mod.ts"],
 			"chdir-anywhere": [".denoTypes/urlImports/https_/deno.land/x/chdir_anywhere@v0.0.2/mod.js"],

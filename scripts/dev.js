@@ -17,7 +17,7 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://deno.land/std@0.118.0/hash/mod.ts",
 	"https://deno.land/std@0.121.0/path/mod.ts",
 	"https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",
-	"https://deno.land/std@0.118.0/testing/asserts.ts",
+	"https://deno.land/std@0.130.0/testing/asserts.ts",
 	"https://deno.land/x/fake-imports@v0.0.6/mod.js",
 	"https://deno.land/x/puppeteer@9.0.2/mod.ts",
 	"https://deno.land/x/fake_imports@v0.1.0/mod.js",

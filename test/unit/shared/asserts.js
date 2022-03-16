@@ -1,4 +1,4 @@
-import {AssertionError, assert} from "asserts";
+import {AssertionError} from "asserts";
 import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
 
 /**
@@ -138,20 +138,4 @@ export function assertMatAlmostEquals(actual, expected, tolerance = 0.00001, msg
 		}
 		assertAlmostEquals(array1[i], array2[i], tolerance, message);
 	}
-}
-
-/**
- * @template {new (...args: any) => any} T
- * @typedef {T extends new (...args: any) => infer C ? C : never} GetConstructorType
- */
-
-/**
- * @template {new (...args: any) => any} T
- * @param {unknown} obj
- * @param {T} Type
- * @returns {asserts obj is GetConstructorType<T>}
- */
-export function assertInstanceOf(obj, Type, msg = "") {
-	if (!msg) msg = `${obj} is not an instance of ${Type.name}`;
-	assert(obj instanceof Type, msg);
 }
