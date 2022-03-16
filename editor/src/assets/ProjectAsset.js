@@ -512,6 +512,7 @@ export class ProjectAsset {
 			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.editorData);
 			this.clearRecursionTrackerLiveAssetChangeHandlers();
 			this.liveAsset = null;
+			this.editorData = null;
 		}
 	}
 
