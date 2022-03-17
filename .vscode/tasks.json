@@ -6,7 +6,7 @@
 			"detail": "Init a dev environment and start server processes locally.",
 			"type": "shell",
 			"problemMatcher": [],
-			"command": "${workspaceFolder}/scripts/dev.js",
+			"command": "deno task dev",
 			"runOptions": {
 				"runOn": "folderOpen"
 			},
