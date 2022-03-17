@@ -7,5 +7,6 @@
 			"deno.ns",
 			"deno.unstable"
 		]
-	}
+	},
+	"importMap": "importmap.json"
 }

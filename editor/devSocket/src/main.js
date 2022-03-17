@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable --no-check --allow-net --allow-read --allow-write --allow-run --import-map=importmap.json
+#!/usr/bin/env -S deno run --unstable --no-check --allow-net --allow-read --allow-write --allow-run
 
 import {Application} from "./Application.js";
 

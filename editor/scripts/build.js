@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --import-map=importmap.json
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env
 
 import {rollup} from "rollup";
 

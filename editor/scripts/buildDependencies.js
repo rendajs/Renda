@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check --import-map=importmap.json
+#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check
 
 import {createRequire} from "std/node/module.ts";
 import {dirname, fromFileUrl, resolve} from "path";

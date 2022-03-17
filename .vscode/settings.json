@@ -8,8 +8,4 @@
 		"lcov.info"
 	],
 	"javascript.preferences.importModuleSpecifier": "relative",
-	"deno.codeLens.testArgs": [
-		"--allow-all",
-		"--import-map=importmap.json"
-	]
 }

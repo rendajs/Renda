@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check --unstable --import-map=importmap.json
+#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net --no-check --unstable
 
 import {dirname, join, resolve} from "path";
 import {setCwd} from "chdir-anywhere";

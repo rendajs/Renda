@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --no-check --allow-run --allow-read --allow-write --allow-env --import-map=importmap.json
+#!/usr/bin/env -S deno run --no-check --allow-run --allow-read --allow-write --allow-env
 
 import {join} from "path";
 import {setCwd} from "chdir-anywhere";
@@ -46,7 +46,7 @@ if (needsHtmlCoverageReport) {
 	needsCoverage = true;
 }
 
-const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable", "--import-map=importmap.json"];
+const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable"];
 const applicationArgs = new Set();
 for (const arg of Deno.args) {
 	if (APPLICATION_ARGS.includes(arg)) {
