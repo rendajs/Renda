@@ -17,6 +17,7 @@ export class SingleInstancePromise {
 		this.isRunning = false;
 		this.hasRan = false;
 		this.onceReturnValue = undefined;
+		/** @type {Set<(result: TReturn) => void>} */
 		this.onRunFinishCbs = new Set();
 
 		if (run) this.run();
