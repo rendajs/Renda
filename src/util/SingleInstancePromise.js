@@ -63,6 +63,9 @@ export class SingleInstancePromise {
 	/**
 	 * Returns a promise that will resolve once the function is done running.
 	 * Subsequent runs will resolve immediately.
+	 * If the function hasn't run yet, this promise will resolve once it's done
+	 * running for the first time. So you might have to call {@linkcode run} for
+	 * this to resolve.
 	 * @returns {Promise<void>}
 	 */
 	async waitForFinish() {
@@ -73,7 +76,7 @@ export class SingleInstancePromise {
 	/**
 	 * Returns a promise that will resolve once the function is done running.
 	 * Resolves immediately if the function is not running, either because its
-	 * dono or if it has already run.
+	 * done or if it has already run.
 	 */
 	async waitForFinishIfRunning() {
 		if (!this.isRunning) return;
