@@ -44,7 +44,7 @@ export function createMockProjectAssetType(type) {
 				liveAsset,
 				editorData: {
 					editorNum: 42,
-					editorStr: "foo",
+					editorStr: "defaultMockLiveAssetEditorStr",
 				},
 			};
 		}

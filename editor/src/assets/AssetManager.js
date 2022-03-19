@@ -301,7 +301,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {string} uuid
+	 * @param {import("../../../src/mod.js").UuidString} uuid
 	 * @returns {Promise<import("./ProjectAsset.js").ProjectAssetAny?>}
 	 */
 	async getProjectAsset(uuid) {
@@ -414,7 +414,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {any} liveAsset
+	 * @param {object?} liveAsset
 	 */
 	getProjectAssetForLiveAsset(liveAsset) {
 		// this method doesn't need a loadAssetSettings call because there
@@ -427,21 +427,35 @@ export class AssetManager {
 		for (const projectAsset of this.builtInAssets.values()) {
 			if (projectAsset.liveAsset == liveAsset) return projectAsset;
 		}
+		const embeddedAsset = this.embeddedAssets.get(liveAsset);
+		if (embeddedAsset) return embeddedAsset;
 		return null;
 	}
 
 	/**
-	 * @param {any} liveAsset
+	 * @param {object?} liveAsset
 	 */
 	getAssetUuidFromLiveAsset(liveAsset) {
 		const projectAsset = this.getProjectAssetForLiveAsset(liveAsset);
 		if (projectAsset) {
+			if (projectAsset.isEmbedded) {
+				throw new Error("The provided live asset is from an embedded asset, embedded assets do not have UUIDs. Use getAssetUuidOrEmbeddedAssetDataFromLiveAsset() instead.");
+			}
 			return projectAsset.uuid;
 		}
 		return null;
 	}
 
 	/**
+	 * Creates a new embedded ProjectAsset. Embedded assets are not stored on
+	 * disk in a single file, but rather, are embedded in another project asset.
+	 * Embedded assets can't be accessed by a uuid or path. Instead you can use
+	 * their liveAsset and {@linkcode getProjectAssetForLiveAsset} to get the
+	 * ProjectAsset instance.
+	 * Created embedded assets won't need to be destroyed, since they are only
+	 * accessible through their liveAsset. Embedded ProjectAsset instances are
+	 * garbage collected when their liveAsset is garbage collected.
+	 *
 	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} assetType
 	 */
 	createEmbeddedAsset(assetType) {
@@ -450,6 +464,50 @@ export class AssetManager {
 			forceAssetType: true,
 			isEmbedded: true,
 		});
+		projectAsset.onLiveAssetDataChange(liveAssetData => {
+			if (liveAssetData.liveAsset) {
+				this.embeddedAssets.set(liveAssetData.liveAsset, projectAsset);
+			}
+		});
 		return projectAsset;
+	}
+
+	/**
+	 * Used for storing project asset data on disk. If the provided liveAsset
+	 * is an embedded asset, it's json data will be returned that needs to be
+	 * stored in the parent project asset.
+	 * If the provided liveAsset is not an embedded asset, the uuid of the
+	 * asset is returned, which can also be stored in the parent project asset.
+	 *
+	 * @param {object?} liveAsset
+	 */
+	getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset) {
+		const projectAsset = this.getProjectAssetForLiveAsset(liveAsset);
+		if (!projectAsset) return null;
+		if (projectAsset.isEmbedded) {
+			return projectAsset.readEmbeddedAssetData();
+		} else {
+			return projectAsset.uuid;
+		}
+	}
+
+	/**
+	 * Used for loading disk data into a liveAsset. If a uuid is provided, the
+	 * corresponding project asset is returned. If an object is provided, a new
+	 * embedded asset is created using the provided object as data.
+	 * For more info about embedded asset creation see {@linkcode createEmbeddedAsset}.
+	 *
+	 * @param {import("../../../src/mod.js").UuidString | object | null} uuidOrData
+	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} assetType
+	 */
+	getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, assetType) {
+		if (uuidOrData == null) return null;
+		if (typeof uuidOrData == "string") {
+			return this.getProjectAsset(uuidOrData);
+		} else {
+			const projectAsset = this.createEmbeddedAsset(assetType);
+			projectAsset.writeEmbeddedAssetData(uuidOrData);
+			return projectAsset;
+		}
 	}
 }

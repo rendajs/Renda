@@ -104,6 +104,8 @@ export class ProjectAsset {
 		this.liveAsset = null;
 		/** @type {EditorDataType?} */
 		this.editorData = null;
+		/** @private @type {FileDataType} */
+		this.currentEmbeddedAssetData = /** @type {FileDataType} */ ({});
 
 		this.initInstance = new SingleInstancePromise(async () => await this.init());
 		this.initInstance.run();
@@ -592,6 +594,9 @@ export class ProjectAsset {
 		let fileData = null;
 		if (this.isBuiltIn || !this.fileSystem) {
 			fileData = await this.builtInAssetManager.fetchAsset(this.path, format);
+		} else if (this.isEmbedded) {
+			// @ts-expect-error
+			fileData = structuredClone(this.currentEmbeddedAssetData);
 		} else if (format == "json") {
 			fileData = await this.fileSystem.readJson(this.path);
 		} else if (format == "text") {
@@ -600,7 +605,7 @@ export class ProjectAsset {
 			fileData = await this.fileSystem.readFile(this.path);
 		}
 
-		if (format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
+		if (format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData && !this.isEmbedded) {
 			fileData = fileData.asset || {};
 		}
 		return fileData;
@@ -617,19 +622,24 @@ export class ProjectAsset {
 		}
 
 		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
-			let json = null;
-			if (this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
-				json = {
-					assetType: this.projectAssetTypeConstructor.type,
-					asset: fileData,
-				};
+			if (this.isEmbedded) {
+				// @ts-expect-error
+				this.currentEmbeddedAssetData = structuredClone(fileData);
 			} else {
-				json = fileData;
-			}
-			if (this.isBuiltIn || !this.fileSystem) {
-				await this.builtInAssetManager.writeJson(this.path, json);
-			} else {
-				await this.fileSystem.writeJson(this.path, json);
+				let json = null;
+				if (this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
+					json = {
+						assetType: this.projectAssetTypeConstructor.type,
+						asset: fileData,
+					};
+				} else {
+					json = fileData;
+				}
+				if (this.isBuiltIn || !this.fileSystem) {
+					await this.builtInAssetManager.writeJson(this.path, json);
+				} else {
+					await this.fileSystem.writeJson(this.path, json);
+				}
 			}
 		} else if (this.projectAssetTypeConstructor.storeInProjectAsText) {
 			if (this.isBuiltIn || !this.fileSystem) {
@@ -644,6 +654,32 @@ export class ProjectAsset {
 			const fileDataBlob = /** @type {BlobPart} */ (fileData);
 			await this.fileSystem.writeFile(this.path, fileDataBlob);
 		}
+	}
+
+	/**
+	 * Same as {@linkcode readAssetData} but returns the data synchronously
+	 * without a promise. Throws if the ProjectAsset is not an embedded asset.
+	 * @returns {FileDataType}
+	 */
+	readEmbeddedAssetData() {
+		if (!this.isEmbedded) {
+			throw new Error("Unable to read embeddedassetData, asset is not an embedded asset.");
+		}
+		// @ts-expect-error
+		return structuredClone(this.currentEmbeddedAssetData);
+	}
+
+	/**
+	 * Same as {@linkcode writeAssetData} but writes synchronously without a
+	 * promise. Throws if the ProjectAsset is not an embedded asset.
+	 * @param {FileDataType} fileData
+	 */
+	writeEmbeddedAssetData(fileData) {
+		if (!this.isEmbedded) {
+			throw new Error("Unable to write embeddedassetData, asset is not an embedded asset.");
+		}
+		// @ts-expect-error
+		this.currentEmbeddedAssetData = structuredClone(fileData);
 	}
 
 	async getAssetTypeUuid() {
