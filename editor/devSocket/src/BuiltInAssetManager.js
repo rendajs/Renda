@@ -1,6 +1,7 @@
 import {base64ToArrayBuffer, generateUuid} from "../../../src/util/mod.js";
 import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
 import {basename, dirname, fromFileUrl, join, relative, resolve} from "path";
+import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 
 /**
  * @param {Uint8Array} data
@@ -32,6 +33,13 @@ export class BuiltInAssetManager {
 
 		this.verbose = verbose;
 
+		/** @private */
+		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
+			await this.loadAssetSettingsFn();
+		}, {
+			run: false,
+			once: false,
+		});
 		this.assetSettingsLoaded = false;
 		/** @type {Map<import("../../../src/util/mod.js").UuidString, any>}*/
 		this.assetSettings = new Map();
@@ -45,9 +53,24 @@ export class BuiltInAssetManager {
 		this.lastAssetSettingsSaveTime = -Infinity;
 		/** @type {Set<(op: string, data: any) => any>} */
 		this.onWebsocketBroadcastNeededCbs = new Set();
+
+		/**
+		 * Used in unit tests for waiting until all promises are resolved.
+		 * @private
+		 * @type {Set<Promise<void>>}
+		 */
+		this.handleFileChangePromises = new Set();
 	}
 
 	async loadAssetSettings() {
+		await this.loadAssetSettingsInstance.run();
+	}
+
+	async waitForAssetSettingsLoad() {
+		await this.loadAssetSettingsInstance.waitForFinishIfRunning();
+	}
+
+	async loadAssetSettingsFn() {
 		const str = await Deno.readTextFile(this.assetSettingsPath);
 		let data;
 		try {
@@ -87,7 +110,12 @@ export class BuiltInAssetManager {
 				}
 			} else {
 				if (this.assetSettingsLoaded) {
-					this.handleFileChange(relPath);
+					(async () => {
+						const promise = this.handleFileChange(relPath);
+						this.handleFileChangePromises.add(promise);
+						await promise;
+						this.handleFileChangePromises.delete(promise);
+					})();
 				}
 			}
 		}
@@ -164,6 +192,15 @@ export class BuiltInAssetManager {
 			this.sendAllConnections("builtInAssetChange", {
 				uuid,
 			});
+		}
+	}
+
+	/**
+	 * Used in unit tests to wait for tests to finish before making assertions.
+	 */
+	async waitForHandleFileChangePromises() {
+		while (this.handleFileChangePromises.size > 0) {
+			await Promise.race(this.handleFileChangePromises);
 		}
 	}
 

@@ -333,7 +333,7 @@ Deno.test({
 Deno.test({
 	name: "a created file is added to assetSettings.json",
 	async fn() {
-		const {uninstall, triggerWatchEvent, files, writeTextFileCalls} = await installMocks();
+		const {manager, uninstall, triggerWatchEvent, files, writeTextFileCalls} = await installMocks();
 
 		files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]));
 		triggerWatchEvent({
@@ -342,6 +342,7 @@ Deno.test({
 		});
 
 		await waitForMicrotasks();
+		await manager.waitForHandleFileChangePromises();
 
 		assertEquals(writeTextFileCalls.length, 1);
 		assertEquals(writeTextFileCalls[0].path, "/assets/assetSettings.json");
@@ -391,6 +392,7 @@ Deno.test({
 		});
 
 		await waitForMicrotasks();
+		await manager.waitForAssetSettingsLoad();
 
 		assertEquals(Array.from(manager.assetSettings), [
 			[
@@ -409,7 +411,7 @@ Deno.test({
 Deno.test({
 	name: "externally modifying assetSettings.json and then adding a file",
 	async fn() {
-		const {uninstall, triggerWatchEvent, files, writeTextFileCalls} = await installMocks({
+		const {manager, uninstall, triggerWatchEvent, files, writeTextFileCalls} = await installMocks({
 			initialAssetSettings: {
 				assets: {
 					"00000000-0000-0000-0000-000000000000": {
@@ -433,6 +435,7 @@ Deno.test({
 		});
 
 		await waitForMicrotasks();
+		await manager.waitForAssetSettingsLoad();
 
 		files.set("/assets/newFile.dat", new Uint8Array([0, 1, 2, 3]));
 		triggerWatchEvent({
@@ -441,6 +444,7 @@ Deno.test({
 		});
 
 		await waitForMicrotasks();
+		await manager.waitForHandleFileChangePromises();
 
 		assertEquals(writeTextFileCalls.length, 1);
 		assertEquals(writeTextFileCalls[0].path, "/assets/assetSettings.json");
@@ -476,6 +480,7 @@ Deno.test({
 			paths: ["/assets/file2.dat"],
 		});
 		await waitForMicrotasks();
+		await manager.waitForHandleFileChangePromises();
 
 		assertEquals(didReloadAssetSettings, false);
 
@@ -490,6 +495,7 @@ Deno.test({
 			paths: ["/assets/assetSettings.json"],
 		});
 		await waitForMicrotasks();
+		await manager.waitForAssetSettingsLoad();
 
 		assertEquals(didReloadAssetSettings, true);
 
