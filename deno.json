@@ -13,6 +13,8 @@
 		"dev": "deno run --allow-run --allow-read --allow-write --allow-net --no-check --unstable scripts/dev.js",
 		"build": "deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check scripts/build.js",
 		"test": "deno run --no-check --allow-run --allow-read --allow-write --allow-env scripts/test.js",
+		"build-editor-dependencies": "deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check editor/scripts/buildDependencies.js",
+		"build-editor-dev": "deno run --unstable --allow-read --allow-write --allow-net --allow-env editor/scripts/build.js --dev",
 		"build-editor-release": "deno run --unstable --allow-read --allow-write --allow-net --allow-env editor/scripts/build.js"
 	}
 }

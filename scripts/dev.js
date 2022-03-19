@@ -161,7 +161,7 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 	// Run first time setup for the editor
 	console.log("Running first time setup for editor...");
 	const setupProcess = Deno.run({
-		cmd: ["./editor/scripts/buildDependencies.js"],
+		cmd: ["deno", "task", "build-editor-dependencies"],
 	});
 	await setupProcess.status();
 
@@ -169,7 +169,7 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 }
 
 const buildProcess = Deno.run({
-	cmd: ["./editor/scripts/build.js", "--dev"],
+	cmd: ["deno", "task", "build-editor-dev"],
 });
 // const editorDiscoveryProcess = Deno.run({
 // 	cmd: ["./editor/editorDiscoveryServer/src/main.js"],
