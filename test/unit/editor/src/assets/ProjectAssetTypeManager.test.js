@@ -148,7 +148,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getAssetTypesForConstructor()",
+	name: "getAssetTypesForLiveAssetConstructor()",
 	fn() {
 		const manager = new ProjectAssetTypeManager();
 
@@ -170,7 +170,7 @@ Deno.test({
 		}
 		manager.registerAssetType(AssetType2);
 
-		const result = Array.from(manager.getAssetTypesForConstructor(MockConstructor));
+		const result = Array.from(manager.getAssetTypesForLiveAssetConstructor(MockConstructor));
 
 		assertEquals(result.length, 2);
 		assertStrictEquals(result[0], AssetType1);

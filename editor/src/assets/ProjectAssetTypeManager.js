@@ -64,7 +64,7 @@ export class ProjectAssetTypeManager {
 	/**
 	 * @param {new (...args: any) => any} constructor
 	 */
-	*getAssetTypesForConstructor(constructor) {
+	*getAssetTypesForLiveAssetConstructor(constructor) {
 		for (const assetType of this.registeredAssetTypes.values()) {
 			if (assetType.expectedLiveAssetConstructor == constructor) {
 				yield assetType;
@@ -76,7 +76,7 @@ export class ProjectAssetTypeManager {
 	 * @param {new (...args: any) => any} constructor
 	 */
 	constructorHasAssetType(constructor) {
-		const generatorEmpty = this.getAssetTypesForConstructor(constructor).next().done;
+		const generatorEmpty = this.getAssetTypesForLiveAssetConstructor(constructor).next().done;
 		return !generatorEmpty;
 	}
 
