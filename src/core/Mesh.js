@@ -331,7 +331,7 @@ export class Mesh {
 	}
 
 	/**
-	 * @param {import("../rendering/VertexState.js").VertexState} vertexState
+	 * @param {import("../rendering/VertexState.js").VertexState?} vertexState
 	 */
 	setVertexState(vertexState) {
 		this._vertexState = vertexState;

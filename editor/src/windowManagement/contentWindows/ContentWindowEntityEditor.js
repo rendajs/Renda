@@ -3,6 +3,7 @@ import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../ui/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/mod.js";
+import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -164,8 +165,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
 		const assetManager = await this.editorInstance.projectManager.getAssetManager();
-		/** @type {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/ProjectAssetType/ProjectAssetTypeEntity.js").ProjectAssetTypeEntity>?} */
-		const projectAsset = await assetManager.getProjectAsset(entityUuid);
+		const projectAsset = await assetManager.getProjectAsset(entityUuid, {
+			assertAssetType: ProjectAssetTypeEntity,
+		});
 		if (!projectAsset) {
 			this.newEmptyEditingEntity();
 			return;

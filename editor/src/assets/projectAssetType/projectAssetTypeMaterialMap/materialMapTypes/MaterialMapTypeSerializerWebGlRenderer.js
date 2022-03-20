@@ -1,6 +1,7 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {ShaderSource, Vec3} from "../../../../../../src/mod.js";
 import {StorageType} from "../../../../../../src/util/BinaryComposer.js";
+import {ProjectAssetTypeShaderSource} from "../../ProjectAssetTypeShaderSource.js";
 
 export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
@@ -34,8 +35,14 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	 * @param {*} customData
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
-		if (customData.vertexShader) yield assetManager.getProjectAsset(customData.vertexShader);
-		if (customData.fragmentShader) yield assetManager.getProjectAsset(customData.fragmentShader);
+		const vertexAsset = await assetManager.getProjectAsset(customData.vertexShader, {
+			assertAssetType: ProjectAssetTypeShaderSource,
+		});
+		if (vertexAsset) yield vertexAsset;
+		const fragmentAsset = await assetManager.getProjectAsset(customData.fragmentShader, {
+			assertAssetType: ProjectAssetTypeShaderSource,
+		});
+		if (fragmentAsset) yield fragmentAsset;
 	}
 
 	static assetBundleBinaryComposerOpts = {
@@ -84,8 +91,9 @@ export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSeria
 	 * @param {Map<string, *>} itemsMap
 	 */
 	static async addShaderUniformsToMap(assetManager, shaderUuid, itemsMap) {
-		/** @type {import("../../../ProjectAsset.js").ProjectAsset<import("../../ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
-		const shaderAsset = await assetManager.getProjectAsset(shaderUuid);
+		const shaderAsset = await assetManager.getProjectAsset(shaderUuid, {
+			assertAssetType: ProjectAssetTypeShaderSource,
+		});
 		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
 			itemsMap.set(name, {type});
 		}

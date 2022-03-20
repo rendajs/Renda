@@ -1,5 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/mod.js";
+import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
 
 /**
  * @typedef WebGpuPipelineConfigAssetData
@@ -81,16 +82,12 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<WebGpuPipelineConfig, null>>}
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		let fragmentShaderAsset = null;
-		if (fileData.fragmentShader) {
-			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
-			fragmentShaderAsset = await this.assetManager.getProjectAsset(fileData.fragmentShader);
-		}
-		let vertexShaderAsset = null;
-		if (fileData.vertexShader) {
-			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} */
-			vertexShaderAsset = await this.assetManager.getProjectAsset(fileData.vertexShader);
-		}
+		const fragmentShaderAsset = await this.assetManager.getProjectAsset(fileData.fragmentShader, {
+			assertAssetType: ProjectAssetTypeShaderSource,
+		});
+		const vertexShaderAsset = await this.assetManager.getProjectAsset(fileData.vertexShader, {
+			assertAssetType: ProjectAssetTypeShaderSource,
+		});
 		this.listenForUsedLiveAssetChanges(fragmentShaderAsset);
 		this.listenForUsedLiveAssetChanges(vertexShaderAsset);
 		// TODO: add capability for asset type assertions in getLiveAsset()

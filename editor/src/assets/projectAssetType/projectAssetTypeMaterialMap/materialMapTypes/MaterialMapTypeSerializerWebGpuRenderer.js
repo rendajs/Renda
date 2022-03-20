@@ -2,6 +2,7 @@ import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {StorageType} from "../../../../../../src/util/BinaryComposer.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
 import {MaterialMapTypeWebGpu} from "../../../../../../src/rendering/renderers/webGpu/MaterialMapTypeWebGpu.js";
+import {ProjectAssetTypeWebGpuPipelineConfig} from "../../ProjectAssetTypeWebGpuPipelineConfig.js";
 
 /**
  * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData
@@ -30,11 +31,12 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	 * @param {MaterialMapTypeWebGpuRendererSavedCustomData} customData
 	 */
 	static async getMappableValues(editorInstance, assetManager, customData) {
-		/** @type {import("../../../../../../src/rendering/Renderers/webGpu/WebGpuPipelineConfig.js").WebGpuPipelineConfig} */
-		const pipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		const pipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig, {
+			assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
+		});
 		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mappableValues = new Map();
-		if (pipelineConfig.fragmentShader) {
+		if (pipelineConfig?.fragmentShader) {
 			this.fillMappableValuesForShader(pipelineConfig.fragmentShader, mappableValues);
 		}
 		return Array.from(mappableValues.values());
@@ -116,7 +118,11 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	static async getLiveAssetSettingsInstance(editorInstance, assetManager, customData) {
 		/** @type {WebGpuPipelineConfig?} */
 		let forwardPipelineConfig = null;
-		if (customData.forwardPipelineConfig) forwardPipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig);
+		if (customData.forwardPipelineConfig) {
+			forwardPipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig, {
+				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
+			});
+		}
 		return new MaterialMapTypeWebGpu({forwardPipelineConfig});
 	}
 
@@ -128,7 +134,10 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
 		await editorInstance.projectManager.waitForAssetManagerLoad();
-		if (customData.forwardPipelineConfig) yield assetManager.getProjectAsset(customData.forwardPipelineConfig);
+		const pipelineConfigAsset = await assetManager.getProjectAsset(customData.forwardPipelineConfig, {
+			assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
+		});
+		if (pipelineConfigAsset) yield pipelineConfigAsset;
 	}
 
 	static assetBundleBinaryComposerOpts = {

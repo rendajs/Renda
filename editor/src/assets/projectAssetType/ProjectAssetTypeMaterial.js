@@ -3,6 +3,7 @@ import {Material} from "../../../../src/rendering/Material.js";
 import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
+import {ProjectAssetTypeMaterialMap} from "./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
 
 /**
  * @extends {ProjectAssetType<Material, null, import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
@@ -23,8 +24,9 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
 		if (materialJson?.map) {
-			/** @type {import("../ProjectAsset.js").ProjectAsset<import("./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>?} */
-			const materialMapAsset = await this.assetManager.getProjectAsset(materialJson.map);
+			const materialMapAsset = await this.assetManager.getProjectAsset(materialJson.map, {
+				assertAssetType: ProjectAssetTypeMaterialMap,
+			});
 			if (materialMapAsset) {
 				materialMap = await materialMapAsset.getLiveAsset();
 				this.listenForUsedLiveAssetChanges(materialMapAsset);

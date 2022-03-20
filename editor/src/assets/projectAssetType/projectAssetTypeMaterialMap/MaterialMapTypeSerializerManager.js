@@ -2,6 +2,7 @@ import {autoRegisterMaterialMapTypeSerializers} from "./materialMapTypes/autoReg
 import {MaterialMapTypeSerializer} from "./materialMapTypes/MaterialMapTypeSerializer.js";
 import {isUuid} from "../../../../../src/util/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
+import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
 
 /**
  * @typedef {Object} MaterialMapMappedValueAssetData
@@ -87,14 +88,15 @@ export class MaterialMapTypeSerializerManager {
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
 		const assetManager = await getEditorInstance().projectManager.getAssetManager();
-		const mapProjectAsset = await assetManager.getProjectAsset(mapAssetUuid);
-		const mapAsset = /** @type {import("../../ProjectAsset.js").ProjectAsset<import("./ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} */ (mapProjectAsset);
-		if (!mapAsset) return [];
+		const mapProjectAsset = await assetManager.getProjectAsset(mapAssetUuid, {
+			assertAssetType: ProjectAssetTypeMaterialMap,
+		});
+		if (!mapProjectAsset) return [];
 		/** @type {Map<string, import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();
-		if (await mapAsset.getIsDeleted()) return [];
+		if (await mapProjectAsset.getIsDeleted()) return [];
 		/** @type {MaterialMapAssetData} */
-		const mapData = await mapAsset.readAssetData();
+		const mapData = await mapProjectAsset.readAssetData();
 		const editor = getEditorInstance();
 		for (const mapType of mapData.maps) {
 			if (!mapType.mappedValues) continue;

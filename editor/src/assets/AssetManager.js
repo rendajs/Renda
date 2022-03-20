@@ -308,7 +308,7 @@ export class AssetManager {
 
 	/**
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
-	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
 	 * @param {AssetAssertionOptions<T>} [options]
 	 * @returns {Promise<import("./ProjectAsset.js").ProjectAsset<T>?>}
 	 */
@@ -334,10 +334,11 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
 	 */
 	getProjectAssetImmediate(uuid) {
 		if (!this.assetSettingsLoaded) return null;
+		if (!uuid) return null;
 
 		uuid = this.resolveDefaultAssetLinkUuid(uuid);
 		return this.projectAssets.get(uuid) ?? this.builtInAssets.get(uuid) ?? null;
@@ -417,7 +418,7 @@ export class AssetManager {
 
 	/**
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
-	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {import("../../../src/mod.js").UuidString?} uuid
 	 * @param {AssetAssertionOptions<T>} [assertionOptions]
 	 */
 	async getLiveAsset(uuid, assertionOptions) {
