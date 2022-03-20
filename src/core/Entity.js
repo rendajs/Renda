@@ -54,21 +54,23 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 export class Entity {
 	/**
-	 * @param {CreateEntityOptions | string} opts
+	 * @param {CreateEntityOptions | string} options
 	 */
-	constructor(opts = {}) {
-		if (typeof opts == "string") {
-			opts = {
-				name: opts,
+	constructor(options = {}) {
+		if (typeof options == "string") {
+			options = {
+				name: options,
 			};
 		}
-		opts = {
+		/** @type {Required<CreateEntityOptions>} */
+		const opts = {
 			...{
 				name: "Entity",
 				matrix: null,
 				parent: null,
-			}, ...opts,
+			}, ...options,
 		};
+		/** @type {string} */
 		this.name = opts.name;
 		/** @type {Entity?} */
 		this._parent = null;
