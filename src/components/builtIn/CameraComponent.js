@@ -122,6 +122,7 @@ export class CameraComponent extends Component {
 		this.aspect = 1;
 		this.autoUpdateProjectionMatrix = true;
 		this.projectionMatrix = new Mat4();
+		/** @type {RenderOutputConfig?} */
 		this.renderOutputConfig = null;
 		/** @type {ClusteredLightsConfig?} */
 		this.clusteredLightsConfig = null;

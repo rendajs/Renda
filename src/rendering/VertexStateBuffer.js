@@ -1,25 +1,43 @@
 import {VertexStateAttribute} from "./VertexStateAttribute.js";
 
+/**
+ * @typedef VertexStateBufferOptions
+ * @property {GPUVertexStepMode} [stepMode]
+ * @property {number | null | "auto"} [arrayStride]
+ * @property {import("./VertexStateAttribute.js").VertexStateAttributeOptions[]} [attributes]
+ */
+
 export class VertexStateBuffer {
+	/**
+	 * @param {VertexStateBufferOptions} param0
+	 */
 	constructor({
 		stepMode = "vertex",
 		arrayStride = null, // use null|-1|"auto" for auto stride
 		attributes = [],
 	} = {}) {
 		this.stepMode = stepMode;
-		this._customArrayStride = arrayStride;
+		/** @private */
+		this._customArrayStride = 0;
+		if (typeof arrayStride == "number") {
+			this._customArrayStride = arrayStride;
+		}
 		this.autoArrayStride = arrayStride == null || arrayStride == "auto" || arrayStride == -1;
 		this._calculatedArrayStride = 0;
 		this.requestingAttributeOffset = 0;
 
+		/** @type {VertexStateAttribute[]} */
 		this.attributes = [];
 		for (const attribute of attributes) {
 			this.addAttribute(attribute);
 		}
 	}
 
-	addAttribute(opts) {
-		const attribute = new VertexStateAttribute(opts);
+	/**
+	 * @param {import("./VertexStateAttribute.js").VertexStateAttributeOptions} options
+	 */
+	addAttribute(options) {
+		const attribute = new VertexStateAttribute(options);
 		this.attributes.push(attribute);
 
 		this.calculateAttributeOffsets();
@@ -33,6 +51,9 @@ export class VertexStateBuffer {
 		}
 	}
 
+	/**
+	 * @param {import("./VertexState.js").VertexState} vertexState
+	 */
 	getDescriptor(vertexState) {
 		const stepMode = this.stepMode;
 		this.requestingAttributeOffset = 0;
@@ -47,6 +68,9 @@ export class VertexStateBuffer {
 		};
 	}
 
+	/**
+	 * @param {number} neededOffset
+	 */
 	requestAttributeOffset(neededOffset) {
 		const oldOffset = this.requestingAttributeOffset;
 		this.requestingAttributeOffset += neededOffset;

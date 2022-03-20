@@ -1,12 +1,24 @@
 import {Mesh} from "../core/Mesh.js";
 
+/**
+ * @typedef VertexStateAttributeOptions
+ * @property {number} [componentCount]
+ * @property {number} [format]
+ * @property {boolean} [unsigned]
+ * @property {number | null | "auto"} [shaderLocation]
+ * @property {import("../core/Mesh.js").AttributeType | keyof (typeof import("../core/Mesh.js").Mesh)["AttributeType"]} [attributeType]
+ */
+
 export class VertexStateAttribute {
+	/**
+	 * @param {VertexStateAttributeOptions} options
+	 */
 	constructor({
 		componentCount = 3,
 		format = Mesh.AttributeFormat.FLOAT32,
 		unsigned = false,
 		shaderLocation = null, // use null|-1|"auto" for auto
-		attributeType = null,
+		attributeType = 0,
 	} = {}) {
 		this.componentCount = componentCount;
 		if (typeof format == "string") {
@@ -23,6 +35,10 @@ export class VertexStateAttribute {
 		this.offset = 0;
 	}
 
+	/**
+	 * @param {import("./VertexState.js").VertexState} vertexState
+	 * @param {import("./VertexStateBuffer.js").VertexStateBuffer} vertexBuffer
+	 */
 	getDescriptor(vertexState, vertexBuffer) {
 		const format = this.getDescriptorFormat();
 		const offset = vertexBuffer.requestAttributeOffset(this.byteSize);
@@ -34,6 +50,9 @@ export class VertexStateAttribute {
 		return {format, offset, shaderLocation};
 	}
 
+	/**
+	 * @param {number} offset
+	 */
 	setOffset(offset) {
 		this.offset = offset;
 	}
@@ -78,6 +97,6 @@ export class VertexStateAttribute {
 		if (this.componentCount > 1) {
 			str += "x" + this.componentCount;
 		}
-		return str;
+		return /** @type {GPUVertexFormat} */ (str);
 	}
 }

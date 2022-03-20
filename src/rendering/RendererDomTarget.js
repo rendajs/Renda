@@ -1,8 +1,6 @@
-import {Renderer} from "./mod.js";
-
 export class RendererDomTarget {
 	/**
-	 * @param {Renderer} renderer
+	 * @param {import("./renderers/Renderer.js").Renderer} renderer
 	 * @param {...*} extra
 	 */
 	constructor(renderer, ...extra) {
@@ -18,7 +16,6 @@ export class RendererDomTarget {
 	 */
 	getElement() {
 		throw new Error("Abstract RenderDomTarget cannot create elements.");
-		return null;
 	}
 
 	/**

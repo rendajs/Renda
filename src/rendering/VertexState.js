@@ -1,9 +1,18 @@
 import {VertexStateBuffer} from "./VertexStateBuffer.js";
 
+/**
+ * @typedef VertexStateOptions
+ * @property {import("./VertexStateBuffer.js").VertexStateBufferOptions[]} [buffers]
+ */
+
 export class VertexState {
+	/**
+	 * @param {VertexStateOptions} options
+	 */
 	constructor({
 		buffers = [],
 	} = {}) {
+		/** @type {VertexStateBuffer[]} */
 		this.buffers = [];
 
 		for (const buffer of buffers) {
@@ -13,8 +22,11 @@ export class VertexState {
 		this.requestingShaderLocationIndex = 0;
 	}
 
-	addBuffer(opts) {
-		const buffer = new VertexStateBuffer(opts);
+	/**
+	 * @param {import("./VertexStateBuffer.js").VertexStateBufferOptions} options
+	 */
+	addBuffer(options) {
+		const buffer = new VertexStateBuffer(options);
 		this.buffers.push(buffer);
 	}
 
