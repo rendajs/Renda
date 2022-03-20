@@ -115,12 +115,12 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			entry.onValueChange(async newValue => {
 				if (this.isUpdatingUi) return;
 
+				MaterialMap.assertIsMappableType(newValue);
+
 				// todo: support multiselect
 				const asset = this.currentSelection[0];
 				const {liveAsset: material} = await asset.getLiveAssetData();
-				material.setProperties({
-					[valueData.name]: newValue,
-				});
+				material.setProperty(valueData.name, newValue);
 
 				this.notifyEntityEditorsMaterialChanged();
 				this.saveAsset();

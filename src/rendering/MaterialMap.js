@@ -1,5 +1,10 @@
 /** @typedef {number | number[] | import("../math/Vec2.js").Vec2 | import("../math/Vec3.js").Vec3 | import("../math/Vec4.js").Vec4 | import("../math/Quat.js").Quat} MappableMaterialTypes */
 
+import {Vec2} from "../math/Vec2.js";
+import {Vec3} from "../math/Vec3.js";
+import {Vec4} from "../math/Vec4.js";
+import {Quat} from "../math/Quat.js";
+
 /**
  * @typedef {Object} MaterialMapMappedValue
  * @property {string} mappedName
@@ -76,5 +81,28 @@ export class MaterialMap {
 		if (mappedDatas) {
 			yield* mappedDatas.values();
 		}
+	}
+
+	/**
+	 * @param {unknown} value
+	 * @returns {asserts value is MappableMaterialTypes}
+	 */
+	static assertIsMappableType(value) {
+		if (typeof value == "number") return;
+
+		if (value instanceof Array) {
+			let allNumbers = true;
+			for (const item of value) {
+				if (typeof item != "number") {
+					allNumbers = false;
+					break;
+				}
+			}
+			if (allNumbers) return;
+		}
+
+		if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4 || value instanceof Quat) return;
+
+		throw new Error(`Value is not a mappable material type: ${value}`);
 	}
 }
