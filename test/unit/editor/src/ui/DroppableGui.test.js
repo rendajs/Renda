@@ -23,70 +23,110 @@ mockProjectAsset.getLiveAssetImmediate = () => {
 	return mockLiveAsset;
 };
 
-const mockDefaultAssetLink = /** @type {import("../../../../../editor/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
-
-const mockProjectManager = /** @type {import("../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
-	assertAssetManagerExists() {
-		return {
-			getDefaultAssetLink(uuid) {
-				if (uuid == DEFAULTASSETLINK_LINK_UUID) {
-					return mockDefaultAssetLink;
-				}
-				return null;
-			},
-			getProjectAssetImmediate(uuid) {
-				if (uuid == BASIC_ASSET_UUID) {
-					return mockProjectAsset;
-				} else if (uuid == DEFAULTASSETLINK_LINK_UUID) {
-					return mockProjectAsset;
-				}
-				return null;
-			},
-			getProjectAssetForLiveAsset(liveAsset) {
-				if (liveAsset == mockLiveAsset) {
-					return mockProjectAsset;
-				}
-				return null;
-			},
-		};
-	},
-});
-
-/** @type {import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies} */
-const defaultDroppableDependencies = {
-	projectManager: mockProjectManager,
-	dragManager: /** @type {import("../../../../../editor/src/misc/DragManager.js").DragManager} */ ({}),
-	windowManager: /** @type {import("../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({}),
-	contextMenuManager: /** @type {import("../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({}),
-};
-
 /**
  * @param {Object} options
  * @param {"basic" | "defaultAssetLink" | "none"} [options.valueType]
  * @param {Partial<import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies>} [options.extraMocks]
+ * @param {Partial<import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<any>>} [options.guiOpts]
+ * @param {Iterable<[(new (...args: any) => any), Iterable<typeof import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>]>} [options.liveAssetProjectAssetTypeCombinations] The list of Project assets that should be returned for a call to ProjectAssetTypeManager.getAssetTypesForLiveAssetConstructor().
  */
 function createBasicGui({
 	valueType = "basic",
 	extraMocks = {},
+	guiOpts = {},
+	liveAssetProjectAssetTypeCombinations = [],
 } = {}) {
+	const mockDefaultAssetLink = /** @type {import("../../../../../editor/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
+
+	const mockProjectManager = /** @type {import("../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
+		assertAssetManagerExists() {
+			return {
+				getDefaultAssetLink(uuid) {
+					if (uuid == DEFAULTASSETLINK_LINK_UUID) {
+						return mockDefaultAssetLink;
+					}
+					return null;
+				},
+				getProjectAssetImmediate(uuid) {
+					if (uuid == BASIC_ASSET_UUID) {
+						return mockProjectAsset;
+					} else if (uuid == DEFAULTASSETLINK_LINK_UUID) {
+						return mockProjectAsset;
+					}
+					return null;
+				},
+				getProjectAssetForLiveAsset(liveAsset) {
+					if (liveAsset == mockLiveAsset) {
+						return mockProjectAsset;
+					}
+					return null;
+				},
+			};
+		},
+	});
+
+	const liveAssetProjectAssetTypes = new Map(liveAssetProjectAssetTypeCombinations);
+	const mockProjectAssetTypeManager = /** @type {import("../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({
+		*getAssetTypesForLiveAssetConstructor(constructor) {
+			const assetTypes = liveAssetProjectAssetTypes.get(constructor);
+			if (assetTypes) {
+				yield* assetTypes;
+			}
+		},
+	});
+
+	/** @type {import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies} */
 	const dependencies = {
-		...defaultDroppableDependencies,
+		projectManager: mockProjectManager,
+		dragManager: /** @type {import("../../../../../editor/src/misc/DragManager.js").DragManager} */ ({}),
+		windowManager: /** @type {import("../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({}),
+		contextMenuManager: /** @type {import("../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({}),
+		projectAssetTypeManager: mockProjectAssetTypeManager,
 		...extraMocks,
 	};
-	const gui = DroppableGui.of({dependencies});
+
+	const gui = DroppableGui.of({
+		dependencies,
+		...guiOpts,
+	});
 	if (valueType == "basic") {
 		gui.setValue(BASIC_ASSET_UUID);
 	} else if (valueType == "defaultAssetLink") {
 		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
 	}
-	return gui;
+	return {
+		gui,
+		mockDefaultAssetLink,
+	};
+}
+
+function createMockProjectAssetType({
+	type = "namespace:type",
+	uiCreateName = "Mock Project Asset",
+} = {}) {
+	class MockLiveAsset {}
+
+	class MockProjectAssetType {
+		static type = type;
+		static expectedLiveAssetConstructor = MockLiveAsset;
+		static uiCreateName = uiCreateName;
+	}
+
+	const cast1 = /** @type {unknown} */ (MockProjectAssetType);
+	const cast2 = /** @type {typeof import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (cast1);
+
+	return {
+		MockLiveAsset,
+		MockProjectAssetType,
+		ProjectAssetType: cast2,
+	};
 }
 
 Deno.test({
 	name: "Is not disabled by default",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		assertEquals(gui.disabled, false);
 		assertEquals(gui.el.getAttribute("aria-disabled"), "false");
@@ -99,7 +139,7 @@ Deno.test({
 	name: "setValue() to null",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		gui.setValue(null);
 
@@ -115,7 +155,7 @@ Deno.test({
 	name: "setValue() with an uuid",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		gui.setValue(BASIC_ASSET_UUID);
 
@@ -131,7 +171,7 @@ Deno.test({
 	name: "setValue() with an assetlink uuid",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui, mockDefaultAssetLink} = createBasicGui();
 
 		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
 
@@ -147,7 +187,7 @@ Deno.test({
 	name: "setValue() using a ProjectAsset",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		gui.setValue(mockProjectAsset);
 
@@ -163,7 +203,7 @@ Deno.test({
 	name: "setValue() using a live asset",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		gui.setValue(mockLiveAsset);
 
@@ -179,7 +219,7 @@ Deno.test({
 	name: "getValue() without parameters",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		const result = gui.getValue();
 
@@ -193,7 +233,7 @@ Deno.test({
 	name: "getValue() without parameters and no value set",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui({valueType: "none"});
+		const {gui} = createBasicGui({valueType: "none"});
 
 		const result = gui.getValue();
 
@@ -207,7 +247,7 @@ Deno.test({
 	name: "getValue() without parameters and asset link",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui({valueType: "defaultAssetLink"});
+		const {gui} = createBasicGui({valueType: "defaultAssetLink"});
 
 		const result = gui.getValue();
 
@@ -221,7 +261,7 @@ Deno.test({
 	name: "getValue() with asset link and resolveDefaultAssetLinks = true",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui({valueType: "defaultAssetLink"});
+		const {gui} = createBasicGui({valueType: "defaultAssetLink"});
 
 		const result = gui.getValue({resolveDefaultAssetLinks: true});
 
@@ -235,7 +275,7 @@ Deno.test({
 	name: "getValue() with returnLiveAsset = true",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		const result = gui.getValue({returnLiveAsset: true});
 
@@ -249,7 +289,7 @@ Deno.test({
 	name: "getValue() with returnLiveAsset = true and no value set",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui({valueType: "none"});
+		const {gui} = createBasicGui({valueType: "none"});
 
 		const result = gui.getValue({returnLiveAsset: true});
 
@@ -263,7 +303,7 @@ Deno.test({
 	name: "getValue() with purpose 'fileStorage'",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		const result = gui.getValue({purpose: "fileStorage"});
 
@@ -277,7 +317,7 @@ Deno.test({
 	name: "getValue() with purpose 'binaryComposer'",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		const result = gui.getValue({purpose: "binaryComposer"});
 
@@ -291,7 +331,7 @@ Deno.test({
 	name: "getValue() with purpose 'script'",
 	fn() {
 		installFakeDocument();
-		const gui = createBasicGui();
+		const {gui} = createBasicGui();
 
 		const result = gui.getValue({purpose: "script"});
 
@@ -302,9 +342,14 @@ Deno.test({
 });
 
 /**
- * @param {Parameters<typeof createBasicGui>[0]} [basicGuiOptions]
+ * @param {Object} [options]
+ * @param {Parameters<typeof createBasicGui>[0]} [options.basicGuiOptions]
+ * @param {boolean} [options.dispatchContextMenuEvent]
  */
-function basicSetupForContextMenus(basicGuiOptions) {
+function basicSetupForContextMenus({
+	basicGuiOptions = {},
+	dispatchContextMenuEvent = true,
+} = {}) {
 	installFakeDocument();
 	/** @type {(import("../../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure?)[]} */
 	const createContextMenuCalls = [];
@@ -316,16 +361,24 @@ function basicSetupForContextMenus(basicGuiOptions) {
 			};
 		},
 	});
-	const gui = createBasicGui({
+	const {gui} = createBasicGui({
 		...basicGuiOptions,
 		extraMocks: {
 			contextMenuManager: mockContextMenuManager,
 		},
 	});
 
+	function dispatchContextMenuEventFn() {
+		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+	}
+	if (dispatchContextMenuEvent) {
+		dispatchContextMenuEventFn();
+	}
+
 	return {
 		gui,
 		createContextMenuCalls,
+		dispatchContextMenuEvent: dispatchContextMenuEventFn,
 		uninstall() {
 			uninstallFakeDocument();
 		},
@@ -335,8 +388,7 @@ function basicSetupForContextMenus(basicGuiOptions) {
 Deno.test({
 	name: "context menu event creates a new context menu",
 	fn() {
-		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus();
-		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus();
 
 		assertExists(createContextMenuCalls[0]);
 		assertContextMenuStructureEquals(createContextMenuCalls[0], [
@@ -352,9 +404,11 @@ Deno.test({
 Deno.test({
 	name: "context menu on a disabled gui",
 	fn() {
-		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus();
+		const {uninstall, gui, createContextMenuCalls, dispatchContextMenuEvent} = basicSetupForContextMenus({
+			dispatchContextMenuEvent: false,
+		});
 		gui.setDisabled(true);
-		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+		dispatchContextMenuEvent();
 
 		assertExists(createContextMenuCalls[0]);
 		assertContextMenuStructureEquals(createContextMenuCalls[0], [
@@ -369,10 +423,29 @@ Deno.test({
 Deno.test({
 	name: "context menu without a value set",
 	fn() {
-		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
-			valueType: "none",
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+			},
 		});
-		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+
+		assertEquals(createContextMenuCalls.length, 0);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu without a value set and a disabled gui",
+	fn() {
+		const {uninstall, gui, createContextMenuCalls, dispatchContextMenuEvent} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+			},
+			dispatchContextMenuEvent: false,
+		});
+		gui.setDisabled(true);
+		dispatchContextMenuEvent();
 
 		assertEquals(createContextMenuCalls.length, 0);
 
@@ -383,10 +456,11 @@ Deno.test({
 Deno.test({
 	name: "context menu with a default asset link set",
 	fn() {
-		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
-			valueType: "defaultAssetLink",
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "defaultAssetLink",
+			},
 		});
-		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
 
 		assertExists(createContextMenuCalls[0]);
 		assertContextMenuStructureEquals(createContextMenuCalls[0], [
@@ -404,9 +478,10 @@ Deno.test({
 	name: "unlink via context menu",
 	async fn() {
 		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
-			valueType: "defaultAssetLink",
+			basicGuiOptions: {
+				valueType: "defaultAssetLink",
+			},
 		});
-		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
 
 		assertExists(createContextMenuCalls[0]);
 		await triggerContextMenuItem(createContextMenuCalls[0], ["Unlink"]);
@@ -414,6 +489,60 @@ Deno.test({
 		assertEquals(gui.projectAssetValue, null);
 		assertEquals(gui.defaultAssetLink, null);
 		assertEquals(gui.defaultAssetLinkUuid, null);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu with embedded assets enabled and one supported asset type",
+	fn() {
+		const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					supportedAssetTypes: [MockLiveAsset],
+				},
+				liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
+			},
+		});
+
+		assertExists(createContextMenuCalls[0]);
+		assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Create embedded asset"}]);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu with embedded assets enabled and two supported asset types",
+	fn() {
+		const {MockLiveAsset: MockLiveAsset1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
+		const {MockLiveAsset: MockLiveAsset2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					supportedAssetTypes: [MockLiveAsset1, MockLiveAsset2],
+				},
+				liveAssetProjectAssetTypeCombinations: [
+					[MockLiveAsset1, [ProjectAssetType1]],
+					[MockLiveAsset2, [ProjectAssetType2]],
+				],
+			},
+		});
+
+		assertExists(createContextMenuCalls[0]);
+		assertContextMenuStructureEquals(createContextMenuCalls[0], [
+			{
+				text: "Create embedded asset",
+				submenu: [
+					{text: "Mock Live Asset 1"},
+					{text: "<namespace2:type2>"},
+				],
+			},
+		]);
 
 		uninstall();
 	},

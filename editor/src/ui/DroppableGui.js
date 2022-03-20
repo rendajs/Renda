@@ -11,6 +11,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @property {import("../misc/DragManager.js").DragManager} dragManager
  * @property {import("../windowManagement/WindowManager.js").WindowManager} windowManager
  * @property {import("./contextMenus/ContextMenuManager.js").ContextMenuManager} contextMenuManager
+ * @property {import("../assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
  */
 
 /**
@@ -118,12 +119,14 @@ export class DroppableGui {
 				dragManager: getEditorInstance().dragManager,
 				windowManager: getEditorInstance().windowManager,
 				contextMenuManager: getEditorInstance().contextMenuManager,
+				projectAssetTypeManager: getEditorInstance().projectAssetTypeManager,
 			};
 		}
 		this.projectManager = dependencies.projectManager;
 		this.dragManager = dependencies.dragManager;
 		this.windowManager = dependencies.windowManager;
 		this.contextMenuManager = dependencies.contextMenuManager;
+		this.projectAssetTypeManager = dependencies.projectAssetTypeManager;
 
 		this.disabled = disabled;
 
@@ -505,59 +508,103 @@ export class DroppableGui {
 	 */
 	onContextMenu(e) {
 		e.preventDefault();
-		if (!this.projectAssetValue) return;
 		/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
 		if (!this.disabled) {
-			contextMenuStructure.push({
-				text: "Unlink",
-				onClick: () => {
-					this.setValue(null);
-				},
-			});
+			/** @type {(typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType)[]} */
+			const availableTypes = [];
+			for (const liveAssetConstructor of this.supportedAssetTypes) {
+				for (const projectAssetType of this.projectAssetTypeManager.getAssetTypesForLiveAssetConstructor(liveAssetConstructor)) {
+					availableTypes.push(projectAssetType);
+				}
+			}
+
+			if (availableTypes.length > 0) {
+				/** @type {import("./contextMenus/ContextMenu.js").ContextMenuItemOpts} */
+				const createEmbeddedStructure = {
+					text: "Create embedded asset",
+				};
+
+				if (availableTypes.length == 1) {
+					createEmbeddedStructure.onClick = () => {
+						const assetManager = this.projectManager.assertAssetManagerExists();
+						// const projectAsset = assetManager.createEmbeddedAsset();
+						console.log(this);
+					};
+				} else {
+					createEmbeddedStructure.submenu = () => {
+						/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
+						const submenuStructure = [];
+						for (const projectAssetType of availableTypes) {
+							let text = "<unknown>";
+							if (projectAssetType.uiCreateName) {
+								text = projectAssetType.uiCreateName;
+							} else if (projectAssetType.type) {
+								text = `<${projectAssetType.type}>`;
+							}
+							submenuStructure.push({
+								text,
+							});
+						}
+						return submenuStructure;
+					};
+				}
+				contextMenuStructure.push(createEmbeddedStructure);
+			}
 		}
-		const copyAssetUuidText = "Copy asset UUID";
-		const defaultAssetLink = this.defaultAssetLinkUuid;
-		if (defaultAssetLink) {
+		if (this.projectAssetValue) {
+			if (!this.disabled) {
+				contextMenuStructure.push({
+					text: "Unlink",
+					onClick: () => {
+						this.setValue(null);
+					},
+				});
+			}
+			const copyAssetUuidText = "Copy asset UUID";
+			const defaultAssetLink = this.defaultAssetLinkUuid;
+			if (defaultAssetLink) {
+				contextMenuStructure.push({
+					text: copyAssetUuidText,
+					onClick: async () => {
+						if (this.projectAssetValue) {
+							await navigator.clipboard.writeText(defaultAssetLink);
+						}
+					},
+				});
+			}
+			const resolvedText = this.defaultAssetLinkUuid ? "Copy resolved asset link UUID" : copyAssetUuidText;
 			contextMenuStructure.push({
-				text: copyAssetUuidText,
+				text: resolvedText,
 				onClick: async () => {
 					if (this.projectAssetValue) {
-						await navigator.clipboard.writeText(defaultAssetLink);
+						await navigator.clipboard.writeText(this.projectAssetValue.uuid);
 					}
 				},
 			});
-		}
-		const resolvedText = this.defaultAssetLinkUuid ? "Copy resolved asset link UUID" : copyAssetUuidText;
-		contextMenuStructure.push({
-			text: resolvedText,
-			onClick: async () => {
-				if (this.projectAssetValue) {
-					await navigator.clipboard.writeText(this.projectAssetValue.uuid);
-				}
-			},
-		});
-		contextMenuStructure.push({
-			text: "View location",
-			onClick: async () => {
-				if (this.defaultAssetLink) {
-					// todo: highlight assetLink
-					// eslint-disable-next-line no-unused-vars
-					const assetLinksWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
-				} else if (this.projectAssetValue) {
-					let assetLinksWindow;
-					if (this.projectAssetValue.isBuiltIn) {
-						const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
-						assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
-					} else {
-						const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowProject);
-						assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
+			contextMenuStructure.push({
+				text: "View location",
+				onClick: async () => {
+					if (this.defaultAssetLink) {
+						// todo: highlight assetLink
+						// eslint-disable-next-line no-unused-vars
+						const assetLinksWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
+					} else if (this.projectAssetValue) {
+						let assetLinksWindow;
+						if (this.projectAssetValue.isBuiltIn) {
+							const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
+							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
+						} else {
+							const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowProject);
+							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
+						}
+						assetLinksWindow.highlightPath(this.projectAssetValue.path);
 					}
-					assetLinksWindow.highlightPath(this.projectAssetValue.path);
-				}
-			},
-			disabled: this.projectAssetValueDeleted,
-		});
+				},
+				disabled: this.projectAssetValueDeleted,
+			});
+		}
+		if (contextMenuStructure.length == 0) return;
 		const menu = this.contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}

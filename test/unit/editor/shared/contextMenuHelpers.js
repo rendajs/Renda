@@ -3,11 +3,24 @@ import {assertEquals} from "asserts";
 /**
  * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} itemOpts
  */
-function fillContextMenuItemOptsDefaults(itemOpts) {
+async function fillContextMenuItemOptsDefaults(itemOpts, {
+	executeSubmenuFunctions = true,
+} = {}) {
 	const newOpts = /** @type {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} */ ({
 		disabled: false,
 		...itemOpts,
 	});
+	if (newOpts.submenu instanceof Array) {
+		newOpts.submenu = await fillContextMenuStructureDefaults(newOpts.submenu);
+	} else if (newOpts.submenu instanceof Function) {
+		if (executeSubmenuFunctions) {
+			// TODO: prevent infinite recursion by tracking which functions have already been executed
+			const result = await newOpts.submenu();
+			newOpts.submenu = await fillContextMenuStructureDefaults(result);
+		} else {
+			delete newOpts.submenu;
+		}
+	}
 	delete newOpts.onClick;
 	return newOpts;
 }
@@ -15,11 +28,11 @@ function fillContextMenuItemOptsDefaults(itemOpts) {
 /**
  * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
  */
-function fillContextMenuStructureDefaults(structure) {
+async function fillContextMenuStructureDefaults(structure) {
 	/** @type {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
 	const newStructure = [];
 	for (const item of structure) {
-		newStructure.push(fillContextMenuItemOptsDefaults(item));
+		newStructure.push(await fillContextMenuItemOptsDefaults(item));
 	}
 	return newStructure;
 }
@@ -28,10 +41,9 @@ function fillContextMenuStructureDefaults(structure) {
  * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} actual
  * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} expected
  */
-export function assertContextMenuStructureEquals(actual, expected) {
-	const newActual = fillContextMenuStructureDefaults(actual);
-	const newExpected = fillContextMenuStructureDefaults(expected);
-	// TODO: add support for nested structures
+export async function assertContextMenuStructureEquals(actual, expected) {
+	const newActual = await fillContextMenuStructureDefaults(actual);
+	const newExpected = await fillContextMenuStructureDefaults(expected);
 	assertEquals(newActual, newExpected);
 }
 

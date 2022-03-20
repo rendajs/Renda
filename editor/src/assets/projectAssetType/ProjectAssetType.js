@@ -89,6 +89,12 @@ export class ProjectAssetType {
 	 */
 	static newFileExtension = "json";
 
+	/**
+	 * The text that is shown in ui when choosing from a list of asset types
+	 * when creating a new asset.
+	 */
+	static uiCreateName = "";
+
 	static storeInProjectAsJson = true;
 	static storeInProjectAsText = false;
 

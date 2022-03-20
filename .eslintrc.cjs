@@ -74,7 +74,6 @@ module.exports = {
 				varsIgnorePattern: "^_$",
 			},
 		],
-		"no-use-before-define": "error",
 
 		"array-bracket-newline": ["error", {multiline: true}],
 		"array-bracket-spacing": ["error", "never"],
