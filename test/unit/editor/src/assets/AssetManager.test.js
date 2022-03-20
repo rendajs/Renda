@@ -13,6 +13,8 @@ const BASIC_ASSET_PATH = ["path", "to", "asset.json"];
 const BASIC_PROJECTASSETTYPE = "test:basicprojectassettype";
 const NONEXISTENT_PROJECTASSETTYPE = "test:nonexistentprojectassettype";
 const ASSET_SETTINGS_PATH = ["ProjectSettings", "assetSettings.json"];
+const DEFAULT_BASIC_ASSET_NUM_ON_DISK = 2309779523;
+const DEFAULT_BASIC_ASSET_STR_ON_DISK = "basic asset on disk";
 
 injectMockEditorInstance(/** @type {any} */ ({}));
 
@@ -47,6 +49,10 @@ async function basicSetup({
 	});
 	await mockFileSystem.writeJson(BASIC_ASSET_PATH, {
 		assetType,
+		asset: {
+			num: DEFAULT_BASIC_ASSET_NUM_ON_DISK,
+			str: DEFAULT_BASIC_ASSET_STR_ON_DISK,
+		},
 	});
 
 	const assetManager = new AssetManager(mockProjectManager, mockBuiltinAssetManager, mockBuiltInDefaultAssetLinksManager, mockProjectAssetTypeManager, mockFileSystem);
@@ -253,6 +259,8 @@ Deno.test({
 
 		assertExists(liveAsset);
 		assertInstanceOf(liveAsset, MockProjectAssetTypeLiveAsset);
+		assertEquals(liveAsset.num, DEFAULT_BASIC_ASSET_NUM_ON_DISK);
+		assertEquals(liveAsset.str, DEFAULT_BASIC_ASSET_STR_ON_DISK);
 	},
 });
 
@@ -478,3 +486,46 @@ Deno.test({
 		});
 	},
 });
+
+// ==== getLiveAssetFromUuidOrEmbeddedAssetData() ==============================
+
+Deno.test({
+	name: "getLiveAssetFromUuidOrEmbeddedAssetData() with null",
+	async fn() {
+		const {assetManager, ProjectAssetType} = await basicSetup();
+		const result = await assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(null, {
+			assertAssetType: ProjectAssetType,
+		});
+		assertEquals(result, null);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetFromUuidOrEmbeddedAssetData() with uuid",
+	async fn() {
+		const {assetManager, ProjectAssetType, MockProjectAssetTypeLiveAsset} = await basicSetup();
+		const liveAsset = await assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(BASIC_ASSET_UUID, {
+			assertAssetType: ProjectAssetType,
+		});
+		assertInstanceOf(liveAsset, MockProjectAssetTypeLiveAsset);
+		assertEquals(liveAsset.num, DEFAULT_BASIC_ASSET_NUM_ON_DISK);
+		assertEquals(liveAsset.str, DEFAULT_BASIC_ASSET_STR_ON_DISK);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetFromUuidOrEmbeddedAssetData() with embedded asset data",
+	async fn() {
+		const {assetManager, ProjectAssetType, MockProjectAssetTypeLiveAsset} = await basicSetup();
+		const liveAsset = await assetManager.getLiveAssetFromUuidOrEmbeddedAssetData({
+			num: 123,
+			str: "string from passed in object",
+		}, {
+			assertAssetType: ProjectAssetType,
+		});
+		assertInstanceOf(liveAsset, MockProjectAssetTypeLiveAsset);
+		assertEquals(liveAsset.num, 123);
+		assertEquals(liveAsset.str, "string from passed in object");
+	},
+});
+

@@ -22,6 +22,12 @@ import {ProjectAsset} from "./ProjectAsset.js";
  * @property {(new (...args: any[]) => T)?} [assertAssetType]
  */
 
+/**
+ * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+ * @typedef RequiredAssetAssertionOptions
+ * @property {(new (...args: any[]) => T)?} assertAssetType
+ */
+
 export class AssetManager {
 	/**
 	 * @param {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
@@ -320,10 +326,10 @@ export class AssetManager {
 		if (!projectAsset) return null;
 		if (assertAssetType) {
 			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
-			const castProjectAssetTypeConstructor = /** @type {(new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny)?} */ (projectAssetTypeConstructor);
-			if (castProjectAssetTypeConstructor != assertAssetType) {
-				const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertAssetType);
-				const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
+
+			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertAssetType);
+			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
+			if (projectAssetTypeConstructor != castAssertAssetType2) {
 				const expected = castAssertAssetType2.type;
 
 				const actual = projectAssetTypeConstructor?.type || "none";
@@ -513,7 +519,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * Used for loading disk data into a liveAsset. If a uuid is provided, the
+	 * Used for loading disk data into a ProjectAsset. If a uuid is provided, the
 	 * corresponding project asset is returned. If an object is provided, a new
 	 * embedded asset is created using the provided object as data.
 	 * For more info about embedded asset creation see {@linkcode createEmbeddedAsset}.
@@ -529,6 +535,35 @@ export class AssetManager {
 			const projectAsset = this.createEmbeddedAsset(assetType);
 			projectAsset.writeEmbeddedAssetData(uuidOrData);
 			return projectAsset;
+		}
+	}
+
+	/**
+	 * Used for loading disk data into a liveAsset. If a uuid is provided, the
+	 * live asset from the corresponding project asset is returned. If an object
+	 * is provided, a new embedded asset is created using the provided object as data.
+	 * For more info about embedded asset creation see {@linkcode createEmbeddedAsset}.
+	 * The assertionOptions is used both for creating new assets using the correct
+	 * type, as well as asserting if existing assets have the correct type when
+	 * a uuid is provided, similar to how it's used in {@linkcode getLiveAsset}.
+	 *
+	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
+	 * @param {RequiredAssetAssertionOptions<T>} assertionOptions
+	 */
+	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, assertionOptions) {
+		if (!uuidOrData) return null;
+
+		if (typeof uuidOrData == "string") {
+			return await this.getLiveAsset(uuidOrData, assertionOptions);
+		} else {
+			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertionOptions.assertAssetType);
+			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
+
+			// @ts-expect-error TODO: make ProjectAssetType.type not null but an empty string by default
+			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type);
+			projectAsset.writeEmbeddedAssetData(uuidOrData);
+			return await projectAsset.getLiveAsset();
 		}
 	}
 }
