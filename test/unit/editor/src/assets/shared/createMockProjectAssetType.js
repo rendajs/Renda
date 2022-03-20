@@ -35,7 +35,9 @@ export function createMockProjectAssetType(type) {
 		 * @returns {Promise<import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetData<MockProjectAssetTypeLiveAsset, MockProjectAssetTypeEditorData>>}
 		 */
 		async getLiveAssetData(fileData, recursionTracker) {
-			if (!fileData) return {};
+			if (!fileData) {
+				throw new Error("Failed to get live asset data, no file data provided.");
+			}
 
 			const liveAsset = new MockProjectAssetTypeLiveAsset();
 			liveAsset.num = fileData.num;
