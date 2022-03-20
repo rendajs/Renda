@@ -484,4 +484,25 @@ export class Mat4 {
 		this.values = newMat.values;
 		this.markFlatArrayBuffersDirty();
 	}
+
+	/**
+	 * @param {Mat4} otherMatrix
+	 */
+	equals(otherMatrix) {
+		const values1 = this.getFlatArray();
+		const values2 = otherMatrix.getFlatArray();
+
+		if (values1.length != values2.length) return false;
+
+		for (let i = 0; i < values1.length; i++) {
+			const v1 = values1[i];
+			const v2 = values2[i];
+			if (v1 != v2) return false;
+		}
+		return true;
+	}
+
+	isIdentity() {
+		return this.equals(new Mat4());
+	}
 }
