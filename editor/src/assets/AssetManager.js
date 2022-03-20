@@ -456,10 +456,15 @@ export class AssetManager {
 	 * accessible through their liveAsset. Embedded ProjectAsset instances are
 	 * garbage collected when their liveAsset is garbage collected.
 	 *
-	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} assetType
+	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
 	 */
 	createEmbeddedAsset(assetType) {
+		if (typeof assetType != "string") {
+			// @ts-expect-error TODO, don't make type null by default, use an empty string instead
+			assetType = assetType.type;
+		}
 		const projectAsset = this.projectAssetFactory({
+			// @ts-expect-error
 			assetType,
 			forceAssetType: true,
 			isEmbedded: true,

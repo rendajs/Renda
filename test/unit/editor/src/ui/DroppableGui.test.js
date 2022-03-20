@@ -10,18 +10,32 @@ const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
 
 const mockLiveAsset = {};
 
-const mockProjectAsset = /** @type {import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ (
-	Object.create(ProjectAsset.prototype)
-);
-mockProjectAsset.getIsDeleted = async () => false;
-mockProjectAsset.uuid = BASIC_ASSET_UUID;
-Object.defineProperty(mockProjectAsset, "fileName", {
-	value: "assetName.json",
-	writable: false,
-});
-mockProjectAsset.getLiveAssetImmediate = () => {
-	return mockLiveAsset;
-};
+/**
+ * @param {Object} options
+ * @param {object?} options.mockLiveAsset
+ * @param {boolean} [options.isEmbedded]
+ */
+function createMockProjectAsset({
+	mockLiveAsset,
+	isEmbedded = false,
+}) {
+	const mockProjectAsset = /** @type {import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ (
+		Object.create(ProjectAsset.prototype)
+	);
+	mockProjectAsset.isEmbedded = isEmbedded;
+	mockProjectAsset.getIsDeleted = async () => false;
+	mockProjectAsset.uuid = BASIC_ASSET_UUID;
+	Object.defineProperty(mockProjectAsset, "fileName", {
+		value: "assetName.json",
+		writable: false,
+	});
+	mockProjectAsset.getLiveAssetImmediate = () => {
+		return mockLiveAsset;
+	};
+	return mockProjectAsset;
+}
+
+const mockProjectAsset = createMockProjectAsset({mockLiveAsset});
 
 /**
  * @param {Object} options
@@ -60,6 +74,12 @@ function createBasicGui({
 						return mockProjectAsset;
 					}
 					return null;
+				},
+				createEmbeddedAsset(assetType) {
+					return createMockProjectAsset({
+						mockLiveAsset: {},
+						isEmbedded: true,
+					});
 				},
 			};
 		},
@@ -543,6 +563,32 @@ Deno.test({
 				],
 			},
 		]);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "create embedded asset via context menu",
+	async fn() {
+		const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
+		const {gui, uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					supportedAssetTypes: [MockLiveAsset],
+				},
+				liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
+			},
+		});
+
+		assertExists(createContextMenuCalls[0]);
+		await triggerContextMenuItem(createContextMenuCalls[0], ["Create embedded asset"]);
+
+		assertExists(gui.projectAssetValue);
+		assertEquals(gui.defaultAssetLink, null);
+		assertEquals(gui.defaultAssetLinkUuid, null);
+		assertEquals(gui.visibleAssetName, "Embedded asset");
 
 		uninstall();
 	},

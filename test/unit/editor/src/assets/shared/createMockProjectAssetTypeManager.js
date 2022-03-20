@@ -2,7 +2,7 @@
  * @param {Object} options
  * @param {string} options.BASIC_ASSET_EXTENSION The file extension for which to return the ProjectAssetType
  * @param {string} options.BASIC_PROJECTASSETTYPE The asset type for which to return the ProjectAssetType
- * @param {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} options.ProjectAssetType The ProjectAssetType to return.
+ * @param {typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} options.ProjectAssetType The ProjectAssetType to return.
  */
 export function createMockProjectAssetTypeManager({
 	BASIC_ASSET_EXTENSION,

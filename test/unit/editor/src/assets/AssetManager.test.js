@@ -283,11 +283,22 @@ Deno.test({
 // ==== createEmbeddedAsset() ==================================================
 
 Deno.test({
-	name: "createEmbeddedAsset()",
+	name: "createEmbeddedAsset() with an asset type string",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
 		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE);
+
+		assertEquals(embeddedAsset.isEmbedded, true);
+		assertEquals(embeddedAsset.assetType, BASIC_PROJECTASSETTYPE);
+	},
+});
+Deno.test({
+	name: "createEmbeddedAsset() with a ProjectAssetType constructor",
+	async fn() {
+		const {assetManager, ProjectAssetType} = await basicSetup();
+
+		const embeddedAsset = assetManager.createEmbeddedAsset(ProjectAssetType);
 
 		assertEquals(embeddedAsset.isEmbedded, true);
 		assertEquals(embeddedAsset.assetType, BASIC_PROJECTASSETTYPE);

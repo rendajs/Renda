@@ -58,7 +58,9 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @template T
  * @typedef {T extends DroppableGuiOptions<any> ?
  * 		T["supportedAssetTypes"] extends (new (...args: any) => infer A)[] ?
- * 			A :
+ * 			A extends object ?
+ * 				A :
+ * 				never :
  * 			never :
  * 		never} GuiOptionsToTemplate
  */
@@ -87,7 +89,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  */
 
 /**
- * @template T
+ * @template {object} T
  */
 export class DroppableGui {
 	/**
@@ -305,6 +307,15 @@ export class DroppableGui {
 			this.defaultAssetLink = null;
 			this.defaultAssetLinkUuid = null;
 		}
+	}
+
+	/**
+	 * @param {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} projectAssetType
+	 */
+	createEmbeddedAsset(projectAssetType) {
+		const assetManager = this.projectManager.assertAssetManagerExists();
+		const projectAsset = assetManager.createEmbeddedAsset(projectAssetType);
+		this.setValueFromProjectAsset(projectAsset);
 	}
 
 	/**
@@ -527,9 +538,7 @@ export class DroppableGui {
 
 				if (availableTypes.length == 1) {
 					createEmbeddedStructure.onClick = () => {
-						const assetManager = this.projectManager.assertAssetManagerExists();
-						// const projectAsset = assetManager.createEmbeddedAsset();
-						console.log(this);
+						this.createEmbeddedAsset(availableTypes[0]);
 					};
 				} else {
 					createEmbeddedStructure.submenu = () => {
@@ -544,6 +553,9 @@ export class DroppableGui {
 							}
 							submenuStructure.push({
 								text,
+								onClick: () => {
+									this.createEmbeddedAsset(projectAssetType);
+								},
 							});
 						}
 						return submenuStructure;
@@ -610,7 +622,17 @@ export class DroppableGui {
 	}
 
 	get visibleAssetName() {
-		return this.defaultAssetLink?.name || this.projectAssetValue?.fileName || "";
+		if (this.defaultAssetLink?.name) return this.defaultAssetLink.name;
+
+		if (this.projectAssetValue) {
+			if (this.projectAssetValue.isEmbedded) {
+				return "Embedded asset";
+			} else if (this.projectAssetValue.fileName) {
+				return this.projectAssetValue.fileName;
+			}
+		}
+
+		return "";
 	}
 
 	updateContent() {

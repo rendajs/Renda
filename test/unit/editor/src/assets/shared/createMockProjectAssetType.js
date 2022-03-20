@@ -53,7 +53,7 @@ export function createMockProjectAssetType(type) {
 	}
 
 	const castUnknown = /** @type {unknown} */ (ProjectAssetType);
-	const castProjectAssetType = /** @type {MockProjectAssetType} */ (castUnknown);
+	const castProjectAssetType = /** @type {typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castUnknown);
 
 	return {
 		MockProjectAssetTypeLiveAsset,
