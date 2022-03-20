@@ -113,11 +113,19 @@ Deno.test({
 			path: ["path", "to", `asset.${BASIC_ASSET_EXTENSION}`],
 		});
 
+		assertEquals(projectAsset.assetType, null);
+		assertEquals(projectAsset.projectAssetTypeConstructorImmediate, null);
+
 		const projectAssetType = await projectAsset.getProjectAssetType();
 		assertExists(projectAssetType);
 		assertInstanceOf(projectAssetType, MockProjectAssetType);
+
+		const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
+		assertExists(projectAssetTypeConstructor);
+		assertStrictEquals(projectAssetTypeConstructor, MockProjectAssetType);
+
 		assertEquals(projectAsset.assetType, BASIC_PROJECTASSETTYPE);
-		assertStrictEquals(projectAsset.projectAssetTypeConstructor, MockProjectAssetType);
+		assertStrictEquals(projectAsset.projectAssetTypeConstructorImmediate, MockProjectAssetType);
 	},
 });
 
@@ -132,7 +140,10 @@ Deno.test({
 
 		const projectAssetType = await projectAsset.getProjectAssetType();
 		assertEquals(projectAssetType, null);
-		assertEquals(projectAsset.projectAssetTypeConstructor, null);
+		assertEquals(projectAsset.projectAssetTypeConstructorImmediate, null);
+		const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
+		assertEquals(projectAssetTypeConstructor, null);
+		assertEquals(projectAsset.projectAssetTypeConstructorImmediate, null);
 	},
 });
 

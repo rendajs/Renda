@@ -165,7 +165,12 @@ export class ProjectAsset {
 		}
 	}
 
-	get projectAssetTypeConstructor() {
+	/**
+	 * This might be null if the asset hasn't been initialized yet, since the
+	 * asset type needs to be read from disk. If you want to be sure that the
+	 * asset type is loaded, use {@linkcode getProjectAssetTypeConstructor} instead.
+	 */
+	get projectAssetTypeConstructorImmediate() {
 		if (!this._projectAssetType) {
 			return null;
 		}
@@ -179,6 +184,11 @@ export class ProjectAsset {
 	async getProjectAssetType() {
 		await this.waitForInit();
 		return this._projectAssetType;
+	}
+
+	async getProjectAssetTypeConstructor() {
+		await this.waitForInit();
+		return this.projectAssetTypeConstructorImmediate;
 	}
 
 	/**
@@ -553,20 +563,20 @@ export class ProjectAsset {
 
 	async getPropertiesAssetContentConstructor() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructor) return null;
-		return this.projectAssetTypeConstructor.propertiesAssetContentConstructor;
+		if (!this.projectAssetTypeConstructorImmediate) return null;
+		return this.projectAssetTypeConstructorImmediate.propertiesAssetContentConstructor;
 	}
 
 	async getPropertiesAssetContentStructure() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructor) return null;
-		return this.projectAssetTypeConstructor.propertiesAssetContentStructure;
+		if (!this.projectAssetTypeConstructorImmediate) return null;
+		return this.projectAssetTypeConstructorImmediate.propertiesAssetContentStructure;
 	}
 
 	async getPropertiesAssetSettingsStructure() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructor) return null;
-		return this.projectAssetTypeConstructor.assetSettingsStructure;
+		if (!this.projectAssetTypeConstructorImmediate) return null;
+		return this.projectAssetTypeConstructorImmediate.assetSettingsStructure;
 	}
 
 	/**
@@ -579,15 +589,15 @@ export class ProjectAsset {
 	async readAssetData() {
 		await this.waitForInit();
 
-		if (!this.projectAssetTypeConstructor) {
+		if (!this.projectAssetTypeConstructorImmediate) {
 			throw new Error("Unable to read asset data without a ProjectAssetType");
 		}
 
 		/** @type {"json" | "text" | "binary"} */
 		let format = "binary";
-		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
+		if (this.projectAssetTypeConstructorImmediate.storeInProjectAsJson) {
 			format = "json";
-		} else if (this.projectAssetTypeConstructor.storeInProjectAsText) {
+		} else if (this.projectAssetTypeConstructorImmediate.storeInProjectAsText) {
 			format = "text";
 		}
 
@@ -605,7 +615,7 @@ export class ProjectAsset {
 			fileData = await this.fileSystem.readFile(this.path);
 		}
 
-		if (format == "json" && this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData && !this.isEmbedded) {
+		if (format == "json" && this.projectAssetTypeConstructorImmediate.wrapProjectJsonWithEditorMetaData && !this.isEmbedded) {
 			fileData = fileData.asset || {};
 		}
 		return fileData;
@@ -617,19 +627,19 @@ export class ProjectAsset {
 	async writeAssetData(fileData) {
 		await this.waitForInit();
 
-		if (!this.projectAssetTypeConstructor) {
+		if (!this.projectAssetTypeConstructorImmediate) {
 			throw new Error("Unable to write asset data without a ProjectAssetType");
 		}
 
-		if (this.projectAssetTypeConstructor.storeInProjectAsJson) {
+		if (this.projectAssetTypeConstructorImmediate.storeInProjectAsJson) {
 			if (this.isEmbedded) {
 				// @ts-expect-error
 				this.currentEmbeddedAssetData = structuredClone(fileData);
 			} else {
 				let json = null;
-				if (this.projectAssetTypeConstructor.wrapProjectJsonWithEditorMetaData) {
+				if (this.projectAssetTypeConstructorImmediate.wrapProjectJsonWithEditorMetaData) {
 					json = {
-						assetType: this.projectAssetTypeConstructor.type,
+						assetType: this.projectAssetTypeConstructorImmediate.type,
 						asset: fileData,
 					};
 				} else {
@@ -641,7 +651,7 @@ export class ProjectAsset {
 					await this.fileSystem.writeJson(this.path, json);
 				}
 			}
-		} else if (this.projectAssetTypeConstructor.storeInProjectAsText) {
+		} else if (this.projectAssetTypeConstructorImmediate.storeInProjectAsText) {
 			if (this.isBuiltIn || !this.fileSystem) {
 				await this.builtInAssetManager.writeText(this.path, fileData);
 			} else {
@@ -684,8 +694,8 @@ export class ProjectAsset {
 
 	async getAssetTypeUuid() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructor) return null;
-		return this.projectAssetTypeConstructor.typeUuid;
+		if (!this.projectAssetTypeConstructorImmediate) return null;
+		return this.projectAssetTypeConstructorImmediate.typeUuid;
 	}
 
 	/**
@@ -693,16 +703,16 @@ export class ProjectAsset {
 	 */
 	async getBundledAssetData(assetSettingOverrides = {}) {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructor || !this._projectAssetType) return null;
+		if (!this.projectAssetTypeConstructorImmediate || !this._projectAssetType) return null;
 
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
 		if (!binaryData) {
-			const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
+			const usedAssetLoaderType = this.projectAssetTypeConstructorImmediate.usedAssetLoaderType;
 			if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 				/** @type {FileDataType} */
 				let assetData = await this.readAssetData();
 
-				const structure = this.projectAssetTypeConstructor.propertiesAssetContentStructure;
+				const structure = this.projectAssetTypeConstructorImmediate.propertiesAssetContentStructure;
 				if (structure) {
 					const treeView = new PropertiesTreeView();
 					treeView.generateFromSerializableStructure(structure);
@@ -736,9 +746,9 @@ export class ProjectAsset {
 	 */
 	async *getReferencedAssetUuids() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructor || !this._projectAssetType) return;
+		if (!this.projectAssetTypeConstructorImmediate || !this._projectAssetType) return;
 
-		const usedAssetLoaderType = this.projectAssetTypeConstructor.usedAssetLoaderType;
+		const usedAssetLoaderType = this.projectAssetTypeConstructorImmediate.usedAssetLoaderType;
 		if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 			const assetData = await this.readAssetData();
 

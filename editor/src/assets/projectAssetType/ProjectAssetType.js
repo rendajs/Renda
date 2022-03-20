@@ -1,6 +1,7 @@
 /** @typedef {string & {}} ProjectAssetTypeIdentifier */
 
 /** @typedef {ProjectAssetType<any, any, any, any>} ProjectAssetTypeAny */
+/** @typedef {ProjectAssetType<unknown, unknown, object, unknown>} ProjectAssetTypeUnknown */
 /**
  * @template {any} TLiveAsset
  * @template {any} TEditorData

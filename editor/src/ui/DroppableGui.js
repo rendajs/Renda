@@ -368,7 +368,7 @@ export class DroppableGui {
 		e.dataTransfer.effectAllowed = "all";
 		let assetType = null;
 		if (this.projectAssetValue) {
-			assetType = this.projectAssetValue.projectAssetTypeConstructor;
+			assetType = this.projectAssetValue.projectAssetTypeConstructorImmediate;
 		}
 
 		/** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */

@@ -16,6 +16,12 @@ import {ProjectAsset} from "./ProjectAsset.js";
  * @property {import("../../../src/mod.js").UuidString?} originalAssetUuid
  */
 
+/**
+ * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+ * @typedef AssetAssertionOptions
+ * @property {(new (...args: any[]) => T)?} [assertAssetType]
+ */
+
 export class AssetManager {
 	/**
 	 * @param {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
@@ -301,12 +307,30 @@ export class AssetManager {
 	}
 
 	/**
+	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../src/mod.js").UuidString} uuid
-	 * @returns {Promise<import("./ProjectAsset.js").ProjectAssetAny?>}
+	 * @param {AssetAssertionOptions<T>} [options]
+	 * @returns {Promise<import("./ProjectAsset.js").ProjectAsset<T>?>}
 	 */
-	async getProjectAsset(uuid) {
+	async getProjectAsset(uuid, {
+		assertAssetType = null,
+	} = {}) {
 		await this.loadAssetSettings(true);
-		return this.getProjectAssetImmediate(uuid);
+		const projectAsset = this.getProjectAssetImmediate(uuid);
+		if (!projectAsset) return null;
+		if (assertAssetType) {
+			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
+			const castProjectAssetTypeConstructor = /** @type {(new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny)?} */ (projectAssetTypeConstructor);
+			if (castProjectAssetTypeConstructor != assertAssetType) {
+				const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertAssetType);
+				const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
+				const expected = castAssertAssetType2.type;
+
+				const actual = projectAssetTypeConstructor?.type || "none";
+				throw new Error(`Unexpected asset type while getting project asset. Expected "${expected}" but got "${actual}".`);
+			}
+		}
+		return projectAsset;
 	}
 
 	/**
@@ -392,14 +416,16 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../../../src/util/mod.js").UuidString} uuid
-	 * @returns {Promise<any>}
+	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {AssetAssertionOptions<T>} [assertionOptions]
 	 */
-	async getLiveAsset(uuid) {
-		const projectAsset = await this.getProjectAsset(uuid);
+	async getLiveAsset(uuid, assertionOptions) {
+		const projectAsset = await this.getProjectAsset(uuid, assertionOptions);
 		if (!projectAsset) return null;
 
-		return await projectAsset.getLiveAsset();
+		const liveAsset = await projectAsset.getLiveAsset();
+		return /** @type {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any, any> ? TLiveAsset : unknown} */ (liveAsset);
 	}
 
 	/**

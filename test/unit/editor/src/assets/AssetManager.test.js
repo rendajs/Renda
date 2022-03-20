@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertExists, assertInstanceOf, assertRejects, assertStrictEquals, assertThrows} from "asserts";
 import {AssetManager} from "../../../../../editor/src/assets/AssetManager.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
@@ -7,15 +7,18 @@ import {createMockProjectAssetType} from "./shared/createMockProjectAssetType.js
 import {createMockProjectAssetTypeManager} from "./shared/createMockProjectAssetTypeManager.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
+const NONEXISTENT_ASSET_UUID = "NONEXISTENT_ASSET_UUID";
 const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
 const BASIC_ASSET_PATH = ["path", "to", "asset.json"];
 const BASIC_PROJECTASSETTYPE = "test:basicprojectassettype";
+const NONEXISTENT_PROJECTASSETTYPE = "test:nonexistentprojectassettype";
 const ASSET_SETTINGS_PATH = ["ProjectSettings", "assetSettings.json"];
 
 injectMockEditorInstance(/** @type {any} */ ({}));
 
 async function basicSetup({
 	waitForAssetSettingsLoad = true,
+	assetType = BASIC_PROJECTASSETTYPE,
 } = {}) {
 	const mockProjectManager = /** @type {import("../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
 
@@ -27,7 +30,7 @@ async function basicSetup({
 		registeredAssetLinks: new Set(),
 	});
 
-	const {MockProjectAssetType, ProjectAssetType} = createMockProjectAssetType(BASIC_PROJECTASSETTYPE);
+	const {MockProjectAssetType, ProjectAssetType, MockProjectAssetTypeLiveAsset} = createMockProjectAssetType(BASIC_PROJECTASSETTYPE);
 
 	const mockProjectAssetTypeManager = createMockProjectAssetTypeManager({
 		BASIC_ASSET_EXTENSION, BASIC_PROJECTASSETTYPE,
@@ -43,7 +46,7 @@ async function basicSetup({
 		},
 	});
 	await mockFileSystem.writeJson(BASIC_ASSET_PATH, {
-		assetType: BASIC_PROJECTASSETTYPE,
+		assetType,
 	});
 
 	const assetManager = new AssetManager(mockProjectManager, mockBuiltinAssetManager, mockBuiltInDefaultAssetLinksManager, mockProjectAssetTypeManager, mockFileSystem);
@@ -54,6 +57,7 @@ async function basicSetup({
 		mockFileSystem,
 		MockProjectAssetType,
 		ProjectAssetType,
+		MockProjectAssetTypeLiveAsset,
 	};
 }
 
@@ -165,6 +169,8 @@ Deno.test({
 	},
 });
 
+// ==== getProjectAsset() ======================================================
+
 Deno.test({
 	name: "getProjectAsset()",
 	async fn() {
@@ -175,6 +181,93 @@ Deno.test({
 		assertExists(asset);
 	},
 });
+
+Deno.test({
+	name: "getProjectAsset() non existent",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		const asset = await assetManager.getProjectAsset(NONEXISTENT_ASSET_UUID);
+
+		assertEquals(asset, null);
+	},
+});
+
+Deno.test({
+	name: "getProjectAsset() assert asset type, valid asset type",
+	async fn() {
+		const {assetManager, ProjectAssetType} = await basicSetup();
+
+		const asset = await assetManager.getProjectAsset(BASIC_ASSET_UUID, {
+			assertAssetType: ProjectAssetType,
+		});
+
+		assertExists(asset);
+	},
+});
+
+Deno.test({
+	name: "getProjectAsset() assert asset type, invalid asset type",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		class ExpectedProjectAssetType {
+			static type = "namespace:expected";
+		}
+
+		await assertRejects(async () => {
+			await assetManager.getProjectAsset(BASIC_ASSET_UUID, {
+				assertAssetType: /** @type {any} */ (ExpectedProjectAssetType),
+			});
+		}, Error, `Unexpected asset type while getting project asset. Expected "namespace:expected" but got "${BASIC_PROJECTASSETTYPE}".`);
+	},
+});
+
+Deno.test({
+	name: "getProjectAsset() assert asset type, no asset type",
+	async fn() {
+		const {assetManager} = await basicSetup({
+			assetType: NONEXISTENT_PROJECTASSETTYPE,
+		});
+
+		class ExpectedProjectAssetType {
+			static type = "namespace:expected";
+		}
+
+		await assertRejects(async () => {
+			await assetManager.getProjectAsset(BASIC_ASSET_UUID, {
+				assertAssetType: /** @type {any} */ (ExpectedProjectAssetType),
+			});
+		}, Error, `Unexpected asset type while getting project asset. Expected "namespace:expected" but got "none".`);
+	},
+});
+
+// ==== getLiveAsset() =========================================================
+
+Deno.test({
+	name: "getLiveAsset()",
+	async fn() {
+		const {assetManager, MockProjectAssetTypeLiveAsset} = await basicSetup();
+
+		const liveAsset = await assetManager.getLiveAsset(BASIC_ASSET_UUID);
+
+		assertExists(liveAsset);
+		assertInstanceOf(liveAsset, MockProjectAssetTypeLiveAsset);
+	},
+});
+
+Deno.test({
+	name: "getLiveAsset() non existent",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		const liveAsset = await assetManager.getLiveAsset(NONEXISTENT_ASSET_UUID);
+
+		assertEquals(liveAsset, null);
+	},
+});
+
+// ==== misc get project asset methods =========================================
 
 Deno.test({
 	name: "getProjectAssetImmediate() when asset settings are not loaded returns null",
