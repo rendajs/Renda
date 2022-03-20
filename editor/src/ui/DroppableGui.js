@@ -219,13 +219,17 @@ export class DroppableGui {
 		if (purpose == "script") {
 			returnLiveAsset = /** @type {U} */ (true);
 		}
-		let returnValue;
+		let returnValue = null;
 		if (returnLiveAsset) {
 			returnValue = this.projectAssetValue?.getLiveAssetImmediate() || null;
 		} else if (!resolveDefaultAssetLinks && this.defaultAssetLinkUuid) {
 			returnValue = this.defaultAssetLinkUuid;
-		} else {
-			returnValue = this.projectAssetValue?.uuid || null;
+		} else if (this.projectAssetValue) {
+			if (this.projectAssetValue.isEmbedded) {
+				returnValue = this.projectAssetValue.readEmbeddedAssetData();
+			} else {
+				returnValue = this.projectAssetValue?.uuid || null;
+			}
 		}
 		return /** @type {DroppableGuiGetValueReturn<T, U, V>} */ (returnValue);
 	}

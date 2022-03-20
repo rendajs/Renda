@@ -17,6 +17,7 @@ function createMockProjectAsset({
 	mockLiveAsset,
 	isEmbedded = false,
 }) {
+	// We use Object.create so that the `instanceof ProjectAsset` check in the DroppableGui still works.
 	const mockProjectAsset = /** @type {import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ (
 		Object.create(ProjectAsset.prototype)
 	);
@@ -30,12 +31,18 @@ function createMockProjectAsset({
 	mockProjectAsset.getLiveAssetImmediate = () => {
 		return mockLiveAsset;
 	};
+	mockProjectAsset.readEmbeddedAssetData = () => {
+		return {
+			num: 42,
+			str: "foo",
+		};
+	};
 	return mockProjectAsset;
 }
 
 /**
  * @param {Object} options
- * @param {"basic" | "defaultAssetLink" | "none"} [options.valueType]
+ * @param {"basic" | "defaultAssetLink" | "embedded" | "none"} [options.valueType]
  * @param {Partial<import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies>} [options.extraMocks]
  * @param {Partial<import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<any>>} [options.guiOpts]
  * @param {Iterable<[(new (...args: any) => any), Iterable<typeof import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>]>} [options.liveAssetProjectAssetTypeCombinations] The list of Project assets that should be returned for a call to ProjectAssetTypeManager.getAssetTypesForLiveAssetConstructor().
@@ -113,6 +120,12 @@ function createBasicGui({
 		gui.setValue(BASIC_ASSET_UUID);
 	} else if (valueType == "defaultAssetLink") {
 		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
+	} else if (valueType == "embedded") {
+		const projectAsset = createMockProjectAsset({
+			mockLiveAsset: {},
+			isEmbedded: true,
+		});
+		gui.setValue(projectAsset);
 	}
 	return {
 		gui,
@@ -358,6 +371,25 @@ Deno.test({
 		const result = gui.getValue({purpose: "script"});
 
 		assertStrictEquals(result, mockLiveAsset);
+
+		uninstallFakeDocument();
+	},
+});
+
+Deno.test({
+	name: "getValue() with no parameters and an embedded asset",
+	fn() {
+		installFakeDocument();
+		const {gui} = createBasicGui({
+			valueType: "embedded",
+		});
+
+		const result = gui.getValue();
+
+		assertEquals(result, {
+			num: 42,
+			str: "foo",
+		});
 
 		uninstallFakeDocument();
 	},
