@@ -31,11 +31,10 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 			// todo: support multiselect
 			const asset = this.currentSelection[0];
-			const {liveAsset} = await asset.getLiveAssetData();
-			const liveMaterial = /** @type {import("../../../../src/rendering/Material.js").Material} */ (liveAsset);
+			const {liveAsset: material} = await asset.getLiveAssetData();
 
 			const mapAsset = this.mapTreeView.getValue({purpose: "script"});
-			liveMaterial.setMaterialMap(mapAsset);
+			material.setMaterialMap(mapAsset);
 
 			await this.loadMapValues();
 			this.notifyEntityEditorsMaterialChanged();
@@ -118,9 +117,8 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 				// todo: support multiselect
 				const asset = this.currentSelection[0];
-				const {liveAsset} = await asset.getLiveAssetData();
-				const liveMaterial = /** @type {import("../../../../src/rendering/Material.js").Material} */ (liveAsset);
-				liveMaterial.setProperties({
+				const {liveAsset: material} = await asset.getLiveAssetData();
+				material.setProperties({
 					[valueData.name]: newValue,
 				});
 
