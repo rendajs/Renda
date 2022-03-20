@@ -19,9 +19,9 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
  * @typedef {Object} EntityJsonDataInlineEntityTypes
- * @property {number[]} matrix
- * @property {EntityJsonDataComponent[]} components
- * @property {EntityJsonData[]} children
+ * @property {number[]} [matrix]
+ * @property {import("../components/Component.js").EntityJsonDataComponent[]} [components]
+ * @property {EntityJsonData[]} [children]
  *
  * @typedef {EntityJsonDataBase & EntityJsonDataInlineEntityTypes} EntityJsonDataInlineEntity
  */
@@ -37,12 +37,6 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  */
 
 /** @typedef {EntityJsonDataInlineEntity | EntityJsonDataAssetEntity} EntityJsonData */
-
-/**
- * @typedef {Object} EntityJsonDataComponent
- * @property {import("../mod.js").UuidString} uuid
- * @property {Object.<string, any>} propertyValues
- */
 
 /**
  * @typedef {Object} EntityToJsonOptions
@@ -667,34 +661,45 @@ export class Entity {
 
 		/** @type {EntityJsonDataInlineEntity} */
 		const json = {
-			name: this.name,
-			matrix: this.localMatrix.getFlatArray(),
-			components: [],
-			children: [],
 		};
-		for (const component of this.components) {
-			json.components.push(component.toJson(editorOpts));
+
+		if (this.name) json.name = this.name;
+
+		if (!this.localMatrix.isIdentity()) {
+			json.matrix = this.localMatrix.getFlatArray();
 		}
+
+		if (this.components.length > 0) {
+			json.components = [];
+			for (const component of this.components) {
+				json.components.push(component.toJson(editorOpts));
+			}
+		}
+
+		const children = [];
 		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && editorOpts && editorOpts.entityAssetRootUuidSymbol) {
 			const sym = editorOpts.entityAssetRootUuidSymbol;
 			for (const child of this.getChildren()) {
-				if (child[sym]) {
+				const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
+				if (castChild[sym]) {
 					/** @type {EntityJsonDataAssetEntity} */
 					const childJson = {
-						assetUuid: child[sym],
+						assetUuid: castChild[sym],
 					};
-					json.children.push(childJson);
+					children.push(childJson);
 				} else {
-					json.children.push(child.toJson(editorOpts));
+					children.push(child.toJson(editorOpts));
 				}
 			}
 		} else {
 			for (const child of this.getChildren()) {
-				json.children.push(child.toJson(editorOpts));
+				children.push(child.toJson(editorOpts));
 			}
 		}
-		if (json.components.length <= 0) delete json.components;
-		if (json.children.length <= 0) delete json.children;
+		if (children.length > 0) {
+			json.children = children;
+		}
+
 		return json;
 	}
 }

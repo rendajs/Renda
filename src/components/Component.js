@@ -38,6 +38,12 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  */
 
 /**
+ * @typedef {Object} EntityJsonDataComponent
+ * @property {import("../mod.js").UuidString} uuid
+ * @property {Object.<string, any>} propertyValues
+ */
+
+/**
  * @unrestricted (Allow adding custom properties to this class)
  */
 export class Component {
@@ -171,7 +177,9 @@ export class Component {
 				propertyValues[propertyName] = this.propertyToJson(castComponentB, propertyName, editorOpts);
 			}
 		}
+		/** @type {EntityJsonDataComponent} */
 		const componentJson = {
+			// @ts-expect-error TODO: make uuid not null, use an empty string by default
 			uuid: castConstructor.uuid,
 			propertyValues,
 		};
