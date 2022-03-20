@@ -430,17 +430,6 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../../../src/util/mod.js").UuidString} uuid
-	 * @param {import("./liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker?} recursionTracker
-	 */
-	async getLiveAssetData(uuid, recursionTracker = null) {
-		const projectAsset = await this.getProjectAsset(uuid);
-		if (!projectAsset) return null;
-
-		return await projectAsset.getLiveAssetData(recursionTracker);
-	}
-
-	/**
 	 * @param {object?} liveAsset
 	 */
 	getProjectAssetForLiveAsset(liveAsset) {

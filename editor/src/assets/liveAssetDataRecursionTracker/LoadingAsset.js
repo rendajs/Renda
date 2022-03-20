@@ -17,8 +17,13 @@ export class LoadingAsset {
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 */
 	async startLoading(recursionTracker, assetManager) {
-		const loadedAssetData = await assetManager.getLiveAssetData(this.uuid, recursionTracker);
-		this.setLoadedAssetData(loadedAssetData);
+		const projectAsset = await assetManager.getProjectAsset(this.uuid);
+		if (!projectAsset) {
+			this.setLoadedAssetData(null);
+			return;
+		}
+		const liveAssetData = await projectAsset.getLiveAssetData(recursionTracker);
+		this.setLoadedAssetData(liveAssetData);
 	}
 
 	/**
