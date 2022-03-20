@@ -14,6 +14,7 @@ export class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapTypeLoader {
 
 	/**
 	 * @override
+	 * @param {ArrayBuffer} buffer
 	 */
 	async parseBuffer(buffer) {
 		const settings = await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, {

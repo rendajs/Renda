@@ -1,10 +1,9 @@
 import {RendererDomTarget} from "../../RendererDomTarget.js";
 import {RenderOutputConfig} from "../../RenderOutputConfig.js";
-import {WebGpuRenderer} from "./WebGpuRenderer.js";
 
 export class WebGpuRendererDomTarget extends RendererDomTarget {
 	/**
-	 * @param {WebGpuRenderer} renderer
+	 * @param {import("./WebGpuRenderer.js").WebGpuRenderer} renderer
 	 * @param {Object} opts
 	 * @param {boolean} [opts.depthSupport]
 	 */
@@ -52,14 +51,18 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 	}
 
 	/**
-	 * @returns {WebGpuRenderer}
+	 * @returns {import("./WebGpuRenderer.js").WebGpuRenderer}
 	 */
 	get castRenderer() {
-		return /** @type {WebGpuRenderer} */ (this.renderer);
+		return /** @type {import("./WebGpuRenderer.js").WebGpuRenderer} */ (this.renderer);
 	}
 
 	gpuReady() {
-		this.swapChainFormat = this.ctx.getPreferredFormat(this.castRenderer.adapter);
+		if (!this.ctx) return;
+		const renderer = this.castRenderer;
+		if (renderer.adapter) {
+			this.swapChainFormat = this.ctx.getPreferredFormat(renderer.adapter);
+		}
 
 		this.ready = true;
 		this.generateTextures();
@@ -85,6 +88,9 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 		return this._outputConfig;
 	}
 
+	/**
+	 * @param {RenderOutputConfig} outputConfig
+	 */
 	setRenderOutputConfig(outputConfig) {
 		// todo: add support for cloning config and filling in fragmentTargets
 		// with preferred swapchain format
@@ -93,17 +99,20 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 	}
 
 	generateTextures() {
-		if (!this.ready) return;
+		if (!this.ready || !this.ctx) return;
+		const device = this.castRenderer.device;
+		if (!device) return;
+		if (!this.swapChainFormat) return;
 
 		this.ctx.configure({
-			device: this.castRenderer.device,
+			device,
 			format: this.swapChainFormat,
 		});
 
 		if (this.colorTexture) this.colorTexture.destroy();
 		this.colorTexture = null;
 		if (this.outputConfig.multisampleCount > 1 && this.width > 0 && this.height > 0) {
-			this.colorTexture = this.castRenderer.device.createTexture({
+			this.colorTexture = device.createTexture({
 				label: "WebGpuDomTarget colorTexture",
 				size: {
 					width: this.canvas.width,
@@ -118,8 +127,8 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 
 		if (this.depthTexture) this.depthTexture.destroy();
 		this.depthTexture = null;
-		if (this.depthSupport && this.width > 0 && this.height > 0) {
-			this.depthTexture = this.castRenderer.device.createTexture({
+		if (this.depthSupport && this.width > 0 && this.height > 0 && this.depthStencilAttachment) {
+			this.depthTexture = device.createTexture({
 				label: "WebGpuDomTarget depthTexture",
 				size: {
 					width: this.canvas.width,
@@ -137,12 +146,12 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 	 * @returns {GPURenderPassDescriptor?}
 	 */
 	getRenderPassDescriptor() {
-		if (!this.ready) return null;
+		if (!this.ready || !this.ctx) return null;
 		const swapChainTextureView = this.ctx.getCurrentTexture().createView();
 		if (this.outputConfig.multisampleCount == 1) {
 			this.colorAttachment.view = swapChainTextureView;
 			this.colorAttachment.resolveTarget = undefined;
-		} else {
+		} else if (this.colorTextureView) {
 			this.colorAttachment.view = this.colorTextureView;
 			this.colorAttachment.resolveTarget = swapChainTextureView;
 		}
