@@ -53,6 +53,6 @@ export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	 */
 	async getLiveAssetData(fileData) {
 		const liveAsset = new RenderOutputConfig(fileData);
-		return {liveAsset};
+		return {liveAsset, editorData: null};
 	}
 }

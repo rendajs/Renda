@@ -113,6 +113,6 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 			depthWriteEnabled: fileData.depthWriteEnabled,
 			renderOrder: fileData.renderOrder,
 		});
-		return {liveAsset};
+		return {liveAsset, editorData: null};
 	}
 }

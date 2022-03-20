@@ -34,7 +34,10 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		}
 
 		const material = new Material(materialMap, materialJson?.properties);
-		return {liveAsset: material};
+		return {
+			liveAsset: material,
+			editorData: null,
+		};
 	}
 
 	/**

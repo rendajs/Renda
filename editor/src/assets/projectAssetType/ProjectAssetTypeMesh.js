@@ -9,7 +9,7 @@ import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
  */
 
 /**
- * @extends {ProjectAssetType<Mesh, ProjectAssetTypeMeshEditorData, "binary">}
+ * @extends {ProjectAssetType<Mesh?, ProjectAssetTypeMeshEditorData?, "binary">}
  */
 export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "JJ:mesh";
@@ -113,20 +113,20 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	 * @override
 	 * @param {Blob} blob
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh, ProjectAssetTypeMeshEditorData>>}
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh?, ProjectAssetTypeMeshEditorData?>>}
 	 */
 	async getLiveAssetData(blob, recursionTracker) {
 		// todo: remove all of this and reuse the code in AssetLoaderTypeMesh
 		const arrayBuffer = await blob.arrayBuffer();
 		const decomposer = new BinaryDecomposer(arrayBuffer);
-		if (decomposer.getUint32() != this.magicHeader) return {};
+		if (decomposer.getUint32() != this.magicHeader) return {liveAsset: null, editorData: null};
 		if (decomposer.getUint16() != 1) {
 			throw new Error("mesh version is too new");
 		}
 		const mesh = new Mesh();
 
 		const vertexStateUuid = decomposer.getUuid();
-		if (!vertexStateUuid) return {};
+		if (!vertexStateUuid) return {liveAsset: null, editorData: null};
 		const layoutProjectAsset = await this.assetManager.getProjectAsset(vertexStateUuid, {
 			assertAssetType: ProjectAssetTypeVertexState,
 		});

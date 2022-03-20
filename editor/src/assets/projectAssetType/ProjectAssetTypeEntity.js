@@ -37,7 +37,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		/** @type {EntityWithAssetRootUuid} */
 		const liveAsset = await this.createEntityFromJsonData(json, recursionTracker);
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
-		return {liveAsset};
+		return {liveAsset, editorData: null};
 	}
 
 	/**

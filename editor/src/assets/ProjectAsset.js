@@ -334,15 +334,10 @@ export class ProjectAsset {
 	 */
 	async getLiveAssetData(recursionTracker = null) {
 		if (this.liveAsset || this.editorData) {
-			/** @type {LiveAssetData} */
-			const liveAssetData = {};
-			if (this.liveAsset) {
-				liveAssetData.liveAsset = this.liveAsset;
-			}
-			if (this.editorData) {
-				liveAssetData.editorData = this.editorData;
-			}
-			return liveAssetData;
+			return /** @type {LiveAssetData} */ ({
+				liveAsset: this.liveAsset,
+				editorData: this.editorData,
+			});
 		}
 
 		if (this.isGettingLiveAssetData) {
@@ -376,7 +371,11 @@ export class ProjectAsset {
 
 		if (readFailed) {
 			console.warn("error getting live asset for " + this.path.join("/"));
-			this.fireOnLiveAssetDataChangeCbs({});
+			this.fireOnLiveAssetDataChangeCbs(/** @type {LiveAssetData} */ ({
+				liveAsset: null,
+				editorData: null,
+			}));
+			// @ts-expect-error TODO, throw an error instead of logging a warning
 			return {};
 		}
 
@@ -541,6 +540,7 @@ export class ProjectAsset {
 	}
 
 	destroyLiveAssetData() {
+		// @ts-expect-error TODO: make all existing `getLiveAssetData` promises reject
 		this.fireOnLiveAssetDataChangeCbs({});
 		if (this.isGettingLiveAssetData) {
 			this.currentGettingLiveAssetSymbol = null;

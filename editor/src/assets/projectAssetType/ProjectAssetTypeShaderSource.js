@@ -39,7 +39,7 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 			this.editorInstance.webGpuShaderBuilder.onShaderInvalidated(this.boundOnShaderInvalidated);
 		}
 		const liveAsset = new ShaderSource(shaderCode);
-		return {liveAsset};
+		return {liveAsset, editorData: null};
 	}
 
 	/**

@@ -91,6 +91,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		});
 		return {
 			liveAsset: materialMap,
+			editorData: null,
 		};
 	}
 

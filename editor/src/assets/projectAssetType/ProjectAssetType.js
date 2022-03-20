@@ -17,8 +17,8 @@
  * @template TLiveAsset
  * @template TEditorData
  * @typedef {Object} LiveAssetData
- * @property {TLiveAsset} [liveAsset]
- * @property {TEditorData} [editorData]
+ * @property {TLiveAsset} liveAsset
+ * @property {TEditorData} editorData
  */
 
 /**
@@ -159,7 +159,10 @@ export class ProjectAssetType {
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
 	async createNewLiveAssetData() {
-		return {};
+		return {
+			liveAsset: /** @type {TLiveAsset} */ (null),
+			editorData: /** @type {TEditorData} */ (null),
+		};
 	}
 
 	/**
@@ -191,7 +194,10 @@ export class ProjectAssetType {
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		return {};
+		return {
+			liveAsset: /** @type {TLiveAsset} */ (null),
+			editorData: /** @type {TEditorData} */ (null),
+		};
 	}
 
 	/**
