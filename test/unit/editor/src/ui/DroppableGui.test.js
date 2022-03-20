@@ -8,8 +8,6 @@ import {assertContextMenuStructureEquals, triggerContextMenuItem} from "../../sh
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
 
-const mockLiveAsset = {};
-
 /**
  * @param {Object} options
  * @param {object?} options.mockLiveAsset
@@ -35,8 +33,6 @@ function createMockProjectAsset({
 	return mockProjectAsset;
 }
 
-const mockProjectAsset = createMockProjectAsset({mockLiveAsset});
-
 /**
  * @param {Object} options
  * @param {"basic" | "defaultAssetLink" | "none"} [options.valueType]
@@ -50,6 +46,10 @@ function createBasicGui({
 	guiOpts = {},
 	liveAssetProjectAssetTypeCombinations = [],
 } = {}) {
+	const mockLiveAsset = {};
+
+	const mockProjectAsset = createMockProjectAsset({mockLiveAsset});
+
 	const mockDefaultAssetLink = /** @type {import("../../../../../editor/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
 
 	const mockProjectManager = /** @type {import("../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
@@ -117,6 +117,8 @@ function createBasicGui({
 	return {
 		gui,
 		mockDefaultAssetLink,
+		mockLiveAsset,
+		mockProjectAsset,
 	};
 }
 
@@ -175,7 +177,7 @@ Deno.test({
 	name: "setValue() with an uuid",
 	fn() {
 		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, mockProjectAsset} = createBasicGui();
 
 		gui.setValue(BASIC_ASSET_UUID);
 
@@ -191,7 +193,7 @@ Deno.test({
 	name: "setValue() with an assetlink uuid",
 	fn() {
 		installFakeDocument();
-		const {gui, mockDefaultAssetLink} = createBasicGui();
+		const {gui, mockProjectAsset, mockDefaultAssetLink} = createBasicGui();
 
 		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
 
@@ -207,7 +209,7 @@ Deno.test({
 	name: "setValue() using a ProjectAsset",
 	fn() {
 		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, mockProjectAsset} = createBasicGui();
 
 		gui.setValue(mockProjectAsset);
 
@@ -223,7 +225,7 @@ Deno.test({
 	name: "setValue() using a live asset",
 	fn() {
 		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, mockLiveAsset, mockProjectAsset} = createBasicGui();
 
 		gui.setValue(mockLiveAsset);
 
@@ -295,7 +297,7 @@ Deno.test({
 	name: "getValue() with returnLiveAsset = true",
 	fn() {
 		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, mockLiveAsset} = createBasicGui();
 
 		const result = gui.getValue({returnLiveAsset: true});
 
@@ -351,7 +353,7 @@ Deno.test({
 	name: "getValue() with purpose 'script'",
 	fn() {
 		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, mockLiveAsset} = createBasicGui();
 
 		const result = gui.getValue({purpose: "script"});
 
