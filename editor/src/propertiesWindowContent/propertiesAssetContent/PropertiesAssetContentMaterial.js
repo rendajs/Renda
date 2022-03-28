@@ -62,7 +62,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		this.isUpdatingUi = true;
 
 		const material = await this.getFirstSelectedLiveAsset();
-		this.mapTreeView.gui.setValue(material.materialMap);
+		this.mapTreeView.setValue(material.materialMap);
 		await this.loadMapValues();
 
 		this.isUpdatingUi = false;
@@ -83,7 +83,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	 */
 	async selectionUpdated(selectedMaterials) {
 		super.selectionUpdated(selectedMaterials);
-		this.loadAsset();
+		await this.loadAsset();
 	}
 
 	async loadMapValues() {
