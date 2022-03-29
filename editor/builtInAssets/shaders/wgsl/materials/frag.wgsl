@@ -6,11 +6,11 @@
 
 //todo: import this from clusterBoundsStruct.wgsl
 struct ClusterLightIndices {
-	lightCount : u32;
-	indices: array<u32, ${maxLightsPerClusterPass}>;
+	lightCount : u32,
+	indices: array<u32, ${maxLightsPerClusterPass}>,
 };
 struct ClusterLightIndicesArray {
-	clusters: array<ClusterLightIndices, ${totalClusterCount}>;
+	clusters: array<ClusterLightIndices, ${totalClusterCount}>,
 };
 @group(0) @binding(2)
 var<storage,read_write> clusterLightIndices : ClusterLightIndicesArray;
@@ -41,20 +41,20 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 
 
 struct MaterialUniforms {
-	test : vec4<f32>;
+	test : vec4<f32>,
 };
 @group(1) @binding(0)
 var<uniform> materialUniforms : MaterialUniforms;
 
 
 struct FragmentInput {
-	@location(0) vWorldPos : vec3<f32>;
-	@location(1) normal : vec3<f32>;
-	@builtin(position) fragCoord : vec4<f32>;
+	@location(0) vWorldPos : vec3<f32>,
+	@location(1) normal : vec3<f32>,
+	@builtin(position) fragCoord : vec4<f32>,
 };
 
 struct FragmentOutput {
-	@location(0) outColor : vec4<f32>;
+	@location(0) outColor : vec4<f32>,
 };
 
 @stage(fragment)

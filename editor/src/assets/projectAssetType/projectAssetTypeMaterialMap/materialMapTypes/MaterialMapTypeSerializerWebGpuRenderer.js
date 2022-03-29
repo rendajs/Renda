@@ -61,7 +61,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 		// Capture the type
 		membersRegex += "(?<type>.+?)";
 		// [whitespace] ;
-		membersRegex += "\\s*;";
+		membersRegex += "\\s*,";
 		const vectorTypeRegex = /vec(?<vectorSize>[234])<(?<vectorType>\S+)>/;
 		const matrixTypeRegex = /mat(?<rows>[234])x(?<columns>[234])<(?<matrixType>\S+)>/;
 		for (const match of uniformsBlock.matchAll(new RegExp(membersRegex, "g"))) {

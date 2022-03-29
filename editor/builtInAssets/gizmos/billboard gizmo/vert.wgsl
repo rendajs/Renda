@@ -4,13 +4,13 @@
 // @import 08a38e5b-b2b9-44be-9194-f404f815445f
 
 struct VertexInput {
-	@location(0) position : vec3<f32>;
-	@location(1) color : vec3<f32>;
+	@location(0) position : vec3<f32>,
+	@location(1) color : vec3<f32>,
 };
 
 struct VertexOutput {
-	@builtin(position) position : vec4<f32>;
-	@location(0) color : vec3<f32>;
+	@builtin(position) position : vec4<f32>,
+	@location(0) color : vec3<f32>,
 };
 
 @stage(vertex)
