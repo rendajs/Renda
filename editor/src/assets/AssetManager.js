@@ -507,12 +507,14 @@ export class AssetManager {
 	 * asset is returned, which can also be stored in the parent project asset.
 	 *
 	 * @param {object?} liveAsset
+	 * @returns {import("../../../src/mod.js").UuidString | object | null}
 	 */
 	getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset) {
 		const projectAsset = this.getProjectAssetForLiveAsset(liveAsset);
 		if (!projectAsset) return null;
 		if (projectAsset.isEmbedded) {
-			return projectAsset.readEmbeddedAssetData();
+			const data = projectAsset.readEmbeddedAssetData();
+			return /** @type {object} */ (data);
 		} else {
 			return projectAsset.uuid;
 		}

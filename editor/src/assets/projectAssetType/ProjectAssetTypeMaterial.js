@@ -3,7 +3,6 @@ import {Material} from "../../../../src/rendering/Material.js";
 import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
-import {ProjectAssetTypeMaterialMap} from "./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
 
 /**
  * @extends {ProjectAssetType<Material, null, import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
@@ -24,9 +23,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
 		if (materialJson?.map) {
-			const materialMapAsset = await this.assetManager.getProjectAsset(materialJson.map, {
-				assertAssetType: ProjectAssetTypeMaterialMap,
-			});
+			const materialMapAsset = await this.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(materialJson.map, "JJ:materialMap");
 			if (materialMapAsset) {
 				materialMap = await materialMapAsset.getLiveAsset();
 				this.listenForUsedLiveAssetChanges(materialMapAsset);
@@ -48,12 +45,12 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async saveLiveAssetData(liveAsset, editorData) {
 		/** @type {import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
-		let mapUuid = null;
+		let mapOrUuid = null;
 		if (liveAsset) {
-			mapUuid = this.assetManager.getAssetUuidFromLiveAsset(liveAsset.materialMap);
+			mapOrUuid = this.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset.materialMap);
 		}
-		if (mapUuid) {
-			assetData.map = mapUuid;
+		if (mapOrUuid) {
+			assetData.map = mapOrUuid;
 		}
 		if (liveAsset) {
 			/** @type {Object.<string, unknown>} */
@@ -103,6 +100,6 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async *getReferencedAssetUuids() {
 		const assetData = await this.projectAsset.readAssetData();
 		const mapUuid = assetData.map;
-		if (mapUuid) yield mapUuid;
+		if (typeof mapUuid == "string") yield mapUuid;
 	}
 }

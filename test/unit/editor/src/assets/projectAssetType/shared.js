@@ -1,9 +1,11 @@
 /**
  * @param {Object} [options]
- * @param {(liveAsset: Object | null) => import("../../../../../../src/mod.js").UuidString | null} [options.getAssetUuidFromLiveAssetImpl]
+ * @param {(liveAsset: object | null) => import("../../../../../../src/mod.js").UuidString | null} [options.getAssetUuidFromLiveAssetImpl]
+ * @param {(liveAsset: object | null) => import("../../../../../../src/mod.js").UuidString | object | null} [options.getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl]
  */
 export function createMockDependencies({
 	getAssetUuidFromLiveAssetImpl = () => null,
+	getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl = () => null,
 } = {}) {
 	const editor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({});
 
@@ -12,6 +14,9 @@ export function createMockDependencies({
 	const assetManager = /** @type {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({
 		getAssetUuidFromLiveAsset(liveAsset) {
 			return getAssetUuidFromLiveAssetImpl(liveAsset);
+		},
+		getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset) {
+			return getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl(liveAsset);
 		},
 	});
 

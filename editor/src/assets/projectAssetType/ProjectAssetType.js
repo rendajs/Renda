@@ -296,6 +296,8 @@ export class ProjectAssetType {
 	/**
 	 * This should yield all asset uuids that are referenced by this asset, this will be
 	 * used for determining what other assets should be included in a bundle recursively.
+	 * Embedded assets don't need to be included here since they don't have an uuid. They'll
+	 * be included in the assetbundle automatically.
 	 * If `usedAssetLoaderType` has been set to an instance of `AssetLoaderTypeGenericStructure`,
 	 * the references from its structure values, will automatically be collected as well.
 	 * @returns {AsyncGenerator<string>}
