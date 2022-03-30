@@ -61,8 +61,3 @@ export async function createBasicFs() {
 
 	return fs;
 }
-
-export async function finishCoverageMapWrites() {
-	const importer = getImporter();
-	await importer.finishCoverageMapWrites();
-}

@@ -14,7 +14,6 @@ importer.fakeModule("../../../../../editor/src/componentGizmos/autoRegisterCompo
 `);
 const {ComponentGizmosManager: ComponentGizmosManager2} = await importer.import("../../../../../editor/src/componentGizmos/ComponentGizmosManager.js");
 const {ComponentGizmos} = await importer.import("../../../../../editor/src/componentGizmos/gizmos/ComponentGizmos.js");
-await importer.finishCoverageMapWrites();
 
 async function basicSetup() {
 	const componentGizmosManager = new ComponentGizmosManager2();

@@ -19,7 +19,6 @@ importer.fakeModule("../../../../../../src/rendering/MaterialMap.js", `
 	export class MaterialMap {}
 `);
 const {PropertiesAssetContentMaterial} = await importer.import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js");
-await importer.finishCoverageMapWrites();
 
 function basicSetup() {
 	const {keyboardShortcutManager} = createMockKeyboardShortcutManager();

@@ -1,4 +1,4 @@
-import {createBasicFs, createFs, finishCoverageMapWrites} from "./shared.js";
+import {createBasicFs, createFs} from "./shared.js";
 import {assert, assertEquals} from "asserts";
 
 Deno.test({
@@ -17,8 +17,6 @@ Deno.test({
 		assertEquals(didThrow, true);
 
 		await fs.waitForRootCreate();
-
-		await finishCoverageMapWrites();
 	},
 });
 
@@ -28,8 +26,6 @@ Deno.test({
 		const fs = await createFs();
 		await fs.waitForRootCreate();
 		await fs.waitForRootCreate();
-
-		await finishCoverageMapWrites();
 	},
 });
 
@@ -42,8 +38,6 @@ Deno.test({
 		const result = await fs.getRootName();
 
 		assertEquals(result, "theRootName");
-
-		await finishCoverageMapWrites();
 	},
 });
 

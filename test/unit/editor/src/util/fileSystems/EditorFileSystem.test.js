@@ -82,8 +82,6 @@ Deno.test({
 				text: '{"hello":"world"}',
 			},
 		]);
-
-		await importer.finishCoverageMapWrites();
 	},
 });
 
