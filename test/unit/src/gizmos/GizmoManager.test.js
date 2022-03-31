@@ -1,9 +1,9 @@
 import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "asserts";
 import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
 import {screenSpaceToDomSpace} from "../../../../src/util/cameraUtil.js";
-import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
-import {PointerEvent} from "../../shared/fakeDom/FakePointerEvent.js";
-import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "../../shared/fakeDom/mockGetComputedStyle.js";
+import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
+import {PointerEvent} from "fake-dom/FakePointerEvent.js";
+import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "fake-dom/mockGetComputedStyle.js";
 import {Gizmo, getFakeEngineAssetsManager, initBasicSetup} from "./shared.js";
 
 class ExtendedGizmo extends Gizmo {

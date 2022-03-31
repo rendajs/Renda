@@ -1,7 +1,7 @@
 import {assertEquals, assertStrictEquals, assertThrows} from "asserts";
 import {ListeningGizmoPointerElement} from "../../../../src/gizmos/ListeningGizmoPointerElement.js";
-import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
-import {PointerEvent} from "../../shared/fakeDom/FakePointerEvent.js";
+import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
+import {PointerEvent} from "fake-dom/FakePointerEvent.js";
 
 function createMockGizmoManager() {
 	/** @type {{mockDevice: unknown}[]} */

@@ -1,9 +1,9 @@
 import {assertEquals, assertExists} from "asserts";
 import {GizmoPointerDevice} from "../../../../src/gizmos/GizmoPointerDevice.js";
 import {Vec3} from "../../../../src/mod.js";
-import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
-import {PointerEvent} from "../../shared/fakeDom/FakePointerEvent.js";
-import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "../../shared/fakeDom/mockGetComputedStyle.js";
+import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
+import {PointerEvent} from "fake-dom/FakePointerEvent.js";
+import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "fake-dom/mockGetComputedStyle.js";
 
 class MockDraggable {
 	constructor() {

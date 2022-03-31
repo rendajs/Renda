@@ -1,8 +1,8 @@
 import {assertEquals, assertExists, assertStrictEquals} from "asserts";
 import {ProjectAsset} from "../../../../../editor/src/assets/ProjectAsset.js";
 import {DroppableGui} from "../../../../../editor/src/ui/DroppableGui.js";
-import {installFakeDocument, uninstallFakeDocument} from "../../../shared/fakeDom/FakeDocument.js";
-import {FakeMouseEvent} from "../../../shared/fakeDom/FakeMouseEvent.js";
+import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
+import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {assertContextMenuStructureEquals, triggerContextMenuItem} from "../../shared/contextMenuHelpers.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";

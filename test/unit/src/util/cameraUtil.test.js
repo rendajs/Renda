@@ -1,7 +1,7 @@
 import {Mat4, Quat, Vec2, Vec3} from "../../../../src/mod.js";
 import {domSpaceToScreenSpace, getRaycastRayFromScreenPos, screenSpaceToDomSpace, screenToWorldPos, worldToScreenPos} from "../../../../src/util/cameraUtil.js";
 import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
-import {HtmlElement} from "../../shared/fakeDom/FakeHtmlElement.js";
+import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
 
 Deno.test({
 	name: "worldToScreenPos, with world matrix",
