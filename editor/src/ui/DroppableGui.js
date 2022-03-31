@@ -202,7 +202,7 @@ export class DroppableGui {
 				projectAsset = assetManager.getProjectAssetForLiveAsset(value);
 			}
 		}
-		this.setValueFromProjectAsset(projectAsset, false);
+		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false});
 	}
 
 	/**
@@ -249,15 +249,28 @@ export class DroppableGui {
 	}
 
 	/**
+	 * @private
 	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny?} projectAsset
-	 * @param {boolean} clearDefaultAssetLink
+	 * @param {Object} [options]
+	 * @param {boolean} [options.clearDefaultAssetLink]
+	 * @param {boolean} [options.preloadLiveAsset] If true, preloads the live asset and waits with firing value change events
+	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets
+	 * when they fire. If they use `getValue({returnLiveAsset: true})`, it is possible for the returned value to be
+	 * `null`. Setting this flag to true makes sure the callbacks are fired after the live asset is loaded.
 	 */
-	setValueFromProjectAsset(projectAsset, clearDefaultAssetLink = true) {
+	async setValueFromProjectAsset(projectAsset, {
+		clearDefaultAssetLink = true,
+		preloadLiveAsset = false,
+	} = {}) {
 		if (clearDefaultAssetLink) {
 			this.defaultAssetLinkUuid = null;
 			this.defaultAssetLink = null;
 		}
 		this.projectAssetValue = projectAsset;
+
+		if (preloadLiveAsset) {
+			await projectAsset?.getLiveAsset();
+		}
 
 		this.fireValueChange();
 		this.updateContent();
@@ -286,12 +299,8 @@ export class DroppableGui {
 			const assetManager = this.projectManager.assertAssetManagerExists();
 			const projectAsset = await assetManager.getProjectAsset(uuid);
 			await assetManager.makeAssetUuidConsistent(projectAsset);
-			if (preloadLiveAsset) {
-				// get the live asset so that it is loaded before this.value is accessed from the onValueChange callbacks
-				await projectAsset?.getLiveAsset();
-			}
 			this.setDefaultAssetLinkUuid(uuid);
-			this.setValueFromProjectAsset(projectAsset, false);
+			this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
 		}
 	}
 
@@ -314,12 +323,15 @@ export class DroppableGui {
 	}
 
 	/**
+	 * @private
 	 * @param {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} projectAssetType
 	 */
 	createEmbeddedAsset(projectAssetType) {
 		const assetManager = this.projectManager.assertAssetManagerExists();
 		const projectAsset = assetManager.createEmbeddedAsset(projectAssetType);
-		this.setValueFromProjectAsset(projectAsset);
+		this.setValueFromProjectAsset(projectAsset, {
+			preloadLiveAsset: true,
+		});
 	}
 
 	/**

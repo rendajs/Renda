@@ -12,10 +12,13 @@ const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
  * @param {Object} options
  * @param {object?} options.mockLiveAsset
  * @param {boolean} [options.isEmbedded]
+ * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetImmediate() to behave
+ * like the real ProjectAsset.
  */
 function createMockProjectAsset({
 	mockLiveAsset,
 	isEmbedded = false,
+	needsLiveAssetPreload = true,
 }) {
 	// We use Object.create so that the `instanceof ProjectAsset` check in the DroppableGui still works.
 	const mockProjectAsset = /** @type {import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ (
@@ -28,7 +31,15 @@ function createMockProjectAsset({
 		value: "assetName.json",
 		writable: false,
 	});
+	let asyncGetLiveAssetCalled = false;
 	mockProjectAsset.getLiveAssetImmediate = () => {
+		// The real ProjectAsset doesn't return a live asset immediately, only after
+		// a call has been made to getLiveAssetData.
+		if (!asyncGetLiveAssetCalled && needsLiveAssetPreload) return null;
+		return mockLiveAsset;
+	};
+	mockProjectAsset.getLiveAsset = async () => {
+		asyncGetLiveAssetCalled = true;
 		return mockLiveAsset;
 	};
 	mockProjectAsset.readEmbeddedAssetData = () => {
@@ -46,16 +57,18 @@ function createMockProjectAsset({
  * @param {Partial<import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies>} [options.extraMocks]
  * @param {Partial<import("../../../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<any>>} [options.guiOpts]
  * @param {Iterable<[(new (...args: any) => any), Iterable<typeof import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>]>} [options.liveAssetProjectAssetTypeCombinations] The list of Project assets that should be returned for a call to ProjectAssetTypeManager.getAssetTypesForLiveAssetConstructor().
+ * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetImmediate() to behave like the real ProjectAsset.
  */
 function createBasicGui({
 	valueType = "basic",
 	extraMocks = {},
 	guiOpts = {},
 	liveAssetProjectAssetTypeCombinations = [],
+	needsLiveAssetPreload = true,
 } = {}) {
 	const mockLiveAsset = {};
 
-	const mockProjectAsset = createMockProjectAsset({mockLiveAsset});
+	const mockProjectAsset = createMockProjectAsset({mockLiveAsset, needsLiveAssetPreload});
 
 	const mockDefaultAssetLink = /** @type {import("../../../../../editor/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
 
@@ -84,8 +97,9 @@ function createBasicGui({
 				},
 				createEmbeddedAsset(assetType) {
 					return createMockProjectAsset({
-						mockLiveAsset: {},
+						mockLiveAsset,
 						isEmbedded: true,
+						needsLiveAssetPreload,
 					});
 				},
 			};
@@ -122,8 +136,9 @@ function createBasicGui({
 		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
 	} else if (valueType == "embedded") {
 		const projectAsset = createMockProjectAsset({
-			mockLiveAsset: {},
+			mockLiveAsset,
 			isEmbedded: true,
+			needsLiveAssetPreload,
 		});
 		gui.setValue(projectAsset);
 	}
@@ -310,7 +325,9 @@ Deno.test({
 	name: "getValue() with returnLiveAsset = true",
 	fn() {
 		installFakeDocument();
-		const {gui, mockLiveAsset} = createBasicGui();
+		const {gui, mockLiveAsset} = createBasicGui({
+			needsLiveAssetPreload: false,
+		});
 
 		const result = gui.getValue({returnLiveAsset: true});
 
@@ -366,7 +383,9 @@ Deno.test({
 	name: "getValue() with purpose 'script'",
 	fn() {
 		installFakeDocument();
-		const {gui, mockLiveAsset} = createBasicGui();
+		const {gui, mockLiveAsset} = createBasicGui({
+			needsLiveAssetPreload: false,
+		});
 
 		const result = gui.getValue({purpose: "script"});
 
@@ -415,7 +434,7 @@ function basicSetupForContextMenus({
 			};
 		},
 	});
-	const {gui} = createBasicGui({
+	const {gui, mockLiveAsset} = createBasicGui({
 		...basicGuiOptions,
 		extraMocks: {
 			contextMenuManager: mockContextMenuManager,
@@ -433,6 +452,7 @@ function basicSetupForContextMenus({
 		gui,
 		createContextMenuCalls,
 		dispatchContextMenuEvent: dispatchContextMenuEventFn,
+		mockLiveAsset,
 		uninstall() {
 			uninstallFakeDocument();
 		},
@@ -623,6 +643,39 @@ Deno.test({
 		assertEquals(gui.defaultAssetLink, null);
 		assertEquals(gui.defaultAssetLinkUuid, null);
 		assertEquals(gui.visibleAssetName, "Embedded asset");
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "creating embedded assets waits with firing the onChange event until the live asset is loaded",
+	async fn() {
+		const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
+		const {gui, uninstall, createContextMenuCalls, mockLiveAsset} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					supportedAssetTypes: [MockLiveAsset],
+				},
+				liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
+			},
+		});
+
+		const onValueChangePromise = new Promise(resolve => {
+			gui.onValueChange(() => {
+				const value = gui.getValue({returnLiveAsset: true});
+				resolve(value);
+			});
+		});
+
+		assertExists(createContextMenuCalls[0]);
+		await triggerContextMenuItem(createContextMenuCalls[0], ["Create embedded asset"]);
+
+		const promiseResult = await onValueChangePromise;
+
+		assertExists(promiseResult);
+		assertStrictEquals(promiseResult, mockLiveAsset);
 
 		uninstall();
 	},
