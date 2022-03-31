@@ -8,6 +8,18 @@ import {assertContextMenuStructureEquals, triggerContextMenuItem} from "../../sh
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
 
+/** @type {unknown[]} */
+const mockProjectAssetInstances = [];
+
+Object.defineProperty(ProjectAsset, Symbol.hasInstance, {
+	/**
+	 * @param {unknown} instance
+	 */
+	value: instance => {
+		return mockProjectAssetInstances.includes(instance);
+	},
+});
+
 /**
  * @param {Object} options
  * @param {object?} options.mockLiveAsset
@@ -20,34 +32,35 @@ function createMockProjectAsset({
 	isEmbedded = false,
 	needsLiveAssetPreload = true,
 }) {
-	// We use Object.create so that the `instanceof ProjectAsset` check in the DroppableGui still works.
-	const mockProjectAsset = /** @type {import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ (
-		Object.create(ProjectAsset.prototype)
-	);
-	mockProjectAsset.isEmbedded = isEmbedded;
-	mockProjectAsset.getIsDeleted = async () => false;
-	mockProjectAsset.uuid = BASIC_ASSET_UUID;
-	Object.defineProperty(mockProjectAsset, "fileName", {
-		value: "assetName.json",
-		writable: false,
-	});
 	let asyncGetLiveAssetCalled = false;
-	mockProjectAsset.getLiveAssetImmediate = () => {
-		// The real ProjectAsset doesn't return a live asset immediately, only after
-		// a call has been made to getLiveAssetData.
-		if (!asyncGetLiveAssetCalled && needsLiveAssetPreload) return null;
-		return mockLiveAsset;
-	};
-	mockProjectAsset.getLiveAsset = async () => {
-		asyncGetLiveAssetCalled = true;
-		return mockLiveAsset;
-	};
-	mockProjectAsset.readEmbeddedAssetData = () => {
-		return {
-			num: 42,
-			str: "foo",
-		};
-	};
+	const mockProjectAsset = /** @type {import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ ({
+		isEmbedded,
+		async getIsDeleted() {
+			return false;
+		},
+		uuid: BASIC_ASSET_UUID,
+		fileName: "assetName.json",
+		getLiveAssetImmediate() {
+			// The real ProjectAsset doesn't return a live asset immediately, only after
+			// a call has been made to getLiveAssetData.
+			if (!asyncGetLiveAssetCalled && needsLiveAssetPreload) return null;
+			return mockLiveAsset;
+		},
+		async getLiveAsset() {
+			asyncGetLiveAssetCalled = true;
+			return mockLiveAsset;
+		},
+		readEmbeddedAssetData() {
+			return {
+				num: 42,
+				str: "foo",
+			};
+		},
+	});
+
+	// Add the instance to the mock instances list so that the `instanceof ProjectAsset` check in the DroppableGui still works.
+	mockProjectAssetInstances.push(mockProjectAsset);
+
 	return mockProjectAsset;
 }
 
