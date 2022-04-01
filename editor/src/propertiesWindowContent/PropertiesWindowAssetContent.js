@@ -49,7 +49,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 	 * @override
 	 * @param {ProjectAsset<any>[]} selectedObjects
 	 */
-	selectionChanged(selectedObjects) {
+	activeObjectsChanged(selectedObjects) {
 		this.currentSelection = selectedObjects;
 		this.updateAssetSettings();
 		this.updateAssetContent();

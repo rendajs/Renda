@@ -27,5 +27,5 @@ export class PropertiesWindowContent {
 	/**
 	 * @param {any[]} selectedObjects
 	 */
-	selectionChanged(selectedObjects) {}
+	activeObjectsChanged(selectedObjects) {}
 }

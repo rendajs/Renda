@@ -13,7 +13,7 @@ class PropertiesWindowContentExtended1 extends PropertiesWindowContent {
 	constructor(...args) {
 		super(...args);
 		/** @type {unknown[][]}  */
-		this.selectionChangedCalls = [];
+		this.activeObjectsChangedCalls = [];
 		this.destructed = false;
 	}
 
@@ -25,8 +25,8 @@ class PropertiesWindowContentExtended1 extends PropertiesWindowContent {
 	/**
 	 * @param {unknown[]} selectedObjects
 	 */
-	selectionChanged(selectedObjects) {
-		this.selectionChangedCalls.push([...selectedObjects]);
+	activeObjectsChanged(selectedObjects) {
+		this.activeObjectsChangedCalls.push([...selectedObjects]);
 	}
 }
 
@@ -37,7 +37,7 @@ class PropertiesWindowContentExtended2 extends PropertiesWindowContent {
 	constructor(...args) {
 		super(...args);
 		/** @type {unknown[][]}  */
-		this.selectionChangedCalls = [];
+		this.activeObjectsChangedCalls = [];
 		this.destructed = false;
 	}
 
@@ -49,8 +49,8 @@ class PropertiesWindowContentExtended2 extends PropertiesWindowContent {
 	/**
 	 * @param {unknown[]} selectedObjects
 	 */
-	selectionChanged(selectedObjects) {
-		this.selectionChangedCalls.push([...selectedObjects]);
+	activeObjectsChanged(selectedObjects) {
+		this.activeObjectsChangedCalls.push([...selectedObjects]);
 	}
 }
 
@@ -150,8 +150,27 @@ Deno.test({
 
 		assertExists(contentWindow.activeContent);
 		assertInstanceOf(contentWindow.activeContent, PropertiesWindowContentExtended1);
-		assertEquals(contentWindow.activeContent.selectionChangedCalls, [[selectedObject1]]);
-		assertStrictEquals(contentWindow.activeContent.selectionChangedCalls[0][0], selectedObject1);
+		assertEquals(contentWindow.activeContent.activeObjectsChangedCalls, [[selectedObject1]]);
+		assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[0][0], selectedObject1);
+
+		assertEquals(contentWindow.contentEl.children.length, 1);
+		assertStrictEquals(contentWindow.contentEl.children[0], contentWindow.activeContent.el);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "change active objects via setActiveObjects()",
+	fn() {
+		const {contentWindow, selectedObject1, uninstall} = basicSetup();
+
+		contentWindow.setActiveObjects([selectedObject1]);
+
+		assertExists(contentWindow.activeContent);
+		assertInstanceOf(contentWindow.activeContent, PropertiesWindowContentExtended1);
+		assertEquals(contentWindow.activeContent.activeObjectsChangedCalls, [[selectedObject1]]);
+		assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[0][0], selectedObject1);
 
 		assertEquals(contentWindow.contentEl.children.length, 1);
 		assertStrictEquals(contentWindow.contentEl.children[0], contentWindow.activeContent.el);
@@ -174,9 +193,9 @@ Deno.test({
 		assertExists(contentWindow.activeContent);
 		assertStrictEquals(firstActiveContent, contentWindow.activeContent);
 		assertInstanceOf(contentWindow.activeContent, PropertiesWindowContentExtended2);
-		assertEquals(contentWindow.activeContent.selectionChangedCalls, [[selectedObject2], [selectedObject3]]);
-		assertStrictEquals(contentWindow.activeContent.selectionChangedCalls[0][0], selectedObject2);
-		assertStrictEquals(contentWindow.activeContent.selectionChangedCalls[1][0], selectedObject3);
+		assertEquals(contentWindow.activeContent.activeObjectsChangedCalls, [[selectedObject2], [selectedObject3]]);
+		assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[0][0], selectedObject2);
+		assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[1][0], selectedObject3);
 
 		assertEquals(contentWindow.contentEl.children.length, 1);
 		assertStrictEquals(contentWindow.contentEl.children[0], contentWindow.activeContent.el);
@@ -199,8 +218,8 @@ Deno.test({
 		assertExists(contentWindow.activeContent);
 		assertNotStrictEquals(firstActiveContent, contentWindow.activeContent);
 		assertInstanceOf(contentWindow.activeContent, PropertiesWindowContentExtended2);
-		assertEquals(contentWindow.activeContent.selectionChangedCalls, [[selectedObject2]]);
-		assertStrictEquals(contentWindow.activeContent.selectionChangedCalls[0][0], selectedObject2);
+		assertEquals(contentWindow.activeContent.activeObjectsChangedCalls, [[selectedObject2]]);
+		assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[0][0], selectedObject2);
 
 		assertEquals(contentWindow.contentEl.children.length, 1);
 		assertStrictEquals(contentWindow.contentEl.children[0], contentWindow.activeContent.el);
@@ -222,8 +241,8 @@ Deno.test({
 
 		assertExists(contentWindow.activeContent);
 		assertInstanceOf(contentWindow.activeContent, PropertiesWindowContentExtended1);
-		assertEquals(contentWindow.activeContent.selectionChangedCalls, [[selectedObject1]]);
-		assertStrictEquals(contentWindow.activeContent.selectionChangedCalls[0][0], selectedObject1);
+		assertEquals(contentWindow.activeContent.activeObjectsChangedCalls, [[selectedObject1]]);
+		assertStrictEquals(contentWindow.activeContent.activeObjectsChangedCalls[0][0], selectedObject1);
 
 		assertEquals(contentWindow.contentEl.children.length, 1);
 		assertStrictEquals(contentWindow.contentEl.children[0], contentWindow.activeContent.el);
@@ -271,8 +290,8 @@ Deno.test({
 		assertEquals(contentWindow.destructed, true);
 		assertEquals(contentWindow.activeContent, null);
 
-		assertEquals(firstActiveContent.selectionChangedCalls, [[selectedObject1]]);
-		assertStrictEquals(firstActiveContent.selectionChangedCalls[0][0], selectedObject1);
+		assertEquals(firstActiveContent.activeObjectsChangedCalls, [[selectedObject1]]);
+		assertStrictEquals(firstActiveContent.activeObjectsChangedCalls[0][0], selectedObject1);
 		assertEquals(contentWindow.contentEl.children.length, 0);
 
 		uninstall();

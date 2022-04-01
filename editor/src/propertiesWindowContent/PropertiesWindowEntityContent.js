@@ -136,7 +136,7 @@ export class PropertiesWindowEntityContent extends PropertiesWindowContent {
 	 * @override
 	 * @param {EntitySelection[]} selectedObjects
 	 */
-	selectionChanged(selectedObjects) {
+	activeObjectsChanged(selectedObjects) {
 		this.currentSelection = selectedObjects;
 		this.updateTransformationValues();
 		this.refreshComponents();
