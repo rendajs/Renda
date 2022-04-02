@@ -18,7 +18,9 @@ importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/Prop
 importer.fakeModule("../../../../../../src/rendering/MaterialMap.js", `
 	export class MaterialMap {}
 `);
-const {PropertiesAssetContentMaterial} = await importer.import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+/** @type {import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */
+const PropertiesAssetContentMaterialImport = await importer.import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+const {PropertiesAssetContentMaterial} = PropertiesAssetContentMaterialImport;
 
 function basicSetup() {
 	const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
@@ -45,9 +47,16 @@ function basicSetup() {
 	});
 
 	const assetContent = new PropertiesAssetContentMaterial(mockEditorInstance);
-	const castAssetContent = /** @type {import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").PropertiesAssetContentMaterial} */ (assetContent);
+
+	/** @type {(import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny?)[]} */
+	const setEmbeddedParentAssetCalls = [];
+	assetContent.mapTreeView.gui.setEmbeddedParentAsset = parentAsset => {
+		setEmbeddedParentAssetCalls.push(parentAsset);
+	};
+
 	return {
-		assetContent: castAssetContent,
+		assetContent,
+		setEmbeddedParentAssetCalls,
 		getDidCallNotifyMaterialChanged() {
 			return didCallNotifyMaterialChanged;
 		},
@@ -145,5 +154,26 @@ Deno.test({
 		assertEquals(material.materialMap, null);
 		assertEquals(getDidCallNotifyMaterialChanged(), false);
 		assertEquals(getSaveLiveAssetDataCallCount(), 0);
+	},
+});
+
+Deno.test({
+	name: "selecting multiple items resets materialmap droppable embedded asset parent",
+	async fn() {
+		const {assetContent, setEmbeddedParentAssetCalls} = basicSetup();
+		const {projectAsset: mockMaterialAsset1} = createMockProjectAsset({
+			liveAsset: new Material(),
+		});
+		const {projectAsset: mockMaterialAsset2} = createMockProjectAsset({
+			liveAsset: new Material(),
+		});
+
+		await assetContent.selectionUpdated([mockMaterialAsset1]);
+		await assetContent.selectionUpdated([mockMaterialAsset1, mockMaterialAsset2]);
+		await assetContent.selectionUpdated([mockMaterialAsset2]);
+
+		assertEquals(setEmbeddedParentAssetCalls, [mockMaterialAsset1, null, mockMaterialAsset2]);
+		assertStrictEquals(setEmbeddedParentAssetCalls[0], mockMaterialAsset1);
+		assertStrictEquals(setEmbeddedParentAssetCalls[2], mockMaterialAsset2);
 	},
 });

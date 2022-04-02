@@ -62,6 +62,11 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		this.isUpdatingUi = true;
 
 		const material = await this.getFirstSelectedLiveAsset();
+		if (this.currentSelection.length > 1) {
+			this.mapTreeView.gui.setEmbeddedParentAsset(null);
+		} else {
+			this.mapTreeView.gui.setEmbeddedParentAsset(this.currentSelection[0]);
+		}
 		this.mapTreeView.setValue(material.materialMap);
 		await this.loadMapValues();
 
@@ -84,8 +89,6 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async selectionUpdated(selectedMaterials) {
 		super.selectionUpdated(selectedMaterials);
 		await this.loadAsset();
-		// TODO: update the parent embedded asset of the droppablegui
-		// when the selection changes
 	}
 
 	async loadMapValues() {

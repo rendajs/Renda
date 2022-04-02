@@ -63,6 +63,8 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.getValueReturn = null;
 		/** @private */
 		this.getValueReturnSet = false;
+
+		this.gui = {};
 	}
 
 	/**

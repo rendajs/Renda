@@ -135,6 +135,7 @@ export class DroppableGui {
 		this.projectAssetTypeManager = dependencies.projectAssetTypeManager;
 
 		this.disabled = disabled;
+		/** @private */
 		this.embeddedParentAsset = embeddedParentAsset;
 
 		this.el = document.createElement("div");
