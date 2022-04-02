@@ -121,6 +121,8 @@ export function createBasicGui({
 		},
 	});
 
+	const mockWindowManager = /** @type {import("../../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({});
+
 	const liveAssetProjectAssetTypes = new Map(liveAssetProjectAssetTypeCombinations);
 	const mockProjectAssetTypeManager = /** @type {import("../../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({
 		*getAssetTypesForLiveAssetConstructor(constructor) {
@@ -135,7 +137,7 @@ export function createBasicGui({
 	const dependencies = {
 		projectManager: mockProjectManager,
 		dragManager: /** @type {import("../../../../../../editor/src/misc/DragManager.js").DragManager} */ ({}),
-		windowManager: /** @type {import("../../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({}),
+		windowManager: mockWindowManager,
 		contextMenuManager: /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({}),
 		projectAssetTypeManager: mockProjectAssetTypeManager,
 		...extraMocks,
@@ -162,6 +164,7 @@ export function createBasicGui({
 		mockDefaultAssetLink,
 		mockLiveAsset,
 		mockProjectAsset,
+		mockWindowManager,
 	};
 }
 

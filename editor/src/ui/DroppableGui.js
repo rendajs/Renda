@@ -149,6 +149,7 @@ export class DroppableGui {
 		this.boundOnDrop = this.onDrop.bind(this);
 		this.boundOnKeyDown = this.onKeyDown.bind(this);
 		this.boundOnContextMenu = this.onContextMenu.bind(this);
+		this.boundOnDbClick = this.onDblClick.bind(this);
 
 		this.el.addEventListener("dragstart", this.boundOnDragStart);
 		this.el.addEventListener("dragenter", this.boundOnDragEnter);
@@ -158,6 +159,7 @@ export class DroppableGui {
 		this.el.addEventListener("drop", this.boundOnDrop);
 		this.el.addEventListener("keydown", this.boundOnKeyDown);
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
+		this.el.addEventListener("dblclick", this.boundOnDbClick);
 
 		/** @type {import("../../../src/util/mod.js").UuidString?}*/
 		this.defaultAssetLinkUuid = null;
@@ -180,6 +182,7 @@ export class DroppableGui {
 		this.el.removeEventListener("drop", this.boundOnDrop);
 		this.el.removeEventListener("keydown", this.boundOnKeyDown);
 		this.el.removeEventListener("contextmenu", this.boundOnContextMenu);
+		this.el.removeEventListener("dblclick", this.boundOnDbClick);
 		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
@@ -635,6 +638,10 @@ export class DroppableGui {
 		if (contextMenuStructure.length == 0) return;
 		const menu = this.contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
+	}
+
+	onDblClick() {
+		if (this.projectAssetValue) this.projectAssetValue.open(this.windowManager);
 	}
 
 	get visibleAssetName() {

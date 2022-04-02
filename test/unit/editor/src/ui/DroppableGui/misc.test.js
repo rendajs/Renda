@@ -1,5 +1,6 @@
-import {assertEquals, assertExists} from "asserts";
+import {assertEquals, assertExists, assertStrictEquals} from "asserts";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
+import {FakeMouseEvent} from "../../../../../../.denoTypes/urlImports/https_/raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeMouseEvent.js";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus, createBasicGui} from "./shared.js";
 
@@ -33,5 +34,27 @@ Deno.test({
 		assertEquals(gui.defaultAssetLinkUuid, null);
 
 		uninstall();
+	},
+});
+
+Deno.test({
+	name: "double clicking opens the project asset",
+	async fn() {
+		installFakeDocument();
+		const {gui, mockProjectAsset, mockWindowManager} = createBasicGui();
+
+		/** @type {unknown[][]} */
+		const openCalls = [];
+		mockProjectAsset.open = async (...args) => {
+			openCalls.push(args);
+		};
+		gui.setValue(mockProjectAsset);
+
+		gui.el.dispatchEvent(new FakeMouseEvent("dblclick"));
+
+		assertEquals(openCalls, [[mockWindowManager]]);
+		assertStrictEquals(openCalls[0][0], mockWindowManager);
+
+		uninstallFakeDocument();
 	},
 });

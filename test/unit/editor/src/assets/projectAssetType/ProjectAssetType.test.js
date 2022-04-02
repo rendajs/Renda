@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals, assertStrictEquals} from "asserts";
 import {ProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js";
 
 /**
@@ -145,5 +145,33 @@ Deno.test({
 		projectAssetType.destroyLiveAssetData(liveAsset);
 
 		assertEquals(destructorCalled, true);
+	},
+});
+
+Deno.test({
+	name: "open() sets the project asset as active object in a properties window",
+	fn() {
+		const {projectAssetTypeArgs, mockProjectAsset} = getMocks();
+		const projectAssetType = new ProjectAssetType(...projectAssetTypeArgs);
+
+		/** @type {unknown[][]} */
+		const setActiveObjectsCalls = [];
+		const mockWindowManager = /** @type {import("../../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({
+			getMostSuitableContentWindowByConstructor(constructor) {
+				return {
+					/**
+					 * @param {unknown[]} objects
+					 */
+					setActiveObjects(objects) {
+						setActiveObjectsCalls.push(objects);
+					},
+				};
+			},
+		});
+
+		projectAssetType.open(mockWindowManager);
+
+		assertEquals(setActiveObjectsCalls, [[mockProjectAsset]]);
+		assertStrictEquals(setActiveObjectsCalls[0][0], mockProjectAsset);
 	},
 });

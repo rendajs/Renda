@@ -1,5 +1,7 @@
 /** @typedef {string & {}} ProjectAssetTypeIdentifier */
 
+import {ContentWindowProperties} from "../../windowManagement/contentWindows/ContentWindowProperties.js";
+
 /** @typedef {ProjectAssetType<any, any, any, any>} ProjectAssetTypeAny */
 /** @typedef {ProjectAssetType<unknown, unknown, object, unknown>} ProjectAssetTypeUnknown */
 /**
@@ -263,7 +265,12 @@ export class ProjectAssetType {
 	 * either in the editor or in an external application.
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
-	async open(windowManager) {}
+	async open(windowManager) {
+		const propertiesWindow = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowProperties);
+		if (propertiesWindow) {
+			propertiesWindow.setActiveObjects([this.projectAsset]);
+		}
+	}
 
 	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").AssetLoaderTypeGenericStructure} AssetLoaderTypeGenericStructure */
 	/** @typedef {import("../../../../src/util/BinaryComposer.js").BinaryComposer} BinaryComposer */
