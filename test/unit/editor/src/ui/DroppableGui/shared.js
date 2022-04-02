@@ -90,6 +90,9 @@ export function createBasicGui({
 
 	const mockDefaultAssetLink = /** @type {import("../../../../../../editor/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
 
+	/** @type {{assetType: import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType, parent: import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny}[]} */
+	const createEmbeddedAssetCalls = [];
+
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		assertAssetManagerExists() {
 			return {
@@ -114,6 +117,7 @@ export function createBasicGui({
 					return null;
 				},
 				createEmbeddedAsset(assetType, parent) {
+					createEmbeddedAssetCalls.push({assetType, parent});
 					return createMockProjectAsset({
 						mockLiveAsset,
 						isEmbedded: true,
@@ -168,6 +172,7 @@ export function createBasicGui({
 		mockLiveAsset,
 		mockProjectAsset,
 		mockWindowManager,
+		createEmbeddedAssetCalls,
 		uninstall() {
 			uninstallFakeDocument();
 		},
@@ -214,7 +219,7 @@ export function basicSetupForContextMenus({
 			};
 		},
 	});
-	const {gui, mockLiveAsset, uninstall} = createBasicGui({
+	const returnValue = createBasicGui({
 		...basicGuiOptions,
 		extraMocks: {
 			contextMenuManager: mockContextMenuManager,
@@ -222,17 +227,15 @@ export function basicSetupForContextMenus({
 	});
 
 	function dispatchContextMenuEventFn() {
-		gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+		returnValue.gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
 	}
 	if (dispatchContextMenuEvent) {
 		dispatchContextMenuEventFn();
 	}
 
 	return {
-		gui,
+		...returnValue,
 		createContextMenuCalls,
 		dispatchContextMenuEvent: dispatchContextMenuEventFn,
-		mockLiveAsset,
-		uninstall,
 	};
 }

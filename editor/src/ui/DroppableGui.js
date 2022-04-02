@@ -331,6 +331,21 @@ export class DroppableGui {
 	}
 
 	/**
+	 * Enables/disables embedded asset creation. When a project asset is provided,
+	 * it will be used as parent asset when the user creates a new embedded
+	 * asset via the context menu. When set to `null`, embedded assets creation
+	 * is disabled.
+	 * To prevent ambiguity, the current value of the droppable is reset to `null`.
+	 * This is to prevent situations where a current embedded asset is set as value,
+	 * and changing the parent asset won't change the parent of the created embedded asset.
+	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny?} parentAsset
+	 */
+	setEmbeddedParentAsset(parentAsset) {
+		this.embeddedParentAsset = parentAsset;
+		this.setValueFromProjectAsset(null);
+	}
+
+	/**
 	 * @private
 	 * @param {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} projectAssetType
 	 */
