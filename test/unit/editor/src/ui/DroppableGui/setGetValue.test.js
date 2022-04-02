@@ -1,12 +1,10 @@
 import {assertEquals, assertStrictEquals} from "asserts";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {BASIC_ASSET_UUID, DEFAULTASSETLINK_LINK_UUID, createBasicGui} from "./shared.js";
 
 Deno.test({
 	name: "setValue() to null",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, uninstall} = createBasicGui();
 
 		gui.setValue(null);
 
@@ -14,15 +12,14 @@ Deno.test({
 		assertEquals(gui.defaultAssetLink, null);
 		assertEquals(gui.defaultAssetLinkUuid, null);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "setValue() with an uuid",
 	fn() {
-		installFakeDocument();
-		const {gui, mockProjectAsset} = createBasicGui();
+		const {gui, mockProjectAsset, uninstall} = createBasicGui();
 
 		gui.setValue(BASIC_ASSET_UUID);
 
@@ -30,15 +27,14 @@ Deno.test({
 		assertEquals(gui.defaultAssetLink, null);
 		assertEquals(gui.defaultAssetLinkUuid, null);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "setValue() with an assetlink uuid",
 	fn() {
-		installFakeDocument();
-		const {gui, mockProjectAsset, mockDefaultAssetLink} = createBasicGui();
+		const {gui, mockProjectAsset, mockDefaultAssetLink, uninstall} = createBasicGui();
 
 		gui.setValue(DEFAULTASSETLINK_LINK_UUID);
 
@@ -46,15 +42,14 @@ Deno.test({
 		assertStrictEquals(gui.defaultAssetLink, mockDefaultAssetLink);
 		assertEquals(gui.defaultAssetLinkUuid, DEFAULTASSETLINK_LINK_UUID);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "setValue() using a ProjectAsset",
 	fn() {
-		installFakeDocument();
-		const {gui, mockProjectAsset} = createBasicGui();
+		const {gui, mockProjectAsset, uninstall} = createBasicGui();
 
 		gui.setValue(mockProjectAsset);
 
@@ -62,15 +57,14 @@ Deno.test({
 		assertEquals(gui.defaultAssetLink, null);
 		assertEquals(gui.defaultAssetLinkUuid, null);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "setValue() using a live asset",
 	fn() {
-		installFakeDocument();
-		const {gui, mockLiveAsset, mockProjectAsset} = createBasicGui();
+		const {gui, mockLiveAsset, mockProjectAsset, uninstall} = createBasicGui();
 
 		gui.setValue(mockLiveAsset);
 
@@ -78,71 +72,66 @@ Deno.test({
 		assertEquals(gui.defaultAssetLink, null);
 		assertEquals(gui.defaultAssetLinkUuid, null);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() without parameters",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, uninstall} = createBasicGui();
 
 		const result = gui.getValue();
 
 		assertEquals(result, BASIC_ASSET_UUID);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() without parameters and no value set",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui({valueType: "none"});
+		const {gui, uninstall} = createBasicGui({valueType: "none"});
 
 		const result = gui.getValue();
 
 		assertEquals(result, null);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() without parameters and asset link",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui({valueType: "defaultAssetLink"});
+		const {gui, uninstall} = createBasicGui({valueType: "defaultAssetLink"});
 
 		const result = gui.getValue();
 
 		assertEquals(result, DEFAULTASSETLINK_LINK_UUID);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() with asset link and resolveDefaultAssetLinks = true",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui({valueType: "defaultAssetLink"});
+		const {gui, uninstall} = createBasicGui({valueType: "defaultAssetLink"});
 
 		const result = gui.getValue({resolveDefaultAssetLinks: true});
 
 		assertEquals(result, BASIC_ASSET_UUID);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() with returnLiveAsset = true",
 	fn() {
-		installFakeDocument();
-		const {gui, mockLiveAsset} = createBasicGui({
+		const {gui, mockLiveAsset, uninstall} = createBasicGui({
 			needsLiveAssetPreload: false,
 		});
 
@@ -150,57 +139,53 @@ Deno.test({
 
 		assertStrictEquals(result, mockLiveAsset);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() with returnLiveAsset = true and no value set",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui({valueType: "none"});
+		const {gui, uninstall} = createBasicGui({valueType: "none"});
 
 		const result = gui.getValue({returnLiveAsset: true});
 
 		assertEquals(result, null);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() with purpose 'fileStorage'",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, uninstall} = createBasicGui();
 
 		const result = gui.getValue({purpose: "fileStorage"});
 
 		assertEquals(result, BASIC_ASSET_UUID);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() with purpose 'binaryComposer'",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, uninstall} = createBasicGui();
 
 		const result = gui.getValue({purpose: "binaryComposer"});
 
 		assertEquals(result, BASIC_ASSET_UUID);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() with purpose 'script'",
 	fn() {
-		installFakeDocument();
-		const {gui, mockLiveAsset} = createBasicGui({
+		const {gui, mockLiveAsset, uninstall} = createBasicGui({
 			needsLiveAssetPreload: false,
 		});
 
@@ -208,15 +193,14 @@ Deno.test({
 
 		assertStrictEquals(result, mockLiveAsset);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
 Deno.test({
 	name: "getValue() with no parameters and an embedded asset",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui({
+		const {gui, uninstall} = createBasicGui({
 			valueType: "embedded",
 		});
 
@@ -227,6 +211,6 @@ Deno.test({
 			str: "foo",
 		});
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });

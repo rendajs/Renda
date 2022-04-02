@@ -1,5 +1,4 @@
 import {assertEquals, assertExists, assertStrictEquals} from "asserts";
-import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "../../../../../../.denoTypes/urlImports/https_/raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeMouseEvent.js";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus, createBasicGui} from "./shared.js";
@@ -7,13 +6,12 @@ import {basicSetupForContextMenus, createBasicGui} from "./shared.js";
 Deno.test({
 	name: "Is not disabled by default",
 	fn() {
-		installFakeDocument();
-		const {gui} = createBasicGui();
+		const {gui, uninstall} = createBasicGui();
 
 		assertEquals(gui.disabled, false);
 		assertEquals(gui.el.getAttribute("aria-disabled"), "false");
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });
 
@@ -40,8 +38,7 @@ Deno.test({
 Deno.test({
 	name: "double clicking opens the project asset",
 	async fn() {
-		installFakeDocument();
-		const {gui, mockProjectAsset, mockWindowManager} = createBasicGui();
+		const {gui, mockProjectAsset, mockWindowManager, uninstall} = createBasicGui();
 
 		/** @type {unknown[][]} */
 		const openCalls = [];
@@ -55,6 +52,6 @@ Deno.test({
 		assertEquals(openCalls, [[mockWindowManager]]);
 		assertStrictEquals(openCalls[0][0], mockWindowManager);
 
-		uninstallFakeDocument();
+		uninstall();
 	},
 });

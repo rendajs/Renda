@@ -80,6 +80,7 @@ export function createBasicGui({
 	valueType = "basic", extraMocks = {}, guiOpts = {}, liveAssetProjectAssetTypeCombinations = [], needsLiveAssetPreload = true,
 } = {}) {
 	applyProjectAssetInstanceOf();
+	installFakeDocument();
 
 	const mockLiveAsset = {};
 
@@ -165,6 +166,9 @@ export function createBasicGui({
 		mockLiveAsset,
 		mockProjectAsset,
 		mockWindowManager,
+		uninstall() {
+			uninstallFakeDocument();
+		},
 	};
 }
 
@@ -198,7 +202,6 @@ export function basicSetupForContextMenus({
 	basicGuiOptions = {},
 	dispatchContextMenuEvent = true,
 } = {}) {
-	installFakeDocument();
 	/** @type {(import("../../../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure?)[]} */
 	const createContextMenuCalls = [];
 	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({
@@ -209,7 +212,7 @@ export function basicSetupForContextMenus({
 			};
 		},
 	});
-	const {gui, mockLiveAsset} = createBasicGui({
+	const {gui, mockLiveAsset, uninstall} = createBasicGui({
 		...basicGuiOptions,
 		extraMocks: {
 			contextMenuManager: mockContextMenuManager,
@@ -228,8 +231,6 @@ export function basicSetupForContextMenus({
 		createContextMenuCalls,
 		dispatchContextMenuEvent: dispatchContextMenuEventFn,
 		mockLiveAsset,
-		uninstall() {
-			uninstallFakeDocument();
-		},
+		uninstall,
 	};
 }
