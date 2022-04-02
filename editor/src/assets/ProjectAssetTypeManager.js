@@ -29,7 +29,7 @@ export class ProjectAssetTypeManager {
 		if (!(constructor.prototype instanceof ProjectAssetType)) {
 			throw new Error("Tried to register project asset type (" + constructor.name + ") that does not extend ProjectAssetType class.");
 		}
-		if (castConstructor.type == null) {
+		if (!castConstructor.type) {
 			throw new Error("Tried to register project asset type (" + castConstructor.name + ") with no type value, override the static type value in order for this asset type to function properly.");
 		}
 		if (!castConstructor.type.includes(":") || castConstructor.type.split(":")[0].length <= 0) {

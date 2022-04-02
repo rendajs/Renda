@@ -60,9 +60,9 @@ export class ProjectAssetType {
 	 * Identifier of the assetType. This is stored in various places
 	 * such as the asset settings file or the wrapped editor meta data.
 	 * This should have the format "namespace:assetType", for example: "JJ:mesh".
-	 * @type {?ProjectAssetTypeIdentifier}
+	 * @type {ProjectAssetTypeIdentifier}
 	 */
-	static type = null;
+	static type = "";
 
 	/**
 	 * This will be used for storing the asset type in asset bundles.

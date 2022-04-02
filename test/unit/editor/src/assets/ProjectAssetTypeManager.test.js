@@ -33,7 +33,7 @@ Deno.test({
 
 		assertThrows(() => {
 			manager.registerAssetType(/** @type {any} */ ({}));
-		});
+		}, Error, "Tried to register project asset type (undefined) that does not extend ProjectAssetType class.");
 	},
 });
 
@@ -47,7 +47,7 @@ Deno.test({
 
 		assertThrows(() => {
 			manager.registerAssetType(ExtendedProjectAssetType);
-		});
+		}, Error, "Tried to register project asset type (ExtendedProjectAssetType) with no type value, override the static type value in order for this asset type to function properly.");
 	},
 });
 
@@ -71,7 +71,7 @@ Deno.test({
 
 			assertThrows(() => {
 				manager.registerAssetType(ExtendedProjectAssetType);
-			}, undefined, undefined, `Expected registering an asset with type '${typeStr}' to throw`);
+			}, Error, "Tried to register project asset type (ExtendedProjectAssetType) without a namespace in the type value.");
 		}
 	},
 });
@@ -96,7 +96,7 @@ Deno.test({
 
 			assertThrows(() => {
 				manager.registerAssetType(ExtendedProjectAssetType);
-			}, undefined, undefined, `Expected registering an asset with 'typeUuid = ${wrongUuid}' to throw`);
+			}, Error, "Tried to register project asset type (ExtendedProjectAssetType) without a valid typeUuid, override the static typeUuid value in order for this asset type to function properly.");
 		}
 	},
 });

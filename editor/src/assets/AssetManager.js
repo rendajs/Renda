@@ -482,11 +482,9 @@ export class AssetManager {
 	 */
 	createEmbeddedAsset(assetType) {
 		if (typeof assetType != "string") {
-			// @ts-expect-error TODO, don't make type null by default, use an empty string instead
 			assetType = assetType.type;
 		}
 		const projectAsset = this.projectAssetFactory({
-			// @ts-expect-error
 			assetType,
 			forceAssetType: true,
 			isEmbedded: true,
@@ -562,7 +560,6 @@ export class AssetManager {
 			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertionOptions.assertAssetType);
 			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
 
-			// @ts-expect-error TODO: make ProjectAssetType.type not null but an empty string by default
 			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type);
 			projectAsset.writeEmbeddedAssetData(uuidOrData);
 			return await projectAsset.getLiveAsset();
