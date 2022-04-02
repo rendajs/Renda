@@ -84,6 +84,8 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async selectionUpdated(selectedMaterials) {
 		super.selectionUpdated(selectedMaterials);
 		await this.loadAsset();
+		// TODO: update the parent embedded asset of the droppablegui
+		// when the selection changes
 	}
 
 	async loadMapValues() {

@@ -51,6 +51,12 @@ export function createMockProjectAssetType(type) {
 			};
 		}
 
+		/**
+		 * @param {unknown} liveAsset
+		 * @param {unknown} editorData
+		 */
+		saveLiveAssetData(liveAsset, editorData) {}
+
 		destroyLiveAssetData() {}
 	}
 

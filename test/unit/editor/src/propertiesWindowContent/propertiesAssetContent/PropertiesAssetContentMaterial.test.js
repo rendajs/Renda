@@ -1,6 +1,6 @@
 import "../../../shared/initializeEditor.js";
 import {assertEquals, assertStrictEquals} from "asserts";
-import {createMockProjectAsset} from "./shared.js";
+import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {Material} from "../../../../../../src/mod.js";
 import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";

@@ -32,6 +32,7 @@ export function createMockProjectAsset({
 		async saveLiveAssetData() {
 			saveLiveAssetDataCallCount++;
 		},
+		async childEmbeddedAssetNeedsSave() {},
 	});
 	return {
 		projectAsset,

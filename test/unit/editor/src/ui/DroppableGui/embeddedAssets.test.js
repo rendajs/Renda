@@ -2,15 +2,22 @@ import {assertEquals, assertExists, assertStrictEquals} from "asserts";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus, createMockProjectAssetType} from "./shared.js";
 
+function createMockParentAsset() {
+	const projectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({});
+	return projectAsset;
+}
+
 Deno.test({
 	name: "create embedded asset via context menu",
 	async fn() {
+		const mockParent = createMockParentAsset();
 		const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
 		const {gui, uninstall, createContextMenuCalls} = basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
 					supportedAssetTypes: [MockLiveAsset],
+					embeddedParentAsset: mockParent,
 				},
 				liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
 			},
@@ -31,12 +38,14 @@ Deno.test({
 Deno.test({
 	name: "creating embedded assets waits with firing the onChange event until the live asset is loaded",
 	async fn() {
+		const mockParent = createMockParentAsset();
 		const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
 		const {gui, uninstall, createContextMenuCalls, mockLiveAsset} = basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
 					supportedAssetTypes: [MockLiveAsset],
+					embeddedParentAsset: mockParent,
 				},
 				liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
 			},

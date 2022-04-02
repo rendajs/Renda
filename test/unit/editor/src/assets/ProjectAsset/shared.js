@@ -8,11 +8,14 @@ export const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
 export const BASIC_PROJECTASSETTYPE = "test:basicassettype";
 export const BASIC_ASSET_EXTENSION = "basicassetextension";
 export const UNKNOWN_ASSET_EXTENSION = "unknownassetextension";
+
 injectMockEditorInstance(/** @type {any} */({}));
+
 /**
  * @typedef GetMocksOptions
  * @property {boolean} [builtInAssetManagerAllowAssetEditingValue]
  */
+
 /**
  * @param {GetMocksOptions} options
  */
@@ -48,23 +51,31 @@ export function getMocks({
 		]),
 	};
 }
+
 /**
  * @template {boolean} [TIsKnown = true]
  * @param {Object} options
  * @param {Partial<import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetOptions>} [options.extraProjectAssetOpts]
  * @param {GetMocksOptions} [options.mocksOptions]
  * @param {TIsKnown} [options.isKnownAssetType]
+ * @param {boolean} [options.setMockEmbeddedParent]
  */
 export function basicSetup({
-	extraProjectAssetOpts, mocksOptions, isKnownAssetType = /** @type {TIsKnown} */ (true),
+	extraProjectAssetOpts,
+	mocksOptions,
+	isKnownAssetType = /** @type {TIsKnown} */ (true),
+	setMockEmbeddedParent = false,
 } = {}) {
 	const mocks = getMocks(mocksOptions);
+
+	const mockParent = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({});
 
 	const extension = isKnownAssetType ? BASIC_ASSET_EXTENSION : UNKNOWN_ASSET_EXTENSION;
 	const assetPath = ["path", "to", `asset.${extension}`];
 	const projectAsset = new ProjectAsset(...mocks.projectAssetArgs, {
 		uuid: BASIC_UUID,
 		path: assetPath,
+		embeddedParent: setMockEmbeddedParent ? mockParent : undefined,
 		...extraProjectAssetOpts,
 	});
 
@@ -82,5 +93,6 @@ export function basicSetup({
 	return {
 		mocks,
 		projectAsset: castProjectAsset,
+		mockParent,
 	};
 }

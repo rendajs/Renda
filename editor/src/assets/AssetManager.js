@@ -479,15 +479,16 @@ export class AssetManager {
 	 * garbage collected when their liveAsset is garbage collected.
 	 *
 	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
+	 * @param {import("./ProjectAsset.js").ProjectAssetAny} parent
 	 */
-	createEmbeddedAsset(assetType) {
+	createEmbeddedAsset(assetType, parent) {
 		if (typeof assetType != "string") {
 			assetType = assetType.type;
 		}
 		const projectAsset = this.projectAssetFactory({
 			assetType,
 			forceAssetType: true,
-			isEmbedded: true,
+			embeddedParent: parent,
 		});
 		projectAsset.onLiveAssetDataChange(liveAssetData => {
 			if (liveAssetData.liveAsset) {
@@ -526,14 +527,15 @@ export class AssetManager {
 	 *
 	 * @param {import("../../../src/mod.js").UuidString | object | null} uuidOrData
 	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} assetType
+	 * @param {import("./ProjectAsset.js").ProjectAssetAny} parent
 	 */
-	getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, assetType) {
+	getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, assetType, parent) {
 		if (uuidOrData == null) return null;
 		if (typeof uuidOrData == "string") {
 			return this.getProjectAsset(uuidOrData);
 		} else {
-			const projectAsset = this.createEmbeddedAsset(assetType);
-			projectAsset.writeEmbeddedAssetData(uuidOrData);
+			const projectAsset = this.createEmbeddedAsset(assetType, parent);
+			projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
 			return projectAsset;
 		}
 	}
@@ -550,8 +552,9 @@ export class AssetManager {
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
 	 * @param {RequiredAssetAssertionOptions<T>} assertionOptions
+	 * @param {import("./ProjectAsset.js").ProjectAssetAny} parent
 	 */
-	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, assertionOptions) {
+	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, assertionOptions, parent) {
 		if (!uuidOrData) return null;
 
 		if (typeof uuidOrData == "string") {
@@ -560,8 +563,8 @@ export class AssetManager {
 			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertionOptions.assertAssetType);
 			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
 
-			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type);
-			projectAsset.writeEmbeddedAssetData(uuidOrData);
+			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type, parent);
+			projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
 			return await projectAsset.getLiveAsset();
 		}
 	}

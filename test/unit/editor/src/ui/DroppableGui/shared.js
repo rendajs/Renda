@@ -64,6 +64,7 @@ export function createMockProjectAsset({
 
 	// Add the instance to the mock instances list so that the `instanceof ProjectAsset` check in the DroppableGui still works.
 	mockProjectAssetInstances.push(mockProjectAsset);
+	applyProjectAssetInstanceOf();
 
 	return mockProjectAsset;
 }
@@ -79,7 +80,6 @@ export function createMockProjectAsset({
 export function createBasicGui({
 	valueType = "basic", extraMocks = {}, guiOpts = {}, liveAssetProjectAssetTypeCombinations = [], needsLiveAssetPreload = true,
 } = {}) {
-	applyProjectAssetInstanceOf();
 	installFakeDocument();
 
 	const mockLiveAsset = {};

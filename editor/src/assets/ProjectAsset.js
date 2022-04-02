@@ -22,7 +22,8 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  * @property {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier?} [assetType]
  * @property {boolean} [forceAssetType]
  * @property {boolean} [isBuiltIn]
- * @property {boolean} [isEmbedded]
+ * @property {ProjectAssetAny?} [embeddedParent] When set, marks the created asset as embedded asset and assigns the
+ * provided asset as parent.
  */
 
 /**
@@ -64,7 +65,7 @@ export class ProjectAsset {
 		assetType = null,
 		forceAssetType = false,
 		isBuiltIn = false,
-		isEmbedded = false,
+		embeddedParent = null,
 	}) {
 		this.assetManager = assetManager;
 		this.assetTypeManager = assetTypeManager;
@@ -90,7 +91,7 @@ export class ProjectAsset {
 		this.forceAssetType = forceAssetType;
 		this.needsConsistentUuid = false;
 		this.isBuiltIn = isBuiltIn;
-		this.isEmbedded = isEmbedded;
+		this.isEmbedded = !!embeddedParent;
 
 		/** @type {T?} */
 		this._projectAssetType = null;
@@ -106,6 +107,8 @@ export class ProjectAsset {
 		this.editorData = null;
 		/** @private @type {FileDataType} */
 		this.currentEmbeddedAssetData = /** @type {FileDataType} */ ({});
+		/** @private @type {ProjectAssetAny?} */
+		this.embeddedParentAsset = embeddedParent;
 
 		this.initInstance = new SingleInstancePromise(async () => await this.init());
 		this.initInstance.run();
@@ -552,6 +555,39 @@ export class ProjectAsset {
 		}
 	}
 
+	/**
+	 * Gets called when one of the children of this asset is an embedded asset
+	 * and it's just been changed.
+	 * Depending on the capabilities of the project asset type, this will do
+	 * one of the following:
+	 * - Calls `saveLiveAssetData` that triggers a write to disk. Even though
+	 * the embedded live asset hasn't been changed yet, it's embedded asset
+	 * data has, so this is what will be written when
+	 * `getAssetUuidOrEmbeddedAssetDataFromLiveAsset()` is called.
+	 * - If the project asset type has `propertiesAssetContentStructure` set,
+	 * it likely doesn't implement `saveLiveAssetData`, so in this case
+	 * we'll use the structure to determine what data to write. We'll basically
+	 * read from disk first, inject the embedded asset data, and then write again.
+	 * - TODO: If the project asset type doesn't support live assets, for the moment
+	 * it will write 'null' to disk. We should probably throw an error here though.
+	 */
+	async childEmbeddedAssetNeedsSave() {
+		const structure = this.projectAssetTypeConstructorImmediate?.propertiesAssetContentStructure;
+		if (structure) {
+			// TODO
+		} else {
+			await this.saveLiveAssetData();
+		}
+	}
+
+	/**
+	 * Writes asset data to disk based on the current live asset. Note that if
+	 * the live asset does not exist, it will be created by reading from disk
+	 * first and then writing the result again. So if `liveAssetNeedsReplacement`
+	 * has been triggered, either by this asset or by one of it's child assets,
+	 * this will essentially read and write the same data. To prevent this,
+	 * make sure you call `saveLiveAssetData` before `liveAssetNeedsReplacement`.
+	 */
 	async saveLiveAssetData() {
 		await this.waitForInit();
 		if (!this._projectAssetType) return;
@@ -605,8 +641,7 @@ export class ProjectAsset {
 		if (this.isBuiltIn || !this.fileSystem) {
 			fileData = await this.builtInAssetManager.fetchAsset(this.path, format);
 		} else if (this.isEmbedded) {
-			// @ts-expect-error
-			fileData = structuredClone(this.currentEmbeddedAssetData);
+			fileData = this.readEmbeddedAssetData();
 		} else if (format == "json") {
 			fileData = await this.fileSystem.readJson(this.path);
 		} else if (format == "text") {
@@ -633,8 +668,7 @@ export class ProjectAsset {
 
 		if (this.projectAssetTypeConstructorImmediate.storeInProjectAsJson) {
 			if (this.isEmbedded) {
-				// @ts-expect-error
-				this.currentEmbeddedAssetData = structuredClone(fileData);
+				await this.writeEmbeddedAssetData(fileData);
 			} else {
 				let json = null;
 				if (this.projectAssetTypeConstructorImmediate.wrapProjectJsonWithEditorMetaData) {
@@ -680,16 +714,27 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * Same as {@linkcode writeAssetData} but writes synchronously without a
-	 * promise. Throws if the ProjectAsset is not an embedded asset.
+	 * Same as {@linkcode writeEmbeddedAssetData} but only saves the new state
+	 * in memory. Throws if the ProjectAsset is not an embedded asset.
 	 * @param {FileDataType} fileData
 	 */
-	writeEmbeddedAssetData(fileData) {
+	writeEmbeddedAssetDataImmediate(fileData) {
 		if (!this.isEmbedded) {
 			throw new Error("Unable to write embeddedassetData, asset is not an embedded asset.");
 		}
 		// @ts-expect-error
 		this.currentEmbeddedAssetData = structuredClone(fileData);
+	}
+
+	/**
+	 * Updates the asset data in memory and notifies the parent ProjectAsset
+	 * that has embedded this asset. The parent will save itself to disk using
+	 * the new data. Throws if the ProjectAsset is not an embedded asset.
+	 * @param {FileDataType} fileData
+	 */
+	async writeEmbeddedAssetData(fileData) {
+		this.writeEmbeddedAssetDataImmediate(fileData);
+		if (this.embeddedParentAsset) await this.embeddedParentAsset.childEmbeddedAssetNeedsSave();
 	}
 
 	async getAssetTypeUuid() {

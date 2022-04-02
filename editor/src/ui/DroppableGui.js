@@ -19,6 +19,9 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @typedef {Object} DroppableGuiOptionsType
  * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstance()
  * @property {T[]} [supportedAssetTypes]
+ * @property {import("../assets/ProjectAsset.js").ProjectAssetAny?} [embeddedParentAsset] If set, allows the creation
+ * of embedded assets via a context menu. When omitted, embedded assets are not supported and this option
+ * won't be shown in the context menu.
  */
 /**
  * @template {new (...args: any) => any} T
@@ -114,6 +117,7 @@ export class DroppableGui {
 		supportedAssetTypes = [],
 		// todo: default value support
 		disabled = false,
+		embeddedParentAsset = null,
 	} = {}) {
 		if (!dependencies) {
 			dependencies = {
@@ -131,6 +135,7 @@ export class DroppableGui {
 		this.projectAssetTypeManager = dependencies.projectAssetTypeManager;
 
 		this.disabled = disabled;
+		this.embeddedParentAsset = embeddedParentAsset;
 
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
@@ -331,7 +336,10 @@ export class DroppableGui {
 	 */
 	createEmbeddedAsset(projectAssetType) {
 		const assetManager = this.projectManager.assertAssetManagerExists();
-		const projectAsset = assetManager.createEmbeddedAsset(projectAssetType);
+		if (!this.embeddedParentAsset) {
+			throw new Error("Tried to create an embedded asset from a DroppableGui that has no embeddedParentAsset set.");
+		}
+		const projectAsset = assetManager.createEmbeddedAsset(projectAssetType, this.embeddedParentAsset);
 		this.setValueFromProjectAsset(projectAsset, {
 			preloadLiveAsset: true,
 		});
@@ -550,6 +558,7 @@ export class DroppableGui {
 			}
 
 			if (availableTypes.length > 0) {
+				// TODO: hide or disable the embedded asset menu if embedded assets are not explicitly supported.
 				/** @type {import("./contextMenus/ContextMenu.js").ContextMenuItemOpts} */
 				const createEmbeddedStructure = {
 					text: "Create embedded asset",

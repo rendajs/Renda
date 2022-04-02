@@ -1,13 +1,12 @@
 import {AssertionError, assert, assertEquals, assertThrows} from "asserts";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
 
 Deno.test({
 	name: "creating with isEmbedded true",
 	fn() {
 		const {projectAsset} = basicSetup({
-			extraProjectAssetOpts: {
-				isEmbedded: true,
-			},
+			setMockEmbeddedParent: true,
 		});
 
 		assertEquals(projectAsset.isEmbedded, true);
@@ -18,8 +17,8 @@ Deno.test({
 	name: "readAssetData() on an embedded asset is an empty object by default",
 	async fn() {
 		const {projectAsset, mocks} = basicSetup({
+			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
-				isEmbedded: true,
 				assetType: BASIC_PROJECTASSETTYPE,
 				path: [],
 			},
@@ -37,9 +36,9 @@ Deno.test({
 Deno.test({
 	name: "writeAssetData() and then readAssetData() on an embedded asset",
 	async fn() {
-		const {projectAsset, mocks} = basicSetup({
+		const {projectAsset, mocks, mockParent} = basicSetup({
+			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
-				isEmbedded: true,
 				assetType: BASIC_PROJECTASSETTYPE,
 				path: [],
 			},
@@ -57,7 +56,30 @@ Deno.test({
 			str: "foo",
 		};
 
-		await projectAsset.writeAssetData(writeData);
+		/** @type {Set<() => void>} */
+		const needsSavePromises = new Set();
+		let needsSaveCallCount = 0;
+		mockParent.childEmbeddedAssetNeedsSave = async () => {
+			needsSaveCallCount++;
+			/** @type {Promise<void>} */
+			const promise = new Promise(r => needsSavePromises.add(r));
+			await promise;
+		};
+
+		const writeAssetDataPromise = projectAsset.writeAssetData(writeData);
+
+		let resolved = false;
+		writeAssetDataPromise.then(() => {
+			resolved = true;
+		});
+		await waitForMicrotasks();
+
+		assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
+
+		needsSavePromises.forEach(r => r());
+		await writeAssetDataPromise;
+
+		assertEquals(needsSaveCallCount, 1);
 
 		writeData.str = "modification";
 
@@ -86,12 +108,12 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeEmbeddedAssetData() throws if the asset is not an embedded asset",
+	name: "writeEmbeddedAssetDataImmediate() throws if the asset is not an embedded asset",
 	async fn() {
 		const {projectAsset} = basicSetup();
 
 		assertThrows(() => {
-			projectAsset.writeEmbeddedAssetData({
+			projectAsset.writeEmbeddedAssetDataImmediate({
 				num: 123,
 				str: "foo",
 			});
@@ -100,11 +122,11 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeEmbeddedAssetData() and then readEmbeddedAssetData() on an embedded asset",
+	name: "writeEmbeddedAssetDataImmediate() and then readEmbeddedAssetData() on an embedded asset",
 	async fn() {
 		const {projectAsset, mocks} = basicSetup({
+			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
-				isEmbedded: true,
 				assetType: BASIC_PROJECTASSETTYPE,
 				path: [],
 			},
@@ -122,7 +144,7 @@ Deno.test({
 			str: "foo",
 		};
 
-		projectAsset.writeEmbeddedAssetData(writeData);
+		projectAsset.writeEmbeddedAssetDataImmediate(writeData);
 
 		writeData.str = "modification";
 
@@ -136,5 +158,61 @@ Deno.test({
 		result.str = "modification";
 		const result2 = projectAsset.readEmbeddedAssetData();
 		assert(result2.str != "modification", "readAssetData() should make a copy of the data");
+	},
+});
+
+Deno.test({
+	name: "childEmbeddedAssetNeedsSave() for an asset type without a propertiesAssetContentStructure",
+	async fn() {
+		const {projectAsset} = basicSetup({
+			extraProjectAssetOpts: {
+				assetType: BASIC_PROJECTASSETTYPE,
+				path: ["path", "to", "asset"],
+			},
+		});
+
+		await projectAsset.childEmbeddedAssetNeedsSave();
+	},
+});
+
+Deno.test({
+	name: "writeEmbeddedAssetData() calls childEmbeddedAssetNeedsSave the parent",
+	async fn() {
+		const {projectAsset, mockParent} = basicSetup({
+			setMockEmbeddedParent: true,
+			extraProjectAssetOpts: {
+				assetType: BASIC_PROJECTASSETTYPE,
+				path: ["path", "to", "asset"],
+			},
+		});
+
+		/** @type {Set<() => void>} */
+		const needsSavePromises = new Set();
+		let needsSaveCallCount = 0;
+		mockParent.childEmbeddedAssetNeedsSave = async () => {
+			needsSaveCallCount++;
+			/** @type {Promise<void>} */
+			const promise = new Promise(r => needsSavePromises.add(r));
+			await promise;
+		};
+
+		const writePromise = projectAsset.writeEmbeddedAssetData({
+			num: 123,
+			str: "foo",
+		});
+
+		let resolved = false;
+		writePromise.then(() => {
+			resolved = true;
+		});
+		await waitForMicrotasks();
+
+		assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
+
+		needsSavePromises.forEach(r => r());
+
+		await writePromise;
+
+		assertEquals(needsSaveCallCount, 1);
 	},
 });
