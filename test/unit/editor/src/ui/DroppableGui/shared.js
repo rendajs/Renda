@@ -25,15 +25,17 @@ export function applyProjectAssetInstanceOf() {
 }
 
 /**
- * @param {Object} options
- * @param {object?} options.mockLiveAsset
+ * @param {Object} [options]
+ * @param {object?} [options.mockLiveAsset]
  * @param {boolean} [options.isEmbedded]
  * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetImmediate() to behave
  * like the real ProjectAsset.
  */
 export function createMockProjectAsset({
-	mockLiveAsset, isEmbedded = false, needsLiveAssetPreload = true,
-}) {
+	mockLiveAsset = {},
+	isEmbedded = false,
+	needsLiveAssetPreload = true,
+} = {}) {
 	let asyncGetLiveAssetCalled = false;
 	const mockProjectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<any>} */ ({
 		isEmbedded,
@@ -111,7 +113,7 @@ export function createBasicGui({
 					}
 					return null;
 				},
-				createEmbeddedAsset(assetType) {
+				createEmbeddedAsset(assetType, parent) {
 					return createMockProjectAsset({
 						mockLiveAsset,
 						isEmbedded: true,

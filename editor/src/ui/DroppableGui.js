@@ -557,7 +557,7 @@ export class DroppableGui {
 				}
 			}
 
-			if (availableTypes.length > 0) {
+			if (this.embeddedParentAsset && availableTypes.length > 0) {
 				// TODO: hide or disable the embedded asset menu if embedded assets are not explicitly supported.
 				/** @type {import("./contextMenus/ContextMenu.js").ContextMenuItemOpts} */
 				const createEmbeddedStructure = {

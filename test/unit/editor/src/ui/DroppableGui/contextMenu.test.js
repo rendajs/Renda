@@ -1,6 +1,6 @@
 import {assertEquals, assertExists} from "asserts";
 import {assertContextMenuStructureEquals} from "../../../shared/contextMenuHelpers.js";
-import {basicSetupForContextMenus, createMockProjectAssetType} from "./shared.js";
+import {basicSetupForContextMenus, createMockProjectAsset, createMockProjectAssetType} from "./shared.js";
 
 Deno.test({
 	name: "context menu event creates a new context menu",
@@ -94,12 +94,14 @@ Deno.test({
 Deno.test({
 	name: "context menu with embedded assets enabled and one supported asset type",
 	fn() {
+		const mockParent = createMockProjectAsset();
 		const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
 		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
 					supportedAssetTypes: [MockLiveAsset],
+					embeddedParentAsset: mockParent,
 				},
 				liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
 			},
@@ -115,6 +117,7 @@ Deno.test({
 Deno.test({
 	name: "context menu with embedded assets enabled and two supported asset types",
 	fn() {
+		const mockParent = createMockProjectAsset();
 		const {MockLiveAsset: MockLiveAsset1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
 		const {MockLiveAsset: MockLiveAsset2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
 		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
@@ -122,6 +125,7 @@ Deno.test({
 				valueType: "none",
 				guiOpts: {
 					supportedAssetTypes: [MockLiveAsset1, MockLiveAsset2],
+					embeddedParentAsset: mockParent,
 				},
 				liveAssetProjectAssetTypeCombinations: [
 					[MockLiveAsset1, [ProjectAssetType1]],
@@ -140,6 +144,30 @@ Deno.test({
 				],
 			},
 		]);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu with embedded assets disabled and two supported asset types",
+	fn() {
+		const {MockLiveAsset: MockLiveAsset1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
+		const {MockLiveAsset: MockLiveAsset2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					supportedAssetTypes: [MockLiveAsset1, MockLiveAsset2],
+				},
+				liveAssetProjectAssetTypeCombinations: [
+					[MockLiveAsset1, [ProjectAssetType1]],
+					[MockLiveAsset2, [ProjectAssetType2]],
+				],
+			},
+		});
+
+		assertEquals(createContextMenuCalls.length, 0);
 
 		uninstall();
 	},
