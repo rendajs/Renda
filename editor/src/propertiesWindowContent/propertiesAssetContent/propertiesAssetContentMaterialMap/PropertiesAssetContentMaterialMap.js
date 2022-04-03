@@ -91,7 +91,6 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	hasTypeConstructor(typeConstructor) {
-		if (!typeConstructor.typeUuid) return false;
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
 	}
 
@@ -115,8 +114,6 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	addMapType(MaterialMapTypeConstructor, {
 		updateMapListUi = true,
 	} = {}) {
-		if (!MaterialMapTypeConstructor.typeUuid) throw new Error("MaterialMapTypeConstructor.typeUuid is not set");
-
 		if (this.hasTypeConstructor(MaterialMapTypeConstructor)) {
 			const typeConstructor = this.addedMapTypes.get(MaterialMapTypeConstructor.typeUuid);
 			if (typeConstructor) return typeConstructor;

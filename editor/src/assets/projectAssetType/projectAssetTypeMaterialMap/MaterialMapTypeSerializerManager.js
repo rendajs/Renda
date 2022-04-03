@@ -59,7 +59,7 @@ export class MaterialMapTypeSerializerManager {
 			return;
 		}
 
-		if (castConstructor.typeUuid && !isUuid(castConstructor.typeUuid)) {
+		if (!isUuid(castConstructor.typeUuid)) {
 			castConstructor.invalidConfigurationWarning("Tried to register MaterialMapType (" + constructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this MaterialMapType to function properly.");
 			return;
 		}
