@@ -19,9 +19,9 @@ import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComp
 export class MaterialMapTypeSerializer {
 	/**
 	 * Name that will be shown in the editor ui.
-	 * @type {string?}
+	 * @type {string}
 	 */
-	static uiName = null;
+	static uiName = "";
 
 	/**
 	 * This will be used for storing the map type in the MaterialMap asset.

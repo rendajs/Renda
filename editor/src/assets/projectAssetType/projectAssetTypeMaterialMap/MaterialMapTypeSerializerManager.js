@@ -47,8 +47,8 @@ export class MaterialMapTypeSerializerManager {
 
 		const castConstructor = /** @type {typeof MaterialMapTypeSerializer} */ (constructor);
 
-		if (castConstructor.uiName == null || typeof castConstructor.uiName != "string") {
-			castConstructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + ") invalid uiName value.");
+		if (!castConstructor.uiName) {
+			castConstructor.invalidConfigurationWarning(`Failed to register MaterialMapType ${constructor.name} invalid uiName value: ${castConstructor.uiName}`);
 			return;
 		}
 
