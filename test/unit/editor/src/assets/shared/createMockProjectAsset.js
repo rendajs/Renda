@@ -2,10 +2,12 @@
  * @param {Object} options
  * @param {unknown} [options.liveAsset]
  * @param {boolean} [options.allowImmediateLiveAssetReturn]
+ * @param {unknown} [options.readAssetDataReturnValue]
  */
 export function createMockProjectAsset({
 	liveAsset = null,
 	allowImmediateLiveAssetReturn = true,
+	readAssetDataReturnValue = null,
 } = {}) {
 	/** @type {Set<() => void>} */
 	const liveAssetReturnCbs = new Set();
@@ -33,6 +35,9 @@ export function createMockProjectAsset({
 			saveLiveAssetDataCallCount++;
 		},
 		async childEmbeddedAssetNeedsSave() {},
+		async readAssetData() {
+			return readAssetDataReturnValue;
+		},
 	});
 	return {
 		projectAsset,

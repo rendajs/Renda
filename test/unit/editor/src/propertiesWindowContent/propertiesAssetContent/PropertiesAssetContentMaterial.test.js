@@ -1,4 +1,3 @@
-import "../../../shared/initializeEditor.js";
 import {assertEquals, assertStrictEquals} from "asserts";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {Material} from "../../../../../../src/mod.js";
