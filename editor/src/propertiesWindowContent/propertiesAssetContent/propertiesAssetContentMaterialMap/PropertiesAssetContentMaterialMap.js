@@ -103,6 +103,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		updateMapListUi = true,
 	} = {}) {
 		const constructor = this.editorInstance.materialMapTypeManager.getTypeByUuid(uuid);
+		if (!constructor) throw new Error(`Material map type with uuid ${uuid} not found.`);
 		return this.addMapType(constructor, {updateMapListUi});
 	}
 

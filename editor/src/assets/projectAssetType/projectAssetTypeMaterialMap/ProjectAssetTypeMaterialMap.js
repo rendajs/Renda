@@ -25,6 +25,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
 				const typeSerializer = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				if (!typeSerializer) continue;
 				const mapType = await typeSerializer.getLiveAssetSettingsInstance(this.editorInstance, this.assetManager, map.customData);
 
 				if (!mapType) continue;
@@ -106,6 +107,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
 				const mapType = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				if (!mapType) continue;
 				if (mapType.allowExportInAssetBundles) {
 					const arrayBuffer = mapType.mapDataToAssetBundleBinary(this.editorInstance, this.assetManager, map.customData);
 					if (!arrayBuffer) continue;
@@ -145,6 +147,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
 				const mapType = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				if (!mapType) continue;
 				for (const uuid of mapType.getReferencedAssetUuids(map.customData)) {
 					yield uuid;
 				}

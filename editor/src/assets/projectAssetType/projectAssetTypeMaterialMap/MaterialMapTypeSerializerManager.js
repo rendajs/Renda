@@ -27,6 +27,7 @@ import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
 
 export class MaterialMapTypeSerializerManager {
 	constructor() {
+		/** @type {Map<import("../../../../../src/mod.js").UuidString, typeof MaterialMapTypeSerializer>} */
 		this.registeredMapTypes = new Map();
 	}
 
@@ -64,7 +65,7 @@ export class MaterialMapTypeSerializerManager {
 			return;
 		}
 
-		this.registeredMapTypes.set(castConstructor.typeUuid, constructor);
+		this.registeredMapTypes.set(castConstructor.typeUuid, castConstructor);
 	}
 
 	*getAllTypes() {
@@ -75,10 +76,10 @@ export class MaterialMapTypeSerializerManager {
 
 	/**
 	 * @param {string} uuid
-	 * @returns {typeof MaterialMapTypeSerializer}
+	 * @returns {(typeof MaterialMapTypeSerializer | null)}
 	 */
 	getTypeByUuid(uuid) {
-		return this.registeredMapTypes.get(uuid);
+		return this.registeredMapTypes.get(uuid) || null;
 	}
 
 	/**
@@ -101,6 +102,7 @@ export class MaterialMapTypeSerializerManager {
 		for (const mapType of mapData.maps) {
 			if (!mapType.mappedValues) continue;
 			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
+			if (!mapTypeConstructor) continue;
 			const values = await mapTypeConstructor.getMappedValues(editor, assetManager, mapType.customData, mapType.mappedValues);
 			for (const value of values) {
 				mapValues.set(value.name, value);
