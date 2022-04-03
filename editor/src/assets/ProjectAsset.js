@@ -575,6 +575,7 @@ export class ProjectAsset {
 		const structure = this.projectAssetTypeConstructorImmediate?.propertiesAssetContentStructure;
 		if (structure) {
 			// TODO
+			throw new Error("Not yet implemented");
 		} else {
 			await this.saveLiveAssetData();
 		}
