@@ -17,7 +17,7 @@ function countTabs(str) {
  * Parses an object to a json string and formats it nicely.
  * This keeps things mostly similar to `JSON.stringify` but it collapses small
  * arrays and objects into a single line.
- * @param {Object} jsonObj
+ * @param {any} jsonObj
  * @param {Object} opts
  * @param {"fileStorage" | "display"} [opts.purpose]
  * @param {number} [opts.maxArrayStringItemLength]

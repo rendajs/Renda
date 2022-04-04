@@ -1,8 +1,9 @@
 import {BinaryDecomposer} from "./BinaryDecomposer.js";
 
+/** @typedef {StorageType | string[] | StorageType[] | BinaryComposerStructure[]} BinaryComposerStructureItem */
 /**
  * @typedef {{
- * [key: string]: (StorageType | string[] | StorageType[] | BinaryComposerStructure[])
+ * [key: string]: BinaryComposerStructureItem
  * }} BinaryComposerStructure
  */
 
@@ -10,13 +11,13 @@ import {BinaryDecomposer} from "./BinaryDecomposer.js";
 
 /**
  * @typedef {Object} BinaryComposerObjectToBinaryOptions
- * @property {BinaryComposerStructure} [structure = null]
- * @property {BinaryComposerNameIds} [nameIds = null]
+ * @property {BinaryComposerStructure} structure
+ * @property {BinaryComposerNameIds} nameIds
  * @property {boolean} [littleEndian = true]
  * @property {boolean} [useHeaderByte = true]
- * @property {BinaryComposerVariableLengthStorageTypes} [variableLengthStorageTypes = true]
- * @property {ObjectToBinaryTransformValueHook} [transformValueHook = null]
- * @property {import("../../editor/src/assets/AssetManager.js").AssetManager} [editorAssetManager = null]
+ * @property {BinaryComposerVariableLengthStorageTypes?} [variableLengthStorageTypes = true]
+ * @property {ObjectToBinaryTransformValueHook?} [transformValueHook = null]
+ * @property {import("../../editor/src/assets/AssetManager.js").AssetManager?} [editorAssetManager = null]
  */
 
 /**
@@ -31,7 +32,7 @@ import {BinaryDecomposer} from "./BinaryDecomposer.js";
  * @typedef {Object} BinaryToObjectTransformValueHookArgs
  * @property {*} value The value of the property before the transformation.
  * @property {StorageType} type The type of the property before the transformation.
- * @property {Object} placedOnObject The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
+ * @property {Object.<string, unknown>} placedOnObject The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
  * @property {string} placedOnKey The key of the property.
  */
 
@@ -66,6 +67,8 @@ import {BinaryDecomposer} from "./BinaryDecomposer.js";
  * @property {string[]} [enumStrings]
  */
 
+/** @typedef {Map<string, number>} NameIdsMap */
+
 /**
  * @readonly
  * @enum {number}
@@ -93,6 +96,7 @@ export class BinaryComposer {
 	constructor({
 		littleEndian = true,
 	} = {}) {
+		/** @type {ArrayBuffer[]} */
 		this.bufferList = [];
 		this.littleEndian = littleEndian;
 	}
@@ -125,51 +129,78 @@ export class BinaryComposer {
 		}
 	}
 
+	/**
+	 * @param {ArrayBuffer} buffer
+	 */
 	appendBuffer(buffer) {
 		this.bufferList.push(buffer);
 	}
 
+	/**
+	 * @param {number} value
+	 */
 	appendInt8(value) {
 		const buffer = new ArrayBuffer(1);
 		new DataView(buffer).setInt8(0, value);
 		this.appendBuffer(buffer);
 	}
 
+	/**
+	 * @param {number} value
+	 */
 	appendUint8(value) {
 		const buffer = new ArrayBuffer(1);
 		new DataView(buffer).setUint8(0, value);
 		this.appendBuffer(buffer);
 	}
 
+	/**
+	 * @param {number} value
+	 */
 	appendInt16(value) {
 		const buffer = new ArrayBuffer(2);
 		new DataView(buffer).setInt16(0, value, this.littleEndian);
 		this.appendBuffer(buffer);
 	}
 
+	/**
+	 * @param {number} value
+	 */
 	appendUint16(value) {
 		const buffer = new ArrayBuffer(2);
 		new DataView(buffer).setUint16(0, value, this.littleEndian);
 		this.appendBuffer(buffer);
 	}
 
+	/**
+	 * @param {number} value
+	 */
 	appendInt32(value) {
 		const buffer = new ArrayBuffer(4);
 		new DataView(buffer).setInt32(0, value, this.littleEndian);
 		this.appendBuffer(buffer);
 	}
 
+	/**
+	 * @param {number} value
+	 */
 	appendUint32(value) {
 		const buffer = new ArrayBuffer(4);
 		new DataView(buffer).setUint32(0, value, this.littleEndian);
 		this.appendBuffer(buffer);
 	}
 
+	/**
+	 * @param {import("./mod.js").UuidString} uuid
+	 */
 	appendUuid(uuid) {
 		const buffer = BinaryComposer.uuidToBinary(uuid);
 		this.appendBuffer(buffer);
 	}
 
+	/**
+	 * @param {import("./mod.js").UuidString} uuidStr
+	 */
 	static uuidToBinary(uuidStr) {
 		const buffer = new ArrayBuffer(16);
 		if (!uuidStr) return buffer;
@@ -185,7 +216,7 @@ export class BinaryComposer {
 		return buffer;
 	}
 
-	/** @type {BinaryComposerVariableLengthStorageTypes} */
+	/** @type {Required<BinaryComposerVariableLengthStorageTypes>} */
 	static get defaultVariableLengthStorageTypes() {
 		return {
 			refId: StorageType.NULL,
@@ -201,14 +232,14 @@ export class BinaryComposer {
 	 * @returns {ArrayBuffer}
 	 */
 	static objectToBinary(data, {
-		structure = null,
-		nameIds = null,
+		structure,
+		nameIds,
 		littleEndian = true,
 		useHeaderByte = true,
 		variableLengthStorageTypes = null,
 		transformValueHook = null,
 		editorAssetManager = null,
-	} = {}) {
+	}) {
 		const nameIdsMap = new Map(Object.entries(nameIds));
 
 		const reoccurringDataReferences = BinaryComposer.collectReoccurringReferences(data, nameIdsMap, false);
@@ -321,22 +352,22 @@ export class BinaryComposer {
 
 	/**
 	 * @param {ArrayBuffer} buffer
-	 * @param {Object} [opts]
-	 * @param {BinaryComposerStructure} [opts.structure]
-	 * @param {BinaryComposerNameIds} [opts.nameIds]
+	 * @param {Object} opts
+	 * @param {BinaryComposerStructure} opts.structure
+	 * @param {BinaryComposerNameIds} opts.nameIds
 	 * @param {boolean} [opts.littleEndian]
 	 * @param {boolean} [opts.useHeaderByte]
-	 * @param {BinaryComposerVariableLengthStorageTypes} [opts.variableLengthStorageTypes]
-	 * @param {BinaryToObjectTransformValueHook} [opts.transformValueHook]
+	 * @param {BinaryComposerVariableLengthStorageTypes?} [opts.variableLengthStorageTypes]
+	 * @param {BinaryToObjectTransformValueHook?} [opts.transformValueHook]
 	 */
 	static binaryToObject(buffer, {
-		structure = null,
-		nameIds = null,
+		structure,
+		nameIds,
 		littleEndian = true,
 		useHeaderByte = true,
 		variableLengthStorageTypes = null,
 		transformValueHook = null,
-	} = {}) {
+	}) {
 		const nameIdsMap = new Map(Object.entries(nameIds));
 		const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k, v]) => [v, k]));
 
@@ -351,14 +382,15 @@ export class BinaryComposer {
 			structureDigestables.set(structureRef, flattened);
 		}
 
-		variableLengthStorageTypes = {
+		/** @type {Required<BinaryComposerVariableLengthStorageTypes>} */
+		const useVariableLengthStorageTypes = {
 			...BinaryComposer.defaultVariableLengthStorageTypes,
 			...variableLengthStorageTypes,
 		};
-		let refIdStorageType = variableLengthStorageTypes.refId;
-		let arrayLengthStorageType = variableLengthStorageTypes.array;
-		let stringLengthStorageType = variableLengthStorageTypes.string;
-		let arrayBufferLengthStorageType = variableLengthStorageTypes.arrayBuffer;
+		let refIdStorageType = useVariableLengthStorageTypes.refId;
+		let arrayLengthStorageType = useVariableLengthStorageTypes.array;
+		let stringLengthStorageType = useVariableLengthStorageTypes.string;
+		let arrayBufferLengthStorageType = useVariableLengthStorageTypes.arrayBuffer;
 
 		const dataView = new DataView(buffer);
 		let byteOffset = 0;
@@ -397,6 +429,7 @@ export class BinaryComposer {
 			let reconstructedData = null;
 
 			const digestables = structureDigestables.get(structureRef);
+			if (!digestables) throw new Error("Assertion error, no digestables found for structureRef");
 			for (const digestable of digestables) {
 				if (digestable.arrayType) {
 					const {value: arrayLength, bytesMoved} = BinaryComposer.getDataViewValue(dataView, arrayLengthStorageType, byteOffset, {littleEndian});
@@ -480,6 +513,7 @@ export class BinaryComposer {
 		nameIds = null,
 		littleEndian = true,
 	} = {}) {
+		/** @type {Promise<void>[]} */
 		const promises = [];
 		const obj = BinaryComposer.binaryToObject(buffer, {
 			structure, nameIds, littleEndian,
@@ -502,7 +536,7 @@ export class BinaryComposer {
 	 * Returns a Set of objects references that occur more than once in the data.
 	 * Only items that exist in the nameIdsMap will be parsed.
 	 * @param {Object | BinaryComposerStructure} data Either the data that needs to be converted or its structure.
-	 * @param {Map<string, number>} nameIdsMap
+	 * @param {NameIdsMap} nameIdsMap
 	 * @param {boolean} isStructure Whether the first argument is the structure.
 	 * @returns {Set<*>} A set of objects that occur more than once in the data.
 	 */
@@ -548,6 +582,17 @@ export class BinaryComposer {
 		return reoccurringReferences;
 	}
 
+	/**
+	 * @private
+	 * @param {Object} options
+	 * @param {any} options.data
+	 * @param {BinaryComposerStructure | BinaryComposerStructureItem} options.structure
+	 * @param {NameIdsMap} options.nameIdsMap
+	 * @param {Map<Object, BinaryComposerStructure>[]} options.existingItems
+	 * @param {Map<Object, BinaryComposerStructure>} options.collectedItems
+	 * @param {Set<object>} options.forceUseAsReferences
+	 * @param {boolean} [options.isInitialItem]
+	 */
 	static collectStoredAsReferenceItems({data, structure, nameIdsMap, existingItems, collectedItems, forceUseAsReferences, isInitialItem = false}) {
 		if (!isInitialItem) {
 			for (const existingItemList of existingItems) {
@@ -598,13 +643,14 @@ export class BinaryComposer {
 	}
 
 	/**
-	 * @param {Set<*>} reoccurringDataReferences A set of objects that occur more than once in the data.
+	 * @param {Set<object>} reoccurringDataReferences A set of objects that occur more than once in the data.
 	 * @param {Object} data The object that needs to be converted to binary.
 	 * @param {BinaryComposerStructure} structure
-	 * @param {Map<string, number>} nameIdsMap
+	 * @param {NameIdsMap} nameIdsMap
 	 * @returns {Map<*,*>} A mapping of the reoccurring data references and their respective Structure references.
 	 */
 	static getStoreAsReferenceItems(reoccurringDataReferences, data, structure, nameIdsMap) {
+		/** @type {Map<Object, BinaryComposerStructure>} */
 		const unparsedReferences = new Map();
 		unparsedReferences.set(data, structure);
 
@@ -613,6 +659,7 @@ export class BinaryComposer {
 		while (unparsedReferences.size > 0) {
 			const [ref, structureRef] = unparsedReferences.entries().next().value;
 
+			/** @type {Map<object, BinaryComposerStructure>} */
 			const collectedItems = new Map();
 			BinaryComposer.collectStoredAsReferenceItems({
 				data: ref,
@@ -632,6 +679,9 @@ export class BinaryComposer {
 		return parsedReferences;
 	}
 
+	/**
+	 * @param {number} int
+	 */
 	static requiredStorageTypeForUint(int) {
 		const minBytes = Math.ceil(Math.log2(int + 1) / 8);
 		let bytes = 0;
@@ -649,6 +699,9 @@ export class BinaryComposer {
 		return {type, bytes};
 	}
 
+	/**
+	 * @param {StorageType} storageType
+	 */
 	static variableLengthStorageTypeToBits(storageType) {
 		switch (storageType) {
 			case StorageType.NULL:
@@ -664,6 +717,9 @@ export class BinaryComposer {
 		}
 	}
 
+	/**
+	 * @param {number} bits
+	 */
 	static variableLengthBitsToStorageType(bits) {
 		switch (bits) {
 			case 0b00:
@@ -680,7 +736,6 @@ export class BinaryComposer {
 	}
 
 	/**
-	 *
 	 * @param {Object} obj The object that needs be converted to binary.
 	 * @param {BinaryComposerStructureRef} structure The structure that belongs to this object.
 	 * @param {Object} opts
@@ -740,6 +795,9 @@ export class BinaryComposer {
 		}
 	}
 
+	/**
+	 * @param {{type: number, nameId: number}[]} arr
+	 */
 	static sortNameIdsArr(arr) {
 		arr.sort((a, b) => {
 			if (a.type != b.type) {
@@ -788,12 +846,21 @@ export class BinaryComposer {
 		}
 	}
 
+	/**
+	 * @private
+	 * @param {StorageType} type
+	 * @param {Object} options
+	 * @param {unknown} options.value
+	 * @param {TextEncoder} options.textEncoder
+	 * @param {number} options.stringLengthByteLength
+	 * @param {number} options.arrayBufferLengthByteLength
+	 */
 	static getStructureTypeLength(type, {
-		value = null,
-		textEncoder = null,
-		stringLengthByteLength = 0,
-		arrayBufferLengthByteLength = 0,
-	} = {}) {
+		value,
+		textEncoder,
+		stringLengthByteLength,
+		arrayBufferLengthByteLength,
+	}) {
 		if (type == StorageType.INT8) {
 			return {length: 1};
 		} else if (type == StorageType.INT16) {
@@ -825,6 +892,18 @@ export class BinaryComposer {
 		return {length: 0};
 	}
 
+	/**
+	 * @private
+	 * @param {DataView} dataView
+	 * @param {unknown} value
+	 * @param {StorageType} type
+	 * @param {number} [byteOffset]
+	 * @param {Object} [options]
+	 * @param {boolean} [options.littleEndian]
+	 * @param {StorageType} [options.stringLengthStorageType]
+	 * @param {StorageType} [options.arrayBufferLengthStorageType]
+	 * @param {import("../../editor/src/assets/AssetManager.js").AssetManager?} [options.editorAssetManager]
+	 */
 	static setDataViewValue(dataView, value, type, byteOffset = 0, {
 		littleEndian = true,
 		stringLengthStorageType = StorageType.UINT8,
@@ -877,6 +956,14 @@ export class BinaryComposer {
 		return bytesMoved;
 	}
 
+	/**
+	 * @param {DataView} dataView
+	 * @param {ArrayBuffer} buffer
+	 * @param {number} byteOffset
+	 * @param {StorageType} lengthStorageType
+	 * @param {Object} options
+	 * @param {boolean} options.littleEndian
+	 */
 	static insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, {littleEndian}) {
 		let bytesMoved = BinaryComposer.setDataViewValue(dataView, buffer.byteLength, lengthStorageType, byteOffset, {littleEndian});
 		byteOffset += bytesMoved;
@@ -890,7 +977,7 @@ export class BinaryComposer {
 	 * @param {BinaryComposerStructureRef} structure
 	 * @param {TraversedLocationData[]} traversedLocationPath
 	 * @param {Object} opts
-	 * @param {Map<string, number>} opts.nameIdsMap
+	 * @param {NameIdsMap} opts.nameIdsMap
 	 * @param {Set<*>} opts.reoccurringStructureReferences
 	 * @param {boolean} [opts.isInitialItem]
 	 * @returns {BinaryComposerStructureDigestible}
@@ -1030,6 +1117,14 @@ export class BinaryComposer {
 		return {value, bytesMoved};
 	}
 
+	/**
+	 * @param {DataView} dataView
+	 * @param {number} byteOffset
+	 * @param {StorageType} lengthStorageType
+	 * @param {Object} options
+	 * @param {boolean} options.littleEndian
+	 * @returns
+	 */
 	static getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndian}) {
 		const {value: bufferByteLength, bytesMoved: newBytesMoved} = BinaryComposer.getDataViewValue(dataView, lengthStorageType, byteOffset, {littleEndian});
 		let bytesMoved = newBytesMoved;
@@ -1040,14 +1135,13 @@ export class BinaryComposer {
 	}
 
 	/**
-	 *
-	 * @param {Object} obj
+	 * @param {Object?} obj
 	 * @param {Object} opts
 	 * @param {Object} [opts.value]
 	 * @param {Object} [opts.location]
 	 * @param {Map<number, string>} [opts.nameIdsMapInverse]
 	 * @param {number} [opts.variableLengthArrayIndex]
-	 * @param {BinaryToObjectTransformValueHook} [opts.transformValueHook]
+	 * @param {BinaryToObjectTransformValueHook?} [opts.transformValueHook]
 	 * @param {StorageType} [opts.transformValueHookType]
 	 * @param {number} [locationOffset]
 	 */
