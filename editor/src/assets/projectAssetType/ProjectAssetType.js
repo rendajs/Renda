@@ -273,12 +273,12 @@ export class ProjectAssetType {
 	}
 
 	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").AssetLoaderTypeGenericStructure} AssetLoaderTypeGenericStructure */
-	/** @typedef {import("../../../../src/util/BinaryComposer.js").BinaryComposer} BinaryComposer */
+	/** @typedef {import("../../../../src/util/binarySerialization.js").objectToBinary} objectToBinary */
 	/**
 	 * If your asset loader extends {@linkcode AssetLoaderTypeGenericStructure}
 	 * you don't need to implement {@linkcode createBundledAssetData}.
 	 * The structure values of the AssetLoaderType will be passed on to
-	 * {@linkcode BinaryComposer.objectToBinary} instead.
+	 * {@linkcode objectToBinary} instead.
 	 * @type {(new (...args: any) => import("../../../../src/mod.js").AssetLoaderType)?}
 	 */
 	static usedAssetLoaderType = null;

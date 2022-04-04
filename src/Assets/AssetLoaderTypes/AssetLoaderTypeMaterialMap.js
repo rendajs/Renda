@@ -1,4 +1,5 @@
-import {BinaryComposer, StorageType, isUuid} from "../../mod.js";
+import {StorageType, isUuid} from "../../mod.js";
+import {binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 import {MaterialMap} from "../../rendering/MaterialMap.js";
 import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import {AssetLoaderType} from "./AssetLoaderType.js";
@@ -23,7 +24,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	 * @param {ArrayBuffer} buffer
 	 */
 	async parseBuffer(buffer) {
-		const materialMapData = await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
+		const materialMapData = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
 			structure: {
 				mapDatas: [
 					{

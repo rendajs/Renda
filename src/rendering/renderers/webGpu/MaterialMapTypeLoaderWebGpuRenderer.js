@@ -1,4 +1,4 @@
-import {BinaryComposer, StorageType} from "../../../util/BinaryComposer.js";
+import {StorageType, binaryToObjectWithAssetLoader} from "../../../util/binarySerialization.js";
 import {MaterialMapTypeLoader} from "../../../Assets/MaterialMapTypeLoader.js";
 import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
 
@@ -17,7 +17,7 @@ export class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapTypeLoader {
 	 * @param {ArrayBuffer} buffer
 	 */
 	async parseBuffer(buffer) {
-		const settings = await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
+		const settings = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
 			structure: {
 				forwardPipelineConfig: StorageType.ASSET_UUID,
 			},

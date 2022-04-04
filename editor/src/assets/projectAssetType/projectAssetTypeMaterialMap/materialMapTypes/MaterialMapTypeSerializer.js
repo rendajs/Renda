@@ -1,4 +1,4 @@
-import {BinaryComposer, StorageType} from "../../../../../../src/util/BinaryComposer.js";
+import {StorageType, objectToBinary} from "../../../../../../src/util/binarySerialization.js";
 
 /**
  * @typedef {new (...args: any) => MaterialMapTypeSerializer} MaterialMapTypeSerializerConstructor
@@ -99,7 +99,7 @@ export class MaterialMapTypeSerializer {
 	/**
 	 * This gets called when a material needs to get bundled.
 	 * By default this turns the result of {@link mapDataToAssetBundleData} into
-	 * an ArrayBuffer using {@link BinaryComposer.objectToBinary}. But you can
+	 * an ArrayBuffer using {@link objectToBinary}. But you can
 	 * override this and return your custom ArrayBuffer.
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
@@ -117,7 +117,7 @@ export class MaterialMapTypeSerializer {
 			console.warn("Failed to export material map, assetBundleBinaryComposerOpts is not set");
 			return null;
 		}
-		return BinaryComposer.objectToBinary(bundleMapData, {
+		return objectToBinary(bundleMapData, {
 			...this.assetBundleBinaryComposerOpts,
 			editorAssetManager: assetManager,
 		});
@@ -137,10 +137,10 @@ export class MaterialMapTypeSerializer {
 
 	/**
 	 * If you don't override {@link mapDataToAssetBundleBinary} or {@link mapDataToAssetBundleData},
-	 * these are the default options for {@link BinaryComposer.objectToBinary}.
+	 * these are the default options for {@link objectToBinary}.
 	 * If you want support for exporting your custom data in assetbundles, you
 	 * should provide a structure here.
-	 * @type {import("../../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions?}
+	 * @type {import("../../../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions?}
 	 */
 	static assetBundleBinaryComposerOpts = null;
 
@@ -166,7 +166,7 @@ export class MaterialMapTypeSerializer {
 		}
 		/** @type {import("../../../../../../src/mod.js").UuidString[]} */
 		const referencedUuids = [];
-		BinaryComposer.objectToBinary(bundleMapData, {
+		objectToBinary(bundleMapData, {
 			...binaryComposerOpts,
 			transformValueHook: args => {
 				let {value, type} = args;

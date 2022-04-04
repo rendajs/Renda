@@ -1,6 +1,6 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {ShaderSource, Vec3} from "../../../../../../src/mod.js";
-import {StorageType} from "../../../../../../src/util/BinaryComposer.js";
+import {StorageType} from "../../../../../../src/util/binarySerialization.js";
 import {ProjectAssetTypeShaderSource} from "../../ProjectAssetTypeShaderSource.js";
 
 export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSerializer {

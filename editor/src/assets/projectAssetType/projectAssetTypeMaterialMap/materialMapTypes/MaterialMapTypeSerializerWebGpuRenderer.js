@@ -1,5 +1,5 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
-import {StorageType} from "../../../../../../src/util/BinaryComposer.js";
+import {StorageType} from "../../../../../../src/util/binarySerialization.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
 import {MaterialMapTypeWebGpu} from "../../../../../../src/rendering/renderers/webGpu/MaterialMapTypeWebGpu.js";
 import {ProjectAssetTypeWebGpuPipelineConfig} from "../../ProjectAssetTypeWebGpuPipelineConfig.js";

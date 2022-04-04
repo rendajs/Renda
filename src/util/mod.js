@@ -1,4 +1,5 @@
-export {StorageType, BinaryComposer} from "./BinaryComposer.js";
+export * from "./binarySerialization.js";
+export {BinaryComposer} from "./BinaryComposer.js";
 export {BinaryDecomposer} from "./BinaryDecomposer.js";
 export {IndexedDbUtil} from "./IndexedDbUtil.js";
 export {MultiKeyWeakMap} from "./MultiKeyWeakMap.js";

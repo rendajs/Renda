@@ -1,4 +1,4 @@
-import {BinaryComposer} from "../../../src/util/BinaryComposer.js";
+import {uuidToBinary} from "../../../src/mod.js";
 
 export class AssetBundler {
 	/**
@@ -41,11 +41,11 @@ export class AssetBundler {
 			const assetData = await asset.getBundledAssetData();
 			if (!assetData) continue;
 
-			const binaryUuid = BinaryComposer.uuidToBinary(assetUuid);
+			const binaryUuid = uuidToBinary(assetUuid);
 			headerIntView.set(new Uint8Array(binaryUuid), headerCursor);
 			headerCursor += 16;
 
-			const binaryAssetTypeUuid = BinaryComposer.uuidToBinary(assetTypeUuid);
+			const binaryAssetTypeUuid = uuidToBinary(assetTypeUuid);
 			headerIntView.set(new Uint8Array(binaryAssetTypeUuid), headerCursor);
 			headerCursor += 16;
 

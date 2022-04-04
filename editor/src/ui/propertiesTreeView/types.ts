@@ -13,6 +13,7 @@ import { TextGui, TextGuiOptions } from "../TextGui.js";
 import { TreeViewEvent } from "../TreeView.js";
 import { GetVectorValueTypeForOptions, VectorGui, VectorGuiOptions } from "../VectorGui.js";
 import { BeforeValueSetHookData, GuiInterface, PropertiesTreeViewEntry } from "./PropertiesTreeViewEntry.js";
+import type { objectToBinary } from "../../../../src/util/binarySerialization.js";
 
 export type GuiOptionsBase = {
 	label?: string,
@@ -290,10 +291,10 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
 	never;
 
 /**
- * `"default"` uses the default behaviour of PropertiesTreeViewEntries
- * `"fileStorage"` optimizes for data stored as json in project asset files
- * `"binaryComposer"` optimizes for data passed to BinaryComposer.objectToBinary
- * `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components).
+ * - `"default"` uses the default behaviour of PropertiesTreeViewEntries
+ * - `"fileStorage"` optimizes for data stored as json in project asset files
+ * - `"binaryComposer"` optimizes for data passed to {@linkcode objectToBinary}
+ * - `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components).
  */
 export type TreeViewStructureOutputPurpose = "default" | "fileStorage" | "binaryComposer" | "script";
 

@@ -1,5 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetLoaderTypeEntity, BinaryComposer, Entity, StorageType, Vec3} from "../../../../src/mod.js";
+import {AssetLoaderTypeEntity, Entity, StorageType, Vec3} from "../../../../src/mod.js";
+import {objectToBinary} from "../../../../src/util/binarySerialization.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 
 const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
@@ -186,7 +187,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	async createBundledAssetData() {
 		const assetData = await this.projectAsset.readAssetData();
 		this.generateComponentArrayBuffers(assetData);
-		return BinaryComposer.objectToBinary(assetData, AssetLoaderTypeEntity.entityBinaryFormat);
+		return objectToBinary(assetData, AssetLoaderTypeEntity.entityBinaryFormat);
 	}
 
 	/**
@@ -198,7 +199,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				if (!componentConstructor) continue;
-				component.propertyValues = BinaryComposer.objectToBinary(component.propertyValues, {
+				component.propertyValues = objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,
 					editorAssetManager: this.assetManager,
 				});
@@ -236,7 +237,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				if (!binaryComposerOpts) continue;
 				/** @type {import("../../../../src/mod.js").UuidString[]} */
 				const referencedUuids = [];
-				BinaryComposer.objectToBinary(component.propertyValues, {
+				objectToBinary(component.propertyValues, {
 					...binaryComposerOpts,
 					transformValueHook: args => {
 						let {value, type} = args;

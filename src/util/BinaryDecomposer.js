@@ -1,3 +1,5 @@
+import {binaryToUuid} from "./binarySerialization.js";
+
 export class BinaryDecomposer {
 	/**
 	 * @param {ArrayBuffer} buffer
@@ -57,29 +59,6 @@ export class BinaryDecomposer {
 	}
 
 	getUuid() {
-		return BinaryDecomposer.binaryToUuid(this.getBuffer(16));
-	}
-
-	/**
-	 * @param {ArrayBufferLike} buffer
-	 */
-	static binaryToUuid(buffer, offset = 0) {
-		/** @type {Uint8Array} */
-		let bufferView;
-		if (!ArrayBuffer.isView(buffer)) {
-			bufferView = new Uint8Array(buffer);
-		} else {
-			bufferView = /** @type {Uint8Array} */ (buffer);
-		}
-		let allZeros = true;
-		let str = "";
-		for (let i = 0; i < 16; i++) {
-			const intValue = bufferView[offset + i];
-			if (intValue != 0) allZeros = false;
-			str += intValue.toString(16).padStart(2, "0");
-			if (i == 3 || i == 5 || i == 7 || i == 9) str += "-";
-		}
-		if (allZeros) return null;
-		return str;
+		return binaryToUuid(this.getBuffer(16));
 	}
 }

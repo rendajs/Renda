@@ -1,5 +1,5 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
-import {BinaryComposer, StorageType} from "../../util/BinaryComposer.js";
+import {StorageType, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 import {Material} from "../../rendering/Material.js";
 
 export class AssetLoaderTypeMaterial extends AssetLoaderType {
@@ -8,7 +8,7 @@ export class AssetLoaderTypeMaterial extends AssetLoaderType {
 	}
 
 	async parseBuffer(buffer) {
-		const materialData = await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
+		const materialData = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
 			structure: {
 				map: StorageType.ASSET_UUID,
 				values: [StorageType.INT8],

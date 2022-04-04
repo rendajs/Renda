@@ -1,8 +1,8 @@
 import {getEditorInstance} from "../editorInstance.js";
-import {AssetLoaderTypeGenericStructure, BinaryComposer} from "../../../src/mod.js";
+import {AssetLoaderTypeGenericStructure} from "../../../src/mod.js";
 import {getNameAndExtension} from "../util/fileSystems/pathUtil.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
-import {StorageType} from "../../../src/util/BinaryComposer.js";
+import {StorageType, objectToBinary} from "../../../src/util/binarySerialization.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker.js";
 
@@ -771,7 +771,7 @@ export class ProjectAsset {
 				if (!castAssetLoaderType.binaryComposerOpts) {
 					throw new Error("Failed to get bundled asset data. `binaryComposerOpts` is not implemented.");
 				}
-				binaryData = BinaryComposer.objectToBinary(assetData, {
+				binaryData = objectToBinary(assetData, {
 					...castAssetLoaderType.binaryComposerOpts,
 					editorAssetManager: this.assetManager,
 				});
@@ -807,7 +807,7 @@ export class ProjectAsset {
 
 			/** @type {import("../../../src/util/mod.js").UuidString[]} */
 			const referencedUuids = [];
-			BinaryComposer.objectToBinary(assetData, {
+			objectToBinary(assetData, {
 				...binaryComposerOpts,
 				transformValueHook: args => {
 					let {value, type} = args;

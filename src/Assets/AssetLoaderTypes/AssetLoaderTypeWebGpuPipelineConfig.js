@@ -1,5 +1,5 @@
 import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
-import {StorageType} from "../../util/BinaryComposer.js";
+import {StorageType} from "../../util/binarySerialization.js";
 import {WebGpuPipelineConfig} from "../../rendering/Renderers/webGpu/WebGpuPipelineConfig.js";
 
 export class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericStructure {

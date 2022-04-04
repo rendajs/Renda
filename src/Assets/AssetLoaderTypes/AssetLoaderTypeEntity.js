@@ -1,9 +1,9 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
-import {BinaryComposer, StorageType} from "../../util/BinaryComposer.js";
 import {Entity} from "../../core/Entity.js";
 import {Mat4} from "../../math/Mat4.js";
+import {StorageType, binaryToObject, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 
-/** @type {import("../../util/BinaryComposer.js").BinaryComposerStructure} */
+/** @type {import("../../util/binarySerialization.js").BinaryComposerStructure} */
 const entityBinaryStructure = {
 	name: StorageType.STRING,
 	matrix: [StorageType.FLOAT32],
@@ -55,7 +55,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 	}
 
 	async parseBuffer(buffer) {
-		const entityData = BinaryComposer.binaryToObject(buffer, AssetLoaderTypeEntity.entityBinaryFormat);
+		const entityData = binaryToObject(buffer, AssetLoaderTypeEntity.entityBinaryFormat);
 
 		return await this.createEntityFromData(entityData);
 	}
@@ -68,7 +68,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 		});
 		for (const entityComponentData of data.components) {
 			const ComponentConstructor = this.componentTypeManager.getComponentConstructorForUuid(entityComponentData.uuid);
-			const propertyValues = await BinaryComposer.binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binaryComposerOpts);
+			const propertyValues = await binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binaryComposerOpts);
 			entity.addComponent(ComponentConstructor, propertyValues);
 		}
 		for (const child of data.children) {

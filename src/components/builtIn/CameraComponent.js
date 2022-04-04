@@ -1,4 +1,4 @@
-import {StorageType} from "../../util/BinaryComposer.js";
+import {StorageType} from "../../util/binarySerialization.js";
 import {RenderOutputConfig} from "../../rendering/RenderOutputConfig.js";
 import {ClusteredLightsConfig} from "../../rendering/ClusteredLightsConfig.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
@@ -86,7 +86,7 @@ export class CameraComponent extends Component {
 	}
 
 	/**
-	 * @returns {import("../../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @returns {import("../../util/binarySerialization.js").BinaryComposerObjectToBinaryOptions}
 	 */
 	static get binaryComposerOpts() {
 		return {

@@ -1,6 +1,6 @@
 import {Mesh} from "../../core/Mesh.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
-import {StorageType} from "../../mod.js";
+import {StorageType} from "../../util/binarySerialization.js";
 import {Material} from "../../rendering/Material.js";
 import {Component} from "../mod.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
@@ -43,7 +43,7 @@ export class MeshComponent extends Component {
 	}
 
 	/**
-	 * @returns {import("../../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @returns {import("../../util/binarySerialization.js").BinaryComposerObjectToBinaryOptions}
 	 */
 	static get binaryComposerOpts() {
 		return {

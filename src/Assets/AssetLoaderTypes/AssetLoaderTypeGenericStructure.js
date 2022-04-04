@@ -1,9 +1,9 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
-import {BinaryComposer} from "../../util/BinaryComposer.js";
+import {binaryToObject, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 
 export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 	/**
-	 * @returns {import("../../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions?}
+	 * @returns {import("../../util/binarySerialization.js").BinaryComposerObjectToBinaryOptions?}
 	 */
 	static get binaryComposerOpts() {
 		return null;
@@ -14,9 +14,9 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 	} = {}) {
 		const castConstructor = /** @type {typeof AssetLoaderTypeGenericStructure} */ (this.constructor);
 		if (loadRecursiveAssetUuids) {
-			return await BinaryComposer.binaryToObjectWithAssetLoader(buffer, this.assetLoader, castConstructor.binaryComposerOpts);
+			return await binaryToObjectWithAssetLoader(buffer, this.assetLoader, castConstructor.binaryComposerOpts);
 		} else {
-			return BinaryComposer.binaryToObject(buffer, castConstructor.binaryComposerOpts);
+			return binaryToObject(buffer, castConstructor.binaryComposerOpts);
 		}
 	}
 }

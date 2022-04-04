@@ -1,8 +1,8 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/rendering/Material.js";
 import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
-import {BinaryComposer, StorageType} from "../../../../src/util/BinaryComposer.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
+import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
 
 /**
  * @extends {ProjectAssetType<Material, null, import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
@@ -82,7 +82,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		const mapUuid = assetData.map;
 		if (!mapUuid) return "";
 
-		return BinaryComposer.objectToBinary({
+		return objectToBinary({
 			map: mapUuid,
 			values: [], // todo
 		}, {

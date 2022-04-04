@@ -1,4 +1,4 @@
-import {BinaryComposer, StorageType} from "../../../../src/mod.js";
+import {StorageType, binaryToObject, objectToBinary} from "../../../../src/mod.js";
 
 export class EditorConnection {
 	/**
@@ -31,7 +31,7 @@ export class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendRequestBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -45,7 +45,7 @@ export class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendResponseBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -59,7 +59,7 @@ export class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions} */
 		this.sendErrorBinaryOpts = {
 			structure: {
 				name: StorageType.STRING,
@@ -90,7 +90,7 @@ export class EditorConnection {
 	 */
 	handleMessage(messageData) {
 		if (!this.messageHandler.autoSerializationSupported) {
-			messageData = BinaryComposer.binaryToObject(messageData, this.sendBinaryOpts);
+			messageData = binaryToObject(messageData, this.sendBinaryOpts);
 		}
 		const {op, data} = messageData;
 
@@ -109,7 +109,7 @@ export class EditorConnection {
 		/** @type {*} */
 		let sendData = {op, data};
 		if (!this.messageHandler.autoSerializationSupported) {
-			sendData = BinaryComposer.objectToBinary(sendData, this.sendBinaryOpts);
+			sendData = objectToBinary(sendData, this.sendBinaryOpts);
 		}
 		this.messageHandler.send(sendData);
 	}
@@ -136,7 +136,7 @@ export class EditorConnection {
 		/** @type {*} */
 		let sendData = {id, cmd, data};
 		if (!this.messageHandler.autoSerializationSupported) {
-			sendData = BinaryComposer.objectToBinary(sendData, this.sendRequestBinaryOpts);
+			sendData = objectToBinary(sendData, this.sendRequestBinaryOpts);
 		}
 		this.send("request", sendData);
 		const response = await this.waitForResponse(id);
@@ -188,7 +188,7 @@ export class EditorConnection {
 	 */
 	async handleRequest(requestData) {
 		if (!this.messageHandler.autoSerializationSupported) {
-			requestData = BinaryComposer.binaryToObject(requestData, this.sendRequestBinaryOpts);
+			requestData = binaryToObject(requestData, this.sendRequestBinaryOpts);
 		}
 		const {id, cmd, data} = requestData;
 
@@ -254,7 +254,7 @@ export class EditorConnection {
 				};
 			}
 			if (!this.messageHandler.autoSerializationSupported) {
-				serializedError = BinaryComposer.objectToBinary(serializedError, this.sendErrorBinaryOpts);
+				serializedError = objectToBinary(serializedError, this.sendErrorBinaryOpts);
 			}
 		}
 		const responseData = didReject ? serializedError : result;
@@ -270,7 +270,7 @@ export class EditorConnection {
 		/** @type {*} */
 		let sendData = {id, data, isError};
 		if (!this.messageHandler.autoSerializationSupported) {
-			sendData = BinaryComposer.objectToBinary(sendData, this.sendResponseBinaryOpts);
+			sendData = objectToBinary(sendData, this.sendResponseBinaryOpts);
 		}
 		this.send("response", sendData);
 	}
@@ -280,14 +280,14 @@ export class EditorConnection {
 	 */
 	handleResponse(responseData) {
 		if (!this.messageHandler.autoSerializationSupported) {
-			responseData = BinaryComposer.binaryToObject(responseData, this.sendResponseBinaryOpts);
+			responseData = binaryToObject(responseData, this.sendResponseBinaryOpts);
 		}
 		const {id, data, isError} = responseData;
 		let returnData = data;
 		if (isError) {
 			let errorData = data;
 			if (!this.messageHandler.autoSerializationSupported) {
-				errorData = BinaryComposer.binaryToObject(data, this.sendErrorBinaryOpts);
+				errorData = binaryToObject(data, this.sendErrorBinaryOpts);
 			}
 			returnData = new Error(errorData.message);
 			returnData.name = errorData.name;

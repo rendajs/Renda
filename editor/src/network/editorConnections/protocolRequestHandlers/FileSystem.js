@@ -1,4 +1,4 @@
-import {BinaryComposer, StorageType} from "../../../../../src/mod.js";
+import {StorageType, binaryToObject, objectToBinary} from "../../../../../src/util/binarySerialization.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {createRequestHandler} from "./createRequestHandler.js";
 
@@ -28,7 +28,7 @@ const createDir = createRequestHandler({
 	},
 });
 
-/** @type {import("../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+/** @type {import("../../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions} */
 const serializeFileBinaryOpts = {
 	structure: {
 		buffer: StorageType.ARRAY_BUFFER,
@@ -48,7 +48,7 @@ const serializeFileBinaryOpts = {
  * @param {File} file
  */
 async function serializeFile(file) {
-	return BinaryComposer.objectToBinary({
+	return objectToBinary({
 		buffer: await file.arrayBuffer(),
 		name: file.name,
 		type: file.type,
@@ -60,7 +60,7 @@ async function serializeFile(file) {
  * @param {ArrayBuffer} buffer
  */
 function deserializeFile(buffer) {
-	const fileData = BinaryComposer.binaryToObject(buffer, serializeFileBinaryOpts);
+	const fileData = binaryToObject(buffer, serializeFileBinaryOpts);
 	return new File([fileData.buffer], fileData.name, {
 		type: fileData.type,
 		lastModified: fileData.lastModified,
@@ -88,7 +88,7 @@ const readFile = createRequestHandler({
 	},
 });
 
-/** @type {import("../../../../../src/util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions} */
+/** @type {import("../../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions} */
 const serializeWriteFileBinaryOpts = {
 	structure: {
 		path: [StorageType.STRING],
@@ -122,7 +122,7 @@ const writeFile = createRequestHandler({
 				sendFile = file;
 			}
 			sendData.file = await serializeFile(sendFile);
-			const buffer = BinaryComposer.objectToBinary(sendData, serializeWriteFileBinaryOpts);
+			const buffer = objectToBinary(sendData, serializeWriteFileBinaryOpts);
 			return buffer;
 		}
 	},
@@ -133,7 +133,7 @@ const writeFile = createRequestHandler({
 	async handleRequest(meta, data) {
 		if (!meta.autoSerializationSupported) {
 			const buffer = /** @type {ArrayBuffer} */ (data);
-			data = BinaryComposer.binaryToObject(buffer, serializeWriteFileBinaryOpts);
+			data = binaryToObject(buffer, serializeWriteFileBinaryOpts);
 			data.file = deserializeFile(data.file);
 		}
 		const parsedData = /** @type {{path: string[], file: File}} */ (data);

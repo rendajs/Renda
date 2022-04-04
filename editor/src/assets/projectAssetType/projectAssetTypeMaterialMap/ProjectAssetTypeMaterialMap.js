@@ -1,7 +1,8 @@
 import {ProjectAssetType} from "../ProjectAssetType.js";
 import {PropertiesAssetContentMaterialMap} from "../../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
-import {BinaryComposer, StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
+import {StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
+import {objectToBinary} from "../../../../../src/util/binarySerialization.js";
 
 /**
  * @extends {ProjectAssetType<MaterialMap, null, import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
@@ -119,7 +120,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 			}
 		}
 
-		return BinaryComposer.objectToBinary({
+		return objectToBinary({
 			mapDatas,
 		}, {
 			structure: {

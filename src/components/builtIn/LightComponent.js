@@ -1,6 +1,5 @@
-import {StorageType} from "../../mod.js";
+import {StorageType} from "../../util/binarySerialization.js";
 import {Vec3} from "../../math/Vec3.js";
-// import {StorageType} from "../../Util/BinaryComposer.js";
 import {Component} from "../mod.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 
@@ -32,7 +31,7 @@ export class LightComponent extends Component {
 	}
 
 	/**
-	 * @returns {import("../../util/BinaryComposer.js").BinaryComposerObjectToBinaryOptions}
+	 * @returns {import("../../util/binarySerialization.js").BinaryComposerObjectToBinaryOptions}
 	 */
 	static get binaryComposerOpts() {
 		return {

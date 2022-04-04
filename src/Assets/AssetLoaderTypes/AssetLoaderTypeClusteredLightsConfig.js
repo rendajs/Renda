@@ -1,5 +1,5 @@
 import {AssetLoaderTypeGenericStructure} from "./AssetLoaderTypeGenericStructure.js";
-import {StorageType} from "../../util/BinaryComposer.js";
+import {StorageType} from "../../util/binarySerialization.js";
 import {ClusteredLightsConfig} from "../../rendering/ClusteredLightsConfig.js";
 
 export class AssetLoaderTypeClusteredLightsConfig extends AssetLoaderTypeGenericStructure {
