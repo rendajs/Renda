@@ -12,6 +12,9 @@ export class AssetLoader {
 		this.loadedAssets = new Map(); // Map<uuid, WeakRef<asset>>
 	}
 
+	/**
+	 * @param {string} url
+	 */
 	addBundle(url) {
 		const bundle = new AssetBundle(url);
 		this.bundles.add(bundle);
@@ -40,6 +43,12 @@ export class AssetLoader {
 
 	// todo: more options for deciding whether unfinished bundles
 	// should be searched as well
+	/**
+	 *
+	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {*} param1
+	 * @returns
+	 */
 	async getAsset(uuid, {
 		assetOpts = undefined,
 		createNewInstance = false,

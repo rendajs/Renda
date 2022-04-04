@@ -20,6 +20,10 @@ export class AssetLoaderTypeClusteredLightsConfig extends AssetLoaderTypeGeneric
 		};
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} buffer
+	 */
 	async parseBuffer(buffer) {
 		const data = await super.parseBuffer(buffer);
 		return new ClusteredLightsConfig(data);

@@ -40,6 +40,10 @@ export class AssetLoaderTypeVertexState extends AssetLoaderTypeGenericStructure 
 		};
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} buffer
+	 */
 	async parseBuffer(buffer) {
 		const data = await super.parseBuffer(buffer);
 		return new VertexState(data);

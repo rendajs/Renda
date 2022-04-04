@@ -13,6 +13,9 @@ export class AssetBundleRange {
 		this.availableWait = new PromiseWaitHelper();
 	}
 
+	/**
+	 * @param {number} length
+	 */
 	bundleDataReceived(length) {
 		if (length >= this.byteEnd) {
 			this.availableWait.fire();

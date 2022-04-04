@@ -4,12 +4,18 @@ import {PromiseWaitHelper} from "../util/PromiseWaitHelper.js";
 import {streamAsyncIterator} from "../util/mod.js";
 import {binaryToUuid} from "../util/binarySerialization.js";
 
+/** @typedef {(progress: number) => void} OnProgressCallback */
+
 export class AssetBundle {
+	/**
+	 * @param {string} url
+	 */
 	constructor(url) {
 		this.url = url;
 
 		this.assetRanges = new Map();
 		this.progress = 0;
+		/** @type {Set<OnProgressCallback>} */
 		this.onProgressCbs = new Set();
 
 		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic());
@@ -89,6 +95,9 @@ export class AssetBundle {
 		}
 	}
 
+	/**
+	 * @param {OnProgressCallback} cb
+	 */
 	onProgress(cb) {
 		this.onProgressCbs.add(cb);
 	}
@@ -97,12 +106,18 @@ export class AssetBundle {
 		await this.headerWait.wait();
 	}
 
+	/**
+	 * @param {import("../util/mod.js").UuidString} uuid
+	 */
 	async hasAsset(uuid) {
 		await this.waitForHeader();
 		const range = this.assetRanges.get(uuid);
 		return !!range;
 	}
 
+	/**
+	 * @param {import("../util/mod.js").UuidString} uuid
+	 */
 	async waitForAssetAvailable(uuid) {
 		await this.waitForHeader();
 		const range = this.assetRanges.get(uuid);
@@ -112,6 +127,9 @@ export class AssetBundle {
 		return true;
 	}
 
+	/**
+	 * @param {import("../util/mod.js").UuidString} uuid
+	 */
 	async getAsset(uuid) {
 		const exists = await this.hasAsset(uuid);
 		if (!exists) return null;

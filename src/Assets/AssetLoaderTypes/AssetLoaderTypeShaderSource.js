@@ -16,6 +16,10 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 		this.boundOnShaderUuidRequested = this.onShaderUuidRequested.bind(this);
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} buffer
+	 */
 	async parseBuffer(buffer, {
 		raw = false,
 	} = {}) {

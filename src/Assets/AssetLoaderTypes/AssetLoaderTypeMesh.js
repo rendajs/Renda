@@ -16,6 +16,10 @@ export class AssetLoaderTypeMesh extends AssetLoaderType {
 		this.magicHeader = 0x68734D6A;
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} arrayBuffer
+	 */
 	async parseBuffer(arrayBuffer) {
 		const decomposer = new BinaryDecomposer(arrayBuffer);
 		if (decomposer.getUint32() != this.magicHeader) return null;

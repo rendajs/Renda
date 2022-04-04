@@ -9,6 +9,10 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 		return null;
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} buffer
+	 */
 	async parseBuffer(buffer, {
 		loadRecursiveAssetUuids = true,
 	} = {}) {

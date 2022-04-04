@@ -7,6 +7,10 @@ export class AssetLoaderTypeMaterial extends AssetLoaderType {
 		return "430f47a8-82cc-4b4c-a664-2360794e80d6";
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} buffer
+	 */
 	async parseBuffer(buffer) {
 		const materialData = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
 			structure: {

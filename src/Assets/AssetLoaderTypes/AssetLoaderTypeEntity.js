@@ -54,6 +54,10 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 		};
 	}
 
+	/**
+	 * @override
+	 * @param {ArrayBuffer} buffer
+	 */
 	async parseBuffer(buffer) {
 		const entityData = binaryToObject(buffer, AssetLoaderTypeEntity.entityBinaryFormat);
 
