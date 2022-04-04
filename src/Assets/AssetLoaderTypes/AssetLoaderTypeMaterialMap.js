@@ -61,6 +61,9 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 		return material;
 	}
 
+	/**
+	 * @param {new (...args: any) => MaterialMapTypeLoader} constructor
+	 */
 	registerMaterialMapTypeLoader(constructor) {
 		// todo: remove these warnings in release builds?
 		if (!(constructor.prototype instanceof MaterialMapTypeLoader)) {

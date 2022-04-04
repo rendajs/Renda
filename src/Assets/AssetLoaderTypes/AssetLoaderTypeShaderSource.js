@@ -33,6 +33,9 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 		}
 	}
 
+	/**
+	 * @param {import("../../rendering/ShaderBuilder.js").ShaderBuilder} builder
+	 */
 	setBuilder(builder) {
 		if (this.builder) {
 			// todo: also remove this in the destructor of AssetLoaderTypeShader
@@ -42,6 +45,9 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 		this.builder.onShaderUuidRequested(this.boundOnShaderUuidRequested);
 	}
 
+	/**
+	 * @param {import("../../util/mod.js").UuidString} uuid
+	 */
 	async onShaderUuidRequested(uuid) {
 		const shader = await this.assetLoader.getAsset(uuid, {
 			assetOpts: {raw: true},

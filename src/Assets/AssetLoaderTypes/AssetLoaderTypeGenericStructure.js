@@ -17,6 +17,10 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 		loadRecursiveAssetUuids = true,
 	} = {}) {
 		const castConstructor = /** @type {typeof AssetLoaderTypeGenericStructure} */ (this.constructor);
+		const composerOpts = castConstructor.binaryComposerOpts;
+		if (!composerOpts) {
+			throw new Error(`Tried to parse buffer for ${this.constructor.name} without a configured binaryComposerOpts value.`);
+		}
 		if (loadRecursiveAssetUuids) {
 			return await binaryToObjectWithAssetLoader(buffer, this.assetLoader, castConstructor.binaryComposerOpts);
 		} else {
