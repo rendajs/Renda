@@ -4,6 +4,7 @@ import {isUuid} from "../util/util.js";
 
 export class AssetLoader {
 	constructor() {
+		/** @type {Set<AssetBundle>} */
 		this.bundles = new Set();
 
 		/** @type {Map<string, AssetLoaderType>} */
@@ -64,7 +65,7 @@ export class AssetLoader {
 				}
 			}
 		}
-		/** @type {AssetBundle} */
+		/** @type {AssetBundle?} */
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			if (this.bundles.size == 0) {
 				resolve(null);
@@ -89,7 +90,9 @@ export class AssetLoader {
 			// todo: remove this error in release builds
 			throw new Error(`Tried to load an asset with uuid ${uuid} but the uuid wasn't found in any AssetBundle.`);
 		}
-		const {buffer, type} = await bundleWithAsset.getAsset(uuid);
+		const assetData = await bundleWithAsset.getAsset(uuid);
+		if (!assetData) throw new Error("Assertion failed, expected bundle to return asset data.");
+		const {buffer, type} = assetData;
 
 		const loaderType = this.registeredLoaderTypes.get(type);
 		if (!loaderType) {
