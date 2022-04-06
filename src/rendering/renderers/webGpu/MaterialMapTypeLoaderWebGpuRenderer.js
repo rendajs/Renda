@@ -1,5 +1,5 @@
 import {StorageType, binaryToObjectWithAssetLoader} from "../../../util/binarySerialization.js";
-import {MaterialMapTypeLoader} from "../../../Assets/MaterialMapTypeLoader.js";
+import {MaterialMapTypeLoader} from "../../../assets/MaterialMapTypeLoader.js";
 import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
 
 /**

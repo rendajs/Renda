@@ -57,7 +57,7 @@ export class MockAssetBundle {
 }
 
 /**
- * @param {import("../../../../src/Assets/AssetBundle.js").AssetBundle} assetBundle
+ * @param {import("../../../../src/assets/AssetBundle.js").AssetBundle} assetBundle
  */
 export function castMock(assetBundle) {
 	const cast = /** @type {unknown} */ (assetBundle);

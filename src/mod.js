@@ -1,4 +1,4 @@
-export * from "./Assets/mod.js";
+export * from "./assets/mod.js";
 export * from "./components/mod.js";
 export * from "./core/mod.js";
 export * from "./gizmos/mod.js";

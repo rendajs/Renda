@@ -1,5 +1,5 @@
 import {AssetBundle} from "./AssetBundle.js";
-import {AssetLoaderType} from "./AssetLoaderTypes/AssetLoaderType.js";
+import {AssetLoaderType} from "./assetLoaderTypes/AssetLoaderType.js";
 import {isUuid} from "../util/util.js";
 
 export class AssetLoader {

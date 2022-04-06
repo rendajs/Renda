@@ -12,7 +12,7 @@ export class MaterialMapTypeLoader {
 	/**
 	 *
 	 * @param {import("./AssetLoader.js").AssetLoader} assetLoader
-	 * @param {import("./AssetLoaderTypes/AssetLoaderTypeMaterialMap.js").AssetLoaderTypeMaterialMap} materialLoader
+	 * @param {import("./assetLoaderTypes/AssetLoaderTypeMaterialMap.js").AssetLoaderTypeMaterialMap} materialLoader
 	 */
 	constructor(assetLoader, materialLoader) {
 		this.assetLoader = assetLoader;

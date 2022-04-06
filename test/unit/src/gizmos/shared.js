@@ -5,7 +5,7 @@ import {Entity} from "../../../../src/core/Entity.js";
 export class FakeEngineAssetsManager {
 	/**
 	 * @param {string} id
-	 * @param {import("../../../../src/Assets/EngineAssetsManager.js").WatchAssetCallback} callback
+	 * @param {import("../../../../src/assets/EngineAssetsManager.js").WatchAssetCallback} callback
 	 */
 	watchAsset(id, callback) {
 		callback(null);
@@ -14,7 +14,7 @@ export class FakeEngineAssetsManager {
 
 export function getFakeEngineAssetsManager() {
 	const fakeEngineAssetsManager = new FakeEngineAssetsManager();
-	return /** @type {import("../../../../src/Assets/EngineAssetsManager.js").EngineAssetsManager} */ (fakeEngineAssetsManager);
+	return /** @type {import("../../../../src/assets/EngineAssetsManager.js").EngineAssetsManager} */ (fakeEngineAssetsManager);
 }
 
 export class FakeGizmo {

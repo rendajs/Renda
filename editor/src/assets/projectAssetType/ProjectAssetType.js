@@ -272,7 +272,7 @@ export class ProjectAssetType {
 		}
 	}
 
-	/** @typedef {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderTypeGenericStructure.js").AssetLoaderTypeGenericStructure} AssetLoaderTypeGenericStructure */
+	/** @typedef {import("../../../../src/assets/assetLoaderTypes/AssetLoaderTypeGenericStructure.js").AssetLoaderTypeGenericStructure} AssetLoaderTypeGenericStructure */
 	/** @typedef {import("../../../../src/util/binarySerialization.js").objectToBinary} objectToBinary */
 	/**
 	 * If your asset loader extends {@linkcode AssetLoaderTypeGenericStructure}

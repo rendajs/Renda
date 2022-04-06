@@ -5,14 +5,14 @@ import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../shar
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
 
 const importer = new Importer(import.meta.url);
-importer.redirectModule("../../../../src/Assets/AssetBundle.js", "./MockAssetBundle.js");
+importer.redirectModule("../../../../src/assets/AssetBundle.js", "./MockAssetBundle.js");
 
-/** @type {import("../../../../src/Assets/AssetLoader.js")} */
-const AssetLoaderModule = await importer.import("../../../../src/Assets/AssetLoader.js");
+/** @type {import("../../../../src/assets/AssetLoader.js")} */
+const AssetLoaderModule = await importer.import("../../../../src/assets/AssetLoader.js");
 const {AssetLoader} = AssetLoaderModule;
 
-/** @type {import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderType.js")} */
-const AssetLoaderTypeModule = await importer.import("../../../../src/Assets/AssetLoaderTypes/AssetLoaderType.js");
+/** @type {import("../../../../src/assets/assetLoaderTypes/AssetLoaderType.js")} */
+const AssetLoaderTypeModule = await importer.import("../../../../src/assets/assetLoaderTypes/AssetLoaderType.js");
 const {AssetLoaderType} = AssetLoaderTypeModule;
 
 const BASIC_ASSET_UUID = "basic asset uuid";

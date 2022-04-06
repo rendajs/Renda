@@ -15,7 +15,7 @@ export class GizmoManager {
 	 * Then use `addGizmo` to create new Gizmos, and `requestPointerDevice` to
 	 * create a a PointerDevice that you can use to interact with the Gizmos.
 	 *
-	 * @param {import("../Assets/EngineAssetsManager.js").EngineAssetsManager} engineAssetsManager
+	 * @param {import("../assets/EngineAssetsManager.js").EngineAssetsManager} engineAssetsManager
 	 */
 	constructor(engineAssetsManager) {
 		this.entity = new Entity("gizmos");
