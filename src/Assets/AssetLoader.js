@@ -22,23 +22,23 @@ export class AssetLoader {
 	}
 
 	/**
-	 * @template TLoaderType
+	 * @template {AssetLoaderType} TLoaderType
 	 * @param {new (...args: any[]) => TLoaderType} constructor
 	 * @returns {TLoaderType}
 	 */
 	registerLoaderType(constructor) {
-		// todo: remove these warnings in release builds
+		const castConstructor1 = /** @type {unknown} */ (constructor);
+		const castConstructor2 = /** @type {typeof AssetLoaderType} */ (castConstructor1);
+		// todo: remove these errors in release builds
 		if (!(constructor.prototype instanceof AssetLoaderType)) {
-			console.warn("Tried to register AssetLoaderType (" + constructor.name + ") that does not extend the AssetLoaderType class.");
-			return null;
+			throw new Error(`Unable to register AssetLoaderType "${constructor.name}" because it doesn't extend the AssetLoaderType class.`);
 		}
-		if (!isUuid(constructor.typeUuid)) {
-			console.warn("Tried to register AssetLoaderType (" + constructor.name + ") without a valid typeUuid value, override the static type value in order for this loader to function properly.");
-			return null;
+		if (!isUuid(castConstructor2.typeUuid)) {
+			throw new Error(`Unable to register AssetLoaderType "${constructor.name}" because it doesn't have a valid uuid for the static 'typeUuid' set ("${castConstructor2.typeUuid}").`);
 		}
 
 		const instance = new constructor(this);
-		this.registeredLoaderTypes.set(constructor.typeUuid, instance);
+		this.registeredLoaderTypes.set(castConstructor2.typeUuid, instance);
 		return instance;
 	}
 

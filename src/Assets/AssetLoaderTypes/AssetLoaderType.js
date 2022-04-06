@@ -6,10 +6,10 @@ export class AssetLoaderType {
 	 * Asset bundles automatically include the asset type uuid in the bundle,
 	 * so when loading an asset bundle, the asset loader type that should be
 	 * used is determined by the asset type uuid in the bundle.
-	 * @returns {import("../../mod.js").UuidString?}
+	 * @returns {import("../../mod.js").UuidString}
 	 */
 	static get typeUuid() {
-		return null;
+		return "";
 	}
 
 	/**

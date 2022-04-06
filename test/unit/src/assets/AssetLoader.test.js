@@ -1,5 +1,5 @@
 import {Importer} from "fake-imports";
-import {assertStrictEquals} from "asserts";
+import {assertStrictEquals, assertThrows} from "asserts";
 import {castMock} from "./MockAssetBundle.js";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
 
@@ -68,6 +68,43 @@ function basicSetup() {
 		},
 	};
 }
+
+Deno.test({
+	name: "registering an asset loader type that is not an instance of AssetLoaderType shouuld throw",
+	fn() {
+		class Foo {}
+		const assetLoader = new AssetLoader();
+		assertThrows(() => {
+			assetLoader.registerLoaderType(/** @type {any} */(Foo));
+		}, Error, `Unable to register AssetLoaderType "Foo" because it doesn't extend the AssetLoaderType class.`);
+	},
+});
+
+Deno.test({
+	name: "registering an asset loader type that is missing a typeUuid property should throw",
+	fn() {
+		class Foo extends AssetLoaderType {}
+		const assetLoader = new AssetLoader();
+		assertThrows(() => {
+			assetLoader.registerLoaderType(Foo);
+		}, Error, `Unable to register AssetLoaderType "Foo" because it doesn't have a valid uuid for the static 'typeUuid' set ("").`);
+	},
+});
+
+Deno.test({
+	name: "registering an asset loader type that has an invalid typeUuid property should throw",
+	fn() {
+		class Foo extends AssetLoaderType {
+			static get typeUuid() {
+				return "not a uuid";
+			}
+		}
+		const assetLoader = new AssetLoader();
+		assertThrows(() => {
+			assetLoader.registerLoaderType(Foo);
+		}, Error, `Unable to register AssetLoaderType "Foo" because it doesn't have a valid uuid for the static 'typeUuid' set ("not a uuid").`);
+	},
+});
 
 Deno.test({
 	name: "getting an asset",
