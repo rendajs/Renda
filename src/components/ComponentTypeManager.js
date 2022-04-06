@@ -1,9 +1,9 @@
-import {isUuid} from "../util/mod.js";
+import {isUuid} from "../util/util.js";
 import {Component} from "./Component.js";
 
 export class ComponentTypeManager {
 	constructor() {
-		/** @type {Map<import("../util/mod.js").UuidString, typeof Component>} */
+		/** @type {Map<import("../util/util.js").UuidString, typeof Component>} */
 		this.components = new Map();
 	}
 
@@ -26,7 +26,7 @@ export class ComponentTypeManager {
 	}
 
 	/**
-	 * @param {import("../mod.js").UuidString} uuid
+	 * @param {import("../util.js").UuidString} uuid
 	 * @returns {typeof Component?}
 	 */
 	getComponentConstructorForUuid(uuid) {

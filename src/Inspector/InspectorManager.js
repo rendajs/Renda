@@ -6,7 +6,7 @@ export class InspectorManager {
 	constructor() {
 		if (!ENABLE_INSPECTOR_SUPPORT) return;
 
-		/** @type {Map<import("../../editor/src/../../src/util/mod.js").UuidString, InspectorConnection>} */
+		/** @type {Map<import("../../editor/src/../../src/util/util.js").UuidString, InspectorConnection>} */
 		this.inspectorConnections = new Map();
 
 		this.internalDiscoveryManager = new InternalDiscoveryManager();
@@ -20,7 +20,7 @@ export class InspectorManager {
 	}
 
 	/**
-	 * @param {import("../../editor/src/../../src/util/mod.js").UuidString} clientId
+	 * @param {import("../../editor/src/../../src/util/util.js").UuidString} clientId
 	 * @param {MessagePort} port
 	 */
 	handleConnectionCreated(clientId, port) {

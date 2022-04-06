@@ -3,7 +3,7 @@ import {domSpaceToScreenSpace} from "../util/cameraUtil.js";
 /**
  * @typedef GizmoPointerEventData
  * @property {import("../math/Vec2.js").Vec2} screenPos
- * @property {import("../mod.js").CameraComponent} camera
+ * @property {import("../components/builtIn/CameraComponent.js").CameraComponent} camera
  */
 
 export class GizmoPointerDevice {
@@ -46,7 +46,7 @@ export class GizmoPointerDevice {
 	}
 
 	/**
-	 * @param {import("../mod.js").CameraComponent} camera
+	 * @param {import("../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 * @param {HTMLElement} element
 	 * @param {PointerEvent} event
 	 */

@@ -1,10 +1,10 @@
-import {MeshComponent} from "../../components/mod.js";
+import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
 import {Mesh} from "../../core/Mesh.js";
 import {Vec2} from "../../math/Vec2.js";
 import {Vec3} from "../../math/Vec3.js";
 import {Sphere} from "../../math/shapes/Sphere.js";
 import {Gizmo} from "./Gizmo.js";
-import {Entity} from "../../mod.js";
+import {Entity} from "../../core/Entity.js";
 
 // TODO: place these somewhere more global
 const whiteColor = new Vec3(1, 1, 1);
@@ -140,7 +140,7 @@ export class TranslationGizmo extends Gizmo {
 		}
 
 		this.circleMesh.setVertexState(this.gizmoManager.billboardVertexState);
-		/** @type {import("../../mod.js").Material[]} */
+		/** @type {import("../../rendering/Material.js").Material[]} */
 		let circleMaterials = [];
 		if (this.gizmoManager.billboardMaterial) {
 			const circleMaterial = this.gizmoManager.billboardMaterial.clone();

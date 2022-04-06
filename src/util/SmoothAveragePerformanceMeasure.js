@@ -1,4 +1,4 @@
-import {lerp} from "./mod.js";
+import {lerp} from "./util.js";
 
 /**
  * Utility class for measuring performance accross multiple frames.

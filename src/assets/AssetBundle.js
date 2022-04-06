@@ -1,7 +1,7 @@
 import {AssetBundleRange} from "./AssetBundleRange.js";
 import {SingleInstancePromise} from "../util/SingleInstancePromise.js";
 import {PromiseWaitHelper} from "../util/PromiseWaitHelper.js";
-import {streamAsyncIterator} from "../util/mod.js";
+import {streamAsyncIterator} from "../util/util.js";
 import {binaryToUuid} from "../util/binarySerialization.js";
 
 /** @typedef {(progress: number) => void} OnProgressCallback */
@@ -107,7 +107,7 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 */
 	async hasAsset(uuid) {
 		await this.waitForHeader();
@@ -116,7 +116,7 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 */
 	async waitForAssetAvailable(uuid) {
 		await this.waitForHeader();
@@ -128,7 +128,7 @@ export class AssetBundle {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 */
 	async getAsset(uuid) {
 		const exists = await this.hasAsset(uuid);

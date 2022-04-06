@@ -2,16 +2,16 @@
  * @typedef {Object} ShaderLibraryItem
  * @property {string} shaderCode
  * @property {string} builtCode
- * @property {import("../util/mod.js").UuidString[]} includedUuids
+ * @property {import("../util/util.js").UuidString[]} includedUuids
  */
 
 /**
- * @typedef {(uuid: import("../util/mod.js").UuidString) => Promise<string?>} ShaderUuidRequestedHook
+ * @typedef {(uuid: import("../util/util.js").UuidString) => Promise<string?>} ShaderUuidRequestedHook
  */
 
 export class ShaderBuilder {
 	constructor() {
-		/** @type {Map<import("../util/mod.js").UuidString, ShaderLibraryItem>} */
+		/** @type {Map<import("../util/util.js").UuidString, ShaderLibraryItem>} */
 		this.shaderLibrary = new Map();
 		/** @type {Set<ShaderUuidRequestedHook>} */
 		this.onShaderUuidRequestedCbs = new Set();
@@ -19,7 +19,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 * @param {string} shaderCode
 	 */
 	addShader(uuid, shaderCode) {
@@ -31,7 +31,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString?} uuid
+	 * @param {import("../util/util.js").UuidString?} uuid
 	 */
 	invalidateShader(uuid) {
 		if (!uuid) return;
@@ -48,7 +48,7 @@ export class ShaderBuilder {
 	 * @param {string} shaderCode
 	 */
 	async buildShader(shaderCode) {
-		/** @type {import("../util/mod.js").UuidString[]} */
+		/** @type {import("../util/util.js").UuidString[]} */
 		const includedUuids = [];
 		const attemptedUuids = [];
 		const regex = /^\s*\/\/\s*@import\s(.+?):?(?::(.+)|$)/gm;
@@ -99,7 +99,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 */
 	async getShader(uuid) {
 		if (!this.shaderLibrary.has(uuid)) {
@@ -123,7 +123,7 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 */
 	async fireShaderUuidRequested(uuid) {
 		/**

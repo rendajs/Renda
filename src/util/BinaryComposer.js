@@ -93,7 +93,7 @@ export class BinaryComposer {
 	}
 
 	/**
-	 * @param {import("./mod.js").UuidString} uuid
+	 * @param {import("./util.js").UuidString} uuid
 	 */
 	appendUuid(uuid) {
 		const buffer = uuidToBinary(uuid);

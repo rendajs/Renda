@@ -1,5 +1,7 @@
+import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
+import {mapValue} from "./util.js";
 
 /**
  * Converts world coordinates to screen coordinates using the given camera matrices.
@@ -76,9 +78,6 @@ export function getRaycastRayFromScreenPos(screenPos, camProjectionMatrix, camWo
 	dir.normalize();
 	return {start, dir};
 }
-
-import {Vec2} from "../mod.js";
-import {mapValue} from "./mod.js";
 
 /**
  * Maps coordinates from dom space to the [0, 1] range, y axis down, Where the

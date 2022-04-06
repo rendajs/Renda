@@ -2,7 +2,7 @@ export class ListeningGizmoPointerElement {
 	/**
 	 * @param {import("./GizmoManager.js").GizmoManager} gizmoManager
 	 * @param {HTMLElement} element
-	 * @param {import("../mod.js").CameraComponent} camera
+	 * @param {import("../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 */
 	constructor(gizmoManager, element, camera) {
 		this.gizmoManager = gizmoManager;

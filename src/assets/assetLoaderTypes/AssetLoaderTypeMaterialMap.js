@@ -1,5 +1,5 @@
-import {StorageType, isUuid} from "../../mod.js";
-import {binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
+import {isUuid} from "../../util/util.js";
+import {StorageType, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 import {MaterialMap} from "../../rendering/MaterialMap.js";
 import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import {AssetLoaderType} from "./AssetLoaderType.js";
@@ -15,7 +15,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	constructor(...args) {
 		super(...args);
 
-		/** @type {Map<import("../../util/mod.js").UuidString, MaterialMapTypeLoader>} */
+		/** @type {Map<import("../../util/util.js").UuidString, MaterialMapTypeLoader>} */
 		this.registeredLoaderTypes = new Map();
 	}
 

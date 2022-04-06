@@ -26,7 +26,7 @@ export class EngineAssetsManager {
 		/** @type {Set<GetEngineAssetHandler>} */
 		this.getAssetHandlers = new Set();
 
-		/** @type {Map<import("../mod.js").UuidString, Set<WatchAssetCallback>>} */
+		/** @type {Map<import("../util.js").UuidString, Set<WatchAssetCallback>>} */
 		this.watchingAssetCbs = new Map();
 	}
 
@@ -44,7 +44,7 @@ export class EngineAssetsManager {
 	}
 
 	/**
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 * @param {WatchAssetCallback} onAssetChangeCb
 	 */
 	async watchAsset(uuid, onAssetChangeCb) {
@@ -73,7 +73,7 @@ export class EngineAssetsManager {
 
 	/**
 	 * Reloads any currently loaded assets that were loaded using {@linkcode watchAsset}.
-	 * @param {import("../mod.js").UuidString} uuid
+	 * @param {import("../util.js").UuidString} uuid
 	 */
 	async notifyAssetChanged(uuid) {
 		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;

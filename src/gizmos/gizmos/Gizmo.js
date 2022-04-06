@@ -20,7 +20,7 @@ export class Gizmo {
 	// TODO: add a way to set rotation and scale
 
 	/**
-	 * @param {import("../../mod.js").Mat4} val
+	 * @param {import("../../math/Mat4.js").Mat4} val
 	 */
 	set matrix(val) {
 		// TODO: this is a bit weird, gizmos should have a function for

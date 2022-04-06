@@ -47,7 +47,7 @@ export class AssetLoader {
 	// should be searched as well
 	/**
 	 *
-	 * @param {import("../util/mod.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 * @param {Object} [options]
 	 * @param {unknown} [options.assetOpts]
 	 * @param {boolean} [options.createNewInstance]

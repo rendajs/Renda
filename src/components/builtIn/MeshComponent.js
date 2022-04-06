@@ -2,7 +2,7 @@ import {Mesh} from "../../core/Mesh.js";
 import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
 import {StorageType} from "../../util/binarySerialization.js";
 import {Material} from "../../rendering/Material.js";
-import {Component} from "../mod.js";
+import {Component} from "../Component.js";
 import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 
 export class MeshComponent extends Component {

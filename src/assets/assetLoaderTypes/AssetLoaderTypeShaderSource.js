@@ -46,7 +46,7 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	}
 
 	/**
-	 * @param {import("../../util/mod.js").UuidString} uuid
+	 * @param {import("../../util/util.js").UuidString} uuid
 	 */
 	async onShaderUuidRequested(uuid) {
 		const shader = await this.assetLoader.getAsset(uuid, {
