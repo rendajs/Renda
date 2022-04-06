@@ -1,6 +1,6 @@
 import {AssetBundle} from "./AssetBundle.js";
 import {AssetLoaderType} from "./AssetLoaderTypes/AssetLoaderType.js";
-import {isUuid} from "../util/mod.js";
+import {isUuid} from "../util/util.js";
 
 export class AssetLoader {
 	constructor() {
@@ -22,8 +22,9 @@ export class AssetLoader {
 	}
 
 	/**
-	 * @param {typeof AssetLoaderType} constructor
-	 * @returns {AssetLoaderType}
+	 * @template TLoaderType
+	 * @param {new (...args: any[]) => TLoaderType} constructor
+	 * @returns {TLoaderType}
 	 */
 	registerLoaderType(constructor) {
 		// todo: remove these warnings in release builds
@@ -46,8 +47,9 @@ export class AssetLoader {
 	/**
 	 *
 	 * @param {import("../util/mod.js").UuidString} uuid
-	 * @param {*} param1
-	 * @returns
+	 * @param {Object} [options]
+	 * @param {unknown} [options.assetOpts]
+	 * @param {boolean} [options.createNewInstance]
 	 */
 	async getAsset(uuid, {
 		assetOpts = undefined,
