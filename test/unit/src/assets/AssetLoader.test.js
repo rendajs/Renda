@@ -1,7 +1,8 @@
 import {Importer} from "fake-imports";
-import {assertStrictEquals, assertThrows} from "asserts";
+import {assertRejects, assertStrictEquals, assertThrows} from "asserts";
 import {castMock} from "./MockAssetBundle.js";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
+import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../src/Assets/AssetBundle.js", "./MockAssetBundle.js");
@@ -52,17 +53,29 @@ class ExtendedAssetLoaderType extends AssetLoaderType {
 	}
 }
 
-function basicSetup() {
+/**
+ * @template {boolean} [TRegisterLoaderType = true]
+ * @param {Object} [options]
+ * @param {TRegisterLoaderType} [options.registerLoaderType]
+ */
+function basicSetup({
+	registerLoaderType = /** @type {TRegisterLoaderType} */ (true),
+} = {}) {
 	installMockWeakRef();
 	const assetLoader = new AssetLoader();
-	const loaderType = assetLoader.registerLoaderType(ExtendedAssetLoaderType);
-	const asset = {label: "expected asset"};
-	loaderType.setParseBufferReturn(asset);
+	const expectedAsset = {label: "expected asset"};
+
+	let loaderType = null;
+	if (registerLoaderType) {
+		loaderType = assetLoader.registerLoaderType(ExtendedAssetLoaderType);
+		loaderType.setParseBufferReturn(expectedAsset);
+	}
+	const castLoaderType = 	/** @type {TRegisterLoaderType extends true ? ExtendedAssetLoaderType : null} */ (loaderType);
 
 	return {
 		assetLoader,
-		asset,
-		loaderType,
+		expectedAsset,
+		loaderType: castLoaderType,
 		uninstall() {
 			uninstallMockWeakRef();
 		},
@@ -109,7 +122,7 @@ Deno.test({
 Deno.test({
 	name: "getting an asset",
 	async fn() {
-		const {assetLoader, asset: expectedAsset, uninstall} = basicSetup();
+		const {assetLoader, expectedAsset, uninstall} = basicSetup();
 		const bundle = assetLoader.addBundle("path/to/url");
 		const mockBundle = castMock(bundle);
 		mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
@@ -127,7 +140,7 @@ Deno.test({
 Deno.test({
 	name: "requesting the same asset twice returns the same instance by default",
 	async fn() {
-		const {assetLoader, asset: expectedAsset, loaderType, uninstall} = basicSetup();
+		const {assetLoader, expectedAsset, loaderType, uninstall} = basicSetup();
 		const bundle = assetLoader.addBundle("path/to/url");
 		const mockBundle = castMock(bundle);
 		mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
@@ -151,7 +164,7 @@ Deno.test({
 Deno.test({
 	name: "requesting the same asset twice returns a different instance when createNewInstance is true",
 	async fn() {
-		const {assetLoader, asset: expectedAsset1, loaderType, uninstall} = basicSetup();
+		const {assetLoader, expectedAsset: expectedAsset1, loaderType, uninstall} = basicSetup();
 		const bundle = assetLoader.addBundle("path/to/url");
 		const mockBundle = castMock(bundle);
 		mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
@@ -180,7 +193,7 @@ Deno.test({
 Deno.test({
 	name: "requesting the same asset twice returns a different instance when the old one was garbage collected",
 	async fn() {
-		const {assetLoader, asset: expectedAsset1, loaderType, uninstall} = basicSetup();
+		const {assetLoader, expectedAsset: expectedAsset1, loaderType, uninstall} = basicSetup();
 		const bundle = assetLoader.addBundle("path/to/url");
 		const mockBundle = castMock(bundle);
 		mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
@@ -199,6 +212,103 @@ Deno.test({
 		mockBundle.triggerAssetAvailable(BASIC_ASSET_UUID, true);
 		const asset2 = await getAssetPromise2;
 		assertStrictEquals(asset2, expectedAsset2);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "getting an asset with no bundles added rejects",
+	async fn() {
+		const {assetLoader, uninstall} = basicSetup();
+
+		await assertRejects(async () => {
+			await assetLoader.getAsset(BASIC_ASSET_UUID);
+		}, Error, `Tried to load an asset with uuid ${BASIC_ASSET_UUID} but the uuid wasn't found in any AssetBundle.`);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "getting an asset that is not available in any bundle rejects",
+	async fn() {
+		const {assetLoader, uninstall} = basicSetup();
+		const bundle = assetLoader.addBundle("path/to/url");
+		const mockBundle = castMock(bundle);
+
+		const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
+		mockBundle.triggerAssetAvailable(BASIC_ASSET_UUID, false);
+
+		await assertRejects(async () => {
+			await getAssetPromise;
+		}, Error, `Tried to load an asset with uuid ${BASIC_ASSET_UUID} but the uuid wasn't found in any AssetBundle.`);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "getting an asset that is available in the second bundle, first bundle resolves first",
+	async fn() {
+		const {assetLoader, expectedAsset, uninstall} = basicSetup();
+		const bundle1 = assetLoader.addBundle("path/to/url1");
+		const mockBundle1 = castMock(bundle1);
+		const bundle2 = assetLoader.addBundle("path/to/url2");
+		const mockBundle2 = castMock(bundle2);
+		mockBundle2.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+
+		const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
+		await waitForMicrotasks();
+		mockBundle1.triggerAssetAvailable(BASIC_ASSET_UUID, false);
+		await waitForMicrotasks();
+		mockBundle2.triggerAssetAvailable(BASIC_ASSET_UUID, true);
+		await waitForMicrotasks();
+		const asset = await getAssetPromise;
+
+		assertStrictEquals(asset, expectedAsset);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "getting an asset that is available in the second bundle, second bundle resolves first",
+	async fn() {
+		const {assetLoader, expectedAsset, uninstall} = basicSetup();
+		const bundle1 = assetLoader.addBundle("path/to/url1");
+		const mockBundle1 = castMock(bundle1);
+		const bundle2 = assetLoader.addBundle("path/to/url2");
+		const mockBundle2 = castMock(bundle2);
+		mockBundle2.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+
+		const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
+		await waitForMicrotasks();
+		mockBundle2.triggerAssetAvailable(BASIC_ASSET_UUID, true);
+		await waitForMicrotasks();
+		mockBundle1.triggerAssetAvailable(BASIC_ASSET_UUID, false);
+		await waitForMicrotasks();
+		const asset = await getAssetPromise;
+
+		assertStrictEquals(asset, expectedAsset);
+
+		uninstall();
+	},
+});
+
+Deno.test({
+	name: "loading an asset that doesn't have a registerd loader type rejects",
+	async fn() {
+		const {assetLoader, uninstall} = basicSetup({registerLoaderType: false});
+		const bundle = assetLoader.addBundle("path/to/url");
+		const mockBundle = castMock(bundle);
+		mockBundle.setAssetType(BASIC_ASSET_UUID, BASIC_ASSET_TYPE_UUID);
+
+		const getAssetPromise = assetLoader.getAsset(BASIC_ASSET_UUID);
+		mockBundle.triggerAssetAvailable(BASIC_ASSET_UUID, true);
+		await assertRejects(async () => {
+			await getAssetPromise;
+		}, Error, `Unable to parse asset with uuid "${BASIC_ASSET_UUID}". Its type is not registered, register it first with AssetLoader.registerLoaderType().`);
 
 		uninstall();
 	},

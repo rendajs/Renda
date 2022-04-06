@@ -86,17 +86,15 @@ export class AssetLoader {
 			}
 		});
 		if (!bundleWithAsset) {
-			// todo: remove this warning in release builds and add a way to suppress the warning
-			console.warn(`Tried to load an asset with uuid ${uuid} but the uuid wasn't found in any AssetBundles.`);
-			return null;
+			// todo: remove this error in release builds
+			throw new Error(`Tried to load an asset with uuid ${uuid} but the uuid wasn't found in any AssetBundle.`);
 		}
 		const {buffer, type} = await bundleWithAsset.getAsset(uuid);
 
 		const loaderType = this.registeredLoaderTypes.get(type);
 		if (!loaderType) {
-			// todo: remove this warning in release builds
-			console.warn("Unable to parse asset with uuid " + uuid + ". It's type is not registered, register asset loader types with AssetLoader.registerLoaderType().");
-			return null;
+			// todo: remove this error in release builds
+			throw new Error(`Unable to parse asset with uuid "${uuid}". Its type is not registered, register it first with AssetLoader.registerLoaderType().`);
 		}
 
 		const asset = await loaderType.parseBuffer(buffer, assetOpts);
