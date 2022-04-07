@@ -1,25 +1,25 @@
-/** @typedef {StorageType | string[] | StorageType[] | BinaryComposerStructure[]} BinaryComposerStructureItem */
+/** @typedef {StorageType | string[] | StorageType[] | BinarySerializationStructure[]} BinarySerializationStructureItem */
 /**
  * @typedef {{
- * [key: string]: BinaryComposerStructureItem
- * }} BinaryComposerStructure
+ * [key: string]: BinarySerializationStructureItem
+ * }} BinarySerializationStructure
  */
 
-/** @typedef {Object.<string, number>} BinaryComposerNameIds */
+/** @typedef {Object.<string, number>} BinarySerializationNameIds */
 
 /**
- * @typedef {Object} BinaryComposerObjectToBinaryOptions
- * @property {BinaryComposerStructure} structure
- * @property {BinaryComposerNameIds} nameIds
+ * @typedef {Object} ObjectToBinaryOptions
+ * @property {BinarySerializationStructure} structure
+ * @property {BinarySerializationNameIds} nameIds
  * @property {boolean} [littleEndian = true]
  * @property {boolean} [useHeaderByte = true]
- * @property {BinaryComposerVariableLengthStorageTypes?} [variableLengthStorageTypes = true]
+ * @property {BinarySerializationVariableLengthStorageTypes?} [variableLengthStorageTypes = true]
  * @property {ObjectToBinaryTransformValueHook?} [transformValueHook = null]
  * @property {import("../../editor/src/assets/AssetManager.js").AssetManager?} [editorAssetManager = null]
  */
 
 /**
- * @typedef {Object} BinaryComposerVariableLengthStorageTypes
+ * @typedef {Object} BinarySerializationVariableLengthStorageTypes
  * @property {StorageType} [refId = StorageType.NULL]
  * @property {StorageType} [array = StorageType.UINT8]
  * @property {StorageType} [string = StorageType.UINT16]
@@ -45,7 +45,7 @@
 /** @typedef {function(ObjectToBinaryTransformValueHookArgs) : *} ObjectToBinaryTransformValueHook */
 
 /**
- * @typedef {Object} BinaryComposerBinaryDigestible
+ * @typedef {Object} BinarySerializationBinaryDigestible
  * @property {*} value
  * @property {StorageType} type
  * @property {boolean} [variableArrayLength = false]
@@ -53,15 +53,15 @@
 
 /** @typedef {{id: number, type: StorageType}} TraversedLocationData */
 
-/** @typedef {BinaryComposerStructure | BinaryComposerStructure[] | StorageType | StorageType[] | string[]} BinaryComposerStructureRef */
+/** @typedef {BinarySerializationStructure | BinarySerializationStructure[] | StorageType | StorageType[] | string[]} BinarySerializationStructureRef */
 
 /**
- * @typedef {Object} BinaryComposerStructureDigestible
+ * @typedef {Object} BinarySerializationStructureDigestible
  * @property {StorageType} type
  * @property {TraversedLocationData[]} location
- * @property {BinaryComposerStructureRef} [structureRef]
+ * @property {BinarySerializationStructureRef} [structureRef]
  * @property {*} [childData]
- * @property {BinaryComposerStructureDigestible} [arrayType]
+ * @property {BinarySerializationStructureDigestible} [arrayType]
  * @property {string[]} [enumStrings]
  */
 
@@ -90,7 +90,7 @@ export const StorageType = {
 	NULL: 16,
 };
 
-/** @type {Required<BinaryComposerVariableLengthStorageTypes>} */
+/** @type {Required<BinarySerializationVariableLengthStorageTypes>} */
 const defaultVariableLengthStorageTypes = {
 	refId: StorageType.NULL,
 	array: StorageType.UINT8,
@@ -145,7 +145,7 @@ export function binaryToUuid(buffer, offset = 0) {
 
 /**
  * @param {Object} data
- * @param {BinaryComposerObjectToBinaryOptions} opts
+ * @param {ObjectToBinaryOptions} opts
  * @returns {ArrayBuffer}
  */
 export function objectToBinary(data, {
@@ -175,7 +175,7 @@ export function objectToBinary(data, {
 	const highestReferenceId = sortedReferences.length - 1;
 	const {type: refIdStorageType} = requiredStorageTypeForUint(highestReferenceId);
 
-	/** @type {BinaryComposerBinaryDigestible[]} */
+	/** @type {BinarySerializationBinaryDigestible[]} */
 	const binaryDigestable = [];
 	for (const {ref, structure} of sortedReferences) {
 		const digestable = generateBinaryDigestable(ref, structure, {referenceIds, nameIdsMap, isInitialItem: true});
@@ -270,11 +270,11 @@ export function objectToBinary(data, {
 /**
  * @param {ArrayBuffer} buffer
  * @param {Object} opts
- * @param {BinaryComposerStructure} opts.structure
- * @param {BinaryComposerNameIds} opts.nameIds
+ * @param {BinarySerializationStructure} opts.structure
+ * @param {BinarySerializationNameIds} opts.nameIds
  * @param {boolean} [opts.littleEndian]
  * @param {boolean} [opts.useHeaderByte]
- * @param {BinaryComposerVariableLengthStorageTypes?} [opts.variableLengthStorageTypes]
+ * @param {BinarySerializationVariableLengthStorageTypes?} [opts.variableLengthStorageTypes]
  * @param {BinaryToObjectTransformValueHook?} [opts.transformValueHook]
  */
 export function binaryToObject(buffer, {
@@ -291,7 +291,7 @@ export function binaryToObject(buffer, {
 	const reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
 	const references = new Set([structure, ...reoccurringStructureReferences]);
 
-	/** @type {Map<any,BinaryComposerStructureDigestible[]>} */
+	/** @type {Map<any,BinarySerializationStructureDigestible[]>} */
 	const structureDigestables = new Map();
 	for (const structureRef of references) {
 		const digestable = generateStructureDigestable(structureRef, [], {nameIdsMap, reoccurringStructureReferences, isInitialItem: true});
@@ -299,7 +299,7 @@ export function binaryToObject(buffer, {
 		structureDigestables.set(structureRef, flattened);
 	}
 
-	/** @type {Required<BinaryComposerVariableLengthStorageTypes>} */
+	/** @type {Required<BinarySerializationVariableLengthStorageTypes>} */
 	const useVariableLengthStorageTypes = {
 		...defaultVariableLengthStorageTypes,
 		...variableLengthStorageTypes,
@@ -452,7 +452,7 @@ export async function binaryToObjectWithAssetLoader(buffer, assetLoader, {
 /**
  * Returns a Set of objects references that occur more than once in the data.
  * Only items that exist in the nameIdsMap will be parsed.
- * @param {Object | BinaryComposerStructure} data Either the data that needs to be converted or its structure.
+ * @param {Object | BinarySerializationStructure} data Either the data that needs to be converted or its structure.
  * @param {NameIdsMap} nameIdsMap
  * @param {boolean} isStructure Whether the first argument is the structure.
  * @returns {Set<*>} A set of objects that occur more than once in the data.
@@ -503,10 +503,10 @@ function collectReoccurringReferences(data, nameIdsMap, isStructure) {
  * @private
  * @param {Object} options
  * @param {any} options.data
- * @param {BinaryComposerStructure | BinaryComposerStructureItem} options.structure
+ * @param {BinarySerializationStructure | BinarySerializationStructureItem} options.structure
  * @param {NameIdsMap} options.nameIdsMap
- * @param {Map<Object, BinaryComposerStructure>[]} options.existingItems
- * @param {Map<Object, BinaryComposerStructure>} options.collectedItems
+ * @param {Map<Object, BinarySerializationStructure>[]} options.existingItems
+ * @param {Map<Object, BinarySerializationStructure>} options.collectedItems
  * @param {Set<object>} options.forceUseAsReferences
  * @param {boolean} [options.isInitialItem]
  */
@@ -562,12 +562,12 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 /**
  * @param {Set<object>} reoccurringDataReferences A set of objects that occur more than once in the data.
  * @param {Object} data The object that needs to be converted to binary.
- * @param {BinaryComposerStructure} structure
+ * @param {BinarySerializationStructure} structure
  * @param {NameIdsMap} nameIdsMap
  * @returns {Map<*,*>} A mapping of the reoccurring data references and their respective Structure references.
  */
 function getStoreAsReferenceItems(reoccurringDataReferences, data, structure, nameIdsMap) {
-	/** @type {Map<Object, BinaryComposerStructure>} */
+	/** @type {Map<Object, BinarySerializationStructure>} */
 	const unparsedReferences = new Map();
 	unparsedReferences.set(data, structure);
 
@@ -576,7 +576,7 @@ function getStoreAsReferenceItems(reoccurringDataReferences, data, structure, na
 	while (unparsedReferences.size > 0) {
 		const [ref, structureRef] = unparsedReferences.entries().next().value;
 
-		/** @type {Map<object, BinaryComposerStructure>} */
+		/** @type {Map<object, BinarySerializationStructure>} */
 		const collectedItems = new Map();
 		collectStoredAsReferenceItems({
 			data: ref,
@@ -654,12 +654,12 @@ function variableLengthBitsToStorageType(bits) {
 
 /**
  * @param {Object} obj The object that needs be converted to binary.
- * @param {BinaryComposerStructureRef} structure The structure that belongs to this object.
+ * @param {BinarySerializationStructureRef} structure The structure that belongs to this object.
  * @param {Object} opts
  * @param {Map<*,number>} opts.referenceIds A mapping of objects and an id that they will be using in the binary representation.
  * @param {Map<string,number>} opts.nameIdsMap
  * @param {boolean} [opts.isInitialItem] Whether this is the root item of the object.
- * @returns {BinaryComposerBinaryDigestible}
+ * @returns {BinarySerializationBinaryDigestible}
  */
 function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isInitialItem = false}) {
 	if (typeof structure == "object" && structure != null) {
@@ -677,7 +677,7 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 		}
 
 		if (Array.isArray(structure)) {
-			const castStructure = /** @type {(StorageType | BinaryComposerStructure)[]} */ (structure);
+			const castStructure = /** @type {(StorageType | BinarySerializationStructure)[]} */ (structure);
 			if (typeof castStructure[0] == "string") {
 				// structure is an array of strings, treat it as an enum
 				const value = castStructure.indexOf(obj) + 1; // use 0 if the enum value is invalid
@@ -725,7 +725,7 @@ function sortNameIdsArr(arr) {
 }
 
 /**
- * @param {BinaryComposerBinaryDigestible[]} binaryDigestableArray
+ * @param {BinarySerializationBinaryDigestible[]} binaryDigestableArray
  * @returns {number}
  */
 function findBiggestVariableArrayLength(binaryDigestableArray) {
@@ -744,9 +744,9 @@ function findBiggestVariableArrayLength(binaryDigestableArray) {
 
 /**
  *
- * @param {BinaryComposerBinaryDigestible[]} binaryDigestableArray
+ * @param {BinarySerializationBinaryDigestible[]} binaryDigestableArray
  * @param {StorageType} arrayLengthStorageType
- * @returns {Generator<BinaryComposerBinaryDigestible>}
+ * @returns {Generator<BinarySerializationBinaryDigestible>}
  */
 function *flattenBinaryDigestable(binaryDigestableArray, arrayLengthStorageType) {
 	for (const item of binaryDigestableArray) {
@@ -891,13 +891,13 @@ function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, 
 }
 
 /**
- * @param {BinaryComposerStructureRef} structure
+ * @param {BinarySerializationStructureRef} structure
  * @param {TraversedLocationData[]} traversedLocationPath
  * @param {Object} opts
  * @param {NameIdsMap} opts.nameIdsMap
  * @param {Set<*>} opts.reoccurringStructureReferences
  * @param {boolean} [opts.isInitialItem]
- * @returns {BinaryComposerStructureDigestible}
+ * @returns {BinarySerializationStructureDigestible}
  */
 function generateStructureDigestable(structure, traversedLocationPath, {nameIdsMap, reoccurringStructureReferences, isInitialItem = false}) {
 	if (typeof structure == "object" && structure != null) {
@@ -912,7 +912,7 @@ function generateStructureDigestable(structure, traversedLocationPath, {nameIdsM
 				const {type} = requiredStorageTypeForUint(structure.length);
 				return {type, location: traversedLocationPath, enumStrings: castStructure};
 			} else {
-				const castStructure = /** @type {BinaryComposerStructure[] | number[]} */ (structure);
+				const castStructure = /** @type {BinarySerializationStructure[] | number[]} */ (structure);
 				const variableArrayLength = castStructure.length == 1;
 				if (variableArrayLength) {
 					const newTraversedLocationPath = [...traversedLocationPath, {id: -1, type: StorageType.ARRAY}];
@@ -949,8 +949,8 @@ function generateStructureDigestable(structure, traversedLocationPath, {nameIdsM
 }
 
 /**
- * @param {BinaryComposerStructureDigestible} digestable
- * @returns {Generator<BinaryComposerStructureDigestible>}
+ * @param {BinarySerializationStructureDigestible} digestable
+ * @returns {Generator<BinarySerializationStructureDigestible>}
  */
 function *flattenStructureDigestable(digestable) {
 	if (digestable.type == StorageType.OBJECT || digestable.type == StorageType.ARRAY) {

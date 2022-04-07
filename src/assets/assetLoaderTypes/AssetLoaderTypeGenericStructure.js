@@ -3,7 +3,7 @@ import {binaryToObject, binaryToObjectWithAssetLoader} from "../../util/binarySe
 
 export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 	/**
-	 * @returns {import("../../util/binarySerialization.js").BinaryComposerObjectToBinaryOptions?}
+	 * @returns {import("../../util/binarySerialization.js").ObjectToBinaryOptions?}
 	 */
 	static get binaryComposerOpts() {
 		return null;

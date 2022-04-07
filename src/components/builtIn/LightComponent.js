@@ -31,7 +31,7 @@ export class LightComponent extends Component {
 	}
 
 	/**
-	 * @returns {import("../../util/binarySerialization.js").BinaryComposerObjectToBinaryOptions}
+	 * @returns {import("../../util/binarySerialization.js").ObjectToBinaryOptions}
 	 */
 	static get binaryComposerOpts() {
 		return {

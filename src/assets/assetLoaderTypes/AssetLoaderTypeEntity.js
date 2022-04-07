@@ -3,7 +3,7 @@ import {Entity} from "../../core/Entity.js";
 import {Mat4} from "../../math/Mat4.js";
 import {StorageType, binaryToObject, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 
-/** @type {import("../../util/binarySerialization.js").BinaryComposerStructure} */
+/** @type {import("../../util/binarySerialization.js").BinarySerializationStructure} */
 const entityBinaryStructure = {
 	name: StorageType.STRING,
 	matrix: [StorageType.FLOAT32],

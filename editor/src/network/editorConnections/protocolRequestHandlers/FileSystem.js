@@ -28,7 +28,7 @@ const createDir = createRequestHandler({
 	},
 });
 
-/** @type {import("../../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions} */
+/** @type {import("../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions} */
 const serializeFileBinaryOpts = {
 	structure: {
 		buffer: StorageType.ARRAY_BUFFER,
@@ -88,7 +88,7 @@ const readFile = createRequestHandler({
 	},
 });
 
-/** @type {import("../../../../../src/util/binarySerialization.js").BinaryComposerObjectToBinaryOptions} */
+/** @type {import("../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions} */
 const serializeWriteFileBinaryOpts = {
 	structure: {
 		path: [StorageType.STRING],
