@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals, assertThrows} from "asserts";
 import {binaryToUuid, uuidToBinary} from "../../../../../src/mod.js";
 
 Deno.test({
@@ -25,6 +25,15 @@ Deno.test({
 		const result = uuidToBinary(null);
 		const expected = new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
 		assertEquals(new Uint8Array(result), expected);
+	},
+});
+
+Deno.test({
+	name: "uuidToBinary() with an invalid uuid should throw",
+	fn() {
+		assertThrows(() => {
+			uuidToBinary("invalid");
+		}, Error, `Failed to serialize uuid, string is not a valid uuid: "invalid"`);
 	},
 });
 

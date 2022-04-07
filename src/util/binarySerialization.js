@@ -1,3 +1,5 @@
+import {isUuid} from "./util.js";
+
 /** @typedef {StorageType | string[] | StorageType[] | BinarySerializationStructure[]} BinarySerializationStructureItem */
 /**
  * @typedef {{
@@ -108,6 +110,9 @@ const HeaderBits = {
 export function uuidToBinary(uuidStr) {
 	const buffer = new ArrayBuffer(16);
 	if (!uuidStr) return buffer;
+	if (!isUuid(uuidStr)) {
+		throw new Error(`Failed to serialize uuid, string is not a valid uuid: "${uuidStr}"`);
+	}
 	let i = 0; let j = 0;
 	const view = new DataView(buffer);
 	while (i < uuidStr.length) {
