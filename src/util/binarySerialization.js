@@ -134,7 +134,7 @@ export function binaryToUuid(buffer, offset = 0) {
 	if (!ArrayBuffer.isView(buffer)) {
 		bufferView = new Uint8Array(buffer);
 	} else {
-		bufferView = new Uint8Array(buffer.buffer);
+		bufferView = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 	}
 	if (bufferView.byteLength != 16) {
 		throw new Error(`Failed to deserialize uuid, buffer is ${bufferView.byteLength} bytes long, uuid buffers need to be 16 bytes long.`);
