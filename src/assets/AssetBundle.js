@@ -46,6 +46,9 @@ export class AssetBundle {
 
 		let hasParsedHeader = false;
 
+		// TODO: better error handling when fetch fails
+		if (!response.body) return;
+
 		// todo: use for await here once it's implemented in most browsers
 		for await (const chunk of streamAsyncIterator(response.body)) {
 			allChunks.set(chunk, receivedLength);
@@ -131,6 +134,7 @@ export class AssetBundle {
 	 * @param {import("../util/util.js").UuidString} uuid
 	 */
 	async getAsset(uuid) {
+		if (!this.downloadBuffer) return null;
 		const exists = await this.hasAsset(uuid);
 		if (!exists) return null;
 

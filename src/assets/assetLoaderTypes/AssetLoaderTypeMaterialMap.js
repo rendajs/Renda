@@ -50,10 +50,12 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 				continue;
 			}
 			const mapType = await mapLoader.parseBuffer(mapData.data);
-			materialMapTypes.push({
-				mapType,
-				mappedValues: {}, // todo
-			});
+			if (mapType) {
+				materialMapTypes.push({
+					mapType,
+					mappedValues: {}, // todo
+				});
+			}
 		}
 		const material = new MaterialMap({
 			materialMapTypes,

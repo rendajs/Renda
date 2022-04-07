@@ -1,11 +1,13 @@
 import {PromiseWaitHelper} from "../util/PromiseWaitHelper.js";
 
 export class AssetBundleRange {
-	constructor({
-		typeUuid = null,
-		byteStart = 0,
-		byteEnd = 0,
-	} = {}) {
+	/**
+	 * @param {Object} options
+	 * @param {import("../util/util.js").UuidString?} options.typeUuid
+	 * @param {number} options.byteStart
+	 * @param {number} options.byteEnd
+	 */
+	constructor({typeUuid, byteStart, byteEnd}) {
 		this.typeUuid = typeUuid;
 		this.byteStart = byteStart;
 		this.byteEnd = byteEnd;

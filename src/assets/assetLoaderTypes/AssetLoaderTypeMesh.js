@@ -29,8 +29,10 @@ export class AssetLoaderTypeMesh extends AssetLoaderType {
 		const mesh = new Mesh();
 
 		const vertexStateUuid = decomposer.getUuid();
-		const vertexState = await this.assetLoader.getAsset(vertexStateUuid);
-		mesh.setVertexState(vertexState);
+		if (vertexStateUuid) {
+			const vertexState = await this.assetLoader.getAsset(vertexStateUuid);
+			mesh.setVertexState(vertexState);
+		}
 
 		const indexFormat = decomposer.getUint8();
 		if (indexFormat != Mesh.IndexFormat.NONE) {
