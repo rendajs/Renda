@@ -136,6 +136,9 @@ export function binaryToUuid(buffer, offset = 0) {
 	} else {
 		bufferView = /** @type {Uint8Array} */ (buffer);
 	}
+	if (bufferView.byteLength != 16) {
+		throw new Error(`Failed to deserialize uuid, buffer is ${bufferView.byteLength} bytes long, uuid buffers need to be 16 bytes long.`);
+	}
 	let allZeros = true;
 	let str = "";
 	for (let i = 0; i < 16; i++) {

@@ -63,3 +63,13 @@ Deno.test({
 		assertEquals(result, null);
 	},
 });
+
+Deno.test({
+	name: "binaryToUuid(), invalid buffer length",
+	fn() {
+		const intView = new Uint8Array([0, 1, 2]);
+		assertThrows(() => {
+			binaryToUuid(intView.buffer);
+		}, Error, "Failed to deserialize uuid, buffer is 3 bytes long, uuid buffers need to be 16 bytes long.");
+	},
+});
