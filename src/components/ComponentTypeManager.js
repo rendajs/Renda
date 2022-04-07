@@ -26,7 +26,7 @@ export class ComponentTypeManager {
 	}
 
 	/**
-	 * @param {import("../util.js").UuidString} uuid
+	 * @param {import("../util/util.js").UuidString} uuid
 	 * @returns {typeof Component?}
 	 */
 	getComponentConstructorForUuid(uuid) {

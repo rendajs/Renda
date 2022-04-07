@@ -3,19 +3,19 @@ import {ENABLE_INSPECTOR_SUPPORT} from "../engineDefines.js";
 /**
  * @typedef {{
  * 	availableClientAdded: {
- * 		clientId: import("../util.js").UuidString,
+ * 		clientId: import("../util/util.js").UuidString,
  * 		clientType: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType,
  * 		projectMetaData: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?,
  * 	},
  * 	availableClientRemoved: {
- * 		clientId: import("../util.js").UuidString,
+ * 		clientId: import("../util/util.js").UuidString,
  * 	},
  * 	projectMetaData: {
- * 		clientId: import("../util.js").UuidString,
+ * 		clientId: import("../util/util.js").UuidString,
  * 		projectMetaData: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?,
  * 	},
  * 	connectionCreated: {
- * 		clientId: import("../util.js").UuidString,
+ * 		clientId: import("../util/util.js").UuidString,
  * 		port: MessagePort,
  * 	},
  * }} InternalDiscoveryClientMessages

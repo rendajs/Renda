@@ -28,7 +28,7 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
  * @typedef {Object} EntityJsonDataAssetEntityTypes
- * @property {import("../util.js").UuidString} assetUuid
+ * @property {import("../util/util.js").UuidString} assetUuid
  * @property {number[]} [pos]
  * @property {number[]} [rot]
  * @property {number[]} [scale]

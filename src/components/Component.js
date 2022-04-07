@@ -39,7 +39,7 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
 
 /**
  * @typedef {Object} EntityJsonDataComponent
- * @property {import("../util.js").UuidString} uuid
+ * @property {import("../util/util.js").UuidString} uuid
  * @property {Object.<string, any>} propertyValues
  */
 
@@ -55,7 +55,7 @@ export class Component {
 	}
 
 	/**
-	 * @returns {import("../util.js").UuidString?}
+	 * @returns {import("../util/util.js").UuidString?}
 	 */
 	static get uuid() {
 		return null;

@@ -67,7 +67,7 @@ export class MeshComponent extends Component {
 
 		/** @type {Mesh?} */
 		this.mesh = null;
-		/** @type {Material[]} */
+		/** @type {(Material | null)[]} */
 		this.materials = [];
 
 		this.initValues(propertyValues, ...args);
