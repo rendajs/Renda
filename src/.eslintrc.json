@@ -11,6 +11,9 @@
 		"no-throw-literal": "off",
 
 		// Closure Compiler doesn't support `this` in static methods.
-		"rulesdir/no-this-in-static-method": "error"
+		"rulesdir/no-this-in-static-method": "error",
+
+		// prevent circular imports
+		"rulesdir/no-mod-imports": "error"
 	}
 }

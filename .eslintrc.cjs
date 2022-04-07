@@ -224,6 +224,5 @@ module.exports = {
 		"jsdoc/require-returns-type": "error",
 
 		"rulesdir/no-default-exports": "error",
-		"rulesdir/no-mod-imports": "error",
 	},
 };
