@@ -103,7 +103,7 @@ const HeaderBits = {
 };
 
 /**
- * @param {import("./util.js").UuidString} uuidStr
+ * @param {import("./util.js").UuidString?} uuidStr
  */
 export function uuidToBinary(uuidStr) {
 	const buffer = new ArrayBuffer(16);
