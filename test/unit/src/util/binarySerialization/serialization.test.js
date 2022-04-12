@@ -2,8 +2,9 @@ import {assertEquals, assertStrictEquals} from "asserts";
 import {StorageType, binaryToObject, objectToBinary} from "../../../../../src/util/binarySerialization.js";
 
 /**
- * @param {Object} object
- * @param {import("../../../../../src/mod.js").ObjectToBinaryOptions} options
+ * @template {import("../../../../../src/util/binarySerializationTypes.js").AllowedStructureFormat} T
+ * @param {import("../../../../../src/util/binarySerializationTypes.js").StructureToObject<T>} object
+ * @param {import("../../../../../src/mod.js").ObjectToBinaryOptions<T>} options
  */
 function basicObjectToBinaryToObjectTest(object, options, {
 	makeAssertion = true,
@@ -103,7 +104,7 @@ Deno.test({
 				enum1: 1,
 			},
 			structure: {
-				enum1: ["value1", "value2", "value3", "value4"],
+				enum1: /** @type {const} */ (["value1", "value2", "value3", "value4"]),
 			},
 		});
 	},
@@ -113,7 +114,7 @@ Deno.test({
 	name: "multiple enums with the same array reference",
 	ignore: true,
 	fn() {
-		const enums = ["value1", "value2", "value3", "value4"];
+		const enums = /** @type {const} */ (["value1", "value2", "value3", "value4"]);
 		basicObjectToBinaryToObjectTest({
 			enum1: "value2",
 			enum2: "value2",
@@ -275,11 +276,36 @@ Deno.test({
 	name: "infinite reference recursion",
 	ignore: true,
 	fn() {
-		const foo = {name: "foo"};
+		/**
+		 * @typedef FooObject
+		 * @property {string} name
+		 * @property {BarObject} child
+		 */
+
+		/**
+		 * @typedef BarObject
+		 * @property {string} name
+		 * @property {FooObject} child
+		 */
+
+		const foo = /** @type {FooObject} */ ({name: "foo"});
+		/** @type {BarObject} */
 		const bar = {name: "bar", child: foo};
 		foo.child = bar;
 
-		const structureFoo = {name: StorageType.STRING};
+		/**
+		 * @typedef FooStructure
+		 * @property {import("../../../../../src/util/binarySerialization.js").StorageTypeEnum["STRING"]} name
+		 * @property {BarStructure} child
+		 */
+
+		/**
+		 * @typedef BarStructure
+		 * @property {import("../../../../../src/util/binarySerialization.js").StorageTypeEnum["STRING"]} name
+		 * @property {FooStructure} child
+		 */
+
+		const structureFoo = /** @type {FooStructure} */ ({name: StorageType.STRING});
 		const structureBar = {name: StorageType.STRING, child: structureFoo};
 		structureFoo.child = structureBar;
 
@@ -301,7 +327,7 @@ Deno.test({
 	ignore: true,
 	fn() {
 		const {result} = basicObjectToBinaryToObjectTest({
-			array: null,
+			array: /** @type {any} */ (null),
 		}, {
 			nameIds: {
 				array: 1,

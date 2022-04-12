@@ -1,17 +1,11 @@
 import {isUuid} from "./util.js";
 
-/** @typedef {StorageType | string[] | StorageType[] | BinarySerializationStructure[]} BinarySerializationStructureItem */
-/**
- * @typedef {{
- * [key: string]: BinarySerializationStructureItem
- * }} BinarySerializationStructure
- */
-
 /** @typedef {Object.<string, number>} BinarySerializationNameIds */
 
 /**
+ * @template T
  * @typedef {Object} ObjectToBinaryOptions
- * @property {BinarySerializationStructure} structure
+ * @property {T} structure
  * @property {BinarySerializationNameIds} nameIds
  * @property {boolean} [littleEndian = true]
  * @property {boolean} [useHeaderByte = true]
@@ -30,10 +24,10 @@ import {isUuid} from "./util.js";
 
 /**
  * @typedef {Object} BinaryToObjectTransformValueHookArgs
- * @property {*} value The value of the property before the transformation.
+ * @property {unknown} value The value of the property before the transformation.
  * @property {StorageType} type The type of the property before the transformation.
- * @property {Object.<string, unknown>} placedOnObject The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
- * @property {string} placedOnKey The key of the property.
+ * @property {Object.<string | number, unknown>} placedOnObject The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
+ * @property {string | number} placedOnKey The key of the property.
  */
 
 /** @typedef {function(BinaryToObjectTransformValueHookArgs) : *} BinaryToObjectTransformValueHook */
@@ -55,13 +49,11 @@ import {isUuid} from "./util.js";
 
 /** @typedef {{id: number, type: StorageType}} TraversedLocationData */
 
-/** @typedef {BinarySerializationStructure | BinarySerializationStructure[] | StorageType | StorageType[] | string[]} BinarySerializationStructureRef */
-
 /**
  * @typedef {Object} BinarySerializationStructureDigestible
  * @property {StorageType} type
  * @property {TraversedLocationData[]} location
- * @property {BinarySerializationStructureRef} [structureRef]
+ * @property {import("./binarySerializationTypes.js").AllowedStructureFormat} [structureRef]
  * @property {*} [childData]
  * @property {BinarySerializationStructureDigestible} [arrayType]
  * @property {string[]} [enumStrings]
@@ -73,7 +65,7 @@ import {isUuid} from "./util.js";
  * @readonly
  * @enum {number}
  */
-export const StorageType = {
+export const StorageType = /** @type {const} */ ({
 	INT8: 1,
 	INT16: 2,
 	INT32: 3,
@@ -90,7 +82,16 @@ export const StorageType = {
 	ASSET_UUID: 14, // same as UUID but will load the asset when binaryToObjectWithAssetLoader() is used
 	ARRAY_BUFFER: 15,
 	NULL: 16,
-};
+});
+
+/**
+ * Use this to access the const values of the `StorageType` enum from TypeScript.
+ * @typedef {typeof StorageType} StorageTypeEnum
+ */
+/**
+ * A union of all the possible storage types.
+ * @typedef {StorageTypeEnum[keyof StorageTypeEnum]} AllStorageTypes
+ */
 
 /** @type {Required<BinarySerializationVariableLengthStorageTypes>} */
 const defaultVariableLengthStorageTypes = {
@@ -152,8 +153,9 @@ export function binaryToUuid(buffer, offset = 0) {
 }
 
 /**
- * @param {Object} data
- * @param {ObjectToBinaryOptions} opts
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
+ * @param {import("./binarySerializationTypes.js").StructureToObject<T>} data
+ * @param {ObjectToBinaryOptions<T>} opts
  * @returns {ArrayBuffer}
  */
 export function objectToBinary(data, {
@@ -167,10 +169,11 @@ export function objectToBinary(data, {
 }) {
 	const nameIdsMap = new Map(Object.entries(nameIds));
 
-	const reoccurringDataReferences = collectReoccurringReferences(data, nameIdsMap, false);
+	const castData = /** @type {import("./binarySerializationTypes.js").AllowedStructureFormat} */ (data);
+	const reoccurringDataReferences = collectReoccurringReferences(castData, nameIdsMap, false);
 	// const reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
 
-	const referencesAndStructures = getStoreAsReferenceItems(reoccurringDataReferences, data, structure, nameIdsMap);
+	const referencesAndStructures = getStoreAsReferenceItems(reoccurringDataReferences, castData, structure, nameIdsMap);
 
 	const referenceIds = new Map();
 	const sortedReferences = [];
@@ -276,14 +279,10 @@ export function objectToBinary(data, {
 }
 
 /**
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
  * @param {ArrayBuffer} buffer
- * @param {Object} opts
- * @param {BinarySerializationStructure} opts.structure
- * @param {BinarySerializationNameIds} opts.nameIds
- * @param {boolean} [opts.littleEndian]
- * @param {boolean} [opts.useHeaderByte]
- * @param {BinarySerializationVariableLengthStorageTypes?} [opts.variableLengthStorageTypes]
- * @param {BinaryToObjectTransformValueHook?} [opts.transformValueHook]
+ * @param {ObjectToBinaryOptions<T>} opts
+ * @returns {import("./binarySerializationTypes.js").StructureToObject<T>}
  */
 export function binaryToObject(buffer, {
 	structure,
@@ -297,6 +296,7 @@ export function binaryToObject(buffer, {
 	const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k, v]) => [v, k]));
 
 	const reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+	/** @type {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} */
 	const references = new Set([structure, ...reoccurringStructureReferences]);
 
 	/** @type {Map<any,BinarySerializationStructureDigestible[]>} */
@@ -460,10 +460,10 @@ export async function binaryToObjectWithAssetLoader(buffer, assetLoader, {
 /**
  * Returns a Set of objects references that occur more than once in the data.
  * Only items that exist in the nameIdsMap will be parsed.
- * @param {Object | BinarySerializationStructure} data Either the data that needs to be converted or its structure.
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} data Either the data that needs to be converted or its structure.
  * @param {NameIdsMap} nameIdsMap
  * @param {boolean} isStructure Whether the first argument is the structure.
- * @returns {Set<*>} A set of objects that occur more than once in the data.
+ * @returns {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} A set of objects that occur more than once in the data.
  */
 function collectReoccurringReferences(data, nameIdsMap, isStructure) {
 	const occurringReferences = new Set(); // references that have occured once
@@ -511,11 +511,11 @@ function collectReoccurringReferences(data, nameIdsMap, isStructure) {
  * @private
  * @param {Object} options
  * @param {any} options.data
- * @param {BinarySerializationStructure | BinarySerializationStructureItem} options.structure
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} options.structure
  * @param {NameIdsMap} options.nameIdsMap
- * @param {Map<Object, BinarySerializationStructure>[]} options.existingItems
- * @param {Map<Object, BinarySerializationStructure>} options.collectedItems
- * @param {Set<object>} options.forceUseAsReferences
+ * @param {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>[]} options.existingItems
+ * @param {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>} options.collectedItems
+ * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} options.forceUseAsReferences
  * @param {boolean} [options.isInitialItem]
  */
 function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingItems, collectedItems, forceUseAsReferences, isInitialItem = false}) {
@@ -532,6 +532,9 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 
 	if (typeof data == "object" && data != null) {
 		if (Array.isArray(data)) {
+			if (!(structure instanceof Array)) {
+				throw new Error("The object provided contains an array where the structe does not.");
+			}
 			if (structure.length == 1) {
 				const structureItem = structure[0];
 				// todo: add some sort of way to store arrays with variable length with
@@ -545,6 +548,9 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 				for (let i = 0; i < data.length; i++) {
 					const item = data[i];
 					const structureItem = structure[i];
+					if (typeof structureItem == "string") {
+						throw new Error("The structure contains an array of strings where the object does not have an enum as value.");
+					}
 					collectStoredAsReferenceItems({
 						data: item,
 						structure: structureItem,
@@ -555,7 +561,8 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 		} else {
 			for (const [key, val] of Object.entries(data)) {
 				if (nameIdsMap.has(key)) {
-					const structureItem = structure[key];
+					const castStructure = /** @type {Object.<string, import("./binarySerializationTypes.js").AllowedStructureFormat>} */ (structure);
+					const structureItem = castStructure[key];
 					collectStoredAsReferenceItems({
 						data: val,
 						structure: structureItem,
@@ -568,14 +575,14 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 }
 
 /**
- * @param {Set<object>} reoccurringDataReferences A set of objects that occur more than once in the data.
+ * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} reoccurringDataReferences A set of objects that occur more than once in the data.
  * @param {Object} data The object that needs to be converted to binary.
- * @param {BinarySerializationStructure} structure
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
  * @param {NameIdsMap} nameIdsMap
  * @returns {Map<*,*>} A mapping of the reoccurring data references and their respective Structure references.
  */
 function getStoreAsReferenceItems(reoccurringDataReferences, data, structure, nameIdsMap) {
-	/** @type {Map<Object, BinarySerializationStructure>} */
+	/** @type {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>} */
 	const unparsedReferences = new Map();
 	unparsedReferences.set(data, structure);
 
@@ -584,7 +591,7 @@ function getStoreAsReferenceItems(reoccurringDataReferences, data, structure, na
 	while (unparsedReferences.size > 0) {
 		const [ref, structureRef] = unparsedReferences.entries().next().value;
 
-		/** @type {Map<object, BinarySerializationStructure>} */
+		/** @type {Map<object, import("./binarySerializationTypes.js").AllowedStructureFormat>} */
 		const collectedItems = new Map();
 		collectStoredAsReferenceItems({
 			data: ref,
@@ -610,6 +617,7 @@ function getStoreAsReferenceItems(reoccurringDataReferences, data, structure, na
 function requiredStorageTypeForUint(int) {
 	const minBytes = Math.ceil(Math.log2(int + 1) / 8);
 	let bytes = 0;
+	/** @type {StorageTypeEnum["NULL"] | StorageTypeEnum["UINT8"] | StorageTypeEnum["UINT16"] | StorageTypeEnum["UINT32"]} */
 	let type = StorageType.NULL;
 	if (minBytes == 1) {
 		type = StorageType.UINT8;
@@ -662,7 +670,7 @@ function variableLengthBitsToStorageType(bits) {
 
 /**
  * @param {Object} obj The object that needs be converted to binary.
- * @param {BinarySerializationStructureRef} structure The structure that belongs to this object.
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure The structure that belongs to this object.
  * @param {Object} opts
  * @param {Map<*,number>} opts.referenceIds A mapping of objects and an id that they will be using in the binary representation.
  * @param {Map<string,number>} opts.nameIdsMap
@@ -685,29 +693,38 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 		}
 
 		if (Array.isArray(structure)) {
-			const castStructure = /** @type {(StorageType | BinarySerializationStructure)[]} */ (structure);
-			if (typeof castStructure[0] == "string") {
+			if (typeof structure[0] == "string") {
 				// structure is an array of strings, treat it as an enum
-				const value = castStructure.indexOf(obj) + 1; // use 0 if the enum value is invalid
-				const {type} = requiredStorageTypeForUint(castStructure.length);
+				const castStructure1 = /** @type {unknown} */ (structure);
+				const castStructure2 = /** @type {string[]} */ (castStructure1);
+				if (typeof obj != "string") {
+					throw new Error("Tried to serialize an enum, but the provided object is not a string");
+				}
+				const value = castStructure2.indexOf(obj) + 1; // use 0 if the enum value is invalid
+				const {type} = requiredStorageTypeForUint(castStructure2.length);
 				return {value, type};
 			} else {
 				const arr = [];
-				const variableArrayLength = castStructure.length == 1;
+				const variableArrayLength = structure.length == 1;
+				if (!Array.isArray(obj)) {
+					throw new Error("The provided structure contains an array but the object is not an array");
+				}
 				for (let i = 0; i < obj.length; i++) {
 					const structureIndex = variableArrayLength ? 0 : i;
-					arr.push(generateBinaryDigestable(obj[i], castStructure[structureIndex], {referenceIds, nameIdsMap}));
+					arr.push(generateBinaryDigestable(obj[i], structure[structureIndex], {referenceIds, nameIdsMap}));
 				}
 				return {value: arr, type: StorageType.ARRAY, variableArrayLength};
 			}
 		} else {
 			const arr = [];
+			const castObj = /** @type {Object.<string, Object>} */ (obj);
+			const castStructure = /** @type {Object.<string, import("./binarySerializationTypes.js").AllowedStructureFormat>} */ (structure);
 			for (const key of Object.keys(structure)) {
 				if (nameIdsMap.has(key)) {
-					const val = obj[key];
+					const val = castObj[key];
 					arr.push({
-						...generateBinaryDigestable(val, structure[key], {referenceIds, nameIdsMap}),
-						nameId: nameIdsMap.get(key),
+						...generateBinaryDigestable(val, castStructure[key], {referenceIds, nameIdsMap}),
+						nameId: /** @type {number} */ (nameIdsMap.get(key)),
 					});
 				}
 			}
@@ -803,14 +820,16 @@ function getStructureTypeLength(type, {
 	} else if (type == StorageType.FLOAT64) {
 		return {length: 8};
 	} else if (type == StorageType.STRING) {
-		const encoded = textEncoder.encode(value);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		const encoded = textEncoder.encode(castValue);
 		return {length: encoded.byteLength + stringLengthByteLength, value: encoded};
 	} else if (type == StorageType.BOOL) {
 		return {length: 1};
 	} else if (type == StorageType.UUID || type == StorageType.ASSET_UUID) {
 		return {length: 16};
 	} else if (type == StorageType.ARRAY_BUFFER) {
-		return {length: value.byteLength + arrayBufferLengthByteLength};
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		return {length: castValue.byteLength + arrayBufferLengthByteLength};
 	} else if (type == StorageType.NULL) {
 		return {length: 0};
 	}
@@ -837,44 +856,55 @@ function setDataViewValue(dataView, value, type, byteOffset = 0, {
 } = {}) {
 	let bytesMoved = 0;
 	if (type == StorageType.INT8) {
-		dataView.setInt8(byteOffset, value);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setInt8(byteOffset, castValue);
 		bytesMoved = 1;
 	} else if (type == StorageType.INT16) {
-		dataView.setInt16(byteOffset, value, littleEndian);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setInt16(byteOffset, castValue, littleEndian);
 		bytesMoved = 2;
 	} else if (type == StorageType.INT32) {
-		dataView.setInt32(byteOffset, value, littleEndian);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setInt32(byteOffset, castValue, littleEndian);
 		bytesMoved = 4;
 	} else if (type == StorageType.UINT8) {
-		dataView.setUint8(byteOffset, value);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setUint8(byteOffset, castValue);
 		bytesMoved = 1;
 	} else if (type == StorageType.UINT16) {
-		dataView.setUint16(byteOffset, value, littleEndian);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setUint16(byteOffset, castValue, littleEndian);
 		bytesMoved = 2;
 	} else if (type == StorageType.UINT32) {
-		dataView.setUint32(byteOffset, value, littleEndian);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setUint32(byteOffset, castValue, littleEndian);
 		bytesMoved = 4;
 	} else if (type == StorageType.FLOAT32) {
-		dataView.setFloat32(byteOffset, value, littleEndian);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setFloat32(byteOffset, castValue, littleEndian);
 		bytesMoved = 4;
 	} else if (type == StorageType.FLOAT64) {
-		dataView.setFloat64(byteOffset, value, littleEndian);
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		dataView.setFloat64(byteOffset, castValue, littleEndian);
 		bytesMoved = 8;
 	} else if (type == StorageType.STRING) {
-		bytesMoved = insertLengthAndBuffer(dataView, value, byteOffset, stringLengthStorageType, {littleEndian});
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		bytesMoved = insertLengthAndBuffer(dataView, castValue, byteOffset, stringLengthStorageType, {littleEndian});
 	} else if (type == StorageType.BOOL) {
 		dataView.setUint8(byteOffset, value ? 1 : 0);
 		bytesMoved = 1;
 	} else if (type == StorageType.UUID || type == StorageType.ASSET_UUID) {
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
 		if (type == StorageType.ASSET_UUID && editorAssetManager) {
-			value = editorAssetManager.resolveDefaultAssetLinkUuid(value);
+			value = editorAssetManager.resolveDefaultAssetLinkUuid(castValue);
 		}
-		const binaryUuid = uuidToBinary(value);
+		const binaryUuid = uuidToBinary(castValue);
 		const view = new Uint8Array(dataView.buffer);
 		view.set(new Uint8Array(binaryUuid), byteOffset);
 		bytesMoved = 16;
 	} else if (type == StorageType.ARRAY_BUFFER) {
-		bytesMoved = insertLengthAndBuffer(dataView, value, byteOffset, arrayBufferLengthStorageType, {littleEndian});
+		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		bytesMoved = insertLengthAndBuffer(dataView, castValue, byteOffset, arrayBufferLengthStorageType, {littleEndian});
 	} else if (type == StorageType.NULL) {
 		bytesMoved = 0;
 	}
@@ -899,7 +929,7 @@ function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, 
 }
 
 /**
- * @param {BinarySerializationStructureRef} structure
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
  * @param {TraversedLocationData[]} traversedLocationPath
  * @param {Object} opts
  * @param {NameIdsMap} opts.nameIdsMap
@@ -915,12 +945,13 @@ function generateStructureDigestable(structure, traversedLocationPath, {nameIdsM
 		}
 		if (Array.isArray(structure)) {
 			if (typeof structure[0] == "string") {
-				const castStructure = /** @type {string[]} */ (structure);
+				const castStructure1 = /** @type {unknown[]} */ (structure);
+				const castStructure2 = /** @type {string[]} */ (castStructure1);
 				// structure is an array of strings, treat it as an enum
 				const {type} = requiredStorageTypeForUint(structure.length);
-				return {type, location: traversedLocationPath, enumStrings: castStructure};
+				return {type, location: traversedLocationPath, enumStrings: castStructure2};
 			} else {
-				const castStructure = /** @type {BinarySerializationStructure[] | number[]} */ (structure);
+				const castStructure = /** @type {import("./binarySerializationTypes.js").AllowedStructureFormat[] | number[]} */ (structure);
 				const variableArrayLength = castStructure.length == 1;
 				if (variableArrayLength) {
 					const newTraversedLocationPath = [...traversedLocationPath, {id: -1, type: StorageType.ARRAY}];
@@ -939,7 +970,7 @@ function generateStructureDigestable(structure, traversedLocationPath, {nameIdsM
 			const arr = [];
 			for (const [key, typeData] of Object.entries(structure)) {
 				if (nameIdsMap.has(key)) {
-					const nameId = nameIdsMap.get(key);
+					const nameId = /** @type {number} */ (nameIdsMap.get(key));
 					const newTraversedLocationPath = [...traversedLocationPath, {id: nameId, type: StorageType.OBJECT}];
 					arr.push({
 						...generateStructureDigestable(typeData, newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences}),
@@ -1061,9 +1092,9 @@ function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndi
 /**
  * @param {Object?} obj
  * @param {Object} opts
- * @param {Object} [opts.value]
- * @param {Object} [opts.location]
- * @param {Map<number, string>} [opts.nameIdsMapInverse]
+ * @param {Object} opts.value
+ * @param {TraversedLocationData[]} opts.location
+ * @param {Map<number, string>} opts.nameIdsMapInverse
  * @param {number} [opts.variableLengthArrayIndex]
  * @param {BinaryToObjectTransformValueHook?} [opts.transformValueHook]
  * @param {StorageType} [opts.transformValueHookType]
@@ -1074,33 +1105,49 @@ function resolveBinaryValueLocation(obj, {
 	transformValueHook, transformValueHookType,
 }, locationOffset = 0) {
 	const keyData = location[locationOffset];
+	/** @type {string | number} */
 	let key = keyData.id;
 	if (obj == null) {
 		if (keyData.type == StorageType.ARRAY) {
 			obj = [];
 		} else if (keyData.type == StorageType.OBJECT) {
 			obj = {};
+		} else {
+			throw new Error("Assertion failed: the provided object was null but location data was not of type ARRAY or OBJECT.");
 		}
 	}
+	const castObj = /** @type {Object.<string | number, unknown>} */ (obj);
+
 	if (keyData.type == StorageType.ARRAY) {
 		if (key == -1) {
+			if (variableLengthArrayIndex == undefined) {
+				throw new Error("Assertion failed, variableLengthArrayIndex must be provided when resolving the location of an array element with index -1");
+			}
 			key = variableLengthArrayIndex;
 		}
 	} else if (keyData.type == StorageType.OBJECT) {
-		key = nameIdsMapInverse.get(keyData.id);
+		const newKey = nameIdsMapInverse.get(keyData.id);
+		if (newKey == undefined) {
+			throw new Error(`Assertion failed: ${keyData.id} is missing from the inverse nameIds map`);
+		}
+		key = newKey;
 	}
+
 	if (locationOffset >= location.length - 1) {
 		if (transformValueHook) {
-			value = transformValueHook({value, type: transformValueHookType, placedOnObject: obj, placedOnKey: key});
+			if (transformValueHookType == undefined) {
+				throw new Error("Assertion failed, transformValueHookType was not provided but the hook could potentially get called.");
+			}
+			value = transformValueHook({value, type: transformValueHookType, placedOnObject: castObj, placedOnKey: key});
 		}
-		obj[key] = value;
+		castObj[key] = value;
 	} else {
-		let subValue = obj[key] || null;
+		let subValue = castObj[key] || null;
 		subValue = resolveBinaryValueLocation(subValue, {
 			value, location, nameIdsMapInverse, variableLengthArrayIndex,
 			transformValueHook, transformValueHookType,
 		}, locationOffset + 1);
-		obj[key] = subValue;
+		castObj[key] = subValue;
 	}
 	return obj;
 }
