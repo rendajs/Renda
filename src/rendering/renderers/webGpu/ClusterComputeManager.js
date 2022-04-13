@@ -10,6 +10,7 @@ export class ClusterComputeManager {
 		this.cachedCameraData = cachedCameraData;
 		this.renderer = this.cachedCameraData.renderer;
 
+		/** @type {WeakRef<import("../../ClusteredLightsConfig.js").ClusteredLightsConfig>?} */
 		this.lastUsedConfig = null;
 
 		this.computeBoundsPipeline = null;
@@ -29,6 +30,10 @@ export class ClusterComputeManager {
 	 * @returns {boolean} True if the config is ready to be used.
 	 */
 	createComputeObjects() {
+		if (!this.renderer.device) return false;
+		if (!this.renderer.viewBindGroupLayout) return false;
+		if (!this.renderer.computeClusterBoundsBindGroupLayout) return false;
+		if (!this.renderer.computeClusterLightsBindGroupLayout) return false;
 		if (this.lastUsedConfig) {
 			const ref = this.lastUsedConfig.deref();
 			if (ref) {
@@ -130,20 +135,25 @@ export class ClusterComputeManager {
 	computeLightIndices(commandEncoder) {
 		const ready = this.createComputeObjects();
 		if (!ready) return false;
+		if (!this.computeBoundsPipeline) return false;
+		if (!this.boundsBindGroup) return false;
+		if (!this.config) return false;
+
+		const computePassEncoder = commandEncoder.beginComputePass();
 
 		// todo, don't compute when the camera projection matrix or cluster count hasn't changed
-		const computePassEncoder = commandEncoder.beginComputePass();
 		computePassEncoder.setPipeline(this.computeBoundsPipeline);
 		computePassEncoder.setBindGroup(0, this.cachedCameraData.getViewBindGroup());
 		computePassEncoder.setBindGroup(1, this.boundsBindGroup);
 		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
-		// computePassEncoder.endPass();
 
-		// const computePassEncoder = commandEncoder.beginComputePass();
-		computePassEncoder.setPipeline(this.computeLightIndicesPipeline);
-		computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
-		computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
-		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
+		if (this.computeLightIndicesPipeline && this.cachedCameraData.viewBindGroup && this.lightIndicesBindGroup) {
+			computePassEncoder.setPipeline(this.computeLightIndicesPipeline);
+			computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
+			computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
+			computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
+		}
+
 		computePassEncoder.end();
 
 		return true;

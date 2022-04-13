@@ -12,11 +12,11 @@ export class ClusteredLightsConfig {
 
 	getShaderDefines() {
 		return {
-			"totalClusterCount": this.totalClusterCount,
-			"maxLightsPerClusterPass": this.maxLightsPerClusterPass,
-			"clusterCountX": this.clusterCount.x,
-			"clusterCountY": this.clusterCount.y,
-			"clusterCountZ": this.clusterCount.z,
+			"totalClusterCount": String(this.totalClusterCount),
+			"maxLightsPerClusterPass": String(this.maxLightsPerClusterPass),
+			"clusterCountX": String(this.clusterCount.x),
+			"clusterCountY": String(this.clusterCount.y),
+			"clusterCountZ": String(this.clusterCount.z),
 		};
 	}
 }
