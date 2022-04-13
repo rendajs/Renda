@@ -3,7 +3,21 @@ import {Entity} from "../../core/Entity.js";
 import {Mat4} from "../../math/Mat4.js";
 import {StorageType, binaryToObject, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 
-/** @type {import("../../util/binarySerialization.js").BinarySerializationStructure} */
+/**
+ * @typedef EntityComponentStructure
+ * @property {import("../../mod.js").StorageTypeEnum["UUID"]} uuid
+ * @property {import("../../mod.js").StorageTypeEnum["ARRAY_BUFFER"]} propertyValues
+ */
+
+/**
+ * @typedef EntityBinaryStructure
+ * @property {import("../../mod.js").StorageTypeEnum["STRING"]} name
+ * @property {import("../../mod.js").StorageTypeEnum["FLOAT32"][]} matrix
+ * @property {EntityBinaryStructure[]} children
+ * @property {EntityComponentStructure[]} components
+ */
+
+/** @type {EntityBinaryStructure} */
 const entityBinaryStructure = {
 	name: StorageType.STRING,
 	matrix: [StorageType.FLOAT32],
@@ -16,6 +30,8 @@ const entityBinaryStructure = {
 	],
 };
 entityBinaryStructure.children[0] = entityBinaryStructure;
+
+/** @typedef {import("../../util/binarySerializationTypes.js").StructureToObject<typeof entityBinaryStructure>} EnityData */
 
 const entityBinaryNameIds = {
 	name: 1,
@@ -64,14 +80,24 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 		return await this.createEntityFromData(entityData);
 	}
 
+	/**
+	 * @param {EnityData} data
+	 * @param {Entity?} parent
+	 */
 	async createEntityFromData(data, parent = null) {
 		const entity = new Entity({
 			name: data.name,
 			matrix: new Mat4(data.matrix),
 			parent,
 		});
+		if (!this.componentTypeManager) {
+			throw new Error("No component type manager set, make sure to set one with `setComponentTypeManager()` before loading entities.");
+		}
 		for (const entityComponentData of data.components) {
 			const ComponentConstructor = this.componentTypeManager.getComponentConstructorForUuid(entityComponentData.uuid);
+			if (!ComponentConstructor) {
+				throw new Error(`Failed to load entity: Component type with UUID ${entityComponentData.uuid} not found. Make sure it is registered with the component type manager.`);
+			}
 			const propertyValues = await binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binaryComposerOpts);
 			entity.addComponent(ComponentConstructor, propertyValues);
 		}
