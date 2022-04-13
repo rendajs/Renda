@@ -3,11 +3,16 @@ import type { UuidString } from "./util";
 
 export type AllowedStructureFormat = AllStorageTypes | [AllowedStructureFormat] | AllowedStructureFormat[] | { [key: string]: AllowedStructureFormat } | readonly string[];
 
-export type StructureToObject<T extends AllowedStructureFormat> = {
-	[key in keyof T]: T[key] extends AllowedStructureFormat ? StructureItemToObject<T[key]> : never;
+export type StructureToObject<T extends AllowedStructureFormat> = StructureToObjectHelper<T, false>;
+export type StructureToObjectWithAssetLoader<T extends AllowedStructureFormat> = StructureToObjectHelper<T, true>;
+export type StructureToObjectWithMaybeAssetLoader<T extends AllowedStructureFormat> = StructureToObjectHelper<T, true | false>;
+export type StructureItemToObject<T extends AllowedStructureFormat> = StructureItemToObjectHelper<T, false>;
+
+type StructureToObjectHelper<T extends AllowedStructureFormat, TUseAssetLoader extends boolean> = {
+	[key in keyof T]: T[key] extends AllowedStructureFormat ? StructureItemToObjectHelper<T[key], TUseAssetLoader> : never;
 }
 
-export type StructureItemToObject<T extends AllowedStructureFormat> =
+type StructureItemToObjectHelper<T extends AllowedStructureFormat, TUseAssetLoader extends boolean> =
 	T extends StorageTypeEnum["INT8"] ? number :
 	T extends StorageTypeEnum["INT16"] ? number :
 	T extends StorageTypeEnum["INT32"] ? number :
@@ -21,7 +26,10 @@ export type StructureItemToObject<T extends AllowedStructureFormat> =
 	T extends StorageTypeEnum["STRING"] ? string :
 	T extends StorageTypeEnum["BOOL"] ? boolean :
 	T extends StorageTypeEnum["UUID"] ? UuidString :
-	T extends StorageTypeEnum["ASSET_UUID"] ? UuidString :
+	T extends StorageTypeEnum["ASSET_UUID"] ?
+		TUseAssetLoader extends true ?
+			unknown :
+			UuidString :
 	T extends StorageTypeEnum["ARRAY_BUFFER"] ? ArrayBuffer :
 	T extends StorageTypeEnum["NULL"] ? null :
 	T extends [infer ArrayType] ?

@@ -1,6 +1,7 @@
 import {AssetLoaderType} from "./AssetLoaderType.js";
 import {StorageType, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
 import {Material} from "../../rendering/Material.js";
+import {MaterialMap} from "../../rendering/MaterialMap.js";
 
 export class AssetLoaderTypeMaterial extends AssetLoaderType {
 	static get typeUuid() {
@@ -22,6 +23,9 @@ export class AssetLoaderTypeMaterial extends AssetLoaderType {
 				values: 2,
 			},
 		});
+		if (!(materialData.map instanceof MaterialMap)) {
+			throw new Error("Failed to load Material asset, the map uuid is not a MaterialMap");
+		}
 		return new Material(materialData.map);
 	}
 }

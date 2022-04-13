@@ -469,7 +469,7 @@ export async function binaryToObjectWithAssetLoader(buffer, assetLoader, {
 		},
 	});
 	await Promise.all(promises);
-	return obj;
+	return /** @type {import("./binarySerializationTypes.js").StructureToObjectWithAssetLoader<T>} */ (obj);
 }
 
 /**

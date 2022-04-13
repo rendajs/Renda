@@ -14,7 +14,7 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 
 	/**
 	 * @param {ArrayBuffer} buffer
-	 * @returns {Promise<import("../../util/binarySerializationTypes.js").StructureToObject<TSerializationOptions["structure"]>>}
+	 * @returns {Promise<import("../../util/binarySerializationTypes.js").StructureToObjectWithMaybeAssetLoader<TSerializationOptions["structure"]>>}
 	 */
 	async getBufferData(buffer, {
 		loadRecursiveAssetUuids = true,
