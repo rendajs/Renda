@@ -1,6 +1,14 @@
 export class WebGlShader {
+	/**
+	 * @param {import("./renderers/WebGlRenderer.js").WebGlRenderer} renderer
+	 * @param {string} vertSource
+	 * @param {string} fragSource
+	 */
 	constructor(renderer, vertSource, fragSource) {
 		this.renderer = renderer;
+		if (!renderer.gl) {
+			throw new Error("Assertion failed: no WebGL context");
+		}
 		this.gl = renderer.gl;
 		this.vertSource = vertSource;
 		this.fragSource = fragSource;
@@ -33,6 +41,9 @@ export class WebGlShader {
 		}
 
 		this.program = this.gl.createProgram();
+		if (!this.program) {
+			throw new Error("Failed to create WebGL program");
+		}
 		this.gl.attachShader(this.program, this.vertShader);
 		this.gl.attachShader(this.program, this.fragShader);
 		this.gl.linkProgram(this.program);
@@ -48,9 +59,17 @@ export class WebGlShader {
 		return true;
 	}
 
+	/**
+	 * @param {WebGLRenderingContext} gl
+	 * @param {number} type
+	 * @param {string} source
+	 */
 	loadShader(gl, type, source) {
 		const shader = gl.createShader(type);
-		gl.shaderSource(shader, source.source);
+		if (!shader) {
+			throw new Error("Failed to create WebGL shader");
+		}
+		gl.shaderSource(shader, source);
 		gl.compileShader(shader);
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			gl.deleteShader(shader);
@@ -63,20 +82,21 @@ export class WebGlShader {
 		this.gl.useProgram(this.program);
 	}
 
+	/**
+	 * @param {string} name
+	 */
 	getAttribLocation(name) {
 		// todo: cache these values
 		if (!this.program) return null;
 		return this.gl.getAttribLocation(this.program, name);
 	}
 
+	/**
+	 * @param {string} name
+	 */
 	getUniformLocation(name) {
 		// todo: cache these values
 		if (!this.program) return null;
 		return this.gl.getUniformLocation(this.program, name);
-	}
-
-	uniformMatrix4fv(name, matrix) {
-		this.use();
-		this.gl.uniformMatrix4fv(this.getUniformLocation(name), false, matrix.getFlatArray());
 	}
 }
