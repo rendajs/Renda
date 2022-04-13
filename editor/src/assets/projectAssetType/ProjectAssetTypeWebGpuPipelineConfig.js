@@ -1,6 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/mod.js";
 import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
+import {compareFunction, primitiveTopologyTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeWebGpuPipelineConfig.js";
 
 /**
  * @typedef WebGpuPipelineConfigAssetData
@@ -37,14 +38,14 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 		primitiveTopology: {
 			type: "dropdown",
 			guiOpts: {
-				items: AssetLoaderTypeWebGpuPipelineConfig.primitiveTopologyTypes,
+				items: primitiveTopologyTypes,
 				defaultValue: "triangle-list",
 			},
 		},
 		depthCompareFunction: {
 			type: "dropdown",
 			guiOpts: {
-				items: AssetLoaderTypeWebGpuPipelineConfig.compareFunction,
+				items: compareFunction,
 				defaultValue: "less",
 			},
 		},

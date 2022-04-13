@@ -3,7 +3,7 @@ import {isUuid} from "./util.js";
 /** @typedef {Object.<string, number>} BinarySerializationNameIds */
 
 /**
- * @template T
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
  * @typedef {Object} ObjectToBinaryOptions
  * @property {T} structure
  * @property {BinarySerializationNameIds} nameIds
@@ -12,6 +12,14 @@ import {isUuid} from "./util.js";
  * @property {BinarySerializationVariableLengthStorageTypes?} [variableLengthStorageTypes = true]
  * @property {ObjectToBinaryTransformValueHook?} [transformValueHook = null]
  * @property {import("../../editor/src/assets/AssetManager.js").AssetManager?} [editorAssetManager = null]
+ */
+
+/**
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
+ * @typedef {Object} BinaryToObjectWithAssetLoaderOptions
+ * @property {T} structure
+ * @property {BinarySerializationNameIds} nameIds
+ * @property {boolean} [littleEndian = true]
  */
 
 /**
@@ -429,15 +437,22 @@ export function binaryToObject(buffer, {
 
 /**
  * Similar to binaryToObject() but replaces all uuids with assets.
- * @param {*} buffer
- * @param {*} assetLoader
- * @param {*} param2
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
+ * @param {ArrayBuffer} buffer
+ * @param {import("../assets/AssetLoader.js").AssetLoader} assetLoader
+ * @param {BinaryToObjectWithAssetLoaderOptions<T>} options
  */
 export async function binaryToObjectWithAssetLoader(buffer, assetLoader, {
-	structure = null,
-	nameIds = null,
+	structure,
+	nameIds,
 	littleEndian = true,
-} = {}) {
+}) {
+	// TODO: Make BinaryToObjectWithAssetLoaderOptions and ObjectToBinaryOptions the
+	// same object and pass all options to the call below. Only change the transformValueHook
+
+	// TODO: Call transformValueHook from the provided options inside the newly created
+	// transformValueHook.
+
 	/** @type {Promise<void>[]} */
 	const promises = [];
 	const obj = binaryToObject(buffer, {
