@@ -327,7 +327,11 @@ export class WebGpuRenderer extends Renderer {
 			throw new Error("Assertion failed, renderPassDescriptor does not exist");
 		}
 		const renderPassEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-		renderPassEncoder.setBindGroup(0, cameraData.getViewBindGroup());
+		const viewBindGroup = cameraData.getViewBindGroup();
+		if (!viewBindGroup) {
+			throw new Error("Assertion failed, failed to create view bind group for camera");
+		}
+		renderPassEncoder.setBindGroup(0, viewBindGroup);
 
 		/**
 		 * @typedef PipelineRenderData

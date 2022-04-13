@@ -142,8 +142,10 @@ export class ClusterComputeManager {
 		const computePassEncoder = commandEncoder.beginComputePass();
 
 		// todo, don't compute when the camera projection matrix or cluster count hasn't changed
+		const viewBindGroup = this.cachedCameraData.getViewBindGroup();
+		if (!viewBindGroup) return false;
 		computePassEncoder.setPipeline(this.computeBoundsPipeline);
-		computePassEncoder.setBindGroup(0, this.cachedCameraData.getViewBindGroup());
+		computePassEncoder.setBindGroup(0, viewBindGroup);
 		computePassEncoder.setBindGroup(1, this.boundsBindGroup);
 		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 

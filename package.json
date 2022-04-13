@@ -16,7 +16,7 @@
 		"@types/google-closure-compiler": "^0.0.19",
 		"@types/js-md5": "^0.4.3",
 		"@types/wicg-file-system-access": "^2020.9.5",
-		"@webgpu/types": "^0.1.6",
+		"@webgpu/types": "^0.1.14",
 		"eslint": "^8.2.0",
 		"eslint-plugin-jsdoc": "^37.5.1",
 		"eslint-plugin-rulesdir": "github:not-an-aardvark/eslint-plugin-rulesdir",

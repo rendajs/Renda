@@ -12,6 +12,7 @@ export class CachedCameraData {
 
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS) {
 			this.clusterComputeManager = new ClusterComputeManager(camera, this);
+			/** @type {WeakRef<import("../../ClusteredLightsConfig.js").ClusteredLightsConfig>?} */
 			this.lastUsedClusterConfig = null;
 		}
 
@@ -26,25 +27,35 @@ export class CachedCameraData {
 				if (this.camera.clusteredLightsConfig == ref) return false;
 			}
 		}
+		if (!this.camera.clusteredLightsConfig) return false;
 		this.lastUsedClusterConfig = new WeakRef(this.camera.clusteredLightsConfig);
 		return true;
 	}
 
 	getViewBindGroup() {
+		if (!this.renderer.device) return null;
+		if (!this.renderer.viewBindGroupLayout) return null;
+		if (!this.renderer.viewUniformsBuffer) return null;
+		if (!this.renderer.lightsBuffer) return null;
+
 		if (!this.viewBindGroup || this.testViewBindGroupDirty()) {
+			/** @type {GPUBindGroupEntry[]} */
+			const entries = [
+				this.renderer.viewUniformsBuffer.getCurrentChunk().createBindGroupEntry({binding: 0}),
+				this.renderer.lightsBuffer.getCurrentChunk().createBindGroupEntry({binding: 1}),
+			];
+			if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && this.clusterComputeManager?.lightIndicesBuffer) {
+				entries.push({
+					binding: 2,
+					resource: {
+						buffer: this.clusterComputeManager.lightIndicesBuffer,
+					},
+				});
+			}
 			this.viewBindGroup = this.renderer.device.createBindGroup({
 				label: "viewBindGroup",
 				layout: this.renderer.viewBindGroupLayout,
-				entries: [
-					this.renderer.viewUniformsBuffer.getCurrentChunk().createBindGroupEntry({binding: 0}),
-					this.renderer.lightsBuffer.getCurrentChunk().createBindGroupEntry({binding: 1}),
-					{
-						binding: 2,
-						resource: {
-							buffer: this.clusterComputeManager.lightIndicesBuffer,
-						},
-					},
-				],
+				entries,
 			});
 		}
 		return this.viewBindGroup;

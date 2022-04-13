@@ -25,28 +25,15 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.depthTexture = null;
 		this.ready = false;
 
-		/** @type {GPURenderPassColorAttachment} */
-		this.colorAttachment = {
-			view: null, // will be assigned in getRenderPassDescriptor()
-			resolveTarget: undefined, // will be assigned in getRenderPassDescriptor()
-			loadOp: "clear",
-			clearValue: {r: 0, g: 0, b: 0, a: 1},
-			storeOp: "store",
-		};
+		/** @type {GPURenderPassColorAttachment?} */
+		this.colorAttachment = null;
+
 		/** @type {GPURenderPassDepthStencilAttachment?} */
 		this.depthStencilAttachment = null;
-		if (this.depthSupport) {
-			this.depthStencilAttachment = {
-				view: null, // will be assigned in generateTextures()
-				depthLoadOp: "clear",
-				depthClearValue: 1,
-				depthStoreOp: "store",
-			};
-		}
+
 		/** @type {GPURenderPassDescriptor} */
 		this.renderPassDescriptor = {
 			colorAttachments: [this.colorAttachment],
-			depthStencilAttachment: this.depthStencilAttachment,
 		};
 	}
 
@@ -127,7 +114,7 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 
 		if (this.depthTexture) this.depthTexture.destroy();
 		this.depthTexture = null;
-		if (this.depthSupport && this.width > 0 && this.height > 0 && this.depthStencilAttachment) {
+		if (this.depthSupport && this.width > 0 && this.height > 0) {
 			this.depthTexture = device.createTexture({
 				label: "WebGpuDomTarget depthTexture",
 				size: {
@@ -138,7 +125,15 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 				format: this.outputConfig.depthStencilFormat,
 				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 			});
-			this.depthStencilAttachment.view = this.depthTexture.createView();
+
+			this.depthStencilAttachment = {
+				view: this.depthTexture.createView(),
+				depthLoadOp: "clear",
+				depthClearValue: 1,
+				depthStoreOp: "store",
+			};
+
+			this.renderPassDescriptor.depthStencilAttachment = this.depthStencilAttachment;
 		}
 	}
 
@@ -148,13 +143,27 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 	getRenderPassDescriptor() {
 		if (!this.ready || !this.ctx) return null;
 		const swapChainTextureView = this.ctx.getCurrentTexture().createView();
+		let view;
+		let resolveTarget;
 		if (this.outputConfig.multisampleCount == 1) {
-			this.colorAttachment.view = swapChainTextureView;
-			this.colorAttachment.resolveTarget = undefined;
+			view = swapChainTextureView;
+			resolveTarget = undefined;
 		} else if (this.colorTextureView) {
-			this.colorAttachment.view = this.colorTextureView;
-			this.colorAttachment.resolveTarget = swapChainTextureView;
+			view = this.colorTextureView;
+			resolveTarget = swapChainTextureView;
+		} else {
+			return null;
 		}
+
+		this.colorAttachment = {
+			view,
+			resolveTarget,
+			loadOp: "clear",
+			clearValue: {r: 0, g: 0, b: 0, a: 1},
+			storeOp: "store",
+		};
+		this.renderPassDescriptor.colorAttachments = [this.colorAttachment];
+
 		return this.renderPassDescriptor;
 	}
 }
