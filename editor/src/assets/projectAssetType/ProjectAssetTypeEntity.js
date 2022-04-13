@@ -199,6 +199,9 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				if (!componentConstructor) continue;
+				if (!componentConstructor.binaryComposerOpts) {
+					throw new Error("Assertion failed, component type has no binaryComposerOpts");
+				}
 				component.propertyValues = objectToBinary(component.propertyValues, {
 					...componentConstructor.binaryComposerOpts,
 					editorAssetManager: this.assetManager,

@@ -43,7 +43,7 @@ export class MeshComponent extends Component {
 	}
 
 	/**
-	 * @returns {import("../../util/binarySerialization.js").ObjectToBinaryOptions}
+	 * @returns {import("../../util/binarySerialization.js").ObjectToBinaryOptions<any>}
 	 */
 	static get binaryComposerOpts() {
 		return {

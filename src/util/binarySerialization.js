@@ -161,6 +161,22 @@ export function binaryToUuid(buffer, offset = 0) {
 }
 
 /**
+ * Helper function to create a ObjectToBinaryOptions object.
+ * In JavaScript, this simply returns the object you pass in.
+ * But in TypeScript the returned type will be one that you can use for
+ * {@linkcode objectToBinary} or {@linkcode binaryToObject}.
+ * The benefit of this function is that you'll get autocomplete when composing
+ * the options object, while still getting a meaningful return type.
+ *
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
+ * @param {ObjectToBinaryOptions<T>} options
+ * @returns {ObjectToBinaryOptions<T>}
+ */
+export function createObjectToBinaryOptions(options) {
+	return options;
+}
+
+/**
  * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
  * @param {import("./binarySerializationTypes.js").StructureToObject<T>} data
  * @param {ObjectToBinaryOptions<T>} opts

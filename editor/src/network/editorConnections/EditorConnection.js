@@ -31,7 +31,7 @@ export class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/util/binarySerialization.js").ObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/binarySerialization.js").ObjectToBinaryOptions<any>} */
 		this.sendRequestBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -45,7 +45,7 @@ export class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/util/binarySerialization.js").ObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/binarySerialization.js").ObjectToBinaryOptions<any>} */
 		this.sendResponseBinaryOpts = {
 			structure: {
 				id: StorageType.UINT32,
@@ -59,7 +59,7 @@ export class EditorConnection {
 			},
 		};
 
-		/** @type {import("../../../../src/util/binarySerialization.js").ObjectToBinaryOptions} */
+		/** @type {import("../../../../src/util/binarySerialization.js").ObjectToBinaryOptions<any>} */
 		this.sendErrorBinaryOpts = {
 			structure: {
 				name: StorageType.STRING,

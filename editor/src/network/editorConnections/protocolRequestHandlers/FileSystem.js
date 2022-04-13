@@ -1,4 +1,4 @@
-import {StorageType, binaryToObject, objectToBinary} from "../../../../../src/util/binarySerialization.js";
+import {StorageType, binaryToObject, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/util/binarySerialization.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {createRequestHandler} from "./createRequestHandler.js";
 
@@ -28,8 +28,7 @@ const createDir = createRequestHandler({
 	},
 });
 
-/** @type {import("../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions} */
-const serializeFileBinaryOpts = {
+const serializeFileBinaryOpts = createObjectToBinaryOptions({
 	structure: {
 		buffer: StorageType.ARRAY_BUFFER,
 		name: StorageType.STRING,
@@ -42,7 +41,7 @@ const serializeFileBinaryOpts = {
 		type: 2,
 		lastModified: 3,
 	},
-};
+});
 
 /**
  * @param {File} file
@@ -88,8 +87,7 @@ const readFile = createRequestHandler({
 	},
 });
 
-/** @type {import("../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions} */
-const serializeWriteFileBinaryOpts = {
+const serializeWriteFileBinaryOpts = createObjectToBinaryOptions({
 	structure: {
 		path: [StorageType.STRING],
 		file: StorageType.ARRAY_BUFFER,
@@ -98,7 +96,7 @@ const serializeWriteFileBinaryOpts = {
 		path: 0,
 		file: 1,
 	},
-};
+});
 
 const writeFile = createRequestHandler({
 	command: "fileSystem.writeFile",

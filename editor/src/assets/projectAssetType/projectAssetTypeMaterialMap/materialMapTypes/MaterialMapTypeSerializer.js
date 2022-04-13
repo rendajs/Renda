@@ -140,7 +140,7 @@ export class MaterialMapTypeSerializer {
 	 * these are the default options for {@link objectToBinary}.
 	 * If you want support for exporting your custom data in assetbundles, you
 	 * should provide a structure here.
-	 * @type {import("../../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions?}
+	 * @type {import("../../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions<any>?}
 	 */
 	static assetBundleBinaryComposerOpts = null;
 
