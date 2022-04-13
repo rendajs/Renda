@@ -1,7 +1,7 @@
 /**
  * @typedef {Object} ShaderLibraryItem
  * @property {string} shaderCode
- * @property {string} builtCode
+ * @property {string?} builtCode
  * @property {import("../util/util.js").UuidString[]} includedUuids
  */
 
@@ -50,6 +50,7 @@ export class ShaderBuilder {
 	async buildShader(shaderCode) {
 		/** @type {import("../util/util.js").UuidString[]} */
 		const includedUuids = [];
+		/** @type {import("../util/util.js").UuidString[]} */
 		const attemptedUuids = [];
 		const regex = /^\s*\/\/\s*@import\s(.+?):?(?::(.+)|$)/gm;
 		shaderCode = await this.replaceAsync(shaderCode, regex, async (match, uuid, params) => {
@@ -65,16 +66,31 @@ export class ShaderBuilder {
 		return {shaderCode, includedUuids};
 	}
 
+	/** @typedef {Parameters<typeof String.prototype.replace>[1]} StringReplacerFn */
+
+	/**
+	 * @param {string} str
+	 * @param {RegExp} regex
+	 * @param {(...args: Parameters<StringReplacerFn>) => Promise<string>} fn
+	 */
 	async replaceAsync(str, regex, fn) {
+		/** @type {Promise<string>[]} */
 		const promises = [];
 		str.replace(regex, (...args) => {
 			const promise = fn(...args);
 			promises.push(promise);
+			return "";
 		});
 		const replaceData = await Promise.all(promises);
-		return str.replace(regex, () => replaceData.shift());
+		return str.replace(regex, () => {
+			const replaceValue = replaceData.shift();
+			return /** @type {string} */ (replaceValue);
+		});
 	}
 
+	/**
+	 * @param {import("../mod.js").UuidString} uuid
+	 */
 	async getShaderBlock(uuid, {
 		params = null,
 		buildRecursive = true,
@@ -129,8 +145,8 @@ export class ShaderBuilder {
 		/**
 		 * @typedef {Object} PromiseItem
 		 * @property {boolean} resolved
-		 * @property {string} result
-		 * @property {Promise<string>} promise
+		 * @property {string?} result
+		 * @property {Promise<string?>?} promise
 		 */
 
 		/** @type {PromiseItem[]} */
@@ -152,7 +168,7 @@ export class ShaderBuilder {
 		if (unparsedPromiseItems.length <= 0) {
 			return;
 		}
-		/** @type {string} */
+		/** @type {string?} */
 		let foundShaderCode = null;
 		while (unparsedPromiseItems.length > 0 && !foundShaderCode) {
 			const promises = unparsedPromiseItems.map(i => i.promise);
@@ -172,20 +188,33 @@ export class ShaderBuilder {
 		}
 	}
 
+	/**
+	 * @param {import("../mod.js").UuidString} cb
+	 */
 	onShaderInvalidated(cb) {
 		this.onShaderInvalidatedCbs.add(cb);
 	}
 
+	/**
+	 * @param {import("../mod.js").UuidString} cb
+	 */
 	removeShaderInvalidated(cb) {
 		this.onShaderInvalidatedCbs.delete(cb);
 	}
 
+	/**
+	 * @param {import("../mod.js").UuidString} uuid
+	 */
 	fireOnShaderInvalidated(uuid) {
 		for (const cb of this.onShaderInvalidatedCbs) {
 			cb(uuid);
 		}
 	}
 
+	/**
+	 * @param {string} shaderCode
+	 * @param {Object.<string, string>} defines
+	 */
 	static fillShaderDefines(shaderCode, defines) {
 		for (const [key, value] of Object.entries(defines)) {
 			shaderCode = shaderCode.replaceAll("${" + key + "}", value);
