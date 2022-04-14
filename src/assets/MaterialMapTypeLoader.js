@@ -6,7 +6,7 @@
 export class MaterialMapTypeLoader {
 	// this should return the same uuid as the typeUuid of your MaterialMapType
 	static get typeUuid() {
-		return null;
+		return "";
 	}
 
 	/**
@@ -25,13 +25,5 @@ export class MaterialMapTypeLoader {
 	 */
 	async parseBuffer(buffer) {
 		return null;
-	}
-
-	/**
-	 * @param {string} message
-	 */
-	static invalidConfigurationWarning(message) {
-		// TODO: throw an error instead
-		console.warn(message + "\nView MaterialMapTypeLoader.js for more info.");
 	}
 }

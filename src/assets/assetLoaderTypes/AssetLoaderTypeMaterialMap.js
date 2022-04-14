@@ -69,16 +69,16 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	registerMaterialMapTypeLoader(constructor) {
 		// todo: remove these warnings in release builds?
 		if (!(constructor.prototype instanceof MaterialMapTypeLoader)) {
-			console.warn("Tried to register a MaterialMapTypeLoader type (" + constructor.name + ") that does not extend MaterialMapTypeLoader class.");
-			return;
+			throw new Error(`Unable to register MaterialMapTypeLoader "${constructor.name}" because it doesn't extend the MaterialMapTypeLoader class.`);
 		}
 
-		if (!isUuid(constructor.typeUuid)) {
-			constructor.invalidConfigurationWarning("Tried to register MaterialMapTypeLoader (" + constructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this MaterialMapTypeLoader to function properly.");
-			return;
+		const castConstructor = /** @type {typeof MaterialMapTypeLoader} */ (constructor);
+
+		if (!isUuid(castConstructor.typeUuid)) {
+			throw new Error(`Unable to register MaterialMapTypeLoader "${constructor.name}" because it doesn't have a valid uuid for the static 'typeUuid' set ("${castConstructor.typeUuid}").`);
 		}
 
 		const instance = new constructor(this.assetLoader, this);
-		this.registeredLoaderTypes.set(constructor.typeUuid, instance);
+		this.registeredLoaderTypes.set(castConstructor.typeUuid, instance);
 	}
 }
