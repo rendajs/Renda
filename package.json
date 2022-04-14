@@ -14,18 +14,10 @@
 		"@rollup/plugin-commonjs": "^11.1.0",
 		"@rollup/plugin-node-resolve": "^13.0.6",
 		"@types/google-closure-compiler": "^0.0.19",
-		"@types/js-md5": "^0.4.3",
-		"@types/wicg-file-system-access": "^2020.9.5",
-		"@webgpu/types": "^0.1.14",
 		"eslint": "^8.2.0",
 		"eslint-plugin-jsdoc": "^37.5.1",
 		"eslint-plugin-rulesdir": "github:not-an-aardvark/eslint-plugin-rulesdir",
 		"google-closure-compiler": "^20210907.0.0",
-		"js-md5": "^0.7.3",
-		"rollup": "^2.60.0",
-		"rollup-plugin-cleanup": "^3.2.1",
-		"rollup-plugin-jscc": "^2.0.0",
-		"rollup-plugin-resolve-url-objects": "^0.0.4",
 		"typescript": "^4.7.0-dev.20220408"
 	}
 }
