@@ -2,4 +2,7 @@ import { StructureToSetObject } from "../../editor/src/ui/propertiesTreeView/typ
 import { Component } from "./Component.js";
 
 export type ComponentPropertyValues<TComponent extends typeof Component> = TComponent["guiStructure"] extends infer S ?
-	Partial<StructureToSetObject<S>> : never;
+	S extends object ?
+		Partial<StructureToSetObject<S>>
+		: never
+	: never;
