@@ -71,17 +71,23 @@ Deno.test({
 		const {translationGizmo, createdDraggables} = basicSetup();
 
 		const centerDraggable = createdDraggables[0];
-		const color1 = translationGizmo.circleMeshComponent.materials[0].getProperty("colorMultiplier");
+		const material1 = translationGizmo.circleMeshComponent.materials[0];
+		assertExists(material1);
+		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [1, 1, 1]);
 
 		centerDraggable.fireIsHoveringChange(true);
 
-		const color2 = translationGizmo.circleMeshComponent.materials[0].getProperty("colorMultiplier");
+		const material2 = translationGizmo.circleMeshComponent.materials[0];
+		assertExists(material2);
+		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		centerDraggable.fireIsHoveringChange(false);
 
-		const color3 = translationGizmo.circleMeshComponent.materials[0].getProperty("colorMultiplier");
+		const material3 = translationGizmo.circleMeshComponent.materials[0];
+		assertExists(material3);
+		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [1, 1, 1]);
 	},
 });
@@ -92,17 +98,23 @@ Deno.test({
 		const {translationGizmo, createdDraggables} = basicSetup();
 
 		const xDraggable = createdDraggables[1];
-		const color1 = translationGizmo.xArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material1 = translationGizmo.xArrowMesh.materials[0];
+		assertExists(material1);
+		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [1, 0.15, 0.15]);
 
 		xDraggable.fireIsHoveringChange(true);
 
-		const color2 = translationGizmo.xArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material2 = translationGizmo.xArrowMesh.materials[0];
+		assertExists(material2);
+		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		xDraggable.fireIsHoveringChange(false);
 
-		const color3 = translationGizmo.xArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material3 = translationGizmo.xArrowMesh.materials[0];
+		assertExists(material3);
+		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [1, 0.15, 0.15]);
 	},
 });
@@ -113,17 +125,23 @@ Deno.test({
 		const {translationGizmo, createdDraggables} = basicSetup();
 
 		const yDraggable = createdDraggables[2];
-		const color1 = translationGizmo.yArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material1 = translationGizmo.yArrowMesh.materials[0];
+		assertExists(material1);
+		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [0.2, 1, 0.2]);
 
 		yDraggable.fireIsHoveringChange(true);
 
-		const color2 = translationGizmo.yArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material2 = translationGizmo.yArrowMesh.materials[0];
+		assertExists(material2);
+		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		yDraggable.fireIsHoveringChange(false);
 
-		const color3 = translationGizmo.yArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material3 = translationGizmo.yArrowMesh.materials[0];
+		assertExists(material3);
+		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [0.2, 1, 0.2]);
 	},
 });
@@ -134,17 +152,23 @@ Deno.test({
 		const {translationGizmo, createdDraggables} = basicSetup();
 
 		const zDraggable = createdDraggables[3];
-		const color1 = translationGizmo.zArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material1 = translationGizmo.zArrowMesh.materials[0];
+		assertExists(material1);
+		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [0.3, 0.3, 1]);
 
 		zDraggable.fireIsHoveringChange(true);
 
-		const color2 = translationGizmo.zArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material2 = translationGizmo.zArrowMesh.materials[0];
+		assertExists(material2);
+		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		zDraggable.fireIsHoveringChange(false);
 
-		const color3 = translationGizmo.zArrowMesh.materials[0].getProperty("colorMultiplier");
+		const material3 = translationGizmo.zArrowMesh.materials[0];
+		assertExists(material3);
+		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [0.3, 0.3, 1]);
 	},
 });
