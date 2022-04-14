@@ -3,7 +3,7 @@ import {StorageType, binaryToObject, objectToBinary} from "../../../../../src/ut
 
 /**
  * @template {import("../../../../../src/util/binarySerializationTypes.js").AllowedStructureFormat} T
- * @param {import("../../../../../src/util/binarySerializationTypes.js").StructureToObject<T>} object
+ * @param {import("../../../../../src/util/binarySerializationTypes.js").StructureToObject<T, true>} object
  * @param {import("../../../../../src/mod.js").ObjectToBinaryOptions<T>} options
  */
 function basicObjectToBinaryToObjectTest(object, options, {

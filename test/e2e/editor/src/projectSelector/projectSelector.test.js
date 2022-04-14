@@ -1,7 +1,7 @@
 import {assertEquals} from "asserts";
 import {getContext, initBrowser} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/common.js";
-import {waitFor} from "../../../shared/util.js";
+import {editor} from "../../shared/evaluateTypes.js";
 
 await initBrowser();
 
@@ -39,6 +39,12 @@ Deno.test({
 
 			await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
 				const contentWindowProject = editor.windowManager.getWindowByElement(contentWindowProjectEl);
+				if (!contentWindowProject) throw new Error("No project window found");
+				const ContentWindowProjectConstructor = editor.windowManager.registeredContentWindows.get("project");
+				const ContentWindowProject = /** @type {typeof import("../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (ContentWindowProjectConstructor);
+				if (!(contentWindowProject instanceof ContentWindowProject)) {
+					throw new Error("content window is not of type project");
+				}
 				await contentWindowProject.waitForInit();
 			});
 

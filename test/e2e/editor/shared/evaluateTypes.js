@@ -6,3 +6,5 @@
  */
 
 export const editor = /** @type {import("../../../../editor/src/Editor.js").Editor} */ ({});
+
+export const document = /** @type {Document} */ ({});
