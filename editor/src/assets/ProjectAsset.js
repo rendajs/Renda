@@ -710,7 +710,6 @@ export class ProjectAsset {
 		if (!this.isEmbedded) {
 			throw new Error("Unable to read embeddedassetData, asset is not an embedded asset.");
 		}
-		// @ts-expect-error
 		return structuredClone(this.currentEmbeddedAssetData);
 	}
 
@@ -723,7 +722,6 @@ export class ProjectAsset {
 		if (!this.isEmbedded) {
 			throw new Error("Unable to write embeddedassetData, asset is not an embedded asset.");
 		}
-		// @ts-expect-error
 		this.currentEmbeddedAssetData = structuredClone(fileData);
 	}
 

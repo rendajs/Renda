@@ -1,4 +1,4 @@
-import {createRequire} from "https://deno.land/std@0.119.0/node/module.ts";
+import {createRequire} from "std-node";
 
 const require = createRequire(import.meta.url);
 const closureCompiler = require("google-closure-compiler");
@@ -28,6 +28,9 @@ export class ClosureCompilerManager {
 				r({exitCode, stdOut, stdErr});
 			};
 			const proc = compiler.run(procCallback);
+			if (!proc.stdin) {
+				throw new Error("Assertion failed: Closeure compiler process has no stdin.");
+			}
 			proc.stdin.on("error", () => {
 				// this callback exists to prevent node from throwing an error
 				// when the compiler fails before stdin is parsed
