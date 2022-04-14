@@ -82,6 +82,10 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		const mapUuid = assetData.map;
 		if (!mapUuid) return "";
 
+		if (typeof mapUuid != "string") {
+			throw new Error("Embedded material map asset bundling is not yet supported.");
+		}
+
 		return objectToBinary({
 			map: mapUuid,
 			values: [], // todo

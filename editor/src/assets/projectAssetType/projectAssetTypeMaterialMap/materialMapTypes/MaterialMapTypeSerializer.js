@@ -129,7 +129,7 @@ export class MaterialMapTypeSerializer {
 	 * before it gets passed on to {@link mapDataToAssetBundleBinary}.
 	 * Usually it is ok to leave this as is.
 	 * @param {Object} customData The customData as stored on disk.
-	 * @returns {?Object} The modified customData.
+	 * @returns {any} The modified customData.
 	 */
 	static mapDataToAssetBundleData(customData) {
 		return customData;
