@@ -10,6 +10,9 @@ setCwd();
 Deno.chdir("..");
 
 const HASH_STORAGE_PATH = ".lastDevInitHash";
+/**
+ * A list of urls of which the files will be downloaded and placed in .denoTypes/urlImports
+ */
 const DOWNLOAD_TYPE_URLS = [
 	"https://esm.sh/rollup@2.61.1?pin=v64",
 	"https://esm.sh/rollup-plugin-jscc@2.0.0",
@@ -32,6 +35,11 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://deno.land/std@0.127.0/http/file_server.ts",
 	"https://deno.land/std@0.127.0/http/server.ts",
 ];
+
+/**
+ * A list of npm @types/packagename packages that will be downloaded and placed in .denoTypes/@types/packagename
+ */
+const DOWNLOAD_DTS_PACKAGES = ["@types/wicg-file-system-access@2020.9.5/index.d.ts"];
 
 /**
  * @param {Uint8Array} data
@@ -96,10 +104,12 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 	 * @param {string} url
 	 * @param {string} dtsContent
 	 */
-	async function writeTypesFile(url, dtsContent) {
+	async function writeTypesFile(url, dtsContent, {
+		rootPath = ".denoTypes/urlImports",
+	} = {}) {
 		let filePath = url;
 		filePath = filePath.replaceAll(":", "_");
-		const fullPath = join(".denoTypes/urlImports", filePath);
+		const fullPath = join(rootPath, filePath);
 		const dir = dirname(fullPath);
 		await Deno.mkdir(dir, {recursive: true});
 		await Deno.writeTextFile(fullPath, dtsContent);
@@ -147,6 +157,22 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 						}
 					}
 				}
+			}
+		})();
+		typeFetchPromises.push(promise);
+	}
+
+	for (const packageUrl of DOWNLOAD_DTS_PACKAGES) {
+		const promise = (async () => {
+			const url = `https://unpkg.com/${packageUrl}`;
+			console.log(`Fetching types for "${url}"`);
+			const dtsResponse = await fetch(url);
+			if (dtsResponse.ok) {
+				const text = await dtsResponse.text();
+				await writeTypesFile(packageUrl, text, {
+					// TODO: handle packages that don't use the @types/ prefix
+					rootPath: ".denoTypes/",
+				});
 			}
 		})();
 		typeFetchPromises.push(promise);
