@@ -9,12 +9,15 @@
  * @typedef {(uuid: import("../util/util.js").UuidString) => Promise<string?>} ShaderUuidRequestedHook
  */
 
+/** @typedef {(uuid: import("../util/util.js").UuidString) => void} OnShaderInvalidatedCallback */
+
 export class ShaderBuilder {
 	constructor() {
 		/** @type {Map<import("../util/util.js").UuidString, ShaderLibraryItem>} */
 		this.shaderLibrary = new Map();
 		/** @type {Set<ShaderUuidRequestedHook>} */
 		this.onShaderUuidRequestedCbs = new Set();
+		/** @type {Set<OnShaderInvalidatedCallback>} */
 		this.onShaderInvalidatedCbs = new Set();
 	}
 
@@ -189,14 +192,14 @@ export class ShaderBuilder {
 	}
 
 	/**
-	 * @param {import("../mod.js").UuidString} cb
+	 * @param {OnShaderInvalidatedCallback} cb
 	 */
 	onShaderInvalidated(cb) {
 		this.onShaderInvalidatedCbs.add(cb);
 	}
 
 	/**
-	 * @param {import("../mod.js").UuidString} cb
+	 * @param {OnShaderInvalidatedCallback} cb
 	 */
 	removeShaderInvalidated(cb) {
 		this.onShaderInvalidatedCbs.delete(cb);

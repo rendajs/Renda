@@ -1,6 +1,7 @@
 import {StorageType, binaryToObjectWithAssetLoader} from "../../../util/binarySerialization.js";
 import {MaterialMapTypeLoader} from "../../../assets/MaterialMapTypeLoader.js";
 import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
+import {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 
 /**
  * @typedef {Object} WebGpuMaterialMap
@@ -25,6 +26,14 @@ export class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapTypeLoader {
 				forwardPipelineConfig: 1,
 			},
 		});
-		return new MaterialMapTypeWebGpu(settings);
+		const pipelineConfig = settings.forwardPipelineConfig;
+		if (pipelineConfig != null && !(pipelineConfig instanceof WebGpuPipelineConfig)) {
+			throw new Error("Failed to load WebGpu material map: forwardPipelineConfig is not a WebGpuPipelineConfig asset uuid.");
+		}
+		const settings2 = {
+			...settings,
+			forwardPipelineConfig: pipelineConfig,
+		};
+		return new MaterialMapTypeWebGpu(settings2);
 	}
 }
