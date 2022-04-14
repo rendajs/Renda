@@ -1,4 +1,5 @@
 {
+	"extends": "./jsconfig.paths.json",
 	"compilerOptions": {
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"target": "esnext",
@@ -7,6 +8,7 @@
 		"module": "esnext",
 		"useDefineForClassFields": true,
 		"strict": true,
+		"baseUrl": "./",
 	},
 	"include": [
 		"src/**/*.js",
