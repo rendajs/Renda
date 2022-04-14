@@ -15,7 +15,7 @@ const HASH_STORAGE_PATH = ".lastDevInitHash";
  */
 const DOWNLOAD_TYPE_URLS = [
 	"https://esm.sh/rollup@2.61.1?pin=v64",
-	"https://esm.sh/rollup-plugin-jscc@2.0.0",
+	"https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v64",
 	"https://unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts",
 	"https://deno.land/std@0.118.0/hash/mod.ts",
 	"https://deno.land/std@0.121.0/path/mod.ts",
@@ -39,7 +39,10 @@ const DOWNLOAD_TYPE_URLS = [
 /**
  * A list of npm @types/packagename packages that will be downloaded and placed in .denoTypes/@types/packagename
  */
-const DOWNLOAD_DTS_PACKAGES = ["@types/wicg-file-system-access@2020.9.5/index.d.ts"];
+const DOWNLOAD_DTS_PACKAGES = [
+	"@types/wicg-file-system-access@2020.9.5/index.d.ts",
+	"@webgpu/types@0.1.14/dist/index.d.ts",
+];
 
 /**
  * @param {Uint8Array} data
@@ -169,10 +172,18 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 			const dtsResponse = await fetch(url);
 			if (dtsResponse.ok) {
 				const text = await dtsResponse.text();
-				await writeTypesFile(packageUrl, text, {
-					// TODO: handle packages that don't use the @types/ prefix
-					rootPath: ".denoTypes/",
-				});
+				let rootPath = ".denoTypes/";
+				let filePath = packageUrl;
+				if (!packageUrl.startsWith("@types/")) {
+					// This is really only for the webgpu types. The webgpu types are not published under the @types/
+					// namespace, so we need to make some adjustments to make things work right.
+					// Since Deno contains types for webgpu as well, we want to overwrite them, as they are more
+					// outdated than the @types/webgpu packge. Typescript seems to load types in alphabetical order,
+					// so we'll prefix it with aa to make sure it takes precedence.
+					filePath = "aa_webgpu/index.d.ts";
+					rootPath += "@types/";
+				}
+				await writeTypesFile(filePath, text, {rootPath});
 			}
 		})();
 		typeFetchPromises.push(promise);

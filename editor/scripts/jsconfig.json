@@ -7,9 +7,7 @@
 		"module": "esnext",
 		"useDefineForClassFields": true,
 		"strict": true,
-		"typeRoots": [
-			"../../.denoTypes/@types",
-		],
+		"typeRoots": ["../../.denoTypes/@types"],
 		"baseUrl": "../../",
 	},
 	"include": [
