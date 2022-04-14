@@ -16,6 +16,11 @@ import {isUuid} from "./util.js";
 
 /**
  * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
+ * @typedef {Omit<ObjectToBinaryOptions<T>,"transformValueHook"> & {transformValueHook?: BinaryToObjectTransformValueHook?}} BinaryToObjectOptions
+ */
+
+/**
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
  * @typedef {Object} BinaryToObjectWithAssetLoaderOptions
  * @property {T} structure
  * @property {BinarySerializationNameIds} nameIds
@@ -38,15 +43,15 @@ import {isUuid} from "./util.js";
  * @property {string | number} placedOnKey The key of the property.
  */
 
-/** @typedef {function(BinaryToObjectTransformValueHookArgs) : *} BinaryToObjectTransformValueHook */
+/** @typedef {(opts: BinaryToObjectTransformValueHookArgs) => unknown?} BinaryToObjectTransformValueHook */
 
 /**
  * @typedef {Object} ObjectToBinaryTransformValueHookArgs
- * @property {number} type The type of the property before the transformation.
- * @property {*} value The value of the property before the transformation.
+ * @property {unknown} value The value of the property before the transformation.
+ * @property {StorageType} type The type of the property before the transformation.
  */
 
-/** @typedef {function(ObjectToBinaryTransformValueHookArgs) : *} ObjectToBinaryTransformValueHook */
+/** @typedef {(opts: ObjectToBinaryTransformValueHookArgs) => void} ObjectToBinaryTransformValueHook */
 
 /**
  * @typedef {Object} BinarySerializationBinaryDigestible
@@ -305,7 +310,7 @@ export function objectToBinary(data, {
 /**
  * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
  * @param {ArrayBuffer} buffer
- * @param {ObjectToBinaryOptions<T>} opts
+ * @param {BinaryToObjectOptions<T>} opts
  * @returns {import("./binarySerializationTypes.js").StructureToObject<T>}
  */
 export function binaryToObject(buffer, {
@@ -476,8 +481,9 @@ export async function binaryToObjectWithAssetLoader(buffer, assetLoader, {
 		transformValueHook: ({value, type, placedOnObject, placedOnKey}) => {
 			if (type != StorageType.ASSET_UUID) return value;
 			if (value == null) return null;
+			const castValue = /** @type {import("./util.js").UuidString} */ (value);
 			const promise = (async () => {
-				const asset = await assetLoader.getAsset(value);
+				const asset = await assetLoader.getAsset(castValue);
 				placedOnObject[placedOnKey] = asset;
 			})();
 			promises.push(promise);
@@ -1123,7 +1129,7 @@ function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndi
 /**
  * @param {Object?} obj
  * @param {Object} opts
- * @param {Object} opts.value
+ * @param {unknown} opts.value
  * @param {TraversedLocationData[]} opts.location
  * @param {Map<number, string>} opts.nameIdsMapInverse
  * @param {number} [opts.variableLengthArrayIndex]

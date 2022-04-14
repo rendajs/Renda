@@ -175,7 +175,8 @@ export class MaterialMapTypeSerializer {
 				}
 
 				if (type == StorageType.ASSET_UUID) {
-					referencedUuids.push(value);
+					const castValue = /** @type {import("../../../../../../src/mod.js").UuidString} */ (value);
+					referencedUuids.push(castValue);
 				}
 				return value;
 			},

@@ -816,7 +816,8 @@ export class ProjectAsset {
 					}
 
 					if (type == StorageType.ASSET_UUID) {
-						referencedUuids.push(value);
+						const castValue = /** @type {import("../../../src/util/mod.js").UuidString} */ (value);
+						referencedUuids.push(castValue);
 					}
 					return value;
 				},
