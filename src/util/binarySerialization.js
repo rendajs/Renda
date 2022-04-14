@@ -178,7 +178,7 @@ export function createObjectToBinaryOptions(options) {
 
 /**
  * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
- * @param {import("./binarySerializationTypes.js").StructureToObject<T>} data
+ * @param {import("./binarySerializationTypes.js").StructureToObject<T, true>} data
  * @param {ObjectToBinaryOptions<T>} opts
  * @returns {ArrayBuffer}
  */
