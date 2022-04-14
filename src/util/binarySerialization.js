@@ -925,7 +925,9 @@ function setDataViewValue(dataView, value, type, byteOffset = 0, {
 		dataView.setFloat64(byteOffset, castValue, littleEndian);
 		bytesMoved = 8;
 	} else if (type == StorageType.STRING) {
-		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
+		// string values have already been converted to a buffer in a previous pass.
+		// See `getStructureTypeLength()`.
+		const castValue = /** @type {Uint8Array} */ (value);
 		bytesMoved = insertLengthAndBuffer(dataView, castValue, byteOffset, stringLengthStorageType, {littleEndian});
 	} else if (type == StorageType.BOOL) {
 		dataView.setUint8(byteOffset, value ? 1 : 0);
@@ -966,7 +968,7 @@ function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, 
 }
 
 /**
- * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat | number} structure
  * @param {TraversedLocationData[]} traversedLocationPath
  * @param {Object} opts
  * @param {NameIdsMap} opts.nameIdsMap
