@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals, assertExists} from "asserts";
 import {getContext, initBrowser} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/common.js";
 import {editor} from "../../shared/evaluateTypes.js";
@@ -18,6 +18,7 @@ Deno.test({
 
 		await testContext.step("Rename the project root folder", async () => {
 			const projectNameEl = await page.waitForSelector(rootNameTreeViewSelector);
+			assertExists(projectNameEl);
 			await projectNameEl.click();
 
 			await page.keyboard.press("Enter");
@@ -36,6 +37,7 @@ Deno.test({
 
 		await testContext.step("Check if the project loaded with the changed name", async () => {
 			const contentWindowProjectEl = await page.waitForSelector(projectWindowSelector);
+			assertExists(contentWindowProjectEl);
 
 			await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
 				const contentWindowProject = editor.windowManager.getWindowByElement(contentWindowProjectEl);
@@ -49,6 +51,7 @@ Deno.test({
 			});
 
 			const projectNameEl = await page.waitForSelector(rootNameTreeViewSelector);
+			if (!projectNameEl) throw new Error("Project name element not found.");
 			const projectName = await projectNameEl.evaluate(projectNameEl => {
 				return projectNameEl.textContent;
 			});
