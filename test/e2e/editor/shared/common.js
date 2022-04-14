@@ -8,7 +8,6 @@ import {editor} from "./evaluateTypes.js";
 export async function waitForEditorLoad(page, testContext) {
 	await testContext.step("Wait for editor to load", async () => {
 		await page.evaluate(async () => {
-			// @ts-expect-error
 			await globalThis.projectSelector.waitForEditor();
 		});
 	});
