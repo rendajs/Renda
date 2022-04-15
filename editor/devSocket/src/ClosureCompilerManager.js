@@ -1,7 +1,7 @@
 import {createRequire} from "std-node";
 
-const require = createRequire(import.meta.url);
-const closureCompiler = require("google-closure-compiler");
+const compatRequire = createRequire(import.meta.url);
+const closureCompiler = compatRequire("google-closure-compiler");
 
 const ClosureCompiler = closureCompiler.compiler;
 

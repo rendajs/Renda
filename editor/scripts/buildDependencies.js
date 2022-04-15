@@ -6,11 +6,9 @@ import {rollup} from "rollup";
 
 // import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
 
-const require = createRequire(import.meta.url);
-// @ts-expect-error
-const commonjs = require("@rollup/plugin-commonjs");
-// @ts-expect-error
-const {nodeResolve} = require("@rollup/plugin-node-resolve");
+const compatRequire = createRequire(import.meta.url);
+const commonjs = compatRequire("@rollup/plugin-commonjs");
+const {nodeResolve} = compatRequire("@rollup/plugin-node-resolve");
 
 /**
  * Small Rollup plugin for replacing the content of certain imports with an empty object.
