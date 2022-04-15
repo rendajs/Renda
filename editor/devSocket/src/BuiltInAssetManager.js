@@ -1,17 +1,8 @@
 import {base64ToArrayBuffer, generateUuid} from "../../../src/util/mod.js";
+import {hashBuffer} from "../../../src/mod.js";
 import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
 import {basename, dirname, fromFileUrl, join, relative, resolve} from "path";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
-
-/**
- * @param {Uint8Array} data
- */
-async function hash(data) {
-	const hash = await crypto.subtle.digest("SHA-256", data);
-	const hashArray = Array.from(new Uint8Array(hash));
-	const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-	return hashHex;
-}
 
 export class BuiltInAssetManager {
 	/**
@@ -89,7 +80,7 @@ export class BuiltInAssetManager {
 				const fullPath = resolve(this.builtInAssetsPath, ...assetData.path);
 				const promise = (async () => {
 					const fileBuffer = await Deno.readFile(fullPath);
-					this.fileHashes.set(await hash(fileBuffer), uuid);
+					this.fileHashes.set(await hashBuffer(fileBuffer), uuid);
 				})();
 				promises.push(promise);
 			}
@@ -145,7 +136,7 @@ export class BuiltInAssetManager {
 		let newHash = null;
 		if (stat) {
 			const fileBuffer = await Deno.readFile(fullPath);
-			newHash = await hash(fileBuffer);
+			newHash = await hashBuffer(fileBuffer);
 		}
 
 		const pathArr = relPath.split("/");

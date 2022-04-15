@@ -5,6 +5,7 @@ import {setCwd} from "chdir-anywhere";
 import {serveDir} from "https://deno.land/std@0.127.0/http/file_server.ts";
 import {serve} from "https://deno.land/std@0.127.0/http/server.ts";
 import {Application as DevSocket} from "../editor/devSocket/src/Application.js";
+import {hashBuffer} from "../src/util/bufferUtil.js";
 
 setCwd();
 Deno.chdir("..");
@@ -44,24 +45,14 @@ const DOWNLOAD_DTS_PACKAGES = [
 	"@webgpu/types@0.1.14/dist/index.d.ts",
 ];
 
-/**
- * @param {Uint8Array} data
- */
-async function hash(data) {
-	const hash = await crypto.subtle.digest("SHA-256", data);
-	const hashArray = Array.from(new Uint8Array(hash));
-	const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-	return hashHex;
-}
-
 const thisScriptContent = await Deno.readFile("./scripts/dev.js");
 const textEncoder = new TextEncoder();
 const denoVersionBuffer = textEncoder.encode(Deno.version.deno);
-const hashBuffer = new Uint8Array(thisScriptContent.byteLength + denoVersionBuffer.byteLength);
-hashBuffer.set(thisScriptContent, 0);
-hashBuffer.set(denoVersionBuffer, thisScriptContent.byteLength);
+const bufferForHash = new Uint8Array(thisScriptContent.byteLength + denoVersionBuffer.byteLength);
+bufferForHash.set(thisScriptContent, 0);
+bufferForHash.set(denoVersionBuffer, thisScriptContent.byteLength);
 
-const currentHash = await hash(hashBuffer);
+const currentHash = await hashBuffer(bufferForHash);
 
 let previousHash = null;
 try {

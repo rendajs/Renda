@@ -79,10 +79,6 @@ function addHeader(headerCode) {
 
 const libs = [
 	{
-		input: "../../node_modules/js-md5/src/md5.js",
-		output: "md5.js",
-	},
-	{
 		input: "../../node_modules/rollup/dist/rollup.browser.js",
 		output: "rollup.browser.js",
 		plugins: [removeSourceMaps()],

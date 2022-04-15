@@ -14,7 +14,6 @@
 		"@rollup/plugin-commonjs": "^11.1.0",
 		"@rollup/plugin-node-resolve": "^13.0.6",
 		"@types/google-closure-compiler": "^0.0.19",
-		"js-md5": "^0.7.3",
 		"eslint": "^8.2.0",
 		"eslint-plugin-jsdoc": "^37.5.1",
 		"eslint-plugin-rulesdir": "github:not-an-aardvark/eslint-plugin-rulesdir",

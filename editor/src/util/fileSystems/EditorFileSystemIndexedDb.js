@@ -1,6 +1,6 @@
 import {EditorFileSystem} from "./EditorFileSystem.js";
 import {IndexedDbUtil} from "../../../../src/util/IndexedDbUtil.js";
-import md5 from "../../../libs/md5.js";
+import {hashBuffer} from "../../../../src/util/bufferUtil.js";
 
 /** @typedef {string & {}} EditorFileSystemIndexedDbPointer */
 
@@ -260,7 +260,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 			finalBuffer.set(buffer, parsedBytes);
 			parsedBytes += buffer.byteLength;
 		}
-		const pointer = md5(finalBuffer);
+		const pointer = await hashBuffer(finalBuffer);
 		const db = this.assertDbExists();
 		await db.set(pointer, obj);
 		return pointer;
