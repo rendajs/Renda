@@ -1,3 +1,5 @@
+import {ArrayGui} from "../ArrayGui.js";
+import {ObjectGui} from "../ObjectGui.js";
 import {TreeView} from "../TreeView.js";
 import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 
@@ -186,6 +188,27 @@ export class PropertiesTreeView extends TreeView {
 		for (const child of this.children) {
 			if (child instanceof PropertiesTreeViewEntry) {
 				child.setDisabled(disabled);
+			}
+		}
+	}
+
+	/**
+	 * Similar to {@linkcode traverseDown} except that the yielded values are guaranteed to be a {@linkcode PropertiesTreeViewEntry}.
+	 * If an entry is of type array or object, the children of that entry are also traversed.
+	 * @returns {Generator<import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryAny>}
+	 */
+	*traverseDownEntries() {
+		for (const entry of this.children) {
+			if (entry instanceof PropertiesTreeViewEntry) {
+				const castEntry = /** @type {import("./PropertiesTreeViewEntry.js").PropertiesTreeViewEntryAny} */ (entry);
+				yield castEntry;
+				if (castEntry.gui instanceof ArrayGui) {
+					for (const child of castEntry.gui.valueItems) {
+						yield child;
+					}
+				} else if (castEntry.gui instanceof ObjectGui) {
+					yield* castEntry.gui.treeView.traverseDownEntries();
+				}
 			}
 		}
 	}

@@ -33,6 +33,10 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
  */
 
 /**
+ * @typedef {PropertiesTreeViewEntry<import("./types.js").GuiTypeInstances>} PropertiesTreeViewEntryAny
+ */
+
+/**
  * @template {import("./types.js").GuiTypeInstances} T
  */
 export class PropertiesTreeViewEntry extends TreeView {
