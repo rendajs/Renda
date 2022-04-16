@@ -208,11 +208,4 @@ export class MaterialMapTypeSerializer {
 		}
 		return mappedValues;
 	}
-
-	/**
-	 * @param {string} message
-	 */
-	static invalidConfigurationWarning(message) {
-		console.warn(message + "\nView MaterialMapType.js for more info.");
-	}
 }

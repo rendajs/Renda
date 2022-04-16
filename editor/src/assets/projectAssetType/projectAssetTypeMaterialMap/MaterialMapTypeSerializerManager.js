@@ -42,27 +42,23 @@ export class MaterialMapTypeSerializerManager {
 	 */
 	registerMapType(constructor) {
 		if (!(constructor.prototype instanceof MaterialMapTypeSerializer)) {
-			console.warn("Tried to register a MaterialMapType type (" + constructor.name + ") that does not extend MaterialMapType class.");
-			return;
+			throw new Error(`Tried to register a MaterialMapType type (${constructor.name}) that does not extend MaterialMapType class.`);
 		}
 
 		const castConstructor = /** @type {typeof MaterialMapTypeSerializer} */ (constructor);
 
 		if (!castConstructor.uiName) {
-			castConstructor.invalidConfigurationWarning(`Failed to register MaterialMapType ${constructor.name} invalid uiName value: ${castConstructor.uiName}`);
-			return;
+			throw new Error(`Failed to register MaterialMapType "${constructor.name}", invalid uiName value: "${castConstructor.uiName}"`);
+		}
+
+		if (!isUuid(castConstructor.typeUuid)) {
+			throw new Error(`Failed to register MaterialMapType "${constructor.name}", invalid typeUuid value: "${castConstructor.typeUuid}".`);
 		}
 
 		const hasMapContentConstructor = castConstructor.propertiesMaterialMapContentConstructor != null && typeof castConstructor.propertiesMaterialMapContentConstructor == "function";
 		const hasSettingsStructure = castConstructor.settingsStructure != null && typeof castConstructor.settingsStructure == "object";
 		if (!hasMapContentConstructor && !hasSettingsStructure) {
-			castConstructor.invalidConfigurationWarning("Failed to register MaterialMapType (" + constructor.name + "). The material map should at least have a settingsStructure or a propertiesMaterialMapContentConstructor.");
-			return;
-		}
-
-		if (!isUuid(castConstructor.typeUuid)) {
-			castConstructor.invalidConfigurationWarning("Tried to register MaterialMapType (" + constructor.name + ") without a valid typeUuid, override the static typeUuid value in order for this MaterialMapType to function properly.");
-			return;
+			throw new Error(`Failed to register MaterialMapType "${constructor.name}", the type needs to have either a settingsStructure or a propertiesMaterialMapContentConstructor set.`);
 		}
 
 		this.registeredMapTypes.set(castConstructor.typeUuid, castConstructor);
