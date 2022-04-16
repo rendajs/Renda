@@ -37,6 +37,18 @@ export class MaterialMapTypeEntry {
 	}
 
 	/**
+	 * Notifies the `PropertiesMaterialMapContent` instance that the selected map assets have been changed.
+	 * This notification shouldn't be used for updating asset data, as {@linkcode customAssetDataFromLoad} and
+	 * {@linkcode fillMapListValues} are already used for that.
+	 * This is mostly useful for assigning the current parent asset to ui in order to make embedded assets work.
+	 * @param {import("../../../assets/ProjectAsset.js").ProjectAsset<import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>[]} selectedMaps
+	 */
+	selectedAssetsUpdated(selectedMaps) {
+		this.propertiesContentInstance.selectedAssetsUpdated(selectedMaps);
+	}
+
+	/**
+	 * Notifies the `PropertiesMaterialMapContent` instance that current data has changed and ui needs to be updated.
 	 * @param {any} customData
 	 */
 	async customAssetDataFromLoad(customData) {
@@ -70,6 +82,7 @@ export class MaterialMapTypeEntry {
 	}
 
 	/**
+	 * Updates the list of mappable values with the specified values.
 	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
 	 */
 	fillMapListValues(values) {

@@ -83,6 +83,9 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		const map = selectedMaps[0];
 		const mapData = await map.readAssetData();
 		this.ignoreValueChange = true;
+		for (const entry of this.addedMapTypes.values()) {
+			entry.selectedAssetsUpdated([...selectedMaps]);
+		}
 		await this.loadMaps(mapData);
 		this.ignoreValueChange = false;
 	}
@@ -95,6 +98,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
+	 * Creates a map type entry by uuid if it doesn't already exist.
+	 *
 	 * @param {import("../../../../../src/util/mod.js").UuidString} uuid
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
@@ -108,6 +113,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
+	 * Creates a new map type entry if it doesn't already exist.
+	 *
 	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
@@ -124,6 +131,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 		this.mapTypesTreeView.addChild(entry.treeView);
 
 		this.addedMapTypes.set(MaterialMapTypeConstructor.typeUuid, entry);
+		entry.selectedAssetsUpdated([...this.currentSelection]);
 		entry.onValueChange(() => {
 			if (!this.ignoreValueChange) {
 				this.saveSelectedAssets();

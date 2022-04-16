@@ -12,6 +12,7 @@ importer.fakeModule("../../../../../../../editor/src/propertiesWindowContent/pro
 		onValueChange() {}
 		customAssetDataFromLoad() {}
 		updateMapListUi() {}
+		selectedAssetsUpdated() {}
 	}
 `);
 
