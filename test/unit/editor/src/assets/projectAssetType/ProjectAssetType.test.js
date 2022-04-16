@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "asserts";
+import {assertEquals, assertRejects, assertStrictEquals} from "asserts";
 import {ProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js";
 
 /**
@@ -173,5 +173,22 @@ Deno.test({
 
 		assertEquals(setActiveObjectsCalls, [[mockProjectAsset]]);
 		assertStrictEquals(setActiveObjectsCalls[0][0], mockProjectAsset);
+	},
+});
+
+Deno.test({
+	name: "saveLiveAssetData() throws when not implemented",
+	async fn() {
+		/**
+		 * @extends {ProjectAssetType<null, {}, {}>}
+		 */
+		class ExtendedProjectAssetType extends ProjectAssetType {}
+
+		const {projectAssetTypeArgs} = getMocks();
+		const projectAssetType = new ExtendedProjectAssetType(...projectAssetTypeArgs);
+
+		await assertRejects(async () => {
+			await projectAssetType.saveLiveAssetData({}, {});
+		}, Error, `"ExtendedProjectAssetType" hasn't implemented saveLiveAssetData(). If you're trying to save an embedded asset, this is only supported if all of its parent assets implement saveLiveAssetData().`);
 	},
 });

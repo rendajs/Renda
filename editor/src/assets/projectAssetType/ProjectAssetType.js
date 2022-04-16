@@ -211,7 +211,7 @@ export class ProjectAssetType {
 	 * @returns {Promise<TSaveFileData?>}
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {
-		return null;
+		throw new Error(`"${this.constructor.name}" hasn't implemented saveLiveAssetData(). If you're trying to save an embedded asset, this is only supported if all of its parent assets implement saveLiveAssetData().`);
 	}
 
 	/**

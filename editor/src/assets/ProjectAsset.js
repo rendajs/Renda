@@ -310,7 +310,18 @@ export class ProjectAsset {
 		await this.waitForInit();
 		if (!this._projectAssetType) return;
 		const {liveAsset, editorData} = await this._projectAssetType.createNewLiveAssetData();
-		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
+		let assetData = null;
+		try {
+			assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
+		} catch (e) {
+			if (e instanceof Error && e.message.includes("hasn't implemented saveLiveAssetData()")) {
+				// Most ProjectAssetTypes don't actually implement this, which is fine in this case.
+				// The error is only there to make `ProjectAsset.saveLiveAssetData()` throw when called
+				// on a ProjectAssetType that doesn't implement saveLiveAssetData().
+			} else {
+				throw e;
+			}
+		}
 		await this.writeAssetData(assetData);
 	}
 
