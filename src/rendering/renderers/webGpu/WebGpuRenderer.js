@@ -11,10 +11,10 @@ import {MeshComponent} from "../../../components/builtIn/MeshComponent.js";
 import {Mesh} from "../../../core/Mesh.js";
 import {MultiKeyWeakMap} from "../../../util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
-import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
+import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
-export {MaterialMapTypeLoaderWebGpuRenderer} from "./MaterialMapTypeLoaderWebGpuRenderer.js";
+export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
 
 /**
  * @typedef {Object} CachedMaterialData
@@ -349,7 +349,7 @@ export class WebGpuRenderer extends Renderer {
 
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {
-					const webgpuMap = material.materialMap.getMapTypeInstance(MaterialMapTypeWebGpu);
+					const webgpuMap = material.materialMap.getMapTypeInstance(WebGpuMaterialMapType);
 					materialData.forwardPipelineConfig = webgpuMap.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}
@@ -388,7 +388,7 @@ export class WebGpuRenderer extends Renderer {
 			for (const [material, renderDatas] of pipelineRenderData.materialRenderDatas) {
 				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
-				for (const [, value] of material.getAllMappedProperties(MaterialMapTypeWebGpu)) {
+				for (const [, value] of material.getAllMappedProperties(WebGpuMaterialMapType)) {
 					this.materialUniformsBuffer.appendData(value, "f32");
 				}
 

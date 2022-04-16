@@ -1,15 +1,15 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {StorageType} from "../../../../../../src/util/binarySerialization.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
-import {MaterialMapTypeWebGpu} from "../../../../../../src/rendering/renderers/webGpu/MaterialMapTypeWebGpu.js";
+import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
 import {ProjectAssetTypeWebGpuPipelineConfig} from "../../ProjectAssetTypeWebGpuPipelineConfig.js";
 
 /**
- * @typedef {Object} MaterialMapTypeWebGpuRendererSavedCustomData
+ * @typedef {Object} WebGpuMaterialMapTypeSavedCustomData
  * @property {import("../../../../../../src/util/mod.js").UuidString} forwardPipelineConfig
  */
 
-export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSerializer {
+export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static uiName = "WebGPU Renderer";
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
@@ -28,7 +28,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 	 * @override
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
-	 * @param {MaterialMapTypeWebGpuRendererSavedCustomData} customData
+	 * @param {WebGpuMaterialMapTypeSavedCustomData} customData
 	 */
 	static async getMappableValues(editorInstance, assetManager, customData) {
 		const pipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig, {
@@ -123,7 +123,7 @@ export class MaterialMapTypeSerializerWebGpuRenderer extends MaterialMapTypeSeri
 				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
 			});
 		}
-		return new MaterialMapTypeWebGpu({forwardPipelineConfig});
+		return new WebGpuMaterialMapType({forwardPipelineConfig});
 	}
 
 	/**

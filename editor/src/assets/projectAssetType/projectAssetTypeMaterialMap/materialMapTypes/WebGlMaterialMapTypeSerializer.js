@@ -3,7 +3,7 @@ import {ShaderSource, Vec3} from "../../../../../../src/mod.js";
 import {StorageType} from "../../../../../../src/util/binarySerialization.js";
 import {ProjectAssetTypeShaderSource} from "../../ProjectAssetTypeShaderSource.js";
 
-export class MaterialMapTypeSerializerWebGlRenderer extends MaterialMapTypeSerializer {
+export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
 	static typeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
 	static allowExportInAssetBundles = true;

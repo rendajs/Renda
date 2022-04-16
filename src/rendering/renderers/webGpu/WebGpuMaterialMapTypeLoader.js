@@ -1,6 +1,6 @@
 import {StorageType, binaryToObjectWithAssetLoader} from "../../../util/binarySerialization.js";
 import {MaterialMapTypeLoader} from "../../../assets/MaterialMapTypeLoader.js";
-import {MaterialMapTypeWebGpu} from "./MaterialMapTypeWebGpu.js";
+import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
 import {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 
 /**
@@ -8,7 +8,7 @@ import {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
  * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} forwardPipelineConfig
  */
 
-export class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapTypeLoader {
+export class WebGpuMaterialMapTypeLoader extends MaterialMapTypeLoader {
 	static get typeUuid() {
 		return "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	}
@@ -34,6 +34,6 @@ export class MaterialMapTypeLoaderWebGpuRenderer extends MaterialMapTypeLoader {
 			...settings,
 			forwardPipelineConfig: pipelineConfig,
 		};
-		return new MaterialMapTypeWebGpu(settings2);
+		return new WebGpuMaterialMapType(settings2);
 	}
 }
