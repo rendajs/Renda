@@ -71,12 +71,11 @@ export class MaterialMapTypeSerializer {
 	 * loaded, saved and exported in assetbundles.
 	 * `customData` will be whatever you last returned from
 	 * {@link getCustomAssetDataForSave}.
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {MaterialMapLiveAssetDataContext} context
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {Promise<MaterialMapTypeMappableValue[]>}
 	 */
-	static async getMappableValues(editorInstance, assetManager, customData) {
+	static async getMappableValues(context, customData) {
 		return [];
 	}
 
@@ -213,15 +212,14 @@ export class MaterialMapTypeSerializer {
 	}
 
 	/**
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {MaterialMapLiveAssetDataContext} context
 	 * @param {*} customData
 	 * @param {import("../MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} mappedValuesData
 	 */
-	static async getMappedValues(editorInstance, assetManager, customData, mappedValuesData) {
+	static async getMappedValues(context, customData, mappedValuesData) {
 		/** @type {MaterialMapTypeMappableValue[]} */
 		const mappedValues = [];
-		const mappableValues = await this.getMappableValues(editorInstance, assetManager, customData);
+		const mappableValues = await this.getMappableValues(context, customData);
 		for (const {name, type, defaultValue} of mappableValues) {
 			const mappedValueData = mappedValuesData?.[name];
 			if (mappedValueData?.visible ?? true) {

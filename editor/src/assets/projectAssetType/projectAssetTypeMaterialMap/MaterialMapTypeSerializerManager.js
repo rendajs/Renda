@@ -96,7 +96,8 @@ export class MaterialMapTypeSerializerManager {
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
-		const assetManager = await getEditorInstance().projectManager.getAssetManager();
+		const editor = getEditorInstance();
+		const assetManager = await editor.projectManager.getAssetManager();
 		const mapProjectAsset = await assetManager.getProjectAsset(mapAssetUuid, {
 			assertAssetType: ProjectAssetTypeMaterialMap,
 		});
@@ -106,13 +107,15 @@ export class MaterialMapTypeSerializerManager {
 		if (await mapProjectAsset.getIsDeleted()) return [];
 		/** @type {MaterialMapAssetData} */
 		const mapData = await mapProjectAsset.readAssetData();
-		const editor = getEditorInstance();
 		if (mapData.maps) {
+			const mapProjectAssetType = await mapProjectAsset.getProjectAssetType();
+			if (!mapProjectAssetType) throw new Error("Assertion failed, material map asset has no project asset type.");
+			const context = mapProjectAssetType.createLiveAssetDataContext();
 			for (const mapType of mapData.maps) {
 				if (!mapType.mappedValues) continue;
 				const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
 				if (!mapTypeConstructor) continue;
-				const values = await mapTypeConstructor.getMappedValues(editor, assetManager, mapType.customData, mapType.mappedValues);
+				const values = await mapTypeConstructor.getMappedValues(context, mapType.customData, mapType.mappedValues);
 				for (const value of values) {
 					mapValues.set(value.name, value);
 				}

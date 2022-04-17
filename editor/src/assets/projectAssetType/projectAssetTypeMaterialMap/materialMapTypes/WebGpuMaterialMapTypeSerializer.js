@@ -27,15 +27,15 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 
 	/**
 	 * @override
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {import("./MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
 	 * @param {WebGpuMaterialMapTypeDiskData?} customData
 	 */
-	static async getMappableValues(editorInstance, assetManager, customData) {
+	static async getMappableValues(context, customData) {
 		let pipelineConfig = null;
 		if (customData?.forwardPipelineConfig) {
-			pipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig, {
+			pipelineConfig = await context.assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(customData.forwardPipelineConfig, {
 				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
+				parentAsset: context.materialMapAsset,
 			});
 		}
 		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */

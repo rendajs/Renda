@@ -68,14 +68,13 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 
 	/**
 	 * @override
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {import("./MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
 	 * @param {*} customData
 	 */
-	static async getMappableValues(editorInstance, assetManager, customData) {
+	static async getMappableValues(context, customData) {
 		const itemsMap = new Map();
-		await this.addShaderUniformsToMap(assetManager, customData.vertexShader, itemsMap);
-		await this.addShaderUniformsToMap(assetManager, customData.fragmentShader, itemsMap);
+		await this.addShaderUniformsToMap(context.assetManager, customData.vertexShader, itemsMap);
+		await this.addShaderUniformsToMap(context.assetManager, customData.fragmentShader, itemsMap);
 
 		const items = [];
 		for (const [name, itemData] of itemsMap) {

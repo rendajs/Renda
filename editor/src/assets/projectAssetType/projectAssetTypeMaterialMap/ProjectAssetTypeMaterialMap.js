@@ -15,6 +15,16 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = MaterialMap;
 
+	createLiveAssetDataContext() {
+		/** @type {import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
+		const context = {
+			editor: this.editorInstance,
+			assetManager: this.assetManager,
+			materialMapAsset: /** @type {import("../../ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterialMap>} */ (this.projectAsset),
+		};
+		return context;
+	}
+
 	/**
 	 * @override
 	 * @param {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
@@ -28,19 +38,14 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 				const typeSerializer = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				if (!typeSerializer) continue;
 
-				/** @type {import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
-				const context = {
-					editor: this.editorInstance,
-					assetManager: this.assetManager,
-					materialMapAsset: this.projectAsset,
-				};
+				const context = this.createLiveAssetDataContext();
 				const mapType = await typeSerializer.loadLiveAssetData(context, map.customData);
 
 				if (!mapType) continue;
 
 				/** @type {import("../../../../../src/rendering/MaterialMap.js").MaterialMapMappedValues} */
 				const mappedValues = {};
-				for (const mappedValue of await typeSerializer.getMappableValues(this.editorInstance, this.assetManager, map.customData)) {
+				for (const mappedValue of await typeSerializer.getMappableValues(context, map.customData)) {
 					let defaultValue = mappedValue.defaultValue;
 					if (defaultValue) {
 						if (typeof defaultValue == "number") {
@@ -123,12 +128,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 				mapTypeId: mapTypeConstructor.typeUuid,
 			};
 
-			/** @type {import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
-			const context = {
-				editor: this.editorInstance,
-				assetManager: this.assetManager,
-				materialMapAsset: this.projectAsset,
-			};
+			const context = this.createLiveAssetDataContext();
 			const customData = await mapTypeConstructor.saveLiveAssetData(context, mapInstance);
 			if (customData) {
 				map.customData = customData;

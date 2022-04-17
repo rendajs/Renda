@@ -34,6 +34,7 @@ export class MaterialMapTypeEntry {
 		this.mapListUi = null;
 		this.lastSavedCustomData = null;
 		this.lastSavedCustomDataDirty = true;
+		this.lastSelectedMaps = null;
 	}
 
 	/**
@@ -45,6 +46,7 @@ export class MaterialMapTypeEntry {
 	 */
 	selectedAssetsUpdated(selectedMaps) {
 		this.propertiesContentInstance.selectedAssetsUpdated(selectedMaps);
+		this.lastSelectedMaps = selectedMaps;
 	}
 
 	/**
@@ -71,7 +73,18 @@ export class MaterialMapTypeEntry {
 		}
 
 		const assetManager = await this.editorInstance.projectManager.getAssetManager();
-		const mappableValues = await this.typeConstructor.getMappableValues(this.editorInstance, assetManager, await this.getCustomAssetDataForSave());
+
+		if (!this.lastSelectedMaps || this.lastSelectedMaps.length != 1) {
+			throw new Error("Assertion failed: lastSelected maps is not set or has multiple entries");
+		}
+
+		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
+		const context = {
+			editor: this.editorInstance,
+			assetManager,
+			materialMapAsset: this.lastSelectedMaps[0],
+		};
+		const mappableValues = await this.typeConstructor.getMappableValues(context, await this.getCustomAssetDataForSave());
 		this.mapListUi = new MaterialMapListUi({
 			items: mappableValues,
 		});
