@@ -124,7 +124,8 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 		if (customData?.forwardPipelineConfig) {
 			forwardPipelineConfig = await context.assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(customData.forwardPipelineConfig, {
 				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
-			}, context.materialMapAsset);
+				parentAsset: context.materialMapAsset,
+			});
 		}
 		return new WebGpuMaterialMapType({forwardPipelineConfig});
 	}

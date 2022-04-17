@@ -15,11 +15,10 @@ function basicSetup() {
 		static typeUuid = BASIC_MATERIAL_MAP_TYPE_ID;
 		/**
 		 * @override
-		 * @param {import("../../../../../../../editor/src/Editor.js").Editor} editorInstance
-		 * @param {import("../../../../../../../editor/src/assets/AssetManager.js").AssetManager} assetManager
+		 * @param {import("../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
 		 * @param {any} liveAsset
 		 */
-		static async saveLiveAssetData(editorInstance, assetManager, liveAsset) {
+		static async saveLiveAssetData(context, liveAsset) {
 			return {label: "material map type custom data"};
 		}
 	}

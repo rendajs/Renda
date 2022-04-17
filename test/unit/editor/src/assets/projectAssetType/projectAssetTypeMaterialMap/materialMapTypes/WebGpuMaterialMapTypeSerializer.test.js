@@ -13,7 +13,7 @@ function getMockContext({
 
 	const context = /** @type {import("../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
 		assetManager: {
-			async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, assertionOptions, parent) {
+			async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
 				const liveAsset = new WebGpuPipelineConfig();
 				createdLiveAssets.push(liveAsset);
 				return liveAsset;

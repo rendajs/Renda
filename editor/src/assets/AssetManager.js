@@ -28,6 +28,16 @@ import {ProjectAsset} from "./ProjectAsset.js";
  * @property {(new (...args: any[]) => T)?} assertAssetType
  */
 
+/**
+ * @typedef GetLiveAssetFromUuidOrEmbeddedAssetDataExtraOptions
+ * @property {import("./ProjectAsset.js").ProjectAssetAny} parentAsset The project asset that the embedded asset is stored in.
+ */
+
+/**
+ * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [TProjectAssetType = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+ * @typedef {RequiredAssetAssertionOptions<TProjectAssetType> & GetLiveAssetFromUuidOrEmbeddedAssetDataExtraOptions} GetLiveAssetFromUuidOrEmbeddedAssetDataOptions
+ */
+
 export class AssetManager {
 	/**
 	 * @param {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
@@ -551,21 +561,19 @@ export class AssetManager {
 	 *
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
-	 * @param {RequiredAssetAssertionOptions<T>} assertionOptions
-	 * @param {import("./ProjectAsset.js").ProjectAssetAny} parent
+	 * @param {GetLiveAssetFromUuidOrEmbeddedAssetDataOptions<T>} options
 	 */
-	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, assertionOptions, parent) {
+	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, {assertAssetType, parentAsset}) {
 		if (!uuidOrData) return null;
-
 		if (typeof uuidOrData == "string") {
-			return await this.getLiveAsset(uuidOrData, assertionOptions);
+			return await this.getLiveAsset(uuidOrData, {assertAssetType});
 		} else {
-			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertionOptions.assertAssetType);
+			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertAssetType);
 			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
 
 			// TODO: Check if the parent asset had any previous embedded live assets and use that instead
 			// of creating a new one. Maybe use an array of strings as key for looking up previous live assets.
-			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type, parent);
+			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type, parentAsset);
 			projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
 			return await projectAsset.getLiveAsset();
 		}
