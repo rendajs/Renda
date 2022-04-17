@@ -12,6 +12,13 @@ import {StorageType, objectToBinary} from "../../../../../../src/util/binarySeri
  */
 
 /**
+ * @typedef MaterialMapLiveAssetDataContext
+ * @property {import("../../../../Editor.js").Editor} editor
+ * @property {import("../../../AssetManager.js").AssetManager} assetManager
+ * @property {import("../../../ProjectAsset.js").ProjectAsset<import("../ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} materialMapAsset
+ */
+
+/**
  * Registered MaterialMapTypes with MaterialMapTypeManager.registerMapType should
  * extend this class. Extended classes are responsible for converting data between
  * what's stored on disk, in memory in live assets, or as binary in assetbundles.
@@ -80,12 +87,11 @@ export class MaterialMapTypeSerializer {
 	 * This is where you can convert the plain disk data to live asset data and load any asset uuids
 	 * using the provided assetManager.
 	 *
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {MaterialMapLiveAssetDataContext} context
 	 * @param {any} customData The customData as stored on disk.
 	 * @returns {Promise<import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType?>} The data to be stored in the Material.
 	 */
-	static async loadLiveAssetData(editorInstance, assetManager, customData) {
+	static async loadLiveAssetData(context, customData) {
 		return null;
 	}
 
@@ -95,12 +101,11 @@ export class MaterialMapTypeSerializer {
 	 * be converted to a uuid, or if embedded assets are supported, use an embedded asset structure.
 	 * You can use `assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset()` for this.
 	 *
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
-	 * @param {import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType?} liveAssetData The material map live asset that needs to be stored on disk.
+	 * @param {MaterialMapLiveAssetDataContext} context
+	 * @param {import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType} liveAssetMaterialMapType The material map live asset that needs to be stored on disk.
 	 * @returns {Promise<any>} The data to be stored in the Material.
 	 */
-	static async saveLiveAssetData(editorInstance, assetManager, liveAssetData) {
+	static async saveLiveAssetData(context, liveAssetMaterialMapType) {
 		throw new Error(`"${this.name}" hasn't implemented saveLiveAssetData().`);
 	}
 

@@ -27,7 +27,14 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 			for (const map of fileData.maps) {
 				const typeSerializer = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
 				if (!typeSerializer) continue;
-				const mapType = await typeSerializer.loadLiveAssetData(this.editorInstance, this.assetManager, map.customData);
+
+				/** @type {import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
+				const context = {
+					editor: this.editorInstance,
+					assetManager: this.assetManager,
+					materialMapAsset: this.projectAsset,
+				};
+				const mapType = await typeSerializer.loadLiveAssetData(context, map.customData);
 
 				if (!mapType) continue;
 
@@ -116,7 +123,13 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 				mapTypeId: mapTypeConstructor.typeUuid,
 			};
 
-			const customData = await mapTypeConstructor.saveLiveAssetData(this.editorInstance, this.assetManager, mapInstance);
+			/** @type {import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
+			const context = {
+				editor: this.editorInstance,
+				assetManager: this.assetManager,
+				materialMapAsset: this.projectAsset,
+			};
+			const customData = await mapTypeConstructor.saveLiveAssetData(context, mapInstance);
 			if (customData) {
 				map.customData = customData;
 			}
@@ -135,6 +148,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 
 	/**
 	 * @override
+	 * @returns {Promise<string | BufferSource | Blob | null>}
 	 */
 	async createBundledAssetData() {
 		const mapDatas = [];

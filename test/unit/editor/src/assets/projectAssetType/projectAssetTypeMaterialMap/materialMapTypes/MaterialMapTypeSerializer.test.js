@@ -1,8 +1,8 @@
 import {assertEquals, assertRejects} from "asserts";
 import {MaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js";
+import {MaterialMapType} from "../../../../../../../../src/rendering/MaterialMapType.js";
 
-const mockEditor = /** @type {any} */ ({});
-const mockAssetManager = /** @type {any} */ ({});
+const mockContext = /** @type {import("../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({});
 
 Deno.test({
 	name: "saveLiveAssetData() rejects when not implemented",
@@ -10,7 +10,7 @@ Deno.test({
 		class ExtendedMaterialMapTypeSerializer extends MaterialMapTypeSerializer {}
 
 		await assertRejects(async () => {
-			await ExtendedMaterialMapTypeSerializer.saveLiveAssetData(mockEditor, mockAssetManager, null);
+			await ExtendedMaterialMapTypeSerializer.saveLiveAssetData(mockContext, new MaterialMapType());
 		}, Error, `"ExtendedMaterialMapTypeSerializer" hasn't implemented saveLiveAssetData().`);
 	},
 });
@@ -20,7 +20,7 @@ Deno.test({
 	async fn() {
 		class ExtendedMaterialMapTypeSerializer extends MaterialMapTypeSerializer {}
 
-		const result = await ExtendedMaterialMapTypeSerializer.loadLiveAssetData(mockEditor, mockAssetManager, null);
+		const result = await ExtendedMaterialMapTypeSerializer.loadLiveAssetData(mockContext, null);
 		assertEquals(result, null);
 	},
 });

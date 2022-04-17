@@ -5,8 +5,8 @@ import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/w
 import {ProjectAssetTypeWebGpuPipelineConfig} from "../../ProjectAssetTypeWebGpuPipelineConfig.js";
 
 /**
- * @typedef {Object} WebGpuMaterialMapTypeSavedCustomData
- * @property {import("../../../../../../src/util/mod.js").UuidString} forwardPipelineConfig
+ * @typedef {Object} WebGpuMaterialMapTypeDiskData
+ * @property {import("../../../../../../src/util/mod.js").UuidString | import("../../ProjectAssetTypeWebGpuPipelineConfig.js").WebGpuPipelineConfigAssetData | null} [forwardPipelineConfig]
  */
 
 export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
@@ -29,12 +29,15 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 * @override
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
-	 * @param {WebGpuMaterialMapTypeSavedCustomData} customData
+	 * @param {WebGpuMaterialMapTypeDiskData?} customData
 	 */
 	static async getMappableValues(editorInstance, assetManager, customData) {
-		const pipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig, {
-			assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
-		});
+		let pipelineConfig = null;
+		if (customData?.forwardPipelineConfig) {
+			pipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig, {
+				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
+			});
+		}
 		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mappableValues = new Map();
 		if (pipelineConfig?.fragmentShader) {
@@ -112,19 +115,32 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 
 	/**
 	 * @override
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
-	 * @param {*} customData
+	 * @param {import("./MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
+	 * @param {WebGpuMaterialMapTypeDiskData?} customData
 	 */
-	static async loadLiveAssetData(editorInstance, assetManager, customData) {
+	static async loadLiveAssetData(context, customData) {
 		/** @type {WebGpuPipelineConfig?} */
 		let forwardPipelineConfig = null;
-		if (customData.forwardPipelineConfig) {
-			forwardPipelineConfig = await assetManager.getLiveAsset(customData.forwardPipelineConfig, {
+		if (customData?.forwardPipelineConfig) {
+			forwardPipelineConfig = await context.assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(customData.forwardPipelineConfig, {
 				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
-			});
+			}, context.materialMapAsset);
 		}
 		return new WebGpuMaterialMapType({forwardPipelineConfig});
+	}
+
+	/**
+	 * @override
+	 * @param {import("./MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
+	 * @param {WebGpuMaterialMapType} liveAssetMaterialMapType
+	 */
+	static async saveLiveAssetData(context, liveAssetMaterialMapType) {
+		/** @type {WebGpuMaterialMapTypeDiskData} */
+		const data = {};
+		if (liveAssetMaterialMapType.forwardPipelineConfig) {
+			data.forwardPipelineConfig = context.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAssetMaterialMapType.forwardPipelineConfig);
+		}
+		return data;
 	}
 
 	/**

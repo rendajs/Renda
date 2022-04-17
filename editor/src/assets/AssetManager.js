@@ -563,6 +563,8 @@ export class AssetManager {
 			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertionOptions.assertAssetType);
 			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
 
+			// TODO: Check if the parent asset had any previous embedded live assets and use that instead
+			// of creating a new one. Maybe use an array of strings as key for looking up previous live assets.
 			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type, parent);
 			projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
 			return await projectAsset.getLiveAsset();
