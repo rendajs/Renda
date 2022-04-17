@@ -1,14 +1,17 @@
 import {assert, assertStrictEquals, assertThrows} from "asserts";
-import {MaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js";
-import {MaterialMapTypeSerializerManager} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js";
+import {MaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js";
+import {MaterialMapTypeSerializerManager} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js";
 
 const BASIC_SERIALIZER_UUID = "00000000-0000-0000-0000-000000000000";
+
+class LiveAssetConstructor {}
 
 class ExtendedMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static uiName = "serializer";
 	static typeUuid = BASIC_SERIALIZER_UUID;
+	static expectedLiveAssetConstructor = LiveAssetConstructor;
 
-	/** @type {import("../../../../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static settingsStructure = {
 		foo: {
 			type: "number",
@@ -103,5 +106,28 @@ Deno.test({
 		const result = manager.getTypeByUuid(BASIC_SERIALIZER_UUID);
 
 		assertStrictEquals(result, ExtendedMaterialMapTypeSerializer);
+	},
+});
+
+Deno.test({
+	name: "getTypeByLiveAssetConstructor()",
+	fn() {
+		const manager = new MaterialMapTypeSerializerManager();
+		manager.registerMapType(ExtendedMaterialMapTypeSerializer);
+
+		const result = manager.getTypeByLiveAssetConstructor(LiveAssetConstructor);
+
+		assertStrictEquals(result, ExtendedMaterialMapTypeSerializer);
+	},
+});
+
+Deno.test({
+	name: "getTypeByLiveAssetConstructor() returns null when it doesn't exist",
+	fn() {
+		const manager = new MaterialMapTypeSerializerManager();
+
+		const result = manager.getTypeByLiveAssetConstructor(LiveAssetConstructor);
+
+		assertStrictEquals(result, null);
 	},
 });

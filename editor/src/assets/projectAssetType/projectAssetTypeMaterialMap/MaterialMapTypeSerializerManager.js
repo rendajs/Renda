@@ -15,7 +15,7 @@ import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
 
 /**
  * @typedef {Object} MaterialMapAssetData
- * @property {MaterialMapTypeAssetData[]} maps
+ * @property {MaterialMapTypeAssetData[]} [maps]
  */
 
 /**
@@ -79,6 +79,18 @@ export class MaterialMapTypeSerializerManager {
 	}
 
 	/**
+	 * @param {new (...args: any[]) => import("../../../../../src/rendering/MaterialMapType.js").MaterialMapType} liveAssetConstructor
+	 */
+	getTypeByLiveAssetConstructor(liveAssetConstructor) {
+		for (const mapTypeConstructor of this.registeredMapTypes.values()) {
+			if (mapTypeConstructor.expectedLiveAssetConstructor == liveAssetConstructor) {
+				return mapTypeConstructor;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * @param {import("../../../../../src/util/mod.js").UuidString} mapAssetUuid
 	 * @returns {Promise<import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
 	 */
@@ -95,13 +107,15 @@ export class MaterialMapTypeSerializerManager {
 		/** @type {MaterialMapAssetData} */
 		const mapData = await mapProjectAsset.readAssetData();
 		const editor = getEditorInstance();
-		for (const mapType of mapData.maps) {
-			if (!mapType.mappedValues) continue;
-			const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
-			if (!mapTypeConstructor) continue;
-			const values = await mapTypeConstructor.getMappedValues(editor, assetManager, mapType.customData, mapType.mappedValues);
-			for (const value of values) {
-				mapValues.set(value.name, value);
+		if (mapData.maps) {
+			for (const mapType of mapData.maps) {
+				if (!mapType.mappedValues) continue;
+				const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
+				if (!mapTypeConstructor) continue;
+				const values = await mapTypeConstructor.getMappedValues(editor, assetManager, mapType.customData, mapType.mappedValues);
+				for (const value of values) {
+					mapValues.set(value.name, value);
+				}
 			}
 		}
 		return Array.from(mapValues.values());

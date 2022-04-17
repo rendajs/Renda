@@ -31,6 +31,12 @@ export class MaterialMapTypeSerializer {
 	static typeUuid = "";
 
 	/**
+	 * Used for determining the uuid when saving live asset data.
+	 * @type {(new (...args: any) => import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType)?}
+	 */
+	static expectedLiveAssetConstructor = null;
+
+	/**
 	 * If you set this to true you should at least implement {@link mapDataToAssetBundleBinary}
 	 * or set a structure in {@link assetBundleBinaryComposerOpts}.
 	 */
@@ -70,17 +76,32 @@ export class MaterialMapTypeSerializer {
 	/* ==== Material instance related methods ==== */
 
 	/**
-	 * Use this to convert customData as stored on disk to data that lives
-	 * in Material instances.
-	 * For instance, assets are stored on disk as uuid. Use this to load the
-	 * assets and store them in the Material.
+	 * Use this to convert customData as stored on disk to an instance of `MaterialMapType` that lives in Material instances.
+	 * This is where you can convert the plain disk data to live asset data and load any asset uuids
+	 * using the provided assetManager.
+	 *
 	 * @param {import("../../../../Editor.js").Editor} editorInstance
 	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
-	 * @param {*} customData The customData as stored on disk.
+	 * @param {any} customData The customData as stored on disk.
 	 * @returns {Promise<import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType?>} The data to be stored in the Material.
 	 */
-	static async getLiveAssetSettingsInstance(editorInstance, assetManager, customData) {
+	static async loadLiveAssetData(editorInstance, assetManager, customData) {
 		return null;
+	}
+
+	/**
+	 * Use this to save live asset data to disk. This gets called when the material map live asset is changed.
+	 * This should return an object representable by json, all assets used by the material map should either
+	 * be converted to a uuid, or if embedded assets are supported, use an embedded asset structure.
+	 * You can use `assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset()` for this.
+	 *
+	 * @param {import("../../../../Editor.js").Editor} editorInstance
+	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType?} liveAssetData The material map live asset that needs to be stored on disk.
+	 * @returns {Promise<any>} The data to be stored in the Material.
+	 */
+	static async saveLiveAssetData(editorInstance, assetManager, liveAssetData) {
+		throw new Error(`"${this.name}" hasn't implemented saveLiveAssetData().`);
 	}
 
 	/**

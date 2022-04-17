@@ -13,6 +13,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static uiName = "WebGPU Renderer";
 	static typeUuid = "286eaa41-36ce-4d94-9413-d52fc435b6e5";
 	static allowExportInAssetBundles = true;
+	static expectedLiveAssetConstructor = WebGpuMaterialMapType;
 
 	/** @type {import("../../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static settingsStructure = {
@@ -115,7 +116,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData
 	 */
-	static async getLiveAssetSettingsInstance(editorInstance, assetManager, customData) {
+	static async loadLiveAssetData(editorInstance, assetManager, customData) {
 		/** @type {WebGpuPipelineConfig?} */
 		let forwardPipelineConfig = null;
 		if (customData.forwardPipelineConfig) {

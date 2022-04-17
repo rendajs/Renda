@@ -155,10 +155,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	async getAssetData() {
-		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
-		const data = {
-			maps: [],
-		};
+		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData[]} */
+		const maps = [];
 		for (const [uuid, mapInstance] of this.addedMapTypes) {
 			/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
 			const map = {
@@ -172,8 +170,11 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			if (mappedValues) {
 				map.mappedValues = mappedValues;
 			}
-			data.maps.push(map);
+			maps.push(map);
 		}
+
+		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		const data = {maps};
 		return data;
 	}
 

@@ -437,11 +437,11 @@ export class ProjectAsset {
 
 	/**
 	 * @param {RecursionTracker?} recursionTracker
-	 * @returns {Promise<LiveAssetType?>}
+	 * @returns {Promise<LiveAssetType>}
 	 */
 	async getLiveAsset(recursionTracker = null) {
 		const {liveAsset} = await this.getLiveAssetData(recursionTracker);
-		return liveAsset ?? null;
+		return liveAsset;
 	}
 
 	/**
