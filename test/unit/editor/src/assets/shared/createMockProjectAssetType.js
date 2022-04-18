@@ -23,7 +23,7 @@ class MockProjectAssetTypeLiveAsset {
  * @param {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} type
  */
 export function createMockProjectAssetType(type) {
-	class ProjectAssetType {
+	class MockProjectAssetType {
 		static type = type;
 		static typeUuid = "00000000-0000-0000-0000-000000000000";
 		static storeInProjectAsJson = true;
@@ -60,12 +60,12 @@ export function createMockProjectAssetType(type) {
 		destroyLiveAssetData() {}
 	}
 
-	const castUnknown = /** @type {unknown} */ (ProjectAssetType);
+	const castUnknown = /** @type {unknown} */ (MockProjectAssetType);
 	const castProjectAssetType = /** @type {typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castUnknown);
 
 	return {
 		MockProjectAssetTypeLiveAsset,
-		MockProjectAssetType: ProjectAssetType,
+		MockProjectAssetType,
 		ProjectAssetType: castProjectAssetType,
 	};
 }

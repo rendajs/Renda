@@ -24,6 +24,8 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  * @property {boolean} [isBuiltIn]
  * @property {ProjectAssetAny?} [embeddedParent] When set, marks the created asset as embedded asset and assigns the
  * provided asset as parent.
+ * @property {string} [embeddedParentPersistenceKey] This is used to keep this asset as embedded asset when
+ * the parent is reloaded. This string is passed on to the parent when creating a new liveasset.
  */
 
 /**
@@ -66,6 +68,7 @@ export class ProjectAsset {
 		forceAssetType = false,
 		isBuiltIn = false,
 		embeddedParent = null,
+		embeddedParentPersistenceKey = "",
 	}) {
 		this.assetManager = assetManager;
 		this.assetTypeManager = assetTypeManager;
@@ -109,6 +112,9 @@ export class ProjectAsset {
 		this.currentEmbeddedAssetData = /** @type {FileDataType} */ ({});
 		/** @private @type {ProjectAssetAny?} */
 		this.embeddedParentAsset = embeddedParent;
+		this.embeddedParentPersistenceKey = embeddedParentPersistenceKey;
+		/** @private @type {Map<string, WeakRef<Object>>} */
+		this.previousLiveAssets = new Map();
 
 		this.initInstance = new SingleInstancePromise(async () => await this.init());
 		this.initInstance.run();
@@ -418,6 +424,10 @@ export class ProjectAsset {
 			}
 			this.clearRecursionTrackerLiveAssetChangeHandlers();
 			return await this.getLiveAssetData(recursionTracker);
+		}
+
+		if (this.embeddedParentAsset) {
+			this.embeddedParentAsset.addEmbeddedChildLiveAsset(this.embeddedParentPersistenceKey, liveAsset);
 		}
 
 		this.liveAsset = liveAsset;
@@ -745,6 +755,41 @@ export class ProjectAsset {
 	async writeEmbeddedAssetData(fileData) {
 		this.writeEmbeddedAssetDataImmediate(fileData);
 		if (this.embeddedParentAsset) await this.embeddedParentAsset.childEmbeddedAssetNeedsSave();
+	}
+
+	/**
+	 * Gets called when a new embedded asset is created with this asset as parent.
+	 * This adds the live asset to the list of previous live assets so that it can be queried later
+	 * using {@linkcode getPreviousEmbeddedLiveAsset}.
+	 *
+	 * @param {string} key
+	 * @param {object} liveAsset
+	 */
+	addEmbeddedChildLiveAsset(key, liveAsset) {
+		this.previousLiveAssets.set(key, new WeakRef(liveAsset));
+		this.cleanupOldPreviousLiveAssets();
+	}
+
+	/**
+	 * @param {string} key
+	 */
+	getPreviousEmbeddedLiveAsset(key) {
+		const ref = this.previousLiveAssets.get(key);
+		this.cleanupOldPreviousLiveAssets();
+		if (!ref) return null;
+		const deref = ref?.deref();
+		return deref ?? null;
+	}
+
+	/**
+	 * @private
+	 */
+	cleanupOldPreviousLiveAssets() {
+		for (const [key, ref] of this.previousLiveAssets.entries()) {
+			if (!ref.deref()) {
+				this.previousLiveAssets.delete(key);
+			}
+		}
 	}
 
 	async getAssetTypeUuid() {

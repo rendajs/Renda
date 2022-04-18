@@ -1,4 +1,5 @@
 import {assertEquals, assertStrictEquals} from "asserts";
+import "../../../shared/initializeEditor.js";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {Material} from "../../../../../../src/mod.js";
 import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
@@ -6,6 +7,7 @@ import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
 import {Importer} from "fake-imports";
 import {castTreeView} from "../../../shared/mockTreeView/castTreeView.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 
 const DEFAULT_ASSET_MAP_UUID = "default-asset-map-uuid";
 
@@ -16,6 +18,9 @@ importer.fakeModule("../../../../../../editor/src/windowManagement/contentWindow
 importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../shared/mockTreeView/PropertiesTreeView.js");
 importer.fakeModule("../../../../../../src/rendering/MaterialMap.js", `
 	export class MaterialMap {}
+`);
+importer.fakeModule("../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js", `
+	export const MATERIAL_MAP_PERSISTENCE_KEY = "${MATERIAL_MAP_PERSISTENCE_KEY}";
 `);
 /** @type {import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */
 const PropertiesAssetContentMaterialImport = await importer.import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js");
@@ -47,10 +52,19 @@ function basicSetup() {
 
 	const assetContent = new PropertiesAssetContentMaterial(mockEditorInstance);
 
-	/** @type {(import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny?)[]} */
+	/**
+	 * @typedef EmbeddedParentAssetCall
+	 * @property {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} parentAsset
+	 * @property {unknown} persistenceKey
+	 */
+
+	/** @type {(EmbeddedParentAssetCall | null)[]} */
 	const setEmbeddedParentAssetCalls = [];
-	assetContent.mapTreeView.gui.setEmbeddedParentAsset = parentAsset => {
-		setEmbeddedParentAssetCalls.push(parentAsset);
+	assetContent.mapTreeView.gui.setEmbeddedParentAsset = (parentAsset, persistenceKey) => {
+		setEmbeddedParentAssetCalls.push({parentAsset, persistenceKey});
+	};
+	assetContent.mapTreeView.gui.removeEmbeddedAssetSupport = () => {
+		setEmbeddedParentAssetCalls.push(null);
 	};
 
 	return {
@@ -171,8 +185,12 @@ Deno.test({
 		await assetContent.selectionUpdated([mockMaterialAsset1, mockMaterialAsset2]);
 		await assetContent.selectionUpdated([mockMaterialAsset2]);
 
-		assertEquals(setEmbeddedParentAssetCalls, [mockMaterialAsset1, null, mockMaterialAsset2]);
-		assertStrictEquals(setEmbeddedParentAssetCalls[0], mockMaterialAsset1);
-		assertStrictEquals(setEmbeddedParentAssetCalls[2], mockMaterialAsset2);
+		assertEquals(setEmbeddedParentAssetCalls, [
+			{parentAsset: mockMaterialAsset1, persistenceKey: "materialMap"},
+			null,
+			{parentAsset: mockMaterialAsset2, persistenceKey: "materialMap"},
+		]);
+		assertStrictEquals(setEmbeddedParentAssetCalls[0]?.parentAsset, mockMaterialAsset1);
+		assertStrictEquals(setEmbeddedParentAssetCalls[2]?.parentAsset, mockMaterialAsset2);
 	},
 });

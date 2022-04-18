@@ -22,6 +22,10 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @property {import("../assets/ProjectAsset.js").ProjectAssetAny?} [embeddedParentAsset] If set, allows the creation
  * of embedded assets via a context menu. When omitted, embedded assets are not supported and this option
  * won't be shown in the context menu.
+ * @property {string} [embeddedParentAssetPersistenceKey] The key used for keeping the embedded asset
+ * persistent when reloading the parent, this should be the same as what you use
+ * for {@linkcode AssetManager.getProjectAssetFromUuidOrEmbeddedAssetData} or
+ * {@linkcode AssetManager.getLiveAssetFromUuidOrEmbeddedAssetData}.
  */
 /**
  * @template {new (...args: any) => any} T
@@ -118,6 +122,7 @@ export class DroppableGui {
 		// todo: default value support
 		disabled = false,
 		embeddedParentAsset = null,
+		embeddedParentAssetPersistenceKey = "",
 	} = {}) {
 		if (!dependencies) {
 			dependencies = {
@@ -137,6 +142,8 @@ export class DroppableGui {
 		this.disabled = disabled;
 		/** @private */
 		this.embeddedParentAsset = embeddedParentAsset;
+		/** @private @type {unknown} */
+		this.embeddedParentAssetPersistenceKey = embeddedParentAssetPersistenceKey;
 
 		this.el = document.createElement("div");
 		this.el.classList.add("droppableGui", "empty");
@@ -331,18 +338,36 @@ export class DroppableGui {
 		}
 	}
 
+	/** @typedef {import("../assets/AssetManager.js").AssetManager} AssetManager */
+
 	/**
 	 * Enables/disables embedded asset creation. When a project asset is provided,
 	 * it will be used as parent asset when the user creates a new embedded
 	 * asset via the context menu. When set to `null`, embedded assets creation
 	 * is disabled.
 	 * To prevent ambiguity, the current value of the droppable is reset to `null`.
-	 * This is to prevent situations where a current embedded asset is set as value,
-	 * and changing the parent asset won't change the parent of the created embedded asset.
-	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny?} parentAsset
+	 * This is to prevent situations where the current value is an embedded asset,
+	 * since changing the parent asset won't change the parent of the created embedded asset.
+	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny} parentAsset
+	 * @param {unknown} persistenceKey The key used for keeping the embedded asset
+	 * persistent when reloading the parent, this should be the same as what you use
+	 * for {@linkcode AssetManager.getProjectAssetFromUuidOrEmbeddedAssetData} or
+	 * {@linkcode AssetManager.getLiveAssetFromUuidOrEmbeddedAssetData}.
 	 */
-	setEmbeddedParentAsset(parentAsset) {
+	setEmbeddedParentAsset(parentAsset, persistenceKey) {
 		this.embeddedParentAsset = parentAsset;
+		this.embeddedParentAssetPersistenceKey = persistenceKey;
+		this.setValueFromProjectAsset(null);
+	}
+
+	/**
+	 * Removes support for embedded asset creation.
+	 * To prevent ambiguity, the current value of the droppable is reset to `null`,
+	 * even when the current value is not an embedded asset.
+	 */
+	removeEmbeddedAssetSupport() {
+		this.embeddedParentAsset = null;
+		this.embeddedParentAssetPersistenceKey = "";
 		this.setValueFromProjectAsset(null);
 	}
 
@@ -355,7 +380,7 @@ export class DroppableGui {
 		if (!this.embeddedParentAsset) {
 			throw new Error("Tried to create an embedded asset from a DroppableGui that has no embeddedParentAsset set.");
 		}
-		const projectAsset = assetManager.createEmbeddedAsset(projectAssetType, this.embeddedParentAsset);
+		const projectAsset = assetManager.createEmbeddedAsset(projectAssetType, this.embeddedParentAsset, this.embeddedParentAssetPersistenceKey);
 		this.setValueFromProjectAsset(projectAsset, {
 			preloadLiveAsset: true,
 		});

@@ -1,6 +1,9 @@
 import {assertEquals, assertExists, assertStrictEquals} from "asserts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus, createMockProjectAssetType} from "./shared.js";
+
+const BASIC_PERSISTENCE_KEY = "persistenceKey";
 
 function createMockParentAsset() {
 	const projectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({});
@@ -16,6 +19,7 @@ function basicSetupForEmbeddedAssets() {
 			guiOpts: {
 				supportedAssetTypes: [MockLiveAsset],
 				embeddedParentAsset: mockParent,
+				embeddedParentAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
 			},
 			liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
 		},
@@ -37,18 +41,16 @@ function basicSetupForEmbeddedAssets() {
 Deno.test({
 	name: "create embedded asset via context menu",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, createEmbeddedAssetCalls, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+		const {gui, uninstall, triggerCreateEmbeddedAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
 
 		await triggerCreateEmbeddedAsset();
 
-		assertEquals(createEmbeddedAssetCalls, [
-			{
-				assetType: MockProjectAssetType,
-				parent: mockParent,
-			},
-		]);
-		assertStrictEquals(createEmbeddedAssetCalls[0].assetType, MockProjectAssetType);
-		assertStrictEquals(createEmbeddedAssetCalls[0].parent, mockParent);
+		assertSpyCalls(createEmbeddedAssetSpy, 1);
+		assertSpyCall(createEmbeddedAssetSpy, 0, {
+			args: [MockProjectAssetType, mockParent, BASIC_PERSISTENCE_KEY],
+		});
+		assertStrictEquals(createEmbeddedAssetSpy.calls[0].args[0], MockProjectAssetType);
+		assertStrictEquals(createEmbeddedAssetSpy.calls[0].args[1], mockParent);
 
 		assertExists(gui.projectAssetValue);
 		assertEquals(gui.defaultAssetLink, null);
@@ -83,40 +85,34 @@ Deno.test({
 });
 
 Deno.test({
-	name: "setEmbeddedParentAsset()",
+	name: "removeEmbeddedAssetSupport() and setEmbeddedParentAsset()",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetCalls, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
 
 		await triggerCreateEmbeddedAsset();
 
 		const liveAsset1 = gui.getValue({returnLiveAsset: true});
 		assertStrictEquals(liveAsset1, mockLiveAsset);
 
-		gui.setEmbeddedParentAsset(null);
+		gui.removeEmbeddedAssetSupport();
 
 		const value2 = gui.getValue();
 		assertEquals(value2, null);
 
 		const mockParent2 = createMockParentAsset();
-		gui.setEmbeddedParentAsset(mockParent2);
+		gui.setEmbeddedParentAsset(mockParent2, BASIC_PERSISTENCE_KEY);
 
 		await triggerCreateEmbeddedAsset();
 
 		const liveAsset2 = gui.getValue({returnLiveAsset: true});
 		assertStrictEquals(liveAsset2, mockLiveAsset);
 
-		assertEquals(createEmbeddedAssetCalls, [
-			{
-				assetType: MockProjectAssetType,
-				parent: mockParent,
-			},
-			{
-				assetType: MockProjectAssetType,
-				parent: mockParent2,
-			},
-		]);
-		assertStrictEquals(createEmbeddedAssetCalls[1].assetType, MockProjectAssetType);
-		assertStrictEquals(createEmbeddedAssetCalls[1].parent, mockParent2);
+		assertSpyCalls(createEmbeddedAssetSpy, 2);
+		assertSpyCall(createEmbeddedAssetSpy, 1, {
+			args: [MockProjectAssetType, mockParent, BASIC_PERSISTENCE_KEY],
+		});
+		assertStrictEquals(createEmbeddedAssetSpy.calls[1].args[0], MockProjectAssetType);
+		assertStrictEquals(createEmbeddedAssetSpy.calls[1].args[1], mockParent2);
 
 		uninstall();
 	},

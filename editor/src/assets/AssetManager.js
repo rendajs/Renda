@@ -31,11 +31,25 @@ import {ProjectAsset} from "./ProjectAsset.js";
 /**
  * @typedef GetLiveAssetFromUuidOrEmbeddedAssetDataExtraOptions
  * @property {import("./ProjectAsset.js").ProjectAssetAny} parentAsset The project asset that the embedded asset is stored in.
+ * @property {unknown} embeddedAssetPersistenceKey A key that is used to keep persistence of embedded assets
+ * when the parent asset was saved and reloaded. Normally saving and reloading would cause a new embedded asset to be
+ * created, but if a key is set it will use a previously created embedded asset. The key can either be a string
+ * or an object, but the object will be stringified using `JSON.stringify`.
+ * You'll generally want to set a key that refers to the location of the embedded asset in the parent asset.
+ * So for instance, if you have a parent asset that is a material map, and the embedded asset exists at
+ * `materialMap.mapTypes[0].mapData.pipelineConfg`, you'll want to set the object to something like
+ * `["mapTypes", 0, "mapData", "pipelineConfg"]`.
+ * Note that if this is set, and an existing live asset is found, the embedded asset data on disk won't be loaded.
  */
 
 /**
  * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [TProjectAssetType = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
  * @typedef {RequiredAssetAssertionOptions<TProjectAssetType> & GetLiveAssetFromUuidOrEmbeddedAssetDataExtraOptions} GetLiveAssetFromUuidOrEmbeddedAssetDataOptions
+ */
+
+/**
+ * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
+ * @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any, any> ? TLiveAsset : unknown} InferLiveAssetFromAssetType
  */
 
 export class AssetManager {
@@ -442,7 +456,7 @@ export class AssetManager {
 		if (!projectAsset) return null;
 
 		const liveAsset = await projectAsset.getLiveAsset();
-		return /** @type {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any, any> ? TLiveAsset : unknown} */ (liveAsset);
+		return /** @type {InferLiveAssetFromAssetType<T>} */ (liveAsset);
 	}
 
 	/**
@@ -479,6 +493,14 @@ export class AssetManager {
 	}
 
 	/**
+	 * @private
+	 * @param {unknown} key
+	 */
+	embeddedPersistenceKeyToString(key) {
+		return JSON.stringify(key);
+	}
+
+	/**
 	 * Creates a new embedded ProjectAsset. Embedded assets are not stored on
 	 * disk in a single file, but rather, are embedded in another project asset.
 	 * Embedded assets can't be accessed by a uuid or path. Instead you can use
@@ -490,8 +512,9 @@ export class AssetManager {
 	 *
 	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
 	 * @param {import("./ProjectAsset.js").ProjectAssetAny} parent
+	 * @param {unknown} persistenceKey
 	 */
-	createEmbeddedAsset(assetType, parent) {
+	createEmbeddedAsset(assetType, parent, persistenceKey) {
 		if (typeof assetType != "string") {
 			assetType = assetType.type;
 		}
@@ -499,6 +522,7 @@ export class AssetManager {
 			assetType,
 			forceAssetType: true,
 			embeddedParent: parent,
+			embeddedParentPersistenceKey: this.embeddedPersistenceKeyToString(persistenceKey),
 		});
 		projectAsset.onLiveAssetDataChange(liveAssetData => {
 			if (liveAssetData.liveAsset) {
@@ -534,20 +558,35 @@ export class AssetManager {
 	 * corresponding project asset is returned. If an object is provided, a new
 	 * embedded asset is created using the provided object as data.
 	 * For more info about embedded asset creation see {@linkcode createEmbeddedAsset}.
+	 * The assertionOptions is used both for creating new assets using the correct
+	 * type, as well as asserting if existing assets have the correct type when
+	 * a uuid is provided, similar to how it's used in {@linkcode getProjectAsset}.
 	 *
-	 * @param {import("../../../src/mod.js").UuidString | object | null} uuidOrData
-	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} assetType
-	 * @param {import("./ProjectAsset.js").ProjectAssetAny} parent
+	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
+	 * @param {GetLiveAssetFromUuidOrEmbeddedAssetDataOptions<T>} options
 	 */
-	getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, assetType, parent) {
-		if (uuidOrData == null) return null;
+	async getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, {assertAssetType, parentAsset, embeddedAssetPersistenceKey}) {
+		if (!uuidOrData) return null;
+		let projectAsset;
 		if (typeof uuidOrData == "string") {
-			return this.getProjectAsset(uuidOrData);
+			projectAsset = await this.getProjectAsset(uuidOrData, {assertAssetType});
 		} else {
-			const projectAsset = this.createEmbeddedAsset(assetType, parent);
-			projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
-			return projectAsset;
+			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertAssetType);
+			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
+
+			const embeddedAssetPersistenceKeyString = this.embeddedPersistenceKeyToString(embeddedAssetPersistenceKey);
+
+			const previousLiveAsset = parentAsset.getPreviousEmbeddedLiveAsset(embeddedAssetPersistenceKeyString);
+			if (previousLiveAsset) {
+				projectAsset = this.getProjectAssetForLiveAsset(previousLiveAsset);
+			}
+			if (!projectAsset) {
+				projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type, parentAsset, embeddedAssetPersistenceKey);
+				projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
+			}
 		}
+		return /** @type {ProjectAsset<T>} */ (projectAsset);
 	}
 
 	/**
@@ -562,20 +601,11 @@ export class AssetManager {
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
 	 * @param {GetLiveAssetFromUuidOrEmbeddedAssetDataOptions<T>} options
+	 * @returns {Promise<InferLiveAssetFromAssetType<T>?>}
 	 */
-	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, {assertAssetType, parentAsset}) {
-		if (!uuidOrData) return null;
-		if (typeof uuidOrData == "string") {
-			return await this.getLiveAsset(uuidOrData, {assertAssetType});
-		} else {
-			const castAssertAssetType1 = /** @type {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (assertAssetType);
-			const castAssertAssetType2 = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (castAssertAssetType1);
-
-			// TODO: Check if the parent asset had any previous embedded live assets and use that instead
-			// of creating a new one. Maybe use an array of strings as key for looking up previous live assets.
-			const projectAsset = this.createEmbeddedAsset(castAssertAssetType2.type, parentAsset);
-			projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
-			return await projectAsset.getLiveAsset();
-		}
+	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
+		const projectAsset = await this.getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options);
+		if (!projectAsset) return null;
+		return await projectAsset.getLiveAsset();
 	}
 }

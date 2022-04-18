@@ -16,6 +16,8 @@ const NONEXISTENT_PROJECTASSETTYPE = "test:nonexistentprojectassettype";
 const ASSET_SETTINGS_PATH = ["ProjectSettings", "assetSettings.json"];
 const DEFAULT_BASIC_ASSET_NUM_ON_DISK = 2309779523;
 const DEFAULT_BASIC_ASSET_STR_ON_DISK = "basic asset on disk";
+const BASIC_PERSISTENCE_KEY = "persistenceKey";
+const STRINGIFIED_PERSISTENCE_KEY = `"persistenceKey"`;
 
 injectMockEditorInstance(/** @type {any} */ ({}));
 
@@ -331,7 +333,7 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
-		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent);
+		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent, BASIC_PERSISTENCE_KEY);
 		const liveAsset = await embeddedAsset.getLiveAsset();
 		assertThrows(() => {
 			assetManager.getAssetUuidFromLiveAsset(liveAsset);
@@ -368,7 +370,7 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
-		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent);
+		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent, "persistenceKey");
 		const liveAsset = await embeddedAsset.getLiveAsset();
 		const result = assetManager.getProjectAssetForLiveAsset(liveAsset);
 		assertStrictEquals(result, embeddedAsset);
@@ -392,10 +394,11 @@ Deno.test({
 		const {assetManager} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
 
-		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent);
+		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent, BASIC_PERSISTENCE_KEY);
 
 		assertEquals(embeddedAsset.isEmbedded, true);
 		assertEquals(embeddedAsset.assetType, BASIC_PROJECTASSETTYPE);
+		assertEquals(embeddedAsset.embeddedParentPersistenceKey, STRINGIFIED_PERSISTENCE_KEY);
 	},
 });
 Deno.test({
@@ -404,10 +407,11 @@ Deno.test({
 		const {assetManager, ProjectAssetType} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
 
-		const embeddedAsset = assetManager.createEmbeddedAsset(ProjectAssetType, parent);
+		const embeddedAsset = assetManager.createEmbeddedAsset(ProjectAssetType, parent, BASIC_PERSISTENCE_KEY);
 
 		assertEquals(embeddedAsset.isEmbedded, true);
 		assertEquals(embeddedAsset.assetType, BASIC_PROJECTASSETTYPE);
+		assertEquals(embeddedAsset.embeddedParentPersistenceKey, STRINGIFIED_PERSISTENCE_KEY);
 	},
 });
 
@@ -440,7 +444,7 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
-		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent);
+		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent, "persistenceKey");
 		await embeddedAsset.writeAssetData({
 			num: 123,
 			str: "foo",
@@ -459,9 +463,13 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidOrEmbeddedAssetData() with null",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const {assetManager, ProjectAssetType} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
-		const result = assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(null, BASIC_PROJECTASSETTYPE, parent);
+		const result = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(null, {
+			assertAssetType: ProjectAssetType,
+			parentAsset: parent,
+			embeddedAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
+		});
 		assertEquals(result, null);
 	},
 });
@@ -469,9 +477,13 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidOrEmbeddedAssetData() with uuid",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const {assetManager, ProjectAssetType} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
-		const result = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, parent);
+		const result = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(BASIC_ASSET_UUID, {
+			assertAssetType: ProjectAssetType,
+			parentAsset: parent,
+			embeddedAssetPersistenceKey: "persistenceKey",
+		});
 		const projectAsset = await assetManager.getProjectAsset(BASIC_ASSET_UUID);
 		assertStrictEquals(result, projectAsset);
 	},
@@ -480,12 +492,16 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidOrEmbeddedAssetData() with embedded asset data",
 	async fn() {
-		const {assetManager} = await basicSetup();
+		const {assetManager, ProjectAssetType} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
 		const projectAsset = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData({
 			num: 123,
 			str: "foo",
-		}, BASIC_PROJECTASSETTYPE, parent);
+		}, {
+			assertAssetType: ProjectAssetType,
+			parentAsset: parent,
+			embeddedAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
+		});
 		assertExists(projectAsset);
 		assertEquals(projectAsset.isEmbedded, true);
 		assertEquals(projectAsset.assetType, BASIC_PROJECTASSETTYPE);
@@ -493,6 +509,27 @@ Deno.test({
 			num: 123,
 			str: "foo",
 		});
+		assertEquals(projectAsset.embeddedParentPersistenceKey, STRINGIFIED_PERSISTENCE_KEY);
+	},
+});
+
+Deno.test({
+	name: "getProjectAssetFromUuidOrEmbeddedAssetData() and a previous live asset still exists",
+	async fn() {
+		const {assetManager, ProjectAssetType} = await basicSetup();
+		const {projectAsset: parent} = createMockProjectAsset();
+		const embeddedAsset = assetManager.createEmbeddedAsset(BASIC_PROJECTASSETTYPE, parent, BASIC_PERSISTENCE_KEY);
+		const embeddedLiveAsset = await embeddedAsset.getLiveAsset();
+		parent.addEmbeddedChildLiveAsset(STRINGIFIED_PERSISTENCE_KEY, embeddedLiveAsset);
+		const projectAsset = await assetManager.getProjectAssetFromUuidOrEmbeddedAssetData({
+			num: 123,
+			str: "foo",
+		}, {
+			assertAssetType: ProjectAssetType,
+			parentAsset: parent,
+			embeddedAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
+		});
+		assertStrictEquals(projectAsset, embeddedAsset);
 	},
 });
 
@@ -506,6 +543,7 @@ Deno.test({
 		const result = await assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(null, {
 			assertAssetType: ProjectAssetType,
 			parentAsset,
+			embeddedAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
 		});
 		assertEquals(result, null);
 	},
@@ -519,6 +557,7 @@ Deno.test({
 		const liveAsset = await assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(BASIC_ASSET_UUID, {
 			assertAssetType: ProjectAssetType,
 			parentAsset,
+			embeddedAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
 		});
 		assertInstanceOf(liveAsset, MockProjectAssetTypeLiveAsset);
 		assertEquals(liveAsset.num, DEFAULT_BASIC_ASSET_NUM_ON_DISK);
@@ -537,6 +576,7 @@ Deno.test({
 		}, {
 			assertAssetType: ProjectAssetType,
 			parentAsset,
+			embeddedAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
 		});
 		assertInstanceOf(liveAsset, MockProjectAssetTypeLiveAsset);
 		assertEquals(liveAsset.num, 123);

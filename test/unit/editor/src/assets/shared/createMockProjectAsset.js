@@ -14,6 +14,9 @@ export function createMockProjectAsset({
 
 	let saveLiveAssetDataCallCount = 0;
 
+	/** @type {Map<string, object>} */
+	const previousEmbeddedLiveAssets = new Map();
+
 	const projectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
 		async getLiveAsset() {
 			if (!allowImmediateLiveAssetReturn) {
@@ -38,6 +41,13 @@ export function createMockProjectAsset({
 		async readAssetData() {
 			return readAssetDataReturnValue;
 		},
+		addEmbeddedChildLiveAsset(key, liveAsset) {
+			previousEmbeddedLiveAssets.set(key, liveAsset);
+		},
+		getPreviousEmbeddedLiveAsset(key) {
+			return previousEmbeddedLiveAssets.get(key) ?? null;
+		},
+		onLiveAssetNeedsReplacement(cb) {},
 	});
 	return {
 		projectAsset,

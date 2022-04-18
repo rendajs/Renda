@@ -1,9 +1,11 @@
 import "../../../shared/initializeEditor.js";
-import {assertEquals, assertExists} from "asserts";
+import {assertEquals, assertExists, assertStrictEquals} from "asserts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock";
 import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {createMockDependencies} from "./shared.js";
 import {Material} from "../../../../../../src/mod.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
+import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
 
 const BASIC_MATERIAL_MAP_UUID = "basic material map uuid";
 
@@ -14,6 +16,10 @@ const BASIC_MATERIAL_MAP_UUID = "basic material map uuid";
 function basicSetup({
 	getMaterialMapReturnValue = BASIC_MATERIAL_MAP_UUID,
 } = {}) {
+	const basicMaterialMapLiveAsset = {};
+	/** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny[]} */
+	const createdProjectAssets = [];
+
 	const {projectAssetTypeArgs} = createMockDependencies({
 		getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl: liveAsset => {
 			if (liveAsset instanceof MaterialMap) {
@@ -21,10 +27,22 @@ function basicSetup({
 			}
 			return null;
 		},
+		async getProjectAssetFromUuidOrEmbeddedAssetDataImpl(uuidOrData, options) {
+			if (uuidOrData == BASIC_MATERIAL_MAP_UUID) {
+				const {projectAsset} = createMockProjectAsset({liveAsset: basicMaterialMapLiveAsset});
+				createdProjectAssets.push(projectAsset);
+				return projectAsset;
+			}
+			return null;
+		},
 	});
 	const projectAssetType = new ProjectAssetTypeMaterial(...projectAssetTypeArgs);
 
-	return {projectAssetType};
+	return {
+		projectAssetType,
+		basicMaterialMapLiveAsset,
+		createdProjectAssets,
+	};
 }
 
 Deno.test({
@@ -39,13 +57,42 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getLiveAssetData() with no material map",
+	name: "getLiveAssetData() with no data",
 	async fn() {
 		const {projectAssetType} = basicSetup();
 		const liveAssetData = await projectAssetType.getLiveAssetData(null);
 
 		assertExists(liveAssetData.liveAsset);
 		assertEquals(liveAssetData.liveAsset.materialMap, null);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() with no material map",
+	async fn() {
+		const {projectAssetType} = basicSetup();
+		const liveAssetData = await projectAssetType.getLiveAssetData({});
+
+		assertExists(liveAssetData.liveAsset);
+		assertEquals(liveAssetData.liveAsset.materialMap, null);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() with a material map uuid",
+	async fn() {
+		const {projectAssetType, basicMaterialMapLiveAsset, createdProjectAssets} = basicSetup();
+		const listenForUsedLiveAssetChangesSpy = spy(projectAssetType, "listenForUsedLiveAssetChanges");
+		const liveAssetData = await projectAssetType.getLiveAssetData({
+			map: BASIC_MATERIAL_MAP_UUID,
+		});
+
+		assertExists(liveAssetData.liveAsset);
+		assertStrictEquals(liveAssetData.liveAsset.materialMap, basicMaterialMapLiveAsset);
+		assertSpyCalls(listenForUsedLiveAssetChangesSpy, 1);
+		assertSpyCall(listenForUsedLiveAssetChangesSpy, 0, {
+			args: [createdProjectAssets[0]],
+		});
 	},
 });
 

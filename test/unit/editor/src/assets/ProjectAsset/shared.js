@@ -1,3 +1,4 @@
+import {spy} from "std/testing/mock";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {EditorFileSystemMemory} from "../../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
@@ -68,7 +69,15 @@ export function basicSetup({
 } = {}) {
 	const mocks = getMocks(mocksOptions);
 
-	const mockParent = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({});
+	/**
+	 * @param {string} persistenceKey
+	 * @param {object} liveAsset
+	 */
+	function addEmbeddedChildLiveAssetFn(persistenceKey, liveAsset) {}
+	const addEmbeddedChildLiveAssetSpy = spy(addEmbeddedChildLiveAssetFn);
+	const mockParent = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
+		addEmbeddedChildLiveAsset: /** @type {typeof addEmbeddedChildLiveAssetFn} */ (addEmbeddedChildLiveAssetSpy),
+	});
 
 	const extension = isKnownAssetType ? BASIC_ASSET_EXTENSION : UNKNOWN_ASSET_EXTENSION;
 	const assetPath = ["path", "to", `asset.${extension}`];
@@ -94,5 +103,6 @@ export function basicSetup({
 		mocks,
 		projectAsset: castProjectAsset,
 		mockParent,
+		addEmbeddedChildLiveAssetSpy,
 	};
 }

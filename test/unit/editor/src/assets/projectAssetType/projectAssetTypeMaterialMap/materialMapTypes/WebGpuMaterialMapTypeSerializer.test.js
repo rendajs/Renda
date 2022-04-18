@@ -1,5 +1,6 @@
 import {assertEquals, assertStrictEquals} from "asserts";
 import {WebGpuMaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/WebGpuMaterialMapTypeSerializer.js";
+import {ProjectAssetTypeWebGpuPipelineConfig} from "../../../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
 import {WebGpuPipelineConfig} from "../../../../../../../../src/mod.js";
 import {WebGpuMaterialMapType} from "../../../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
 
@@ -8,14 +9,20 @@ const BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID = "basic forward pipeline config 
 function getMockContext({
 	getAssetUuidReturnValue = /** @type {string | object} */ (BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID),
 } = {}) {
-	/** @type {WebGpuPipelineConfig[]} */
+	/** @type {{liveAsset: WebGpuPipelineConfig, options: import("../../../../../../../../editor/src/assets/AssetManager.js").GetLiveAssetFromUuidOrEmbeddedAssetDataOptions<any>}[]} */
 	const createdLiveAssets = [];
 
+	const mockMaterialMapAsset = /** @type {unknown} */ ({
+		label: "mock material map Asset",
+	});
+	const materialMapAsset = /** @type {import("../../../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (mockMaterialMapAsset);
+
 	const context = /** @type {import("../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
+		materialMapAsset,
 		assetManager: {
 			async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
 				const liveAsset = new WebGpuPipelineConfig();
-				createdLiveAssets.push(liveAsset);
+				createdLiveAssets.push({liveAsset, options});
 				return liveAsset;
 			},
 			getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset) {
@@ -26,6 +33,7 @@ function getMockContext({
 	return {
 		context,
 		createdLiveAssets,
+		mockMaterialMapAsset,
 	};
 }
 
@@ -50,14 +58,24 @@ Deno.test({
 Deno.test({
 	name: "loadLiveAssetData() with a forwardPipelineConfig uuid",
 	async fn() {
-		const {context, createdLiveAssets} = getMockContext();
+		const {context, createdLiveAssets, mockMaterialMapAsset} = getMockContext();
 
 		const result = await WebGpuMaterialMapTypeSerializer.loadLiveAssetData(context, {
 			forwardPipelineConfig: BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID,
 		});
 
-		assertEquals(createdLiveAssets.length, 1);
-		assertStrictEquals(result.forwardPipelineConfig, createdLiveAssets[0]);
+		assertEquals(createdLiveAssets, [
+			{
+				liveAsset: result.forwardPipelineConfig,
+				options: {
+					assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
+					embeddedAssetPersistenceKey: "webgpumaptype.forwardpipelineconfig",
+					parentAsset: mockMaterialMapAsset,
+				},
+			},
+		]);
+		assertStrictEquals(result.forwardPipelineConfig, createdLiveAssets[0].liveAsset);
+		assertStrictEquals(createdLiveAssets[0].options.parentAsset, mockMaterialMapAsset);
 	},
 });
 

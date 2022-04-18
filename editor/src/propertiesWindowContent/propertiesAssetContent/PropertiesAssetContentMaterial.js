@@ -1,6 +1,7 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../assets/projectAssetType/ProjectAssetTypeMaterial.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -63,9 +64,9 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 		const material = await this.getFirstSelectedLiveAsset();
 		if (this.currentSelection.length > 1) {
-			this.mapTreeView.gui.setEmbeddedParentAsset(null);
+			this.mapTreeView.gui.removeEmbeddedAssetSupport();
 		} else {
-			this.mapTreeView.gui.setEmbeddedParentAsset(this.currentSelection[0]);
+			this.mapTreeView.gui.setEmbeddedParentAsset(this.currentSelection[0], MATERIAL_MAP_PERSISTENCE_KEY);
 		}
 		this.mapTreeView.setValue(material.materialMap);
 		await this.loadMapValues();

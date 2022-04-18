@@ -30,7 +30,13 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 			const gui = child.gui;
 			if (gui instanceof DroppableGui) {
 				if (selectedMaps.length == 1) {
-					gui.setEmbeddedParentAsset(parentAsset);
+					if (!parentAsset) {
+						throw new Error("Assertion failed, parentAsset should be set when only one map is selected");
+					}
+					// TODO: Don't hard code the persistence key
+					gui.setEmbeddedParentAsset(parentAsset, "webgpumaptype.forwardpipelineconfig");
+				} else {
+					gui.removeEmbeddedAssetSupport();
 				}
 			}
 		}

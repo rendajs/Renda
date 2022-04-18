@@ -1,11 +1,15 @@
 /**
  * @param {Object} [options]
- * @param {(liveAsset: object | null) => import("../../../../../../src/mod.js").UuidString | null} [options.getAssetUuidFromLiveAssetImpl]
- * @param {(liveAsset: object | null) => import("../../../../../../src/mod.js").UuidString | object | null} [options.getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl]
+ * @param {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager["getAssetUuidFromLiveAsset"]} [options.getAssetUuidFromLiveAssetImpl]
+ * @param {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager["getAssetUuidOrEmbeddedAssetDataFromLiveAsset"]} [options.getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl]
+ * @param {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager["getProjectAssetFromUuidOrEmbeddedAssetData"]} [options.getProjectAssetFromUuidOrEmbeddedAssetDataImpl]
  */
 export function createMockDependencies({
 	getAssetUuidFromLiveAssetImpl = () => null,
 	getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl = () => null,
+	getProjectAssetFromUuidOrEmbeddedAssetDataImpl = () => {
+		throw new Error("getProjectAssetFromUuidOrEmbeddedAssetData not implemented");
+	},
 } = {}) {
 	const editor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({});
 
@@ -17,6 +21,9 @@ export function createMockDependencies({
 		},
 		getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset) {
 			return getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl(liveAsset);
+		},
+		getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
+			return getProjectAssetFromUuidOrEmbeddedAssetDataImpl(uuidOrData, options);
 		},
 	});
 

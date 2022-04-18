@@ -4,6 +4,8 @@ import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
 import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
 import {ProjectAssetTypeWebGpuPipelineConfig} from "../../ProjectAssetTypeWebGpuPipelineConfig.js";
 
+const FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY = "webgpumaptype.forwardpipelineconfig";
+
 /**
  * @typedef {Object} WebGpuMaterialMapTypeDiskData
  * @property {import("../../../../../../src/util/mod.js").UuidString | import("../../ProjectAssetTypeWebGpuPipelineConfig.js").WebGpuPipelineConfigAssetData | null} [forwardPipelineConfig]
@@ -36,6 +38,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 			pipelineConfig = await context.assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(customData.forwardPipelineConfig, {
 				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
 				parentAsset: context.materialMapAsset,
+				embeddedAssetPersistenceKey: FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY,
 			});
 		}
 		/** @type {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
@@ -125,6 +128,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 			forwardPipelineConfig = await context.assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(customData.forwardPipelineConfig, {
 				assertAssetType: ProjectAssetTypeWebGpuPipelineConfig,
 				parentAsset: context.materialMapAsset,
+				embeddedAssetPersistenceKey: FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY,
 			});
 		}
 		return new WebGpuMaterialMapType({forwardPipelineConfig});

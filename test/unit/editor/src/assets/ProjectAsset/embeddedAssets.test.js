@@ -1,6 +1,10 @@
-import {AssertionError, assert, assertEquals, assertThrows} from "asserts";
+import {AssertionError, assert, assertEquals, assertStrictEquals, assertThrows} from "asserts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock";
+import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../../../shared/mockWeakRef.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
+
+const BASIC_PERSISTENCE_KEY = "persistenceKey";
 
 Deno.test({
 	name: "creating with isEmbedded true",
@@ -214,5 +218,81 @@ Deno.test({
 		await writePromise;
 
 		assertEquals(needsSaveCallCount, 1);
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() adds the created live asset to the parent asset",
+	async fn() {
+		const {projectAsset, addEmbeddedChildLiveAssetSpy} = basicSetup({
+			setMockEmbeddedParent: true,
+			extraProjectAssetOpts: {
+				assetType: BASIC_PROJECTASSETTYPE,
+				path: [],
+				embeddedParentPersistenceKey: BASIC_PERSISTENCE_KEY,
+			},
+		});
+
+		const liveAssetData = await projectAsset.getLiveAssetData();
+		assertSpyCalls(addEmbeddedChildLiveAssetSpy, 1);
+		assertSpyCall(addEmbeddedChildLiveAssetSpy, 0, {
+			args: [BASIC_PERSISTENCE_KEY, liveAssetData.liveAsset],
+		});
+	},
+});
+
+Deno.test({
+	name: "setEmbeddedChildLiveAsset() and getPreviousEmbeddedLiveAsset()",
+	fn() {
+		const {projectAsset} = basicSetup();
+		installMockWeakRef();
+
+		try {
+			const liveAsset = {label: "the live asset"};
+			projectAsset.addEmbeddedChildLiveAsset("key", liveAsset);
+
+			const result = projectAsset.getPreviousEmbeddedLiveAsset("key");
+
+			assertStrictEquals(result, liveAsset);
+		} finally {
+			uninstallMockWeakRef();
+		}
+	},
+});
+
+Deno.test({
+	name: "getPreviousEmbeddedLiveAsset() returns null if not set",
+	fn() {
+		const {projectAsset} = basicSetup();
+		installMockWeakRef();
+
+		try {
+			const result = projectAsset.getPreviousEmbeddedLiveAsset("key");
+
+			assertEquals(result, null);
+		} finally {
+			uninstallMockWeakRef();
+		}
+	},
+});
+
+Deno.test({
+	name: "getPreviousEmbeddedLiveAsset() returns null if garbage collected",
+	fn() {
+		const {projectAsset} = basicSetup();
+		installMockWeakRef();
+
+		try {
+			const liveAsset = {label: "the live asset"};
+			projectAsset.addEmbeddedChildLiveAsset("key", liveAsset);
+
+			forceCleanup(liveAsset);
+
+			const result = projectAsset.getPreviousEmbeddedLiveAsset("key");
+
+			assertEquals(result, null);
+		} finally {
+			uninstallMockWeakRef();
+		}
 	},
 });

@@ -3,6 +3,9 @@ import {Material} from "../../../../src/rendering/Material.js";
 import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
 import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
+import {ProjectAssetTypeMaterialMap} from "./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
+
+export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 
 /**
  * @extends {ProjectAssetType<Material, null, import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
@@ -23,7 +26,11 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async getLiveAssetData(materialJson) {
 		let materialMap = null;
 		if (materialJson?.map) {
-			const materialMapAsset = await this.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(materialJson.map, "JJ:materialMap", this.projectAsset);
+			const materialMapAsset = await this.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(materialJson.map, {
+				assertAssetType: ProjectAssetTypeMaterialMap,
+				parentAsset: this.projectAsset,
+				embeddedAssetPersistenceKey: MATERIAL_MAP_PERSISTENCE_KEY,
+			});
 			if (materialMapAsset) {
 				materialMap = await materialMapAsset.getLiveAsset();
 				this.listenForUsedLiveAssetChanges(materialMapAsset);

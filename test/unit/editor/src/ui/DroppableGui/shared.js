@@ -1,3 +1,4 @@
+import {spy} from "std/testing/mock";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {DroppableGui} from "../../../../../../editor/src/ui/DroppableGui.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
@@ -90,41 +91,47 @@ export function createBasicGui({
 
 	const mockDefaultAssetLink = /** @type {import("../../../../../../editor/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
 
-	/** @type {{assetType: import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType, parent: import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny}[]} */
-	const createEmbeddedAssetCalls = [];
+	/**
+	 * @param {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
+	 * @param {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} parent
+	 * @param {string} persistenceKey
+	 */
+	function createEmbeddedAssetFn(assetType, parent, persistenceKey) {
+		return createMockProjectAsset({
+			mockLiveAsset,
+			isEmbedded: true,
+			needsLiveAssetPreload,
+		});
+	}
+	const createEmbeddedAssetSpy = spy(createEmbeddedAssetFn);
+
+	const mockAssetManager = /** @type {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({
+		getDefaultAssetLink(uuid) {
+			if (uuid == DEFAULTASSETLINK_LINK_UUID) {
+				return mockDefaultAssetLink;
+			}
+			return null;
+		},
+		getProjectAssetImmediate(uuid) {
+			if (uuid == BASIC_ASSET_UUID) {
+				return mockProjectAsset;
+			} else if (uuid == DEFAULTASSETLINK_LINK_UUID) {
+				return mockProjectAsset;
+			}
+			return null;
+		},
+		getProjectAssetForLiveAsset(liveAsset) {
+			if (liveAsset == mockLiveAsset) {
+				return mockProjectAsset;
+			}
+			return null;
+		},
+		createEmbeddedAsset: /** @type {typeof createEmbeddedAssetFn} */ (createEmbeddedAssetSpy),
+	});
 
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		assertAssetManagerExists() {
-			return {
-				getDefaultAssetLink(uuid) {
-					if (uuid == DEFAULTASSETLINK_LINK_UUID) {
-						return mockDefaultAssetLink;
-					}
-					return null;
-				},
-				getProjectAssetImmediate(uuid) {
-					if (uuid == BASIC_ASSET_UUID) {
-						return mockProjectAsset;
-					} else if (uuid == DEFAULTASSETLINK_LINK_UUID) {
-						return mockProjectAsset;
-					}
-					return null;
-				},
-				getProjectAssetForLiveAsset(liveAsset) {
-					if (liveAsset == mockLiveAsset) {
-						return mockProjectAsset;
-					}
-					return null;
-				},
-				createEmbeddedAsset(assetType, parent) {
-					createEmbeddedAssetCalls.push({assetType, parent});
-					return createMockProjectAsset({
-						mockLiveAsset,
-						isEmbedded: true,
-						needsLiveAssetPreload,
-					});
-				},
-			};
+			return mockAssetManager;
 		},
 	});
 
@@ -172,7 +179,7 @@ export function createBasicGui({
 		mockLiveAsset,
 		mockProjectAsset,
 		mockWindowManager,
-		createEmbeddedAssetCalls,
+		createEmbeddedAssetSpy,
 		uninstall() {
 			uninstallFakeDocument();
 		},
