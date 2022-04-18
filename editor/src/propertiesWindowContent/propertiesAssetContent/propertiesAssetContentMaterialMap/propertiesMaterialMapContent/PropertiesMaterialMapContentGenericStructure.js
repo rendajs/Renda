@@ -33,8 +33,7 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 					if (!parentAsset) {
 						throw new Error("Assertion failed, parentAsset should be set when only one map is selected");
 					}
-					// TODO: Don't hard code the persistence key
-					gui.setEmbeddedParentAsset(parentAsset, "webgpumaptype.forwardpipelineconfig");
+					gui.setEmbeddedParentAsset(parentAsset);
 				} else {
 					gui.removeEmbeddedAssetSupport();
 				}

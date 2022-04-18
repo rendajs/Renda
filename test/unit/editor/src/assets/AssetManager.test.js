@@ -401,6 +401,7 @@ Deno.test({
 		assertEquals(embeddedAsset.embeddedParentPersistenceKey, STRINGIFIED_PERSISTENCE_KEY);
 	},
 });
+
 Deno.test({
 	name: "createEmbeddedAsset() with a ProjectAssetType constructor",
 	async fn() {
@@ -412,6 +413,30 @@ Deno.test({
 		assertEquals(embeddedAsset.isEmbedded, true);
 		assertEquals(embeddedAsset.assetType, BASIC_PROJECTASSETTYPE);
 		assertEquals(embeddedAsset.embeddedParentPersistenceKey, STRINGIFIED_PERSISTENCE_KEY);
+	},
+});
+
+Deno.test({
+	name: "createEmbeddedAsset() throws when no persistence key is set",
+	async fn() {
+		const {assetManager, ProjectAssetType} = await basicSetup();
+		const {projectAsset: parent} = createMockProjectAsset();
+
+		assertThrows(() => {
+			assetManager.createEmbeddedAsset(ProjectAssetType, parent, null);
+		});
+	},
+});
+
+Deno.test({
+	name: "createEmbeddedAsset() throws when persistence key is an empty string",
+	async fn() {
+		const {assetManager, ProjectAssetType} = await basicSetup();
+		const {projectAsset: parent} = createMockProjectAsset();
+
+		assertThrows(() => {
+			assetManager.createEmbeddedAsset(ProjectAssetType, parent, "");
+		});
 	},
 });
 

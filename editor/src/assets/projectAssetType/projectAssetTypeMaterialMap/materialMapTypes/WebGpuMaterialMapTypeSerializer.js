@@ -23,6 +23,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 			type: "droppable",
 			guiOpts: {
 				supportedAssetTypes: [WebGpuPipelineConfig],
+				embeddedParentAssetPersistenceKey: FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY,
 			},
 		},
 	};

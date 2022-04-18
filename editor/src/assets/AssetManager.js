@@ -497,6 +497,9 @@ export class AssetManager {
 	 * @param {unknown} key
 	 */
 	embeddedPersistenceKeyToString(key) {
+		if (!key) {
+			throw new Error(`"${key}" is not a valid embedded asset key.`);
+		}
 		return JSON.stringify(key);
 	}
 

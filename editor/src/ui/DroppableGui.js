@@ -349,14 +349,19 @@ export class DroppableGui {
 	 * This is to prevent situations where the current value is an embedded asset,
 	 * since changing the parent asset won't change the parent of the created embedded asset.
 	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny} parentAsset
-	 * @param {unknown} persistenceKey The key used for keeping the embedded asset
+	 * @param {unknown} [persistenceKey] The key used for keeping the embedded asset
 	 * persistent when reloading the parent, this should be the same as what you use
 	 * for {@linkcode AssetManager.getProjectAssetFromUuidOrEmbeddedAssetData} or
-	 * {@linkcode AssetManager.getLiveAssetFromUuidOrEmbeddedAssetData}.
+	 * {@linkcode AssetManager.getLiveAssetFromUuidOrEmbeddedAssetData}. If this
+	 * option is not provided, the previous value is used. But keep in mind
+	 * that embedded asset creation will thow an error when no persistence key
+	 * is set.
 	 */
 	setEmbeddedParentAsset(parentAsset, persistenceKey) {
 		this.embeddedParentAsset = parentAsset;
-		this.embeddedParentAssetPersistenceKey = persistenceKey;
+		if (persistenceKey) {
+			this.embeddedParentAssetPersistenceKey = persistenceKey;
+		}
 		this.setValueFromProjectAsset(null);
 	}
 

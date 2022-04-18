@@ -117,3 +117,30 @@ Deno.test({
 		uninstall();
 	},
 });
+
+Deno.test({
+	name: "setEmbeddedParentAsset() remembers the previous persistence key when not provided",
+	async fn() {
+		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+
+		try {
+			const mockParent2 = createMockParentAsset();
+			gui.setEmbeddedParentAsset(mockParent2, BASIC_PERSISTENCE_KEY);
+			gui.setEmbeddedParentAsset(mockParent2);
+
+			await triggerCreateEmbeddedAsset();
+
+			const liveAsset2 = gui.getValue({returnLiveAsset: true});
+			assertStrictEquals(liveAsset2, mockLiveAsset);
+
+			assertSpyCalls(createEmbeddedAssetSpy, 1);
+			assertSpyCall(createEmbeddedAssetSpy, 0, {
+				args: [MockProjectAssetType, mockParent, BASIC_PERSISTENCE_KEY],
+			});
+			assertStrictEquals(createEmbeddedAssetSpy.calls[0].args[0], MockProjectAssetType);
+			assertStrictEquals(createEmbeddedAssetSpy.calls[0].args[1], mockParent2);
+		} finally {
+			uninstall();
+		}
+	},
+});
