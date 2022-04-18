@@ -203,8 +203,15 @@ export class DroppableGui {
 
 	/**
 	 * @param {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
+	 * @param {Object} [options]
+	 * @param {boolean} [options.isDiskData] If true, and the passed in value is an object, it will be parsed
+	 * as if it is embedded asset data and a new embedded asset is created. If the embedded asset
+	 * already exists (based on the current embeddedParentAssetPersistenceKey), the value will
+	 * be set to the existing embedded asset without making any changes to it.
 	 */
-	setValue(value) {
+	setValue(value, {
+		isDiskData = false,
+	} = {}) {
 		let projectAsset = null;
 		this.setDefaultAssetLinkUuid(null);
 		if (value) {
@@ -214,6 +221,24 @@ export class DroppableGui {
 				projectAsset = assetManager.getProjectAssetImmediate(value);
 			} else if (value instanceof ProjectAsset) {
 				projectAsset = value;
+			} else if (isDiskData) {
+				if (!this.embeddedParentAsset) {
+					throw new Error("Tried to set DroppableGui value to embedded asset data, but embedded asset support is not enabled.");
+				}
+				if (!this.embeddedParentAssetPersistenceKey) {
+					throw new Error("Tried to set DroppableGui value to embedded asset data, but no persistence key was set.");
+				}
+				const supportedAssetTypes = Array.from(this.getProjectAssetTypeFromSupported());
+				if (supportedAssetTypes.length == 0) {
+					throw new Error("Tried to set DroppableGui value to embedded asset data, but no supported asset types are set.");
+				} else if (supportedAssetTypes.length > 1) {
+					throw new Error("Tried to set DroppableGui value to embedded asset data, but multiple asset types are supported.");
+				}
+				projectAsset = assetManager.getProjectAssetFromUuidOrEmbeddedAssetDataSync(value, {
+					assertAssetType: supportedAssetTypes[0],
+					parentAsset: this.embeddedParentAsset,
+					embeddedAssetPersistenceKey: this.embeddedParentAssetPersistenceKey,
+				});
 			} else {
 				projectAsset = assetManager.getProjectAssetForLiveAsset(value);
 			}
@@ -374,6 +399,19 @@ export class DroppableGui {
 		this.embeddedParentAsset = null;
 		this.embeddedParentAssetPersistenceKey = "";
 		this.setValueFromProjectAsset(null);
+	}
+
+	/**
+	 * Turns the provided supported asset types (which are live asset constructors)
+	 * into actual ProjectAssetTypes.
+	 * @returns {Generator<typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>}
+	 */
+	*getProjectAssetTypeFromSupported() {
+		for (const liveAssetConstructor of this.supportedAssetTypes) {
+			for (const projectAssetType of this.projectAssetTypeManager.getAssetTypesForLiveAssetConstructor(liveAssetConstructor)) {
+				yield projectAssetType;
+			}
+		}
 	}
 
 	/**
@@ -595,13 +633,7 @@ export class DroppableGui {
 		/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
 		if (!this.disabled) {
-			/** @type {(typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType)[]} */
-			const availableTypes = [];
-			for (const liveAssetConstructor of this.supportedAssetTypes) {
-				for (const projectAssetType of this.projectAssetTypeManager.getAssetTypesForLiveAssetConstructor(liveAssetConstructor)) {
-					availableTypes.push(projectAssetType);
-				}
-			}
+			const availableTypes = Array.from(this.getProjectAssetTypeFromSupported());
 
 			if (this.embeddedParentAsset && availableTypes.length > 0) {
 				// TODO: hide or disable the embedded asset menu if embedded assets are not explicitly supported.

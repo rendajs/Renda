@@ -1,7 +1,7 @@
-import {assertEquals, assertExists, assertStrictEquals} from "asserts";
+import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "asserts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
-import {basicSetupForContextMenus, createMockProjectAssetType} from "./shared.js";
+import {basicSetupForContextMenus, createBasicGui, createMockProjectAssetType} from "./shared.js";
 
 const BASIC_PERSISTENCE_KEY = "persistenceKey";
 
@@ -12,16 +12,16 @@ function createMockParentAsset() {
 
 function basicSetupForEmbeddedAssets() {
 	const mockParent = createMockParentAsset();
-	const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
+	const {MockLiveAssetConstructor, ProjectAssetType} = createMockProjectAssetType();
 	const returnValue = basicSetupForContextMenus({
 		basicGuiOptions: {
 			valueType: "none",
 			guiOpts: {
-				supportedAssetTypes: [MockLiveAsset],
+				supportedAssetTypes: [MockLiveAssetConstructor],
 				embeddedParentAsset: mockParent,
 				embeddedParentAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
 			},
-			liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
+			liveAssetProjectAssetTypeCombinations: [[MockLiveAssetConstructor, [ProjectAssetType]]],
 		},
 		dispatchContextMenuEvent: false,
 	});
@@ -139,6 +139,115 @@ Deno.test({
 			});
 			assertStrictEquals(createEmbeddedAssetSpy.calls[0].args[0], MockProjectAssetType);
 			assertStrictEquals(createEmbeddedAssetSpy.calls[0].args[1], mockParent2);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getValue() with isDiskData true, no embedded asset support enabled",
+	fn() {
+		const {gui, uninstall} = createBasicGui();
+
+		try {
+			const embeddedDiskData = {};
+
+			assertThrows(() => {
+				gui.setValue(embeddedDiskData, {isDiskData: true});
+			}, Error, "Tried to set DroppableGui value to embedded asset data, but embedded asset support is not enabled.");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getValue() with isDiskData true, no persistence key set",
+	fn() {
+		const {gui, uninstall} = createBasicGui();
+
+		try {
+			const mockParent = createMockParentAsset();
+			gui.setEmbeddedParentAsset(mockParent, "");
+			const embeddedDiskData = {};
+
+			assertThrows(() => {
+				gui.setValue(embeddedDiskData, {isDiskData: true});
+			}, Error, "Tried to set DroppableGui value to embedded asset data, but no persistence key was set.");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getValue() with isDiskData true, no supported asset types set",
+	fn() {
+		const {gui, uninstall} = createBasicGui();
+
+		try {
+			const mockParent = createMockParentAsset();
+			gui.setEmbeddedParentAsset(mockParent, BASIC_PERSISTENCE_KEY);
+			const embeddedDiskData = {};
+
+			assertThrows(() => {
+				gui.setValue(embeddedDiskData, {isDiskData: true});
+			}, Error, "Tried to set DroppableGui value to embedded asset data, but no supported asset types are set.");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getValue() with isDiskData true, too many supported asset types set",
+	fn() {
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType();
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType();
+		const {gui, uninstall} = createBasicGui({
+			guiOpts: {
+				supportedAssetTypes: [MockLiveAssetConstructor1, MockLiveAssetConstructor2],
+			},
+			liveAssetProjectAssetTypeCombinations: [
+				[MockLiveAssetConstructor1, [ProjectAssetType1]],
+				[MockLiveAssetConstructor2, [ProjectAssetType2]],
+			],
+		});
+
+		try {
+			const mockParent = createMockParentAsset();
+			gui.setEmbeddedParentAsset(mockParent, BASIC_PERSISTENCE_KEY);
+			const embeddedDiskData = {};
+
+			assertThrows(() => {
+				gui.setValue(embeddedDiskData, {isDiskData: true});
+			}, Error, "Tried to set DroppableGui value to embedded asset data, but multiple asset types are supported.");
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getValue() with isDiskData true",
+	fn() {
+		const {gui, uninstall, getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+
+		try {
+			const embeddedAssetData = {label: "embedded asset data"};
+			gui.setValue(embeddedAssetData, {isDiskData: true});
+
+			assertSpyCalls(getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, 1);
+			assertSpyCall(getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, 0, {
+				args: [
+					embeddedAssetData, {
+						assertAssetType: MockProjectAssetType,
+						embeddedAssetPersistenceKey: BASIC_PERSISTENCE_KEY,
+						parentAsset: mockParent,
+					},
+				],
+			});
 		} finally {
 			uninstall();
 		}

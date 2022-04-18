@@ -46,8 +46,8 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 	 * @override
 	 */
 	async customAssetDataFromLoad(customData) {
-		this.treeView.fillSerializableStructureValues({
-			forwardPipelineConfig: customData.forwardPipelineConfig,
+		this.treeView.fillSerializableStructureValues(customData, {
+			isDiskData: true,
 		});
 	}
 
@@ -55,15 +55,6 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 	 * @override
 	 */
 	async getCustomAssetDataForSave() {
-		const settings = this.getSettingsValues();
-		const data = {
-			forwardPipelineConfig: settings.forwardPipelineConfig,
-		};
-
-		return data;
-	}
-
-	getSettingsValues() {
 		return this.treeView.getSerializableStructureValues(this.settingsGuiStructure);
 	}
 }

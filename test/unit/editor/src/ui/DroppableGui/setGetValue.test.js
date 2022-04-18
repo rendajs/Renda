@@ -32,6 +32,23 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setValue() with an uuid and isDiskData = true",
+	fn() {
+		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+
+		try {
+			gui.setValue(BASIC_ASSET_UUID, {isDiskData: true});
+
+			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "setValue() with an assetlink uuid",
 	fn() {
 		const {gui, mockProjectAsset, mockDefaultAssetLink, uninstall} = createBasicGui();
@@ -58,6 +75,23 @@ Deno.test({
 		assertEquals(gui.defaultAssetLinkUuid, null);
 
 		uninstall();
+	},
+});
+
+Deno.test({
+	name: "setValue() using a ProjectAsset and isDiskData = true",
+	fn() {
+		const {gui, mockProjectAsset, uninstall} = createBasicGui();
+
+		try {
+			gui.setValue(mockProjectAsset, {isDiskData: true});
+
+			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
+			assertEquals(gui.defaultAssetLink, null);
+			assertEquals(gui.defaultAssetLinkUuid, null);
+		} finally {
+			uninstall();
+		}
 	},
 });
 

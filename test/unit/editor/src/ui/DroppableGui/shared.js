@@ -105,6 +105,20 @@ export function createBasicGui({
 	}
 	const createEmbeddedAssetSpy = spy(createEmbeddedAssetFn);
 
+	/**
+	 *
+	 * @param {import("../../../../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
+	 * @param {import("../../../../../../editor/src/assets/AssetManager.js").GetLiveAssetFromUuidOrEmbeddedAssetDataOptions} options
+	 */
+	function getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn(uuidOrData, options) {
+		return createMockProjectAsset({
+			mockLiveAsset,
+			isEmbedded: true,
+			needsLiveAssetPreload,
+		});
+	}
+	const getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy = spy(getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn);
+
 	const mockAssetManager = /** @type {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({
 		getDefaultAssetLink(uuid) {
 			if (uuid == DEFAULTASSETLINK_LINK_UUID) {
@@ -127,6 +141,7 @@ export function createBasicGui({
 			return null;
 		},
 		createEmbeddedAsset: /** @type {typeof createEmbeddedAssetFn} */ (createEmbeddedAssetSpy),
+		getProjectAssetFromUuidOrEmbeddedAssetDataSync: /** @type {typeof getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn} */ (getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy),
 	});
 
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
@@ -180,6 +195,7 @@ export function createBasicGui({
 		mockProjectAsset,
 		mockWindowManager,
 		createEmbeddedAssetSpy,
+		getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy,
 		uninstall() {
 			uninstallFakeDocument();
 		},
@@ -189,11 +205,11 @@ export function createBasicGui({
 export function createMockProjectAssetType({
 	type = "namespace:type", uiCreateName = "Mock Project Asset",
 } = {}) {
-	class MockLiveAsset { }
+	class MockLiveAssetConstructor { }
 
 	class MockProjectAssetType {
 		static type = type;
-		static expectedLiveAssetConstructor = MockLiveAsset;
+		static expectedLiveAssetConstructor = MockLiveAssetConstructor;
 		static uiCreateName = uiCreateName;
 	}
 
@@ -201,7 +217,7 @@ export function createMockProjectAssetType({
 	const cast2 = /** @type {typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (cast1);
 
 	return {
-		MockLiveAsset,
+		MockLiveAssetConstructor,
 		MockProjectAssetType,
 		ProjectAssetType: cast2,
 	};

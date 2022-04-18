@@ -95,15 +95,15 @@ Deno.test({
 	name: "context menu with embedded assets enabled and one supported asset type",
 	fn() {
 		const mockParent = createMockProjectAsset();
-		const {MockLiveAsset, ProjectAssetType} = createMockProjectAssetType();
+		const {MockLiveAssetConstructor, ProjectAssetType} = createMockProjectAssetType();
 		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
-					supportedAssetTypes: [MockLiveAsset],
+					supportedAssetTypes: [MockLiveAssetConstructor],
 					embeddedParentAsset: mockParent,
 				},
-				liveAssetProjectAssetTypeCombinations: [[MockLiveAsset, [ProjectAssetType]]],
+				liveAssetProjectAssetTypeCombinations: [[MockLiveAssetConstructor, [ProjectAssetType]]],
 			},
 		});
 
@@ -118,18 +118,18 @@ Deno.test({
 	name: "context menu with embedded assets enabled and two supported asset types",
 	fn() {
 		const mockParent = createMockProjectAsset();
-		const {MockLiveAsset: MockLiveAsset1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
-		const {MockLiveAsset: MockLiveAsset2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
 		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
-					supportedAssetTypes: [MockLiveAsset1, MockLiveAsset2],
+					supportedAssetTypes: [MockLiveAssetConstructor1, MockLiveAssetConstructor2],
 					embeddedParentAsset: mockParent,
 				},
 				liveAssetProjectAssetTypeCombinations: [
-					[MockLiveAsset1, [ProjectAssetType1]],
-					[MockLiveAsset2, [ProjectAssetType2]],
+					[MockLiveAssetConstructor1, [ProjectAssetType1]],
+					[MockLiveAssetConstructor2, [ProjectAssetType2]],
 				],
 			},
 		});
@@ -152,17 +152,17 @@ Deno.test({
 Deno.test({
 	name: "context menu with embedded assets disabled and two supported asset types",
 	fn() {
-		const {MockLiveAsset: MockLiveAsset1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
-		const {MockLiveAsset: MockLiveAsset2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
 		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
-					supportedAssetTypes: [MockLiveAsset1, MockLiveAsset2],
+					supportedAssetTypes: [MockLiveAssetConstructor1, MockLiveAssetConstructor2],
 				},
 				liveAssetProjectAssetTypeCombinations: [
-					[MockLiveAsset1, [ProjectAssetType1]],
-					[MockLiveAsset2, [ProjectAssetType2]],
+					[MockLiveAssetConstructor1, [ProjectAssetType1]],
+					[MockLiveAssetConstructor2, [ProjectAssetType2]],
 				],
 			},
 		});
