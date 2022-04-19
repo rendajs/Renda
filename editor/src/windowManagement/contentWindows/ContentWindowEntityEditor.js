@@ -165,7 +165,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
 		const assetManager = await this.editorInstance.projectManager.getAssetManager();
-		const projectAsset = await assetManager.getProjectAsset(entityUuid, {
+		const projectAsset = await assetManager.getProjectAssetFromUuid(entityUuid, {
 			assertAssetType: ProjectAssetTypeEntity,
 		});
 		if (!projectAsset) {
@@ -183,7 +183,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	async saveEntityAsset() {
 		if (!this.editingEntityUuid) return;
 		const assetManager = await this.editorInstance.projectManager.getAssetManager();
-		const asset = await assetManager.getProjectAsset(this.editingEntityUuid);
+		const asset = await assetManager.getProjectAssetFromUuid(this.editingEntityUuid);
 		if (!asset) return;
 		await asset.saveLiveAssetData();
 	}

@@ -17,7 +17,7 @@ export class LoadingAsset {
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 */
 	async startLoading(recursionTracker, assetManager) {
-		const projectAsset = await assetManager.getProjectAsset(this.uuid);
+		const projectAsset = await assetManager.getProjectAssetFromUuid(this.uuid);
 		if (!projectAsset) {
 			this.setLoadedAssetData(null);
 			return;

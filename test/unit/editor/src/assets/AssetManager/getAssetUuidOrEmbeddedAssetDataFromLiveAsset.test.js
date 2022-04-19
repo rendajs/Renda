@@ -19,7 +19,7 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 		/** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../shared/createMockProjectAssetType.js").MockProjectAssetType>?} */
-		const projectAsset = await assetManager.getProjectAsset(BASIC_ASSET_UUID);
+		const projectAsset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
 		assertExists(projectAsset);
 		const liveAsset = await projectAsset.getLiveAsset();
 		const result = assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset);

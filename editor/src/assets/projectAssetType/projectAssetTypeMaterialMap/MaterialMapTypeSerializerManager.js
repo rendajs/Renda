@@ -98,7 +98,7 @@ export class MaterialMapTypeSerializerManager {
 		if (!mapAssetUuid) return [];
 		const editor = getEditorInstance();
 		const assetManager = await editor.projectManager.getAssetManager();
-		const mapProjectAsset = await assetManager.getProjectAsset(mapAssetUuid, {
+		const mapProjectAsset = await assetManager.getProjectAssetFromUuid(mapAssetUuid, {
 			assertAssetType: ProjectAssetTypeMaterialMap,
 		});
 		if (!mapProjectAsset) return [];

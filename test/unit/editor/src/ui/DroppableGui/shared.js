@@ -126,7 +126,7 @@ export function createBasicGui({
 			}
 			return null;
 		},
-		getProjectAssetSync(uuid) {
+		getProjectAssetFromUuidSync(uuid) {
 			if (uuid == BASIC_ASSET_UUID) {
 				return mockProjectAsset;
 			} else if (uuid == DEFAULTASSETLINK_LINK_UUID) {

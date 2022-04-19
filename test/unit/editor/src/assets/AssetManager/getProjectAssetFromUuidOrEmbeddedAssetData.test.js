@@ -29,7 +29,7 @@ Deno.test({
 			parentAsset: parent,
 			embeddedAssetPersistenceKey: "persistenceKey",
 		});
-		const projectAsset = await assetManager.getProjectAsset(BASIC_ASSET_UUID);
+		const projectAsset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
 		assertStrictEquals(result, projectAsset);
 	},
 });

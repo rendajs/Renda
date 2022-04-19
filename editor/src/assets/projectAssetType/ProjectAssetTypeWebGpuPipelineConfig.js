@@ -83,10 +83,10 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<WebGpuPipelineConfig, null>>}
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		const fragmentShaderAsset = await this.assetManager.getProjectAsset(fileData.fragmentShader, {
+		const fragmentShaderAsset = await this.assetManager.getProjectAssetFromUuid(fileData.fragmentShader, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});
-		const vertexShaderAsset = await this.assetManager.getProjectAsset(fileData.vertexShader, {
+		const vertexShaderAsset = await this.assetManager.getProjectAssetFromUuid(fileData.vertexShader, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		this.listenForUsedLiveAssetChanges(fragmentShaderAsset);

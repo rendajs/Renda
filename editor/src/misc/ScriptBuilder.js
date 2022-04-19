@@ -107,7 +107,7 @@ export class ScriptBuilder {
 		let externsAsset = null;
 		const assetManager = getEditorInstance().projectManager.assetManager;
 		if (assetManager) {
-			externsAsset = await assetManager.getProjectAsset("2c2abb9a-8c5a-4faf-a605-066d33242391", {
+			externsAsset = await assetManager.getProjectAssetFromUuid("2c2abb9a-8c5a-4faf-a605-066d33242391", {
 				assertAssetType: ProjectAssetTypeJavascript,
 			});
 		}

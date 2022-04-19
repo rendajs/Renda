@@ -35,11 +35,11 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 * @param {*} customData
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
-		const vertexAsset = await assetManager.getProjectAsset(customData.vertexShader, {
+		const vertexAsset = await assetManager.getProjectAssetFromUuid(customData.vertexShader, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		if (vertexAsset) yield vertexAsset;
-		const fragmentAsset = await assetManager.getProjectAsset(customData.fragmentShader, {
+		const fragmentAsset = await assetManager.getProjectAssetFromUuid(customData.fragmentShader, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		if (fragmentAsset) yield fragmentAsset;
@@ -90,7 +90,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 * @param {Map<string, *>} itemsMap
 	 */
 	static async addShaderUniformsToMap(assetManager, shaderUuid, itemsMap) {
-		const shaderAsset = await assetManager.getProjectAsset(shaderUuid, {
+		const shaderAsset = await assetManager.getProjectAssetFromUuid(shaderUuid, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {

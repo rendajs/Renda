@@ -218,7 +218,7 @@ export class DroppableGui {
 			const assetManager = this.projectManager.assertAssetManagerExists();
 			if (typeof value == "string") {
 				this.setDefaultAssetLinkUuid(value);
-				projectAsset = assetManager.getProjectAssetSync(value);
+				projectAsset = assetManager.getProjectAssetFromUuidSync(value);
 			} else if (value instanceof ProjectAsset) {
 				projectAsset = value;
 			} else if (isDiskData) {
@@ -338,7 +338,7 @@ export class DroppableGui {
 			this.value = null;
 		} else {
 			const assetManager = this.projectManager.assertAssetManagerExists();
-			const projectAsset = await assetManager.getProjectAsset(uuid);
+			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
 			await assetManager.makeAssetUuidConsistent(projectAsset);
 			this.setDefaultAssetLinkUuid(uuid);
 			this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});

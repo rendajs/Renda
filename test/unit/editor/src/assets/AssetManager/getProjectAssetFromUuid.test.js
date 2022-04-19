@@ -5,33 +5,33 @@ import {BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXI
 injectMockEditorInstance(/** @type {any} */ ({}));
 
 Deno.test({
-	name: "getProjectAsset()",
+	name: "getProjectAssetFromUuid()",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		const asset = await assetManager.getProjectAsset(BASIC_ASSET_UUID);
+		const asset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
 
 		assertExists(asset);
 	},
 });
 
 Deno.test({
-	name: "getProjectAsset() non existent",
+	name: "getProjectAssetFromUuid() non existent",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		const asset = await assetManager.getProjectAsset(NONEXISTENT_ASSET_UUID);
+		const asset = await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID);
 
 		assertEquals(asset, null);
 	},
 });
 
 Deno.test({
-	name: "getProjectAsset() assert asset type, valid asset type",
+	name: "getProjectAssetFromUuid() assert asset type, valid asset type",
 	async fn() {
 		const {assetManager, ProjectAssetType} = await basicSetup();
 
-		const asset = await assetManager.getProjectAsset(BASIC_ASSET_UUID, {
+		const asset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
 			assertAssetType: ProjectAssetType,
 		});
 
@@ -40,7 +40,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getProjectAsset() assert asset type, invalid asset type",
+	name: "getProjectAssetFromUuid() assert asset type, invalid asset type",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
@@ -49,7 +49,7 @@ Deno.test({
 		}
 
 		await assertRejects(async () => {
-			await assetManager.getProjectAsset(BASIC_ASSET_UUID, {
+			await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
 				assertAssetType: /** @type {any} */ (ExpectedProjectAssetType),
 			});
 		}, Error, `Unexpected asset type while getting project asset. Expected "namespace:expected" but got "${BASIC_PROJECTASSETTYPE}".`);
@@ -57,7 +57,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getProjectAsset() assert asset type, no asset type",
+	name: "getProjectAssetFromUuid() assert asset type, no asset type",
 	async fn() {
 		const {assetManager} = await basicSetup({
 			assetType: NONEXISTENT_PROJECTASSETTYPE,
@@ -68,7 +68,7 @@ Deno.test({
 		}
 
 		await assertRejects(async () => {
-			await assetManager.getProjectAsset(BASIC_ASSET_UUID, {
+			await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID, {
 				assertAssetType: /** @type {any} */ (ExpectedProjectAssetType),
 			});
 		}, Error, `Unexpected asset type while getting project asset. Expected "namespace:expected" but got "none".`);

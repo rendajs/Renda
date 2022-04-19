@@ -40,7 +40,7 @@ Deno.test({
 	async fn() {
 		const {assetManager, ProjectAssetType} = await basicSetup();
 		const {projectAsset: parent} = createMockProjectAsset();
-		const projectAsset = await assetManager.getProjectAsset(BASIC_ASSET_UUID);
+		const projectAsset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
 		assertExists(projectAsset);
 		await projectAsset.waitForInit();
 

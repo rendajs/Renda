@@ -127,7 +127,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 		const vertexStateUuid = decomposer.getUuid();
 		if (!vertexStateUuid) return {liveAsset: null, editorData: null};
-		const layoutProjectAsset = await this.assetManager.getProjectAsset(vertexStateUuid, {
+		const layoutProjectAsset = await this.assetManager.getProjectAssetFromUuid(vertexStateUuid, {
 			assertAssetType: ProjectAssetTypeVertexState,
 		});
 		if (layoutProjectAsset) {

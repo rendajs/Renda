@@ -97,7 +97,7 @@ export class Editor {
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const assetManager = await this.projectManager.getAssetManager();
-			const projectAsset = await assetManager.getProjectAsset(uuid, {
+			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid, {
 				assertAssetType: ProjectAssetTypeShaderSource,
 			});
 			if (projectAsset) {

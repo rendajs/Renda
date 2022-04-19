@@ -358,11 +358,11 @@ export class AssetManager {
 	 * @param {AssetAssertionOptions<T>} [options]
 	 * @returns {Promise<import("./ProjectAsset.js").ProjectAsset<T>?>}
 	 */
-	async getProjectAsset(uuid, {
+	async getProjectAssetFromUuid(uuid, {
 		assertAssetType = null,
 	} = {}) {
 		await this.loadAssetSettings(true);
-		const projectAsset = this.getProjectAssetSync(uuid);
+		const projectAsset = this.getProjectAssetFromUuidSync(uuid);
 		if (!projectAsset) return null;
 		if (assertAssetType) {
 			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
@@ -373,7 +373,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * Same as {@linkcode getProjectAsset} but synchronous.
+	 * Same as {@linkcode getProjectAssetFromUuid} but synchronous.
 	 * Make sure the asset settings have been loaded before calling this otherwise
 	 * this might return null. Asset type assertion only works if the asset type
 	 * has been determined in advance.
@@ -382,7 +382,7 @@ export class AssetManager {
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
 	 * @param {AssetAssertionOptions<T>} [options]
 	 */
-	getProjectAssetSync(uuid, {
+	getProjectAssetFromUuidSync(uuid, {
 		assertAssetType = null,
 	} = {}) {
 		if (!this.assetSettingsLoaded) return null;
@@ -475,7 +475,7 @@ export class AssetManager {
 	 * @param {AssetAssertionOptions<T>} [assertionOptions]
 	 */
 	async getLiveAsset(uuid, assertionOptions) {
-		const projectAsset = await this.getProjectAsset(uuid, assertionOptions);
+		const projectAsset = await this.getProjectAssetFromUuid(uuid, assertionOptions);
 		if (!projectAsset) return null;
 
 		const liveAsset = await projectAsset.getLiveAsset();
@@ -607,7 +607,7 @@ export class AssetManager {
 	 * For more info about embedded asset creation see {@linkcode createEmbeddedAsset}.
 	 * The assertionOptions is used both for creating new assets using the correct
 	 * type, as well as asserting if existing assets have the correct type when
-	 * a uuid is provided, similar to how it's used in {@linkcode getProjectAsset}.
+	 * a uuid is provided, similar to how it's used in {@linkcode getProjectAssetFromUuid}.
 	 *
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
@@ -617,7 +617,7 @@ export class AssetManager {
 		if (!uuidOrData) return null;
 		let projectAsset;
 		if (typeof uuidOrData == "string") {
-			projectAsset = await this.getProjectAsset(uuidOrData, {assertAssetType});
+			projectAsset = await this.getProjectAssetFromUuid(uuidOrData, {assertAssetType});
 		} else {
 			projectAsset = this.getEmbeddedProjectAssetOrCreate(uuidOrData, assertAssetType, parentAsset, embeddedAssetPersistenceKey);
 		}
@@ -636,7 +636,7 @@ export class AssetManager {
 		if (!uuidOrData) return null;
 		let projectAsset;
 		if (typeof uuidOrData == "string") {
-			projectAsset = this.getProjectAssetSync(uuidOrData, {assertAssetType});
+			projectAsset = this.getProjectAssetFromUuidSync(uuidOrData, {assertAssetType});
 		} else {
 			projectAsset = this.getEmbeddedProjectAssetOrCreate(uuidOrData, assertAssetType, parentAsset, embeddedAssetPersistenceKey);
 		}

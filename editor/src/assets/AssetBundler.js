@@ -32,7 +32,7 @@ export class AssetBundler {
 		await bundleFileStream.write(header);
 
 		for (const assetUuid of assetUuids) {
-			const asset = await assetManager.getProjectAsset(assetUuid);
+			const asset = await assetManager.getProjectAssetFromUuid(assetUuid);
 			if (!asset) continue;
 
 			const assetTypeUuid = await asset.getAssetTypeUuid();
@@ -96,7 +96,7 @@ export class AssetBundler {
 	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
 	 */
 	async *collectAllReferences(assetManager, assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive) {
-		const projectAsset = await assetManager.getProjectAsset(assetUuid);
+		const projectAsset = await assetManager.getProjectAssetFromUuid(assetUuid);
 		if (projectAsset) {
 			if (foundUuids.has(assetUuid) || excludeUuidsRecursive.has(assetUuid)) return;
 			if (!excludeUuids.has(assetUuid)) yield assetUuid;
