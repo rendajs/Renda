@@ -69,7 +69,7 @@ export class ContentWindowProject extends ContentWindow {
 					},
 					{
 						text: "New Render Clustered Lights Config",
-						onClick: () => this.createAsset("JJ:clusteredLightsSetup"),
+						onClick: () => this.createAsset("JJ:clusteredLightsConfig"),
 					},
 				]);
 
