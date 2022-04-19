@@ -141,7 +141,7 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 								}
 							}
 							let newFileContent;
-							if (fileUrl.endsWith(".js")) {
+							if (fileUrl.endsWith(".js") || fileUrl.endsWith(".mjs")) {
 								newFileContent = "// @ts-nocheck\n" + fileContent;
 							} else {
 								newFileContent = fileContent;
