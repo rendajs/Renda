@@ -350,6 +350,7 @@ export class WebGpuRenderer extends Renderer {
 				const materialData = this.getCachedMaterialData(material);
 				if (!materialData.forwardPipelineConfig) {
 					const webgpuMap = material.materialMap.getMapTypeInstance(WebGpuMaterialMapType);
+					if (!webgpuMap) continue;
 					materialData.forwardPipelineConfig = webgpuMap.forwardPipelineConfig;
 					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
 				}

@@ -52,12 +52,10 @@ export class MaterialMap {
 	/**
 	 * @template {import("./MaterialMapType.js").MaterialMapType} T
 	 * @param {new (...args: *) => T} mapType
-	 * @returns {T}
 	 */
 	getMapTypeInstance(mapType) {
 		const instance = this.mapTypes.get(mapType);
-		const castInstance = /** @type {T extends import("./MaterialMapType.js").MaterialMapType ? T : never} */ (instance);
-		return castInstance;
+		return /** @type {T?} */ (instance);
 	}
 
 	/**
