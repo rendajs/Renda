@@ -452,15 +452,15 @@ export class TreeView {
 	 * @returns {TreeView} The created TreeView.
 	 */
 	addChild(treeView = null) {
-		return this.addChildAtIndex(-1, treeView);
+		return this.addChildAtIndex(treeView, -1);
 	}
 
 	/**
 	 * @param {number} index Index to insert the TreeView at, starts counting from the back when negative.
-	 * @param {?TreeView} newChild The TreeView to insert, creates a new one when null.
+	 * @param {TreeView?} newChild The TreeView to insert, creates a new one when null.
 	 * @returns {TreeView} The created TreeView.
 	 */
-	addChildAtIndex(index = -1, newChild = null) {
+	addChildAtIndex(newChild, index) {
 		if (index < 0) {
 			index = this.children.length + index + 1;
 		}
@@ -816,7 +816,7 @@ export class TreeView {
 						// Otherwise, insert all items at the top.
 						for (let i = flatDraggingItems.length - 1; i >= 0; i--) {
 							const treeView = flatDraggingItems[i];
-							this.parent.addChildAtIndex(0, treeView);
+							this.parent.addChildAtIndex(treeView, 0);
 						}
 					}
 				}
