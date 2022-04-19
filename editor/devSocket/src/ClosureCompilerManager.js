@@ -1,4 +1,4 @@
-import {createRequire} from "std-node";
+import {createRequire} from "std/node";
 
 const compatRequire = createRequire(import.meta.url);
 const closureCompiler = compatRequire("google-closure-compiler");

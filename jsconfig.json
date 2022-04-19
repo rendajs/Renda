@@ -13,7 +13,7 @@
 			"std/testing/mock": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/testing/mock.ts"],
 			"path": [".denoTypes/urlImports/https_/deno.land/std@0.121.0/path/mod.ts"],
 			"hash": [".denoTypes/urlImports/https_/deno.land/std@0.118.0/hash/mod.ts"],
-			"std-node": [".denoTypes/urlImports/https_/deno.land/std@0.119.0/node/module.ts"],
+			"std/node": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/node/module.ts"],
 			"chdir-anywhere": [".denoTypes/urlImports/https_/deno.land/x/chdir_anywhere@v0.0.2/mod.js"],
 			"fake-imports": [".denoTypes/urlImports/https_/deno.land/x/fake_imports@v0.4.0/mod.js"],
 			"fake-dom/*": [".denoTypes/urlImports/https_/raw.githubusercontent.com/jespertheend/fake-dom/main/src/*"],
@@ -21,7 +21,6 @@
 			"rollup": [".denoTypes/urlImports/https_/cdn.esm.sh/v64/rollup@2.61.1/dist/rollup.d.ts"],
 			"rollup-plugin-jscc": [".denoTypes/urlImports/https_/cdn.esm.sh/v64/rollup-plugin-jscc@2.0.0/index.d.ts"],
 			"rollup-plugin-cleanup": [".denoTypes/urlImports/https_/unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts"],
-			"std/node/module.ts": [".denoTypes/urlImports/https_/deno.land/std@0.110.0/node/module.ts.js"],
 			"https://deno.land/std@0.127.0/http/file_server.ts": [".denoTypes/urlImports/https_/deno.land/std@0.127.0/http/file_server.ts"],
 			"https://deno.land/std@0.127.0/http/server.ts": [".denoTypes/urlImports/https_/deno.land/std@0.127.0/http/server.ts"],
 		}
