@@ -25,7 +25,7 @@ function basicSetup() {
 	class ExtendedMaterialMapType extends MaterialMapType {}
 	class UnregisteredExtendedMaterialMapType extends MaterialMapType {}
 
-	editor.materialMapTypeManager = /** @type {import("../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeSerializerManager} */ ({
+	editor.materialMapTypeSerializerManager = /** @type {import("../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeSerializerManager} */ ({
 		getTypeByLiveAssetConstructor(mapConstructor) {
 			if (mapConstructor == ExtendedMaterialMapType) return ExtendedMaterialMapTypeSerializer;
 			return null;

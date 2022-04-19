@@ -34,7 +34,7 @@ export class Editor {
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager(this.windowManager);
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.componentGizmosManager = new ComponentGizmosManager();
-		this.materialMapTypeManager = new MaterialMapTypeSerializerManager();
+		this.materialMapTypeSerializerManager = new MaterialMapTypeSerializerManager();
 		this.projectManager = new ProjectManager();
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
 		this.builtInAssetManager = new BuiltInAssetManager(this.projectAssetTypeManager);
@@ -92,7 +92,7 @@ export class Editor {
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
 		this.componentGizmosManager.init();
-		this.materialMapTypeManager.init();
+		this.materialMapTypeSerializerManager.init();
 		this.builtInDefaultAssetLinksManager.init();
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {

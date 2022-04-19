@@ -28,7 +28,7 @@ function basicSetup() {
 	}
 
 	const mockEditorInstance = /** @type {import("../../../../../../../editor/src/Editor.js").Editor} */ ({
-		materialMapTypeManager: {
+		materialMapTypeSerializerManager: {
 			getTypeByUuid(uuid) {
 				return MockMaterialMapTypeSerializer;
 			},

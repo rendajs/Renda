@@ -102,7 +102,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		}
 		if (!this.mapTreeView.value) return;
 
-		const mappableValues = await this.editorInstance.materialMapTypeManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
+		const mappableValues = await this.editorInstance.materialMapTypeSerializerManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
 			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */

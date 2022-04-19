@@ -35,7 +35,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const materialMapTypes = [];
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
-				const typeSerializer = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const typeSerializer = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(map.mapTypeId);
 				if (!typeSerializer) continue;
 
 				const context = this.createLiveAssetDataContext();
@@ -120,7 +120,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		/** @type {import("./MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData[]} */
 		const maps = [];
 		for (const [mapConstructor, mapInstance] of liveAsset.mapTypes) {
-			const mapTypeConstructor = this.editorInstance.materialMapTypeManager.getTypeByLiveAssetConstructor(mapConstructor);
+			const mapTypeConstructor = this.editorInstance.materialMapTypeSerializerManager.getTypeByLiveAssetConstructor(mapConstructor);
 			if (!mapTypeConstructor) continue;
 
 			/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
@@ -157,7 +157,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
-				const mapType = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(map.mapTypeId);
 				if (!mapType) continue;
 				if (mapType.allowExportInAssetBundles) {
 					const arrayBuffer = mapType.mapDataToAssetBundleBinary(this.editorInstance, this.assetManager, map.customData);
@@ -197,7 +197,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
-				const mapType = this.editorInstance.materialMapTypeManager.getTypeByUuid(map.mapTypeId);
+				const mapType = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(map.mapTypeId);
 				if (!mapType) continue;
 				for (const uuid of mapType.getReferencedAssetUuids(map.customData)) {
 					yield uuid;
