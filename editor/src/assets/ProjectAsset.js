@@ -800,6 +800,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {Object} assetSettingOverrides
+	 * @returns {Promise<string | BufferSource | Blob | null>}
 	 */
 	async getBundledAssetData(assetSettingOverrides = {}) {
 		await this.waitForInit();
