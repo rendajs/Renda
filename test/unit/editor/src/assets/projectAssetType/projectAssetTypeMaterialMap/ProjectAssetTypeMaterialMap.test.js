@@ -4,7 +4,7 @@ import {ProjectAssetTypeMaterialMap} from "../../../../../../../editor/src/asset
 import {MaterialMap} from "../../../../../../../src/rendering/MaterialMap.js";
 import {createMockDependencies} from "../shared.js";
 import {MaterialMapType} from "../../../../../../../src/rendering/MaterialMapType.js";
-import {MaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js";
+import {MaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
 
 const BASIC_MATERIAL_MAP_TYPE_ID = "basic material map type id";
 
@@ -15,7 +15,7 @@ function basicSetup() {
 		static typeUuid = BASIC_MATERIAL_MAP_TYPE_ID;
 		/**
 		 * @override
-		 * @param {import("../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
+		 * @param {import("../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
 		 * @param {any} liveAsset
 		 */
 		static async saveLiveAssetData(context, liveAsset) {

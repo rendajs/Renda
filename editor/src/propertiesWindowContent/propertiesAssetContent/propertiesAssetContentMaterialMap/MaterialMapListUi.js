@@ -14,7 +14,7 @@ import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeV
 export class MaterialMapListUi {
 	/**
 	 * @param {Object} options
-	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} options.items
+	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} options.items
 	 */
 	constructor({
 		items = [],

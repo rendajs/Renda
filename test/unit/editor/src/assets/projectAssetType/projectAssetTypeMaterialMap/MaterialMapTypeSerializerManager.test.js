@@ -1,5 +1,5 @@
 import {assert, assertStrictEquals, assertThrows} from "asserts";
-import {MaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js";
+import {MaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
 import {MaterialMapTypeSerializerManager} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js";
 
 const BASIC_SERIALIZER_UUID = "00000000-0000-0000-0000-000000000000";

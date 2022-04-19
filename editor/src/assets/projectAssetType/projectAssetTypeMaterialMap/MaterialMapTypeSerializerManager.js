@@ -1,5 +1,5 @@
-import {autoRegisterMaterialMapTypeSerializers} from "./materialMapTypes/autoRegisterMaterialMapTypeSerializers.js";
-import {MaterialMapTypeSerializer} from "./materialMapTypes/MaterialMapTypeSerializer.js";
+import {autoRegisterMaterialMapTypeSerializers} from "./materialMapTypeSerializers/autoRegisterMaterialMapTypeSerializers.js";
+import {MaterialMapTypeSerializer} from "./materialMapTypeSerializers/MaterialMapTypeSerializer.js";
 import {isUuid} from "../../../../../src/util/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
@@ -38,7 +38,7 @@ export class MaterialMapTypeSerializerManager {
 	}
 
 	/**
-	 * @param {import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializerConstructor} constructor
+	 * @param {import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializerConstructor} constructor
 	 */
 	registerMapType(constructor) {
 		if (!(constructor.prototype instanceof MaterialMapTypeSerializer)) {
@@ -92,7 +92,7 @@ export class MaterialMapTypeSerializerManager {
 
 	/**
 	 * @param {import("../../../../../src/util/mod.js").UuidString} mapAssetUuid
-	 * @returns {Promise<import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
+	 * @returns {Promise<import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
 		if (!mapAssetUuid) return [];
@@ -102,7 +102,7 @@ export class MaterialMapTypeSerializerManager {
 			assertAssetType: ProjectAssetTypeMaterialMap,
 		});
 		if (!mapProjectAsset) return [];
-		/** @type {Map<string, import("./materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
+		/** @type {Map<string, import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();
 		if (await mapProjectAsset.getIsDeleted()) return [];
 		/** @type {MaterialMapAssetData} */

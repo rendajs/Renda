@@ -9,7 +9,7 @@ import {PropertiesMaterialMapContentGenericStructure} from "./propertiesMaterial
 export class MaterialMapTypeEntry {
 	/**
 	 * @param {import("../../../Editor.js").Editor} editorInstance
-	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
+	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	constructor(editorInstance, typeConstructor) {
 		this.editorInstance = editorInstance;
@@ -78,7 +78,7 @@ export class MaterialMapTypeEntry {
 			throw new Error("Assertion failed: lastSelected maps is not set or has multiple entries");
 		}
 
-		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
+		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
 		const context = {
 			editor: this.editorInstance,
 			assetManager,

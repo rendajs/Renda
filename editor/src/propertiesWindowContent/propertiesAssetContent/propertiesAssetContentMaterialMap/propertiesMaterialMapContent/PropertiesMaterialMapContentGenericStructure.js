@@ -42,7 +42,7 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 	}
 
 	/**
-	 * @param {import("../../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/WebGpuMaterialMapTypeSerializer.js").WebGpuMaterialMapTypeDiskData} customData
+	 * @param {import("../../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js").WebGpuMaterialMapTypeDiskData} customData
 	 * @override
 	 */
 	async customAssetDataFromLoad(customData) {

@@ -1,5 +1,5 @@
 import {assertEquals, assertStrictEquals} from "asserts";
-import {WebGpuMaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/WebGpuMaterialMapTypeSerializer.js";
+import {WebGpuMaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
 import {ProjectAssetTypeWebGpuPipelineConfig} from "../../../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
 import {WebGpuPipelineConfig} from "../../../../../../../../src/mod.js";
 import {WebGpuMaterialMapType} from "../../../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
@@ -17,7 +17,7 @@ function getMockContext({
 	});
 	const materialMapAsset = /** @type {import("../../../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (mockMaterialMapAsset);
 
-	const context = /** @type {import("../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypes/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
+	const context = /** @type {import("../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
 		materialMapAsset,
 		assetManager: {
 			async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
