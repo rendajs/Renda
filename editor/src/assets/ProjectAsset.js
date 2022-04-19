@@ -823,11 +823,11 @@ export class ProjectAsset {
 				}
 
 				const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
-				if (!castAssetLoaderType.binaryComposerOpts) {
+				if (!castAssetLoaderType.binarySerializationOpts) {
 					throw new Error("Failed to get bundled asset data. `binaryComposerOpts` is not implemented.");
 				}
 				binaryData = objectToBinary(assetData, {
-					...castAssetLoaderType.binaryComposerOpts,
+					...castAssetLoaderType.binarySerializationOpts,
 					editorAssetManager: this.assetManager,
 				});
 			}
@@ -854,11 +854,11 @@ export class ProjectAsset {
 			const assetData = await this.readAssetData();
 
 			const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
-			if (!castAssetLoaderType.binaryComposerOpts) {
+			if (!castAssetLoaderType.binarySerializationOpts) {
 				throw new Error("Failed to get referenced asset uuids. `binaryComposerOpts` is not implemented.");
 			}
 
-			const binaryComposerOpts = castAssetLoaderType.binaryComposerOpts;
+			const binaryComposerOpts = castAssetLoaderType.binarySerializationOpts;
 
 			/** @type {import("../../../src/util/mod.js").UuidString[]} */
 			const referencedUuids = [];

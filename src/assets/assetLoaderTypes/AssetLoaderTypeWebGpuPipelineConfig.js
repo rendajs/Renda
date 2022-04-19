@@ -6,7 +6,7 @@ export const primitiveTopologyTypes = ["point-list", "line-list", "line-strip", 
 
 export const compareFunction = ["never", "less", "equal", "less-equal", "greater", "not-equal", "greater-equal", "always"];
 
-const binaryComposerOpts = {
+const binarySerializationOpts = {
 	structure: {
 		vertexShader: StorageType.ASSET_UUID,
 		fragmentShader: StorageType.ASSET_UUID,
@@ -22,15 +22,15 @@ const binaryComposerOpts = {
 };
 
 /**
- * @extends {AssetLoaderTypeGenericStructure<typeof binaryComposerOpts>}
+ * @extends {AssetLoaderTypeGenericStructure<typeof binarySerializationOpts>}
  */
 export class AssetLoaderTypeWebGpuPipelineConfig extends AssetLoaderTypeGenericStructure {
 	static get typeUuid() {
 		return "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	}
 
-	static get binaryComposerOpts() {
-		return binaryComposerOpts;
+	static get binarySerializationOpts() {
+		return binarySerializationOpts;
 	}
 
 	/**

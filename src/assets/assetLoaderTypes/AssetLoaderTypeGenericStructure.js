@@ -8,7 +8,7 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 	/**
 	 * @returns {import("../../util/binarySerialization.js").ObjectToBinaryOptions<any>?}
 	 */
-	static get binaryComposerOpts() {
+	static get binarySerializationOpts() {
 		return null;
 	}
 
@@ -20,9 +20,9 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 		loadRecursiveAssetUuids = true,
 	} = {}) {
 		const castConstructor = /** @type {typeof AssetLoaderTypeGenericStructure} */ (this.constructor);
-		const composerOpts = castConstructor.binaryComposerOpts;
+		const composerOpts = castConstructor.binarySerializationOpts;
 		if (!composerOpts) {
-			throw new Error(`Tried to parse buffer for ${this.constructor.name} without a configured binaryComposerOpts value.`);
+			throw new Error(`Tried to parse buffer for ${this.constructor.name} without a configured binarySerializationOpts value.`);
 		}
 		if (loadRecursiveAssetUuids) {
 			return await binaryToObjectWithAssetLoader(buffer, this.assetLoader, composerOpts);
