@@ -69,7 +69,7 @@ export class Component {
 	/**
 	 * @returns {import("../util/binarySerialization.js").ObjectToBinaryOptions<any>?}
 	 */
-	static get binaryComposerOpts() {
+	static get binarySerializationOpts() {
 		return null;
 	}
 

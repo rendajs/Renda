@@ -88,7 +88,7 @@ export class CameraComponent extends Component {
 	/**
 	 * @returns {import("../../util/binarySerialization.js").ObjectToBinaryOptions<any>}
 	 */
-	static get binaryComposerOpts() {
+	static get binarySerializationOpts() {
 		return {
 			structure: {
 				fov: StorageType.FLOAT64,

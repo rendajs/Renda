@@ -199,11 +199,11 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				if (!componentConstructor) continue;
-				if (!componentConstructor.binaryComposerOpts) {
-					throw new Error("Assertion failed, component type has no binaryComposerOpts");
+				if (!componentConstructor.binarySerializationOpts) {
+					throw new Error("Assertion failed, component type has no binarySerializationOpts");
 				}
 				component.propertyValues = objectToBinary(component.propertyValues, {
-					...componentConstructor.binaryComposerOpts,
+					...componentConstructor.binarySerializationOpts,
 					editorAssetManager: this.assetManager,
 				});
 			}
@@ -236,7 +236,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				if (!componentConstructor) continue;
-				const binaryComposerOpts = componentConstructor.binaryComposerOpts;
+				const binaryComposerOpts = componentConstructor.binarySerializationOpts;
 				if (!binaryComposerOpts) continue;
 				/** @type {import("../../../../src/mod.js").UuidString[]} */
 				const referencedUuids = [];

@@ -98,10 +98,10 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 			if (!ComponentConstructor) {
 				throw new Error(`Failed to load entity: Component type with UUID ${entityComponentData.uuid} not found. Make sure it is registered with the component type manager.`);
 			}
-			if (!ComponentConstructor.binaryComposerOpts) {
+			if (!ComponentConstructor.binarySerializationOpts) {
 				throw new Error(`Failed to load entity: Component type with UUID ${entityComponentData.uuid} has no binary composer options set.`);
 			}
-			const propertyValues = await binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binaryComposerOpts);
+			const propertyValues = await binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binarySerializationOpts);
 			entity.addComponent(ComponentConstructor, propertyValues);
 		}
 		for (const child of data.children) {
