@@ -1,7 +1,7 @@
 #!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check
 
 import {createRequire} from "std/node";
-import {dirname, fromFileUrl, resolve} from "path";
+import {dirname, fromFileUrl, resolve} from "std/path";
 import {rollup} from "rollup";
 
 // import resolveUrlObjects from "rollup-plugin-resolve-url-objects";

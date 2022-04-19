@@ -1,7 +1,7 @@
 import {base64ToArrayBuffer, generateUuid} from "../../../src/util/mod.js";
 import {hashBuffer} from "../../../src/mod.js";
 import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
-import {basename, dirname, fromFileUrl, join, relative, resolve} from "path";
+import {basename, dirname, fromFileUrl, join, relative, resolve} from "std/path";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 
 export class BuiltInAssetManager {

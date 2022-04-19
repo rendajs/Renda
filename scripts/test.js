@@ -1,6 +1,6 @@
 #!/usr/bin/env -S deno run --no-check --allow-run --allow-read --allow-write --allow-env
 
-import {join} from "path";
+import {join} from "std/path";
 import {setCwd} from "chdir-anywhere";
 setCwd();
 
