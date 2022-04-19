@@ -112,12 +112,12 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeEmbeddedAssetDataImmediate() throws if the asset is not an embedded asset",
+	name: "writeEmbeddedAssetDataSync() throws if the asset is not an embedded asset",
 	async fn() {
 		const {projectAsset} = basicSetup();
 
 		assertThrows(() => {
-			projectAsset.writeEmbeddedAssetDataImmediate({
+			projectAsset.writeEmbeddedAssetDataSync({
 				num: 123,
 				str: "foo",
 			});
@@ -126,7 +126,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeEmbeddedAssetDataImmediate() and then readEmbeddedAssetData() on an embedded asset",
+	name: "writeEmbeddedAssetDataSync() and then readEmbeddedAssetData() on an embedded asset",
 	async fn() {
 		const {projectAsset, mocks} = basicSetup({
 			setMockEmbeddedParent: true,
@@ -148,7 +148,7 @@ Deno.test({
 			str: "foo",
 		};
 
-		projectAsset.writeEmbeddedAssetDataImmediate(writeData);
+		projectAsset.writeEmbeddedAssetDataSync(writeData);
 
 		writeData.str = "modification";
 

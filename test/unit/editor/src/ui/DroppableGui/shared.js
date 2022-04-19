@@ -29,7 +29,7 @@ export function applyProjectAssetInstanceOf() {
  * @param {Object} [options]
  * @param {object?} [options.mockLiveAsset]
  * @param {boolean} [options.isEmbedded]
- * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetImmediate() to behave
+ * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetSync() to behave
  * like the real ProjectAsset.
  */
 export function createMockProjectAsset({
@@ -45,7 +45,7 @@ export function createMockProjectAsset({
 		},
 		uuid: BASIC_ASSET_UUID,
 		fileName: "assetName.json",
-		getLiveAssetImmediate() {
+		getLiveAssetSync() {
 			// The real ProjectAsset doesn't return a live asset immediately, only after
 			// a call has been made to getLiveAssetData.
 			if (!asyncGetLiveAssetCalled && needsLiveAssetPreload) {
@@ -78,7 +78,7 @@ export function createMockProjectAsset({
  * @param {Partial<import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies>} [options.extraMocks]
  * @param {Partial<import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<any>>} [options.guiOpts]
  * @param {Iterable<[(new (...args: any) => any), Iterable<typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>]>} [options.liveAssetProjectAssetTypeCombinations] The list of Project assets that should be returned for a call to ProjectAssetTypeManager.getAssetTypesForLiveAssetConstructor().
- * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetImmediate() to behave like the real ProjectAsset.
+ * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetSync() to behave like the real ProjectAsset.
  */
 export function createBasicGui({
 	valueType = "basic", extraMocks = {}, guiOpts = {}, liveAssetProjectAssetTypeCombinations = [], needsLiveAssetPreload = true,
@@ -126,7 +126,7 @@ export function createBasicGui({
 			}
 			return null;
 		},
-		getProjectAssetImmediate(uuid) {
+		getProjectAssetSync(uuid) {
 			if (uuid == BASIC_ASSET_UUID) {
 				return mockProjectAsset;
 			} else if (uuid == DEFAULTASSETLINK_LINK_UUID) {

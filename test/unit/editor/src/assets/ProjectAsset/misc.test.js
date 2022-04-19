@@ -24,7 +24,7 @@ Deno.test({
 		});
 
 		assertEquals(projectAsset.assetType, null);
-		assertEquals(projectAsset.projectAssetTypeConstructorImmediate, null);
+		assertEquals(projectAsset.projectAssetTypeConstructorSync, null);
 
 		const projectAssetType = await projectAsset.getProjectAssetType();
 		assertExists(projectAssetType);
@@ -35,7 +35,7 @@ Deno.test({
 		assertStrictEquals(projectAssetTypeConstructor, MockProjectAssetType);
 
 		assertEquals(projectAsset.assetType, BASIC_PROJECTASSETTYPE);
-		assertStrictEquals(projectAsset.projectAssetTypeConstructorImmediate, MockProjectAssetType);
+		assertStrictEquals(projectAsset.projectAssetTypeConstructorSync, MockProjectAssetType);
 	},
 });
 
@@ -50,10 +50,10 @@ Deno.test({
 
 		const projectAssetType = await projectAsset.getProjectAssetType();
 		assertEquals(projectAssetType, null);
-		assertEquals(projectAsset.projectAssetTypeConstructorImmediate, null);
+		assertEquals(projectAsset.projectAssetTypeConstructorSync, null);
 		const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
 		assertEquals(projectAssetTypeConstructor, null);
-		assertEquals(projectAsset.projectAssetTypeConstructorImmediate, null);
+		assertEquals(projectAsset.projectAssetTypeConstructorSync, null);
 	},
 });
 

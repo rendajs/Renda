@@ -100,7 +100,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			let entityAssetName = null;
 			if (entityEditor.editingEntityUuid) {
 				const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
-				const editingEntityAsset = assetManager.getProjectAssetImmediate(entityEditor.editingEntityUuid);
+				const editingEntityAsset = assetManager.getProjectAssetSync(entityEditor.editingEntityUuid);
 				if (editingEntityAsset) {
 					entityAssetName = editingEntityAsset.fileName;
 				} else {

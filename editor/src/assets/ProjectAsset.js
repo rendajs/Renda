@@ -179,7 +179,7 @@ export class ProjectAsset {
 	 * asset type needs to be read from disk. If you want to be sure that the
 	 * asset type is loaded, use {@linkcode getProjectAssetTypeConstructor} instead.
 	 */
-	get projectAssetTypeConstructorImmediate() {
+	get projectAssetTypeConstructorSync() {
 		if (!this._projectAssetType) {
 			return null;
 		}
@@ -197,7 +197,7 @@ export class ProjectAsset {
 
 	async getProjectAssetTypeConstructor() {
 		await this.waitForInit();
-		return this.projectAssetTypeConstructorImmediate;
+		return this.projectAssetTypeConstructorSync;
 	}
 
 	/**
@@ -468,7 +468,7 @@ export class ProjectAsset {
 	 * Returns null if the liveAsset isn't loaded yet.
 	 * @returns {LiveAssetType?}
 	 */
-	getLiveAssetImmediate() {
+	getLiveAssetSync() {
 		return this.liveAsset;
 	}
 
@@ -593,7 +593,7 @@ export class ProjectAsset {
 	 * it will write 'null' to disk. We should probably throw an error here though.
 	 */
 	async childEmbeddedAssetNeedsSave() {
-		const structure = this.projectAssetTypeConstructorImmediate?.propertiesAssetContentStructure;
+		const structure = this.projectAssetTypeConstructorSync?.propertiesAssetContentStructure;
 		if (structure) {
 			// TODO
 			throw new Error("Not yet implemented");
@@ -621,20 +621,20 @@ export class ProjectAsset {
 
 	async getPropertiesAssetContentConstructor() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructorImmediate) return null;
-		return this.projectAssetTypeConstructorImmediate.propertiesAssetContentConstructor;
+		if (!this.projectAssetTypeConstructorSync) return null;
+		return this.projectAssetTypeConstructorSync.propertiesAssetContentConstructor;
 	}
 
 	async getPropertiesAssetContentStructure() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructorImmediate) return null;
-		return this.projectAssetTypeConstructorImmediate.propertiesAssetContentStructure;
+		if (!this.projectAssetTypeConstructorSync) return null;
+		return this.projectAssetTypeConstructorSync.propertiesAssetContentStructure;
 	}
 
 	async getPropertiesAssetSettingsStructure() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructorImmediate) return null;
-		return this.projectAssetTypeConstructorImmediate.assetSettingsStructure;
+		if (!this.projectAssetTypeConstructorSync) return null;
+		return this.projectAssetTypeConstructorSync.assetSettingsStructure;
 	}
 
 	/**
@@ -647,15 +647,15 @@ export class ProjectAsset {
 	async readAssetData() {
 		await this.waitForInit();
 
-		if (!this.projectAssetTypeConstructorImmediate) {
+		if (!this.projectAssetTypeConstructorSync) {
 			throw new Error("Unable to read asset data without a ProjectAssetType");
 		}
 
 		/** @type {"json" | "text" | "binary"} */
 		let format = "binary";
-		if (this.projectAssetTypeConstructorImmediate.storeInProjectAsJson) {
+		if (this.projectAssetTypeConstructorSync.storeInProjectAsJson) {
 			format = "json";
-		} else if (this.projectAssetTypeConstructorImmediate.storeInProjectAsText) {
+		} else if (this.projectAssetTypeConstructorSync.storeInProjectAsText) {
 			format = "text";
 		}
 
@@ -672,7 +672,7 @@ export class ProjectAsset {
 			fileData = await this.fileSystem.readFile(this.path);
 		}
 
-		if (format == "json" && this.projectAssetTypeConstructorImmediate.wrapProjectJsonWithEditorMetaData && !this.isEmbedded) {
+		if (format == "json" && this.projectAssetTypeConstructorSync.wrapProjectJsonWithEditorMetaData && !this.isEmbedded) {
 			fileData = fileData.asset || {};
 		}
 		return fileData;
@@ -684,18 +684,18 @@ export class ProjectAsset {
 	async writeAssetData(fileData) {
 		await this.waitForInit();
 
-		if (!this.projectAssetTypeConstructorImmediate) {
+		if (!this.projectAssetTypeConstructorSync) {
 			throw new Error("Unable to write asset data without a ProjectAssetType");
 		}
 
-		if (this.projectAssetTypeConstructorImmediate.storeInProjectAsJson) {
+		if (this.projectAssetTypeConstructorSync.storeInProjectAsJson) {
 			if (this.isEmbedded) {
 				await this.writeEmbeddedAssetData(fileData);
 			} else {
 				let json = null;
-				if (this.projectAssetTypeConstructorImmediate.wrapProjectJsonWithEditorMetaData) {
+				if (this.projectAssetTypeConstructorSync.wrapProjectJsonWithEditorMetaData) {
 					json = {
-						assetType: this.projectAssetTypeConstructorImmediate.type,
+						assetType: this.projectAssetTypeConstructorSync.type,
 						asset: fileData,
 					};
 				} else {
@@ -707,7 +707,7 @@ export class ProjectAsset {
 					await this.fileSystem.writeJson(this.path, json);
 				}
 			}
-		} else if (this.projectAssetTypeConstructorImmediate.storeInProjectAsText) {
+		} else if (this.projectAssetTypeConstructorSync.storeInProjectAsText) {
 			if (this.isBuiltIn || !this.fileSystem) {
 				await this.builtInAssetManager.writeText(this.path, fileData);
 			} else {
@@ -739,7 +739,7 @@ export class ProjectAsset {
 	 * in memory. Throws if the ProjectAsset is not an embedded asset.
 	 * @param {FileDataType} fileData
 	 */
-	writeEmbeddedAssetDataImmediate(fileData) {
+	writeEmbeddedAssetDataSync(fileData) {
 		if (!this.isEmbedded) {
 			throw new Error("Unable to write embeddedassetData, asset is not an embedded asset.");
 		}
@@ -753,7 +753,7 @@ export class ProjectAsset {
 	 * @param {FileDataType} fileData
 	 */
 	async writeEmbeddedAssetData(fileData) {
-		this.writeEmbeddedAssetDataImmediate(fileData);
+		this.writeEmbeddedAssetDataSync(fileData);
 		if (this.embeddedParentAsset) await this.embeddedParentAsset.childEmbeddedAssetNeedsSave();
 	}
 
@@ -794,8 +794,8 @@ export class ProjectAsset {
 
 	async getAssetTypeUuid() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructorImmediate) return null;
-		return this.projectAssetTypeConstructorImmediate.typeUuid;
+		if (!this.projectAssetTypeConstructorSync) return null;
+		return this.projectAssetTypeConstructorSync.typeUuid;
 	}
 
 	/**
@@ -803,16 +803,16 @@ export class ProjectAsset {
 	 */
 	async getBundledAssetData(assetSettingOverrides = {}) {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructorImmediate || !this._projectAssetType) return null;
+		if (!this.projectAssetTypeConstructorSync || !this._projectAssetType) return null;
 
 		let binaryData = await this._projectAssetType.createBundledAssetData(assetSettingOverrides);
 		if (!binaryData) {
-			const usedAssetLoaderType = this.projectAssetTypeConstructorImmediate.usedAssetLoaderType;
+			const usedAssetLoaderType = this.projectAssetTypeConstructorSync.usedAssetLoaderType;
 			if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 				/** @type {FileDataType} */
 				let assetData = await this.readAssetData();
 
-				const structure = this.projectAssetTypeConstructorImmediate.propertiesAssetContentStructure;
+				const structure = this.projectAssetTypeConstructorSync.propertiesAssetContentStructure;
 				if (structure) {
 					const treeView = new PropertiesTreeView();
 					treeView.generateFromSerializableStructure(structure);
@@ -846,9 +846,9 @@ export class ProjectAsset {
 	 */
 	async *getReferencedAssetUuids() {
 		await this.waitForInit();
-		if (!this.projectAssetTypeConstructorImmediate || !this._projectAssetType) return;
+		if (!this.projectAssetTypeConstructorSync || !this._projectAssetType) return;
 
-		const usedAssetLoaderType = this.projectAssetTypeConstructorImmediate.usedAssetLoaderType;
+		const usedAssetLoaderType = this.projectAssetTypeConstructorSync.usedAssetLoaderType;
 		if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
 			const assetData = await this.readAssetData();
 

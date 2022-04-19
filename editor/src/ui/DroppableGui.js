@@ -218,7 +218,7 @@ export class DroppableGui {
 			const assetManager = this.projectManager.assertAssetManagerExists();
 			if (typeof value == "string") {
 				this.setDefaultAssetLinkUuid(value);
-				projectAsset = assetManager.getProjectAssetImmediate(value);
+				projectAsset = assetManager.getProjectAssetSync(value);
 			} else if (value instanceof ProjectAsset) {
 				projectAsset = value;
 			} else if (isDiskData) {
@@ -262,7 +262,7 @@ export class DroppableGui {
 		}
 		let returnValue = null;
 		if (returnLiveAsset) {
-			returnValue = this.projectAssetValue?.getLiveAssetImmediate() || null;
+			returnValue = this.projectAssetValue?.getLiveAssetSync() || null;
 		} else if (!resolveDefaultAssetLinks && this.defaultAssetLinkUuid) {
 			returnValue = this.defaultAssetLinkUuid;
 		} else if (this.projectAssetValue) {
@@ -479,7 +479,7 @@ export class DroppableGui {
 		e.dataTransfer.effectAllowed = "all";
 		let assetType = null;
 		if (this.projectAssetValue) {
-			assetType = this.projectAssetValue.projectAssetTypeConstructorImmediate;
+			assetType = this.projectAssetValue.projectAssetTypeConstructorSync;
 		}
 
 		/** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */

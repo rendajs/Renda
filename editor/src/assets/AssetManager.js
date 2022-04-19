@@ -362,7 +362,7 @@ export class AssetManager {
 		assertAssetType = null,
 	} = {}) {
 		await this.loadAssetSettings(true);
-		const projectAsset = this.getProjectAssetImmediate(uuid);
+		const projectAsset = this.getProjectAssetSync(uuid);
 		if (!projectAsset) return null;
 		if (assertAssetType) {
 			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
@@ -373,11 +373,16 @@ export class AssetManager {
 	}
 
 	/**
+	 * Same as {@linkcode getProjectAsset} but synchronous.
+	 * Make sure the asset settings have been loaded before calling this otherwise
+	 * this might return null. Asset type assertion only works if the asset type
+	 * has been determined in advance.
+	 *
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
 	 * @param {AssetAssertionOptions<T>} [options]
 	 */
-	getProjectAssetImmediate(uuid, {
+	getProjectAssetSync(uuid, {
 		assertAssetType = null,
 	} = {}) {
 		if (!this.assetSettingsLoaded) return null;
@@ -387,7 +392,7 @@ export class AssetManager {
 		const projectAsset = this.projectAssets.get(uuid) ?? this.builtInAssets.get(uuid);
 		if (!projectAsset) return null;
 		if (assertAssetType) {
-			this.assertProjectAssetIsType(projectAsset.projectAssetTypeConstructorImmediate, assertAssetType);
+			this.assertProjectAssetIsType(projectAsset.projectAssetTypeConstructorSync, assertAssetType);
 		}
 		return projectAsset;
 	}
@@ -591,7 +596,7 @@ export class AssetManager {
 			return this.getProjectAssetForLiveAsset(previousLiveAsset);
 		}
 		const projectAsset = this.createEmbeddedAsset(castAssertAssetType.type, parentAsset, embeddedAssetPersistenceKey);
-		projectAsset.writeEmbeddedAssetDataImmediate(uuidOrData);
+		projectAsset.writeEmbeddedAssetDataSync(uuidOrData);
 		return projectAsset;
 	}
 
@@ -631,7 +636,7 @@ export class AssetManager {
 		if (!uuidOrData) return null;
 		let projectAsset;
 		if (typeof uuidOrData == "string") {
-			projectAsset = this.getProjectAssetImmediate(uuidOrData, {assertAssetType});
+			projectAsset = this.getProjectAssetSync(uuidOrData, {assertAssetType});
 		} else {
 			projectAsset = this.getEmbeddedProjectAssetOrCreate(uuidOrData, assertAssetType, parentAsset, embeddedAssetPersistenceKey);
 		}
