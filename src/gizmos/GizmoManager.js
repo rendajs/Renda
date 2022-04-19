@@ -1,7 +1,7 @@
 import {Entity} from "../core/Entity.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
-import {MoveAxisGizmoDraggable} from "./draggables/MoveAxisGizmoDraggable.js";
-import {MoveGizmoDraggable} from "./draggables/MoveGizmoDraggable.js";
+import {TranslateAxisGizmoDraggable} from "./draggables/TranslateAxisGizmoDraggable.js";
+import {TranslateGizmoDraggable} from "./draggables/TranslateGizmoDraggable.js";
 import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
 import {ListeningGizmoPointerElement} from "./ListeningGizmoPointerElement.js";
 
@@ -128,9 +128,9 @@ export class GizmoManager {
 	createDraggable(draggableType) {
 		let draggable;
 		if (draggableType == "move") {
-			draggable = new MoveGizmoDraggable(this);
+			draggable = new TranslateGizmoDraggable(this);
 		} else if (draggableType == "move-axis") {
-			draggable = new MoveAxisGizmoDraggable(this);
+			draggable = new TranslateAxisGizmoDraggable(this);
 		} else {
 			throw new Error(`Unknown draggable type: ${draggableType}`);
 		}

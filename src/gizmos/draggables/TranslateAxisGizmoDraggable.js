@@ -4,9 +4,9 @@ import {GizmoDraggable} from "./GizmoDraggable.js";
 
 /**
  * A draggable that can be translated along a single axis.
- * @extends {GizmoDraggable<import("./MoveGizmoDraggable.js").GizmoDragMoveEvent>}
+ * @extends {GizmoDraggable<import("./TranslateGizmoDraggable.js").GizmoDragMoveEvent>}
  */
-export class MoveAxisGizmoDraggable extends GizmoDraggable {
+export class TranslateAxisGizmoDraggable extends GizmoDraggable {
 	/**
 	 * @param  {ConstructorParameters<typeof GizmoDraggable>} args
 	 */
@@ -77,7 +77,7 @@ export class MoveAxisGizmoDraggable extends GizmoDraggable {
 		const deltaWorldPos = newWorldPos.clone().sub(this.prevDragWorldPos);
 		this.prevDragWorldPos.set(newWorldPos);
 
-		/** @type {import("./MoveGizmoDraggable.js").GizmoDragMoveEvent} */
+		/** @type {import("./TranslateGizmoDraggable.js").GizmoDragMoveEvent} */
 		const moveEvent = {
 			delta: deltaWorldPos,
 		};

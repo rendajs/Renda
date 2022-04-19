@@ -1,5 +1,5 @@
 import {assertEquals} from "std/testing/asserts";
-import {MoveGizmoDraggable} from "../../../../../src/gizmos/draggables/MoveGizmoDraggable.js";
+import {TranslateGizmoDraggable} from "../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js";
 import {Vec2} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 import {basicSetup} from "./shared.js";
@@ -8,8 +8,8 @@ Deno.test({
 	name: "move event with movement",
 	fn() {
 		const {mockGizmoManager, mockPointerDevice, mockCamera} = basicSetup();
-		const draggable = new MoveGizmoDraggable(mockGizmoManager);
-		/** @type {import("../../../../../src/gizmos/draggables/MoveGizmoDraggable.js").GizmoDragMoveEvent[]} */
+		const draggable = new TranslateGizmoDraggable(mockGizmoManager);
+		/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
 		const calls = [];
 		draggable.onDrag(event => {
 			calls.push(event);

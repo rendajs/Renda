@@ -1,6 +1,6 @@
 import {assertEquals} from "std/testing/asserts";
-import {MoveGizmoDraggable} from "../../../../../src/gizmos/draggables/MoveGizmoDraggable.js";
-import {MoveAxisGizmoDraggable} from "../../../../../src/gizmos/draggables/MoveAxisGizmoDraggable.js";
+import {TranslateGizmoDraggable} from "../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js";
+import {TranslateAxisGizmoDraggable} from "../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js";
 import {Vec2} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 import {basicSetup} from "./shared.js";
@@ -12,8 +12,8 @@ import {basicSetup} from "./shared.js";
  */
 
 const draggableTypes = [
-	MoveGizmoDraggable,
-	MoveAxisGizmoDraggable,
+	TranslateGizmoDraggable,
+	TranslateAxisGizmoDraggable,
 ];
 
 Deno.test({
@@ -46,7 +46,7 @@ Deno.test({
 
 		for (const Draggable of draggableTypes) {
 			const draggable = new Draggable(mockGizmoManager);
-			/** @type {import("../../../../../src/gizmos/draggables/MoveGizmoDraggable.js").GizmoDragMoveEvent[]} */
+			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
 			const calls = [];
 			draggable.onDrag(event => {
 				calls.push(event);
@@ -73,8 +73,8 @@ Deno.test({
 		const {mockGizmoManager, mockPointerDevice, mockCamera} = basicSetup();
 
 		for (const Draggable of draggableTypes) {
-			const draggable = new MoveGizmoDraggable(mockGizmoManager);
-			/** @type {import("../../../../../src/gizmos/draggables/MoveGizmoDraggable.js").GizmoDragMoveEvent[]} */
+			const draggable = new TranslateGizmoDraggable(mockGizmoManager);
+			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
 			const calls = [];
 			draggable.onDrag(event => {
 				calls.push(event);

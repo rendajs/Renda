@@ -9,7 +9,7 @@ import {GizmoDraggable} from "./GizmoDraggable.js";
 /**
  * @extends {GizmoDraggable<GizmoDragMoveEvent>}
  */
-export class MoveGizmoDraggable extends GizmoDraggable {
+export class TranslateGizmoDraggable extends GizmoDraggable {
 	/**
 	 * @param  {ConstructorParameters<typeof GizmoDraggable>} args
 	 */
