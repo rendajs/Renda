@@ -45,7 +45,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 		if (fragmentAsset) yield fragmentAsset;
 	}
 
-	static assetBundleBinaryComposerOpts = {
+	static assetBundleBinarySerializationOpts = {
 		structure: {
 			vertUuid: StorageType.UUID,
 			fragUuid: StorageType.UUID,

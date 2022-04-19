@@ -163,7 +163,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 		if (pipelineConfigAsset) yield pipelineConfigAsset;
 	}
 
-	static assetBundleBinaryComposerOpts = {
+	static assetBundleBinarySerializationOpts = {
 		structure: {
 			forwardPipelineConfig: StorageType.ASSET_UUID,
 		},

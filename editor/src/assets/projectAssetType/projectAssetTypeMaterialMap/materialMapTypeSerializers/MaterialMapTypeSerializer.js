@@ -45,7 +45,7 @@ export class MaterialMapTypeSerializer {
 
 	/**
 	 * If you set this to true you should at least implement {@link mapDataToAssetBundleBinary}
-	 * or set a structure in {@link assetBundleBinaryComposerOpts}.
+	 * or set a structure in {@link assetBundleBinarySerializationOpts}.
 	 */
 	static allowExportInAssetBundles = false;
 
@@ -138,12 +138,12 @@ export class MaterialMapTypeSerializer {
 			return null;
 		}
 
-		if (!this.assetBundleBinaryComposerOpts) {
-			console.warn("Failed to export material map, assetBundleBinaryComposerOpts is not set");
+		if (!this.assetBundleBinarySerializationOpts) {
+			console.warn("Failed to export material map, assetBundleBinarySerializationOpts is not set");
 			return null;
 		}
 		return objectToBinary(bundleMapData, {
-			...this.assetBundleBinaryComposerOpts,
+			...this.assetBundleBinarySerializationOpts,
 			editorAssetManager: assetManager,
 		});
 	}
@@ -167,7 +167,7 @@ export class MaterialMapTypeSerializer {
 	 * should provide a structure here.
 	 * @type {import("../../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions<any>?}
 	 */
-	static assetBundleBinaryComposerOpts = null;
+	static assetBundleBinarySerializationOpts = null;
 
 	/* ==== Misc ==== */
 
@@ -184,19 +184,19 @@ export class MaterialMapTypeSerializer {
 		}
 		if (bundleMapData instanceof ArrayBuffer) return;
 
-		const binaryComposerOpts = this.assetBundleBinaryComposerOpts;
-		if (!binaryComposerOpts) {
-			console.warn("Failed to find referenced asset uuids, assetBundleBinaryComposerOpts is not set");
+		const binarySerializationOpts = this.assetBundleBinarySerializationOpts;
+		if (!binarySerializationOpts) {
+			console.warn("Failed to find referenced asset uuids, assetBundleBinarySerializationOpts is not set");
 			return;
 		}
 		/** @type {import("../../../../../../src/mod.js").UuidString[]} */
 		const referencedUuids = [];
 		objectToBinary(bundleMapData, {
-			...binaryComposerOpts,
+			...binarySerializationOpts,
 			transformValueHook: args => {
 				let {value, type} = args;
-				if (binaryComposerOpts.transformValueHook) {
-					value = binaryComposerOpts.transformValueHook(args);
+				if (binarySerializationOpts.transformValueHook) {
+					value = binarySerializationOpts.transformValueHook(args);
 				}
 
 				if (type == StorageType.ASSET_UUID) {
