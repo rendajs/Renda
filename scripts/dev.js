@@ -18,7 +18,6 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://esm.sh/rollup@2.61.1?pin=v64",
 	"https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v64",
 	"https://unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts",
-	"https://deno.land/std@0.118.0/hash/mod.ts",
 	"https://deno.land/std@0.121.0/path/mod.ts",
 	"https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",
 	"https://deno.land/std@0.135.0/testing/asserts.ts",
