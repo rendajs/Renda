@@ -568,7 +568,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "crossVectors()",
+	name: "static cross()",
 	fn() {
 		const tests = [
 			{a: [0, 0, 0], b: [0, 0, 0], result: [0, 0, 0]},
@@ -579,7 +579,7 @@ Deno.test({
 		];
 
 		for (const {a, b, result} of tests) {
-			const cross = Vec3.crossVectors(a, b);
+			const cross = Vec3.cross(a, b);
 
 			assertVecAlmostEquals(cross, result, 0.0001, `${a} cross ${b} should be ${result} but was ${cross.toArray()}`);
 		}
@@ -796,8 +796,8 @@ Deno.test({
 		expectedResult.push(0x111);
 		expectedResult.push(0x111);
 
-		Vec3.crossVectors(vec, vec);
-		// static crossVectors shouldn't fire the callback
+		Vec3.cross(vec, vec);
+		// static cross() shouldn't fire the callback
 		fireResults.push(-1);
 		expectedResult.push(-1);
 

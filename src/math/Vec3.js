@@ -437,7 +437,7 @@ export class Vec3 {
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
 	 */
-	static crossVectors(vecA, vecB) {
+	static cross(vecA, vecB) {
 		const vA = new Vec3(vecA);
 		return vA.cross(vecB);
 	}

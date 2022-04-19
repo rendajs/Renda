@@ -641,8 +641,8 @@ Deno.test({
 		// expectedResult.push(0x11);
 		// expectedResult.push(0x11);
 
-		Vec3.crossVectors(vec, vec);
-		// static crossVectors shouldn't fire the callback
+		Vec3.cross(vec, vec);
+		// static cross() shouldn't fire the callback
 		fireResults.push(-1);
 		expectedResult.push(-1);
 

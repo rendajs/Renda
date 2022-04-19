@@ -19,7 +19,7 @@ export function closestPointBetweenLines(pos1, dir1, pos2, dir2) {
 		return pos1.clone();
 	}
 
-	const cross = Vec3.crossVectors(dir1Normalised, dir2Normalised).normalize();
+	const cross = Vec3.cross(dir1Normalised, dir2Normalised).normalize();
 	const deltaPos = pos1.clone().sub(pos2);
 
 	// If the two positions are the same, the lines intersect on either the first or second position.
