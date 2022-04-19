@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertInstanceOf} from "asserts";
+import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {BASIC_ASSET_UUID, DEFAULT_BASIC_ASSET_NUM_ON_DISK, DEFAULT_BASIC_ASSET_STR_ON_DISK, NONEXISTENT_ASSET_UUID, basicSetup} from "./shared.js";
 

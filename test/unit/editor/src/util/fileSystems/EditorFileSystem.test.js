@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {EditorFileSystem} from "../../../../../../editor/src/util/fileSystems/EditorFileSystem.js";
 import {Importer} from "fake-imports";
 

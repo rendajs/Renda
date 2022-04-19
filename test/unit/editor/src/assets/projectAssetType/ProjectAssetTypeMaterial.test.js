@@ -1,5 +1,5 @@
 import "../../../shared/initializeEditor.js";
-import {assertEquals, assertExists, assertStrictEquals} from "asserts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock";
 import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {createMockDependencies} from "./shared.js";

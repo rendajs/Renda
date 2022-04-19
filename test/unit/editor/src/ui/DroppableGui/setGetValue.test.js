@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "asserts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts";
 import {BASIC_ASSET_UUID, DEFAULTASSETLINK_LINK_UUID, createBasicGui} from "./shared.js";
 
 Deno.test({

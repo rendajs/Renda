@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {initBrowser, openBasicScriptPage} from "../../../../shared/browser.js";
 import {waitFor} from "../../../../shared/util.js";
 import {document} from "../../../shared/evaluateTypes.js";

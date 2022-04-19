@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 
 /**
  * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} itemOpts

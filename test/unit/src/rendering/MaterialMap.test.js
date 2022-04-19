@@ -1,4 +1,4 @@
-import {assertThrows} from "asserts";
+import {assertThrows} from "std/testing/asserts";
 import {Quat, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 

@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {NumericGui} from "../../../../../editor/src/UI/NumericGui.js";
 import {initializeDom} from "../../shared/initializeDom.js";
 

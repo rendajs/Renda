@@ -1,6 +1,6 @@
 {
 	"imports": {
-		"asserts": "https://deno.land/std@0.130.0/testing/asserts.ts",
+		"std/testing/asserts": "https://deno.land/std@0.135.0/testing/asserts.ts",
 		"std/testing/mock": "https://deno.land/std@0.135.0/testing/mock.ts",
 		"path": "https://deno.land/std@0.121.0/path/mod.ts",
 		"hash": "https://deno.land/std@0.118.0/hash/mod.ts",

@@ -1,4 +1,4 @@
-import {assertThrows} from "asserts";
+import {assertThrows} from "std/testing/asserts";
 import {AssetLoaderTypeMaterialMap, MaterialMapTypeLoader} from "../../../../../src/mod.js";
 
 const mockAssetLoader = /** @type {import("../../../../../src/assets/AssetLoader.js").AssetLoader} */ ({});

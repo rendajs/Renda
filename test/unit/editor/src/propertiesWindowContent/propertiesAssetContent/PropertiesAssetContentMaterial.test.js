@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "asserts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts";
 import "../../../shared/initializeEditor.js";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {Material} from "../../../../../../src/mod.js";

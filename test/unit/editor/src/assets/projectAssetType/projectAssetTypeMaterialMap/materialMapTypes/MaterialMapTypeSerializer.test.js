@@ -1,4 +1,4 @@
-import {assertEquals, assertRejects} from "asserts";
+import {assertEquals, assertRejects} from "std/testing/asserts";
 import {MaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
 import {MaterialMapType} from "../../../../../../../../src/rendering/MaterialMapType.js";
 

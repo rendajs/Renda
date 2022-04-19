@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import "../../../../shared/initializeEditor.js";
 import {ProjectAssetTypeMaterialMap} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
 import {MaterialMap} from "../../../../../../../src/rendering/MaterialMap.js";

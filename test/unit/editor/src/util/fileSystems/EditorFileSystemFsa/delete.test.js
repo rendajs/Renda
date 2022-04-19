@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({

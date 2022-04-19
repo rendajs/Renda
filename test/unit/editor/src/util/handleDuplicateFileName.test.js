@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {handleDuplicateFileName} from "../../../../../editor/src/util/util.js";
 
 Deno.test("No existing", () => {

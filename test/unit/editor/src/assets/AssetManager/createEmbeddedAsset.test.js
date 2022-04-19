@@ -1,4 +1,4 @@
-import {assertEquals, assertThrows} from "asserts";
+import {assertEquals, assertThrows} from "std/testing/asserts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {BASIC_PERSISTENCE_KEY, BASIC_PROJECTASSETTYPE, STRINGIFIED_PERSISTENCE_KEY, basicSetup} from "./shared.js";
 import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";

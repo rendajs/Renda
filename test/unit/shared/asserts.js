@@ -1,4 +1,4 @@
-import {AssertionError} from "asserts";
+import {AssertionError} from "std/testing/asserts";
 import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
 
 /**

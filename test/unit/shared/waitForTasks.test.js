@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {waitForCurrentMicroTasks, waitForMicrotasks} from "./waitForMicroTasks.js";
 
 Deno.test({

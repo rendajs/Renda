@@ -1,4 +1,4 @@
-import {assertEquals, assertNotStrictEquals} from "asserts";
+import {assertEquals, assertNotStrictEquals} from "std/testing/asserts";
 import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 

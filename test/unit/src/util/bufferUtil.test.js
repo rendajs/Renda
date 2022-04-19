@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {bufferToHex, hashBuffer} from "../../../../src/util/bufferUtil.js";
 
 Deno.test({

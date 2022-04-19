@@ -1,4 +1,4 @@
-import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
 import {Mesh, Vec3} from "../../../../src/mod.js";
 
 Deno.test({

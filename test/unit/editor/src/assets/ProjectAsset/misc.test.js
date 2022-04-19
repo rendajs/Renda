@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {BASIC_ASSET_EXTENSION, BASIC_PROJECTASSETTYPE, BASIC_UUID, UNKNOWN_ASSET_EXTENSION, basicSetup, getMocks} from "./shared.js";
 

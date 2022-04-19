@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "asserts";
+import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
 import {Component, ComponentTypeManager, Entity, Mat4, Quat, Vec3} from "../../../../src/mod.js";
 import {assertMatAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 

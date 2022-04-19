@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {parseMimeType} from "../../../../../editor/src/util/util.js";
 
 Deno.test("Basic mime", () => {

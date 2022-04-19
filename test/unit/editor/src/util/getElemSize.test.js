@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {getElemSize} from "../../../../../editor/src/util/util.js";
 
 const originalGetComputedStyle = globalThis.getComputedStyle;

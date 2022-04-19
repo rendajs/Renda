@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "asserts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts";
 import {WebGpuMaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
 import {ProjectAssetTypeWebGpuPipelineConfig} from "../../../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
 import {WebGpuPipelineConfig} from "../../../../../../../../src/mod.js";

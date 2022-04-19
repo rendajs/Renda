@@ -1,4 +1,4 @@
-import {assertEquals} from "asserts";
+import {assertEquals} from "std/testing/asserts";
 import {MoveGizmoDraggable} from "../../../../../src/gizmos/draggables/MoveGizmoDraggable.js";
 import {Vec2} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";

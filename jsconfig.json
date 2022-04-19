@@ -9,7 +9,7 @@
 		"typeRoots": [".denoTypes/@types"],
 		"baseUrl": ".",
 		"paths": {
-			"asserts": [".denoTypes/urlImports/https_/deno.land/std@0.130.0/testing/asserts.ts"],
+			"std/testing/asserts": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/testing/asserts.ts"],
 			"std/testing/mock": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/testing/mock.ts"],
 			"path": [".denoTypes/urlImports/https_/deno.land/std@0.121.0/path/mod.ts"],
 			"hash": [".denoTypes/urlImports/https_/deno.land/std@0.118.0/hash/mod.ts"],

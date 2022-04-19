@@ -1,4 +1,4 @@
-import {assert} from "asserts";
+import {assert} from "std/testing/asserts";
 import {Mat4} from "../../../../src/mod.js";
 
 Deno.test({

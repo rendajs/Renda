@@ -1,5 +1,5 @@
 import {createBasicFs, createFs} from "./shared.js";
-import {assert, assertEquals} from "asserts";
+import {assert, assertEquals} from "std/testing/asserts";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",

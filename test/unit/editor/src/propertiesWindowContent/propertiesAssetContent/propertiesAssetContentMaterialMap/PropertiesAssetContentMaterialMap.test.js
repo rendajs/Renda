@@ -1,6 +1,6 @@
 import {Importer} from "fake-imports";
 import {createMockProjectAsset} from "../../../assets/shared/createMockProjectAsset.js";
-import {assertEquals, assertExists, assertStrictEquals} from "asserts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../../shared/mockTreeView/PropertiesTreeView.js");

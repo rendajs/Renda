@@ -1,4 +1,4 @@
-import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "asserts";
+import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts";
 import {UNKNOWN_ASSET_EXTENSION, basicSetup} from "./shared.js";
 
 Deno.test({

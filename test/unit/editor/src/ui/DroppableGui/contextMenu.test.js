@@ -1,4 +1,4 @@
-import {assertEquals, assertExists} from "asserts";
+import {assertEquals, assertExists} from "std/testing/asserts";
 import {assertContextMenuStructureEquals} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus, createMockProjectAsset, createMockProjectAssetType} from "./shared.js";
 

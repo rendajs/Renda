@@ -1,4 +1,4 @@
-import {assertEquals, assertExists} from "asserts";
+import {assertEquals, assertExists} from "std/testing/asserts";
 import {Entity, TranslationGizmo, Vec3} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 import {createFakeGizmoManager} from "../shared.js";
