@@ -66,7 +66,7 @@ export class CameraGizmo extends Gizmo {
 		this.mesh.setVertexData(Mesh.AttributeType.POSITION, positionsFrustum);
 	}
 
-	updateMaterials() {
+	updateAssets() {
 		this.mesh.setVertexState(this.gizmoManager.meshVertexState);
 		this.meshComponent.materials = [this.gizmoManager.meshMaterial];
 	}

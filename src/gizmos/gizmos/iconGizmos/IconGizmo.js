@@ -75,7 +75,7 @@ export class IconGizmo extends Gizmo {
 		this.indices.push(startIndex, startIndex + 1);
 	}
 
-	updateMaterials() {
+	updateAssets() {
 		this.mesh.setVertexState(this.gizmoManager.billboardVertexState);
 		this.meshComponent.materials = [this.gizmoManager.billboardMaterial];
 	}

@@ -96,7 +96,7 @@ export class GizmoManager {
 	updateGizmoMaterials() {
 		if (!ENGINE_ASSETS_LIVE_UPDATES_SUPPORT) return;
 		for (const gizmo of this.gizmos) {
-			gizmo.updateMaterials();
+			gizmo.updateAssets();
 		}
 	}
 

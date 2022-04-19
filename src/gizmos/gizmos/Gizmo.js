@@ -33,9 +33,12 @@ export class Gizmo {
 		this.entity.detachParent();
 	}
 
-	// this is called when the GizmoManager built-in assets have changed
-	// update your mesh components accordingly
-	updateMaterials() {}
+	/**
+	 * This is called when the GizmoManager built-in assets have changed.
+	 * In here you can assign the new assets to your components,
+	 * such as materials or mesh vertex states.
+	 */
+	updateAssets() {}
 
 	/**
 	 * Call this to let the renderer know that the gizmo has been changed and

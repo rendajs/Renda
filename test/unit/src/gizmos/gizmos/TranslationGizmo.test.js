@@ -29,7 +29,7 @@ Deno.test({
 		assertEquals(translationGizmo.zArrowMesh.materials, []);
 
 		initEngineAssets();
-		translationGizmo.updateMaterials();
+		translationGizmo.updateAssets();
 
 		assertExists(translationGizmo.circleMesh.vertexState);
 		assertExists(translationGizmo.arrowMesh.vertexState);

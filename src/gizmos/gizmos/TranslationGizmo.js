@@ -111,7 +111,7 @@ export class TranslationGizmo extends Gizmo {
 		this.yArrowMesh = meshY;
 		this.zArrowMesh = meshZ;
 
-		this.updateMaterials();
+		this.updateAssets();
 	}
 
 	destructor() {
@@ -120,7 +120,7 @@ export class TranslationGizmo extends Gizmo {
 		this.arrowMesh.destructor();
 	}
 
-	updateMaterials() {
+	updateAssets() {
 		this.arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
 		if (this.gizmoManager.meshMaterial) {
 			const material = this.gizmoManager.meshMaterial;
