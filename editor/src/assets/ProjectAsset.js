@@ -818,7 +818,7 @@ export class ProjectAsset {
 					const treeView = new PropertiesTreeView();
 					treeView.generateFromSerializableStructure(structure);
 					treeView.fillSerializableStructureValues(assetData);
-					const newAssetData = treeView.getSerializableStructureValues(structure, {purpose: "binaryComposer"});
+					const newAssetData = treeView.getSerializableStructureValues(structure, {purpose: "binarySerialization"});
 					assetData = /** @type {FileDataType} */ (newAssetData);
 				}
 

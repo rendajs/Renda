@@ -263,7 +263,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		} = guiOpts || {};
 		if (purpose == "fileStorage") {
 			stripDefaultValues = true;
-		} else if (purpose == "binaryComposer") {
+		} else if (purpose == "binarySerialization") {
 			stripDefaultValues = false;
 		}
 		if (stripDefaultValues) {

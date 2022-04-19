@@ -35,7 +35,7 @@
  * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {U extends "fileStorage" ?
  * 		number | string :
- * 	U extends "binaryComposer" ?
+ * 	U extends "binarySerialization" ?
  * 		number :
  * U extends "default" | undefined ? (
  *   T extends true ? number | string :
@@ -191,7 +191,7 @@ export class NumericGui {
 		let mapNumerics = /** @type {boolean} */ (mapNumericValuesToStrings);
 		if (purpose == "fileStorage") {
 			mapNumerics = true;
-		} else if (purpose == "binaryComposer") {
+		} else if (purpose == "binarySerialization") {
 			mapNumerics = false;
 		}
 		if (mapNumerics) {

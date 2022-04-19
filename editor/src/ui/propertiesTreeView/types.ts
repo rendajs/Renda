@@ -293,10 +293,10 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
 /**
  * - `"default"` uses the default behaviour of PropertiesTreeViewEntries
  * - `"fileStorage"` optimizes for data stored as json in project asset files
- * - `"binaryComposer"` optimizes for data passed to {@linkcode objectToBinary}
+ * - `"binarySerialization"` optimizes for data passed to {@linkcode objectToBinary}
  * - `"script"` optimizes for how in game scripts are most likely to access the data (e.g. Entity Components).
  */
-export type TreeViewStructureOutputPurpose = "default" | "fileStorage" | "binaryComposer" | "script";
+export type TreeViewStructureOutputPurpose = "default" | "fileStorage" | "binarySerialization" | "script";
 
 export type BaseGetValueOptions = {
 	purpose?: TreeViewStructureOutputPurpose;

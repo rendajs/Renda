@@ -137,7 +137,7 @@ export class PropertiesTreeView extends TreeView {
 		let stripDefaultValues = guiOpts?.stripDefaultValues ?? false;
 		if (purpose == "fileStorage") {
 			stripDefaultValues = true;
-		} else if (purpose == "binaryComposer") {
+		} else if (purpose == "binarySerialization") {
 			stripDefaultValues = false;
 		}
 		/** @type {Object.<string, unknown>} */

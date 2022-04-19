@@ -37,7 +37,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
  * @template {boolean} [U = false]
  * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
  * @typedef {V extends "fileStorage" ? number[] :
- * 		V extends "binaryComposer" ? number[] :
+ * 		V extends "binarySerialization" ? number[] :
  * 		U extends true ? number[] :
  * T} VectorGuiGetValueReturn
  */
@@ -170,7 +170,7 @@ export class VectorGui {
 		let getAsArrayValue = /** @type {boolean} */ (getAsArray);
 		if (purpose == "fileStorage") {
 			getAsArrayValue = true;
-		} else if (purpose == "binaryComposer") {
+		} else if (purpose == "binarySerialization") {
 			getAsArrayValue = true;
 		}
 		const numbersArr = this.numericGuis.map(g => g.value);

@@ -204,11 +204,11 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getValue() with purpose 'binaryComposer'",
+	name: "getValue() with purpose 'binarySerialization'",
 	fn() {
 		const {gui, uninstall} = createBasicGui();
 
-		const result = gui.getValue({purpose: "binaryComposer"});
+		const result = gui.getValue({purpose: "binarySerialization"});
 
 		assertEquals(result, BASIC_ASSET_UUID);
 
