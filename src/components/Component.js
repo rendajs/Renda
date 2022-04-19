@@ -14,14 +14,6 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  */
 
 /**
- * @typedef {Object} ComponentTypeData
- * @property {string} uuid
- * @property {string} name
- * @property {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
- * @property {import("../util/binarySerialization.js").ObjectToBinaryOptions<any>} binaryComposerOpts
- */
-
-/**
  * @typedef {Object} ComponentEditorOptions
  * @property {import("../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} editorAssetTypeManager
  * @property {symbol} usedAssetUuidsSymbol

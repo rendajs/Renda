@@ -824,7 +824,7 @@ export class ProjectAsset {
 
 				const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
 				if (!castAssetLoaderType.binarySerializationOpts) {
-					throw new Error("Failed to get bundled asset data. `binaryComposerOpts` is not implemented.");
+					throw new Error("Failed to get bundled asset data. `binarySerializationOpts` is not implemented.");
 				}
 				binaryData = objectToBinary(assetData, {
 					...castAssetLoaderType.binarySerializationOpts,
@@ -855,19 +855,19 @@ export class ProjectAsset {
 
 			const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
 			if (!castAssetLoaderType.binarySerializationOpts) {
-				throw new Error("Failed to get referenced asset uuids. `binaryComposerOpts` is not implemented.");
+				throw new Error("Failed to get referenced asset uuids. `binarySerializationOpts` is not implemented.");
 			}
 
-			const binaryComposerOpts = castAssetLoaderType.binarySerializationOpts;
+			const binarySerializationOpts = castAssetLoaderType.binarySerializationOpts;
 
 			/** @type {import("../../../src/util/mod.js").UuidString[]} */
 			const referencedUuids = [];
 			objectToBinary(assetData, {
-				...binaryComposerOpts,
+				...binarySerializationOpts,
 				transformValueHook: args => {
 					let {value, type} = args;
-					if (binaryComposerOpts.transformValueHook) {
-						value = binaryComposerOpts.transformValueHook(args);
+					if (binarySerializationOpts.transformValueHook) {
+						value = binarySerializationOpts.transformValueHook(args);
 					}
 
 					if (type == StorageType.ASSET_UUID) {

@@ -236,16 +236,16 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			for (const component of castEntityData.components) {
 				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				if (!componentConstructor) continue;
-				const binaryComposerOpts = componentConstructor.binarySerializationOpts;
-				if (!binaryComposerOpts) continue;
+				const binarySerializationOpts = componentConstructor.binarySerializationOpts;
+				if (!binarySerializationOpts) continue;
 				/** @type {import("../../../../src/mod.js").UuidString[]} */
 				const referencedUuids = [];
 				objectToBinary(component.propertyValues, {
-					...binaryComposerOpts,
+					...binarySerializationOpts,
 					transformValueHook: args => {
 						let {value, type} = args;
-						if (binaryComposerOpts.transformValueHook) {
-							value = binaryComposerOpts.transformValueHook(args);
+						if (binarySerializationOpts.transformValueHook) {
+							value = binarySerializationOpts.transformValueHook(args);
 						}
 
 						if (type == StorageType.ASSET_UUID) {
