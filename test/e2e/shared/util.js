@@ -95,13 +95,14 @@ export async function hover(page, selector) {
  * Throws an error if the element doesn't exist after the timeout.
  * @param {import("puppeteer").Page} page
  * @param {string | import("puppeteer").ElementHandle} selector
+ * @param {import("puppeteer").ClickOptions} [clickOptions]
  */
-export async function click(page, selector) {
+export async function click(page, selector, clickOptions = {}) {
 	let element;
 	if (typeof selector === "string") {
 		element = await waitFor(page, selector, {visible: true});
 	} else {
 		element = selector;
 	}
-	await element.click();
+	await element.click(clickOptions);
 }

@@ -1,3 +1,4 @@
+import {assertExists} from "std/testing/asserts";
 import {click, hover, waitForFunction} from "../../shared/util.js";
 import {editor} from "./evaluateTypes.js";
 
@@ -69,10 +70,16 @@ export async function getContentWindowElement(page, contentWindowType) {
 
 /**
  * Waits until a child element of a tree view exists and returns its row element.
+ * This can be used to traverse down several types of objects. You can either
+ * find TreeViews, PropertiesTreeViewEntries, children of PropertiesTreeViewEntries
+ * that are either an object or array. Or all of these combined.
+ * Additionally, if the index of a child is known, you can specify it by providing
+ * an integer rather than a string in the `itemsPath`.
  *
  * @param {import("puppeteer").Page} page
  * @param {import("puppeteer").ElementHandle} treeViewElementHandle
- * @param {string[]} itemsPath
+ * @param {(string | number)[]} itemsPath An array where each item represents the textContent of a treeViewRow element,
+ * textContent of a propertiesTreeViewEntry, or index of a child.
  */
 export async function getTreeViewItemElement(page, treeViewElementHandle, itemsPath) {
 	const result = await waitForFunction(page, (treeViewElement, itemsPath) => {
@@ -82,9 +89,24 @@ export async function getTreeViewItemElement(page, treeViewElementHandle, itemsP
 		}
 		let currentTreeView = treeViewElement;
 		for (let i = 0; i < itemsPath.length; i++) {
-			const itemName = itemsPath[i];
-			const children = Array.from(currentTreeView.querySelectorAll(".treeViewChildList > .treeViewItem"));
-			const child = children.find(child => child.textContent == itemName);
+			const itemIdentifier = itemsPath[i];
+			const treeViewChildren = Array.from(currentTreeView.querySelectorAll(":scope > .treeViewChildList > .treeViewItem"));
+			let child;
+			if (typeof itemIdentifier == "number") {
+				child = treeViewChildren[itemIdentifier];
+			} else {
+				child = treeViewChildren.find(child => {
+					// First check the row name, in case this is a regular TreeView.
+					const row = child.querySelector(".treeViewRow");
+					if (row.textContent == itemIdentifier) return true;
+
+					// If this is a PropertiesTreeViewEntry, check the name of the entry.
+					const labelEl = child.querySelector(".treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryLabel");
+					if (labelEl && labelEl.textContent == itemIdentifier) return true;
+
+					return false;
+				});
+			}
 			if (!child) return null;
 			currentTreeView = child;
 		}
@@ -177,9 +199,51 @@ export async function createAsset(page, testContext, createMenuPath, createdAsse
 
 	await clickContextMenuItem(page, testContext, createMenuPath);
 
-	const projectRootTreeViewEl = await projectEl.$(".editorContentWindowContent > .treeViewItem");
+	const projectRootTreeViewEl = await projectEl.$(":scope > .editorContentWindowContent > .treeViewItem");
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
 	}
-	await getTreeViewItemElement(page, projectRootTreeViewEl, createdAssetPath);
+	const createdAssetTreeView = await getTreeViewItemElement(page, projectRootTreeViewEl, createdAssetPath);
+	return {
+		createdAssetTreeView,
+	};
+}
+
+/**
+ * @param {import("puppeteer").Page} page
+ */
+export async function getPropertiesWindowRootTreeView(page) {
+	const propertiesWindow = await getContentWindowElement(page, "properties");
+	const treeView = await propertiesWindow.$(":scope > .editorContentWindowContent > div > .treeViewItem");
+	assertExists(treeView);
+	return treeView;
+}
+
+/**
+ * @param {import("puppeteer").Page} page
+ */
+export async function getPropertiesWindowAssetContent(page) {
+	const propertiesRootTreeView = await getPropertiesWindowRootTreeView(page);
+	const assetContentEl = await getTreeViewItemElement(page, propertiesRootTreeView, ["Asset content will be placed here"]);
+	assertExists(assetContentEl);
+	return assetContentEl;
+}
+
+/**
+ * @param {import("puppeteer").ElementHandle} element
+ */
+export async function getPropertiesTreeViewEntryGui(element) {
+	const guiEl = await element.$(":scope > .treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryValue");
+	assertExists(guiEl);
+	return guiEl;
+}
+
+/**
+ * @param {import("puppeteer").Page} page
+ * @param {import("puppeteer").ElementHandle} droppableGuiEl
+ */
+export async function waitForDroppableGuiHasValue(page, droppableGuiEl, hasValue = true) {
+	await waitForFunction(page, (droppableGuiEl, hasValue) => {
+		return droppableGuiEl.classList.contains("filled") == hasValue;
+	}, {}, droppableGuiEl, hasValue);
 }
