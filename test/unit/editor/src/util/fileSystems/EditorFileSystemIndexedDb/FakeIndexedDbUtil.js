@@ -55,7 +55,32 @@ class Database {
 	}
 }
 
-export class FakeIndexedDbUtil {
+/** @type {Promise<void>?} */
+let currentForcePendingPromise = null;
+/** @type {(() => void)?} */
+let currentForcePendingCallback = null;
+/**
+ * Set to true to cause all promises to stay pending until you set this to
+ * false again.
+ * @param {boolean} pending
+ */
+export function forcePendingOperations(pending) {
+	if (pending) {
+		if (!currentForcePendingCallback) {
+			currentForcePendingPromise = new Promise(r => {
+				currentForcePendingCallback = r;
+			});
+		}
+	} else {
+		if (currentForcePendingCallback) {
+			currentForcePendingCallback();
+			currentForcePendingCallback = null;
+			currentForcePendingPromise = null;
+		}
+	}
+}
+
+export class IndexedDbUtil {
 	#dbName;
 	#db;
 	#objectStoreNames;
@@ -88,7 +113,8 @@ export class FakeIndexedDbUtil {
 	/**
 	 * @param {string} key
 	 */
-	get(key, objectStoreName = this.#objectStoreNames[0]) {
+	async get(key, objectStoreName = this.#objectStoreNames[0]) {
+		if (currentForcePendingPromise) await currentForcePendingPromise;
 		return this.#db.get(objectStoreName, key);
 	}
 
@@ -96,14 +122,16 @@ export class FakeIndexedDbUtil {
 	 * @param {string} key
 	 * @param {unknown} value
 	 */
-	set(key, value, objectStoreName = this.#objectStoreNames[0]) {
+	async set(key, value, objectStoreName = this.#objectStoreNames[0]) {
+		if (currentForcePendingPromise) await currentForcePendingPromise;
 		return this.#db.set(objectStoreName, key, value);
 	}
 
 	/**
 	 * @param {string} key
 	 */
-	delete(key, objectStoreName = this.#objectStoreNames[0]) {
+	async delete(key, objectStoreName = this.#objectStoreNames[0]) {
+		if (currentForcePendingPromise) await currentForcePendingPromise;
 		return this.#db.delete(objectStoreName, key);
 	}
 

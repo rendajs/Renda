@@ -271,8 +271,10 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 */
 	async createDir(path) {
+		const op = this.requestWriteOperation();
 		super.createDir(path);
 		await this.createDirInternal(path);
+		op.done();
 	}
 
 	/**
@@ -467,6 +469,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path, recursive = false) {
+		const writeOp = this.requestWriteOperation();
 		if (path.length == 0) {
 			throw new Error("Cannot delete the root directory");
 		}
@@ -497,6 +500,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		const oldPointerIndex = parentDirObj.files.indexOf(pointer);
 		parentDirObj.files.splice(oldPointerIndex, 1);
 		await this.updateObjectRecursiveUp(parentObjTravelledData, parentDirObj);
+		writeOp.done();
 	}
 
 	/**
@@ -505,6 +509,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @param {File | BufferSource | Blob | string} file
 	 */
 	async writeFile(path, file) {
+		const writeOp = this.requestWriteOperation();
 		this.fireOnBeforeAnyChange();
 		if (!file) file = new Blob();
 		const fileName = path[path.length - 1];
@@ -543,6 +548,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 		newParentDirObj.files.push(newPointer);
 		await this.updateObjectRecursiveUp(newParentTravelledData, newParentDirObj);
+		writeOp.done();
 	}
 
 	/**

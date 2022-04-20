@@ -1,4 +1,5 @@
 import {toFormattedJsonString} from "../../../../src/util/toFormattedJsonString.js";
+import {WriteOperation} from "./WriteOperation.js";
 
 /** @typedef {string[]} EditorFileSystemPath */
 
@@ -23,6 +24,10 @@ export class EditorFileSystem {
 		this.onAnyChangeCbs = new Set();
 		/** @type {Set<function(string):void>} */
 		this.onRootNameChangeCbs = new Set();
+		/** @private @type {Set<WriteOperation>} */
+		this.writeOperations = new Set();
+		/** @private @type {Set<() => void>} */
+		this.onWriteOperationFinishCbs = new Set();
 	}
 
 	/**
@@ -109,6 +114,39 @@ export class EditorFileSystem {
 	 */
 	async writeFileStream(path, keepExistingData = false) {
 		throw new Error("Cannot be called on an abstract class");
+	}
+
+	/**
+	 * To be used internally by the file system.
+	 * Returns an WriteOperation object that can be used to let the file system
+	 * when the operation is finished.
+	 * This is used for resolving {@linkcode waitForWritesFinish}.
+	 */
+	requestWriteOperation() {
+		const op = new WriteOperation();
+		this.writeOperations.add(op);
+		op.onDone(() => {
+			this.writeOperations.delete(op);
+			if (this.writeOperations.size <= 0) {
+				this.onWriteOperationFinishCbs.forEach(cb => cb());
+				this.onWriteOperationFinishCbs.clear();
+			}
+		});
+		return op;
+	}
+
+	/**
+	 * Resolves once all files are known to be written. At this point, reloading
+	 * the page should not cause any data loss.
+	 */
+	async waitForWritesFinish() {
+		if (this.writeOperations.size <= 0) return;
+
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => {
+			this.onWriteOperationFinishCbs.add(r);
+		});
+		await promise;
 	}
 
 	/**

@@ -1,5 +1,6 @@
-import {createBasicFs, createFs} from "./shared.js";
+import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
 import {assert, assertEquals} from "std/testing/asserts";
+import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",
@@ -73,6 +74,29 @@ Deno.test({
 		await fs.createDir(["root", "newdir"]);
 
 		assertEquals(onBeforeAnyChangeCalled, true);
+	},
+});
+
+Deno.test({
+	name: "createDir() causes waitForWritesFinish to stay pending until done",
+	async fn() {
+		const fs = await createBasicFs();
+
+		const createPromise = fs.createDir(["root", "newdir"]);
+		const waitPromise = fs.waitForWritesFinish();
+		forcePendingOperations(true);
+		let waitPromiseResolved = false;
+		waitPromise.then(() => {
+			waitPromiseResolved = true;
+		});
+
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, false);
+
+		forcePendingOperations(false);
+		await createPromise;
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, true);
 	},
 });
 
@@ -167,6 +191,29 @@ Deno.test({
 });
 
 Deno.test({
+	name: "writeFile() causes waitForWritesFinish to stay pending until done",
+	async fn() {
+		const fs = await createBasicFs();
+
+		const writeFilePromise = fs.writeFile(["root", "newfile"], "hello world");
+		const waitPromise = fs.waitForWritesFinish();
+		forcePendingOperations(true);
+		let waitPromiseResolved = false;
+		waitPromise.then(() => {
+			waitPromiseResolved = true;
+		});
+
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, false);
+
+		forcePendingOperations(false);
+		await writeFilePromise;
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, true);
+	},
+});
+
+Deno.test({
 	name: "delete() should delete files",
 	fn: async () => {
 		const fs = await createBasicFs();
@@ -214,6 +261,29 @@ Deno.test({
 		}
 
 		assertEquals(didThrow, true);
+	},
+});
+
+Deno.test({
+	name: "delete() causes waitForWritesFinish to stay pending until done",
+	async fn() {
+		const fs = await createBasicFs();
+
+		const deletePromise = fs.delete(["root", "file1"]);
+		const waitPromise = fs.waitForWritesFinish();
+		forcePendingOperations(true);
+		let waitPromiseResolved = false;
+		waitPromise.then(() => {
+			waitPromiseResolved = true;
+		});
+
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, false);
+
+		forcePendingOperations(false);
+		await deletePromise;
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, true);
 	},
 });
 

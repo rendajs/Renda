@@ -1,43 +1,17 @@
 import {Importer} from "fake-imports";
 
-/** @type {Importer?} */
-let importer = null;
-export function getImporter() {
-	if (importer) return importer;
+const importer = new Importer(import.meta.url);
+importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "./FakeIndexedDbUtil.js");
 
-	importer = new Importer(import.meta.url);
-	importer.fakeModule("../../../../../../../src/util/IndexedDbUtil.js", `
-		import {FakeIndexedDbUtil} from "../../test/unit/editor/src/util/fileSystems/EditorFileSystemIndexedDb/FakeIndexedDbUtil.js";
-		export {FakeIndexedDbUtil as IndexedDbUtil};
-	`);
-	return importer;
-}
+const {EditorFileSystemIndexedDb: EditorFileSystemIndexedDbImported} = await importer.import("../../../../../../../editor/src/util/fileSystems/EditorFileSystemIndexedDb.js");
+const EditorFileSystemIndexedDb = /** @type {typeof import("../../../../../../../editor/src/util/fileSystems/EditorFileSystemIndexedDb.js").EditorFileSystemIndexedDb} */ (EditorFileSystemIndexedDbImported);
 
-let isLoadingEditorFileSystemIndexedDb = false;
-/** @type {typeof import("../../../../../../../editor/src/util/fileSystems/EditorFileSystemIndexedDb.js").EditorFileSystemIndexedDb?} */
-let loadedEditorFileSystemIndexedDb = null;
-const onEditorFileSystemIndexedDbLoadCbs = new Set();
+const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
+const forcePendingOperations = /** @type {typeof import("./FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
-/**
- * @returns {Promise<typeof import("../../../../../../../editor/src/util/fileSystems/EditorFileSystemIndexedDb.js").EditorFileSystemIndexedDb>}
- */
-export async function getEditorFileSystemIndexedDb() {
-	if (loadedEditorFileSystemIndexedDb) return loadedEditorFileSystemIndexedDb;
-	if (isLoadingEditorFileSystemIndexedDb) {
-		return await new Promise(r => onEditorFileSystemIndexedDbLoadCbs.add(r));
-	}
-	isLoadingEditorFileSystemIndexedDb = true;
-	const importer = getImporter();
-	const {EditorFileSystemIndexedDb} = await importer.import("../../../../../../../editor/src/util/fileSystems/EditorFileSystemIndexedDb.js");
-	loadedEditorFileSystemIndexedDb = EditorFileSystemIndexedDb;
-	onEditorFileSystemIndexedDbLoadCbs.forEach(r => r());
-	if (!loadedEditorFileSystemIndexedDb) throw new Error("EditorFileSystemIndexedDb not loaded");
-	return loadedEditorFileSystemIndexedDb;
-}
+export {forcePendingOperations};
 
 export async function createFs(name = "fs") {
-	const EditorFileSystemIndexedDb = await getEditorFileSystemIndexedDb();
-
 	const fs = new EditorFileSystemIndexedDb(name);
 
 	return fs;

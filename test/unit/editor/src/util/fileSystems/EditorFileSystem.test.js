@@ -1,6 +1,7 @@
 import {assertEquals} from "std/testing/asserts";
 import {EditorFileSystem} from "../../../../../../editor/src/util/fileSystems/EditorFileSystem.js";
 import {Importer} from "fake-imports";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
 	name: "writeText",
@@ -124,5 +125,58 @@ Deno.test({
 		const text = await fs.readJson(["data.json"]);
 
 		assertEquals(text, {hello: "world"});
+	},
+});
+
+Deno.test({
+	name: "waitForWritesFinish() resolves without any pending operations",
+	async fn() {
+		const fs = new EditorFileSystem();
+		await fs.waitForWritesFinish();
+	},
+});
+
+Deno.test({
+	name: "waitForWritesFinish() resolves when the last pending operation is resolved",
+	async fn() {
+		const fs = new EditorFileSystem();
+		const writeOp = fs.requestWriteOperation();
+		const promise = fs.waitForWritesFinish();
+
+		let promiseResolved = false;
+		promise.then(() => {
+			promiseResolved = true;
+		});
+		await waitForMicrotasks();
+		assertEquals(promiseResolved, false);
+
+		writeOp.done();
+		await waitForMicrotasks();
+		assertEquals(promiseResolved, true);
+	},
+});
+
+Deno.test({
+	name: "waitForWritesFinish() with multiple pending operations",
+	async fn() {
+		const fs = new EditorFileSystem();
+		const op1 = fs.requestWriteOperation();
+		const op2 = fs.requestWriteOperation();
+		const promise = fs.waitForWritesFinish();
+
+		let promiseResolved = false;
+		promise.then(() => {
+			promiseResolved = true;
+		});
+		await waitForMicrotasks();
+		assertEquals(promiseResolved, false);
+
+		op1.done();
+		await waitForMicrotasks();
+		assertEquals(promiseResolved, false);
+
+		op2.done();
+		await waitForMicrotasks();
+		assertEquals(promiseResolved, true);
 	},
 });
