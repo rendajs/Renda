@@ -26,7 +26,11 @@ export async function initBrowser() {
 		headless = false;
 	}
 
-	browser = await puppeteer.launch({headless});
+	browser = await puppeteer.launch({
+		headless,
+		args: ["--enable-unsafe-webgpu"],
+		executablePath: "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
+	});
 }
 
 export async function getContext(url = MAIN_PAGE_URL + "editor/dist/") {
