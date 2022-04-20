@@ -26,9 +26,15 @@ export async function initBrowser() {
 		headless = false;
 	}
 
+	let devtools = false;
+	if (Deno.args.includes("--enable-e2e-devtools")) {
+		devtools = true;
+	}
+
 	browser = await puppeteer.launch({
 		headless,
 		args: ["--enable-unsafe-webgpu"],
+		devtools,
 		executablePath: "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
 	});
 }

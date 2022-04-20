@@ -55,6 +55,7 @@ for (const arg of Deno.args) {
 }
 if (Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk")) {
 	applicationArgs.add("--no-headless");
+	applicationArgs.add("--enable-e2e-devtools");
 }
 if (needsCoverage) {
 	await removeMaybeDirectory(DENO_COVERAGE_DIR);
