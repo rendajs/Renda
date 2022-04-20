@@ -40,18 +40,37 @@ export async function waitFor(page, selector, options = {}) {
 {}
 
 /**
+ * @typedef {NonNullable<Parameters<import("puppeteer").Page["waitForFunction"]>[1]>} PageFnOptions
+ */
+
+/**
  * Same as `Page.waitForFunction` but with implicit argument types.
  *
  * @template {import("puppeteer").SerializableOrJSHandle[]} A
  * @template R
  * @param {import("puppeteer").Page} page
  * @param {(...args: ConvertPuppeteerArguments<A>) => R} fn
- * @param {Parameters<import("puppeteer").Page["waitForFunction"]>[1]} options
+ * @param {PageFnOptions} [options]
  * @param {A} args
  */
 export async function waitForFunction(page, fn, options = {}, ...args) {
 	const result = await page.waitForFunction(fn, options, ...args);
 	return /** @type {ConvertPuppeteerReturnValue<R>} */ (result);
+}
+
+/**
+ * Same as ${@linkcode waitFor} but starts from a specific element.
+ *
+ * @param {import("puppeteer").Page} page
+ * @param {import("puppeteer").ElementHandle} elementHandle
+ * @param {string} selector
+ * @param {PageFnOptions} [options]
+ */
+export async function elementWaitForSelector(page, elementHandle, selector, options) {
+	const element = await waitForFunction(page, (element, selector) => {
+		return element.querySelector(selector);
+	}, options, elementHandle, selector);
+	return element;
 }
 
 /**

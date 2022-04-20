@@ -1,5 +1,5 @@
 import {assertExists} from "std/testing/asserts";
-import {click, hover, waitForFunction} from "../../shared/util.js";
+import {click, elementWaitForSelector, hover, waitForFunction} from "../../shared/util.js";
 import {editor} from "./evaluateTypes.js";
 
 /**
@@ -179,9 +179,8 @@ export async function clickContextMenuItem(page, testContext, menuPath) {
  * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
  * @param {string[]} createMenuPath The path of the context menu item that creates the asset.
- * @param {string[]} createdAssetPath The expected file location of the created asset.
  */
-export async function createAsset(page, testContext, createMenuPath, createdAssetPath) {
+export async function createAsset(page, testContext, createMenuPath) {
 	const projectEl = await getContentWindowElement(page, "project");
 
 	// Get the selected folder or the root folder, so that we can wait for added children later.
@@ -198,15 +197,36 @@ export async function createAsset(page, testContext, createMenuPath, createdAsse
 	});
 
 	await clickContextMenuItem(page, testContext, createMenuPath);
+}
 
+/**
+ * Finds the project window and searches for the specified asset treeview element.
+ * @param {import("puppeteer").Page} page
+ * @param {string[]} assetPath
+ */
+export async function getAssetTreeView(page, assetPath) {
+	const projectEl = await getContentWindowElement(page, "project");
 	const projectRootTreeViewEl = await projectEl.$(":scope > .editorContentWindowContent > .treeViewItem");
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
 	}
-	const createdAssetTreeView = await getTreeViewItemElement(page, projectRootTreeViewEl, createdAssetPath);
-	return {
-		createdAssetTreeView,
-	};
+	return await getTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
+}
+
+/**
+ * @param {import("puppeteer").Page} page
+ * @param {Deno.TestContext} testContext
+ * @param {string[]} assetPath
+ */
+export async function clickAsset(page, testContext, assetPath) {
+	const joinedPath = assetPath.join("/");
+	await testContext.step({
+		name: `Click asset "${joinedPath}"`,
+		async fn() {
+			const createdAssetTreeView = await getAssetTreeView(page, assetPath);
+			await click(page, createdAssetTreeView);
+		},
+	});
 }
 
 /**
@@ -214,7 +234,7 @@ export async function createAsset(page, testContext, createMenuPath, createdAsse
  */
 export async function getPropertiesWindowRootTreeView(page) {
 	const propertiesWindow = await getContentWindowElement(page, "properties");
-	const treeView = await propertiesWindow.$(":scope > .editorContentWindowContent > div > .treeViewItem");
+	const treeView = await elementWaitForSelector(page, propertiesWindow, ":scope > .editorContentWindowContent > div > .treeViewItem");
 	assertExists(treeView);
 	return treeView;
 }
@@ -232,7 +252,7 @@ export async function getPropertiesWindowAssetContent(page) {
 /**
  * @param {import("puppeteer").ElementHandle} element
  */
-export async function getPropertiesTreeViewEntryGui(element) {
+export async function getPropertiesTreeViewEntryValueEl(element) {
 	const guiEl = await element.$(":scope > .treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryValue");
 	assertExists(guiEl);
 	return guiEl;
@@ -246,4 +266,61 @@ export async function waitForDroppableGuiHasValue(page, droppableGuiEl, hasValue
 	await waitForFunction(page, (droppableGuiEl, hasValue) => {
 		return droppableGuiEl.classList.contains("filled") == hasValue;
 	}, {}, droppableGuiEl, hasValue);
+}
+
+/**
+ * @param {import("puppeteer").ElementHandle?} propertiesTreeViewEntryEl
+ */
+export async function findDroppableGuiFromPropertiesTreeViewEntry(propertiesTreeViewEntryEl) {
+	assertExists(propertiesTreeViewEntryEl);
+	const entryValueEl = await getPropertiesTreeViewEntryValueEl(propertiesTreeViewEntryEl);
+	const droppableGuiEl = await entryValueEl.$(".droppableGui");
+	assertExists(droppableGuiEl);
+	return droppableGuiEl;
+}
+
+/**
+ * Right clicks the droppable gui of a properties treeview entry, and creates
+ * an embedded asset. Waits until the asset is created.
+ * @param {import("puppeteer").Page} page
+ * @param {Deno.TestContext} testContext
+ * @param {import("puppeteer").ElementHandle?} propertiesTreeViewEntryEl
+ */
+export async function createEmbeddedAssetAndOpen(page, testContext, propertiesTreeViewEntryEl) {
+	await testContext.step({
+		name: "Create embedded asset and open",
+		async fn(testContext) {
+			// Find the droppable gui
+			const droppableGuiEl = await findDroppableGuiFromPropertiesTreeViewEntry(propertiesTreeViewEntryEl);
+
+			// Right click the gui
+			await click(page, droppableGuiEl, {
+				button: "right",
+			});
+
+			// Click the create embedded asset context menu
+			await clickContextMenuItem(page, testContext, ["Create embedded asset"]);
+			await waitForDroppableGuiHasValue(page, droppableGuiEl);
+
+			// Open the embedded asset
+			await click(page, droppableGuiEl, {
+				clickCount: 2,
+			});
+		},
+	});
+}
+
+/**
+ *
+ * @param {import("puppeteer").Page} page
+ * @param {Deno.TestContext} testContext
+ * @param {import("puppeteer").ElementHandle?} propertiesTreeViewEntryEl
+ */
+export async function openDroppableGuiTreeViewEntry(page, testContext, propertiesTreeViewEntryEl) {
+	const droppableGuiEl = await findDroppableGuiFromPropertiesTreeViewEntry(propertiesTreeViewEntryEl);
+
+	// Open the embedded asset
+	await click(page, droppableGuiEl, {
+		clickCount: 2,
+	});
 }

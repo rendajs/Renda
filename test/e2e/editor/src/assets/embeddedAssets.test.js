@@ -1,96 +1,118 @@
-import {assertExists} from "std/testing/asserts";
+import {assertEquals, assertExists} from "std/testing/asserts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
-import {clickContextMenuItem, createAsset, getPropertiesTreeViewEntryGui as getPropertiesTreeViewEntryValueEl, getPropertiesWindowAssetContent, getTreeViewItemElement, setupNewProject, waitForDroppableGuiHasValue} from "../../shared/common.js";
+import {clickAsset, clickContextMenuItem, createAsset, createEmbeddedAssetAndOpen, getPropertiesTreeViewEntryValueEl, getPropertiesWindowAssetContent, getTreeViewItemElement, openDroppableGuiTreeViewEntry, setupNewProject, waitForProjectOpen} from "../../shared/common.js";
 
 await initBrowser();
 
-/**
- * @param {import("puppeteer").ElementHandle?} propertiesTreeViewEntryEl
- */
-async function findDroppableGuiFromPropertiesTreeViewEntry(propertiesTreeViewEntryEl) {
-	assertExists(propertiesTreeViewEntryEl);
-	const entryValueEl = await getPropertiesTreeViewEntryValueEl(propertiesTreeViewEntryEl);
-	const droppableGuiEl = await entryValueEl.$(".droppableGui");
-	assertExists(droppableGuiEl);
-	return droppableGuiEl;
-}
+const MATERIAL_ASSET_PATH = ["New Material.json"];
 
 /**
- * Right clicks the droppable gui of a properties treeview entry, and creates
- * an embedded asset. Waits until the asset is created.
  * @param {import("puppeteer").Page} page
- * @param {Deno.TestContext} testContext
- * @param {import("puppeteer").ElementHandle?} propertiesTreeViewEntryEl
+ * @param {import("puppeteer").ElementHandle} assetContentEl
  */
-async function createEmbeddedAssetAndOpen(page, testContext, propertiesTreeViewEntryEl) {
-	// Find the droppable gui
-	const droppableGuiEl = await findDroppableGuiFromPropertiesTreeViewEntry(propertiesTreeViewEntryEl);
-
-	// Right click the gui
-	await click(page, droppableGuiEl, {
-		button: "right",
-	});
-
-	// Click the create embedded asset context menu
-	await clickContextMenuItem(page, testContext, ["Create embedded asset"]);
-	await waitForDroppableGuiHasValue(page, droppableGuiEl);
-
-	// Open the embedded asset
-	await click(page, droppableGuiEl, {
-		clickCount: 2,
-	});
+async function findMapTreeViewEntry(page, assetContentEl) {
+	return await getTreeViewItemElement(page, assetContentEl, [0, "material", "Map"]);
 }
 
 Deno.test({
 	name: "Creating a new material asset with embedded map and pipeline config",
 	...puppeteerSanitizers,
 	async fn(testContext) {
-		const {page} = await getContext();
+		for (let i = 0; i < 100; i++) {
+			const {page} = await getContext();
 
-		await setupNewProject(page, testContext);
+			await setupNewProject(page, testContext);
 
-		const {createdAssetTreeView} = await createAsset(page, testContext, ["Materials", "New Material"], ["New Material.json"]);
-		await click(page, createdAssetTreeView);
-		const assetContentEl = await getPropertiesWindowAssetContent(page);
+			await testContext.step({
+				name: "Creating the assets",
+				async fn(testContext) {
+					await createAsset(page, testContext, ["Materials", "New Material"]);
+					await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
+					const assetContentEl = await getPropertiesWindowAssetContent(page);
 
-		await testContext.step({
-			name: "Create embedded asset",
-			async fn(testContext) {
-				const mapTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, [0, "material", "Map"]);
-				await createEmbeddedAssetAndOpen(page, testContext, mapTreeViewEntry);
-			},
-		});
+					await testContext.step({
+						name: "Create embedded asset",
+						async fn(testContext) {
+							const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
+							await createEmbeddedAssetAndOpen(page, testContext, mapTreeViewEntry);
+						},
+					});
 
-		await testContext.step({
-			name: "Add map type",
-			async fn(testContext) {
-				// Click the 'Add Map Type' button
-				const addMapTypeEntry = await getTreeViewItemElement(page, assetContentEl, [0, 1]);
-				assertExists(addMapTypeEntry);
-				const addMapTypeValueEl = await getPropertiesTreeViewEntryValueEl(addMapTypeEntry);
-				const addMapTypeButton = await addMapTypeValueEl.$(".button");
-				assertExists(addMapTypeButton);
-				await click(page, addMapTypeButton);
+					await testContext.step({
+						name: "Add map type",
+						async fn(testContext) {
+						// Click the 'Add Map Type' button
+							const addMapTypeEntry = await getTreeViewItemElement(page, assetContentEl, [0, 1]);
+							assertExists(addMapTypeEntry);
+							const addMapTypeValueEl = await getPropertiesTreeViewEntryValueEl(addMapTypeEntry);
+							const addMapTypeButton = await addMapTypeValueEl.$(".button");
+							assertExists(addMapTypeButton);
+							await click(page, addMapTypeButton);
 
-				await clickContextMenuItem(page, testContext, ["WebGPU Renderer"]);
+							await clickContextMenuItem(page, testContext, ["WebGPU Renderer"]);
 
-				const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
-				await createEmbeddedAssetAndOpen(page, testContext, forwardPipelineConfigTreeViewEntry);
-			},
-		});
+							const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
+							await createEmbeddedAssetAndOpen(page, testContext, forwardPipelineConfigTreeViewEntry);
+						},
+					});
 
-		// We'll change an arbitrary property to check if changes are saved
-		await testContext.step({
-			name: "Toggle Depth Write checkbox",
-			async fn() {
-				const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
-				assertExists(depthWriteEntry);
-				const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
-				const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
-				assertExists(checkbox);
-				await click(page, checkbox);
-			},
-		});
+					// We'll change an arbitrary property to check if changes are saved
+					await testContext.step({
+						name: "Toggle Depth Write checkbox",
+						async fn(testContext) {
+							const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
+							assertExists(depthWriteEntry);
+							const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
+							const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
+							assertExists(checkbox);
+							await click(page, checkbox);
+
+							await page.evaluate(async () => {
+								const e = editor;
+								if (!e) return;
+								const fs = e.projectManager.currentProjectFileSystem;
+								if (!fs) return;
+								await fs.waitForWritesFinish();
+							});
+						},
+					});
+				},
+			});
+
+			await testContext.step({
+				name: "Reload the page",
+				async fn(testContext) {
+					await page.reload();
+				},
+			});
+
+			await waitForProjectOpen(page, testContext);
+
+			await testContext.step({
+				name: "Verify if changes were saved",
+				async fn(testContext) {
+					await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
+					const assetContentEl = await getPropertiesWindowAssetContent(page);
+
+					const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
+					await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);
+
+					const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
+					await openDroppableGuiTreeViewEntry(page, testContext, forwardPipelineConfigTreeViewEntry);
+
+					const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
+					assertExists(depthWriteEntry);
+					const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
+					const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
+					assertExists(checkbox);
+
+					const checked = await checkbox.evaluate(checkbox => checkbox.checked);
+					assertEquals(checked, false);
+				},
+			});
+
+			page.close();
+		}
 	},
 });
