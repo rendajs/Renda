@@ -1,6 +1,6 @@
 import {assertEquals, assertExists} from "std/testing/asserts";
 import {getContext, initBrowser} from "../../../shared/browser.js";
-import {setupNewProject, waitForProjectOpen} from "../../shared/common.js";
+import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 
 await initBrowser();
 

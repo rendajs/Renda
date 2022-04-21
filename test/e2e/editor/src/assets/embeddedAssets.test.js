@@ -1,7 +1,12 @@
 import {assertEquals, assertExists} from "std/testing/asserts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
-import {clickAsset, clickContextMenuItem, createAsset, createEmbeddedAssetAndOpen, getPropertiesTreeViewEntryValueEl, getPropertiesWindowAssetContent, getTreeViewItemElement, openDroppableGuiTreeViewEntry, setupNewProject, waitForProjectOpen} from "../../shared/common.js";
+import {clickAsset, createAsset} from "../../shared/assets.js";
+import {getPropertiesWindowAssetContent} from "../../shared/contentWindows/properties.js";
+import {clickContextMenuItem} from "../../shared/contextMenu.js";
+import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
+import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
+import {getPropertiesTreeViewEntryValueEl, getTreeViewItemElement} from "../../shared/treeView.js";
 
 await initBrowser();
 
