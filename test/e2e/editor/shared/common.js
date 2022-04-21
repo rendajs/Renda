@@ -1,6 +1,5 @@
 import {assertExists} from "std/testing/asserts";
 import {click, elementWaitForSelector, hover, waitForFunction} from "../../shared/util.js";
-import {editor} from "./evaluateTypes.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -23,7 +22,8 @@ export async function waitForProjectOpen(page, testContext, allowExisting = true
 	await waitForEditorLoad(page, testContext);
 	await testContext.step("Wait for project to open", async () => {
 		await page.evaluate(async allowExisting => {
-			await editor.projectManager.waitForProjectOpen(allowExisting);
+			if (!globalThis.editor) throw new Error("Editor instance does not exist");
+			await globalThis.editor.projectManager.waitForProjectOpen(allowExisting);
 		}, allowExisting);
 	});
 }
@@ -60,7 +60,8 @@ export async function setupNewProject(page, testContext) {
  */
 export async function getContentWindowElement(page, contentWindowType) {
 	const el = await page.evaluateHandle(async contentWindowType => {
-		const array = Array.from(editor.windowManager.getContentWindowsByType(contentWindowType));
+		if (!globalThis.editor) throw new Error("Editor instance does not exist");
+		const array = Array.from(globalThis.editor.windowManager.getContentWindowsByType(contentWindowType));
 		if (array.length <= 0) return null;
 		const el = array[0].el;
 		return el;
@@ -128,18 +129,20 @@ export async function clickContextMenuItem(page, testContext, menuPath) {
 		name: `Click context menu "${menuPath.join(" > ")}"`,
 		fn: async () => {
 			await page.waitForFunction(() => {
-				return editor.contextMenuManager.current;
+				if (!globalThis.editor) throw new Error("Editor instance does not exist");
+				return globalThis.editor.contextMenuManager.current;
 			});
 			for (let i = 0; i < menuPath.length; i++) {
 				const itemName = menuPath[i];
 				const expectedSubmenuCount = i;
 				const jsHandle = await page.evaluateHandle(async (itemName, expectedSubmenuCount, menuPath) => {
-					if (!editor.contextMenuManager.current) throw new Error("Context menu no longer exists");
+					if (!globalThis.editor) throw new Error("Editor instance does not exist");
+					if (!globalThis.editor.contextMenuManager.current) throw new Error("Context menu no longer exists");
 					// Submenus only get created when hovering over them. So we
 					// can just recurse down all the existing menus and then
 					// return the element from the last submenu.
 					let submenuCount = 0;
-					let currentMenu = editor.contextMenuManager.current;
+					let currentMenu = globalThis.editor.contextMenuManager.current;
 					while (true) {
 						const submenu = currentMenu.currentSubmenu;
 						if (!submenu) break;

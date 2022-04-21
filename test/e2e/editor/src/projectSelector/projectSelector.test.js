@@ -1,7 +1,6 @@
 import {assertEquals, assertExists} from "std/testing/asserts";
 import {getContext, initBrowser} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/common.js";
-import {editor} from "../../shared/evaluateTypes.js";
 
 await initBrowser();
 
@@ -40,9 +39,10 @@ Deno.test({
 			assertExists(contentWindowProjectEl);
 
 			await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
-				const contentWindowProject = editor.windowManager.getWindowByElement(contentWindowProjectEl);
+				if (!globalThis.editor) throw new Error("Editor instance does not exist");
+				const contentWindowProject = globalThis.editor.windowManager.getWindowByElement(contentWindowProjectEl);
 				if (!contentWindowProject) throw new Error("No project window found");
-				const ContentWindowProjectConstructor = editor.windowManager.registeredContentWindows.get("project");
+				const ContentWindowProjectConstructor = globalThis.editor.windowManager.registeredContentWindows.get("project");
 				const ContentWindowProject = /** @type {typeof import("../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (ContentWindowProjectConstructor);
 				if (!(contentWindowProject instanceof ContentWindowProject)) {
 					throw new Error("content window is not of type project");
