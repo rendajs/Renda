@@ -4,12 +4,12 @@ import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.
 import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
 
 /**
- * @typedef {Object} ProjectAssetTypeMeshEditorData
+ * @typedef {Object} MeshProjectAssetTypeEditorData
  * @property {import("../../../../src/mod.js").UuidString?} vertexStateUuid
  */
 
 /**
- * @extends {ProjectAssetType<Mesh?, ProjectAssetTypeMeshEditorData?, "binary">}
+ * @extends {ProjectAssetType<Mesh?, MeshProjectAssetTypeEditorData?, "binary">}
  */
 export class MeshProjectAssetType extends ProjectAssetType {
 	static type = "JJ:mesh";
@@ -113,7 +113,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 	 * @override
 	 * @param {Blob} blob
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh?, ProjectAssetTypeMeshEditorData?>>}
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh?, MeshProjectAssetTypeEditorData?>>}
 	 */
 	async getLiveAssetData(blob, recursionTracker) {
 		// todo: remove all of this and reuse the code in AssetLoaderTypeMesh
@@ -226,7 +226,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {Mesh} liveAsset
-	 * @param {ProjectAssetTypeMeshEditorData} editorData
+	 * @param {MeshProjectAssetTypeEditorData} editorData
 	 * @returns {Promise<ArrayBuffer>}
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {

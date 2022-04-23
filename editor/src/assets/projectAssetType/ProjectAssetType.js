@@ -35,13 +35,13 @@ import {ContentWindowProperties} from "../../windowManagement/contentWindows/Con
  * before reading/writing to disk and creating live assets among other things.
  *
  * If all you want to do is create an asset type that stores basic data with
- * basic properties ui, see `ProjectAssetTypeWebGpuPipelineConfig` for a good
+ * basic properties ui, see `WebGpuPipelineConfigProjectAssetType` for a good
  * example on how to do this.
  *
- * For a more complicated example, see `ProjectAssetTypeMaterial`.
+ * For a more complicated example, see `MaterialProjectAssetType`.
  *
  * If you want an asset that is not a live asset, but only available in the
- * editor, have a look at `ProjectAssetTypeAssetBundle`. It only configures
+ * editor, have a look at `AssetBundleProjectAssetType`. It only configures
  * a minimal amount. Most of it is implemented in its
  * `propertiesAssetContentConstructor`.
  *

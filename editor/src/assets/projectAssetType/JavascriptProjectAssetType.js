@@ -3,14 +3,14 @@ import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
 import {getEditorInstance} from "../../editorInstance.js";
 
 /**
- * @typedef {Object} AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings
+ * @typedef {Object} AssetBundleDiskDataJavascriptProjectAssetTypeAssetSettings
  * @property {string} outputLocation
  * @property {boolean} useClosureCompiler
  */
 
 // todo: better types for generics
 /**
- * @extends {ProjectAssetType<null, null, any, AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings>}
+ * @extends {ProjectAssetType<null, null, any, AssetBundleDiskDataJavascriptProjectAssetTypeAssetSettings>}
  */
 export class JavascriptProjectAssetType extends ProjectAssetType {
 	static type = "JJ:javascript";
