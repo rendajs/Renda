@@ -1,6 +1,6 @@
 import {assert, assertStrictEquals, assertThrows} from "std/testing/asserts";
-import {MaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {MaterialMapTypeSerializerManager} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js";
+import {MaterialMapTypeSerializer} from "../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
+import {MaterialMapTypeSerializerManager} from "../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js";
 
 const BASIC_SERIALIZER_UUID = "00000000-0000-0000-0000-000000000000";
 
@@ -11,7 +11,7 @@ class ExtendedMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static typeUuid = BASIC_SERIALIZER_UUID;
 	static expectedLiveAssetConstructor = LiveAssetConstructor;
 
-	/** @type {import("../../../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static settingsStructure = {
 		foo: {
 			type: "number",

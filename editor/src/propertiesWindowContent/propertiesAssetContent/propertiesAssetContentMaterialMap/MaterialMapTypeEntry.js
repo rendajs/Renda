@@ -9,7 +9,7 @@ import {PropertiesMaterialMapContentGenericStructure} from "./propertiesMaterial
 export class MaterialMapTypeEntry {
 	/**
 	 * @param {import("../../../Editor.js").Editor} editorInstance
-	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
+	 * @param {typeof import("../../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	constructor(editorInstance, typeConstructor) {
 		this.editorInstance = editorInstance;
@@ -42,7 +42,7 @@ export class MaterialMapTypeEntry {
 	 * This notification shouldn't be used for updating asset data, as {@linkcode customAssetDataFromLoad} and
 	 * {@linkcode fillMapListValues} are already used for that.
 	 * This is mostly useful for assigning the current parent asset to ui in order to make embedded assets work.
-	 * @param {import("../../../assets/ProjectAsset.js").ProjectAsset<import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>[]} selectedMaps
+	 * @param {import("../../../assets/ProjectAsset.js").ProjectAsset<import("../../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
 	 */
 	selectedAssetsUpdated(selectedMaps) {
 		this.propertiesContentInstance.selectedAssetsUpdated(selectedMaps);
@@ -78,7 +78,7 @@ export class MaterialMapTypeEntry {
 			throw new Error("Assertion failed: lastSelected maps is not set or has multiple entries");
 		}
 
-		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
+		/** @type {import("../../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
 		const context = {
 			editor: this.editorInstance,
 			assetManager,
@@ -96,7 +96,7 @@ export class MaterialMapTypeEntry {
 
 	/**
 	 * Updates the list of mappable values with the specified values.
-	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
+	 * @param {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
 	 */
 	fillMapListValues(values) {
 		if (!this.mapListUi) return;

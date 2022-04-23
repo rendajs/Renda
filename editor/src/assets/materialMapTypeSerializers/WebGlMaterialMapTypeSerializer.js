@@ -1,7 +1,7 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
-import {ShaderSource, Vec3} from "../../../../../../src/mod.js";
-import {StorageType} from "../../../../../../src/util/binarySerialization.js";
-import {ShaderSourceProjectAssetType} from "../../ShaderSourceProjectAssetType.js";
+import {ShaderSource, Vec3} from "../../../../src/mod.js";
+import {StorageType} from "../../../../src/util/binarySerialization.js";
+import {ShaderSourceProjectAssetType} from "../projectAssetType/ShaderSourceProjectAssetType.js";
 
 export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
@@ -11,7 +11,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	constructor() {
 		super();
 
-		/** @type {import("../../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		this.settingsGuiStructure = {
 			vertexShader: {
 				type: "droppable",
@@ -30,8 +30,8 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 
 	/**
 	 * @override
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../Editor.js").Editor} editorInstance
+	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
@@ -85,8 +85,8 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	}
 
 	/**
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
-	 * @param {import("../../../../../../src/mod.js").UuidString} shaderUuid
+	 * @param {import("../AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../../../src/mod.js").UuidString} shaderUuid
 	 * @param {Map<string, *>} itemsMap
 	 */
 	static async addShaderUniformsToMap(assetManager, shaderUuid, itemsMap) {
@@ -99,7 +99,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	}
 
 	/**
-	 * @param {import("../../../ProjectAsset.js").ProjectAsset<import("../../ShaderSourceProjectAssetType.js").ShaderSourceProjectAssetType>?} asset
+	 * @param {import("../ProjectAsset.js").ProjectAsset<import("../projectAssetType/ShaderSourceProjectAssetType.js").ShaderSourceProjectAssetType>?} asset
 	 */
 	static async getMapItemsIteratorFromShaderAsset(asset) {
 		if (!asset) return [];

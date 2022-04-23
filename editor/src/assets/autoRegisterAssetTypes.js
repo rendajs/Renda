@@ -3,7 +3,7 @@ import {ClusteredLightsConfigProjectAssetType} from "./projectAssetType/Clustere
 import {EntityProjectAssetType} from "./projectAssetType/EntityProjectAssetType.js";
 import {JavascriptProjectAssetType} from "./projectAssetType/JavascriptProjectAssetType.js";
 import {MaterialProjectAssetType} from "./projectAssetType/MaterialProjectAssetType.js";
-import {ProjectAssetTypeMaterialMap} from "./projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
+import {MaterialMapProjectAssetType} from "./projectAssetType/MaterialMapProjectAssetType.js";
 import {MeshProjectAssetType} from "./projectAssetType/MeshProjectAssetType.js";
 import {RenderOutputConfigProjectAssetType} from "./projectAssetType/RenderOutputConfigProjectAssetType.js";
 import {ShaderSourceProjectAssetType} from "./projectAssetType/ShaderSourceProjectAssetType.js";
@@ -17,7 +17,7 @@ const autoRegisterAssetTypes = [
 	EntityProjectAssetType,
 	JavascriptProjectAssetType,
 	MaterialProjectAssetType,
-	ProjectAssetTypeMaterialMap,
+	MaterialMapProjectAssetType,
 	MeshProjectAssetType,
 	RenderOutputConfigProjectAssetType,
 	ShaderSourceProjectAssetType,

@@ -1,14 +1,14 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
-import {StorageType} from "../../../../../../src/util/binarySerialization.js";
-import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
-import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
-import {WebGpuPipelineConfigProjectAssetType} from "../../WebGpuPipelineConfigProjectAssetType.js";
+import {StorageType} from "../../../../src/util/binarySerialization.js";
+import {WebGpuPipelineConfig} from "../../../../src/mod.js";
+import {WebGpuMaterialMapType} from "../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
+import {WebGpuPipelineConfigProjectAssetType} from "../projectAssetType/WebGpuPipelineConfigProjectAssetType.js";
 
 const FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY = "webgpumaptype.forwardpipelineconfig";
 
 /**
  * @typedef {Object} WebGpuMaterialMapTypeDiskData
- * @property {import("../../../../../../src/util/mod.js").UuidString | import("../../WebGpuPipelineConfigProjectAssetType.js").WebGpuPipelineConfigAssetData | null} [forwardPipelineConfig]
+ * @property {import("../../../../src/util/mod.js").UuidString | import("../projectAssetType/WebGpuPipelineConfigProjectAssetType.js").WebGpuPipelineConfigAssetData | null} [forwardPipelineConfig]
  */
 
 export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
@@ -17,7 +17,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static allowExportInAssetBundles = true;
 	static expectedLiveAssetConstructor = WebGpuMaterialMapType;
 
-	/** @type {import("../../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static settingsStructure = {
 		forwardPipelineConfig: {
 			type: "droppable",
@@ -51,7 +51,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	}
 
 	/**
-	 * @param {import("../../../../../../src/rendering/ShaderSource.js").ShaderSource} shader
+	 * @param {import("../../../../src/rendering/ShaderSource.js").ShaderSource} shader
 	 * @param {Map<string, import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} mappableValues
 	 */
 	static fillMappableValuesForShader(shader, mappableValues) {
@@ -96,7 +96,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 					type = matrixMatch.groups.matrixType;
 				}
 			}
-			/** @type {import("../../../../ui/propertiesTreeView/types.js").GuiTypes} */
+			/** @type {import("../../ui/propertiesTreeView/types.js").GuiTypes} */
 			let mappableValueType = "number";
 			if (isVector) {
 				if (vectorSize == 2) {
@@ -151,8 +151,8 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 
 	/**
 	 * @override
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../Editor.js").Editor} editorInstance
+	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {

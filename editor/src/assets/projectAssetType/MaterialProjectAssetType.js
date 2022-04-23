@@ -3,7 +3,7 @@ import {Material} from "../../../../src/rendering/Material.js";
 import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
 import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
-import {ProjectAssetTypeMaterialMap} from "./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
+import {MaterialMapProjectAssetType} from "./MaterialMapProjectAssetType.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
 
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
@@ -29,7 +29,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 		const mapJson = materialJson?.map;
 		if (mapJson) {
 			materialMapAsset = await this.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(mapJson, {
-				assertAssetType: ProjectAssetTypeMaterialMap,
+				assertAssetType: MaterialMapProjectAssetType,
 				parentAsset: this.projectAsset,
 				embeddedAssetPersistenceKey: MATERIAL_MAP_PERSISTENCE_KEY,
 			});
@@ -38,7 +38,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 			// we want to load the default value. The value is only empty
 			// if the user has explicitly set the value to null.
 			materialMapAsset = await this.assetManager.getProjectAssetFromUuid(DEFAULT_MATERIAL_MAP_UUID, {
-				assertAssetType: ProjectAssetTypeMaterialMap,
+				assertAssetType: MaterialMapProjectAssetType,
 			});
 		}
 

@@ -1,4 +1,4 @@
-import {StorageType, objectToBinary} from "../../../../../../src/util/binarySerialization.js";
+import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
 
 /**
  * @typedef {new (...args: any) => MaterialMapTypeSerializer} MaterialMapTypeSerializerConstructor
@@ -7,15 +7,15 @@ import {StorageType, objectToBinary} from "../../../../../../src/util/binarySeri
 /**
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
- * @property {import("../../../../ui/propertiesTreeView/types.js").GuiTypes} type
- * @property {import("../../../../../../src/rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
+ * @property {import("../../ui/propertiesTreeView/types.js").GuiTypes} type
+ * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
  */
 
 /**
  * @typedef MaterialMapLiveAssetDataContext
- * @property {import("../../../../Editor.js").Editor} editor
- * @property {import("../../../AssetManager.js").AssetManager} assetManager
- * @property {import("../../../ProjectAsset.js").ProjectAsset<import("../ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} materialMapAsset
+ * @property {import("../../Editor.js").Editor} editor
+ * @property {import("../AssetManager.js").AssetManager} assetManager
+ * @property {import("../ProjectAsset.js").ProjectAsset<import("../projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>} materialMapAsset
  */
 
 /**
@@ -33,13 +33,13 @@ export class MaterialMapTypeSerializer {
 	/**
 	 * This will be used for storing the map type in the MaterialMap asset.
 	 * You can generate a uuid in the editor browser console using `Util.generateUuid()`.
-	 * @type {import("../../../../../../src/util/mod.js").UuidString}
+	 * @type {import("../../../../src/util/mod.js").UuidString}
 	 */
 	static typeUuid = "";
 
 	/**
 	 * Used for determining the uuid when saving live asset data.
-	 * @type {(new (...args: any) => import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType)?}
+	 * @type {(new (...args: any) => import("../../../../src/rendering/MaterialMapType.js").MaterialMapType)?}
 	 */
 	static expectedLiveAssetConstructor = null;
 
@@ -52,7 +52,7 @@ export class MaterialMapTypeSerializer {
 	/**
 	 * Set this to a structure to automatically load and save data for this map type.
 	 * This is optional if {@link propertiesMaterialMapContentConstructor} is set.
-	 * @type {import("../../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static settingsStructure = null;
 
@@ -61,7 +61,7 @@ export class MaterialMapTypeSerializer {
 	 * This is optional if {@link settingsStructure} is set.
 	 * Replace this with a constructor that extends {@link PropertiesMaterialMapContent}.
 	 * This will be used to render the material map settings in the properties window.
-	 * @type {typeof import("../../../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/propertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent?}
+	 * @type {typeof import("../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/propertiesMaterialMapContent/PropertiesMaterialMapContent.js").PropertiesMaterialMapContent?}
 	 */
 	static propertiesMaterialMapContentConstructor = null;
 
@@ -88,7 +88,7 @@ export class MaterialMapTypeSerializer {
 	 *
 	 * @param {MaterialMapLiveAssetDataContext} context
 	 * @param {any} customData The customData as stored on disk.
-	 * @returns {Promise<import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType?>} The data to be stored in the Material.
+	 * @returns {Promise<import("../../../../src/rendering/MaterialMapType.js").MaterialMapType?>} The data to be stored in the Material.
 	 */
 	static async loadLiveAssetData(context, customData) {
 		return null;
@@ -101,7 +101,7 @@ export class MaterialMapTypeSerializer {
 	 * You can use `assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset()` for this.
 	 *
 	 * @param {MaterialMapLiveAssetDataContext} context
-	 * @param {import("../../../../../../src/rendering/MaterialMapType.js").MaterialMapType} liveAssetMaterialMapType The material map live asset that needs to be stored on disk.
+	 * @param {import("../../../../src/rendering/MaterialMapType.js").MaterialMapType} liveAssetMaterialMapType The material map live asset that needs to be stored on disk.
 	 * @returns {Promise<any>} The data to be stored in the Material.
 	 */
 	static async saveLiveAssetData(context, liveAssetMaterialMapType) {
@@ -112,10 +112,10 @@ export class MaterialMapTypeSerializer {
 	 * This should yield ProjectAssets that are linked in the custom data.
 	 * This will be used to replace material instances in the editor whenever a
 	 * linked live asset changes (a shader for example).
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../Editor.js").Editor} editorInstance
+	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
-	 * @returns {AsyncGenerator<import("../../../ProjectAsset.js").ProjectAssetAny?>}
+	 * @returns {AsyncGenerator<import("../ProjectAsset.js").ProjectAssetAny?>}
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {}
 
@@ -126,8 +126,8 @@ export class MaterialMapTypeSerializer {
 	 * By default this turns the result of {@link mapDataToAssetBundleData} into
 	 * an ArrayBuffer using {@link objectToBinary}. But you can
 	 * override this and return your custom ArrayBuffer.
-	 * @param {import("../../../../Editor.js").Editor} editorInstance
-	 * @param {import("../../../AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../Editor.js").Editor} editorInstance
+	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {ArrayBuffer?} The binary data to be stored in the material asset.
 	 */
@@ -165,7 +165,7 @@ export class MaterialMapTypeSerializer {
 	 * these are the default options for {@link objectToBinary}.
 	 * If you want support for exporting your custom data in assetbundles, you
 	 * should provide a structure here.
-	 * @type {import("../../../../../../src/util/binarySerialization.js").ObjectToBinaryOptions<any>?}
+	 * @type {import("../../../../src/util/binarySerialization.js").ObjectToBinaryOptions<any>?}
 	 */
 	static assetBundleBinarySerializationOpts = null;
 
@@ -189,7 +189,7 @@ export class MaterialMapTypeSerializer {
 			console.warn("Failed to find referenced asset uuids, assetBundleBinarySerializationOpts is not set");
 			return;
 		}
-		/** @type {import("../../../../../../src/mod.js").UuidString[]} */
+		/** @type {import("../../../../src/mod.js").UuidString[]} */
 		const referencedUuids = [];
 		objectToBinary(bundleMapData, {
 			...binarySerializationOpts,
@@ -200,7 +200,7 @@ export class MaterialMapTypeSerializer {
 				}
 
 				if (type == StorageType.ASSET_UUID) {
-					const castValue = /** @type {import("../../../../../../src/mod.js").UuidString} */ (value);
+					const castValue = /** @type {import("../../../../src/mod.js").UuidString} */ (value);
 					referencedUuids.push(castValue);
 				}
 				return value;

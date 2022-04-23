@@ -18,7 +18,7 @@ export class PropertiesMaterialMapContent {
 	 * This is called when the material map asset selection changes.
 	 * This shouldn't be used for updating asset data, as {@linkcode customAssetDataFromLoad}is already used for that.
 	 * This is mostly useful for assigning the current parent asset to ui in order to make embedded assets work.
-	 * @param {import("../../../../assets/ProjectAsset.js").ProjectAsset<import("../../../../assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>[]} selectedMaps
+	 * @param {import("../../../../assets/ProjectAsset.js").ProjectAsset<import("../../../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
 	 */
 	selectedAssetsUpdated(selectedMaps) {}
 

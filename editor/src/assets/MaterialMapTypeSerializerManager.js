@@ -1,8 +1,8 @@
 import {autoRegisterMaterialMapTypeSerializers} from "./materialMapTypeSerializers/autoRegisterMaterialMapTypeSerializers.js";
 import {MaterialMapTypeSerializer} from "./materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {isUuid} from "../../../../../src/util/mod.js";
-import {getEditorInstance} from "../../../editorInstance.js";
-import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
+import {isUuid} from "../../../src/util/mod.js";
+import {getEditorInstance} from "../editorInstance.js";
+import {MaterialMapProjectAssetType} from "./projectAssetType/MaterialMapProjectAssetType.js";
 
 /**
  * @typedef {Object} MaterialMapMappedValueAssetData
@@ -20,14 +20,14 @@ import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
 
 /**
  * @typedef {Object} MaterialMapTypeAssetData
- * @property {import("../../../../../src/util/mod.js").UuidString} mapTypeId
+ * @property {import("../../../src/util/mod.js").UuidString} mapTypeId
  * @property {*} [customData]
  * @property {MaterialMapMappedValuesAssetData} [mappedValues]
  */
 
 export class MaterialMapTypeSerializerManager {
 	constructor() {
-		/** @type {Map<import("../../../../../src/mod.js").UuidString, typeof MaterialMapTypeSerializer>} */
+		/** @type {Map<import("../../../src/mod.js").UuidString, typeof MaterialMapTypeSerializer>} */
 		this.registeredMapTypes = new Map();
 	}
 
@@ -79,7 +79,7 @@ export class MaterialMapTypeSerializerManager {
 	}
 
 	/**
-	 * @param {new (...args: any[]) => import("../../../../../src/rendering/MaterialMapType.js").MaterialMapType} liveAssetConstructor
+	 * @param {new (...args: any[]) => import("../../../src/rendering/MaterialMapType.js").MaterialMapType} liveAssetConstructor
 	 */
 	getTypeByLiveAssetConstructor(liveAssetConstructor) {
 		for (const mapTypeConstructor of this.registeredMapTypes.values()) {
@@ -91,7 +91,7 @@ export class MaterialMapTypeSerializerManager {
 	}
 
 	/**
-	 * @param {import("../../../../../src/util/mod.js").UuidString} mapAssetUuid
+	 * @param {import("../../../src/util/mod.js").UuidString} mapAssetUuid
 	 * @returns {Promise<import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
@@ -99,7 +99,7 @@ export class MaterialMapTypeSerializerManager {
 		const editor = getEditorInstance();
 		const assetManager = await editor.projectManager.getAssetManager();
 		const mapProjectAsset = await assetManager.getProjectAssetFromUuid(mapAssetUuid, {
-			assertAssetType: ProjectAssetTypeMaterialMap,
+			assertAssetType: MaterialMapProjectAssetType,
 		});
 		if (!mapProjectAsset) return [];
 		/** @type {Map<string, import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */

@@ -1,13 +1,13 @@
-import {ProjectAssetType} from "../ProjectAssetType.js";
-import {PropertiesAssetContentMaterialMap} from "../../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
-import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
-import {StorageType, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
-import {objectToBinary} from "../../../../../src/util/binarySerialization.js";
+import {ProjectAssetType} from "./ProjectAssetType.js";
+import {PropertiesAssetContentMaterialMap} from "../../propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
+import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
+import {StorageType, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {objectToBinary} from "../../../../src/util/binarySerialization.js";
 
 /**
- * @extends {ProjectAssetType<MaterialMap, null, import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
+ * @extends {ProjectAssetType<MaterialMap, null, import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
  */
-export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
+export class MaterialMapProjectAssetType extends ProjectAssetType {
 	static type = "JJ:materialMap";
 	static typeUuid = "dd28f2f7-254c-4447-b041-1770ae451ba9";
 	static newFileName = "New Material Map";
@@ -16,22 +16,22 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static expectedLiveAssetConstructor = MaterialMap;
 
 	createLiveAssetDataContext() {
-		/** @type {import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
+		/** @type {import("../materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
 		const context = {
 			editor: this.editorInstance,
 			assetManager: this.assetManager,
-			materialMapAsset: /** @type {import("../../ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterialMap>} */ (this.projectAsset),
+			materialMapAsset: /** @type {import("../ProjectAsset.js").ProjectAsset<MaterialMapProjectAssetType>} */ (this.projectAsset),
 		};
 		return context;
 	}
 
 	/**
 	 * @override
-	 * @param {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
-	 * @param {import("../../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
+	 * @param {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
+	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
-		/** @type {import("../../../../../src/rendering/MaterialMap.js").MaterialMapTypeData[]} */
+		/** @type {import("../../../../src/rendering/MaterialMap.js").MaterialMapTypeData[]} */
 		const materialMapTypes = [];
 		if (fileData.maps) {
 			for (const map of fileData.maps) {
@@ -43,7 +43,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 
 				if (!mapType) continue;
 
-				/** @type {import("../../../../../src/rendering/MaterialMap.js").MaterialMapMappedValues} */
+				/** @type {import("../../../../src/rendering/MaterialMap.js").MaterialMapMappedValues} */
 				const mappedValues = {};
 				for (const mappedValue of await typeSerializer.getMappableValues(context, map.customData)) {
 					let defaultValue = mappedValue.defaultValue;
@@ -117,13 +117,13 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	async saveLiveAssetData(liveAsset, editorData) {
 		if (!liveAsset) return null;
 
-		/** @type {import("./MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData[]} */
+		/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData[]} */
 		const maps = [];
 		for (const [mapConstructor, mapInstance] of liveAsset.mapTypes) {
 			const mapTypeConstructor = this.editorInstance.materialMapTypeSerializerManager.getTypeByLiveAssetConstructor(mapConstructor);
 			if (!mapTypeConstructor) continue;
 
-			/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
+			/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
 			const map = {
 				mapTypeId: mapTypeConstructor.typeUuid,
 			};
@@ -139,7 +139,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 			maps.push(map);
 		}
 		if (maps.length == 0) return null;
-		/** @type {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const data = {
 			maps,
 		};
@@ -153,7 +153,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	async createBundledAssetData() {
 		const mapDatas = [];
 
-		/** @type {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {
@@ -193,7 +193,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @override
 	 */
 	async *getReferencedAssetUuids() {
-		/** @type {import("./MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const map of assetData.maps) {

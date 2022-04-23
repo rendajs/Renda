@@ -1,8 +1,8 @@
 import {assertEquals, assertRejects} from "std/testing/asserts";
-import {MaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {MaterialMapType} from "../../../../../../../../src/rendering/MaterialMapType.js";
+import {MaterialMapTypeSerializer} from "../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
+import {MaterialMapType} from "../../../../../../src/rendering/MaterialMapType.js";
 
-const mockContext = /** @type {import("../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({});
+const mockContext = /** @type {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({});
 
 Deno.test({
 	name: "saveLiveAssetData() rejects when not implemented",

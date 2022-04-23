@@ -3,7 +3,7 @@ import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
 
 /**
  * Responsible for rendering the ui in the properties window for MaterialMaps.
- * @extends {PropertiesAssetContent<import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>}
+ * @extends {PropertiesAssetContent<import("../../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>}
  */
 export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	/**
@@ -75,7 +75,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 
 	/**
 	 * @override
-	 * @param {import("../../../assets/ProjectAsset.js").ProjectAsset<import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>[]} selectedMaps
+	 * @param {import("../../../assets/ProjectAsset.js").ProjectAsset<import("../../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
 	 */
 	async selectionUpdated(selectedMaps) {
 		super.selectionUpdated(selectedMaps);
@@ -91,7 +91,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
+	 * @param {typeof import("../../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} typeConstructor
 	 */
 	hasTypeConstructor(typeConstructor) {
 		return this.addedMapTypes.has(typeConstructor.typeUuid);
@@ -115,7 +115,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	/**
 	 * Creates a new map type entry if it doesn't already exist.
 	 *
-	 * @param {typeof import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
+	 * @param {typeof import("../../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
 	 * @param {Object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */
@@ -142,7 +142,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} mapData
+	 * @param {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} mapData
 	 */
 	async loadMaps(mapData) {
 		const maps = mapData?.maps || [];
@@ -155,10 +155,10 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	}
 
 	async getAssetData() {
-		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData[]} */
+		/** @type {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData[]} */
 		const maps = [];
 		for (const [uuid, mapInstance] of this.addedMapTypes) {
-			/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
+			/** @type {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
 			const map = {
 				mapTypeId: uuid,
 			};
@@ -173,7 +173,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			maps.push(map);
 		}
 
-		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+		/** @type {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const data = {maps};
 		return data;
 	}

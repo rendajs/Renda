@@ -14,7 +14,7 @@ import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeV
 export class MaterialMapListUi {
 	/**
 	 * @param {Object} options
-	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} options.items
+	 * @param {import("../../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} options.items
 	 */
 	constructor({
 		items = [],
@@ -56,7 +56,7 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
+	 * @param {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
 	 */
 	setValues(values) {
 		for (const [name, itemData] of Object.entries(values)) {
@@ -75,7 +75,7 @@ export class MaterialMapListUi {
 	}
 
 	getModifiedValuesForSave() {
-		/** @type {import("../../../assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} */
+		/** @type {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} */
 		const datas = {};
 
 		let hasOneOrMoreMappedValues = false;

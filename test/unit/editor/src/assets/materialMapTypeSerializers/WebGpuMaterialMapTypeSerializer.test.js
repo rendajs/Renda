@@ -1,23 +1,23 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts";
-import {WebGpuMaterialMapTypeSerializer} from "../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
-import {WebGpuPipelineConfigProjectAssetType} from "../../../../../../../../editor/src/assets/projectAssetType/WebGpuPipelineConfigProjectAssetType.js";
-import {WebGpuPipelineConfig} from "../../../../../../../../src/mod.js";
-import {WebGpuMaterialMapType} from "../../../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
+import {WebGpuMaterialMapTypeSerializer} from "../../../../../../editor/src/assets/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
+import {WebGpuPipelineConfigProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/WebGpuPipelineConfigProjectAssetType.js";
+import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
+import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
 
 const BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID = "basic forward pipeline config asset uuid";
 
 function getMockContext({
 	getAssetUuidReturnValue = /** @type {string | object} */ (BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID),
 } = {}) {
-	/** @type {{liveAsset: WebGpuPipelineConfig, options: import("../../../../../../../../editor/src/assets/AssetManager.js").GetLiveAssetFromUuidOrEmbeddedAssetDataOptions<any>}[]} */
+	/** @type {{liveAsset: WebGpuPipelineConfig, options: import("../../../../../../editor/src/assets/AssetManager.js").GetLiveAssetFromUuidOrEmbeddedAssetDataOptions<any>}[]} */
 	const createdLiveAssets = [];
 
 	const mockMaterialMapAsset = /** @type {unknown} */ ({
 		label: "mock material map Asset",
 	});
-	const materialMapAsset = /** @type {import("../../../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (mockMaterialMapAsset);
+	const materialMapAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (mockMaterialMapAsset);
 
-	const context = /** @type {import("../../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
+	const context = /** @type {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
 		materialMapAsset,
 		assetManager: {
 			async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {

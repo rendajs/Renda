@@ -1,10 +1,10 @@
 import {assertEquals} from "std/testing/asserts";
-import "../../../../shared/initializeEditor.js";
-import {ProjectAssetTypeMaterialMap} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
-import {MaterialMap} from "../../../../../../../src/rendering/MaterialMap.js";
-import {createMockDependencies} from "../shared.js";
-import {MaterialMapType} from "../../../../../../../src/rendering/MaterialMapType.js";
-import {MaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
+import "../../../shared/initializeEditor.js";
+import {MaterialMapProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/MaterialMapProjectAssetType.js";
+import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
+import {createMockDependencies} from "./shared.js";
+import {MaterialMapType} from "../../../../../../src/rendering/MaterialMapType.js";
+import {MaterialMapTypeSerializer} from "../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
 
 const BASIC_MATERIAL_MAP_TYPE_ID = "basic material map type id";
 
@@ -15,7 +15,7 @@ function basicSetup() {
 		static typeUuid = BASIC_MATERIAL_MAP_TYPE_ID;
 		/**
 		 * @override
-		 * @param {import("../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
+		 * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
 		 * @param {any} liveAsset
 		 */
 		static async saveLiveAssetData(context, liveAsset) {
@@ -25,13 +25,13 @@ function basicSetup() {
 	class ExtendedMaterialMapType extends MaterialMapType {}
 	class UnregisteredExtendedMaterialMapType extends MaterialMapType {}
 
-	editor.materialMapTypeSerializerManager = /** @type {import("../../../../../../../editor/src/assets/projectAssetType/projectAssetTypeMaterialMap/MaterialMapTypeSerializerManager.js").MaterialMapTypeSerializerManager} */ ({
+	editor.materialMapTypeSerializerManager = /** @type {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapTypeSerializerManager} */ ({
 		getTypeByLiveAssetConstructor(mapConstructor) {
 			if (mapConstructor == ExtendedMaterialMapType) return ExtendedMaterialMapTypeSerializer;
 			return null;
 		},
 	});
-	const projectAssetType = new ProjectAssetTypeMaterialMap(...projectAssetTypeArgs);
+	const projectAssetType = new MaterialMapProjectAssetType(...projectAssetTypeArgs);
 
 	return {
 		projectAssetType,
@@ -70,7 +70,7 @@ Deno.test({
 		const {projectAssetType, ExtendedMaterialMapType, UnregisteredExtendedMaterialMapType} = basicSetup();
 		const registeredMapType = new ExtendedMaterialMapType();
 		const unregisteredMapType = new UnregisteredExtendedMaterialMapType();
-		/** @type {import("../../../../../../../src/rendering/MaterialMap.js").MaterialMapTypeData[]} */
+		/** @type {import("../../../../../../src/rendering/MaterialMap.js").MaterialMapTypeData[]} */
 		const materialMapTypes = [
 			{
 				mapType: registeredMapType,
