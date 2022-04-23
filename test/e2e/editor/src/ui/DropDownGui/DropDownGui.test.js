@@ -1,11 +1,12 @@
 import {assertEquals} from "std/testing/asserts";
-import {initBrowser, openBasicScriptPage} from "../../../../shared/browser.js";
+import {initBrowser, openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
 import {waitFor} from "../../../../shared/util.js";
 
 await initBrowser();
 
 Deno.test({
 	name: "Creates the element with the correct defaultValue",
+	...puppeteerSanitizers,
 	async fn() {
 		const {page} = await openBasicScriptPage("./browserContent/defaultValue.js", import.meta.url);
 		await waitFor(page, "select");

@@ -1,11 +1,12 @@
 import {assertEquals, assertExists} from "std/testing/asserts";
-import {getContext, initBrowser} from "../../../shared/browser.js";
+import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 
 await initBrowser();
 
 Deno.test({
 	name: "Rename a project and refresh the page, it should open the latest project",
+	...puppeteerSanitizers,
 	fn: async testContext => {
 		const {page} = await getContext();
 
