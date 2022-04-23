@@ -5,7 +5,7 @@ import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
  * Responsible for rendering the ui in the properties window for MaterialMaps.
  * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>}
  */
-export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
+export class MaterialMapPropertiesAssetContent extends PropertiesAssetContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */

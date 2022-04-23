@@ -3,7 +3,7 @@ import {MaterialMapListUi} from "./MaterialMapListUi.js";
 import {GenericStructurePropertiesMaterialMapContent} from "../../propertiesMaterialMapContent/GenericStructurePropertiesMaterialMapContent.js";
 
 /**
- * This class is instantiated for every added MaterialMapType in a PropertiesAssetContentMaterialMap.
+ * This class is instantiated for every added MaterialMapType in a MaterialMapPropertiesAssetContent.
  * This class is essentially a container for a MaterialMapListUi and an extended PropertiesMaterialMapContent.
  */
 export class MaterialMapTypeEntry {

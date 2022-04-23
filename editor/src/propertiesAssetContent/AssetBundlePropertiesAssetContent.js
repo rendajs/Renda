@@ -5,7 +5,7 @@ import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureH
 /**
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/AssetBundleProjectAssetType.js").AssetBundleProjectAssetType>}
  */
-export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
+export class AssetBundlePropertiesAssetContent extends PropertiesAssetContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */

@@ -22,9 +22,9 @@ importer.fakeModule("../../../../../src/rendering/MaterialMap.js", `
 importer.fakeModule("../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js", `
 	export const MATERIAL_MAP_PERSISTENCE_KEY = "${MATERIAL_MAP_PERSISTENCE_KEY}";
 `);
-/** @type {import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */
-const PropertiesAssetContentMaterialImport = await importer.import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
-const {PropertiesAssetContentMaterial} = PropertiesAssetContentMaterialImport;
+/** @type {import("../../../../../editor/src/propertiesAssetContent/MaterialPropertiesAssetContent.js")} */
+const MaterialPropertiesAssetContentImport = await importer.import("../../../../../editor/src/propertiesAssetContent/MaterialPropertiesAssetContent.js");
+const {MaterialPropertiesAssetContent} = MaterialPropertiesAssetContentImport;
 
 function basicSetup() {
 	const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
@@ -50,7 +50,7 @@ function basicSetup() {
 		},
 	});
 
-	const assetContent = new PropertiesAssetContentMaterial(mockEditorInstance);
+	const assetContent = new MaterialPropertiesAssetContent(mockEditorInstance);
 
 	/**
 	 * @typedef EmbeddedParentAssetCall

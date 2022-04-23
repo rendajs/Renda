@@ -1,7 +1,7 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
-import {PropertiesAssetContentGenericStructure} from "../propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
+import {GenericStructurePropertiesAssetContent} from "../propertiesAssetContent/GenericStructurePropertiesAssetContent.js";
 
 /**
  * @typedef {Object} AssetPropertiesWindowContentCallbacksContext
@@ -123,7 +123,7 @@ export class AssetPropertiesWindowContent extends PropertiesWindowContent {
 
 		let constructor = foundConstructor;
 		if (foundStructure) {
-			constructor = PropertiesAssetContentGenericStructure;
+			constructor = GenericStructurePropertiesAssetContent;
 		}
 
 		let needsNew = false;
@@ -135,7 +135,7 @@ export class AssetPropertiesWindowContent extends PropertiesWindowContent {
 			if (this.activeAssetContent?.constructor != constructor) needsNew = true;
 
 			// If both new and old are of type GenericStructure, but the structure is different
-			if (constructor == PropertiesAssetContentGenericStructure && this.activeAssetContent instanceof PropertiesAssetContentGenericStructure) {
+			if (constructor == GenericStructurePropertiesAssetContent && this.activeAssetContent instanceof GenericStructurePropertiesAssetContent) {
 				if (foundStructure != this.activeAssetContent.structure) needsNew = true;
 			}
 		}
@@ -149,8 +149,8 @@ export class AssetPropertiesWindowContent extends PropertiesWindowContent {
 
 		// Create new assetcontent if needed
 		if (needsNew && constructor) {
-			if (constructor == PropertiesAssetContentGenericStructure && foundStructure) {
-				this.activeAssetContent = new PropertiesAssetContentGenericStructure(foundStructure, this.editorInstance);
+			if (constructor == GenericStructurePropertiesAssetContent && foundStructure) {
+				this.activeAssetContent = new GenericStructurePropertiesAssetContent(foundStructure, this.editorInstance);
 			} else {
 				this.activeAssetContent = new constructor(this.editorInstance);
 			}

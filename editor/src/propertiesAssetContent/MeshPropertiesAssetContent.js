@@ -6,7 +6,7 @@ import {VertexStateProjectAssetType} from "../assets/projectAssetType/VertexStat
 /**
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/MeshProjectAssetType.js").MeshProjectAssetType>}
  */
-export class PropertiesAssetContentMesh extends PropertiesAssetContent {
+export class MeshPropertiesAssetContent extends PropertiesAssetContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */

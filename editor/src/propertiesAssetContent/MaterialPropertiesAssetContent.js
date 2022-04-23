@@ -13,7 +13,7 @@ import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
 /**
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/MaterialProjectAssetType.js").MaterialProjectAssetType>}
  */
-export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
+export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */

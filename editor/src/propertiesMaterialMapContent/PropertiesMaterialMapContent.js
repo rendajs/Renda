@@ -7,7 +7,7 @@ import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js
  */
 export class PropertiesMaterialMapContent {
 	/**
-	 * @param {import("../propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
+	 * @param {import("../propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
 	 */
 	constructor(mapTypeEntry) {
 		this.mapTypeEntry = mapTypeEntry;

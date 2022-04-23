@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentMaterialMap} from "../../propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
+import {MaterialMapPropertiesAssetContent} from "../../propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapPropertiesAssetContent.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {StorageType, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
@@ -11,7 +11,7 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 	static type = "JJ:materialMap";
 	static typeUuid = "dd28f2f7-254c-4447-b041-1770ae451ba9";
 	static newFileName = "New Material Map";
-	static propertiesAssetContentConstructor = PropertiesAssetContentMaterialMap;
+	static propertiesAssetContentConstructor = MaterialMapPropertiesAssetContent;
 
 	static expectedLiveAssetConstructor = MaterialMap;
 

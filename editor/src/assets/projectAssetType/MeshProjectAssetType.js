@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentMesh} from "../../propertiesAssetContent/PropertiesAssetContentMesh.js";
+import {MeshPropertiesAssetContent} from "../../propertiesAssetContent/MeshPropertiesAssetContent.js";
 import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.js";
 import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
 
@@ -17,7 +17,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 	static newFileName = "New Mesh";
 	static newFileExtension = "jjmesh";
 	static storeInProjectAsJson = false;
-	static propertiesAssetContentConstructor = PropertiesAssetContentMesh;
+	static propertiesAssetContentConstructor = MeshPropertiesAssetContent;
 
 	/**
 	 * @param {import("./ProjectAssetType.js").ProjectAssetTypeConstructorParametersAny} args

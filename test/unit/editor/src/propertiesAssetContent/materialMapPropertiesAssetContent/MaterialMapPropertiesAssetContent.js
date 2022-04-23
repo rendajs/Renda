@@ -4,7 +4,7 @@ import {assertEquals, assertExists, assertStrictEquals} from "std/testing/assert
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../shared/mockTreeView/PropertiesTreeView.js");
-importer.fakeModule("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js", `
+importer.fakeModule("../../../../../../editor/src/propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapTypeEntry.js", `
 	export class MaterialMapTypeEntry {
 		constructor(editorInstance, typeConstructor) {
 			this.typeConstructor = typeConstructor;
@@ -16,9 +16,9 @@ importer.fakeModule("../../../../../../editor/src/propertiesAssetContent/propert
 	}
 `);
 
-/** @type {import("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js")} */
-const PropertiesAssetContentMaterialMapImport = await importer.import("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js");
-const {PropertiesAssetContentMaterialMap} = PropertiesAssetContentMaterialMapImport;
+/** @type {import("../../../../../../editor/src/propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapPropertiesAssetContent.js")} */
+const MaterialMapPropertiesAssetContentImport = await importer.import("../../../../../../editor/src/propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapPropertiesAssetContent.js");
+const {MaterialMapPropertiesAssetContent} = MaterialMapPropertiesAssetContentImport;
 
 const BASIC_MAP_TYPE_UUID = "basic-map-type-uuid";
 
@@ -35,7 +35,7 @@ function basicSetup() {
 		},
 	});
 
-	const assetContent = new PropertiesAssetContentMaterialMap(mockEditorInstance);
+	const assetContent = new MaterialMapPropertiesAssetContent(mockEditorInstance);
 
 	return {
 		assetContent,

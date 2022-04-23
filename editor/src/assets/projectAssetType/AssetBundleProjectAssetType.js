@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentAssetBundle} from "../../propertiesAssetContent/PropertiesAssetContentAssetBundle.js";
+import {AssetBundlePropertiesAssetContent} from "../../propertiesAssetContent/AssetBundlePropertiesAssetContent.js";
 
 /**
  * @typedef {Object} AssetBundleDiskData
@@ -22,5 +22,5 @@ export class AssetBundleProjectAssetType extends ProjectAssetType {
 	static type = "JJ:assetBundle";
 	static typeUuid = "f5a6f81c-5404-4d0a-9c57-2a751699cc5c";
 	static newFileName = "New AssetBundle";
-	static propertiesAssetContentConstructor = PropertiesAssetContentAssetBundle;
+	static propertiesAssetContentConstructor = AssetBundlePropertiesAssetContent;
 }
