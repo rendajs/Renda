@@ -1,10 +1,10 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {Mesh, VertexState} from "../../../../src/mod.js";
-import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {VertexStateProjectAssetType} from "../../assets/projectAssetType/VertexStateProjectAssetType.js";
+import {Mesh, VertexState} from "../../../src/mod.js";
+import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
+import {VertexStateProjectAssetType} from "../assets/projectAssetType/VertexStateProjectAssetType.js";
 
 /**
- * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/MeshProjectAssetType.js").MeshProjectAssetType>}
+ * @extends {PropertiesAssetContent<import("../assets/projectAssetType/MeshProjectAssetType.js").MeshProjectAssetType>}
  */
 export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 	/**
@@ -85,7 +85,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 	/**
 	 * @override
-	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedAssets
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedAssets
 	 */
 	async selectionUpdated(selectedAssets) {
 		super.selectionUpdated(selectedAssets);

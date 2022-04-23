@@ -5,7 +5,7 @@ import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
  */
 export class PropertiesAssetContentGenericStructure extends PropertiesAssetContent {
 	/**
-	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
 	constructor(structure, ...args) {
@@ -25,7 +25,7 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 
 	/**
 	 * @override
-	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedAssets
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedAssets
 	 */
 	async selectionUpdated(selectedAssets) {
 		super.selectionUpdated(selectedAssets);

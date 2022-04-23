@@ -1,29 +1,29 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts";
-import "../../../shared/initializeEditor.js";
-import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
-import {Material} from "../../../../../../src/mod.js";
-import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
-import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
+import "../../shared/initializeEditor.js";
+import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
+import {Material} from "../../../../../src/mod.js";
+import {createMockKeyboardShortcutManager} from "../../shared/mockKeyboardShortcutManager.js";
+import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
 import {Importer} from "fake-imports";
-import {castTreeView} from "../../../shared/mockTreeView/castTreeView.js";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
+import {castTreeView} from "../../shared/mockTreeView/castTreeView.js";
+import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
 
 const DEFAULT_ASSET_MAP_UUID = "default-asset-map-uuid";
 
 const importer = new Importer(import.meta.url);
-importer.fakeModule("../../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js", `
+importer.fakeModule("../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js", `
 	export class ContentWindowEntityEditor {}
 `);
-importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../shared/mockTreeView/PropertiesTreeView.js");
-importer.fakeModule("../../../../../../src/rendering/MaterialMap.js", `
+importer.redirectModule("../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../shared/mockTreeView/PropertiesTreeView.js");
+importer.fakeModule("../../../../../src/rendering/MaterialMap.js", `
 	export class MaterialMap {}
 `);
-importer.fakeModule("../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js", `
+importer.fakeModule("../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js", `
 	export const MATERIAL_MAP_PERSISTENCE_KEY = "${MATERIAL_MAP_PERSISTENCE_KEY}";
 `);
-/** @type {import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */
-const PropertiesAssetContentMaterialImport = await importer.import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+/** @type {import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */
+const PropertiesAssetContentMaterialImport = await importer.import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
 const {PropertiesAssetContentMaterial} = PropertiesAssetContentMaterialImport;
 
 function basicSetup() {
@@ -31,7 +31,7 @@ function basicSetup() {
 
 	let didCallNotifyMaterialChanged = false;
 
-	const mockEditorInstance = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
+	const mockEditorInstance = /** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({
 		keyboardShortcutManager,
 		projectManager: {
 			assertAssetManagerExists() {
@@ -54,7 +54,7 @@ function basicSetup() {
 
 	/**
 	 * @typedef EmbeddedParentAssetCall
-	 * @property {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} parentAsset
+	 * @property {import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} parentAsset
 	 * @property {unknown} persistenceKey
 	 */
 

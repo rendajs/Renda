@@ -118,11 +118,11 @@ export class ProjectAssetType {
 	 */
 	static propertiesAssetContentStructure = null;
 
-	/** @typedef {import("../../propertiesWindowContent/PropertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>} PropertiesAssetContent */
+	/** @typedef {import("../../propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>} PropertiesAssetContent */
 	/**
 	 * If you want more control over ui rendering in the properties window,
 	 * you can set this to the constructor of an extended {@linkcode PropertiesAssetContent} class.
-	 * @type {(new (...args: any) => import("../../propertiesWindowContent/PropertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>)?}
+	 * @type {(new (...args: any) => import("../../propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>)?}
 	 */
 	static propertiesAssetContentConstructor = null;
 

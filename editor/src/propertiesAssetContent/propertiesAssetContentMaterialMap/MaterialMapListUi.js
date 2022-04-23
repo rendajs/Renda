@@ -1,8 +1,8 @@
-import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @typedef {Object} MappableItem
- * @property {import("../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+ * @property {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
  * @property {PropertiesTreeView} treeView
  */
 
@@ -14,7 +14,7 @@ import {PropertiesTreeView} from "../../../ui/propertiesTreeView/PropertiesTreeV
 export class MaterialMapListUi {
 	/**
 	 * @param {Object} options
-	 * @param {import("../../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} options.items
+	 * @param {import("../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} options.items
 	 */
 	constructor({
 		items = [],
@@ -24,7 +24,7 @@ export class MaterialMapListUi {
 		this.treeView = new PropertiesTreeView({name: "mapList"});
 		for (const item of items) {
 			const mappableItemTreeView = this.treeView.addCollapsable(item.name);
-			/** @type {import("../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 			const structure = {
 				visible: {
 					type: "boolean",
@@ -56,7 +56,7 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
+	 * @param {import("../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} values
 	 */
 	setValues(values) {
 		for (const [name, itemData] of Object.entries(values)) {
@@ -68,14 +68,14 @@ export class MaterialMapListUi {
 	}
 
 	/**
-	 * @param {function(import("../../../ui/propertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>) : void} cb
+	 * @param {function(import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewChangeEvent<any>) : void} cb
 	 */
 	onValueChange(cb) {
 		this.treeView.onChildValueChange(cb);
 	}
 
 	getModifiedValuesForSave() {
-		/** @type {import("../../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} */
+		/** @type {import("../../assets/MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} */
 		const datas = {};
 
 		let hasOneOrMoreMappedValues = false;

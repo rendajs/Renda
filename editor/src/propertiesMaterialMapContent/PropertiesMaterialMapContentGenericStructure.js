@@ -1,10 +1,10 @@
-import {DroppableGui} from "../../../../ui/DroppableGui.js";
+import {DroppableGui} from "../ui/DroppableGui.js";
 import {PropertiesMaterialMapContent} from "./PropertiesMaterialMapContent.js";
 
 export class PropertiesMaterialMapContentGenericStructure extends PropertiesMaterialMapContent {
 	/**
-	 * @param {import("../MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
-	 * @param {import("../../../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("../propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
+	 * @param {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
 	 */
 	constructor(mapTypeEntry, structure) {
 		super(mapTypeEntry);
@@ -19,7 +19,7 @@ export class PropertiesMaterialMapContentGenericStructure extends PropertiesMate
 
 	/**
 	 * @override
-	 * @param {import("../../../../assets/ProjectAsset.js").ProjectAsset<import("../../../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
 	 */
 	selectedAssetsUpdated(selectedMaps) {
 		let parentAsset = null;

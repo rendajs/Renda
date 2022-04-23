@@ -1,7 +1,7 @@
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
-import {PropertiesAssetContentGenericStructure} from "./propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
+import {PropertiesAssetContentGenericStructure} from "../propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
 /**
  * @typedef {Object} PropertiesWindowAssetContentCallbacksContext
@@ -19,7 +19,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 		/**
 		 * An instance of PropertiesAssetContent that is currently being used
 		 * to render the asset ui in the properties window for the current selection.
-		 * @type {import("./propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>?}
+		 * @type {import("../propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>?}
 		 */
 		this.activeAssetContent = null;
 

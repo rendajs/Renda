@@ -1,5 +1,5 @@
 
-import {PropertiesTreeView} from "../../../../ui/propertiesTreeView/PropertiesTreeView.js";
+import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * Responsible for rendering settings ui for a specicic MaterialMap type in
@@ -7,7 +7,7 @@ import {PropertiesTreeView} from "../../../../ui/propertiesTreeView/PropertiesTr
  */
 export class PropertiesMaterialMapContent {
 	/**
-	 * @param {import("../MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
+	 * @param {import("../propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
 	 */
 	constructor(mapTypeEntry) {
 		this.mapTypeEntry = mapTypeEntry;
@@ -18,7 +18,7 @@ export class PropertiesMaterialMapContent {
 	 * This is called when the material map asset selection changes.
 	 * This shouldn't be used for updating asset data, as {@linkcode customAssetDataFromLoad}is already used for that.
 	 * This is mostly useful for assigning the current parent asset to ui in order to make embedded assets work.
-	 * @param {import("../../../../assets/ProjectAsset.js").ProjectAsset<import("../../../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
 	 */
 	selectedAssetsUpdated(selectedMaps) {}
 

@@ -1,10 +1,10 @@
 import {Importer} from "fake-imports";
-import {createMockProjectAsset} from "../../../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
 
 const importer = new Importer(import.meta.url);
-importer.redirectModule("../../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../../shared/mockTreeView/PropertiesTreeView.js");
-importer.fakeModule("../../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js", `
+importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../shared/mockTreeView/PropertiesTreeView.js");
+importer.fakeModule("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js", `
 	export class MaterialMapTypeEntry {
 		constructor(editorInstance, typeConstructor) {
 			this.typeConstructor = typeConstructor;
@@ -16,8 +16,8 @@ importer.fakeModule("../../../../../../../editor/src/propertiesWindowContent/pro
 	}
 `);
 
-/** @type {import("../../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js")} */
-const PropertiesAssetContentMaterialMapImport = await importer.import("../../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js");
+/** @type {import("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js")} */
+const PropertiesAssetContentMaterialMapImport = await importer.import("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js");
 const {PropertiesAssetContentMaterialMap} = PropertiesAssetContentMaterialMapImport;
 
 const BASIC_MAP_TYPE_UUID = "basic-map-type-uuid";
@@ -27,7 +27,7 @@ function basicSetup() {
 		static typeUuid = BASIC_MAP_TYPE_UUID;
 	}
 
-	const mockEditorInstance = /** @type {import("../../../../../../../editor/src/Editor.js").Editor} */ ({
+	const mockEditorInstance = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
 		materialMapTypeSerializerManager: {
 			getTypeByUuid(uuid) {
 				return MockMaterialMapTypeSerializer;

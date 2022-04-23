@@ -1,17 +1,17 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
-import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../assets/projectAssetType/MaterialProjectAssetType.js";
-import {DEFAULT_MATERIAL_MAP_UUID} from "../../assets/builtinAssetUuids.js";
+import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/ContentWindowEntityEditor.js";
+import {MaterialMap} from "../../../src/rendering/MaterialMap.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/MaterialProjectAssetType.js";
+import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
 
 /**
  * @typedef {Object} MaterialAssetData
- * @property {import("../../../../src/util/mod.js").UuidString | object | null} [map]
+ * @property {import("../../../src/util/mod.js").UuidString | object | null} [map]
  * @property {Object.<string, *>} [properties]
  */
 
 /**
- * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/MaterialProjectAssetType.js").MaterialProjectAssetType>}
+ * @extends {PropertiesAssetContent<import("../assets/projectAssetType/MaterialProjectAssetType.js").MaterialProjectAssetType>}
  */
 export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	/**
@@ -50,12 +50,12 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	/**
-	 * @returns {Promise<import("../../../../src/rendering/Material.js").Material>}
+	 * @returns {Promise<import("../../../src/rendering/Material.js").Material>}
 	 */
 	async getFirstSelectedLiveAsset() {
 		const asset = this.currentSelection[0];
 		const liveAsset = await asset.getLiveAsset();
-		const material = /** @type {import("../../../../src/rendering/Material.js").Material} */ (liveAsset);
+		const material = /** @type {import("../../../src/rendering/Material.js").Material} */ (liveAsset);
 		return material;
 	}
 
@@ -87,7 +87,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 	/**
 	 * @override
-	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedMaterials
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<any>[]} selectedMaterials
 	 */
 	async selectionUpdated(selectedMaterials) {
 		super.selectionUpdated(selectedMaterials);
@@ -105,9 +105,9 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		if (!this.mapTreeView.value) return;
 
 		const mappableValues = await this.editorInstance.materialMapTypeSerializerManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
-		/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
+		/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
-			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+			/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
 			const addItemOpts = {
 				type: valueData.type,
 				guiOpts: {

@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {PropertiesAssetContentMesh} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMesh.js";
+import {PropertiesAssetContentMesh} from "../../propertiesAssetContent/PropertiesAssetContentMesh.js";
 import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.js";
 import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
 

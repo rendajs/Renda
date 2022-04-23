@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/rendering/Material.js";
-import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js";
+import {PropertiesAssetContentMaterial} from "../../propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
 import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
 import {MaterialMapProjectAssetType} from "./MaterialMapProjectAssetType.js";
@@ -9,7 +9,7 @@ import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 
 /**
- * @extends {ProjectAssetType<Material, null, import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
+ * @extends {ProjectAssetType<Material, null, import("../../propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
  */
 export class MaterialProjectAssetType extends ProjectAssetType {
 	static type = "JJ:material";
@@ -21,7 +21,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData?} materialJson
+	 * @param {import("../../propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData?} materialJson
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Material, null>>}
 	 */
 	async getLiveAssetData(materialJson) {
@@ -61,7 +61,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 	 * @param {null} editorData
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {
-		/** @type {import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
+		/** @type {import("../../propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
 		if (liveAsset) {
 			assetData.map = this.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset.materialMap);
