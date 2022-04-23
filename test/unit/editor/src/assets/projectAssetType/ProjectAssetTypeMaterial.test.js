@@ -1,7 +1,7 @@
 import "../../../shared/initializeEditor.js";
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock";
-import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import {MaterialProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
 import {createMockDependencies} from "./shared.js";
 import {Material} from "../../../../../../src/mod.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
@@ -38,7 +38,7 @@ function basicSetup({
 			return null;
 		},
 	});
-	const projectAssetType = new ProjectAssetTypeMaterial(...projectAssetTypeArgs);
+	const projectAssetType = new MaterialProjectAssetType(...projectAssetTypeArgs);
 
 	const {projectAsset: defaultMaterialMapProjectAsset} = createMockProjectAsset({liveAsset: defaultMaterialMapLiveAsset});
 

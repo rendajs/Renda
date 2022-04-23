@@ -1,7 +1,7 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {ShaderSource, Vec3} from "../../../../../../src/mod.js";
 import {StorageType} from "../../../../../../src/util/binarySerialization.js";
-import {ProjectAssetTypeShaderSource} from "../../ProjectAssetTypeShaderSource.js";
+import {ShaderSourceProjectAssetType} from "../../ShaderSourceProjectAssetType.js";
 
 export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
@@ -36,11 +36,11 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
 		const vertexAsset = await assetManager.getProjectAssetFromUuid(customData.vertexShader, {
-			assertAssetType: ProjectAssetTypeShaderSource,
+			assertAssetType: ShaderSourceProjectAssetType,
 		});
 		if (vertexAsset) yield vertexAsset;
 		const fragmentAsset = await assetManager.getProjectAssetFromUuid(customData.fragmentShader, {
-			assertAssetType: ProjectAssetTypeShaderSource,
+			assertAssetType: ShaderSourceProjectAssetType,
 		});
 		if (fragmentAsset) yield fragmentAsset;
 	}
@@ -91,7 +91,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 */
 	static async addShaderUniformsToMap(assetManager, shaderUuid, itemsMap) {
 		const shaderAsset = await assetManager.getProjectAssetFromUuid(shaderUuid, {
-			assertAssetType: ProjectAssetTypeShaderSource,
+			assertAssetType: ShaderSourceProjectAssetType,
 		});
 		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
 			itemsMap.set(name, {type});
@@ -99,7 +99,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	}
 
 	/**
-	 * @param {import("../../../ProjectAsset.js").ProjectAsset<import("../../ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} asset
+	 * @param {import("../../../ProjectAsset.js").ProjectAsset<import("../../ShaderSourceProjectAssetType.js").ShaderSourceProjectAssetType>?} asset
 	 */
 	static async getMapItemsIteratorFromShaderAsset(asset) {
 		if (!asset) return [];

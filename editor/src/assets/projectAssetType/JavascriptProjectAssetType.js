@@ -12,7 +12,7 @@ import {getEditorInstance} from "../../editorInstance.js";
 /**
  * @extends {ProjectAssetType<null, null, any, AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings>}
  */
-export class ProjectAssetTypeJavascript extends ProjectAssetType {
+export class JavascriptProjectAssetType extends ProjectAssetType {
 	static type = "JJ:javascript";
 	static typeUuid = "3654355b-9c4c-4ac0-b3d7-81565208ec0f";
 	static newFileName = "New Script";
@@ -37,7 +37,7 @@ export class ProjectAssetTypeJavascript extends ProjectAssetType {
 			guiOpts: {
 				text: "Build",
 				onClick: async context => {
-					const castSelected = /** @type {import("../ProjectAsset.js").ProjectAsset<ProjectAssetTypeJavascript>[]} */ (context.selectedAssets);
+					const castSelected = /** @type {import("../ProjectAsset.js").ProjectAsset<JavascriptProjectAssetType>[]} */ (context.selectedAssets);
 					for (const asset of castSelected) {
 						let outputPath = null;
 						const outputLocation = asset?.assetSettings?.outputLocation;

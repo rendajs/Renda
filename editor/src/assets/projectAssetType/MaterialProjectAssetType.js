@@ -11,7 +11,7 @@ export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 /**
  * @extends {ProjectAssetType<Material, null, import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
  */
-export class ProjectAssetTypeMaterial extends ProjectAssetType {
+export class MaterialProjectAssetType extends ProjectAssetType {
 	static type = "JJ:material";
 	static typeUuid = "430f47a8-82cc-4b4c-a664-2360794e80d6";
 	static newFileName = "New Material";

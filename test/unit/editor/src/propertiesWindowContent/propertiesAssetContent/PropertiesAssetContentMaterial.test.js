@@ -7,7 +7,7 @@ import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
 import {Importer} from "fake-imports";
 import {castTreeView} from "../../../shared/mockTreeView/castTreeView.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
 
 const DEFAULT_ASSET_MAP_UUID = "default-asset-map-uuid";
 
@@ -19,7 +19,7 @@ importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/Prop
 importer.fakeModule("../../../../../../src/rendering/MaterialMap.js", `
 	export class MaterialMap {}
 `);
-importer.fakeModule("../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js", `
+importer.fakeModule("../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js", `
 	export const MATERIAL_MAP_PERSISTENCE_KEY = "${MATERIAL_MAP_PERSISTENCE_KEY}";
 `);
 /** @type {import("../../../../../../editor/src/propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */

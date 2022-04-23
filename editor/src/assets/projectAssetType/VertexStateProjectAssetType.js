@@ -5,7 +5,7 @@ import {AssetLoaderTypeVertexState, Mesh, VertexState} from "../../../../src/mod
 /**
  * @extends {ProjectAssetType<VertexState, null, any>}
  */
-export class ProjectAssetTypeVertexState extends ProjectAssetType {
+export class VertexStateProjectAssetType extends ProjectAssetType {
 	static type = "JJ:vertexState";
 	static typeUuid = "07dcd52e-03a5-4823-b343-16a142c304f6";
 	static newFileName = "New Vertex State";

@@ -3,7 +3,7 @@ import {TreeView} from "../../ui/TreeView.js";
 import {Button} from "../../ui/Button.js";
 import {Entity} from "../../../../src/mod.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
-import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {EntityProjectAssetType} from "../../assets/projectAssetType/EntityProjectAssetType.js";
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
@@ -303,7 +303,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		) {
 			/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
 			const dragData = this.editorInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata);
-			if (dragData.assetType == ProjectAssetTypeEntity) {
+			if (dragData.assetType == EntityProjectAssetType) {
 				return dragData;
 			}
 		}
@@ -342,7 +342,7 @@ export class ContentWindowOutliner extends ContentWindow {
 				const entityAssetUuid = dragData.assetUuid;
 				const assetManager = await this.editorInstance.projectManager.getAssetManager();
 				const entityAsset = await assetManager.getLiveAsset(entityAssetUuid, {
-					assertAssetType: ProjectAssetTypeEntity,
+					assertAssetType: EntityProjectAssetType,
 				});
 				if (entityAsset) {
 					parent.add(entityAsset);

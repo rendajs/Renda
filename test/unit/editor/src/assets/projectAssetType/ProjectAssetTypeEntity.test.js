@@ -1,6 +1,6 @@
 import {assertEquals} from "std/testing/asserts";
 import "../../../shared/initializeEditor.js";
-import {ProjectAssetTypeEntity} from "../../../../../../editor/src/Assets/ProjectAssetType/ProjectAssetTypeEntity.js";
+import {EntityProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/EntityProjectAssetType.js";
 
 Deno.test("reload component values when changed", async () => {
 	const fakeUuid = "00000000-0000-0000-0000-000000000000";
@@ -30,7 +30,7 @@ Deno.test("reload component values when changed", async () => {
 	/** @type {any} */
 	const newComponentData = {};
 	const fakeRecursionTracker = new FakeRecursionTracker();
-	const assetType = new ProjectAssetTypeEntity(/** @type {any} */({}), /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
+	const assetType = new EntityProjectAssetType(/** @type {any} */({}), /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
 
 	assetType.fillComponentPropertyValueFromJson(newComponentData, originalComponentData, "mesh", "droppable", {}, /** @type {any} */ (fakeRecursionTracker));
 

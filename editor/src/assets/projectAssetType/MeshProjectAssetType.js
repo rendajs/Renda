@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {PropertiesAssetContentMesh} from "../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMesh.js";
 import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.js";
-import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
+import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
 
 /**
  * @typedef {Object} ProjectAssetTypeMeshEditorData
@@ -11,7 +11,7 @@ import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
 /**
  * @extends {ProjectAssetType<Mesh?, ProjectAssetTypeMeshEditorData?, "binary">}
  */
-export class ProjectAssetTypeMesh extends ProjectAssetType {
+export class MeshProjectAssetType extends ProjectAssetType {
 	static type = "JJ:mesh";
 	static typeUuid = "f202aae6-673a-497d-806d-c2d4752bb146";
 	static newFileName = "New Mesh";
@@ -33,7 +33,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		const mesh = new Mesh();
 		mesh.setVertexCount(24);
 		const vertexStateLiveAsset = await this.assetManager.getLiveAsset(defaultVertexStateAssetUuid, {
-			assertAssetType: ProjectAssetTypeVertexState,
+			assertAssetType: VertexStateProjectAssetType,
 		});
 		mesh.setVertexState(vertexStateLiveAsset);
 		mesh.setIndexData([0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7, 8, 9, 10, 9, 10, 11, 12, 13, 14, 13, 14, 15, 16, 17, 18, 17, 18, 19, 20, 21, 22, 21, 22, 23]);
@@ -128,7 +128,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		const vertexStateUuid = decomposer.getUuid();
 		if (!vertexStateUuid) return {liveAsset: null, editorData: null};
 		const layoutProjectAsset = await this.assetManager.getProjectAssetFromUuid(vertexStateUuid, {
-			assertAssetType: ProjectAssetTypeVertexState,
+			assertAssetType: VertexStateProjectAssetType,
 		});
 		if (layoutProjectAsset) {
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());

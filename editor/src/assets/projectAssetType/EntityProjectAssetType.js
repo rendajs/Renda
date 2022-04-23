@@ -9,7 +9,7 @@ const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
 /**
  * @extends {ProjectAssetType<Entity, null, import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity>}
  */
-export class ProjectAssetTypeEntity extends ProjectAssetType {
+export class EntityProjectAssetType extends ProjectAssetType {
 	static type = "JJ:entity";
 	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";
 	static newFileName = "New Entity";
@@ -48,7 +48,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		const entityData = liveAsset.toJson({
 			assetManager: this.assetManager,
 			assetTypeManager: this.projectAssetTypeManager,
-			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
+			usedAssetUuidsSymbol: EntityProjectAssetType.usedAssetUuidsSymbol,
 			entityAssetRootUuidSymbol,
 		});
 		return /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
@@ -88,7 +88,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					editorOpts: {
 						editorAssetTypeManager: this.projectAssetTypeManager,
-						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
+						usedAssetUuidsSymbol: EntityProjectAssetType.usedAssetUuidsSymbol,
 						assetManager: this.assetManager,
 					},
 				});
@@ -173,10 +173,10 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				if (!liveAsset) liveAsset = null;
 				newParentObject[propertyKey] = liveAsset;
 			}, {repeatOnLiveAssetChange: true});
-			let usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
+			let usedAssetUuids = newParentObject[EntityProjectAssetType.usedAssetUuidsSymbol];
 			if (!usedAssetUuids) {
 				usedAssetUuids = {};
-				newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = usedAssetUuids;
+				newParentObject[EntityProjectAssetType.usedAssetUuidsSymbol] = usedAssetUuids;
 			}
 			usedAssetUuids[propertyKey] = propertyValue;
 		} else {

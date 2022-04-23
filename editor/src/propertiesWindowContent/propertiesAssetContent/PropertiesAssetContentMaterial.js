@@ -1,7 +1,7 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../assets/projectAssetType/MaterialProjectAssetType.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../../assets/builtinAssetUuids.js";
 
 /**
@@ -11,7 +11,7 @@ import {DEFAULT_MATERIAL_MAP_UUID} from "../../assets/builtinAssetUuids.js";
  */
 
 /**
- * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeMaterial.js").ProjectAssetTypeMaterial>}
+ * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/MaterialProjectAssetType.js").MaterialProjectAssetType>}
  */
 export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	/**

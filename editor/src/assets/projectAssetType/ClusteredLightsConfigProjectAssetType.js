@@ -5,7 +5,7 @@ import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from 
 /**
  * @extends {ProjectAssetType<null, null, any>}
  */
-export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
+export class ClusteredLightsConfigProjectAssetType extends ProjectAssetType {
 	static type = "JJ:clusteredLightsConfig";
 	static typeUuid = "13194e5c-01e8-4ecc-b645-86626b9d5e4c";
 	static newFileName = "New Clustered Lights Config";

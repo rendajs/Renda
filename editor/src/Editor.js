@@ -19,7 +19,7 @@ import {DevSocketManager} from "./network/DevSocketManager.js";
 import {ComponentTypeManager} from "../../src/components/ComponentTypeManager.js";
 
 import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
-import {ProjectAssetTypeShaderSource} from "./assets/projectAssetType/ProjectAssetTypeShaderSource.js";
+import {ShaderSourceProjectAssetType} from "./assets/projectAssetType/ShaderSourceProjectAssetType.js";
 
 export class Editor {
 	constructor() {
@@ -98,7 +98,7 @@ export class Editor {
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const assetManager = await this.projectManager.getAssetManager();
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid, {
-				assertAssetType: ProjectAssetTypeShaderSource,
+				assertAssetType: ShaderSourceProjectAssetType,
 			});
 			if (projectAsset) {
 				if (projectAsset.assetType == "JJ:shaderSource") {

@@ -1,7 +1,7 @@
 import {autoRegisterAssetTypes} from "./autoRegisterAssetTypes.js";
 import {ProjectAssetType} from "./projectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/util/mod.js";
-import {ProjectAssetTypeMaterial} from "./projectAssetType/ProjectAssetTypeMaterial.js";
+import {MaterialProjectAssetType} from "./projectAssetType/MaterialProjectAssetType.js";
 
 export class ProjectAssetTypeManager {
 	/** @typedef {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier} ProjectAssetTypeIdentifier */
@@ -15,7 +15,7 @@ export class ProjectAssetTypeManager {
 		for (const t of autoRegisterAssetTypes) {
 			this.registerAssetType(t);
 		}
-		this.registerAssetType(ProjectAssetTypeMaterial);
+		this.registerAssetType(MaterialProjectAssetType);
 	}
 
 	/**
