@@ -1,7 +1,7 @@
 import {getEditorInstance} from "../editorInstance.js";
-import {EditorFileSystemFsa} from "../util/fileSystems/EditorFileSystemFsa.js";
-import {EditorFileSystemIndexedDb} from "../util/fileSystems/EditorFileSystemIndexedDb.js";
-import {EditorFileSystemRemote} from "../util/fileSystems/EditorFileSystemRemote.js";
+import {FsaEditorFileSystem} from "../util/fileSystems/FsaEditorFileSystem.js";
+import {IndexedDbEditorFileSystem} from "../util/fileSystems/IndexedDbEditorFileSystem.js";
+import {RemoteEditorFileSystem} from "../util/fileSystems/RemoteEditorFileSystem.js";
 import {AssetManager} from "../assets/AssetManager.js";
 import {EditorConnectionsManager} from "../network/editorConnections/EditorConnectionsManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
@@ -106,7 +106,7 @@ export class ProjectManager {
 					remoteProjectUuid: metaData.uuid,
 					remoteProjectConnectionType: pickedAvailableConnection.messageHandlerType,
 				};
-				const fileSystem = /** @type {EditorFileSystemRemote} */ (this.currentProjectFileSystem);
+				const fileSystem = /** @type {RemoteEditorFileSystem} */ (this.currentProjectFileSystem);
 				fileSystem.setConnection(pickedConnection);
 				this.markCurrentProjectAsWorthSaving();
 			}
@@ -174,7 +174,7 @@ export class ProjectManager {
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
 		this.currentProjectFileSystem = fileSystem;
-		this.currentProjectIsRemote = fileSystem instanceof EditorFileSystemRemote;
+		this.currentProjectIsRemote = fileSystem instanceof RemoteEditorFileSystem;
 		this.currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 
@@ -296,7 +296,7 @@ export class ProjectManager {
 
 	async openNewDbProject() {
 		const uuid = generateUuid();
-		const fileSystem = new EditorFileSystemIndexedDb(uuid);
+		const fileSystem = new IndexedDbEditorFileSystem(uuid);
 		const projectName = "Untitled Project";
 		await fileSystem.setRootName(projectName);
 		await this.openProject(fileSystem, {
@@ -311,14 +311,14 @@ export class ProjectManager {
 	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 */
 	async deleteDbProject(uuid) {
-		if (await EditorFileSystemIndexedDb.exists(uuid)) {
-			const fileSystem = new EditorFileSystemIndexedDb(uuid);
+		if (await IndexedDbEditorFileSystem.exists(uuid)) {
+			const fileSystem = new IndexedDbEditorFileSystem(uuid);
 			await fileSystem.deleteDb();
 		}
 	}
 
 	async openProjectFromLocalDirectory() {
-		const fileSystem = await EditorFileSystemFsa.openUserDir();
+		const fileSystem = await FsaEditorFileSystem.openUserDir();
 		const permission = await fileSystem.getPermission([], {prompt: true, writable: false});
 		let name = "Unnamed Filesystem";
 		if (permission) {
@@ -335,7 +335,7 @@ export class ProjectManager {
 	}
 
 	async openNewRemoteProject() {
-		const fileSystem = new EditorFileSystemRemote();
+		const fileSystem = new RemoteEditorFileSystem();
 		const projectUuid = generateUuid();
 		await this.openProject(fileSystem, {
 			fileSystemType: "remote",
@@ -352,11 +352,11 @@ export class ProjectManager {
 	openExistingProject(projectEntry) {
 		let fileSystem;
 		if (projectEntry.fileSystemType === "db") {
-			fileSystem = new EditorFileSystemIndexedDb(projectEntry.projectUuid);
+			fileSystem = new IndexedDbEditorFileSystem(projectEntry.projectUuid);
 		} else if (projectEntry.fileSystemType == "fsa") {
-			fileSystem = new EditorFileSystemFsa(projectEntry.fileSystemHandle);
+			fileSystem = new FsaEditorFileSystem(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
-			fileSystem = new EditorFileSystemRemote();
+			fileSystem = new RemoteEditorFileSystem();
 			console.log(projectEntry);
 			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");

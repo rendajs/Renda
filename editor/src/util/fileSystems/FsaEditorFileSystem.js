@@ -1,7 +1,7 @@
 import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.js";
 import {EditorFileSystem} from "./EditorFileSystem.js";
 
-export class EditorFileSystemFsa extends EditorFileSystem {
+export class FsaEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @typedef {Object} WatchTreeNode
 	 * @property {boolean} init If false, the file/directory has not been checked yet and shouldn't fire an external
@@ -44,7 +44,7 @@ export class EditorFileSystemFsa extends EditorFileSystem {
 
 	static async openUserDir() {
 		const directoryHandle = await globalThis.showDirectoryPicker();
-		return new EditorFileSystemFsa(directoryHandle);
+		return new FsaEditorFileSystem(directoryHandle);
 	}
 
 	/**

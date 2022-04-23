@@ -2,42 +2,42 @@ import {EditorFileSystem} from "./EditorFileSystem.js";
 import {IndexedDbUtil} from "../../../../src/util/IndexedDbUtil.js";
 import {hashBuffer} from "../../../../src/util/bufferUtil.js";
 
-/** @typedef {string & {}} EditorFileSystemIndexedDbPointer */
+/** @typedef {string & {}} IndexedDbEditorFileSystemPointer */
 
 /**
- * @typedef {Object} EditorFileSystemIndexedDbStoredObjectBase
+ * @typedef {Object} IndexedDbEditorFileSystemStoredObjectBase
  * @property {boolean} [isFile = false]
  * @property {boolean} [isDir = false]
  * @property {string} fileName
  */
 
 /**
- * @typedef {Object} EditorFileSystemIndexedDbStoredObjectFileType
+ * @typedef {Object} IndexedDbEditorFileSystemStoredObjectFileType
  * @property {true} isFile
  * @property {false} [isDir = false]
  * @property {File} file
  *
- * @typedef {EditorFileSystemIndexedDbStoredObjectBase & EditorFileSystemIndexedDbStoredObjectFileType} EditorFileSystemIndexedDbStoredObjectFile
+ * @typedef {IndexedDbEditorFileSystemStoredObjectBase & IndexedDbEditorFileSystemStoredObjectFileType} IndexedDbEditorFileSystemStoredObjectFile
  */
 
 /**
- * @typedef {Object} EditorFileSystemIndexedDbStoredObjectDirType
+ * @typedef {Object} IndexedDbEditorFileSystemStoredObjectDirType
  * @property {true} isDir
  * @property {false} [isFile = false]
- * @property {EditorFileSystemIndexedDbPointer[]} files
+ * @property {IndexedDbEditorFileSystemPointer[]} files
  *
- * @typedef {EditorFileSystemIndexedDbStoredObjectBase & EditorFileSystemIndexedDbStoredObjectDirType} EditorFileSystemIndexedDbStoredObjectDir
+ * @typedef {IndexedDbEditorFileSystemStoredObjectBase & IndexedDbEditorFileSystemStoredObjectDirType} IndexedDbEditorFileSystemStoredObjectDir
  */
 
-/** @typedef {EditorFileSystemIndexedDbStoredObjectFile | EditorFileSystemIndexedDbStoredObjectDir} EditorFileSystemIndexedDbStoredObject */
+/** @typedef {IndexedDbEditorFileSystemStoredObjectFile | IndexedDbEditorFileSystemStoredObjectDir} IndexedDbEditorFileSystemStoredObject */
 
 /**
- * @typedef {Object} EditorFileSystemIndexedDbTravelledDataItem
- * @property {EditorFileSystemIndexedDbStoredObject} obj
- * @property {EditorFileSystemIndexedDbPointer} pointer
+ * @typedef {Object} IndexedDbEditorFileSystemTravelledDataItem
+ * @property {IndexedDbEditorFileSystemStoredObject} obj
+ * @property {IndexedDbEditorFileSystemPointer} pointer
  */
 
-export class EditorFileSystemIndexedDb extends EditorFileSystem {
+export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	/** @typedef {import("./EditorFileSystem.js").EditorFileSystemPath} EditorFileSystemPath */
 
 	/**
@@ -46,7 +46,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	constructor(fileSystemName) {
 		super();
 
-		const dbName = EditorFileSystemIndexedDb.getDbName(fileSystemName);
+		const dbName = IndexedDbEditorFileSystem.getDbName(fileSystemName);
 		/**
 		 * Null if the db has been deleted.
 		 * @type {IndexedDbUtil?}
@@ -70,7 +70,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemIndexedDbStoredObject} obj
+	 * @param {IndexedDbEditorFileSystemStoredObject} obj
 	 */
 	assertIsDir(obj) {
 		if (!obj.isDir) throw new Error(`Couldn't perform operation, ${obj.fileName} is not a directory.`);
@@ -83,7 +83,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	static async exists(fileSystemName) {
-		const dbName = EditorFileSystemIndexedDb.getDbName(fileSystemName);
+		const dbName = IndexedDbEditorFileSystem.getDbName(fileSystemName);
 		const databases = await indexedDB.databases();
 		return databases.some(db => db.name == dbName);
 	}
@@ -119,7 +119,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	/**
 	 * @param {boolean} waitForRootCreate
-	 * @returns {Promise<EditorFileSystemIndexedDbPointer>}
+	 * @returns {Promise<IndexedDbEditorFileSystemPointer>}
 	 */
 	async getRootPointer(waitForRootCreate = true) {
 		if (waitForRootCreate) await this.waitForRootCreate();
@@ -128,7 +128,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemIndexedDbPointer} pointer
+	 * @param {IndexedDbEditorFileSystemPointer} pointer
 	 * @returns {Promise<void>}
 	 */
 	async setRootPointer(pointer) {
@@ -168,8 +168,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemIndexedDbPointer} pointer
-	 * @returns {Promise<EditorFileSystemIndexedDbStoredObject>}
+	 * @param {IndexedDbEditorFileSystemPointer} pointer
+	 * @returns {Promise<IndexedDbEditorFileSystemStoredObject>}
 	 */
 	async getObject(pointer) {
 		if (!pointer) throw new Error("pointer not specified");
@@ -180,7 +180,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	/**
 	 *
 	 * @param {string[]} path
-	 * @returns {Promise<{pointer: EditorFileSystemIndexedDbPointer, obj: EditorFileSystemIndexedDbStoredObject}>}
+	 * @returns {Promise<{pointer: IndexedDbEditorFileSystemPointer, obj: IndexedDbEditorFileSystemStoredObject}>}
 	 */
 	async getObjectFromPath(path) {
 		let pointer = await this.getRootPointer();
@@ -205,8 +205,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemIndexedDbStoredObject} obj
-	 * @returns {Promise<EditorFileSystemIndexedDbPointer>} The pointer to the created object.
+	 * @param {IndexedDbEditorFileSystemStoredObject} obj
+	 * @returns {Promise<IndexedDbEditorFileSystemPointer>} The pointer to the created object.
 	 */
 	async createObject(obj) {
 		const textEncoder = new TextEncoder();
@@ -282,7 +282,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	 * It is internal because the publicly facing api does not need to know
 	 * about travelled data.
 	 * @param {string[]} path
-	 * @returns {Promise<EditorFileSystemIndexedDbTravelledDataItem[]>}
+	 * @returns {Promise<IndexedDbEditorFileSystemTravelledDataItem[]>}
 	 */
 	async createDirInternal(path) {
 		const travelledData = await this.findDeepestExisting(path);
@@ -293,7 +293,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		let lastCreatedPointer = null;
 		const extraTravelledData = [];
 		for (const dir of createDirs) {
-			/** @type {EditorFileSystemIndexedDbStoredObjectDir} */
+			/** @type {IndexedDbEditorFileSystemStoredObjectDir} */
 			const createdObject = {
 				isDir: true,
 				files: [],
@@ -322,7 +322,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 
 	/**
 	 * @param {string[]} path
-	 * @returns {Promise<EditorFileSystemIndexedDbTravelledDataItem[]>}
+	 * @returns {Promise<IndexedDbEditorFileSystemTravelledDataItem[]>}
 	 */
 	async findDeepestExisting(path) {
 		let currentPointer = await this.getRootPointer();
@@ -365,8 +365,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemIndexedDbTravelledDataItem[]} travelledData
-	 * @param {EditorFileSystemIndexedDbStoredObjectDir} parentObject
+	 * @param {IndexedDbEditorFileSystemTravelledDataItem[]} travelledData
+	 * @param {IndexedDbEditorFileSystemStoredObjectDir} parentObject
 	 */
 	async updateObjectRecursiveUp(travelledData, parentObject) {
 		for (let i = travelledData.length - 1; i >= 0; i--) {
@@ -374,7 +374,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 			const newPointer = await this.updateObject(item.pointer, parentObject);
 			if (i > 0) {
 				const parentItem = travelledData[i - 1];
-				parentObject = /** @type {EditorFileSystemIndexedDbStoredObjectDir} */ (parentItem.obj);
+				parentObject = /** @type {IndexedDbEditorFileSystemStoredObjectDir} */ (parentItem.obj);
 
 				// remove old pointer from parent dir
 				const oldPointerIndex = parentObject.files.indexOf(item.pointer);
@@ -389,8 +389,8 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemIndexedDbPointer} oldPointer
-	 * @param {EditorFileSystemIndexedDbStoredObject} newObject
+	 * @param {IndexedDbEditorFileSystemPointer} oldPointer
+	 * @param {IndexedDbEditorFileSystemStoredObject} newObject
 	 */
 	async updateObject(oldPointer, newObject) {
 		const db = this.assertDbExists();
@@ -532,7 +532,7 @@ export class EditorFileSystemIndexedDb extends EditorFileSystem {
 		const newParentDirObj = this.assertIsDir(newParentObj.obj);
 
 		// Remove existing pointer with the same name
-		/** @type {EditorFileSystemIndexedDbPointer[]} */
+		/** @type {IndexedDbEditorFileSystemPointer[]} */
 		const deletePointers = [];
 		for (const pointer of newParentDirObj.files) {
 			const fileObject = await this.getObject(pointer);

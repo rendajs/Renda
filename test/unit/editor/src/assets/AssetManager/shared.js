@@ -1,5 +1,5 @@
 import {AssetManager} from "../../../../../../editor/src/assets/AssetManager.js";
-import {EditorFileSystemMemory} from "../../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
+import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
 import {createMockProjectAssetTypeManager} from "../shared/createMockProjectAssetTypeManager.js";
 
@@ -35,7 +35,7 @@ export async function basicSetup({
 		ProjectAssetType,
 	});
 
-	const mockFileSystem = new EditorFileSystemMemory();
+	const mockFileSystem = new MemoryEditorFileSystem();
 	await mockFileSystem.writeJson(ASSET_SETTINGS_PATH, {
 		assets: {
 			[BASIC_ASSET_UUID]: {

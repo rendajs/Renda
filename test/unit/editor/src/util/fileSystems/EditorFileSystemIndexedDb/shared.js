@@ -3,8 +3,9 @@ import {Importer} from "fake-imports";
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "./FakeIndexedDbUtil.js");
 
-const {EditorFileSystemIndexedDb: EditorFileSystemIndexedDbImported} = await importer.import("../../../../../../../editor/src/util/fileSystems/EditorFileSystemIndexedDb.js");
-const EditorFileSystemIndexedDb = /** @type {typeof import("../../../../../../../editor/src/util/fileSystems/EditorFileSystemIndexedDb.js").EditorFileSystemIndexedDb} */ (EditorFileSystemIndexedDbImported);
+/** @type {import("../../../../../../../editor/src/util/fileSystems/IndexedDbEditorFileSystem.js")} */
+const IndexedDbEditorFileSystemMod = await importer.import("../../../../../../../editor/src/util/fileSystems/IndexedDbEditorFileSystem.js");
+const {IndexedDbEditorFileSystem} = IndexedDbEditorFileSystemMod;
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
 const forcePendingOperations = /** @type {typeof import("./FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
@@ -12,7 +13,7 @@ const forcePendingOperations = /** @type {typeof import("./FakeIndexedDbUtil.js"
 export {forcePendingOperations};
 
 export async function createFs(name = "fs") {
-	const fs = new EditorFileSystemIndexedDb(name);
+	const fs = new IndexedDbEditorFileSystem(name);
 
 	return fs;
 }

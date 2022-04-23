@@ -1,6 +1,6 @@
 import {EditorFileSystem} from "./EditorFileSystem.js";
 
-export class EditorFileSystemRemote extends EditorFileSystem {
+export class RemoteEditorFileSystem extends EditorFileSystem {
 	constructor() {
 		super();
 

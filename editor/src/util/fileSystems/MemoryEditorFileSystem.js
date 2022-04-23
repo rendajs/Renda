@@ -1,17 +1,17 @@
 import {EditorFileSystem} from "./EditorFileSystem.js";
 
-/** @typedef {EditorFileSystemMemoryFilePointer | EditorFileSystemMemoryDirPointer} EditorFileSystemMemoryPointer */
+/** @typedef {MemoryEditorFileSystemFilePointer | MemoryEditorFileSystemDirPointer} MemoryEditorFileSystemPointer */
 /**
- * @typedef EditorFileSystemMemoryFilePointer
+ * @typedef MemoryEditorFileSystemFilePointer
  * @property {true} isFile
  * @property {string} name
  * @property {File} file
  */
 /**
- * @typedef EditorFileSystemMemoryDirPointer
+ * @typedef MemoryEditorFileSystemDirPointer
  * @property {false} isFile
  * @property {string} name
- * @property {EditorFileSystemMemoryPointer[]} children
+ * @property {MemoryEditorFileSystemPointer[]} children
  */
 
 /**
@@ -19,11 +19,11 @@ import {EditorFileSystem} from "./EditorFileSystem.js";
  * This is mostly useful for mocking in unit tests, but can also be used as
  * a fallback in case any other file system types are not supported on a platform.
  */
-export class EditorFileSystemMemory extends EditorFileSystem {
+export class MemoryEditorFileSystem extends EditorFileSystem {
 	constructor() {
 		super();
 
-		/** @type {EditorFileSystemMemoryDirPointer} */
+		/** @type {MemoryEditorFileSystemDirPointer} */
 		this.rootObject = {
 			isFile: false,
 			name: "root",
@@ -42,13 +42,13 @@ export class EditorFileSystemMemory extends EditorFileSystem {
 		create = false,
 		createType = "dir",
 	} = {}) {
-		/** @type {EditorFileSystemMemoryPointer} */
+		/** @type {MemoryEditorFileSystemPointer} */
 		let currentObject = this.rootObject;
 		for (const [i, name] of path.entries()) {
 			if (currentObject.isFile) {
 				throw new Error(`Couldn't get object at ${path.join("/")} because ${name} is a file.`);
 			}
-			/** @type {EditorFileSystemMemoryPointer[]} */
+			/** @type {MemoryEditorFileSystemPointer[]} */
 			const children = currentObject.children;
 			let child = children.find(c => c.name == name);
 			if (!child) {

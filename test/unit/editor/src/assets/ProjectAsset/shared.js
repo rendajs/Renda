@@ -1,7 +1,7 @@
 import {spy} from "std/testing/mock";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import {EditorFileSystemMemory} from "../../../../../../editor/src/util/fileSystems/EditorFileSystemMemory.js";
+import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
 import {createMockProjectAssetTypeManager} from "../shared/createMockProjectAssetTypeManager.js";
 
@@ -36,7 +36,7 @@ export function getMocks({
 		allowAssetEditing: builtInAssetManagerAllowAssetEditingValue,
 	});
 
-	const fileSystem = new EditorFileSystemMemory();
+	const fileSystem = new MemoryEditorFileSystem();
 
 	return {
 		mockAssetManager,
