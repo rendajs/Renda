@@ -2,6 +2,7 @@ import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import {DEFAULT_MATERIAL_MAP_UUID} from "../../assets/builtinAssetUuids.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -25,6 +26,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			guiOpts: {
 				supportedAssetTypes: [MaterialMap],
 				label: "Map",
+				defaultValue: DEFAULT_MATERIAL_MAP_UUID,
 			},
 		});
 		this.mapTreeView.onValueChange(async () => {

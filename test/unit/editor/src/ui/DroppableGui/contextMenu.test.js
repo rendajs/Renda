@@ -1,6 +1,6 @@
 import {assertEquals, assertExists} from "std/testing/asserts";
 import {assertContextMenuStructureEquals} from "../../../shared/contextMenuHelpers.js";
-import {basicSetupForContextMenus, createMockProjectAsset, createMockProjectAssetType} from "./shared.js";
+import {BASIC_ASSET_UUID, basicSetupForContextMenus, createMockProjectAsset, createMockProjectAssetType} from "./shared.js";
 
 Deno.test({
 	name: "context menu event creates a new context menu",
@@ -49,6 +49,53 @@ Deno.test({
 		assertEquals(createContextMenuCalls.length, 0);
 
 		uninstall();
+	},
+});
+
+Deno.test({
+	name: "context menu with a value set and an available default value",
+	async fn() {
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "basic",
+				guiOpts: {
+					defaultValue: BASIC_ASSET_UUID,
+				},
+			},
+		});
+
+		try {
+			assertExists(createContextMenuCalls[0]);
+			await assertContextMenuStructureEquals(createContextMenuCalls[0], [
+				{text: "Reset to default value"},
+				{text: "Unlink"},
+				{text: "Copy asset UUID"},
+				{text: "View location"},
+			]);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "context menu without a value set and an available default value",
+	async fn() {
+		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					defaultValue: BASIC_ASSET_UUID,
+				},
+			},
+		});
+
+		try {
+			assertExists(createContextMenuCalls[0]);
+			await assertContextMenuStructureEquals(createContextMenuCalls[0], [{text: "Reset to default value"}]);
+		} finally {
+			uninstall();
+		}
 	},
 });
 

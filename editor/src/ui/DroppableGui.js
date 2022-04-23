@@ -19,6 +19,11 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @typedef {Object} DroppableGuiOptionsType
  * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstance()
  * @property {T[]} [supportedAssetTypes]
+ * @property {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
+ * When set, this will be the value upon creation. When loading serializable data, this value is set when the
+ * serializable data is either `undefined` or not set.
+ * Additionally, when the `defaultValue` option is provided, this adds a context menu to the gui, allowing the user
+ * to reset the value to the default.
  * @property {import("../assets/ProjectAsset.js").ProjectAssetAny?} [embeddedParentAsset] If set, allows the creation
  * of embedded assets via a context menu. When omitted, embedded assets are not supported and this option
  * won't be shown in the context menu.
@@ -119,7 +124,9 @@ export class DroppableGui {
 	constructor({
 		dependencies = undefined,
 		supportedAssetTypes = [],
-		// todo: default value support
+		// TODO: load the default value upon creation and handle serializable data
+		// when filling properties treeviews.
+		defaultValue = null,
 		disabled = false,
 		embeddedParentAsset = null,
 		embeddedParentAssetPersistenceKey = "",
@@ -151,6 +158,7 @@ export class DroppableGui {
 		this.onValueChangeCbs = [];
 
 		this.supportedAssetTypes = /** @type {any[]} */ (supportedAssetTypes);
+		this.defaultValue = defaultValue;
 
 		this.currenDragFeedbackEl = null;
 
@@ -208,9 +216,14 @@ export class DroppableGui {
 	 * as if it is embedded asset data and a new embedded asset is created. If the embedded asset
 	 * already exists (based on the current embeddedParentAssetPersistenceKey), the value will
 	 * be set to the existing embedded asset without making any changes to it.
+	 * @param {boolean} [options.preloadLiveAsset] If true, preloads the live asset and waits with firing value change events
+	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets
+	 * when they fire. If they use `getValue({returnLiveAsset: true})`, it is possible for the returned value to be
+	 * `null`. Setting this flag to true makes sure the callbacks are fired after the live asset is loaded.
 	 */
 	setValue(value, {
 		isDiskData = false,
+		preloadLiveAsset = false,
 	} = {}) {
 		let projectAsset = null;
 		this.setDefaultAssetLinkUuid(null);
@@ -243,7 +256,7 @@ export class DroppableGui {
 				projectAsset = assetManager.getProjectAssetForLiveAsset(value);
 			}
 		}
-		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false});
+		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
 	}
 
 	/**
@@ -668,6 +681,15 @@ export class DroppableGui {
 					};
 				}
 				contextMenuStructure.push(createEmbeddedStructure);
+			}
+
+			if (this.defaultValue) {
+				contextMenuStructure.push({
+					text: "Reset to default value",
+					onClick: () => {
+						this.setValue(this.defaultValue, {preloadLiveAsset: true});
+					},
+				});
 			}
 		}
 		if (this.projectAssetValue) {

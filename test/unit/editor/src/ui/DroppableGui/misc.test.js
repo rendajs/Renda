@@ -1,7 +1,7 @@
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
 import {FakeMouseEvent} from "../../../../../../.denoTypes/urlImports/https_/raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeMouseEvent.js";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
-import {basicSetupForContextMenus, createBasicGui} from "./shared.js";
+import {BASIC_ASSET_UUID, basicSetupForContextMenus, createBasicGui} from "./shared.js";
 
 Deno.test({
 	name: "Is not disabled by default",
@@ -53,5 +53,58 @@ Deno.test({
 		assertStrictEquals(openCalls[0][0], mockWindowManager);
 
 		uninstall();
+	},
+});
+
+Deno.test({
+	name: "Resetting to default value via context menu",
+	async fn() {
+		const {uninstall, gui, createContextMenuCalls, mockProjectAsset} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					defaultValue: BASIC_ASSET_UUID,
+				},
+			},
+		});
+
+		try {
+			assertExists(createContextMenuCalls[0]);
+			await triggerContextMenuItem(createContextMenuCalls[0], ["Reset to default value"]);
+
+			assertStrictEquals(gui.projectAssetValue, mockProjectAsset);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Doesn't trigger change events until live asset has been preloaded when resetting",
+	async fn() {
+		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
+			basicGuiOptions: {
+				valueType: "none",
+				guiOpts: {
+					defaultValue: BASIC_ASSET_UUID,
+				},
+			},
+		});
+
+		try {
+			/** @type {Promise<void>} */
+			const onChangePromise = new Promise(resolve => {
+				gui.onValueChange(() => {
+					resolve();
+				});
+			});
+			assertExists(createContextMenuCalls[0]);
+			await triggerContextMenuItem(createContextMenuCalls[0], ["Reset to default value"]);
+			await onChangePromise;
+			const value = gui.getValue({returnLiveAsset: true});
+			assertExists(value);
+		} finally {
+			uninstall();
+		}
 	},
 });
