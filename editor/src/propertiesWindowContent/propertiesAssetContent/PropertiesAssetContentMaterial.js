@@ -5,7 +5,7 @@ import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../assets/projectAssetType/Projec
 
 /**
  * @typedef {Object} MaterialAssetData
- * @property {import("../../../../src/util/mod.js").UuidString | object} [map]
+ * @property {import("../../../../src/util/mod.js").UuidString | object | null} [map]
  * @property {Object.<string, *>} [properties]
  */
 

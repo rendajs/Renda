@@ -354,7 +354,7 @@ export class AssetManager {
 
 	/**
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
-	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
+	 * @param {import("../../../src/mod.js").UuidString | null} uuid
 	 * @param {AssetAssertionOptions<T>} [options]
 	 * @returns {Promise<import("./ProjectAsset.js").ProjectAsset<T>?>}
 	 */

@@ -25,6 +25,9 @@ export function createMockDependencies({
 		getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
 			return getProjectAssetFromUuidOrEmbeddedAssetDataImpl(uuidOrData, options);
 		},
+		async getProjectAssetFromUuid(uuid, options) {
+			return null;
+		},
 	});
 
 	const assetTypeManager = /** @type {import("../../../../../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({});

@@ -4,6 +4,7 @@ import {PropertiesAssetContentMaterial} from "../../propertiesWindowContent/prop
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
 import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
 import {ProjectAssetTypeMaterialMap} from "./projectAssetTypeMaterialMap/ProjectAssetTypeMaterialMap.js";
+import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
 
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 
@@ -24,17 +25,27 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Material, null>>}
 	 */
 	async getLiveAssetData(materialJson) {
-		let materialMap = null;
-		if (materialJson?.map) {
-			const materialMapAsset = await this.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(materialJson.map, {
+		let materialMapAsset;
+		const mapJson = materialJson?.map;
+		if (mapJson) {
+			materialMapAsset = await this.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(mapJson, {
 				assertAssetType: ProjectAssetTypeMaterialMap,
 				parentAsset: this.projectAsset,
 				embeddedAssetPersistenceKey: MATERIAL_MAP_PERSISTENCE_KEY,
 			});
-			if (materialMapAsset) {
-				materialMap = await materialMapAsset.getLiveAsset();
-				this.listenForUsedLiveAssetChanges(materialMapAsset);
-			}
+		} else if (mapJson === undefined) {
+			// If the value is undefined, that means it hasn't been set, so
+			// we want to load the default value. The value is only empty
+			// if the user has explicitly set the value to null.
+			materialMapAsset = await this.assetManager.getProjectAssetFromUuid(DEFAULT_MATERIAL_MAP_UUID, {
+				assertAssetType: ProjectAssetTypeMaterialMap,
+			});
+		}
+
+		let materialMap = null;
+		if (materialMapAsset) {
+			materialMap = await materialMapAsset.getLiveAsset();
+			this.listenForUsedLiveAssetChanges(materialMapAsset);
 		}
 
 		const material = new Material(materialMap, materialJson?.properties);
@@ -52,12 +63,11 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	async saveLiveAssetData(liveAsset, editorData) {
 		/** @type {import("../../propertiesWindowContent/propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
-		let mapOrUuid = null;
 		if (liveAsset) {
-			mapOrUuid = this.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset.materialMap);
-		}
-		if (mapOrUuid) {
-			assetData.map = mapOrUuid;
+			assetData.map = this.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset.materialMap);
+			if (assetData.map == DEFAULT_MATERIAL_MAP_UUID) {
+				delete assetData.map;
+			}
 		}
 		if (liveAsset) {
 			/** @type {Object.<string, unknown>} */
