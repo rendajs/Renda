@@ -1,3 +1,7 @@
+import {Vec2} from "../math/Vec2.js";
+import {Vec3} from "../math/Vec3.js";
+import {Vec4} from "../math/Vec4.js";
+
 export class Material {
 	/**
 	 * @param {import("./MaterialMap.js").MaterialMap?} materialMap
@@ -86,17 +90,24 @@ export class Material {
 	 * @param {import("./MaterialMap.js").MappableMaterialTypes} value
 	 */
 	setProperty(key, value) {
-		let mappedDatas = null;
-
+		let foundDefaultValue = null;
 		// Check if the new value matches the type of the configured default value.
 		if (this._materialMap) {
-			mappedDatas = Array.from(this._materialMap.mapProperty(key));
+			const mappedDatas = Array.from(this._materialMap.mapProperty(key));
 			for (const [mapType, mappedData] of mappedDatas) {
 				const isSameType = this._isSameType(value, mappedData.defaultValue);
 				if (!isSameType) {
 					this._throwInvalidPropertyType(key, mappedData.defaultValue, value, mapType);
 				}
+				foundDefaultValue = mappedData.defaultValue;
 			}
+		}
+
+		if (this._isArrayAndVectorType(value, foundDefaultValue)) {
+			const castValue = /** @type {number[]} */ (value);
+			const castDefault = /** @type {Vec2 | Vec3 | Vec4} */ (foundDefaultValue);
+			const newValue = castDefault.clone().set(castValue);
+			value = newValue;
 		}
 
 		const existingValue = this.properties.get(key) || null;
@@ -120,6 +131,7 @@ export class Material {
 	}
 
 	/**
+	 * @private
 	 * @param {import("./MaterialMap.js").MappableMaterialTypes} value
 	 * @param {import("./MaterialMap.js").MappableMaterialTypes} existingValue
 	 */
@@ -131,10 +143,30 @@ export class Material {
 		} else if (!defaultIsNumber && !newValueIsNumber) {
 			const castDefault = /** @type {Object} */ (existingValue);
 			if (!(value instanceof castDefault.constructor)) {
-				return false;
+				return this._isArrayAndVectorType(value, existingValue);
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * @private
+	 * @param {import("./MaterialMap.js").MappableMaterialTypes} array
+	 * @param {import("./MaterialMap.js").MappableMaterialTypes | null} vec
+	 */
+	_isArrayAndVectorType(array, vec) {
+		if (Array.isArray(array)) {
+			if (vec instanceof Vec2 && array.length == 2) {
+				return true;
+			}
+			if (vec instanceof Vec3 && array.length == 3) {
+				return true;
+			}
+			if (vec instanceof Vec4 && array.length == 4) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

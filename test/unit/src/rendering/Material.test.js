@@ -1,4 +1,4 @@
-import {assertEquals, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assertEquals, assertInstanceOf, assertNotStrictEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
 import {Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {Material} from "../../../../src/rendering/Material.js";
 import {MaterialMapType} from "../../../../src/rendering/MaterialMapType.js";
@@ -147,20 +147,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "setProperty() should store unused properties",
-	fn() {
-		const material = new Material();
-
-		material.setProperty("color", new Vec3(0, 0.5, 1));
-
-		const properties = Array.from(material.getAllProperties());
-		assertEquals(properties.length, 1);
-		const colorProperty = material.getProperty("color");
-		assertVecAlmostEquals(colorProperty, [0, 0.5, 1]);
-	},
-});
-
-Deno.test({
 	name: "setProperty() should map properties when in a material map",
 	fn() {
 		const material = new Material(mockMaterialMap);
@@ -180,11 +166,25 @@ Deno.test({
 	name: "setProperty() should throw when the material map contains a different type",
 	fn() {
 		const material = new Material(mockMaterialMap);
+
+		// assigning number to vec3
 		assertThrows(() => {
 			material.setProperty("colorMappedName", 5);
 		});
+
+		// assigning vec2 to vec3
 		assertThrows(() => {
 			material.setProperty("colorMappedName", new Vec2(0, 0.5));
+		});
+
+		// assigning vec3 to number
+		assertThrows(() => {
+			material.setProperty("floatMappedName", new Vec3(0, 0.5, 1));
+		});
+
+		// assigning array that is too long to vec3
+		assertThrows(() => {
+			material.setProperty("colorMappedName", [0, 1, 2, 3, 4, 5, 6, 7]);
 		});
 	},
 });
@@ -250,6 +250,17 @@ Deno.test({
 
 		assertStrictEquals(propertyColor, vec3);
 		assertStrictEquals(propertyColor, propertyVec3);
+	},
+});
+
+Deno.test({
+	name: "setProperty() should convert arrays to vector types",
+	fn() {
+		const material = new Material(mockMaterialMap);
+		material.setProperty("colorMappedName", [0, 0.5, 1]);
+		const result = material.getProperty("colorMappedName");
+		assertInstanceOf(result, Vec3);
+		assertVecAlmostEquals(result, [0, 0.5, 1]);
 	},
 });
 
