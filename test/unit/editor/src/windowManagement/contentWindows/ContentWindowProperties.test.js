@@ -2,7 +2,7 @@ import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.
 import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts";
 import {PropertiesWindowContent} from "../../../../../../editor/src/propertiesWindowContent/PropertiesWindowContent.js";
 import {ContentWindowProperties} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowProperties.js";
-import {PropertiesWindowEmptyContent} from "../../../../../../editor/src/propertiesWindowContent/PropertiesWindowEmptyContent.js";
+import {EmptyPropertiesWindowContent} from "../../../../../../editor/src/propertiesWindowContent/EmptyPropertiesWindowContent.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
@@ -84,7 +84,7 @@ function basicSetup() {
 		},
 		propertiesWindowContentManager: {
 			getContentTypeForObjects(objects) {
-				if (!getContentTypeForObjectsEnabled) return PropertiesWindowEmptyContent;
+				if (!getContentTypeForObjectsEnabled) return EmptyPropertiesWindowContent;
 				if (contentConstructorMap) {
 					const constructor = contentConstructorMap.get(objects[0]);
 					if (constructor) return constructor;

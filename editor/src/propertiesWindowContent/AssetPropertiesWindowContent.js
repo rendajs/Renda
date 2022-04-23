@@ -4,11 +4,11 @@ import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {PropertiesAssetContentGenericStructure} from "../propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
 /**
- * @typedef {Object} PropertiesWindowAssetContentCallbacksContext
+ * @typedef {Object} AssetPropertiesWindowContentCallbacksContext
  * @property {*[]} selectedAssets
  */
 
-export class PropertiesWindowAssetContent extends PropertiesWindowContent {
+export class AssetPropertiesWindowContent extends PropertiesWindowContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesWindowContent>} args
 	 */
@@ -74,7 +74,7 @@ export class PropertiesWindowAssetContent extends PropertiesWindowContent {
 			}
 		}
 
-		/** @type {PropertiesWindowAssetContentCallbacksContext} */
+		/** @type {AssetPropertiesWindowContentCallbacksContext} */
 		const callbacksContext = {
 			selectedAssets: this.currentSelection,
 		};

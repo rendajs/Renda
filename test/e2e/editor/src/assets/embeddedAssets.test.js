@@ -2,7 +2,7 @@ import {assertEquals, assertExists} from "std/testing/asserts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
 import {clickAsset, createAsset} from "../../shared/assets.js";
-import {getPropertiesWindowAssetContent} from "../../shared/contentWindows/properties.js";
+import {getAssetPropertiesWindowContent} from "../../shared/contentWindows/properties.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
@@ -33,7 +33,7 @@ Deno.test({
 			async fn(testContext) {
 				await createAsset(page, testContext, ["Materials", "New Material"]);
 				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				const assetContentEl = await getPropertiesWindowAssetContent(page);
+				const assetContentEl = await getAssetPropertiesWindowContent(page);
 
 				await testContext.step({
 					name: "Create embedded asset",
@@ -97,7 +97,7 @@ Deno.test({
 			name: "Verify if changes were saved",
 			async fn(testContext) {
 				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				const assetContentEl = await getPropertiesWindowAssetContent(page);
+				const assetContentEl = await getAssetPropertiesWindowContent(page);
 
 				const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
 				await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);

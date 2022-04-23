@@ -16,7 +16,7 @@ export async function getPropertiesWindowRootTreeView(page) {
 /**
  * @param {import("puppeteer").Page} page
  */
-export async function getPropertiesWindowAssetContent(page) {
+export async function getAssetPropertiesWindowContent(page) {
 	const propertiesRootTreeView = await getPropertiesWindowRootTreeView(page);
 	const assetContentEl = await getTreeViewItemElement(page, propertiesRootTreeView, ["Asset content will be placed here"]);
 	assertExists(assetContentEl);

@@ -1,8 +1,8 @@
 import {autoRegisterContentWindows} from "./autoRegisterContentWindows.js";
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {ContentWindowProperties} from "../windowManagement/contentWindows/ContentWindowProperties.js";
-import {PropertiesWindowEmptyContent} from "./PropertiesWindowEmptyContent.js";
-import {PropertiesWindowMultipleContent} from "./PropertiesWindowMultipleContent.js";
+import {EmptyPropertiesWindowContent} from "./EmptyPropertiesWindowContent.js";
+import {MultiplePropertiesWindowContent} from "./MultiplePropertiesWindowContent.js";
 
 export class PropertiesWindowContentManager {
 	/**
@@ -70,12 +70,12 @@ export class PropertiesWindowContentManager {
 			selectedTypes.set(t, count);
 		}
 		if (selectedTypes.size == 0) {
-			return PropertiesWindowEmptyContent;
+			return EmptyPropertiesWindowContent;
 		} else if (selectedTypes.size == 1) {
 			const onlyType = selectedTypes.keys().next().value;
 			return onlyType;
 		} else {
-			return PropertiesWindowMultipleContent;
+			return MultiplePropertiesWindowContent;
 		}
 	}
 }

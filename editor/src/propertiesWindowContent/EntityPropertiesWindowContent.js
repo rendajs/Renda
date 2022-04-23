@@ -6,7 +6,7 @@ import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/Cont
 import {EntityProjectAssetType} from "../assets/projectAssetType/EntityProjectAssetType.js";
 import {EntitySelection} from "../misc/EntitySelection.js";
 
-export class PropertiesWindowEntityContent extends PropertiesWindowContent {
+export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesWindowContent>} args
 	 */

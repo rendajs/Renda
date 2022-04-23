@@ -33,7 +33,7 @@ export class JavascriptProjectAssetType extends ProjectAssetType {
 		},
 		buildButton: {
 			type: "button",
-			/** @type {import("../../ui/Button.js").ButtonGuiOptionsWithCallbacksContext<import("../../propertiesWindowContent/PropertiesWindowAssetContent.js").PropertiesWindowAssetContentCallbacksContext>} */
+			/** @type {import("../../ui/Button.js").ButtonGuiOptionsWithCallbacksContext<import("../../propertiesWindowContent/AssetPropertiesWindowContent.js").AssetPropertiesWindowContentCallbacksContext>} */
 			guiOpts: {
 				text: "Build",
 				onClick: async context => {
