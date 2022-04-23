@@ -1,7 +1,7 @@
 import {DroppableGui} from "../ui/DroppableGui.js";
 import {PropertiesMaterialMapContent} from "./PropertiesMaterialMapContent.js";
 
-export class PropertiesMaterialMapContentGenericStructure extends PropertiesMaterialMapContent {
+export class GenericStructurePropertiesMaterialMapContent extends PropertiesMaterialMapContent {
 	/**
 	 * @param {import("../propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js").MaterialMapTypeEntry} mapTypeEntry
 	 * @param {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure

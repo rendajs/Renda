@@ -1,6 +1,6 @@
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {MaterialMapListUi} from "./MaterialMapListUi.js";
-import {PropertiesMaterialMapContentGenericStructure} from "../../propertiesMaterialMapContent/PropertiesMaterialMapContentGenericStructure.js";
+import {GenericStructurePropertiesMaterialMapContent} from "../../propertiesMaterialMapContent/GenericStructurePropertiesMaterialMapContent.js";
 
 /**
  * This class is instantiated for every added MaterialMapType in a PropertiesAssetContentMaterialMap.
@@ -22,7 +22,7 @@ export class MaterialMapTypeEntry {
 			if (!typeConstructor.settingsStructure) {
 				throw new Error("typeConstructor.settingsStructure is not set");
 			}
-			this.propertiesContentInstance = new PropertiesMaterialMapContentGenericStructure(this, typeConstructor.settingsStructure);
+			this.propertiesContentInstance = new GenericStructurePropertiesMaterialMapContent(this, typeConstructor.settingsStructure);
 		}
 
 		this.treeView = new PropertiesTreeView();
