@@ -1,7 +1,7 @@
 {
 	"imports": {
-		"std/testing/asserts": "https://deno.land/std@0.135.0/testing/asserts.ts",
-		"std/testing/mock": "https://deno.land/std@0.135.0/testing/mock.ts",
+		"std/testing/asserts": "https://deno.land/std@0.137.0/testing/asserts.ts",
+		"std/testing/mock": "https://deno.land/std@0.137.0/testing/mock.ts",
 		"std/path": "https://deno.land/std@0.121.0/path/mod.ts",
 		"std/node": "https://deno.land/std@0.135.0/node/module.ts",
 		"chdir-anywhere": "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",

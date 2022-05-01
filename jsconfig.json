@@ -9,8 +9,8 @@
 		"typeRoots": [".denoTypes/@types"],
 		"baseUrl": ".",
 		"paths": {
-			"std/testing/asserts": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/testing/asserts.ts"],
-			"std/testing/mock": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/testing/mock.ts"],
+			"std/testing/asserts": [".denoTypes/urlImports/https_/deno.land/std@0.137.0/testing/asserts.ts"],
+			"std/testing/mock": [".denoTypes/urlImports/https_/deno.land/std@0.137.0/testing/mock.ts"],
 			"std/path": [".denoTypes/urlImports/https_/deno.land/std@0.121.0/path/mod.ts"],
 			"std/node": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/node/module.ts"],
 			"chdir-anywhere": [".denoTypes/urlImports/https_/deno.land/x/chdir_anywhere@v0.0.2/mod.js"],
