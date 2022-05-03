@@ -3,6 +3,7 @@ import {TreeView} from "./TreeView.js";
 /**
  * @typedef {Object} PropertiesTreeViewEntrySpyOnly
  * @property {unknown[][]} setValueCalls
+ * @property {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} constructorOptions
  */
 /**
  * @typedef {import("./TreeView.js").TreeViewSpy & PropertiesTreeViewEntrySpyOnly} PropertiesTreeViewEntrySpy
@@ -25,7 +26,11 @@ import {TreeView} from "./TreeView.js";
 export class PropertiesTreeViewEntry extends TreeView {
 	/** @typedef {import("../../../../../editor/src/ui/propertiesTreeView/types.js").GetValueType<T>} ValueType */
 	/** @typedef {(value: ValueType) => void} OnValueChangeCallback */
-	constructor() {
+
+	/**
+	 * @param {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} opts
+	 */
+	constructor(opts) {
 		super();
 
 		/** @type {import("./TreeView.js").TreeViewSpy} */
@@ -34,6 +39,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.spy = {
 			...superSpy,
 			setValueCalls: [],
+			constructorOptions: opts,
 		};
 
 		/** @type {import("./TreeView.js").TreeViewMockObject} */
@@ -79,6 +85,10 @@ export class PropertiesTreeViewEntry extends TreeView {
 	 */
 	setValue(...args) {
 		this.spy.setValueCalls.push(args);
+	}
+
+	get value() {
+		return this.getValue();
 	}
 
 	getValue() {

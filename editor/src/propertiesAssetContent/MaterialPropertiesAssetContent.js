@@ -3,6 +3,7 @@ import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/Cont
 import {MaterialMap} from "../../../src/rendering/MaterialMap.js";
 import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/MaterialProjectAssetType.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
+import {Texture} from "../../../src/core/Texture.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -107,21 +108,41 @@ export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
 		const mappableValues = await this.editorInstance.materialMapTypeSerializerManager.getMapValuesForMapAssetUuid(this.mapTreeView.value);
 		/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 		for (const valueData of mappableValues) {
-			/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */
+			/** @type {import("../ui/propertiesTreeView/types.js").GuiTypes} */
+			let guiType;
+			/** @type {import("../ui/propertiesTreeView/types.js").GetGuiOptions<import("../ui/propertiesTreeView/types.js").GuiTypes>} */
+			let extraGuiOpts = {};
+			if (valueData.type == "sampler") {
+				guiType = "droppable";
+			} else if (valueData.type == "texture2d") {
+				guiType = "droppable";
+				extraGuiOpts = {
+					supportedAssetTypes: [Texture],
+				};
+			} else {
+				guiType = valueData.type;
+			}
+			/** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 			const addItemOpts = {
-				type: valueData.type,
+				type: guiType,
 				guiOpts: {
 					label: valueData.name,
-					defaultValue: valueData.defaultValue,
+					defaultValue: /** @type {any} */ (valueData.defaultValue),
+					.../** @type {any} */(extraGuiOpts),
 				},
 			};
-			const entry = this.mapValuesTreeView.addItem(addItemOpts);
+			const castAddItemOpts = /** @type {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptionsGeneric<any>} */ (addItemOpts);
+			const entry = this.mapValuesTreeView.addItem(castAddItemOpts);
 			const value = currentMaterialValues[valueData.name];
 			if (value !== undefined) {
 				entry.setValue(value);
 			}
-			entry.onValueChange(async newValue => {
+			entry.onValueChange(async () => {
 				if (this.isUpdatingUi) return;
+
+				const newValue = entry.getValue({
+					purpose: "script",
+				});
 
 				MaterialMap.assertIsMappableType(newValue);
 

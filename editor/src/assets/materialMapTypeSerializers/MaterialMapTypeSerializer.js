@@ -7,7 +7,7 @@ import {StorageType, objectToBinary} from "../../../../src/util/binarySerializat
 /**
  * @typedef {Object} MaterialMapTypeMappableValue
  * @property {string} name
- * @property {import("../../ui/propertiesTreeView/types.js").GuiTypes} type
+ * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} type
  * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
  */
 

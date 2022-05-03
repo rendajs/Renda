@@ -143,7 +143,7 @@ export class WebGpuChunkedBuffer {
 	}
 
 	/**
-	 * @param {import("../../../MaterialMap.js").MappableMaterialTypes | import("../../../../math/Mat4.js").Mat4} data
+	 * @param {import("../../../MaterialMap.js").MappableMaterialUniformTypes | import("../../../../math/Mat4.js").Mat4} data
 	 * @param {AppendFormat} type
 	 */
 	appendData(data, type = "f32") {

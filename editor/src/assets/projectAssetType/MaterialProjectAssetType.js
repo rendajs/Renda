@@ -5,6 +5,7 @@ import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
 import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
 import {MaterialMapProjectAssetType} from "./MaterialMapProjectAssetType.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
+import {Texture} from "../../../../src/core/Texture.js";
 
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 
@@ -76,11 +77,15 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 			for (const [key, value] of liveAsset.getAllProperties()) {
 				hasModifiedProperty = true;
 				let storeValue = null;
-				const mathType = mathTypeToJson(value);
-				if (mathType) {
-					storeValue = mathType;
+				if (value instanceof Texture) {
+					storeValue = this.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(value);
 				} else {
-					storeValue = value;
+					const mathType = mathTypeToJson(value);
+					if (mathType) {
+						storeValue = mathType;
+					} else {
+						storeValue = value;
+					}
 				}
 				modifiedProperties[key] = storeValue;
 			}

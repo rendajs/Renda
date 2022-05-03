@@ -12,6 +12,7 @@ import {Mesh} from "../../../core/Mesh.js";
 import {MultiKeyWeakMap} from "../../../util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
 import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
+import {Texture} from "../../../core/Texture.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
@@ -389,8 +390,13 @@ export class WebGpuRenderer extends Renderer {
 			for (const [material, renderDatas] of pipelineRenderData.materialRenderDatas) {
 				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
-				for (const [, value] of material.getAllMappedProperties(WebGpuMaterialMapType)) {
-					this.materialUniformsBuffer.appendData(value, "f32");
+				for (let [, value] of material.getAllMappedProperties(WebGpuMaterialMapType)) {
+					if (value === null) value = 0;
+					if (value instanceof Texture) {
+						// TODO
+					} else {
+						this.materialUniformsBuffer.appendData(value, "f32");
+					}
 				}
 
 				for (const {component: meshComponent, worldMatrix} of renderDatas) {

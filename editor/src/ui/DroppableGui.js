@@ -18,7 +18,9 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @template {new (...args: any) => any} T
  * @typedef {Object} DroppableGuiOptionsType
  * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstance()
- * @property {T[]} [supportedAssetTypes]
+ * @property {T[]} [supportedAssetTypes] A list of constructors from live assets that this droppable can accept.
+ * Note that this is not a list of ProjectAssetType constructors, but rather a list of constructors from live assets.
+ * So for instance, if you want to accept `MaterialProjectAssetType`, you should use `supportedAssetTypes: [Material]`.
  * @property {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  * When set, this will be the value upon creation. When loading serializable data, this value is set when the
  * serializable data is either `undefined` or not set.

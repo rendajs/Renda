@@ -1,17 +1,21 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts";
+import {stub} from "std/testing/mock";
 import "../../shared/initializeEditor.js";
 import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
-import {Material} from "../../../../../src/mod.js";
+import {Material, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 import {createMockKeyboardShortcutManager} from "../../shared/mockKeyboardShortcutManager.js";
 import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
 import {Importer} from "fake-imports";
 import {castTreeView} from "../../shared/mockTreeView/castTreeView.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
+import {Texture} from "../../../../../src/core/Texture.js";
 
 const DEFAULT_ASSET_MAP_UUID = "default-asset-map-uuid";
 
-const importer = new Importer(import.meta.url);
+const importer = new Importer(import.meta.url, {
+	importMap: "../../../../../importmap.json",
+});
 importer.fakeModule("../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js", `
 	export class ContentWindowEntityEditor {}
 `);
@@ -22,6 +26,7 @@ importer.fakeModule("../../../../../src/rendering/MaterialMap.js", `
 importer.fakeModule("../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js", `
 	export const MATERIAL_MAP_PERSISTENCE_KEY = "${MATERIAL_MAP_PERSISTENCE_KEY}";
 `);
+importer.makeReal("../../../../../src/core/Texture.js");
 /** @type {import("../../../../../editor/src/propertiesAssetContent/MaterialPropertiesAssetContent.js")} */
 const MaterialPropertiesAssetContentImport = await importer.import("../../../../../editor/src/propertiesAssetContent/MaterialPropertiesAssetContent.js");
 const {MaterialPropertiesAssetContent} = MaterialPropertiesAssetContentImport;
@@ -48,6 +53,13 @@ function basicSetup() {
 				yield mockEntityEditor;
 			},
 		},
+		materialMapTypeSerializerManager: {
+			getMapValuesForMapAssetUuid(mapAssetUuid) {
+				/** @type {import("../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} */
+				const arr = [];
+				return Promise.resolve(arr);
+			},
+		},
 	});
 
 	const assetContent = new MaterialPropertiesAssetContent(mockEditorInstance);
@@ -68,6 +80,7 @@ function basicSetup() {
 	};
 
 	return {
+		mockEditorInstance,
 		assetContent,
 		setEmbeddedParentAssetCalls,
 		getDidCallNotifyMaterialChanged() {
@@ -83,6 +96,8 @@ Deno.test({
 		const {projectAsset: mockMaterialAsset} = createMockProjectAsset({
 			liveAsset: new Material(),
 		});
+		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
+		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset]);
 
@@ -100,6 +115,8 @@ Deno.test({
 		const {projectAsset: mockMaterialAsset} = createMockProjectAsset({
 			liveAsset: material,
 		});
+		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
+		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset]);
 
@@ -111,6 +128,142 @@ Deno.test({
 });
 
 Deno.test({
+	name: "load material with a material map and properties",
+	async fn() {
+		const {assetContent, mockEditorInstance} = basicSetup();
+		stub(mockEditorInstance.materialMapTypeSerializerManager, "getMapValuesForMapAssetUuid", async () => {
+			/** @type {import("../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} */
+			const values = [
+				{
+					name: "num",
+					type: "number",
+				},
+				{
+					name: "vec2",
+					type: "vec2",
+				},
+				{
+					name: "vec3",
+					type: "vec3",
+				},
+				{
+					name: "vec4",
+					type: "vec4",
+				},
+				{
+					name: "numWithDefault",
+					type: "number",
+					defaultValue: 1,
+				},
+				{
+					name: "vec2WithDefault",
+					type: "vec2",
+					defaultValue: new Vec2(1, 2),
+				},
+				{
+					name: "vec3WithDefault",
+					type: "vec3",
+					defaultValue: new Vec3(1, 2, 3),
+				},
+				{
+					name: "vec4WithDefault",
+					type: "vec4",
+					defaultValue: new Vec4(1, 2, 3, 4),
+				},
+				{
+					name: "texture2d",
+					type: "texture2d",
+				},
+			];
+			return values;
+		});
+		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
+		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
+		const materialMap = new MaterialMap();
+		const material = new Material(materialMap);
+		const {projectAsset: mockMaterialAsset} = createMockProjectAsset({
+			liveAsset: material,
+		});
+
+		await assetContent.selectionUpdated([mockMaterialAsset]);
+
+		/** @type {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions[]} */
+		const createdValueOptions = [];
+		for (const child of assetContent.mapValuesTreeView.children) {
+			const castChildEntry = /** @type {import("../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} */ (child);
+			const castMockChild = castTreeView(castChildEntry);
+			createdValueOptions.push(castMockChild.spy.constructorOptions);
+		}
+		assertEquals(createdValueOptions, [
+			{
+				type: "number",
+				guiOpts: {
+					label: "num",
+					defaultValue: undefined,
+				},
+			},
+			{
+				type: "vec2",
+				guiOpts: {
+					label: "vec2",
+					defaultValue: undefined,
+				},
+			},
+			{
+				type: "vec3",
+				guiOpts: {
+					label: "vec3",
+					defaultValue: undefined,
+				},
+			},
+			{
+				type: "vec4",
+				guiOpts: {
+					label: "vec4",
+					defaultValue: undefined,
+				},
+			},
+			{
+				type: "number",
+				guiOpts: {
+					label: "numWithDefault",
+					defaultValue: 1,
+				},
+			},
+			{
+				type: "vec2",
+				guiOpts: {
+					label: "vec2WithDefault",
+					defaultValue: new Vec2(1, 2),
+				},
+			},
+			{
+				type: "vec3",
+				guiOpts: {
+					label: "vec3WithDefault",
+					defaultValue: new Vec3(1, 2, 3),
+				},
+			},
+			{
+				type: "vec4",
+				guiOpts: {
+					label: "vec4WithDefault",
+					defaultValue: new Vec4(1, 2, 3, 4),
+				},
+			},
+			{
+				type: "droppable",
+				guiOpts: {
+					label: "texture2d",
+					defaultValue: undefined,
+					supportedAssetTypes: [Texture],
+				},
+			},
+		]);
+	},
+});
+
+Deno.test({
 	name: "save data when maptreeview value changes",
 	async fn() {
 		const {assetContent, getDidCallNotifyMaterialChanged} = basicSetup();
@@ -118,6 +271,8 @@ Deno.test({
 		const {projectAsset: mockMaterialAsset, getSaveLiveAssetDataCallCount} = createMockProjectAsset({
 			liveAsset: material,
 		});
+		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
+		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset]);
 
@@ -180,6 +335,8 @@ Deno.test({
 		const {projectAsset: mockMaterialAsset2} = createMockProjectAsset({
 			liveAsset: new Material(),
 		});
+		const mockMapTreeView = castTreeView(assetContent.mapTreeView);
+		mockMapTreeView.mock.setGetValueReturn(DEFAULT_ASSET_MAP_UUID);
 
 		await assetContent.selectionUpdated([mockMaterialAsset1]);
 		await assetContent.selectionUpdated([mockMaterialAsset1, mockMaterialAsset2]);

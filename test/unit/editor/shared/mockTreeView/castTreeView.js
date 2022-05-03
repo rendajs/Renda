@@ -1,8 +1,10 @@
 /**
  * @template T
  * @typedef {T extends import("../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<infer EntryType> ?
- *	import("./PropertiesTreeViewEntry.js").MockPropertiesTreeViewEntry<EntryType> :
- *	never} MapTreeViewToMock
+ *		import("./PropertiesTreeViewEntry.js").MockPropertiesTreeViewEntry<EntryType> :
+ * 	T extends import("../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView<infer Structure> ?
+ * 		import("./PropertiesTreeView.js").MockPropertiesTreeView<Structure> :
+ * 	never} MapTreeViewToMock
  */
 
 /**

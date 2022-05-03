@@ -1,3 +1,4 @@
+import {Texture} from "../../../../src/core/Texture.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
@@ -24,6 +25,24 @@ export class MaterialMapListUi {
 		this.treeView = new PropertiesTreeView({name: "mapList"});
 		for (const item of items) {
 			const mappableItemTreeView = this.treeView.addCollapsable(item.name);
+			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+			let defaultValueTypeOptions;
+			if (item.type == "sampler") {
+				defaultValueTypeOptions = {
+					type: "droppable",
+				};
+			} else if (item.type == "texture2d") {
+				defaultValueTypeOptions = {
+					type: "droppable",
+					guiOpts: {
+						supportedAssetTypes: [Texture],
+					},
+				};
+			} else {
+				defaultValueTypeOptions = {
+					type: item.type,
+				};
+			}
 			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 			const structure = {
 				visible: {
@@ -38,9 +57,7 @@ export class MaterialMapListUi {
 						defaultValue: item.name,
 					},
 				},
-				defaultValue: {
-					type: item.type,
-				},
+				defaultValue: defaultValueTypeOptions,
 			};
 			mappableItemTreeView.generateFromSerializableStructure(structure);
 

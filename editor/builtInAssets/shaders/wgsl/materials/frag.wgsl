@@ -46,6 +46,9 @@ struct MaterialUniforms {
 @group(1) @binding(0)
 var<uniform> materialUniforms : MaterialUniforms;
 
+@group(1) @binding(1) var mySampler : sampler;
+@group(1) @binding(2) var myTexture : texture_2d<f32>;
+
 
 struct FragmentInput {
 	@location(0) vWorldPos : vec3<f32>,

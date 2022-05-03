@@ -2,12 +2,16 @@ import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
 import {Quat} from "../math/Quat.js";
+import {Texture} from "../core/Texture.js";
 
-/** @typedef {number | number[] | import("../math/Vec2.js").Vec2 | import("../math/Vec3.js").Vec3 | import("../math/Vec4.js").Vec4 | import("../math/Quat.js").Quat} MappableMaterialTypes */
+/** @typedef {number | number[] | Vec2 | Vec3 | Vec4 | Quat} MappableMaterialUniformTypes */
+/** @typedef {MappableMaterialUniformTypes | Texture | null} MappableMaterialTypes */
 
+/** @typedef {"number" | "vec2" | "vec3" | "vec4" | "sampler" | "texture2d"} MappableMaterialTypesEnum */
 /**
  * @typedef {Object} MaterialMapMappedValue
  * @property {string} mappedName
+ * @property {MappableMaterialTypesEnum} mappedType
  * @property {MappableMaterialTypes} defaultValue
  */
 
@@ -39,10 +43,10 @@ export class MaterialMap {
 			this.mapTypes.set(castConstructor, mapType);
 			/** @type {Map<string, MaterialMapMappedValue>} */
 			const mappedNamesMap = new Map();
-			for (const [originalName, {mappedName, defaultValue}] of Object.entries(mappedValues)) {
+			for (const [originalName, {mappedName, defaultValue, mappedType}] of Object.entries(mappedValues)) {
 				mappedNamesMap.set(mappedName, {
 					mappedName: originalName,
-					defaultValue,
+					defaultValue, mappedType,
 				});
 			}
 			this.inverseMappedData.set(castConstructor, mappedNamesMap);
@@ -99,7 +103,7 @@ export class MaterialMap {
 			if (allNumbers) return;
 		}
 
-		if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4 || value instanceof Quat) return;
+		if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4 || value instanceof Quat || value instanceof Texture) return;
 
 		throw new Error(`Value is not a mappable material type: ${value}`);
 	}

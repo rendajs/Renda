@@ -23,7 +23,7 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://deno.land/std@0.137.0/testing/asserts.ts",
 	"https://deno.land/std@0.137.0/testing/mock.ts",
 	"https://deno.land/std@0.135.0/node/module.ts",
-	"https://deno.land/x/fake_imports@v0.4.0/mod.js",
+	"https://deno.land/x/fake_imports@v0.6.0/mod.js",
 	"https://raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeDocument.js",
 	"https://raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeMouseEvent.js",
 	"https://raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakePointerEvent.js",
@@ -31,7 +31,6 @@ const DOWNLOAD_TYPE_URLS = [
 	"https://raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeMouseEvent.js",
 	"https://raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeMouseEvent.js",
 	"https://deno.land/x/puppeteer@9.0.2/mod.ts",
-	"https://deno.land/x/fake_imports@v0.1.0/mod.js",
 	"https://deno.land/std@0.127.0/http/file_server.ts",
 	"https://deno.land/std@0.127.0/http/server.ts",
 ];

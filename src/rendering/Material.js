@@ -1,3 +1,4 @@
+import {Texture} from "../core/Texture.js";
 import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
@@ -95,8 +96,8 @@ export class Material {
 		if (this._materialMap) {
 			const mappedDatas = Array.from(this._materialMap.mapProperty(key));
 			for (const [mapType, mappedData] of mappedDatas) {
-				const isSameType = this._isSameType(value, mappedData.defaultValue);
-				if (!isSameType) {
+				const expectedType = this._isExpectedType(value, mappedData.mappedType);
+				if (!expectedType) {
 					this._throwInvalidPropertyType(key, mappedData.defaultValue, value, mapType);
 				}
 				foundDefaultValue = mappedData.defaultValue;
@@ -111,8 +112,11 @@ export class Material {
 		}
 
 		const existingValue = this.properties.get(key) || null;
-
-		if (existingValue == null || typeof existingValue == "number" || !this._isSameType(value, existingValue)) {
+		const isSameType = existingValue && value instanceof existingValue.constructor;
+		if (isSameType && (existingValue instanceof Vec2 || existingValue instanceof Vec3 || existingValue instanceof Vec4)) {
+			const castValue = /** @type {Vec2 | Vec3 | Vec4} */ (value);
+			existingValue.set(castValue);
+		} else {
 			this.properties.set(key, value);
 			if (this._materialMap) {
 				for (const [mapType, mappedData] of this._materialMap.mapProperty(key)) {
@@ -124,29 +128,31 @@ export class Material {
 					mappedProperties.set(mappedData.mappedName, value);
 				}
 			}
-		} else {
-			const castExistingValue = /** @type {{set: (param: unknown) => void}} */ (existingValue);
-			castExistingValue.set(value);
 		}
 	}
 
 	/**
 	 * @private
 	 * @param {import("./MaterialMap.js").MappableMaterialTypes} value
-	 * @param {import("./MaterialMap.js").MappableMaterialTypes} existingValue
+	 * @param {import("./MaterialMap.js").MappableMaterialTypesEnum} expectedType
 	 */
-	_isSameType(value, existingValue) {
-		const defaultIsNumber = typeof existingValue == "number";
-		const newValueIsNumber = typeof value == "number";
-		if (defaultIsNumber != newValueIsNumber) {
+	_isExpectedType(value, expectedType) {
+		if (!value) return true;
+		if (expectedType == "number") {
+			return typeof value == "number";
+		} else if (expectedType == "vec2") {
+			return value instanceof Vec2 || (value instanceof Array && value.length == 2);
+		} else if (expectedType == "vec3") {
+			return value instanceof Vec3 || (value instanceof Array && value.length == 3);
+		} else if (expectedType == "vec4") {
+			return value instanceof Vec4 || (value instanceof Array && value.length == 4);
+		} else if (expectedType == "texture2d") {
+			return value instanceof Texture;
+		} else if (expectedType == "sampler") {
+			// todo
 			return false;
-		} else if (!defaultIsNumber && !newValueIsNumber) {
-			const castDefault = /** @type {Object} */ (existingValue);
-			if (!(value instanceof castDefault.constructor)) {
-				return this._isArrayAndVectorType(value, existingValue);
-			}
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -179,14 +185,16 @@ export class Material {
 	_throwInvalidPropertyType(key, expectedType, receivedType, mapType) {
 		const expectedTypeStr = this._mappableMaterialTypeToString(expectedType);
 		const receivedTypeStr = this._mappableMaterialTypeToString(receivedType);
-		throw new TypeError(`Invalid type received for "${key}". Received a ${receivedTypeStr} but in the "${mapType.name}" a ${expectedTypeStr} was configured.`);
+		throw new TypeError(`Invalid type received for "${key}". Received ${receivedTypeStr} but in the "${mapType.name}" a ${expectedTypeStr} was configured.`);
 	}
 
 	/**
 	 * @param {import("./MaterialMap.js").MappableMaterialTypes} mappableMaterialType
 	 */
 	_mappableMaterialTypeToString(mappableMaterialType) {
-		if (typeof mappableMaterialType == "number") {
+		if (!mappableMaterialType) {
+			return "null";
+		} else if (typeof mappableMaterialType == "number") {
 			return "number";
 		} else {
 			return mappableMaterialType.constructor.name;
@@ -264,7 +272,7 @@ export class Material {
 				// value doesn't need to be cloned
 			} else if (value instanceof Array) {
 				newValue = [...value];
-			} else {
+			} else if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4) {
 				newValue = value.clone();
 			}
 			clone.setProperty(key, newValue);

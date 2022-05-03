@@ -25,6 +25,7 @@ export function createMockDependencies({
 		getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
 			return getProjectAssetFromUuidOrEmbeddedAssetDataImpl(uuidOrData, options);
 		},
+		getLiveAsset(uuid, assertionOptions) {},
 		async getProjectAssetFromUuid(uuid, options) {
 			return null;
 		},
@@ -46,4 +47,10 @@ export function createMockDependencies({
 		assetTypeManager,
 		projectAssetTypeArgs,
 	};
+}
+
+export function getMockRecursionTracker() {
+	return /** @type {import("../../../../../../editor/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} */ ({
+
+	});
 }

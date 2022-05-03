@@ -3,29 +3,28 @@ import {assertEquals, assertExists, assertStrictEquals} from "std/testing/assert
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock";
 import {MaterialProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
 import {createMockDependencies} from "./shared.js";
-import {Material} from "../../../../../../src/mod.js";
+import {Material, Vec3} from "../../../../../../src/mod.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
 import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../../../../../../editor/src/assets/builtinAssetUuids.js";
+import {Texture} from "../../../../../../src/core/Texture.js";
 
 const BASIC_MATERIAL_MAP_UUID = "basic material map uuid";
 
-/**
- * @param {Object} [options]
- * @param {import("../../../../../../src/mod.js").UuidString | object | null} [options.getMaterialMapReturnValue]
- */
-function basicSetup({
-	getMaterialMapReturnValue = BASIC_MATERIAL_MAP_UUID,
-} = {}) {
-	const basicMaterialMapLiveAsset = Symbol("basic material map live asset");
-	const defaultMaterialMapLiveAsset = Symbol("default material map live asset");
+function basicSetup() {
+	const mockBasicMaterialMapLiveAsset = /** @type {unknown} */ (Symbol("basic material map live asset"));
+	const mockDefaultMaterialMapLiveAsset = /** @type {unknown} */ (Symbol("default material map live asset"));
+	const basicMaterialMapLiveAsset = /** @type {MaterialMap} */ (mockBasicMaterialMapLiveAsset);
+	const defaultMaterialMapLiveAsset = /** @type {MaterialMap} */ (mockDefaultMaterialMapLiveAsset);
 	/** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny[]} */
 	const createdProjectAssets = [];
 
 	const {projectAssetTypeArgs, assetManager} = createMockDependencies({
 		getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl: liveAsset => {
-			if (liveAsset instanceof MaterialMap) {
-				return getMaterialMapReturnValue;
+			if (liveAsset == basicMaterialMapLiveAsset) {
+				return BASIC_MATERIAL_MAP_UUID;
+			} else if (liveAsset == defaultMaterialMapLiveAsset) {
+				return DEFAULT_MATERIAL_MAP_UUID;
 			}
 			return null;
 		},
@@ -55,6 +54,7 @@ function basicSetup({
 		defaultMaterialMapLiveAsset,
 		createdProjectAssets,
 		getProjectAssetFromUuidStub,
+		assetManager,
 	};
 }
 
@@ -136,9 +136,7 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with no material map",
 	async fn() {
-		const {projectAssetType} = basicSetup({
-			getMaterialMapReturnValue: null,
-		});
+		const {projectAssetType} = basicSetup();
 
 		const material = new Material();
 		const assetData = await projectAssetType.saveLiveAssetData(material, null);
@@ -152,13 +150,10 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with the default material map",
 	async fn() {
-		const {projectAssetType} = basicSetup({
-			getMaterialMapReturnValue: DEFAULT_MATERIAL_MAP_UUID,
-		});
+		const {projectAssetType, defaultMaterialMapLiveAsset} = basicSetup();
 
 		const material = new Material();
-		const materialMap = new MaterialMap();
-		material.setMaterialMap(materialMap);
+		material.setMaterialMap(defaultMaterialMapLiveAsset);
 		const assetData = await projectAssetType.saveLiveAssetData(material, null);
 
 		assertEquals(assetData, {});
@@ -168,13 +163,10 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with a material map",
 	async fn() {
-		const {projectAssetType} = basicSetup({
-			getMaterialMapReturnValue: BASIC_MATERIAL_MAP_UUID,
-		});
+		const {projectAssetType, basicMaterialMapLiveAsset} = basicSetup();
 
 		const material = new Material();
-		const materialMap = new MaterialMap();
-		material.setMaterialMap(materialMap);
+		material.setMaterialMap(basicMaterialMapLiveAsset);
 		const assetData = await projectAssetType.saveLiveAssetData(material, null);
 
 		assertEquals(assetData, {
@@ -186,20 +178,35 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with an embedded material map",
 	async fn() {
-		const {projectAssetType} = basicSetup({
-			getMaterialMapReturnValue: {
-				embeddedData: "data",
-			},
-		});
+		const {projectAssetType, assetManager} = basicSetup();
 
 		const material = new Material();
-		const materialMap = new MaterialMap();
-		material.setMaterialMap(materialMap);
+		const embeddedMaterialMap = new MaterialMap();
+		const BASIC_TEXTURE_UUID = "basic texture uuid";
+		const embeddedData = {label: "embedded data"};
+		const texture = new Texture();
+
+		stub(assetManager, "getAssetUuidOrEmbeddedAssetDataFromLiveAsset", liveAsset => {
+			if (liveAsset == texture) {
+				return BASIC_TEXTURE_UUID;
+			} else if (liveAsset == embeddedMaterialMap) {
+				return embeddedData;
+			}
+			return null;
+		});
+
+		material.setMaterialMap(embeddedMaterialMap);
+		material.setProperty("num", 42);
+		material.setProperty("vec3", new Vec3(1, 2, 3));
+		material.setProperty("texture", texture);
 		const assetData = await projectAssetType.saveLiveAssetData(material, null);
 
 		assertEquals(assetData, {
-			map: {
-				embeddedData: "data",
+			map: embeddedData,
+			properties: {
+				num: 42,
+				vec3: [1, 2, 3],
+				texture: BASIC_TEXTURE_UUID,
 			},
 		});
 	},

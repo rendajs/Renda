@@ -1,14 +1,6 @@
+import {spy} from "std/testing/mock";
 import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 import {TreeView} from "./TreeView.js";
-
-/**
- * @typedef {Object} PropertiesTreeViewSpyOnly
- * @property {*} [value]
- */
-
-/**
- * @typedef {import("./TreeView.js").TreeViewSpy & PropertiesTreeViewSpyOnly} PropertiesTreeViewSpy
- */
 
 export class PropertiesTreeView extends TreeView {
 	constructor() {
@@ -17,21 +9,41 @@ export class PropertiesTreeView extends TreeView {
 		/** @type {import("./TreeView.js").TreeViewSpy} */
 		const superSpy = this.spy;
 
-		/** @type {PropertiesTreeViewSpy} */
-		this.spy = {
+		const generateFromSerializableStructureSpy = spy(this, "generateFromSerializableStructure");
+
+		const newSpy = {
 			...superSpy,
+			generateFromSerializableStructureSpy,
 		};
+
+		/** @type {typeof newSpy} */
+		this.spy = newSpy;
 	}
 
 	addCollapsable() {
-		return new PropertiesTreeView();
+		const treeView = new PropertiesTreeView();
+		this.addChild(treeView);
+		return treeView;
 	}
 
-	addItem() {
-		return new PropertiesTreeViewEntry();
+	/**
+	 * @param {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} opts
+	 */
+	addItem(opts) {
+		const entry = new PropertiesTreeViewEntry(opts);
+		this.addChild(entry);
+		return entry;
 	}
+
+	/**
+	 * @param {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {Object} [opts]
+	 * @param {Object} [opts.callbacksContext]
+	 */
+	generateFromSerializableStructure(structure, opts) {}
 }
 
 /**
- * @typedef {PropertiesTreeView & import("../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} MockPropertiesTreeView
+ * @template {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} Structure
+ * @typedef {PropertiesTreeView & import("../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView<Structure>} MockPropertiesTreeView
  */

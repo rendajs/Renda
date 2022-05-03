@@ -3,6 +3,7 @@ import {MaterialMapPropertiesAssetContent} from "../../propertiesAssetContent/ma
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {StorageType, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
+import {PngProjectAssetType} from "./PngProjectAssetType.js";
 
 /**
  * @extends {ProjectAssetType<MaterialMap, null, import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
@@ -27,13 +28,13 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData} fileData
+	 * @param {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData?} fileData
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
 		/** @type {import("../../../../src/rendering/MaterialMap.js").MaterialMapTypeData[]} */
 		const materialMapTypes = [];
-		if (fileData.maps) {
+		if (fileData?.maps) {
 			for (const map of fileData.maps) {
 				const typeSerializer = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(map.mapTypeId);
 				if (!typeSerializer) continue;
@@ -52,7 +53,7 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 							// value doesn't need to be cloned
 						} else if (defaultValue instanceof Array) {
 							defaultValue = [...defaultValue];
-						} else {
+						} else if (defaultValue instanceof Vec2 || defaultValue instanceof Vec3 || defaultValue instanceof Vec4) {
 							defaultValue = defaultValue.clone();
 						}
 					} else {
@@ -64,31 +65,47 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 							defaultValue = new Vec3();
 						} else if (mappedValue.type == "vec4") {
 							defaultValue = new Vec4();
+						} else if (mappedValue.type == "texture2d") {
+							defaultValue = null;
+						} else if (mappedValue.type == "sampler") {
+							defaultValue = null;
+						} else {
+							throw new Error("Unknown mapped value type: " + mappedValue.type);
 						}
 					}
-					if (defaultValue) {
+					if (defaultValue !== undefined) {
 						mappedValues[mappedValue.name] = {
 							mappedName: mappedValue.name,
 							defaultValue,
+							mappedType: mappedValue.type,
 						};
 					}
 				}
 				if (map.mappedValues) {
-					for (const [key, mappedValue] of Object.entries(map.mappedValues)) {
-						if (mappedValue.visible == false) {
+					for (const [key, mappedValueDiskData] of Object.entries(map.mappedValues)) {
+						if (mappedValueDiskData.visible === false) {
 							delete mappedValues[key];
 						} else {
-							if (mappedValue.mappedName) {
-								mappedValues[key].mappedName = mappedValue.mappedName;
+							if (mappedValueDiskData.mappedName) {
+								mappedValues[key].mappedName = mappedValueDiskData.mappedName;
 							}
-							if (mappedValue.defaultValue !== undefined) {
-								const defaultValue = mappedValues[key].defaultValue;
-								if (typeof defaultValue == "number") {
-									mappedValues[key].defaultValue = mappedValue.defaultValue;
-								} else if (defaultValue instanceof Array) {
-									mappedValues[key].defaultValue = [...mappedValue.defaultValue];
-								} else {
-									defaultValue.set(mappedValue.defaultValue);
+							if (mappedValueDiskData.defaultValue !== undefined) {
+								const mappedValue = mappedValues[key];
+								if (!mappedValue) {
+									throw new Error(`Assertion failed, mapped value "${key}" doesn't exist.`);
+								}
+								const defaultValue = mappedValue.defaultValue;
+								if (mappedValue.mappedType == "number") {
+									mappedValue.defaultValue = mappedValueDiskData.defaultValue;
+								} else if (mappedValue.mappedType == "vec2" || mappedValue.mappedType == "vec3" || mappedValue.mappedType == "vec4") {
+									if (!(defaultValue instanceof Vec2 || defaultValue instanceof Vec3 || defaultValue instanceof Vec4)) {
+										throw new Error("Assertion failed, default value is not a vector type.");
+									}
+									defaultValue.set(mappedValueDiskData.defaultValue);
+								} else if (mappedValue.mappedType == "texture2d") {
+									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
+										assertAssetType: PngProjectAssetType,
+									});
 								}
 							}
 						}
