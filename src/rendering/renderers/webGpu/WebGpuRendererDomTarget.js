@@ -127,12 +127,15 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 			});
 
-			this.depthStencilAttachment = {
+			/** @type {GPURenderPassDepthStencilAttachment} */
+			// @ts-expect-error Deno still has old types containing 'loadValue'
+			const attachment = {
 				view: this.depthTexture.createView(),
 				depthLoadOp: "clear",
 				depthClearValue: 1,
 				depthStoreOp: "store",
 			};
+			this.depthStencilAttachment = attachment;
 
 			this.renderPassDescriptor.depthStencilAttachment = this.depthStencilAttachment;
 		}
@@ -156,6 +159,7 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 			return null;
 		}
 
+		// @ts-expect-error Deno still has old types containing 'loadValue'
 		this.colorAttachment = {
 			view,
 			resolveTarget,
