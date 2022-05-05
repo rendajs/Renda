@@ -147,13 +147,13 @@ export class ClusterComputeManager {
 		computePassEncoder.setPipeline(this.computeBoundsPipeline);
 		computePassEncoder.setBindGroup(0, viewBindGroup);
 		computePassEncoder.setBindGroup(1, this.boundsBindGroup);
-		computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
+		computePassEncoder.dispatchWorkgroups(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 
 		if (this.computeLightIndicesPipeline && this.cachedCameraData.viewBindGroup && this.lightIndicesBindGroup) {
 			computePassEncoder.setPipeline(this.computeLightIndicesPipeline);
 			computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
 			computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
-			computePassEncoder.dispatch(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
+			computePassEncoder.dispatchWorkgroups(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 		}
 
 		computePassEncoder.end();
