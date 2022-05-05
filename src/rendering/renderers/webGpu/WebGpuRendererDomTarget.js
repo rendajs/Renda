@@ -94,6 +94,7 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 		this.ctx.configure({
 			device,
 			format: this.swapChainFormat,
+			compositingAlphaMode: "opaque",
 		});
 
 		if (this.colorTexture) this.colorTexture.destroy();
