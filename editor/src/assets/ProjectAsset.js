@@ -53,6 +53,13 @@ export class ProjectAsset {
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
 	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} LiveAssetData */
 
+	/** @type {Set<LiveAssetDataChangedCallback>} */
+	#onLiveAssetDataChangeCbs = new Set();
+	/** @type {Set<LiveAssetDataChangedCallback>} */
+	#onLiveAssetDataChangePromiseCbs = new Set();
+	/** @type {Set<() => void>} */
+	#onLiveAssetNeedsReplacementCbs = new Set();
+
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
@@ -100,10 +107,6 @@ export class ProjectAsset {
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
-		/** @type {Set<LiveAssetDataChangedCallback>} */
-		this.onLiveAssetDataChangeCbs = new Set();
-		/** @type {Set<LiveAssetDataChangedCallback>} */
-		this.onLiveAssetDataChangePromiseCbs = new Set();
 		/** @type {LiveAssetType?} */
 		this.liveAsset = null;
 		/** @type {EditorDataType?} */
@@ -119,9 +122,6 @@ export class ProjectAsset {
 		this.initInstance = new SingleInstancePromise(async () => await this.init());
 		this.initInstance.run();
 
-		/** @type {Set<() => void>} */
-		this.onLiveAssetNeedsReplacementCbs = new Set();
-
 		/**
 		 * Whenever {@linkcode RecursionTracker.getLiveAssetData} is called with
 		 * `repeatOnLiveAssetChange`, a handler is registered with {@linkcode onLiveAssetNeedsReplacement}.
@@ -130,7 +130,7 @@ export class ProjectAsset {
 		 * extra list of registered handlers.
 		 *
 		 * So there's two lists:
-		 * - {@linkcode onLiveAssetNeedsReplacementCbs} - The actual handlers, stored
+		 * - {@linkcode #onLiveAssetNeedsReplacementCbs} - The actual handlers, stored
 		 * on ProjectAsset A, fired when ProjectAsset A changes.
 		 * - {@linkcode registeredLiveAssetChangeHandlers} - The registered handlers.
 		 * Stored on ProjectAsset B, never actually fired
@@ -148,7 +148,7 @@ export class ProjectAsset {
 
 		this.destroyLiveAssetData();
 		this._projectAssetType = null;
-		this.onLiveAssetNeedsReplacementCbs.clear();
+		this.#onLiveAssetNeedsReplacementCbs.clear();
 		this.clearRecursionTrackerLiveAssetChangeHandlers();
 	}
 
@@ -361,7 +361,7 @@ export class ProjectAsset {
 		}
 
 		if (this.isGettingLiveAssetData) {
-			return await new Promise(r => this.onLiveAssetDataChangePromiseCbs.add(r));
+			return await new Promise(r => this.#onLiveAssetDataChangePromiseCbs.add(r));
 		}
 
 		this.isGettingLiveAssetData = true;
@@ -476,19 +476,19 @@ export class ProjectAsset {
 	 * @param {() => void} cb
 	 */
 	onLiveAssetNeedsReplacement(cb) {
-		this.onLiveAssetNeedsReplacementCbs.add(cb);
+		this.#onLiveAssetNeedsReplacementCbs.add(cb);
 	}
 
 	/**
 	 * @param {() => void} cb
 	 */
 	removeOnLiveAssetNeedsReplacement(cb) {
-		this.onLiveAssetNeedsReplacementCbs.delete(cb);
+		this.#onLiveAssetNeedsReplacementCbs.delete(cb);
 	}
 
 	liveAssetNeedsReplacement() {
 		this.destroyLiveAssetData();
-		for (const cb of this.onLiveAssetNeedsReplacementCbs) {
+		for (const cb of this.#onLiveAssetNeedsReplacementCbs) {
 			cb();
 		}
 	}
@@ -497,14 +497,14 @@ export class ProjectAsset {
 	 * @param {LiveAssetDataChangedCallback} cb
 	 */
 	onLiveAssetDataChange(cb) {
-		this.onLiveAssetDataChangeCbs.add(cb);
+		this.#onLiveAssetDataChangeCbs.add(cb);
 	}
 
 	/**
 	 * @param {LiveAssetDataChangedCallback} cb
 	 */
 	removeOnLiveAssetDataChange(cb) {
-		this.onLiveAssetDataChangeCbs.delete(cb);
+		this.#onLiveAssetDataChangeCbs.delete(cb);
 	}
 
 	/**
@@ -516,9 +516,9 @@ export class ProjectAsset {
 	 * @param {LiveAssetData} liveAssetData
 	 */
 	fireOnLiveAssetDataChangeCbs(liveAssetData) {
-		this.onLiveAssetDataChangeCbs.forEach(cb => cb(liveAssetData));
-		this.onLiveAssetDataChangePromiseCbs.forEach(cb => cb(liveAssetData));
-		this.onLiveAssetDataChangePromiseCbs.clear();
+		this.#onLiveAssetDataChangeCbs.forEach(cb => cb(liveAssetData));
+		this.#onLiveAssetDataChangePromiseCbs.forEach(cb => cb(liveAssetData));
+		this.#onLiveAssetDataChangePromiseCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
 
