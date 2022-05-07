@@ -1,6 +1,6 @@
 import puppeteer from "puppeteer";
 
-const MAIN_PAGE_URL = "http://localhost:8080/";
+const MAIN_PAGE_URL = "http://localhost:8081/";
 
 /**
  * A collection of sanitizer options for tests that are using puppeteer.

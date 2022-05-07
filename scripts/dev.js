@@ -1,11 +1,17 @@
 #!/usr/bin/env -S deno run --allow-env --allow-run --allow-read --allow-write --allow-net --no-check --unstable
 
-import {dirname, join, resolve} from "std/path";
+/**
+ * @fileoverview
+ * Downloads files necessary for development and then starts the development server.
+ * If your platform supports the /usr/bin/env shebang (generally speaking mac and linux),
+ * you can simply run this script with `./scripts/dev.js`.
+ * On windows you can run this using `deno task dev`.
+ */
+
+import {dirname, join} from "std/path";
 import {setCwd} from "chdir-anywhere";
-import {serveDir} from "https://deno.land/std@0.127.0/http/file_server.ts";
-import {serve} from "https://deno.land/std@0.127.0/http/server.ts";
-import {Application as DevSocket} from "../editor/devSocket/src/Application.js";
 import {hashBuffer} from "../src/util/bufferUtil.js";
+import {DevServer} from "./DevServer.js";
 
 setCwd();
 Deno.chdir("..");
@@ -206,31 +212,10 @@ if ((currentHash != previousHash || Deno.args.includes("--force-fts")) && !Deno.
 const buildProcess = Deno.run({
 	cmd: ["deno", "task", "build-editor-dev"],
 });
-// const editorDiscoveryProcess = Deno.run({
-// 	cmd: ["./editor/editorDiscoveryServer/src/main.js"],
-// });
-
 await buildProcess.status();
-// await editorDiscoveryProcess.status();
 
-const builtInAssetsPath = resolve(Deno.cwd(), "./editor/builtInAssets/");
-const devSocket = new DevSocket({
-	builtInAssetsPath,
+const server = new DevServer({
+	port: 8080,
+	serverName: "development server",
 });
-devSocket.init();
-
-const port = 8080;
-const fsRoot = Deno.cwd();
-serve(request => {
-	const url = new URL(request.url);
-	if (url.pathname == "/devSocket") {
-		return devSocket.webSocketManager.handleRequest(request);
-	}
-	return serveDir(request, {
-		fsRoot,
-		showDirListing: true,
-		showDotfiles: true,
-		quiet: true,
-	});
-}, {port});
-console.log(`Server listening on localhost:${port}`);
+server.start();

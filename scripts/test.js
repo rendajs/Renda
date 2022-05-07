@@ -1,7 +1,8 @@
-#!/usr/bin/env -S deno run --no-check --allow-run --allow-read --allow-write --allow-env
+#!/usr/bin/env -S deno run --no-check --allow-run --allow-read --allow-write --allow-env --allow-net
 
 import {join} from "std/path";
 import {setCwd} from "chdir-anywhere";
+import {DevServer} from "./DevServer.js";
 setCwd();
 
 Deno.chdir("..");
@@ -35,9 +36,26 @@ const SCRIPT_ARGS = [
  */
 const APPLICATION_ARGS = ["--no-headless"];
 
+let needsTestServer = false;
 const extraDenoTestArgs = Deno.args.filter(arg => !SCRIPT_ARGS.includes(arg) && !APPLICATION_ARGS.includes(arg));
 if (extraDenoTestArgs.length <= 0) {
 	extraDenoTestArgs.push("test/");
+	needsTestServer = true;
+}
+
+for (const arg of Deno.args) {
+	if (arg.startsWith("test/e2e")) {
+		needsTestServer = true;
+	}
+}
+
+let testServer = null;
+if (needsTestServer) {
+	testServer = new DevServer({
+		port: 8081,
+		serverName: "test server",
+	});
+	testServer.start();
 }
 
 let needsCoverage = Deno.args.includes("--coverage");
@@ -73,6 +91,8 @@ const testStatus = await testProcess.status();
 if (!testStatus.success) {
 	Deno.exit(testStatus.code);
 }
+
+testServer?.close();
 
 if (needsCoverage) {
 	let coverageMapExists = true;

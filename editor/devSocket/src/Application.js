@@ -45,4 +45,8 @@ export class Application {
 			this.webSocketManager.sendAllConnections(op, data);
 		});
 	}
+
+	destructor() {
+		this.builtInAssetManager.stopWatching();
+	}
 }

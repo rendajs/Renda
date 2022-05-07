@@ -5,6 +5,9 @@ import {basename, dirname, fromFileUrl, join, relative, resolve} from "std/path"
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 
 export class BuiltInAssetManager {
+	/** @type {Deno.FsWatcher?} */
+	#fileWatcher = null;
+
 	/**
 	 * @param {Object} options
 	 * @param {string?} options.builtInAssetsPath
@@ -91,8 +94,11 @@ export class BuiltInAssetManager {
 	}
 
 	async watch() {
-		const watcher = Deno.watchFs(this.builtInAssetsPath);
-		for await (const event of watcher) {
+		if (this.#fileWatcher) {
+			return;
+		}
+		this.#fileWatcher = Deno.watchFs(this.builtInAssetsPath);
+		for await (const event of this.#fileWatcher) {
 			const relPath = relative(this.builtInAssetsPath, event.paths[0]);
 			if (relPath == "assetSettings.json") {
 				if (Date.now() - this.lastAssetSettingsSaveTime > 1000) {
@@ -109,6 +115,13 @@ export class BuiltInAssetManager {
 					})();
 				}
 			}
+		}
+	}
+
+	stopWatching() {
+		if (this.#fileWatcher) {
+			this.#fileWatcher.close();
+			this.#fileWatcher = null;
 		}
 	}
 
