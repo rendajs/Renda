@@ -5,7 +5,7 @@ import {JavascriptProjectAssetType} from "./projectAssetType/JavascriptProjectAs
 import {MaterialProjectAssetType} from "./projectAssetType/MaterialProjectAssetType.js";
 import {MaterialMapProjectAssetType} from "./projectAssetType/MaterialMapProjectAssetType.js";
 import {MeshProjectAssetType} from "./projectAssetType/MeshProjectAssetType.js";
-import {PngProjectAssetType} from "./projectAssetType/PngProjectAssetType.js";
+import {TextureProjectAssetType} from "./projectAssetType/TextureProjectAssetType.js";
 import {RenderOutputConfigProjectAssetType} from "./projectAssetType/RenderOutputConfigProjectAssetType.js";
 import {ShaderSourceProjectAssetType} from "./projectAssetType/ShaderSourceProjectAssetType.js";
 import {VertexStateProjectAssetType} from "./projectAssetType/VertexStateProjectAssetType.js";
@@ -20,7 +20,7 @@ const autoRegisterAssetTypes = [
 	MaterialProjectAssetType,
 	MaterialMapProjectAssetType,
 	MeshProjectAssetType,
-	PngProjectAssetType,
+	TextureProjectAssetType,
 	RenderOutputConfigProjectAssetType,
 	ShaderSourceProjectAssetType,
 	VertexStateProjectAssetType,

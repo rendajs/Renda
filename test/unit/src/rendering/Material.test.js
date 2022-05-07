@@ -99,7 +99,7 @@ const mockMaterialMap = createFakeMaterialMap(fakeMappedDatas);
 Deno.test({
 	name: "Constructing a material with a material map and properties",
 	fn() {
-		const texture = new Texture();
+		const texture = new Texture(new Blob());
 		const material = new Material(mockMaterialMap, {
 			vec3MappedName: new Vec3(0, 0.5, 1),
 			floatMappedName: 3,
@@ -133,7 +133,7 @@ Deno.test({
 	name: "setMaterialMap() should transfer properties",
 	fn() {
 		const material = new Material();
-		const texture = new Texture();
+		const texture = new Texture(new Blob());
 		material.setProperties({
 			vec3MappedName: new Vec3(0, 0.5, 1),
 			floatMappedName: 3,
@@ -238,7 +238,7 @@ Deno.test({
 
 		// assigning Texture to number
 		assertThrows(() => {
-			material.setProperty("floatMappedName", new Texture());
+			material.setProperty("floatMappedName", new Texture(new Blob()));
 		});
 
 		// assigning array that is too long to vec3
@@ -254,7 +254,7 @@ Deno.test({
 		const material = new Material();
 		material.setProperty("vec3MappedName", new Vec3(0, 0.5, 1));
 		material.setProperty("vec3MappedName", 5);
-		material.setProperty("vec3MappedName", new Texture());
+		material.setProperty("vec3MappedName", new Texture(new Blob()));
 	},
 });
 
@@ -336,8 +336,8 @@ Deno.test({
 	name: "setProperty() should overwrite textures",
 	fn() {
 		const material = new Material(mockMaterialMap);
-		const texture1 = new Texture();
-		const texture2 = new Texture();
+		const texture2 = new Texture(new Blob());
+		const texture1 = new Texture(new Blob());
 
 		material.setProperty("textureMappedName", texture1);
 		const result1 = material.getProperty("textureMappedName");
@@ -389,7 +389,7 @@ Deno.test({
 		const vecA = new Vec2(0, 0.5);
 		const vecB = new Vec3(0, 0.5, 1);
 		const vecC = new Vec4(0, 0.5, 1, 2);
-		const texture = new Texture();
+		const texture = new Texture(new Blob());
 		material.setProperties({
 			propA: vecA,
 			propB: vecB,

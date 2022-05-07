@@ -3,7 +3,7 @@ import {MaterialMapPropertiesAssetContent} from "../../propertiesAssetContent/ma
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {StorageType, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
-import {PngProjectAssetType} from "./PngProjectAssetType.js";
+import {TextureProjectAssetType} from "./TextureProjectAssetType.js";
 
 /**
  * @extends {ProjectAssetType<MaterialMap, null, import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
@@ -104,7 +104,7 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 									defaultValue.set(mappedValueDiskData.defaultValue);
 								} else if (mappedValue.mappedType == "texture2d") {
 									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
-										assertAssetType: PngProjectAssetType,
+										assertAssetType: TextureProjectAssetType,
 									});
 								}
 							}

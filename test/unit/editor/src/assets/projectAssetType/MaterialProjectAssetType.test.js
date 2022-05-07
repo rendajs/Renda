@@ -149,7 +149,7 @@ Deno.test({
 		assertSpyCall(setPropertiesStub, 0, {
 			args: [
 				{
-					asset: basicGenericLiveAsset,
+					asset: /** @type {any} */ (basicGenericLiveAsset),
 					vec3: [1, 2, 3],
 				},
 			],
@@ -220,7 +220,7 @@ Deno.test({
 		const embeddedMaterialMap = new MaterialMap();
 		const BASIC_TEXTURE_UUID = "basic texture uuid";
 		const embeddedData = {label: "embedded data"};
-		const texture = new Texture();
+		const texture = new Texture(new Blob());
 
 		stub(assetManager, "getAssetUuidOrEmbeddedAssetDataFromLiveAsset", liveAsset => {
 			if (liveAsset == texture) {

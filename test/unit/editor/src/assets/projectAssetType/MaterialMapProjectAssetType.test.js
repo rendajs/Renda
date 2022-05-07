@@ -129,7 +129,7 @@ Deno.test({
 		const {projectAssetType, ExtendedMaterialMapType, ExtendedMaterialMapTypeSerializer, assetManager} = basicSetup();
 		const recursionTracker = getMockRecursionTracker();
 		const customData = {label: "material map type custom data"};
-		const textureLiveAsset = new Texture();
+		const textureLiveAsset = new Texture(new Blob());
 		stub(assetManager, "getLiveAsset", async uuid => {
 			if (uuid == BASIC_TEXTURE_UUID) {
 				return textureLiveAsset;
