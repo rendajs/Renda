@@ -1,29 +1,34 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts";
 import {WebGpuMaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
-import {WebGpuPipelineConfigProjectAssetType} from "../../../../../../../editor/src/assets/projectAssetType/WebGpuPipelineConfigProjectAssetType.js";
 import {WebGpuPipelineConfig} from "../../../../../../../src/mod.js";
 import {WebGpuMaterialMapType} from "../../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
+import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock";
 
 const BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID = "basic forward pipeline config asset uuid";
 
 function getMockContext({
 	getAssetUuidReturnValue = /** @type {string | object} */ (BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID),
 } = {}) {
-	/** @type {{liveAsset: WebGpuPipelineConfig, options: import("../../../../../../../editor/src/assets/AssetManager.js").GetLiveAssetFromUuidOrEmbeddedAssetDataOptions<any>}[]} */
-	const createdLiveAssets = [];
+	const {projectAsset: materialMapAsset} = createMockProjectAsset();
 
-	const mockMaterialMapAsset = /** @type {unknown} */ ({
-		label: "mock material map Asset",
+	const pipelineConfig = new WebGpuPipelineConfig();
+	const {projectAsset: pipeLineConfigAsset} = createMockProjectAsset({
+		liveAsset: pipelineConfig,
 	});
-	const materialMapAsset = /** @type {import("../../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (mockMaterialMapAsset);
 
 	const context = /** @type {import("../../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
 		materialMapAsset,
 		assetManager: {
+			async getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
+				if (uuidOrData === BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID) {
+					return pipeLineConfigAsset;
+				}
+			},
 			async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
-				const liveAsset = new WebGpuPipelineConfig();
-				createdLiveAssets.push({liveAsset, options});
-				return liveAsset;
+				if (uuidOrData === BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID) {
+					return pipelineConfig;
+				}
 			},
 			getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset) {
 				return getAssetUuidReturnValue;
@@ -32,8 +37,9 @@ function getMockContext({
 	});
 	return {
 		context,
-		createdLiveAssets,
-		mockMaterialMapAsset,
+		pipelineConfig,
+		pipeLineConfigAsset,
+		materialMapAsset,
 	};
 }
 
@@ -58,24 +64,28 @@ Deno.test({
 Deno.test({
 	name: "loadLiveAssetData() with a forwardPipelineConfig uuid",
 	async fn() {
-		const {context, createdLiveAssets, mockMaterialMapAsset} = getMockContext();
+		const {context, pipelineConfig, materialMapAsset, pipeLineConfigAsset} = getMockContext();
+
+		const mockProjectAssetType = /** @type {import("../../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ ({
+			listenForUsedLiveAssetChanges(projectAsset) {},
+		});
+		const listenForUsedLiveAssetChangesSpy = spy(mockProjectAssetType, "listenForUsedLiveAssetChanges");
+
+		stub(materialMapAsset, "getProjectAssetType", async () => {
+			return mockProjectAssetType;
+		});
 
 		const result = await WebGpuMaterialMapTypeSerializer.loadLiveAssetData(context, {
 			forwardPipelineConfig: BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID,
 		});
 
-		assertEquals(createdLiveAssets, [
-			{
-				liveAsset: result.forwardPipelineConfig,
-				options: {
-					assertAssetType: WebGpuPipelineConfigProjectAssetType,
-					embeddedAssetPersistenceKey: "webgpumaptype.forwardpipelineconfig",
-					parentAsset: mockMaterialMapAsset,
-				},
-			},
-		]);
-		assertStrictEquals(result.forwardPipelineConfig, createdLiveAssets[0].liveAsset);
-		assertStrictEquals(createdLiveAssets[0].options.parentAsset, mockMaterialMapAsset);
+		assertSpyCalls(listenForUsedLiveAssetChangesSpy, 1);
+		assertSpyCall(listenForUsedLiveAssetChangesSpy, 0, {
+			args: [pipeLineConfigAsset],
+		});
+		assertStrictEquals(listenForUsedLiveAssetChangesSpy.calls[0].args[0], pipeLineConfigAsset);
+
+		assertStrictEquals(result.forwardPipelineConfig, pipelineConfig);
 	},
 });
 

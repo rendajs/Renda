@@ -192,7 +192,7 @@ export class ProjectAsset {
 
 	async getProjectAssetType() {
 		await this.waitForInit();
-		return this._projectAssetType;
+		return /** @type {T} */ (this._projectAssetType);
 	}
 
 	async getProjectAssetTypeConstructor() {

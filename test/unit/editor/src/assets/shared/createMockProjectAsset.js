@@ -48,6 +48,7 @@ export function createMockProjectAsset({
 			return previousEmbeddedLiveAssets.get(key) ?? null;
 		},
 		onLiveAssetNeedsReplacement(cb) {},
+		async getProjectAssetType() {},
 	});
 	return {
 		projectAsset,

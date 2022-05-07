@@ -209,11 +209,16 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 		/** @type {WebGpuPipelineConfig?} */
 		let forwardPipelineConfig = null;
 		if (customData?.forwardPipelineConfig) {
-			forwardPipelineConfig = await context.assetManager.getLiveAssetFromUuidOrEmbeddedAssetData(customData.forwardPipelineConfig, {
+			const forwardPipelineConfigAsset = await context.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(customData.forwardPipelineConfig, {
 				assertAssetType: WebGpuPipelineConfigProjectAssetType,
 				parentAsset: context.materialMapAsset,
 				embeddedAssetPersistenceKey: FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY,
 			});
+			const materialMapAssetType = await context.materialMapAsset.getProjectAssetType();
+			materialMapAssetType.listenForUsedLiveAssetChanges(forwardPipelineConfigAsset);
+			if (forwardPipelineConfigAsset) {
+				forwardPipelineConfig = await forwardPipelineConfigAsset.getLiveAsset();
+			}
 		}
 		return new WebGpuMaterialMapType({forwardPipelineConfig});
 	}
