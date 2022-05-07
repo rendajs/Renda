@@ -10,6 +10,7 @@ import {DEFAULT_MATERIAL_MAP_UUID} from "../../../../../../editor/src/assets/bui
 import {Texture} from "../../../../../../src/core/Texture.js";
 
 const BASIC_MATERIAL_MAP_UUID = "basic material map uuid";
+const BASIC_GENERIC_ASSET_UUID = "ba51c000-9e0e-61c0-0000-0000000a55e7";
 
 function basicSetup() {
 	const mockBasicMaterialMapLiveAsset = /** @type {unknown} */ (Symbol("basic material map live asset"));
@@ -119,6 +120,41 @@ Deno.test({
 		assertSpyCall(listenForUsedLiveAssetChangesSpy, 0, {
 			args: [createdProjectAssets[0]],
 		});
+	},
+});
+
+Deno.test({
+	name: "getLiveAssetData() with a material map with properties",
+	async fn() {
+		const {projectAssetType, basicMaterialMapLiveAsset, assetManager} = basicSetup();
+		const basicGenericLiveAsset = {label: "basic generic live asset"};
+		stub(assetManager, "getLiveAsset", async uuid => {
+			if (uuid == BASIC_GENERIC_ASSET_UUID) {
+				return basicGenericLiveAsset;
+			}
+			return null;
+		});
+		const setPropertiesStub = stub(Material.prototype, "setProperties", () => {});
+		const liveAssetData = await projectAssetType.getLiveAssetData({
+			map: BASIC_MATERIAL_MAP_UUID,
+			properties: {
+				vec3: [1, 2, 3],
+				asset: BASIC_GENERIC_ASSET_UUID,
+			},
+		});
+
+		assertExists(liveAssetData.liveAsset);
+		assertStrictEquals(liveAssetData.liveAsset.materialMap, basicMaterialMapLiveAsset);
+		assertSpyCalls(setPropertiesStub, 1);
+		assertSpyCall(setPropertiesStub, 0, {
+			args: [
+				{
+					asset: basicGenericLiveAsset,
+					vec3: [1, 2, 3],
+				},
+			],
+		});
+		assertStrictEquals(setPropertiesStub.calls[0].args[0].asset, basicGenericLiveAsset);
 	},
 });
 

@@ -6,6 +6,7 @@ import {StorageType, objectToBinary} from "../../../../src/util/binarySerializat
 import {MaterialMapProjectAssetType} from "./MaterialMapProjectAssetType.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
 import {Texture} from "../../../../src/core/Texture.js";
+import {isUuid} from "../../../../src/mod.js";
 
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 
@@ -49,7 +50,19 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 			this.listenForUsedLiveAssetChanges(materialMapAsset);
 		}
 
-		const material = new Material(materialMap, materialJson?.properties);
+		/** @type {Object.<string, any>} */
+		const properties = {};
+		if (materialJson?.properties) {
+			for (const [key, value] of Object.entries(materialJson.properties)) {
+				if (isUuid(value)) {
+					properties[key] = await this.assetManager.getLiveAsset(value);
+				} else {
+					properties[key] = value;
+				}
+			}
+		}
+
+		const material = new Material(materialMap, properties);
 		return {
 			liveAsset: material,
 			editorData: null,

@@ -114,6 +114,7 @@ export function generateUuid() {
 
 /**
  * @param {string} uuidStr
+ * @returns {uuidStr is UuidString}
  */
 export function isUuid(uuidStr) {
 	const re = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gmi;
