@@ -390,7 +390,7 @@ export class WebGpuRenderer extends Renderer {
 			for (const [material, renderDatas] of pipelineRenderData.materialRenderDatas) {
 				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
-				for (let [, value] of material.getAllMappedProperties(WebGpuMaterialMapType)) {
+				for (let [, value] of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
 					if (value === null) value = 0;
 					if (value instanceof Texture) {
 						// TODO

@@ -78,7 +78,7 @@ export class MaterialMap {
 	/**
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 */
-	*getMappedDatas(mapType) {
+	*getMappedDatasForMapType(mapType) {
 		const mappedDatas = this.inverseMappedData.get(mapType);
 		if (mappedDatas) {
 			yield* mappedDatas.values();

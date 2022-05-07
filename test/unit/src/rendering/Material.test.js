@@ -60,7 +60,7 @@ function createFakeMaterialMap(fakeMappedDatas) {
 		 * @param {typeof MaterialMapType} mapType
 		 * @returns {Generator<import("../../../../src/rendering/MaterialMap.js").MaterialMapMappedValue>}
 		 */
-		*getMappedDatas(mapType) {
+		*getMappedDatasForMapType(mapType) {
 			yield* fakeMappedDatas.values();
 		}
 	}
@@ -118,13 +118,13 @@ Deno.test({
 		const unusedProperty = material.getProperty("unusedName");
 		assertEquals(unusedProperty, 5);
 
-		const mappedProperties = Array.from(material.getAllMappedProperties(FakeMaterialMapType));
+		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
 		assertEquals(mappedProperties.length, 5);
-		const colorMappedProperty = material.getMappedProperty(FakeMaterialMapType, "vec3OriginalName");
+		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertVecAlmostEquals(colorMappedProperty, [0, 0.5, 1]);
-		const floatMappedProperty = material.getMappedProperty(FakeMaterialMapType, "floatOriginalName");
+		const floatMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "floatOriginalName");
 		assertEquals(floatMappedProperty, 3);
-		const textureMappedProperty = material.getMappedProperty(FakeMaterialMapType, "textureOriginalName");
+		const textureMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "textureOriginalName");
 		assertStrictEquals(textureMappedProperty, texture);
 	},
 });
@@ -151,13 +151,13 @@ Deno.test({
 		const textureProperty = material.getProperty("textureMappedName");
 		assertStrictEquals(textureProperty, texture);
 
-		const mappedProperties = Array.from(material.getAllMappedProperties(FakeMaterialMapType));
+		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
 		assertEquals(mappedProperties.length, 5);
-		const colorMappedProperty = material.getMappedProperty(FakeMaterialMapType, "vec3OriginalName");
+		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertVecAlmostEquals(colorMappedProperty, [0, 0.5, 1]);
-		const floatMappedProperty = material.getMappedProperty(FakeMaterialMapType, "floatOriginalName");
+		const floatMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "floatOriginalName");
 		assertEquals(floatMappedProperty, 3);
-		const textureMappedProperty = material.getMappedProperty(FakeMaterialMapType, "textureOriginalName");
+		const textureMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "textureOriginalName");
 		assertStrictEquals(textureMappedProperty, texture);
 	},
 });
@@ -183,11 +183,11 @@ Deno.test({
 
 		material.setProperty("vec3MappedName", new Vec3(0, 0.5, 1));
 
-		const mappedProperties = Array.from(material.getAllMappedProperties(FakeMaterialMapType));
+		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
 		assertEquals(mappedProperties.length, 5);
-		const colorMappedProperty = material.getMappedProperty(FakeMaterialMapType, "vec3OriginalName");
+		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertVecAlmostEquals(colorMappedProperty, [0, 0.5, 1]);
-		const floatMappedProperty = material.getMappedProperty(FakeMaterialMapType, "floatOriginalName");
+		const floatMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "floatOriginalName");
 		assertEquals(floatMappedProperty, 0); // default value from MockMaterialMap
 	},
 });
@@ -277,11 +277,11 @@ Deno.test({
 		const floatProperty = material.getProperty("unused");
 		assertVecAlmostEquals(floatProperty, [0.5, 0.7, 0.2]);
 
-		const mappedProperties = Array.from(material.getAllMappedProperties(FakeMaterialMapType));
+		const mappedProperties = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
 		assertEquals(mappedProperties.length, 5);
-		const colorMappedProperty = material.getMappedProperty(FakeMaterialMapType, "vec3OriginalName");
+		const colorMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertVecAlmostEquals(colorMappedProperty, [0.5, 0.7, 0.2]);
-		const floatMappedProperty = material.getMappedProperty(FakeMaterialMapType, "floatOriginalName");
+		const floatMappedProperty = material.getMappedPropertyForMapType(FakeMaterialMapType, "floatOriginalName");
 		assertEquals(floatMappedProperty, 0); // default value from MockMaterialMap
 	},
 });
@@ -354,7 +354,7 @@ Deno.test({
 	fn() {
 		const material = new Material();
 
-		const result = Array.from(material.getAllMappedProperties(FakeMaterialMapType));
+		const result = Array.from(material.getMappedPropertiesForMapType(FakeMaterialMapType));
 
 		assertEquals(result.length, 0);
 	},
@@ -365,7 +365,7 @@ Deno.test({
 	fn() {
 		const material = new Material();
 
-		const result = material.getMappedProperty(FakeMaterialMapType, "vec3OriginalName");
+		const result = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 
 		assertEquals(result, null);
 	},
@@ -376,7 +376,7 @@ Deno.test({
 	fn() {
 		const material = new Material(mockMaterialMap);
 
-		const result = material.getMappedProperty(FakeMaterialMapType, "notInTheMaterialMap");
+		const result = material.getMappedPropertyForMapType(FakeMaterialMapType, "notInTheMaterialMap");
 
 		assertEquals(result, null);
 	},
@@ -470,13 +470,13 @@ Deno.test({
 		const newPropA = newMaterial.getProperty("vec3MappedName");
 		assertNotStrictEquals(propA, newPropA);
 		assertVecAlmostEquals(propA, vecA);
-		const mappedPropA = material.getMappedProperty(FakeMaterialMapType, "vec3OriginalName");
-		const newMappedPropA = newMaterial.getMappedProperty(FakeMaterialMapType, "vec3OriginalName");
+		const mappedPropA = material.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
+		const newMappedPropA = newMaterial.getMappedPropertyForMapType(FakeMaterialMapType, "vec3OriginalName");
 		assertNotStrictEquals(mappedPropA, newMappedPropA);
 
 		const propB = material.getProperty("floatMappedName");
 		assertEquals(propB, null);
-		const mappedPropB = material.getMappedProperty(FakeMaterialMapType, "floatOriginalName");
+		const mappedPropB = material.getMappedPropertyForMapType(FakeMaterialMapType, "floatOriginalName");
 		assertEquals(mappedPropB, 0);
 	},
 });

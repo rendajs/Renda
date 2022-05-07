@@ -234,7 +234,7 @@ Deno.test({
 		const mapTypeInstance = liveAsset.getMapTypeInstance(ExtendedMaterialMapType);
 		assertInstanceOf(mapTypeInstance, ExtendedMaterialMapType);
 		assertEquals(mapTypeInstance.customData, customData);
-		const mappedDatas = Array.from(liveAsset.getMappedDatas(ExtendedMaterialMapType));
+		const mappedDatas = Array.from(liveAsset.getMappedDatasForMapType(ExtendedMaterialMapType));
 		assertEquals(mappedDatas, [
 			{
 				mappedName: "num",

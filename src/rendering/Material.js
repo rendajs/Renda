@@ -236,12 +236,12 @@ export class Material {
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 * @returns {Generator<[string, import("./MaterialMap.js").MappableMaterialTypes]>}
 	 */
-	*getAllMappedProperties(mapType) {
+	*getMappedPropertiesForMapType(mapType) {
 		if (!this._materialMap) return;
 
 		const mappedProperties = this.mappedProperties.get(mapType);
 
-		for (const mappedData of this._materialMap.getMappedDatas(mapType)) {
+		for (const mappedData of this._materialMap.getMappedDatasForMapType(mapType)) {
 			yield [mappedData.mappedName, this._getValueFromMappedData(mappedData, mappedProperties)];
 		}
 	}
@@ -250,12 +250,12 @@ export class Material {
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 * @param {string} mappedName
 	 */
-	getMappedProperty(mapType, mappedName) {
+	getMappedPropertyForMapType(mapType, mappedName) {
 		if (!this._materialMap) return null;
 
 		const mappedProperties = this.mappedProperties.get(mapType);
 
-		for (const mappeddata of this._materialMap.getMappedDatas(mapType)) {
+		for (const mappeddata of this._materialMap.getMappedDatasForMapType(mapType)) {
 			if (mappeddata.mappedName == mappedName) {
 				return this._getValueFromMappedData(mappeddata, mappedProperties);
 			}
