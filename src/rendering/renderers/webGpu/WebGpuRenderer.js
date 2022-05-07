@@ -67,9 +67,6 @@ export class WebGpuRenderer extends Renderer {
 		/** @type {MultiKeyWeakMap<*[], GPURenderPipeline>} */
 		this.cachedPipelines = new MultiKeyWeakMap();
 
-		// (legacy) for every pipeline, maintain a list of objects that the pipeline is used by
-		// this.pipelinesUsedByLists = new WeakMap(); //<WebGpuPipeline, Set[WeakRef]
-
 		/** @type {WeakMap<Mesh, CachedMeshData>} */
 		this.cachedMeshData = new WeakMap();
 
@@ -467,9 +464,6 @@ export class WebGpuRenderer extends Renderer {
 				forwardPipelineConfig: null,
 			};
 			this.cachedMaterialData.set(material, data);
-			material.onDestructor(() => {
-				this.disposeMaterial(material);
-			});
 		}
 		return data;
 	}
@@ -536,49 +530,6 @@ export class WebGpuRenderer extends Renderer {
 		}
 		return pipeline;
 	}
-
-	/**
-	 * @param {import("../../Material.js").Material} material
-	 */
-	disposeMaterial(material) {
-		// const materialData = this.getCachedMaterialData(material);
-		this.cachedMaterialData.delete(material);
-		// this.removeUsedByObjectFromPipeline(materialData.forwardPipeline, material);
-	}
-
-	// pipelines cannot be disposed by the webgpu spec at the moment,
-	// leaving this code here just in case it is needed in the future
-
-	// addUsedByObjectToPipeline(pipeline, usedBy){
-	// 	let usedByList = this.pipelinesUsedByLists.get(pipeline);
-	// 	if(!usedByList){
-	// 		usedByList = new Set();
-	// 		this.pipelinesUsedByLists.set(pipeline, usedByList);
-	// 	}
-	// 	usedByList.add(new WeakRef(usedBy));
-	// }
-
-	// removeUsedByObjectFromPipeline(pipeline, usedBy){
-	// 	if(!pipeline) return;
-	// 	const usedByList = this.pipelinesUsedByLists.get(pipeline);
-	// 	if(usedByList){
-	// 		for(const ref of usedByList){
-	// 			const deref = ref.deref();
-	// 			if(usedBy == deref || deref === undefined){
-	// 				usedByList.delete(ref);
-	// 			}
-	// 		}
-	// 	}
-
-	// 	if(!usedByList || usedByList.size == 0){
-	// 		this.disposePipeline(pipeline);
-	// 		this.pipelinesUsedByLists.delete(pipeline);
-	// 	}
-	// }
-
-	// disposePipeline(pipeline){
-	// 	this.pipelinesUsedByLists.delete(pipeline);
-	// }
 
 	/**
 	 * @param {Mesh} mesh
