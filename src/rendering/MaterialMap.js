@@ -10,7 +10,9 @@ import {Texture} from "../core/Texture.js";
 /** @typedef {"number" | "vec2" | "vec3" | "vec4" | "sampler" | "texture2d"} MappableMaterialTypesEnum */
 /**
  * @typedef {Object} MaterialMapMappedValue
- * @property {string} mappedName
+ * @property {string} mappedName The new property name set by the user. I.e. the
+ * value that appears in the material ui, and the key that is used in
+ * `Material.setProperty(key, value)`.
  * @property {MappableMaterialTypesEnum} mappedType
  * @property {MappableMaterialTypes} defaultValue
  */
@@ -34,17 +36,21 @@ export class MaterialMap {
 		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, import("./MaterialMapType.js").MaterialMapType>} */
 		this.mapTypes = new Map();
 
-		// TODO: add support for mapping multiple properties to the same name
-		// Currently inverseMappedData values get overwritten if two names are the same.
-		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, Map<string, MaterialMapMappedValue>>} */
+		/** @type {Map<typeof import("./MaterialMapType.js").MaterialMapType, Map<string, Set<MaterialMapMappedValue>>>} */
 		this.inverseMappedData = new Map();
 		for (const {mapType, mappedValues} of materialMapTypes) {
 			const castConstructor = /** @type {typeof import("./MaterialMapType.js").MaterialMapType} */ (mapType.constructor);
 			this.mapTypes.set(castConstructor, mapType);
-			/** @type {Map<string, MaterialMapMappedValue>} */
+
+			/** @type {Map<string, Set<MaterialMapMappedValue>>} */
 			const mappedNamesMap = new Map();
 			for (const [originalName, {mappedName, defaultValue, mappedType}] of Object.entries(mappedValues)) {
-				mappedNamesMap.set(mappedName, {
+				let mappedNamesSet = mappedNamesMap.get(mappedName);
+				if (!mappedNamesSet) {
+					mappedNamesSet = new Set();
+					mappedNamesMap.set(mappedName, mappedNamesSet);
+				}
+				mappedNamesSet.add({
 					mappedName: originalName,
 					defaultValue, mappedType,
 				});
@@ -63,15 +69,19 @@ export class MaterialMap {
 	}
 
 	/**
-	 * Iterates over all map types and yields the original names for this key.
-	 * @param {string} key
+	 * Iterates over all map types and yields data containing mapped names for
+	 * each property that has been renamed by the user to the provided key.
+	 * @param {string} key The key used by the material, i.e. the property set
+	 * by the user.
 	 * @returns {Generator<[typeof import("./MaterialMapType.js").MaterialMapType, MaterialMapMappedValue]>}
 	 */
 	*mapProperty(key) {
 		for (const [mapType, mappedDatas] of this.inverseMappedData) {
 			const mappedData = mappedDatas.get(key);
 			if (!mappedData) continue;
-			yield [mapType, mappedData];
+			for (const mappedDataItem of mappedData) {
+				yield [mapType, mappedDataItem];
+			}
 		}
 	}
 
@@ -81,7 +91,11 @@ export class MaterialMap {
 	*getMappedDatasForMapType(mapType) {
 		const mappedDatas = this.inverseMappedData.get(mapType);
 		if (mappedDatas) {
-			yield* mappedDatas.values();
+			for (const mappedDataItems of mappedDatas.values()) {
+				for (const item of mappedDataItems) {
+					yield item;
+				}
+			}
 		}
 	}
 
