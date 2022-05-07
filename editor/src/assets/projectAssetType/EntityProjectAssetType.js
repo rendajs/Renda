@@ -172,6 +172,11 @@ export class EntityProjectAssetType extends ProjectAssetType {
 			recursionTracker.getLiveAsset(propertyValue, liveAsset => {
 				if (!liveAsset) liveAsset = null;
 				newParentObject[propertyKey] = liveAsset;
+				for (const w of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+					if (w.editingEntity == this.projectAsset.liveAsset) {
+						w.markRenderDirty();
+					}
+				}
 			}, {repeatOnLiveAssetChange: true});
 			let usedAssetUuids = newParentObject[EntityProjectAssetType.usedAssetUuidsSymbol];
 			if (!usedAssetUuids) {

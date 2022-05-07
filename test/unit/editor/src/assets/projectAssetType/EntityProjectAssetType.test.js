@@ -1,6 +1,7 @@
 import {assertEquals} from "std/testing/asserts";
 import "../../../shared/initializeEditor.js";
 import {EntityProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/EntityProjectAssetType.js";
+import {ContentWindowEntityEditor} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
 
 Deno.test("reload component values when changed", async () => {
 	const fakeUuid = "00000000-0000-0000-0000-000000000000";
@@ -30,11 +31,29 @@ Deno.test("reload component values when changed", async () => {
 	/** @type {any} */
 	const newComponentData = {};
 	const fakeRecursionTracker = new FakeRecursionTracker();
-	const assetType = new EntityProjectAssetType(/** @type {any} */({}), /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
+
+	let markRenderDirtyCalled = false;
+	const mockEditorInstance = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
+		windowManager: {
+			*getContentWindowsByConstructor(windowConstructor) {
+				if (windowConstructor == /** @type {any} */ (ContentWindowEntityEditor)) {
+					const w = /** @type {ContentWindowEntityEditor} */ ({
+						markRenderDirty() {
+							markRenderDirtyCalled = true;
+						},
+					});
+					yield w;
+				}
+			},
+		},
+	});
+
+	const assetType = new EntityProjectAssetType(mockEditorInstance, /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
 
 	assetType.fillComponentPropertyValueFromJson(newComponentData, originalComponentData, "mesh", "droppable", {}, /** @type {any} */ (fakeRecursionTracker));
 
 	fakeRecursionTracker.onChangeCbs.forEach(cb => cb(replacedMesh));
 
 	assertEquals(newComponentData.mesh, replacedMesh);
+	assertEquals(markRenderDirtyCalled, true);
 });

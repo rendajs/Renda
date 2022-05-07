@@ -69,6 +69,10 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 		};
 	}
 
+	liveAssetNeedsReplacement() {
+		super.liveAssetNeedsReplacement();
+	}
+
 	/**
 	 * @override
 	 * @param {Material?} liveAsset
