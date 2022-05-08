@@ -393,16 +393,26 @@ export class WebGpuRenderer extends Renderer {
 					resource: this.sampler,
 				});
 
-				for (let [, value] of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
-					if (value === null) value = 0;
-					if (value instanceof Texture) {
-						const textureData = this.getCachedTextureData(value);
-						const textureView = textureData.createView() || this.placeHolderTextureView;
+				for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
+					if (mappedData.mappedType == "texture2d") {
+						if (value != null && !(value instanceof Texture)) {
+							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is not a texture`);
+						}
+						let textureView = this.placeHolderTextureView;
+						if (value) {
+							const textureData = this.getCachedTextureData(value);
+							const view = textureData.createView();
+							if (view) textureView = view;
+						}
 						bindGroupEntries.push({
 							binding: bindGroupEntries.length,
 							resource: textureView,
 						});
 					} else {
+						if (value instanceof Texture) {
+							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a texture`);
+						}
+						if (value === null) value = 0;
 						this.materialUniformsBuffer.appendData(value, "f32");
 					}
 				}

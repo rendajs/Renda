@@ -1,4 +1,3 @@
-import {Texture} from "../../../core/Texture.js";
 import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
 
 export class CachedMaterialData {
@@ -61,8 +60,8 @@ export class CachedMaterialData {
 			sampler: {type: "filtering"},
 		});
 
-		for (const [, value] of this.#material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
-			if (value instanceof Texture) {
+		for (const {mappedData} of this.#material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
+			if (mappedData.mappedType == "texture2d") {
 				bindGroupEntries.push({
 					binding: bindGroupEntries.length,
 					visibility: GPUShaderStage.FRAGMENT,

@@ -104,6 +104,7 @@ export class MaterialMap {
 	 * @returns {asserts value is MappableMaterialTypes}
 	 */
 	static assertIsMappableType(value) {
+		if (value === null) return;
 		if (typeof value == "number") return;
 
 		if (value instanceof Array) {

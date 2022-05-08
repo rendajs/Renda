@@ -12,6 +12,7 @@ Deno.test({
 		MaterialMap.assertIsMappableType(new Vec3());
 		MaterialMap.assertIsMappableType(new Vec4());
 		MaterialMap.assertIsMappableType(new Quat());
+		MaterialMap.assertIsMappableType(null);
 	},
 });
 
@@ -19,7 +20,6 @@ Deno.test({
 	name: "assertIsMappableType(), invalid types",
 	fn() {
 		assertThrows(() => MaterialMap.assertIsMappableType(undefined));
-		assertThrows(() => MaterialMap.assertIsMappableType(null));
 		assertThrows(() => MaterialMap.assertIsMappableType(true));
 		assertThrows(() => MaterialMap.assertIsMappableType(false));
 		assertThrows(() => MaterialMap.assertIsMappableType(() => {}));

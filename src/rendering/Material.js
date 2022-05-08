@@ -3,6 +3,12 @@ import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
 
+/**
+ * @typedef MappedPropertyData
+ * @property {import("./MaterialMap.js").MaterialMapMappedValue} mappedData
+ * @property {import("./MaterialMap.js").MappableMaterialTypes} value
+ */
+
 export class Material {
 	/**
 	 * @param {import("./MaterialMap.js").MaterialMap?} materialMap
@@ -216,6 +222,8 @@ export class Material {
 	}
 
 	/**
+	 * Gets the current value of a property. If the value hasn't been set the
+	 * default value from the material map is returned.
 	 * @param {import("./MaterialMap.js").MaterialMapMappedValue} mappedData
 	 * @param {Map<string, import("./MaterialMap.js").MappableMaterialTypes> | undefined} mappedProperties
 	 */
@@ -229,12 +237,12 @@ export class Material {
 	}
 
 	/**
-	 * Returns a list of all [key, value] pairs that are needed according to
-	 * the material map. Where `key` is the original key set by the material
-	 * map, and `value` is either the default value, or a new value if it was
-	 * modified by this material.
+	 * Returns a list of entries with property data and the current values for
+	 * each property that is needed according to the material map. The order
+	 * is guaranteed to be the same as the order returned by
+	 * `MaterialMapTypeSerializer.getMappableValues()`.
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
-	 * @returns {Generator<[string, import("./MaterialMap.js").MappableMaterialTypes]>}
+	 * @returns {Generator<MappedPropertyData>}
 	 */
 	*getMappedPropertiesForMapType(mapType) {
 		if (!this._materialMap) return;
@@ -242,13 +250,19 @@ export class Material {
 		const mappedProperties = this.mappedProperties.get(mapType);
 
 		for (const mappedData of this._materialMap.getMappedDatasForMapType(mapType)) {
-			yield [mappedData.mappedName, this._getValueFromMappedData(mappedData, mappedProperties)];
+			yield {
+				mappedData,
+				value: this._getValueFromMappedData(mappedData, mappedProperties),
+			};
 		}
 	}
 
 	/**
+	 * Returns an entry with property data and the current value for a
+	 * property for a specific material map.
 	 * @param {typeof import("./MaterialMapType.js").MaterialMapType} mapType
 	 * @param {string} mappedName
+	 * @returns {MappedPropertyData?}
 	 */
 	getMappedPropertyForMapType(mapType, mappedName) {
 		if (!this._materialMap) return null;
@@ -257,7 +271,10 @@ export class Material {
 
 		for (const mappeddata of this._materialMap.getMappedDatasForMapType(mapType)) {
 			if (mappeddata.mappedName == mappedName) {
-				return this._getValueFromMappedData(mappeddata, mappedProperties);
+				return {
+					mappedData: mappeddata,
+					value: this._getValueFromMappedData(mappeddata, mappedProperties),
+				};
 			}
 		}
 		return null;
