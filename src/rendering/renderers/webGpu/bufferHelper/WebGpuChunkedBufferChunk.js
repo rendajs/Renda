@@ -14,8 +14,8 @@ export class WebGpuChunkedBufferChunk {
 			usage: this.chunkedBuffer.usage,
 		});
 
-		/** @type {GPUBindGroup?} */
-		this.bindGroup = null;
+		/** @type {WeakMap<GPUBindGroupLayout, GPUBindGroup>} */
+		this.cachedBindGroups = new WeakMap();
 	}
 
 	get label() {
@@ -24,16 +24,23 @@ export class WebGpuChunkedBufferChunk {
 
 	/**
 	 * @param {GPUBindGroupLayout} bindGroupLayout
+	 * @param {Iterable<GPUBindGroupEntry>?} bindGroupEntries
 	 */
-	getBindGroup(bindGroupLayout) {
-		if (!this.bindGroup) {
-			this.bindGroup = this.chunkedBuffer.device.createBindGroup({
-				label: this.label,
-				layout: bindGroupLayout,
-				entries: [this.createBindGroupEntry()],
-			});
+	getBindGroup(bindGroupLayout, bindGroupEntries = null) {
+		let bindGroup = this.cachedBindGroups.get(bindGroupLayout);
+		if (bindGroup) return bindGroup;
+
+		if (!bindGroupEntries) {
+			bindGroupEntries = [this.createBindGroupEntry()];
 		}
-		return this.bindGroup;
+
+		bindGroup = this.chunkedBuffer.device.createBindGroup({
+			label: this.label,
+			layout: bindGroupLayout,
+			entries: bindGroupEntries,
+		});
+		this.cachedBindGroups.set(bindGroupLayout, bindGroup);
+		return bindGroup;
 	}
 
 	createBindGroupEntry({binding = 0} = {}) {

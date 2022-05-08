@@ -84,6 +84,7 @@ fn main(input : FragmentInput) -> FragmentOutput {
 	color = color + materialUniforms.test.rgb;
 	var fragOut : FragmentOutput;
 	fragOut.outColor = vec4<f32>(color, 1.0);
+	fragOut.outColor *= textureSample(myTexture, mySampler, input.vWorldPos.xy);
 	let clusterCoord : vec3<u32> = getClusterCoord(input.fragCoord);
 	return fragOut;
 }

@@ -13,14 +13,11 @@ import {MultiKeyWeakMap} from "../../../util/MultiKeyWeakMap.js";
 import {ShaderBuilder} from "../../ShaderBuilder.js";
 import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
 import {Texture} from "../../../core/Texture.js";
+import {CachedTextureData} from "./CachedTextureData.js";
+import {CachedMaterialData} from "./CachedMaterialData.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
-
-/**
- * @typedef {Object} CachedMaterialData
- * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig?} forwardPipelineConfig
- */
 
 /**
  * @extends {Renderer<WebGpuRendererDomTarget>}
@@ -53,7 +50,6 @@ export class WebGpuRenderer extends Renderer {
 		this.viewUniformsBuffer = null;
 		this.materialUniformsBuffer = null;
 		this.objectUniformsBuffer = null;
-		this.pipelineLayout = null;
 
 		this.isInit = false;
 		this.onInitCbs = new Set();
@@ -72,6 +68,9 @@ export class WebGpuRenderer extends Renderer {
 
 		/** @type {MultiKeyWeakMap<unknown[], GPUShaderModule>} */
 		this.cachedShaderModules = new MultiKeyWeakMap();
+
+		/** @private @type {WeakMap<Texture, CachedTextureData>} */
+		this.cachedTextureData = new WeakMap();
 	}
 
 	async init() {
@@ -153,24 +152,9 @@ export class WebGpuRenderer extends Renderer {
 			bindGroupLayout: this.viewBindGroupLayout,
 		});
 
-		this.materialUniformsBindGroupLayout = device.createBindGroupLayout({
-			label: "materialUniformsBufferBindGroupLayout",
-			entries: [
-				{
-					binding: 0,
-					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
-					buffer: {
-						type: "uniform",
-						hasDynamicOffset: true,
-					},
-				},
-			],
-		});
-
 		this.materialUniformsBuffer = new WebGpuChunkedBuffer({
 			device,
 			label: "materialUniforms",
-			bindGroupLayout: this.materialUniformsBindGroupLayout,
 		});
 
 		this.objectUniformsBindGroupLayout = device.createBindGroupLayout({
@@ -194,13 +178,11 @@ export class WebGpuRenderer extends Renderer {
 			chunkSize: 65536,
 		});
 
-		this.pipelineLayout = device.createPipelineLayout({
-			label: "default pipeline layout",
-			bindGroupLayouts: [
-				this.viewBindGroupLayout,
-				this.materialUniformsBindGroupLayout,
-				this.objectUniformsBindGroupLayout,
-			],
+		// TODO: this sampler is temporary until sampler assets are added
+		this.sampler = device.createSampler({
+			label: "default sampler",
+			magFilter: "linear",
+			minFilter: "linear",
 		});
 
 		this.isInit = true;
@@ -237,7 +219,7 @@ export class WebGpuRenderer extends Renderer {
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready) return;
-		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer) {
+		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.sampler) {
 			// All these objects should exist when this.isInit is true, which we already checked for above.
 			throw new Error("Assertion failed, some required objects do not exist");
 		}
@@ -346,20 +328,17 @@ export class WebGpuRenderer extends Renderer {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
 				const materialData = this.getCachedMaterialData(material);
-				if (!materialData.forwardPipelineConfig) {
-					const webgpuMap = material.materialMap.getMapTypeInstance(WebGpuMaterialMapType);
-					if (!webgpuMap) continue;
-					materialData.forwardPipelineConfig = webgpuMap.forwardPipelineConfig;
-					// this.addUsedByObjectToPipeline(materialData.forwardPipeline, material);
-				}
-				if (!materialData.forwardPipelineConfig || !materialData.forwardPipelineConfig.vertexShader || !materialData.forwardPipelineConfig.fragmentShader) continue;
-				const forwardPipeline = this.getPipeline(materialData.forwardPipelineConfig, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
+				const forwardPipelineConfig = materialData.getForwardPipelineConfig();
+				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;
+				const pipelineLayout = materialData.getPipelineLayout();
+				if (!pipelineLayout) continue;
+				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 
 				let pipelineRenderData = pipelineRenderDatas.get(forwardPipeline);
 				if (!pipelineRenderData) {
 					pipelineRenderData = {
 						materialRenderDatas: new Map(),
-						forwardPipelineConfig: materialData.forwardPipelineConfig,
+						forwardPipelineConfig,
 					};
 					pipelineRenderDatas.set(forwardPipeline, pipelineRenderData);
 				}
@@ -385,16 +364,33 @@ export class WebGpuRenderer extends Renderer {
 			renderPassEncoder.setPipeline(pipeline);
 
 			for (const [material, renderDatas] of pipelineRenderData.materialRenderDatas) {
-				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation();
-				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
+				/** @type {GPUBindGroupEntry[]} */
+				const bindGroupEntries = [];
+				bindGroupEntries.push(this.materialUniformsBuffer.getCurrentChunk().createBindGroupEntry({
+					binding: bindGroupEntries.length,
+				}));
+				bindGroupEntries.push({
+					binding: bindGroupEntries.length,
+					resource: this.sampler,
+				});
+
 				for (let [, value] of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
 					if (value === null) value = 0;
 					if (value instanceof Texture) {
-						// TODO
+						const textureData = this.getCachedTextureData(value);
+						bindGroupEntries.push({
+							binding: bindGroupEntries.length,
+							resource: textureData.createView(),
+						});
 					} else {
 						this.materialUniformsBuffer.appendData(value, "f32");
 					}
 				}
+
+				const materialData = this.getCachedMaterialData(material);
+
+				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation(materialData.uniformsBindGroupLayout, bindGroupEntries);
+				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
 
 				for (const {component: meshComponent, worldMatrix} of renderDatas) {
 					const mesh = meshComponent.mesh;
@@ -460,9 +456,7 @@ export class WebGpuRenderer extends Renderer {
 	getCachedMaterialData(material) {
 		let data = this.cachedMaterialData.get(material);
 		if (!data) {
-			data = {
-				forwardPipelineConfig: null,
-			};
+			data = new CachedMaterialData(this, material);
 			this.cachedMaterialData.set(material, data);
 		}
 		return data;
@@ -470,22 +464,23 @@ export class WebGpuRenderer extends Renderer {
 
 	/**
 	 * @param {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} pipelineConfig
+	 * @param {GPUPipelineLayout} pipelineLayout
 	 * @param {import("../../VertexState.js").VertexState} vertexState
 	 * @param {import("../../RenderOutputConfig.js").RenderOutputConfig} outputConfig
 	 * @param {import("../../ClusteredLightsConfig.js").ClusteredLightsConfig?} clusteredLightsConfig
 	 */
-	getPipeline(pipelineConfig, vertexState, outputConfig, clusteredLightsConfig) {
+	getPipeline(pipelineConfig, pipelineLayout, vertexState, outputConfig, clusteredLightsConfig) {
 		if (!pipelineConfig.vertexShader) {
 			throw new Error("Failed to create pipeline, pipeline config has no vertex shader");
 		}
 		if (!pipelineConfig.fragmentShader) {
 			throw new Error("Failed to create pipeline, pipeline config has no fragment shader");
 		}
-		if (!this.isInit || !this.device || !this.pipelineLayout) {
+		if (!this.isInit || !this.device) {
 			throw new Error("Renderer is not initialized");
 		}
 		/** @type {*[]} */
-		const keys = [outputConfig, vertexState, pipelineConfig];
+		const keys = [outputConfig, vertexState, pipelineConfig, pipelineLayout];
 		if (ENABLE_WEBGPU_CLUSTERED_LIGHTS && clusteredLightsConfig) {
 			keys.push(clusteredLightsConfig);
 		}
@@ -503,7 +498,7 @@ export class WebGpuRenderer extends Renderer {
 			pipeline = this.device.createRenderPipeline({
 				// todo: add better label
 				label: "Material Pipeline",
-				layout: this.pipelineLayout,
+				layout: pipelineLayout,
 				vertex: {
 					module: vertexModule,
 					entryPoint: "main",
@@ -567,6 +562,18 @@ export class WebGpuRenderer extends Renderer {
 			}
 			data = this.device.createShaderModule({code});
 			this.cachedShaderModules.set(keys, data);
+		}
+		return data;
+	}
+
+	/**
+	 * @param {Texture} texture
+	 */
+	getCachedTextureData(texture) {
+		let data = this.cachedTextureData.get(texture);
+		if (!data) {
+			data = new CachedTextureData(this, texture);
+			this.cachedTextureData.set(texture, data);
 		}
 		return data;
 	}
