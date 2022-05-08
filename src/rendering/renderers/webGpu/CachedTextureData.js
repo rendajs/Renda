@@ -1,7 +1,8 @@
 export class CachedTextureData {
 	#device;
 	#texture;
-	#gpuTexture;
+	/** @type {GPUTexture?} */
+	#gpuTexture = null;
 
 	/**
 	 * @param {import("./WebGpuRenderer.js").WebGpuRenderer} renderer
@@ -13,12 +14,6 @@ export class CachedTextureData {
 		}
 		this.#device = renderer.device;
 		this.#texture = texture;
-		this.#gpuTexture = renderer.device.createTexture({
-			// TODO: add size property to textures
-			size: [512, 512, 1],
-			format: "rgba8unorm",
-			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
-		});
 
 		this.init();
 	}
@@ -28,6 +23,12 @@ export class CachedTextureData {
 	 */
 	async init() {
 		const imageBitmap = await createImageBitmap(this.#texture.blob);
+		this.#gpuTexture = this.#device.createTexture({
+			// TODO: add size property to textures
+			size: [imageBitmap.width, imageBitmap.height, 1],
+			format: "rgba8unorm",
+			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+		});
 		this.#device.queue.copyExternalImageToTexture({
 			source: imageBitmap,
 			flipY: true,
@@ -37,6 +38,7 @@ export class CachedTextureData {
 	}
 
 	createView() {
+		if (!this.#gpuTexture) return null;
 		return this.#gpuTexture.createView();
 	}
 }

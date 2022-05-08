@@ -185,6 +185,25 @@ export class WebGpuRenderer extends Renderer {
 			minFilter: "linear",
 		});
 
+		const placeHolderTexture = device.createTexture({
+			label: "placeHolderTexture",
+			size: [16, 16, 1],
+			format: "rgba8unorm",
+			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+		});
+		this.placeHolderTextureView = placeHolderTexture.createView({
+			label: "place holder texture view",
+		});
+		const placeHolderTextureBuffer = new Uint8Array(16 * 16 * 4);
+		for (let i = 0; i < placeHolderTextureBuffer.length; i++) {
+			placeHolderTextureBuffer[i] = 255;
+		}
+		device.queue.writeTexture({
+			texture: placeHolderTexture,
+		}, placeHolderTextureBuffer, {
+			bytesPerRow: 16 * 4,
+		}, [16, 16, 1]);
+
 		this.isInit = true;
 		for (const cb of this.onInitCbs) {
 			cb();
@@ -219,7 +238,7 @@ export class WebGpuRenderer extends Renderer {
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready) return;
-		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.sampler) {
+		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.placeHolderTextureView || !this.sampler) {
 			// All these objects should exist when this.isInit is true, which we already checked for above.
 			throw new Error("Assertion failed, some required objects do not exist");
 		}
@@ -378,9 +397,10 @@ export class WebGpuRenderer extends Renderer {
 					if (value === null) value = 0;
 					if (value instanceof Texture) {
 						const textureData = this.getCachedTextureData(value);
+						const textureView = textureData.createView() || this.placeHolderTextureView;
 						bindGroupEntries.push({
 							binding: bindGroupEntries.length,
-							resource: textureData.createView(),
+							resource: textureView,
 						});
 					} else {
 						this.materialUniformsBuffer.appendData(value, "f32");
