@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {MeshPropertiesAssetContent} from "../../propertiesAssetContent/MeshPropertiesAssetContent.js";
-import {BinaryComposer, BinaryDecomposer, Mesh, Vec3} from "../../../../src/mod.js";
+import {BinaryComposer, BinaryDecomposer, Mesh, Vec2, Vec3} from "../../../../src/mod.js";
 import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
 
 /**
@@ -99,6 +99,37 @@ export class MeshProjectAssetType extends ProjectAssetType {
 			new Vec3(0, 0, 1),
 			new Vec3(0, 0, 1),
 		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
+		mesh.setVertexData(Mesh.AttributeType.UV1, [
+			new Vec2(1, 0),
+			new Vec2(0, 0),
+			new Vec2(1, 1),
+			new Vec2(0, 1),
+
+			new Vec2(0, 0),
+			new Vec2(1, 0),
+			new Vec2(0, 1),
+			new Vec2(1, 1),
+
+			new Vec2(0, 0),
+			new Vec2(1, 0),
+			new Vec2(0, 1),
+			new Vec2(1, 1),
+
+			new Vec2(1, 0),
+			new Vec2(0, 0),
+			new Vec2(1, 1),
+			new Vec2(0, 1),
+
+			new Vec2(0, 0),
+			new Vec2(0, 1),
+			new Vec2(1, 0),
+			new Vec2(1, 1),
+
+			new Vec2(1, 0),
+			new Vec2(1, 1),
+			new Vec2(0, 0),
+			new Vec2(0, 1),
+		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2});
 		return {
 			liveAsset: mesh,
 			editorData: {

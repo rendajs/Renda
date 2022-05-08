@@ -53,6 +53,7 @@ var<uniform> materialUniforms : MaterialUniforms;
 struct FragmentInput {
 	@location(0) vWorldPos : vec3<f32>,
 	@location(1) normal : vec3<f32>,
+	@location(2) vUv1 : vec2<f32>,
 	@builtin(position) fragCoord : vec4<f32>,
 };
 
@@ -84,7 +85,7 @@ fn main(input : FragmentInput) -> FragmentOutput {
 	color = color + materialUniforms.test.rgb;
 	var fragOut : FragmentOutput;
 	fragOut.outColor = vec4<f32>(color, 1.0);
-	fragOut.outColor *= textureSample(myTexture, mySampler, input.vWorldPos.xy);
+	fragOut.outColor *= textureSample(myTexture, mySampler, input.vUv1);
 	let clusterCoord : vec3<u32> = getClusterCoord(input.fragCoord);
 	return fragOut;
 }

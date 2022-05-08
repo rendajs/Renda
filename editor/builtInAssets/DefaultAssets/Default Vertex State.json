@@ -4,8 +4,19 @@
 		"buffers": [
 			{
 				"attributes": [
-					{"attributeType": "POSITION"},
-					{"attributeType": "NORMAL"}
+					{
+						"attributeType": "POSITION",
+						"format": "FLOAT32"
+					},
+					{
+						"attributeType": "NORMAL",
+						"format": "FLOAT32"
+					},
+					{
+						"attributeType": "UV1",
+						"format": "FLOAT32",
+						"componentCount": 2
+					}
 				]
 			}
 		]

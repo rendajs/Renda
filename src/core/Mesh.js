@@ -49,6 +49,8 @@ export class Mesh {
 			POSITION: 0,
 			NORMAL: 1,
 			COLOR: 2,
+			UV1: 3,
+			UV2: 4,
 		};
 	}
 
