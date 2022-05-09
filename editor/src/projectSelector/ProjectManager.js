@@ -133,7 +133,7 @@ export class ProjectManager {
 		/** @type {(data: any) => Promise<void>} */
 		this.#boundSaveContentWindowPersistentData = async data => {
 			if (!this.localProjectSettings) return;
-			this.localProjectSettings.set("contentWindowPersistentData", data);
+			await this.localProjectSettings.set("contentWindowPersistentData", data);
 		};
 
 		/** @type {Set<(entry: StoredProjectEntryAny) => any>} */

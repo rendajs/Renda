@@ -205,7 +205,19 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
 				if (this.persistentDataLoaded) {
 					if (!this.ignoreNextPersistentDataOrbitChange) {
-						this.persistentData.flush();
+						(async () => {
+							try {
+								await this.persistentData.flush();
+							} catch (e) {
+								if (e instanceof DOMException && e.name == "SecurityError") {
+									// The flush was probably triggered by scrolling, which doesn't cause
+									// transient activation. If this is the case a security error is thrown.
+									// This is fine though, since storing the orbit state doesn't have a high priority.
+								} else {
+									throw e;
+								}
+							}
+						})();
 					}
 					this.ignoreNextPersistentDataOrbitChange = false;
 				}

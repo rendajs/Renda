@@ -18,7 +18,9 @@ export class ContentWindowPersistentData {
 
 	async #waitForWindowManager() {
 		if (this.#windowManager) return this.#windowManager;
-		return await new Promise(r => this.#onWindowManagerCbs.add(r));
+		/** @type {Promise<import("./WindowManager.js").WindowManager>} */
+		const promise = new Promise(r => this.#onWindowManagerCbs.add(r));
+		return await promise;
 	}
 
 	async #waitForDataLoad() {
