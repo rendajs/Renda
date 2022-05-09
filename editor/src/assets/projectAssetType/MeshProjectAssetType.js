@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {MeshPropertiesAssetContent} from "../../propertiesAssetContent/MeshPropertiesAssetContent.js";
-import {BinaryComposer, BinaryDecomposer, Mesh, Vec2, Vec3} from "../../../../src/mod.js";
+import {BinaryComposer, BinaryDecomposer, Mesh, createCube} from "../../../../src/mod.js";
 import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
 
 /**
@@ -30,106 +30,12 @@ export class MeshProjectAssetType extends ProjectAssetType {
 
 	async createNewLiveAssetData() {
 		const defaultVertexStateAssetUuid = "ad4146d6-f709-422e-b93e-5beb51e38fe4";
-		const mesh = new Mesh();
-		mesh.setVertexCount(24);
 		const vertexStateLiveAsset = await this.assetManager.getLiveAsset(defaultVertexStateAssetUuid, {
 			assertAssetType: VertexStateProjectAssetType,
 		});
-		mesh.setVertexState(vertexStateLiveAsset);
-		mesh.setIndexData([0, 1, 2, 1, 2, 3, 4, 5, 6, 5, 6, 7, 8, 9, 10, 9, 10, 11, 12, 13, 14, 13, 14, 15, 16, 17, 18, 17, 18, 19, 20, 21, 22, 21, 22, 23]);
-		mesh.setVertexData(Mesh.AttributeType.POSITION, [
-			new Vec3(-1, -1, -1),
-			new Vec3(-1, -1, 1),
-			new Vec3(-1, 1, -1),
-			new Vec3(-1, 1, 1),
-
-			new Vec3(1, -1, -1),
-			new Vec3(1, -1, 1),
-			new Vec3(1, 1, -1),
-			new Vec3(1, 1, 1),
-
-			new Vec3(-1, -1, -1),
-			new Vec3(-1, -1, 1),
-			new Vec3(1, -1, -1),
-			new Vec3(1, -1, 1),
-
-			new Vec3(-1, 1, -1),
-			new Vec3(-1, 1, 1),
-			new Vec3(1, 1, -1),
-			new Vec3(1, 1, 1),
-
-			new Vec3(-1, -1, -1),
-			new Vec3(-1, 1, -1),
-			new Vec3(1, -1, -1),
-			new Vec3(1, 1, -1),
-
-			new Vec3(-1, -1, 1),
-			new Vec3(-1, 1, 1),
-			new Vec3(1, -1, 1),
-			new Vec3(1, 1, 1),
-		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-		mesh.setVertexData(Mesh.AttributeType.NORMAL, [
-			new Vec3(-1, 0, 0),
-			new Vec3(-1, 0, 0),
-			new Vec3(-1, 0, 0),
-			new Vec3(-1, 0, 0),
-
-			new Vec3(1, 0, 0),
-			new Vec3(1, 0, 0),
-			new Vec3(1, 0, 0),
-			new Vec3(1, 0, 0),
-
-			new Vec3(0, -1, 0),
-			new Vec3(0, -1, 0),
-			new Vec3(0, -1, 0),
-			new Vec3(0, -1, 0),
-
-			new Vec3(0, 1, 0),
-			new Vec3(0, 1, 0),
-			new Vec3(0, 1, 0),
-			new Vec3(0, 1, 0),
-
-			new Vec3(0, 0, -1),
-			new Vec3(0, 0, -1),
-			new Vec3(0, 0, -1),
-			new Vec3(0, 0, -1),
-
-			new Vec3(0, 0, 1),
-			new Vec3(0, 0, 1),
-			new Vec3(0, 0, 1),
-			new Vec3(0, 0, 1),
-		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
-		mesh.setVertexData(Mesh.AttributeType.UV1, [
-			new Vec2(1, 0),
-			new Vec2(0, 0),
-			new Vec2(1, 1),
-			new Vec2(0, 1),
-
-			new Vec2(0, 0),
-			new Vec2(1, 0),
-			new Vec2(0, 1),
-			new Vec2(1, 1),
-
-			new Vec2(0, 0),
-			new Vec2(1, 0),
-			new Vec2(0, 1),
-			new Vec2(1, 1),
-
-			new Vec2(1, 0),
-			new Vec2(0, 0),
-			new Vec2(1, 1),
-			new Vec2(0, 1),
-
-			new Vec2(0, 0),
-			new Vec2(0, 1),
-			new Vec2(1, 0),
-			new Vec2(1, 1),
-
-			new Vec2(1, 0),
-			new Vec2(1, 1),
-			new Vec2(0, 0),
-			new Vec2(0, 1),
-		], {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2});
+		const mesh = createCube({
+			vertexState: vertexStateLiveAsset,
+		});
 		return {
 			liveAsset: mesh,
 			editorData: {
