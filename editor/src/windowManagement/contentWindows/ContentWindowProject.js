@@ -71,6 +71,10 @@ export class ContentWindowProject extends ContentWindow {
 						text: "New Render Clustered Lights Config",
 						onClick: () => this.createAsset("JJ:clusteredLightsConfig"),
 					},
+					{
+						text: "New Sampler",
+						onClick: () => this.createAsset("JJ:sampler"),
+					},
 				]);
 
 				menu.setPos({item: createButton});
