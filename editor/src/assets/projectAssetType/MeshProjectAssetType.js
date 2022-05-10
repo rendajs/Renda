@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {MeshPropertiesAssetContent} from "../../propertiesAssetContent/MeshPropertiesAssetContent.js";
-import {BinaryComposer, BinaryDecomposer, Mesh, createCube} from "../../../../src/mod.js";
+import {BinaryComposer, BinaryDecomposer, Mesh, createUvSphere} from "../../../../src/mod.js";
 import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
 
 /**
@@ -33,7 +33,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 		const vertexStateLiveAsset = await this.assetManager.getLiveAsset(defaultVertexStateAssetUuid, {
 			assertAssetType: VertexStateProjectAssetType,
 		});
-		const mesh = createCube({
+		const mesh = createUvSphere({
 			vertexState: vertexStateLiveAsset,
 		});
 		return {
