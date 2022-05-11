@@ -91,7 +91,7 @@ export class MaterialMapTypeSerializerManager {
 	}
 
 	/**
-	 * @param {import("../../../src/util/mod.js").UuidString} mapAssetUuid
+	 * @param {import("../../../src/util/mod.js").UuidString?} mapAssetUuid
 	 * @returns {Promise<import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]>}
 	 */
 	async getMapValuesForMapAssetUuid(mapAssetUuid) {
@@ -105,17 +105,15 @@ export class MaterialMapTypeSerializerManager {
 		/** @type {Map<string, import("./materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue>} */
 		const mapValues = new Map();
 		if (await mapProjectAsset.getIsDeleted()) return [];
-		/** @type {MaterialMapAssetData} */
 		const mapData = await mapProjectAsset.readAssetData();
 		if (mapData.maps) {
 			const mapProjectAssetType = await mapProjectAsset.getProjectAssetType();
 			if (!mapProjectAssetType) throw new Error("Assertion failed, material map asset has no project asset type.");
 			const context = mapProjectAssetType.createLiveAssetDataContext();
 			for (const mapType of mapData.maps) {
-				if (!mapType.mappedValues) continue;
 				const mapTypeConstructor = this.getTypeByUuid(mapType.mapTypeId);
 				if (!mapTypeConstructor) continue;
-				const values = await mapTypeConstructor.getMappedValues(context, mapType.customData, mapType.mappedValues);
+				const values = await mapTypeConstructor.getMappedValues(context, mapType.customData, mapType.mappedValues || {});
 				for (const value of values) {
 					mapValues.set(value.name, value);
 				}

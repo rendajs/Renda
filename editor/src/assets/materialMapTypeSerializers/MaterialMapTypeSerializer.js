@@ -212,9 +212,15 @@ export class MaterialMapTypeSerializer {
 	}
 
 	/**
+	 * Gets a list of all mapped properties that need to be displayed in the material properties list.
+	 * Mapped values that have been hidden by the user are omitted.
+	 *
 	 * @param {MaterialMapLiveAssetDataContext} context
 	 * @param {*} customData
-	 * @param {import("../MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} mappedValuesData
+	 * @param {import("../MaterialMapTypeSerializerManager.js").MaterialMapMappedValuesAssetData} mappedValuesData The
+	 * asset data stored in the material map on disk. This is partial data of the full list of
+	 * mapped values that needs to be returned. Since if a mapped value has all default values, it is
+	 * omitted from disk.
 	 */
 	static async getMappedValues(context, customData, mappedValuesData) {
 		/** @type {MaterialMapTypeMappableValue[]} */

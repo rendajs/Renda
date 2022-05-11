@@ -49,6 +49,9 @@ export function createMockProjectAsset({
 		},
 		onLiveAssetNeedsReplacement(cb) {},
 		async getProjectAssetType() {},
+		async getIsDeleted() {
+			return false;
+		},
 	});
 	return {
 		projectAsset,
