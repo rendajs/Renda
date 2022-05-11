@@ -53,12 +53,6 @@ export class CachedMaterialData {
 				hasDynamicOffset: true,
 			},
 		});
-		// TODO: This sampler is temporary until sampler assets are added.
-		bindGroupEntries.push({
-			binding: bindGroupEntries.length,
-			visibility: GPUShaderStage.FRAGMENT,
-			sampler: {type: "filtering"},
-		});
 
 		for (const {mappedData} of this.#material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
 			if (mappedData.mappedType == "texture2d") {
@@ -69,6 +63,12 @@ export class CachedMaterialData {
 						sampleType: "float",
 						viewDimension: "2d",
 					},
+				});
+			} else if (mappedData.mappedType == "sampler") {
+				bindGroupEntries.push({
+					binding: bindGroupEntries.length,
+					visibility: GPUShaderStage.FRAGMENT,
+					sampler: {type: "filtering"},
 				});
 			}
 		}

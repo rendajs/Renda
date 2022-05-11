@@ -179,8 +179,7 @@ export class WebGpuRenderer extends Renderer {
 			chunkSize: 65536,
 		});
 
-		// TODO: this sampler is temporary until sampler assets are added
-		this.sampler = device.createSampler({
+		this.placeHolderSampler = device.createSampler({
 			label: "default sampler",
 			magFilter: "linear",
 			minFilter: "linear",
@@ -239,7 +238,7 @@ export class WebGpuRenderer extends Renderer {
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready) return;
-		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.placeHolderTextureView || !this.sampler) {
+		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.placeHolderTextureView || !this.placeHolderSampler) {
 			// All these objects should exist when this.isInit is true, which we already checked for above.
 			throw new Error("Assertion failed, some required objects do not exist");
 		}
@@ -389,10 +388,6 @@ export class WebGpuRenderer extends Renderer {
 				bindGroupEntries.push(this.materialUniformsBuffer.getCurrentChunk().createBindGroupEntry({
 					binding: bindGroupEntries.length,
 				}));
-				bindGroupEntries.push({
-					binding: bindGroupEntries.length,
-					resource: this.sampler,
-				});
 
 				for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
 					if (mappedData.mappedType == "texture2d") {
@@ -410,7 +405,17 @@ export class WebGpuRenderer extends Renderer {
 							resource: textureView,
 						});
 					} else if (mappedData.mappedType == "sampler") {
-						// TODO
+						if (value != null && !(value instanceof Sampler)) {
+							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is not a sampler`);
+						}
+						let sampler = this.placeHolderSampler;
+						if (value) {
+							sampler = this.device.createSampler(value.descriptor);
+						}
+						bindGroupEntries.push({
+							binding: bindGroupEntries.length,
+							resource: sampler,
+						});
 					} else {
 						if (value instanceof Texture) {
 							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a texture`);
