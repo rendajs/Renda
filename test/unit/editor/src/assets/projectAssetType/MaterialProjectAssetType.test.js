@@ -8,6 +8,7 @@ import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
 import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../../../../../../editor/src/assets/builtinAssetUuids.js";
 import {Texture} from "../../../../../../src/core/Texture.js";
+import {Sampler} from "../../../../../../src/rendering/Sampler.js";
 
 const BASIC_MATERIAL_MAP_UUID = "basic material map uuid";
 const BASIC_GENERIC_ASSET_UUID = "ba51c000-9e0e-61c0-0000-0000000a55e7";
@@ -219,12 +220,16 @@ Deno.test({
 		const material = new Material();
 		const embeddedMaterialMap = new MaterialMap();
 		const BASIC_TEXTURE_UUID = "basic texture uuid";
+		const BASIC_SAMPLER_UUID = "basic sampler uuid";
 		const embeddedData = {label: "embedded data"};
 		const texture = new Texture(new Blob());
+		const sampler = new Sampler();
 
 		stub(assetManager, "getAssetUuidOrEmbeddedAssetDataFromLiveAsset", liveAsset => {
 			if (liveAsset == texture) {
 				return BASIC_TEXTURE_UUID;
+			} else if (liveAsset == sampler) {
+				return BASIC_SAMPLER_UUID;
 			} else if (liveAsset == embeddedMaterialMap) {
 				return embeddedData;
 			}
@@ -235,6 +240,7 @@ Deno.test({
 		material.setProperty("num", 42);
 		material.setProperty("vec3", new Vec3(1, 2, 3));
 		material.setProperty("texture", texture);
+		material.setProperty("sampler", sampler);
 		const assetData = await projectAssetType.saveLiveAssetData(material, null);
 
 		assertEquals(assetData, {
@@ -243,6 +249,7 @@ Deno.test({
 				num: 42,
 				vec3: [1, 2, 3],
 				texture: BASIC_TEXTURE_UUID,
+				sampler: BASIC_SAMPLER_UUID,
 			},
 		});
 	},

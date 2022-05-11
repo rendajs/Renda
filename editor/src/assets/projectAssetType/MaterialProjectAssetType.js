@@ -7,6 +7,7 @@ import {MaterialMapProjectAssetType} from "./MaterialMapProjectAssetType.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
 import {Texture} from "../../../../src/core/Texture.js";
 import {isUuid} from "../../../../src/mod.js";
+import {Sampler} from "../../../../src/rendering/Sampler.js";
 
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 
@@ -94,7 +95,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 			for (const [key, value] of liveAsset.getAllProperties()) {
 				hasModifiedProperty = true;
 				let storeValue = null;
-				if (value instanceof Texture) {
+				if (value instanceof Texture || value instanceof Sampler) {
 					storeValue = this.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(value);
 				} else {
 					const mathType = mathTypeToJson(value);
