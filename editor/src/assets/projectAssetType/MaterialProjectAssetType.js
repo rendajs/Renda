@@ -56,7 +56,9 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 		if (materialJson?.properties) {
 			for (const [key, value] of Object.entries(materialJson.properties)) {
 				if (isUuid(value)) {
-					properties[key] = await this.assetManager.getLiveAsset(value);
+					const asset = await this.assetManager.getProjectAssetFromUuid(value);
+					this.listenForUsedLiveAssetChanges(asset);
+					properties[key] = await asset?.getLiveAsset() ?? null;
 				} else {
 					properties[key] = value;
 				}
