@@ -15,6 +15,7 @@ import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
 import {Texture} from "../../../core/Texture.js";
 import {CachedTextureData} from "./CachedTextureData.js";
 import {CachedMaterialData} from "./CachedMaterialData.js";
+import {Sampler} from "../../Sampler.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
@@ -408,9 +409,14 @@ export class WebGpuRenderer extends Renderer {
 							binding: bindGroupEntries.length,
 							resource: textureView,
 						});
+					} else if (mappedData.mappedType == "sampler") {
+						// TODO
 					} else {
 						if (value instanceof Texture) {
 							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a texture`);
+						}
+						if (value instanceof Sampler) {
+							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is a sampler`);
 						}
 						if (value === null) value = 0;
 						this.materialUniformsBuffer.appendData(value, "f32");

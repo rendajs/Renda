@@ -3,12 +3,14 @@ import {assertSpyCall, assertSpyCalls} from "std/testing/mock";
 import {Importer} from "fake-imports";
 import {castTreeView} from "../../../shared/mockTreeView/castTreeView.js";
 import {Texture} from "../../../../../../src/core/Texture.js";
+import {Sampler} from "../../../../../../src/rendering/Sampler.js";
 
 const importer = new Importer(import.meta.url, {
 	importMap: "../../../../../../importmap.json",
 });
 importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../shared/mockTreeView/PropertiesTreeView.js");
 importer.makeReal("../../../../../../src/core/Texture.js");
+importer.makeReal("../../../../../../src/rendering/Sampler.js");
 
 /** @type {import("../../../../../../editor/src/propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapListUi.js")} */
 const MaterialMapListUiImport = await importer.import("../../../../../../editor/src/propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapListUi.js");
@@ -67,6 +69,9 @@ Deno.test({
 			{
 				defaultValue: {
 					type: "droppable",
+					guiOpts: {
+						supportedAssetTypes: [Sampler],
+					},
 				},
 				mappedName: {
 					type: "string",

@@ -3,9 +3,10 @@ import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
 import {Quat} from "../math/Quat.js";
 import {Texture} from "../core/Texture.js";
+import {Sampler} from "./Sampler.js";
 
 /** @typedef {number | number[] | Vec2 | Vec3 | Vec4 | Quat} MappableMaterialUniformTypes */
-/** @typedef {MappableMaterialUniformTypes | Texture | null} MappableMaterialTypes */
+/** @typedef {MappableMaterialUniformTypes | Texture | Sampler | null} MappableMaterialTypes */
 
 /** @typedef {"number" | "vec2" | "vec3" | "vec4" | "sampler" | "texture2d"} MappableMaterialTypesEnum */
 /**
@@ -118,7 +119,7 @@ export class MaterialMap {
 			if (allNumbers) return;
 		}
 
-		if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4 || value instanceof Quat || value instanceof Texture) return;
+		if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4 || value instanceof Quat || value instanceof Texture || value instanceof Sampler) return;
 
 		throw new Error(`Value is not a mappable material type: ${value}`);
 	}

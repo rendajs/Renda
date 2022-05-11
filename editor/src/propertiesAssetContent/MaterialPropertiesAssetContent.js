@@ -4,6 +4,7 @@ import {MaterialMap} from "../../../src/rendering/MaterialMap.js";
 import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/MaterialProjectAssetType.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
 import {Texture} from "../../../src/core/Texture.js";
+import {Sampler} from "../../../src/rendering/Sampler.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -114,6 +115,9 @@ export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
 			let extraGuiOpts = {};
 			if (valueData.type == "sampler") {
 				guiType = "droppable";
+				extraGuiOpts = {
+					supportedAssetTypes: [Sampler],
+				};
 			} else if (valueData.type == "texture2d") {
 				guiType = "droppable";
 				extraGuiOpts = {

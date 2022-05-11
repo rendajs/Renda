@@ -1,4 +1,5 @@
 import {Texture} from "../../../../src/core/Texture.js";
+import {Sampler} from "../../../../src/rendering/Sampler.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
@@ -30,6 +31,9 @@ export class MaterialMapListUi {
 			if (item.type == "sampler") {
 				defaultValueTypeOptions = {
 					type: "droppable",
+					guiOpts: {
+						supportedAssetTypes: [Sampler],
+					},
 				};
 			} else if (item.type == "texture2d") {
 				defaultValueTypeOptions = {

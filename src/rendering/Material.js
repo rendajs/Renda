@@ -2,6 +2,7 @@ import {Texture} from "../core/Texture.js";
 import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
+import {Sampler} from "./Sampler.js";
 
 /**
  * @typedef MappedPropertyData
@@ -155,8 +156,7 @@ export class Material {
 		} else if (expectedType == "texture2d") {
 			return value instanceof Texture;
 		} else if (expectedType == "sampler") {
-			// todo
-			return false;
+			return value instanceof Sampler;
 		}
 		return false;
 	}
