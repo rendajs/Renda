@@ -6,6 +6,9 @@
 		"01ba9a17-bbff-4c12-b234-9eb47c1fcc7c": {
 			"path": ["DefaultAssets", "Default Clustered Lights Config.json"]
 		},
+		"27a0c1fb-2187-4e11-82c7-a944ff43ec47": {
+			"path": ["DefaultAssets", "Default Sampler.json"]
+		},
 		"36996838-4f7e-4be3-9c18-49c4a9db00be": {
 			"path": ["DefaultAssets", "Default Vertex State.json"]
 		},
