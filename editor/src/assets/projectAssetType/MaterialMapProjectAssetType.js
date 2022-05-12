@@ -4,6 +4,7 @@ import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {StorageType, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
 import {TextureProjectAssetType} from "./TextureProjectAssetType.js";
+import {SamplerProjectAssetType} from "./SamplerProjectAssetType.js";
 
 /**
  * @extends {ProjectAssetType<MaterialMap, null, import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
@@ -105,6 +106,10 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 								} else if (mappedValue.mappedType == "texture2d") {
 									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
 										assertAssetType: TextureProjectAssetType,
+									});
+								} else if (mappedValue.mappedType == "sampler") {
+									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
+										assertAssetType: SamplerProjectAssetType,
 									});
 								}
 							}

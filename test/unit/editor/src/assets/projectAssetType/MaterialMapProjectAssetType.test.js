@@ -8,9 +8,11 @@ import {MaterialMapType} from "../../../../../../src/rendering/MaterialMapType.j
 import {MaterialMapTypeSerializer} from "../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
 import {Vec2, Vec3, Vec4} from "../../../../../../src/mod.js";
 import {Texture} from "../../../../../../src/core/Texture.js";
+import {Sampler} from "../../../../../../src/rendering/Sampler.js";
 
 const BASIC_MATERIAL_MAP_TYPE_ID = "basic material map type id";
 const BASIC_TEXTURE_UUID = "basic texture uuid";
+const BASIC_SAMPLER_UUID = "basic sampler uuid";
 
 function basicSetup() {
 	const {projectAssetTypeArgs, editor, assetManager} = createMockDependencies();
@@ -130,9 +132,12 @@ Deno.test({
 		const recursionTracker = getMockRecursionTracker();
 		const customData = {label: "material map type custom data"};
 		const textureLiveAsset = new Texture(new Blob());
+		const samplerLiveAsset = new Sampler();
 		stub(assetManager, "getLiveAsset", async uuid => {
 			if (uuid == BASIC_TEXTURE_UUID) {
 				return textureLiveAsset;
+			} else if (uuid == BASIC_SAMPLER_UUID) {
+				return samplerLiveAsset;
 			}
 			return null;
 		});
@@ -159,6 +164,7 @@ Deno.test({
 				{name: "vec2AllDefault", type: "vec2"},
 				{name: "vec2AllDefaultWithDefaultDefault", type: "vec2", defaultValue: new Vec2(1, 2)},
 				{name: "texture2d", type: "texture2d"},
+				{name: "sampler", type: "sampler"},
 			];
 			return values;
 		});
@@ -225,6 +231,9 @@ Deno.test({
 						// missing when all values have the default value
 						texture2d: {
 							defaultValue: BASIC_TEXTURE_UUID,
+						},
+						sampler: {
+							defaultValue: BASIC_SAMPLER_UUID,
 						},
 					},
 				},
@@ -317,9 +326,16 @@ Deno.test({
 				mappedType: "texture2d",
 				defaultValue: textureLiveAsset,
 			},
+			{
+				mappedName: "sampler",
+				mappedType: "sampler",
+				defaultValue: samplerLiveAsset,
+			},
 		]);
 		const textureMappedDatas = Array.from(liveAsset.mapProperty("texture2d"));
 		assertStrictEquals(textureMappedDatas[0][1].defaultValue, textureLiveAsset);
+		const samplerMappedDatas = Array.from(liveAsset.mapProperty("sampler"));
+		assertStrictEquals(samplerMappedDatas[0][1].defaultValue, samplerLiveAsset);
 	},
 });
 
