@@ -51,28 +51,22 @@ export class SamplerProjectAssetType extends ProjectAssetType {
 			type: "dropdown",
 			guiOpts: {
 				items: filterModeTypes,
-				defaultValue: "nearest",
+				defaultValue: "linear",
 			},
 		},
 		minFilter: {
 			type: "dropdown",
 			guiOpts: {
 				items: filterModeTypes,
-				defaultValue: "nearest",
+				defaultValue: "linear",
 			},
 		},
 		mipmapFilter: {
 			type: "dropdown",
 			guiOpts: {
 				items: filterModeTypes,
-				defaultValue: "nearest",
+				defaultValue: "linear",
 			},
-		},
-		lodMinClamp: {
-			type: "number",
-		},
-		lodMaxClamp: {
-			type: "number",
 		},
 	};
 
