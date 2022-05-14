@@ -126,7 +126,13 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 				}
 			}
 		}
-		// Find textures and samplers in the shader
+
+		// Find texture and sampler bindings in the shader
+		/** @type {{
+		 * 	index: number,
+		 * 	mappableValueType: import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue,
+		  }[]} */
+		const foundBindings = [];
 		/** @type {{glslType: string, mappableValueType: import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum}[]} */
 		const variableTypes = [
 			{glslType: "sampler", mappableValueType: "sampler"},
@@ -178,7 +184,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 				attributesRegex += "\\)";
 
 				let hasValidGroupAttribute = false;
-				let hasValidBindingAttribute = false;
+				let binding = null;
 				for (const attributeMatch of attributes.matchAll(new RegExp(attributesRegex, "g"))) {
 					if (!attributeMatch.groups) continue;
 					const name = attributeMatch.groups.name;
@@ -188,15 +194,23 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 						hasValidGroupAttribute = true;
 					}
 					if (name == "binding") {
-						hasValidBindingAttribute = true;
+						binding = parseInt(value, 10);
 					}
 				}
-				if (!hasValidGroupAttribute || !hasValidBindingAttribute) continue;
-				mappableValues.set(identifier, {
-					name: identifier,
-					type: varType.mappableValueType,
+				if (!hasValidGroupAttribute || binding == null) continue;
+				foundBindings.push({
+					index: binding,
+					mappableValueType: {
+						name: identifier,
+						type: varType.mappableValueType,
+					},
 				});
 			}
+		}
+
+		foundBindings.sort((a, b) => a.index - b.index);
+		for (const foundBinding of foundBindings) {
+			mappableValues.set(foundBinding.mappableValueType.name, foundBinding.mappableValueType);
 		}
 	}
 
