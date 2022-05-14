@@ -4,6 +4,15 @@
 // file://./structs/viewUniforms.wgsl
 // @import 41eaba39-e2aa-48a3-8deb-47f410542bc2
 
+// file://./../util/trowbridgeReitzGgx.wgsl
+// @import 76ed4a0e-36ac-4419-af53-4890041b673a
+
+// file://./../util/geometrySmith.wgsl
+// @import 29f11b37-5501-4d58-bfe3-e9c831fcd3e2
+
+// file://./../util/fresnelSchlick.wgsl
+// @import 98c32773-068b-4368-9a55-a3d046624acd
+
 //todo: import this from clusterBoundsStruct.wgsl
 struct ClusterLightIndices {
 	lightCount : u32,
@@ -41,14 +50,12 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 
 
 struct MaterialUniforms {
-	test : vec4<f32>,
+	albedo : vec3<f32>,
+	metallic : f32,
+	roughness : f32,
 };
 @group(1) @binding(0)
 var<uniform> materialUniforms : MaterialUniforms;
-
-@group(1) @binding(1) var mySampler : sampler;
-@group(1) @binding(2) var myTexture : texture_2d<f32>;
-
 
 struct FragmentInput {
 	@location(0) vWorldPos : vec3<f32>,
@@ -63,29 +70,66 @@ struct FragmentOutput {
 
 @stage(fragment)
 fn main(input : FragmentInput) -> FragmentOutput {
-	var color : vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
+	let fragmentNormal : vec3<f32> = normalize(input.normal);
+	let viewVector : vec3<f32> = normalize(viewUniforms.camPos -  input.vWorldPos);
+
+	// How reflective this fragment is for each rgb component. For metals this
+	// value is always 0.04. For dielectrics we take the value from the albedo.
+	let baseReflectivity : vec3<f32> = mix(vec3<f32>(0.04, 0.04, 0.04), materialUniforms.albedo, materialUniforms.metallic);
+
+	// The output luminance that we'll accumulate by looping over the lights below.
+	var totalLightOutput : vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
+
+	// We're using pow(roughness, 2) to make the roughness slider more usable.
+	let roughness = materialUniforms.roughness * materialUniforms.roughness;
 
 	let clusterIndex : u32 = getClusterIndex(input.fragCoord);
 	let cluster : ClusterLightIndices = clusterLightIndices.clusters[clusterIndex];
-	for(var i : u32 = 0u; i < cluster.lightCount; i = i + 1u){
+	for(var i : u32 = 0u; i < cluster.lightCount; i = i + 1u) {
 		let lightIndex : u32 = clusterLightIndices.clusters[clusterIndex].indices[i];
 		let light : Light = lightUniforms.lights[lightIndex];
+
 		let deltaLightPos : vec3<f32> = light.pos - input.vWorldPos;
 		let lightDir : vec3<f32> = normalize(deltaLightPos);
+		let halfwayVector: vec3<f32> = normalize(lightDir + viewVector);
 		let lightDist : f32 = length(deltaLightPos);
 		let attenuation : f32 = 1.0 / (lightDist * lightDist);
+		// radiance is the total amount of light coming in from this light source.
+		let radiance : vec3<f32> = light.col * attenuation;
 
-		let NdotL : f32 = max(dot(input.normal, lightDir), 0.0);
+		// NdotV and NdotL are clamped at 0.000000001 to avoid divide by zero errors later on.
+		let NdotV : f32 = max(dot(fragmentNormal, halfwayVector), 0.000000001);
+		let NdotL : f32 = max(dot(fragmentNormal, lightDir), 0.000000001);
+		let HdotV : f32 = max(dot(halfwayVector, viewVector), 0.0);
 
-		color = color + light.col * NdotL * attenuation;
+		// cook-torrance brdf
+		let normalDistributionBrdf : f32 = trowbridgeReitzGgx(fragmentNormal, halfwayVector, roughness);
+		let geometryBrdf : f32 = geometrySmith(fragmentNormal, halfwayVector, lightDir, roughness);
+		let fresnelBrdf : vec3<f32> = fresnelSchlick(HdotV, baseReflectivity);
+
+		let specular : vec3<f32> = (normalDistributionBrdf * (geometryBrdf * fresnelBrdf)) / (4.0 * NdotV * NdotL);
+
+		// The specular is brighter when there is a high angle between the light
+		// and the view vector, so we need to lower the diffuse lighting
+		// for energy conservation.
+		var diffuseLightAmount : vec3<f32> = vec3<f32>(1.0) - fresnelBrdf;
+
+		// only dielectrics have a diffuse component, so we lower the diffuse
+		// lighting for metals.
+		diffuseLightAmount *= 1.0 - materialUniforms.metallic;
+
+		totalLightOutput += (diffuseLightAmount * materialUniforms.albedo / vec3<f32>(PI) + specular) * radiance * NdotL;
 	}
 
-	var gamma : f32 = 1.0/2.2;
-	color = pow(color, vec3<f32>(gamma, gamma, gamma));
-	color = color + materialUniforms.test.rgb;
+	var color : vec3<f32> = totalLightOutput;
+
+	// Reinhard tonemapping
+	color = color / (color + vec3<f32>(1.0));
+
+	// gamma correction
+	color = pow(color, vec3<f32>(1.0/2.2));
+
 	var fragOut : FragmentOutput;
 	fragOut.outColor = vec4<f32>(color, 1.0);
-	fragOut.outColor *= textureSample(myTexture, mySampler, input.vUv1);
-	let clusterCoord : vec3<u32> = getClusterCoord(input.fragCoord);
 	return fragOut;
 }

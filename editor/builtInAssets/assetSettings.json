@@ -72,6 +72,18 @@
 		"eb430f5f-a7fa-4a77-acc6-56106769adb7": {
 			"path": ["shaders", "wgsl", "materials", "vert.wgsl"]
 		},
+		"98c32773-068b-4368-9a55-a3d046624acd": {
+			"path": ["shaders", "wgsl", "util", "fresnelSchlick.wgsl"]
+		},
+		"29f11b37-5501-4d58-bfe3-e9c831fcd3e2": {
+			"path": ["shaders", "wgsl", "util", "geometrySmith.wgsl"]
+		},
+		"2704bc9a-1996-41f5-a203-7a67b5d211a7": {
+			"path": ["shaders", "wgsl", "util", "pi.wgsl"]
+		},
+		"76ed4a0e-36ac-4419-af53-4890041b673a": {
+			"path": ["shaders", "wgsl", "util", "trowbridgeReitzGgx.wgsl"]
+		},
 		"8cd64104-1d45-4536-972a-5685a2523725": {
 			"path": ["shaders", "wgsl", "materials", "structs", "lightUniforms.wgsl"]
 		},

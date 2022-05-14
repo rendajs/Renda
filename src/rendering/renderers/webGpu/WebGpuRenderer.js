@@ -295,6 +295,7 @@ export class WebGpuRenderer extends Renderer {
 
 		// todo, only update when something changed
 		this.viewUniformsBuffer.appendData(new Vec4(domTarget.width, domTarget.height, 0, 0)); // todo, pass as integer?
+		this.viewUniformsBuffer.appendData(camera.entity.pos);
 		this.viewUniformsBuffer.appendData(camera.projectionMatrix);
 		this.viewUniformsBuffer.appendData(inverseProjectionMatrix);
 		this.viewUniformsBuffer.appendData(viewMatrix);

@@ -6,11 +6,6 @@
 				"mapTypeId": "286eaa41-36ce-4d94-9413-d52fc435b6e5",
 				"customData": {
 					"forwardPipelineConfig": "abc1df88-ae0b-4a5d-8ac4-0a98c1602a32"
-				},
-				"mappedValues": {
-					"mySampler": {
-						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
-					}
 				}
 			}
 		]
