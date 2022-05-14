@@ -9,7 +9,7 @@ import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import {EditorConnection} from "../network/editorConnections/EditorConnection.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
-import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
+import {ConnectionsContentWindow} from "../windowManagement/contentWindows/ConnectionsContentWindow.js";
 
 /**
  * @typedef {Object} StoredProjectEntryBase
@@ -343,7 +343,7 @@ export class ProjectManager {
 			name: "Remote Filesystem",
 			isWorthSaving: false,
 		}, true);
-		getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
+		getEditorInstance().windowManager.focusOrCreateContentWindow(ConnectionsContentWindow);
 	}
 
 	/**

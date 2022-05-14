@@ -44,7 +44,7 @@ Deno.test({
 				const contentWindowProject = globalThis.editor.windowManager.getWindowByElement(contentWindowProjectEl);
 				if (!contentWindowProject) throw new Error("No project window found");
 				const ContentWindowProjectConstructor = globalThis.editor.windowManager.registeredContentWindows.get("project");
-				const ContentWindowProject = /** @type {typeof import("../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (ContentWindowProjectConstructor);
+				const ContentWindowProject = /** @type {typeof import("../../../../../editor/src/windowManagement/contentWindows/ProjectContentWindow.js").ProjectContentWindow} */ (ContentWindowProjectConstructor);
 				if (!(contentWindowProject instanceof ContentWindowProject)) {
 					throw new Error("content window is not of type project");
 				}

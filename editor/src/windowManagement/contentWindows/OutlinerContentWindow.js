@@ -2,13 +2,13 @@ import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../ui/TreeView.js";
 import {Button} from "../../ui/Button.js";
 import {Entity} from "../../../../src/mod.js";
-import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
+import {EntityEditorContentWindow} from "./EntityEditorContentWindow.js";
 import {EntityProjectAssetType} from "../../assets/projectAssetType/EntityProjectAssetType.js";
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
 
-export class ContentWindowOutliner extends ContentWindow {
+export class OutlinerContentWindow extends ContentWindow {
 	static contentWindowTypeId = "outliner";
 	static contentWindowUiName = "Outliner";
 	static contentWindowUiIcon = "icons/contentWindowTabs/outliner.svg";
@@ -31,7 +31,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 
-		/** @type {ContentWindowEntityEditor?} */
+		/** @type {EntityEditorContentWindow?} */
 		this.linkedEntityEditor = null;
 
 		const createEmptyButton = new Button({
@@ -48,7 +48,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.selectEntityEditorDropDown.onValueChange(() => {
 			const index = this.selectEntityEditorDropDown.getValue({getAsString: false});
 			const uuid = this.availableEntityEditorUuids[index];
-			const entityEditor = /** @type {ContentWindowEntityEditor} */ (this.editorInstance.windowManager.getContentWindowByUuid(uuid));
+			const entityEditor = /** @type {EntityEditorContentWindow} */ (this.editorInstance.windowManager.getContentWindowByUuid(uuid));
 			this.setLinkedEntityEditor(entityEditor);
 		});
 		this.selectEntityEditorDropDownContainer = document.createElement("div");
@@ -63,14 +63,14 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	init() {
-		this.windowManager.contentWindowAddedHandler.addEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
-		this.windowManager.contentWindowRemovedHandler.addEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
+		this.windowManager.contentWindowAddedHandler.addEventListener(EntityEditorContentWindow, this.boundEntityEditorUpdated);
+		this.windowManager.contentWindowRemovedHandler.addEventListener(EntityEditorContentWindow, this.boundEntityEditorUpdated);
 	}
 
 	destructor() {
 		super.destructor();
-		this.windowManager.contentWindowAddedHandler.removeEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
-		this.windowManager.contentWindowRemovedHandler.removeEventListener(ContentWindowEntityEditor, this.boundEntityEditorUpdated);
+		this.windowManager.contentWindowAddedHandler.removeEventListener(EntityEditorContentWindow, this.boundEntityEditorUpdated);
+		this.windowManager.contentWindowRemovedHandler.removeEventListener(EntityEditorContentWindow, this.boundEntityEditorUpdated);
 		this.treeView.destructor();
 		this.linkedEntityEditor = null;
 	}
@@ -94,7 +94,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	updateAvailableEntityEditorsList() {
 		this.availableEntityEditorUuids = [];
 		const dropDownItems = [];
-		for (const entityEditor of this.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.windowManager.getContentWindowsByConstructor(EntityEditorContentWindow)) {
 			this.availableEntityEditorUuids.push(entityEditor.uuid);
 
 			let entityAssetName = null;
@@ -123,7 +123,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	setAvailableLinkedEntityEditor() {
-		const entityEditor = this.windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor, false);
+		const entityEditor = this.windowManager.getMostSuitableContentWindowByConstructor(EntityEditorContentWindow, false);
 		if (entityEditor) {
 			this.setLinkedEntityEditor(entityEditor);
 			this.selectEntityEditorDropDown.value = this.availableEntityEditorUuids.indexOf(entityEditor.uuid);
@@ -131,7 +131,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
-	 * @param {ContentWindowEntityEditor} linkedEntityEditor
+	 * @param {EntityEditorContentWindow} linkedEntityEditor
 	 */
 	setLinkedEntityEditor(linkedEntityEditor) {
 		this.linkedEntityEditor = linkedEntityEditor;
@@ -294,14 +294,14 @@ export class ContentWindowOutliner extends ContentWindow {
 
 	/**
 	 * @param {import("../../util/util.js").ParsedMimeType} mimeType
-	 * @returns {import("./ContentWindowProject.js").DraggingProjectAssetData | null}
+	 * @returns {import("./ProjectContentWindow.js").DraggingProjectAssetData | null}
 	 */
 	validateDragMimeType(mimeType) {
 		if (mimeType.type == "text" &&
 			mimeType.subType == "jj" &&
 			mimeType.parameters.dragtype == "projectasset"
 		) {
-			/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
+			/** @type {import("./ProjectContentWindow.js").DraggingProjectAssetData} */
 			const dragData = this.editorInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata);
 			if (dragData.assetType == EntityProjectAssetType) {
 				return dragData;
@@ -354,7 +354,7 @@ export class ContentWindowOutliner extends ContentWindow {
 
 	/**
 	 * @param {Entity} obj
-	 * @param {import("./ContentWindowEntityEditor.js").EntityChangedEventType} type
+	 * @param {import("./EntityEditorContentWindow.js").EntityChangedEventType} type
 	 */
 	notifyEntityEditors(obj, type) {
 		if (!this.linkedEntityEditor) return;

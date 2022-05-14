@@ -1,9 +1,9 @@
 import {getEditorInstance} from "../editorInstance.js";
 import {parseMimeType} from "../util/util.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
-import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
-import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/ContentWindowBuiltInAssets.js";
-import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
+import {DefaultAssetLinksContentWindow} from "../windowManagement/contentWindows/DefaultAssetLinksContentWindow.js";
+import {BuiltInAssetsContentWindow} from "../windowManagement/contentWindows/BuiltInAssetsContentWindow.js";
+import {ProjectContentWindow} from "../windowManagement/contentWindows/ProjectContentWindow.js";
 
 /**
  * @typedef DroppableGuiDependencies
@@ -497,7 +497,7 @@ export class DroppableGui {
 			assetType = this.projectAssetValue.projectAssetTypeConstructorSync;
 		}
 
-		/** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */
+		/** @type {import("../windowManagement/contentWindows/ProjectContentWindow.js").DraggingProjectAssetData} */
 		const draggingData = {
 			dataPopulated: true,
 			assetType,
@@ -596,7 +596,7 @@ export class DroppableGui {
 	 * @typedef {Object} ParsedDraggingProjectAssetData
 	 * @property {boolean} isEngineType
 	 * @property {boolean} isProjectAsset
-	 * @property {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} draggingProjectAssetData
+	 * @property {import("../windowManagement/contentWindows/ProjectContentWindow.js").DraggingProjectAssetData} draggingProjectAssetData
 	 */
 
 	/**
@@ -730,15 +730,15 @@ export class DroppableGui {
 					if (this.defaultAssetLink) {
 						// todo: highlight assetLink
 						// eslint-disable-next-line no-unused-vars
-						const assetLinksWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
+						const assetLinksWindow = this.windowManager.focusOrCreateContentWindow(DefaultAssetLinksContentWindow);
 					} else if (this.projectAssetValue) {
 						let assetLinksWindow;
 						if (this.projectAssetValue.isBuiltIn) {
-							const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
-							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
+							const contentWindow = this.windowManager.focusOrCreateContentWindow(BuiltInAssetsContentWindow);
+							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/BuiltInAssetsContentWindow.js").BuiltInAssetsContentWindow} */ (contentWindow);
 						} else {
-							const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowProject);
-							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
+							const contentWindow = this.windowManager.focusOrCreateContentWindow(ProjectContentWindow);
+							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ProjectContentWindow.js").ProjectContentWindow} */ (contentWindow);
 						}
 						assetLinksWindow.highlightPath(this.projectAssetValue.path);
 					}

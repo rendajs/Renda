@@ -1,6 +1,6 @@
 import {autoRegisterContentWindows} from "./autoRegisterContentWindows.js";
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
-import {ContentWindowProperties} from "../windowManagement/contentWindows/ContentWindowProperties.js";
+import {PropertiesContentWindow} from "../windowManagement/contentWindows/PropertiesContentWindow.js";
 import {EmptyPropertiesWindowContent} from "./EmptyPropertiesWindowContent.js";
 import {MultiplePropertiesWindowContent} from "./MultiplePropertiesWindowContent.js";
 
@@ -47,7 +47,7 @@ export class PropertiesWindowContentManager {
 		}
 
 		// todo: make this a callback that properties window register
-		for (const w of this.windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
+		for (const w of this.windowManager.getContentWindowsByConstructor(PropertiesContentWindow)) {
 			w.onContentTypeRegistered();
 		}
 	}

@@ -8,7 +8,7 @@ import {ContentWindow} from "./ContentWindow.js";
  * @property {import("../../ui/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
  */
 
-export class ContentWindowConnections extends ContentWindow {
+export class ConnectionsContentWindow extends ContentWindow {
 	static contentWindowTypeId = "connections";
 	static contentWindowUiName = "Connections";
 	static contentWindowUiIcon = "icons/contentWindowTabs/connections.svg";

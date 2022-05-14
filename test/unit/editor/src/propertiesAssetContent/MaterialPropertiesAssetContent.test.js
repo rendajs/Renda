@@ -16,8 +16,8 @@ const DEFAULT_ASSET_MAP_UUID = "default-asset-map-uuid";
 const importer = new Importer(import.meta.url, {
 	importMap: "../../../../../importmap.json",
 });
-importer.fakeModule("../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js", `
-	export class ContentWindowEntityEditor {}
+importer.fakeModule("../../../../../editor/src/windowManagement/contentWindows/EntityEditorContentWindow.js", `
+	export class EntityEditorContentWindow {}
 `);
 importer.redirectModule("../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../shared/mockTreeView/PropertiesTreeView.js");
 importer.fakeModule("../../../../../src/rendering/MaterialMap.js", `

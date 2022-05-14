@@ -2,7 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../ui/TreeView.js";
 import {SelectionGroup} from "../../misc/SelectionGroup.js";
 
-export class ContentWindowBuiltInAssets extends ContentWindow {
+export class BuiltInAssetsContentWindow extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";
 	static contentWindowUiName = "Built-in Assets";
 	static contentWindowUiIcon = "icons/contentWindowTabs/builtInAssets.svg";
@@ -83,7 +83,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		let assetType = null;
 		if (projectAsset.assetType) assetType = this.editorInstance.projectAssetTypeManager.getAssetType(projectAsset.assetType);
 
-		/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
+		/** @type {import("./ProjectContentWindow.js").DraggingProjectAssetData} */
 		const draggingData = {
 			dataPopulated: true,
 			assetType,

@@ -2,7 +2,7 @@ import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js";
 import {Button} from "../ui/Button.js";
 import {DroppableGui} from "../ui/DroppableGui.js";
-import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/ContentWindowEntityEditor.js";
+import {EntityEditorContentWindow} from "../windowManagement/contentWindows/EntityEditorContentWindow.js";
 import {EntityProjectAssetType} from "../assets/projectAssetType/EntityProjectAssetType.js";
 import {EntitySelection} from "../misc/EntitySelection.js";
 
@@ -260,10 +260,10 @@ export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 
 	/**
 	 * @param {import("../../../src/mod.js").Entity} entity
-	 * @param {import("../windowManagement/contentWindows/ContentWindowEntityEditor.js").EntityChangedEventType} type
+	 * @param {import("../windowManagement/contentWindows/EntityEditorContentWindow.js").EntityChangedEventType} type
 	 */
 	notifyEntityEditors(entity, type) {
-		for (const entityEditor of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.editorInstance.windowManager.getContentWindowsByConstructor(EntityEditorContentWindow)) {
 			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}

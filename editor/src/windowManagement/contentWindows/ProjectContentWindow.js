@@ -11,7 +11,7 @@ import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorI
  * @property {import("../../../../src/util/mod.js").UuidString?} assetUuid Is null when data hasn't been populated yet.
  */
 
-export class ContentWindowProject extends ContentWindow {
+export class ProjectContentWindow extends ContentWindow {
 	static contentWindowTypeId = "project";
 	static contentWindowUiName = "Project Files";
 	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";
@@ -224,7 +224,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * Utility function for {@link ContentWindowProject.updateTreeView} that updates
+	 * Utility function for {@link ProjectContentWindow.updateTreeView} that updates
 	 * a TreeView and all expanded children recursively.
 	 * @param {TreeView} treeView The TreeView to update.
 	 * @param {Array<string>} path The path this TreeView belongs to.
