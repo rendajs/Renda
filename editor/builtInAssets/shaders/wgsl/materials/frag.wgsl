@@ -50,12 +50,18 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 
 
 struct MaterialUniforms {
-	albedo : vec3<f32>,
-	metallic : f32,
-	roughness : f32,
+	metallicAdjust : f32,
+	roughnessAdjust : f32,
 };
 @group(1) @binding(0)
 var<uniform> materialUniforms : MaterialUniforms;
+
+@group(1) @binding(1) var albedoSampler : sampler;
+@group(1) @binding(2) var albedoTexture : texture_2d<f32>;
+@group(1) @binding(3) var metallicSampler : sampler;
+@group(1) @binding(4) var metallicTexture : texture_2d<f32>;
+@group(1) @binding(5) var roughnessSampler : sampler;
+@group(1) @binding(6) var roughnessTexture : texture_2d<f32>;
 
 struct FragmentInput {
 	@location(0) vWorldPos : vec3<f32>,
@@ -70,18 +76,23 @@ struct FragmentOutput {
 
 @stage(fragment)
 fn main(input : FragmentInput) -> FragmentOutput {
-	let fragmentNormal : vec3<f32> = normalize(input.normal);
+	let albedo : vec3<f32> = pow(textureSample(albedoTexture, albedoSampler, input.vUv1).rgb, vec3<f32>(2.2));
+	let metallic : f32 = textureSample(metallicTexture, metallicSampler, input.vUv1).r + materialUniforms.metallicAdjust;
+	let roughness : f32 = textureSample(roughnessTexture, roughnessSampler, input.vUv1).r + materialUniforms.roughnessAdjust;
+
+	let worldNormal : vec3<f32> = normalize(input.normal);
 	let viewVector : vec3<f32> = normalize(viewUniforms.camPos -  input.vWorldPos);
 
 	// How reflective this fragment is for each rgb component. For metals this
 	// value is always 0.04. For dielectrics we take the value from the albedo.
-	let baseReflectivity : vec3<f32> = mix(vec3<f32>(0.04, 0.04, 0.04), materialUniforms.albedo, materialUniforms.metallic);
+	let baseReflectivity : vec3<f32> = mix(vec3<f32>(0.04, 0.04, 0.04), albedo, metallic);
 
 	// The output luminance that we'll accumulate by looping over the lights below.
 	var totalLightOutput : vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
 
 	// We're using pow(roughness, 2) to make the roughness slider more usable.
-	let roughness = materialUniforms.roughness * materialUniforms.roughness;
+	// This is the behavior in most renderers.
+	var roughness2 = roughness * roughness;
 
 	let clusterIndex : u32 = getClusterIndex(input.fragCoord);
 	let cluster : ClusterLightIndices = clusterLightIndices.clusters[clusterIndex];
@@ -98,13 +109,13 @@ fn main(input : FragmentInput) -> FragmentOutput {
 		let radiance : vec3<f32> = light.col * attenuation;
 
 		// NdotV and NdotL are clamped at 0.000000001 to avoid divide by zero errors later on.
-		let NdotV : f32 = max(dot(fragmentNormal, halfwayVector), 0.000000001);
-		let NdotL : f32 = max(dot(fragmentNormal, lightDir), 0.000000001);
+		let NdotV : f32 = max(dot(worldNormal, halfwayVector), 0.000000001);
+		let NdotL : f32 = max(dot(worldNormal, lightDir), 0.000000001);
 		let HdotV : f32 = max(dot(halfwayVector, viewVector), 0.0);
 
 		// cook-torrance brdf
-		let normalDistributionBrdf : f32 = trowbridgeReitzGgx(fragmentNormal, halfwayVector, roughness);
-		let geometryBrdf : f32 = geometrySmith(fragmentNormal, halfwayVector, lightDir, roughness);
+		let normalDistributionBrdf : f32 = trowbridgeReitzGgx(worldNormal, halfwayVector, roughness2);
+		let geometryBrdf : f32 = geometrySmith(worldNormal, halfwayVector, lightDir, roughness2);
 		let fresnelBrdf : vec3<f32> = fresnelSchlick(HdotV, baseReflectivity);
 
 		let specular : vec3<f32> = (normalDistributionBrdf * (geometryBrdf * fresnelBrdf)) / (4.0 * NdotV * NdotL);
@@ -116,9 +127,9 @@ fn main(input : FragmentInput) -> FragmentOutput {
 
 		// only dielectrics have a diffuse component, so we lower the diffuse
 		// lighting for metals.
-		diffuseLightAmount *= 1.0 - materialUniforms.metallic;
+		diffuseLightAmount *= 1.0 - metallic;
 
-		totalLightOutput += (diffuseLightAmount * materialUniforms.albedo / vec3<f32>(PI) + specular) * radiance * NdotL;
+		totalLightOutput += (diffuseLightAmount * albedo / vec3<f32>(PI) + specular) * radiance * NdotL;
 	}
 
 	var color : vec3<f32> = totalLightOutput;
