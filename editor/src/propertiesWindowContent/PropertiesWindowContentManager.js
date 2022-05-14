@@ -1,4 +1,4 @@
-import {autoRegisterContentWindows} from "./autoRegisterContentWindows.js";
+import {autoRegisterPropertiesWindowContent} from "./autoRegisterPropertiesWindowContent.js";
 import {PropertiesWindowContent} from "./PropertiesWindowContent.js";
 import {PropertiesContentWindow} from "../windowManagement/contentWindows/PropertiesContentWindow.js";
 import {EmptyPropertiesWindowContent} from "./EmptyPropertiesWindowContent.js";
@@ -15,15 +15,15 @@ export class PropertiesWindowContentManager {
 	}
 
 	init() {
-		for (const t of autoRegisterContentWindows) {
-			this.registerContentType(t);
+		for (const t of autoRegisterPropertiesWindowContent) {
+			this.registerPropertiesWindowContent(t);
 		}
 	}
 
 	/**
 	 * @param {typeof PropertiesWindowContent} constructor
 	 */
-	registerContentType(constructor) {
+	registerPropertiesWindowContent(constructor) {
 		if (!(constructor.prototype instanceof PropertiesWindowContent)) {
 			console.warn("Tried to register properties content type (" + constructor.name + ") that does not extend PropertiesWindowContent class.");
 			return;
