@@ -96,7 +96,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {File | BufferSource | Blob | string} file
+	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		const connection = await this.waitForConnection();

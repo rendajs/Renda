@@ -3,6 +3,8 @@ import {WriteOperation} from "./WriteOperation.js";
 
 /** @typedef {string[]} EditorFileSystemPath */
 
+/** @typedef {File | BufferSource | Blob | string} AllowedWriteFileTypes */
+
 /** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
 
 /**
@@ -100,7 +102,7 @@ export class EditorFileSystem {
 	 * Use {@link EditorFileSystem.writeText} for writing strings.
 	 * Use {@link EditorFileSystem.writeJson} for writing json Objects.
 	 * @param {EditorFileSystemPath} path
-	 * @param {File | BufferSource | Blob | string} file
+	 * @param {AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		this.fireOnBeforeAnyChange();

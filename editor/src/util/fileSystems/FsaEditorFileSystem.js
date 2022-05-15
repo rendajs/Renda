@@ -354,7 +354,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {Array<string>} path
-	 * @param {File | BufferSource | Blob | string} file
+	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		super.writeFile(path, file);

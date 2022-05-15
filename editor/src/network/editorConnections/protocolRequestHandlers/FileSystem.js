@@ -105,10 +105,10 @@ const writeFile = createRequestHandler({
 	/**
 	 * @param {import("../ProtocolManager.js").RequestMetaData} meta
 	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {File | BufferSource | Blob | string} file
+	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async prepare(meta, path, file) {
-		/** @type {{path: string[], file: File | BufferSource | Blob | string}} */
+		/** @type {{path: string[], file: import("../../../util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes}} */
 		const sendData = {path, file};
 		if (meta.autoSerializationSupported) {
 			return sendData;

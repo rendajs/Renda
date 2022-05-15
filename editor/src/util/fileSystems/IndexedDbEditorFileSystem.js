@@ -506,7 +506,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {Array<string>} path
-	 * @param {File | BufferSource | Blob | string} file
+	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		const writeOp = this.requestWriteOperation();

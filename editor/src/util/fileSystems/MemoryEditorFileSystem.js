@@ -125,7 +125,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {File | BufferSource | Blob | string} file
+	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		const object = this.getObjectPointer(path, {
