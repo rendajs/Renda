@@ -1,4 +1,4 @@
-import {getEditorInstance} from "../editorInstance.js";
+import {getEditorInstance, getMaybeEditorInstance} from "../editorInstance.js";
 import {parseMimeType} from "../util/util.js";
 import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 
@@ -140,11 +140,11 @@ export class TreeView {
 	#textFieldVisible = false;
 	#lastTextFocusOutWasFromRow = false;
 	#lastTextFocusOutTime = 0;
-	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */
-	#renamingShortcutCondition;
+	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
+	#renamingShortcutCondition = null;
 
-	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */
-	#focusSelectedShortcutCondition;
+	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
+	#focusSelectedShortcutCondition = null;
 
 	/**
 	 * @param {TreeViewInitData} data
@@ -273,11 +273,14 @@ export class TreeView {
 			this.registerNewEventType(eventType);
 		}
 
-		const renamingCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.renaming");
-		this.#renamingShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
+		const editor = getMaybeEditorInstance();
+		if (editor && editor.keyboardShortcutManager) {
+			const renamingCondition = editor.keyboardShortcutManager.getCondition("treeView.renaming");
+			this.#renamingShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
 
-		const focusSelectedCondition = getEditorInstance().keyboardShortcutManager.getCondition("treeView.focusSelected");
-		this.#focusSelectedShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
+			const focusSelectedCondition = editor.keyboardShortcutManager.getCondition("treeView.focusSelected");
+			this.#focusSelectedShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
+		}
 
 		this.updateArrowHidden();
 		if (data) this.updateData(data);
@@ -308,8 +311,8 @@ export class TreeView {
 			b.destructor();
 		}
 		this.addedButtons = [];
-		this.#renamingShortcutCondition.destructor();
-		this.#focusSelectedShortcutCondition.destructor();
+		if (this.#renamingShortcutCondition) this.#renamingShortcutCondition.destructor();
+		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.destructor();
 
 		this.updateRootEventListeners();
 
@@ -631,22 +634,27 @@ export class TreeView {
 			draggingItems = [this];
 		}
 		if (e.dataTransfer) {
+			const editor = getMaybeEditorInstance();
 			if (this.rearrangeable) {
 				e.dataTransfer.effectAllowed = "move";
-				this.#currentDraggingRearrangeDataId = getEditorInstance().dragManager.registerDraggingData({draggingItems});
-				const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
-				let rootUuid = castRoot[dragRootUuidSymbol];
-				if (rootUuid == null) {
-					rootUuid = generateUuid();
-					castRoot[dragRootUuidSymbol] = rootUuid;
+				if (editor) {
+					this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData({draggingItems});
+					const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
+					let rootUuid = castRoot[dragRootUuidSymbol];
+					if (rootUuid == null) {
+						rootUuid = generateUuid();
+						castRoot[dragRootUuidSymbol] = rootUuid;
+					}
+					e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 				}
-				e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 			}
-			const {el, x, y} = getEditorInstance().dragManager.createDragFeedbackText({
-				text: draggingItems.map(item => item.name),
-			});
-			this.#currenDragFeedbackText = el;
-			e.dataTransfer.setDragImage(el, x, y);
+			if (editor) {
+				const {el, x, y} = editor.dragManager.createDragFeedbackText({
+					text: draggingItems.map(item => item.name),
+				});
+				this.#currenDragFeedbackText = el;
+				e.dataTransfer.setDragImage(el, x, y);
+			}
 		}
 		this.fireEvent("dragstart", {
 			rawEvent: e,
@@ -658,9 +666,12 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragEndEvent(e) {
-		if (this.#currenDragFeedbackText) getEditorInstance().dragManager.removeFeedbackText(this.#currenDragFeedbackText);
+		const editor = getMaybeEditorInstance();
+		if (editor) {
+			if (this.#currenDragFeedbackText) editor.dragManager.removeFeedbackText(this.#currenDragFeedbackText);
+			if (this.#currentDraggingRearrangeDataId) editor.dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
+		}
 		this.#currenDragFeedbackText = null;
-		if (this.#currentDraggingRearrangeDataId) getEditorInstance().dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
 		this.#currentDraggingRearrangeDataId = null;
 	}
 
@@ -715,7 +726,9 @@ export class TreeView {
 
 					const promise = (async () => {
 						const dataId = await new Promise(r => item.getAsString(r));
-						const draggingData = getEditorInstance().dragManager.getDraggingData(dataId);
+						const editor = getMaybeEditorInstance();
+						if (!editor) return null;
+						const draggingData = editor.dragManager.getDraggingData(dataId);
 						if (!draggingData || !draggingData.draggingItems) return null;
 						return /** @type {TreeView[]} */ (draggingData.draggingItems);
 					})();
@@ -1150,7 +1163,7 @@ export class TreeView {
 					this.rowEl.focus();
 				}
 			}
-			this.#renamingShortcutCondition.setValue(textFieldVisible);
+			if (this.#renamingShortcutCondition) this.#renamingShortcutCondition.setValue(textFieldVisible);
 		}
 		this.updateDataRenameValue();
 	}
@@ -1183,7 +1196,7 @@ export class TreeView {
 			this.rowEl.classList.toggle("noFocus", !focus);
 			if (focus) focusSelected = true;
 		}
-		this.#focusSelectedShortcutCondition.setValue(focusSelected);
+		if (this.#focusSelectedShortcutCondition) this.#focusSelectedShortcutCondition.setValue(focusSelected);
 	}
 
 	updateSelectedChildrenStyle() {
@@ -1196,27 +1209,27 @@ export class TreeView {
 		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
 		if (this.hasRootEventListeners != needsEventHandlers) {
 			this.hasRootEventListeners = needsEventHandlers;
-			const shortcutManager = getEditorInstance().keyboardShortcutManager;
+			// const shortcutManager = getMaybeEditorInstance().keyboardShortcutManager;
 			if (needsEventHandlers) {
 				this.el.addEventListener("focusin", this.boundOnFocusIn);
 				this.el.addEventListener("focusout", this.boundOnFocusOut);
 
-				shortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				shortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				shortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				shortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				shortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				shortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				// shortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				// shortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				// shortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				// shortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				// shortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				// shortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			} else {
 				this.el.removeEventListener("focusin", this.boundOnFocusIn);
 				this.el.removeEventListener("focusout", this.boundOnFocusOut);
 
-				shortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				shortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				shortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				shortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				shortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				shortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				// shortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+				// shortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+				// shortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+				// shortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+				// shortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+				// shortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 			}
 		}
 	}
