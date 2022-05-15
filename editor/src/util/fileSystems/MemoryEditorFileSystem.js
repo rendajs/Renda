@@ -167,4 +167,39 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 		}
 		return !object.isFile;
 	}
+
+	/**
+	 * Clears all files and replaces the full folder structure.
+	 * Takes an object with keys as paths and values as files to write.
+	 * This is mostly useful for setting up a quick test environment.
+	 *
+	 * ### Usage
+	 * ```js
+	 * fs.setFullStructure({
+	 *   "file1.txt": new File([], "file1.txt"),
+	 *   "folder/file2.txt": "Plain text file content",
+	 *   "folder/file3.txt": new Blob(...),
+	 *   "folder/subfolder/file3.txt": new ArrayBuffer(...),
+	 * });
+	 * ```
+	 * })
+	 * @param {Object<string, import("./EditorFileSystem.js").AllowedWriteFileTypes>} structure
+	 */
+	async setFullStructure(structure) {
+		this.rootObject = {
+			isFile: false,
+			name: "",
+			children: [],
+		};
+		for (const [path, file] of Object.entries(structure)) {
+			const object = this.getObjectPointer(path.split("/"), {
+				create: true,
+				createType: "file",
+			});
+			if (!object.isFile) {
+				throw new Error("Assertion error, object is not a file");
+			}
+			object.file = new File([file], object.name);
+		}
+	}
 }
