@@ -87,3 +87,52 @@ Deno.test({
 		uninstall();
 	},
 });
+
+Deno.test({
+	name: "Files are shown in alphabetical order with folders at the top",
+	async fn() {
+		const {contentWindow, uninstall} = basicSetup({
+			fileSystemStructure: {
+				// The order of these has been picked specifically to cause the
+				// test to fail when the items are not inserted in the same
+				// order as the sorted array.
+				// i.e. in `updateTreeViewRecursive` when iterating over
+				// `fileTree.directories` rather than `sortedDirectories` the
+				// test should fail, as this would cause an incorrect order.
+				"bb.txt": "",
+				"aa.txt": "",
+				"aaFolder/file.txt": "",
+				"bB.txt": "",
+				"AA.txt": "",
+				"zzFolder/file.txt": "",
+			},
+		});
+
+		await contentWindow.waitForInit();
+
+		assertTreeViewStructureEquals(contentWindow.treeView, {
+			children: [
+				{
+					name: "aaFolder",
+				},
+				{
+					name: "zzFolder",
+				},
+				{
+					name: "aa.txt",
+				},
+				{
+					name: "AA.txt",
+				},
+				{
+					name: "bb.txt",
+				},
+				{
+					name: "bB.txt",
+				},
+			],
+		});
+
+		uninstall();
+	},
+});

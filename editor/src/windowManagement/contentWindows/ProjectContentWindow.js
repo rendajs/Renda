@@ -236,9 +236,18 @@ export class ProjectContentWindow extends ContentWindow {
 		if (!hasPermissions) return;
 		const fileTree = await this.fileSystem.readDir(path);
 		if (this.destructed) return;
-		for (const dir of fileTree.directories) {
+
+		// Determine the order of the files and directories.
+		const sortedFiles = [...fileTree.files];
+		sortedFiles.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+		const sortedDirectories = [...fileTree.directories];
+		sortedDirectories.sort((a, b) => a.localeCompare(b, undefined, {sensitivity: "base"}));
+		const childOrder = [...sortedDirectories, ...sortedFiles];
+
+		for (const dir of sortedDirectories) {
 			if (!treeView.includes(dir)) {
-				const newTreeView = treeView.addChild();
+				const insertionIndex = childOrder.indexOf(dir);
+				const newTreeView = treeView.addChildAtIndex(null, insertionIndex);
 				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.alwaysShowArrow = true;
 				newTreeView.onCollapsedChange(() => {
@@ -251,9 +260,10 @@ export class ProjectContentWindow extends ContentWindow {
 				newTreeView.collapsed = true;
 			}
 		}
-		for (const file of fileTree.files) {
+		for (const file of sortedFiles) {
 			if (!treeView.includes(file)) {
-				const newTreeView = treeView.addChild();
+				const insertionIndex = childOrder.indexOf(file);
+				const newTreeView = treeView.addChildAtIndex(null, insertionIndex);
 				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.name = file;
 			}
