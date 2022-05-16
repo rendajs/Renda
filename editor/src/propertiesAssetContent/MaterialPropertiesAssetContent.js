@@ -5,6 +5,7 @@ import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/MaterialP
 import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
 import {Texture} from "../../../src/core/Texture.js";
 import {Sampler} from "../../../src/rendering/Sampler.js";
+import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 
 /**
  * @typedef {Object} MaterialAssetData
@@ -16,6 +17,8 @@ import {Sampler} from "../../../src/rendering/Sampler.js";
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/MaterialProjectAssetType.js").MaterialProjectAssetType>}
  */
 export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
+	/** @type {SingleInstancePromise<void>?} */
+	#loadAssetInstance = null;
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
@@ -46,6 +49,10 @@ export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
 			this.saveAsset();
 		});
 
+		this.#loadAssetInstance = new SingleInstancePromise(async () => {
+			await this.loadAssetFn();
+		}, {once: false});
+
 		this.mapValuesTreeView = materialTree.addCollapsable("map values");
 
 		this.isUpdatingUi = false;
@@ -61,7 +68,7 @@ export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
 		return material;
 	}
 
-	async loadAsset() {
+	async loadAssetFn() {
 		// todo: handle multiple selected items or no selection
 
 		this.isUpdatingUi = true;
@@ -76,6 +83,11 @@ export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
 		await this.loadMapValues();
 
 		this.isUpdatingUi = false;
+	}
+
+	async waitForAssetLoad() {
+		if (!this.#loadAssetInstance) return;
+		await this.#loadAssetInstance.waitForFinish();
 	}
 
 	async saveAsset() {
@@ -93,7 +105,9 @@ export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
 	 */
 	async selectionUpdated(selectedMaterials) {
 		super.selectionUpdated(selectedMaterials);
-		await this.loadAsset();
+		if (this.#loadAssetInstance) {
+			await this.#loadAssetInstance.run();
+		}
 	}
 
 	async loadMapValues() {
