@@ -1209,27 +1209,29 @@ export class TreeView {
 		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
 		if (this.hasRootEventListeners != needsEventHandlers) {
 			this.hasRootEventListeners = needsEventHandlers;
-			// const shortcutManager = getMaybeEditorInstance().keyboardShortcutManager;
-			if (needsEventHandlers) {
-				this.el.addEventListener("focusin", this.boundOnFocusIn);
-				this.el.addEventListener("focusout", this.boundOnFocusOut);
+			const shortcutManager = getMaybeEditorInstance()?.keyboardShortcutManager;
+			if (shortcutManager) {
+				if (needsEventHandlers) {
+					this.el.addEventListener("focusin", this.boundOnFocusIn);
+					this.el.addEventListener("focusout", this.boundOnFocusOut);
 
-				// shortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				// shortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				// shortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				// shortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				// shortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				// shortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
-			} else {
-				this.el.removeEventListener("focusin", this.boundOnFocusIn);
-				this.el.removeEventListener("focusout", this.boundOnFocusOut);
+					shortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+					shortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+					shortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+					shortcutManager.onCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+					shortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+					shortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				} else {
+					this.el.removeEventListener("focusin", this.boundOnFocusIn);
+					this.el.removeEventListener("focusout", this.boundOnFocusOut);
 
-				// shortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
-				// shortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
-				// shortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
-				// shortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
-				// shortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
-				// shortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+					shortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
+					shortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
+					shortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
+					shortcutManager.removeOnCommand("treeView.collapseSelected", this.boundOnCollapseSelectedKeyPressed);
+					shortcutManager.removeOnCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
+					shortcutManager.removeOnCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
+				}
 			}
 		}
 	}
