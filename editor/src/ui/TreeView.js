@@ -417,11 +417,16 @@ export class TreeView {
 	 */
 	removeChildIndex(index, destructChild = true) {
 		const child = this.children[index];
-		if (destructChild) child.destructor();
-		child.parent = null;
-		child.#removeFromParentElement();
-		this.children.splice(index, 1);
-		this.updateArrowHidden();
+		if (destructChild) {
+			child.destructor();
+			// The destructor will cause `removeChildIndex` to be called again,
+			// but with `destructChild` set to false.
+		} else {
+			child.parent = null;
+			child.#removeFromParentElement();
+			this.children.splice(index, 1);
+			this.updateArrowHidden();
+		}
 	}
 
 	clearChildren() {
