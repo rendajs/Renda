@@ -11,6 +11,9 @@
 					"albedoSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
 					},
+					"normalSampler": {
+						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
+					},
 					"metallicSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
 					},

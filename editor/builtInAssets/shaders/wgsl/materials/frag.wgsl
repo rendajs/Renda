@@ -58,16 +58,20 @@ var<uniform> materialUniforms : MaterialUniforms;
 
 @group(1) @binding(1) var albedoSampler : sampler;
 @group(1) @binding(2) var albedoTexture : texture_2d<f32>;
-@group(1) @binding(3) var metallicSampler : sampler;
-@group(1) @binding(4) var metallicTexture : texture_2d<f32>;
-@group(1) @binding(5) var roughnessSampler : sampler;
-@group(1) @binding(6) var roughnessTexture : texture_2d<f32>;
+@group(1) @binding(3) var normalSampler : sampler;
+@group(1) @binding(4) var normalTexture : texture_2d<f32>;
+@group(1) @binding(5) var metallicSampler : sampler;
+@group(1) @binding(6) var metallicTexture : texture_2d<f32>;
+@group(1) @binding(7) var roughnessSampler : sampler;
+@group(1) @binding(8) var roughnessTexture : texture_2d<f32>;
 
 struct FragmentInput {
+	@builtin(position) fragCoord : vec4<f32>,
 	@location(0) vWorldPos : vec3<f32>,
 	@location(1) normal : vec3<f32>,
 	@location(2) vUv1 : vec2<f32>,
-	@builtin(position) fragCoord : vec4<f32>,
+	@location(3) vTangent : vec3<f32>,
+	@location(4) vBitangent : vec3<f32>,
 };
 
 struct FragmentOutput {
@@ -76,11 +80,15 @@ struct FragmentOutput {
 
 @stage(fragment)
 fn main(input : FragmentInput) -> FragmentOutput {
-	let albedo : vec3<f32> = pow(textureSample(albedoTexture, albedoSampler, input.vUv1).rgb, vec3<f32>(2.2));
-	let metallic : f32 = textureSample(metallicTexture, metallicSampler, input.vUv1).r + materialUniforms.metallicAdjust;
-	let roughness : f32 = textureSample(roughnessTexture, roughnessSampler, input.vUv1).r + materialUniforms.roughnessAdjust;
+	let uv = input.vUv1 * vec2<f32>(4.0, 2.0);
+	let albedo : vec3<f32> = pow(textureSample(albedoTexture, albedoSampler, uv).rgb, vec3<f32>(2.2));
+	let metallic : f32 = textureSample(metallicTexture, metallicSampler, uv).r + materialUniforms.metallicAdjust;
+	let roughness : f32 = textureSample(roughnessTexture, roughnessSampler, uv).r + materialUniforms.roughnessAdjust;
+	let tangentNormal : vec3<f32> = normalize(textureSample(normalTexture, normalSampler, uv).rgb * 2.0 - 1.0);
 
-	let worldNormal : vec3<f32> = normalize(input.normal);
+	let worldToTangentMatrix : mat3x3<f32> = mat3x3<f32>(input.vTangent, input.vBitangent, input.normal);
+
+	let worldNormal : vec3<f32> = normalize(worldToTangentMatrix * tangentNormal);
 	let viewVector : vec3<f32> = normalize(viewUniforms.camPos -  input.vWorldPos);
 
 	// How reflective this fragment is for each rgb component. For metals this
