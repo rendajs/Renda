@@ -80,11 +80,10 @@ struct FragmentOutput {
 
 @stage(fragment)
 fn main(input : FragmentInput) -> FragmentOutput {
-	let uv = input.vUv1 * vec2<f32>(4.0, 2.0);
-	let albedo : vec3<f32> = pow(textureSample(albedoTexture, albedoSampler, uv).rgb, vec3<f32>(2.2));
-	let metallic : f32 = textureSample(metallicTexture, metallicSampler, uv).r + materialUniforms.metallicAdjust;
-	let roughness : f32 = textureSample(roughnessTexture, roughnessSampler, uv).r + materialUniforms.roughnessAdjust;
-	let tangentNormal : vec3<f32> = normalize(textureSample(normalTexture, normalSampler, uv).rgb * 2.0 - 1.0);
+	let albedo : vec3<f32> = pow(textureSample(albedoTexture, albedoSampler, input.vUv1).rgb, vec3<f32>(2.2));
+	let metallic : f32 = textureSample(metallicTexture, metallicSampler, input.vUv1).r + materialUniforms.metallicAdjust;
+	let roughness : f32 = textureSample(roughnessTexture, roughnessSampler, input.vUv1).r + materialUniforms.roughnessAdjust;
+	let tangentNormal : vec3<f32> = normalize(textureSample(normalTexture, normalSampler, input.vUv1).rgb * 2.0 - 1.0);
 
 	let worldToTangentMatrix : mat3x3<f32> = mat3x3<f32>(input.vTangent, input.vBitangent, input.normal);
 
