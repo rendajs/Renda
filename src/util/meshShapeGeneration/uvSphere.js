@@ -21,6 +21,10 @@ export function createUvSphere({
 	const uvs = [];
 	/** @type {number[]} */
 	const indices = [];
+	/** @type {Vec3[]} */
+	const tangents = [];
+	/** @type {Vec3[]} */
+	const bitangents = [];
 
 	for (let i = 0; i < widthSegments; i++) {
 		const isLastColumn = i == widthSegments - 1;
@@ -46,6 +50,16 @@ export function createUvSphere({
 			normals.push(new Vec3(x, y, z));
 			const uv = new Vec2(i / (widthSegments - 1), 1 - j / (heightSegments - 1));
 			uvs.push(uv);
+
+			const tangentX = -Math.cos(theta) * Math.cos(phi);
+			const tangentY = Math.sin(phi);
+			const tangentZ = -Math.sin(theta) * Math.cos(phi);
+			tangents.push(new Vec3(tangentX, tangentY, tangentZ));
+
+			const bitangentX = -Math.sin(theta);
+			const bitangentY = 0;
+			const bitangentZ = Math.cos(theta);
+			bitangents.push(new Vec3(bitangentX, bitangentY, bitangentZ));
 
 			const currentIndex = i * heightSegments + j;
 			// We don't want any faces for the bottom row since these are already
@@ -73,5 +87,7 @@ export function createUvSphere({
 	mesh.setVertexData(Mesh.AttributeType.POSITION, positions, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
 	mesh.setVertexData(Mesh.AttributeType.NORMAL, normals, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
 	mesh.setVertexData(Mesh.AttributeType.UV1, uvs, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 2});
+	mesh.setVertexData(Mesh.AttributeType.TANGENT, tangents, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
+	mesh.setVertexData(Mesh.AttributeType.BITANGENT, bitangents, {unusedFormat: Mesh.AttributeFormat.FLOAT32, unusedComponentCount: 3});
 	return mesh;
 }

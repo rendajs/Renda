@@ -16,6 +16,14 @@
 						"attributeType": "UV1",
 						"format": "FLOAT32",
 						"componentCount": 2
+					},
+					{
+						"attributeType": "TANGENT",
+						"format": "FLOAT32"
+					},
+					{
+						"attributeType": "BITANGENT",
+						"format": "FLOAT32"
 					}
 				]
 			}

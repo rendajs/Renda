@@ -51,6 +51,8 @@ export class Mesh {
 			COLOR: 2,
 			UV1: 3,
 			UV2: 4,
+			TANGENT: 5,
+			BITANGENT: 6,
 		};
 	}
 
