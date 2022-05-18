@@ -284,6 +284,8 @@ Deno.test({
 
 // ==== Components =============================================================
 
+const EXTENDED_COMPONENT_UUID = "extended component uuid";
+
 class ExtendedComponent extends Component {
 	/**
 	 * @param {...any} restArgs
@@ -294,7 +296,12 @@ class ExtendedComponent extends Component {
 	}
 
 	toJson() {
-		return /** @type {any} */ ({foo: "bar"});
+		return {
+			uuid: EXTENDED_COMPONENT_UUID,
+			propertyValues: {
+				foo: "bar",
+			},
+		};
 	}
 }
 
@@ -1163,8 +1170,14 @@ Deno.test({
 		assertEquals(entity.toJson(), {
 			name: "Entity",
 			components: [
-				{foo: "bar"},
-				{foo: "bar"},
+				{
+					uuid: EXTENDED_COMPONENT_UUID,
+					propertyValues: {foo: "bar"},
+				},
+				{
+					uuid: EXTENDED_COMPONENT_UUID,
+					propertyValues: {foo: "bar"},
+				},
 			],
 		});
 	},

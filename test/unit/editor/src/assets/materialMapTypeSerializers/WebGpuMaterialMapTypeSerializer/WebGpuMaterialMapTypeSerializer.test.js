@@ -119,8 +119,13 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with an embedded forwardPipelineConfig",
 	async fn() {
+		/** @type {import("../../../../../../../editor/src/assets/projectAssetType/WebGpuPipelineConfigProjectAssetType.js").WebGpuPipelineConfigAssetData} */
+		const pipelineConfigData = {
+			depthWriteEnabled: true,
+			renderOrder: 123,
+		};
 		const {context} = getMockContext({
-			getAssetUuidReturnValue: {someData: "some data"},
+			getAssetUuidReturnValue: pipelineConfigData,
 		});
 		const forwardPipelineConfig = new WebGpuPipelineConfig();
 		const liveAsset = new WebGpuMaterialMapType({forwardPipelineConfig});
@@ -128,7 +133,7 @@ Deno.test({
 		const result = await WebGpuMaterialMapTypeSerializer.saveLiveAssetData(context, liveAsset);
 
 		assertEquals(result, {
-			forwardPipelineConfig: {someData: "some data"},
+			forwardPipelineConfig: pipelineConfigData,
 		});
 	},
 });

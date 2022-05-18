@@ -12,7 +12,7 @@ function basicObjectToBinaryToObjectTest(object, options, {
 	const buffer = objectToBinary(object, options);
 	const object2 = binaryToObject(buffer, options);
 
-	if (makeAssertion) assertEquals(object, object2);
+	if (makeAssertion) assertEquals(/** @type {unknown} */(object), object2);
 
 	return {
 		result: object2,

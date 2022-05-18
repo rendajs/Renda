@@ -240,7 +240,7 @@ Deno.test({
 
 		const result = gui.getValue();
 
-		assertEquals(result, {
+		assertEquals(/** @type {unknown} */(result), {
 			num: 42,
 			str: "foo",
 		});

@@ -1,7 +1,7 @@
 /**
  * @typedef MockProjectAssetTypeDiskData
- * @property {number} num
- * @property {string} str
+ * @property {number} [num]
+ * @property {string} [str]
  */
 
 /**
@@ -40,8 +40,8 @@ export function createMockProjectAssetType(type) {
 			}
 
 			const liveAsset = new MockProjectAssetTypeLiveAsset();
-			liveAsset.num = fileData.num;
-			liveAsset.str = fileData.str;
+			liveAsset.num = fileData.num || 0;
+			liveAsset.str = fileData.str || "";
 			return {
 				liveAsset,
 				editorData: {
