@@ -1,5 +1,6 @@
 import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts";
 import {UNKNOWN_ASSET_EXTENSION, basicSetup} from "./shared.js";
+import {assertSpyCalls, spy} from "std/testing/mock";
 
 Deno.test({
 	name: "getLiveAssetData throws if the asset doesn't have an ProjectAssetType set",
@@ -58,26 +59,21 @@ Deno.test({
 	name: "onLiveAssetDataChange()",
 	async fn() {
 		const {projectAsset} = basicSetup();
-		/** @type {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetDataAny[]} */
-		const calls = [];
-		projectAsset.onLiveAssetDataChange(liveAsset => {
-			calls.push(liveAsset);
-		});
+		/** @type {import("std/testing/mock").Spy<any, [import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetDataAny], void>} */
+		const dataChangeSpy = spy();
+		projectAsset.onLiveAssetDataChange(dataChangeSpy);
 
 		const liveAssetData = await projectAsset.getLiveAssetData();
-		assertEquals(calls.length, 1);
-		assertStrictEquals(calls[0].liveAsset, liveAssetData.liveAsset);
-		assertStrictEquals(calls[0].editorData, liveAssetData.editorData);
+		assertSpyCalls(dataChangeSpy, 1);
+		assertStrictEquals(dataChangeSpy.calls[0].args[0].liveAsset, liveAssetData.liveAsset);
+		assertStrictEquals(dataChangeSpy.calls[0].args[0].editorData, liveAssetData.editorData);
 
 		projectAsset.destroyLiveAssetData();
 
-		assertEquals(calls.length, 2);
-		assertEquals(calls[1], {});
-
 		const liveAssetData2 = await projectAsset.getLiveAssetData();
-		assertEquals(calls.length, 3);
-		assertStrictEquals(calls[2].liveAsset, liveAssetData2.liveAsset);
-		assertStrictEquals(calls[2].editorData, liveAssetData2.editorData);
+		assertSpyCalls(dataChangeSpy, 2);
+		assertStrictEquals(dataChangeSpy.calls[1].args[0].liveAsset, liveAssetData2.liveAsset);
+		assertStrictEquals(dataChangeSpy.calls[1].args[0].editorData, liveAssetData2.editorData);
 	},
 });
 
@@ -95,5 +91,34 @@ Deno.test({
 		await projectAsset.getLiveAssetData();
 
 		assertEquals(callbackCalled, false);
+	},
+});
+
+Deno.test({
+	name: "destroyLiveAssetData() rejects existing pending getLiveAssetData() promises",
+	async fn() {
+		const {projectAsset, mocks} = basicSetup();
+
+		// At the moment, the first call does resolve because while loading the call to
+		// destroyLiveAssetData is detected and the loading essentially restarts.
+		// In the future we might want to make sure the second pomise resolves as well.
+		// But for now we'll make sure at least it rejects.
+		const promise1 = projectAsset.getLiveAssetData();
+		const promise2 = projectAsset.getLiveAssetData();
+
+		projectAsset.destroyLiveAssetData();
+
+		await assertRejects(async () => {
+			await promise2;
+		}, Error, "The live asset was destroyed before it finished loading.");
+
+		const promiseResult1 = await promise1;
+		assertInstanceOf(promiseResult1.liveAsset, mocks.MockProjectAssetTypeLiveAsset);
+		assertEquals(promiseResult1.liveAsset.num, 42);
+		assertEquals(promiseResult1.liveAsset.str, "defaultBasicAssetDiskString");
+		assertEquals(promiseResult1.editorData, {
+			editorNum: 42,
+			editorStr: "defaultMockLiveAssetEditorStr",
+		});
 	},
 });

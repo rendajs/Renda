@@ -36,7 +36,12 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  */
 
 /**
- * @typedef {(liveAssetData: LiveAssetData) => void} LiveAssetDataChangedCallback
+ * @typedef {(liveAssetData: LiveAssetData) => void} LiveAssetDataChangeCallback
+ */
+/**
+ * @typedef LiveAssetDataChangePromise
+ * @property {LiveAssetDataChangeCallback} resolve
+ * @property {(err: unknown) => void} reject
  */
 
 /**
@@ -53,9 +58,9 @@ export class ProjectAsset {
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
 	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} LiveAssetData */
 
-	/** @type {Set<LiveAssetDataChangedCallback>} */
+	/** @type {Set<LiveAssetDataChangeCallback>} */
 	#onLiveAssetDataChangeCbs = new Set();
-	/** @type {Set<LiveAssetDataChangedCallback>} */
+	/** @type {Set<LiveAssetDataChangePromise>} */
 	#onLiveAssetDataChangePromiseCbs = new Set();
 	/** @type {Set<() => void>} */
 	#onLiveAssetNeedsReplacementCbs = new Set();
@@ -361,7 +366,9 @@ export class ProjectAsset {
 		}
 
 		if (this.isGettingLiveAssetData) {
-			return await new Promise(r => this.#onLiveAssetDataChangePromiseCbs.add(r));
+			return await new Promise((resolve, reject) => {
+				this.#onLiveAssetDataChangePromiseCbs.add({resolve, reject});
+			});
 		}
 
 		this.isGettingLiveAssetData = true;
@@ -494,14 +501,14 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * @param {LiveAssetDataChangedCallback} cb
+	 * @param {LiveAssetDataChangeCallback} cb
 	 */
 	onLiveAssetDataChange(cb) {
 		this.#onLiveAssetDataChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {LiveAssetDataChangedCallback} cb
+	 * @param {LiveAssetDataChangeCallback} cb
 	 */
 	removeOnLiveAssetDataChange(cb) {
 		this.#onLiveAssetDataChangeCbs.delete(cb);
@@ -517,7 +524,18 @@ export class ProjectAsset {
 	 */
 	fireOnLiveAssetDataChangeCbs(liveAssetData) {
 		this.#onLiveAssetDataChangeCbs.forEach(cb => cb(liveAssetData));
-		this.#onLiveAssetDataChangePromiseCbs.forEach(cb => cb(liveAssetData));
+		this.#onLiveAssetDataChangePromiseCbs.forEach(p => p.resolve(liveAssetData));
+		this.#onLiveAssetDataChangePromiseCbs.clear();
+		this.isGettingLiveAssetData = false;
+	}
+
+	/**
+	 * Same as {@linkcode fireOnLiveAssetDataChangeCbs} except it rejects all promises.
+	 * This does not call the non-promise callbacks from {@linkcode onLiveAssetDataChange}.
+	 * @param {unknown} error
+	 */
+	rejectOnLiveAssetDataChangePromises(error) {
+		this.#onLiveAssetDataChangePromiseCbs.forEach(p => p.reject(error));
 		this.#onLiveAssetDataChangePromiseCbs.clear();
 		this.isGettingLiveAssetData = false;
 	}
@@ -562,8 +580,6 @@ export class ProjectAsset {
 	}
 
 	destroyLiveAssetData() {
-		// @ts-expect-error TODO: make all existing `getLiveAssetData` promises reject
-		this.fireOnLiveAssetDataChangeCbs({});
 		if (this.isGettingLiveAssetData) {
 			this.currentGettingLiveAssetSymbol = null;
 		} else if ((this.liveAsset || this.editorData) && this._projectAssetType) {
@@ -572,6 +588,7 @@ export class ProjectAsset {
 			this.liveAsset = null;
 			this.editorData = null;
 		}
+		this.rejectOnLiveAssetDataChangePromises(new Error("The live asset was destroyed before it finished loading."));
 	}
 
 	/**
