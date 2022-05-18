@@ -1,3 +1,4 @@
+import {AssetManager} from "../AssetManager.js";
 import {LoadingAsset} from "./LoadingAsset.js";
 
 {
@@ -6,7 +7,7 @@ import {LoadingAsset} from "./LoadingAsset.js";
 
 /* eslint-disable jsdoc/require-description-complete-sentence */
 /**
- * @typedef {Object} GetLiveAssetDataOptions
+ * @typedef {Object} GetLiveAssetDataOptionsExtra
  * @property {boolean} [repeatOnLiveAssetChange = false] Repeats the callback if the live asset changes.
  * This is useful when your callback assigns the live asset to an object. Repeat calls will
  * cause the property to be overwritten. This only works when code doesn't make assumptions about
@@ -22,6 +23,11 @@ import {LoadingAsset} from "./LoadingAsset.js";
  * any live assets that are able to dynamically replace live asset properties.
  */
 /* eslint-enable jsdoc/require-description-complete-sentence */
+
+/**
+ * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+ * @typedef {import("../AssetManager.js").AssetAssertionOptions<T> & GetLiveAssetDataOptionsExtra} GetLiveAssetDataOptions
+ */
 
 /**
  * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
@@ -80,21 +86,40 @@ export class RecursionTracker {
 	}
 
 	/**
-	 * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
+	 * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
-	 * @param {LiveAssetDataCallback<TProjectAssetType>} cb
-	 * @param {GetLiveAssetDataOptions} options
+	 * @param {LiveAssetDataCallback<T>} cb
+	 * @param {GetLiveAssetDataOptions<T>} options
 	 */
 	getLiveAssetData(uuid, cb, {
 		repeatOnLiveAssetChange = false,
+		assertAssetType = null,
 	} = {}) {
+		/** @type {LiveAssetDataCallback<T>} */
+		const wrapperCallback = liveAssetData => {
+			if (assertAssetType && liveAssetData) {
+				const projectAsset = this.assetManager.getProjectAssetFromUuidSync(uuid);
+				if (!projectAsset) {
+					cb(null);
+					return;
+				}
+				try {
+					AssetManager.assertProjectAssetIsType(projectAsset.projectAssetTypeConstructorSync, assertAssetType);
+				} catch (err) {
+					console.error(err);
+					cb(null);
+					return;
+				}
+			}
+			cb(liveAssetData);
+		};
 		if (repeatOnLiveAssetChange) {
 			/**
 			 * Since this is the most recent ProjectAsset, this is essentially
 			 * the ProjectAsset that `getLiveAssetData()` is called from.
 			 */
 			const currentProjectAsset = this.projectAssetStack[this.projectAssetStack.length - 1];
-			currentProjectAsset.registerRecursionTrackerLiveAssetChange(this.assetManager, uuid, cb);
+			currentProjectAsset.registerRecursionTrackerLiveAssetChange(this.assetManager, uuid, wrapperCallback);
 		}
 
 		let loadingAsset = this.loadingLiveAssets.get(uuid);
@@ -107,19 +132,21 @@ export class RecursionTracker {
 				this.rootLoadingAsset = loadingAsset;
 			}
 		}
-		loadingAsset.onLoad(cb);
+		loadingAsset.onLoad(wrapperCallback);
 	}
 
 	/**
+	 * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
-	 * @param {(liveAsset: *) => void} cb
-	 * @param {GetLiveAssetDataOptions} options
+	 * @param {(liveAsset: import("../AssetManager.js").InferLiveAssetFromAssetType<T>?) => void} cb
+	 * @param {GetLiveAssetDataOptions<T>} options
 	 */
 	getLiveAsset(uuid, cb, options = {}) {
 		this.getLiveAssetData(uuid, liveAssetData => {
 			cb(liveAssetData?.liveAsset ?? null);
 		}, options);
 	}
+
 	async waitForAll() {
 		const promises = [];
 		for (const loadingAsset of this.loadingLiveAssets.values()) {

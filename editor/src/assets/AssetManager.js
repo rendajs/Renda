@@ -338,11 +338,10 @@ export class AssetManager {
 
 	/**
 	 * Check if the provided project asset type is of a specific type and throws an error if it isn't.
-	 * @private
 	 * @param {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType?} projectAssetTypeConstructor
 	 * @param {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} expectedType
 	 */
-	assertProjectAssetIsType(projectAssetTypeConstructor, expectedType) {
+	static assertProjectAssetIsType(projectAssetTypeConstructor, expectedType) {
 		const castAssertAssetType = /** @type {typeof import("./projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (expectedType);
 		if (projectAssetTypeConstructor != castAssertAssetType) {
 			const expected = castAssertAssetType.type;
@@ -367,7 +366,7 @@ export class AssetManager {
 		if (assertAssetType) {
 			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
 
-			this.assertProjectAssetIsType(projectAssetTypeConstructor, assertAssetType);
+			AssetManager.assertProjectAssetIsType(projectAssetTypeConstructor, assertAssetType);
 		}
 		return projectAsset;
 	}
@@ -392,7 +391,7 @@ export class AssetManager {
 		const projectAsset = this.projectAssets.get(uuid) ?? this.builtInAssets.get(uuid);
 		if (!projectAsset) return null;
 		if (assertAssetType) {
-			this.assertProjectAssetIsType(projectAsset.projectAssetTypeConstructorSync, assertAssetType);
+			AssetManager.assertProjectAssetIsType(projectAsset.projectAssetTypeConstructorSync, assertAssetType);
 		}
 		return projectAsset;
 	}

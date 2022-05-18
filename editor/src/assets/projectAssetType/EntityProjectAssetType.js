@@ -103,15 +103,18 @@ export class EntityProjectAssetType extends ProjectAssetType {
 						if (!child) child = new Entity();
 						ent.removeAtIndex(insertionIndex); // Remove the old dummy entity
 						ent.addAtIndex(child, insertionIndex);
-						if (childJson.pos) {
-							child.setInstancePos(childJson.pos, ent, insertionIndex);
-						}
-						if (childJson.rot) {
-							child.setInstanceRot(childJson.rot, ent, insertionIndex);
-						}
-						if (childJson.scale) {
-							child.setInstanceScale(childJson.scale, ent, insertionIndex);
-						}
+						// TODO: these methods have been removed
+						// if (childJson.pos) {
+						// 	child.setInstancePos(childJson.pos, ent, insertionIndex);
+						// }
+						// if (childJson.rot) {
+						// 	child.setInstanceRot(childJson.rot, ent, insertionIndex);
+						// }
+						// if (childJson.scale) {
+						// 	child.setInstanceScale(childJson.scale, ent, insertionIndex);
+						// }
+					}, {
+						assertAssetType: EntityProjectAssetType,
 					});
 				} else {
 					const child = await this.createEntityFromJsonData(childJson, recursionTracker);

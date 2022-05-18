@@ -3,11 +3,13 @@
  * @param {unknown} [options.liveAsset]
  * @param {boolean} [options.allowImmediateLiveAssetReturn]
  * @param {unknown} [options.readAssetDataReturnValue]
+ * @param {unknown} [options.projectAssetTypeConstructor]
  */
 export function createMockProjectAsset({
 	liveAsset = null,
 	allowImmediateLiveAssetReturn = true,
 	readAssetDataReturnValue = null,
+	projectAssetTypeConstructor = null,
 } = {}) {
 	/** @type {Set<() => void>} */
 	const liveAssetReturnCbs = new Set();
@@ -51,6 +53,10 @@ export function createMockProjectAsset({
 		async getProjectAssetType() {},
 		async getIsDeleted() {
 			return false;
+		},
+		registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {},
+		get projectAssetTypeConstructorSync() {
+			return projectAssetTypeConstructor;
 		},
 	});
 	return {

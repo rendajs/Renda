@@ -530,9 +530,7 @@ export class ProjectAsset {
 	 */
 	async registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {
 		const sym = this.currentRecursionTrackerLiveAssetChangeSym;
-		/* eslint-disable jsdoc/no-undefined-types */
 		/** @type {ProjectAsset<TProjectAssetType>?} */
-		/* eslint-enable jsdoc/no-undefined-types */
 		const projectAsset = await assetManager.getProjectAssetFromUuid(assetUuid);
 
 		if (!projectAsset) return;
