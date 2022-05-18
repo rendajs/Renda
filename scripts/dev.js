@@ -46,7 +46,7 @@ const DOWNLOAD_TYPE_URLS = [
  */
 const DOWNLOAD_DTS_PACKAGES = [
 	"@types/wicg-file-system-access@2020.9.5/index.d.ts",
-	"@webgpu/types@0.1.15/dist/index.d.ts",
+	"@webgpu/types@0.1.17/dist/index.d.ts",
 ];
 
 const thisScriptContent = await Deno.readFile("./scripts/dev.js");

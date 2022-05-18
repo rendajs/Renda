@@ -48,7 +48,7 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 		if (!this.ctx) return;
 		const renderer = this.castRenderer;
 		if (renderer.adapter) {
-			this.swapChainFormat = this.ctx.getPreferredFormat(renderer.adapter);
+			this.swapChainFormat = navigator.gpu.getPreferredCanvasFormat();
 		}
 
 		this.ready = true;
