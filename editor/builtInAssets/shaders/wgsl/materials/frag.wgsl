@@ -90,8 +90,8 @@ fn main(input : FragmentInput) -> FragmentOutput {
 	let worldNormal : vec3<f32> = normalize(worldToTangentMatrix * tangentNormal);
 	let viewVector : vec3<f32> = normalize(viewUniforms.camPos -  input.vWorldPos);
 
-	// How reflective this fragment is for each rgb component. For metals this
-	// value is always 0.04. For dielectrics we take the value from the albedo.
+	// How reflective this fragment is for each rgb component. For dielectrics
+	// this value is always 0.04. For metals we take the value from the albedo.
 	let baseReflectivity : vec3<f32> = mix(vec3<f32>(0.04, 0.04, 0.04), albedo, metallic);
 
 	// The output luminance that we'll accumulate by looping over the lights below.
