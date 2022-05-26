@@ -1,6 +1,5 @@
 export class CachedMeshBufferData {
 	/**
-	 *
 	 * @param {import("../../../core/MeshAttributeBuffer.js").MeshAttributeBuffer} meshBuffer
 	 * @param {import("./CachedMeshData.js").CachedMeshData} meshData
 	 */
@@ -42,7 +41,7 @@ export class CachedMeshBufferData {
 		this.currentGpuBufferSize = size;
 	}
 
-	getBufferGpuCommands() {
+	getVertexBufferGpuCommand() {
 		let newBufferData = null;
 		if (this.bufferDirty) {
 			if (this.currentGpuBufferSize != this.meshBuffer.buffer.byteLength) {
@@ -55,7 +54,9 @@ export class CachedMeshBufferData {
 			throw new Error("Assertion failed: buffer was not created");
 		}
 		return {
+			/** The reference to the gpu buffer that needs to be passed in `encoder.setVertexBuffer()`. */
 			gpuBuffer: this.gpuBuffer,
+			/** When set, the new buffer should be uploaded to the gpu. */
 			newBufferData,
 		};
 	}

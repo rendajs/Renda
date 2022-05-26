@@ -440,7 +440,7 @@ export class WebGpuRenderer extends Renderer {
 					const {bindGroup, dynamicOffset} = this.objectUniformsBuffer.getCurrentEntryLocation();
 					renderPassEncoder.setBindGroup(2, bindGroup, [dynamicOffset]);
 					const meshData = this.getCachedMeshData(mesh);
-					for (const {index, gpuBuffer, newBufferData} of meshData.getBufferGpuCommands()) {
+					for (const {index, gpuBuffer, newBufferData} of meshData.getVertexBufferGpuCommands()) {
 						if (newBufferData) {
 							this.device.queue.writeBuffer(gpuBuffer, 0, newBufferData);
 						}
