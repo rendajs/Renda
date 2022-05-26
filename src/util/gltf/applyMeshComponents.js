@@ -1,8 +1,8 @@
 import {Mesh} from "../../core/Mesh.js";
 import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
-import {Material} from "../../rendering/Material.js";
 import {VertexState} from "../../rendering/VertexState.js";
 import {BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT} from "./constants.js";
+import {Material} from "../../rendering/Material.js";
 
 /**
  * @typedef {CreatedGltfMeshPrimitiveData[]} CreatedGltfMeshData
@@ -11,7 +11,7 @@ import {BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT} from ".
 /**
  * @typedef CreatedGltfMeshPrimitiveData
  * @property {Mesh} mesh
- * @property {Material} material
+ * @property {import("../../rendering/Material.js").Material} material
  */
 
 /**
@@ -19,13 +19,21 @@ import {BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT} from ".
  * @param {import("./types.js").GltfJsonData} jsonData The full glTF data.
  * @param {Map<import("../../core/Entity.js").Entity, number>} entityNodeIds List of created entities and their corresponding node id in the glTF.
  * @param {(bufferId: number) => Promise<ArrayBuffer>} getBufferFn
+ * @param {Object} [options]
+ * @param {import("../../rendering/Material.js").Material?} [options.defaultMaterial]
  */
-export async function applyMeshComponents(jsonData, entityNodeIds, getBufferFn) {
+export async function applyMeshComponents(jsonData, entityNodeIds, getBufferFn, {
+	defaultMaterial = null,
+} = {}) {
 	// If no entities have been created, there are no meshes to create.
 	if (entityNodeIds.size < 0) return;
 
 	if (!jsonData.nodes) {
 		throw new Error("Assertion failed: nodes are referenced but the glTF data does not contain nodes.");
+	}
+
+	if (!defaultMaterial) {
+		defaultMaterial = new Material();
 	}
 
 	/**
@@ -51,7 +59,7 @@ export async function applyMeshComponents(jsonData, entityNodeIds, getBufferFn) 
 					const mesh = await createMeshFromGltfPrimitive(primitive, jsonData, getBufferFn);
 					createdMeshData.push({
 						mesh,
-						material: new Material(),
+						material: defaultMaterial,
 					});
 				}
 				createdMeshes.set(nodeData.mesh, createdMeshData);

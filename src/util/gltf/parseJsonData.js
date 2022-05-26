@@ -4,11 +4,13 @@ import {applyMeshComponents} from "./applyMeshComponents.js";
 
 /**
  * @param {import("./types.js").GltfJsonData} jsonData
- * @param {Object} [options]
+ * @param {Object} options
  * @param {ArrayBuffer?} [options.containerBinary] The binary data in case the glTF is using the binary container format.
+ * @param {import("../../rendering/Material.js").Material?} [options.defaultMaterial]
  */
 export async function parseJsonData(jsonData, {
 	containerBinary = null,
+	defaultMaterial = null,
 } = {}) {
 	assertAssetVersion(jsonData);
 
@@ -52,7 +54,7 @@ export async function parseJsonData(jsonData, {
 		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes);
 		entity = scenesResult.entity;
 		const entityNodeIds = scenesResult.entityNodeIds;
-		applyMeshComponents(jsonData, entityNodeIds, getBuffer);
+		applyMeshComponents(jsonData, entityNodeIds, getBuffer, {defaultMaterial});
 	} else {
 		// TODO: parse glTF as if it is a library of assets
 	}
