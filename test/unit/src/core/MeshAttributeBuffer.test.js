@@ -211,6 +211,53 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setVertexData() with an ArrayBuffer",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(3);
+
+		const arrayBuffer = new ArrayBuffer(4 * 3);
+		const dataView1 = new DataView(arrayBuffer);
+		dataView1.setFloat32(0, 1, true);
+		dataView1.setFloat32(4, 2, true);
+		dataView1.setFloat32(8, 3, true);
+		buffer.setVertexData(Mesh.AttributeType.POSITION, arrayBuffer);
+
+		const dataView2 = buffer.getDataView();
+
+		assertEquals(dataView2.getFloat32(0, true), 1);
+		assertEquals(dataView2.getFloat32(4, true), 2);
+		assertEquals(dataView2.getFloat32(8, true), 3);
+	},
+});
+
+Deno.test({
+	name: "setVertexData() with an TypedArray",
+	fn() {
+		const buffer = new MeshAttributeBuffer(mockMesh, {
+			attributes: [{offset: 0, format: Mesh.AttributeFormat.FLOAT32, componentCount: 1, attributeType: Mesh.AttributeType.POSITION}],
+		});
+		buffer.setVertexCount(3);
+
+		const arrayBuffer = new ArrayBuffer(4 * 4);
+		const dataView1 = new DataView(arrayBuffer);
+		dataView1.setFloat32(4, 1, true);
+		dataView1.setFloat32(8, 2, true);
+		dataView1.setFloat32(12, 3, true);
+		const typedArray = new Float32Array(arrayBuffer, 4, 3);
+		buffer.setVertexData(Mesh.AttributeType.POSITION, typedArray);
+
+		const dataView2 = buffer.getDataView();
+
+		assertEquals(dataView2.getFloat32(0, true), 1);
+		assertEquals(dataView2.getFloat32(4, true), 2);
+		assertEquals(dataView2.getFloat32(8, true), 3);
+	},
+});
+
+Deno.test({
 	name: "setVertexData() array of numbers",
 	fn() {
 		const buffer = new MeshAttributeBuffer(mockMesh, {

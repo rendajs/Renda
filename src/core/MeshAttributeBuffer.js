@@ -143,7 +143,6 @@ export class MeshAttributeBuffer {
 	/**
 	 * @param {import("./Mesh.js").AttributeType} attributeType
 	 * @param {ArrayBufferLike | number[] | Vec2[] | Vec3[]} data
-	 * @suppress {suspiciousCode}
 	 */
 	setVertexData(attributeType, data) {
 		const attributeSettings = this.getAttributeSettings(attributeType);
@@ -179,10 +178,9 @@ export class MeshAttributeBuffer {
 		}
 
 		if (data instanceof ArrayBuffer) {
-			// todo: implement and remove the @suppress for this function
+			new Uint8Array(this.buffer).set(new Uint8Array(data));
 		} else if (ArrayBuffer.isView(data)) {
-			data = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-			// todo
+			new Uint8Array(this.buffer).set(new Uint8Array(data.buffer, data.byteOffset, data.byteLength));
 		} else if (Array.isArray(data)) {
 			if (data.length <= 0) {
 				return;
