@@ -202,15 +202,6 @@ export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 			const serializableStructure = componentConstructor?.guiStructure;
 			if (serializableStructure) {
 				componentUI.generateFromSerializableStructure(serializableStructure);
-				componentUI.onChildValueChange(e => {
-					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.target);
-					if (!propertyName) return;
-					const scriptValueFromGui = e.target.getValue({purpose: "script"});
-					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
-					if (componentGroup.entity) {
-						this.notifyEntityEditors(componentGroup.entity, "componentProperty");
-					}
-				});
 				const castComponentGroup = /** @type {any} */ (componentGroup);
 				componentUI.fillSerializableStructureValues(castComponentGroup, {
 					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
@@ -226,6 +217,15 @@ export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 						}
 						return value;
 					},
+				});
+				componentUI.onChildValueChange(e => {
+					const propertyName = componentUI.getSerializableStructureKeyForEntry(e.target);
+					if (!propertyName) return;
+					const scriptValueFromGui = e.target.getValue({purpose: "script"});
+					this.mapFromDroppableGuiValues(componentGroup, propertyName, scriptValueFromGui, e.target);
+					if (componentGroup.entity) {
+						this.notifyEntityEditors(componentGroup.entity, "componentProperty");
+					}
 				});
 			}
 		}
