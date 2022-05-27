@@ -1,8 +1,8 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts";
-import {WebGpuMaterialMapTypeSerializer} from "../../../../../../../editor/src/assets/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
-import {WebGpuPipelineConfig} from "../../../../../../../src/mod.js";
-import {WebGpuMaterialMapType} from "../../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
-import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
+import {WebGpuMaterialMapTypeSerializer} from "../../../../../../editor/src/assets/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
+import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
+import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
+import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock";
 
 const BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID = "basic forward pipeline config asset uuid";
@@ -17,7 +17,7 @@ function getMockContext({
 		liveAsset: pipelineConfig,
 	});
 
-	const context = /** @type {import("../../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
+	const context = /** @type {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */ ({
 		materialMapAsset,
 		assetManager: {
 			async getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
@@ -66,7 +66,7 @@ Deno.test({
 	async fn() {
 		const {context, pipelineConfig, materialMapAsset, pipeLineConfigAsset} = getMockContext();
 
-		const mockProjectAssetType = /** @type {import("../../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ ({
+		const mockProjectAssetType = /** @type {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ ({
 			listenForUsedLiveAssetChanges(projectAsset) {},
 		});
 		const listenForUsedLiveAssetChangesSpy = spy(mockProjectAssetType, "listenForUsedLiveAssetChanges");
@@ -119,7 +119,7 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with an embedded forwardPipelineConfig",
 	async fn() {
-		/** @type {import("../../../../../../../editor/src/assets/projectAssetType/WebGpuPipelineConfigProjectAssetType.js").WebGpuPipelineConfigAssetData} */
+		/** @type {import("../../../../../../editor/src/assets/projectAssetType/WebGpuPipelineConfigProjectAssetType.js").WebGpuPipelineConfigAssetData} */
 		const pipelineConfigData = {
 			depthWriteEnabled: true,
 			renderOrder: 123,
@@ -135,5 +135,57 @@ Deno.test({
 		assertEquals(result, {
 			forwardPipelineConfig: pipelineConfigData,
 		});
+	},
+});
+
+Deno.test({
+	name: "getMappableValues()",
+	async fn() {
+		const {context, pipelineConfig} = getMockContext();
+		pipelineConfig.fragmentShader = {
+			source: `
+				struct MaterialUniforms {
+					numTest:f32,
+					vec2Test: vec2<f32>,
+					vec3Test :vec3<f32>,
+					vec4Test : vec4<f32>,
+				};
+
+				@group(1) @binding(1) var albedoSampler : sampler;
+				@group(1) @binding(2) var albedoTexture : texture_2d<f32>;
+
+				// invalid group value
+				@group(2) @binding(3) var invalidSampler : sampler;
+			`,
+		};
+		const result = await WebGpuMaterialMapTypeSerializer.getMappableValues(context, {
+			forwardPipelineConfig: BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID,
+		});
+		assertEquals(result, [
+			{
+				name: "numTest",
+				type: "number",
+			},
+			{
+				name: "vec2Test",
+				type: "vec2",
+			},
+			{
+				name: "vec3Test",
+				type: "vec3",
+			},
+			{
+				name: "vec4Test",
+				type: "vec4",
+			},
+			{
+				name: "albedoSampler",
+				type: "sampler",
+			},
+			{
+				name: "albedoTexture",
+				type: "texture2d",
+			},
+		]);
 	},
 });

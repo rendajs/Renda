@@ -3,15 +3,9 @@ import {StorageType} from "../../../../src/util/binarySerialization.js";
 import {WebGpuPipelineConfig} from "../../../../src/mod.js";
 import {WebGpuMaterialMapType} from "../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
 import {WebGpuPipelineConfigProjectAssetType} from "../projectAssetType/WebGpuPipelineConfigProjectAssetType.js";
+import {parseBindings, parseMaterialUniforms} from "../../../../src/util/wgslParsing.js";
 
 const FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY = "webgpumaptype.forwardpipelineconfig";
-
-/**
- * Regex string for matching wgsl identifiers according to the wgsl spec:
- * https://gpuweb.github.io/gpuweb/wgsl/#identifiers
- * @param {string} group
- */
-const identifierRegex = "(?:(?:[a-zA-Z_][0-9a-zA-Z][0-9a-zA-Z_]*)|(?:[a-zA-Z][0-9a-zA-Z_]*))";
 
 /**
  * @typedef {Object} WebGpuMaterialMapTypeDiskData
@@ -64,153 +58,20 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	static fillMappableValuesForShader(shader, mappableValues) {
 		if (!shader) return;
 
-		// Find MaterialUniforms in the shader
-		const blockRegex = /struct\s+MaterialUniforms\s*{(?<uniformsBlock>[\s\S]+?)}\s*;/;
-		const match = shader.source.match(blockRegex);
-		if (match && match.groups) {
-			const uniformsBlock = match.groups.uniformsBlock;
-			if (uniformsBlock) {
-				let membersRegex = "";
-				// Capture the identifier https://gpuweb.github.io/gpuweb/wgsl/#identifiers
-				membersRegex += `(?<identifier>${identifierRegex})`;
-				// [whitespace] : [whitespace]
-				membersRegex += "\\s*:\\s*";
-				// Capture the type
-				membersRegex += "(?<type>.+?)";
-				// [whitespace] ;
-				membersRegex += "\\s*,";
-				const vectorTypeRegex = /vec(?<vectorSize>[234])<(?<vectorType>\S+)>/;
-				const matrixTypeRegex = /mat(?<rows>[234])x(?<columns>[234])<(?<matrixType>\S+)>/;
-				for (const match of uniformsBlock.matchAll(new RegExp(membersRegex, "g"))) {
-					if (!match.groups) continue;
-					const identifier = match.groups.identifier;
-					let type = match.groups.type;
-					if (!identifier || !type) continue;
-					const vectorMatch = match[0].match(vectorTypeRegex);
-					let isVector = false;
-					let vectorSize = 0;
-					let isMatrix = false;
-					// let matrixRows = 0;
-					// let matrixColumns = 0;
-					if (vectorMatch && vectorMatch.groups) {
-						isVector = true;
-						vectorSize = Number(vectorMatch.groups.vectorSize);
-						type = vectorMatch.groups.vectorType;
-					} else {
-						const matrixMatch = match[0].match(matrixTypeRegex);
-						if (matrixMatch && matrixMatch.groups) {
-							isMatrix = true;
-							// matrixRows = Number(matrixMatch.groups.rows);
-							// matrixColumns = Number(matrixMatch.groups.columns);
-							type = matrixMatch.groups.matrixType;
-						}
-					}
-					/** @type {import("../../ui/propertiesTreeView/types.js").GuiTypes} */
-					let mappableValueType = "number";
-					if (isVector) {
-						if (vectorSize == 2) {
-							mappableValueType = "vec2";
-						} else if (vectorSize == 3) {
-							mappableValueType = "vec3";
-						} else if (vectorSize == 4) {
-							mappableValueType = "vec4";
-						}
-					} else if (isMatrix) {
-						// todo implement matrix ui
-						continue;
-					}
-					mappableValues.set(identifier, {
-						name: identifier,
-						type: mappableValueType,
-					});
-				}
-			}
+		const materialUniforms = parseMaterialUniforms(shader.source);
+		for (const {identifier, type} of materialUniforms) {
+			mappableValues.set(identifier, {
+				name: identifier,
+				type,
+			});
 		}
 
-		// Find texture and sampler bindings in the shader
-		/** @type {{
-		 * 	index: number,
-		 * 	mappableValueType: import("./MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue,
-		  }[]} */
-		const foundBindings = [];
-		/** @type {{glslType: string, mappableValueType: import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum}[]} */
-		const variableTypes = [
-			{glslType: "sampler", mappableValueType: "sampler"},
-			{glslType: "texture_2d", mappableValueType: "texture2d"},
-		];
-		for (const varType of variableTypes) {
-			let varRegex = "";
-			// Capture one or more attributes, each individual attribute will
-			// be parsed later to find out if the variable contains at least
-			// a group and a binding.
-			varRegex += `(?<attributes>(?:@${identifierRegex}+\\(\\d+\\)\\s*)*)`;
-			// find the var keyword
-			varRegex += "var";
-			// allow an optional address space such as var<uniform>
-			// We'll use a basic \S+ regex to to allow for multiple identifiers
-			// such as var<uniform, read_write>. We won't use `identifierRegex`
-			// here as it would cause catastrophic backtracking
-			// https://www.regular-expressions.info/catastrophic.html
-			// If we ever need to parse the address space values later, we will
-			// do so using a separate regex.
-			varRegex += `(?:<\\S+?>)?`;
-			// allow optional whitespace
-			varRegex += "\\s*";
-			// capture the variable name
-			varRegex += `(?<identifier>${identifierRegex})`;
-			// [whitespace] : [whitespace]
-			varRegex += "\\s*:\\s*";
-			// find only variables of type sampler or texture_2d, depending on
-			// which loop we are in
-			varRegex += varType.glslType;
-
-			const variableMatches = Array.from(shader.source.matchAll(new RegExp(varRegex, "g")));
-			for (const variableMatch of variableMatches) {
-				if (!variableMatch.groups) continue;
-				const identifier = variableMatch.groups.identifier;
-				if (!identifier) continue;
-				const attributes = variableMatch.groups.attributes;
-				if (!attributes) continue;
-				let attributesRegex = "";
-				// @
-				attributesRegex += "@";
-				// capture the identifier
-				attributesRegex += `(?<name>${identifierRegex})`;
-				// (
-				attributesRegex += "\\(";
-				// capture the value
-				attributesRegex += `(?<value>\\d+)`;
-				// )
-				attributesRegex += "\\)";
-
-				let hasValidGroupAttribute = false;
-				let binding = null;
-				for (const attributeMatch of attributes.matchAll(new RegExp(attributesRegex, "g"))) {
-					if (!attributeMatch.groups) continue;
-					const name = attributeMatch.groups.name;
-					const value = attributeMatch.groups.value;
-					if (!name || !value) continue;
-					if (name == "group" && value == "1") {
-						hasValidGroupAttribute = true;
-					}
-					if (name == "binding") {
-						binding = parseInt(value, 10);
-					}
-				}
-				if (!hasValidGroupAttribute || binding == null) continue;
-				foundBindings.push({
-					index: binding,
-					mappableValueType: {
-						name: identifier,
-						type: varType.mappableValueType,
-					},
-				});
-			}
-		}
-
-		foundBindings.sort((a, b) => a.index - b.index);
-		for (const foundBinding of foundBindings) {
-			mappableValues.set(foundBinding.mappableValueType.name, foundBinding.mappableValueType);
+		for (const {identifier, type, group} of parseBindings(shader.source)) {
+			if (group != 1) continue;
+			mappableValues.set(identifier, {
+				name: identifier,
+				type,
+			});
 		}
 	}
 
