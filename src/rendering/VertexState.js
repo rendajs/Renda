@@ -33,17 +33,10 @@ export class VertexState {
 	getDescriptor() {
 		this.requestingShaderLocationIndex = 0;
 		const buffers = this.buffers.map(b => b.getDescriptor(this));
-		const descriptor = {buffers};
-		return descriptor;
+		return {buffers};
 	}
 
 	requestShaderLocationIndex() {
 		return this.requestingShaderLocationIndex++;
-	}
-
-	*getBuffers() {
-		for (const buffer of this.buffers) {
-			yield buffer;
-		}
 	}
 }

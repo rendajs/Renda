@@ -47,7 +47,13 @@ export class VertexStateAttribute {
 		if (shaderLocation == null || shaderLocation == "auto" || shaderLocation == -1) {
 			shaderLocation = vertexState.requestShaderLocationIndex();
 		}
-		return {format, offset, shaderLocation};
+		/** @type {GPUVertexAttribute} */
+		const vertexStateAttribute = {
+			format,
+			offset,
+			shaderLocation,
+		};
+		return vertexStateAttribute;
 	}
 
 	/**
@@ -91,7 +97,7 @@ export class VertexStateAttribute {
 				str += "norm8";
 				break;
 			case Mesh.AttributeFormat.NORM16:
-				str += "norm8";
+				str += "norm16";
 				break;
 		}
 		if (this.componentCount > 1) {

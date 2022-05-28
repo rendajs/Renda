@@ -61,11 +61,13 @@ export class VertexStateBuffer {
 		for (const attribute of this.attributes) {
 			attributes.push(attribute.getDescriptor(vertexState, this));
 		}
-		return {
+		/** @type {GPUVertexBufferLayout} */
+		const vertexStateBuffer = {
 			stepMode,
 			arrayStride: this.arrayStride,
 			attributes,
 		};
+		return vertexStateBuffer;
 	}
 
 	/**
