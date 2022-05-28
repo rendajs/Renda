@@ -36,16 +36,16 @@ export class VertexStateAttribute {
 	}
 
 	/**
-	 * @param {import("./VertexState.js").VertexState} vertexState
+	 * @param {import("./VertexState.js").RequestShaderLocationFn} requestShaderLocationFn
 	 * @param {import("./VertexStateBuffer.js").VertexStateBuffer} vertexBuffer
 	 */
-	getDescriptor(vertexState, vertexBuffer) {
+	getDescriptor(requestShaderLocationFn, vertexBuffer) {
 		const format = this.getDescriptorFormat();
 		const offset = vertexBuffer.requestAttributeOffset(this.byteSize);
 		this.offset = offset;
 		let shaderLocation = this.shaderLocation;
 		if (shaderLocation == null || shaderLocation == "auto" || shaderLocation == -1) {
-			shaderLocation = vertexState.requestShaderLocationIndex();
+			shaderLocation = requestShaderLocationFn(this.attributeType);
 		}
 		/** @type {GPUVertexAttribute} */
 		const vertexStateAttribute = {

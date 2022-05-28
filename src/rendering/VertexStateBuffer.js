@@ -52,14 +52,14 @@ export class VertexStateBuffer {
 	}
 
 	/**
-	 * @param {import("./VertexState.js").VertexState} vertexState
+	 * @param {import("./VertexState.js").RequestShaderLocationFn} requestShaderLocationFn
 	 */
-	getDescriptor(vertexState) {
+	getDescriptor(requestShaderLocationFn) {
 		const stepMode = this.stepMode;
 		this.requestingAttributeOffset = 0;
 		const attributes = [];
 		for (const attribute of this.attributes) {
-			attributes.push(attribute.getDescriptor(vertexState, this));
+			attributes.push(attribute.getDescriptor(requestShaderLocationFn, this));
 		}
 		/** @type {GPUVertexBufferLayout} */
 		const vertexStateBuffer = {
