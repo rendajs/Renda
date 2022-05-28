@@ -55,7 +55,7 @@ export class CachedMeshData {
 	*getVertexBufferGpuCommands() {
 		for (const [i, buffer] of this.buffers.entries()) {
 			yield {
-				/** The index needs to be passed in `encoder.setVertexBuffer()`, this is the same as the index of the buffer in the VertexState of the mesh. */
+				/** The index that needs to be passed in `encoder.setVertexBuffer()`, this is the same as the index of the buffer in the VertexState of the mesh. */
 				index: i,
 				...buffer.getVertexBufferGpuCommand(),
 			};

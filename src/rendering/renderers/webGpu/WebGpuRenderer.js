@@ -16,6 +16,7 @@ import {Texture} from "../../../core/Texture.js";
 import {CachedTextureData} from "./CachedTextureData.js";
 import {CachedMaterialData} from "./CachedMaterialData.js";
 import {Sampler} from "../../Sampler.js";
+import {parseVertexInput} from "../../../util/wgslParsing.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
@@ -537,6 +538,20 @@ export class WebGpuRenderer extends Renderer {
 				vertexModule = this.getCachedShaderModule(pipelineConfig.vertexShader);
 				fragmentModule = this.getCachedShaderModule(pipelineConfig.fragmentShader);
 			}
+
+			const vertexInputs = parseVertexInput(pipelineConfig.vertexShader.source);
+			/** @type {import("../../VertexState.js").PreferredShaderLocation[]} */
+			const preferredShaderLocations = [];
+			for (const {identifier, location} of vertexInputs) {
+				const attributeTypeStr = identifier.toLocaleUpperCase();
+				// @ts-ignore TODO: better attribute type enums
+				const attributeType = Mesh.AttributeType[attributeTypeStr];
+				preferredShaderLocations.push({
+					attributeType,
+					location,
+				});
+			}
+
 			pipeline = this.device.createRenderPipeline({
 				// todo: add better label
 				label: "Material Pipeline",
@@ -544,7 +559,9 @@ export class WebGpuRenderer extends Renderer {
 				vertex: {
 					module: vertexModule,
 					entryPoint: "main",
-					...vertexState.getDescriptor(),
+					...vertexState.getDescriptor({
+						preferredShaderLocations,
+					}),
 				},
 				primitive: {
 					topology: pipelineConfig.primitiveTopology,
