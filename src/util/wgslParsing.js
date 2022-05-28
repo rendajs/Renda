@@ -6,6 +6,20 @@
 export const identifierRegex = "(?:(?:[a-zA-Z_][0-9a-zA-Z][0-9a-zA-Z_]*)|(?:[a-zA-Z][0-9a-zA-Z_]*))";
 
 /**
+ * Finds a struct with the given identifier and returns the content between the
+ * curly braces. Returns null if the struct doesn't exist.
+ * If multiple structs with the same identifier exist, the first one is returned.
+ * @param {string} shaderSource
+ * @param {string} structIdentifier
+ */
+function parseStructBlock(shaderSource, structIdentifier) {
+	const structRegex = new RegExp(`struct\\s+${structIdentifier}\\s*{(?<structBlock>[\\s\\S]+?)}\\s*;`, "");
+	const match = shaderSource.match(structRegex);
+	if (!match || !match.groups) return null;
+	return match.groups.structBlock || null;
+}
+
+/**
  * @typedef ParsedMaterialUniform
  * @property {string} identifier The name of the uniform as it appears in the shader
  * @property {"number" | "vec2" | "vec3" | "vec4"} type The type of the uniform
@@ -16,68 +30,65 @@ export const identifierRegex = "(?:(?:[a-zA-Z_][0-9a-zA-Z][0-9a-zA-Z_]*)|(?:[a-z
  * @param {string} shaderSource
  */
 export function parseMaterialUniforms(shaderSource) {
-	const blockRegex = /struct\s+MaterialUniforms\s*{(?<uniformsBlock>[\s\S]+?)}\s*;/;
-	const match = shaderSource.match(blockRegex);
+	const uniformsBlock = parseStructBlock(shaderSource, "MaterialUniforms");
+	if (!uniformsBlock) return [];
+
 	/** @type {ParsedMaterialUniform[]} */
 	const parsedUniforms = [];
-	if (match && match.groups) {
-		const uniformsBlock = match.groups.uniformsBlock;
-		if (uniformsBlock) {
-			let membersRegex = "";
-			// Capture the identifier https://gpuweb.github.io/gpuweb/wgsl/#identifiers
-			membersRegex += `(?<identifier>${identifierRegex})`;
-			// [whitespace] : [whitespace]
-			membersRegex += "\\s*:\\s*";
-			// Capture the type
-			membersRegex += "(?<type>.+?)";
-			// [whitespace] ;
-			membersRegex += "\\s*,";
-			const vectorTypeRegex = /vec(?<vectorSize>[234])<(?<vectorType>\S+)>/;
-			const matrixTypeRegex = /mat(?<rows>[234])x(?<columns>[234])<(?<matrixType>\S+)>/;
-			for (const match of uniformsBlock.matchAll(new RegExp(membersRegex, "g"))) {
-				if (!match.groups) continue;
-				const identifier = match.groups.identifier;
-				let type = match.groups.type;
-				if (!identifier || !type) continue;
-				const vectorMatch = match[0].match(vectorTypeRegex);
-				let isVector = false;
-				let vectorSize = 0;
-				let isMatrix = false;
-				// let matrixRows = 0;
-				// let matrixColumns = 0;
-				if (vectorMatch && vectorMatch.groups) {
-					isVector = true;
-					vectorSize = Number(vectorMatch.groups.vectorSize);
-					type = vectorMatch.groups.vectorType;
-				} else {
-					const matrixMatch = match[0].match(matrixTypeRegex);
-					if (matrixMatch && matrixMatch.groups) {
-						isMatrix = true;
-						// matrixRows = Number(matrixMatch.groups.rows);
-						// matrixColumns = Number(matrixMatch.groups.columns);
-						type = matrixMatch.groups.matrixType;
-					}
-				}
-				/** @type {import("../../editor/src/ui/propertiesTreeView/types.js").GuiTypes} */
-				let mappableValueType = "number";
-				if (isVector) {
-					if (vectorSize == 2) {
-						mappableValueType = "vec2";
-					} else if (vectorSize == 3) {
-						mappableValueType = "vec3";
-					} else if (vectorSize == 4) {
-						mappableValueType = "vec4";
-					}
-				} else if (isMatrix) {
-					// todo implement matrix ui
-					continue;
-				}
-				parsedUniforms.push({
-					identifier,
-					type: mappableValueType,
-				});
+
+	let membersRegex = "";
+	// Capture the identifier https://gpuweb.github.io/gpuweb/wgsl/#identifiers
+	membersRegex += `(?<identifier>${identifierRegex})`;
+	// [whitespace] : [whitespace]
+	membersRegex += "\\s*:\\s*";
+	// Capture the type
+	membersRegex += "(?<type>.+?)";
+	// [whitespace] ;
+	membersRegex += "\\s*,";
+	const vectorTypeRegex = /vec(?<vectorSize>[234])<(?<vectorType>\S+)>/;
+	const matrixTypeRegex = /mat(?<rows>[234])x(?<columns>[234])<(?<matrixType>\S+)>/;
+	for (const match of uniformsBlock.matchAll(new RegExp(membersRegex, "g"))) {
+		if (!match.groups) continue;
+		const identifier = match.groups.identifier;
+		let type = match.groups.type;
+		if (!identifier || !type) continue;
+		const vectorMatch = match[0].match(vectorTypeRegex);
+		let isVector = false;
+		let vectorSize = 0;
+		let isMatrix = false;
+		// let matrixRows = 0;
+		// let matrixColumns = 0;
+		if (vectorMatch && vectorMatch.groups) {
+			isVector = true;
+			vectorSize = Number(vectorMatch.groups.vectorSize);
+			type = vectorMatch.groups.vectorType;
+		} else {
+			const matrixMatch = match[0].match(matrixTypeRegex);
+			if (matrixMatch && matrixMatch.groups) {
+				isMatrix = true;
+				// matrixRows = Number(matrixMatch.groups.rows);
+				// matrixColumns = Number(matrixMatch.groups.columns);
+				type = matrixMatch.groups.matrixType;
 			}
 		}
+		/** @type {import("../../editor/src/ui/propertiesTreeView/types.js").GuiTypes} */
+		let mappableValueType = "number";
+		if (isVector) {
+			if (vectorSize == 2) {
+				mappableValueType = "vec2";
+			} else if (vectorSize == 3) {
+				mappableValueType = "vec3";
+			} else if (vectorSize == 4) {
+				mappableValueType = "vec4";
+			}
+		} else if (isMatrix) {
+			// todo implement matrix ui
+			continue;
+		}
+		parsedUniforms.push({
+			identifier,
+			type: mappableValueType,
+		});
 	}
 	return parsedUniforms;
 }
@@ -179,4 +190,52 @@ export function parseBindings(shaderSource) {
 	parsedBindings.sort((a, b) => a.binding - b.binding);
 
 	return parsedBindings;
+}
+
+/**
+ * @typedef ParsedVertexInputProperty
+ * @property {string} identifier The name of the binding as it appears in the shader.
+ * @property {number} location The shader location that should be used when the vertex state
+ * has a shader location set to 'auto'. This is also the index used for `renderPassEncoder.setVertexBuffer()`.
+ */
+
+/**
+ * Finds a stucture in the shader named VertexInput and returns the fields of that
+ * struct with the specified shader locations for each field.
+ * @param {string} shaderSource
+ */
+export function parseVertexInput(shaderSource) {
+	const propertiesBlock = parseStructBlock(shaderSource, "VertexInput");
+	if (!propertiesBlock) return [];
+
+	let propertiesRegex = "";
+	// Capture the location value
+	propertiesRegex += "@location\\(\\s*(?<location>\\d+)\\s*\\)";
+	// Allow whitespace between @location and identifier
+	propertiesRegex += "\\s*";
+	// Capture the identifier https://gpuweb.github.io/gpuweb/wgsl/#identifiers
+	propertiesRegex += `(?<identifier>${identifierRegex})`;
+	// [whitespace] : [whitespace]
+	propertiesRegex += "\\s*:\\s*";
+	// Capture the type
+	propertiesRegex += "(?<type>.+?)";
+	// [whitespace] ;
+	propertiesRegex += "\\s*,";
+
+	/** @type {ParsedVertexInputProperty[]} */
+	const parsedProperties = [];
+
+	for (const match of propertiesBlock.matchAll(new RegExp(propertiesRegex, "g"))) {
+		if (!match.groups) continue;
+		const identifier = match.groups.identifier;
+		if (!identifier) continue;
+		const location = match.groups.location;
+		if (!location) continue;
+		parsedProperties.push({
+			identifier,
+			location: parseInt(location, 10),
+		});
+	}
+
+	return parsedProperties;
 }
