@@ -1,4 +1,5 @@
-import { parseGltf } from "../../../../src/util/gltf/gltfLoading.js";
+import { parseGltf } from "../../../../src/util/gltf/gltfParsing.js";
+import { getNameAndExtension } from "../../util/fileSystems/pathUtil.js";
 import {EntityEditorContentWindow} from "../../windowManagement/contentWindows/EntityEditorContentWindow.js";
 import { MaterialProjectAssetType } from "./MaterialProjectAssetType.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
@@ -27,9 +28,8 @@ export class GltfProjectAssetType extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {Blob?} blob
-	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async getLiveAssetData(blob, recursionTracker) {
+	async getLiveAssetData(blob) {
 		if (!blob) return {
 			liveAsset: null,
 			editorData: null,
@@ -38,8 +38,17 @@ export class GltfProjectAssetType extends ProjectAssetType {
 		const defaultMaterial = await this.assetManager.getLiveAsset("542fb96a-d3f8-4150-9963-9f1bf803da67", {
 			assertAssetType: MaterialProjectAssetType,
 		});
+		const fileName = this.projectAsset.path.at(-1);
+		if (!fileName) {
+			throw new Error("Assertion failed, asset has no file name");
+		}
+		const {extension} = getNameAndExtension(fileName);
+		if (extension != "glb" && extension != "gltf") {
+			throw new Error("Assertion failed, file extension is not glb or gltf");
+		}
 		const {entity} = await parseGltf(arrayBuffer, {
 			defaultMaterial,
+			fileExtension: extension,
 		});
 		return {
 			liveAsset: entity,
