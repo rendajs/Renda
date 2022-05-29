@@ -25,26 +25,25 @@ import {LoadingAsset} from "./LoadingAsset.js";
 /* eslint-enable jsdoc/require-description-complete-sentence */
 
 /**
- * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
- * @typedef {import("../AssetManager.js").AssetAssertionOptions<T> & GetLiveAssetDataOptionsExtra} GetLiveAssetDataOptions
+ * @typedef {import("../AssetManager.js").AssetAssertionOptions<new (...args: any[]) => import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny> & GetLiveAssetDataOptionsExtra} GetLiveAssetDataOptions
  */
 
 /**
- * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
- * @typedef {T extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType
+ * @template {GetLiveAssetDataOptions} TOpts
+ * @typedef {TOpts extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any> ? U :never} LiveAssetType
  */
 /**
- * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
- * @typedef {T extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType
+ * @template {GetLiveAssetDataOptions} TOpts
+ * @typedef {TOpts extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType
  */
 /**
- * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
- * @typedef {import("../projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<T>, EditorDataType<T>>} LiveAssetData
+ * @template {GetLiveAssetDataOptions} TOpts
+ * @typedef {import("../projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<TOpts>, EditorDataType<TOpts>>} LiveAssetData
  */
 
 /**
- * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
- * @typedef {(liveAssetData: LiveAssetData<TProjectAssetType>?) => void} LiveAssetDataCallback
+ * @template {GetLiveAssetDataOptions} TOpts
+ * @typedef {(liveAssetData: LiveAssetData<TOpts>?) => void} LiveAssetDataCallback
  */
 
 export class RecursionTracker {
@@ -86,15 +85,15 @@ export class RecursionTracker {
 	}
 
 	/**
-	 * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+	 * @template {GetLiveAssetDataOptions} [T = {}]
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
 	 * @param {LiveAssetDataCallback<T>} cb
-	 * @param {GetLiveAssetDataOptions<T>} options
+	 * @param {T} options
 	 */
 	getLiveAssetData(uuid, cb, {
 		repeatOnLiveAssetChange = false,
 		assertAssetType = null,
-	} = {}) {
+	} = /** @type {T} */ ({})) {
 		/** @type {LiveAssetDataCallback<T>} */
 		const wrapperCallback = liveAssetData => {
 			if (assertAssetType && liveAssetData) {
@@ -136,14 +135,16 @@ export class RecursionTracker {
 	}
 
 	/**
-	 * @template {import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = import("../projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown]
+	 * @template {GetLiveAssetDataOptions} [T = {}]
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
-	 * @param {(liveAsset: import("../AssetManager.js").InferLiveAssetFromAssetType<T>?) => void} cb
-	 * @param {GetLiveAssetDataOptions<T>} options
+	 * @param {(liveAsset: import("../AssetManager.js").AssertionOptionsToLiveAsset<T>?) => void} cb
+	 * @param {T} options
 	 */
-	getLiveAsset(uuid, cb, options = {}) {
+	getLiveAsset(uuid, cb, options = /** @type {T} */ ({})) {
 		this.getLiveAssetData(uuid, liveAssetData => {
-			cb(liveAssetData?.liveAsset ?? null);
+			const liveAsset = liveAssetData?.liveAsset ?? null;
+			const castLiveAsset = /** @type {import("../AssetManager.js").AssertionOptionsToLiveAsset<T>?} */ (liveAsset);
+			cb(castLiveAsset);
 		}, options);
 	}
 

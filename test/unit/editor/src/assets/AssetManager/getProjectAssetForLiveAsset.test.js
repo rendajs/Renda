@@ -18,12 +18,12 @@ Deno.test({
 	name: "getProjectAssetForLiveAsset() with live asset from project",
 	async fn() {
 		const {assetManager} = await basicSetup();
-		/** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../shared/createMockProjectAssetType.js").MockProjectAssetType>?} */
 		const projectAsset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
-		assertExists(projectAsset);
-		const liveAsset = await projectAsset.getLiveAsset();
+		const castProjectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../shared/createMockProjectAssetType.js").MockProjectAssetType>?} */ (projectAsset);
+		assertExists(castProjectAsset);
+		const liveAsset = await castProjectAsset.getLiveAsset();
 		const result = assetManager.getProjectAssetForLiveAsset(liveAsset);
-		assertStrictEquals(result, projectAsset);
+		assertStrictEquals(result, castProjectAsset);
 	},
 });
 

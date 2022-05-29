@@ -35,14 +35,7 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  * @property {Object} [assetSettings]
  */
 
-/**
- * @typedef {(liveAssetData: LiveAssetData) => void} LiveAssetDataChangeCallback
- */
-/**
- * @typedef LiveAssetDataChangePromise
- * @property {LiveAssetDataChangeCallback} resolve
- * @property {(err: unknown) => void} reject
- */
+/** @typedef {(liveAssetData: import("./projectAssetType/ProjectAssetType.js").LiveAssetData<any, any>) => void} LiveAssetDataChangeCallbackAny */
 
 /**
  * A single project asset stores data such as the path, uuid, asset settings, etc.
@@ -56,7 +49,13 @@ export class ProjectAsset {
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any, any> ? U :never} EditorDataType */
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U, any> ? U :never} FileDataType */
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
-	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} LiveAssetData */
+	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} TLiveAssetData */
+	/** @typedef {(liveAssetData: TLiveAssetData) => void} LiveAssetDataChangeCallback */
+	/**
+	 * @typedef LiveAssetDataChangePromise
+	 * @property {LiveAssetDataChangeCallback} resolve
+	 * @property {(err: unknown) => void} reject
+	 */
 
 	/** @type {Set<LiveAssetDataChangeCallback>} */
 	#onLiveAssetDataChangeCbs = new Set();
@@ -355,11 +354,11 @@ export class ProjectAsset {
 
 	/**
 	 * @param {RecursionTracker?} recursionTracker
-	 * @returns {Promise<LiveAssetData>}
+	 * @returns {Promise<TLiveAssetData>}
 	 */
 	async getLiveAssetData(recursionTracker = null) {
 		if (this.liveAsset || this.editorData) {
-			return /** @type {LiveAssetData} */ ({
+			return /** @type {TLiveAssetData} */ ({
 				liveAsset: this.liveAsset,
 				editorData: this.editorData,
 			});
@@ -398,7 +397,7 @@ export class ProjectAsset {
 
 		if (readFailed) {
 			console.warn("error getting live asset for " + this.path.join("/"));
-			this.fireOnLiveAssetDataChangeCbs(/** @type {LiveAssetData} */ ({
+			this.fireOnLiveAssetDataChangeCbs(/** @type {TLiveAssetData} */ ({
 				liveAsset: null,
 				editorData: null,
 			}));
@@ -440,7 +439,7 @@ export class ProjectAsset {
 		this.liveAsset = liveAsset;
 		this.editorData = editorData;
 
-		/** @type {LiveAssetData} */
+		/** @type {TLiveAssetData} */
 		const liveAssetData = {};
 		if (liveAsset) {
 			liveAssetData.liveAsset = liveAsset;
@@ -520,7 +519,7 @@ export class ProjectAsset {
 	 * was called while an asset was currently loading.
 	 *
 	 * @private
-	 * @param {LiveAssetData} liveAssetData
+	 * @param {TLiveAssetData} liveAssetData
 	 */
 	fireOnLiveAssetDataChangeCbs(liveAssetData) {
 		this.#onLiveAssetDataChangeCbs.forEach(cb => cb(liveAssetData));
@@ -541,14 +540,13 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid The asset to monitor for changes.
-	 * @param {import("./liveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback<TProjectAssetType>} cb
+	 * @param {LiveAssetDataChangeCallbackAny} cb
 	 */
 	async registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {
 		const sym = this.currentRecursionTrackerLiveAssetChangeSym;
-		/** @type {ProjectAsset<TProjectAssetType>?} */
+		/** @type {ProjectAssetAny?} */
 		const projectAsset = await assetManager.getProjectAssetFromUuid(assetUuid);
 
 		if (!projectAsset) return;

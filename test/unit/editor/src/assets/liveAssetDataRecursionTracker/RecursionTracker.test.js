@@ -41,12 +41,12 @@ function basicSetup({
 		projectAssetTypeConstructor: otherProjectAssetTypeConstructor,
 	});
 
-	/** @type {Map<import("../../../../../../src/mod.js").UuidString, Set<import("../../../../../../editor/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback<any>>>} */
+	/** @type {Map<import("../../../../../../src/mod.js").UuidString, Set<import("../../../../../../editor/src/assets/ProjectAsset.js").LiveAssetDataChangeCallbackAny>>} */
 	const liveAssetChangeCbs = new Map();
 
 	/**
 	 * @param {import("../../../../../../src/mod.js").UuidString} uuid
-	 * @param {import("../../../../../../editor/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js").LiveAssetDataCallback<any>} cb
+	 * @param {import("../../../../../../editor/src/assets/ProjectAsset.js").LiveAssetDataChangeCallbackAny} cb
 	 */
 	function registerLiveAssetChange(uuid, cb) {
 		const cbs = liveAssetChangeCbs.get(uuid) || new Set();
