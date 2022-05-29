@@ -1,6 +1,7 @@
 import {AssetBundleProjectAssetType} from "./projectAssetType/AssetBundleProjectAssetType.js";
 import {ClusteredLightsConfigProjectAssetType} from "./projectAssetType/ClusteredLightsConfigProjectAssetType.js";
 import {EntityProjectAssetType} from "./projectAssetType/EntityProjectAssetType.js";
+import {GltfProjectAssetType} from "./projectAssetType/GltfProjectAssetType.js";
 import {JavascriptProjectAssetType} from "./projectAssetType/JavascriptProjectAssetType.js";
 import {MaterialProjectAssetType} from "./projectAssetType/MaterialProjectAssetType.js";
 import {MaterialMapProjectAssetType} from "./projectAssetType/MaterialMapProjectAssetType.js";
@@ -17,6 +18,7 @@ const autoRegisterAssetTypes = [
 	AssetBundleProjectAssetType,
 	ClusteredLightsConfigProjectAssetType,
 	EntityProjectAssetType,
+	GltfProjectAssetType,
 	JavascriptProjectAssetType,
 	MaterialProjectAssetType,
 	MaterialMapProjectAssetType,
