@@ -97,10 +97,17 @@ async function getBufferHelper(jsonData, bufferId, buffersCache, containerBinary
 				throw new Error(`Failed to get the buffer with index ${bufferId} because no uri was specified and no binary data was provided via the .glb container format.`);
 			}
 			buffer = containerBinary;
-		}
-		if (!buffer) {
-			// TODO: handle uris using fetch
-			throw new Error("Uri buffers are not yet implemented.");
+		} else {
+			if (bufferData.uri.startsWith("data:")) {
+				const response = await fetch(bufferData.uri);
+				const contentType = response.headers.get("content-type") || "none";
+				if (contentType != "application/octet-stream" && contentType != "application/gltf-buffer") {
+					throw new Error(`Failed to get the buffer with index ${bufferId} because the data uri has the incorrect content type: ${contentType}`);
+				}
+				buffer = await response.arrayBuffer();
+			} else {
+				throw new Error("Uri buffers are not yet implemented except for data uris.");
+			}
 		}
 		cachedBuffer = buffer.slice(0, bufferData.byteLength);
 		buffersCache.set(bufferId, cachedBuffer);
