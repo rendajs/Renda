@@ -1,7 +1,7 @@
-import { parseGltf } from "../../../../src/util/gltf/gltfParsing.js";
-import { getNameAndExtension } from "../../util/fileSystems/pathUtil.js";
+import {parseGltf} from "../../../../src/util/gltf/gltfParsing.js";
+import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
 import {EntityEditorContentWindow} from "../../windowManagement/contentWindows/EntityEditorContentWindow.js";
-import { MaterialProjectAssetType } from "./MaterialProjectAssetType.js";
+import {MaterialProjectAssetType} from "./MaterialProjectAssetType.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
 
 /**
@@ -30,10 +30,12 @@ export class GltfProjectAssetType extends ProjectAssetType {
 	 * @param {Blob?} blob
 	 */
 	async getLiveAssetData(blob) {
-		if (!blob) return {
-			liveAsset: null,
-			editorData: null,
-		};
+		if (!blob) {
+			return {
+				liveAsset: null,
+				editorData: null,
+			};
+		}
 		const arrayBuffer = await blob.arrayBuffer();
 		const defaultMaterial = await this.assetManager.getLiveAsset("542fb96a-d3f8-4150-9963-9f1bf803da67", {
 			assertAssetType: MaterialProjectAssetType,
