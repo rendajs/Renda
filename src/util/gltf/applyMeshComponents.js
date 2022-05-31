@@ -2,7 +2,6 @@ import {Mesh} from "../../core/Mesh.js";
 import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
 import {VertexState} from "../../rendering/VertexState.js";
 import {BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT} from "./constants.js";
-import {Material} from "../../rendering/Material.js";
 
 /**
  * @typedef {CreatedGltfMeshPrimitiveData[]} CreatedGltfMeshData
@@ -18,22 +17,19 @@ import {Material} from "../../rendering/Material.js";
  * Creates meshes and materials from glTF data and fills the provided entities with mesh components.
  * @param {import("./types.js").GltfJsonData} jsonData The full glTF data.
  * @param {Map<import("../../core/Entity.js").Entity, number>} entityNodeIds List of created entities and their corresponding node id in the glTF.
- * @param {(bufferId: number) => Promise<ArrayBuffer>} getBufferFn
- * @param {Object} [options]
- * @param {import("../../rendering/Material.js").Material?} [options.defaultMaterial]
+ * @param {Object} options
+ * @param {(bufferId: number) => Promise<ArrayBuffer>} options.getBufferFn
+ * @param {import("./getMaterial.js").GetMaterialFn} options.getMaterialFn
  */
-export async function applyMeshComponents(jsonData, entityNodeIds, getBufferFn, {
-	defaultMaterial = null,
-} = {}) {
+export async function applyMeshComponents(jsonData, entityNodeIds, {
+	getBufferFn,
+	getMaterialFn,
+}) {
 	// If no entities have been created, there are no meshes to create.
 	if (entityNodeIds.size < 0) return;
 
 	if (!jsonData.nodes) {
 		throw new Error("Assertion failed: nodes are referenced but the glTF data does not contain nodes.");
-	}
-
-	if (!defaultMaterial) {
-		defaultMaterial = new Material();
 	}
 
 	/**
@@ -52,20 +48,17 @@ export async function applyMeshComponents(jsonData, entityNodeIds, getBufferFn, 
 				throw new Error(`Tried to reference mesh with index ${nodeData.mesh} but it does not exist.`);
 			}
 
-			let createdMeshData = createdMeshes.get(nodeData.mesh);
-			if (!createdMeshData) {
-				createdMeshData = [];
+			let createdMeshDatas = createdMeshes.get(nodeData.mesh);
+			if (!createdMeshDatas) {
+				createdMeshDatas = [];
 				for (const primitive of gltfMeshData.primitives) {
-					const mesh = await createMeshFromGltfPrimitive(primitive, jsonData, getBufferFn);
-					createdMeshData.push({
-						mesh,
-						material: defaultMaterial,
-					});
+					const createdMeshData = await createMeshFromGltfPrimitive(primitive, jsonData, getBufferFn, getMaterialFn);
+					createdMeshDatas.push(createdMeshData);
 				}
-				createdMeshes.set(nodeData.mesh, createdMeshData);
+				createdMeshes.set(nodeData.mesh, createdMeshDatas);
 			}
 
-			for (const primitive of createdMeshData) {
+			for (const primitive of createdMeshDatas) {
 				const component = entity.addComponent(MeshComponent);
 				component.mesh = primitive.mesh;
 				component.materials = [primitive.material];
@@ -78,8 +71,9 @@ export async function applyMeshComponents(jsonData, entityNodeIds, getBufferFn, 
  * @param {import("./types.js").GltfMeshPrimitiveData} gltfMesh
  * @param {import("./types.js").GltfJsonData} gltfJsonData
  * @param {(bufferId: number) => Promise<ArrayBuffer>} getBufferFn
+ * @param {import("./getMaterial.js").GetMaterialFn} getMaterialFn
  */
-async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn) {
+async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn, getMaterialFn) {
 	/** @type {import("../../rendering/VertexStateBuffer.js").VertexStateBufferOptions[]} */
 	const vertexStateBuffers = [];
 
@@ -139,7 +133,9 @@ async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn) 
 		mesh.setVertexData(attributeType, buffer);
 	}
 
-	return mesh;
+	const material = await getMaterialFn(gltfMesh.material);
+
+	return {mesh, material};
 }
 
 /**

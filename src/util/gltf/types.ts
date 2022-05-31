@@ -50,7 +50,7 @@ export interface GltfSceneData extends GltfObjectBase {
 
 export interface GltfMaterialData extends GltfObjectBase {
 	name?: string;
-	pbrMetallicRoughness?: never;
+	pbrMetallicRoughness?: GltfMaterialPbrMetallicRoughnessData;
 	normalTexture?: never;
 	occlusionTexture?: never;
 	emissiveTexture?: never;
@@ -58,6 +58,19 @@ export interface GltfMaterialData extends GltfObjectBase {
 	alphaMode?: string;
 	alphaCutoff?: number;
 	doubleSided?: boolean;
+}
+
+export interface GltfMaterialPbrMetallicRoughnessData extends GltfObjectBase {
+	baseColorFactor?: number[];
+	baseColorTexture?: GltfTextureInfoData;
+	metallicFactor?: number;
+	roughnessFactor?: number;
+	metallicRoughnessTexture?: GltfTextureInfoData;
+}
+
+export interface GltfTextureInfoData extends GltfObjectBase {
+	index: number;
+	texCoord?: number;
 }
 
 export interface GltfMeshData extends GltfObjectBase {

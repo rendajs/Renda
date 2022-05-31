@@ -1,16 +1,21 @@
 import {MAJOR_GLTF_PARSER_VERSION, MINOR_GLTF_PARSER_VERSION} from "./constants.js";
 import {parseScenes} from "./parseNodeHierarchy.js";
 import {applyMeshComponents} from "./applyMeshComponents.js";
+import {getMaterialHelper} from "./getMaterial.js";
+import {Material} from "../../rendering/Material.js";
+import {MaterialMap} from "../../rendering/MaterialMap.js";
 
 /**
  * @param {import("./types.js").GltfJsonData} jsonData
  * @param {Object} options
  * @param {ArrayBuffer?} [options.containerBinary] The binary data in case the glTF is using the binary container format.
  * @param {import("../../rendering/Material.js").Material?} [options.defaultMaterial]
+ * @param {import("../../rendering/MaterialMap.js").MaterialMap?} [options.defaultMaterialMap]
  */
 export async function parseJsonData(jsonData, {
 	containerBinary = null,
 	defaultMaterial = null,
+	defaultMaterialMap = null,
 } = {}) {
 	assertAssetVersion(jsonData);
 
@@ -19,8 +24,29 @@ export async function parseJsonData(jsonData, {
 	/**
 	 * @param {number} bufferId
 	 */
-	async function getBuffer(bufferId) {
+	async function getBufferFn(bufferId) {
 		return await getBufferHelper(jsonData, bufferId, createdBuffers, containerBinary);
+	}
+
+	if (!defaultMaterial) {
+		defaultMaterial = new Material();
+	}
+	const nonNullDefaultMaterial = defaultMaterial;
+
+	if (!defaultMaterialMap) {
+		defaultMaterialMap = new MaterialMap();
+	}
+	const nonNullDefaultMaterialMap = defaultMaterialMap;
+
+	/** @type {Map<number, import("../../rendering/Material.js").Material>} */
+	const createdMaterials = new Map();
+
+	/** @type {import("./getMaterial.js").GetMaterialFn} */
+	async function getMaterialFn(materialId) {
+		return await getMaterialHelper(jsonData, materialId, createdMaterials, {
+			defaultMaterial: nonNullDefaultMaterial,
+			defaultMaterialMap: nonNullDefaultMaterialMap,
+		});
 	}
 
 	let entity = null;
@@ -28,7 +54,10 @@ export async function parseJsonData(jsonData, {
 		const scenesResult = parseScenes(jsonData.scenes, jsonData.nodes);
 		entity = scenesResult.entity;
 		const entityNodeIds = scenesResult.entityNodeIds;
-		applyMeshComponents(jsonData, entityNodeIds, getBuffer, {defaultMaterial});
+		applyMeshComponents(jsonData, entityNodeIds, {
+			getBufferFn,
+			getMaterialFn,
+		});
 	} else {
 		// TODO: parse glTF as if it is a library of assets
 	}
