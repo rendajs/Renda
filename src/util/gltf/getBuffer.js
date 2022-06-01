@@ -1,3 +1,4 @@
+/** @typedef {(bufferId: number) => Promise<ArrayBuffer>} GetBufferFn */
 
 /**
  * Helper function for parsing and caching gltf buffers.
@@ -58,4 +59,21 @@ export function getGltfBufferViewData(jsonData, bufferViewId) {
 		throw new Error(`Tried to reference buffer view with index ${bufferViewId} but it does not exist.`);
 	}
 	return bufferViewData;
+}
+
+/**
+ * Helper function for getting the a slice of a buffer for a specific buffer view.
+ * These values are not cached.
+ *
+ * @param {import("./types.js").GltfJsonData} gltfJsonData
+ * @param {number} bufferViewIndex
+ * @param {GetBufferFn} getBufferFn
+ * @param {number} [byteOffset]
+ */
+export async function getBufferViewBuffer(gltfJsonData, bufferViewIndex, getBufferFn, byteOffset = 0) {
+	const bufferViewData = getGltfBufferViewData(gltfJsonData, bufferViewIndex);
+	const fullBuffer = await getBufferFn(bufferViewData.buffer);
+	const bufferViewByteOffset = bufferViewData.byteOffset || 0;
+	const totalByteOffset = bufferViewByteOffset + byteOffset;
+	return fullBuffer.slice(totalByteOffset, totalByteOffset + bufferViewData.byteLength);
 }

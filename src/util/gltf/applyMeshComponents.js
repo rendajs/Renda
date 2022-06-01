@@ -2,7 +2,7 @@ import {Mesh} from "../../core/Mesh.js";
 import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
 import {VertexState} from "../../rendering/VertexState.js";
 import {BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT} from "./constants.js";
-import {getGltfBufferViewData} from "./getBuffer.js";
+import {getBufferViewBuffer} from "./getBuffer.js";
 
 /**
  * @typedef {CreatedGltfMeshPrimitiveData[]} CreatedGltfMeshData
@@ -19,7 +19,7 @@ import {getGltfBufferViewData} from "./getBuffer.js";
  * @param {import("./types.js").GltfJsonData} jsonData The full glTF data.
  * @param {Map<import("../../core/Entity.js").Entity, number>} entityNodeIds List of created entities and their corresponding node id in the glTF.
  * @param {Object} options
- * @param {(bufferId: number) => Promise<ArrayBuffer>} options.getBufferFn
+ * @param {import("./getBuffer.js").GetBufferFn} options.getBufferFn
  * @param {import("./getMaterial.js").GetMaterialFn} options.getMaterialFn
  */
 export async function applyMeshComponents(jsonData, entityNodeIds, {
@@ -71,7 +71,7 @@ export async function applyMeshComponents(jsonData, entityNodeIds, {
 /**
  * @param {import("./types.js").GltfMeshPrimitiveData} gltfMesh
  * @param {import("./types.js").GltfJsonData} gltfJsonData
- * @param {(bufferId: number) => Promise<ArrayBuffer>} getBufferFn
+ * @param {import("./getBuffer.js").GetBufferFn} getBufferFn
  * @param {import("./getMaterial.js").GetMaterialFn} getMaterialFn
  */
 async function createMeshFromGltfPrimitive(gltfMesh, gltfJsonData, getBufferFn, getMaterialFn) {
@@ -154,23 +154,9 @@ function getAccessorData(gltfJsonData, accessorIndex) {
 
 /**
  * @param {import("./types.js").GltfJsonData} gltfJsonData
- * @param {number} bufferViewIndex
- * @param {(bufferId: number) => Promise<ArrayBuffer>} getBufferFn
- * @param {number} byteOffset
- */
-async function getAccessorBuffer(gltfJsonData, bufferViewIndex, getBufferFn, byteOffset) {
-	const bufferViewData = getGltfBufferViewData(gltfJsonData, bufferViewIndex);
-	const fullBuffer = await getBufferFn(bufferViewData.buffer);
-	const bufferViewByteOffset = bufferViewData.byteOffset || 0;
-	const totalByteOffset = bufferViewByteOffset + byteOffset;
-	return fullBuffer.slice(totalByteOffset, totalByteOffset + bufferViewData.byteLength);
-}
-
-/**
- * @param {import("./types.js").GltfJsonData} gltfJsonData
  * @param {number} accessorIndex
  * @param {string} attributeName
- * @param {(bufferId: number) => Promise<ArrayBuffer>} getBufferFn
+ * @param {import("./getBuffer.js").GetBufferFn} getBufferFn
  */
 async function getVertexAccessorData(gltfJsonData, accessorIndex, attributeName, getBufferFn) {
 	const accessorData = getAccessorData(gltfJsonData, accessorIndex);
@@ -267,7 +253,7 @@ async function getVertexAccessorData(gltfJsonData, accessorIndex, attributeName,
 		}
 
 		const accessorByteOffset = accessorData.byteOffset || 0;
-		const buffer = await getAccessorBuffer(gltfJsonData, accessorData.bufferView, getBufferFn, accessorByteOffset);
+		const buffer = await getBufferViewBuffer(gltfJsonData, accessorData.bufferView, getBufferFn, accessorByteOffset);
 
 		return {
 			accessorData,
@@ -283,7 +269,7 @@ async function getVertexAccessorData(gltfJsonData, accessorIndex, attributeName,
 /**
  * @param {import("./types.js").GltfJsonData} gltfJsonData
  * @param {number} accessorIndex
- * @param {(bufferId: number) => Promise<ArrayBuffer>} getBufferFn
+ * @param {import("./getBuffer.js").GetBufferFn} getBufferFn
  */
 async function getIndexAccessorData(gltfJsonData, accessorIndex, getBufferFn) {
 	const accessorData = getAccessorData(gltfJsonData, accessorIndex);
@@ -310,7 +296,7 @@ async function getIndexAccessorData(gltfJsonData, accessorIndex, getBufferFn) {
 		}
 
 		const accessorByteOffset = accessorData.byteOffset || 0;
-		const buffer = await getAccessorBuffer(gltfJsonData, accessorData.bufferView, getBufferFn, accessorByteOffset);
+		const buffer = await getBufferViewBuffer(gltfJsonData, accessorData.bufferView, getBufferFn, accessorByteOffset);
 
 		return {
 			buffer,

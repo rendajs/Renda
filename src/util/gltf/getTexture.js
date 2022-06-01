@@ -1,6 +1,12 @@
 import {Texture} from "../../core/Texture.js";
+import {getBufferViewBuffer} from "./getBuffer.js";
 
 /** @typedef {(imageId: number | undefined) => Promise<Texture>} GetTextureFn */
+
+/**
+ * @typedef GetTextureHelperOptions
+ * @property {import("./getBuffer.js").GetBufferFn} getBufferFn
+ */
 
 /**
  * Helper function for parsing and caching glTF textures.
@@ -15,8 +21,11 @@ import {Texture} from "../../core/Texture.js";
  * @param {import("./types.js").GltfJsonData} jsonData
  * @param {number | undefined} imageId The index of the image to get from the jsonData.
  * @param {Map<number, Texture>} texturesCache
+ * @param {GetTextureHelperOptions} options
  */
-export async function getTextureHelper(jsonData, imageId, texturesCache) {
+export async function getTextureHelper(jsonData, imageId, texturesCache, {
+	getBufferFn,
+}) {
 	if (imageId == undefined) {
 		throw new Error("Tried to reference image with index undefined which is not supported.");
 	}
@@ -28,7 +37,20 @@ export async function getTextureHelper(jsonData, imageId, texturesCache) {
 			throw new Error(`Tried to reference image with index ${imageId} but it does not exist.`);
 		}
 
-		texture = new Texture(new Blob());
+		let blob;
+		if (imageData.uri) {
+			throw new Error("Loading textures using uris is not yet supported");
+		} else if (imageData.bufferView != undefined) {
+			if (!imageData.mimeType) {
+				throw new Error(`The image with index ${imageId} has no mime type specified, this is required for buffer view images.`);
+			}
+			const buffer = await getBufferViewBuffer(jsonData, imageData.bufferView, getBufferFn);
+			blob = new Blob([buffer], {type: imageData.mimeType});
+		} else {
+			throw new Error(`The image with index ${imageId} contains invalid data. An image should contain one of 'uri' or 'bufferView'.`);
+		}
+
+		texture = new Texture(blob);
 	}
 	return texture;
 }

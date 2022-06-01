@@ -52,7 +52,9 @@ export async function parseJsonData(jsonData, {
 
 	/** @type {import("./getTexture.js").GetTextureFn} */
 	async function getTextureFn(imageId) {
-		return await getTextureHelper(jsonData, imageId, createdTextures);
+		return await getTextureHelper(jsonData, imageId, createdTextures, {
+			getBufferFn,
+		});
 	}
 
 	if (!defaultMaterial) {
