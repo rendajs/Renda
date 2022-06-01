@@ -4,6 +4,7 @@ import {EntityEditorContentWindow} from "../../windowManagement/contentWindows/E
 import {MaterialMapProjectAssetType} from "./MaterialMapProjectAssetType.js";
 import {MaterialProjectAssetType} from "./MaterialProjectAssetType.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
+import {SamplerProjectAssetType} from "./SamplerProjectAssetType.js";
 
 /**
  * @extends {ProjectAssetType<import("../../../../src/core/Entity.js").Entity?, null, "binary">}
@@ -44,6 +45,9 @@ export class GltfProjectAssetType extends ProjectAssetType {
 		const defaultMaterialMap = await this.assetManager.getLiveAsset("873ade41-8986-4371-b2a3-5bc1aff9d938", {
 			assertAssetType: MaterialMapProjectAssetType,
 		});
+		const defaultSampler = await this.assetManager.getLiveAsset("27a0c1fb-2187-4e11-82c7-a944ff43ec47", {
+			assertAssetType: SamplerProjectAssetType,
+		});
 		const fileName = this.projectAsset.path.at(-1);
 		if (!fileName) {
 			throw new Error("Assertion failed, asset has no file name");
@@ -55,6 +59,7 @@ export class GltfProjectAssetType extends ProjectAssetType {
 		const {entity} = await parseGltf(arrayBuffer, {
 			defaultMaterial,
 			defaultMaterialMap,
+			defaultSampler,
 			fileExtension: extension,
 		});
 		return {

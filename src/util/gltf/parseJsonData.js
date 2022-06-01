@@ -4,19 +4,27 @@ import {applyMeshComponents} from "./applyMeshComponents.js";
 import {getMaterialHelper} from "./getMaterial.js";
 import {Material} from "../../rendering/Material.js";
 import {MaterialMap} from "../../rendering/MaterialMap.js";
+import {getTextureHelper} from "./getTexture.js";
+import {getSamplerHelper} from "./getSampler.js";
+
+/**
+ * @typedef ParseJsonDataOptions
+ * @property {ArrayBuffer?} [containerBinary] The binary data in case the glTF is using the binary container format.
+ * @property {import("../../rendering/Material.js").Material?} defaultMaterial
+ * @property {import("../../rendering/MaterialMap.js").MaterialMap?} defaultMaterialMap
+ * @property {import("../../rendering/Sampler.js").Sampler?} defaultSampler
+ */
 
 /**
  * @param {import("./types.js").GltfJsonData} jsonData
- * @param {Object} options
- * @param {ArrayBuffer?} [options.containerBinary] The binary data in case the glTF is using the binary container format.
- * @param {import("../../rendering/Material.js").Material?} [options.defaultMaterial]
- * @param {import("../../rendering/MaterialMap.js").MaterialMap?} [options.defaultMaterialMap]
+ * @param {ParseJsonDataOptions} options
  */
 export async function parseJsonData(jsonData, {
 	containerBinary = null,
-	defaultMaterial = null,
-	defaultMaterialMap = null,
-} = {}) {
+	defaultMaterial,
+	defaultMaterialMap,
+	defaultSampler,
+}) {
 	assertAssetVersion(jsonData);
 
 	/** @type {Map<number, ArrayBuffer>} */
@@ -26,6 +34,24 @@ export async function parseJsonData(jsonData, {
 	 */
 	async function getBufferFn(bufferId) {
 		return await getBufferHelper(jsonData, bufferId, createdBuffers, containerBinary);
+	}
+
+	/** @type {Map<number, import("../../rendering/Sampler.js").Sampler>} */
+	const createdSamplers = new Map();
+
+	/** @type {import("./getSampler.js").GetSamplerFn} */
+	async function getSamplerFn(samplerId) {
+		return await getSamplerHelper(jsonData, samplerId, createdSamplers, {
+			defaultSampler,
+		});
+	}
+
+	/** @type {Map<number, import("../../core/Texture.js").Texture>} */
+	const createdTextures = new Map();
+
+	/** @type {import("./getTexture.js").GetTextureFn} */
+	async function getTextureFn(imageId) {
+		return await getTextureHelper(jsonData, imageId, createdTextures);
 	}
 
 	if (!defaultMaterial) {
@@ -46,6 +72,8 @@ export async function parseJsonData(jsonData, {
 		return await getMaterialHelper(jsonData, materialId, createdMaterials, {
 			defaultMaterial: nonNullDefaultMaterial,
 			defaultMaterialMap: nonNullDefaultMaterialMap,
+			getSamplerFn,
+			getTextureFn,
 		});
 	}
 

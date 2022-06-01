@@ -1,5 +1,6 @@
 import {assertEquals, assertExists} from "std/testing/asserts";
 import {parseJsonData} from "../../../../../../src/util/gltf/parseJsonData.js";
+import {getBasicOptions} from "./shared.js";
 
 Deno.test({
 	name: "Basic gltf",
@@ -17,7 +18,7 @@ Deno.test({
 					name: "My object",
 				},
 			],
-		});
+		}, getBasicOptions());
 
 		assertExists(entity);
 		assertEquals(entity.name, "Entity");

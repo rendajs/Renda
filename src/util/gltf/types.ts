@@ -9,6 +9,10 @@ export interface GltfObjectBase {
 	extras?: GltfExtrasData;
 }
 
+export interface GltfRootObjectBase extends GltfObjectBase {
+	name?: string;
+}
+
 export interface GltfJsonData extends GltfObjectBase {
 	extensionsUsed?: string[];
 	extensionsRequired?: string[];
@@ -16,11 +20,14 @@ export interface GltfJsonData extends GltfObjectBase {
 	asset: GltfAssetData;
 	buffers?: GltfBufferData[];
 	bufferViews?: GltfBufferViewData[];
+	images?: GltfImageData[];
 	materials?: GltfMaterialData[];
 	meshes?: GltfMeshData[];
 	nodes?: GltfNodeData[];
+	samplers?: GltfSamplerData[];
 	scene?: number;
 	scenes?: GltfSceneData[];
+	textures?: GltfTextureData[];
 }
 
 export interface GltfAssetData extends GltfObjectBase {
@@ -30,7 +37,7 @@ export interface GltfAssetData extends GltfObjectBase {
 	minVersion?: string;
 }
 
-export interface GltfNodeData extends GltfObjectBase {
+export interface GltfNodeData extends GltfRootObjectBase {
 	camera?: number;
 	children?: number[];
 	skin?: number;
@@ -40,20 +47,17 @@ export interface GltfNodeData extends GltfObjectBase {
 	scale?: number[];
 	translation?: number[];
 	weights?: number[];
-	name?: string;
 }
 
-export interface GltfSceneData extends GltfObjectBase {
+export interface GltfSceneData extends GltfRootObjectBase {
 	nodes?: number[];
-	name?: string;
 }
 
-export interface GltfMaterialData extends GltfObjectBase {
-	name?: string;
+export interface GltfMaterialData extends GltfRootObjectBase {
 	pbrMetallicRoughness?: GltfMaterialPbrMetallicRoughnessData;
-	normalTexture?: never;
-	occlusionTexture?: never;
-	emissiveTexture?: never;
+	normalTexture?: GltfNormalTextureInfoData;
+	occlusionTexture?: GltfOcclusionTextureInfoData;
+	emissiveTexture?: GltfTextureInfoData;
 	emissiveFactor?: number[];
 	alphaMode?: string;
 	alphaCutoff?: number;
@@ -68,15 +72,40 @@ export interface GltfMaterialPbrMetallicRoughnessData extends GltfObjectBase {
 	metallicRoughnessTexture?: GltfTextureInfoData;
 }
 
+export interface GltfTextureData extends GltfRootObjectBase {
+	sampler?: number;
+	source?: number;
+}
+
+export interface GltfSamplerData extends GltfRootObjectBase {
+	magFilter?: number;
+	minFilter?: number;
+	wrapS?: number;
+	wrapT?: number;
+}
+
+export interface GltfImageData extends GltfRootObjectBase {
+	uri?: string;
+	mimeType?: string;
+	bufferView?: number;
+}
+
 export interface GltfTextureInfoData extends GltfObjectBase {
 	index: number;
 	texCoord?: number;
 }
 
-export interface GltfMeshData extends GltfObjectBase {
+export interface GltfNormalTextureInfoData extends GltfTextureInfoData {
+	scale?: number;
+}
+
+export interface GltfOcclusionTextureInfoData extends GltfTextureInfoData {
+	strength?: number;
+}
+
+export interface GltfMeshData extends GltfRootObjectBase {
 	primitives: GltfMeshPrimitiveData[];
 	weights?: number[];
-	name?: string;
 }
 
 export interface GltfMeshPrimitiveData extends GltfObjectBase {
@@ -87,24 +116,22 @@ export interface GltfMeshPrimitiveData extends GltfObjectBase {
 	targets?: never[];
 }
 
-export interface GltfBufferData extends GltfObjectBase {
+export interface GltfBufferData extends GltfRootObjectBase {
 	uri?: string;
 	byteLength: number;
-	name?: string;
 }
 
-export interface GltfBufferViewData extends GltfObjectBase {
+export interface GltfBufferViewData extends GltfRootObjectBase {
 	buffer: number;
 	byteOffset?: number;
 	byteLength: number;
 	byteStride?: number;
 	target?: number;
-	name?: string;
 }
 
 export type GltfAccessorType = "SCALAR" | "VEC2" | "VEC3" | "VEC4" | "MAT2" | "MAT3" | "MAT4";
 
-export interface GltfAccessorData extends GltfObjectBase {
+export interface GltfAccessorData extends GltfRootObjectBase {
 	bufferView?: number;
 	byteOffset?: number;
 	componentType: number;
@@ -114,5 +141,4 @@ export interface GltfAccessorData extends GltfObjectBase {
 	max?: number[];
 	min?: number[];
 	sparse?: never;
-	name?: string;
 }

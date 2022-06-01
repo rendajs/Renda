@@ -1,5 +1,6 @@
 import {assertRejects} from "std/testing/asserts";
 import {parseJsonData} from "../../../../../../src/util/gltf/parseJsonData.js";
+import {getBasicOptions} from "./shared.js";
 
 Deno.test({
 	name: "version 2.0 no minVersion",
@@ -8,7 +9,7 @@ Deno.test({
 			asset: {
 				version: "2.0",
 			},
-		});
+		}, getBasicOptions());
 	},
 });
 
@@ -20,7 +21,7 @@ Deno.test({
 				version: "2.0",
 				minVersion: "2.0",
 			},
-		});
+		}, getBasicOptions());
 	},
 });
 
@@ -32,7 +33,7 @@ Deno.test({
 				asset: {
 					version: "notanumber",
 				},
-			});
+			}, getBasicOptions());
 		}, Error, "Failed to parse glTF version string: notanumber");
 	},
 });
@@ -46,7 +47,7 @@ Deno.test({
 					version: "2.0",
 					minVersion: "notanumber",
 				},
-			});
+			}, getBasicOptions());
 		}, Error, "Failed to parse glTF version string: notanumber");
 	},
 });
@@ -59,7 +60,7 @@ Deno.test({
 				asset: {
 					version: "3.0",
 				},
-			});
+			}, getBasicOptions());
 		}, Error, "The asset targets a higher major glTF version: 3.0");
 	},
 });
@@ -71,7 +72,7 @@ Deno.test({
 			asset: {
 				version: "2.1",
 			},
-		});
+		}, getBasicOptions());
 	},
 });
 
@@ -84,7 +85,7 @@ Deno.test({
 					version: "2.0",
 					minVersion: "3.0",
 				},
-			});
+			}, getBasicOptions());
 		}, Error, "The asset requires a newer glTF version: 3.0");
 	},
 });
@@ -98,7 +99,7 @@ Deno.test({
 					version: "2.0",
 					minVersion: "2.1",
 				},
-			});
+			}, getBasicOptions());
 		}, Error, "The asset requires a newer glTF version: 2.1");
 	},
 });

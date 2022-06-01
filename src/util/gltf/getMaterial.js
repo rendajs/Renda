@@ -1,7 +1,14 @@
 import {Material} from "../../rendering/Material.js";
+import {getGltfTextureData} from "./getTexture.js";
+
+/** @typedef {(materialId: number | undefined) => Promise<Material>} GetMaterialFn */
 
 /**
- * @typedef {(materialId: number | undefined) => Promise<Material>} GetMaterialFn
+ * @typedef GetMaterialHelperOptions
+ * @property {Material} defaultMaterial
+ * @property {import("../../rendering/MaterialMap.js").MaterialMap} defaultMaterialMap
+ * @property {import("./getSampler.js").GetSamplerFn} getSamplerFn
+ * @property {import("./getTexture.js").GetTextureFn} getTextureFn
  */
 
 /**
@@ -10,29 +17,37 @@ import {Material} from "../../rendering/Material.js";
  * @param {import("./types.js").GltfJsonData} jsonData
  * @param {number | undefined} materialId The index of the material to get from the jsonData.
  * @param {Map<number, Material>} materialsCache
- * @param {Object} options
- * @param {Material} options.defaultMaterial
- * @param {import("../../rendering/MaterialMap.js").MaterialMap} options.defaultMaterialMap
+ * @param {GetMaterialHelperOptions} options
  */
 export async function getMaterialHelper(jsonData, materialId, materialsCache, {
 	defaultMaterial,
 	defaultMaterialMap,
+	getSamplerFn,
+	getTextureFn,
 }) {
 	if (materialId == undefined) {
 		return defaultMaterial;
 	}
-	const materialDatas = jsonData.materials || [];
-	const materialData = materialDatas[materialId];
-	if (!materialData) {
-		throw new Error(`Tried to reference material with index ${materialId} but it does not exist.`);
-	}
 
 	let material = materialsCache.get(materialId);
 	if (!material) {
+		const materialDatas = jsonData.materials || [];
+		const materialData = materialDatas[materialId];
+		if (!materialData) {
+			throw new Error(`Tried to reference material with index ${materialId} but it does not exist.`);
+		}
+
 		material = new Material(defaultMaterialMap);
 
 		const pbr = materialData.pbrMetallicRoughness;
 		if (pbr) {
+			if (pbr.baseColorTexture) {
+				const textureData = getGltfTextureData(jsonData, pbr.baseColorTexture.index);
+				const sampler = await getSamplerFn(textureData.sampler);
+				material.setProperty("albedoSampler", sampler);
+				const texture = await getTextureFn(textureData.source);
+				material.setProperty("albedoTexture", texture);
+			}
 			if (pbr.metallicFactor != undefined) {
 				material.setProperty("metallicAdjust", pbr.metallicFactor);
 			}
