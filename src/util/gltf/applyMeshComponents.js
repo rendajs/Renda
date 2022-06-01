@@ -2,6 +2,7 @@ import {Mesh} from "../../core/Mesh.js";
 import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
 import {VertexState} from "../../rendering/VertexState.js";
 import {BYTE, FLOAT, SHORT, UNSIGNED_BYTE, UNSIGNED_INT, UNSIGNED_SHORT} from "./constants.js";
+import {getGltfBufferViewData} from "./getBuffer.js";
 
 /**
  * @typedef {CreatedGltfMeshPrimitiveData[]} CreatedGltfMeshData
@@ -158,11 +159,7 @@ function getAccessorData(gltfJsonData, accessorIndex) {
  * @param {number} byteOffset
  */
 async function getAccessorBuffer(gltfJsonData, bufferViewIndex, getBufferFn, byteOffset) {
-	const bufferViewDatas = gltfJsonData.bufferViews || [];
-	const bufferViewData = bufferViewDatas[bufferViewIndex];
-	if (!bufferViewData) {
-		throw new Error(`Failed to get buffer view with index ${bufferViewIndex} because it does not exist.`);
-	}
+	const bufferViewData = getGltfBufferViewData(gltfJsonData, bufferViewIndex);
 	const fullBuffer = await getBufferFn(bufferViewData.buffer);
 	const bufferViewByteOffset = bufferViewData.byteOffset || 0;
 	const totalByteOffset = bufferViewByteOffset + byteOffset;

@@ -34,6 +34,9 @@ export async function getTextureHelper(jsonData, imageId, texturesCache) {
 }
 
 /**
+ * Helper function for getting texture data from a gltf file and asserting that
+ * it actually exists.
+ *
  * @param {import("./types.js").GltfJsonData} jsonData
  * @param {number} textureId The index of the image to get from the jsonData.
  */

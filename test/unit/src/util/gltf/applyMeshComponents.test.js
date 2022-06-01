@@ -205,7 +205,7 @@ Deno.test({
 					},
 				],
 			}, entityNodeIds, {getBufferFn, getMaterialFn});
-		}, Error, "Failed to get buffer view with index 123 because it does not exist.");
+		}, Error, "Tried to reference buffer view with index 123 but it does not exist.");
 	},
 });
 
