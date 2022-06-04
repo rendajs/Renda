@@ -100,6 +100,23 @@ Deno.test({
 });
 
 Deno.test({
+	name: "adding as a child removes the existing parent",
+	fn() {
+		const oldParent = new Entity();
+		const newParent = new Entity();
+		const child = new Entity();
+		oldParent.add(child);
+		newParent.add(child);
+		assertEquals(oldParent.childCount, 0);
+		assertEquals(oldParent.children.length, 0);
+		assertEquals(newParent.childCount, 1);
+		assertEquals(newParent.children.length, 1);
+		assertStrictEquals(newParent.children[0], child);
+		assertStrictEquals(child.parent, newParent);
+	},
+});
+
+Deno.test({
 	name: "addAtIndex",
 	fn() {
 		const child1 = new Entity();
