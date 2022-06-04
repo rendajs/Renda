@@ -6,7 +6,6 @@ struct VertexInput {
 	@location(1) normal : vec3<f32>,
 	@location(2) uv1 : vec2<f32>,
 	@location(3) tangent: vec3<f32>,
-	@location(4) bitangent: vec3<f32>,
 };
 
 struct VertexOutput {
@@ -26,6 +25,6 @@ fn main(input : VertexInput) -> VertexOutput {
 	vertOut.vNormal = normalize(modelUniforms.m * vec4<f32>(input.normal, 0.0)).xyz;
 	vertOut.vUv1 = input.uv1;
 	vertOut.vTangent = normalize(modelUniforms.m * vec4<f32>(input.tangent, 0.0)).xyz;
-	vertOut.vBitangent = normalize(modelUniforms.m * vec4<f32>(input.bitangent, 0.0)).xyz;
+	vertOut.vBitangent = normalize(cross(vertOut.vNormal, vertOut.vTangent));
 	return vertOut;
 }
