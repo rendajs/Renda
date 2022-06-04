@@ -50,8 +50,10 @@ fn getClusterIndex(fragCoord : vec4<f32>) -> u32 {
 
 
 struct MaterialUniforms {
+	albedoAdjust: vec4<f32>,
 	metallicAdjust : f32,
 	roughnessAdjust : f32,
+	normalScale: f32,
 };
 @group(1) @binding(0)
 var<uniform> materialUniforms : MaterialUniforms;
@@ -60,10 +62,8 @@ var<uniform> materialUniforms : MaterialUniforms;
 @group(1) @binding(2) var albedoTexture : texture_2d<f32>;
 @group(1) @binding(3) var normalSampler : sampler;
 @group(1) @binding(4) var normalTexture : texture_2d<f32>;
-@group(1) @binding(5) var metallicSampler : sampler;
-@group(1) @binding(6) var metallicTexture : texture_2d<f32>;
-@group(1) @binding(7) var roughnessSampler : sampler;
-@group(1) @binding(8) var roughnessTexture : texture_2d<f32>;
+@group(1) @binding(5) var metallicRoughnessSampler : sampler;
+@group(1) @binding(6) var metallicRoughnessTexture : texture_2d<f32>;
 
 struct FragmentInput {
 	@builtin(position) fragCoord : vec4<f32>,
@@ -80,10 +80,14 @@ struct FragmentOutput {
 
 @stage(fragment)
 fn main(input : FragmentInput) -> FragmentOutput {
-	let albedo : vec3<f32> = pow(textureSample(albedoTexture, albedoSampler, input.vUv1).rgb, vec3<f32>(2.2));
-	let metallic : f32 = textureSample(metallicTexture, metallicSampler, input.vUv1).r + materialUniforms.metallicAdjust;
-	let roughness : f32 = textureSample(roughnessTexture, roughnessSampler, input.vUv1).r + materialUniforms.roughnessAdjust;
-	let tangentNormal : vec3<f32> = normalize(textureSample(normalTexture, normalSampler, input.vUv1).rgb * 2.0 - 1.0);
+	let sampledAlbedo = pow(textureSample(albedoTexture, albedoSampler, input.vUv1).rgb, vec3<f32>(2.2));
+	let albedo : vec3<f32> = clamp(sampledAlbedo * materialUniforms.albedoAdjust.rgb, vec3<f32>(0.0), vec3<f32>(1.0));
+
+	let sampledMetallicRoughness : vec4<f32> = textureSample(metallicRoughnessTexture, metallicRoughnessSampler, input.vUv1);
+	let metallic : f32 = clamp(sampledMetallicRoughness.b * materialUniforms.metallicAdjust, 0.0, 1.0);
+	let roughness : f32 = clamp(sampledMetallicRoughness.g * materialUniforms.roughnessAdjust, 0.0, 1.0);
+
+	let tangentNormal : vec3<f32> = normalize(textureSample(normalTexture, normalSampler, input.vUv1).rgb * 2.0 - 1.0) * vec3<f32>(materialUniforms.normalScale, materialUniforms.normalScale, 1.0);
 
 	let worldToTangentMatrix : mat3x3<f32> = mat3x3<f32>(input.vTangent, input.vBitangent, input.normal);
 

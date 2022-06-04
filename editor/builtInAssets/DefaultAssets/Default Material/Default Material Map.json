@@ -8,16 +8,19 @@
 					"forwardPipelineConfig": "abc1df88-ae0b-4a5d-8ac4-0a98c1602a32"
 				},
 				"mappedValues": {
+					"albedoAdjust": {
+						"defaultValue": [1, 1, 1, 1]
+					},
+					"metallicAdjust": {"defaultValue": 1},
+					"roughnessAdjust": {"defaultValue": 1},
+					"normalScale": {"defaultValue": 1},
 					"albedoSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
 					},
 					"normalSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
 					},
-					"metallicSampler": {
-						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
-					},
-					"roughnessSampler": {
+					"metallicRoughnessSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
 					}
 				}
