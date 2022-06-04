@@ -334,6 +334,7 @@ export class OutlinerContentWindow extends ContentWindow {
 	async onTreeViewDrop(e) {
 		const parent = this.getEntityByTreeViewItem(e.target);
 		if (!e.rawEvent.dataTransfer) return;
+		let didDropAsset = false;
 		for (const item of e.rawEvent.dataTransfer.items) {
 			const mimeType = parseMimeType(item.type);
 			if (!mimeType) continue;
@@ -346,10 +347,13 @@ export class OutlinerContentWindow extends ContentWindow {
 				});
 				if (entityAsset) {
 					parent.add(entityAsset);
+					didDropAsset = true;
 				}
 			}
 		}
-		this.updateTreeView();
+		if (didDropAsset) {
+			this.updateTreeView();
+		}
 	}
 
 	/**
