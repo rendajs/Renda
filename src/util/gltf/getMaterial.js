@@ -41,6 +41,9 @@ export async function getMaterialHelper(jsonData, materialId, materialsCache, {
 
 		const pbr = materialData.pbrMetallicRoughness;
 		if (pbr) {
+			if (pbr.baseColorFactor != undefined) {
+				material.setProperty("albedoAdjust", pbr.baseColorFactor);
+			}
 			if (pbr.baseColorTexture) {
 				const textureData = getGltfTextureData(jsonData, pbr.baseColorTexture.index);
 				const sampler = await getSamplerFn(textureData.sampler);
@@ -48,11 +51,31 @@ export async function getMaterialHelper(jsonData, materialId, materialsCache, {
 				const texture = await getTextureFn(textureData.source);
 				material.setProperty("albedoTexture", texture);
 			}
+
 			if (pbr.metallicFactor != undefined) {
 				material.setProperty("metallicAdjust", pbr.metallicFactor);
 			}
 			if (pbr.roughnessFactor != undefined) {
 				material.setProperty("roughnessAdjust", pbr.roughnessFactor);
+			}
+			if (pbr.metallicRoughnessTexture) {
+				const textureData = getGltfTextureData(jsonData, pbr.metallicRoughnessTexture.index);
+				const sampler = await getSamplerFn(textureData.sampler);
+				material.setProperty("metallicRoughnessSampler", sampler);
+				const texture = await getTextureFn(textureData.source);
+				material.setProperty("metallicRoughnessTexture", texture);
+			}
+		}
+
+		if (materialData.normalTexture) {
+			const textureData = getGltfTextureData(jsonData, materialData.normalTexture.index);
+			const sampler = await getSamplerFn(textureData.sampler);
+			material.setProperty("normalSampler", sampler);
+			const texture = await getTextureFn(textureData.source);
+			material.setProperty("normalTexture", texture);
+
+			if (materialData.normalTexture.scale != undefined) {
+				material.setProperty("normalScale", materialData.normalTexture.scale);
 			}
 		}
 	}
