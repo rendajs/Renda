@@ -49,14 +49,15 @@ export async function getAssetTreeView(page, assetPath) {
  * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
  * @param {string[]} assetPath
+ * @param {import("puppeteer").ClickOptions} [clickOptions]
  */
-export async function clickAsset(page, testContext, assetPath) {
+export async function clickAsset(page, testContext, assetPath, clickOptions) {
 	const joinedPath = assetPath.join("/");
 	await testContext.step({
 		name: `Click asset "${joinedPath}"`,
 		async fn() {
 			const createdAssetTreeView = await getAssetTreeView(page, assetPath);
-			await click(page, createdAssetTreeView);
+			await click(page, createdAssetTreeView, clickOptions);
 		},
 	});
 }

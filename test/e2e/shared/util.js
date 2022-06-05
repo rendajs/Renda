@@ -74,18 +74,28 @@ export async function elementWaitForSelector(page, elementHandle, selector, opti
 }
 
 /**
+ * Utility function for turning a selector into a handle. Many functions take
+ * both a selector or a handle, so this only turns the selector into a handle
+ * if it's not already a handle.
+ * @param {import("puppeteer").Page} page
+ * @param {string | import("puppeteer").ElementHandle} selectorOrHandle
+ */
+async function selectorOrHandleToHandle(page, selectorOrHandle) {
+	if (typeof selectorOrHandle == "string") {
+		return await waitFor(page, selectorOrHandle, {visible: true});
+	} else {
+		return selectorOrHandle;
+	}
+}
+
+/**
  * Gets the center of an element.
  *
  * @param {import("puppeteer").Page} page
- * @param {string | import("puppeteer").ElementHandle} selector
+ * @param {string | import("puppeteer").ElementHandle} selectorOrHandle
  */
-export async function getElementPosition(page, selector) {
-	let element;
-	if (typeof selector === "string") {
-		element = await waitFor(page, selector, {visible: true});
-	} else {
-		element = selector;
-	}
+export async function getElementPosition(page, selectorOrHandle) {
+	const element = await selectorOrHandleToHandle(page, selectorOrHandle);
 
 	const boundingBox = await element.boundingBox();
 	if (!boundingBox) {
@@ -113,15 +123,55 @@ export async function hover(page, selector) {
  * Waits until an element exists, scrolls to it and clicks it.
  * Throws an error if the element doesn't exist after the timeout.
  * @param {import("puppeteer").Page} page
- * @param {string | import("puppeteer").ElementHandle} selector
+ * @param {string | import("puppeteer").ElementHandle} selectorOrHandle
  * @param {import("puppeteer").ClickOptions} [clickOptions]
  */
-export async function click(page, selector, clickOptions = {}) {
+export async function click(page, selectorOrHandle, clickOptions = {}) {
 	let element;
-	if (typeof selector === "string") {
-		element = await waitFor(page, selector, {visible: true});
+	if (typeof selectorOrHandle === "string") {
+		element = await waitFor(page, selectorOrHandle, {visible: true});
 	} else {
-		element = selector;
+		element = selectorOrHandle;
 	}
 	await element.click(clickOptions);
+}
+
+/**
+ * Drags an element to another element and fires the appropriate events.
+ * @param {import("puppeteer").Page} page
+ * @param {string | import("puppeteer").ElementHandle} selectorOrHandleFrom
+ * @param {string | import("puppeteer").ElementHandle} selectorOrHandleTo
+ */
+export async function drag(page, selectorOrHandleFrom, selectorOrHandleTo) {
+	const elementFrom = await selectorOrHandleToHandle(page, selectorOrHandleFrom);
+	const elementTo = await selectorOrHandleToHandle(page, selectorOrHandleTo);
+	await page.evaluate((elementFrom, elementTo) => {
+		/**
+		 * @param {string} type
+		 * @param {HTMLElement} source
+		 * @param {DataTransfer} dataTransfer
+		 */
+		function fireEvent(type, source, dataTransfer) {
+			const event = document.createEvent("CustomEvent");
+			event.initCustomEvent(type, true, true, null);
+			const castEvent = /** @type {CustomEvent & NotReadonly<DragEvent>} */ (event);
+			const bounds = source.getBoundingClientRect();
+			console.log(type, bounds);
+			castEvent.clientX = (bounds.left + bounds.right) / 2;
+			castEvent.clientY = (bounds.top + bounds.bottom) / 2;
+			castEvent.dataTransfer = dataTransfer;
+			source.dispatchEvent(event);
+			return castEvent;
+		}
+
+		// We'll use a single DataTransfer instance so that the client can
+		// modify it and access it in other events.
+		const dataTransfer = new DataTransfer();
+
+		fireEvent("dragstart", elementFrom, dataTransfer);
+		fireEvent("drag", elementFrom, dataTransfer);
+		fireEvent("dragover", elementTo, dataTransfer);
+		fireEvent("drop", elementTo, dataTransfer);
+		fireEvent("dragend", elementTo, dataTransfer);
+	}, elementFrom, elementTo);
 }

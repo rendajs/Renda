@@ -8,6 +8,8 @@
 
 /**
  * Gets the first content window element of a given type.
+ * This returns the full contentWindow element, including the top button bar.
+ * I.e. the element with the "editorContentWindow" class.
  * @param {import("puppeteer").Page} page
  * @param {string} contentWindowType The static `contentWindowTypeId` property of the content window. See {@linkcode ContentWindow.contentWindowTypeId}.
  */
