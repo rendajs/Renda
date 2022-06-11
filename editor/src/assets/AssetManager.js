@@ -3,6 +3,7 @@ import {handleDuplicateFileName} from "../util/util.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {DefaultAssetLink} from "./DefaultAssetLink.js";
 import {ProjectAsset} from "./ProjectAsset.js";
+import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 
 /**
  * @typedef {Object} SetDefaultBuiltInAssetLinkData
@@ -92,6 +93,23 @@ export class AssetManager {
 		this.embeddedAssets = new WeakMap();
 		/** @type {Map<import("../../../src/mod.js").UuidString, DefaultAssetLink>}*/
 		this.defaultAssetLinks = new Map();
+		/**
+		 * These are all the internally created assets that have been assigned a uuid.
+		 * There are more internally created assets but they live in the `internallyCreatedAssets`
+		 * property of individual project asset instances. The reason why this extra map
+		 * exists is because we need to quickly be able to reference an asset by uuid, and when
+		 * storing internally created asset data in the project assets we need to be able to iterate
+		 * over all the assets. The internally created assets on the individual project assets are
+		 * stored in a weakmap so we can't iterate over it.
+		 * @type {Map<import("../../../src/mod.js").UuidString, InternallyCreatedAsset>}
+		 */
+		this.internallyCreatedAssets = new Map();
+		/**
+		 * Same as `internallyCreatedAssets` but with the stringified persistence data as key.
+		 * This allows for easier access to the correct asset.
+		 * @type {Map<string, InternallyCreatedAsset>}
+		 */
+		this.internallyCreatedAssetsByPersistenceKey = new Map();
 
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
@@ -151,6 +169,17 @@ export class AssetManager {
 					}
 				}
 
+				if (json.internallyCreatedAssets) {
+					for (const {uuid, persistenceData} of json.internallyCreatedAssets) {
+						const asset = this.getOrCreateInternallyCreatedAsset(persistenceData, {
+							forcedAssetUuid: uuid,
+						});
+						this.storeInternallyCreatedAsset(uuid, asset);
+						const projectAsset = asset.getProjectAsset();
+						projectAsset.makeUuidConsistent();
+					}
+				}
+
 				if (json.defaultAssetLinks) {
 					for (const [defaultAssetUuid, defaultAssetData] of Object.entries(json.defaultAssetLinks)) {
 						const existingDefaultAssetLink = this.getDefaultAssetLink(defaultAssetUuid);
@@ -190,6 +219,18 @@ export class AssetManager {
 		}
 		if (hasAssets) {
 			assetSettings.assets = assets;
+		}
+		/** @type {import("./AssetSettingsDiskTypes.js").InternallyCreatedAssetDiskData[]} */
+		const internallyCreatedAssets = [];
+		for (const [uuid, asset] of this.internallyCreatedAssets) {
+			if (!asset.needsPersistentUuid) continue;
+			internallyCreatedAssets.push({
+				uuid,
+				persistenceData: asset.persistenceData,
+			});
+		}
+		if (internallyCreatedAssets.length > 0) {
+			assetSettings.internallyCreatedAssets = internallyCreatedAssets;
 		}
 
 		assetSettings.defaultAssetLinks = {};
@@ -239,11 +280,18 @@ export class AssetManager {
 	 * @param {Partial<import("./ProjectAsset.js").ProjectAssetOptions>} options
 	 */
 	projectAssetFactory(options) {
-		const uuid = generateUuid();
-		const newOptions = {
-			uuid,
-			...options,
-		};
+		let newOptions;
+		if (!options.uuid) {
+			const uuid = generateUuid();
+			newOptions = {
+				uuid,
+				...options,
+			};
+		} else {
+			newOptions = /** @type {typeof options & {uuid: import("../../../src/mod.js").UuidString}} */ ({
+				...options,
+			});
+		}
 		return new ProjectAsset(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, newOptions);
 	}
 
@@ -261,6 +309,50 @@ export class AssetManager {
 			this.saveAssetSettings();
 		}
 		return projectAsset;
+	}
+
+	/**
+	 * If an internally created asset with the provided persistence data exists,
+	 * its instance is returned. Otherwise, a new instance is created.
+	 * This new instance won't be stored in the project asset registry though.
+	 * So if you make the same call multiple times, a new instance is returned.
+	 * If you wish for the instance to stay the same, make sure to call
+	 * `InternallyCreatedAsset.getProjectAsset()` first. This is generally
+	 * already called when the asset is being linked to from most places.
+	 * @param {unknown} persistenceData
+	 * @param {Object} [options]
+	 * @param {import("../../../src/mod.js").UuidString?} [options.forcedAssetUuid] When set,
+	 * forces the a specific uuid once the ProjectAsset is created. If the internally
+	 * created asset already exists, this option has no effect.
+	 */
+	getOrCreateInternallyCreatedAsset(persistenceData, {
+		forcedAssetUuid = null,
+	} = {}) {
+		const persistenceKey = JSON.stringify(persistenceData);
+		const asset = this.internallyCreatedAssetsByPersistenceKey.get(persistenceKey);
+		if (asset) return asset;
+		return new InternallyCreatedAsset(this, persistenceData, {forcedAssetUuid});
+	}
+
+	/**
+	 * @param {InternallyCreatedAsset} internallyCreatedAsset
+	 * @param {Partial<import("./ProjectAsset.js").ProjectAssetOptions>} options
+	 */
+	createInternalProjectAsset(internallyCreatedAsset, options) {
+		const projectAsset = this.projectAssetFactory(options);
+		this.storeInternallyCreatedAsset(projectAsset.uuid, internallyCreatedAsset);
+		return projectAsset;
+	}
+
+	/**
+	 * @private
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 * @param {InternallyCreatedAsset} internallyCreatedAsset
+	 */
+	storeInternallyCreatedAsset(uuid, internallyCreatedAsset) {
+		this.internallyCreatedAssets.set(uuid, internallyCreatedAsset);
+		const persistenceKey = JSON.stringify(internallyCreatedAsset.persistenceData);
+		this.internallyCreatedAssetsByPersistenceKey.set(persistenceKey, internallyCreatedAsset);
 	}
 
 	/**
@@ -534,9 +626,13 @@ export class AssetManager {
 		if (!liveAsset) return null;
 		for (const projectAsset of this.projectAssets.values()) {
 			if (projectAsset.liveAsset == liveAsset) return projectAsset;
+			const internallyCreated = projectAsset.internallyCreatedAssets.get(liveAsset);
+			if (internallyCreated) return internallyCreated.getProjectAsset();
 		}
 		for (const projectAsset of this.builtInAssets.values()) {
 			if (projectAsset.liveAsset == liveAsset) return projectAsset;
+			const internallyCreated = projectAsset.internallyCreatedAssets.get(liveAsset);
+			if (internallyCreated) return internallyCreated.getProjectAsset();
 		}
 		const embeddedAsset = this.embeddedAssets.get(liveAsset);
 		if (embeddedAsset) return embeddedAsset;

@@ -15,8 +15,22 @@ export const BASIC_PERSISTENCE_KEY = "persistenceKey";
 export const STRINGIFIED_PERSISTENCE_KEY = `"persistenceKey"`;
 export const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
 
+/**
+ * @param {Object} [options]
+ * @param {boolean} [options.waitForAssetSettingsLoad]
+ * @param {string} [options.assetType]
+ * @param {import("../../../../../../editor/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData} [options.assetSettings]
+ */
 export async function basicSetup({
-	waitForAssetSettingsLoad = true, assetType = BASIC_PROJECTASSETTYPE,
+	waitForAssetSettingsLoad = true,
+	assetType = BASIC_PROJECTASSETTYPE,
+	assetSettings = {
+		assets: {
+			[BASIC_ASSET_UUID]: {
+				path: BASIC_ASSET_PATH,
+			},
+		},
+	},
 } = {}) {
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
 
@@ -36,13 +50,7 @@ export async function basicSetup({
 	});
 
 	const mockFileSystem = new MemoryEditorFileSystem();
-	await mockFileSystem.writeJson(ASSET_SETTINGS_PATH, {
-		assets: {
-			[BASIC_ASSET_UUID]: {
-				path: BASIC_ASSET_PATH,
-			},
-		},
-	});
+	await mockFileSystem.writeJson(ASSET_SETTINGS_PATH, assetSettings);
 	await mockFileSystem.writeJson(BASIC_ASSET_PATH, {
 		assetType,
 		asset: {

@@ -40,6 +40,22 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getProjectAssetForLiveAsset() with live asset from an internally created asset",
+	async fn() {
+		const {assetManager} = await basicSetup();
+		const projectAsset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
+		const castProjectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../shared/createMockProjectAssetType.js").MockProjectAssetType>?} */ (projectAsset);
+		assertExists(castProjectAsset);
+		const liveAsset = {
+			label: "live asset",
+		};
+		castProjectAsset.registerInternallyCreatedAsset(liveAsset, {foo: "bar"});
+		const result = assetManager.getProjectAssetForLiveAsset(liveAsset);
+		assertExists(result);
+	},
+});
+
+Deno.test({
 	name: "getProjectAssetForLiveAsset() with non-live asset",
 	async fn() {
 		const {assetManager} = await basicSetup();
