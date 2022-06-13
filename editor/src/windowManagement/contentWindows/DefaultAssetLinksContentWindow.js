@@ -49,9 +49,8 @@ export class DefaultAssetLinksContentWindow extends ContentWindow {
 	}
 
 	async loadDefaultAssetLinks() {
-		await this.editorInstance.projectManager.waitForAssetManagerLoad();
+		await this.editorInstance.projectManager.waitForAssetListsLoad();
 		const assetManager = await this.editorInstance.projectManager.getAssetManager();
-		await assetManager.waitForAssetSettingsLoad();
 		if (!this.el) return; // the content window was destructed
 
 		this.builtInAssetLinksTreeView.clearChildren();

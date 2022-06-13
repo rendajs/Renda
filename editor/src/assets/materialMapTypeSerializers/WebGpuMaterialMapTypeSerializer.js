@@ -119,7 +119,7 @@ export class WebGpuMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 * @param {*} customData
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
-		await editorInstance.projectManager.waitForAssetManagerLoad();
+		await editorInstance.projectManager.waitForAssetListsLoad();
 		const pipelineConfigAsset = await assetManager.getProjectAssetFromUuid(customData.forwardPipelineConfig, {
 			assertAssetType: WebGpuPipelineConfigProjectAssetType,
 		});

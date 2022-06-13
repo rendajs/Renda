@@ -17,12 +17,12 @@ export const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
 
 /**
  * @param {Object} [options]
- * @param {boolean} [options.waitForAssetSettingsLoad]
+ * @param {boolean} [options.waitForAssetListsLoad]
  * @param {string} [options.assetType]
  * @param {import("../../../../../../editor/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData} [options.assetSettings]
  */
 export async function basicSetup({
-	waitForAssetSettingsLoad = true,
+	waitForAssetListsLoad = true,
 	assetType = BASIC_PROJECTASSETTYPE,
 	assetSettings = {
 		assets: {
@@ -36,6 +36,7 @@ export async function basicSetup({
 
 	const mockBuiltinAssetManager = /** @type {import("../../../../../../editor/src/assets/BuiltInAssetManager.js").BuiltInAssetManager} */ ({
 		assets: new Map(),
+		async waitForLoad() {},
 	});
 
 	const mockBuiltInDefaultAssetLinksManager = /** @type {import("../../../../../../editor/src/assets/BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} */ ({
@@ -60,8 +61,8 @@ export async function basicSetup({
 	});
 
 	const assetManager = new AssetManager(mockProjectManager, mockBuiltinAssetManager, mockBuiltInDefaultAssetLinksManager, mockProjectAssetTypeManager, mockFileSystem);
-	if (waitForAssetSettingsLoad) {
-		await assetManager.waitForAssetSettingsLoad();
+	if (waitForAssetListsLoad) {
+		await assetManager.waitForAssetListsLoad();
 	}
 
 	return {

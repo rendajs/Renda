@@ -199,9 +199,24 @@ export class AssetManager {
 		this.assetSettingsLoaded = true;
 	}
 
+	/**
+	 * You'll likely want to use {@linkcode waitForAssetListsLoad} instead because
+	 * this method doesn't wait for built-in assets to load.
+	 * Returns a promise that resolves once an asset manager has been loaded.
+	 */
 	async waitForAssetSettingsLoad() {
 		if (this.assetSettingsLoaded) return;
 		await new Promise(r => this.waitForAssetSettingsLoadCbs.add(r));
+	}
+
+	/**
+	 * Waits for both the list of project assets and the builtin assets to be loaded.
+	 * This is useful when making calls like {@linkcode getProjectAssetFromUuidSync}
+	 * since methods like these will return null when the asset lists are not yet loaded.
+	 */
+	async waitForAssetListsLoad() {
+		await this.waitForAssetSettingsLoad();
+		await this.builtInAssetManager.waitForLoad();
 	}
 
 	async saveAssetSettings() {
@@ -508,8 +523,9 @@ export class AssetManager {
 	/**
 	 * Same as {@linkcode getProjectAssetFromUuid} but synchronous.
 	 * Make sure the asset settings have been loaded before calling this otherwise
-	 * this might return null. Asset type assertion only works if the asset type
-	 * has been determined in advance.
+	 * this might return null. To do this, wait for {@linkcode waitForAssetListsLoad} to resolve
+	 * before calling this method.
+	 * Asset type assertion only works if the asset type has been determined in advance.
 	 *
 	 * @template {AssetAssertionOptions} [T = {}]
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid

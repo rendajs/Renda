@@ -202,6 +202,7 @@ export class ProjectManager {
 		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 
 		await this.reloadAssetManager();
+		await this.waitForAssetListsLoad();
 		this.updateEditorConnectionsManager();
 
 		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
@@ -243,9 +244,13 @@ export class ProjectManager {
 		this.onAssetManagerLoadCbs.clear();
 	}
 
-	async waitForAssetManagerLoad() {
-		if (this.assetManager && this.assetManager.assetSettingsLoaded) return;
-		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
+	/**
+	 * Returns a promise that resolves once an asset manager has been loaded and
+	 * and its list of assets, both built in as well as project assets, have been loaded.
+	 */
+	async waitForAssetListsLoad() {
+		const assetManager = await this.getAssetManager();
+		await assetManager.waitForAssetListsLoad();
 	}
 
 	/**
@@ -253,8 +258,8 @@ export class ProjectManager {
 	 * Throws an error if it still doesn't exist after loading.
 	 */
 	async getAssetManager() {
-		if (this.assetManager) return this.assetManager;
-		await this.waitForAssetManagerLoad();
+		if (this.assetManager && this.assetManager.assetSettingsLoaded) return this.assetManager;
+		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
 		return this.assertAssetManagerExists();
 	}
 

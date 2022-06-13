@@ -76,7 +76,7 @@ export class Editor {
 		}
 		this.engineAssetManager.addGetAssetHandler(async uuid => {
 			await this.builtInAssetManager.waitForLoad();
-			await this.projectManager.waitForAssetManagerLoad();
+			await this.projectManager.waitForAssetListsLoad();
 			const projectAsset = this.builtInAssetManager.assets.get(uuid);
 			if (!projectAsset) return null;
 			return await projectAsset.getLiveAsset();

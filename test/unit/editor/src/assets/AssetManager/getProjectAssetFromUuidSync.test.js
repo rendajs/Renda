@@ -29,13 +29,13 @@ Deno.test({
 Deno.test({
 	name: "getProjectAssetFromUuidSync() when asset settings are not loaded returns null",
 	async fn() {
-		const {assetManager} = await basicSetup({waitForAssetSettingsLoad: false});
+		const {assetManager} = await basicSetup({waitForAssetListsLoad: false});
 
 		const asset = assetManager.getProjectAssetFromUuidSync(BASIC_ASSET_UUID);
 
 		assertEquals(asset, null);
 
-		await assetManager.waitForAssetSettingsLoad();
+		await assetManager.waitForAssetListsLoad();
 	},
 });
 

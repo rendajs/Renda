@@ -348,7 +348,7 @@ export class BuiltInAssetManager {
 	}
 
 	/**
-	 * This callback is fired when the builtin asset manager wishes
+	 * This callback is fired when the built-in asset manager wishes
 	 * to send a message to all connected clients.
 	 * @param {(op: string, data: any) => any} cb
 	 */
