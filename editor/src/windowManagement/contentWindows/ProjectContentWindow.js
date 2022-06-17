@@ -375,6 +375,7 @@ export class ProjectContentWindow extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
+		this.editorInstance.projectManager.loadAssetSettingsFromUserGesture();
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
