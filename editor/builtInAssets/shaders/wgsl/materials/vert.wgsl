@@ -17,7 +17,7 @@ struct VertexOutput {
 	@location(4) vBitangent : vec3<f32>,
 };
 
-@stage(vertex)
+@vertex
 fn main(input : VertexInput) -> VertexOutput {
 	var vertOut : VertexOutput;
 	vertOut.position = modelUniforms.mvp * input.position;

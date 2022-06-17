@@ -11,7 +11,7 @@ struct VertexOutput {
 	@location(0) color : vec3<f32>,
 };
 
-@stage(vertex)
+@vertex
 fn main(input : VertexInput) -> VertexOutput {
 	var vertOut : VertexOutput;
 	vertOut.position = modelUniforms.mvp * vec4<f32>(input.position, 1.0);

@@ -78,7 +78,7 @@ struct FragmentOutput {
 	@location(0) outColor : vec4<f32>,
 };
 
-@stage(fragment)
+@fragment
 fn main(input : FragmentInput) -> FragmentOutput {
 	let sampledAlbedo = pow(textureSample(albedoTexture, albedoSampler, input.vUv1).rgb, vec3<f32>(2.2));
 	let albedo : vec3<f32> = clamp(sampledAlbedo * materialUniforms.albedoAdjust.rgb, vec3<f32>(0.0), vec3<f32>(1.0));

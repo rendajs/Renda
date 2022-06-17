@@ -28,7 +28,7 @@ var sqDist : f32 = 0.0;
 }
 
 //todo: use a more efficient workgroup size
-@stage(compute) @workgroup_size(1u,1u,1u)
+@compute @workgroup_size(1u,1u,1u)
 fn main(@builtin(global_invocation_id) globalId : vec3<u32>) {
 	let clusterIndex : u32 = globalId.x + globalId.y * clusterCount.x + globalId.z * clusterCount.x * clusterCount.y;
 

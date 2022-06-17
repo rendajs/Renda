@@ -12,7 +12,7 @@ struct FragmentOutput {
 	@location(0) color : vec4<f32>,
 };
 
-@stage(fragment)
+@fragment
 fn main(input : FragmentInput) -> FragmentOutput {
 	var fragOut : FragmentOutput;
 	fragOut.color = vec4<f32>(input.color * materialUniforms.colorMultiplier, 1.0);
