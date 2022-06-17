@@ -166,7 +166,7 @@ export class ProjectManager {
 	 * @param {StoredProjectEntryAny} openProjectChangeEvent
 	 * @param {boolean} fromUserGesture
 	 */
-	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture = false) {
+	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture) {
 		// todo: handle multiple calls to openProject by cancelling any current running calls.
 		if (this.currentProjectFileSystem) {
 			this.currentProjectFileSystem.removeOnExternalChange(this.#boundOnFileSystemExternalChange);
@@ -211,6 +211,17 @@ export class ProjectManager {
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
 		this.onProjectOpenCbs.clear();
+	}
+
+	/**
+	 * If asset settings are already loaded, this is a no-op.
+	 * If not, this will load the asset settings and wait for them to load.
+	 * A permission prompt might be shown, so this should only be called from
+	 * a user gesture.
+	 */
+	async loadAssetSettingsFromUserGesture() {
+		const assetManager = this.assertAssetManagerExists();
+		await assetManager.loadAssetSettings(true);
 	}
 
 	/**
@@ -299,7 +310,10 @@ export class ProjectManager {
 		await new Promise(r => this.onProjectOpenCbs.add(r));
 	}
 
-	async openNewDbProject() {
+	/**
+	 * @param {boolean} fromUserGesture
+	 */
+	async openNewDbProject(fromUserGesture) {
 		const uuid = generateUuid();
 		const fileSystem = new IndexedDbEditorFileSystem(uuid);
 		const projectName = "Untitled Project";
@@ -309,7 +323,7 @@ export class ProjectManager {
 			projectUuid: uuid,
 			name: projectName,
 			isWorthSaving: false,
-		}, true);
+		}, fromUserGesture);
 	}
 
 	/**
@@ -336,10 +350,13 @@ export class ProjectManager {
 			projectUuid,
 			name,
 			isWorthSaving: false,
-		});
+		}, true);
 	}
 
-	async openNewRemoteProject() {
+	/**
+	 * @param {boolean} fromUserGesture
+	 */
+	async openNewRemoteProject(fromUserGesture) {
 		const fileSystem = new RemoteEditorFileSystem();
 		const projectUuid = generateUuid();
 		await this.openProject(fileSystem, {
@@ -347,14 +364,15 @@ export class ProjectManager {
 			projectUuid,
 			name: "Remote Filesystem",
 			isWorthSaving: false,
-		}, true);
+		}, fromUserGesture);
 		getEditorInstance().windowManager.focusOrCreateContentWindow(ConnectionsContentWindow);
 	}
 
 	/**
 	 * @param {StoredProjectEntryAny} projectEntry
+	 * @param {boolean} fromUserGesture
 	 */
-	openExistingProject(projectEntry) {
+	openExistingProject(projectEntry, fromUserGesture) {
 		let fileSystem;
 		if (projectEntry.fileSystemType === "db") {
 			fileSystem = new IndexedDbEditorFileSystem(projectEntry.projectUuid);
@@ -372,7 +390,7 @@ export class ProjectManager {
 			});
 		}
 		if (!fileSystem) return;
-		this.openProject(fileSystem, projectEntry);
+		this.openProject(fileSystem, projectEntry, fromUserGesture);
 	}
 
 	/**

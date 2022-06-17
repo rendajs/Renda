@@ -30,7 +30,7 @@ export class ProjectSelector {
 
 		this.createAction("New Project", async () => {
 			const editor = await this.waitForEditor();
-			editor.projectManager.openNewDbProject();
+			editor.projectManager.openNewDbProject(true);
 			this.setVisibility(false);
 		});
 		this.createAction("Open Project", async () => {
@@ -40,7 +40,7 @@ export class ProjectSelector {
 		});
 		this.createAction("Connect Remote Project", async () => {
 			const editor = await this.waitForEditor();
-			editor.projectManager.openNewRemoteProject();
+			editor.projectManager.openNewRemoteProject(true);
 			this.setVisibility(false);
 		});
 
@@ -139,7 +139,7 @@ export class ProjectSelector {
 			}
 			const el = this.createListButton(this.recentListEl, text, async () => {
 				const editor = await this.waitForEditor();
-				editor.projectManager.openExistingProject(entry);
+				editor.projectManager.openExistingProject(entry, true);
 				this.setVisibility(false);
 			});
 			let tooltip = "";
@@ -199,7 +199,7 @@ export class ProjectSelector {
 		for (const entry of list) {
 			if (!entry.isWorthSaving) continue;
 			const editor = await this.waitForEditor();
-			editor.projectManager.openExistingProject(entry);
+			editor.projectManager.openExistingProject(entry, false);
 			this.setVisibility(false);
 			return;
 		}
