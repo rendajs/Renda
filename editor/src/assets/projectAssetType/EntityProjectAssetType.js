@@ -3,7 +3,18 @@ import {AssetLoaderTypeEntity, Entity, StorageType, Vec3} from "../../../../src/
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
 import {EntityEditorContentWindow} from "../../windowManagement/contentWindows/EntityEditorContentWindow.js";
 
-const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
+export const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
+
+// This function is never called, but it is used for creating the
+// 'EntityWithAssetRootUuid' type without getting a TypeScript error.
+// See https://github.com/microsoft/TypeScript/issues/47259
+// eslint-disable-next-line no-unused-vars
+function getEntityWithAssetRootUuidType() {
+	const x = /** @type {unknown} */ (null);
+	const y = /** @type {Entity & {[entityAssetRootUuidSymbol]? : import("../../../../src/mod.js").UuidString}} */ (x);
+	return y;
+}
+/** @typedef {ReturnType<getEntityWithAssetRootUuidType>} EntityWithAssetRootUuid */
 
 // todo: better types for generics
 /**
@@ -17,8 +28,6 @@ export class EntityProjectAssetType extends ProjectAssetType {
 	static usedAssetUuidsSymbol = Symbol("used asset uuids");
 
 	static expectedLiveAssetConstructor = Entity;
-
-	/** @typedef {Entity & {[entityAssetRootUuidSymbol]? : import("../../../../src/mod.js").UuidString}} EntityWithAssetRootUuid */
 
 	async createNewLiveAssetData() {
 		/** @type {EntityWithAssetRootUuid} */
@@ -100,19 +109,15 @@ export class EntityProjectAssetType extends ProjectAssetType {
 					const insertionIndex = ent.childCount;
 					ent.add(new Entity());
 					recursionTracker.getLiveAsset(childJson.assetUuid, child => {
-						if (!child) child = new Entity();
+						if (child) {
+							child = child.clone();
+						} else {
+							child = new Entity("Missing entity asset");
+						}
+						const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
+						castChild[entityAssetRootUuidSymbol] = childJson.assetUuid;
 						ent.removeAtIndex(insertionIndex); // Remove the old dummy entity
 						ent.addAtIndex(child, insertionIndex);
-						// TODO: these methods have been removed
-						// if (childJson.pos) {
-						// 	child.setInstancePos(childJson.pos, ent, insertionIndex);
-						// }
-						// if (childJson.rot) {
-						// 	child.setInstanceRot(childJson.rot, ent, insertionIndex);
-						// }
-						// if (childJson.scale) {
-						// 	child.setInstanceScale(childJson.scale, ent, insertionIndex);
-						// }
 					}, {
 						assertAssetType: EntityProjectAssetType,
 					});

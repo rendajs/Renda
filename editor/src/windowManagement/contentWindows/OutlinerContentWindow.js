@@ -3,7 +3,7 @@ import {TreeView} from "../../ui/TreeView.js";
 import {Button} from "../../ui/Button.js";
 import {Entity} from "../../../../src/mod.js";
 import {EntityEditorContentWindow} from "./EntityEditorContentWindow.js";
-import {EntityProjectAssetType} from "../../assets/projectAssetType/EntityProjectAssetType.js";
+import {EntityProjectAssetType, entityAssetRootUuidSymbol} from "../../assets/projectAssetType/EntityProjectAssetType.js";
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
@@ -349,7 +349,10 @@ export class OutlinerContentWindow extends ContentWindow {
 				await assetManager.makeAssetUuidConsistent(projectAsset);
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
-					parent.add(entityAsset);
+					/** @type {import("../../assets/projectAssetType/EntityProjectAssetType.js").EntityWithAssetRootUuid} */
+					const clonedEntity = entityAsset.clone();
+					clonedEntity[entityAssetRootUuidSymbol] = projectAsset.uuid;
+					parent.add(clonedEntity);
 					didDropAsset = true;
 				}
 			}
