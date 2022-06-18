@@ -220,6 +220,39 @@ export class Component {
 	}
 
 	/**
+	 * Creates a new instance of the component and copies the properties from
+	 * this component to it. The values themselves (e.g. linked assets) are not copied.
+	 * Only properties that are defined in the component's `guiStructure` are copied.
+	 */
+	clone() {
+		const CastConstructor = /** @type {typeof Component} */ (this.constructor);
+		const clone = new CastConstructor();
+		const structure = CastConstructor.guiStructure;
+		if (structure) {
+			const castClone1 = /** @type {unknown} */ (clone);
+			const castClone2 = /** @type {Object.<string, unknown>} */ (castClone1);
+			for (const propertyName of Object.keys(structure)) {
+				castClone2[propertyName] = this._cloneProperty(propertyName);
+			}
+		}
+		return clone;
+	}
+
+	/**
+	 * @private
+	 * @param {string} propertyName
+	 */
+	_cloneProperty(propertyName) {
+		const castComponent1 = /** @type {unknown} */ (this);
+		const castComponent2 = /** @type {Object.<string, unknown>} */ (castComponent1);
+		const propertyValue = castComponent2[propertyName];
+
+		// TODO: handle arrays and objects
+
+		return propertyValue;
+	}
+
+	/**
 	 *
 	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
 	 * @param {ComponentEditorOptions?} editorOpts
