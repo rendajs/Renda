@@ -342,9 +342,12 @@ export class OutlinerContentWindow extends ContentWindow {
 			if (dragData && dragData.dataPopulated && dragData.assetUuid) {
 				const entityAssetUuid = dragData.assetUuid;
 				const assetManager = await this.editorInstance.projectManager.getAssetManager();
-				const entityAsset = await assetManager.getLiveAsset(entityAssetUuid, {
+				const projectAsset = await assetManager.getProjectAssetFromUuid(entityAssetUuid, {
 					assertAssetType: EntityProjectAssetType,
 				});
+				if (!projectAsset) throw new Error(`Assertion failed, project asset with uuid ${entityAssetUuid} not found`);
+				await assetManager.makeAssetUuidConsistent(projectAsset);
+				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
 					parent.add(entityAsset);
 					didDropAsset = true;
