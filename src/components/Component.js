@@ -312,7 +312,7 @@ export class Component {
 		} else if (propertyData.type == "vec3") { // todo, use a global list of math types
 			object[propertyName] = new Vec3();
 		} else {
-			// Leave the property as it is, it's default value is being set in the constructor.
+			// Leave the property as it is, it's default value has been set in the constructor.
 		}
 	}
 
