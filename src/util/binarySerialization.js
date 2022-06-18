@@ -1,4 +1,4 @@
-import {isUuid} from "./util.js";
+import {clamp, isUuid} from "./util.js";
 
 /** @typedef {Object.<string, number>} BinarySerializationNameIds */
 
@@ -140,23 +140,22 @@ export function uuidToBinary(uuidStr) {
 }
 
 /**
- * @param {ArrayBufferLike} buffer
+ * Converts binary data to a uuid string. The provided buffer must be at least
+ * 16 bytes long. If an offset is provided, the buffer must be at least
+ * offset + 16 bytes long. Otherwise the function will throw.
+ * @param {ArrayBufferLike & {buffer?: undefined}} buffer
  */
 export function binaryToUuid(buffer, offset = 0) {
-	/** @type {Uint8Array} */
-	let bufferView;
-	if (!ArrayBuffer.isView(buffer)) {
-		bufferView = new Uint8Array(buffer);
-	} else {
-		bufferView = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-	}
+	offset = clamp(offset, 0, buffer.byteLength);
+	const viewByteLength = clamp(buffer.byteLength - offset, 0, 16);
+	const bufferView = new Uint8Array(buffer, offset, viewByteLength);
 	if (bufferView.byteLength != 16) {
-		throw new Error(`Failed to deserialize uuid, buffer is ${bufferView.byteLength} bytes long, uuid buffers need to be 16 bytes long.`);
+		throw new Error(`Failed to deserialize uuid, buffer is ${bufferView.byteLength} bytes long, uuid buffers need to be at least 16 bytes long.`);
 	}
 	let allZeros = true;
 	let str = "";
 	for (let i = 0; i < 16; i++) {
-		const intValue = bufferView[offset + i];
+		const intValue = bufferView[i];
 		if (intValue != 0) allZeros = false;
 		str += intValue.toString(16).padStart(2, "0");
 		if (i == 3 || i == 5 || i == 7 || i == 9) str += "-";
@@ -1097,8 +1096,7 @@ function getDataViewValue(dataView, type, byteOffset, {
 		value = !!dataView.getUint8(byteOffset);
 		bytesMoved = 1;
 	} else if (type == StorageType.UUID || type == StorageType.ASSET_UUID) {
-		const view = new Uint8Array(dataView.buffer, byteOffset, 16);
-		value = binaryToUuid(view);
+		value = binaryToUuid(dataView.buffer, byteOffset);
 		bytesMoved = 16;
 	} else if (type == StorageType.ARRAY_BUFFER) {
 		const {buffer, bytesMoved: newBytesMoved} = getLengthAndBuffer(dataView, byteOffset, arrayBufferLengthStorageType, {littleEndian});

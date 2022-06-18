@@ -47,35 +47,25 @@ Deno.test({
 });
 
 Deno.test({
-	name: "binaryToUuid() with a Uint8Array",
-	fn() {
-		const intView = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
-		const result = binaryToUuid(intView);
-		assertEquals(result, "01234567-89ab-cdef-0123-456789abcdef");
-	},
-});
-
-Deno.test({
-	name: "binaryToUuid(), with a Uint16Array",
-	fn() {
-		const int8View = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]);
-		const int16View = new Uint16Array(int8View.buffer);
-		const result = binaryToUuid(int16View);
-		assertEquals(result, "01234567-89ab-cdef-0123-456789abcdef");
-	},
-});
-
-Deno.test({
-	name: "binaryToUuid() with a 16 byte view from a buffer that is longer than 16 bytes",
+	name: "binaryToUuid() buffer that is longer than 16 bytes",
 	fn() {
 		/** @type {number[]} */
 		const bytes = [];
 		bytes.push(0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef); // uuid
 		bytes.push(0, 1, 2, 3); // extra
 		const buffer = new Uint8Array(bytes).buffer;
-		const intView = new Uint8Array(buffer, 0, 16);
-		const result = binaryToUuid(intView);
+		const result = binaryToUuid(buffer);
 		assertEquals(result, "01234567-89ab-cdef-0123-456789abcdef");
+	},
+});
+
+Deno.test({
+	name: "binaryToUuid(), buffer too short",
+	fn() {
+		const intView = new Uint8Array([0, 1, 2]);
+		assertThrows(() => {
+			binaryToUuid(intView.buffer);
+		}, Error, "Failed to deserialize uuid, buffer is 3 bytes long, uuid buffers need to be at least 16 bytes long.");
 	},
 });
 
@@ -89,11 +79,25 @@ Deno.test({
 });
 
 Deno.test({
-	name: "binaryToUuid(), invalid buffer length",
+	name: "binaryToUuid() with an offset argument",
 	fn() {
-		const intView = new Uint8Array([0, 1, 2]);
+		/** @type {number[]} */
+		const bytes = [];
+		bytes.push(0, 1, 2, 3); // extra
+		bytes.push(0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef); // uuid
+		bytes.push(0, 1, 2, 3); // extra
+		const buffer = new Uint8Array(bytes).buffer;
+		const result = binaryToUuid(buffer, 4);
+		assertEquals(result, "01234567-89ab-cdef-0123-456789abcdef");
+	},
+});
+
+Deno.test({
+	name: "binaryToUuid() with an offset and a buffer that is too short",
+	fn() {
+		const buffer = new Uint8Array([1, 2, 3]).buffer;
 		assertThrows(() => {
-			binaryToUuid(intView.buffer);
-		}, Error, "Failed to deserialize uuid, buffer is 3 bytes long, uuid buffers need to be 16 bytes long.");
+			binaryToUuid(buffer, 1);
+		}, Error, "Failed to deserialize uuid, buffer is 2 bytes long, uuid buffers need to be at least 16 bytes long.");
 	},
 });
