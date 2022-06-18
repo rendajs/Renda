@@ -653,6 +653,26 @@ export class Entity {
 	}
 
 	/**
+	 * Clones the entity and all its children and components.
+	 * The properties of the components (e.g. linked assets) are not cloned.
+	 */
+	clone() {
+		const clone = new Entity({
+			name: this.name,
+		});
+
+		for (const component of this.components) {
+			clone.addComponent(component.clone());
+		}
+
+		for (const child of this.children) {
+			clone.add(child.clone());
+		}
+
+		return clone;
+	}
+
+	/**
 	 * @param {EntityToJsonOptions?} editorOpts
 	 * @returns {EntityJsonData}
 	 */
