@@ -15,10 +15,13 @@ import {Quat} from "./Quat.js";
  */
 
 export class Mat4 {
+	/** @typedef {[number,number,number,number]} RowArray */
+	/** @typedef {[RowArray,RowArray,RowArray,RowArray]} ColumnArray */
 	/**
 	 * @param {Mat4Parameters} args
 	 */
 	constructor(...args) {
+		/** @type {ColumnArray} */
 		this.values = [
 			[1, 0, 0, 0],
 			[0, 1, 0, 0],
@@ -59,7 +62,23 @@ export class Mat4 {
 				[flatValue[12], flatValue[13], flatValue[14], flatValue[15]],
 			];
 		} else {
-			const castValues = /** @type {number[][]} */ (values);
+			if (values) {
+				let validArray = false;
+				if (Array.isArray(values) && values.length == 4) {
+					validArray = true;
+					for (let i = 0; i < 4; i++) {
+						const row = values[i];
+						if (!Array.isArray(row) || row.length != 4) {
+							validArray = false;
+							break;
+						}
+					}
+				}
+				if (!validArray) {
+					throw new TypeError("Invalid Matrix constructor argument, array must be a 16 element array or a 4x4 array.");
+				}
+			}
+			const castValues = /** @type {ColumnArray} */ (values);
 			this.values = castValues || [
 				[1, 0, 0, 0],
 				[0, 1, 0, 0],

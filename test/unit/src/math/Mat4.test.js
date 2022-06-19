@@ -1,5 +1,62 @@
-import {assert} from "std/testing/asserts";
+import {assert, assertEquals, assertThrows} from "std/testing/asserts";
 import {Mat4} from "../../../../src/mod.js";
+
+const oneTo16Array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+
+Deno.test({
+	name: "Has identity matrix by default",
+	fn() {
+		const mat = new Mat4();
+		assertEquals(mat.getFlatArray(), [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "Constructor with Float32Array",
+	fn() {
+		const mat = new Mat4(new Float32Array(oneTo16Array));
+		assertEquals(mat.getFlatArray(), oneTo16Array);
+	},
+});
+
+Deno.test({
+	name: "Constructor with flat array",
+	fn() {
+		const mat = new Mat4(oneTo16Array);
+		assertEquals(mat.getFlatArray(), oneTo16Array);
+	},
+});
+
+Deno.test({
+	name: "Constructor with another matrix",
+	fn() {
+		const mat1 = new Mat4(oneTo16Array);
+		const mat2 = new Mat4(mat1);
+		assertEquals(mat2.getFlatArray(), oneTo16Array);
+	},
+});
+
+Deno.test({
+	name: "Constructor with 2d array",
+	fn() {
+		const mat = new Mat4([
+			[1, 2, 3, 4],
+			[5, 6, 7, 8],
+			[9, 10, 11, 12],
+			[13, 14, 15, 16],
+		]);
+		assertEquals(mat.getFlatArray(), oneTo16Array);
+	},
+});
+
+Deno.test({
+	name: "Constructor with invalid array",
+	fn() {
+		assertThrows(() => {
+			new Mat4([1, 2, 3]);
+		}, TypeError, "Invalid Matrix constructor argument, array must be a 16 element array or a 4x4 array.");
+	},
+});
 
 Deno.test({
 	name: "equals() true",
