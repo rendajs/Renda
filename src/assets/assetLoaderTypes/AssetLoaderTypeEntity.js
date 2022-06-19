@@ -85,9 +85,15 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 	 * @param {Entity?} parent
 	 */
 	async createEntityFromData(data, parent = null) {
+		let matrix;
+		if (data.matrix.length == 0) {
+			matrix = new Mat4();
+		} else {
+			matrix = new Mat4(data.matrix);
+		}
 		const entity = new Entity({
 			name: data.name,
-			matrix: new Mat4(data.matrix),
+			matrix,
 			parent,
 		});
 		if (!this.componentTypeManager) {
