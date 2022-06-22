@@ -177,7 +177,6 @@ Deno.test({
 
 Deno.test({
 	name: "empty array",
-	ignore: true,
 	fn() {
 		basicObjectToBinaryToObjectTest({
 			array: [],
@@ -187,6 +186,28 @@ Deno.test({
 			},
 			structure: {
 				array: [StorageType.UINT8],
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "one empty array, one non empty array",
+	fn() {
+		// If all arrays are empty, the header bit containing the max variable
+		// array length will be StorageType.NULL, so we add a second test case
+		// for when this header bit is not null.
+		basicObjectToBinaryToObjectTest({
+			array1: [],
+			array2: [1, 2, 3],
+		}, {
+			nameIds: {
+				array1: 1,
+				array2: 2,
+			},
+			structure: {
+				array1: [StorageType.UINT8],
+				array2: [StorageType.UINT8],
 			},
 		});
 	},

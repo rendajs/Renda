@@ -1204,7 +1204,7 @@ function parseStructureDigestable(options) {
 	if ("arrayType" in digestable) {
 		const {value: arrayLength, bytesMoved} = getDataViewValue(dataView, arrayLengthStorageType, newByteOffset, {littleEndian});
 		newByteOffset += bytesMoved;
-		if (arrayLength == 0) {
+		if (arrayLengthStorageType == StorageType.NULL || arrayLength == 0) {
 			newReconstructedData = resolveBinaryValueLocation(newReconstructedData, {
 				nameIdsMapInverse,
 				value: [],
