@@ -108,7 +108,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 				throw new Error(`Failed to load entity: Component type with UUID ${entityComponentData.uuid} has no binary composer options set.`);
 			}
 			const propertyValues = await binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binarySerializationOpts);
-			entity.addComponent(ComponentConstructor, propertyValues);
+			entity.addComponent(ComponentConstructor, /** @type {any} */(propertyValues));
 		}
 		for (const child of data.children) {
 			await this.createEntityFromData(child, entity);

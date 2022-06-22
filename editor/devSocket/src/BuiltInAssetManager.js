@@ -1,4 +1,4 @@
-import {base64ToArrayBuffer, generateUuid} from "../../../src/util/mod.js";
+import {base64ToArrayBuffer, generateUuid, stringArrayEquals} from "../../../src/util/mod.js";
 import {hashBuffer} from "../../../src/mod.js";
 import {toFormattedJsonString} from "../../../src/util/toFormattedJsonString.js";
 import {basename, dirname, fromFileUrl, join, relative, resolve} from "std/path";
@@ -320,23 +320,11 @@ export class BuiltInAssetManager {
 	 */
 	getAssetSettingsUuidForPath(path) {
 		for (const [uuid, assetSettings] of this.assetSettings) {
-			if (this.testPathMatch(path, assetSettings.path)) {
+			if (stringArrayEquals(path, assetSettings.path)) {
 				return uuid;
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * @param {string[]} path1
-	 * @param {string[]} path2
-	 */
-	testPathMatch(path1 = [], path2 = []) {
-		if (path1.length != path2.length) return false;
-		for (let i = 0; i < path1.length; i++) {
-			if (path1[i] != path2[i]) return false;
-		}
-		return true;
 	}
 
 	/**

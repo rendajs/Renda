@@ -21,18 +21,18 @@ export type AllowedStructureFormat = AllStorageTypes | [AllowedStructureFormat] 
  * this type has built in support for making all properties optional using `RecursivePartial<T>`.
  */
 export type StructureToObject<T extends AllowedStructureFormat, TMakePartial extends boolean = false> = StructureToObjectWithPartialHelper<T, false, TMakePartial>;
-export type StructureToObjectWithAssetLoader<T extends AllowedStructureFormat> = StructureToObjectHelper<T, true>;
-export type StructureToObjectWithMaybeAssetLoader<T extends AllowedStructureFormat> = StructureToObjectHelper<T, true | false>;
+export type StructureToObjectWithAssetLoader<T extends AllowedStructureFormat> = StructureItemToObjectHelper<T, true>;
+export type StructureToObjectWithMaybeAssetLoader<T extends AllowedStructureFormat> = StructureItemToObjectHelper<T, true | false>;
 export type StructureItemToObject<T extends AllowedStructureFormat> = StructureItemToObjectHelper<T, false>;
 
 type StructureToObjectWithPartialHelper<T extends AllowedStructureFormat, TUseAssetLoader extends boolean, TMakePartial extends boolean = false> =
-	TMakePartial extends true ?
-		RecursivePartial<StructureToObjectHelper<T, TUseAssetLoader>> :
-		StructureToObjectHelper<T, TUseAssetLoader>;
-
-type StructureToObjectHelper<T extends AllowedStructureFormat, TUseAssetLoader extends boolean> = {
-	[key in keyof T]: T[key] extends AllowedStructureFormat ? StructureItemToObjectHelper<T[key], TUseAssetLoader> : never;
-}
+	StructureItemToObjectHelper<T, TUseAssetLoader> extends infer GeneratedObjectType ?
+		TMakePartial extends true ?
+			GeneratedObjectType extends object ?
+				RecursivePartial<GeneratedObjectType> :
+				GeneratedObjectType :
+			GeneratedObjectType :
+		never;
 
 type StructureItemToObjectHelper<T extends AllowedStructureFormat, TUseAssetLoader extends boolean> =
 	T extends StorageTypeEnum["INT8"] ? number :
@@ -58,12 +58,22 @@ type StructureItemToObjectHelper<T extends AllowedStructureFormat, TUseAssetLoad
 		ArrayType extends AllowedStructureFormat ?
 			StructureItemToObject<ArrayType>[] :
 			never :
+	T extends [StorageTypeEnum["UNION_ARRAY"], ...infer UnionArrayTypes] ?
+		UnionArrayTypes extends (infer UnionArrayType)[] ?
+			UnionArrayType extends AllowedStructureFormat ?
+				StructureItemToObject<UnionArrayType> :
+				never :
+			never :
 	T extends readonly (infer ArrayType)[] ?
 		ArrayType extends string ?
 			ArrayType :
-			never :
+		ArrayType extends AllowedStructureFormat ?
+			StructureItemToObject<ArrayType>[] :
+		never :
 	T extends {[key: string]: AllowedStructureFormat} ?
-		StructureToObject<T> :
+		{
+			[key in keyof T]: T[key] extends AllowedStructureFormat ? StructureItemToObjectHelper<T[key], TUseAssetLoader> : never;
+		} :
 never;
 
 type RecursivePartial<T extends object> = {

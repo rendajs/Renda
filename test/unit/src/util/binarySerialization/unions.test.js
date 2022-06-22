@@ -1,0 +1,141 @@
+import {assertThrows} from "std/testing/asserts";
+import {StorageType, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/util/binarySerialization.js";
+import {basicObjectToBinaryToObjectTest} from "./shared.js";
+
+Deno.test({
+	name: "Union type",
+	fn() {
+		const opts = createObjectToBinaryOptions({
+			structure: [
+				StorageType.UNION_ARRAY,
+				{
+					num1: StorageType.INT32,
+					num2: StorageType.INT32,
+				},
+				{
+					str1: StorageType.STRING,
+					str2: StorageType.STRING,
+				},
+			],
+			nameIds: {
+				num1: 1,
+				num2: 2,
+				str1: 3,
+				str2: 4,
+			},
+		});
+
+		basicObjectToBinaryToObjectTest({
+			num1: 1,
+			num2: 2,
+		}, opts);
+
+		basicObjectToBinaryToObjectTest({
+			str1: "str1",
+			str2: "str2",
+		}, opts);
+	},
+});
+
+Deno.test({
+	name: "Union type inside an object",
+	fn() {
+		const opts = createObjectToBinaryOptions({
+			structure: {
+				union: [
+					StorageType.UNION_ARRAY,
+					{
+						num1: StorageType.INT32,
+						num2: StorageType.INT32,
+					},
+					{
+						str1: StorageType.STRING,
+						str2: StorageType.STRING,
+					},
+				],
+			},
+			nameIds: {
+				union: 1,
+				type: 2,
+				num1: 3,
+				num2: 4,
+				str1: 5,
+				str2: 6,
+			},
+		});
+
+		basicObjectToBinaryToObjectTest({
+			union: {
+				num1: 1,
+				num2: 2,
+			},
+		}, opts);
+
+		basicObjectToBinaryToObjectTest({
+			union: {
+				str1: "str1",
+				str2: "str2",
+			},
+		}, opts);
+	},
+});
+
+Deno.test({
+	name: "Union without any matching union type",
+	fn() {
+		assertThrows(() => {
+			objectToBinary(/** @type {any} */ ({
+				num: 1,
+				str: "str",
+			}), {
+				structure: [
+					StorageType.UNION_ARRAY,
+					{
+						notNum: StorageType.INT32,
+						notStr: StorageType.STRING,
+					},
+					{
+						alsoNotNum: StorageType.INT32,
+						alsoNotStr: StorageType.STRING,
+					},
+				],
+				nameIds: {
+					num: 1,
+					str: 2,
+					notNum: 3,
+					notStr: 4,
+					alsoNotNum: 5,
+					alsoNotStr: 6,
+				},
+			});
+		}, Error, "No structures matched the provided object, make sure your list of union structures contains exactly one structure that matches the provided object.");
+	},
+});
+
+Deno.test({
+	name: "Union without too many matching union types",
+	fn() {
+		assertThrows(() => {
+			objectToBinary({
+				num: 1,
+				str: "str",
+			}, {
+				structure: [
+					StorageType.UNION_ARRAY,
+					{
+						num: StorageType.INT32,
+						str: StorageType.STRING,
+					},
+					{
+						num: StorageType.INT32,
+						str: StorageType.STRING,
+					},
+				],
+				nameIds: {
+					num: 1,
+					str: 2,
+				},
+			});
+		}, Error, "Multiple structures matched the provided object, make sure your list of union structures contains at least some different properties so that the object can be matched to a single structure.");
+	},
+});

@@ -1,23 +1,6 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts";
-import {StorageType, binaryToObject, objectToBinary} from "../../../../../src/util/binarySerialization.js";
-
-/**
- * @template {import("../../../../../src/util/binarySerializationTypes.js").AllowedStructureFormat} T
- * @param {import("../../../../../src/util/binarySerializationTypes.js").StructureToObject<T, true>} object
- * @param {import("../../../../../src/mod.js").ObjectToBinaryOptions<T>} options
- */
-function basicObjectToBinaryToObjectTest(object, options, {
-	makeAssertion = true,
-} = {}) {
-	const buffer = objectToBinary(object, options);
-	const object2 = binaryToObject(buffer, options);
-
-	if (makeAssertion) assertEquals(/** @type {unknown} */(object), object2);
-
-	return {
-		result: object2,
-	};
-}
+import {StorageType} from "../../../../../src/util/binarySerialization.js";
+import {basicObjectToBinaryToObjectTest} from "./shared.js";
 
 Deno.test({
 	name: "primitive types",

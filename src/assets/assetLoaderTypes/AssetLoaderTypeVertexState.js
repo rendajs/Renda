@@ -7,7 +7,7 @@ const binarySerializationOpts = {
 		buffers: [
 			{
 				arrayStride: StorageType.INT16, // todo: support serializing auto value
-				stepMode: ["vertex", "instance"],
+				stepMode: /** @type {GPUVertexStepMode[]} */ (["vertex", "instance"]),
 				attributes: [
 					{
 						attributeType: StorageType.INT8,

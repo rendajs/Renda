@@ -14,7 +14,6 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 
 	/**
 	 * @param {ArrayBuffer} buffer
-	 * @returns {Promise<import("../../util/binarySerializationTypes.js").StructureToObjectWithMaybeAssetLoader<TSerializationOptions["structure"]>>}
 	 */
 	async getBufferData(buffer, {
 		loadRecursiveAssetUuids = true,
@@ -24,10 +23,12 @@ export class AssetLoaderTypeGenericStructure extends AssetLoaderType {
 		if (!composerOpts) {
 			throw new Error(`Tried to parse buffer for ${this.constructor.name} without a configured binarySerializationOpts value.`);
 		}
+		let result;
 		if (loadRecursiveAssetUuids) {
-			return await binaryToObjectWithAssetLoader(buffer, this.assetLoader, composerOpts);
+			result = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, composerOpts);
 		} else {
-			return binaryToObject(buffer, composerOpts);
+			result = binaryToObject(buffer, composerOpts);
 		}
+		return /** @type {import("../../util/binarySerializationTypes.js").StructureToObjectWithMaybeAssetLoader<TSerializationOptions["structure"]>} */ (result);
 	}
 }
