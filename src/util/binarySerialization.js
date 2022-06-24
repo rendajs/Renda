@@ -409,11 +409,13 @@ export function binaryToObject(buffer, {
 	if (useHeaderByte) {
 		const {value: headerByte, bytesMoved} = getDataViewValue(dataView, StorageType.UINT8, byteOffset, {littleEndian});
 		byteOffset += bytesMoved;
+		if (typeof headerByte != "number") throw new Error("Assertion failed, header byte is not a number.");
 
 		const hasCustomVariableLengthStorageTypes = !!(headerByte & HeaderBits.hasCustomVariableLengthStorageTypes);
 
 		if (hasCustomVariableLengthStorageTypes) {
 			const {value: customStorageTypesByte, bytesMoved} = getDataViewValue(dataView, StorageType.UINT8, byteOffset, {littleEndian});
+			if (typeof customStorageTypesByte != "number") throw new Error("Assertion failed, customStorageTypesByte is not a number.");
 			byteOffset += bytesMoved;
 
 			const refIdStorageTypeBits = (customStorageTypesByte) & 0b00000011;
@@ -1212,29 +1214,41 @@ function parseStructureDigestable(options) {
 				transformValueHook,
 				transformValueHookType: digestable.type,
 			});
-		} else if ("structureRef" in digestable.arrayType) {
-			for (let i = 0; i < arrayLength; i++) {
-				const {value: refId, bytesMoved} = getDataViewValue(dataView, refIdStorageType, newByteOffset, {littleEndian});
-				newByteOffset += bytesMoved;
-				if (!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.arrayType.structureRef});
-				unparsedStructureIds.add(refId);
-				collectedReferenceLinks.push({refId, location: digestable.arrayType.location, injectIntoRefId: parsingStructureId, variableLengthArrayIndex: i});
-			}
 		} else {
-			for (let i = 0; i < arrayLength; i++) {
-				const {value, bytesMoved} = getDataViewValue(dataView, digestable.arrayType.type, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
-				newByteOffset += bytesMoved;
-				newReconstructedData = resolveBinaryValueLocation(newReconstructedData, {
-					nameIdsMapInverse, value,
-					location: digestable.arrayType.location,
-					variableLengthArrayIndex: i,
-					transformValueHook,
-					transformValueHookType: digestable.arrayType.type,
-				});
+			if (typeof arrayLength != "number") {
+				throw new Error("Assertion failed, unable to get the variable array length because its type is not a number. This is likely because the arrayLengthStorageType isn't set in the header bit.");
+			}
+
+			if ("structureRef" in digestable.arrayType) {
+				for (let i = 0; i < arrayLength; i++) {
+					const {value: refId, bytesMoved} = getDataViewValue(dataView, refIdStorageType, newByteOffset, {littleEndian});
+					if (typeof refId != "number") {
+						throw new Error("Assertion failed, unable to get the structure ref id because its type is not a number. This is likely because the refIdStorageType isn't set in the header bit.");
+					}
+					newByteOffset += bytesMoved;
+					if (!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.arrayType.structureRef});
+					unparsedStructureIds.add(refId);
+					collectedReferenceLinks.push({refId, location: digestable.arrayType.location, injectIntoRefId: parsingStructureId, variableLengthArrayIndex: i});
+				}
+			} else {
+				for (let i = 0; i < arrayLength; i++) {
+					const {value, bytesMoved} = getDataViewValue(dataView, digestable.arrayType.type, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
+					newByteOffset += bytesMoved;
+					newReconstructedData = resolveBinaryValueLocation(newReconstructedData, {
+						nameIdsMapInverse, value,
+						location: digestable.arrayType.location,
+						variableLengthArrayIndex: i,
+						transformValueHook,
+						transformValueHookType: digestable.arrayType.type,
+					});
+				}
 			}
 		}
 	} else if ("unionDigestables" in digestable) {
 		const {value: unionIndex, bytesMoved} = getDataViewValue(dataView, digestable.typeIndexStorageType, newByteOffset, {littleEndian});
+		if (typeof unionIndex != "number") {
+			throw new Error("Assertion failed, unable to get the type index of an union because its type is not a number.");
+		}
 		newByteOffset += bytesMoved;
 		const flattenedUnionDigestables = digestable.flattenedUnionDigestables;
 		if (!flattenedUnionDigestables) throw new Error("Assertion failed flattenedUnionDigestables doesn't exist");
@@ -1251,6 +1265,9 @@ function parseStructureDigestable(options) {
 		}
 	} else if ("structureRef" in digestable) {
 		const {value: refId, bytesMoved} = getDataViewValue(dataView, refIdStorageType, newByteOffset, {littleEndian});
+		if (typeof refId != "number") {
+			throw new Error("Assertion failed, unable to get the structure ref id because its type is not a number. This is likely because the refIdStorageType isn't set in the header bit.");
+		}
 		newByteOffset += bytesMoved;
 		if (!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.structureRef});
 		unparsedStructureIds.add(refId);
@@ -1259,6 +1276,9 @@ function parseStructureDigestable(options) {
 		let {value, bytesMoved} = getDataViewValue(dataView, digestable.type, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
 		newByteOffset += bytesMoved;
 		if ("enumStrings" in digestable) {
+			if (typeof value != "number") {
+				throw new Error("Assertion failed, unable to get the enum value because its type is not a number.");
+			}
 			value = digestable.enumStrings[value - 1];
 		}
 		newReconstructedData = resolveBinaryValueLocation(newReconstructedData, {
@@ -1284,7 +1304,7 @@ function parseStructureDigestable(options) {
  * @param {StorageType} [opts.stringLengthStorageType]
  * @param {StorageType} [opts.arrayBufferLengthStorageType]
  * @param {TextDecoder} [opts.textDecoder]
- * @returns {{value: *, bytesMoved: number}}
+ * @returns {{value: unknown, bytesMoved: number}}
  */
 function getDataViewValue(dataView, type, byteOffset, {
 	littleEndian = true,
@@ -1349,6 +1369,7 @@ function getDataViewValue(dataView, type, byteOffset, {
  */
 function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndian}) {
 	const {value: bufferByteLength, bytesMoved: newBytesMoved} = getDataViewValue(dataView, lengthStorageType, byteOffset, {littleEndian});
+	if (typeof bufferByteLength != "number") throw new Error("Assertion failed, bufferByteLength is not a number. This is likely because the arrayBufferLengthStorageType isn't set in the header bit.");
 	let bytesMoved = newBytesMoved;
 	const bufferStart = byteOffset + bytesMoved;
 	const buffer = dataView.buffer.slice(bufferStart, bufferStart + bufferByteLength);
