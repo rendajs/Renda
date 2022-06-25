@@ -1,5 +1,5 @@
 import {assertThrows} from "std/testing/asserts";
-import {StorageType, createObjectToBinaryOptions, objectToBinary} from "../../../../../src/util/binarySerialization.js";
+import {StorageType, createObjectToBinaryOptions, createObjectToBinaryStructure, objectToBinary} from "../../../../../src/util/binarySerialization.js";
 import {basicObjectToBinaryToObjectTest} from "./shared.js";
 
 Deno.test({
@@ -113,7 +113,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Union without too many matching union types",
+	name: "Union with too many matching union types",
 	fn() {
 		assertThrows(() => {
 			objectToBinary({
@@ -137,5 +137,84 @@ Deno.test({
 				},
 			});
 		}, Error, "Multiple structures matched the provided object, make sure your list of union structures contains at least some different properties so that the object can be matched to a single structure.");
+	},
+});
+
+Deno.test({
+	name: "Array of union objects",
+	fn() {
+		const opts = createObjectToBinaryOptions({
+			structure: {
+				arr: [
+					[
+						StorageType.UNION_ARRAY,
+						{
+							num: StorageType.INT32,
+						},
+						{
+							str: StorageType.STRING,
+						},
+					],
+				],
+			},
+			nameIds: {
+				arr: 1,
+				num: 2,
+				str: 3,
+			},
+		});
+		basicObjectToBinaryToObjectTest({
+			arr: [
+				{
+					num: 1,
+				},
+				{
+					str: "some string",
+				},
+				{
+					num: 2,
+				},
+				{
+					str: "another string",
+				},
+			],
+		}, opts);
+	},
+});
+
+Deno.test({
+	name: "The same union type reference used twice",
+	fn() {
+		const unionStructure = createObjectToBinaryStructure([
+			StorageType.UNION_ARRAY,
+			{
+				num: StorageType.INT32,
+			},
+			{
+				str: StorageType.STRING,
+			},
+		]);
+
+		const opts = createObjectToBinaryOptions({
+			structure: {
+				union1: unionStructure,
+				union2: unionStructure,
+			},
+			nameIds: {
+				union1: 1,
+				union2: 2,
+				num: 3,
+				str: 4,
+			},
+		});
+
+		basicObjectToBinaryToObjectTest({
+			union1: {
+				num: 1,
+			},
+			union2: {
+				str: "str",
+			},
+		}, opts);
 	},
 });

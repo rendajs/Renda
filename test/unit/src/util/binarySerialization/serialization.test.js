@@ -95,7 +95,6 @@ Deno.test({
 
 Deno.test({
 	name: "multiple enums with the same array reference",
-	ignore: true,
 	fn() {
 		const enums = /** @type {const} */ (["value1", "value2", "value3", "value4"]);
 		basicObjectToBinaryToObjectTest({
@@ -328,7 +327,6 @@ Deno.test({
 
 Deno.test({
 	name: "structure contains an array, but object contains null",
-	ignore: true,
 	fn() {
 		const {result} = basicObjectToBinaryToObjectTest({
 			array: /** @type {any} */ (null),

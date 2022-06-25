@@ -224,7 +224,7 @@ export function binaryToUuid(buffer, offset = 0) {
 }
 
 /**
- * Helper function to create a ObjectToBinaryOptions object.
+ * Helper function to create an ObjectToBinaryOptions object.
  * In JavaScript, this simply returns the object you pass in.
  * But in TypeScript the returned type will be one that you can use for
  * {@linkcode objectToBinary} or {@linkcode binaryToObject}.
@@ -237,6 +237,28 @@ export function binaryToUuid(buffer, offset = 0) {
  */
 export function createObjectToBinaryOptions(options) {
 	return options;
+}
+
+/**
+ * Helper function to create a AllowedStructureFormat object.
+ * In JavaScript, this simply returns the object you pass in.
+ * But in TypeScript the returned type will be one that you can use for
+ * {@linkcode objectToBinary} or {@linkcode binaryToObject}.
+ * The benefit of this function is that you'll get autocomplete when composing
+ * the options object, while still getting a meaningful return type.
+ * Creating a structure without this function would cause the type to be
+ * simplified. For example [number, string] would become (number | string)[].
+ * This type data is crucial for the binaryToObject return type to be inferred
+ * correctly.
+ * A workaround could be to cast your structure as `const`, but this would
+ * cause some types to become readonly.
+ *
+ * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
+ * @param {T} structure
+ * @returns {T}
+ */
+export function createObjectToBinaryStructure(structure) {
+	return structure;
 }
 
 /**
@@ -379,21 +401,6 @@ export function binaryToObject(buffer, {
 	variableLengthStorageTypes = null,
 	transformValueHook = null,
 }) {
-	const nameIdsMap = new Map(Object.entries(nameIds));
-	const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k, v]) => [v, k]));
-
-	const reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
-	/** @type {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} */
-	const references = new Set([structure, ...reoccurringStructureReferences]);
-
-	/** @type {Map<any,BinarySerializationStructureDigestible[]>} */
-	const structureDigestables = new Map();
-	for (const structureRef of references) {
-		const digestable = generateStructureDigestable(structureRef, [], {nameIdsMap, reoccurringStructureReferences, isInitialItem: true});
-		const flattened = Array.from(flattenStructureDigestable(digestable));
-		structureDigestables.set(structureRef, flattened);
-	}
-
 	/** @type {Required<BinarySerializationVariableLengthStorageTypes>} */
 	const useVariableLengthStorageTypes = {
 		...defaultVariableLengthStorageTypes,
@@ -429,6 +436,34 @@ export function binaryToObject(buffer, {
 			arrayBufferLengthStorageType = variableLengthBitsToStorageType(arrayBufferLengthStorageTypeBits);
 		}
 	}
+
+	const nameIdsMap = new Map(Object.entries(nameIds));
+	const nameIdsMapInverse = new Map(Object.entries(nameIds).map(([k, v]) => [v, k]));
+
+	/** @type {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} */
+	let reoccurringStructureReferences;
+	if (refIdStorageType == StorageType.NULL) {
+		// If the header bit indicated that there are no objects referenced multiple
+		// times, we won't have to check the structure to see which objects are
+		// coming from the same reference.
+		// This also ensures that when parsing later down the line we don't accidentally
+		// assume that objects are a reference and parse it as a reference id rather
+		// than an inline object.
+		reoccurringStructureReferences = new Set();
+	} else {
+		reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+	}
+	/** @type {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} */
+	const references = new Set([structure, ...reoccurringStructureReferences]);
+
+	/** @type {Map<any,BinarySerializationStructureDigestible[]>} */
+	const structureDigestables = new Map();
+	for (const structureRef of references) {
+		const digestable = generateStructureDigestable(structureRef, [], {nameIdsMap, reoccurringStructureReferences, isInitialItem: true});
+		const flattened = Array.from(flattenStructureDigestable(digestable));
+		structureDigestables.set(structureRef, flattened);
+	}
+
 	const textDecoder = new TextDecoder();
 	/** @type {Map<number, StructureRefData>} */
 	const structureDataById = new Map();
