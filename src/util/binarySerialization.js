@@ -77,6 +77,7 @@ import {clamp, isUuid} from "./util.js";
 /**
  * @typedef {BinarySerializationStructureDigestibleBase & {
  *	arrayType: BinarySerializationStructureDigestible,
+ *	flattenedArrayType?: BinarySerializationStructureDigestible[],
  * }} BinarySerializationStructureDigestibleVariableLengthArray
  */
 
@@ -680,12 +681,16 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 			}
 			if (structure.length == 1) {
 				const structureItem = structure[0];
-				// todo: add some sort of way to store arrays with variable length with
-				// the value in place rather than as reference
-				if (typeof structureItem == "object" && structureItem != null) {
-					for (const item of data) {
-						collectedItems.set(item, structureItem);
-					}
+				if (typeof structureItem == "string") {
+					throw new Error("The structure contains an array of strings where the object does not have an enum as value.");
+				}
+				for (let i = 0; i < data.length; i++) {
+					const item = data[i];
+					collectStoredAsReferenceItems({
+						data: item,
+						structure: structureItem,
+						nameIdsMap, existingItems, collectedItems, forceUseAsObjectReferences, forceUseAsStructureReferences,
+					});
 				}
 			} else {
 				for (let i = 0; i < data.length; i++) {
@@ -1232,7 +1237,10 @@ function *flattenStructureDigestable(digestable) {
 					yield childDigestable;
 				}
 			}
-		} else if ("arrayType" in digestable || "structureRef" in digestable) {
+		} else if ("arrayType" in digestable) {
+			const flattenedArrayType = Array.from(flattenStructureDigestable(digestable.arrayType));
+			yield {...digestable, flattenedArrayType};
+		} else if ("structureRef" in digestable) {
 			yield digestable;
 		}
 	} else if (digestable.type == StorageType.UNION_ARRAY && "unionDigestables" in digestable) {
@@ -1265,6 +1273,7 @@ function *flattenStructureDigestable(digestable) {
  * @param {BinaryToObjectTransformValueHook | null} options.transformValueHook
  * @param {CollectedReferenceLink[]} options.collectedReferenceLinks
  * @param {number} options.parsingStructureId
+ * @param {number} [options.variableLengthArrayIndex]
  * @param {Map<number, StructureRefData>} options.structureDataById
  * @param {Set<number>} options.unparsedStructureIds
  * @param {AllStorageTypes} options.refIdStorageType
@@ -1285,6 +1294,7 @@ function parseStructureDigestable(options) {
 		transformValueHook,
 		collectedReferenceLinks,
 		parsingStructureId,
+		variableLengthArrayIndex,
 		structureDataById,
 		unparsedStructureIds,
 		refIdStorageType,
@@ -1311,28 +1321,19 @@ function parseStructureDigestable(options) {
 				throw new Error("Assertion failed, unable to get the variable array length because its type is not a number. This is likely because the arrayLengthStorageType isn't set in the header bit.");
 			}
 
-			if ("structureRef" in digestable.arrayType) {
-				for (let i = 0; i < arrayLength; i++) {
-					const {value: refId, bytesMoved} = getDataViewValue(dataView, refIdStorageType, newByteOffset, {littleEndian});
-					if (typeof refId != "number") {
-						throw new Error("Assertion failed, unable to get the structure ref id because its type is not a number. This is likely because the refIdStorageType isn't set in the header bit.");
-					}
-					newByteOffset += bytesMoved;
-					if (!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.arrayType.structureRef});
-					unparsedStructureIds.add(refId);
-					collectedReferenceLinks.push({refId, location: digestable.arrayType.location, injectIntoRefId: parsingStructureId, variableLengthArrayIndex: i});
-				}
-			} else {
-				for (let i = 0; i < arrayLength; i++) {
-					const {value, bytesMoved} = getDataViewValue(dataView, digestable.arrayType.type, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
-					newByteOffset += bytesMoved;
-					newReconstructedData = resolveBinaryValueLocation(newReconstructedData, {
-						nameIdsMapInverse, value,
-						location: digestable.arrayType.location,
+			const flattenedArrayType = digestable.flattenedArrayType;
+			if (!flattenedArrayType) throw new Error("Assertion failed, array digestable has no flattenedArrayType set.");
+			for (let i = 0; i < arrayLength; i++) {
+				for (const arrayDigestable of flattenedArrayType) {
+					const {newByteOffset: newNewByteOffset, newReconstructedData: newNewReconstructedData} = parseStructureDigestable({
+						...options,
+						digestable: arrayDigestable,
+						byteOffset: newByteOffset,
+						reconstructedData: newReconstructedData,
 						variableLengthArrayIndex: i,
-						transformValueHook,
-						transformValueHookType: digestable.arrayType.type,
 					});
+					newByteOffset = newNewByteOffset;
+					newReconstructedData = newNewReconstructedData;
 				}
 			}
 		}
@@ -1378,6 +1379,7 @@ function parseStructureDigestable(options) {
 			location: digestable.location,
 			transformValueHook,
 			transformValueHookType: digestable.type,
+			variableLengthArrayIndex,
 		});
 	}
 

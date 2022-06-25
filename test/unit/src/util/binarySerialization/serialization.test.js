@@ -235,7 +235,6 @@ Deno.test({
 
 Deno.test({
 	name: "array of enums",
-	ignore: true,
 	fn() {
 		const enums = ["value1", "value2", "value3", "value4"];
 		basicObjectToBinaryToObjectTest({
@@ -302,6 +301,36 @@ Deno.test({
 				obj1: 1,
 				obj2: 2,
 				obj3: 3,
+				label: 4,
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "A an array of reused references and some reused object references, the to be serialized data is all non reused references",
+	fn() {
+		const referenceStructure = createObjectToBinaryStructure({
+			label: StorageType.STRING,
+		});
+
+		basicObjectToBinaryToObjectTest({
+			obj1: {label: "object 1"},
+			obj2: {label: "object 2"},
+			arr: [
+				{label: "object 3"},
+				{label: "object 4"},
+			],
+		}, {
+			structure: {
+				obj1: referenceStructure,
+				obj2: referenceStructure,
+				arr: [referenceStructure],
+			},
+			nameIds: {
+				obj1: 1,
+				obj2: 2,
+				arr: 3,
 				label: 4,
 			},
 		});
