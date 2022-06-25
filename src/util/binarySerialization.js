@@ -1,4 +1,3 @@
-import {stringArrayEquals} from "./stringArrayEquals.js";
 import {clamp, isUuid} from "./util.js";
 
 /** @typedef {Object.<string, number>} BinarySerializationNameIds */
@@ -895,6 +894,11 @@ function sortNameIdsArr(arr) {
  * The index of the returned structure can be included in the serialized binary data,
  * so that the correct structure can be used to deserialize the object.
  *
+ * It's important to note that it is possible for the to be serialized object
+ * only partially matches one of the union types. Because in such a case all the
+ * omitted properties will be filled in with default values. If no exact match
+ * is found, the structure that most closely matches the object will be returned.
+ *
  * For now only top level properties are looked at for matching, and only their
  * presence is checked. In the future we might also check for the types of these
  * properties.
@@ -907,13 +911,27 @@ function sortNameIdsArr(arr) {
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat[]} possibleStructures
  */
 function getUnionMatch(object, possibleStructures) {
-	const keys = Object.keys(object);
-	keys.sort();
-	const matchingStructures = possibleStructures.filter(structure => {
-		const structureKeys = Object.keys(structure);
-		structureKeys.sort();
-		return stringArrayEquals(structureKeys, keys);
-	});
+	const keys = new Set(Object.keys(object));
+	/** @type {Map<import("./binarySerializationTypes.js").AllowedStructureFormat, number>} */
+	const structureScores = new Map();
+	for (const structure of possibleStructures) {
+		const structeKeys = new Set(Object.keys(structure));
+		let score = 0;
+		for (const key of structeKeys) {
+			if (keys.has(key)) {
+				score++;
+			}
+		}
+		structureScores.set(structure, score);
+	}
+	const highestScore = Math.max(...structureScores.values());
+	/** @type {import("./binarySerializationTypes.js").AllowedStructureFormat[]} */
+	const matchingStructures = [];
+	for (const [structure, score] of structureScores) {
+		if (score > 0 && score == highestScore) {
+			matchingStructures.push(structure);
+		}
+	}
 	if (matchingStructures.length == 0) {
 		throw new Error("No structures matched the provided object, make sure your list of union structures contains exactly one structure that matches the provided object.");
 	} else if (matchingStructures.length > 1) {

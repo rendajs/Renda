@@ -148,6 +148,32 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Union with only partially matching union type",
+	fn() {
+		objectToBinary({
+			num: 1,
+			// str is purposefully omitted
+		}, {
+			structure: [
+				StorageType.UNION_ARRAY,
+				{
+					num: StorageType.INT32,
+					str: StorageType.STRING,
+				},
+				{
+					anotherNum: StorageType.INT32,
+					anotherStr: StorageType.STRING,
+				},
+			],
+			nameIds: {
+				num: 1,
+				str: 2,
+			},
+		});
+	},
+});
+
+Deno.test({
 	name: "Union with too many matching union types",
 	fn() {
 		assertThrows(() => {
