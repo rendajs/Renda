@@ -1,5 +1,5 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts";
-import {StorageType} from "../../../../../src/util/binarySerialization.js";
+import {StorageType, createObjectToBinaryStructure} from "../../../../../src/util/binarySerialization.js";
 import {basicObjectToBinaryToObjectTest} from "./shared.js";
 
 Deno.test({
@@ -272,6 +272,39 @@ Deno.test({
 		});
 
 		assertStrictEquals(result.obj1, result.obj2);
+	},
+});
+
+Deno.test({
+	name: "A reused reference and a non reused reference, but all structures are the same reference",
+	fn() {
+		const referenceStructure = createObjectToBinaryStructure({
+			label: StorageType.STRING,
+		});
+
+		const referenceObject = {
+			label: "reference",
+		};
+
+		basicObjectToBinaryToObjectTest({
+			obj1: referenceObject,
+			obj2: referenceObject,
+			obj3: {
+				label: "non reference",
+			},
+		}, {
+			structure: {
+				obj1: referenceStructure,
+				obj2: referenceStructure,
+				obj3: referenceStructure,
+			},
+			nameIds: {
+				obj1: 1,
+				obj2: 2,
+				obj3: 3,
+				label: 4,
+			},
+		});
 	},
 });
 

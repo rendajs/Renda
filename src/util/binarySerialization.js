@@ -277,11 +277,31 @@ export function objectToBinary(data, {
 }) {
 	const nameIdsMap = new Map(Object.entries(nameIds));
 
-	const castData = /** @type {import("./binarySerializationTypes.js").AllowedStructureFormat} */ (data);
-	const reoccurringDataReferences = collectReoccurringReferences(castData, nameIdsMap, false);
-	// const reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+	const castData = /** @type {Object} */ (data);
+	const reoccurringObjectReferences = collectReoccurringReferences(castData, nameIdsMap, false);
 
-	const referencesAndStructures = getStoreAsReferenceItems(reoccurringDataReferences, castData, structure, nameIdsMap);
+	/** @type {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} */
+	let reoccurringStructureReferences;
+	if (reoccurringObjectReferences.size > 0) {
+		// If any of the objects is used more than once, we need to make sure that
+		// all of the objects that have a reocurring structure are treated as a
+		// reference as well. This is because, when deserializing, there's no way
+		// to know if an object is a reoccurring reference or not.
+		// So when deserializing the assumption is made that if a reference is
+		// reocurring in the structure, it is encoded as a reference id, rather
+		// than an inline object.
+		// Only when the object contains zero reocurring (object) references, we
+		// can set the refIdStorageType in the header bit to NULL, to let the
+		// deserializer know that all of the objects are encoded as inline object
+		// rather than as reference ids.
+
+		// So we collect the structure references as well
+		reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
+	} else {
+		reoccurringStructureReferences = new Set();
+	}
+
+	const referencesAndStructures = getStoreAsReferenceItems(reoccurringObjectReferences, reoccurringStructureReferences, castData, structure, nameIdsMap);
 
 	const referenceIds = new Map();
 	const sortedReferences = [];
@@ -577,13 +597,15 @@ export async function binaryToObjectWithAssetLoader(buffer, assetLoader, {
 /**
  * Returns a Set of objects references that occur more than once in the data.
  * Only items that exist in the nameIdsMap will be parsed.
- * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} data Either the data that needs to be converted or its structure.
+ * @template T
+ * @param {T} data Either the data that needs to be converted or its structure.
  * @param {NameIdsMap} nameIdsMap
  * @param {boolean} isStructure Whether the first argument is the structure.
- * @returns {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} A set of objects that occur more than once in the data.
  */
 function collectReoccurringReferences(data, nameIdsMap, isStructure) {
+	/** @type {Set<T>} */
 	const occurringReferences = new Set(); // references that have occured once
+	/** @type {Set<T>} */
 	const reoccurringReferences = new Set(); // references that have occured at least twice
 	let prevReferences = [data];
 	while (prevReferences.length > 0) {
@@ -625,23 +647,27 @@ function collectReoccurringReferences(data, nameIdsMap, isStructure) {
 }
 
 /**
- * @private
+ * Recursively walks down the structure and object and collects all references if
+ * they should be serialized as reference id rather than inline.
+ * Objects that should be serialized as reference id are placed in the `options.collectedItems` map.
  * @param {Object} options
- * @param {any} options.data
+ * @param {any} options.data The object that will be serialized.
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} options.structure
  * @param {NameIdsMap} options.nameIdsMap
  * @param {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>[]} options.existingItems
  * @param {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>} options.collectedItems
- * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} options.forceUseAsReferences
+ * @param {Set<Object>} options.forceUseAsObjectReferences If an object is in this set, it will always be collected.
+ * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} options.forceUseAsStructureReferences If a structure is in this set,
+ * it will always be collected, as well as its respective data object.
  * @param {boolean} [options.isInitialItem]
  */
-function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingItems, collectedItems, forceUseAsReferences, isInitialItem = false}) {
+function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingItems, collectedItems, forceUseAsObjectReferences, forceUseAsStructureReferences, isInitialItem = false}) {
 	if (!isInitialItem) {
 		for (const existingItemList of existingItems) {
 			if (existingItemList.has(data)) return;
 		}
 
-		if (forceUseAsReferences.has(data)) {
+		if (forceUseAsObjectReferences.has(data) || forceUseAsStructureReferences.has(structure)) {
 			collectedItems.set(data, structure);
 			return;
 		}
@@ -671,7 +697,7 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 					collectStoredAsReferenceItems({
 						data: item,
 						structure: structureItem,
-						nameIdsMap, existingItems, collectedItems, forceUseAsReferences,
+						nameIdsMap, existingItems, collectedItems, forceUseAsObjectReferences, forceUseAsStructureReferences,
 					});
 				}
 			}
@@ -681,7 +707,7 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 			collectStoredAsReferenceItems({
 				data,
 				structure: matchingStructure,
-				nameIdsMap, collectedItems, existingItems, forceUseAsReferences,
+				nameIdsMap, collectedItems, existingItems, forceUseAsObjectReferences, forceUseAsStructureReferences,
 			});
 		} else {
 			for (const [key, val] of Object.entries(data)) {
@@ -691,7 +717,7 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 					collectStoredAsReferenceItems({
 						data: val,
 						structure: structureItem,
-						nameIdsMap, collectedItems, existingItems, forceUseAsReferences,
+						nameIdsMap, collectedItems, existingItems, forceUseAsObjectReferences, forceUseAsStructureReferences,
 					});
 				}
 			}
@@ -700,17 +726,20 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 }
 
 /**
- * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} reoccurringDataReferences A set of objects that occur more than once in the data.
+ * Maps reoccurring references from the to be serialized object to a map with the
+ * object references as keys and their respective structure references as value.
+ * @param {Set<Object>} reoccurringDataReferences A set of objects that occur more than once in the data.
+ * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} reoccuringStructureReferences A set of objects that occur more than once in the structure.
  * @param {Object} data The object that needs to be converted to binary.
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
  * @param {NameIdsMap} nameIdsMap
- * @returns {Map<*,*>} A mapping of the reoccurring data references and their respective Structure references.
  */
-function getStoreAsReferenceItems(reoccurringDataReferences, data, structure, nameIdsMap) {
+function getStoreAsReferenceItems(reoccurringDataReferences, reoccuringStructureReferences, data, structure, nameIdsMap) {
 	/** @type {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>} */
 	const unparsedReferences = new Map();
 	unparsedReferences.set(data, structure);
 
+	/** @type {Map<Object,import("./binarySerializationTypes.js").AllowedStructureFormat>} */
 	const parsedReferences = new Map();
 
 	while (unparsedReferences.size > 0) {
@@ -723,7 +752,8 @@ function getStoreAsReferenceItems(reoccurringDataReferences, data, structure, na
 			structure: structureRef,
 			nameIdsMap, collectedItems,
 			existingItems: [parsedReferences, unparsedReferences],
-			forceUseAsReferences: reoccurringDataReferences,
+			forceUseAsObjectReferences: reoccurringDataReferences,
+			forceUseAsStructureReferences: reoccuringStructureReferences,
 			isInitialItem: true,
 		});
 
