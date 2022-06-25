@@ -81,6 +81,41 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Union that contains an array",
+	fn() {
+		const opts = createObjectToBinaryOptions({
+			structure: [
+				StorageType.UNION_ARRAY,
+				{
+					num: StorageType.INT32,
+					numArr: [StorageType.INT32],
+				},
+				{
+					str: StorageType.STRING,
+					strArr: [StorageType.STRING],
+				},
+			],
+			nameIds: {
+				num: 1,
+				numArr: 2,
+				str: 3,
+				strArr: 4,
+			},
+		});
+
+		basicObjectToBinaryToObjectTest({
+			num: 1,
+			numArr: [2, 3, 4],
+		}, opts);
+
+		basicObjectToBinaryToObjectTest({
+			str: "str1",
+			strArr: ["str2", "str3", "str4"],
+		}, opts);
+	},
+});
+
+Deno.test({
 	name: "Union without any matching union type",
 	fn() {
 		assertThrows(() => {

@@ -676,6 +676,14 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 					});
 				}
 			}
+		} else if (Array.isArray(structure) && structure[0] == StorageType.UNION_ARRAY) {
+			const [, ...possibleStructures] = structure;
+			const matchingStructure = getUnionMatch(data, possibleStructures);
+			collectStoredAsReferenceItems({
+				data,
+				structure: matchingStructure,
+				nameIdsMap, collectedItems, existingItems, forceUseAsReferences,
+			});
 		} else {
 			for (const [key, val] of Object.entries(data)) {
 				if (nameIdsMap.has(key)) {
@@ -825,7 +833,8 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 				return {value, type};
 			} else if (structure[0] == StorageType.UNION_ARRAY) {
 				const [, ...possibleStructures] = structure;
-				const unionMatchIndex = getUnionMatchIndex(obj, possibleStructures);
+				const matchingStructure = getUnionMatch(obj, possibleStructures);
+				const unionMatchIndex = possibleStructures.indexOf(matchingStructure);
 				const type = requiredStorageTypeForUint(structure.length).type;
 				return {
 					value: [
@@ -882,9 +891,9 @@ function sortNameIdsArr(arr) {
 
 /**
  * Matches `object` against all the structures in `possibleStructures` and returns
- * the index that most closely matches the properties of the object.
- * The returned index can be included in the serialized binary data, so that the
- * correct structure can be used to deserialize the object.
+ * the structe that most closely matches the properties of the object.
+ * The index of the returned structure can be included in the serialized binary data,
+ * so that the correct structure can be used to deserialize the object.
  *
  * For now only top level properties are looked at for matching, and only their
  * presence is checked. In the future we might also check for the types of these
@@ -897,7 +906,7 @@ function sortNameIdsArr(arr) {
  * @param {Object} object
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat[]} possibleStructures
  */
-function getUnionMatchIndex(object, possibleStructures) {
+function getUnionMatch(object, possibleStructures) {
 	const keys = Object.keys(object);
 	keys.sort();
 	const matchingStructures = possibleStructures.filter(structure => {
@@ -910,7 +919,7 @@ function getUnionMatchIndex(object, possibleStructures) {
 	} else if (matchingStructures.length > 1) {
 		throw new Error("Multiple structures matched the provided object, make sure your list of union structures contains at least some different properties so that the object can be matched to a single structure.");
 	}
-	return possibleStructures.indexOf(matchingStructures[0]);
+	return matchingStructures[0];
 }
 
 /**
