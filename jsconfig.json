@@ -1,4 +1,5 @@
 {
+	"extends": "./.denoTypes/tsconfig.json",
 	"compilerOptions": {
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"target": "esnext",
@@ -6,23 +7,7 @@
 		"module": "esnext",
 		"useDefineForClassFields": true,
 		"strict": true,
-		"typeRoots": [".denoTypes/@types"],
-		"baseUrl": ".",
-		"paths": {
-			"std/testing/asserts": [".denoTypes/urlImports/https_/deno.land/std@0.137.0/testing/asserts.ts"],
-			"std/testing/mock": [".denoTypes/urlImports/https_/deno.land/std@0.137.0/testing/mock.ts"],
-			"std/path": [".denoTypes/urlImports/https_/deno.land/std@0.121.0/path/mod.ts"],
-			"std/node": [".denoTypes/urlImports/https_/deno.land/std@0.135.0/node/module.ts"],
-			"chdir-anywhere": [".denoTypes/urlImports/https_/deno.land/x/chdir_anywhere@v0.0.2/mod.js"],
-			"fake-imports": [".denoTypes/urlImports/https_/deno.land/x/fake_imports@v0.6.0/mod.js"],
-			"fake-dom/*": [".denoTypes/urlImports/https_/raw.githubusercontent.com/jespertheend/fake-dom/main/src/*"],
-			"puppeteer": [".denoTypes/urlImports/https_/deno.land/x/puppeteer@9.0.2/mod.ts.js"],
-			"rollup": [".denoTypes/urlImports/https_/cdn.esm.sh/v64/rollup@2.61.1/dist/rollup.d.ts"],
-			"rollup-plugin-jscc": [".denoTypes/urlImports/https_/cdn.esm.sh/v64/rollup-plugin-jscc@2.0.0/index.d.ts"],
-			"rollup-plugin-cleanup": [".denoTypes/urlImports/https_/unpkg.com/rollup-plugin-cleanup@3.2.1/index.d.ts"],
-			"https://deno.land/std@0.127.0/http/file_server.ts": [".denoTypes/urlImports/https_/deno.land/std@0.127.0/http/file_server.ts"],
-			"https://deno.land/std@0.127.0/http/server.ts": [".denoTypes/urlImports/https_/deno.land/std@0.127.0/http/server.ts"],
-		}
+		"typeRoots": [".denoTypes/@types"]
 	},
 	"include": [
 		"src/**/*.js",
