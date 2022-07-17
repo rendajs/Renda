@@ -29,7 +29,7 @@ fn depthToLinear(z : f32) -> f32 {
 	return - (z * viewUniforms.projectionMatrix[3][3] - viewUniforms.projectionMatrix[3][2]) / (z * viewUniforms.projectionMatrix[2][3] - viewUniforms.projectionMatrix[2][2]);
 }
 
-let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
+const clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
 fn getClusterCoord(fragCoord : vec4<f32>) -> vec3<u32> {
 	let viewCoord : vec2<f32> = fragCoord.xy / viewUniforms.screenSize.xy;

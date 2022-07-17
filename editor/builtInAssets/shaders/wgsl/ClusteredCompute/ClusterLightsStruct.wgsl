@@ -6,4 +6,4 @@ struct ClusterLightIndicesArray {
 	clusters: array<ClusterLightIndices, ${totalClusterCount}>,
 };
 @group(1) @binding(1)
-var<storage,write> clusterLightIndices : ClusterLightIndicesArray;
+var<storage,read_write> clusterLightIndices : ClusterLightIndicesArray;

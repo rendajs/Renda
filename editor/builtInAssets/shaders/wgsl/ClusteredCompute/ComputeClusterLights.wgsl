@@ -10,7 +10,7 @@
 // file://./ClusterLightsStruct.wgsl
 // @import 0e0f87de-6305-45df-9513-c5c08d08a2d7
 
-let clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
+const clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
 fn squareDistPointToAabb(point : vec3<f32>, minAabb : vec3<f32>, maxAabb : vec3<f32>) -> f32 {
 

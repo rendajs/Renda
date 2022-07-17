@@ -6,4 +6,4 @@ struct ClusterBoundsArray {
 	bounds: array<ClusterAABB, ${totalClusterCount}>,
 };
 @group(1) @binding(0)
-var<storage,write> clusterBounds : ClusterBoundsArray;
+var<storage,read_write> clusterBounds : ClusterBoundsArray;
