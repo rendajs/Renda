@@ -63,62 +63,11 @@ import {clamp, isUuid} from "./util.js";
 /** @typedef {{id: number, type: StorageType}} TraversedLocationData */
 
 /**
- * @typedef BinarySerializationStructureDigestibleBase
- * @property {StorageType} type
- * @property {TraversedLocationData[]} location
- */
-
-/**
- * @typedef {BinarySerializationStructureDigestibleBase & {
- *	structureRef: import("./binarySerializationTypes.js").AllowedStructureFormat,
- * }} BinarySerializationStructureDigestibleReference
- */
-
-/**
- * @typedef {BinarySerializationStructureDigestibleBase & {
- *	arrayType: BinarySerializationStructureDigestible,
- *	flattenedArrayType?: BinarySerializationStructureDigestible[],
- * }} BinarySerializationStructureDigestibleVariableLengthArray
- */
-
-/**
- * @typedef {BinarySerializationStructureDigestibleBase & {
- *	childData: any,
- * }} BinarySerializationStructureDigestibleObjectOrArray
- */
-
-/**
- * @typedef {BinarySerializationStructureDigestibleBase & {
- *	enumStrings: string[],
- * }} BinarySerializationStructureDigestibleEnum
- */
-
-/**
- * @typedef {BinarySerializationStructureDigestibleBase & {
- *	unionDigestables: BinarySerializationStructureDigestible[],
- *	flattenedUnionDigestables?: BinarySerializationStructureDigestible[][],
- *	typeIndexStorageType: AllStorageTypes,
- * }} BinarySerializationStructureDigestibleUnion
- */
-
-/**
- * @typedef {BinarySerializationStructureDigestibleBase | BinarySerializationStructureDigestibleReference | BinarySerializationStructureDigestibleVariableLengthArray | BinarySerializationStructureDigestibleObjectOrArray | BinarySerializationStructureDigestibleEnum | BinarySerializationStructureDigestibleUnion} BinarySerializationStructureDigestible
- */
-
-/**
- * @typedef CollectedReferenceLinkBase
+ * @typedef CollectedReferenceLink
  * @property {number} refId
  * @property {TraversedLocationData[]} location
  * @property {number} injectIntoRefId
  */
-
-/**
- * @typedef {CollectedReferenceLinkBase & {
- *	variableLengthArrayIndex: number,
- * }} CollectedReferenceLinkVariableLengthArray
- */
-
-/** @typedef {CollectedReferenceLinkBase | CollectedReferenceLinkVariableLengthArray} CollectedReferenceLink */
 
 /**
  * @typedef StructureRefData
@@ -473,16 +422,6 @@ export function binaryToObject(buffer, {
 	} else {
 		reoccurringStructureReferences = collectReoccurringReferences(structure, nameIdsMap, true);
 	}
-	/** @type {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} */
-	const references = new Set([structure, ...reoccurringStructureReferences]);
-
-	/** @type {Map<any,BinarySerializationStructureDigestible[]>} */
-	const structureDigestables = new Map();
-	for (const structureRef of references) {
-		const digestable = generateStructureDigestable(structureRef, [], {nameIdsMap, reoccurringStructureReferences, isInitialItem: true});
-		const flattened = Array.from(flattenStructureDigestable(digestable));
-		structureDigestables.set(structureRef, flattened);
-	}
 
 	const textDecoder = new TextDecoder();
 	/** @type {Map<number, StructureRefData>} */
@@ -502,30 +441,26 @@ export function binaryToObject(buffer, {
 		const structureRef = structureData.structureRef;
 		let reconstructedData = null;
 
-		const digestables = structureDigestables.get(structureRef);
-		if (!digestables) throw new Error("Assertion error, no digestables found for structureRef");
-		for (const digestable of digestables) {
-			const {newByteOffset, newReconstructedData} = parseStructureDigestable({
-				digestable,
-				reconstructedData,
-				dataView,
-				byteOffset,
-				littleEndian,
-				textDecoder,
-				nameIdsMapInverse,
-				transformValueHook,
-				collectedReferenceLinks,
-				parsingStructureId,
-				refIdStorageType,
-				structureDataById,
-				unparsedStructureIds,
-				arrayLengthStorageType,
-				stringLengthStorageType,
-				arrayBufferLengthStorageType,
-			});
-			byteOffset = newByteOffset;
-			reconstructedData = newReconstructedData;
-		}
+		const {newByteOffset, newReconstructedData} = parseBinaryWithStructure(structureRef, [], reconstructedData, true, {
+			reoccurringStructureReferences,
+			nameIdsMap,
+			dataView,
+			byteOffset,
+			littleEndian,
+			textDecoder,
+			nameIdsMapInverse,
+			transformValueHook,
+			collectedReferenceLinks,
+			parsingStructureId,
+			refIdStorageType,
+			structureDataById,
+			unparsedStructureIds,
+			arrayLengthStorageType,
+			stringLengthStorageType,
+			arrayBufferLengthStorageType,
+		});
+		byteOffset = newByteOffset;
+		reconstructedData = newReconstructedData;
 
 		structureData.reconstructedData = reconstructedData;
 
@@ -535,19 +470,13 @@ export function binaryToObject(buffer, {
 
 	for (const referenceLink of collectedReferenceLinks) {
 		const {refId, location, injectIntoRefId} = referenceLink;
-		let variableLengthArrayIndex;
-		if ("variableLengthArrayIndex" in referenceLink) {
-			variableLengthArrayIndex = referenceLink.variableLengthArrayIndex;
-		} else {
-			variableLengthArrayIndex = undefined;
-		}
 		const structureData = structureDataById.get(refId);
 		if (!structureData) throw new Error(`Assertion failed, no structure data found for id ${refId}`);
 		const value = structureData.reconstructedData;
 		const injectIntoStructureData = structureDataById.get(injectIntoRefId);
 		if (!injectIntoStructureData) throw new Error(`Assertion failed, no structure data found for id ${injectIntoRefId}`);
 		let injectIntoRef = injectIntoStructureData.reconstructedData;
-		injectIntoRef = resolveBinaryValueLocation(injectIntoRef || null, {nameIdsMapInverse, value, location, variableLengthArrayIndex});
+		injectIntoRef = resolveBinaryValueLocation(injectIntoRef || null, {nameIdsMapInverse, value, location});
 		injectIntoStructureData.reconstructedData = injectIntoRef;
 	}
 
@@ -831,6 +760,22 @@ function variableLengthBitsToStorageType(bits) {
 }
 
 /**
+ * Converts a structure to a storage type. This is used for sorting keys in an object.
+ * Keys are sorted by their storage type first, and then by their name id.
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
+ * @returns {AllStorageTypes}
+ */
+function structureToStorageType(structure) {
+	if (structure == null) {
+		return StorageType.NULL;
+	}
+	if (typeof structure == "object" && structure != null) {
+		return Array.isArray(structure) ? StorageType.ARRAY : StorageType.OBJECT;
+	}
+	return structure;
+}
+
+/**
  * @param {Object} obj The object that needs be converted to binary.
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure The structure that belongs to this object.
  * @param {Object} opts
@@ -850,7 +795,7 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 		}
 		if (!isInitialItem && referenceIds.has(obj)) {
 			const refId = referenceIds.get(obj);
-			const type = Array.isArray(obj) ? StorageType.ARRAY : StorageType.OBJECT;
+			const type = structureToStorageType(structure);
 			return {value: refId, type};
 		}
 
@@ -1157,114 +1102,19 @@ function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, 
 }
 
 /**
- * @param {import("./binarySerializationTypes.js").AllowedStructureFormat | number} structure
- * @param {TraversedLocationData[]} traversedLocationPath
- * @param {Object} opts
- * @param {NameIdsMap} opts.nameIdsMap
- * @param {Set<*>} opts.reoccurringStructureReferences
- * @param {boolean} [opts.isInitialItem]
- * @returns {BinarySerializationStructureDigestible}
- */
-function generateStructureDigestable(structure, traversedLocationPath, {nameIdsMap, reoccurringStructureReferences, isInitialItem = false}) {
-	if (typeof structure == "object" && structure != null) {
-		if (!isInitialItem && reoccurringStructureReferences.has(structure)) {
-			const type = Array.isArray(structure) ? StorageType.ARRAY : StorageType.OBJECT;
-			return {type, structureRef: structure, location: traversedLocationPath};
-		}
-		if (Array.isArray(structure)) {
-			if (typeof structure[0] == "string") {
-				const castStructure1 = /** @type {unknown[]} */ (structure);
-				const castStructure2 = /** @type {string[]} */ (castStructure1);
-				// structure is an array of strings, treat it as an enum
-				const {type} = requiredStorageTypeForUint(structure.length);
-				return {type, location: traversedLocationPath, enumStrings: castStructure2};
-			} else if (structure[0] == StorageType.UNION_ARRAY) {
-				const typeIndexStorageType = requiredStorageTypeForUint(structure.length).type;
-				const unionDigestables = [];
-				for (let i = 1; i < structure.length; i++) {
-					const unionStructure = structure[i];
-					const digestable = generateStructureDigestable(unionStructure, traversedLocationPath, {nameIdsMap, reoccurringStructureReferences, isInitialItem});
-					unionDigestables.push(digestable);
-				}
-				return {type: StorageType.UNION_ARRAY, location: traversedLocationPath, unionDigestables, typeIndexStorageType};
-			} else {
-				const castStructure = /** @type {import("./binarySerializationTypes.js").AllowedStructureFormat[] | number[]} */ (structure);
-				const variableArrayLength = castStructure.length == 1;
-				if (variableArrayLength) {
-					const newTraversedLocationPath = [...traversedLocationPath, {id: -1, type: StorageType.ARRAY}];
-					const arrayType = generateStructureDigestable(castStructure[0], newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences});
-					return {type: StorageType.ARRAY, arrayType, location: traversedLocationPath};
-				} else {
-					const arr = [];
-					for (const [i, arrayItem] of castStructure.entries()) {
-						const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: StorageType.ARRAY}];
-						arr.push(generateStructureDigestable(arrayItem, newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences}));
-					}
-					return {type: StorageType.ARRAY, childData: arr, location: traversedLocationPath};
-				}
-			}
-		} else {
-			const arr = [];
-			for (const [key, typeData] of Object.entries(structure)) {
-				if (nameIdsMap.has(key)) {
-					const nameId = /** @type {number} */ (nameIdsMap.get(key));
-					const newTraversedLocationPath = [...traversedLocationPath, {id: nameId, type: StorageType.OBJECT}];
-					arr.push({
-						...generateStructureDigestable(typeData, newTraversedLocationPath, {nameIdsMap, reoccurringStructureReferences}),
-						nameId,
-					});
-				}
-			}
-			sortNameIdsArr(arr);
-			return {type: StorageType.OBJECT, childData: arr, location: traversedLocationPath};
-		}
-	} else {
-		const castStructure = /** @type {StorageType} */ (structure);
-		return {type: castStructure, location: traversedLocationPath};
-	}
-}
-
-/**
- * @param {BinarySerializationStructureDigestible} digestable
- * @returns {Generator<BinarySerializationStructureDigestible>}
- */
-function *flattenStructureDigestable(digestable) {
-	if (digestable.type == StorageType.OBJECT || digestable.type == StorageType.ARRAY) {
-		// TODO: I think this might be broken when using a closure compiler build
-		if ("childData" in digestable) {
-			for (const item of digestable.childData) {
-				for (const childDigestable of flattenStructureDigestable(item)) {
-					yield childDigestable;
-				}
-			}
-		} else if ("arrayType" in digestable) {
-			const flattenedArrayType = Array.from(flattenStructureDigestable(digestable.arrayType));
-			yield {...digestable, flattenedArrayType};
-		} else if ("structureRef" in digestable) {
-			yield digestable;
-		}
-	} else if (digestable.type == StorageType.UNION_ARRAY && "unionDigestables" in digestable) {
-		const newUnionDigestables = [];
-		for (const unionDigestable of digestable.unionDigestables) {
-			const digestables = Array.from(flattenStructureDigestable(unionDigestable));
-			newUnionDigestables.push(digestables);
-		}
-		yield {...digestable, flattenedUnionDigestables: newUnionDigestables};
-	} else {
-		yield digestable;
-	}
-}
-
-/**
  * @typedef ParseStructureDigestableResult
  * @property {number} newByteOffset
  * @property {Object | null} newReconstructedData
  */
 
 /**
+ * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
+ * @param {TraversedLocationData[]} traversedLocationPath
+ * @param {Object | null} reconstructedData The object that we'll be adding properties to as we parse the structure.
+ * @param {boolean} isRootStructure True if this is a root structure of one of the reoccurring structure references.
  * @param {Object} options
- * @param {BinarySerializationStructureDigestible} options.digestable
- * @param {Object | null} options.reconstructedData
+ * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} options.reoccurringStructureReferences
+ * @param {NameIdsMap} options.nameIdsMap
  * @param {DataView} options.dataView
  * @param {number} options.byteOffset
  * @param {boolean} options.littleEndian
@@ -1273,7 +1123,6 @@ function *flattenStructureDigestable(digestable) {
  * @param {BinaryToObjectTransformValueHook | null} options.transformValueHook
  * @param {CollectedReferenceLink[]} options.collectedReferenceLinks
  * @param {number} options.parsingStructureId
- * @param {number} [options.variableLengthArrayIndex]
  * @param {Map<number, StructureRefData>} options.structureDataById
  * @param {Set<number>} options.unparsedStructureIds
  * @param {AllStorageTypes} options.refIdStorageType
@@ -1282,10 +1131,10 @@ function *flattenStructureDigestable(digestable) {
  * @param {AllStorageTypes} options.arrayBufferLengthStorageType
  * @returns {ParseStructureDigestableResult}
  */
-function parseStructureDigestable(options) {
+function parseBinaryWithStructure(structure, traversedLocationPath, reconstructedData, isRootStructure, options) {
 	const {
-		digestable,
-		reconstructedData,
+		reoccurringStructureReferences,
+		nameIdsMap,
 		dataView,
 		byteOffset,
 		littleEndian,
@@ -1294,7 +1143,6 @@ function parseStructureDigestable(options) {
 		transformValueHook,
 		collectedReferenceLinks,
 		parsingStructureId,
-		variableLengthArrayIndex,
 		structureDataById,
 		unparsedStructureIds,
 		refIdStorageType,
@@ -1303,89 +1151,132 @@ function parseStructureDigestable(options) {
 		arrayBufferLengthStorageType,
 	} = options;
 	let newByteOffset = byteOffset;
-	let newReconstructedData = reconstructedData;
-	// TODO: I think the in operator doesn't work in closure compiler builds
-	if ("arrayType" in digestable) {
-		const {value: arrayLength, bytesMoved} = getDataViewValue(dataView, arrayLengthStorageType, newByteOffset, {littleEndian});
-		newByteOffset += bytesMoved;
-		if (arrayLengthStorageType == StorageType.NULL || arrayLength == 0) {
-			newReconstructedData = resolveBinaryValueLocation(newReconstructedData, {
-				nameIdsMapInverse,
-				value: [],
-				location: digestable.location,
-				transformValueHook,
-				transformValueHookType: digestable.type,
-			});
-		} else {
-			if (typeof arrayLength != "number") {
-				throw new Error("Assertion failed, unable to get the variable array length because its type is not a number. This is likely because the arrayLengthStorageType isn't set in the header bit.");
-			}
 
-			const flattenedArrayType = digestable.flattenedArrayType;
-			if (!flattenedArrayType) throw new Error("Assertion failed, array digestable has no flattenedArrayType set.");
-			for (let i = 0; i < arrayLength; i++) {
-				for (const arrayDigestable of flattenedArrayType) {
-					const {newByteOffset: newNewByteOffset, newReconstructedData: newNewReconstructedData} = parseStructureDigestable({
-						...options,
-						digestable: arrayDigestable,
-						byteOffset: newByteOffset,
-						reconstructedData: newReconstructedData,
-						variableLengthArrayIndex: i,
-					});
-					newByteOffset = newNewByteOffset;
-					newReconstructedData = newNewReconstructedData;
+	if (typeof structure == "object" && structure != null) {
+		if (!isRootStructure && reoccurringStructureReferences.has(structure)) {
+			const {value: refId, bytesMoved} = getDataViewValue(dataView, refIdStorageType, newByteOffset, {littleEndian});
+			if (typeof refId != "number") {
+				throw new Error("Assertion failed, unable to get the structure ref id because its type is not a number. This is likely because the refIdStorageType isn't set in the header bit.");
+			}
+			newByteOffset += bytesMoved;
+			if (!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: structure});
+			unparsedStructureIds.add(refId);
+			collectedReferenceLinks.push({refId, location: traversedLocationPath, injectIntoRefId: parsingStructureId});
+		} else if (Array.isArray(structure)) {
+			if (typeof structure[0] == "string") {
+				// structure is an array of strings, treat it as an enum
+				const castStructure1 = /** @type {unknown[]} */ (structure);
+				const castStructure2 = /** @type {string[]} */ (castStructure1);
+				const {type} = requiredStorageTypeForUint(structure.length);
+				let {value, bytesMoved} = getDataViewValue(dataView, type, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
+				newByteOffset += bytesMoved;
+				if (typeof value != "number") {
+					throw new Error("Assertion failed, unable to get the enum value because its type is not a number.");
+				}
+				value = castStructure2[value - 1];
+				reconstructedData = resolveBinaryValueLocation(reconstructedData, {
+					nameIdsMapInverse, value,
+					location: traversedLocationPath,
+					transformValueHook,
+					transformValueHookType: type,
+				});
+			} else if (structure[0] == StorageType.UNION_ARRAY) {
+				const typeIndexStorageType = requiredStorageTypeForUint(structure.length).type;
+				const {value: unionIndex, bytesMoved} = getDataViewValue(dataView, typeIndexStorageType, newByteOffset, {littleEndian});
+				if (typeof unionIndex != "number") {
+					throw new Error("Assertion failed, unable to get the type index of an union because its type is not a number.");
+				}
+				newByteOffset += bytesMoved;
+
+				const unionStructure = structure[unionIndex + 1];
+
+				const {newByteOffset: newNewByteOffset, newReconstructedData} = parseBinaryWithStructure(unionStructure, traversedLocationPath, reconstructedData, false, {
+					...options,
+					byteOffset: newByteOffset,
+				});
+				newByteOffset = newNewByteOffset;
+				reconstructedData = newReconstructedData;
+			} else {
+				// structure is either an array with variable array length or an array with fixed array length
+				const castStructure = /** @type {import("./binarySerializationTypes.js").AllowedStructureFormat[]} */ (structure);
+				const variableArrayLength = castStructure.length == 1;
+				if (variableArrayLength) {
+					const {value: arrayLength, bytesMoved} = getDataViewValue(dataView, arrayLengthStorageType, newByteOffset, {littleEndian});
+					newByteOffset += bytesMoved;
+					if (arrayLengthStorageType == StorageType.NULL || arrayLength == 0) {
+						reconstructedData = resolveBinaryValueLocation(reconstructedData, {
+							nameIdsMapInverse,
+							value: [],
+							location: traversedLocationPath,
+							transformValueHook,
+							transformValueHookType: StorageType.ARRAY,
+						});
+					} else {
+						if (typeof arrayLength != "number") {
+							throw new Error("Assertion failed, unable to get the variable array length because its type is not a number. This is likely because the arrayLengthStorageType isn't set in the header bit.");
+						}
+
+						for (let i = 0; i < arrayLength; i++) {
+							const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: StorageType.ARRAY}];
+							const {newByteOffset: newNewByteOffset, newReconstructedData} = parseBinaryWithStructure(castStructure[0], newTraversedLocationPath, reconstructedData, false, {
+								...options,
+								byteOffset: newByteOffset,
+							});
+							newByteOffset = newNewByteOffset;
+							reconstructedData = newReconstructedData;
+						}
+					}
+				} else {
+					const arr = [];
+					for (const [i, arrayStructure] of castStructure.entries()) {
+						const newTraversedLocationPath = [...traversedLocationPath, {id: i, type: StorageType.ARRAY}];
+						const {newByteOffset: newNewByteOffset, newReconstructedData: arrayItemReconstructedData} = parseBinaryWithStructure(arrayStructure, newTraversedLocationPath, reconstructedData, false, {
+							...options,
+							byteOffset: newByteOffset,
+						});
+						newByteOffset = newNewByteOffset;
+						arr.push(arrayItemReconstructedData);
+					}
+					reconstructedData = arr;
 				}
 			}
-		}
-	} else if ("unionDigestables" in digestable) {
-		const {value: unionIndex, bytesMoved} = getDataViewValue(dataView, digestable.typeIndexStorageType, newByteOffset, {littleEndian});
-		if (typeof unionIndex != "number") {
-			throw new Error("Assertion failed, unable to get the type index of an union because its type is not a number.");
-		}
-		newByteOffset += bytesMoved;
-		const flattenedUnionDigestables = digestable.flattenedUnionDigestables;
-		if (!flattenedUnionDigestables) throw new Error("Assertion failed flattenedUnionDigestables doesn't exist");
-		const pickedUnionDigestables = flattenedUnionDigestables[unionIndex];
-		for (const digestable of pickedUnionDigestables) {
-			const {newByteOffset: newNewByteOffset, newReconstructedData: newNewReconstructedData} = parseStructureDigestable({
-				...options,
-				digestable,
-				byteOffset: newByteOffset,
-				reconstructedData: newReconstructedData,
-			});
-			newByteOffset = newNewByteOffset;
-			newReconstructedData = newNewReconstructedData;
-		}
-	} else if ("structureRef" in digestable) {
-		const {value: refId, bytesMoved} = getDataViewValue(dataView, refIdStorageType, newByteOffset, {littleEndian});
-		if (typeof refId != "number") {
-			throw new Error("Assertion failed, unable to get the structure ref id because its type is not a number. This is likely because the refIdStorageType isn't set in the header bit.");
-		}
-		newByteOffset += bytesMoved;
-		if (!structureDataById.has(refId)) structureDataById.set(refId, {structureRef: digestable.structureRef});
-		unparsedStructureIds.add(refId);
-		collectedReferenceLinks.push({refId, location: digestable.location, injectIntoRefId: parsingStructureId});
-	} else {
-		let {value, bytesMoved} = getDataViewValue(dataView, digestable.type, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
-		newByteOffset += bytesMoved;
-		if ("enumStrings" in digestable) {
-			if (typeof value != "number") {
-				throw new Error("Assertion failed, unable to get the enum value because its type is not a number.");
+		} else {
+			const arr = [];
+			for (const [key, typeData] of Object.entries(structure)) {
+				const nameId = nameIdsMap.get(key);
+				if (nameId == undefined) continue;
+				const newTraversedLocationPath = [...traversedLocationPath, {id: nameId, type: StorageType.OBJECT}];
+				arr.push({
+					type: structureToStorageType(typeData),
+					typeData,
+					location: newTraversedLocationPath,
+					nameId,
+				});
 			}
-			value = digestable.enumStrings[value - 1];
+			sortNameIdsArr(arr);
+			for (const {typeData, location} of arr) {
+				const {newByteOffset: newNewByteOffset, newReconstructedData} = parseBinaryWithStructure(typeData, location, reconstructedData, false, {
+					...options,
+					byteOffset: newByteOffset,
+				});
+				newByteOffset = newNewByteOffset;
+				reconstructedData = newReconstructedData;
+			}
 		}
-		newReconstructedData = resolveBinaryValueLocation(newReconstructedData, {
+	} else {
+		const {value, bytesMoved} = getDataViewValue(dataView, structure, newByteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, textDecoder});
+		newByteOffset += bytesMoved;
+		reconstructedData = resolveBinaryValueLocation(reconstructedData, {
 			nameIdsMapInverse, value,
-			location: digestable.location,
+			location: traversedLocationPath,
 			transformValueHook,
-			transformValueHookType: digestable.type,
-			variableLengthArrayIndex,
+			transformValueHookType: structure,
 		});
 	}
 
 	return {
 		newByteOffset,
-		newReconstructedData,
+		newReconstructedData: reconstructedData,
 	};
 }
 
@@ -1477,13 +1368,12 @@ function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndi
  * @param {unknown} opts.value
  * @param {TraversedLocationData[]} opts.location
  * @param {Map<number, string>} opts.nameIdsMapInverse
- * @param {number} [opts.variableLengthArrayIndex]
  * @param {BinaryToObjectTransformValueHook?} [opts.transformValueHook]
  * @param {StorageType} [opts.transformValueHookType]
  * @param {number} [locationOffset]
  */
 function resolveBinaryValueLocation(obj, {
-	value, location, nameIdsMapInverse, variableLengthArrayIndex,
+	value, location, nameIdsMapInverse,
 	transformValueHook, transformValueHookType,
 }, locationOffset = 0) {
 	const keyData = location[locationOffset];
@@ -1500,14 +1390,7 @@ function resolveBinaryValueLocation(obj, {
 	}
 	const castObj = /** @type {Object.<string | number, unknown>} */ (obj);
 
-	if (keyData.type == StorageType.ARRAY) {
-		if (key == -1) {
-			if (variableLengthArrayIndex == undefined) {
-				throw new Error("Assertion failed, variableLengthArrayIndex must be provided when resolving the location of an array element with index -1");
-			}
-			key = variableLengthArrayIndex;
-		}
-	} else if (keyData.type == StorageType.OBJECT) {
+	if (keyData.type == StorageType.OBJECT) {
 		const newKey = nameIdsMapInverse.get(keyData.id);
 		if (newKey == undefined) {
 			throw new Error(`Assertion failed: ${keyData.id} is missing from the inverse nameIds map`);
@@ -1526,7 +1409,7 @@ function resolveBinaryValueLocation(obj, {
 	} else {
 		let subValue = castObj[key] || null;
 		subValue = resolveBinaryValueLocation(subValue, {
-			value, location, nameIdsMapInverse, variableLengthArrayIndex,
+			value, location, nameIdsMapInverse,
 			transformValueHook, transformValueHookType,
 		}, locationOffset + 1);
 		castObj[key] = subValue;
