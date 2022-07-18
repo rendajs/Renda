@@ -339,7 +339,6 @@ Deno.test({
 
 Deno.test({
 	name: "infinite reference recursion",
-	ignore: true,
 	fn() {
 		/**
 		 * @typedef FooObject

@@ -261,8 +261,20 @@ export function objectToBinary(data, {
 		sortedReferences.push({ref, structure});
 	}
 
-	const highestReferenceId = sortedReferences.length - 1;
-	const {type: refIdStorageType} = requiredStorageTypeForUint(highestReferenceId);
+	// Only if objects are referenced more than once, will we set the
+	// refIdStorageType to something other than NULL.
+	// That way the deserializer knows it can safely parse data as inline
+	// rather than as ref id when the header bit is set to NULL.
+	// We'll check the size of reoccurringObjectReferences rather than
+	// length of sortedReferences, because the latter will include the root
+	// object regardless of whether it is referenced more than once or not.
+	/** @type {AllStorageTypes} */
+	let refIdStorageType = StorageType.NULL;
+	if (reoccurringObjectReferences.size > 0) {
+		const highestReferenceId = sortedReferences.length;
+		const {type} = requiredStorageTypeForUint(highestReferenceId);
+		refIdStorageType = type;
+	}
 
 	/** @type {BinarySerializationBinaryDigestible[]} */
 	const binaryDigestable = [];
@@ -662,6 +674,8 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 /**
  * Maps reoccurring references from the to be serialized object to a map with the
  * object references as keys and their respective structure references as value.
+ * The result always contains the root object and structure. Even if they are used
+ * only once.
  * @param {Set<Object>} reoccurringDataReferences A set of objects that occur more than once in the data.
  * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} reoccuringStructureReferences A set of objects that occur more than once in the structure.
  * @param {Object} data The object that needs to be converted to binary.
