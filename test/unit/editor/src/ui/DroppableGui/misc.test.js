@@ -1,5 +1,5 @@
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
-import {FakeMouseEvent} from "../../../../../../.denoTypes/urlImports/https_/raw.githubusercontent.com/jespertheend/fake-dom/main/src/FakeMouseEvent.js";
+import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {BASIC_ASSET_UUID, basicSetupForContextMenus, createBasicGui} from "./shared.js";
 
