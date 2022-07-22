@@ -1,6 +1,7 @@
 import {AssetBundle} from "./AssetBundle.js";
 import {AssetLoaderType} from "./assetLoaderTypes/AssetLoaderType.js";
 import {isUuid} from "../util/util.js";
+import {RecursionTracker} from "./RecursionTracker.js";
 
 export class AssetLoader {
 	constructor() {
@@ -43,7 +44,8 @@ export class AssetLoader {
 		return instance;
 	}
 
-	// todo: more options for deciding whether unfinished bundles
+	// TODO: more options for deciding whether unfinished bundles
+	// TODO: If an asset is already being loaded, resolve using the same promise
 	// should be searched as well
 	/**
 	 *
@@ -51,10 +53,12 @@ export class AssetLoader {
 	 * @param {Object} [options]
 	 * @param {unknown} [options.assetOpts]
 	 * @param {boolean} [options.createNewInstance]
+	 * @param {RecursionTracker?} [options.recursionTracker]
 	 */
 	async getAsset(uuid, {
 		assetOpts = undefined,
 		createNewInstance = false,
+		recursionTracker = null,
 	} = {}) {
 		if (!createNewInstance) {
 			const weakRef = this.loadedAssets.get(uuid);
@@ -65,6 +69,12 @@ export class AssetLoader {
 				}
 			}
 		}
+
+		const isRootRecursionTracker = !recursionTracker;
+		if (!recursionTracker) {
+			recursionTracker = new RecursionTracker(this, uuid);
+		}
+
 		/** @type {AssetBundle?} */
 		const bundleWithAsset = await new Promise((resolve, reject) => {
 			if (this.bundles.size == 0) {
@@ -100,11 +110,16 @@ export class AssetLoader {
 			throw new Error(`Unable to parse asset with uuid "${uuid}". Its type is not registered, register it first with AssetLoader.registerLoaderType().`);
 		}
 
-		const asset = await loaderType.parseBuffer(buffer, assetOpts);
+		const asset = await loaderType.parseBuffer(buffer, recursionTracker, assetOpts);
 
 		if (!createNewInstance) {
 			const weakRef = new WeakRef(asset);
 			this.loadedAssets.set(uuid, weakRef);
+		}
+
+		if (isRootRecursionTracker) {
+			recursionTracker.setRootLoadedAsset(asset);
+			await recursionTracker.waitForAll();
 		}
 
 		return asset;

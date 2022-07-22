@@ -23,8 +23,9 @@ export class AssetLoaderType {
 	 * This method should parse an ArrayBuffer and return an
 	 * instance of the desired class such as a Mesh or Texture.
 	 * @param {ArrayBuffer} buffer
+	 * @param {import("../RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @param {*} [assetOpts]
 	 * @returns {Promise<*>}
 	 */
-	async parseBuffer(buffer, assetOpts) {}
+	async parseBuffer(buffer, recursionTracker, assetOpts) {}
 }

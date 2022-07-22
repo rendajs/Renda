@@ -1,4 +1,6 @@
 export class MockAssetBundle {
+	/** @type {Set<import("../../../../src/mod.js").UuidString>} */
+	#availableAssets = new Set();
 	/**
 	 * @param {string} url
 	 */
@@ -8,12 +10,15 @@ export class MockAssetBundle {
 		this.onAssetAvailableCbs = new Map();
 		/** @type {Map<import("../../../../src/mod.js").UuidString, import("../../../../src/mod.js").UuidString>} */
 		this.mockAssetTypes = new Map();
+		/** @type {Map<import("../../../../src/mod.js").UuidString, ArrayBuffer>} */
+		this.mockAssetBuffers = new Map();
 	}
 
 	/**
 	 * @param {import("../../../../src/mod.js").UuidString} uuid
 	 */
 	async waitForAssetAvailable(uuid) {
+		if (this.#availableAssets.has(uuid)) return true;
 		/** @type {Promise<boolean>} */
 		const promise = new Promise(r => {
 			let cbs = this.onAssetAvailableCbs.get(uuid);
@@ -28,9 +33,14 @@ export class MockAssetBundle {
 
 	/**
 	 * @param {import("../../../../src/mod.js").UuidString} uuid
-	 * @param {boolean} available
+	 * @param {boolean} [available]
 	 */
-	triggerAssetAvailable(uuid, available) {
+	setAssetAvailable(uuid, available = true) {
+		if (available) {
+			this.#availableAssets.add(uuid);
+		} else {
+			this.#availableAssets.delete(uuid);
+		}
 		const cbs = this.onAssetAvailableCbs.get(uuid);
 		if (cbs) {
 			cbs.forEach(cb => cb(available));
@@ -46,12 +56,25 @@ export class MockAssetBundle {
 	}
 
 	/**
+	 * Sets the array buffer that should be returned in {@linkcode getAsset}.
+	 * @param {import("../../../../src/mod.js").UuidString} assetUuid
+	 * @param {ArrayBuffer?} buffer
+	 */
+	setAssetBuffer(assetUuid, buffer) {
+		if (buffer) {
+			this.mockAssetBuffers.set(assetUuid, buffer);
+		} else {
+			this.mockAssetBuffers.delete(assetUuid);
+		}
+	}
+
+	/**
 	 * @param {import("../../../../src/mod.js").UuidString} uuid
 	 */
 	getAsset(uuid) {
 		const type = this.mockAssetTypes.get(uuid);
 		if (!type) return null;
-		const buffer = new ArrayBuffer(0);
+		const buffer = this.mockAssetBuffers.get(uuid) || new ArrayBuffer(0);
 		return {buffer, type};
 	}
 }
