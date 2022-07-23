@@ -367,7 +367,6 @@ Deno.test({
 				label: "first asset",
 				secondAsset: {label: "second asset"},
 			});
-			console.log(asset);
 		} finally {
 			uninstall();
 		}

@@ -18,7 +18,7 @@ function getEntityWithAssetRootUuidType() {
 
 // todo: better types for generics
 /**
- * @extends {ProjectAssetType<Entity, null, import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity>}
+ * @extends {ProjectAssetType<Entity, null, import("../../../../src/core/Entity.js").EntityJsonData>}
  */
 export class EntityProjectAssetType extends ProjectAssetType {
 	static type = "JJ:entity";
@@ -243,40 +243,42 @@ export class EntityProjectAssetType extends ProjectAssetType {
 	 * @returns {Generator<import("../../../../src/mod.js").UuidString>}
 	 */
 	*getReferencedAssetUuidsForEntityData(entityData) {
-		const castEntityData = /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
+		if ("assetUuid" in entityData) {
+			yield entityData.assetUuid;
+		} else {
+			if (entityData.components) {
+				for (const component of entityData.components) {
+					const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
+					if (!componentConstructor) continue;
+					const binarySerializationOpts = componentConstructor.binarySerializationOpts;
+					if (!binarySerializationOpts) continue;
+					/** @type {import("../../../../src/mod.js").UuidString[]} */
+					const referencedUuids = [];
+					objectToBinary(component.propertyValues, {
+						...binarySerializationOpts,
+						transformValueHook: args => {
+							let {value, type} = args;
+							if (binarySerializationOpts.transformValueHook) {
+								value = binarySerializationOpts.transformValueHook(args);
+							}
 
-		if (castEntityData.components) {
-			for (const component of castEntityData.components) {
-				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
-				if (!componentConstructor) continue;
-				const binarySerializationOpts = componentConstructor.binarySerializationOpts;
-				if (!binarySerializationOpts) continue;
-				/** @type {import("../../../../src/mod.js").UuidString[]} */
-				const referencedUuids = [];
-				objectToBinary(component.propertyValues, {
-					...binarySerializationOpts,
-					transformValueHook: args => {
-						let {value, type} = args;
-						if (binarySerializationOpts.transformValueHook) {
-							value = binarySerializationOpts.transformValueHook(args);
-						}
-
-						if (type == StorageType.ASSET_UUID) {
-							const castValue = /** @type {import("../../../../src/mod.js").UuidString} */ (value);
-							referencedUuids.push(castValue);
-						}
-						return value;
-					},
-				});
-				for (const uuid of referencedUuids) {
-					yield uuid;
+							if (type == StorageType.ASSET_UUID) {
+								const castValue = /** @type {import("../../../../src/mod.js").UuidString} */ (value);
+								referencedUuids.push(castValue);
+							}
+							return value;
+						},
+					});
+					for (const uuid of referencedUuids) {
+						yield uuid;
+					}
 				}
 			}
-		}
-		if (castEntityData.children) {
-			for (const child of castEntityData.children) {
-				for (const uuid of this.getReferencedAssetUuidsForEntityData(child)) {
-					yield uuid;
+			if (entityData.children) {
+				for (const child of entityData.children) {
+					for (const uuid of this.getReferencedAssetUuidsForEntityData(child)) {
+						yield uuid;
+					}
 				}
 			}
 		}

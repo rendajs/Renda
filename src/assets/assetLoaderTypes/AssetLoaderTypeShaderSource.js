@@ -19,8 +19,9 @@ export class AssetLoaderTypeShaderSource extends AssetLoaderType {
 	/**
 	 * @override
 	 * @param {ArrayBuffer} buffer
+	 * @param {import("../RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async parseBuffer(buffer, {
+	async parseBuffer(buffer, recursionTracker, {
 		raw = false,
 	} = {}) {
 		const decoder = new TextDecoder();

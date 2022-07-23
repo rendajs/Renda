@@ -10,15 +10,15 @@ import {StorageType, binaryToObject, binaryToObjectWithAssetLoader, createObject
  */
 
 /**
- * @typedef EntityBinaryStructure
+ * @typedef EntityBinaryStructureInline
  * @property {import("../../mod.js").StorageTypeEnum["STRING"]} name
  * @property {[import("../../mod.js").StorageTypeEnum["FLOAT32"]]} matrix
  * @property {[EntityBinaryStructure]} children
  * @property {[EntityComponentStructure]} components
  */
 
-/** @type {EntityBinaryStructure} */
-const entityBinaryStructure = {
+/** @type {EntityBinaryStructureInline} */
+const entityBinaryStructureInline = {
 	name: StorageType.STRING,
 	matrix: [StorageType.FLOAT32],
 	children: /** @type {any} */ ([]),
@@ -29,7 +29,29 @@ const entityBinaryStructure = {
 		},
 	],
 };
-entityBinaryStructure.children[0] = entityBinaryStructure;
+
+/**
+ * @typedef EntityBinaryStructureAsset
+ * @property {import("../../mod.js").StorageTypeEnum["UUID"]} assetUuid
+ */
+
+/** @type {EntityBinaryStructureAsset} */
+const entityBinaryStructureAsset = {
+	assetUuid: StorageType.UUID,
+};
+
+/**
+ * @typedef {[import("../../mod.js").StorageTypeEnum["UNION_ARRAY"], EntityBinaryStructureAsset, EntityBinaryStructureInline]} EntityBinaryStructure
+ */
+
+/** @type {EntityBinaryStructure} */
+const entityBinaryStructure = [
+	StorageType.UNION_ARRAY,
+	entityBinaryStructureAsset,
+	entityBinaryStructureInline,
+];
+
+entityBinaryStructureInline.children[0] = entityBinaryStructure;
 
 /** @typedef {import("../../util/binarySerializationTypes.js").StructureToObject<typeof entityBinaryStructure>} EnityData */
 
@@ -40,6 +62,7 @@ const entityBinaryNameIds = {
 	components: 4,
 	uuid: 5,
 	propertyValues: 6,
+	assetUuid: 7,
 };
 
 export class AssetLoaderTypeEntity extends AssetLoaderType {
@@ -65,7 +88,7 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 
 	static get entityBinaryFormat() {
 		return createObjectToBinaryOptions({
-			structure: entityBinaryStructure,
+			structure: entityBinaryStructureInline,
 			nameIds: entityBinaryNameIds,
 		});
 	}
@@ -73,18 +96,43 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 	/**
 	 * @override
 	 * @param {ArrayBuffer} buffer
+	 * @param {import("../RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
-	async parseBuffer(buffer) {
+	async parseBuffer(buffer, recursionTracker) {
 		const entityData = binaryToObject(buffer, AssetLoaderTypeEntity.entityBinaryFormat);
 
-		return await this.createEntityFromData(entityData);
+		const entity = await this.createEntityFromData(entityData, null, recursionTracker);
+		if (!entity) throw new Error("Assertion failed, entity is null");
+		return entity;
 	}
 
 	/**
-	 * @param {EnityData} data
-	 * @param {Entity?} parent
+	 * @typedef ParentOptions
+	 * @property {Entity} parent
+	 * @property {number} childIndex
 	 */
-	async createEntityFromData(data, parent = null) {
+
+	/**
+	 * @param {EnityData} data
+	 * @param {ParentOptions?} parentOptions
+	 * @param {import("../RecursionTracker.js").RecursionTracker} recursionTracker
+	 */
+	async createEntityFromData(data, parentOptions, recursionTracker) {
+		if ("assetUuid" in data) {
+			if (!parentOptions) {
+				throw new Error("Assertion failed, parentOptions is null");
+			}
+			const loadingEntity = new Entity("Loading Entity");
+			parentOptions.parent.addAtIndex(loadingEntity, parentOptions.childIndex);
+			recursionTracker.getAsset(data.assetUuid, entity => {
+				if (!(entity instanceof Entity)) {
+					throw new Error(`Failed to load child entity asset with uuid ${data.assetUuid}, the asset is not of type Entity.`);
+				}
+				parentOptions.parent.remove(loadingEntity);
+				parentOptions.parent.addAtIndex(entity, parentOptions.childIndex);
+			});
+			return null;
+		}
 		let matrix;
 		if (data.matrix.length == 0) {
 			matrix = new Mat4();
@@ -94,7 +142,6 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 		const entity = new Entity({
 			name: data.name,
 			matrix,
-			parent,
 		});
 		if (!this.componentTypeManager) {
 			throw new Error("No component type manager set, make sure to set one with `setComponentTypeManager()` before loading entities.");
@@ -110,8 +157,11 @@ export class AssetLoaderTypeEntity extends AssetLoaderType {
 			const propertyValues = await binaryToObjectWithAssetLoader(entityComponentData.propertyValues, this.assetLoader, ComponentConstructor.binarySerializationOpts);
 			entity.addComponent(ComponentConstructor, /** @type {any} */(propertyValues));
 		}
-		for (const child of data.children) {
-			await this.createEntityFromData(child, entity);
+		if (parentOptions) {
+			parentOptions.parent.addAtIndex(entity, parentOptions.childIndex);
+		}
+		for (const [i, child] of data.children.entries()) {
+			await this.createEntityFromData(child, {parent: entity, childIndex: i}, recursionTracker);
 		}
 		return entity;
 	}
