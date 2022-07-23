@@ -16,8 +16,10 @@ await generateTypes({
 	outputDir: "../.denoTypes",
 	importMap: "../importmap.json",
 	extraTypeRoots: {
+		// We prefix webgpu with aa to ensure it is placed above deno-types.
+		// The Deno types include webgpu types but they are outdated.
+		"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
 		"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
-		webgpu: "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
 	},
 });
 
