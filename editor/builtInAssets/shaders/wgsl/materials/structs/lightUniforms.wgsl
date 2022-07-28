@@ -7,4 +7,4 @@ struct LightUniforms {
 	lights: array<Light, 10>,
 };
 @group(0) @binding(1)
-var<storage_buffer,read_write> lightUniforms : LightUniforms;
+var<storage,read_write> lightUniforms : LightUniforms;
