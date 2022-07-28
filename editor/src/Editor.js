@@ -20,6 +20,7 @@ import {ComponentTypeManager} from "../../src/components/ComponentTypeManager.js
 
 import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
 import {ShaderSourceProjectAssetType} from "./assets/projectAssetType/ShaderSourceProjectAssetType.js";
+import {TaskManager} from "./tasks/TaskManager.js";
 
 export class Editor {
 	constructor() {
@@ -33,6 +34,7 @@ export class Editor {
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager(this.windowManager);
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
+		this.taskManager = new TaskManager();
 		this.componentGizmosManager = new ComponentGizmosManager();
 		this.materialMapTypeSerializerManager = new MaterialMapTypeSerializerManager();
 		this.projectManager = new ProjectManager();
@@ -91,6 +93,7 @@ export class Editor {
 		this.windowManager.init();
 		this.propertiesWindowContentManager.init();
 		this.projectAssetTypeManager.init();
+		this.taskManager.init();
 		this.componentGizmosManager.init();
 		this.materialMapTypeSerializerManager.init();
 		this.builtInDefaultAssetLinksManager.init();
