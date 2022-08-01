@@ -128,7 +128,6 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 			});
 
 			/** @type {GPURenderPassDepthStencilAttachment} */
-			// @ts-expect-error Deno still has old types containing 'loadValue'
 			const attachment = {
 				view: this.depthTexture.createView(),
 				depthLoadOp: "clear",
@@ -159,7 +158,6 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 			return null;
 		}
 
-		// @ts-expect-error Deno still has old types containing 'loadValue'
 		this.colorAttachment = {
 			view,
 			resolveTarget,
