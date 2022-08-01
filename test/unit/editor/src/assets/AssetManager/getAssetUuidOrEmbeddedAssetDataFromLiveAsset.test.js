@@ -1,4 +1,4 @@
-import {assertEquals, assertExists} from "std/testing/asserts";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
 import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";

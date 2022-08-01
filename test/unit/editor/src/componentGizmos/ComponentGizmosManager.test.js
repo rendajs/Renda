@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {ComponentGizmosManager} from "../../../../../editor/src/componentGizmos/ComponentGizmosManager.js";
 import {CameraComponent} from "../../../../../src/mod.js";
 import {Importer} from "fake-imports";

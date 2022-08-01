@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
 import {EntityProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/EntityProjectAssetType.js";
 import {EntityEditorContentWindow} from "../../../../../../editor/src/windowManagement/contentWindows/EntityEditorContentWindow.js";

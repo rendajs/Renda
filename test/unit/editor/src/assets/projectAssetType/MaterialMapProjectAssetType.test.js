@@ -1,5 +1,5 @@
-import {stub} from "std/testing/mock";
-import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts";
+import {stub} from "std/testing/mock.ts";
+import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
 import {MaterialMapProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/MaterialMapProjectAssetType.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";

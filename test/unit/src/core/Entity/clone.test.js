@@ -1,4 +1,4 @@
-import {assertEquals, assertInstanceOf, assertNotStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertInstanceOf, assertNotStrictEquals} from "std/testing/asserts.ts";
 import {Entity, LightComponent} from "../../../../../src/mod.js";
 
 Deno.test({

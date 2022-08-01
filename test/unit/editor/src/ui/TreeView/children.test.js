@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
 import {TreeView} from "../../../../../../editor/src/ui/TreeView.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";

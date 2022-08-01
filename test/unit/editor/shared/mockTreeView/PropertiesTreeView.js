@@ -1,4 +1,4 @@
-import {spy} from "std/testing/mock";
+import {spy} from "std/testing/mock.ts";
 import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 import {TreeView} from "./TreeView.js";
 

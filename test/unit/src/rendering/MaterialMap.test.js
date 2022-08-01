@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Quat, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {MaterialMapType} from "../../../../src/rendering/MaterialMapType.js";

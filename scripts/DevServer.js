@@ -8,7 +8,7 @@
 import {serveDir} from "https://deno.land/std@0.127.0/http/file_server.ts";
 import {Server} from "https://deno.land/std@0.127.0/http/server.ts";
 import {Application as DevSocket} from "../editor/devSocket/src/Application.js";
-import {resolve} from "std/path";
+import {resolve} from "std/path/mod.ts";
 
 export class DevServer {
 	#port;

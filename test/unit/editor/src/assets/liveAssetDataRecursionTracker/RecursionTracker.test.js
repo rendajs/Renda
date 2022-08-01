@@ -1,5 +1,5 @@
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock";
-import {assertIsError} from "std/testing/asserts";
+import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
+import {assertIsError} from "std/testing/asserts.ts";
 import {RecursionTracker} from "../../../../../../editor/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js";
 import {ProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js";
 import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";

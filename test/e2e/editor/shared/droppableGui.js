@@ -1,4 +1,4 @@
-import {assertExists} from "std/testing/asserts";
+import {assertExists} from "std/testing/asserts.ts";
 import {click, waitForFunction} from "../../shared/util.js";
 import {clickContextMenuItem} from "./contextMenu.js";
 import {getPropertiesTreeViewEntryValueEl} from "./treeView.js";

@@ -1,4 +1,4 @@
-import {assertEquals, assertExists} from "std/testing/asserts";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {GizmoPointerDevice} from "../../../../src/gizmos/GizmoPointerDevice.js";
 import {Vec3} from "../../../../src/mod.js";
 import {HtmlElement} from "fake-dom/FakeHtmlElement.js";

@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {getNameAndExtension} from "../../../../../../../editor/src/util/fileSystems/pathUtil.js";
 
 Deno.test({

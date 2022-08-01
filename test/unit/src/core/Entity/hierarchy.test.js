@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {Entity} from "../../../../../src/mod.js";
 import {createBasicStructure} from "./shared.js";
 

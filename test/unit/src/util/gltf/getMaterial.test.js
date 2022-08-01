@@ -1,5 +1,5 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock";
-import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {Texture} from "../../../../../src/core/Texture.js";
 import {Material} from "../../../../../src/rendering/Material.js";
 import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";

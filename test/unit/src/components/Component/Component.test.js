@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {Mesh} from "../../../../../src/mod.js";
 import {getBasicExtendedComponent} from "./shared.js";
 

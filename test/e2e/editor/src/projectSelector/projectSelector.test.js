@@ -1,4 +1,4 @@
-import {assertEquals, assertExists} from "std/testing/asserts";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 

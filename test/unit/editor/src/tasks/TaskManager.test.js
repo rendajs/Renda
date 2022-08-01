@@ -1,7 +1,7 @@
-import {assertEquals, assertExists, assertInstanceOf, assertThrows} from "std/testing/asserts";
+import {assertEquals, assertExists, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
 import {Task} from "../../../../../editor/src/tasks/task/Task.js";
 import {TaskManager} from "../../../../../editor/src/tasks/TaskManager.js";
-import {assertSpyCalls, spy} from "std/testing/mock";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 
 const BASIC_UUID = "00000000-0000-0000-0000-000000000000";

@@ -1,9 +1,9 @@
-import {assert, assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assert, assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {MaterialMapTypeSerializer} from "../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
 import {MaterialMapTypeSerializerManager} from "../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {createMockProjectAsset} from "./shared/createMockProjectAsset.js";
-import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock";
+import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
 
 const BASIC_SERIALIZER_UUID = "ba51c000-0000-0000-0000-5e71a112e700";
 const BASIC_MATERIAL_MAP_ASSET_UUID = "basic material map asset uuid";

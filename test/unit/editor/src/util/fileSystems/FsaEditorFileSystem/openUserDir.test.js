@@ -1,4 +1,4 @@
-import {assert} from "std/testing/asserts";
+import {assert} from "std/testing/asserts.ts";
 import {FsaEditorFileSystem} from "../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
 import {FakeHandle} from "./shared.js";
 

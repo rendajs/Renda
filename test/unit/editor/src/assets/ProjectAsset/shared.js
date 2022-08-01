@@ -1,4 +1,4 @@
-import {spy} from "std/testing/mock";
+import {spy} from "std/testing/mock.ts";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";

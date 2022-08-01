@@ -1,4 +1,4 @@
-import {assertSpyCalls, spy} from "std/testing/mock";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {InternallyCreatedAsset} from "../../../../../../editor/src/assets/InternallyCreatedAsset.js";
 import {basicSetup} from "./shared.js";
 

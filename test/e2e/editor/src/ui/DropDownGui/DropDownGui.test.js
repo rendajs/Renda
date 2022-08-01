@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {initBrowser, openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
 import {waitFor} from "../../../../shared/util.js";
 

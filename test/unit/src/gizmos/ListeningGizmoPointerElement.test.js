@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {ListeningGizmoPointerElement} from "../../../../src/gizmos/ListeningGizmoPointerElement.js";
 import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {PointerEvent} from "fake-dom/FakePointerEvent.js";

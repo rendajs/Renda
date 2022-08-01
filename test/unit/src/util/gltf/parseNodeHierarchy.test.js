@@ -1,4 +1,4 @@
-import {assertEquals, assertNotStrictEquals, assertThrows} from "std/testing/asserts";
+import {assertEquals, assertNotStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {parseScene, parseScenes} from "../../../../../src/util/gltf/parseNodeHierarchy.js";
 
 Deno.test({

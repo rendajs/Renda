@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {Mesh} from "../../../../src/core/Mesh.js";
 import {VertexStateAttribute} from "../../../../src/rendering/VertexStateAttribute.js";
 

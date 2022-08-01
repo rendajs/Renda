@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {ColorizerFilter} from "../../../../../../editor/src/util/colorizerFilters/ColorizerFilter.js";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../../../shared/mockWeakRef.js";
 import {initializeDom} from "../../../shared/initializeDom.js";

@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {ComponentGizmos} from "../../../../../../editor/src/componentGizmos/gizmos/ComponentGizmos.js";
 import {Gizmo} from "../../../../../../src/mod.js";
 

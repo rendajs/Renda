@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertNotEquals, assertStrictEquals} from "std/testing/asserts";
+import {assert, assertEquals, assertNotEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {ColorizerFilterManager} from "../../../../../../editor/src/util/colorizerFilters/ColorizerFilterManager.js";
 import {initializeDom} from "../../../shared/initializeDom.js";
 

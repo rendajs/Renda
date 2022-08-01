@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {BASIC_ASSET_UUID, basicSetupForContextMenus, createBasicGui} from "./shared.js";

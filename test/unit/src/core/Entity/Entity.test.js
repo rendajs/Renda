@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {Entity} from "../../../../../src/mod.js";
 import {EXTENDED_COMPONENT_UUID, ExtendedComponent} from "./shared.js";
 

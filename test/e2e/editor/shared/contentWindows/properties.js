@@ -1,4 +1,4 @@
-import {assertExists} from "std/testing/asserts";
+import {assertExists} from "std/testing/asserts.ts";
 import {elementWaitForSelector} from "../../../shared/util.js";
 import {getContentWindowElement, getContentWindowReference} from "../contentWindows.js";
 import {getTreeViewItemElement} from "../treeView.js";

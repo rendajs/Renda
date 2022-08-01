@@ -1,4 +1,4 @@
-import {assertEquals, assertRejects} from "std/testing/asserts";
+import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
 
 Deno.test({

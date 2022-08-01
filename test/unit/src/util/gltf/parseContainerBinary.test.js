@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertThrows} from "std/testing/asserts";
+import {assertEquals, assertExists, assertThrows} from "std/testing/asserts.ts";
 import {parseContainerBinary} from "../../../../../src/util/gltf/parseContainerBinary.js";
 
 /**

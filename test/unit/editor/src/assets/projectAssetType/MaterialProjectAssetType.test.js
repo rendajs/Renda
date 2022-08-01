@@ -1,6 +1,6 @@
 import "../../../shared/initializeEditor.js";
-import {AssertionError, assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts";
-import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock";
+import {AssertionError, assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {MaterialProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
 import {createMockDependencies} from "./shared.js";
 import {Material, Vec3} from "../../../../../../src/mod.js";

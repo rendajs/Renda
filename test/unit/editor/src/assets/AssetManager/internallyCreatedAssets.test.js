@@ -1,4 +1,4 @@
-import {assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertExists, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {BASIC_ASSET_UUID, basicSetup} from "./shared.js";
 

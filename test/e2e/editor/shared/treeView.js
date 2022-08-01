@@ -1,4 +1,4 @@
-import {assertExists} from "std/testing/asserts";
+import {assertExists} from "std/testing/asserts.ts";
 import {waitForFunction} from "../../shared/util.js";
 
 /**

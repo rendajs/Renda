@@ -1,4 +1,4 @@
-import {assertThrows} from "std/testing/asserts";
+import {assertThrows} from "std/testing/asserts.ts";
 import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
 import {assertAlmostEquals, assertMatAlmostEquals, assertVecAlmostEquals} from "./asserts.js";
 

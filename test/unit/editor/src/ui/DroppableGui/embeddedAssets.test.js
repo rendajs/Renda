@@ -1,5 +1,5 @@
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock";
+import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus, createBasicGui, createMockProjectAssetType} from "./shared.js";
 

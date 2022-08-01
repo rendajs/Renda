@@ -1,5 +1,5 @@
-import {assertEquals} from "std/testing/asserts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock";
+import {assertEquals} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {Importer} from "fake-imports";
 import {castTreeView} from "../../../shared/mockTreeView/castTreeView.js";
 import {Texture} from "../../../../../../src/core/Texture.js";

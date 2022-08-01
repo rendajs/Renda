@@ -1,4 +1,4 @@
-import {assertThrows} from "std/testing/asserts";
+import {assertThrows} from "std/testing/asserts.ts";
 import {StorageType, createObjectToBinaryOptions, createObjectToBinaryStructure, objectToBinary} from "../../../../../src/util/binarySerialization.js";
 import {basicObjectToBinaryToObjectTest} from "./shared.js";
 

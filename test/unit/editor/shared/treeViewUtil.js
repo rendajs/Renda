@@ -1,4 +1,4 @@
-import {AssertionError, assertEquals} from "std/testing/asserts";
+import {AssertionError, assertEquals} from "std/testing/asserts.ts";
 
 /**
  * @typedef ExpectedTreeViewStructure

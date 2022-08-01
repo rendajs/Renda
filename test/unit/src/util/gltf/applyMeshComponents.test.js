@@ -1,5 +1,5 @@
-import {assertExists, assertRejects} from "std/testing/asserts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock";
+import {assertExists, assertRejects} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {Entity, Material, MeshComponent} from "../../../../../src/mod.js";
 import {applyMeshComponents} from "../../../../../src/util/gltf/applyMeshComponents.js";
 import {FLOAT, UNSIGNED_INT} from "../../../../../src/util/gltf/constants.js";

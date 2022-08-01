@@ -1,5 +1,5 @@
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock";
-import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {Texture} from "../../../../../src/core/Texture.js";
 import {getGltfTextureData, getTextureHelper} from "../../../../../src/util/gltf/getTexture.js";
 

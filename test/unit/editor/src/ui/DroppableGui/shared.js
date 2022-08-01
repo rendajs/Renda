@@ -1,4 +1,4 @@
-import {spy} from "std/testing/mock";
+import {spy} from "std/testing/mock.ts";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {DroppableGui} from "../../../../../../editor/src/ui/DroppableGui.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";

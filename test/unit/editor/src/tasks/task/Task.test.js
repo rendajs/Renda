@@ -1,4 +1,4 @@
-import {assertRejects} from "std/testing/asserts";
+import {assertRejects} from "std/testing/asserts.ts";
 import {Task} from "../../../../../../editor/src/tasks/task/Task.js";
 
 Deno.test({

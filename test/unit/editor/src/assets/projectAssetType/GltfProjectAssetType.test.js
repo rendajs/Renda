@@ -1,7 +1,7 @@
 import "../../../shared/initializeEditor.js";
 import {GltfProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/GltfProjectAssetType.js";
 import {createMockDependencies} from "./shared.js";
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts";
+import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 
 Deno.test({
 	name: "getLiveAssetData() with null",

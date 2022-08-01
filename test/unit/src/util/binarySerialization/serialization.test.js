@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {StorageType, createObjectToBinaryStructure} from "../../../../../src/util/binarySerialization.js";
 import {basicObjectToBinaryToObjectTest} from "./shared.js";
 

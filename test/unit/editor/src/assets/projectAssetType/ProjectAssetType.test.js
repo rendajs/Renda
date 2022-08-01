@@ -1,4 +1,4 @@
-import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {ProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js";
 
 /**

@@ -1,6 +1,6 @@
-import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertInstanceOf, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {UNKNOWN_ASSET_EXTENSION, basicSetup} from "./shared.js";
-import {assertSpyCalls, spy} from "std/testing/mock";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 Deno.test({
 	name: "getLiveAssetData throws if the asset doesn't have an ProjectAssetType set",
@@ -59,7 +59,7 @@ Deno.test({
 	name: "onLiveAssetDataChange()",
 	async fn() {
 		const {projectAsset} = basicSetup();
-		/** @type {import("std/testing/mock").Spy<any, [import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetDataAny], void>} */
+		/** @type {import("std/testing/mock.ts").Spy<any, [import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetDataAny], void>} */
 		const dataChangeSpy = spy();
 		projectAsset.onLiveAssetDataChange(dataChangeSpy);
 

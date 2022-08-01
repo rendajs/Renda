@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {parseMaterialUniforms} from "../../../../../src/util/wgslParsing.js";
 
 Deno.test({

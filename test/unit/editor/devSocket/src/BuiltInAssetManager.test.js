@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertExists} from "std/testing/asserts";
+import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {BuiltInAssetManager} from "../../../../../editor/devSocket/src/BuiltInAssetManager.js";
 import {installMockDateNow, uninstallMockDateNow} from "../../../shared/mockDateNow.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";

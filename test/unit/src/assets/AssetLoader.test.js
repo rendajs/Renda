@@ -1,5 +1,5 @@
 import {Importer} from "fake-imports";
-import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assertEquals, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {castMock} from "./MockAssetBundle.js";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";

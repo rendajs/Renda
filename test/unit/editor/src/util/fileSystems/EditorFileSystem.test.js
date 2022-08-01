@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {EditorFileSystem} from "../../../../../../editor/src/util/fileSystems/EditorFileSystem.js";
 import {Importer} from "fake-imports";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";

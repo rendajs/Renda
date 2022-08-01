@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../../shared/browser.js";
 import {click, drag, elementWaitForSelector} from "../../../../shared/util.js";
 import {clickAsset, createAsset} from "../../../shared/assets.js";

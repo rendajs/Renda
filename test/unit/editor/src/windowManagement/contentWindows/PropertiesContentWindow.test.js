@@ -1,5 +1,5 @@
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts";
+import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {PropertiesWindowContent} from "../../../../../../editor/src/propertiesWindowContent/PropertiesWindowContent.js";
 import {PropertiesContentWindow} from "../../../../../../editor/src/windowManagement/contentWindows/PropertiesContentWindow.js";
 import {EmptyPropertiesWindowContent} from "../../../../../../editor/src/propertiesWindowContent/EmptyPropertiesWindowContent.js";

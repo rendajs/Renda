@@ -1,5 +1,5 @@
-import {assertExists, assertRejects} from "std/testing/asserts";
-import {assertSpyCalls, spy} from "std/testing/mock";
+import {assertExists, assertRejects} from "std/testing/asserts.ts";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
 

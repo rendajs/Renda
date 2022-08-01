@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {prettifyVariableName} from "../../../../../editor/src/util/util.js";
 
 Deno.test("Basic name", () => {

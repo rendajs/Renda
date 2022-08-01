@@ -1,5 +1,5 @@
-import {AssertionError, assert, assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock";
+import {AssertionError, assert, assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../../../shared/mockWeakRef.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";

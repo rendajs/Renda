@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {stringArrayEquals} from "../../../../src/mod.js";
 
 Deno.test({

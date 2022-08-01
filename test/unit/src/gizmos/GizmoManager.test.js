@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts";
+import {assert, assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
 import {screenSpaceToDomSpace} from "../../../../src/util/cameraUtil.js";
 import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
