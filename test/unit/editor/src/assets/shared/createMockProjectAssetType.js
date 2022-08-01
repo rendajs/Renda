@@ -57,6 +57,13 @@ export function createMockProjectAssetType(type) {
 		 */
 		saveLiveAssetData(liveAsset, editorData) {}
 
+		createNewLiveAssetData() {
+			return {
+				liveAsset: null,
+				editorData: null,
+			};
+		}
+
 		destroyLiveAssetData() {}
 	}
 

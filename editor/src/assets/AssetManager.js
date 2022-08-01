@@ -269,7 +269,9 @@ export class AssetManager {
 	 */
 	async createNewAsset(parentPath, assetType) {
 		const type = this.projectAssetTypeManager.getAssetType(assetType);
-		if (!type) return;
+		if (!type) {
+			throw new Error(`Failed to create asset with type "${assetType}" because no such type is registered.`);
+		}
 
 		let fileName = type.newFileName + "." + type.newFileExtension;
 
@@ -281,6 +283,7 @@ export class AssetManager {
 
 		const projectAsset = await this.registerAsset(newPath, assetType);
 		await projectAsset.createNewLiveAssetData();
+		return projectAsset;
 	}
 
 	/**

@@ -7,6 +7,7 @@ import {MaterialProjectAssetType} from "./projectAssetType/MaterialProjectAssetT
 import {MaterialMapProjectAssetType} from "./projectAssetType/MaterialMapProjectAssetType.js";
 import {MeshProjectAssetType} from "./projectAssetType/MeshProjectAssetType.js";
 import {SamplerProjectAssetType} from "./projectAssetType/SamplerProjectAssetType.js";
+import {TaskProjectAssetType} from "./projectAssetType/TaskProjectAssetType.js";
 import {TextureProjectAssetType} from "./projectAssetType/TextureProjectAssetType.js";
 import {RenderOutputConfigProjectAssetType} from "./projectAssetType/RenderOutputConfigProjectAssetType.js";
 import {ShaderSourceProjectAssetType} from "./projectAssetType/ShaderSourceProjectAssetType.js";
@@ -24,6 +25,7 @@ const autoRegisterAssetTypes = [
 	MaterialMapProjectAssetType,
 	MeshProjectAssetType,
 	SamplerProjectAssetType,
+	TaskProjectAssetType,
 	TextureProjectAssetType,
 	RenderOutputConfigProjectAssetType,
 	ShaderSourceProjectAssetType,

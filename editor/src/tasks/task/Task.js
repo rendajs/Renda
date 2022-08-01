@@ -3,6 +3,9 @@
  * @typedef {new (...args: any) => Task} TaskConstructor
  */
 
+/**
+ * @template [TTaskConfig = unknown]
+ */
 export class Task {
 	/**
 	 * Name that will be shown in the editor ui.
@@ -16,4 +19,29 @@ export class Task {
 	 * @type {import("../../../../src/util/mod.js").UuidString}
 	 */
 	static type = "";
+
+	/**
+	 * The main entry point of the worker that should be created for running
+	 * tasks of this type.
+	 * @type {URL}
+	 */
+	static workerUrl;
+
+	/** @type {Worker} */
+	worker;
+
+	constructor() {
+		const castConstructor = /** @type {typeof Task} */ (this.constructor);
+		this.worker = new Worker(castConstructor.workerUrl, {
+			type: "module",
+		});
+	}
+
+	/**
+	 * @param {TTaskConfig} config
+	 * @returns {Promise<unknown>}
+	 */
+	async runTask(config) {
+		throw new Error(`Task "${this.constructor.name}" does not implement runTask().`);
+	}
 }

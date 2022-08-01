@@ -75,6 +75,24 @@ export class ProjectContentWindow extends ContentWindow {
 						text: "New Sampler",
 						onClick: () => this.createAsset("JJ:sampler"),
 					},
+					{
+						text: "New Task",
+						submenu: [
+							{
+								text: "Bundle Scripts",
+								onClick: async () => {
+									const asset = await this.createAsset("JJ:task");
+									/**
+									 * @type {import("../../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData}
+									 */
+									const fileData = {
+										taskType: "JJ:bundleScripts",
+									};
+									await asset.writeAssetData(fileData);
+								},
+							},
+						],
+					},
 				]);
 
 				menu.setPos({item: createButton});
@@ -342,8 +360,9 @@ export class ProjectContentWindow extends ContentWindow {
 	async createAsset(assetType) {
 		const selectedPath = this.getSelectedParentPathForCreate();
 		const assetManager = await this.editorInstance.projectManager.getAssetManager();
-		await assetManager.createNewAsset(selectedPath, assetType);
+		const projectAsset = await assetManager.createNewAsset(selectedPath, assetType);
 		await this.updateTreeView(selectedPath);
+		return projectAsset;
 	}
 
 	async createNewDir() {
