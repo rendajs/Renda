@@ -5,7 +5,6 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"typecheck": "tsc --noEmit -p ./jsconfig.json",
 		"lint": "eslint .",
 		"test": "playwright test"
 	},
@@ -17,9 +16,8 @@
 		"eslint": "^8.2.0",
 		"eslint-plugin-jsdoc": "^37.5.1",
 		"eslint-plugin-rulesdir": "github:not-an-aardvark/eslint-plugin-rulesdir",
-		"rollup-plugin-resolve-url-objects": "^0.0.4",
-		"rollup": "^2.60.0",
 		"google-closure-compiler": "^20210907.0.0",
-		"typescript": "^4.7.0-dev.20220408"
+		"rollup": "^2.60.0",
+		"rollup-plugin-resolve-url-objects": "^0.0.4"
 	}
 }

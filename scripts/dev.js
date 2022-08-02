@@ -11,6 +11,7 @@
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
 import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.7/mod.js";
+import {downloadNpmPackages} from "https://deno.land/x/npm_devinit@v0.0.2/mod.ts";
 
 await generateTypes({
 	outputDir: "../.denoTypes",
@@ -30,6 +31,10 @@ await generateTypes({
 
 setCwd();
 Deno.chdir("..");
+
+await downloadNpmPackages({
+	packages: ["typescript@4.7.0-dev.20220408"],
+});
 
 const buildProcess = Deno.run({
 	cmd: ["deno", "task", "build-editor-dev"],
