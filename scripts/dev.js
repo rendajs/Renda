@@ -10,11 +10,16 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.4/mod.js";
+import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.7/mod.js";
 
 await generateTypes({
 	outputDir: "../.denoTypes",
 	importMap: "../importmap.json",
+	include: [
+		".",
+		"../test",
+		"../editor/devSocket",
+	],
 	extraTypeRoots: {
 		// We prefix webgpu with aa to ensure it is placed above deno-types.
 		// The Deno types include webgpu types but they are outdated.
