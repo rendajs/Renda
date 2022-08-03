@@ -25,17 +25,19 @@ import {Button} from "./Button.js";
 /**
  * @template TObjectGuiInstance
  * @template TOpts
- * @typedef {TObjectGuiInstance extends ArrayGui<infer TStructure> ?
- * 		import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<TStructure, TOpts> :
+ * @template {import("./propertiesTreeView/types.js").RecursionLimitNumbers} [TRecursionLimit = import("./propertiesTreeView/types.js").DefaultRecursionLimit]
+ * @typedef {TObjectGuiInstance extends ArrayGui<infer TStructure, 3> ?
+ * 		import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<TStructure, TOpts, TRecursionLimit> :
  * 		never} GetArrayGuiValueTypeForOptions
  */
 
 /**
  * @template {ArrayGuiOptions<import("./propertiesTreeView/types.js").GuiTypes>} T
+ * @template {import("./propertiesTreeView/types.js").RecursionLimitNumbers} [TRecursionLimit = import("./propertiesTreeView/types.js").DefaultRecursionLimit]
  */
 export class ArrayGui {
 	/**
-	 * @typedef {(value: import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}>) => void} OnValueChangeCallback
+	 * @typedef {(value: import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, {}, TRecursionLimit>) => void} OnValueChangeCallback
 	 */
 
 	/**
@@ -158,7 +160,7 @@ export class ArrayGui {
 	/**
 	 * @template {import("./propertiesTreeView/types.js").AllPossibleGetValueOpts} [TGuiOpts = {}]
 	 * @param {TGuiOpts} [guiOpts]
-	 * @returns {import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, TGuiOpts>}
+	 * @returns {import("./propertiesTreeView/types.js").GetArrayStructureValuesReturnType<T, TGuiOpts, TRecursionLimit>}
 	 */
 	getValue(guiOpts) {
 		const valueArray = [];

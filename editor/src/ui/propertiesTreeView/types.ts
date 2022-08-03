@@ -259,6 +259,18 @@ export type GetValueOptionsType<T extends GuiInterface> =
 			O & BaseGetValueOptions :
 		{};
 
+// When remapping object types to gui values it seems like TypeScript has
+// already taken care of infinite recursion for us. But this doesn't seem to be
+// the case for arrays. So we'll manually handle this by passing a recursion
+// counter as generic argument. We'll decrement this counter for every step
+// where an ArrayGui makes use of `GetValueType`. And once it reaches 0 we'll
+// return never.
+// I'm not sure if it is possible to have infinite recursion for arrays,
+// but this limit of 9 will work for now.
+type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+export type RecursionLimitNumbers = Prev[number];
+export type DefaultRecursionLimit = 9;
+
 // If you want to return a specific type based on what options were used,
 // You'll need to add a type with custom logic here.
 //
@@ -271,7 +283,7 @@ export type GetValueOptionsType<T extends GuiInterface> =
 // For instance {returnLiveAsset: true, purpose: "default"}, or {} if no
 // options were passed in. Use this to return a specific type based on the
 // options.
-export type GetValueType<T extends GuiInterface, TOpts = any> =
+export type GetValueType<T extends GuiInterface, TOpts = any, TRecursionLimit extends RecursionLimitNumbers = DefaultRecursionLimit> =
 	T extends VectorGui<infer TVectorType> ?
 		GetVectorValueTypeForOptions<TVectorType, TOpts> :
 	T extends NumericGui ?
@@ -282,8 +294,10 @@ export type GetValueType<T extends GuiInterface, TOpts = any> =
 		GetDroppableValueTypeForOptions<T, TOpts> :
 	T extends ObjectGui<any> ?
 		GetObjectValueTypeForOptions<T, TOpts> :
-	T extends ArrayGui<any> ?
-		GetArrayGuiValueTypeForOptions<T, TOpts> :
+	T extends ArrayGui<any, Prev[TRecursionLimit]> ?
+		[TRecursionLimit] extends [never] ?
+			never :
+			GetArrayGuiValueTypeForOptions<T, TOpts, TRecursionLimit> :
 	T extends {getValue: (...args: any) => infer R} ?
 		R :
 	T extends {value: infer V} ?
@@ -330,8 +344,8 @@ type GetGuiInstanceForArrayGuiOptions<T extends ArrayGuiOptions<any>> =
 export type ArrayStructureToSetObject<TArrayGuiOpts extends ArrayGuiOptions<any>> =
 	SetValueType<GetGuiInstanceForArrayGuiOptions<TArrayGuiOpts>>[];
 
-export type GetArrayStructureValuesReturnType<TArrayGuiOpts extends ArrayGuiOptions<any>, TGuiOpts extends AllPossibleGetValueOpts = {}> =
-	GetValueType<GetGuiInstanceForArrayGuiOptions<TArrayGuiOpts>, TGuiOpts>[];
+export type GetArrayStructureValuesReturnType<TArrayGuiOpts extends ArrayGuiOptions<any>, TGuiOpts extends AllPossibleGetValueOpts = {}, TRecursionLimit extends RecursionLimitNumbers = DefaultRecursionLimit> =
+	GetValueType<GetGuiInstanceForArrayGuiOptions<TArrayGuiOpts>, TGuiOpts, TRecursionLimit>[];
 
 export type GetArrayValueItemType<TArrayGuiOpts extends ArrayGuiOptions<any>> =
 	PropertiesTreeViewEntry<GetGuiInstanceForArrayGuiOptions<TArrayGuiOpts>>;
