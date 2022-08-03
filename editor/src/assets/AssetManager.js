@@ -338,7 +338,7 @@ export class AssetManager {
 	 * `InternallyCreatedAsset.getProjectAsset()` first. This is generally
 	 * already called when the asset is being linked to from most places.
 	 * @param {unknown} persistenceData
-	 * @param {Object} [options]
+	 * @param {Object} options
 	 * @param {import("../../../src/mod.js").UuidString?} [options.forcedAssetUuid] When set,
 	 * forces the a specific uuid once the ProjectAsset is created. If the internally
 	 * created asset already exists, this option has no effect.
@@ -506,7 +506,7 @@ export class AssetManager {
 	/**
 	 * @template {AssetAssertionOptions} [T = {}]
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
-	 * @param {T} [options]
+	 * @param {T} options
 	 * @returns {Promise<AssetAssertionOptionsToProjectAsset<T>?>}
 	 */
 	async getProjectAssetFromUuid(uuid, {
@@ -532,7 +532,7 @@ export class AssetManager {
 	 *
 	 * @template {AssetAssertionOptions} [T = {}]
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
-	 * @param {T} [options]
+	 * @param {T} options
 	 * @returns {AssetAssertionOptionsToProjectAsset<T>?}
 	 */
 	getProjectAssetFromUuidSync(uuid, {

@@ -215,7 +215,7 @@ export class DroppableGui {
 	 * @param {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
 	 * If an uuid is provided, make sure to call `AssetManager.waitForAssetListsLoad()` before calling this method, otherwise
 	 * the asset might not be loaded yet.
-	 * @param {Object} [options]
+	 * @param {Object} options
 	 * @param {boolean} [options.isDiskData] If true, and the passed in value is an object, it will be parsed
 	 * as if it is embedded asset data and a new embedded asset is created. If the embedded asset
 	 * already exists (based on the current embeddedParentAssetPersistenceKey), the value will
@@ -309,7 +309,7 @@ export class DroppableGui {
 	/**
 	 * @private
 	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny?} projectAsset
-	 * @param {Object} [options]
+	 * @param {Object} options
 	 * @param {boolean} [options.clearDefaultAssetLink]
 	 * @param {boolean} [options.preloadLiveAsset] If true, preloads the live asset and waits with firing value change events
 	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets

@@ -154,7 +154,7 @@ Deno.test({
 });
 
 /**
- * @param {Object} [options]
+ * @param {Object} options
  * @param {import("../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} [options.mapReadAssetDataReturnValue]
  */
 function basicGetMapValuesForMapAssetUuidSetup({

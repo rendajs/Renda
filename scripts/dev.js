@@ -33,7 +33,7 @@ setCwd();
 Deno.chdir("..");
 
 await downloadNpmPackages({
-	packages: ["typescript@4.7.0-dev.20220408"],
+	packages: ["typescript@4.8.0-dev.20220803"],
 });
 
 const buildProcess = Deno.run({

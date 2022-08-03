@@ -1,5 +1,5 @@
 {
-	"typescript.tsdk": "./npm_packages/typescript/4.7.0-dev.20220408/lib",
+	"typescript.tsdk": "./npm_packages/typescript/4.8.0-dev.20220803/lib",
 	"typescript.enablePromptUseWorkspaceTsdk": true,
 	"deno.enable": false,
 	"deno.lint": false,

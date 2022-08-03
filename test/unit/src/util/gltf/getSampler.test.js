@@ -3,7 +3,7 @@ import {Sampler} from "../../../../../src/rendering/Sampler.js";
 import {CLAMP_TO_EDGE, LINEAR, LINEAR_MIPMAP_LINEAR, LINEAR_MIPMAP_NEAREST, MIRRORED_REPEAT, NEAREST, NEAREST_MIPMAP_LINEAR, NEAREST_MIPMAP_NEAREST, getSamplerHelper} from "../../../../../src/util/gltf/getSampler.js";
 
 /**
- * @param {Object} [options]
+ * @param {Object} options
  * @param {import("../../../../../src/util/gltf/types.js").GltfSamplerData} [options.samplerData]
  */
 function basicSetup({

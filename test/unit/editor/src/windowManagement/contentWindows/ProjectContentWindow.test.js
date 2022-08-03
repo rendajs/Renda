@@ -8,7 +8,7 @@ import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 const BASIC_WINDOW_UUID = "basic window uuid";
 
 /**
- * @param {Object} [options]
+ * @param {Object} options
  * @param {Object.<string, import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes>} [options.fileSystemStructure]
  */
 function basicSetup({

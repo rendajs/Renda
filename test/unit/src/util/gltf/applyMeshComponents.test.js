@@ -5,7 +5,7 @@ import {applyMeshComponents} from "../../../../../src/util/gltf/applyMeshCompone
 import {FLOAT, UNSIGNED_INT} from "../../../../../src/util/gltf/constants.js";
 
 /**
- * @param {Object} [options]
+ * @param {Object} options
  * @param {number} [options.indicesAccessorComponentType]
  * @param {import("../../../../../src/util/gltf/types.js").GltfAccessorType} [options.indicesAccessorType]
  */

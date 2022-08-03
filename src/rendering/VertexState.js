@@ -39,7 +39,7 @@ export class VertexState {
 	}
 
 	/**
-	 * @param {Object} [options]
+	 * @param {Object} options
 	 * @param {PreferredShaderLocation[]} [options.preferredShaderLocations] If the vertex state
 	 * has "auto", null or -1 for an attribute, this will be used to determine the shader location.
 	 * If this an attribute with automatic shader location is not present in this list,

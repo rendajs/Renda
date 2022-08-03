@@ -58,7 +58,7 @@ function createBasicLoaderType({
 
 /**
  * @template {boolean} [TRegisterLoaderType = true]
- * @param {Object} [options]
+ * @param {Object} options
  * @param {TRegisterLoaderType} [options.registerLoaderType]
  */
 function basicSetup({

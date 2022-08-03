@@ -26,7 +26,7 @@ export function applyProjectAssetInstanceOf() {
 }
 
 /**
- * @param {Object} [options]
+ * @param {Object} options
  * @param {object?} [options.mockLiveAsset]
  * @param {boolean} [options.isEmbedded]
  * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetSync() to behave
@@ -224,7 +224,7 @@ export function createMockProjectAssetType({
 }
 
 /**
- * @param {Object} [options]
+ * @param {Object} options
  * @param {Parameters<typeof createBasicGui>[0]} [options.basicGuiOptions]
  * @param {boolean} [options.dispatchContextMenuEvent]
  */

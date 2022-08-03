@@ -1027,7 +1027,7 @@ function getStructureTypeLength(type, {
  * @param {unknown} value
  * @param {StorageType} type
  * @param {number} [byteOffset]
- * @param {Object} [options]
+ * @param {Object} options
  * @param {boolean} [options.littleEndian]
  * @param {StorageType} [options.stringLengthStorageType]
  * @param {StorageType} [options.arrayBufferLengthStorageType]

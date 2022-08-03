@@ -16,7 +16,7 @@ export const STRINGIFIED_PERSISTENCE_KEY = `"persistenceKey"`;
 export const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
 
 /**
- * @param {Object} [options]
+ * @param {Object} options
  * @param {boolean} [options.waitForAssetListsLoad]
  * @param {string} [options.assetType]
  * @param {import("../../../../../../editor/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData} [options.assetSettings]
