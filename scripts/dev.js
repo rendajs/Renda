@@ -20,6 +20,7 @@ await generateTypes({
 		".",
 		"../test",
 		"../editor/devSocket",
+		"../editor/scripts",
 	],
 	extraTypeRoots: {
 		// We prefix webgpu with aa to ensure it is placed above deno-types.
