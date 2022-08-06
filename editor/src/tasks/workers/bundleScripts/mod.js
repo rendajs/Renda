@@ -1,8 +1,10 @@
+import {bundle} from "./bundle.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 
+/** @typedef {typeof messenger} BundleScriptsMessenger */
 /** @typedef {typeof responseHandlers} BundleScriptsMessengerResponseHandlers */
 
-/** @type {TypedMessenger<{}, BundleScriptsMessengerResponseHandlers>} */
+/** @type {TypedMessenger<import("../../task/TaskBundleScripts.js").BundleScriptsMessengerResponseHandlers, BundleScriptsMessengerResponseHandlers>} */
 const messenger = new TypedMessenger();
 messenger.setSendHandler(data => {
 	globalThis.postMessage(data);
@@ -15,8 +17,8 @@ const responseHandlers = {
 	/**
 	 * @param {import("../../task/TaskBundleScripts.js").TaskBundleScriptsConfig} config
 	 */
-	bundle: config => {
-
+	bundle: async config => {
+		return await bundle(config, messenger);
 	},
 };
 

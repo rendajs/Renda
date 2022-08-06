@@ -1,6 +1,6 @@
 
 /**
- * @typedef {new (...args: any) => Task} TaskConstructor
+ * @typedef {new (...args: ConstructorParameters<typeof Task>) => Task} TaskConstructor
  */
 
 /**
@@ -30,7 +30,12 @@ export class Task {
 	/** @type {Worker} */
 	worker;
 
-	constructor() {
+	/**
+	 * @param {import("../../Editor.js").Editor} editorInstance
+	 */
+	constructor(editorInstance) {
+		this.editorInstance = editorInstance;
+
 		const castConstructor = /** @type {typeof Task} */ (this.constructor);
 		this.worker = new Worker(castConstructor.workerUrl, {
 			type: "module",

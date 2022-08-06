@@ -3,7 +3,34 @@ import {Task} from "./Task.js";
 
 /**
  * @typedef TaskBundleScriptsConfig
- * @property {import("rollup").InputOption} scriptPaths
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath[]} scriptPaths
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
+ */
+
+/**
+ * Generates response handlers for requests going from the worker to the main thread.
+ * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+ */
+function getResponseHandlers(fileSystem) {
+	return {
+		/**
+		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
+		 */
+		async getScriptContent(filePath) {
+			return await fileSystem.readText(filePath);
+		},
+		/**
+		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
+		 * @param {string} text
+		 */
+		async writeText(filePath, text) {
+			return await fileSystem.writeText(filePath, text);
+		},
+	};
+}
+
+/**
+ * @typedef {ReturnType<typeof getResponseHandlers>} BundleScriptsMessengerResponseHandlers
  */
 
 /**
@@ -16,11 +43,15 @@ export class TaskBundleScripts extends Task {
 	// @rollup-plugin-resolve-url-objects
 	static workerUrl = new URL("../workers/bundleScripts/mod.js", import.meta.url);
 
-	/** @type {TypedMessenger<import("../workers/bundleScripts/mod.js").BundleScriptsMessengerResponseHandlers, {}>} */
+	/** @type {TypedMessenger<import("../workers/bundleScripts/mod.js").BundleScriptsMessengerResponseHandlers, BundleScriptsMessengerResponseHandlers>} */
 	#messenger;
 
-	constructor() {
-		super();
+	/**
+	 * @param  {ConstructorParameters<typeof Task>} args
+	 */
+	constructor(...args) {
+		super(...args);
+
 		this.#messenger = new TypedMessenger();
 		this.#messenger.setSendHandler(data => {
 			this.worker.postMessage(data);
@@ -28,6 +59,11 @@ export class TaskBundleScripts extends Task {
 		this.worker.addEventListener("message", event => {
 			this.#messenger.handleReceivedMessage(event.data);
 		});
+		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
+		if (!fileSystem) {
+			throw new Error("Failed to create Bundle Scripts task: no project file system.");
+		}
+		this.#messenger.setResponseHandlers(getResponseHandlers(fileSystem));
 	}
 
 	/**

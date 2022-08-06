@@ -1,3 +1,4 @@
+import {getEditorInstance} from "../editorInstance.js";
 import {autoRegisterTaskTypes} from "./autoRegisterTaskTypes.js";
 import {Task} from "./task/Task.js";
 
@@ -53,7 +54,8 @@ export class TaskManager {
 		if (task) return task;
 
 		const TaskConstructor = this.getTaskType(taskType);
-		task = new TaskConstructor();
+		const editor = getEditorInstance();
+		task = new TaskConstructor(editor);
 		this.#initializedTasks.set(taskType, task);
 		return task;
 	}

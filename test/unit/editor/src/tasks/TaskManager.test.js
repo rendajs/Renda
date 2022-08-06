@@ -108,8 +108,9 @@ Deno.test({
 			/** @type {TypedMessenger<import("./shared/basicWorker.js").BasicWorkerResponseHandlers, {}>} */
 			#messenger;
 
-			constructor() {
-				super();
+			/** @param {ConstructorParameters<typeof Task>} args */
+			constructor(...args) {
+				super(...args);
 				this.#messenger = new TypedMessenger();
 				this.#messenger.setSendHandler(data => {
 					this.worker.postMessage(data);
