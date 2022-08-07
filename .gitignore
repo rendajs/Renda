@@ -4,9 +4,8 @@ node_modules
 package-lock.json
 dist
 editor/dist/js/*
-editor/libs/
+editor/deps/
 .denoTypes/@types
 .denoTypes/urlImports
-.lastDevInitHash
 .coverage
 npm_packages

@@ -1,6 +1,6 @@
-import transpiledRollup from "../../libs/rollup.browser.js";
+import transpiledRollup from "../../deps/rollup.browser.js";
 import {getEditorInstance} from "../editorInstance.js";
-import resolveUrlObjects from "../../libs/rollup-plugin-resolve-url-objects.js";
+import resolveUrlObjects from "../../deps/rollup-plugin-resolve-url-objects.js";
 import {JavascriptProjectAssetType} from "../assets/projectAssetType/JavascriptProjectAssetType.js";
 
 const rollup = /** @type {import("rollup")} */ (transpiledRollup);

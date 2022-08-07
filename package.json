@@ -10,14 +10,11 @@
 	},
 	"devDependencies": {
 		"@babel/eslint-parser": "^7.16.3",
-		"@rollup/plugin-commonjs": "^11.1.0",
-		"@rollup/plugin-node-resolve": "^13.0.6",
 		"@types/google-closure-compiler": "^0.0.19",
 		"eslint": "^8.2.0",
 		"eslint-plugin-jsdoc": "^37.5.1",
 		"eslint-plugin-rulesdir": "github:not-an-aardvark/eslint-plugin-rulesdir",
 		"google-closure-compiler": "^20210907.0.0",
-		"rollup": "^2.60.0",
 		"rollup-plugin-resolve-url-objects": "^0.0.4"
 	}
 }

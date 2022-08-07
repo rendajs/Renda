@@ -1,14 +1,9 @@
 #!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check
 
-import {createRequire} from "std/node/module.ts";
 import {dirname, fromFileUrl, resolve} from "std/path/mod.ts";
 import {rollup} from "rollup";
-
-// import resolveUrlObjects from "rollup-plugin-resolve-url-objects";
-
-const compatRequire = createRequire(import.meta.url);
-const commonjs = compatRequire("@rollup/plugin-commonjs");
-const {nodeResolve} = compatRequire("@rollup/plugin-node-resolve");
+import commonjs from "rollup-plugin-commonjs";
+import {nodeResolve} from "rollup-plugin-node-resolve";
 
 /**
  * Small Rollup plugin for replacing the content of certain imports with an empty object.
@@ -77,11 +72,19 @@ function addHeader(headerCode) {
 	};
 }
 
+/**
+ * @typedef LibConfig
+ * @property {string} input
+ * @property {string} output
+ * @property {import("rollup").Plugin[]} [extraPlugins]
+ */
+
+/** @type {LibConfig[]} */
 const libs = [
 	{
-		input: "../../node_modules/rollup/dist/rollup.browser.js",
+		input: "../../npm_packages/rollup/2.60.0/dist/rollup.browser.js",
 		output: "rollup.browser.js",
-		plugins: [removeSourceMaps()],
+		extraPlugins: [removeSourceMaps()],
 	},
 	{
 		input: "../../node_modules/rollup-plugin-resolve-url-objects/main.js",
@@ -94,15 +97,21 @@ const scriptDir = dirname(fromFileUrl(import.meta.url));
 for (const lib of libs) {
 	const inputPath = resolve(scriptDir, lib.input);
 	console.log("bundling " + lib.input);
-	const libPlugins = lib.plugins || [];
-	const plugins = [...libPlugins, commonjs(), ignore(["fs"]), addHeader("// @ts-nocheck\n\n"), nodeResolve()];
+	const libPlugins = lib.extraPlugins || [];
+	const plugins = [
+		...libPlugins,
+		commonjs(),
+		ignore(["fs"]),
+		addHeader("// @ts-nocheck\n\n"),
+		nodeResolve(),
+	];
 	const bundle = await rollup({
 		input: inputPath,
 		plugins,
 	});
 	console.log("writing to " + lib.output);
 	await bundle.write({
-		file: resolve(scriptDir, "../libs", lib.output),
+		file: resolve(scriptDir, "../deps", lib.output),
 		format: "esm",
 	});
 }
