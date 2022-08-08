@@ -62,8 +62,8 @@ setTimeout(() => {
   </defs>
   <rect x="0" y="0" width="100" height="100" style="fill: rgb(100, 100, 100);"/>
   <g transform="translate(50 50)">
-    <use href="#ear" transform="translate(-38, -29)" />
-    <use href="#ear" transform="translate(38, -29) scale(-1, 1)" />
+    <use href="#ear" width="30" height="30" transform="translate(-38, -29)" />
+    <use href="#ear" width="30" height="30" transform="translate(38, -29) scale(-1, 1)" />
     <g mask="url(#baseShape)">
       <rect class="orange-shape" x="-40" y="-25" width="80" height="55" />
       <path id="facelower" class="white-shape" d="
@@ -109,8 +109,8 @@ setTimeout(() => {
     </g>
     <ellipse cx="-11" cy="6" rx="3.5" ry="3.5" class="brown-shape" />
     <ellipse cx="11" cy="6" rx="3.5" ry="3.5" class="brown-shape" />
-    <use href="#eyebrow" transform="translate(8, -6)" />
-    <use href="#eyebrow" transform="translate(-8, -6) scale(-1, 1)" />
+    <use href="#eyebrow" width="10" height="10" transform="translate(8, -6)" />
+    <use href="#eyebrow" width="10" height="10" transform="translate(-8, -6) scale(-1, 1)" />
     <path id="nose" class="brown-shape" d="
       M -5 15
       C -4 12
