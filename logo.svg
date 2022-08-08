@@ -9,10 +9,6 @@ setTimeout(() => {
     .white-shape {
       fill: url(#lowerFaceGradient);
     }
-
-    .brown-shape {
-      fill: url(#brownGradient);
-    }
   </style>
   <defs>
     <symbol id="ear" viewBox="0 0 30 30" width="30" height="30">
@@ -114,11 +110,11 @@ setTimeout(() => {
           -39,-5
         Z" />
     </g>
-    <ellipse cx="-11" cy="6" rx="3.5" ry="3.5" class="brown-shape" />
-    <ellipse cx="11" cy="6" rx="3.5" ry="3.5" class="brown-shape" />
+    <ellipse cx="-11" cy="6" rx="3.5" ry="3.5" fill="url(#brownGradient)" />
+    <ellipse cx="11" cy="6" rx="3.5" ry="3.5" fill="url(#brownGradient)" />
     <use href="#eyebrow" fill="url(#eyebrowGradientLeft)" width="10" height="10" transform="translate(-8, -6) scale(-1, 1)" />
     <use href="#eyebrow" fill="url(#eyebrowGradientRight)" width="10" height="10" transform="translate(8, -6)" />
-    <path id="nose" class="brown-shape" d="
+    <path id="nose" fill="url(#brownGradient)" d="
       M -5 15
       C -4 12
         4 12
