@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<script>
+setTimeout(() => {
+  window.location.reload();
+}, 500)
+</script>
+  <defs>
+    <g id="ear">
+      <path style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: rgb(250, 250, 250);" d="M -4.936 13.026 C -4.936 13.026 -11.783 7.256 -8.145 -8.317 C 12.695 -8.02 19.935 0.394 19.935 0.394 C 19.935 0.394 14.598 10.96 14.598 10.983 C 14.598 11.007 -4.575 13.024 -4.936 13.026 Z"/>
+      <path style="stroke: rgb(0, 0, 0); fill: rgb(187, 187, 187); stroke-width: 0px;" d="M -0.969 12.205 C -5.691 6.755 -6.391 -2.671 -5.109 -3.734 C -3.846 -4.781 11.613 -3.382 10.655 0.016 C 9.867 2.813 5.067 7.301 2.822 9.671 C -0.361 13.034 1.004 14.481 -0.969 12.205 Z"/>
+    </g>
+    <g id="eyebrow">
+      <path style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: rgb(250, 250, 250);" d="M -2.762 -0.909 C 0.091 -0.483 2.385 3.012 3.291 1.797 C 4.312 0.43 1.736 -2.356 0.197 -3.09 C -2.782 -4.511 -3.752 -1.057 -2.762 -0.909 Z"/>
+    </g>
+  </defs>
+  <rect x="0" y="0" width="100" height="100" style="fill: rgb(100, 100, 100);"/>
+  <g transform="translate(50 50)">
+    <use href="#ear" transform="translate(-31, -17)" />
+    <use href="#ear" transform="translate(31, -17) scale(-1, 1)" />
+    <path id="baseshape" style="fill: #ff7900;" d="
+      M -39,-5
+      C -19,-8
+        -22,-21
+        0,-21
+      C 22,-21
+        19,-8
+        39,-5
+      C 39,-5
+        30,24
+        0,24
+      C -30,24
+        -39,-5
+        -39,-5
+      Z" />
+    <path id="facelower" style="fill: white;" d="
+      M -39,-5
+      C -39,-5
+        -34,0
+        -23,2
+      C -20,2
+        -25,16
+        -6,21
+      C -13,14
+        -6,8
+        -4.5,8
+      C -3,8
+        -2.5,9.5
+        0,9.5
+      C 2.5,9.5
+        3,8
+        4.5,8
+      C 6,8
+        13,14
+        6,21
+      C 25,16
+        20,2
+        23,2
+      C 23,2
+        34,0
+
+        39,-5
+      C 39,-5
+        30,24
+        0,24
+      C -30,24
+        -39,-5
+        -39,-5
+      Z" />
+    <ellipse cx="-11" cy="6" rx="3.5" ry="3.5" />
+    <ellipse cx="11" cy="6" rx="3.5" ry="3.5" />
+    <use href="#eyebrow" transform="translate(13, 0)" />
+    <use href="#eyebrow" transform="translate(-13, 0) scale(-1, 1)" />
+    <path id="nose" style="fill: black;" d="
+      M -5 15
+      C -4 12
+        4 12
+        5 15
+      C 6 17
+        2 19
+        0 19
+      C -2 19
+        -6 17
+        -5 15
+      Z" />
+  </g>
+</svg>
