@@ -5,20 +5,59 @@ setTimeout(() => {
   window.location.reload();
 }, 500)
 </script>
+  <style>
+    .orange-shape {
+      fill: url(#orangeBaseGradient);
+      stroke-width: 0.3px;
+    }
+
+    .white-shape {
+      fill: url(#whiteBaseGradient);
+      stroke-width: 0.3px;
+    }
+
+    .brown-shape {
+      fill: url(#brownRadialGradient);
+    }
+  </style>
   <defs>
-    <g id="ear">
-      <path style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: rgb(250, 250, 250);" d="M -4.936 13.026 C -4.936 13.026 -11.783 7.256 -8.145 -8.317 C 12.695 -8.02 19.935 0.394 19.935 0.394 C 19.935 0.394 14.598 10.96 14.598 10.983 C 14.598 11.007 -4.575 13.024 -4.936 13.026 Z"/>
-      <path style="stroke: rgb(0, 0, 0); fill: rgb(187, 187, 187); stroke-width: 0px;" d="M -0.969 12.205 C -5.691 6.755 -6.391 -2.671 -5.109 -3.734 C -3.846 -4.781 11.613 -3.382 10.655 0.016 C 9.867 2.813 5.067 7.301 2.822 9.671 C -0.361 13.034 1.004 14.481 -0.969 12.205 Z"/>
-    </g>
-    <g id="eyebrow">
-      <path style="stroke: rgb(0, 0, 0); stroke-width: 0px; fill: rgb(250, 250, 250);" d="M -2.762 -0.909 C 0.091 -0.483 2.385 3.012 3.291 1.797 C 4.312 0.43 1.736 -2.356 0.197 -3.09 C -2.782 -4.511 -3.752 -1.057 -2.762 -0.909 Z"/>
-    </g>
+    <symbol id="ear" viewBox="0 0 30 30" width="30" height="30">
+      <path class="white-shape" d="M 6.391 24.004 C 6.391 24.004 1.832 17.042 5.211 6.822 C 22.242 4.384 27.999 10.753 27.999 10.753 C 27.999 10.753 21.756 23.197 21.756 23.22 C 21.756 23.244 6.752 24.002 6.391 24.004 Z"/>
+      <path style="fill: url(#innerEarGradient);" d="M 9.067 22.607 C 5.979 15.817 6.858 10.603 8.14 9.54 C 9.403 8.493 21.714 9.328 19.319 11.922 C 17.578 13.807 14.96 13.228 12.414 14.123 C 17.726 15.407 9.383 23.302 9.067 22.607 Z"/>
+    </symbol>
+    <symbol id="eyebrow" viewBox="0 0 10 10" width="10" height="10">
+      <path class="white-shape" d="M 1.932 4.906 C 4.785 5.332 7.079 8.827 7.985 7.612 C 9.006 6.245 6.43 3.459 4.891 2.725 C 1.912 1.304 0.942 4.758 1.932 4.906 Z"/>
+    </symbol>
+    <radialGradient id="orangeBaseGradient" cx="0%" cy="0%" r="100%">
+      <stop offset="0" style="stop-color: #ffc300;"/>
+      <stop offset="1" style="stop-color: #ff7700;"/>
+    </radialGradient>
+    <radialGradient id="orangeStrokeGradient" cx="20%" cy="20%" r="100%">
+      <stop offset="0" style="stop-color: #ffd449;"/>
+      <stop offset="1" style="stop-color: #ff5a00;"/>
+    </radialGradient>
+    <radialGradient id="whiteBaseGradient" cx="0%" cy="0%" r="100%" fr="80%">
+      <stop offset="0" style="stop-color: #ffecdd;"/>
+      <stop offset="1" style="stop-color: #ffdbbb;"/>
+    </radialGradient>
+    <radialGradient id="whiteStrokeGradient" cx="0%" cy="0%" r="100%" fr="80%">
+      <stop offset="0" style="stop-color: #ffefe1;"/>
+      <stop offset="1" style="stop-color: #ffdbbb;"/>
+    </radialGradient>
+    <radialGradient id="innerEarGradient">
+      <stop offset="0" style="stop-color: #f5c59e;"/>
+      <stop offset="1" style="stop-color: #fcdec7;"/>
+    </radialGradient>
+    <radialGradient id="brownRadialGradient" cx="0%" cy="0%" r="100%">
+      <stop offset="0" style="stop-color: #8c4100;"/>
+      <stop offset="1" style="stop-color: #4a2300;"/>
+    </radialGradient>
   </defs>
   <rect x="0" y="0" width="100" height="100" style="fill: rgb(100, 100, 100);"/>
   <g transform="translate(50 50)">
-    <use href="#ear" transform="translate(-31, -17)" />
-    <use href="#ear" transform="translate(31, -17) scale(-1, 1)" />
-    <path id="baseshape" style="fill: #ff7900;" d="
+    <use href="#ear" transform="translate(-38, -29)" />
+    <use href="#ear" transform="translate(38, -29) scale(-1, 1)" />
+    <path id="baseshape" class="orange-shape" d="
       M -39,-5
       C -19,-8
         -22,-21
@@ -33,7 +72,7 @@ setTimeout(() => {
         -39,-5
         -39,-5
       Z" />
-    <path id="facelower" style="fill: white;" d="
+    <path id="facelower" class="white-shape" d="
       M -39,-5
       C -39,-5
         -34,0
@@ -67,11 +106,11 @@ setTimeout(() => {
         -39,-5
         -39,-5
       Z" />
-    <ellipse cx="-11" cy="6" rx="3.5" ry="3.5" />
-    <ellipse cx="11" cy="6" rx="3.5" ry="3.5" />
-    <use href="#eyebrow" transform="translate(13, 0)" />
-    <use href="#eyebrow" transform="translate(-13, 0) scale(-1, 1)" />
-    <path id="nose" style="fill: black;" d="
+    <ellipse cx="-11" cy="6" rx="3.5" ry="3.5" class="brown-shape" />
+    <ellipse cx="11" cy="6" rx="3.5" ry="3.5" class="brown-shape" />
+    <use href="#eyebrow" transform="translate(8, -6)" />
+    <use href="#eyebrow" transform="translate(-8, -6) scale(-1, 1)" />
+    <path id="nose" class="brown-shape" d="
       M -5 15
       C -4 12
         4 12
