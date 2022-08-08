@@ -36,21 +36,27 @@ const SCRIPT_ARGS = [
  */
 const APPLICATION_ARGS = ["--no-headless"];
 
-let needsTestServer = false;
-const extraDenoTestArgs = Deno.args.filter(arg => !SCRIPT_ARGS.includes(arg) && !APPLICATION_ARGS.includes(arg));
-if (extraDenoTestArgs.length <= 0) {
-	extraDenoTestArgs.push("test/");
-	needsTestServer = true;
+/**
+ * Arguments passed in from the command line that should be passed along to the
+ * deno test command.
+ */
+const userProvidedArgs = Deno.args.filter(arg => !SCRIPT_ARGS.includes(arg) && !APPLICATION_ARGS.includes(arg));
+
+/**
+ * If not null, only tests from a specific path should be run.
+ * @type {string?}
+ */
+let filteredTests = null;
+if (userProvidedArgs.length > 0 && !userProvidedArgs[0].startsWith("--")) {
+	filteredTests = userProvidedArgs[0];
+	userProvidedArgs.shift();
 }
 
-for (const arg of Deno.args) {
-	if (arg.startsWith("test/e2e")) {
-		needsTestServer = true;
-	}
-}
+const needsUnitTests = !filteredTests || filteredTests.startsWith("test/unit");
+const needsE2eTests = !filteredTests || filteredTests.startsWith("test/e2e");
 
 let testServer = null;
-if (needsTestServer) {
+if (needsE2eTests) {
 	testServer = new DevServer({
 		port: 8081,
 		serverName: "test server",
@@ -64,35 +70,73 @@ if (needsHtmlCoverageReport) {
 	needsCoverage = true;
 }
 
-const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable"];
-const applicationArgs = new Set();
-for (const arg of Deno.args) {
-	if (APPLICATION_ARGS.includes(arg)) {
-		applicationArgs.add(arg);
-	}
-}
-if (Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk")) {
-	applicationArgs.add("--no-headless");
-	applicationArgs.add("--enable-e2e-devtools");
-}
-if (needsCoverage) {
-	await removeMaybeDirectory(DENO_COVERAGE_DIR);
-	await removeMaybeDirectory(FAKE_IMPORTS_COVERAGE_DIR);
-	denoTestArgs.push(`--coverage=${DENO_COVERAGE_DIR}`);
-	const coverageMapPath = join(Deno.cwd(), FAKE_IMPORTS_COVERAGE_DIR);
-	applicationArgs.add(`--fi-coverage-map=${coverageMapPath}`);
-}
-denoTestArgs.push(...extraDenoTestArgs);
-const cmd = [...denoTestArgs, "--", ...applicationArgs];
+/**
+ * @typedef TestCommand
+ * @property {string[]} cmd
+ */
 
-console.log(`Running: ${cmd.join(" ")}`);
-const testProcess = Deno.run({cmd});
-const testStatus = await testProcess.status();
-if (!testStatus.success) {
-	Deno.exit(testStatus.code);
+/** @type {TestCommand[]} */
+const testCommands = [];
+
+// Unit tests command
+if (needsUnitTests) {
+	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-net", "--parallel"];
+	if (needsCoverage) {
+		denoTestArgs.push("--allow-write");
+	}
+	const applicationArgs = new Set();
+	for (const arg of Deno.args) {
+		if (APPLICATION_ARGS.includes(arg)) {
+			applicationArgs.add(arg);
+		}
+	}
+	if (needsCoverage) {
+		await removeMaybeDirectory(DENO_COVERAGE_DIR);
+		await removeMaybeDirectory(FAKE_IMPORTS_COVERAGE_DIR);
+		denoTestArgs.push(`--coverage=${DENO_COVERAGE_DIR}`);
+		const coverageMapPath = join(Deno.cwd(), FAKE_IMPORTS_COVERAGE_DIR);
+		applicationArgs.add(`--fi-coverage-map=${coverageMapPath}`);
+	}
+	denoTestArgs.push(filteredTests || "test/unit/");
+	denoTestArgs.push(...userProvidedArgs);
+	const cmd = [...denoTestArgs, "--", ...applicationArgs];
+	testCommands.push({cmd});
+}
+
+// E2E tests command
+if (needsE2eTests) {
+	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable"];
+	const applicationArgs = new Set();
+	for (const arg of Deno.args) {
+		if (APPLICATION_ARGS.includes(arg)) {
+			applicationArgs.add(arg);
+		}
+	}
+	if (Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk")) {
+		applicationArgs.add("--no-headless");
+		applicationArgs.add("--enable-e2e-devtools");
+	}
+	denoTestArgs.push(filteredTests || "test/e2e/");
+	denoTestArgs.push(...userProvidedArgs);
+	const cmd = [...denoTestArgs, "--", ...applicationArgs];
+	testCommands.push({cmd});
+}
+
+let lastTestStatus;
+for (const {cmd} of testCommands) {
+	console.log(`Running: ${cmd.join(" ")}`);
+	const testProcess = Deno.run({cmd});
+	lastTestStatus = await testProcess.status();
+	if (!lastTestStatus.success) {
+		break;
+	}
 }
 
 testServer?.close();
+
+if (lastTestStatus && !lastTestStatus.success) {
+	Deno.exit(lastTestStatus.code);
+}
 
 if (needsCoverage) {
 	let coverageMapExists = true;
