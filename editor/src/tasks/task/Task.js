@@ -31,6 +31,12 @@ export class Task {
 	worker;
 
 	/**
+	 * The structure of the ui that should be rendered in the properties content window.
+	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 */
+	static configStructure = null;
+
+	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
 	 */
 	constructor(editorInstance) {

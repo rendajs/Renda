@@ -1,4 +1,5 @@
 import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "./Task.js";
 
 /**
@@ -45,6 +46,24 @@ export class TaskBundleScripts extends Task {
 
 	/** @type {TypedMessenger<import("../workers/bundleScripts/mod.js").BundleScriptsMessengerResponseHandlers, BundleScriptsMessengerResponseHandlers>} */
 	#messenger;
+
+	static configStructure = createTreeViewStructure({
+		scriptPaths: {
+			type: "array",
+			guiOpts: {
+				arrayType: "array",
+				arrayGuiOpts: {
+					arrayType: "string",
+				},
+			},
+		},
+		outputPath: {
+			type: "array",
+			guiOpts: {
+				arrayType: "string",
+			},
+		},
+	});
 
 	/**
 	 * @param  {ConstructorParameters<typeof Task>} args

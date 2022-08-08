@@ -1,5 +1,5 @@
 import {TaskBundleScripts} from "./task/TaskBundleScripts.js";
 
-/** @type {import("./task/Task.js").TaskConstructor[]} */
+/** @type {(new (...args: any) => import("./task/Task.js").Task)[]} */
 const autoRegisterTaskTypes = [TaskBundleScripts];
 export {autoRegisterTaskTypes};

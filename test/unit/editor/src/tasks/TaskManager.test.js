@@ -3,6 +3,7 @@ import {Task} from "../../../../../editor/src/tasks/task/Task.js";
 import {TaskManager} from "../../../../../editor/src/tasks/TaskManager.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 
 const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
 
@@ -97,51 +98,57 @@ Deno.test({
 Deno.test({
 	name: "running a task",
 	async fn() {
-		const manager = new TaskManager();
+		injectMockEditorInstance(/** @type {import("../../../../../editor/src/editor.js").Editor} */ ({}));
 
-		/** @extends {Task<{}>} */
-		class ExtendedTask extends Task {
-			static type = "namespace:type";
-			static typeUuid = BASIC_UUID;
-			static workerUrl = new URL("./shared/basicWorker.js", import.meta.url);
+		try {
+			const manager = new TaskManager();
 
-			/** @type {TypedMessenger<import("./shared/basicWorker.js").BasicWorkerResponseHandlers, {}>} */
-			#messenger;
+			/** @extends {Task<{}>} */
+			class ExtendedTask extends Task {
+				static type = "namespace:type";
+				static typeUuid = BASIC_UUID;
+				static workerUrl = new URL("./shared/basicWorker.js", import.meta.url);
 
-			/** @param {ConstructorParameters<typeof Task>} args */
-			constructor(...args) {
-				super(...args);
-				this.#messenger = new TypedMessenger();
-				this.#messenger.setSendHandler(data => {
-					this.worker.postMessage(data);
-				});
-				this.worker.addEventListener("message", event => {
-					this.#messenger.handleReceivedMessage(event.data);
-				});
+				/** @type {TypedMessenger<import("./shared/basicWorker.js").BasicWorkerResponseHandlers, {}>} */
+				#messenger;
+
+				/** @param {ConstructorParameters<typeof Task>} args */
+				constructor(...args) {
+					super(...args);
+					this.#messenger = new TypedMessenger();
+					this.#messenger.setSendHandler(data => {
+						this.worker.postMessage(data);
+					});
+					this.worker.addEventListener("message", event => {
+						this.#messenger.handleReceivedMessage(event.data);
+					});
+				}
+
+				/**
+				 * @param {{}} config
+				 */
+				async runTask(config) {
+					return await this.#messenger.send("repeatString", "foo");
+				}
 			}
 
-			/**
-			 * @param {{}} config
-			 */
-			async runTask(config) {
-				return await this.#messenger.send("repeatString", "foo");
-			}
+			const runTaskSpy = spy(ExtendedTask.prototype, "runTask");
+
+			manager.registerTaskType(ExtendedTask);
+			const result = await manager.runTask({
+				taskFileContent: {
+					taskType: "namespace:type",
+				},
+			});
+
+			assertSpyCalls(runTaskSpy, 1);
+			assertEquals(result, "foo");
+
+			const taskInstance = manager.initializeTask("namespace:type");
+			assertInstanceOf(taskInstance, ExtendedTask);
+			taskInstance.worker.terminate();
+		} finally {
+			injectMockEditorInstance(null);
 		}
-
-		const runTaskSpy = spy(ExtendedTask.prototype, "runTask");
-
-		manager.registerTaskType(ExtendedTask);
-		const result = await manager.runTask({
-			taskFileContent: {
-				taskType: "namespace:type",
-			},
-		});
-
-		assertSpyCalls(runTaskSpy, 1);
-		assertEquals(result, "foo");
-
-		const taskInstance = manager.initializeTask("namespace:type");
-		assertInstanceOf(taskInstance, ExtendedTask);
-		taskInstance.worker.terminate();
 	},
 });

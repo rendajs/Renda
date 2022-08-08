@@ -3,7 +3,7 @@ import {autoRegisterTaskTypes} from "./autoRegisterTaskTypes.js";
 import {Task} from "./task/Task.js";
 
 export class TaskManager {
-	/** @type {Map<string, import("./task/Task.js").TaskConstructor>} */
+	/** @type {Map<string, typeof import("./task/Task.js").Task>} */
 	#registeredTasks = new Map();
 	/** @type {Map<string, Task>} */
 	#initializedTasks = new Map();
@@ -15,7 +15,7 @@ export class TaskManager {
 	}
 
 	/**
-	 * @param {import("./task/Task.js").TaskConstructor} taskConstructor
+	 * @param {new (...args: any[]) => any} taskConstructor
 	 */
 	registerTaskType(taskConstructor) {
 		const castConstructor = /** @type {typeof Task} */ (taskConstructor);
@@ -32,7 +32,7 @@ export class TaskManager {
 			throw new Error(`Tried to register task (${castConstructor.name}) with no workerUrl value, override the static workerUrl value in order for this task to function properly.`);
 		}
 
-		this.#registeredTasks.set(castConstructor.type, taskConstructor);
+		this.#registeredTasks.set(castConstructor.type, castConstructor);
 	}
 
 	/**

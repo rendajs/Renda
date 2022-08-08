@@ -51,7 +51,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	}
 
 	/**
-	 * @private
+	 * @deprecated Use {@link of} instead.
 	 * @param {import("./types.js").PropertiesTreeViewEntryOptionsGeneric<any>} opts
 	 */
 	constructor({
