@@ -8,12 +8,10 @@ setTimeout(() => {
   <style>
     .orange-shape {
       fill: url(#orangeBaseGradient);
-      stroke-width: 0.3px;
     }
 
     .white-shape {
       fill: url(#whiteBaseGradient);
-      stroke-width: 0.3px;
     }
 
     .brown-shape {
@@ -32,16 +30,8 @@ setTimeout(() => {
       <stop offset="0" style="stop-color: #ffc300;"/>
       <stop offset="1" style="stop-color: #ff7700;"/>
     </radialGradient>
-    <radialGradient id="orangeStrokeGradient" cx="20%" cy="20%" r="100%">
-      <stop offset="0" style="stop-color: #ffd449;"/>
-      <stop offset="1" style="stop-color: #ff5a00;"/>
-    </radialGradient>
     <radialGradient id="whiteBaseGradient" cx="0%" cy="0%" r="100%" fr="80%">
       <stop offset="0" style="stop-color: #ffecdd;"/>
-      <stop offset="1" style="stop-color: #ffdbbb;"/>
-    </radialGradient>
-    <radialGradient id="whiteStrokeGradient" cx="0%" cy="0%" r="100%" fr="80%">
-      <stop offset="0" style="stop-color: #ffefe1;"/>
       <stop offset="1" style="stop-color: #ffdbbb;"/>
     </radialGradient>
     <radialGradient id="innerEarGradient">
