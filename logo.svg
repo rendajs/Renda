@@ -5,15 +5,18 @@ setTimeout(() => {
   window.location.reload();
 }, 500)
 </script>
-  <style>
-    .white-shape {
-      fill: url(#lowerFaceGradient);
-    }
-  </style>
   <defs>
+    <radialGradient id="innerEarGradient">
+      <stop offset="0" style="stop-color: #f5c59e;"/>
+      <stop offset="1" style="stop-color: #fcdec7;"/>
+    </radialGradient>
+    <radialGradient id="outerEarGradient">
+      <stop offset="0" style="stop-color: #fff1e6;"/>
+      <stop offset="1" style="stop-color: #ffe4cf;"/>
+    </radialGradient>
     <symbol id="ear" viewBox="0 0 30 30" width="30" height="30">
-      <path class="white-shape" d="M 6.391 24.004 C 6.391 24.004 1.832 17.042 5.211 6.822 C 22.242 4.384 27.999 10.753 27.999 10.753 C 27.999 10.753 21.756 23.197 21.756 23.22 C 21.756 23.244 6.752 24.002 6.391 24.004 Z"/>
-      <path style="fill: url(#innerEarGradient);" d="M 9.067 22.607 C 5.979 15.817 6.858 10.603 8.14 9.54 C 9.403 8.493 21.714 9.328 19.319 11.922 C 17.578 13.807 14.96 13.228 12.414 14.123 C 17.726 15.407 9.383 23.302 9.067 22.607 Z"/>
+      <path fill="url(#outerEarGradient)" d="M 6.391 24.004 C 6.391 24.004 1.832 17.042 5.211 6.822 C 22.242 4.384 27.999 10.753 27.999 10.753 C 27.999 10.753 21.756 23.197 21.756 23.22 C 21.756 23.244 6.752 24.002 6.391 24.004 Z"/>
+      <path fill="url(#innerEarGradient)" d="M 9.067 22.607 C 5.979 15.817 6.858 10.603 8.14 9.54 C 9.403 8.493 21.714 9.328 19.319 11.922 C 17.578 13.807 14.96 13.228 12.414 14.123 C 17.726 15.407 9.383 23.302 9.067 22.607 Z"/>
     </symbol>
     <symbol id="eyebrow" viewBox="0 0 10 10" width="10" height="10">
       <path d="M 1.932 4.906 C 4.785 5.332 7.079 8.827 7.985 7.612 C 9.006 6.245 6.43 3.459 4.891 2.725 C 1.912 1.304 0.942 4.758 1.932 4.906 Z"/>
@@ -36,10 +39,6 @@ setTimeout(() => {
     <radialGradient id="eyebrowGradientRight" cx="0%" cy="0%" r="100%">
       <stop offset="0" style="stop-color: #fee9d8;"/>
       <stop offset="1" style="stop-color: #f2bc94;"/>
-    </radialGradient>
-    <radialGradient id="innerEarGradient">
-      <stop offset="0" style="stop-color: #f5c59e;"/>
-      <stop offset="1" style="stop-color: #fcdec7;"/>
     </radialGradient>
     <radialGradient id="brownGradient" cx="0%" cy="0%" r="100%">
       <stop offset="0" style="stop-color: #732800;"/>
