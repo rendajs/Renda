@@ -235,11 +235,11 @@ export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 	 * @param {any} object
 	 * @param {string | number} propertyName
 	 * @param {any} scriptValue
-	 * @param {import("../ui/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} guiEntry
+	 * @param {import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<any>} guiEntry
 	 */
 	mapFromDroppableGuiValues(object, propertyName, scriptValue, guiEntry) {
 		if (Array.isArray(scriptValue)) {
-			const castGuiEntry = /** @type {import("../ui/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../ui/ArrayGui.js").ArrayGui<any>>} */ (guiEntry);
+			const castGuiEntry = /** @type {import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../ui/ArrayGui.js").ArrayGui<any>>} */ (guiEntry);
 			/** @type {unknown[]} */
 			const newScriptValue = [];
 			for (const [i, item] of scriptValue.entries()) {

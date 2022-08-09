@@ -65,7 +65,7 @@ export class GizmoDraggable {
 	}
 
 	/**
-	 * @param {import("../../Components/builtIn/CameraComponent.js").CameraComponent} camera
+	 * @param {import("../../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 */
 	getScreenPos(camera) {
 		return camera.worldToScreenPos(this.entity.pos);

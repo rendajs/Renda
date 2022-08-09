@@ -98,7 +98,7 @@ Deno.test({
 Deno.test({
 	name: "running a task",
 	async fn() {
-		injectMockEditorInstance(/** @type {import("../../../../../editor/src/editor.js").Editor} */ ({}));
+		injectMockEditorInstance(/** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({}));
 
 		try {
 			const manager = new TaskManager();
