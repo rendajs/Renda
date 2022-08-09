@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"lint": "eslint .",
-		"test": "playwright test"
+		"lint-fix": "npm run lint -- --fix"
 	},
 	"devDependencies": {
 		"@babel/eslint-parser": "^7.16.3",

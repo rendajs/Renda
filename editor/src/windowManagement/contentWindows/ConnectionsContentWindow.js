@@ -5,7 +5,7 @@ import {ContentWindow} from "./ContentWindow.js";
 /**
  * @typedef {Object} ConectionGui
  * @property {PropertiesTreeView<any>} treeView
- * @property {import("../../ui/PropertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
+ * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
  */
 
 export class ConnectionsContentWindow extends ContentWindow {

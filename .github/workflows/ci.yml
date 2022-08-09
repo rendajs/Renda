@@ -1,0 +1,46 @@
+# This workflow will install Deno then run Deno lint and test.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        # For more information see: https://github.com/denoland/setup-deno
+        uses: denoland/setup-deno@v1.1.0
+        with:
+          deno-version: "1.24.1"
+
+      - name: npm install
+        run: npm install
+
+      - name: Setup Renda
+        # Sets up a development environment required for type the next steps to pass.
+        run: deno task dev --no-serve
+
+      - name: Install editor dependencies
+        run: deno task build-editor-dependencies
+
+      - name: Type check
+        run: deno task check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Install puppeteer
+        run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
+
+      - name: Test
+        run: deno task test
+

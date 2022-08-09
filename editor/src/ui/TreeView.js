@@ -140,10 +140,10 @@ export class TreeView {
 	#textFieldVisible = false;
 	#lastTextFocusOutWasFromRow = false;
 	#lastTextFocusOutTime = 0;
-	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
 	#renamingShortcutCondition = null;
 
-	/** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
 	#focusSelectedShortcutCondition = null;
 
 	/**
@@ -276,10 +276,10 @@ export class TreeView {
 		const editor = getMaybeEditorInstance();
 		if (editor && editor.keyboardShortcutManager) {
 			const renamingCondition = editor.keyboardShortcutManager.getCondition("treeView.renaming");
-			this.#renamingShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
+			this.#renamingShortcutCondition = /** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
 
 			const focusSelectedCondition = editor.keyboardShortcutManager.getCondition("treeView.focusSelected");
-			this.#focusSelectedShortcutCondition = /** @type {import("../KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
+			this.#focusSelectedShortcutCondition = /** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
 		}
 
 		this.updateArrowHidden();

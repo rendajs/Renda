@@ -45,8 +45,10 @@ const buildProcess = Deno.run({
 });
 await buildProcess.status();
 
-const server = new DevServer({
-	port: 8080,
-	serverName: "development server",
-});
-server.start();
+if (!Deno.args.includes("--no-serve")) {
+	const server = new DevServer({
+		port: 8080,
+		serverName: "development server",
+	});
+	server.start();
+}

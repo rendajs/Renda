@@ -1,9 +1,9 @@
 export function createMockKeyboardShortcutManager() {
-	const keyboardShortcutManager = /** @type {import("../../../../editor/src/KeyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
+	const keyboardShortcutManager = /** @type {import("../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
 		getCondition(name) {
-			const mockCondition = /** @type {import("../../../../editor/src/KeyboardShortcuts/ShortcutCondition.js").ShortcutCondition} */ ({
+			const mockCondition = /** @type {import("../../../../editor/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition} */ ({
 				requestValueSetter(priority) {
-					const mockValueSetter = /** @type {import("../../../../editor/src/KeyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<any>} */ ({
+					const mockValueSetter = /** @type {import("../../../../editor/src/keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<any>} */ ({
 						setValue(value) {},
 					});
 					return mockValueSetter;

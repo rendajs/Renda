@@ -1,6 +1,5 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../ui/TreeView.js";
-import {SelectionGroup} from "../../misc/SelectionGroup.js";
 
 export class BuiltInAssetsContentWindow extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";
@@ -28,7 +27,7 @@ export class BuiltInAssetsContentWindow extends ContentWindow {
 
 		this.contentEl.appendChild(this.treeView.el);
 
-		/** @type {SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
+		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.init();

@@ -1,4 +1,8 @@
 dist
 editor/dist/js/*
-editor/libs/
+editor/deps/
 *.ts
+.coverage
+.denoTypes
+node_modules
+npm_packages
