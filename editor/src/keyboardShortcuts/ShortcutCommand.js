@@ -1,5 +1,3 @@
-import {KeyboardShortcutManager} from "./KeyboardShortcutManager.js";
-
 /**
  * - `single` Only fire command once.
  * - `hold` Activate when the key is down, and deactivate when it is up.
@@ -25,7 +23,7 @@ import {KeyboardShortcutManager} from "./KeyboardShortcutManager.js";
  */
 export class ShortcutCommand {
 	/**
-	 * @param {KeyboardShortcutManager} shortcutManager
+	 * @param {import("./KeyboardShortcutManager.js").KeyboardShortcutManager} shortcutManager
 	 * @param {ShortcutCommandOptions} opts
 	 */
 	constructor(shortcutManager, {

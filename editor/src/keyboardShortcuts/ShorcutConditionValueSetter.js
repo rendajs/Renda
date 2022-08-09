@@ -1,5 +1,3 @@
-import {ShortcutCondition} from "./ShortcutCondition.js";
-
 /**
  * A single valueSetter is used to control the value of ShortcutConditions.
  * This is to ensure multiple places in the code can control the value of a
@@ -8,7 +6,7 @@ import {ShortcutCondition} from "./ShortcutCondition.js";
  */
 export class ShorcutConditionValueSetter {
 	/**
-	 * @param {ShortcutCondition} condition
+	 * @param {import("./ShortcutCondition.js").ShortcutCondition} condition
 	 * @param {number} priority
 	 */
 	constructor(condition, priority = 0) {
