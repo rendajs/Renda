@@ -17,14 +17,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup Deno
-				# For more information see: https://github.com/denoland/setup-deno
+        # For more information see: https://github.com/denoland/setup-deno
         uses: denoland/setup-deno@v1.1.0
         with:
           deno-version: "1.24.1"
 
-			- name: Setup Renda
-				# Sets up a development environment required for type the next steps to pass.
-				run: deno task dev --no-serve
+      - name: Setup Renda
+        # Sets up a development environment required for type the next steps to pass.
+        run: deno task dev --no-serve
 
       - name: Type check
         run: deno run check
