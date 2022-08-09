@@ -30,4 +30,4 @@ jobs:
         run: deno task dev --no-serve
 
       - name: Type check
-        run: deno run check
+        run: deno task check
