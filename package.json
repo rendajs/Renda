@@ -6,6 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"lint": "eslint .",
+		"lint-fix": "npm run lint -- --fix",
 		"test": "playwright test"
 	},
 	"devDependencies": {
