@@ -131,22 +131,6 @@ body, html{
 	}
 }
 
-@media (max-width: 420px) {
-	.project-selector-window {
-		grid-template-columns: 1fr;
-		grid-template-areas:
-			"actions-list"
-			"recent-list";
-		padding: 20px;
-		box-sizing: border-box;
-		grid-gap: 10px;
-	}
-
-	.project-selector-title {
-		display: none;
-	}
-}
-
 .project-selector-list {
 	list-style: none;
 	padding: 0;
@@ -168,6 +152,22 @@ body, html{
 
 .project-selector-title {
 	align-self: center;
+}
+
+@media (max-width: 420px) {
+	.project-selector-window {
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"actions-list"
+			"recent-list";
+		padding: 20px;
+		box-sizing: border-box;
+		grid-gap: 10px;
+	}
+
+	.project-selector-header {
+		display: none;
+	}
 }
 
 .project-selector-actions-list-container {
