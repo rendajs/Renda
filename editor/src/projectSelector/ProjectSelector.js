@@ -20,10 +20,18 @@ export class ProjectSelector {
 		this.el.classList.add("project-selector-window");
 		document.body.appendChild(this.el);
 
+		const headerEl = document.createElement("div");
+		headerEl.classList.add("project-selector-header");
+		this.el.appendChild(headerEl);
+
+		const logoEl = document.createElement("div");
+		logoEl.classList.add("project-selector-logo");
+		headerEl.appendChild(logoEl);
+
 		const titleEl = document.createElement("h1");
 		titleEl.classList.add("project-selector-title");
-		titleEl.textContent = "Jespers Wacky Web Engine";
-		this.el.appendChild(titleEl);
+		titleEl.textContent = "Renda";
+		headerEl.appendChild(titleEl);
 
 		this.actionsListEl = this.createList("actions", "Start");
 		this.recentListEl = this.createList("recent", "Recent");

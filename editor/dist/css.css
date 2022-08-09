@@ -115,7 +115,7 @@ body, html{
 	grid-template-columns: 1fr 6fr 1fr 6fr 1fr;
 	grid-template-rows: 160px 1fr;
 	grid-template-areas:
-		". header header header ."
+		"header header header header header"
 		". actions-list . recent-list .";
 }
 
@@ -152,9 +152,22 @@ body, html{
 	padding: 0;
 }
 
-.project-selector-title {
+.project-selector-header {
 	grid-area: header;
-	align-self: end;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+
+.project-selector-logo {
+	background: url(img/logo.svg) no-repeat center;
+	width: 100px;
+	height: 100px;
+}
+
+.project-selector-title {
+	align-self: center;
 }
 
 .project-selector-actions-list-container {
