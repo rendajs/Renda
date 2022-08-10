@@ -12,6 +12,11 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    env:
+      DENO_DIR: deno_dir
+      PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
+      PUPPETEER_CHROMIUM_REVISION: 991974
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -22,8 +27,38 @@ jobs:
         with:
           deno-version: "1.24.1"
 
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          # Using the import map as key doesn't necessarily cause the cache to
+          # get invalidated in all cases. A script could still import a url
+          # directly for example. But this is good enough in most cases.
+          # If the cache wasn't invalidated, this simply means some of the
+          # dependencies are downloaded on every run, which is fine as long as
+          # there are not too many uncached dependencies.
+          # If at a later point it turns out using only the importmap as key
+          # is not enough, we can add more files here.
+          key: denoDeps-${{ hashFiles('importmap.json') }}
+          path: ${{ env.DENO_DIR }}
+
       - name: npm install
         run: npm install
+
+      - name: Pre-collect imports
+        # Sets up a development environment required for type the next steps to pass.
+        run: deno task dev --precollect-imports
+
+      - name: Cache Deno types
+        uses: actions/cache@v3
+        with:
+          key: denoTypes-${{ hashFiles('.denoTypes/precollectedImports.json','importmap.json','scripts/dev.js') }}
+          path: .denoTypes
+
+      - name: Cache npm packages
+        uses: actions/cache@v3
+        with:
+          key: npmPackages-${{ hashFiles('scripts/dev.js') }}
+          path: npm_packages
 
       - name: Setup Renda
         # Sets up a development environment required for type the next steps to pass.
@@ -37,6 +72,12 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Cache puppeteer
+        uses: actions/cache@v3
+        with:
+          key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
+          path: ${{ env.PUPPETEER_DOWNLOAD_PATH }}
 
       - name: Install puppeteer
         run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts

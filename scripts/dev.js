@@ -10,12 +10,14 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.7/mod.js";
+import {generateTypes, preCollectImports} from "https://deno.land/x/deno_tsc_helper@v0.0.10/mod.js";
 import {downloadNpmPackages} from "https://deno.land/x/npm_devinit@v0.0.2/mod.ts";
 
-await generateTypes({
+/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.10/mod.js").GenerateTypesOptions} */
+const generateTypesOptions = {
 	outputDir: "../.denoTypes",
 	importMap: "../importmap.json",
+	preCollectedImportsFile: "precollectedImports.json",
 	include: [
 		".",
 		"../test",
@@ -28,7 +30,14 @@ await generateTypes({
 		"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
 		"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
 	},
-});
+};
+
+if (Deno.args.includes("--precollect-imports")) {
+	await preCollectImports(generateTypesOptions);
+	Deno.exit();
+}
+
+await generateTypes(generateTypesOptions);
 
 setCwd();
 Deno.chdir("..");
