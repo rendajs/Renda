@@ -115,7 +115,7 @@ body, html{
 	grid-template-columns: 1fr 6fr 1fr 6fr 1fr;
 	grid-template-rows: 160px 1fr;
 	grid-template-areas:
-		". header header header ."
+		"header header header header header"
 		". actions-list . recent-list .";
 }
 
@@ -128,7 +128,33 @@ body, html{
 		transform: translate(0, 0);
 		border-radius: 0;
 		box-shadow: none;
+		border: none;
 	}
+}
+
+.project-selector-list {
+	list-style: none;
+	padding: 0;
+}
+
+.project-selector-header {
+	grid-area: header;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	background: url(img/splash.svg) no-repeat center/cover;
+}
+
+.project-selector-logo {
+	background: url(img/logo.svg) no-repeat center;
+	width: 100px;
+	height: 100px;
+}
+
+.project-selector-title {
+	align-self: center;
+	color: #ffe1d0;
 }
 
 @media (max-width: 420px) {
@@ -142,19 +168,9 @@ body, html{
 		grid-gap: 10px;
 	}
 
-	.project-selector-title {
+	.project-selector-header {
 		display: none;
 	}
-}
-
-.project-selector-list {
-	list-style: none;
-	padding: 0;
-}
-
-.project-selector-title {
-	grid-area: header;
-	align-self: end;
 }
 
 .project-selector-actions-list-container {
