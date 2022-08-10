@@ -54,6 +54,12 @@ jobs:
           key: denoTypes-${{ hashFiles('.denoTypes/precollectedImports.json','importmap.json','scripts/dev.js') }}
           path: .denoTypes
 
+      - name: Cache npm packages
+        uses: actions/cache@v3
+        with:
+          key: npmPackages-${{ hashFiles('scripts/dev.js') }}
+          path: npm_packages
+
       - name: Setup Renda
         # Sets up a development environment required for type the next steps to pass.
         run: deno task dev --no-serve
