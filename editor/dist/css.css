@@ -142,6 +142,7 @@ body, html{
 	justify-content: center;
 	align-items: center;
 	gap: 10px;
+	background: url(img/splash.svg) no-repeat center/cover;
 }
 
 .project-selector-logo {
@@ -152,6 +153,7 @@ body, html{
 
 .project-selector-title {
 	align-self: center;
+	color: #ffe1d0;
 }
 
 @media (max-width: 420px) {

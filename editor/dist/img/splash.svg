@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<linearGradient id="bgGradient" x1="0%" y1="0%" x2="110%" y2="25%">
+			<stop offset="0"   style="stop-color: #ff8700;"/>
+			<stop offset="0.1" style="stop-color: #e66600;"/>
+			<stop offset="0.3" style="stop-color: #d13100;"/>
+			<stop offset="0.7"   style="stop-color: #e22b00;"/>
+			<stop offset="1"   style="stop-color: #840000;"/>
+		</linearGradient>
+		<linearGradient id="glassGradient">
+			<stop offset="0"   style="stop-color: #ff60004d;"/>
+			<stop offset="1"   style="stop-color: #aa11008c;"/>
+		</linearGradient>
+		<linearGradient id="glassOutlineGradient">
+			<stop offset="0"   style="stop-color: #ff6d008f;"/>
+			<stop offset="1"   style="stop-color: #aa11008c;"/>
+		</linearGradient>
+	</defs>
+	<rect x="0" y="0" width="500" height="160" style="fill: url(#bgGradient);"/>
+	<path fill="url(#glassGradient)" d="M 5 -10.5 L 174 -16 C 174 -16 171 13 159 74 C 147 135 161 252 161 252 L -4 249 C -4 249 -10 213 -0.5 121 C 9 29 5.5 -10.5 5 -10.5 Z" style="transform: translate(100px, -40px) rotate(10deg);"></path>
+	<path fill="url(#glassGradient)" d="M 5 -10.5 L 166 -16 C 166 -16 158 51 159 111 C 159 172 161 252 161 252 L 3 252 C 3 252 -10 205 -0.5 121 C 9 37 5.5 -10.5 5 -10.5 Z" style="transform: translate(270px, -40px) rotate(-4deg);"></path>
+	<rect x="0" y="0" width="500" height="160" style="fill: rgba(0,0,0,0.2);"/>
+</svg>
