@@ -14,7 +14,7 @@ jobs:
 
     env:
       DENO_DIR: deno_dir
-      PUPPETEER_DOWNLOAD_PATH: ~/puppeteer_download_path
+      PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
       PUPPETEER_CHROMIUM_REVISION: 991974
 
     steps:
