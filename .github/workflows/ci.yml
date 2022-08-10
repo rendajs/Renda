@@ -12,6 +12,9 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    env:
+      DENO_DIR: deno_dir
+
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
