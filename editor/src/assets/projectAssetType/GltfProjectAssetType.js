@@ -10,7 +10,7 @@ import {SamplerProjectAssetType} from "./SamplerProjectAssetType.js";
  * @extends {ProjectAssetType<import("../../../../src/core/Entity.js").Entity?, null, "binary">}
  */
 export class GltfProjectAssetType extends ProjectAssetType {
-	static type = "JJ:gltf";
+	static type = "renda:gltf";
 	static typeUuid = "5d946212-d6f8-412a-8bf1-ee7f4811f038";
 	static matchExtensions = ["gltf", "glb"];
 	static storeInProjectAsJson = false;

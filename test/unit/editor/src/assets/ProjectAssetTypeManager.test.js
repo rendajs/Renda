@@ -20,7 +20,7 @@ Deno.test({
 		const manager = new ProjectAssetTypeManager();
 		manager.init();
 
-		const result = manager.getAssetType("JJ:mesh");
+		const result = manager.getAssetType("renda:mesh");
 
 		assertExists(result);
 	},

@@ -650,7 +650,7 @@ export class TreeView {
 						rootUuid = generateUuid();
 						castRoot[dragRootUuidSymbol] = rootUuid;
 					}
-					e.dataTransfer.setData(`text/jj; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
+					e.dataTransfer.setData(`text/renda; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 				}
 			}
 			if (editor) {
@@ -929,7 +929,7 @@ export class TreeView {
 		if (!parsed) return false;
 
 		const {type, subType, parameters} = parsed;
-		if (type == "text" && subType == "jj") {
+		if (type == "text" && subType == "renda") {
 			const root = this.findRoot();
 			const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
 			const rootUuid = castRoot[dragRootUuidSymbol];

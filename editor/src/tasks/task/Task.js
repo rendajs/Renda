@@ -15,7 +15,7 @@ export class Task {
 
 	/**
 	 * This is used for identifying the task type in configuration files.
-	 * This should have the format "namespace:taskType", for example: "JJ:bundleScripts".
+	 * This should have the format "namespace:taskType", for example: "renda:bundleScripts".
 	 * @type {import("../../../../src/util/mod.js").UuidString}
 	 */
 	static type = "";

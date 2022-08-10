@@ -286,7 +286,7 @@ export class ScriptBuilder {
 				/** @type {string[]} */
 				let resolvedPathArr = [];
 
-				if (sourcePath == "JJ") {
+				if (sourcePath == "renda") {
 					scriptType = "engine";
 					sourcePath = "/dist/mod.js";
 				}

@@ -17,7 +17,7 @@ import {compareFunction, primitiveTopologyTypes} from "../../../../src/assets/as
  * @extends {ProjectAssetType<WebGpuPipelineConfig, null, WebGpuPipelineConfigAssetData>}
  */
 export class WebGpuPipelineConfigProjectAssetType extends ProjectAssetType {
-	static type = "JJ:webGpuPipelineConfig";
+	static type = "renda:webGpuPipelineConfig";
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	static newFileName = "New Pipeline Config";
 

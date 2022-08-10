@@ -506,7 +506,7 @@ export class DroppableGui {
 			assetUuid,
 		};
 		const draggingDataUuid = this.dragManager.registerDraggingData(draggingData);
-		e.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
+		e.dataTransfer.setData(`text/renda; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 	}
 
 	/**
@@ -612,7 +612,7 @@ export class DroppableGui {
 		let draggingProjectAssetData = null;
 		if (parsed) {
 			const {type, subType, parameters} = parsed;
-			isEngineType = (type == "text" && subType == "jj");
+			isEngineType = (type == "text" && subType == "renda");
 			if (isEngineType) {
 				isProjectAsset = (parameters.dragtype == "projectasset");
 				if (isProjectAsset) {

@@ -104,7 +104,7 @@ export class Editor {
 				assertAssetType: ShaderSourceProjectAssetType,
 			});
 			if (projectAsset) {
-				if (projectAsset.assetType == "JJ:shaderSource") {
+				if (projectAsset.assetType == "renda:shaderSource") {
 					return await projectAsset.readAssetData();
 				}
 			}
