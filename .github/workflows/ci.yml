@@ -61,7 +61,7 @@ jobs:
         uses: actions/cache@v3
         with:
           key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
-          path: ${{ env.PUPPETEER_EXECUTABLE_PATH }}
+          path: ${{ env.PUPPETEER_DOWNLOAD_PATH }}
 
       - name: Install puppeteer
         run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
