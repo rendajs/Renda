@@ -6,3 +6,4 @@ editor/deps/
 .denoTypes
 node_modules
 npm_packages
+deno_dir
