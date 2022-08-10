@@ -4,7 +4,7 @@ name: ci
 
 on:
   push:
-    branches: [main,ci-caching]
+    branches: [main]
   pull_request:
     branches: [main]
 
