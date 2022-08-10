@@ -38,11 +38,21 @@ jobs:
           # there are not too many uncached dependencies.
           # If at a later point it turns out using only the importmap as key
           # is not enough, we can add more files here.
-          key: ${{ hashFiles('importmap.json') }}
+          key: denoDeps-${{ hashFiles('importmap.json') }}
           path: ${{ env.DENO_DIR }}
 
       - name: npm install
         run: npm install
+
+      - name: Pre-collect imports
+        # Sets up a development environment required for type the next steps to pass.
+        run: deno task dev --precollect-imports
+
+      - name: Cache Deno types
+        uses: actions/cache@v3
+        with:
+          key: denoTypes-${{ hashFiles('.denoTypes/precollectedImports.json,importmap.json,scripts/dev.js') }}
+          path: .denoTypes
 
       - name: Setup Renda
         # Sets up a development environment required for type the next steps to pass.
