@@ -90,7 +90,7 @@ export class BuiltInAssetsContentWindow extends ContentWindow {
 		};
 		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
 		if (e.rawEvent.dataTransfer) {
-			e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
+			e.rawEvent.dataTransfer.setData(`text/renda; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 			e.rawEvent.dataTransfer.effectAllowed = "all";
 		}
 	}

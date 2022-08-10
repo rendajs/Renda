@@ -10,7 +10,7 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
  * @extends {ProjectAssetType<Texture, TextureProjectAssetTypeEditorData, any, null>}
  */
 export class TextureProjectAssetType extends ProjectAssetType {
-	static type = "JJ:texture";
+	static type = "renda:texture";
 	static typeUuid = "7db7d04f-bb6d-4b9e-9390-06f23dd47f4b";
 	static matchExtensions = ["png"];
 	static storeInProjectAsJson = false;

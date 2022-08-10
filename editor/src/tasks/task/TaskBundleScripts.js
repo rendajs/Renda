@@ -39,7 +39,7 @@ function getResponseHandlers(fileSystem) {
  */
 export class TaskBundleScripts extends Task {
 	static uiName = "Bundle scripts";
-	static type = "JJ:bundleScripts";
+	static type = "renda:bundleScripts";
 
 	// @rollup-plugin-resolve-url-objects
 	static workerUrl = new URL("../workers/bundleScripts/mod.js", import.meta.url);

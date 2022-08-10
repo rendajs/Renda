@@ -13,7 +13,7 @@ Deno.test({
 		const manager = new TaskManager();
 		manager.init();
 
-		const result = manager.getTaskType("JJ:bundleScripts");
+		const result = manager.getTaskType("renda:bundleScripts");
 
 		assertExists(result);
 	},

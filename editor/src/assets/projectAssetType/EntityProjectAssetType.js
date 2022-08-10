@@ -21,7 +21,7 @@ function getEntityWithAssetRootUuidType() {
  * @extends {ProjectAssetType<Entity, null, import("../../../../src/core/Entity.js").EntityJsonData>}
  */
 export class EntityProjectAssetType extends ProjectAssetType {
-	static type = "JJ:entity";
+	static type = "renda:entity";
 	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";
 	static newFileName = "New Entity";
 

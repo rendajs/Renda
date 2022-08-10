@@ -12,10 +12,10 @@ import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
  * @extends {ProjectAssetType<Mesh?, MeshProjectAssetTypeEditorData?, "binary">}
  */
 export class MeshProjectAssetType extends ProjectAssetType {
-	static type = "JJ:mesh";
+	static type = "renda:mesh";
 	static typeUuid = "f202aae6-673a-497d-806d-c2d4752bb146";
 	static newFileName = "New Mesh";
-	static newFileExtension = "jjmesh";
+	static newFileExtension = "rmesh";
 	static storeInProjectAsJson = false;
 	static propertiesAssetContentConstructor = MeshPropertiesAssetContent;
 

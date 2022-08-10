@@ -298,7 +298,7 @@ export class OutlinerContentWindow extends ContentWindow {
 	 */
 	validateDragMimeType(mimeType) {
 		if (mimeType.type == "text" &&
-			mimeType.subType == "jj" &&
+			mimeType.subType == "renda" &&
 			mimeType.parameters.dragtype == "projectasset"
 		) {
 			/** @type {import("./ProjectContentWindow.js").DraggingProjectAssetData} */

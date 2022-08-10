@@ -35,45 +35,45 @@ export class ProjectContentWindow extends ContentWindow {
 						submenu: [
 							{
 								text: "New Material",
-								onClick: () => this.createAsset("JJ:material"),
+								onClick: () => this.createAsset("renda:material"),
 							},
 							{
 								text: "New Material Map",
-								onClick: () => this.createAsset("JJ:materialMap"),
+								onClick: () => this.createAsset("renda:materialMap"),
 							},
 							{
 								text: "New WebGPU Pipeline Config",
-								onClick: () => this.createAsset("JJ:webGpuPipelineConfig"),
+								onClick: () => this.createAsset("renda:webGpuPipelineConfig"),
 							},
 						],
 					},
 					{
 						text: "New Mesh",
-						onClick: () => this.createAsset("JJ:mesh"),
+						onClick: () => this.createAsset("renda:mesh"),
 					},
 					{
 						text: "New Vertex State",
-						onClick: () => this.createAsset("JJ:vertexState"),
+						onClick: () => this.createAsset("renda:vertexState"),
 					},
 					{
 						text: "New Entity",
-						onClick: () => this.createAsset("JJ:entity"),
+						onClick: () => this.createAsset("renda:entity"),
 					},
 					{
 						text: "New Asset Bundle",
-						onClick: () => this.createAsset("JJ:assetBundle"),
+						onClick: () => this.createAsset("renda:assetBundle"),
 					},
 					{
 						text: "New Render Output Config",
-						onClick: () => this.createAsset("JJ:renderOutputConfig"),
+						onClick: () => this.createAsset("renda:renderOutputConfig"),
 					},
 					{
 						text: "New Render Clustered Lights Config",
-						onClick: () => this.createAsset("JJ:clusteredLightsConfig"),
+						onClick: () => this.createAsset("renda:clusteredLightsConfig"),
 					},
 					{
 						text: "New Sampler",
-						onClick: () => this.createAsset("JJ:sampler"),
+						onClick: () => this.createAsset("renda:sampler"),
 					},
 					{
 						text: "New Task",
@@ -81,12 +81,12 @@ export class ProjectContentWindow extends ContentWindow {
 							{
 								text: "Bundle Scripts",
 								onClick: async () => {
-									const asset = await this.createAsset("JJ:task");
+									const asset = await this.createAsset("renda:task");
 									/**
 									 * @type {import("../../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData}
 									 */
 									const fileData = {
-										taskType: "JJ:bundleScripts",
+										taskType: "renda:bundleScripts",
 									};
 									await asset.writeAssetData(fileData);
 								},
@@ -445,7 +445,7 @@ export class ProjectContentWindow extends ContentWindow {
 		};
 		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
 		if (!e.rawEvent.dataTransfer) return;
-		e.rawEvent.dataTransfer.setData(`text/jj; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
+		e.rawEvent.dataTransfer.setData(`text/renda; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 		e.rawEvent.dataTransfer.effectAllowed = "all";
 
 		const assetData = await this.getProjectAssetByTreeViewItem(e.target);

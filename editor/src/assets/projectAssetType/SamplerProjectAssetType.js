@@ -20,7 +20,7 @@ const filterModeTypes = ["nearest", "linear"];
  * @extends {ProjectAssetType<Sampler, null, SamplerAssetData>}
  */
 export class SamplerProjectAssetType extends ProjectAssetType {
-	static type = "JJ:sampler";
+	static type = "renda:sampler";
 	static typeUuid = "3e526f40-1b56-4b23-814e-13fcf75617c3";
 	static newFileName = "New Sampler";
 

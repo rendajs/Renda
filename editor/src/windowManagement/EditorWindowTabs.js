@@ -238,7 +238,7 @@ export class EditorWindowTabs extends EditorWindow {
 						if (!e.dataTransfer) return;
 						this.windowManager.setTabDragEnabled(true);
 						e.dataTransfer.effectAllowed = "move";
-						e.dataTransfer.setData("text/jj; dragtype=editorwindowtab", contentWindow.uuid);
+						e.dataTransfer.setData("text/renda; dragtype=editorwindowtab", contentWindow.uuid);
 					},
 					onDragEnd: () => {
 						this.windowManager.setTabDragEnabled(false);
@@ -510,7 +510,7 @@ export class EditorWindowTabs extends EditorWindow {
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
 		const {type, subType, parameters} = parsed;
-		if (type != "text" || subType != "jj" || parameters.dragtype != "editorwindowtab") return false;
+		if (type != "text" || subType != "renda" || parameters.dragtype != "editorwindowtab") return false;
 		return true;
 	}
 
