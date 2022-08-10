@@ -22,6 +22,20 @@ jobs:
         with:
           deno-version: "1.24.1"
 
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          # Using the import map as key doesn't necessarily cause the cache to
+          # get invalidated in all cases. A script could still import a url
+          # directly for example. But this is good enough in most cases.
+          # If the cache wasn't invalidated, this simply means some of the
+          # dependencies are downloaded on every run, which is fine as long as
+          # there are not too many uncached dependencies.
+          # If at a later point it turns out using only the importmap as key
+          # is not enough, we can add more files here.
+          key: ${{ hashFiles('importmap.json') }}
+          path: ${{ env.DENO_DIR }}
+
       - name: npm install
         run: npm install
 
