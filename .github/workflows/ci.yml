@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DENO_DIR: /deno_dir
+      DENO_DIR: /root/.cache/deno
 
     steps:
       - name: Setup repo
