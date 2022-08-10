@@ -5,7 +5,5 @@ package-lock.json
 dist
 editor/dist/js/*
 editor/deps/
-.denoTypes/@types
-.denoTypes/urlImports
 .coverage
 npm_packages
