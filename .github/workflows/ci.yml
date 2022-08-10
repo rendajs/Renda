@@ -14,6 +14,8 @@ jobs:
 
     env:
       DENO_DIR: deno_dir
+      PUPPETEER_DOWNLOAD_PATH: ~/puppeteer_download_path
+      PUPPETEER_CHROMIUM_REVISION: 991974
 
     steps:
       - name: Setup repo
@@ -54,6 +56,12 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      - name: Cache puppeteer
+        uses: actions/cache@v3
+        with:
+          key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
+          path: ${{ env.PUPPETEER_EXECUTABLE_PATH }}
 
       - name: Install puppeteer
         run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
