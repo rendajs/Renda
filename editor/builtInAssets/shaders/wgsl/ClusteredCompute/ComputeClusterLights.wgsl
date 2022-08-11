@@ -12,19 +12,18 @@
 
 const clusterCount : vec3<u32> = vec3<u32>(${clusterCountX}u, ${clusterCountY}u, ${clusterCountZ}u);
 
-fn squareDistPointToAabb(point : vec3<f32>, minAabb : vec3<f32>, maxAabb : vec3<f32>) -> f32 {
-
-var sqDist : f32 = 0.0;
-    for(var i : i32 = 0; i < 3; i = i + 1) {
-      var v : f32 = point[i];
-      if(v < minAabb[i]) {
-        sqDist = sqDist + (minAabb[i] - v) * (minAabb[i] - v);
-      }
-      if(v > maxAabb[i]) {
-        sqDist = sqDist + (v - maxAabb[i]) * (v - maxAabb[i]);
-      }
-    }
-    return sqDist;
+fn squareDistPointToAabb(p : vec3<f32>, minAabb : vec3<f32>, maxAabb : vec3<f32>) -> f32 {
+	var sqDist : f32 = 0.0;
+	for(var i : i32 = 0; i < 3; i = i + 1) {
+		var v : f32 = p[i];
+		if(v < minAabb[i]) {
+			sqDist = sqDist + (minAabb[i] - v) * (minAabb[i] - v);
+		}
+		if(v > maxAabb[i]) {
+			sqDist = sqDist + (v - maxAabb[i]) * (v - maxAabb[i]);
+		}
+	}
+	return sqDist;
 }
 
 //todo: use a more efficient workgroup size
