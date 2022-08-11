@@ -10,13 +10,14 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes, preCollectImports} from "https://deno.land/x/deno_tsc_helper@v0.0.10/mod.js";
+import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.11/mod.js";
 import {downloadNpmPackages} from "https://deno.land/x/npm_devinit@v0.0.2/mod.ts";
 
-/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.10/mod.js").GenerateTypesOptions} */
+/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.11/mod.js").GenerateTypesOptions} */
 const generateTypesOptions = {
 	outputDir: "../.denoTypes",
 	importMap: "../importmap.json",
+	cacheHashFile: "cacheHashFile",
 	preCollectedImportsFile: "precollectedImports.json",
 	include: [
 		".",
@@ -33,7 +34,7 @@ const generateTypesOptions = {
 };
 
 if (Deno.args.includes("--precollect-imports")) {
-	await preCollectImports(generateTypesOptions);
+	await createCacheHashFile(generateTypesOptions);
 	Deno.exit();
 }
 
