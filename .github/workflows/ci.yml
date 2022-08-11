@@ -51,7 +51,7 @@ jobs:
       - name: Cache Deno types
         uses: actions/cache@v3
         with:
-          key: denoTypes-${{ hashFiles('.denoTypes/precollectedImports.json','importmap.json','scripts/dev.js') }}
+          key: denoTypes-${{ hashFiles('.denoTypes/cacheHashFile') }}
           path: .denoTypes
 
       - name: Cache npm packages
