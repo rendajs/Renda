@@ -44,7 +44,7 @@ jobs:
       - name: npm install
         run: npm install
 
-      - name: Create
+      - name: Create Deno types hash file
         # Creates a file that is used as hash key for the cache in the next step.
         run: deno task dev --create-cache-hashfile
 
@@ -72,12 +72,6 @@ jobs:
 
       - name: Lint
         run: npm run lint
-
-      - name: Cache puppeteer
-        uses: actions/cache@v3
-        with:
-          key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
-          path: ${{ env.PUPPETEER_DOWNLOAD_PATH }}
 
       - name: Install puppeteer
         run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
