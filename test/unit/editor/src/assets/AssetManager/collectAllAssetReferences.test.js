@@ -85,7 +85,7 @@ Deno.test({
 			],
 			tests: [
 				{
-					args: [BASIC_ASSET_UUID],
+					args: [[BASIC_ASSET_UUID]],
 					assertResult: [BASIC_ASSET_UUID],
 				},
 			],
@@ -110,7 +110,7 @@ Deno.test({
 			],
 			tests: [
 				{
-					args: [BASIC_ASSET_UUID],
+					args: [[BASIC_ASSET_UUID]],
 					assertResult: [BASIC_ASSET_UUID, SECOND_ASSET_UUID],
 				},
 			],
@@ -141,7 +141,7 @@ Deno.test({
 			tests: [
 				{
 					args: [
-						BASIC_ASSET_UUID, {
+						[BASIC_ASSET_UUID], {
 							excludeUuids: new Set([SECOND_ASSET_UUID]),
 						},
 					],
@@ -175,7 +175,7 @@ Deno.test({
 			tests: [
 				{
 					args: [
-						BASIC_ASSET_UUID, {
+						[BASIC_ASSET_UUID], {
 							excludeUuidsRecursive: new Set([SECOND_ASSET_UUID]),
 						},
 					],
@@ -208,8 +208,68 @@ Deno.test({
 			],
 			tests: [
 				{
-					args: [BASIC_ASSET_UUID],
+					args: [[BASIC_ASSET_UUID]],
 					assertResult: [BASIC_ASSET_UUID, SECOND_ASSET_UUID, THIRD_ASSET_UUID],
+				},
+			],
+		});
+	},
+});
+
+Deno.test({
+	name: "Multiple root assets",
+	async fn() {
+		const SECOND_ASSET_UUID = "SECOND_ASSET_UUID";
+		const THIRD_ASSET_UUID = "THIRD_ASSET_UUID";
+		const FOURTH_ASSET_UUID = "FOURTH_ASSET_UUID";
+		await basicSetupForReferences({
+			stubReferenceAssets: [
+				{
+					uuid: BASIC_ASSET_UUID,
+					children: [SECOND_ASSET_UUID],
+				},
+				{
+					uuid: SECOND_ASSET_UUID,
+					children: [THIRD_ASSET_UUID],
+				},
+				{
+					uuid: THIRD_ASSET_UUID,
+					children: [FOURTH_ASSET_UUID],
+				},
+				{
+					uuid: FOURTH_ASSET_UUID,
+					children: [],
+				},
+			],
+			tests: [
+				{
+					args: [[BASIC_ASSET_UUID, THIRD_ASSET_UUID]],
+					assertResult: [BASIC_ASSET_UUID, SECOND_ASSET_UUID, THIRD_ASSET_UUID, FOURTH_ASSET_UUID],
+				},
+			],
+		});
+	},
+});
+
+Deno.test({
+	name: "Multiple root assets, one is already referenced",
+	async fn() {
+		const SECOND_ASSET_UUID = "SECOND_ASSET_UUID";
+		await basicSetupForReferences({
+			stubReferenceAssets: [
+				{
+					uuid: BASIC_ASSET_UUID,
+					children: [SECOND_ASSET_UUID],
+				},
+				{
+					uuid: SECOND_ASSET_UUID,
+					children: [],
+				},
+			],
+			tests: [
+				{
+					args: [[BASIC_ASSET_UUID, SECOND_ASSET_UUID]],
+					assertResult: [BASIC_ASSET_UUID, SECOND_ASSET_UUID],
 				},
 			],
 		});

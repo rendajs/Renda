@@ -717,7 +717,7 @@ export class AssetManager {
 
 	/**
 	 * Recurses down all the references of an asset and yields the uuid of every reference.
-	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid The uuid to start searching from.
+	 * @param {import("../../../src/util/mod.js").UuidString[]} assetUuids The uuid to start searching from.
 	 * @param {Object} options
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} [options.excludeUuids] Uuids to exclude from the results.
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} [options.excludeUuidsRecursive] Uuids to exclude, where
@@ -725,15 +725,17 @@ export class AssetManager {
 	 * assets with a large tree of references.
 	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
 	 */
-	async *collectAllAssetReferences(assetUuid, {
+	async *collectAllAssetReferences(assetUuids, {
 		excludeUuids = new Set(),
 		excludeUuidsRecursive = new Set(),
 	} = {}) {
 		/** @type {Set<import("../../../src/util/mod.js").UuidString>} */
 		const foundUuids = new Set();
-		for await (const uuid of this.#collectAllAssetReferencesHelper(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
-			foundUuids.add(uuid);
-			yield uuid;
+		for (const assetUuid of assetUuids) {
+			for await (const uuid of this.#collectAllAssetReferencesHelper(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
+				foundUuids.add(uuid);
+				yield uuid;
+			}
 		}
 	}
 
