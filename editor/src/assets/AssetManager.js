@@ -716,6 +716,48 @@ export class AssetManager {
 	}
 
 	/**
+	 * Recurses down all the references of an asset and yields the uuid of every reference.
+	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid The uuid to start searching from.
+	 * @param {Object} options
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} [options.excludeUuids] Uuids to exclude from the results.
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} [options.excludeUuidsRecursive] Uuids to exclude, where
+	 * all its references are excluded as well. Use this to efficiently exclude
+	 * assets with a large tree of references.
+	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
+	 */
+	async *collectAllAssetReferences(assetUuid, {
+		excludeUuids = new Set(),
+		excludeUuidsRecursive = new Set(),
+	} = {}) {
+		/** @type {Set<import("../../../src/util/mod.js").UuidString>} */
+		const foundUuids = new Set();
+		for await (const uuid of this.#collectAllAssetReferencesHelper(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
+			foundUuids.add(uuid);
+			yield uuid;
+		}
+	}
+
+	/**
+	 * @param {import("../../../src/util/mod.js").UuidString} assetUuid
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} foundUuids
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuids
+	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuidsRecursive
+	 * @returns {AsyncGenerator<import("../../../src/util/mod.js").UuidString>}
+	 */
+	async *#collectAllAssetReferencesHelper(assetUuid, foundUuids, excludeUuids, excludeUuidsRecursive) {
+		const projectAsset = await this.getProjectAssetFromUuid(assetUuid);
+		if (projectAsset) {
+			if (foundUuids.has(assetUuid) || excludeUuidsRecursive.has(assetUuid)) return;
+			if (!excludeUuids.has(assetUuid)) yield assetUuid;
+			for await (const referenceUuid of projectAsset.getReferencedAssetUuids()) {
+				for await (const subReferenceUuid of this.#collectAllAssetReferencesHelper(referenceUuid, foundUuids, excludeUuids, excludeUuidsRecursive)) {
+					yield this.resolveDefaultAssetLinkUuid(subReferenceUuid);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Used for storing project asset data on disk. If the provided liveAsset
 	 * is an embedded asset, it's json data will be returned that needs to be
 	 * stored in the parent project asset.
