@@ -91,6 +91,19 @@ export class ProjectContentWindow extends ContentWindow {
 									await asset.writeAssetData(fileData);
 								},
 							},
+							{
+								text: "Generate Services",
+								onClick: async () => {
+									const asset = await this.createAsset("renda:task");
+									/**
+									 * @type {import("../../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData}
+									 */
+									const fileData = {
+										taskType: "renda:generateServices",
+									};
+									await asset.writeAssetData(fileData);
+								},
+							},
 						],
 					},
 				]);
