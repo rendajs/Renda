@@ -17,7 +17,7 @@ import {downloadNpmPackages} from "https://deno.land/x/npm_devinit@v0.0.2/mod.ts
 const generateTypesOptions = {
 	outputDir: "../.denoTypes",
 	importMap: "../importmap.json",
-	cacheHashFile: "cacheHashFile",
+	cacheHashFile: "cacheHashfile",
 	preCollectedImportsFile: "precollectedImports.json",
 	include: [
 		".",
@@ -33,7 +33,7 @@ const generateTypesOptions = {
 	},
 };
 
-if (Deno.args.includes("--precollect-imports")) {
+if (Deno.args.includes("--create-cache-hashfile")) {
 	await createCacheHashFile(generateTypesOptions);
 	Deno.exit();
 }

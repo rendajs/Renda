@@ -44,14 +44,14 @@ jobs:
       - name: npm install
         run: npm install
 
-      - name: Pre-collect imports
-        # Sets up a development environment required for type the next steps to pass.
-        run: deno task dev --precollect-imports
+      - name: Create
+        # Creates a file that is used as hash key for the cache in the next step.
+        run: deno task dev --create-cache-hashfile
 
       - name: Cache Deno types
         uses: actions/cache@v3
         with:
-          key: denoTypes-${{ hashFiles('.denoTypes/cacheHashFile') }}
+          key: denoTypes-${{ hashFiles('.denoTypes/cacheHashfile') }}
           path: .denoTypes
 
       - name: Cache npm packages
