@@ -13,6 +13,7 @@ export class AssetBundle {
 	constructor(url) {
 		this.url = url;
 
+		/** @type {Map<import("../mod.js").UuidString, AssetBundleRange>} */
 		this.assetRanges = new Map();
 		this.progress = 0;
 		/** @type {Set<OnProgressCallback>} */
@@ -69,9 +70,11 @@ export class AssetBundle {
 				let prevAssetByteEnd = headerLength;
 				while (headerCursor < headerLength) {
 					const uuid = binaryToUuid(allChunks.buffer, headerCursor);
+					if (!uuid) throw new Error("Failed to parse asset uuid, uuid is null.");
 					headerCursor += 16;
 
 					const typeUuid = binaryToUuid(allChunks.buffer, headerCursor);
+					if (!typeUuid) throw new Error("Failed to parse asset type uuid, uuid is null.");
 					headerCursor += 16;
 
 					const assetSize = bundleDataView.getUint32(headerCursor, true);
@@ -139,6 +142,7 @@ export class AssetBundle {
 		if (!exists) return null;
 
 		const range = this.assetRanges.get(uuid);
+		if (!range) throw new Error("Assertion failed, asset range does not exist");
 		const buffer = this.downloadBuffer.slice(range.byteStart, range.byteEnd);
 		const type = range.typeUuid;
 		return {buffer, type};

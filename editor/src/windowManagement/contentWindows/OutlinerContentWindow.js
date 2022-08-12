@@ -301,8 +301,7 @@ export class OutlinerContentWindow extends ContentWindow {
 			mimeType.subType == "renda" &&
 			mimeType.parameters.dragtype == "projectasset"
 		) {
-			/** @type {import("./ProjectContentWindow.js").DraggingProjectAssetData} */
-			const dragData = this.editorInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata);
+			const dragData = /** @type {import("./ProjectContentWindow.js").DraggingProjectAssetData} */ (this.editorInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata));
 			if (dragData.assetType == EntityProjectAssetType) {
 				return dragData;
 			}

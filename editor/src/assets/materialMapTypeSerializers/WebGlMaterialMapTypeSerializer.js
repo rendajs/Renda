@@ -1,5 +1,5 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
-import {ShaderSource, Vec3} from "../../../../src/mod.js";
+import {ShaderSource} from "../../../../src/mod.js";
 import {StorageType} from "../../../../src/util/binarySerialization.js";
 import {ShaderSourceProjectAssetType} from "../projectAssetType/ShaderSourceProjectAssetType.js";
 
@@ -67,11 +67,16 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	}
 
 	/**
+	 * @typedef {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} MappableMaterialTypesEnum
+	 */
+
+	/**
 	 * @override
 	 * @param {import("./MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
 	 * @param {*} customData
 	 */
 	static async getMappableValues(context, customData) {
+		/** @type {Map<string, {type: MappableMaterialTypesEnum}>} */
 		const itemsMap = new Map();
 		await this.addShaderUniformsToMap(context.assetManager, customData.vertexShader, itemsMap);
 		await this.addShaderUniformsToMap(context.assetManager, customData.fragmentShader, itemsMap);
@@ -87,7 +92,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	/**
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {import("../../../../src/mod.js").UuidString} shaderUuid
-	 * @param {Map<string, *>} itemsMap
+	 * @param {Map<string, {type: MappableMaterialTypesEnum}>} itemsMap
 	 */
 	static async addShaderUniformsToMap(assetManager, shaderUuid, itemsMap) {
 		const shaderAsset = await assetManager.getProjectAssetFromUuid(shaderUuid, {
@@ -116,13 +121,16 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 		for (const result of shaderSrc.matchAll(re)) {
 			if (!result.groups) continue;
 			const name = result.groups.name;
+			/** @type {MappableMaterialTypesEnum?} */
 			let type = null;
 			if (result.groups.type == "float") {
-				type = Number;
+				type = "number";
 			} else if (result.groups.type == "vec3") {
-				type = Vec3;
+				type = "vec3";
 			}
-			yield {name, type};
+			if (type) {
+				yield {name, type};
+			}
 		}
 	}
 }

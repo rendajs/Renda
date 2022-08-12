@@ -6,6 +6,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 		this.connection = null;
 		this.connected = false;
+		/** @type {Set<() => void>} */
 		this.onConnectedCbs = new Set();
 	}
 	/**
@@ -29,7 +30,9 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	async waitForConnection() {
 		if (this.connected && this.connection) return this.connection;
-		await new Promise(r => this.onConnectedCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.onConnectedCbs.add(r));
+		await promise;
 		if (!this.connection) throw new Error("Assertion failed: Connection doesn't exist.");
 		return this.connection;
 	}

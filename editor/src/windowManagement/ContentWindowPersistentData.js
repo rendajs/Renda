@@ -1,8 +1,10 @@
 export class ContentWindowPersistentData {
+	/** @type {Map<string, unknown>} */
 	#data = new Map();
 	/** @type {Set<(windowManager: import("./WindowManager.js").WindowManager) => any>} */
 	#onWindowManagerCbs = new Set();
 	#dataLoaded = false;
+	/** @type {Set<() => void>} */
 	#onDataLoadCbs = new Set();
 	/** @type {import("./WindowManager.js").WindowManager?} */
 	#windowManager = null;
@@ -25,7 +27,9 @@ export class ContentWindowPersistentData {
 
 	async #waitForDataLoad() {
 		if (this.#dataLoaded) return;
-		await new Promise(r => this.#onDataLoadCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.#onDataLoadCbs.add(r));
+		await promise;
 	}
 
 	/**
@@ -33,13 +37,12 @@ export class ContentWindowPersistentData {
 	 */
 	async get(key) {
 		await this.#waitForDataLoad();
-		// todo: wait for data to be loaded
 		return this.#data.get(key);
 	}
 
 	/**
 	 * @param {string} key
-	 * @param {*} value
+	 * @param {unknown} value
 	 * @param {boolean} flush
 	 */
 	async set(key, value, flush = true) {

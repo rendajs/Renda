@@ -35,7 +35,7 @@ export class BuiltInAssetManager {
 			once: false,
 		});
 		this.assetSettingsLoaded = false;
-		/** @type {Map<import("../../../src/util/mod.js").UuidString, any>}*/
+		/** @type {Map<import("../../../src/util/mod.js").UuidString, import("../../src/assets/AssetSettingsDiskTypes.js").AssetSettingsAssetDiskData>}*/
 		this.assetSettings = new Map();
 		/** @type {Map<string, import("../../../src/util/mod.js").UuidString>} */
 		this.fileHashes = new Map(); // <md5, uuid>
@@ -66,10 +66,14 @@ export class BuiltInAssetManager {
 
 	async loadAssetSettingsFn() {
 		const str = await Deno.readTextFile(this.assetSettingsPath);
-		let data;
+		/** @type {import("../../src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
+		let data = null;
 		try {
 			data = JSON.parse(str);
 		} catch {
+			// We'll handle this below.
+		}
+		if (!data || !data.assets) {
 			console.error("[BuiltInAssetManager] parsing asset settings failed");
 			return;
 		}
@@ -212,6 +216,7 @@ export class BuiltInAssetManager {
 		if (!this.assetSettingsLoaded) return;
 		/** @type {Object.<import("../../../src/util/mod.js").UuidString, any>} */
 		const assets = {};
+		/** @type {Map<import("../../../src/mod.js").UuidString, import("../../src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath>} */
 		const uuidPaths = new Map();
 		for (const [uuid, assetSettings] of this.assetSettings) {
 			uuidPaths.set(uuid, assetSettings.path);

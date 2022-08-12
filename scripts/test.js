@@ -84,6 +84,7 @@ if (needsUnitTests) {
 	if (needsCoverage) {
 		denoTestArgs.push("--allow-write");
 	}
+	/** @type {Set<string>} */
 	const applicationArgs = new Set();
 	for (const arg of Deno.args) {
 		if (APPLICATION_ARGS.includes(arg)) {
@@ -106,6 +107,7 @@ if (needsUnitTests) {
 // E2E tests command
 if (needsE2eTests) {
 	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable"];
+	/** @type {Set<string>} */
 	const applicationArgs = new Set();
 	for (const arg of Deno.args) {
 		if (APPLICATION_ARGS.includes(arg)) {

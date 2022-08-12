@@ -152,6 +152,7 @@ export class ProjectManager {
 			}
 		});
 
+		/** @type {Set<() => void>} */
 		this.onAssetManagerLoadCbs = new Set();
 
 		this.loadEditorConnectionsAllowIncomingInstance = new SingleInstancePromise(async () => {
@@ -270,7 +271,9 @@ export class ProjectManager {
 	 */
 	async getAssetManager() {
 		if (this.assetManager && this.assetManager.assetSettingsLoaded) return this.assetManager;
-		await new Promise(r => this.onAssetManagerLoadCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.onAssetManagerLoadCbs.add(r));
+		await promise;
 		return this.assertAssetManagerExists();
 	}
 

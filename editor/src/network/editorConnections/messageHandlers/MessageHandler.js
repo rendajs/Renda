@@ -1,10 +1,14 @@
 /** @typedef {"disconnected" | "connecting" | "connected"} EditorConnectionState */
 
+/** @typedef {(state: EditorConnectionState) => void} OnConnectionStateChangeCallback */
+
 export class MessageHandler {
 	constructor() {
+		/** @type {Set<(data: any) => void>} */
 		this.onMessageCbs = new Set();
 		/** @type {EditorConnectionState} */
 		this.connectionState = "disconnected";
+		/** @type {Set<OnConnectionStateChangeCallback>} */
 		this.onConnectionStateChangeCbs = new Set();
 		this.autoSerializationSupported = false;
 	}
@@ -39,7 +43,7 @@ export class MessageHandler {
 	}
 
 	/**
-	 * @param {function(EditorConnectionState) : void} cb
+	 * @param {OnConnectionStateChangeCallback} cb
 	 */
 	onConnectionStateChange(cb) {
 		this.onConnectionStateChangeCbs.add(cb);

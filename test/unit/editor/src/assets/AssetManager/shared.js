@@ -47,11 +47,13 @@ export async function basicSetup({
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
 
 	const mockBuiltinAssetManager = /** @type {import("../../../../../../editor/src/assets/BuiltInAssetManager.js").BuiltInAssetManager} */ ({
+		/** @type {Map<import("../../../../../../src/mod.js").UuidString, import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} */
 		assets: new Map(),
 		async waitForLoad() {},
 	});
 
 	const mockBuiltInDefaultAssetLinksManager = /** @type {import("../../../../../../editor/src/assets/BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} */ ({
+		/** @type {Set<import("../../../../../../editor/src/assets/autoRegisterBuiltInDefaultAssetLinks.js").BuiltInDefaultAssetLink>} */
 		registeredAssetLinks: new Set(),
 	});
 

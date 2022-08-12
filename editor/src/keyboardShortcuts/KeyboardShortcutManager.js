@@ -6,6 +6,12 @@ import {ShortcutCondition} from "./ShortcutCondition.js";
 const modifierKeysOrder = ["cmd", "ctrl", "alt", "shift"];
 
 /**
+ * @typedef CommandCallbackEvent
+ * @property {ShortcutCommand} command
+ */
+/** @typedef {(event: CommandCallbackEvent) => void} CommandCallback */
+
+/**
  * Responsible for managing keyboard shortcuts and their corresponding commands.
  * This class keeps track of pressed keys and what order they were pressed in.
  * This allows for configuring complex shortcuts that require multiple
@@ -57,6 +63,7 @@ export class KeyboardShortcutManager {
 		/** @type {Set<ShortcutCommand>} */
 		this.currentActiveHoldStateCommands = new Set();
 
+		/** @type {Map<string, Set<CommandCallback>>} */
 		this.commandListeners = new Map();
 
 		for (const condition of autoRegisterShortcutConditions) {
@@ -274,7 +281,7 @@ export class KeyboardShortcutManager {
 	/**
 	 * Add an event listener for a specific command.
 	 * @param {string} command The identifier of the command.
-	 * @param {() => any} cb The callback to fire when the command is triggered.
+	 * @param {CommandCallback} cb The callback to fire when the command is triggered.
 	 */
 	onCommand(command, cb) {
 		let listeners = this.commandListeners.get(command);
@@ -288,7 +295,7 @@ export class KeyboardShortcutManager {
 	/**
 	 * Remove an event listener for a specific command.
 	 * @param {string} command The identifier of the command.
-	 * @param {() => any} cb
+	 * @param {CommandCallback} cb
 	 */
 	removeOnCommand(command, cb) {
 		const listeners = this.commandListeners.get(command);

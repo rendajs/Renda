@@ -11,6 +11,7 @@ export class PropertiesWindowContentManager {
 	 */
 	constructor(windowManager) {
 		this.windowManager = windowManager;
+		/** @type {Map<new (...args: any) => any, typeof PropertiesWindowContent>} */
 		this.registeredContentTypes = new Map();
 	}
 
@@ -57,15 +58,13 @@ export class PropertiesWindowContentManager {
 	 * @returns {typeof PropertiesWindowContent}
 	 */
 	getContentTypeForObjects(objects) {
+		/** @type {Map<typeof PropertiesWindowContent, number>} */
 		const selectedTypes = new Map();
 		for (const obj of objects) {
 			if (!obj) continue;
 			const t = this.registeredContentTypes.get(obj.constructor);
 			if (!t) continue;
-			let count = 0;
-			if (selectedTypes.has(t)) {
-				count = selectedTypes.get(t);
-			}
+			let count = selectedTypes.get(t) || 0;
 			count++;
 			selectedTypes.set(t, count);
 		}

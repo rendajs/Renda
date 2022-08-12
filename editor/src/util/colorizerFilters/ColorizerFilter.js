@@ -27,10 +27,12 @@ export class ColorizerFilter {
 			this.notifyWeakRefDestructed(ref);
 		});
 
+		/** @type {Set<WeakRef<ColorizerFilterUsageReference>>} */
 		this.usageReferences = new Set();
 		/** @type {WeakMap<ColorizerFilterUsageReference, WeakRef<ColorizerFilterUsageReference>>} */
 		this.usageReferencesMap = new WeakMap();
 
+		/** @type {Set<() => void>} */
 		this.allReferencesDestructedCbs = new Set();
 	}
 

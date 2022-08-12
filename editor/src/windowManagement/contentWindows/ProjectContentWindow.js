@@ -143,6 +143,7 @@ export class ProjectContentWindow extends ContentWindow {
 		this.rootNameInit = false;
 		this.treeViewInit = false;
 		this.initCbsCalled = false;
+		/** @type {Set<() => void>} */
 		this.onInitCbs = new Set();
 
 		const fs = this.editorInstance.projectManager.currentProjectFileSystem;
@@ -197,7 +198,9 @@ export class ProjectContentWindow extends ContentWindow {
 
 	async waitForInit() {
 		if (this.isInit) return;
-		await new Promise(r => this.onInitCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.onInitCbs.add(r));
+		await promise;
 	}
 
 	updateInit() {

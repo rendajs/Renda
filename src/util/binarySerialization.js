@@ -253,6 +253,7 @@ export function objectToBinary(data, {
 
 	const referencesAndStructures = getStoreAsReferenceItems(reoccurringObjectReferences, reoccurringStructureReferences, castData, structure, nameIdsMap);
 
+	/** @type {Map<Object, number>} */
 	const referenceIds = new Map();
 	const sortedReferences = [];
 	for (const [ref, structure] of referencesAndStructures) {

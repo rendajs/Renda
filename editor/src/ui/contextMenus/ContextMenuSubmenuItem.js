@@ -1,5 +1,7 @@
 import {ContextMenuItem} from "./ContextMenuItem.js";
 
+/** @typedef {(submenu: ContextMenu) => void} OnCreateSubmenuCallback */
+
 export class ContextMenuSubmenuItem extends ContextMenuItem {
 	/** @typedef {import("./ContextMenu.js").ContextMenu} ContextMenu */
 
@@ -14,6 +16,7 @@ export class ContextMenuSubmenuItem extends ContextMenuItem {
 		};
 		super(containingContextMenu, opts);
 
+		/** @type {Set<OnCreateSubmenuCallback>} */
 		this.onCreateSubmenuCbs = new Set();
 
 		this.onHover(() => {

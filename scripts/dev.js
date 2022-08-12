@@ -30,6 +30,8 @@ const generateTypesOptions = {
 		// The Deno types include webgpu types but they are outdated.
 		"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
 		"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
+		"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
+		"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
 	},
 };
 

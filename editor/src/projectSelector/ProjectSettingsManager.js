@@ -13,6 +13,7 @@ export class ProjectSettingsManager {
 		/** @type {Map<string, any>} */
 		this.currentSettings = new Map();
 
+		/** @type {Set<() => void>} */
 		this.onFileCreatedCbs = new Set();
 
 		this.isLoadingFromUserGesture = false;

@@ -15,6 +15,7 @@ export class MessageHandlerWebRtc extends MessageHandler {
 		this.rtcConnection = new RTCPeerConnection();
 		this.localDescription = null;
 		this.remoteDescription = null;
+		/** @type {Map<string, RTCDataChannel>} */
 		this.dataChannels = new Map();
 
 		this.rtcConnection.addEventListener("icecandidate", e => {
@@ -131,6 +132,8 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	 * @param {*} data
 	 */
 	send(data) {
-		this.dataChannels.get("reliable").send(data);
+		const channel = this.dataChannels.get("reliable");
+		if (!channel) throw new Error("Assertion failed, reliable channel does not exist.");
+		channel.send(data);
 	}
 }

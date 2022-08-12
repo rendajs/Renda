@@ -35,6 +35,7 @@ export class EntityEditorContentWindow extends ContentWindow {
 		this.contentEl.appendChild(renderTargetElement);
 
 		this.renderDirty = false;
+		/** @type {Set<() => void>} */
 		this.onRenderDirtyCbs = new Set();
 
 		this.editorScene = new Entity("editorScene");
@@ -74,18 +75,27 @@ export class EntityEditorContentWindow extends ContentWindow {
 
 	async loadPersistentData() {
 		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
-		const assetManager = await this.editorInstance.projectManager.getAssetManager();
-		const assetUuid = await assetManager.getAssetUuidFromPath(loadedEntityPath);
-		if (assetUuid) {
-			this.loadEntityAsset(assetUuid, true);
+		if (loadedEntityPath) {
+			const castLoadedEntityPath = /** @type {string[]} */ (loadedEntityPath);
+			const assetManager = await this.editorInstance.projectManager.getAssetManager();
+			const assetUuid = await assetManager.getAssetUuidFromPath(castLoadedEntityPath);
+			if (assetUuid) {
+				this.loadEntityAsset(assetUuid, true);
 
-			this.orbitControls.lookPos = await this.persistentData.get("orbitLookPos");
-			this.orbitControls.lookRot = await this.persistentData.get("orbitLookRot");
-			const dist = await this.persistentData.get("orbitLookDist");
-			if (dist != undefined) {
-				this.orbitControls.lookDist = dist;
+				const lookPos = await this.persistentData.get("orbitLookPos");
+				if (lookPos) {
+					this.orbitControls.lookPos = /** @type {import("../../../../src/mod.js").Vec3} */ (lookPos);
+				}
+				const lookRot = await this.persistentData.get("orbitLookRot");
+				if (lookRot) {
+					this.orbitControls.lookRot = /** @type {import("../../../../src/mod.js").Quat} */ (lookRot);
+				}
+				const dist = await this.persistentData.get("orbitLookDist");
+				if (dist != undefined) {
+					this.orbitControls.lookDist = /** @type {number} */ (dist);
+				}
+				this.ignoreNextPersistentDataOrbitChange = true;
 			}
-			this.ignoreNextPersistentDataOrbitChange = true;
 		}
 		this.persistentDataLoaded = true;
 	}
