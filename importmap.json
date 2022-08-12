@@ -3,7 +3,7 @@
 		"std/": "https://deno.land/std@0.151.0/",
 		"chdir-anywhere": "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",
 		"fake-imports": "https://deno.land/x/fake_imports@v0.6.0/mod.js",
-		"fake-dom/": "https://raw.githubusercontent.com/jespertheend/fake-dom/main/src/",
+		"fake-dom/": "https://deno.land/x/fake_dom@v0.0.1/src/",
 		"puppeteer": "https://deno.land/x/puppeteer@14.1.1/mod.ts",
 		"rollup": "https://esm.sh/rollup@2.61.1?pin=v64",
 		"rollup-plugin-jscc": "https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v64",
