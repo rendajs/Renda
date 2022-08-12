@@ -54,6 +54,7 @@ export class WebGpuRenderer extends Renderer {
 		this.objectUniformsBuffer = null;
 
 		this.isInit = false;
+		/** @type {Set<() => void>} */
 		this.onInitCbs = new Set();
 
 		/** @type {WeakMap<import("../../../components/builtIn/CameraComponent.js").CameraComponent, CachedCameraData>} */
@@ -214,7 +215,9 @@ export class WebGpuRenderer extends Renderer {
 
 	async waitForInit() {
 		if (this.isInit) return;
-		await new Promise(r => this.onInitCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.onInitCbs.add(r));
+		await promise;
 	}
 
 	createDomTarget() {

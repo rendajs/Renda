@@ -44,6 +44,7 @@ export class ContextMenuItem {
 		this.onClickCbs = new Set();
 		if (onClick) this.onClick(onClick);
 
+		/** @type {Set<() => void>} */
 		this.onHoverCbs = new Set();
 		if (onHover) this.onHover(onHover);
 

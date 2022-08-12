@@ -76,7 +76,7 @@ export class NumericGui {
 		disabled = false,
 
 		// when the numeric value is one of these keys, the mapped string will be displayed in the gui instead
-		// this.getValue() will return a numbel, unless `mapNumericValuesToStrings` or `purpose: "fileStorage"` is set
+		// this.getValue() will return a number, unless `mapNumericValuesToStrings` or `purpose: "fileStorage"` is set
 		// example value: [[-1, "auto"], [-2, "disabled"]]
 		mappedStringValues = [],
 	} = {}) {
@@ -97,6 +97,7 @@ export class NumericGui {
 		this.disabled = disabled;
 		/** @type {Map<number, string>} */
 		this.mappedStringValues = new Map(mappedStringValues);
+		/** @type {Map<string, number>} */
 		this.inverseMappedStringValues = new Map();
 		for (const [val, str] of mappedStringValues) {
 			this.inverseMappedStringValues.set(str, val);
@@ -156,7 +157,7 @@ export class NumericGui {
 	} = {}) {
 		if (typeof value == "string") {
 			if (this.inverseMappedStringValues.has(value)) {
-				this.unroundedValue = this.inverseMappedStringValues.get(value);
+				this.unroundedValue = /** @type {number} */ (this.inverseMappedStringValues.get(value));
 			} else {
 				this.unroundedValue = parseFloat(value);
 			}

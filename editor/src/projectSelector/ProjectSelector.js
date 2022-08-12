@@ -8,6 +8,7 @@ export class ProjectSelector {
 	constructor() {
 		this.visible = true;
 		this.loadedEditor = null;
+		/** @type {Set<(editor: import("../Editor.js").Editor) => void>} */
 		this.onEditorLoadCbs = new Set();
 
 		this.indexedDb = new IndexedDbUtil("projectSelector");

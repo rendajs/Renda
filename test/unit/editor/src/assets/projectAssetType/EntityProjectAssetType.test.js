@@ -10,6 +10,7 @@ Deno.test("reload component values when changed", async () => {
 	const replacedMesh = {};
 
 	class FakeRecursionTracker {
+		/** @type {Set<(mesh: {} | null) => void>} */
 		onChangeCbs = new Set();
 		/**
 		 * @param {import("../../../../../../src/util/mod.js").UuidString} uuid

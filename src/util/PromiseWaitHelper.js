@@ -4,6 +4,7 @@ export class PromiseWaitHelper {
 	} = {}) {
 		this.once = once;
 		this.done = false;
+		/** @type {Set<() => void>} */
 		this.onFireCbs = new Set();
 	}
 
@@ -19,6 +20,8 @@ export class PromiseWaitHelper {
 
 	async wait() {
 		if (this.done && this.once) return;
-		await new Promise(r => this.onFireCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.onFireCbs.add(r));
+		await promise;
 	}
 }

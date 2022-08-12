@@ -23,6 +23,7 @@ export class EditorFileSystem {
 	constructor() {
 		/** @type {Set<FileSystemExternalChangeCallback>} */
 		this.onExternalChangeCbs = new Set();
+		/** @type {Set<() => void>} */
 		this.onAnyChangeCbs = new Set();
 		/** @type {Set<function(string):void>} */
 		this.onRootNameChangeCbs = new Set();
@@ -251,14 +252,14 @@ export class EditorFileSystem {
 
 	/**
 	 * Fires when a file is changed either by the application or externally.
-	 * @param {Function} cb
+	 * @param {() => void} cb
 	 */
 	onBeforeAnyChange(cb) {
 		this.onAnyChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {Function} cb
+	 * @param {() => void} cb
 	 */
 	removeOnBeforeAnyChange(cb) {
 		this.onAnyChangeCbs.delete(cb);

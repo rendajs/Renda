@@ -59,6 +59,7 @@ export class VertexState {
 			preferredShaderLocationsMap.set(attributeType, location);
 		}
 
+		/** @type {Set<number>} */
 		const takenShaderLocations = new Set();
 		for (const buffer of this.buffers) {
 			for (const attribute of buffer.attributes) {

@@ -114,6 +114,7 @@ export class AssetManager {
 		this.assetSettingsPath = ["ProjectSettings", "assetSettings.json"];
 
 		this.assetSettingsLoaded = false;
+		/** @type {Set<() => void>} */
 		this.waitForAssetSettingsLoadCbs = new Set();
 
 		this.boundExternalChange = this.externalChange.bind(this);
@@ -206,7 +207,9 @@ export class AssetManager {
 	 */
 	async waitForAssetSettingsLoad() {
 		if (this.assetSettingsLoaded) return;
-		await new Promise(r => this.waitForAssetSettingsLoadCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.waitForAssetSettingsLoadCbs.add(r));
+		await promise;
 	}
 
 	/**

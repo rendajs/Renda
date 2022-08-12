@@ -1,5 +1,7 @@
 /** @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase} BooleanGuiOptions */
 
+/** @typedef {(value: boolean) => void} OnValueChangeCallback */
+
 export class BooleanGui {
 	constructor({
 		defaultValue = false,
@@ -12,6 +14,7 @@ export class BooleanGui {
 		this.el.type = "checkbox";
 		this.el.classList.add("booleanGui", "buttonLike", "resetInput", "textInput");
 
+		/** @type {Set<OnValueChangeCallback>} */
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
@@ -35,7 +38,7 @@ export class BooleanGui {
 	}
 
 	/**
-	 * @param {(value: boolean) => any} cb
+	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);

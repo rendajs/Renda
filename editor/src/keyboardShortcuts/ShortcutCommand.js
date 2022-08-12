@@ -9,7 +9,7 @@
 /**
  * @typedef {Object} ShortcutCommandOptions
  * @property {string?} [name] User friendly name of the command.
- * @property {string?} command The id of the command.
+ * @property {string} command The id of the command.
  * @property {string | string[] | null} [defaultKeys] The the keys that trigger the command.
  * @property {string} [conditions] The conditions to check for before triggering the command.
  * @property {ShortcutCommandHoldType} [holdType = "single"] How to deal with keys being held down.
@@ -28,7 +28,7 @@ export class ShortcutCommand {
 	 */
 	constructor(shortcutManager, {
 		name = null,
-		command = null,
+		command,
 		defaultKeys = null,
 		conditions = "",
 		holdType = "single",

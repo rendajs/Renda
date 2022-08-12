@@ -625,10 +625,16 @@ export class TreeView {
 	 */
 
 	/**
+	 * @typedef TreeViewDraggingData
+	 * @property {TreeView[]} draggingItems
+	 */
+
+	/**
 	 * @param {DragEvent} e
 	 */
 	#onDragStartEvent(e) {
 		const root = this.findRoot();
+		/** @type {Set<TreeView>} */
 		const selectedItems = new Set();
 		for (const child of root.getSelectedItems()) {
 			selectedItems.add(child);
@@ -644,7 +650,11 @@ export class TreeView {
 			if (this.rearrangeable) {
 				e.dataTransfer.effectAllowed = "move";
 				if (editor) {
-					this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData({draggingItems});
+					/** @type {TreeViewDraggingData} */
+					const draggingData = {
+						draggingItems,
+					};
+					this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData(draggingData);
 					const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
 					let rootUuid = castRoot[dragRootUuidSymbol];
 					if (rootUuid == null) {
@@ -738,7 +748,7 @@ export class TreeView {
 						const dataId = await new Promise(r => item.getAsString(r));
 						const editor = getMaybeEditorInstance();
 						if (!editor) return null;
-						const draggingData = editor.dragManager.getDraggingData(dataId);
+						const draggingData = /** @type {TreeViewDraggingData} */ (editor.dragManager.getDraggingData(dataId));
 						if (!draggingData || !draggingData.draggingItems) return null;
 						return /** @type {TreeView[]} */ (draggingData.draggingItems);
 					})();

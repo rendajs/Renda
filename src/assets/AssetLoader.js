@@ -11,7 +11,8 @@ export class AssetLoader {
 		/** @type {Map<string, AssetLoaderType>} */
 		this.registeredLoaderTypes = new Map();
 
-		this.loadedAssets = new Map(); // Map<uuid, WeakRef<asset>>
+		/** @type {Map<import("../mod.js").UuidString, WeakRef<any>>} */
+		this.loadedAssets = new Map();
 	}
 
 	/**

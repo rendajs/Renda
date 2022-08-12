@@ -38,6 +38,7 @@ class InternalDiscoveryManager {
 		this.destructed = false;
 
 		this.iframeLoaded = false;
+		/** @type {Set<() => void>} */
 		this.onIframeLoadCbs = new Set();
 		this.iframe = document.createElement("iframe");
 		this.iframe.src = "/editor/dist/internalDiscovery";
@@ -46,6 +47,7 @@ class InternalDiscoveryManager {
 		window.addEventListener("message", this.boundOnMessage);
 		document.body.appendChild(this.iframe);
 
+		/** @type {Set<(data: any) => void>} */
 		this.onMessageCbs = new Set();
 
 		// this.internalMessagesWorker.port.postMessage({op: "registerClient", clientType: "inspector"});
@@ -81,7 +83,9 @@ class InternalDiscoveryManager {
 
 	async _waitForIframeLoad() {
 		if (this.iframeLoaded) return;
-		await new Promise(r => this.onIframeLoadCbs.add(r));
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this.onIframeLoadCbs.add(r));
+		await promise;
 	}
 
 	/**

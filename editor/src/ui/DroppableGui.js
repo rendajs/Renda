@@ -614,14 +614,13 @@ export class DroppableGui {
 		const parsed = parseMimeType(mimeType);
 		let isEngineType = false;
 		let isProjectAsset = false;
-		let draggingProjectAssetData = null;
 		if (parsed) {
 			const {type, subType, parameters} = parsed;
 			isEngineType = (type == "text" && subType == "renda");
 			if (isEngineType) {
 				isProjectAsset = (parameters.dragtype == "projectasset");
 				if (isProjectAsset) {
-					draggingProjectAssetData = this.dragManager.getDraggingData(parameters.draggingdata);
+					const draggingProjectAssetData = /** @type {import("../windowManagement/contentWindows/ProjectContentWindow.js").DraggingProjectAssetData} */ (this.dragManager.getDraggingData(parameters.draggingdata));
 					return {
 						isEngineType,
 						isProjectAsset,

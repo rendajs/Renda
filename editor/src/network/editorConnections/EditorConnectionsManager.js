@@ -39,6 +39,7 @@ export class EditorConnectionsManager {
 		this.discoveryServerStatus = "disconnected";
 		/** @type {Set<function(DiscoveryServerStatusType):void>} */
 		this.onDiscoveryServerStatusChangeCbs = new Set();
+		/** @type {Set<(success: boolean) => void>} */
 		this.onDiscoveryOpenOrErrorCbs = new Set();
 
 		this.protocol = new ProtocolManager();

@@ -56,6 +56,7 @@ import {prettifyVariableName} from "../util/util.js";
  */
 
 export class DropDownGui {
+	/** @typedef {(selectedIndex: string | number) => void} OnValueChangeCallback */
 	/**
 	 * @param {DropDownGuiOptions} opts
 	 */
@@ -76,6 +77,7 @@ export class DropDownGui {
 		this.el = document.createElement("select");
 		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
 
+		/** @type {Set<OnValueChangeCallback>} */
 		this.onValueChangeCbs = new Set();
 		this.boundFireOnChangeCbs = this.fireOnChangeCbs.bind(this);
 		this.el.addEventListener("change", this.boundFireOnChangeCbs);
@@ -211,7 +213,7 @@ export class DropDownGui {
 	}
 
 	/**
-	 * @param {(selectedIndex: string) => void} cb
+	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);

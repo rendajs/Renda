@@ -1,8 +1,16 @@
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 
 export class DevSocketManager {
+	/**
+	 * @typedef RoundTripCallbackData
+	 * @property {number} id
+	 * @property {(...args: any[]) => void} cb
+	 */
+
 	constructor() {
+		/** @type {Map<string, Set<(...args: any[]) => void>>} */
 		this.listeners = new Map();
+		/** @type {Set<RoundTripCallbackData>} */
 		this.roundTripCbs = new Set();
 
 		this.ws = null;
@@ -85,8 +93,10 @@ export class DevSocketManager {
 			}
 		} else {
 			const cbs = this.listeners.get(data.op);
-			for (const cb of cbs) {
-				cb(data.data);
+			if (cbs) {
+				for (const cb of cbs) {
+					cb(data.data);
+				}
 			}
 		}
 	}

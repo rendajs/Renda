@@ -2,7 +2,9 @@ import {generateUuid} from "../../../src/util/mod.js";
 
 export class DragManager {
 	constructor() {
+		/** @type {Set<HTMLDivElement>} */
 		this.createdDragFeedbackEls = new Set();
+		/** @type {Map<import("../../../src/mod.js").UuidString, unknown>} */
 		this.draggingData = new Map();
 	}
 	/**

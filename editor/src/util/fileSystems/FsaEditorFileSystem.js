@@ -19,6 +19,12 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 */
 
 	/**
+	 * @typedef CurrentlyGettingFileCallbackData
+	 * @property {(file: File) => void} resolve
+	 * @property {(error: unknown) => void} reject
+	 */
+
+	/**
 	 * @param {FileSystemDirectoryHandle} handle
 	 */
 	constructor(handle) {
@@ -35,6 +41,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			children: new Map(),
 		};
 		this.updateWatchTreeInstance = new SingleInstancePromise(async () => await this.updateWatchTree(), {once: false});
+		/** @type {Map<string, Set<CurrentlyGettingFileCallbackData>>} */
 		this.currentlyGettingFileCbs = new Map(); // <path, Set<cb>>
 
 		/** @type {Set<PermissionGrantedListener>} */
@@ -320,7 +327,8 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 		const jointPath = path.join("/");
 		let cbs = this.currentlyGettingFileCbs.get(jointPath);
 		if (cbs) {
-			return await new Promise((resolve, reject) => cbs.add({resolve, reject}));
+			const cbs2 = cbs;
+			return await new Promise((resolve, reject) => cbs2.add({resolve, reject}));
 		} else {
 			cbs = new Set();
 			this.currentlyGettingFileCbs.set(jointPath, cbs);
@@ -339,6 +347,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 				reject(catchedError);
 			}
 		} else {
+			if (!fileContent) throw new Error("Assertion failed, fileContent is undefined");
 			for (const {resolve} of cbs) {
 				resolve(fileContent);
 			}

@@ -19,6 +19,7 @@ export class Mesh {
 	constructor() {
 		/** @type {MeshAttributeBuffer[]} */
 		this._buffers = [];
+		/** @type {Map<number, MeshAttributeBuffer>} */
 		this._unusedBuffers = new Map();
 		/** @type {import("../rendering/VertexState.js").VertexState?} */
 		this._vertexState = null;
