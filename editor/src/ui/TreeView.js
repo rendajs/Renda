@@ -105,6 +105,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {TreeViewDragEvent} dragstart
  * @property {TreeViewValidateDragEvent} validatedrag
  * @property {TreeViewDropEvent} drop
+ * @property {TreeViewDragEvent} dragend
  * @property {TreeViewRearrangeEvent} rearrange
  * @property {TreeViewEvent} dblclick
  * @property {TreeViewContextMenuEvent} contextmenu
@@ -269,7 +270,7 @@ export class TreeView {
 
 		/** @type {Map<string, Set<(event: AllTreeViewEvents) => void>>} */
 		this.eventCbs = new Map();
-		for (const eventType of ["selectionchange", "namechange", "dragstart", "validatedrag", "drop", "rearrange", "dblclick", "contextmenu"]) {
+		for (const eventType of ["selectionchange", "namechange", "dragstart", "dragend", "validatedrag", "drop", "rearrange", "dblclick", "contextmenu"]) {
 			this.registerNewEventType(eventType);
 		}
 
@@ -678,6 +679,10 @@ export class TreeView {
 		}
 		this.#currenDragFeedbackText = null;
 		this.#currentDraggingRearrangeDataId = null;
+		this.fireEvent("dragend", {
+			rawEvent: e,
+			target: this,
+		});
 	}
 
 	/**

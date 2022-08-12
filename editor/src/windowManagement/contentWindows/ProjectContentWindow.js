@@ -121,10 +121,14 @@ export class ProjectContentWindow extends ContentWindow {
 		});
 		this.addTopBarEl(openProjectButton.el);
 
+		/** @type {Map<TreeView, import("../../../../src/mod.js").UuidString>} */
+		this.draggingAssetUuids = new Map();
+
 		this.treeView = new TreeView();
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
+		this.treeView.addEventListener("dragend", this.onTreeViewDragEnd.bind(this));
 		this.treeView.addEventListener("validatedrag", this.onTreeViewValidateDrag.bind(this));
 		this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
@@ -457,6 +461,7 @@ export class ProjectContentWindow extends ContentWindow {
 			assetUuid: null,
 		};
 		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
+		this.draggingAssetUuids.set(e.target, draggingDataUuid);
 		if (!e.rawEvent.dataTransfer) return;
 		e.rawEvent.dataTransfer.setData(`text/renda; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 		e.rawEvent.dataTransfer.effectAllowed = "all";
@@ -468,6 +473,16 @@ export class ProjectContentWindow extends ContentWindow {
 		}
 		draggingData.assetUuid = assetData.uuid;
 		draggingData.dataPopulated = true;
+	}
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewDragEvent} e
+	 */
+	onTreeViewDragEnd(e) {
+		const uuid = this.draggingAssetUuids.get(e.target);
+		if (uuid) {
+			this.editorInstance.dragManager.unregisterDraggingData(uuid);
+		}
 	}
 
 	/**
