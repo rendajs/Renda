@@ -90,7 +90,7 @@ export class VertexStateProjectAssetType extends ProjectAssetType {
 	static expectedLiveAssetConstructor = VertexState;
 	static usedAssetLoaderType = AssetLoaderTypeVertexState;
 
-	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
 	static assetLoaderTypeImportConfig = {
 		identifier: "AssetLoaderTypeVertexState",
 	};

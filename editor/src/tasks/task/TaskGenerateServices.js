@@ -10,6 +10,37 @@ import {Task} from "./Task.js";
  * not needed are not included when bundling with tree shaking enabled.
  */
 
+/**
+ * @typedef AssetLoaderTypeImportConfig
+ * @property {string} identifier The identifier to import and pass to `registerLoaderType`.
+ * @property {string} [moduleSpecifier] The module specifier to import from, this defaults to "renda".
+ * @property {string} [instanceIdentifier] When set, the result of the `assetLoader.registerLoaderType()` call will
+ * be stored in a variable with this identifier that you can use using `extra`.
+ * For example, setting this to `shaderLoader` will result in:
+ * ```js
+ * const shaderLoader = assetLoader.registerLoaderType(AssetLoaderTypeShaderSource);
+ * ```
+ * rather than just
+ * ```js
+ * assetLoader.registerLoaderType(AssetLoaderTypeShaderSource);
+ * ```
+ * @property {boolean} [returnInstanceIdentifier] When set to true (which is the default), the created variable
+ * from `instanceIdentifier` will be returned from the `initializeServices()` function.
+ * This only has an effect when `instanceIdentifier` is set.
+ * @property {(ctx: AssetLoaderTypeImportConfigExtraContext) => (Promise<string> | string)} [extra]
+ * A function that gets called in which you can add extra content below the registration of the loader type.
+ */
+
+/**
+ * @typedef AssetLoaderTypeImportConfigExtraContext
+ * @property {(identifier: string, moduleSpecifier: string) => void} addImport Call this function to add extra
+ * imports to the top of the file. For example:
+ * ```js
+ * ctx.addImport("ShaderBuilder", "renda");
+ * ```
+ * will add `import {ShaderBuilder} from "renda";` to the top of the file.
+ */
+
 export class TaskGenerateServices extends Task {
 	static uiName = "Generate Services";
 	static type = "renda:generateServices";
@@ -66,8 +97,15 @@ export class TaskGenerateServices extends Task {
 			identifiers.add(identifier);
 		}
 
-		/** @type {Set<string>} */
-		const collectedAssetLoaderTypes = new Set();
+		/**
+		 * @typedef CollectedAssetLoaderType
+		 * @property {string} instanceIdentifier
+		 * @property {string} extra
+		 * @property {boolean} returnInstanceIdentifier
+		 */
+
+		/** @type {Map<string, CollectedAssetLoaderType>} */
+		const collectedAssetLoaderTypes = new Map();
 
 		/** @type {Set<string>} */
 		const collectedExportIdentifiers = new Set();
@@ -78,7 +116,17 @@ export class TaskGenerateServices extends Task {
 			if (config) {
 				const moduleSpecifier = config.moduleSpecifier || "renda";
 				addImport(config.identifier, moduleSpecifier);
-				collectedAssetLoaderTypes.add(config.identifier);
+				let extra = "";
+				if (config.extra) {
+					extra = await config.extra({
+						addImport,
+					});
+				}
+				collectedAssetLoaderTypes.set(config.identifier, {
+					instanceIdentifier: config.instanceIdentifier || "",
+					extra,
+					returnInstanceIdentifier: config.returnInstanceIdentifier ?? true,
+				});
 			}
 		}
 
@@ -101,8 +149,22 @@ export class TaskGenerateServices extends Task {
 		if (needsAssetLoader) {
 			code += "	const assetLoader = new AssetLoader();\n";
 			collectedExportIdentifiers.add("assetLoader");
-			for (const assetLoaderType of collectedAssetLoaderTypes) {
-				code += `	assetLoader.registerLoaderType(${assetLoaderType});\n`;
+			for (const [assetLoaderIdentifier, config] of collectedAssetLoaderTypes) {
+				const registerCall = `assetLoader.registerLoaderType(${assetLoaderIdentifier});`;
+				if (config.instanceIdentifier) {
+					code += `	const ${config.instanceIdentifier} = ${registerCall}\n`;
+					if (config.returnInstanceIdentifier) {
+						collectedExportIdentifiers.add(config.instanceIdentifier);
+					}
+				} else {
+					code += `	${registerCall}\n`;
+				}
+				if (config.extra) {
+					const lines = config.extra.split("\n");
+					for (const line of lines) {
+						code += `	${line}\n`;
+					}
+				}
 			}
 		}
 

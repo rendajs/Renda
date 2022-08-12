@@ -76,7 +76,7 @@ export class WebGpuPipelineConfigProjectAssetType extends ProjectAssetType {
 	static expectedLiveAssetConstructor = WebGpuPipelineConfig;
 	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfig;
 
-	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
 	static assetLoaderTypeImportConfig = {
 		identifier: "AssetLoaderTypeWebGpuPipelineConfig",
 	};

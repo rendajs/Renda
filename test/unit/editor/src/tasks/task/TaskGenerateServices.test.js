@@ -14,9 +14,20 @@ const blobModule = `
 		}
 		registerLoaderType(loaderType) {
 			this.registeredLoaderTypes.push(loaderType);
+			return new loaderType();
 		}
 	}
-	export class BasicAssetTypeLoader {}
+	export class BasicAssetTypeLoader {
+		someMethodCalls = [];
+
+		someMethod(...args) {
+			this.someMethodCalls.push(args);
+		}
+	}
+
+	export function getBar() {
+		return "bar";
+	}
 `;
 const blobModuleBlob = new Blob([blobModule], {type: "text/javascript"});
 const blobModuleUrl = URL.createObjectURL(blobModuleBlob);
@@ -24,17 +35,19 @@ const blobModuleUrl = URL.createObjectURL(blobModuleBlob);
 /**
  * @param {Object} options
  * @param {string} [options.projectAssetTypeModuleSpecifier]
+ * @param {import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} [options.importConfig]
  */
 function basicSetup({
 	projectAssetTypeModuleSpecifier,
+	importConfig = {
+		identifier: "BasicAssetTypeLoader",
+	},
 } = {}) {
 	const mockFileSystem = new MemoryEditorFileSystem();
 	const fileSystem = /** @type {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (mockFileSystem);
 
 	const {ProjectAssetType} = createMockProjectAssetType(BASIC_ASSET_TYPE);
-	ProjectAssetType.assetLoaderTypeImportConfig = {
-		identifier: "BasicAssetTypeLoader",
-	};
+	ProjectAssetType.assetLoaderTypeImportConfig = importConfig;
 	if (projectAssetTypeModuleSpecifier) {
 		ProjectAssetType.assetLoaderTypeImportConfig.moduleSpecifier = projectAssetTypeModuleSpecifier;
 	}
@@ -160,5 +173,31 @@ Deno.test({
 
 		const result = await fileSystem.readText(["out.js"]);
 		assert(result.includes("module-specifier"));
+	},
+});
+
+Deno.test({
+	name: "Asset type with extra import config",
+	async fn() {
+		const {task, initializeServices} = basicSetup({
+			importConfig: {
+				identifier: "BasicAssetTypeLoader",
+				instanceIdentifier: "instanceIdentifier",
+				extra(ctx) {
+					ctx.addImport("getBar", "renda");
+					return `instanceIdentifier.someMethod(getBar());`;
+				},
+			},
+		});
+		await task.runTask({
+			outputLocation: ["out.js"],
+			usedAssets: [BASIC_ASSET_UUID],
+		});
+
+		const result = await initializeServices(["out.js"]);
+		assertExists(result.assetLoader);
+		assertEquals(result.assetLoader.registeredLoaderTypes.length, 1);
+		assertExists(result.instanceIdentifier);
+		assertEquals(result.instanceIdentifier.someMethodCalls, [["bar"]]);
 	},
 });

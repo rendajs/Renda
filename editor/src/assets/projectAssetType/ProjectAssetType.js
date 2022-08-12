@@ -16,12 +16,6 @@ import {PropertiesContentWindow} from "../../windowManagement/contentWindows/Pro
 /** @typedef {[import("../../Editor.js").Editor, import("../ProjectAsset.js").ProjectAssetAny, import("../AssetManager.js").AssetManager, import("../ProjectAssetTypeManager.js").ProjectAssetTypeManager]} ProjectAssetTypeConstructorParametersAny */
 
 /**
- * @typedef AssetLoaderTypeImportConfig
- * @property {string} identifier The identifier to import.
- * @property {string} [moduleSpecifier] The module specifier to import from, this defaults to "renda".
- */
-
-/**
  * @template TLiveAsset
  * @template TEditorData
  * @typedef {Object} LiveAssetData
@@ -310,7 +304,7 @@ export class ProjectAssetType {
 	 * This is used to configure how the asset loader type is imported and used
 	 * in the 'Generate Services' task. This task looks for all the asset types
 	 * that are used, and generates a script that loads the required asset loader types.
-	 * @type {AssetLoaderTypeImportConfig?}
+	 * @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig?}
 	 */
 	static assetLoaderTypeImportConfig = null;
 

@@ -17,9 +17,14 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = MaterialMap;
 
-	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
 	static assetLoaderTypeImportConfig = {
 		identifier: "AssetLoaderTypeMaterialMap",
+		instanceIdentifier: "materialMapLoader",
+		extra(ctx) {
+			ctx.addImport("MaterialMapTypeLoaderWebGpuRenderer", "renda");
+			return `materialMapLoader.registerMaterialMapTypeLoader(MaterialMapTypeLoaderWebGpuRenderer);`;
+		},
 	};
 
 	createLiveAssetDataContext() {

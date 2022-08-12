@@ -22,7 +22,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = Material;
 
-	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
 	static assetLoaderTypeImportConfig = {
 		identifier: "AssetLoaderTypeMaterial",
 	};

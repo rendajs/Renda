@@ -33,7 +33,7 @@ export class ClusteredLightsConfigProjectAssetType extends ProjectAssetType {
 	static expectedLiveAssetConstructor = ClusteredLightsConfig;
 	static usedAssetLoaderType = AssetLoaderTypeClusteredLightsConfig;
 
-	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
 	static assetLoaderTypeImportConfig = {
 		identifier: "AssetLoaderTypeClusteredLightsConfig",
 	};
