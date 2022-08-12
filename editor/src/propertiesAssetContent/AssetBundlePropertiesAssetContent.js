@@ -1,5 +1,4 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
 
 /**
@@ -39,9 +38,6 @@ export class AssetBundlePropertiesAssetContent extends PropertiesAssetContent {
 						structure: {
 							asset: {
 								type: "droppable",
-								guiOpts: {
-									supportedAssetTypes: [ProjectAsset],
-								},
 							},
 							includeChildren: {
 								type: "boolean",
@@ -57,18 +53,12 @@ export class AssetBundlePropertiesAssetContent extends PropertiesAssetContent {
 				type: "array",
 				guiOpts: {
 					arrayType: "droppable",
-					arrayGuiOpts: {
-						supportedAssetTypes: [ProjectAsset],
-					},
 				},
 			},
 			excludeAssetsRecursive: {
 				type: "array",
 				guiOpts: {
 					arrayType: "droppable",
-					arrayGuiOpts: {
-						supportedAssetTypes: [ProjectAsset],
-					},
 				},
 			},
 		});

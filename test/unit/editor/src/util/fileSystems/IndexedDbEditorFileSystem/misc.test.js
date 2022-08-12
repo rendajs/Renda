@@ -348,6 +348,17 @@ Deno.test({
 });
 
 Deno.test({
+	name: "isFile non existent parent",
+	fn: async () => {
+		const fs = await createBasicFs();
+
+		const isFile = await fs.isFile(["root", "nonExistent", "file"]);
+
+		assertEquals(isFile, false);
+	},
+});
+
+Deno.test({
 	name: "isDir true",
 	fn: async () => {
 		const fs = await createBasicFs();
@@ -375,6 +386,17 @@ Deno.test({
 		const fs = await createBasicFs();
 
 		const isDir = await fs.isDir(["root", "nonExistent"]);
+
+		assertEquals(isDir, false);
+	},
+});
+
+Deno.test({
+	name: "isDir non existent parent",
+	fn: async () => {
+		const fs = await createBasicFs();
+
+		const isDir = await fs.isDir(["root", "nonExistent", "dir"]);
 
 		assertEquals(isDir, false);
 	},

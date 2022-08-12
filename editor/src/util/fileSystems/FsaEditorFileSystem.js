@@ -202,7 +202,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 		overrideError = true,
 	} = {}) {
 		const {dirPath, fileName} = this.splitDirFileName(path);
-		const dirHandle = await this.getDirHandle(dirPath, {create});
+		const dirHandle = await this.getDirHandle(dirPath, {create, overrideError});
 		await this.verifyHandlePermission(dirHandle, {writable: create});
 		let fileHandle = null;
 		try {

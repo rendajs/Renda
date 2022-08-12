@@ -21,6 +21,7 @@ import {ProjectContentWindow} from "../windowManagement/contentWindows/ProjectCo
  * @property {T[]} [supportedAssetTypes] A list of constructors from live assets that this droppable can accept.
  * Note that this is not a list of ProjectAssetType constructors, but rather a list of constructors from live assets.
  * So for instance, if you want to accept `MaterialProjectAssetType`, you should use `supportedAssetTypes: [Material]`.
+ * By default this is an empty array, which means that this droppable accepts all asset types.
  * @property {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  * When set, this will be the value upon creation. When loading serializable data, this value is set when the
  * serializable data is either `undefined` or not set.
@@ -125,6 +126,7 @@ export class DroppableGui {
 	 */
 	constructor({
 		dependencies = undefined,
+		// TODO: Support dropping drag events that are not assets.
 		supportedAssetTypes = [],
 		// TODO: load the default value upon creation and handle serializable data
 		// when filling properties treeviews.
@@ -574,20 +576,17 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @param {ParsedDraggingProjectAssetData} dragData
-	 * @returns {boolean}
+	 * @param {ParsedDraggingData | ParsedDraggingProjectAssetData} dragData
+	 * @returns {dragData is ParsedDraggingProjectAssetData}
 	 */
 	validateMimeType(dragData) {
-		if (dragData.isEngineType) {
+		if (dragData.isEngineType && dragData.isProjectAsset) {
 			if (this.supportedAssetTypes.length <= 0) return true;
-			if (dragData.isProjectAsset) {
-				if (this.supportedAssetTypes.includes(ProjectAsset)) return true;
 
-				if (dragData.draggingProjectAssetData.dataPopulated) {
-					const assetType = dragData.draggingProjectAssetData.assetType;
-					if (assetType && assetType.expectedLiveAssetConstructor) {
-						return this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
-					}
+			if (dragData.draggingProjectAssetData.dataPopulated) {
+				const assetType = dragData.draggingProjectAssetData.assetType;
+				if (assetType && assetType.expectedLiveAssetConstructor) {
+					return this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
 				}
 			}
 		}
@@ -595,15 +594,21 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @typedef {Object} ParsedDraggingProjectAssetData
+	 * @typedef {Object} ParsedDraggingData
 	 * @property {boolean} isEngineType
-	 * @property {boolean} isProjectAsset
+	 * @property {false} isProjectAsset
+	 */
+
+	/**
+	 * @typedef {Object} ParsedDraggingProjectAssetData
+	 * @property {true} isEngineType
+	 * @property {true} isProjectAsset
 	 * @property {import("../windowManagement/contentWindows/ProjectContentWindow.js").DraggingProjectAssetData} draggingProjectAssetData
 	 */
 
 	/**
 	 * @param {string} mimeType
-	 * @returns {ParsedDraggingProjectAssetData}
+	 * @returns {ParsedDraggingData | ParsedDraggingProjectAssetData}
 	 */
 	getDraggingProjectAssetData(mimeType) {
 		const parsed = parseMimeType(mimeType);
@@ -617,10 +622,15 @@ export class DroppableGui {
 				isProjectAsset = (parameters.dragtype == "projectasset");
 				if (isProjectAsset) {
 					draggingProjectAssetData = this.dragManager.getDraggingData(parameters.draggingdata);
+					return {
+						isEngineType,
+						isProjectAsset,
+						draggingProjectAssetData,
+					};
 				}
 			}
 		}
-		return {isEngineType, isProjectAsset, draggingProjectAssetData};
+		return {isEngineType, isProjectAsset};
 	}
 
 	/**
