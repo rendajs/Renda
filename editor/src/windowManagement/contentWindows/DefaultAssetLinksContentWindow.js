@@ -1,6 +1,5 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
-import {ProjectAsset} from "../../assets/ProjectAsset.js";
 import {createTreeViewEntryOptions, createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
 export class DefaultAssetLinksContentWindow extends ContentWindow {
@@ -94,14 +93,10 @@ export class DefaultAssetLinksContentWindow extends ContentWindow {
 		const restStructure = createTreeViewStructure({
 			originalAsset: {
 				type: "droppable",
-				guiOpts: {
-					supportedAssetTypes: [ProjectAsset],
-				},
 			},
 			defaultAsset: {
 				type: "droppable",
 				guiOpts: {
-					supportedAssetTypes: [ProjectAsset],
 					disabled: true,
 				},
 			},
