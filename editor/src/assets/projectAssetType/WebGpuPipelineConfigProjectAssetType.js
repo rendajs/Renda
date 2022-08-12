@@ -76,6 +76,11 @@ export class WebGpuPipelineConfigProjectAssetType extends ProjectAssetType {
 	static expectedLiveAssetConstructor = WebGpuPipelineConfig;
 	static usedAssetLoaderType = AssetLoaderTypeWebGpuPipelineConfig;
 
+	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeWebGpuPipelineConfig",
+	};
+
 	/**
 	 * @override
 	 * @param {WebGpuPipelineConfigAssetData} fileData

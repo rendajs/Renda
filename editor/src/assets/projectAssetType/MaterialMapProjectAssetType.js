@@ -17,6 +17,11 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = MaterialMap;
 
+	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeMaterialMap",
+	};
+
 	createLiveAssetDataContext() {
 		/** @type {import("../materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
 		const context = {

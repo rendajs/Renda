@@ -22,6 +22,11 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = Material;
 
+	/** @type {import("./ProjectAssetType.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeMaterial",
+	};
+
 	/**
 	 * @override
 	 * @param {import("../../propertiesAssetContent/MaterialPropertiesAssetContent.js").MaterialAssetData?} materialJson
