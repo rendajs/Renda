@@ -150,6 +150,10 @@ export function createBasicGui({
 		},
 	});
 
+	const mockDragManager = /** @type {import("../../../../../../editor/src/misc/DragManager.js").DragManager} */ ({
+		getDraggingData(uuid) {},
+	});
+
 	const mockWindowManager = /** @type {import("../../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 
 	const liveAssetProjectAssetTypes = new Map(liveAssetProjectAssetTypeCombinations);
@@ -165,7 +169,7 @@ export function createBasicGui({
 	/** @type {import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies} */
 	const dependencies = {
 		projectManager: mockProjectManager,
-		dragManager: /** @type {import("../../../../../../editor/src/misc/DragManager.js").DragManager} */ ({}),
+		dragManager: mockDragManager,
 		windowManager: mockWindowManager,
 		contextMenuManager: /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({}),
 		projectAssetTypeManager: mockProjectAssetTypeManager,
@@ -193,6 +197,7 @@ export function createBasicGui({
 		mockDefaultAssetLink,
 		mockLiveAsset,
 		mockProjectAsset,
+		mockDragManager,
 		mockWindowManager,
 		createEmbeddedAssetSpy,
 		getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy,
