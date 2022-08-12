@@ -1,6 +1,6 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import {stub} from "std/testing/mock.ts";
-import {FakeDragEvent} from "fake-dom/FakeDragEvent.js";
+import {DragEvent} from "/Users/Jesper/repositories/fake-dom/src/FakeDragEvent.js";
 import {createBasicGui} from "./shared.js";
 
 const BASIC_DRAGGING_DATA_UUID = "BASIC_DRAGGING_DATA_UUID";
@@ -12,8 +12,7 @@ Deno.test({
 		const {gui, uninstall} = createBasicGui();
 
 		try {
-			/** @type {DragEvent} */
-			const dragEvent = new FakeDragEvent("dragenter");
+			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
 			gui.onDragEnter(dragEvent);
 			assertEquals(gui.el.classList.contains("dragHovering"), true);
@@ -35,8 +34,7 @@ Deno.test({
 		});
 
 		try {
-			/** @type {DragEvent} */
-			const dragEvent = new FakeDragEvent("dragenter");
+			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
 			gui.onDragEnter(dragEvent);
 			assertEquals(gui.el.classList.contains("dragHovering"), false);
@@ -54,8 +52,7 @@ Deno.test({
 		const {gui, uninstall} = createBasicGui();
 
 		try {
-			/** @type {DragEvent} */
-			const dragEvent = new FakeDragEvent("dragenter");
+			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData("text/renda; dragtype=rearrangingtreeview; rootuuid=someuuid", "");
 			gui.onDragEnter(dragEvent);
 			assertEquals(gui.el.classList.contains("dragHovering"), false);
@@ -111,8 +108,7 @@ Deno.test({
 		});
 
 		try {
-			/** @type {DragEvent} */
-			const dragEvent = new FakeDragEvent("dragenter");
+			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
 			gui.onDragEnter(dragEvent);
 			assertEquals(gui.el.classList.contains("dragHovering"), false);
@@ -130,8 +126,7 @@ Deno.test({
 		const {gui, uninstall} = basicSetupForSupportedAssetTypes();
 
 		try {
-			/** @type {DragEvent} */
-			const dragEvent = new FakeDragEvent("dragenter");
+			const dragEvent = new DragEvent("dragenter");
 			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
 			gui.onDragEnter(dragEvent);
 			assertEquals(gui.el.classList.contains("dragHovering"), true);
