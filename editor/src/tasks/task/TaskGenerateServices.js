@@ -148,6 +148,7 @@ export class TaskGenerateServices extends Task {
 		code += "export function initializeServices() {\n";
 		if (needsAssetLoader) {
 			code += "	const assetLoader = new AssetLoader();\n";
+			code += "\n";
 			collectedExportIdentifiers.add("assetLoader");
 			for (const [assetLoaderIdentifier, config] of collectedAssetLoaderTypes) {
 				const registerCall = `assetLoader.registerLoaderType(${assetLoaderIdentifier});`;
@@ -165,10 +166,9 @@ export class TaskGenerateServices extends Task {
 						code += `	${line}\n`;
 					}
 				}
+				code += "\n";
 			}
 		}
-
-		code += "\n";
 
 		// Return object
 		code += `	return {${Array.from(collectedExportIdentifiers).join(", ")}};\n`;
