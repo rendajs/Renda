@@ -33,3 +33,14 @@ Deno.test({
 		assertEquals(isDir, false);
 	},
 });
+
+Deno.test({
+	name: "isDir non existent parent",
+	fn: async () => {
+		const fs = await createBasicFs();
+
+		const isDir = await fs.isDir(["root", "nonExistent", "dir"]);
+
+		assertEquals(isDir, false);
+	},
+});
