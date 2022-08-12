@@ -203,6 +203,11 @@ export class EntityProjectAssetType extends ProjectAssetType {
 		return objectToBinary(assetData, AssetLoaderTypeEntity.entityBinaryFormat);
 	}
 
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeEntity",
+	};
+
 	/**
 	 * @param {import("../../../../src/core/Entity.js").EntityJsonData} entityData
 	 */

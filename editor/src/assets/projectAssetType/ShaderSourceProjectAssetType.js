@@ -26,6 +26,17 @@ export class ShaderSourceProjectAssetType extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = ShaderSource;
 
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeClusteredLightsConfig",
+		instanceIdentifier: "shaderLoader",
+		extra(ctx) {
+			ctx.addImport("ShaderBuilder", "renda");
+			return `const shaderBuilder = new ShaderBuilder();
+shaderLoader.setBuilder(shaderBuilder);`;
+		},
+	};
+
 	/**
 	 * @override
 	 * @param {string} source

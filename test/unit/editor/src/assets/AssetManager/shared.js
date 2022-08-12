@@ -16,21 +16,33 @@ export const STRINGIFIED_PERSISTENCE_KEY = `"persistenceKey"`;
 export const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
 
 /**
+ * @typedef StubAssetConfig
+ * @property {string} assetType
+ * @property {import("../../../../../../src/mod.js").UuidString} uuid
+ * @property {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+ * @property {any} [jsonContent]
+ */
+
+/**
  * @param {Object} options
  * @param {boolean} [options.waitForAssetListsLoad]
- * @param {string} [options.assetType]
- * @param {import("../../../../../../editor/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData} [options.assetSettings]
+ * @param {StubAssetConfig[]} [options.stubAssets]
+ * @param {import("../../../../../../editor/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} [options.assetSettings]
  */
 export async function basicSetup({
 	waitForAssetListsLoad = true,
-	assetType = BASIC_PROJECTASSETTYPE,
-	assetSettings = {
-		assets: {
-			[BASIC_ASSET_UUID]: {
-				path: BASIC_ASSET_PATH,
+	stubAssets = [
+		{
+			assetType: BASIC_PROJECTASSETTYPE,
+			uuid: BASIC_ASSET_UUID,
+			path: BASIC_ASSET_PATH,
+			jsonContent: {
+				num: DEFAULT_BASIC_ASSET_NUM_ON_DISK,
+				str: DEFAULT_BASIC_ASSET_STR_ON_DISK,
 			},
 		},
-	},
+	],
+	assetSettings = null,
 } = {}) {
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({});
 
@@ -51,14 +63,29 @@ export async function basicSetup({
 	});
 
 	const mockFileSystem = new MemoryEditorFileSystem();
+
+	let assetSettingsAssets = null;
+	if (assetSettings == null) {
+		assetSettings = {
+			assets: {},
+		};
+		assetSettingsAssets = assetSettings.assets;
+	}
+
+	for (const stubAsset of stubAssets) {
+		if (assetSettingsAssets) {
+			assetSettingsAssets[stubAsset.uuid] = {
+				path: stubAsset.path,
+			};
+		}
+
+		await mockFileSystem.writeJson(stubAsset.path, {
+			assetType: stubAsset.assetType,
+			asset: stubAsset.jsonContent || {},
+		});
+	}
+
 	await mockFileSystem.writeJson(ASSET_SETTINGS_PATH, assetSettings);
-	await mockFileSystem.writeJson(BASIC_ASSET_PATH, {
-		assetType,
-		asset: {
-			num: DEFAULT_BASIC_ASSET_NUM_ON_DISK,
-			str: DEFAULT_BASIC_ASSET_STR_ON_DISK,
-		},
-	});
 
 	const assetManager = new AssetManager(mockProjectManager, mockBuiltinAssetManager, mockBuiltInDefaultAssetLinksManager, mockProjectAssetTypeManager, mockFileSystem);
 	if (waitForAssetListsLoad) {

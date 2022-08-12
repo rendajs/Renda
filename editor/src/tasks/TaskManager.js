@@ -28,9 +28,6 @@ export class TaskManager {
 		if (!castConstructor.type.includes(":") || castConstructor.type.split(":").filter(s => Boolean(s)).length < 2) {
 			throw new Error("Tried to register task (" + castConstructor.name + ") without a namespace in the type value.");
 		}
-		if (!castConstructor.workerUrl) {
-			throw new Error(`Tried to register task (${castConstructor.name}) with no workerUrl value, override the static workerUrl value in order for this task to function properly.`);
-		}
 
 		this.#registeredTasks.set(castConstructor.type, castConstructor);
 	}

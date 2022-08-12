@@ -46,6 +46,11 @@ export class RenderOutputConfigProjectAssetType extends ProjectAssetType {
 	static expectedLiveAssetConstructor = RenderOutputConfig;
 	static usedAssetLoaderType = AssetLoaderTypeRenderOutputConfig;
 
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeRenderOutputConfig",
+	};
+
 	/**
 	 * @override
 	 * @param {*} fileData

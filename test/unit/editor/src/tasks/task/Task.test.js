@@ -19,3 +19,19 @@ Deno.test({
 		task.worker.terminate();
 	},
 });
+
+Deno.test({
+	name: "Getting the worker from a task without a workerUrl throws",
+	async fn() {
+		/** @extends {Task<{}>} */
+		class ExtendedTask extends Task {
+		}
+
+		const mockEditor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({});
+
+		const task = new ExtendedTask(mockEditor);
+		await assertRejects(async () => {
+			task.worker.terminate();
+		}, Error, "This task does not have a worker. If you wish to use a worker, make sure the the static workerUrl property is set.");
+	},
+});

@@ -301,6 +301,14 @@ export class ProjectAssetType {
 	}
 
 	/**
+	 * This is used to configure how the asset loader type is imported and used
+	 * in the 'Generate Services' task. This task looks for all the asset types
+	 * that are used, and generates a script that loads the required asset loader types.
+	 * @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig?}
+	 */
+	static assetLoaderTypeImportConfig = null;
+
+	/**
 	 * This should yield all asset uuids that are referenced by this asset, this will be
 	 * used for determining what other assets should be included in a bundle recursively.
 	 * Embedded assets don't need to be included here since they don't have an uuid. They'll

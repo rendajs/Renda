@@ -80,22 +80,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "registering a task with a missing 'workerUrl' property throws",
-	fn() {
-		const manager = new TaskManager();
-
-		class ExtendedTask extends Task {
-			static type = "namespace:type";
-			static typeUuid = BASIC_UUID;
-		}
-
-		assertThrows(() => {
-			manager.registerTaskType(ExtendedTask);
-		}, Error, "Tried to register task (ExtendedTask) with no workerUrl value, override the static workerUrl value in order for this task to function properly.");
-	},
-});
-
-Deno.test({
 	name: "running a task",
 	async fn() {
 		injectMockEditorInstance(/** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({}));

@@ -1,6 +1,6 @@
 import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import {BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup} from "./shared.js";
+import {BASIC_ASSET_PATH, BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup} from "./shared.js";
 
 injectMockEditorInstance(/** @type {any} */ ({}));
 
@@ -106,7 +106,13 @@ Deno.test({
 	name: "getProjectAssetFromUuidSync() assert asset type, no asset type",
 	async fn() {
 		const {assetManager} = await basicSetup({
-			assetType: NONEXISTENT_PROJECTASSETTYPE,
+			stubAssets: [
+				{
+					uuid: BASIC_ASSET_UUID,
+					assetType: NONEXISTENT_PROJECTASSETTYPE,
+					path: BASIC_ASSET_PATH,
+				},
+			],
 		});
 
 		class ExpectedProjectAssetType {

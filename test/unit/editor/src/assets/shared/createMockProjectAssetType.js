@@ -30,6 +30,15 @@ export function createMockProjectAssetType(type) {
 		static wrapProjectJsonWithEditorMetaData = true;
 
 		/**
+		 * @param {import("../../../../../../editor/src/Editor.js").Editor} editorInstance
+		 * @param {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} projectAsset
+		 */
+		constructor(editorInstance, projectAsset) {
+			this.editorInstance = editorInstance;
+			this.projectAsset = projectAsset;
+		}
+
+		/**
 		 * @param {MockProjectAssetTypeDiskData?} fileData
 		 * @param {import("../../../../../../editor/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 		 * @returns {Promise<import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetData<MockProjectAssetTypeLiveAsset, MockProjectAssetTypeEditorData>>}
@@ -65,6 +74,8 @@ export function createMockProjectAssetType(type) {
 		}
 
 		destroyLiveAssetData() {}
+
+		async *getReferencedAssetUuids() {}
 	}
 
 	const castUnknown = /** @type {unknown} */ (MockProjectAssetType);

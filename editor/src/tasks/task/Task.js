@@ -23,12 +23,19 @@ export class Task {
 	/**
 	 * The main entry point of the worker that should be created for running
 	 * tasks of this type.
-	 * @type {URL}
+	 * @type {URL?}
 	 */
-	static workerUrl;
+	static workerUrl = null;
 
-	/** @type {Worker} */
-	worker;
+	/** @type {Worker?} */
+	#worker = null;
+
+	get worker() {
+		if (!this.#worker) {
+			throw new Error("This task does not have a worker. If you wish to use a worker, make sure the the static workerUrl property is set.");
+		}
+		return this.#worker;
+	}
 
 	/**
 	 * The structure of the ui that should be rendered in the properties content window.
@@ -43,9 +50,11 @@ export class Task {
 		this.editorInstance = editorInstance;
 
 		const castConstructor = /** @type {typeof Task} */ (this.constructor);
-		this.worker = new Worker(castConstructor.workerUrl, {
-			type: "module",
-		});
+		if (castConstructor.workerUrl) {
+			this.#worker = new Worker(castConstructor.workerUrl, {
+				type: "module",
+			});
+		}
 	}
 
 	/**
