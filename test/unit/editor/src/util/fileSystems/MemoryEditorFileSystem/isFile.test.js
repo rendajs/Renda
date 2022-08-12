@@ -33,3 +33,14 @@ Deno.test({
 		assertEquals(isFile, false);
 	},
 });
+
+Deno.test({
+	name: "isFile non existent parent",
+	fn: async () => {
+		const fs = await createBasicFs();
+
+		const isFile = await fs.isFile(["root", "nonExistent", "file"]);
+
+		assertEquals(isFile, false);
+	},
+});
