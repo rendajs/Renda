@@ -5,7 +5,7 @@ import {TypedMessenger} from "../../../../../../src/util/TypedMessenger.js";
 /** @type {TypedMessenger<{}, BasicWorkerResponseHandlers>} */
 const messenger = new TypedMessenger();
 messenger.setSendHandler(data => {
-	globalThis.postMessage(data);
+	globalThis.postMessage(data.sendData);
 });
 globalThis.addEventListener("message", e => {
 	messenger.handleReceivedMessage(e.data);
