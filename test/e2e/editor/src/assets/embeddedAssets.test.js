@@ -2,7 +2,7 @@ import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
 import {clickAsset, createAsset} from "../../shared/assets.js";
-import {getPropertiesWindowContentAsset, getPropertiesAssetContentReference} from "../../shared/contentWindows/properties.js";
+import {getPropertiesAssetContentReference, getPropertiesWindowContentAsset} from "../../shared/contentWindows/properties.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
