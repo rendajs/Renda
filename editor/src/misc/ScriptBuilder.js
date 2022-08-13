@@ -1,7 +1,7 @@
 import transpiledRollup from "../../deps/rollup.browser.js";
 import {getEditorInstance} from "../editorInstance.js";
 import resolveUrlObjects from "../../deps/rollup-plugin-resolve-url-objects.js";
-import {JavascriptProjectAssetType} from "../assets/projectAssetType/JavascriptProjectAssetType.js";
+import {ProjectAssetTypeJavascript} from "../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 
 const rollup = /** @type {import("rollup")} */ (transpiledRollup);
 
@@ -108,7 +108,7 @@ export class ScriptBuilder {
 		const assetManager = getEditorInstance().projectManager.assetManager;
 		if (assetManager) {
 			externsAsset = await assetManager.getProjectAssetFromUuid("2c2abb9a-8c5a-4faf-a605-066d33242391", {
-				assertAssetType: JavascriptProjectAssetType,
+				assertAssetType: ProjectAssetTypeJavascript,
 			});
 		}
 		if (externsAsset) {

@@ -3,7 +3,7 @@ import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 /**
  * @extends {PropertiesAssetContent<any>}
  */
-export class GenericStructurePropertiesAssetContent extends PropertiesAssetContent {
+export class PropertiesAssetContentGenericStructure extends PropertiesAssetContent {
 	/**
 	 * @param {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args

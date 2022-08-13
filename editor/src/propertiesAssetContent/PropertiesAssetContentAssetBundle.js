@@ -2,9 +2,9 @@ import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
 
 /**
- * @extends {PropertiesAssetContent<import("../assets/projectAssetType/AssetBundleProjectAssetType.js").AssetBundleProjectAssetType>}
+ * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>}
  */
-export class AssetBundlePropertiesAssetContent extends PropertiesAssetContent {
+export class PropertiesAssetContentAssetBundle extends PropertiesAssetContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
@@ -74,7 +74,7 @@ export class AssetBundlePropertiesAssetContent extends PropertiesAssetContent {
 
 	/**
 	 * @override
-	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/projectAssetType/AssetBundleProjectAssetType.js").AssetBundleProjectAssetType>[]} selectedBundles
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/projectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>[]} selectedBundles
 	 */
 	async selectionUpdated(selectedBundles) {
 		super.selectionUpdated(selectedBundles);

@@ -3,9 +3,9 @@ import {MaterialMapTypeEntry} from "./MaterialMapTypeEntry.js";
 
 /**
  * Responsible for rendering the ui in the properties window for MaterialMaps.
- * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>}
+ * @extends {PropertiesAssetContent<import("../../assets/projectAssetType/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>}
  */
-export class MaterialMapPropertiesAssetContent extends PropertiesAssetContent {
+export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
@@ -75,7 +75,7 @@ export class MaterialMapPropertiesAssetContent extends PropertiesAssetContent {
 
 	/**
 	 * @override
-	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/projectAssetType/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>[]} selectedMaps
 	 */
 	async selectionUpdated(selectedMaps) {
 		super.selectionUpdated(selectedMaps);

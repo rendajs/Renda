@@ -2,7 +2,7 @@ import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
 import {clickAsset, createAsset} from "../../shared/assets.js";
-import {getAssetPropertiesWindowContent, getPropertiesAssetContentReference} from "../../shared/contentWindows/properties.js";
+import {getPropertiesWindowContentAsset, getPropertiesAssetContentReference} from "../../shared/contentWindows/properties.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
@@ -33,7 +33,7 @@ Deno.test({
 			async fn(testContext) {
 				await createAsset(page, testContext, ["Materials", "New Material"]);
 				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				const assetContentEl = await getAssetPropertiesWindowContent(page);
+				const assetContentEl = await getPropertiesWindowContentAsset(page);
 
 				const assetContentReference = await getPropertiesAssetContentReference(page);
 				await page.evaluateHandle(async assetContentReference => {
@@ -102,7 +102,7 @@ Deno.test({
 			name: "Verify if changes were saved",
 			async fn(testContext) {
 				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				const assetContentEl = await getAssetPropertiesWindowContent(page);
+				const assetContentEl = await getPropertiesWindowContentAsset(page);
 
 				const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
 				await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);

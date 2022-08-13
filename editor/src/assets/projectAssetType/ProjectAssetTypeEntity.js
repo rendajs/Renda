@@ -20,7 +20,7 @@ function getEntityWithAssetRootUuidType() {
 /**
  * @extends {ProjectAssetType<Entity, null, import("../../../../src/core/Entity.js").EntityJsonData>}
  */
-export class EntityProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeEntity extends ProjectAssetType {
 	static type = "renda:entity";
 	static typeUuid = "0654611f-c908-4ec0-8bbf-c109a33c0914";
 	static newFileName = "New Entity";
@@ -57,7 +57,7 @@ export class EntityProjectAssetType extends ProjectAssetType {
 		const entityData = liveAsset.toJson({
 			assetManager: this.assetManager,
 			assetTypeManager: this.projectAssetTypeManager,
-			usedAssetUuidsSymbol: EntityProjectAssetType.usedAssetUuidsSymbol,
+			usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 			entityAssetRootUuidSymbol,
 		});
 		return /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
@@ -97,7 +97,7 @@ export class EntityProjectAssetType extends ProjectAssetType {
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					editorOpts: {
 						editorAssetTypeManager: this.projectAssetTypeManager,
-						usedAssetUuidsSymbol: EntityProjectAssetType.usedAssetUuidsSymbol,
+						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 						assetManager: this.assetManager,
 					},
 				});
@@ -119,7 +119,7 @@ export class EntityProjectAssetType extends ProjectAssetType {
 						ent.removeAtIndex(insertionIndex); // Remove the old dummy entity
 						ent.addAtIndex(child, insertionIndex);
 					}, {
-						assertAssetType: EntityProjectAssetType,
+						assertAssetType: ProjectAssetTypeEntity,
 					});
 				} else {
 					const child = await this.createEntityFromJsonData(childJson, recursionTracker);
@@ -186,10 +186,10 @@ export class EntityProjectAssetType extends ProjectAssetType {
 					}
 				}
 			}, {repeatOnLiveAssetChange: true});
-			let usedAssetUuids = newParentObject[EntityProjectAssetType.usedAssetUuidsSymbol];
+			let usedAssetUuids = newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 			if (!usedAssetUuids) {
 				usedAssetUuids = {};
-				newParentObject[EntityProjectAssetType.usedAssetUuidsSymbol] = usedAssetUuids;
+				newParentObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = usedAssetUuids;
 			}
 			usedAssetUuids[propertyKey] = propertyValue;
 		} else {

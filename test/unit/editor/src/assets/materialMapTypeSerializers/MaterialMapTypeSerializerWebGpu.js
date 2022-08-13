@@ -1,5 +1,5 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {WebGpuMaterialMapTypeSerializer} from "../../../../../../editor/src/assets/materialMapTypeSerializers/WebGpuMaterialMapTypeSerializer.js";
+import {MaterialMapTypeSerializerWebGpu} from "../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializerWebGpu.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
 import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
 import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
@@ -48,7 +48,7 @@ Deno.test({
 	name: "loadLiveAssetData() with no data",
 	async fn() {
 		const {context} = getMockContext();
-		const result = await WebGpuMaterialMapTypeSerializer.loadLiveAssetData(context, null);
+		const result = await MaterialMapTypeSerializerWebGpu.loadLiveAssetData(context, null);
 		assertEquals(result.forwardPipelineConfig, null);
 	},
 });
@@ -57,7 +57,7 @@ Deno.test({
 	name: "loadLiveAssetData() with an empty object",
 	async fn() {
 		const {context} = getMockContext();
-		const result = await WebGpuMaterialMapTypeSerializer.loadLiveAssetData(context, {});
+		const result = await MaterialMapTypeSerializerWebGpu.loadLiveAssetData(context, {});
 		assertEquals(result.forwardPipelineConfig, null);
 	},
 });
@@ -76,7 +76,7 @@ Deno.test({
 			return mockProjectAssetType;
 		});
 
-		const result = await WebGpuMaterialMapTypeSerializer.loadLiveAssetData(context, {
+		const result = await MaterialMapTypeSerializerWebGpu.loadLiveAssetData(context, {
 			forwardPipelineConfig: BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID,
 		});
 
@@ -96,7 +96,7 @@ Deno.test({
 		const {context} = getMockContext();
 		const liveAsset = new WebGpuMaterialMapType();
 
-		const result = await WebGpuMaterialMapTypeSerializer.saveLiveAssetData(context, liveAsset);
+		const result = await MaterialMapTypeSerializerWebGpu.saveLiveAssetData(context, liveAsset);
 
 		assertEquals(result, {});
 	},
@@ -109,7 +109,7 @@ Deno.test({
 		const forwardPipelineConfig = new WebGpuPipelineConfig();
 		const liveAsset = new WebGpuMaterialMapType({forwardPipelineConfig});
 
-		const result = await WebGpuMaterialMapTypeSerializer.saveLiveAssetData(context, liveAsset);
+		const result = await MaterialMapTypeSerializerWebGpu.saveLiveAssetData(context, liveAsset);
 
 		assertEquals(result, {
 			forwardPipelineConfig: BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID,
@@ -120,7 +120,7 @@ Deno.test({
 Deno.test({
 	name: "saveLiveAssetData() with an embedded forwardPipelineConfig",
 	async fn() {
-		/** @type {import("../../../../../../editor/src/assets/projectAssetType/WebGpuPipelineConfigProjectAssetType.js").WebGpuPipelineConfigAssetData} */
+		/** @type {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js").WebGpuPipelineConfigAssetData} */
 		const pipelineConfigData = {
 			depthWriteEnabled: true,
 			renderOrder: 123,
@@ -131,7 +131,7 @@ Deno.test({
 		const forwardPipelineConfig = new WebGpuPipelineConfig();
 		const liveAsset = new WebGpuMaterialMapType({forwardPipelineConfig});
 
-		const result = await WebGpuMaterialMapTypeSerializer.saveLiveAssetData(context, liveAsset);
+		const result = await MaterialMapTypeSerializerWebGpu.saveLiveAssetData(context, liveAsset);
 
 		assertEquals(result, {
 			forwardPipelineConfig: pipelineConfigData,
@@ -159,7 +159,7 @@ Deno.test({
 				@group(2) @binding(3) var invalidSampler : sampler;
 			`,
 		};
-		const result = await WebGpuMaterialMapTypeSerializer.getMappableValues(context, {
+		const result = await MaterialMapTypeSerializerWebGpu.getMappableValues(context, {
 			forwardPipelineConfig: BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID,
 		});
 		assertEquals(result, [

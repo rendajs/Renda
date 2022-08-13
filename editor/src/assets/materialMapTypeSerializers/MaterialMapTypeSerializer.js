@@ -15,7 +15,7 @@ import {StorageType, objectToBinary} from "../../../../src/util/binarySerializat
  * @typedef MaterialMapLiveAssetDataContext
  * @property {import("../../Editor.js").Editor} editor
  * @property {import("../AssetManager.js").AssetManager} assetManager
- * @property {import("../ProjectAsset.js").ProjectAsset<import("../projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>} materialMapAsset
+ * @property {import("../ProjectAsset.js").ProjectAsset<import("../projectAssetType/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} materialMapAsset
  */
 
 /**

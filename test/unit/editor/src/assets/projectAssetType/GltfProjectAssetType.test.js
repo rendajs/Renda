@@ -1,5 +1,5 @@
 import "../../../shared/initializeEditor.js";
-import {GltfProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/GltfProjectAssetType.js";
+import {ProjectAssetTypeGltf} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {createMockDependencies} from "./shared.js";
 import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 
@@ -8,7 +8,7 @@ Deno.test({
 	async fn() {
 		const {projectAssetTypeArgs} = createMockDependencies();
 
-		const projectAssetType = new GltfProjectAssetType(...projectAssetTypeArgs);
+		const projectAssetType = new ProjectAssetTypeGltf(...projectAssetTypeArgs);
 		const result = await projectAssetType.getLiveAssetData(null);
 
 		assertEquals(result, {
@@ -41,7 +41,7 @@ Deno.test({
 		const blob = new Blob([jsonStr], {type: ""});
 		projectAsset.path = ["path", "to", "file.gltf"];
 
-		const projectAssetType = new GltfProjectAssetType(...projectAssetTypeArgs);
+		const projectAssetType = new ProjectAssetTypeGltf(...projectAssetTypeArgs);
 		const result = await projectAssetType.getLiveAssetData(blob);
 
 		assertExists(result.liveAsset);
@@ -56,7 +56,7 @@ Deno.test({
 		const blob = new Blob(["not gltf data"], {type: ""});
 		projectAsset.path = ["path", "to", "file.glb"];
 
-		const projectAssetType = new GltfProjectAssetType(...projectAssetTypeArgs);
+		const projectAssetType = new ProjectAssetTypeGltf(...projectAssetTypeArgs);
 		// The spec states that gltf files should contain pure json data
 		// and glb files should have the binary container format.
 		// So we'll throw here even if the file contains valid gltf json data.

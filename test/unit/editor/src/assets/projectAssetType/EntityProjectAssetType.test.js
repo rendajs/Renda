@@ -1,6 +1,6 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
-import {EntityProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/EntityProjectAssetType.js";
+import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {EntityEditorContentWindow} from "../../../../../../editor/src/windowManagement/contentWindows/EntityEditorContentWindow.js";
 
 Deno.test("reload component values when changed", async () => {
@@ -49,7 +49,7 @@ Deno.test("reload component values when changed", async () => {
 		},
 	});
 
-	const assetType = new EntityProjectAssetType(mockEditorInstance, /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
+	const assetType = new ProjectAssetTypeEntity(mockEditorInstance, /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
 
 	assetType.fillComponentPropertyValueFromJson(newComponentData, originalComponentData, "mesh", "droppable", {}, /** @type {any} */ (fakeRecursionTracker));
 

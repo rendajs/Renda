@@ -5,7 +5,7 @@ import {AssetLoaderTypeRenderOutputConfig, RenderOutputConfig} from "../../../..
 /**
  * @extends {ProjectAssetType<RenderOutputConfig, null, any>}
  */
-export class RenderOutputConfigProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static type = "renda:renderOutputConfig";
 	static typeUuid = "b4c9bbdc-86dc-4270-ae94-780dbaa66976";
 	static newFileName = "New Render Output Config";

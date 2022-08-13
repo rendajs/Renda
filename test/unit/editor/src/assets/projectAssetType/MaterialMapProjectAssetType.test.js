@@ -1,7 +1,7 @@
 import {stub} from "std/testing/mock.ts";
 import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
-import {MaterialMapProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/MaterialMapProjectAssetType.js";
+import {ProjectAssetTypeMaterialMap} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterialMap.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
 import {createMockDependencies, getMockRecursionTracker} from "./shared.js";
 import {MaterialMapType} from "../../../../../../src/rendering/MaterialMapType.js";
@@ -70,7 +70,7 @@ function basicSetup() {
 			return null;
 		},
 	});
-	const projectAssetType = new MaterialMapProjectAssetType(...projectAssetTypeArgs);
+	const projectAssetType = new ProjectAssetTypeMaterialMap(...projectAssetTypeArgs);
 
 	return {
 		projectAssetType,

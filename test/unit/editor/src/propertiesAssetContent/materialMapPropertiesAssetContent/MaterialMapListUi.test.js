@@ -12,8 +12,8 @@ importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/Prop
 importer.makeReal("../../../../../../src/core/Texture.js");
 importer.makeReal("../../../../../../src/rendering/Sampler.js");
 
-/** @type {import("../../../../../../editor/src/propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapListUi.js")} */
-const MaterialMapListUiImport = await importer.import("../../../../../../editor/src/propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapListUi.js");
+/** @type {import("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapListUi.js")} */
+const MaterialMapListUiImport = await importer.import("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapListUi.js");
 const {MaterialMapListUi} = MaterialMapListUiImport;
 
 Deno.test({

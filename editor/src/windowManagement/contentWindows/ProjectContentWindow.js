@@ -83,7 +83,7 @@ export class ProjectContentWindow extends ContentWindow {
 								onClick: async () => {
 									const asset = await this.createAsset("renda:task");
 									/**
-									 * @type {import("../../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData}
+									 * @type {import("../../assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData}
 									 */
 									const fileData = {
 										taskType: "renda:bundleScripts",
@@ -96,7 +96,7 @@ export class ProjectContentWindow extends ContentWindow {
 								onClick: async () => {
 									const asset = await this.createAsset("renda:task");
 									/**
-									 * @type {import("../../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData}
+									 * @type {import("../../assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData}
 									 */
 									const fileData = {
 										taskType: "renda:generateServices",

@@ -8,7 +8,7 @@ import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";
 import {Importer} from "fake-imports";
 import {castTreeView} from "../../shared/mockTreeView/castTreeView.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {Texture} from "../../../../../src/core/Texture.js";
 
 const DEFAULT_ASSET_MAP_UUID = "default-asset-map-uuid";
@@ -23,13 +23,13 @@ importer.redirectModule("../../../../../editor/src/ui/propertiesTreeView/Propert
 importer.fakeModule("../../../../../src/rendering/MaterialMap.js", `
 	export class MaterialMap {}
 `);
-importer.fakeModule("../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js", `
+importer.fakeModule("../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js", `
 	export const MATERIAL_MAP_PERSISTENCE_KEY = "${MATERIAL_MAP_PERSISTENCE_KEY}";
 `);
 importer.makeReal("../../../../../src/core/Texture.js");
-/** @type {import("../../../../../editor/src/propertiesAssetContent/MaterialPropertiesAssetContent.js")} */
-const MaterialPropertiesAssetContentImport = await importer.import("../../../../../editor/src/propertiesAssetContent/MaterialPropertiesAssetContent.js");
-const {MaterialPropertiesAssetContent} = MaterialPropertiesAssetContentImport;
+/** @type {import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js")} */
+const PropertiesAssetContentMaterialImport = await importer.import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+const {PropertiesAssetContentMaterial} = PropertiesAssetContentMaterialImport;
 
 function basicSetup() {
 	const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
@@ -62,7 +62,7 @@ function basicSetup() {
 		},
 	});
 
-	const assetContent = new MaterialPropertiesAssetContent(mockEditorInstance);
+	const assetContent = new PropertiesAssetContentMaterial(mockEditorInstance);
 
 	/**
 	 * @typedef EmbeddedParentAssetCall

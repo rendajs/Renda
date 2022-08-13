@@ -1,7 +1,7 @@
 import "../../../shared/initializeEditor.js";
 import {AssertionError, assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {MaterialProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/MaterialProjectAssetType.js";
+import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {createMockDependencies} from "./shared.js";
 import {Material, Vec3} from "../../../../../../src/mod.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
@@ -43,7 +43,7 @@ function basicSetup({
 			return mockAssets.get(uuidOrData) ?? null;
 		},
 	});
-	const projectAssetType = new MaterialProjectAssetType(...projectAssetTypeArgs);
+	const projectAssetType = new ProjectAssetTypeMaterial(...projectAssetTypeArgs);
 
 	stub(assetManager, "getProjectAssetFromUuid", async (uuid, options) => {
 		if (typeof uuid != "string") {

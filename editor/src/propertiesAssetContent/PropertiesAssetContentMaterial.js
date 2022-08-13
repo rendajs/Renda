@@ -1,7 +1,7 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {EntityEditorContentWindow} from "../windowManagement/contentWindows/EntityEditorContentWindow.js";
 import {MaterialMap} from "../../../src/rendering/MaterialMap.js";
-import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/MaterialProjectAssetType.js";
+import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
 import {Texture} from "../../../src/core/Texture.js";
 import {Sampler} from "../../../src/rendering/Sampler.js";
@@ -14,9 +14,9 @@ import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js"
  */
 
 /**
- * @extends {PropertiesAssetContent<import("../assets/projectAssetType/MaterialProjectAssetType.js").MaterialProjectAssetType>}
+ * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeMaterial.js").ProjectAssetTypeMaterial>}
  */
-export class MaterialPropertiesAssetContent extends PropertiesAssetContent {
+export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	/** @type {SingleInstancePromise<void>?} */
 	#loadAssetInstance = null;
 	/**

@@ -1,4 +1,4 @@
-import {TaskPropertiesAssetContent} from "../../propertiesAssetContent/TaskPropertiesAssetContent.js";
+import {PropertiesAssetContentTask} from "../../propertiesAssetContent/PropertiesAssetContentTask.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
 
 /**
@@ -10,9 +10,9 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 /**
  * @extends {ProjectAssetType<null, null, TaskProjectAssetDiskData, null>}
  */
-export class TaskProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeTask extends ProjectAssetType {
 	static type = "renda:task";
 	static typeUuid = "b642e924-6aa4-47e1-a38e-65d7c10d3033";
 	static newFileName = "New Task";
-	static propertiesAssetContentConstructor = TaskPropertiesAssetContent;
+	static propertiesAssetContentConstructor = PropertiesAssetContentTask;
 }

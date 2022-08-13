@@ -1,9 +1,9 @@
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {MaterialMapListUi} from "./MaterialMapListUi.js";
-import {GenericStructurePropertiesMaterialMapContent} from "../../propertiesMaterialMapContent/GenericStructurePropertiesMaterialMapContent.js";
+import {PropertiesMaterialMapContentGenericStructure} from "../../propertiesMaterialMapContent/PropertiesMaterialMapContentGenericStructure.js";
 
 /**
- * This class is instantiated for every added MaterialMapType in a MaterialMapPropertiesAssetContent.
+ * This class is instantiated for every added MaterialMapType in a PropertiesAssetContentMaterialMap.
  * This class is essentially a container for a MaterialMapListUi and an extended PropertiesMaterialMapContent.
  */
 export class MaterialMapTypeEntry {
@@ -22,7 +22,7 @@ export class MaterialMapTypeEntry {
 			if (!typeConstructor.settingsStructure) {
 				throw new Error("typeConstructor.settingsStructure is not set");
 			}
-			this.propertiesContentInstance = new GenericStructurePropertiesMaterialMapContent(this, typeConstructor.settingsStructure);
+			this.propertiesContentInstance = new PropertiesMaterialMapContentGenericStructure(this, typeConstructor.settingsStructure);
 		}
 
 		this.treeView = new PropertiesTreeView();
@@ -42,7 +42,7 @@ export class MaterialMapTypeEntry {
 	 * This notification shouldn't be used for updating asset data, as {@linkcode customAssetDataFromLoad} and
 	 * {@linkcode fillMapListValues} are already used for that.
 	 * This is mostly useful for assigning the current parent asset to ui in order to make embedded assets work.
-	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType>[]} selectedMaps
+	 * @param {import("../../assets/ProjectAsset.js").ProjectAsset<import("../../assets/projectAssetType/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>[]} selectedMaps
 	 */
 	selectedAssetsUpdated(selectedMaps) {
 		this.propertiesContentInstance.selectedAssetsUpdated(selectedMaps);

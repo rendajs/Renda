@@ -1,5 +1,5 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {AssetBundlePropertiesAssetContent} from "../../propertiesAssetContent/AssetBundlePropertiesAssetContent.js";
+import {PropertiesAssetContentAssetBundle} from "../../propertiesAssetContent/PropertiesAssetContentAssetBundle.js";
 
 /**
  * @typedef {Object} AssetBundleDiskData
@@ -18,9 +18,9 @@ import {AssetBundlePropertiesAssetContent} from "../../propertiesAssetContent/As
 /**
  * @extends {ProjectAssetType<null, null, AssetBundleDiskData>}
  */
-export class AssetBundleProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeAssetBundle extends ProjectAssetType {
 	static type = "renda:assetBundle";
 	static typeUuid = "f5a6f81c-5404-4d0a-9c57-2a751699cc5c";
 	static newFileName = "New AssetBundle";
-	static propertiesAssetContentConstructor = AssetBundlePropertiesAssetContent;
+	static propertiesAssetContentConstructor = PropertiesAssetContentAssetBundle;
 }

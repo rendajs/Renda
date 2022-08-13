@@ -1,9 +1,9 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 
 /**
- * @extends {PropertiesAssetContent<import("../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetType>}
+ * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeTask.js").ProjectAssetTypeTask>}
  */
-export class TaskPropertiesAssetContent extends PropertiesAssetContent {
+export class PropertiesAssetContentTask extends PropertiesAssetContent {
 	#isLoadingTaskAssets = false;
 	/** @type {string?} */
 	#currentSelectedTaskType = null;
@@ -80,7 +80,7 @@ export class TaskPropertiesAssetContent extends PropertiesAssetContent {
 		if (!this.#currentSelectedTaskType) {
 			throw new Error("Assertion failed, no task type set.");
 		}
-		/** @type {import("../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData} */
+		/** @type {import("../assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData} */
 		const assetData = {
 			taskType: this.#currentSelectedTaskType,
 		};

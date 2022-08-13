@@ -3,7 +3,7 @@ import {uuidToBinary} from "../../../src/mod.js";
 export class AssetBundler {
 	/**
 	 * @param {import("../assets/AssetManager.js").AssetManager} assetManager
-	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("./projectAssetType/AssetBundleProjectAssetType.js").AssetBundleProjectAssetType>} bundleProjectAsset
+	 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("./projectAssetType/ProjectAssetTypeAssetBundle.js").ProjectAssetTypeAssetBundle>} bundleProjectAsset
 	 */
 	async bundle(assetManager, bundleProjectAsset) {
 		const bundleData = await bundleProjectAsset.readAssetData();
@@ -67,7 +67,7 @@ export class AssetBundler {
 
 	/**
 	 * @param {import("../assets/AssetManager.js").AssetManager} assetManager
-	 * @param {import("./projectAssetType/AssetBundleProjectAssetType.js").AssetBundleDiskDataAsset[]} assetsList
+	 * @param {import("./projectAssetType/ProjectAssetTypeAssetBundle.js").AssetBundleDiskDataAsset[]} assetsList
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuids
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} excludeUuidsRecursive
 	 */

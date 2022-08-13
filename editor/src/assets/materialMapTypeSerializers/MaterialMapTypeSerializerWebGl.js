@@ -1,9 +1,9 @@
 import {MaterialMapTypeSerializer} from "./MaterialMapTypeSerializer.js";
 import {ShaderSource} from "../../../../src/mod.js";
 import {StorageType} from "../../../../src/util/binarySerialization.js";
-import {ShaderSourceProjectAssetType} from "../projectAssetType/ShaderSourceProjectAssetType.js";
+import {ProjectAssetTypeShaderSource} from "../projectAssetType/ProjectAssetTypeShaderSource.js";
 
-export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
+export class MaterialMapTypeSerializerWebGl extends MaterialMapTypeSerializer {
 	static uiName = "WebGL Renderer";
 	static typeUuid = "392a2a4e-c895-4245-9c6d-d6259b8e5267";
 	static allowExportInAssetBundles = true;
@@ -36,11 +36,11 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 */
 	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
 		const vertexAsset = await assetManager.getProjectAssetFromUuid(customData.vertexShader, {
-			assertAssetType: ShaderSourceProjectAssetType,
+			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		if (vertexAsset) yield vertexAsset;
 		const fragmentAsset = await assetManager.getProjectAssetFromUuid(customData.fragmentShader, {
-			assertAssetType: ShaderSourceProjectAssetType,
+			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		if (fragmentAsset) yield fragmentAsset;
 	}
@@ -96,7 +96,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	 */
 	static async addShaderUniformsToMap(assetManager, shaderUuid, itemsMap) {
 		const shaderAsset = await assetManager.getProjectAssetFromUuid(shaderUuid, {
-			assertAssetType: ShaderSourceProjectAssetType,
+			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		for (const {name, type} of await this.getMapItemsIteratorFromShaderAsset(shaderAsset)) {
 			itemsMap.set(name, {type});
@@ -104,7 +104,7 @@ export class WebGlMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 	}
 
 	/**
-	 * @param {import("../ProjectAsset.js").ProjectAsset<import("../projectAssetType/ShaderSourceProjectAssetType.js").ShaderSourceProjectAssetType>?} asset
+	 * @param {import("../ProjectAsset.js").ProjectAsset<import("../projectAssetType/ProjectAssetTypeShaderSource.js").ProjectAssetTypeShaderSource>?} asset
 	 */
 	static async getMapItemsIteratorFromShaderAsset(asset) {
 		if (!asset) return [];

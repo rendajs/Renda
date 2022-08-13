@@ -1,23 +1,23 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {MeshPropertiesAssetContent} from "../../propertiesAssetContent/MeshPropertiesAssetContent.js";
+import {PropertiesAssetContentMesh} from "../../propertiesAssetContent/PropertiesAssetContentMesh.js";
 import {BinaryComposer, BinaryDecomposer, Mesh, createUvSphere} from "../../../../src/mod.js";
-import {VertexStateProjectAssetType} from "./VertexStateProjectAssetType.js";
+import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
 
 /**
- * @typedef {Object} MeshProjectAssetTypeEditorData
+ * @typedef {Object} ProjectAssetTypeMeshEditorData
  * @property {import("../../../../src/mod.js").UuidString?} vertexStateUuid
  */
 
 /**
- * @extends {ProjectAssetType<Mesh?, MeshProjectAssetTypeEditorData?, "binary">}
+ * @extends {ProjectAssetType<Mesh?, ProjectAssetTypeMeshEditorData?, "binary">}
  */
-export class MeshProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "renda:mesh";
 	static typeUuid = "f202aae6-673a-497d-806d-c2d4752bb146";
 	static newFileName = "New Mesh";
 	static newFileExtension = "rmesh";
 	static storeInProjectAsJson = false;
-	static propertiesAssetContentConstructor = MeshPropertiesAssetContent;
+	static propertiesAssetContentConstructor = PropertiesAssetContentMesh;
 
 	/**
 	 * @param {import("./ProjectAssetType.js").ProjectAssetTypeConstructorParametersAny} args
@@ -31,7 +31,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 	async createNewLiveAssetData() {
 		const defaultVertexStateAssetUuid = "ad4146d6-f709-422e-b93e-5beb51e38fe4";
 		const vertexStateLiveAsset = await this.assetManager.getLiveAsset(defaultVertexStateAssetUuid, {
-			assertAssetType: VertexStateProjectAssetType,
+			assertAssetType: ProjectAssetTypeVertexState,
 		});
 		const mesh = createUvSphere({
 			vertexState: vertexStateLiveAsset,
@@ -50,7 +50,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 	 * @override
 	 * @param {Blob} blob
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh?, MeshProjectAssetTypeEditorData?>>}
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh?, ProjectAssetTypeMeshEditorData?>>}
 	 */
 	async getLiveAssetData(blob, recursionTracker) {
 		// todo: remove all of this and reuse the code in AssetLoaderTypeMesh
@@ -65,7 +65,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 		const vertexStateUuid = decomposer.getUuid();
 		if (!vertexStateUuid) return {liveAsset: null, editorData: null};
 		const layoutProjectAsset = await this.assetManager.getProjectAssetFromUuid(vertexStateUuid, {
-			assertAssetType: VertexStateProjectAssetType,
+			assertAssetType: ProjectAssetTypeVertexState,
 		});
 		if (layoutProjectAsset) {
 			mesh.setVertexState(await layoutProjectAsset.getLiveAsset());
@@ -163,7 +163,7 @@ export class MeshProjectAssetType extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {Mesh} liveAsset
-	 * @param {MeshProjectAssetTypeEditorData} editorData
+	 * @param {ProjectAssetTypeMeshEditorData} editorData
 	 * @returns {Promise<ArrayBuffer>}
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {

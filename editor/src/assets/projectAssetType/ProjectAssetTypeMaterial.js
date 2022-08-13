@@ -1,9 +1,9 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {Material} from "../../../../src/rendering/Material.js";
-import {MaterialPropertiesAssetContent} from "../../propertiesAssetContent/MaterialPropertiesAssetContent.js";
+import {PropertiesAssetContentMaterial} from "../../propertiesAssetContent/PropertiesAssetContentMaterial.js";
 import {mathTypeToJson} from "../../../../src/math/MathTypes.js";
 import {StorageType, objectToBinary} from "../../../../src/util/binarySerialization.js";
-import {MaterialMapProjectAssetType} from "./MaterialMapProjectAssetType.js";
+import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../builtinAssetUuids.js";
 import {Texture} from "../../../../src/core/Texture.js";
 import {isUuid} from "../../../../src/mod.js";
@@ -12,13 +12,13 @@ import {Sampler} from "../../../../src/rendering/Sampler.js";
 export const MATERIAL_MAP_PERSISTENCE_KEY = "materialMap";
 
 /**
- * @extends {ProjectAssetType<Material, null, import("../../propertiesAssetContent/MaterialPropertiesAssetContent.js").MaterialAssetData>}
+ * @extends {ProjectAssetType<Material, null, import("../../propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData>}
  */
-export class MaterialProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	static type = "renda:material";
 	static typeUuid = "430f47a8-82cc-4b4c-a664-2360794e80d6";
 	static newFileName = "New Material";
-	static propertiesAssetContentConstructor = MaterialPropertiesAssetContent;
+	static propertiesAssetContentConstructor = PropertiesAssetContentMaterial;
 
 	static expectedLiveAssetConstructor = Material;
 
@@ -29,7 +29,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {import("../../propertiesAssetContent/MaterialPropertiesAssetContent.js").MaterialAssetData?} materialJson
+	 * @param {import("../../propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData?} materialJson
 	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Material, null>>}
 	 */
 	async getLiveAssetData(materialJson) {
@@ -37,7 +37,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 		const mapJson = materialJson?.map;
 		if (mapJson) {
 			materialMapAsset = await this.assetManager.getProjectAssetFromUuidOrEmbeddedAssetData(mapJson, {
-				assertAssetType: MaterialMapProjectAssetType,
+				assertAssetType: ProjectAssetTypeMaterialMap,
 				parentAsset: this.projectAsset,
 				embeddedAssetPersistenceKey: MATERIAL_MAP_PERSISTENCE_KEY,
 			});
@@ -46,7 +46,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 			// we want to load the default value. The value is only empty
 			// if the user has explicitly set the value to null.
 			materialMapAsset = await this.assetManager.getProjectAssetFromUuid(DEFAULT_MATERIAL_MAP_UUID, {
-				assertAssetType: MaterialMapProjectAssetType,
+				assertAssetType: ProjectAssetTypeMaterialMap,
 			});
 		}
 
@@ -87,7 +87,7 @@ export class MaterialProjectAssetType extends ProjectAssetType {
 	 * @param {null} editorData
 	 */
 	async saveLiveAssetData(liveAsset, editorData) {
-		/** @type {import("../../propertiesAssetContent/MaterialPropertiesAssetContent.js").MaterialAssetData} */
+		/** @type {import("../../propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
 		if (liveAsset) {
 			assetData.map = this.assetManager.getAssetUuidOrEmbeddedAssetDataFromLiveAsset(liveAsset.materialMap);

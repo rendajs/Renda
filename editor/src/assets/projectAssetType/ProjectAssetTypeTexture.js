@@ -2,14 +2,14 @@ import {Texture} from "../../../../src/core/Texture.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
 
 /**
- * @typedef TextureProjectAssetTypeEditorData
+ * @typedef ProjectAssetTypeTextureEditorData
  * @property {unknown} [todo]
  */
 
 /**
- * @extends {ProjectAssetType<Texture, TextureProjectAssetTypeEditorData, any, null>}
+ * @extends {ProjectAssetType<Texture, ProjectAssetTypeTextureEditorData, any, null>}
  */
-export class TextureProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeTexture extends ProjectAssetType {
 	static type = "renda:texture";
 	static typeUuid = "7db7d04f-bb6d-4b9e-9390-06f23dd47f4b";
 	static matchExtensions = ["png"];
@@ -27,7 +27,7 @@ export class TextureProjectAssetType extends ProjectAssetType {
 	 * @override
 	 * @param {Blob} blob
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Texture, TextureProjectAssetTypeEditorData>>}
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Texture, ProjectAssetTypeTextureEditorData>>}
 	 */
 	async getLiveAssetData(blob, recursionTracker) {
 		return {

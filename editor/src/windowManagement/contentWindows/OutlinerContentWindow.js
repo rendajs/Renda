@@ -3,7 +3,7 @@ import {TreeView} from "../../ui/TreeView.js";
 import {Button} from "../../ui/Button.js";
 import {Entity} from "../../../../src/mod.js";
 import {EntityEditorContentWindow} from "./EntityEditorContentWindow.js";
-import {EntityProjectAssetType, entityAssetRootUuidSymbol} from "../../assets/projectAssetType/EntityProjectAssetType.js";
+import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
@@ -302,7 +302,7 @@ export class OutlinerContentWindow extends ContentWindow {
 			mimeType.parameters.dragtype == "projectasset"
 		) {
 			const dragData = /** @type {import("./ProjectContentWindow.js").DraggingProjectAssetData} */ (this.editorInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata));
-			if (dragData.assetType == EntityProjectAssetType) {
+			if (dragData.assetType == ProjectAssetTypeEntity) {
 				return dragData;
 			}
 		}
@@ -342,13 +342,13 @@ export class OutlinerContentWindow extends ContentWindow {
 				const entityAssetUuid = dragData.assetUuid;
 				const assetManager = await this.editorInstance.projectManager.getAssetManager();
 				const projectAsset = await assetManager.getProjectAssetFromUuid(entityAssetUuid, {
-					assertAssetType: EntityProjectAssetType,
+					assertAssetType: ProjectAssetTypeEntity,
 				});
 				if (!projectAsset) throw new Error(`Assertion failed, project asset with uuid ${entityAssetUuid} not found`);
 				await assetManager.makeAssetUuidConsistent(projectAsset);
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
-					/** @type {import("../../assets/projectAssetType/EntityProjectAssetType.js").EntityWithAssetRootUuid} */
+					/** @type {import("../../assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */
 					const clonedEntity = entityAsset.clone();
 					clonedEntity[entityAssetRootUuidSymbol] = projectAsset.uuid;
 					parent.add(clonedEntity);

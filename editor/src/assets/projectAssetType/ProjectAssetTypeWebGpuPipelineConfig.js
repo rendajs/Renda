@@ -1,6 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeWebGpuPipelineConfig, ShaderSource, VertexState, WebGpuPipelineConfig} from "../../../../src/mod.js";
-import {ShaderSourceProjectAssetType} from "./ShaderSourceProjectAssetType.js";
+import {ProjectAssetTypeShaderSource} from "./ProjectAssetTypeShaderSource.js";
 import {compareFunction, primitiveTopologyTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeWebGpuPipelineConfig.js";
 
 /**
@@ -16,7 +16,7 @@ import {compareFunction, primitiveTopologyTypes} from "../../../../src/assets/as
 /**
  * @extends {ProjectAssetType<WebGpuPipelineConfig, null, WebGpuPipelineConfigAssetData>}
  */
-export class WebGpuPipelineConfigProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	static type = "renda:webGpuPipelineConfig";
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	static newFileName = "New Pipeline Config";
@@ -89,10 +89,10 @@ export class WebGpuPipelineConfigProjectAssetType extends ProjectAssetType {
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
 		const fragmentShaderAsset = await this.assetManager.getProjectAssetFromUuid(fileData.fragmentShader, {
-			assertAssetType: ShaderSourceProjectAssetType,
+			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		const vertexShaderAsset = await this.assetManager.getProjectAssetFromUuid(fileData.vertexShader, {
-			assertAssetType: ShaderSourceProjectAssetType,
+			assertAssetType: ProjectAssetTypeShaderSource,
 		});
 		this.listenForUsedLiveAssetChanges(fragmentShaderAsset);
 		this.listenForUsedLiveAssetChanges(vertexShaderAsset);

@@ -1,12 +1,12 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 import {Mesh, VertexState} from "../../../src/mod.js";
 import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
-import {VertexStateProjectAssetType} from "../assets/projectAssetType/VertexStateProjectAssetType.js";
+import {ProjectAssetTypeVertexState} from "../assets/projectAssetType/ProjectAssetTypeVertexState.js";
 
 /**
- * @extends {PropertiesAssetContent<import("../assets/projectAssetType/MeshProjectAssetType.js").MeshProjectAssetType>}
+ * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeMesh.js").ProjectAssetTypeMesh>}
  */
-export class MeshPropertiesAssetContent extends PropertiesAssetContent {
+export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
@@ -76,7 +76,7 @@ export class MeshPropertiesAssetContent extends PropertiesAssetContent {
 			editorData.vertexStateUuid = settings.vertexState;
 			const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
 			const vertexStateLiveAsset = await assetManager.getLiveAsset(settings.vertexState, {
-				assertAssetType: VertexStateProjectAssetType,
+				assertAssetType: ProjectAssetTypeVertexState,
 			});
 			liveAsset.setVertexState(vertexStateLiveAsset);
 			await asset.saveLiveAssetData();

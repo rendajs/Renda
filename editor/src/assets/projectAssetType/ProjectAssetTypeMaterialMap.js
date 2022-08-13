@@ -1,19 +1,19 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
-import {MaterialMapPropertiesAssetContent} from "../../propertiesAssetContent/materialMapPropertiesAssetContent/MaterialMapPropertiesAssetContent.js";
+import {PropertiesAssetContentMaterialMap} from "../../propertiesAssetContent/propertiesAssetContentMaterialMap/PropertiesAssetContentMaterialMap.js";
 import {MaterialMap} from "../../../../src/rendering/MaterialMap.js";
 import {StorageType, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
-import {TextureProjectAssetType} from "./TextureProjectAssetType.js";
-import {SamplerProjectAssetType} from "./SamplerProjectAssetType.js";
+import {ProjectAssetTypeTexture} from "./ProjectAssetTypeTexture.js";
+import {ProjectAssetTypeSampler} from "./ProjectAssetTypeSampler.js";
 
 /**
  * @extends {ProjectAssetType<MaterialMap, null, import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData>}
  */
-export class MaterialMapProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	static type = "renda:materialMap";
 	static typeUuid = "dd28f2f7-254c-4447-b041-1770ae451ba9";
 	static newFileName = "New Material Map";
-	static propertiesAssetContentConstructor = MaterialMapPropertiesAssetContent;
+	static propertiesAssetContentConstructor = PropertiesAssetContentMaterialMap;
 
 	static expectedLiveAssetConstructor = MaterialMap;
 
@@ -32,7 +32,7 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 		const context = {
 			editor: this.editorInstance,
 			assetManager: this.assetManager,
-			materialMapAsset: /** @type {import("../ProjectAsset.js").ProjectAsset<MaterialMapProjectAssetType>} */ (this.projectAsset),
+			materialMapAsset: /** @type {import("../ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterialMap>} */ (this.projectAsset),
 		};
 		return context;
 	}
@@ -115,11 +115,11 @@ export class MaterialMapProjectAssetType extends ProjectAssetType {
 									defaultValue.set(mappedValueDiskData.defaultValue);
 								} else if (mappedValue.mappedType == "texture2d") {
 									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
-										assertAssetType: TextureProjectAssetType,
+										assertAssetType: ProjectAssetTypeTexture,
 									});
 								} else if (mappedValue.mappedType == "sampler") {
 									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
-										assertAssetType: SamplerProjectAssetType,
+										assertAssetType: ProjectAssetTypeSampler,
 									});
 								}
 							}

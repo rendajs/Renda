@@ -4,7 +4,7 @@ import {ShaderSource} from "../../../../src/mod.js";
 /**
  * @extends {ProjectAssetType<ShaderSource, null, string>}
  */
-export class ShaderSourceProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 	static type = "renda:shaderSource";
 	static typeUuid = "e7253ad6-8459-431f-ac16-609150538a24";
 	static newFileName = "New Shader";

@@ -3,16 +3,16 @@ import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
 import {getEditorInstance} from "../../editorInstance.js";
 
 /**
- * @typedef {Object} AssetBundleDiskDataJavascriptProjectAssetTypeAssetSettings
+ * @typedef {Object} AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings
  * @property {string} outputLocation
  * @property {boolean} useClosureCompiler
  */
 
 // todo: better types for generics
 /**
- * @extends {ProjectAssetType<null, null, any, AssetBundleDiskDataJavascriptProjectAssetTypeAssetSettings>}
+ * @extends {ProjectAssetType<null, null, any, AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings>}
  */
-export class JavascriptProjectAssetType extends ProjectAssetType {
+export class ProjectAssetTypeJavascript extends ProjectAssetType {
 	static type = "renda:javascript";
 	static typeUuid = "3654355b-9c4c-4ac0-b3d7-81565208ec0f";
 	static newFileName = "New Script";
@@ -33,11 +33,11 @@ export class JavascriptProjectAssetType extends ProjectAssetType {
 		},
 		buildButton: {
 			type: "button",
-			/** @type {import("../../ui/Button.js").ButtonGuiOptionsWithCallbacksContext<import("../../propertiesWindowContent/AssetPropertiesWindowContent.js").AssetPropertiesWindowContentCallbacksContext>} */
+			/** @type {import("../../ui/Button.js").ButtonGuiOptionsWithCallbacksContext<import("../../propertiesWindowContent/PropertiesWindowContentAsset.js").PropertiesWindowContentAssetCallbacksContext>} */
 			guiOpts: {
 				text: "Build",
 				onClick: async context => {
-					const castSelected = /** @type {import("../ProjectAsset.js").ProjectAsset<JavascriptProjectAssetType>[]} */ (context.selectedAssets);
+					const castSelected = /** @type {import("../ProjectAsset.js").ProjectAsset<ProjectAssetTypeJavascript>[]} */ (context.selectedAssets);
 					for (const asset of castSelected) {
 						let outputPath = null;
 						const outputLocation = asset?.assetSettings?.outputLocation;

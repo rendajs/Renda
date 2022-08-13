@@ -1,35 +1,35 @@
-import {AssetBundleProjectAssetType} from "./projectAssetType/AssetBundleProjectAssetType.js";
-import {ClusteredLightsConfigProjectAssetType} from "./projectAssetType/ClusteredLightsConfigProjectAssetType.js";
-import {EntityProjectAssetType} from "./projectAssetType/EntityProjectAssetType.js";
-import {GltfProjectAssetType} from "./projectAssetType/GltfProjectAssetType.js";
-import {JavascriptProjectAssetType} from "./projectAssetType/JavascriptProjectAssetType.js";
-import {MaterialProjectAssetType} from "./projectAssetType/MaterialProjectAssetType.js";
-import {MaterialMapProjectAssetType} from "./projectAssetType/MaterialMapProjectAssetType.js";
-import {MeshProjectAssetType} from "./projectAssetType/MeshProjectAssetType.js";
-import {SamplerProjectAssetType} from "./projectAssetType/SamplerProjectAssetType.js";
-import {TaskProjectAssetType} from "./projectAssetType/TaskProjectAssetType.js";
-import {TextureProjectAssetType} from "./projectAssetType/TextureProjectAssetType.js";
-import {RenderOutputConfigProjectAssetType} from "./projectAssetType/RenderOutputConfigProjectAssetType.js";
-import {ShaderSourceProjectAssetType} from "./projectAssetType/ShaderSourceProjectAssetType.js";
-import {VertexStateProjectAssetType} from "./projectAssetType/VertexStateProjectAssetType.js";
-import {WebGpuPipelineConfigProjectAssetType} from "./projectAssetType/WebGpuPipelineConfigProjectAssetType.js";
+import {ProjectAssetTypeAssetBundle} from "./projectAssetType/ProjectAssetTypeAssetBundle.js";
+import {ProjectAssetTypeClusteredLightsConfig} from "./projectAssetType/ProjectAssetTypeClusteredLightsConfig.js";
+import {ProjectAssetTypeEntity} from "./projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeGltf} from "./projectAssetType/ProjectAssetTypeGltf.js";
+import {ProjectAssetTypeJavascript} from "./projectAssetType/ProjectAssetTypeJavascript.js";
+import {ProjectAssetTypeMaterial} from "./projectAssetType/ProjectAssetTypeMaterial.js";
+import {ProjectAssetTypeMaterialMap} from "./projectAssetType/ProjectAssetTypeMaterialMap.js";
+import {ProjectAssetTypeMesh} from "./projectAssetType/ProjectAssetTypeMesh.js";
+import {ProjectAssetTypeSampler} from "./projectAssetType/ProjectAssetTypeSampler.js";
+import {ProjectAssetTypeTask} from "./projectAssetType/ProjectAssetTypeTask.js";
+import {ProjectAssetTypeTexture} from "./projectAssetType/ProjectAssetTypeTexture.js";
+import {ProjectAssetTypeRenderOutputConfig} from "./projectAssetType/ProjectAssetTypeRenderOutputConfig.js";
+import {ProjectAssetTypeShaderSource} from "./projectAssetType/ProjectAssetTypeShaderSource.js";
+import {ProjectAssetTypeVertexState} from "./projectAssetType/ProjectAssetTypeVertexState.js";
+import {ProjectAssetTypeWebGpuPipelineConfig} from "./projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js";
 
 /** @type {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructorAny[]} */
 const autoRegisterAssetTypes = [
-	AssetBundleProjectAssetType,
-	ClusteredLightsConfigProjectAssetType,
-	EntityProjectAssetType,
-	GltfProjectAssetType,
-	JavascriptProjectAssetType,
-	MaterialProjectAssetType,
-	MaterialMapProjectAssetType,
-	MeshProjectAssetType,
-	SamplerProjectAssetType,
-	TaskProjectAssetType,
-	TextureProjectAssetType,
-	RenderOutputConfigProjectAssetType,
-	ShaderSourceProjectAssetType,
-	VertexStateProjectAssetType,
-	WebGpuPipelineConfigProjectAssetType,
+	ProjectAssetTypeAssetBundle,
+	ProjectAssetTypeClusteredLightsConfig,
+	ProjectAssetTypeEntity,
+	ProjectAssetTypeGltf,
+	ProjectAssetTypeJavascript,
+	ProjectAssetTypeMaterial,
+	ProjectAssetTypeMaterialMap,
+	ProjectAssetTypeMesh,
+	ProjectAssetTypeSampler,
+	ProjectAssetTypeTask,
+	ProjectAssetTypeTexture,
+	ProjectAssetTypeRenderOutputConfig,
+	ProjectAssetTypeShaderSource,
+	ProjectAssetTypeVertexState,
+	ProjectAssetTypeWebGpuPipelineConfig,
 ];
 export {autoRegisterAssetTypes};

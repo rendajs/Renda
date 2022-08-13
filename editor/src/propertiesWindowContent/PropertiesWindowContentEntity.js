@@ -3,10 +3,10 @@ import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js
 import {Button} from "../ui/Button.js";
 import {DroppableGui} from "../ui/DroppableGui.js";
 import {EntityEditorContentWindow} from "../windowManagement/contentWindows/EntityEditorContentWindow.js";
-import {EntityProjectAssetType} from "../assets/projectAssetType/EntityProjectAssetType.js";
+import {ProjectAssetTypeEntity} from "../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {EntitySelection} from "../misc/EntitySelection.js";
 
-export class EntityPropertiesWindowContent extends PropertiesWindowContent {
+export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesWindowContent>} args
 	 */
@@ -104,7 +104,7 @@ export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 								const componentInstance = entity.addComponent(component, {}, {
 									editorOpts: {
 										editorAssetTypeManager: this.editorInstance.projectAssetTypeManager,
-										usedAssetUuidsSymbol: EntityProjectAssetType.usedAssetUuidsSymbol,
+										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 										assetManager: this.editorInstance.projectManager.assertAssetManagerExists(),
 									},
 								});
@@ -208,7 +208,7 @@ export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 						if (value) {
 							const castValue = /** @type {any} */ (value);
 							if (this.editorInstance.projectAssetTypeManager.constructorHasAssetType(castValue.constructor)) {
-								const usedAssetUuids = setOnObject[EntityProjectAssetType.usedAssetUuidsSymbol];
+								const usedAssetUuids = setOnObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 								if (usedAssetUuids) {
 									const uuid = usedAssetUuids[setOnObjectKey];
 									if (uuid) return uuid;
@@ -251,10 +251,10 @@ export class EntityPropertiesWindowContent extends PropertiesWindowContent {
 
 		object[propertyName] = scriptValue;
 		if (guiEntry.gui instanceof DroppableGui) {
-			if (!object[EntityProjectAssetType.usedAssetUuidsSymbol]) {
-				object[EntityProjectAssetType.usedAssetUuidsSymbol] = {};
+			if (!object[ProjectAssetTypeEntity.usedAssetUuidsSymbol]) {
+				object[ProjectAssetTypeEntity.usedAssetUuidsSymbol] = {};
 			}
-			object[EntityProjectAssetType.usedAssetUuidsSymbol][propertyName] = guiEntry.value;
+			object[ProjectAssetTypeEntity.usedAssetUuidsSymbol][propertyName] = guiEntry.value;
 		}
 	}
 
