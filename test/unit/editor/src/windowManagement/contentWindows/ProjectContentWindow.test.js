@@ -2,7 +2,7 @@ import "../../../shared/initializeEditor.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {ProjectContentWindow} from "../../../../../../editor/src/windowManagement/contentWindows/ProjectContentWindow.js";
+import {ContentWindowProject} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
@@ -40,7 +40,7 @@ function basicSetup({
 
 	injectMockEditorInstance(mockEditorInstance);
 
-	const contentWindow = new ProjectContentWindow(mockEditorInstance, mockWindowManager, BASIC_WINDOW_UUID);
+	const contentWindow = new ContentWindowProject(mockEditorInstance, mockWindowManager, BASIC_WINDOW_UUID);
 	return {
 		contentWindow,
 		uninstall() {

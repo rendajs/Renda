@@ -1,7 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../ui/TreeView.js";
 
-export class BuiltInAssetsContentWindow extends ContentWindow {
+export class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";
 	static contentWindowUiName = "Built-in Assets";
 	static contentWindowUiIcon = "icons/contentWindowTabs/builtInAssets.svg";
@@ -82,7 +82,7 @@ export class BuiltInAssetsContentWindow extends ContentWindow {
 		let assetType = null;
 		if (projectAsset.assetType) assetType = this.editorInstance.projectAssetTypeManager.getAssetType(projectAsset.assetType);
 
-		/** @type {import("./ProjectContentWindow.js").DraggingProjectAssetData} */
+		/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
 		const draggingData = {
 			dataPopulated: true,
 			assetType,

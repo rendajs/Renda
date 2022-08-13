@@ -2,7 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {createTreeViewEntryOptions, createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
-export class DefaultAssetLinksContentWindow extends ContentWindow {
+export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";
 	static contentWindowUiName = "Default Asset Links";
 	static contentWindowUiIcon = "icons/contentWindowTabs/defaultAssetLinks.svg";

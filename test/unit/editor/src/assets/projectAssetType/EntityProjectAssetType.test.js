@@ -1,7 +1,7 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
 import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {EntityEditorContentWindow} from "../../../../../../editor/src/windowManagement/contentWindows/EntityEditorContentWindow.js";
+import {ContentWindowEntityEditor} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
 
 Deno.test("reload component values when changed", async () => {
 	const fakeUuid = "00000000-0000-0000-0000-000000000000";
@@ -37,8 +37,8 @@ Deno.test("reload component values when changed", async () => {
 	const mockEditorInstance = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
 		windowManager: {
 			*getContentWindowsByConstructor(windowConstructor) {
-				if (windowConstructor == /** @type {any} */ (EntityEditorContentWindow)) {
-					const w = /** @type {EntityEditorContentWindow} */ ({
+				if (windowConstructor == /** @type {any} */ (ContentWindowEntityEditor)) {
+					const w = /** @type {ContentWindowEntityEditor} */ ({
 						markRenderDirty() {
 							markRenderDirtyCalled = true;
 						},

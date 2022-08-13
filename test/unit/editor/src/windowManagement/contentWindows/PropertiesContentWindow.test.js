@@ -1,7 +1,7 @@
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {PropertiesWindowContent} from "../../../../../../editor/src/propertiesWindowContent/PropertiesWindowContent.js";
-import {PropertiesContentWindow} from "../../../../../../editor/src/windowManagement/contentWindows/PropertiesContentWindow.js";
+import {ContentWindowProperties} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowProperties.js";
 import {PropertiesWindowContentEmpty} from "../../../../../../editor/src/propertiesWindowContent/PropertiesWindowContentEmpty.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
@@ -96,7 +96,7 @@ function basicSetup() {
 
 	const mockWindowManager = /** @type {import("../../../../../../editor/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 
-	const contentWindow = new PropertiesContentWindow(mockEditorInstance, mockWindowManager, BASIC_WINDOW_UUID);
+	const contentWindow = new ContentWindowProperties(mockEditorInstance, mockWindowManager, BASIC_WINDOW_UUID);
 	contentWindow.isMostSuitableContentWindow = () => {
 		return true;
 	};

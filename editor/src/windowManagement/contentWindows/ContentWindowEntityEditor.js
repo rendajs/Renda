@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {OutlinerContentWindow} from "./OutlinerContentWindow.js";
-import {BuildViewContentWindow} from "./BuildViewContentWindow.js";
+import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
+import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../ui/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
@@ -8,7 +8,7 @@ import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTy
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
-export class EntityEditorContentWindow extends ContentWindow {
+export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowTypeId = "entityEditor";
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "icons/contentWindowTabs/entityEditor.svg";
@@ -124,7 +124,7 @@ export class EntityEditorContentWindow extends ContentWindow {
 		}
 		this.updateGizmos();
 		this.markRenderDirty();
-		for (const outliner of this.editorInstance.windowManager.getContentWindowsByConstructor(OutlinerContentWindow)) {
+		for (const outliner of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
 			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateBuildViews();
@@ -247,7 +247,7 @@ export class EntityEditorContentWindow extends ContentWindow {
 	}
 
 	updateBuildViews() {
-		for (const buildView of this.editorInstance.windowManager.getContentWindowsByConstructor(BuildViewContentWindow)) {
+		for (const buildView of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)) {
 			buildView.setLinkedEntityEditor(this);
 		}
 	}

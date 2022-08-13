@@ -1,5 +1,5 @@
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
-import {EntityEditorContentWindow} from "../windowManagement/contentWindows/EntityEditorContentWindow.js";
+import {ContentWindowEntityEditor} from "../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {MaterialMap} from "../../../src/rendering/MaterialMap.js";
 import {MATERIAL_MAP_PERSISTENCE_KEY} from "../assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../assets/builtinAssetUuids.js";
@@ -176,7 +176,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	notifyEntityEditorsMaterialChanged() {
-		for (const entityEditor of this.editorInstance.windowManager.getContentWindowsByConstructor(EntityEditorContentWindow)) {
+		for (const entityEditor of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			entityEditor.notifyMaterialChanged();
 		}
 	}

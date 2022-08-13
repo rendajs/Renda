@@ -1,7 +1,7 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeEntity, Entity, StorageType, Vec3} from "../../../../src/mod.js";
 import {objectToBinary} from "../../../../src/util/binarySerialization.js";
-import {EntityEditorContentWindow} from "../../windowManagement/contentWindows/EntityEditorContentWindow.js";
+import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 
 export const entityAssetRootUuidSymbol = Symbol("entityAssetUuid");
 
@@ -68,7 +68,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
-		const entityEditor = windowManager.getMostSuitableContentWindowByConstructor(EntityEditorContentWindow);
+		const entityEditor = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);
 		if (entityEditor) {
 			await entityEditor.loadEntityAsset(this.projectAsset.uuid);
 		}
@@ -180,7 +180,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			recursionTracker.getLiveAsset(propertyValue, liveAsset => {
 				if (!liveAsset) liveAsset = null;
 				newParentObject[propertyKey] = liveAsset;
-				for (const w of this.editorInstance.windowManager.getContentWindowsByConstructor(EntityEditorContentWindow)) {
+				for (const w of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 					if (w.editingEntity == this.projectAsset.liveAsset) {
 						w.markRenderDirty();
 					}

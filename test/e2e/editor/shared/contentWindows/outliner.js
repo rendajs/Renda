@@ -3,10 +3,10 @@ import {click, elementWaitForSelector} from "../../../shared/util.js";
 import {getContentWindowElement, getContentWindowReference} from "../contentWindows.js";
 
 /**
- * Gets a reference to the first available OutlinerContentWindow instance.
+ * Gets a reference to the first available ContentWindowOutliner instance.
  * @param {import("puppeteer").Page} page
  */
-export async function getOutlinerContentWindowReference(page) {
+export async function getContentWindowOutlinerReference(page) {
 	const contentWindowReference = await getContentWindowReference(page, "outliner");
 	return contentWindowReference;
 }

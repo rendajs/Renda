@@ -1,6 +1,6 @@
 /** @typedef {string & {}} ProjectAssetTypeIdentifier */
 
-import {PropertiesContentWindow} from "../../windowManagement/contentWindows/PropertiesContentWindow.js";
+import {ContentWindowProperties} from "../../windowManagement/contentWindows/ContentWindowProperties.js";
 
 /** @typedef {ProjectAssetType<any, any, any, any>} ProjectAssetTypeAny */
 /** @typedef {ProjectAssetType<unknown, unknown, object, unknown>} ProjectAssetTypeUnknown */
@@ -266,7 +266,7 @@ export class ProjectAssetType {
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
-		const propertiesWindow = windowManager.getMostSuitableContentWindowByConstructor(PropertiesContentWindow);
+		const propertiesWindow = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowProperties);
 		if (propertiesWindow) {
 			propertiesWindow.setActiveObjects([this.projectAsset]);
 		}

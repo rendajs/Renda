@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 
-export class PropertiesContentWindow extends ContentWindow {
+export class ContentWindowProperties extends ContentWindow {
 	static contentWindowTypeId = "properties";
 	static contentWindowUiName = "Properties";
 	static contentWindowUiIcon = "icons/contentWindowTabs/properties.svg";

@@ -1,9 +1,9 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {Button} from "../../ui/Button.js";
-import {EntityEditorContentWindow} from "./EntityEditorContentWindow.js";
+import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../src/mod.js";
 
-export class BuildViewContentWindow extends ContentWindow {
+export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
 	static contentWindowUiName = "Build";
 	static contentWindowUiIcon = "icons/contentWindowTabs/buildView.svg";
@@ -38,7 +38,7 @@ export class BuildViewContentWindow extends ContentWindow {
 		});
 		this.addTopBarEl(loadFrameButton.el);
 
-		/** @type {EntityEditorContentWindow?} */
+		/** @type {ContentWindowEntityEditor?} */
 		this.linkedEntityEditor = null;
 		this.setAvailableLinkedEntityEditor();
 
@@ -53,14 +53,14 @@ export class BuildViewContentWindow extends ContentWindow {
 	}
 
 	setAvailableLinkedEntityEditor() {
-		for (const entityEditor of this.windowManager.getContentWindowsByConstructor(EntityEditorContentWindow)) {
+		for (const entityEditor of this.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			this.setLinkedEntityEditor(entityEditor);
 			break;
 		}
 	}
 
 	/**
-	 * @param {EntityEditorContentWindow?} linkedEntityEditor
+	 * @param {ContentWindowEntityEditor?} linkedEntityEditor
 	 */
 	setLinkedEntityEditor(linkedEntityEditor) {
 		if (linkedEntityEditor == this.linkedEntityEditor) return;
