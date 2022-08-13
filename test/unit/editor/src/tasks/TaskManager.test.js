@@ -5,7 +5,8 @@ import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 
-const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
+const BASIC_UUID = "BASIC_UUID";
+const BASIC_UUID_2 = "BASIC_UUID_2";
 
 Deno.test({
 	name: "init(), registers the default task types",
@@ -28,6 +29,26 @@ Deno.test({
 		assertThrows(() => {
 			manager.getTaskType("nonexistent");
 		}, Error, `Task type "nonexistent" is not registered.`);
+	},
+});
+
+Deno.test({
+	name: "getTaskTypes()",
+	fn() {
+		const manager = new TaskManager();
+		class Task1 extends Task {
+			static type = "namespace:type1";
+			static typeUuid = BASIC_UUID;
+		}
+		class Task2 extends Task {
+			static type = "namespace:type2";
+			static typeUuid = BASIC_UUID_2;
+		}
+		manager.registerTaskType(Task1);
+		manager.registerTaskType(Task2);
+
+		const result = Array.from(manager.getTaskTypes()).map(t => t.type);
+		assertEquals(result, ["namespace:type1", "namespace:type2"]);
 	},
 });
 

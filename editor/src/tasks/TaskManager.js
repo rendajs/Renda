@@ -43,6 +43,12 @@ export class TaskManager {
 		return taskTypeConstructor;
 	}
 
+	*getTaskTypes() {
+		for (const taskType of this.#registeredTasks.values()) {
+			yield taskType;
+		}
+	}
+
 	/**
 	 * @param {string} taskType
 	 */

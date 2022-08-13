@@ -77,34 +77,26 @@ export class ContentWindowProject extends ContentWindow {
 					},
 					{
 						text: "New Task",
-						submenu: [
-							{
-								text: "Bundle Scripts",
-								onClick: async () => {
-									const asset = await this.createAsset("renda:task");
-									/**
-									 * @type {import("../../assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData}
-									 */
-									const fileData = {
-										taskType: "renda:bundleScripts",
-									};
-									await asset.writeAssetData(fileData);
-								},
-							},
-							{
-								text: "Generate Services",
-								onClick: async () => {
-									const asset = await this.createAsset("renda:task");
-									/**
-									 * @type {import("../../assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData}
-									 */
-									const fileData = {
-										taskType: "renda:generateServices",
-									};
-									await asset.writeAssetData(fileData);
-								},
-							},
-						],
+						submenu: () => {
+							/** @type {import("../../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
+							const menu = [];
+							for (const taskType of this.editorInstance.taskManager.getTaskTypes()) {
+								menu.push({
+									text: taskType.uiName,
+									onClick: async () => {
+										const asset = await this.createAsset("renda:task");
+										/**
+										 * @type {import("../../assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData}
+										 */
+										const fileData = {
+											taskType: taskType.type,
+										};
+										await asset.writeAssetData(fileData);
+									},
+								});
+							}
+							return menu;
+						},
 					},
 				]);
 
