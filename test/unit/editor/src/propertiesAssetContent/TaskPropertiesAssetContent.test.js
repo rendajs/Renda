@@ -1,6 +1,6 @@
 import "../../shared/initializeEditor.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {TaskPropertiesAssetContent} from "../../../../../editor/src/propertiesAssetContent/TaskPropertiesAssetContent.js";
+import {PropertiesAssetContentTask} from "../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentTask.js";
 import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
 import {createTreeViewStructure} from "../../../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "../../../../../editor/src/tasks/task/Task.js";
@@ -40,9 +40,9 @@ function basicSetup({
 			},
 		},
 	});
-	const assetContent = new TaskPropertiesAssetContent(editor);
+	const assetContent = new PropertiesAssetContentTask(editor);
 
-	/** @type {import("../../../../../editor/src/assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData} */
+	/** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData} */
 	const readAssetDataReturnValue = {
 		taskType: "namespace:tasktype",
 		taskConfig: {

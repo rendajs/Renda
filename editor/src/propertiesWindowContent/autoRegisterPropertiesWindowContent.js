@@ -1,8 +1,8 @@
-import {EntityPropertiesWindowContent} from "./EntityPropertiesWindowContent.js";
-import {AssetPropertiesWindowContent} from "./AssetPropertiesWindowContent.js";
+import {PropertiesWindowContentEntity} from "./PropertiesWindowContentEntity.js";
+import {PropertiesWindowContentAsset} from "./PropertiesWindowContentAsset.js";
 
 const autoRegisterPropertiesWindowContent = [
-	EntityPropertiesWindowContent,
-	AssetPropertiesWindowContent,
+	PropertiesWindowContentEntity,
+	PropertiesWindowContentAsset,
 ];
 export {autoRegisterPropertiesWindowContent};

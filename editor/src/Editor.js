@@ -19,7 +19,7 @@ import {DevSocketManager} from "./network/DevSocketManager.js";
 import {ComponentTypeManager} from "../../src/components/ComponentTypeManager.js";
 
 import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
-import {ShaderSourceProjectAssetType} from "./assets/projectAssetType/ShaderSourceProjectAssetType.js";
+import {ProjectAssetTypeShaderSource} from "./assets/projectAssetType/ProjectAssetTypeShaderSource.js";
 import {TaskManager} from "./tasks/TaskManager.js";
 
 export class Editor {
@@ -101,7 +101,7 @@ export class Editor {
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const assetManager = await this.projectManager.getAssetManager();
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid, {
-				assertAssetType: ShaderSourceProjectAssetType,
+				assertAssetType: ProjectAssetTypeShaderSource,
 			});
 			if (projectAsset) {
 				if (projectAsset.assetType == "renda:shaderSource") {

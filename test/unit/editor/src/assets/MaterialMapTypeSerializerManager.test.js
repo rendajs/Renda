@@ -163,7 +163,7 @@ function basicGetMapValuesForMapAssetUuidSetup({
 	const {projectAsset: mockMaterialMapProjectAsset} = createMockProjectAsset({
 		readAssetDataReturnValue: mapReadAssetDataReturnValue,
 	});
-	const mockProjectAssetType = /** @type {import("../../../../../editor/src/assets/projectAssetType/MaterialMapProjectAssetType.js").MaterialMapProjectAssetType} */ ({
+	const mockProjectAssetType = /** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap} */ ({
 		createLiveAssetDataContext() {
 			return /** @type {any} */ ({
 				label: "live asset data context",

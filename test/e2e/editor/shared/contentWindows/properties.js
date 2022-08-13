@@ -18,7 +18,7 @@ export async function getPropertiesWindowRootTreeView(page) {
  * Gets the asset content treeview element of the properties window.
  * @param {import("puppeteer").Page} page
  */
-export async function getAssetPropertiesWindowContent(page) {
+export async function getPropertiesWindowContentAsset(page) {
 	const propertiesRootTreeView = await getPropertiesWindowRootTreeView(page);
 	const assetContentEl = await getTreeViewItemElement(page, propertiesRootTreeView, ["Asset content will be placed here"]);
 	assertExists(assetContentEl);
@@ -27,7 +27,7 @@ export async function getAssetPropertiesWindowContent(page) {
 
 /**
  * Gets a reference to the PropertiesWindowContent class of the current properties window.
- * Use this to access `EntityPropertiesWindowContent`, `AssetPropertiesWindowContent`, etc.
+ * Use this to access `PropertiesWindowContentEntity`, `PropertiesWindowContentAsset`, etc.
  * @param {import("puppeteer").Page} page
  */
 export async function getPropertiesWindowContentReference(page) {
@@ -43,7 +43,7 @@ export async function getPropertiesWindowContentReference(page) {
 
 /**
  * Gets a reference to the PropertiesAssetContent instance of the current properties window.
- * Use this to access instances like `MaterialPropertiesAssetContent`, `MeshPropertiesAssetContent`, etc.
+ * Use this to access instances like `PropertiesAssetContentMaterial`, `PropertiesAssetContentMesh`, etc.
  * @param {import("puppeteer").Page} page
  */
 export async function getPropertiesAssetContentReference(page) {

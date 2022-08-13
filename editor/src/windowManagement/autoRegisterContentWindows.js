@@ -1,19 +1,19 @@
-import {BuildViewContentWindow} from "./contentWindows/BuildViewContentWindow.js";
-import {BuiltInAssetsContentWindow} from "./contentWindows/BuiltInAssetsContentWindow.js";
-import {ConnectionsContentWindow} from "./contentWindows/ConnectionsContentWindow.js";
-import {DefaultAssetLinksContentWindow} from "./contentWindows/DefaultAssetLinksContentWindow.js";
-import {EntityEditorContentWindow} from "./contentWindows/EntityEditorContentWindow.js";
-import {OutlinerContentWindow} from "./contentWindows/OutlinerContentWindow.js";
-import {ProjectContentWindow} from "./contentWindows/ProjectContentWindow.js";
-import {PropertiesContentWindow} from "./contentWindows/PropertiesContentWindow.js";
+import {ContentWindowBuildView} from "./contentWindows/ContentWindowBuildView.js";
+import {ContentWindowBuiltInAssets} from "./contentWindows/ContentWindowBuiltInAssets.js";
+import {ContentWindowConnections} from "./contentWindows/ContentWindowConnections.js";
+import {ContentWindowDefaultAssetLinks} from "./contentWindows/ContentWindowDefaultAssetLinks.js";
+import {ContentWindowEntityEditor} from "./contentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowOutliner} from "./contentWindows/ContentWindowOutliner.js";
+import {ContentWindowProject} from "./contentWindows/ContentWindowProject.js";
+import {ContentWindowProperties} from "./contentWindows/ContentWindowProperties.js";
 
 export const autoRegisterContentWindows = [
-	BuildViewContentWindow,
-	BuiltInAssetsContentWindow,
-	ConnectionsContentWindow,
-	DefaultAssetLinksContentWindow,
-	EntityEditorContentWindow,
-	OutlinerContentWindow,
-	ProjectContentWindow,
-	PropertiesContentWindow,
+	ContentWindowBuildView,
+	ContentWindowBuiltInAssets,
+	ContentWindowConnections,
+	ContentWindowDefaultAssetLinks,
+	ContentWindowEntityEditor,
+	ContentWindowOutliner,
+	ContentWindowProject,
+	ContentWindowProperties,
 ];

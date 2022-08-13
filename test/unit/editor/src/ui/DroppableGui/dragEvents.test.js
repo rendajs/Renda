@@ -83,7 +83,7 @@ function basicSetupForSupportedAssetTypes({
 
 	stub(mockDragManager, "getDraggingData", uuid => {
 		if (uuid == BASIC_DRAGGING_DATA_UUID) {
-			/** @type {import("../../../../../../editor/src/windowManagement/contentWindows/ProjectContentWindow.js").DraggingProjectAssetData} */
+			/** @type {import("../../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */
 			return {
 				assetType: /** @type {typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} */ ({
 					expectedLiveAssetConstructor,

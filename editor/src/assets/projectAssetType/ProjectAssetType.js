@@ -1,6 +1,6 @@
 /** @typedef {string & {}} ProjectAssetTypeIdentifier */
 
-import {PropertiesContentWindow} from "../../windowManagement/contentWindows/PropertiesContentWindow.js";
+import {ContentWindowProperties} from "../../windowManagement/contentWindows/ContentWindowProperties.js";
 
 /** @typedef {ProjectAssetType<any, any, any, any>} ProjectAssetTypeAny */
 /** @typedef {ProjectAssetType<unknown, unknown, object, unknown>} ProjectAssetTypeUnknown */
@@ -35,13 +35,13 @@ import {PropertiesContentWindow} from "../../windowManagement/contentWindows/Pro
  * before reading/writing to disk and creating live assets among other things.
  *
  * If all you want to do is create an asset type that stores basic data with
- * basic properties ui, see `WebGpuPipelineConfigProjectAssetType` for a good
+ * basic properties ui, see `ProjectAssetTypeWebGpuPipelineConfig` for a good
  * example on how to do this.
  *
- * For a more complicated example, see `MaterialProjectAssetType`.
+ * For a more complicated example, see `ProjectAssetTypeMaterial`.
  *
  * If you want an asset that is not a live asset, but only available in the
- * editor, have a look at `AssetBundleProjectAssetType`. It only configures
+ * editor, have a look at `ProjectAssetTypeAssetBundle`. It only configures
  * a minimal amount. Most of it is implemented in its
  * `propertiesAssetContentConstructor`.
  *
@@ -266,7 +266,7 @@ export class ProjectAssetType {
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
-		const propertiesWindow = windowManager.getMostSuitableContentWindowByConstructor(PropertiesContentWindow);
+		const propertiesWindow = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowProperties);
 		if (propertiesWindow) {
 			propertiesWindow.setActiveObjects([this.projectAsset]);
 		}

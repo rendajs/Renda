@@ -60,7 +60,7 @@ export class TaskManager {
 	/**
 	 * Runs a task with a specified configuration in a worker.
 	 * @param {Object} options
-	 * @param {import("../assets/projectAssetType/TaskProjectAssetType.js").TaskProjectAssetDiskData} options.taskFileContent
+	 * @param {import("../assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData} options.taskFileContent
 	 * The content of the task file to run.
 	 */
 	async runTask({taskFileContent}) {
