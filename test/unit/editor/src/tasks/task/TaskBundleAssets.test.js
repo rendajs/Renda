@@ -1,4 +1,4 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {TaskBundleAssets} from "../../../../../../editor/src/tasks/task/TaskBundleAssets.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
