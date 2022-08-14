@@ -5,9 +5,11 @@
  * @template {boolean} [TRequireHandlerReturnObjects = false]
  * @typedef {Awaited<ReturnType<TReq[TReqType]>> extends infer HandlerReturn ?
  * 	TRequireHandlerReturnObjects extends true ?
- * 		HandlerReturn extends RequestHandlerReturn ?
- * 			HandlerReturn["returnValue"] :
- * 			never :
+ * 		HandlerReturn extends void ?
+ * 			void :
+ * 			HandlerReturn extends RequestHandlerReturn ?
+ * 				HandlerReturn["returnValue"] :
+ * 				never :
  * 		HandlerReturn :
  * never} GetReturnType
  */
@@ -177,7 +179,7 @@ export class TypedMessenger {
 				}
 			}
 
-			if (this.transferSupport) {
+			if (this.transferSupport && returnValue) {
 				const castReturn = /** @type {RequestHandlerReturn} */ (returnValue);
 				transfer = castReturn.transfer || [];
 				returnValue = castReturn.returnValue;

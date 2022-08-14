@@ -236,15 +236,6 @@ Deno.test({
 	name: "transferSupport: true",
 	async fn() {
 		const requestHandlers = {
-			/**
-			 * @param {number} x
-			 */
-			sameNum: x => {
-				return {
-					returnValue: x,
-					// transfer: ["foo"],
-				};
-			},
 			returnsTrue: () => {
 				return {
 					returnValue: true,
@@ -259,6 +250,7 @@ Deno.test({
 					returnValue: num1 > num2,
 				};
 			},
+			noReturnValue: () => {},
 		};
 
 		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
@@ -273,10 +265,10 @@ Deno.test({
 		});
 		messengerB.setResponseHandlers(requestHandlers);
 
-		const promise1 = messengerA.send("sameNum", 123);
-		const promise2 = messengerA.send("sameNum", 456);
-		assertEquals(await promise1, 123);
-		assertEquals(await promise2, 456);
+		const result1 = await messengerA.send("isHigher", 2, 1);
+		assertEquals(result1, true);
+		const result2 = await messengerA.send("isHigher", 1, 2);
+		assertEquals(result2, false);
 
 		/**
 		 * Helper functions for verifying types.
@@ -293,6 +285,12 @@ Deno.test({
 		// @ts-expect-error
 		takesString(result3);
 		assertEquals(result3, true);
+
+		// Verify that the return type is void for functions that don't return anything:
+		const result4 = await messengerA.send("noReturnValue");
+		// @ts-expect-error
+		takesString(result4);
+		assertEquals(result4, undefined);
 
 		// Verify that the send handler types are correct and not 'any':
 		messengerA.setSendHandler(data => {
