@@ -53,7 +53,31 @@ export class DevServer {
 	start() {
 		this.#devSocket.init();
 		this.#httpServer.listenAndServe();
-		console.log(`Started ${this.#serverName} on http://localhost:${this.#port}`);
+		const addrs = this.getAddrs().map(addr => ` - ${addr}`);
+		console.log(`Started ${this.#serverName} on:
+${addrs.join("\n")}`);
+	}
+
+	getAddrs() {
+		const ports = [];
+		for (const addr of this.#httpServer.addrs) {
+			if (addr.transport == "tcp" || addr.transport == "udp") {
+				let hostname = addr.hostname;
+				if (["0.0.0.0", "127.0.0.1"].includes(hostname)) {
+					// Technically it's possible to have a system that doesn't  map localhost to
+					// these ips, but some browser features require either a secure context or
+					// localhost to be used. And in most cases this should be fine.
+					// The e2e test runner also suffers from this issue, IndexedDB doesn't seem
+					// to work on 0.0.0.0. This can be worked around using the
+					// --unsafely-treat-insecure-origin-as-secure Chromium flag, but this doesn't
+					// seem to have an effect when running in headless mode.
+					// Either way, localhost also just looks better.
+					hostname = "localhost";
+				}
+				ports.push(`http://${hostname}:${addr.port}`);
+			}
+		}
+		return ports;
 	}
 
 	close() {

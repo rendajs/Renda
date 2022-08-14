@@ -1,6 +1,14 @@
 import puppeteer from "puppeteer";
 
-const MAIN_PAGE_URL = "http://localhost:8081/";
+function getMainPageUrl() {
+	const prefix = "--test-server-addr=";
+	for (const arg of Deno.args) {
+		if (arg.startsWith(prefix)) {
+			return arg.substring(prefix.length);
+		}
+	}
+	throw new Error("Failed to get main page url, no test server address provided via args.");
+}
 
 /**
  * A collection of sanitizer options for tests that are using puppeteer.
@@ -38,7 +46,7 @@ export async function initBrowser() {
 	});
 }
 
-export async function getContext(url = MAIN_PAGE_URL + "editor/dist/") {
+export async function getContext(url = getMainPageUrl() + "/editor/dist/") {
 	if (!browser) {
 		throw new Error("Browser not initialized.");
 	}
@@ -64,7 +72,7 @@ export async function openBasicScriptPage(scriptLocation, relativeTo) {
 		throw new Error(`Files outside the project are not accessible from the http server. The provided script is not inside the project folder: ${fullScriptLocation.href}`);
 	}
 	const relativeScriptLocation = fullScriptLocation.href.slice(hostedRoot.href.length);
-	const pageUrl = new URL(`${MAIN_PAGE_URL}test/e2e/resources/basicScriptPage/page.html`);
+	const pageUrl = new URL(`${getMainPageUrl()}/test/e2e/resources/basicScriptPage/page.html`);
 	pageUrl.searchParams.set("script", "/" + relativeScriptLocation);
 
 	return await getContext(pageUrl.href);
