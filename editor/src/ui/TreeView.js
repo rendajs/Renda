@@ -545,6 +545,7 @@ export class TreeView {
 	}
 
 	set collapsed(collapsed) {
+		if (collapsed == this._collapsed) return;
 		this._collapsed = collapsed;
 		this.childrenEl.style.display = collapsed ? "none" : "";
 		this.arrowContainerEl.classList.toggle("collapsed", collapsed);
