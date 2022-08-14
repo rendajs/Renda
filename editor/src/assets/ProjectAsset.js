@@ -836,7 +836,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {Object} assetSettingOverrides
-	 * @returns {Promise<string | BufferSource | Blob | null>}
+	 * @returns {Promise<string | BufferSource | Blob | File | null>}
 	 */
 	async getBundledAssetData(assetSettingOverrides = {}) {
 		await this.waitForInit();
