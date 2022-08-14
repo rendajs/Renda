@@ -37,6 +37,8 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
 
 /** @typedef {(liveAssetData: import("./projectAssetType/ProjectAssetType.js").LiveAssetData<any, any>) => void} LiveAssetDataChangeCallbackAny */
 
+/** @typedef {string | BufferSource | Blob | File | null} GetBundledAssetDataReturnType */
+
 /**
  * A single project asset stores data such as the path, uuid, asset settings, etc.
  * Live asset creation/destruction is also managed from this class.
@@ -836,7 +838,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {Object} assetSettingOverrides
-	 * @returns {Promise<string | BufferSource | Blob | File | null>}
+	 * @returns {Promise<GetBundledAssetDataReturnType>}
 	 */
 	async getBundledAssetData(assetSettingOverrides = {}) {
 		await this.waitForInit();

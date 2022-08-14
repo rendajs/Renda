@@ -48,10 +48,11 @@ function getResponseHandlers(assetManager, fileStreams) {
 			if (!asset) return {returnValue: null};
 
 			const assetTypeUuid = await asset.getAssetTypeUuid();
-			if (!assetTypeUuid) return {returnValue: null};
+			// TODO: Ideally assets without an asset type are filtered out before the initial message is sent to the worker.
+			if (!assetTypeUuid) throw new Error(`Failed to bundle asset data, the asset with uuid ${assetUuid} has no asset type.`);
 
 			let assetData = await asset.getBundledAssetData();
-			if (!assetData) return {returnValue: null};
+			if (!assetData) assetData = "";
 
 			if (assetData instanceof Blob) {
 				assetData = await assetData.arrayBuffer();
@@ -149,10 +150,6 @@ export class TaskBundleAssets extends Task {
 		this.worker.addEventListener("message", event => {
 			this.#messenger.handleReceivedMessage(event.data);
 		});
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
-		if (!fileSystem) {
-			throw new Error("Failed to create Bundle Scripts task: no project file system.");
-		}
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to create Bundle Scripts task: no asset manager.");
@@ -164,6 +161,10 @@ export class TaskBundleAssets extends Task {
 	 * @param {TaskBundleAssetsConfig} config
 	 */
 	async runTask(config) {
+		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
+		if (!fileSystem) {
+			throw new Error("Failed to create Bundle Scripts task: no project file system.");
+		}
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task: no asset manager.");
@@ -187,7 +188,7 @@ export class TaskBundleAssets extends Task {
 			assetUuids.add(uuid);
 		}
 
-		const bundleFileStream = await assetManager.fileSystem.writeFileStream(config.outputPath);
+		const bundleFileStream = await fileSystem.writeFileStream(config.outputPath);
 		if (bundleFileStream.locked) {
 			throw new Error("Failed to write bundle, file is locked.");
 		}
