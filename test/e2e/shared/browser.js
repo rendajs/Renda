@@ -41,10 +41,7 @@ export async function initBrowser() {
 
 	browser = await puppeteer.launch({
 		headless,
-		args: [
-			"--enable-unsafe-webgpu",
-			`--unsafely-treat-insecure-origin-as-secure=${getMainPageUrl()}`,
-		],
+		args: ["--enable-unsafe-webgpu"],
 		devtools,
 	});
 }
