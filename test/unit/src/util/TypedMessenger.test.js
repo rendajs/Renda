@@ -313,3 +313,28 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Thrown errors are passed on to the requester with transferSupport: true",
+	async fn() {
+		const requestHandlers = {
+			throws: () => {
+				throw new TypeError("Error message");
+			},
+		};
+
+		const messengerA = new TypedMessenger({transferSupport: true});
+		const messengerB = new TypedMessenger({transferSupport: true});
+		messengerA.setSendHandler(data => {
+			messengerB.handleReceivedMessage(data.sendData);
+		});
+		messengerB.setSendHandler(data => {
+			messengerA.handleReceivedMessage(data.sendData);
+		});
+		messengerB.setResponseHandlers(requestHandlers);
+
+		await assertRejects(async () => {
+			await messengerA.send("throws");
+		}, TypeError, "Error message");
+	},
+});

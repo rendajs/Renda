@@ -179,7 +179,7 @@ export class TypedMessenger {
 				}
 			}
 
-			if (this.transferSupport && returnValue) {
+			if (this.transferSupport && returnValue && !didThrow) {
 				const castReturn = /** @type {RequestHandlerReturn} */ (returnValue);
 				transfer = castReturn.transfer || [];
 				returnValue = castReturn.returnValue;
