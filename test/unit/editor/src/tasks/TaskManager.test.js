@@ -122,7 +122,7 @@ Deno.test({
 					super(...args);
 					this.#messenger = new TypedMessenger();
 					this.#messenger.setSendHandler(data => {
-						this.worker.postMessage(data);
+						this.worker.postMessage(data.sendData);
 					});
 					this.worker.addEventListener("message", event => {
 						this.#messenger.handleReceivedMessage(event.data);

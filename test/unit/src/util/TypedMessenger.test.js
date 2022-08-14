@@ -21,10 +21,10 @@ Deno.test({
 		// Normally we would send the data to the worker
 		// but since this is a test, we send it between the messengers directly.
 		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data);
+			messengerB.handleReceivedMessage(data.sendData);
 		});
 		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data);
+			messengerA.handleReceivedMessage(data.sendData);
 		});
 		messengerB.setResponseHandlers(requestHandlers);
 
@@ -44,7 +44,6 @@ Deno.test({
 		await messengerA.send("isHigher", 2, "not a number");
 
 		// Verify that the return type is boolean and not 'any':
-
 		const result3 = await messengerA.send("returnsTrue");
 		// @ts-expect-error
 		takesString(result3);
@@ -52,20 +51,20 @@ Deno.test({
 
 		// Verify that the send handler types are correct and not 'any':
 		messengerA.setSendHandler(data => {
-			if (data.direction == "request") {
-				if (data.type == "isHigher") {
+			if (data.sendData.direction == "request") {
+				if (data.sendData.type == "isHigher") {
 					// @ts-expect-error
-					takesString(data.args);
-					assertEquals(data.args, [2, 1]);
+					takesString(data.sendData.args);
+					assertEquals(data.sendData.args, [2, 1]);
 				}
 			}
 		});
 		messengerB.setSendHandler(data => {
-			if (data.direction == "response") {
-				if (data.type == "isHigher") {
+			if (data.sendData.direction == "response") {
+				if (data.sendData.type == "isHigher") {
 					// @ts-expect-error
-					takesString(data.returnValue);
-					assertEquals(data.returnValue, true);
+					takesString(data.sendData.returnValue);
+					assertEquals(data.sendData.returnValue, true);
 				}
 			}
 		});
@@ -121,10 +120,10 @@ Deno.test({
 		const messengerA = new TypedMessenger();
 		const messengerB = new TypedMessenger();
 		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data);
+			messengerB.handleReceivedMessage(data.sendData);
 		});
 		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data);
+			messengerA.handleReceivedMessage(data.sendData);
 		});
 		messengerB.setResponseHandlers({});
 
@@ -149,10 +148,10 @@ Deno.test({
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
 		const messengerB = new TypedMessenger();
 		messengerA.setSendHandler(data => {
-			channel.port2.postMessage(data);
+			channel.port2.postMessage(data.sendData);
 		});
 		messengerB.setSendHandler(data => {
-			channel.port1.postMessage(data);
+			channel.port1.postMessage(data.sendData);
 		});
 		channel.port2.onmessage = e => {
 			messengerA.handleReceivedMessage(e.data);
@@ -182,10 +181,10 @@ Deno.test({
 		const messengerA = new TypedMessenger();
 		const messengerB = new TypedMessenger();
 		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data);
+			messengerB.handleReceivedMessage(data.sendData);
 		});
 		messengerB.setSendHandler(data => {
-			messengerA.handleReceivedMessage(data);
+			messengerA.handleReceivedMessage(data.sendData);
 		});
 		messengerB.setResponseHandlers(requestHandlers);
 
@@ -210,16 +209,16 @@ Deno.test({
 		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
 		const messengerB = new TypedMessenger();
 		messengerA.setSendHandler(data => {
-			messengerB.handleReceivedMessage(data);
+			messengerB.handleReceivedMessage(data.sendData);
 		});
-		/** @type {import("../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers>[]} */
+		/** @type {import("../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers, false>[]} */
 		let requestQueue = [];
 		messengerB.setSendHandler(data => {
 			requestQueue.push(data);
 			if (requestQueue.length === 2) {
 				// Send the requests in the opposite order they were received:
 				requestQueue.reverse().forEach(data => {
-					messengerA.handleReceivedMessage(data);
+					messengerA.handleReceivedMessage(data.sendData);
 				});
 				requestQueue = [];
 			}
@@ -230,5 +229,112 @@ Deno.test({
 		const promise2 = messengerA.send("sameNum", 456);
 		assertEquals(await promise1, 123);
 		assertEquals(await promise2, 456);
+	},
+});
+
+Deno.test({
+	name: "transferSupport: true",
+	async fn() {
+		const requestHandlers = {
+			returnsTrue: () => {
+				return {
+					returnValue: true,
+				};
+			},
+			/**
+			 * @param {number} num1
+			 * @param {number} num2
+			 */
+			isHigher: (num1, num2) => {
+				return {
+					returnValue: num1 > num2,
+				};
+			},
+			noReturnValue: () => {},
+		};
+
+		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
+		const messengerA = new TypedMessenger({transferSupport: true});
+		/** @type {TypedMessenger<{}, typeof requestHandlers, true>} */
+		const messengerB = new TypedMessenger({transferSupport: true});
+		messengerA.setSendHandler(data => {
+			messengerB.handleReceivedMessage(data.sendData);
+		});
+		messengerB.setSendHandler(data => {
+			messengerA.handleReceivedMessage(data.sendData);
+		});
+		messengerB.setResponseHandlers(requestHandlers);
+
+		const result1 = await messengerA.send("isHigher", 2, 1);
+		assertEquals(result1, true);
+		const result2 = await messengerA.send("isHigher", 1, 2);
+		assertEquals(result2, false);
+
+		/**
+		 * Helper functions for verifying types.
+		 * @param {string} str
+		 */
+		function takesString(str) {}
+
+		// Verify that the parameter types are correct and not 'any':
+		// @ts-expect-error
+		await messengerA.send("isHigher", 2, "not a number");
+
+		// Verify that the return type is boolean and not 'any':
+		const result3 = await messengerA.send("returnsTrue");
+		// @ts-expect-error
+		takesString(result3);
+		assertEquals(result3, true);
+
+		// Verify that the return type is void for functions that don't return anything:
+		const result4 = await messengerA.send("noReturnValue");
+		// @ts-expect-error
+		takesString(result4);
+		assertEquals(result4, undefined);
+
+		// Verify that the send handler types are correct and not 'any':
+		messengerA.setSendHandler(data => {
+			if (data.sendData.direction == "request") {
+				if (data.sendData.type == "isHigher") {
+					// @ts-expect-error
+					takesString(data.sendData.args);
+					assertEquals(data.sendData.args, [2, 1]);
+				}
+			}
+		});
+		messengerB.setSendHandler(data => {
+			if (data.sendData.direction == "response") {
+				if (data.sendData.type == "isHigher") {
+					// @ts-expect-error
+					takesString(data.sendData.returnValue);
+					assertEquals(data.sendData.returnValue, true);
+				}
+			}
+		});
+	},
+});
+
+Deno.test({
+	name: "Thrown errors are passed on to the requester with transferSupport: true",
+	async fn() {
+		const requestHandlers = {
+			throws: () => {
+				throw new TypeError("Error message");
+			},
+		};
+
+		const messengerA = new TypedMessenger({transferSupport: true});
+		const messengerB = new TypedMessenger({transferSupport: true});
+		messengerA.setSendHandler(data => {
+			messengerB.handleReceivedMessage(data.sendData);
+		});
+		messengerB.setSendHandler(data => {
+			messengerA.handleReceivedMessage(data.sendData);
+		});
+		messengerB.setResponseHandlers(requestHandlers);
+
+		await assertRejects(async () => {
+			await messengerA.send("throws");
+		}, TypeError, "Error message");
 	},
 });

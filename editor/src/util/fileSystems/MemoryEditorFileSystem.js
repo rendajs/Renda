@@ -1,4 +1,5 @@
 import {EditorFileSystem} from "./EditorFileSystem.js";
+import {MemoryFileSystemWritableFileStream} from "./MemoryFileSystemWritableFileStream.js";
 
 /** @typedef {MemoryEditorFileSystemFilePointer | MemoryEditorFileSystemDirPointer} MemoryEditorFileSystemPointer */
 /**
@@ -136,6 +137,26 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 			throw new Error(`"${path.join("/")}" is not a file.`);
 		}
 		object.file = new File([file], object.name);
+	}
+
+	/**
+	 * @override
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {boolean} keepExistingData
+	 * @returns {Promise<FileSystemWritableFileStream>}
+	 */
+	async writeFileStream(path, keepExistingData = false) {
+		const object = this.getObjectPointer(path, {
+			create: true,
+			createType: "file",
+		});
+		if (!object.isFile) {
+			throw new Error(`"${path.join("/")}" is not a file.`);
+		}
+		if (!keepExistingData) {
+			object.file = new File([], object.name);
+		}
+		return new MemoryFileSystemWritableFileStream(object);
 	}
 
 	/**
