@@ -99,8 +99,16 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  */
 
 /**
+ * @typedef {Object} TreeViewCollapseEventType
+ * @property {boolean} collapsed
+ *
+ * @typedef {TreeViewEvent & TreeViewCollapseEventType} TreeViewCollapseEvent
+ */
+
+/**
  * @typedef {Object} TreeViewEventCbMap
  * @property {TreeViewSelectionChangeEvent} selectionchange
+ * @property {TreeViewCollapseEvent} collapsedchange
  * @property {TreeViewNameChangeEvent} namechange
  * @property {TreeViewDragEvent} dragstart
  * @property {TreeViewValidateDragEvent} validatedrag
@@ -111,9 +119,8 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {TreeViewContextMenuEvent} contextmenu
  */
 
-/**
- * @typedef {TreeViewEventCbMap[keyof TreeViewEventCbMap]} AllTreeViewEvents
- */
+/** @typedef {keyof TreeViewEventCbMap} AllTreeViewEventNames */
+/** @typedef {TreeViewEventCbMap[AllTreeViewEventNames]} AllTreeViewEvents */
 
 const dragRootUuidSymbol = Symbol("Drag Root Uuid");
 
@@ -270,7 +277,20 @@ export class TreeView {
 
 		/** @type {Map<string, Set<(event: AllTreeViewEvents) => void>>} */
 		this.eventCbs = new Map();
-		for (const eventType of ["selectionchange", "namechange", "dragstart", "dragend", "validatedrag", "drop", "rearrange", "dblclick", "contextmenu"]) {
+		/** @type {AllTreeViewEventNames[]} */
+		const defaultEvents = [
+			"selectionchange",
+			"collapsedchange",
+			"namechange",
+			"dragstart",
+			"dragend",
+			"validatedrag",
+			"drop",
+			"rearrange",
+			"dblclick",
+			"contextmenu",
+		];
+		for (const eventType of defaultEvents) {
 			this.registerNewEventType(eventType);
 		}
 
@@ -1033,12 +1053,17 @@ export class TreeView {
 	}
 
 	fireOnCollapsedChange() {
+		this.fireEvent("collapsedchange", {
+			target: this,
+			collapsed: this._collapsed,
+		});
 		for (const cb of this.onCollapsedChangeCbs) {
 			cb();
 		}
 	}
 
 	/**
+	 * @deprecated Use `addEventListener` instead.
 	 * @param {() => any} cb
 	 */
 	onCollapsedChange(cb) {
@@ -1564,6 +1589,14 @@ export class TreeView {
 	 * @param {string} eventType
 	 */
 	getEventCbs(eventType) {
+		if (!this.eventCbs) {
+			// It is possible that some callbacks are fired during the constructor of the TreeView.
+			// At this point the eventCbs map is not yet initialized. But this is fine, because
+			// at this point the user hasn't been able to register any callback yet. So if we're
+			// trying to fire an event, it's fine to return null and not fire anything.
+			// If the user is registering a callback this is guaranteed to be initialized.
+			return null;
+		}
 		const cbs = this.eventCbs.get(eventType);
 		if (!cbs) {
 			console.warn("unknown event type: " + eventType + " for TreeView");

@@ -145,10 +145,10 @@ export class AssetManager {
 	async loadAssetSettingsInstanceFn() {
 		if (this.assetSettingsLoaded) return;
 
-		if (!this.loadAssetSettingsFromUserGesture) {
-			const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath);
-			if (!hasPermissions) return;
-		}
+		const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath, {
+			prompt: this.loadAssetSettingsFromUserGesture,
+		});
+		if (!hasPermissions) return;
 
 		for (const builtInAssetLink of this.builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const defaultAssetLink = new DefaultAssetLink(builtInAssetLink);

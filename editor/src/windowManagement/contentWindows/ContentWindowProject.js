@@ -117,7 +117,10 @@ export class ContentWindowProject extends ContentWindow {
 		this.draggingAssetUuids = new Map();
 
 		this.treeView = new TreeView();
+		this.treeView.alwaysShowArrow = true;
+		this.treeView.collapsed = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
+		this.treeView.addEventListener("collapsedchange", this.onTreeViewCollapsedChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		this.treeView.addEventListener("dragend", this.onTreeViewDragEnd.bind(this));
@@ -413,6 +416,15 @@ export class ContentWindowProject extends ContentWindow {
 		changes.added = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
 		changes.removed = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.removed);
 		this.selectionManager.changeSelection(changes);
+	}
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewCollapseEvent} e
+	 */
+	async onTreeViewCollapsedChange(e) {
+		if (e.target == this.treeView && this.treeView.expanded) {
+			this.editorInstance.projectManager.loadAssetSettingsFromUserGesture();
+		}
 	}
 
 	/**
