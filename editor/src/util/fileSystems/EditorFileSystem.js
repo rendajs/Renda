@@ -116,7 +116,7 @@ export class EditorFileSystem {
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
 	async writeFileStream(path, keepExistingData = false) {
-		throw new Error("Cannot be called on an abstract class");
+		throw new Error("writeFileStream is not implemented for this file system type.");
 	}
 
 	/**
