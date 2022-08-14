@@ -16,6 +16,11 @@ export class ContentWindowProject extends ContentWindow {
 	static contentWindowUiName = "Project Files";
 	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";
 
+	/** @type {Set<import("../../assets/AssetManager.js").AssetManager>} */
+	#registeredDismissedManagers = new Set();
+
+	#boundOnUserDismissedPermission;
+
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
 	 */
@@ -129,6 +134,8 @@ export class ContentWindowProject extends ContentWindow {
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
+
+		this.#boundOnUserDismissedPermission = this.onUserDismissedPermission.bind(this);
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -406,10 +413,31 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
+	 * If asset settings are already loaded, this is a no-op.
+	 * If not, this will load the asset settings and wait for them to load.
+	 * A permission prompt might be shown, so this should only be called from
+	 * a user gesture.
+	 */
+	loadAssetSettingsFromUserGesture() {
+		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		for (const manager of this.#registeredDismissedManagers) {
+			manager.removeOnUserDismissedPermission(this.#boundOnUserDismissedPermission);
+		}
+		this.#registeredDismissedManagers.add(assetManager);
+		assetManager.onUserDismissedPermission(this.#boundOnUserDismissedPermission);
+		assetManager.loadAssetSettings(true);
+	}
+
+	onUserDismissedPermission() {
+		this.treeView.collapsed = true;
+		this.treeView.deselect();
+	}
+
+	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
-		this.editorInstance.projectManager.loadAssetSettingsFromUserGesture();
+		this.loadAssetSettingsFromUserGesture();
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
@@ -423,7 +451,7 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	async onTreeViewCollapsedChange(e) {
 		if (e.target == this.treeView && this.treeView.expanded) {
-			this.editorInstance.projectManager.loadAssetSettingsFromUserGesture();
+			this.loadAssetSettingsFromUserGesture();
 		}
 	}
 

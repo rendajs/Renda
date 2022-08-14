@@ -73,6 +73,9 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  */
 
 export class AssetManager {
+	/** @type {Set<() => void>} */
+	#onUserDismissedPermissionCbs = new Set();
+
 	/**
 	 * @param {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
@@ -148,7 +151,12 @@ export class AssetManager {
 		const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath, {
 			prompt: this.loadAssetSettingsFromUserGesture,
 		});
-		if (!hasPermissions) return;
+		if (!hasPermissions) {
+			if (this.loadAssetSettingsFromUserGesture) {
+				this.#onUserDismissedPermissionCbs.forEach(cb => cb());
+			}
+			return;
+		}
 
 		for (const builtInAssetLink of this.builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const defaultAssetLink = new DefaultAssetLink(builtInAssetLink);
@@ -210,6 +218,22 @@ export class AssetManager {
 		/** @type {Promise<void>} */
 		const promise = new Promise(r => this.waitForAssetSettingsLoadCbs.add(r));
 		await promise;
+	}
+
+	/**
+	 * This callback is called when the user dismissed the prompt asking for
+	 * file system permissions that was triggered by a call to {@linkcode loadAssetSettings}.
+	 * @param {() => void} cb
+	 */
+	onUserDismissedPermission(cb) {
+		this.#onUserDismissedPermissionCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnUserDismissedPermission(cb) {
+		this.#onUserDismissedPermissionCbs.delete(cb);
 	}
 
 	/**
