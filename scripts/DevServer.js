@@ -53,7 +53,19 @@ export class DevServer {
 	start() {
 		this.#devSocket.init();
 		this.#httpServer.listenAndServe();
-		console.log(`Started ${this.#serverName} on http://localhost:${this.#port}`);
+		const addrs = this.getAddrs().map(addr => ` - ${addr}`);
+		console.log(`Started ${this.#serverName} on:
+${addrs.join("\n")}`);
+	}
+
+	getAddrs() {
+		const ports = [];
+		for (const addr of this.#httpServer.addrs) {
+			if (addr.transport == "tcp" || addr.transport == "udp") {
+				ports.push(`http://${addr.hostname}:${addr.port}`);
+			}
+		}
+		return ports;
 	}
 
 	close() {

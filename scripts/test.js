@@ -56,12 +56,18 @@ const needsUnitTests = !filteredTests || filteredTests.startsWith("test/unit");
 const needsE2eTests = !filteredTests || filteredTests.startsWith("test/e2e");
 
 let testServer = null;
+/** @type {string[]} */
+let testServerAddrs = [];
 if (needsE2eTests) {
 	testServer = new DevServer({
-		port: 8081,
+		port: 0,
 		serverName: "test server",
 	});
 	testServer.start();
+	testServerAddrs = testServer.getAddrs();
+	if (testServerAddrs.length <= 0) {
+		throw new Error("Failed to get test server url.");
+	}
 }
 
 let needsCoverage = Deno.args.includes("--coverage");
@@ -118,6 +124,8 @@ if (needsE2eTests) {
 		applicationArgs.add("--no-headless");
 		applicationArgs.add("--enable-e2e-devtools");
 	}
+	const addr = testServerAddrs[0];
+	applicationArgs.add(`--test-server-addr=${addr}`);
 	denoTestArgs.push(filteredTests || "test/e2e/");
 	denoTestArgs.push(...userProvidedArgs);
 	const cmd = [...denoTestArgs, "--", ...applicationArgs];
