@@ -72,9 +72,11 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  * 	never} AssertionOptionsToLiveAsset
  */
 
+/** @typedef {(granted: boolean) => void} OnPermissionPromptResultCallback */
+
 export class AssetManager {
-	/** @type {Set<() => void>} */
-	#onUserDismissedPermissionCbs = new Set();
+	/** @type {Set<OnPermissionPromptResultCallback>} */
+	#onPermissionPromptResultCbs = new Set();
 
 	/**
 	 * @param {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
@@ -151,10 +153,10 @@ export class AssetManager {
 		const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath, {
 			prompt: this.loadAssetSettingsFromUserGesture,
 		});
+		if (this.loadAssetSettingsFromUserGesture || hasPermissions) {
+			this.#onPermissionPromptResultCbs.forEach(cb => cb(hasPermissions));
+		}
 		if (!hasPermissions) {
-			if (this.loadAssetSettingsFromUserGesture) {
-				this.#onUserDismissedPermissionCbs.forEach(cb => cb());
-			}
 			return;
 		}
 
@@ -222,18 +224,20 @@ export class AssetManager {
 
 	/**
 	 * This callback is called when the user dismissed the prompt asking for
-	 * file system permissions that was triggered by a call to {@linkcode loadAssetSettings}.
-	 * @param {() => void} cb
+	 * file system permissions that was triggered by a call to {@linkcode loadAssetSettings},
+	 * This also fires when permission has been granted, either via the prompt or
+	 * because permissions were already granted.
+	 * @param {OnPermissionPromptResultCallback} cb
 	 */
-	onUserDismissedPermission(cb) {
-		this.#onUserDismissedPermissionCbs.add(cb);
+	onPermissionPromptResult(cb) {
+		this.#onPermissionPromptResultCbs.add(cb);
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @param {OnPermissionPromptResultCallback} cb
 	 */
-	removeOnUserDismissedPermission(cb) {
-		this.#onUserDismissedPermissionCbs.delete(cb);
+	removeOnPermissionPromptResult(cb) {
+		this.#onPermissionPromptResultCbs.delete(cb);
 	}
 
 	/**

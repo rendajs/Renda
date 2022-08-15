@@ -33,7 +33,7 @@ async function basicSetup({
 		onExternalChange(cb) {},
 		assertAssetManagerExists() {
 			return {
-				onUserDismissedPermission(cb) {},
+				onPermissionPromptResult(cb) {},
 				loadAssetSettings(fromUserGesture) {},
 			};
 		},

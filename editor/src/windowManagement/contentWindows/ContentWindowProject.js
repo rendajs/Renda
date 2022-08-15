@@ -488,16 +488,23 @@ export class ContentWindowProject extends ContentWindow {
 	loadAssetSettingsFromUserGesture() {
 		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
 		for (const manager of this.#registeredDismissedManagers) {
-			manager.removeOnUserDismissedPermission(this.#boundOnUserDismissedPermission);
+			manager.removeOnPermissionPromptResult(this.#boundOnUserDismissedPermission);
 		}
 		this.#registeredDismissedManagers.add(assetManager);
-		assetManager.onUserDismissedPermission(this.#boundOnUserDismissedPermission);
+		assetManager.onPermissionPromptResult(this.#boundOnUserDismissedPermission);
 		assetManager.loadAssetSettings(true);
 	}
 
-	onUserDismissedPermission() {
-		this.treeView.collapsed = true;
-		this.treeView.deselect();
+	/**
+	 * @param {boolean} granted
+	 */
+	onUserDismissedPermission(granted) {
+		if (!granted) {
+			this.treeView.collapsed = true;
+			this.treeView.deselect();
+		} else {
+			this.treeView.collapsed = false;
+		}
 	}
 
 	/**
