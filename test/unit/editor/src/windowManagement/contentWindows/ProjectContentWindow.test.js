@@ -4,15 +4,20 @@ import {injectMockEditorInstance} from "../../../../../../editor/src/editorInsta
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {ContentWindowProject} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
+import {assertEquals} from "std/testing/asserts.ts";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
 /**
  * @param {Object} options
  * @param {Object.<string, import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes>} [options.fileSystemStructure]
+ * @param {boolean} [options.assetSettingsLoaded] Whether the mock asset manager should already have loaded asset settings.
+ * @param {"none" | "expand"} [options.treeViewAction] If true, the root tree view will be expanded in order to trigger the asset settings load.
  */
 async function basicSetup({
 	fileSystemStructure = {},
+	assetSettingsLoaded = false,
+	treeViewAction = "expand",
 } = {}) {
 	installFakeDocument();
 
@@ -28,14 +33,28 @@ async function basicSetup({
 	const mockFileSystem = new MemoryEditorFileSystem();
 	mockFileSystem.setFullStructure(fileSystemStructure);
 
+	/** @type {Set<import("../../../../../../editor/src/assets/AssetManager.js").OnPermissionPromptResultCallback>} */
+	const permissionPromptCbs = new Set();
+
+	const mockAssetManager = /** @type {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({
+		onPermissionPromptResult(cb) {
+			permissionPromptCbs.add(cb);
+		},
+		removeOnPermissionPromptResult(cb) {
+			permissionPromptCbs.delete(cb);
+		},
+		async loadAssetSettings(fromUserGesture) {},
+		assetSettingsLoaded,
+	});
+
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		currentProjectFileSystem: /** @type {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (mockFileSystem),
 		onExternalChange(cb) {},
 		assertAssetManagerExists() {
-			return {
-				onPermissionPromptResult(cb) {},
-				loadAssetSettings(fromUserGesture) {},
-			};
+			return mockAssetManager;
+		},
+		async getAssetManager() {
+			return mockAssetManager;
 		},
 	});
 
@@ -50,12 +69,20 @@ async function basicSetup({
 
 	await contentWindow.waitForInit();
 
-	contentWindow.treeView.expanded = true;
+	if (treeViewAction == "expand") {
+		contentWindow.treeView.expanded = true;
 
-	await contentWindow.waitForTreeViewUpdate();
+		await contentWindow.waitForTreeViewUpdate();
+	}
 
 	return {
 		contentWindow,
+		/**
+		 * @param {boolean} granted
+		 */
+		triggerPermissionPromptCbs(granted) {
+			permissionPromptCbs.forEach(cb => cb(granted));
+		},
 		uninstall() {
 			uninstallFakeDocument();
 			injectMockEditorInstance(null);
@@ -119,29 +146,63 @@ Deno.test({
 			},
 		});
 
-		assertTreeViewStructureEquals(contentWindow.treeView, {
-			children: [
-				{
-					name: "aaFolder",
-				},
-				{
-					name: "zzFolder",
-				},
-				{
-					name: "aa.txt",
-				},
-				{
-					name: "AA.txt",
-				},
-				{
-					name: "bb.txt",
-				},
-				{
-					name: "bB.txt",
-				},
-			],
+		try {
+			assertTreeViewStructureEquals(contentWindow.treeView, {
+				children: [
+					{
+						name: "aaFolder",
+					},
+					{
+						name: "zzFolder",
+					},
+					{
+						name: "aa.txt",
+					},
+					{
+						name: "AA.txt",
+					},
+					{
+						name: "bb.txt",
+					},
+					{
+						name: "bB.txt",
+					},
+				],
+			});
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Root tree view is expanded when the assetmanager is already loaded",
+	async fn() {
+		const {contentWindow, uninstall} = await basicSetup({
+			assetSettingsLoaded: true,
+			treeViewAction: "none",
 		});
 
-		uninstall();
+		try {
+			assertEquals(contentWindow.treeView.expanded, true);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Root tree view is collapsed when permission is denied",
+	async fn() {
+		const {contentWindow, triggerPermissionPromptCbs, uninstall} = await basicSetup({
+		});
+
+		try {
+			assertEquals(contentWindow.treeView.expanded, true);
+			triggerPermissionPromptCbs(false);
+			assertEquals(contentWindow.treeView.expanded, false);
+		} finally {
+			uninstall();
+		}
 	},
 });
