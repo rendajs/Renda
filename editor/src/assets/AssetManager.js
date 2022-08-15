@@ -72,7 +72,12 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  * 	never} AssertionOptionsToLiveAsset
  */
 
+/** @typedef {(granted: boolean) => void} OnPermissionPromptResultCallback */
+
 export class AssetManager {
+	/** @type {Set<OnPermissionPromptResultCallback>} */
+	#onPermissionPromptResultCbs = new Set();
+
 	/**
 	 * @param {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
@@ -145,9 +150,14 @@ export class AssetManager {
 	async loadAssetSettingsInstanceFn() {
 		if (this.assetSettingsLoaded) return;
 
-		if (!this.loadAssetSettingsFromUserGesture) {
-			const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath);
-			if (!hasPermissions) return;
+		const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath, {
+			prompt: this.loadAssetSettingsFromUserGesture,
+		});
+		if (this.loadAssetSettingsFromUserGesture || hasPermissions) {
+			this.#onPermissionPromptResultCbs.forEach(cb => cb(hasPermissions));
+		}
+		if (!hasPermissions) {
+			return;
 		}
 
 		for (const builtInAssetLink of this.builtInDefaultAssetLinksManager.registeredAssetLinks) {
@@ -210,6 +220,24 @@ export class AssetManager {
 		/** @type {Promise<void>} */
 		const promise = new Promise(r => this.waitForAssetSettingsLoadCbs.add(r));
 		await promise;
+	}
+
+	/**
+	 * This callback is called when the user dismissed the prompt asking for
+	 * file system permissions that was triggered by a call to {@linkcode loadAssetSettings},
+	 * This also fires when permission has been granted, either via the prompt or
+	 * because permissions were already granted.
+	 * @param {OnPermissionPromptResultCallback} cb
+	 */
+	onPermissionPromptResult(cb) {
+		this.#onPermissionPromptResultCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnPermissionPromptResultCallback} cb
+	 */
+	removeOnPermissionPromptResult(cb) {
+		this.#onPermissionPromptResultCbs.delete(cb);
 	}
 
 	/**
