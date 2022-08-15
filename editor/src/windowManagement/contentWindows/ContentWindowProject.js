@@ -35,6 +35,11 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	#treeViewDatas = new WeakMap();
 
+	/** @type {Set<symbol>} */
+	#updatingTreeViewSyms = new Set();
+	/** @type {Set<() => void>} */
+	#updatingTreeViewCbs = new Set();
+
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
 	 */
@@ -245,7 +250,14 @@ export class ContentWindowProject extends ContentWindow {
 			updatePath = path;
 		}
 		if (treeView) {
-			await this.updateTreeViewRecursive(treeView, updatePath);
+			const updatingSym = Symbol("updateTreeView()");
+			this.#updatingTreeViewSyms.add(updatingSym);
+			try {
+				await this.updateTreeViewRecursive(treeView, updatePath);
+			} finally {
+				this.#updatingTreeViewSyms.delete(updatingSym);
+				this.#fireTreeViewUpdateWhenDone();
+			}
 		}
 	}
 
@@ -278,7 +290,14 @@ export class ContentWindowProject extends ContentWindow {
 				const path = end.slice(0, i + 1);
 				const treeViewData = this.#getTreeViewData(treeView);
 				if (!treeViewData.isDir) return;
-				await this.updateTreeViewRecursive(treeView, [...start, ...path]);
+				const updatingSym = Symbol("updateTreeViewRange()");
+				this.#updatingTreeViewSyms.add(updatingSym);
+				try {
+					await this.updateTreeViewRecursive(treeView, [...start, ...path]);
+				} finally {
+					this.#updatingTreeViewSyms.delete(updatingSym);
+					this.#fireTreeViewUpdateWhenDone();
+				}
 			}
 		}
 	}
@@ -338,6 +357,21 @@ export class ContentWindowProject extends ContentWindow {
 				this.updateTreeViewRecursive(child, newPath);
 			}
 		}
+	}
+
+	async waitForTreeViewUpdate() {
+		if (this.#updatingTreeViewSyms.size == 0) return;
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => {
+			this.#updatingTreeViewCbs.add(r);
+		});
+		await promise;
+	}
+
+	#fireTreeViewUpdateWhenDone() {
+		if (this.#updatingTreeViewSyms.size > 0) return;
+		this.#updatingTreeViewCbs.forEach(cb => cb());
+		this.#updatingTreeViewCbs.clear();
 	}
 
 	/**
