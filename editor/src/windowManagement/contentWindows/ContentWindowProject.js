@@ -184,6 +184,8 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.boundExternalChange = this.externalChange.bind(this);
 		this.editorInstance.projectManager.onExternalChange(this.boundExternalChange);
+
+		this.expandRootOnLoad();
 	}
 
 	destructor() {
@@ -480,10 +482,20 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * If asset settings are already loaded, this is a no-op.
-	 * If not, this will load the asset settings and wait for them to load.
-	 * A permission prompt might be shown, so this should only be called from
-	 * a user gesture.
+	 * If asset settings are loaded, this means we've already obtained read permission
+	 * to the file system. In this case we will expand the root tree view as this
+	 * is something the user will want to do anyway.
+	 */
+	async expandRootOnLoad() {
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		if (assetManager.assetSettingsLoaded) {
+			this.treeView.collapsed = false;
+		}
+	}
+
+	/**
+	 * If asset settings are not yet loaded, this will load the asset settings and wait for them to load.
+	 * A permission prompt might be shown, so this should only be called from a user gesture.
 	 */
 	loadAssetSettingsFromUserGesture() {
 		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
