@@ -11,6 +11,12 @@ import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorI
  * @property {import("../../../../src/util/mod.js").UuidString?} assetUuid Is null when data hasn't been populated yet.
  */
 
+/**
+ * @typedef TreeViewData
+ * @property {string[]} path
+ * @property {boolean} isDir
+ */
+
 export class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = "project";
 	static contentWindowUiName = "Project Files";
@@ -20,6 +26,14 @@ export class ContentWindowProject extends ContentWindow {
 	#registeredDismissedManagers = new Set();
 
 	#boundOnUserDismissedPermission;
+
+	/**
+	 * A weakmap of data for each TreeView. Each data item is used for storing
+	 * certain properties related to the file or directory that the TreeView represents.
+	 * Data for a TreeView can be obtained using `#getTreeViewData`.
+	 * @type {WeakMap<TreeView, TreeViewData>}
+	 */
+	#treeViewDatas = new WeakMap();
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
@@ -136,6 +150,11 @@ export class ContentWindowProject extends ContentWindow {
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
 
 		this.#boundOnUserDismissedPermission = this.onUserDismissedPermission.bind(this);
+
+		this.#treeViewDatas.set(this.treeView, {
+			isDir: true,
+			path: [],
+		});
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -257,7 +276,8 @@ export class ContentWindowProject extends ContentWindow {
 			treeView = childTreeView;
 			if (updateAll || treeView.collapsed) {
 				const path = end.slice(0, i + 1);
-				if (!treeView.alwaysShowArrow) return; // if the TreeView is not a directory
+				const treeViewData = this.#getTreeViewData(treeView);
+				if (!treeViewData.isDir) return;
 				await this.updateTreeViewRecursive(treeView, [...start, ...path]);
 			}
 		}
@@ -290,11 +310,9 @@ export class ContentWindowProject extends ContentWindow {
 				const newTreeView = treeView.addChildAtIndex(null, insertionIndex);
 				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.alwaysShowArrow = true;
-				newTreeView.onCollapsedChange(() => {
-					if (!newTreeView.collapsed) {
-						const newPath = [...path, dir];
-						this.updateTreeViewRecursive(newTreeView, newPath);
-					}
+				this.#treeViewDatas.set(newTreeView, {
+					path: [...path, dir],
+					isDir: true,
 				});
 				newTreeView.name = dir;
 				newTreeView.collapsed = true;
@@ -304,6 +322,10 @@ export class ContentWindowProject extends ContentWindow {
 			if (!treeView.includes(file)) {
 				const insertionIndex = childOrder.indexOf(file);
 				const newTreeView = treeView.addChildAtIndex(null, insertionIndex);
+				this.#treeViewDatas.set(newTreeView, {
+					path: [...path, file],
+					isDir: false,
+				});
 				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.name = file;
 			}
@@ -316,6 +338,17 @@ export class ContentWindowProject extends ContentWindow {
 				this.updateTreeViewRecursive(child, newPath);
 			}
 		}
+	}
+
+	/**
+	 * Gets data related to the file or directory for the TreeView.
+	 * If the data does not exist, an error is thrown.
+	 * @param {TreeView} treeView
+	 */
+	#getTreeViewData(treeView) {
+		const data = this.#treeViewDatas.get(treeView);
+		if (!data) throw new Error("Assertion failed, TreeViewData is not available.");
+		return data;
 	}
 
 	/**
@@ -452,6 +485,11 @@ export class ContentWindowProject extends ContentWindow {
 	async onTreeViewCollapsedChange(e) {
 		if (e.target == this.treeView && this.treeView.expanded) {
 			this.loadAssetSettingsFromUserGesture();
+		}
+
+		if (!e.target.collapsed) {
+			const treeViewData = this.#getTreeViewData(e.target);
+			this.updateTreeViewRecursive(e.target, treeViewData.path);
 		}
 	}
 
