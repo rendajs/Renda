@@ -76,13 +76,16 @@ function basicSetupForSupportedAssetTypes({
 	draggingDataHasSupportedAssetType = true,
 } = {}) {
 	class SupportedLiveAsset {}
-	class NonSupportedLiveAsset {}
-
-	const draggingDataLiveAssetConstructor = draggingDataHasSupportedAssetType ? SupportedLiveAsset : NonSupportedLiveAsset;
+	class UnsupportedLiveAsset {}
 
 	/** @extends {ProjectAssetType<unknown, unknown, string>} */
-	class ExtendedProjectAssetType extends ProjectAssetType {
-		static expectedLiveAssetConstructor = draggingDataLiveAssetConstructor;
+	class SupportedExtendedProjectAssetType extends ProjectAssetType {
+		static expectedLiveAssetConstructor = SupportedLiveAsset;
+	}
+
+	/** @extends {ProjectAssetType<unknown, unknown, string>} */
+	class UnsupportedExtendedProjectAssetType extends ProjectAssetType {
+		static expectedLiveAssetConstructor = UnsupportedLiveAsset;
 	}
 
 	/** @type {any[]} */
@@ -90,17 +93,21 @@ function basicSetupForSupportedAssetTypes({
 	if (supportedAssetType == "live-asset") {
 		supportedAssetTypes = [SupportedLiveAsset];
 	} else if (supportedAssetType == "project-asset-type") {
-		supportedAssetTypes = [ExtendedProjectAssetType];
+		supportedAssetTypes = [SupportedExtendedProjectAssetType];
 	}
 
 	/** @type {typeof ProjectAssetType?} */
 	let getDraggingDataAssetType = null;
 	if (supportedAssetType == "none" || supportedAssetType == "live-asset") {
 		getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ ({
-			expectedLiveAssetConstructor: draggingDataLiveAssetConstructor,
+			expectedLiveAssetConstructor: draggingDataHasSupportedAssetType ? SupportedLiveAsset : UnsupportedLiveAsset,
 		});
 	} else if (supportedAssetType == "project-asset-type") {
-		getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ (ExtendedProjectAssetType);
+		if (draggingDataHasSupportedAssetType) {
+			getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ (SupportedExtendedProjectAssetType);
+		} else {
+			getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ (UnsupportedExtendedProjectAssetType);
+		}
 	}
 	const {gui, uninstall, mockDragManager} = createBasicGui({
 		guiOpts: {
