@@ -68,7 +68,7 @@ Deno.test({
 
 /**
  * @param {Object} options
- * @param {"none" | "live-asset" | "project-asset-type"} [options.supportedAssetType]
+ * @param {"none" | "live-asset" | "project-asset-type" | "project-asset-type-without-liveasset"} [options.supportedAssetType]
  * @param {boolean} [options.draggingDataHasSupportedAssetType]
  */
 function basicSetupForSupportedAssetTypes({
@@ -78,15 +78,18 @@ function basicSetupForSupportedAssetTypes({
 	class SupportedLiveAsset {}
 	class UnsupportedLiveAsset {}
 
-	/** @extends {ProjectAssetType<unknown, unknown, string>} */
+	/** @extends {ProjectAssetType<SupportedLiveAsset, unknown, string>} */
 	class SupportedExtendedProjectAssetType extends ProjectAssetType {
 		static expectedLiveAssetConstructor = SupportedLiveAsset;
 	}
 
-	/** @extends {ProjectAssetType<unknown, unknown, string>} */
+	/** @extends {ProjectAssetType<UnsupportedLiveAsset, unknown, string>} */
 	class UnsupportedExtendedProjectAssetType extends ProjectAssetType {
 		static expectedLiveAssetConstructor = UnsupportedLiveAsset;
 	}
+
+	/** @extends {ProjectAssetType<unknown, unknown, string>} */
+	class NoLiveAssetExtendedProjectAssetType extends ProjectAssetType {}
 
 	/** @type {any[]} */
 	let supportedAssetTypes = [];
@@ -94,6 +97,8 @@ function basicSetupForSupportedAssetTypes({
 		supportedAssetTypes = [SupportedLiveAsset];
 	} else if (supportedAssetType == "project-asset-type") {
 		supportedAssetTypes = [SupportedExtendedProjectAssetType];
+	} else if (supportedAssetType == "project-asset-type-without-liveasset") {
+		supportedAssetTypes = [NoLiveAssetExtendedProjectAssetType];
 	}
 
 	/** @type {typeof ProjectAssetType?} */
@@ -108,6 +113,8 @@ function basicSetupForSupportedAssetTypes({
 		} else {
 			getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ (UnsupportedExtendedProjectAssetType);
 		}
+	} else if (supportedAssetType == "project-asset-type-without-liveasset") {
+		getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ (NoLiveAssetExtendedProjectAssetType);
 	}
 	const {gui, uninstall, mockDragManager} = createBasicGui({
 		guiOpts: {
@@ -204,6 +211,23 @@ Deno.test({
 		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
 			draggingDataHasSupportedAssetType: true,
 			supportedAssetType: "project-asset-type",
+		});
+
+		try {
+			const dragEvent = triggerDragEvent();
+			assertIsDragHovering(dragEvent, true);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Valid drag event with supported ProjectAssetType without a liveasset",
+	fn() {
+		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+			draggingDataHasSupportedAssetType: true,
+			supportedAssetType: "project-asset-type-without-liveasset",
 		});
 
 		try {
