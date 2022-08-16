@@ -602,8 +602,12 @@ export class DroppableGui {
 
 			if (dragData.draggingProjectAssetData.dataPopulated) {
 				const assetType = dragData.draggingProjectAssetData.assetType;
-				if (assetType && assetType.expectedLiveAssetConstructor) {
-					return this.supportedAssetTypes.includes(assetType) || this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
+				if (assetType) {
+					if (this.supportedAssetTypes.includes(assetType)) {
+						return true;
+					} else if (assetType.expectedLiveAssetConstructor && this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor)) {
+						return true;
+					}
 				}
 			}
 		}
