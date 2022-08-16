@@ -2,6 +2,15 @@ import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructu
 import {Task} from "./Task.js";
 
 /**
+ * @fileoverview A task that generates a services script that can be used by the user
+ * to easily perform some actions that would otherwise require boilerplate code.
+ * The generated script mainly takes care of creating an asset loader that registers
+ * the required asset types. The generation of the script can be configured to only
+ * import modules that are actually necessary, that way tree shaking can get rid of
+ * unused code.
+ */
+
+/**
  * @typedef TaskGenerateServicesConfig
  * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation
  * @property {import("../../../../src/mod.js").UuidString[]} usedAssets A list of
