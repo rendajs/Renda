@@ -2,6 +2,8 @@ import {assertEquals} from "std/testing/asserts.ts";
 import {stub} from "std/testing/mock.ts";
 import {DragEvent} from "fake-dom/FakeDragEvent.js";
 import {createBasicGui} from "./shared.js";
+import {ProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js";
+import {DroppableGui} from "../../../../../../editor/src/ui/DroppableGui.js";
 
 const BASIC_DRAGGING_DATA_UUID = "BASIC_DRAGGING_DATA_UUID";
 const VALID_DRAG_TYPE = `text/renda; dragtype=projectasset; draggingdata=${BASIC_DRAGGING_DATA_UUID}`;
@@ -66,54 +68,92 @@ Deno.test({
 
 /**
  * @param {Object} options
- * @param {boolean} [options.hasSupportedAssetType]
+ * @param {"none" | "live-asset" | "project-asset-type"} [options.supportedAssetType]
+ * @param {boolean} [options.draggingDataHasSupportedAssetType]
  */
 function basicSetupForSupportedAssetTypes({
-	hasSupportedAssetType = true,
+	supportedAssetType = "live-asset",
+	draggingDataHasSupportedAssetType = true,
 } = {}) {
 	class SupportedLiveAsset {}
 	class NonSupportedLiveAsset {}
+
+	const draggingDataLiveAssetConstructor = draggingDataHasSupportedAssetType ? SupportedLiveAsset : NonSupportedLiveAsset;
+
+	/** @extends {ProjectAssetType<unknown, unknown, string>} */
+	class ExtendedProjectAssetType extends ProjectAssetType {
+		static expectedLiveAssetConstructor = draggingDataLiveAssetConstructor;
+	}
+
+	/** @type {any[]} */
+	let supportedAssetTypes = [];
+	if (supportedAssetType == "live-asset") {
+		supportedAssetTypes = [SupportedLiveAsset];
+	} else if (supportedAssetType == "project-asset-type") {
+		supportedAssetTypes = [ExtendedProjectAssetType];
+	}
+
+	/** @type {typeof ProjectAssetType?} */
+	let getDraggingDataAssetType = null;
+	if (supportedAssetType == "none" || supportedAssetType == "live-asset") {
+		getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ ({
+			expectedLiveAssetConstructor: draggingDataLiveAssetConstructor,
+		});
+	} else if (supportedAssetType == "project-asset-type") {
+		getDraggingDataAssetType = /** @type {typeof ProjectAssetType} */ (ExtendedProjectAssetType);
+	}
 	const {gui, uninstall, mockDragManager} = createBasicGui({
 		guiOpts: {
-			supportedAssetTypes: [SupportedLiveAsset],
+			supportedAssetTypes,
 		},
 	});
-
-	const expectedLiveAssetConstructor = hasSupportedAssetType ? SupportedLiveAsset : NonSupportedLiveAsset;
 
 	stub(mockDragManager, "getDraggingData", uuid => {
 		if (uuid == BASIC_DRAGGING_DATA_UUID) {
 			/** @type {import("../../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */
 			return {
-				assetType: /** @type {typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} */ ({
-					expectedLiveAssetConstructor,
-				}),
+				assetType: getDraggingDataAssetType,
 				assetUuid: "someuuid",
 				dataPopulated: true,
 			};
 		}
 	});
 
+	function triggerDragEvent() {
+		const dragEvent = new DragEvent("dragenter");
+		dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
+		gui.onDragEnter(dragEvent);
+		return dragEvent;
+	}
+
+	/**
+	 * @param {DragEvent} dragEvent
+	 * @param {boolean} isHovering
+	 */
+	function assertIsDragHovering(dragEvent, isHovering) {
+		assertEquals(gui.el.classList.contains("dragHovering"), isHovering);
+		assertEquals(dragEvent.defaultPrevented, isHovering);
+		assertEquals(dragEvent.dataTransfer?.dropEffect, isHovering ? "link" : "none");
+	}
+
 	return {
 		gui,
+		triggerDragEvent,
+		assertIsDragHovering,
 		uninstall,
 	};
 }
 
 Deno.test({
-	name: "Invalid drag event because the asset type is not supported",
+	name: "Invalid drag event because the asset type is not supported, asset type is live asset",
 	fn() {
-		const {gui, uninstall} = basicSetupForSupportedAssetTypes({
-			hasSupportedAssetType: false,
+		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+			draggingDataHasSupportedAssetType: false,
 		});
 
 		try {
-			const dragEvent = new DragEvent("dragenter");
-			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
-			gui.onDragEnter(dragEvent);
-			assertEquals(gui.el.classList.contains("dragHovering"), false);
-			assertEquals(dragEvent.defaultPrevented, false);
-			assertEquals(dragEvent.dataTransfer?.dropEffect, "none");
+			const dragEvent = triggerDragEvent();
+			assertIsDragHovering(dragEvent, false);
 		} finally {
 			uninstall();
 		}
@@ -123,17 +163,100 @@ Deno.test({
 Deno.test({
 	name: "Valid drag event with supportedAssetTypes",
 	fn() {
-		const {gui, uninstall} = basicSetupForSupportedAssetTypes();
+		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes();
 
 		try {
-			const dragEvent = new DragEvent("dragenter");
-			dragEvent.dataTransfer?.setData(VALID_DRAG_TYPE, "");
-			gui.onDragEnter(dragEvent);
-			assertEquals(gui.el.classList.contains("dragHovering"), true);
-			assertEquals(dragEvent.defaultPrevented, true);
-			assertEquals(dragEvent.dataTransfer?.dropEffect, "link");
+			const dragEvent = triggerDragEvent();
+			assertIsDragHovering(dragEvent, true);
 		} finally {
 			uninstall();
 		}
+	},
+});
+
+Deno.test({
+	name: "Invalid drag event because the asset type is not supported, asset type is ProjectAssetType",
+	fn() {
+		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+			draggingDataHasSupportedAssetType: false,
+			supportedAssetType: "project-asset-type",
+		});
+
+		try {
+			const dragEvent = triggerDragEvent();
+			assertIsDragHovering(dragEvent, false);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Valid drag event with supported ProjectAssetType",
+	fn() {
+		const {triggerDragEvent, assertIsDragHovering, uninstall} = basicSetupForSupportedAssetTypes({
+			draggingDataHasSupportedAssetType: true,
+			supportedAssetType: "project-asset-type",
+		});
+
+		try {
+			const dragEvent = triggerDragEvent();
+			assertIsDragHovering(dragEvent, true);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "getValue() return types",
+	fn() {
+		// This doesn't test any runtime behaviour, only the types are tested for correctness.
+
+		/* eslint-disable no-unused-vars */
+		function neverCalled() {
+			class LiveAsset {
+				someMethodNotOnTheProjectAssetType() {}
+			}
+			/** @extends {ProjectAssetType<LiveAsset, null, string>} */
+			class ExtendedProjectAssetType extends ProjectAssetType {
+				static expectedLiveAssetConstructor = LiveAsset;
+
+				someMethodNotOnTheLiveAsset() {}
+			}
+
+			/** @type {CreateTypeAssertionFn<import("../../../../../../src/mod.js").UuidString | null>} */
+			const assertUuidString = () => {};
+
+			/** @type {CreateTypeAssertionFn<LiveAsset | null>} */
+			const assertLiveAsset = () => {};
+
+			// A gui with a live asset constructor as supported asset type.
+			const gui1 = DroppableGui.of({
+				supportedAssetTypes: [LiveAsset],
+			});
+
+			const val1 = gui1.getValue();
+			assertUuidString(val1, val1);
+
+			const val2 = gui1.getValue({
+				returnLiveAsset: true,
+			});
+			assertLiveAsset(val2, val2);
+
+			// A gui with a ProjectAssetType constructor as supported asset type.
+			const gui2 = DroppableGui.of({
+				supportedAssetTypes: [ExtendedProjectAssetType],
+			});
+
+			const val3 = gui2.getValue();
+			assertUuidString(val3, val3);
+
+			const val4 = gui2.getValue({
+				returnLiveAsset: true,
+			});
+			assertLiveAsset(val4, val4);
+		}
+		/* eslint-enable no-unused-vars */
 	},
 });
