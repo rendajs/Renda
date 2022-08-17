@@ -217,6 +217,7 @@ export class Entity {
 
 	// #if !_IS_CLOSURE_BUILD
 	/**
+	 * Yields all components of the given type non recursively.
 	 * @template {Component} T
 	 * @param {new () => T} componentConstructor
 	 * @returns {Generator<T>}
@@ -232,6 +233,7 @@ export class Entity {
 
 	// #if !_IS_CLOSURE_BUILD
 	/**
+	 * Yields all components of the given type from this entity and all its children.
 	 * @template {Component} T
 	 * @param {new () => T} componentConstructor
 	 * @returns {Generator<T>}

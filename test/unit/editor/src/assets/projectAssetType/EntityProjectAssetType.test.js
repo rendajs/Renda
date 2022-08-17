@@ -1,11 +1,14 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import "../../../shared/initializeEditor.js";
-import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ContentWindowEntityEditor} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
+import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
+import {Entity, MeshComponent} from "../../../../../../src/mod.js";
+
+const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000000";
 
 Deno.test("reload component values when changed", async () => {
-	const fakeUuid = "00000000-0000-0000-0000-000000000000";
-
 	const initialMesh = {};
 	const replacedMesh = {};
 
@@ -17,7 +20,7 @@ Deno.test("reload component values when changed", async () => {
 		 * @param {(mesh: {}?) => void} cb
 		 */
 		getLiveAsset(uuid, cb, {repeatOnLiveAssetChange = false}) {
-			if (uuid == fakeUuid) {
+			if (uuid == BASIC_ASSET_UUID) {
 				cb(initialMesh);
 			} else {
 				cb(null);
@@ -27,7 +30,7 @@ Deno.test("reload component values when changed", async () => {
 	}
 
 	const originalComponentData = {
-		mesh: fakeUuid,
+		mesh: BASIC_ASSET_UUID,
 	};
 	/** @type {any} */
 	const newComponentData = {};
@@ -57,4 +60,76 @@ Deno.test("reload component values when changed", async () => {
 
 	assertEquals(newComponentData.mesh, replacedMesh);
 	assertEquals(markRenderDirtyCalled, true);
+});
+
+async function basicSetupForAssetLoaderImportConfig({
+	usedAssets = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny[]} */ ([]),
+} = {}) {
+	/**
+	 * @param {string} identifier
+	 * @param {string} specifier
+	 */
+	function addImport(identifier, specifier) {}
+	const addImportSpy = spy(addImport);
+
+	assertExists(ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra);
+	const result = await ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra({
+		addImport: addImportSpy,
+		editor: /** @type {any} */ ({}),
+		usedAssets,
+	});
+
+	return {
+		addImportSpy,
+		result,
+	};
+}
+
+Deno.test({
+	name: "assetLoaderTypeImportConfig extra no assets",
+	async fn() {
+		const {addImportSpy, result} = await basicSetupForAssetLoaderImportConfig();
+
+		assertEquals(result, `const componentTypeManager = new ComponentTypeManager();
+entityLoader.setComponentTypeManager(componentTypeManager);`);
+
+		assertSpyCalls(addImportSpy, 1);
+		assertSpyCall(addImportSpy, 0, {
+			args: ["ComponentTypeManager", "renda"],
+		});
+	},
+});
+
+Deno.test({
+	name: "assetLoaderTypeImportConfig extra with assets",
+	async fn() {
+		const rootEntity = new Entity();
+		const castRootEntity = /** @type {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (rootEntity);
+		castRootEntity[entityAssetRootUuidSymbol] = BASIC_ASSET_UUID;
+		rootEntity.addComponent(MeshComponent);
+
+		const childEntity = new Entity();
+		rootEntity.add(childEntity);
+		const castChildEntity = /** @type {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */ (childEntity);
+		castChildEntity[entityAssetRootUuidSymbol] = "non root uuid";
+
+		const {projectAsset} = createMockProjectAsset({
+			liveAsset: rootEntity,
+		});
+		const {addImportSpy, result} = await basicSetupForAssetLoaderImportConfig({
+			usedAssets: [projectAsset],
+		});
+
+		assertEquals(result, `const componentTypeManager = new ComponentTypeManager();
+entityLoader.setComponentTypeManager(componentTypeManager);
+componentTypeManager.registerComponent(MeshComponent);`);
+
+		assertSpyCalls(addImportSpy, 2);
+		assertSpyCall(addImportSpy, 0, {
+			args: ["ComponentTypeManager", "renda"],
+		});
+		assertSpyCall(addImportSpy, 1, {
+			args: ["MeshComponent", "renda"],
+		});
+	},
 });
