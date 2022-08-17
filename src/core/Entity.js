@@ -13,6 +13,11 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  */
 
 /**
+ * @typedef EntityTraverseOptions
+ * @property {((entity: Entity) => boolean)?} [filter]
+ */
+
+/**
  * @typedef {Object} EntityJsonDataBase
  * @property {string} [name]
  */
@@ -599,22 +604,32 @@ export class Entity {
 	}
 
 	/**
+	 * @param {EntityTraverseOptions} options
 	 * @returns {Generator<Entity>}
 	 */
-	*traverseDown() {
+	*traverseDown({
+		filter = null,
+	} = {}) {
 		yield this;
 		for (const child of this._children) {
-			yield* child.traverseDown();
+			if (filter == null || filter(child)) {
+				yield* child.traverseDown({filter});
+			}
 		}
 	}
 
 	/**
+	 * @param {EntityTraverseOptions} options
 	 * @returns {Generator<Entity>}
 	 */
-	*traverseUp() {
+	*traverseUp({
+		filter = null,
+	} = {}) {
 		yield this;
 		if (this.parent) {
-			yield* this.parent.traverseUp();
+			if (filter == null || filter(this.parent)) {
+				yield* this.parent.traverseUp({filter});
+			}
 		}
 	}
 
