@@ -254,21 +254,42 @@ Deno.test({
 	},
 });
 
+function getBasicEntityStructure() {
+	const root = new Entity();
+
+	const entity1 = root.add(new Entity());
+	const entity1A = entity1.add(new Entity());
+	const entity1B = entity1.add(new Entity());
+
+	const entity2 = root.add(new Entity());
+
+	const entity3 = root.add(new Entity());
+	const entity3A = entity3.add(new Entity());
+	const entity3B = entity3.add(new Entity());
+	const entity3C = entity3.add(new Entity());
+
+	return {
+		root,
+		entity1,
+		entity1A,
+		entity1B,
+		entity2,
+		entity3,
+		entity3A,
+		entity3B,
+		entity3C,
+	};
+}
+
 Deno.test({
 	name: "traverseDown()",
 	fn() {
-		const root = new Entity();
-
-		const entity1 = root.add(new Entity());
-		const entity1A = entity1.add(new Entity());
-		const entity1B = entity1.add(new Entity());
-
-		const entity2 = root.add(new Entity());
-
-		const entity3 = root.add(new Entity());
-		const entity3A = entity3.add(new Entity());
-		const entity3B = entity3.add(new Entity());
-		const entity3C = entity3.add(new Entity());
+		const {
+			root,
+			entity1, entity1A, entity1B,
+			entity2,
+			entity3, entity3A, entity3B, entity3C,
+		} = getBasicEntityStructure();
 
 		const entities = Array.from(root.traverseDown());
 
@@ -291,18 +312,66 @@ Deno.test({
 });
 
 Deno.test({
+	name: "traverseDown() with filter",
+	fn() {
+		const {
+			root,
+			entity1,
+			entity2,
+			entity3, entity3A, entity3B, entity3C,
+		} = getBasicEntityStructure();
+
+		const result = Array.from(root.traverseDown({
+			filter: e => e !== entity1,
+		}));
+
+		const expected = [
+			root,
+			entity2,
+			entity3,
+			entity3A,
+			entity3B,
+			entity3C,
+		];
+		assertEquals(result.length, expected.length);
+		for (let i = 0; i < result.length; i++) {
+			assertStrictEquals(result[i], expected[i]);
+		}
+	},
+});
+
+Deno.test({
 	name: "traverseUp()",
 	fn() {
-		const entity1 = new Entity();
-		const entity2 = entity1.add(new Entity());
-		const entity3 = entity2.add(new Entity());
+		const {
+			root,
+			entity1,
+			entity1A,
+		} = getBasicEntityStructure();
 
-		const entities = Array.from(entity3.traverseUp());
+		const result = Array.from(entity1A.traverseUp());
 
-		assertEquals(entities.length, 3);
-		assertStrictEquals(entities[0], entity3);
-		assertStrictEquals(entities[1], entity2);
-		assertStrictEquals(entities[2], entity1);
+		assertEquals(result.length, 3);
+		assertStrictEquals(result[0], entity1A);
+		assertStrictEquals(result[1], entity1);
+		assertStrictEquals(result[2], root);
+	},
+});
+
+Deno.test({
+	name: "traverseUp() with filter",
+	fn() {
+		const {
+			entity1,
+			entity1A,
+		} = getBasicEntityStructure();
+
+		const result = Array.from(entity1A.traverseUp({
+			filter: e => e !== entity1,
+		}));
+
+		assertEquals(result.length, 1);
+		assertStrictEquals(result[0], entity1A);
 	},
 });
 
