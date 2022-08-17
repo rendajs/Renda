@@ -1,4 +1,4 @@
-import {assert, assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertExists, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TaskGenerateServices} from "../../../../../../editor/src/tasks/task/TaskGenerateServices.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
@@ -6,6 +6,7 @@ import {createMockProjectAssetType} from "../../assets/shared/createMockProjectA
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const BASIC_ASSET_TYPE = "BASIC_ASSET_TYPE";
+const SECOND_ASSET_UUID = "SECOND_ASSET_UUID";
 
 const blobModule = `
 	export class AssetLoader {
@@ -52,6 +53,11 @@ function basicSetup({
 		ProjectAssetType.assetLoaderTypeImportConfig.moduleSpecifier = projectAssetTypeModuleSpecifier;
 	}
 
+	const {projectAsset: basicAsset} = createMockProjectAsset();
+	basicAsset.assetType = BASIC_ASSET_TYPE;
+	const {projectAsset: secondAsset} = createMockProjectAsset();
+	secondAsset.assetType = BASIC_ASSET_TYPE;
+
 	const mockEditor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
 		projectManager: {
 			currentProjectFileSystem: fileSystem,
@@ -62,9 +68,12 @@ function basicSetup({
 					}
 				},
 				async getProjectAssetFromUuid(uuid) {
-					const {projectAsset} = createMockProjectAsset({});
-					projectAsset.assetType = BASIC_ASSET_TYPE;
-					return projectAsset;
+					if (uuid == BASIC_ASSET_UUID) {
+						return basicAsset;
+					} else if (uuid == SECOND_ASSET_UUID) {
+						return secondAsset;
+					}
+					return null;
 				},
 			},
 		},
@@ -96,6 +105,8 @@ function basicSetup({
 
 	return {
 		task,
+		basicAsset,
+		secondAsset,
 		fileSystem,
 		mockFileSystem,
 		mockEditor,
@@ -179,11 +190,13 @@ Deno.test({
 Deno.test({
 	name: "Asset type with extra import config",
 	async fn() {
-		const {task, initializeServices} = basicSetup({
+		let usedAssets = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny[]?} */ (null);
+		const {task, basicAsset, secondAsset, initializeServices} = basicSetup({
 			importConfig: {
 				identifier: "BasicAssetTypeLoader",
 				instanceIdentifier: "instanceIdentifier",
 				extra(ctx) {
+					usedAssets = ctx.usedAssets;
 					ctx.addImport("getBar", "renda");
 					return `instanceIdentifier.someMethod(getBar());`;
 				},
@@ -191,8 +204,13 @@ Deno.test({
 		});
 		await task.runTask({
 			outputLocation: ["out.js"],
-			usedAssets: [BASIC_ASSET_UUID],
+			usedAssets: [BASIC_ASSET_UUID, SECOND_ASSET_UUID],
 		});
+
+		assertExists(usedAssets);
+		assertEquals(usedAssets.length, 2);
+		assertStrictEquals(usedAssets[0], basicAsset);
+		assertStrictEquals(usedAssets[1], secondAsset);
 
 		const result = await initializeServices(["out.js"]);
 		assertExists(result.assetLoader);
