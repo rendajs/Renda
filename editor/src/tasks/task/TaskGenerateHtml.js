@@ -10,7 +10,7 @@ import {Task} from "./Task.js";
 /**
  * @typedef TaskGenerateHtmlConfig
  * @property {import("../../../../src/mod.js").UuidString?} template
- * @property {{find: string, replace: string}[]} replacements
+ * @property {{find?: string, replace?: string}[]} replacements
  * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation
  */
 
@@ -73,8 +73,9 @@ export class TaskGenerateHtml extends Task {
 			throw new Error("Failed to run task, template asset not found");
 		}
 		let html = await templateAsset.readAssetData();
-		for (const replacement of config.replacements) {
-			html = html.replaceAll("$" + replacement.find, replacement.replace);
+		for (const {find, replace} of config.replacements) {
+			if (!find) continue;
+			html = html.replaceAll("$" + find, replace || "");
 		}
 
 		await fileSystem.writeText(config.outputLocation, html);
