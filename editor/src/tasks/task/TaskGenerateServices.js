@@ -20,7 +20,7 @@ import {Task} from "./Task.js";
  */
 
 /**
- * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
+ * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [TProjectAssetType = any]
  * @typedef AssetLoaderTypeImportConfig
  * @property {string} identifier The identifier to import and pass to `registerLoaderType`.
  * @property {string} [moduleSpecifier] The module specifier to import from, this defaults to "renda".
@@ -132,7 +132,6 @@ export class TaskGenerateServices extends Task {
 
 		for (const [assetTypeIdentifier, assets] of assetTypes) {
 			const assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetTypeIdentifier);
-			/** @type {AssetLoaderTypeImportConfig<any>} */
 			const config = assetType?.assetLoaderTypeImportConfig;
 			if (config) {
 				const moduleSpecifier = config.moduleSpecifier || "renda";
