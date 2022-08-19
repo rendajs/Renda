@@ -130,10 +130,20 @@ Deno.test({
 				}
 
 				/**
-				 * @param {{}} config
+				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<{}>} config
 				 */
 				async runTask(config) {
-					return await this.#messenger.send("repeatString", "foo");
+					const str = await this.#messenger.send("repeatString", "foo");
+					/** @type {import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} */
+					const returnValue = {
+						writeAssets: [
+							{
+								fileData: str,
+								path: ["path", "to", "file.txt"],
+							},
+						],
+					};
+					return returnValue;
 				}
 			}
 
@@ -147,7 +157,14 @@ Deno.test({
 			});
 
 			assertSpyCalls(runTaskSpy, 1);
-			assertEquals(result, "foo");
+			assertEquals(result, {
+				writeAssets: [
+					{
+						fileData: "foo",
+						path: ["path", "to", "file.txt"],
+					},
+				],
+			});
 
 			const taskInstance = manager.initializeTask("namespace:type");
 			assertInstanceOf(taskInstance, ExtendedTask);

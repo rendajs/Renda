@@ -73,7 +73,7 @@ export class TaskBundleScripts extends Task {
 
 		this.#messenger = new TypedMessenger();
 		this.#messenger.setSendHandler(data => {
-			this.worker.postMessage(data);
+			this.worker.postMessage(data.sendData);
 		});
 		this.worker.addEventListener("message", event => {
 			this.#messenger.handleReceivedMessage(event.data);
@@ -86,9 +86,11 @@ export class TaskBundleScripts extends Task {
 	}
 
 	/**
-	 * @param {TaskBundleScriptsConfig} config
+	 * @param {import("./Task.js").RunTaskOptions<TaskBundleScriptsConfig>} options
 	 */
-	async runTask(config) {
+	async runTask({config}) {
 		await this.#messenger.send("bundle", config);
+
+		return {};
 	}
 }

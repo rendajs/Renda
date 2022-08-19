@@ -44,9 +44,12 @@ Deno.test({
 		const {task, fileSystem} = basicSetup();
 
 		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [],
+			config: {
+				template: BASIC_ASSET_UUID,
+				outputLocation: ["out.html"],
+				replacements: [],
+			},
+			needsAllGeneratedAssets: false,
 		});
 
 		const result = await fileSystem.readText(["out.html"]);
@@ -60,18 +63,21 @@ Deno.test({
 		const {task, fileSystem} = basicSetup();
 
 		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [
-				{
-					find: "VAR1",
-					replace: "1",
-				},
-				{
-					find: "VAR2",
-					replace: "2",
-				},
-			],
+			config: {
+				template: BASIC_ASSET_UUID,
+				outputLocation: ["out.html"],
+				replacements: [
+					{
+						find: "VAR1",
+						replace: "1",
+					},
+					{
+						find: "VAR2",
+						replace: "2",
+					},
+				],
+			},
+			needsAllGeneratedAssets: false,
 		});
 
 		const result = await fileSystem.readText(["out.html"]);
@@ -85,13 +91,16 @@ Deno.test({
 		const {task, fileSystem} = basicSetup();
 
 		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [
-				{
-					replace: "1",
-				},
-			],
+			config: {
+				template: BASIC_ASSET_UUID,
+				outputLocation: ["out.html"],
+				replacements: [
+					{
+						replace: "1",
+					},
+				],
+			},
+			needsAllGeneratedAssets: false,
 		});
 
 		const result = await fileSystem.readText(["out.html"]);
@@ -105,13 +114,16 @@ Deno.test({
 		const {task, fileSystem} = basicSetup();
 
 		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [
-				{
-					find: "VAR1",
-				},
-			],
+			config: {
+				template: BASIC_ASSET_UUID,
+				outputLocation: ["out.html"],
+				replacements: [
+					{
+						find: "VAR1",
+					},
+				],
+			},
+			needsAllGeneratedAssets: false,
 		});
 
 		const result = await fileSystem.readText(["out.html"]);
@@ -126,9 +138,12 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await task.runTask({
-				template: null,
-				outputLocation: ["out.html"],
-				replacements: [],
+				config: {
+					template: null,
+					outputLocation: ["out.html"],
+					replacements: [],
+				},
+				needsAllGeneratedAssets: false,
 			});
 		}, Error, "Failed to run task, no template provided");
 	},
@@ -143,9 +158,12 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await task.runTask({
-				template: BASIC_ASSET_UUID,
-				outputLocation: ["out.html"],
-				replacements: [],
+				config: {
+					template: BASIC_ASSET_UUID,
+					outputLocation: ["out.html"],
+					replacements: [],
+				},
+				needsAllGeneratedAssets: false,
 			});
 		}, Error, "Failed to run task, template asset not found");
 	},

@@ -71,6 +71,9 @@ export class TaskManager {
 	 */
 	async runTask({taskFileContent}) {
 		const taskType = this.initializeTask(taskFileContent.taskType);
-		return await taskType.runTask(taskFileContent.taskConfig);
+		return await taskType.runTask({
+			config: taskFileContent.taskConfig,
+			needsAllGeneratedAssets: false,
+		});
 	}
 }

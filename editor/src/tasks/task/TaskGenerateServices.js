@@ -56,6 +56,7 @@ import {Task} from "./Task.js";
  * to the current ProjectAssetType config.
  */
 
+/** @extends {Task<TaskGenerateServicesConfig>} */
 export class TaskGenerateServices extends Task {
 	static uiName = "Generate Services";
 	static type = "renda:generateServices";
@@ -76,9 +77,9 @@ export class TaskGenerateServices extends Task {
 	});
 
 	/**
-	 * @param {TaskGenerateServicesConfig} config
+	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateServicesConfig>} options
 	 */
-	async runTask(config) {
+	async runTask({config}) {
 		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
 		if (!fileSystem) {
 			throw new Error("Failed to run task: no project file system.");
@@ -198,5 +199,7 @@ export class TaskGenerateServices extends Task {
 		code += "}\n";
 
 		await fileSystem.writeText(config.outputLocation, code);
+
+		return {};
 	}
 }

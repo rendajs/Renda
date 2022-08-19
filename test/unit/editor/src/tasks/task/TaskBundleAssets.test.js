@@ -63,17 +63,20 @@ async function basicSetup({
 	};
 }
 
-/** @type {import("../../../../../../editor/src/tasks/task/TaskBundleAssets.js").TaskBundleAssetsConfig} */
+/** @type {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<import("../../../../../../editor/src/tasks/task/TaskBundleAssets.js").TaskBundleAssetsConfig>} */
 const basicRunTaskOptions = {
-	assets: [
-		{
-			asset: BASIC_ASSET_UUID,
-			includeChildren: false,
-		},
-	],
-	outputPath: ["out.rbundle"],
-	excludeAssets: [],
-	excludeAssetsRecursive: [],
+	config: {
+		assets: [
+			{
+				asset: BASIC_ASSET_UUID,
+				includeChildren: false,
+			},
+		],
+		outputPath: ["out.rbundle"],
+		excludeAssets: [],
+		excludeAssetsRecursive: [],
+	},
+	needsAllGeneratedAssets: false,
 };
 
 /**
@@ -135,10 +138,13 @@ Deno.test({
 		const {task, fileSystem, cleanup} = await basicSetup();
 		try {
 			await task.runTask({
-				assets: [],
-				outputPath: ["out.rbundle"],
-				excludeAssets: [],
-				excludeAssetsRecursive: [],
+				config: {
+					assets: [],
+					outputPath: ["out.rbundle"],
+					excludeAssets: [],
+					excludeAssetsRecursive: [],
+				},
+				needsAllGeneratedAssets: false,
 			});
 
 			const outFile = await fileSystem.readFile(["out.rbundle"]);
@@ -174,15 +180,18 @@ Deno.test({
 		const {task, fileSystem, cleanup} = await basicSetup();
 		try {
 			await task.runTask({
-				assets: [
-					{
-						asset: BASIC_ASSET_UUID,
-						includeChildren: true,
-					},
-				],
-				outputPath: ["out.rbundle"],
-				excludeAssets: [],
-				excludeAssetsRecursive: [],
+				config: {
+					assets: [
+						{
+							asset: BASIC_ASSET_UUID,
+							includeChildren: true,
+						},
+					],
+					outputPath: ["out.rbundle"],
+					excludeAssets: [],
+					excludeAssetsRecursive: [],
+				},
+				needsAllGeneratedAssets: false,
 			});
 
 			await basicBundleChecks({

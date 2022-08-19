@@ -114,14 +114,29 @@ function basicSetup({
 	};
 }
 
+/**
+ * @param {Object} options
+ * @param {import("../../../../../../src/mod.js").UuidString[]} [options.usedAssets]
+ */
+function createRunTaskOptions({
+	usedAssets = [],
+} = {}) {
+	/** @type {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").TaskGenerateServicesConfig>} */
+	const options = {
+		config: {
+			outputLocation: ["out.js"],
+			usedAssets,
+		},
+		needsAllGeneratedAssets: false,
+	};
+	return options;
+}
+
 Deno.test({
 	name: "Basic config",
 	async fn() {
 		const {task, initializeServices} = basicSetup();
-		await task.runTask({
-			outputLocation: ["out.js"],
-			usedAssets: [],
-		});
+		await task.runTask(createRunTaskOptions());
 
 		const result = await initializeServices(["out.js"]);
 		assertExists(result);
@@ -134,10 +149,7 @@ Deno.test({
 		const {task, mockEditor} = basicSetup();
 		mockEditor.projectManager.currentProjectFileSystem = null;
 		await assertRejects(async () => {
-			await task.runTask({
-				outputLocation: ["out.js"],
-				usedAssets: [],
-			});
+			await task.runTask(createRunTaskOptions());
 		}, Error, "Failed to run task: no project file system.");
 	},
 });
@@ -148,10 +160,7 @@ Deno.test({
 		const {task, mockEditor} = basicSetup();
 		mockEditor.projectManager.assetManager = null;
 		await assertRejects(async () => {
-			await task.runTask({
-				outputLocation: ["out.js"],
-				usedAssets: [],
-			});
+			await task.runTask(createRunTaskOptions({}));
 		}, Error, "Failed to run task: no asset manager.");
 	},
 });
@@ -160,10 +169,9 @@ Deno.test({
 	name: "Config with a used asset",
 	async fn() {
 		const {task, initializeServices} = basicSetup();
-		await task.runTask({
-			outputLocation: ["out.js"],
+		await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID],
-		});
+		}));
 
 		const result = await initializeServices(["out.js"]);
 		assertExists(result.assetLoader);
@@ -177,10 +185,9 @@ Deno.test({
 		const {task, fileSystem} = basicSetup({
 			projectAssetTypeModuleSpecifier: "module-specifier",
 		});
-		await task.runTask({
-			outputLocation: ["out.js"],
+		await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID],
-		});
+		}));
 
 		const result = await fileSystem.readText(["out.js"]);
 		assert(result.includes("module-specifier"));
@@ -202,10 +209,9 @@ Deno.test({
 				},
 			},
 		});
-		await task.runTask({
-			outputLocation: ["out.js"],
+		await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID, SECOND_ASSET_UUID],
-		});
+		}));
 
 		assertExists(usedAssets);
 		assertEquals(usedAssets.length, 2);

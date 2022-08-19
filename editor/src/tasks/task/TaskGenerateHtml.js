@@ -14,6 +14,7 @@ import {Task} from "./Task.js";
  * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation
  */
 
+/** @extends {Task<TaskGenerateHtmlConfig>} */
 export class TaskGenerateHtml extends Task {
 	static uiName = "Generate Html";
 	static type = "renda:generateHtml";
@@ -50,9 +51,9 @@ export class TaskGenerateHtml extends Task {
 	});
 
 	/**
-	 * @param {TaskGenerateHtmlConfig} config
+	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateHtmlConfig>} config
 	 */
-	async runTask(config) {
+	async runTask({config}) {
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task, no asset manager");
@@ -79,5 +80,7 @@ export class TaskGenerateHtml extends Task {
 		}
 
 		await fileSystem.writeText(config.outputLocation, html);
+
+		return {};
 	}
 }
