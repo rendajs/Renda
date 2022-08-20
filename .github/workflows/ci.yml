@@ -85,3 +85,8 @@ jobs:
       - name: Test
         run: deno task test --coverage
 
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
