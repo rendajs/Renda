@@ -14,7 +14,7 @@
  * method, the task won't be able to be used programmatically. Unless you handle this case specifically when the `needsAlltouchedAssets`
  * flag is set to true.
  * @property {import("../../../../src/mod.js").UuidString[]} [touchedAssets] A list of assets that this task touched, or
- * might touch when the task is a second time. This is used by other tasks for determining if this task needs to run before them.
+ * might touch when the task is run a second time. This is used by other tasks for determining if this task needs to run before them.
  */
 
 /**

@@ -80,10 +80,6 @@ export class TaskGenerateServices extends Task {
 	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateServicesConfig>} options
 	 */
 	async runTask({config}) {
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
-		if (!fileSystem) {
-			throw new Error("Failed to run task: no project file system.");
-		}
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task: no asset manager.");
@@ -198,8 +194,16 @@ export class TaskGenerateServices extends Task {
 
 		code += "}\n";
 
-		await fileSystem.writeText(config.outputLocation, code);
-
-		return {};
+		/** @type {import("./Task.js").RunTaskReturn} */
+		const result = {
+			writeAssets: [
+				{
+					path: config.outputLocation,
+					assetType: "renda:javascript",
+					fileData: code,
+				},
+			],
+		};
+		return result;
 	}
 }
