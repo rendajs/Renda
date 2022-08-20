@@ -83,5 +83,5 @@ jobs:
         run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
 
       - name: Test
-        run: deno task test
+        run: deno task test --coverage
 
