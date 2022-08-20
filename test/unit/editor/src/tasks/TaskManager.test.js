@@ -1,9 +1,10 @@
 import {assertEquals, assertExists, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
 import {Task} from "../../../../../editor/src/tasks/task/Task.js";
 import {TaskManager} from "../../../../../editor/src/tasks/TaskManager.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
+import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
 
 const BASIC_UUID = "BASIC_UUID";
 const BASIC_UUID_2 = "BASIC_UUID_2";
@@ -103,7 +104,28 @@ Deno.test({
 Deno.test({
 	name: "running a task",
 	async fn() {
-		injectMockEditorInstance(/** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({}));
+		/**
+		 * @typedef RegisteredAssetData
+		 * @property {import("std/testing/mock.ts").Spy<import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny, [fileData: unknown], Promise<void>>} writeAssetDataSpy
+		 */
+		/** @type {RegisteredAssetData[]} */
+		const registeredAssets = [];
+		injectMockEditorInstance(/** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({
+			projectManager: {
+				assetManager: {
+					async getProjectAssetFromPath(path, options) {
+						return null;
+					},
+					async registerAsset(path, assetType) {
+						const {projectAsset} = createMockProjectAsset();
+						registeredAssets.push({
+							writeAssetDataSpy: spy(projectAsset, "writeAssetData"),
+						});
+						return projectAsset;
+					},
+				},
+			},
+		}));
 
 		try {
 			const manager = new TaskManager();
@@ -130,16 +152,17 @@ Deno.test({
 				}
 
 				/**
-				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<{}>} config
+				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<{}>} options
 				 */
-				async runTask(config) {
+				async runTask(options) {
 					const str = await this.#messenger.send("repeatString", "foo");
 					/** @type {import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} */
 					const returnValue = {
 						writeAssets: [
 							{
-								fileData: str,
 								path: ["path", "to", "file.txt"],
+								assetType: "namespace:type",
+								fileData: str,
 							},
 						],
 					};
@@ -150,20 +173,26 @@ Deno.test({
 			const runTaskSpy = spy(ExtendedTask.prototype, "runTask");
 
 			manager.registerTaskType(ExtendedTask);
-			const result = await manager.runTask({
+			await manager.runTask({
 				taskFileContent: {
 					taskType: "namespace:type",
+					taskConfig: {
+						foo: "bar",
+					},
 				},
 			});
 
 			assertSpyCalls(runTaskSpy, 1);
-			assertEquals(result, {
-				writeAssets: [
-					{
-						fileData: "foo",
-						path: ["path", "to", "file.txt"],
-					},
-				],
+			assertEquals(runTaskSpy.calls[0].args[0].config, {
+				foo: "bar",
+			});
+			assertEquals(runTaskSpy.calls[0].args[0].needsAllGeneratedAssets, false);
+
+			assertEquals(registeredAssets.length, 1);
+			const registeredAsset = registeredAssets[0];
+			assertSpyCalls(registeredAsset.writeAssetDataSpy, 1);
+			assertSpyCall(registeredAsset.writeAssetDataSpy, 0, {
+				args: ["foo"],
 			});
 
 			const taskInstance = manager.initializeTask("namespace:type");

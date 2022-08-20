@@ -15,10 +15,10 @@ globalThis.addEventListener("message", e => {
 
 const responseHandlers = {
 	/**
-	 * @param {import("../../task/TaskBundleScripts.js").TaskBundleScriptsConfig} config
+	 * @param {import("./bundle.js").BundleOptions} options
 	 */
-	bundle: async config => {
-		return await bundle(config, messenger);
+	bundle: async options => {
+		return await bundle(options, messenger);
 	},
 };
 

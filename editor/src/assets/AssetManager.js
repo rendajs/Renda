@@ -69,7 +69,18 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  * 			TLiveAsset :
  * 			never :
  * 		never :
- * 	never} AssertionOptionsToLiveAsset
+ * 	never} AssetAssertionOptionsToLiveAsset
+ */
+
+/**
+ * @template {AssetAssertionOptions} T
+ * @typedef {AssetAssertionOptionsToProjectAsset<T> extends infer ProjectAsset ?
+ * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer ProjectAssetType> ?
+ * 		ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer TFileData, any> ?
+ * 			TFileData :
+ * 			never :
+ * 		never :
+ * 	never} AssetAssertionOptionsToReadAssetDataReturn
  */
 
 /** @typedef {(granted: boolean) => void} OnPermissionPromptResultCallback */
@@ -295,6 +306,10 @@ export class AssetManager {
 	}
 
 	/**
+	 * Creates a new asset at the specified directory.
+	 * The name of the file is determined by the asset type and if an asset
+	 * already exists a different name will be chosen for the new asset.
+	 * If you wish to create an asset with a specific name, use {@linkcode registerAsset}.
 	 * @param {string[]} parentPath
 	 * @param {string} assetType
 	 */
@@ -417,7 +432,9 @@ export class AssetManager {
 	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
 	 */
 	async externalChange(e) {
-		const projectAsset = await this.getProjectAssetFromPath(e.path, this.assetSettingsLoaded);
+		const projectAsset = await this.getProjectAssetFromPath(e.path, {
+			registerIfNecessary: this.assetSettingsLoaded,
+		});
 		if (projectAsset) {
 			const guessedType = await ProjectAsset.guessAssetTypeFromFile(this.builtInAssetManager, this.projectAssetTypeManager, this.fileSystem, e.path);
 			if (guessedType != projectAsset.assetType) {
@@ -548,7 +565,6 @@ export class AssetManager {
 		if (!projectAsset) return null;
 		if (assertAssetType) {
 			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
-
 			AssetManager.assertProjectAssetIsType(projectAssetTypeConstructor, assertAssetType);
 		}
 		return /** @type {AssetAssertionOptionsToProjectAsset<T>} */ (projectAsset);
@@ -609,21 +625,33 @@ export class AssetManager {
 	}
 
 	/**
+	 * @template {AssetAssertionOptions} [T = {}]
 	 * @param {string[]} path
-	 * @param {boolean} registerIfNecessary
+	 * @param {Object} options
+	 * @param {boolean} [options.registerIfNecessary]
+	 * @param {T?} [options.assertionOptions]
 	 */
-	async getProjectAssetFromPath(path, registerIfNecessary = true) {
+	async getProjectAssetFromPath(path, {
+		registerIfNecessary = true,
+		assertionOptions = null,
+	} = {}) {
 		await this.loadAssetSettings(true);
+		let projectAsset = null;
 		for (const asset of this.projectAssets.values()) {
 			if (AssetManager.testPathMatch(path, asset.path)) {
-				return asset;
+				projectAsset = asset;
+				break;
 			}
 		}
 
-		if (registerIfNecessary && await this.fileSystem.isFile(path)) {
-			return await this.registerAsset(path);
+		if (!projectAsset && registerIfNecessary && await this.fileSystem.isFile(path)) {
+			projectAsset = await this.registerAsset(path);
 		}
-		return null;
+		if (projectAsset && assertionOptions?.assertAssetType) {
+			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
+			AssetManager.assertProjectAssetIsType(projectAssetTypeConstructor, assertionOptions.assertAssetType);
+		}
+		return /** @type {AssetAssertionOptionsToProjectAsset<T>?} */ (projectAsset);
 	}
 
 	/**
@@ -656,14 +684,14 @@ export class AssetManager {
 	 * @template {AssetAssertionOptions} [T = {}]
 	 * @param {import("../../../src/mod.js").UuidString?} uuid
 	 * @param {T} [assertionOptions]
-	 * @returns {Promise<AssertionOptionsToLiveAsset<T>?>}
+	 * @returns {Promise<AssetAssertionOptionsToLiveAsset<T>?>}
 	 */
 	async getLiveAsset(uuid, assertionOptions) {
 		const projectAsset = await this.getProjectAssetFromUuid(uuid, assertionOptions);
 		if (!projectAsset) return null;
 
 		const liveAsset = await projectAsset.getLiveAsset();
-		return /** @type {AssertionOptionsToLiveAsset<T>} */ (liveAsset);
+		return /** @type {AssetAssertionOptionsToLiveAsset<T>} */ (liveAsset);
 	}
 
 	/**
@@ -895,12 +923,12 @@ export class AssetManager {
 	 * @template {GetLiveAssetFromUuidOrEmbeddedAssetDataOptions} T
 	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
 	 * @param {T} options
-	 * @returns {Promise<AssertionOptionsToLiveAsset<T>?>}
+	 * @returns {Promise<AssetAssertionOptionsToLiveAsset<T>?>}
 	 */
 	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
 		const projectAsset = await this.getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options);
 		if (!projectAsset) return null;
 		const liveAsset = await projectAsset.getLiveAsset();
-		return /** @type {AssertionOptionsToLiveAsset<T>} */ (liveAsset);
+		return /** @type {AssetAssertionOptionsToLiveAsset<T>} */ (liveAsset);
 	}
 }

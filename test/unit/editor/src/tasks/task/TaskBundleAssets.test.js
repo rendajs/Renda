@@ -77,6 +77,12 @@ const basicRunTaskOptions = {
 		excludeAssetsRecursive: [],
 	},
 	needsAllGeneratedAssets: false,
+	async readAssetFromPath(path, opts) {
+		return null;
+	},
+	async readAssetFromUuid(uuid, opts) {
+		return null;
+	},
 };
 
 /**
@@ -138,13 +144,13 @@ Deno.test({
 		const {task, fileSystem, cleanup} = await basicSetup();
 		try {
 			await task.runTask({
+				...basicRunTaskOptions,
 				config: {
 					assets: [],
 					outputPath: ["out.rbundle"],
 					excludeAssets: [],
 					excludeAssetsRecursive: [],
 				},
-				needsAllGeneratedAssets: false,
 			});
 
 			const outFile = await fileSystem.readFile(["out.rbundle"]);
@@ -180,6 +186,7 @@ Deno.test({
 		const {task, fileSystem, cleanup} = await basicSetup();
 		try {
 			await task.runTask({
+				...basicRunTaskOptions,
 				config: {
 					assets: [
 						{
@@ -191,7 +198,6 @@ Deno.test({
 					excludeAssets: [],
 					excludeAssetsRecursive: [],
 				},
-				needsAllGeneratedAssets: false,
 			});
 
 			await basicBundleChecks({

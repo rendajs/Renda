@@ -2,6 +2,14 @@ import {getEditorInstance} from "../editorInstance.js";
 import {autoRegisterTaskTypes} from "./autoRegisterTaskTypes.js";
 import {Task} from "./task/Task.js";
 
+/**
+ * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(path: import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>?>} ReadAssetFromPathSignature
+ */
+
+/**
+ * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(uuid: import("../../../src/mod.js").UuidString, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>?>} ReadAssetFromUuidSignature
+ */
+
 export class TaskManager {
 	/** @type {Map<string, typeof import("./task/Task.js").Task>} */
 	#registeredTasks = new Map();
@@ -71,9 +79,34 @@ export class TaskManager {
 	 */
 	async runTask({taskFileContent}) {
 		const taskType = this.initializeTask(taskFileContent.taskType);
-		return await taskType.runTask({
+		const assetManager = getEditorInstance().projectManager.assetManager;
+		const result = await taskType.runTask({
 			config: taskFileContent.taskConfig,
 			needsAllGeneratedAssets: false,
+			async readAssetFromPath(path, assertionOptions) {
+				const asset = await assetManager?.getProjectAssetFromPath(path, {assertionOptions});
+				const result = await asset?.readAssetData();
+				return result || null;
+			},
+			async readAssetFromUuid(uuid, assertionOptions) {
+				const asset = await assetManager?.getProjectAssetFromUuid(uuid, assertionOptions);
+				const result = await asset?.readAssetData();
+				return result || null;
+			},
 		});
+
+		if (result.writeAssets) {
+			for (const writeAssetData of result.writeAssets) {
+				if (!assetManager) {
+					throw new Error("Failed to write files from task, asset manager is not available.");
+				}
+				// TODO: Assert that the asset has the correct type. #67
+				let asset = await assetManager.getProjectAssetFromPath(writeAssetData.path);
+				if (!asset) {
+					asset = await assetManager.registerAsset(writeAssetData.path, writeAssetData.assetType);
+				}
+				await asset.writeAssetData(/** @type {Object} **/ (writeAssetData.fileData));
+			}
+		}
 	}
 }

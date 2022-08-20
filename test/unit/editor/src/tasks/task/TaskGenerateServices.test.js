@@ -128,6 +128,12 @@ function createRunTaskOptions({
 			usedAssets,
 		},
 		needsAllGeneratedAssets: false,
+		async readAssetFromPath(path, opts) {
+			return null;
+		},
+		async readAssetFromUuid(uuid, opts) {
+			return null;
+		},
 	};
 	return options;
 }
