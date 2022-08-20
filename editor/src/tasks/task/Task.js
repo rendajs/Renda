@@ -1,6 +1,39 @@
-
 /**
  * @typedef {new (...args: ConstructorParameters<typeof Task>) => Task} TaskConstructor
+ */
+
+/**
+ * @typedef RunTaskReturn
+ * @property {RunTaskCreateAssetData[]} [writeAssets] A list of assets that this task should create when done running.
+ * This is useful if you want to modify files in a very basic way. The assets will be created and written to the output location.
+ * If the task is run programmatically, nothing is written and the program running the task can handle the result accordingly.
+ * Note that if you are not writing some assets as a result of caching, but might write them in the future, you should add them to the `touchedAssets` list.
+ * This way other tasks can trigger this task to run if it depends on them.
+ * If you need more control over how assets are written, such as writing to a file stream, you can write them manually using
+ * the current editor file system. But be sure to list the changed assets in `touchedAssets` as well. Though when using this
+ * method, the task won't be able to be used programmatically. Unless you handle this case specifically when the `needsAlltouchedAssets`
+ * flag is set to true.
+ * @property {import("../../../../src/mod.js").UuidString[]} [touchedAssets] A list of assets that this task touched, or
+ * might touch when the task is run a second time. This is used by other tasks for determining if this task needs to run before them.
+ */
+
+/**
+ * @typedef RunTaskCreateAssetData
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+ * @property {string} assetType
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes} fileData
+ */
+
+/**
+ * @template TTaskConfig
+ * @typedef RunTaskOptions
+ * @property {TTaskConfig} config
+ * @property {boolean} needsAllGeneratedAssets If true, running this task was triggered programmatically.
+ * In this case the task should not write any assets to disk and return the changes in `writeAssets` instead.
+ * @property {import("../TaskManager.js").ReadAssetFromPathSignature} readAssetFromPath Reads an asset from the file system.
+ * If the asset was built by another task, the other task will run first in order to update the asset.
+ * @property {import("../TaskManager.js").ReadAssetFromUuidSignature} readAssetFromUuid Reads an asset from the file system.
+ * If the asset was built by another task, the other task will run first in order to update the asset.
  */
 
 /**
@@ -58,10 +91,10 @@ export class Task {
 	}
 
 	/**
-	 * @param {TTaskConfig} config
-	 * @returns {Promise<unknown>}
+	 * @param {RunTaskOptions<TTaskConfig>} options
+	 * @returns {Promise<RunTaskReturn>}
 	 */
-	async runTask(config) {
+	async runTask(options) {
 		throw new Error(`Task "${this.constructor.name}" does not implement runTask().`);
 	}
 }

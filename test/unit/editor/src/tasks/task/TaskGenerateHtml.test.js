@@ -38,16 +38,28 @@ function basicSetup({
 	};
 }
 
+/** @type {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<import("../../../../../../editor/src/tasks/task/TaskGenerateHtml.js").TaskGenerateHtmlConfig>} */
+const basicRunTaskOptions = {
+	config: {
+		template: BASIC_ASSET_UUID,
+		outputLocation: ["out.html"],
+		replacements: [],
+	},
+	needsAllGeneratedAssets: false,
+	async readAssetFromPath(path, opts) {
+		return null;
+	},
+	async readAssetFromUuid(uuid, opts) {
+		return null;
+	},
+};
+
 Deno.test({
 	name: "Basic task",
 	async fn() {
 		const {task, fileSystem} = basicSetup();
 
-		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [],
-		});
+		await task.runTask(basicRunTaskOptions);
 
 		const result = await fileSystem.readText(["out.html"]);
 		assertEquals(result, "abc$VAR1def$VAR1ghi$VAR2jkl");
@@ -60,18 +72,21 @@ Deno.test({
 		const {task, fileSystem} = basicSetup();
 
 		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [
-				{
-					find: "VAR1",
-					replace: "1",
-				},
-				{
-					find: "VAR2",
-					replace: "2",
-				},
-			],
+			...basicRunTaskOptions,
+			config: {
+				template: BASIC_ASSET_UUID,
+				outputLocation: ["out.html"],
+				replacements: [
+					{
+						find: "VAR1",
+						replace: "1",
+					},
+					{
+						find: "VAR2",
+						replace: "2",
+					},
+				],
+			},
 		});
 
 		const result = await fileSystem.readText(["out.html"]);
@@ -85,13 +100,16 @@ Deno.test({
 		const {task, fileSystem} = basicSetup();
 
 		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [
-				{
-					replace: "1",
-				},
-			],
+			...basicRunTaskOptions,
+			config: {
+				template: BASIC_ASSET_UUID,
+				outputLocation: ["out.html"],
+				replacements: [
+					{
+						replace: "1",
+					},
+				],
+			},
 		});
 
 		const result = await fileSystem.readText(["out.html"]);
@@ -105,13 +123,16 @@ Deno.test({
 		const {task, fileSystem} = basicSetup();
 
 		await task.runTask({
-			template: BASIC_ASSET_UUID,
-			outputLocation: ["out.html"],
-			replacements: [
-				{
-					find: "VAR1",
-				},
-			],
+			...basicRunTaskOptions,
+			config: {
+				template: BASIC_ASSET_UUID,
+				outputLocation: ["out.html"],
+				replacements: [
+					{
+						find: "VAR1",
+					},
+				],
+			},
 		});
 
 		const result = await fileSystem.readText(["out.html"]);
@@ -126,9 +147,12 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await task.runTask({
-				template: null,
-				outputLocation: ["out.html"],
-				replacements: [],
+				...basicRunTaskOptions,
+				config: {
+					template: null,
+					outputLocation: ["out.html"],
+					replacements: [],
+				},
 			});
 		}, Error, "Failed to run task, no template provided");
 	},
@@ -143,9 +167,12 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await task.runTask({
-				template: BASIC_ASSET_UUID,
-				outputLocation: ["out.html"],
-				replacements: [],
+				...basicRunTaskOptions,
+				config: {
+					template: BASIC_ASSET_UUID,
+					outputLocation: ["out.html"],
+					replacements: [],
+				},
 			});
 		}, Error, "Failed to run task, template asset not found");
 	},

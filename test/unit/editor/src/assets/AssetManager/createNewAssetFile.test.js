@@ -12,7 +12,7 @@ Deno.test({
 
 		const createNewLiveAssetDataSpy = spy(ProjectAssetType.prototype, "createNewLiveAssetData");
 
-		const projectAsset = await assetManager.createNewAsset(["path", "to", "newAsset.json"], BASIC_PROJECTASSETTYPE);
+		const projectAsset = await assetManager.createNewAsset(["path", "to", "dir"], BASIC_PROJECTASSETTYPE);
 
 		assertExists(projectAsset);
 		assertSpyCalls(createNewLiveAssetDataSpy, 1);
@@ -20,12 +20,12 @@ Deno.test({
 });
 
 Deno.test({
-	name: "createNewAsset() throws when the asset type doesn't exist",
+	name: "createNewAssetFile() throws when the asset type doesn't exist",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
 		await assertRejects(async () => {
-			await assetManager.createNewAsset(["path", "to", "newAsset.json"], "nonExistentAssetType");
+			await assetManager.createNewAsset(["path", "to", "dir"], "nonExistentAssetType");
 		}, Error, `Failed to create asset with type "nonExistentAssetType" because no such type is registered.`);
 	},
 });

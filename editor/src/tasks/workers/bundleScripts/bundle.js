@@ -5,15 +5,25 @@ import resolveUrlObjects from "../../../../deps/rollup-plugin-resolve-url-object
 const rollup = /** @type {import("rollup")} */ (transpiledRollup);
 
 /**
- * @param {import("../../task/TaskBundleScripts.js").TaskBundleScriptsConfig} config
+ * @typedef BundleOptions
+ * @property {import("../../task/TaskBundleScripts.js").TaskBundleScriptsConfig} config
+ * @property {number} readScriptCallbackId
+ */
+
+/**
+ * @param {BundleOptions} options
  * @param {import("./mod.js").BundleScriptsMessenger} messenger
  */
-export async function bundle(config, messenger) {
+export async function bundle({config, readScriptCallbackId}, messenger) {
 	const input = config.scriptPaths.map(p => p.join("/"));
 
 	/** @type {import("./resolvePlugin.js").GetScriptContentFn} */
 	const getScriptContentFn = async path => {
-		return await messenger.send("getScriptContent", path);
+		const result = await messenger.send("getScriptContent", path, readScriptCallbackId);
+		if (result == null) {
+			throw new Error(`Failed to read script ${path}`);
+		}
+		return result;
 	};
 
 	const bundle = await rollup.rollup({
@@ -26,6 +36,9 @@ export async function bundle(config, messenger) {
 		sourcemap: true,
 	});
 
+	/** @type {import("../../task/Task.js").RunTaskCreateAssetData[]} */
+	const writeAssets = [];
+
 	for (const chunkOrAsset of rollupOutput) {
 		if (chunkOrAsset.type == "chunk") {
 			const chunk = chunkOrAsset;
@@ -34,13 +47,27 @@ export async function bundle(config, messenger) {
 			if (chunk.map) {
 				const sourcemapName = chunk.fileName + ".map";
 				const sourcemapPath = [...config.outputPath, sourcemapName];
-				await messenger.send("writeText", sourcemapPath, JSON.stringify(chunk.map));
+				writeAssets.push({
+					path: sourcemapPath,
+					assetType: "renda:javascript",
+					fileData: JSON.stringify(chunk.map),
+				});
 
 				code += "\n\n//# sourceMappingURL=./" + sourcemapName;
 			}
 
-			await messenger.send("writeText", codeOutputPath, code);
+			writeAssets.push({
+				path: codeOutputPath,
+				assetType: "renda:javascript",
+				fileData: code,
+			});
 		}
 		// todo: handle chunkOrAsset.type == "asset"
 	}
+
+	/** @type {import("../../task/Task.js").RunTaskReturn} */
+	const result = {
+		writeAssets,
+	};
+	return result;
 }

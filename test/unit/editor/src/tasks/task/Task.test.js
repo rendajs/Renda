@@ -13,7 +13,7 @@ Deno.test({
 
 		const task = new ExtendedTask(mockEditor);
 		await assertRejects(async () => {
-			await task.runTask({});
+			await task.runTask(/** @type {any} */ ({}));
 		}, Error, `Task "ExtendedTask" does not implement runTask().`);
 
 		task.worker.terminate();

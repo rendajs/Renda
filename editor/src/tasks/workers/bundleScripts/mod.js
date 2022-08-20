@@ -7,7 +7,7 @@ import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 /** @type {TypedMessenger<import("../../task/TaskBundleScripts.js").BundleScriptsMessengerResponseHandlers, BundleScriptsMessengerResponseHandlers>} */
 const messenger = new TypedMessenger();
 messenger.setSendHandler(data => {
-	globalThis.postMessage(data);
+	globalThis.postMessage(data.sendData);
 });
 globalThis.addEventListener("message", e => {
 	messenger.handleReceivedMessage(e.data);
@@ -15,10 +15,10 @@ globalThis.addEventListener("message", e => {
 
 const responseHandlers = {
 	/**
-	 * @param {import("../../task/TaskBundleScripts.js").TaskBundleScriptsConfig} config
+	 * @param {import("./bundle.js").BundleOptions} options
 	 */
-	bundle: async config => {
-		return await bundle(config, messenger);
+	bundle: async options => {
+		return await bundle(options, messenger);
 	},
 };
 

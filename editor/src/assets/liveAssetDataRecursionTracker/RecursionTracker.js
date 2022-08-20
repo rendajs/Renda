@@ -137,13 +137,13 @@ export class RecursionTracker {
 	/**
 	 * @template {GetLiveAssetDataOptions} [T = {}]
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
-	 * @param {(liveAsset: import("../AssetManager.js").AssertionOptionsToLiveAsset<T>?) => void} cb
+	 * @param {(liveAsset: import("../AssetManager.js").AssetAssertionOptionsToLiveAsset<T>?) => void} cb
 	 * @param {T} options
 	 */
 	getLiveAsset(uuid, cb, options = /** @type {T} */ ({})) {
 		this.getLiveAssetData(uuid, liveAssetData => {
 			const liveAsset = liveAssetData?.liveAsset ?? null;
-			const castLiveAsset = /** @type {import("../AssetManager.js").AssertionOptionsToLiveAsset<T>?} */ (liveAsset);
+			const castLiveAsset = /** @type {import("../AssetManager.js").AssetAssertionOptionsToLiveAsset<T>?} */ (liveAsset);
 			cb(castLiveAsset);
 		}, options);
 	}

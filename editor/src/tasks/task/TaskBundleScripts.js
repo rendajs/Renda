@@ -1,4 +1,5 @@
 import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "./Task.js";
 
@@ -9,29 +10,7 @@ import {Task} from "./Task.js";
  */
 
 /**
- * Generates response handlers for requests going from the worker to the main thread.
- * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
- */
-function getResponseHandlers(fileSystem) {
-	return {
-		/**
-		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
-		 */
-		async getScriptContent(filePath) {
-			return await fileSystem.readText(filePath);
-		},
-		/**
-		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
-		 * @param {string} text
-		 */
-		async writeText(filePath, text) {
-			return await fileSystem.writeText(filePath, text);
-		},
-	};
-}
-
-/**
- * @typedef {ReturnType<typeof getResponseHandlers>} BundleScriptsMessengerResponseHandlers
+ * @typedef {ReturnType<TaskBundleScripts["getResponseHandlers"]>} BundleScriptsMessengerResponseHandlers
  */
 
 /**
@@ -46,6 +25,10 @@ export class TaskBundleScripts extends Task {
 
 	/** @type {TypedMessenger<import("../workers/bundleScripts/mod.js").BundleScriptsMessengerResponseHandlers, BundleScriptsMessengerResponseHandlers>} */
 	#messenger;
+
+	#lastReadScriptCallbackId = 0;
+	/** @type {Map<number, (path: import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath) => Promise<string | null>>} */
+	#readScriptCallbacks = new Map();
 
 	static configStructure = createTreeViewStructure({
 		scriptPaths: {
@@ -73,7 +56,7 @@ export class TaskBundleScripts extends Task {
 
 		this.#messenger = new TypedMessenger();
 		this.#messenger.setSendHandler(data => {
-			this.worker.postMessage(data);
+			this.worker.postMessage(data.sendData);
 		});
 		this.worker.addEventListener("message", event => {
 			this.#messenger.handleReceivedMessage(event.data);
@@ -82,13 +65,47 @@ export class TaskBundleScripts extends Task {
 		if (!fileSystem) {
 			throw new Error("Failed to create Bundle Scripts task: no project file system.");
 		}
-		this.#messenger.setResponseHandlers(getResponseHandlers(fileSystem));
+		this.#messenger.setResponseHandlers(this.getResponseHandlers());
 	}
 
 	/**
-	 * @param {TaskBundleScriptsConfig} config
+	 * @param {import("./Task.js").RunTaskOptions<TaskBundleScriptsConfig>} options
 	 */
-	async runTask(config) {
-		await this.#messenger.send("bundle", config);
+	async runTask({config, readAssetFromPath}) {
+		/**
+		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+		 */
+		const readScriptCallback = async path => {
+			return await readAssetFromPath(path, {
+				assertAssetType: ProjectAssetTypeJavascript,
+			});
+		};
+		const readScriptCallbackId = this.#lastReadScriptCallbackId++;
+		this.#readScriptCallbacks.set(readScriptCallbackId, readScriptCallback);
+		const result = await this.#messenger.send("bundle", {config, readScriptCallbackId});
+		this.#readScriptCallbacks.delete(readScriptCallbackId);
+
+		return result;
+	}
+
+	/**
+	 * Generates response handlers for requests going from the worker to the main thread.
+	 * This is a separate method so that we can use the return type for the TypedMessenger.
+	 */
+	getResponseHandlers() {
+		return {
+			/**
+			 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
+			 * @param {number} readScriptCallbackId
+			 */
+			getScriptContent: async (filePath, readScriptCallbackId) => {
+				const readScriptCallback = this.#readScriptCallbacks.get(readScriptCallbackId);
+				if (!readScriptCallback) {
+					throw new Error("Failed to get script content. Callback has already been destroyed.");
+				}
+				const result = await readScriptCallback(filePath);
+				return result;
+			},
+		};
 	}
 }

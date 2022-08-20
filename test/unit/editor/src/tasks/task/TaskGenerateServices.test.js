@@ -88,12 +88,25 @@ function basicSetup({
 	const task = new TaskGenerateServices(mockEditor);
 
 	/**
-	 * @param {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} runTaskResult
 	 */
-	async function initializeServices(path) {
-		let text = await fileSystem.readText(path);
-		text = text.replaceAll(`"renda"`, `"${blobModuleUrl}"`);
-		const blob = new Blob([text], {type: "text/javascript"});
+	function getScriptContent(runTaskResult) {
+		assertExists(runTaskResult.writeAssets);
+		assertEquals(runTaskResult.writeAssets.length, 1);
+		const [writeAsset] = runTaskResult.writeAssets;
+		assertEquals(writeAsset.path, ["out.js"]);
+		assertEquals(writeAsset.assetType, "renda:javascript");
+		assert(typeof writeAsset.fileData == "string");
+		return writeAsset.fileData;
+	}
+
+	/**
+	 * @param {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} runTaskResult
+	 */
+	async function initializeServices(runTaskResult) {
+		let code = getScriptContent(runTaskResult);
+		code = code.replaceAll(`"renda"`, `"${blobModuleUrl}"`);
+		const blob = new Blob([code], {type: "text/javascript"});
 		const url = URL.createObjectURL(blob);
 		try {
 			const module = await import(url);
@@ -110,35 +123,43 @@ function basicSetup({
 		fileSystem,
 		mockFileSystem,
 		mockEditor,
+		getScriptContent,
 		initializeServices,
 	};
+}
+
+/**
+ * @param {Object} options
+ * @param {import("../../../../../../src/mod.js").UuidString[]} [options.usedAssets]
+ */
+function createRunTaskOptions({
+	usedAssets = [],
+} = {}) {
+	/** @type {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").TaskGenerateServicesConfig>} */
+	const options = {
+		config: {
+			outputLocation: ["out.js"],
+			usedAssets,
+		},
+		needsAllGeneratedAssets: false,
+		async readAssetFromPath(path, opts) {
+			return null;
+		},
+		async readAssetFromUuid(uuid, opts) {
+			return null;
+		},
+	};
+	return options;
 }
 
 Deno.test({
 	name: "Basic config",
 	async fn() {
 		const {task, initializeServices} = basicSetup();
-		await task.runTask({
-			outputLocation: ["out.js"],
-			usedAssets: [],
-		});
+		const runTaskResult = await task.runTask(createRunTaskOptions());
 
-		const result = await initializeServices(["out.js"]);
+		const result = await initializeServices(runTaskResult);
 		assertExists(result);
-	},
-});
-
-Deno.test({
-	name: "Throws when there is no filesystem",
-	async fn() {
-		const {task, mockEditor} = basicSetup();
-		mockEditor.projectManager.currentProjectFileSystem = null;
-		await assertRejects(async () => {
-			await task.runTask({
-				outputLocation: ["out.js"],
-				usedAssets: [],
-			});
-		}, Error, "Failed to run task: no project file system.");
 	},
 });
 
@@ -148,10 +169,7 @@ Deno.test({
 		const {task, mockEditor} = basicSetup();
 		mockEditor.projectManager.assetManager = null;
 		await assertRejects(async () => {
-			await task.runTask({
-				outputLocation: ["out.js"],
-				usedAssets: [],
-			});
+			await task.runTask(createRunTaskOptions({}));
 		}, Error, "Failed to run task: no asset manager.");
 	},
 });
@@ -160,12 +178,11 @@ Deno.test({
 	name: "Config with a used asset",
 	async fn() {
 		const {task, initializeServices} = basicSetup();
-		await task.runTask({
-			outputLocation: ["out.js"],
+		const runTaskResult = await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID],
-		});
+		}));
 
-		const result = await initializeServices(["out.js"]);
+		const result = await initializeServices(runTaskResult);
 		assertExists(result.assetLoader);
 		assertEquals(result.assetLoader.registeredLoaderTypes.length, 1);
 	},
@@ -174,15 +191,14 @@ Deno.test({
 Deno.test({
 	name: "Config with a specific module specifier",
 	async fn() {
-		const {task, fileSystem} = basicSetup({
+		const {task, getScriptContent} = basicSetup({
 			projectAssetTypeModuleSpecifier: "module-specifier",
 		});
-		await task.runTask({
-			outputLocation: ["out.js"],
+		const runTaskResult = await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID],
-		});
+		}));
 
-		const result = await fileSystem.readText(["out.js"]);
+		const result = getScriptContent(runTaskResult);
 		assert(result.includes("module-specifier"));
 	},
 });
@@ -202,17 +218,16 @@ Deno.test({
 				},
 			},
 		});
-		await task.runTask({
-			outputLocation: ["out.js"],
+		const runTaskResult = await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID, SECOND_ASSET_UUID],
-		});
+		}));
 
 		assertExists(usedAssets);
 		assertEquals(usedAssets.length, 2);
 		assertStrictEquals(usedAssets[0], basicAsset);
 		assertStrictEquals(usedAssets[1], secondAsset);
 
-		const result = await initializeServices(["out.js"]);
+		const result = await initializeServices(runTaskResult);
 		assertExists(result.assetLoader);
 		assertEquals(result.assetLoader.registeredLoaderTypes.length, 1);
 		assertExists(result.instanceIdentifier);
