@@ -88,5 +88,5 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage/lcov.info
+          files: ./coverage/cov.lcov
           flags: unittests
