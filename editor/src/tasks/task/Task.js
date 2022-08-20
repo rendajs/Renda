@@ -4,14 +4,6 @@
 
 /**
  * @typedef RunTaskReturn
- * @property {import("../../../../src/mod.js").UuidString[]} [dependencyAssets] A list of asset uuids that this task depends on.
- * In general you want to use {@linkcode RunTaskOptions.readAssetFromPath} or {@linkcode RunTaskOptions.readAssetFromUuid} to get asset data.
- * But if you want to use read asset data in more complicated ways, use this to notify the task manager which assets you have also used.
- * This is used for caching, watching and determining which other tasks need to be run before this one.
- * Before a task is run, all dependency assets are checked to see if they have been modified, if not the task will not run.
- * When a task is being run in watch mode, the dependency assets are continuously checked for changes.
- * If other tasks report that they are responsible for generating these assets using either `writeAssets` or `touchedAssets`,
- * These tasks will run first before this one when required.
  * @property {RunTaskCreateAssetData[]} [writeAssets] A list of assets that this task should create when done running.
  * This is useful if you want to modify files in a very basic way. The assets will be created and written to the output location.
  * If the task is run programmatically, nothing is written and the program running the task can handle the result accordingly.
@@ -39,11 +31,9 @@
  * @property {boolean} needsAllGeneratedAssets If true, running this task was triggered programmatically.
  * In this case the task should not write any assets to disk and return the changes in `writeAssets` instead.
  * @property {import("../TaskManager.js").ReadAssetFromPathSignature} readAssetFromPath Reads an asset from the file system.
- * And marks the asset as a dependency of this task. If you need more control over reading assets you can read them manually
- * but be sure to mark files as a dependency using {@linkcode RunTaskReturn.dependencyAssets}.
+ * If the asset was built by another task, the other task will run first in order to update the asset.
  * @property {import("../TaskManager.js").ReadAssetFromUuidSignature} readAssetFromUuid Reads an asset from the file system.
- * And marks the asset as a dependency of this task. If you need more control over reading assets you can read them manually
- * but be sure to mark files as a dependency using {@linkcode RunTaskReturn.dependencyAssets}.
+ * If the asset was built by another task, the other task will run first in order to update the asset.
  */
 
 /**
