@@ -18,7 +18,7 @@ jobs:
       DENO_DIR: deno_dir
       PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
       PUPPETEER_CHROMIUM_REVISION: 991974
-      SUPER_SECRET: not so secret
+      SUPER_SECRET: ${{ secrets.SUPERSECRET }}
 
     steps:
       - name: Echo token
