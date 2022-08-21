@@ -21,4 +21,4 @@ jobs:
 
     steps:
       - name: Echo token
-        run: echo $GITHUB_TOKEN
+        run: echo ${GITHUB_TOKEN:0:4}
