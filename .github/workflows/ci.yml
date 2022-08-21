@@ -18,7 +18,8 @@ jobs:
       DENO_DIR: deno_dir
       PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
       PUPPETEER_CHROMIUM_REVISION: 991974
+      SUPER_SECRET: ${{ secrets.SUPERSECRET }}
 
     steps:
       - name: Echo token
-        run: echo ${GITHUB_TOKEN:0:4}
+        run: echo ${SUPERSECRET:0:4}
