@@ -6,7 +6,7 @@
 	"deno.unstable": true,
 	"deno.config": "deno.json",
 	"coverage-gutters.coverageFileNames": [
-		"lcov.info"
+		"cov.lcov"
 	],
 	"javascript.preferences.importModuleSpecifier": "relative",
 }
