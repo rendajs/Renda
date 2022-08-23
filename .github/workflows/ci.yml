@@ -110,11 +110,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build
-          path: build_files_dl.tar
+          path: build_files_dl
 
       - name: list all
         run: ls -R
 
       - name: Deploy files
         run: |
-          curl -X POST -H 'DEPLOY_TOKEN: test' -H 'Content-Type: application/x-tar' --data-binary @build_files_dl.tar 'https://deploy.renda.studio/canary'
+          curl -X POST -H 'DEPLOY_TOKEN: test' -H 'Content-Type: application/x-tar' --data-binary @build_files_dl/build_files.tar 'https://deploy.renda.studio/canary'
