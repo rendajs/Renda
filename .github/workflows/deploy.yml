@@ -1,0 +1,21 @@
+name: deploy canary
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+    branches:
+      main
+
+jobs:
+  deploy-canary:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: deploy_canary
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with: build
+
+      - name: List downloaded artifact structure
+        run: ls -R
