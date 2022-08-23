@@ -12,6 +12,9 @@
 		"36996838-4f7e-4be3-9c18-49c4a9db00be": {
 			"path": ["DefaultAssets", "Default Vertex State.json"]
 		},
+		"264a38b9-4e43-4261-b57d-28a778a12dd9": {
+			"path": ["buildSupport", "basicIndex.html"]
+		},
 		"873ade41-8986-4371-b2a3-5bc1aff9d938": {
 			"path": ["DefaultAssets", "Default Material", "Default Material Map.json"]
 		},

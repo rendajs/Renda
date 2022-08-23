@@ -6,6 +6,7 @@ import {createMockProjectAssetTypeManager} from "../shared/createMockProjectAsse
 export const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 export const NONEXISTENT_ASSET_UUID = "NONEXISTENT_ASSET_UUID";
 export const BASIC_ASSET_PATH = ["path", "to", "asset.json"];
+export const NON_EXISTENT_ASSET_PATH = ["path", "to", "nonexistent", "asset.json"];
 export const BASIC_PROJECTASSETTYPE = "test:basicprojectassettype";
 export const NONEXISTENT_PROJECTASSETTYPE = "test:nonexistentprojectassettype";
 export const ASSET_SETTINGS_PATH = ["ProjectSettings", "assetSettings.json"];

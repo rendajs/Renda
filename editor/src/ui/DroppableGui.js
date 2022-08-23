@@ -4,6 +4,7 @@ import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
 import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/ContentWindowBuiltInAssets.js";
 import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
+import {ProjectAssetType} from "../assets/projectAssetType/ProjectAssetType.js";
 
 /**
  * @typedef DroppableGuiDependencies
@@ -18,9 +19,11 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @template {new (...args: any) => any} T
  * @typedef {Object} DroppableGuiOptionsType
  * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstance()
- * @property {T[]} [supportedAssetTypes] A list of constructors from live assets that this droppable can accept.
- * Note that this is not a list of ProjectAssetType constructors, but rather a list of constructors from live assets.
- * So for instance, if you want to accept `ProjectAssetTypeMaterial`, you should use `supportedAssetTypes: [Material]`.
+ * @property {T[]} [supportedAssetTypes] A list of asset types this droppable can accept. When an asset is dragged that
+ * is not in this list, no hover feedback is shown and dropping does nothing.
+ * You can add either ProjectAssetType constructors or the constructors from live assets to this list.
+ * So for instance, if you want to accept `ProjectAssetTypeMaterial`, you can use either `supportedAssetTypes: [Material]`
+ * or `supportedAssetTypes: [ProjectAssetTypeMaterial]`
  * By default this is an empty array, which means that this droppable accepts all asset types.
  * @property {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  * When set, this will be the value upon creation. When loading serializable data, this value is set when the
@@ -63,9 +66,9 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * @template {boolean} [U = false]
  * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
  * @typedef {V extends "script" ?
- * 		T? :
+ * 		GetLiveAssetFromProjectAssetTypeReturnType<T>? :
  * 		U extends true ?
- * 			T? :
+ * 			GetLiveAssetFromProjectAssetTypeReturnType<T>? :
  * 			import("../../../src/util/mod.js").UuidString?} DroppableGuiGetValueReturn
  */
 
@@ -86,6 +89,16 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  */
 
 /**
+ * Converts the generic type of a droppable gui to the live asset return type.
+ * I.e. if the generic type is a live asset constructor, this will simply return that constructor,
+ * but if the generic type is a ProjectAssetType, then its live asset constructor will be returned.
+ * @template T
+ * @typedef {T extends import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any> ?
+ * 	TLiveAsset :
+ * T} GetLiveAssetFromProjectAssetTypeReturnType
+ */
+
+/**
  * @template TDroppableInstance
  * @template TOpts
  * @typedef {TOpts extends DroppableGuiGetValueOptionsNoConstraints<infer T, infer U> ?
@@ -94,7 +107,7 @@ import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWi
  * 				import("./propertiesTreeView/types.js").ReplaceUnknown<U, "default"> extends infer UDefaulted ?
  * 					UDefaulted extends import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose ?
  * 						TDroppableInstance extends DroppableGui<infer TAssetType> ?
- * 							DroppableGuiGetValueReturn<TAssetType, TDefaulted, UDefaulted> :
+ * 							DroppableGuiGetValueReturn<GetLiveAssetFromProjectAssetTypeReturnType<TAssetType>, TDefaulted, UDefaulted> :
  * 							never :
  * 						never :
  * 					never :
@@ -421,14 +434,18 @@ export class DroppableGui {
 	}
 
 	/**
-	 * Turns the provided supported asset types (which are live asset constructors)
-	 * into actual ProjectAssetTypes.
+	 * Turns the provided supported asset types that are live asset constructors into actual ProjectAssetTypes.
+	 * Entries that are already ProjectAssetTypes are left as is.
 	 * @returns {Generator<typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>}
 	 */
 	*getProjectAssetTypeFromSupported() {
 		for (const liveAssetConstructor of this.supportedAssetTypes) {
-			for (const projectAssetType of this.projectAssetTypeManager.getAssetTypesForLiveAssetConstructor(liveAssetConstructor)) {
-				yield projectAssetType;
+			if (liveAssetConstructor == ProjectAssetType) {
+				yield liveAssetConstructor;
+			} else {
+				for (const projectAssetType of this.projectAssetTypeManager.getAssetTypesForLiveAssetConstructor(liveAssetConstructor)) {
+					yield projectAssetType;
+				}
 			}
 		}
 	}
@@ -585,8 +602,12 @@ export class DroppableGui {
 
 			if (dragData.draggingProjectAssetData.dataPopulated) {
 				const assetType = dragData.draggingProjectAssetData.assetType;
-				if (assetType && assetType.expectedLiveAssetConstructor) {
-					return this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor);
+				if (assetType) {
+					if (this.supportedAssetTypes.includes(assetType)) {
+						return true;
+					} else if (assetType.expectedLiveAssetConstructor && this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor)) {
+						return true;
+					}
 				}
 			}
 		}

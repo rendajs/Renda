@@ -2,6 +2,15 @@ import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructu
 import {Task} from "./Task.js";
 
 /**
+ * @fileoverview A task that generates a services script that can be used by the user
+ * to easily perform some actions that would otherwise require boilerplate code.
+ * The generated script mainly takes care of creating an asset loader that registers
+ * the required asset types. The generation of the script can be configured to only
+ * import modules that are actually necessary, that way tree shaking can get rid of
+ * unused code.
+ */
+
+/**
  * @typedef TaskGenerateServicesConfig
  * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation
  * @property {import("../../../../src/mod.js").UuidString[]} usedAssets A list of
@@ -11,6 +20,7 @@ import {Task} from "./Task.js";
  */
 
 /**
+ * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [TProjectAssetType = any]
  * @typedef AssetLoaderTypeImportConfig
  * @property {string} identifier The identifier to import and pass to `registerLoaderType`.
  * @property {string} [moduleSpecifier] The module specifier to import from, this defaults to "renda".
@@ -27,20 +37,26 @@ import {Task} from "./Task.js";
  * @property {boolean} [returnInstanceIdentifier] When set to true (which is the default), the created variable
  * from `instanceIdentifier` will be returned from the `initializeServices()` function.
  * This only has an effect when `instanceIdentifier` is set.
- * @property {(ctx: AssetLoaderTypeImportConfigExtraContext) => (Promise<string> | string)} [extra]
+ * @property {(ctx: AssetLoaderTypeImportConfigExtraContext<TProjectAssetType>) => (Promise<string> | string)} [extra]
  * A function that gets called in which you can add extra content below the registration of the loader type.
  */
 
 /**
+ * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
  * @typedef AssetLoaderTypeImportConfigExtraContext
+ * @property {import("../../Editor.js").Editor} editor The editor instance.
  * @property {(identifier: string, moduleSpecifier: string) => void} addImport Call this function to add extra
  * imports to the top of the file. For example:
  * ```js
  * ctx.addImport("ShaderBuilder", "renda");
  * ```
  * will add `import {ShaderBuilder} from "renda";` to the top of the file.
+ * @property {import("../../assets/ProjectAsset.js").ProjectAsset<TProjectAssetType>[]} usedAssets A list of assets that will have
+ * been provided by the user in the task config. This list only contains the asset that are of the type related
+ * to the current ProjectAssetType config.
  */
 
+/** @extends {Task<TaskGenerateServicesConfig>} */
 export class TaskGenerateServices extends Task {
 	static uiName = "Generate Services";
 	static type = "renda:generateServices";
@@ -61,24 +77,25 @@ export class TaskGenerateServices extends Task {
 	});
 
 	/**
-	 * @param {TaskGenerateServicesConfig} config
+	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateServicesConfig>} options
 	 */
-	async runTask(config) {
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
-		if (!fileSystem) {
-			throw new Error("Failed to run task: no project file system.");
-		}
+	async runTask({config}) {
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task: no asset manager.");
 		}
 
-		/** @type {Set<import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier>} */
-		const assetTypes = new Set();
+		/** @type {Map<import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier, Set<import("../../assets/ProjectAsset.js").ProjectAssetAny>>} */
+		const assetTypes = new Map();
 		for await (const uuid of assetManager.collectAllAssetReferences(config.usedAssets)) {
 			const asset = await assetManager.getProjectAssetFromUuid(uuid);
 			if (asset?.assetType) {
-				assetTypes.add(asset.assetType);
+				let assetsSet = assetTypes.get(asset.assetType);
+				if (!assetsSet) {
+					assetsSet = new Set();
+					assetTypes.set(asset.assetType, assetsSet);
+				}
+				assetsSet.add(asset);
 			}
 		}
 
@@ -110,7 +127,7 @@ export class TaskGenerateServices extends Task {
 		/** @type {Set<string>} */
 		const collectedExportIdentifiers = new Set();
 
-		for (const assetTypeIdentifier of assetTypes) {
+		for (const [assetTypeIdentifier, assets] of assetTypes) {
 			const assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetTypeIdentifier);
 			const config = assetType?.assetLoaderTypeImportConfig;
 			if (config) {
@@ -119,7 +136,9 @@ export class TaskGenerateServices extends Task {
 				let extra = "";
 				if (config.extra) {
 					extra = await config.extra({
+						editor: this.editorInstance,
 						addImport,
+						usedAssets: Array.from(assets),
 					});
 				}
 				collectedAssetLoaderTypes.set(config.identifier, {
@@ -175,6 +194,16 @@ export class TaskGenerateServices extends Task {
 
 		code += "}\n";
 
-		await fileSystem.writeText(config.outputLocation, code);
+		/** @type {import("./Task.js").RunTaskReturn} */
+		const result = {
+			writeAssets: [
+				{
+					path: config.outputLocation,
+					assetType: "renda:javascript",
+					fileData: code,
+				},
+			],
+		};
+		return result;
 	}
 }

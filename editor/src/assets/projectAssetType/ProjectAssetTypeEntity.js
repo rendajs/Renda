@@ -203,9 +203,41 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		return objectToBinary(assetData, AssetLoaderTypeEntity.entityBinaryFormat);
 	}
 
-	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig<ProjectAssetTypeEntity>} */
 	static assetLoaderTypeImportConfig = {
 		identifier: "AssetLoaderTypeEntity",
+		instanceIdentifier: "entityLoader",
+		async extra(ctx) {
+			ctx.addImport("ComponentTypeManager", "renda");
+			/** @type {Set<typeof import("../../../../src/mod.js").Component>} */
+			const usedComponentTypes = new Set();
+			for (const asset of ctx.usedAssets) {
+				const entity = await asset.getLiveAsset();
+				const generator = entity.traverseDown({
+					filter: child => {
+						const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
+						const uuid = castChild[entityAssetRootUuidSymbol];
+						return !uuid || uuid == asset.uuid;
+					},
+				});
+				for (const child of generator) {
+					for (const component of child.components) {
+						const castComponent = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
+						usedComponentTypes.add(castComponent);
+					}
+				}
+			}
+
+			let extraText = `const componentTypeManager = new ComponentTypeManager();
+entityLoader.setComponentTypeManager(componentTypeManager);`;
+
+			for (const componentType of usedComponentTypes) {
+				ctx.addImport(componentType.name, "renda");
+				extraText += `\ncomponentTypeManager.registerComponent(${componentType.name});`;
+			}
+
+			return extraText;
+		},
 	};
 
 	/**

@@ -43,6 +43,7 @@ export function createMockProjectAsset({
 		async readAssetData() {
 			return readAssetDataReturnValue;
 		},
+		async writeAssetData(fileData) {},
 		addEmbeddedChildLiveAsset(key, liveAsset) {
 			previousEmbeddedLiveAssets.set(key, liveAsset);
 		},

@@ -27,10 +27,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 				text: "Run Task",
 				onClick: async () => {
 					for (const asset of this.currentSelection) {
-						const assetContent = await asset.readAssetData();
-						this.editorInstance.taskManager.runTask({
-							taskFileContent: assetContent,
-						});
+						this.editorInstance.taskManager.runTask(asset);
 					}
 				},
 			},

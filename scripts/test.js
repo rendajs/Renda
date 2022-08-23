@@ -167,7 +167,7 @@ if (needsCoverage) {
 		await p.status();
 	}
 
-	console.log("Generating lcov.info...");
+	console.log("Generating cov.lcov...");
 	const includeRegex = `^file://${Deno.cwd()}/(src|editor/src|editor/devSocket/src)`;
 	const coverageProcess = Deno.run({
 		cmd: ["deno", "coverage", DENO_COVERAGE_DIR, "--lcov", `--include=${includeRegex}`],
@@ -178,14 +178,14 @@ if (needsCoverage) {
 	if (!coverageStatus.success) {
 		Deno.exit(coverageStatus.code);
 	}
-	await Deno.writeFile(".coverage/lcov.info", lcov);
+	await Deno.writeFile(".coverage/cov.lcov", lcov);
 
 	if (needsHtmlCoverageReport) {
 		console.log("Generating HTML coverage report...");
 		let genHtmlProcess = null;
 		try {
 			genHtmlProcess = Deno.run({
-				cmd: ["genhtml", "-o", ".coverage/html", ".coverage/lcov.info"],
+				cmd: ["genhtml", "-o", ".coverage/html", ".coverage/cov.lcov"],
 			});
 		} catch {
 			console.error("%cERROR%c Failed to generate html report, is lcov not installed?", "color: red", "");

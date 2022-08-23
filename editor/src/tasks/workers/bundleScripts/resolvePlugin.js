@@ -65,13 +65,12 @@ export function resolvePlugin(getScriptContentFn) {
 			/** @type {ScriptType} */
 			const scriptType = moduleInfo?.meta?.editorResolve?.scriptType ?? null;
 			if (scriptType == "project") {
-				try {
-					return await getScriptContentFn(id.split("/"));
-				} catch (e) {
-					console.error("unable to read file at " + id + " it may not exist.");
-				}
+				return await getScriptContentFn(id.split("/"));
 			} else if (scriptType == "engine") {
 				const resp = await fetch(id);
+				if (!resp.ok) {
+					throw new Error(`Failed to load engine script at ${id}`);
+				}
 				return await resp.text();
 			}
 			return null;

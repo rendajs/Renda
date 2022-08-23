@@ -11,10 +11,34 @@ import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorI
  * @property {import("../../../../src/util/mod.js").UuidString?} assetUuid Is null when data hasn't been populated yet.
  */
 
+/**
+ * @typedef TreeViewData
+ * @property {string[]} path
+ * @property {boolean} isDir
+ */
+
 export class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = "project";
 	static contentWindowUiName = "Project Files";
 	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";
+
+	/** @type {Set<import("../../assets/AssetManager.js").AssetManager>} */
+	#registeredDismissedManagers = new Set();
+
+	#boundOnUserDismissedPermission;
+
+	/**
+	 * A weakmap of data for each TreeView. Each data item is used for storing
+	 * certain properties related to the file or directory that the TreeView represents.
+	 * Data for a TreeView can be obtained using `#getTreeViewData`.
+	 * @type {WeakMap<TreeView, TreeViewData>}
+	 */
+	#treeViewDatas = new WeakMap();
+
+	/** @type {Set<symbol>} */
+	#updatingTreeViewSyms = new Set();
+	/** @type {Set<() => void>} */
+	#updatingTreeViewCbs = new Set();
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
@@ -117,7 +141,10 @@ export class ContentWindowProject extends ContentWindow {
 		this.draggingAssetUuids = new Map();
 
 		this.treeView = new TreeView();
+		this.treeView.alwaysShowArrow = true;
+		this.treeView.collapsed = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
+		this.treeView.addEventListener("collapsedchange", this.onTreeViewCollapsedChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		this.treeView.addEventListener("dragend", this.onTreeViewDragEnd.bind(this));
@@ -126,6 +153,13 @@ export class ContentWindowProject extends ContentWindow {
 		this.treeView.addEventListener("rearrange", this.onTreeViewRearrange.bind(this));
 		this.treeView.addEventListener("dblclick", this.onTreeViewDblClick.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
+
+		this.#boundOnUserDismissedPermission = this.onUserDismissedPermission.bind(this);
+
+		this.#treeViewDatas.set(this.treeView, {
+			isDir: true,
+			path: [],
+		});
 
 		this.contentEl.appendChild(this.treeView.el);
 
@@ -150,6 +184,8 @@ export class ContentWindowProject extends ContentWindow {
 
 		this.boundExternalChange = this.externalChange.bind(this);
 		this.editorInstance.projectManager.onExternalChange(this.boundExternalChange);
+
+		this.expandRootOnLoad();
 	}
 
 	destructor() {
@@ -216,7 +252,14 @@ export class ContentWindowProject extends ContentWindow {
 			updatePath = path;
 		}
 		if (treeView) {
-			await this.updateTreeViewRecursive(treeView, updatePath);
+			const updatingSym = Symbol("updateTreeView()");
+			this.#updatingTreeViewSyms.add(updatingSym);
+			try {
+				await this.updateTreeViewRecursive(treeView, updatePath);
+			} finally {
+				this.#updatingTreeViewSyms.delete(updatingSym);
+				this.#fireTreeViewUpdateWhenDone();
+			}
 		}
 	}
 
@@ -247,8 +290,16 @@ export class ContentWindowProject extends ContentWindow {
 			treeView = childTreeView;
 			if (updateAll || treeView.collapsed) {
 				const path = end.slice(0, i + 1);
-				if (!treeView.alwaysShowArrow) return; // if the TreeView is not a directory
-				await this.updateTreeViewRecursive(treeView, [...start, ...path]);
+				const treeViewData = this.#getTreeViewData(treeView);
+				if (!treeViewData.isDir) return;
+				const updatingSym = Symbol("updateTreeViewRange()");
+				this.#updatingTreeViewSyms.add(updatingSym);
+				try {
+					await this.updateTreeViewRecursive(treeView, [...start, ...path]);
+				} finally {
+					this.#updatingTreeViewSyms.delete(updatingSym);
+					this.#fireTreeViewUpdateWhenDone();
+				}
 			}
 		}
 	}
@@ -280,11 +331,9 @@ export class ContentWindowProject extends ContentWindow {
 				const newTreeView = treeView.addChildAtIndex(null, insertionIndex);
 				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.alwaysShowArrow = true;
-				newTreeView.onCollapsedChange(() => {
-					if (!newTreeView.collapsed) {
-						const newPath = [...path, dir];
-						this.updateTreeViewRecursive(newTreeView, newPath);
-					}
+				this.#treeViewDatas.set(newTreeView, {
+					path: [...path, dir],
+					isDir: true,
 				});
 				newTreeView.name = dir;
 				newTreeView.collapsed = true;
@@ -294,6 +343,10 @@ export class ContentWindowProject extends ContentWindow {
 			if (!treeView.includes(file)) {
 				const insertionIndex = childOrder.indexOf(file);
 				const newTreeView = treeView.addChildAtIndex(null, insertionIndex);
+				this.#treeViewDatas.set(newTreeView, {
+					path: [...path, file],
+					isDir: false,
+				});
 				this.setChildTreeViewProperties(newTreeView);
 				newTreeView.name = file;
 			}
@@ -306,6 +359,32 @@ export class ContentWindowProject extends ContentWindow {
 				this.updateTreeViewRecursive(child, newPath);
 			}
 		}
+	}
+
+	async waitForTreeViewUpdate() {
+		if (this.#updatingTreeViewSyms.size == 0) return;
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => {
+			this.#updatingTreeViewCbs.add(r);
+		});
+		await promise;
+	}
+
+	#fireTreeViewUpdateWhenDone() {
+		if (this.#updatingTreeViewSyms.size > 0) return;
+		this.#updatingTreeViewCbs.forEach(cb => cb());
+		this.#updatingTreeViewCbs.clear();
+	}
+
+	/**
+	 * Gets data related to the file or directory for the TreeView.
+	 * If the data does not exist, an error is thrown.
+	 * @param {TreeView} treeView
+	 */
+	#getTreeViewData(treeView) {
+		const data = this.#treeViewDatas.get(treeView);
+		if (!data) throw new Error("Assertion failed, TreeViewData is not available.");
+		return data;
 	}
 
 	/**
@@ -403,16 +482,68 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
+	 * If asset settings are loaded, this means we've already obtained read permission
+	 * to the file system. In this case we will expand the root tree view as this
+	 * is something the user will want to do anyway.
+	 */
+	async expandRootOnLoad() {
+		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		if (assetManager.assetSettingsLoaded) {
+			this.treeView.collapsed = false;
+		}
+	}
+
+	/**
+	 * If asset settings are not yet loaded, this will load the asset settings and wait for them to load.
+	 * A permission prompt might be shown, so this should only be called from a user gesture.
+	 */
+	loadAssetSettingsFromUserGesture() {
+		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		for (const manager of this.#registeredDismissedManagers) {
+			manager.removeOnPermissionPromptResult(this.#boundOnUserDismissedPermission);
+		}
+		this.#registeredDismissedManagers.add(assetManager);
+		assetManager.onPermissionPromptResult(this.#boundOnUserDismissedPermission);
+		assetManager.loadAssetSettings(true);
+	}
+
+	/**
+	 * @param {boolean} granted
+	 */
+	onUserDismissedPermission(granted) {
+		if (!granted) {
+			this.treeView.collapsed = true;
+			this.treeView.deselect();
+		} else {
+			this.treeView.collapsed = false;
+		}
+	}
+
+	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewSelectionChangeEvent} treeViewChanges
 	 */
 	async onTreeViewSelectionChange(treeViewChanges) {
-		this.editorInstance.projectManager.loadAssetSettingsFromUserGesture();
+		this.loadAssetSettingsFromUserGesture();
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
 		const changes = {};
 		changes.reset = treeViewChanges.reset;
 		changes.added = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
 		changes.removed = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.removed);
 		this.selectionManager.changeSelection(changes);
+	}
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewCollapseEvent} e
+	 */
+	async onTreeViewCollapsedChange(e) {
+		if (e.target == this.treeView && this.treeView.expanded) {
+			this.loadAssetSettingsFromUserGesture();
+		}
+
+		if (!e.target.collapsed) {
+			const treeViewData = this.#getTreeViewData(e.target);
+			this.updateTreeViewRecursive(e.target, treeViewData.path);
+		}
 	}
 
 	/**

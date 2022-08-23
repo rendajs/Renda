@@ -8,9 +8,8 @@ import {getEditorInstance} from "../../editorInstance.js";
  * @property {boolean} useClosureCompiler
  */
 
-// todo: better types for generics
 /**
- * @extends {ProjectAssetType<null, null, any, AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings>}
+ * @extends {ProjectAssetType<null, null, string, AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings>}
  */
 export class ProjectAssetTypeJavascript extends ProjectAssetType {
 	static type = "renda:javascript";

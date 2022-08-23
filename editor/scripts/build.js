@@ -55,7 +55,7 @@ function overrideDefines(definesFilePath, defines) {
 (async () => {
 	if (isDevBuild) {
 		setScriptSrc("../dist/index.html", "editor script tag", "../src/main.js");
-		setScriptSrc("../dist/internalDiscovery/index.html", "discovery script tag", "../src/network/editorConnections/internalDiscovery/internalDiscovery.js");
+		setScriptSrc("../dist/internalDiscovery/index.html", "discovery script tag", "../../src/network/editorConnections/internalDiscovery/internalDiscovery.js");
 		try {
 			await Deno.remove("../dist/main.js");
 		} catch {
@@ -63,7 +63,7 @@ function overrideDefines(definesFilePath, defines) {
 		}
 	} else {
 		setScriptSrc("../dist/index.html", "editor script tag", "./js/main.js");
-		setScriptSrc("../dist/internalDiscovery/index.html", "discovery script tag", "./js/internalDiscovery.js");
+		setScriptSrc("../dist/internalDiscovery/index.html", "discovery script tag", "../js/internalDiscovery.js");
 		const bundle = await rollup({
 			input: [
 				"../src/main.js",
