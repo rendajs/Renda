@@ -106,6 +106,12 @@ jobs:
           name: build
           path: build_files.tar
 
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: build_files_dl.tar
+
       - name: list all
         run: ls -R
 
