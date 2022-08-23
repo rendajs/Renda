@@ -112,5 +112,5 @@ jobs:
           name: build
           path: build_files_dl.tar
 
-      - name: List files
-        run: ls
+      - name: Deploy files
+        run: curl -X POST -H 'DEPLOY_TOKEN: test' -H 'Content-Type: application/x-tar' --data-binary @build_files_dl.tar 'https://deploy.renda.studio/canary'
