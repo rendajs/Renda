@@ -15,7 +15,9 @@ jobs:
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v3
-        with: build
+        with:
+          name: build
+          path: build_files_dl.tar
 
       - name: List downloaded artifact structure
         run: ls -R
