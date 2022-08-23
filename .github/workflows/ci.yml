@@ -98,7 +98,7 @@ jobs:
         run: deno task build-editor-release
 
       - name: Tar build files
-        run: tar -cvf build_files.tar editor/dist
+        run: tar -czf build_files.tar editor/dist
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
