@@ -85,3 +85,19 @@ jobs:
       - name: Test
         run: deno task test
 
+      - name: Build engine
+        run: deno task build
+
+      - name: Build editor
+        run: deno task build-editor-release
+
+      - name: Tar build files
+        run: tar -cvf build_files.tar editor/dist
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: build_files.tar
+
+
