@@ -19,7 +19,7 @@ jobs:
           path: build_files_dl
 
       - name: Download build artifact
-        uses: actions/github-script@v3.1.0
+        uses: actions/github-script@v3
         with:
           script: |
             let artifacts = await github.actions.listWorkflowRunArtifacts({
