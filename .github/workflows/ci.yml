@@ -109,11 +109,8 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v3
         with:
-          name: build
+          name: build-${{ github.run_id }}
           path: build_files_dl
-
-      - name: list all
-        run: ls -R
 
       - name: Deploy files
         run: |
