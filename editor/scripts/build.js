@@ -70,7 +70,7 @@ function overrideDefines(definesFilePath, defines) {
 				"../src/network/editorConnections/internalDiscovery/internalDiscovery.js",
 			],
 			plugins: [
-				overrideDefines("../src/editorDefines.js", defines),
+				overrideDefines("/editor/src/editorDefines.js", defines),
 				// todo:
 				// resolveUrlObjects(),
 			],
