@@ -90,3 +90,20 @@ jobs:
         with:
           files: .coverage/cov.lcov
           flags: unittests
+
+      - name: Build engine
+        run: deno task build
+
+      - name: Build editor
+        run: deno task build-editor-release
+
+      - name: Tar build files
+        run: |
+          cd editor/dist
+          tar -czf ../../build_files.tar *
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ github.run_id }}
+          path: build_files.tar
