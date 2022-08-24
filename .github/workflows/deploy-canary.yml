@@ -1,0 +1,23 @@
+name: deploy canary
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy-canary:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment: deploy_canary
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-${{ github.event.workflow_run.id }}
+          path: build_files_dl
+
+      - name: Deploy files
+        run: |
+          curl -X POST -H 'DEPLOY_TOKEN: test' -H 'Content-Type: application/x-tar' --data-binary @build_files_dl/build_files.tar 'https://deploy.renda.studio/canary'
