@@ -105,5 +105,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: build-${{ github.run_id }}
+          name: build
           path: build_files.tar
