@@ -41,9 +41,9 @@ jobs:
                archive_format: 'zip',
             });
             const fs = require('fs');
-            fs.writeFileSync('${{github.workspace}}/pr.zip', Buffer.from(download.data));
+            fs.writeFileSync('${{github.workspace}}/artifact.zip', Buffer.from(download.data));
 
-      - run: unzip pr.zip
+      - run: unzip artifact.zip
 
       - name: Deploy files
         env:
