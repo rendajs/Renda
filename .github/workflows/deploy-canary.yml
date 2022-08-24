@@ -13,12 +13,6 @@ jobs:
     environment: deploy_canary
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-${{ github.event.workflow_run.id }}
-          path: build_files_dl
-
-      - name: Download build artifact
         uses: actions/github-script@v3
         with:
           script: |
@@ -44,6 +38,7 @@ jobs:
             fs.writeFileSync('${{github.workspace}}/artifact.zip', Buffer.from(download.data));
 
       - run: unzip artifact.zip
+      - run: ls -R
 
       - name: Deploy files
         env:
