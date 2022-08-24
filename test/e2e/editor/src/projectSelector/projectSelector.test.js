@@ -1,6 +1,7 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
+import {waitSeconds} from "../../shared/waitSeconds.js";
 
 await initBrowser();
 
@@ -61,4 +62,32 @@ Deno.test({
 	},
 	sanitizeOps: false,
 	sanitizeResources: false,
+});
+
+Deno.test({
+	name: "Empty db projects do not persist",
+	...puppeteerSanitizers,
+	ignore: true, // Enable once #77 is fixed.
+	async fn(testContext) {
+		const {page} = await getContext();
+
+		await setupNewProject(page, testContext);
+
+		// Since what we're testing for can be triggered by anything, there's
+		// no good way to wait for something specific, so we'll just wait 5 seconds,
+		// this should catch most cases
+		await waitSeconds(testContext, 5);
+
+		await testContext.step("Reload the page", async () => {
+			await page.reload();
+		});
+		await waitForProjectOpen(page, testContext);
+
+		const exists = await page.evaluate(async () => {
+			if (!globalThis.editor) throw new Error("Editor instance does not exist");
+			return await globalThis.editor.projectManager.currentProjectFileSystem?.isFile(["ProjectSettings", "localProjectSettings.json"]);
+		});
+
+		assert(!exists, "Expected localProjectSettings.json to not exist");
+	},
 });

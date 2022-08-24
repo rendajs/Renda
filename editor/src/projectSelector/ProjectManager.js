@@ -130,10 +130,15 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		};
 
-		/** @type {(data: any) => Promise<void>} */
+		/** @type {(data: unknown[]) => Promise<void>} */
 		this.#boundSaveContentWindowPersistentData = async data => {
 			if (!this.localProjectSettings) return;
-			await this.localProjectSettings.set("contentWindowPersistentData", data);
+			const key = "contentWindowPersistentData";
+			if (data.length <= 0) {
+				await this.localProjectSettings.delete(key);
+			} else {
+				await this.localProjectSettings.set(key, data);
+			}
 		};
 
 		/** @type {Set<(entry: StoredProjectEntryAny) => any>} */
