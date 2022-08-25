@@ -3,7 +3,6 @@
 node_modules
 package-lock.json
 /dist
-editor/dist/js/*
 editor/deps/
 .coverage
 npm_packages
