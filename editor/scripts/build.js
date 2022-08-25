@@ -6,7 +6,11 @@ import {copy, ensureDir} from "std/fs/mod.ts";
 import {setCwd} from "chdir-anywhere";
 setCwd();
 
-await Deno.remove("../dist", {recursive: true});
+try {
+	await Deno.remove("../dist", {recursive: true});
+} catch {
+	// Already removed
+}
 ensureDir("../dist");
 
 await copy("../index.html", "../dist/index.html");
