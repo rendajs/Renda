@@ -3,7 +3,7 @@ import {ContentWindow} from "./ContentWindow.js";
 export class ContentWindowProperties extends ContentWindow {
 	static contentWindowTypeId = "properties";
 	static contentWindowUiName = "Properties";
-	static contentWindowUiIcon = "icons/contentWindowTabs/properties.svg";
+	static contentWindowUiIcon = "static/icons/contentWindowTabs/properties.svg";
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args

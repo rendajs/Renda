@@ -20,7 +20,7 @@ export class ContentWindow {
 	 * The icon that is visible in the tab selector.
 	 * @type {string}
 	 */
-	static contentWindowUiIcon = "icons/generic.svg";
+	static contentWindowUiIcon = "static/icons/generic.svg";
 
 	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
