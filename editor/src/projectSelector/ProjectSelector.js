@@ -1,4 +1,4 @@
-import {IndexedDbUtil} from "../../../src/mod.js";
+import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
 import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
 import {IndexedDbEditorFileSystem} from "../util/fileSystems/IndexedDbEditorFileSystem.js";
 
@@ -38,17 +38,22 @@ export class ProjectSelector {
 		this.actionsListEl = this.createList("actions", "Start");
 		this.recentListEl = this.createList("recent", "Recent");
 
+		this.shouldOpenEmptyOnLoad = true;
+
 		this.createAction("New Project", async () => {
+			this.willOpenProjectAfterLoad();
 			const editor = await this.waitForEditor();
 			editor.projectManager.openNewDbProject(true);
 			this.setVisibility(false);
 		});
 		this.createAction("Open Project", async () => {
+			this.willOpenProjectAfterLoad();
 			const editor = await this.waitForEditor();
 			editor.projectManager.openProjectFromLocalDirectory();
 			this.setVisibility(false);
 		});
 		this.createAction("Connect Remote Project", async () => {
+			this.willOpenProjectAfterLoad();
 			const editor = await this.waitForEditor();
 			editor.projectManager.openNewRemoteProject(true);
 			this.setVisibility(false);
@@ -156,6 +161,7 @@ export class ProjectSelector {
 				text = entry.alias;
 			}
 			const el = this.createListButton(this.recentListEl, text, async () => {
+				this.willOpenProjectAfterLoad();
 				const editor = await this.waitForEditor();
 				editor.projectManager.openExistingProject(entry, true);
 				this.setVisibility(false);
@@ -216,6 +222,7 @@ export class ProjectSelector {
 		const list = await this.getRecentProjects();
 		for (const entry of list) {
 			if (!entry.isWorthSaving) continue;
+			this.willOpenProjectAfterLoad();
 			const editor = await this.waitForEditor();
 			editor.projectManager.openExistingProject(entry, false);
 			this.setVisibility(false);
@@ -233,6 +240,15 @@ export class ProjectSelector {
 	}
 
 	/**
+	 * By default an empty project is loaded once the editor is ready. However,
+	 * to prevent the overhead of creating a new project you can call this if you
+	 * are certain opening of a project on load has already been handled elsewhere.
+	 */
+	willOpenProjectAfterLoad() {
+		this.shouldOpenEmptyOnLoad = false;
+	}
+
+	/**
 	 * @param {import("../Editor.js").Editor} editor
 	 */
 	setEditorLoaded(editor) {
@@ -240,6 +256,9 @@ export class ProjectSelector {
 		editor.projectManager.onProjectOpenEntryChange(entry => {
 			this.addRecentProjectEntry(entry);
 		});
+		if (this.shouldOpenEmptyOnLoad) {
+			editor.projectManager.openNewDbProject(false);
+		}
 		this.onEditorLoadCbs.forEach(cb => cb(editor));
 	}
 
