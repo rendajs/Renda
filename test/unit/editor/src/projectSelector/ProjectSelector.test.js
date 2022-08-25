@@ -21,17 +21,19 @@ Deno.test({
 Deno.test({
 	name: "Creates an empty project on editor load",
 	async fn() {
-		const {openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
 
 			triggerEditorLoad();
+			await waitForMicrotasks();
 
 			assertSpyCalls(openNewDbProjectSpy, 1);
 			assertSpyCall(openNewDbProjectSpy, 0, {
 				args: [false],
 			});
+			assertEquals(projectSelector.visible, true);
 		} finally {
 			await uninstall();
 		}
@@ -41,7 +43,7 @@ Deno.test({
 Deno.test({
 	name: "Opening new project by clicking only opens a new project once",
 	async fn() {
-		const {newProjectButton, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -51,13 +53,37 @@ Deno.test({
 			assertSpyCalls(openNewDbProjectSpy, 0);
 
 			triggerEditorLoad();
-
 			await waitForMicrotasks();
 
 			assertSpyCalls(openNewDbProjectSpy, 1);
 			assertSpyCall(openNewDbProjectSpy, 0, {
 				args: [true],
 			});
+			assertEquals(projectSelector.visible, false);
+		} finally {
+			await uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Opening new project by clicking after the editor has laoded only hides the project selector",
+	async fn() {
+		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
+
+		try {
+			assertSpyCalls(openNewDbProjectSpy, 0);
+
+			triggerEditorLoad();
+			await waitForMicrotasks();
+
+			assertSpyCalls(openNewDbProjectSpy, 1);
+
+			newProjectButton.dispatchEvent(new MouseEvent("click"));
+			await waitForMicrotasks();
+
+			assertSpyCalls(openNewDbProjectSpy, 1);
+			assertEquals(projectSelector.visible, false);
 		} finally {
 			await uninstall();
 		}
@@ -67,7 +93,7 @@ Deno.test({
 Deno.test({
 	name: "Opening project directory by clicking doesn't open empty project",
 	async fn() {
-		const {openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerEditorLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -82,6 +108,7 @@ Deno.test({
 			await waitForMicrotasks();
 
 			assertSpyCalls(openProjectFromLocalDirectorySpy, 1);
+			assertEquals(projectSelector.visible, false);
 		} finally {
 			await uninstall();
 		}
@@ -91,7 +118,7 @@ Deno.test({
 Deno.test({
 	name: "Opening project directory after editor has already loaded",
 	async fn() {
-		const {openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerEditorLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -107,6 +134,7 @@ Deno.test({
 			await waitForMicrotasks();
 
 			assertSpyCalls(openProjectFromLocalDirectorySpy, 1);
+			assertEquals(projectSelector.visible, false);
 		} finally {
 			await uninstall();
 		}

@@ -39,11 +39,14 @@ export class ProjectSelector {
 		this.recentListEl = this.createList("recent", "Recent");
 
 		this.shouldOpenEmptyOnLoad = true;
+		this.hasOpenedEmptyOnLoad = false;
 
 		this.createAction("New Project", async () => {
-			this.willOpenProjectAfterLoad();
-			const editor = await this.waitForEditor();
-			editor.projectManager.openNewDbProject(true);
+			if (!this.hasOpenedEmptyOnLoad) {
+				this.willOpenProjectAfterLoad();
+				const editor = await this.waitForEditor();
+				editor.projectManager.openNewDbProject(true);
+			}
 			this.setVisibility(false);
 		});
 		this.createAction("Open Project", async () => {
@@ -258,6 +261,7 @@ export class ProjectSelector {
 		});
 		if (this.shouldOpenEmptyOnLoad) {
 			editor.projectManager.openNewDbProject(false);
+			this.hasOpenedEmptyOnLoad = true;
 		}
 		this.onEditorLoadCbs.forEach(cb => cb(editor));
 	}
