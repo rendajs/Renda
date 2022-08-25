@@ -46,7 +46,7 @@ export async function initBrowser() {
 	});
 }
 
-export async function getContext(url = getMainPageUrl() + "/editor/dist/") {
+export async function getContext(url = getMainPageUrl() + "/editor/") {
 	if (!browser) {
 		throw new Error("Browser not initialized.");
 	}
