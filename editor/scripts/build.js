@@ -2,6 +2,7 @@
 
 import {rollup} from "rollup";
 import {copy, ensureDir} from "std/fs/mod.ts";
+import {minify} from "terser";
 
 import {setCwd} from "chdir-anywhere";
 setCwd();
@@ -66,6 +67,24 @@ function overrideDefines(definesFilePath, defines) {
 	};
 }
 
+/**
+ * A rollup plugin for minifying builds.
+ * @param {import("terser").MinifyOptions} minifyOptions
+ * @returns {import("rollup").Plugin}
+ */
+function terser(minifyOptions = {}) {
+	return {
+		name: "terser",
+		async renderChunk(code, chunk, outputOptions) {
+			const output = await minify(code, minifyOptions);
+			if (!output.code) return null;
+			return {
+				code: output.code,
+			};
+		},
+	};
+}
+
 const editorDefines = {
 	EDITOR_ENV: "production",
 	IS_DEV_BUILD: false,
@@ -79,6 +98,7 @@ const bundle = await rollup({
 		overrideDefines("/editor/src/editorDefines.js", editorDefines),
 		// todo:
 		// resolveUrlObjects(),
+		terser(),
 	],
 	onwarn: message => {
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
