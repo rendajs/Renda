@@ -11,7 +11,7 @@ import {DropDownGui} from "../../ui/DropDownGui.js";
 export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
 	static contentWindowUiName = "Outliner";
-	static contentWindowUiIcon = "icons/contentWindowTabs/outliner.svg";
+	static contentWindowUiIcon = "static/icons/contentWindowTabs/outliner.svg";
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args

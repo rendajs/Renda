@@ -41,7 +41,7 @@ class InternalDiscoveryManager {
 		/** @type {Set<() => void>} */
 		this.onIframeLoadCbs = new Set();
 		this.iframe = document.createElement("iframe");
-		this.iframe.src = "/editor/dist/internalDiscovery/index.html";
+		this.iframe.src = "/editor/internalDiscovery.html";
 		this.iframe.style.display = "none";
 		this.boundOnMessage = this._onIframeMessage.bind(this);
 		window.addEventListener("message", this.boundOnMessage);

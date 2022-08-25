@@ -5,7 +5,7 @@ import {createTreeViewEntryOptions, createTreeViewStructure} from "../../ui/prop
 export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	static contentWindowTypeId = "defaultAssetLinks";
 	static contentWindowUiName = "Default Asset Links";
-	static contentWindowUiIcon = "icons/contentWindowTabs/defaultAssetLinks.svg";
+	static contentWindowUiIcon = "static/icons/contentWindowTabs/defaultAssetLinks.svg";
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args

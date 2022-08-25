@@ -20,7 +20,7 @@ import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorI
 export class ContentWindowProject extends ContentWindow {
 	static contentWindowTypeId = "project";
 	static contentWindowUiName = "Project Files";
-	static contentWindowUiIcon = "icons/contentWindowTabs/project.svg";
+	static contentWindowUiIcon = "static/icons/contentWindowTabs/project.svg";
 
 	/** @type {Set<import("../../assets/AssetManager.js").AssetManager>} */
 	#registeredDismissedManagers = new Set();

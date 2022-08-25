@@ -30,7 +30,7 @@ export class BuiltInAssetManager {
 	constructor(projectAssetTypeManager) {
 		/** @type {Map<import("../../../src/mod.js").UuidString, import("./ProjectAsset.js").ProjectAssetAny>}*/
 		this.assets = new Map();
-		this.basePath = "../builtInAssets/";
+		this.basePath = "builtInAssets/";
 
 		this.devSocket = null;
 

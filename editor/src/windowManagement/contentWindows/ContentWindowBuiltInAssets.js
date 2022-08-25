@@ -4,7 +4,7 @@ import {TreeView} from "../../ui/TreeView.js";
 export class ContentWindowBuiltInAssets extends ContentWindow {
 	static contentWindowTypeId = "builtInAssets";
 	static contentWindowUiName = "Built-in Assets";
-	static contentWindowUiIcon = "icons/contentWindowTabs/builtInAssets.svg";
+	static contentWindowUiIcon = "static/icons/contentWindowTabs/builtInAssets.svg";
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args

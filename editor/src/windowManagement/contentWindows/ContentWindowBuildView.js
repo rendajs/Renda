@@ -6,7 +6,7 @@ import {CameraComponent} from "../../../../src/mod.js";
 export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
 	static contentWindowUiName = "Build";
-	static contentWindowUiIcon = "icons/contentWindowTabs/buildView.svg";
+	static contentWindowUiIcon = "static/icons/contentWindowTabs/buildView.svg";
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args

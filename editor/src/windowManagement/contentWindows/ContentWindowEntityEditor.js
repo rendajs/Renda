@@ -11,7 +11,7 @@ import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTy
 export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowTypeId = "entityEditor";
 	static contentWindowUiName = "Entity Editor";
-	static contentWindowUiIcon = "icons/contentWindowTabs/entityEditor.svg";
+	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
