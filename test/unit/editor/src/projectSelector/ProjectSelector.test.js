@@ -67,7 +67,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Opening new project by clicking after the editor has laoded only hides the project selector",
+	name: "Opening new project by clicking after the editor has loaded only hides the project selector",
 	async fn() {
 		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
 
@@ -83,6 +83,15 @@ Deno.test({
 			await waitForMicrotasks();
 
 			assertSpyCalls(openNewDbProjectSpy, 1);
+			assertEquals(projectSelector.visible, false);
+
+			// Unhiding the project selector and clicking a second time does open a new project
+			projectSelector.setVisibility(true);
+
+			newProjectButton.dispatchEvent(new MouseEvent("click"));
+			await waitForMicrotasks();
+
+			assertSpyCalls(openNewDbProjectSpy, 2);
 			assertEquals(projectSelector.visible, false);
 		} finally {
 			await uninstall();

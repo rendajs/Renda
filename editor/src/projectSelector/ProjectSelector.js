@@ -39,10 +39,15 @@ export class ProjectSelector {
 		this.recentListEl = this.createList("recent", "Recent");
 
 		this.shouldOpenEmptyOnLoad = true;
-		this.hasOpenedEmptyOnLoad = false;
+		/**
+		 * A value that becomes false once an empty project is loaded in the background.
+		 * This is to prevent an empty project from being loaded twice.
+		 * This value becomes true again once the project selector becomes visible a second time.
+		 */
+		this.allowOpeningNew = true;
 
 		this.createAction("New Project", async () => {
-			if (!this.hasOpenedEmptyOnLoad) {
+			if (this.allowOpeningNew) {
 				this.willOpenProjectAfterLoad();
 				const editor = await this.waitForEditor();
 				editor.projectManager.openNewDbProject(true);
@@ -261,7 +266,7 @@ export class ProjectSelector {
 		});
 		if (this.shouldOpenEmptyOnLoad) {
 			editor.projectManager.openNewDbProject(false);
-			this.hasOpenedEmptyOnLoad = true;
+			this.allowOpeningNew = false;
 		}
 		this.onEditorLoadCbs.forEach(cb => cb(editor));
 	}
@@ -378,6 +383,7 @@ export class ProjectSelector {
 			document.body.appendChild(this.el);
 			document.body.appendChild(this.curtainEl);
 			this.updateRecentProjectsUi();
+			this.allowOpeningNew = true;
 		} else {
 			document.body.removeChild(this.el);
 			document.body.removeChild(this.curtainEl);
