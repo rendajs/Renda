@@ -67,7 +67,6 @@ Deno.test({
 Deno.test({
 	name: "Empty db projects do not persist",
 	...puppeteerSanitizers,
-	ignore: true, // Enable once #77 is fixed.
 	async fn(testContext) {
 		const {page} = await getContext();
 
