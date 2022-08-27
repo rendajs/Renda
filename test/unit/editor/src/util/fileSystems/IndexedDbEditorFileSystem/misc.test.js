@@ -1,5 +1,5 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
-import {assert, assertEquals} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
@@ -214,87 +214,13 @@ Deno.test({
 });
 
 Deno.test({
-	name: "delete() should delete files",
-	fn: async () => {
-		const fs = await createBasicFs();
-
-		await fs.delete(["root", "file1"]);
-
-		let hasFile1 = false;
-		const {directories} = await fs.readDir(["root"]);
-		for (const name of directories) {
-			if (name == "file1") {
-				hasFile1 = true;
-			}
-		}
-
-		assertEquals(hasFile1, false);
-	},
-});
-
-Deno.test({
-	name: "delete() should fire onBeforeAnyChange",
-	fn: async () => {
-		const fs = await createBasicFs();
-
-		let fired = false;
-		fs.onBeforeAnyChange(() => {
-			fired = true;
-		});
-
-		await fs.delete(["root", "file1"]);
-
-		assertEquals(fired, true);
-	},
-});
-
-Deno.test({
-	name: "delete() should error when deleting the root directory",
-	fn: async () => {
-		const fs = await createBasicFs();
-
-		let didThrow = false;
-		try {
-			await fs.delete([]);
-		} catch {
-			didThrow = true;
-		}
-
-		assertEquals(didThrow, true);
-	},
-});
-
-Deno.test({
-	name: "delete() causes waitForWritesFinish to stay pending until done",
-	async fn() {
-		const fs = await createBasicFs();
-
-		const deletePromise = fs.delete(["root", "file1"]);
-		const waitPromise = fs.waitForWritesFinish();
-		forcePendingOperations(true);
-		let waitPromiseResolved = false;
-		waitPromise.then(() => {
-			waitPromiseResolved = true;
-		});
-
-		await waitForMicrotasks();
-		assertEquals(waitPromiseResolved, false);
-
-		forcePendingOperations(false);
-		await deletePromise;
-		await waitForMicrotasks();
-		assertEquals(waitPromiseResolved, true);
-	},
-});
-
-Deno.test({
 	name: "readFile",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const fs = await createBasicFs({disableStructuredClone: true});
 
 		const result = await fs.readFile(["root", "file1"]);
 
-		assert(result instanceof File, "file1");
+		assertInstanceOf(result, File);
 	},
 });
 

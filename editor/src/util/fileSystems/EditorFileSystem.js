@@ -122,7 +122,7 @@ export class EditorFileSystem {
 	/**
 	 * To be used internally by the file system.
 	 * Returns an WriteOperation object that can be used to let the file system
-	 * when the operation is finished.
+	 * know when the operation is finished.
 	 * This is used for resolving {@linkcode waitForWritesFinish}.
 	 */
 	requestWriteOperation() {

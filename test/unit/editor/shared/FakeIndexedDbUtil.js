@@ -2,6 +2,8 @@
 const databases = new Map();
 
 class Database {
+	#useStructuredClone = true;
+
 	/**
 	 * @param {string[]} objectStoreNames
 	 */
@@ -19,11 +21,18 @@ class Database {
 	#getObjectStore(objectStoreName) {
 		const objectStore = this.objectStores.get(objectStoreName);
 		if (!objectStore) {
-			// Not sure what the behaviour should be but this shouldn't happen
-			// anyway so we'll just throw.
+			// Not sure what the behaviour should be according to the spec
+			// but this shouldn't happen anyway so we'll just throw.
 			throw new Error(`Object store ${objectStoreName} does not exist`);
 		}
 		return objectStore;
+	}
+
+	/**
+	 * @param {boolean} useStructuredClone
+	 */
+	setUseStructuredClone(useStructuredClone) {
+		this.#useStructuredClone = useStructuredClone;
 	}
 
 	/**
@@ -32,7 +41,9 @@ class Database {
 	 */
 	get(objectStoreName, key) {
 		const store = this.#getObjectStore(objectStoreName);
-		return store.get(key);
+		let value = store.get(key);
+		if (this.#useStructuredClone) value = structuredClone(value);
+		return value;
 	}
 
 	/**
@@ -42,6 +53,7 @@ class Database {
 	 */
 	set(objectStoreName, key, value) {
 		const store = this.#getObjectStore(objectStoreName);
+		if (this.#useStructuredClone) value = structuredClone(value);
 		store.set(key, value);
 	}
 
@@ -52,6 +64,14 @@ class Database {
 	delete(objectStoreName, key) {
 		const store = this.#getObjectStore(objectStoreName);
 		store.delete(key);
+	}
+
+	/**
+	 * @param {string} objectStoreName
+	 */
+	entries(objectStoreName) {
+		const store = this.#getObjectStore(objectStoreName);
+		return store.entries();
 	}
 }
 
@@ -102,12 +122,17 @@ export class IndexedDbUtil {
 		this.#objectStoreNames = [...objectStoreNames];
 	}
 
-	#assertDbExists() {
-		if (!databases.has(this.#dbName)) {
-			// Not sure what would happen here in the real IndexedDbUtil,
-			// but this shouldn't happen so we'll just throw.
-			throw new Error(`Database ${this.#dbName} has been deleted.`);
-		}
+	/**
+	 * When `get`ting or `set`ting values you and then later modifying it, the stored
+	 * object doesn't change when using a real IndexedDb. However this can cause some
+	 * issues with objects such as `File`s and `Blob`s because Deno doesn't correctly
+	 * serialize them yet (see https://github.com/denoland/deno/issues/12067).
+	 * So for some tests that depend on this you can disable cloning to work around
+	 * this issue.
+	 * @param {boolean} useStructuredClone
+	 */
+	setUseStructuredClone(useStructuredClone) {
+		this.#db.setUseStructuredClone(useStructuredClone);
 	}
 
 	/**
@@ -137,5 +162,9 @@ export class IndexedDbUtil {
 
 	deleteDb() {
 		databases.delete(this.#dbName);
+	}
+
+	entries(objectStoreName = this.#objectStoreNames[0]) {
+		return this.#db.entries(objectStoreName);
 	}
 }
