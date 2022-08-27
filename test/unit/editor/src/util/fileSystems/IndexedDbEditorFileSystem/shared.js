@@ -24,7 +24,7 @@ export async function createBasicFs({
 } = {}) {
 	lastCreatedFsNameId++;
 	const fs = await createFs(`fileSystem_${lastCreatedFsNameId}`);
-	if (fs) {
+	if (disableStructuredClone) {
 		const castDb = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
 		castDb?.setUseStructuredClone(false);
 	}

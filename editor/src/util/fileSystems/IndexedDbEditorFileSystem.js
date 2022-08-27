@@ -448,13 +448,20 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		}
 		super.delete(path, recursive);
 		const travelledData = await this.findDeepestExisting(path);
-		// todo: error if file or directory doesn't exist
+		if (travelledData.length - 1 != path.length) {
+			throw new Error(`Failed to delete "${path.join("/")}" because it does not exist.`);
+		}
 		const lastTravelledItem = travelledData.at(-1);
 		if (!lastTravelledItem) {
 			throw new Error("Cannot delete the root directory");
 		}
 		const {obj, pointer} = lastTravelledItem;
-		if (obj.isDir && recursive) {
+		if (obj.isDir) {
+			if (!recursive) {
+				if (obj.files.length > 0) {
+					throw new Error(`Failed to delete "${path.join("/")}" because it is a non-empty directory. Use recursive = true to delete non-empty directories.`);
+				}
+			}
 			for (const filePointer of obj.files) {
 				const fileObj = await this.getObject(filePointer);
 				const filePath = [...path, fileObj.fileName];

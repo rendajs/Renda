@@ -65,6 +65,14 @@ class Database {
 		const store = this.#getObjectStore(objectStoreName);
 		store.delete(key);
 	}
+
+	/**
+	 * @param {string} objectStoreName
+	 */
+	entries(objectStoreName) {
+		const store = this.#getObjectStore(objectStoreName);
+		return store.entries();
+	}
 }
 
 /** @type {Promise<void>?} */
@@ -154,5 +162,9 @@ export class IndexedDbUtil {
 
 	deleteDb() {
 		databases.delete(this.#dbName);
+	}
+
+	entries(objectStoreName = this.#objectStoreNames[0]) {
+		return this.#db.entries(objectStoreName);
 	}
 }
