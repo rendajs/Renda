@@ -1,0 +1,49 @@
+name: deploy canary
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+
+jobs:
+  deploy-canary:
+    runs-on: ubuntu-latest
+    if: >
+      ${{ github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' }}
+    environment: deploy_pr
+    steps:
+      - name: Download build artifact
+        uses: actions/github-script@v3
+        with:
+          script: |
+            let artifacts = await github.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{ github.event.workflow_run.id }},
+            });
+            artifacts = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "build"
+            });
+            if (artifacts.length <= 0) {
+              throw new Error("No artifact found.");
+            }
+            const matchArtifact = artifacts[0];
+            const download = await github.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            const fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/artifact.zip', Buffer.from(download.data));
+
+      - name: Unzip artifact
+        run: unzip artifact.zip
+
+      - name: Deploy files
+        env:
+          PR_DEPLOY_TOKEN: ${{ secrets.PR_DEPLOY_TOKEN }}
+          PR_ID: ${{ github.event.number }}
+        run: |
+          curl -X POST -H "DEPLOY_TOKEN: $PR_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/pr&id=$PR_ID"
