@@ -13,6 +13,10 @@ jobs:
       github.event.workflow_run.conclusion == 'success' }}
     environment: deploy_pr
     steps:
+      - name: Debug workflow event
+        env:
+          EVENT: ${{ github.event.workflow_run.event }}
+        run: echo $EVENT
       - name: Download build artifact
         uses: actions/github-script@v3
         with:
@@ -56,4 +60,4 @@ jobs:
           PR_ID: ${{ steps.get-pr-number.outputs.result }}
         run: |
           echo pr id: $PR_ID
-          curl -X POST -H "DEPLOY_TOKEN: $PR_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/pr&id=$PR_ID"
+          curl -X POST -H "DEPLOY_TOKEN: $PR_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/pr?id=$PR_ID"
