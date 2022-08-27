@@ -41,9 +41,19 @@ jobs:
       - name: Unzip artifact
         run: unzip artifact.zip
 
+      - name: Get PR number
+        id: get-pr-number
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require("fs");
+            return parseInt(fs.readFileSync("./pr.txt"), 10);
+
       - name: Deploy files
         env:
           PR_DEPLOY_TOKEN: ${{ secrets.PR_DEPLOY_TOKEN }}
-          PR_ID: ${{ github.event.number }}
+          PR_ID: ${{ steps.get-pr-number.outputs.result }}
         run: |
+          echo pr id: $PR_ID
           curl -X POST -H "DEPLOY_TOKEN: $PR_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/pr&id=$PR_ID"

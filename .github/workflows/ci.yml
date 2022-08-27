@@ -102,8 +102,15 @@ jobs:
           cd editor/dist
           tar -czf ../../build_files.tar *
 
+      - name: Write PR number
+        env:
+          PULL_REQUEST_NUMBER: ${{ github.event.number }}
+        run: echo $PULL_REQUEST_NUMBER > pr.txt
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: build
-          path: build_files.tar
+          path: |
+            build_files.tar
+            pr.txt
