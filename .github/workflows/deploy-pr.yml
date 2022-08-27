@@ -1,4 +1,4 @@
-name: deploy canary
+name: Deploy PR
 
 on:
   workflow_run:
