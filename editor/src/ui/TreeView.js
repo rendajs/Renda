@@ -90,6 +90,13 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  */
 
 /**
+ * @typedef {Object} TreeViewFocusWithinChangeEventType
+ * @property {boolean} hasFocusWithin
+ *
+ * @typedef {TreeViewEvent & TreeViewFocusWithinChangeEventType} TreeViewFocusWithinChangeEvent
+ */
+
+/**
  * @typedef {Object} TreeViewSelectionChangeEventType
  * @property {boolean} reset
  * @property {Array<TreeView>} added
@@ -117,6 +124,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {TreeViewRearrangeEvent} rearrange
  * @property {TreeViewEvent} dblclick
  * @property {TreeViewContextMenuEvent} contextmenu
+ * @property {TreeViewFocusWithinChangeEvent} focuswithinchange
  */
 
 /** @typedef {keyof TreeViewEventCbMap} AllTreeViewEventNames */
@@ -280,6 +288,7 @@ export class TreeView {
 		/** @type {AllTreeViewEventNames[]} */
 		const defaultEvents = [
 			"selectionchange",
+			"focuswithinchange",
 			"collapsedchange",
 			"namechange",
 			"dragstart",
@@ -1283,13 +1292,23 @@ export class TreeView {
 	}
 
 	onFocusIn() {
+		if (this.hasFocusWithin) return;
 		this.hasFocusWithin = true;
 		this.updateSelectedChildrenStyle();
+		this.fireEvent("focuswithinchange", {
+			hasFocusWithin: this.hasFocusWithin,
+			target: this,
+		});
 	}
 
 	onFocusOut() {
+		if (!this.hasFocusWithin) return;
 		this.hasFocusWithin = false;
 		this.updateSelectedChildrenStyle();
+		this.fireEvent("focuswithinchange", {
+			hasFocusWithin: this.hasFocusWithin,
+			target: this,
+		});
 	}
 
 	onSelectPreviousKeyPressed() {

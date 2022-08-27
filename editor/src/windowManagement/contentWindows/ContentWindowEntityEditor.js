@@ -52,7 +52,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Entity?} */
 		this._editingEntity = null;
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../misc/EntitySelection.js").EntitySelection>} */
-		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
+		this.selectionGroup = this.editorInstance.selectionManager.createSelectionGroup();
 
 		/** @type {Set<{projectAsset: import("../../assets/ProjectAsset.js").ProjectAssetAny, listener: () => void}>} */
 		this.createdLiveAssetChangeListeners = new Set();
@@ -106,7 +106,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.domTarget.destructor();
 		this.editorScene.destructor();
 		this._editingEntity = null;
-		this.selectionManager.destructor();
+		this.selectionGroup.destructor();
 		this.gizmos.destructor();
 	}
 
