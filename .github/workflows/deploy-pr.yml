@@ -6,7 +6,7 @@ on:
     types: [completed]
 
 jobs:
-  deploy-canary:
+  deploy-pr:
     runs-on: ubuntu-latest
     if: >
       ${{ github.event.workflow_run.event == 'pull_request' &&
