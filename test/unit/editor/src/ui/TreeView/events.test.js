@@ -4,6 +4,7 @@ import "../../../shared/initializeEditor.js";
 import {TreeView} from "../../../../../../editor/src/ui/TreeView.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
+import {FakeFocusEvent} from "fake-dom/FakeFocusEvent.js";
 
 Deno.test({
 	name: "collapsedchange",
@@ -56,6 +57,49 @@ Deno.test({
 			assertSpyCalls(childSpyFn, 1);
 			assertEquals(childSpyFn.calls[0].args[0].collapsed, true);
 			assertStrictEquals(childSpyFn.calls[0].args[0].target, child);
+		} finally {
+			uninstallFakeDocument();
+		}
+	},
+});
+
+Deno.test({
+	name: "focuswithinchange",
+	fn() {
+		installFakeDocument();
+
+		try {
+			const spyFn = spy(/** @param {import("../../../../../../editor/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ e => {});
+			const childSpyFn = spy(/** @param {import("../../../../../../editor/src/ui/TreeView.js").TreeViewFocusWithinChangeEvent} e */ e => {});
+			const treeView = new TreeView();
+			const childTreeView = new TreeView({name: "child"});
+			treeView.addChild(childTreeView);
+			treeView.addEventListener("focuswithinchange", spyFn);
+			childTreeView.addEventListener("focuswithinchange", childSpyFn);
+
+			// Focus within events should only fire on the root
+			childTreeView.el.dispatchEvent(new FakeFocusEvent("focusin"));
+			childTreeView.el.dispatchEvent(new FakeFocusEvent("focusout"));
+
+			childTreeView.select();
+			assertEquals(childTreeView.rowEl.classList.contains("selected"), true);
+			assertEquals(childTreeView.rowEl.classList.contains("noFocus"), true);
+
+			treeView.el.dispatchEvent(new FakeFocusEvent("focusin"));
+			assertSpyCalls(spyFn, 1);
+			assertEquals(spyFn.calls[0].args[0].hasFocusWithin, true);
+			assertStrictEquals(spyFn.calls[0].args[0].target, treeView);
+			assertEquals(childTreeView.rowEl.classList.contains("selected"), true);
+			assertEquals(childTreeView.rowEl.classList.contains("noFocus"), false);
+
+			treeView.el.dispatchEvent(new FakeFocusEvent("focusout"));
+			assertSpyCalls(spyFn, 2);
+			assertEquals(spyFn.calls[1].args[0].hasFocusWithin, false);
+			assertStrictEquals(spyFn.calls[1].args[0].target, treeView);
+			assertEquals(childTreeView.rowEl.classList.contains("selected"), true);
+			assertEquals(childTreeView.rowEl.classList.contains("noFocus"), true);
+
+			assertSpyCalls(childSpyFn, 0);
 		} finally {
 			uninstallFakeDocument();
 		}

@@ -212,6 +212,7 @@ export class TreeView {
 		this.arrowContainerEl.addEventListener("pointerleave", this.boundArrowHoverEndEvent);
 
 		this.hasFocusWithin = false;
+		this.focusWithinReceiveTime = -Infinity;
 		this.boundOnFocusIn = this.onFocusIn.bind(this);
 		this.boundOnFocusOut = this.onFocusOut.bind(this);
 
@@ -1109,13 +1110,19 @@ export class TreeView {
 	onRowClick(e) {
 		if (this.selectable) {
 			if (this.renameable && this.selected) {
-				let wasFromRowBlur = false;
-				if (this.#lastTextFocusOutWasFromRow && Date.now() < this.#lastTextFocusOutTime + 300) {
-					wasFromRowBlur = true;
-					this.#lastTextFocusOutWasFromRow = false;
-				}
-				if (e.target == this.myNameEl || (this.name == "" && !wasFromRowBlur)) {
-					this.setTextFieldVisible(true);
+				const root = this.findRoot();
+				if (root.hasFocusWithin) {
+					const focusReceiveTimeAgo = performance.now() - root.focusWithinReceiveTime;
+					if (focusReceiveTimeAgo > 300) {
+						let wasFromRowBlur = false;
+						if (this.#lastTextFocusOutWasFromRow && Date.now() < this.#lastTextFocusOutTime + 300) {
+							wasFromRowBlur = true;
+							this.#lastTextFocusOutWasFromRow = false;
+						}
+						if (e.target == this.myNameEl || (this.name == "" && !wasFromRowBlur)) {
+							this.setTextFieldVisible(true);
+						}
+					}
 				}
 			} else {
 				/** @type {TreeViewSelectionChangeEvent} */
@@ -1264,12 +1271,18 @@ export class TreeView {
 		const needsEventHandlers = !this.destructed && this.selectable && this.isRoot;
 		if (this.hasRootEventListeners != needsEventHandlers) {
 			this.hasRootEventListeners = needsEventHandlers;
+
+			if (needsEventHandlers) {
+				this.el.addEventListener("focusin", this.boundOnFocusIn);
+				this.el.addEventListener("focusout", this.boundOnFocusOut);
+			} else {
+				this.el.removeEventListener("focusin", this.boundOnFocusIn);
+				this.el.removeEventListener("focusout", this.boundOnFocusOut);
+			}
+
 			const shortcutManager = getMaybeEditorInstance()?.keyboardShortcutManager;
 			if (shortcutManager) {
 				if (needsEventHandlers) {
-					this.el.addEventListener("focusin", this.boundOnFocusIn);
-					this.el.addEventListener("focusout", this.boundOnFocusOut);
-
 					shortcutManager.onCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
 					shortcutManager.onCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
 					shortcutManager.onCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
@@ -1277,9 +1290,6 @@ export class TreeView {
 					shortcutManager.onCommand("treeView.toggleRename", this.boundOnToggleRenameKeyPressed);
 					shortcutManager.onCommand("treeView.cancelRename", this.boundOnCancelRenameKeyPressed);
 				} else {
-					this.el.removeEventListener("focusin", this.boundOnFocusIn);
-					this.el.removeEventListener("focusout", this.boundOnFocusOut);
-
 					shortcutManager.removeOnCommand("treeView.selection.up", this.boundOnSelectPreviousKeyPressed);
 					shortcutManager.removeOnCommand("treeView.selection.down", this.boundOnSelectNextKeyPressed);
 					shortcutManager.removeOnCommand("treeView.expandSelected", this.boundOnExpandSelectedKeyPressed);
@@ -1294,6 +1304,7 @@ export class TreeView {
 	onFocusIn() {
 		if (this.hasFocusWithin) return;
 		this.hasFocusWithin = true;
+		this.focusWithinReceiveTime = performance.now();
 		this.updateSelectedChildrenStyle();
 		this.fireEvent("focuswithinchange", {
 			hasFocusWithin: this.hasFocusWithin,
