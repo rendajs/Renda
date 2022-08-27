@@ -35,7 +35,7 @@ const fileSystemPointerType = Symbol("file system pointer type");
 /** @typedef {IndexedDbEditorFileSystemStoredObjectFile | IndexedDbEditorFileSystemStoredObjectDir} IndexedDbEditorFileSystemStoredObject */
 
 /**
- * @typedef {Object} IndexedDbEditorFileSystemTravelledDataItem
+ * @typedef {Object} IndexedDbEditorFileSystemTravelledDataEntry
  * @property {IndexedDbEditorFileSystemStoredObject} obj
  * @property {IndexedDbEditorFileSystemPointer} pointer
  */
@@ -242,7 +242,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		const createDirs = path.slice(recursionDepth);
 		createDirs.reverse();
 		let lastCreatedPointer = null;
-		/** @type {IndexedDbEditorFileSystemTravelledDataItem[]} */
+		/** @type {IndexedDbEditorFileSystemTravelledDataEntry[]} */
 		const extraTravelledData = [];
 		for (const dir of createDirs) {
 			/** @type {IndexedDbEditorFileSystemStoredObjectDir} */
@@ -279,7 +279,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	async findDeepestExisting(path) {
 		let currentPointer = await this.getRootPointer();
 		let currentObj = await this.getObject(currentPointer);
-		/** @type {IndexedDbEditorFileSystemTravelledDataItem[]} */
+		/** @type {IndexedDbEditorFileSystemTravelledDataEntry[]} */
 		const travelledData = [
 			{
 				obj: currentObj,
@@ -333,14 +333,29 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	async readDir(path) {
 		const {obj} = await this.getObjectFromPath(path);
 		this.assertIsDir(obj);
-		const files = [];
-		const directories = [];
-		for (const filePointer of obj.files) {
+		const {files, directories} = await this.readDirObject(obj);
+		return {
+			files: Array.from(files.keys()),
+			directories: Array.from(directories.keys()),
+		};
+	}
+
+	/**
+	 * Internal helper function for getting all child objects of a directory object.
+	 * @private
+	 * @param {IndexedDbEditorFileSystemStoredObjectDir} dirObject
+	 */
+	async readDirObject(dirObject) {
+		/** @type {Map<string, IndexedDbEditorFileSystemPointer>} */
+		const files = new Map();
+		/** @type {Map<string, IndexedDbEditorFileSystemPointer>} */
+		const directories = new Map();
+		for (const filePointer of dirObject.files) {
 			const fileObj = await this.getObject(filePointer);
 			if (fileObj.isDir) {
-				directories.push(fileObj.fileName);
+				directories.set(fileObj.fileName, filePointer);
 			} else if (fileObj.isFile) {
-				files.push(fileObj.fileName);
+				files.set(fileObj.fileName, filePointer);
 			}
 		}
 		return {files, directories};
@@ -355,35 +370,68 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		super.move(fromPath, toPath);
 		this.fireOnBeforeAnyChange();
 
-		// todo: error when this operation would overwrite existing files
-
-		const travelledData = await this.findDeepestExisting(fromPath);
-		// todo: error if file or directory doesn't exist
-		const obj = travelledData[travelledData.length - 1];
-		const parentObjPath = fromPath.slice(0, fromPath.length - 1);
-
-		const parentObj = await this.getObjectFromPath(parentObjPath);
-		this.assertIsDir(parentObj.obj);
-
-		// remove old pointer
-		const oldPointerIndex = parentObj.obj.files.indexOf(obj.pointer);
-		parentObj.obj.files.splice(oldPointerIndex, 1);
-
-		// rename
 		const oldName = fromPath[fromPath.length - 1];
 		const newName = toPath[toPath.length - 1];
-		if (oldName != newName) {
-			obj.obj.fileName = newName;
-			await this.updateObject(obj.pointer, obj.obj);
+
+		const travelledData = await this.findDeepestExisting(fromPath);
+		if (travelledData.length - 1 != fromPath.length) {
+			throw new Error(`Failed to move: The file or directory at "${fromPath.join("/")}" does not exist.`);
 		}
 
-		// add new pointer to new parent
 		const newParentPath = toPath.slice(0, toPath.length - 1);
 		const newParentTravelledData = await this.createDirInternal(newParentPath);
-		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
-		this.assertIsDir(newParentObj.obj);
-		newParentObj.obj.files.push(obj.pointer);
-		await this.updateObject(newParentObj.pointer, newParentObj.obj);
+		const newParentEntry = newParentTravelledData[newParentTravelledData.length - 1];
+		this.assertIsDir(newParentEntry.obj);
+
+		// Check if toPath is an existing file
+		const {files: existingFiles, directories: existingDirectories} = await this.readDirObject(newParentEntry.obj);
+		if (existingFiles.has(newName)) {
+			throw new Error(`Failed to move: "${toPath.join("/")}" is a file.`);
+		}
+
+		// Check if toPath is an existing directory
+		const existingDirectoryPointer = existingDirectories.get(newName);
+		if (existingDirectoryPointer) {
+			const existingDirObj = await this.getObject(existingDirectoryPointer);
+			this.assertIsDir(existingDirObj);
+			const {files, directories} = await this.readDirObject(existingDirObj);
+			if (files.size > 0 || directories.size > 0) {
+				throw new Error(`Failed to move: "${toPath.join("/")}" is a non-empty directory.`);
+			} else {
+				// We need to remove the empty directory since we'll be moving the new directory here
+				newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != existingDirectoryPointer);
+				// No need to `updateObject` the newParentEntry since we'll do that later when adding the new directory.
+			}
+		}
+
+		// rename
+		const movingEntry = travelledData[travelledData.length - 1];
+		if (oldName != newName) {
+			movingEntry.obj.fileName = newName;
+			await this.updateObject(movingEntry.pointer, movingEntry.obj);
+		}
+
+		const oldParentObjPath = fromPath.slice(0, fromPath.length - 1);
+		const oldParentEntry = await this.getObjectFromPath(oldParentObjPath);
+
+		// If the parent hasn't changed, we only need to update a single entry
+		if (oldParentEntry.pointer == newParentEntry.pointer) {
+			// remove old pointer
+			newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+
+			// add new pointer to new parent
+			newParentEntry.obj.files.push(movingEntry.pointer);
+			await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
+		} else {
+			// remove old pointer
+			this.assertIsDir(oldParentEntry.obj);
+			oldParentEntry.obj.files = oldParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+			await this.updateObject(oldParentEntry.pointer, oldParentEntry.obj);
+
+			// add new pointer to new parent
+			newParentEntry.obj.files.push(movingEntry.pointer);
+			await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
+		}
 	}
 
 	/**
