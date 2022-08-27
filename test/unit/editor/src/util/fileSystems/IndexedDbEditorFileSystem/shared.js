@@ -19,9 +19,15 @@ export async function createFs(name = "fs") {
 }
 
 let lastCreatedFsNameId = 0;
-export async function createBasicFs() {
+export async function createBasicFs({
+	disableStructuredClone = false,
+} = {}) {
 	lastCreatedFsNameId++;
 	const fs = await createFs(`fileSystem_${lastCreatedFsNameId}`);
+	if (fs) {
+		const castDb = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
+		castDb?.setUseStructuredClone(false);
+	}
 	await fs.createDir(["root"]);
 	await fs.writeText(["root", "file1"], "hello");
 	await fs.writeText(["root", "file2"], "hello");

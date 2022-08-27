@@ -1,5 +1,5 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
-import {assert, assertEquals} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
@@ -290,11 +290,11 @@ Deno.test({
 Deno.test({
 	name: "readFile",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const fs = await createBasicFs({disableStructuredClone: true});
 
 		const result = await fs.readFile(["root", "file1"]);
 
-		assert(result instanceof File, "file1");
+		assertInstanceOf(result, File);
 	},
 });
 
