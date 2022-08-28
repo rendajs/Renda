@@ -53,6 +53,10 @@ export class EditorWindowTabs extends EditorWindow {
 
 		this.isInit = false;
 
+		this.onFocusedWithinChange(hasFocus => {
+			this.activeTab.focusWithinChange(hasFocus);
+		});
+
 		this.setTabDragOverlayEnabled(false);
 	}
 
@@ -281,7 +285,7 @@ export class EditorWindowTabs extends EditorWindow {
 			const active = i == index;
 			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
 			this.tabs[i].setVisible(active);
-			this.tabs[i].focusChange(active);
+			this.tabs[i].focusWithinChange(active);
 		}
 		this.fireActiveTabChange();
 		this.fireWorkspaceChangeCbs();
@@ -309,15 +313,6 @@ export class EditorWindowTabs extends EditorWindow {
 		} else {
 			this.lastTabDragOverlayBoundingRect = null;
 		}
-	}
-
-	/**
-	 * @override
-	 * @param {boolean} hasFocus
-	 */
-	fireFocusedChange(hasFocus) {
-		super.fireFocusedChange(hasFocus);
-		this.activeTab.focusChange(hasFocus);
 	}
 
 	onResized() {

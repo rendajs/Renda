@@ -102,7 +102,7 @@ export class ContentWindow {
 	 * Gets fired when the parent editor window receives or loses focus.
 	 * @param {boolean} hasFocus
 	 */
-	focusChange(hasFocus) {
+	focusWithinChange(hasFocus) {
 	}
 
 	/**

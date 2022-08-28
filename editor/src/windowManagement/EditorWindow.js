@@ -1,4 +1,8 @@
 export class EditorWindow {
+	#focusWithin = false;
+	/** @type {Set<(hasFocus: boolean) => any>} */
+	#onFocusedChangeCbs = new Set();
+
 	/**
 	 * @param {import("./WindowManager.js").WindowManager} windowManager
 	 */
@@ -11,13 +15,11 @@ export class EditorWindow {
 		this.windowManager = windowManager;
 		this.isRoot = false;
 
-		/** @type {Set<(hasFocus: boolean) => any>} */
-		this.onFocusedChangeCbs = new Set();
-		this.el.addEventListener("focusin", () => {
-			this.fireFocusedChange(true);
+		this.el.addEventListener("focusin", e => {
+			this.#updateFocusWithin(e.target);
 		});
-		this.el.addEventListener("focusout", () => {
-			this.fireFocusedChange(false);
+		this.el.addEventListener("focusout", e => {
+			this.#updateFocusWithin(e.relatedTarget);
 		});
 
 		/** @type {Set<function() : void>} */
@@ -40,19 +42,25 @@ export class EditorWindow {
 	}
 
 	/**
-	 * @param {(hasFocus: boolean) => any} cb
+	 * @param {EventTarget?} target The element receiving focus
 	 */
-	onFocusedChange(cb) {
-		this.onFocusedChangeCbs.add(cb);
+	#updateFocusWithin(target) {
+		let focusWithin = false;
+		if (target && target instanceof Node && this.el.contains(target)) {
+			focusWithin = true;
+		}
+		if (focusWithin == this.#focusWithin) return;
+		this.#focusWithin = focusWithin;
+		for (const cb of this.#onFocusedChangeCbs) {
+			cb(focusWithin);
+		}
 	}
 
 	/**
-	 * @param {boolean} hasFocus
+	 * @param {(hasFocus: boolean) => any} cb
 	 */
-	fireFocusedChange(hasFocus) {
-		for (const cb of this.onFocusedChangeCbs) {
-			cb(hasFocus);
-		}
+	onFocusedWithinChange(cb) {
+		this.#onFocusedChangeCbs.add(cb);
 	}
 
 	focus() {
