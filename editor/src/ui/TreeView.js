@@ -213,8 +213,6 @@ export class TreeView {
 
 		this.hasFocusWithin = false;
 		this.focusWithinReceiveTime = -Infinity;
-		this.boundOnFocusIn = this.onFocusIn.bind(this);
-		this.boundOnFocusOut = this.onFocusOut.bind(this);
 
 		this.boundOnSelectPreviousKeyPressed = this.onSelectPreviousKeyPressed.bind(this);
 		this.boundOnSelectNextKeyPressed = this.onSelectNextKeyPressed.bind(this);
@@ -1277,11 +1275,11 @@ export class TreeView {
 			this.hasRootEventListeners = needsEventHandlers;
 
 			if (needsEventHandlers) {
-				this.el.addEventListener("focusin", this.boundOnFocusIn);
-				this.el.addEventListener("focusout", this.boundOnFocusOut);
+				this.el.addEventListener("focusin", this.#onFocusIn);
+				this.el.addEventListener("focusout", this.#onFocusOut);
 			} else {
-				this.el.removeEventListener("focusin", this.boundOnFocusIn);
-				this.el.removeEventListener("focusout", this.boundOnFocusOut);
+				this.el.removeEventListener("focusin", this.#onFocusIn);
+				this.el.removeEventListener("focusout", this.#onFocusOut);
 			}
 
 			const shortcutManager = getMaybeEditorInstance()?.keyboardShortcutManager;
@@ -1305,23 +1303,36 @@ export class TreeView {
 		}
 	}
 
-	onFocusIn() {
-		if (this.hasFocusWithin) return;
-		this.hasFocusWithin = true;
-		this.focusWithinReceiveTime = performance.now();
-		this.updateSelectedChildrenStyle();
-		this.fireEvent("focuswithinchange", {
-			hasFocusWithin: this.hasFocusWithin,
-			target: this,
-		});
-	}
+	/**
+	 * @param {FocusEvent} e
+	 */
+	#onFocusIn = e => {
+		this.#handleFocusWithinChange(e.target);
+	};
 
-	onFocusOut() {
-		if (!this.hasFocusWithin) return;
-		this.hasFocusWithin = false;
+	/**
+	 * @param {FocusEvent} e
+	 */
+	#onFocusOut = e => {
+		this.#handleFocusWithinChange(e.relatedTarget);
+	};
+
+	/**
+	 * @param {EventTarget?} target The element receiving focus
+	 */
+	#handleFocusWithinChange(target) {
+		let hasFocusWithin = false;
+		if (target && target instanceof Node && this.el.contains(target)) {
+			hasFocusWithin = true;
+		}
+		if (hasFocusWithin == this.hasFocusWithin) return;
+		this.hasFocusWithin = hasFocusWithin;
+		if (hasFocusWithin) {
+			this.focusWithinReceiveTime = performance.now();
+		}
 		this.updateSelectedChildrenStyle();
 		this.fireEvent("focuswithinchange", {
-			hasFocusWithin: this.hasFocusWithin,
+			hasFocusWithin,
 			target: this,
 		});
 	}
