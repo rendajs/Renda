@@ -5,6 +5,7 @@ import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSyst
 import {ContentWindowProject} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowProject.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 import {assertEquals} from "std/testing/asserts.ts";
+import {assertSpyCalls, stub} from "std/testing/mock.ts";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
@@ -77,6 +78,7 @@ async function basicSetup({
 
 	return {
 		contentWindow,
+		mockSelectionGroup,
 		/**
 		 * @param {boolean} granted
 		 */
@@ -194,13 +196,35 @@ Deno.test({
 Deno.test({
 	name: "Root tree view is collapsed when permission is denied",
 	async fn() {
-		const {contentWindow, triggerPermissionPromptCbs, uninstall} = await basicSetup({
-		});
+		const {contentWindow, triggerPermissionPromptCbs, uninstall} = await basicSetup();
 
 		try {
 			assertEquals(contentWindow.treeView.expanded, true);
 			triggerPermissionPromptCbs(false);
 			assertEquals(contentWindow.treeView.expanded, false);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Activates the selection group when the treeview receives focus",
+	async fn() {
+		const {contentWindow, mockSelectionGroup, uninstall} = await basicSetup();
+
+		try {
+			const activateSpy = stub(mockSelectionGroup, "activate", () => {});
+			contentWindow.treeView.fireEvent("focuswithinchange", {
+				hasFocusWithin: false,
+				target: contentWindow.treeView,
+			});
+			assertSpyCalls(activateSpy, 0);
+			contentWindow.treeView.fireEvent("focuswithinchange", {
+				hasFocusWithin: true,
+				target: contentWindow.treeView,
+			});
+			assertSpyCalls(activateSpy, 1);
 		} finally {
 			uninstall();
 		}

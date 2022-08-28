@@ -78,7 +78,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		const lastCam = this.previewCamComponent;
 		let foundCamComponent = null;
 		if (this.linkedEntityEditor) {
-			for (const {entity} of this.linkedEntityEditor.selectionManager.currentSelectedObjects) {
+			for (const {entity} of this.linkedEntityEditor.selectionGroup.currentSelectedObjects) {
 				for (const camComponent of entity.getComponents(CameraComponent)) {
 					foundCamComponent = camComponent;
 					break;

@@ -25,6 +25,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.treeView.renameable = true;
 		this.contentEl.appendChild(this.treeView.el);
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
+		this.treeView.addEventListener("focuswithinchange", this.onTreeViewFocusWithinChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
 		this.treeView.addEventListener("validatedrag", this.onTreeViewValidatedrag.bind(this));
@@ -75,8 +76,8 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.linkedEntityEditor = null;
 	}
 
-	get selectionManager() {
-		return this.linkedEntityEditor?.selectionManager ?? null;
+	get selectionGroup() {
+		return this.linkedEntityEditor?.selectionGroup ?? null;
 	}
 
 	/**
@@ -228,14 +229,33 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewSelectionChangeEvent} e
 	 */
 	onTreeViewSelectionChange(e) {
-		if (!this.linkedEntityEditor || !this.selectionManager) return;
+		if (!this.linkedEntityEditor || !this.selectionGroup) return;
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroupChangeData<EntitySelection>} */
 		const changeData = {
 			added: this.mapSelectionChangeData(e.added),
 			removed: this.mapSelectionChangeData(e.removed),
 			reset: e.reset,
 		};
-		this.selectionManager.changeSelection(changeData);
+		this.selectionGroup.changeSelection(changeData);
+	}
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewFocusWithinChangeEvent} e
+	 */
+	onTreeViewFocusWithinChange(e) {
+		if (e.hasFocusWithin) {
+			this.selectionGroup?.activate();
+		}
+	}
+
+	/**
+	 * @override
+	 * @param {boolean} hasFocus
+	 */
+	focusWithinChange(hasFocus) {
+		if (hasFocus) {
+			this.treeView.focus();
+		}
 	}
 
 	/**

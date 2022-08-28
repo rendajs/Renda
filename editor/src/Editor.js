@@ -53,20 +53,16 @@ export class Editor {
 		for (const component of builtInComponents) {
 			this.componentTypeManager.registerComponent(component);
 		}
-
-		this.lastUsedSelectionManager = null;
 	}
 
-	// convenience function for getting selected object in the browser console
+	/**
+	 * This serves as both a convencience function for quicly accessing selected
+	 * objects from the console using `editor.selected` and is also used in e2e
+	 * tests for getting access to objects.
+	 */
 	get selected() {
-		const contentWindow = /** @type {any} */ (this.windowManager.lastFocusedContentWindow);
-		let selectionManager = contentWindow?.selectionManager;
-		if (selectionManager && selectionManager != this.lastUsedSelectionManager) {
-			this.lastUsedSelectionManager = selectionManager;
-		} else {
-			selectionManager = this.lastUsedSelectionManager;
-		}
-		const selected = selectionManager?.currentSelectedObjects ?? [];
+		const selectionGroup = this.selectionManager.activeGroup;
+		const selected = selectionGroup?.currentSelectedObjects ?? [];
 		if (selected.length == 0) return null;
 		if (selected.length == 1) return selected[0];
 		return [...selected];

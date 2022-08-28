@@ -144,6 +144,7 @@ export class ContentWindowProject extends ContentWindow {
 		this.treeView.alwaysShowArrow = true;
 		this.treeView.collapsed = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
+		this.treeView.addEventListener("focuswithinchange", this.onTreeViewFocusWithinChange.bind(this));
 		this.treeView.addEventListener("collapsedchange", this.onTreeViewCollapsedChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
@@ -164,7 +165,7 @@ export class ContentWindowProject extends ContentWindow {
 		this.contentEl.appendChild(this.treeView.el);
 
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
-		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
+		this.selectionGroup = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.rootNameInit = false;
 		this.treeViewInit = false;
@@ -192,7 +193,7 @@ export class ContentWindowProject extends ContentWindow {
 		super.destructor();
 
 		this.treeView.destructor();
-		this.selectionManager.destructor();
+		this.selectionGroup.destructor();
 
 		this.editorInstance.projectManager.removeOnExternalChange(this.boundExternalChange);
 	}
@@ -529,7 +530,26 @@ export class ContentWindowProject extends ContentWindow {
 		changes.reset = treeViewChanges.reset;
 		changes.added = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
 		changes.removed = await this.mapTreeViewArrayToProjectAssets(treeViewChanges.removed);
-		this.selectionManager.changeSelection(changes);
+		this.selectionGroup.changeSelection(changes);
+	}
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewFocusWithinChangeEvent} e
+	 */
+	onTreeViewFocusWithinChange(e) {
+		if (e.hasFocusWithin) {
+			this.selectionGroup.activate();
+		}
+	}
+
+	/**
+	 * @override
+	 * @param {boolean} hasFocus
+	 */
+	focusWithinChange(hasFocus) {
+		if (hasFocus) {
+			this.treeView.focus();
+		}
 	}
 
 	/**

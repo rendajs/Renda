@@ -53,6 +53,10 @@ export class EditorWindowTabs extends EditorWindow {
 
 		this.isInit = false;
 
+		this.onFocusedWithinChange(hasFocus => {
+			this.activeTab.focusWithinChange(hasFocus);
+		});
+
 		this.setTabDragOverlayEnabled(false);
 	}
 
@@ -281,6 +285,7 @@ export class EditorWindowTabs extends EditorWindow {
 			const active = i == index;
 			this.tabsSelectorGroup.buttons[i].setSelectedHighlight(active);
 			this.tabs[i].setVisible(active);
+			this.tabs[i].focusWithinChange(active);
 		}
 		this.fireActiveTabChange();
 		this.fireWorkspaceChangeCbs();

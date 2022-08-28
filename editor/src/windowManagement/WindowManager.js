@@ -245,7 +245,7 @@ export class WindowManager {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
-			castWindow.onFocusedChange(hasFocus => {
+			castWindow.onFocusedWithinChange(hasFocus => {
 				if (hasFocus) {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}

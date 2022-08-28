@@ -19,6 +19,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		this.treeView.rowVisible = false;
 		this.treeView.draggable = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
+		this.treeView.addEventListener("focuswithinchange", this.onTreeViewFocusWithinChange.bind(this));
 		// this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		// this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
@@ -28,7 +29,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		this.contentEl.appendChild(this.treeView.el);
 
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
-		this.selectionManager = this.editorInstance.selectionManager.createSelectionGroup();
+		this.selectionGroup = this.editorInstance.selectionManager.createSelectionGroup();
 
 		this.init();
 	}
@@ -42,7 +43,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		super.destructor();
 
 		this.treeView.destructor();
-		this.selectionManager.destructor();
+		this.selectionGroup.destructor();
 	}
 
 	updateTreeView() {
@@ -123,7 +124,28 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		changes.reset = treeViewChanges.reset;
 		changes.added = this.mapTreeViewArrayToProjectAssets(treeViewChanges.added);
 		changes.removed = this.mapTreeViewArrayToProjectAssets(treeViewChanges.removed);
-		this.selectionManager.changeSelection(changes);
+		this.selectionGroup.changeSelection(changes);
+	}
+
+	/**
+	 * @param {import("../../ui/TreeView.js").TreeViewFocusWithinChangeEvent} e
+	 */
+	onTreeViewFocusWithinChange(e) {
+		if (e.hasFocusWithin) {
+			this.selectionGroup.activate();
+		}
+	}
+
+	/**
+	 * @override
+	 * @param {boolean} hasFocus
+	 */
+	focusWithinChange(hasFocus) {
+		if (hasFocus) {
+			if (this.treeView.children.length > 0) {
+				this.treeView.children[0].focus();
+			}
+		}
 	}
 
 	/**
