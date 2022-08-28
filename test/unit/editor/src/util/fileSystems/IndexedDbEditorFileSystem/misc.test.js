@@ -78,6 +78,29 @@ Deno.test({
 });
 
 Deno.test({
+	name: "createDir() the same path twice at the same time",
+	async fn() {
+		const {fs, getEntryCount} = await createBasicFs({
+			disableStructuredClone: true,
+		});
+		const originalEntryCount = getEntryCount();
+		const promise1 = fs.createDir(["root", "created", "dir1"]);
+		const promise2 = fs.createDir(["root", "created", "dir1"]);
+		await promise1;
+		await promise2;
+
+		const result = await fs.readDir(["root", "created"]);
+		assertEquals(result, {
+			directories: ["dir1"],
+			files: [],
+		});
+
+		const newEntryCount = getEntryCount();
+		assertEquals(newEntryCount, originalEntryCount + 2);
+	},
+});
+
+Deno.test({
 	name: "createDir() causes waitForWritesFinish to stay pending until done",
 	async fn() {
 		const {fs} = await createBasicFs();
@@ -127,6 +150,26 @@ Deno.test({
 		}
 
 		assertEquals(didThrow, true);
+	},
+});
+
+Deno.test({
+	name: "readDir while a new file is being created",
+	async fn() {
+		const {fs} = await createBasicFs();
+
+		const promise1 = fs.writeFile(["root", "onlyfiles", "createdfile"], "hello");
+		const promise2 = fs.readDir(["root", "onlyfiles"]);
+
+		await promise1;
+		assertEquals(await promise2, {
+			directories: [],
+			files: [
+				"subfile1",
+				"subfile2",
+				"createdfile",
+			],
+		});
 	},
 });
 
@@ -251,6 +294,19 @@ Deno.test({
 });
 
 Deno.test({
+	name: "readFile while it is being written",
+	async fn() {
+		const {fs} = await createBasicFs({disableStructuredClone: true});
+
+		const promise1 = fs.writeFile(["root", "file"], "hello");
+		const promise2 = fs.readText(["root", "file"]);
+
+		await promise1;
+		assertEquals(await promise2, "hello");
+	},
+});
+
+Deno.test({
 	name: "isFile true",
 	fn: async () => {
 		const {fs} = await createBasicFs();
@@ -295,6 +351,18 @@ Deno.test({
 });
 
 Deno.test({
+	name: "isFile while it is being created",
+	async fn() {
+		const {fs} = await createBasicFs();
+
+		const promise1 = fs.writeFile(["root", "file"], "hello");
+		const promise2 = fs.isFile(["root", "file"]);
+		await promise1;
+		assertEquals(await promise2, true);
+	},
+});
+
+Deno.test({
 	name: "isDir true",
 	fn: async () => {
 		const {fs} = await createBasicFs();
@@ -335,5 +403,18 @@ Deno.test({
 		const isDir = await fs.isDir(["root", "nonExistent", "dir"]);
 
 		assertEquals(isDir, false);
+	},
+});
+
+Deno.test({
+	name: "isDir while it is being created",
+	async fn() {
+		const {fs} = await createBasicFs();
+
+		const promise1 = fs.createDir(["root", "dir"]);
+		const promise2 = fs.isDir(["root", "dir"]);
+
+		await promise1;
+		assertEquals(await promise2, true);
 	},
 });
