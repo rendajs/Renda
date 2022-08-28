@@ -1230,6 +1230,10 @@ export class TreeView {
 		this.updateDataRenameValue();
 	}
 
+	focus() {
+		this.rowEl.focus();
+	}
+
 	updateDataRenameValue() {
 		if (this.renameTextField) {
 			this.myNameEl.dataset.renameValue = this.renameTextField.value;

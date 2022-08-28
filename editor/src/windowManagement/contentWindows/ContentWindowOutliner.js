@@ -249,6 +249,16 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/**
+	 * @override
+	 * @param {boolean} hasFocus
+	 */
+	focusChange(hasFocus) {
+		if (hasFocus) {
+			this.treeView.focus();
+		}
+	}
+
+	/**
 	 * @param {TreeView[]} treeViews
 	 */
 	mapSelectionChangeData(treeViews) {

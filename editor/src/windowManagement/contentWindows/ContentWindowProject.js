@@ -543,6 +543,16 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
+	 * @override
+	 * @param {boolean} hasFocus
+	 */
+	focusChange(hasFocus) {
+		if (hasFocus) {
+			this.treeView.focus();
+		}
+	}
+
+	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewCollapseEvent} e
 	 */
 	async onTreeViewCollapsedChange(e) {
