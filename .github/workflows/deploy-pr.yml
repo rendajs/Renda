@@ -13,10 +13,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success'
     environment: deploy_pr
     steps:
-      - name: Debug workflow event
-        env:
-          EVENT: ${{ github.event.workflow_run.event }}
-        run: echo $EVENT
+
       - name: Download build artifact
         uses: actions/github-script@v3
         with:
@@ -52,12 +49,95 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require("fs");
-            return parseInt(fs.readFileSync("./pr.txt"), 10);
+            const prId = parseInt(fs.readFileSync("./pr.txt"), 10);
+            if (isNaN(prId) || prId <= 0) {
+              throw new Error("Invalid PR id.");
+            }
+            return prId;
+
+      - name: Get commmit sha
+        id: get-commit-sha
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require("fs");
+            const sha = fs.readFileSync("./github_sha.txt");
+            const validChars = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
+            if (!sha) {
+              throw new Error("Missing commit sha.")
+            }
+            for (const char of sha) {
+              if (!validChars.includes(char)) {
+                throw new Error("Invalid sha");
+              }
+            }
+            return sha;
+
+      # Normally github automatically displays a deployment status for workflows
+      # that are related to a specific commit. But since this workflow is triggered
+      # by the 'workflow_run' event, the commit sha for this run is the sha from
+      # the 'main' branch rather than the commit from the PR.
+      # So we'll manually create a deployment status, this also allows us to
+      # set the environment_url so that github displays a button that leads you
+      # directly to the deployed page.
+      - name: Create deployment status
+        id: create-deployment-status
+        uses: actions/github-script@v3
+        env:
+          BUILD_COMMIT_SHA: ${{steps.get-commit-sha.outputs.result }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const {data: deploymentData} = await github.request("POST /repos/{owner}/{repo}/deployments", {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: ${ BUILD_COMMIT_SHA },
+              environment: "PR preview",
+            });
+
+            await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
+              owner, repo,
+              deploymentId: deploymentData.id,
+              state: "in_progress",
+            });
+
+            return deploymentData.id;
 
       - name: Deploy files
         env:
           PR_DEPLOY_TOKEN: ${{ secrets.PR_DEPLOY_TOKEN }}
           PR_ID: ${{ steps.get-pr-number.outputs.result }}
         run: |
-          echo pr id: $PR_ID
           curl -X POST -H "DEPLOY_TOKEN: $PR_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/pr?id=$PR_ID"
+
+      - name: Update deployment status success
+        uses: actions/github-script@v3
+        env:
+          DEPLOYMENT_ID: ${{ steps.create-deployment-status.outputs.result }}
+          PR_ID: ${{ steps.get-pr-number.outputs.result }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deploymentId: ${ DEPLOYMENT_ID },
+              state: "success",
+              environment_url: "https://pr-${ PR_ID }.renda.studio"
+            });
+
+      - name: Update deployment status failure
+        if: ${{ failure() }}
+        uses: actions/github-script@v3
+        env:
+          DEPLOYMENT_ID: ${{ steps.create-deployment-status.outputs.result }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deploymentId: ${ DEPLOYMENT_ID },
+              state: "failure",
+            });
