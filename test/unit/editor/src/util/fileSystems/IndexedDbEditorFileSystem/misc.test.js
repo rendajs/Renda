@@ -204,6 +204,26 @@ Deno.test({
 });
 
 Deno.test({
+	name: "writeFile() while the file is already being written somewhere else",
+	async fn() {
+		const {fs, getEntryCount} = await createBasicFs({
+			disableStructuredClone: true,
+		});
+		const originalEntryCount = getEntryCount();
+		const promise1 = fs.writeFile(["root", "file1"], "hello1");
+		const promise2 = fs.writeFile(["root", "file1"], "hello2");
+		await promise1;
+		await promise2;
+
+		const result = await fs.readText(["root", "file1"]);
+		assertEquals(result, "hello2");
+
+		const newEntryCount = getEntryCount();
+		assertEquals(newEntryCount, originalEntryCount);
+	},
+});
+
+Deno.test({
 	name: "readFile",
 	fn: async () => {
 		const {fs} = await createBasicFs({disableStructuredClone: true});

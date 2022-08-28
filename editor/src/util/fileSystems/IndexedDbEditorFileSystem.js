@@ -1,6 +1,7 @@
 import {EditorFileSystem} from "./EditorFileSystem.js";
 import {IndexedDbUtil} from "../../../../src/util/IndexedDbUtil.js";
 import {generateUuid} from "../../../../src/util/util.js";
+import {wait} from "../../../../src/util/Timeout.js";
 
 // eslint-disable-next-line no-unused-vars
 const fileSystemPointerType = Symbol("file system pointer type");
@@ -70,6 +71,66 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			throw new Error("Operation can't be performed. Db has been deleted.");
 		}
 		return this.db;
+	}
+
+	// TODO: Add support for locking specific files only.
+
+	/**
+	 * The IndexedDb can be locked from multiple processes, and this requires us
+	 * to poll the lock in order to find out when it is unlocked. But if we know
+	 * that the system has been locked by this instance, we can skip polling and
+	 * use this flag instead.
+	 * This flag becomes true when this instance requests a lock, however, if
+	 * a lock is already active in another process, this might also become true
+	 * if this instance requests a lock during that time.
+	 */
+	#systemLockedByThisInstance = false;
+
+	/** @type {Set<() => void>} */
+	#onSystemUnlockCbs = new Set();
+
+	/**
+	 * This adds an entry to the database indicating that the system is being modified.
+	 * Use this when modifying objects in the database other than the contents of files.
+	 * If the system is already locked, the returned promise will resolve once it unlocks.
+	 * The system is locked using a timestamp, in case of a failure to unlock the system.
+	 * If the lock is older than a second it is ignored and automatically unlocked.
+	 */
+	async #getSystemLock() {
+		const db = this.assertDbExists();
+		if (this.#systemLockedByThisInstance) {
+			/** @type {Promise<void>} */
+			const promise = new Promise(r => {
+				this.#onSystemUnlockCbs.add(r);
+			});
+			await promise;
+		}
+
+		this.#systemLockedByThisInstance = true;
+
+		// polling :(
+		let locked = true;
+		while (locked) {
+			await db.getSet("systemLock", existingLock => {
+				if (!existingLock || Date.now() - existingLock > 1_000) {
+					locked = false;
+					return Date.now();
+				}
+				return existingLock;
+			}, "system");
+
+			// Not sure what would be a good polling rate, we'll just use half the timeout
+			if (locked) await wait(500);
+		}
+
+		return {
+			unlock: async () => {
+				await db.set("systemLock", 0, "system");
+				this.#systemLockedByThisInstance = false;
+				this.#onSystemUnlockCbs.forEach(cb => cb());
+				this.#onSystemUnlockCbs.clear();
+			},
+		};
 	}
 
 	/**
@@ -491,47 +552,52 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 */
 	async writeFile(path, file) {
 		const writeOp = this.requestWriteOperation();
-		this.fireOnBeforeAnyChange();
-		if (!file) file = new Blob();
-		const fileName = path[path.length - 1];
-		let type = "";
-		let lastModified = Date.now();
-		if (file instanceof File) {
-			type = file.type;
-			lastModified = file.lastModified;
-		}
-		const createdFile = new File([file], fileName, {type, lastModified});
-		const newParentPath = path.slice(0, path.length - 1);
-		const newParentTravelledData = await this.createDirInternal(newParentPath);
-		const newFileName = path[path.length - 1];
-		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
-		this.assertIsDir(newParentObj.obj, `Failed to write to "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
-
-		this.readDirObject(newParentObj.obj);
-		const newPointer = await this.createObject({
-			isFile: true,
-			file: createdFile,
-			fileName: newFileName,
-		});
-
-		// Remove existing pointer with the same name
-		/** @type {IndexedDbEditorFileSystemPointer[]} */
-		const deletePointers = [];
-		for (const pointer of newParentObj.obj.files) {
-			const fileObject = await this.getObject(pointer);
-			if (fileObject.fileName == newFileName) {
-				deletePointers.push(pointer);
+		const {unlock} = await this.#getSystemLock();
+		try {
+			this.fireOnBeforeAnyChange();
+			if (!file) file = new Blob();
+			const fileName = path[path.length - 1];
+			let type = "";
+			let lastModified = Date.now();
+			if (file instanceof File) {
+				type = file.type;
+				lastModified = file.lastModified;
 			}
-		}
-		newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
-		const db = this.assertDbExists();
-		for (const pointer of deletePointers) {
-			await db.delete(pointer);
-		}
+			const createdFile = new File([file], fileName, {type, lastModified});
+			const newParentPath = path.slice(0, path.length - 1);
+			const newParentTravelledData = await this.createDirInternal(newParentPath);
+			const newFileName = path[path.length - 1];
+			const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
+			this.assertIsDir(newParentObj.obj, `Failed to write to "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
 
-		newParentObj.obj.files.push(newPointer);
-		await this.updateObject(newParentObj.pointer, newParentObj.obj);
-		writeOp.done();
+			this.readDirObject(newParentObj.obj);
+			const newPointer = await this.createObject({
+				isFile: true,
+				file: createdFile,
+				fileName: newFileName,
+			});
+
+			// Remove existing pointer with the same name
+			/** @type {IndexedDbEditorFileSystemPointer[]} */
+			const deletePointers = [];
+			for (const pointer of newParentObj.obj.files) {
+				const fileObject = await this.getObject(pointer);
+				if (fileObject.fileName == newFileName) {
+					deletePointers.push(pointer);
+				}
+			}
+			newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
+			const db = this.assertDbExists();
+			for (const pointer of deletePointers) {
+				await db.delete(pointer);
+			}
+
+			newParentObj.obj.files.push(newPointer);
+			await this.updateObject(newParentObj.pointer, newParentObj.obj);
+		} finally {
+			await unlock();
+			writeOp.done();
+		}
 	}
 
 	/**
