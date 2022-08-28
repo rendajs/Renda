@@ -1,3 +1,4 @@
+import {assertExists} from "std/testing/asserts.ts";
 import {Importer} from "fake-imports";
 
 const importer = new Importer(import.meta.url);
@@ -40,5 +41,12 @@ export async function createBasicFs({
 	await fs.createDir(["root", "onlydirs", "subdir1"]);
 	await fs.createDir(["root", "onlydirs", "subdir2"]);
 
-	return fs;
+	return {
+		fs,
+		getEntryCount() {
+			const db = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
+			assertExists(db);
+			return Array.from(db.entries()).length;
+		},
+	};
 }
