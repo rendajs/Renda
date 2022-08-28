@@ -76,8 +76,8 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {IndexedDbEditorFileSystemStoredObject} obj
 	 * @return {asserts obj is IndexedDbEditorFileSystemStoredObjectDir}
 	 */
-	assertIsDir(obj) {
-		if (!obj.isDir) throw new Error(`Couldn't perform operation, ${obj.fileName} is not a directory.`);
+	assertIsDir(obj, message = `Couldn't perform operation, ${obj.fileName} is not a directory.`) {
+		if (!obj.isDir) throw new Error(message);
 	}
 
 	/**
@@ -233,6 +233,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * Same as createDir but returns travelled data.
 	 * It is internal because the publicly facing api does not need to know
 	 * about travelled data.
+	 * @private
 	 * @param {string[]} path
 	 */
 	async createDirInternal(path) {
@@ -262,7 +263,8 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		}
 		const lastFoundPathEntry = travelledData[travelledData.length - 1];
 		const lastFoundObject = lastFoundPathEntry.obj;
-		this.assertIsDir(lastFoundObject);
+		const assertionPath = path.slice(0, travelledData.length - 1);
+		this.assertIsDir(lastFoundObject, `Failed to create directory at "${path.join("/")}", "${assertionPath.join("/")}" is file.`);
 		if (!lastCreatedPointer) {
 			throw new Error("Failed to get file pointer");
 			// This should never be called because we already checked if the
@@ -502,13 +504,15 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		const newParentPath = path.slice(0, path.length - 1);
 		const newParentTravelledData = await this.createDirInternal(newParentPath);
 		const newFileName = path[path.length - 1];
+		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
+		this.assertIsDir(newParentObj.obj, `Failed to write to "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
+
+		this.readDirObject(newParentObj.obj);
 		const newPointer = await this.createObject({
 			isFile: true,
 			file: createdFile,
 			fileName: newFileName,
 		});
-		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
-		this.assertIsDir(newParentObj.obj);
 
 		// Remove existing pointer with the same name
 		/** @type {IndexedDbEditorFileSystemPointer[]} */

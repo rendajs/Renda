@@ -1,5 +1,5 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
-import {assert, assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
@@ -163,14 +163,9 @@ Deno.test({
 	fn: async () => {
 		const fs = await createBasicFs();
 
-		let didThrow = false;
-		try {
+		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "newfile"], "hello world");
-		} catch {
-			didThrow = true;
-		}
-
-		assertEquals(didThrow, true);
+		}, Error, 'Failed to write to "root/file1/newfile", "root/file1" is not a directory.');
 	},
 });
 
@@ -179,14 +174,9 @@ Deno.test({
 	fn: async () => {
 		const fs = await createBasicFs();
 
-		let didThrow = false;
-		try {
+		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "anotherdir", "newfile"], "hello world");
-		} catch {
-			didThrow = true;
-		}
-
-		assertEquals(didThrow, true);
+		}, Error, 'Failed to create directory at "root/file1/anotherdir", "root/file1" is file.');
 	},
 });
 
