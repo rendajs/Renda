@@ -49,7 +49,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require("fs");
-            const prId = parseInt(fs.readFileSync("./pr.txt"), 10);
+            const prId = parseInt(fs.readFileSync("./pr.txt", "utf8"), 10);
             if (isNaN(prId) || prId <= 0) {
               throw new Error("Invalid PR id.");
             }
@@ -62,7 +62,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require("fs");
-            const sha = fs.readFileSync("./github_sha.txt").trim();
+            const sha = fs.readFileSync("./github_sha.txt", "utf8").trim();
             const validChars = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
             if (!sha) {
               throw new Error("Missing commit sha.");
