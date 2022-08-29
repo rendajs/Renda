@@ -1,11 +1,11 @@
 import {createBasicFs, forcePendingOperations} from "./shared.js";
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
+import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
 	name: "delete() should delete files",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const {fs} = await createBasicFs();
 
 		await fs.delete(["root", "file1"]);
 
@@ -24,7 +24,7 @@ Deno.test({
 Deno.test({
 	name: "delete() should fire onBeforeAnyChange",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const {fs} = await createBasicFs();
 
 		let fired = false;
 		fs.onBeforeAnyChange(() => {
@@ -40,7 +40,7 @@ Deno.test({
 Deno.test({
 	name: "delete() should throw when deleting the root directory",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const {fs} = await createBasicFs();
 
 		let didThrow = false;
 		try {
@@ -56,7 +56,7 @@ Deno.test({
 Deno.test({
 	name: "delete() should throw when deleting a non-existent file",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const {fs} = await createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.delete(["root", "onlyfiles", "nonexistent"]);
@@ -67,7 +67,7 @@ Deno.test({
 Deno.test({
 	name: "delete() should throw when deleting a non-existent with non-existent parent",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const {fs} = await createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.delete(["root", "nonexistent", "nonexistent"]);
@@ -78,7 +78,7 @@ Deno.test({
 Deno.test({
 	name: "delete() should throw when deleting a non-empty directory with recursive=false",
 	fn: async () => {
-		const fs = await createBasicFs();
+		const {fs} = await createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.delete(["root", "onlyfiles"]);
@@ -89,11 +89,9 @@ Deno.test({
 Deno.test({
 	name: "delete() a directory with recursive = true",
 	async fn() {
-		const fs = await createBasicFs();
+		const {fs, getEntryCount} = await createBasicFs();
 
-		const db = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
-		assertExists(db);
-		const entryCount = Array.from(db.entries()).length;
+		const initialEntryCount = getEntryCount();
 
 		await fs.delete(["root", "onlyfiles"], true);
 
@@ -107,15 +105,15 @@ Deno.test({
 
 		// The "onlyfiles" directory contains two files, so including itself
 		// 3 items should have been removed
-		const newEntryCount = Array.from(db.entries()).length;
-		assertEquals(newEntryCount, entryCount - 3);
+		const newEntryCount = getEntryCount();
+		assertEquals(newEntryCount, initialEntryCount - 3);
 	},
 });
 
 Deno.test({
 	name: "delete() causes waitForWritesFinish to stay pending until done",
 	async fn() {
-		const fs = await createBasicFs();
+		const {fs} = await createBasicFs();
 
 		const deletePromise = fs.delete(["root", "file1"]);
 		const waitPromise = fs.waitForWritesFinish();

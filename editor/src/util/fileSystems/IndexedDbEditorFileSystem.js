@@ -1,6 +1,7 @@
 import {EditorFileSystem} from "./EditorFileSystem.js";
 import {IndexedDbUtil} from "../../../../src/util/IndexedDbUtil.js";
 import {generateUuid} from "../../../../src/util/util.js";
+import {wait} from "../../../../src/util/Timeout.js";
 
 // eslint-disable-next-line no-unused-vars
 const fileSystemPointerType = Symbol("file system pointer type");
@@ -72,12 +73,72 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		return this.db;
 	}
 
+	// TODO: Add support for locking specific files only.
+
+	/**
+	 * The IndexedDb can be locked from multiple processes, and this requires us
+	 * to poll the lock in order to find out when it is unlocked. But if we know
+	 * that the system has been locked by this instance, we can skip polling and
+	 * use this flag instead.
+	 * This flag becomes true when this instance requests a lock, however, if
+	 * a lock is already active in another process, this might also become true
+	 * if this instance requests a lock during that time.
+	 */
+	#systemLockedByThisInstance = false;
+
+	/** @type {Set<() => void>} */
+	#onSystemUnlockCbs = new Set();
+
+	/**
+	 * This adds an entry to the database indicating that the system is being modified.
+	 * Use this when modifying objects in the database other than the contents of files.
+	 * If the system is already locked, the returned promise will resolve once it unlocks.
+	 * The system is locked using a timestamp, in case of a failure to unlock the system.
+	 * If the lock is older than a second it is ignored and automatically unlocked.
+	 */
+	async #getSystemLock() {
+		const db = this.assertDbExists();
+		if (this.#systemLockedByThisInstance) {
+			/** @type {Promise<void>} */
+			const promise = new Promise(r => {
+				this.#onSystemUnlockCbs.add(r);
+			});
+			await promise;
+		}
+
+		this.#systemLockedByThisInstance = true;
+
+		// polling :(
+		let locked = true;
+		while (locked) {
+			await db.getSet("systemLock", existingLock => {
+				if (!existingLock || Date.now() - existingLock > 1_000) {
+					locked = false;
+					return Date.now();
+				}
+				return existingLock;
+			}, "system");
+
+			// Not sure what would be a good polling rate, we'll just use half the timeout
+			if (locked) await wait(500);
+		}
+
+		return {
+			unlock: async () => {
+				await db.set("systemLock", 0, "system");
+				this.#systemLockedByThisInstance = false;
+				this.#onSystemUnlockCbs.forEach(cb => cb());
+				this.#onSystemUnlockCbs.clear();
+			},
+		};
+	}
+
 	/**
 	 * @param {IndexedDbEditorFileSystemStoredObject} obj
 	 * @return {asserts obj is IndexedDbEditorFileSystemStoredObjectDir}
 	 */
-	assertIsDir(obj) {
-		if (!obj.isDir) throw new Error(`Couldn't perform operation, ${obj.fileName} is not a directory.`);
+	assertIsDir(obj, message = `Couldn't perform operation, ${obj.fileName} is not a directory.`) {
+		if (!obj.isDir) throw new Error(message);
 	}
 
 	/**
@@ -223,16 +284,22 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 */
 	async createDir(path) {
-		const op = this.requestWriteOperation();
 		super.createDir(path);
-		await this.createDirInternal(path);
-		op.done();
+		const op = this.requestWriteOperation();
+		const {unlock} = await this.#getSystemLock();
+		try {
+			await this.createDirInternal(path);
+		} finally {
+			await unlock();
+			op.done();
+		}
 	}
 
 	/**
 	 * Same as createDir but returns travelled data.
 	 * It is internal because the publicly facing api does not need to know
 	 * about travelled data.
+	 * @private
 	 * @param {string[]} path
 	 */
 	async createDirInternal(path) {
@@ -262,7 +329,8 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		}
 		const lastFoundPathEntry = travelledData[travelledData.length - 1];
 		const lastFoundObject = lastFoundPathEntry.obj;
-		this.assertIsDir(lastFoundObject);
+		const assertionPath = path.slice(0, travelledData.length - 1);
+		this.assertIsDir(lastFoundObject, `Failed to create directory at "${path.join("/")}", "${assertionPath.join("/")}" is file.`);
 		if (!lastCreatedPointer) {
 			throw new Error("Failed to get file pointer");
 			// This should never be called because we already checked if the
@@ -331,13 +399,18 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 */
 	async readDir(path) {
-		const {obj} = await this.getObjectFromPath(path);
-		this.assertIsDir(obj);
-		const {files, directories} = await this.readDirObject(obj);
-		return {
-			files: Array.from(files.keys()),
-			directories: Array.from(directories.keys()),
-		};
+		const {unlock} = await this.#getSystemLock();
+		try {
+			const {obj} = await this.getObjectFromPath(path);
+			this.assertIsDir(obj);
+			const {files, directories} = await this.readDirObject(obj);
+			return {
+				files: Array.from(files.keys()),
+				directories: Array.from(directories.keys()),
+			};
+		} finally {
+			await unlock();
+		}
 	}
 
 	/**
@@ -368,69 +441,76 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 */
 	async move(fromPath, toPath) {
 		super.move(fromPath, toPath);
-		this.fireOnBeforeAnyChange();
 
-		const oldName = fromPath[fromPath.length - 1];
-		const newName = toPath[toPath.length - 1];
+		const writeOp = this.requestWriteOperation();
+		const {unlock} = await this.#getSystemLock();
 
-		const travelledData = await this.findDeepestExisting(fromPath);
-		if (travelledData.length - 1 != fromPath.length) {
-			throw new Error(`Failed to move: The file or directory at "${fromPath.join("/")}" does not exist.`);
-		}
+		try {
+			const oldName = fromPath[fromPath.length - 1];
+			const newName = toPath[toPath.length - 1];
 
-		const newParentPath = toPath.slice(0, toPath.length - 1);
-		const newParentTravelledData = await this.createDirInternal(newParentPath);
-		const newParentEntry = newParentTravelledData[newParentTravelledData.length - 1];
-		this.assertIsDir(newParentEntry.obj);
-
-		// Check if toPath is an existing file
-		const {files: existingFiles, directories: existingDirectories} = await this.readDirObject(newParentEntry.obj);
-		if (existingFiles.has(newName)) {
-			throw new Error(`Failed to move: "${toPath.join("/")}" is a file.`);
-		}
-
-		// Check if toPath is an existing directory
-		const existingDirectoryPointer = existingDirectories.get(newName);
-		if (existingDirectoryPointer) {
-			const existingDirObj = await this.getObject(existingDirectoryPointer);
-			this.assertIsDir(existingDirObj);
-			const {files, directories} = await this.readDirObject(existingDirObj);
-			if (files.size > 0 || directories.size > 0) {
-				throw new Error(`Failed to move: "${toPath.join("/")}" is a non-empty directory.`);
-			} else {
-				// We need to remove the empty directory since we'll be moving the new directory here
-				newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != existingDirectoryPointer);
-				// No need to `updateObject` the newParentEntry since we'll do that later when adding the new directory.
+			const travelledData = await this.findDeepestExisting(fromPath);
+			if (travelledData.length - 1 != fromPath.length) {
+				throw new Error(`Failed to move: The file or directory at "${fromPath.join("/")}" does not exist.`);
 			}
-		}
 
-		// rename
-		const movingEntry = travelledData[travelledData.length - 1];
-		if (oldName != newName) {
-			movingEntry.obj.fileName = newName;
-			await this.updateObject(movingEntry.pointer, movingEntry.obj);
-		}
+			const newParentPath = toPath.slice(0, toPath.length - 1);
+			const newParentTravelledData = await this.createDirInternal(newParentPath);
+			const newParentEntry = newParentTravelledData[newParentTravelledData.length - 1];
+			this.assertIsDir(newParentEntry.obj);
 
-		const oldParentObjPath = fromPath.slice(0, fromPath.length - 1);
-		const oldParentEntry = await this.getObjectFromPath(oldParentObjPath);
+			// Check if toPath is an existing file
+			const {files: existingFiles, directories: existingDirectories} = await this.readDirObject(newParentEntry.obj);
+			if (existingFiles.has(newName)) {
+				throw new Error(`Failed to move: "${toPath.join("/")}" is a file.`);
+			}
 
-		// If the parent hasn't changed, we only need to update a single entry
-		if (oldParentEntry.pointer == newParentEntry.pointer) {
-			// remove old pointer
-			newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+			// Check if toPath is an existing directory
+			const existingDirectoryPointer = existingDirectories.get(newName);
+			if (existingDirectoryPointer) {
+				const existingDirObj = await this.getObject(existingDirectoryPointer);
+				this.assertIsDir(existingDirObj);
+				const {files, directories} = await this.readDirObject(existingDirObj);
+				if (files.size > 0 || directories.size > 0) {
+					throw new Error(`Failed to move: "${toPath.join("/")}" is a non-empty directory.`);
+				} else {
+					// We need to remove the empty directory since we'll be moving the new directory here
+					newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != existingDirectoryPointer);
+					// No need to `updateObject` the newParentEntry since we'll do that later when adding the new directory.
+				}
+			}
 
-			// add new pointer to new parent
-			newParentEntry.obj.files.push(movingEntry.pointer);
-			await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
-		} else {
-			// remove old pointer
-			this.assertIsDir(oldParentEntry.obj);
-			oldParentEntry.obj.files = oldParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
-			await this.updateObject(oldParentEntry.pointer, oldParentEntry.obj);
+			// rename
+			const movingEntry = travelledData[travelledData.length - 1];
+			if (oldName != newName) {
+				movingEntry.obj.fileName = newName;
+				await this.updateObject(movingEntry.pointer, movingEntry.obj);
+			}
 
-			// add new pointer to new parent
-			newParentEntry.obj.files.push(movingEntry.pointer);
-			await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
+			const oldParentObjPath = fromPath.slice(0, fromPath.length - 1);
+			const oldParentEntry = await this.getObjectFromPath(oldParentObjPath);
+
+			// If the parent hasn't changed, we only need to update a single entry
+			if (oldParentEntry.pointer == newParentEntry.pointer) {
+				// remove old pointer
+				newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+
+				// add new pointer to new parent
+				newParentEntry.obj.files.push(movingEntry.pointer);
+				await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
+			} else {
+				// remove old pointer
+				this.assertIsDir(oldParentEntry.obj);
+				oldParentEntry.obj.files = oldParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+				await this.updateObject(oldParentEntry.pointer, oldParentEntry.obj);
+
+				// add new pointer to new parent
+				newParentEntry.obj.files.push(movingEntry.pointer);
+				await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
+			}
+		} finally {
+			await unlock();
+			writeOp.done();
 		}
 	}
 
@@ -442,11 +522,27 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path, recursive = false) {
+		super.delete(path, recursive);
 		const writeOp = this.requestWriteOperation();
+		const {unlock} = await this.#getSystemLock();
+
+		try {
+			await this.#deleteInternal(path, recursive);
+		} finally {
+			await unlock();
+			writeOp.done();
+		}
+	}
+
+	/**
+	 * Same as `delete` but without locking so that it can be called recursively without getting stuck forever.
+	 * @param {EditorFileSystemPath} path
+	 * @param {boolean} recursive
+	 */
+	async #deleteInternal(path, recursive) {
 		if (path.length == 0) {
 			throw new Error("Cannot delete the root directory");
 		}
-		super.delete(path, recursive);
 		const travelledData = await this.findDeepestExisting(path);
 		if (travelledData.length - 1 != path.length) {
 			throw new Error(`Failed to delete "${path.join("/")}" because it does not exist.`);
@@ -466,9 +562,9 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 				const fileObj = await this.getObject(filePointer);
 				const filePath = [...path, fileObj.fileName];
 				if (fileObj.isDir) {
-					await this.delete(filePath, recursive);
+					await this.#deleteInternal(filePath, recursive);
 				} else if (fileObj.isFile) {
-					await this.delete(filePath);
+					await this.#deleteInternal(filePath, false);
 				}
 			}
 		}
@@ -479,7 +575,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		const oldPointerIndex = parentObj.obj.files.indexOf(pointer);
 		parentObj.obj.files.splice(oldPointerIndex, 1);
 		await this.updateObject(parentObj.pointer, parentObj.obj);
-		writeOp.done();
 	}
 
 	/**
@@ -489,45 +584,52 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 */
 	async writeFile(path, file) {
 		const writeOp = this.requestWriteOperation();
-		this.fireOnBeforeAnyChange();
-		if (!file) file = new Blob();
-		const fileName = path[path.length - 1];
-		let type = "";
-		let lastModified = Date.now();
-		if (file instanceof File) {
-			type = file.type;
-			lastModified = file.lastModified;
-		}
-		const createdFile = new File([file], fileName, {type, lastModified});
-		const newParentPath = path.slice(0, path.length - 1);
-		const newParentTravelledData = await this.createDirInternal(newParentPath);
-		const newFileName = path[path.length - 1];
-		const newPointer = await this.createObject({
-			isFile: true,
-			file: createdFile,
-			fileName: newFileName,
-		});
-		const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
-		this.assertIsDir(newParentObj.obj);
-
-		// Remove existing pointer with the same name
-		/** @type {IndexedDbEditorFileSystemPointer[]} */
-		const deletePointers = [];
-		for (const pointer of newParentObj.obj.files) {
-			const fileObject = await this.getObject(pointer);
-			if (fileObject.fileName == newFileName) {
-				deletePointers.push(pointer);
+		const {unlock} = await this.#getSystemLock();
+		try {
+			this.fireOnBeforeAnyChange();
+			if (!file) file = new Blob();
+			const fileName = path[path.length - 1];
+			let type = "";
+			let lastModified = Date.now();
+			if (file instanceof File) {
+				type = file.type;
+				lastModified = file.lastModified;
 			}
-		}
-		newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
-		const db = this.assertDbExists();
-		for (const pointer of deletePointers) {
-			await db.delete(pointer);
-		}
+			const createdFile = new File([file], fileName, {type, lastModified});
+			const newParentPath = path.slice(0, path.length - 1);
+			const newParentTravelledData = await this.createDirInternal(newParentPath);
+			const newFileName = path[path.length - 1];
+			const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
+			this.assertIsDir(newParentObj.obj, `Failed to write to "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
 
-		newParentObj.obj.files.push(newPointer);
-		await this.updateObject(newParentObj.pointer, newParentObj.obj);
-		writeOp.done();
+			this.readDirObject(newParentObj.obj);
+			const newPointer = await this.createObject({
+				isFile: true,
+				file: createdFile,
+				fileName: newFileName,
+			});
+
+			// Remove existing pointer with the same name
+			/** @type {IndexedDbEditorFileSystemPointer[]} */
+			const deletePointers = [];
+			for (const pointer of newParentObj.obj.files) {
+				const fileObject = await this.getObject(pointer);
+				if (fileObject.fileName == newFileName) {
+					deletePointers.push(pointer);
+				}
+			}
+			newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
+			const db = this.assertDbExists();
+			for (const pointer of deletePointers) {
+				await db.delete(pointer);
+			}
+
+			newParentObj.obj.files.push(newPointer);
+			await this.updateObject(newParentObj.pointer, newParentObj.obj);
+		} finally {
+			await unlock();
+			writeOp.done();
+		}
 	}
 
 	/**
@@ -535,11 +637,16 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {string[]} path
 	 */
 	async readFile(path) {
-		const {obj} = await this.getObjectFromPath(path);
-		if (!obj.isFile) {
-			throw new Error(obj.fileName + " is not a file");
+		const {unlock} = await this.#getSystemLock();
+		try {
+			const {obj} = await this.getObjectFromPath(path);
+			if (!obj.isFile) {
+				throw new Error(obj.fileName + " is not a file");
+			}
+			return obj.file;
+		} finally {
+			await unlock();
 		}
-		return obj.file;
 	}
 
 	/**
@@ -547,11 +654,14 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {string[]} path
 	 */
 	async isFile(path) {
+		const {unlock} = await this.#getSystemLock();
 		try {
 			const {obj} = await this.getObjectFromPath(path);
 			return !!obj.isFile;
 		} catch (e) {
 			return false;
+		} finally {
+			await unlock();
 		}
 	}
 
@@ -559,11 +669,14 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {string[]} path
 	 */
 	async isDir(path) {
+		const {unlock} = await this.#getSystemLock();
 		try {
 			const {obj} = await this.getObjectFromPath(path);
 			return !!obj.isDir;
 		} catch (e) {
 			return false;
+		} finally {
+			await unlock();
 		}
 	}
 }

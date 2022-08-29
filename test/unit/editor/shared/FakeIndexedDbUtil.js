@@ -153,6 +153,22 @@ export class IndexedDbUtil {
 	}
 
 	/**
+	 * @template T
+	 * @param {string} key
+	 * @param {(value: T | undefined) => T} cb
+	 */
+	async getSet(key, cb, objectStoreName = this.#objectStoreNames[0], deleteEntry = false) {
+		if (currentForcePendingPromise) await currentForcePendingPromise;
+		const value = this.#db.get(objectStoreName, key);
+		if (deleteEntry) {
+			this.#db.delete(objectStoreName, key);
+			return;
+		}
+		const newValue = cb(/** @type {T | undefined} */ (value));
+		this.#db.set(objectStoreName, key, newValue);
+	}
+
+	/**
 	 * @param {string} key
 	 */
 	async delete(key, objectStoreName = this.#objectStoreNames[0]) {
