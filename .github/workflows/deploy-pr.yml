@@ -57,25 +57,6 @@ jobs:
             }
             return prId;
 
-      - name: Get commmit sha
-        id: get-commit-sha
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require("fs");
-            const sha = fs.readFileSync("./github_sha.txt", "utf8").trim();
-            const validChars = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
-            if (!sha) {
-              throw new Error("Missing commit sha.");
-            }
-            for (const char of sha) {
-              if (!validChars.includes(char)) {
-                throw new Error("Sha contains an invalid character: " + char);
-              }
-            }
-            return sha;
-
       # Normally github automatically displays a deployment status for workflows
       # that are related to a specific commit. But since this workflow is triggered
       # by the 'workflow_run' event, the commit sha for this run is the sha from
@@ -87,7 +68,7 @@ jobs:
         id: create-deployment-status
         uses: actions/github-script@v3
         env:
-          BUILD_COMMIT_SHA: ${{steps.get-commit-sha.outputs.result }}
+          BUILD_COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
