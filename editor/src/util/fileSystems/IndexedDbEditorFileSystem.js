@@ -522,11 +522,27 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path, recursive = false) {
+		super.delete(path, recursive);
 		const writeOp = this.requestWriteOperation();
+		const {unlock} = await this.#getSystemLock();
+
+		try {
+			await this.#deleteInternal(path, recursive);
+		} finally {
+			await unlock();
+			writeOp.done();
+		}
+	}
+
+	/**
+	 * Same as `delete` but without locking so that it can be called recursively without getting stuck forever.
+	 * @param {EditorFileSystemPath} path
+	 * @param {boolean} recursive
+	 */
+	async #deleteInternal(path, recursive) {
 		if (path.length == 0) {
 			throw new Error("Cannot delete the root directory");
 		}
-		super.delete(path, recursive);
 		const travelledData = await this.findDeepestExisting(path);
 		if (travelledData.length - 1 != path.length) {
 			throw new Error(`Failed to delete "${path.join("/")}" because it does not exist.`);
@@ -546,9 +562,9 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 				const fileObj = await this.getObject(filePointer);
 				const filePath = [...path, fileObj.fileName];
 				if (fileObj.isDir) {
-					await this.delete(filePath, recursive);
+					await this.#deleteInternal(filePath, recursive);
 				} else if (fileObj.isFile) {
-					await this.delete(filePath);
+					await this.#deleteInternal(filePath, false);
 				}
 			}
 		}
@@ -559,7 +575,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		const oldPointerIndex = parentObj.obj.files.indexOf(pointer);
 		parentObj.obj.files.splice(oldPointerIndex, 1);
 		await this.updateObject(parentObj.pointer, parentObj.obj);
-		writeOp.done();
 	}
 
 	/**
