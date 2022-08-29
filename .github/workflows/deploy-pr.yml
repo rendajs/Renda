@@ -64,8 +64,8 @@ jobs:
       # So we'll manually create a deployment status, this also allows us to
       # set the environment_url so that github displays a button that leads you
       # directly to the deployed page.
-      - name: Create deployment status
-        id: create-deployment-status
+      - name: Create deployment for status
+        id: create-deployment
         uses: actions/github-script@v3
         env:
           BUILD_COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
@@ -81,14 +81,23 @@ jobs:
               auto_merge: false,
             });
 
+            return deploymentData.id;
+
+      - name: Update deployment status with in progress
+        if: ${{ failure() }}
+        uses: actions/github-script@v3
+        env:
+          DEPLOYMENT_ID: ${{ steps.create-deployment.outputs.result }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const {DEPLOYMENT_ID} = process.env;
             await github.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deploymentId: deploymentData.id,
+              deploymentId: DEPLOYMENT_ID,
               state: "in_progress",
             });
-
-            return deploymentData.id;
 
       - name: Deploy files
         env:
@@ -100,7 +109,7 @@ jobs:
       - name: Update deployment status success
         uses: actions/github-script@v3
         env:
-          DEPLOYMENT_ID: ${{ steps.create-deployment-status.outputs.result }}
+          DEPLOYMENT_ID: ${{ steps.create-deployment.outputs.result }}
           PR_ID: ${{ steps.get-pr-number.outputs.result }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -118,7 +127,7 @@ jobs:
         if: ${{ failure() }}
         uses: actions/github-script@v3
         env:
-          DEPLOYMENT_ID: ${{ steps.create-deployment-status.outputs.result }}
+          DEPLOYMENT_ID: ${{ steps.create-deployment.outputs.result }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
