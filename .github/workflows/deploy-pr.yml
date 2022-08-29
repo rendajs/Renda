@@ -12,8 +12,6 @@ jobs:
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.conclusion == 'success'
     environment: deploy_pr
-    permissions:
-      deployments: write
     steps:
       - name: Debug workflow event
         env:
