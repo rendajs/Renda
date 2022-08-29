@@ -89,10 +89,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const {BUILD_COMMIT_SHA} = process.env;
             const {data: deploymentData} = await github.request("POST /repos/{owner}/{repo}/deployments", {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: ${ BUILD_COMMIT_SHA },
+              ref: BUILD_COMMIT_SHA,
               environment: "PR preview",
             });
 
@@ -119,12 +120,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const {DEPLOYMENT_ID, PR_ID} = process.env;
             await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deploymentId: ${ DEPLOYMENT_ID },
+              deploymentId: DEPLOYMENT_ID,
               state: "success",
-              environment_url: "https://pr-${ PR_ID }.renda.studio"
+              environment_url: `https://pr-${ PR_ID }.renda.studio`
             });
 
       - name: Update deployment status failure
@@ -135,9 +137,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const {DEPLOYMENT_ID} = process.env;
             await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deploymentId: ${ DEPLOYMENT_ID },
+              deploymentId: DEPLOYMENT_ID,
               state: "failure",
             });
