@@ -81,7 +81,7 @@ jobs:
               auto_merge: false,
             });
 
-            await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
+            await github.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
               owner, repo,
               deploymentId: deploymentData.id,
               state: "in_progress",
@@ -105,7 +105,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const {DEPLOYMENT_ID, PR_ID} = process.env;
-            await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
+            await github.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
               owner: context.repo.owner,
               repo: context.repo.repo,
               deploymentId: DEPLOYMENT_ID,
@@ -122,7 +122,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const {DEPLOYMENT_ID} = process.env;
-            await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
+            await github.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
               owner: context.repo.owner,
               repo: context.repo.repo,
               deploymentId: DEPLOYMENT_ID,
