@@ -78,6 +78,7 @@ jobs:
               repo: context.repo.repo,
               ref: BUILD_COMMIT_SHA,
               environment: "PR preview",
+              auto_merge: false,
             });
 
             await kit.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
