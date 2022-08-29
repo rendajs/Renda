@@ -82,7 +82,8 @@ jobs:
             });
 
             await github.request("POST /repos/{owner}/{repo}/deployments/{deploymentId}/statuses", {
-              owner, repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               deploymentId: deploymentData.id,
               state: "in_progress",
             });
