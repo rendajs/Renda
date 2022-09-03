@@ -12,6 +12,10 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        check: [lint, type-check, test, build]
+
     env:
       DENO_DIR: deno_dir
       PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
@@ -67,48 +71,59 @@ jobs:
       - name: Install editor dependencies
         run: deno task build-editor-dependencies
 
-      - name: Type check
-        run: deno task check
-
       - name: Lint
+        if: ${{ matrix.lint }}
         run: npm run lint
 
+      - name: Type check
+        if: ${{ matrix.type-check }}
+        run: deno task check
+
       - name: Cache puppeteer
+        if: ${{ matrix.test }}
         uses: actions/cache@v3
         with:
           key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
           path: ${{ env.PUPPETEER_DOWNLOAD_PATH }}
 
       - name: Install puppeteer
+        if: ${{ matrix.test }}
         run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
 
       - name: Test
+        if: ${{ matrix.test }}
         run: deno task test --coverage
 
       - name: Codecov
+        if: ${{ matrix.test }}
         uses: codecov/codecov-action@v3
         with:
           files: .coverage/cov.lcov
           flags: unittests
 
       - name: Build engine
+        if: ${{ matrix.build }}
         run: deno task build
 
       - name: Build editor
+        if: ${{ matrix.build }}
         run: deno task build-editor-release
 
       - name: Tar build files
+        if: ${{ matrix.build }}
         run: |
           cd editor/dist
           tar -czf ../../build_files.tar *
 
       - name: Write PR data
+        if: ${{ matrix.build }}
         env:
           PULL_REQUEST_NUMBER: ${{ github.event.number }}
         run: |
           echo $PULL_REQUEST_NUMBER > pr.txt
 
       - name: Upload build artifact
+        if: ${{ matrix.build }}
         uses: actions/upload-artifact@v3
         with:
           name: build
