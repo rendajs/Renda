@@ -9,17 +9,64 @@ on:
     branches: [main, 99-Perform-build-test-lint-and-typecheck-in-different-jobs]
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
-    uses: ./.github/workflows/initialize-repo.yml
-    with:
-      install_puppeteer: false
+
     env:
       DENO_DIR: deno_dir
       PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
       PUPPETEER_CHROMIUM_REVISION: 991974
 
     steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        # For more information see: https://github.com/denoland/setup-deno
+        uses: denoland/setup-deno@v1.1.0
+        with:
+          deno-version: "1.24.1"
+
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          # Using the import map as key doesn't necessarily cause the cache to
+          # get invalidated in all cases. A script could still import a url
+          # directly for example. But this is good enough in most cases.
+          # If the cache wasn't invalidated, this simply means some of the
+          # dependencies are downloaded on every run, which is fine as long as
+          # there are not too many uncached dependencies.
+          # If at a later point it turns out using only the importmap as key
+          # is not enough, we can add more files here.
+          key: denoDeps-${{ hashFiles('importmap.json') }}
+          path: ${{ env.DENO_DIR }}
+
+      - name: npm install
+        run: npm install
+
+      - name: Create Deno types hash file
+        # Creates a file that is used as hash key for the cache in the next step.
+        run: deno task dev --create-cache-hashfile
+
+      - name: Cache Deno types
+        uses: actions/cache@v3
+        with:
+          key: denoTypes-${{ hashFiles('.denoTypes/cacheHashfile') }}
+          path: .denoTypes
+
+      - name: Cache npm packages
+        uses: actions/cache@v3
+        with:
+          key: npmPackages-${{ hashFiles('scripts/dev.js') }}
+          path: npm_packages
+
+      - name: Setup Renda
+        # Sets up a development environment required for type the next steps to pass.
+        run: deno task dev --no-serve
+
+      - name: Install editor dependencies
+        run: deno task build-editor-dependencies
+
       - name: Type check
         run: deno task check
 
