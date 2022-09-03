@@ -5,6 +5,7 @@ import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows
 import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/ContentWindowBuiltInAssets.js";
 import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
 import {ProjectAssetType} from "../assets/projectAssetType/ProjectAssetType.js";
+import {isUuid} from "../../../src/mod.js";
 
 /**
  * @typedef DroppableGuiDependencies
@@ -128,6 +129,8 @@ export class DroppableGui {
 		return /** @type {DroppableGui<InstanceType<T>>} */ (new DroppableGui(opts));
 	}
 
+	#shortcutFocusValueSetter;
+
 	/**
 	 * @typedef {(value: import("../../../src/mod.js").UuidString?) => void} OnValueChangeCallback
 	 */
@@ -149,6 +152,8 @@ export class DroppableGui {
 		embeddedParentAssetPersistenceKey = "",
 	} = {}) {
 		if (!dependencies) {
+			// TODO: remove these and use getEditorInstance() inline instead
+			// we can inject a mock editor instance in tests now
 			dependencies = {
 				projectManager: getEditorInstance().projectManager,
 				dragManager: getEditorInstance().dragManager,
@@ -199,6 +204,16 @@ export class DroppableGui {
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 		this.el.addEventListener("dblclick", this.boundOnDbClick);
 
+		this.hasFocusWithin = false;
+		this.el.addEventListener("focusin", this.#onFocusIn);
+		this.el.addEventListener("focusout", this.#onFocusOut);
+		document.addEventListener("paste", this.#onPasteEvent);
+
+		const shortcutManager = getEditorInstance().keyboardShortcutManager;
+		shortcutManager.onCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
+		const focusCondition = shortcutManager.getCondition("droppableGui.focusSelected");
+		this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+
 		/** @type {import("../../../src/util/mod.js").UuidString?}*/
 		this.defaultAssetLinkUuid = null;
 		/** @type {import("../assets/DefaultAssetLink.js").DefaultAssetLink?}*/
@@ -221,6 +236,14 @@ export class DroppableGui {
 		this.el.removeEventListener("keydown", this.boundOnKeyDown);
 		this.el.removeEventListener("contextmenu", this.boundOnContextMenu);
 		this.el.removeEventListener("dblclick", this.boundOnDbClick);
+		this.el.removeEventListener("focusin", this.#onFocusIn);
+		this.el.removeEventListener("focusout", this.#onFocusOut);
+		document.removeEventListener("paste", this.#onPasteEvent);
+
+		const shortcutManager = getEditorInstance().keyboardShortcutManager;
+		shortcutManager.removeOnCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
+		this.#shortcutFocusValueSetter.destructor();
+
 		if (this.el.parentElement) {
 			this.el.parentElement.removeChild(this.el);
 		}
@@ -276,6 +299,21 @@ export class DroppableGui {
 			}
 		}
 		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
+	}
+
+	/**
+	 * Checks if the provided uuid is a valid uuid and if the asset exists.
+	 * Only if the asset exists will the current value be replaced with the new one.
+	 * Normally when using {@linkcode setValue} the value gets set to null when
+	 * the uuid is invalid.
+	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
+	 */
+	async #setUuidValueIfValid(uuid) {
+		if (!uuid || !isUuid(uuid)) return;
+		const assetManager = getEditorInstance().projectManager.assetManager;
+		if (!assetManager) return;
+		if (!(await assetManager.hasProjectAssetUuid(uuid))) return;
+		this.setValue(uuid);
 	}
 
 	/**
@@ -665,7 +703,7 @@ export class DroppableGui {
 	 */
 	onKeyDown(e) {
 		if (this.disabled) return;
-		// Todo: use shortcutmanager
+		// Todo: use shortcutmanager #101
 		if (e.code == "Backspace" || e.code == "Delete") {
 			this.setValue(null);
 		}
@@ -675,7 +713,7 @@ export class DroppableGui {
 	 * @private
 	 * @param {MouseEvent} e
 	 */
-	onContextMenu(e) {
+	async onContextMenu(e) {
 		e.preventDefault();
 		/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
@@ -715,6 +753,47 @@ export class DroppableGui {
 					};
 				}
 				contextMenuStructure.push(createEmbeddedStructure);
+			}
+
+			// Paste uuid
+			{
+				let disabled = false;
+				let tooltip = "";
+				let visible = true;
+				const permissionName = /** @type {PermissionName} */ ("clipboard-read");
+				const permission = await navigator.permissions.query({
+					name: permissionName,
+				});
+				if (permission.state == "denied") {
+					disabled = true;
+					tooltip = "You have disabled clipboard access. Check the permissions in your browser settings.";
+				} else if (permission.state == "granted") {
+					const uuid = await navigator.clipboard.readText();
+					if (!isUuid(uuid)) {
+						visible = false;
+					} else {
+						const assetManager = getEditorInstance().projectManager.assetManager;
+						if (!assetManager) {
+							visible = false;
+						} else {
+							if (!(await assetManager.hasProjectAssetUuid(uuid))) {
+								disabled = true;
+								tooltip = "The asset UUID in your clipboard is not an asset in this project.";
+							}
+						}
+					}
+				}
+				if (visible) {
+					contextMenuStructure.push({
+						text: "Paste asset UUID",
+						tooltip,
+						disabled,
+						onClick: async () => {
+							const uuid = await navigator.clipboard.readText();
+							this.#setUuidValueIfValid(uuid);
+						},
+					});
+				}
 			}
 
 			if (this.defaultValue) {
@@ -786,6 +865,49 @@ export class DroppableGui {
 	onDblClick() {
 		if (this.projectAssetValue) this.projectAssetValue.open(this.windowManager);
 	}
+
+	/** @param {FocusEvent} e */
+	#onFocusIn = e => {
+		this.#updateFocusWithin(e.target);
+	};
+
+	/** @param {FocusEvent} e */
+	#onFocusOut = e => {
+		this.#updateFocusWithin(e.relatedTarget);
+	};
+
+	/**
+	 * @param {EventTarget?} eventTarget
+	 */
+	#updateFocusWithin(eventTarget) {
+		let hasFocusWithin = false;
+		if (eventTarget && eventTarget instanceof Node && this.el.contains(eventTarget)) {
+			hasFocusWithin = true;
+		}
+		if (hasFocusWithin == this.hasFocusWithin) return;
+		this.hasFocusWithin = hasFocusWithin;
+		this.#shortcutFocusValueSetter.setValue(hasFocusWithin);
+	}
+
+	#onPasteShortcut = async () => {
+		if (!this.hasFocusWithin) return;
+		const permissionName = /** @type {PermissionName} */ ("clipboard-read");
+		const permission = await navigator.permissions.query({
+			name: permissionName,
+		});
+		if (permission.state != "denied") {
+			const uuid = await navigator.clipboard.readText();
+			this.#setUuidValueIfValid(uuid);
+		}
+	};
+
+	/** @param {ClipboardEvent} e */
+	#onPasteEvent = e => {
+		if (!this.hasFocusWithin) return;
+		e.preventDefault();
+		const uuid = e.clipboardData?.getData("text/plain");
+		this.#setUuidValueIfValid(uuid);
+	};
 
 	get visibleAssetName() {
 		if (this.defaultAssetLink?.name) return this.defaultAssetLink.name;

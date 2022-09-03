@@ -3,6 +3,8 @@ import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js"
 import {DroppableGui} from "../../../../../../editor/src/ui/DroppableGui.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 
 export const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 export const DEFAULTASSETLINK_LINK_UUID = "DEFAULTASSETLINK_LINK_UUID";
@@ -27,12 +29,14 @@ export function applyProjectAssetInstanceOf() {
 
 /**
  * @param {Object} options
+ * @param {import("../../../../../../src/mod.js").UuidString} [options.uuid]
  * @param {object?} [options.mockLiveAsset]
  * @param {boolean} [options.isEmbedded]
  * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetSync() to behave
  * like the real ProjectAsset.
  */
 export function createMockProjectAsset({
+	uuid = BASIC_ASSET_UUID,
 	mockLiveAsset = {},
 	isEmbedded = false,
 	needsLiveAssetPreload = true,
@@ -43,7 +47,7 @@ export function createMockProjectAsset({
 		async getIsDeleted() {
 			return false;
 		},
-		uuid: BASIC_ASSET_UUID,
+		uuid,
 		fileName: "assetName.json",
 		getLiveAssetSync() {
 			// The real ProjectAsset doesn't return a live asset immediately, only after
@@ -79,17 +83,45 @@ export function createMockProjectAsset({
  * @param {Partial<import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<any>>} [options.guiOpts]
  * @param {Iterable<[(new (...args: any) => any), Iterable<typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>]>} [options.liveAssetProjectAssetTypeCombinations] The list of Project assets that should be returned for a call to ProjectAssetTypeManager.getAssetTypesForLiveAssetConstructor().
  * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetSync() to behave like the real ProjectAsset.
+ * @param {PermissionState} [options.clipboardReadPermissionState] The permission state returned by navigator.permissions.query() for "clipboard-read".
+ * @param {string} [options.clipboardReadTextReturn] The string returned by navigator.clipboard.readText().
  */
 export function createBasicGui({
-	valueType = "basic", extraMocks = {}, guiOpts = {}, liveAssetProjectAssetTypeCombinations = [], needsLiveAssetPreload = true,
+	valueType = "basic",
+	extraMocks = {},
+	guiOpts = {},
+	liveAssetProjectAssetTypeCombinations = [],
+	needsLiveAssetPreload = true,
+	clipboardReadPermissionState = "granted",
+	clipboardReadTextReturn = "",
 } = {}) {
-	installFakeDocument();
+	const document = installFakeDocument();
 
 	const mockLiveAsset = {};
 
 	const mockProjectAsset = createMockProjectAsset({mockLiveAsset, needsLiveAssetPreload});
 
 	const mockDefaultAssetLink = /** @type {import("../../../../../../editor/src/assets/DefaultAssetLink.js").DefaultAssetLink} */ ({});
+
+	const oldPermisisons = navigator.permissions;
+	const stubPermissions = /** @type {Permissions} */ ({
+		async query(options) {
+			return {
+				state: clipboardReadPermissionState,
+			};
+		},
+	});
+	// @ts-expect-error
+	navigator.permissions = stubPermissions;
+
+	const oldClipboard = navigator.clipboard;
+	const stubClipboard = /** @type {Clipboard} */ ({
+		async readText() {
+			return clipboardReadTextReturn;
+		},
+	});
+	// @ts-expect-error
+	navigator.clipboard = stubClipboard;
 
 	/**
 	 * @param {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} assetType
@@ -119,6 +151,11 @@ export function createBasicGui({
 	}
 	const getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy = spy(getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn);
 
+	/** @type {Map<import("../../../../../../src/mod.js").UuidString, ProjectAsset<any>>} */
+	const projectAssets = new Map();
+	projectAssets.set(BASIC_ASSET_UUID, mockProjectAsset);
+	projectAssets.set(DEFAULTASSETLINK_LINK_UUID, mockProjectAsset);
+
 	const mockAssetManager = /** @type {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager} */ ({
 		getDefaultAssetLink(uuid) {
 			if (uuid == DEFAULTASSETLINK_LINK_UUID) {
@@ -127,12 +164,8 @@ export function createBasicGui({
 			return null;
 		},
 		getProjectAssetFromUuidSync(uuid) {
-			if (uuid == BASIC_ASSET_UUID) {
-				return mockProjectAsset;
-			} else if (uuid == DEFAULTASSETLINK_LINK_UUID) {
-				return mockProjectAsset;
-			}
-			return null;
+			if (!uuid) return null;
+			return projectAssets.get(uuid) || null;
 		},
 		getProjectAssetForLiveAsset(liveAsset) {
 			if (liveAsset == mockLiveAsset) {
@@ -148,6 +181,7 @@ export function createBasicGui({
 		assertAssetManagerExists() {
 			return mockAssetManager;
 		},
+		assetManager: mockAssetManager,
 	});
 
 	const mockDragManager = /** @type {import("../../../../../../editor/src/misc/DragManager.js").DragManager} */ ({
@@ -166,15 +200,56 @@ export function createBasicGui({
 		},
 	});
 
+	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({});
+
 	/** @type {import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies} */
 	const dependencies = {
 		projectManager: mockProjectManager,
 		dragManager: mockDragManager,
 		windowManager: mockWindowManager,
-		contextMenuManager: /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({}),
+		contextMenuManager: mockContextMenuManager,
 		projectAssetTypeManager: mockProjectAssetTypeManager,
 		...extraMocks,
 	};
+
+	/** @type {Map<string, unknown>} */
+	const shortcutConditions = new Map();
+	/** @type {Map<string, Set<import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallback>>} */
+	const shortcutCommandCallbacks = new Map();
+
+	const mockKeyboardShortcutManager = /** @type {import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
+		onCommand(command, cb) {
+			let cbs = shortcutCommandCallbacks.get(command);
+			if (!cbs) {
+				cbs = new Set();
+				shortcutCommandCallbacks.set(command, cbs);
+			}
+			cbs.add(cb);
+		},
+		getCondition(name) {
+			const condition = /** @type {import("../../../../../../editor/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition} */ ({
+				requestValueSetter() {
+					const valueSetter = /** @type {import("../../../../../../editor/src/keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<any>} */ ({
+						setValue(value) {
+							shortcutConditions.set(name, value);
+						},
+					});
+					return valueSetter;
+				},
+			});
+			return condition;
+		},
+	});
+
+	const mockEditor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
+		projectManager: mockProjectManager,
+		dragManager: mockDragManager,
+		windowManager: mockWindowManager,
+		contextMenuManager: mockContextMenuManager,
+		projectAssetTypeManager: mockProjectAssetTypeManager,
+		keyboardShortcutManager: mockKeyboardShortcutManager,
+	});
+	injectMockEditorInstance(mockEditor);
 
 	const gui = DroppableGui.of({
 		dependencies,
@@ -194,6 +269,8 @@ export function createBasicGui({
 	}
 	return {
 		gui,
+		document,
+		mockEditor,
 		mockDefaultAssetLink,
 		mockLiveAsset,
 		mockProjectAsset,
@@ -201,8 +278,36 @@ export function createBasicGui({
 		mockWindowManager,
 		createEmbeddedAssetSpy,
 		getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy,
+		/**
+		 * @param {import("../../../../../../src/mod.js").UuidString} uuid
+		 * @param {ProjectAsset<any>} projectAsset
+		 */
+		addMockProjectAsset(uuid, projectAsset) {
+			projectAssets.set(uuid, projectAsset);
+		},
+		/**
+		 * @param {string} name
+		 */
+		getLastShortcutCondition(name) {
+			return shortcutConditions.get(name);
+		},
+		/**
+		 * @param {string} command
+		 */
+		triggerShortcutCommand(command) {
+			const cbs = shortcutCommandCallbacks.get(command);
+			if (cbs) {
+				const event = /** @type {import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} */ ({});
+				cbs.forEach(cb => cb(event));
+			}
+		},
 		uninstall() {
 			uninstallFakeDocument();
+			// @ts-expect-error
+			navigator.permissions = oldPermisisons;
+			// @ts-expect-error
+			navigator.clipboard = oldClipboard;
+			injectMockEditorInstance(null);
 		},
 	};
 }
@@ -233,7 +338,7 @@ export function createMockProjectAssetType({
  * @param {Parameters<typeof createBasicGui>[0]} [options.basicGuiOptions]
  * @param {boolean} [options.dispatchContextMenuEvent]
  */
-export function basicSetupForContextMenus({
+export async function basicSetupForContextMenus({
 	basicGuiOptions = {},
 	dispatchContextMenuEvent = true,
 } = {}) {
@@ -254,11 +359,12 @@ export function basicSetupForContextMenus({
 		},
 	});
 
-	function dispatchContextMenuEventFn() {
+	async function dispatchContextMenuEventFn() {
 		returnValue.gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
+		await waitForMicrotasks();
 	}
 	if (dispatchContextMenuEvent) {
-		dispatchContextMenuEventFn();
+		await dispatchContextMenuEventFn();
 	}
 
 	return {

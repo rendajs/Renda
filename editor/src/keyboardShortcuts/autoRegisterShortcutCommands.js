@@ -30,5 +30,10 @@ const autoRegisterShortcutCommands = [
 		defaultKeys: "escape",
 		conditions: "treeView.renaming",
 	},
+	{
+		command: "droppableGui.pasteUuid",
+		defaultKeys: ["v"],
+		conditions: "droppableGui.focusSelected",
+	},
 ];
 export {autoRegisterShortcutCommands};

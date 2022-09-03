@@ -5,6 +5,7 @@ export class ContextMenuItem {
 	 */
 	constructor(containingContextMenu, {
 		text = "",
+		tooltip = "",
 		onClick = null,
 		onHover = null,
 		disabled = false,
@@ -23,6 +24,7 @@ export class ContextMenuItem {
 		this.iconEl = document.createElement("div");
 		this.iconEl.classList.add("contextMenuItemIcon");
 		this.textEl = document.createElement("div");
+		this.textEl.title = tooltip;
 		this.textEl.classList.add("contextMenuItemText");
 		if (!horizontalLine) {
 			this.el.appendChild(this.iconEl);

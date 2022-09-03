@@ -552,6 +552,14 @@ export class AssetManager {
 	}
 
 	/**
+	 * @param {import("../../../src/mod.js").UuidString} uuid
+	 */
+	async hasProjectAssetUuid(uuid) {
+		await this.loadAssetSettings();
+		return this.projectAssets.has(uuid) || this.builtInAssets.has(uuid) || this.defaultAssetLinks.has(uuid);
+	}
+
+	/**
 	 * @template {AssetAssertionOptions} [T = {}]
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
 	 * @param {T} options

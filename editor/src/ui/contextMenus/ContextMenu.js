@@ -33,6 +33,7 @@ import {Button} from "../Button.js";
 /**
  * @typedef {Object} ContextMenuItemOpts
  * @property {string} [text=""] The text to display in the item.
+ * @property {string} [tooltip=""] The text to display when hovering over the item.
  * @property {((event: ContextMenuItemClickEvent) => any)?} [onClick = null] The function to call when the item is clicked.
  * @property {(() => void)?} [onHover=null] The function to call when the item is hovered over.
  * @property {boolean} [disabled=false] Whether the item should start disabled.

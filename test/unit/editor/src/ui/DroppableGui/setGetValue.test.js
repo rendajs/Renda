@@ -32,6 +32,21 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setValue() with an invalid uuid",
+	fn() {
+		const {gui, uninstall} = createBasicGui();
+
+		gui.setValue("invalid");
+
+		assertEquals(gui.projectAssetValue, null);
+		assertEquals(gui.defaultAssetLink, null);
+		assertEquals(gui.defaultAssetLinkUuid, null);
+
+		uninstall();
+	},
+});
+
+Deno.test({
 	name: "setValue() with an uuid and isDiskData = true",
 	fn() {
 		const {gui, mockProjectAsset, uninstall} = createBasicGui();

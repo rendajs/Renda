@@ -4,6 +4,7 @@ const autoRegisterShortcutConditions = [
 	"treeView.focusSelected",
 	"treeView.renaming",
 	"numericValueFocus",
+	"droppableGui.focusSelected",
 ];
 
 export {autoRegisterShortcutConditions};
