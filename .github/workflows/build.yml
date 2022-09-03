@@ -72,28 +72,23 @@ jobs:
 
       # Build
       - name: Build engine
-        if: ${{ matrix.check == 'build' }}
         run: deno task build
 
       - name: Build editor
-        if: ${{ matrix.check == 'build' }}
         run: deno task build-editor-release
 
       - name: Tar build files
-        if: ${{ matrix.check == 'build' }}
         run: |
           cd editor/dist
           tar -czf ../../build_files.tar *
 
       - name: Write PR data
-        if: ${{ matrix.check == 'build' }}
         env:
           PULL_REQUEST_NUMBER: ${{ github.event.number }}
         run: |
           echo $PULL_REQUEST_NUMBER > pr.txt
 
       - name: Upload build artifact
-        if: ${{ matrix.check == 'build' }}
         uses: actions/upload-artifact@v3
         with:
           name: build
