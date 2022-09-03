@@ -8,18 +8,8 @@ import {ProjectAssetType} from "../assets/projectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/mod.js";
 
 /**
- * @typedef DroppableGuiDependencies
- * @property {import("../projectSelector/ProjectManager.js").ProjectManager} projectManager
- * @property {import("../misc/DragManager.js").DragManager} dragManager
- * @property {import("../windowManagement/WindowManager.js").WindowManager} windowManager
- * @property {import("./contextMenus/ContextMenuManager.js").ContextMenuManager} contextMenuManager
- * @property {import("../assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
- */
-
-/**
  * @template {new (...args: any) => any} T
  * @typedef {Object} DroppableGuiOptionsType
- * @property {DroppableGuiDependencies} [dependencies] If set, will use these dependencies instead of making a call to getEditorInstance()
  * @property {T[]} [supportedAssetTypes] A list of asset types this droppable can accept. When an asset is dragged that
  * is not in this list, no hover feedback is shown and dropping does nothing.
  * You can add either ProjectAssetType constructors or the constructors from live assets to this list.
@@ -141,7 +131,6 @@ export class DroppableGui {
 	 * @param {DroppableGuiOptions<new (...args: any) => any>} options
 	 */
 	constructor({
-		dependencies = undefined,
 		// TODO: Support dropping drag events that are not assets.
 		supportedAssetTypes = [],
 		// TODO: load the default value upon creation and handle serializable data
@@ -151,23 +140,6 @@ export class DroppableGui {
 		embeddedParentAsset = null,
 		embeddedParentAssetPersistenceKey = "",
 	} = {}) {
-		if (!dependencies) {
-			// TODO: remove these and use getEditorInstance() inline instead
-			// we can inject a mock editor instance in tests now
-			dependencies = {
-				projectManager: getEditorInstance().projectManager,
-				dragManager: getEditorInstance().dragManager,
-				windowManager: getEditorInstance().windowManager,
-				contextMenuManager: getEditorInstance().contextMenuManager,
-				projectAssetTypeManager: getEditorInstance().projectAssetTypeManager,
-			};
-		}
-		this.projectManager = dependencies.projectManager;
-		this.dragManager = dependencies.dragManager;
-		this.windowManager = dependencies.windowManager;
-		this.contextMenuManager = dependencies.contextMenuManager;
-		this.projectAssetTypeManager = dependencies.projectAssetTypeManager;
-
 		this.disabled = disabled;
 		/** @private */
 		this.embeddedParentAsset = embeddedParentAsset;
@@ -270,7 +242,7 @@ export class DroppableGui {
 		let projectAsset = null;
 		this.setDefaultAssetLinkUuid(null);
 		if (value) {
-			const assetManager = this.projectManager.assertAssetManagerExists();
+			const assetManager = getEditorInstance().projectManager.assertAssetManagerExists();
 			if (typeof value == "string") {
 				this.setDefaultAssetLinkUuid(value);
 				projectAsset = assetManager.getProjectAssetFromUuidSync(value);
@@ -407,7 +379,7 @@ export class DroppableGui {
 			this.setValueFromProjectAsset(null);
 			this.value = null;
 		} else {
-			const assetManager = this.projectManager.assertAssetManagerExists();
+			const assetManager = getEditorInstance().projectManager.assertAssetManagerExists();
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
 			await assetManager.makeAssetUuidConsistent(projectAsset);
 			this.setDefaultAssetLinkUuid(uuid);
@@ -421,7 +393,7 @@ export class DroppableGui {
 	 */
 	setDefaultAssetLinkUuid(uuid) {
 		if (uuid) {
-			this.defaultAssetLink = this.projectManager.assertAssetManagerExists().getDefaultAssetLink(uuid);
+			this.defaultAssetLink = getEditorInstance().projectManager.assertAssetManagerExists().getDefaultAssetLink(uuid);
 		} else {
 			this.defaultAssetLink = null;
 		}
@@ -481,7 +453,7 @@ export class DroppableGui {
 			if (liveAssetConstructor == ProjectAssetType) {
 				yield liveAssetConstructor;
 			} else {
-				for (const projectAssetType of this.projectAssetTypeManager.getAssetTypesForLiveAssetConstructor(liveAssetConstructor)) {
+				for (const projectAssetType of getEditorInstance().projectAssetTypeManager.getAssetTypesForLiveAssetConstructor(liveAssetConstructor)) {
 					yield projectAssetType;
 				}
 			}
@@ -493,7 +465,7 @@ export class DroppableGui {
 	 * @param {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} projectAssetType
 	 */
 	createEmbeddedAsset(projectAssetType) {
-		const assetManager = this.projectManager.assertAssetManagerExists();
+		const assetManager = getEditorInstance().projectManager.assertAssetManagerExists();
 		if (!this.embeddedParentAsset) {
 			throw new Error("Tried to create an embedded asset from a DroppableGui that has no embeddedParentAsset set.");
 		}
@@ -544,7 +516,7 @@ export class DroppableGui {
 
 		if (!assetUuid) return;
 
-		const {el, x, y} = this.dragManager.createDragFeedbackText({
+		const {el, x, y} = getEditorInstance().dragManager.createDragFeedbackText({
 			text: this.visibleAssetName,
 		});
 		this.currenDragFeedbackEl = el;
@@ -562,7 +534,7 @@ export class DroppableGui {
 			assetType,
 			assetUuid,
 		};
-		const draggingDataUuid = this.dragManager.registerDraggingData(draggingData);
+		const draggingDataUuid = getEditorInstance().dragManager.registerDraggingData(draggingData);
 		e.dataTransfer.setData(`text/renda; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 	}
 
@@ -584,7 +556,7 @@ export class DroppableGui {
 	}
 
 	onDragEnd() {
-		if (this.currenDragFeedbackEl) this.dragManager.removeFeedbackText(this.currenDragFeedbackEl);
+		if (this.currenDragFeedbackEl) getEditorInstance().dragManager.removeFeedbackText(this.currenDragFeedbackEl);
 		this.currenDragFeedbackEl = null;
 	}
 
@@ -679,7 +651,7 @@ export class DroppableGui {
 			if (isEngineType) {
 				isProjectAsset = (parameters.dragtype == "projectasset");
 				if (isProjectAsset) {
-					const draggingProjectAssetData = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */ (this.dragManager.getDraggingData(parameters.draggingdata));
+					const draggingProjectAssetData = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} */ (getEditorInstance().dragManager.getDraggingData(parameters.draggingdata));
 					return {
 						isEngineType,
 						isProjectAsset,
@@ -841,14 +813,14 @@ export class DroppableGui {
 					if (this.defaultAssetLink) {
 						// todo: highlight assetLink
 						// eslint-disable-next-line no-unused-vars
-						const assetLinksWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
+						const assetLinksWindow = getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
 					} else if (this.projectAssetValue) {
 						let assetLinksWindow;
 						if (this.projectAssetValue.isBuiltIn) {
-							const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
+							const contentWindow = getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
 							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
 						} else {
-							const contentWindow = this.windowManager.focusOrCreateContentWindow(ContentWindowProject);
+							const contentWindow = getEditorInstance().windowManager.focusOrCreateContentWindow(ContentWindowProject);
 							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
 						}
 						assetLinksWindow.highlightPath(this.projectAssetValue.path);
@@ -858,12 +830,12 @@ export class DroppableGui {
 			});
 		}
 		if (contextMenuStructure.length == 0) return;
-		const menu = this.contextMenuManager.createContextMenu(contextMenuStructure);
+		const menu = getEditorInstance().contextMenuManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 
 	onDblClick() {
-		if (this.projectAssetValue) this.projectAssetValue.open(this.windowManager);
+		if (this.projectAssetValue) this.projectAssetValue.open(getEditorInstance().windowManager);
 	}
 
 	/** @param {FocusEvent} e */
