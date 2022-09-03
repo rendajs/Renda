@@ -4,9 +4,9 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    branches: [main, 99-Perform-build-test-lint-and-typecheck-in-different-jobs]
   pull_request:
-    branches: [main]
+    branches: [main, 99-Perform-build-test-lint-and-typecheck-in-different-jobs]
 
 jobs:
   build:
