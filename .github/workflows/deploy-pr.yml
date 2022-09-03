@@ -79,6 +79,7 @@ jobs:
               ref: BUILD_COMMIT_SHA,
               environment: "PR preview",
               auto_merge: false,
+              transient_environment: true,
             });
 
             return deploymentData.id;
