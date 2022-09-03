@@ -14,7 +14,12 @@ jobs:
 
     strategy:
       matrix:
-        check: [lint, type-check, unit-test, e2e-test]
+        check: [lint, type-check, unit-test, e2e-test, build]
+        shouldBuild:
+          - ${{ false }}
+        exclude:
+          - shouldBuild: false
+            check: build
 
     env:
       DENO_DIR: deno_dir
