@@ -95,7 +95,7 @@ export function createBasicGui({
 	clipboardReadPermissionState = "granted",
 	clipboardReadTextReturn = "",
 } = {}) {
-	installFakeDocument();
+	const document = installFakeDocument();
 
 	const mockLiveAsset = {};
 
@@ -212,12 +212,42 @@ export function createBasicGui({
 		...extraMocks,
 	};
 
+	/** @type {Map<string, unknown>} */
+	const shortcutConditions = new Map();
+	/** @type {Map<string, Set<import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallback>>} */
+	const shortcutCommandCallbacks = new Map();
+
+	const mockKeyboardShortcutManager = /** @type {import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} */ ({
+		onCommand(command, cb) {
+			let cbs = shortcutCommandCallbacks.get(command);
+			if (!cbs) {
+				cbs = new Set();
+				shortcutCommandCallbacks.set(command, cbs);
+			}
+			cbs.add(cb);
+		},
+		getCondition(name) {
+			const condition = /** @type {import("../../../../../../editor/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition} */ ({
+				requestValueSetter() {
+					const valueSetter = /** @type {import("../../../../../../editor/src/keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<any>} */ ({
+						setValue(value) {
+							shortcutConditions.set(name, value);
+						},
+					});
+					return valueSetter;
+				},
+			});
+			return condition;
+		},
+	});
+
 	const mockEditor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
 		projectManager: mockProjectManager,
 		dragManager: mockDragManager,
 		windowManager: mockWindowManager,
 		contextMenuManager: mockContextMenuManager,
 		projectAssetTypeManager: mockProjectAssetTypeManager,
+		keyboardShortcutManager: mockKeyboardShortcutManager,
 	});
 	injectMockEditorInstance(mockEditor);
 
@@ -239,6 +269,7 @@ export function createBasicGui({
 	}
 	return {
 		gui,
+		document,
 		mockEditor,
 		mockDefaultAssetLink,
 		mockLiveAsset,
@@ -253,6 +284,22 @@ export function createBasicGui({
 		 */
 		addMockProjectAsset(uuid, projectAsset) {
 			projectAssets.set(uuid, projectAsset);
+		},
+		/**
+		 * @param {string} name
+		 */
+		getLastShortcutCondition(name) {
+			return shortcutConditions.get(name);
+		},
+		/**
+		 * @param {string} command
+		 */
+		triggerShortcutCommand(command) {
+			const cbs = shortcutCommandCallbacks.get(command);
+			if (cbs) {
+				const event = /** @type {import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} */ ({});
+				cbs.forEach(cb => cb(event));
+			}
 		},
 		uninstall() {
 			uninstallFakeDocument();
