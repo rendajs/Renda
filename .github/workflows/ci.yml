@@ -107,7 +107,7 @@ jobs:
 
       - name: Run e2e tests
         if: ${{ matrix.check == 'e2e-test' }}
-        run: deno task test test/e2e --coverage
+        run: deno task test test/e2e
 
       # Build
       - name: Build engine
