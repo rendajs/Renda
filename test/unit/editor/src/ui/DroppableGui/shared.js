@@ -2,7 +2,9 @@ import {spy} from "std/testing/mock.ts";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {DroppableGui} from "../../../../../../editor/src/ui/DroppableGui.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
+import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
+import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 
@@ -96,6 +98,8 @@ export function createBasicGui({
 	clipboardReadTextReturn = "",
 } = {}) {
 	const document = installFakeDocument();
+	const oldNode = globalThis.Node;
+	globalThis.Node = /** @type {any} */ (HtmlElement);
 
 	const mockLiveAsset = {};
 
@@ -294,15 +298,28 @@ export function createBasicGui({
 		/**
 		 * @param {string} command
 		 */
-		triggerShortcutCommand(command) {
+		async triggerShortcutCommand(command) {
 			const cbs = shortcutCommandCallbacks.get(command);
 			if (cbs) {
 				const event = /** @type {import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} */ ({});
 				cbs.forEach(cb => cb(event));
 			}
+			await waitForMicrotasks();
+		},
+		/**
+		 * @param {boolean} focus
+		 */
+		async dispatchFocusEvent(focus) {
+			if (focus) {
+				gui.el.dispatchEvent(new FocusEvent("focusin"));
+			} else {
+				gui.el.dispatchEvent(new FocusEvent("focusout"));
+			}
+			await waitForMicrotasks();
 		},
 		uninstall() {
 			uninstallFakeDocument();
+			globalThis.Node = oldNode;
 			// @ts-expect-error
 			navigator.permissions = oldPermisisons;
 			// @ts-expect-error

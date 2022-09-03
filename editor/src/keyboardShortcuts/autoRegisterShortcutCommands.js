@@ -31,6 +31,11 @@ const autoRegisterShortcutCommands = [
 		conditions: "treeView.renaming",
 	},
 	{
+		command: "droppableGui.unlink",
+		defaultKeys: ["backspace", "delete"],
+		conditions: "droppableGui.focusSelected",
+	},
+	{
 		command: "droppableGui.pasteUuid",
 		defaultKeys: ["v"],
 		conditions: "droppableGui.focusSelected",

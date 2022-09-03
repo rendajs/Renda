@@ -3,8 +3,6 @@ import {stub} from "std/testing/mock.ts";
 import {assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus, createMockProjectAsset} from "./shared.js";
 import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
-import {FocusEvent} from "fake-dom/FakeFocusEvent.js";
-import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
@@ -18,9 +16,6 @@ async function basicSetupForPastingUuid({
 	clipboardAsset = BASIC_PASTED_ASSET_UUID,
 	clipboardReadPermissionState = "granted",
 } = {}) {
-	const oldNode = globalThis.Node;
-	globalThis.Node = /** @type {any} */ (HtmlElement);
-
 	const returnValue = await basicSetupForContextMenus({
 		basicGuiOptions: {
 			clipboardReadTextReturn: clipboardAsset,
@@ -44,16 +39,6 @@ async function basicSetupForPastingUuid({
 	return {
 		...returnValue,
 		/**
-		 * @param {boolean} focus
-		 */
-		async dispatchFocusEvent(focus) {
-			if (focus) {
-				returnValue.gui.el.dispatchEvent(new FocusEvent("focusin"));
-			} else {
-				returnValue.gui.el.dispatchEvent(new FocusEvent("focusout"));
-			}
-		},
-		/**
 		 * @param {string} clipboardData
 		 */
 		async dispatchPasteEvent(clipboardData) {
@@ -63,8 +48,7 @@ async function basicSetupForPastingUuid({
 			await waitForMicrotasks();
 		},
 		async triggerPasteShortcut() {
-			returnValue.triggerShortcutCommand("droppableGui.pasteUuid");
-			await waitForMicrotasks();
+			await returnValue.triggerShortcutCommand("droppableGui.pasteUuid");
 		},
 		async dispatchContextMenuEvent() {
 			await returnValue.dispatchContextMenuEvent();
@@ -95,7 +79,6 @@ async function basicSetupForPastingUuid({
 			await triggerContextMenuItem(createContextMenuCalls[0], ["Paste asset UUID"]);
 		},
 		uninstall() {
-			globalThis.Node = oldNode;
 			returnValue.uninstall();
 		},
 	};

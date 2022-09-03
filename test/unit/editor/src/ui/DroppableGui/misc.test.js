@@ -36,6 +36,42 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Unlink via shortcut",
+	async fn() {
+		const {gui, dispatchFocusEvent, triggerShortcutCommand, uninstall} = createBasicGui();
+
+		try {
+			await dispatchFocusEvent(true);
+			await triggerShortcutCommand("droppableGui.unlink");
+			const value = gui.getValue();
+			assertEquals(value, null);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "Unlink via shortcut, gui disabled",
+	async fn() {
+		const {gui, dispatchFocusEvent, triggerShortcutCommand, uninstall} = createBasicGui({
+			guiOpts: {
+				disabled: true,
+			},
+		});
+
+		try {
+			await dispatchFocusEvent(true);
+			await triggerShortcutCommand("droppableGui.unlink");
+			const value = gui.getValue();
+			assertEquals(value, BASIC_ASSET_UUID);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "double clicking opens the project asset",
 	async fn() {
 		const {gui, mockProjectAsset, mockWindowManager, uninstall} = createBasicGui();
