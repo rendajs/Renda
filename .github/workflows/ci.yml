@@ -72,58 +72,58 @@ jobs:
         run: deno task build-editor-dependencies
 
       - name: Lint
-        if: ${{ matrix.check == "lint" }}
+        if: ${{ matrix.check == 'lint' }}
         run: npm run lint
 
       - name: Type check
-        if: ${{ matrix.check == "type-check" }}
+        if: ${{ matrix.check == 'type-check' }}
         run: deno task check
 
       - name: Cache puppeteer
-        if: ${{ matrix.check == "test" }}
+        if: ${{ matrix.check == 'test' }}
         uses: actions/cache@v3
         with:
           key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
           path: ${{ env.PUPPETEER_DOWNLOAD_PATH }}
 
       - name: Install puppeteer
-        if: ${{ matrix.check == "test" }}
+        if: ${{ matrix.check == 'test' }}
         run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
 
       - name: Test
-        if: ${{ matrix.check == "test" }}
+        if: ${{ matrix.check == 'test' }}
         run: deno task test --coverage
 
       - name: Codecov
-        if: ${{ matrix.check == "test" }}
+        if: ${{ matrix.check == 'test' }}
         uses: codecov/codecov-action@v3
         with:
           files: .coverage/cov.lcov
           flags: unittests
 
       - name: Build engine
-        if: ${{ matrix.check == "build" }}
+        if: ${{ matrix.check == 'build' }}
         run: deno task build
 
       - name: Build editor
-        if: ${{ matrix.check == "build" }}
+        if: ${{ matrix.check == 'build' }}
         run: deno task build-editor-release
 
       - name: Tar build files
-        if: ${{ matrix.check == "build" }}
+        if: ${{ matrix.check == 'build' }}
         run: |
           cd editor/dist
           tar -czf ../../build_files.tar *
 
       - name: Write PR data
-        if: ${{ matrix.check == "build" }}
+        if: ${{ matrix.check == 'build' }}
         env:
           PULL_REQUEST_NUMBER: ${{ github.event.number }}
         run: |
           echo $PULL_REQUEST_NUMBER > pr.txt
 
       - name: Upload build artifact
-        if: ${{ matrix.check == "build" }}
+        if: ${{ matrix.check == 'build' }}
         uses: actions/upload-artifact@v3
         with:
           name: build
