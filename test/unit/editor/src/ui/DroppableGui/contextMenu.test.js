@@ -4,8 +4,8 @@ import {BASIC_ASSET_UUID, basicSetupForContextMenus, createMockProjectAsset, cre
 
 Deno.test({
 	name: "context menu event creates a new context menu",
-	fn() {
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus();
+	async fn() {
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus();
 
 		assertExists(createContextMenuCalls[0]);
 		assertContextMenuStructureEquals(createContextMenuCalls[0], [
@@ -20,12 +20,12 @@ Deno.test({
 
 Deno.test({
 	name: "context menu on a disabled gui",
-	fn() {
-		const {uninstall, gui, createContextMenuCalls, dispatchContextMenuEvent} = basicSetupForContextMenus({
+	async fn() {
+		const {uninstall, gui, createContextMenuCalls, dispatchContextMenuEvent} = await basicSetupForContextMenus({
 			dispatchContextMenuEvent: false,
 		});
 		gui.setDisabled(true);
-		dispatchContextMenuEvent();
+		await dispatchContextMenuEvent();
 
 		assertExists(createContextMenuCalls[0]);
 		assertContextMenuStructureEquals(createContextMenuCalls[0], [
@@ -39,8 +39,8 @@ Deno.test({
 
 Deno.test({
 	name: "context menu without a value set",
-	fn() {
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+	async fn() {
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 			},
@@ -55,7 +55,7 @@ Deno.test({
 Deno.test({
 	name: "context menu with a value set and an available default value",
 	async fn() {
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "basic",
 				guiOpts: {
@@ -81,7 +81,7 @@ Deno.test({
 Deno.test({
 	name: "context menu without a value set and an available default value",
 	async fn() {
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
@@ -101,15 +101,15 @@ Deno.test({
 
 Deno.test({
 	name: "context menu without a value set and a disabled gui",
-	fn() {
-		const {uninstall, gui, createContextMenuCalls, dispatchContextMenuEvent} = basicSetupForContextMenus({
+	async fn() {
+		const {uninstall, gui, createContextMenuCalls, dispatchContextMenuEvent} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 			},
 			dispatchContextMenuEvent: false,
 		});
 		gui.setDisabled(true);
-		dispatchContextMenuEvent();
+		await dispatchContextMenuEvent();
 
 		assertEquals(createContextMenuCalls.length, 0);
 
@@ -119,8 +119,8 @@ Deno.test({
 
 Deno.test({
 	name: "context menu with a default asset link set",
-	fn() {
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+	async fn() {
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "defaultAssetLink",
 			},
@@ -140,10 +140,10 @@ Deno.test({
 
 Deno.test({
 	name: "context menu with embedded assets enabled and one supported asset type",
-	fn() {
+	async fn() {
 		const mockParent = createMockProjectAsset();
 		const {MockLiveAssetConstructor, ProjectAssetType} = createMockProjectAssetType();
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
@@ -163,11 +163,11 @@ Deno.test({
 
 Deno.test({
 	name: "context menu with embedded assets enabled and two supported asset types",
-	fn() {
+	async fn() {
 		const mockParent = createMockProjectAsset();
 		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
 		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
@@ -198,10 +198,10 @@ Deno.test({
 
 Deno.test({
 	name: "context menu with embedded assets disabled and two supported asset types",
-	fn() {
+	async fn() {
 		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
 		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
-		const {uninstall, createContextMenuCalls} = basicSetupForContextMenus({
+		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {

@@ -18,7 +18,7 @@ Deno.test({
 Deno.test({
 	name: "unlink via context menu",
 	async fn() {
-		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
+		const {uninstall, gui, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "defaultAssetLink",
 			},
@@ -59,7 +59,7 @@ Deno.test({
 Deno.test({
 	name: "Resetting to default value via context menu",
 	async fn() {
-		const {uninstall, gui, createContextMenuCalls, mockProjectAsset} = basicSetupForContextMenus({
+		const {uninstall, gui, createContextMenuCalls, mockProjectAsset} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {
@@ -82,7 +82,7 @@ Deno.test({
 Deno.test({
 	name: "Doesn't trigger change events until live asset has been preloaded when resetting",
 	async fn() {
-		const {uninstall, gui, createContextMenuCalls} = basicSetupForContextMenus({
+		const {uninstall, gui, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
 				guiOpts: {

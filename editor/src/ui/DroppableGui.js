@@ -150,6 +150,8 @@ export class DroppableGui {
 		embeddedParentAssetPersistenceKey = "",
 	} = {}) {
 		if (!dependencies) {
+			// TODO: remove these and use getEditorInstance() inline instead
+			// we can inject a mock editor instance in tests now
 			dependencies = {
 				projectManager: getEditorInstance().projectManager,
 				dragManager: getEditorInstance().dragManager,

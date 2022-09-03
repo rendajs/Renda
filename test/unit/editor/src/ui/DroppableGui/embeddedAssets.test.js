@@ -10,10 +10,10 @@ function createMockParentAsset() {
 	return projectAsset;
 }
 
-function basicSetupForEmbeddedAssets() {
+async function basicSetupForEmbeddedAssets() {
 	const mockParent = createMockParentAsset();
 	const {MockLiveAssetConstructor, ProjectAssetType} = createMockProjectAssetType();
-	const returnValue = basicSetupForContextMenus({
+	const returnValue = await basicSetupForContextMenus({
 		basicGuiOptions: {
 			valueType: "none",
 			guiOpts: {
@@ -28,7 +28,7 @@ function basicSetupForEmbeddedAssets() {
 	return {
 		...returnValue,
 		async triggerCreateEmbeddedAsset() {
-			returnValue.dispatchContextMenuEvent();
+			await returnValue.dispatchContextMenuEvent();
 			const lastCall = returnValue.createContextMenuCalls[returnValue.createContextMenuCalls.length - 1];
 			assertExists(lastCall);
 			await triggerContextMenuItem(lastCall, ["Create embedded asset"]);
@@ -41,7 +41,7 @@ function basicSetupForEmbeddedAssets() {
 Deno.test({
 	name: "create embedded asset via context menu",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+		const {gui, uninstall, triggerCreateEmbeddedAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
 
 		await triggerCreateEmbeddedAsset();
 
@@ -64,7 +64,7 @@ Deno.test({
 Deno.test({
 	name: "creating embedded assets waits with firing the onChange event until the live asset is loaded",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset} = basicSetupForEmbeddedAssets();
+		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset} = await basicSetupForEmbeddedAssets();
 
 		const onValueChangePromise = new Promise(resolve => {
 			gui.onValueChange(() => {
@@ -87,7 +87,7 @@ Deno.test({
 Deno.test({
 	name: "removeEmbeddedAssetSupport() and setEmbeddedParentAsset()",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
 
 		await triggerCreateEmbeddedAsset();
 
@@ -121,7 +121,7 @@ Deno.test({
 Deno.test({
 	name: "setEmbeddedParentAsset() remembers the previous persistence key when not provided",
 	async fn() {
-		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+		const {gui, uninstall, triggerCreateEmbeddedAsset, mockLiveAsset, createEmbeddedAssetSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
 
 		try {
 			const mockParent2 = createMockParentAsset();
@@ -231,8 +231,8 @@ Deno.test({
 
 Deno.test({
 	name: "getValue() with isDiskData true",
-	fn() {
-		const {gui, uninstall, getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, MockProjectAssetType, mockParent} = basicSetupForEmbeddedAssets();
+	async fn() {
+		const {gui, uninstall, getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy, MockProjectAssetType, mockParent} = await basicSetupForEmbeddedAssets();
 
 		try {
 			const embeddedAssetData = {label: "embedded asset data"};

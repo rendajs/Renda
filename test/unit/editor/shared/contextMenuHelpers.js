@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {AssertionError, assertEquals, assertNotEquals, equal} from "std/testing/asserts.ts";
 
 /**
  * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} itemOpts
@@ -8,6 +8,7 @@ async function fillContextMenuItemOptsDefaults(itemOpts, {
 } = {}) {
 	const newOpts = /** @type {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} */ ({
 		disabled: false,
+		tooltip: "",
 		...itemOpts,
 	});
 	if (newOpts.submenu instanceof Array) {
@@ -45,6 +46,53 @@ export async function assertContextMenuStructureEquals(actual, expected) {
 	const newActual = await fillContextMenuStructureDefaults(actual);
 	const newExpected = await fillContextMenuStructureDefaults(expected);
 	assertEquals(newActual, newExpected);
+}
+
+/**
+ * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
+ */
+export async function contextMenuStructureContains(structure, expectedChild) {
+	const structureWithDefaults = await fillContextMenuStructureDefaults(structure);
+	const childWithDefaults = await fillContextMenuItemOptsDefaults(expectedChild);
+	for (const item of structureWithDefaults) {
+		if (equal(item, childWithDefaults)) return true;
+	}
+	return false;
+}
+
+/**
+ * Asserts if the provided structure contains an exact match of one of its direct children.
+ * Subchildren are not recursively searched for a match.
+ * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
+ */
+export async function assertContextMenuStructureContains(structure, expectedChild) {
+	if (await contextMenuStructureContains(structure, expectedChild)) return;
+	throw new AssertionError(`Structure did not contain a child that exactly matches ${JSON.stringify(expectedChild)}. The offending structure is ${JSON.stringify(structure)}`);
+}
+
+/**
+ * Asserts if the provided structure does not contain an exact match in one of its direct children.
+ * Subchildren are not recursively searched for a match.
+ * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
+ */
+export async function assertContextMenuStructureNotContains(structure, expectedChild) {
+	if (!(await contextMenuStructureContains(structure, expectedChild))) return;
+	throw new AssertionError(`Expected structure to not contain child that matches $JSON.stringify(expectedChild)}. The offending structure is ${JSON.stringify(structure)}`);
+}
+
+/**
+ * Asserts if the provided structure does not contain an exact match in one of its direct children.
+ * Subchildren are not recursively searched for a match.
+ * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {string} expectedText
+ */
+export async function assertContextMenuStructureNotContainsText(structure, expectedText) {
+	for (const item of structure) {
+		assertNotEquals(item.text, expectedText, `Expected context menu not to contain an item with ${expectedText}`);
+	}
 }
 
 /**
