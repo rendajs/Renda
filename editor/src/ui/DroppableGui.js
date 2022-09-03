@@ -5,6 +5,7 @@ import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows
 import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/ContentWindowBuiltInAssets.js";
 import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
 import {ProjectAssetType} from "../assets/projectAssetType/ProjectAssetType.js";
+import {isUuid} from "../../../src/mod.js";
 
 /**
  * @typedef DroppableGuiDependencies
@@ -675,7 +676,7 @@ export class DroppableGui {
 	 * @private
 	 * @param {MouseEvent} e
 	 */
-	onContextMenu(e) {
+	async onContextMenu(e) {
 		e.preventDefault();
 		/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
@@ -715,6 +716,43 @@ export class DroppableGui {
 					};
 				}
 				contextMenuStructure.push(createEmbeddedStructure);
+			}
+
+			// Paste uuid
+			{
+				let disabled = false;
+				let visible = true;
+				const permissionName = /** @type {PermissionName} */ ("clipboard-read");
+				const permission = await navigator.permissions.query({
+					name: permissionName,
+				});
+				if (permission.state == "denied") {
+					disabled = true;
+				} else if (permission.state == "granted") {
+					const uuid = await navigator.clipboard.readText();
+					if (!isUuid(uuid)) {
+						visible = false;
+					} else {
+						const assetManager = getEditorInstance().projectManager.assetManager;
+						if (!assetManager) {
+							visible = false;
+						} else {
+							if (!(await assetManager.hasProjectAssetUuid(uuid))) {
+								disabled = true;
+							}
+						}
+					}
+				}
+				if (visible) {
+					contextMenuStructure.push({
+						text: "Paste asset UUID",
+						disabled,
+						onClick: async () => {
+							const uuid = await navigator.clipboard.readText();
+							this.setValue(uuid);
+						},
+					});
+				}
 			}
 
 			if (this.defaultValue) {
