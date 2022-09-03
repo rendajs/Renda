@@ -721,6 +721,7 @@ export class DroppableGui {
 			// Paste uuid
 			{
 				let disabled = false;
+				let tooltip = "";
 				let visible = true;
 				const permissionName = /** @type {PermissionName} */ ("clipboard-read");
 				const permission = await navigator.permissions.query({
@@ -728,6 +729,7 @@ export class DroppableGui {
 				});
 				if (permission.state == "denied") {
 					disabled = true;
+					tooltip = "You have disabled clipboard access. Check the permissions in your browser settings.";
 				} else if (permission.state == "granted") {
 					const uuid = await navigator.clipboard.readText();
 					if (!isUuid(uuid)) {
@@ -739,6 +741,7 @@ export class DroppableGui {
 						} else {
 							if (!(await assetManager.hasProjectAssetUuid(uuid))) {
 								disabled = true;
+								tooltip = "The asset UUID in your clipboard is not an asset in this project.";
 							}
 						}
 					}
@@ -746,6 +749,7 @@ export class DroppableGui {
 				if (visible) {
 					contextMenuStructure.push({
 						text: "Paste asset UUID",
+						tooltip,
 						disabled,
 						onClick: async () => {
 							const uuid = await navigator.clipboard.readText();

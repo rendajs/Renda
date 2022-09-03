@@ -556,7 +556,7 @@ export class AssetManager {
 	 */
 	async hasProjectAssetUuid(uuid) {
 		await this.loadAssetSettings();
-		return this.projectAssets.has(uuid);
+		return this.projectAssets.has(uuid) || this.builtInAssets.has(uuid) || this.defaultAssetLinks.has(uuid);
 	}
 
 	/**
