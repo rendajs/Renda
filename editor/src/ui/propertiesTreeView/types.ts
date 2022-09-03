@@ -2,7 +2,7 @@ import { Vec2, Vec3, Vec4 } from "../../../../src/mod.js";
 import { UnionToIntersection } from "../../../../src/util/types.js";
 import { ArrayGui, ArrayGuiOptions, GetArrayGuiForOptions, GetArrayGuiValueTypeForOptions } from "../ArrayGui.js";
 import { BooleanGui, BooleanGuiOptions } from "../BooleanGui.js";
-import { PathGui } from "../PathGui.js";
+import { PathGui, PathGuiOptions } from "../PathGui.js";
 import { Button, ButtonGuiOptions } from "../Button.js";
 import { ButtonSelectorGui, ButtonSelectorGuiOptions } from "../ButtonSelectorGui.js";
 import { DropDownGui, DropDownGuiOptions, GetDropDownValueTypeForOptions } from "../DropDownGui.js";
@@ -52,7 +52,7 @@ type GuisMap = {
 	},
 	path: {
 		instance: PathGui,
-		options: never,
+		options: PathGuiOptions,
 	},
 	button: {
 		instance: Button,

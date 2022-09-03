@@ -53,6 +53,12 @@ export class ColorizerFilter {
 		return this.filterEl.getAttribute("id");
 	}
 
+	/**
+	 * Creates a usage reference that can be used for tracking when a filter is
+	 * no longer being used. Filters are automatically destroyed when all its
+	 * usage references are garbage collected. But you can also forcefully
+	 * mark usage references as being destructed by using {@linkcode ColorizerFilterUsageReference.destructor}.
+	 */
 	getUsageReference() {
 		const ref = new ColorizerFilterUsageReference(this);
 		const weakRef = new WeakRef(ref);

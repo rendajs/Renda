@@ -4,7 +4,12 @@ import {getEditorInstance} from "../editorInstance.js";
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase} PathGuiOptions
  */
 
+/** @typedef {(path: import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath) => void} OnPathGuiChangeCallback */
+
 export class PathGui {
+	/** @type {Set<OnPathGuiChangeCallback>} */
+	#onValueChangeCbs = new Set();
+
 	/**
 	 * @param {PathGuiOptions} options
 	 */
@@ -24,7 +29,33 @@ export class PathGui {
 		this.el.spellcheck = false;
 		this.el.addEventListener("input", e => {
 			this.#updateContent();
+			this.#fireOnChangeCbs();
 		});
+	}
+
+	/**
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} value
+	 */
+	setValue(value) {
+		this.el.textContent = value.join("/");
+		this.#updateContent();
+	}
+
+	get value() {
+		return this.el.textContent?.split("/") || [];
+	}
+
+	/**
+	 * @param {OnPathGuiChangeCallback} cb
+	 */
+	onValueChange(cb) {
+		this.#onValueChangeCbs.add(cb);
+	}
+
+	#fireOnChangeCbs() {
+		for (const cb of this.#onValueChangeCbs) {
+			cb(this.value);
+		}
 	}
 
 	#updateContent() {
@@ -74,7 +105,7 @@ export class PathGui {
 		}
 
 		// Finally we apply the stored selection
-		if (selection) {
+		if (selection && (anchorIndex || focusIndex)) {
 			/**
 			 * @param {number?} characterIndex
 			 */
