@@ -79,7 +79,6 @@ export function createMockProjectAsset({
 /**
  * @param {Object} options
  * @param {"basic" | "defaultAssetLink" | "embedded" | "none"} [options.valueType]
- * @param {Partial<import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies>} [options.extraMocks]
  * @param {Partial<import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<any>>} [options.guiOpts]
  * @param {Iterable<[(new (...args: any) => any), Iterable<typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>]>} [options.liveAssetProjectAssetTypeCombinations] The list of Project assets that should be returned for a call to ProjectAssetTypeManager.getAssetTypesForLiveAssetConstructor().
  * @param {boolean} [options.needsLiveAssetPreload] Set to true if you want getLiveAssetSync() to behave like the real ProjectAsset.
@@ -88,7 +87,6 @@ export function createMockProjectAsset({
  */
 export function createBasicGui({
 	valueType = "basic",
-	extraMocks = {},
 	guiOpts = {},
 	liveAssetProjectAssetTypeCombinations = [],
 	needsLiveAssetPreload = true,
@@ -202,16 +200,6 @@ export function createBasicGui({
 
 	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({});
 
-	/** @type {import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiDependencies} */
-	const dependencies = {
-		projectManager: mockProjectManager,
-		dragManager: mockDragManager,
-		windowManager: mockWindowManager,
-		contextMenuManager: mockContextMenuManager,
-		projectAssetTypeManager: mockProjectAssetTypeManager,
-		...extraMocks,
-	};
-
 	/** @type {Map<string, unknown>} */
 	const shortcutConditions = new Map();
 	/** @type {Map<string, Set<import("../../../../../../editor/src/keyboardShortcuts/KeyboardShortcutManager.js").CommandCallback>>} */
@@ -251,10 +239,7 @@ export function createBasicGui({
 	});
 	injectMockEditorInstance(mockEditor);
 
-	const gui = DroppableGui.of({
-		dependencies,
-		...guiOpts,
-	});
+	const gui = DroppableGui.of(guiOpts);
 	if (valueType == "basic") {
 		gui.setValue(BASIC_ASSET_UUID);
 	} else if (valueType == "defaultAssetLink") {
@@ -352,12 +337,8 @@ export async function basicSetupForContextMenus({
 			};
 		},
 	});
-	const returnValue = createBasicGui({
-		...basicGuiOptions,
-		extraMocks: {
-			contextMenuManager: mockContextMenuManager,
-		},
-	});
+	const returnValue = createBasicGui(basicGuiOptions);
+	returnValue.mockEditor.contextMenuManager = mockContextMenuManager;
 
 	async function dispatchContextMenuEventFn() {
 		returnValue.gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));
