@@ -162,7 +162,6 @@ export class DroppableGui {
 		this.boundOnDragEnd = this.onDragEnd.bind(this);
 		this.boundOnDragLeave = this.onDragLeave.bind(this);
 		this.boundOnDrop = this.onDrop.bind(this);
-		this.boundOnKeyDown = this.onKeyDown.bind(this);
 		this.boundOnContextMenu = this.onContextMenu.bind(this);
 		this.boundOnDbClick = this.onDblClick.bind(this);
 
@@ -172,7 +171,6 @@ export class DroppableGui {
 		this.el.addEventListener("dragend", this.boundOnDragEnd);
 		this.el.addEventListener("dragleave", this.boundOnDragLeave);
 		this.el.addEventListener("drop", this.boundOnDrop);
-		this.el.addEventListener("keydown", this.boundOnKeyDown);
 		this.el.addEventListener("contextmenu", this.boundOnContextMenu);
 		this.el.addEventListener("dblclick", this.boundOnDbClick);
 
@@ -183,6 +181,7 @@ export class DroppableGui {
 
 		const shortcutManager = getEditorInstance().keyboardShortcutManager;
 		shortcutManager.onCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
+		shortcutManager.onCommand("droppableGui.unlink", this.#onUnlinkShortcut);
 		const focusCondition = shortcutManager.getCondition("droppableGui.focusSelected");
 		this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
 
@@ -205,7 +204,6 @@ export class DroppableGui {
 		this.el.removeEventListener("dragend", this.boundOnDragEnd);
 		this.el.removeEventListener("dragleave", this.boundOnDragLeave);
 		this.el.removeEventListener("drop", this.boundOnDrop);
-		this.el.removeEventListener("keydown", this.boundOnKeyDown);
 		this.el.removeEventListener("contextmenu", this.boundOnContextMenu);
 		this.el.removeEventListener("dblclick", this.boundOnDbClick);
 		this.el.removeEventListener("focusin", this.#onFocusIn);
@@ -214,6 +212,7 @@ export class DroppableGui {
 
 		const shortcutManager = getEditorInstance().keyboardShortcutManager;
 		shortcutManager.removeOnCommand("droppableGui.pasteUuid", this.#onPasteShortcut);
+		shortcutManager.removeOnCommand("droppableGui.unlink", this.#onUnlinkShortcut);
 		this.#shortcutFocusValueSetter.destructor();
 
 		if (this.el.parentElement) {
@@ -670,16 +669,10 @@ export class DroppableGui {
 		this.el.classList.toggle("dragHovering", valid);
 	}
 
-	/**
-	 * @param {KeyboardEvent} e
-	 */
-	onKeyDown(e) {
-		if (this.disabled) return;
-		// Todo: use shortcutmanager #101
-		if (e.code == "Backspace" || e.code == "Delete") {
-			this.setValue(null);
-		}
-	}
+	#onUnlinkShortcut = () => {
+		if (this.disabled || !this.hasFocusWithin) return;
+		this.setValue(null);
+	};
 
 	/**
 	 * @private
