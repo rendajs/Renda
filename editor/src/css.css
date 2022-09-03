@@ -460,6 +460,20 @@ select.textInput:disabled{
 	color: var(--default-button-text-color-disabled);
 }
 
+.path-arrow {
+	background: url(../static/icons/generic/pathArrow.svg) no-repeat center center / cover;
+	width: 15px;
+	padding-left: 5px;
+	display: inline-block;
+	position: relative;
+	color: transparent;
+	caret-color: var(--default-text-color);
+	user-select: initial;
+}
+.path-arrow::selection {
+	color: transparent;
+}
+
 .editorWindowRoot{
 	width: calc(100% - 6px);
 	height: calc(100% - 6px);

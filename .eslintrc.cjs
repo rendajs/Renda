@@ -204,6 +204,7 @@ module.exports = {
 		"symbol-description": "error",
 		"template-curly-spacing": "error",
 		"yield-star-spacing": "error",
+		"no-inner-declarations": "off",
 
 		"jsdoc/check-alignment": "error",
 		"jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef"]}],
