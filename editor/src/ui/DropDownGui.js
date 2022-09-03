@@ -75,7 +75,7 @@ export class DropDownGui {
 		this.inverseEnumObject = null;
 
 		this.el = document.createElement("select");
-		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
+		this.el.classList.add("buttonLike", "resetInput", "textInput");
 
 		/** @type {Set<OnValueChangeCallback>} */
 		this.onValueChangeCbs = new Set();

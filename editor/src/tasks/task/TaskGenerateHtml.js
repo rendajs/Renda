@@ -43,10 +43,7 @@ export class TaskGenerateHtml extends Task {
 			},
 		},
 		outputLocation: {
-			type: "array",
-			guiOpts: {
-				arrayType: "string",
-			},
+			type: "path",
 		},
 	});
 

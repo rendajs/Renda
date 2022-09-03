@@ -18,7 +18,7 @@ export class TextGui {
 		this.disabled = disabled;
 
 		this.el = document.createElement("input");
-		this.el.classList.add("textGui", "buttonLike", "resetInput", "textInput");
+		this.el.classList.add("buttonLike", "resetInput", "textInput");
 		this.el.spellcheck = false;
 		this.el.placeholder = placeholder;
 

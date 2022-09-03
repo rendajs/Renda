@@ -6,6 +6,7 @@ import {DropDownGui} from "../DropDownGui.js";
 import {TextGui} from "../TextGui.js";
 import {DroppableGui} from "../DroppableGui.js";
 import {ArrayGui} from "../ArrayGui.js";
+import {PathGui} from "../PathGui.js";
 import {Button} from "../Button.js";
 import {LabelGui} from "../LabelGui.js";
 import {ObjectGui} from "../ObjectGui.js";
@@ -140,6 +141,11 @@ export class PropertiesTreeViewEntry extends TreeView {
 				...guiOpts,
 			});
 			this.valueEl.appendChild(setGui.treeView.el);
+			this.label.classList.add("multiLine");
+			this.valueEl.classList.add("multiLine");
+		} else if (type == "path") {
+			setGui = new PathGui(guiOpts);
+			this.valueEl.appendChild(setGui.el);
 			this.label.classList.add("multiLine");
 			this.valueEl.classList.add("multiLine");
 		} else if (type == "button") {

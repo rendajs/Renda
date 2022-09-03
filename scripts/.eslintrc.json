@@ -1,6 +1,0 @@
-{
-	"rules": {
-		// These are small scripts, so we'll allow this
-		"no-inner-declarations": "off"
-	}
-}

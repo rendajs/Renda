@@ -19,7 +19,14 @@ export class ColorizerFilterManager {
 		this.createdFilters = new Map();
 	}
 
+	/** @typedef {import("./ColorizerFilterUsageReference.js").ColorizerFilterUsageReference} ColorizerFilterUsageReference */
+
 	/**
+	 * Creates a filter if no filter with this color exists yet, otherwise returns
+	 * an existing filter. Created filters are not destructed until all references
+	 * have been garbage collected. You can use {@linkcode ColorizerFilterUsageReference.destructor}
+	 * to immediately dispose filters. Use {@linkcode ColorizerFilter.getUsageReference}
+	 * to obtain a usage reference.
 	 * @param {string} cssColor Can be any valid CSS color string.
 	 * @returns {ColorizerFilter}
 	 */
@@ -37,9 +44,13 @@ export class ColorizerFilterManager {
 		return filter;
 	}
 
-	/** @typedef {HTMLElement & {[elementUsageReferenceSym]: import("./ColorizerFilterUsageReference.js").ColorizerFilterUsageReference}} ElWithSym */
+	/** @typedef {HTMLElement & {[elementUsageReferenceSym]: ColorizerFilterUsageReference}} ElWithSym */
 
 	/**
+	 * Applies a filter to an element in order to change its colors.
+	 * The returned reference can be used to destroy the filter when it's no
+	 * longer needed. But the filter will also be automatically be destroyed
+	 * once the element is garbage collected.
 	 * @param {HTMLElement} element The element to apply the filter to.
 	 * @param {string} cssColor Can be any valid CSS color string.
 	 */
