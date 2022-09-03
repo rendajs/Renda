@@ -16,7 +16,7 @@ export class PathGui {
 	constructor({
 		defaultValue = "",
 		disabled = false,
-	}) {
+	} = {}) {
 		this.defaultValue = defaultValue;
 		this.disabled = disabled;
 
