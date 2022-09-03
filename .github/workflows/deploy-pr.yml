@@ -2,7 +2,7 @@ name: Deploy PR
 
 on:
   workflow_run:
-    workflows: [ci]
+    workflows: [build]
     types: [completed]
 
 jobs:
@@ -69,17 +69,18 @@ jobs:
         uses: actions/github-script@v3
         env:
           BUILD_COMMIT_SHA: ${{ github.event.workflow_run.head_sha }}
+          PR_ID: ${{ steps.get-pr-number.outputs.result }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const {BUILD_COMMIT_SHA} = process.env;
+            const {BUILD_COMMIT_SHA, PR_ID} = process.env;
             const {data: deploymentData} = await github.request("POST /repos/{owner}/{repo}/deployments", {
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: BUILD_COMMIT_SHA,
               environment: "PR preview",
               auto_merge: false,
-              transient_environment: true,
+              task: "deploy_pr:" + PR_ID,
             });
 
             return deploymentData.id;

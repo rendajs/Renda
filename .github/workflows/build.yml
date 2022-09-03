@@ -1,6 +1,7 @@
-# This workflow will run all checks required for a PR to be merged.
+# This workflow will build the editor and engine and place it in an artifact
+# so that it can be deployed by one of the deployment workflows.
 
-name: ci
+name: Build
 
 on:
   push:
@@ -9,12 +10,8 @@ on:
     branches: [main]
 
 jobs:
-  check:
+  Build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        check: [lint, type-check, unit-test, e2e-test]
 
     env:
       DENO_DIR: deno_dir
@@ -22,7 +19,7 @@ jobs:
       PUPPETEER_CHROMIUM_REVISION: 991974
 
     steps:
-      # The first few steps are the same as in build.yml so if you make any changes
+      # The first few steps are the same as in ci.yml so if you make any changes
       # you'll probably want to change them there as well
       - name: Setup repo
         uses: actions/checkout@v2
@@ -73,40 +70,33 @@ jobs:
       - name: Install editor dependencies
         run: deno task build-editor-dependencies
 
-      # Lint
-      - name: Lint
-        if: ${{ matrix.check == 'lint' }}
-        run: npm run lint
+      # Build
+      - name: Build engine
+        if: ${{ matrix.check == 'build' }}
+        run: deno task build
 
-      # Type check
-      - name: Type check
-        if: ${{ matrix.check == 'type-check' }}
-        run: deno task check
+      - name: Build editor
+        if: ${{ matrix.check == 'build' }}
+        run: deno task build-editor-release
 
-      # Unit tests
-      - name: Run unit tests
-        if: ${{ matrix.check == 'unit-test' }}
-        run: deno task test test/unit --coverage
+      - name: Tar build files
+        if: ${{ matrix.check == 'build' }}
+        run: |
+          cd editor/dist
+          tar -czf ../../build_files.tar *
 
-      - name: Codecov
-        if: ${{ matrix.check == 'unit-test' }}
-        uses: codecov/codecov-action@v3
+      - name: Write PR data
+        if: ${{ matrix.check == 'build' }}
+        env:
+          PULL_REQUEST_NUMBER: ${{ github.event.number }}
+        run: |
+          echo $PULL_REQUEST_NUMBER > pr.txt
+
+      - name: Upload build artifact
+        if: ${{ matrix.check == 'build' }}
+        uses: actions/upload-artifact@v3
         with:
-          files: .coverage/cov.lcov
-          flags: unittests
-
-      # E2e tests
-      - name: Cache puppeteer
-        if: ${{ matrix.check == 'e2e-test' }}
-        uses: actions/cache@v3
-        with:
-          key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
-          path: ${{ env.PUPPETEER_DOWNLOAD_PATH }}
-
-      - name: Install puppeteer
-        if: ${{ matrix.check == 'e2e-test' }}
-        run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
-
-      - name: Run e2e tests
-        if: ${{ matrix.check == 'e2e-test' }}
-        run: deno task test test/e2e
+          name: build
+          path: |
+            build_files.tar
+            pr.txt
