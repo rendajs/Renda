@@ -41,6 +41,12 @@ const fileSystemPointerType = Symbol("file system pointer type");
  * @property {IndexedDbEditorFileSystemPointer} pointer
  */
 
+/**
+ * How long the system lock queue needs to be before a warning gets logged
+ * to the console.
+ */
+const SYSTEM_LOCK_QUEUE_LENGTH_FOR_WARNING = 20;
+
 export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	/** @typedef {import("./EditorFileSystem.js").EditorFileSystemPath} EditorFileSystemPath */
 
@@ -86,8 +92,10 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 */
 	#systemLockedByThisInstance = false;
 
-	/** @type {Set<() => void>} */
-	#onSystemUnlockCbs = new Set();
+	/** @type {(() => void)[]} */
+	#onSystemUnlockQueueCbs = [];
+
+	#systemUnlockQueueWarningState = false;
 
 	/**
 	 * This adds an entry to the database indicating that the system is being modified.
@@ -101,7 +109,11 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		if (this.#systemLockedByThisInstance) {
 			/** @type {Promise<void>} */
 			const promise = new Promise(r => {
-				this.#onSystemUnlockCbs.add(r);
+				this.#onSystemUnlockQueueCbs.push(r);
+				if (this.#onSystemUnlockQueueCbs.length > SYSTEM_LOCK_QUEUE_LENGTH_FOR_WARNING && !this.#systemUnlockQueueWarningState) {
+					this.#systemUnlockQueueWarningState = true;
+					console.warn(`The IndexedDb file system lock queue is longer than ${SYSTEM_LOCK_QUEUE_LENGTH_FOR_WARNING} entries! Consider awaiting file operations before starting a new one.`);
+				}
 			});
 			await promise;
 		}
@@ -127,8 +139,11 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			unlock: async () => {
 				await db.set("systemLock", 0, "system");
 				this.#systemLockedByThisInstance = false;
-				this.#onSystemUnlockCbs.forEach(cb => cb());
-				this.#onSystemUnlockCbs.clear();
+				const cb = this.#onSystemUnlockQueueCbs.shift();
+				if (this.#onSystemUnlockQueueCbs.length <= 0) {
+					this.#systemUnlockQueueWarningState = false;
+				}
+				if (cb) cb();
 			},
 		};
 	}
@@ -602,7 +617,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
 			this.assertIsDir(newParentObj.obj, `Failed to write to "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
 
-			this.readDirObject(newParentObj.obj);
 			const newPointer = await this.createObject({
 				isFile: true,
 				file: createdFile,
