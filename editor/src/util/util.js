@@ -29,7 +29,7 @@ export function getElemSize(el) {
 }
 
 /**
- * @typedef {Object} ParsedMimeType
+ * @typedef {object} ParsedMimeType
  * @property {string} type
  * @property {string} subType
  * @property {Object<string, string>} parameters
@@ -45,7 +45,7 @@ export function parseMimeType(mimeType) {
 	const [type, subTypeWithParams] = split;
 	const paramsSplit = subTypeWithParams.split(";");
 	const [subType, ...paramsStr] = paramsSplit;
-	/** @type {Object.<string, string>} */
+	/** @type {Object<string, string>} */
 	const params = {};
 	for (const [name, value] of paramsStr.map(p => p.trim().split("="))) {
 		params[name.toLowerCase()] = value;

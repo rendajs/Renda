@@ -28,7 +28,7 @@ export class KeyboardShortcutManager {
 	 * We want to know if commands need multiple keystrokes before the full
 	 * sequence is performed, because we need to peventDefault() the key events
 	 * when a key is part of a valid sequence.
-	 * @typedef {Object} ShortcutSequenceTreeNode
+	 * @typedef {object} ShortcutSequenceTreeNode
 	 * @property {Map<string, ShortcutSequenceTreeNode>} childNodes
 	 * @property {Set<ShortcutCommand>} commands
 	 */

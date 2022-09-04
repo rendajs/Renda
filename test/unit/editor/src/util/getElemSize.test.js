@@ -6,7 +6,7 @@ const originalGetComputedStyle = globalThis.getComputedStyle;
 /**
  * @param {number} offsetWidth
  * @param {number} offsetHeight
- * @param {Object.<string, string>} styleMap
+ * @param {Object<string, string>} styleMap
  */
 async function setup(offsetWidth, offsetHeight, styleMap) {
 	const fakeEl = /** @type {HTMLElement} */ ({offsetWidth, offsetHeight});

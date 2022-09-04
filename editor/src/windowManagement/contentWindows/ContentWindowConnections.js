@@ -3,7 +3,7 @@ import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView
 import {ContentWindow} from "./ContentWindow.js";
 
 /**
- * @typedef {Object} ConectionGui
+ * @typedef {object} ConectionGui
  * @property {PropertiesTreeView<any>} treeView
  * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
  */

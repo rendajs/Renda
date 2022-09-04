@@ -3,7 +3,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
 
 /**
  * @template {Vec2 | Vec3 | Vec4} T
- * @typedef {Object} VectorGuiOptionsType
+ * @typedef {object} VectorGuiOptionsType
  * @property {2 | 3 | 4} [size = 3] The amount of components of the vector.
  * @property {number[] | number | T | null} [min = null] The minimum allowed value for each component.
  * @property {number[] | number | T | null} [max = null] The maximum allowed value for each component.
@@ -18,7 +18,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
 /**
  * @template {boolean} U
  * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
- * @typedef {Object} VectorGuiGetValueOptions
+ * @typedef {object} VectorGuiGetValueOptions
  * @property {U} [getAsArray = false]
  * @property {V} [purpose = "default"]
  */
@@ -26,7 +26,7 @@ import {Vec2, Vec3, Vec4} from "../../../src/mod.js";
 /**
  * @template U
  * @template V
- * @typedef {Object} VectorGuiGetValueOptionsNoConstraints
+ * @typedef {object} VectorGuiGetValueOptionsNoConstraints
  * @property {U} [getAsArray]
  * @property {V} [purpose]
  */

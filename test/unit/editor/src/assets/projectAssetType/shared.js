@@ -1,5 +1,5 @@
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager["getAssetUuidFromLiveAsset"]} [options.getAssetUuidFromLiveAssetImpl]
  * @param {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager["getAssetUuidOrEmbeddedAssetDataFromLiveAsset"]} [options.getAssetUuidOrEmbeddedAssetDataFromLiveAssetImpl]
  * @param {import("../../../../../../editor/src/assets/AssetManager.js").AssetManager["getProjectAssetFromUuidOrEmbeddedAssetData"]} [options.getProjectAssetFromUuidOrEmbeddedAssetDataImpl]

@@ -6,7 +6,7 @@ import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
 import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
- * @typedef {Object} CreateEntityOptions
+ * @typedef {object} CreateEntityOptions
  * @property {string} [name = "Entity"]
  * @property {import("../math/Mat4.js").Mat4?} [matrix = null]
  * @property {Entity?} [parent = null]
@@ -18,12 +18,12 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  */
 
 /**
- * @typedef {Object} EntityJsonDataBase
+ * @typedef {object} EntityJsonDataBase
  * @property {string} [name]
  */
 
 /**
- * @typedef {Object} EntityJsonDataInlineEntityTypes
+ * @typedef {object} EntityJsonDataInlineEntityTypes
  * @property {number[]} [matrix]
  * @property {import("../components/Component.js").EntityJsonDataComponent[]} [components]
  * @property {EntityJsonData[]} [children]
@@ -32,7 +32,7 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  */
 
 /**
- * @typedef {Object} EntityJsonDataAssetEntityTypes
+ * @typedef {object} EntityJsonDataAssetEntityTypes
  * @property {import("../util/util.js").UuidString} assetUuid
  * @property {number[]} [pos]
  * @property {number[]} [rot]
@@ -44,7 +44,7 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 /** @typedef {EntityJsonDataInlineEntity | EntityJsonDataAssetEntity} EntityJsonData */
 
 /**
- * @typedef {Object} EntityToJsonOptions
+ * @typedef {object} EntityToJsonOptions
  * @property {import("../../editor/src/assets/AssetManager.js").AssetManager} assetManager
  * @property {import("../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
  * @property {symbol} usedAssetUuidsSymbol

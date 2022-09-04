@@ -1,6 +1,6 @@
 /**
  * @template T
- * @typedef {Object} SelectionGroupChangeData
+ * @typedef {object} SelectionGroupChangeData
  * @property {boolean} [reset = false] If true, the selected items array will be cleared.
  * @property {T[]} [added] List of items that were added to the selection.
  * @property {T[]} [removed] List of items that were removed from the selection.

@@ -2,7 +2,7 @@ import {PromiseWaitHelper} from "../util/PromiseWaitHelper.js";
 
 export class AssetBundleRange {
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {import("../util/util.js").UuidString} options.typeUuid
 	 * @param {number} options.byteStart
 	 * @param {number} options.byteEnd

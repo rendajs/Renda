@@ -7,10 +7,10 @@ const ClosureCompiler = closureCompiler.compiler;
 
 export class ClosureCompilerManager {
 	/**
-	 * @param {Object} data
+	 * @param {object} data
 	 * @param {any[]} data.inputFiles
 	 * @param {any[]} data.externs
-	 * @param {Object.<string, any>} data.args
+	 * @param {Object<string, any>} data.args
 	 */
 	async compileJs({
 		inputFiles = [],

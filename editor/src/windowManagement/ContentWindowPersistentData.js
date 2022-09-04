@@ -68,7 +68,7 @@ export class ContentWindowPersistentData {
 	 * Used by the WindowManager when saving the data.
 	 */
 	getAll() {
-		/** @type {Object.<string, unknown>} */
+		/** @type {Object<string, unknown>} */
 		const data = {};
 		for (const [k, v] of this.#data) {
 			data[k] = v;
@@ -78,7 +78,7 @@ export class ContentWindowPersistentData {
 
 	/**
 	 * Used by the WindowManager when loading the data.
-	 * @param {Object} data
+	 * @param {object} data
 	 */
 	setAll(data) {
 		this.#data.clear();

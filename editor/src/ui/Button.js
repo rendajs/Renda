@@ -1,6 +1,6 @@
 /**
  * @template TCallbacksContext
- * @typedef {Object} ButtonGuiOptionsType
+ * @typedef {object} ButtonGuiOptionsType
  * @property {string} [text = ""] The text to show on the button.
  * @property {string} [icon = ""] The icon to show on the button.
  * @property {import("../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager?} [colorizerFilterManager = null] The colorizer filter manager if you want theme support for icons to work.

@@ -1,6 +1,6 @@
 export class RenderOutputConfig {
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {GPUTextureFormat} [options.depthStencilFormat]
 	 * @param {number} [options.multisampleCount]
 	 * @param {Iterable<GPUColorTargetState>} [options.fragmentTargets]

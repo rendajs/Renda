@@ -11,7 +11,7 @@ import {WebGpuChunkedBufferChunk} from "./WebGpuChunkedBufferChunk.js";
  */
 export class WebGpuChunkedBuffer {
 	/**
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {GPUDevice} opts.device The WebGPU device to create buffers for.
 	 * @param {string} [opts.label] The label to use for debugging.
 	 * @param {GPUBindGroupLayout?} [opts.bindGroupLayout] The bind group layout to use.

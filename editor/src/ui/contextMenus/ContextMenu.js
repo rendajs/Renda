@@ -3,7 +3,7 @@ import {ContextMenuSubmenuItem} from "./ContextMenuSubmenuItem.js";
 import {Button} from "../Button.js";
 
 /**
- * @typedef {Object} ContextMenuOptions
+ * @typedef {object} ContextMenuOptions
  * @property {ContextMenu?} [parentMenu = null]
  * @property {ContextMenuStructure?} [structure = null]
  */
@@ -11,7 +11,7 @@ import {Button} from "../Button.js";
 /** @typedef {Array<ContextMenuItemOpts>} ContextMenuStructure */
 
 /**
- * @typedef {Object} ContextMenuItemClickEvent
+ * @typedef {object} ContextMenuItemClickEvent
  * @property {ContextMenuItem} item
  * @property {function() : void} preventMenuClose
  */
@@ -31,7 +31,7 @@ import {Button} from "../Button.js";
  */
 
 /**
- * @typedef {Object} ContextMenuItemOpts
+ * @typedef {object} ContextMenuItemOpts
  * @property {string} [text=""] The text to display in the item.
  * @property {string} [tooltip=""] The text to display when hovering over the item.
  * @property {((event: ContextMenuItemClickEvent) => any)?} [onClick = null] The function to call when the item is clicked.
@@ -95,7 +95,7 @@ export class ContextMenu {
 	}
 
 	/**
-	 * @typedef {Object} ContextMenuSetPosOpts
+	 * @typedef {object} ContextMenuSetPosOpts
 	 * @property {number} [x]
 	 * @property {number} [y]
 	 * @property {HTMLElement | Button | ContextMenuItem} [item]

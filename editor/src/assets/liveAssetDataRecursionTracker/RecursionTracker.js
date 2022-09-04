@@ -7,7 +7,7 @@ import {LoadingAsset} from "./LoadingAsset.js";
 
 /* eslint-disable jsdoc/require-description-complete-sentence */
 /**
- * @typedef {Object} GetLiveAssetDataOptionsExtra
+ * @typedef {object} GetLiveAssetDataOptionsExtra
  * @property {boolean} [repeatOnLiveAssetChange = false] Repeats the callback if the live asset changes.
  * This is useful when your callback assigns the live asset to an object. Repeat calls will
  * cause the property to be overwritten. This only works when code doesn't make assumptions about

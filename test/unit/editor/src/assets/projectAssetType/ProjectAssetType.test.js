@@ -2,7 +2,7 @@ import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asser
 import {ProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js";
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {(() => void)?} [options.liveAssetNeedsReplacementCb]
  */
 function createMockProjectAsset({

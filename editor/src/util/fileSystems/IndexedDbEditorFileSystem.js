@@ -9,14 +9,14 @@ const fileSystemPointerType = Symbol("file system pointer type");
 /** @typedef {import("../../../../src/mod.js").UuidString & {__fileSystemPointerType: fileSystemPointerType}} IndexedDbEditorFileSystemPointer */
 
 /**
- * @typedef {Object} IndexedDbEditorFileSystemStoredObjectBase
+ * @typedef {object} IndexedDbEditorFileSystemStoredObjectBase
  * @property {boolean} [isFile = false]
  * @property {boolean} [isDir = false]
  * @property {string} fileName
  */
 
 /**
- * @typedef {Object} IndexedDbEditorFileSystemStoredObjectFileType
+ * @typedef {object} IndexedDbEditorFileSystemStoredObjectFileType
  * @property {true} isFile
  * @property {false} [isDir = false]
  * @property {File} file
@@ -25,7 +25,7 @@ const fileSystemPointerType = Symbol("file system pointer type");
  */
 
 /**
- * @typedef {Object} IndexedDbEditorFileSystemStoredObjectDirType
+ * @typedef {object} IndexedDbEditorFileSystemStoredObjectDirType
  * @property {true} isDir
  * @property {false} [isFile = false]
  * @property {IndexedDbEditorFileSystemPointer[]} files
@@ -36,7 +36,7 @@ const fileSystemPointerType = Symbol("file system pointer type");
 /** @typedef {IndexedDbEditorFileSystemStoredObjectFile | IndexedDbEditorFileSystemStoredObjectDir} IndexedDbEditorFileSystemStoredObject */
 
 /**
- * @typedef {Object} IndexedDbEditorFileSystemTravelledDataEntry
+ * @typedef {object} IndexedDbEditorFileSystemTravelledDataEntry
  * @property {IndexedDbEditorFileSystemStoredObject} obj
  * @property {IndexedDbEditorFileSystemPointer} pointer
  */

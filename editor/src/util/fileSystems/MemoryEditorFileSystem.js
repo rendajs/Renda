@@ -35,7 +35,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @private
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {boolean} [options.create]
 	 * @param {"file" | "dir"} [options.createType]
 	 */

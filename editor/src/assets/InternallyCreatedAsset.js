@@ -15,7 +15,7 @@ export class InternallyCreatedAsset {
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {unknown} persistenceData
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {import("../../../src/mod.js").UuidString?} options.forcedAssetUuid
 	 */
 	constructor(assetManager, persistenceData, {

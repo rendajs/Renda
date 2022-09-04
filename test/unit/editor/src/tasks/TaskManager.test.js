@@ -97,7 +97,7 @@ Deno.test({
 });
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {{path: import("../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, projectAsset: import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny}[]} [options.pathProjectAssets]
  * @param {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} [options.uuidProjectAssets]
  */

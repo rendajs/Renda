@@ -101,7 +101,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	 * Creates a map type entry by uuid if it doesn't already exist.
 	 *
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */
 	addMapTypeUuid(uuid, {
@@ -116,7 +116,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	 * Creates a new map type entry if it doesn't already exist.
 	 *
 	 * @param {typeof import("../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeSerializer} MaterialMapTypeConstructor
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {boolean} [options.updateMapListUi]
 	 */
 	addMapType(MaterialMapTypeConstructor, {

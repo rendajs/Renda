@@ -5,14 +5,14 @@ import {ProtocolManager} from "./ProtocolManager.js";
 import {InternalDiscoveryManager} from "../../../../src/Inspector/InternalDiscoveryManager.js";
 
 /**
- * @typedef {Object} RemoteEditorMetaData
+ * @typedef {object} RemoteEditorMetaData
  * @property {string} name
  * @property {import("../../../../src/util/mod.js").UuidString} uuid
  */
 /** @typedef {"webRtc" | "internal"} MessageHandlerType */
 /** @typedef {"editor" | "inspector"} ClientType */
 /**
- * @typedef {Object} AvailableEditorData
+ * @typedef {object} AvailableEditorData
  * @property {import("../../../../src/util/mod.js").UuidString} id
  * @property {MessageHandlerType} messageHandlerType
  * @property {ClientType} clientType
@@ -25,7 +25,7 @@ import {InternalDiscoveryManager} from "../../../../src/Inspector/InternalDiscov
 /** @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType */
 
 /**
- * @typedef {Object} AvailableConnectionConfig
+ * @typedef {object} AvailableConnectionConfig
  * @property {import("../../../../src/util/mod.js").UuidString} uuid
  * @property {MessageHandlerType} messageHandlerType
  */
@@ -243,7 +243,7 @@ export class EditorConnectionsManager {
 	}
 
 	/**
-	 * @typedef {Object} AvailableRtcConnectionData
+	 * @typedef {object} AvailableRtcConnectionData
 	 * @property {import("../../../../src/util/mod.js").UuidString} id
 	 * @property {ClientType} clientType
 	 * @property {RemoteEditorMetaData?} projectMetaData

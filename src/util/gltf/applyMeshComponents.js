@@ -18,7 +18,7 @@ import {getBufferViewBuffer} from "./getBuffer.js";
  * Creates meshes and materials from glTF data and fills the provided entities with mesh components.
  * @param {import("./types.js").GltfJsonData} jsonData The full glTF data.
  * @param {Map<import("../../core/Entity.js").Entity, number>} entityNodeIds List of created entities and their corresponding node id in the glTF.
- * @param {Object} options
+ * @param {object} options
  * @param {import("./getBuffer.js").GetBufferFn} options.getBufferFn
  * @param {import("./getMaterial.js").GetMaterialFn} options.getMaterialFn
  */

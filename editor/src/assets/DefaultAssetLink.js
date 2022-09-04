@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} AssetLinkConfig
+ * @typedef {object} AssetLinkConfig
  * @property {string?} [name]
  * @property {import("../../../src/util/mod.js").UuidString?} [originalAssetUuid]
  */

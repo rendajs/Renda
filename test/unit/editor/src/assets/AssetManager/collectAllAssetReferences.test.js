@@ -16,7 +16,7 @@ import {BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js"
  */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {StubReferenceAssetConfig[]} [options.stubReferenceAssets]
  * @param {ReferencesTestConfig[]} [options.tests]
  */

@@ -31,7 +31,7 @@ export class PropertiesMaterialMapContent {
 	/**
 	 * Override this and return the data you want to save.
 	 * This gets called when a MaterialMap is going to be saved.
-	 * @returns {Promise<Object?>}
+	 * @returns {Promise<object?>}
 	 */
 	async getCustomAssetDataForSave() {
 		throw new Error("Base class");

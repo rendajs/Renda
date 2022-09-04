@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} ShortcutConditionOptionsObject
+ * @typedef {object} ShortcutConditionOptionsObject
  * @property {string} name
  * @property {"boolean" | "string"} [type = "boolean"]
  */

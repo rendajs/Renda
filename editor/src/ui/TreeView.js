@@ -20,7 +20,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  */
 
 /**
- * @typedef {Object} TreeViewEvent
+ * @typedef {object} TreeViewEvent
  * @property {TreeView} target
  * @property {Event} [rawEvent]
  */
@@ -28,21 +28,21 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 /** @typedef {"top" | "bottom" | "middle"} TreeViewDragPosition */
 
 /**
- * @typedef {Object} TreeViewDragEventType
+ * @typedef {object} TreeViewDragEventType
  * @property {DragEvent} rawEvent
  *
  * @typedef {TreeViewEvent & TreeViewDragEventType} TreeViewDragEvent
  */
 
 /**
- * @typedef {Object} TreeViewDropEventType
+ * @typedef {object} TreeViewDropEventType
  * @property {TreeViewDragPosition} dropPosition
  *
  * @typedef {TreeViewDragEvent & TreeViewDropEventType} TreeViewDropEvent
  */
 
 /**
- * @typedef {Object} TreeViewValidateDragEventType
+ * @typedef {object} TreeViewValidateDragEventType
  * @property {import("../util/util.js").ParsedMimeType} mimeType
  * @property {boolean} isSameTreeView Whether the dragged TreeView is from the same TreeView tree as the drop target.
  * @property {"string" | "file"} kind
@@ -53,7 +53,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  */
 
 /**
- * @typedef {Object} TreeViewRearrangedItem
+ * @typedef {object} TreeViewRearrangedItem
  * @property {number[]} oldIndicesPath
  * @property {number[]} newIndicesPath
  * @property {TreeView} treeView
@@ -62,14 +62,14 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  */
 
 /**
- * @typedef {Object} TreeViewRearrangeEventType
+ * @typedef {object} TreeViewRearrangeEventType
  * @property {TreeViewRearrangedItem[]} movedItems
  *
  * @typedef {TreeViewEvent & TreeViewRearrangeEventType} TreeViewRearrangeEvent
  */
 
 /**
- * @typedef {Object} TreeViewNameChangeEventType
+ * @typedef {object} TreeViewNameChangeEventType
  * @property {string} oldName
  * @property {string} newName
  *
@@ -83,21 +83,21 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  */
 
 /**
- * @typedef {Object} TreeViewContextMenuEventType
+ * @typedef {object} TreeViewContextMenuEventType
  * @property {showContextMenuCallback} showContextMenu
  *
  * @typedef {TreeViewEvent & TreeViewContextMenuEventType} TreeViewContextMenuEvent
  */
 
 /**
- * @typedef {Object} TreeViewFocusWithinChangeEventType
+ * @typedef {object} TreeViewFocusWithinChangeEventType
  * @property {boolean} hasFocusWithin
  *
  * @typedef {TreeViewEvent & TreeViewFocusWithinChangeEventType} TreeViewFocusWithinChangeEvent
  */
 
 /**
- * @typedef {Object} TreeViewSelectionChangeEventType
+ * @typedef {object} TreeViewSelectionChangeEventType
  * @property {boolean} reset
  * @property {Array<TreeView>} added
  * @property {Array<TreeView>} removed
@@ -106,14 +106,14 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  */
 
 /**
- * @typedef {Object} TreeViewCollapseEventType
+ * @typedef {object} TreeViewCollapseEventType
  * @property {boolean} collapsed
  *
  * @typedef {TreeViewEvent & TreeViewCollapseEventType} TreeViewCollapseEvent
  */
 
 /**
- * @typedef {Object} TreeViewEventCbMap
+ * @typedef {object} TreeViewEventCbMap
  * @property {TreeViewSelectionChangeEvent} selectionchange
  * @property {TreeViewCollapseEvent} collapsedchange
  * @property {TreeViewNameChangeEvent} namechange
@@ -1166,7 +1166,7 @@ export class TreeView {
 
 	/**
 	 * @param {boolean} textFieldVisible
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.applyName] Whether to apply the new name of the textfield to the tree view.
 	 * @param {boolean} [opts.focusRowEl] Whether to focus on the row element, after hiding the text field.
 	 */

@@ -3,7 +3,7 @@ import {Vec2} from "../../math/Vec2.js";
 import {Vec3} from "../../math/Vec3.js";
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../rendering/VertexState.js").VertexState?} [options.vertexState]
  */
 export function createCube({

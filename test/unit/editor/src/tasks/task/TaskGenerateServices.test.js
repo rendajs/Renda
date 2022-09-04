@@ -34,7 +34,7 @@ const blobModuleBlob = new Blob([blobModule], {type: "text/javascript"});
 const blobModuleUrl = URL.createObjectURL(blobModuleBlob);
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {string} [options.projectAssetTypeModuleSpecifier]
  * @param {import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} [options.importConfig]
  */
@@ -129,7 +129,7 @@ function basicSetup({
 }
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../../src/mod.js").UuidString[]} [options.usedAssets]
  */
 function createRunTaskOptions({

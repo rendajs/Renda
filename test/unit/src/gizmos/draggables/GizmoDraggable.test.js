@@ -335,9 +335,9 @@ Deno.test({
 	name: "fireDragCallbacks fires onDrag() callbacks",
 	fn() {
 		const draggable = new ExtendedDraggable(mockGizmoManager);
-		/** @type {Object[]} */
+		/** @type {object[]} */
 		const callbackEvents = [];
-		/** @type {(e: Object) => void} */
+		/** @type {(e: object) => void} */
 		const cb = e => {
 			callbackEvents.push(e);
 		};
@@ -355,9 +355,9 @@ Deno.test({
 	name: "onDrag doesn't fire on removed event listeners",
 	fn() {
 		const draggable = new ExtendedDraggable(mockGizmoManager);
-		/** @type {Object[]} */
+		/** @type {object[]} */
 		const callbackEvents = [];
-		/** @type {(e: Object) => void} */
+		/** @type {(e: object) => void} */
 		const cb = e => {
 			callbackEvents.push(e);
 		};

@@ -8,7 +8,7 @@ export class DragManager {
 		this.draggingData = new Map();
 	}
 	/**
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {string | string[]} [opts.text]
 	 */
 	createDragFeedbackText({

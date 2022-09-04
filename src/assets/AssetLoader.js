@@ -51,7 +51,7 @@ export class AssetLoader {
 	/**
 	 *
 	 * @param {import("../util/util.js").UuidString} uuid
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {unknown} [options.assetOpts]
 	 * @param {boolean} [options.createNewInstance]
 	 * @param {RecursionTracker?} [options.recursionTracker]

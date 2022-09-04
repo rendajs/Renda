@@ -3,7 +3,7 @@ import {parseJsonData} from "./parseJsonData.js";
 
 /**
  * @param {ArrayBuffer} glbBuffer
- * @param {Object} options
+ * @param {object} options
  * @param {"gltf" | "glb"} options.fileExtension Used for asserting that the file has the correct format.
  * This way you get more helpful error messages should you provide a buffer from a non gltf file.
  * @param {import("../../rendering/Material.js").Material?} options.defaultMaterial

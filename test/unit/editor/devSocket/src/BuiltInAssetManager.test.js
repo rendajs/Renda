@@ -12,7 +12,7 @@ const originalDenoWriteTextFile = Deno.writeTextFile;
 const originalDenoReadDir = Deno.readDir;
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {(path: string | URL) => Deno.FileInfo} [options.statCb]
  * @param {(path: string | URL, options?: Deno.ReadFileOptions) => Uint8Array} [options.readFileCb]
  * @param {(path: string | URL, options?: Deno.ReadFileOptions) => string} [options.readTextFileCb]
@@ -131,7 +131,7 @@ function uninstallMockDenoCalls() {
 }
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {unknown} [options.initialAssetSettings]
  * @param {[string, Uint8Array | string][]} [options.initialFiles]
  */

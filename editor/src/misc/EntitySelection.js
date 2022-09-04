@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} EntitySelectionMetaData
+ * @typedef {object} EntitySelectionMetaData
  * @property {import("../ui/TreeView.js").TreeView} outlinerTreeView
  * @property {import("../windowManagement/contentWindows/ContentWindowOutliner.js").ContentWindowOutliner} outliner
  */

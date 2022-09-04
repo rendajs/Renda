@@ -6,12 +6,12 @@ import {ProjectAsset} from "./ProjectAsset.js";
 import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 
 /**
- * @typedef {Object} SetDefaultBuiltInAssetLinkData
+ * @typedef {object} SetDefaultBuiltInAssetLinkData
  * @property {import("../../../src/mod.js").UuidString} defaultAssetUuid
  * @property {import("../../../src/mod.js").UuidString?} originalAssetUuid
  */
 /**
- * @typedef {Object} SetDefaultAssetLinkData
+ * @typedef {object} SetDefaultAssetLinkData
  * @property {string} name
  * @property {import("../../../src/mod.js").UuidString?} defaultAssetUuid
  * @property {import("../../../src/mod.js").UuidString?} originalAssetUuid
@@ -384,7 +384,7 @@ export class AssetManager {
 	 * `InternallyCreatedAsset.getProjectAsset()` first. This is generally
 	 * already called when the asset is being linked to from most places.
 	 * @param {unknown} persistenceData
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {import("../../../src/mod.js").UuidString?} [options.forcedAssetUuid] When set,
 	 * forces the a specific uuid once the ProjectAsset is created. If the internally
 	 * created asset already exists, this option has no effect.
@@ -635,7 +635,7 @@ export class AssetManager {
 	/**
 	 * @template {AssetAssertionOptions} [T = {}]
 	 * @param {string[]} path
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {boolean} [options.registerIfNecessary]
 	 * @param {T?} [options.assertionOptions]
 	 */
@@ -785,7 +785,7 @@ export class AssetManager {
 	/**
 	 * Recurses down all the references of an asset and yields the uuid of every reference.
 	 * @param {import("../../../src/util/mod.js").UuidString[]} assetUuids The uuid to start searching from.
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} [options.excludeUuids] Uuids to exclude from the results.
 	 * @param {Set<import("../../../src/util/mod.js").UuidString>} [options.excludeUuidsRecursive] Uuids to exclude, where
 	 * all its references are excluded as well. Use this to efficiently exclude

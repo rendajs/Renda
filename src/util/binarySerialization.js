@@ -1,10 +1,10 @@
 import {clamp, isUuid} from "./util.js";
 
-/** @typedef {Object.<string, number>} BinarySerializationNameIds */
+/** @typedef {Object<string, number>} BinarySerializationNameIds */
 
 /**
  * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
- * @typedef {Object} ObjectToBinaryOptions
+ * @typedef {object} ObjectToBinaryOptions
  * @property {T} structure
  * @property {BinarySerializationNameIds} nameIds
  * @property {boolean} [littleEndian = true]
@@ -21,14 +21,14 @@ import {clamp, isUuid} from "./util.js";
 
 /**
  * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
- * @typedef {Object} BinaryToObjectWithAssetLoaderOptions
+ * @typedef {object} BinaryToObjectWithAssetLoaderOptions
  * @property {T} structure
  * @property {BinarySerializationNameIds} nameIds
  * @property {boolean} [littleEndian = true]
  */
 
 /**
- * @typedef {Object} BinarySerializationVariableLengthStorageTypes
+ * @typedef {object} BinarySerializationVariableLengthStorageTypes
  * @property {AllStorageTypes} [refId = StorageType.NULL]
  * @property {AllStorageTypes} [array = StorageType.UINT8]
  * @property {AllStorageTypes} [string = StorageType.UINT16]
@@ -36,17 +36,17 @@ import {clamp, isUuid} from "./util.js";
  */
 
 /**
- * @typedef {Object} BinaryToObjectTransformValueHookArgs
+ * @typedef {object} BinaryToObjectTransformValueHookArgs
  * @property {unknown} value The value of the property before the transformation.
  * @property {StorageType} type The type of the property before the transformation.
- * @property {Object.<string | number, unknown>} placedOnObject The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
+ * @property {Object<string | number, unknown>} placedOnObject The object the property will be placed on, use this with `placedOnKey` if you want to place it yourself in a promise.
  * @property {string | number} placedOnKey The key of the property.
  */
 
 /** @typedef {(opts: BinaryToObjectTransformValueHookArgs) => unknown?} BinaryToObjectTransformValueHook */
 
 /**
- * @typedef {Object} ObjectToBinaryTransformValueHookArgs
+ * @typedef {object} ObjectToBinaryTransformValueHookArgs
  * @property {unknown} value The value of the property before the transformation.
  * @property {StorageType} type The type of the property before the transformation.
  */
@@ -54,7 +54,7 @@ import {clamp, isUuid} from "./util.js";
 /** @typedef {(opts: ObjectToBinaryTransformValueHookArgs) => void} ObjectToBinaryTransformValueHook */
 
 /**
- * @typedef {Object} BinarySerializationBinaryDigestible
+ * @typedef {object} BinarySerializationBinaryDigestible
  * @property {*} value
  * @property {StorageType} type
  * @property {boolean} [variableArrayLength = false]
@@ -72,7 +72,7 @@ import {clamp, isUuid} from "./util.js";
 /**
  * @typedef StructureRefData
  * @property {import("./binarySerializationTypes.js").AllowedStructureFormat} structureRef
- * @property {Object | null} [reconstructedData]
+ * @property {object | null} [reconstructedData]
  */
 
 /** @typedef {Map<string, number>} NameIdsMap */
@@ -227,7 +227,7 @@ export function objectToBinary(data, {
 }) {
 	const nameIdsMap = new Map(Object.entries(nameIds));
 
-	const castData = /** @type {Object} */ (data);
+	const castData = /** @type {object} */ (data);
 	const reoccurringObjectReferences = collectReoccurringReferences(castData, nameIdsMap, false);
 
 	/** @type {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} */
@@ -253,7 +253,7 @@ export function objectToBinary(data, {
 
 	const referencesAndStructures = getStoreAsReferenceItems(reoccurringObjectReferences, reoccurringStructureReferences, castData, structure, nameIdsMap);
 
-	/** @type {Map<Object, number>} */
+	/** @type {Map<object, number>} */
 	const referenceIds = new Map();
 	const sortedReferences = [];
 	for (const [ref, structure] of referencesAndStructures) {
@@ -593,13 +593,13 @@ function collectReoccurringReferences(data, nameIdsMap, isStructure) {
  * Recursively walks down the structure and object and collects all references if
  * they should be serialized as reference id rather than inline.
  * Objects that should be serialized as reference id are placed in the `options.collectedItems` map.
- * @param {Object} options
+ * @param {object} options
  * @param {any} options.data The object that will be serialized.
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} options.structure
  * @param {NameIdsMap} options.nameIdsMap
- * @param {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>[]} options.existingItems
- * @param {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>} options.collectedItems
- * @param {Set<Object>} options.forceUseAsObjectReferences If an object is in this set, it will always be collected.
+ * @param {Map<object, import("./binarySerializationTypes.js").AllowedStructureFormat>[]} options.existingItems
+ * @param {Map<object, import("./binarySerializationTypes.js").AllowedStructureFormat>} options.collectedItems
+ * @param {Set<object>} options.forceUseAsObjectReferences If an object is in this set, it will always be collected.
  * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} options.forceUseAsStructureReferences If a structure is in this set,
  * it will always be collected, as well as its respective data object.
  * @param {boolean} [options.isInitialItem]
@@ -659,7 +659,7 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
 		} else {
 			for (const [key, val] of Object.entries(data)) {
 				if (nameIdsMap.has(key)) {
-					const castStructure = /** @type {Object.<string, import("./binarySerializationTypes.js").AllowedStructureFormat>} */ (structure);
+					const castStructure = /** @type {Object<string, import("./binarySerializationTypes.js").AllowedStructureFormat>} */ (structure);
 					const structureItem = castStructure[key];
 					collectStoredAsReferenceItems({
 						data: val,
@@ -677,18 +677,18 @@ function collectStoredAsReferenceItems({data, structure, nameIdsMap, existingIte
  * object references as keys and their respective structure references as value.
  * The result always contains the root object and structure. Even if they are used
  * only once.
- * @param {Set<Object>} reoccurringDataReferences A set of objects that occur more than once in the data.
+ * @param {Set<object>} reoccurringDataReferences A set of objects that occur more than once in the data.
  * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} reoccuringStructureReferences A set of objects that occur more than once in the structure.
- * @param {Object} data The object that needs to be converted to binary.
+ * @param {object} data The object that needs to be converted to binary.
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
  * @param {NameIdsMap} nameIdsMap
  */
 function getStoreAsReferenceItems(reoccurringDataReferences, reoccuringStructureReferences, data, structure, nameIdsMap) {
-	/** @type {Map<Object, import("./binarySerializationTypes.js").AllowedStructureFormat>} */
+	/** @type {Map<object, import("./binarySerializationTypes.js").AllowedStructureFormat>} */
 	const unparsedReferences = new Map();
 	unparsedReferences.set(data, structure);
 
-	/** @type {Map<Object,import("./binarySerializationTypes.js").AllowedStructureFormat>} */
+	/** @type {Map<object, import("./binarySerializationTypes.js").AllowedStructureFormat>} */
 	const parsedReferences = new Map();
 
 	while (unparsedReferences.size > 0) {
@@ -791,9 +791,9 @@ function structureToStorageType(structure) {
 }
 
 /**
- * @param {Object} obj The object that needs be converted to binary.
+ * @param {object} obj The object that needs be converted to binary.
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure The structure that belongs to this object.
- * @param {Object} opts
+ * @param {object} opts
  * @param {Map<*,number>} opts.referenceIds A mapping of objects and an id that they will be using in the binary representation.
  * @param {Map<string,number>} opts.nameIdsMap
  * @param {boolean} [opts.isInitialItem] Whether this is the root item of the object.
@@ -851,8 +851,8 @@ function generateBinaryDigestable(obj, structure, {referenceIds, nameIdsMap, isI
 			}
 		} else {
 			const arr = [];
-			const castObj = /** @type {Object.<string, Object>} */ (obj);
-			const castStructure = /** @type {Object.<string, import("./binarySerializationTypes.js").AllowedStructureFormat>} */ (structure);
+			const castObj = /** @type {Object<string, Object>} */ (obj);
+			const castStructure = /** @type {Object<string, import("./binarySerializationTypes.js").AllowedStructureFormat>} */ (structure);
 			for (const key of Object.keys(structure)) {
 				if (nameIdsMap.has(key)) {
 					const val = castObj[key];
@@ -902,7 +902,7 @@ function sortNameIdsArr(arr) {
  * has the same property and string value, we could match that structure.
  *
  * If no structures can be matched, an error will be thrown.
- * @param {Object} object
+ * @param {object} object
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat[]} possibleStructures
  */
 function getUnionMatch(object, possibleStructures) {
@@ -977,7 +977,7 @@ function *flattenBinaryDigestable(binaryDigestableArray, arrayLengthStorageType)
 /**
  * @private
  * @param {StorageType} type
- * @param {Object} options
+ * @param {object} options
  * @param {unknown} options.value
  * @param {TextEncoder} options.textEncoder
  * @param {number} options.stringLengthByteLength
@@ -1028,7 +1028,7 @@ function getStructureTypeLength(type, {
  * @param {unknown} value
  * @param {StorageType} type
  * @param {number} [byteOffset]
- * @param {Object} options
+ * @param {object} options
  * @param {boolean} [options.littleEndian]
  * @param {StorageType} [options.stringLengthStorageType]
  * @param {StorageType} [options.arrayBufferLengthStorageType]
@@ -1104,7 +1104,7 @@ function setDataViewValue(dataView, value, type, byteOffset = 0, {
  * @param {ArrayBuffer} buffer
  * @param {number} byteOffset
  * @param {StorageType} lengthStorageType
- * @param {Object} options
+ * @param {object} options
  * @param {boolean} options.littleEndian
  */
 function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, {littleEndian}) {
@@ -1119,15 +1119,15 @@ function insertLengthAndBuffer(dataView, buffer, byteOffset, lengthStorageType, 
 /**
  * @typedef ParseStructureDigestableResult
  * @property {number} newByteOffset
- * @property {Object | null} newReconstructedData
+ * @property {object | null} newReconstructedData
  */
 
 /**
  * @param {import("./binarySerializationTypes.js").AllowedStructureFormat} structure
  * @param {TraversedLocationData[]} traversedLocationPath
- * @param {Object | null} reconstructedData The object that we'll be adding properties to as we parse the structure.
+ * @param {object | null} reconstructedData The object that we'll be adding properties to as we parse the structure.
  * @param {boolean} isRootStructure True if this is a root structure of one of the reoccurring structure references.
- * @param {Object} options
+ * @param {object} options
  * @param {Set<import("./binarySerializationTypes.js").AllowedStructureFormat>} options.reoccurringStructureReferences
  * @param {NameIdsMap} options.nameIdsMap
  * @param {DataView} options.dataView
@@ -1299,7 +1299,7 @@ function parseBinaryWithStructure(structure, traversedLocationPath, reconstructe
  * @param {DataView} dataView
  * @param {StorageType} type
  * @param {number} byteOffset
- * @param {Object} opts
+ * @param {object} opts
  * @param {boolean} [opts.littleEndian]
  * @param {StorageType} [opts.stringLengthStorageType]
  * @param {StorageType} [opts.arrayBufferLengthStorageType]
@@ -1364,7 +1364,7 @@ function getDataViewValue(dataView, type, byteOffset, {
  * @param {DataView} dataView
  * @param {number} byteOffset
  * @param {StorageType} lengthStorageType
- * @param {Object} options
+ * @param {object} options
  * @param {boolean} options.littleEndian
  */
 function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndian}) {
@@ -1378,8 +1378,8 @@ function getLengthAndBuffer(dataView, byteOffset, lengthStorageType, {littleEndi
 }
 
 /**
- * @param {Object?} obj
- * @param {Object} opts
+ * @param {object?} obj
+ * @param {object} opts
  * @param {unknown} opts.value
  * @param {TraversedLocationData[]} opts.location
  * @param {Map<number, string>} opts.nameIdsMapInverse
@@ -1403,7 +1403,7 @@ function resolveBinaryValueLocation(obj, {
 			throw new Error("Assertion failed: the provided object was null but location data was not of type ARRAY or OBJECT.");
 		}
 	}
-	const castObj = /** @type {Object.<string | number, unknown>} */ (obj);
+	const castObj = /** @type {Object<string | number, unknown>} */ (obj);
 
 	if (keyData.type == StorageType.OBJECT) {
 		const newKey = nameIdsMapInverse.get(keyData.id);

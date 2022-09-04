@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} TreeViewSpy
+ * @typedef {object} TreeViewSpy
  * @property {number} clearChildrenCallCount
  */
 /**

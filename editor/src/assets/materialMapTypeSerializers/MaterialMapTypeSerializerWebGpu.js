@@ -8,7 +8,7 @@ import {parseBindings, parseMaterialUniforms} from "../../../../src/util/wgslPar
 const FORWARD_PIPELINE_CONFIG_PERSISTENCE_KEY = "webgpumaptype.forwardpipelineconfig";
 
 /**
- * @typedef {Object} WebGpuMaterialMapTypeDiskData
+ * @typedef {object} WebGpuMaterialMapTypeDiskData
  * @property {import("../../../../src/util/mod.js").UuidString | import("../projectAssetType/ProjectAssetTypeWebGpuPipelineConfig.js").WebGpuPipelineConfigAssetData | null} [forwardPipelineConfig]
  */
 

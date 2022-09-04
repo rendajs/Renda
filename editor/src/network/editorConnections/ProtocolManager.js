@@ -16,7 +16,7 @@ import {autoRegisterRequestHandlers} from "./protocolRequestHandlers/autoRegiste
  */
 
 /**
- * @typedef {Object} RequestMetaData
+ * @typedef {object} RequestMetaData
  * @property {boolean} autoSerializationSupported Whether serialization is supported by the message handler. For
  * instance, WebSockets have no built-in serialization because all data is sent as string or binary. But
  * `window.postMessage` and `MessageChannel` do have built-in serialization by the browser.
@@ -55,7 +55,7 @@ let EditorConnection;
  * @template {((...args: any) => any) | undefined} TPrepareSignature
  * @template {(...args: any) => any} THandleRequestSignature
  * @template {((meta: RequestMetaData, buffer: ArrayBuffer) => any) | undefined} THandleResponseSignature
- * @typedef {Object} ProtocolManagerRequestHandler
+ * @typedef {object} ProtocolManagerRequestHandler
  * @property {TCommand} command
  * @property {SerializeCondition} [requestSerializeCondition = "if-not-supported"]
  * @property {TPrepareSignature} [prepare] Called on the client before the request is sent.

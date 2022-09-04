@@ -126,7 +126,7 @@ export class TaskManager {
 				if (!asset) {
 					asset = await assetManager.registerAsset(writeAssetData.path, writeAssetData.assetType);
 				}
-				await asset.writeAssetData(/** @type {Object} **/ (writeAssetData.fileData));
+				await asset.writeAssetData(/** @type {object} **/ (writeAssetData.fileData));
 				this.#touchedTaskAssets.set(asset, taskAsset);
 			}
 		}

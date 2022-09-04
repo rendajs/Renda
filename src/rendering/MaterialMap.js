@@ -10,7 +10,7 @@ import {Sampler} from "./Sampler.js";
 
 /** @typedef {"number" | "vec2" | "vec3" | "vec4" | "sampler" | "texture2d"} MappableMaterialTypesEnum */
 /**
- * @typedef {Object} MaterialMapMappedValue
+ * @typedef {object} MaterialMapMappedValue
  * @property {string} mappedName The new property name set by the user. I.e. the
  * value that appears in the material ui, and the key that is used in
  * `Material.setProperty(key, value)`.
@@ -18,17 +18,17 @@ import {Sampler} from "./Sampler.js";
  * @property {MappableMaterialTypes} defaultValue
  */
 
-/** @typedef {Object.<string, MaterialMapMappedValue>} MaterialMapMappedValues */
+/** @typedef {Object<string, MaterialMapMappedValue>} MaterialMapMappedValues */
 
 /**
- * @typedef {Object} MaterialMapTypeData
+ * @typedef {object} MaterialMapTypeData
  * @property {import("./MaterialMapType.js").MaterialMapType} mapType
  * @property {MaterialMapMappedValues} mappedValues
  */
 
 export class MaterialMap {
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {Iterable<MaterialMapTypeData>} [options.materialMapTypes]
 	 */
 	constructor({

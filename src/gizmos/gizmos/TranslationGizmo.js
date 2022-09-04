@@ -151,7 +151,7 @@ export class TranslationGizmo extends Gizmo {
 	}
 
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {Vec3} options.axis
 	 * @param {Vec3} options.colorInstance The Vec3 instance that should be changed when hovering.
 	 * @param {Vec3} options.defaultColor The color of the arrow when not hovering

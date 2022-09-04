@@ -18,7 +18,7 @@ import {ContentWindowProperties} from "../../windowManagement/contentWindows/Con
 /**
  * @template TLiveAsset
  * @template TEditorData
- * @typedef {Object} LiveAssetData
+ * @typedef {object} LiveAssetData
  * @property {TLiveAsset} liveAsset
  * @property {TEditorData} editorData
  */
@@ -27,7 +27,7 @@ import {ContentWindowProperties} from "../../windowManagement/contentWindows/Con
  * @typedef {LiveAssetData<any, any>} LiveAssetDataAny
  */
 
-/** @typedef {Object | string | "binary"} ProjectAssetDiskDataType */
+/** @typedef {object | string | "binary"} ProjectAssetDiskDataType */
 
 /**
  * ProjectAssetTypes are classes that are extended and implemented by different
@@ -293,7 +293,7 @@ export class ProjectAssetType {
 	 * If this function returns null or undefined, the raw
 	 * asset data as it is stored in the project will be used
 	 * which could be very inefficient.
-	 * @param {Object} assetSettingOverrides
+	 * @param {object} assetSettingOverrides
 	 * @returns {Promise<null | BufferSource | Blob | string>}
 	 */
 	async createBundledAssetData(assetSettingOverrides = {}) {

@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} BuiltInDefaultAssetLink
+ * @typedef {object} BuiltInDefaultAssetLink
  * @property {string} name
  * @property {import("../../../src/util/mod.js").UuidString} originalAssetUuid Use `Util.generateUuid()` to generate this.
  * @property {import("../../../src/util/mod.js").UuidString} defaultAssetUuid This should be the uuid of a built-in asset.

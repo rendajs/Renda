@@ -5,7 +5,7 @@ import {handleDuplicateFileName} from "../../util/util.js";
 import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorInstance.js";
 
 /**
- * @typedef {Object} DraggingProjectAssetData
+ * @typedef {object} DraggingProjectAssetData
  * @property {boolean} dataPopulated
  * @property {typeof import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType?} assetType Is null when data hasn't been populated yet.
  * @property {import("../../../../src/util/mod.js").UuidString?} assetUuid Is null when data hasn't been populated yet.

@@ -5,7 +5,7 @@ import {PropertiesTreeViewEntry} from "./PropertiesTreeViewEntry.js";
 
 /**
  * @template {import("./types.js").PropertiesTreeViewStructure} T
- * @typedef {Object} PropertiesTreeViewEventCbMapType
+ * @typedef {object} PropertiesTreeViewEventCbMapType
  * @property {import("./types.js").PropertiesTreeViewChangeEvent<T>} propertiestreeviewentryvaluechange
  */
 
@@ -44,7 +44,7 @@ export class PropertiesTreeView extends TreeView {
 		});
 		this.fullTreeDisabled = false;
 
-		/** @type {Object.<string, PropertiesTreeViewEntry<any>>} */
+		/** @type {Object<string, PropertiesTreeViewEntry<any>>} */
 		this.currentSerializableStructureItems = {};
 
 		this.registerNewEventType("propertiestreeviewentryvaluechange");
@@ -83,8 +83,8 @@ export class PropertiesTreeView extends TreeView {
 
 	/**
 	 * @param {import("./types.js").PropertiesTreeViewStructure} structure
-	 * @param {Object} opts
-	 * @param {Object} [opts.callbacksContext]
+	 * @param {object} opts
+	 * @param {object} [opts.callbacksContext]
 	 */
 	generateFromSerializableStructure(structure, {
 		callbacksContext = {},
@@ -140,7 +140,7 @@ export class PropertiesTreeView extends TreeView {
 		} else if (purpose == "binarySerialization") {
 			stripDefaultValues = false;
 		}
-		/** @type {Object.<string, unknown>} */
+		/** @type {Object<string, unknown>} */
 		const values = {};
 		let i = 0;
 		let hasSetOneValue = false;

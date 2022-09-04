@@ -1,7 +1,7 @@
 import {TreeView} from "./TreeView.js";
 
 /**
- * @typedef {Object} PropertiesTreeViewEntrySpyOnly
+ * @typedef {object} PropertiesTreeViewEntrySpyOnly
  * @property {unknown[][]} setValueCalls
  * @property {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} constructorOptions
  */
@@ -11,7 +11,7 @@ import {TreeView} from "./TreeView.js";
 
 /**
  * @template {import("../../../../../editor/src/ui/propertiesTreeView/types.js").GuiTypeInstances} T
- * @typedef {Object} PropertiesTreeViewEntryMockObjectOnly
+ * @typedef {object} PropertiesTreeViewEntryMockObjectOnly
  * @property {(value: import("../../../../../editor/src/ui/propertiesTreeView/types.js").GetValueType<T>) => void} fireOnValueChangeCbs
  * @property {(value: unknown) => void} setGetValueReturn
  */

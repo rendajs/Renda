@@ -22,7 +22,7 @@ class ExtendedProjectAssetType2 extends ProjectAssetType {
 }
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructorAny?} [options.rootProjectAssetTypeConstructor]
  * @param {import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructorAny?} [options.otherProjectAssetTypeConstructor]
  */

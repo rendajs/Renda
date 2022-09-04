@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} ShaderLibraryItem
+ * @typedef {object} ShaderLibraryItem
  * @property {string} shaderCode
  * @property {string?} builtCode
  * @property {import("../util/util.js").UuidString[]} includedUuids
@@ -146,7 +146,7 @@ export class ShaderBuilder {
 	 */
 	async fireShaderUuidRequested(uuid) {
 		/**
-		 * @typedef {Object} PromiseItem
+		 * @typedef {object} PromiseItem
 		 * @property {boolean} resolved
 		 * @property {string?} result
 		 * @property {Promise<string?>?} promise
@@ -216,7 +216,7 @@ export class ShaderBuilder {
 
 	/**
 	 * @param {string} shaderCode
-	 * @param {Object.<string, string>} defines
+	 * @param {Object<string, string>} defines
 	 */
 	static fillShaderDefines(shaderCode, defines) {
 		for (const [key, value] of Object.entries(defines)) {

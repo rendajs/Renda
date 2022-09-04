@@ -8,7 +8,7 @@ import {EventHandler} from "../../../src/util/EventHandler.js";
 import {EDITOR_ENV} from "../editorDefines.js";
 
 /**
- * @typedef {Object} ContentWindowEvent
+ * @typedef {object} ContentWindowEvent
  * @property {ContentWindow} target
  */
 

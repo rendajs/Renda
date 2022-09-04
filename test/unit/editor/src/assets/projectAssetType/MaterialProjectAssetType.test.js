@@ -14,8 +14,8 @@ const BASIC_MATERIAL_MAP_UUID = "basic material map uuid";
 const BASIC_GENERIC_ASSET_UUID = "ba51c000-9e0e-61c0-0000-0000000a55e7";
 
 /**
- * @param {Object} options
- * @param {Object.<import("../../../../../../src/mod.js").UuidString, import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} [options.mockAssets]
+ * @param {object} options
+ * @param {Object<import("../../../../../../src/mod.js").UuidString, import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} [options.mockAssets]
  */
 function basicSetup({
 	mockAssets = new Map(),

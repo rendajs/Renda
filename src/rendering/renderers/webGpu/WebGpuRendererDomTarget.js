@@ -4,7 +4,7 @@ import {RenderOutputConfig} from "../../RenderOutputConfig.js";
 export class WebGpuRendererDomTarget extends RendererDomTarget {
 	/**
 	 * @param {import("./WebGpuRenderer.js").WebGpuRenderer} renderer
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.depthSupport]
 	 */
 	constructor(renderer, {

@@ -13,7 +13,7 @@ import {Sampler} from "./Sampler.js";
 export class Material {
 	/**
 	 * @param {import("./MaterialMap.js").MaterialMap?} materialMap
-	 * @param {Object.<string, *>} properties
+	 * @param {Object<string, *>} properties
 	 */
 	constructor(materialMap = null, properties = {}) {
 		this._materialMap = materialMap;
@@ -61,7 +61,7 @@ export class Material {
 	 */
 	setMaterialMap(materialMap) {
 		this._materialMap = materialMap;
-		/** @type {Object.<string, import("./MaterialMap.js").MappableMaterialTypes>} */
+		/** @type {Object<string, import("./MaterialMap.js").MappableMaterialTypes>} */
 		const oldProperties = {};
 		for (const [key, value] of this.properties) {
 			oldProperties[key] = value;
@@ -79,7 +79,7 @@ export class Material {
 	/**
 	 * Sets values of multiple properties.
 	 * See {@linkcode setProperty} for more info.
-	 * @param {Object.<string, import("./MaterialMap.js").MappableMaterialTypes>} setObject
+	 * @param {Object<string, import("./MaterialMap.js").MappableMaterialTypes>} setObject
 	 */
 	setProperties(setObject) {
 		for (const [key, value] of Object.entries(setObject)) {

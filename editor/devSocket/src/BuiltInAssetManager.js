@@ -9,7 +9,7 @@ export class BuiltInAssetManager {
 	#fileWatcher = null;
 
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {string?} options.builtInAssetsPath
 	 * @param {boolean} [options.verbose]
 	 */
@@ -214,7 +214,7 @@ export class BuiltInAssetManager {
 
 	async saveAssetSettings(notifySocket = true) {
 		if (!this.assetSettingsLoaded) return;
-		/** @type {Object.<import("../../../src/util/mod.js").UuidString, any>} */
+		/** @type {Object<import("../../../src/util/mod.js").UuidString, number>} */
 		const assets = {};
 		/** @type {Map<import("../../../src/mod.js").UuidString, import("../../src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath>} */
 		const uuidPaths = new Map();

@@ -15,7 +15,7 @@
  */
 
 /**
- * @typedef {Object.<string, (...args: any[]) => any>} TypedMessengerSignatures
+ * @typedef {Object<string, (...args: any[]) => any>} TypedMessengerSignatures
  */
 /**
  * @template {TypedMessengerSignatures} TReq

@@ -2,7 +2,7 @@ import {MaterialMapType} from "../../MaterialMapType.js";
 
 export class WebGpuMaterialMapType extends MaterialMapType {
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig?} [options.forwardPipelineConfig]
 	 */
 	constructor({

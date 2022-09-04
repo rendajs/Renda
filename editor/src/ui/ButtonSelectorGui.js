@@ -3,7 +3,7 @@ import {Button} from "./Button.js";
 import {ButtonGroup} from "./ButtonGroup.js";
 
 /**
- * @typedef {Object} ButtonSelectorGuiOptionsType
+ * @typedef {object} ButtonSelectorGuiOptionsType
  * @property {string[]} [items]
  * @property {boolean} [allowSelectNone] Set to true to allow the user to deselect by clicking the currently selected button.
  * @property {string} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.

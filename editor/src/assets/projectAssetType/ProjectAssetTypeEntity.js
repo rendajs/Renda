@@ -136,7 +136,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 */
 	async getComponentPropertyValuesFromJson(jsonData, componentProperties, recursionTracker) {
-		/** @type {Object.<string, unknown>} */
+		/** @type {Object<string, unknown>} */
 		const newPropertyValues = {};
 		if (componentProperties) {
 			for (const [name, propertyData] of Object.entries(componentProperties)) {

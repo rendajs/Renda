@@ -17,7 +17,7 @@ export class DevServer {
 	#httpServer;
 
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {number} options.port
 	 * @param {string} options.serverName
 	 */

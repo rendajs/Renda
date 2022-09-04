@@ -8,7 +8,7 @@ import {WriteOperation} from "./WriteOperation.js";
 /** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
 
 /**
- * @typedef {Object} FileSystemExternalChangeEvent
+ * @typedef {object} FileSystemExternalChangeEvent
  * @property {"file" | "directory"} kind
  * @property {string[]} path
  * @property {"changed" | "created" | "deleted"} type
@@ -42,7 +42,7 @@ export class EditorFileSystem {
 	 * Additionaly you can also call this in advance from a user gesture with
 	 * `prompt` set to true.
 	 * @param {EditorFileSystemPath} path The path to get permissions for.
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.writable] Check for writable permissions if true.
 	 * @param {boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
 	 * @returns {Promise<boolean>} True permissions have been granted or already exist.
@@ -63,7 +63,7 @@ export class EditorFileSystem {
 	 * This is useful in a scenario where you want to access a file but the running
 	 * code is not triggered by a user gesture.
 	 * @param {EditorFileSystemPath} path The path to get permissions for.
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.writable] Check for writable permissions if true.
 	 */
 	async waitForPermission(path, {
@@ -281,7 +281,7 @@ export class EditorFileSystem {
 	/**
 	 * @param {EditorFileSystemPath} path
 	 * @param {string} text
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {string} [opts.type]
 	 */
 	async writeText(path, text, {
@@ -310,7 +310,7 @@ export class EditorFileSystem {
 
 	/**
 	 * @param {EditorFileSystemPath} path
-	 * @returns {Promise<?Object>}
+	 * @returns {Promise<?object>}
 	 */
 	async readJson(path) {
 		const file = await this.readFile(path);

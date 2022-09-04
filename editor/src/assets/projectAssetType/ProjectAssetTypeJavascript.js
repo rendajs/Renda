@@ -3,7 +3,7 @@ import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
 import {getEditorInstance} from "../../editorInstance.js";
 
 /**
- * @typedef {Object} AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings
+ * @typedef {object} AssetBundleDiskDataProjectAssetTypeJavascriptAssetSettings
  * @property {string} outputLocation
  * @property {boolean} useClosureCompiler
  */
