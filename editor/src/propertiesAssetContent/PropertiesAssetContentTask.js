@@ -125,12 +125,18 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 			purpose: "fileStorage",
 		});
 		if (environmentVariablesValue?.environmentVariables) {
-			assetData.environmentVariables = {};
+			/** @type {Object<string, string>} */
+			const variables = {};
+			let hasItem = false;
 			for (const item of environmentVariablesValue.environmentVariables) {
 				// TODO: Handle undefined in the getValue() function from array guis #119
 				if (!item) continue;
 				if (!item.key) continue;
-				assetData.environmentVariables[item.key] = item.value || "";
+				variables[item.key] = item.value || "";
+				hasItem = true;
+			}
+			if (hasItem) {
+				assetData.environmentVariables = variables;
 			}
 		}
 		if (this.#currentConfigStructure) {
