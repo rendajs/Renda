@@ -48,7 +48,7 @@ await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag",
 
 /**
  * @param {string} definesFilePath
- * @param {Object.<string, unknown>} defines
+ * @param {Object<string, unknown>} defines
  * @returns {import("rollup").Plugin}
  */
 function overrideDefines(definesFilePath, defines) {

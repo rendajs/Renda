@@ -9,7 +9,7 @@ import {lerp} from "./util.js";
  */
 export class SmoothAveragePerformanceMeasure {
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {string?} [options.label]
 	 * @param {number} [options.smoothness]
 	 */

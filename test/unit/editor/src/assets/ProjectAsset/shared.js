@@ -55,7 +55,7 @@ export function getMocks({
 
 /**
  * @template {boolean} [TIsKnown = true]
- * @param {Object} options
+ * @param {object} options
  * @param {Partial<import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetOptions>} [options.extraProjectAssetOpts]
  * @param {GetMocksOptions} [options.mocksOptions]
  * @param {TIsKnown} [options.isKnownAssetType]

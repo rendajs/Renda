@@ -10,7 +10,7 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
  */
 
 /**
- * @typedef {Object} ScriptBuilderOptions
+ * @typedef {object} ScriptBuilderOptions
  * @property {boolean} [useClosureCompiler]
  */
 
@@ -85,7 +85,7 @@ export class ScriptBuilder {
 		const castChunks = /** @type {import("rollup").OutputChunk[]} */ (chunks);
 
 		/**
-		 * @typedef {Object} ClosureInputFile
+		 * @typedef {object} ClosureInputFile
 		 * @property {string} path
 		 * @property {string} src
 		 * @property {string} [sourceMap]
@@ -181,7 +181,7 @@ export class ScriptBuilder {
 	}
 
 	/**
-	 * @typedef {Object} ClosureCompilerError
+	 * @typedef {object} ClosureCompilerError
 	 * @property {string} [key]
 	 * @property {string} [description]
 	 * @property {number} line
@@ -339,7 +339,7 @@ export class ScriptBuilder {
 	}
 
 	/**
-	 * @typedef {Object} GetPathTypeResult
+	 * @typedef {object} GetPathTypeResult
 	 * @property {ScriptType} scriptType
 	 * @property {string} sourcePath
 	 */

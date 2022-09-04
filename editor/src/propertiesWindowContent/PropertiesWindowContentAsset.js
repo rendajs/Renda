@@ -4,7 +4,7 @@ import {ProjectAsset} from "../assets/ProjectAsset.js";
 import {PropertiesAssetContentGenericStructure} from "../propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
 
 /**
- * @typedef {Object} PropertiesWindowContentAssetCallbacksContext
+ * @typedef {object} PropertiesWindowContentAssetCallbacksContext
  * @property {*[]} selectedAssets
  */
 

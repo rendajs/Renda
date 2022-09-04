@@ -1,7 +1,7 @@
 import {SelectionGroup} from "./SelectionGroup.js";
 
 /**
- * @typedef {Object} SelectionChangeData
+ * @typedef {object} SelectionChangeData
  * @property {SelectionGroup<any>} activeSelectionGroup
  * @property {import("./SelectionGroup.js").SelectionGroupChangeData<any>} [changeData]
  */

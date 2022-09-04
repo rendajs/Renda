@@ -30,7 +30,7 @@ export function applyProjectAssetInstanceOf() {
 }
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../../src/mod.js").UuidString} [options.uuid]
  * @param {object?} [options.mockLiveAsset]
  * @param {boolean} [options.isEmbedded]
@@ -79,7 +79,7 @@ export function createMockProjectAsset({
 }
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {"basic" | "defaultAssetLink" | "embedded" | "none"} [options.valueType]
  * @param {Partial<import("../../../../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<any>>} [options.guiOpts]
  * @param {Iterable<[(new (...args: any) => any), Iterable<typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType>]>} [options.liveAssetProjectAssetTypeCombinations] The list of Project assets that should be returned for a call to ProjectAssetTypeManager.getAssetTypesForLiveAssetConstructor().
@@ -336,7 +336,7 @@ export function createMockProjectAssetType({
 }
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {Parameters<typeof createBasicGui>[0]} [options.basicGuiOptions]
  * @param {boolean} [options.dispatchContextMenuEvent]
  */

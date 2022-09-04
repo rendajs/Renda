@@ -2,7 +2,7 @@ import {PropertiesTreeView} from "./propertiesTreeView/PropertiesTreeView.js";
 
 /**
  * @template {import("./propertiesTreeView/types.js").PropertiesTreeViewStructure} T
- * @typedef {Object} ObjectGuiOptionsType
+ * @typedef {object} ObjectGuiOptionsType
  * @property {T} [structure]
  * @property {import("./propertiesTreeView/types.js").StructureToSetObject<T>} [value]
  */

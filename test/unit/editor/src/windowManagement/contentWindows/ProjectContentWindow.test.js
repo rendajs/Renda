@@ -10,8 +10,8 @@ import {assertSpyCalls, stub} from "std/testing/mock.ts";
 const BASIC_WINDOW_UUID = "basic window uuid";
 
 /**
- * @param {Object} options
- * @param {Object.<string, import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes>} [options.fileSystemStructure]
+ * @param {object} options
+ * @param {Object<string, import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes>} [options.fileSystemStructure]
  * @param {boolean} [options.assetSettingsLoaded] Whether the mock asset manager should already have loaded asset settings.
  * @param {"none" | "expand"} [options.treeViewAction] If true, the root tree view will be expanded in order to trigger the asset settings load.
  */

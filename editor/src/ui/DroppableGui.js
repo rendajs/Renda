@@ -9,7 +9,7 @@ import {isUuid} from "../../../src/mod.js";
 
 /**
  * @template {new (...args: any) => any} T
- * @typedef {Object} DroppableGuiOptionsType
+ * @typedef {object} DroppableGuiOptionsType
  * @property {T[]} [supportedAssetTypes] A list of asset types this droppable can accept. When an asset is dragged that
  * is not in this list, no hover feedback is shown and dropping does nothing.
  * You can add either ProjectAssetType constructors or the constructors from live assets to this list.
@@ -37,7 +37,7 @@ import {isUuid} from "../../../src/mod.js";
 /**
  * @template {boolean} U
  * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} V
- * @typedef {Object} DroppableGuiGetValueOptions
+ * @typedef {object} DroppableGuiGetValueOptions
  * @property {boolean} [resolveDefaultAssetLinks = false]
  * @property {U} [returnLiveAsset = false]
  * @property {V} [purpose = "default"]
@@ -46,7 +46,7 @@ import {isUuid} from "../../../src/mod.js";
 /**
  * @template U
  * @template V
- * @typedef {Object} DroppableGuiGetValueOptionsNoConstraints
+ * @typedef {object} DroppableGuiGetValueOptionsNoConstraints
  * @property {boolean} [resolveDefaultAssetLinks]
  * @property {U} [returnLiveAsset]
  * @property {V} [purpose]
@@ -224,7 +224,7 @@ export class DroppableGui {
 	 * @param {T | import("../../../src/mod.js").UuidString | import("../assets/ProjectAsset.js").ProjectAssetAny | null} value
 	 * If an uuid is provided, make sure to call `AssetManager.waitForAssetListsLoad()` before calling this method, otherwise
 	 * the asset might not be loaded yet.
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {boolean} [options.isDiskData] If true, and the passed in value is an object, it will be parsed
 	 * as if it is embedded asset data and a new embedded asset is created. If the embedded asset
 	 * already exists (based on the current embeddedParentAssetPersistenceKey), the value will
@@ -333,7 +333,7 @@ export class DroppableGui {
 	/**
 	 * @private
 	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny?} projectAsset
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {boolean} [options.clearDefaultAssetLink]
 	 * @param {boolean} [options.preloadLiveAsset] If true, preloads the live asset and waits with firing value change events
 	 * until after the live asset is loaded. This is useful if valueChange callbacks immediately try to request live assets
@@ -624,13 +624,13 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @typedef {Object} ParsedDraggingData
+	 * @typedef {object} ParsedDraggingData
 	 * @property {boolean} isEngineType
 	 * @property {false} isProjectAsset
 	 */
 
 	/**
-	 * @typedef {Object} ParsedDraggingProjectAssetData
+	 * @typedef {object} ParsedDraggingProjectAssetData
 	 * @property {true} isEngineType
 	 * @property {true} isProjectAsset
 	 * @property {import("../windowManagement/contentWindows/ContentWindowProject.js").DraggingProjectAssetData} draggingProjectAssetData

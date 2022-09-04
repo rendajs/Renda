@@ -37,8 +37,8 @@ export class PropertiesTreeView extends TreeView {
 
 	/**
 	 * @param {import("../../../../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
-	 * @param {Object} [opts]
-	 * @param {Object} [opts.callbacksContext]
+	 * @param {object} [opts]
+	 * @param {object} [opts.callbacksContext]
 	 */
 	generateFromSerializableStructure(structure, opts) {}
 }

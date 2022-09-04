@@ -1,5 +1,5 @@
 /**
- * @typedef {Object} NumericGuiOptionsType
+ * @typedef {object} NumericGuiOptionsType
  * @property {number?} [min = null] The minimum allowed value.
  * @property {number?} [max = null] The maximum allowed value.
  * @property {number} [step = 0] The stepping interval for allowed values.

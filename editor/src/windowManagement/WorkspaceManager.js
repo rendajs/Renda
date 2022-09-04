@@ -1,18 +1,18 @@
 import {IndexedDbUtil} from "../../../src/mod.js";
 
 /**
- * @typedef {Object} WorkspaceData
+ * @typedef {object} WorkspaceData
  * @property {WorkspaceDataWindow} rootWindow
  * @property {boolean} [autosaveWorkspace=true]
  */
 
 /**
- * @typedef {Object} WorkspaceDataWindow
+ * @typedef {object} WorkspaceDataWindow
  * @property {"split" | "tabs"} type
  */
 
 /**
- * @typedef {Object} WorkspaceDataWindowSplitType
+ * @typedef {object} WorkspaceDataWindowSplitType
  * @property {boolean} splitHorizontal
  * @property {number} splitPercentage
  * @property {WorkspaceDataWindow?} windowA
@@ -22,7 +22,7 @@ import {IndexedDbUtil} from "../../../src/mod.js";
  */
 
 /**
- * @typedef {Object} WorkspaceDataWindowTabsType
+ * @typedef {object} WorkspaceDataWindowTabsType
  * @property {string[]} tabTypes
  * @property {import("../../../src/util/mod.js").UuidString[]} tabUuids
  * @property {number} [activeTabIndex]

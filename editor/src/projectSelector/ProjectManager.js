@@ -12,7 +12,7 @@ import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js"
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 
 /**
- * @typedef {Object} StoredProjectEntryBase
+ * @typedef {object} StoredProjectEntryBase
  * @property {string} name
  * @property {import("../../../src/util/mod.js").UuidString} projectUuid
  * @property {boolean} [isWorthSaving = false]
@@ -24,18 +24,18 @@ import {ContentWindowConnections} from "../windowManagement/contentWindows/Conte
  */
 
 /**
- * @typedef {Object} StoredProjectEntryFsaProps
+ * @typedef {object} StoredProjectEntryFsaProps
  * @property {FileSystemDirectoryHandle} fileSystemHandle
  */
 
 /**
- * @typedef {Object} StoredProjectEntryRemoteProps
+ * @typedef {object} StoredProjectEntryRemoteProps
  * @property {import("../../../src/util/mod.js").UuidString} [remoteProjectUuid]
  * @property {import("../network/editorConnections/EditorConnectionsManager.js").MessageHandlerType} [remoteProjectConnectionType]
  */
 
 /**
- * @typedef {Object} StoredProjectEntryMap
+ * @typedef {object} StoredProjectEntryMap
  * @property {StoredProjectEntryDbProps} db
  * @property {StoredProjectEntryFsaProps} fsa
  * @property {StoredProjectEntryRemoteProps} remote

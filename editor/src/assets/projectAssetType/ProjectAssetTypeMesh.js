@@ -4,7 +4,7 @@ import {BinaryComposer, BinaryDecomposer, Mesh, createUvSphere} from "../../../.
 import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
 
 /**
- * @typedef {Object} ProjectAssetTypeMeshEditorData
+ * @typedef {object} ProjectAssetTypeMeshEditorData
  * @property {import("../../../../src/mod.js").UuidString?} vertexStateUuid
  */
 
@@ -172,7 +172,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 	/**
 	 * @override
-	 * @param {Object} assetSettingOverrides
+	 * @param {object} assetSettingOverrides
 	 * @returns {Promise<ArrayBuffer?>}
 	 */
 	async createBundledAssetData(assetSettingOverrides = {}) {

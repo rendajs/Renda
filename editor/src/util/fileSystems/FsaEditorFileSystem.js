@@ -3,7 +3,7 @@ import {EditorFileSystem} from "./EditorFileSystem.js";
 
 export class FsaEditorFileSystem extends EditorFileSystem {
 	/**
-	 * @typedef {Object} WatchTreeNode
+	 * @typedef {object} WatchTreeNode
 	 * @property {boolean} init If false, the file/directory has not been checked yet and shouldn't fire an external
 	 * change callback when the last change time is older.
 	 * @property {number} lastModified
@@ -12,7 +12,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 */
 
 	/**
-	 * @typedef {Object} PermissionGrantedListener
+	 * @typedef {object} PermissionGrantedListener
 	 * @property {Function} resolve
 	 * @property {string[]} path
 	 * @property {boolean} writable
@@ -57,7 +57,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.writable] Check for writable permissions if true.
 	 * @param {boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
 	 */
@@ -139,7 +139,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	/**
 	 * Utility function for verifying permissions on a specific handle.
 	 * @param {FileSystemHandle} handle
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.prompt] Whether to prompt the user if no permission has been granted yet.
 	 * @param {boolean} [opts.writable] Whether to request write permission.
 	 * @param {boolean} [opts.error] If true, will throw an error if the permission is denied.
@@ -165,7 +165,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @param {Array<string>} path
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.create] Whether to create the directory if it doesn't exist.
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @returns {Promise<FileSystemDirectoryHandle>}
@@ -199,7 +199,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @param {Array<string>} path
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.create] Whether to create the file if it doesn't exist.
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @returns {Promise<FileSystemFileHandle>}

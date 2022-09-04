@@ -8,7 +8,7 @@ import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {string} [options.clipboardAsset] The content that is currently in the clipboard
  * @param {PermissionState} [options.clipboardReadPermissionState] The content that is currently in the clipboard
  */

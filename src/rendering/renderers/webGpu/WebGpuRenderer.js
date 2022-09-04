@@ -256,7 +256,7 @@ export class WebGpuRenderer extends Renderer {
 		const outputConfig = domTarget.outputConfig;
 
 		/**
-		 * @typedef {Object} MeshRenderData
+		 * @typedef {object} MeshRenderData
 		 * @property {MeshComponent} component
 		 * @property {Mat4} worldMatrix
 		 */

@@ -10,7 +10,7 @@ const BASIC_ASSET_TYPE_UUID = "00000000-0000-0000-0000-000000000002";
 const CHILD_ASSET_UUID = "00000000-0000-0000-0000-000000000003";
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../../editor/src/assets/ProjectAsset.js").GetBundledAssetDataReturnType} [options.bundledAssetDataReturn]
  * @param {import("../../../../../../src/mod.js").UuidString?} [options.getAssetTypeUuidReturn]
  */
@@ -96,7 +96,7 @@ const basicRunTaskOptions = {
 /**
  * Checks if a generated bundle has the correct data.
  * Only the first asset is checked.
- * @param {Object} options
+ * @param {object} options
  * @param {MemoryEditorFileSystem} options.fileSystem
  * @param {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [options.outFilePath]
  * @param {number} options.totalByteLength

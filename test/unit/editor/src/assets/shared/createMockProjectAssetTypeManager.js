@@ -1,5 +1,5 @@
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {string} options.BASIC_ASSET_EXTENSION The file extension for which to return the ProjectAssetType
  * @param {string} options.BASIC_PROJECTASSETTYPE The asset type for which to return the ProjectAssetType
  * @param {typeof import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} options.ProjectAssetType The ProjectAssetType to return.

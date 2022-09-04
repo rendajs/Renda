@@ -3,7 +3,7 @@ import {Sampler} from "../../../../src/rendering/Sampler.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 /**
- * @typedef {Object} MappableItem
+ * @typedef {object} MappableItem
  * @property {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
  * @property {PropertiesTreeView} treeView
  */
@@ -15,7 +15,7 @@ import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView
  */
 export class MaterialMapListUi {
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {import("../../assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} options.items
 	 */
 	constructor({

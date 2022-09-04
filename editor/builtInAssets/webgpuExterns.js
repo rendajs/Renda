@@ -346,7 +346,7 @@ class GPUCommandEncoder{
 	beginRenderPass(descriptor){}
 
 	/**
-		@param {Object} descriptor
+		@param {object} descriptor
 		@returns GPUComputePassEncoder
 	*/
 	beginComputePass(descriptor){}

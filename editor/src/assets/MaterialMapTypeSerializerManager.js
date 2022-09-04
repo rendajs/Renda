@@ -5,21 +5,21 @@ import {getEditorInstance} from "../editorInstance.js";
 import {ProjectAssetTypeMaterialMap} from "./projectAssetType/ProjectAssetTypeMaterialMap.js";
 
 /**
- * @typedef {Object} MaterialMapMappedValueAssetData
+ * @typedef {object} MaterialMapMappedValueAssetData
  * @property {boolean} [visible]
  * @property {string} [mappedName]
  * @property {*} [defaultValue]
  */
 
-/** @typedef {Object.<string, MaterialMapMappedValueAssetData>} MaterialMapMappedValuesAssetData */
+/** @typedef {Object<string, MaterialMapMappedValueAssetData>} MaterialMapMappedValuesAssetData */
 
 /**
- * @typedef {Object} MaterialMapAssetData
+ * @typedef {object} MaterialMapAssetData
  * @property {MaterialMapTypeAssetData[]} [maps]
  */
 
 /**
- * @typedef {Object} MaterialMapTypeAssetData
+ * @typedef {object} MaterialMapTypeAssetData
  * @property {import("../../../src/util/mod.js").UuidString} mapTypeId
  * @property {*} [customData]
  * @property {MaterialMapMappedValuesAssetData} [mappedValues]

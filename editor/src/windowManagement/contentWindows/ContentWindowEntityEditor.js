@@ -337,7 +337,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
 					if (componentConstructor.guiStructure) {
 						const castComponentA = /** @type {unknown} */ (component);
-						const castComponentB = /** @type {Object.<string, unknown>} */ (castComponentA);
+						const castComponentB = /** @type {Object<string, unknown>} */ (castComponentA);
 						/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 						const structure = {
 							type: "object",
@@ -355,8 +355,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	/**
 	 * @param {import("../../../../src/mod.js").Component} rootComponent
 	 * @param {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} structure
-	 * @param {Object.<string | number, unknown>} data
-	 * @param {Object.<string | number, unknown>?} parentObject
+	 * @param {Object<string | number, unknown>} data
+	 * @param {Object<string | number, unknown>?} parentObject
 	 * @param {string | number | null} propertyChangeName
 	 */
 	addComponentLiveAssetListeners(rootComponent, structure, data, parentObject = null, propertyChangeName = null) {
@@ -368,7 +368,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					for (const [name, propertyStructure] of Object.entries(childStructure)) {
 						const childData = data[name];
 						if (childData && typeof childData == "object") {
-							const castChildData = /** @type {Object.<string, unknown>} */ (childData);
+							const castChildData = /** @type {Object<string, unknown>} */ (childData);
 							this.addComponentLiveAssetListeners(rootComponent, propertyStructure, castChildData, data, name);
 						}
 					}

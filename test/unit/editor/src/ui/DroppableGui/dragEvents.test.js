@@ -67,7 +67,7 @@ Deno.test({
 });
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {"none" | "live-asset" | "project-asset-type" | "project-asset-type-without-liveasset"} [options.supportedAssetType]
  * @param {boolean} [options.draggingDataHasSupportedAssetType]
  */

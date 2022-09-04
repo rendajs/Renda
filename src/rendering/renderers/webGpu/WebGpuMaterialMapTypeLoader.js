@@ -4,7 +4,7 @@ import {WebGpuMaterialMapType} from "./WebGpuMaterialMapType.js";
 import {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 
 /**
- * @typedef {Object} WebGpuMaterialMap
+ * @typedef {object} WebGpuMaterialMap
  * @property {import("./WebGpuPipelineConfig.js").WebGpuPipelineConfig} forwardPipelineConfig
  */
 

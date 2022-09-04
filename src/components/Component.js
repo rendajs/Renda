@@ -14,14 +14,14 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  */
 
 /**
- * @typedef {Object} ComponentEditorOptions
+ * @typedef {object} ComponentEditorOptions
  * @property {import("../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} editorAssetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
  * @property {import("../../editor/src/assets/AssetManager.js").AssetManager} assetManager
  */
 
 /**
- * @typedef {Object} ComponentInitOptions
+ * @typedef {object} ComponentInitOptions
  * @property {ComponentEditorOptions?} [editorOpts]
  */
 
@@ -30,9 +30,9 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
  */
 
 /**
- * @typedef {Object} EntityJsonDataComponent
+ * @typedef {object} EntityJsonDataComponent
  * @property {import("../util/util.js").UuidString} uuid
- * @property {Object.<string, any>} propertyValues
+ * @property {Object<string, any>} propertyValues
  */
 
 /**
@@ -88,7 +88,7 @@ export class Component {
 
 	/**
 	 * Call this from the constructor of the extending class after setting your own default values.
-	 * @param {Object.<string, unknown>} propertyValues
+	 * @param {Object<string, unknown>} propertyValues
 	 * @param {ComponentInitOptions} options
 	 */
 	initValues(propertyValues = {}, {
@@ -108,12 +108,12 @@ export class Component {
 	}
 
 	/**
-	 * @param {Object.<string, unknown>} propertyValues
+	 * @param {Object<string, unknown>} propertyValues
 	 */
 	_applyPropertyValues(propertyValues) {
 		for (const [propertyName, propertyValue] of Object.entries(propertyValues)) {
 			const castComponentA = /** @type {unknown} */ (this);
-			const castComponentB = /** @type {Object.<string, unknown>} */ (castComponentA);
+			const castComponentB = /** @type {Object<string, unknown>} */ (castComponentA);
 			const existingValue = castComponentB[propertyName];
 			if (existingValue instanceof Vec2 && propertyValue instanceof Vec2) {
 				existingValue.set(propertyValue);
@@ -130,7 +130,7 @@ export class Component {
 	}
 
 	/**
-	 * @param {Object.<string, unknown>} propertyValues
+	 * @param {Object<string, unknown>} propertyValues
 	 */
 	async _handleDefaultEditorValues(propertyValues) {
 		if (!EDITOR_DEFAULTS_IN_COMPONENTS) return;
@@ -158,13 +158,13 @@ export class Component {
 	 * @param {import("../core/Entity.js").EntityToJsonOptions?} editorOpts
 	 */
 	toJson(editorOpts = null) {
-		/** @type {Object.<string, unknown>} */
+		/** @type {Object<string, unknown>} */
 		const propertyValues = {};
 		const castConstructor = /** @type {typeof Component} */ (this.constructor);
 		const structure = castConstructor.guiStructure;
 		if (structure) {
 			const castComponentA = /** @type {unknown} */ (this);
-			const castComponentB = /** @type {Object.<string, unknown>} */ (castComponentA);
+			const castComponentB = /** @type {Object<string, unknown>} */ (castComponentA);
 			for (const propertyName of Object.keys(structure)) {
 				propertyValues[propertyName] = this.propertyToJson(castComponentB, propertyName, editorOpts);
 			}
@@ -179,7 +179,7 @@ export class Component {
 	}
 
 	/**
-	 * @param {Object.<string | number, unknown>} object
+	 * @param {Object<string | number, unknown>} object
 	 * @param {string | number} propertyName
 	 * @param {import("../core/Entity.js").EntityToJsonOptions?} editorOpts
 	 * @returns {unknown}
@@ -230,7 +230,7 @@ export class Component {
 		const structure = CastConstructor.guiStructure;
 		if (structure) {
 			const castClone1 = /** @type {unknown} */ (clone);
-			const castClone2 = /** @type {Object.<string, unknown>} */ (castClone1);
+			const castClone2 = /** @type {Object<string, unknown>} */ (castClone1);
 			for (const propertyName of Object.keys(structure)) {
 				castClone2[propertyName] = this._cloneProperty(propertyName);
 			}
@@ -244,7 +244,7 @@ export class Component {
 	 */
 	_cloneProperty(propertyName) {
 		const castComponent1 = /** @type {unknown} */ (this);
-		const castComponent2 = /** @type {Object.<string, unknown>} */ (castComponent1);
+		const castComponent2 = /** @type {Object<string, unknown>} */ (castComponent1);
 		const propertyValue = castComponent2[propertyName];
 
 		// TODO: handle arrays and objects
@@ -264,7 +264,7 @@ export class Component {
 	}
 
 	/**
-	 * @param {Object.<string | number, unknown>} object
+	 * @param {Object<string | number, unknown>} object
 	 * @param {string} propertyName
 	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
 	 * @param {ComponentEditorOptions?} editorOpts

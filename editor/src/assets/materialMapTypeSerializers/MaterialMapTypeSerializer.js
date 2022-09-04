@@ -5,7 +5,7 @@ import {StorageType, objectToBinary} from "../../../../src/util/binarySerializat
  */
 
 /**
- * @typedef {Object} MaterialMapTypeMappableValue
+ * @typedef {object} MaterialMapTypeMappableValue
  * @property {string} name
  * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} type
  * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypes} [defaultValue]
@@ -153,7 +153,7 @@ export class MaterialMapTypeSerializer {
 	 * You can use this to make some final modifications to the customData
 	 * before it gets passed on to {@link mapDataToAssetBundleBinary}.
 	 * Usually it is ok to leave this as is.
-	 * @param {Object} customData The customData as stored on disk.
+	 * @param {object} customData The customData as stored on disk.
 	 * @returns {any} The modified customData.
 	 */
 	static mapDataToAssetBundleData(customData) {

@@ -2,12 +2,12 @@ const originalFinalizationRegistry = globalThis.FinalizationRegistry;
 const originalWeakRef = globalThis.WeakRef;
 const originalWeakMap = globalThis.WeakMap;
 
-/** @type {Map<Object, RegistryItem>} */
+/** @type {Map<object, RegistryItem>} */
 const registry = new Map();
 
 /**
  * @typedef RegisteredWeakRef
- * @property {Object} target
+ * @property {object} target
  */
 
 /** @type {Set<RegisteredWeakRef>} */
@@ -16,7 +16,7 @@ const registeredWeakRefs = new Set();
 class RegistryItem {
 	/**
 	 * @param {any} heldValue
-	 * @param {Object | undefined} unregisterToken
+	 * @param {object | undefined} unregisterToken
 	 */
 	constructor(heldValue, unregisterToken) {
 		this.heldValue = heldValue;
@@ -49,9 +49,9 @@ class MockFinalizationRegistry {
 	}
 
 	/**
-	 * @param {Object} target
+	 * @param {object} target
 	 * @param {any} heldValue
-	 * @param {Object} [unregisterToken]
+	 * @param {object} [unregisterToken]
 	 */
 	register(target, heldValue, unregisterToken) {
 		const item = new RegistryItem(heldValue, unregisterToken);
@@ -62,7 +62,7 @@ class MockFinalizationRegistry {
 	}
 
 	/**
-	 * @param {Object} unregisterToken
+	 * @param {object} unregisterToken
 	 */
 	unregister(unregisterToken) {
 		if (!unregisterToken) return;
@@ -79,7 +79,7 @@ class MockWeakRef {
 	#registeredWeakRef;
 
 	/**
-	 * @param {Object} target
+	 * @param {object} target
 	 */
 	constructor(target) {
 		this.#target = target;
@@ -96,7 +96,7 @@ class MockWeakRef {
 }
 
 class MockWeakMap {
-	/** @type {Map<Object, {value: any, registeredWeakRef: RegisteredWeakRef}>} */
+	/** @type {Map<object, {value: any, registeredWeakRef: RegisteredWeakRef}>} */
 	#map = new Map();
 
 	/**
@@ -109,7 +109,7 @@ class MockWeakMap {
 	}
 
 	/**
-	 * @param {Object} key
+	 * @param {object} key
 	 * @param {any} value
 	 */
 	set(key, value) {
@@ -119,7 +119,7 @@ class MockWeakMap {
 	}
 
 	/**
-	 * @param {Object} key
+	 * @param {object} key
 	 */
 	get(key) {
 		const item = this.#map.get(key);
@@ -130,7 +130,7 @@ class MockWeakMap {
 	}
 
 	/**
-	 * @param {Object} key
+	 * @param {object} key
 	 */
 	has(key) {
 		if (!this.#map.has(key)) return false;
@@ -142,7 +142,7 @@ class MockWeakMap {
 	}
 
 	/**
-	 * @param {Object} key
+	 * @param {object} key
 	 */
 	delete(key) {
 		const item = this.#map.get(key);

@@ -7,7 +7,7 @@
  */
 
 /**
- * @typedef {Object} ShortcutCommandOptions
+ * @typedef {object} ShortcutCommandOptions
  * @property {string?} [name] User friendly name of the command.
  * @property {string} command The id of the command.
  * @property {string | string[] | null} [defaultKeys] The the keys that trigger the command.

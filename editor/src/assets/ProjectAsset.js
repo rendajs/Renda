@@ -9,13 +9,13 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
 /** @typedef {ProjectAsset<any>} ProjectAssetAny */
 
 /**
- * @typedef {Object} RegisteredRecursionTrackerLiveAssetHandler
+ * @typedef {object} RegisteredRecursionTrackerLiveAssetHandler
  * @property {() => void} registeredCallback
  * @property {WeakRef<ProjectAssetAny>} registeredOnAsset
  */
 
 /**
- * @typedef {Object} ProjectAssetOptions
+ * @typedef {object} ProjectAssetOptions
  * @property {import("../../../src/util/mod.js").UuidString} uuid
  * @property {string[]} [path]
  * @property {*} [assetSettings]
@@ -29,10 +29,10 @@ import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker
  */
 
 /**
- * @typedef {Object} ProjectAssetJsonData
+ * @typedef {object} ProjectAssetJsonData
  * @property {string[]} path
  * @property {string} [assetType]
- * @property {Object} [assetSettings]
+ * @property {object} [assetSettings]
  */
 
 /** @typedef {(liveAssetData: import("./projectAssetType/ProjectAssetType.js").LiveAssetData<any, any>) => void} LiveAssetDataChangeCallbackAny */
@@ -837,7 +837,7 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * @param {Object} assetSettingOverrides
+	 * @param {object} assetSettingOverrides
 	 * @returns {Promise<GetBundledAssetDataReturnType>}
 	 */
 	async getBundledAssetData(assetSettingOverrides = {}) {

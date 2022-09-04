@@ -8,9 +8,9 @@ import {Sampler} from "../../../src/rendering/Sampler.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 
 /**
- * @typedef {Object} MaterialAssetData
+ * @typedef {object} MaterialAssetData
  * @property {import("../../../src/util/mod.js").UuidString | object | null} [map]
- * @property {Object.<string, *>} [properties]
+ * @property {Object<string, *>} [properties]
  */
 
 /**
@@ -113,7 +113,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	async loadMapValues() {
 		this.mapValuesTreeView.clearChildren();
 		const material = await this.getFirstSelectedLiveAsset();
-		/** @type {Object.<string, unknown>} */
+		/** @type {Object<string, unknown>} */
 		const currentMaterialValues = {};
 		for (const [key, value] of material.getAllProperties()) {
 			currentMaterialValues[key] = value;

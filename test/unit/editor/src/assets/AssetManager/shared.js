@@ -25,7 +25,7 @@ export const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
  */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {boolean} [options.waitForAssetListsLoad]
  * @param {StubAssetConfig[]} [options.stubAssets]
  * @param {import("../../../../../../editor/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} [options.assetSettings]

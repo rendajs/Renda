@@ -79,7 +79,7 @@ export function resolvePlugin(getScriptContentFn) {
 }
 
 /**
- * @typedef {Object} GetPathTypeResult
+ * @typedef {object} GetPathTypeResult
  * @property {ScriptType} scriptType
  * @property {string} sourcePath
  */

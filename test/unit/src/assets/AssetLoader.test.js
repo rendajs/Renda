@@ -21,7 +21,7 @@ const BASIC_ASSET_TYPE_UUID = "ba51c0000-a55e-7000-778e-00000000441d";
 /** @typedef {(buffer: ArrayBuffer, recursionTracker: import("../../../../src/assets/RecursionTracker.js").RecursionTracker, assetOpts: unknown) => unknown} ParseBufferFunction */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../src/mod.js").UuidString} options.uuid
  * @param {ParseBufferFunction} options.parseBufferFn
  */
@@ -58,7 +58,7 @@ function createBasicLoaderType({
 
 /**
  * @template {boolean} [TRegisterLoaderType = true]
- * @param {Object} options
+ * @param {object} options
  * @param {TRegisterLoaderType} [options.registerLoaderType]
  */
 function basicSetup({

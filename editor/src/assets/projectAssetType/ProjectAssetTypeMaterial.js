@@ -56,7 +56,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 			this.listenForUsedLiveAssetChanges(materialMapAsset);
 		}
 
-		/** @type {Object.<string, any>} */
+		/** @type {Object<string, any>} */
 		const properties = {};
 		if (materialJson?.properties) {
 			for (const [key, value] of Object.entries(materialJson.properties)) {
@@ -96,7 +96,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 			}
 		}
 		if (liveAsset) {
-			/** @type {Object.<string, unknown>} */
+			/** @type {Object<string, unknown>} */
 			const modifiedProperties = {};
 			let hasModifiedProperty = false;
 			for (const [key, value] of liveAsset.getAllProperties()) {

@@ -15,7 +15,7 @@ import {prettifyVariableName} from "../../util/util.js";
 import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 
 /**
- * @typedef {Object} GuiInterface
+ * @typedef {object} GuiInterface
  * @property {(...args: any) => boolean} [isDefaultValue]
  * @property {boolean} [defaultValue]
  * @property {(...args: any) => any} [getValue]
@@ -254,7 +254,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 	/**
 	 * Useful for entries that should not have a value such as buttons, labels, etc.
 	 * Is also used for stripping default values.
-	 * @param {Object} [guiOpts]
+	 * @param {object} [guiOpts]
 	 * @param {import("./types.js").TreeViewStructureOutputPurpose} [guiOpts.purpose]
 	 * @param {boolean} [guiOpts.stripDefaultValues]
 	 * @returns {boolean} If `true`, the value will be omitted from getSerializableStructureValues.

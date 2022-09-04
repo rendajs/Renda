@@ -10,7 +10,7 @@ import {TextGui} from "../../../../../editor/src/ui/TextGui.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {(typeof Task)[]} [options.extraTaskTypes]
  */
 function basicSetup({

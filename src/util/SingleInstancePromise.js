@@ -4,7 +4,7 @@
 export class SingleInstancePromise {
 	/**
 	 * @param {() => Promise<TReturn>} promiseFn
-	 * @param {Object} opts
+	 * @param {object} opts
 	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
 	 * @param {boolean} [opts.run] If true, the function will run immediately.
 	 */

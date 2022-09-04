@@ -1,9 +1,9 @@
 import {prettifyVariableName} from "../util/util.js";
 
 /**
- * @typedef {Object} DropDownGuiOptionsType
+ * @typedef {object} DropDownGuiOptionsType
  * @property {string[]} [items]
- * @property {Object.<string, number>?} [enumObject]
+ * @property {Object<string, number>?} [enumObject]
  * @property {string | number} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
  *
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & DropDownGuiOptionsType} DropDownGuiOptions
@@ -12,7 +12,7 @@ import {prettifyVariableName} from "../util/util.js";
 /**
  * @template {boolean} [T = true]
  * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
- * @typedef {Object} GetValueOptions
+ * @typedef {object} GetValueOptions
  * @property {T} [getAsString = true] If an enumObject is set, this controls whether the number or string of
  * the enumObject is returned. If no enumObject is set, this controls whether the index or the value of the
  * dropdown items is returned.
@@ -71,7 +71,7 @@ export class DropDownGui {
 		this.defaultValue = defaultValue;
 		this.disabled = disabled;
 		this.enumObject = enumObject;
-		/** @type {Object.<number, string>?} */
+		/** @type {Object<number, string>?} */
 		this.inverseEnumObject = null;
 
 		this.el = document.createElement("select");
@@ -102,7 +102,7 @@ export class DropDownGui {
 	}
 
 	/**
-	 * @param {Object.<string, number>} enumObject
+	 * @param {Object<string, number>} enumObject
 	 */
 	setEnumObject(enumObject) {
 		this.enumObject = enumObject;

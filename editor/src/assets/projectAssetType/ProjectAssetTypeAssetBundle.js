@@ -2,7 +2,7 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
 import {PropertiesAssetContentAssetBundle} from "../../propertiesAssetContent/PropertiesAssetContentAssetBundle.js";
 
 /**
- * @typedef {Object} AssetBundleDiskData
+ * @typedef {object} AssetBundleDiskData
  * @property {string} outputLocation
  * @property {AssetBundleDiskDataAsset[]} assets
  * @property {(import("../../../../src/util/mod.js").UuidString?)[]} excludeAssets
@@ -10,7 +10,7 @@ import {PropertiesAssetContentAssetBundle} from "../../propertiesAssetContent/Pr
  */
 
 /**
- * @typedef {Object} AssetBundleDiskDataAsset
+ * @typedef {object} AssetBundleDiskDataAsset
  * @property {import("../../../../src/util/mod.js").UuidString?} asset
  * @property {boolean} includeChildren
  */

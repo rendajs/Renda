@@ -1,5 +1,5 @@
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {unknown} [options.liveAsset]
  * @param {boolean} [options.allowImmediateLiveAssetReturn]
  * @param {unknown} [options.readAssetDataReturnValue]
