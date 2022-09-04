@@ -16,7 +16,7 @@ jobs:
       matrix:
         check: [lint, type-check, unit-test, e2e-test, build]
         shouldBuild:
-          - false
+          - ${{ github.event_name != 'pull_request' }}
         exclude:
           - shouldBuild: false
             check: build
