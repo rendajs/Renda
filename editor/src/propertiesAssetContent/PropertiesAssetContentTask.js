@@ -1,4 +1,24 @@
+import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
+
+const environmentVariablesStructure = createTreeViewStructure({
+	environmentVariables: {
+		type: "array",
+		guiOpts: {
+			arrayType: "object",
+			arrayGuiOpts: {
+				structure: {
+					key: {
+						type: "string",
+					},
+					value: {
+						type: "string",
+					},
+				},
+			},
+		},
+	},
+});
 
 /**
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeTask.js").ProjectAssetTypeTask>}
@@ -14,6 +34,14 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 	 */
 	constructor(...args) {
 		super(...args);
+
+		/** @type {import("../ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView<typeof environmentVariablesStructure>} */
+		this.environmentVariablesTree = this.treeView.addCollapsable("environment variables");
+		this.environmentVariablesTree.generateFromSerializableStructure(environmentVariablesStructure);
+		this.environmentVariablesTree.onChildValueChange(() => {
+			if (this.#isLoadingTaskAssets) return;
+			this.saveTaskAsset();
+		});
 
 		this.taskConfigTree = this.treeView.addCollapsable("task settings");
 		this.taskConfigTree.onChildValueChange(() => {
@@ -57,8 +85,20 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		}
 		const asset = this.currentSelection[0];
 		const assetContent = await asset.readAssetData();
+
 		this.#currentSelectedTaskType = assetContent.taskType;
 		const taskType = this.editorInstance.taskManager.getTaskType(assetContent.taskType);
+
+		const environmentVariables = [];
+		if (assetContent.environmentVariables) {
+			for (const [key, value] of Object.entries(assetContent.environmentVariables)) {
+				environmentVariables.push({key, value});
+			}
+		}
+		this.environmentVariablesTree.fillSerializableStructureValues({
+			environmentVariables,
+		});
+
 		this.#currentConfigStructure = taskType.configStructure;
 		if (taskType.configStructure) {
 			this.taskConfigTree.generateFromSerializableStructure(taskType.configStructure);
@@ -81,6 +121,18 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		const assetData = {
 			taskType: this.#currentSelectedTaskType,
 		};
+		const environmentVariablesValue = this.environmentVariablesTree.getSerializableStructureValues(environmentVariablesStructure, {
+			purpose: "fileStorage",
+		});
+		if (environmentVariablesValue?.environmentVariables) {
+			assetData.environmentVariables = {};
+			for (const item of environmentVariablesValue.environmentVariables) {
+				// TODO: Handle undefined in the getValue() function from array guis #119
+				if (!item) continue;
+				if (!item.key) continue;
+				assetData.environmentVariables[item.key] = item.value || "";
+			}
+		}
 		if (this.#currentConfigStructure) {
 			const configData = this.taskConfigTree.getSerializableStructureValues(this.#currentConfigStructure, {
 				purpose: "fileStorage",
