@@ -14,16 +14,21 @@ jobs:
 
     strategy:
       matrix:
-        check: [lint, type-check, unit-test, e2e-test]
+        check: [lint, type-check, unit-test, e2e-test, build]
+        shouldBuild:
+          - ${{ github.event_name != 'pull_request' }}
+        exclude:
+          - shouldBuild: false
+            check: build
 
     env:
       DENO_DIR: deno_dir
       PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
       PUPPETEER_CHROMIUM_REVISION: 991974
 
+    # The first few steps are the same as in build.yml so if you make any changes
+    # you'll probably want to change them there as well
     steps:
-      # The first few steps are the same as in build.yml so if you make any changes
-      # you'll probably want to change them there as well
       - name: Setup repo
         uses: actions/checkout@v2
 
@@ -110,3 +115,34 @@ jobs:
       - name: Run e2e tests
         if: ${{ matrix.check == 'e2e-test' }}
         run: deno task test test/e2e
+
+      # Build
+      - name: Build engine
+        if: ${{ matrix.check == 'build' }}
+        run: deno task build
+
+      - name: Build editor
+        if: ${{ matrix.check == 'build' }}
+        run: deno task build-editor-release
+
+      - name: Tar build files
+        if: ${{ matrix.check == 'build' }}
+        run: |
+          cd editor/dist
+          tar -czf ../../build_files.tar *
+
+      - name: Write PR data
+        if: ${{ matrix.check == 'build' }}
+        env:
+          PULL_REQUEST_NUMBER: ${{ github.event.number }}
+        run: |
+          echo $PULL_REQUEST_NUMBER > pr.txt
+
+      - name: Upload build artifact
+        if: ${{ matrix.check == 'build' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            build_files.tar
+            pr.txt

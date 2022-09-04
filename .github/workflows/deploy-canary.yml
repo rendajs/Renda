@@ -2,7 +2,7 @@ name: Deploy Canary
 
 on:
   workflow_run:
-    workflows: [build]
+    workflows: [ci]
     types: [completed]
     branches: [main]
 
