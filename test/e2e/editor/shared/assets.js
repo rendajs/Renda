@@ -1,12 +1,12 @@
 import {click} from "../../shared/util.js";
 import {getContentWindowElement} from "./contentWindows.js";
 import {clickContextMenuItem} from "./contextMenu.js";
-import {getTreeViewItemElement} from "./treeView.js";
+import {getNotTreeViewItemElement, getTreeViewItemElement} from "./treeView.js";
 
 /**
  * Clicks the create asset button in the project window and clicks the specified
- * asset from the context menu. It then waits for the created asset to appear
- * in the project window.
+ * asset from the context menu.
+ * To wait for the asset to exist use {@linkcode getAssetTreeView}.
  *
  * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
@@ -32,17 +32,39 @@ export async function createAsset(page, testContext, createMenuPath) {
 }
 
 /**
- * Finds the project window and searches for the specified asset treeview element.
  * @param {import("puppeteer").Page} page
  * @param {string[]} assetPath
+ * @param {boolean} isNotFunction
  */
-export async function getAssetTreeView(page, assetPath) {
+async function getAssetTreeViewHelper(page, assetPath, isNotFunction) {
 	const projectEl = await getContentWindowElement(page, "project");
 	const projectRootTreeViewEl = await projectEl.$(":scope > .editorContentWindowContent > .treeViewItem");
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
 	}
-	return await getTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
+	if (isNotFunction) {
+		return await getNotTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
+	} else {
+		return await getTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
+	}
+}
+
+/**
+ * Finds the project window and searches for the specified asset treeview element.
+ * @param {import("puppeteer").Page} page
+ * @param {string[]} assetPath
+ */
+export async function getAssetTreeView(page, assetPath) {
+	return await getAssetTreeViewHelper(page, assetPath, false);
+}
+
+/**
+ * Finds the project window and searches for the specified asset treeview element.
+ * @param {import("puppeteer").Page} page
+ * @param {string[]} assetPath
+ */
+export async function getNotAssetTreeView(page, assetPath) {
+	return await getAssetTreeViewHelper(page, assetPath, true);
 }
 
 /**

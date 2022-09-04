@@ -8,12 +8,12 @@
 /**
  * Gets an element from the page using a selector.
  * Throws an error if the element doesn't exist after the timeout.
- * @param {import("puppeteer").Page} page
+ * @param {import("puppeteer").Page | import("puppeteer").ElementHandle} pageOrElement
  * @param {string} selector
  * @param {WaitForOptions} options
  */
-export async function waitFor(page, selector, options = {}) {
-	const element = await page.waitForSelector(selector, options);
+export async function waitFor(pageOrElement, selector, options = {}) {
+	const element = await pageOrElement.waitForSelector(selector, options);
 	if (!element) {
 		throw new Error(`Element not found. Selector: ${selector}`);
 	}
@@ -59,7 +59,8 @@ export async function waitForFunction(page, fn, options = {}, ...args) {
 }
 
 /**
- * Same as ${@linkcode waitFor} but starts from a specific element.
+ * @deprecated use {@linkcode waitFor} instead.
+ * Same as {@linkcode waitFor} but starts from a specific element.
  *
  * @param {import("puppeteer").Page} page
  * @param {import("puppeteer").ElementHandle} elementHandle
@@ -122,14 +123,14 @@ export async function hover(page, selector) {
 /**
  * Waits until an element exists, scrolls to it and clicks it.
  * Throws an error if the element doesn't exist after the timeout.
- * @param {import("puppeteer").Page} page
+ * @param {import("puppeteer").Page | import("puppeteer").ElementHandle} pageOrElement
  * @param {string | import("puppeteer").ElementHandle} selectorOrHandle
  * @param {import("puppeteer").ClickOptions} [clickOptions]
  */
-export async function click(page, selectorOrHandle, clickOptions = {}) {
+export async function click(pageOrElement, selectorOrHandle, clickOptions = {}) {
 	let element;
 	if (typeof selectorOrHandle === "string") {
-		element = await waitFor(page, selectorOrHandle, {visible: true});
+		element = await waitFor(pageOrElement, selectorOrHandle, {visible: true});
 	} else {
 		element = selectorOrHandle;
 	}

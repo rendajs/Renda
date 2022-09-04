@@ -214,7 +214,7 @@ export class ProjectSelector {
 										if (!promptResult) return;
 									}
 									const editor = await this.waitForEditor();
-									await editor.projectManager.deleteDbProject(entry.projectUuid);
+									await editor.projectManager.deleteDbProject(entry);
 								}
 								this.removeRecentProjectsEntry(entry);
 							},
@@ -278,7 +278,7 @@ export class ProjectSelector {
 		for (const entry of recentProjects) {
 			if (!entry.isWorthSaving && !editor.projectManager.isCurrentProjectEntry(entry)) {
 				const promise = (async () => {
-					await editor.projectManager.deleteDbProject(entry.projectUuid);
+					await editor.projectManager.deleteDbProject(entry);
 					this.removeRecentProjectsEntry(entry);
 				})();
 				promises.push(promise);

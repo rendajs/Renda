@@ -1,6 +1,9 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
-import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
+import {click} from "../../../shared/util.js";
+import {createAsset, getAssetTreeView, getNotAssetTreeView} from "../../shared/assets.js";
+import {clickContextMenuItem} from "../../shared/contextMenu.js";
+import {openProjectSelector, setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 import {waitSeconds} from "../../shared/waitSeconds.js";
 
 await initBrowser();
@@ -88,5 +91,35 @@ Deno.test({
 		});
 
 		assert(!exists, "Expected localProjectSettings.json to not exist");
+	},
+});
+
+Deno.test({
+	name: "Deleting db project closes it if it currently open",
+	...puppeteerSanitizers,
+	async fn(testContext) {
+		const {page} = await getContext();
+
+		await setupNewProject(page, testContext);
+
+		// Create an asset to mark the project as isWorthSaving
+		await createAsset(page, testContext, ["New Entity"]);
+		await getAssetTreeView(page, ["New Entity.json"]);
+
+		const projectSelectorEl = await openProjectSelector(page, testContext);
+
+		await click(projectSelectorEl, ".project-selector-recent-list-container > .project-selector-list > .project-selector-button:nth-child(1)", {
+			button: "right",
+		});
+		page.on("dialog", async dialog => {
+			await dialog.accept();
+		});
+		await clickContextMenuItem(page, testContext, ["Delete"]);
+		await testContext.step({
+			name: "Wait for new project to be created",
+			async fn() {
+				await getNotAssetTreeView(page, ["New Entity.json"]);
+			},
+		});
 	},
 });
