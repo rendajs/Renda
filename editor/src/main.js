@@ -9,7 +9,7 @@ globalThis["Util"] = null;
 /** @type {import("./Editor.js").Editor?} */
 globalThis["editor"] = null;
 
-console.log("hi");
+console.log("no hi");
 
 (async () => {
 	// We'll assign some modules to the global scope so that they can be used in the browser console.
