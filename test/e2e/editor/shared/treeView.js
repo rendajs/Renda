@@ -15,7 +15,30 @@ import {waitForFunction} from "../../shared/util.js";
  * textContent of a propertiesTreeViewEntry, or index of a child.
  */
 export async function getTreeViewItemElement(page, treeViewElementHandle, itemsPath) {
-	const result = await waitForFunction(page, (treeViewElement, itemsPath) => {
+	return await getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPath, false);
+}
+
+/**
+ * Waits until a child element of a tree view doesn't exist anymore.
+ * For more info see {@linkcode getTreeViewItemElement}.
+ * @param {import("puppeteer").Page} page
+ * @param {import("puppeteer").ElementHandle} treeViewElementHandle
+ * @param {(string | number)[]} itemsPath An array where each item represents the textContent of a treeViewRow element,
+ * textContent of a propertiesTreeViewEntry, or index of a child.
+ */
+export async function getNotTreeViewItemElement(page, treeViewElementHandle, itemsPath) {
+	return await getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPath, true);
+}
+
+/**
+ * Helper function for {@linkcode getTreeViewItemElement} and {@linkcode getNotTreeViewItemElement}.
+ * @param {import("puppeteer").Page} page
+ * @param {import("puppeteer").ElementHandle} treeViewElementHandle
+ * @param {(string | number)[]} itemsPath
+ * @param {boolean} isNotFunction
+ */
+async function getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPath, isNotFunction) {
+	const result = await waitForFunction(page, (treeViewElement, itemsPath, isNotFunction) => {
 		const jointItemsPath = itemsPath.join(" > ");
 		if (!treeViewElement.classList.contains("treeViewItem")) {
 			throw new TypeError(`Invalid root treeViewElementHandle element type received while trying to find the treeview at ${jointItemsPath}. Element is not a TreeView because it doesn't have the "treeViewItem" class.`);
@@ -40,11 +63,21 @@ export async function getTreeViewItemElement(page, treeViewElementHandle, itemsP
 					return false;
 				});
 			}
-			if (!child) return null;
+			if (!child) {
+				if (isNotFunction) {
+					return true;
+				} else {
+					return null;
+				}
+			}
 			currentTreeView = child;
 		}
-		return currentTreeView;
-	}, {}, treeViewElementHandle, itemsPath);
+		if (isNotFunction) {
+			return false;
+		} else {
+			return currentTreeView;
+		}
+	}, {}, treeViewElementHandle, itemsPath, isNotFunction);
 	return result;
 }
 

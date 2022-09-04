@@ -335,9 +335,13 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../../../src/util/mod.js").UuidString} uuid
+	 * @param {StoredProjectEntryAny} entry
 	 */
-	async deleteDbProject(uuid) {
+	async deleteDbProject(entry) {
+		if (this.isCurrentProjectEntry(entry)) {
+			await this.openNewDbProject(true);
+		}
+		const uuid = entry.projectUuid;
 		if (await IndexedDbEditorFileSystem.exists(uuid)) {
 			const fileSystem = new IndexedDbEditorFileSystem(uuid);
 			await fileSystem.deleteDb();

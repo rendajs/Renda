@@ -1,4 +1,5 @@
-import {click} from "../../shared/util.js";
+import {click, waitFor} from "../../shared/util.js";
+import {getContentWindowElement} from "./contentWindows.js";
 import {waitForEditorLoad} from "./editor.js";
 
 /**
@@ -17,7 +18,31 @@ export async function waitForProjectOpen(page, testContext, allowExisting = true
 }
 
 /**
- * Opens the editor page and creates a new empty project.
+ * Clicks the 'Open Project' button in the project window and waits for the
+ * project selector to appear.
+ * @param {import("puppeteer").Page} page
+ * @param {Deno.TestContext} testContext
+ */
+export async function openProjectSelector(page, testContext) {
+	let projectSelectorEl = /** @type {import("puppeteer").ElementHandle?} */ (null);
+	await testContext.step({
+		name: "Open project selector",
+		async fn() {
+			const projectEl = await getContentWindowElement(page, "project");
+			await click(projectEl, "div.editorContentWindowTopButtonBar > div:nth-child(3)");
+			projectSelectorEl = await waitFor(page, ".project-selector-window");
+		},
+	});
+	if (!projectSelectorEl) throw new Error("Failed to find project selector element.");
+	return projectSelectorEl;
+}
+
+/**
+ * Clicks the 'New Project' button in the project selector.
+ * Make sure the project selector is already open before calling this.
+ * If you just opened a new page without any cookies you should be able to call
+ * this at the beginning of your test. But if you are using this in the middle
+ * of your test you should call {@linkcode openProjectSelector} first.
  * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
  * @returns {Promise<void>} A promise that resolves when the editor is loaded and project fully opened.
