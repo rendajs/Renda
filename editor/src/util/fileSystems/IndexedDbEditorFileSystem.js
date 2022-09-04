@@ -602,7 +602,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
 			this.assertIsDir(newParentObj.obj, `Failed to write to "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
 
-			this.readDirObject(newParentObj.obj);
 			const newPointer = await this.createObject({
 				isFile: true,
 				file: createdFile,

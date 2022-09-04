@@ -1,5 +1,5 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
-import {assert, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
@@ -247,19 +247,37 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeFile() while the file is already being written somewhere else",
+	name: "Multiple writeFile() calls run in sequence",
 	async fn() {
 		const {fs, getEntryCount} = await createBasicFs({
 			disableStructuredClone: true,
 		});
 		const originalEntryCount = getEntryCount();
-		const promise1 = fs.writeFile(["root", "file1"], "hello1");
-		const promise2 = fs.writeFile(["root", "file1"], "hello2");
-		await promise1;
-		await promise2;
+		assertExists(fs.db);
+		const originalGet = fs.db.get.bind(fs.db);
+		let currentlyRunningCalls = 0;
+		fs.db.get = async function(key, objectStoreName) {
+			currentlyRunningCalls++;
+			if (currentlyRunningCalls > 1) {
+				throw new Error("More than one get call running at a time");
+			}
+			const result = await originalGet(key, objectStoreName);
+			currentlyRunningCalls--;
+			return result;
+		};
+
+		forcePendingOperations(true);
+		const promises = [];
+		for (let i = 0; i < 10; i++) {
+			const promise = fs.writeFile(["root", "file1"], "hello" + i);
+			promises.push(promise);
+			// await promise;
+		}
+		forcePendingOperations(false);
+		await Promise.all(promises);
 
 		const result = await fs.readText(["root", "file1"]);
-		assertEquals(result, "hello2");
+		assertEquals(result, "hello9");
 
 		const newEntryCount = getEntryCount();
 		assertEquals(newEntryCount, originalEntryCount);
