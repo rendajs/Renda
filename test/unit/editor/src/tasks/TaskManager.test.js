@@ -396,7 +396,7 @@ Deno.test({
 				},
 			},
 		});
-		/** @type {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */
+		/** @type {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} */
 		const uuidProjectAssets = new Map();
 		uuidProjectAssets.set(TOUCHED_ASSET_UUID, childProjectAsset);
 		const {cleanup} = basicTaskRunningSetup({
