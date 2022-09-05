@@ -7,6 +7,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
 	static contentWindowUiName = "Build";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/buildView.svg";
+	static scrollable = false;
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args

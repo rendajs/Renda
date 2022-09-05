@@ -510,6 +510,8 @@ select.textInput:disabled{
 
 .editorContentWindowContent{
 	flex-grow: 1;
+}
+.editorContentWindowContent.scrollable {
 	overflow: auto;
 }
 .editorContentWindowContent.behindTopButtonBar{
