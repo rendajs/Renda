@@ -143,7 +143,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 			const configData = this.taskConfigTree.getSerializableStructureValues(this.#currentConfigStructure, {
 				purpose: "fileStorage",
 			});
-			assetData.taskConfig = configData;
+			if (configData) assetData.taskConfig = configData;
 		}
 		await this.currentSelection[0].writeAssetData(assetData);
 	}

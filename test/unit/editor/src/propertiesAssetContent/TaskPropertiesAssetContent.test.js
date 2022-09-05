@@ -157,6 +157,26 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Loads missing task config from disk",
+	async fn() {
+		installFakeDocument();
+
+		try {
+			const {assetContent, mockProjectAsset} = basicSetup();
+
+			await assetContent.selectionUpdated([mockProjectAsset]);
+
+			assertEquals(assetContent.taskConfigTree.children.length, 1);
+			const fooNode = assetContent.taskConfigTree.children[0];
+			assertInstanceOf(fooNode, PropertiesTreeViewEntry);
+			assertEquals(fooNode.getValue(), "");
+		} finally {
+			uninstallFakeDocument();
+		}
+	},
+});
+
+Deno.test({
 	name: "Clears config ui when selecting a task with no config",
 	async fn() {
 		installFakeDocument();
@@ -211,7 +231,6 @@ Deno.test({
 				args: [
 					{
 						taskType: "namespace:tasktype",
-						taskConfig: undefined,
 						environmentVariables: {
 							foo: "baz",
 						},
@@ -250,7 +269,6 @@ Deno.test({
 				args: [
 					{
 						taskType: "namespace:tasktype",
-						taskConfig: undefined,
 						environmentVariables: {
 							foo: "",
 						},
@@ -267,7 +285,6 @@ Deno.test({
 				args: [
 					{
 						taskType: "namespace:tasktype",
-						taskConfig: undefined,
 					},
 				],
 			});
@@ -280,7 +297,6 @@ Deno.test({
 				args: [
 					{
 						taskType: "namespace:tasktype",
-						taskConfig: undefined,
 					},
 				],
 			});
@@ -316,6 +332,36 @@ Deno.test({
 				taskConfig: {
 					foo: "baz",
 				},
+			});
+		} finally {
+			uninstallFakeDocument();
+		}
+	},
+});
+
+Deno.test({
+	name: "Config with only default values is not saved to disk",
+	async fn() {
+		installFakeDocument();
+
+		try {
+			const {assetContent, mockProjectAsset} = basicSetup({
+				useBasicTaskConfig: true,
+			});
+
+			await assetContent.selectionUpdated([mockProjectAsset]);
+			const writeAssetDataSpy = spy(mockProjectAsset, "writeAssetData");
+
+			const fooNode = assetContent.taskConfigTree.children[0];
+			assertInstanceOf(fooNode, PropertiesTreeViewEntry);
+			const fooGui = fooNode.gui;
+			assertInstanceOf(fooGui, TextGui);
+			fooNode.setValue("");
+			fooGui.fireOnChangeCbs();
+
+			assertSpyCalls(writeAssetDataSpy, 1);
+			assertEquals(writeAssetDataSpy.calls[0].args[0], {
+				taskType: "namespace:tasktype",
 			});
 		} finally {
 			uninstallFakeDocument();
