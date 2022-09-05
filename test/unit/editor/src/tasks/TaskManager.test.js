@@ -99,7 +99,7 @@ Deno.test({
 /**
  * @param {object} options
  * @param {{path: import("../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, projectAsset: import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny}[]} [options.pathProjectAssets]
- * @param {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} [options.uuidProjectAssets]
+ * @param {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} [options.uuidProjectAssets] A map of mock project assets that will be returned by the asset manager.
  */
 function basicTaskRunningSetup({
 	pathProjectAssets = [],
@@ -345,6 +345,136 @@ Deno.test({
 			await manager.runTask(parentTaskAsset2);
 
 			assertEquals(dependencyRunCount, 3);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "Environment variables get passed to child tasks",
+	async fn() {
+		const TOUCHED_ASSET_UUID = "TOUCHED_ASSET_UUID";
+
+		/**
+		 * @typedef TaskConfig
+		 * @property {boolean} [isParent]
+		 * @property {string} replace
+		 * @property {{replace: string}} replaceObj
+		 */
+
+		const {projectAsset: parentProjectAsset} = createMockProjectAsset({
+			readAssetDataReturnValue: {
+				taskType: "namespace:task",
+				environmentVariables: {
+					FOO_VAR: "parentfoo",
+					BAR_VAR: "parentbar",
+				},
+				/** @type {TaskConfig} */
+				taskConfig: {
+					isParent: true,
+					replace: "notreplaced $FOO_VAR notreplaced",
+					replaceObj: {
+						replace: "notreplaced $BAR_VAR notreplaced",
+					},
+				},
+			},
+		});
+		const {projectAsset: childProjectAsset} = createMockProjectAsset({
+			readAssetDataReturnValue: {
+				taskType: "namespace:task",
+				environmentVariables: {
+					BAR_VAR: "childbar",
+					BAZ_VAR: "childbaz",
+				},
+				/** @type {TaskConfig} */
+				taskConfig: {
+					replace: "notreplaced $BAR_VAR notreplaced",
+					replaceObj: {
+						replace: "notreplaced $BAZ_VAR notreplaced",
+					},
+				},
+			},
+		});
+		/** @type {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */
+		const uuidProjectAssets = new Map();
+		uuidProjectAssets.set(TOUCHED_ASSET_UUID, childProjectAsset);
+		const {cleanup} = basicTaskRunningSetup({
+			uuidProjectAssets,
+		});
+
+		try {
+			const manager = new TaskManager();
+
+			/** @type {import("std/testing/mock.ts").Spy<any, [TaskConfig], void>} */
+			const runTaskSpy = spy();
+
+			/** @extends {Task<TaskConfig>} */
+			class ExtendedTask extends Task {
+				static type = "namespace:task";
+
+				/**
+				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<TaskConfig>} options
+				 */
+				async runTask(options) {
+					runTaskSpy(options.config);
+					const config = options.config;
+					if (config.isParent) {
+						await options.readAssetFromUuid(TOUCHED_ASSET_UUID);
+						return {};
+					} else {
+						/** @type {import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} */
+						const returnValue = {
+							touchedAssets: [TOUCHED_ASSET_UUID],
+						};
+						return returnValue;
+					}
+				}
+			}
+			manager.registerTaskType(ExtendedTask);
+
+			// First we run the child task to register that it touched TOUCHED_ASSET_UUID
+			// it should have its own environment variables.
+			await manager.runTask(childProjectAsset);
+
+			assertSpyCalls(runTaskSpy, 1);
+			assertSpyCall(runTaskSpy, 0, {
+				args: [
+					{
+						replace: "notreplaced childbar notreplaced",
+						replaceObj: {
+							replace: "notreplaced childbaz notreplaced",
+						},
+					},
+				],
+			});
+
+			// Then we run the parent task, which should cause the child to get
+			// run a second time.
+			await manager.runTask(parentProjectAsset);
+
+			assertSpyCalls(runTaskSpy, 3);
+			assertSpyCall(runTaskSpy, 1, {
+				args: [
+					{
+						isParent: true,
+						replace: "notreplaced parentfoo notreplaced",
+						replaceObj: {
+							replace: "notreplaced parentbar notreplaced",
+						},
+					},
+				],
+			});
+			assertSpyCall(runTaskSpy, 2, {
+				args: [
+					{
+						replace: "notreplaced parentbar notreplaced",
+						replaceObj: {
+							replace: "notreplaced childbaz notreplaced",
+						},
+					},
+				],
+			});
 		} finally {
 			cleanup();
 		}

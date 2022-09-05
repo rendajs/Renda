@@ -25,6 +25,8 @@
  */
 
 /**
+ * Options passed into {@linkcode Task.runTask}. This is generally only created
+ * by the task manager. Rather than being called directly.
  * @template TTaskConfig
  * @typedef RunTaskOptions
  * @property {TTaskConfig} config

@@ -1,5 +1,6 @@
 import {getEditorInstance} from "../editorInstance.js";
 import {autoRegisterTaskTypes} from "./autoRegisterTaskTypes.js";
+import {fillEnvironmentVariables} from "./environmentVariables.js";
 import {Task} from "./task/Task.js";
 
 /**
@@ -7,7 +8,16 @@ import {Task} from "./task/Task.js";
  */
 
 /**
- * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(uuid: import("../../../src/mod.js").UuidString, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>?>} ReadAssetFromUuidSignature
+ * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(uuid: import("../../../src/mod.js").UuidString, assertionOptions?: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>?>} ReadAssetFromUuidSignature
+ */
+
+/**
+ * Options passed into {@linkcode TaskManager.runTask}.
+ * @typedef RunTaskOptions
+ * @property {Object<string, string>} [environmentVariables] These environment variables will be
+ * applied to the task config. Any environment variables specified in the task asset will be replaced.
+ * Both the environment variables passed in the options object as well as the variables stored in
+ * the task asset are passed down to any child tasks that are run as a result of running this task.
  */
 
 export class TaskManager {
@@ -83,11 +93,17 @@ export class TaskManager {
 	/**
 	 * Runs a task with a specified configuration in a worker.
 	 * @param {TaskProjectAsset} taskAsset The task asset to run.
+	 * @param {RunTaskOptions} options
 	 */
-	async runTask(taskAsset) {
+	async runTask(taskAsset, options = {}) {
 		const taskFileContent = await taskAsset.readAssetData();
 		const taskType = this.initializeTask(taskFileContent.taskType);
 		const assetManager = getEditorInstance().projectManager.assetManager;
+
+		const environmentVariables = {
+			...taskFileContent.environmentVariables,
+			...options.environmentVariables,
+		};
 
 		/**
 		 * @template T
@@ -97,14 +113,17 @@ export class TaskManager {
 			if (!asset) return null;
 			const taskAsset = this.#touchedTaskAssets.get(asset);
 			if (taskAsset) {
-				await this.runTask(taskAsset);
+				await this.runTask(taskAsset, {environmentVariables});
 			}
 			const result = await asset?.readAssetData();
 			return result || null;
 		};
 
+		const config = taskFileContent.taskConfig;
+		fillEnvironmentVariables(config, environmentVariables);
+
 		const result = await taskType.runTask({
-			config: taskFileContent.taskConfig,
+			config,
 			needsAllGeneratedAssets: false,
 			async readAssetFromPath(path, assertionOptions) {
 				const asset = await assetManager?.getProjectAssetFromPath(path, {assertionOptions}) || null;

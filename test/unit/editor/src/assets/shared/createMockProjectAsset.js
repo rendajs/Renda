@@ -41,7 +41,7 @@ export function createMockProjectAsset({
 		},
 		async childEmbeddedAssetNeedsSave() {},
 		async readAssetData() {
-			return readAssetDataReturnValue;
+			return structuredClone(readAssetDataReturnValue);
 		},
 		async writeAssetData(fileData) {},
 		addEmbeddedChildLiveAsset(key, liveAsset) {
