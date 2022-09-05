@@ -1,7 +1,7 @@
 import {createTreeViewStructure} from "../ui/propertiesTreeView/createStructureHelpers.js";
 import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
 
-const environmentVariablesStructure = createTreeViewStructure({
+export const environmentVariablesStructure = createTreeViewStructure({
 	environmentVariables: {
 		type: "array",
 		guiOpts: {

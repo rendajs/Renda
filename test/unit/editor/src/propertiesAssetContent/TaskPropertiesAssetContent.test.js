@@ -1,20 +1,28 @@
 import "../../shared/initializeEditor.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
-import {PropertiesAssetContentTask} from "../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentTask.js";
+import {PropertiesAssetContentTask, environmentVariablesStructure} from "../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentTask.js";
 import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
 import {createTreeViewStructure} from "../../../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "../../../../../editor/src/tasks/task/Task.js";
 import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {PropertiesTreeViewEntry} from "../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 import {TextGui} from "../../../../../editor/src/ui/TextGui.js";
-import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 
 /**
  * @param {object} options
  * @param {(typeof Task)[]} [options.extraTaskTypes]
+ * @param {Object<string, string>?} [options.environmentVariablesAssetData] The environment variable data stored in the asset on disk.
+ * @param {boolean} [options.useBasicEnvironmentVariables] If true, `environmentVariablesAssetData` gets replaced with basic data.
+ * @param {Object<string, string>?} [options.taskConfigAssetData] The task config data stored in the asset on disk.
+ * @param {boolean} [options.useBasicTaskConfig] If true, `taskConfigAssetData` gets replaced with basic data.
  */
 function basicSetup({
 	extraTaskTypes = [],
+	environmentVariablesAssetData = null,
+	useBasicEnvironmentVariables = false,
+	taskConfigAssetData = null,
+	useBasicTaskConfig = false,
 } = {}) {
 	const BASIC_TASK_TYPE = "namespace:tasktype";
 	class BasicTask extends Task {
@@ -45,10 +53,21 @@ function basicSetup({
 	/** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData} */
 	const readAssetDataReturnValue = {
 		taskType: "namespace:tasktype",
-		taskConfig: {
-			foo: "bar",
-		},
 	};
+	if (useBasicEnvironmentVariables) {
+		readAssetDataReturnValue.environmentVariables = {
+			foo: "bar",
+		};
+	} else if (environmentVariablesAssetData) {
+		readAssetDataReturnValue.environmentVariables = environmentVariablesAssetData;
+	}
+	if (useBasicTaskConfig) {
+		readAssetDataReturnValue.taskConfig = {
+			foo: "bar",
+		};
+	} else if (taskConfigAssetData) {
+		readAssetDataReturnValue.taskConfig = taskConfigAssetData;
+	}
 
 	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
 		readAssetDataReturnValue,
@@ -62,12 +81,68 @@ function basicSetup({
 }
 
 Deno.test({
+	name: "Loads environment variables from disk",
+	async fn() {
+		installFakeDocument();
+
+		try {
+			const {assetContent, mockProjectAsset} = basicSetup({
+				useBasicEnvironmentVariables: true,
+			});
+
+			await assetContent.selectionUpdated([mockProjectAsset]);
+
+			assertEquals(assetContent.environmentVariablesTree.getSerializableStructureValues(environmentVariablesStructure), {
+				environmentVariables: [
+					{
+						key: "foo",
+						value: "bar",
+					},
+				],
+			});
+		} finally {
+			uninstallFakeDocument();
+		}
+	},
+});
+
+Deno.test({
+	name: "Loads environment variables with partial data from disk",
+	async fn() {
+		installFakeDocument();
+
+		try {
+			const {assetContent, mockProjectAsset} = basicSetup({
+				environmentVariablesAssetData: {
+					foo: "",
+				},
+			});
+
+			await assetContent.selectionUpdated([mockProjectAsset]);
+
+			assertEquals(assetContent.environmentVariablesTree.getSerializableStructureValues(environmentVariablesStructure), {
+				environmentVariables: [
+					{
+						key: "foo",
+						value: "",
+					},
+				],
+			});
+		} finally {
+			uninstallFakeDocument();
+		}
+	},
+});
+
+Deno.test({
 	name: "Loads the task config from disk",
 	async fn() {
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup();
+			const {assetContent, mockProjectAsset} = basicSetup({
+				useBasicTaskConfig: true,
+			});
 
 			await assetContent.selectionUpdated([mockProjectAsset]);
 
@@ -91,6 +166,7 @@ Deno.test({
 				static type = "namespace:noconfigtasktype";
 			}
 			const {assetContent, mockProjectAsset} = basicSetup({
+				useBasicTaskConfig: true,
 				extraTaskTypes: [NoConfigTask],
 			});
 
@@ -112,15 +188,119 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Environment variables ui changes are saved to disk",
+	async fn() {
+		installFakeDocument();
+
+		try {
+			const {assetContent, mockProjectAsset} = basicSetup({
+				useBasicEnvironmentVariables: true,
+			});
+
+			await assetContent.selectionUpdated([mockProjectAsset]);
+			const writeAssetDataSpy = spy(mockProjectAsset, "writeAssetData");
+
+			const variablesTreeView = assetContent.environmentVariablesTree.getSerializableStructureEntry("environmentVariables");
+			const firstArrayItemGui = variablesTreeView.gui.valueItems[0].gui;
+			const valueGui = firstArrayItemGui.treeView.getSerializableStructureEntry("value").gui;
+			valueGui.setValue("baz");
+			valueGui.fireOnChangeCbs();
+
+			assertSpyCalls(writeAssetDataSpy, 1);
+			assertSpyCall(writeAssetDataSpy, 0, {
+				args: [
+					{
+						taskType: "namespace:tasktype",
+						taskConfig: undefined,
+						environmentVariables: {
+							foo: "baz",
+						},
+					},
+				],
+			});
+		} finally {
+			uninstallFakeDocument();
+		}
+	},
+});
+
+Deno.test({
+	name: "Empty environment variables ui changes are not saved to disk",
+	async fn() {
+		installFakeDocument();
+
+		try {
+			const {assetContent, mockProjectAsset} = basicSetup({
+				useBasicEnvironmentVariables: true,
+			});
+
+			await assetContent.selectionUpdated([mockProjectAsset]);
+			const writeAssetDataSpy = spy(mockProjectAsset, "writeAssetData");
+
+			const variablesTreeView = assetContent.environmentVariablesTree.getSerializableStructureEntry("environmentVariables");
+			const firstArrayItemGui = variablesTreeView.gui.valueItems[0].gui;
+			const keyGui = firstArrayItemGui.treeView.getSerializableStructureEntry("key").gui;
+			const valueGui = firstArrayItemGui.treeView.getSerializableStructureEntry("value").gui;
+
+			// Empty value
+			valueGui.setValue("");
+			valueGui.fireOnChangeCbs();
+			assertSpyCalls(writeAssetDataSpy, 1);
+			assertSpyCall(writeAssetDataSpy, 0, {
+				args: [
+					{
+						taskType: "namespace:tasktype",
+						taskConfig: undefined,
+						environmentVariables: {
+							foo: "",
+						},
+					},
+				],
+			});
+
+			// Empty key
+			keyGui.setValue("");
+			valueGui.setValue("value");
+			valueGui.fireOnChangeCbs();
+			assertSpyCalls(writeAssetDataSpy, 2);
+			assertSpyCall(writeAssetDataSpy, 1, {
+				args: [
+					{
+						taskType: "namespace:tasktype",
+						taskConfig: undefined,
+					},
+				],
+			});
+
+			// Empty key and empty value
+			valueGui.setValue("");
+			valueGui.fireOnChangeCbs();
+			assertSpyCalls(writeAssetDataSpy, 3);
+			assertSpyCall(writeAssetDataSpy, 2, {
+				args: [
+					{
+						taskType: "namespace:tasktype",
+						taskConfig: undefined,
+					},
+				],
+			});
+		} finally {
+			uninstallFakeDocument();
+		}
+	},
+});
+
+Deno.test({
 	name: "Config ui changes are saved to disk",
 	async fn() {
 		installFakeDocument();
 
 		try {
-			const {assetContent, mockProjectAsset} = basicSetup();
+			const {assetContent, mockProjectAsset} = basicSetup({
+				useBasicTaskConfig: true,
+			});
 
 			await assetContent.selectionUpdated([mockProjectAsset]);
-			mockProjectAsset.writeAssetData = async () => {};
 			const writeAssetDataSpy = spy(mockProjectAsset, "writeAssetData");
 
 			const fooNode = assetContent.taskConfigTree.children[0];
