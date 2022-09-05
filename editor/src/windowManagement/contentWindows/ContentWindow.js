@@ -23,6 +23,12 @@ export class ContentWindow {
 	static contentWindowUiIcon = "static/icons/generic.svg";
 
 	/**
+	 * Whether the window should get a scroll bar if the contents don't fit
+	 * inside the window.
+	 */
+	static scrollable = true;
+
+	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
 	 * @param {import("../WindowManager.js").WindowManager} windowManager
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
@@ -43,11 +49,13 @@ export class ContentWindow {
 
 		this.destructed = false;
 
+		const castConstructor = /** @type {typeof ContentWindow} */ (this.constructor);
+
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
+		this.el.classList.toggle("scrollable", castConstructor.scrollable);
 
 		if (EDITOR_ENV == "dev") {
-			const castConstructor = /** @type {typeof ContentWindow} */ (this.constructor);
 			this.el.dataset.contentWindowTypeId = castConstructor.contentWindowTypeId;
 		}
 

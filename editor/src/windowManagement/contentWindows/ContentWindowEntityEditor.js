@@ -12,6 +12,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowTypeId = "entityEditor";
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
+	static scrollable = false;
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
