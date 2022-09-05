@@ -5,6 +5,7 @@ import {ProjectAssetType} from "./ProjectAssetType.js";
  * @typedef TaskProjectAssetDiskData
  * @property {string} taskType
  * @property {unknown} [taskConfig]
+ * @property {Object<string, string>} [environmentVariables]
  */
 
 /**
