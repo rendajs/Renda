@@ -25,10 +25,7 @@ const generateTypesOptions = {
 		"../editor/devSocket",
 		"../editor/scripts",
 	],
-	excludeUrls: [
-		"rollup-plugin-commonjs",
-		"puppeteer",
-	],
+	excludeUrls: ["rollup-plugin-commonjs"],
 	extraTypeRoots: {
 		// We prefix webgpu with aa to ensure it is placed above deno-types.
 		// The Deno types include webgpu types but they are outdated.
