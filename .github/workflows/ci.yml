@@ -24,7 +24,7 @@ jobs:
     env:
       DENO_DIR: deno_dir
       PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
-      PUPPETEER_CHROMIUM_REVISION: 991974
+      PUPPETEER_CHROMIUM_REVISION: 1022525
 
     # The first few steps are the same as in build.yml so if you make any changes
     # you'll probably want to change them there as well
