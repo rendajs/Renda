@@ -4,16 +4,8 @@
 	"license": "ISC",
 	"private": true,
 	"type": "module",
-	"scripts": {
-		"lint": "eslint .",
-		"lint-fix": "npm run lint -- --fix"
-	},
 	"devDependencies": {
-		"@babel/eslint-parser": "^7.16.3",
 		"@types/google-closure-compiler": "^0.0.19",
-		"eslint": "^8.23.0",
-		"eslint-plugin-jsdoc": "^39.3.6",
-		"eslint-plugin-rulesdir": "github:not-an-aardvark/eslint-plugin-rulesdir",
 		"google-closure-compiler": "^20210907.0.0",
 		"rollup-plugin-resolve-url-objects": "^0.0.4"
 	}
