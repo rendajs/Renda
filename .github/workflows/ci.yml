@@ -52,9 +52,6 @@ jobs:
           key: denoDeps-${{ hashFiles('importmap.json') }}
           path: ${{ env.DENO_DIR }}
 
-      - name: npm install
-        run: npm install
-
       - name: Create Deno types hash file
         # Creates a file that is used as hash key for the cache in the next step.
         run: deno task dev --create-cache-hashfile
