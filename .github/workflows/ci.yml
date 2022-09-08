@@ -81,7 +81,7 @@ jobs:
       # Lint
       - name: Lint
         if: ${{ matrix.check == 'lint' }}
-        run: npm run lint
+        run: deno task lint
 
       # Type check
       - name: Type check
