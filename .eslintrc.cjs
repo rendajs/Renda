@@ -1,15 +1,11 @@
-const rulesDirPlugin = require("eslint-plugin-rulesdir");
-rulesDirPlugin.RULES_DIR = "./.eslintrules";
-
 module.exports = {
 	root: true,
-	parser: "@babel/eslint-parser",
 	parserOptions: {
-		requireConfigFile: false,
+		sourceType: "module",
 	},
 	env: {
 		browser: true,
-		es2021: true,
+		es2022: true,
 	},
 	extends: "eslint:recommended",
 	plugins: [
@@ -206,23 +202,25 @@ module.exports = {
 		"yield-star-spacing": "error",
 		"no-inner-declarations": "off",
 
-		"jsdoc/check-alignment": "error",
-		"jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef"]}],
-		"jsdoc/check-property-names": "error",
-		"jsdoc/check-types": "error",
-		"jsdoc/no-bad-blocks": "error",
-		"jsdoc/no-defaults": "error",
-		"jsdoc/no-multi-asterisks": "error",
-		"jsdoc/require-asterisk-prefix": "error",
-		"jsdoc/require-hyphen-before-param-description": [
-			"error",
-			"never",
-			{tags: {"*": "never"}},
-		],
-		"jsdoc/require-property": "error",
-		"jsdoc/require-property-name": "error",
-		"jsdoc/require-property-type": "error",
-		"jsdoc/require-returns-type": "error",
+		// TODO: enable these once https://github.com/denoland/deno/issues/15691 is fixed:
+
+		// "jsdoc/check-alignment": "error",
+		// "jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef"]}],
+		// "jsdoc/check-property-names": "error",
+		// "jsdoc/check-types": "error",
+		// "jsdoc/no-bad-blocks": "error",
+		// "jsdoc/no-defaults": "error",
+		// "jsdoc/no-multi-asterisks": "error",
+		// "jsdoc/require-asterisk-prefix": "error",
+		// "jsdoc/require-hyphen-before-param-description": [
+		// 	"error",
+		// 	"never",
+		// 	{tags: {"*": "never"}},
+		// ],
+		// "jsdoc/require-property": "error",
+		// "jsdoc/require-property-name": "error",
+		// "jsdoc/require-property-type": "error",
+		// "jsdoc/require-returns-type": "error",
 
 		"rulesdir/no-default-exports": "error",
 	},

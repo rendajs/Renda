@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import("eslint").Rule.RuleModule} */
+export const rule = {
 	meta: {
 		type: "problem",
 		docs: {
@@ -7,12 +8,21 @@ module.exports = {
 		schema: [],
 	},
 	create: context => {
+		/** @typedef {import("eslint").Rule.NodeParentExtension} ASTNode */
+
+		/** @type {ASTNode[]} */
 		const stack = [];
 
+		/**
+		 * @param {ASTNode} node
+		 */
 		function enterFunction(node) {
 			stack.push(node);
 		}
 
+		/**
+		 * @param {ASTNode} node
+		 */
 		function exitFunction(node) {
 			stack.pop();
 		}

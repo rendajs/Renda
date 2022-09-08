@@ -10,10 +10,10 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.12/mod.js";
+import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js";
 import {downloadNpmPackages} from "https://deno.land/x/npm_devinit@v0.0.2/mod.ts";
 
-/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.12/mod.js").GenerateTypesOptions} */
+/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js").GenerateTypesOptions} */
 const generateTypesOptions = {
 	outputDir: "../.denoTypes",
 	importMap: "../importmap.json",
@@ -33,6 +33,9 @@ const generateTypesOptions = {
 		"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
 		"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
 		"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
+	},
+	exactTypeModules: {
+		eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
 	},
 };
 
