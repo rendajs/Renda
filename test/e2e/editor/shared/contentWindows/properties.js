@@ -20,7 +20,8 @@ export async function getPropertiesWindowRootTreeView(page) {
  */
 export async function getPropertiesWindowContentAsset(page) {
 	const propertiesRootTreeView = await getPropertiesWindowRootTreeView(page);
-	const assetContentEl = await getTreeViewItemElement(page, propertiesRootTreeView, ["Asset content will be placed here"]);
+	const assetContentHandle = await getTreeViewItemElement(page, propertiesRootTreeView, ["Asset content will be placed here"]);
+	const assetContentEl = /** @type {import("puppeteer").ElementHandle<Element>?} */ (assetContentHandle.asElement());
 	assertExists(assetContentEl);
 	return assetContentEl;
 }
@@ -32,12 +33,17 @@ export async function getPropertiesWindowContentAsset(page) {
  */
 export async function getPropertiesWindowContentReference(page) {
 	const contentWindowReference = await getContentWindowReference(page, "properties");
-	const propertiesWindowContentReference = await page.evaluateHandle(contentWindowReference => {
-		return contentWindowReference.activeContent;
+	const propertiesWindowContentReference = await page.evaluateHandle(async contentWindow => {
+		const {ContentWindowProperties} = await import("../../../../../editor/src/windowManagement/contentWindows/ContentWindowProperties.js");
+		if (!(contentWindow instanceof ContentWindowProperties)) {
+			throw new Error("Assertion failed, content is not an instance of ContentWindowProperties");
+		}
+		const content = contentWindow.activeContent;
+		if (!content) {
+			throw new Error("Unable to get properties window content reference from the content window.");
+		}
+		return content;
 	}, contentWindowReference);
-	if (!propertiesWindowContentReference) {
-		throw new Error("Unable to get properties window content reference from the content window.");
-	}
 	return propertiesWindowContentReference;
 }
 
@@ -48,11 +54,16 @@ export async function getPropertiesWindowContentReference(page) {
  */
 export async function getPropertiesAssetContentReference(page) {
 	const propertiesWindowContentReference = await getPropertiesWindowContentReference(page);
-	const propertiesAssetContentReference = await page.evaluateHandle(propertiesWindowContentReference => {
-		return propertiesWindowContentReference.activeAssetContent;
+	const propertiesAssetContentReference = await page.evaluateHandle(async propertiesWindowContent => {
+		const {PropertiesWindowContentAsset} = await import("../../../../../editor/src/propertiesWindowContent/PropertiesWindowContentAsset.js");
+		if (!(propertiesWindowContent instanceof PropertiesWindowContentAsset)) {
+			throw new Error("Assertion failed, propertiesWindowContent is not an instance of PropertiesWindowContentAsset.");
+		}
+		const assetContent = propertiesWindowContent.activeAssetContent;
+		if (!assetContent) {
+			throw new Error("Unable to get asset content reference from properties window content.");
+		}
+		return assetContent;
 	}, propertiesWindowContentReference);
-	if (!propertiesAssetContentReference) {
-		throw new Error("Unable to get asset content reference from properties window content.");
-	}
 	return propertiesAssetContentReference;
 }

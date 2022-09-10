@@ -45,6 +45,7 @@ Deno.test({
 
 			await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
 				if (!globalThis.editor) throw new Error("Editor instance does not exist");
+				if (!(contentWindowProjectEl instanceof HTMLElement)) throw new Error("Assertion failed, contentWindowProjectEl is not a HTMLElement");
 				const contentWindowProject = globalThis.editor.windowManager.getWindowByElement(contentWindowProjectEl);
 				if (!contentWindowProject) throw new Error("No project window found");
 				const ContentWindowProjectConstructor = globalThis.editor.windowManager.registeredContentWindows.get("project");

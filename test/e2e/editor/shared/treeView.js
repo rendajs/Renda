@@ -1,5 +1,4 @@
 import {assertExists} from "std/testing/asserts.ts";
-import {waitForFunction} from "../../shared/util.js";
 
 /**
  * Waits until a child element of a tree view exists and returns its row element.
@@ -32,13 +31,14 @@ export async function getNotTreeViewItemElement(page, treeViewElementHandle, ite
 
 /**
  * Helper function for {@linkcode getTreeViewItemElement} and {@linkcode getNotTreeViewItemElement}.
+ * @template {boolean} TIsNotFunction
  * @param {import("puppeteer").Page} page
  * @param {import("puppeteer").ElementHandle} treeViewElementHandle
  * @param {(string | number)[]} itemsPath
- * @param {boolean} isNotFunction
+ * @param {TIsNotFunction} isNotFunction
  */
 async function getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPath, isNotFunction) {
-	const result = await waitForFunction(page, (treeViewElement, itemsPath, isNotFunction) => {
+	const result = await page.waitForFunction((treeViewElement, itemsPath, isNotFunction) => {
 		const jointItemsPath = itemsPath.join(" > ");
 		if (!treeViewElement.classList.contains("treeViewItem")) {
 			throw new TypeError(`Invalid root treeViewElementHandle element type received while trying to find the treeview at ${jointItemsPath}. Element is not a TreeView because it doesn't have the "treeViewItem" class.`);
@@ -54,7 +54,7 @@ async function getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPa
 				child = treeViewChildren.find(child => {
 					// First check the row name, in case this is a regular TreeView.
 					const row = child.querySelector(".treeViewRow");
-					if (row.textContent == itemIdentifier) return true;
+					if (row instanceof HTMLElement && row.textContent == itemIdentifier) return true;
 
 					// If this is a PropertiesTreeViewEntry, check the name of the entry.
 					const labelEl = child.querySelector(".treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryLabel");
@@ -78,7 +78,8 @@ async function getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPa
 			return currentTreeView;
 		}
 	}, {}, treeViewElementHandle, itemsPath, isNotFunction);
-	return result;
+	// We can exclude `null` from the cast because `waitForFunction` shouldn't return null.
+	return /** @type {TIsNotFunction extends true ? import("puppeteer").JSHandle<boolean> : import("puppeteer").ElementHandle<Element> } */ (result);
 }
 
 /**

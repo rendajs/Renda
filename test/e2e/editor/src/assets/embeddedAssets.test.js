@@ -36,8 +36,10 @@ Deno.test({
 				const assetContentEl = await getPropertiesWindowContentAsset(page);
 
 				const assetContentReference = await getPropertiesAssetContentReference(page);
-				await page.evaluateHandle(async assetContentReference => {
-					await assetContentReference.waitForAssetLoad();
+				await page.evaluateHandle(async assetContent => {
+					const { PropertiesAssetContentMaterial } = await import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+					if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
+					await assetContent.waitForAssetLoad();
 				}, assetContentReference);
 
 				await testContext.step({
@@ -116,7 +118,10 @@ Deno.test({
 				const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
 				assertExists(checkbox);
 
-				const checked = await checkbox.evaluate(checkbox => checkbox.checked);
+				const checked = await checkbox.evaluate(checkbox => {
+					if (!(checkbox instanceof HTMLInputElement)) throw new Error("Assertion failed, checkbox is not a HTMLInputElement.");
+					return checkbox.checked;
+				});
 				assertEquals(checked, false);
 			},
 		});

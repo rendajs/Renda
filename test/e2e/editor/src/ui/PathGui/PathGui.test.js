@@ -32,7 +32,10 @@ Deno.test({
 		const textContent4 = await page.evaluate(el => el.textContent, el);
 		assertEquals(textContent4, "");
 
-		await page.evaluate(el => el.focus(), el);
+		await page.evaluate(el => {
+			if (!(el instanceof HTMLElement)) throw new Error("Assertion failed, element is not a htmlelement");
+			el.focus();
+		}, el);
 		await page.keyboard.type("test3/test4");
 		const childCount5 = await page.evaluate(el => el.childNodes.length, el);
 		assertEquals(childCount5, 3);

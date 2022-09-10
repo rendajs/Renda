@@ -32,9 +32,10 @@ export async function createAsset(page, testContext, createMenuPath) {
 }
 
 /**
+ * @template {boolean} TIsNotFunction
  * @param {import("puppeteer").Page} page
  * @param {string[]} assetPath
- * @param {boolean} isNotFunction
+ * @param {TIsNotFunction} isNotFunction
  */
 async function getAssetTreeViewHelper(page, assetPath, isNotFunction) {
 	const projectEl = await getContentWindowElement(page, "project");
@@ -42,11 +43,13 @@ async function getAssetTreeViewHelper(page, assetPath, isNotFunction) {
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
 	}
+	let result;
 	if (isNotFunction) {
-		return await getNotTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
+		result = await getNotTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
 	} else {
-		return await getTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
+		result = await getTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
 	}
+	return /** @type {TIsNotFunction extends true ? import("puppeteer").JSHandle<boolean> : import("puppeteer").ElementHandle} */ (result);
 }
 
 /**
