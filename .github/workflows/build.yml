@@ -68,9 +68,6 @@ jobs:
         # Sets up a development environment required for type the next steps to pass.
         run: deno task dev --no-serve
 
-      - name: Install editor dependencies
-        run: deno task build-editor-dependencies
-
       # Build
       - name: Build engine
         run: deno task build

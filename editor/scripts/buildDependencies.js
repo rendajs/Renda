@@ -87,7 +87,7 @@ const libs = [
 		extraPlugins: [removeSourceMaps()],
 	},
 	{
-		input: "../../node_modules/rollup-plugin-resolve-url-objects/main.js",
+		input: "../../npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
 		output: "rollup-plugin-resolve-url-objects.js",
 	},
 ];
