@@ -20,7 +20,6 @@ export async function waitFor(pageOrElement, selector, options = {}) {
 	return element;
 }
 
-
 /**
  * @typedef {NonNullable<Parameters<import("puppeteer").Page["waitForFunction"]>[1]>} PageFnOptions
  */

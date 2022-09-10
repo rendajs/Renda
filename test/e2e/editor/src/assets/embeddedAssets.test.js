@@ -37,7 +37,7 @@ Deno.test({
 
 				const assetContentReference = await getPropertiesAssetContentReference(page);
 				await page.evaluateHandle(async assetContent => {
-					const { PropertiesAssetContentMaterial } = await import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+					const {PropertiesAssetContentMaterial} = await import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
 					if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
 					await assetContent.waitForAssetLoad();
 				}, assetContentReference);

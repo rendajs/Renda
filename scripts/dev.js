@@ -63,8 +63,8 @@ await dev({
 			type: "downloadNpmPackage",
 			package: "rollup-plugin-resolve-url-objects@0.0.4",
 			downloadDependencies: true,
-		}
-	]
+		},
+	],
 });
 
 const editorDependencies = Deno.run({
