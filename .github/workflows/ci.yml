@@ -104,7 +104,7 @@ jobs:
 
       - name: Install puppeteer
         if: ${{ matrix.check == 'e2e-test' }}
-        run: PUPPETEER_PRODUCT=chrome deno run -A --unstable puppeteer/install.ts
+        run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@16.2.0/install.ts
 
       - name: Run e2e tests
         if: ${{ matrix.check == 'e2e-test' }}
