@@ -24,7 +24,7 @@ export const puppeteerSanitizers = {
 };
 
 globalThis.addEventListener("error", e => {
-	if(e.message.includes("WebSocket protocol error: Connection reset without closing handshake")) {
+	if (e.message.includes("WebSocket protocol error: Connection reset without closing handshake")) {
 		e.preventDefault();
 	}
 });

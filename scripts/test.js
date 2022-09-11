@@ -136,7 +136,7 @@ if (needsE2eTests) {
 		}
 	}
 	if (browser) {
-		applicationArgs.add(`--puppeteer-ws-endpoint=${browser.wsEndpoint()}`)
+		applicationArgs.add(`--puppeteer-ws-endpoint=${browser.wsEndpoint()}`);
 	}
 	const addr = testServerAddrs[0];
 	applicationArgs.add(`--test-server-addr=${addr}`);
