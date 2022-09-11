@@ -8,7 +8,6 @@ setCwd();
 Deno.chdir("..");
 
 const fix = Deno.args.includes("--fix");
-if (fix) throw new Error("--fix is not yet supported");
 
 /** @type {import("eslint").Rule.RuleModule} */
 const dummyRule = {
@@ -45,8 +44,7 @@ const eslint = new ESLint({
 const results = await eslint.lintFiles(["**/*.js"]);
 
 if (fix) {
-	// TODO: enable once https://github.com/denoland/deno/issues/15691 is fixed
-	// await ESLint.outputFixes(results);
+	await ESLint.outputFixes(results);
 }
 
 const formatter = await eslint.loadFormatter("stylish");
