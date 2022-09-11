@@ -21,45 +21,11 @@ export async function waitFor(pageOrElement, selector, options = {}) {
 }
 
 /**
- * @template T
- * @typedef {T extends import("puppeteer").ElementHandle<infer H> ? H : T} ConvertPuppeteerArgument
- */
-
-/**
- * @template {import("puppeteer").SerializableOrJSHandle[]} T
- * @typedef {{ [K in keyof T]: ConvertPuppeteerArgument<T[K]> }} ConvertPuppeteerArguments
- */
-
-/**
- * @template T
- * @typedef {T extends Element ? import("puppeteer").ElementHandle<T> : T} ConvertPuppeteerReturnValue
- */
-
-// This is here to fix https://github.com/microsoft/TypeScript/issues/48179
-// eslint-disable-next-line no-empty
-{}
-
-/**
  * @typedef {NonNullable<Parameters<import("puppeteer").Page["waitForFunction"]>[1]>} PageFnOptions
  */
 
 /**
- * Same as `Page.waitForFunction` but with implicit argument types.
- *
- * @template {import("puppeteer").SerializableOrJSHandle[]} A
- * @template R
- * @param {import("puppeteer").Page} page
- * @param {(...args: ConvertPuppeteerArguments<A>) => R} fn
- * @param {PageFnOptions} [options]
- * @param {A} args
- */
-export async function waitForFunction(page, fn, options = {}, ...args) {
-	const result = await page.waitForFunction(fn, options, ...args);
-	return /** @type {ConvertPuppeteerReturnValue<R>} */ (result);
-}
-
-/**
- * @deprecated use {@linkcode waitFor} instead.
+ * @deprecated use `{@linkcode waitFor}` instead.
  * Same as {@linkcode waitFor} but starts from a specific element.
  *
  * @param {import("puppeteer").Page} page
@@ -68,10 +34,11 @@ export async function waitForFunction(page, fn, options = {}, ...args) {
  * @param {PageFnOptions} [options]
  */
 export async function elementWaitForSelector(page, elementHandle, selector, options) {
-	const element = await waitForFunction(page, (element, selector) => {
+	const element = await page.waitForFunction((element, selector) => {
 		return element.querySelector(selector);
 	}, options, elementHandle, selector);
-	return element;
+	// We cast to ElementHandle because waitForFunction should never return null.
+	return /** @type {import("puppeteer").ElementHandle} */ (element);
 }
 
 /**
@@ -149,7 +116,7 @@ export async function drag(page, selectorOrHandleFrom, selectorOrHandleTo) {
 	await page.evaluate((elementFrom, elementTo) => {
 		/**
 		 * @param {string} type
-		 * @param {HTMLElement} source
+		 * @param {Element} source
 		 * @param {DataTransfer} dataTransfer
 		 */
 		function fireEvent(type, source, dataTransfer) {

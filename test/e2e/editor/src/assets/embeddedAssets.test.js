@@ -1,5 +1,5 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
+import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
 import {clickAsset, createAsset} from "../../shared/assets.js";
 import {getPropertiesAssetContentReference, getPropertiesWindowContentAsset} from "../../shared/contentWindows/properties.js";
@@ -7,8 +7,6 @@ import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 import {getPropertiesTreeViewEntryValueEl, getTreeViewItemElement} from "../../shared/treeView.js";
-
-await initBrowser();
 
 const MATERIAL_ASSET_PATH = ["New Material.json"];
 
@@ -24,7 +22,7 @@ Deno.test({
 	name: "Creating a new material asset with embedded map and pipeline config",
 	...puppeteerSanitizers,
 	async fn(testContext) {
-		const {page} = await getContext();
+		const {page, disconnect} = await getContext();
 
 		await setupNewProject(page, testContext);
 
@@ -36,8 +34,10 @@ Deno.test({
 				const assetContentEl = await getPropertiesWindowContentAsset(page);
 
 				const assetContentReference = await getPropertiesAssetContentReference(page);
-				await page.evaluateHandle(async assetContentReference => {
-					await assetContentReference.waitForAssetLoad();
+				await page.evaluateHandle(async assetContent => {
+					const {PropertiesAssetContentMaterial} = await import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+					if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
+					await assetContent.waitForAssetLoad();
 				}, assetContentReference);
 
 				await testContext.step({
@@ -116,11 +116,14 @@ Deno.test({
 				const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
 				assertExists(checkbox);
 
-				const checked = await checkbox.evaluate(checkbox => checkbox.checked);
+				const checked = await checkbox.evaluate(checkbox => {
+					if (!(checkbox instanceof HTMLInputElement)) throw new Error("Assertion failed, checkbox is not a HTMLInputElement.");
+					return checkbox.checked;
+				});
 				assertEquals(checked, false);
 			},
 		});
 
-		page.close();
+		await disconnect();
 	},
 });

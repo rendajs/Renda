@@ -24,7 +24,7 @@ jobs:
     env:
       DENO_DIR: deno_dir
       PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
-      PUPPETEER_CHROMIUM_REVISION: 991974
+      PUPPETEER_CHROMIUM_REVISION: 1022525
 
     # The first few steps are the same as in build.yml so if you make any changes
     # you'll probably want to change them there as well
@@ -52,9 +52,6 @@ jobs:
           key: denoDeps-${{ hashFiles('importmap.json') }}
           path: ${{ env.DENO_DIR }}
 
-      - name: npm install
-        run: npm install
-
       - name: Create Deno types hash file
         # Creates a file that is used as hash key for the cache in the next step.
         run: deno task dev --create-cache-hashfile
@@ -75,13 +72,10 @@ jobs:
         # Sets up a development environment required for type the next steps to pass.
         run: deno task dev --no-serve
 
-      - name: Install editor dependencies
-        run: deno task build-editor-dependencies
-
       # Lint
       - name: Lint
         if: ${{ matrix.check == 'lint' }}
-        run: npm run lint
+        run: deno task lint
 
       # Type check
       - name: Type check
@@ -110,7 +104,7 @@ jobs:
 
       - name: Install puppeteer
         if: ${{ matrix.check == 'e2e-test' }}
-        run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@14.1.1/install.ts
+        run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@16.2.0/install.ts
 
       - name: Run e2e tests
         if: ${{ matrix.check == 'e2e-test' }}

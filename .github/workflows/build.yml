@@ -21,8 +21,6 @@ jobs:
 
     env:
       DENO_DIR: deno_dir
-      PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
-      PUPPETEER_CHROMIUM_REVISION: 991974
 
     # All these steps are the same as in ci.yml except for some if conditions,
     # so if you make any changes you'll probably want to change them there as well
@@ -50,9 +48,6 @@ jobs:
           key: denoDeps-${{ hashFiles('importmap.json') }}
           path: ${{ env.DENO_DIR }}
 
-      - name: npm install
-        run: npm install
-
       - name: Create Deno types hash file
         # Creates a file that is used as hash key for the cache in the next step.
         run: deno task dev --create-cache-hashfile
@@ -72,9 +67,6 @@ jobs:
       - name: Setup Renda
         # Sets up a development environment required for type the next steps to pass.
         run: deno task dev --no-serve
-
-      - name: Install editor dependencies
-        run: deno task build-editor-dependencies
 
       # Build
       - name: Build engine

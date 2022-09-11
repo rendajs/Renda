@@ -10,10 +10,10 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.12/mod.js";
-import {downloadNpmPackages} from "https://deno.land/x/npm_devinit@v0.0.2/mod.ts";
+import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js";
+import {dev} from "https://deno.land/x/dev@v0.0.2/mod.js";
 
-/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.12/mod.js").GenerateTypesOptions} */
+/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js").GenerateTypesOptions} */
 const generateTypesOptions = {
 	outputDir: "../.denoTypes",
 	importMap: "../importmap.json",
@@ -34,6 +34,10 @@ const generateTypesOptions = {
 		"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
 		"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
 	},
+	exactTypeModules: {
+		eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
+		estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
+	},
 };
 
 if (Deno.args.includes("--create-cache-hashfile")) {
@@ -46,12 +50,28 @@ await generateTypes(generateTypesOptions);
 setCwd();
 Deno.chdir("..");
 
-await downloadNpmPackages({
-	packages: [
-		"typescript@4.8.0-dev.20220803",
-		"rollup@2.60.0",
+await dev({
+	actions: [
+		{
+			type: "downloadNpmPackage",
+			package: "typescript@4.8.3",
+		},
+		{
+			type: "downloadNpmPackage",
+			package: "rollup@2.60.0",
+		},
+		{
+			type: "downloadNpmPackage",
+			package: "rollup-plugin-resolve-url-objects@0.0.4",
+			downloadDependencies: true,
+		},
 	],
 });
+
+const editorDependencies = Deno.run({
+	cmd: ["deno", "task", "build-editor-dependencies"],
+});
+await editorDependencies.status();
 
 const buildProcess = Deno.run({
 	cmd: ["deno", "task", "build-editor-dev"],

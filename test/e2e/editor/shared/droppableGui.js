@@ -1,5 +1,5 @@
 import {assertExists} from "std/testing/asserts.ts";
-import {click, waitForFunction} from "../../shared/util.js";
+import {click} from "../../shared/util.js";
 import {clickContextMenuItem} from "./contextMenu.js";
 import {getPropertiesTreeViewEntryValueEl} from "./treeView.js";
 
@@ -8,7 +8,7 @@ import {getPropertiesTreeViewEntryValueEl} from "./treeView.js";
  * @param {import("puppeteer").ElementHandle} droppableGuiEl
  */
 export async function waitForDroppableGuiHasValue(page, droppableGuiEl, hasValue = true) {
-	await waitForFunction(page, (droppableGuiEl, hasValue) => {
+	await page.waitForFunction((droppableGuiEl, hasValue) => {
 		return droppableGuiEl.classList.contains("filled") == hasValue;
 	}, {}, droppableGuiEl, hasValue);
 }

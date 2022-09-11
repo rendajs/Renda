@@ -33,11 +33,10 @@ export async function getContentWindowReference(page, contentWindowType) {
 	const el = await getContentWindowElement(page, contentWindowType);
 	const reference = await page.evaluateHandle(el => {
 		if (!globalThis.editor) throw new Error("Editor instance does not exist");
+		if (!(el instanceof HTMLElement)) throw new Error("Assertion failed, el is not a HTMLElement.");
 		const contentWindowReference = globalThis.editor.windowManager.getWindowByElement(el);
+		if (!contentWindowReference) throw new Error(`Failed to get content window reference for "${contentWindowType}".`);
 		return contentWindowReference;
 	}, el);
-	if (!reference) {
-		throw new Error("Unable to get content window reference.");
-	}
 	return reference;
 }

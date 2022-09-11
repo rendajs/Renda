@@ -11,7 +11,9 @@
 	"importMap": "importmap.json",
 	"tasks": {
 		"dev": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net --no-check --unstable scripts/dev.js",
-		"check": "deno run --allow-env --allow-read --unstable --compat npm_packages/typescript/4.8.0-dev.20220803/bin/tsc --noEmit -p ./jsconfig.json",
+		"lint": "deno run --unstable --allow-env --allow-read --allow-write scripts/lint.js",
+		"lint-fix": "deno run --unstable --allow-env --allow-read --allow-write scripts/lint.js --fix",
+		"check": "deno run --allow-env --allow-read --unstable --compat npm_packages/typescript/4.8.3/bin/tsc --noEmit -p ./jsconfig.json",
 		"build": "deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check scripts/build.js",
 		"test": "deno run --no-check --allow-run --allow-read --allow-write --allow-env --allow-net scripts/test.js",
 		"build-editor-dependencies": "deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check editor/scripts/buildDependencies.js",

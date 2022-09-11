@@ -1,14 +1,12 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {initBrowser, openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
+import {openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
 import {waitFor} from "../../../../shared/util.js";
-
-await initBrowser();
 
 Deno.test({
 	name: "Creates the element with the correct defaultValue",
 	...puppeteerSanitizers,
 	async fn() {
-		const {page} = await openBasicScriptPage("./browserContent/defaultValue.js", import.meta.url);
+		const {page, disconnect} = await openBasicScriptPage("./browserContent/defaultValue.js", import.meta.url);
 		await waitFor(page, "select");
 		const currentValue = await page.evaluate(() => {
 			const el = document.querySelector("select");
@@ -17,5 +15,7 @@ Deno.test({
 		});
 
 		assertEquals(currentValue, "1");
+
+		await disconnect();
 	},
 });
