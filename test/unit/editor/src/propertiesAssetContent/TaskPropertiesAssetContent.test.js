@@ -46,6 +46,12 @@ function basicSetup({
 				const task = taskTypes.get(type);
 				return task;
 			},
+			transformAssetToUiData(taskType, config) {
+				return config;
+			},
+			transformUiToAssetData(taskType, config) {
+				return config;
+			},
 		},
 	});
 	const assetContent = new PropertiesAssetContentTask(editor);

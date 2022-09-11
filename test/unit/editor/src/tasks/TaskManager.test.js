@@ -480,3 +480,24 @@ Deno.test({
 		}
 	},
 });
+
+Deno.test({
+	name: "transformUiToAssetData and transformAssetToUiData",
+	fn() {
+		const manager = new TaskManager();
+
+		const taskType = "namespace:type";
+
+		/** @extends {Task<{}>} */
+		class ExtendedTask extends Task {
+			static type = taskType;
+		}
+		manager.registerTaskType(ExtendedTask);
+
+		const result1 = manager.transformUiToAssetData("namespace:type", {foo: "bar"});
+		assertEquals(result1, {foo: "bar"});
+
+		const result2 = manager.transformAssetToUiData("namespace:type", {foo: "bar"});
+		assertEquals(result2, {foo: "bar"});
+	},
+});
