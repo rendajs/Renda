@@ -53,7 +53,7 @@ await dev({
 	actions: [
 		{
 			type: "downloadNpmPackage",
-			package: "typescript@4.8.0-dev.20220803",
+			package: "typescript@4.8.3",
 		},
 		{
 			type: "downloadNpmPackage",
