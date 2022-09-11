@@ -1,5 +1,5 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
+import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
 import {clickAsset, createAsset} from "../../shared/assets.js";
 import {getPropertiesAssetContentReference, getPropertiesWindowContentAsset} from "../../shared/contentWindows/properties.js";
@@ -7,8 +7,6 @@ import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 import {getPropertiesTreeViewEntryValueEl, getTreeViewItemElement} from "../../shared/treeView.js";
-
-await initBrowser();
 
 const MATERIAL_ASSET_PATH = ["New Material.json"];
 
@@ -24,7 +22,7 @@ Deno.test({
 	name: "Creating a new material asset with embedded map and pipeline config",
 	...puppeteerSanitizers,
 	async fn(testContext) {
-		const {page} = await getContext();
+		const {page, disconnect} = await getContext();
 
 		await setupNewProject(page, testContext);
 
@@ -126,6 +124,6 @@ Deno.test({
 			},
 		});
 
-		page.close();
+		await disconnect();
 	},
 });

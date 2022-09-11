@@ -1,17 +1,15 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {getContext, initBrowser, puppeteerSanitizers} from "../../../../shared/browser.js";
+import {getContext, puppeteerSanitizers} from "../../../../shared/browser.js";
 import {click, drag, elementWaitForSelector} from "../../../../shared/util.js";
 import {clickAsset, createAsset} from "../../../shared/assets.js";
 import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
 import {setupNewProject} from "../../../shared/project.js";
 
-await initBrowser();
-
 Deno.test({
 	name: "Dragging entities within a scene",
 	...puppeteerSanitizers,
 	async fn(testContext) {
-		const {page} = await getContext();
+		const {page, disconnect} = await getContext();
 
 		await setupNewProject(page, testContext);
 
@@ -62,6 +60,6 @@ Deno.test({
 		});
 		assertEquals(childChildCounts, [0, 0, 0, 0]);
 
-		page.close();
+		await disconnect();
 	},
 });

@@ -1,14 +1,12 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {initBrowser, openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
+import {openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
 import {waitFor} from "../../../../shared/util.js";
-
-await initBrowser();
 
 Deno.test({
 	name: "Setting and getting a value",
 	...puppeteerSanitizers,
 	async fn() {
-		const {page} = await openBasicScriptPage("./browserContent/basic.js", import.meta.url);
+		const {page, disconnect} = await openBasicScriptPage("./browserContent/basic.js", import.meta.url);
 		const el = await waitFor(page, "div[role='textbox']");
 		const gui = await page.evaluateHandle(() => {
 			const g1 = /** @type {unknown} */ (globalThis);
@@ -51,5 +49,7 @@ Deno.test({
 			return selection.toString();
 		});
 		assertEquals(lastChar, "4");
+
+		await disconnect();
 	},
 });

@@ -1,18 +1,16 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {getContext, initBrowser, puppeteerSanitizers} from "../../../shared/browser.js";
+import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
 import {createAsset, getAssetTreeView, getNotAssetTreeView} from "../../shared/assets.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {openProjectSelector, setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 import {waitSeconds} from "../../shared/waitSeconds.js";
 
-await initBrowser();
-
 Deno.test({
 	name: "Rename a project and refresh the page, it should open the latest project",
 	...puppeteerSanitizers,
 	fn: async testContext => {
-		const {page} = await getContext();
+		const {page, disconnect} = await getContext();
 
 		const newProjectName = "New Project Name";
 		const projectWindowSelector = "[data-content-window-type-id='project']";
@@ -63,6 +61,8 @@ Deno.test({
 			});
 			assertEquals(projectName, newProjectName);
 		});
+
+		await disconnect();
 	},
 	sanitizeOps: false,
 	sanitizeResources: false,
@@ -72,7 +72,7 @@ Deno.test({
 	name: "Empty db projects do not persist",
 	...puppeteerSanitizers,
 	async fn(testContext) {
-		const {page} = await getContext();
+		const {page, disconnect} = await getContext();
 
 		await setupNewProject(page, testContext);
 
@@ -92,6 +92,8 @@ Deno.test({
 		});
 
 		assert(!exists, "Expected localProjectSettings.json to not exist");
+
+		await disconnect();
 	},
 });
 
@@ -99,7 +101,7 @@ Deno.test({
 	name: "Deleting db project closes it if it currently open",
 	...puppeteerSanitizers,
 	async fn(testContext) {
-		const {page} = await getContext();
+		const {page, disconnect} = await getContext();
 
 		await setupNewProject(page, testContext);
 
@@ -122,5 +124,7 @@ Deno.test({
 				await getNotAssetTreeView(page, ["New Entity.json"]);
 			},
 		});
+
+		await disconnect();
 	},
 });

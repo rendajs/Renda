@@ -20,41 +20,45 @@ function getMainPageUrl() {
 export const puppeteerSanitizers = {
 	sanitizeOps: false,
 	sanitizeExit: false,
+	sanitizeResources: false,
 };
 
-/** @type {import("puppeteer").Browser?} */
-let browser = null;
-export async function initBrowser() {
-	if (browser) {
-		throw new Error("Browser already initialized.");
+globalThis.addEventListener("error", e => {
+	if(e.message.includes("WebSocket protocol error: Connection reset without closing handshake")) {
+		e.preventDefault();
 	}
+});
 
-	let headless = true;
-	if (Deno.args.includes("--no-headless")) {
-		headless = false;
-	}
-
-	let devtools = false;
-	if (Deno.args.includes("--enable-e2e-devtools")) {
-		devtools = true;
-	}
-
-	browser = await puppeteer.launch({
-		headless,
-		args: ["--enable-unsafe-webgpu"],
-		devtools,
-	});
-}
-
+/**
+ * Connects to the browser instance created by the test runner and creates a new
+ * incognito page.
+ */
 export async function getContext(url = getMainPageUrl() + "/editor/") {
-	if (!browser) {
-		throw new Error("Browser not initialized.");
+	let wsEndpoint = null;
+	for (const arg of Deno.args) {
+		const argKey = "--puppeteer-ws-endpoint=";
+		if (arg.startsWith(argKey)) {
+			wsEndpoint = arg.slice(argKey.length);
+		}
 	}
+	if (!wsEndpoint) {
+		throw new Error("Failed to connect to browser, no ws endpoint provided");
+	}
+	const browser = await puppeteer.connect({
+		browserWSEndpoint: wsEndpoint,
+	});
 
 	const context = await browser.createIncognitoBrowserContext();
 	const page = await context.newPage();
 	await page.goto(url);
-	return {context, page};
+	return {
+		context,
+		page,
+		async disconnect() {
+			await page.close();
+			browser.disconnect();
+		},
+	};
 }
 
 /**

@@ -3,6 +3,7 @@
 import {join} from "std/path/mod.ts";
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
+import puppeteer from "puppeteer";
 setCwd();
 
 Deno.chdir("..");
@@ -58,7 +59,9 @@ const needsE2eTests = !filteredTests || filteredTests.startsWith("test/e2e");
 let testServer = null;
 /** @type {string[]} */
 let testServerAddrs = [];
+let browser = null;
 if (needsE2eTests) {
+	// Start test server
 	testServer = new DevServer({
 		port: 0,
 		serverName: "test server",
@@ -68,6 +71,18 @@ if (needsE2eTests) {
 	if (testServerAddrs.length <= 0) {
 		throw new Error("Failed to get test server url.");
 	}
+
+	// Start browser process
+	let headless = true;
+	if (Deno.args.includes("--no-headless") || Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk")) {
+		headless = false;
+	}
+
+	browser = await puppeteer.launch({
+		headless,
+		args: ["--enable-unsafe-webgpu"],
+		devtools: !headless,
+	});
 }
 
 let needsCoverage = Deno.args.includes("--coverage");
@@ -120,9 +135,8 @@ if (needsE2eTests) {
 			applicationArgs.add(arg);
 		}
 	}
-	if (Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk")) {
-		applicationArgs.add("--no-headless");
-		applicationArgs.add("--enable-e2e-devtools");
+	if (browser) {
+		applicationArgs.add(`--puppeteer-ws-endpoint=${browser.wsEndpoint()}`)
 	}
 	const addr = testServerAddrs[0];
 	applicationArgs.add(`--test-server-addr=${addr}`);
@@ -143,6 +157,10 @@ for (const {cmd} of testCommands) {
 }
 
 testServer?.close();
+
+if (browser) {
+	await browser.close();
+}
 
 if (lastTestStatus && !lastTestStatus.success) {
 	Deno.exit(lastTestStatus.code);
