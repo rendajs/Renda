@@ -12,11 +12,12 @@ export const rule = {
 
 		return {
 			ImportDeclaration(node) {
-				if (node.source.value.endsWith("mod.js")) {
-					context.report({
-						loc: node.source.loc,
-						message,
-					});
+				const value = node.source.value;
+				if (value && typeof value == "string" && value.endsWith("mod.js")) {
+					const loc = node.source.loc;
+					if (loc) {
+						context.report({loc, message});
+					}
 				}
 			},
 		};

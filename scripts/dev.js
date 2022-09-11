@@ -36,6 +36,7 @@ const generateTypesOptions = {
 	},
 	exactTypeModules: {
 		eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
+		estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
 	},
 };
 

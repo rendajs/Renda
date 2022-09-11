@@ -39,7 +39,7 @@ export const rule = {
 
 			ThisExpression(node) {
 				const current = getCurrentStackNode();
-				if (current && current.parent.static) {
+				if (current && current.parent.type == "MethodDefinition" && current.parent.static) {
 					context.report({
 						node,
 						message: "Closure Compiler does not support `this` inside static functions.",

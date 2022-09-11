@@ -27,10 +27,10 @@ export const rule = {
 			ExportNamedDeclaration(node) {
 				const defaultExports = node.specifiers.filter(specifier => specifier.exported.name == "default");
 				for (const defaultExport of defaultExports) {
-					context.report({
-						loc: defaultExport.exported.loc,
-						message,
-					});
+					const loc = defaultExport.exported.loc;
+					if (loc) {
+						context.report({loc, message});
+					}
 				}
 			},
 		};
