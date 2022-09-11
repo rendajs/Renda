@@ -161,4 +161,22 @@ export class TaskManager {
 			}
 		}
 	}
+
+	/**
+	 * @param {string} taskType
+	 * @param {unknown} uiConfigData
+	 */
+	transformUiToAssetData(taskType, uiConfigData) {
+		const task = this.getTaskType(taskType);
+		return task.transformUiToAssetData(uiConfigData);
+	}
+
+	/**
+	 * @param {string} taskType
+	 * @param {unknown} assetConfigData
+	 */
+	transformAssetToUiData(taskType, assetConfigData) {
+		const task = this.getTaskType(taskType);
+		return task.transformAssetToUiData(assetConfigData);
+	}
 }

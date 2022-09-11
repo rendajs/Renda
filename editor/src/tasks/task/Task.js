@@ -79,6 +79,25 @@ export class Task {
 	static configStructure = null;
 
 	/**
+	 * Gets called when the configuration is changed in ui. You can use this
+	 * to transform the data returned by the PropertiesTreeView before it gets
+	 * saved to disk.
+	 * @param {unknown} uiConfigData
+	 */
+	static transformUiToAssetData(uiConfigData) {
+		return uiConfigData;
+	}
+
+	/**
+	 * Gets called when the configuration data from disk is loaded into the ui.
+	 * Use this in combination with {@linkcode transformUiToAssetData}.
+	 * @param {unknown} assetConfigData
+	 */
+	static transformAssetToUiData(assetConfigData) {
+		return assetConfigData;
+	}
+
+	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance
 	 */
 	constructor(editorInstance) {
