@@ -202,7 +202,7 @@ module.exports = {
 		"yield-star-spacing": "error",
 		"no-inner-declarations": "off",
 
-		// TODO: enable these once https://github.com/denoland/deno/issues/15691 is fixed:
+		// TODO: enable these once "npm:eslint-plugin-jsdoc@39.3.6" is importable in Deno:
 
 		// "jsdoc/check-alignment": "error",
 		// "jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef"]}],

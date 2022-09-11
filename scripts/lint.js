@@ -29,8 +29,8 @@ const eslint = new ESLint({
 		},
 		// For now this plugin only stubs some rules that are disabled/enabled
 		// in code using eslint-enable comments. But we'll replace this with
-		// the actual jsdoc plugin once https://github.com/denoland/deno/issues/15691
-		// is fixed.
+		// the actual jsdoc plugin once "npm:eslint-plugin-jsdoc@39.3.6" is
+		// importable in Deno
 		jsdoc: {
 			rules: {
 				"no-undefined-types": dummyRule,
