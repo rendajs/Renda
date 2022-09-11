@@ -50,5 +50,11 @@ if (fix) {
 }
 
 const formatter = await eslint.loadFormatter("stylish");
-const resultText = formatter.format(results);
+const resultText = await formatter.format(results);
 console.log(resultText);
+
+for (const result of results) {
+	if (result.messages.length > 0) {
+		Deno.exit(1);
+	}
+}
