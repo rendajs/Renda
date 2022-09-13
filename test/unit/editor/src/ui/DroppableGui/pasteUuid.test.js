@@ -1,9 +1,10 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {stub} from "std/testing/mock.ts";
 import {assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
-import {basicSetupForContextMenus, createMockProjectAsset} from "./shared.js";
+import {basicSetupForContextMenus} from "./shared.js";
 import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import { createMockProjectAsset } from "../../assets/shared/createMockProjectAsset.js";
 
 const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
 
@@ -11,30 +12,68 @@ const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
  * @param {object} options
  * @param {string} [options.clipboardAsset] The content that is currently in the clipboard
  * @param {PermissionState} [options.clipboardReadPermissionState] The content that is currently in the clipboard
+ * @param {string[]} [options.supportedAssetTypes] A mock liveasset constructor will be added to the supportedAssetTypes
+ * option of the gui.
+ * @param {boolean} [options.includeMockProjectAssetTypeAsSupported] Whether to add the MockProjectAssetTypeConstructor
+ * from the pasted asset to the supported asset types.
  */
 async function basicSetupForPastingUuid({
 	clipboardAsset = BASIC_PASTED_ASSET_UUID,
 	clipboardReadPermissionState = "granted",
+	supportedAssetTypes: supportedAssetTypeStrings = [],
+	includeMockProjectAssetTypeAsSupported = false,
 } = {}) {
+	/** @type {any[]} */
+	const supportedAssetTypes = [];
+	/** @type {[new (...args: any[]) => any, any[]][]} */
+	const liveAssetProjectAssetTypeCombinations = [];
+	for (const str of supportedAssetTypeStrings) {
+		const mockLiveAsset = class {};
+		supportedAssetTypes.push(mockLiveAsset);
+		liveAssetProjectAssetTypeCombinations.push([mockLiveAsset, [{
+			type: str,
+			expectedLiveAssetConstructor: mockLiveAsset,
+		}]])
+	}
+
+	class MockLiveAsset {}
+
+	const MockProjectAssetTypeConstructor = {
+		type: "pasted asset type",
+		expectedLiveAssetConstructor: MockLiveAsset,
+	};
+	if (includeMockProjectAssetTypeAsSupported) {
+		supportedAssetTypes.push(MockLiveAsset);
+		liveAssetProjectAssetTypeCombinations.push([MockLiveAsset, [MockProjectAssetTypeConstructor]])
+	}
+
 	const returnValue = await basicSetupForContextMenus({
 		basicGuiOptions: {
 			clipboardReadTextReturn: clipboardAsset,
 			clipboardReadPermissionState,
 			valueType: "none",
+			guiOpts: {
+				supportedAssetTypes,
+			},
+			liveAssetProjectAssetTypeCombinations,
 		},
 		dispatchContextMenuEvent: false,
 	});
 
-	const assetManager = returnValue.mockEditor.projectManager.assetManager;
-	assertExists(assetManager);
-	stub(assetManager, "hasProjectAssetUuid", async uuid => {
-		return uuid == BASIC_PASTED_ASSET_UUID;
-	});
-
-	const mockProjectAsset = createMockProjectAsset({
+	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
 		uuid: BASIC_PASTED_ASSET_UUID,
+		projectAssetTypeConstructor: MockProjectAssetTypeConstructor,
 	});
 	returnValue.addMockProjectAsset(BASIC_PASTED_ASSET_UUID, mockProjectAsset);
+
+	const assetManager = returnValue.mockEditor.projectManager.assetManager;
+	assertExists(assetManager);
+	stub(assetManager, "getProjectAssetFromUuid", async uuid => {
+		if(uuid == BASIC_PASTED_ASSET_UUID) {
+			return mockProjectAsset;
+		}
+		return null;
+	});
 
 	return {
 		...returnValue,
@@ -166,6 +205,92 @@ Deno.test({
 });
 
 Deno.test({
+	name: "paste via context menu, valid asset type, one supported",
+	async fn() {
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1"],
+			includeMockProjectAssetTypeAsSupported: true,
+		});
+
+		try {
+			await dispatchContextMenuEvent();
+			await assertContextMenu(true);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "paste via context menu, invalid asset type, one supported",
+	async fn() {
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1"],
+		});
+
+		try {
+			await dispatchContextMenuEvent();
+			await assertContextMenu(true, true, `The asset UUID in your clipboard has an invalid type. Was "pasted asset type" but expected "type1".`);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "paste via context menu, invalid asset type, two supported",
+	async fn() {
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1", "type2"],
+		});
+
+		try {
+			await dispatchContextMenuEvent();
+			await assertContextMenu(true, true, `The asset UUID in your clipboard has an invalid type. Was "pasted asset type" but expected "type1" or "type2".`);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "paste via context menu, invalid asset type, three supported",
+	async fn() {
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1", "type2", "type3"],
+		});
+
+		try {
+			await dispatchContextMenuEvent();
+			await assertContextMenu(true, true, `The asset UUID in your clipboard has an invalid type. Was "pasted asset type" but expected "type1", "type2" or "type3".`);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "paste via context menu, invalid asset type, four supported",
+	async fn() {
+		const {dispatchContextMenuEvent, assertContextMenu, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1", "type2", "type3", "type4"],
+		});
+
+		try {
+			await dispatchContextMenuEvent();
+			await assertContextMenu(true, true, `The asset UUID in your clipboard has an invalid type. Was "pasted asset type" but expected "type1", "type2", "type3" or "type4".`);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "paste event, valid uuid",
 	async fn() {
 		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
@@ -246,6 +371,45 @@ Deno.test({
 });
 
 Deno.test({
+	name: "paste event, invalid asset type",
+	async fn() {
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1"],
+		});
+
+		try {
+			await dispatchFocusEvent(true);
+			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			const value = gui.getValue();
+			assertEquals(value, null);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "paste event, valid asset type",
+	async fn() {
+		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1"],
+			includeMockProjectAssetTypeAsSupported: true,
+		});
+
+		try {
+			await dispatchFocusEvent(true);
+			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			const value = gui.getValue();
+			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "focus updates shortcut condition",
 	async fn() {
 		const {dispatchFocusEvent, getLastShortcutCondition, uninstall} = await basicSetupForPastingUuid();
@@ -286,6 +450,46 @@ Deno.test({
 			await triggerPasteShortcut();
 			const value = gui.getValue();
 			assertEquals(value, null);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
+	name: "trigger shortcut command via shortcut manager, invalid asset type",
+	async fn() {
+		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1"],
+		});
+
+		try {
+			await dispatchFocusEvent(true);
+			await triggerPasteShortcut();
+			const value = gui.getValue();
+			assertEquals(value, null);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+
+Deno.test({
+	name: "trigger shortcut command via shortcut manager, valid asset type with supported list",
+	async fn() {
+		const {gui, dispatchFocusEvent, triggerPasteShortcut, uninstall} = await basicSetupForPastingUuid({
+			clipboardAsset: BASIC_PASTED_ASSET_UUID,
+			supportedAssetTypes: ["type1"],
+			includeMockProjectAssetTypeAsSupported: true,
+		});
+
+		try {
+			await dispatchFocusEvent(true);
+			await triggerPasteShortcut();
+			const value = gui.getValue();
+			assertEquals(value, BASIC_PASTED_ASSET_UUID);
 		} finally {
 			uninstall();
 		}

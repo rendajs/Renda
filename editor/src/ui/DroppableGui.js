@@ -283,7 +283,9 @@ export class DroppableGui {
 		if (!uuid || !isUuid(uuid)) return;
 		const assetManager = getEditorInstance().projectManager.assetManager;
 		if (!assetManager) return;
-		if (!(await assetManager.hasProjectAssetUuid(uuid))) return;
+		const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
+		if (!projectAsset) return;
+		if (!this.#validateAssetType(await projectAsset.getProjectAssetTypeConstructor())) return;
 		this.setValue(uuid);
 	}
 
@@ -611,14 +613,23 @@ export class DroppableGui {
 
 			if (dragData.draggingProjectAssetData.dataPopulated) {
 				const assetType = dragData.draggingProjectAssetData.assetType;
-				if (assetType) {
-					if (this.supportedAssetTypes.includes(assetType)) {
-						return true;
-					} else if (assetType.expectedLiveAssetConstructor && this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor)) {
-						return true;
-					}
-				}
+				return this.#validateAssetType(assetType);
 			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if a ProjectAssetType is allowed to be dropped/pasted in this gui.
+	 * @param {(typeof ProjectAssetType)?} assetType
+	 */
+	#validateAssetType(assetType) {
+		if (!assetType) return false;
+		if (this.supportedAssetTypes.length <= 0) return true;
+		if (this.supportedAssetTypes.includes(assetType)) {
+			return true;
+		} else if (assetType.expectedLiveAssetConstructor && this.supportedAssetTypes.includes(assetType.expectedLiveAssetConstructor)) {
+			return true;
 		}
 		return false;
 	}
@@ -741,9 +752,28 @@ export class DroppableGui {
 						if (!assetManager) {
 							visible = false;
 						} else {
-							if (!(await assetManager.hasProjectAssetUuid(uuid))) {
+							const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
+							if (!projectAsset) {
 								disabled = true;
 								tooltip = "The asset UUID in your clipboard is not an asset in this project.";
+							} else {
+								const projectAssetType = await projectAsset.getProjectAssetTypeConstructor();
+								if (!this.#validateAssetType(projectAssetType)) {
+									disabled = true;
+									let assetTypeStr = projectAssetType?.type || "unknown";
+									const expectedTypes = Array.from(this.getProjectAssetTypeFromSupported());
+									const expectedStrings = expectedTypes.map(t => `"${t.type}"`);
+									let expectedStr = `"unknown"`;
+									if (expectedStrings.length == 1) {
+										expectedStr = expectedStrings[0];
+									} else if (expectedStrings.length == 2) {
+										expectedStr = `${expectedStrings[0]} or ${expectedStrings[1]}`;
+									} else if (expectedStrings.length > 2) {
+										const last = expectedStrings.pop();
+										expectedStr = `${expectedStrings.join(", ")} or ${last}`;
+									}
+									tooltip = `The asset UUID in your clipboard has an invalid type. Was "${assetTypeStr}" but expected ${expectedStr}.`;
+								}
 							}
 						}
 					}
