@@ -102,9 +102,10 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		this.#currentConfigStructure = taskType.configStructure;
 		if (taskType.configStructure) {
 			this.taskConfigTree.generateFromSerializableStructure(taskType.configStructure);
-			const config = /** @type {import("../ui/propertiesTreeView/types.js").StructureToSetObject<any>?} */ (assetContent.taskConfig);
-			if (config) {
-				this.taskConfigTree.fillSerializableStructureValues(config);
+			const configData = this.editorInstance.taskManager.transformAssetToUiData(this.#currentSelectedTaskType, assetContent.taskConfig);
+			const castConfigData = /** @type {import("../ui/propertiesTreeView/types.js").StructureToSetObject<any> | undefined} */ (configData);
+			if (castConfigData) {
+				this.taskConfigTree.fillSerializableStructureValues(castConfigData);
 			}
 		} else {
 			this.taskConfigTree.clearChildren();
@@ -140,9 +141,10 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 			}
 		}
 		if (this.#currentConfigStructure) {
-			const configData = this.taskConfigTree.getSerializableStructureValues(this.#currentConfigStructure, {
+			const uiConfigData = this.taskConfigTree.getSerializableStructureValues(this.#currentConfigStructure, {
 				purpose: "fileStorage",
 			});
+			const configData = this.editorInstance.taskManager.transformUiToAssetData(this.#currentSelectedTaskType, uiConfigData);
 			if (configData) assetData.taskConfig = configData;
 		}
 		await this.currentSelection[0].writeAssetData(assetData);

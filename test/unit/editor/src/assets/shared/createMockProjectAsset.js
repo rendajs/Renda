@@ -20,6 +20,7 @@ export function createMockProjectAsset({
 	const previousEmbeddedLiveAssets = new Map();
 
 	const projectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
+		async waitForInit() {},
 		async getLiveAsset() {
 			if (!allowImmediateLiveAssetReturn) {
 				/** @type {Promise<void>} */
@@ -59,6 +60,7 @@ export function createMockProjectAsset({
 		get projectAssetTypeConstructorSync() {
 			return projectAssetTypeConstructor;
 		},
+		assertIsAssetTypeSync(projectAssetTypeConstructor) {},
 	});
 	return {
 		projectAsset,
