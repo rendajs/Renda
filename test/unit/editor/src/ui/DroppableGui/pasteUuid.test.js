@@ -4,7 +4,7 @@ import {assertContextMenuStructureContains, assertContextMenuStructureNotContain
 import {basicSetupForContextMenus} from "./shared.js";
 import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import { createMockProjectAsset } from "../../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 
 const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
 
@@ -30,10 +30,14 @@ async function basicSetupForPastingUuid({
 	for (const str of supportedAssetTypeStrings) {
 		const mockLiveAsset = class {};
 		supportedAssetTypes.push(mockLiveAsset);
-		liveAssetProjectAssetTypeCombinations.push([mockLiveAsset, [{
-			type: str,
-			expectedLiveAssetConstructor: mockLiveAsset,
-		}]])
+		liveAssetProjectAssetTypeCombinations.push([
+			mockLiveAsset, [
+				{
+					type: str,
+					expectedLiveAssetConstructor: mockLiveAsset,
+				},
+			],
+		]);
 	}
 
 	class MockLiveAsset {}
@@ -44,7 +48,7 @@ async function basicSetupForPastingUuid({
 	};
 	if (includeMockProjectAssetTypeAsSupported) {
 		supportedAssetTypes.push(MockLiveAsset);
-		liveAssetProjectAssetTypeCombinations.push([MockLiveAsset, [MockProjectAssetTypeConstructor]])
+		liveAssetProjectAssetTypeCombinations.push([MockLiveAsset, [MockProjectAssetTypeConstructor]]);
 	}
 
 	const returnValue = await basicSetupForContextMenus({
@@ -69,7 +73,7 @@ async function basicSetupForPastingUuid({
 	const assetManager = returnValue.mockEditor.projectManager.assetManager;
 	assertExists(assetManager);
 	stub(assetManager, "getProjectAssetFromUuid", async uuid => {
-		if(uuid == BASIC_PASTED_ASSET_UUID) {
+		if (uuid == BASIC_PASTED_ASSET_UUID) {
 			return mockProjectAsset;
 		}
 		return null;
@@ -474,7 +478,6 @@ Deno.test({
 		}
 	},
 });
-
 
 Deno.test({
 	name: "trigger shortcut command via shortcut manager, valid asset type with supported list",

@@ -760,7 +760,7 @@ export class DroppableGui {
 								const projectAssetType = await projectAsset.getProjectAssetTypeConstructor();
 								if (!this.#validateAssetType(projectAssetType)) {
 									disabled = true;
-									let assetTypeStr = projectAssetType?.type || "unknown";
+									const assetTypeStr = projectAssetType?.type || "unknown";
 									const expectedTypes = Array.from(this.getProjectAssetTypeFromSupported());
 									const expectedStrings = expectedTypes.map(t => `"${t.type}"`);
 									let expectedStr = `"unknown"`;

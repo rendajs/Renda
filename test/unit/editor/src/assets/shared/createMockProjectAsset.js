@@ -64,7 +64,7 @@ export function createMockProjectAsset({
 		},
 		async getProjectAssetTypeConstructor() {
 			return projectAssetTypeConstructor;
-		}
+		},
 	});
 	return {
 		projectAsset,
