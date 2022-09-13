@@ -155,4 +155,39 @@ export class TaskRunMultiple extends Task {
 			return newTaskGroup;
 		}
 	}
+
+	/**
+	 * @param {import("./Task.js").RunTaskOptions<TaskRunMultipleConfig>} options
+	 */
+	async runTask({config, runDependencyTask}) {
+		if (!config.taskGroup) return {};
+
+		/**
+		 * @param {import("../../../../src/mod.js").UuidString | TaskGroup} taskGroup
+		 */
+		async function runTaskGroup(taskGroup) {
+			if (typeof taskGroup == "string") {
+				await runDependencyTask(taskGroup);
+			} else if (taskGroup.tasks) {
+				const parallel = taskGroup.parallel ?? true;
+				if (parallel) {
+					const promises = [];
+					for (const task of taskGroup.tasks) {
+						if (!task) continue;
+						promises.push(runTaskGroup(task));
+					}
+					await Promise.all(promises);
+				} else {
+					for (const task of taskGroup.tasks) {
+						if (!task) continue;
+						await runTaskGroup(task);
+					}
+				}
+			}
+		}
+
+		await runTaskGroup(config.taskGroup);
+
+		return {};
+	}
 }
