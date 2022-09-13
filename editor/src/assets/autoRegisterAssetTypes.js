@@ -1,4 +1,3 @@
-import {ProjectAssetTypeAssetBundle} from "./projectAssetType/ProjectAssetTypeAssetBundle.js";
 import {ProjectAssetTypeClusteredLightsConfig} from "./projectAssetType/ProjectAssetTypeClusteredLightsConfig.js";
 import {ProjectAssetTypeEntity} from "./projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeGltf} from "./projectAssetType/ProjectAssetTypeGltf.js";
@@ -17,7 +16,6 @@ import {ProjectAssetTypeWebGpuPipelineConfig} from "./projectAssetType/ProjectAs
 
 /** @type {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructorAny[]} */
 const autoRegisterAssetTypes = [
-	ProjectAssetTypeAssetBundle,
 	ProjectAssetTypeClusteredLightsConfig,
 	ProjectAssetTypeEntity,
 	ProjectAssetTypeGltf,
