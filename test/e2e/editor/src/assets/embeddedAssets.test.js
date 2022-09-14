@@ -22,122 +22,121 @@ Deno.test({
 	name: "Creating a new material asset with embedded map and pipeline config",
 	...puppeteerSanitizers,
 	async fn(testContext) {
-		for (let i=0; i<100; i++) {
-
+		for (let i = 0; i < 100; i++) {
 			console.log(i);
-		const {page, disconnect} = await getContext();
+			const {page, disconnect} = await getContext();
 
-		console.log("setup new project");
-		await setupNewProject(page, testContext);
+			console.log("setup new project");
+			await setupNewProject(page, testContext);
 
-		await testContext.step({
-			name: "Creating the assets",
-			async fn(testContext) {
-				console.log("create asset");
-				await createAsset(page, testContext, ["Materials", "New Material"]);
-				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				const assetContentEl = await getPropertiesWindowContentAsset(page);
+			await testContext.step({
+				name: "Creating the assets",
+				async fn(testContext) {
+					console.log("create asset");
+					await createAsset(page, testContext, ["Materials", "New Material"]);
+					await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
+					const assetContentEl = await getPropertiesWindowContentAsset(page);
 
-				const assetContentReference = await getPropertiesAssetContentReference(page);
-				await page.evaluateHandle(async assetContent => {
-					const {PropertiesAssetContentMaterial} = await import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
-					if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
-					await assetContent.waitForAssetLoad();
-				}, assetContentReference);
+					const assetContentReference = await getPropertiesAssetContentReference(page);
+					await page.evaluateHandle(async assetContent => {
+						const {PropertiesAssetContentMaterial} = await import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+						if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
+						await assetContent.waitForAssetLoad();
+					}, assetContentReference);
 
-				console.log("create embedded asset");
-				await testContext.step({
-					name: "Create embedded asset",
-					async fn(testContext) {
-						const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
-						await createEmbeddedAssetAndOpen(page, testContext, mapTreeViewEntry);
-					},
-				});
+					console.log("create embedded asset");
+					await testContext.step({
+						name: "Create embedded asset",
+						async fn(testContext) {
+							const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
+							await createEmbeddedAssetAndOpen(page, testContext, mapTreeViewEntry);
+						},
+					});
 
-				await testContext.step({
-					name: "Add map type",
-					async fn(testContext) {
+					await testContext.step({
+						name: "Add map type",
+						async fn(testContext) {
 						// Click the 'Add Map Type' button
-						const addMapTypeEntry = await getTreeViewItemElement(page, assetContentEl, [0, 1]);
-						assertExists(addMapTypeEntry);
-						const addMapTypeValueEl = await getPropertiesTreeViewEntryValueEl(addMapTypeEntry);
-						const addMapTypeButton = await addMapTypeValueEl.$(".button");
-						assertExists(addMapTypeButton);
-						await click(page, addMapTypeButton);
+							const addMapTypeEntry = await getTreeViewItemElement(page, assetContentEl, [0, 1]);
+							assertExists(addMapTypeEntry);
+							const addMapTypeValueEl = await getPropertiesTreeViewEntryValueEl(addMapTypeEntry);
+							const addMapTypeButton = await addMapTypeValueEl.$(".button");
+							assertExists(addMapTypeButton);
+							await click(page, addMapTypeButton);
 
-						await clickContextMenuItem(page, testContext, ["WebGPU Renderer"]);
+							await clickContextMenuItem(page, testContext, ["WebGPU Renderer"]);
 
-						const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
-						await createEmbeddedAssetAndOpen(page, testContext, forwardPipelineConfigTreeViewEntry);
-					},
-				});
+							const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
+							await createEmbeddedAssetAndOpen(page, testContext, forwardPipelineConfigTreeViewEntry);
+						},
+					});
 
-				// We'll change an arbitrary property to check if changes are saved
-				await testContext.step({
-					name: "Toggle Depth Write checkbox",
-					async fn(testContext) {
-						const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
-						assertExists(depthWriteEntry);
-						const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
-						const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
-						assertExists(checkbox);
-						await click(page, checkbox);
+					// We'll change an arbitrary property to check if changes are saved
+					await testContext.step({
+						name: "Toggle Depth Write checkbox",
+						async fn(testContext) {
+							const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
+							assertExists(depthWriteEntry);
+							const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
+							const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
+							assertExists(checkbox);
+							await click(page, checkbox);
 
-						await page.evaluate(async () => {
-							const e = editor;
-							if (!e) return;
-							const fs = e.projectManager.currentProjectFileSystem;
-							if (!fs) return;
-							await fs.waitForWritesFinish();
-						});
-					},
-				});
-			},
-		});
+							await page.evaluate(async () => {
+								const e = editor;
+								if (!e) return;
+								const fs = e.projectManager.currentProjectFileSystem;
+								if (!fs) return;
+								await fs.waitForWritesFinish();
+							});
+						},
+					});
+				},
+			});
 
-		console.log("reload the page");
-		await testContext.step({
-			name: "Reload the page",
-			async fn(testContext) {
-				await page.reload();
-			},
-		});
+			console.log("reload the page");
+			await testContext.step({
+				name: "Reload the page",
+				async fn(testContext) {
+					await page.reload();
+				},
+			});
 
-		console.log("wait for project open");
-		await waitForProjectOpen(page, testContext);
+			console.log("wait for project open");
+			await waitForProjectOpen(page, testContext);
 
-		await testContext.step({
-			name: "Verify if changes were saved",
-			async fn(testContext) {
-				console.log("clickAsset");
-				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				console.log("get properties window content asset")
-				const assetContentEl = await getPropertiesWindowContentAsset(page);
+			await testContext.step({
+				name: "Verify if changes were saved",
+				async fn(testContext) {
+					console.log("clickAsset");
+					await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
+					console.log("get properties window content asset");
+					const assetContentEl = await getPropertiesWindowContentAsset(page);
 
-				console.log("findMapTreeViewEntry");
-				const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
-				await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);
+					console.log("findMapTreeViewEntry");
+					const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
+					await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);
 
-				console.log("get Forward Pipeline Config treeview");
-				const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
-				await openDroppableGuiTreeViewEntry(page, testContext, forwardPipelineConfigTreeViewEntry);
+					console.log("get Forward Pipeline Config treeview");
+					const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
+					await openDroppableGuiTreeViewEntry(page, testContext, forwardPipelineConfigTreeViewEntry);
 
-				console.log("get depth write enabled")
-				const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
-				assertExists(depthWriteEntry);
-				const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
-				const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
-				assertExists(checkbox);
+					console.log("get depth write enabled");
+					const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
+					assertExists(depthWriteEntry);
+					const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
+					const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
+					assertExists(checkbox);
 
-				const checked = await checkbox.evaluate(checkbox => {
-					if (!(checkbox instanceof HTMLInputElement)) throw new Error("Assertion failed, checkbox is not a HTMLInputElement.");
-					return checkbox.checked;
-				});
-				assertEquals(checked, false);
-			},
-		});
+					const checked = await checkbox.evaluate(checkbox => {
+						if (!(checkbox instanceof HTMLInputElement)) throw new Error("Assertion failed, checkbox is not a HTMLInputElement.");
+						return checkbox.checked;
+					});
+					assertEquals(checked, false);
+				},
+			});
 
-		await disconnect();
-	}
+			await disconnect();
+		}
 	},
 });
