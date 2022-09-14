@@ -29,7 +29,6 @@ Deno.test({
 			console.log(i);
 			const {page, disconnect} = await getContext();
 
-
 			console.log("setup new project");
 			await setupNewProject(page, testContext);
 
