@@ -107,7 +107,6 @@ export class IndexedDbUtil {
 
 	constructor(dbName = "keyValuesDb", {
 		objectStoreNames = ["keyValues"],
-		enableLocalStorageFallback = false,
 	} = {}) {
 		this.#dbName = dbName;
 

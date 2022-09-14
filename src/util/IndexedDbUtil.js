@@ -1,10 +1,6 @@
 /**
  * @typedef IndexedDbUtilOptions
  * @property {string[]} [objectStoreNames] List of object store names that will be used.
- * @property {boolean} [enableLocalStorageFallback] Whether to fallback to local storage if IndexedDB fails to open.
- * The LocalStorage fallback will use JSON.stringify to store the data. So you should only use this if you don't
- * use simple types in your data.
- * If IndexedDB is not supported and this value is false, an error will be thrown from the constructor.
  */
 
 export class IndexedDbUtil {
@@ -14,25 +10,16 @@ export class IndexedDbUtil {
 	 */
 	constructor(dbName = "keyValuesDb", {
 		objectStoreNames = ["keyValues"],
-		enableLocalStorageFallback = false,
 	} = {}) {
 		this.dbName = dbName;
 		this.objectStoreNames = objectStoreNames;
 
-		this.supported = false;
-		try {
-			const dbRequest = indexedDB.open(dbName);
-			dbRequest.onupgradeneeded = () => {
-				for (const name of objectStoreNames) {
-					dbRequest.result.createObjectStore(name);
-				}
-			};
-			this.supported = true;
-		} catch (e) {
-			if (!enableLocalStorageFallback) {
-				throw e;
+		const dbRequest = indexedDB.open(dbName);
+		dbRequest.onupgradeneeded = () => {
+			for (const name of objectStoreNames) {
+				dbRequest.result.createObjectStore(name);
 			}
-		}
+		};
 	}
 
 	/**
@@ -50,16 +37,7 @@ export class IndexedDbUtil {
 		});
 	}
 
-	/**
-	 * @param {string} key
-	 * @param {string} objectStoreName
-	 */
-	getLocalStorageName(key, objectStoreName = this.objectStoreNames[0]) {
-		return "indexedDBFallback-" + this.dbName + "-" + objectStoreName + "-" + key;
-	}
-
 	async deleteDb() {
-		if (!this.supported) return;
 		await this.promisifyRequest(indexedDB.deleteDatabase(this.dbName));
 	}
 
@@ -69,16 +47,6 @@ export class IndexedDbUtil {
 	 * @returns {Promise<*>} The value of the key.
 	 */
 	async get(key, objectStoreName = this.objectStoreNames[0]) {
-		if (!this.supported) {
-			let val = localStorage.getItem(this.getLocalStorageName(key, objectStoreName));
-			if (val === null) return null;
-			try {
-				val = JSON.parse(val);
-			} catch (e) {
-				val = null;
-			}
-			return val;
-		}
 		const request = indexedDB.open(this.dbName);
 		const db = await this.promisifyRequest(request);
 		const transaction = db.transaction(objectStoreName, "readonly");
@@ -113,20 +81,6 @@ export class IndexedDbUtil {
 	 * @returns {Promise<void>}
 	 */
 	async getSet(key, cb, objectStoreName = this.objectStoreNames[0], deleteEntry = false) {
-		if (!this.supported) {
-			const newKey = this.getLocalStorageName(key, objectStoreName);
-			/** @type {*} */
-			let val;
-			val = localStorage.getItem(newKey);
-			try {
-				val = JSON.parse(val);
-			} catch (e) {
-				val = null;
-			}
-			const newVal = cb(val);
-			localStorage.setItem(newKey, JSON.stringify(newVal));
-			return;
-		}
 		const request = indexedDB.open(this.dbName);
 		const db = await this.promisifyRequest(request);
 		const transaction = db.transaction(objectStoreName, "readwrite");
