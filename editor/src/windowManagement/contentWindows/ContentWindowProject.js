@@ -84,10 +84,6 @@ export class ContentWindowProject extends ContentWindow {
 						onClick: () => this.createAsset("renda:entity"),
 					},
 					{
-						text: "New Asset Bundle",
-						onClick: () => this.createAsset("renda:assetBundle"),
-					},
-					{
 						text: "New Render Output Config",
 						onClick: () => this.createAsset("renda:renderOutputConfig"),
 					},
