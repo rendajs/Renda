@@ -22,9 +22,13 @@ Deno.test({
 	name: "Creating a new material asset with embedded map and pipeline config",
 	...puppeteerSanitizers,
 	async fn(testContext) {
+		const interval = setInterval(() => {
+			console.log("heartbeat");
+		}, 10_000);
 		for (let i = 0; i < 100; i++) {
 			console.log(i);
 			const {page, disconnect} = await getContext();
+
 
 			console.log("setup new project");
 			await setupNewProject(page, testContext);
@@ -138,5 +142,6 @@ Deno.test({
 
 			await disconnect();
 		}
+		clearInterval(interval);
 	},
 });
