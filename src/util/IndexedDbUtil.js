@@ -4,6 +4,8 @@
  */
 
 export class IndexedDbUtil {
+	#dbPromise;
+
 	/**
 	 * @param {string} dbName The name of the database.
 	 * @param {IndexedDbUtilOptions} options
@@ -14,12 +16,22 @@ export class IndexedDbUtil {
 		this.dbName = dbName;
 		this.objectStoreNames = objectStoreNames;
 
-		const dbRequest = indexedDB.open(dbName);
+		const dbRequest = indexedDB.open(this.dbName);
 		dbRequest.onupgradeneeded = () => {
-			for (const name of objectStoreNames) {
+			for (const name of this.objectStoreNames) {
 				dbRequest.result.createObjectStore(name);
 			}
 		};
+		this.#dbPromise = this.#promisifyRequest(dbRequest);
+	}
+
+	/**
+	 * Closes the connection to the database. Reading and writing to this database
+	 * will throw after calling this.
+	 */
+	async closeConnection() {
+		const db = await this.#dbPromise;
+		db.close();
 	}
 
 	/**
@@ -27,7 +39,7 @@ export class IndexedDbUtil {
 	 * @param {IDBRequest<T>} request
 	 * @returns {Promise<T>}
 	 */
-	async promisifyRequest(request) {
+	async #promisifyRequest(request) {
 		if (request.readyState == "done") return request.result;
 		return await new Promise((resolve, reject) => {
 			request.onsuccess = () => {
@@ -38,7 +50,8 @@ export class IndexedDbUtil {
 	}
 
 	async deleteDb() {
-		await this.promisifyRequest(indexedDB.deleteDatabase(this.dbName));
+		await this.closeConnection();
+		await this.#promisifyRequest(indexedDB.deleteDatabase(this.dbName));
 	}
 
 	/**
@@ -47,12 +60,11 @@ export class IndexedDbUtil {
 	 * @returns {Promise<*>} The value of the key.
 	 */
 	async get(key, objectStoreName = this.objectStoreNames[0]) {
-		const request = indexedDB.open(this.dbName);
-		const db = await this.promisifyRequest(request);
+		const db = await this.#dbPromise;
 		const transaction = db.transaction(objectStoreName, "readonly");
 		const objectStore = transaction.objectStore(objectStoreName);
 		const getRequest = objectStore.get(key);
-		return await this.promisifyRequest(getRequest);
+		return await this.#promisifyRequest(getRequest);
 	}
 
 	/**
@@ -81,24 +93,23 @@ export class IndexedDbUtil {
 	 * @returns {Promise<void>}
 	 */
 	async getSet(key, cb, objectStoreName = this.objectStoreNames[0], deleteEntry = false) {
-		const request = indexedDB.open(this.dbName);
-		const db = await this.promisifyRequest(request);
+		const db = await this.#dbPromise;
 		const transaction = db.transaction(objectStoreName, "readwrite");
 		const objectStore = transaction.objectStore(objectStoreName);
 		const cursorRequest = objectStore.openCursor(key);
-		const cursor = await this.promisifyRequest(cursorRequest);
+		const cursor = await this.#promisifyRequest(cursorRequest);
 		if (cursor) {
 			if (deleteEntry) {
 				const cursorRequest = cursor.delete();
-				await this.promisifyRequest(cursorRequest);
+				await this.#promisifyRequest(cursorRequest);
 			} else {
 				const newVal = cb(cursor.value);
 				const cursorRequest = cursor.update(newVal);
-				await this.promisifyRequest(cursorRequest);
+				await this.#promisifyRequest(cursorRequest);
 			}
 		} else {
 			const putRequest = objectStore.put(cb(undefined), key);
-			await this.promisifyRequest(putRequest);
+			await this.#promisifyRequest(putRequest);
 		}
 	}
 
