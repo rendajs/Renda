@@ -23,6 +23,16 @@ export class IndexedDbUtil {
 			}
 		};
 		this.#dbPromise = this.#promisifyRequest(dbRequest);
+		this.#initDb();
+	}
+
+	async #initDb() {
+		const db = await this.#dbPromise;
+		db.onversionchange = e => {
+			if (e.newVersion == null) {
+				db.close();
+			}
+		};
 	}
 
 	/**
