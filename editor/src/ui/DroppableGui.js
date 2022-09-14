@@ -273,23 +273,6 @@ export class DroppableGui {
 	}
 
 	/**
-	 * Checks if the provided uuid is a valid uuid and if the asset exists.
-	 * Only if the asset exists will the current value be replaced with the new one.
-	 * Normally when using {@linkcode setValue} the value gets set to null when
-	 * the uuid is invalid.
-	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
-	 */
-	async #setUuidValueIfValid(uuid) {
-		if (!uuid || !isUuid(uuid)) return;
-		const assetManager = getEditorInstance().projectManager.assetManager;
-		if (!assetManager) return;
-		const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
-		if (!projectAsset) return;
-		if (!this.#validateAssetType(await projectAsset.getProjectAssetTypeConstructor())) return;
-		this.setValue(uuid);
-	}
-
-	/**
 	 * @template {boolean} [U = false]
 	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [V = "default"]
 	 * @param {DroppableGuiGetValueOptions<U, V>} options
@@ -373,19 +356,22 @@ export class DroppableGui {
 	}
 
 	/**
-	 * @param {import("../../../src/util/mod.js").UuidString?} uuid
+	 * Checks if the provided uuid is a valid uuid and if the asset exists.
+	 * Only if the asset exists will the current value be replaced with the new one.
+	 * Normally when using {@linkcode setValue} the value gets set to null when
+	 * the uuid is invalid.
+	 * @param {import("../../../src/util/mod.js").UuidString | null | undefined} uuid
 	 */
-	async setValueFromAssetUuid(uuid, preloadLiveAsset = false) {
-		if (!uuid) {
-			this.setValueFromProjectAsset(null);
-			this.value = null;
-		} else {
-			const assetManager = getEditorInstance().projectManager.assertAssetManagerExists();
-			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
-			await assetManager.makeAssetUuidConsistent(projectAsset);
-			this.setDefaultAssetLinkUuid(uuid);
-			this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
-		}
+	async #setValueFromAssetUuid(uuid) {
+		if (!uuid || !isUuid(uuid)) return;
+
+		const assetManager = getEditorInstance().projectManager.assertAssetManagerExists();
+		const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
+		if (!projectAsset) return;
+		if (!this.#validateAssetType(await projectAsset.getProjectAssetTypeConstructor())) return;
+		await assetManager.makeAssetUuidPersistent(projectAsset);
+		this.setDefaultAssetLinkUuid(uuid);
+		this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset: true});
 	}
 
 	/**
@@ -597,7 +583,7 @@ export class DroppableGui {
 			const dragData = this.getDraggingProjectAssetData(mimeType);
 			if (this.validateMimeType(dragData)) {
 				const assetUuid = dragData.draggingProjectAssetData.assetUuid;
-				this.setValueFromAssetUuid(assetUuid, true);
+				this.#setValueFromAssetUuid(assetUuid);
 				break;
 			}
 		}
@@ -785,7 +771,7 @@ export class DroppableGui {
 						disabled,
 						onClick: async () => {
 							const uuid = await navigator.clipboard.readText();
-							this.#setUuidValueIfValid(uuid);
+							await this.#setValueFromAssetUuid(uuid);
 						},
 					});
 				}
@@ -892,7 +878,7 @@ export class DroppableGui {
 		});
 		if (permission.state != "denied") {
 			const uuid = await navigator.clipboard.readText();
-			this.#setUuidValueIfValid(uuid);
+			this.#setValueFromAssetUuid(uuid);
 		}
 	};
 
@@ -901,7 +887,7 @@ export class DroppableGui {
 		if (!this.hasFocusWithin) return;
 		e.preventDefault();
 		const uuid = e.clipboardData?.getData("text/plain");
-		this.#setUuidValueIfValid(uuid);
+		this.#setValueFromAssetUuid(uuid);
 	};
 
 	get visibleAssetName() {

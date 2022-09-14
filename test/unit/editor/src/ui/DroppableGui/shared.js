@@ -175,6 +175,7 @@ export function createBasicGui({
 			}
 			return null;
 		},
+		async makeAssetUuidPersistent(asset) {},
 		createEmbeddedAsset: /** @type {typeof createEmbeddedAssetFn} */ (createEmbeddedAssetSpy),
 		getProjectAssetFromUuidOrEmbeddedAssetDataSync: /** @type {typeof getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn} */ (getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy),
 	});

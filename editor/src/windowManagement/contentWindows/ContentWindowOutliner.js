@@ -365,7 +365,7 @@ export class ContentWindowOutliner extends ContentWindow {
 					assertAssetType: ProjectAssetTypeEntity,
 				});
 				if (!projectAsset) throw new Error(`Assertion failed, project asset with uuid ${entityAssetUuid} not found`);
-				await assetManager.makeAssetUuidConsistent(projectAsset);
+				await assetManager.makeAssetUuidPersistent(projectAsset);
 				const entityAsset = await projectAsset.getLiveAsset();
 				if (entityAsset) {
 					/** @type {import("../../assets/projectAssetType/ProjectAssetTypeEntity.js").EntityWithAssetRootUuid} */

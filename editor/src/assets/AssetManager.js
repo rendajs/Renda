@@ -185,7 +185,7 @@ export class AssetManager {
 					for (const [uuid, assetData] of Object.entries(json.assets)) {
 						const projectAsset = await ProjectAsset.guessAssetTypeAndCreate(this, this.projectAssetTypeManager, this.builtInAssetManager, this.fileSystem, {uuid, ...assetData});
 						if (projectAsset) {
-							projectAsset.makeUuidConsistent();
+							projectAsset.makeUuidPersistent();
 							this.projectAssets.set(uuid, projectAsset);
 						}
 					}
@@ -198,7 +198,7 @@ export class AssetManager {
 						});
 						this.storeInternallyCreatedAsset(uuid, asset);
 						const projectAsset = asset.getProjectAsset();
-						projectAsset.makeUuidConsistent();
+						projectAsset.makeUuidPersistent();
 					}
 				}
 
@@ -422,9 +422,9 @@ export class AssetManager {
 	/**
 	 * @param {import("./ProjectAsset.js").ProjectAssetAny?} asset
 	 */
-	async makeAssetUuidConsistent(asset) {
-		if (!asset || asset.needsConsistentUuid || asset.isBuiltIn) return;
-		asset.makeUuidConsistent();
+	async makeAssetUuidPersistent(asset) {
+		if (!asset || asset.needsPersistentUuid || asset.isBuiltIn) return;
+		asset.makeUuidPersistent();
 		await this.saveAssetSettings();
 	}
 

@@ -57,7 +57,7 @@ Deno.test({
 		const asset1 = assetManager.getOrCreateInternallyCreatedAsset({foo: "bar"});
 
 		const projectAsset = asset1.getProjectAsset();
-		await assetManager.makeAssetUuidConsistent(projectAsset);
+		await assetManager.makeAssetUuidPersistent(projectAsset);
 
 		const asset2 = assetManager.getOrCreateInternallyCreatedAsset({foo: "bar"});
 		assertStrictEquals(asset1, asset2);
@@ -97,8 +97,8 @@ Deno.test({
 		const projectAsset = asset1.getProjectAsset();
 		assertStrictEquals(projectAsset.uuid, BASIC_ASSET_UUID);
 
-		// Verify that the uuid stays the same when calling `makeAssetUuidConsistent()` again.
-		await assetManager.makeAssetUuidConsistent(projectAsset);
+		// Verify that the uuid stays the same when calling `makeAssetUuidPersistent()` again.
+		await assetManager.makeAssetUuidPersistent(projectAsset);
 
 		/** @type {import("../../../../../../editor/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
 		const projectSettings = await mockFileSystem.readJson(["ProjectSettings", "assetSettings.json"]);
