@@ -106,7 +106,7 @@ export class ProjectAsset {
 		/** @type {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier | null} */
 		this.assetType = assetType;
 		this.forceAssetType = forceAssetType;
-		this.needsConsistentUuid = false;
+		this.needsPersistentUuid = false;
 		this.isBuiltIn = isBuiltIn;
 		this.isEmbedded = !!embeddedParent;
 		/**
@@ -288,10 +288,12 @@ export class ProjectAsset {
 		return !this.isBuiltIn || this.builtInAssetManager.allowAssetEditing;
 	}
 
-	// call AssetManager.makeAssetUuidConsistent() to also save
-	// the uuid to asset settings file immediately
-	makeUuidConsistent() {
-		this.needsConsistentUuid = true;
+	/**
+	 * You'll probably want to use {@linkcode AssetManager.makeAssetUuidPersistent}
+	 * instead in order to also save the uuid to disk immediately.
+	 */
+	makeUuidPersistent() {
+		this.needsPersistentUuid = true;
 	}
 
 	/**
@@ -299,7 +301,7 @@ export class ProjectAsset {
 	 */
 	get needsAssetSettingsSave() {
 		if (this.forceAssetType) return true;
-		if (this.needsConsistentUuid) return true;
+		if (this.needsPersistentUuid) return true;
 
 		// if asset settings contains at least one key it needs to be saved
 		return Object.keys(this.assetSettings).length > 0;

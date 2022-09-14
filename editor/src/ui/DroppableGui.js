@@ -382,7 +382,7 @@ export class DroppableGui {
 		} else {
 			const assetManager = getEditorInstance().projectManager.assertAssetManagerExists();
 			const projectAsset = await assetManager.getProjectAssetFromUuid(uuid);
-			await assetManager.makeAssetUuidConsistent(projectAsset);
+			await assetManager.makeAssetUuidPersistent(projectAsset);
 			this.setDefaultAssetLinkUuid(uuid);
 			this.setValueFromProjectAsset(projectAsset, {clearDefaultAssetLink: false, preloadLiveAsset});
 		}

@@ -41,6 +41,6 @@ export class InternallyCreatedAsset {
 
 	get needsPersistentUuid() {
 		if (!this.createdProjectAsset) return false;
-		return this.createdProjectAsset.needsConsistentUuid;
+		return this.createdProjectAsset.needsPersistentUuid;
 	}
 }

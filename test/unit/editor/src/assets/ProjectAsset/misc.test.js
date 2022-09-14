@@ -127,11 +127,11 @@ Deno.test({
 });
 
 Deno.test({
-	name: "makeUuidConsistent() makes needsAssetSettingsSave true",
+	name: "makeUuidPersistent() makes needsAssetSettingsSave true",
 	fn() {
 		const {projectAsset} = basicSetup();
 
-		projectAsset.makeUuidConsistent();
+		projectAsset.makeUuidPersistent();
 
 		assertEquals(projectAsset.needsAssetSettingsSave, true);
 	},
