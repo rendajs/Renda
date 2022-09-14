@@ -80,7 +80,10 @@ if (needsE2eTests) {
 
 	browser = await puppeteer.launch({
 		headless,
-		args: ["--enable-unsafe-webgpu"],
+		args: [
+			"--enable-unsafe-webgpu",
+			"--disable-gpu",
+		],
 		devtools: !headless,
 	});
 }
