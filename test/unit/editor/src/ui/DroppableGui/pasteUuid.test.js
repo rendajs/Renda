@@ -1,5 +1,5 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {stub} from "std/testing/mock.ts";
+import {stub, spy, assertSpyCalls, assertSpyCall} from "std/testing/mock.ts";
 import {assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus} from "./shared.js";
 import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
@@ -295,6 +295,32 @@ Deno.test({
 });
 
 Deno.test({
+	name: "paste uuid via context menu makes asset uuid persistent",
+	ignore: true,
+	async fn() {
+		const {mockEditor, dispatchContextMenuEvent, assertContextMenu, clickPaste, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
+
+		try {
+			const assetManager = mockEditor.projectManager.assetManager;
+			assertExists(assetManager);
+			const makePersistentSpy = spy(assetManager, "makeAssetUuidPersistent");
+
+			await dispatchContextMenuEvent();
+			await assertContextMenu(true);
+			await clickPaste();
+			assertSpyCalls(makePersistentSpy, 1);
+			assertSpyCall(makePersistentSpy, 0, {
+				args: [
+					mockProjectAsset,
+				]
+			})
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "paste event, valid uuid",
 	async fn() {
 		const {gui, dispatchFocusEvent, dispatchPasteEvent, uninstall} = await basicSetupForPastingUuid();
@@ -493,6 +519,34 @@ Deno.test({
 			await triggerPasteShortcut();
 			const value = gui.getValue();
 			assertEquals(value, BASIC_PASTED_ASSET_UUID);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+
+Deno.test({
+	name: "paste event makes asset uuid persistent",
+	ignore: true,
+	async fn() {
+		const {mockEditor, dispatchFocusEvent, dispatchPasteEvent, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
+
+
+
+		try {
+			const assetManager = mockEditor.projectManager.assetManager;
+			assertExists(assetManager);
+			const makePersistentSpy = spy(assetManager, "makeAssetUuidPersistent");
+
+			await dispatchFocusEvent(true);
+			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
+			assertSpyCalls(makePersistentSpy, 1);
+			assertSpyCall(makePersistentSpy, 0, {
+				args: [
+					mockProjectAsset,
+				]
+			})
 		} finally {
 			uninstall();
 		}
