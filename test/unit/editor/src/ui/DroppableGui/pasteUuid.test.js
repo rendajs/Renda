@@ -1,5 +1,5 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {stub, spy, assertSpyCalls, assertSpyCall} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {assertContextMenuStructureContains, assertContextMenuStructureNotContainsText, triggerContextMenuItem} from "../../../shared/contextMenuHelpers.js";
 import {basicSetupForContextMenus} from "./shared.js";
 import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
@@ -310,10 +310,8 @@ Deno.test({
 			await clickPaste();
 			assertSpyCalls(makePersistentSpy, 1);
 			assertSpyCall(makePersistentSpy, 0, {
-				args: [
-					mockProjectAsset,
-				]
-			})
+				args: [mockProjectAsset],
+			});
 		} finally {
 			uninstall();
 		}
@@ -525,14 +523,11 @@ Deno.test({
 	},
 });
 
-
 Deno.test({
 	name: "paste event makes asset uuid persistent",
 	ignore: true,
 	async fn() {
 		const {mockEditor, dispatchFocusEvent, dispatchPasteEvent, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
-
-
 
 		try {
 			const assetManager = mockEditor.projectManager.assetManager;
@@ -543,10 +538,8 @@ Deno.test({
 			await dispatchPasteEvent(BASIC_PASTED_ASSET_UUID);
 			assertSpyCalls(makePersistentSpy, 1);
 			assertSpyCall(makePersistentSpy, 0, {
-				args: [
-					mockProjectAsset,
-				]
-			})
+				args: [mockProjectAsset],
+			});
 		} finally {
 			uninstall();
 		}
