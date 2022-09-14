@@ -1,11 +1,13 @@
 /**
  * @param {object} options
+ * @param {import("../../../../../../src/mod.js").UuidString} [options.uuid]
  * @param {unknown} [options.liveAsset]
  * @param {boolean} [options.allowImmediateLiveAssetReturn]
  * @param {unknown} [options.readAssetDataReturnValue]
  * @param {unknown} [options.projectAssetTypeConstructor]
  */
 export function createMockProjectAsset({
+	uuid = "default mock project asset uuid",
 	liveAsset = null,
 	allowImmediateLiveAssetReturn = true,
 	readAssetDataReturnValue = null,
@@ -20,6 +22,7 @@ export function createMockProjectAsset({
 	const previousEmbeddedLiveAssets = new Map();
 
 	const projectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
+		uuid,
 		async waitForInit() {},
 		async getLiveAsset() {
 			if (!allowImmediateLiveAssetReturn) {
@@ -58,6 +61,9 @@ export function createMockProjectAsset({
 		},
 		registerRecursionTrackerLiveAssetChange(assetManager, assetUuid, cb) {},
 		get projectAssetTypeConstructorSync() {
+			return projectAssetTypeConstructor;
+		},
+		async getProjectAssetTypeConstructor() {
 			return projectAssetTypeConstructor;
 		},
 		assertIsAssetTypeSync(projectAssetTypeConstructor) {},
