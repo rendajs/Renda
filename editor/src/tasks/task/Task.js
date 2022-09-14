@@ -36,6 +36,8 @@
  * If the asset was built by another task, the other task will run first in order to update the asset.
  * @property {import("../TaskManager.js").ReadAssetFromUuidSignature} readAssetFromUuid Reads an asset from the file system.
  * If the asset was built by another task, the other task will run first in order to update the asset.
+ * @property {import("../TaskManager.js").RunDependencyTaskSignature} runDependencyTask Runs a task, taking into account that it is a dependency task of the task that this
+ * was called from. When using this function, running tasks are properly reflected in the task ui.
  */
 
 /**
@@ -77,6 +79,25 @@ export class Task {
 	 * @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static configStructure = null;
+
+	/**
+	 * Gets called when the configuration is changed in ui. You can use this
+	 * to transform the data returned by the PropertiesTreeView before it gets
+	 * saved to disk.
+	 * @param {unknown} uiConfigData
+	 */
+	static transformUiToAssetData(uiConfigData) {
+		return uiConfigData;
+	}
+
+	/**
+	 * Gets called when the configuration data from disk is loaded into the ui.
+	 * Use this in combination with {@linkcode transformUiToAssetData}.
+	 * @param {unknown} assetConfigData
+	 */
+	static transformAssetToUiData(assetConfigData) {
+		return assetConfigData;
+	}
 
 	/**
 	 * @param {import("../../Editor.js").Editor} editorInstance

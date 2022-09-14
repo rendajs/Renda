@@ -1,7 +1,8 @@
-import {assertEquals, assertExists, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
+import "../../shared/initializeEditor.js";
+import {assertEquals, assertExists, assertInstanceOf, assertRejects, assertThrows} from "std/testing/asserts.ts";
 import {Task} from "../../../../../editor/src/tasks/task/Task.js";
 import {TaskManager} from "../../../../../editor/src/tasks/TaskManager.js";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
@@ -229,17 +230,56 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Running a non task asset should throw",
+	async fn() {
+		const {cleanup} = basicTaskRunningSetup();
+		try {
+			const manager = new TaskManager();
+
+			const {projectAsset: nonTaskProjectAsset} = createMockProjectAsset({
+				readAssetDataReturnValue: {
+					foo: "bar",
+				},
+			});
+			let init = false;
+			stub(nonTaskProjectAsset, "waitForInit", async () => {
+				init = true;
+			});
+			stub(nonTaskProjectAsset, "assertIsAssetTypeSync", () => {
+				if (init) {
+					throw new Error("Not a task");
+				}
+			});
+
+			await assertRejects(async () => {
+				await manager.runTask(nonTaskProjectAsset);
+			}, Error, "Not a task");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
 	name: "running a task with a dependency task",
 	async fn() {
 		const DEPENDENDCY_PATH = ["path", "to", "dependency.txt"];
 		const TOUCHED_ASSET_UUID = "TOUCHED_ASSET_UUID";
+		const CHILD_TASK_UUID = "CHILD_TASK_UUID";
 
 		const {projectAsset: dependencyProjectAsset1} = createMockProjectAsset();
 		const {projectAsset: dependencyProjectAsset2} = createMockProjectAsset();
+		const {projectAsset: childTaskProjectAsset} = createMockProjectAsset({
+			readAssetDataReturnValue: {
+				taskType: "namespace:dependency",
+				taskConfig: {},
+			},
+		});
 
 		/** @type {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny>} */
 		const uuidProjectAssets = new Map();
 		uuidProjectAssets.set(TOUCHED_ASSET_UUID, dependencyProjectAsset2);
+		uuidProjectAssets.set(CHILD_TASK_UUID, childTaskProjectAsset);
 		const {cleanup} = basicTaskRunningSetup({
 			pathProjectAssets: [
 				{
@@ -284,6 +324,7 @@ Deno.test({
 			 * @typedef ParentTaskConfig
 			 * @property {import("../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [assetPath]
 			 * @property {import("../../../../../src/mod.js").UuidString} [assetUuid]
+			 * @property {import("../../../../../src/mod.js").UuidString} [taskAssetUuid]
 			 */
 
 			/** @extends {Task<ParentTaskConfig>} */
@@ -298,6 +339,8 @@ Deno.test({
 						await options.readAssetFromPath(DEPENDENDCY_PATH, {});
 					} else if (options.config.assetUuid) {
 						await options.readAssetFromUuid(options.config.assetUuid, {});
+					} else if (options.config.taskAssetUuid) {
+						await options.runDependencyTask(options.config.taskAssetUuid);
 					}
 					return {};
 				}
@@ -331,20 +374,30 @@ Deno.test({
 				},
 			});
 
+			const {projectAsset: parentTaskAsset3} = createMockProjectAsset({
+				readAssetDataReturnValue: {
+					taskType: "namespace:parent",
+					/** @type {ParentTaskConfig} */
+					taskConfig: {
+						taskAssetUuid: CHILD_TASK_UUID,
+					},
+				},
+			});
+
 			// First we run the dependency to let the manager know dependency.txt is created by this task.
 			await manager.runTask(dependencyTaskAsset);
-
 			assertEquals(dependencyRunCount, 1);
 
 			// Then we run the first parent task, which should run the dependency task again because DEPENDENDCY_PATH was written.
 			await manager.runTask(parentTaskAsset1);
-
 			assertEquals(dependencyRunCount, 2);
 
 			// Then we run the second parent task, which should run the dependency task a third time because TOUCHED_ASSET_UUID was touched.
 			await manager.runTask(parentTaskAsset2);
-
 			assertEquals(dependencyRunCount, 3);
+
+			await manager.runTask(parentTaskAsset3);
+			assertEquals(dependencyRunCount, 4);
 		} finally {
 			cleanup();
 		}
@@ -478,5 +531,26 @@ Deno.test({
 		} finally {
 			cleanup();
 		}
+	},
+});
+
+Deno.test({
+	name: "transformUiToAssetData and transformAssetToUiData",
+	fn() {
+		const manager = new TaskManager();
+
+		const taskType = "namespace:type";
+
+		/** @extends {Task<{}>} */
+		class ExtendedTask extends Task {
+			static type = taskType;
+		}
+		manager.registerTaskType(ExtendedTask);
+
+		const result1 = manager.transformUiToAssetData("namespace:type", {foo: "bar"});
+		assertEquals(result1, {foo: "bar"});
+
+		const result2 = manager.transformAssetToUiData("namespace:type", {foo: "bar"});
+		assertEquals(result2, {foo: "bar"});
 	},
 });

@@ -148,6 +148,7 @@ function createRunTaskOptions({
 		async readAssetFromUuid(uuid, opts) {
 			return null;
 		},
+		async runDependencyTask(uuid) {},
 	};
 	return options;
 }

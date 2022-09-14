@@ -23,6 +23,7 @@ export function createMockProjectAsset({
 
 	const projectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
 		uuid,
+		async waitForInit() {},
 		async getLiveAsset() {
 			if (!allowImmediateLiveAssetReturn) {
 				/** @type {Promise<void>} */
@@ -65,6 +66,7 @@ export function createMockProjectAsset({
 		async getProjectAssetTypeConstructor() {
 			return projectAssetTypeConstructor;
 		},
+		assertIsAssetTypeSync(projectAssetTypeConstructor) {},
 	});
 	return {
 		projectAsset,

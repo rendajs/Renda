@@ -9,4 +9,5 @@
 		"cov.lcov"
 	],
 	"javascript.preferences.importModuleSpecifier": "relative",
+	"task.allowAutomaticTasks": "on",
 }

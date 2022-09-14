@@ -5,6 +5,7 @@ import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js
 import {StorageType, objectToBinary} from "../../../src/util/binarySerialization.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {RecursionTracker} from "./liveAssetDataRecursionTracker/RecursionTracker.js";
+import {AssetManager} from "./AssetManager.js";
 
 /** @typedef {ProjectAsset<any>} ProjectAssetAny */
 
@@ -210,6 +211,19 @@ export class ProjectAsset {
 	async getProjectAssetTypeConstructor() {
 		await this.waitForInit();
 		return this.projectAssetTypeConstructorSync;
+	}
+
+	/**
+	 * Asserts that this asset is of the specified ProjectAssetType.
+	 * Unfortunately it is not possible to have a asynchronous version of this
+	 * function due to limitations with TypeScript assertions (https://github.com/microsoft/TypeScript/issues/34636).
+	 * So if you wish to use this in a async call, be sure to call {@linkcode waitForInit} first.
+	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} T
+	 * @param {new (...args: any[]) => T} projectAssetTypeConstructor
+	 * @returns {asserts this is ProjectAsset<T>}
+	 */
+	assertIsAssetTypeSync(projectAssetTypeConstructor) {
+		AssetManager.assertProjectAssetIsType(this.projectAssetTypeConstructorSync, projectAssetTypeConstructor);
 	}
 
 	/**
