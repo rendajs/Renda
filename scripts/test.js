@@ -82,6 +82,9 @@ if (needsE2eTests) {
 		headless,
 		args: [
 			"--enable-unsafe-webgpu",
+			"--no-sandbox",
+			"--disable-setuid-sandbox",
+			"--disable-accelerated-2d-canvas",
 			"--disable-gpu",
 		],
 		devtools: !headless,
