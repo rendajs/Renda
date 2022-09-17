@@ -67,7 +67,7 @@ await dev({
 			type: "downloadNpmPackage",
 			package: "typescript@4.8.3",
 			ignore: fast,
-		}
+		},
 	],
 });
 
