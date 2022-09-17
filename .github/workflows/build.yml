@@ -66,7 +66,7 @@ jobs:
 
       - name: Setup Renda
         # Sets up a development environment required for type the next steps to pass.
-        run: deno task dev --no-serve
+        run: deno task dev --no-serve --fast
 
       # Build
       - name: Build engine

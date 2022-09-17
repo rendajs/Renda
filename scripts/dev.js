@@ -11,7 +11,7 @@
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
 import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js";
-import {dev} from "https://deno.land/x/dev@v0.0.2/mod.js";
+import {dev} from "https://raw.githubusercontent.com/jespertheend/dev/d1c3bef081679048558a1851916f1baca972293f/mod.js";
 
 /** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js").GenerateTypesOptions} */
 const generateTypesOptions = {
@@ -50,6 +50,8 @@ await generateTypes(generateTypesOptions);
 setCwd();
 Deno.chdir("..");
 
+const fast = Deno.args.includes("--fast");
+
 await dev({
 	actions: [
 		{
@@ -60,6 +62,11 @@ await dev({
 			type: "downloadNpmPackage",
 			package: "rollup-plugin-resolve-url-objects@0.0.4",
 			downloadDependencies: true,
+		},
+		{
+			type: "downloadNpmPackage",
+			package: "typescript@4.8.3",
+			ignore: fast,
 		},
 	],
 });
