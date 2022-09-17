@@ -36,7 +36,7 @@ jobs:
         # For more information see: https://github.com/denoland/setup-deno
         uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
         with:
-          deno-version: "1.25.1"
+          deno-version: "1.25.3"
 
       - name: Cache Deno dependencies
         uses: actions/cache@v3

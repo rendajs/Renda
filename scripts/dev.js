@@ -54,10 +54,6 @@ await dev({
 	actions: [
 		{
 			type: "downloadNpmPackage",
-			package: "typescript@4.8.3",
-		},
-		{
-			type: "downloadNpmPackage",
 			package: "rollup@2.60.0",
 		},
 		{
