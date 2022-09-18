@@ -484,7 +484,6 @@ Deno.test({
 
 Deno.test({
 	name: "Issue #132: Stackoverflow when getting world matrix",
-	only: true,
 	fn() {
 		// When passing the result from Mat4.compose() back in to Mat4.decompose()
 		// the values might not always be exactly the same, probably due to
@@ -508,6 +507,7 @@ Deno.test({
 		try {
 			const entity = new Entity();
 			entity.worldPos.set(1, 2, 3);
+			/* eslint-disable-next-line no-unused-expressions */
 			entity.worldMatrix;
 		} finally {
 			decomposeStub.restore();
