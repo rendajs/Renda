@@ -100,6 +100,9 @@ export class Entity {
 		this._scale.onChange(this.boundMarkLocalMatrixDirty);
 
 		/** @private */
+		this.worldPosRotScaleDirty = false;
+
+		/** @private */
 		this.boundOnWorldPosChange = this.onWorldPosChange.bind(this);
 		/** @private */
 		this._worldPos = new Vec3();
@@ -325,7 +328,7 @@ export class Entity {
 	 * @returns {Vec3}
 	 */
 	get worldPos() {
-		this.updateWorldMatrixIfDirty();
+		this.updateWorldPosRotScaleIfDirty();
 		return this._worldPos;
 	}
 
@@ -333,7 +336,7 @@ export class Entity {
 	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} value
 	 */
 	set worldPos(value) {
-		this.updateWorldMatrixIfDirty();
+		this.updateWorldPosRotScaleIfDirty();
 		this._worldPos.set(value);
 	}
 
@@ -341,7 +344,7 @@ export class Entity {
 	 * @returns {Quat}
 	 */
 	get worldRot() {
-		this.updateWorldMatrixIfDirty();
+		this.updateWorldPosRotScaleIfDirty();
 		return this._worldRot;
 	}
 
@@ -349,7 +352,7 @@ export class Entity {
 	 * @param {import("../math/Quat.js").QuatParameterSingle} value
 	 */
 	set worldRot(value) {
-		this.updateWorldMatrixIfDirty();
+		this.updateWorldPosRotScaleIfDirty();
 		this._worldRot.set(value);
 	}
 
@@ -357,7 +360,7 @@ export class Entity {
 	 * @returns {Vec3}
 	 */
 	get worldScale() {
-		this.updateWorldMatrixIfDirty();
+		this.updateWorldPosRotScaleIfDirty();
 		return this._worldScale;
 	}
 
@@ -365,7 +368,7 @@ export class Entity {
 	 * @param {import("../math/Vec3.js").Vec3ParameterSingle} value
 	 */
 	set worldScale(value) {
-		this.updateWorldMatrixIfDirty();
+		this.updateWorldPosRotScaleIfDirty();
 		this._worldScale.set(value);
 	}
 
@@ -429,11 +432,21 @@ export class Entity {
 				this._worldMatrix = this.localMatrix.clone();
 			}
 			this.worldMatrixDirty = false;
+			this.worldPosRotScaleDirty = true;
 		}
+	}
+
+	/**
+	 * @private
+	 */
+	updateWorldPosRotScaleIfDirty() {
+		this.updateWorldMatrixIfDirty();
+		if (!this.worldPosRotScaleDirty) return;
 		const {pos, rot, scale} = this._worldMatrix.decompose();
 		this._worldPos.set(pos);
 		this._worldRot.set(rot);
 		this._worldScale.set(scale);
+		this.worldPosRotScaleDirty = false;
 	}
 
 	/**
@@ -447,10 +460,10 @@ export class Entity {
 			pos = this._worldPos.clone();
 		} else {
 			// The current world position might be old, so if only a single
-			// component has changed, we want to update the world matrix and
-			// only use the changed component.
+			// component has changed, we want to update the world pos rot and
+			// scale and only use the changed component.
 			const desiredWorldPos = this._worldPos.clone();
-			this.updateWorldMatrixIfDirty();
+			this.updateWorldPosRotScaleIfDirty();
 			pos = this._worldPos.clone();
 
 			if (changedComponents & 0x100) {
@@ -473,15 +486,40 @@ export class Entity {
 
 	/**
 	 * @private
+	 * @param {number} changedComponents
 	 */
-	onWorldRotChange() {
-		const newLocalRot = this._worldRot.clone();
+	onWorldRotChange(changedComponents) {
+		let rot;
+
+		if (changedComponents == 0x1111) {
+			rot = this._worldRot.clone();
+		} else {
+			// The current world rotation might be old, so if only a single
+			// component has changed, we want to update the world pos rot and
+			// scale and only use the changed component.
+			const desiredWorldRot = this._worldRot.clone();
+			this.updateWorldPosRotScaleIfDirty();
+			rot = this._worldRot.clone();
+
+			if (changedComponents & 0x1000) {
+				rot.x = desiredWorldRot.x;
+			}
+			if (changedComponents & 0x0100) {
+				rot.y = desiredWorldRot.y;
+			}
+			if (changedComponents & 0x0010) {
+				rot.z = desiredWorldRot.z;
+			}
+			if (changedComponents & 0x0001) {
+				rot.w = desiredWorldRot.w;
+			}
+		}
 
 		if (this.parent) {
 			const parentMat = this.parent.worldMatrix.inverse();
-			newLocalRot.preMultiply(parentMat.getRotation());
+			rot.preMultiply(parentMat.getRotation());
 		}
-		this.rot = newLocalRot;
+		this.rot = rot;
 	}
 
 	/**
@@ -495,10 +533,10 @@ export class Entity {
 			scale = this._worldScale.clone();
 		} else {
 			// The current world scale might be old, so if only a single
-			// component has changed, we want to update the world matrix and
-			// only use the changed component.
+			// component has changed, we want to update the world pos rot and
+			// scale and only use the changed component.
 			const desiredWorldScale = this._worldScale.clone();
-			this.updateWorldMatrixIfDirty();
+			this.updateWorldPosRotScaleIfDirty();
 			scale = this._worldScale.clone();
 
 			if (changedComponents & 0x100) {

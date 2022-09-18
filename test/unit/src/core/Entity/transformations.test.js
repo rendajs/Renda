@@ -1,4 +1,5 @@
 import {assertEquals} from "std/testing/asserts.ts";
+import {stub} from "std/testing/mock.ts";
 import {Entity, Mat4, Quat, Vec3} from "../../../../../src/mod.js";
 import {assertMatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
 
@@ -478,5 +479,38 @@ Deno.test({
 		entity.parent = parent;
 		entity.parent = null;
 		assertMatAlmostEquals(entity.worldMatrix, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+	},
+});
+
+Deno.test({
+	name: "Issue #132: Stackoverflow when getting world matrix",
+	fn() {
+		// When passing the result from Mat4.compose() back in to Mat4.decompose()
+		// the values might not always be exactly the same, probably due to
+		// floating point errors.
+		// To simulate this behaviour we make Mat4.decompose return a different
+		// value every time it is called.
+		// When all components of pos/rot/scale are changed, the entity simply
+		// replaces the entire vec3/quat. But if one of the components stay
+		// the same, a special path is taken where the entity tries to only
+		// update the changed components. This was where issue #132 used to happen.
+		// That is why we only increment the first component of the decompose result.
+		let i = 0;
+		const decomposeStub = stub(Mat4.prototype, "decompose", () => {
+			return {
+				pos: new Vec3(i++, 0, 0),
+				rot: new Quat(i++, 0, 0, 1),
+				scale: new Vec3(i++, 1, 1),
+			};
+		});
+
+		try {
+			const entity = new Entity();
+			entity.worldPos.set(1, 2, 3);
+			/* eslint-disable-next-line no-unused-expressions */
+			entity.worldMatrix;
+		} finally {
+			decomposeStub.restore();
+		}
 	},
 });
