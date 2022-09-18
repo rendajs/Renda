@@ -10,4 +10,7 @@
 	],
 	"javascript.preferences.importModuleSpecifier": "relative",
 	"task.allowAutomaticTasks": "on",
+	"[javascript]": {
+		"editor.defaultFormatter": "rendajs.rendajs-dev"
+	},
 }
