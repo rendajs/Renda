@@ -482,7 +482,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "??",
+	name: "Issue #132: Stackoverflow when getting world matrix",
 	fn() {
 		const entity = new Entity({
 			matrix: new Mat4([
