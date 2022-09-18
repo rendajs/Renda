@@ -3,11 +3,30 @@ import {rule as noDefaultExportsRule} from "../.eslintrules/no-default-exports.j
 import {rule as noModImportsRule} from "../.eslintrules/no-mod-imports.js";
 import {rule as noThisInStaticMethodRule} from "../.eslintrules/no-this-in-static-method.js";
 import {setCwd} from "chdir-anywhere";
+import {readAll} from "std/streams/mod.ts";
 
 setCwd();
 Deno.chdir("..");
 
-const fix = Deno.args.includes("--fix");
+const fixPrefix = "--fix";
+const fix = Deno.args.includes(fixPrefix);
+
+const ioPrefix = "--io";
+const useIo = Deno.args.includes(ioPrefix);
+
+let fileArg = null;
+const fileArgPrefix = "--file=";
+for (const arg of Deno.args) {
+	if (arg.startsWith(fileArgPrefix)) {
+		fileArg = arg.slice(fileArgPrefix.length);
+		break;
+	}
+}
+
+if (useIo) {
+	if (!fileArg) throw new Error(`${fileArgPrefix} is required when ${ioPrefix} is used.`);
+	if (!fix) throw new Error(`${fixPrefix} is required when ${ioPrefix} is used.`);
+}
 
 /** @type {import("eslint").Rule.RuleModule} */
 const dummyRule = {
@@ -41,18 +60,43 @@ const eslint = new ESLint({
 	fix,
 });
 
-const results = await eslint.lintFiles(["**/*.js"]);
-
-if (fix) {
-	await ESLint.outputFixes(results);
+/**
+ * @param {string | undefined} str
+ */
+async function writeStdout(str) {
+	if (!str) return;
+	const textEncoder = new TextEncoder();
+	const stdout = textEncoder.encode(str);
+	await Deno.stdout.write(stdout);
 }
 
-const formatter = await eslint.loadFormatter("stylish");
-const resultText = await formatter.format(results);
-console.log(resultText);
+if (useIo) {
+	const fileBuffer = await readAll(Deno.stdin);
+	const textDecoder = new TextDecoder();
+	const fileContent = textDecoder.decode(fileBuffer);
+	const filePath = /** @type {string} */ (fileArg); // We already checked if it was null earlier.
+	const results = await eslint.lintText(fileContent, {
+		filePath,
+	});
+	if (results.length < 1) {
+		throw new Error("Failed to apply fixes, no results.");
+	} else if (results.length > 1) {
+		throw new Error("Failed to apply fixes, more than one result.");
+	}
+	await writeStdout(results[0].output);
+} else {
+	const results = await eslint.lintFiles("**/*.js");
+	if (fix) {
+		await ESLint.outputFixes(results);
+	}
 
-for (const result of results) {
-	if (result.messages.length > 0) {
-		Deno.exit(1);
+	const formatter = await eslint.loadFormatter("stylish");
+	const resultText = await formatter.format(results);
+	await writeStdout(resultText);
+
+	for (const result of results) {
+		if (result.messages.length > 0) {
+			Deno.exit(1);
+		}
 	}
 }
