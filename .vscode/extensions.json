@@ -1,6 +1,5 @@
 {
 	"recommendations": [
-		"dbaeumer.vscode-eslint",
 		"denoland.vscode-deno",
 		"ryanluker.vscode-coverage-gutters",
 	]
