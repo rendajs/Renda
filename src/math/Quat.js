@@ -2,6 +2,8 @@ import {Vec2} from "./Vec2.js";
 import {Vec3} from "./Vec3.js";
 import {Vec4} from "./Vec4.js";
 
+/** @typedef {(changedComponents: number) => void} OnQuatChangeCallback */
+
 /**
  * @typedef {() => Quat} quatSetEmptySignature
  * @typedef {(vec: Quat) => Quat} quatSetQuatSignature
@@ -22,7 +24,7 @@ export class Quat {
 	 * @param {QuatParameters} args
 	 */
 	constructor(...args) {
-		/** @type {Set<() => void>} */
+		/** @type {Set<OnQuatChangeCallback>} */
 		this.onChangeCbs = new Set();
 		this._x = 0;
 		this._y = 0;
@@ -35,6 +37,11 @@ export class Quat {
 	 * @param {QuatParameters} args
 	 */
 	set(...args) {
+		const prevX = this._x;
+		const prevY = this._y;
+		const prevZ = this._z;
+		const prevW = this._w;
+
 		if (args.length == 1) {
 			const arg = args[0];
 			if (arg instanceof Quat) {
@@ -73,7 +80,13 @@ export class Quat {
 			if (w != undefined) this._w = w;
 		}
 
-		this.fireOnChange();
+		let changedComponents = 0x0000;
+		if (this._x != prevX) changedComponents |= 0x1000;
+		if (this._y != prevY) changedComponents |= 0x0100;
+		if (this._z != prevZ) changedComponents |= 0x0010;
+		if (this._w != prevW) changedComponents |= 0x0001;
+		if (changedComponents != 0x0000) this.fireOnChange(changedComponents);
+		return this;
 	}
 
 	clone() {
@@ -85,7 +98,7 @@ export class Quat {
 	}
 	set x(value) {
 		this._x = value;
-		this.fireOnChange();
+		this.fireOnChange(0x1000);
 	}
 
 	get y() {
@@ -93,7 +106,7 @@ export class Quat {
 	}
 	set y(value) {
 		this._y = value;
-		this.fireOnChange();
+		this.fireOnChange(0x0100);
 	}
 
 	get z() {
@@ -101,7 +114,7 @@ export class Quat {
 	}
 	set z(value) {
 		this._z = value;
-		this.fireOnChange();
+		this.fireOnChange(0x0010);
 	}
 
 	get w() {
@@ -109,7 +122,7 @@ export class Quat {
 	}
 	set w(value) {
 		this._w = value;
-		this.fireOnChange();
+		this.fireOnChange(0x0001);
 	}
 
 	/**
@@ -277,20 +290,24 @@ export class Quat {
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @param {OnQuatChangeCallback} cb
 	 */
 	onChange(cb) {
 		this.onChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {() => void} cb
+	 * @param {OnQuatChangeCallback} cb
 	 */
 	removeOnChange(cb) {
 		this.onChangeCbs.delete(cb);
 	}
 
-	fireOnChange() {
-		this.onChangeCbs.forEach(cb => cb());
+	/**
+	 * @private
+	 * @param {number} changedComponents
+	 */
+	fireOnChange(changedComponents) {
+		this.onChangeCbs.forEach(cb => cb(changedComponents));
 	}
 }
