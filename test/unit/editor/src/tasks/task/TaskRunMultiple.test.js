@@ -138,7 +138,7 @@ function basicSetupForRunTask({
 	/**
 	 * @type {import("std/testing/mock.ts").Spy}
 	 */
-	const runDependencyTaskSpy = spy(async uuid => {
+	const runDependencyTaskAssetSpy = spy(async uuid => {
 		/** @type {Promise<void>} */
 		const promise = new Promise(cb => dependencyResolveCallbacks.push(cb));
 		await promise;
@@ -153,7 +153,7 @@ function basicSetupForRunTask({
 		async readAssetFromUuid() {
 			throw new Error("not implemented");
 		},
-		runDependencyTask: runDependencyTaskSpy,
+		runDependencyTaskAsset: runDependencyTaskAssetSpy,
 	});
 	let runTaskPromiseResolved = false;
 	(async () => {
@@ -171,7 +171,7 @@ function basicSetupForRunTask({
 	}
 
 	return {
-		runDependencyTaskSpy,
+		runDependencyTaskAssetSpy,
 		runTaskPromise,
 		resolveNextDependencies,
 		/**
@@ -191,7 +191,7 @@ function basicSetupForRunTask({
 Deno.test({
 	name: "runTask single array of parallel tasks",
 	async fn() {
-		const {runDependencyTaskSpy, assertTaskResolving} = basicSetupForRunTask({
+		const {runDependencyTaskAssetSpy, assertTaskResolving} = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					parallel: true,
@@ -204,14 +204,14 @@ Deno.test({
 			},
 		});
 
-		assertSpyCalls(runDependencyTaskSpy, 3);
-		assertSpyCall(runDependencyTaskSpy, 0, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 3);
+		assertSpyCall(runDependencyTaskAssetSpy, 0, {
 			args: ["task1"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 1, {
+		assertSpyCall(runDependencyTaskAssetSpy, 1, {
 			args: ["task2"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 2, {
+		assertSpyCall(runDependencyTaskAssetSpy, 2, {
 			args: ["task3"],
 		});
 
@@ -222,7 +222,7 @@ Deno.test({
 Deno.test({
 	name: "runTask single array of non-parallel tasks",
 	async fn() {
-		const {runDependencyTaskSpy, assertTaskResolving, resolveNextDependencies} = basicSetupForRunTask({
+		const {runDependencyTaskAssetSpy, assertTaskResolving, resolveNextDependencies} = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					parallel: false,
@@ -235,20 +235,20 @@ Deno.test({
 			},
 		});
 
-		assertSpyCalls(runDependencyTaskSpy, 1);
-		assertSpyCall(runDependencyTaskSpy, 0, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 1);
+		assertSpyCall(runDependencyTaskAssetSpy, 0, {
 			args: ["task1"],
 		});
 
 		await resolveNextDependencies();
-		assertSpyCalls(runDependencyTaskSpy, 2);
-		assertSpyCall(runDependencyTaskSpy, 1, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 2);
+		assertSpyCall(runDependencyTaskAssetSpy, 1, {
 			args: ["task2"],
 		});
 
 		await resolveNextDependencies();
-		assertSpyCalls(runDependencyTaskSpy, 3);
-		assertSpyCall(runDependencyTaskSpy, 2, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 3);
+		assertSpyCall(runDependencyTaskAssetSpy, 2, {
 			args: ["task3"],
 		});
 
@@ -259,7 +259,7 @@ Deno.test({
 Deno.test({
 	name: "tasks run in parallel by default",
 	async fn() {
-		const {runDependencyTaskSpy, assertTaskResolving} = basicSetupForRunTask({
+		const {runDependencyTaskAssetSpy, assertTaskResolving} = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					tasks: [
@@ -271,14 +271,14 @@ Deno.test({
 			},
 		});
 
-		assertSpyCalls(runDependencyTaskSpy, 3);
-		assertSpyCall(runDependencyTaskSpy, 0, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 3);
+		assertSpyCall(runDependencyTaskAssetSpy, 0, {
 			args: ["task1"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 1, {
+		assertSpyCall(runDependencyTaskAssetSpy, 1, {
 			args: ["task2"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 2, {
+		assertSpyCall(runDependencyTaskAssetSpy, 2, {
 			args: ["task3"],
 		});
 
@@ -289,7 +289,7 @@ Deno.test({
 Deno.test({
 	name: "several nested tasks",
 	async fn() {
-		const {runDependencyTaskSpy, assertTaskResolving, resolveNextDependencies} = basicSetupForRunTask({
+		const {runDependencyTaskAssetSpy, assertTaskResolving, resolveNextDependencies} = basicSetupForRunTask({
 			config: {
 				taskGroup: {
 					tasks: [
@@ -315,38 +315,38 @@ Deno.test({
 			},
 		});
 
-		assertSpyCalls(runDependencyTaskSpy, 3);
-		assertSpyCall(runDependencyTaskSpy, 0, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 3);
+		assertSpyCall(runDependencyTaskAssetSpy, 0, {
 			args: ["task1"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 1, {
+		assertSpyCall(runDependencyTaskAssetSpy, 1, {
 			args: ["task2a"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 2, {
+		assertSpyCall(runDependencyTaskAssetSpy, 2, {
 			args: ["task3"],
 		});
 
 		await resolveNextDependencies(3);
-		assertSpyCalls(runDependencyTaskSpy, 4);
-		assertSpyCall(runDependencyTaskSpy, 3, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 4);
+		assertSpyCall(runDependencyTaskAssetSpy, 3, {
 			args: ["task2b"],
 		});
 
 		await resolveNextDependencies();
-		assertSpyCalls(runDependencyTaskSpy, 5);
-		assertSpyCall(runDependencyTaskSpy, 4, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 5);
+		assertSpyCall(runDependencyTaskAssetSpy, 4, {
 			args: ["task2c"],
 		});
 
 		await resolveNextDependencies();
-		assertSpyCalls(runDependencyTaskSpy, 8);
-		assertSpyCall(runDependencyTaskSpy, 5, {
+		assertSpyCalls(runDependencyTaskAssetSpy, 8);
+		assertSpyCall(runDependencyTaskAssetSpy, 5, {
 			args: ["task2ci"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 6, {
+		assertSpyCall(runDependencyTaskAssetSpy, 6, {
 			args: ["task2cii"],
 		});
-		assertSpyCall(runDependencyTaskSpy, 7, {
+		assertSpyCall(runDependencyTaskAssetSpy, 7, {
 			args: ["task2ciii"],
 		});
 

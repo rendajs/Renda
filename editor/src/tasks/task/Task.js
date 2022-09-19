@@ -36,8 +36,9 @@
  * If the asset was built by another task, the other task will run first in order to update the asset.
  * @property {import("../TaskManager.js").ReadAssetFromUuidSignature} readAssetFromUuid Reads an asset from the file system.
  * If the asset was built by another task, the other task will run first in order to update the asset.
- * @property {import("../TaskManager.js").RunDependencyTaskSignature} runDependencyTask Runs a task, taking into account that it is a dependency task of the task that this
- * was called from. When using this function, running tasks are properly reflected in the task ui.
+ * @property {import("../TaskManager.js").RunDependencyTaskAssetSignature} runDependencyTaskAsset Runs a task, taking into account
+ * that it is a dependency task of the task that this was called from.
+ * When using this function, running tasks are properly reflected in the task ui.
  */
 
 /**

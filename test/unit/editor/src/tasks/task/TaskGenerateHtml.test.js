@@ -52,7 +52,7 @@ const basicRunTaskOptions = {
 	async readAssetFromUuid(uuid, opts) {
 		return null;
 	},
-	async runDependencyTask(uuid) {},
+	async runDependencyTaskAsset(uuid) {},
 };
 
 Deno.test({

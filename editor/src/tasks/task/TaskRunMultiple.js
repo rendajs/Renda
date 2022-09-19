@@ -159,7 +159,7 @@ export class TaskRunMultiple extends Task {
 	/**
 	 * @param {import("./Task.js").RunTaskOptions<TaskRunMultipleConfig>} options
 	 */
-	async runTask({config, runDependencyTask}) {
+	async runTask({config, runDependencyTaskAsset}) {
 		if (!config.taskGroup) return {};
 
 		/**
@@ -167,7 +167,7 @@ export class TaskRunMultiple extends Task {
 		 */
 		async function runTaskGroup(taskGroup) {
 			if (typeof taskGroup == "string") {
-				await runDependencyTask(taskGroup);
+				await runDependencyTaskAsset(taskGroup);
 			} else if (taskGroup.tasks) {
 				const parallel = taskGroup.parallel ?? true;
 				if (parallel) {

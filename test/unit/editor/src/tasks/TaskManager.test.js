@@ -340,7 +340,7 @@ Deno.test({
 					} else if (options.config.assetUuid) {
 						await options.readAssetFromUuid(options.config.assetUuid, {});
 					} else if (options.config.taskAssetUuid) {
-						await options.runDependencyTask(options.config.taskAssetUuid);
+						await options.runDependencyTaskAsset(options.config.taskAssetUuid);
 					}
 					return {};
 				}

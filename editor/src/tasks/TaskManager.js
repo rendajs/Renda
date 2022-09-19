@@ -13,7 +13,7 @@ import {Task} from "./task/Task.js";
  */
 
 /**
- * @typedef {(uuid: import("../../../src/mod.js").UuidString) => Promise<void>} RunDependencyTaskSignature
+ * @typedef {(uuid: import("../../../src/mod.js").UuidString) => Promise<void>} RunDependencyTaskAssetSignature
  */
 
 /**
@@ -170,7 +170,7 @@ export class TaskManager {
 				const asset = await assetManager?.getProjectAssetFromUuid(uuid, assertionOptions) || null;
 				return await runDependencyTasksAndRead(asset);
 			},
-			runDependencyTask: async uuid => {
+			runDependencyTaskAsset: async uuid => {
 				const taskAsset = await assetManager?.getProjectAssetFromUuid(uuid, {
 					assertAssetType: [ProjectAssetTypeTask],
 				});
