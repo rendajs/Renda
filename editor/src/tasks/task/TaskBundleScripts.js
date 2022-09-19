@@ -17,7 +17,7 @@ import {Task} from "./Task.js";
  * @extends {Task<TaskBundleScriptsConfig>}
  */
 export class TaskBundleScripts extends Task {
-	static uiName = "Bundle scripts";
+	static uiName = "Bundle Scripts";
 	static type = "renda:bundleScripts";
 
 	// @rollup-plugin-resolve-url-objects
