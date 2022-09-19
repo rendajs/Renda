@@ -48,7 +48,7 @@ export class TaskGenerateHtml extends Task {
 	});
 
 	/**
-	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateHtmlConfig>} config
+	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateHtmlConfig>} options
 	 */
 	async runTask({config}) {
 		const assetManager = this.editorInstance.projectManager.assetManager;

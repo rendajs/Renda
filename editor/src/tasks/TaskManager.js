@@ -17,12 +17,23 @@ import {Task} from "./task/Task.js";
  */
 
 /**
- * Options passed into {@linkcode TaskManager.runTask}.
- * @typedef RunTaskOptions
+ * Options passed into {@linkcode TaskManager.runTaskAsset}.
+ * @typedef RunTaskAssetOptions
  * @property {Object<string, string>} [environmentVariables] These environment variables will be
  * applied to the task config. Any environment variables specified in the task asset will be replaced.
  * Both the environment variables passed in the options object as well as the variables stored in
  * the task asset are passed down to any child tasks that are run as a result of running this task.
+ */
+
+/**
+ * Don't use this, use {@linkcode RunTaskOptions} instead.
+ * @typedef RunTaskOptionsExtra
+ * @property {import("../assets/ProjectAsset.js").ProjectAssetAny} taskAsset
+ */
+
+/**
+ * Options passed into {@linkcode TaskManager.runTask}.
+ * @typedef {RunTaskAssetOptions & RunTaskOptionsExtra} RunTaskOptions
  */
 
 export class TaskManager {
@@ -99,21 +110,36 @@ export class TaskManager {
 	 * Runs a task with a specified configuration in a worker.
 	 * @param {import("../assets/ProjectAsset.js").ProjectAssetAny} taskAsset The task asset to run.
 	 * If this asset is not a ProjectAssetTypeTask, this function will throw.
-	 * @param {RunTaskOptions} options
+	 * @param {RunTaskAssetOptions} options
 	 */
-	async runTask(taskAsset, options = {}) {
+	async runTaskAsset(taskAsset, options = {}) {
 		await taskAsset.waitForInit();
 		taskAsset.assertIsAssetTypeSync(ProjectAssetTypeTask);
 		const taskFileContent = await taskAsset.readAssetData();
-		const taskType = this.initializeTask(taskFileContent.taskType);
-		const assetManager = getEditorInstance().projectManager.assetManager;
-
 		const environmentVariables = {
 			...taskFileContent.environmentVariables,
 			...options.environmentVariables,
 		};
+		await this.runTask(taskFileContent.taskType, taskFileContent.taskConfig, {
+			environmentVariables,
+			taskAsset,
+		});
+	}
 
-		const config = taskFileContent.taskConfig;
+	/**
+	 * @param {string} taskType
+	 * @param {unknown} taskConfig
+	 * @param {RunTaskOptions} options
+	 */
+	async runTask(taskType, taskConfig, options) {
+		const task = this.initializeTask(taskType);
+		const assetManager = getEditorInstance().projectManager.assetManager;
+
+		const environmentVariables = {
+			...options.environmentVariables,
+		};
+
+		const config = taskConfig;
 		fillEnvironmentVariables(config, environmentVariables);
 
 		/**
@@ -124,13 +150,13 @@ export class TaskManager {
 			if (!asset) return null;
 			const taskAsset = this.#touchedTaskAssets.get(asset);
 			if (taskAsset) {
-				await this.runTask(taskAsset, {environmentVariables});
+				await this.runTaskAsset(taskAsset, {environmentVariables});
 			}
 			const result = await asset?.readAssetData();
 			return result || null;
 		};
 
-		const result = await taskType.runTask({
+		const result = await task.runTask({
 			config,
 			needsAllGeneratedAssets: false,
 			async readAssetFromPath(path, assertionOptions) {
@@ -146,7 +172,7 @@ export class TaskManager {
 					assertAssetType: [ProjectAssetTypeTask],
 				});
 				if (!taskAsset) throw new Error(`No asset was found with uuid "${uuid}".`);
-				await this.runTask(taskAsset, {environmentVariables});
+				await this.runTaskAsset(taskAsset, {environmentVariables});
 			},
 		});
 
@@ -161,7 +187,7 @@ export class TaskManager {
 					asset = await assetManager.registerAsset(writeAssetData.path, writeAssetData.assetType);
 				}
 				await asset.writeAssetData(/** @type {object} **/ (writeAssetData.fileData));
-				this.#touchedTaskAssets.set(asset, taskAsset);
+				this.#touchedTaskAssets.set(asset, options.taskAsset);
 			}
 		}
 		if (result.touchedAssets) {
@@ -171,7 +197,7 @@ export class TaskManager {
 			for (const assetUuid of result.touchedAssets) {
 				const asset = await assetManager.getProjectAssetFromUuid(assetUuid);
 				if (asset) {
-					this.#touchedTaskAssets.set(asset, taskAsset);
+					this.#touchedTaskAssets.set(asset, options.taskAsset);
 				}
 			}
 		}

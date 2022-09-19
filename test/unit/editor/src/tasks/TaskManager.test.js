@@ -205,7 +205,7 @@ Deno.test({
 			});
 
 			manager.registerTaskType(ExtendedTask);
-			await manager.runTask(taskProjectAsset);
+			await manager.runTaskAsset(taskProjectAsset);
 
 			assertSpyCalls(runTaskSpy, 1);
 			assertEquals(runTaskSpy.calls[0].args[0].config, {
@@ -252,7 +252,7 @@ Deno.test({
 			});
 
 			await assertRejects(async () => {
-				await manager.runTask(nonTaskProjectAsset);
+				await manager.runTaskAsset(nonTaskProjectAsset);
 			}, Error, "Not a task");
 		} finally {
 			cleanup();
@@ -385,18 +385,18 @@ Deno.test({
 			});
 
 			// First we run the dependency to let the manager know dependency.txt is created by this task.
-			await manager.runTask(dependencyTaskAsset);
+			await manager.runTaskAsset(dependencyTaskAsset);
 			assertEquals(dependencyRunCount, 1);
 
 			// Then we run the first parent task, which should run the dependency task again because DEPENDENDCY_PATH was written.
-			await manager.runTask(parentTaskAsset1);
+			await manager.runTaskAsset(parentTaskAsset1);
 			assertEquals(dependencyRunCount, 2);
 
 			// Then we run the second parent task, which should run the dependency task a third time because TOUCHED_ASSET_UUID was touched.
-			await manager.runTask(parentTaskAsset2);
+			await manager.runTaskAsset(parentTaskAsset2);
 			assertEquals(dependencyRunCount, 3);
 
-			await manager.runTask(parentTaskAsset3);
+			await manager.runTaskAsset(parentTaskAsset3);
 			assertEquals(dependencyRunCount, 4);
 		} finally {
 			cleanup();
@@ -488,7 +488,7 @@ Deno.test({
 
 			// First we run the child task to register that it touched TOUCHED_ASSET_UUID
 			// it should have its own environment variables.
-			await manager.runTask(childProjectAsset);
+			await manager.runTaskAsset(childProjectAsset);
 
 			assertSpyCalls(runTaskSpy, 1);
 			assertSpyCall(runTaskSpy, 0, {
@@ -504,7 +504,7 @@ Deno.test({
 
 			// Then we run the parent task, which should cause the child to get
 			// run a second time.
-			await manager.runTask(parentProjectAsset);
+			await manager.runTaskAsset(parentProjectAsset);
 
 			assertSpyCalls(runTaskSpy, 3);
 			assertSpyCall(runTaskSpy, 1, {
