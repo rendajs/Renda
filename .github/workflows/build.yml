@@ -17,6 +17,7 @@ on:
 
 jobs:
   Build:
+    if: ${{ false }}
     runs-on: ubuntu-latest
 
     env:

@@ -8,89 +8,105 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  DENO_DIR: deno_dir
+  DENO_VERSION: "1.25.3"
+
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        check: [lint, type-check, unit-test, e2e-test, build]
-        shouldBuild:
-          - ${{ github.event_name != 'pull_request' }}
-        exclude:
-          - shouldBuild: false
-            check: build
-
-    env:
-      DENO_DIR: deno_dir
-
-    # The first few steps are the same as in build.yml so if you make any changes
-    # you'll probably want to change them there as well
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
 
       - name: Setup Deno
-        # For more information see: https://github.com/denoland/setup-deno
         uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
         with:
-          deno-version: "1.25.3"
+          deno-version: ${{ env.DENO_VERSION }}
 
-      - name: Setup Renda
-        # Sets up a development environment required for type the next steps to pass.
-        run: deno task dev --no-serve --fast
-
-      # Lint
       - name: Lint
-        if: ${{ matrix.check == 'lint' }}
         run: deno task lint
 
-      # Type check
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      - name: Setup Renda
+        run: deno task dev --no-serve --fast
+
       - name: Type check
-        if: ${{ matrix.check == 'type-check' }}
         run: deno task check
 
-      # Unit tests
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
       - name: Run unit tests
-        if: ${{ matrix.check == 'unit-test' }}
         run: deno task test test/unit --coverage
 
       - name: Codecov
-        if: ${{ matrix.check == 'unit-test' }}
         uses: codecov/codecov-action@v3
         with:
           files: .coverage/cov.lcov
           flags: unittests
 
-      # E2e tests
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
       - name: Run e2e tests
-        if: ${{ matrix.check == 'e2e-test' }}
         run: deno task test test/e2e
 
-      # Build
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
       - name: Build engine
-        if: ${{ matrix.check == 'build' }}
         run: deno task build
 
       - name: Build editor
-        if: ${{ matrix.check == 'build' }}
         run: deno task build-editor-release
 
       - name: Tar build files
-        if: ${{ matrix.check == 'build' }}
         run: |
           cd editor/dist
           tar -czf ../../build_files.tar *
 
       - name: Write PR data
-        if: ${{ matrix.check == 'build' }}
         env:
           PULL_REQUEST_NUMBER: ${{ github.event.number }}
         run: |
           echo $PULL_REQUEST_NUMBER > pr.txt
 
       - name: Upload build artifact
-        if: ${{ matrix.check == 'build' }}
         uses: actions/upload-artifact@v3
         with:
           name: build
