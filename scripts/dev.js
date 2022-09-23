@@ -10,17 +10,15 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
+import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
 import {dev} from "https://raw.githubusercontent.com/jespertheend/dev/d1c3bef081679048558a1851916f1baca972293f/mod.js";
 
 setCwd();
 Deno.chdir("..");
 
-/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js").GenerateTypesOptions} */
-const generateTypesOptions = {
+await generateTypes({
 	outputDir: ".denoTypes",
 	importMap: "importmap.json",
-	cacheHashFile: "cacheHashfile",
 	preCollectedImportsFile: "precollectedImports.json",
 	include: [
 		"scripts",
@@ -41,14 +39,7 @@ const generateTypesOptions = {
 		eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
 		estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
 	},
-};
-
-if (Deno.args.includes("--create-cache-hashfile")) {
-	await createCacheHashFile(generateTypesOptions);
-	Deno.exit();
-}
-
-await generateTypes(generateTypesOptions);
+});
 
 const fast = Deno.args.includes("--fast");
 
