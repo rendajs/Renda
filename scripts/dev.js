@@ -10,20 +10,23 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js";
+import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
 import {dev} from "https://raw.githubusercontent.com/jespertheend/dev/d1c3bef081679048558a1851916f1baca972293f/mod.js";
 
-/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.13/mod.js").GenerateTypesOptions} */
+setCwd();
+Deno.chdir("..");
+
+/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js").GenerateTypesOptions} */
 const generateTypesOptions = {
-	outputDir: "../.denoTypes",
-	importMap: "../importmap.json",
+	outputDir: ".denoTypes",
+	importMap: "importmap.json",
 	cacheHashFile: "cacheHashfile",
 	preCollectedImportsFile: "precollectedImports.json",
 	include: [
-		".",
-		"../test",
-		"../editor/devSocket",
-		"../editor/scripts",
+		"scripts",
+		"test",
+		"editor/devSocket",
+		"editor/scripts",
 	],
 	excludeUrls: ["rollup-plugin-commonjs"],
 	extraTypeRoots: {
@@ -46,9 +49,6 @@ if (Deno.args.includes("--create-cache-hashfile")) {
 }
 
 await generateTypes(generateTypesOptions);
-
-setCwd();
-Deno.chdir("..");
 
 const fast = Deno.args.includes("--fast");
 
