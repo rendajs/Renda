@@ -6,6 +6,7 @@
 		"fake-imports": "https://deno.land/x/fake_imports@v0.6.0/mod.js",
 		"fake-dom/": "https://deno.land/x/fake_dom@v0.0.5/src/",
 		"puppeteer": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/lib-dom-types/mod.ts",
+		"puppeteer/": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/lib-dom-types/",
 		"rollup": "https://esm.sh/rollup@2.61.1?pin=v64",
 		"rollup-plugin-jscc": "https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v64",
 		"rollup-plugin-cleanup": "https://esm.sh/rollup-plugin-cleanup@3.2.1?pin=v64",

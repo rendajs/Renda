@@ -23,8 +23,6 @@ jobs:
 
     env:
       DENO_DIR: deno_dir
-      PUPPETEER_DOWNLOAD_PATH: deno_dir/deno_puppeteer/chromium/
-      PUPPETEER_CHROMIUM_REVISION: 1022525
 
     # The first few steps are the same as in build.yml so if you make any changes
     # you'll probably want to change them there as well
@@ -95,17 +93,6 @@ jobs:
           flags: unittests
 
       # E2e tests
-      - name: Cache puppeteer
-        if: ${{ matrix.check == 'e2e-test' }}
-        uses: actions/cache@v3
-        with:
-          key: puppeteer-${{ runner.os }}-${{ env.PUPPETEER_CHROMIUM_REVISION }}
-          path: ${{ env.PUPPETEER_DOWNLOAD_PATH }}
-
-      - name: Install puppeteer
-        if: ${{ matrix.check == 'e2e-test' }}
-        run: PUPPETEER_PRODUCT=chrome deno run -A --unstable https://deno.land/x/puppeteer@16.2.0/install.ts
-
       - name: Run e2e tests
         if: ${{ matrix.check == 'e2e-test' }}
         run: deno task test test/e2e

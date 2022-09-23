@@ -4,6 +4,7 @@ import {join} from "std/path/mod.ts";
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
 import puppeteer from "puppeteer";
+import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
 setCwd();
 
 Deno.chdir("..");
@@ -78,10 +79,26 @@ if (needsE2eTests) {
 		headless = false;
 	}
 
+	const fetcher = puppeteer.createBrowserFetcher({
+		product: "chrome",
+	});
+	const revision = PUPPETEER_REVISIONS.chromium;
+	let revisionInfo = fetcher.revisionInfo(revision);
+	if (!revisionInfo.local) {
+		console.log(`Downloading chromium ${revision}...`);
+		revisionInfo = await fetcher.download(revision, (current, total) => {
+			if (current >= total) {
+				console.log("Installing chromium...");
+			}
+		});
+		console.log(`Downloaded and installed chromium revision ${revision}.`);
+	}
+
 	browser = await puppeteer.launch({
 		headless,
 		args: ["--enable-unsafe-webgpu"],
 		devtools: !headless,
+		executablePath: revisionInfo.executablePath,
 	});
 }
 
