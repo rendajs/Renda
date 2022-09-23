@@ -91,7 +91,7 @@ if (needsE2eTests) {
 				console.log("Installing chromium...");
 			}
 		});
-		console.log(`Downloaded and installed chromium revision ${revision}.`)
+		console.log(`Downloaded and installed chromium revision ${revision}.`);
 	}
 
 	browser = await puppeteer.launch({
