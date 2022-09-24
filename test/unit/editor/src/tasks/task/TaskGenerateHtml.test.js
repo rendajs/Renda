@@ -45,7 +45,7 @@ const basicRunTaskOptions = {
 		outputLocation: ["out.html"],
 		replacements: [],
 	},
-	needsAllGeneratedAssets: false,
+	allowDiskWrites: false,
 	async readAssetFromPath(path, opts) {
 		return null;
 	},

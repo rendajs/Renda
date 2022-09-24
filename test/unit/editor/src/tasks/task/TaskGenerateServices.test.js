@@ -141,7 +141,7 @@ function createRunTaskOptions({
 			outputLocation: ["out.js"],
 			usedAssets,
 		},
-		needsAllGeneratedAssets: false,
+		allowDiskWrites: false,
 		async readAssetFromPath(path, opts) {
 			return null;
 		},

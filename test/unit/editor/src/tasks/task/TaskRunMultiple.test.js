@@ -146,7 +146,7 @@ function basicSetupForRunTask({
 
 	const runTaskPromise = task.runTask({
 		config,
-		needsAllGeneratedAssets: false,
+		allowDiskWrites: false,
 		async readAssetFromPath() {
 			throw new Error("not implemented");
 		},
@@ -154,6 +154,9 @@ function basicSetupForRunTask({
 			throw new Error("not implemented");
 		},
 		runDependencyTaskAsset: runDependencyTaskAssetSpy,
+		async runChildTask() {
+			throw new Error("not implemented");
+		},
 	});
 	let runTaskPromiseResolved = false;
 	(async () => {

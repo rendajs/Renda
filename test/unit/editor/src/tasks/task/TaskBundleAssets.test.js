@@ -76,7 +76,7 @@ const basicRunTaskOptions = {
 		excludeAssets: [],
 		excludeAssetsRecursive: [],
 	},
-	needsAllGeneratedAssets: false,
+	allowDiskWrites: false,
 	async readAssetFromPath(path, opts) {
 		return null;
 	},
