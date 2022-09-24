@@ -8,7 +8,7 @@
 		"puppeteer": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/lib-dom-types/mod.ts",
 		"puppeteer/": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/lib-dom-types/",
 		"rollup": "https://esm.sh/rollup@2.79.1?pin=v95",
-		"rollup-plugin-jscc": "https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v95",
+		"rollup-plugin-jscc": "https://esm.sh/rollup-plugin-jscc@2.0.0?pin=v74",
 		"rollup-plugin-cleanup": "https://esm.sh/rollup-plugin-cleanup@3.2.1?pin=v95",
 		"rollup-plugin-commonjs": "https://esm.sh/@rollup/plugin-commonjs@11.1.0?pin=v95",
 		"rollup-plugin-node-resolve": "https://esm.sh/@rollup/plugin-node-resolve@13.0.6?pin=v95",
