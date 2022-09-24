@@ -10,8 +10,8 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
-import {dev} from "https://raw.githubusercontent.com/jespertheend/dev/d1c3bef081679048558a1851916f1baca972293f/mod.js";
+import {generateTypes} from "/Users/Jesper/repositories/deno-tsc-helper/mod.js";
+import {dev} from "https://raw.githubusercontent.com/jespertheend/dev/a7374e35d6a06d5835682bf8478156046def9697/mod.js";
 
 setCwd();
 Deno.chdir("..");
@@ -41,8 +41,6 @@ await generateTypes({
 	},
 });
 
-const fast = Deno.args.includes("--fast");
-
 await dev({
 	actions: [
 		{
@@ -55,22 +53,17 @@ await dev({
 			downloadDependencies: true,
 		},
 		{
-			type: "downloadNpmPackage",
-			package: "typescript@4.8.3",
-			ignore: fast,
+			type: "esmify",
+			entryPointPath: "npm_packages/rollup/2.60.0/dist/rollup.browser.js",
+			outputPath: "editor/deps/rollup.browser.js",
+		},
+		{
+			type: "esmify",
+			entryPointPath: "npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
+			outputPath: "editor/deps/rollup-plugin-resolve-url-objects.js",
 		},
 	],
 });
-
-const editorDependencies = Deno.run({
-	cmd: ["deno", "task", "build-editor-dependencies"],
-});
-await editorDependencies.status();
-
-const buildProcess = Deno.run({
-	cmd: ["deno", "task", "build-editor-dev"],
-});
-await buildProcess.status();
 
 if (!Deno.args.includes("--no-serve")) {
 	const server = new DevServer({

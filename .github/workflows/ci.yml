@@ -39,7 +39,7 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Setup Renda
-        run: deno task dev --no-serve --fast
+        run: deno task dev --no-serve
 
       - name: Type check
         run: deno task check
