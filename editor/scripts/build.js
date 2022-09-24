@@ -3,8 +3,11 @@
 import {rollup} from "rollup";
 import {copy, ensureDir} from "std/fs/mod.ts";
 import {minify} from "terser";
-
 import {setCwd} from "chdir-anywhere";
+import {dev} from "../../scripts/dev.js";
+
+await dev();
+
 setCwd();
 
 try {

@@ -38,9 +38,6 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VERSION }}
 
-      - name: Setup Renda
-        run: deno task dev --no-serve
-
       - name: Type check
         run: deno task check
 
@@ -90,10 +87,10 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Build engine
-        run: deno task build
+        run: deno task build-engine
 
       - name: Build editor
-        run: deno task build-editor-release
+        run: deno task build-editor
 
       - name: Tar build files
         run: |
