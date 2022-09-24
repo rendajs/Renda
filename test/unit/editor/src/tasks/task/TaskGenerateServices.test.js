@@ -149,6 +149,9 @@ function createRunTaskOptions({
 			return null;
 		},
 		async runDependencyTaskAsset(uuid) {},
+		async runChildTask(type, config, options) {
+			throw new Error("Not implemented");
+		},
 	};
 	return options;
 }
