@@ -14,36 +14,39 @@ import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js"
 import {dev as devModule} from "https://raw.githubusercontent.com/jespertheend/dev/a7374e35d6a06d5835682bf8478156046def9697/mod.js";
 
 export async function dev({
-	serve = false,
 	needsDevDependencies = false,
+	needsTypes = false,
+	serve = false,
 } = {}) {
 	setCwd(import.meta.url);
 	Deno.chdir("..");
 
-	await generateTypes({
-		outputDir: ".denoTypes",
-		importMap: "importmap.json",
-		preCollectedImportsFile: "precollectedImports.json",
-		include: [
-			"scripts",
-			"test",
-			"editor/devSocket",
-			"editor/scripts",
-		],
-		excludeUrls: ["rollup-plugin-commonjs"],
-		extraTypeRoots: {
-			// We prefix webgpu with aa to ensure it is placed above deno-types.
-			// The Deno types include webgpu types but they are outdated.
-			"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
-			"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
-			"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
-			"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
-		},
-		exactTypeModules: {
-			eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
-			estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
-		},
-	});
+	if (needsTypes) {
+		await generateTypes({
+			outputDir: ".denoTypes",
+			importMap: "importmap.json",
+			preCollectedImportsFile: "precollectedImports.json",
+			include: [
+				"scripts",
+				"test",
+				"editor/devSocket",
+				"editor/scripts",
+			],
+			excludeUrls: ["rollup-plugin-commonjs"],
+			extraTypeRoots: {
+				// We prefix webgpu with aa to ensure it is placed above deno-types.
+				// The Deno types include webgpu types but they are outdated.
+				"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
+				"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
+				"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
+				"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
+			},
+			exactTypeModules: {
+				eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
+				estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
+			},
+		});
+	}
 
 	await devModule({
 		actions: [
@@ -88,7 +91,8 @@ export async function dev({
 
 if (import.meta.main) {
 	await dev({
-		serve: true,
+		needsTypes: true,
 		needsDevDependencies: true,
+		serve: true,
 	});
 }

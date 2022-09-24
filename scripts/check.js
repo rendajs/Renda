@@ -1,6 +1,8 @@
 import {dev} from "./dev.js";
 
-await dev();
+await dev({
+	needsTypes: true,
+});
 
 const proc = Deno.run({
 	cmd: ["deno", "run", "--allow-env", "--allow-read", "--unstable", "npm:typescript@4.8.3/tsc", "--noEmit", "-p", "./jsconfig.json"],
