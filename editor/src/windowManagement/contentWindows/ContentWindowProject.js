@@ -394,7 +394,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
+	 * @param {import("../../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent} e
 	 */
 	async externalChange(e) {
 		if (e.type == "created" || e.type == "deleted") {
