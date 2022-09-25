@@ -1,5 +1,6 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
 import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
@@ -63,17 +64,32 @@ Deno.test({
 });
 
 Deno.test({
-	name: "createDir() should fire onBeforeAnyChange",
+	name: "createDir() should fire onChange",
 	fn: async () => {
 		const {fs} = await createBasicFs();
 
-		let onBeforeAnyChangeCalled = false;
-		fs.onBeforeAnyChange(() => {
-			onBeforeAnyChangeCalled = true;
-		});
-		await fs.createDir(["root", "newdir"]);
+		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
+		const cb = () => {};
+		const onChangeSpy = spy(cb);
+		fs.onChange(onChangeSpy);
 
-		assertEquals(onBeforeAnyChangeCalled, true);
+		const path = ["root", "newdir"];
+		await fs.createDir(path);
+
+		// Change the path to verify the event contains a diferent array
+		path.push("extra");
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "directory",
+					path: ["root", "newdir"],
+					type: "created",
+				},
+			],
+		});
 	},
 });
 

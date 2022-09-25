@@ -89,9 +89,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<void>}
 	 */
-	async createDir(path) {
-		this.fireOnBeforeAnyChange();
-	}
+	async createDir(path) {}
 
 	/**
 	 * @param {EditorFileSystemPath} path

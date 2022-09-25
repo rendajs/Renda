@@ -103,10 +103,17 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async createDir(path) {
-		super.createDir(path);
-		this.getObjectPointer(path, {
+		const pathCopy = [...path];
+		this.getObjectPointer(pathCopy, {
 			create: true,
 			createType: "dir",
+		});
+
+		this.fireChange({
+			external: false,
+			kind: "directory",
+			path: pathCopy,
+			type: "created",
 		});
 	}
 
