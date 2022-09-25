@@ -14,6 +14,17 @@ jobs:
       - name: Setup repo
         uses: actions/checkout@v2
 
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            deno_dir
+            .denoTypes
+            npm_packages
+            editor/deps
+          key: ci-${{ github.run_id }}_${{ github.run_attempt }}
+          restore-keys: ci-
+
       - name: Setup Deno
         uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
         with:
