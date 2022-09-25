@@ -1,6 +1,6 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
 import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../shared.js";
 
