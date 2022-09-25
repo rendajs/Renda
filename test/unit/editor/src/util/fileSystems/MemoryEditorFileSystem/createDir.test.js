@@ -1,6 +1,6 @@
 import {assert} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import { registerOnChangeSpy } from "../shared.js";
+import {registerOnChangeSpy} from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({

@@ -89,7 +89,7 @@ Deno.test({
 
 		let newDirEmpty = true;
 		const {directories: directories2} = await fs.readDir(["root", "newdir"]);
-		for (const name of directories2) {
+		for (const _ of directories2) {
 			newDirEmpty = false;
 		}
 		assert(newDirEmpty, "Expected the created directory to be empty");
