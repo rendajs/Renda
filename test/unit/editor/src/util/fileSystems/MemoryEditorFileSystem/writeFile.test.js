@@ -12,7 +12,7 @@ Deno.test({
 		fs.onChange(onChangeSpy);
 
 		const path = ["root", "newfile"];
-		const writeFilePromise = fs.writeFile(path, "text");
+		const writeFilePromise = fs.writeFile(path, "hello world");
 
 		// Change the path to verify that the initial array is used
 		path.push("extra");

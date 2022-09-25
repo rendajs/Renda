@@ -136,6 +136,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
+		path = [...path];
 		const object = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
