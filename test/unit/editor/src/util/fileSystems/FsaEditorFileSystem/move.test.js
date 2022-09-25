@@ -1,4 +1,6 @@
 import {assertEquals} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {registerOnChangeSpy} from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
@@ -49,17 +51,33 @@ Deno.test({
 });
 
 Deno.test({
-	name: "should fire onBeforeAnyChange",
+	name: "renaming should fire onChange",
 	fn: async () => {
 		const {fs} = createBasicFs();
-
-		let fired = false;
-		fs.onBeforeAnyChange(() => {
-			fired = true;
-		});
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		await fs.move(["root", "file2"], ["root", "file3"]);
 
-		assertEquals(fired, true);
+		assertSpyCalls(onChangeSpy, 2);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "file3"],
+					type: "changed",
+				},
+			],
+		});
+		assertSpyCall(onChangeSpy, 1, {
+			args: [
+				{
+					external: false,
+					kind: "unknown",
+					path: ["root", "file2"],
+					type: "deleted",
+				},
+			],
+		});
 	},
 });

@@ -155,9 +155,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} fromPath
 	 * @param {EditorFileSystemPath} toPath
 	 */
-	async move(fromPath, toPath) {
-		this.fireOnBeforeAnyChange();
-	}
+	async move(fromPath, toPath) {}
 
 	rootNameSetSupported = false;
 
