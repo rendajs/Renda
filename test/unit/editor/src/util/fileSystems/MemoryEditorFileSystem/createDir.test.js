@@ -1,4 +1,4 @@
-import {assert, assertEquals} from "std/testing/asserts.ts";
+import {assert} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {createBasicFs} from "./shared.js";
 

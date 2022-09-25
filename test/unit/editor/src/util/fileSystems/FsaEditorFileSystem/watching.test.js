@@ -1,6 +1,6 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import {registerOnChangeSpy} from "../shared.js";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {createBasicFs} from "./shared.js";
 
 /**
