@@ -611,10 +611,10 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
+		path = [...path];
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
-			this.fireOnBeforeAnyChange();
 			if (!file) file = new Blob();
 			const fileName = path[path.length - 1];
 			let type = "";
@@ -657,6 +657,13 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			await unlock();
 			writeOp.done();
 		}
+
+		this.fireChange({
+			external: false,
+			kind: "file",
+			path,
+			type: "changed",
+		});
 	}
 
 	/**

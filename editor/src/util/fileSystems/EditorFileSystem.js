@@ -106,9 +106,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 * @param {AllowedWriteFileTypes} file
 	 */
-	async writeFile(path, file) {
-		this.fireOnBeforeAnyChange();
-	}
+	async writeFile(path, file) {}
 
 	/**
 	 * @abstract

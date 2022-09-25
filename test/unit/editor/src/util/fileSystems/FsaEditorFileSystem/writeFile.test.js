@@ -1,27 +1,31 @@
+import {assert, assertExists} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assert, assertEquals} from "std/testing/asserts.ts";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
-	name: "writeFile()",
-	fn: async () => {
-		const fs = await createBasicFs();
+	name: "should write files",
+	async fn() {
+		const {fs, rootDirHandle} = createBasicFs();
+		await fs.writeFile(["root", "created"], "hello");
 
-		await fs.writeFile(["root", "newfile"], "hello world");
+		let file1Handle = null;
+		for await (const [name, handle] of rootDirHandle.entries()) {
+			if (name == "created") {
+				file1Handle = handle;
+			}
+		}
 
-		const {files} = await fs.readDir(["root"]);
-		assert(files.includes("newfile"), "'newfile' was not created");
-
-		const text = await fs.readText(["root", "newfile"]);
-
-		assertEquals(text, "hello world");
+		// The mock file handle doesn't have reading and writing implemented,
+		// so we'll only check for its existence.
+		assertExists(file1Handle);
+		assert(file1Handle.kind == "file");
 	},
 });
 
 Deno.test({
 	name: "writeFile should fire onChange",
 	async fn() {
-		const fs = await createBasicFs();
+		const {fs} = createBasicFs();
 
 		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
 		const cb = () => {};

@@ -136,6 +136,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
+		path = [...path];
 		const object = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
@@ -144,6 +145,13 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 			throw new Error(`"${path.join("/")}" is not a file.`);
 		}
 		object.file = new File([file], object.name);
+
+		this.fireChange({
+			external: false,
+			kind: "file",
+			path,
+			type: "changed",
+		});
 	}
 
 	/**

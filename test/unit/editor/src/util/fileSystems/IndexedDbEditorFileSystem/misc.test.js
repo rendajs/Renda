@@ -202,18 +202,33 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeFile should fire onBeforeAnyChange",
-	fn: async () => {
+	name: "writeFile should fire onChange",
+	async fn() {
 		const {fs} = await createBasicFs();
 
-		let onBeforeAnyChangeCalled = false;
-		fs.onBeforeAnyChange(() => {
-			onBeforeAnyChangeCalled = true;
+		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
+		const cb = () => {};
+		const onChangeSpy = spy(cb);
+
+		fs.onChange(onChangeSpy);
+
+		const path = ["root", "file1"];
+		await fs.writeFile(path, "text");
+
+		// Change the path to verify the event contains a diferent array
+		path.push("extra");
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "file1"],
+					type: "changed",
+				},
+			],
 		});
-
-		await fs.writeFile(["root", "newfile"], "hello world");
-
-		assertEquals(onBeforeAnyChangeCalled, true);
 	},
 });
 
