@@ -2,7 +2,7 @@ name: Deploy PR
 
 on:
   workflow_run:
-    workflows: [build]
+    workflows: [build-pr]
     types: [completed]
 
 jobs:

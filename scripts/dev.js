@@ -10,81 +10,89 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {createCacheHashFile, generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
-import {dev} from "https://raw.githubusercontent.com/jespertheend/dev/d1c3bef081679048558a1851916f1baca972293f/mod.js";
+import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
+import {dev as devModule} from "https://raw.githubusercontent.com/jespertheend/dev/a7374e35d6a06d5835682bf8478156046def9697/mod.js";
 
-setCwd();
-Deno.chdir("..");
+export async function dev({
+	needsDevDependencies = false,
+	needsTypes = false,
+	serve = false,
+} = {}) {
+	setCwd(import.meta.url);
+	Deno.chdir("..");
 
-/** @type {import("https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js").GenerateTypesOptions} */
-const generateTypesOptions = {
-	outputDir: ".denoTypes",
-	importMap: "importmap.json",
-	cacheHashFile: "cacheHashfile",
-	preCollectedImportsFile: "precollectedImports.json",
-	include: [
-		"scripts",
-		"test",
-		"editor/devSocket",
-		"editor/scripts",
-	],
-	excludeUrls: ["rollup-plugin-commonjs"],
-	extraTypeRoots: {
-		// We prefix webgpu with aa to ensure it is placed above deno-types.
-		// The Deno types include webgpu types but they are outdated.
-		"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
-		"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
-		"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
-		"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
-	},
-	exactTypeModules: {
-		eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
-		estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
-	},
-};
+	if (needsTypes) {
+		await generateTypes({
+			outputDir: ".denoTypes",
+			importMap: "importmap.json",
+			preCollectedImportsFile: "precollectedImports.json",
+			include: [
+				"scripts",
+				"test",
+				"editor/devSocket",
+				"editor/scripts",
+			],
+			excludeUrls: ["rollup-plugin-commonjs"],
+			extraTypeRoots: {
+				// We prefix webgpu with aa to ensure it is placed above deno-types.
+				// The Deno types include webgpu types but they are outdated.
+				"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
+				"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
+				"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
+				"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
+			},
+			exactTypeModules: {
+				eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
+				estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
+			},
+		});
+	}
 
-if (Deno.args.includes("--create-cache-hashfile")) {
-	await createCacheHashFile(generateTypesOptions);
-	Deno.exit();
+	await devModule({
+		actions: [
+			// required for during development, can be skipped with ci
+			{
+				type: "downloadNpmPackage",
+				package: "typescript@4.8.3",
+				ignore: !needsDevDependencies,
+			},
+
+			// editor dependencies
+			{
+				type: "downloadNpmPackage",
+				package: "rollup@2.60.0",
+			},
+			{
+				type: "downloadNpmPackage",
+				package: "rollup-plugin-resolve-url-objects@0.0.4",
+				downloadDependencies: true,
+			},
+			{
+				type: "esmify",
+				entryPointPath: "npm_packages/rollup/2.60.0/dist/rollup.browser.js",
+				outputPath: "editor/deps/rollup.browser.js",
+			},
+			{
+				type: "esmify",
+				entryPointPath: "npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
+				outputPath: "editor/deps/rollup-plugin-resolve-url-objects.js",
+			},
+		],
+	});
+
+	if (serve) {
+		const server = new DevServer({
+			port: 8080,
+			serverName: "development server",
+		});
+		server.start();
+	}
 }
 
-await generateTypes(generateTypesOptions);
-
-const fast = Deno.args.includes("--fast");
-
-await dev({
-	actions: [
-		{
-			type: "downloadNpmPackage",
-			package: "rollup@2.60.0",
-		},
-		{
-			type: "downloadNpmPackage",
-			package: "rollup-plugin-resolve-url-objects@0.0.4",
-			downloadDependencies: true,
-		},
-		{
-			type: "downloadNpmPackage",
-			package: "typescript@4.8.3",
-			ignore: fast,
-		},
-	],
-});
-
-const editorDependencies = Deno.run({
-	cmd: ["deno", "task", "build-editor-dependencies"],
-});
-await editorDependencies.status();
-
-const buildProcess = Deno.run({
-	cmd: ["deno", "task", "build-editor-dev"],
-});
-await buildProcess.status();
-
-if (!Deno.args.includes("--no-serve")) {
-	const server = new DevServer({
-		port: 8080,
-		serverName: "development server",
+if (import.meta.main) {
+	await dev({
+		needsTypes: true,
+		needsDevDependencies: true,
+		serve: true,
 	});
-	server.start();
 }

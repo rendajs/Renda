@@ -10,13 +10,11 @@
 	},
 	"importMap": "importmap.json",
 	"tasks": {
-		"dev": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net --no-check --unstable scripts/dev.js",
+		"dev": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net --unstable scripts/dev.js",
 		"lint": "deno run --unstable --allow-env --allow-read --allow-write scripts/lint.js",
-		"check": "deno run --allow-env --allow-read --unstable npm:typescript@4.8.3/tsc --noEmit -p ./jsconfig.json",
-		"build": "deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check scripts/build.js",
-		"test": "deno run --no-check --allow-run --allow-read --allow-write --allow-env --allow-net scripts/test.js",
-		"build-editor-dependencies": "deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check editor/scripts/buildDependencies.js",
-		"build-editor-dev": "deno run --unstable --allow-read --allow-write --allow-net --allow-env editor/scripts/build.js --dev",
-		"build-editor-release": "deno run --unstable --allow-read --allow-write --allow-net --allow-env editor/scripts/build.js"
+		"check": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net scripts/check.js",
+		"test": "deno run --allow-run --allow-read --allow-write --allow-env --allow-net scripts/test.js",
+		"build-engine": "deno run --unstable --allow-read --allow-write --allow-net --allow-env scripts/build.js",
+		"build-editor": "deno run --unstable --allow-read --allow-write --allow-net --allow-env editor/scripts/build.js"
 	}
 }

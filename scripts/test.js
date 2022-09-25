@@ -5,8 +5,11 @@ import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
 import puppeteer from "puppeteer";
 import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
-setCwd();
+import {dev} from "./dev.js";
 
+await dev();
+
+setCwd();
 Deno.chdir("..");
 
 const DENO_COVERAGE_DIR = ".coverage/denoCoverage";
