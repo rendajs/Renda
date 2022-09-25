@@ -380,20 +380,20 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
-		const pathCopy = [...path];
-		const fileStream = await this.writeFileStream(pathCopy);
+		path = [...path];
+		const fileStream = await this.writeFileStream(path);
 		if (fileStream.locked) {
 			throw new Error("File is locked, writing after lock is not yet implemented");
 		}
 		await fileStream.write(file);
 		await fileStream.close();
-		this.setWatchTreeLastModified(pathCopy);
+		this.setWatchTreeLastModified(path);
 
 		// Note that this will always have type "changed" even when the file has been created.
 		this.fireChange({
 			external: false,
 			kind: "file",
-			path: pathCopy,
+			path,
 			type: "changed",
 		});
 	}

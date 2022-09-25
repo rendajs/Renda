@@ -4,34 +4,26 @@ import {createBasicFs} from "./shared.js";
 import {registerOnChangeSpy} from "../shared.js";
 
 Deno.test({
-	name: "writeFile()",
-	fn: async () => {
-		const fs = await createBasicFs();
-
-		await fs.writeFile(["root", "newfile"], "hello world");
-
-		const {files} = await fs.readDir(["root"]);
-		assert(files.includes("newfile"), "'newfile' was not created");
-
-		const text = await fs.readText(["root", "newfile"]);
-
-		assertEquals(text, "hello world");
-	},
-});
-
-Deno.test({
-	name: "writeFile should fire onChange",
+	name: "writeFile should create a file and fire onChange",
 	async fn() {
 		const fs = await createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		fs.onChange(onChangeSpy);
 
-		const path = ["root", "file1"];
-		await fs.writeFile(path, "text");
+		const path = ["root", "newfile"];
+		const writeFilePromise = fs.writeFile(path, "text");
 
-		// Change the path to verify the event contains a diferent array
+		// Change the path to verify that the initial array is used
 		path.push("extra");
+
+		await writeFilePromise;
+
+		const {files} = await fs.readDir(["root"]);
+		assert(files.includes("newfile"), "'newfile' was not created");
+
+		const text = await fs.readText(["root", "newfile"]);
+		assertEquals(text, "hello world");
 
 		assertSpyCalls(onChangeSpy, 1);
 		assertSpyCall(onChangeSpy, 0, {
@@ -39,7 +31,7 @@ Deno.test({
 				{
 					external: false,
 					kind: "file",
-					path: ["root", "file1"],
+					path: ["root", "newfile"],
 					type: "changed",
 				},
 			],
