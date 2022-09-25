@@ -295,6 +295,14 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
+	 * @param {string} name
+	 */
+	async setRootName(name) {
+		throw new Error("Changing the root name of fsa file systems is not supported.");
+	}
+
+	/**
+	 * @override
 	 */
 	async getRootName() {
 		return this.handle.name;

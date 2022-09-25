@@ -45,6 +45,28 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setRootName should fire onChange event",
+	async fn() {
+		const fs = await createFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
+
+		await fs.setRootName("new root name");
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "directory",
+					path: [],
+					type: "changed",
+				},
+			],
+		});
+	},
+});
+
+Deno.test({
 	name: "createDir() should create a directory",
 	fn: async () => {
 		const {fs} = await createBasicFs();

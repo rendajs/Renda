@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
@@ -107,5 +107,16 @@ Deno.test({
 		const isDir = await fs.isDir(["root", "nonExistent", "dir"]);
 
 		assertEquals(isDir, false);
+	},
+});
+
+Deno.test({
+	name: "setRootName should throw",
+	async fn() {
+		const {fs} = createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.setRootName("test");
+		}, Error, "Changing the root name of fsa file systems is not supported.");
 	},
 });
