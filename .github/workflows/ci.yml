@@ -1,7 +1,6 @@
 # This workflow will run all checks required for a PR to be merged.
 
 name: ci
-
 on:
   push:
     branches: [main]
@@ -77,3 +76,6 @@ jobs:
 
   build:
     uses: ./.github/workflows/build.yml
+    with:
+      DENO_VERSION: ${{ env.DENO_VERSION }}
+      DENO_DIR: ${{ env.DENO_DIR }}

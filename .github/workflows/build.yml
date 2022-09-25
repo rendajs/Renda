@@ -1,7 +1,17 @@
 name: build
-
 on:
-  workflow_call
+  workflow_call:
+    inputs:
+      DENO_VERSION:
+        required: true
+        type: string
+      DENO_DIR:
+        required: true
+        type: string
+
+env:
+  DENO_DIR: ${{ inputs.DENO_DIR }}
+  DENO_VERSION: ${{ inputs.DENO_VERSION }}
 
 jobs:
   build:
