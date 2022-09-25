@@ -1,50 +1,25 @@
-# This workflow will build the editor and engine and place it in an artifact
-# so that it can be deployed by one of the deployment workflows.
-# This workflow is largely the same as ci.yml, unfortunately we have to duplicate
-# a lot of code because GitHub doesn't support reusing steps (https://github.com/actions/runner/issues/748).
-# The reason why the build step is separated into its own workflow file is to
-# make PR deployment faster, since we don't have to wait for tests etc. to
-# succeed in order to deploy a PR preview.
-# However, these same build steps still have to be included in ci.yml because
-# in the case of deploying to canary/production we do want to make sure all
-# steps succeed before deploying.
-
-name: Build
+name: build
 
 on:
-  pull_request:
-    branches: [main]
+  workflow_call
 
 jobs:
-  Build:
-    if: ${{ false }}
+  build:
     runs-on: ubuntu-latest
-
-    env:
-      DENO_DIR: deno_dir
-
-    # All these steps are the same as in ci.yml except for some if conditions,
-    # so if you make any changes you'll probably want to change them there as well
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
 
       - name: Setup Deno
-        # For more information see: https://github.com/denoland/setup-deno
         uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
         with:
-          deno-version: "1.25.3"
+          deno-version: ${{ env.DENO_VERSION }}
 
-      - name: Setup Renda
-        # Sets up a development environment required for type the next steps to pass.
-        run: deno task dev --no-serve --fast
-
-      # Build
       - name: Build engine
-        run: deno task build
+        run: deno task build-engine
 
       - name: Build editor
-        run: deno task build-editor-release
+        run: deno task build-editor
 
       - name: Tar build files
         run: |

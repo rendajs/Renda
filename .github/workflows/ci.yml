@@ -75,38 +75,7 @@ jobs:
       - name: Run e2e tests
         run: deno task test test/e2e
 
+  # This job is the same as in pr-build.yml
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
-
-      - name: Setup Deno
-        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
-        with:
-          deno-version: ${{ env.DENO_VERSION }}
-
-      - name: Build engine
-        run: deno task build-engine
-
-      - name: Build editor
-        run: deno task build-editor
-
-      - name: Tar build files
-        run: |
-          cd editor/dist
-          tar -czf ../../build_files.tar *
-
-      - name: Write PR data
-        env:
-          PULL_REQUEST_NUMBER: ${{ github.event.number }}
-        run: |
-          echo $PULL_REQUEST_NUMBER > pr.txt
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: |
-            build_files.tar
-            pr.txt
+    uses: ./.github/workflows/build.yml
