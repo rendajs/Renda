@@ -26,8 +26,6 @@ export class EditorFileSystem {
 	#onChangeCbs = new Set();
 
 	constructor() {
-		/** @type {Set<() => void>} */
-		this.onAnyChangeCbs = new Set();
 		/** @type {Set<function(string):void>} */
 		this.onRootNameChangeCbs = new Set();
 		/** @private @type {Set<WriteOperation>} */
@@ -251,25 +249,6 @@ export class EditorFileSystem {
 	 */
 	fireChange(e) {
 		this.#onChangeCbs.forEach(cb => cb(e));
-	}
-
-	/**
-	 * Fires when a file is changed either by the application or externally.
-	 * @param {() => void} cb
-	 */
-	onBeforeAnyChange(cb) {
-		this.onAnyChangeCbs.add(cb);
-	}
-
-	/**
-	 * @param {() => void} cb
-	 */
-	removeOnBeforeAnyChange(cb) {
-		this.onAnyChangeCbs.delete(cb);
-	}
-
-	fireOnBeforeAnyChange() {
-		this.onAnyChangeCbs.forEach(cb => cb());
 	}
 
 	/**
