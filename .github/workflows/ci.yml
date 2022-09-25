@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 env:
-  # be sure to also update these in build-pr.yml
+  # be sure to also update these in build.yml
   DENO_DIR: deno_dir
   DENO_VERSION: "1.25.3"
 
@@ -78,6 +78,3 @@ jobs:
   build:
     if: ${{ github.event_name != 'pull_request' }}
     uses: ./.github/workflows/build.yml
-    with:
-      DENO_VERSION: ${{ env.DENO_VERSION }}
-      DENO_DIR: ${{ env.DENO_DIR }}

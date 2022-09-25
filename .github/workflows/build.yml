@@ -1,17 +1,11 @@
 name: build
 on:
-  workflow_call:
-    inputs:
-      DENO_VERSION:
-        required: true
-        type: string
-      DENO_DIR:
-        required: true
-        type: string
+  workflow_call
 
 env:
-  DENO_DIR: ${{ inputs.DENO_DIR }}
-  DENO_VERSION: ${{ inputs.DENO_VERSION }}
+  # be sure to also update these in ci.yml
+  DENO_DIR: deno_dir
+  DENO_VERSION: "1.25.3"
 
 jobs:
   build:

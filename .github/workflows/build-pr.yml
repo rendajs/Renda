@@ -1,17 +1,12 @@
-name: build-pr
+# We use a separate workflow file for building when a commit is pushed to a PR.
+# This way you don't need to wait for tests and other checks to finish before
+# the PR can be deployed.
 
+name: build-pr
 on:
   pull_request:
     branches: [main]
 
-env:
-  # be sure to also update these in ci.yml
-  DENO_DIR: deno_dir
-  DENO_VERSION: "1.25.3"
-
 jobs:
   build:
     uses: ./.github/workflows/build.yml
-    with:
-      DENO_VERSION: ${{ env.DENO_VERSION }}
-      DENO_DIR: ${{ env.DENO_DIR }}
