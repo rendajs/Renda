@@ -23,21 +23,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeFileStream should fire onBeforeAnyChange",
-	fn: async () => {
-		const {fs} = createBasicFs();
-
-		let onBeforeAnyChangeCalled = false;
-		fs.onBeforeAnyChange(() => {
-			onBeforeAnyChangeCalled = true;
-		});
-		await fs.writeFileStream(["root", "file1"]);
-
-		assertEquals(onBeforeAnyChangeCalled, true);
-	},
-});
-
-Deno.test({
 	name: "isFile true",
 	fn: async () => {
 		const {fs} = createBasicFs();

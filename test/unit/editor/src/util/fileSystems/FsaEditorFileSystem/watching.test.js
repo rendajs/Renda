@@ -1,4 +1,6 @@
 import {assertEquals} from "std/testing/asserts.ts";
+import {registerOnChangeSpy} from "../shared.js";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {createBasicFs} from "./shared.js";
 
 /**
@@ -191,9 +193,10 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Creating files from application shouldn't trigger watch events",
+	name: "Creating files from application shouldn't trigger external change events",
 	fn: async () => {
-		const {fs, changeEvents} = await initListener();
+		const {fs} = await initListener();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
@@ -203,7 +206,17 @@ Deno.test({
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
 
-		assertEquals(changeEvents, []);
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "newfile"],
+					type: "changed",
+				},
+			],
+		});
 	},
 });
 
@@ -225,9 +238,10 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Creating file in recursive subdirectory from application shouldn't trigger watch events",
+	name: "Creating file in recursive subdirectory from application shouldn't trigger external change events",
 	fn: async () => {
-		const {fs, changeEvents} = await initListener();
+		const {fs} = await initListener();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
@@ -237,6 +251,16 @@ Deno.test({
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
 
-		assertEquals(changeEvents, []);
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "nonexistent", "newfile"],
+					type: "changed",
+				},
+			],
+		});
 	},
 });

@@ -164,7 +164,6 @@ export class EditorFileSystem {
 	 */
 	async setRootName(name) {
 		this.onRootNameChangeCbs.forEach(cb => cb(name));
-		this.fireOnBeforeAnyChange();
 	}
 
 	async getRootName() {
