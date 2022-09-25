@@ -1,16 +1,13 @@
 import {assert} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import { registerOnChangeSpy } from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
 	name: "should create a directory and fire onBeforeAnyChange",
 	fn: async () => {
 		const fs = await createBasicFs();
-
-		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
-		const cb = () => {};
-		const onChangeSpy = spy(cb);
-		fs.onChange(onChangeSpy);
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "newdir"];
 		const createDirPromise = fs.createDir(path);

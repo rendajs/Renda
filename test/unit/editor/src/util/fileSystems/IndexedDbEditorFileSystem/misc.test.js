@@ -2,6 +2,7 @@ import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
 import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
+import {registerOnChangeSpy} from "../shared.js";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",
@@ -66,11 +67,7 @@ Deno.test({
 	name: "createDir() should create a directory and fire onChange",
 	fn: async () => {
 		const {fs} = await createBasicFs();
-
-		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
-		const cb = () => {};
-		const onChangeSpy = spy(cb);
-		fs.onChange(onChangeSpy);
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "newdir"];
 		const createDirPromise = fs.createDir(path);
@@ -223,12 +220,7 @@ Deno.test({
 	name: "writeFile should fire onChange",
 	async fn() {
 		const {fs} = await createBasicFs();
-
-		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
-		const cb = () => {};
-		const onChangeSpy = spy(cb);
-
-		fs.onChange(onChangeSpy);
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "file1"];
 		await fs.writeFile(path, "text");

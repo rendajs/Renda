@@ -2,6 +2,7 @@ import {createBasicFs, forcePendingOperations} from "./shared.js";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
+import {registerOnChangeSpy} from "../shared.js";
 
 Deno.test({
 	name: "delete() should delete files",
@@ -26,10 +27,7 @@ Deno.test({
 	name: "delete() should fire onChange",
 	fn: async () => {
 		const {fs} = await createBasicFs();
-
-		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
-		const cb = () => {};
-		const onChangeSpy = spy(cb);
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		fs.onChange(onChangeSpy);
 

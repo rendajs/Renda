@@ -1,5 +1,6 @@
 import {assert, assertExists} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {registerOnChangeSpy} from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
@@ -26,10 +27,7 @@ Deno.test({
 	name: "writeFile should fire onChange",
 	async fn() {
 		const {fs} = createBasicFs();
-
-		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
-		const cb = () => {};
-		const onChangeSpy = spy(cb);
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		fs.onChange(onChangeSpy);
 
