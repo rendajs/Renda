@@ -75,6 +75,7 @@ jobs:
         run: deno task test test/e2e
 
   build:
+    if: ${{ github.event_name != 'pull_request' }}
     uses: ./.github/workflows/build.yml
     with:
       DENO_VERSION: ${{ env.DENO_VERSION }}

@@ -1,0 +1,12 @@
+name: build-pr
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      DENO_VERSION: ${{ env.DENO_VERSION }}
+      DENO_DIR: ${{ env.DENO_DIR }}
