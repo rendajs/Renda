@@ -537,7 +537,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path, recursive = false) {
-		super.delete(path, recursive);
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 
@@ -547,6 +546,13 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			await unlock();
 			writeOp.done();
 		}
+
+		this.fireChange({
+			external: false,
+			kind: "unknown",
+			path: [...path],
+			type: "deleted",
+		});
 	}
 
 	/**

@@ -7,11 +7,13 @@ import {WriteOperation} from "./WriteOperation.js";
 
 /** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
 
+/** @typedef {"file" | "directory" | "unknown"} FileSystemChangeKind */
+
 /**
  * @typedef {object} FileSystemChangeEvent
  * @property {boolean} external Whether the file was changed by an external application. False if the change
  * was triggered by an api call within this application and true otherwise.
- * @property {"file" | "directory"} kind
+ * @property {FileSystemChangeKind} kind
  * @property {string[]} path
  * @property {"changed" | "created" | "deleted"} type
  */
@@ -195,9 +197,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path The file or directory to delete.
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
-	async delete(path, recursive = false) {
-		this.fireOnBeforeAnyChange();
-	}
+	async delete(path, recursive = false) {}
 
 	/**
 	 * Check if a file exists at the specified path, and if it is a file.

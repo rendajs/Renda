@@ -297,8 +297,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async delete(path, recursive = false) {
-		super.delete(path, recursive);
-		let handle = await this.handle;
+		let handle = this.handle;
 		for (const [i, name] of path.entries()) {
 			await this.verifyHandlePermission(handle);
 			if (i == path.length - 1) {
@@ -308,6 +307,12 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 				handle = await handle.getDirectoryHandle(name);
 			}
 		}
+		this.fireChange({
+			external: false,
+			kind: "unknown",
+			path: [...path],
+			type: "deleted",
+		});
 	}
 
 	/**

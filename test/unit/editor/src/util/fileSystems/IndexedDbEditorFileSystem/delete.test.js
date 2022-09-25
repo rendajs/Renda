@@ -1,4 +1,5 @@
 import {createBasicFs, forcePendingOperations} from "./shared.js";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
@@ -22,18 +23,33 @@ Deno.test({
 });
 
 Deno.test({
-	name: "delete() should fire onBeforeAnyChange",
+	name: "delete() should fire onChange",
 	fn: async () => {
 		const {fs} = await createBasicFs();
 
-		let fired = false;
-		fs.onBeforeAnyChange(() => {
-			fired = true;
+		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
+		const cb = () => {};
+		const onChangeSpy = spy(cb);
+
+		fs.onChange(onChangeSpy);
+
+		const path = ["root", "file1"];
+		await fs.delete(path);
+
+		// Change the path to verify the event contains a diferent array
+		path.push("extra");
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "unknown",
+					path: ["root", "file1"],
+					type: "deleted",
+				},
+			],
 		});
-
-		await fs.delete(["root", "file1"]);
-
-		assertEquals(fired, true);
 	},
 });
 
