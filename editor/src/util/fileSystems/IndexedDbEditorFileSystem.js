@@ -299,11 +299,11 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 */
 	async createDir(path) {
-		const pathCopy = [...path];
+		path = [...path];
 		const op = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
-			await this.createDirInternal(pathCopy);
+			await this.createDirInternal(path);
 		} finally {
 			await unlock();
 			op.done();
@@ -312,7 +312,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		this.fireChange({
 			external: false,
 			kind: "directory",
-			path: pathCopy,
+			path,
 			type: "created",
 		});
 	}

@@ -1,30 +1,11 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
-	name: "should create a directory",
+	name: "should create a directory and fire onchange",
 	fn: async () => {
 		const {fs, rootDirHandle} = createBasicFs();
-
-		await fs.createDir(["root", "newdir"]);
-
-		let hasNewDir = false;
-		for await (const [name] of rootDirHandle.entries()) {
-			if (name == "newdir") {
-				hasNewDir = true;
-				break;
-			}
-		}
-
-		assertEquals(hasNewDir, true);
-	},
-});
-
-Deno.test({
-	name: "should fire onChange",
-	fn: async () => {
-		const {fs} = createBasicFs();
 
 		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} */
 		const cb = () => {};
@@ -32,10 +13,27 @@ Deno.test({
 		fs.onChange(onChangeSpy);
 
 		const path = ["root", "newdir"];
-		await fs.createDir(path);
+		const createDirPromise = fs.createDir(path);
 
-		// Change the path to verify the event contains a diferent array
+		// Change the path to verify that the initial array value is used
 		path.push("extra");
+
+		await createDirPromise;
+
+		let newDirHandle;
+		for await (const [name, handle] of rootDirHandle.entries()) {
+			if (name == "newdir") {
+				newDirHandle = handle;
+				break;
+			}
+		}
+		assertExists(newDirHandle);
+		assert(newDirHandle.kind == "directory", "Created handle is not a directory");
+		let subChildCount = 0;
+		for await (const _ of newDirHandle.entries()) {
+			subChildCount++;
+		}
+		assertEquals(subChildCount, 0);
 
 		assertSpyCalls(onChangeSpy, 1);
 		assertSpyCall(onChangeSpy, 0, {

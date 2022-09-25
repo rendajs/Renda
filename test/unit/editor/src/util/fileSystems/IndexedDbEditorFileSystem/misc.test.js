@@ -58,13 +58,12 @@ Deno.test({
 				break;
 			}
 		}
-
 		assertEquals(hasNewDir, true);
 	},
 });
 
 Deno.test({
-	name: "createDir() should fire onChange",
+	name: "createDir() should create a directory and fire onChange",
 	fn: async () => {
 		const {fs} = await createBasicFs();
 
@@ -74,10 +73,29 @@ Deno.test({
 		fs.onChange(onChangeSpy);
 
 		const path = ["root", "newdir"];
-		await fs.createDir(path);
+		const createDirPromise = fs.createDir(path);
 
-		// Change the path to verify the event contains a diferent array
+		// Change the path to verify the that the initial array value is used.
 		path.push("extra");
+
+		await createDirPromise;
+
+		let hasNewDir = false;
+		const {directories} = await fs.readDir(["root"]);
+		for (const name of directories) {
+			if (name == "newdir") {
+				hasNewDir = true;
+				break;
+			}
+		}
+		assertEquals(hasNewDir, true);
+
+		let newDirEmpty = true;
+		const {directories: directories2} = await fs.readDir(["root", "newdir"]);
+		for (const name of directories2) {
+			newDirEmpty = false;
+		}
+		assert(newDirEmpty, "Expected the created directory to be empty");
 
 		assertSpyCalls(onChangeSpy, 1);
 		assertSpyCall(onChangeSpy, 0, {

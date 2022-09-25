@@ -3,19 +3,7 @@ import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
-	name: "should create a directory",
-	fn: async () => {
-		const fs = await createBasicFs();
-
-		await fs.createDir(["root", "newdir"]);
-
-		const {directories} = await fs.readDir(["root"]);
-		assert(directories.includes("newdir"), "'newdir' was not created");
-	},
-});
-
-Deno.test({
-	name: "should fire onBeforeAnyChange",
+	name: "should create a directory and fire onBeforeAnyChange",
 	fn: async () => {
 		const fs = await createBasicFs();
 
@@ -25,10 +13,15 @@ Deno.test({
 		fs.onChange(onChangeSpy);
 
 		const path = ["root", "newdir"];
-		await fs.createDir(path);
+		const createDirPromise = fs.createDir(path);
 
-		// Change the path to verify the event contains a diferent array
+		// Change the path to verify the initial array value is used
 		path.push("extra");
+
+		await createDirPromise;
+
+		const {directories} = await fs.readDir(["root"]);
+		assert(directories.includes("newdir"), "'newdir' was not created");
 
 		assertSpyCalls(onChangeSpy, 1);
 		assertSpyCall(onChangeSpy, 0, {

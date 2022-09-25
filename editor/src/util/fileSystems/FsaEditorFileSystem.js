@@ -266,15 +266,15 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async createDir(path) {
-		const pathCopy = [...path];
-		await this.getDirHandle(pathCopy, {create: true});
+		path = [...path];
+		await this.getDirHandle(path, {create: true});
 
 		// Note that this also fires the event when the directory already
 		// existed before the call.
 		this.fireChange({
 			external: false,
 			kind: "directory",
-			path: pathCopy,
+			path,
 			type: "created",
 		});
 	}
