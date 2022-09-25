@@ -51,8 +51,6 @@ import {ContentWindowConnections} from "../windowManagement/contentWindows/Conte
 /** @typedef {StoredProjectEntry<FsType>} StoredProjectEntryAny */
 
 export class ProjectManager {
-	#boundOnFileSystemExternalChange;
-	#boundOnFileSystemBeforeAnyChange;
 	#boundOnFileSystemRootNameChange;
 
 	#boundSaveContentWindowPersistentData;
@@ -112,15 +110,6 @@ export class ProjectManager {
 			}
 		});
 
-		/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent) => void} */
-		this.#boundOnFileSystemExternalChange = e => {
-			for (const cb of this.onExternalChangeCbs) {
-				cb(e);
-			}
-		};
-		this.#boundOnFileSystemBeforeAnyChange = () => {
-			this.markCurrentProjectAsWorthSaving();
-		};
 		/** @type {(newName: string) => void} */
 		this.#boundOnFileSystemRootNameChange = newName => {
 			if (!this.currentProjectOpenEvent) {
@@ -175,8 +164,7 @@ export class ProjectManager {
 	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture) {
 		// todo: handle multiple calls to openProject by cancelling any current running calls.
 		if (this.currentProjectFileSystem) {
-			this.currentProjectFileSystem.removeOnChange(this.#boundOnFileSystemExternalChange);
-			this.currentProjectFileSystem.removeOnBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
+			this.currentProjectFileSystem.removeOnChange(this.#onFileSystemChange);
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
 		this.currentProjectFileSystem = fileSystem;
@@ -195,8 +183,7 @@ export class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
 
-		fileSystem.onChange(this.#boundOnFileSystemExternalChange);
-		fileSystem.onBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
+		fileSystem.onChange(this.#onFileSystemChange);
 		fileSystem.onRootNameChange(this.#boundOnFileSystemRootNameChange);
 		if (openProjectChangeEvent.fileSystemType == "db" && !this.currentProjectIsMarkedAsWorthSaving) {
 			this.fireOnProjectOpenEntryChangeCbs();
@@ -288,6 +275,17 @@ export class ProjectManager {
 		}
 		return this.assetManager;
 	}
+
+	/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent) => void} */
+	#onFileSystemChange = e => {
+		if (e.external) {
+			for (const cb of this.onExternalChangeCbs) {
+				cb(e);
+			}
+		} else {
+			this.markCurrentProjectAsWorthSaving();
+		}
+	};
 
 	markCurrentProjectAsWorthSaving() {
 		if (this.currentProjectIsMarkedAsWorthSaving || !this.currentProjectOpenEvent) return;
