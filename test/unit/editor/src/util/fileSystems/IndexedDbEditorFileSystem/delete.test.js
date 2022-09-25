@@ -5,11 +5,20 @@ import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../shared.js";
 
 Deno.test({
-	name: "delete() should delete files",
+	name: "delete() should delete files and fire onChange",
 	fn: async () => {
 		const {fs} = await createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
-		await fs.delete(["root", "file1"]);
+		fs.onChange(onChangeSpy);
+
+		const path = ["root", "file1"];
+		const deletePromise = fs.delete(path);
+
+		// Change the path to verify that the initial array is used
+		path.push("extra");
+
+		await deletePromise;
 
 		let hasFile1 = false;
 		const {directories} = await fs.readDir(["root"]);
@@ -18,24 +27,7 @@ Deno.test({
 				hasFile1 = true;
 			}
 		}
-
 		assertEquals(hasFile1, false);
-	},
-});
-
-Deno.test({
-	name: "delete() should fire onChange",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-		const onChangeSpy = registerOnChangeSpy(fs);
-
-		fs.onChange(onChangeSpy);
-
-		const path = ["root", "file1"];
-		await fs.delete(path);
-
-		// Change the path to verify the event contains a diferent array
-		path.push("extra");
 
 		assertSpyCalls(onChangeSpy, 1);
 		assertSpyCall(onChangeSpy, 0, {

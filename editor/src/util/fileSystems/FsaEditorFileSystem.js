@@ -305,6 +305,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async delete(path, recursive = false) {
+		path = [...path];
 		let handle = this.handle;
 		for (const [i, name] of path.entries()) {
 			await this.verifyHandlePermission(handle);
