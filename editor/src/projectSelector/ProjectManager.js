@@ -112,7 +112,7 @@ export class ProjectManager {
 			}
 		});
 
-		/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent) => void} */
+		/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent) => void} */
 		this.#boundOnFileSystemExternalChange = e => {
 			for (const cb of this.onExternalChangeCbs) {
 				cb(e);
@@ -148,7 +148,7 @@ export class ProjectManager {
 		this.onProjectOpenCbs = new Set();
 		this.hasOpeneProject = false;
 
-		/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback>} */
+		/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback>} */
 		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
@@ -175,7 +175,7 @@ export class ProjectManager {
 	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture) {
 		// todo: handle multiple calls to openProject by cancelling any current running calls.
 		if (this.currentProjectFileSystem) {
-			this.currentProjectFileSystem.removeOnExternalChange(this.#boundOnFileSystemExternalChange);
+			this.currentProjectFileSystem.removeOnChange(this.#boundOnFileSystemExternalChange);
 			this.currentProjectFileSystem.removeOnBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
@@ -195,7 +195,7 @@ export class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
 
-		fileSystem.onExternalChange(this.#boundOnFileSystemExternalChange);
+		fileSystem.onChange(this.#boundOnFileSystemExternalChange);
 		fileSystem.onBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
 		fileSystem.onRootNameChange(this.#boundOnFileSystemRootNameChange);
 		if (openProjectChangeEvent.fileSystemType == "db" && !this.currentProjectIsMarkedAsWorthSaving) {
@@ -406,14 +406,14 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
 	 */
 	onExternalChange(cb) {
 		this.onExternalChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
 	 */
 	removeOnExternalChange(cb) {
 		this.onExternalChangeCbs.delete(cb);

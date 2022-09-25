@@ -7,9 +7,9 @@ import {createBasicFs} from "./shared.js";
 async function initListener(...args) {
 	const basicFs = createBasicFs(...args);
 
-	/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent[]} */
+	/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent[]} */
 	const changeEvents = [];
-	basicFs.fs.onExternalChange(e => changeEvents.push(e));
+	basicFs.fs.onChange(e => changeEvents.push(e));
 
 	await basicFs.fs.updateWatchTreeInstance.waitForFinishIfRunning();
 
@@ -21,9 +21,9 @@ Deno.test({
 	fn: async () => {
 		const {fs} = createBasicFs();
 
-		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent[]} */
+		/** @type {import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent[]} */
 		const changeEvents = [];
-		fs.onExternalChange(e => changeEvents.push(e));
+		fs.onChange(e => changeEvents.push(e));
 		fs.suggestCheckExternalChanges();
 
 		assertEquals(changeEvents.length, 0);
@@ -41,6 +41,7 @@ Deno.test({
 
 		assertEquals(changeEvents, [
 			{
+				external: true,
 				kind: "file",
 				path: ["root", "file1"],
 				type: "changed",
@@ -60,6 +61,7 @@ Deno.test({
 
 		assertEquals(changeEvents, [
 			{
+				external: true,
 				kind: "file",
 				path: ["root", "onlyfiles", "subfile1"],
 				type: "deleted",
@@ -79,6 +81,7 @@ Deno.test({
 
 		assertEquals(changeEvents, [
 			{
+				external: true,
 				kind: "file",
 				path: ["root", "onlyfiles", "newfile"],
 				type: "created",
@@ -98,6 +101,7 @@ Deno.test({
 
 		assertEquals(changeEvents, [
 			{
+				external: true,
 				kind: "directory",
 				path: ["root", "onlyfiles", "newdir"],
 				type: "created",
@@ -117,6 +121,7 @@ Deno.test({
 
 		assertEquals(changeEvents, [
 			{
+				external: true,
 				kind: "directory",
 				path: ["root", "onlydirs", "subdir1"],
 				type: "deleted",
@@ -176,6 +181,7 @@ Deno.test({
 
 		assertEquals(changeEvents, [
 			{
+				external: true,
 				kind: "file",
 				path: ["root", "onlyfiles", "newfile"],
 				type: "created",

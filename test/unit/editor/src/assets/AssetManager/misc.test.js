@@ -17,7 +17,8 @@ Deno.test({
 			externalChangeCalled = true;
 		};
 
-		mockFileSystem.fireExternalChange({
+		mockFileSystem.fireChange({
+			external: true,
 			path: ["path", "to", "asset.json"],
 			kind: "file",
 			type: "changed",

@@ -430,13 +430,13 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	}
 
 	async updateWatchTree() {
-		/** @type {import("./EditorFileSystem.js").FileSystemExternalChangeEvent[]} */
+		/** @type {import("./EditorFileSystem.js").FileSystemChangeEvent[]} */
 		const collectedChanges = [];
 
 		await this.traverseWatchTree(this.watchTree, this.handle, collectedChanges);
 
 		for (const change of collectedChanges) {
-			this.fireExternalChange(change);
+			this.fireChange(change);
 		}
 	}
 
@@ -446,7 +446,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * an external change event.
 	 * @param {WatchTreeNode} watchTree
 	 * @param {FileSystemDirectoryHandle} dirHandle
-	 * @param {import("./EditorFileSystem.js").FileSystemExternalChangeEvent[]} collectedChanges
+	 * @param {import("./EditorFileSystem.js").FileSystemChangeEvent[]} collectedChanges
 	 * @param {string[]} traversedPath
 	 * @returns {Promise<boolean>} True if the file/dir and all of it's children were checked correctly.
 	 */
@@ -468,12 +468,14 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 				const {lastModified} = file;
 				if (childNode && childNode.init && childNode.lastModified < lastModified) {
 					collectedChanges.push({
+						external: true,
 						kind: handle.kind,
 						path: [...traversedPath, name],
 						type: "changed",
 					});
 				} else if ((!childNode || !childNode.init) && watchTree.init) {
 					collectedChanges.push({
+						external: true,
 						kind: handle.kind,
 						path: [...traversedPath, name],
 						type: "created",
@@ -490,6 +492,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			} else if (handle.kind == "directory") {
 				if ((!childNode || !childNode.init) && watchTree.init) {
 					collectedChanges.push({
+						external: true,
 						kind: handle.kind,
 						path: [...traversedPath, name],
 						type: "created",
@@ -516,6 +519,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			const deletingNode = watchTree.children.get(name);
 			if (deletingNode) {
 				collectedChanges.push({
+					external: true,
 					kind: deletingNode.kind,
 					path: [...traversedPath, name],
 					type: "deleted",

@@ -134,7 +134,7 @@ export class AssetManager {
 		this.waitForAssetSettingsLoadCbs = new Set();
 
 		this.boundExternalChange = this.externalChange.bind(this);
-		this.fileSystem.onExternalChange(this.boundExternalChange);
+		this.fileSystem.onChange(this.boundExternalChange);
 
 		this.loadAssetSettingsFromUserGesture = false;
 		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
@@ -146,7 +146,7 @@ export class AssetManager {
 	}
 
 	destructor() {
-		this.fileSystem.removeOnExternalChange(this.boundExternalChange);
+		this.fileSystem.removeOnChange(this.boundExternalChange);
 	}
 
 	get builtInAssets() {
@@ -429,7 +429,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent} e
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent} e
 	 */
 	async externalChange(e) {
 		const projectAsset = await this.getProjectAssetFromPath(e.path, {

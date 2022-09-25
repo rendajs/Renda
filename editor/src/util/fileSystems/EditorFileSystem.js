@@ -8,21 +8,24 @@ import {WriteOperation} from "./WriteOperation.js";
 /** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
 
 /**
- * @typedef {object} FileSystemExternalChangeEvent
+ * @typedef {object} FileSystemChangeEvent
+ * @property {boolean} external Whether the file was changed by an external application. False if the change
+ * was triggered by an api call within this application and true otherwise.
  * @property {"file" | "directory"} kind
  * @property {string[]} path
  * @property {"changed" | "created" | "deleted"} type
  */
 
-/** @typedef {(e: FileSystemExternalChangeEvent) => any} FileSystemExternalChangeCallback */
+/** @typedef {(e: FileSystemChangeEvent) => any} FileSystemChangeCallback */
 
 /**
  * @abstract
  */
 export class EditorFileSystem {
+	/** @type {Set<FileSystemChangeCallback>} */
+	#onChangeCbs = new Set();
+
 	constructor() {
-		/** @type {Set<FileSystemExternalChangeCallback>} */
-		this.onExternalChangeCbs = new Set();
 		/** @type {Set<() => void>} */
 		this.onAnyChangeCbs = new Set();
 		/** @type {Set<function(string):void>} */
@@ -230,24 +233,24 @@ export class EditorFileSystem {
 
 	/**
 	 * Fires when a file is changed from outside the application.
-	 * @param {FileSystemExternalChangeCallback} cb
+	 * @param {FileSystemChangeCallback} cb
 	 */
-	onExternalChange(cb) {
-		this.onExternalChangeCbs.add(cb);
+	onChange(cb) {
+		this.#onChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {FileSystemExternalChangeCallback} cb
+	 * @param {FileSystemChangeCallback} cb
 	 */
-	removeOnExternalChange(cb) {
-		this.onExternalChangeCbs.delete(cb);
+	removeOnChange(cb) {
+		this.#onChangeCbs.delete(cb);
 	}
 
 	/**
-	 * @param {FileSystemExternalChangeEvent} e
+	 * @param {FileSystemChangeEvent} e
 	 */
-	fireExternalChange(e) {
-		this.onExternalChangeCbs.forEach(cb => cb(e));
+	fireChange(e) {
+		this.#onChangeCbs.forEach(cb => cb(e));
 	}
 
 	/**
