@@ -7,24 +7,27 @@ import {WriteOperation} from "./WriteOperation.js";
 
 /** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
 
+/** @typedef {"file" | "directory" | "unknown"} FileSystemChangeKind */
+
 /**
- * @typedef {object} FileSystemExternalChangeEvent
- * @property {"file" | "directory"} kind
+ * @typedef {object} FileSystemChangeEvent
+ * @property {boolean} external Whether the file was changed by an external application. False if the change
+ * was triggered by an api call within this application and true otherwise.
+ * @property {FileSystemChangeKind} kind
  * @property {string[]} path
  * @property {"changed" | "created" | "deleted"} type
  */
 
-/** @typedef {(e: FileSystemExternalChangeEvent) => any} FileSystemExternalChangeCallback */
+/** @typedef {(e: FileSystemChangeEvent) => any} FileSystemChangeCallback */
 
 /**
  * @abstract
  */
 export class EditorFileSystem {
+	/** @type {Set<FileSystemChangeCallback>} */
+	#onChangeCbs = new Set();
+
 	constructor() {
-		/** @type {Set<FileSystemExternalChangeCallback>} */
-		this.onExternalChangeCbs = new Set();
-		/** @type {Set<() => void>} */
-		this.onAnyChangeCbs = new Set();
 		/** @type {Set<function(string):void>} */
 		this.onRootNameChangeCbs = new Set();
 		/** @private @type {Set<WriteOperation>} */
@@ -86,9 +89,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 * @returns {Promise<void>}
 	 */
-	async createDir(path) {
-		this.fireOnBeforeAnyChange();
-	}
+	async createDir(path) {}
 
 	/**
 	 * @param {EditorFileSystemPath} path
@@ -105,9 +106,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 * @param {AllowedWriteFileTypes} file
 	 */
-	async writeFile(path, file) {
-		this.fireOnBeforeAnyChange();
-	}
+	async writeFile(path, file) {}
 
 	/**
 	 * @abstract
@@ -156,9 +155,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} fromPath
 	 * @param {EditorFileSystemPath} toPath
 	 */
-	async move(fromPath, toPath) {
-		this.fireOnBeforeAnyChange();
-	}
+	async move(fromPath, toPath) {}
 
 	rootNameSetSupported = false;
 
@@ -167,7 +164,12 @@ export class EditorFileSystem {
 	 */
 	async setRootName(name) {
 		this.onRootNameChangeCbs.forEach(cb => cb(name));
-		this.fireOnBeforeAnyChange();
+		this.fireChange({
+			external: false,
+			kind: "directory",
+			path: [],
+			type: "changed",
+		});
 	}
 
 	async getRootName() {
@@ -194,9 +196,7 @@ export class EditorFileSystem {
 	 * @param {EditorFileSystemPath} path The file or directory to delete.
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
-	async delete(path, recursive = false) {
-		this.fireOnBeforeAnyChange();
-	}
+	async delete(path, recursive = false) {}
 
 	/**
 	 * Check if a file exists at the specified path, and if it is a file.
@@ -230,43 +230,24 @@ export class EditorFileSystem {
 
 	/**
 	 * Fires when a file is changed from outside the application.
-	 * @param {FileSystemExternalChangeCallback} cb
+	 * @param {FileSystemChangeCallback} cb
 	 */
-	onExternalChange(cb) {
-		this.onExternalChangeCbs.add(cb);
+	onChange(cb) {
+		this.#onChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {FileSystemExternalChangeCallback} cb
+	 * @param {FileSystemChangeCallback} cb
 	 */
-	removeOnExternalChange(cb) {
-		this.onExternalChangeCbs.delete(cb);
+	removeOnChange(cb) {
+		this.#onChangeCbs.delete(cb);
 	}
 
 	/**
-	 * @param {FileSystemExternalChangeEvent} e
+	 * @param {FileSystemChangeEvent} e
 	 */
-	fireExternalChange(e) {
-		this.onExternalChangeCbs.forEach(cb => cb(e));
-	}
-
-	/**
-	 * Fires when a file is changed either by the application or externally.
-	 * @param {() => void} cb
-	 */
-	onBeforeAnyChange(cb) {
-		this.onAnyChangeCbs.add(cb);
-	}
-
-	/**
-	 * @param {() => void} cb
-	 */
-	removeOnBeforeAnyChange(cb) {
-		this.onAnyChangeCbs.delete(cb);
-	}
-
-	fireOnBeforeAnyChange() {
-		this.onAnyChangeCbs.forEach(cb => cb());
+	fireChange(e) {
+		this.#onChangeCbs.forEach(cb => cb(e));
 	}
 
 	/**

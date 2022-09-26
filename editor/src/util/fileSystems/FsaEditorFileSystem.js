@@ -266,8 +266,17 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async createDir(path) {
-		super.createDir(path);
+		path = [...path];
 		await this.getDirHandle(path, {create: true});
+
+		// Note that this also fires the event when the directory already
+		// existed before the call.
+		this.fireChange({
+			external: false,
+			kind: "directory",
+			path,
+			type: "created",
+		});
 	}
 
 	/**
@@ -276,13 +285,20 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} toPath
 	 */
 	async move(fromPath = [], toPath = []) {
-		super.move(fromPath, toPath);
 		if (await this.isDir(fromPath)) {
 			throw new Error("not yet implemented");
 		}
 		const file = await this.readFile(fromPath);
 		await this.writeFile(toPath, file);
 		await this.delete(fromPath);
+	}
+
+	/**
+	 * @override
+	 * @param {string} name
+	 */
+	async setRootName(name) {
+		throw new Error("Changing the root name of fsa file systems is not supported.");
 	}
 
 	/**
@@ -297,8 +313,8 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async delete(path, recursive = false) {
-		super.delete(path, recursive);
-		let handle = await this.handle;
+		path = [...path];
+		let handle = this.handle;
 		for (const [i, name] of path.entries()) {
 			await this.verifyHandlePermission(handle);
 			if (i == path.length - 1) {
@@ -308,6 +324,12 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 				handle = await handle.getDirectoryHandle(name);
 			}
 		}
+		this.fireChange({
+			external: false,
+			kind: "unknown",
+			path: [...path],
+			type: "deleted",
+		});
 	}
 
 	/**
@@ -366,7 +388,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
-		super.writeFile(path, file);
+		path = [...path];
 		const fileStream = await this.writeFileStream(path);
 		if (fileStream.locked) {
 			throw new Error("File is locked, writing after lock is not yet implemented");
@@ -374,6 +396,14 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 		await fileStream.write(file);
 		await fileStream.close();
 		this.setWatchTreeLastModified(path);
+
+		// Note that this will always have type "changed" even when the file has been created.
+		this.fireChange({
+			external: false,
+			kind: "file",
+			path,
+			type: "changed",
+		});
 	}
 
 	/**
@@ -383,7 +413,6 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	async writeFileStream(path, keepExistingData = false) {
 		const fileHandle = await this.getFileHandle(path, {create: true});
 		await this.verifyHandlePermission(fileHandle);
-		this.fireOnBeforeAnyChange();
 		const fileStream = await fileHandle.createWritable({keepExistingData});
 		return fileStream;
 	}
@@ -430,13 +459,13 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	}
 
 	async updateWatchTree() {
-		/** @type {import("./EditorFileSystem.js").FileSystemExternalChangeEvent[]} */
+		/** @type {import("./EditorFileSystem.js").FileSystemChangeEvent[]} */
 		const collectedChanges = [];
 
 		await this.traverseWatchTree(this.watchTree, this.handle, collectedChanges);
 
 		for (const change of collectedChanges) {
-			this.fireExternalChange(change);
+			this.fireChange(change);
 		}
 	}
 
@@ -446,7 +475,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * an external change event.
 	 * @param {WatchTreeNode} watchTree
 	 * @param {FileSystemDirectoryHandle} dirHandle
-	 * @param {import("./EditorFileSystem.js").FileSystemExternalChangeEvent[]} collectedChanges
+	 * @param {import("./EditorFileSystem.js").FileSystemChangeEvent[]} collectedChanges
 	 * @param {string[]} traversedPath
 	 * @returns {Promise<boolean>} True if the file/dir and all of it's children were checked correctly.
 	 */
@@ -468,12 +497,14 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 				const {lastModified} = file;
 				if (childNode && childNode.init && childNode.lastModified < lastModified) {
 					collectedChanges.push({
+						external: true,
 						kind: handle.kind,
 						path: [...traversedPath, name],
 						type: "changed",
 					});
 				} else if ((!childNode || !childNode.init) && watchTree.init) {
 					collectedChanges.push({
+						external: true,
 						kind: handle.kind,
 						path: [...traversedPath, name],
 						type: "created",
@@ -490,6 +521,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			} else if (handle.kind == "directory") {
 				if ((!childNode || !childNode.init) && watchTree.init) {
 					collectedChanges.push({
+						external: true,
 						kind: handle.kind,
 						path: [...traversedPath, name],
 						type: "created",
@@ -516,6 +548,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			const deletingNode = watchTree.children.get(name);
 			if (deletingNode) {
 				collectedChanges.push({
+					external: true,
 					kind: deletingNode.kind,
 					path: [...traversedPath, name],
 					type: "deleted",

@@ -103,10 +103,17 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async createDir(path) {
-		super.createDir(path);
+		path = [...path];
 		this.getObjectPointer(path, {
 			create: true,
 			createType: "dir",
+		});
+
+		this.fireChange({
+			external: false,
+			kind: "directory",
+			path,
+			type: "created",
 		});
 	}
 
@@ -129,6 +136,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
+		path = [...path];
 		const object = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
@@ -137,6 +145,13 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 			throw new Error(`"${path.join("/")}" is not a file.`);
 		}
 		object.file = new File([file], object.name);
+
+		this.fireChange({
+			external: false,
+			kind: "file",
+			path,
+			type: "changed",
+		});
 	}
 
 	/**

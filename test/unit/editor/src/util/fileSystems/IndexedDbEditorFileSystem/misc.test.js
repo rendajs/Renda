@@ -1,6 +1,8 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
 import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
+import {registerOnChangeSpy} from "../shared.js";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",
@@ -43,6 +45,28 @@ Deno.test({
 });
 
 Deno.test({
+	name: "setRootName should fire onChange event",
+	async fn() {
+		const fs = await createFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
+
+		await fs.setRootName("new root name");
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "directory",
+					path: [],
+					type: "changed",
+				},
+			],
+		});
+	},
+});
+
+Deno.test({
 	name: "createDir() should create a directory",
 	fn: async () => {
 		const {fs} = await createBasicFs();
@@ -57,23 +81,52 @@ Deno.test({
 				break;
 			}
 		}
-
 		assertEquals(hasNewDir, true);
 	},
 });
 
 Deno.test({
-	name: "createDir() should fire onBeforeAnyChange",
+	name: "createDir() should create a directory and fire onChange",
 	fn: async () => {
 		const {fs} = await createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
-		let onBeforeAnyChangeCalled = false;
-		fs.onBeforeAnyChange(() => {
-			onBeforeAnyChangeCalled = true;
+		const path = ["root", "newdir"];
+		const createDirPromise = fs.createDir(path);
+
+		// Change the path to verify the that the initial array value is used.
+		path.push("extra");
+
+		await createDirPromise;
+
+		let hasNewDir = false;
+		const {directories} = await fs.readDir(["root"]);
+		for (const name of directories) {
+			if (name == "newdir") {
+				hasNewDir = true;
+				break;
+			}
+		}
+		assertEquals(hasNewDir, true);
+
+		let newDirEmpty = true;
+		const {directories: directories2} = await fs.readDir(["root", "newdir"]);
+		for (const _ of directories2) {
+			newDirEmpty = false;
+		}
+		assert(newDirEmpty, "Expected the created directory to be empty");
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "directory",
+					path: ["root", "newdir"],
+					type: "created",
+				},
+			],
 		});
-		await fs.createDir(["root", "newdir"]);
-
-		assertEquals(onBeforeAnyChangeCalled, true);
 	},
 });
 
@@ -174,30 +227,33 @@ Deno.test({
 });
 
 Deno.test({
-	name: "writeFile",
-	fn: async () => {
+	name: "writeFile should create the file and fire onChange",
+	async fn() {
 		const {fs} = await createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
-		await fs.writeFile(["root", "newfile"], "hello world");
+		const path = ["root", "newfile"];
+		const writeFilePromise = fs.writeFile(path, "text");
+
+		// Change the path to verify that the initial array is used
+		path.push("extra");
+
+		await writeFilePromise;
 
 		const {files} = await fs.readDir(["root"]);
 		assert(files.includes("newfile"), "'newfile' was not created");
-	},
-});
 
-Deno.test({
-	name: "writeFile should fire onBeforeAnyChange",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-
-		let onBeforeAnyChangeCalled = false;
-		fs.onBeforeAnyChange(() => {
-			onBeforeAnyChangeCalled = true;
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "newfile"],
+					type: "changed",
+				},
+			],
 		});
-
-		await fs.writeFile(["root", "newfile"], "hello world");
-
-		assertEquals(onBeforeAnyChangeCalled, true);
 	},
 });
 

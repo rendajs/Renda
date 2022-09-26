@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
@@ -19,21 +19,6 @@ Deno.test({
 		const {dirPath, fileName} = fs.splitDirFileName(["path", "to", "file1"]);
 		assertEquals(dirPath, ["path", "to"]);
 		assertEquals(fileName, "file1");
-	},
-});
-
-Deno.test({
-	name: "writeFileStream should fire onBeforeAnyChange",
-	fn: async () => {
-		const {fs} = createBasicFs();
-
-		let onBeforeAnyChangeCalled = false;
-		fs.onBeforeAnyChange(() => {
-			onBeforeAnyChangeCalled = true;
-		});
-		await fs.writeFileStream(["root", "file1"]);
-
-		assertEquals(onBeforeAnyChangeCalled, true);
 	},
 });
 
@@ -122,5 +107,16 @@ Deno.test({
 		const isDir = await fs.isDir(["root", "nonExistent", "dir"]);
 
 		assertEquals(isDir, false);
+	},
+});
+
+Deno.test({
+	name: "setRootName should throw",
+	async fn() {
+		const {fs} = createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.setRootName("test");
+		}, Error, "Changing the root name of fsa file systems is not supported.");
 	},
 });

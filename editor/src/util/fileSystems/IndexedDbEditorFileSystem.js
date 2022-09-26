@@ -299,7 +299,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {EditorFileSystemPath} path
 	 */
 	async createDir(path) {
-		super.createDir(path);
+		path = [...path];
 		const op = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
@@ -308,6 +308,13 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			await unlock();
 			op.done();
 		}
+
+		this.fireChange({
+			external: false,
+			kind: "directory",
+			path,
+			type: "created",
+		});
 	}
 
 	/**
@@ -455,8 +462,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {string[]} toPath
 	 */
 	async move(fromPath, toPath) {
-		super.move(fromPath, toPath);
-
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 
@@ -509,19 +514,43 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			if (oldParentEntry.pointer == newParentEntry.pointer) {
 				// remove old pointer
 				newParentEntry.obj.files = newParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
+				this.fireChange({
+					external: false,
+					kind: "file",
+					path: toPath,
+					type: "changed",
+				});
 
 				// add new pointer to new parent
 				newParentEntry.obj.files.push(movingEntry.pointer);
 				await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
+				this.fireChange({
+					external: false,
+					kind: "unknown",
+					path: fromPath,
+					type: "deleted",
+				});
 			} else {
 				// remove old pointer
 				this.assertIsDir(oldParentEntry.obj);
 				oldParentEntry.obj.files = oldParentEntry.obj.files.filter(pointer => pointer != movingEntry.pointer);
 				await this.updateObject(oldParentEntry.pointer, oldParentEntry.obj);
+				this.fireChange({
+					external: false,
+					kind: "file",
+					path: toPath,
+					type: "changed",
+				});
 
 				// add new pointer to new parent
 				newParentEntry.obj.files.push(movingEntry.pointer);
 				await this.updateObject(newParentEntry.pointer, newParentEntry.obj);
+				this.fireChange({
+					external: false,
+					kind: "unknown",
+					path: fromPath,
+					type: "deleted",
+				});
 			}
 		} finally {
 			await unlock();
@@ -537,7 +566,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path, recursive = false) {
-		super.delete(path, recursive);
+		path = [...path];
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 
@@ -547,6 +576,13 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			await unlock();
 			writeOp.done();
 		}
+
+		this.fireChange({
+			external: false,
+			kind: "unknown",
+			path,
+			type: "deleted",
+		});
 	}
 
 	/**
@@ -598,10 +634,10 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
+		path = [...path];
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
-			this.fireOnBeforeAnyChange();
 			if (!file) file = new Blob();
 			const fileName = path[path.length - 1];
 			let type = "";
@@ -644,6 +680,13 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			await unlock();
 			writeOp.done();
 		}
+
+		this.fireChange({
+			external: false,
+			kind: "file",
+			path,
+			type: "changed",
+		});
 	}
 
 	/**

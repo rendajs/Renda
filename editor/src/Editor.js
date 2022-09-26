@@ -105,7 +105,7 @@ export class Editor {
 			return null;
 		});
 
-		this.projectManager.onExternalChange(async e => {
+		this.projectManager.onFileChange(async e => {
 			const assetManager = await this.projectManager.getAssetManager();
 			const uuid = await assetManager.getAssetUuidFromPath(e.path);
 			this.webGpuShaderBuilder.invalidateShader(uuid);

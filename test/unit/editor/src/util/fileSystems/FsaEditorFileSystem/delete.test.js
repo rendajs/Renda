@@ -1,12 +1,23 @@
 import {assertEquals} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
+import {registerOnChangeSpy} from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
-	name: "Should delete files",
+	name: "Should delete files and fire onChange",
 	fn: async () => {
 		const {fs, rootDirHandle} = createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
-		await fs.delete(["root", "file1"]);
+		fs.onChange(onChangeSpy);
+
+		const path = ["root", "file1"];
+		const deletePromise = fs.delete(path);
+
+		// Change the path to verify that the initial array is used
+		path.push("extra");
+
+		await deletePromise;
 
 		let hasFile1 = false;
 		for await (const [name] of rootDirHandle.entries()) {
@@ -14,23 +25,18 @@ Deno.test({
 				hasFile1 = true;
 			}
 		}
-
 		assertEquals(hasFile1, false);
-	},
-});
 
-Deno.test({
-	name: "should fire onBeforeAnyChange",
-	fn: async () => {
-		const {fs} = createBasicFs();
-
-		let fired = false;
-		fs.onBeforeAnyChange(() => {
-			fired = true;
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "unknown",
+					path: ["root", "file1"],
+					type: "deleted",
+				},
+			],
 		});
-
-		await fs.delete(["root", "file1"]);
-
-		assertEquals(fired, true);
 	},
 });

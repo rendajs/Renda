@@ -1,10 +1,13 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
+import {registerOnChangeSpy} from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
 	name: "rename a file",
 	fn: async () => {
 		const {fs} = await createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		await fs.move(["root", "file2"], ["root", "file3"]);
 
@@ -21,6 +24,28 @@ Deno.test({
 
 		assertEquals(hasFile2, false);
 		assertEquals(hasFile3, true);
+
+		assertSpyCalls(onChangeSpy, 2);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "file3"],
+					type: "changed",
+				},
+			],
+		});
+		assertSpyCall(onChangeSpy, 1, {
+			args: [
+				{
+					external: false,
+					kind: "unknown",
+					path: ["root", "file2"],
+					type: "deleted",
+				},
+			],
+		});
 	},
 });
 
@@ -28,6 +53,7 @@ Deno.test({
 	name: "move a file",
 	fn: async () => {
 		const {fs} = await createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		await fs.move(["root", "file2"], ["root", "onlyfiles", "file2"]);
 
@@ -48,6 +74,28 @@ Deno.test({
 
 		assertEquals(hasFile2, false);
 		assertEquals(hasFile3, true);
+
+		assertSpyCalls(onChangeSpy, 2);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "onlyfiles", "file2"],
+					type: "changed",
+				},
+			],
+		});
+		assertSpyCall(onChangeSpy, 1, {
+			args: [
+				{
+					external: false,
+					kind: "unknown",
+					path: ["root", "file2"],
+					type: "deleted",
+				},
+			],
+		});
 	},
 });
 
@@ -55,6 +103,7 @@ Deno.test({
 	name: "rename a directory with files",
 	fn: async () => {
 		const {fs} = await createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
 
 		await fs.move(["root", "onlyfiles"], ["root", "onlyfiles2"]);
 
@@ -63,6 +112,28 @@ Deno.test({
 		assertEquals(result, {
 			directories: [],
 			files: ["subfile1", "subfile2"],
+		});
+
+		assertSpyCalls(onChangeSpy, 2);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "onlyfiles2"],
+					type: "changed",
+				},
+			],
+		});
+		assertSpyCall(onChangeSpy, 1, {
+			args: [
+				{
+					external: false,
+					kind: "unknown",
+					path: ["root", "onlyfiles"],
+					type: "deleted",
+				},
+			],
 		});
 	},
 });
@@ -112,22 +183,6 @@ Deno.test({
 		});
 
 		assertEquals(await fs.isDir(["root", "onlydirs"]), false);
-	},
-});
-
-Deno.test({
-	name: "move() should fire onBeforeAnyChange",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-
-		let fired = false;
-		fs.onBeforeAnyChange(() => {
-			fired = true;
-		});
-
-		await fs.move(["root", "file2"], ["root", "file3"]);
-
-		assertEquals(fired, true);
 	},
 });
 

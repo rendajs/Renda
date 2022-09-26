@@ -51,11 +51,12 @@ import {ContentWindowConnections} from "../windowManagement/contentWindows/Conte
 /** @typedef {StoredProjectEntry<FsType>} StoredProjectEntryAny */
 
 export class ProjectManager {
-	#boundOnFileSystemExternalChange;
-	#boundOnFileSystemBeforeAnyChange;
 	#boundOnFileSystemRootNameChange;
 
 	#boundSaveContentWindowPersistentData;
+
+	/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback>} */
+	#onFileChangeCbs = new Set();
 
 	constructor() {
 		/** @type {?import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} */
@@ -112,15 +113,6 @@ export class ProjectManager {
 			}
 		});
 
-		/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeEvent) => void} */
-		this.#boundOnFileSystemExternalChange = e => {
-			for (const cb of this.onExternalChangeCbs) {
-				cb(e);
-			}
-		};
-		this.#boundOnFileSystemBeforeAnyChange = () => {
-			this.markCurrentProjectAsWorthSaving();
-		};
 		/** @type {(newName: string) => void} */
 		this.#boundOnFileSystemRootNameChange = newName => {
 			if (!this.currentProjectOpenEvent) {
@@ -148,8 +140,6 @@ export class ProjectManager {
 		this.onProjectOpenCbs = new Set();
 		this.hasOpeneProject = false;
 
-		/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback>} */
-		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
 			if (document.visibilityState === "visible") {
@@ -175,8 +165,7 @@ export class ProjectManager {
 	async openProject(fileSystem, openProjectChangeEvent, fromUserGesture) {
 		// todo: handle multiple calls to openProject by cancelling any current running calls.
 		if (this.currentProjectFileSystem) {
-			this.currentProjectFileSystem.removeOnExternalChange(this.#boundOnFileSystemExternalChange);
-			this.currentProjectFileSystem.removeOnBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
+			this.currentProjectFileSystem.removeOnChange(this.#onFileSystemChange);
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
 		this.currentProjectFileSystem = fileSystem;
@@ -195,8 +184,7 @@ export class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance.run();
 
-		fileSystem.onExternalChange(this.#boundOnFileSystemExternalChange);
-		fileSystem.onBeforeAnyChange(this.#boundOnFileSystemBeforeAnyChange);
+		fileSystem.onChange(this.#onFileSystemChange);
 		fileSystem.onRootNameChange(this.#boundOnFileSystemRootNameChange);
 		if (openProjectChangeEvent.fileSystemType == "db" && !this.currentProjectIsMarkedAsWorthSaving) {
 			this.fireOnProjectOpenEntryChangeCbs();
@@ -288,6 +276,14 @@ export class ProjectManager {
 		}
 		return this.assetManager;
 	}
+
+	/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent) => void} */
+	#onFileSystemChange = e => {
+		for (const cb of this.#onFileChangeCbs) {
+			cb(e);
+		}
+		this.markCurrentProjectAsWorthSaving();
+	};
 
 	markCurrentProjectAsWorthSaving() {
 		if (this.currentProjectIsMarkedAsWorthSaving || !this.currentProjectOpenEvent) return;
@@ -406,17 +402,21 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 * Registers a callback that gets fired whenever a file or folder of the current
+	 * project is changed. This callback will keep working when switching between projects.
+	 * You can use this instead of `onChange` on the {@linkcode currentProjectFileSystem},
+	 * that way you don't have to keep registering a new callback whenever the current project changes.
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
 	 */
-	onExternalChange(cb) {
-		this.onExternalChangeCbs.add(cb);
+	onFileChange(cb) {
+		this.#onFileChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemExternalChangeCallback} cb
+	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
 	 */
-	removeOnExternalChange(cb) {
-		this.onExternalChangeCbs.delete(cb);
+	removeOnFileChange(cb) {
+		this.#onFileChangeCbs.delete(cb);
 	}
 
 	suggestCheckExternalChanges() {
