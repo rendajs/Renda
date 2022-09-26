@@ -693,7 +693,6 @@ export class ContentWindowProject extends ContentWindow {
 					const path = this.pathFromTreeView(e.target);
 					const assetManager = await this.editorInstance.projectManager.getAssetManager();
 					await assetManager.deleteAsset(path);
-					const parentPath = path.slice(0, path.length - 1);
 				},
 			},
 		]);
