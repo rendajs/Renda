@@ -395,12 +395,10 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent} e
 	 */
-	async #onFileChange(e) {
-		if (e.type == "created" || e.type == "deleted") {
-			const parentPath = e.path.slice(0, -1);
-			await this.updateTreeView(parentPath);
-		}
-	}
+	#onFileChange = async e => {
+		const parentPath = e.path.slice(0, -1);
+		await this.updateTreeView(parentPath);
+	};
 
 	/**
 	 * @param {TreeView} treeView
@@ -448,7 +446,6 @@ export class ContentWindowProject extends ContentWindow {
 		const selectedPath = this.getSelectedParentPathForCreate();
 		const assetManager = await this.editorInstance.projectManager.getAssetManager();
 		const projectAsset = await assetManager.createNewAsset(selectedPath, assetType);
-		await this.updateTreeView(selectedPath);
 		return projectAsset;
 	}
 
@@ -461,7 +458,6 @@ export class ContentWindowProject extends ContentWindow {
 		}
 		const newPath = [...selectedPath, folderName];
 		await this.fileSystem.createDir(newPath);
-		await this.updateTreeView(selectedPath);
 		this.treeView.collapsed = false;
 	}
 
@@ -698,7 +694,6 @@ export class ContentWindowProject extends ContentWindow {
 					const assetManager = await this.editorInstance.projectManager.getAssetManager();
 					await assetManager.deleteAsset(path);
 					const parentPath = path.slice(0, path.length - 1);
-					await this.updateTreeView(parentPath);
 				},
 			},
 		]);
