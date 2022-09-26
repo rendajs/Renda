@@ -179,8 +179,7 @@ export class ContentWindowProject extends ContentWindow {
 			});
 		}
 
-		this.boundExternalChange = this.externalChange.bind(this);
-		this.editorInstance.projectManager.onExternalChange(this.boundExternalChange);
+		this.editorInstance.projectManager.onFileChange(this.#onFileChange);
 
 		this.expandRootOnLoad();
 	}
@@ -191,7 +190,7 @@ export class ContentWindowProject extends ContentWindow {
 		this.treeView.destructor();
 		this.selectionGroup.destructor();
 
-		this.editorInstance.projectManager.removeOnExternalChange(this.boundExternalChange);
+		this.editorInstance.projectManager.removeOnFileChange(this.#onFileChange);
 	}
 
 	get fileSystem() {
@@ -396,7 +395,7 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent} e
 	 */
-	async externalChange(e) {
+	async #onFileChange(e) {
 		if (e.type == "created" || e.type == "deleted") {
 			const parentPath = e.path.slice(0, -1);
 			await this.updateTreeView(parentPath);

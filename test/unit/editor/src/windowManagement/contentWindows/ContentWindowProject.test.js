@@ -50,7 +50,7 @@ async function basicSetup({
 
 	const mockProjectManager = /** @type {import("../../../../../../editor/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		currentProjectFileSystem: /** @type {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (mockFileSystem),
-		onExternalChange(cb) {},
+		onFileChange(cb) {},
 		assertAssetManagerExists() {
 			return mockAssetManager;
 		},

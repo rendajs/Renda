@@ -55,6 +55,9 @@ export class ProjectManager {
 
 	#boundSaveContentWindowPersistentData;
 
+	/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback>} */
+	#onFileChangeCbs = new Set();
+
 	constructor() {
 		/** @type {?import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} */
 		this.currentProjectFileSystem = null;
@@ -137,8 +140,6 @@ export class ProjectManager {
 		this.onProjectOpenCbs = new Set();
 		this.hasOpeneProject = false;
 
-		/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback>} */
-		this.onExternalChangeCbs = new Set();
 		window.addEventListener("focus", () => this.suggestCheckExternalChanges());
 		document.addEventListener("visibilitychange", () => {
 			if (document.visibilityState === "visible") {
@@ -278,13 +279,10 @@ export class ProjectManager {
 
 	/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent) => void} */
 	#onFileSystemChange = e => {
-		if (e.external) {
-			for (const cb of this.onExternalChangeCbs) {
-				cb(e);
-			}
-		} else {
-			this.markCurrentProjectAsWorthSaving();
+		for (const cb of this.#onFileChangeCbs) {
+			cb(e);
 		}
+		this.markCurrentProjectAsWorthSaving();
 	};
 
 	markCurrentProjectAsWorthSaving() {
@@ -404,17 +402,21 @@ export class ProjectManager {
 	}
 
 	/**
+	 * Registers a callback that gets fired whenever a file or folder of the current
+	 * project is changed. This callback will keep working when switching between projects.
+	 * You can use this instead of `onChange` on the {@linkcode currentProjectFileSystem},
+	 * that way you don't have to keep registering a new callback whenever the current project changes.
 	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
 	 */
-	onExternalChange(cb) {
-		this.onExternalChangeCbs.add(cb);
+	onFileChange(cb) {
+		this.#onFileChangeCbs.add(cb);
 	}
 
 	/**
 	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
 	 */
-	removeOnExternalChange(cb) {
-		this.onExternalChangeCbs.delete(cb);
+	removeOnFileChange(cb) {
+		this.#onFileChangeCbs.delete(cb);
 	}
 
 	suggestCheckExternalChanges() {
