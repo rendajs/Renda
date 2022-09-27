@@ -81,7 +81,7 @@ jobs:
               environment: "PR preview",
               auto_merge: false,
               task: "deploy_pr:" + PR_ID,
-              required_contexts: ["Build"],
+              required_contexts: ["build / build"],
             });
 
             return deploymentData.id;
