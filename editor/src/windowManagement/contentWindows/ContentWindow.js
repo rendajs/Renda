@@ -53,7 +53,6 @@ export class ContentWindow {
 
 		this.el = document.createElement("div");
 		this.el.classList.add("editorContentWindow");
-		this.el.classList.toggle("scrollable", castConstructor.scrollable);
 
 		if (EDITOR_ENV == "dev") {
 			this.el.dataset.contentWindowTypeId = castConstructor.contentWindowTypeId;
@@ -69,6 +68,7 @@ export class ContentWindow {
 
 		this.contentEl = document.createElement("div");
 		this.contentEl.classList.add("editorContentWindowContent");
+		this.contentEl.classList.toggle("scrollable", castConstructor.scrollable);
 		this.el.appendChild(this.contentEl);
 
 		if (this.loop != ContentWindow.prototype.loop) {
