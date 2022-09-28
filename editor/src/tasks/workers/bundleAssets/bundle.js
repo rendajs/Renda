@@ -8,6 +8,11 @@ import {uuidToBinary} from "../../../../../src/mod.js";
 export async function bundle(assetUuids, fileStreamId, messenger) {
 	const assetHeaderByteLength = 16 + 16 + 4; // 16 bytes for the uuid + 16 bytes for the asset type uuid + 4 bytes for the asset length
 	const headerByteLength = 4 + assetUuids.length * assetHeaderByteLength; // 4 bytes for the asset count + the asset headers
+
+	// fill header with zeros
+	const emptyHeader = new ArrayBuffer(headerByteLength);
+	await messenger.sendWithTransfer("writeFile", [emptyHeader], fileStreamId, emptyHeader);
+
 	const header = new ArrayBuffer(headerByteLength);
 	const headerIntView = new Uint8Array(header);
 	const headerView = new DataView(header);
@@ -15,9 +20,6 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 	let headerCursor = 0;
 	headerView.setUint32(headerCursor, assetUuids.length, true);
 	headerCursor += 4;
-
-	// fill header with zeros
-	await messenger.sendWithTransfer("writeFile", [header], fileStreamId, header);
 
 	for (const assetUuid of assetUuids) {
 		// TODO: This makes using a worker kind of pointless, since this is the
