@@ -1,5 +1,5 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 
 Deno.test({
 	name: "Basic request",
@@ -211,7 +211,7 @@ Deno.test({
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
-		/** @type {import("../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers, false>[]} */
+		/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerMessage<{}, typeof requestHandlers, false>[]} */
 		let requestQueue = [];
 		messengerB.setSendHandler(data => {
 			requestQueue.push(data);
@@ -336,5 +336,41 @@ Deno.test({
 		await assertRejects(async () => {
 			await messengerA.send("throws");
 		}, TypeError, "Error message");
+	},
+});
+
+/** @typedef {typeof workerWithInitializeHandlers} WorkerWithInitializeHandlers */
+
+const workerWithInitializeHandlers = {
+	/**
+	 * @param {ArrayBuffer} arr
+	 */
+	foo(arr) {
+		return {
+			returnValue: {arr},
+			transfer: [arr],
+		};
+	},
+};
+
+Deno.test({
+	name: "initialize() with transferSupport: true",
+	async fn() {
+		const url = new URL("./shared/workerWithInitialize.js", import.meta.url);
+		const worker = new Worker(url.href, {type: "module"});
+
+		try {
+			/** @type {TypedMessenger<import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, typeof workerWithInitializeHandlers, true>} */
+			const messenger = new TypedMessenger({transferSupport: true});
+			messenger.initialize(worker, workerWithInitializeHandlers);
+
+			const view = new Uint8Array([1, 2, 3]);
+			const arr = view.buffer;
+			const result = await messenger.send("bar", arr);
+			const newView = new Uint8Array(result.arr);
+			assertEquals([...newView], [1, 2, 3]);
+		} finally {
+			worker.terminate();
+		}
 	},
 });
