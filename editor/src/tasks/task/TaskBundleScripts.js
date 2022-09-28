@@ -55,17 +55,7 @@ export class TaskBundleScripts extends Task {
 		super(...args);
 
 		this.#messenger = new TypedMessenger();
-		this.#messenger.setSendHandler(data => {
-			this.worker.postMessage(data.sendData);
-		});
-		this.worker.addEventListener("message", event => {
-			this.#messenger.handleReceivedMessage(event.data);
-		});
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
-		if (!fileSystem) {
-			throw new Error("Failed to create Bundle Scripts task: no project file system.");
-		}
-		this.#messenger.setResponseHandlers(this.getResponseHandlers());
+		this.#messenger.initialize(this.worker, this.getResponseHandlers());
 	}
 
 	/**

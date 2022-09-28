@@ -6,12 +6,6 @@ import {bundle} from "./bundle.js";
 
 /** @type {TypedMessenger<import("../../task/TaskBundleAssets.js").BundleAssetsMessengerResponseHandlers, BundleAssetsMessengerResponseHandlers, true>} */
 const messenger = new TypedMessenger({transferSupport: true});
-messenger.setSendHandler(data => {
-	globalThis.postMessage(data.sendData);
-});
-globalThis.addEventListener("message", e => {
-	messenger.handleReceivedMessage(e.data);
-});
 
 const responseHandlers = {
 	/**
@@ -23,4 +17,4 @@ const responseHandlers = {
 	},
 };
 
-messenger.setResponseHandlers(responseHandlers);
+messenger.initialize(globalThis, responseHandlers);
