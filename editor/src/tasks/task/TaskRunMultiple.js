@@ -160,7 +160,7 @@ export class TaskRunMultiple extends Task {
 	 * @param {import("./Task.js").RunTaskOptions<TaskRunMultipleConfig>} options
 	 */
 	async runTask({config, runDependencyTaskAsset}) {
-		if (!config.taskGroup) return {};
+		if (!config?.taskGroup) return {};
 
 		/**
 		 * @param {import("../../../../src/mod.js").UuidString | TaskGroup} taskGroup

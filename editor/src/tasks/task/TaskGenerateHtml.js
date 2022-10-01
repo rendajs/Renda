@@ -51,6 +51,9 @@ export class TaskGenerateHtml extends Task {
 	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateHtmlConfig>} options
 	 */
 	async runTask({config}) {
+		if (!config) {
+			throw new Error("Failed to run task: no config provided");
+		}
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task, no asset manager");

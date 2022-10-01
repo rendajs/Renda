@@ -30,7 +30,7 @@
  * by the task manager. Rather than being called directly.
  * @template TTaskConfig
  * @typedef RunTaskOptions
- * @property {TTaskConfig} config
+ * @property {TTaskConfig} [config]
  * @property {boolean} allowDiskWrites If false, the caller of the task has requested no data to be written to disk.
  * In this case the task should return changes in `writeAssets` instead of writing to disk manually.
  * If for some reason using `writeAssets` is not feasible, the task implementation should throw an error.

@@ -335,6 +335,7 @@ Deno.test({
 				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<ParentTaskConfig>} options
 				 */
 				async runTask(options) {
+					if (!options.config) return {};
 					if (options.config.assetPath) {
 						await options.readAssetFromPath(DEPENDENDCY_PATH, {});
 					} else if (options.config.assetUuid) {
@@ -470,6 +471,7 @@ Deno.test({
 				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<TaskConfig>} options
 				 */
 				async runTask(options) {
+					if (!options.config) return {};
 					runTaskSpy(options.config);
 					const config = options.config;
 					if (config.isParent) {

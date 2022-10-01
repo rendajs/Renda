@@ -155,9 +155,12 @@ export class TaskBundleAssets extends Task {
 	 * @param {import("./Task.js").RunTaskOptions<TaskBundleAssetsConfig>} config
 	 */
 	async runTask({config}) {
+		if (!config) {
+			throw new Error("Failed to run task: no config provided");
+		}
 		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
 		if (!fileSystem) {
-			throw new Error("Failed to create Bundle Scripts task: no project file system.");
+			throw new Error("Failed to run task: no project file system.");
 		}
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
@@ -191,6 +194,8 @@ export class TaskBundleAssets extends Task {
 		this.#fileStreams.set(fileStreamId, bundleFileStream);
 
 		await this.#messenger.send("bundle", Array.from(assetUuids), fileStreamId);
+
+		this.#fileStreams.delete(fileStreamId);
 
 		return {};
 	}

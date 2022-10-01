@@ -62,6 +62,10 @@ export class TaskBundleScripts extends Task {
 	 * @param {import("./Task.js").RunTaskOptions<TaskBundleScriptsConfig>} options
 	 */
 	async runTask({config, readAssetFromPath}) {
+		if (!config) {
+			throw new Error("Failed to run task: no config provided");
+		}
+
 		/**
 		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 		 */
