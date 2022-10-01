@@ -251,6 +251,11 @@ Deno.test({
 				};
 			},
 			noReturnValue: () => {},
+			returnsPromise: async () => {
+				return {
+					returnValue: true,
+				};
+			},
 		};
 
 		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
@@ -291,6 +296,11 @@ Deno.test({
 		// @ts-expect-error
 		takesString(result4);
 		assertEquals(result4, undefined);
+
+		const result5 = await messengerA.send("returnsPromise");
+		// @ts-expect-error
+		takesString(result5);
+		assertEquals(result5, true);
 
 		// Verify that the send handler types are correct and not 'any':
 		messengerA.setSendHandler(data => {
@@ -360,7 +370,7 @@ Deno.test({
 		const worker = new Worker(url.href, {type: "module"});
 
 		try {
-			/** @type {TypedMessenger<import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, typeof workerWithInitializeHandlers, true>} */
+			/** @type {TypedMessenger<import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, WorkerWithInitializeHandlers, true>} */
 			const messenger = new TypedMessenger({transferSupport: true});
 			messenger.initialize(worker, workerWithInitializeHandlers);
 
@@ -372,5 +382,51 @@ Deno.test({
 		} finally {
 			worker.terminate();
 		}
+	},
+});
+
+Deno.test({
+	name: "Passing an incorrect response handler with transferSupport: true should emit a type error",
+	async fn() {
+		/** @typedef {typeof handlers} Handlers */
+		const handlers = {
+			fooSync() {
+				return "incorrect type";
+			},
+			async fooAsync() {
+				return "incorrect type";
+			},
+		};
+
+		/** @type {TypedMessenger<Handlers, Handlers, true>} */
+		const messenger = new TypedMessenger({transferSupport: true});
+		// @ts-expect-error
+		messenger.setResponseHandlers(handlers);
+		messenger.setResponseHandlers({
+			// @ts-expect-error fooSync should have type never and cause a type error
+			fooSync() {
+				return "incorrect type";
+			},
+			// @ts-expect-error fooAsync should have type never and cause a type error
+			async fooAsync() {
+				return "incorrect type";
+			},
+		});
+		const mockWorker = /** @type {Worker} */ ({
+			addEventListener: /** @type {Worker["addEventListener"]} */ (() => {}),
+			postMessage(message, options) {},
+		});
+		// @ts-expect-error
+		messenger.initialize(mockWorker, handlers);
+		messenger.initialize(mockWorker, {
+			// @ts-expect-error fooSync should have type never and cause a type error
+			fooSync() {
+				return "incorrect type";
+			},
+			// @ts-expect-error fooAsync should have type never and cause a type error
+			async fooAsync() {
+				return "incorrect type";
+			},
+		});
 	},
 });

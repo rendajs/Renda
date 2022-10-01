@@ -248,7 +248,11 @@ export class TypedMessenger {
 	 * Changes the type of a signature to allow both synchronous and asynchronous signatures.
 	 * @template {(...args: any[]) => any} T
 	 * @typedef {T extends (...args: infer Args) => infer ReturnType ?
-	 * 	(...args: Args) => (Promise<ReturnType> | ReturnType) :
+	 * 	TRequireHandlerReturnObjects extends true ?
+	 * 		ReturnType extends (RequestHandlerReturn | Promise<RequestHandlerReturn> | void | Promise<void>) ?
+	 * 			(...args: Args) => (Promise<ReturnType> | ReturnType) :
+	 * 			never :
+	 *		(...args: Args) => (Promise<ReturnType> | ReturnType) :
 	 * never} PromisifyReturnValue
 	 */
 
