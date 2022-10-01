@@ -222,13 +222,21 @@ export class TaskManager {
 						throw new Error("Failed to write files from task, asset manager is not available.");
 					}
 					// TODO: Assert that the asset has the correct type. #67
-					let asset = await assetManager.getProjectAssetFromPath(writeAssetData.path);
-					if (!asset) {
-						asset = await assetManager.registerAsset(writeAssetData.path, writeAssetData.assetType);
-					}
-					await asset.writeAssetData(/** @type {object} **/ (writeAssetData.fileData));
-					if (options.taskAsset) {
-						this.#touchedTaskAssets.set(asset, options.taskAsset);
+					if (writeAssetData.assetType) {
+						let asset = await assetManager.getProjectAssetFromPath(writeAssetData.path);
+						if (!asset) {
+							asset = await assetManager.registerAsset(writeAssetData.path, writeAssetData.assetType);
+						}
+						await asset.writeAssetData(/** @type {object} **/ (writeAssetData.fileData));
+						if (options.taskAsset) {
+							this.#touchedTaskAssets.set(asset, options.taskAsset);
+						}
+					} else {
+						await assetManager.fileSystem.writeFile(writeAssetData.path, writeAssetData.fileData);
+						const asset = await assetManager.getProjectAssetFromPath(writeAssetData.path);
+						if (asset && options.taskAsset) {
+							this.#touchedTaskAssets.set(asset, options.taskAsset);
+						}
 					}
 				}
 			}
