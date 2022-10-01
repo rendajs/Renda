@@ -58,10 +58,6 @@ export class TaskGenerateHtml extends Task {
 		if (!assetManager) {
 			throw new Error("Failed to run task, no asset manager");
 		}
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
-		if (!fileSystem) {
-			throw new Error("Failed to run task, no file system");
-		}
 
 		const templateUuid = config.template;
 		if (!templateUuid) {
@@ -79,8 +75,16 @@ export class TaskGenerateHtml extends Task {
 			html = html.replaceAll("$" + find, replace || "");
 		}
 
-		await fileSystem.writeText(config.outputLocation, html);
-
-		return {};
+		/** @type {import("./Task.js").RunTaskReturn} */
+		const result = {
+			writeAssets: [
+				{
+					fileData: html,
+					path: config.outputLocation,
+					assetType: "renda:html",
+				},
+			],
+		};
+		return result;
 	}
 }

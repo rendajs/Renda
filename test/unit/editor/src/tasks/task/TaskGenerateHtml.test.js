@@ -58,24 +58,38 @@ const basicRunTaskOptions = {
 	},
 };
 
+/**
+ * @param {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} runTaskReturn
+ * @param {string} htmlContent
+ */
+function assertResult(runTaskReturn, htmlContent) {
+	assertEquals(runTaskReturn, {
+		writeAssets: [
+			{
+				fileData: htmlContent,
+				path: ["out.html"],
+				assetType: "renda:html",
+			},
+		],
+	});
+}
+
 Deno.test({
 	name: "Basic task",
 	async fn() {
-		const {task, fileSystem} = basicSetup();
+		const {task} = basicSetup();
 
-		await task.runTask(basicRunTaskOptions);
-
-		const result = await fileSystem.readText(["out.html"]);
-		assertEquals(result, "abc$VAR1def$VAR1ghi$VAR2jkl");
+		const result = await task.runTask(basicRunTaskOptions);
+		assertResult(result, "abc$VAR1def$VAR1ghi$VAR2jkl");
 	},
 });
 
 Deno.test({
 	name: "Some replacements",
 	async fn() {
-		const {task, fileSystem} = basicSetup();
+		const {task} = basicSetup();
 
-		await task.runTask({
+		const result = await task.runTask({
 			...basicRunTaskOptions,
 			config: {
 				template: BASIC_ASSET_UUID,
@@ -92,18 +106,16 @@ Deno.test({
 				],
 			},
 		});
-
-		const result = await fileSystem.readText(["out.html"]);
-		assertEquals(result, "abc1def1ghi2jkl");
+		assertResult(result, "abc1def1ghi2jkl");
 	},
 });
 
 Deno.test({
 	name: "Missing find value",
 	async fn() {
-		const {task, fileSystem} = basicSetup();
+		const {task} = basicSetup();
 
-		await task.runTask({
+		const result = await task.runTask({
 			...basicRunTaskOptions,
 			config: {
 				template: BASIC_ASSET_UUID,
@@ -115,18 +127,16 @@ Deno.test({
 				],
 			},
 		});
-
-		const result = await fileSystem.readText(["out.html"]);
-		assertEquals(result, "abc$VAR1def$VAR1ghi$VAR2jkl");
+		assertResult(result, "abc$VAR1def$VAR1ghi$VAR2jkl");
 	},
 });
 
 Deno.test({
 	name: "Missing replacement value",
 	async fn() {
-		const {task, fileSystem} = basicSetup();
+		const {task} = basicSetup();
 
-		await task.runTask({
+		const result = await task.runTask({
 			...basicRunTaskOptions,
 			config: {
 				template: BASIC_ASSET_UUID,
@@ -138,9 +148,7 @@ Deno.test({
 				],
 			},
 		});
-
-		const result = await fileSystem.readText(["out.html"]);
-		assertEquals(result, "abcdefghi$VAR2jkl");
+		assertResult(result, "abcdefghi$VAR2jkl");
 	},
 });
 
