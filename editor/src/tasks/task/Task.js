@@ -21,7 +21,7 @@
  * @typedef RunTaskCreateAssetData
  * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path The location where the fileData
  * should be written to in the project.
- * @property {string} assetType The type of the asset, for example "renda:javascript"
+ * @property {string} [assetType] The type of the asset, for example "renda:javascript"
  * @property {import("../../util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes} fileData The file data to write to disk.
  */
 

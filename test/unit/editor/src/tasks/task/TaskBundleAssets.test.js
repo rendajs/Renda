@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
 import {TaskBundleAssets} from "../../../../../../editor/src/tasks/task/TaskBundleAssets.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
@@ -76,7 +76,7 @@ const basicRunTaskOptions = {
 		excludeAssets: [],
 		excludeAssetsRecursive: [],
 	},
-	allowDiskWrites: false,
+	allowDiskWrites: true,
 	async readAssetFromPath(path, opts) {
 		return null;
 	},
@@ -98,18 +98,19 @@ const basicRunTaskOptions = {
  */
 
 /**
+ * @typedef BundleChecks
+ * @property {number} totalByteLength
+ * @property {number} assetCount
+ * @property {AssetChecks?} [assetChecks]
+ */
+
+/**
  * Checks if a generated bundle has the correct data.
  * Only the first asset is checked.
- * @param {object} options
- * @param {MemoryEditorFileSystem} options.fileSystem
- * @param {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [options.outFilePath]
- * @param {number} options.totalByteLength
- * @param {number} options.assetCount
- * @param {AssetChecks?} [options.assetChecks]
+ * @param {ArrayBuffer} bundleBuffer
+ * @param {BundleChecks} bundleChecks
  */
-async function basicBundleChecks({
-	fileSystem,
-	outFilePath = ["out.rbundle"],
+async function basicBundleChecks(bundleBuffer, {
 	totalByteLength,
 	assetCount,
 	assetChecks = {
@@ -119,10 +120,8 @@ async function basicBundleChecks({
 		assetData: [0, 1, 2, 3],
 	},
 }) {
-	const outFile = await fileSystem.readFile(outFilePath);
-	const outBuffer = await outFile.arrayBuffer();
-	assertEquals(outBuffer.byteLength, totalByteLength);
-	const decomposer = new BinaryDecomposer(outBuffer);
+	assertEquals(bundleBuffer.byteLength, totalByteLength);
+	const decomposer = new BinaryDecomposer(bundleBuffer);
 
 	const actualAssetCount = decomposer.getUint32();
 	assertEquals(actualAssetCount, assetCount);
@@ -137,9 +136,27 @@ async function basicBundleChecks({
 		const assetLength = decomposer.getUint32();
 		assertEquals(assetLength, assetChecks.assetLength);
 
-		const assetData = new Uint8Array(outBuffer, decomposer.cursor, assetLength);
+		const assetData = new Uint8Array(bundleBuffer, decomposer.cursor, assetLength);
 		assertEquals(Array.from(assetData), assetChecks.assetData);
 	}
+}
+
+/**
+ * Checks if a generated bundle has the correct data on the provided `fileSystem`.
+ * Only the first asset is checked.
+ * @param {object} options
+ * @param {MemoryEditorFileSystem} options.fileSystem
+ * @param {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [options.outFilePath]
+ * @param {BundleChecks} options.bundleChecks
+ */
+async function basicFileSystemBundleChecks({
+	fileSystem,
+	outFilePath = ["out.rbundle"],
+	bundleChecks,
+}) {
+	const outFile = await fileSystem.readFile(outFilePath);
+	const outBuffer = await outFile.arrayBuffer();
+	await basicBundleChecks(outBuffer, bundleChecks);
 }
 
 Deno.test({
@@ -173,10 +190,12 @@ Deno.test({
 		try {
 			await task.runTask(basicRunTaskOptions);
 
-			await basicBundleChecks({
+			await basicFileSystemBundleChecks({
 				fileSystem,
-				totalByteLength: 44,
-				assetCount: 1,
+				bundleChecks: {
+					totalByteLength: 44,
+					assetCount: 1,
+				},
 			});
 		} finally {
 			cleanup();
@@ -204,11 +223,13 @@ Deno.test({
 				},
 			});
 
-			await basicBundleChecks({
+			await basicFileSystemBundleChecks({
 				fileSystem,
-				totalByteLength: 80,
-				assetCount: 2,
-				assetChecks: null,
+				bundleChecks: {
+					totalByteLength: 80,
+					assetCount: 2,
+					assetChecks: null,
+				},
 			});
 		} finally {
 			cleanup();
@@ -227,10 +248,12 @@ Deno.test({
 		try {
 			await task.runTask(basicRunTaskOptions);
 
-			await basicBundleChecks({
+			await basicFileSystemBundleChecks({
 				fileSystem,
-				totalByteLength: 44,
-				assetCount: 1,
+				bundleChecks: {
+					totalByteLength: 44,
+					assetCount: 1,
+				},
 			});
 		} finally {
 			cleanup();
@@ -249,10 +272,12 @@ Deno.test({
 		try {
 			await task.runTask(basicRunTaskOptions);
 
-			await basicBundleChecks({
+			await basicFileSystemBundleChecks({
 				fileSystem,
-				totalByteLength: 44,
-				assetCount: 1,
+				bundleChecks: {
+					totalByteLength: 44,
+					assetCount: 1,
+				},
 			});
 		} finally {
 			cleanup();
@@ -269,17 +294,59 @@ Deno.test({
 		try {
 			await task.runTask(basicRunTaskOptions);
 
-			await basicBundleChecks({
+			await basicFileSystemBundleChecks({
 				fileSystem,
-				totalByteLength: 40,
-				assetCount: 1,
-				assetChecks: {
-					assetUuid: BASIC_ASSET_UUID,
-					assetTypeUuid: BASIC_ASSET_TYPE_UUID,
-					assetLength: 0,
-					assetData: [],
+				bundleChecks: {
+					totalByteLength: 40,
+					assetCount: 1,
+					assetChecks: {
+						assetUuid: BASIC_ASSET_UUID,
+						assetTypeUuid: BASIC_ASSET_TYPE_UUID,
+						assetLength: 0,
+						assetData: [],
+					},
 				},
 			});
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "allowDiskWrites: false",
+	async fn() {
+		const {task, fileSystem, cleanup} = await basicSetup();
+		try {
+			const result = await task.runTask({
+				...basicRunTaskOptions,
+				config: {
+					assets: [
+						{
+							asset: BASIC_ASSET_UUID,
+							includeChildren: true,
+						},
+					],
+					outputPath: ["out.rbundle"],
+					excludeAssets: [],
+					excludeAssetsRecursive: [],
+				},
+				allowDiskWrites: false,
+			});
+			assertExists(result.writeAssets);
+			assertEquals(result.writeAssets.length, 1);
+			assertEquals(result.writeAssets[0].path, ["out.rbundle"]);
+			assertEquals(result.writeAssets[0].assetType, undefined);
+			assertInstanceOf(result.writeAssets[0].fileData, ArrayBuffer);
+
+			await basicBundleChecks(result.writeAssets[0].fileData, {
+				totalByteLength: 80,
+				assetCount: 2,
+				assetChecks: null,
+			});
+
+			const dir = await fileSystem.readDir([]);
+			assertEquals(dir.files, []);
 		} finally {
 			cleanup();
 		}

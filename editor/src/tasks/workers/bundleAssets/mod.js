@@ -13,7 +13,7 @@ const responseHandlers = {
 	 * @param {number} fileStreamId
 	 */
 	bundle: async (assetUuids, fileStreamId) => {
-		await bundle(assetUuids, fileStreamId, messenger);
+		return await bundle(assetUuids, fileStreamId, messenger);
 	},
 };
 
