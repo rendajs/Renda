@@ -254,7 +254,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	focusWithinChange(hasFocus) {
 		if (hasFocus) {
-			this.treeView.focus();
+			this.treeView.focusIfNotFocused();
 		}
 	}
 

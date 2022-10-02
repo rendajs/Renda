@@ -162,6 +162,10 @@ export class TreeView {
 	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>?} */
 	#focusSelectedShortcutCondition = null;
 
+	/** @type {HTMLElement?} */
+	#focusElBeforeDragStart = null;
+	#lastFocusInTime = 0;
+
 	/**
 	 * @param {TreeViewInitData} data
 	 */
@@ -643,9 +647,11 @@ export class TreeView {
 		if (draggable) {
 			this.rowEl.addEventListener("dragstart", this.#boundDragStart);
 			this.rowEl.addEventListener("dragend", this.#boundDragEnd);
+			this.rowEl.addEventListener("focusin", this.#onDraggableFocusIn);
 		} else {
 			this.rowEl.removeEventListener("dragstart", this.#boundDragStart);
 			this.rowEl.removeEventListener("dragend", this.#boundDragEnd);
+			this.rowEl.removeEventListener("focusin", this.#onDraggableFocusIn);
 		}
 	}
 
@@ -662,6 +668,9 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragStartEvent(e) {
+		if (this.#focusElBeforeDragStart && performance.now() - this.#lastFocusInTime < 500) {
+			this.#focusElBeforeDragStart.focus();
+		}
 		const root = this.findRoot();
 		/** @type {Set<TreeView>} */
 		const selectedItems = new Set();
@@ -1228,8 +1237,15 @@ export class TreeView {
 		this.updateDataRenameValue();
 	}
 
-	focus() {
-		this.rowEl.focus();
+	/**
+	 * Checks if the root treeview of this structure has focus within, and if not,
+	 * focuses on this treeview.
+	 */
+	focusIfNotFocused() {
+		const root = this.findRoot();
+		if (!root.hasFocusWithin) {
+			this.rowEl.focus();
+		}
 	}
 
 	updateDataRenameValue() {
@@ -1304,6 +1320,7 @@ export class TreeView {
 	}
 
 	/**
+	 * Event registered on the root when the treeview is selectable.
 	 * @param {FocusEvent} e
 	 */
 	#onFocusIn = e => {
@@ -1311,10 +1328,24 @@ export class TreeView {
 	};
 
 	/**
+	 * Event registered on the root when the treeview is selectable.
 	 * @param {FocusEvent} e
 	 */
 	#onFocusOut = e => {
 		this.#handleFocusWithinChange(e.relatedTarget);
+	};
+
+	/**
+	 * Same as `onFocusIn`, except this event is only registered when the treeview
+	 * is draggable. This event is registered for all treeviews rather than just the root.
+	 * @param {FocusEvent} e
+	 */
+	#onDraggableFocusIn = e => {
+		const lastFocusEl = e.relatedTarget;
+		if (lastFocusEl instanceof HTMLElement) {
+			this.#focusElBeforeDragStart = lastFocusEl;
+			this.#lastFocusInTime = performance.now();
+		}
 	};
 
 	/**

@@ -143,7 +143,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	focusWithinChange(hasFocus) {
 		if (hasFocus) {
 			if (this.treeView.children.length > 0) {
-				this.treeView.children[0].focus();
+				this.treeView.children[0].focusIfNotFocused();
 			}
 		}
 	}
