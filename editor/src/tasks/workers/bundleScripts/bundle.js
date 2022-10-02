@@ -12,6 +12,11 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
  */
 
 /**
+ * @typedef RunTaskCreateAssetBundleScriptsCustomData
+ * @property {boolean} isEntry
+ */
+
+/**
  * @param {BundleOptions} options
  * @param {import("./mod.js").BundleScriptsMessenger} messenger
  */
@@ -35,7 +40,7 @@ export async function bundle({inputPaths, outputPath, readScriptCallbackId}, mes
 		sourcemap: true,
 	});
 
-	/** @type {import("../../task/Task.js").RunTaskCreateAssetData[]} */
+	/** @type {import("../../task/Task.js").RunTaskCreateAssetData<RunTaskCreateAssetBundleScriptsCustomData>[]} */
 	const writeAssets = [];
 
 	for (const chunkOrAsset of rollupOutput) {
@@ -59,6 +64,9 @@ export async function bundle({inputPaths, outputPath, readScriptCallbackId}, mes
 				path: codeOutputPath,
 				assetType: "renda:javascript",
 				fileData: code,
+				customData: {
+					isEntry: chunk.isEntry,
+				},
 			});
 		}
 		// todo: handle chunkOrAsset.type == "asset"
