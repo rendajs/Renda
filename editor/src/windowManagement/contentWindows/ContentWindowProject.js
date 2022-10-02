@@ -539,7 +539,7 @@ export class ContentWindowProject extends ContentWindow {
 	 */
 	focusWithinChange(hasFocus) {
 		if (hasFocus) {
-			this.treeView.focus();
+			this.treeView.focusIfNotFocused();
 		}
 	}
 

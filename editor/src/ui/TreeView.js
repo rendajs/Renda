@@ -1228,8 +1228,15 @@ export class TreeView {
 		this.updateDataRenameValue();
 	}
 
-	focus() {
-		this.rowEl.focus();
+	/**
+	 * Checks if the root treeview of this structure has focus within, and if not,
+	 * focuses on this treeview.
+	 */
+	focusIfNotFocused() {
+		const root = this.findRoot();
+		if (!root.hasFocusWithin) {
+			this.rowEl.focus();
+		}
 	}
 
 	updateDataRenameValue() {
