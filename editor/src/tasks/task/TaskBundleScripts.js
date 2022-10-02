@@ -5,8 +5,8 @@ import {Task} from "./Task.js";
 
 /**
  * @typedef TaskBundleScriptsConfig
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath[]} scriptPaths
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
+ * @property {import("../../../../src/mod.js").UuidString[]} [entryPoints]
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [outputPath]
  */
 
 /**
@@ -31,12 +31,12 @@ export class TaskBundleScripts extends Task {
 	#readScriptCallbacks = new Map();
 
 	static configStructure = createTreeViewStructure({
-		scriptPaths: {
+		entryPoints: {
 			type: "array",
 			guiOpts: {
-				arrayType: "array",
+				arrayType: "droppable",
 				arrayGuiOpts: {
-					arrayType: "string",
+					supportedAssetTypes: [ProjectAssetTypeJavascript],
 				},
 			},
 		},
@@ -62,8 +62,13 @@ export class TaskBundleScripts extends Task {
 	 * @param {import("./Task.js").RunTaskOptions<TaskBundleScriptsConfig>} options
 	 */
 	async runTask({config, readAssetFromPath}) {
-		if (!config) {
-			throw new Error("Failed to run task: no config provided");
+		const entryPoints = config?.entryPoints || [];
+		if (entryPoints.length <= 0) {
+			throw new Error("Failed to run task: no entry points provided");
+		}
+		const outputPath = config?.outputPath;
+		if (!outputPath) {
+			throw new Error("Failed to run task: no output path provided");
 		}
 
 		/**
@@ -76,7 +81,15 @@ export class TaskBundleScripts extends Task {
 		};
 		const readScriptCallbackId = this.#lastReadScriptCallbackId++;
 		this.#readScriptCallbacks.set(readScriptCallbackId, readScriptCallback);
-		const result = await this.#messenger.send("bundle", {config, readScriptCallbackId});
+		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		const inputPaths = [];
+		for (const entryPoint of entryPoints) {
+			const path = await assetManager.getAssetPathFromUuid(entryPoint);
+			if (path) {
+				inputPaths.push(path.join("/"));
+			}
+		}
+		const result = await this.#messenger.send("bundle", {inputPaths, outputPath, readScriptCallbackId});
 		this.#readScriptCallbacks.delete(readScriptCallbackId);
 
 		return result;

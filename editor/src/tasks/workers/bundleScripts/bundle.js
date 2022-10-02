@@ -6,7 +6,8 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
 
 /**
  * @typedef BundleOptions
- * @property {import("../../task/TaskBundleScripts.js").TaskBundleScriptsConfig} config
+ * @property {string[]} inputPaths
+ * @property {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
  * @property {number} readScriptCallbackId
  */
 
@@ -14,9 +15,7 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
  * @param {BundleOptions} options
  * @param {import("./mod.js").BundleScriptsMessenger} messenger
  */
-export async function bundle({config, readScriptCallbackId}, messenger) {
-	const input = config.scriptPaths.map(p => p.join("/"));
-
+export async function bundle({inputPaths, outputPath, readScriptCallbackId}, messenger) {
 	/** @type {import("./resolvePlugin.js").GetScriptContentFn} */
 	const getScriptContentFn = async path => {
 		const result = await messenger.send("getScriptContent", path, readScriptCallbackId);
@@ -27,7 +26,7 @@ export async function bundle({config, readScriptCallbackId}, messenger) {
 	};
 
 	const bundle = await rollup.rollup({
-		input,
+		input: inputPaths,
 		plugins: [resolvePlugin(getScriptContentFn), resolveUrlObjects()],
 		preserveEntrySignatures: false,
 	});
@@ -42,11 +41,11 @@ export async function bundle({config, readScriptCallbackId}, messenger) {
 	for (const chunkOrAsset of rollupOutput) {
 		if (chunkOrAsset.type == "chunk") {
 			const chunk = chunkOrAsset;
-			const codeOutputPath = [...config.outputPath, chunk.fileName];
+			const codeOutputPath = [...outputPath, chunk.fileName];
 			let code = chunk.code;
 			if (chunk.map) {
 				const sourcemapName = chunk.fileName + ".map";
-				const sourcemapPath = [...config.outputPath, sourcemapName];
+				const sourcemapPath = [...outputPath, sourcemapName];
 				writeAssets.push({
 					path: sourcemapPath,
 					assetType: "renda:javascript",
