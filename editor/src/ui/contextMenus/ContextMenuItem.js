@@ -124,9 +124,9 @@ export class ContextMenuItem {
 		this.iconEl.classList.toggle("hidden", !needsSpace);
 		let iconUrl = null;
 		if (this.showCheckmark) {
-			iconUrl = "icons/contextMenuCheck.svg";
+			iconUrl = "static/icons/contextMenuCheck.svg";
 		} else if (this.showBullet) {
-			iconUrl = "icons/contextMenuBullet.svg";
+			iconUrl = "static/icons/contextMenuBullet.svg";
 		} else if (this.icon) {
 			iconUrl = this.icon;
 		}
