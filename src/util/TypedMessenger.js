@@ -141,6 +141,44 @@ export class TypedMessenger {
 	}
 
 	/**
+	 * Utility function meant for replacing boilerplate code. This registers
+	 * the appropriate events on the window or worker needed for communication,
+	 * as well as registering response handlers.
+	 *
+	 * For example, on the main thread you can call
+	 * ```js
+	 * const worker = new Worker(...);
+	 * messenger.initialize(worker, responseHandlers);
+	 * ```
+	 * and then inside the worker thread you can call
+	 * ```js
+	 * messenger.initialize(globalThis, responseHandlers);
+	 * ```
+	 * @param {Worker | globalThis} workerOrWorkerContext
+	 * @param {ResponseHandlers} responseHandlers
+	 */
+	initialize(workerOrWorkerContext, responseHandlers) {
+		if (workerOrWorkerContext instanceof Worker) {
+			this.setSendHandler(data => {
+				workerOrWorkerContext.postMessage(data.sendData, data.transfer);
+			});
+			workerOrWorkerContext.addEventListener("message", event => {
+				this.handleReceivedMessage(event.data);
+			});
+		} else {
+			this.setSendHandler(data => {
+				workerOrWorkerContext.postMessage(data.sendData, {
+					transfer: data.transfer,
+				});
+			});
+			workerOrWorkerContext.addEventListener("message", event => {
+				this.handleReceivedMessage(event.data);
+			});
+		}
+		this.setResponseHandlers(responseHandlers);
+	}
+
+	/**
 	 * Use this for hooking up the messenger to the worker, main thread, or messageport.
 	 * The handler should pass the first argument along to however you plan on sending
 	 * data. But the end goal is to have this data be passed to `handleReceivedMessage`
@@ -210,12 +248,20 @@ export class TypedMessenger {
 	 * Changes the type of a signature to allow both synchronous and asynchronous signatures.
 	 * @template {(...args: any[]) => any} T
 	 * @typedef {T extends (...args: infer Args) => infer ReturnType ?
-	 * 	(...args: Args) => (Promise<ReturnType> | ReturnType) :
+	 * 	TRequireHandlerReturnObjects extends true ?
+	 * 		ReturnType extends (RequestHandlerReturn | Promise<RequestHandlerReturn> | void | Promise<void>) ?
+	 * 			(...args: Args) => (Promise<ReturnType> | ReturnType) :
+	 * 			never :
+	 *		(...args: Args) => (Promise<ReturnType> | ReturnType) :
 	 * never} PromisifyReturnValue
 	 */
 
 	/**
-	 * @param {{[key in keyof TRes]: PromisifyReturnValue<TRes[key]>}} handlers
+	 * @typedef {{[key in keyof TRes]: PromisifyReturnValue<TRes[key]>}} ResponseHandlers
+	 */
+
+	/**
+	 * @param {ResponseHandlers} handlers
 	 */
 	setResponseHandlers(handlers) {
 		this.requestHandlers = handlers;

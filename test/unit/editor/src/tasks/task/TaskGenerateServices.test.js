@@ -141,14 +141,17 @@ function createRunTaskOptions({
 			outputLocation: ["out.js"],
 			usedAssets,
 		},
-		needsAllGeneratedAssets: false,
+		allowDiskWrites: false,
 		async readAssetFromPath(path, opts) {
 			return null;
 		},
 		async readAssetFromUuid(uuid, opts) {
 			return null;
 		},
-		async runDependencyTask(uuid) {},
+		async runDependencyTaskAsset(uuid) {},
+		async runChildTask(type, config, options) {
+			throw new Error("Not implemented");
+		},
 	};
 	return options;
 }

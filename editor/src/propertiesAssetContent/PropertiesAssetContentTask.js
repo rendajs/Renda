@@ -55,7 +55,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 				text: "Run Task",
 				onClick: async () => {
 					for (const asset of this.currentSelection) {
-						this.editorInstance.taskManager.runTask(asset);
+						this.editorInstance.taskManager.runTaskAsset(asset);
 					}
 				},
 			},

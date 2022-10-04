@@ -6,17 +6,22 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
 
 /**
  * @typedef BundleOptions
- * @property {import("../../task/TaskBundleScripts.js").TaskBundleScriptsConfig} config
+ * @property {string[]} inputPaths
+ * @property {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
  * @property {number} readScriptCallbackId
+ * @property {string} servicesSource The code that the import specifier 'renda:services' will resolve with.
+ */
+
+/**
+ * @typedef RunTaskCreateAssetBundleScriptsCustomData
+ * @property {boolean} isEntry
  */
 
 /**
  * @param {BundleOptions} options
  * @param {import("./mod.js").BundleScriptsMessenger} messenger
  */
-export async function bundle({config, readScriptCallbackId}, messenger) {
-	const input = config.scriptPaths.map(p => p.join("/"));
-
+export async function bundle({inputPaths, outputPath, readScriptCallbackId, servicesSource}, messenger) {
 	/** @type {import("./resolvePlugin.js").GetScriptContentFn} */
 	const getScriptContentFn = async path => {
 		const result = await messenger.send("getScriptContent", path, readScriptCallbackId);
@@ -27,8 +32,14 @@ export async function bundle({config, readScriptCallbackId}, messenger) {
 	};
 
 	const bundle = await rollup.rollup({
-		input,
-		plugins: [resolvePlugin(getScriptContentFn), resolveUrlObjects()],
+		input: inputPaths,
+		plugins: [
+			resolvePlugin({
+				getScriptContentFn,
+				servicesSource,
+			}),
+			resolveUrlObjects(),
+		],
 		preserveEntrySignatures: false,
 	});
 	const {output: rollupOutput} = await bundle.generate({
@@ -36,17 +47,17 @@ export async function bundle({config, readScriptCallbackId}, messenger) {
 		sourcemap: true,
 	});
 
-	/** @type {import("../../task/Task.js").RunTaskCreateAssetData[]} */
+	/** @type {import("../../task/Task.js").RunTaskCreateAssetData<RunTaskCreateAssetBundleScriptsCustomData>[]} */
 	const writeAssets = [];
 
 	for (const chunkOrAsset of rollupOutput) {
 		if (chunkOrAsset.type == "chunk") {
 			const chunk = chunkOrAsset;
-			const codeOutputPath = [...config.outputPath, chunk.fileName];
+			const codeOutputPath = [...outputPath, chunk.fileName];
 			let code = chunk.code;
 			if (chunk.map) {
 				const sourcemapName = chunk.fileName + ".map";
-				const sourcemapPath = [...config.outputPath, sourcemapName];
+				const sourcemapPath = [...outputPath, sourcemapName];
 				writeAssets.push({
 					path: sourcemapPath,
 					assetType: "renda:javascript",
@@ -60,6 +71,9 @@ export async function bundle({config, readScriptCallbackId}, messenger) {
 				path: codeOutputPath,
 				assetType: "renda:javascript",
 				fileData: code,
+				customData: {
+					isEntry: chunk.isEntry,
+				},
 			});
 		}
 		// todo: handle chunkOrAsset.type == "asset"

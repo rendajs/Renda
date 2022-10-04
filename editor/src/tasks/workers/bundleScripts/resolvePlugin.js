@@ -1,6 +1,14 @@
 /**
- * @typedef {"project" | "engine" | "remote" | null} ScriptType
+ * @typedef {"project" | "engine" | "enginegenerated" | "remote"} ScriptType
  */
+
+/** @type {ScriptType[]} */
+const scriptTypes = [
+	"project",
+	"engine",
+	"enginegenerated",
+	"remote",
+];
 
 /**
  * @typedef {(id: import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath) => Promise<string>} GetScriptContentFn
@@ -8,10 +16,13 @@
 
 /**
  * A rollup plugin for resolving file paths inside a worker.
- * @param {GetScriptContentFn} getScriptContentFn
+ * @param {Object} options
+ * @param {GetScriptContentFn} options.getScriptContentFn
+ * @param {string} options.servicesSource The generated code that will be placed
+ * in the file that a user can import via "renda:services".
  * @return {import("rollup").Plugin}
  */
-export function resolvePlugin(getScriptContentFn) {
+export function resolvePlugin({getScriptContentFn, servicesSource}) {
 	return {
 		name: "editor-resolve-scripts",
 		resolveId(source, importer, opts) {
@@ -21,7 +32,7 @@ export function resolvePlugin(getScriptContentFn) {
 				importerInfo = castThis.getModuleInfo(importer);
 			}
 			let {scriptType, sourcePath} = getPathType(source);
-			/** @type {ScriptType} */
+			/** @type {ScriptType?} */
 			const importerType = importerInfo?.meta?.editorResolve?.scriptType ?? null;
 			scriptType = scriptType || importerType || null;
 
@@ -32,6 +43,9 @@ export function resolvePlugin(getScriptContentFn) {
 			if (sourcePath == "renda") {
 				scriptType = "engine";
 				sourcePath = "/dist/mod.js";
+			} else if (sourcePath == "renda:services") {
+				scriptType = "enginegenerated";
+				sourcePath = "services";
 			}
 
 			if (!scriptType) scriptType = "project";
@@ -62,7 +76,7 @@ export function resolvePlugin(getScriptContentFn) {
 		async load(id) {
 			const castThis = /** @type {import("rollup").PluginContext} */ (/** @type {unknown} */ (this));
 			const moduleInfo = castThis.getModuleInfo(id);
-			/** @type {ScriptType} */
+			/** @type {ScriptType?} */
 			const scriptType = moduleInfo?.meta?.editorResolve?.scriptType ?? null;
 			if (scriptType == "project") {
 				return await getScriptContentFn(id.split("/"));
@@ -72,6 +86,18 @@ export function resolvePlugin(getScriptContentFn) {
 					throw new Error(`Failed to load engine script at ${id}`);
 				}
 				return await resp.text();
+			} else if (scriptType == "enginegenerated") {
+				if (id == "services" && servicesSource) {
+					return servicesSource;
+				} else {
+					// It is ok for this task to be called without a services source,
+					// however, if one of the scripts contains "rena:services", this will fail.
+					// At the moment we don't provide any way to configure the servicesSource via the editor gui.
+					// So this option will only be set when the task is being called programmatically. At the moment
+					// this is only being used by the build application task. Since returning `null` will cause
+					// rollup to throw a rather generic error, we will throw our own custom error here.
+					throw new Error(`Importing "renda:services" is only supported when building using the application task. It is recommended to configure a 'generate services' task and use the path of the generated file instead. If you insist on using "renda:services" you can either use an import map or run the 'bundle scripts' task programmatically and use the 'servicesSource' configuration option.`);
+				}
 			}
 			return null;
 		},
@@ -80,7 +106,7 @@ export function resolvePlugin(getScriptContentFn) {
 
 /**
  * @typedef {object} GetPathTypeResult
- * @property {ScriptType} scriptType
+ * @property {ScriptType?} scriptType
  * @property {string} sourcePath
  */
 
@@ -96,7 +122,7 @@ function getPathType(id) {
 			const splitFirst = splitPath[0].split(":");
 			if (splitFirst.length > 1) {
 				const type = /** @type {ScriptType} */ (splitFirst[0]);
-				if (type == "project" || type == "engine" || type == "remote") {
+				if (scriptTypes.includes(type)) {
 					const pathNoType = id.slice(type.length + 1);
 					return {
 						scriptType: type,

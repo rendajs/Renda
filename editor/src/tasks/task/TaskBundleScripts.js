@@ -5,8 +5,9 @@ import {Task} from "./Task.js";
 
 /**
  * @typedef TaskBundleScriptsConfig
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath[]} scriptPaths
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
+ * @property {import("../../../../src/mod.js").UuidString[]} [entryPoints]
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [outputPath]
+ * @property {string} [servicesSource] The code that the import specifier 'renda:services' will resolve with.
  */
 
 /**
@@ -17,7 +18,7 @@ import {Task} from "./Task.js";
  * @extends {Task<TaskBundleScriptsConfig>}
  */
 export class TaskBundleScripts extends Task {
-	static uiName = "Bundle scripts";
+	static uiName = "Bundle Scripts";
 	static type = "renda:bundleScripts";
 
 	// @rollup-plugin-resolve-url-objects
@@ -31,12 +32,12 @@ export class TaskBundleScripts extends Task {
 	#readScriptCallbacks = new Map();
 
 	static configStructure = createTreeViewStructure({
-		scriptPaths: {
+		entryPoints: {
 			type: "array",
 			guiOpts: {
-				arrayType: "array",
+				arrayType: "droppable",
 				arrayGuiOpts: {
-					arrayType: "string",
+					supportedAssetTypes: [ProjectAssetTypeJavascript],
 				},
 			},
 		},
@@ -55,23 +56,22 @@ export class TaskBundleScripts extends Task {
 		super(...args);
 
 		this.#messenger = new TypedMessenger();
-		this.#messenger.setSendHandler(data => {
-			this.worker.postMessage(data.sendData);
-		});
-		this.worker.addEventListener("message", event => {
-			this.#messenger.handleReceivedMessage(event.data);
-		});
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
-		if (!fileSystem) {
-			throw new Error("Failed to create Bundle Scripts task: no project file system.");
-		}
-		this.#messenger.setResponseHandlers(this.getResponseHandlers());
+		this.#messenger.initialize(this.worker, this.getResponseHandlers());
 	}
 
 	/**
 	 * @param {import("./Task.js").RunTaskOptions<TaskBundleScriptsConfig>} options
 	 */
 	async runTask({config, readAssetFromPath}) {
+		const entryPoints = config?.entryPoints || [];
+		if (entryPoints.length <= 0) {
+			throw new Error("Failed to run task: no entry points provided");
+		}
+		const outputPath = config?.outputPath;
+		if (!outputPath) {
+			throw new Error("Failed to run task: no output path provided");
+		}
+
 		/**
 		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
 		 */
@@ -82,7 +82,19 @@ export class TaskBundleScripts extends Task {
 		};
 		const readScriptCallbackId = this.#lastReadScriptCallbackId++;
 		this.#readScriptCallbacks.set(readScriptCallbackId, readScriptCallback);
-		const result = await this.#messenger.send("bundle", {config, readScriptCallbackId});
+		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		const inputPaths = [];
+		for (const entryPoint of entryPoints) {
+			const path = await assetManager.getAssetPathFromUuid(entryPoint);
+			if (path) {
+				inputPaths.push(path.join("/"));
+			}
+		}
+		const result = await this.#messenger.send("bundle", {
+			inputPaths, outputPath,
+			readScriptCallbackId,
+			servicesSource: config?.servicesSource || "",
+		});
 		this.#readScriptCallbacks.delete(readScriptCallbackId);
 
 		return result;

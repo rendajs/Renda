@@ -48,16 +48,15 @@ export class TaskGenerateHtml extends Task {
 	});
 
 	/**
-	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateHtmlConfig>} config
+	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateHtmlConfig>} options
 	 */
 	async runTask({config}) {
+		if (!config) {
+			throw new Error("Failed to run task: no config provided");
+		}
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task, no asset manager");
-		}
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
-		if (!fileSystem) {
-			throw new Error("Failed to run task, no file system");
 		}
 
 		const templateUuid = config.template;
@@ -76,8 +75,16 @@ export class TaskGenerateHtml extends Task {
 			html = html.replaceAll("$" + find, replace || "");
 		}
 
-		await fileSystem.writeText(config.outputLocation, html);
-
-		return {};
+		/** @type {import("./Task.js").RunTaskReturn} */
+		const result = {
+			writeAssets: [
+				{
+					fileData: html,
+					path: config.outputLocation,
+					assetType: "renda:html",
+				},
+			],
+		};
+		return result;
 	}
 }

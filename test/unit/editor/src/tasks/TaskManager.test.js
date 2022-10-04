@@ -112,7 +112,7 @@ function basicTaskRunningSetup({
 	 */
 	/** @type {RegisteredAssetData[]} */
 	const registeredAssets = [];
-	injectMockEditorInstance(/** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({
+	const mockEditor = /** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({
 		projectManager: {
 			assetManager: {
 				async getProjectAssetFromPath(path, options) {
@@ -134,11 +134,16 @@ function basicTaskRunningSetup({
 					});
 					return projectAsset;
 				},
+				fileSystem: {
+					writeFile(path, file) {},
+				},
 			},
 		},
-	}));
+	});
+	injectMockEditorInstance(mockEditor);
 
 	return {
+		mockEditor,
 		registeredAssets,
 		cleanup() {
 			injectMockEditorInstance(null);
@@ -147,7 +152,7 @@ function basicTaskRunningSetup({
 }
 
 Deno.test({
-	name: "running a task",
+	name: "running a task asset",
 	async fn() {
 		const {registeredAssets, cleanup} = basicTaskRunningSetup();
 
@@ -205,13 +210,13 @@ Deno.test({
 			});
 
 			manager.registerTaskType(ExtendedTask);
-			await manager.runTask(taskProjectAsset);
+			await manager.runTaskAsset(taskProjectAsset);
 
 			assertSpyCalls(runTaskSpy, 1);
 			assertEquals(runTaskSpy.calls[0].args[0].config, {
 				foo: "bar",
 			});
-			assertEquals(runTaskSpy.calls[0].args[0].needsAllGeneratedAssets, false);
+			assertEquals(runTaskSpy.calls[0].args[0].allowDiskWrites, true);
 
 			assertEquals(registeredAssets.length, 1);
 			const registeredAsset = registeredAssets[0];
@@ -223,6 +228,57 @@ Deno.test({
 			const taskInstance = manager.initializeTask("namespace:type");
 			assertInstanceOf(taskInstance, ExtendedTask);
 			taskInstance.worker.terminate();
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "Running a tasks that writes a file without an asset type",
+	async fn() {
+		const {mockEditor, cleanup} = basicTaskRunningSetup();
+
+		try {
+			const manager = new TaskManager();
+
+			/** @extends {Task<{}>} */
+			class ExtendedTask extends Task {
+				static type = "namespace:type";
+
+				/**
+				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<{}>} options
+				 */
+				async runTask(options) {
+					/** @type {import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} */
+					const returnValue = {
+						writeAssets: [
+							{
+								path: ["path", "to", "file.txt"],
+								fileData: "hello",
+							},
+						],
+					};
+					return returnValue;
+				}
+			}
+
+			const fileSystem = mockEditor.projectManager.assetManager?.fileSystem;
+			assertExists(fileSystem);
+			const writeFileSpy = stub(fileSystem, "writeFile");
+
+			manager.registerTaskType(ExtendedTask);
+			await manager.runTask("namespace:type", {}, {
+				allowDiskWrites: true,
+			});
+
+			assertSpyCalls(writeFileSpy, 1);
+			assertSpyCall(writeFileSpy, 0, {
+				args: [
+					["path", "to", "file.txt"],
+					"hello",
+				],
+			});
 		} finally {
 			cleanup();
 		}
@@ -252,7 +308,7 @@ Deno.test({
 			});
 
 			await assertRejects(async () => {
-				await manager.runTask(nonTaskProjectAsset);
+				await manager.runTaskAsset(nonTaskProjectAsset);
 			}, Error, "Not a task");
 		} finally {
 			cleanup();
@@ -264,11 +320,13 @@ Deno.test({
 	name: "running a task with a dependency task",
 	async fn() {
 		const DEPENDENDCY_PATH = ["path", "to", "dependency.txt"];
+		const TYPELESS_DEPENDENDCY_PATH = ["path", "to", "typeless", "dependency.txt"];
 		const TOUCHED_ASSET_UUID = "TOUCHED_ASSET_UUID";
 		const CHILD_TASK_UUID = "CHILD_TASK_UUID";
 
 		const {projectAsset: dependencyProjectAsset1} = createMockProjectAsset();
 		const {projectAsset: dependencyProjectAsset2} = createMockProjectAsset();
+		const {projectAsset: dependencyProjectAsset3} = createMockProjectAsset();
 		const {projectAsset: childTaskProjectAsset} = createMockProjectAsset({
 			readAssetDataReturnValue: {
 				taskType: "namespace:dependency",
@@ -286,6 +344,10 @@ Deno.test({
 					path: DEPENDENDCY_PATH,
 					projectAsset: dependencyProjectAsset1,
 				},
+				{
+					path: TYPELESS_DEPENDENDCY_PATH,
+					projectAsset: dependencyProjectAsset3,
+				},
 			],
 			uuidProjectAssets,
 		});
@@ -295,12 +357,18 @@ Deno.test({
 
 			let dependencyRunCount = 0;
 
-			/** @extends {Task<{}>} */
+			/**
+			 * @typedef DependencyTaskConfig
+			 * @property {string | undefined} assetType
+			 * @property {import("../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} dependencyPath
+			 */
+
+			/** @extends {Task<DependencyTaskConfig>} */
 			class DependencyTask extends Task {
 				static type = "namespace:dependency";
 
 				/**
-				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<{}>} options
+				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<DependencyTaskConfig>} options
 				 */
 				async runTask(options) {
 					dependencyRunCount++;
@@ -308,8 +376,8 @@ Deno.test({
 					const returnValue = {
 						writeAssets: [
 							{
-								path: DEPENDENDCY_PATH,
-								assetType: "namespace:type",
+								path: options.config?.dependencyPath || [],
+								assetType: options.config?.assetType,
 								fileData: "foo",
 							},
 						],
@@ -335,25 +403,34 @@ Deno.test({
 				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<ParentTaskConfig>} options
 				 */
 				async runTask(options) {
+					if (!options.config) return {};
 					if (options.config.assetPath) {
 						await options.readAssetFromPath(DEPENDENDCY_PATH, {});
 					} else if (options.config.assetUuid) {
 						await options.readAssetFromUuid(options.config.assetUuid, {});
 					} else if (options.config.taskAssetUuid) {
-						await options.runDependencyTask(options.config.taskAssetUuid);
+						await options.runDependencyTaskAsset(options.config.taskAssetUuid);
 					}
 					return {};
 				}
 			}
 			manager.registerTaskType(ParentTask);
 
+			// First we run the dependency to let the manager know dependency.txt is created by this task.
 			const {projectAsset: dependencyTaskAsset} = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:dependency",
-					taskConfig: {},
+					/** @type {DependencyTaskConfig} */
+					taskConfig: {
+						assetType: "namespace:type",
+						dependencyPath: DEPENDENDCY_PATH,
+					},
 				},
 			});
+			await manager.runTaskAsset(dependencyTaskAsset);
+			assertEquals(dependencyRunCount, 1);
 
+			// Then we run the first parent task, which should run the dependency task again because DEPENDENDCY_PATH was written.
 			const {projectAsset: parentTaskAsset1} = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:parent",
@@ -363,7 +440,10 @@ Deno.test({
 					},
 				},
 			});
+			await manager.runTaskAsset(parentTaskAsset1);
+			assertEquals(dependencyRunCount, 2);
 
+			// Then we run the second parent task, which should run the dependency task a third time because TOUCHED_ASSET_UUID was touched.
 			const {projectAsset: parentTaskAsset2} = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:parent",
@@ -373,7 +453,10 @@ Deno.test({
 					},
 				},
 			});
+			await manager.runTaskAsset(parentTaskAsset2);
+			assertEquals(dependencyRunCount, 3);
 
+			// The third task asset should run the dependency task because it calls `runDependencyTaskAsset`.
 			const {projectAsset: parentTaskAsset3} = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					taskType: "namespace:parent",
@@ -383,21 +466,35 @@ Deno.test({
 					},
 				},
 			});
-
-			// First we run the dependency to let the manager know dependency.txt is created by this task.
-			await manager.runTask(dependencyTaskAsset);
-			assertEquals(dependencyRunCount, 1);
-
-			// Then we run the first parent task, which should run the dependency task again because DEPENDENDCY_PATH was written.
-			await manager.runTask(parentTaskAsset1);
-			assertEquals(dependencyRunCount, 2);
-
-			// Then we run the second parent task, which should run the dependency task a third time because TOUCHED_ASSET_UUID was touched.
-			await manager.runTask(parentTaskAsset2);
-			assertEquals(dependencyRunCount, 3);
-
-			await manager.runTask(parentTaskAsset3);
+			await manager.runTaskAsset(parentTaskAsset3);
 			assertEquals(dependencyRunCount, 4);
+
+			// Now for a created asset that has no asset type
+			const {projectAsset: typelessDependencyTaskAsset} = createMockProjectAsset({
+				readAssetDataReturnValue: {
+					taskType: "namespace:dependency",
+					/** @type {DependencyTaskConfig} */
+					taskConfig: {
+						assetType: undefined,
+						dependencyPath: TYPELESS_DEPENDENDCY_PATH,
+					},
+				},
+			});
+			await manager.runTaskAsset(typelessDependencyTaskAsset);
+			assertEquals(dependencyRunCount, 5);
+
+			// Then we run a parent task, which should run the dependency task again because DEPENDENDCY_PATH was written.
+			const {projectAsset: parentTaskAsset4} = createMockProjectAsset({
+				readAssetDataReturnValue: {
+					taskType: "namespace:parent",
+					/** @type {ParentTaskConfig} */
+					taskConfig: {
+						assetPath: DEPENDENDCY_PATH,
+					},
+				},
+			});
+			await manager.runTaskAsset(parentTaskAsset4);
+			assertEquals(dependencyRunCount, 6);
 		} finally {
 			cleanup();
 		}
@@ -470,6 +567,7 @@ Deno.test({
 				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<TaskConfig>} options
 				 */
 				async runTask(options) {
+					if (!options.config) return {};
 					runTaskSpy(options.config);
 					const config = options.config;
 					if (config.isParent) {
@@ -488,7 +586,7 @@ Deno.test({
 
 			// First we run the child task to register that it touched TOUCHED_ASSET_UUID
 			// it should have its own environment variables.
-			await manager.runTask(childProjectAsset);
+			await manager.runTaskAsset(childProjectAsset);
 
 			assertSpyCalls(runTaskSpy, 1);
 			assertSpyCall(runTaskSpy, 0, {
@@ -504,7 +602,7 @@ Deno.test({
 
 			// Then we run the parent task, which should cause the child to get
 			// run a second time.
-			await manager.runTask(parentProjectAsset);
+			await manager.runTaskAsset(parentProjectAsset);
 
 			assertSpyCalls(runTaskSpy, 3);
 			assertSpyCall(runTaskSpy, 1, {
@@ -552,5 +650,155 @@ Deno.test({
 
 		const result2 = manager.transformAssetToUiData("namespace:type", {foo: "bar"});
 		assertEquals(result2, {foo: "bar"});
+	},
+});
+
+function basicSetupForRunningProgrammatically() {
+	const {cleanup, registeredAssets} = basicTaskRunningSetup();
+
+	const manager = new TaskManager();
+
+	/**
+	 * @typedef TaskConfig
+	 * @property {string} foo
+	 */
+
+	/** @extends {Task<TaskConfig>} */
+	class ExtendedTask extends Task {
+		static type = "namespace:type";
+
+		/**
+		 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<TaskConfig>} options
+		 * @returns {Promise<import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn>}
+		 */
+		async runTask(options) {
+			return {
+				touchedAssets: ["touched asset"],
+				writeAssets: [
+					{
+						assetType: "namespace:assetType",
+						path: ["path", "to", "file.txt"],
+						fileData: "hello",
+					},
+				],
+			};
+		}
+	}
+	manager.registerTaskType(ExtendedTask);
+
+	const runTaskSpy = spy(ExtendedTask.prototype, "runTask");
+
+	return {cleanup, manager, runTaskSpy, registeredAssets};
+}
+
+Deno.test({
+	name: "Running a task programmatically",
+	async fn() {
+		const {cleanup, manager, runTaskSpy, registeredAssets} = basicSetupForRunningProgrammatically();
+
+		try {
+			const result = await manager.runTask("namespace:type", {foo: "bar"});
+
+			assertSpyCalls(runTaskSpy, 1);
+			assertEquals(runTaskSpy.calls[0].args[0].allowDiskWrites, false);
+			assertEquals(runTaskSpy.calls[0].args[0].config, {foo: "bar"});
+			assertEquals(result, {
+				touchedAssets: ["touched asset"],
+				writeAssets: [
+					{
+						assetType: "namespace:assetType",
+						path: ["path", "to", "file.txt"],
+						fileData: "hello",
+					},
+				],
+			});
+			assertEquals(registeredAssets.length, 0);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "Running a task programmatically, allow disk writes set to true",
+	async fn() {
+		const {cleanup, manager, runTaskSpy, registeredAssets} = basicSetupForRunningProgrammatically();
+
+		try {
+			const result = await manager.runTask("namespace:type", {foo: "bar"}, {
+				allowDiskWrites: true,
+			});
+
+			assertSpyCalls(runTaskSpy, 1);
+			assertEquals(runTaskSpy.calls[0].args[0].allowDiskWrites, true);
+			assertEquals(runTaskSpy.calls[0].args[0].config, {foo: "bar"});
+			assertEquals(result, {
+				touchedAssets: ["touched asset"],
+				writeAssets: [
+					{
+						assetType: "namespace:assetType",
+						path: ["path", "to", "file.txt"],
+						fileData: "hello",
+					},
+				],
+			});
+			assertEquals(registeredAssets.length, 1);
+			assertSpyCalls(registeredAssets[0].writeAssetDataSpy, 1);
+			assertSpyCall(registeredAssets[0].writeAssetDataSpy, 0, {
+				args: ["hello"],
+			});
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "Task that directly runs a child task",
+	async fn() {
+		const {cleanup} = basicTaskRunningSetup();
+
+		try {
+			const manager = new TaskManager();
+
+			/** @extends {Task<{}>} */
+			class ExtendedTask1 extends Task {
+				static type = "namespace:type1";
+
+				/**
+				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<{}>} options
+				 * @returns {Promise<import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn>}
+				 */
+				async runTask(options) {
+					options.runChildTask("namespace:type2", options.config);
+					return {
+					};
+				}
+			}
+			manager.registerTaskType(ExtendedTask1);
+
+			/** @extends {Task<{}>} */
+			class ExtendedTask2 extends Task {
+				static type = "namespace:type2";
+
+				/**
+				 * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<{}>} options
+				 * @returns {Promise<import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn>}
+				 */
+				async runTask(options) {
+					return {};
+				}
+			}
+			manager.registerTaskType(ExtendedTask2);
+
+			const runTaskSpy = spy(ExtendedTask2.prototype, "runTask");
+
+			await manager.runTask("namespace:type1", {foo: "bar"});
+			assertSpyCalls(runTaskSpy, 1);
+			assertEquals(runTaskSpy.calls[0].args[0].allowDiskWrites, false);
+			assertEquals(runTaskSpy.calls[0].args[0].config, {foo: "bar"});
+		} finally {
+			cleanup();
+		}
 	},
 });

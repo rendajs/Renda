@@ -4,10 +4,10 @@ import {Task} from "./Task.js";
 
 /**
  * @typedef TaskBundleAssetsConfig
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
- * @property {TaskBundleAssetsConfigAssetItem[]} assets
- * @property {import("../../../../src/mod.js").UuidString[]} excludeAssets
- * @property {import("../../../../src/mod.js").UuidString[]} excludeAssetsRecursive
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [outputPath]
+ * @property {TaskBundleAssetsConfigAssetItem[]} [assets]
+ * @property {import("../../../../src/mod.js").UuidString[]} [excludeAssets]
+ * @property {import("../../../../src/mod.js").UuidString[]} [excludeAssetsRecursive]
  */
 
 /**
@@ -144,30 +144,33 @@ export class TaskBundleAssets extends Task {
 		super(...args);
 
 		this.#messenger = new TypedMessenger({transferSupport: true});
-		this.#messenger.setSendHandler(data => {
-			this.worker.postMessage(data.sendData, data.transfer);
-		});
-		this.worker.addEventListener("message", event => {
-			this.#messenger.handleReceivedMessage(event.data);
-		});
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to create Bundle Scripts task: no asset manager.");
 		}
-		this.#messenger.setResponseHandlers(getResponseHandlers(assetManager, this.#fileStreams));
+		this.#messenger.initialize(this.worker, getResponseHandlers(assetManager, this.#fileStreams));
 	}
 
 	/**
 	 * @param {import("./Task.js").RunTaskOptions<TaskBundleAssetsConfig>} config
 	 */
-	async runTask({config}) {
+	async runTask({config, allowDiskWrites}) {
+		if (!config) {
+			throw new Error("Failed to run task: no config provided");
+		}
 		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
 		if (!fileSystem) {
-			throw new Error("Failed to create Bundle Scripts task: no project file system.");
+			throw new Error("Failed to run task: no project file system.");
 		}
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task: no asset manager.");
+		}
+		if (!config.assets) {
+			throw new Error("Failed to bundle assets: no assets provided.");
+		}
+		if (!config.outputPath) {
+			throw new Error("Failed to bundle assets: no output path provided.");
 		}
 
 		/** @type {Set<import("../../../../src/mod.js").UuidString>} */
@@ -188,16 +191,36 @@ export class TaskBundleAssets extends Task {
 			assetUuids.add(uuid);
 		}
 
-		const bundleFileStream = await fileSystem.writeFileStream(config.outputPath);
-		if (bundleFileStream.locked) {
-			throw new Error("Failed to write bundle, file is locked.");
+		let fileStreamId = -1;
+		if (allowDiskWrites) {
+			const bundleFileStream = await fileSystem.writeFileStream(config.outputPath);
+			if (bundleFileStream.locked) {
+				throw new Error("Failed to write bundle, file is locked.");
+			}
+
+			fileStreamId = this.#lastFileStreamId++;
+			this.#fileStreams.set(fileStreamId, bundleFileStream);
 		}
 
-		const fileStreamId = this.#lastFileStreamId++;
-		this.#fileStreams.set(fileStreamId, bundleFileStream);
+		const bundle = await this.#messenger.send("bundle", Array.from(assetUuids), fileStreamId);
 
-		await this.#messenger.send("bundle", Array.from(assetUuids), fileStreamId);
+		/** @type {import("./Task.js").RunTaskReturn} */
+		const result = {};
+		if (allowDiskWrites) {
+			this.#fileStreams.delete(fileStreamId);
+		} else {
+			if (!bundle) {
+				throw new Error("Assertion failed, bundle is null");
+			}
+			/** @type {import("./Task.js").RunTaskCreateAssetData[]} */
+			result.writeAssets = [
+				{
+					fileData: bundle,
+					path: config.outputPath,
+				},
+			];
+		}
 
-		return {};
+		return result;
 	}
 }
