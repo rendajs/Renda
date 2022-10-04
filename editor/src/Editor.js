@@ -9,7 +9,6 @@ import {MaterialMapTypeSerializerManager} from "./assets/MaterialMapTypeSerializ
 import {ProjectManager} from "./projectSelector/ProjectManager.js";
 import {BuiltInDefaultAssetLinksManager} from "./assets/BuiltInDefaultAssetLinksManager.js";
 import {BuiltInAssetManager} from "./assets/BuiltInAssetManager.js";
-import {ScriptBuilder} from "./misc/ScriptBuilder.js";
 import {DragManager} from "./misc/DragManager.js";
 import {ColorizerFilterManager} from "./util/colorizerFilters/ColorizerFilterManager.js";
 import {ServiceWorkerManager} from "./misc/ServiceWorkerManager.js";
@@ -39,7 +38,6 @@ export class Editor {
 		this.projectManager = new ProjectManager();
 		this.builtInDefaultAssetLinksManager = new BuiltInDefaultAssetLinksManager();
 		this.builtInAssetManager = new BuiltInAssetManager(this.projectAssetTypeManager);
-		this.scriptBuilder = new ScriptBuilder();
 		this.dragManager = new DragManager();
 		this.serviceWorkerManager = new ServiceWorkerManager();
 

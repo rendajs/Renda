@@ -1,5 +1,4 @@
 import {BuiltInAssetManager} from "./BuiltInAssetManager.js";
-import {ClosureCompilerManager} from "./ClosureCompilerManager.js";
 
 import {WebSocketManager} from "./WebSocketManager.js";
 
@@ -26,7 +25,6 @@ export class Application {
 		this.builtInAssetManager = new BuiltInAssetManager({builtInAssetsPath, verbose: true});
 		this.builtInAssetManager.loadAssetSettings();
 		this.builtInAssetManager.watch();
-		this.closureCompilerManager = new ClosureCompilerManager();
 	}
 
 	init() {
@@ -36,9 +34,6 @@ export class Application {
 
 		this.webSocketManager.registerRoundTripOp("writeBuiltInAsset", async data => {
 			return await this.builtInAssetManager.writeAssetData(data.path, data.writeData);
-		});
-		this.webSocketManager.registerRoundTripOp("runClosureCompiler", async data => {
-			return await this.closureCompilerManager.compileJs(data);
 		});
 
 		this.builtInAssetManager.onWebsocketBroadcastNeeded((op, data) => {
