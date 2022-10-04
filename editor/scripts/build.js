@@ -15,7 +15,7 @@ try {
 } catch {
 	// Already removed
 }
-ensureDir("../dist");
+await ensureDir("../dist");
 
 await copy("../index.html", "../dist/index.html");
 await copy("../internalDiscovery.html", "../dist/internalDiscovery.html");
