@@ -5,15 +5,17 @@
  * tests.
  */
 
-import {serveDir} from "https://deno.land/std@0.127.0/http/file_server.ts";
-import {Server} from "https://deno.land/std@0.127.0/http/server.ts";
+import {serveDir} from "std/http/file_server.ts";
+import {Server} from "std/http/server.ts";
 import {Application as DevSocket} from "../editor/devSocket/src/Application.js";
+import {Application as EditorDiscovery} from "../editor/editorDiscoveryServer/src/Application.js";
 import {resolve} from "std/path/mod.ts";
 
 export class DevServer {
 	#port;
 	#serverName;
 	#devSocket;
+	#editorDiscovery;
 	#httpServer;
 
 	/**
@@ -31,14 +33,18 @@ export class DevServer {
 		this.#devSocket = new DevSocket({
 			builtInAssetsPath,
 		});
+		this.#editorDiscovery = new EditorDiscovery();
 
 		const fsRoot = Deno.cwd();
 		this.#httpServer = new Server({
 			port,
-			handler: request => {
+			handler: (request, connInfo) => {
 				const url = new URL(request.url);
 				if (url.pathname == "/devSocket") {
 					return this.#devSocket.webSocketManager.handleRequest(request);
+				}
+				if (url.pathname == "/editorDiscovery") {
+					return this.#editorDiscovery.webSocketManager.handleRequest(request, connInfo);
 				}
 				return serveDir(request, {
 					fsRoot,
