@@ -7,6 +7,7 @@ import {Task} from "./Task.js";
  * @typedef TaskBundleScriptsConfig
  * @property {import("../../../../src/mod.js").UuidString[]} [entryPoints]
  * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [outputPath]
+ * @property {string} [servicesSource] The code that the import specifier 'renda:services' will resolve with.
  */
 
 /**
@@ -89,7 +90,11 @@ export class TaskBundleScripts extends Task {
 				inputPaths.push(path.join("/"));
 			}
 		}
-		const result = await this.#messenger.send("bundle", {inputPaths, outputPath, readScriptCallbackId});
+		const result = await this.#messenger.send("bundle", {
+			inputPaths, outputPath,
+			readScriptCallbackId,
+			servicesSource: config?.servicesSource || "",
+		});
 		this.#readScriptCallbacks.delete(readScriptCallbackId);
 
 		return result;

@@ -61,6 +61,27 @@ export class TaskBuildApplication extends Task {
 		return context;
 	}
 
+	/**
+	 * @param {import("./Task.js").RunTaskReturn} taskResult
+	 */
+	#assertSingleWriteAsset(taskResult) {
+		if (taskResult.writeAssets?.length != 1) {
+			throw new Error("Assertion failed, task does not have exactly one write asset.");
+		}
+		return taskResult.writeAssets[0].fileData;
+	}
+
+	/**
+	 * @param {import("./Task.js").RunTaskReturn} taskResult
+	 */
+	#assertSingleStringWriteAsset(taskResult) {
+		const stringResult = this.#assertSingleWriteAsset(taskResult);
+		if (typeof stringResult != "string") {
+			throw new Error("Assertion failed, task did not result in a string asset");
+		}
+		return stringResult;
+	}
+
 	getResponseHandlers() {
 		return {
 			/**
@@ -97,10 +118,7 @@ export class TaskBuildApplication extends Task {
 				const bundleAssetsResult = await context.runChildTask("renda:bundleAssets", bundleAssetsConfig, {
 					allowDiskWrites: false,
 				});
-				const assetBundle = bundleAssetsResult.writeAssets?.[0].fileData;
-				if (!assetBundle) {
-					throw new Error("Assertion failed, bundle asset tasks returned no file data");
-				}
+				const assetBundle = this.#assertSingleWriteAsset(bundleAssetsResult);
 				if (!(assetBundle instanceof ArrayBuffer)) {
 					throw new Error("Assertion failed: unexpected asset bundle file data, not an ArrayBuffer");
 				}
@@ -114,14 +132,36 @@ export class TaskBuildApplication extends Task {
 			},
 			/**
 			 * @param {number} contextId
-			 * @param {import("../../../../src/mod.js").UuidString} entryPoint
+			 * @param {import("../../../../src/mod.js").UuidString[]} uuids
 			 */
-			bundleScripts: async (contextId, entryPoint) => {
+			generateServices: async (contextId, uuids) => {
+				const context = this.getContext(contextId);
+				/** @type {import("./TaskGenerateServices.js").TaskGenerateServicesConfig} */
+				const generateServicesConfig = {
+					outputLocation: ["services.js"],
+					usedAssets: uuids,
+				};
+				const generateServicesResult = await context.runChildTask("renda:generateServices", generateServicesConfig, {
+					allowDiskWrites: false,
+				});
+				const servicesScript = this.#assertSingleStringWriteAsset(generateServicesResult);
+
+				return {
+					returnValue: servicesScript,
+				};
+			},
+			/**
+			 * @param {number} contextId
+			 * @param {import("../../../../src/mod.js").UuidString} entryPoint
+			 * @param {string} servicesSource
+			 */
+			bundleScripts: async (contextId, entryPoint, servicesSource) => {
 				const context = this.getContext(contextId);
 				/** @type {import("./TaskBundleScripts.js").TaskBundleScriptsConfig} */
 				const bundleScriptsConfig = {
 					outputPath: ["js"],
 					entryPoints: [entryPoint],
+					servicesSource,
 				};
 				const bundleScriptsResult = await context.runChildTask("renda:bundleScripts", bundleScriptsConfig, {
 					allowDiskWrites: false,
@@ -148,10 +188,7 @@ export class TaskBuildApplication extends Task {
 				const result = await context.runChildTask("renda:generateHtml", config, {
 					allowDiskWrites: false,
 				});
-				const html = result.writeAssets?.[0].fileData;
-				if (typeof html != "string") {
-					throw new Error("Failed to generate html.");
-				}
+				const html = this.#assertSingleStringWriteAsset(result);
 				return {
 					returnValue: html,
 				};

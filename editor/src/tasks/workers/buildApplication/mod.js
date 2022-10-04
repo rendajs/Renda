@@ -39,7 +39,9 @@ const responseHandlers = {
 			path: [...config.outputDir, "bundle.rbundle"],
 		});
 
-		const scriptBundle = await messenger.send("bundleScripts", contextId, config.entryPoint);
+		const services = await messenger.send("generateServices", contextId, assetUuids);
+
+		const scriptBundle = await messenger.send("bundleScripts", contextId, config.entryPoint, services);
 		if (!scriptBundle.writeAssets || scriptBundle.writeAssets.length == 0) {
 			throw new Error("Failed to run task: bundling scripts resulted in no output.");
 		}

@@ -9,6 +9,7 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
  * @property {string[]} inputPaths
  * @property {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
  * @property {number} readScriptCallbackId
+ * @property {string} servicesSource The code that the import specifier 'renda:services' will resolve with.
  */
 
 /**
@@ -20,7 +21,7 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
  * @param {BundleOptions} options
  * @param {import("./mod.js").BundleScriptsMessenger} messenger
  */
-export async function bundle({inputPaths, outputPath, readScriptCallbackId}, messenger) {
+export async function bundle({inputPaths, outputPath, readScriptCallbackId, servicesSource}, messenger) {
 	/** @type {import("./resolvePlugin.js").GetScriptContentFn} */
 	const getScriptContentFn = async path => {
 		const result = await messenger.send("getScriptContent", path, readScriptCallbackId);
@@ -32,7 +33,13 @@ export async function bundle({inputPaths, outputPath, readScriptCallbackId}, mes
 
 	const bundle = await rollup.rollup({
 		input: inputPaths,
-		plugins: [resolvePlugin(getScriptContentFn), resolveUrlObjects()],
+		plugins: [
+			resolvePlugin({
+				getScriptContentFn,
+				servicesSource,
+			}),
+			resolveUrlObjects(),
+		],
 		preserveEntrySignatures: false,
 	});
 	const {output: rollupOutput} = await bundle.generate({
