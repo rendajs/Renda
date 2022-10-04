@@ -71,12 +71,6 @@ export class WebSocketManager {
 					responseData,
 				},
 			}));
-
-			// if (json.roundTripOp == "runClosureCompiler") {
-			// 	globalThis.closureCompilerManager.compileJs(responseCb, json.data);
-			// } else if (json.roundTripOp == "writeBuiltInAsset") {
-			// 	globalThis.builtInAssetManager.writeAssetData(json.data.path, json.data.writeData, responseCb);
-			// }
 		}
 	}
 
