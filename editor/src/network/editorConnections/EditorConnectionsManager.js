@@ -132,7 +132,7 @@ export class EditorConnectionsManager {
 	}
 
 	static getDefaultEndPoint() {
-		return `ws://${window.location.hostname}:8082`;
+		return `ws://${window.location.host}/editorDiscovery`;
 	}
 
 	/**

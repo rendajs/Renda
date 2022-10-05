@@ -9,48 +9,37 @@ export class WebSocketManager {
 		this.connectionsByRemoteAddress = new Map();
 	}
 
-	async init() {
-		const listener = Deno.listen({port: 8082});
-		for await (const conn of listener) {
-			this.handleHttp(conn);
-		}
-	}
-
 	/**
-	 * @param {Deno.Conn} conn
+	 * @param {Request} request
+	 * @param {import("std/http/server.ts").ConnInfo} connInfo
 	 */
-	async handleHttp(conn) {
-		const httpConn = Deno.serveHttp(conn);
-		for await (const e of httpConn) {
-			const {socket, response} = Deno.upgradeWebSocket(e.request);
-			if (conn.remoteAddr.transport != "tcp" && conn.remoteAddr.transport != "udp") {
-				conn.close();
-				return;
-			}
-			const addr = /** @type {Deno.NetAddr} */ (conn.remoteAddr);
-			const remoteAddress = addr.hostname;
-			const connection = new WebSocketConnection(this, remoteAddress, socket);
-			this.activeConnections.set(connection.id, connection);
-
-			let connections = this.connectionsByRemoteAddress.get(remoteAddress);
-			if (!connections) {
-				connections = new Set();
-				this.connectionsByRemoteAddress.set(remoteAddress, connections);
-			}
-			connections.add(connection);
-
-			socket.addEventListener("close", () => {
-				this.activeConnections.delete(connection.id);
-				const connections = this.connectionsByRemoteAddress.get(remoteAddress);
-				if (connections) {
-					connections.delete(connection);
-					if (connections.size <= 0) {
-						this.connectionsByRemoteAddress.delete(remoteAddress);
-					}
-				}
-			});
-			e.respondWith(response);
+	handleRequest(request, connInfo) {
+		const {socket, response} = Deno.upgradeWebSocket(request);
+		if (connInfo.remoteAddr.transport != "tcp" && connInfo.remoteAddr.transport != "udp") {
+			throw new Error("Invalid connection type");
 		}
+		const remoteAddress = connInfo.remoteAddr.hostname;
+		const connection = new WebSocketConnection(this, remoteAddress, socket);
+		this.activeConnections.set(connection.id, connection);
+
+		let connections = this.connectionsByRemoteAddress.get(remoteAddress);
+		if (!connections) {
+			connections = new Set();
+			this.connectionsByRemoteAddress.set(remoteAddress, connections);
+		}
+		connections.add(connection);
+
+		socket.addEventListener("close", () => {
+			this.activeConnections.delete(connection.id);
+			const connections = this.connectionsByRemoteAddress.get(remoteAddress);
+			if (connections) {
+				connections.delete(connection);
+				if (connections.size <= 0) {
+					this.connectionsByRemoteAddress.delete(remoteAddress);
+				}
+			}
+		});
+		return response;
 	}
 
 	/**
