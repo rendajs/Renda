@@ -105,8 +105,7 @@ export class TaskBuildApplication extends Task {
 			 */
 			bundleAssets: async (contextId, uuids) => {
 				const context = this.getContext(contextId);
-				/** @type {import("./TaskBundleAssets.js").TaskBundleAssetsConfig} */
-				const bundleAssetsConfig = {
+				const bundleAssetsResult = await context.runChildTask("renda:bundleAssets", {
 					assets: uuids.map(uuid => {
 						return {
 							asset: uuid,
@@ -114,8 +113,7 @@ export class TaskBuildApplication extends Task {
 						};
 					}),
 					outputPath: ["assetbundle"],
-				};
-				const bundleAssetsResult = await context.runChildTask("renda:bundleAssets", bundleAssetsConfig, {
+				}, {
 					allowDiskWrites: false,
 				});
 				const assetBundle = this.#assertSingleWriteAsset(bundleAssetsResult);
@@ -136,12 +134,10 @@ export class TaskBuildApplication extends Task {
 			 */
 			generateServices: async (contextId, uuids) => {
 				const context = this.getContext(contextId);
-				/** @type {import("./TaskGenerateServices.js").TaskGenerateServicesConfig} */
-				const generateServicesConfig = {
+				const generateServicesResult = await context.runChildTask("renda:generateServices", {
 					outputLocation: ["services.js"],
 					usedAssets: uuids,
-				};
-				const generateServicesResult = await context.runChildTask("renda:generateServices", generateServicesConfig, {
+				}, {
 					allowDiskWrites: false,
 				});
 				const servicesScript = this.#assertSingleStringWriteAsset(generateServicesResult);
@@ -157,13 +153,11 @@ export class TaskBuildApplication extends Task {
 			 */
 			bundleScripts: async (contextId, entryPoint, servicesSource) => {
 				const context = this.getContext(contextId);
-				/** @type {import("./TaskBundleScripts.js").TaskBundleScriptsConfig} */
-				const bundleScriptsConfig = {
+				const bundleScriptsResult = await context.runChildTask("renda:bundleScripts", {
 					outputPath: ["js"],
 					entryPoints: [entryPoint],
 					servicesSource,
-				};
-				const bundleScriptsResult = await context.runChildTask("renda:bundleScripts", bundleScriptsConfig, {
+				}, {
 					allowDiskWrites: false,
 				});
 				return {
@@ -176,16 +170,14 @@ export class TaskBuildApplication extends Task {
 			 */
 			generateHtml: async (contextId, scriptSrc) => {
 				const context = this.getContext(contextId);
-				/** @type {import("./TaskGenerateHtml.js").TaskGenerateHtmlConfig} */
-				const config = {
+				const result = await context.runChildTask("renda:generateHtml", {
 					outputLocation: ["index.html"],
 					template: "264a38b9-4e43-4261-b57d-28a778a12dd9",
 					replacements: [
 						{find: "RENDA_IMPORT_MAP_TAG", replace: ""},
 						{find: "HTML_SCRIPT_SRC", replace: scriptSrc},
 					],
-				};
-				const result = await context.runChildTask("renda:generateHtml", config, {
+				}, {
 					allowDiskWrites: false,
 				});
 				const html = this.#assertSingleStringWriteAsset(result);
