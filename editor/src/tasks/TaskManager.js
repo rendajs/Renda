@@ -47,6 +47,25 @@ import {Task} from "./task/Task.js";
  * @typedef {RunTaskAssetOptions & RunTaskOptionsExtra} RunTaskOptions
  */
 
+/**
+ * This contains all expected configs based on the task type. This is used for
+ * better autocompletions for `runTask` or `runChildTask`. However, since it's possible
+ * for plugins to add their own task types, if an unknown task type is used, the expected
+ * type of the config parameter of the function is 'unknown'.
+ * @typedef {{
+ * 	"renda:buildApplication": import("./task/TaskBuildApplication.js").TaskBuildApplicationConfig,
+ * 	"renda:bundleAssets": import("./task/TaskBundleAssets.js").TaskBundleAssetsConfig,
+ * 	"renda:bundleScripts": import("./task/TaskBundleScripts.js").TaskBundleScriptsConfig,
+ * 	"renda:generateHtml": import("./task/TaskGenerateHtml.js").TaskGenerateHtmlConfig,
+ * 	"renda:generateServices": import("./task/TaskGenerateServices.js").TaskGenerateServicesConfig,
+ * }} KnownTaskConfigs
+ */
+
+/**
+ * @template {string} T
+ * @typedef {T extends keyof KnownTaskConfigs ? KnownTaskConfigs[T] : unknown} GetExpectedTaskConfig
+ */
+
 export class TaskManager {
 	/** @type {Map<string, typeof import("./task/Task.js").Task>} */
 	#registeredTasks = new Map();
@@ -139,8 +158,9 @@ export class TaskManager {
 	}
 
 	/**
-	 * @param {string} taskType
-	 * @param {unknown} taskConfig
+	 * @template {string} T
+	 * @param {T} taskType
+	 * @param {GetExpectedTaskConfig<T>} taskConfig
 	 * @param {RunTaskOptions} [options]
 	 */
 	async runTask(taskType, taskConfig, options) {
