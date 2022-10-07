@@ -31,7 +31,6 @@ export class BuiltInAssetManager {
 		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
 			await this.loadAssetSettingsFn();
 		}, {
-			run: false,
 			once: false,
 		});
 		this.assetSettingsLoaded = false;

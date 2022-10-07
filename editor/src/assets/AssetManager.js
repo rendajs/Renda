@@ -140,8 +140,8 @@ export class AssetManager {
 			await this.loadAssetSettingsInstanceFn();
 		}, {
 			once: false,
-			run: true,
 		});
+		this.loadAssetSettingsInstance.run();
 	}
 
 	destructor() {

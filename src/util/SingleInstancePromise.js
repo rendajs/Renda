@@ -6,11 +6,9 @@ export class SingleInstancePromise {
 	 * @param {() => Promise<TReturn>} promiseFn
 	 * @param {object} opts
 	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
-	 * @param {boolean} [opts.run] If true, the function will run immediately.
 	 */
 	constructor(promiseFn, {
 		once = true,
-		run = false,
 	} = {}) {
 		this.once = once;
 		this.promiseFn = promiseFn;
@@ -19,8 +17,6 @@ export class SingleInstancePromise {
 		this.onceReturnValue = undefined;
 		/** @type {Set<(result: TReturn) => void>} */
 		this.onRunFinishCbs = new Set();
-
-		if (run) this.run();
 	}
 
 	/**
