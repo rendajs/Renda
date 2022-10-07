@@ -127,12 +127,27 @@ export class WorkspaceManager {
 	 */
 	async addNewWorkspace(name) {
 		const list = await this.getWorkspacesList();
+		if (list.includes(name)) {
+			throw new Error(`A workspace with the name "${name}" already exists.`);
+		}
 		list.push(name);
 		await this.setWorkspacesList(list);
-		const previousId = await this.getCurrentWorkspaceId();
-		const currentData = await this.getCurrentWorkspace();
 		await this.setCurrentWorkspaceId(name);
-		await this.saveWorkspace(previousId, currentData);
+	}
+
+	/**
+	 * @param {string} newName
+	 */
+	async cloneCurrentWorkspace(newName) {
+		const list = await this.getWorkspacesList();
+		if (list.includes(newName)) {
+			throw new Error(`A workspace with the name "${newName}" already exists.`);
+		}
+		list.push(newName);
+		await this.setWorkspacesList(list);
+		const previousWorkspaceData = await this.getCurrentWorkspace();
+		await this.saveWorkspace(newName, previousWorkspaceData);
+		await this.setCurrentWorkspaceId(newName);
 	}
 
 	async deleteCurrentWorkspace() {
