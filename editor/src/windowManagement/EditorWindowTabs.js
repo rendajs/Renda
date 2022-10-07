@@ -393,7 +393,7 @@ export class EditorWindowTabs extends EditorWindow {
 						{
 							text: "Add New Workspace",
 							onClick: () => {
-								const name = prompt("Enter Workspace Name", `Copy of ${currentWorkspace}`);
+								const name = prompt("Enter Workspace Name", "New Workspace");
 								if (name && !workspaces.includes(name)) {
 									this.windowManager.workspaceManager.addNewWorkspace(name);
 								}
@@ -414,6 +414,15 @@ export class EditorWindowTabs extends EditorWindow {
 								autoSaveValue = !autoSaveValue;
 								e.item.showCheckmark = autoSaveValue;
 								this.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
+							},
+						},
+						{
+							text: `Clone '${currentWorkspace}'`,
+							onClick: () => {
+								const name = prompt("Enter Workspace Name", `Copy of ${currentWorkspace}`);
+								if (name && !workspaces.includes(name)) {
+									this.windowManager.workspaceManager.cloneCurrentWorkspace(name);
+								}
 							},
 						},
 						{
