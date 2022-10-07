@@ -143,7 +143,8 @@ export class WorkspaceManager {
 		const currentWorkspace = await this.getCurrentWorkspaceId();
 		const newList = list.filter(id => id != currentWorkspace);
 		await this.setWorkspacesList(newList);
-		await this.setCurrentWorkspaceId(newList[0]); // todo: update windowmanager workspace
+		await this.indexedDb.delete(currentWorkspace, "workspaces");
+		await this.setCurrentWorkspaceId(newList[0]);
 	}
 
 	async getAutoSaveValue() {
