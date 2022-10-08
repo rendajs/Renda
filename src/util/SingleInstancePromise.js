@@ -20,17 +20,17 @@ export class SingleInstancePromise {
 	}
 
 	/**
-	 * Runs the function.
-	 * Calling this many times with `repeatIfRunning` set to true will not cause the promise to
-	 * run many times. I.e., jobs do not get queued indefinitely, only twice.
-	 * @param {boolean} repeatIfRunning If true, the function will run again when the first run is done.
+	 * Runs the function. If the function is already running,the call will be
+	 * queued once. Ensuring that the last call is always run. If this function
+	 * is called many times while it is already running, only the last call
+	 * will be executed.
 	 * @returns {Promise<TReturn>}
 	 */
-	async run(repeatIfRunning = false) {
+	async run() {
 		if (this.isRunning) {
-			if (repeatIfRunning && !this.once) {
+			if (!this.once) {
 				await new Promise(r => this.onRunFinishCbs.add(r));
-				return await this.run(false);
+				return await this.run();
 			} else {
 				return await new Promise(r => this.onRunFinishCbs.add(r));
 			}

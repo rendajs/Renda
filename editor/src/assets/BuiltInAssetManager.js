@@ -83,7 +83,7 @@ export class BuiltInAssetManager {
 				}
 			});
 			devSocket.addListener("builtInAssetListUpdate", () => {
-				this.loadAssetsInstance.run(true);
+				this.loadAssetsInstance.run();
 			});
 		}
 	}

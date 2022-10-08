@@ -46,7 +46,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 		/** @type {Set<PermissionGrantedListener>} */
 		this.onPermissionGrantedListeners = new Set();
-		this.updateWatchTreeInstance.run(true);
+		this.updateWatchTreeInstance.run();
 	}
 
 	static async openUserDir() {
@@ -455,7 +455,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @override
 	 */
 	suggestCheckExternalChanges() {
-		this.updateWatchTreeInstance.run(true);
+		this.updateWatchTreeInstance.run();
 	}
 
 	async updateWatchTree() {

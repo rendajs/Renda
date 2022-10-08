@@ -17,8 +17,7 @@ import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js"
  * @extends {PropertiesAssetContent<import("../assets/projectAssetType/ProjectAssetTypeMaterial.js").ProjectAssetTypeMaterial>}
  */
 export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
-	/** @type {SingleInstancePromise<void>?} */
-	#loadAssetInstance = null;
+	#loadAssetInstance;
 	/**
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
@@ -86,7 +85,6 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	async waitForAssetLoad() {
-		if (!this.#loadAssetInstance) return;
 		await this.#loadAssetInstance.waitForFinish();
 	}
 
@@ -105,9 +103,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	 */
 	async selectionUpdated(selectedMaterials) {
 		super.selectionUpdated(selectedMaterials);
-		if (this.#loadAssetInstance) {
-			await this.#loadAssetInstance.run();
-		}
+		await this.#loadAssetInstance.run();
 	}
 
 	async loadMapValues() {
