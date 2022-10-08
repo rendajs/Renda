@@ -74,6 +74,8 @@ export class SingleInstancePromise {
 			const result = await this.promiseFn(...lastEntry.args);
 			this._isEmptyingQueue = false;
 			this.hasRun = true;
+			this._onFinishCbs.forEach(cb => cb());
+			this._onFinishCbs.clear();
 
 			if (this.once) {
 				this._onceReturnValue = result;

@@ -1,6 +1,6 @@
-import {assertThrows} from "std/testing/asserts.ts";
+import {assertRejects, assertThrows} from "std/testing/asserts.ts";
 import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
-import {assertAlmostEquals, assertMatAlmostEquals, assertVecAlmostEquals} from "./asserts.js";
+import {assertAlmostEquals, assertMatAlmostEquals, assertPromiseResolved, assertVecAlmostEquals} from "./asserts.js";
 
 Deno.test({
 	name: "assertAlmostEquals() doesn't throw",
@@ -189,5 +189,32 @@ Deno.test({
 		assertThrows(() => {
 			assertMatAlmostEquals(/** @type {any} */(null), new Mat4());
 		});
+	},
+});
+
+Deno.test({
+	name: "assertPromise resolved true",
+	async fn() {
+		const promise = new Promise(r => {
+			setTimeout(r, 0);
+		});
+		await promise;
+		await assertPromiseResolved(promise, true);
+
+		await assertRejects(async () => {
+			await assertPromiseResolved(promise, false);
+		}, Error, "Expected the promise to not be resolved");
+	},
+});
+
+Deno.test({
+	name: "assertPromise resolved false",
+	async fn() {
+		const promise = new Promise(r => {});
+		await assertPromiseResolved(promise, false);
+
+		await assertRejects(async () => {
+			await assertPromiseResolved(promise, true);
+		}, Error, "Expected the promise to be resolved");
 	},
 });

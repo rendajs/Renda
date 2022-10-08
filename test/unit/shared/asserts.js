@@ -1,5 +1,6 @@
-import {AssertionError} from "std/testing/asserts.ts";
+import {AssertionError, assert} from "std/testing/asserts.ts";
 import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
+import {waitForMicrotasks as waitForMicrotasksFn} from "./waitForMicroTasks.js";
 
 /**
  * Make an assertion that `actual` and `expected` are almost numbers.
@@ -138,4 +139,20 @@ export function assertMatAlmostEquals(actual, expected, tolerance = 0.00001, msg
 		}
 		assertAlmostEquals(array1[i], array2[i], tolerance, message);
 	}
+}
+
+/**
+ * @param {Promise<any>} promise
+ * @param {boolean} expected
+ * @param {boolean} waitForMicrotasks
+ */
+export async function assertPromiseResolved(promise, expected, waitForMicrotasks = true) {
+	let resolved = false;
+	(async () => {
+		await promise;
+		resolved = true;
+	})();
+	if (waitForMicrotasks) await waitForMicrotasksFn();
+	const msg = expected ? "Expected the promise to be resolved" : "Expected the promise to not be resolved";
+	assert(resolved == expected, msg);
 }
