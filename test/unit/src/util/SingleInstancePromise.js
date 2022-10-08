@@ -30,3 +30,37 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Calling run while already running",
+	async fn() {
+		/** @param {string} result */
+		let resolvePromise = result => {};
+		const fn = spy(async (/** @type {string} */ param) => {
+			/** @type {Promise<string>} */
+			const promise = new Promise(r => {
+				resolvePromise = r;
+			});
+			const promiseResult = await promise;
+			return param + promiseResult;
+		});
+		const instance = new SingleInstancePromise(fn);
+
+		const promise1 = instance.run("run1");
+		const promise2 = instance.run("run2");
+		const promise3 = instance.run("run3");
+		assertSpyCalls(fn, 1);
+
+		resolvePromise("resolve1");
+		const result1 = await promise1;
+		assertEquals(result1, "run1resolve1");
+
+		resolvePromise("resolve2");
+		const result2 = await promise2;
+		assertEquals(result2, "run3resolve2");
+
+		const result3 = await promise3;
+		assertEquals(result3, "run3resolve2");
+		assertSpyCalls(fn, 2);
+	},
+});
