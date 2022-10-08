@@ -66,7 +66,8 @@ export class BuiltInAssetManager {
 				asset?.destructor();
 				this.assets.delete(uuid);
 			}
-		}, {run: true, once: false});
+		});
+		this.loadAssetsInstance.run();
 	}
 
 	/**
@@ -82,7 +83,7 @@ export class BuiltInAssetManager {
 				}
 			});
 			devSocket.addListener("builtInAssetListUpdate", () => {
-				this.loadAssetsInstance.run(true);
+				this.loadAssetsInstance.run();
 			});
 		}
 	}

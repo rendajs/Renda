@@ -138,10 +138,8 @@ export class AssetManager {
 		this.loadAssetSettingsFromUserGesture = false;
 		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
 			await this.loadAssetSettingsInstanceFn();
-		}, {
-			once: false,
-			run: true,
 		});
+		this.loadAssetSettingsInstance.run();
 	}
 
 	destructor() {

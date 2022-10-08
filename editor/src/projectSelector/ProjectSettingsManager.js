@@ -17,7 +17,7 @@ export class ProjectSettingsManager {
 		this.onFileCreatedCbs = new Set();
 
 		this.isLoadingFromUserGesture = false;
-		this.loadInstance = new SingleInstancePromise(async () => await this.loadFn());
+		this.loadInstance = new SingleInstancePromise(async () => await this.loadFn(), {once: true});
 		this.load(fromUserGesture);
 	}
 

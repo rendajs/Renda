@@ -1,77 +1,105 @@
 /**
- * @template TReturn
+ * @template {(...args: any[]) => any} TFunc
  */
 export class SingleInstancePromise {
+	/** @typedef {Awaited<Parameters<TFunc>>} TArgs */
+	/** @typedef {Awaited<ReturnType<TFunc>>} TReturn */
+
 	/**
-	 * @param {() => Promise<TReturn>} promiseFn
+	 * @typedef QueueEntry
+	 * @property {(result: TReturn) => void} resolve
+	 * @property {TArgs} args
+	 */
+
+	/**
+	 * @param {TFunc} promiseFn
 	 * @param {object} opts
 	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
-	 * @param {boolean} [opts.run] If true, the function will run immediately.
 	 */
 	constructor(promiseFn, {
-		once = true,
-		run = false,
+		once = false,
 	} = {}) {
 		this.once = once;
 		this.promiseFn = promiseFn;
-		this.isRunning = false;
-		this.hasRan = false;
-		this.onceReturnValue = undefined;
-		/** @type {Set<(result: TReturn) => void>} */
-		this.onRunFinishCbs = new Set();
 
-		if (run) this.run();
+		/** @type {QueueEntry[]} */
+		this._queue = [];
+		this._isEmptyingQueue = false;
+		this.hasRun = false;
+		/** @type {TReturn | undefined} */
+		this._onceReturnValue = undefined;
+		/** @type {Set<() => void>} */
+		this._onFinishCbs = new Set();
 	}
 
 	/**
-	 * Runs the function.
-	 * Calling this many times with `repeatIfRunning` set to true will not cause the promise to
-	 * run many times. I.e., jobs do not get queued indefinitely, only twice.
-	 * @param {boolean} repeatIfRunning If true, the function will run again when the first run is done.
+	 * Runs the function. If the function is already running,the call will be
+	 * queued once. Ensuring that the last call is always run. If this function
+	 * is called many times while it is already running, only the last call
+	 * will be executed.
+	 * @param {TArgs} args
 	 * @returns {Promise<TReturn>}
 	 */
-	async run(repeatIfRunning = false) {
-		if (this.isRunning) {
-			if (repeatIfRunning && !this.once) {
-				await new Promise(r => this.onRunFinishCbs.add(r));
-				return await this.run(false);
-			} else {
-				return await new Promise(r => this.onRunFinishCbs.add(r));
-			}
+	async run(...args) {
+		if (this.hasRun && this.once) {
+			return /** @type {TReturn} */ (this._onceReturnValue);
 		}
 
-		if (this.hasRan && this.once) {
-			return /** @type {TReturn} */ (this.onceReturnValue);
-		}
-
-		this.isRunning = true;
-		const result = await this.promiseFn();
-		this.isRunning = false;
-		this.hasRan = true;
-
-		if (this.once) {
-			this.onceReturnValue = result;
-		}
-
-		const onRunFinishCbsCopy = this.onRunFinishCbs;
-		this.onRunFinishCbs = new Set();
-		for (const cb of onRunFinishCbsCopy) {
-			cb(result);
-		}
-		return result;
+		/** @type {Promise<TReturn>} */
+		const myPromise = new Promise(resolve => this._queue.push({resolve, args}));
+		this._emptyQueue();
+		return await myPromise;
 	}
 
 	/**
-	 * Returns a promise that will resolve once the function is done running.
-	 * Subsequent runs will resolve immediately.
+	 * @private
+	 */
+	async _emptyQueue() {
+		if (this._isEmptyingQueue) return;
+		this._isEmptyingQueue = true;
+
+		while (this._queue.length > 0) {
+			if (this.once && this.hasRun) {
+				const returnValue = /** @type {TReturn} */ (this._onceReturnValue);
+				this._queue.forEach(entry => entry.resolve(returnValue));
+				this._queue = [];
+				break;
+			}
+			const queueCopy = this._queue;
+			this._queue = [];
+
+			const lastEntry = /** @type {QueueEntry} */ (queueCopy.at(-1));
+
+			this._isEmptyingQueue = true;
+			const result = await this.promiseFn(...lastEntry.args);
+			this._isEmptyingQueue = false;
+			this.hasRun = true;
+			this._onFinishCbs.forEach(cb => cb());
+			this._onFinishCbs.clear();
+
+			if (this.once) {
+				this._onceReturnValue = result;
+			}
+
+			for (const {resolve} of queueCopy) {
+				resolve(result);
+			}
+		}
+		this._isEmptyingQueue = false;
+	}
+
+	/**
+	 * Returns a promise that will resolve once the function has run at least once.
 	 * If the function hasn't run yet, this promise will resolve once it's done
-	 * running for the first time. So you might have to call {@linkcode run} for
-	 * this to resolve.
+	 * running for the first time. So {@linkcode run} has to have been called at
+	 * least once for this to resolve at all.
 	 * @returns {Promise<void>}
 	 */
 	async waitForFinish() {
-		if (this.hasRan) return;
-		await new Promise(r => this.onRunFinishCbs.add(r));
+		if (this.hasRun) return;
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this._onFinishCbs.add(r));
+		await promise;
 	}
 
 	/**
@@ -80,7 +108,9 @@ export class SingleInstancePromise {
 	 * done or if it has already run.
 	 */
 	async waitForFinishIfRunning() {
-		if (!this.isRunning) return;
-		await new Promise(r => this.onRunFinishCbs.add(r));
+		if (!this._isEmptyingQueue) return;
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this._onFinishCbs.add(r));
+		await promise;
 	}
 }

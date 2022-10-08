@@ -19,7 +19,7 @@ export class AssetBundle {
 		/** @type {Set<OnProgressCallback>} */
 		this.onProgressCbs = new Set();
 
-		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic());
+		this.downloadInstance = new SingleInstancePromise(async () => await this.downloadLogic(), {once: true});
 		this.headerWait = new PromiseWaitHelper();
 
 		this.downloadBuffer = null;

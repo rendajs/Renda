@@ -67,6 +67,8 @@ export class ProjectAsset {
 	/** @type {Set<() => void>} */
 	#onLiveAssetNeedsReplacementCbs = new Set();
 
+	#writeAssetDataInstance;
+
 	/**
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
@@ -132,8 +134,10 @@ export class ProjectAsset {
 		/** @private @type {Map<string, WeakRef<Object>>} */
 		this.previousLiveAssets = new Map();
 
-		this.initInstance = new SingleInstancePromise(async () => await this.init());
+		this.initInstance = new SingleInstancePromise(async () => await this.init(), {once: true});
 		this.initInstance.run();
+
+		this.#writeAssetDataInstance = new SingleInstancePromise(this.#writeAssetDataImpl);
 
 		/**
 		 * Whenever {@linkcode RecursionTracker.getLiveAssetData} is called with
@@ -640,9 +644,16 @@ export class ProjectAsset {
 	}
 
 	/**
-	 * Writes asset data to disk based on the current live asset. Note that if
-	 * the live asset does not exist, it will be created by reading from disk
-	 * first and then writing the result again. So if `liveAssetNeedsReplacement`
+	 * Writes asset data to disk based on the current live asset.
+	 *
+	 * If a promise of writing data is currently pending, the system will wait
+	 * for the promise to be resolved before writing the next one. Only a single
+	 * promise will be queued, meaning that if you call this very frequently, some
+	 * data may not be written to disk, only the last call will be written to disk
+	 * in that case.
+	 *
+	 * Note that if the live asset does not exist, it will be created by reading from
+	 * disk first and then writing the result again. So if `liveAssetNeedsReplacement`
 	 * has been triggered, either by this asset or by one of it's child assets,
 	 * this will essentially read and write the same data. To prevent this,
 	 * make sure you call `saveLiveAssetData` before `liveAssetNeedsReplacement`.
@@ -716,11 +727,25 @@ export class ProjectAsset {
 	}
 
 	/**
+	 * Writes asset data to disk. The provided data is slightly modified depending
+	 * on some static properties set by the project asset type.
+	 *
+	 * If a promise of writing data is currently pending, the system will wait
+	 * for the promise to be resolved before writing the next one. Only a single
+	 * promise will be queued, meaning that if you call this very frequently, some
+	 * data may not be written to disk, only the last call will be written to disk
+	 * in that case.
 	 * @param {FileDataType} fileData
 	 */
 	async writeAssetData(fileData) {
 		await this.waitForInit();
+		await this.#writeAssetDataInstance.run(fileData);
+	}
 
+	/**
+	 * @param {FileDataType} fileData
+	 */
+	#writeAssetDataImpl = async fileData => {
 		if (!this.projectAssetTypeConstructorSync) {
 			throw new Error("Unable to write asset data without a ProjectAssetType");
 		}
@@ -757,7 +782,7 @@ export class ProjectAsset {
 			const fileDataBlob = /** @type {BlobPart} */ (fileData);
 			await this.fileSystem.writeFile(this.path, fileDataBlob);
 		}
-	}
+	};
 
 	/**
 	 * Same as {@linkcode readAssetData} but returns the data synchronously

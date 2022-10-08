@@ -152,8 +152,6 @@ export class ProjectManager {
 
 		this.loadEditorConnectionsAllowIncomingInstance = new SingleInstancePromise(async () => {
 			await this.loadEditorConnectionsAllowIncoming();
-		}, {
-			once: false,
 		});
 	}
 
