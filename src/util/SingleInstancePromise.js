@@ -26,7 +26,8 @@ export class SingleInstancePromise {
 		this._queue = [];
 		this._isEmptyingQueue = false;
 		this.hasRun = false;
-		this.onceReturnValue = undefined;
+		/** @type {TReturn | undefined} */
+		this._onceReturnValue = undefined;
 		/** @type {Set<() => void>} */
 		this._onFinishCbs = new Set();
 	}
@@ -41,7 +42,7 @@ export class SingleInstancePromise {
 	 */
 	async run(...args) {
 		if (this.hasRun && this.once) {
-			return /** @type {TReturn} */ (this.onceReturnValue);
+			return /** @type {TReturn} */ (this._onceReturnValue);
 		}
 
 		/** @type {Promise<TReturn>} */
@@ -55,9 +56,15 @@ export class SingleInstancePromise {
 	 */
 	async _emptyQueue() {
 		if (this._isEmptyingQueue) return;
-
 		this._isEmptyingQueue = true;
+
 		while (this._queue.length > 0) {
+			if (this.once && this.hasRun) {
+				const returnValue = /** @type {TReturn} */ (this._onceReturnValue);
+				this._queue.forEach(entry => entry.resolve(returnValue));
+				this._queue = [];
+				break;
+			}
 			const queueCopy = this._queue;
 			this._queue = [];
 
@@ -69,7 +76,7 @@ export class SingleInstancePromise {
 			this.hasRun = true;
 
 			if (this.once) {
-				this.onceReturnValue = result;
+				this._onceReturnValue = result;
 			}
 
 			for (const {resolve} of queueCopy) {

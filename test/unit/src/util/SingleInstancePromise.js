@@ -1,6 +1,31 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {SingleInstancePromise} from "../../../../src/mod.js";
+import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
+
+function basicSpyFn() {
+	/** @type {((result: string) => void)?} */
+	let resolvePromise = null;
+	const spyFn = spy(async (/** @type {string} */ param) => {
+		/** @type {Promise<string>} */
+		const promise = new Promise(r => {
+			resolvePromise = r;
+		});
+		const promiseResult = await promise;
+		return param + promiseResult;
+	});
+	return {
+		/** @param {string} result */
+		async resolvePromise(result) {
+			await waitForMicrotasks();
+			if (!resolvePromise) {
+				throw new Error("Spy function hasn't been called yet");
+			}
+			resolvePromise(result);
+		},
+		spyFn,
+	};
+}
 
 Deno.test({
 	name: "Single run",
@@ -11,6 +36,31 @@ Deno.test({
 
 		const result = await instance.run(1337);
 		assertEquals(result, 1337);
+	},
+});
+
+Deno.test({
+	name: "Calling run while already running",
+	async fn() {
+		const {spyFn, resolvePromise} = basicSpyFn();
+		const instance = new SingleInstancePromise(spyFn);
+
+		const promise1 = instance.run("run1");
+		const promise2 = instance.run("run2");
+		const promise3 = instance.run("run3");
+		assertSpyCalls(spyFn, 1);
+
+		await resolvePromise("resolve1");
+		const result1 = await promise1;
+		assertEquals(result1, "run1resolve1");
+
+		await resolvePromise("resolve2");
+		const result2 = await promise2;
+		assertEquals(result2, "run3resolve2");
+
+		const result3 = await promise3;
+		assertEquals(result3, "run3resolve2");
+		assertSpyCalls(spyFn, 2);
 	},
 });
 
@@ -32,35 +82,25 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Calling run while already running",
+	name: "Calling while already running with once: true",
 	async fn() {
-		/** @param {string} result */
-		let resolvePromise = result => {};
-		const fn = spy(async (/** @type {string} */ param) => {
-			/** @type {Promise<string>} */
-			const promise = new Promise(r => {
-				resolvePromise = r;
-			});
-			const promiseResult = await promise;
-			return param + promiseResult;
-		});
-		const instance = new SingleInstancePromise(fn);
+		const {spyFn, resolvePromise} = basicSpyFn();
+		const instance = new SingleInstancePromise(spyFn, {once: true});
 
 		const promise1 = instance.run("run1");
 		const promise2 = instance.run("run2");
 		const promise3 = instance.run("run3");
-		assertSpyCalls(fn, 1);
+		assertSpyCalls(spyFn, 1);
 
-		resolvePromise("resolve1");
+		await resolvePromise("resolve1");
 		const result1 = await promise1;
 		assertEquals(result1, "run1resolve1");
 
-		resolvePromise("resolve2");
 		const result2 = await promise2;
-		assertEquals(result2, "run3resolve2");
+		assertEquals(result2, "run1resolve1");
 
 		const result3 = await promise3;
-		assertEquals(result3, "run3resolve2");
-		assertSpyCalls(fn, 2);
+		assertEquals(result3, "run1resolve1");
+		assertSpyCalls(spyFn, 1);
 	},
 });
