@@ -1,9 +1,11 @@
 /**
- * @template TReturn
+ * @template {(...args: any[]) => any} TFunc
  */
 export class SingleInstancePromise {
+	/** @typedef {Awaited<Parameters<TFunc>>} TArgs */
+	/** @typedef {Awaited<ReturnType<TFunc>>} TReturn */
 	/**
-	 * @param {() => Promise<TReturn>} promiseFn
+	 * @param {TFunc} promiseFn
 	 * @param {object} opts
 	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
 	 */
@@ -13,7 +15,7 @@ export class SingleInstancePromise {
 		this.once = once;
 		this.promiseFn = promiseFn;
 		this.isRunning = false;
-		this.hasRan = false;
+		this.hasRun = false;
 		this.onceReturnValue = undefined;
 		/** @type {Set<(result: TReturn) => void>} */
 		this.onRunFinishCbs = new Set();
@@ -24,26 +26,27 @@ export class SingleInstancePromise {
 	 * queued once. Ensuring that the last call is always run. If this function
 	 * is called many times while it is already running, only the last call
 	 * will be executed.
+	 * @param {TArgs} args
 	 * @returns {Promise<TReturn>}
 	 */
-	async run() {
+	async run(...args) {
 		if (this.isRunning) {
 			if (!this.once) {
 				await new Promise(r => this.onRunFinishCbs.add(r));
-				return await this.run();
+				return await this.run(...args);
 			} else {
 				return await new Promise(r => this.onRunFinishCbs.add(r));
 			}
 		}
 
-		if (this.hasRan && this.once) {
+		if (this.hasRun && this.once) {
 			return /** @type {TReturn} */ (this.onceReturnValue);
 		}
 
 		this.isRunning = true;
-		const result = await this.promiseFn();
+		const result = await this.promiseFn(...args);
 		this.isRunning = false;
-		this.hasRan = true;
+		this.hasRun = true;
 
 		if (this.once) {
 			this.onceReturnValue = result;
@@ -66,7 +69,7 @@ export class SingleInstancePromise {
 	 * @returns {Promise<void>}
 	 */
 	async waitForFinish() {
-		if (this.hasRan) return;
+		if (this.hasRun) return;
 		await new Promise(r => this.onRunFinishCbs.add(r));
 	}
 
