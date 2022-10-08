@@ -16,16 +16,17 @@ import {dev as devModule} from "https://raw.githubusercontent.com/jespertheend/d
 export async function dev({
 	needsDevDependencies = false,
 	needsTypes = false,
+	needsTypesSync = true,
+	suppressTypesLogging = false,
 	serve = false,
 } = {}) {
 	setCwd(import.meta.url);
 	Deno.chdir("..");
 
 	if (needsTypes) {
-		await generateTypes({
+		const promise = generateTypes({
 			outputDir: ".denoTypes",
 			importMap: "importmap.json",
-			preCollectedImportsFile: "precollectedImports.json",
 			include: [
 				"scripts",
 				"test",
@@ -49,7 +50,11 @@ export async function dev({
 				eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
 				estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
 			},
+			logLevel: suppressTypesLogging ? "WARNING" : "DEBUG",
 		});
+		if (needsTypesSync) {
+			await promise;
+		}
 	}
 
 	await devModule({
@@ -96,6 +101,8 @@ export async function dev({
 if (import.meta.main) {
 	await dev({
 		needsTypes: true,
+		needsTypesSync: false,
+		suppressTypesLogging: true,
 		needsDevDependencies: true,
 		serve: true,
 	});
