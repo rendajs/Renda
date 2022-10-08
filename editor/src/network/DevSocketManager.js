@@ -21,11 +21,11 @@ export class DevSocketManager {
 
 		this.tryConnectionOnceInstance = new SingleInstancePromise(async () => {
 			return await this.tryConnectionOnceFn();
-		}, {once: false});
+		});
 
 		this.tryConnectionMultipleInstance = new SingleInstancePromise(async () => {
 			return await this.tryConnectionMultipleFn();
-		}, {once: false});
+		});
 
 		this.tryConnectionOnce();
 	}

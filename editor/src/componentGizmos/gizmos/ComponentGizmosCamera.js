@@ -17,7 +17,7 @@ export class ComponentGizmosCamera extends ComponentGizmos {
 		super(...args);
 
 		this.debugClusterBounds = false;
-		this.updateClusterBoundsInstance = new SingleInstancePromise(this.updateClusterBounds.bind(this), {once: false});
+		this.updateClusterBoundsInstance = new SingleInstancePromise(this.updateClusterBounds.bind(this));
 	}
 
 	componentPropertyChanged() {

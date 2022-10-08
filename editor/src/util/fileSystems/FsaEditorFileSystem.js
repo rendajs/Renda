@@ -40,7 +40,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			kind: "directory",
 			children: new Map(),
 		};
-		this.updateWatchTreeInstance = new SingleInstancePromise(async () => await this.updateWatchTree(), {once: false});
+		this.updateWatchTreeInstance = new SingleInstancePromise(async () => await this.updateWatchTree());
 		/** @type {Map<string, Set<CurrentlyGettingFileCallbackData>>} */
 		this.currentlyGettingFileCbs = new Map(); // <path, Set<cb>>
 

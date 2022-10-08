@@ -132,7 +132,7 @@ export class ProjectAsset {
 		/** @private @type {Map<string, WeakRef<Object>>} */
 		this.previousLiveAssets = new Map();
 
-		this.initInstance = new SingleInstancePromise(async () => await this.init());
+		this.initInstance = new SingleInstancePromise(async () => await this.init(), {once: true});
 		this.initInstance.run();
 
 		/**

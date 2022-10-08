@@ -8,7 +8,7 @@ export class SingleInstancePromise {
 	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
 	 */
 	constructor(promiseFn, {
-		once = true,
+		once = false,
 	} = {}) {
 		this.once = once;
 		this.promiseFn = promiseFn;

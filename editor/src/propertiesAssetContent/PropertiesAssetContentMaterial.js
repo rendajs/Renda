@@ -51,7 +51,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 
 		this.#loadAssetInstance = new SingleInstancePromise(async () => {
 			await this.loadAssetFn();
-		}, {once: false});
+		});
 
 		this.mapValuesTreeView = materialTree.addCollapsable("map values");
 

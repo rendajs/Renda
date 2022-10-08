@@ -30,8 +30,6 @@ export class BuiltInAssetManager {
 		/** @private */
 		this.loadAssetSettingsInstance = new SingleInstancePromise(async () => {
 			await this.loadAssetSettingsFn();
-		}, {
-			once: false,
 		});
 		this.assetSettingsLoaded = false;
 		/** @type {Map<import("../../../src/util/mod.js").UuidString, import("../../src/assets/AssetSettingsDiskTypes.js").AssetSettingsAssetDiskData>}*/

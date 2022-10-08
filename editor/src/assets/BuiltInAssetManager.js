@@ -66,7 +66,7 @@ export class BuiltInAssetManager {
 				asset?.destructor();
 				this.assets.delete(uuid);
 			}
-		}, {once: false});
+		});
 		this.loadAssetsInstance.run();
 	}
 
