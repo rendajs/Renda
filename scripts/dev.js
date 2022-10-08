@@ -10,7 +10,7 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
+import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.1.0/mod.js";
 import {dev as devModule} from "https://raw.githubusercontent.com/jespertheend/dev/a7374e35d6a06d5835682bf8478156046def9697/mod.js";
 
 export async function dev({
@@ -32,7 +32,11 @@ export async function dev({
 				"editor/devSocket",
 				"editor/scripts",
 			],
-			excludeUrls: ["rollup-plugin-commonjs"],
+			excludeUrls: [
+				"rollup-plugin-commonjs",
+				"https://esm.sh/v95/fsevents@2.3.2/deno/fsevents.js",
+				"https://esm.sh/v64/@rollup/plugin-commonjs@11.1.0/types/index.d.ts",
+			],
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.
 				// The Deno types include webgpu types but they are outdated.
