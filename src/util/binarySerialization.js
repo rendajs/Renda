@@ -51,7 +51,7 @@ import {clamp, isUuid} from "./util.js";
  * @property {StorageType} type The type of the property before the transformation.
  */
 
-/** @typedef {(opts: ObjectToBinaryTransformValueHookArgs) => void} ObjectToBinaryTransformValueHook */
+/** @typedef {(opts: ObjectToBinaryTransformValueHookArgs) => unknown} ObjectToBinaryTransformValueHook */
 
 /**
  * @typedef {object} BinarySerializationBinaryDigestible
