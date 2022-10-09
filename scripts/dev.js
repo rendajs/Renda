@@ -10,29 +10,34 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.0.14/mod.js";
+import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.1.2/mod.js";
 import {dev as devModule} from "https://raw.githubusercontent.com/jespertheend/dev/a7374e35d6a06d5835682bf8478156046def9697/mod.js";
 
 export async function dev({
 	needsDevDependencies = false,
 	needsTypes = false,
+	needsTypesSync = true,
+	suppressTypesLogging = false,
 	serve = false,
 } = {}) {
 	setCwd(import.meta.url);
 	Deno.chdir("..");
 
 	if (needsTypes) {
-		await generateTypes({
+		const promise = generateTypes({
 			outputDir: ".denoTypes",
 			importMap: "importmap.json",
-			preCollectedImportsFile: "precollectedImports.json",
 			include: [
 				"scripts",
 				"test",
 				"editor/devSocket",
 				"editor/scripts",
 			],
-			excludeUrls: ["rollup-plugin-commonjs"],
+			excludeUrls: [
+				"rollup-plugin-commonjs",
+				"https://esm.sh/v95/fsevents@2.3.2/deno/fsevents.js",
+				"https://esm.sh/v64/@rollup/plugin-commonjs@11.1.0/types/index.d.ts",
+			],
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.
 				// The Deno types include webgpu types but they are outdated.
@@ -45,7 +50,11 @@ export async function dev({
 				eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
 				estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
 			},
+			logLevel: suppressTypesLogging ? "WARNING" : "DEBUG",
 		});
+		if (needsTypesSync) {
+			await promise;
+		}
 	}
 
 	await devModule({
@@ -92,6 +101,8 @@ export async function dev({
 if (import.meta.main) {
 	await dev({
 		needsTypes: true,
+		needsTypesSync: false,
+		suppressTypesLogging: true,
 		needsDevDependencies: true,
 		serve: true,
 	});
