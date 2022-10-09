@@ -10,7 +10,7 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.1.1/mod.js";
+import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.1.2/mod.js";
 import {dev as devModule} from "https://raw.githubusercontent.com/jespertheend/dev/a7374e35d6a06d5835682bf8478156046def9697/mod.js";
 
 export async function dev({
