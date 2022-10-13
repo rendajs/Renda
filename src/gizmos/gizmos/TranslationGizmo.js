@@ -5,13 +5,7 @@ import {Vec3} from "../../math/Vec3.js";
 import {Sphere} from "../../math/shapes/Sphere.js";
 import {Gizmo} from "./Gizmo.js";
 import {Entity} from "../../core/Entity.js";
-
-// TODO: place these somewhere more global
-const whiteColor = new Vec3(1, 1, 1);
-const redColor = new Vec3(1, 0.15, 0.15);
-const greenColor = new Vec3(0.2, 1, 0.2);
-const blueColor = new Vec3(0.3, 0.3, 1);
-const hoverColor = new Vec3(1, 0.7, 0);
+import {blueColor, greenColor, hoverColor, redColor, whiteColor} from "./colors.js";
 
 export class TranslationGizmo extends Gizmo {
 	/**
