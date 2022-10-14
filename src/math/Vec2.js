@@ -227,6 +227,79 @@ export class Vec2 {
 	}
 
 	/**
+	 * Returns the shortest angle in radians to another vector. This will always
+	 * return a value lower than pi, i.e. half a rotation. This essentially
+	 * means that if you keep rotating the second angle far enough, eventually
+	 * it will start getting closer to this vector again.
+	 * This also means the order of the two vectors doesn't matter.
+	 *
+	 * For example:
+	 * ```none
+	 *    ^ this
+	 *    |
+	 *    |
+	 *    o 170º = 2.9 pi
+	 *     \
+	 *      \
+	 *       V otherVector
+	 * ```
+	 *
+	 * but...
+	 * ```none
+	 *                ^ this
+	 *                |
+	 *                |
+	 *  170º = 2.9 pi o
+	 *               /
+	 *              /
+	 *             V otherVector
+	 * ```
+	 * @param {Vec2} otherVector
+	 */
+	shortestAngleTo(otherVector) {
+		const dot = this.dot(otherVector);
+		return Math.acos(dot / (this.magnitude * otherVector.magnitude));
+	}
+
+	/**
+	 * Similar to {@linkcode shortestAngleTo} except returns a negative value
+	 * when `this` needs to be rotated counterclockwise in order to reach `otherVector`.
+	 * Unlike {@linkcode shortestAngleTo}, in this case the order of the two vectors
+	 * does matter. If you switch the order of the two vectors, the result will be the
+	 * same but multiplied by -1.
+	 *
+	 * For example:
+	 * ```none
+	 *    ^ this
+	 *    |
+	 *    |
+	 *    o 170º = 2.9 pi
+	 *     \
+	 *      \
+	 *       V otherVector
+	 * ```
+	 *
+	 * but...
+	 * ```none
+	 *                  ^ this
+	 *                  |
+	 *                  |
+	 *  -170º = -2.9 pi o
+	 *                 /
+	 *                /
+	 *               V otherVector
+	 * ```
+	 *
+	 * @param {Vec2} otherVector
+	 */
+	clockwiseAngleTo(otherVector) {
+		let angle = this.shortestAngleTo(otherVector);
+		const cross = this.cross(otherVector);
+		if (cross < 0) angle *= -1;
+		return angle;
+	}
+
+	/**
 	 * Computes the dot product between this vector and another vector.
 	 *
 	 * [Dot product visualisation](https://falstad.com/dotproduct/)
@@ -271,6 +344,26 @@ export class Vec2 {
 	dot(...v) {
 		const other = new Vec2(...v);
 		return this._x * other.x + this._y * other.y;
+	}
+
+	/**
+	 * Computes the cross product between two vectors.
+	 *
+	 * [Cross product visualisation](https://www.geogebra.org/m/psMTGDgc) (in 3d)
+	 *
+	 * #### Cross product properties
+	 * - The order of the input vectors is important, when you change the order,
+	 * the value is the same, but it is multiplied by -1.
+	 * - When the two vectors point in the same direction, the result is 0.
+	 * - When the two vectors point in the exact opposite directions, the result is 0.
+	 * - If either one of the input vectors is zero, the result is 0.
+	 * - The value cross product is the area of a parallelogram with the
+	 * two vectors as sides.
+	 * @param  {Vec2Parameters} v
+	 */
+	cross(...v) {
+		const other = new Vec2(...v);
+		return this.x * other.y - this.y * other.x;
 	}
 
 	/**
