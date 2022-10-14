@@ -457,6 +457,10 @@ Deno.test({
 			[new Vec2(0, -1), new Vec2(0, 1), Math.PI],
 			[new Vec2(123, 0), new Vec2(0, 456), Math.PI * 0.5],
 			[new Vec2(10, 0), new Vec2(5, 5), Math.PI * 0.25],
+			[new Vec2(0, 0), new Vec2(0, 0), 0],
+			[new Vec2(0, 0), new Vec2(1, 0), 0],
+			[new Vec2(123, 456), new Vec2(123, 456), 0],
+			[new Vec2(0.08945095445971063, -0.08240613339399705), new Vec2(0.08945095445971063, -0.08240613339399705), 0],
 		];
 
 		for (const [a, b, expected] of tests) {
@@ -483,6 +487,10 @@ Deno.test({
 			[new Vec2(0, 123), new Vec2(456, 0), Math.PI * -0.5],
 			[new Vec2(10, 0), new Vec2(5, 5), Math.PI * 0.25],
 			[new Vec2(5, 5), new Vec2(10, 0), Math.PI * -0.25],
+			[new Vec2(0, 0), new Vec2(0, 0), 0],
+			[new Vec2(0, 0), new Vec2(1, 0), 0],
+			[new Vec2(123, 456), new Vec2(123, 456), 0],
+			[new Vec2(0.08945095445971063, -0.08240613339399705), new Vec2(0.08945095445971063, -0.08240613339399705), 0],
 		];
 
 		for (const [a, b, expected] of tests) {
