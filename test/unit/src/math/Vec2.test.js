@@ -444,6 +444,55 @@ Deno.test({
 });
 
 Deno.test({
+	name: "shortestAngleTo()",
+	fn() {
+		/** @type {[Vec2, Vec2, number][]} */
+		const tests = [
+			[new Vec2(1, 0), new Vec2(1, 0), 0],
+			[new Vec2(1, 0), new Vec2(0, 1), Math.PI * 0.5],
+			[new Vec2(0, 1), new Vec2(1, 0), Math.PI * 0.5],
+			[new Vec2(0, 1), new Vec2(-1, 0), Math.PI * 0.5],
+			[new Vec2(1, 0), new Vec2(-1, 0), Math.PI],
+			[new Vec2(-1, 0), new Vec2(1, 0), Math.PI],
+			[new Vec2(0, -1), new Vec2(0, 1), Math.PI],
+			[new Vec2(123, 0), new Vec2(0, 456), Math.PI * 0.5],
+			[new Vec2(10, 0), new Vec2(5, 5), Math.PI * 0.25],
+		];
+
+		for (const [a, b, expected] of tests) {
+			const actual = a.shortestAngleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} shortestAngleTo ${b} should be ${expected} but was ${actual}`);
+		}
+	},
+});
+
+Deno.test({
+	name: "clockwiseAngleTo()",
+	fn() {
+		/** @type {[Vec2, Vec2, number][]} */
+		const tests = [
+			[new Vec2(1, 0), new Vec2(1, 0), 0],
+			[new Vec2(1, 0), new Vec2(0, 1), Math.PI * 0.5],
+			[new Vec2(0, 1), new Vec2(1, 0), Math.PI * -0.5],
+			[new Vec2(0, 1), new Vec2(-1, 0), Math.PI * 0.5],
+			[new Vec2(1, 0), new Vec2(-1, 0), Math.PI],
+			[new Vec2(-1, 0), new Vec2(1, 0), Math.PI],
+			[new Vec2(0, -1), new Vec2(0, 1), Math.PI],
+			[new Vec2(0, 1), new Vec2(0, -1), Math.PI],
+			[new Vec2(123, 0), new Vec2(0, 456), Math.PI * 0.5],
+			[new Vec2(0, 123), new Vec2(456, 0), Math.PI * -0.5],
+			[new Vec2(10, 0), new Vec2(5, 5), Math.PI * 0.25],
+			[new Vec2(5, 5), new Vec2(10, 0), Math.PI * -0.25],
+		];
+
+		for (const [a, b, expected] of tests) {
+			const actual = a.clockwiseAngleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} clockwiseAngleTo ${b} should be ${expected} but was ${actual}`);
+		}
+	},
+});
+
+Deno.test({
 	name: "dot()",
 	fn() {
 		const tests = [
