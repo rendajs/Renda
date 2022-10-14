@@ -357,6 +357,41 @@ export class Vec3 {
 	}
 
 	/**
+	 * Returns the shortest angle in radians to another vector. This will always
+	 * return a value lower than pi, i.e. half a rotation. This essentially
+	 * means that if you keep rotating the second angle far enough, eventually
+	 * it will start getting closer to this vector again.
+	 * This also means the order of the two vectors doesn't matter.
+	 *
+	 * For example:
+	 * ```none
+	 *    ^ this
+	 *    |
+	 *    |
+	 *    o 170º = 2.9 pi
+	 *     \
+	 *      \
+	 *       V otherVector
+	 * ```
+	 *
+	 * but...
+	 * ```none
+	 *                ^ this
+	 *                |
+	 *                |
+	 *  170º = 2.9 pi o
+	 *               /
+	 *              /
+	 *             V otherVector
+	 * ```
+	 * @param {Vec3} otherVector
+	 */
+	shortestAngleTo(otherVector) {
+		const dot = this.dot(otherVector);
+		return Math.acos(dot / (this.magnitude * otherVector.magnitude));
+	}
+
+	/**
 	 * Computes the dot product between this vector and another vector.
 	 *
 	 * [Dot product visualisation](https://falstad.com/dotproduct/)
