@@ -274,6 +274,26 @@ export class Vec2 {
 	}
 
 	/**
+	 * Computes the cross product between two vectors.
+	 *
+	 * [Cross product visualisation](https://www.geogebra.org/m/psMTGDgc) (in 3d)
+	 *
+	 * #### Cross product properties
+	 * - The order of the input vectors is important, when you change the order,
+	 * the value is the same, but it is multiplied by -1.
+	 * - When the two vectors point in the same direction, the result is 0.
+	 * - When the two vectors point in the exact opposite directions, the result is 0.
+	 * - If either one of the input vectors is zero, the result is 0.
+	 * - The value cross product is the area of a parallelogram with the
+	 * two vectors as sides.
+	 * @param  {Vec2Parameters} v
+	 */
+	cross(...v) {
+		const other = new Vec2(...v);
+		return this.x * other.y - this.y * other.x;
+	}
+
+	/**
 	 * Projects this vector (a) on another vector (b) and sets the value
 	 * of this vector to the result.
 	 * ```none

@@ -463,6 +463,27 @@ Deno.test({
 });
 
 Deno.test({
+	name: "cross()",
+	fn() {
+		const tests = [
+			{a: [4, 3], b: [1, 2], result: 5},
+			{a: [1, 2], b: [4, 3], result: -5},
+			{a: [1, 0], b: [0, 1], result: 1},
+			{a: [0, 1], b: [0, 1], result: 0},
+			{a: [0, 1], b: [0, -1], result: 0},
+			{a: [0, 0], b: [123, 456], result: 0},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec2(a);
+			const cross = vec.cross(b);
+
+			assertEquals(cross, result, `${a} cross ${b} should be ${result} but was ${cross}`);
+		}
+	},
+});
+
+Deno.test({
 	name: "projectOnVector()",
 	fn() {
 		const tests = [
