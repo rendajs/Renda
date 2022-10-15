@@ -428,6 +428,112 @@ Deno.test({
 });
 
 Deno.test({
+	name: "static multiply()",
+	fn() {
+		const result1 = Vec4.multiply([1, 2, 3, 4], [3, 4, 5, 6]);
+		assertEquals(result1.toArray(), [3, 8, 15, 24]);
+	},
+});
+
+Deno.test({
+	name: "divide() with single number",
+	fn() {
+		const vec = new Vec4(2, 3, 4, 8);
+		vec.divide(2);
+
+		assertEquals(vec.toArray(), [1, 1.5, 2, 4]);
+	},
+});
+
+Deno.test({
+	name: "divide() with two numbers",
+	fn() {
+		const vec = new Vec4(2, 4, 8, 16);
+		vec.divide(4, 2);
+
+		assertEquals(vec.toArray(), [0.5, 2, Infinity, 16]);
+	},
+});
+
+Deno.test({
+	name: "divide() with three numbers",
+	fn() {
+		const vec = new Vec4(2, 4, 8, 16);
+		vec.divide(4, 4, 4);
+
+		assertEquals(vec.toArray(), [0.5, 1, 2, 16]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec2",
+	fn() {
+		const vec = new Vec4(8, 10, 4, 123);
+		vec.divide(new Vec2(4, 2));
+
+		assertEquals(vec.toArray(), [2, 5, Infinity, 123]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec3",
+	fn() {
+		const vec = new Vec4(10, 16, 9, 123);
+		vec.divide(new Vec3(5, 2, 3));
+
+		assertEquals(vec.toArray(), [2, 8, 3, 123]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec4",
+	fn() {
+		const vec = new Vec4(8, 2, 6, 16);
+		vec.divide(new Vec4(4, 4, 3, 4));
+
+		assertEquals(vec.toArray(), [2, 0.5, 2, 4]);
+	},
+});
+
+Deno.test({
+	name: "divide() with array",
+	fn() {
+		const vec = new Vec4(27, 30, 24, 12);
+		vec.divide([3, 2, 6, 6]);
+
+		assertEquals(vec.toArray(), [9, 15, 4, 2]);
+	},
+});
+
+Deno.test({
+	name: "divideScalar()",
+	fn() {
+		const vec = new Vec4(2, 4, 6, 10);
+		vec.divideScalar(2);
+
+		assertEquals(vec.toArray(), [1, 2, 3, 5]);
+	},
+});
+
+Deno.test({
+	name: "divideVector()",
+	fn() {
+		const vec = new Vec4(10, 12, 14, 5);
+		vec.divideVector(new Vec4(2, 6, 7, 2));
+
+		assertEquals(vec.toArray(), [5, 2, 2, 2.5]);
+	},
+});
+
+Deno.test({
+	name: "static divide()",
+	fn() {
+		const result1 = Vec4.divide([4, 2, 6, 2], [2, 4, 2, 2]);
+		assertEquals(result1.toArray(), [2, 0.5, 3, 1]);
+	},
+});
+
+Deno.test({
 	name: "add() with single number",
 	fn() {
 		const vec = new Vec4(2, 3, 4, 5);
@@ -498,6 +604,14 @@ Deno.test({
 });
 
 Deno.test({
+	name: "static add()",
+	fn() {
+		const result1 = Vec4.add([1, 2, 3, -1], [3, 4, 5, 2]);
+		assertEquals(result1.toArray(), [4, 6, 8, 1]);
+	},
+});
+
+Deno.test({
 	name: "sub() with single number",
 	fn() {
 		const vec = new Vec4(3, 4, 5, 6);
@@ -564,6 +678,14 @@ Deno.test({
 		vec.subVector(new Vec4(2, 3, 4, 5));
 
 		assertEquals(vec.toArray(), [2, 2, 2, 2]);
+	},
+});
+
+Deno.test({
+	name: "static sub()",
+	fn() {
+		const result1 = Vec4.sub([3, 8, 6, 2], [5, -2, 3, 2]);
+		assertEquals(result1.toArray(), [-2, 10, 3, 0]);
 	},
 });
 
