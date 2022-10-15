@@ -244,6 +244,19 @@ export class Vec2 {
 	}
 
 	/**
+	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 *
+	 * For more info see {@linkcode Vec3.cross}.
+	 *
+	 * @param {Vec2ParameterSingle} vecA
+	 * @param {Vec2ParameterSingle} vecB
+	 */
+	static sub(vecA, vecB) {
+		const vA = new Vec2(vecA);
+		return vA.sub(vecB);
+	}
+
+	/**
 	 * If a single number is provided, subtracts the number from each component.
 	 * Otherwise the arguments are converted to a vector and each component of
 	 * the vector is subtracted from the respective component of this vector.
@@ -256,19 +269,6 @@ export class Vec2 {
 			const castArgs = /** @type {Vec2Parameters} */ (args);
 			return this.subVector(new Vec2(...castArgs));
 		}
-	}
-
-	/**
-	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
-	 *
-	 * For more info see {@linkcode Vec3.cross}.
-	 *
-	 * @param {Vec2ParameterSingle} vecA
-	 * @param {Vec2ParameterSingle} vecB
-	 */
-	static sub(vecA, vecB) {
-		const vA = new Vec2(vecA);
-		return vA.sub(vecB);
 	}
 
 	/**
