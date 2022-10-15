@@ -627,6 +627,30 @@ Deno.test({
 });
 
 Deno.test({
+	name: "shortestAngleTo()",
+	fn() {
+		/** @type {[Vec3, Vec3, number][]} */
+		const tests = [
+			[new Vec3(1, 0), new Vec3(1, 0), 0],
+			[new Vec3(1, 0), new Vec3(0, 1), Math.PI * 0.5],
+			[new Vec3(0, 1), new Vec3(1, 0), Math.PI * 0.5],
+			[new Vec3(0, 1), new Vec3(-1, 0), Math.PI * 0.5],
+			[new Vec3(1, 0), new Vec3(-1, 0), Math.PI],
+			[new Vec3(-1, 0), new Vec3(1, 0), Math.PI],
+			[new Vec3(0, -1), new Vec3(0, 1), Math.PI],
+			[new Vec3(123, 0), new Vec3(0, 456), Math.PI * 0.5],
+			[new Vec3(10, 0), new Vec3(5, 5), Math.PI * 0.25],
+			[new Vec3(1, 0, 0), new Vec3(1, 1, 1), 0.95531],
+		];
+
+		for (const [a, b, expected] of tests) {
+			const actual = a.shortestAngleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} shortestAngleTo ${b} should be ${expected} but was ${actual}`);
+		}
+	},
+});
+
+Deno.test({
 	name: "dot()",
 	fn() {
 		const tests = [

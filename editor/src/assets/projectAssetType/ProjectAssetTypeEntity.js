@@ -255,6 +255,13 @@ entityLoader.setComponentTypeManager(componentTypeManager);`;
 				component.propertyValues = objectToBinary(component.propertyValues, {
 					...componentConstructor.binarySerializationOpts,
 					editorAssetManager: this.assetManager,
+					transformValueHook: opts => {
+						if (opts.type == StorageType.ASSET_UUID) {
+							const uuid = /** @type {import("../../../../src/mod.js").UuidString} */ (opts.value);
+							return this.assetManager.resolveDefaultAssetLinkUuid(uuid);
+						}
+						return opts.value;
+					},
 				});
 			}
 		}

@@ -542,6 +542,55 @@ Deno.test({
 });
 
 Deno.test({
+	name: "shortestAngleTo()",
+	fn() {
+		/** @type {[Vec2, Vec2, number][]} */
+		const tests = [
+			[new Vec2(1, 0), new Vec2(1, 0), 0],
+			[new Vec2(1, 0), new Vec2(0, 1), Math.PI * 0.5],
+			[new Vec2(0, 1), new Vec2(1, 0), Math.PI * 0.5],
+			[new Vec2(0, 1), new Vec2(-1, 0), Math.PI * 0.5],
+			[new Vec2(1, 0), new Vec2(-1, 0), Math.PI],
+			[new Vec2(-1, 0), new Vec2(1, 0), Math.PI],
+			[new Vec2(0, -1), new Vec2(0, 1), Math.PI],
+			[new Vec2(123, 0), new Vec2(0, 456), Math.PI * 0.5],
+			[new Vec2(10, 0), new Vec2(5, 5), Math.PI * 0.25],
+		];
+
+		for (const [a, b, expected] of tests) {
+			const actual = a.shortestAngleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} shortestAngleTo ${b} should be ${expected} but was ${actual}`);
+		}
+	},
+});
+
+Deno.test({
+	name: "clockwiseAngleTo()",
+	fn() {
+		/** @type {[Vec2, Vec2, number][]} */
+		const tests = [
+			[new Vec2(1, 0), new Vec2(1, 0), 0],
+			[new Vec2(1, 0), new Vec2(0, 1), Math.PI * 0.5],
+			[new Vec2(0, 1), new Vec2(1, 0), Math.PI * -0.5],
+			[new Vec2(0, 1), new Vec2(-1, 0), Math.PI * 0.5],
+			[new Vec2(1, 0), new Vec2(-1, 0), Math.PI],
+			[new Vec2(-1, 0), new Vec2(1, 0), Math.PI],
+			[new Vec2(0, -1), new Vec2(0, 1), Math.PI],
+			[new Vec2(0, 1), new Vec2(0, -1), Math.PI],
+			[new Vec2(123, 0), new Vec2(0, 456), Math.PI * 0.5],
+			[new Vec2(0, 123), new Vec2(456, 0), Math.PI * -0.5],
+			[new Vec2(10, 0), new Vec2(5, 5), Math.PI * 0.25],
+			[new Vec2(5, 5), new Vec2(10, 0), Math.PI * -0.25],
+		];
+
+		for (const [a, b, expected] of tests) {
+			const actual = a.clockwiseAngleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} clockwiseAngleTo ${b} should be ${expected} but was ${actual}`);
+		}
+	},
+});
+
+Deno.test({
 	name: "dot()",
 	fn() {
 		const tests = [
@@ -556,6 +605,27 @@ Deno.test({
 			const dot = vec.dot(b);
 
 			assertEquals(dot, result, `${a} dot ${b} should be ${result} but was ${dot}`);
+		}
+	},
+});
+
+Deno.test({
+	name: "cross()",
+	fn() {
+		const tests = [
+			{a: [4, 3], b: [1, 2], result: 5},
+			{a: [1, 2], b: [4, 3], result: -5},
+			{a: [1, 0], b: [0, 1], result: 1},
+			{a: [0, 1], b: [0, 1], result: 0},
+			{a: [0, 1], b: [0, -1], result: 0},
+			{a: [0, 0], b: [123, 456], result: 0},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec2(a);
+			const cross = vec.cross(b);
+
+			assertEquals(cross, result, `${a} cross ${b} should be ${result} but was ${cross}`);
 		}
 	},
 });
