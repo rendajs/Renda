@@ -402,6 +402,14 @@ Deno.test({
 });
 
 Deno.test({
+	name: "static divide()",
+	fn() {
+		const result1 = Vec2.divide([4, 2], [2, 4]);
+		assertEquals(result1.toArray(), [2, 0.5]);
+	},
+});
+
+Deno.test({
 	name: "add() with single number",
 	fn() {
 		const vec = new Vec2(2, 3);

@@ -234,6 +234,18 @@ export class Vec4 {
 	}
 
 	/**
+	 * Divides each component of `vecA` by its respective component from `vecB`
+	 * and returns a copy of the result.
+	 *
+	 * @param {Vec4ParameterSingle} vecA
+	 * @param {Vec4ParameterSingle} vecB
+	 */
+	static divide(vecA, vecB) {
+		const vA = new Vec4(vecA);
+		return vA.divide(vecB);
+	}
+
+	/**
 	 * Multiplies the vector by a matrix.
 	 * @param {Mat4} mat4
 	 * @returns {this}

@@ -182,6 +182,18 @@ export class Vec2 {
 	}
 
 	/**
+	 * Divides each component of `vecA` by its respective component from `vecB`
+	 * and returns a copy of the result.
+	 *
+	 * @param {Vec2ParameterSingle} vecA
+	 * @param {Vec2ParameterSingle} vecB
+	 */
+	static divide(vecA, vecB) {
+		const vA = new Vec2(vecA);
+		return vA.divide(vecB);
+	}
+
+	/**
 	 * If a single number is provided, each component of this vector is divided
 	 * by the number. Otherwise the arguments are converted to a vector and each
 	 * component of this vector is divided by the respective component of the

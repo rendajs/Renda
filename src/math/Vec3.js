@@ -255,6 +255,18 @@ export class Vec3 {
 	}
 
 	/**
+	 * Divides each component of `vecA` by its respective component from `vecB`
+	 * and returns a copy of the result.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static divide(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.divide(vecB);
+	}
+
+	/**
 	 * Multiplies the vector by a matrix.
 	 * @param {Mat4} mat4
 	 * @returns {this}
