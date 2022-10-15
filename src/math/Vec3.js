@@ -353,6 +353,19 @@ export class Vec3 {
 	}
 
 	/**
+	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 *
+	 * For more info see {@linkcode Vec3.cross}.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static sub(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.sub(vecB);
+	}
+
+	/**
 	 * Subtracts the provided scalar from each component of this vector.
 	 * @param {number} scalar
 	 */

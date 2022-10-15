@@ -658,6 +658,14 @@ Deno.test({
 });
 
 Deno.test({
+	name: "static sub()",
+	fn() {
+		const result1 = Vec4.sub([3, 8, 6, 2], [5, -2, 3, 2]);
+		assertEquals(result1.toArray(), [-2, 10, 3, 0]);
+	},
+});
+
+Deno.test({
 	name: "dot()",
 	fn() {
 		const tests = [

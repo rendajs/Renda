@@ -12,6 +12,10 @@ import {Mat4} from "./Mat4.js";
  * @typedef {import("./types.js").MergeParameters<vec4SetEmptySignature | vec4SetVec2Signature | vec4SetVec3Signature | vec4SetVec4Signature | vec4SetNumNumSignature | vec4SetArraySignature>} Vec4Parameters
  */
 
+/**
+ * @typedef {import("./types.js").GetFirstParam<Vec4Parameters>} Vec4ParameterSingle
+ */
+
 export class Vec4 {
 	/**
 	 * @param {Vec4Parameters} args
@@ -331,6 +335,19 @@ export class Vec4 {
 			const castArgs = /** @type {Vec4Parameters} */ (args);
 			return this.subVector(new Vec4(...castArgs));
 		}
+	}
+
+	/**
+	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 *
+	 * For more info see {@linkcode Vec3.cross}.
+	 *
+	 * @param {Vec4ParameterSingle} vecA
+	 * @param {Vec4ParameterSingle} vecB
+	 */
+	 static sub(vecA, vecB) {
+		const vA = new Vec4(vecA);
+		return vA.sub(vecB);
 	}
 
 	/**
