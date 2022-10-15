@@ -530,7 +530,9 @@ Deno.test({
 		child.rot.onChange(rotChangeSpy);
 
 		parent.rot.setFromAxisAngle(Vec3.up, 0.5);
+		/* eslint-disable-next-line no-unused-expressions */
 		parent.worldRot;
+		/* eslint-disable-next-line no-unused-expressions */
 		child.worldRot;
 
 		assertSpyCalls(rotChangeSpy, 0);
