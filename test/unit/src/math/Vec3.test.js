@@ -389,6 +389,96 @@ Deno.test({
 });
 
 Deno.test({
+	name: "divide() with single number",
+	fn() {
+		const vec = new Vec3(2, 3, 4);
+		vec.divide(2);
+
+		assertEquals(vec.toArray(), [1, 1.5, 2]);
+	},
+});
+
+Deno.test({
+	name: "divide() with two numbers",
+	fn() {
+		const vec = new Vec3(2, 4, 8);
+		vec.divide(4, 2);
+
+		assertEquals(vec.toArray(), [0.5, 2, Infinity]);
+	},
+});
+
+Deno.test({
+	name: "divide() with three numbers",
+	fn() {
+		const vec = new Vec3(2, 4, 8);
+		vec.divide(4, 4, 4);
+
+		assertEquals(vec.toArray(), [0.5, 1, 2]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec2",
+	fn() {
+		const vec = new Vec3(8, 10, 4);
+		vec.divide(new Vec2(4, 2));
+
+		assertEquals(vec.toArray(), [2, 5, Infinity]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec3",
+	fn() {
+		const vec = new Vec3(10, 16, 9);
+		vec.divide(new Vec3(5, 2, 3));
+
+		assertEquals(vec.toArray(), [2, 8, 3]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec4",
+	fn() {
+		const vec = new Vec3(8, 2, 6);
+		vec.divide(new Vec4(4, 4, 3, 7));
+
+		assertEquals(vec.toArray(), [2, 0.5, 2]);
+	},
+});
+
+Deno.test({
+	name: "divide() with array",
+	fn() {
+		const vec = new Vec3(27, 30, 24);
+		vec.divide([3, 2, 6]);
+
+		assertEquals(vec.toArray(), [9, 15, 4]);
+	},
+});
+
+Deno.test({
+	name: "divideScalar()",
+	fn() {
+		const vec = new Vec3(2, 4, 6);
+		vec.divideScalar(2);
+
+		assertEquals(vec.toArray(), [1, 2, 3]);
+	},
+});
+
+Deno.test({
+	name: "divideVector()",
+	fn() {
+		const vec = new Vec3(10, 12, 14);
+		vec.divideVector(new Vec3(2, 6, 7));
+
+		assertEquals(vec.toArray(), [5, 2, 2]);
+	},
+});
+
+Deno.test({
 	name: "add() with single number",
 	fn() {
 		const vec = new Vec3(2, 3, 4);
