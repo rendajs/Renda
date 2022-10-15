@@ -170,6 +170,45 @@ export class Vec2 {
 	}
 
 	/**
+	 * If a single number is provided, each component of this vector is divided
+	 * by the number. Otherwise the arguments are converted to a vector and each
+	 * component of this vector is divided by the respective component of the
+	 * other vector.
+	 * @param {Parameters<typeof this.multiplyScalar> | Vec2Parameters} args
+	 */
+	divide(...args) {
+		if (args.length == 1 && typeof args[0] == "number") {
+			return this.divideScalar(args[0]);
+		} else {
+			const castArgs = /** @type {Vec2Parameters} */ (args);
+			return this.divideVector(new Vec2(...castArgs));
+		}
+	}
+
+	/**
+	 * Divides each component of this vector by the provided scalar.
+	 * @param {number} scalar
+	 * @returns {this}
+	 */
+	divideScalar(scalar) {
+		const x = this._x / scalar;
+		const y = this._y / scalar;
+		return this.set(x, y);
+	}
+
+	/**
+	 * Divides each component of this vector by the respective component of the
+	 * other vector.
+	 * @param {Vec2} vector
+	 * @returns {this}
+	 */
+	divideVector(vector) {
+		const x = this._x / vector.x;
+		const y = this._y / vector.y;
+		return this.set(x, y);
+	}
+
+	/**
 	 * If a single number is provided, adds the number to each component.
 	 * Otherwise the arguments are converted to a vector and each component of
 	 * the vector is added to the respective component of this vector.

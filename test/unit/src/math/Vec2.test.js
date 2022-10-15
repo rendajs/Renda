@@ -304,6 +304,96 @@ Deno.test({
 });
 
 Deno.test({
+	name: "divide() with single number",
+	fn() {
+		const vec = new Vec2(2, 3);
+		vec.divide(2);
+
+		assertEquals(vec.toArray(), [1, 1.5]);
+	},
+});
+
+Deno.test({
+	name: "divide() with two numbers",
+	fn() {
+		const vec = new Vec2(2, 4);
+		vec.divide(4, 2);
+
+		assertEquals(vec.toArray(), [0.5, 2]);
+	},
+});
+
+Deno.test({
+	name: "divide() with three numbers",
+	fn() {
+		const vec = new Vec2(2, 4);
+		vec.divide(4, 4);
+
+		assertEquals(vec.toArray(), [0.5, 1]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec2",
+	fn() {
+		const vec = new Vec2(8, 10);
+		vec.divide(new Vec2(4, 2));
+
+		assertEquals(vec.toArray(), [2, 5]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec3",
+	fn() {
+		const vec = new Vec2(10, 16);
+		vec.divide(new Vec3(5, 2, 3));
+
+		assertEquals(vec.toArray(), [2, 8]);
+	},
+});
+
+Deno.test({
+	name: "divide() with Vec4",
+	fn() {
+		const vec = new Vec2(8, 2);
+		vec.divide(new Vec4(4, 4, 3));
+
+		assertEquals(vec.toArray(), [2, 0.5]);
+	},
+});
+
+Deno.test({
+	name: "divide() with array",
+	fn() {
+		const vec = new Vec2(27, 30);
+		vec.divide([3, 2]);
+
+		assertEquals(vec.toArray(), [9, 15]);
+	},
+});
+
+Deno.test({
+	name: "divideScalar()",
+	fn() {
+		const vec = new Vec2(2, 4);
+		vec.divideScalar(2);
+
+		assertEquals(vec.toArray(), [1, 2]);
+	},
+});
+
+Deno.test({
+	name: "divideVector()",
+	fn() {
+		const vec = new Vec2(10, 12);
+		vec.divideVector(new Vec2(2, 6));
+
+		assertEquals(vec.toArray(), [5, 2]);
+	},
+});
+
+Deno.test({
 	name: "add() with single number",
 	fn() {
 		const vec = new Vec2(2, 3);
@@ -596,16 +686,16 @@ Deno.test({
 		// vec.multiplyMatrix(mat2);
 		// expectedResult.push(0x11);
 
-		// vec.divide(1);
-		// // divide by 1 doesn't fire the callback
-		// fireResults.push(-1);
-		// expectedResult.push(-1);
+		vec.divide(1);
+		// divide by 1 doesn't fire the callback
+		fireResults.push(-1);
+		expectedResult.push(-1);
 
-		// vec.divide([1, 2, 1]);
-		// expectedResult.push(0x01);
+		vec.divide([1, 2, 1]);
+		expectedResult.push(0x01);
 
-		// vec.divideScalar(2);
-		// expectedResult.push(0x11);
+		vec.divideScalar(2);
+		expectedResult.push(0x11);
 
 		vec.add(new Vec2(1, 0));
 		expectedResult.push(0x10);
