@@ -683,9 +683,10 @@ export class ContentWindowProject extends ContentWindow {
 				text: "Copy asset UUID", onClick: async () => {
 					const path = this.pathFromTreeView(e.target);
 					const assetManager = await this.editorInstance.projectManager.getAssetManager();
-					const uuid = await assetManager.getAssetUuidFromPath(path);
-					if (!uuid) return;
-					await navigator.clipboard.writeText(uuid);
+					const projectAsset = await assetManager.getProjectAssetFromPath(path);
+					if (!projectAsset) return;
+					await navigator.clipboard.writeText(projectAsset.uuid);
+					await assetManager.makeAssetUuidPersistent(projectAsset);
 				},
 			},
 			{
