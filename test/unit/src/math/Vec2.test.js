@@ -464,6 +464,14 @@ Deno.test({
 });
 
 Deno.test({
+	name: "static add()",
+	fn() {
+		const result1 = Vec2.add([1, 2], [3, 4]);
+		assertEquals(result1.toArray(), [4, 6]);
+	},
+});
+
+Deno.test({
 	name: "sub() with single number",
 	fn() {
 		const vec = new Vec2(3, 4);

@@ -299,6 +299,19 @@ export class Vec3 {
 	}
 
 	/**
+	 * Adds `vecA` to `vecB` and returns a copy of the result.
+	 *
+	 * For more info see {@linkcode Vec3.cross}.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static add(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.add(vecB);
+	}
+
+	/**
 	 * If a single number is provided, adds the number to each component.
 	 * Otherwise the arguments are converted to a vector and each component of
 	 * the vector is added to the respective component of this vector.
