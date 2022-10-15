@@ -101,6 +101,15 @@ export class Entity {
 
 		/** @private */
 		this.worldPosRotScaleDirty = false;
+		/**
+		 * We listen for changes on the world vectors and quaternions, because
+		 * in case the user makes a change, we want to update the matrix and
+		 * local transformation values. However, some of our own code adjusts
+		 * these values as well, in that case we will temporarily set this flag
+		 * to ignore these events.
+		 * @private
+		 */
+		this._ignoreWorldChanges = false;
 
 		/** @private */
 		this.boundOnWorldPosChange = this.onWorldPosChange.bind(this);
@@ -443,9 +452,11 @@ export class Entity {
 		this.updateWorldMatrixIfDirty();
 		if (!this.worldPosRotScaleDirty) return;
 		const {pos, rot, scale} = this._worldMatrix.decompose();
+		this._ignoreWorldChanges = true;
 		this._worldPos.set(pos);
 		this._worldRot.set(rot);
 		this._worldScale.set(scale);
+		this._ignoreWorldChanges = false;
 		this.worldPosRotScaleDirty = false;
 	}
 
@@ -454,6 +465,7 @@ export class Entity {
 	 * @param {number} changedComponents
 	 */
 	onWorldPosChange(changedComponents) {
+		if (this._ignoreWorldChanges) return;
 		let pos;
 
 		if (changedComponents == 0x111) {
@@ -489,6 +501,7 @@ export class Entity {
 	 * @param {number} changedComponents
 	 */
 	onWorldRotChange(changedComponents) {
+		if (this._ignoreWorldChanges) return;
 		let rot;
 
 		if (changedComponents == 0x1111) {
@@ -527,6 +540,7 @@ export class Entity {
 	 * @param {number} changedComponents
 	 */
 	onWorldScaleChange(changedComponents) {
+		if (this._ignoreWorldChanges) return;
 		let scale;
 
 		if (changedComponents == 0x111) {
