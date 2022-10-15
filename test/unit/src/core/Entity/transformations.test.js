@@ -1,5 +1,5 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {stub} from "std/testing/mock.ts";
+import {assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {Entity, Mat4, Quat, Vec3} from "../../../../../src/mod.js";
 import {assertMatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
 
@@ -514,3 +514,29 @@ Deno.test({
 		}
 	},
 });
+
+Deno.test({
+	name: "Issue #203: Changing parent transformation shouldn't adjust local transformation from children",
+	fn() {
+		const parent = new Entity("parent");
+		const child = new Entity("child");
+		parent.add(child);
+		const originalLocalRot = new Quat();
+		originalLocalRot.setFromAxisAngle(Vec3.up, 0.5);
+		child.rot.set(originalLocalRot);
+		child.scale.set(0.1, 0.2, 0.3);
+
+		const rotChangeSpy = spy();
+		child.rot.onChange(rotChangeSpy);
+
+		parent.rot.setFromAxisAngle(Vec3.up, 0.5);
+		/* eslint-disable-next-line no-unused-expressions */
+		parent.worldRot;
+		/* eslint-disable-next-line no-unused-expressions */
+		child.worldRot;
+
+		assertSpyCalls(rotChangeSpy, 0);
+		assertVecAlmostEquals(child.rot.toAxisAngle(), originalLocalRot.toAxisAngle());
+	},
+});
+
