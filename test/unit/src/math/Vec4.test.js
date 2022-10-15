@@ -428,6 +428,14 @@ Deno.test({
 });
 
 Deno.test({
+	name: "static multiply()",
+	fn() {
+		const result1 = Vec4.multiply([1, 2, 3, 4], [3, 4, 5, 6]);
+		assertEquals(result1.toArray(), [3, 8, 15, 24]);
+	},
+});
+
+Deno.test({
 	name: "divide() with single number",
 	fn() {
 		const vec = new Vec4(2, 3, 4, 8);

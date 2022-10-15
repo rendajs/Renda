@@ -132,6 +132,20 @@ export class Vec2 {
 	}
 
 	/**
+	 * Multiplies each component of `vecA` by its respective component from `vecB`
+	 * and returns a copy of the result.
+	 *
+	 * For more info see {@linkcode Vec3.cross}.
+	 *
+	 * @param {Vec2ParameterSingle} vecA
+	 * @param {Vec2ParameterSingle} vecB
+	 */
+	static multiply(vecA, vecB) {
+		const vA = new Vec2(vecA);
+		return vA.multiply(vecB);
+	}
+
+	/**
 	 * If a single number is provided, multiplies each component by the number.
 	 * Otherwise the arguments are converted to a vector and each component of
 	 * this vector are multiplied by the respective component of the other vector.
