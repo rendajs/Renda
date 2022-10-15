@@ -94,6 +94,10 @@ export class Vec2 {
 		return new Vec4(this);
 	}
 
+	/**
+	 * The length of the vector. Can be set to a value to automatically adjust
+	 * the components to comply with the new magnitude.
+	 */
 	get magnitude() {
 		return Math.sqrt(this.x ** 2 + this.y ** 2);
 	}
@@ -108,12 +112,17 @@ export class Vec2 {
 		this.set(x, y);
 	}
 
+	/**
+	 * Normalizes the vector so that it has a length of 1.
+	 * If the length is currently zero, it stays zero.
+	 */
 	normalize() {
 		this.magnitude = 1;
 		return this;
 	}
 
 	/**
+	 * Computes the distance to another vector.
 	 * @param {Vec2Parameters} otherVec
 	 */
 	distanceTo(...otherVec) {
@@ -123,6 +132,9 @@ export class Vec2 {
 	}
 
 	/**
+	 * If a single number is provided, multiplies each component by the number.
+	 * Otherwise the arguments are converted to a vector and each component of
+	 * this vector are multiplied by the respective component of the other vector.
 	 * @param {Parameters<typeof this.multiplyScalar> | Vec2Parameters} args
 	 */
 	multiply(...args) {
@@ -135,7 +147,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Multiplies components by a scalar.
+	 * Multiplies each component of this vector by the provided scalar.
 	 * @param {number} scalar
 	 * @returns {this}
 	 */
@@ -146,7 +158,8 @@ export class Vec2 {
 	}
 
 	/**
-	 * Multiplies components by the value of their respective components.
+	 * Multiplies each component of this vector by the respective component of
+	 * the other vector.
 	 * @param {Vec2} vector
 	 * @returns {this}
 	 */
@@ -158,8 +171,8 @@ export class Vec2 {
 
 	/**
 	 * If a single number is provided, adds the number to each component.
-	 * Otherwise the arguments are converted to a Vector and each of its
-	 * components are added to this vector.
+	 * Otherwise the arguments are converted to a vector and each component of
+	 * the vector is added to the respective component of this vector.
 	 * @param {Parameters<typeof this.addScalar> | Vec2Parameters} args
 	 */
 	add(...args) {
@@ -172,7 +185,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Adds a scalar to each component.
+	 * Adds the provided scalar to each component of this vector.
 	 * @param {number} scalar
 	 */
 	addScalar(scalar) {
@@ -182,7 +195,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Adds components to their respective components.
+	 * Adds each component of the provided vector to the respective component of this vector.
 	 * @param {Vec2} vector
 	 */
 	addVector(vector) {
@@ -193,8 +206,8 @@ export class Vec2 {
 
 	/**
 	 * If a single number is provided, subtracts the number from each component.
-	 * Otherwise the arguments are converted to a Vector and each of its
-	 * components are subtracted from this vector.
+	 * Otherwise the arguments are converted to a vector and each component of
+	 * the vector is subtracted from the respective component of this vector.
 	 * @param {Parameters<typeof this.subScalar> | Vec2Parameters} args
 	 */
 	sub(...args) {
@@ -207,7 +220,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Subtracts a scalar from each component.
+	 * Subtracts the provided scalar from each component of this vector.
 	 * @param {number} scalar
 	 */
 	subScalar(scalar) {
@@ -217,7 +230,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Subtracts components from their respective components.
+	 * Subtracts each component of the provided vector from the respective component of this vector.
 	 * @param {Vec2} vector
 	 */
 	subVector(vector) {
