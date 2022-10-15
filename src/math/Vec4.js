@@ -179,8 +179,6 @@ export class Vec4 {
 	 * Multiplies each component of `vecA` by its respective component from `vecB`
 	 * and returns a copy of the result.
 	 *
-	 * For more info see {@linkcode Vec3.cross}.
-	 *
 	 * @param {Vec4ParameterSingle} vecA
 	 * @param {Vec4ParameterSingle} vecB
 	 */
@@ -298,8 +296,6 @@ export class Vec4 {
 	/**
 	 * Adds `vecA` to `vecB` and returns a copy of the result.
 	 *
-	 * For more info see {@linkcode Vec3.cross}.
-	 *
 	 * @param {Vec4ParameterSingle} vecA
 	 * @param {Vec4ParameterSingle} vecB
 	 */
@@ -351,8 +347,6 @@ export class Vec4 {
 
 	/**
 	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
-	 *
-	 * For more info see {@linkcode Vec3.cross}.
 	 *
 	 * @param {Vec4ParameterSingle} vecA
 	 * @param {Vec4ParameterSingle} vecB

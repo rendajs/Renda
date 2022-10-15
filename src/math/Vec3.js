@@ -202,8 +202,6 @@ export class Vec3 {
 	 * Multiplies each component of `vecA` by its respective component from `vecB`
 	 * and returns a copy of the result.
 	 *
-	 * For more info see {@linkcode Vec3.cross}.
-	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
 	 */
@@ -315,8 +313,6 @@ export class Vec3 {
 	/**
 	 * Adds `vecA` to `vecB` and returns a copy of the result.
 	 *
-	 * For more info see {@linkcode Vec3.cross}.
-	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
 	 */
@@ -366,8 +362,6 @@ export class Vec3 {
 
 	/**
 	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
-	 *
-	 * For more info see {@linkcode Vec3.cross}.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -524,8 +518,6 @@ export class Vec3 {
 
 	/**
 	 * Performs the cross product between two vectors and returns a copy of the result.
-	 *
-	 * For more info see {@linkcode Vec3.cross}.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
