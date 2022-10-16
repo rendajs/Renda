@@ -160,6 +160,10 @@ export class Vec3 {
 		return new Vec4(this);
 	}
 
+	/**
+	 * The length of the vector. Can be set to a value to automatically adjust
+	 * the components to comply with the new magnitude.
+	 */
 	get magnitude() {
 		return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2);
 	}
@@ -176,12 +180,17 @@ export class Vec3 {
 		this.set(x, y, z);
 	}
 
+	/**
+	 * Normalizes the vector so that it has a length of 1.
+	 * If the length is currently zero, it stays zero.
+	 */
 	normalize() {
 		this.magnitude = 1;
 		return this;
 	}
 
 	/**
+	 * Computes the distance to another vector.
 	 * @param {Vec3Parameters} otherVec
 	 */
 	distanceTo(...otherVec) {
@@ -191,6 +200,21 @@ export class Vec3 {
 	}
 
 	/**
+	 * Multiplies each component of `vecA` by its respective component from `vecB`
+	 * and returns a copy of the result.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static multiply(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.multiply(vecB);
+	}
+
+	/**
+	 * If a single number is provided, multiplies each component by the number.
+	 * Otherwise the arguments are converted to a vector and each component of
+	 * this vector are multiplied by the respective component of the other vector.
 	 * @param {Parameters<typeof this.multiplyScalar> | Parameters<typeof this.multiplyMatrix> | Vec3Parameters} args
 	 */
 	multiply(...args) {
@@ -207,7 +231,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Multiplies components by a scalar.
+	 * Multiplies each component of this vector by the provided scalar.
 	 * @param {number} scalar
 	 * @returns {this}
 	 */
@@ -219,7 +243,8 @@ export class Vec3 {
 	}
 
 	/**
-	 * Multiplies components by the value of their respective components.
+	 * Multiplies each component of this vector by the respective component of
+	 * the other vector.
 	 * @param {Vec3} vector
 	 * @returns {this}
 	 */
@@ -228,6 +253,18 @@ export class Vec3 {
 		const y = this._y * vector.y;
 		const z = this._z * vector.z;
 		return this.set(x, y, z);
+	}
+
+	/**
+	 * Divides each component of `vecA` by its respective component from `vecB`
+	 * and returns a copy of the result.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static divide(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.divide(vecB);
 	}
 
 	/**
@@ -246,6 +283,10 @@ export class Vec3 {
 	}
 
 	/**
+	 * If a single number is provided, each component of this vector is divided
+	 * by the number. Otherwise the arguments are converted to a vector and each
+	 * component of this vector is divided by the respective component of the
+	 * other vector.
 	 * @param {Parameters<typeof this.multiplyScalar> | Vec3Parameters} args
 	 */
 	divide(...args) {
@@ -258,7 +299,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Divides components by a scalar.
+	 * Divides each component of this vector by the provided scalar.
 	 * @param {number} scalar
 	 * @returns {this}
 	 */
@@ -270,7 +311,8 @@ export class Vec3 {
 	}
 
 	/**
-	 * Divides components by the value of their respective components.
+	 * Divides each component of this vector by the respective component of the
+	 * other vector.
 	 * @param {Vec3} vector
 	 * @returns {this}
 	 */
@@ -282,9 +324,20 @@ export class Vec3 {
 	}
 
 	/**
+	 * Adds `vecA` to `vecB` and returns a copy of the result.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static add(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.add(vecB);
+	}
+
+	/**
 	 * If a single number is provided, adds the number to each component.
-	 * Otherwise the arguments are converted to a Vector and each of its
-	 * components are added to this vector.
+	 * Otherwise the arguments are converted to a vector and each component of
+	 * the vector is added to the respective component of this vector.
 	 * @param {Parameters<typeof this.addScalar> | Vec3Parameters} args
 	 */
 	add(...args) {
@@ -297,7 +350,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Adds a scalar to each component.
+	 * Adds the provided scalar to each component of this vector.
 	 * @param {number} scalar
 	 * @returns {this}
 	 */
@@ -309,7 +362,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Adds components to their respective components.
+	 * Adds each component of the provided vector to the respective component of this vector.
 	 * @param {Vec3} vector
 	 * @returns {this}
 	 */
@@ -321,9 +374,20 @@ export class Vec3 {
 	}
 
 	/**
+	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static sub(vecA, vecB) {
+		const vA = new Vec3(vecA);
+		return vA.sub(vecB);
+	}
+
+	/**
 	 * If a single number is provided, subtracts the number from each component.
-	 * Otherwise the arguments are converted to a Vector and each of its
-	 * components are subtracted from this vector.
+	 * Otherwise the arguments are converted to a vector and each component of
+	 * the vector is subtracted from the respective component of this vector.
 	 * @param {Parameters<typeof this.subScalar> | Vec3Parameters} args
 	 */
 	sub(...args) {
@@ -336,7 +400,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Subtracts a scalar from each component.
+	 * Subtracts the provided scalar from each component of this vector.
 	 * @param {number} scalar
 	 */
 	subScalar(scalar) {
@@ -347,7 +411,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Subtracts components from their respective components.
+	 * Subtracts each component of the provided vector from the respective component of this vector.
 	 * @param {Vec3} vector
 	 */
 	subVector(vector) {
@@ -469,8 +533,6 @@ export class Vec3 {
 
 	/**
 	 * Performs the cross product between two vectors and returns a copy of the result.
-	 *
-	 * For more info see {@linkcode Vec3.cross}.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
