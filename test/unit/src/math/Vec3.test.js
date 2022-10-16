@@ -664,6 +664,10 @@ Deno.test({
 			[new Vec3(0, -1), new Vec3(0, 1), Math.PI],
 			[new Vec3(123, 0), new Vec3(0, 456), Math.PI * 0.5],
 			[new Vec3(10, 0), new Vec3(5, 5), Math.PI * 0.25],
+			[new Vec3(0, 0), new Vec3(0, 0), 0],
+			[new Vec3(0, 0), new Vec3(1, 0), 0],
+			[new Vec3(123, 456), new Vec3(123, 456), 0],
+			[new Vec3(0.08945095445971063, -0.08240613339399705), new Vec3(0.08945095445971063, -0.08240613339399705), 0],
 			[new Vec3(1, 0, 0), new Vec3(1, 1, 1), 0.95531],
 		];
 

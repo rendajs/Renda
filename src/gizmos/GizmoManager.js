@@ -1,5 +1,6 @@
 import {Entity} from "../core/Entity.js";
 import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
+import {RotateAxisGizmoDraggable} from "./draggables/RotateAxisGizmoDraggable.js";
 import {TranslateAxisGizmoDraggable} from "./draggables/TranslateAxisGizmoDraggable.js";
 import {TranslateGizmoDraggable} from "./draggables/TranslateGizmoDraggable.js";
 import {GizmoPointerDevice} from "./GizmoPointerDevice.js";
@@ -131,6 +132,8 @@ export class GizmoManager {
 			draggable = new TranslateGizmoDraggable(this);
 		} else if (draggableType == "move-axis") {
 			draggable = new TranslateAxisGizmoDraggable(this);
+		} else if (draggableType == "rotate-axis") {
+			draggable = new RotateAxisGizmoDraggable(this);
 		} else {
 			throw new Error(`Unknown draggable type: ${draggableType}`);
 		}

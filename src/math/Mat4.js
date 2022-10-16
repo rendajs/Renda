@@ -255,15 +255,17 @@ export class Mat4 {
 		let sX = scale.x;
 		if (this.getDeterminant() < 0) sX = -sX;
 
-		const m00 = this.values[0][0] / sX;
-		const m01 = this.values[1][0] / sX;
-		const m02 = this.values[2][0] / sX;
-		const m10 = this.values[0][1] / scale.y;
-		const m11 = this.values[1][1] / scale.y;
-		const m12 = this.values[2][1] / scale.y;
-		const m20 = this.values[0][2] / scale.z;
-		const m21 = this.values[1][2] / scale.z;
-		const m22 = this.values[2][2] / scale.z;
+		let m00 = this.values[0][0]; let m10 = this.values[0][1]; let m20 = this.values[0][2];
+		let m01 = this.values[1][0]; let m11 = this.values[1][1]; let m21 = this.values[1][2];
+		let m02 = this.values[2][0]; let m12 = this.values[2][1]; let m22 = this.values[2][2];
+
+		const invSX = 1 / sX;
+		const invSY = 1 / scale.y;
+		const invSZ = 1 / scale.z;
+
+		m00 *= invSX; m10 *= invSX; m20 *= invSX;
+		m01 *= invSY; m11 *= invSY; m21 *= invSY;
+		m02 *= invSZ; m12 *= invSZ; m22 *= invSZ;
 
 		const q = new Quat();
 		const trace = m00 + m11 + m22;

@@ -5,6 +5,7 @@ import {Button} from "../../ui/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
+import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -65,6 +66,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.markRenderDirty(false);
 		});
 
+		this.rotationGizmo = this.gizmos.addGizmo(RotationGizmo);
 		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
 		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();

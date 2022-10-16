@@ -1,3 +1,4 @@
+import {clamp} from "../util/util.js";
 import {Vec3} from "./Vec3.js";
 import {Vec4} from "./Vec4.js";
 
@@ -356,7 +357,9 @@ export class Vec2 {
 	 */
 	shortestAngleTo(otherVector) {
 		const dot = this.dot(otherVector);
-		return Math.acos(dot / (this.magnitude * otherVector.magnitude));
+		const denominator = this.magnitude * otherVector.magnitude;
+		if (denominator == 0) return 0;
+		return Math.acos(clamp(dot / denominator, -1, 1));
 	}
 
 	/**

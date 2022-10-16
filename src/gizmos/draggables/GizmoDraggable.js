@@ -13,6 +13,7 @@ import {Entity} from "../../core/Entity.js";
  * @typedef GizmoDraggableTypes
  * @property {import("./TranslateGizmoDraggable.js").TranslateGizmoDraggable} move
  * @property {import("./TranslateAxisGizmoDraggable.js").TranslateAxisGizmoDraggable} move-axis
+ * @property {import("./RotateAxisGizmoDraggable.js").RotateAxisGizmoDraggable} rotate-axis
  */
 
 /** @typedef {keyof GizmoDraggableTypes} GizmoDraggableType */
@@ -84,12 +85,14 @@ export class GizmoDraggable {
 	 */
 	raycast(start, dir) {
 		const mat = this.entity.worldMatrix.inverse();
-		start = start.clone().multiply(mat);
+		const startDir = start.clone().add(dir).multiply(mat);
+		const localStart = start.clone().multiply(mat);
+		const localDir = startDir.sub(localStart);
 
 		let closestResult = null;
 		let closestDist = Infinity;
 		for (const shape of this.shapes) {
-			const result = shape.raycast(start, dir);
+			const result = shape.raycast(localStart, localDir);
 			if (result) {
 				if (result.dist < closestDist) {
 					closestDist = result.dist;
@@ -97,7 +100,19 @@ export class GizmoDraggable {
 				}
 			}
 		}
-		return closestResult;
+
+		// Convert the result back to world space
+		if (closestResult) {
+			const pos = closestResult.pos.multiply(this.entity.worldMatrix);
+			/** @type {import("../../math/types.js").RaycastResult} */
+			const result = {
+				pos,
+				dist: pos.distanceTo(start),
+			};
+			return result;
+		} else {
+			return null;
+		}
 	}
 
 	/**

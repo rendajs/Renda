@@ -1,5 +1,6 @@
 import {assert, assertEquals, assertThrows} from "std/testing/asserts.ts";
-import {Mat4} from "../../../../src/mod.js";
+import {Mat4, Quat, Vec3} from "../../../../src/mod.js";
+import {assertQuatAlmostEquals} from "../../shared/asserts.js";
 
 const oneTo16Array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
@@ -101,5 +102,16 @@ Deno.test({
 		for (const [mat, expected] of identityTests) {
 			assert(mat.isIdentity() === expected, `Expected ${mat.toArray()} to be ${expected}`);
 		}
+	},
+});
+
+Deno.test({
+	name: "getRotation()",
+	fn() {
+		const scaleMatrix = Mat4.createPosRotScale(Vec3.zero, new Quat(), new Vec3(0.1, 1.1, 1.1));
+		const rotMatrix = Mat4.createRotationZ(Math.PI * 0.5);
+		const multiplied = Mat4.multiplyMatrices(scaleMatrix, rotMatrix);
+		const rot = multiplied.getRotation();
+		assertQuatAlmostEquals(rot, new Quat(0, 0, 0.70710678, 0.70710678));
 	},
 });
