@@ -47,4 +47,4 @@ jobs:
           CANARY_DEPLOY_TOKEN: ${{ secrets.CANARY_DEPLOY_TOKEN }}
           COMMIT_SHA: ${{ github.sha }}
         run: |
-          curl -X POST --fail -H "Authorization: DeployToken $CANARY_DEPLOY_TOKEN" -H "X-Commit-Hash: $COMMIT_SHA" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/canary"
+          curl -X POST --fail -H "Authorization: DeployToken $CANARY_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/canary?commit=$COMMIT_SHA"
