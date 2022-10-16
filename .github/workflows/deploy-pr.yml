@@ -107,7 +107,7 @@ jobs:
           PR_DEPLOY_TOKEN: ${{ secrets.PR_DEPLOY_TOKEN }}
           PR_ID: ${{ steps.get-pr-number.outputs.result }}
         run: |
-          curl -X POST -H "Authorization: DeployToken $PR_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/pr?id=$PR_ID"
+          curl -X POST --fail -H "Authorization: DeployToken $PR_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/pr?id=$PR_ID"
 
       - name: Update deployment status success
         uses: actions/github-script@v3
