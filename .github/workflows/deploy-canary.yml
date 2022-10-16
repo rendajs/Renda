@@ -46,4 +46,4 @@ jobs:
         env:
           CANARY_DEPLOY_TOKEN: ${{ secrets.CANARY_DEPLOY_TOKEN }}
         run: |
-          curl -X POST -H "DEPLOY_TOKEN: $CANARY_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/canary"
+          curl -X POST -H "Authorization: DeployToken $CANARY_DEPLOY_TOKEN" -H "Content-Type: application/x-tar" --data-binary @build_files.tar "https://deploy.renda.studio/canary"
