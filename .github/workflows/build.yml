@@ -11,6 +11,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: log curl version
+        run: curl -V
+
       - name: Setup repo
         uses: actions/checkout@v2
 
