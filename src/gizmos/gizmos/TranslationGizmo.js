@@ -171,11 +171,11 @@ export class TranslationGizmo extends Gizmo {
 		this.entity.add(entity);
 
 		const draggable = this.gizmoManager.createDraggable("move-axis");
+		draggable.axis.set(axis);
 		this.entity.add(draggable.entity);
 		draggable.entity.pos.set(axis);
 		const sphere = new Sphere(0.5);
 		draggable.addRaycastShape(sphere);
-		draggable.axis.set(axis);
 		draggable.onIsHoveringChange(isHovering => {
 			if (isHovering) {
 				colorInstance.set(hoverColor);

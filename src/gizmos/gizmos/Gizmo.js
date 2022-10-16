@@ -17,7 +17,21 @@ export class Gizmo {
 		this.entity.pos = val;
 	}
 
-	// TODO: add a way to set rotation and scale
+	get rot() {
+		return this.entity.rot;
+	}
+
+	set rot(val) {
+		this.entity.rot = val;
+	}
+
+	get scale() {
+		return this.entity.scale;
+	}
+
+	set scale(val) {
+		this.entity.scale = val;
+	}
 
 	/**
 	 * @param {import("../../math/Mat4.js").Mat4} val

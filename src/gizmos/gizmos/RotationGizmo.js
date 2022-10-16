@@ -34,7 +34,7 @@ export class RotationGizmo extends Gizmo {
 			const theta = i / segments * Math.PI * 2;
 			const x = Math.cos(theta);
 			const y = Math.sin(theta);
-			positions.push(new Vec3(x, y, 0));
+			positions.push(new Vec3(0, x, y));
 			colors.push(new Vec3(1, 1, 1));
 		}
 		this.circleMesh.setVertexCount(segments);
@@ -42,19 +42,23 @@ export class RotationGizmo extends Gizmo {
 		this.circleMesh.setVertexData(Mesh.AttributeType.POSITION, positions);
 		this.circleMesh.setVertexData(Mesh.AttributeType.COLOR, colors);
 
-		this.xCircleMesh = this.createCircle({
-			axis: new Vec3(0, 1, 0),
+		/** @type {CreatedCircle[]} */
+		this.createdCircles = [];
+		this.createCircle({
+			axis: new Vec3(1, 0, 0),
 			raycastScale: new Vec3(0.1, 1.1, 1.1),
 			colorInstance: this.xCircleColor,
 			defaultColor: redColor,
 		});
-		this.yCircleMesh = this.createCircle({
-			axis: new Vec3(1, 0, 0),
+
+		this.createCircle({
+			axis: new Vec3(0, 1, 0),
 			raycastScale: new Vec3(1.1, 0.1, 1.1),
 			colorInstance: this.yCircleColor,
 			defaultColor: greenColor,
 		});
-		this.zCircleMesh = this.createCircle({
+
+		this.createCircle({
 			axis: new Vec3(0, 0, 1),
 			raycastScale: new Vec3(1.1, 1.1, 0.1),
 			colorInstance: this.zCircleColor,
@@ -75,21 +79,25 @@ export class RotationGizmo extends Gizmo {
 		this.circleMesh.setVertexState(this.gizmoManager.meshVertexState);
 		if (this.gizmoManager.meshMaterial) {
 			const material = this.gizmoManager.meshMaterial;
-			const xMaterial = material.clone();
-			const yMaterial = material.clone();
-			const zMaterial = material.clone();
-			xMaterial.setProperty("colorMultiplier", this.xCircleColor);
-			yMaterial.setProperty("colorMultiplier", this.yCircleColor);
-			zMaterial.setProperty("colorMultiplier", this.zCircleColor);
-			this.xCircleMesh.materials = [xMaterial];
-			this.yCircleMesh.materials = [yMaterial];
-			this.zCircleMesh.materials = [zMaterial];
+			for (const circle of this.createdCircles) {
+				const newMat = material.clone();
+				newMat.setProperty("colorMultiplier", circle.colorInstance);
+				circle.meshComponent.materials = [newMat];
+			}
 		} else {
-			this.xCircleMesh.materials = [];
-			this.yCircleMesh.materials = [];
-			this.zCircleMesh.materials = [];
+			for (const circle of this.createdCircles) {
+				circle.meshComponent.materials = [];
+			}
 		}
 	}
+
+	/**
+	 * @typedef CreatedCircle
+	 * @property {Vec3} axis
+	 * @property {MeshComponent} meshComponent
+	 * @property {import("../draggables/RotateAxisGizmoDraggable.js").RotateAxisGizmoDraggable} draggable
+	 * @property {Vec3} colorInstance
+	 */
 
 	/**
 	 * @param {object} options
@@ -109,15 +117,21 @@ export class RotationGizmo extends Gizmo {
 			materials: [this.gizmoManager.meshMaterial],
 		});
 
-		entity.rot.setFromAxisAngle(axis, Math.PI / 2);
-
+		// Create a rotation axis perpendicular to the axis that we want the
+		// circle to rotate around, and a [1,0,0] vector, since that is the
+		// direction of the mesh.
+		const rotationAxis = Vec3.right.cross(axis);
+		// if the axis in the right direction, there's no need to rotate the object.
+		if (rotationAxis.magnitude > 0) {
+			entity.rot.setFromAxisAngle(rotationAxis, Math.PI / 2);
+		}
 		this.entity.add(entity);
 
 		const draggable = this.gizmoManager.createDraggable("rotate-axis");
 		draggable.axis.set(axis);
 		this.entity.add(draggable.entity);
 		draggable.entity.scale.set(raycastScale);
-		const sphere = new Sphere(1);
+		const sphere = new Sphere();
 		draggable.addRaycastShape(sphere);
 		draggable.onIsHoveringChange(isHovering => {
 			if (isHovering) {
@@ -128,10 +142,14 @@ export class RotationGizmo extends Gizmo {
 			this.gizmoNeedsRender();
 		});
 		draggable.onDrag(e => {
-			this.pos.add(e.delta);
+			this.rot.preMultiply(e.delta);
 			this.gizmoNeedsRender();
 		});
 
-		return meshComponent;
+		draggable.entity.addComponent(MeshComponent);
+
+		this.createdCircles.push({
+			axis, meshComponent, draggable, colorInstance,
+		});
 	}
 }

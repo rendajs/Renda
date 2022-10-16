@@ -67,7 +67,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 
 		this.rotationGizmo = this.gizmos.addGizmo(RotationGizmo);
-		// this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
+		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
 		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
