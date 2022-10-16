@@ -248,7 +248,7 @@ export class Quat {
 	 */
 	rotateAxisAngle(...args) {
 		const q = Quat.fromAxisAngle(...args);
-		this.multiply(q);
+		this.preMultiply(q);
 		return this;
 	}
 

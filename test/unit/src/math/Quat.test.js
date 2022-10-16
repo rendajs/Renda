@@ -1,4 +1,4 @@
-import {Quat} from "../../../../src/mod.js";
+import {Quat, Vec3} from "../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
@@ -18,5 +18,20 @@ Deno.test({
 			const rotated = quat.rotateVector(vec);
 			assertVecAlmostEquals(rotated, expected);
 		}
+	},
+});
+
+Deno.test({
+	name: "rotateAxisAngle()",
+	fn() {
+		const quat = new Quat();
+
+		quat.rotateAxisAngle(0, 1, 0, Math.PI * 0.5);
+		const result1 = quat.rotateVector(Vec3.right);
+		assertVecAlmostEquals(result1, Vec3.back);
+
+		quat.rotateAxisAngle(1, 0, 0, -Math.PI * 0.5);
+		const result2 = quat.rotateVector(Vec3.right);
+		assertVecAlmostEquals(result2, Vec3.down);
 	},
 });
