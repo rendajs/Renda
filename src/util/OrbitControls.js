@@ -71,18 +71,18 @@ export class OrbitControls {
 	 */
 	onWheel(e) {
 		e.preventDefault();
-		const dx = e.deltaX;
-		const dy = e.deltaY;
+		const dx = -e.deltaX;
+		const dy = -e.deltaY;
 		if (e.ctrlKey) {
-			this.lookDist += e.deltaY * 0.01;
+			this.lookDist -= dy * 0.01;
 		} else if (e.shiftKey) {
-			const xDir = this.lookRot.rotateVector(Vec3.right).multiply(dx * 0.01);
-			const yDir = this.lookRot.rotateVector(Vec3.up).multiply(-dy * 0.01);
+			const xDir = this.lookRot.rotateVector(Vec3.right).multiply(-dx * 0.01);
+			const yDir = this.lookRot.rotateVector(Vec3.up).multiply(dy * 0.01);
 			this.lookPos.add(xDir).add(yDir);
 		} else {
 			this.lookRot.rotateAxisAngle(new Vec3(0, 1, 0), dx * 0.01);
 			const pitchAxis = this.lookRot.rotateVector(Vec3.right);
-			this.lookRot.rotateAxisAngle(pitchAxis, e.deltaY * 0.01);
+			this.lookRot.rotateAxisAngle(pitchAxis, dy * 0.01);
 		}
 	}
 
@@ -98,6 +98,6 @@ export class OrbitControls {
 	updateCamPos() {
 		const lookDir = this.lookRot.rotateVector(Vec3.back);
 		this.camera.pos = lookDir.clone().multiply(2 ** this.lookDist).add(this.lookPos);
-		this.camera.rot = this.lookRot.clone().invert();
+		this.camera.rot = this.lookRot.clone();
 	}
 }

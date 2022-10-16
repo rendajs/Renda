@@ -248,7 +248,7 @@ export class Quat {
 	 */
 	rotateAxisAngle(...args) {
 		const q = Quat.fromAxisAngle(...args);
-		this.multiply(q);
+		this.preMultiply(q);
 		return this;
 	}
 
@@ -272,16 +272,15 @@ export class Quat {
 	rotateVector(...args) {
 		// TODO: optimise: gamedev.stackexchange.com/a/50545/87477
 		const vec = new Vec3(...args);
-		const pin = new Quat(vec.x, vec.y, vec.z, 1);
-		const qconj = new Quat(this);
-		qconj.invert();
-		const pout = Quat.multiplyQuaternions(qconj, Quat.multiplyQuaternions(pin, this));
+		const result = new Quat(vec.x, vec.y, vec.z, 1);
+		const conjugate = new Quat(this).invert();
+		result.preMultiply(this);
+		result.multiply(conjugate);
 		const newVec = new Vec3(
-			pout.x,
-			pout.y,
-			pout.z
+			result.x,
+			result.y,
+			result.z
 		);
-		newVec.magnitude = vec.magnitude;
 		return newVec;
 	}
 
