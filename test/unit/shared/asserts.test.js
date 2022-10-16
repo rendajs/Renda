@@ -1,6 +1,6 @@
 import {assertRejects, assertThrows} from "std/testing/asserts.ts";
-import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
-import {assertAlmostEquals, assertMatAlmostEquals, assertPromiseResolved, assertVecAlmostEquals} from "./asserts.js";
+import {Mat4, Quat, Vec2, Vec3, Vec4} from "../../../src/mod.js";
+import {assertAlmostEquals, assertMatAlmostEquals, assertPromiseResolved, assertQuatAlmostEquals, assertVecAlmostEquals} from "./asserts.js";
 
 Deno.test({
 	name: "assertAlmostEquals() doesn't throw",
@@ -126,6 +126,26 @@ Deno.test({
 		});
 		assertThrows(() => {
 			assertVecAlmostEquals([NaN, 0, 0], [NaN, 0, 0]);
+		});
+	},
+});
+
+Deno.test({
+	name: "assertQuatAlmostEquals() doesn't throw",
+	fn() {
+		assertQuatAlmostEquals(new Quat(1, 2, 3), new Quat(1.000001, 1.999999, 3, 1.000001));
+		assertQuatAlmostEquals(new Quat(1, 2, 3, 10), new Quat(), 10);
+	},
+});
+
+Deno.test({
+	name: "assertQuatAlmostEquals() throws",
+	fn() {
+		assertThrows(() => {
+			assertQuatAlmostEquals(new Quat(1, 2, 3), new Quat(1, 2, 3, 1.1));
+		});
+		assertThrows(() => {
+			assertQuatAlmostEquals(new Quat(1, 2, 3, 10), new Quat());
 		});
 	},
 });

@@ -1,5 +1,5 @@
 import {AssertionError, assert} from "std/testing/asserts.ts";
-import {Mat4, Vec2, Vec3, Vec4} from "../../../src/mod.js";
+import {Mat4, Quat, Vec2, Vec3, Vec4} from "../../../src/mod.js";
 import {waitForMicrotasks as waitForMicrotasksFn} from "./waitForMicroTasks.js";
 
 /**
@@ -61,7 +61,7 @@ function assertIsVector(vec, msg) {
 
 /**
  * @param {unknown} actual
- * @param {Vec2 | Vec3 | Vec4 | number[]} expected
+ * @param {Vec2 | Vec3 | Vec4 | Quat | number[]} expected
  */
 export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg = "") {
 	assertIsVector(actual, msg);
@@ -101,6 +101,32 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 		}
 		throw new AssertionError(message);
 	}
+}
+
+/**
+ * @param {unknown} quat
+ * @param {string} msg
+ * @returns {asserts quat is Quat}
+ */
+function assertIsQuaternion(quat, msg) {
+	if (!(quat instanceof Quat)) {
+		if (msg) throw new AssertionError(msg);
+		throw new AssertionError(`${quat} is not a vector`);
+	}
+}
+
+/**
+ * @param {unknown} actual
+ * @param {Quat} expected
+ */
+export function assertQuatAlmostEquals(actual, expected, tolerance = 0.00001, msg = "") {
+	assertIsQuaternion(actual, msg);
+	assertIsQuaternion(expected, msg);
+	if (!msg) msg = `Expected Quaternion to be close to ${expected.toArray()} but got ${actual.toArray()}`;
+	assertAlmostEquals(actual.x, expected.x, tolerance, msg);
+	assertAlmostEquals(actual.y, expected.y, tolerance, msg);
+	assertAlmostEquals(actual.z, expected.z, tolerance, msg);
+	assertAlmostEquals(actual.w, expected.w, tolerance, msg);
 }
 
 /**
