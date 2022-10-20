@@ -33,6 +33,10 @@ export class Quat {
 		this.set(...args);
 	}
 
+	static get identity() {
+		return new Quat();
+	}
+
 	/**
 	 * @param {QuatParameters} args
 	 */
