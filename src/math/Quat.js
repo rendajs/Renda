@@ -257,6 +257,10 @@ export class Quat {
 		return this;
 	}
 
+	inverse() {
+		return this.clone().invert();
+	}
+
 	normalize() {
 		const length = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
 		this.x /= length;
