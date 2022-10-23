@@ -36,7 +36,7 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Lint
-        run: deno task lint
+        run: deno task lint --all
 
   check:
     runs-on: ubuntu-latest
