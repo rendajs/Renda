@@ -53,7 +53,11 @@ export class TranslationGizmo extends Gizmo {
 			materials: [],
 		});
 
+		/** @type {import("../draggables/GizmoDraggable.js").GizmoDraggable[]} */
+		this.createdDraggables = [];
+
 		this.centerDraggable = this.gizmoManager.createDraggable("move");
+		this.createdDraggables.push(this.centerDraggable);
 		const sphere = new Sphere(0.5);
 		this.centerDraggable.addRaycastShape(sphere);
 		this.entity.add(this.centerDraggable.entity);
@@ -112,6 +116,9 @@ export class TranslationGizmo extends Gizmo {
 		super.destructor();
 
 		this.arrowMesh.destructor();
+		for (const draggable of this.createdDraggables) {
+			this.gizmoManager.removeDraggable(draggable);
+		}
 	}
 
 	updateAssets() {
@@ -171,6 +178,7 @@ export class TranslationGizmo extends Gizmo {
 		this.entity.add(entity);
 
 		const draggable = this.gizmoManager.createDraggable("move-axis");
+		this.createdDraggables.push(draggable);
 		draggable.axis.set(axis);
 		this.entity.add(draggable.entity);
 		draggable.entity.pos.set(axis);

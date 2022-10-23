@@ -70,6 +70,10 @@ export class RotationGizmo extends Gizmo {
 		super.destructor();
 
 		this.circleMesh.destructor();
+
+		for (const {draggable} of this.createdCircles) {
+			this.gizmoManager.removeDraggable(draggable);
+		}
 	}
 
 	/**
