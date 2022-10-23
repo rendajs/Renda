@@ -11,7 +11,7 @@
 	"importMap": "importmap.json",
 	"tasks": {
 		"dev": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net --unstable scripts/dev.js",
-		"lint": "deno run --unstable --allow-env --allow-read --allow-write scripts/lint.js",
+		"lint": "deno run --unstable --allow-env --allow-read --allow-write --allow-run=git scripts/lint.js",
 		"check": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net scripts/check.js",
 		"test": "deno run --allow-run --allow-read --allow-write --allow-env --allow-net scripts/test.js",
 		"build-engine": "deno run --unstable --allow-read --allow-write --allow-net --allow-env scripts/build.js",
