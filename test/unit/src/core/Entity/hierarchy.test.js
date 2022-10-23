@@ -376,26 +376,30 @@ Deno.test({
 });
 
 Deno.test({
-	name: "containsChild() true",
+	name: "containsChild() and containsParent()",
 	fn() {
-		const parent = new Entity();
-		const child = parent.add(new Entity());
+		const entity1 = new Entity("entity1");
+		const entity2 = entity1.add(new Entity("entity2"));
+		const entity3 = entity2.add(new Entity("entity3"));
+		const entity4 = entity3.add(new Entity("entity4"));
+		const nonChild = new Entity("nonChild");
 
-		const result = parent.containsChild(child);
+		/** @type {[Entity, Entity, boolean][]} */
+		const tests = [
+			[entity2, entity3, true],
+			[entity2, entity4, true],
+			[entity1, entity2, true],
+			[entity2, nonChild, false],
+			[entity3, entity1, false],
+			[entity2, entity2, false],
+		];
+		for (const [parent, child, expected] of tests) {
+			const result1 = parent.containsChild(child);
+			assertEquals(result1, expected, `Expected ${parent.name}.containsChild(${child.name}) to return ${expected}`);
 
-		assertEquals(result, true);
-	},
-});
-
-Deno.test({
-	name: "containsChild() false",
-	fn() {
-		const parent = new Entity();
-		const child = new Entity();
-
-		const result = parent.containsChild(child);
-
-		assertEquals(result, false);
+			const result2 = child.containsParent(parent);
+			assertEquals(result2, expected, `Expected ${child.name}.containsChild(${parent.name}) to return ${expected}`);
+		}
 	},
 });
 

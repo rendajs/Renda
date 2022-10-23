@@ -688,12 +688,26 @@ export class Entity {
 	}
 
 	/**
+	 * Traverses down the children of this entity and checks if it contains a specific child.
+	 * Returns true if the provided entity is a child or subchild of this entity.
+	 * If the entity itself is passed in, this also returns false.
 	 * @param {Entity} child
 	 * @returns {boolean}
 	 */
 	containsChild(child) {
-		for (const c of this.traverseDown()) {
-			if (c == child) return true;
+		return child.containsParent(this);
+	}
+
+	/**
+	 * Checks if this entity is the child of a specific parent.
+	 * Returns true if the provided entity is a parent or ancestor of this entity.
+	 * If the entity itself is passed in, this also returns false.
+	 * @param {Entity} parent
+	 */
+	containsParent(parent) {
+		if (parent == this) return false;
+		for (const p of this.traverseUp()) {
+			if (p == parent) return true;
 		}
 		return false;
 	}

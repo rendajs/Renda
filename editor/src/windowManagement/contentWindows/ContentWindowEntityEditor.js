@@ -2,10 +2,11 @@ import {ContentWindow} from "./ContentWindow.js";
 import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../ui/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, TranslationGizmo} from "../../../../src/mod.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, Quat, TranslationGizmo, Vec3} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
+import {ButtonGroup} from "../../ui/ButtonGroup.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -14,6 +15,15 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
 	static scrollable = false;
+
+	/** @typedef {"translate" | "rotate" | "scale"} TransformationMode */
+	/** @typedef {"local" | "global"} TransformationSpace */
+	/** @typedef {"center" | "multiple" | "last"} TransformationPivot */
+
+	/**
+	 * @typedef TransformationGizmoData
+	 * @property {TranslationGizmo | RotationGizmo} gizmo
+	 */
 
 	/**
 	 * @param {ConstructorParameters<typeof ContentWindow>} args
@@ -30,6 +40,46 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			},
 		});
 		this.addTopBarEl(saveEntityButton.el);
+
+		/** @type {TransformationMode} */
+		this.transformationMode = "translate";
+		/** @type {TransformationSpace} */
+		this.transformationSpace = "local";
+		/** @type {TransformationPivot} */
+		this.transformationPivot = "center";
+
+		this.transformationModeTranslateButton = new Button({
+			text: "Translate",
+			onClick: () => {
+				this.setTransformationMode("translate");
+			},
+		});
+		this.transformationModeRotateButton = new Button({
+			text: "Rotate",
+			onClick: () => {
+				this.setTransformationMode("rotate");
+			},
+		});
+
+		const translationMethodButtonGroup = new ButtonGroup(
+			this.transformationModeTranslateButton,
+			this.transformationModeRotateButton
+		);
+		this.addTopBarEl(translationMethodButtonGroup.el);
+
+		this.transformationSpaceButton = new Button({
+			onClick: () => {
+				this.toggleTransformationSpace();
+			},
+		});
+		this.addTopBarEl(this.transformationSpaceButton.el);
+
+		this.transformationPivotButton = new Button({
+			onClick: () => {
+				this.toggleTransformationPivot();
+			},
+		});
+		this.addTopBarEl(this.transformationPivotButton.el);
 
 		this.domTarget = this.editorInstance.renderer.createDomTarget();
 		const renderTargetElement = this.domTarget.getElement();
@@ -66,8 +116,16 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			this.markRenderDirty(false);
 		});
 
-		this.rotationGizmo = this.gizmos.addGizmo(RotationGizmo);
-		this.translationGizmo = this.gizmos.addGizmo(TranslationGizmo);
+		/** @type {TransformationGizmoData[]} */
+		this.activeTransformationGizmos = [];
+		this.setTransformationMode("translate");
+		this.updateTransformationSpaceButton();
+		this.updateTransformationPivotButton();
+
+		this.selectionGroup.onSelectionChange(() => {
+			this.updateTransformationGizmos();
+		});
+
 		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
@@ -253,6 +311,150 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		for (const buildView of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)) {
 			buildView.setLinkedEntityEditor(this);
 		}
+	}
+
+	/**
+	 * @param {TransformationMode} mode
+	 */
+	setTransformationMode(mode) {
+		this.transformationMode = mode;
+		this.transformationModeTranslateButton.setSelectedHighlight(mode == "translate");
+		this.transformationModeRotateButton.setSelectedHighlight(mode == "rotate");
+		this.updateTransformationGizmos();
+	}
+
+	toggleTransformationSpace() {
+		if (this.transformationSpace == "local") {
+			this.transformationSpace = "global";
+		} else {
+			this.transformationSpace = "local";
+		}
+		this.updateTransformationSpaceButton();
+		this.updateTransformationGizmos();
+	}
+
+	updateTransformationSpaceButton() {
+		if (this.transformationSpace == "local") {
+			this.transformationSpaceButton.setText("Local");
+		} else if (this.transformationSpace == "global") {
+			this.transformationSpaceButton.setText("Global");
+		}
+	}
+
+	toggleTransformationPivot() {
+		if (this.transformationPivot == "center") {
+			this.transformationPivot = "multiple";
+		} else if (this.transformationPivot == "multiple") {
+			this.transformationPivot = "last";
+		} else {
+			this.transformationPivot = "center";
+		}
+		this.updateTransformationPivotButton();
+		this.updateTransformationGizmos();
+	}
+
+	updateTransformationPivotButton() {
+		if (this.transformationPivot == "center") {
+			this.transformationPivotButton.setText("Center");
+		} else if (this.transformationPivot == "multiple") {
+			this.transformationPivotButton.setText("Multiple");
+		} else if (this.transformationPivot == "last") {
+			this.transformationPivotButton.setText("Last");
+		}
+	}
+
+	/**
+	 * Updates the amount and locations of gizmos used for moving objects.
+	 */
+	updateTransformationGizmos() {
+		for (const {gizmo} of this.activeTransformationGizmos) {
+			this.gizmos.removeGizmo(gizmo);
+		}
+		this.activeTransformationGizmos = [];
+
+		for (const {pos, rot} of this.getEditingPivots()) {
+			let gizmo;
+			if (this.transformationMode == "translate") {
+				gizmo = this.gizmos.addGizmo(TranslationGizmo);
+			} else if (this.transformationMode == "rotate") {
+				gizmo = this.gizmos.addGizmo(RotationGizmo);
+			} else {
+				throw new Error("Unknown transformation mode");
+			}
+			this.activeTransformationGizmos.push({gizmo});
+
+			gizmo.pos = pos;
+			gizmo.rot = rot;
+		}
+		this.markRenderDirty();
+	}
+
+	/**
+	 * Returns a list of objects describing the transformation of a pivot. This is
+	 * essentially a list of all the translation/rotation/scale gizmos that need
+	 * to be rendered.
+	 */
+	getEditingPivots() {
+		/**
+		 * @typedef PivotData
+		 * @property {Vec3} pos
+		 * @property {Quat} rot
+		 */
+
+		/** @type {PivotData[]} */
+		const pivots = [];
+
+		if (this.transformationPivot == "center") {
+			if (this.selectionGroup.currentSelectedObjects.length == 0) {
+				return pivots;
+			} else {
+				const averagePos = new Vec3();
+				let count = 0;
+				for (const {entity} of this.selectionGroup.currentSelectedObjects) {
+					averagePos.add(entity.worldPos);
+					count++;
+				}
+				averagePos.divide(count);
+				pivots.push({
+					pos: averagePos,
+					rot: Quat.identity,
+				});
+				return pivots;
+			}
+		}
+
+		/**
+		 * List of entities that needs a pivot.
+		 * @type {Set<Entity>}
+		 */
+		const entities = new Set();
+		if (this.transformationPivot == "last") {
+			const last = this.selectionGroup.currentSelectedObjects.at(-1);
+			if (last) {
+				entities.add(last.entity);
+			}
+		} else if (this.transformationPivot == "multiple") {
+			for (const {entity} of this.selectionGroup.currentSelectedObjects) {
+				entities.add(entity);
+			}
+			for (const a of entities) {
+				for (const b of entities) {
+					if (a.containsParent(b)) {
+						entities.delete(a);
+					}
+				}
+			}
+		}
+
+		for (const entity of entities) {
+			const {pos, rot} = entity.worldMatrix.decompose();
+			if (this.transformationSpace == "global") {
+				rot.set(Quat.identity);
+			}
+			pivots.push({pos, rot});
+		}
+
+		return pivots;
 	}
 
 	updateGizmos() {
