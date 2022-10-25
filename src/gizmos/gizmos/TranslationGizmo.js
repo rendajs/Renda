@@ -7,6 +7,16 @@ import {Gizmo} from "./Gizmo.js";
 import {Entity} from "../../core/Entity.js";
 import {blueColor, greenColor, hoverColor, redColor, whiteColor} from "./colors.js";
 
+/**
+ * @typedef TranslationGizmoDragEvent
+ * @property {Vec3} localDelta
+ * @property {Vec3} worldDelta
+ */
+
+/**
+ * @typedef {(event: TranslationGizmoDragEvent) => void} TranslationGizmoDragCallback
+ */
+
 export class TranslationGizmo extends Gizmo {
 	/**
 	 * @param  {ConstructorParameters<typeof Gizmo>} args
@@ -18,6 +28,9 @@ export class TranslationGizmo extends Gizmo {
 		this.xArrowColor = new Vec3(redColor);
 		this.yArrowColor = new Vec3(greenColor);
 		this.zArrowColor = new Vec3(blueColor);
+
+		/** @type {Set<TranslationGizmoDragCallback>} */
+		this.onDragCbs = new Set();
 
 		const circleSegmentCount = 32;
 		const circleColors = [];
@@ -70,8 +83,16 @@ export class TranslationGizmo extends Gizmo {
 			this.gizmoNeedsRender();
 		});
 		this.centerDraggable.onDrag(e => {
-			this.pos.add(e.delta);
+			this.pos.add(e.worldDelta);
 			this.gizmoNeedsRender();
+			let localDelta = e.worldDelta.clone();
+			const {rot} = this.entity.localMatrix.decompose();
+			rot.invert();
+			localDelta = rot.rotateVector(localDelta);
+			this.onDragCbs.forEach(cb => cb({
+				worldDelta: e.worldDelta,
+				localDelta,
+			}));
 		});
 
 		this.arrowMesh = new Mesh();
@@ -193,10 +214,23 @@ export class TranslationGizmo extends Gizmo {
 			this.gizmoNeedsRender();
 		});
 		draggable.onDrag(e => {
-			this.pos.add(e.delta);
+			this.pos.add(e.worldDelta);
 			this.gizmoNeedsRender();
+			const localDelta = axis.clone();
+			localDelta.magnitude = e.localDelta;
+			this.onDragCbs.forEach(cb => cb({
+				localDelta,
+				worldDelta: e.worldDelta,
+			}));
 		});
 
 		return meshComponent;
+	}
+
+	/**
+	 * @param {TranslationGizmoDragCallback} cb
+	 */
+	onDrag(cb) {
+		this.onDragCbs.add(cb);
 	}
 }

@@ -46,7 +46,7 @@ Deno.test({
 
 		for (const Draggable of draggableTypes) {
 			const draggable = new Draggable(mockGizmoManager);
-			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
+			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").TranslateGizmoDragEvent[]} */
 			const calls = [];
 			draggable.onDrag(event => {
 				calls.push(event);
@@ -62,7 +62,7 @@ Deno.test({
 			});
 
 			assertEquals(calls.length, 1, `onDrag callback wasn't called for ${Draggable.name}`);
-			assertVecAlmostEquals(calls[0].delta, [0, 0, 0]);
+			assertVecAlmostEquals(calls[0].worldDelta, [0, 0, 0]);
 		}
 	},
 });
@@ -74,7 +74,7 @@ Deno.test({
 
 		for (const Draggable of draggableTypes) {
 			const draggable = new TranslateGizmoDraggable(mockGizmoManager);
-			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
+			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").TranslateGizmoDragEvent[]} */
 			const calls = [];
 			draggable.onDrag(event => {
 				calls.push(event);
@@ -90,7 +90,7 @@ Deno.test({
 			});
 
 			assertEquals(calls.length, 1, `onDrag callback wasn't called for ${Draggable.name}`);
-			assertVecAlmostEquals(calls[0].delta, [0, 0, 0]);
+			assertVecAlmostEquals(calls[0].worldDelta, [0, 0, 0]);
 		}
 	},
 });

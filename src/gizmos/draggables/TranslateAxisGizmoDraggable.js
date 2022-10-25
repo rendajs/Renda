@@ -3,8 +3,15 @@ import {closestPointBetweenLines} from "../../math/closestPointBetweenLines.js";
 import {GizmoDraggable} from "./GizmoDraggable.js";
 
 /**
+ * @typedef TranslateAxisGizmoDragEvent
+ * @property {Vec3} worldDelta The change in world position since the last event.
+ * @property {number} localDelta The changed distance since the last position.
+ * Negative when moved in the opposite direction of the provided axis.
+ */
+
+/**
  * A draggable that can be translated along a single axis.
- * @extends {GizmoDraggable<import("./TranslateGizmoDraggable.js").GizmoDragMoveEvent>}
+ * @extends {GizmoDraggable<TranslateAxisGizmoDragEvent>}
  */
 export class TranslateAxisGizmoDraggable extends GizmoDraggable {
 	/**
@@ -77,10 +84,14 @@ export class TranslateAxisGizmoDraggable extends GizmoDraggable {
 		const deltaWorldPos = newWorldPos.clone().sub(this.prevDragWorldPos);
 		this.prevDragWorldPos.set(newWorldPos);
 
-		/** @type {import("./TranslateGizmoDraggable.js").GizmoDragMoveEvent} */
-		const moveEvent = {
-			delta: deltaWorldPos,
-		};
-		this.fireDragCallbacks(moveEvent);
+		let localDelta = deltaWorldPos.magnitude;
+		if (deltaWorldPos.dot(this.axis) < 0) {
+			localDelta *= -1;
+		}
+
+		this.fireDragCallbacks({
+			worldDelta: deltaWorldPos,
+			localDelta,
+		});
 	}
 }

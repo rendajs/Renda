@@ -2,7 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
 import {Button} from "../../ui/Button.js";
-import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, OrbitControls, Quat, TranslationGizmo, Vec3} from "../../../../src/mod.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, OrbitControls, Quat, TranslationGizmo, Vec3} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
@@ -376,6 +376,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			let gizmo;
 			if (this.transformationMode == "translate") {
 				gizmo = this.gizmos.addGizmo(TranslationGizmo);
+				gizmo.onDrag(e => {
+					const localMatrix = Mat4.createTranslation(e.localDelta);
+					const worldMatrix = Mat4.createTranslation(e.localDelta);
+					this.dragSelectedEntities(localMatrix, worldMatrix);
+				});
 			} else if (this.transformationMode == "rotate") {
 				gizmo = this.gizmos.addGizmo(RotationGizmo);
 			} else {
@@ -399,6 +404,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		 * @typedef PivotData
 		 * @property {Vec3} pos
 		 * @property {Quat} rot
+		 * @property {Entity[]} entities The entities that should be transformed when dragging a gizmo.
 		 */
 
 		/** @type {PivotData[]} */
@@ -410,14 +416,17 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			} else {
 				const averagePos = new Vec3();
 				let count = 0;
+				const entities = [];
 				for (const {entity} of this.selectionGroup.currentSelectedObjects) {
 					averagePos.add(entity.worldPos);
 					count++;
+					entities.push(entity);
 				}
 				averagePos.divide(count);
 				pivots.push({
 					pos: averagePos,
 					rot: Quat.identity,
+					entities,
 				});
 				return pivots;
 			}
@@ -451,10 +460,37 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			if (this.transformationSpace == "global") {
 				rot.set(Quat.identity);
 			}
-			pivots.push({pos, rot});
+			pivots.push({pos, rot, entities: [entity]});
 		}
 
 		return pivots;
+	}
+
+	/**
+	 * Moves the selected entities (that have a visible gizmo) based on the
+	 * current transformation settings.
+	 * @param {Mat4} localMatrix
+	 * @param {Mat4} globalMatrix
+	 */
+	dragSelectedEntities(localMatrix, globalMatrix) {
+		let matrix;
+		if (this.transformationSpace == "local") {
+			matrix = localMatrix;
+		} else if (this.transformationSpace == "global") {
+			matrix = globalMatrix;
+		} else {
+			throw new Error("Unknown transformation space: " + this.transformationSpace);
+		}
+
+		for (const {entities} of this.getEditingPivots()) {
+			for (const entity of entities) {
+				if (this.transformationSpace == "local") {
+					const newMatrix = entity.localMatrix;
+					newMatrix.multiplyMatrix(matrix);
+					entity.localMatrix = newMatrix;
+				}
+			}
+		}
 	}
 
 	updateGizmos() {

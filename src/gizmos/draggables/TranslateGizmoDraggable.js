@@ -2,12 +2,12 @@ import {Vec3} from "../../math/Vec3.js";
 import {GizmoDraggable} from "./GizmoDraggable.js";
 
 /**
- * @typedef GizmoDragMoveEvent
- * @property {Vec3} delta The change in world position since the last event.
+ * @typedef TranslateGizmoDragEvent
+ * @property {Vec3} worldDelta The change in world position since the last event.
  */
 
 /**
- * @extends {GizmoDraggable<GizmoDragMoveEvent>}
+ * @extends {GizmoDraggable<TranslateGizmoDragEvent>}
  */
 export class TranslateGizmoDraggable extends GizmoDraggable {
 	/**
@@ -66,9 +66,9 @@ export class TranslateGizmoDraggable extends GizmoDraggable {
 		const deltaWorldPos = newWorldPos.clone().sub(this.prevDragWorldPos);
 		this.prevDragWorldPos.set(newWorldPos);
 
-		/** @type {GizmoDragMoveEvent} */
+		/** @type {TranslateGizmoDragEvent} */
 		const moveEvent = {
-			delta: deltaWorldPos,
+			worldDelta: deltaWorldPos,
 		};
 		this.fireDragCallbacks(moveEvent);
 	}
