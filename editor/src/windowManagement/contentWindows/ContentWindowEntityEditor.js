@@ -7,6 +7,7 @@ import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAsset
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
 import {ButtonGroup} from "../../ui/ButtonGroup.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -49,16 +50,20 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.transformationPivot = "center";
 
 		this.transformationModeTranslateButton = new Button({
-			text: "Translate",
 			onClick: () => {
 				this.setTransformationMode("translate");
 			},
+			icon: "static/icons/entityEditor/translate.svg",
+			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+			tooltip: "Translate Mode",
 		});
 		this.transformationModeRotateButton = new Button({
-			text: "Rotate",
 			onClick: () => {
 				this.setTransformationMode("rotate");
 			},
+			icon: "static/icons/entityEditor/rotate.svg",
+			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+			tooltip: "Rotate Mode",
 		});
 
 		const translationMethodButtonGroup = new ButtonGroup(
@@ -71,15 +76,19 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			onClick: () => {
 				this.toggleTransformationSpace();
 			},
+			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+			tooltip: "Transformation Space",
 		});
-		this.addTopBarEl(this.transformationSpaceButton.el);
 
 		this.transformationPivotButton = new Button({
 			onClick: () => {
 				this.toggleTransformationPivot();
 			},
+			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+			tooltip: "Transformation Pivot",
 		});
-		this.addTopBarEl(this.transformationPivotButton.el);
+		const pivotControlsGroup = new ButtonGroup(this.transformationSpaceButton, this.transformationPivotButton);
+		this.addTopBarEl(pivotControlsGroup.el);
 
 		this.domTarget = this.editorInstance.renderer.createDomTarget();
 		const renderTargetElement = this.domTarget.getElement();
@@ -336,8 +345,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	updateTransformationSpaceButton() {
 		if (this.transformationSpace == "local") {
 			this.transformationSpaceButton.setText("Local");
+			this.transformationSpaceButton.setIcon("static/icons/entityEditor/local.svg");
 		} else if (this.transformationSpace == "global") {
 			this.transformationSpaceButton.setText("Global");
+			this.transformationSpaceButton.setIcon("static/icons/entityEditor/global.svg");
 		}
 	}
 
@@ -356,10 +367,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	updateTransformationPivotButton() {
 		if (this.transformationPivot == "center") {
 			this.transformationPivotButton.setText("Center");
+			this.transformationPivotButton.setIcon("static/icons/entityEditor/center.svg");
 		} else if (this.transformationPivot == "multiple") {
 			this.transformationPivotButton.setText("Multiple");
+			this.transformationPivotButton.setIcon("static/icons/entityEditor/multiple.svg");
 		} else if (this.transformationPivot == "last") {
 			this.transformationPivotButton.setText("Last");
+			this.transformationPivotButton.setIcon("static/icons/entityEditor/last.svg");
 		}
 	}
 
