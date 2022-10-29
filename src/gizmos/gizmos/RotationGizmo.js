@@ -64,6 +64,8 @@ export class RotationGizmo extends Gizmo {
 			colorInstance: this.zCircleColor,
 			defaultColor: blueColor,
 		});
+
+		this.updateAssets();
 	}
 
 	destructor() {
