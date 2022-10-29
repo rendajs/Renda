@@ -508,6 +508,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					newMatrix.multiplyMatrix(matrix);
 					entity.localMatrix = newMatrix;
 				}
+				this.notifyEntityChanged(entity, "transform");
 			}
 		}
 	}
