@@ -137,6 +137,9 @@ export class CameraComponent extends Component {
 	}
 
 	/**
+	 * Converts given world coordinates to screen coordinates and returns a new vector.
+	 * Screen coordinates are in the range [0, 1] with y axis down.
+	 * The returned z component will be the distance from the camera.
 	 * @param {import("../../math/Vec3.js").Vec3} worldPos
 	 */
 	worldToScreenPos(worldPos) {

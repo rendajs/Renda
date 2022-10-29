@@ -23,10 +23,6 @@ export class RotateAxisGizmoDraggable extends GizmoDraggable {
 		 * The axis that the draggable will be rotated around.
 		 */
 		this.axis = Vec3.right;
-		/**
-		 * The pivot that the draggable will be rotated around.
-		 */
-		this.pivot = new Vec3();
 
 		/** @private @type {Vec2?} */
 		this._dragStartScreenPivot = null;
@@ -39,7 +35,7 @@ export class RotateAxisGizmoDraggable extends GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerEventData} eventData
 	 */
 	handlePointerDown(pointerDevice, eventData) {
-		this._dragStartScreenPivot = eventData.camera.worldToScreenPos(this.pivot).toVec2();
+		this._dragStartScreenPivot = eventData.camera.worldToScreenPos(this.entity.worldPos).toVec2();
 		this._prevAngle = this._get2dAngle(eventData.screenPos);
 	}
 
