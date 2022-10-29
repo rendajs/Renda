@@ -423,10 +423,15 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		/** @type {PivotData[]} */
 		const pivots = [];
+		let forceLast = false;
 
 		if (this.transformationPivot == "center") {
 			if (this.selectionGroup.currentSelectedObjects.length == 0) {
 				return pivots;
+			} else if (this.selectionGroup.currentSelectedObjects.length == 1) {
+				// If only one item is selected, we want to use the same behaviour
+				// as if the user had selected 'last'
+				forceLast = true;
 			} else {
 				const averagePos = new Vec3();
 				let count = 0;
@@ -451,7 +456,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		 * @type {Set<Entity>}
 		 */
 		const entities = new Set();
-		if (this.transformationPivot == "last") {
+		if (this.transformationPivot == "last" || forceLast) {
 			const last = this.selectionGroup.currentSelectedObjects.at(-1);
 			if (last) {
 				entities.add(last.entity);
