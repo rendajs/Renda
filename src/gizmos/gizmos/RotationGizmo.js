@@ -5,6 +5,17 @@ import {Gizmo} from "./Gizmo.js";
 import {MeshComponent} from "../../components/builtIn/MeshComponent.js";
 import {blueColor, greenColor, hoverColor, redColor} from "./colors.js";
 import {Sphere} from "../../math/shapes/Sphere.js";
+import {Quat} from "../../math/Quat.js";
+
+/**
+ * @typedef RotationGizmoDragEvent
+ * @property {import("../../math/Quat.js").Quat} localDelta
+ * @property {import("../../math/Quat.js").Quat} worldDelta
+ */
+
+/**
+ * @typedef {(event: RotationGizmoDragEvent) => void} RotationGizmoDragCallback
+ */
 
 export class RotationGizmo extends Gizmo {
 	/**
@@ -16,6 +27,9 @@ export class RotationGizmo extends Gizmo {
 		this.xCircleColor = new Vec3(redColor);
 		this.yCircleColor = new Vec3(greenColor);
 		this.zCircleColor = new Vec3(blueColor);
+
+		/** @type {Set<RotationGizmoDragCallback>} */
+		this.onDragCbs = new Set();
 
 		this.circleMesh = new Mesh();
 		this.circleMesh.setVertexState(this.gizmoManager.meshVertexState);
@@ -127,7 +141,7 @@ export class RotationGizmo extends Gizmo {
 		// circle to rotate around, and a [1,0,0] vector, since that is the
 		// direction of the mesh.
 		const rotationAxis = Vec3.right.cross(axis);
-		// if the axis in the right direction, there's no need to rotate the object.
+		// if the axis already in the right direction, there's no need to rotate the object.
 		if (rotationAxis.magnitude > 0) {
 			entity.rot.setFromAxisAngle(rotationAxis, Math.PI / 2);
 		}
@@ -148,8 +162,13 @@ export class RotationGizmo extends Gizmo {
 			this.gizmoNeedsRender();
 		});
 		draggable.onDrag(e => {
-			this.rot.preMultiply(e.delta);
+			this.rot.preMultiply(e.worldDelta);
 			this.gizmoNeedsRender();
+			const localDelta = Quat.fromAxisAngle(axis, e.localDelta);
+			this.onDragCbs.forEach(cb => cb({
+				localDelta,
+				worldDelta: e.worldDelta,
+			}));
 		});
 
 		draggable.entity.addComponent(MeshComponent);
@@ -157,5 +176,12 @@ export class RotationGizmo extends Gizmo {
 		this.createdCircles.push({
 			axis, meshComponent, draggable, colorInstance,
 		});
+	}
+
+	/**
+	 * @param {RotationGizmoDragCallback} cb
+	 */
+	onDrag(cb) {
+		this.onDragCbs.add(cb);
 	}
 }

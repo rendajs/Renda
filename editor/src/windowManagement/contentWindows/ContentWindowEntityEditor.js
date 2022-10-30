@@ -386,22 +386,26 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.activeTransformationGizmos = [];
 
-		for (const {pos, rot} of this.getEditingPivots()) {
+		for (const {matrix} of this.getEditingPivots()) {
 			let gizmo;
 			if (this.transformationMode == "translate") {
 				gizmo = this.gizmos.addGizmo(TranslationGizmo);
 				gizmo.onDrag(e => {
 					const localMatrix = Mat4.createTranslation(e.localDelta);
-					const worldMatrix = Mat4.createTranslation(e.worldDelta);
-					this.dragSelectedEntities(localMatrix, worldMatrix);
+					this.dragSelectedEntities(localMatrix);
 				});
 			} else if (this.transformationMode == "rotate") {
 				gizmo = this.gizmos.addGizmo(RotationGizmo);
+				gizmo.onDrag(e => {
+					const localMatrix = e.localDelta.toMat4();
+					this.dragSelectedEntities(localMatrix);
+				});
 			} else {
 				throw new Error("Unknown transformation mode");
 			}
 			this.activeTransformationGizmos.push({gizmo});
 
+			const {pos, rot} = matrix.decompose();
 			gizmo.pos = pos;
 			gizmo.rot = rot;
 		}
@@ -416,8 +420,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	getEditingPivots() {
 		/**
 		 * @typedef PivotData
-		 * @property {Vec3} pos
-		 * @property {Quat} rot
+		 * @property {Mat4} matrix
 		 * @property {Entity[]} entities The entities that should be transformed when dragging a gizmo.
 		 */
 
@@ -443,8 +446,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				}
 				averagePos.divide(count);
 				pivots.push({
-					pos: averagePos,
-					rot: Quat.identity,
+					matrix: Mat4.createTranslation(averagePos),
 					entities,
 				});
 				return pivots;
@@ -456,12 +458,17 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		 * @param {Entity[]} entities List of entities that will be using this pivot.
 		 */
 		const createPivotData = (entity, entities) => {
-			const {pos, rot} = entity.worldMatrix.decompose();
+			let matrix;
 			if (this.transformationSpace == "global") {
-				rot.set(Quat.identity);
+				matrix = Mat4.createTranslation(entity.worldPos);
+			} else if (this.transformationSpace == "local") {
+				matrix = entity.worldMatrix;
+				matrix.premultiplyMatrix(Mat4.createScale(matrix.getScale()).invert());
+			} else {
+				throw new Error(`Unknown transformation space: "${this.transformationSpace}"`);
 			}
 			/** @type {PivotData} */
-			const pivotData = {pos, rot, entities};
+			const pivotData = {matrix, entities};
 			return pivotData;
 		};
 
@@ -496,36 +503,16 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	/**
 	 * Moves the selected entities (that have a visible gizmo) based on the
 	 * current transformation settings.
-	 * @param {Mat4} localMatrix
-	 * @param {Mat4} globalMatrix
+	 * @param {Mat4} dragMatrix
 	 */
-	dragSelectedEntities(localMatrix, globalMatrix) {
-		const useLocal = this.transformationSpace == "local" && this.transformationPivot == "multiple";
-		let matrix;
-		if (useLocal) {
-			matrix = localMatrix;
-		} else {
-			matrix = globalMatrix;
-		}
-
-		for (const {entities} of this.getEditingPivots()) {
+	dragSelectedEntities(dragMatrix) {
+		for (const {matrix: pivotMatrix, entities} of this.getEditingPivots()) {
+			const pivotDragMatrix = Mat4.multiplyMatrices(dragMatrix, pivotMatrix);
+			pivotDragMatrix.premultiplyMatrix(pivotMatrix.inverse());
 			for (const entity of entities) {
-				if (useLocal) {
-					const newMatrix = entity.localMatrix;
-					const scale = newMatrix.getScale();
-					const scaleMatrix = Mat4.createScale(scale);
-					// remove the scale part of the existing matrix
-					newMatrix.premultiplyMatrix(scaleMatrix.inverse());
-					newMatrix.premultiplyMatrix(matrix);
-
-					// apply the scale again
-					newMatrix.premultiplyMatrix(scaleMatrix);
-					entity.localMatrix = newMatrix;
-				} else {
-					const newMatrix = entity.worldMatrix;
-					newMatrix.multiplyMatrix(matrix);
-					entity.worldMatrix = newMatrix;
-				}
+				const newEntityMatrix = entity.worldMatrix;
+				newEntityMatrix.multiplyMatrix(pivotDragMatrix);
+				entity.worldMatrix = newEntityMatrix;
 				this.notifyEntityChanged(entity, "transform");
 			}
 		}
