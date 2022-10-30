@@ -170,7 +170,7 @@ export class Mat4 {
 		let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
 		if (!det) {
-			return null;
+			return this;
 		}
 		det = 1.0 / det;
 
@@ -481,6 +481,52 @@ export class Mat4 {
 	}
 
 	/**
+	 * Multiplies two matrices and returns a new instance with the result.
+	 * The order of the two matrices is important.
+	 * To make a mental model of what multiplying two matrices will result in,
+	 * you can imagine the first parameter being the matrix of a child entity,
+	 * and the second parameter being the matrix of a parent entity. The returned
+	 * result will be the transformation of the child.
+	 *
+	 * For instance, say you have matrixA which contains a translation, and matrixB
+	 * which contains a rotation. And then you perform `multiplyMatrices(matrixA, matrixB)`,
+	 * it will be as if a point in space is translated first, and then rotated around the world center.
+	 *
+	 * matrixA:
+	 * ```none
+	 *  |
+	 *  * translation
+	 *  ^
+	 *  |
+	 *  |
+	 *  +---------
+	 * ```
+	 *
+	 * matrixB:
+	 * ```none
+	 *  |
+	 *  | --_
+	 *  |    `.  rotation
+	 *  |      \
+	 *  |      V
+	 *  +------*--
+	 * ```
+	 *
+	 * result:
+	 * ```none
+	 *  |
+	 *  |
+	 *  |
+	 *  |
+	 *  |     result
+	 *  +-------*---
+	 * ```
+	 *
+	 * In this case we are transforming a point using two steps (2 matrices). But
+	 * if you want to use the mental model of parent and child entities, you need
+	 * to reverse these two steps. So in the example above, the parent would
+	 * be matrixB, and the child matrixA.
+	 *
 	 * @param {Mat4} a1
 	 * @param {Mat4} a2
 	 */
@@ -529,6 +575,8 @@ export class Mat4 {
 
 	/**
 	 * Multiplies the provided with this matrix one and changes the value of this instance.
+	 * This is similar to {@linkcode multiplyMatrix} except that the order of the matrices is different.
+	 * For more info about the order of matrix multiplications see {@linkcode multiplyMatrices}.
 	 * @param {Mat4} otherMatrix
 	 */
 	premultiplyMatrix(otherMatrix) {
