@@ -413,7 +413,7 @@ export class Mat4 {
 	/**
 	 * @param  {import("./Vec3.js").Vec3Parameters} args
 	 */
-	 static createScale(...args) {
+	static createScale(...args) {
 		const v = new Vec3(...args);
 		return new Mat4([
 			[v.x, 0, 0, 0],
@@ -421,7 +421,7 @@ export class Mat4 {
 			[0, 0, v.z, 0],
 			[0, 0, 0, 1],
 		]);
-	 }
+	}
 
 	/**
 	 * @param {Vec3} pos
