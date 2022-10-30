@@ -1,4 +1,5 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {Entity, TranslationGizmo, Vec3} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 import {createFakeGizmoManager} from "../shared.js";
@@ -174,9 +175,14 @@ Deno.test({
 });
 
 Deno.test({
-	name: "dragging the center draggable updates the gizmo position",
+	name: "dragging the center draggable updates the gizmo position and fires callbacks",
 	fn() {
 		const {translationGizmo, createdDraggables} = basicSetup();
+
+		/** @type {import("../../../../../src/gizmos/gizmos/TranslationGizmo.js").TranslationGizmoDragCallback} */
+		const cb = e => {};
+		const cbSpy = spy(cb);
+		translationGizmo.onDrag(cbSpy);
 
 		/** @type {import("../shared.js").FakeGizmoDraggable<import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").TranslateGizmoDragEvent>} */
 		const centerDraggable = createdDraggables[0];
@@ -188,17 +194,23 @@ Deno.test({
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [0, 1, 0]);
+		assertSpyCalls(cbSpy, 1);
+		assertVecAlmostEquals(cbSpy.calls[0].args[0].localDelta, [0, 1, 0]);
+		assertVecAlmostEquals(cbSpy.calls[0].args[0].worldDelta, [0, 1, 0]);
 
 		centerDraggable.fireOnDrag({
 			worldDelta: new Vec3(0, 0, 1),
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [0, 1, 1]);
+		assertSpyCalls(cbSpy, 2);
+		assertVecAlmostEquals(cbSpy.calls[1].args[0].localDelta, [0, 0, 1]);
+		assertVecAlmostEquals(cbSpy.calls[1].args[0].worldDelta, [0, 0, 1]);
 	},
 });
 
 Deno.test({
-	name: "dragging the axis draggables updates the gizmo position",
+	name: "dragging the axis draggables updates the gizmo position and fires callbacks",
 	fn() {
 		const {translationGizmo, createdDraggables} = basicSetup();
 
@@ -209,6 +221,11 @@ Deno.test({
 		/** @type {import("../shared.js").FakeGizmoDraggable<import("../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js").TranslateAxisGizmoDragEvent>} */
 		const zDraggable = createdDraggables[3];
 
+		/** @type {import("../../../../../src/gizmos/gizmos/TranslationGizmo.js").TranslationGizmoDragCallback} */
+		const cb = e => {};
+		const cbSpy = spy(cb);
+		translationGizmo.onDrag(cbSpy);
+
 		assertVecAlmostEquals(translationGizmo.pos, [0, 0, 0]);
 
 		xDraggable.fireOnDrag({
@@ -217,6 +234,9 @@ Deno.test({
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [1, 0, 0]);
+		assertSpyCalls(cbSpy, 1);
+		assertVecAlmostEquals(cbSpy.calls[0].args[0].localDelta, [1, 0, 0]);
+		assertVecAlmostEquals(cbSpy.calls[0].args[0].worldDelta, [1, 0, 0]);
 
 		yDraggable.fireOnDrag({
 			localDelta: 1,
@@ -224,6 +244,9 @@ Deno.test({
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [1, 1, 0]);
+		assertSpyCalls(cbSpy, 2);
+		assertVecAlmostEquals(cbSpy.calls[1].args[0].localDelta, [0, 1, 0]);
+		assertVecAlmostEquals(cbSpy.calls[1].args[0].worldDelta, [0, 1, 0]);
 
 		zDraggable.fireOnDrag({
 			localDelta: 1,
@@ -231,6 +254,9 @@ Deno.test({
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [1, 1, 1]);
+		assertSpyCalls(cbSpy, 3);
+		assertVecAlmostEquals(cbSpy.calls[2].args[0].localDelta, [0, 0, 1]);
+		assertVecAlmostEquals(cbSpy.calls[2].args[0].worldDelta, [0, 0, 1]);
 	},
 });
 
