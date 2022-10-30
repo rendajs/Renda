@@ -514,6 +514,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					// apply the scale again
 					newMatrix.premultiplyMatrix(scaleMatrix);
 					entity.localMatrix = newMatrix;
+				} else if (this.transformationSpace == "global") {
+					const newMatrix = entity.worldMatrix;
+					newMatrix.multiplyMatrix(matrix);
+					entity.worldMatrix = newMatrix;
 				}
 				this.notifyEntityChanged(entity, "transform");
 			}

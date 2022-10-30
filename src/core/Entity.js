@@ -406,6 +406,13 @@ export class Entity {
 		return this._worldMatrix.clone();
 	}
 
+	set worldMatrix(value) {
+		const {pos, rot, scale} = value.decompose();
+		this._worldPos.set(pos);
+		this._worldRot.set(rot);
+		this._worldScale.set(scale);
+	}
+
 	/**
 	 * Marks the local matrix as dirty on this entity and the world matrix of all it's children.
 	 * @private
