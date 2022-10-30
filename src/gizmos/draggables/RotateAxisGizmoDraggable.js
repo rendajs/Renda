@@ -4,7 +4,7 @@ import {GizmoDraggable} from "./GizmoDraggable.js";
 import {Quat} from "../../math/Quat.js";
 
 /**
- * @typedef GizmoDragMoveEvent
+ * @typedef RotateAxisGizmoDragEvent
  * @property {number} localDelta The changed angle in radians since the last position.
  * Negative when moved in the opposite direction of the provided axis.
  * @property {Quat} worldDelta The change in world rotation since the last event.
@@ -12,7 +12,7 @@ import {Quat} from "../../math/Quat.js";
 
 /**
  * A draggable that can be rotated along a single axis.
- * @extends {GizmoDraggable<GizmoDragMoveEvent>}
+ * @extends {GizmoDraggable<RotateAxisGizmoDragEvent>}
  */
 export class RotateAxisGizmoDraggable extends GizmoDraggable {
 	/**
@@ -71,7 +71,7 @@ export class RotateAxisGizmoDraggable extends GizmoDraggable {
 		const deltaWorldRot = new Quat();
 		deltaWorldRot.setFromAxisAngle(worldAxis, deltaAngle);
 
-		/** @type {GizmoDragMoveEvent} */
+		/** @type {RotateAxisGizmoDragEvent} */
 		const moveEvent = {
 			localDelta: deltaAngle,
 			worldDelta: deltaWorldRot,
