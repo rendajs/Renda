@@ -23,6 +23,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	/**
 	 * @typedef TransformationGizmoData
+	 * @property {Entity[]} entities The list of entities that the gizmo is controlling
 	 * @property {TranslationGizmo | RotationGizmo} gizmo
 	 */
 
@@ -381,33 +382,65 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * Updates the amount and locations of gizmos used for moving objects.
 	 */
 	updateTransformationGizmos() {
-		for (const {gizmo} of this.activeTransformationGizmos) {
-			this.gizmos.removeGizmo(gizmo);
-		}
+		const oldTransformationGizmos = new Set(this.activeTransformationGizmos);
 		this.activeTransformationGizmos = [];
 
-		for (const {matrix} of this.getEditingPivots()) {
-			let gizmo;
-			if (this.transformationMode == "translate") {
-				gizmo = this.gizmos.addGizmo(TranslationGizmo);
-				gizmo.onDrag(e => {
-					const localMatrix = Mat4.createTranslation(e.localDelta);
-					this.dragSelectedEntities(localMatrix);
-				});
-			} else if (this.transformationMode == "rotate") {
-				gizmo = this.gizmos.addGizmo(RotationGizmo);
-				gizmo.onDrag(e => {
-					const localMatrix = e.localDelta.toMat4();
-					this.dragSelectedEntities(localMatrix);
-				});
+		/**
+		 * @param {TransformationMode} gizmoType
+		 * @param {Entity[]} entities
+		 */
+		const findExistingGizmo = (gizmoType, entities) => {
+			let expectedType;
+			if (gizmoType == "translate") {
+				expectedType = TranslationGizmo;
+			} else if (gizmoType == "rotate") {
+				expectedType = RotationGizmo;
 			} else {
 				throw new Error("Unknown transformation mode");
 			}
-			this.activeTransformationGizmos.push({gizmo});
+			for (const oldGizmoData of oldTransformationGizmos) {
+				const {gizmo, entities: gizmoEntities} = oldGizmoData;
+				const castConstructor = /** @type {typeof TranslationGizmo | typeof RotationGizmo} */ (gizmo.constructor);
+				if (castConstructor != expectedType) continue;
+				for (const entity of entities) {
+					if (!gizmoEntities.includes(entity)) continue;
+				}
+				for (const entity of gizmoEntities) {
+					if (!entities.includes(entity)) continue;
+				}
+				oldTransformationGizmos.delete(oldGizmoData);
+				return gizmo;
+			}
+			return null;
+		};
+
+		for (const {matrix, entities} of this.getEditingPivots()) {
+			let gizmo = findExistingGizmo(this.transformationMode, entities);
+			if (!gizmo) {
+				if (this.transformationMode == "translate") {
+					gizmo = this.gizmos.addGizmo(TranslationGizmo);
+					gizmo.onDrag(e => {
+						const localMatrix = Mat4.createTranslation(e.localDelta);
+						this.dragSelectedEntities(localMatrix);
+					});
+				} else if (this.transformationMode == "rotate") {
+					gizmo = this.gizmos.addGizmo(RotationGizmo);
+					gizmo.onDrag(e => {
+						const localMatrix = e.localDelta.toMat4();
+						this.dragSelectedEntities(localMatrix);
+					});
+				} else {
+					throw new Error("Unknown transformation mode");
+				}
+			}
+			this.activeTransformationGizmos.push({gizmo, entities});
 
 			const {pos, rot} = matrix.decompose();
 			gizmo.pos = pos;
 			gizmo.rot = rot;
+		}
+		for (const {gizmo} of oldTransformationGizmos.values()) {
+			this.gizmos.removeGizmo(gizmo);
 		}
 		this.markRenderDirty();
 	}
@@ -683,6 +716,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		if (type == "transform") {
 			this.updateGizmoPositionsForEntity(entity);
+			this.updateTransformationGizmos();
 		} else if (type == "component" || type == "componentProperty") {
 			this.updateGizmosForEntity(entity);
 		} else if (type == "delete") {
