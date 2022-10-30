@@ -392,7 +392,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				gizmo = this.gizmos.addGizmo(TranslationGizmo);
 				gizmo.onDrag(e => {
 					const localMatrix = Mat4.createTranslation(e.localDelta);
-					const worldMatrix = Mat4.createTranslation(e.localDelta);
+					const worldMatrix = Mat4.createTranslation(e.worldDelta);
 					this.dragSelectedEntities(localMatrix, worldMatrix);
 				});
 			} else if (this.transformationMode == "rotate") {
@@ -505,7 +505,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			for (const entity of entities) {
 				if (this.transformationSpace == "local") {
 					const newMatrix = entity.localMatrix;
-					newMatrix.multiplyMatrix(matrix);
+					const scale = newMatrix.getScale();
+					const scaleMatrix = Mat4.createScale(scale);
+					// remove the scale part of the existing matrix
+					newMatrix.premultiplyMatrix(scaleMatrix.inverse());
+					newMatrix.premultiplyMatrix(matrix);
+
+					// apply the scale again
+					newMatrix.premultiplyMatrix(scaleMatrix);
 					entity.localMatrix = newMatrix;
 				}
 				this.notifyEntityChanged(entity, "transform");

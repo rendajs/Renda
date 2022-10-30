@@ -20,6 +20,11 @@ export class TranslateAxisGizmoDraggable extends GizmoDraggable {
 	constructor(...args) {
 		super(...args);
 
+		/**
+		 * The local axis in which direction the draggable can be dragged.
+		 * Since this is local, this means that if the gizmo of the draggable is
+		 * rotated, the axis in word space is changed as well.
+		 */
 		this.axis = Vec3.right;
 
 		/** @private @type {Vec3?} */
@@ -61,9 +66,19 @@ export class TranslateAxisGizmoDraggable extends GizmoDraggable {
 	handlePointerMove(pointerDevice, eventData) {
 		if (!this.dragStartScreenPos || !this.dragStartScreenPosPointer || !this.dragStartWorldPos) return;
 
-		const axisPosWorldA = this.dragStartWorldPos.clone();
-		const axisPosWorldB = axisPosWorldA.clone().add(this.axis);
+		/**
+		 * A direction vector pointing in the direction in which the
+		 * draggable can be dragged.
+		 */
+		let axisWorld = this.axis.clone();
+		axisWorld = this.entity.worldRot.rotateVector(axisWorld);
 
+		// First we create two points on the axis line that intersects with the
+		// point where the user started dragging.
+		const axisPosWorldA = this.dragStartWorldPos.clone();
+		const axisPosWorldB = axisPosWorldA.clone().add(axisWorld);
+
+		// Then we convert these two points to screen space.
 		const axisPosScreenA = eventData.camera.worldToScreenPos(axisPosWorldA).toVec2();
 		const axisPosScreenB = eventData.camera.worldToScreenPos(axisPosWorldB).toVec2();
 
@@ -78,14 +93,14 @@ export class TranslateAxisGizmoDraggable extends GizmoDraggable {
 		const newScreenPos = this.dragStartScreenPos.clone().add(deltaMoveScreen);
 		const ray = eventData.camera.getRaycastRayFromScreenPos(newScreenPos);
 
-		const newWorldPos = closestPointBetweenLines(this.dragStartWorldPos, this.axis, ray.start, ray.dir);
+		const newWorldPos = closestPointBetweenLines(this.dragStartWorldPos, axisWorld, ray.start, ray.dir);
 
 		/** The change in world position since the last event. */
 		const deltaWorldPos = newWorldPos.clone().sub(this.prevDragWorldPos);
 		this.prevDragWorldPos.set(newWorldPos);
 
 		let localDelta = deltaWorldPos.magnitude;
-		if (deltaWorldPos.dot(this.axis) < 0) {
+		if (deltaWorldPos.dot(axisWorld) < 0) {
 			localDelta *= -1;
 		}
 

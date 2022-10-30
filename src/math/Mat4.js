@@ -143,8 +143,11 @@ export class Mat4 {
 		return new Mat4(this);
 	}
 
-	// github.com/toji/gl-matrix/blob/6866ae93d19bbff032139941cbfe0ae68c4cdead/src/gl-matrix/mat4.js#L256
+	/**
+	 * Inverts this matrix without creating a new instance.
+	 */
 	invert() {
+		// github.com/toji/gl-matrix/blob/6866ae93d19bbff032139941cbfe0ae68c4cdead/src/gl-matrix/mat4.js#L256
 		const a00 = this.values[0][0]; const a01 = this.values[0][1]; const a02 = this.values[0][2]; const a03 = this.values[0][3];
 		const a10 = this.values[1][0]; const a11 = this.values[1][1]; const a12 = this.values[1][2]; const a13 = this.values[1][3];
 		const a20 = this.values[2][0]; const a21 = this.values[2][1]; const a22 = this.values[2][2]; const a23 = this.values[2][3];
@@ -191,6 +194,9 @@ export class Mat4 {
 		return this;
 	}
 
+	/**
+	 * Creates and returns a new matrix that is the inverse of this matrix.
+	 */
 	inverse() {
 		const mat = new Mat4(this);
 		mat.invert();
@@ -405,6 +411,19 @@ export class Mat4 {
 	}
 
 	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
+	 static createScale(...args) {
+		const v = new Vec3(...args);
+		return new Mat4([
+			[v.x, 0, 0, 0],
+			[0, v.y, 0, 0],
+			[0, 0, v.z, 0],
+			[0, 0, 0, 1],
+		]);
+	 }
+
+	/**
 	 * @param {Vec3} pos
 	 * @param {Quat} rot
 	 * @param {Vec3} scale
@@ -498,12 +517,25 @@ export class Mat4 {
 	}
 
 	/**
+	 * Multiplies this matrix with the provided one and changes the value of this instance.
 	 * @param {Mat4} otherMatrix
 	 */
 	multiplyMatrix(otherMatrix) {
 		const newMat = Mat4.multiplyMatrices(this, otherMatrix);
 		this.values = newMat.values;
 		this.markFlatArrayBuffersDirty();
+		return this;
+	}
+
+	/**
+	 * Multiplies the provided with this matrix one and changes the value of this instance.
+	 * @param {Mat4} otherMatrix
+	 */
+	premultiplyMatrix(otherMatrix) {
+		const newMat = Mat4.multiplyMatrices(otherMatrix, this);
+		this.values = newMat.values;
+		this.markFlatArrayBuffersDirty();
+		return this;
 	}
 
 	/**
