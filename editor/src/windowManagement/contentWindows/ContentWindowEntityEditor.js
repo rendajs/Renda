@@ -452,16 +452,28 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 
 		/**
-		 * List of entities that needs a pivot.
-		 * @type {Set<Entity>}
+		 * @param {Entity} entity The entity to derive the pivot pos and rot from.
+		 * @param {Entity[]} entities List of entities that will be using this pivot.
 		 */
-		const entities = new Set();
+		const createPivotData = (entity, entities) => {
+			const {pos, rot} = entity.worldMatrix.decompose();
+			if (this.transformationSpace == "global") {
+				rot.set(Quat.identity);
+			}
+			/** @type {PivotData} */
+			const pivotData = {pos, rot, entities};
+			return pivotData;
+		};
+
 		if (this.transformationPivot == "last" || forceLast) {
 			const last = this.selectionGroup.currentSelectedObjects.at(-1);
 			if (last) {
-				entities.add(last.entity);
+				const entities = this.selectionGroup.currentSelectedObjects.map(s => s.entity);
+				pivots.push(createPivotData(last.entity, entities));
 			}
 		} else if (this.transformationPivot == "multiple") {
+			/** @type {Set<Entity>} */
+			const entities = new Set();
 			for (const {entity} of this.selectionGroup.currentSelectedObjects) {
 				entities.add(entity);
 			}
@@ -472,14 +484,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					}
 				}
 			}
-		}
 
-		for (const entity of entities) {
-			const {pos, rot} = entity.worldMatrix.decompose();
-			if (this.transformationSpace == "global") {
-				rot.set(Quat.identity);
+			for (const entity of entities) {
+				pivots.push(createPivotData(entity, [entity]));
 			}
-			pivots.push({pos, rot, entities: [entity]});
 		}
 
 		return pivots;
@@ -492,18 +500,17 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {Mat4} globalMatrix
 	 */
 	dragSelectedEntities(localMatrix, globalMatrix) {
+		const useLocal = this.transformationSpace == "local" && this.transformationPivot == "multiple";
 		let matrix;
-		if (this.transformationSpace == "local") {
+		if (useLocal) {
 			matrix = localMatrix;
-		} else if (this.transformationSpace == "global") {
-			matrix = globalMatrix;
 		} else {
-			throw new Error("Unknown transformation space: " + this.transformationSpace);
+			matrix = globalMatrix;
 		}
 
 		for (const {entities} of this.getEditingPivots()) {
 			for (const entity of entities) {
-				if (this.transformationSpace == "local") {
+				if (useLocal) {
 					const newMatrix = entity.localMatrix;
 					const scale = newMatrix.getScale();
 					const scaleMatrix = Mat4.createScale(scale);
@@ -514,7 +521,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 					// apply the scale again
 					newMatrix.premultiplyMatrix(scaleMatrix);
 					entity.localMatrix = newMatrix;
-				} else if (this.transformationSpace == "global") {
+				} else {
 					const newMatrix = entity.worldMatrix;
 					newMatrix.multiplyMatrix(matrix);
 					entity.worldMatrix = newMatrix;
