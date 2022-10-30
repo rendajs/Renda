@@ -172,3 +172,37 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "promises are resolved in the correct order",
+	async fn() {
+		await runOnceMatrix(async ({instance, resolvePromise}) => {
+			/** @type {number[]} */
+			const order = [];
+			const promise1 = instance.run("run1");
+			const promise2 = instance.run("run2");
+			const promise3 = instance.run("run3");
+
+			(async () => {
+				await promise1;
+				order.push(1);
+			})();
+			(async () => {
+				await promise2;
+				order.push(2);
+			})();
+			(async () => {
+				await promise3;
+				order.push(3);
+			})();
+
+			resolvePromise("1");
+			resolvePromise("2");
+			resolvePromise("3");
+			await promise1;
+			await promise2;
+			await promise3;
+			assertEquals(order, [1, 2, 3]);
+		});
+	},
+});
