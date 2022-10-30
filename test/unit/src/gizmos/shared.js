@@ -47,58 +47,61 @@ export function initBasicSetup() {
 	return {manager, draggable, cam};
 }
 
+/**
+ * @template [TDragEvent = unknown]
+ */
+export class FakeGizmoDraggable {
+	/** @typedef {import("../../../../src/gizmos/draggables/GizmoDraggable.js").OnIsHoveringChangeCb} OnIsHoveringChangeCb */
+	/** @typedef {(event: TDragEvent) => void} OnDragCallback */
+
+	/**
+	 * @param {string} type
+	 */
+	constructor(type) {
+		this.type = type;
+		/** @type {Set<OnIsHoveringChangeCb>} */
+		this.onIsHoveringChangeCbs = new Set();
+		/** @type {Set<OnDragCallback>} */
+		this.onDragCbs = new Set();
+
+		this.axis = new Vec3();
+		this.entity = new Entity();
+	}
+
+	addRaycastShape() {}
+
+	/**
+	 * @param {OnIsHoveringChangeCb} cb
+	 */
+	onIsHoveringChange(cb) {
+		this.onIsHoveringChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {boolean} isHovering
+	 */
+	fireIsHoveringChange(isHovering) {
+		this.onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
+	}
+
+	/**
+	 * @param {OnDragCallback} cb
+	 */
+	onDrag(cb) {
+		this.onDragCbs.add(cb);
+	}
+
+	/**
+	 * @param {TDragEvent} event
+	 */
+	fireOnDrag(event) {
+		this.onDragCbs.forEach(cb => cb(event));
+	}
+}
+
 export function createFakeGizmoManager({
 	initEngineAssets = true,
 } = {}) {
-	/** @typedef {import("../../../../src/gizmos/draggables/GizmoDraggable.js").OnIsHoveringChangeCb} OnIsHoveringChangeCb */
-	/** @typedef {(event: unknown) => void} OnDragCallback */
-
-	class FakeGizmoDraggable {
-		/**
-		 * @param {string} type
-		 */
-		constructor(type) {
-			this.type = type;
-			/** @type {Set<OnIsHoveringChangeCb>} */
-			this.onIsHoveringChangeCbs = new Set();
-			/** @type {Set<OnDragCallback>} */
-			this.onDragCbs = new Set();
-
-			this.axis = new Vec3();
-			this.entity = new Entity();
-		}
-
-		addRaycastShape() {}
-
-		/**
-		 * @param {OnIsHoveringChangeCb} cb
-		 */
-		onIsHoveringChange(cb) {
-			this.onIsHoveringChangeCbs.add(cb);
-		}
-
-		/**
-		 * @param {boolean} isHovering
-		 */
-		fireIsHoveringChange(isHovering) {
-			this.onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
-		}
-
-		/**
-		 * @param {OnDragCallback} cb
-		 */
-		onDrag(cb) {
-			this.onDragCbs.add(cb);
-		}
-
-		/**
-		 * @param {unknown} event
-		 */
-		fireOnDrag(event) {
-			this.onDragCbs.forEach(cb => cb(event));
-		}
-	}
-
 	/** @type {import("../../../../src/mod.js").Gizmo[]} */
 	const needsRenderCalls = [];
 	/** @type {FakeGizmoDraggable[]} */
@@ -112,6 +115,7 @@ export function createFakeGizmoManager({
 			createdDraggables.push(mockDraggable);
 			return mockDraggable;
 		},
+		removeDraggable(draggable) {},
 		billboardVertexState: null,
 		meshVertexState: null,
 		billboardMaterial: null,

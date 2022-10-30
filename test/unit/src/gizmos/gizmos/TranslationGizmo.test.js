@@ -178,18 +178,19 @@ Deno.test({
 	fn() {
 		const {translationGizmo, createdDraggables} = basicSetup();
 
+		/** @type {import("../shared.js").FakeGizmoDraggable<import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").TranslateGizmoDragEvent>} */
 		const centerDraggable = createdDraggables[0];
 
 		assertVecAlmostEquals(translationGizmo.pos, [0, 0, 0]);
 
 		centerDraggable.fireOnDrag({
-			delta: new Vec3(0, 1, 0),
+			worldDelta: new Vec3(0, 1, 0),
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [0, 1, 0]);
 
 		centerDraggable.fireOnDrag({
-			delta: new Vec3(0, 0, 1),
+			worldDelta: new Vec3(0, 0, 1),
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [0, 1, 1]);
@@ -201,26 +202,32 @@ Deno.test({
 	fn() {
 		const {translationGizmo, createdDraggables} = basicSetup();
 
+		/** @type {import("../shared.js").FakeGizmoDraggable<import("../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js").TranslateAxisGizmoDragEvent>} */
 		const xDraggable = createdDraggables[1];
+		/** @type {import("../shared.js").FakeGizmoDraggable<import("../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js").TranslateAxisGizmoDragEvent>} */
 		const yDraggable = createdDraggables[2];
+		/** @type {import("../shared.js").FakeGizmoDraggable<import("../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js").TranslateAxisGizmoDragEvent>} */
 		const zDraggable = createdDraggables[3];
 
 		assertVecAlmostEquals(translationGizmo.pos, [0, 0, 0]);
 
 		xDraggable.fireOnDrag({
-			delta: xDraggable.axis.clone(),
+			localDelta: 1,
+			worldDelta: xDraggable.axis.clone(),
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [1, 0, 0]);
 
 		yDraggable.fireOnDrag({
-			delta: yDraggable.axis.clone(),
+			localDelta: 1,
+			worldDelta: yDraggable.axis.clone(),
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [1, 1, 0]);
 
 		zDraggable.fireOnDrag({
-			delta: zDraggable.axis.clone(),
+			localDelta: 1,
+			worldDelta: zDraggable.axis.clone(),
 		});
 
 		assertVecAlmostEquals(translationGizmo.pos, [1, 1, 1]);
