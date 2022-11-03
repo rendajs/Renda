@@ -3,9 +3,8 @@
 import {join} from "std/path/mod.ts";
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import puppeteer from "puppeteer";
-import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
 import {dev} from "./dev.js";
+import {PUPPETEER_NO_HEADLESS_ARG, SEPARATE_BROWSER_PROCESSES_ARG, installIfNotInstalled, launch} from "../test/e2e/shared/browser.js";
 
 await dev();
 
@@ -39,7 +38,10 @@ const SCRIPT_ARGS = [
 /**
  * Args that are passed to the tests themselves.
  */
-const APPLICATION_ARGS = ["--no-headless"];
+const APPLICATION_ARGS = [
+	PUPPETEER_NO_HEADLESS_ARG,
+	SEPARATE_BROWSER_PROCESSES_ARG,
+];
 
 /**
  * Arguments passed in from the command line that should be passed along to the
@@ -59,6 +61,9 @@ if (userProvidedArgs.length > 0 && !userProvidedArgs[0].startsWith("--")) {
 
 const needsUnitTests = !filteredTests || filteredTests.startsWith("test/unit");
 const needsE2eTests = !filteredTests || filteredTests.startsWith("test/e2e");
+
+/** Whether to start a new browser process for every e2e test */
+const separateBrowserProcesses = Deno.args.includes(SEPARATE_BROWSER_PROCESSES_ARG);
 
 let testServer = null;
 /** @type {string[]} */
@@ -82,27 +87,11 @@ if (needsE2eTests) {
 		headless = false;
 	}
 
-	const fetcher = puppeteer.createBrowserFetcher({
-		product: "chrome",
-	});
-	const revision = PUPPETEER_REVISIONS.chromium;
-	let revisionInfo = fetcher.revisionInfo(revision);
-	if (!revisionInfo.local) {
-		console.log(`Downloading chromium ${revision}...`);
-		revisionInfo = await fetcher.download(revision, (current, total) => {
-			if (current >= total) {
-				console.log("Installing chromium...");
-			}
-		});
-		console.log(`Downloaded and installed chromium revision ${revision}.`);
-	}
+	const executablePath = await installIfNotInstalled();
 
-	browser = await puppeteer.launch({
-		headless,
-		args: ["--enable-unsafe-webgpu"],
-		devtools: !headless,
-		executablePath: revisionInfo.executablePath,
-	});
+	if (!separateBrowserProcesses) {
+		browser = await launch({headless, executablePath});
+	}
 }
 
 let needsCoverage = Deno.args.includes("--coverage");
