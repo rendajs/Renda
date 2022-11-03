@@ -44,21 +44,31 @@ Deno.test({
 			},
 		});
 
-		// assert that the internal entity structure matches the visual outliner structure
-		const rootTreeView = await getOutlinerRootEntityTreeView(page);
-		const rootTreeViewRow = await waitFor(rootTreeView, ".treeViewRow");
-		await click(page, rootTreeViewRow);
-
-		const rootChildCount = await page.evaluate(() => {
-			return globalThis.editor?.selected.entity.childCount;
+		await testContext.step({
+			name: "Select root entity",
+			async fn() {
+				// assert that the internal entity structure matches the visual outliner structure
+				const rootTreeView = await getOutlinerRootEntityTreeView(page);
+				const rootTreeViewRow = await waitFor(rootTreeView, ".treeViewRow");
+				await click(page, rootTreeViewRow);
+			},
 		});
-		assertEquals(rootChildCount, 4);
 
-		const childChildCounts = await page.evaluate(() => {
-			const castEntity = /** @type {import("../../../../../../src/core/Entity.js").Entity?} */ (globalThis.editor?.selected.entity);
-			return castEntity?.children.map(child => child.childCount);
+		await testContext.step({
+			name: "Verify entity structure",
+			async fn() {
+				const rootChildCount = await page.evaluate(() => {
+					return globalThis.editor?.selected.entity.childCount;
+				});
+				assertEquals(rootChildCount, 4);
+
+				const childChildCounts = await page.evaluate(() => {
+					const castEntity = /** @type {import("../../../../../../src/core/Entity.js").Entity?} */ (globalThis.editor?.selected.entity);
+					return castEntity?.children.map(child => child.childCount);
+				});
+				assertEquals(childChildCounts, [0, 0, 0, 0]);
+			},
 		});
-		assertEquals(childChildCounts, [0, 0, 0, 0]);
 
 		await disconnect();
 	},
