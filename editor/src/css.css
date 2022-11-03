@@ -87,7 +87,7 @@ body, html{
 	user-select: none;
 	-webkit-user-select: none;
 	-webkit-touch-callout: none;
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: ui-sans-serif,system-ui,sans-serif;
 	background: var(--panel-borders-color);
 	color: var(--default-text-color);
 }
@@ -181,9 +181,15 @@ body, html{
 	grid-area: recent-list;
 }
 
-.project-selector-list-container > h2 {
-	font-weight: 100;
-	font-size: 25px;
+.project-selector-list-container > h4 {
+	font-size: 16px;
+	font-weight: 200;
+	margin: 0;
+	margin-top: 40px;
+}
+
+.project-selector-list {
+	margin: 0;
 }
 
 .project-selector-list > li {
