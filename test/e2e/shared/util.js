@@ -21,27 +21,6 @@ export async function waitFor(pageOrElement, selector, options = {}) {
 }
 
 /**
- * @typedef {NonNullable<Parameters<import("puppeteer").Page["waitForFunction"]>[1]>} PageFnOptions
- */
-
-/**
- * @deprecated use `{@linkcode waitFor}` instead.
- * Same as {@linkcode waitFor} but starts from a specific element.
- *
- * @param {import("puppeteer").Page} page
- * @param {import("puppeteer").ElementHandle} elementHandle
- * @param {string} selector
- * @param {PageFnOptions} [options]
- */
-export async function elementWaitForSelector(page, elementHandle, selector, options) {
-	const element = await page.waitForFunction((element, selector) => {
-		return element.querySelector(selector);
-	}, options, elementHandle, selector);
-	// We cast to ElementHandle because waitForFunction should never return null.
-	return /** @type {import("puppeteer").ElementHandle} */ (element);
-}
-
-/**
  * Utility function for turning a selector into a handle. Many functions take
  * both a selector or a handle, so this only turns the selector into a handle
  * if it's not already a handle.
