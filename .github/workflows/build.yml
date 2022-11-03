@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@e2f20e631ae6d7dd3b768f56a5d2af784dd54791
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7
         with:
           path: |
             deno_dir
@@ -26,7 +26,7 @@ jobs:
           restore-keys: ci-
 
       - name: Setup Deno
-        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
+        uses: denoland/setup-deno@9db7f66e8e16b5699a514448ce994936c63f0d54
         with:
           deno-version: ${{ env.DENO_VERSION }}
 
@@ -48,7 +48,7 @@ jobs:
           echo $PULL_REQUEST_NUMBER > pr.txt
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
         with:
           name: build
           path: |
