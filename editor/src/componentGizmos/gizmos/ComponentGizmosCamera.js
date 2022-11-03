@@ -22,6 +22,7 @@ export class ComponentGizmosCamera extends ComponentGizmos {
 
 	componentPropertyChanged() {
 		const cameraGizmo = this.createdGizmos[1];
+		this.component.updateProjectionMatrixIfEnabled();
 		cameraGizmo.setProjectionMatrix(this.component.projectionMatrix);
 
 		if (this.debugClusterBounds) {
