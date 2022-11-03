@@ -1116,9 +1116,17 @@ export class TreeView {
 	 */
 	onRowClick(e) {
 		if (this.selectable) {
+			let didRenameAction = false;
 			if (this.renameable && this.selected) {
 				const root = this.findRoot();
-				if (root.hasFocusWithin) {
+				let selectedMultiple = false;
+				for (const item of root.getSelectedItems()) {
+					if (item != this) {
+						selectedMultiple = true;
+						break;
+					}
+				}
+				if (!selectedMultiple && root.hasFocusWithin) {
 					const focusReceiveTimeAgo = performance.now() - root.focusWithinReceiveTime;
 					if (focusReceiveTimeAgo > 300) {
 						let wasFromRowBlur = false;
@@ -1127,11 +1135,13 @@ export class TreeView {
 							this.#lastTextFocusOutWasFromRow = false;
 						}
 						if (e.target == this.myNameEl || (this.name == "" && !wasFromRowBlur)) {
+							didRenameAction = true;
 							this.setTextFieldVisible(true);
 						}
 					}
 				}
-			} else {
+			}
+			if (!didRenameAction) {
 				/** @type {TreeViewSelectionChangeEvent} */
 				const changes = {
 					target: this,
