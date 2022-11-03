@@ -1,4 +1,9 @@
 import puppeteer from "puppeteer";
+import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
+
+export const SEPARATE_BROWSER_PROCESSES_ARG = "--separate-browser-processes";
+export const PUPPETEER_WS_ENDPOINT_ARG = "--puppeteer-ws-endpoint=";
+export const PUPPETEER_NO_HEADLESS_ARG = "--no-headless";
 
 function getMainPageUrl() {
 	const prefix = "--test-server-addr=";
@@ -29,6 +34,38 @@ globalThis.addEventListener("error", e => {
 	}
 });
 
+export async function installIfNotInstalled() {
+	const fetcher = puppeteer.createBrowserFetcher({
+		product: "chrome",
+	});
+	const revision = PUPPETEER_REVISIONS.chromium;
+	let revisionInfo = fetcher.revisionInfo(revision);
+	if (!revisionInfo.local) {
+		console.log(`Downloading chromium ${revision}...`);
+		revisionInfo = await fetcher.download(revision, (current, total) => {
+			if (current >= total) {
+				console.log("Installing chromium...");
+			}
+		});
+		console.log(`Downloaded and installed chromium revision ${revision}.`);
+	}
+	return revisionInfo.executablePath;
+}
+
+/**
+ * @param {Object} options
+ * @param {boolean} options.headless
+ * @param {string} options.executablePath
+ */
+export async function launch({headless, executablePath}) {
+	return await puppeteer.launch({
+		headless,
+		args: ["--enable-unsafe-webgpu"],
+		devtools: !headless,
+		executablePath,
+	});
+}
+
 /**
  * Connects to the browser instance created by the test runner and creates a new
  * incognito page.
@@ -36,27 +73,39 @@ globalThis.addEventListener("error", e => {
 export async function getContext(url = getMainPageUrl() + "/editor/") {
 	let wsEndpoint = null;
 	for (const arg of Deno.args) {
-		const argKey = "--puppeteer-ws-endpoint=";
-		if (arg.startsWith(argKey)) {
-			wsEndpoint = arg.slice(argKey.length);
+		if (arg.startsWith(PUPPETEER_WS_ENDPOINT_ARG)) {
+			wsEndpoint = arg.slice(PUPPETEER_WS_ENDPOINT_ARG.length);
 		}
 	}
-	if (!wsEndpoint) {
-		throw new Error("Failed to connect to browser, no ws endpoint provided");
+	const separateProcesses = Deno.args.includes(SEPARATE_BROWSER_PROCESSES_ARG);
+	let browser;
+	if (separateProcesses) {
+		const executablePath = await installIfNotInstalled();
+		const headless = !Deno.args.includes(PUPPETEER_NO_HEADLESS_ARG);
+		browser = await launch({headless, executablePath});
+	} else {
+		if (!wsEndpoint) {
+			throw new Error(`Failed to connect to browser, no ws endpoint provided. Either provide one using '${PUPPETEER_WS_ENDPOINT_ARG}' or use '${SEPARATE_BROWSER_PROCESSES_ARG}' to create a new browser process for every test.`);
+		}
+		browser = await puppeteer.connect({
+			browserWSEndpoint: wsEndpoint,
+		});
 	}
-	const browser = await puppeteer.connect({
-		browserWSEndpoint: wsEndpoint,
-	});
 
 	const context = await browser.createIncognitoBrowserContext();
 	const page = await context.newPage();
 	await page.goto(url);
+	const browserRef = browser;
 	return {
 		context,
 		page,
 		async disconnect() {
 			await page.close();
-			browser.disconnect();
+			if (separateProcesses) {
+				await browserRef.close();
+			} else {
+				browserRef.disconnect();
+			}
 		},
 	};
 }

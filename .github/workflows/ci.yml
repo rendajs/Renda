@@ -117,7 +117,7 @@ jobs:
           deno-version: ${{ env.DENO_VERSION }}
 
       - name: Run e2e tests
-        run: deno task test test/e2e
+        run: deno task test test/e2e --separate-browser-processes
 
   build:
     if: ${{ github.event_name != 'pull_request' }}
