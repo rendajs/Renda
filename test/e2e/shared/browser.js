@@ -58,7 +58,6 @@ export async function installIfNotInstalled() {
  * @param {string} options.executablePath
  */
 export async function launch({headless, executablePath}) {
-	console.log("launching new browser");
 	return await puppeteer.launch({
 		headless,
 		args: ["--enable-unsafe-webgpu"],
