@@ -142,6 +142,13 @@ export class GizmoManager {
 	}
 
 	/**
+	 * @param {import("./draggables/GizmoDraggable.js").GizmoDraggable} draggable
+	 */
+	removeDraggable(draggable) {
+		this.draggables.delete(draggable);
+	}
+
+	/**
 	 * @param {import("../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 * @param {import("../math/Vec3.js").Vec3Parameters} screenPos
 	 */

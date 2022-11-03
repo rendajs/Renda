@@ -1,8 +1,9 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {AssertionError, assertAlmostEquals, assertEquals} from "std/testing/asserts.ts";
 import {TranslateGizmoDraggable} from "../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js";
 import {TranslateAxisGizmoDraggable} from "../../../../../src/gizmos/draggables/TranslateAxisGizmoDraggable.js";
-import {Vec2} from "../../../../../src/mod.js";
-import {assertVecAlmostEquals} from "../../../shared/asserts.js";
+import {RotateAxisGizmoDraggable} from "../../../../../src/gizmos/draggables/RotateAxisGizmoDraggable.js";
+import {Quat, Vec2, Vec3} from "../../../../../src/mod.js";
+import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../shared/asserts.js";
 import {basicSetup} from "./shared.js";
 
 /**
@@ -14,6 +15,7 @@ import {basicSetup} from "./shared.js";
 const draggableTypes = [
 	TranslateGizmoDraggable,
 	TranslateAxisGizmoDraggable,
+	RotateAxisGizmoDraggable,
 ];
 
 Deno.test({
@@ -39,6 +41,28 @@ Deno.test({
 	},
 });
 
+/**
+ * @param {{worldDelta: Vec3 | Quat, localDelta?: number}[]} calls
+ * @param {string} draggableName
+ */
+function assertSingleUnmovedCall(calls, draggableName) {
+	assertEquals(calls.length, 1, `onDrag callback wasn't called for ${draggableName}`);
+
+	const worldDelta = calls[0].worldDelta;
+	if (worldDelta instanceof Vec3) {
+		assertVecAlmostEquals(worldDelta, [0, 0, 0]);
+	} else if (worldDelta instanceof Quat) {
+		assertQuatAlmostEquals(worldDelta, Quat.identity);
+	} else {
+		throw new AssertionError(`Expected worldDelta for ${draggableName} to either be a Vec3 or a Quat`);
+	}
+
+	const localDelta = calls[0].localDelta;
+	if (localDelta != undefined) {
+		assertAlmostEquals(localDelta, 0);
+	}
+}
+
 Deno.test({
 	name: "move event without movement",
 	fn() {
@@ -46,7 +70,7 @@ Deno.test({
 
 		for (const Draggable of draggableTypes) {
 			const draggable = new Draggable(mockGizmoManager);
-			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
+			/** @type {{worldDelta: Vec3 | Quat, localDelta?: number}[]} */
 			const calls = [];
 			draggable.onDrag(event => {
 				calls.push(event);
@@ -61,8 +85,7 @@ Deno.test({
 				screenPos: new Vec2(0.5, 0.5),
 			});
 
-			assertEquals(calls.length, 1, `onDrag callback wasn't called for ${Draggable.name}`);
-			assertVecAlmostEquals(calls[0].delta, [0, 0, 0]);
+			assertSingleUnmovedCall(calls, Draggable.name);
 		}
 	},
 });
@@ -74,7 +97,7 @@ Deno.test({
 
 		for (const Draggable of draggableTypes) {
 			const draggable = new TranslateGizmoDraggable(mockGizmoManager);
-			/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
+			/** @type {{worldDelta: import("../../../../../src/math/Vec3.js").Vec3 | import("../../../../../src/math/Quat.js").Quat}[]} */
 			const calls = [];
 			draggable.onDrag(event => {
 				calls.push(event);
@@ -89,8 +112,7 @@ Deno.test({
 				screenPos: new Vec2(0.55, 0.55),
 			});
 
-			assertEquals(calls.length, 1, `onDrag callback wasn't called for ${Draggable.name}`);
-			assertVecAlmostEquals(calls[0].delta, [0, 0, 0]);
+			assertSingleUnmovedCall(calls, Draggable.name);
 		}
 	},
 });

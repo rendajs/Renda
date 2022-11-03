@@ -1,6 +1,6 @@
 import {assert, assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {Mat4, Quat, Vec3} from "../../../../src/mod.js";
-import {assertQuatAlmostEquals} from "../../shared/asserts.js";
+import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 
 const oneTo16Array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
@@ -113,5 +113,18 @@ Deno.test({
 		const multiplied = Mat4.multiplyMatrices(scaleMatrix, rotMatrix);
 		const rot = multiplied.getRotation();
 		assertQuatAlmostEquals(rot, new Quat(0, 0, 0.70710678, 0.70710678));
+	},
+});
+
+Deno.test({
+	name: "multiplyMatrices",
+	fn() {
+		// Assert that the description in the jsdoc is correct:
+		const matrixA = Mat4.createTranslation(0, 1, 0);
+		const matrixB = Mat4.createRotationZ(Math.PI * -0.5);
+		const result = Mat4.multiplyMatrices(matrixA, matrixB);
+
+		const point = new Vec3().multiplyMatrix(result);
+		assertVecAlmostEquals(point, [1, 0, 0]);
 	},
 });

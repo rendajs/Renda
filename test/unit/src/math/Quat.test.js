@@ -35,3 +35,16 @@ Deno.test({
 		assertVecAlmostEquals(result2, Vec3.down);
 	},
 });
+
+Deno.test({
+	name: "toMat4()",
+	fn() {
+		const quat = Quat.fromAxisAngle(0, 1, 0, Math.PI * 0.5);
+		const v1 = quat.rotateVector(0, 0, 1);
+
+		const mat = quat.toMat4();
+		const v2 = new Vec3(0, 0, 1).multiply(mat);
+
+		assertVecAlmostEquals(v1, v2);
+	},
+});

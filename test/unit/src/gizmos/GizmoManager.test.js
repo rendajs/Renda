@@ -5,6 +5,7 @@ import {HtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {PointerEvent} from "fake-dom/FakePointerEvent.js";
 import {installMockGetComputedStyle, uninstallMockGetComputedStyle} from "fake-dom/mockGetComputedStyle.js";
 import {Gizmo, getFakeEngineAssetsManager, initBasicSetup} from "./shared.js";
+import {Sphere} from "../../../../src/mod.js";
 
 class ExtendedGizmo extends Gizmo {
 }
@@ -57,9 +58,20 @@ Deno.test({
 		const {manager, draggable, cam} = initBasicSetup();
 		const screenPos = draggable.getScreenPos(cam);
 
-		const hit = manager.raycastDraggables(cam, screenPos);
+		const hit1 = manager.raycastDraggables(cam, screenPos);
+		assertStrictEquals(hit1, draggable);
 
-		assertExists(hit);
+		const draggable2 = manager.createDraggable("move");
+		const sphere = new Sphere();
+		draggable2.addRaycastShape(sphere);
+
+		const hit2 = manager.raycastDraggables(cam, screenPos);
+		assertStrictEquals(hit2, draggable);
+
+		manager.removeDraggable(draggable2);
+
+		const hit3 = manager.raycastDraggables(cam, screenPos);
+		assertStrictEquals(hit3, draggable);
 	},
 });
 

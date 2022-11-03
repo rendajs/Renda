@@ -143,8 +143,11 @@ export class Mat4 {
 		return new Mat4(this);
 	}
 
-	// github.com/toji/gl-matrix/blob/6866ae93d19bbff032139941cbfe0ae68c4cdead/src/gl-matrix/mat4.js#L256
+	/**
+	 * Inverts this matrix without creating a new instance.
+	 */
 	invert() {
+		// github.com/toji/gl-matrix/blob/6866ae93d19bbff032139941cbfe0ae68c4cdead/src/gl-matrix/mat4.js#L256
 		const a00 = this.values[0][0]; const a01 = this.values[0][1]; const a02 = this.values[0][2]; const a03 = this.values[0][3];
 		const a10 = this.values[1][0]; const a11 = this.values[1][1]; const a12 = this.values[1][2]; const a13 = this.values[1][3];
 		const a20 = this.values[2][0]; const a21 = this.values[2][1]; const a22 = this.values[2][2]; const a23 = this.values[2][3];
@@ -167,7 +170,7 @@ export class Mat4 {
 		let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
 		if (!det) {
-			return null;
+			return this;
 		}
 		det = 1.0 / det;
 
@@ -191,6 +194,9 @@ export class Mat4 {
 		return this;
 	}
 
+	/**
+	 * Creates and returns a new matrix that is the inverse of this matrix.
+	 */
 	inverse() {
 		const mat = new Mat4(this);
 		mat.invert();
@@ -405,6 +411,19 @@ export class Mat4 {
 	}
 
 	/**
+	 * @param  {import("./Vec3.js").Vec3Parameters} args
+	 */
+	static createScale(...args) {
+		const v = new Vec3(...args);
+		return new Mat4([
+			[v.x, 0, 0, 0],
+			[0, v.y, 0, 0],
+			[0, 0, v.z, 0],
+			[0, 0, 0, 1],
+		]);
+	}
+
+	/**
 	 * @param {Vec3} pos
 	 * @param {Quat} rot
 	 * @param {Vec3} scale
@@ -462,6 +481,52 @@ export class Mat4 {
 	}
 
 	/**
+	 * Multiplies two matrices and returns a new instance with the result.
+	 * The order of the two matrices is important.
+	 * To make a mental model of what multiplying two matrices will result in,
+	 * you can imagine the first parameter being the matrix of a child entity,
+	 * and the second parameter being the matrix of a parent entity. The returned
+	 * result will be the transformation of the child.
+	 *
+	 * For instance, say you have matrixA which contains a translation, and matrixB
+	 * which contains a rotation. And then you perform `multiplyMatrices(matrixA, matrixB)`,
+	 * it will be as if a point in space is translated first, and then rotated around the world center.
+	 *
+	 * matrixA:
+	 * ```none
+	 *  |
+	 *  * translation
+	 *  ^
+	 *  |
+	 *  |
+	 *  +---------
+	 * ```
+	 *
+	 * matrixB:
+	 * ```none
+	 *  |
+	 *  | --_
+	 *  |    `.  rotation
+	 *  |      \
+	 *  |      V
+	 *  +------*--
+	 * ```
+	 *
+	 * result:
+	 * ```none
+	 *  |
+	 *  |
+	 *  |
+	 *  |
+	 *  |     result
+	 *  +-------*---
+	 * ```
+	 *
+	 * In this case we are transforming a point using two steps (2 matrices). But
+	 * if you want to use the mental model of parent and child entities, you need
+	 * to reverse these two steps. So in the example above, the parent would
+	 * be matrixB, and the child matrixA.
+	 *
 	 * @param {Mat4} a1
 	 * @param {Mat4} a2
 	 */
@@ -498,12 +563,27 @@ export class Mat4 {
 	}
 
 	/**
+	 * Multiplies this matrix with the provided one and changes the value of this instance.
 	 * @param {Mat4} otherMatrix
 	 */
 	multiplyMatrix(otherMatrix) {
 		const newMat = Mat4.multiplyMatrices(this, otherMatrix);
 		this.values = newMat.values;
 		this.markFlatArrayBuffersDirty();
+		return this;
+	}
+
+	/**
+	 * Multiplies the provided with this matrix one and changes the value of this instance.
+	 * This is similar to {@linkcode multiplyMatrix} except that the order of the matrices is different.
+	 * For more info about the order of matrix multiplications see {@linkcode multiplyMatrices}.
+	 * @param {Mat4} otherMatrix
+	 */
+	premultiplyMatrix(otherMatrix) {
+		const newMat = Mat4.multiplyMatrices(otherMatrix, this);
+		this.values = newMat.values;
+		this.markFlatArrayBuffersDirty();
+		return this;
 	}
 
 	/**

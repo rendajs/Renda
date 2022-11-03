@@ -9,7 +9,7 @@ Deno.test({
 	fn() {
 		const {mockGizmoManager, mockPointerDevice, mockCamera} = basicSetup();
 		const draggable = new TranslateGizmoDraggable(mockGizmoManager);
-		/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").GizmoDragMoveEvent[]} */
+		/** @type {import("../../../../../src/gizmos/draggables/TranslateGizmoDraggable.js").TranslateGizmoDragEvent[]} */
 		const calls = [];
 		draggable.onDrag(event => {
 			calls.push(event);
@@ -25,6 +25,6 @@ Deno.test({
 		});
 
 		assertEquals(calls.length, 1);
-		assertVecAlmostEquals(calls[0].delta, [0.198, 0, -0.019], 0.001);
+		assertVecAlmostEquals(calls[0].worldDelta, [0.198, 0, -0.019], 0.001);
 	},
 });

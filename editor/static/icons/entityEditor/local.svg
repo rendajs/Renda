@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <g style="fill: transparent; stroke: black; stroke-width: 20px;" transform="scale(1, -1) translate(0, -500)">
+    <path d="M 150 70 L 150 300 L 360 410 M 150 300 L 360 220"/>
+  </g>
+</svg>

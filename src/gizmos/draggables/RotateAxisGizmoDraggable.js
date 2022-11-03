@@ -4,13 +4,15 @@ import {GizmoDraggable} from "./GizmoDraggable.js";
 import {Quat} from "../../math/Quat.js";
 
 /**
- * @typedef GizmoDragMoveEvent
- * @property {Quat} delta The change in world rotation since the last event.
+ * @typedef RotateAxisGizmoDragEvent
+ * @property {number} localDelta The changed angle in radians since the last position.
+ * Negative when moved in the opposite direction of the provided axis.
+ * @property {Quat} worldDelta The change in world rotation since the last event.
  */
 
 /**
  * A draggable that can be rotated along a single axis.
- * @extends {GizmoDraggable<GizmoDragMoveEvent>}
+ * @extends {GizmoDraggable<RotateAxisGizmoDragEvent>}
  */
 export class RotateAxisGizmoDraggable extends GizmoDraggable {
 	/**
@@ -23,10 +25,6 @@ export class RotateAxisGizmoDraggable extends GizmoDraggable {
 		 * The axis that the draggable will be rotated around.
 		 */
 		this.axis = Vec3.right;
-		/**
-		 * The pivot that the draggable will be rotated around.
-		 */
-		this.pivot = new Vec3();
 
 		/** @private @type {Vec2?} */
 		this._dragStartScreenPivot = null;
@@ -39,7 +37,7 @@ export class RotateAxisGizmoDraggable extends GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerEventData} eventData
 	 */
 	handlePointerDown(pointerDevice, eventData) {
-		this._dragStartScreenPivot = eventData.camera.worldToScreenPos(this.pivot).toVec2();
+		this._dragStartScreenPivot = eventData.camera.worldToScreenPos(this.entity.worldPos).toVec2();
 		this._prevAngle = this._get2dAngle(eventData.screenPos);
 	}
 
@@ -73,9 +71,10 @@ export class RotateAxisGizmoDraggable extends GizmoDraggable {
 		const deltaWorldRot = new Quat();
 		deltaWorldRot.setFromAxisAngle(worldAxis, deltaAngle);
 
-		/** @type {GizmoDragMoveEvent} */
+		/** @type {RotateAxisGizmoDragEvent} */
 		const moveEvent = {
-			delta: deltaWorldRot,
+			localDelta: deltaAngle,
+			worldDelta: deltaWorldRot,
 		};
 		this.fireDragCallbacks(moveEvent);
 	}
