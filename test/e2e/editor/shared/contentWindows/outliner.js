@@ -1,5 +1,5 @@
 import {assertExists} from "std/testing/asserts.ts";
-import {click, elementWaitForSelector} from "../../../shared/util.js";
+import {click, waitFor} from "../../../shared/util.js";
 import {getContentWindowElement, getContentWindowReference} from "../contentWindows.js";
 
 /**
@@ -20,7 +20,7 @@ export async function getOutlinerRootEntityTreeView(page) {
 	await page.evaluate(outlinerElement => {
 		console.log(outlinerElement);
 	}, outlinerElement);
-	const treeViewEl = await elementWaitForSelector(page, outlinerElement, ":scope > .editorContentWindowContent > .treeViewItem");
+	const treeViewEl = await waitFor(outlinerElement, ":scope > .editorContentWindowContent > .treeViewItem");
 	assertExists(treeViewEl);
 	return treeViewEl;
 }
@@ -31,7 +31,7 @@ export async function getOutlinerRootEntityTreeView(page) {
  */
 export async function getOutlinerCreateEmptyButton(page) {
 	const outlinerElement = await getContentWindowElement(page, "outliner");
-	const buttonEl = await elementWaitForSelector(page, outlinerElement, ":scope > .editorContentWindowTopButtonBar > .button");
+	const buttonEl = await waitFor(outlinerElement, ":scope > .editorContentWindowTopButtonBar > .button");
 	assertExists(buttonEl);
 	return buttonEl;
 }

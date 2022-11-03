@@ -1,5 +1,5 @@
 import {assertExists} from "std/testing/asserts.ts";
-import {elementWaitForSelector} from "../../../shared/util.js";
+import {waitFor} from "../../../shared/util.js";
 import {getContentWindowElement, getContentWindowReference} from "../contentWindows.js";
 import {getTreeViewItemElement} from "../treeView.js";
 
@@ -9,7 +9,7 @@ import {getTreeViewItemElement} from "../treeView.js";
  */
 export async function getPropertiesWindowRootTreeView(page) {
 	const propertiesWindow = await getContentWindowElement(page, "properties");
-	const treeView = await elementWaitForSelector(page, propertiesWindow, ":scope > .editorContentWindowContent > div > .treeViewItem");
+	const treeView = await waitFor(propertiesWindow, ":scope > .editorContentWindowContent > div > .treeViewItem");
 	assertExists(treeView);
 	return treeView;
 }

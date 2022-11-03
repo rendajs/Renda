@@ -1,6 +1,6 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import {getContext, puppeteerSanitizers} from "../../../../shared/browser.js";
-import {click, drag, elementWaitForSelector} from "../../../../shared/util.js";
+import {click, drag, waitFor} from "../../../../shared/util.js";
 import {clickAsset, createAsset} from "../../../shared/assets.js";
 import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
 import {setupNewProject} from "../../../shared/project.js";
@@ -27,7 +27,7 @@ Deno.test({
 			name: "Click the second child",
 			async fn() {
 				const rootTreeView = await getOutlinerRootEntityTreeView(page);
-				const secondChildEl = await elementWaitForSelector(page, rootTreeView, ".treeViewChildList > :nth-child(2)");
+				const secondChildEl = await waitFor(rootTreeView, ".treeViewChildList > :nth-child(2)");
 				await click(page, secondChildEl);
 			},
 		});
@@ -38,15 +38,15 @@ Deno.test({
 			name: "Drag the new child to the root",
 			async fn() {
 				const rootTreeView = await getOutlinerRootEntityTreeView(page);
-				const rootTreeViewRow = await elementWaitForSelector(page, rootTreeView, ".treeViewRow");
-				const secondChildEl = await elementWaitForSelector(page, rootTreeView, ".treeViewChildList > :nth-child(2) > .treeViewChildList > :nth-child(1) > .treeViewRow");
+				const rootTreeViewRow = await waitFor(rootTreeView, ".treeViewRow");
+				const secondChildEl = await waitFor(rootTreeView, ".treeViewChildList > :nth-child(2) > .treeViewChildList > :nth-child(1) > .treeViewRow");
 				await drag(page, secondChildEl, rootTreeViewRow);
 			},
 		});
 
 		// assert that the internal entity structure matches the visual outliner structure
 		const rootTreeView = await getOutlinerRootEntityTreeView(page);
-		const rootTreeViewRow = await elementWaitForSelector(page, rootTreeView, ".treeViewRow");
+		const rootTreeViewRow = await waitFor(rootTreeView, ".treeViewRow");
 		await click(page, rootTreeViewRow);
 
 		const rootChildCount = await page.evaluate(() => {
