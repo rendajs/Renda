@@ -230,7 +230,9 @@ export class Material {
 	_getValueFromMappedData(mappedData, mappedProperties) {
 		if (mappedProperties && mappedProperties.has(mappedData.mappedName)) {
 			const value = mappedProperties.get(mappedData.mappedName);
-			return /** @type {import("./MaterialMap.js").MappableMaterialTypes} */ (value);
+			if (value != null && value != undefined) {
+				return value;
+			}
 		}
 		const defaultValue = mappedData.defaultValue;
 		return defaultValue;
