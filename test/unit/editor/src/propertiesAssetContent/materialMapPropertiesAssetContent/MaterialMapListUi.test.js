@@ -87,11 +87,14 @@ Deno.test({
 				},
 			},
 			{
-				defaultValue: {
+				defaultTexture: {
 					type: "droppable",
 					guiOpts: {
 						supportedAssetTypes: [Texture],
 					},
+				},
+				defaultColor: {
+					type: "vec4",
 				},
 				mappedName: {
 					type: "string",
