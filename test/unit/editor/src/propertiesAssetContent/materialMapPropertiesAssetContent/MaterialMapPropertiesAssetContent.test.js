@@ -2,7 +2,9 @@ import {Importer} from "fake-imports";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 
-const importer = new Importer(import.meta.url);
+const importer = new Importer(import.meta.url, {
+	importMap: "../../../../../../importmap.json",
+});
 importer.redirectModule("../../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../shared/mockTreeView/PropertiesTreeView.js");
 importer.fakeModule("../../../../../../editor/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js", `
 	export class MaterialMapTypeEntry {
