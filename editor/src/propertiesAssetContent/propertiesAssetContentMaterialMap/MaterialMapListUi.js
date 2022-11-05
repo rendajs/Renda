@@ -47,7 +47,7 @@ export class MaterialMapListUi {
 						},
 					},
 					defaultColor: {
-						type: "vec3",
+						type: "vec4",
 					},
 				};
 			} else {

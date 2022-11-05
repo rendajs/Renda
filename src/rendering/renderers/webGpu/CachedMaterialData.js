@@ -22,6 +22,9 @@ export class CachedMaterialData {
 		this.#material = material;
 
 		this.uniformsBindGroupLayout = null;
+
+		/** @type {Set<import("./PlaceHolderTextureReference.js").PlaceHolderTextureReference>} */
+		this.placeHolderTextureRefs = new Set();
 	}
 
 	getForwardPipelineConfig() {
