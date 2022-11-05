@@ -114,9 +114,13 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 									}
 									defaultValue.set(mappedValueDiskData.defaultValue);
 								} else if (mappedValue.mappedType == "texture2d") {
-									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
-										assertAssetType: ProjectAssetTypeTexture,
-									});
+									if (Array.isArray(mappedValueDiskData.defaultValue)) {
+										mappedValue.defaultValue = mappedValueDiskData.defaultValue;
+									} else {
+										mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
+											assertAssetType: ProjectAssetTypeTexture,
+										});
+									}
 								} else if (mappedValue.mappedType == "sampler") {
 									mappedValue.defaultValue = await this.assetManager.getLiveAsset(mappedValueDiskData.defaultValue, {
 										assertAssetType: ProjectAssetTypeSampler,

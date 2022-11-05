@@ -4,6 +4,7 @@ import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView
 
 /**
  * @typedef {object} MappableItem
+ * @property {import("../../../../src/rendering/MaterialMap.js").MappableMaterialTypesEnum} type
  * @property {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
  * @property {PropertiesTreeView} treeView
  */
@@ -26,25 +27,34 @@ export class MaterialMapListUi {
 		this.treeView = new PropertiesTreeView({name: "mapList"});
 		for (const item of items) {
 			const mappableItemTreeView = this.treeView.addCollapsable(item.name);
-			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 			let defaultValueTypeOptions;
 			if (item.type == "sampler") {
 				defaultValueTypeOptions = {
-					type: "droppable",
-					guiOpts: {
-						supportedAssetTypes: [Sampler],
+					defaultValue: {
+						type: "droppable",
+						guiOpts: {
+							supportedAssetTypes: [Sampler],
+						},
 					},
 				};
 			} else if (item.type == "texture2d") {
 				defaultValueTypeOptions = {
-					type: "droppable",
-					guiOpts: {
-						supportedAssetTypes: [Texture],
+					defaultTexture: {
+						type: "droppable",
+						guiOpts: {
+							supportedAssetTypes: [Texture],
+						},
+					},
+					defaultColor: {
+						type: "vec3",
 					},
 				};
 			} else {
 				defaultValueTypeOptions = {
-					type: item.type,
+					defaultValue: {
+						type: item.type,
+					},
 				};
 			}
 			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
@@ -61,11 +71,12 @@ export class MaterialMapListUi {
 						defaultValue: item.name,
 					},
 				},
-				defaultValue: defaultValueTypeOptions,
+				...defaultValueTypeOptions,
 			};
 			mappableItemTreeView.generateFromSerializableStructure(structure);
 
 			this.createdMapListUis.set(item.name, {
+				type: item.type,
 				structure,
 				treeView: mappableItemTreeView,
 			});
@@ -83,7 +94,18 @@ export class MaterialMapListUi {
 		for (const [name, itemData] of Object.entries(values)) {
 			const mapUi = this.createdMapListUis.get(name);
 			if (mapUi) {
-				mapUi.treeView.fillSerializableStructureValues(itemData);
+				/** @type {any} */
+				const guiData = {...itemData};
+				if (mapUi.type == "texture2d") {
+					const defaultValue = guiData.defaultValue;
+					if (typeof defaultValue == "string") {
+						guiData.defaultTexture = defaultValue;
+					} else if (Array.isArray(defaultValue)) {
+						guiData.defaultColor = defaultValue;
+					}
+					delete guiData.defaultValue;
+				}
+				mapUi.treeView.fillSerializableStructureValues(guiData);
 			}
 		}
 	}
@@ -103,6 +125,12 @@ export class MaterialMapListUi {
 		for (const [name, mapUi] of this.createdMapListUis) {
 			const values = mapUi.treeView.getSerializableStructureValues(mapUi.structure, {purpose: "fileStorage"});
 			if (values) {
+				if (mapUi.type == "texture2d") {
+					const defaultValue = values.defaultTexture || values.defaultColor;
+					if (defaultValue) values.defaultValue = defaultValue;
+					delete values.defaultTexture;
+					delete values.defaultColor;
+				}
 				datas[name] = values;
 				hasOneOrMoreMappedValues = true;
 			}
