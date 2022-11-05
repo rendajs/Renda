@@ -32,6 +32,11 @@ export class WebGpuRenderer extends Renderer {
 
 	#placeHolderTextureManager;
 
+	/** @type {FinalizationRegistry<CachedMaterialData>} */
+	#cachedMaterialDataRegistry = new FinalizationRegistry(heldValue => {
+		heldValue.destructor();
+	});
+
 	/**
 	 * @param {import("../../../assets/EngineAssetsManager.js").EngineAssetsManager} engineAssetManager
 	 */
@@ -338,9 +343,9 @@ export class WebGpuRenderer extends Renderer {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
 				const materialData = this.getCachedMaterialData(material);
-				const forwardPipelineConfig = materialData.getForwardPipelineConfig();
+				const forwardPipelineConfig = materialData.getForwardPipelineConfig(material);
 				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;
-				const pipelineLayout = materialData.getPipelineLayout();
+				const pipelineLayout = materialData.getPipelineLayout(material);
 				if (!pipelineLayout) continue;
 				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 
@@ -505,8 +510,14 @@ export class WebGpuRenderer extends Renderer {
 	getCachedMaterialData(material) {
 		let data = this.cachedMaterialData.get(material);
 		if (!data) {
-			data = new CachedMaterialData(this, material);
+			data = new CachedMaterialData(this);
 			this.cachedMaterialData.set(material, data);
+			this.#cachedMaterialDataRegistry.register(material, data, material);
+			const dataRef = data;
+			material.onDestructor(() => {
+				this.#cachedMaterialDataRegistry.unregister(material);
+				dataRef.destructor();
+			});
 		}
 		return data;
 	}
