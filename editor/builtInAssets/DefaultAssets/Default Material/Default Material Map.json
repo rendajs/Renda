@@ -17,11 +17,20 @@
 					"albedoSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
 					},
+					"albedoTexture": {
+						"defaultValue": [1, 1, 1, 1]
+					},
 					"normalSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
 					},
+					"normalTexture": {
+						"defaultValue": [0.5, 0.5, 1, 1]
+					},
 					"metallicRoughnessSampler": {
 						"defaultValue": "27a0c1fb-2187-4e11-82c7-a944ff43ec47"
+					},
+					"metallicRoughnessTexture": {
+						"defaultValue": [1, 1, 1, 1]
 					}
 				}
 			}
