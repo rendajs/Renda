@@ -6,7 +6,7 @@ import {registerOnChangeSpy} from "../../shared.js";
 testAll({
 	name: "should create a directory and fire onchange",
 	async fn(ctx) {
-		const fs = ctx.createFs();
+		const fs = await ctx.createFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "newdir"];
@@ -50,7 +50,7 @@ testAll({
 testAll({
 	name: "createDir() the same path twice at the same time",
 	async fn(ctx) {
-		const fs = ctx.createFs();
+		const fs = await ctx.createFs();
 		const promise1 = fs.createDir(["root", "created", "dir1"]);
 		const promise2 = fs.createDir(["root", "created", "dir1"]);
 		await promise1;

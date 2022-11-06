@@ -2,6 +2,7 @@ import {FsaEditorFileSystem} from "../../../../../../../editor/src/util/fileSyst
 import {MemoryEditorFileSystem} from "../../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {FakeHandle} from "../FsaEditorFileSystem/shared.js";
 import {Importer} from "fake-imports";
+import {generateUuid} from "../../../../../../../src/mod.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/FakeIndexedDbUtil.js");
@@ -10,13 +11,21 @@ importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../..
 const IndexedDbEditorFileSystemMod = await importer.import("../../../../../../../editor/src/util/fileSystems/IndexedDbEditorFileSystem.js");
 const {IndexedDbEditorFileSystem} = IndexedDbEditorFileSystemMod;
 
+const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
+const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
+
+/** @typedef {typeof FsaEditorFileSystem | typeof IndexedDbEditorFileSystem | typeof MemoryEditorFileSystem} FileSystemTypes */
+
 /**
- * @typedef FileSystemTestData
- * @property {Function} ctor
- * @property {(options?: CreateBasicFsOptions) => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} create
+ * @typedef FileSystemTestConfig
+ * @property {FileSystemTypes} ctor
+ * @property {(options?: CreateBasicFsOptions) => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} create Should
+ * create a new instance of the file system.
+ * @property {(pending: boolean) => void} forcePendingOperations Should force all read and write promises to stay pending for this
+ * file system type.
  */
 
-/** @type {FileSystemTestData[]} */
+/** @type {FileSystemTestConfig[]} */
 const fileSystems = [
 	{
 		ctor: FsaEditorFileSystem,
@@ -24,18 +33,25 @@ const fileSystems = [
 			const rootHandle = new FakeHandle("directory", "actualRoot");
 			return new FsaEditorFileSystem(/** @type {any} */ (rootHandle));
 		},
+		forcePendingOperations(pending) {
+
+		},
 	},
 	{
 		ctor: IndexedDbEditorFileSystem,
 		create({
 			disableStructuredClone = false,
 		} = {}) {
-			const fs = new IndexedDbEditorFileSystem("fileSystem");
+			const uuid = generateUuid();
+			const fs = new IndexedDbEditorFileSystem("fileSystem" + uuid);
 			if (disableStructuredClone) {
 				const castDb = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
 				castDb?.setUseStructuredClone(false);
 			}
 			return fs;
+		},
+		forcePendingOperations(pending) {
+			forcePendingIndexedDbOperations(pending);
 		},
 	},
 	{
@@ -43,23 +59,32 @@ const fileSystems = [
 		create() {
 			return new MemoryEditorFileSystem();
 		},
+		forcePendingOperations(pending) {
+			throw new Error("Not yet implemented");
+		},
 	},
 ];
 
 /**
  * @typedef CreateBasicFsOptions
+ * @property {boolean} [initializeFiles] If true, creates the file system and adds
+ * a few basic files that can be used for testing.
  * @property {boolean} [disableStructuredClone]
  */
 
 /**
  * @typedef FileSystemTest
  * @property {string} name
- * @property {(ctx: FileSystemTestContext) => void} fn
+ * @property {(ctx: FileSystemTestContext) => (void | Promise<void>)} fn
+ * @property {FileSystemTypes[] | boolean} [ignore]
  */
 
 /**
  * @typedef FileSystemTestContext
- * @property {(options?: CreateBasicFsOptions) => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} createFs
+ * @property {(options?: CreateBasicFsOptions) => Promise<import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem>} createFs Creates a
+ * new instance of a file system for each file system type that is not ignored.
+ * @property {(pending: boolean) => void} forcePendingOperations Forces all read and write promises to stay pending for this
+ * file system type.
  */
 
 /**
@@ -70,14 +95,40 @@ export function testAll(test) {
 		const name = `${ctor.name}: ${test.name}`;
 		/** @type {FileSystemTestContext} */
 		const ctx = {
-			createFs(options) {
-				return create(options);
+			async createFs(options) {
+				const fs = create(options);
+				if (options?.initializeFiles) {
+					await fs.createDir(["root"]);
+					await fs.writeText(["root", "file1"], "hello");
+					await fs.writeText(["root", "file2"], "hello");
+
+					await fs.createDir(["root", "onlyfiles"]);
+					await fs.writeText(["root", "onlyfiles", "subfile1"], "hello");
+					await fs.writeText(["root", "onlyfiles", "subfile2"], "hello");
+
+					await fs.createDir(["root", "onlydirs"]);
+					await fs.createDir(["root", "onlydirs", "subdir1"]);
+					await fs.createDir(["root", "onlydirs", "subdir2"]);
+				}
+				return fs;
+			},
+			forcePendingOperations(force) {
+
 			},
 		};
+		let ignore = false;
+		if (test.ignore != undefined) {
+			if (typeof test.ignore == "boolean") {
+				ignore = test.ignore;
+			} else {
+				ignore = test.ignore.includes(ctor);
+			}
+		}
 		Deno.test({
 			name,
-			fn() {
-				test.fn(ctx);
+			ignore,
+			async fn() {
+				await test.fn(ctx);
 			},
 		});
 	}

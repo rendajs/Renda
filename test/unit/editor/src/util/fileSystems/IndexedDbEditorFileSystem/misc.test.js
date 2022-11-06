@@ -67,7 +67,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "createDir() the same path twice at the same time",
+	name: "createDir() the same path twice at the same time shouldn't create extra entries",
 	async fn() {
 		const {fs, getEntryCount} = await createBasicFs();
 		const originalEntryCount = getEntryCount();
