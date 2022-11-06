@@ -10,6 +10,7 @@ importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../..
 /** @type {import("../../../../../../../editor/src/util/fileSystems/IndexedDbEditorFileSystem.js")} */
 const IndexedDbEditorFileSystemMod = await importer.import("../../../../../../../editor/src/util/fileSystems/IndexedDbEditorFileSystem.js");
 const {IndexedDbEditorFileSystem} = IndexedDbEditorFileSystemMod;
+export {IndexedDbEditorFileSystem};
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
 const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);

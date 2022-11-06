@@ -1,5 +1,5 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
-import {assert, assertEquals, assertExists, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../shared.js";
@@ -215,45 +215,5 @@ Deno.test({
 
 		const newEntryCount = getEntryCount();
 		assertEquals(newEntryCount, originalEntryCount);
-	},
-});
-
-Deno.test({
-	name: "readFile",
-	fn: async () => {
-		const {fs} = await createBasicFs({disableStructuredClone: true});
-
-		const result = await fs.readFile(["root", "file1"]);
-
-		assertInstanceOf(result, File);
-	},
-});
-
-Deno.test({
-	name: "readFile should error when reading a directory",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-
-		let didThrow = false;
-		try {
-			await fs.readFile(["root", "onlydirs"]);
-		} catch {
-			didThrow = true;
-		}
-
-		assertEquals(didThrow, true);
-	},
-});
-
-Deno.test({
-	name: "readFile while it is being written",
-	async fn() {
-		const {fs} = await createBasicFs({disableStructuredClone: true});
-
-		const promise1 = fs.writeFile(["root", "file"], "hello");
-		const promise2 = fs.readText(["root", "file"]);
-
-		await promise1;
-		assertEquals(await promise2, "hello");
 	},
 });
