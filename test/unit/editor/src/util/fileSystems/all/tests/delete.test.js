@@ -103,7 +103,7 @@ testAll({
 
 testAll({
 	name: "delete() causes waitForWritesFinish to stay pending until done",
-	ignore: true,
+	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

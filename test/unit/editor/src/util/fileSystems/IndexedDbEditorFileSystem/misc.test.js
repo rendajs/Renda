@@ -1,8 +1,6 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
-import {assert, assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
-import {registerOnChangeSpy} from "../shared.js";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",
@@ -65,82 +63,6 @@ Deno.test({
 
 		forcePendingOperations(false);
 		await createPromise;
-		await waitForMicrotasks();
-		assertEquals(waitPromiseResolved, true);
-	},
-});
-
-Deno.test({
-	name: "writeFile should create the file and fire onChange",
-	async fn() {
-		const {fs} = await createBasicFs();
-		const onChangeSpy = registerOnChangeSpy(fs);
-
-		const path = ["root", "newfile"];
-		const writeFilePromise = fs.writeFile(path, "text");
-
-		// Change the path to verify that the initial array is used
-		path.push("extra");
-
-		await writeFilePromise;
-
-		const {files} = await fs.readDir(["root"]);
-		assert(files.includes("newfile"), "'newfile' was not created");
-
-		assertSpyCalls(onChangeSpy, 1);
-		assertSpyCall(onChangeSpy, 0, {
-			args: [
-				{
-					external: false,
-					kind: "file",
-					path: ["root", "newfile"],
-					type: "changed",
-				},
-			],
-		});
-	},
-});
-
-Deno.test({
-	name: "writeFile should error when a parent is not a directory",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-
-		await assertRejects(async () => {
-			await fs.writeFile(["root", "file1", "newfile"], "hello world");
-		}, Error, 'Failed to write to "root/file1/newfile", "root/file1" is not a directory.');
-	},
-});
-
-Deno.test({
-	name: "writeFile should error when a parent of parent is not a directory",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-
-		await assertRejects(async () => {
-			await fs.writeFile(["root", "file1", "anotherdir", "newfile"], "hello world");
-		}, Error, 'Failed to create directory at "root/file1/anotherdir", "root/file1" is file.');
-	},
-});
-
-Deno.test({
-	name: "writeFile() causes waitForWritesFinish to stay pending until done",
-	async fn() {
-		const {fs} = await createBasicFs();
-
-		const writeFilePromise = fs.writeFile(["root", "newfile"], "hello world");
-		const waitPromise = fs.waitForWritesFinish();
-		forcePendingOperations(true);
-		let waitPromiseResolved = false;
-		waitPromise.then(() => {
-			waitPromiseResolved = true;
-		});
-
-		await waitForMicrotasks();
-		assertEquals(waitPromiseResolved, false);
-
-		forcePendingOperations(false);
-		await writeFilePromise;
 		await waitForMicrotasks();
 		assertEquals(waitPromiseResolved, true);
 	},

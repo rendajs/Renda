@@ -96,7 +96,7 @@ const fileSystems = [
  * @param {FileSystemTest} test
  */
 export function testAll(test) {
-	for (const {ctor, create} of fileSystems) {
+	for (const {ctor, create, forcePendingOperations} of fileSystems) {
 		if (test.exclude && test.exclude.includes(ctor)) continue;
 		let ignore = false;
 		if (test.ignore != undefined) {
@@ -137,9 +137,7 @@ export function testAll(test) {
 					initializeFiles: true,
 				});
 			},
-			forcePendingOperations(force) {
-
-			},
+			forcePendingOperations,
 		};
 		Deno.test({
 			name,
