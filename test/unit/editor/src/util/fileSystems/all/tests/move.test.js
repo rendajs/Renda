@@ -1,12 +1,15 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {registerOnChangeSpy} from "../shared.js";
-import {createBasicFs} from "./shared.js";
+import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
+import {MemoryEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {registerOnChangeSpy} from "../../shared.js";
+import {testAll} from "../shared.js";
 
-Deno.test({
-	name: "rename a file",
-	fn: async () => {
-		const {fs} = await createBasicFs();
+testAll({
+	name: "move() rename a file",
+	ignore: [MemoryEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		await fs.move(["root", "file2"], ["root", "file3"]);
@@ -49,10 +52,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
-	name: "move a file",
-	fn: async () => {
-		const {fs} = await createBasicFs();
+testAll({
+	name: "move() a file",
+	ignore: [MemoryEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		await fs.move(["root", "file2"], ["root", "onlyfiles", "file2"]);
@@ -99,10 +103,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
-	name: "rename a directory with files",
-	fn: async () => {
-		const {fs} = await createBasicFs();
+testAll({
+	name: "move() rename a directory with files",
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		await fs.move(["root", "onlyfiles"], ["root", "onlyfiles2"]);
@@ -138,10 +143,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
-	name: "rename a directory with dirs",
-	fn: async () => {
-		const {fs} = await createBasicFs();
+testAll({
+	name: "move() rename a directory with dirs",
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 
 		await fs.move(["root", "onlydirs"], ["root", "onlydirs2"]);
 
@@ -154,10 +160,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
-	name: "move a directory with files",
-	fn: async () => {
-		const {fs} = await createBasicFs();
+testAll({
+	name: "move() a directory with files",
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 
 		await fs.move(["root", "onlyfiles"], ["root", "newdir", "onlyfiles"]);
 
@@ -170,10 +177,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
-	name: "move a directory with dirs",
-	fn: async () => {
-		const {fs} = await createBasicFs();
+testAll({
+	name: "move() a directory with dirs",
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 
 		await fs.move(["root", "onlydirs"], ["root", "newdir", "onlydirs"]);
 
@@ -186,10 +194,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
+testAll({
 	name: "move() should throw when the from path doesn't exist",
-	async fn() {
-		const {fs} = await createBasicFs();
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.move(["root", "file1", "nonexistent"], ["root", "dest"]);
@@ -203,10 +212,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
+testAll({
 	name: "move() should throw when overwriting an existing file",
-	async fn() {
-		const {fs} = await createBasicFs();
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.move(["root", "file1"], ["root", "file2"]);
@@ -214,10 +224,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
+testAll({
 	name: "move() should throw when overwriting an existing directory",
-	async fn() {
-		const {fs} = await createBasicFs();
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 
 		await fs.writeFile(["root", "onlydirs2", "file1"], "hello1");
 		await fs.writeFile(["root", "onlydirs2", "file2"], "hello2");
@@ -228,10 +239,11 @@ Deno.test({
 	},
 });
 
-Deno.test({
+testAll({
 	name: "move() should not throw when overwriting an existing directory if it's empty",
-	async fn() {
-		const {fs} = await createBasicFs();
+	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
 
 		await fs.createDir(["root", "onlyfiles2"]);
 
