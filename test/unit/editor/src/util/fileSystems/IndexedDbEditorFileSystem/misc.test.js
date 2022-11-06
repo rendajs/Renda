@@ -1,6 +1,5 @@
 import {createBasicFs, createFs, forcePendingOperations} from "./shared.js";
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {waitForMicrotasks} from "../../../../../shared/waitForMicroTasks.js";
 
 Deno.test({
 	name: "assertDbExists() should throw after using deleteDb()",
@@ -42,29 +41,6 @@ Deno.test({
 
 		const newEntryCount = getEntryCount();
 		assertEquals(newEntryCount, originalEntryCount + 2);
-	},
-});
-
-Deno.test({
-	name: "createDir() causes waitForWritesFinish to stay pending until done",
-	async fn() {
-		const {fs} = await createBasicFs();
-
-		const createPromise = fs.createDir(["root", "newdir"]);
-		const waitPromise = fs.waitForWritesFinish();
-		forcePendingOperations(true);
-		let waitPromiseResolved = false;
-		waitPromise.then(() => {
-			waitPromiseResolved = true;
-		});
-
-		await waitForMicrotasks();
-		assertEquals(waitPromiseResolved, false);
-
-		forcePendingOperations(false);
-		await createPromise;
-		await waitForMicrotasks();
-		assertEquals(waitPromiseResolved, true);
 	},
 });
 

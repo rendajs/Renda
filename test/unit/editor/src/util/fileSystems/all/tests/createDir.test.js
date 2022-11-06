@@ -2,6 +2,9 @@ import {assertEquals} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {testAll} from "../shared.js";
 import {registerOnChangeSpy} from "../../shared.js";
+import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
+import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
+import {MemoryEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 
 testAll({
 	name: "should create a directory and fire onchange",
@@ -61,5 +64,29 @@ testAll({
 			directories: ["dir1"],
 			files: [],
 		});
+	},
+});
+
+testAll({
+	name: "createDir() causes waitForWritesFinish to stay pending until done",
+	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createFs();
+
+		const createPromise = fs.createDir(["root", "newdir"]);
+		const waitPromise = fs.waitForWritesFinish();
+		ctx.forcePendingOperations(true);
+		let waitPromiseResolved = false;
+		waitPromise.then(() => {
+			waitPromiseResolved = true;
+		});
+
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, false);
+
+		ctx.forcePendingOperations(false);
+		await createPromise;
+		await waitForMicrotasks();
+		assertEquals(waitPromiseResolved, true);
 	},
 });
