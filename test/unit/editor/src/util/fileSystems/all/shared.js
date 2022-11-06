@@ -77,7 +77,9 @@ const fileSystems = [
  * @typedef FileSystemTest
  * @property {string} name
  * @property {(ctx: FileSystemTestContext) => (void | Promise<void>)} fn
- * @property {FileSystemTypes[] | boolean} [ignore]
+ * @property {FileSystemTypes[] | boolean} [ignore] The file system types to ignore this test for.
+ * @property {FileSystemTypes[]} [exclude] The file system types to exclude, unlike `ignore` this does not
+ * count against the ignored tests in the results, and in stead this test is just completely omitted from the results.
  */
 
 /**
@@ -95,6 +97,16 @@ const fileSystems = [
  */
 export function testAll(test) {
 	for (const {ctor, create} of fileSystems) {
+		if (test.exclude && test.exclude.includes(ctor)) continue;
+		let ignore = false;
+		if (test.ignore != undefined) {
+			if (typeof test.ignore == "boolean") {
+				ignore = test.ignore;
+			} else {
+				ignore = test.ignore.includes(ctor);
+			}
+		}
+
 		const name = `${ctor.name}: ${test.name}`;
 		/**
 		 * @param {CreateFsOptions} [options]
@@ -129,14 +141,6 @@ export function testAll(test) {
 
 			},
 		};
-		let ignore = false;
-		if (test.ignore != undefined) {
-			if (typeof test.ignore == "boolean") {
-				ignore = test.ignore;
-			} else {
-				ignore = test.ignore.includes(ctor);
-			}
-		}
 		Deno.test({
 			name,
 			ignore,

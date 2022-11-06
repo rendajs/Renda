@@ -33,40 +33,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "getRootName() should return the value passed in setRootName()",
-	fn: async () => {
-		const fs = await createFs();
-		await fs.setRootName("theRootName");
-
-		const result = await fs.getRootName();
-
-		assertEquals(result, "theRootName");
-	},
-});
-
-Deno.test({
-	name: "setRootName should fire onChange event",
-	async fn() {
-		const fs = await createFs();
-		const onChangeSpy = registerOnChangeSpy(fs);
-
-		await fs.setRootName("new root name");
-
-		assertSpyCalls(onChangeSpy, 1);
-		assertSpyCall(onChangeSpy, 0, {
-			args: [
-				{
-					external: false,
-					kind: "directory",
-					path: [],
-					type: "changed",
-				},
-			],
-		});
-	},
-});
-
-Deno.test({
 	name: "createDir() the same path twice at the same time shouldn't create extra entries",
 	async fn() {
 		const {fs, getEntryCount} = await createBasicFs();
