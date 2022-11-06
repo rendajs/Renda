@@ -69,20 +69,12 @@ Deno.test({
 Deno.test({
 	name: "createDir() the same path twice at the same time",
 	async fn() {
-		const {fs, getEntryCount} = await createBasicFs({
-			disableStructuredClone: true,
-		});
+		const {fs, getEntryCount} = await createBasicFs();
 		const originalEntryCount = getEntryCount();
 		const promise1 = fs.createDir(["root", "created", "dir1"]);
 		const promise2 = fs.createDir(["root", "created", "dir1"]);
 		await promise1;
 		await promise2;
-
-		const result = await fs.readDir(["root", "created"]);
-		assertEquals(result, {
-			directories: ["dir1"],
-			files: [],
-		});
 
 		const newEntryCount = getEntryCount();
 		assertEquals(newEntryCount, originalEntryCount + 2);

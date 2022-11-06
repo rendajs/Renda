@@ -13,7 +13,7 @@ const {IndexedDbEditorFileSystem} = IndexedDbEditorFileSystemMod;
 /**
  * @typedef FileSystemTestData
  * @property {Function} ctor
- * @property {() => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} create
+ * @property {(options?: CreateBasicFsOptions) => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} create
  */
 
 /** @type {FileSystemTestData[]} */
@@ -27,8 +27,15 @@ const fileSystems = [
 	},
 	{
 		ctor: IndexedDbEditorFileSystem,
-		create() {
-			return new IndexedDbEditorFileSystem("fileSystem");
+		create({
+			disableStructuredClone = false,
+		} = {}) {
+			const fs = new IndexedDbEditorFileSystem("fileSystem");
+			if (disableStructuredClone) {
+				const castDb = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
+				castDb?.setUseStructuredClone(false);
+			}
+			return fs;
 		},
 	},
 	{
@@ -40,6 +47,11 @@ const fileSystems = [
 ];
 
 /**
+ * @typedef CreateBasicFsOptions
+ * @property {boolean} [disableStructuredClone]
+ */
+
+/**
  * @typedef FileSystemTest
  * @property {string} name
  * @property {(ctx: FileSystemTestContext) => void} fn
@@ -47,7 +59,7 @@ const fileSystems = [
 
 /**
  * @typedef FileSystemTestContext
- * @property {() => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} createBasicFs
+ * @property {(options?: CreateBasicFsOptions) => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} createFs
  */
 
 /**
@@ -58,8 +70,8 @@ export function testAll(test) {
 		const name = `${ctor.name}: ${test.name}`;
 		/** @type {FileSystemTestContext} */
 		const ctx = {
-			createBasicFs() {
-				return create();
+			createFs(options) {
+				return create(options);
 			},
 		};
 		Deno.test({

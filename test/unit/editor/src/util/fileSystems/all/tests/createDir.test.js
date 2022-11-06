@@ -5,8 +5,8 @@ import {registerOnChangeSpy} from "../../shared.js";
 
 testAll({
 	name: "should create a directory and fire onchange",
-	fn: async ctx => {
-		const fs = ctx.createBasicFs();
+	async fn(ctx) {
+		const fs = ctx.createFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "newdir"];
@@ -43,6 +43,23 @@ testAll({
 					type: "created",
 				},
 			],
+		});
+	},
+});
+
+testAll({
+	name: "createDir() the same path twice at the same time",
+	async fn(ctx) {
+		const fs = ctx.createFs();
+		const promise1 = fs.createDir(["root", "created", "dir1"]);
+		const promise2 = fs.createDir(["root", "created", "dir1"]);
+		await promise1;
+		await promise2;
+
+		const result = await fs.readDir(["root", "created"]);
+		assertEquals(result, {
+			directories: ["dir1"],
+			files: [],
 		});
 	},
 });
