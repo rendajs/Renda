@@ -17,6 +17,7 @@ import {CachedTextureData} from "./CachedTextureData.js";
 import {CachedMaterialData} from "./CachedMaterialData.js";
 import {Sampler} from "../../Sampler.js";
 import {parseVertexInput} from "../../../util/wgslParsing.js";
+import {PlaceHolderTextureManager} from "./PlaceHolderTextureManager.js";
 
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
@@ -28,6 +29,13 @@ export class WebGpuRenderer extends Renderer {
 	static get domTargetConstructor() {
 		return WebGpuRendererDomTarget;
 	}
+
+	#placeHolderTextureManager;
+
+	/** @type {FinalizationRegistry<CachedMaterialData>} */
+	#cachedMaterialDataRegistry = new FinalizationRegistry(heldValue => {
+		heldValue.destructor();
+	});
 
 	/**
 	 * @param {import("../../../assets/EngineAssetsManager.js").EngineAssetsManager} engineAssetManager
@@ -52,6 +60,8 @@ export class WebGpuRenderer extends Renderer {
 		this.viewUniformsBuffer = null;
 		this.materialUniformsBuffer = null;
 		this.objectUniformsBuffer = null;
+
+		this.#placeHolderTextureManager = new PlaceHolderTextureManager(this);
 
 		this.isInit = false;
 		/** @type {Set<() => void>} */
@@ -187,25 +197,6 @@ export class WebGpuRenderer extends Renderer {
 			minFilter: "linear",
 		});
 
-		const placeHolderTexture = device.createTexture({
-			label: "placeHolderTexture",
-			size: [16, 16, 1],
-			format: "rgba8unorm",
-			usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
-		});
-		this.placeHolderTextureView = placeHolderTexture.createView({
-			label: "place holder texture view",
-		});
-		const placeHolderTextureBuffer = new Uint8Array(16 * 16 * 4);
-		for (let i = 0; i < placeHolderTextureBuffer.length; i++) {
-			placeHolderTextureBuffer[i] = 255;
-		}
-		device.queue.writeTexture({
-			texture: placeHolderTexture,
-		}, placeHolderTextureBuffer, {
-			bytesPerRow: 16 * 4,
-		}, [16, 16, 1]);
-
 		this.isInit = true;
 		for (const cb of this.onInitCbs) {
 			cb();
@@ -242,7 +233,7 @@ export class WebGpuRenderer extends Renderer {
 	render(domTarget, camera) {
 		if (!this.isInit) return;
 		if (!domTarget.ready) return;
-		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.placeHolderTextureView || !this.placeHolderSampler) {
+		if (!this.device || !this.viewUniformsBuffer || !this.lightsBuffer || !this.materialUniformsBuffer || !this.objectUniformsBuffer || !this.placeHolderSampler) {
 			// All these objects should exist when this.isInit is true, which we already checked for above.
 			throw new Error("Assertion failed, some required objects do not exist");
 		}
@@ -352,9 +343,9 @@ export class WebGpuRenderer extends Renderer {
 				if (!material || material.destructed || !material.materialMap) continue; // todo: log a (supressable) warning when the material is destructed
 
 				const materialData = this.getCachedMaterialData(material);
-				const forwardPipelineConfig = materialData.getForwardPipelineConfig();
+				const forwardPipelineConfig = materialData.getForwardPipelineConfig(material);
 				if (!forwardPipelineConfig || !forwardPipelineConfig.vertexShader || !forwardPipelineConfig.fragmentShader) continue;
-				const pipelineLayout = materialData.getPipelineLayout();
+				const pipelineLayout = materialData.getPipelineLayout(material);
 				if (!pipelineLayout) continue;
 				const forwardPipeline = this.getPipeline(forwardPipelineConfig, pipelineLayout, renderData.component.mesh.vertexState, outputConfig, camera.clusteredLightsConfig);
 
@@ -394,16 +385,30 @@ export class WebGpuRenderer extends Renderer {
 					binding: bindGroupEntries.length,
 				}));
 
+				const materialData = this.getCachedMaterialData(material);
+				/** @type {Set<import("./PlaceHolderTextureReference.js").PlaceHolderTextureReference>} */
+				const placeHolderTextureRefs = new Set();
+
 				for (let {mappedData, value} of material.getMappedPropertiesForMapType(WebGpuMaterialMapType)) {
 					if (mappedData.mappedType == "texture2d") {
-						if (value != null && !(value instanceof Texture)) {
-							throw new Error(`Assertion failed, material property "${mappedData.mappedName}" is not a texture`);
-						}
-						let textureView = this.placeHolderTextureView;
-						if (value) {
+						/** @type {GPUTextureView | null} */
+						let textureView = null;
+						if (value instanceof Texture) {
 							const textureData = this.getCachedTextureData(value);
 							const view = textureData.createView();
 							if (view) textureView = view;
+						}
+						if (!textureView) {
+							let color;
+							if (Array.isArray(value)) {
+								color = value;
+							} else {
+								color = [0, 0, 0];
+							}
+							const texture = this.#placeHolderTextureManager.getTexture(color);
+							textureView = texture.view;
+							const ref = texture.getReference();
+							placeHolderTextureRefs.add(ref);
 						}
 						bindGroupEntries.push({
 							binding: bindGroupEntries.length,
@@ -433,7 +438,10 @@ export class WebGpuRenderer extends Renderer {
 					}
 				}
 
-				const materialData = this.getCachedMaterialData(material);
+				for (const ref of materialData.placeHolderTextureRefs) {
+					ref.destructor();
+				}
+				materialData.placeHolderTextureRefs = placeHolderTextureRefs;
 
 				const {bindGroup, dynamicOffset} = this.materialUniformsBuffer.getCurrentEntryLocation(materialData.uniformsBindGroupLayout, bindGroupEntries);
 				renderPassEncoder.setBindGroup(1, bindGroup, [dynamicOffset]);
@@ -502,8 +510,14 @@ export class WebGpuRenderer extends Renderer {
 	getCachedMaterialData(material) {
 		let data = this.cachedMaterialData.get(material);
 		if (!data) {
-			data = new CachedMaterialData(this, material);
+			data = new CachedMaterialData(this);
 			this.cachedMaterialData.set(material, data);
+			this.#cachedMaterialDataRegistry.register(material, data, material);
+			const dataRef = data;
+			material.onDestructor(() => {
+				this.#cachedMaterialDataRegistry.unregister(material);
+				dataRef.destructor();
+			});
 		}
 		return data;
 	}

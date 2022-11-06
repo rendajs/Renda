@@ -41,6 +41,12 @@ export class PropertiesTreeView extends TreeView {
 	 * @param {object} [opts.callbacksContext]
 	 */
 	generateFromSerializableStructure(structure, opts) {}
+
+	/**
+	 * @param {import("../../../../../editor/src/ui/propertiesTreeView/types.js").StructureToSetObject<any>} values
+	 * @param {import("../../../../../editor/src/ui/propertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
+	 */
+	fillSerializableStructureValues(values, setValueOpts) {}
 }
 
 /**
