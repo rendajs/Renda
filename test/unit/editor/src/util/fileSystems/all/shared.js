@@ -19,7 +19,7 @@ const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../sh
 /**
  * @typedef FileSystemTestConfig
  * @property {FileSystemTypes} ctor
- * @property {(options?: CreateBasicFsOptions) => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} create Should
+ * @property {(options?: CreateFsOptions) => import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} create Should
  * create a new instance of the file system.
  * @property {(pending: boolean) => void} forcePendingOperations Should force all read and write promises to stay pending for this
  * file system type.
@@ -66,7 +66,7 @@ const fileSystems = [
 ];
 
 /**
- * @typedef CreateBasicFsOptions
+ * @typedef CreateFsOptions
  * @property {boolean} [initializeFiles] If true, creates the file system and adds
  * a few basic files that can be used for testing.
  * @property {boolean} [disableStructuredClone]
@@ -81,8 +81,10 @@ const fileSystems = [
 
 /**
  * @typedef FileSystemTestContext
- * @property {(options?: CreateBasicFsOptions) => Promise<import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem>} createFs Creates a
+ * @property {(options?: CreateFsOptions) => Promise<import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem>} createFs Creates a
  * new instance of a file system for each file system type that is not ignored.
+ * @property {(options?: CreateFsOptions) => Promise<import("../../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem>} createBasicFs Same as
+ * `createFs` but has `initializeFiles` set to true.
  * @property {(pending: boolean) => void} forcePendingOperations Forces all read and write promises to stay pending for this
  * file system type.
  */
@@ -93,24 +95,34 @@ const fileSystems = [
 export function testAll(test) {
 	for (const {ctor, create} of fileSystems) {
 		const name = `${ctor.name}: ${test.name}`;
+		/**
+		 * @param {CreateFsOptions} [options]
+		 */
+		async function createFs(options) {
+			const fs = create(options);
+			if (options?.initializeFiles) {
+				await fs.createDir(["root"]);
+				await fs.writeText(["root", "file1"], "hello");
+				await fs.writeText(["root", "file2"], "hello");
+
+				await fs.createDir(["root", "onlyfiles"]);
+				await fs.writeText(["root", "onlyfiles", "subfile1"], "hello");
+				await fs.writeText(["root", "onlyfiles", "subfile2"], "hello");
+
+				await fs.createDir(["root", "onlydirs"]);
+				await fs.createDir(["root", "onlydirs", "subdir1"]);
+				await fs.createDir(["root", "onlydirs", "subdir2"]);
+			}
+			return fs;
+		}
 		/** @type {FileSystemTestContext} */
 		const ctx = {
-			async createFs(options) {
-				const fs = create(options);
-				if (options?.initializeFiles) {
-					await fs.createDir(["root"]);
-					await fs.writeText(["root", "file1"], "hello");
-					await fs.writeText(["root", "file2"], "hello");
-
-					await fs.createDir(["root", "onlyfiles"]);
-					await fs.writeText(["root", "onlyfiles", "subfile1"], "hello");
-					await fs.writeText(["root", "onlyfiles", "subfile2"], "hello");
-
-					await fs.createDir(["root", "onlydirs"]);
-					await fs.createDir(["root", "onlydirs", "subdir1"]);
-					await fs.createDir(["root", "onlydirs", "subdir2"]);
-				}
-				return fs;
+			createFs,
+			async createBasicFs(options) {
+				return await createFs({
+					...options,
+					initializeFiles: true,
+				});
 			},
 			forcePendingOperations(force) {
 

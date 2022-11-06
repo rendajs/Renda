@@ -11,9 +11,7 @@ testAll({
 	name: "Should delete files and fire onChange",
 	ignore: [MemoryEditorFileSystem],
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		fs.onChange(onChangeSpy);
@@ -77,9 +75,7 @@ testAll({
 	name: "delete() should throw when deleting a non-empty directory with recursive=false",
 	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.delete(["root", "onlyfiles"]);
@@ -91,9 +87,7 @@ testAll({
 	name: "delete() a directory with recursive = true",
 	ignore: [MemoryEditorFileSystem],
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		await fs.delete(["root", "onlyfiles"], true);
 
@@ -111,9 +105,7 @@ testAll({
 	name: "delete() causes waitForWritesFinish to stay pending until done",
 	ignore: true,
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		ctx.forcePendingOperations(true);
 		const deletePromise = fs.delete(["root", "file1"]);

@@ -6,9 +6,7 @@ import {testAll} from "../shared.js";
 testAll({
 	name: "readDir() basic directory",
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		const result = await fs.readDir(["root"]);
 
@@ -22,9 +20,7 @@ testAll({
 testAll({
 	name: "readDir() only files",
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		const result = await fs.readDir(["root", "onlyfiles"]);
 
@@ -38,9 +34,7 @@ testAll({
 testAll({
 	name: "readDir() only dirs",
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		const result = await fs.readDir(["root", "onlydirs"]);
 
@@ -54,9 +48,7 @@ testAll({
 testAll({
 	name: "readDir() empty directory",
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		const result = await fs.readDir(["root", "onlydirs", "subdir1"]);
 
@@ -71,9 +63,7 @@ testAll({
 	name: "readDir() should error when reading files",
 	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.readDir(["root", "file1"]);
@@ -84,9 +74,7 @@ testAll({
 testAll({
 	name: "readDir while a new file is being created",
 	async fn(ctx) {
-		const fs = await ctx.createFs({
-			initializeFiles: true,
-		});
+		const fs = await ctx.createBasicFs();
 
 		const promise1 = fs.writeFile(["root", "onlyfiles", "createdfile"], "hello");
 		const promise2 = fs.readDir(["root", "onlyfiles"]);
