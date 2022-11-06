@@ -105,56 +105,6 @@ Deno.test({
 });
 
 Deno.test({
-	name: "readDir",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-
-		const {directories, files} = await fs.readDir(["root"]);
-		directories.sort();
-		files.sort();
-
-		assertEquals(directories, ["onlydirs", "onlyfiles"]);
-		assertEquals(files, ["file1", "file2"]);
-	},
-});
-
-Deno.test({
-	name: "readDir should error when reading files",
-	fn: async () => {
-		const {fs} = await createBasicFs();
-
-		let didThrow = false;
-		try {
-			await fs.readDir(["root", "file1"]);
-		} catch {
-			didThrow = true;
-		}
-
-		assertEquals(didThrow, true);
-	},
-});
-
-Deno.test({
-	name: "readDir while a new file is being created",
-	async fn() {
-		const {fs} = await createBasicFs();
-
-		const promise1 = fs.writeFile(["root", "onlyfiles", "createdfile"], "hello");
-		const promise2 = fs.readDir(["root", "onlyfiles"]);
-
-		await promise1;
-		assertEquals(await promise2, {
-			directories: [],
-			files: [
-				"subfile1",
-				"subfile2",
-				"createdfile",
-			],
-		});
-	},
-});
-
-Deno.test({
 	name: "writeFile should create the file and fire onChange",
 	async fn() {
 		const {fs} = await createBasicFs();
