@@ -1,10 +1,12 @@
 import {assert, assertEquals} from "std/testing/asserts.ts";
-import {createBasicFs} from "./shared.js";
+import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
+import {IndexedDbEditorFileSystem, testAll} from "../shared.js";
 
-Deno.test({
-	name: "writeFile()",
-	fn: async () => {
-		const fs = await createBasicFs();
+testAll({
+	name: "writeFileStream()",
+	ignore: [IndexedDbEditorFileSystem, FsaEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createFs();
 
 		const stream = await fs.writeFileStream(["root", "newfile"]);
 
