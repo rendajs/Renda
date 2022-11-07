@@ -1,6 +1,4 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
-import {MemoryEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {testAll} from "../shared.js";
 
 testAll({
@@ -61,13 +59,34 @@ testAll({
 
 testAll({
 	name: "readDir() should error when reading files",
-	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.readDir(["root", "file1"]);
-		}, Error, "Couldn't perform operation, file1 is not a directory.");
+		}, Error, `Couldn't readDir, "root/file1" is not a directory.`);
+	},
+});
+
+testAll({
+	name: "readDir() should error when parent is a file",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.readDir(["root", "file1", "file2"]);
+		}, Error, `Couldn't readDir at "root/file1/file2", "root/file1" is not a directory.`);
+	},
+});
+
+testAll({
+	name: "readDir() should error when parent doesn't exist",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.readDir(["root", "nonExistent", "nonExistent"]);
+		}, Error, `Couldn't readDir at "root/nonExistent/nonExistent", "root/nonExistent" does not exist.`);
 	},
 });
 

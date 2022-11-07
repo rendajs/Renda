@@ -33,28 +33,50 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	}
 
 	/**
+	 * @typedef {"type-mismatch" | "not-found"} GetObjectPointerErrorType
+	 */
+
+	/**
 	 * @private
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 * @param {object} options
 	 * @param {boolean} [options.create]
 	 * @param {"file" | "dir"} [options.createType]
+	 * @param {string} [options.errorMessageActionName]
 	 */
 	getObjectPointer(path, {
 		create = false,
 		createType = "dir",
+		errorMessageActionName = "get object",
 	} = {}) {
 		/** @type {MemoryEditorFileSystemPointer} */
 		let currentObject = this.rootObject;
 		for (const [i, name] of path.entries()) {
+			/**
+			 * @param {GetObjectPointerErrorType} type
+			 * @returns {never}
+			 */
+			function throwError(type, failurePathOffset = 0) {
+				const pathStr = path.join("/");
+				const failurePathStr = path.slice(0, i + failurePathOffset).join("/");
+				let ending = ".";
+				if (type == "not-found") {
+					ending = `, "${failurePathStr}" does not exist.`;
+				} else if (type == "type-mismatch") {
+					ending = `, "${failurePathStr}" is not a directory.`;
+				}
+				const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
+				throw new Error(`Couldn't ${errorMessageActionName}${atText}${ending}`);
+			}
 			if (currentObject.isFile) {
-				throw new Error(`Couldn't get object at ${path.join("/")} because ${name} is a file.`);
+				throwError("type-mismatch");
 			}
 			/** @type {MemoryEditorFileSystemPointer[]} */
 			const children = currentObject.children;
 			let child = children.find(c => c.name == name);
 			if (!child) {
 				if (!create) {
-					throw new Error(`${path.join("/")} not found, ${name} does not exist.`);
+					throwError("not-found", 1);
 				}
 				if (createType == "file" && i == path.length - 1) {
 					child = {
@@ -84,9 +106,12 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	async readDir(path) {
 		const files = [];
 		const directories = [];
-		const object = this.getObjectPointer(path);
+		const object = this.getObjectPointer(path, {
+			errorMessageActionName: "readDir",
+		});
 		if (object.isFile) {
-			throw new Error(`Cannot readDir: ${path.join("/")} is a file.`);
+			const pathStr = path.join("/");
+			throw new Error(`Couldn't readDir, "${pathStr}" is not a directory.`);
 		}
 		for (const child of object.children) {
 			if (child.isFile) {
@@ -107,6 +132,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 		this.getObjectPointer(path, {
 			create: true,
 			createType: "dir",
+			errorMessageActionName: "createDir",
 		});
 
 		this.fireChange({
@@ -123,9 +149,11 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
-		const object = this.getObjectPointer(path);
+		const object = this.getObjectPointer(path, {
+			errorMessageActionName: "readFile",
+		});
 		if (!object.isFile) {
-			throw new Error(`"${path.join("/")}" is not a file.`);
+			throw new Error(`Couldn't readFile, "${path.join("/")}" is not a file.`);
 		}
 		return object.file;
 	}
@@ -140,9 +168,11 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 		const object = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
+			errorMessageActionName: "writeFile",
 		});
 		if (!object.isFile) {
-			throw new Error(`"${path.join("/")}" is not a file.`);
+			const pathStr = path.join("/");
+			throw new Error(`Couldn't writeFile, "${pathStr}" is not a file.`);
 		}
 		object.file = new File([file], object.name);
 
@@ -164,9 +194,11 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 		const object = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
+			errorMessageActionName: "writeFileStream",
 		});
 		if (!object.isFile) {
-			throw new Error(`"${path.join("/")}" is not a file.`);
+			const pathStr = path.join("/");
+			throw new Error(`Couldn't writeFileStream, "${pathStr}" is not a file.`);
 		}
 		if (!keepExistingData) {
 			object.file = new File([], object.name);

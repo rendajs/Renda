@@ -5,7 +5,7 @@ import {MemoryEditorFileSystem} from "../../../../../../../../editor/src/util/fi
 import {assertPromiseResolved} from "../../../../../../shared/asserts.js";
 import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../../shared.js";
-import {testAll} from "../shared.js";
+import {IndexedDbEditorFileSystem, testAll} from "../shared.js";
 
 testAll({
 	name: "writeFile should create the file and fire onChange",
@@ -39,26 +39,37 @@ testAll({
 });
 
 testAll({
+	name: "writeFile should error when the target is a directory",
+	ignore: [IndexedDbEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.writeFile(["root", "onlydirs"], "hello world");
+		}, Error, `Couldn't writeFile, "root/onlydirs" is not a file.`);
+	},
+});
+
+testAll({
 	name: "writeFile should error when a parent is not a directory",
-	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "newfile"], "hello world");
-		}, Error, 'Failed to write to "root/file1/newfile", "root/file1" is not a directory.');
+		}, Error, `Couldn't writeFile at "root/file1/newfile", "root/file1" is not a directory.`);
 	},
 });
 
 testAll({
 	name: "writeFile should error when a parent of parent is not a directory",
-	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
+	ignore: [FsaEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.writeFile(["root", "file1", "anotherdir", "newfile"], "hello world");
-		}, Error, 'Failed to create directory at "root/file1/anotherdir", "root/file1" is file.');
+		}, Error, `Couldn't writeFile at "root/file1/anotherdir/newfile", "root/file1" is not a directory.`);
 	},
 });
 

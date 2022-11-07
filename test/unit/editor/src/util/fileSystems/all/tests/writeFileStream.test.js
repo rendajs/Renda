@@ -1,4 +1,4 @@
-import {assert, assertEquals} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
 import {IndexedDbEditorFileSystem, testAll} from "../shared.js";
 
@@ -26,5 +26,29 @@ testAll({
 		const text = await fs.readText(["root", "newfile"]);
 
 		assertEquals(text, "overwriteoverwriteworld hello world");
+	},
+});
+
+testAll({
+	name: "writeFileStream should error when the target is a directory",
+	ignore: [IndexedDbEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.writeFileStream(["root", "onlydirs"]);
+		}, Error, `Couldn't writeFileStream, "root/onlydirs" is not a file.`);
+	},
+});
+
+testAll({
+	name: "writeFileStream should error when a parent is a file",
+	ignore: [IndexedDbEditorFileSystem],
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.writeFileStream(["root", "file1", "newfile"]);
+		}, Error, `Couldn't writeFileStream at "root/file1/newfile", "root/file1" is not a directory.`);
 	},
 });

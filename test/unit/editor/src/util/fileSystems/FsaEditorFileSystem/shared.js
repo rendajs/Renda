@@ -91,6 +91,8 @@ export class FakeHandle {
 		for (const entry of this.#entries) {
 			if (entry.name == name) {
 				if (entry.kind != kind) {
+					// We'll want to keep an eye out for https://github.com/whatwg/fs/issues/57
+					// since error types might change in the future.
 					throw new DOMException("", "TypeMismatchError");
 				}
 				return entry;
@@ -99,6 +101,8 @@ export class FakeHandle {
 		if (create) {
 			return this.addFakeEntry(kind, name);
 		}
+		// We'll want to keep an eye out for https://github.com/whatwg/fs/issues/57
+		// since error types might change in the future.
 		throw new DOMException("", "NotFoundError");
 	}
 

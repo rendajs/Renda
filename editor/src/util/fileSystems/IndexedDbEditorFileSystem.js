@@ -258,16 +258,22 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	}
 
 	/**
-	 *
 	 * @param {string[]} path
+	 * @param {Object} options
+	 * @param {string} [options.errorMessageActionName]
 	 * @returns {Promise<{pointer: IndexedDbEditorFileSystemPointer, obj: IndexedDbEditorFileSystemStoredObject}>}
 	 */
-	async getObjectFromPath(path) {
+	async getObjectFromPath(path, {
+		errorMessageActionName = "perform operation",
+	} = {}) {
 		let pointer = await this.getRootPointer();
 		let obj = await this.getObject(pointer);
-		for (const dir of path) {
+		const pathStr = path.join("/");
+		for (const [i, dir] of path.entries()) {
 			let foundAny = false;
-			this.assertIsDir(obj);
+			const failurePathStr = path.slice(0, i).join("/");
+			const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
+			this.assertIsDir(obj, `Couldn't ${errorMessageActionName}${atText}, "${failurePathStr}" is not a directory.`);
 			for (const filePointer of obj.files) {
 				const fileObj = await this.getObject(filePointer);
 				if (fileObj.fileName == dir) {
@@ -278,7 +284,9 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 				}
 			}
 			if (!foundAny) {
-				throw new Error(dir + " does not exist");
+				const failurePathStr = path.slice(0, i + 1).join("/");
+				const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
+				throw new Error(`Couldn't ${errorMessageActionName}${atText}, "${failurePathStr}" does not exist.`);
 			}
 		}
 		return {pointer, obj};
@@ -303,7 +311,9 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		const op = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
-			await this.createDirInternal(path);
+			await this.createDirInternal(path, {
+				errorMessageActionName: "createDir",
+			});
 		} finally {
 			await unlock();
 			op.done();
@@ -324,7 +334,10 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @private
 	 * @param {string[]} path
 	 */
-	async createDirInternal(path) {
+	async createDirInternal(path, {
+		errorMessageActionName = "perform operation",
+		errorMessagePath = path,
+	} = {}) {
 		const travelledData = await this.findDeepestExisting(path);
 		const recursionDepth = travelledData.length - 1;
 		if (recursionDepth == path.length) return travelledData;
@@ -352,7 +365,10 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		const lastFoundPathEntry = travelledData[travelledData.length - 1];
 		const lastFoundObject = lastFoundPathEntry.obj;
 		const assertionPath = path.slice(0, travelledData.length - 1);
-		this.assertIsDir(lastFoundObject, `Failed to create directory at "${path.join("/")}", "${assertionPath.join("/")}" is file.`);
+		const errorMessagePathStr = errorMessagePath.join("/");
+		const assertionPathStr = assertionPath.join("/");
+		const atText = errorMessagePathStr == assertionPathStr ? "" : ` at "${errorMessagePathStr}"`;
+		this.assertIsDir(lastFoundObject, `Couldn't ${errorMessageActionName}${atText}, "${assertionPath.join("/")}" is not a directory.`);
 		if (!lastCreatedPointer) {
 			throw new Error("Failed to get file pointer");
 			// This should never be called because we already checked if the
@@ -423,8 +439,10 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	async readDir(path) {
 		const {unlock} = await this.#getSystemLock();
 		try {
-			const {obj} = await this.getObjectFromPath(path);
-			this.assertIsDir(obj);
+			const {obj} = await this.getObjectFromPath(path, {
+				errorMessageActionName: "readDir",
+			});
+			this.assertIsDir(obj, `Couldn't readDir, "${path.join("/")}" is not a directory.`);
 			const {files, directories} = await this.readDirObject(obj);
 			return {
 				files: Array.from(files.keys()),
@@ -648,10 +666,13 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			}
 			const createdFile = new File([file], fileName, {type, lastModified});
 			const newParentPath = path.slice(0, path.length - 1);
-			const newParentTravelledData = await this.createDirInternal(newParentPath);
+			const newParentTravelledData = await this.createDirInternal(newParentPath, {
+				errorMessagePath: path,
+				errorMessageActionName: "writeFile",
+			});
 			const newFileName = path[path.length - 1];
 			const newParentObj = newParentTravelledData[newParentTravelledData.length - 1];
-			this.assertIsDir(newParentObj.obj, `Failed to write to "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
+			this.assertIsDir(newParentObj.obj, `Couldn't writeFile at "${path.join("/")}", "${newParentPath.join("/")}" is not a directory.`);
 
 			const newPointer = await this.createObject({
 				isFile: true,
@@ -696,9 +717,12 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	async readFile(path) {
 		const {unlock} = await this.#getSystemLock();
 		try {
-			const {obj} = await this.getObjectFromPath(path);
+			const {obj} = await this.getObjectFromPath(path, {
+				errorMessageActionName: "readFile",
+			});
 			if (!obj.isFile) {
-				throw new Error(obj.fileName + " is not a file");
+				const pathStr = path.join("/");
+				throw new Error(`Couldn't readFile, "${pathStr}" is not a file.`);
 			}
 			return obj.file;
 		} finally {

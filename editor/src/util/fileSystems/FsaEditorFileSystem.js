@@ -168,11 +168,16 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {object} opts
 	 * @param {boolean} [opts.create] Whether to create the directory if it doesn't exist.
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
+	 * @param {string} [opts.errorMessageActionName] The error action to show in error messages
+	 * when an error occurs.
+	 * @param {string[]} [opts.errorMessagePath] The full path of the action that is trying to be performed.
 	 * @returns {Promise<FileSystemDirectoryHandle>}
 	 */
 	async getDirHandle(path, {
 		create = false,
 		overrideError = true,
+		errorMessageActionName = "perform action",
+		errorMessagePath = path,
 	} = {}) {
 		let {handle} = this;
 		let parsedPathDepth = 0;
@@ -182,11 +187,23 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			await this.verifyHandlePermission(handle, {writable: create});
 			try {
 				handle = await handle.getDirectoryHandle(dirName, {create});
-			} catch (e) {
-				const error = /** @type {any} */ (e);
+			} catch (error) {
 				if (overrideError) {
-					const pathStr = path.slice(0, parsedPathDepth).join("/") + "/";
-					const message = `Failed to get directory handle for ${pathStr}`;
+					const pathStr = errorMessagePath.join("/");
+					const failurePathStr = path.slice(0, parsedPathDepth).join("/");
+					// We'll want to keep an eye out for https://github.com/whatwg/fs/issues/57
+					// since error types might change in the future.
+					let end = ".";
+					if (error instanceof DOMException) {
+						if (error.name == "TypeMismatchError") {
+							end = `, "${failurePathStr}" is not a directory.`;
+						} else if (error.name == "NotFoundError") {
+							end = `, "${failurePathStr}" does not exist.`;
+						}
+					}
+
+					const atText = pathStr == failurePathStr ? "" : ` at "${pathStr}"`;
+					const message = `Couldn't ${errorMessageActionName}${atText}${end}`;
 					throw new Error(message, {cause: error});
 				} else {
 					throw error;
@@ -202,14 +219,21 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {object} opts
 	 * @param {boolean} [opts.create] Whether to create the file if it doesn't exist.
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
+	 * @param {string} [opts.errorMessageActionName] The error action to show in error messages
+	 * when an error occurs.
 	 * @returns {Promise<FileSystemFileHandle>}
 	 */
 	async getFileHandle(path = [], {
 		create = false,
 		overrideError = true,
+		errorMessageActionName = "perform action",
 	} = {}) {
 		const {dirPath, fileName} = this.splitDirFileName(path);
-		const dirHandle = await this.getDirHandle(dirPath, {create, overrideError});
+		const dirHandle = await this.getDirHandle(dirPath, {
+			create, overrideError,
+			errorMessageActionName,
+			errorMessagePath: path,
+		});
 		await this.verifyHandlePermission(dirHandle, {writable: create});
 		let fileHandle = null;
 		try {
@@ -227,11 +251,20 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			// without reading it, but that's fine. The current time will always
 			// be later than the lastModified value of the file.
 			if (create) this.setWatchTreeLastModified(path);
-		} catch (e) {
-			const error = /** @type {any} */ (e);
+		} catch (error) {
 			if (overrideError) {
 				const pathStr = path.join("/");
-				const message = `Failed to get file handle for ${pathStr}`;
+				// We'll want to keep an eye out for https://github.com/whatwg/fs/issues/57
+				// since error types might change in the future.
+				let end = ".";
+				if (error instanceof DOMException) {
+					if (error.name == "TypeMismatchError") {
+						end = `, "${pathStr}" is not a file.`;
+					} else if (error.name == "NotFoundError") {
+						end = `, "${pathStr}" does not exist.`;
+					}
+				}
+				const message = `Couldn't ${errorMessageActionName}${end}`;
 				throw new Error(message, {cause: error});
 			} else {
 				throw error;
@@ -245,7 +278,9 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
 	async readDir(path) {
-		const handle = await this.getDirHandle(path);
+		const handle = await this.getDirHandle(path, {
+			errorMessageActionName: "readDir",
+		});
 		/** @type {import("./EditorFileSystem.js").EditorFileSystemReadDirResult} */
 		const result = {
 			files: [],
@@ -267,7 +302,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 */
 	async createDir(path) {
 		path = [...path];
-		await this.getDirHandle(path, {create: true});
+		await this.getDirHandle(path, {create: true, errorMessageActionName: "createDir"});
 
 		// Note that this also fires the event when the directory already
 		// existed before the call.
@@ -358,7 +393,9 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 		let fileContent;
 		let catchedError;
 		try {
-			const fileHandle = await this.getFileHandle(path);
+			const fileHandle = await this.getFileHandle(path, {
+				errorMessageActionName: "readFile",
+			});
 			await this.verifyHandlePermission(fileHandle, {writable: false});
 			fileContent = await fileHandle.getFile();
 		} catch (e) {
@@ -389,7 +426,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 */
 	async writeFile(path, file) {
 		path = [...path];
-		const fileStream = await this.writeFileStream(path);
+		const fileStream = await this.#writeFileStreamInternal(path, false, "writeFile");
 		if (fileStream.locked) {
 			throw new Error("File is locked, writing after lock is not yet implemented");
 		}
@@ -410,8 +447,20 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
-	async writeFileStream(path, keepExistingData = false) {
-		const fileHandle = await this.getFileHandle(path, {create: true});
+	writeFileStream(path, keepExistingData = false) {
+		return this.#writeFileStreamInternal(path, keepExistingData, "writeFileStream");
+	}
+
+	/**
+	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {boolean} keepExistingData
+	 * @param {string} errorMessageActionName
+	 */
+	async #writeFileStreamInternal(path, keepExistingData, errorMessageActionName) {
+		const fileHandle = await this.getFileHandle(path, {
+			create: true,
+			errorMessageActionName,
+		});
 		await this.verifyHandlePermission(fileHandle);
 		const fileStream = await fileHandle.createWritable({keepExistingData});
 		return fileStream;

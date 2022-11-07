@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {testAll} from "../shared.js";
 import {registerOnChangeSpy} from "../../shared.js";
@@ -88,5 +88,16 @@ testAll({
 		await createPromise;
 		await waitForMicrotasks();
 		assertEquals(waitPromiseResolved, true);
+	},
+});
+
+testAll({
+	name: "createDir() rejects when the parent is a file",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.createDir(["root", "file1", "dir"]);
+		}, Error, `Couldn't createDir at "root/file1/dir", "root/file1" is not a directory.`);
 	},
 });

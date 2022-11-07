@@ -1,7 +1,6 @@
-import {assert, assertEquals, assertNotEquals, assertRejects} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertIsError, assertNotEquals, assertRejects} from "std/testing/asserts.ts";
 import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
-import {MemoryEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {IndexedDbEditorFileSystem, testAll} from "../shared.js";
+import {testAll} from "../shared.js";
 
 testAll({
 	name: "readFile()",
@@ -13,6 +12,39 @@ testAll({
 		const file = await fs.readFile(["root", "file1"]);
 
 		assert(file instanceof File, "file is not an instance of File");
+	},
+});
+
+testAll({
+	name: "readFile() missing file",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.readFile(["root", "nonExistent"]);
+		}, Error, `Couldn't readFile, "root/nonExistent" does not exist.`);
+	},
+});
+
+testAll({
+	name: "readFile() missing parent",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.readFile(["root", "nonExistent", "nonExistent"]);
+		}, Error, `Couldn't readFile at "root/nonExistent/nonExistent", "root/nonExistent" does not exist.`);
+	},
+});
+
+testAll({
+	name: "readFile() parent is a file",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+
+		await assertRejects(async () => {
+			await fs.readFile(["root", "file1", "nonExistent"]);
+		}, Error, `Couldn't readFile at "root/file1/nonExistent", "root/file1" is not a directory.`);
 	},
 });
 
@@ -37,13 +69,11 @@ testAll({
 
 testAll({
 	name: "readFile() Two calls at once, missing file",
-	ignore: [MemoryEditorFileSystem, IndexedDbEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
 		const promise1 = fs.readFile(["root", "nonExistent"]);
 		const promise2 = fs.readFile(["root", "nonExistent"]);
-
 		let error1 = null;
 		let error2 = null;
 		try {
@@ -59,19 +89,19 @@ testAll({
 
 		assertNotEquals(error1, null);
 		assertNotEquals(error2, null);
-		assert(error1 === error2, "error1 and error2 are not the same instance");
+		assertIsError(error1, Error, `Couldn't readFile, "root/nonExistent" does not exist.`);
+		assertIsError(error2, Error, `Couldn't readFile, "root/nonExistent" does not exist.`);
 	},
 });
 
 testAll({
 	name: "readFile() should error when reading a directory",
-	ignore: [FsaEditorFileSystem, IndexedDbEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
 		await assertRejects(async () => {
 			await fs.readFile(["root", "onlydirs"]);
-		}, Error, `"root/onlydirs" is not a file.`);
+		}, Error, `Couldn't readFile, "root/onlydirs" is not a file.`);
 	},
 });
 
