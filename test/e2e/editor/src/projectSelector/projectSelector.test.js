@@ -32,10 +32,12 @@ Deno.test({
 		});
 
 		await testContext.step("Reload the page", async testContext => {
-			await page.reload();
-
-			await waitForProjectOpen(page, testContext);
+			await page.reload({
+				timeout: 0,
+			});
 		});
+
+		await waitForProjectOpen(page, testContext);
 
 		await testContext.step("Check if the project loaded with the changed name", async () => {
 			const contentWindowProjectEl = await page.waitForSelector(projectWindowSelector);
