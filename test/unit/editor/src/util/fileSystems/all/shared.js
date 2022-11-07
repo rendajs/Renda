@@ -80,6 +80,7 @@ const fileSystems = [
  * @property {FileSystemTypes[] | boolean} [ignore] The file system types to ignore this test for.
  * @property {FileSystemTypes[]} [exclude] The file system types to exclude, unlike `ignore` this does not
  * count against the ignored tests in the results, and in stead this test is just completely omitted from the results.
+ * @property {boolean} [only] Runs only this test and no others.
  */
 
 /**
@@ -142,6 +143,7 @@ export function testAll(test) {
 		Deno.test({
 			name,
 			ignore,
+			only: test.only,
 			async fn() {
 				await test.fn(ctx);
 			},

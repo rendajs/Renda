@@ -1,4 +1,4 @@
-import {assert, assertRejects} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
 import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/FsaEditorFileSystem.js";
 import {MemoryEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
@@ -31,7 +31,82 @@ testAll({
 					external: false,
 					kind: "file",
 					path: ["root", "newfile"],
+					type: "created",
+				},
+			],
+		});
+	},
+});
+
+testAll({
+	name: "writeFile to existing file should overwrite it and fire change event",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs({disableStructuredClone: true});
+		const onChangeSpy = registerOnChangeSpy(fs);
+
+		const path = ["root", "file1"];
+		const writeFilePromise = fs.writeFile(path, "newText");
+
+		// Change the path to verify that the initial array is used
+		path.push("extra");
+
+		await writeFilePromise;
+
+		const result = await fs.readText(["root", "file1"]);
+		assertEquals(result, "newText");
+
+		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "file1"],
 					type: "changed",
+				},
+			],
+		});
+	},
+});
+
+testAll({
+	name: "writeFile should create parent directories when they don't exist",
+	async fn(ctx) {
+		const fs = await ctx.createBasicFs();
+		const onChangeSpy = registerOnChangeSpy(fs);
+
+		const path = ["root", "parent", "newfile"];
+		const writeFilePromise = fs.writeFile(path, "text");
+
+		// Change the path to verify that the initial array is used
+		path.push("extra");
+
+		await writeFilePromise;
+
+		const {directories} = await fs.readDir(["root"]);
+		assert(directories.includes("parent"), "'parent' was not created");
+
+		const {files} = await fs.readDir(["root", "parent"]);
+		assert(files.includes("newfile"), "'newfile' was not created");
+
+		assertSpyCalls(onChangeSpy, 2);
+		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "directory",
+					path: ["root", "parent"],
+					type: "created",
+				},
+			],
+		});
+		assertSpyCall(onChangeSpy, 1, {
+			args: [
+				{
+					external: false,
+					kind: "file",
+					path: ["root", "parent", "newfile"],
+					type: "created",
 				},
 			],
 		});

@@ -227,7 +227,7 @@ Deno.test({
 					external: false,
 					kind: "file",
 					path: ["root", "newfile"],
-					type: "changed",
+					type: "created",
 				},
 			],
 		});
@@ -264,14 +264,24 @@ Deno.test({
 		fs.suggestCheckExternalChanges();
 		await fs.updateWatchTreeInstance.waitForFinishIfRunning();
 
-		assertSpyCalls(onChangeSpy, 1);
+		assertSpyCalls(onChangeSpy, 2);
 		assertSpyCall(onChangeSpy, 0, {
+			args: [
+				{
+					external: false,
+					kind: "directory",
+					path: ["root", "nonexistent"],
+					type: "created",
+				},
+			],
+		});
+		assertSpyCall(onChangeSpy, 1, {
 			args: [
 				{
 					external: false,
 					kind: "file",
 					path: ["root", "nonexistent", "newfile"],
-					type: "changed",
+					type: "created",
 				},
 			],
 		});
