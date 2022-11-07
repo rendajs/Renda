@@ -1,15 +1,10 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {registerOnChangeSpy} from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
-	name: "Should delete files and fire onChange",
+	name: "Should delete the file handle",
 	fn: async () => {
 		const {fs, rootDirHandle} = createBasicFs();
-		const onChangeSpy = registerOnChangeSpy(fs);
-
-		fs.onChange(onChangeSpy);
 
 		const path = ["root", "file1"];
 		const deletePromise = fs.delete(path);
@@ -26,17 +21,5 @@ Deno.test({
 			}
 		}
 		assertEquals(hasFile1, false);
-
-		assertSpyCalls(onChangeSpy, 1);
-		assertSpyCall(onChangeSpy, 0, {
-			args: [
-				{
-					external: false,
-					kind: "unknown",
-					path: ["root", "file1"],
-					type: "deleted",
-				},
-			],
-		});
 	},
 });

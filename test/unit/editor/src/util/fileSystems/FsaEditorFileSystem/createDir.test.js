@@ -1,13 +1,10 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {registerOnChangeSpy} from "../shared.js";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
-	name: "should create a directory and fire onchange",
+	name: "should create a directory on the file handle",
 	fn: async () => {
 		const {fs, rootDirHandle} = createBasicFs();
-		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "newdir"];
 		const createDirPromise = fs.createDir(path);
@@ -31,17 +28,5 @@ Deno.test({
 			subChildCount++;
 		}
 		assertEquals(subChildCount, 0);
-
-		assertSpyCalls(onChangeSpy, 1);
-		assertSpyCall(onChangeSpy, 0, {
-			args: [
-				{
-					external: false,
-					kind: "directory",
-					path: ["root", "newdir"],
-					type: "created",
-				},
-			],
-		});
 	},
 });
