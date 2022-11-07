@@ -63,7 +63,6 @@ testAll({
 
 testAll({
 	name: "writeFile should error when a parent of parent is not a directory",
-	ignore: [FsaEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
