@@ -121,7 +121,6 @@ testAll({
 
 testAll({
 	name: "readText()",
-	ignore: [FsaEditorFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs({disableStructuredClone: true});
 

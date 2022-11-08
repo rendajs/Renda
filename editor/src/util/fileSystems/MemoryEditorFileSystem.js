@@ -145,13 +145,6 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 			createType: "dir",
 			errorMessageActionName: "createDir",
 		});
-
-		this.fireChange({
-			external: false,
-			kind: "directory",
-			path,
-			type: "created",
-		});
 	}
 
 	/**

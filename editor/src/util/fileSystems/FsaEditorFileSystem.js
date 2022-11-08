@@ -327,15 +327,6 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	async createDir(path) {
 		path = [...path];
 		await this.getDirHandle(path, {create: true, errorMessageActionName: "createDir"});
-
-		// Note that this also fires the event when the directory already
-		// existed before the call.
-		this.fireChange({
-			external: false,
-			kind: "directory",
-			path,
-			type: "created",
-		});
 	}
 
 	/**

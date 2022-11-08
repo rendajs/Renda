@@ -318,13 +318,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			await unlock();
 			op.done();
 		}
-
-		this.fireChange({
-			external: false,
-			kind: "directory",
-			path,
-			type: "created",
-		});
 	}
 
 	/**
@@ -542,7 +535,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 					external: false,
 					kind: "file",
 					path: toPath,
-					type: "changed",
+					type: "created",
 				});
 
 				// add new pointer to new parent
@@ -563,7 +556,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 					external: false,
 					kind: "file",
 					path: toPath,
-					type: "changed",
+					type: "created",
 				});
 
 				// add new pointer to new parent

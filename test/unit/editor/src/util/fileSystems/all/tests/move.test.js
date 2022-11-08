@@ -35,7 +35,7 @@ testAll({
 					external: false,
 					kind: "file",
 					path: ["root", "file3"],
-					type: "changed",
+					type: "created",
 				},
 			],
 		});
@@ -86,7 +86,7 @@ testAll({
 					external: false,
 					kind: "file",
 					path: ["root", "onlyfiles", "file2"],
-					type: "changed",
+					type: "created",
 				},
 			],
 		});
@@ -126,7 +126,7 @@ testAll({
 					external: false,
 					kind: "file",
 					path: ["root", "onlyfiles2"],
-					type: "changed",
+					type: "created",
 				},
 			],
 		});

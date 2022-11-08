@@ -7,9 +7,9 @@ import {FsaEditorFileSystem} from "../../../../../../../../editor/src/util/fileS
 import {MemoryEditorFileSystem} from "../../../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 
 testAll({
-	name: "should create a directory and fire onchange",
+	name: "createDir() should create a directory and fire onchange",
 	async fn(ctx) {
-		const fs = await ctx.createFs();
+		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
 
 		const path = ["root", "newdir"];

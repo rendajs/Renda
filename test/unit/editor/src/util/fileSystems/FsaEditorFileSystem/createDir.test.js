@@ -2,7 +2,7 @@ import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {createBasicFs} from "./shared.js";
 
 Deno.test({
-	name: "should create a directory on the file handle",
+	name: "createDir() should create a directory on the file handle",
 	fn: async () => {
 		const {fs, rootDirHandle} = createBasicFs();
 
