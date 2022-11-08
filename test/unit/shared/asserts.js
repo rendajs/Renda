@@ -90,14 +90,14 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 			throw new AssertionError(msg);
 		}
 		if (!expected) {
-			throw new AssertionError(`Expected ${expectedVec.toArray()} but got ${expected}`);
+			throw new AssertionError(`Expected ${expectedVec} but got ${expected}`);
 		}
 		throw new AssertionError(`Two vectors are not of the same type: ${actual.constructor.name} and ${expected.constructor.name}`);
 	}
 	if (dist > tolerance || hasNaN) {
 		let message = msg;
 		if (!message) {
-			message = `Expected value to be close to ${expectedVec.toArray()} but got ${actualVec.toArray()}`;
+			message = `Expected value to be close to ${expectedVec} but got ${actualVec}`;
 		}
 		throw new AssertionError(message);
 	}
@@ -122,7 +122,7 @@ function assertIsQuaternion(quat, msg) {
 export function assertQuatAlmostEquals(actual, expected, tolerance = 0.00001, msg = "") {
 	assertIsQuaternion(actual, msg);
 	assertIsQuaternion(expected, msg);
-	if (!msg) msg = `Expected Quaternion to be close to ${expected.toArray()} but got ${actual.toArray()}`;
+	if (!msg) msg = `Expected Quaternion to be close to ${expected} but got ${actual}`;
 	assertAlmostEquals(actual.x, expected.x, tolerance, msg);
 	assertAlmostEquals(actual.y, expected.y, tolerance, msg);
 	assertAlmostEquals(actual.z, expected.z, tolerance, msg);

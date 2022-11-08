@@ -114,19 +114,19 @@ Deno.test({
 		// Different values
 		assertThrows(() => {
 			assertVecAlmostEquals(new Vec3(1, 2, 3), new Vec3(1.1, 2, 3));
-		});
+		}, Error, "Expected value to be close to Vec3<1.1, 2, 3> but got Vec3<1, 2, 3>");
 		assertThrows(() => {
 			assertVecAlmostEquals([0, 0, 0], [1, 2, 3]);
-		});
+		}, Error, "Expected value to be close to Vec3<1, 2, 3> but got Vec3<0, 0, 0>");
 		assertThrows(() => {
 			assertVecAlmostEquals([0, 0, 0], [11, 0, 0], 10);
-		});
+		}, Error, "Expected value to be close to Vec3<11, 0, 0> but got Vec3<0, 0, 0>");
 		assertThrows(() => {
 			assertVecAlmostEquals([NaN, 0, 0], [0, 0, 0]);
-		});
+		}, Error, "Expected value to be close to Vec3<0, 0, 0> but got Vec3<NaN, 0, 0>");
 		assertThrows(() => {
 			assertVecAlmostEquals([NaN, 0, 0], [NaN, 0, 0]);
-		});
+		}, Error, "Expected value to be close to Vec3<NaN, 0, 0> but got Vec3<NaN, 0, 0>");
 	},
 });
 
@@ -143,10 +143,10 @@ Deno.test({
 	fn() {
 		assertThrows(() => {
 			assertQuatAlmostEquals(new Quat(1, 2, 3), new Quat(1, 2, 3, 1.1));
-		});
+		}, Error, "Expected Quaternion to be close to Quat<1, 2, 3, 1.1> but got Quat<1, 2, 3, 1>");
 		assertThrows(() => {
 			assertQuatAlmostEquals(new Quat(1, 2, 3, 10), new Quat());
-		});
+		}, Error, "Expected Quaternion to be close to Quat<0, 0, 0, 1> but got Quat<1, 2, 3, 10>");
 	},
 });
 

@@ -1,3 +1,4 @@
+import {assertEquals} from "std/testing/asserts.ts";
 import {Quat, Vec3} from "../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../shared/asserts.js";
 
@@ -46,5 +47,15 @@ Deno.test({
 		const v2 = new Vec3(0, 0, 1).multiply(mat);
 
 		assertVecAlmostEquals(v1, v2);
+	},
+});
+
+Deno.test({
+	name: "toString()",
+	fn() {
+		const vec = new Quat(1, 2, 3, 4);
+		const result = vec.toString();
+
+		assertEquals(result, "Quat<1, 2, 3, 4>");
 	},
 });

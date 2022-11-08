@@ -160,6 +160,10 @@ export class Vec3 {
 		return new Vec4(this);
 	}
 
+	toString() {
+		return `Vec3<${this._x}, ${this._y}, ${this._z}>`;
+	}
+
 	/**
 	 * The length of the vector. Can be set to a value to automatically adjust
 	 * the components to comply with the new magnitude.
