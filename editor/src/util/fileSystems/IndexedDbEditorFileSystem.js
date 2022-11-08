@@ -318,13 +318,6 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			await unlock();
 			op.done();
 		}
-
-		this.fireChange({
-			external: false,
-			kind: "directory",
-			path,
-			type: "created",
-		});
 	}
 
 	/**
@@ -346,7 +339,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 		let lastCreatedPointer = null;
 		/** @type {IndexedDbEditorFileSystemTravelledDataEntry[]} */
 		const extraTravelledData = [];
-		for (const dir of createDirs) {
+		for (const [i, dir] of createDirs.entries()) {
 			/** @type {IndexedDbEditorFileSystemStoredObjectDir} */
 			const createdObject = {
 				isDir: true,
@@ -360,6 +353,12 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			extraTravelledData.push({
 				obj: createdObject,
 				pointer: lastCreatedPointer,
+			});
+			this.fireChange({
+				external: false,
+				kind: "directory",
+				path: path.slice(0, recursionDepth + i + 1),
+				type: "created",
 			});
 		}
 		const lastFoundPathEntry = travelledData[travelledData.length - 1];
@@ -536,7 +535,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 					external: false,
 					kind: "file",
 					path: toPath,
-					type: "changed",
+					type: "created",
 				});
 
 				// add new pointer to new parent
@@ -557,7 +556,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 					external: false,
 					kind: "file",
 					path: toPath,
-					type: "changed",
+					type: "created",
 				});
 
 				// add new pointer to new parent
@@ -653,6 +652,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 */
 	async writeFile(path, file) {
 		path = [...path];
+		let createdNew = true;
 		const writeOp = this.requestWriteOperation();
 		const {unlock} = await this.#getSystemLock();
 		try {
@@ -687,6 +687,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 				const fileObject = await this.getObject(pointer);
 				if (fileObject.fileName == newFileName) {
 					deletePointers.push(pointer);
+					createdNew = false;
 				}
 			}
 			newParentObj.obj.files = newParentObj.obj.files.filter(pointer => !deletePointers.includes(pointer));
@@ -706,7 +707,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 			external: false,
 			kind: "file",
 			path,
-			type: "changed",
+			type: createdNew ? "created" : "changed",
 		});
 	}
 

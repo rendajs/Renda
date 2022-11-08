@@ -51,6 +51,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	} = {}) {
 		/** @type {MemoryEditorFileSystemPointer} */
 		let currentObject = this.rootObject;
+		let created = false;
 		for (const [i, name] of path.entries()) {
 			/**
 			 * @param {GetObjectPointerErrorType} type
@@ -91,11 +92,21 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 						children: [],
 					};
 				}
+				this.fireChange({
+					external: false,
+					kind: child.isFile ? "file" : "directory",
+					path: path.slice(0, i + 1),
+					type: "created",
+				});
 				children.push(child);
+				created = true;
 			}
 			currentObject = child;
 		}
-		return currentObject;
+		return {
+			pointer: currentObject,
+			created,
+		};
 	}
 
 	/**
@@ -106,14 +117,14 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	async readDir(path) {
 		const files = [];
 		const directories = [];
-		const object = this.getObjectPointer(path, {
+		const {pointer} = this.getObjectPointer(path, {
 			errorMessageActionName: "readDir",
 		});
-		if (object.isFile) {
+		if (pointer.isFile) {
 			const pathStr = path.join("/");
 			throw new Error(`Couldn't readDir, "${pathStr}" is not a directory.`);
 		}
-		for (const child of object.children) {
+		for (const child of pointer.children) {
 			if (child.isFile) {
 				files.push(child.name);
 			} else {
@@ -134,13 +145,6 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 			createType: "dir",
 			errorMessageActionName: "createDir",
 		});
-
-		this.fireChange({
-			external: false,
-			kind: "directory",
-			path,
-			type: "created",
-		});
 	}
 
 	/**
@@ -149,13 +153,13 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
-		const object = this.getObjectPointer(path, {
+		const {pointer} = this.getObjectPointer(path, {
 			errorMessageActionName: "readFile",
 		});
-		if (!object.isFile) {
+		if (!pointer.isFile) {
 			throw new Error(`Couldn't readFile, "${path.join("/")}" is not a file.`);
 		}
-		return object.file;
+		return pointer.file;
 	}
 
 	/**
@@ -165,23 +169,25 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 */
 	async writeFile(path, file) {
 		path = [...path];
-		const object = this.getObjectPointer(path, {
+		const {pointer, created} = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
 			errorMessageActionName: "writeFile",
 		});
-		if (!object.isFile) {
+		if (!pointer.isFile) {
 			const pathStr = path.join("/");
 			throw new Error(`Couldn't writeFile, "${pathStr}" is not a file.`);
 		}
-		object.file = new File([file], object.name);
+		pointer.file = new File([file], pointer.name);
 
-		this.fireChange({
-			external: false,
-			kind: "file",
-			path,
-			type: "changed",
-		});
+		if (!created) {
+			this.fireChange({
+				external: false,
+				kind: "file",
+				path,
+				type: "changed",
+			});
+		}
 	}
 
 	/**
@@ -191,19 +197,19 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
 	async writeFileStream(path, keepExistingData = false) {
-		const object = this.getObjectPointer(path, {
+		const {pointer} = this.getObjectPointer(path, {
 			create: true,
 			createType: "file",
 			errorMessageActionName: "writeFileStream",
 		});
-		if (!object.isFile) {
+		if (!pointer.isFile) {
 			const pathStr = path.join("/");
 			throw new Error(`Couldn't writeFileStream, "${pathStr}" is not a file.`);
 		}
 		if (!keepExistingData) {
-			object.file = new File([], object.name);
+			pointer.file = new File([], pointer.name);
 		}
-		return new MemoryFileSystemWritableFileStream(object);
+		return new MemoryFileSystemWritableFileStream(pointer);
 	}
 
 	/**
@@ -212,13 +218,12 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path) {
-		let object = null;
 		try {
-			object = this.getObjectPointer(path);
+			const {pointer} = this.getObjectPointer(path);
+			return pointer.isFile;
 		} catch {
 			return false;
 		}
-		return object.isFile;
 	}
 
 	/**
@@ -227,13 +232,12 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path) {
-		let object = null;
 		try {
-			object = this.getObjectPointer(path);
+			const {pointer} = this.getObjectPointer(path);
+			return !pointer.isFile;
 		} catch {
 			return false;
 		}
-		return !object.isFile;
 	}
 
 	/**
@@ -260,14 +264,14 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 			children: [],
 		};
 		for (const [path, file] of Object.entries(structure)) {
-			const object = this.getObjectPointer(path.split("/"), {
+			const {pointer} = this.getObjectPointer(path.split("/"), {
 				create: true,
 				createType: "file",
 			});
-			if (!object.isFile) {
+			if (!pointer.isFile) {
 				throw new Error("Assertion error, object is not a file");
 			}
-			object.file = new File([file], object.name);
+			pointer.file = new File([file], pointer.name);
 		}
 	}
 }

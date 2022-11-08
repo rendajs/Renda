@@ -9,6 +9,8 @@ export class FakeHandle {
 
 	#lastModified = 0;
 
+	#fileContent = new ArrayBuffer(0);
+
 	/**
 	 * @param {string} kind
 	 * @param {string} name
@@ -107,7 +109,7 @@ export class FakeHandle {
 	}
 
 	getFile() {
-		return new File([], "", {lastModified: this.#lastModified});
+		return new File([this.#fileContent], "", {lastModified: this.#lastModified});
 	}
 
 	/**
@@ -133,8 +135,34 @@ export class FakeHandle {
 		throw new DOMException("", "NotFoundError");
 	}
 
-	createWritable() {
-		const stream = new WritableStream();
+	/**
+	 * @param {FileSystemCreateWritableOptions} param0
+	 */
+	createWritable({
+		keepExistingData,
+	} = {}) {
+		if (!keepExistingData) {
+			this.#fileContent = new ArrayBuffer(0);
+		}
+		/** @type {WritableStream<FileSystemWriteChunkType>} */
+		const stream = new WritableStream({
+			write: async chunk => {
+				if (chunk instanceof Blob) {
+					chunk = await chunk.arrayBuffer();
+				}
+				if (typeof chunk == "string") {
+					chunk = new TextEncoder().encode(chunk).buffer;
+				}
+				if (!(chunk instanceof ArrayBuffer)) {
+					throw new Error("Writing this type is not supported in the mock file handle.");
+				}
+				const newBuffer = new ArrayBuffer(this.#fileContent.byteLength + chunk.byteLength);
+				const view = new Uint8Array(newBuffer);
+				view.set(new Uint8Array(this.#fileContent));
+				view.set(new Uint8Array(chunk), this.#fileContent.byteLength);
+				this.#fileContent = view.buffer;
+			},
+		});
 		return stream.getWriter();
 	}
 }

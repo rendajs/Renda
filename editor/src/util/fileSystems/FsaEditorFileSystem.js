@@ -185,6 +185,14 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 			parsedPathDepth++;
 
 			await this.verifyHandlePermission(handle, {writable: create});
+			// Check if the directory already exists, so that we can fire a
+			// different event type if it doesn't.
+			let created = false;
+			try {
+				await handle.getDirectoryHandle(dirName);
+			} catch (e) {
+				created = true;
+			}
 			try {
 				handle = await handle.getDirectoryHandle(dirName, {create});
 			} catch (error) {
@@ -209,6 +217,14 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 					throw error;
 				}
 			}
+			if (created) {
+				this.fireChange({
+					external: false,
+					kind: "directory",
+					path,
+					type: "created",
+				});
+			}
 		}
 		await this.verifyHandlePermission(handle, {writable: create});
 		return handle;
@@ -221,7 +237,6 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {boolean} [opts.overrideError] If true, replaces system errors with one that prints the path.
 	 * @param {string} [opts.errorMessageActionName] The error action to show in error messages
 	 * when an error occurs.
-	 * @returns {Promise<FileSystemFileHandle>}
 	 */
 	async getFileHandle(path = [], {
 		create = false,
@@ -236,20 +251,29 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 		});
 		await this.verifyHandlePermission(dirHandle, {writable: create});
 		let fileHandle = null;
+		let created = false;
 		try {
 			// Set a timestamp slightly in the future, the File System Access API will
 			// create a file for us and we don't know what lastModified value it will use,
 			// but it likely won't be more than a second.
 			if (create) this.setWatchTreeLastModified(path, Date.now() + 1000);
 
+			// Check if the file already exists, so that we can fire a
+			// different event type if it doesn't.
+			try {
+				await dirHandle.getFileHandle(fileName);
+			} catch {
+				created = true;
+			}
+
 			fileHandle = await dirHandle.getFileHandle(fileName, {create});
 
-			// Now set the timestamp to the actual current time, in case the
-			// previous time was too far in the future. Otherwise actual changes
-			// within this second will not fire watch events.
+			// Now set the timestamp to the actual current time, since creating
+			// the file likely took less than a second. If we don't do this
+			// actual changes within this second will not fire watch events.
 			// We don't actually know the exact lastModified value of the file
-			// without reading it, but that's fine. The current time will always
-			// be later than the lastModified value of the file.
+			// without reading it, but that's fine. The current time will
+			// probably be older than the lastModified value of the file.
 			if (create) this.setWatchTreeLastModified(path);
 		} catch (error) {
 			if (overrideError) {
@@ -270,7 +294,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 				throw error;
 			}
 		}
-		return fileHandle;
+		return {fileHandle, created};
 	}
 
 	/**
@@ -303,15 +327,6 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	async createDir(path) {
 		path = [...path];
 		await this.getDirHandle(path, {create: true, errorMessageActionName: "createDir"});
-
-		// Note that this also fires the event when the directory already
-		// existed before the call.
-		this.fireChange({
-			external: false,
-			kind: "directory",
-			path,
-			type: "created",
-		});
 	}
 
 	/**
@@ -393,7 +408,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 		let fileContent;
 		let catchedError;
 		try {
-			const fileHandle = await this.getFileHandle(path, {
+			const {fileHandle} = await this.getFileHandle(path, {
 				errorMessageActionName: "readFile",
 			});
 			await this.verifyHandlePermission(fileHandle, {writable: false});
@@ -426,7 +441,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 */
 	async writeFile(path, file) {
 		path = [...path];
-		const fileStream = await this.#writeFileStreamInternal(path, false, "writeFile");
+		const {fileStream, created} = await this.#writeFileStreamInternal(path, false, "writeFile");
 		if (fileStream.locked) {
 			throw new Error("File is locked, writing after lock is not yet implemented");
 		}
@@ -434,12 +449,11 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 		await fileStream.close();
 		this.setWatchTreeLastModified(path);
 
-		// Note that this will always have type "changed" even when the file has been created.
 		this.fireChange({
 			external: false,
 			kind: "file",
 			path,
-			type: "changed",
+			type: created ? "created" : "changed",
 		});
 	}
 
@@ -447,8 +461,9 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @override
 	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
 	 */
-	writeFileStream(path, keepExistingData = false) {
-		return this.#writeFileStreamInternal(path, keepExistingData, "writeFileStream");
+	async writeFileStream(path, keepExistingData = false) {
+		const {fileStream} = await this.#writeFileStreamInternal(path, keepExistingData, "writeFileStream");
+		return fileStream;
 	}
 
 	/**
@@ -457,13 +472,13 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * @param {string} errorMessageActionName
 	 */
 	async #writeFileStreamInternal(path, keepExistingData, errorMessageActionName) {
-		const fileHandle = await this.getFileHandle(path, {
+		const {fileHandle, created} = await this.getFileHandle(path, {
 			create: true,
 			errorMessageActionName,
 		});
 		await this.verifyHandlePermission(fileHandle);
 		const fileStream = await fileHandle.createWritable({keepExistingData});
-		return fileStream;
+		return {fileStream, created};
 	}
 
 	/**
