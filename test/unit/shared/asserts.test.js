@@ -143,10 +143,10 @@ Deno.test({
 	fn() {
 		assertThrows(() => {
 			assertQuatAlmostEquals(new Quat(1, 2, 3), new Quat(1, 2, 3, 1.1));
-		});
+		}, Error, "Expected Quaternion to be close to Quat<1, 2, 3, 1.1> but got Quat<1, 2, 3, 1>");
 		assertThrows(() => {
 			assertQuatAlmostEquals(new Quat(1, 2, 3, 10), new Quat());
-		});
+		}, Error, "Expected Quaternion to be close to Quat<0, 0, 0, 1> but got Quat<1, 2, 3, 10>");
 	},
 });
 

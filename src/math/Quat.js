@@ -98,6 +98,10 @@ export class Quat {
 		return new Quat(this);
 	}
 
+	toString() {
+		return `Quat<${this._x}, ${this._y}, ${this._z}, ${this._w}>`;
+	}
+
 	get x() {
 		return this._x;
 	}
