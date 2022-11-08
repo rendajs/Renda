@@ -97,7 +97,7 @@ export function assertVecAlmostEquals(actual, expected, tolerance = 0.00001, msg
 	if (dist > tolerance || hasNaN) {
 		let message = msg;
 		if (!message) {
-			message = `Expected value to be close to ${expectedVec.toArray()} but got ${actualVec.toArray()}`;
+			message = `Expected value to be close to ${expectedVec} but got ${actualVec}`;
 		}
 		throw new AssertionError(message);
 	}
