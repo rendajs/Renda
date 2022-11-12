@@ -15,10 +15,10 @@ jobs:
       url: https://canary.renda.studio/
     steps:
       - name: Download build artifact
-        uses: actions/github-script@f05a81df23035049204b043b50c3322045ce7eb3
+        uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0
         with:
           script: |
-            let artifacts = await github.actions.listWorkflowRunArtifacts({
+            let artifacts = await github.rest.actions.listWorkflowRunArtifacts({
                owner: context.repo.owner,
                repo: context.repo.repo,
                run_id: ${{ github.event.workflow_run.id }},
@@ -30,7 +30,7 @@ jobs:
               throw new Error("No artifact found.");
             }
             const matchArtifact = artifacts[0];
-            const download = await github.actions.downloadArtifact({
+            const download = await github.rest.actions.downloadArtifact({
                owner: context.repo.owner,
                repo: context.repo.repo,
                artifact_id: matchArtifact.id,
