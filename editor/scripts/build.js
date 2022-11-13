@@ -4,6 +4,8 @@ import {rollup} from "rollup";
 import {copy, ensureDir} from "std/fs/mod.ts";
 import {minify} from "terser";
 import {setCwd} from "chdir-anywhere";
+import {importAssertionsPlugin} from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
+import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
 import {dev} from "../../scripts/dev.js";
 
 await dev();
@@ -22,9 +24,6 @@ await copy("../internalDiscovery.html", "../dist/internalDiscovery.html");
 await copy("../static/", "../dist/static/");
 await copy("../builtInAssets/", "../dist/builtInAssets/");
 await copy("../sw.js", "../dist/sw.js");
-
-// TODO: Use constructable style sheets with import assertions #11
-await copy("../src/css.css", "../dist/css.css");
 
 /**
  * Replaces the value of an attribute in a html file.
@@ -46,7 +45,6 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 }
 
 await setHtmlAttribute("../dist/index.html", "editor script tag", "./js/main.js");
-await setHtmlAttribute("../dist/index.html", "editor style tag", "./css.css", "href");
 await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../js/internalDiscovery.js");
 
 /**
@@ -102,7 +100,9 @@ const bundle = await rollup({
 		// todo:
 		// resolveUrlObjects(),
 		terser(),
+		importAssertionsPlugin(),
 	],
+	acornInjectPlugins: [importAssertions],
 	onwarn: message => {
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
 		console.error(message.message);
