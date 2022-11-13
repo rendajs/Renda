@@ -7,3 +7,4 @@ editor/deps/
 node_modules
 npm_packages
 deno_dir
+editor/src/styles/styles.js
