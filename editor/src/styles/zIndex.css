@@ -1,0 +1,7 @@
+:root {
+	--z-project-selector-curtain: 100;
+	--z-project-selector: calc(var(--z-project-selector-curtain) + 1);
+
+	--z-context-menu-curtain: calc(var(--z-project-selector) + 1);
+	--z-context-menu: calc(var(--z-context-menu-curtain) + 1);
+}
