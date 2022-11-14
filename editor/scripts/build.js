@@ -2,10 +2,13 @@
 
 import {rollup} from "rollup";
 import {copy, ensureDir} from "std/fs/mod.ts";
+import * as path from "std/path/mod.ts";
 import {minify} from "terser";
 import {setCwd} from "chdir-anywhere";
 import {importAssertionsPlugin} from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
 import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
+import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
+import postcssUrl from "npm:postcss-url@10.1.3";
 import {dev} from "../../scripts/dev.js";
 
 await dev();
@@ -86,6 +89,36 @@ function terser(minifyOptions = {}) {
 	};
 }
 
+/**
+ * A rollup plugin for remapping url() paths in css files.
+ * @param {Object} options
+ * @param {string} options.outputPath The path where the Javascript files are
+ * expected to be placed after bundling.
+ */
+function rebaseCssUrl({
+	outputPath,
+}) {
+	/** @type {import("rollup").Plugin} */
+	const plugin = {
+		name: "rebaseCssUrl",
+		async load(id) {
+			if (id.endsWith(".css")) {
+				const oldCss = await Deno.readTextFile(id);
+				const newCss = await postcss([
+					postcssUrl({
+						url: "rebase",
+					}),
+				]).process(oldCss, {
+					from: id,
+					to: outputPath,
+				});
+				return newCss.css;
+			}
+		},
+	};
+	return plugin;
+}
+
 const editorDefines = {
 	EDITOR_ENV: "production",
 	IS_DEV_BUILD: false,
@@ -100,6 +133,9 @@ const bundle = await rollup({
 		// todo:
 		// resolveUrlObjects(),
 		terser(),
+		rebaseCssUrl({
+			outputPath: path.resolve("../dist/"),
+		}),
 		importAssertionsPlugin(),
 	],
 	acornInjectPlugins: [importAssertions],
