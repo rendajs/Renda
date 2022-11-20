@@ -328,7 +328,7 @@ export class EditorWindowTabs extends EditorWindow {
 	onTabsContextMenu(button, e) {
 		e.preventDefault();
 
-		/** @type {import("../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
+		/** @type {import("../ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
 		const addTabSubmenu = [];
 		for (const [id, contentWindow] of this.windowManager.registeredContentWindows) {
 			let text = "<ContentWindow>";
@@ -347,7 +347,7 @@ export class EditorWindowTabs extends EditorWindow {
 			});
 		}
 
-		/** @type {import("../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
+		/** @type {import("../ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [
 			{
 				text: "Close Tab",
@@ -367,7 +367,7 @@ export class EditorWindowTabs extends EditorWindow {
 			{
 				text: "Workspaces",
 				submenu: async () => {
-					/** @type {import("../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
+					/** @type {import("../ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
 					const workspacesSubmenu = [];
 
 					const currentWorkspace = await this.windowManager.workspaceManager.getCurrentWorkspaceId();
@@ -439,7 +439,7 @@ export class EditorWindowTabs extends EditorWindow {
 			},
 		];
 
-		const menu = getEditorInstance().contextMenuManager.createContextMenu(contextMenuStructure);
+		const menu = getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 

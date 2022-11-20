@@ -78,8 +78,8 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 
 /**
  * @callback showContextMenuCallback
- * @param {import("./contextMenus/ContextMenu.js").ContextMenuStructure} [structure]
- * @returns {import("./contextMenus/ContextMenu.js").ContextMenu}
+ * @param {import("./popoverMenus/ContextMenu.js").ContextMenuStructure} [structure]
+ * @returns {import("./popoverMenus/ContextMenu.js").ContextMenu}
  */
 
 /**
@@ -1656,7 +1656,7 @@ export class TreeView {
 
 				menuCreated = true;
 				e.preventDefault();
-				const menu = getEditorInstance().contextMenuManager.createContextMenu(structure);
+				const menu = getEditorInstance().popoverManager.createContextMenu(structure);
 				menu.setPos({x: e.pageX, y: e.pageY});
 				return menu;
 			},

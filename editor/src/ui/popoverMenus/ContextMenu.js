@@ -48,7 +48,7 @@ import {Button} from "../Button.js";
 
 export class ContextMenu {
 	/**
-	 * @param {import("./ContextMenuManager.js").ContextMenuManager} manager
+	 * @param {import("./PopoverManager.js").PopoverManager} manager
 	 * @param {ContextMenuOptions} opts
 	 */
 	constructor(manager, {
@@ -273,7 +273,7 @@ export class ContextMenu {
 	}
 
 	close() {
-		this.manager.onContextMenuClosed(this);
+		this.manager.onPopoverClosed(this);
 		this.destructor();
 	}
 

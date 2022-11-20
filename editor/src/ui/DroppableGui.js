@@ -677,14 +677,14 @@ export class DroppableGui {
 	 */
 	async onContextMenu(e) {
 		e.preventDefault();
-		/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
+		/** @type {import("./popoverMenus/ContextMenu.js").ContextMenuStructure} */
 		const contextMenuStructure = [];
 		if (!this.disabled) {
 			const availableTypes = Array.from(this.getProjectAssetTypeFromSupported());
 
 			if (this.embeddedParentAsset && availableTypes.length > 0) {
 				// TODO: hide or disable the embedded asset menu if embedded assets are not explicitly supported.
-				/** @type {import("./contextMenus/ContextMenu.js").ContextMenuItemOpts} */
+				/** @type {import("./popoverMenus/ContextMenu.js").ContextMenuItemOpts} */
 				const createEmbeddedStructure = {
 					text: "Create embedded asset",
 				};
@@ -695,7 +695,7 @@ export class DroppableGui {
 					};
 				} else {
 					createEmbeddedStructure.submenu = () => {
-						/** @type {import("./contextMenus/ContextMenu.js").ContextMenuStructure} */
+						/** @type {import("./popoverMenus/ContextMenu.js").ContextMenuStructure} */
 						const submenuStructure = [];
 						for (const projectAssetType of availableTypes) {
 							let text = "<unknown>";
@@ -839,7 +839,7 @@ export class DroppableGui {
 			});
 		}
 		if (contextMenuStructure.length == 0) return;
-		const menu = getEditorInstance().contextMenuManager.createContextMenu(contextMenuStructure);
+		const menu = getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
 		menu.setPos({x: e.pageX, y: e.pageY});
 	}
 

@@ -1,14 +1,14 @@
 import {ContextMenu} from "./ContextMenu.js";
 
-export class ContextMenuManager {
+export class PopoverManager {
 	/**
 	 *
 	 * @param {import("../../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} colorizerFilterManager
 	 */
 	constructor(colorizerFilterManager) {
-		this.activeContextMenu = null;
+		this.activePopover = null;
 		this.curtainEl = document.createElement("div");
-		this.curtainEl.classList.add("contextMenuCurtain");
+		this.curtainEl.classList.add("popover-curtain");
 		this.curtainEl.addEventListener("click", () => {
 			this.closeCurrent();
 		});
@@ -35,7 +35,7 @@ export class ContextMenuManager {
 	}
 
 	get current() {
-		if (this.activeContextMenu && this.activeContextMenu.el) return this.activeContextMenu;
+		if (this.activePopover && this.activePopover.el) return this.activePopover;
 		return null;
 	}
 
@@ -43,13 +43,13 @@ export class ContextMenuManager {
 	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
 	 */
 	createContextMenu(structure = null) {
-		if (this.activeContextMenu && this.activeContextMenu.el) {
+		if (this.activePopover && this.activePopover.el) {
 			throw new Error("Cannot create a context menu while one is already open.");
 		}
 
-		this.activeContextMenu = new ContextMenu(this, {structure});
+		this.activePopover = new ContextMenu(this, {structure});
 		this.updateCurtainActive();
-		return this.activeContextMenu;
+		return this.activePopover;
 	}
 
 	closeCurrent() {
@@ -61,11 +61,11 @@ export class ContextMenuManager {
 	}
 
 	/**
-	 * @param {ContextMenu} contextMenu
+	 * @param {ContextMenu} popover
 	 */
-	onContextMenuClosed(contextMenu) {
-		if (contextMenu == this.activeContextMenu) {
-			this.activeContextMenu = null;
+	onPopoverClosed(popover) {
+		if (popover == this.activePopover) {
+			this.activePopover = null;
 			this.updateCurtainActive();
 		}
 	}

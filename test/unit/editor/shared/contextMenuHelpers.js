@@ -1,12 +1,12 @@
 import {AssertionError, assertEquals, assertNotEquals, equal} from "std/testing/asserts.ts";
 
 /**
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} itemOpts
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemOpts} itemOpts
  */
 async function fillContextMenuItemOptsDefaults(itemOpts, {
 	executeSubmenuFunctions = true,
 } = {}) {
-	const newOpts = /** @type {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} */ ({
+	const newOpts = /** @type {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemOpts} */ ({
 		disabled: false,
 		tooltip: "",
 		...itemOpts,
@@ -27,10 +27,10 @@ async function fillContextMenuItemOptsDefaults(itemOpts, {
 }
 
 /**
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} structure
  */
 async function fillContextMenuStructureDefaults(structure) {
-	/** @type {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
+	/** @type {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
 	const newStructure = [];
 	for (const item of structure) {
 		newStructure.push(await fillContextMenuItemOptsDefaults(item));
@@ -39,8 +39,8 @@ async function fillContextMenuStructureDefaults(structure) {
 }
 
 /**
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} actual
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} expected
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} actual
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} expected
  */
 export async function assertContextMenuStructureEquals(actual, expected) {
 	const newActual = await fillContextMenuStructureDefaults(actual);
@@ -49,8 +49,8 @@ export async function assertContextMenuStructureEquals(actual, expected) {
 }
 
 /**
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
  */
 export async function contextMenuStructureContains(structure, expectedChild) {
 	const structureWithDefaults = await fillContextMenuStructureDefaults(structure);
@@ -64,8 +64,8 @@ export async function contextMenuStructureContains(structure, expectedChild) {
 /**
  * Asserts if the provided structure contains an exact match of one of its direct children.
  * Subchildren are not recursively searched for a match.
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
  */
 export async function assertContextMenuStructureContains(structure, expectedChild) {
 	if (await contextMenuStructureContains(structure, expectedChild)) return;
@@ -75,8 +75,8 @@ export async function assertContextMenuStructureContains(structure, expectedChil
 /**
  * Asserts if the provided structure does not contain an exact match in one of its direct children.
  * Subchildren are not recursively searched for a match.
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemOpts} expectedChild
  */
 export async function assertContextMenuStructureNotContains(structure, expectedChild) {
 	if (!(await contextMenuStructureContains(structure, expectedChild))) return;
@@ -86,7 +86,7 @@ export async function assertContextMenuStructureNotContains(structure, expectedC
 /**
  * Asserts if the provided structure does not contain an exact match in one of its direct children.
  * Subchildren are not recursively searched for a match.
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} structure
  * @param {string} expectedText
  */
 export async function assertContextMenuStructureNotContainsText(structure, expectedText) {
@@ -96,9 +96,9 @@ export async function assertContextMenuStructureNotContainsText(structure, expec
 }
 
 /**
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure} structure
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure} structure
  * @param {string[]} itemsPath
- * @param {import("../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuItemClickEvent?} event
+ * @param {import("../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuItemClickEvent?} event
  */
 export async function triggerContextMenuItem(structure, itemsPath, event = null) {
 	let currentStructure = structure;
