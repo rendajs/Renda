@@ -840,7 +840,7 @@ export class DroppableGui {
 		}
 		if (contextMenuStructure.length == 0) return;
 		const menu = getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
-		menu.setPos({x: e.pageX, y: e.pageY});
+		menu.setPos(e);
 	}
 
 	onDblClick() {

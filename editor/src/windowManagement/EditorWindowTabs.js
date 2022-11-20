@@ -440,7 +440,7 @@ export class EditorWindowTabs extends EditorWindow {
 		];
 
 		const menu = getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
-		menu.setPos({x: e.pageX, y: e.pageY});
+		menu.setPos(e);
 	}
 
 	/**

@@ -1657,7 +1657,7 @@ export class TreeView {
 				menuCreated = true;
 				e.preventDefault();
 				const menu = getEditorInstance().popoverManager.createContextMenu(structure);
-				menu.setPos({x: e.pageX, y: e.pageY});
+				menu.setPos(e);
 				return menu;
 			},
 		};

@@ -117,7 +117,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					});
 				}
 
-				menu.setPos({item: createComponentButton});
+				menu.setPos(createComponentButton);
 			},
 		});
 		this.componentsSection.addButton(createComponentButton);

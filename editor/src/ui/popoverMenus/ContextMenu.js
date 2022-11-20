@@ -1,3 +1,4 @@
+import {Button} from "../Button.js";
 import {ContextMenuItem} from "./ContextMenuItem.js";
 import {ContextMenuSubmenuItem} from "./ContextMenuSubmenuItem.js";
 import {Popover} from "./Popover.js";
@@ -49,8 +50,8 @@ export class ContextMenu extends Popover {
 		this.activeSubmenuItem = null;
 		/** @type {ContextMenu?} */
 		this.currentSubmenu = null;
-		/** @type {import("./Popover.js").ContextMenuSetPosOpts?} */
-		this.lastPosArguments = null;
+		/** @type {import("./Popover.js").PopoverSetPosItem?} */
+		this.lastSetPosItem = null;
 
 		this.hasResevedIconSpaceItem = false;
 
@@ -75,13 +76,66 @@ export class ContextMenu extends Popover {
 		}
 	}
 
-		/**
-	 * @param  {import("./Popover.js").ContextMenuSetPosOpts} options
+	/**
+	 * @param  {import("./Popover.js").PopoverSetPosItem} item
 	 */
-		setPos(options) {
-			this.lastPosArguments = {...options};
-			super.setPos(options);
+	setPos(item) {
+		this.lastSetPosItem = item;
+		let x = 0;
+		let y = 0;
+
+		let el = null;
+		let isSubmenu = false;
+		if (item instanceof MouseEvent) {
+			x = item.clientX;
+			y = item.clientY;
+		} else if (item instanceof ContextMenuItem) {
+			el = item.el;
+			isSubmenu = true;
+		} else if (item instanceof Button) {
+			el = item.el;
+		} else {
+			el = item;
 		}
+		let relatedElRect = null;
+		if (el) {
+			relatedElRect = el.getBoundingClientRect();
+			if (isSubmenu) {
+				x = relatedElRect.right;
+				y = relatedElRect.top;
+			} else {
+				x = relatedElRect.x;
+				y = relatedElRect.bottom;
+			}
+		}
+
+		const popoverRect = this.el.getBoundingClientRect();
+		if (x + popoverRect.width > window.innerWidth) {
+			x -= popoverRect.width;
+			if (relatedElRect) {
+				if (isSubmenu) {
+					x -= relatedElRect.width;
+				} else {
+					x += relatedElRect.width;
+				}
+			}
+		}
+		if (y + popoverRect.height > window.innerHeight) {
+			y -= popoverRect.height;
+			if (relatedElRect) {
+				if (isSubmenu) {
+					y += relatedElRect.height;
+				} else {
+					y -= relatedElRect.height;
+				}
+			}
+		}
+		x = Math.max(0, x);
+		y = Math.max(0, y);
+
+		this.el.style.left = x + "px";
+		this.el.style.top = y + "px";
+	}
 
 	/**
 	 * @param {ContextMenuStructure} structure
@@ -109,7 +163,7 @@ export class ContextMenu extends Popover {
 				createdItem = this.addItem(itemSettings);
 			}
 		}
-		if (this.lastPosArguments) this.setPos(this.lastPosArguments);
+		if (this.lastSetPosItem) this.setPos(this.lastSetPosItem);
 	}
 
 	/**
@@ -143,10 +197,7 @@ export class ContextMenu extends Popover {
 		this.removeSubmenu();
 		this.activeSubmenuItem = submenuItem;
 		this.currentSubmenu = new ContextMenu(this.manager, {parentMenu: this});
-		this.currentSubmenu.setPos({
-			item: submenuItem,
-			corner: "top right",
-		});
+		this.currentSubmenu.setPos(submenuItem);
 		return this.currentSubmenu;
 	}
 
