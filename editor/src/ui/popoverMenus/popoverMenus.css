@@ -6,7 +6,7 @@
 	z-index: var(--z-context-menu-curtain);
 }
 
-.contextMenu{
+.popover {
 	position: absolute;
 	z-index: var(--z-context-menu);
 	border-radius: var(--default-border-radius);

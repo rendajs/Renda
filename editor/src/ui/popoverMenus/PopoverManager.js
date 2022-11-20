@@ -1,4 +1,5 @@
 import {ContextMenu} from "./ContextMenu.js";
+import {Popover} from "./Popover.js";
 
 export class PopoverManager {
 	/**
@@ -39,17 +40,36 @@ export class PopoverManager {
 		return null;
 	}
 
+	createPopover() {
+		if (this.activePopover && this.activePopover.el) {
+			throw new Error("Cannot create a popover while one is already open.");
+		}
+
+		this.activePopover = new Popover(this);
+		this.updateCurtainActive();
+		return this.activePopover;
+	}
+
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
 	 */
 	createContextMenu(structure = null) {
 		if (this.activePopover && this.activePopover.el) {
-			throw new Error("Cannot create a context menu while one is already open.");
+			throw new Error("Cannot create a popover while one is already open.");
 		}
 
-		this.activePopover = new ContextMenu(this, {structure});
+		const contextMenu = new ContextMenu(this, {structure});
+		this.activePopover = contextMenu;
 		this.updateCurtainActive();
-		return this.activePopover;
+		return contextMenu;
+	}
+
+	get currentContextMenu() {
+		const popover = this.current;
+		if (popover instanceof ContextMenu) {
+			return popover;
+		}
+		return null;
 	}
 
 	closeCurrent() {
@@ -61,7 +81,7 @@ export class PopoverManager {
 	}
 
 	/**
-	 * @param {ContextMenu} popover
+	 * @param {Popover} popover
 	 */
 	onPopoverClosed(popover) {
 		if (popover == this.activePopover) {
