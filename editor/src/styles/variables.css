@@ -1,0 +1,71 @@
+:root{
+	--default-border-radius: 5px;
+	--selection-border-radius: 10px;
+	--default-selection-text-padding: 5px;
+	--default-ui-bg-color: #1b1b1b;
+	--panel-borders-color: #272727;
+	--overlay-panel-borders-color: #5a5a5a;
+	--overlay-panel-box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.6);
+	--default-text-color: #bdbdbd;
+	--default-text-color-disabled-context-menu: #5a5a5a;
+	--default-text-color-disabled-textfield: #8d8d8d;
+	--color-selected-blue: #005598;
+	--color-selected-blue-textfield: #005598fe;
+	--color-selected-blue-nofocus: #505050;
+	--selected-text-color-nofocus: #ffffff;
+	--color-highlighted-yellow: #ffa500;
+	--color-highlighted-yellow-text: #000000;
+	--selected-text-color: #ffffff;
+	--default-button-color: #464646;
+	--default-button-hover-brightness: 1.2;
+	--default-button-active-color: #565656;
+	--default-button-selected-color: #626262;
+	--default-button-text-color: #eaeaea;
+	--default-button-color-disabled: #2f2f2f;
+	--default-button-text-color-disabled: #8d8d8d;
+	--focused-window-border-color: #838383;
+	--default-input-box-color: #101010;
+	--default-input-box-color-disabled: #2f2f2f;
+	--default-input-box-text-color-focus: #ffffff;
+	--default-input-box-border-color: transparent;
+	--default-input-box-border-hover-color: #464646;
+	--default-input-placeholder-color: #585858;
+	--droppable-border-color: #2d2d2d;
+	--droppable-filled-color: #525252;
+	--droppable-filled-text-color: #f3f3f3;
+}
+@media(prefers-color-scheme: light){
+	:root{
+		--default-ui-bg-color: #ffffff;
+		--panel-borders-color: #e0e0e0;
+		--overlay-panel-borders-color: #c9c9c9;
+		--overlay-panel-box-shadow: 6px 6px 10px 0px rgba(0,0,0,0.06);
+		--default-text-color: #505050;
+		--default-text-color-disabled-context-menu: #bdbdbd;
+		--default-text-color-disabled-textfield: #7f7f7f;
+		--color-selected-blue: #008fff;
+		--selected-text-color: #ffffff;
+		--color-selected-blue-textfield: #95c0fffe;
+		--color-selected-blue-nofocus: #d7d7d7;
+		--selected-text-color-nofocus: #292929;
+		--color-highlighted-yellow: #FFE006;
+		--color-highlighted-yellow-text: #333333;
+		--default-button-color: #dcdcdc;
+		--default-button-hover-brightness: 0.93;
+		--default-button-active-color: #b9b9b9;
+		--default-button-selected-color: #afafaf;
+		--default-button-text-color: #424242;
+		--default-button-color-disabled: #ececec;
+		--default-button-text-color-disabled: #7f7f7f;
+		--focused-window-border-color: #717171;
+		--default-input-box-color: #f7f7f7;
+		--default-input-box-color-disabled: #ececec;
+		--default-input-box-text-color-focus: #000000;
+		--default-input-box-border-color: #dadcda;
+		--default-input-box-border-hover-color: #a4a4a4;
+		--default-input-placeholder-color: #c7c7c7;
+		--droppable-border-color: var(--default-input-box-border-color);
+		--droppable-filled-color: #c7c7c7;
+		--droppable-filled-text-color: #373737;
+	}
+}

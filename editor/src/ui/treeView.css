@@ -1,0 +1,148 @@
+.treeViewItem{
+	white-space: nowrap;
+}
+
+.treeViewName{
+	display: inline-block;
+	position: relative;
+	vertical-align: text-top;
+}
+.treeViewName::after{
+	content: attr(data-rename-value);
+	visibility: hidden;
+}
+
+.treeViewButtons{
+	display: inline-block;
+	margin-left: 5px;
+}
+
+.treeViewRenameField{
+	height: 24px;
+	position: absolute;
+	top: -3px;
+	left: -2px;
+	font-size: inherit;
+	text-align: left;
+	width: calc(100% + 6px);
+}
+
+.treeViewArrowContainer{
+	width: 16px;
+	height: 16px;
+	border-radius: var(--selection-border-radius);
+	position: absolute;
+	transform: translate(-100%, 1px);
+}
+.treeViewArrowContainer:not(.collapsed){
+	transform: translate(-100%, 1px) rotate(90deg);
+}
+.treeViewArrowContainer.hover{
+	background: var(--default-text-color);
+}
+.selected > .treeViewArrowContainer.hover{
+	background: var(--selected-text-color);
+}
+
+.treeViewArrow{
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	left: 4px;
+	top: 3px;
+	border: 5px solid transparent;
+	border-left: 10px solid var(--default-text-color);
+	border-right: 0px solid transparent;
+}
+.treeViewArrowContainer.hover > .treeViewArrow{
+	border-left: 10px solid var(--default-ui-bg-color);
+}
+.selected > .treeViewArrowContainer > .treeViewArrow{
+	border-left: 10px solid var(--selected-text-color);
+}
+.selected > .treeViewArrowContainer.hover > .treeViewArrow{
+	border-left: 10px solid var(--color-selected-blue);
+}
+
+.treeViewRow{
+	border-radius: var(--selection-border-radius);
+	position: relative;
+}
+.treeViewRow.selected{
+	background: var(--color-selected-blue);
+	color: var(--selected-text-color);
+}
+.treeViewRow.selected.noFocus{
+	background: var(--color-selected-blue-nofocus);
+	color: var(--selected-text-color-nofocus);
+}
+.treeViewRow.highlighted{
+	background: var(--color-highlighted-yellow);
+	color: var(--color-highlighted-yellow-text);
+}
+.treeViewRow.hidden{
+	display: none;
+}
+
+.treeViewArrow.hidden{
+	display: none;
+}
+
+.treeViewRow.drag-over-feedback, .tree-view-drag-feedback {
+	box-shadow: 0px 0px 0 2px var(--color-selected-blue), inset 0px 0px 0 2px var(--default-text-color);
+}
+
+.tree-view-drag-feedback {
+	height: 6px;
+	position: absolute;
+	width: 100%;
+	border-radius: 8px;
+	pointer-events: none;
+}
+
+.tree-view-drag-feedback.top {
+	top: -3px;
+}
+
+.tree-view-drag-feedback.bottom {
+	bottom: -3px;
+}
+
+.tree-view-drag-feedback:not(.top):not(.bottom) {
+	display: none;
+}
+
+.guiTreeViewEntry{
+	display: flex;
+	width: 100%;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	padding: 0px 5px;
+	box-sizing: border-box;
+	margin-top: 1px;
+}
+
+.guiTreeViewEntry > * {
+	width: 50%;
+	 min-width: 100px;
+	flex-grow: 1;
+}
+
+.guiTreeViewEntry > .multiLine{
+	width: 100%;
+}
+
+.guiTreeViewEntryLabel{
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	user-select: text;
+	-webkit-user-select: text;
+}
+.guiTreeViewEntryValue.smallLabel{
+	width: 85%;
+}
+.guiTreeViewEntryLabel.smallLabel{
+	width: 15%;
+	 min-width: 10px;
+}
