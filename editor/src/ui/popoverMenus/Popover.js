@@ -12,7 +12,6 @@ import {clamp} from "../../../../src/mod.js";
  */
 
 const ARROW_PIXELS_OFFSET_HEIGHT = 7;
-const ARROW_PIXELS_WIDTH = 10;
 
 export class Popover {
 	/**
