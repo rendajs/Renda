@@ -42,7 +42,7 @@ export class ContextMenu extends Popover {
 		parentMenu = null,
 		structure = null,
 	} = {}) {
-		super(manager);
+		super(manager, {showArrow: false});
 		this.parentMenu = parentMenu;
 
 		/** @type {Array<ContextMenuItem>} */
