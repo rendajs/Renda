@@ -13,4 +13,7 @@
 	"[javascript]": {
 		"editor.defaultFormatter": "rendajs.rendajs-dev"
 	},
+	"search.exclude": {
+		"deno.lock": true,
+	}
 }
