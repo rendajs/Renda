@@ -4,6 +4,7 @@ import {initializeDom} from "../../shared/initializeDom.js";
 
 Deno.test({
 	name: "Hide cursor when scrolling",
+	ignore: true,
 	sanitizeOps: false,
 	sanitizeResources: false,
 	fn: () => {
@@ -19,6 +20,7 @@ Deno.test({
 
 Deno.test({
 	name: "Show the cursor when moving mouse after scrolling",
+	ignore: true,
 	sanitizeOps: false,
 	sanitizeResources: false,
 	fn: () => {
