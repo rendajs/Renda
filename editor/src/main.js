@@ -1,3 +1,4 @@
+import "./styles/styles.js";
 import {getProjectSelectorInstance, initProjectSelector} from "./projectSelector/projectSelectorInstance.js";
 export {};
 

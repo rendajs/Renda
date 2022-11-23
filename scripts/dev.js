@@ -37,6 +37,7 @@ export async function dev({
 				"rollup-plugin-commonjs",
 				"https://esm.sh/v95/fsevents@2.3.2/deno/fsevents.js",
 				"https://esm.sh/v64/@rollup/plugin-commonjs@11.1.0/types/index.d.ts",
+				"npm:postcss-url@10.1.3",
 			],
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.

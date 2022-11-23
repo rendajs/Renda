@@ -144,6 +144,16 @@ Deno.test({
 });
 
 Deno.test({
+	name: "toString()",
+	fn() {
+		const vec = new Vec2(1, 2);
+		const result = vec.toString();
+
+		assertEquals(result, "Vec2<1, 2>");
+	},
+});
+
+Deno.test({
 	name: "get magnitude",
 	fn() {
 		const tests = [

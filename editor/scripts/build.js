@@ -2,8 +2,13 @@
 
 import {rollup} from "rollup";
 import {copy, ensureDir} from "std/fs/mod.ts";
+import * as path from "std/path/mod.ts";
 import {minify} from "terser";
 import {setCwd} from "chdir-anywhere";
+import {importAssertionsPlugin} from "https://esm.sh/rollup-plugin-import-assert@2.1.0?pin=v87";
+import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
+import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
+import postcssUrl from "npm:postcss-url@10.1.3";
 import {dev} from "../../scripts/dev.js";
 
 await dev();
@@ -22,9 +27,6 @@ await copy("../internalDiscovery.html", "../dist/internalDiscovery.html");
 await copy("../static/", "../dist/static/");
 await copy("../builtInAssets/", "../dist/builtInAssets/");
 await copy("../sw.js", "../dist/sw.js");
-
-// TODO: Use constructable style sheets with import assertions #11
-await copy("../src/css.css", "../dist/css.css");
 
 /**
  * Replaces the value of an attribute in a html file.
@@ -46,7 +48,6 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 }
 
 await setHtmlAttribute("../dist/index.html", "editor script tag", "./js/main.js");
-await setHtmlAttribute("../dist/index.html", "editor style tag", "./css.css", "href");
 await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../js/internalDiscovery.js");
 
 /**
@@ -88,6 +89,36 @@ function terser(minifyOptions = {}) {
 	};
 }
 
+/**
+ * A rollup plugin for remapping url() paths in css files.
+ * @param {Object} options
+ * @param {string} options.outputPath The path where the Javascript files are
+ * expected to be placed after bundling.
+ */
+function rebaseCssUrl({
+	outputPath,
+}) {
+	/** @type {import("rollup").Plugin} */
+	const plugin = {
+		name: "rebaseCssUrl",
+		async load(id) {
+			if (id.endsWith(".css")) {
+				const oldCss = await Deno.readTextFile(id);
+				const newCss = await postcss([
+					postcssUrl({
+						url: "rebase",
+					}),
+				]).process(oldCss, {
+					from: id,
+					to: outputPath,
+				});
+				return newCss.css;
+			}
+		},
+	};
+	return plugin;
+}
+
 const editorDefines = {
 	EDITOR_ENV: "production",
 	IS_DEV_BUILD: false,
@@ -102,7 +133,12 @@ const bundle = await rollup({
 		// todo:
 		// resolveUrlObjects(),
 		terser(),
+		rebaseCssUrl({
+			outputPath: path.resolve("../dist/"),
+		}),
+		importAssertionsPlugin(),
 	],
+	acornInjectPlugins: [importAssertions],
 	onwarn: message => {
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
 		console.error(message.message);

@@ -1,0 +1,157 @@
+body, html{
+	overflow: hidden;
+	position: relative;
+	margin: 0;
+	height: 100%;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+	font-family: ui-sans-serif,system-ui,sans-serif;
+	background: var(--panel-borders-color);
+	color: var(--default-text-color);
+}
+
+.tabDragFeedback {
+	background: var(--color-selected-blue);
+	opacity: 0.4;
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	width: 100px;
+	height: 100px;
+	transform-origin: top left;
+	transition: transform 0.05s linear;
+}
+
+.buttonGroup{
+	margin: 5px;
+	display: inline-block;
+	overflow: hidden;
+	box-sizing: content-box;
+	vertical-align: top;
+}
+
+.buttonLike{
+	min-width: 20px;
+	font-size: 10pt;
+	text-align: center;
+	height: 20px;
+	display: inline-block;
+	background: var(--default-button-color);
+	color: var(--default-button-text-color);
+	box-sizing: border-box;
+	padding: 2px 3px;
+	border-radius: var(--default-border-radius);
+	vertical-align: top;
+}
+
+.buttonGroupLike > .buttonLike{
+	border-radius: 0px;
+}
+.buttonGroupLike > .buttonLike:first-child{
+	border-top-left-radius: var(--default-border-radius);
+	border-bottom-left-radius: var(--default-border-radius);
+}
+.buttonGroupLike > .buttonLike:last-child{
+	border-top-right-radius: var(--default-border-radius);
+	border-bottom-right-radius: var(--default-border-radius);
+}
+
+.buttonLike:not(:last-child){
+	margin-right: 1px;
+}
+
+.button:hover:not(.disabled):not(.selected) {
+	filter: brightness(var(--default-button-hover-brightness));
+}
+.button:active:not(.disabled){
+	background: var(--default-button-active-color);
+}
+.button.disabled{
+	background: var(--default-button-color-disabled);
+	color: var(--default-button-text-color-disabled);
+}
+
+.button.selected{
+	background: var(--default-button-selected-color);
+}
+
+.buttonIcon {
+	width: 20px;
+	height: 20px;
+	background-repeat: no-repeat;
+	background-position: center;
+	display: inline-block;
+	vertical-align: middle;
+	margin-top: -2px;
+}
+
+.resetInput{
+	border: none;
+	outline: none;
+	font-family: inherit;
+}
+.resetInput:not(select){
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.textInput{
+	background: var(--default-input-box-color);
+	color: var(--default-text-color);
+	width: 100%;
+	box-shadow: inset 0px 0px 0 1px var(--default-input-box-border-color);
+}
+
+.textInput::placeholder{
+	color: var(--default-input-placeholder-color);
+}
+
+.textInput:hover:not(:disabled){
+	box-shadow: inset 0px 0px 0 1px var(--default-input-box-border-hover-color);
+}
+
+.textInput:focus:not(:disabled){
+	box-shadow: inset 0px 0px 0 1px var(--color-selected-blue);
+	color: var(--default-input-box-text-color-focus);
+}
+
+.textInput::selection{
+	background: var(--color-selected-blue-textfield);
+}
+
+.textInput:disabled{
+	cursor: inherit;
+	color: var(--default-text-color-disabled-textfield);
+	background: var(--default-input-box-color-disabled);
+}
+
+select.textInput{
+	width: auto;
+}
+
+select.textInput:disabled{
+	opacity: 1;
+}
+
+.drag-feedback-text-container {
+	position: absolute;
+	z-index: 10000;
+	transform: translateX(-100%);
+}
+
+.drag-feedback-text{
+	background: var(--color-selected-blue);
+	color: var(--selected-text-color);
+	border-radius: var(--selection-border-radius);
+	padding: 0px var(--default-selection-text-padding);
+	margin-bottom: 1px;
+	max-width: 300px;
+	text-align: center;
+}
+
+.buildViewIframe{
+	border: none;
+	width: 100%;
+	height: 100%;
+}
