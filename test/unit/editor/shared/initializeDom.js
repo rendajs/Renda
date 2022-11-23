@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {JSDOM} from "https://esm.sh/jsdom@19.0.0?no-check&pin=v64";
+import {JSDOM} from "npm:jsdom@19.0.0";
 
 export function initializeDom() {
 	const jsdom = new JSDOM();
