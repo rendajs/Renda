@@ -3,7 +3,7 @@
 	"typescript.enablePromptUseWorkspaceTsdk": true,
 	"deno.enable": false,
 	"deno.lint": false,
-	"deno.unstable": true,
+	"deno.unstable": false,
 	"deno.config": "deno.json",
 	"coverage-gutters.coverageFileNames": [
 		"cov.lcov"

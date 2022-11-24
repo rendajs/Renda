@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable --no-check --allow-net --allow-read --allow-write --allow-run
+#!/usr/bin/env -S deno run --no-check --allow-net --allow-read --allow-write --allow-run
 
 import {Application} from "./Application.js";
 
