@@ -10,7 +10,7 @@ on:
 env:
   # be sure to also update these in build.yml
   DENO_DIR: deno_dir
-  DENO_VERSION: "1.25.3"
+  DENO_VERSION: "1.28.1"
 
 jobs:
   lint:

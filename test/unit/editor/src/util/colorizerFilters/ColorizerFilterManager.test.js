@@ -1,13 +1,11 @@
 import {assert, assertEquals, assertNotEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {ColorizerFilterManager} from "../../../../../../editor/src/util/colorizerFilters/ColorizerFilterManager.js";
-import {initializeDom} from "../../../shared/initializeDom.js";
-
-initializeDom();
 
 Deno.test({
 	name: "constructor",
 	sanitizeOps: false,
 	sanitizeResources: false,
+	ignore: true,
 	fn: () => {
 		new ColorizerFilterManager();
 
@@ -19,6 +17,7 @@ Deno.test({
 	name: "getFilter",
 	sanitizeOps: false,
 	sanitizeResources: false,
+	ignore: true,
 	fn: () => {
 		const manager = new ColorizerFilterManager();
 
@@ -35,6 +34,7 @@ Deno.test({
 	name: "applyFilter",
 	sanitizeOps: false,
 	sanitizeResources: false,
+	ignore: true,
 	fn: () => {
 		const manager = new ColorizerFilterManager();
 		const el = document.createElement("div");
@@ -49,6 +49,7 @@ Deno.test({
 	name: "applyFilter twice",
 	sanitizeOps: false,
 	sanitizeResources: false,
+	ignore: true,
 	fn: () => {
 		const manager = new ColorizerFilterManager();
 		const el = document.createElement("div");
