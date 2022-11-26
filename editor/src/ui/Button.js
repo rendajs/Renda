@@ -148,7 +148,6 @@ export class Button {
 		this.#onVisibilityChangeCbs.add(cb);
 	}
 
-
 	/**
 	 * @param {OnVisibilityChangeCallback} cb
 	 */

@@ -1,4 +1,4 @@
-import {assert, assertEquals} from "std/testing/asserts.ts";
+import {assertEquals} from "std/testing/asserts.ts";
 import {Button} from "../../../../../editor/src/ui/Button.js";
 import {ButtonGroup} from "../../../../../editor/src/ui/ButtonGroup.js";
 import {runWithDom} from "../../shared/runWithDom.js";
