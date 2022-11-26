@@ -2,6 +2,8 @@ import {ContentWindow} from "./ContentWindow.js";
 import {Button} from "../../ui/Button.js";
 import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../src/mod.js";
+import {getEditorInstance} from "../../editorInstance.js";
+import {ButtonGroup} from "../../ui/ButtonGroup.js";
 
 export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
@@ -29,20 +31,44 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.iframeEl.classList.add("buildViewIframe");
 		this.contentEl.appendChild(this.iframeEl);
 
-		const loadFrameButton = new Button({
-			text: "Load Frame",
+		const colorizerFilterManager = getEditorInstance().colorizerFilterManager;
+
+		const playStateButtonsGroup = new ButtonGroup();
+		this.addTopBarEl(playStateButtonsGroup.el);
+
+		this.playButton = new Button({
+			icon: "static/icons/buildView/play.svg",
+			colorizerFilterManager,
 			onClick: () => {
-				this.isRunning = true;
-				this.updateFrameSrc();
+				this.setIsRunning(true);
+			},
+		});
+		playStateButtonsGroup.addButton(this.playButton);
+
+		this.stopButton = new Button({
+			icon: "static/icons/buildView/stop.svg",
+			colorizerFilterManager,
+			onClick: () => {
+				this.setIsRunning(false);
+			},
+		});
+		playStateButtonsGroup.addButton(this.stopButton);
+
+		this.reloadButton = new Button({
+			icon: "static/icons/buildView/reload.svg",
+			colorizerFilterManager,
+			onClick: () => {
+				this.updateFrameSrc(true);
 				this.updateIframeVisibility();
 			},
 		});
-		this.addTopBarEl(loadFrameButton.el);
+		playStateButtonsGroup.addButton(this.reloadButton);
 
 		/** @type {ContentWindowEntityEditor?} */
 		this.linkedEntityEditor = null;
 		this.setAvailableLinkedEntityEditor();
 
+		this.updateButtonVisibility();
 		this.updateIframeVisibility();
 	}
 
@@ -109,9 +135,32 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.previewCamRenderDirty = true;
 	}
 
-	async updateFrameSrc() {
-		const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
-		this.iframeEl.src = "projectbuilds/" + clientId + "/Build/index.html";
+	/**
+	 * @param {boolean} isRunning
+	 */
+	setIsRunning(isRunning) {
+		this.isRunning = isRunning;
+		this.updateButtonVisibility();
+		this.updateIframeVisibility();
+		this.updateFrameSrc();
+	}
+
+	updateButtonVisibility() {
+		this.playButton.setVisibility(!this.isRunning);
+		this.stopButton.setVisibility(this.isRunning);
+		this.reloadButton.setVisibility(this.isRunning);
+	}
+
+	async updateFrameSrc(allowReload = false) {
+		if (this.isRunning) {
+			const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
+			const newSrc = `projectbuilds/${clientId}/Build/index.html`;
+			if (this.iframeEl.src != newSrc || allowReload) {
+				this.iframeEl.src = newSrc;
+			}
+		} else {
+			this.iframeEl.src = "";
+		}
 	}
 
 	loop() {

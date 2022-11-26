@@ -23,6 +23,8 @@
 /** @typedef {(button: Button, event: MouseEvent) => any} ContextMenuCallback */
 
 export class Button {
+	#visible = true;
+
 	/**
 	 * @param {ButtonGuiOptions} opts
 	 */
@@ -120,6 +122,14 @@ export class Button {
 	setDisabled(disabled) {
 		this.disabled = disabled;
 		this.el.classList.toggle("disabled", disabled);
+	}
+
+	/**
+	 * @param {boolean} visible
+	 */
+	setVisibility(visible) {
+		this.#visible = visible;
+		this.el.classList.toggle("hidden", !visible);
 	}
 
 	/**

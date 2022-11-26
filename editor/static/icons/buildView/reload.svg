@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <mask id="mask">
+      <rect x="0" y="0" width="500" height="500" style="fill: black"/>
+      <g style="fill: transparent; stroke: white; stroke-width: 20px;">
+        <ellipse cx="250" cy="250" rx="150" ry="150"/>
+        <path style="fill: black; stroke: none" d="M 498.386 175.667 L 245.297 243.106 L 462.696 369.077 L 498.386 175.667 Z"/>
+        <path d="M 323.824 189.213 L 392.998 205.27 L 422.833 144.085"/>
+      </g>
+    </mask>
+  </defs>
+  <rect x="0" y="0" width="500" height="500" mask="url(#mask)" style="fill: black"/>
+</svg>

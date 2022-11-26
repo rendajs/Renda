@@ -71,6 +71,9 @@ body, html{
 	background: var(--default-button-color-disabled);
 	color: var(--default-button-text-color-disabled);
 }
+.button.hidden {
+	display: none;
+}
 
 .button.selected{
 	background: var(--default-button-selected-color);
