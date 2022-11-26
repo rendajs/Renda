@@ -1,6 +1,7 @@
+import {Button} from "../Button.js";
 import {ContextMenuItem} from "./ContextMenuItem.js";
 import {ContextMenuSubmenuItem} from "./ContextMenuSubmenuItem.js";
-import {Button} from "../Button.js";
+import {Popover} from "./Popover.js";
 
 /**
  * @typedef {object} ContextMenuOptions
@@ -14,20 +15,6 @@ import {Button} from "../Button.js";
  * @typedef {object} ContextMenuItemClickEvent
  * @property {ContextMenuItem} item
  * @property {function() : void} preventMenuClose
- */
-
-/**
- * `"clamp"`: Clamp the menu to the screen.
- * `"flip"`: Moves the menu so that the corner is now on the opposite side.
- * If an element is provided, rather than a position, the menu will also be moved
- * in a way to keep the element visible.
- * @typedef {"flip" | "clamp"} ContextMenuSetPosClampMode
- */
-
-/**
- * @typedef {"left" | "center" | "right"} ContextMenuSetPosHorizontalCorner
- * @typedef {"top" | "center" | "bottom"} ContextMenuSetPosVerticalCorner
- * @typedef {ContextMenuSetPosHorizontalCorner | ContextMenuSetPosVerticalCorner | `${ContextMenuSetPosHorizontalCorner} ${ContextMenuSetPosVerticalCorner}` | `${ContextMenuSetPosVerticalCorner} ${ContextMenuSetPosHorizontalCorner}`} ContextMenuSetPosCorner
  */
 
 /**
@@ -46,28 +33,25 @@ import {Button} from "../Button.js";
  * @property {ContextMenuStructure | (function(): Promise<ContextMenuStructure>) | function(): ContextMenuStructure} [submenu=null] The submenu structure to show on hover.
  */
 
-export class ContextMenu {
+export class ContextMenu extends Popover {
 	/**
-	 * @param {import("./ContextMenuManager.js").ContextMenuManager} manager
+	 * @param {import("./PopoverManager.js").PopoverManager} manager
 	 * @param {ContextMenuOptions} opts
 	 */
 	constructor(manager, {
 		parentMenu = null,
 		structure = null,
 	} = {}) {
-		this.manager = manager;
+		super(manager, {showArrow: false});
 		this.parentMenu = parentMenu;
-		this.el = document.createElement("div");
-		this.el.classList.add("contextMenu");
-		document.body.appendChild(this.el);
 
 		/** @type {Array<ContextMenuItem>} */
 		this.addedItems = [];
 		this.activeSubmenuItem = null;
 		/** @type {ContextMenu?} */
 		this.currentSubmenu = null;
-		/** @type {ContextMenuSetPosOpts?} */
-		this.lastPosArguments = null;
+		/** @type {import("./Popover.js").PopoverSetPosItem?} */
+		this.lastSetPosItem = null;
 
 		this.hasResevedIconSpaceItem = false;
 
@@ -77,14 +61,12 @@ export class ContextMenu {
 	}
 
 	destructor() {
+		super.destructor();
 		this.removeSubmenu();
 		for (const item of this.addedItems) {
 			item.destructor();
 		}
 		this.addedItems = [];
-		if (this.el) {
-			if (this.el.parentElement) this.el.parentElement.removeChild(this.el);
-		}
 	}
 
 	removeSubmenu() {
@@ -95,103 +77,61 @@ export class ContextMenu {
 	}
 
 	/**
-	 * @typedef {object} ContextMenuSetPosOpts
-	 * @property {number} [x]
-	 * @property {number} [y]
-	 * @property {HTMLElement | Button | ContextMenuItem} [item]
-	 * @property {ContextMenuSetPosCorner} [corner]
-	 * @property {ContextMenuSetPosClampMode} [clampMode]
-	 * @property {boolean} [preventElementCover] When true, will move the menu out of the way
-	 * when the menu would otherwise cover the element as a result of the clamp mode. Only works
-	 * with clamp mode "flip".
+	 * @param  {import("./Popover.js").PopoverSetPosItem} item
 	 */
+	setPos(item) {
+		this.lastSetPosItem = item;
+		let x = 0;
+		let y = 0;
 
-	/**
-	 * @param  {ContextMenuSetPosOpts} options
-	 */
-	setPos(options) {
-		this.lastPosArguments = {...options};
-
-		let x = options.x;
-		let y = options.y;
-		let corner = options.corner;
-		let clampMode = options.clampMode;
-		let preventElementCover = options.preventElementCover;
 		let el = null;
-
-		if (options.item instanceof ContextMenuItem) {
-			el = options.item.el;
-			if (!clampMode) clampMode = "flip";
-			if (preventElementCover == undefined) preventElementCover = true;
+		let isSubmenu = false;
+		if (item instanceof MouseEvent) {
+			x = item.clientX;
+			y = item.clientY;
+		} else if (item instanceof ContextMenuItem) {
+			el = item.el;
+			isSubmenu = true;
+		} else if (item instanceof Button) {
+			el = item.el;
+		} else {
+			el = item;
 		}
-		if (options.item instanceof Button) {
-			el = options.item.el;
-			if (!corner) corner = "top left";
-		}
-		let elRect = null;
-		if (el instanceof HTMLElement) {
-			elRect = el.getBoundingClientRect();
-			if (!corner) corner = "center";
-			const corenerArgs = corner.split(" ");
-			const castCornerArgs = /** @type {(ContextMenuSetPosHorizontalCorner | ContextMenuSetPosVerticalCorner)[]} */ (corenerArgs);
-			/** @type {ContextMenuSetPosHorizontalCorner} */
-			let horizontalCorner = "center";
-			/** @type {ContextMenuSetPosVerticalCorner} */
-			let verticalCorner = "center";
-			if (castCornerArgs.includes("left")) horizontalCorner = "left";
-			if (castCornerArgs.includes("right")) horizontalCorner = "right";
-			if (castCornerArgs.includes("top")) verticalCorner = "top";
-			if (castCornerArgs.includes("bottom")) verticalCorner = "bottom";
-
-			if (horizontalCorner == "center") {
-				x = elRect.x + elRect.width / 2;
-			} else if (horizontalCorner == "left") {
-				x = elRect.x;
-			} else if (horizontalCorner == "right") {
-				x = elRect.right;
+		let relatedElRect = null;
+		if (el) {
+			relatedElRect = el.getBoundingClientRect();
+			if (isSubmenu) {
+				x = relatedElRect.right;
+				y = relatedElRect.top;
+			} else {
+				x = relatedElRect.x;
+				y = relatedElRect.bottom;
 			}
-			if (verticalCorner == "center") {
-				y = elRect.y + elRect.height / 2;
-			} else if (verticalCorner == "top") {
-				y = elRect.top;
-			} else if (verticalCorner == "bottom") {
-				y = elRect.bottom;
-			}
-
-			if (!clampMode) clampMode = "clamp";
 		}
 
-		if (x == undefined) x = 0;
-		if (y == undefined) y = 0;
-
-		if (!clampMode) clampMode = "flip";
-
-		const bounds = this.el.getBoundingClientRect();
-		if (clampMode == "flip") {
-			if (x + bounds.width > window.innerWidth) {
-				x -= bounds.width;
-				if (preventElementCover && elRect) {
-					x -= elRect.width;
+		const popoverRect = this.el.getBoundingClientRect();
+		if (x + popoverRect.width > window.innerWidth) {
+			x -= popoverRect.width;
+			if (relatedElRect) {
+				if (isSubmenu) {
+					x -= relatedElRect.width;
+				} else {
+					x += relatedElRect.width;
 				}
 			}
-			if (y + bounds.height > window.innerHeight) {
-				y -= bounds.height;
-				if (preventElementCover && elRect) {
-					y -= elRect.height;
+		}
+		if (y + popoverRect.height > window.innerHeight) {
+			y -= popoverRect.height;
+			if (relatedElRect) {
+				if (isSubmenu) {
+					y += relatedElRect.height;
+				} else {
+					y -= relatedElRect.height;
 				}
 			}
-		} else if (clampMode == "clamp") {
-			const deltaX = x + bounds.width - window.innerWidth;
-			if (deltaX > 0) {
-				x -= deltaX;
-				x = Math.max(0, x);
-			}
-			const deltaY = y + bounds.height - window.innerHeight;
-			if (deltaY > 0) {
-				y -= deltaY;
-				y = Math.max(0, y);
-			}
 		}
+		x = Math.max(0, x);
+		y = Math.max(0, y);
 
 		this.el.style.left = x + "px";
 		this.el.style.top = y + "px";
@@ -223,7 +163,7 @@ export class ContextMenu {
 				createdItem = this.addItem(itemSettings);
 			}
 		}
-		if (this.lastPosArguments) this.setPos(this.lastPosArguments);
+		if (this.lastSetPosItem) this.setPos(this.lastSetPosItem);
 	}
 
 	/**
@@ -257,10 +197,7 @@ export class ContextMenu {
 		this.removeSubmenu();
 		this.activeSubmenuItem = submenuItem;
 		this.currentSubmenu = new ContextMenu(this.manager, {parentMenu: this});
-		this.currentSubmenu.setPos({
-			item: submenuItem,
-			corner: "top right",
-		});
+		this.currentSubmenu.setPos(submenuItem);
 		return this.currentSubmenu;
 	}
 
@@ -270,11 +207,6 @@ export class ContextMenu {
 		} else {
 			this.close();
 		}
-	}
-
-	close() {
-		this.manager.onContextMenuClosed(this);
-		this.destructor();
 	}
 
 	updateHasReservedIconSpaceItem() {

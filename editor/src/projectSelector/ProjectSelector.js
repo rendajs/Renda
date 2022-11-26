@@ -195,7 +195,7 @@ export class ProjectSelector {
 					if (entry.fileSystemType == "db") {
 						deleteText = "Delete";
 					}
-					const contextMenu = this.loadedEditor.contextMenuManager.createContextMenu([
+					const contextMenu = this.loadedEditor.popoverManager.createContextMenu([
 						{
 							text: "Change Alias",
 							onClick: async () => {
@@ -220,7 +220,7 @@ export class ProjectSelector {
 							},
 						},
 					]);
-					contextMenu.setPos({x: e.clientX, y: e.clientY});
+					contextMenu.setPos(e);
 				}
 			});
 		}

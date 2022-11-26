@@ -52,7 +52,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			guiOpts: {
 				text: "Add Map Type",
 				onClick: () => {
-					const menu = this.editorInstance.contextMenuManager.createContextMenu();
+					const menu = this.editorInstance.popoverManager.createContextMenu();
 					for (const typeConstructor of this.editorInstance.materialMapTypeSerializerManager.getAllTypes()) {
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem({
@@ -65,7 +65,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 						});
 					}
 
-					menu.setPos({item: this.addMapTypeButtonEntry.gui});
+					menu.setPos(this.addMapTypeButtonEntry.gui);
 				},
 			},
 		});

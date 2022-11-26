@@ -49,7 +49,7 @@ export class ContentWindowProject extends ContentWindow {
 		const createButton = new Button({
 			text: "+",
 			onClick: () => {
-				const menu = this.editorInstance.contextMenuManager.createContextMenu([
+				const menu = this.editorInstance.popoverManager.createContextMenu([
 					{
 						text: "New Folder",
 						onClick: () => this.createNewDir(),
@@ -98,7 +98,7 @@ export class ContentWindowProject extends ContentWindow {
 					{
 						text: "New Task",
 						submenu: () => {
-							/** @type {import("../../ui/contextMenus/ContextMenu.js").ContextMenuStructure} */
+							/** @type {import("../../ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
 							const menu = [];
 							for (const taskType of this.editorInstance.taskManager.getTaskTypes()) {
 								menu.push({
@@ -120,7 +120,7 @@ export class ContentWindowProject extends ContentWindow {
 					},
 				]);
 
-				menu.setPos({item: createButton});
+				menu.setPos(createButton);
 			},
 		});
 		this.addTopBarEl(createButton.el);

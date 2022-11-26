@@ -1,14 +1,15 @@
 import {ContextMenu} from "./ContextMenu.js";
+import {Popover} from "./Popover.js";
 
-export class ContextMenuManager {
+export class PopoverManager {
 	/**
 	 *
 	 * @param {import("../../util/colorizerFilters/ColorizerFilterManager.js").ColorizerFilterManager} colorizerFilterManager
 	 */
 	constructor(colorizerFilterManager) {
-		this.activeContextMenu = null;
+		this.activePopover = null;
 		this.curtainEl = document.createElement("div");
-		this.curtainEl.classList.add("contextMenuCurtain");
+		this.curtainEl.classList.add("popover-curtain");
 		this.curtainEl.addEventListener("click", () => {
 			this.closeCurrent();
 		});
@@ -35,21 +36,40 @@ export class ContextMenuManager {
 	}
 
 	get current() {
-		if (this.activeContextMenu && this.activeContextMenu.el) return this.activeContextMenu;
+		if (this.activePopover && this.activePopover.el) return this.activePopover;
 		return null;
+	}
+
+	createPopover() {
+		if (this.activePopover && this.activePopover.el) {
+			throw new Error("Cannot create a popover while one is already open.");
+		}
+
+		this.activePopover = new Popover(this);
+		this.updateCurtainActive();
+		return this.activePopover;
 	}
 
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
 	 */
 	createContextMenu(structure = null) {
-		if (this.activeContextMenu && this.activeContextMenu.el) {
-			throw new Error("Cannot create a context menu while one is already open.");
+		if (this.activePopover && this.activePopover.el) {
+			throw new Error("Cannot create a popover while one is already open.");
 		}
 
-		this.activeContextMenu = new ContextMenu(this, {structure});
+		const contextMenu = new ContextMenu(this, {structure});
+		this.activePopover = contextMenu;
 		this.updateCurtainActive();
-		return this.activeContextMenu;
+		return contextMenu;
+	}
+
+	get currentContextMenu() {
+		const popover = this.current;
+		if (popover instanceof ContextMenu) {
+			return popover;
+		}
+		return null;
 	}
 
 	closeCurrent() {
@@ -61,11 +81,11 @@ export class ContextMenuManager {
 	}
 
 	/**
-	 * @param {ContextMenu} contextMenu
+	 * @param {Popover} popover
 	 */
-	onContextMenuClosed(contextMenu) {
-		if (contextMenu == this.activeContextMenu) {
-			this.activeContextMenu = null;
+	onPopoverClosed(popover) {
+		if (popover == this.activePopover) {
+			this.activePopover = null;
 			this.updateCurtainActive();
 		}
 	}

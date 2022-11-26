@@ -203,7 +203,7 @@ export function createBasicGui({
 		},
 	});
 
-	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({});
+	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/popoverMenus/PopoverManager.js").PopoverManager} */ ({});
 
 	/** @type {Map<string, unknown>} */
 	const shortcutConditions = new Map();
@@ -238,7 +238,7 @@ export function createBasicGui({
 		projectManager: mockProjectManager,
 		dragManager: mockDragManager,
 		windowManager: mockWindowManager,
-		contextMenuManager: mockContextMenuManager,
+		popoverManager: mockContextMenuManager,
 		projectAssetTypeManager: mockProjectAssetTypeManager,
 		keyboardShortcutManager: mockKeyboardShortcutManager,
 	});
@@ -345,9 +345,9 @@ export async function basicSetupForContextMenus({
 	basicGuiOptions = {},
 	dispatchContextMenuEvent = true,
 } = {}) {
-	/** @type {(import("../../../../../../editor/src/ui/contextMenus/ContextMenu.js").ContextMenuStructure?)[]} */
+	/** @type {(import("../../../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure?)[]} */
 	const createContextMenuCalls = [];
-	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/contextMenus/ContextMenuManager.js").ContextMenuManager} */ ({
+	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/popoverMenus/PopoverManager.js").PopoverManager} */ ({
 		createContextMenu(structure = null) {
 			createContextMenuCalls.push(structure);
 			return {
@@ -356,7 +356,7 @@ export async function basicSetupForContextMenus({
 		},
 	});
 	const returnValue = createBasicGui(basicGuiOptions);
-	returnValue.mockEditor.contextMenuManager = mockContextMenuManager;
+	returnValue.mockEditor.popoverManager = mockContextMenuManager;
 
 	async function dispatchContextMenuEventFn() {
 		returnValue.gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));

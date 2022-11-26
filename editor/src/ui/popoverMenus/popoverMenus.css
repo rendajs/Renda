@@ -1,12 +1,12 @@
 
-.contextMenuCurtain{
+.popover-curtain{
 	position: absolute;
 	width: 100%;
 	height: 100%;
 	z-index: var(--z-context-menu-curtain);
 }
 
-.contextMenu{
+.popover {
 	position: absolute;
 	z-index: var(--z-context-menu);
 	border-radius: var(--default-border-radius);
@@ -15,6 +15,25 @@
 	white-space: nowrap;
 	border: 1px solid var(--overlay-panel-borders-color);
 	box-shadow: var(--overlay-panel-box-shadow);
+}
+
+.popover-arrow {
+	position: absolute;
+	display: block;
+	left: 50%;
+	top: 0;
+	transform: translate(-50%, -100%);
+	fill: var(--default-ui-bg-color);
+}
+.popover-arrow.bottom {
+	left: 50%;
+	top: initial;
+	bottom: 0;
+	transform: translate(-50%, 100%) rotate(180deg);
+}
+.popover-arrow path {
+	stroke: var(--overlay-panel-borders-color);
+	stroke-width: 1px;
 }
 
 .contextMenuItem{

@@ -1,93 +1,91 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import {ColorizerFilter} from "../../../../../../editor/src/util/colorizerFilters/ColorizerFilter.js";
 import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../../../shared/mockWeakRef.js";
+import {runWithDom} from "../../../shared/runWithDom.js";
 
 Deno.test({
 	name: "Construction",
-	sanitizeOps: false,
-	sanitizeResources: false,
-	ignore: true,
 	fn: () => {
-		const container = document.createElement("div");
-		new ColorizerFilter("blue", container);
+		runWithDom(() => {
+			const container = document.createElement("div");
+			new ColorizerFilter("blue", container);
 
-		assertEquals(container.childNodes.length, 1);
+			assertEquals(container.children.length, 1);
+		});
 	},
 });
 
 Deno.test({
 	name: "Destruction",
-	sanitizeOps: false,
-	sanitizeResources: false,
-	ignore: true,
 	fn: () => {
-		const container = document.createElement("div");
-		const filter = new ColorizerFilter("blue", container);
+		runWithDom(() => {
+			const container = document.createElement("div");
+			const filter = new ColorizerFilter("blue", container);
 
-		filter.destructor();
+			filter.destructor();
 
-		assertEquals(container.childNodes.length, 0);
+			assertEquals(container.children.length, 0);
+		});
 	},
 });
 
 Deno.test({
 	name: "setFilterId getFilterId",
-	sanitizeOps: false,
-	sanitizeResources: false,
-	ignore: true,
 	fn: () => {
-		const container = document.createElement("div");
-		const filter = new ColorizerFilter("blue", container);
-		const filterId = "filterId";
+		runWithDom(() => {
+			const container = document.createElement("div");
+			const filter = new ColorizerFilter("blue", container);
+			const filterId = "filterId";
 
-		filter.setFilterId(filterId);
+			filter.setFilterId(filterId);
 
-		assertEquals(filter.getFilterId(), filterId);
+			assertEquals(filter.getFilterId(), filterId);
 
-		const filterEl = /** @type {HTMLElement?} */ (container.firstChild?.firstChild);
-		assertEquals(filterEl?.id, filterId);
+			const filterEl = container.children[0].children[0];
+			assertEquals(filterEl?.id, filterId);
+		});
 	},
 });
 
 Deno.test({
 	name: "getUsageReference",
-	sanitizeOps: false,
-	sanitizeResources: false,
-	ignore: true,
 	fn: () => {
-		const container = document.createElement("div");
-		const filter = new ColorizerFilter("blue", container);
-		let allReferencesDestructedCallCount = 0;
+		runWithDom(() => {
+			const container = document.createElement("div");
+			const filter = new ColorizerFilter("blue", container);
+			let allReferencesDestructedCallCount = 0;
 
-		const usageRef = filter.getUsageReference();
-		filter.onAllReferencesDestructed(() => {
-			allReferencesDestructedCallCount++;
+			const usageRef = filter.getUsageReference();
+			filter.onAllReferencesDestructed(() => {
+				allReferencesDestructedCallCount++;
+			});
+			filter.notifyReferenceDestructed(usageRef);
+
+			assertEquals(allReferencesDestructedCallCount, 1);
 		});
-		filter.notifyReferenceDestructed(usageRef);
-
-		assertEquals(allReferencesDestructedCallCount, 1);
 	},
 });
 
 Deno.test({
 	name: "garbage collection",
-	sanitizeOps: false,
-	sanitizeResources: false,
-	ignore: true,
 	fn: () => {
-		installMockWeakRef();
-		const container = document.createElement("div");
-		const filter = new ColorizerFilter("blue", container);
-		let allReferencesDestructedCallCount = 0;
+		runWithDom(() => {
+			installMockWeakRef();
+			try {
+				const container = document.createElement("div");
+				const filter = new ColorizerFilter("blue", container);
+				let allReferencesDestructedCallCount = 0;
 
-		const usageRef = filter.getUsageReference();
-		filter.onAllReferencesDestructed(() => {
-			allReferencesDestructedCallCount++;
+				const usageRef = filter.getUsageReference();
+				filter.onAllReferencesDestructed(() => {
+					allReferencesDestructedCallCount++;
+				});
+				forceCleanup(usageRef);
+
+				assertEquals(allReferencesDestructedCallCount, 1);
+			} finally {
+				uninstallMockWeakRef();
+			}
 		});
-		forceCleanup(usageRef);
-
-		assertEquals(allReferencesDestructedCallCount, 1);
-
-		uninstallMockWeakRef();
 	},
 });

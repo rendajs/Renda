@@ -1,6 +1,6 @@
 import {WindowManager} from "./windowManagement/WindowManager.js";
 import {SelectionManager} from "./misc/SelectionManager.js";
-import {ContextMenuManager} from "./ui/contextMenus/ContextMenuManager.js";
+import {PopoverManager} from "./ui/popoverMenus/PopoverManager.js";
 import {KeyboardShortcutManager} from "./keyboardShortcuts/KeyboardShortcutManager.js";
 import {PropertiesWindowContentManager} from "./propertiesWindowContent/PropertiesWindowContentManager.js";
 import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";
@@ -28,7 +28,7 @@ export class Editor {
 		this.windowManager = new WindowManager();
 		this.selectionManager = new SelectionManager();
 		this.colorizerFilterManager = new ColorizerFilterManager();
-		this.contextMenuManager = new ContextMenuManager(this.colorizerFilterManager);
+		this.popoverManager = new PopoverManager(this.colorizerFilterManager);
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager(this.windowManager);
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
