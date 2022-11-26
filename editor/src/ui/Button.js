@@ -21,9 +21,12 @@
  */
 
 /** @typedef {(button: Button, event: MouseEvent) => any} ContextMenuCallback */
+/** @typedef {(visible: boolean) => void} OnVisibilityChangeCallback */
 
 export class Button {
 	#visible = true;
+	/** @type {Set<OnVisibilityChangeCallback>} */
+	#onVisibilityChangeCbs = new Set();
 
 	/**
 	 * @param {ButtonGuiOptions} opts
@@ -128,8 +131,29 @@ export class Button {
 	 * @param {boolean} visible
 	 */
 	setVisibility(visible) {
+		if (visible == this.#visible) return;
 		this.#visible = visible;
 		this.el.classList.toggle("hidden", !visible);
+		this.#onVisibilityChangeCbs.forEach(cb => cb(visible));
+	}
+
+	get visible() {
+		return this.#visible;
+	}
+
+	/**
+	 * @param {OnVisibilityChangeCallback} cb
+	 */
+	onVisibilityChange(cb) {
+		this.#onVisibilityChangeCbs.add(cb);
+	}
+
+
+	/**
+	 * @param {OnVisibilityChangeCallback} cb
+	 */
+	removeOnVisibilityChange(cb) {
+		this.#onVisibilityChangeCbs.delete(cb);
 	}
 
 	/**
