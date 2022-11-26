@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --unstable --allow-read --allow-write --allow-net --allow-env --no-check
+#!/usr/bin/env -S deno run --allow-read --allow-write --allow-net --allow-env --no-check
 
 import {rollup} from "rollup";
 import cleanup from "rollup-plugin-cleanup";

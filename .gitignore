@@ -3,3 +3,4 @@
 editor/deps/
 .coverage
 npm_packages
+deno.lock

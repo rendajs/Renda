@@ -136,7 +136,7 @@ if (needsUnitTests) {
 
 // E2E tests command
 if (needsE2eTests) {
-	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net", "--unstable"];
+	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net"];
 	/** @type {Set<string>} */
 	const applicationArgs = new Set();
 	for (const arg of Deno.args) {
