@@ -63,7 +63,7 @@ export class ButtonGroup {
 		}
 
 		let hasSeenLast = false;
-		for (let i = this.buttons.length - 1; i >= 0; i--) {
+		for (let i = this.buttons.length - 1; i > 0; i--) {
 			const button = this.buttons[i];
 			let visible = false;
 			if (!hasSeenLast && button.visible) {
