@@ -25,10 +25,14 @@ body, html{
 
 .buttonGroup{
 	margin: 5px;
-	display: inline-block;
 	overflow: hidden;
 	box-sizing: content-box;
 	vertical-align: top;
+	display: inline-flex;
+	gap: 1px;
+}
+.buttonGroup.vertical {
+	flex-direction: column;
 }
 
 .buttonLike{
@@ -45,20 +49,26 @@ body, html{
 	vertical-align: top;
 }
 
-.buttonGroupLike > .buttonLike{
+.buttonGroupLike > .buttonLike {
 	border-radius: 0px;
 }
-.buttonGroupLike > .buttonLike.first-visible-child{
+.buttonGroupLike > .buttonLike.first-visible-child {
 	border-top-left-radius: var(--default-border-radius);
-	border-bottom-left-radius: var(--default-border-radius);
 }
-.buttonGroupLike > .buttonLike.last-visible-child{
-	border-top-right-radius: var(--default-border-radius);
+.buttonGroupLike > .buttonLike.last-visible-child {
 	border-bottom-right-radius: var(--default-border-radius);
 }
-
-.buttonLike:not(:last-child){
-	margin-right: 1px;
+.buttonGroupLike:not(.vertical) > .buttonLike.first-visible-child {
+	border-bottom-left-radius: var(--default-border-radius);
+}
+.buttonGroupLike:not(.vertical) > .buttonLike.last-visible-child {
+	border-top-right-radius: var(--default-border-radius);
+}
+.buttonGroupLike.vertical > .buttonLike.first-visible-child {
+	border-top-right-radius: var(--default-border-radius);
+}
+.buttonGroupLike.vertical > .buttonLike.last-visible-child {
+	border-bottom-left-radius: var(--default-border-radius);
 }
 
 .button:hover:not(.disabled):not(.selected) {

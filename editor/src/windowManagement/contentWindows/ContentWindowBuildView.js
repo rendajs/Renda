@@ -74,6 +74,7 @@ export class ContentWindowBuildView extends ContentWindow {
 
 				const selector = new ButtonSelectorGui({
 					items: ["a", "b", "c"],
+					vertical: true,
 				});
 				popover.el.appendChild(selector.el);
 

@@ -1,7 +1,18 @@
+/**
+ * @typedef ButtonGroupOptions
+ * @property {boolean} [vertical] Whether to render the buttons from top to bottom rather than left to right.
+ */
+
 export class ButtonGroup {
-	constructor() {
+	/**
+	 * @param {ButtonGroupOptions} param0
+	 */
+	constructor({
+		vertical = false,
+	} = {}) {
 		this.el = document.createElement("div");
 		this.el.classList.add("buttonGroup", "buttonGroupLike");
+		this.el.classList.toggle("vertical", vertical);
 
 		/** @type {Array<import("./Button.js").Button>} */
 		this.buttons = [];

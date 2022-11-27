@@ -12,7 +12,7 @@ import {ButtonGroup} from "./ButtonGroup.js";
  * @property {boolean} [allowSelectNone] Set to true to allow the user to deselect by clicking the currently selected button.
  * @property {ButtonSelectorGuiValueTypes} [defaultValue] The default value of the gui when it hasn't been modified by the user.
  *
- * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonSelectorGuiOptionsType} ButtonSelectorGuiOptions
+ * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonSelectorGuiOptionsType & import("./ButtonGroup.js").ButtonGroupOptions} ButtonSelectorGuiOptions
  */
 
 /** @typedef {string | number | null} ButtonSelectorGuiValueTypes */
@@ -30,6 +30,7 @@ export class ButtonSelectorGui {
 		items = [],
 		allowSelectNone = false,
 		defaultValue = null,
+		vertical = false,
 		disabled = false,
 	} = {}) {
 		this.items = items;
@@ -41,7 +42,7 @@ export class ButtonSelectorGui {
 		}
 		this.disabled = disabled;
 
-		this.buttonGroup = new ButtonGroup();
+		this.buttonGroup = new ButtonGroup({vertical});
 		this.el = this.buttonGroup.el;
 		this.buttons = [];
 
