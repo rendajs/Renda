@@ -67,10 +67,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			tooltip: "Rotate Mode",
 		});
 
-		const translationMethodButtonGroup = new ButtonGroup(
-			this.transformationModeTranslateButton,
-			this.transformationModeRotateButton
-		);
+		const translationMethodButtonGroup = new ButtonGroup();
+		translationMethodButtonGroup.addButton(this.transformationModeTranslateButton);
+		translationMethodButtonGroup.addButton(this.transformationModeRotateButton);
 		this.addTopBarEl(translationMethodButtonGroup.el);
 
 		this.transformationSpaceButton = new Button({
@@ -88,7 +87,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
 			tooltip: "Transformation Pivot",
 		});
-		const pivotControlsGroup = new ButtonGroup(this.transformationSpaceButton, this.transformationPivotButton);
+		const pivotControlsGroup = new ButtonGroup();
+		pivotControlsGroup.addButton(this.transformationSpaceButton);
+		pivotControlsGroup.addButton(this.transformationPivotButton);
 		this.addTopBarEl(pivotControlsGroup.el);
 
 		this.domTarget = this.editorInstance.renderer.createDomTarget();

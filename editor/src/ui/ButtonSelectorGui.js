@@ -3,13 +3,20 @@ import {Button} from "./Button.js";
 import {ButtonGroup} from "./ButtonGroup.js";
 
 /**
- * @typedef {object} ButtonSelectorGuiOptionsType
- * @property {string[]} [items]
+ * @typedef {string | import("./Button.js").ButtonGuiOptions} ButtonSelectorGuiOptionsItem
+ */
+
+/**
+ * @typedef ButtonSelectorGuiOptionsType
+ * @property {ButtonSelectorGuiOptionsItem[]} [items]
  * @property {boolean} [allowSelectNone] Set to true to allow the user to deselect by clicking the currently selected button.
- * @property {string} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
+ * @property {ButtonSelectorGuiValueTypes} [defaultValue] The default value of the gui when it hasn't been modified by the user.
  *
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonSelectorGuiOptionsType} ButtonSelectorGuiOptions
  */
+
+/** @typedef {string | number | null} ButtonSelectorGuiValueTypes */
+/** @typedef {(newValue: ButtonSelectorGuiValueTypes) => void} OnButtonselectorGuiValueChange */
 
 /**
  * A button group where only a single value can be selected at a time.
@@ -28,36 +35,48 @@ export class ButtonSelectorGui {
 		this.items = items;
 		this.allowSelectNone = allowSelectNone;
 		this.currentValueIndex = 0;
-		this.defaultValue = defaultValue;
+		this.defaultValue = this.#valueToIndex(defaultValue);
+		if (!allowSelectNone && this.defaultValue == -1) {
+			this.defaultValue = 0;
+		}
 		this.disabled = disabled;
 
 		this.buttonGroup = new ButtonGroup();
 		this.el = this.buttonGroup.el;
 		this.buttons = [];
 
-		for (const item of items) {
-			const button = new Button({
-				text: prettifyVariableName(item),
+		for (const [i, item] of items.entries()) {
+			/** @type {import("./Button.js").ButtonGuiOptions} */
+			let opts = {
 				onClick: () => {
-					if (this.value == item) {
+					if (this.currentValueIndex == i) {
 						if (this.allowSelectNone) {
 							this.setValue(null);
 							this.fireOnChangeCbs();
 						}
 					} else {
-						this.setValue(item);
+						this.setValue(i);
 						this.fireOnChangeCbs();
 					}
 				},
-			});
+			};
+			if (typeof item == "string") {
+				opts.text = prettifyVariableName(item);
+			} else {
+				opts = {
+					...opts,
+					...item,
+				};
+			}
+			const button = new Button(opts);
 			this.buttons.push(button);
 			this.buttonGroup.addButton(button);
 		}
 
-		/** @type {Set<(newValue: string) => void>} */
+		/** @type {Set<OnButtonselectorGuiValueChange>} */
 		this.onValueChangeCbs = new Set();
 
-		this.setValue(defaultValue);
+		this.setValue(this.defaultValue);
 	}
 
 	updateSelectedButton() {
@@ -67,17 +86,33 @@ export class ButtonSelectorGui {
 	}
 
 	/**
-	 * @param {string?} value
+	 * @param {ButtonSelectorGuiValueTypes} value
+	 */
+	#valueToIndex(value) {
+		let index = -1;
+		if (value == null) {
+			index = -1;
+		} else if (typeof value == "string") {
+			index = this.items.indexOf(value);
+		} else {
+			if (value >= 0 && value < this.items.length) {
+				index = value;
+			} else {
+				index = -1;
+			}
+		}
+		return index;
+	}
+
+	/**
+	 * @param {ButtonSelectorGuiValueTypes} value
 	 */
 	setValue(value) {
-		if (value == null) {
-			this.currentValueIndex = -1;
-		} else {
-			this.currentValueIndex = this.items.indexOf(value);
+		const newValue = this.#valueToIndex(value);
+		if (newValue == -1 && !this.allowSelectNone) {
+			throw new Error(`"${value}" is not a valid value for this selector gui.`);
 		}
-		if (this.currentValueIndex == -1 && !this.allowSelectNone) {
-			this.currentValueIndex = 0;
-		}
+		this.currentValueIndex = newValue;
 		this.updateSelectedButton();
 	}
 
@@ -85,12 +120,20 @@ export class ButtonSelectorGui {
 		return this.getValue();
 	}
 
+	/**
+	 * Returns the current selected button. If an array of strings was provied,
+	 * returns, the string is returned. Otherwise the index of the button that
+	 * is selected is returned.
+	 */
 	getValue() {
-		return this.items[this.currentValueIndex] ?? null;
+		const item = this.items[this.currentValueIndex];
+		if (!item) return null;
+		if (typeof item == "string") return item;
+		return this.currentValueIndex;
 	}
 
 	/**
-	 * @param {(newValue: string) => void} cb
+	 * @param {OnButtonselectorGuiValueChange} cb
 	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);

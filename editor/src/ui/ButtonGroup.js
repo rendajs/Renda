@@ -1,17 +1,10 @@
 export class ButtonGroup {
-	/**
-	 * @param {...import("./Button.js").Button} buttons
-	 */
-	constructor(...buttons) {
+	constructor() {
 		this.el = document.createElement("div");
 		this.el.classList.add("buttonGroup", "buttonGroupLike");
 
 		/** @type {Array<import("./Button.js").Button>} */
 		this.buttons = [];
-
-		for (const button of buttons) {
-			this.addButton(button);
-		}
 
 		this.boundFireContextMenuCbs = this.fireContextMenuCbs.bind(this);
 		/** @type {Set<import("./Button.js").ContextMenuCallback>} */
