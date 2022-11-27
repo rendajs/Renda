@@ -4,6 +4,9 @@ import {ContentWindowEntityEditor} from "./ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../src/mod.js";
 import {getEditorInstance} from "../../editorInstance.js";
 import {ButtonGroup} from "../../ui/ButtonGroup.js";
+import {ProjectAssetTypeHtml} from "../../assets/projectAssetType/ProjectAssetTypeHtml.js";
+import {DroppableGui} from "../../ui/DroppableGui.js";
+import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 
 export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
@@ -64,11 +67,32 @@ export class ContentWindowBuildView extends ContentWindow {
 		});
 		playStateButtonsGroup.addButton(this.reloadButton);
 
+		this.entryPointButton = new Button({
+			text: "Entry Point",
+			onClick: async () => {
+				const popover = await getEditorInstance().popoverManager.createPopover();
+
+				const selector = new ButtonSelectorGui({
+					items: ["a", "b", "c"],
+				});
+				popover.el.appendChild(selector.el);
+
+				const droppableGui = DroppableGui.of({
+					supportedAssetTypes: [ProjectAssetTypeHtml],
+				});
+				popover.el.appendChild(droppableGui.el);
+
+				popover.setNeedsCurtain(false);
+				popover.setPos(this.entryPointButton);
+			},
+		});
+		this.addTopBarEl(this.entryPointButton.el);
+
 		/** @type {ContentWindowEntityEditor?} */
 		this.linkedEntityEditor = null;
 		this.setAvailableLinkedEntityEditor();
 
-		this.updateButtonVisibility();
+		this.updateButtonVisibilities();
 		this.updateIframeVisibility();
 	}
 
@@ -140,12 +164,12 @@ export class ContentWindowBuildView extends ContentWindow {
 	 */
 	setIsRunning(isRunning) {
 		this.isRunning = isRunning;
-		this.updateButtonVisibility();
+		this.updateButtonVisibilities();
 		this.updateIframeVisibility();
 		this.updateFrameSrc();
 	}
 
-	updateButtonVisibility() {
+	updateButtonVisibilities() {
 		this.playButton.setVisibility(!this.isRunning);
 		this.stopButton.setVisibility(this.isRunning);
 		this.reloadButton.setVisibility(this.isRunning);
