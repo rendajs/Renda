@@ -11,9 +11,17 @@ import {clamp} from "../../../../src/mod.js";
  * @property {boolean} [showArrow]
  */
 
+/**
+ * @typedef {(needsCurtain: boolean) => void} OnNeedsCurtainChangeCallback
+ */
+
 const ARROW_PIXELS_OFFSET_HEIGHT = 7;
 
 export class Popover {
+	#needsCurtain = true;
+	/** @type {Set<OnNeedsCurtainChangeCallback>} */
+	#onNeedsCurtainChangeCbs = new Set();
+
 	/**
 	 * @param {import("./PopoverManager.js").PopoverManager} manager
 	 * @param {PopoverOptions} options
@@ -112,5 +120,32 @@ export class Popover {
 
 		this.el.style.left = x + "px";
 		this.el.style.top = y + "px";
+	}
+
+	get needsCurtain() {
+		return this.#needsCurtain;
+	}
+
+	/**
+	 * @param {boolean} needsCurtain
+	 */
+	setNeedsCurtain(needsCurtain) {
+		if (needsCurtain == this.#needsCurtain) return;
+		this.#needsCurtain = needsCurtain;
+		this.#onNeedsCurtainChangeCbs.forEach(cb => cb(needsCurtain));
+	}
+
+	/**
+	 * @param {OnNeedsCurtainChangeCallback} cb
+	 */
+	onNeedsCurtainChange(cb) {
+		this.#onNeedsCurtainChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnNeedsCurtainChangeCallback} cb
+	 */
+	removeOnNeedsCurtainChange(cb) {
+		this.#onNeedsCurtainChangeCbs.delete(cb);
 	}
 }

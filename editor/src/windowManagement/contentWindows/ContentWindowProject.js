@@ -48,8 +48,8 @@ export class ContentWindowProject extends ContentWindow {
 
 		const createButton = new Button({
 			text: "+",
-			onClick: () => {
-				const menu = this.editorInstance.popoverManager.createContextMenu([
+			onClick: async () => {
+				const menu = await this.editorInstance.popoverManager.createContextMenu([
 					{
 						text: "New Folder",
 						onClick: () => this.createNewDir(),
@@ -676,8 +676,8 @@ export class ContentWindowProject extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
-	onTreeViewContextMenu(e) {
-		const menu = e.showContextMenu();
+	async onTreeViewContextMenu(e) {
+		const menu = await e.showContextMenu();
 		menu.createStructure([
 			{
 				text: "Copy asset UUID", onClick: async () => {

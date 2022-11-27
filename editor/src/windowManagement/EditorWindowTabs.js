@@ -325,7 +325,7 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {Button} button
 	 * @param {MouseEvent} e
 	 */
-	onTabsContextMenu(button, e) {
+	async onTabsContextMenu(button, e) {
 		e.preventDefault();
 
 		/** @type {import("../ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
@@ -439,7 +439,7 @@ export class EditorWindowTabs extends EditorWindow {
 			},
 		];
 
-		const menu = getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
+		const menu = await getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
 		menu.setPos(e);
 	}
 

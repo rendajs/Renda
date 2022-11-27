@@ -188,14 +188,14 @@ export class ProjectSelector {
 				}
 			}
 			el.title = tooltip;
-			el.addEventListener("contextmenu", e => {
+			el.addEventListener("contextmenu", async e => {
 				if (this.loadedEditor) {
 					e.preventDefault();
 					let deleteText = "Remove from Recents";
 					if (entry.fileSystemType == "db") {
 						deleteText = "Delete";
 					}
-					const contextMenu = this.loadedEditor.popoverManager.createContextMenu([
+					const contextMenu = await this.loadedEditor.popoverManager.createContextMenu([
 						{
 							text: "Change Alias",
 							onClick: async () => {

@@ -99,8 +99,8 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	/**
 	 * @param {import("../../ui/TreeView.js").TreeViewContextMenuEvent} e
 	 */
-	onTreeViewContextMenu(e) {
-		const menu = e.showContextMenu();
+	async onTreeViewContextMenu(e) {
+		const menu = await e.showContextMenu();
 		menu.createStructure([
 			{
 				text: "Copy asset UUID",
