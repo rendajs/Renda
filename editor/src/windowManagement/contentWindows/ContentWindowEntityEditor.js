@@ -8,6 +8,7 @@ import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTy
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
 import {ButtonGroup} from "../../ui/ButtonGroup.js";
 import {getEditorInstance} from "../../editorInstance.js";
+import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -50,27 +51,24 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {TransformationPivot} */
 		this.transformationPivot = "center";
 
-		this.transformationModeTranslateButton = new Button({
-			onClick: () => {
-				this.setTransformationMode("translate");
-			},
-			icon: "static/icons/entityEditor/translate.svg",
-			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
-			tooltip: "Translate Mode",
+		this.translationModeSelector = new ButtonSelectorGui({
+			items: [
+				{
+					icon: "static/icons/entityEditor/translate.svg",
+					colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+					tooltip: "Translate Mode",
+				},
+				{
+					icon: "static/icons/entityEditor/rotate.svg",
+					colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+					tooltip: "Rotate Mode",
+				},
+			],
 		});
-		this.transformationModeRotateButton = new Button({
-			onClick: () => {
-				this.setTransformationMode("rotate");
-			},
-			icon: "static/icons/entityEditor/rotate.svg",
-			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
-			tooltip: "Rotate Mode",
+		this.translationModeSelector.onValueChange(() => {
+			this.#updateTranslationMode();
 		});
-
-		const translationMethodButtonGroup = new ButtonGroup();
-		translationMethodButtonGroup.addButton(this.transformationModeTranslateButton);
-		translationMethodButtonGroup.addButton(this.transformationModeRotateButton);
-		this.addTopBarEl(translationMethodButtonGroup.el);
+		this.addTopBarEl(this.translationModeSelector.el);
 
 		this.transformationSpaceButton = new Button({
 			onClick: () => {
@@ -129,9 +127,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		/** @type {TransformationGizmoData[]} */
 		this.activeTransformationGizmos = [];
-		this.setTransformationMode("translate");
 		this.updateTransformationSpaceButton();
 		this.updateTransformationPivotButton();
+		this.#updateTranslationMode();
 
 		this.selectionGroup.onSelectionChange(() => {
 			this.updateTransformationGizmos();
@@ -324,13 +322,20 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 	}
 
+	#updateTranslationMode() {
+		if (this.translationModeSelector.value == 0) {
+			this.transformationMode = "translate";
+		} else if (this.translationModeSelector.value == 1) {
+			this.transformationMode = "rotate";
+		}
+		this.updateTransformationGizmos();
+	}
+
 	/**
 	 * @param {TransformationMode} mode
 	 */
 	setTransformationMode(mode) {
 		this.transformationMode = mode;
-		this.transformationModeTranslateButton.setSelectedHighlight(mode == "translate");
-		this.transformationModeRotateButton.setSelectedHighlight(mode == "rotate");
 		this.updateTransformationGizmos();
 	}
 
