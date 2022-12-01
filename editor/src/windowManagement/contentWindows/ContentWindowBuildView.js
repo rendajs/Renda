@@ -8,6 +8,8 @@ import {ProjectAssetTypeHtml} from "../../assets/projectAssetType/ProjectAssetTy
 import {DroppableGui} from "../../ui/DroppableGui.js";
 import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 
+const ENTRY_POINTS_SETTING_KEY = "buildView.entryPoints";
+
 export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
 	static contentWindowUiName = "Build";
@@ -70,18 +72,104 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.entryPointButton = new Button({
 			text: "Entry Point",
 			onClick: async () => {
-				const popover = await getEditorInstance().popoverManager.createPopover();
+				const editor = getEditorInstance();
+				const projectSettings = editor.projectManager.projectSettings;
+				const assetManager = editor.projectManager.assetManager;
+				if (!projectSettings || !assetManager) return;
+				const popover = await editor.popoverManager.createPopover();
+				const selectorContainer = document.createElement("div");
+				popover.el.appendChild(selectorContainer);
+				/** @type {HTMLElement?} */
+				let currentSelectorEl = null;
 
-				const selector = new ButtonSelectorGui({
-					items: ["a", "b", "c"],
-					vertical: true,
-				});
-				popover.el.appendChild(selector.el);
+				/**
+				 * @param {import("../../../../src/mod.js").UuidString[]} items
+				 */
+				async function updateSelector(items) {
+					if (!assetManager) {
+						throw new Error("Assertion failed, no asset manager is active");
+					}
+					/**
+					 * @typedef ItemData
+					 * @property {string} fileName
+					 * @property {string} fullPath
+					 * @property {import("../../../../src/mod.js").UuidString} uuid
+					 */
+					/** @type {ItemData[]} */
+					const itemDatas = [];
+					/** @type {Set<string>} */
+					const fileNames = new Set();
+					/** @type {Set<string>} */
+					const duplicateFileNames = new Set();
+					for (const uuid of items) {
+						const path = await assetManager.getAssetPathFromUuid(uuid) || [];
+						const fullPath = path.join("/");
+						const fileName = fullPath.at(-1) || "";
+						itemDatas.push({uuid, fullPath, fileName});
+						if (fileNames.has(fileName)) {
+							duplicateFileNames.add(fileName);
+						}
+						fileNames.add(fileName);
+					}
+					const itemTexts = itemDatas.map(item => {
+						if (duplicateFileNames.has(item.fileName)) {
+							return item.fullPath;
+						} else {
+							return item.fileName;
+						}
+					});
+					const selector = new ButtonSelectorGui({
+						items: itemTexts,
+						vertical: true,
+					});
+					if (currentSelectorEl) {
+						currentSelectorEl.remove();
+					}
+					currentSelectorEl = selector.el;
+					selectorContainer.appendChild(selector.el);
+				}
+
+				/** @type {string[]} */
+				const items = [];
+				const settingValue = await projectSettings.get(ENTRY_POINTS_SETTING_KEY);
+				if (settingValue && Array.isArray(settingValue)) {
+					for (const item of settingValue) {
+						items.push(item);
+					}
+				}
+				updateSelector(items);
+
+				const addContainer = document.createElement("div");
+				addContainer.style.display = "flex";
+				popover.el.appendChild(addContainer);
 
 				const droppableGui = DroppableGui.of({
 					supportedAssetTypes: [ProjectAssetTypeHtml],
 				});
-				popover.el.appendChild(droppableGui.el);
+				addContainer.appendChild(droppableGui.el);
+
+				const addButton = new Button({
+					text: "+",
+					tooltip: "Adds the dropped asset to the list of entry points.",
+					async onClick() {
+						const addValue = droppableGui.value;
+						if (!addValue) return;
+						if (!projectSettings) {
+							throw new Error("Assertion failed, current project has no project settings.");
+						}
+						let settingValue = await projectSettings.get(ENTRY_POINTS_SETTING_KEY);
+						if (!settingValue || !Array.isArray(settingValue)) {
+							settingValue = [];
+						}
+						const castSettingValue = /** @type {import("../../../../src/mod.js").UuidString[]} */ (settingValue);
+						castSettingValue.push(addValue);
+						await projectSettings.set(ENTRY_POINTS_SETTING_KEY, castSettingValue);
+						updateSelector(castSettingValue);
+
+						droppableGui.value = null;
+					},
+				});
+				addContainer.appendChild(addButton.el);
 
 				popover.setNeedsCurtain(false);
 				popover.setPos(this.entryPointButton);

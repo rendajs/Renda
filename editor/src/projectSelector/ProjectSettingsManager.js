@@ -47,13 +47,18 @@ export class ProjectSettingsManager {
 
 	/**
 	 * @param {string} key
-	 * @param {*} defaultValue
-	 * @returns {Promise<*>}
+	 * @param {unknown?} defaultValue
+	 * @returns {Promise<unknown?>}
 	 */
 	async get(key, defaultValue = null) {
 		await this.loadInstance.waitForFinish();
 		if (!this.currentSettings.has(key)) return defaultValue;
-		return this.currentSettings.get(key);
+		const value = this.currentSettings.get(key);
+		if (value) {
+			return structuredClone(value);
+		} else {
+			return null;
+		}
 	}
 
 	async save() {
