@@ -166,6 +166,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.playButton.setVisibility(!this.isRunning);
 		this.stopButton.setVisibility(this.isRunning);
 		this.reloadButton.setVisibility(this.isRunning);
+		this.entryPointButton.setVisibility(!this.isRunning);
 	}
 
 	async updateFrameSrc(allowReload = false) {
