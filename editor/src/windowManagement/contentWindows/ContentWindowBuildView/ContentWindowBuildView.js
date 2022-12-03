@@ -75,7 +75,7 @@ export class ContentWindowBuildView extends ContentWindow {
 				const assetManager = editor.projectManager.assetManager;
 				if (!projectSettings || !assetManager) return;
 				const popover = await editor.popoverManager.createPopover();
-				const entryPointManager = new EntryPointManager(popover, projectSettings, assetManager);
+				const entryPointManager = new EntryPointManager(popover, projectSettings, assetManager, this.persistentData);
 
 				popover.setNeedsCurtain(false);
 				popover.setPos(this.entryPointButton);

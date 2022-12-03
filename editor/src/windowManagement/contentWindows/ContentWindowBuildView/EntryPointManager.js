@@ -4,11 +4,13 @@ import { ButtonSelectorGui } from "../../../ui/ButtonSelectorGui.js";
 import { DroppableGui } from "../../../ui/DroppableGui.js";
 
 const ENTRY_POINTS_SETTING_KEY = "buildView.entryPoints";
+const SELECTED_ENTRY_POINT_KEY = "selectedEntryPoint";
 
 export class EntryPointManager {
 	#popover;
 	#projectSettings;
 	#assetManager;
+	#persistentData;
 
 	/** @type {HTMLElement?} */
 	#currentSelectorEl = null;
@@ -19,11 +21,13 @@ export class EntryPointManager {
 	 * @param {import("../../../ui/popoverMenus/Popover.js").Popover} popover
 	 * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
 	 * @param {import("../../../assets/AssetManager.js").AssetManager} assetManager
+	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
 	 */
-	constructor(popover, projectSettingsManager, assetManager) {
+	constructor(popover, projectSettingsManager, assetManager, persistentData) {
 		this.#popover = popover;
 		this.#projectSettings = projectSettingsManager;
 		this.#assetManager = assetManager;
+		this.#persistentData = persistentData;
 
 		this.#selectorContainer = document.createElement("div");
 		popover.el.appendChild(this.#selectorContainer);
@@ -58,13 +62,19 @@ export class EntryPointManager {
 				items.push(item);
 			}
 		}
-		this.#updateSelector(items);
+		let entryPoint = null;
+		const entryPointSetting = await this.#persistentData.get(SELECTED_ENTRY_POINT_KEY);
+		if (typeof entryPointSetting == "string") {
+			entryPoint = entryPointSetting;
+		}
+		this.#updateSelector(items, entryPoint);
 	}
 
 	/**
 	 * @param {import("../../../../../src/mod.js").UuidString[]} items
+	 * @param {import("../../../../../src/mod.js").UuidString?} selectedEntryPoint
 	 */
-	async #updateSelector(items) {
+	async #updateSelector(items, selectedEntryPoint) {
 		/**
 		 * @typedef ItemData
 		 * @property {string} fileName
@@ -95,9 +105,26 @@ export class EntryPointManager {
 			}
 		});
 		const selector = new ButtonSelectorGui({
-			items: itemTexts,
+			items: itemTexts.map(t => {
+				return {text: t}
+			}),
 			vertical: true,
 		});
+		if (selectedEntryPoint != null) {
+			const index = itemDatas.findIndex(item => item.uuid == selectedEntryPoint);
+			selector.setValue(index);
+		}
+		selector.onValueChange(() => {
+			const index = selector.getValue();
+			if (typeof index != "number") {
+				throw new Error("Assertion failed, value is not an index");
+			}
+			const itemData = itemDatas[index];
+			if (!itemData) {
+				throw new Error("Assertion failed, item data doesn't exist");
+			}
+			this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, itemData.uuid);
+		})
 		if (this.#currentSelectorEl) {
 			this.#currentSelectorEl.remove();
 		}
@@ -115,7 +142,8 @@ export class EntryPointManager {
 		const castSettingValue = /** @type {import("../../../../../src/mod.js").UuidString[]} */ (settingValue);
 		castSettingValue.push(addValue);
 		await this.#projectSettings.set(ENTRY_POINTS_SETTING_KEY, castSettingValue);
-		this.#updateSelector(castSettingValue);
+		await this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, addValue);
+		this.#updateSelector(castSettingValue, addValue);
 
 		this.#droppableGui.value = null;
 	}
