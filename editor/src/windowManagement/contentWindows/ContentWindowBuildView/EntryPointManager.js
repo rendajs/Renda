@@ -6,6 +6,37 @@ import {DroppableGui} from "../../../ui/DroppableGui.js";
 const ENTRY_POINTS_SETTING_KEY = "buildView.entryPoints";
 const SELECTED_ENTRY_POINT_KEY = "selectedEntryPoint";
 
+/**
+ * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
+ */
+async function getEntryPointsSetting(projectSettingsManager) {
+	/** @type {import("../../../../../src/mod.js").UuidString[]} */
+	const items = [];
+	const settingValue = await projectSettingsManager.get(ENTRY_POINTS_SETTING_KEY);
+	if (settingValue && Array.isArray(settingValue)) {
+		for (const item of settingValue) {
+			if (typeof item == "string") {
+				items.push(item);
+			}
+		}
+	}
+	return items;
+}
+
+/**
+ * @param {import("../../../projectSelector/ProjectSettingsManager.js").ProjectSettingsManager} projectSettingsManager
+ * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} contentWindowPersistentData
+ * @returns {Promise<import("../../../../../src/mod.js").UuidString?>}
+ */
+export async function getSelectedEntryPoint(projectSettingsManager, contentWindowPersistentData) {
+	const selectedUuid = await contentWindowPersistentData.get(SELECTED_ENTRY_POINT_KEY);
+	if (typeof selectedUuid == "string") {
+		return selectedUuid;
+	}
+	const entryPoints = await getEntryPointsSetting(projectSettingsManager);
+	return entryPoints[0] || null;
+}
+
 export class EntryPointManager {
 	#popover;
 	#projectSettings;
@@ -54,14 +85,7 @@ export class EntryPointManager {
 	}
 
 	async #loadPreferences() {
-		/** @type {string[]} */
-		const items = [];
-		const settingValue = await this.#projectSettings.get(ENTRY_POINTS_SETTING_KEY);
-		if (settingValue && Array.isArray(settingValue)) {
-			for (const item of settingValue) {
-				items.push(item);
-			}
-		}
+		const items = await getEntryPointsSetting(this.#projectSettings);
 		let entryPoint = null;
 		const entryPointSetting = await this.#persistentData.get(SELECTED_ENTRY_POINT_KEY);
 		if (typeof entryPointSetting == "string") {
@@ -136,15 +160,11 @@ export class EntryPointManager {
 	async #onAddButtonClick() {
 		const addValue = this.#droppableGui.value;
 		if (!addValue) return;
-		let settingValue = await this.#projectSettings.get(ENTRY_POINTS_SETTING_KEY);
-		if (!settingValue || !Array.isArray(settingValue)) {
-			settingValue = [];
-		}
-		const castSettingValue = /** @type {import("../../../../../src/mod.js").UuidString[]} */ (settingValue);
-		castSettingValue.push(addValue);
-		await this.#projectSettings.set(ENTRY_POINTS_SETTING_KEY, castSettingValue);
+		const settingsValue = await getEntryPointsSetting(this.#projectSettings);
+		settingsValue.push(addValue);
+		await this.#projectSettings.set(ENTRY_POINTS_SETTING_KEY, settingsValue);
 		await this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, addValue);
-		this.#updateSelector(castSettingValue, addValue);
+		this.#updateSelector(settingsValue, addValue);
 
 		this.#droppableGui.value = null;
 	}

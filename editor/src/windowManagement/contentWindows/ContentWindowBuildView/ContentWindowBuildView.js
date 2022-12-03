@@ -4,7 +4,7 @@ import {ContentWindowEntityEditor} from "../ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../../src/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {EntryPointManager} from "./EntryPointManager.js";
+import {EntryPointManager, getSelectedEntryPoint} from "./EntryPointManager.js";
 
 export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
@@ -171,8 +171,25 @@ export class ContentWindowBuildView extends ContentWindow {
 
 	async updateFrameSrc(allowReload = false) {
 		if (this.isRunning) {
+			const projectManager = getEditorInstance().projectManager;
+			const assetManager = projectManager.assetManager;
+			const projectSettings = projectManager.projectSettings;
+			if (!assetManager) {
+				throw new Error("Assertion failed, no asset manager");
+			}
+			if (!projectSettings) {
+				throw new Error("Assertion failed, no project settings");
+			}
+			const entryPointUuid = await getSelectedEntryPoint(projectSettings, this.persistentData);
+			if (!entryPointUuid) {
+				throw new Error("Assertion failed, no entry point has been selected");
+			}
+			const path = await assetManager.getAssetPathFromUuid(entryPointUuid);
+			if (!path) {
+				throw new Error("Assertion failed, selected entry point doesn't exist or has been removed.");
+			}
 			const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
-			const newSrc = `projectbuilds/${clientId}/Build/index.html`;
+			const newSrc = `projectbuilds/${clientId}/${path.join("/")}`;
 			if (this.iframeEl.src != newSrc || allowReload) {
 				this.iframeEl.src = newSrc;
 			}
