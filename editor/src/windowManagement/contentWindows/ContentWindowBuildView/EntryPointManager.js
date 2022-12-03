@@ -88,7 +88,8 @@ export class EntryPointManager {
 		/** @type {Set<string>} */
 		const duplicateFileNames = new Set();
 		for (const uuid of items) {
-			const path = await this.#assetManager.getAssetPathFromUuid(uuid) || [];
+			const path = await this.#assetManager.getAssetPathFromUuid(uuid);
+			if (!path) continue;
 			const fullPath = path.join("/");
 			const fileName = path.at(-1) || "";
 			itemDatas.push({uuid, fullPath, fileName});
