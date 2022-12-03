@@ -1,4 +1,4 @@
-import {ContentWindowBuildView} from "./contentWindows/ContentWindowBuildView.js";
+import {ContentWindowBuildView} from "./contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
 import {ContentWindowBuiltInAssets} from "./contentWindows/ContentWindowBuiltInAssets.js";
 import {ContentWindowConnections} from "./contentWindows/ContentWindowConnections.js";
 import {ContentWindowDefaultAssetLinks} from "./contentWindows/ContentWindowDefaultAssetLinks.js";
