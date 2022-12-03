@@ -4,9 +4,7 @@ import {ContentWindowEntityEditor} from "../ContentWindowEntityEditor.js";
 import {CameraComponent} from "../../../../../src/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
-import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
-import {DroppableGui} from "../../../ui/DroppableGui.js";
-import { EntryPointManager } from "./EntryPointManager.js";
+import {EntryPointManager} from "./EntryPointManager.js";
 
 export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";

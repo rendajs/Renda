@@ -1,7 +1,7 @@
-import { ProjectAssetTypeHtml } from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
-import { Button } from "../../../ui/Button.js";
-import { ButtonSelectorGui } from "../../../ui/ButtonSelectorGui.js";
-import { DroppableGui } from "../../../ui/DroppableGui.js";
+import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
+import {Button} from "../../../ui/Button.js";
+import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
+import {DroppableGui} from "../../../ui/DroppableGui.js";
 
 const ENTRY_POINTS_SETTING_KEY = "buildView.entryPoints";
 const SELECTED_ENTRY_POINT_KEY = "selectedEntryPoint";
@@ -106,7 +106,7 @@ export class EntryPointManager {
 		});
 		const selector = new ButtonSelectorGui({
 			items: itemTexts.map(t => {
-				return {text: t}
+				return {text: t};
 			}),
 			vertical: true,
 		});
@@ -124,7 +124,7 @@ export class EntryPointManager {
 				throw new Error("Assertion failed, item data doesn't exist");
 			}
 			this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, itemData.uuid);
-		})
+		});
 		if (this.#currentSelectorEl) {
 			this.#currentSelectorEl.remove();
 		}

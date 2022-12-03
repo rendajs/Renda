@@ -1,6 +1,6 @@
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {assertEquals, assertExists, assertRejects, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {PopoverManager} from "../../../../../editor/src/ui/popoverMenus/PopoverManager.js";
 import {ColorizerFilterManager} from "../../../../../editor/src/util/colorizerFilters/ColorizerFilterManager.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
