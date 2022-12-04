@@ -89,10 +89,27 @@ Deno.test({
 
 Deno.test({
 	name: "popover without a curtain",
-	fn() {
+	async fn() {
 		const {manager, uninstall} = basicManager();
 		try {
+			const popover = await manager.createPopover();
+			popover.setNeedsCurtain(false);
 
+			assertEquals(manager.curtainEl.parentElement, null);
+
+			// The event listener is added in the next event loop, so we need to wait for this.
+			await waitForMicrotasks();
+
+			// Clicking the popover should not close it
+			const mouseEvent1 = new FakeMouseEvent("click");
+			popover.el.dispatchEvent(mouseEvent1);
+			assertEquals(manager.curtainEl.parentElement, null);
+			assertStrictEquals(manager.current, popover);
+
+			// But clicking any other element should
+			const mouseEvent2 = new FakeMouseEvent("click");
+			document.body.dispatchEvent(mouseEvent2);
+			assertEquals(manager.curtainEl.parentElement, null);
 		} finally {
 			uninstall();
 		}
