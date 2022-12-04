@@ -15,12 +15,35 @@ import {ButtonGroup} from "./ButtonGroup.js";
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonSelectorGuiOptionsType & import("./ButtonGroup.js").ButtonGroupOptions} ButtonSelectorGuiOptions
  */
 
+/**
+ * @template {boolean} I
+ * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} P
+ * @typedef {object} ButtonSelectorGuiGetValueOptions
+ * @property {I} [getIndex = false]
+ * @property {P} [purpose = "default"]
+ */
+
+/**
+ * @template {boolean} TAllowSelectNone
+ * @typedef {TAllowSelectNone extends true ? number | null : number} IndexReturnHelper
+ */
+
+/**
+ * @template {boolean} TAllowSelectNone
+ * @template {boolean} [I = false]
+ * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [P = "default"]
+ * @typedef {P extends "binarySerialization" ? IndexReturnHelper<TAllowSelectNone> :
+ * 		I extends true ? IndexReturnHelper<TAllowSelectNone> :
+ * 		IndexReturnHelper<TAllowSelectNone> | string} ButtonSelectorGuiGetValueReturn
+ */
+
 /** @typedef {string | number | null} ButtonSelectorGuiValueTypes */
 /** @typedef {(newValue: ButtonSelectorGuiValueTypes) => void} OnButtonselectorGuiValueChange */
 
 /**
  * A button group where only a single value can be selected at a time.
  * Similar to a DropDownGui but better suited for sitiuations with only a few options.
+ * @template {boolean} [TAllowSelectNone = false]
  */
 export class ButtonSelectorGui {
 	/**
@@ -28,7 +51,7 @@ export class ButtonSelectorGui {
 	 */
 	constructor({
 		items = [],
-		allowSelectNone = false,
+		allowSelectNone = /** @type {TAllowSelectNone} */ (false),
 		defaultValue = null,
 		vertical = false,
 		disabled = false,
@@ -125,12 +148,36 @@ export class ButtonSelectorGui {
 	 * Returns the current selected button. If an array of strings was provied,
 	 * returns, the string is returned. Otherwise the index of the button that
 	 * is selected is returned.
+	 * @template {boolean} [I = false]
+	 * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [P = "default"]
+	 * @param {ButtonSelectorGuiGetValueOptions<I, P>} options
+	 * @returns {ButtonSelectorGuiGetValueReturn<TAllowSelectNone, I, P>}
 	 */
-	getValue() {
-		const item = this.items[this.currentValueIndex];
-		if (!item) return null;
-		if (typeof item == "string") return item;
-		return this.currentValueIndex;
+	getValue({
+		getIndex = /** @type {I} */ (false),
+		purpose = /** @type {P} */ ("default"),
+	} = {}) {
+		let returnValue;
+		if (purpose == "binarySerialization") {
+			getIndex = /** @type {I} */ (true);
+		}
+		const getNullIndex = () => {
+			if (this.currentValueIndex == -1) return null;
+			return this.currentValueIndex;
+		};
+		if (getIndex) {
+			returnValue = getNullIndex();
+		} else {
+			const item = this.items[this.currentValueIndex];
+			if (!item) {
+				returnValue = null;
+			} else if (typeof item == "string") {
+				returnValue = item;
+			} else {
+				returnValue = getNullIndex();
+			}
+		}
+		return /** @type {ButtonSelectorGuiGetValueReturn<TAllowSelectNone, I, P>} */ (returnValue);
 	}
 
 	/**

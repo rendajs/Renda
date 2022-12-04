@@ -130,9 +130,7 @@ export class EntryPointManager {
 			}
 		});
 		const selector = new ButtonSelectorGui({
-			items: itemTexts.map(t => {
-				return {text: t};
-			}),
+			items: itemTexts,
 			vertical: true,
 		});
 		if (selectedEntryPoint != null) {
@@ -140,10 +138,7 @@ export class EntryPointManager {
 			selector.setValue(index);
 		}
 		selector.onValueChange(() => {
-			const index = selector.getValue();
-			if (typeof index != "number") {
-				throw new Error("Assertion failed, value is not an index");
-			}
+			const index = selector.getValue({getIndex: true});
 			const itemData = itemDatas[index];
 			if (!itemData) {
 				throw new Error("Assertion failed, item data doesn't exist");

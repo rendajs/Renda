@@ -3,6 +3,7 @@ import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {ButtonSelectorGui} from "../../../../../editor/src/ui/ButtonSelectorGui.js";
 import {runWithDom} from "../../shared/runWithDom.js";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertIsType} from "../../../../shared/typeAssertions.js";
 
 /**
  * @param {ButtonSelectorGui} gui
@@ -27,12 +28,52 @@ Deno.test({
 			});
 			const spyFn = createOnChangeSpy(gui);
 
+			// Type assertions
+			{
+				const expectedDefaultType = /** @type {string | number | null} */ (null);
+
+				const guiValue1 = gui.value;
+				assertIsType(expectedDefaultType, guiValue1);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType(true, guiValue1);
+
+				const guiValue2 = gui.getValue();
+				assertIsType(expectedDefaultType, guiValue2);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType(true, guiValue2);
+
+				const guiValue3 = gui.getValue({purpose: "default"});
+				assertIsType(expectedDefaultType, guiValue3);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType(true, guiValue3);
+
+				const expectedIndexType = /** @type {number | null} */ (null);
+
+				const indexValue1 = gui.getValue({getIndex: true});
+				assertIsType(expectedIndexType, indexValue1);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType("", indexValue1);
+
+				const indexValue2 = gui.getValue({purpose: "binarySerialization"});
+				assertIsType(expectedIndexType, indexValue2);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType("", indexValue2);
+			}
+
 			assertEquals(gui.value, null);
+			assertEquals(gui.getValue(), null);
+			assertEquals(gui.getValue({purpose: "default"}), null);
+			assertEquals(gui.getValue({purpose: "binarySerialization"}), null);
+			assertEquals(gui.getValue({getIndex: true}), null);
 			assertEquals(gui.el.childElementCount, 3);
 
 			const mouseEvent1 = new FakeMouseEvent("click");
 			gui.el.children[1].dispatchEvent(mouseEvent1);
 			assertEquals(gui.value, "myVariable");
+			assertEquals(gui.getValue(), "myVariable");
+			assertEquals(gui.getValue({purpose: "default"}), "myVariable");
+			assertEquals(gui.getValue({purpose: "binarySerialization"}), 1);
+			assertEquals(gui.getValue({getIndex: true}), 1);
 			assertSpyCalls(spyFn, 1);
 			assertSpyCall(spyFn, 0, {
 				args: ["myVariable"],
@@ -41,6 +82,10 @@ Deno.test({
 			const mouseEvent2 = new FakeMouseEvent("click");
 			gui.el.children[2].dispatchEvent(mouseEvent2);
 			assertEquals(gui.value, "my_variable");
+			assertEquals(gui.getValue(), "my_variable");
+			assertEquals(gui.getValue({purpose: "default"}), "my_variable");
+			assertEquals(gui.getValue({purpose: "binarySerialization"}), 2);
+			assertEquals(gui.getValue({getIndex: true}), 2);
 			assertSpyCalls(spyFn, 2);
 			assertSpyCall(spyFn, 1, {
 				args: ["my_variable"],
@@ -49,6 +94,10 @@ Deno.test({
 			const mouseEvent3 = new FakeMouseEvent("click");
 			gui.el.children[2].dispatchEvent(mouseEvent3);
 			assertEquals(gui.value, null);
+			assertEquals(gui.getValue(), null);
+			assertEquals(gui.getValue({purpose: "default"}), null);
+			assertEquals(gui.getValue({purpose: "binarySerialization"}), null);
+			assertEquals(gui.getValue({getIndex: true}), null);
 			assertSpyCalls(spyFn, 3);
 			assertSpyCall(spyFn, 2, {
 				args: [null],
@@ -66,12 +115,52 @@ Deno.test({
 			});
 			const spyFn = createOnChangeSpy(gui);
 
+			// Type assertions
+			{
+				const expectedDefaultType = /** @type {string | number} */ (3);
+
+				const guiValue1 = gui.value;
+				assertIsType(expectedDefaultType, guiValue1);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType(true, guiValue1);
+
+				const guiValue2 = gui.getValue();
+				assertIsType(expectedDefaultType, guiValue2);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType(true, guiValue2);
+
+				const guiValue3 = gui.getValue({purpose: "default"});
+				assertIsType(expectedDefaultType, guiValue3);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType(true, guiValue3);
+
+				const expectedIndexType = /** @type {number} */ (3);
+
+				const indexValue1 = gui.getValue({getIndex: true});
+				assertIsType(expectedIndexType, indexValue1);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType("", indexValue1);
+
+				const indexValue2 = gui.getValue({purpose: "binarySerialization"});
+				assertIsType(expectedIndexType, indexValue2);
+				// @ts-expect-error Ensure the value type is not 'any'
+				assertIsType("", indexValue2);
+			}
+
 			assertEquals(gui.value, "foo");
+			assertEquals(gui.getValue(), "foo");
+			assertEquals(gui.getValue({purpose: "default"}), "foo");
+			assertEquals(gui.getValue({purpose: "binarySerialization"}), 0);
+			assertEquals(gui.getValue({getIndex: true}), 0);
 			assertEquals(gui.el.childElementCount, 3);
 
 			const mouseEvent1 = new FakeMouseEvent("click");
 			gui.el.children[1].dispatchEvent(mouseEvent1);
 			assertEquals(gui.value, "myVariable");
+			assertEquals(gui.getValue(), "myVariable");
+			assertEquals(gui.getValue({purpose: "default"}), "myVariable");
+			assertEquals(gui.getValue({purpose: "binarySerialization"}), 1);
+			assertEquals(gui.getValue({getIndex: true}), 1);
 			assertSpyCalls(spyFn, 1);
 			assertSpyCall(spyFn, 0, {
 				args: ["myVariable"],
@@ -80,6 +169,10 @@ Deno.test({
 			const mouseEvent2 = new FakeMouseEvent("click");
 			gui.el.children[1].dispatchEvent(mouseEvent2);
 			assertEquals(gui.value, "myVariable");
+			assertEquals(gui.getValue(), "myVariable");
+			assertEquals(gui.getValue({purpose: "default"}), "myVariable");
+			assertEquals(gui.getValue({purpose: "binarySerialization"}), 1);
+			assertEquals(gui.getValue({getIndex: true}), 1);
 			assertSpyCalls(spyFn, 1);
 		});
 	},
