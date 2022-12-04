@@ -38,7 +38,6 @@ export async function getSelectedEntryPoint(projectSettingsManager, contentWindo
 }
 
 export class EntryPointManager {
-	#popover;
 	#projectSettings;
 	#assetManager;
 	#persistentData;
@@ -55,7 +54,6 @@ export class EntryPointManager {
 	 * @param {import("../../ContentWindowPersistentData.js").ContentWindowPersistentData} persistentData
 	 */
 	constructor(popover, projectSettingsManager, assetManager, persistentData) {
-		this.#popover = popover;
 		this.#projectSettings = projectSettingsManager;
 		this.#assetManager = assetManager;
 		this.#persistentData = persistentData;
