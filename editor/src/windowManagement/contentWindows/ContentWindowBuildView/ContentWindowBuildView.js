@@ -67,6 +67,8 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		this.entryPointButton = new Button({
 			text: "Entry Point",
+			hasDownArrow: true,
+			colorizerFilterManager,
 			onClick: async () => {
 				const editor = getEditorInstance();
 				const projectSettings = editor.projectManager.projectSettings;

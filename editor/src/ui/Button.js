@@ -28,6 +28,8 @@ export class Button {
 	/** @type {Set<OnVisibilityChangeCallback>} */
 	#onVisibilityChangeCbs = new Set();
 
+	#hasDownArrow;
+
 	/**
 	 * @param {ButtonGuiOptions} opts
 	 */
@@ -44,6 +46,7 @@ export class Button {
 		onDragEnd = null,
 	} = {}) {
 		this.iconUrl = icon;
+		this.#hasDownArrow = hasDownArrow;
 		this.colorizerFilterManager = colorizerFilterManager;
 		this.currentText = text;
 		const {el, iconEl, textEl} = this.createButtonEl();
@@ -89,12 +92,19 @@ export class Button {
 		const iconEl = document.createElement("div");
 		iconEl.classList.add("buttonIcon");
 		el.appendChild(iconEl);
-		this.applyIconToEl(iconEl);
+		this.#applyIconToEl(iconEl, this.iconUrl);
 
 		const textEl = document.createElement("span");
 		textEl.classList.add("buttonText");
 		textEl.textContent = this.currentText;
 		el.appendChild(textEl);
+
+		if (this.#hasDownArrow) {
+			const downArrowEl = document.createElement("div");
+			downArrowEl.classList.add("buttonIcon", "button-down-arrow");
+			el.appendChild(downArrowEl);
+			this.#applyIconToEl(downArrowEl, "static/icons/generic/buttonDownArrow.svg");
+		}
 
 		return {el, iconEl, textEl};
 	}
@@ -160,16 +170,17 @@ export class Button {
 	 */
 	setIcon(iconUrl) {
 		this.iconUrl = iconUrl;
-		this.applyIconToEl(this.iconEl);
+		this.#applyIconToEl(this.iconEl, this.iconUrl);
 	}
 
 	/**
 	 * @param {HTMLElement} el
+	 * @param {string} iconUrl
 	 */
-	applyIconToEl(el) {
-		el.style.backgroundImage = `url(${this.iconUrl})`;
-		el.style.display = this.iconUrl ? "" : "none";
-		if (this.iconUrl && this.colorizerFilterManager) {
+	#applyIconToEl(el, iconUrl) {
+		el.style.backgroundImage = `url(${iconUrl})`;
+		el.style.display = iconUrl ? "" : "none";
+		if (iconUrl && this.colorizerFilterManager) {
 			this.colorizerFilterManager.applyFilter(el, "var(--default-button-text-color)");
 		}
 	}

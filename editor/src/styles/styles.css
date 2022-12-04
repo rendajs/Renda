@@ -98,6 +98,10 @@ body, html{
 	vertical-align: middle;
 	margin-top: -2px;
 }
+.button-down-arrow {
+	width: 12px;
+	margin-left: 3px;
+}
 
 .resetInput{
 	border: none;
