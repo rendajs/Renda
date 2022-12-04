@@ -129,27 +129,29 @@ export class EntryPointManager {
 				return item.fileName;
 			}
 		});
-		const selector = new ButtonSelectorGui({
-			items: itemTexts,
-			vertical: true,
-		});
-		if (selectedEntryPoint != null) {
-			const index = itemDatas.findIndex(item => item.uuid == selectedEntryPoint);
-			selector.setValue(index);
-		}
-		selector.onValueChange(() => {
-			const index = selector.getValue({getIndex: true});
-			const itemData = itemDatas[index];
-			if (!itemData) {
-				throw new Error("Assertion failed, item data doesn't exist");
-			}
-			this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, itemData.uuid);
-		});
 		if (this.#currentSelectorEl) {
 			this.#currentSelectorEl.remove();
 		}
-		this.#currentSelectorEl = selector.el;
-		this.#selectorContainer.appendChild(selector.el);
+		if (itemTexts.length > 0) {
+			const selector = new ButtonSelectorGui({
+				items: itemTexts,
+				vertical: true,
+			});
+			if (selectedEntryPoint != null) {
+				const index = itemDatas.findIndex(item => item.uuid == selectedEntryPoint);
+				selector.setValue(index);
+			}
+			selector.onValueChange(() => {
+				const index = selector.getValue({getIndex: true});
+				const itemData = itemDatas[index];
+				if (!itemData) {
+					throw new Error("Assertion failed, item data doesn't exist");
+				}
+				this.#persistentData.set(SELECTED_ENTRY_POINT_KEY, itemData.uuid);
+			});
+			this.#currentSelectorEl = selector.el;
+			this.#selectorContainer.appendChild(selector.el);
+		}
 	}
 
 	async #onAddButtonClick() {

@@ -56,6 +56,9 @@ export class ButtonSelectorGui {
 		vertical = false,
 		disabled = false,
 	} = {}) {
+		if (items.length == 0) {
+			throw new Error("An empty array was provided. ButtonSelectorGuis must at least have one item.");
+		}
 		this.items = items;
 		this.allowSelectNone = allowSelectNone;
 		this.currentValueIndex = 0;
