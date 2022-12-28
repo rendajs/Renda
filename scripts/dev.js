@@ -10,8 +10,8 @@
 
 import {setCwd} from "chdir-anywhere";
 import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.1.2/mod.js";
-import {dev as devModule} from "https://raw.githubusercontent.com/jespertheend/dev/a7374e35d6a06d5835682bf8478156046def9697/mod.js";
+import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.2.1/mod.js";
+import {dev as devModule} from "https://deno.land/x/dev@v0.2.0/mod.js";
 
 export async function dev({
 	needsDevDependencies = false,
@@ -34,9 +34,8 @@ export async function dev({
 				"editor/scripts",
 			],
 			excludeUrls: [
-				"rollup-plugin-commonjs",
-				"https://esm.sh/v64/@rollup/plugin-commonjs@11.1.0/types/index.d.ts",
 				"rollup-plugin-cleanup",
+				"https://deno.land/x/dev@v0.2.0/mod.js", // Temporary workaround for https://github.com/denoland/deno/issues/17210
 			],
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.
@@ -49,12 +48,7 @@ export async function dev({
 			exactTypeModules: {
 				eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
 				estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
-				rollup: "https://unpkg.com/rollup@2.79.1/dist/rollup.d.ts",
-				"rollup-plugin-commonjs": "https://unpkg.com/@rollup/plugin-commonjs@11.1.0/types/index.d.ts",
-				"rollup-plugin-node-resolve": "https://unpkg.com/@rollup/plugin-node-resolve@13.0.6/types/index.d.ts",
-				terser: "https://unpkg.com/terser@5.15.0/tools/terser.d.ts",
 				"npm:postcss-url@10.1.3": "https://unpkg.com/@types/postcss-url@10.0.0/index.d.ts",
-				"rollup-plugin-jscc": "https://unpkg.com/rollup-plugin-jscc@2.0.0/index.d.ts",
 			},
 			logLevel: suppressTypesLogging ? "WARNING" : "DEBUG",
 		});
