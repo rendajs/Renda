@@ -10,9 +10,9 @@
 	},
 	"importMap": "importmap.json",
 	"tasks": {
-		"dev": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net scripts/dev.js",
+		"dev": "deno run --unstable --allow-env --allow-run --allow-read --allow-write --allow-net scripts/dev.js",
 		"lint": "deno run --allow-env --allow-read --allow-write --allow-run=git scripts/lint.js",
-		"check": "deno run --allow-env --allow-run --allow-read --allow-write --allow-net scripts/check.js",
+		"check": "deno run --unstable --allow-env --allow-run --allow-read --allow-write --allow-net scripts/check.js",
 		"test": "deno run --allow-run --allow-read --allow-write --allow-env --allow-net scripts/test.js",
 		"build-engine": "deno run --allow-read --allow-write --allow-net --allow-env scripts/build.js",
 		"build-editor": "deno run --allow-read --allow-write --allow-net --allow-env editor/scripts/build.js"
