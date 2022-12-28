@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --no-check --allow-run --allow-read --allow-write --allow-env --allow-net
+#!/usr/bin/env -S deno run --unstable --no-check --allow-run --allow-read --allow-write --allow-env --allow-net
 
 import {join} from "std/path/mod.ts";
 import {setCwd} from "chdir-anywhere";

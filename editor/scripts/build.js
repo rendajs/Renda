@@ -1,5 +1,3 @@
-#!/usr/bin/env -S deno run --allow-read --allow-write --allow-net --allow-env
-
 import {rollup} from "rollup";
 import {copy, ensureDir} from "std/fs/mod.ts";
 import * as path from "std/path/mod.ts";
