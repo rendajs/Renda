@@ -198,7 +198,8 @@ export class ProjectManager {
 		this.updateEditorConnectionsManager();
 
 		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
-		editor.windowManager.setContentWindowPersistentData(contentWindowPersistentData);
+		const castData = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPersistentData);
+		editor.windowManager.setContentWindowPersistentData(castData);
 
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
@@ -474,8 +475,8 @@ export class ProjectManager {
 			this.editorConnectionsAllowInternalIncoming = false;
 		} else {
 			const settings = this.assertLocalSettingsExists();
-			this.editorConnectionsAllowRemoteIncoming = await settings.get("editorConnectionsAllowIncoming", false);
-			this.editorConnectionsAllowInternalIncoming = await settings.get("editorConnectionsAllowInternalIncoming", false);
+			this.editorConnectionsAllowRemoteIncoming = await settings.getBoolean("editorConnectionsAllowIncoming", false);
+			this.editorConnectionsAllowInternalIncoming = await settings.getBoolean("editorConnectionsAllowInternalIncoming", false);
 		}
 		this.updateEditorConnectionsManager();
 	}

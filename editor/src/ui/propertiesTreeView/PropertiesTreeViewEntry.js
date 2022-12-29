@@ -17,7 +17,7 @@ import {ButtonSelectorGui} from "../ButtonSelectorGui.js";
 /**
  * @typedef {object} GuiInterface
  * @property {(...args: any) => boolean} [isDefaultValue]
- * @property {boolean} [defaultValue]
+ * @property {any} [defaultValue]
  * @property {(...args: any) => any} [getValue]
  * @property {*} [value]
  * @property {function((value: any) => any) : void} [onValueChange]

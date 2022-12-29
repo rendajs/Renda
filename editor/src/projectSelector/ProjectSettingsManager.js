@@ -61,6 +61,20 @@ export class ProjectSettingsManager {
 		}
 	}
 
+	/**
+	 * Gets a value and asserts that it is a boolean. If no stored value is found
+	 * or it is not a boolean, the default value is returned.
+	 * @param {string} key
+	 * @param {boolean} defaultValue
+	 */
+	async getBoolean(key, defaultValue = false) {
+		const value = await this.get(key, defaultValue);
+		if (typeof value != "boolean") {
+			return defaultValue;
+		}
+		return value;
+	}
+
 	async save() {
 		/** @type {Object<string, any>} */
 		const settingsObject = {};
