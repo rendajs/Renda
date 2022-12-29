@@ -79,7 +79,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 /**
  * @callback showContextMenuCallback
  * @param {import("./popoverMenus/ContextMenu.js").ContextMenuStructure} [structure]
- * @returns {import("./popoverMenus/ContextMenu.js").ContextMenu}
+ * @returns {import("./popoverMenus/ContextMenu.js").ContextMenu | Promise<import("./popoverMenus/ContextMenu.js").ContextMenu>}
  */
 
 /**
@@ -1057,7 +1057,6 @@ export class TreeView {
 	 * @param {MouseEvent} e
 	 */
 	arrowClickEvent(e) {
-		e.stopPropagation();
 		this.toggleCollapsed();
 	}
 
@@ -1115,6 +1114,7 @@ export class TreeView {
 	 * @param {MouseEvent} e
 	 */
 	onRowClick(e) {
+		if (e.target == this.arrowEl) return;
 		if (this.selectable) {
 			let didRenameAction = false;
 			if (this.renameable && this.selected) {
@@ -1646,7 +1646,7 @@ export class TreeView {
 		const eventData = {
 			rawEvent: e,
 			target: this,
-			showContextMenu: structure => {
+			showContextMenu: async structure => {
 				if (eventExpired) {
 					throw new Error("showContextMenu should be called from within the contextmenu event");
 				}
@@ -1656,7 +1656,7 @@ export class TreeView {
 
 				menuCreated = true;
 				e.preventDefault();
-				const menu = getEditorInstance().popoverManager.createContextMenu(structure);
+				const menu = await getEditorInstance().popoverManager.createContextMenu(structure);
 				menu.setPos(e);
 				return menu;
 			},

@@ -47,13 +47,32 @@ export class ProjectSettingsManager {
 
 	/**
 	 * @param {string} key
-	 * @param {*} defaultValue
-	 * @returns {Promise<*>}
+	 * @param {unknown?} defaultValue
+	 * @returns {Promise<unknown?>}
 	 */
 	async get(key, defaultValue = null) {
 		await this.loadInstance.waitForFinish();
 		if (!this.currentSettings.has(key)) return defaultValue;
-		return this.currentSettings.get(key);
+		const value = this.currentSettings.get(key);
+		if (value) {
+			return structuredClone(value);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Gets a value and asserts that it is a boolean. If no stored value is found
+	 * or it is not a boolean, the default value is returned.
+	 * @param {string} key
+	 * @param {boolean} defaultValue
+	 */
+	async getBoolean(key, defaultValue = false) {
+		const value = await this.get(key, defaultValue);
+		if (typeof value != "boolean") {
+			return defaultValue;
+		}
+		return value;
 	}
 
 	async save() {

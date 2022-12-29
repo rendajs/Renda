@@ -93,8 +93,8 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		this.componentsSection = this.treeView.addCollapsable("Components");
 		const createComponentButton = new Button({
 			text: "+",
-			onClick: () => {
-				const menu = this.editorInstance.popoverManager.createContextMenu();
+			onClick: async () => {
+				const menu = await this.editorInstance.popoverManager.createContextMenu();
 				for (const component of this.editorInstance.componentTypeManager.getAllComponents()) {
 					menu.addItem({
 						text: component.componentName || component.uuid || "",

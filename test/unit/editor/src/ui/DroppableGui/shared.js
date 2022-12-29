@@ -348,7 +348,7 @@ export async function basicSetupForContextMenus({
 	/** @type {(import("../../../../../../editor/src/ui/popoverMenus/ContextMenu.js").ContextMenuStructure?)[]} */
 	const createContextMenuCalls = [];
 	const mockContextMenuManager = /** @type {import("../../../../../../editor/src/ui/popoverMenus/PopoverManager.js").PopoverManager} */ ({
-		createContextMenu(structure = null) {
+		async createContextMenu(structure = null) {
 			createContextMenuCalls.push(structure);
 			return {
 				setPos(options) {},

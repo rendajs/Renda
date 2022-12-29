@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
-import {ContentWindowBuildView} from "./ContentWindowBuildView.js";
+import {ContentWindowBuildView} from "./ContentWindowBuildView/ContentWindowBuildView.js";
 import {Button} from "../../ui/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, OrbitControls, TranslationGizmo, Vec3} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
@@ -8,6 +8,7 @@ import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTy
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
 import {ButtonGroup} from "../../ui/ButtonGroup.js";
 import {getEditorInstance} from "../../editorInstance.js";
+import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
@@ -50,28 +51,24 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {TransformationPivot} */
 		this.transformationPivot = "center";
 
-		this.transformationModeTranslateButton = new Button({
-			onClick: () => {
-				this.setTransformationMode("translate");
-			},
-			icon: "static/icons/entityEditor/translate.svg",
-			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
-			tooltip: "Translate Mode",
+		this.translationModeSelector = new ButtonSelectorGui({
+			items: [
+				{
+					icon: "static/icons/entityEditor/translate.svg",
+					colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+					tooltip: "Translate Mode",
+				},
+				{
+					icon: "static/icons/entityEditor/rotate.svg",
+					colorizerFilterManager: getEditorInstance().colorizerFilterManager,
+					tooltip: "Rotate Mode",
+				},
+			],
 		});
-		this.transformationModeRotateButton = new Button({
-			onClick: () => {
-				this.setTransformationMode("rotate");
-			},
-			icon: "static/icons/entityEditor/rotate.svg",
-			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
-			tooltip: "Rotate Mode",
+		this.translationModeSelector.onValueChange(() => {
+			this.#updateTranslationMode();
 		});
-
-		const translationMethodButtonGroup = new ButtonGroup(
-			this.transformationModeTranslateButton,
-			this.transformationModeRotateButton
-		);
-		this.addTopBarEl(translationMethodButtonGroup.el);
+		this.addTopBarEl(this.translationModeSelector.el);
 
 		this.transformationSpaceButton = new Button({
 			onClick: () => {
@@ -88,7 +85,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			colorizerFilterManager: getEditorInstance().colorizerFilterManager,
 			tooltip: "Transformation Pivot",
 		});
-		const pivotControlsGroup = new ButtonGroup(this.transformationSpaceButton, this.transformationPivotButton);
+		const pivotControlsGroup = new ButtonGroup();
+		pivotControlsGroup.addButton(this.transformationSpaceButton);
+		pivotControlsGroup.addButton(this.transformationPivotButton);
 		this.addTopBarEl(pivotControlsGroup.el);
 
 		this.domTarget = this.editorInstance.renderer.createDomTarget();
@@ -128,9 +127,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		/** @type {TransformationGizmoData[]} */
 		this.activeTransformationGizmos = [];
-		this.setTransformationMode("translate");
 		this.updateTransformationSpaceButton();
 		this.updateTransformationPivotButton();
+		this.#updateTranslationMode();
 
 		this.selectionGroup.onSelectionChange(() => {
 			this.updateTransformationGizmos();
@@ -323,13 +322,20 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 	}
 
+	#updateTranslationMode() {
+		if (this.translationModeSelector.value == 0) {
+			this.transformationMode = "translate";
+		} else if (this.translationModeSelector.value == 1) {
+			this.transformationMode = "rotate";
+		}
+		this.updateTransformationGizmos();
+	}
+
 	/**
 	 * @param {TransformationMode} mode
 	 */
 	setTransformationMode(mode) {
 		this.transformationMode = mode;
-		this.transformationModeTranslateButton.setSelectedHighlight(mode == "translate");
-		this.transformationModeRotateButton.setSelectedHighlight(mode == "rotate");
 		this.updateTransformationGizmos();
 	}
 

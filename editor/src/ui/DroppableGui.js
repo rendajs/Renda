@@ -112,6 +112,8 @@ import {isUuid} from "../../../src/mod.js";
  */
 export class DroppableGui {
 	/**
+	 * Creates a new DroppableGui. Unlike `new DroppableGui`, which does not
+	 * infer the correct generics, this function does.
 	 * @template {new (...args: any) => any} T
 	 * @param {DroppableGuiOptions<T>} [opts]
 	 */
@@ -839,7 +841,7 @@ export class DroppableGui {
 			});
 		}
 		if (contextMenuStructure.length == 0) return;
-		const menu = getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
+		const menu = await getEditorInstance().popoverManager.createContextMenu(contextMenuStructure);
 		menu.setPos(e);
 	}
 

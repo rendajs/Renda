@@ -168,17 +168,20 @@ export function assertMatAlmostEquals(actual, expected, tolerance = 0.00001, msg
 }
 
 /**
+ * Asserts whether a promise is currently resolved or not. By default, the check is made asynchronously. The call waits
+ * for the next event loops and gives the promise a chance to resolve in the current event loop.
+ * The reason for this is that there is no way to synchronously check the resolved state of
+ * promises in JavaScript.
  * @param {Promise<any>} promise
  * @param {boolean} expected
- * @param {boolean} waitForMicrotasks
  */
-export async function assertPromiseResolved(promise, expected, waitForMicrotasks = true) {
+export async function assertPromiseResolved(promise, expected) {
 	let resolved = false;
 	(async () => {
 		await promise;
 		resolved = true;
 	})();
-	if (waitForMicrotasks) await waitForMicrotasksFn();
+	await waitForMicrotasksFn();
 	const msg = expected ? "Expected the promise to be resolved" : "Expected the promise to not be resolved";
 	assert(resolved == expected, msg);
 }

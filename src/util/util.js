@@ -146,3 +146,16 @@ export function base64ToArrayBuffer(base64) {
 	}
 	return bytes.buffer;
 }
+
+/**
+ * Returns promise that resolves in the next event loop.
+ */
+export function waitForEventLoop() {
+	/** @type {Promise<void>} */
+	const promise = new Promise(r => {
+		setTimeout(() => {
+			r();
+		}, 0);
+	});
+	return promise;
+}

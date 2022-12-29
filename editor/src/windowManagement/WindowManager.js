@@ -12,6 +12,13 @@ import {EDITOR_ENV} from "../editorDefines.js";
  * @property {ContentWindow} target
  */
 
+/**
+ * @typedef ContentWindowPersistentDiskData
+ * @property {import("../../../src/util/mod.js").UuidString} id
+ * @property {string} type
+ * @property {any} data
+ */
+
 export class WindowManager {
 	/** @type {Set<(data: any) => Promise<void>>} */
 	onContentWindowPersistentDataFlushRequestCbs = new Set();
@@ -138,7 +145,7 @@ export class WindowManager {
 	}
 
 	/**
-	 * @param {{id: import("../../../src/util/mod.js").UuidString, type: string, data: any}[]} datas
+	 * @param {ContentWindowPersistentDiskData[]} datas
 	 */
 	setContentWindowPersistentData(datas = []) {
 		const datasSet = new Set(datas);
