@@ -63,11 +63,13 @@ export class EntryPointManager {
 
 		const addContainer = document.createElement("div");
 		addContainer.style.display = "flex";
+		addContainer.style.width = "150px";
 		popover.el.appendChild(addContainer);
 
 		this.#droppableGui = DroppableGui.of({
 			supportedAssetTypes: [ProjectAssetTypeHtml],
 		});
+		this.#droppableGui.el.style.flexGrow = "1";
 		addContainer.appendChild(this.#droppableGui.el);
 
 		const addButton = new Button({
