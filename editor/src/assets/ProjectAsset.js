@@ -785,6 +785,31 @@ export class ProjectAsset {
 	};
 
 	/**
+	 * Reads asset data and, based on the properties asset content structure of the project asset type, fills defaults
+	 * and converts the result to a format that can be serialized to a binary format.
+	 * @returns {Promise<FileDataType>}
+	 */
+	async #readAssetDataForBinarySerialization() {
+		if (!this.projectAssetTypeConstructorSync) {
+			throw new Error("Assertion failed: no project asset type set");
+		}
+
+		/** @type {FileDataType} */
+		let assetData = await this.readAssetData();
+
+		const structure = this.projectAssetTypeConstructorSync.propertiesAssetContentStructure;
+		if (structure) {
+			const treeView = new PropertiesTreeView();
+			treeView.generateFromSerializableStructure(structure);
+			treeView.fillSerializableStructureValues(assetData);
+			const newAssetData = treeView.getSerializableStructureValues(structure, {purpose: "binarySerialization"});
+			assetData = /** @type {FileDataType} */ (newAssetData);
+		}
+
+		return assetData;
+	}
+
+	/**
 	 * Same as {@linkcode readAssetData} but returns the data synchronously
 	 * without a promise. Throws if the ProjectAsset is not an embedded asset.
 	 * @returns {FileDataType}
@@ -889,17 +914,7 @@ export class ProjectAsset {
 		if (!binaryData) {
 			const usedAssetLoaderType = this.projectAssetTypeConstructorSync.usedAssetLoaderType;
 			if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
-				/** @type {FileDataType} */
-				let assetData = await this.readAssetData();
-
-				const structure = this.projectAssetTypeConstructorSync.propertiesAssetContentStructure;
-				if (structure) {
-					const treeView = new PropertiesTreeView();
-					treeView.generateFromSerializableStructure(structure);
-					treeView.fillSerializableStructureValues(assetData);
-					const newAssetData = treeView.getSerializableStructureValues(structure, {purpose: "binarySerialization"});
-					assetData = /** @type {FileDataType} */ (newAssetData);
-				}
+				const assetData = await this.#readAssetDataForBinarySerialization();
 
 				const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
 				if (!castAssetLoaderType.binarySerializationOpts) {
@@ -930,7 +945,7 @@ export class ProjectAsset {
 
 		const usedAssetLoaderType = this.projectAssetTypeConstructorSync.usedAssetLoaderType;
 		if (usedAssetLoaderType && usedAssetLoaderType.prototype instanceof AssetLoaderTypeGenericStructure) {
-			const assetData = await this.readAssetData();
+			const assetData = await this.#readAssetDataForBinarySerialization();
 
 			const castAssetLoaderType = /** @type {typeof AssetLoaderTypeGenericStructure} */ (usedAssetLoaderType);
 			if (!castAssetLoaderType.binarySerializationOpts) {

@@ -180,7 +180,7 @@ export class DropDownGui {
 		if (purpose == "fileStorage") {
 			getAsStringValue = true;
 		} else if (purpose == "binarySerialization") {
-			getAsStringValue = false;
+			getAsStringValue = true;
 		}
 
 		let returnValue;
