@@ -803,7 +803,7 @@ export class ProjectAsset {
 			treeView.generateFromSerializableStructure(structure);
 			treeView.fillSerializableStructureValues(assetData);
 			const newAssetData = treeView.getSerializableStructureValues(structure, {purpose: "binarySerialization"});
-			assetData = /** @type {FileDataType} */ (newAssetData);
+			assetData = /** @type {FileDataType} */ (this.projectAssetTypeConstructorSync.transformBundledAssetData(newAssetData));
 		}
 
 		return assetData;
