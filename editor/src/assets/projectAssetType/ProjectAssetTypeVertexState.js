@@ -1,7 +1,6 @@
 import {ProjectAssetType} from "./ProjectAssetType.js";
 import {AssetLoaderTypeVertexState, Mesh, VertexState} from "../../../../src/mod.js";
 import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
-import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 
 const propertiesAssetContentStructure = createTreeViewStructure({
 	buffers: {
@@ -127,6 +126,6 @@ export class ProjectAssetTypeVertexState extends ProjectAssetType {
 				attribute.attributeType = newTypeValue;
 			}
 		}
-		return data;
+		return /** @type {any} */ (data);
 	}
 }
