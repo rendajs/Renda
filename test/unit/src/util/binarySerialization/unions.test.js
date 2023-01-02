@@ -279,3 +279,30 @@ Deno.test({
 		}, opts);
 	},
 });
+
+Deno.test({
+	name: "Union of primitive types",
+	ignore: true,
+	fn() {
+		const opts = createObjectToBinaryOptions({
+			structure: {
+				union: [
+					StorageType.UNION_ARRAY,
+					StorageType.INT32,
+					StorageType.STRING,
+				],
+			},
+			nameIds: {
+				union: 1,
+			},
+		});
+
+		basicObjectToBinaryToObjectTest({
+			union: 1,
+		}, opts);
+
+		basicObjectToBinaryToObjectTest({
+			union: "hello",
+		}, opts);
+	},
+});
