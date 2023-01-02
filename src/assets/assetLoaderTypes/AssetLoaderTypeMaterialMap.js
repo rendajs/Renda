@@ -1,8 +1,72 @@
 import {isUuid} from "../../util/util.js";
-import {StorageType, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
+import {StorageType, binaryToObjectWithAssetLoader, createObjectToBinaryOptions} from "../../util/binarySerialization.js";
 import {MaterialMap} from "../../rendering/MaterialMap.js";
 import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import {AssetLoaderType} from "./AssetLoaderType.js";
+
+export const materialMapBinaryOptions = createObjectToBinaryOptions({
+	structure: {
+		mapDatas: [
+			{
+				typeUuid: StorageType.UUID,
+				data: StorageType.ARRAY_BUFFER,
+				mappedValues: [
+					{
+						originalName: StorageType.STRING,
+						mappedName: StorageType.STRING,
+						typeUnion: [
+							StorageType.UNION_ARRAY,
+							{
+								isNumber: StorageType.BOOL,
+								defaultValue: StorageType.FLOAT64,
+							},
+							{
+								isVec2: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+							{
+								isVec3: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+							{
+								isVec4: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+							{
+								isSampler: StorageType.BOOL,
+								defaultValue: StorageType.ASSET_UUID,
+							},
+							{
+								isTexture: StorageType.BOOL,
+								defaultValue: StorageType.ASSET_UUID,
+							},
+							{
+								isColorTexture: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+	nameIds: {
+		mapDatas: 1,
+		typeUuid: 2,
+		data: 3,
+		mappedValues: 4,
+		originalName: 5,
+		mappedName: 6,
+		typeUnion: 7,
+		defaultValue: 8,
+		isNumber: 9,
+		isVec2: 10,
+		isVec3: 11,
+		isVec4: 12,
+		isSampler: 13,
+		isTexture: 14,
+	},
+});
 
 export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	static get typeUuid() {
@@ -24,21 +88,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	 * @param {ArrayBuffer} buffer
 	 */
 	async parseBuffer(buffer) {
-		const materialMapData = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
-			structure: {
-				mapDatas: [
-					{
-						typeUuid: StorageType.UUID,
-						data: StorageType.ARRAY_BUFFER,
-					},
-				],
-			},
-			nameIds: {
-				mapDatas: 1,
-				typeUuid: 2,
-				data: 3,
-			},
-		});
+		const materialMapData = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, materialMapBinaryOptions);
 
 		/** @type {import("../../rendering/MaterialMap.js").MaterialMapTypeData[]} */
 		const materialMapTypes = [];
@@ -51,9 +101,19 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 			}
 			const mapType = await mapLoader.parseBuffer(mapData.data);
 			if (mapType) {
+				/** @type {import("../../rendering/MaterialMap.js").MaterialMapMappedValues} */
+				const mappedValues = {};
+				for (const mappedValue of mapData.mappedValues) {
+					const mappedName = mappedValue.originalName || mappedValue.mappedName;
+					mappedValues[mappedValue.originalName] = {
+						mappedName,
+						mappedType: "vec3",
+						defaultValue: 3,
+					};
+				}
 				materialMapTypes.push({
 					mapType,
-					mappedValues: {}, // todo
+					mappedValues,
 				});
 			}
 		}

@@ -113,10 +113,11 @@ export function generateUuid() {
 }
 
 /**
- * @param {string} uuidStr
+ * @param {unknown} uuidStr
  * @returns {uuidStr is UuidString}
  */
 export function isUuid(uuidStr) {
+	if (typeof uuidStr != "string") return false;
 	const re = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gmi;
 	return re.test(uuidStr);
 }
