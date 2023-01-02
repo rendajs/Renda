@@ -282,6 +282,7 @@ Deno.test({
 
 Deno.test({
 	name: "Union of primitive types",
+	// TODO: #275
 	ignore: true,
 	fn() {
 		const opts = createObjectToBinaryOptions({
