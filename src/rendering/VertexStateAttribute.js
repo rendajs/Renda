@@ -3,7 +3,7 @@ import {Mesh} from "../core/Mesh.js";
 /**
  * @typedef VertexStateAttributeOptions
  * @property {number} [componentCount]
- * @property {number} [format]
+ * @property {import("../core/Mesh.js").AttributeFormat | keyof (typeof import("../core/Mesh.js").Mesh)["AttributeFormat"]} [format]
  * @property {boolean} [unsigned]
  * @property {number | null | "auto"} [shaderLocation]
  * @property {import("../core/Mesh.js").AttributeType | keyof (typeof import("../core/Mesh.js").Mesh)["AttributeType"]} [attributeType]

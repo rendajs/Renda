@@ -46,6 +46,11 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 	static expectedLiveAssetConstructor = Mesh;
 
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeMesh",
+	};
+
 	/**
 	 * @override
 	 * @param {Blob} blob

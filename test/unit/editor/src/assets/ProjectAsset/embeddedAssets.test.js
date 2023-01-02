@@ -8,19 +8,23 @@ const BASIC_PERSISTENCE_KEY = "persistenceKey";
 
 Deno.test({
 	name: "creating with isEmbedded true",
-	fn() {
-		const {projectAsset} = basicSetup({
+	async fn() {
+		const {projectAsset, uninstall} = basicSetup({
 			setMockEmbeddedParent: true,
 		});
 
-		assertEquals(projectAsset.isEmbedded, true);
+		try {
+			assertEquals(projectAsset.isEmbedded, true);
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "readAssetData() on an embedded asset is an empty object by default",
 	async fn() {
-		const {projectAsset, mocks} = basicSetup({
+		const {projectAsset, mocks, uninstall} = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -32,15 +36,19 @@ Deno.test({
 			throw new AssertionError("embedded assets should not read from disk.");
 		};
 
-		const result = await projectAsset.readAssetData();
-		assertEquals(result, {});
+		try {
+			const result = await projectAsset.readAssetData();
+			assertEquals(result, {});
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "writeAssetData() and then readAssetData() on an embedded asset",
 	async fn() {
-		const {projectAsset, mocks, mockParent} = basicSetup({
+		const {projectAsset, mocks, mockParent, uninstall} = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -48,87 +56,99 @@ Deno.test({
 			},
 		});
 
-		mocks.fileSystem.readFile = async () => {
-			throw new AssertionError("embedded assets should not read from disk.");
-		};
-		mocks.fileSystem.writeFile = async () => {
-			throw new AssertionError("embedded assets should not write to disk.");
-		};
+		try {
+			mocks.fileSystem.readFile = async () => {
+				throw new AssertionError("embedded assets should not read from disk.");
+			};
+			mocks.fileSystem.writeFile = async () => {
+				throw new AssertionError("embedded assets should not write to disk.");
+			};
 
-		const writeData = {
-			num: 123,
-			str: "foo",
-		};
+			const writeData = {
+				num: 123,
+				str: "foo",
+			};
 
-		/** @type {Set<() => void>} */
-		const needsSavePromises = new Set();
-		let needsSaveCallCount = 0;
-		mockParent.childEmbeddedAssetNeedsSave = async () => {
-			needsSaveCallCount++;
-			/** @type {Promise<void>} */
-			const promise = new Promise(r => needsSavePromises.add(r));
-			await promise;
-		};
+			/** @type {Set<() => void>} */
+			const needsSavePromises = new Set();
+			let needsSaveCallCount = 0;
+			mockParent.childEmbeddedAssetNeedsSave = async () => {
+				needsSaveCallCount++;
+				/** @type {Promise<void>} */
+				const promise = new Promise(r => needsSavePromises.add(r));
+				await promise;
+			};
 
-		const writeAssetDataPromise = projectAsset.writeAssetData(writeData);
+			const writeAssetDataPromise = projectAsset.writeAssetData(writeData);
 
-		let resolved = false;
-		writeAssetDataPromise.then(() => {
-			resolved = true;
-		});
-		await waitForMicrotasks();
+			let resolved = false;
+			writeAssetDataPromise.then(() => {
+				resolved = true;
+			});
+			await waitForMicrotasks();
 
-		assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
+			assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
 
-		needsSavePromises.forEach(r => r());
-		await writeAssetDataPromise;
+			needsSavePromises.forEach(r => r());
+			await writeAssetDataPromise;
 
-		assertEquals(needsSaveCallCount, 1);
+			assertEquals(needsSaveCallCount, 1);
 
-		writeData.str = "modification";
+			writeData.str = "modification";
 
-		const result = await projectAsset.readAssetData();
-		assert(result.str != "modification", "writeAssetData() should make a copy of the data");
-		assertEquals(result, {
-			num: 123,
-			str: "foo",
-		});
+			const result = await projectAsset.readAssetData();
+			assert(result.str != "modification", "writeAssetData() should make a copy of the data");
+			assertEquals(result, {
+				num: 123,
+				str: "foo",
+			});
 
-		result.str = "modification";
-		const result2 = await projectAsset.readAssetData();
-		assert(result2.str != "modification", "readAssetData() should make a copy of the data");
+			result.str = "modification";
+			const result2 = await projectAsset.readAssetData();
+			assert(result2.str != "modification", "readAssetData() should make a copy of the data");
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "readEmbeddedAssetData() throws if the asset is not an embedded asset",
 	async fn() {
-		const {projectAsset} = basicSetup();
+		const {projectAsset, uninstall} = basicSetup();
 
-		assertThrows(() => {
-			projectAsset.readEmbeddedAssetData();
-		}, Error, "Unable to read embeddedassetData, asset is not an embedded asset.");
+		try {
+			assertThrows(() => {
+				projectAsset.readEmbeddedAssetData();
+			}, Error, "Unable to read embeddedassetData, asset is not an embedded asset.");
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "writeEmbeddedAssetDataSync() throws if the asset is not an embedded asset",
 	async fn() {
-		const {projectAsset} = basicSetup();
+		const {projectAsset, uninstall} = basicSetup();
 
-		assertThrows(() => {
-			projectAsset.writeEmbeddedAssetDataSync({
-				num: 123,
-				str: "foo",
-			});
-		}, Error, "Unable to write embeddedassetData, asset is not an embedded asset.");
+		try {
+			assertThrows(() => {
+				projectAsset.writeEmbeddedAssetDataSync({
+					num: 123,
+					str: "foo",
+				});
+			}, Error, "Unable to write embeddedassetData, asset is not an embedded asset.");
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "writeEmbeddedAssetDataSync() and then readEmbeddedAssetData() on an embedded asset",
 	async fn() {
-		const {projectAsset, mocks} = basicSetup({
+		const {projectAsset, mocks, uninstall} = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -136,53 +156,61 @@ Deno.test({
 			},
 		});
 
-		mocks.fileSystem.readFile = async () => {
-			throw new AssertionError("embedded assets should not read from disk.");
-		};
-		mocks.fileSystem.writeFile = async () => {
-			throw new AssertionError("embedded assets should not write to disk.");
-		};
+		try {
+			mocks.fileSystem.readFile = async () => {
+				throw new AssertionError("embedded assets should not read from disk.");
+			};
+			mocks.fileSystem.writeFile = async () => {
+				throw new AssertionError("embedded assets should not write to disk.");
+			};
 
-		const writeData = {
-			num: 123,
-			str: "foo",
-		};
+			const writeData = {
+				num: 123,
+				str: "foo",
+			};
 
-		projectAsset.writeEmbeddedAssetDataSync(writeData);
+			projectAsset.writeEmbeddedAssetDataSync(writeData);
 
-		writeData.str = "modification";
+			writeData.str = "modification";
 
-		const result = projectAsset.readEmbeddedAssetData();
-		assert(result.str != "modification", "writeAssetData() should make a copy of the data");
-		assertEquals(result, {
-			num: 123,
-			str: "foo",
-		});
+			const result = projectAsset.readEmbeddedAssetData();
+			assert(result.str != "modification", "writeAssetData() should make a copy of the data");
+			assertEquals(result, {
+				num: 123,
+				str: "foo",
+			});
 
-		result.str = "modification";
-		const result2 = projectAsset.readEmbeddedAssetData();
-		assert(result2.str != "modification", "readAssetData() should make a copy of the data");
+			result.str = "modification";
+			const result2 = projectAsset.readEmbeddedAssetData();
+			assert(result2.str != "modification", "readAssetData() should make a copy of the data");
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "childEmbeddedAssetNeedsSave() for an asset type without a propertiesAssetContentStructure",
 	async fn() {
-		const {projectAsset} = basicSetup({
+		const {projectAsset, uninstall} = basicSetup({
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
 				path: ["path", "to", "asset"],
 			},
 		});
 
-		await projectAsset.childEmbeddedAssetNeedsSave();
+		try {
+			await projectAsset.childEmbeddedAssetNeedsSave();
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "writeEmbeddedAssetData() calls childEmbeddedAssetNeedsSave the parent",
 	async fn() {
-		const {projectAsset, mockParent} = basicSetup({
+		const {projectAsset, mockParent, uninstall} = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -190,41 +218,45 @@ Deno.test({
 			},
 		});
 
-		/** @type {Set<() => void>} */
-		const needsSavePromises = new Set();
-		let needsSaveCallCount = 0;
-		mockParent.childEmbeddedAssetNeedsSave = async () => {
-			needsSaveCallCount++;
-			/** @type {Promise<void>} */
-			const promise = new Promise(r => needsSavePromises.add(r));
-			await promise;
-		};
+		try {
+			/** @type {Set<() => void>} */
+			const needsSavePromises = new Set();
+			let needsSaveCallCount = 0;
+			mockParent.childEmbeddedAssetNeedsSave = async () => {
+				needsSaveCallCount++;
+				/** @type {Promise<void>} */
+				const promise = new Promise(r => needsSavePromises.add(r));
+				await promise;
+			};
 
-		const writePromise = projectAsset.writeEmbeddedAssetData({
-			num: 123,
-			str: "foo",
-		});
+			const writePromise = projectAsset.writeEmbeddedAssetData({
+				num: 123,
+				str: "foo",
+			});
 
-		let resolved = false;
-		writePromise.then(() => {
-			resolved = true;
-		});
-		await waitForMicrotasks();
+			let resolved = false;
+			writePromise.then(() => {
+				resolved = true;
+			});
+			await waitForMicrotasks();
 
-		assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
+			assert(!resolved, "writeEmbeddedAssetData() should not resolve until its parent childEmbeddedAssetNeedsSave() resolves.");
 
-		needsSavePromises.forEach(r => r());
+			needsSavePromises.forEach(r => r());
 
-		await writePromise;
+			await writePromise;
 
-		assertEquals(needsSaveCallCount, 1);
+			assertEquals(needsSaveCallCount, 1);
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "getLiveAssetData() adds the created live asset to the parent asset",
 	async fn() {
-		const {projectAsset, addEmbeddedChildLiveAssetSpy} = basicSetup({
+		const {projectAsset, addEmbeddedChildLiveAssetSpy, uninstall} = basicSetup({
 			setMockEmbeddedParent: true,
 			extraProjectAssetOpts: {
 				assetType: BASIC_PROJECTASSETTYPE,
@@ -233,18 +265,22 @@ Deno.test({
 			},
 		});
 
-		const liveAssetData = await projectAsset.getLiveAssetData();
-		assertSpyCalls(addEmbeddedChildLiveAssetSpy, 1);
-		assertSpyCall(addEmbeddedChildLiveAssetSpy, 0, {
-			args: [BASIC_PERSISTENCE_KEY, liveAssetData.liveAsset],
-		});
+		try {
+			const liveAssetData = await projectAsset.getLiveAssetData();
+			assertSpyCalls(addEmbeddedChildLiveAssetSpy, 1);
+			assertSpyCall(addEmbeddedChildLiveAssetSpy, 0, {
+				args: [BASIC_PERSISTENCE_KEY, liveAssetData.liveAsset],
+			});
+		} finally {
+			await uninstall();
+		}
 	},
 });
 
 Deno.test({
 	name: "setEmbeddedChildLiveAsset() and getPreviousEmbeddedLiveAsset()",
-	fn() {
-		const {projectAsset} = basicSetup();
+	async fn() {
+		const {projectAsset, uninstall} = basicSetup();
 		installMockWeakRef();
 
 		try {
@@ -256,14 +292,15 @@ Deno.test({
 			assertStrictEquals(result, liveAsset);
 		} finally {
 			uninstallMockWeakRef();
+			await uninstall();
 		}
 	},
 });
 
 Deno.test({
 	name: "getPreviousEmbeddedLiveAsset() returns null if not set",
-	fn() {
-		const {projectAsset} = basicSetup();
+	async fn() {
+		const {projectAsset, uninstall} = basicSetup();
 		installMockWeakRef();
 
 		try {
@@ -272,14 +309,15 @@ Deno.test({
 			assertEquals(result, null);
 		} finally {
 			uninstallMockWeakRef();
+			await uninstall();
 		}
 	},
 });
 
 Deno.test({
 	name: "getPreviousEmbeddedLiveAsset() returns null if garbage collected",
-	fn() {
-		const {projectAsset} = basicSetup();
+	async fn() {
+		const {projectAsset, uninstall} = basicSetup();
 		installMockWeakRef();
 
 		try {
@@ -293,6 +331,7 @@ Deno.test({
 			assertEquals(result, null);
 		} finally {
 			uninstallMockWeakRef();
+			await uninstall();
 		}
 	},
 });

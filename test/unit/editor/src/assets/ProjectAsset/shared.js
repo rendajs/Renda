@@ -10,8 +10,6 @@ export const BASIC_PROJECTASSETTYPE = "test:basicassettype";
 export const BASIC_ASSET_EXTENSION = "basicassetextension";
 export const UNKNOWN_ASSET_EXTENSION = "unknownassetextension";
 
-injectMockEditorInstance(/** @type {any} */({}));
-
 /**
  * @typedef GetMocksOptions
  * @property {boolean} [builtInAssetManagerAllowAssetEditingValue]
@@ -67,6 +65,9 @@ export function basicSetup({
 	isKnownAssetType = /** @type {TIsKnown} */ (true),
 	setMockEmbeddedParent = false,
 } = {}) {
+	const mockEditor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({});
+	injectMockEditorInstance(mockEditor);
+
 	const mocks = getMocks(mocksOptions);
 
 	/**
@@ -104,5 +105,10 @@ export function basicSetup({
 		projectAsset: castProjectAsset,
 		mockParent,
 		addEmbeddedChildLiveAssetSpy,
+		mockEditor,
+		async uninstall() {
+			await projectAsset.waitForInit();
+			injectMockEditorInstance(null);
+		},
 	};
 }

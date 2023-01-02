@@ -284,6 +284,17 @@ export class ProjectAssetType {
 	static usedAssetLoaderType = null;
 
 	/**
+	 * When `usedAssetLoaderType` is set, asset data is serialized to binary when bundling.
+	 * But first defaults are filled in and it is transformed using `propertiesAssetContentStructure` into
+	 * a format that can easily be serialized to binary.
+	 * If you wish to make some final changes to the data, you can override this.
+	 * @param {any} data
+	 */
+	static transformBundledAssetData(data) {
+		return data;
+	}
+
+	/**
 	 * This method is called when creating asset bundles,
 	 * this is optional when `usedAssetLoaderType` is set.
 	 * You can use this.projectAsset to generate the binary data, {@link ProjectAsset.readAssetData}

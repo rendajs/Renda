@@ -31,7 +31,7 @@ import {prettifyVariableName} from "../util/util.js";
  * @template {boolean} [T = true]
  * @template {import("./propertiesTreeView/types.js").TreeViewStructureOutputPurpose} [U = "default"]
  * @typedef {U extends "fileStorage" ? string :
- * U extends "binarySerialization" ? number :
+ * U extends "binarySerialization" ? string :
  * U extends "default" | undefined ? (
  *   T extends true ? string :
  *   T extends false ? number :
@@ -180,7 +180,7 @@ export class DropDownGui {
 		if (purpose == "fileStorage") {
 			getAsStringValue = true;
 		} else if (purpose == "binarySerialization") {
-			getAsStringValue = false;
+			getAsStringValue = true;
 		}
 
 		let returnValue;

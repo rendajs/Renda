@@ -28,7 +28,7 @@ export class ProjectAssetTypeShaderSource extends ProjectAssetType {
 
 	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
 	static assetLoaderTypeImportConfig = {
-		identifier: "AssetLoaderTypeClusteredLightsConfig",
+		identifier: "AssetLoaderTypeShaderSource",
 		instanceIdentifier: "shaderLoader",
 		extra(ctx) {
 			ctx.addImport("ShaderBuilder", "renda");
