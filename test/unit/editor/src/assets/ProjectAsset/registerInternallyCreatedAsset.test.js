@@ -4,21 +4,25 @@ import {basicSetup} from "./shared.js";
 
 Deno.test({
 	name: "creating with isEmbedded true",
-	fn() {
-		const {projectAsset, mocks} = basicSetup();
+	async fn() {
+		const {projectAsset, mocks, uninstall} = basicSetup();
 		const {mockAssetManager} = mocks;
 
-		mockAssetManager.getOrCreateInternallyCreatedAsset = persistenceData => {
-			return new InternallyCreatedAsset(mockAssetManager, persistenceData, {forcedAssetUuid: null});
-		};
-		const getOrCreateInternallyCreatedAssetSpy = spy(mockAssetManager, "getOrCreateInternallyCreatedAsset");
+		try {
+			mockAssetManager.getOrCreateInternallyCreatedAsset = persistenceData => {
+				return new InternallyCreatedAsset(mockAssetManager, persistenceData, {forcedAssetUuid: null});
+			};
+			const getOrCreateInternallyCreatedAssetSpy = spy(mockAssetManager, "getOrCreateInternallyCreatedAsset");
 
-		const liveAsset = {
-			label: "live asset",
-		};
-		projectAsset.registerInternallyCreatedAsset(liveAsset, {foo: "bar"});
-		projectAsset.registerInternallyCreatedAsset(liveAsset, {foo: "bar"});
+			const liveAsset = {
+				label: "live asset",
+			};
+			projectAsset.registerInternallyCreatedAsset(liveAsset, {foo: "bar"});
+			projectAsset.registerInternallyCreatedAsset(liveAsset, {foo: "bar"});
 
-		assertSpyCalls(getOrCreateInternallyCreatedAssetSpy, 1);
+			assertSpyCalls(getOrCreateInternallyCreatedAssetSpy, 1);
+		} finally {
+			await uninstall();
+		}
 	},
 });
