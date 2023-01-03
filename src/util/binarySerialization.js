@@ -20,14 +20,6 @@ import {clamp, isUuid} from "./util.js";
  */
 
 /**
- * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
- * @typedef {object} BinaryToObjectWithAssetLoaderOptions
- * @property {T} structure
- * @property {BinarySerializationNameIds} nameIds
- * @property {boolean} [littleEndian = true]
- */
-
-/**
  * @typedef {object} BinarySerializationVariableLengthStorageTypes
  * @property {AllStorageTypes} [refId = StorageType.NULL]
  * @property {AllStorageTypes} [array = StorageType.UINT8]
@@ -504,29 +496,33 @@ export function binaryToObject(buffer, {
  * @template {import("./binarySerializationTypes.js").AllowedStructureFormat} T
  * @param {ArrayBuffer} buffer
  * @param {import("../assets/AssetLoader.js").AssetLoader} assetLoader
- * @param {BinaryToObjectWithAssetLoaderOptions<T>} options
+ * @param {BinaryToObjectOptions<T>} options
  */
-export async function binaryToObjectWithAssetLoader(buffer, assetLoader, {
-	structure,
-	nameIds,
-	littleEndian = true,
-}) {
-	// TODO: Make BinaryToObjectWithAssetLoaderOptions and ObjectToBinaryOptions the
-	// same object and pass all options to the call below. Only change the transformValueHook
-
-	// TODO: Call transformValueHook from the provided options inside the newly created
-	// transformValueHook.
+export async function binaryToObjectWithAssetLoader(buffer, assetLoader, options) {
+	const originalTransformValueHook = options.transformValueHook;
 
 	/** @type {Promise<void>[]} */
 	const promises = [];
 	const obj = binaryToObject(buffer, {
-		structure, nameIds, littleEndian,
+		...options,
 		transformValueHook: ({value, type, placedOnObject, placedOnKey}) => {
-			if (type != StorageType.ASSET_UUID) return value;
-			if (value == null) return null;
+			if (type != StorageType.ASSET_UUID || value == null) {
+				if (originalTransformValueHook) {
+					value = originalTransformValueHook({
+						value, type, placedOnObject, placedOnKey,
+					});
+				}
+				return value;
+			}
 			const castValue = /** @type {import("./util.js").UuidString} */ (value);
 			const promise = (async () => {
-				const asset = await assetLoader.getAsset(castValue);
+				let asset = await assetLoader.getAsset(castValue);
+				if (originalTransformValueHook) {
+					asset = originalTransformValueHook({
+						value: asset,
+						type, placedOnObject, placedOnKey,
+					});
+				}
 				placedOnObject[placedOnKey] = asset;
 			})();
 			promises.push(promise);
