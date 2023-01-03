@@ -1,4 +1,4 @@
-import type { AllStorageTypes, StorageTypeEnum } from "./mod";
+import type { AllStorageTypes, ObjectToBinaryOptions, StorageTypeEnum } from "./mod";
 import type { UuidString } from "./util";
 
 /**
@@ -21,6 +21,31 @@ export type AllowedStructureFormat = AllStorageTypes | [AllowedStructureFormat] 
  * this type has built in support for making all properties optional using `RecursivePartial<T>`.
  */
 export type StructureToObject<T extends AllowedStructureFormat, TMakePartial extends boolean = false> = StructureToObjectWithPartialHelper<T, false, TMakePartial>;
+/**
+ * This is a utility type that converts an options object to the expected input/output object.
+ *
+ * ## Example usage
+ * ```js
+ * const objectToBinaryOptions = {
+ * 	structure: {
+ * 		// ...
+ * 	},
+ * 	nameIds: {
+ * 		// ...
+ * 	},
+ * }
+ *
+ * //** @type {StructureToObject<typeof objectToBinaryOptions>} * /
+ * const data = {};
+ *
+ * // Fill in data here...
+ *
+ * const binary = objectToBinary(data, objectToBinaryOptions);
+ * ```
+ *
+ * Doing it this way allows you to have type checking and autocompletion while filling in values for the `data` variable.
+ */
+export type OptionsToObject<T extends ObjectToBinaryOptions<any>, TMakePartial extends boolean = false> = StructureToObject<T["structure"], TMakePartial>;
 export type StructureToObjectWithAssetLoader<T extends AllowedStructureFormat> = StructureItemToObjectHelper<T, true>;
 export type StructureToObjectWithMaybeAssetLoader<T extends AllowedStructureFormat> = StructureItemToObjectHelper<T, true | false>;
 export type StructureItemToObject<T extends AllowedStructureFormat> = StructureItemToObjectHelper<T, false>;

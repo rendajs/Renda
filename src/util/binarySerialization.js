@@ -785,7 +785,15 @@ function structureToStorageType(structure) {
 		return StorageType.NULL;
 	}
 	if (typeof structure == "object" && structure != null) {
-		return Array.isArray(structure) ? StorageType.ARRAY : StorageType.OBJECT;
+		if (Array.isArray(structure)) {
+			if (structure[0] == StorageType.UNION_ARRAY) {
+				return StorageType.UNION_ARRAY;
+			} else {
+				return StorageType.ARRAY;
+			}
+		} else {
+			return StorageType.OBJECT;
+		}
 	}
 	return structure;
 }

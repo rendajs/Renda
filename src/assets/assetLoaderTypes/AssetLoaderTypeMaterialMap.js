@@ -1,8 +1,83 @@
 import {isUuid} from "../../util/util.js";
-import {StorageType, binaryToObjectWithAssetLoader} from "../../util/binarySerialization.js";
+import {StorageType, binaryToObjectWithAssetLoader, createObjectToBinaryOptions} from "../../util/binarySerialization.js";
 import {MaterialMap} from "../../rendering/MaterialMap.js";
 import {MaterialMapTypeLoader} from "../MaterialMapTypeLoader.js";
 import {AssetLoaderType} from "./AssetLoaderType.js";
+import {Vec2} from "../../math/Vec2.js";
+import {Vec3} from "../../math/Vec3.js";
+import {Vec4} from "../../math/Vec4.js";
+
+export const materialMapBinaryOptions = createObjectToBinaryOptions({
+	structure: {
+		mapDatas: [
+			{
+				typeUuid: StorageType.UUID,
+				data: StorageType.ARRAY_BUFFER,
+				mappedValues: [
+					{
+						originalName: StorageType.STRING,
+						mappedName: StorageType.STRING,
+						typeUnion: [
+							StorageType.UNION_ARRAY,
+							{
+								isNumber: StorageType.BOOL,
+								defaultValue: StorageType.FLOAT64,
+							},
+							{
+								isVec2: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+							{
+								isVec3: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+							{
+								isVec4: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+							{
+								isSampler: StorageType.BOOL,
+								defaultValue: StorageType.ASSET_UUID,
+							},
+							{
+								isNullSampler: StorageType.BOOL,
+							},
+							{
+								isTexture: StorageType.BOOL,
+								defaultValue: StorageType.ASSET_UUID,
+							},
+							{
+								isColorTexture: StorageType.BOOL,
+								defaultValue: [StorageType.FLOAT64],
+							},
+							{
+								isNullTexture: StorageType.BOOL,
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+	nameIds: {
+		mapDatas: 1,
+		typeUuid: 2,
+		data: 3,
+		mappedValues: 4,
+		originalName: 5,
+		mappedName: 6,
+		typeUnion: 7,
+		defaultValue: 8,
+		isNumber: 9,
+		isVec2: 10,
+		isVec3: 11,
+		isVec4: 12,
+		isSampler: 13,
+		isNullSampler: 14,
+		isTexture: 15,
+		isNullTexture: 16,
+	},
+});
 
 export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	static get typeUuid() {
@@ -24,21 +99,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 	 * @param {ArrayBuffer} buffer
 	 */
 	async parseBuffer(buffer) {
-		const materialMapData = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, {
-			structure: {
-				mapDatas: [
-					{
-						typeUuid: StorageType.UUID,
-						data: StorageType.ARRAY_BUFFER,
-					},
-				],
-			},
-			nameIds: {
-				mapDatas: 1,
-				typeUuid: 2,
-				data: 3,
-			},
-		});
+		const materialMapData = await binaryToObjectWithAssetLoader(buffer, this.assetLoader, materialMapBinaryOptions);
 
 		/** @type {import("../../rendering/MaterialMap.js").MaterialMapTypeData[]} */
 		const materialMapTypes = [];
@@ -51,9 +112,55 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 			}
 			const mapType = await mapLoader.parseBuffer(mapData.data);
 			if (mapType) {
+				/** @type {import("../../rendering/MaterialMap.js").MaterialMapMappedValues} */
+				const mappedValues = {};
+				for (const mappedValue of mapData.mappedValues) {
+					const mappedName = mappedValue.mappedName || mappedValue.originalName;
+					/** @type {import("../../rendering/MaterialMap.js").MappableMaterialTypesEnum} */
+					let mappedType;
+					/** @type {import("../../rendering/MaterialMap.js").MappableMaterialTypes} */
+					let defaultValue;
+					if ("isNumber" in mappedValue.typeUnion) {
+						mappedType = "number";
+						defaultValue = mappedValue.typeUnion.defaultValue;
+					} else if ("isVec2" in mappedValue.typeUnion) {
+						mappedType = "vec2";
+						defaultValue = new Vec2(mappedValue.typeUnion.defaultValue);
+					} else if ("isVec3" in mappedValue.typeUnion) {
+						mappedType = "vec3";
+						defaultValue = new Vec3(mappedValue.typeUnion.defaultValue);
+					} else if ("isVec4" in mappedValue.typeUnion) {
+						mappedType = "vec4";
+						defaultValue = new Vec4(mappedValue.typeUnion.defaultValue);
+					} else if ("isSampler" in mappedValue.typeUnion) {
+						mappedType = "sampler";
+						const assetUuid = mappedValue.typeUnion.defaultValue;
+						defaultValue = await this.assetLoader.getAsset(assetUuid);
+					} else if ("isNullSampler" in mappedValue.typeUnion) {
+						mappedType = "sampler";
+						defaultValue = null;
+					} else if ("isTexture" in mappedValue.typeUnion) {
+						mappedType = "texture2d";
+						const assetUuid = mappedValue.typeUnion.defaultValue;
+						defaultValue = await this.assetLoader.getAsset(assetUuid);
+					} else if ("isColorTexture" in mappedValue.typeUnion) {
+						mappedType = "texture2d";
+						defaultValue = new Vec3(mappedValue.typeUnion.defaultValue);
+					} else if ("isNullTexture" in mappedValue.typeUnion) {
+						mappedType = "texture2d";
+						defaultValue = null;
+					} else {
+						throw new Error("Failed to load material map, unknown value type.");
+					}
+					mappedValues[mappedValue.originalName] = {
+						mappedName,
+						mappedType,
+						defaultValue,
+					};
+				}
 				materialMapTypes.push({
 					mapType,
-					mappedValues: {}, // todo
+					mappedValues,
 				});
 			}
 		}

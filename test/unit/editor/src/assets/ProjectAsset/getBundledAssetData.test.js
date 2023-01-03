@@ -2,7 +2,7 @@ import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
 import {assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {basicSetup} from "./shared.js";
 import {AssetLoaderTypeGenericStructure, StorageType, binaryToObject} from "../../../../../../src/mod.js";
-import {installFakeDocument, uninstallFakeDocument} from "../../../../../../.denoTypes/vendor/deno.land/x/fake_dom@v0.0.8/src/FakeDocument.js";
+import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {createMockKeyboardShortcutManager} from "../../../shared/mockKeyboardShortcutManager.js";
 
 Deno.test({
