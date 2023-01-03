@@ -18,9 +18,46 @@ const DUPLICATE_REFERENCED_ASSET_UUID = "c726e574-ae6e-4c67-9266-a8249a7e1dfd";
 
 /**
  * @param {Object} options
- * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} [options.extraMappableValues]
+ * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} [options.mappableValues] The list of mappable
+ * values that the MapTypeSerializer should return.
+ * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} [options.extraMappableValues] A list of extra
+ * mappable values that the MapTypeSerializer should return on top of the default set of mappable values.
  */
 function basicSetup({
+	mappableValues = [
+		{
+			name: "num",
+			type: "number",
+			defaultValue: 2,
+		},
+		{
+			name: "v2",
+			type: "vec2",
+			defaultValue: new Vec2(1, 2),
+		},
+		{
+			name: "v3",
+			type: "vec3",
+			defaultValue: new Vec3(1, 2, 3),
+		},
+		{
+			name: "v4",
+			type: "vec4",
+			defaultValue: new Vec4(1, 2, 3, 4),
+		},
+		{
+			name: "noDefault",
+			type: "vec3",
+		},
+		{
+			name: "samp",
+			type: "sampler",
+		},
+		{
+			name: "tex",
+			type: "texture2d",
+		},
+	],
 	extraMappableValues = [],
 } = {}) {
 	const {projectAssetTypeArgs, editor, assetManager, projectAsset} = createMockDependencies();
@@ -66,38 +103,7 @@ function basicSetup({
 		static async getMappableValues(context, customData) {
 			/** @type {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} */
 			const values = [
-				{
-					name: "num",
-					type: "number",
-					defaultValue: 2,
-				},
-				{
-					name: "v2",
-					type: "vec2",
-					defaultValue: new Vec2(1, 2),
-				},
-				{
-					name: "v3",
-					type: "vec3",
-					defaultValue: new Vec3(1, 2, 3),
-				},
-				{
-					name: "v4",
-					type: "vec4",
-					defaultValue: new Vec4(1, 2, 3, 4),
-				},
-				{
-					name: "noDefault",
-					type: "vec3",
-				},
-				{
-					name: "samp",
-					type: "sampler",
-				},
-				{
-					name: "tex",
-					type: "texture2d",
-				},
+				...mappableValues,
 				...extraMappableValues,
 			];
 			return values;
@@ -478,6 +484,16 @@ Deno.test({
 	},
 });
 
+/**
+ * @param {typeof MaterialMapTypeLoader} ExtendedMaterialMapTypeLoader
+ */
+function createBasicMaterialMapLoader(ExtendedMaterialMapTypeLoader) {
+	const mockAssetLoader = /** @type {import("../../../../../../src/mod.js").AssetLoader} */ ({});
+	const materialMapLoader = new AssetLoaderTypeMaterialMap(mockAssetLoader);
+	materialMapLoader.registerMaterialMapTypeLoader(ExtendedMaterialMapTypeLoader);
+	return materialMapLoader;
+}
+
 Deno.test({
 	name: "createBundledAssetData()",
 	async fn() {
@@ -530,9 +546,7 @@ Deno.test({
 
 		assertInstanceOf(buffer, ArrayBuffer);
 
-		const mockAssetLoader = /** @type {import("../../../../../../src/mod.js").AssetLoader} */ ({});
-		const materialMapLoader = new AssetLoaderTypeMaterialMap(mockAssetLoader);
-		materialMapLoader.registerMaterialMapTypeLoader(ExtendedMaterialMapTypeLoader);
+		const materialMapLoader = createBasicMaterialMapLoader(ExtendedMaterialMapTypeLoader);
 		const materialMap = await materialMapLoader.parseBuffer(buffer);
 		assertEquals(materialMap.mapTypes.size, 1);
 		const mapTypeInstance = materialMap.getMapTypeInstance(MapType);
@@ -589,6 +603,51 @@ Deno.test({
 				MapType,
 				{mappedName: "v4", defaultValue: new Vec4(1, 2, 3, 4), mappedType: "vec4"},
 			],
+		]);
+	},
+});
+
+Deno.test({
+	name: "Bundled asset data with color texture",
+	async fn() {
+		const {projectAssetType, projectAsset, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
+			mappableValues: [
+				{
+					name: "tex",
+					type: "texture2d",
+				},
+			],
+		});
+		stub(projectAsset, "readAssetData", async () => {
+			const MAP_TYPE_ID = BASIC_MATERIAL_MAP_TYPE_ID;
+			/** @type {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+			const result = {
+				maps: [
+					{
+						mapTypeId: MAP_TYPE_ID,
+						mappedValues: {
+							tex: {
+								defaultValue: [1, 2, 3, 4],
+							},
+						},
+					},
+				],
+			};
+			return result;
+		});
+
+		const buffer = await projectAssetType.createBundledAssetData();
+		assertInstanceOf(buffer, ArrayBuffer);
+
+		const materialMapLoader = createBasicMaterialMapLoader(ExtendedMaterialMapTypeLoader);
+		const materialMap = await materialMapLoader.parseBuffer(buffer);
+		const mappedDatas = Array.from(materialMap.getMappedDatasForMapType(MapType));
+		assertEquals(mappedDatas, [
+			{
+				mappedName: "tex",
+				mappedType: "texture2d",
+				defaultValue: new Vec4(1, 2, 3, 4),
+			},
 		]);
 	},
 });
