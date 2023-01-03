@@ -6,6 +6,8 @@ import {AssetLoaderType} from "./AssetLoaderType.js";
 import {Vec2} from "../../math/Vec2.js";
 import {Vec3} from "../../math/Vec3.js";
 import {Vec4} from "../../math/Vec4.js";
+import { Sampler } from "../../rendering/Sampler.js";
+import { Texture } from "../../core/Texture.js";
 
 export const materialMapBinaryOptions = createObjectToBinaryOptions({
 	structure: {
@@ -134,15 +136,19 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 						defaultValue = new Vec4(mappedValue.typeUnion.defaultValue);
 					} else if ("isSampler" in mappedValue.typeUnion) {
 						mappedType = "sampler";
-						const assetUuid = mappedValue.typeUnion.defaultValue;
-						defaultValue = await this.assetLoader.getAsset(assetUuid);
+						if (!(mappedValue.typeUnion.defaultValue instanceof Sampler)) {
+							throw new Error("Assertion failed, expected a sampler asset.");
+						}
+						defaultValue = mappedValue.typeUnion.defaultValue;
 					} else if ("isNullSampler" in mappedValue.typeUnion) {
 						mappedType = "sampler";
 						defaultValue = null;
 					} else if ("isTexture" in mappedValue.typeUnion) {
 						mappedType = "texture2d";
-						const assetUuid = mappedValue.typeUnion.defaultValue;
-						defaultValue = await this.assetLoader.getAsset(assetUuid);
+						if (!(mappedValue.typeUnion.defaultValue instanceof Texture)) {
+							throw new Error("Assertion failed, expected a texture asset.");
+						}
+						defaultValue = mappedValue.typeUnion.defaultValue;
 					} else if ("isColorTexture" in mappedValue.typeUnion) {
 						mappedType = "texture2d";
 						defaultValue = new Vec3(mappedValue.typeUnion.defaultValue);
