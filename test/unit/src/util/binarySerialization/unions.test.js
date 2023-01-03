@@ -279,3 +279,38 @@ Deno.test({
 		}, opts);
 	},
 });
+
+Deno.test({
+	name: "a string followed by a union",
+	fn() {
+		basicObjectToBinaryToObjectTest({
+			str: "hello",
+			union: {
+				type1: true,
+				value: "yes",
+			},
+		}, {
+			structure: {
+				str: StorageType.STRING,
+				union: [
+					StorageType.UNION_ARRAY,
+					{
+						type1: StorageType.BOOL,
+						value: StorageType.STRING,
+					},
+					{
+						type2: StorageType.BOOL,
+						value: StorageType.INT32,
+					},
+				],
+			},
+			nameIds: {
+				str: 1,
+				union: 2,
+				type1: 3,
+				type2: 4,
+				value: 5,
+			},
+		});
+	},
+});
