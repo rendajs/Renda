@@ -59,6 +59,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 		type,
 		guiOpts = {},
 		callbacksContext = {},
+		tooltip = "",
 	}) {
 		super({
 			addCustomEl: true,
@@ -75,6 +76,9 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.label.classList.add("guiTreeViewEntryLabel");
 		this.label.classList.toggle("smallLabel", smallLabel);
 		this.label.textContent = prettifyVariableName(guiOpts.label);
+		if (tooltip) {
+			this.label.title = tooltip;
+		}
 		this.customEl.appendChild(this.label);
 
 		this.valueEl = document.createElement("div");

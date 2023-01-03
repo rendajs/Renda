@@ -187,6 +187,10 @@ export type PropertiesTreeViewEntryOptionsGeneric<T extends GuiTypes, TOpts = an
     type: T;
     guiOpts?: GetGuiOptions<T, TOpts>;
     callbacksContext?: Object | undefined;
+	/**
+	 * The tooltip that is shown when hovering over the treeview item.
+	 */
+	tooltip?: string;
 } : never;
 export type PropertiesTreeViewEntryOptions = PropertiesTreeViewEntryOptionsGeneric<GuiTypes>;
 
