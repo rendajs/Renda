@@ -1,8 +1,6 @@
+import {AssetLoaderTypeSampler, addressModeTypes, filterModeTypes} from "../../../../src/assets/assetLoaderTypes/AssetLoaderTypeSampler.js";
 import {Sampler} from "../../../../src/rendering/Sampler.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
-
-const addressModeTypes = ["clamp-to-edge", "repeat", "mirror-repeat"];
-const filterModeTypes = ["nearest", "linear"];
 
 /**
  * @typedef SamplerAssetData
@@ -70,7 +68,12 @@ export class ProjectAssetTypeSampler extends ProjectAssetType {
 		},
 	};
 
+	static usedAssetLoaderType = AssetLoaderTypeSampler;
 	static expectedLiveAssetConstructor = Sampler;
+	/** @type {import("../../tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} */
+	static assetLoaderTypeImportConfig = {
+		identifier: "AssetLoaderTypeSampler",
+	};
 
 	/**
 	 * @override

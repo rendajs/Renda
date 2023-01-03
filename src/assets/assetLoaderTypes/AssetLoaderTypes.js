@@ -6,6 +6,7 @@ export {AssetLoaderTypeMaterial} from "./AssetLoaderTypeMaterial.js";
 export {AssetLoaderTypeMaterialMap} from "./AssetLoaderTypeMaterialMap.js";
 export {AssetLoaderTypeMesh} from "./AssetLoaderTypeMesh.js";
 export {AssetLoaderTypeRenderOutputConfig} from "./AssetLoaderTypeRenderOutputConfig.js";
+export {AssetLoaderTypeSampler} from "./AssetLoaderTypeSampler.js";
 export {AssetLoaderTypeShaderSource} from "./AssetLoaderTypeShaderSource.js";
 export {AssetLoaderTypeVertexState} from "./AssetLoaderTypeVertexState.js";
 export {AssetLoaderTypeWebGpuPipelineConfig} from "./AssetLoaderTypeWebGpuPipelineConfig.js";
