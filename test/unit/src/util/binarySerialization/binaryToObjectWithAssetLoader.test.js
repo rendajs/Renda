@@ -15,6 +15,12 @@ function createMockAssetLoader() {
 	return assetLoader;
 }
 
+/** @type {CreateTypeAssertionFn<unknown>} */
+const assertIsUnknown = () => {};
+
+/** @type {CreateTypeAssertionFn<import("../../../../../src/mod.js").UuidString>} */
+const assertIsUuidString = () => {};
+
 Deno.test({
 	name: "binaryToObjectWithAssetLoader()",
 	async fn() {
@@ -120,5 +126,60 @@ Deno.test({
 				},
 			],
 		});
+
+		assertIsUnknown(result.asset, result.asset);
+		// @ts-expect-error
+		assertIsUuidString(result.asset, result.asset);
+	},
+});
+
+Deno.test({
+	name: "Asset in union",
+	async fn() {
+		const opts = createObjectToBinaryOptions({
+			structure: {
+				union: [
+					StorageType.UNION_ARRAY,
+					{
+						isFirstType: StorageType.BOOL,
+						asset: StorageType.ASSET_UUID,
+					},
+					{
+						isSecondType: StorageType.BOOL,
+						asset: StorageType.ASSET_UUID,
+					},
+				],
+			},
+			nameIds: {
+				union: 1,
+				isFirstType: 2,
+				isSecondType: 3,
+				asset: 4,
+			},
+		});
+
+		const buffer = objectToBinary({
+			union: {
+				isFirstType: true,
+				asset: BASIC_ASSET_UUID,
+			},
+		}, opts);
+
+		const assetLoader = createMockAssetLoader();
+
+		const result = await binaryToObjectWithAssetLoader(buffer, assetLoader, opts);
+
+		assertEquals(result, {
+			union: {
+				isFirstType: true,
+				asset: {
+					loadedAssetUuid: BASIC_ASSET_UUID,
+				},
+			},
+		});
+
+		assertIsUnknown(result.union.asset, result.union.asset);
+		// @ts-expect-error
+		assertIsUuidString(result.union.asset, result.union.asset);
 	},
 });
