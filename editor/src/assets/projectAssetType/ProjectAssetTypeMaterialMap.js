@@ -94,13 +94,13 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 					delete mappedValues[key];
 				} else {
 					if (mappedValueDiskData.mappedName) {
-						mappedValues[key].mappedName = mappedValueDiskData.mappedName;
+						if (mappedValues[key]) {
+							mappedValues[key].mappedName = mappedValueDiskData.mappedName;
+						}
 					}
 					if (mappedValueDiskData.defaultValue !== undefined) {
 						const mappedValue = mappedValues[key];
-						if (!mappedValue) {
-							throw new Error(`Assertion failed, mapped value "${key}" doesn't exist.`);
-						}
+						if (!mappedValue) continue;
 						const defaultValue = mappedValue.defaultValue;
 						if (mappedValue.mappedType == "number") {
 							mappedValue.defaultValue = mappedValueDiskData.defaultValue;
@@ -220,7 +220,6 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 			mapDatas: [],
 		};
 
-		/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const mapAssetData of assetData.maps) {
@@ -230,13 +229,15 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 					const mappedValuesData = await this.#getMappedValuesFromAssetData(mapAssetData);
 					if (!mappedValuesData) continue;
 
-					const arrayBuffer = mapTypeSerializer.mapDataToAssetBundleBinary(this.editorInstance, this.assetManager, mapAssetData.customData);
-					if (!arrayBuffer) continue;
+					let arrayBuffer = mapTypeSerializer.mapDataToAssetBundleBinary(this.editorInstance, this.assetManager, mapAssetData.customData);
+					if (!arrayBuffer) {
+						arrayBuffer = new ArrayBuffer(0);
+					}
 					/** @type {(typeof objectToBinaryData)["mapDatas"][0]["mappedValues"]} */
 					const mappedValues = [];
 					if (mappedValuesData.mappedValues && mapAssetData.mappedValues) {
 						for (const [originalName, mappedValue] of Object.entries(mappedValuesData.mappedValues)) {
-							const mappedValueAssetData = mapAssetData.mappedValues[originalName];
+							const mappedValueAssetData = mapAssetData.mappedValues[originalName] || {};
 							/** @type {(typeof mappedValues)[0]["typeUnion"]} */
 							let typeUnion;
 							if (mappedValue.mappedType == "number") {
@@ -272,18 +273,28 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 									defaultValue: mappedValue.defaultValue.toArray(),
 								};
 							} else if (mappedValue.mappedType == "sampler") {
-								if (!(mappedValue.defaultValue instanceof Sampler)) {
-									throw new Error("Assertion failed, expected a Sampler as default value");
+								if (!mappedValue.defaultValue) {
+									typeUnion = {
+										isNullSampler: true,
+									};
+								} else {
+									if (!(mappedValue.defaultValue instanceof Sampler)) {
+										throw new Error("Assertion failed, expected a Sampler as default value");
+									}
+									if (!isUuid(mappedValueAssetData.defaultValue)) {
+										throw new Error("Assertion failed, expected a uuid as default value");
+									}
+									typeUnion = {
+										isSampler: true,
+										defaultValue: mappedValueAssetData.defaultValue,
+									};
 								}
-								if (!isUuid(mappedValueAssetData.defaultValue)) {
-									throw new Error("Assertion failed, expected a uuid as default value");
-								}
-								typeUnion = {
-									isSampler: true,
-									defaultValue: mappedValueAssetData.defaultValue,
-								};
 							} else if (mappedValue.mappedType == "texture2d") {
-								if (mappedValue.defaultValue instanceof Texture) {
+								if (!mappedValue.defaultValue) {
+									typeUnion = {
+										isNullTexture: true,
+									};
+								} else if (mappedValue.defaultValue instanceof Texture) {
 									if (!isUuid(mappedValueAssetData.defaultValue)) {
 										throw new Error("Assertion failed, expected a uuid as default value");
 									}
@@ -304,7 +315,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 							}
 							mappedValues.push({
 								originalName,
-								mappedName: mappedValue.mappedName || "",
+								mappedName: mappedValueAssetData.mappedName || "",
 								typeUnion,
 							});
 						}

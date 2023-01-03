@@ -1,4 +1,4 @@
-import {stub} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
 import "../../../shared/initializeEditor.js";
 import {ProjectAssetTypeMaterialMap} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterialMap.js";
@@ -6,16 +6,16 @@ import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
 import {createMockDependencies, getMockRecursionTracker} from "./shared.js";
 import {MaterialMapType} from "../../../../../../src/rendering/MaterialMapType.js";
 import {MaterialMapTypeSerializer} from "../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js";
-import {Vec2, Vec3, Vec4} from "../../../../../../src/mod.js";
+import {AssetLoaderTypeMaterialMap, MaterialMapTypeLoader, StorageType, Vec2, Vec3, Vec4} from "../../../../../../src/mod.js";
 import {Texture} from "../../../../../../src/core/Texture.js";
 import {Sampler} from "../../../../../../src/rendering/Sampler.js";
 
-const BASIC_MATERIAL_MAP_TYPE_ID = "basic material map type id";
+const BASIC_MATERIAL_MAP_TYPE_ID = "ab277387-dbf9-4744-874e-bf423e19fdce";
 const BASIC_TEXTURE_UUID = "basic texture uuid";
 const BASIC_SAMPLER_UUID = "basic sampler uuid";
 
 function basicSetup() {
-	const {projectAssetTypeArgs, editor, assetManager} = createMockDependencies();
+	const {projectAssetTypeArgs, editor, assetManager, projectAsset} = createMockDependencies();
 
 	class ExtendedMaterialMapType extends MaterialMapType {
 		/**
@@ -30,6 +30,8 @@ function basicSetup() {
 
 	class ExtendedMaterialMapTypeSerializer extends MaterialMapTypeSerializer {
 		static typeUuid = BASIC_MATERIAL_MAP_TYPE_ID;
+		static allowExportInAssetBundles = true;
+
 		/**
 		 * @override
 		 * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} context
@@ -55,9 +57,51 @@ function basicSetup() {
 		 */
 		static async getMappableValues(context, customData) {
 			/** @type {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} */
-			const values = [];
+			const values = [
+				{
+					name: "num",
+					type: "number",
+					defaultValue: 2,
+				},
+				{
+					name: "v2",
+					type: "vec2",
+					defaultValue: new Vec2(1, 2),
+				},
+				{
+					name: "v3",
+					type: "vec3",
+					defaultValue: new Vec3(1, 2, 3),
+				},
+				{
+					name: "v4",
+					type: "vec4",
+					defaultValue: new Vec4(1, 2, 3, 4),
+				},
+				{
+					name: "noDefault",
+					type: "vec3",
+				},
+				{
+					name: "samp",
+					type: "sampler",
+				},
+				{
+					name: "tex",
+					type: "texture2d",
+				},
+			];
 			return values;
 		}
+
+		static assetBundleBinarySerializationOpts = {
+			structure: {
+				foo: StorageType.STRING,
+			},
+			nameIds: {
+				foo: 1,
+			},
+		};
 	}
 
 	editor.materialMapTypeSerializerManager = /** @type {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapTypeSerializerManager} */ ({
@@ -72,11 +116,33 @@ function basicSetup() {
 	});
 	const projectAssetType = new ProjectAssetTypeMaterialMap(...projectAssetTypeArgs);
 
+	class MapType {
+
+	}
+
+	class ExtendedMaterialMapTypeLoader extends MaterialMapTypeLoader {
+		static get typeUuid() {
+			return BASIC_MATERIAL_MAP_TYPE_ID;
+		}
+
+		/**
+		 * @override
+		 * @param {ArrayBuffer} buffer
+		 */
+		async parseBuffer(buffer) {
+			return new MapType();
+		}
+	}
+
 	return {
 		projectAssetType,
+		projectAsset,
+		editor,
 		ExtendedMaterialMapTypeSerializer,
 		ExtendedMaterialMapType,
 		UnregisteredExtendedMaterialMapType,
+		ExtendedMaterialMapTypeLoader,
+		MapType,
 		assetManager,
 	};
 }
@@ -391,5 +457,120 @@ Deno.test({
 				},
 			],
 		});
+	},
+});
+
+Deno.test({
+	name: "createBundledAssetData()",
+	async fn() {
+		const {projectAssetType, projectAsset, editor, assetManager, ExtendedMaterialMapTypeSerializer, ExtendedMaterialMapTypeLoader, MapType} = basicSetup();
+		stub(projectAsset, "readAssetData", async () => {
+			const MAP_TYPE_ID = BASIC_MATERIAL_MAP_TYPE_ID;
+			/** @type {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+			const result = {
+				maps: [
+					{
+						mapTypeId: MAP_TYPE_ID,
+						customData: {
+							foo: "bar",
+						},
+						mappedValues: {
+							num: {
+								mappedName: "mappedNum",
+								defaultValue: 42,
+							},
+							v2: {
+								defaultValue: [4, 2],
+							},
+							v3: {
+								defaultValue: [5, 6, 7],
+							},
+							v4: {
+								mappedName: "mappedV4",
+							},
+							samp: {
+								mappedName: "mappedSamp",
+							},
+						},
+					},
+				],
+			};
+			return result;
+		});
+		const mapDataToAssetBundleBinarySpy = spy(ExtendedMaterialMapTypeSerializer, "mapDataToAssetBundleBinary");
+
+		const buffer = await projectAssetType.createBundledAssetData();
+
+		assertSpyCalls(mapDataToAssetBundleBinarySpy, 1);
+		assertSpyCall(mapDataToAssetBundleBinarySpy, 0, {
+			args: [
+				editor,
+				assetManager,
+				{foo: "bar"},
+			],
+		});
+
+		assertInstanceOf(buffer, ArrayBuffer);
+
+		const mockAssetLoader = /** @type {import("../../../../../../src/mod.js").AssetLoader} */ ({});
+		const materialMapLoader = new AssetLoaderTypeMaterialMap(mockAssetLoader);
+		materialMapLoader.registerMaterialMapTypeLoader(ExtendedMaterialMapTypeLoader);
+		const materialMap = await materialMapLoader.parseBuffer(buffer);
+		assertEquals(materialMap.mapTypes.size, 1);
+		const mapTypeInstance = materialMap.getMapTypeInstance(MapType);
+		assertInstanceOf(mapTypeInstance, MapType);
+		const mappedDatas = Array.from(materialMap.getMappedDatasForMapType(MapType));
+		assertEquals(mappedDatas, [
+			{
+				mappedName: "num",
+				mappedType: "number",
+				defaultValue: 42,
+			},
+			{
+				mappedName: "v2",
+				mappedType: "vec2",
+				defaultValue: new Vec2(4, 2),
+			},
+			{
+				mappedName: "v3",
+				mappedType: "vec3",
+				defaultValue: new Vec3(5, 6, 7),
+			},
+			{
+				mappedName: "v4",
+				mappedType: "vec4",
+				defaultValue: new Vec4(1, 2, 3, 4),
+			},
+			{
+				mappedName: "noDefault",
+				mappedType: "vec3",
+				defaultValue: new Vec3(0, 0, 0),
+			},
+			{
+				mappedName: "samp",
+				mappedType: "sampler",
+				defaultValue: null,
+			},
+			{
+				mappedName: "tex",
+				mappedType: "texture2d",
+				defaultValue: null,
+			},
+		]);
+
+		const mappedNumProperty = Array.from(materialMap.mapProperty("mappedNum"));
+		assertEquals(mappedNumProperty, [
+			[
+				MapType,
+				{mappedName: "num", defaultValue: 42, mappedType: "number"},
+			],
+		]);
+		const mappedV4Property = Array.from(materialMap.mapProperty("mappedV4"));
+		assertEquals(mappedV4Property, [
+			[
+				MapType,
+				{mappedName: "v4", defaultValue: new Vec4(1, 2, 3, 4), mappedType: "vec4"},
+			],
+		]);
 	},
 });
