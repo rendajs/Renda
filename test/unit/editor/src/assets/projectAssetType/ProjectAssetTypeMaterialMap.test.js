@@ -11,10 +11,18 @@ import {Texture} from "../../../../../../src/core/Texture.js";
 import {Sampler} from "../../../../../../src/rendering/Sampler.js";
 
 const BASIC_MATERIAL_MAP_TYPE_ID = "ab277387-dbf9-4744-874e-bf423e19fdce";
-const BASIC_TEXTURE_UUID = "basic texture uuid";
-const BASIC_SAMPLER_UUID = "basic sampler uuid";
+const BASIC_TEXTURE_UUID = "bedadb6f-b5c8-414e-baef-6cf76a229ce5";
+const BASIC_SAMPLER_UUID = "62f432e8-a6f7-4b94-b359-207df6055f93";
+const MAP_TYPE_REFERENCED_ASSET_UUID = "e8d38f05-0ed6-4426-af10-2a2a3ece686d";
+const DUPLICATE_REFERENCED_ASSET_UUID = "c726e574-ae6e-4c67-9266-a8249a7e1dfd";
 
-function basicSetup() {
+/**
+ * @param {Object} options
+ * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} [options.extraMappableValues]
+ */
+function basicSetup({
+	extraMappableValues = [],
+} = {}) {
 	const {projectAssetTypeArgs, editor, assetManager, projectAsset} = createMockDependencies();
 
 	class ExtendedMaterialMapType extends MaterialMapType {
@@ -90,8 +98,18 @@ function basicSetup() {
 					name: "tex",
 					type: "texture2d",
 				},
+				...extraMappableValues,
 			];
 			return values;
+		}
+
+		/**
+		 * @override
+		 * @param {any} customData
+		 */
+		static *getReferencedAssetUuids(customData) {
+			yield MAP_TYPE_REFERENCED_ASSET_UUID;
+			yield DUPLICATE_REFERENCED_ASSET_UUID;
 		}
 
 		static assetBundleBinarySerializationOpts = {
@@ -572,5 +590,65 @@ Deno.test({
 				{mappedName: "v4", defaultValue: new Vec4(1, 2, 3, 4), mappedType: "vec4"},
 			],
 		]);
+	},
+});
+
+Deno.test({
+	name: "getReferencedAssetUuids()",
+	async fn() {
+		const duplicateSampler = new Sampler();
+		const {projectAssetType, projectAsset, ExtendedMaterialMapTypeSerializer} = basicSetup({
+			extraMappableValues: [
+				{
+					name: "duplicate",
+					type: "sampler",
+					defaultValue: duplicateSampler,
+				},
+			],
+		});
+		stub(projectAsset, "readAssetData", async () => {
+			const MAP_TYPE_ID = BASIC_MATERIAL_MAP_TYPE_ID;
+			/** @type {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
+			const result = {
+				maps: [
+					{
+						mapTypeId: MAP_TYPE_ID,
+						customData: {
+							foo: "bar",
+						},
+						mappedValues: {
+							samp: {
+								mappedName: "mappedSamp",
+								defaultValue: BASIC_SAMPLER_UUID,
+							},
+							duplicate: {
+								mappedName: "mappedDuplicate",
+								defaultValue: DUPLICATE_REFERENCED_ASSET_UUID,
+							},
+						},
+					},
+				],
+			};
+			return result;
+		});
+		const getReferencedAssetUuidsSpy = spy(ExtendedMaterialMapTypeSerializer, "getReferencedAssetUuids");
+
+		const result = [];
+		for await (const uuid of projectAssetType.getReferencedAssetUuids()) {
+			result.push(uuid);
+		}
+		assertEquals(result, [
+			BASIC_SAMPLER_UUID,
+			DUPLICATE_REFERENCED_ASSET_UUID,
+			MAP_TYPE_REFERENCED_ASSET_UUID,
+			// Duplicate asset uuids are filtered when bundling, so there's no
+			// need to filter them here.
+			DUPLICATE_REFERENCED_ASSET_UUID,
+		]);
+
+		assertSpyCalls(getReferencedAssetUuidsSpy, 1);
+		assertSpyCall(getReferencedAssetUuidsSpy, 0, {
+			args: [{foo: "bar"}],
+		});
 	},
 });

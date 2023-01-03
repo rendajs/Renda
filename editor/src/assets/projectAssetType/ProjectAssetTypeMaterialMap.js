@@ -339,10 +339,23 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
-			for (const map of assetData.maps) {
-				const mapType = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(map.mapTypeId);
-				if (!mapType) continue;
-				for (const uuid of mapType.getReferencedAssetUuids(map.customData)) {
+			for (const mapAssetData of assetData.maps) {
+				const mapTypeSerializer = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(mapAssetData.mapTypeId);
+				if (!mapTypeSerializer) continue;
+				if (mapTypeSerializer.allowExportInAssetBundles) {
+					const mappedValuesData = await this.#getMappedValuesFromAssetData(mapAssetData);
+					if (mappedValuesData) {
+						if (mappedValuesData.mappedValues && mapAssetData.mappedValues) {
+							for (const [originalName, mappedValue] of Object.entries(mappedValuesData.mappedValues)) {
+								const mappedValueAssetData = mapAssetData.mappedValues[originalName] || {};
+								if (mappedValue.mappedType == "sampler" || mappedValue.mappedType == "texture2d") {
+									if (isUuid(mappedValueAssetData.defaultValue)) yield mappedValueAssetData.defaultValue;
+								}
+							}
+						}
+					}
+				}
+				for (const uuid of mapTypeSerializer.getReferencedAssetUuids(mapAssetData.customData)) {
 					yield uuid;
 				}
 			}
