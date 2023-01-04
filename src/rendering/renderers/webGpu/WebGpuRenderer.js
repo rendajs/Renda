@@ -5,6 +5,8 @@ import {WebGpuChunkedBuffer} from "./bufferHelper/WebGpuChunkedBuffer.js";
 import {CachedCameraData} from "./CachedCameraData.js";
 import {CachedMeshData} from "./CachedMeshData.js";
 import {Mat4} from "../../../math/Mat4.js";
+import {Vec2} from "../../../math/Vec2.js";
+import {Vec3} from "../../../math/Vec3.js";
 import {Vec4} from "../../../math/Vec4.js";
 import {LightComponent} from "../../../components/builtIn/LightComponent.js";
 import {MeshComponent} from "../../../components/builtIn/MeshComponent.js";
@@ -399,9 +401,12 @@ export class WebGpuRenderer extends Renderer {
 							if (view) textureView = view;
 						}
 						if (!textureView) {
+							/** @type {number[]} */
 							let color;
 							if (Array.isArray(value)) {
 								color = value;
+							} else if (value instanceof Vec2 || value instanceof Vec3 || value instanceof Vec4) {
+								color = value.toArray();
 							} else {
 								color = [0, 0, 0];
 							}
