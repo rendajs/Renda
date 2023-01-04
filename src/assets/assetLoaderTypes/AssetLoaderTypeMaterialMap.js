@@ -77,7 +77,8 @@ export const materialMapBinaryOptions = createObjectToBinaryOptions({
 		isSampler: 13,
 		isNullSampler: 14,
 		isTexture: 15,
-		isNullTexture: 16,
+		isColorTexture: 16,
+		isNullTexture: 17,
 	},
 });
 
@@ -151,7 +152,7 @@ export class AssetLoaderTypeMaterialMap extends AssetLoaderType {
 						defaultValue = mappedValue.typeUnion.defaultValue;
 					} else if ("isColorTexture" in mappedValue.typeUnion) {
 						mappedType = "texture2d";
-						defaultValue = new Vec3(mappedValue.typeUnion.defaultValue);
+						defaultValue = new Vec4(mappedValue.typeUnion.defaultValue);
 					} else if ("isNullTexture" in mappedValue.typeUnion) {
 						mappedType = "texture2d";
 						defaultValue = null;
