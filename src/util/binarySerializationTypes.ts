@@ -81,19 +81,19 @@ type StructureItemToObjectHelper<T extends AllowedStructureFormat, TUseAssetLoad
 	T extends StorageTypeEnum["NULL"] ? null :
 	T extends [infer ArrayType] ?
 		ArrayType extends AllowedStructureFormat ?
-			StructureItemToObject<ArrayType>[] :
+			StructureItemToObjectHelper<ArrayType, TUseAssetLoader>[] :
 			never :
 	T extends [StorageTypeEnum["UNION_ARRAY"], ...infer UnionArrayTypes] ?
 		UnionArrayTypes extends (infer UnionArrayType)[] ?
 			UnionArrayType extends AllowedStructureFormat ?
-				StructureItemToObject<UnionArrayType> :
+				StructureItemToObjectHelper<UnionArrayType, TUseAssetLoader> :
 				never :
 			never :
 	T extends readonly (infer ArrayType)[] ?
 		ArrayType extends string ?
 			ArrayType :
 		ArrayType extends AllowedStructureFormat ?
-			StructureItemToObject<ArrayType>[] :
+			StructureItemToObjectHelper<ArrayType, TUseAssetLoader>[] :
 		never :
 	T extends {[key: string]: AllowedStructureFormat} ?
 		{
