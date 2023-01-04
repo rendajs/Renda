@@ -22,6 +22,7 @@ const DUPLICATE_REFERENCED_ASSET_UUID = "c726e574-ae6e-4c67-9266-a8249a7e1dfd";
  * values that the MapTypeSerializer should return.
  * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} [options.extraMappableValues] A list of extra
  * mappable values that the MapTypeSerializer should return on top of the default set of mappable values.
+ * @param {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} [options.readAssetDataReturnValue]
  */
 function basicSetup({
 	mappableValues = [
@@ -59,6 +60,7 @@ function basicSetup({
 		},
 	],
 	extraMappableValues = [],
+	readAssetDataReturnValue = {},
 } = {}) {
 	const {projectAssetTypeArgs, editor, assetManager, projectAsset} = createMockDependencies();
 
@@ -157,6 +159,10 @@ function basicSetup({
 			return new MapType();
 		}
 	}
+
+	stub(projectAsset, "readAssetData", async () => {
+		return readAssetDataReturnValue;
+	});
 
 	return {
 		projectAssetType,
@@ -485,10 +491,14 @@ Deno.test({
 });
 
 /**
- * @param {typeof MaterialMapTypeLoader} ExtendedMaterialMapTypeLoader
+ * @param {Object} options
+ * @param {typeof MaterialMapTypeLoader} options.ExtendedMaterialMapTypeLoader
+ * @param {import("../../../../../../src/mod.js").AssetLoader["getAsset"]} [options.getAssetFn]
  */
-function createBasicMaterialMapLoader(ExtendedMaterialMapTypeLoader) {
-	const mockAssetLoader = /** @type {import("../../../../../../src/mod.js").AssetLoader} */ ({});
+function createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader, getAssetFn}) {
+	const mockAssetLoader = /** @type {import("../../../../../../src/mod.js").AssetLoader} */ ({
+		getAsset: getAssetFn || (async () => {}),
+	});
 	const materialMapLoader = new AssetLoaderTypeMaterialMap(mockAssetLoader);
 	materialMapLoader.registerMaterialMapTypeLoader(ExtendedMaterialMapTypeLoader);
 	return materialMapLoader;
@@ -497,14 +507,11 @@ function createBasicMaterialMapLoader(ExtendedMaterialMapTypeLoader) {
 Deno.test({
 	name: "createBundledAssetData()",
 	async fn() {
-		const {projectAssetType, projectAsset, editor, assetManager, ExtendedMaterialMapTypeSerializer, ExtendedMaterialMapTypeLoader, MapType} = basicSetup();
-		stub(projectAsset, "readAssetData", async () => {
-			const MAP_TYPE_ID = BASIC_MATERIAL_MAP_TYPE_ID;
-			/** @type {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
-			const result = {
+		const {projectAssetType, editor, assetManager, ExtendedMaterialMapTypeSerializer, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
+			readAssetDataReturnValue: {
 				maps: [
 					{
-						mapTypeId: MAP_TYPE_ID,
+						mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
 						customData: {
 							foo: "bar",
 						},
@@ -528,8 +535,7 @@ Deno.test({
 						},
 					},
 				],
-			};
-			return result;
+			},
 		});
 		const mapDataToAssetBundleBinarySpy = spy(ExtendedMaterialMapTypeSerializer, "mapDataToAssetBundleBinary");
 
@@ -546,7 +552,7 @@ Deno.test({
 
 		assertInstanceOf(buffer, ArrayBuffer);
 
-		const materialMapLoader = createBasicMaterialMapLoader(ExtendedMaterialMapTypeLoader);
+		const materialMapLoader = createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader});
 		const materialMap = await materialMapLoader.parseBuffer(buffer);
 		assertEquals(materialMap.mapTypes.size, 1);
 		const mapTypeInstance = materialMap.getMapTypeInstance(MapType);
@@ -639,7 +645,7 @@ Deno.test({
 		const buffer = await projectAssetType.createBundledAssetData();
 		assertInstanceOf(buffer, ArrayBuffer);
 
-		const materialMapLoader = createBasicMaterialMapLoader(ExtendedMaterialMapTypeLoader);
+		const materialMapLoader = createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader});
 		const materialMap = await materialMapLoader.parseBuffer(buffer);
 		const mappedDatas = Array.from(materialMap.getMappedDatasForMapType(MapType));
 		assertEquals(mappedDatas, [
@@ -653,10 +659,80 @@ Deno.test({
 });
 
 Deno.test({
+	name: "createBundledAssetData() with referenced assets",
+	async fn() {
+		const sampler = new Sampler();
+		const texture = new Texture(new Blob());
+		const {projectAssetType, assetManager, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
+			mappableValues: [
+				{
+					name: "samp",
+					type: "sampler",
+				},
+				{
+					name: "tex",
+					type: "texture2d",
+				},
+			],
+			readAssetDataReturnValue: {
+				maps: [
+					{
+						mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
+						mappedValues: {
+							samp: {
+								defaultValue: BASIC_SAMPLER_UUID,
+							},
+							tex: {
+								defaultValue: BASIC_TEXTURE_UUID,
+							},
+						},
+					},
+				],
+			},
+		});
+		stub(assetManager, "getLiveAsset", async uuid => {
+			if (uuid == BASIC_SAMPLER_UUID) {
+				return sampler;
+			} else if (uuid == BASIC_TEXTURE_UUID) {
+				return texture;
+			}
+		});
+
+		const buffer = await projectAssetType.createBundledAssetData();
+		assertInstanceOf(buffer, ArrayBuffer);
+
+		const materialMapLoader = createBasicMaterialMapLoader({
+			ExtendedMaterialMapTypeLoader,
+			async getAssetFn(uuid) {
+				if (uuid == BASIC_SAMPLER_UUID) {
+					return sampler;
+				} else if (uuid == BASIC_TEXTURE_UUID) {
+					return texture;
+				}
+			},
+		});
+		const materialMap = await materialMapLoader.parseBuffer(buffer);
+		const mappedDatas = Array.from(materialMap.getMappedDatasForMapType(MapType));
+		assertEquals(mappedDatas, [
+			{
+				mappedName: "samp",
+				mappedType: "sampler",
+				defaultValue: sampler,
+			},
+			{
+				mappedName: "tex",
+				mappedType: "texture2d",
+				defaultValue: texture,
+			},
+		]);
+	},
+});
+
+Deno.test({
 	name: "getReferencedAssetUuids()",
 	async fn() {
 		const duplicateSampler = new Sampler();
-		const {projectAssetType, projectAsset, ExtendedMaterialMapTypeSerializer} = basicSetup({
+		const {projectAssetType, ExtendedMaterialMapTypeSerializer} = basicSetup({
 			extraMappableValues: [
 				{
 					name: "duplicate",
@@ -664,14 +740,10 @@ Deno.test({
 					defaultValue: duplicateSampler,
 				},
 			],
-		});
-		stub(projectAsset, "readAssetData", async () => {
-			const MAP_TYPE_ID = BASIC_MATERIAL_MAP_TYPE_ID;
-			/** @type {import("../../../../../../editor/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapAssetData} */
-			const result = {
+			readAssetDataReturnValue: {
 				maps: [
 					{
-						mapTypeId: MAP_TYPE_ID,
+						mapTypeId: BASIC_MATERIAL_MAP_TYPE_ID,
 						customData: {
 							foo: "bar",
 						},
@@ -687,8 +759,7 @@ Deno.test({
 						},
 					},
 				],
-			};
-			return result;
+			},
 		});
 		const getReferencedAssetUuidsSpy = spy(ExtendedMaterialMapTypeSerializer, "getReferencedAssetUuids");
 
