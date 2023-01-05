@@ -62,6 +62,7 @@ export class TaskBuildApplication extends Task {
 	}
 
 	/**
+	 * Asserts if a task resulted in writing exactly one asset.
 	 * @param {import("./Task.js").RunTaskReturn} taskResult
 	 */
 	#assertSingleWriteAsset(taskResult) {
@@ -72,6 +73,7 @@ export class TaskBuildApplication extends Task {
 	}
 
 	/**
+	 * Asserts if a task resulted in writing exactly one asset that is a string.
 	 * @param {import("./Task.js").RunTaskReturn} taskResult
 	 */
 	#assertSingleStringWriteAsset(taskResult) {
@@ -129,21 +131,27 @@ export class TaskBuildApplication extends Task {
 				return result;
 			},
 			/**
-			 * @param {number} contextId
-			 * @param {import("../../../../src/mod.js").UuidString[]} uuids
+			 * @param {Object} options
+			 * @param {number} options.contextId
+			 * @param {import("../../../../src/mod.js").UuidString[]} options.usedAssetsUuids
+			 * @param {import("../../../../src/mod.js").UuidString[]} options.entryPointUuids
 			 */
-			generateServices: async (contextId, uuids) => {
+			generateServices: async ({contextId, usedAssetsUuids, entryPointUuids}) => {
 				const context = this.getContext(contextId);
 				const generateServicesResult = await context.runChildTask("renda:generateServices", {
 					outputLocation: ["services.js"],
-					usedAssets: uuids,
+					usedAssets: usedAssetsUuids,
+					entryPoints: entryPointUuids,
 				}, {
 					allowDiskWrites: false,
 				});
 				const servicesScript = this.#assertSingleStringWriteAsset(generateServicesResult);
 
 				return {
-					returnValue: servicesScript,
+					returnValue: {
+						servicesScript,
+						usedAssets: generateServicesResult.customData?.usedAssets || [],
+					},
 				};
 			},
 			/**

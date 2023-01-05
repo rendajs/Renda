@@ -7,6 +7,7 @@ import {createMockProjectAssetType} from "../../assets/shared/createMockProjectA
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const BASIC_ASSET_TYPE = "BASIC_ASSET_TYPE";
 const SECOND_ASSET_UUID = "SECOND_ASSET_UUID";
+const BASIC_ENTRY_POINT_UUID = "BASIC_ENTRY_POINT_UUID";
 
 const blobModule = `
 	export class AssetLoader {
@@ -25,6 +26,17 @@ const blobModule = `
 			this.someMethodCalls.push(args);
 		}
 	}
+	export class EngineAssetsManager {}
+	export class WebGpuRenderer {
+		constructor(engineAssetsManager) {
+			this.engineAssetsManager = engineAssetsManager;
+			this.initCalled = false;
+		}
+
+		init() {
+			this.initCalled = true;
+		}
+	}
 
 	export function getBar() {
 		return "bar";
@@ -37,12 +49,14 @@ const blobModuleUrl = URL.createObjectURL(blobModuleBlob);
  * @param {object} options
  * @param {string} [options.projectAssetTypeModuleSpecifier]
  * @param {import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").AssetLoaderTypeImportConfig} [options.importConfig]
+ * @param {string} [options.entryPointContent]
  */
 function basicSetup({
 	projectAssetTypeModuleSpecifier,
 	importConfig = {
 		identifier: "BasicAssetTypeLoader",
 	},
+	entryPointContent = "",
 } = {}) {
 	const mockFileSystem = new MemoryEditorFileSystem();
 	const fileSystem = /** @type {import("../../../../../../editor/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (mockFileSystem);
@@ -57,6 +71,9 @@ function basicSetup({
 	basicAsset.assetType = BASIC_ASSET_TYPE;
 	const {projectAsset: secondAsset} = createMockProjectAsset();
 	secondAsset.assetType = BASIC_ASSET_TYPE;
+	const {projectAsset: entryPointAsset} = createMockProjectAsset({
+		readAssetDataReturnValue: entryPointContent,
+	});
 
 	const mockEditor = /** @type {import("../../../../../../editor/src/Editor.js").Editor} */ ({
 		projectManager: {
@@ -72,6 +89,8 @@ function basicSetup({
 						return basicAsset;
 					} else if (uuid == SECOND_ASSET_UUID) {
 						return secondAsset;
+					} else if (uuid == BASIC_ENTRY_POINT_UUID) {
+						return entryPointAsset;
 					}
 					return null;
 				},
@@ -88,7 +107,7 @@ function basicSetup({
 	const task = new TaskGenerateServices(mockEditor);
 
 	/**
-	 * @param {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} runTaskResult
+	 * @param {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskReturn<import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").TaskGenerateServicesCustomData>} runTaskResult
 	 */
 	function getScriptContent(runTaskResult) {
 		assertExists(runTaskResult.writeAssets);
@@ -101,9 +120,9 @@ function basicSetup({
 	}
 
 	/**
-	 * @param {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} runTaskResult
+	 * @param {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskReturn<import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").TaskGenerateServicesCustomData>} runTaskResult
 	 */
-	async function initializeServices(runTaskResult) {
+	async function callInitializeServices(runTaskResult) {
 		let code = getScriptContent(runTaskResult);
 		code = code.replaceAll(`"renda"`, `"${blobModuleUrl}"`);
 		const blob = new Blob([code], {type: "text/javascript"});
@@ -124,7 +143,7 @@ function basicSetup({
 		mockFileSystem,
 		mockEditor,
 		getScriptContent,
-		initializeServices,
+		callInitializeServices,
 	};
 }
 
@@ -140,6 +159,7 @@ function createRunTaskOptions({
 		config: {
 			outputLocation: ["out.js"],
 			usedAssets,
+			entryPoints: [BASIC_ENTRY_POINT_UUID],
 		},
 		allowDiskWrites: false,
 		async readAssetFromPath(path, opts) {
@@ -157,13 +177,13 @@ function createRunTaskOptions({
 }
 
 Deno.test({
-	name: "Basic config",
+	name: "initializeServices is empty by default",
 	async fn() {
-		const {task, initializeServices} = basicSetup();
+		const {task, callInitializeServices: initializeServices} = basicSetup();
 		const runTaskResult = await task.runTask(createRunTaskOptions());
 
 		const result = await initializeServices(runTaskResult);
-		assertExists(result);
+		assertEquals(result, {});
 	},
 });
 
@@ -181,7 +201,12 @@ Deno.test({
 Deno.test({
 	name: "Config with a used asset",
 	async fn() {
-		const {task, initializeServices} = basicSetup();
+		const {task, callInitializeServices: initializeServices} = basicSetup({
+			entryPointContent: `
+				import {initializeServices} from "renda:services";
+				const {assetLoader} = initializeServices();
+			`,
+		});
 		const runTaskResult = await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID],
 		}));
@@ -197,6 +222,10 @@ Deno.test({
 	async fn() {
 		const {task, getScriptContent} = basicSetup({
 			projectAssetTypeModuleSpecifier: "module-specifier",
+			entryPointContent: `
+				import {initializeServices} from "renda:services";
+				const {assetLoader} = initializeServices();
+			`,
 		});
 		const runTaskResult = await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID],
@@ -211,7 +240,7 @@ Deno.test({
 	name: "Asset type with extra import config",
 	async fn() {
 		let usedAssets = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny[]?} */ (null);
-		const {task, basicAsset, secondAsset, initializeServices} = basicSetup({
+		const {task, basicAsset, secondAsset, callInitializeServices: initializeServices} = basicSetup({
 			importConfig: {
 				identifier: "BasicAssetTypeLoader",
 				instanceIdentifier: "instanceIdentifier",
@@ -221,6 +250,10 @@ Deno.test({
 					return `instanceIdentifier.someMethod(getBar());`;
 				},
 			},
+			entryPointContent: `
+				import {initializeServices} from "renda:services";
+				const {assetLoader} = initializeServices();
+			`,
 		});
 		const runTaskResult = await task.runTask(createRunTaskOptions({
 			usedAssets: [BASIC_ASSET_UUID, SECOND_ASSET_UUID],
@@ -236,5 +269,24 @@ Deno.test({
 		assertEquals(result.assetLoader.registeredLoaderTypes.length, 1);
 		assertExists(result.instanceIdentifier);
 		assertEquals(result.instanceIdentifier.someMethodCalls, [["bar"]]);
+	},
+});
+
+Deno.test({
+	name: "initialize renderer",
+	async fn() {
+		const {task, callInitializeServices: initializeServices} = basicSetup({
+			entryPointContent: `
+			import {initializeServices} from "renda:services";
+			const {renderer} = initializeServices();
+		`,
+		});
+		const runTaskResult = await task.runTask(createRunTaskOptions());
+		const result = await initializeServices(runTaskResult);
+
+		assertExists(result);
+		assertExists(result.renderer);
+		assertEquals(result.renderer.initCalled, true);
+		assertExists(result.renderer.engineAssetsManager);
 	},
 });

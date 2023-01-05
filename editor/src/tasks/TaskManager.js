@@ -48,22 +48,32 @@ import {Task} from "./task/Task.js";
  */
 
 /**
- * This contains all expected configs based on the task type. This is used for
+ * This contains all expected tasks based on the task type. This is used for
  * better autocompletions for `runTask` or `runChildTask`. However, since it's possible
  * for plugins to add their own task types, if an unknown task type is used, the expected
  * type of the config parameter of the function is 'unknown'.
  * @typedef {{
- * 	"renda:buildApplication": import("./task/TaskBuildApplication.js").TaskBuildApplicationConfig,
- * 	"renda:bundleAssets": import("./task/TaskBundleAssets.js").TaskBundleAssetsConfig,
- * 	"renda:bundleScripts": import("./task/TaskBundleScripts.js").TaskBundleScriptsConfig,
- * 	"renda:generateHtml": import("./task/TaskGenerateHtml.js").TaskGenerateHtmlConfig,
- * 	"renda:generateServices": import("./task/TaskGenerateServices.js").TaskGenerateServicesConfig,
- * }} KnownTaskConfigs
+ * 	"renda:buildApplication": import("./task/TaskBuildApplication.js").TaskBuildApplication,
+ * 	"renda:bundleAssets": import("./task/TaskBundleAssets.js").TaskBundleAssets,
+ * 	"renda:bundleScripts": import("./task/TaskBundleScripts.js").TaskBundleScripts,
+ * 	"renda:generateHtml": import("./task/TaskGenerateHtml.js").TaskGenerateHtml,
+ * 	"renda:generateServices": import("./task/TaskGenerateServices.js").TaskGenerateServices,
+ * }} KnownTasks
  */
 
 /**
  * @template {string} T
- * @typedef {T extends keyof KnownTaskConfigs ? KnownTaskConfigs[T] : unknown} GetExpectedTaskConfig
+ * @typedef {T extends keyof KnownTasks ? KnownTasks[T] : unknown} GetExpectedTask
+ */
+
+/**
+ * @template {string} T
+ * @typedef {GetExpectedTask<T> extends import("./task/Task.js").Task<infer TConfig> ? TConfig : unknown} GetExpectedTaskConfig
+ */
+
+/**
+ * @template {string} T
+ * @typedef {GetExpectedTask<T> extends import("./task/Task.js").Task<any, infer TCustomData> ? import("./task/Task.js").RunTaskReturn<TCustomData> : never} GetExpectedTaskReturn
  */
 
 export class TaskManager {
@@ -164,14 +174,15 @@ export class TaskManager {
 	 * @param {RunTaskOptions} [options]
 	 */
 	async runTask(taskType, taskConfig, options) {
-		return await this.#runTaskInternal(taskType, taskConfig, options);
+		const result = await this.#runTaskInternal(taskType, taskConfig, options);
+		return /** @type {GetExpectedTaskReturn<T>} */ (result);
 	}
 
 	/**
 	 * @param {string} taskType
 	 * @param {unknown} taskConfig
 	 * @param {RunTaskOptions} options
-	 * @returns {Promise<import("./task/Task.js").RunTaskReturn>}
+	 * @returns {Promise<import("./task/Task.js").RunTaskReturn<any>>}
 	 */
 	async #runTaskInternal(taskType, taskConfig, options = {}) {
 		const task = this.initializeTask(taskType);
@@ -224,7 +235,7 @@ export class TaskManager {
 				});
 			},
 			runChildTask: async (taskType, taskConfig, options = {}) => {
-				return await this.#runTaskInternal(taskType, taskConfig, {
+				const result = await this.#runTaskInternal(taskType, taskConfig, {
 					...options,
 					allowDiskWrites: options.allowDiskWrites ?? allowDiskWrites,
 					environmentVariables: {
@@ -232,6 +243,7 @@ export class TaskManager {
 						...options.environmentVariables,
 					},
 				});
+				return /** @type {GetExpectedTaskReturn<typeof taskType>} */ (result);
 			},
 		});
 

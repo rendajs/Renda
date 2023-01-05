@@ -3,6 +3,7 @@
  */
 
 /**
+ * @template [TCustomData = unknown]
  * @typedef RunTaskReturn
  * @property {RunTaskCreateAssetData[]} [writeAssets] A list of assets that this task should create when done running.
  * This is useful if you want to modify files in a very basic way. The assets will be created and written to the output location.
@@ -15,6 +16,7 @@
  * flag is set to true.
  * @property {import("../../../../src/mod.js").UuidString[]} [touchedAssets] A list of assets that this task touched, or
  * might touch when the task is run a second time. This is used by other tasks for determining if this task needs to run before them.
+ * @property {TCustomData} [customData] Custom data that a task might return, this is only useful when a task is run from a script.
  */
 
 /**
@@ -52,6 +54,7 @@
 
 /**
  * @template [TTaskConfig = unknown]
+ * @template [TCustomData = unknown]
  */
 export class Task {
 	/**
@@ -125,7 +128,7 @@ export class Task {
 
 	/**
 	 * @param {RunTaskOptions<TTaskConfig>} options
-	 * @returns {Promise<RunTaskReturn>}
+	 * @returns {Promise<RunTaskReturn<TCustomData>>}
 	 */
 	async runTask(options) {
 		throw new Error(`Task "${this.constructor.name}" does not implement runTask().`);

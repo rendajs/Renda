@@ -24,6 +24,9 @@ import {PlaceHolderTextureManager} from "./PlaceHolderTextureManager.js";
 export {WebGpuPipelineConfig} from "./WebGpuPipelineConfig.js";
 export {WebGpuMaterialMapTypeLoader as MaterialMapTypeLoaderWebGpuRenderer} from "./WebGpuMaterialMapTypeLoader.js";
 
+export const CLUSTER_BOUNDS_SHADER_ASSET_UUID = "892d56b3-df77-472b-93dd-2c9c38ec2f3d";
+export const CLUSTER_LIGHTS_SHADER_ASSET_UUID = "a2b8172d-d910-47e9-8d3b-2a8ea3280153";
+
 /**
  * @extends {Renderer<WebGpuRendererDomTarget>}
  */
@@ -153,10 +156,10 @@ export class WebGpuRenderer extends Renderer {
 				],
 			});
 
-			await this.engineAssetManager.watchAsset("892d56b3-df77-472b-93dd-2c9c38ec2f3d", asset => {
+			await this.engineAssetManager.watchAsset(CLUSTER_BOUNDS_SHADER_ASSET_UUID, asset => {
 				this.computeClusterBoundsShaderCode = asset;
 			});
-			await this.engineAssetManager.watchAsset("a2b8172d-d910-47e9-8d3b-2a8ea3280153", asset => {
+			await this.engineAssetManager.watchAsset(CLUSTER_LIGHTS_SHADER_ASSET_UUID, asset => {
 				this.computeClusterLightsShaderCode = asset;
 			});
 		}
