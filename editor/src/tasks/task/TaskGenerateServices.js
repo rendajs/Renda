@@ -1,3 +1,5 @@
+import {CLUSTER_BOUNDS_SHADER_ASSET_UUID, CLUSTER_LIGHTS_SHADER_ASSET_UUID} from "../../../../src/mod.js";
+import {ProjectAssetTypeJavascript} from "../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "./Task.js";
 
@@ -17,6 +19,10 @@ import {Task} from "./Task.js";
  * asset uuids that are expected to be loaded. The task uses this list to determine
  * which asset loader types should be included. This way, loader types that are
  * not needed are not included when bundling with tree shaking enabled.
+ * @property {import("../../../../src/mod.js").UuidString[]} entryPoints A list of
+ * JavaScript asset uuids that will be using the generated services file. It is used to
+ * analyse which services are actually used so that any unused services can be omitted
+ * from the generation.
  */
 
 /**
@@ -56,12 +62,27 @@ import {Task} from "./Task.js";
  * to the current ProjectAssetType config.
  */
 
-/** @extends {Task<TaskGenerateServicesConfig>} */
+/**
+ * @typedef TaskGenerateServicesCustomData
+ * @property {import("../../../../src/mod.js").UuidString[]} usedAssets
+ */
+
+/** @extends {Task<TaskGenerateServicesConfig, TaskGenerateServicesCustomData>} */
 export class TaskGenerateServices extends Task {
 	static uiName = "Generate Services";
 	static type = "renda:generateServices";
 
 	static configStructure = createTreeViewStructure({
+		entryPoints: {
+			type: "array",
+			tooltip: "A list of script files that is checked for usage of the generated services. Some parts of the generated services script are omitted depending on usage, in order to reduce bundle size.",
+			guiOpts: {
+				arrayType: "droppable",
+				arrayGuiOpts: {
+					supportedAssetTypes: [ProjectAssetTypeJavascript],
+				},
+			},
+		},
 		outputLocation: {
 			type: "array",
 			guiOpts: {
@@ -70,6 +91,7 @@ export class TaskGenerateServices extends Task {
 		},
 		usedAssets: {
 			type: "array",
+			tooltip: "A list of assets that are expected to be loaded. Unused asset types are stripped from the asset loader in order to reduce bundle size.",
 			guiOpts: {
 				arrayType: "droppable",
 			},
@@ -77,6 +99,7 @@ export class TaskGenerateServices extends Task {
 	});
 
 	/**
+	 * @override
 	 * @param {import("./Task.js").RunTaskOptions<TaskGenerateServicesConfig>} options
 	 */
 	async runTask({config}) {
@@ -89,19 +112,26 @@ export class TaskGenerateServices extends Task {
 			throw new Error("Failed to run task: no asset manager.");
 		}
 
-		/** @type {Map<import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier, Set<import("../../assets/ProjectAsset.js").ProjectAssetAny>>} */
-		const assetTypes = new Map();
-		for await (const uuid of assetManager.collectAllAssetReferences(config.usedAssets)) {
-			const asset = await assetManager.getProjectAssetFromUuid(uuid);
-			if (asset?.assetType) {
-				let assetsSet = assetTypes.get(asset.assetType);
-				if (!assetsSet) {
-					assetsSet = new Set();
-					assetTypes.set(asset.assetType, assetsSet);
-				}
-				assetsSet.add(asset);
+		let entryPointContents = "";
+		for (const entryPoint of config.entryPoints) {
+			const asset = await assetManager.getProjectAssetFromUuid(entryPoint, {
+				assertAssetType: ProjectAssetTypeJavascript,
+			});
+			if (asset) {
+				const content = await asset.readAssetData();
+				entryPointContents += content;
 			}
 		}
+
+		// TODO: This is a pretty primitive way of figuring out which services are needed, since we are
+		// essentially just looking if some strings of text appear in one of the entry points.
+		// Ideally we would parse the ast and figure out what is being used that way.
+		// It would add a lot of complexity and wouldn't be able to handle all cases, but right now
+		// if large files are used as entry points, the chance of these strings existing a pretty big so
+		// there could be a lot of false positives.
+		let needsAssetLoader = entryPointContents.includes("assetLoader");
+		let needsEngineAssetsManager = entryPointContents.includes("engineAssetsManager");
+		const needsRenderer = entryPointContents.includes("renderer");
 
 		/** @type {Map<string, Set<string>>} */
 		const collectedImports = new Map();
@@ -119,6 +149,14 @@ export class TaskGenerateServices extends Task {
 		}
 
 		/**
+		 * A list of asset uuids that the engine requires to function.
+		 * Assets in this list will automatically get bundled when the services
+		 * script is generated as part of the 'build application' task.
+		 * @type {Set<import("../../../../src/mod.js").UuidString>}
+		 */
+		const usedAssets = new Set();
+
+		/**
 		 * @typedef CollectedAssetLoaderType
 		 * @property {string} instanceIdentifier
 		 * @property {string} extra
@@ -131,30 +169,52 @@ export class TaskGenerateServices extends Task {
 		/** @type {Set<string>} */
 		const collectedExportIdentifiers = new Set();
 
-		for (const [assetTypeIdentifier, assets] of assetTypes) {
-			const assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetTypeIdentifier);
-			const config = assetType?.assetLoaderTypeImportConfig;
-			if (config) {
-				const moduleSpecifier = config.moduleSpecifier || "renda";
-				addImport(config.identifier, moduleSpecifier);
-				let extra = "";
-				if (config.extra) {
-					extra = await config.extra({
-						editor: this.editorInstance,
-						addImport,
-						usedAssets: Array.from(assets),
+		if (needsAssetLoader) {
+			/** @type {Map<import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeIdentifier, Set<import("../../assets/ProjectAsset.js").ProjectAssetAny>>} */
+			const assetTypes = new Map();
+			for await (const uuid of assetManager.collectAllAssetReferences(config.usedAssets)) {
+				const asset = await assetManager.getProjectAssetFromUuid(uuid);
+				if (asset?.assetType) {
+					let assetsSet = assetTypes.get(asset.assetType);
+					if (!assetsSet) {
+						assetsSet = new Set();
+						assetTypes.set(asset.assetType, assetsSet);
+					}
+					assetsSet.add(asset);
+				}
+			}
+
+			for (const [assetTypeIdentifier, assets] of assetTypes) {
+				const assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetTypeIdentifier);
+				const config = assetType?.assetLoaderTypeImportConfig;
+				if (config) {
+					const moduleSpecifier = config.moduleSpecifier || "renda";
+					addImport(config.identifier, moduleSpecifier);
+					let extra = "";
+					if (config.extra) {
+						extra = await config.extra({
+							editor: this.editorInstance,
+							addImport,
+							usedAssets: Array.from(assets),
+						});
+					}
+					collectedAssetLoaderTypes.set(config.identifier, {
+						instanceIdentifier: config.instanceIdentifier || "",
+						extra,
+						returnInstanceIdentifier: config.returnInstanceIdentifier ?? true,
 					});
 				}
-				collectedAssetLoaderTypes.set(config.identifier, {
-					instanceIdentifier: config.instanceIdentifier || "",
-					extra,
-					returnInstanceIdentifier: config.returnInstanceIdentifier ?? true,
-				});
 			}
 		}
 
-		const needsAssetLoader = collectedAssetLoaderTypes.size > 0;
-
+		if (needsRenderer) {
+			addImport("WebGpuRenderer", "renda");
+			needsEngineAssetsManager = true;
+		}
+		if (needsEngineAssetsManager) {
+			addImport("EngineAssetsManager", "renda");
+			needsAssetLoader = true;
+		}
 		if (needsAssetLoader) {
 			addImport("AssetLoader", "renda");
 		}
@@ -169,6 +229,7 @@ export class TaskGenerateServices extends Task {
 
 		// Services instantiation
 		code += "export function initializeServices() {\n";
+
 		if (needsAssetLoader) {
 			code += "	const assetLoader = new AssetLoader();\n";
 			code += "\n";
@@ -193,12 +254,25 @@ export class TaskGenerateServices extends Task {
 			}
 		}
 
+		if (needsEngineAssetsManager) {
+			code += "const engineAssetsManager = new EngineAssetsManager(assetLoader);";
+			collectedExportIdentifiers.add("engineAssetsManager");
+		}
+
+		if (needsRenderer) {
+			code += "const renderer = new WebGpuRenderer(engineAssetsManager);";
+			code += "renderer.init();";
+			collectedExportIdentifiers.add("renderer");
+			usedAssets.add(CLUSTER_BOUNDS_SHADER_ASSET_UUID);
+			usedAssets.add(CLUSTER_LIGHTS_SHADER_ASSET_UUID);
+		}
+
 		// Return object
 		code += `	return {${Array.from(collectedExportIdentifiers).join(", ")}};\n`;
 
 		code += "}\n";
 
-		/** @type {import("./Task.js").RunTaskReturn} */
+		/** @type {import("./Task.js").RunTaskReturn<TaskGenerateServicesCustomData>} */
 		const result = {
 			writeAssets: [
 				{
@@ -207,6 +281,9 @@ export class TaskGenerateServices extends Task {
 					fileData: code,
 				},
 			],
+			customData: {
+				usedAssets: Array.from(usedAssets),
+			},
 		};
 		return result;
 	}

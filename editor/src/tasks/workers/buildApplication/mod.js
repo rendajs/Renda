@@ -22,26 +22,33 @@ const responseHandlers = {
 		// but we'll want to check all imports recursively for uuids as well.
 		const javascript = await messenger.send("readJavaScript", contextId, config.entryPoint);
 		/** @type {string[]} */
-		const assetUuids = [];
+		const usedAssetsUuids = [];
 		if (javascript) {
 			const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gmi;
 			for (const match of javascript.matchAll(uuidRegex)) {
-				assetUuids.push(match[0]);
+				usedAssetsUuids.push(match[0]);
 			}
 		}
 
 		/** @type {import("../../task/Task.js").RunTaskCreateAssetData[]} */
 		const writeAssets = [];
 
-		const assetBundle = await messenger.send("bundleAssets", contextId, assetUuids);
+		const {servicesScript, usedAssets: usedServicesAssets} = await messenger.send("generateServices", {
+			contextId,
+			usedAssetsUuids,
+			entryPointUuids: [config.entryPoint],
+		});
+		for (const assetUuid of usedServicesAssets) {
+			usedAssetsUuids.push(assetUuid);
+		}
+
+		const assetBundle = await messenger.send("bundleAssets", contextId, usedAssetsUuids);
 		writeAssets.push({
 			fileData: assetBundle,
 			path: [...config.outputDir, "bundle.rbundle"],
 		});
 
-		const services = await messenger.send("generateServices", contextId, assetUuids);
-
-		const scriptBundle = await messenger.send("bundleScripts", contextId, config.entryPoint, services);
+		const scriptBundle = await messenger.send("bundleScripts", contextId, config.entryPoint, servicesScript);
 		if (!scriptBundle.writeAssets || scriptBundle.writeAssets.length == 0) {
 			throw new Error("Failed to run task: bundling scripts resulted in no output.");
 		}
