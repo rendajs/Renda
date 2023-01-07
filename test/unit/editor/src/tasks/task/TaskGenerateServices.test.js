@@ -102,6 +102,9 @@ function basicSetup({
 					return ProjectAssetType;
 				}
 			},
+			*getAssetTypeIds() {
+				yield BASIC_ASSET_TYPE;
+			},
 		},
 	});
 	const task = new TaskGenerateServices(mockEditor);
@@ -150,9 +153,11 @@ function basicSetup({
 /**
  * @param {object} options
  * @param {import("../../../../../../src/mod.js").UuidString[]} [options.usedAssets]
+ * @param {boolean} [options.includeAll]
  */
 function createRunTaskOptions({
 	usedAssets = [],
+	includeAll = false,
 } = {}) {
 	/** @type {import("../../../../../../editor/src/tasks/task/Task.js").RunTaskOptions<import("../../../../../../editor/src/tasks/task/TaskGenerateServices.js").TaskGenerateServicesConfig>} */
 	const options = {
@@ -160,6 +165,7 @@ function createRunTaskOptions({
 			outputLocation: ["out.js"],
 			usedAssets,
 			entryPoints: [BASIC_ENTRY_POINT_UUID],
+			includeAll,
 		},
 		allowDiskWrites: false,
 		async readAssetFromPath(path, opts) {
@@ -179,10 +185,10 @@ function createRunTaskOptions({
 Deno.test({
 	name: "initializeServices is empty by default",
 	async fn() {
-		const {task, callInitializeServices: initializeServices} = basicSetup();
+		const {task, callInitializeServices} = basicSetup();
 		const runTaskResult = await task.runTask(createRunTaskOptions());
 
-		const result = await initializeServices(runTaskResult);
+		const result = await callInitializeServices(runTaskResult);
 		assertEquals(result, {});
 	},
 });
@@ -201,7 +207,7 @@ Deno.test({
 Deno.test({
 	name: "Config with a used asset",
 	async fn() {
-		const {task, callInitializeServices: initializeServices} = basicSetup({
+		const {task, callInitializeServices} = basicSetup({
 			entryPointContent: `
 				import {initializeServices} from "renda:services";
 				const {assetLoader} = initializeServices();
@@ -211,7 +217,7 @@ Deno.test({
 			usedAssets: [BASIC_ASSET_UUID],
 		}));
 
-		const result = await initializeServices(runTaskResult);
+		const result = await callInitializeServices(runTaskResult);
 		assertExists(result.assetLoader);
 		assertEquals(result.assetLoader.registeredLoaderTypes.length, 1);
 	},
@@ -240,7 +246,7 @@ Deno.test({
 	name: "Asset type with extra import config",
 	async fn() {
 		let usedAssets = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny[]?} */ (null);
-		const {task, basicAsset, secondAsset, callInitializeServices: initializeServices} = basicSetup({
+		const {task, basicAsset, secondAsset, callInitializeServices} = basicSetup({
 			importConfig: {
 				identifier: "BasicAssetTypeLoader",
 				instanceIdentifier: "instanceIdentifier",
@@ -264,7 +270,7 @@ Deno.test({
 		assertStrictEquals(usedAssets[0], basicAsset);
 		assertStrictEquals(usedAssets[1], secondAsset);
 
-		const result = await initializeServices(runTaskResult);
+		const result = await callInitializeServices(runTaskResult);
 		assertExists(result.assetLoader);
 		assertEquals(result.assetLoader.registeredLoaderTypes.length, 1);
 		assertExists(result.instanceIdentifier);
@@ -275,18 +281,47 @@ Deno.test({
 Deno.test({
 	name: "initialize renderer",
 	async fn() {
-		const {task, callInitializeServices: initializeServices} = basicSetup({
+		const {task, callInitializeServices} = basicSetup({
 			entryPointContent: `
 			import {initializeServices} from "renda:services";
 			const {renderer} = initializeServices();
 		`,
 		});
 		const runTaskResult = await task.runTask(createRunTaskOptions());
-		const result = await initializeServices(runTaskResult);
+		const result = await callInitializeServices(runTaskResult);
 
 		assertExists(result);
 		assertExists(result.renderer);
-		assertEquals(result.renderer.initCalled, true);
+		assertExists(result.renderer.engineAssetsManager);
+	},
+});
+
+Deno.test({
+	name: "includeAll",
+	async fn() {
+		let extraCalled = false;
+		const {task, callInitializeServices} = basicSetup({
+			importConfig: {
+				identifier: "BasicAssetTypeLoader",
+				extra(ctx) {
+					extraCalled = true;
+					assertEquals(ctx.includeAll, true);
+					return "";
+				},
+			},
+		});
+
+		const runTaskResult = await task.runTask(createRunTaskOptions({
+			includeAll: true,
+		}));
+		const result = await callInitializeServices(runTaskResult);
+
+		assertExists(result);
+		assertExists(result.assetLoader);
+		assertEquals(result.assetLoader.registeredLoaderTypes.length, 1);
+		assertEquals(extraCalled, true);
+		assertExists(result.engineAssetsManager);
+		assertExists(result.renderer);
 		assertExists(result.renderer.engineAssetsManager);
 	},
 });
