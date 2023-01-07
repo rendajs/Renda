@@ -23,6 +23,12 @@ import {Task} from "./Task.js";
  * JavaScript asset uuids that will be using the generated services file. It is used to
  * analyse which services are actually used so that any unused services can be omitted
  * from the generation.
+ * @property {boolean} [includeAll] When set, the generated services script includes
+ * all code that can possibly be generated, regardless of what assets and entrypoints
+ * have been provided. This is useful during development, when you just want to quickly
+ * generate a services script without having to wait for the task to check which parts
+ * are needed. However, since this causes a lot of things to be imported, it is not advised
+ * to use this in production builds.
  */
 
 /**
@@ -60,6 +66,8 @@ import {Task} from "./Task.js";
  * @property {import("../../assets/ProjectAsset.js").ProjectAsset<TProjectAssetType>[]} usedAssets A list of assets that will have
  * been provided by the user in the task config. This list only contains the asset that are of the type related
  * to the current ProjectAssetType config.
+ * @property {boolean} includeAll If this is true, the task was run with the includeAll flag set. In this case
+ * you should try to include as much of your generated code as possible, even though `usedAssets` might be an empty array.
  */
 
 /**
@@ -96,6 +104,10 @@ export class TaskGenerateServices extends Task {
 				arrayType: "droppable",
 			},
 		},
+		includeAll: {
+			type: "boolean",
+			tooltip: "When set, the generated services script includes all code that can possibly be generated, regardless of what assets and entrypoints have been provided. This is useful during development, when you just want to quickly generate a services script without having to wait for the task to check which parts are needed. However, since this causes a lot of things to be imported, it is not advised to use this in production builds.",
+		},
 	});
 
 	/**
@@ -123,15 +135,17 @@ export class TaskGenerateServices extends Task {
 			}
 		}
 
+		const includeAll = config.includeAll || false;
+
 		// TODO: This is a pretty primitive way of figuring out which services are needed, since we are
 		// essentially just looking if some strings of text appear in one of the entry points.
 		// Ideally we would parse the ast and figure out what is being used that way.
 		// It would add a lot of complexity and wouldn't be able to handle all cases, but right now
 		// if large files are used as entry points, the chance of these strings existing a pretty big so
 		// there could be a lot of false positives.
-		let needsAssetLoader = entryPointContents.includes("assetLoader");
-		let needsEngineAssetsManager = entryPointContents.includes("engineAssetsManager");
-		const needsRenderer = entryPointContents.includes("renderer");
+		let needsAssetLoader = entryPointContents.includes("assetLoader") || includeAll;
+		let needsEngineAssetsManager = entryPointContents.includes("engineAssetsManager") || includeAll;
+		const needsRenderer = entryPointContents.includes("renderer") || includeAll;
 
 		/** @type {Map<string, Set<string>>} */
 		const collectedImports = new Map();
@@ -184,6 +198,14 @@ export class TaskGenerateServices extends Task {
 				}
 			}
 
+			if (includeAll) {
+				for (const uuid of this.editorInstance.projectAssetTypeManager.getAssetTypeIds()) {
+					if (!assetTypes.has(uuid)) {
+						assetTypes.set(uuid, new Set());
+					}
+				}
+			}
+
 			for (const [assetTypeIdentifier, assets] of assetTypes) {
 				const assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetTypeIdentifier);
 				const config = assetType?.assetLoaderTypeImportConfig;
@@ -196,6 +218,7 @@ export class TaskGenerateServices extends Task {
 							editor: this.editorInstance,
 							addImport,
 							usedAssets: Array.from(assets),
+							includeAll,
 						});
 					}
 					collectedAssetLoaderTypes.set(config.identifier, {
@@ -255,13 +278,12 @@ export class TaskGenerateServices extends Task {
 		}
 
 		if (needsEngineAssetsManager) {
-			code += "const engineAssetsManager = new EngineAssetsManager(assetLoader);";
+			code += "	const engineAssetsManager = new EngineAssetsManager(assetLoader);\n";
 			collectedExportIdentifiers.add("engineAssetsManager");
 		}
 
 		if (needsRenderer) {
-			code += "const renderer = new WebGpuRenderer(engineAssetsManager);";
-			code += "renderer.init();";
+			code += "	const renderer = new WebGpuRenderer(engineAssetsManager);\n";
 			collectedExportIdentifiers.add("renderer");
 			usedAssets.add(CLUSTER_BOUNDS_SHADER_ASSET_UUID);
 			usedAssets.add(CLUSTER_LIGHTS_SHADER_ASSET_UUID);

@@ -125,6 +125,17 @@ Deno.test({
 });
 
 Deno.test({
+	name: "getAssetTypeIds()",
+	fn() {
+		const manager = new ProjectAssetTypeManager();
+		manager.registerAssetType(ExtendedProjectAssetType);
+
+		const result = Array.from(manager.getAssetTypeIds());
+		assertEquals(result, [BASIC_ASSET_TYPE]);
+	},
+});
+
+Deno.test({
 	name: "getAssetTypeByUuid()",
 	fn() {
 		const manager = new ProjectAssetTypeManager();

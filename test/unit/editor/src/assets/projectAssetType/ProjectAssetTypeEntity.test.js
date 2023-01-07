@@ -64,6 +64,7 @@ Deno.test("reload component values when changed", async () => {
 
 async function basicSetupForAssetLoaderImportConfig({
 	usedAssets = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny[]} */ ([]),
+	includeAll = false,
 } = {}) {
 	/**
 	 * @param {string} identifier
@@ -75,8 +76,15 @@ async function basicSetupForAssetLoaderImportConfig({
 	assertExists(ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra);
 	const result = await ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra({
 		addImport: addImportSpy,
-		editor: /** @type {any} */ ({}),
+		editor: /** @type {any} */ ({
+			componentTypeManager: {
+				*getAllComponents() {
+					yield MeshComponent;
+				},
+			},
+		}),
 		usedAssets,
+		includeAll,
 	});
 
 	return {
@@ -124,6 +132,26 @@ Deno.test({
 entityLoader.setComponentTypeManager(componentTypeManager);
 componentTypeManager.registerComponent(MeshComponent);`);
 
+		assertSpyCalls(addImportSpy, 2);
+		assertSpyCall(addImportSpy, 0, {
+			args: ["ComponentTypeManager", "renda"],
+		});
+		assertSpyCall(addImportSpy, 1, {
+			args: ["MeshComponent", "renda"],
+		});
+	},
+});
+
+Deno.test({
+	name: "includeAll",
+	async fn() {
+		const {result, addImportSpy} = await basicSetupForAssetLoaderImportConfig({
+			includeAll: true,
+		});
+
+		assertEquals(result, `const componentTypeManager = new ComponentTypeManager();
+entityLoader.setComponentTypeManager(componentTypeManager);
+componentTypeManager.registerComponent(MeshComponent);`);
 		assertSpyCalls(addImportSpy, 2);
 		assertSpyCall(addImportSpy, 0, {
 			args: ["ComponentTypeManager", "renda"],

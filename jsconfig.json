@@ -1,7 +1,7 @@
 {
 	"extends": "./.denoTypes/tsconfig.json",
 	"compilerOptions": {
-		"lib": ["dom", "dom.iterable", "esnext"],
+		"lib": ["dom", "dom.iterable", "esnext", "WebWorker"],
 		"target": "esnext",
 		"checkJs": true,
 		"module": "esnext",
@@ -14,6 +14,7 @@
 		"src/**/*.ts",
 		"editor/src/**/*.js",
 		"editor/src/**/*.ts",
+		"editor/sw.js",
 		"editor/devSocket/src/**/*.js",
 		"editor/devSocket/src/**/*.ts",
 		"editor/editorDiscoveryServer/src/**/*.js",

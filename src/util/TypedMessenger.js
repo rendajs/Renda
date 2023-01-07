@@ -101,26 +101,73 @@
  */
 
 /**
- * Allows for easy request/response messaging between two applications, such as
- * a worker and a main thread, two workers or a messageport for example. You may
- * also be able to use this for messages that will be sent over the network.
- * Using WebSockets wor WebRTC for instance.
- * When using this, ids are automatically assigned to requests, so that the
- * receiving end can respond to a specific message.
- * This way you can send messages and wait for a response using promises.
- * If the receiving end fails to handle a message and throws an error, the error
- * will be catched and the promise will be rejected with the serialized error.
- *
- * Another helpful feature is that messages maintain type safety. Using the
- * generic parameters of the class you can specify the signatures of the
- * response handlers. That way, the arguments and return type of `send` is
- * automatically set based on the message provided in the first argument.
- *
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
  * @template {boolean} [TRequireHandlerReturnObjects = false]
  */
 export class TypedMessenger {
+	/**
+	 * Allows for easy request/response messaging between two applications, such as
+	 * a worker and a main thread, two workers or a messageport for example. You may
+	 * also be able to use this for messages that will be sent over the network.
+	 * Using WebSockets wor WebRTC for instance.
+	 * When using this, ids are automatically assigned to requests, so that the
+	 * receiving end can respond to a specific message.
+	 * This way you can send messages and wait for a response using promises.
+	 * If the receiving end fails to handle a message and throws an error, the error
+	 * will be catched and the promise will be rejected with the serialized error.
+	 *
+	 * Another helpful feature is that messages maintain type safety. Using the
+	 * generic parameters of the class you can specify the signatures of the
+	 * response handlers. That way, the arguments and return type of `send` is
+	 * automatically set based on the message provided in the first argument.
+	 *
+	 * ## Usage
+	 * To create a TypedMessenger you should first create an object that contains
+	 * all of your handlers:
+	 *
+	 * ```ts
+	 * const myRequestHandlers = {
+	 * 	foo() {
+	 * 		return "result";
+	 * 	},
+	 * 	bar(x: number) {
+	 * 		return x;
+	 * 	},
+	 * }
+	 * ```
+	 * You should do the same on the other end of your messenger. So for instance,
+	 * your worker/server/messageport or whatever you want to communicate with contains
+	 * a similar list of handlers.
+	 *
+	 * You can then create a new TypedMessenger using the two handler objects as
+	 * generic parameters. The first argument is the set of request handlers of the
+	 * other end, the second argument is the set of request handlers on this end.
+	 *
+	 * ```ts
+	 * import type {workerRequestHandlers} from "./yourWorkerOrServerFile";
+	 * const messenger = new TypedMessenger<typeof workerRequestHandlers, typeof myRequestHandlers>();
+	 * ```
+	 *
+	 * Now your types are setup correctly, so when using `messenger.send` you will
+	 * get autocompletion and type checking for the arguments you pass in.
+	 *
+	 * But you still need to connect the two messengers to each other. There are two ways
+	 * to do this:
+	 * - Using {@linkcode initialize}. This is the best method when you are dealing with workers.
+	 * - Using {@linkcode setResponseHandlers}, {@linkcode setSendHandler} and {@linkcode handleReceivedMessage}. This is for all other situations.
+	 *
+	 * See these respective functions for usage examples.
+	 *
+	 * @param {Object} options
+	 * @param {TRequireHandlerReturnObjects} [options.transferSupport] Whether the
+	 * messenger has support for transferring objects. When this is true, the return values
+	 * of your handlers are expected to be different: When this is false, you can just
+	 * return whatever you want from your handlers. But when this is true you should return
+	 * an object with the format `{returnValue: any, transfer?: Transferable[]}`.
+	 * For more info see
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
+	 */
 	constructor({
 		transferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
 	} = {}) {
@@ -134,7 +181,7 @@ export class TypedMessenger {
 		this.sendHandler = null;
 
 		/** @private */
-		this.requestHandlers = null;
+		this.responseHandlers = null;
 
 		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
@@ -180,9 +227,19 @@ export class TypedMessenger {
 
 	/**
 	 * Use this for hooking up the messenger to the worker, main thread, or messageport.
-	 * The handler should pass the first argument along to however you plan on sending
-	 * data. But the end goal is to have this data be passed to `handleReceivedMessage`
+	 * The handler should pass the data along to however you plan on sending it.
+	 * No matter how you do it, the end goal is to have this data be passed to {@linkcode handleReceivedMessage}
 	 * of the other TypedMessenger.
+	 *
+	 * ## Usage
+	 *
+	 * ```ts
+	 * const messenger = new TypedMessenger();
+	 * messenger.setSendHandler(data => {
+	 * 	worker.postMessage(data.sendData, data.transfer);
+	 * });
+	 * ```
+	 *
 	 * @param {TypedMessengerSendHandler<TReq, TRes, TRequireHandlerReturnObjects>} sendHandler
 	 */
 	setSendHandler(sendHandler) {
@@ -192,18 +249,27 @@ export class TypedMessenger {
 	/**
 	 * Use this to hook up the worker, main thread, or messageport to the second
 	 * TypedMessenger. The first argument should be the data that was passed as
-	 * first argument in the handler from `setSendHandler.
+	 * `sendData` in the handler from {@linkcode setSendHandler}.
+	 *
+	 * ## Usage
+	 *
+	 * ```ts
+	 * const messenger = new TypedMessenger();
+	 * globalThis.addEventListener("message", event => {
+	 * 	messenger.handleReceivedMessage(event.data);
+	 * })
+	 * ```
 	 * @param {TypedMessengerMessageSendData<TRes, TReq, TRequireHandlerReturnObjects>} data
 	 */
 	async handleReceivedMessage(data) {
 		if (data.direction == "request") {
-			if (!this.requestHandlers) {
+			if (!this.responseHandlers) {
 				throw new Error("Failed to handle message, no request handlers set. Make sure to call `setRequestHandlers` before handling messages.");
 			}
 			if (!this.sendHandler) {
 				throw new Error("Failed to handle message, no send handler set. Make sure to call `setSendHandler` before handling messages.");
 			}
-			const handler = this.requestHandlers[data.type];
+			const handler = this.responseHandlers[data.type];
 			let returnValue;
 			/** @type {Transferable[]} */
 			let transfer = [];
@@ -261,10 +327,28 @@ export class TypedMessenger {
 	 */
 
 	/**
+	 * Sets the collection of functions that the other end can call.
+	 *
+	 * ## Usage
+	 *
+	 * ```
+	 * export const myHandlers = {
+	 * 	foo() {
+	 * 		return "value";
+	 * 	},
+	 * };
+	 *
+	 * const messenger = new TypedMessenger<typeof otherHandlers, myHandlers>();
+	 * messenger.setResponseHandlers(myHandlers);
+	 * ```
+	 *
+	 * Now whenever the other end makes a call to {@linkcode send} on its own messenger (when
+	 * hooked up correctly to {@linkcode handleReceivedMessage}), your respective handler
+	 * will be called and its return value will be sent back to the other end.
 	 * @param {ResponseHandlers} handlers
 	 */
 	setResponseHandlers(handlers) {
-		this.requestHandlers = handlers;
+		this.responseHandlers = handlers;
 	}
 
 	/**

@@ -49,6 +49,12 @@ export class ProjectAssetTypeManager {
 		return this.registeredAssetTypes.get(type) ?? null;
 	}
 
+	*getAssetTypeIds() {
+		for (const id of this.registeredAssetTypes.keys()) {
+			yield id;
+		}
+	}
+
 	/**
 	 * @param {import("../../../src/util/mod.js").UuidString} uuid
 	 */

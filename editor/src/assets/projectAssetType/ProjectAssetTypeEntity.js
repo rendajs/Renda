@@ -228,6 +228,12 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				}
 			}
 
+			if (ctx.includeAll) {
+				for (const component of ctx.editor.componentTypeManager.getAllComponents()) {
+					usedComponentTypes.add(component);
+				}
+			}
+
 			let extraText = `const componentTypeManager = new ComponentTypeManager();
 entityLoader.setComponentTypeManager(componentTypeManager);`;
 

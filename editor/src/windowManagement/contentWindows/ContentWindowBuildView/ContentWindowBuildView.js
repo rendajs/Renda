@@ -192,7 +192,7 @@ export class ContentWindowBuildView extends ContentWindow {
 				throw new Error("Assertion failed, selected entry point doesn't exist or has been removed.");
 			}
 			const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
-			const newSrc = `projectbuilds/${clientId}/${path.join("/")}`;
+			const newSrc = `sw/clients/${clientId}/projectFiles/${path.join("/")}`;
 			if (this.iframeEl.src != newSrc || allowReload) {
 				this.iframeEl.src = newSrc;
 			}

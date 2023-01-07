@@ -1,4 +1,36 @@
+import {TypedMessenger} from "../../../src/util/TypedMessenger.js";
 import {getEditorInstance} from "../editorInstance.js";
+
+const messageHandlers = {
+	/**
+	 * @param {string} filePath
+	 */
+	async getProjectFile(filePath) {
+		const splitPath = filePath.split("/");
+		const fileSystem = getEditorInstance().projectManager.currentProjectFileSystem;
+		if (!fileSystem) {
+			throw new Error("Assertion failed, there is no active project file system");
+		}
+		return await fileSystem.readFile(splitPath);
+	},
+	async getGeneratedServices() {
+		const result = await getEditorInstance().taskManager.runTask("renda:generateServices", {
+			outputLocation: ["services.js"],
+			usedAssets: [],
+			entryPoints: [],
+			includeAll: true,
+		});
+		if (!result.writeAssets || result.writeAssets.length != 1) {
+			throw new Error("Assertion failed: no services script was generated");
+		}
+		const fileData = result.writeAssets[0].fileData;
+		if (typeof fileData != "string") {
+			throw new Error("Assertion failed, unexpected file data type");
+		}
+		return fileData;
+	},
+};
+/** @typedef {typeof messageHandlers} ServiceWorkerManagerMessageHandlers */
 
 export class ServiceWorkerManager {
 	constructor() {
@@ -8,24 +40,19 @@ export class ServiceWorkerManager {
 		this.installSw();
 
 		if (this.supported) {
-			navigator.serviceWorker.addEventListener("message", async e => {
-				if (e.data.type == "getProjectFile") {
-					const {filePath} = e.data;
-					const splitPath = filePath.split("/");
-					const fileSystem = getEditorInstance().projectManager.currentProjectFileSystem;
-					let file;
-					if (fileSystem) {
-						file = await fileSystem.readFile(splitPath);
-					} else {
-						file = null;
-					}
-					if (e.ports.length > 0) {
-						for (const port of e.ports) {
-							port.postMessage(file);
-						}
-					}
+			/** @type {TypedMessenger<import("../../sw.js").ServiceWorkerMessageHandlers, ServiceWorkerManagerMessageHandlers>} */
+			this.messenger = new TypedMessenger();
+			this.messenger.setSendHandler(async data => {
+				await navigator.serviceWorker.ready;
+				if (!this.registration || !this.registration.active) {
+					throw new Error("Failed to send message, no active service worker.");
 				}
+				this.registration.active.postMessage(data.sendData, data.transfer);
 			});
+			navigator.serviceWorker.addEventListener("message", async e => {
+				this.messenger.handleReceivedMessage(e.data);
+			});
+			this.messenger.setResponseHandlers(messageHandlers);
 		}
 	}
 
@@ -36,7 +63,9 @@ export class ServiceWorkerManager {
 	async installSw() {
 		if (!this.supported) return;
 		try {
-			this.registration = await navigator.serviceWorker.register("sw.js");
+			this.registration = await navigator.serviceWorker.register("sw.js", {
+				type: "module",
+			});
 		} catch (e) {
 			console.error("failed to install serviceWorker", e);
 			this.installationFailed = true;
@@ -58,28 +87,10 @@ export class ServiceWorkerManager {
 		}
 	}
 
-	/**
-	 * @param {any} message
-	 */
-	async roundTripMessage(message) {
-		await navigator.serviceWorker.ready;
-		const channel = new MessageChannel();
-		if (!this.registration || !this.registration.active) {
-			throw new Error("Failed to send message, no active service worker.");
-		}
-		this.registration.active.postMessage(message, [channel.port2]);
-		return await new Promise(resolve => {
-			channel.port1.addEventListener("message", e => {
-				channel.port1.close();
-				resolve(e.data);
-			});
-			channel.port1.start();
-		});
-	}
-
 	async getClientId() {
-		return await this.roundTripMessage({
-			type: "requestClientId",
-		});
+		if (!this.messenger) {
+			throw new Error("Assertion failed, no connection with the service worker is established.");
+		}
+		return await this.messenger.send("requestClientId");
 	}
 }
