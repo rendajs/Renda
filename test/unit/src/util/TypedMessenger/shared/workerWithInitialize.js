@@ -17,5 +17,5 @@ const requestHandlers = {
 };
 
 /** @type {TypedMessenger<import("../TypedMessenger.test.js").WorkerWithInitializeHandlers, typeof requestHandlers, true>} */
-const messenger = new TypedMessenger({transferSupport: true});
+const messenger = new TypedMessenger({returnTransferSupport: true});
 messenger.initialize(globalThis, requestHandlers);

@@ -46,7 +46,7 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 }
 
 await setHtmlAttribute("../dist/index.html", "editor script tag", "./js/main.js");
-await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../js/internalDiscovery.js");
+await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../js/internalDiscoveryEntryPoint.js");
 
 /**
  * @param {string} definesFilePath
@@ -124,7 +124,7 @@ const editorDefines = {
 const bundle = await rollup({
 	input: [
 		"../src/main.js",
-		"../src/network/editorConnections/internalDiscovery/internalDiscovery.js",
+		"../src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js",
 	],
 	plugins: [
 		overrideDefines("/editor/src/editorDefines.js", editorDefines),

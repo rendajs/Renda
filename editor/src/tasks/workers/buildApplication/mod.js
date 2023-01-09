@@ -3,7 +3,7 @@ import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 /** @typedef {typeof responseHandlers} BuildApplicationMessengerResponseHandlers */
 
 /** @type {TypedMessenger<import("../../task/TaskBuildApplication.js").BuildApplicationMessengerResponseHandlers, BuildApplicationMessengerResponseHandlers, true>} */
-const messenger = new TypedMessenger({transferSupport: true});
+const messenger = new TypedMessenger({returnTransferSupport: true});
 
 const responseHandlers = {
 	/**

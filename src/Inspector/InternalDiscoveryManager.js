@@ -1,86 +1,129 @@
-import {ENABLE_INSPECTOR_SUPPORT} from "../engineDefines.js";
+import {TypedMessenger} from "../util/TypedMessenger.js";
 
+/** @typedef {ReturnType<InternalDiscoveryManager["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
+/** @typedef {ReturnType<InternalDiscoveryManager["_getWorkerRequestHandlers"]>} InternalDiscoveryParentWorkerHandlers */
 /**
- * @typedef {{
- * 	availableClientAdded: {
- * 		clientId: import("../util/util.js").UuidString,
- * 		clientType: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType,
- * 		projectMetaData: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?,
- * 	},
- * 	availableClientRemoved: {
- * 		clientId: import("../util/util.js").UuidString,
- * 	},
- * 	projectMetaData: {
- * 		clientId: import("../util/util.js").UuidString,
- * 		projectMetaData: import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?,
- * 	},
- * 	connectionCreated: {
- * 		clientId: import("../util/util.js").UuidString,
- * 		port: MessagePort,
- * 	},
- * }} InternalDiscoveryClientMessages
+ * @typedef AvailableClientUpdateEvent
+ * @property {import("../mod.js").UuidString} clientId
+ * @property {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType} [clientType]
+ * @property {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} [projectMetaData]
+ * @property {boolean} [deleted] Whether the client has become unavailable.
  */
+/** @typedef {(event: AvailableClientUpdateEvent) => void} OnAvailableClientUpdateCallback */
+/** @typedef {(otherClientId: import("../mod.js").UuidString, port: MessagePort) => void} OnConnectionCreatedCallback */
 
-/** @typedef {keyof InternalDiscoveryClientMessages} InternalDiscoveryClientMessageOp */
-/**
- * @template {InternalDiscoveryClientMessageOp} T
- * @typedef {T extends InternalDiscoveryClientMessageOp ?
- * 	InternalDiscoveryClientMessages[T] extends null ?
- * 		{op: T} :
- * 		{op: T} &
- * 		InternalDiscoveryClientMessages[T] :
- * never} InternalDiscoveryClientMessageHelper
- */
-/** @typedef {InternalDiscoveryClientMessageHelper<InternalDiscoveryClientMessageOp>} InternalDiscoveryClientMessage */
-
-class InternalDiscoveryManager {
+export class InternalDiscoveryManager {
 	constructor() {
+		/** @private */
 		this.destructed = false;
 
+		window.addEventListener("message", e => {
+			if (e.source != this.iframe.contentWindow) return;
+			if (!e.data) return;
+			this.iframeMessenger.handleReceivedMessage(e.data);
+		});
+
+		/** @private */
 		this.iframeLoaded = false;
-		/** @type {Set<() => void>} */
+		/** @private @type {Set<() => void>} */
 		this.onIframeLoadCbs = new Set();
+		/** @private */
 		this.iframe = document.createElement("iframe");
 		this.iframe.src = "/editor/internalDiscovery.html";
 		this.iframe.style.display = "none";
-		this.boundOnMessage = this._onIframeMessage.bind(this);
-		window.addEventListener("message", this.boundOnMessage);
 		document.body.appendChild(this.iframe);
 
-		/** @type {Set<(data: any) => void>} */
-		this.onMessageCbs = new Set();
+		/** @private @type {Set<OnConnectionCreatedCallback>} */
+		this.onConnectionCreatedCbs = new Set();
+		/** @private @type {Set<OnAvailableClientUpdateCallback>} */
+		this.onAvailableClientUpdatedCbs = new Set();
 
-		// this.internalMessagesWorker.port.postMessage({op: "registerClient", clientType: "inspector"});
+		/** @private @type {TypedMessenger<import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryMain.js").InternalDiscoveryIframeHandlers, InternalDiscoveryParentHandlers>} */
+		this.iframeMessenger = new TypedMessenger();
+		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
+		this.iframeMessenger.setSendHandler(async data => {
+			await this._waitForIframeLoad();
+			if (!this.iframe.contentWindow) {
+				throw new Error("Failed to send message to internal discovery: iframe is not loaded.");
+			}
+			this.iframe.contentWindow.postMessage(data.sendData, "*", data.transfer);
+		});
+
+		/** @private @type {TypedMessenger<import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers, InternalDiscoveryParentWorkerHandlers>} */
+		this.workerMessenger = new TypedMessenger();
+		this.workerMessenger.setResponseHandlers(this._getWorkerRequestHandlers());
+		this.workerMessenger.setSendHandler(data => {
+			this.iframeMessenger.sendWithTransfer("postWorkerMessage", data.transfer, data.sendData, data.transfer);
+		});
 
 		window.addEventListener("unload", () => {
 			this.destructor();
 		});
 	}
 
-	destructor() {
-		this.destructed = true;
-		this._sendMessageInternal("destructor", null);
+	/**
+	 * @private
+	 */
+	_getIframeRequestHandlers() {
+		return {
+			inspectorDiscoveryLoaded: () => {
+				this.iframeLoaded = true;
+				this.onIframeLoadCbs.forEach(cb => cb());
+				this.onIframeLoadCbs.clear();
+			},
+			/**
+			 * @param {any} data
+			 */
+			workerToParentWindowMessage: data => {
+				this.workerMessenger.handleReceivedMessage(data);
+			},
+		};
 	}
 
 	/**
-	 * @param {MessageEvent} e
+	 * @private
 	 */
-	_onIframeMessage(e) {
-		if (e.source != this.iframe.contentWindow) return;
-		if (!e.data) return;
-
-		const op = e.data["op"];
-		const data = e.data["data"];
-
-		if (op == "inspectorDiscoveryLoaded") {
-			this.iframeLoaded = true;
-			this.onIframeLoadCbs.forEach(cb => cb());
-			this.onIframeLoadCbs.clear();
-		} else if (op == "workerMessageReceived") {
-			this.onMessageCbs.forEach(cb => cb(data));
-		}
+	_getWorkerRequestHandlers() {
+		return {
+			/**
+			 * @param {import("../mod.js").UuidString} otherClientId
+			 * @param {MessagePort} port
+			 */
+			connectionCreated: (otherClientId, port) => {
+				this.onConnectionCreatedCbs.forEach(cb => cb(otherClientId, port));
+			},
+			/**
+			 * @param {import("../mod.js").UuidString} clientId
+			 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType} clientType
+			 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} projectMetaData
+			 */
+			availableClientAdded: (clientId, clientType, projectMetaData) => {
+				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, clientType, projectMetaData}));
+			},
+			/**
+			 * @param {import("../mod.js").UuidString} clientId
+			*/
+			availableClientRemoved: clientId => {
+				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: null, deleted: true}));
+			},
+			/**
+			 * @param {import("../mod.js").UuidString} clientId
+			 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} metaData
+			*/
+			projectMetaData: (clientId, metaData) => {
+				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: metaData}));
+			},
+		};
 	}
 
+	async destructor() {
+		this.destructed = true;
+		await this.iframeMessenger.send("destructor");
+	}
+
+	/**
+	 * @private
+	 */
 	async _waitForIframeLoad() {
 		if (this.iframeLoaded) return;
 		/** @type {Promise<void>} */
@@ -89,39 +132,37 @@ class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @template {import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscovery.js").InternalDiscoveryWindowMessageOp} T
-	 * @param {T} op
-	 * @param {import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscovery.js").InternalDiscoveryWindowMessages[T]} data
-	 * @param {boolean} waitForLoad
+	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType} clientType
 	 */
-	async _sendMessageInternal(op, data, waitForLoad = true) {
-		if (waitForLoad) await this._waitForIframeLoad();
-		const message = {op, data};
-		if (!this.iframe.contentWindow) {
-			throw new Error("Failed to send message to internal discovery: iframe is not loaded.");
-		}
-		this.iframe.contentWindow.postMessage(message, "*");
+	async registerClient(clientType) {
+		await this.workerMessenger.send("registerClient", clientType);
 	}
 
 	/**
-	 * @param {(data: InternalDiscoveryClientMessage) => void} cb
+	 * @param {import("../mod.js").UuidString} otherClientId
 	 */
-	onMessage(cb) {
-		this.onMessageCbs.add(cb);
+	async requestConnection(otherClientId) {
+		await this.workerMessenger.send("requestConnection", otherClientId);
 	}
 
 	/**
-	 * @param {import("../../editor/src/network/editorConnections/internalDiscovery/InternalDiscoveryWorker.js").InternalDiscoveryWorkerMessage} data
+	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData} metaData
 	 */
-	postMessage(data) {
-		this._sendMessageInternal("postWorkerMessage", data);
+	async sendProjectMetaData(metaData) {
+		await this.workerMessenger.send("projectMetaData", metaData);
+	}
+
+	/**
+	 * @param {OnConnectionCreatedCallback} cb
+	 */
+	onConnectionCreated(cb) {
+		this.onConnectionCreatedCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnAvailableClientUpdateCallback} cb
+	 */
+	onAvailableClientUpdated(cb) {
+		this.onAvailableClientUpdatedCbs.add(cb);
 	}
 }
-
-let exportedManager = null;
-if (ENABLE_INSPECTOR_SUPPORT) {
-	exportedManager = InternalDiscoveryManager;
-}
-const castManager = /** @type {typeof InternalDiscoveryManager} */ (exportedManager);
-
-export {castManager as InternalDiscoveryManager};

@@ -28,7 +28,6 @@
 	],
 	"files": [
 		"src/mod.js",
-		"editor/src/network/editorConnections/internalDiscovery/InternalDiscoveryWorker.js",
 		"editor/src/main.js",
 		"editor/devSocket/src/main.js",
 	]

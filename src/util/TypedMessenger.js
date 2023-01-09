@@ -160,19 +160,23 @@ export class TypedMessenger {
 	 * See these respective functions for usage examples.
 	 *
 	 * @param {Object} options
-	 * @param {TRequireHandlerReturnObjects} [options.transferSupport] Whether the
-	 * messenger has support for transferring objects. When this is true, the return values
-	 * of your handlers are expected to be different: When this is false, you can just
-	 * return whatever you want from your handlers. But when this is true you should return
-	 * an object with the format `{returnValue: any, transfer?: Transferable[]}`.
+	 * @param {TRequireHandlerReturnObjects} [options.returnTransferSupport] Whether the
+	 * messenger has support for transferring objects from return values. When this is true,
+	 * the return values of your handlers are expected to be different:
+	 * When this is false, you can just return whatever you want from your handlers.
+	 * But when this is true you should return an object with the format
+	 * `{returnValue: any, transfer?: Transferable[]}`.
+	 * Note that transferring objects that are passed in as arguments is always
+	 * supported. You can use {@linkcode sendWithTransfer} for this. This option
+	 * is only useful if you wish to transfer objects from return values.
 	 * For more info see
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
 	 */
 	constructor({
-		transferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
+		returnTransferSupport = /** @type {TRequireHandlerReturnObjects} */ (false),
 	} = {}) {
 		/** @private */
-		this.transferSupport = transferSupport;
+		this.returnTransferSupport = returnTransferSupport;
 
 		/** @private */
 		this.lastRequestId = 0;
@@ -283,7 +287,7 @@ export class TypedMessenger {
 				}
 			}
 
-			if (this.transferSupport && returnValue && !didThrow) {
+			if (this.returnTransferSupport && returnValue && !didThrow) {
 				const castReturn = /** @type {RequestHandlerReturn} */ (returnValue);
 				transfer = castReturn.transfer || [];
 				returnValue = castReturn.returnValue;

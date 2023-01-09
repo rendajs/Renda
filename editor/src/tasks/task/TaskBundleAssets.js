@@ -143,7 +143,7 @@ export class TaskBundleAssets extends Task {
 	constructor(...args) {
 		super(...args);
 
-		this.#messenger = new TypedMessenger({transferSupport: true});
+		this.#messenger = new TypedMessenger({returnTransferSupport: true});
 		const assetManager = this.editorInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to create Bundle Scripts task: no asset manager.");
