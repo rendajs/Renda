@@ -147,7 +147,8 @@ async function basicSetup({
 				if (type == "message") {
 					parentMessageEventListeners.add(listener);
 				} else if (castType == "unload") {
-
+					// The Deno test runner fires the unload event after the test is done
+					// ideally we'd write a test for this case but instead I'll just ignore this for now.
 				} else {
 					originalAddEventListener(...args);
 				}
@@ -289,7 +290,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				/** @type {import("../../../../src/Inspector/InternalDiscoveryManager.js").OnConnectionCreatedCallback} */
-				const onCreatedSpyFn = () => {}
+				const onCreatedSpyFn = () => {};
 				/** @type {import("../../../../src/Inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
 				const onAvailableSpyFn = () => {};
 
