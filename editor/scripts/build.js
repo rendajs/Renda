@@ -7,6 +7,7 @@ import {importAssertionsPlugin} from "https://esm.sh/rollup-plugin-import-assert
 import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
 import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
 import postcssUrl from "npm:postcss-url@10.1.3";
+import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
 import {dev} from "../../scripts/dev.js";
 
 await dev();
@@ -24,7 +25,6 @@ await copy("../index.html", "../dist/index.html");
 await copy("../internalDiscovery.html", "../dist/internalDiscovery.html");
 await copy("../static/", "../dist/static/");
 await copy("../builtInAssets/", "../dist/builtInAssets/");
-await copy("../sw.js", "../dist/sw.js");
 
 /**
  * Replaces the value of an attribute in a html file.
@@ -45,8 +45,8 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 	await Deno.writeFile(filePath, textEncoder.encode(newData));
 }
 
-await setHtmlAttribute("../dist/index.html", "editor script tag", "./js/main.js");
-await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../js/internalDiscoveryEntryPoint.js");
+await setHtmlAttribute("../dist/index.html", "editor script tag", "./main.js");
+await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../internalDiscoveryEntryPoint.js");
 
 /**
  * @param {string} definesFilePath
@@ -128,8 +128,7 @@ const bundle = await rollup({
 	],
 	plugins: [
 		overrideDefines("/editor/src/editorDefines.js", editorDefines),
-		// todo:
-		// resolveUrlObjects(),
+		resolveUrlObjects(),
 		terser(),
 		rebaseCssUrl({
 			outputPath: path.resolve("../dist/"),
@@ -143,6 +142,6 @@ const bundle = await rollup({
 	},
 });
 await bundle.write({
-	dir: "../dist/js/",
+	dir: "../dist/",
 	format: "esm",
 });
