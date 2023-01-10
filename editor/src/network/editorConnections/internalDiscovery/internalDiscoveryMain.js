@@ -69,7 +69,7 @@ export function initializeIframe(window) {
 	});
 
 	// @rollup-plugin-resolve-url-objects
-	const url = new URL("./InternalDiscoveryWorkerEntryPoint.js", import.meta.url);
+	const url = new URL("./internalDiscoveryWorkerEntryPoint.js", import.meta.url);
 	const worker = new SharedWorker(url.href, {type: "module"});
 
 	workerTypedMessenger.setResponseHandlers(workerToIframeHandlers);
