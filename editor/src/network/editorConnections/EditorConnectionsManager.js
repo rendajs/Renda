@@ -62,32 +62,44 @@ export class EditorConnectionsManager {
 		this.onActiveConnectionsChangedCbs = new Set();
 
 		this.internalDiscovery = new InternalDiscoveryManager();
-		this.internalDiscovery.onMessage(data => {
-			const {op} = data;
-			if (op == "availableClientAdded") {
-				const {clientId, clientType, projectMetaData} = data;
-				this.availableConnections.set(clientId, {
-					id: clientId,
-					messageHandlerType: "internal",
-					clientType,
-					projectMetaData: projectMetaData || null,
-				});
-				this.fireAvailableConnectionsChanged();
-			} else if (op == "availableClientRemoved") {
-				this.availableConnections.delete(data.clientId);
-				this.fireAvailableConnectionsChanged();
-			} else if (op == "projectMetaData") {
-				const connection = this.availableConnections.get(data.clientId);
-				if (connection) {
-					connection.projectMetaData = data.projectMetaData;
-					this.fireAvailableConnectionsChanged();
-				}
-			} else if (op == "connectionCreated") {
-				const {clientId, port} = data;
-				this.handleInternalConnectionCreation(clientId, port);
+		this.internalDiscovery.onConnectionCreated((otherClientId, messagePort) => {
+			let connection = this.activeConnections.get(otherClientId);
+			if (!connection) {
+				const messageHandler = new MessageHandlerInternal(otherClientId, this);
+				connection = this.addActiveConnection(otherClientId, messageHandler);
 			}
+			const handler = /** @type {MessageHandlerInternal} */ (connection.messageHandler);
+			handler.assignMessagePort(messagePort);
 		});
-		this.internalDiscovery.postMessage({op: "registerClient", clientType: "editor"});
+		this.internalDiscovery.onAvailableClientUpdated(e => {
+			if (e.deleted) {
+				this.availableConnections.delete(e.clientId);
+			} else {
+				let availableClient = this.availableConnections.get(e.clientId);
+				if (!availableClient) {
+					if (!e.clientType) {
+						throw new Error("Assertion failed, an available client without a clientType was created");
+					}
+					availableClient = {
+						id: e.clientId,
+						messageHandlerType: "internal",
+						clientType: e.clientType,
+						projectMetaData: e.projectMetaData || null,
+					};
+					this.availableConnections.set(e.clientId, availableClient);
+				} else {
+					if (e.clientType) {
+						availableClient.clientType = e.clientType;
+					}
+					if (e.projectMetaData) {
+						availableClient.projectMetaData = e.projectMetaData;
+					}
+				}
+			}
+
+			this.fireAvailableConnectionsChanged();
+		});
+		this.internalDiscovery.registerClient("editor");
 
 		/**
 		 * When the user opens a recent project that is a remote project,
@@ -113,7 +125,6 @@ export class EditorConnectionsManager {
 
 	destructor() {
 		this.setDiscoveryEndpoint(null);
-		this.internalDiscovery.postMessage({op: "unregisterClient"});
 		this.internalDiscovery.destructor();
 	}
 
@@ -121,14 +132,7 @@ export class EditorConnectionsManager {
 	 * @param {import("../../../../src/util/mod.js").UuidString} otherClientId
 	 */
 	requestInternalMessageChannelConnection(otherClientId) {
-		this.internalDiscovery.postMessage({op: "requestConnection", otherClientId});
-	}
-
-	/**
-	 * @param {RemoteEditorMetaData} projectMetaData
-	 */
-	sendInternalMessageChannelProjectMetaData(projectMetaData) {
-		this.internalDiscovery.postMessage({op: "projectMetaData", projectMetaData});
+		this.internalDiscovery.requestConnection(otherClientId);
 	}
 
 	static getDefaultEndPoint() {
@@ -166,7 +170,7 @@ export class EditorConnectionsManager {
 	setProjectMetaData(metaData) {
 		// todo: only change when it changed
 		this.sendProjectMetaData(metaData);
-		this.sendInternalMessageChannelProjectMetaData(metaData);
+		this.internalDiscovery.sendProjectMetaData(metaData);
 	}
 
 	/**
@@ -394,21 +398,6 @@ export class EditorConnectionsManager {
 		this.activeConnections.set(connectionId, editorConnection);
 		this.fireActiveConnectionsChanged();
 		return editorConnection;
-	}
-
-	/**
-	 *
-	 * @param {import("../../../../src/util/mod.js").UuidString} clientId
-	 * @param {MessagePort} messagePort
-	 */
-	handleInternalConnectionCreation(clientId, messagePort) {
-		let connection = this.activeConnections.get(clientId);
-		if (!connection) {
-			const messageHandler = new MessageHandlerInternal(clientId, this);
-			connection = this.addActiveConnection(clientId, messageHandler);
-		}
-		const handler = /** @type {MessageHandlerInternal} */ (connection.messageHandler);
-		handler.assignMessagePort(messagePort);
 	}
 
 	/**

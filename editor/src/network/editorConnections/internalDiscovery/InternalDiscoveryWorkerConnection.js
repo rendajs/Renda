@@ -9,8 +9,10 @@ export class InternalDiscoveryWorkerConnection {
 	/**
 	 * @param {MessagePort} port
 	 * @param {import("../EditorConnectionsManager.js").ClientType} clientType
+	 * @param {import("./internalDiscoveryWorkerMain.js").WorkerToIframeTypedMessengerType} iframeMessenger
+	 * @param {import("./internalDiscoveryWorkerMain.js").WorkerToParentTypedMessengerType} parentWindowMessenger
 	 */
-	constructor(port, clientType) {
+	constructor(port, clientType, iframeMessenger, parentWindowMessenger) {
 		this.id = generateUuid();
 		/**
 		 * The MessagePort to that is being used to communicate between the.
@@ -20,6 +22,8 @@ export class InternalDiscoveryWorkerConnection {
 		this.clientType = clientType;
 		/** @type {import("../EditorConnectionsManager.js").RemoteEditorMetaData?} */
 		this.projectMetaData = null;
+		this.iframeMessenger = iframeMessenger;
+		this.parentMessenger = parentWindowMessenger;
 	}
 
 	/**
@@ -27,13 +31,5 @@ export class InternalDiscoveryWorkerConnection {
 	 */
 	setProjectMetaData(projectMetaData) {
 		this.projectMetaData = projectMetaData;
-	}
-
-	/**
-	 * @param {import("../../../../../src/Inspector/InternalDiscoveryManager.js").InternalDiscoveryClientMessage} message
-	 * @param {Transferable[]} transfer
-	 */
-	postMessage(message, transfer = []) {
-		this.port.postMessage(message, transfer);
 	}
 }

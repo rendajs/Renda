@@ -259,9 +259,9 @@ Deno.test({
 		};
 
 		/** @type {TypedMessenger<typeof requestHandlers, {}, true>} */
-		const messengerA = new TypedMessenger({transferSupport: true});
+		const messengerA = new TypedMessenger({returnTransferSupport: true});
 		/** @type {TypedMessenger<{}, typeof requestHandlers, true>} */
-		const messengerB = new TypedMessenger({transferSupport: true});
+		const messengerB = new TypedMessenger({returnTransferSupport: true});
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
@@ -333,8 +333,8 @@ Deno.test({
 			},
 		};
 
-		const messengerA = new TypedMessenger({transferSupport: true});
-		const messengerB = new TypedMessenger({transferSupport: true});
+		const messengerA = new TypedMessenger({returnTransferSupport: true});
+		const messengerB = new TypedMessenger({returnTransferSupport: true});
 		messengerA.setSendHandler(data => {
 			messengerB.handleReceivedMessage(data.sendData);
 		});
@@ -371,7 +371,7 @@ Deno.test({
 
 		try {
 			/** @type {TypedMessenger<import("./shared/workerWithInitialize.js").WorkerWithInitializeHandlers, WorkerWithInitializeHandlers, true>} */
-			const messenger = new TypedMessenger({transferSupport: true});
+			const messenger = new TypedMessenger({returnTransferSupport: true});
 			messenger.initialize(worker, workerWithInitializeHandlers);
 
 			const view = new Uint8Array([1, 2, 3]);
@@ -399,7 +399,7 @@ Deno.test({
 		};
 
 		/** @type {TypedMessenger<Handlers, Handlers, true>} */
-		const messenger = new TypedMessenger({transferSupport: true});
+		const messenger = new TypedMessenger({returnTransferSupport: true});
 		// @ts-expect-error
 		messenger.setResponseHandlers(handlers);
 		messenger.setResponseHandlers({
