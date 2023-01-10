@@ -63,7 +63,9 @@ export class ServiceWorkerManager {
 	async installSw() {
 		if (!this.supported) return;
 		try {
-			this.registration = await navigator.serviceWorker.register("sw.js", {
+			// @rollup-plugin-resolve-url-objects
+			const url = new URL("../../sw.js", import.meta.url);
+			this.registration = await navigator.serviceWorker.register(url.href, {
 				type: "module",
 			});
 		} catch (e) {
