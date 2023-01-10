@@ -25,7 +25,6 @@ await copy("../index.html", "../dist/index.html");
 await copy("../internalDiscovery.html", "../dist/internalDiscovery.html");
 await copy("../static/", "../dist/static/");
 await copy("../builtInAssets/", "../dist/builtInAssets/");
-await copy("../sw.js", "../dist/sw.js");
 
 /**
  * Replaces the value of an attribute in a html file.
@@ -46,8 +45,8 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 	await Deno.writeFile(filePath, textEncoder.encode(newData));
 }
 
-await setHtmlAttribute("../dist/index.html", "editor script tag", "./js/main.js");
-await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../js/internalDiscoveryEntryPoint.js");
+await setHtmlAttribute("../dist/index.html", "editor script tag", "./main.js");
+await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../internalDiscoveryEntryPoint.js");
 
 /**
  * @param {string} definesFilePath
@@ -143,6 +142,6 @@ const bundle = await rollup({
 	},
 });
 await bundle.write({
-	dir: "../dist/js/",
+	dir: "../dist/",
 	format: "esm",
 });
