@@ -7,6 +7,7 @@ import {importAssertionsPlugin} from "https://esm.sh/rollup-plugin-import-assert
 import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin=v87";
 import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
 import postcssUrl from "npm:postcss-url@10.1.3";
+import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
 import {dev} from "../../scripts/dev.js";
 
 await dev();
@@ -128,8 +129,7 @@ const bundle = await rollup({
 	],
 	plugins: [
 		overrideDefines("/editor/src/editorDefines.js", editorDefines),
-		// todo:
-		// resolveUrlObjects(),
+		resolveUrlObjects(),
 		terser(),
 		rebaseCssUrl({
 			outputPath: path.resolve("../dist/"),
