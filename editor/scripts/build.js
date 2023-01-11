@@ -148,12 +148,12 @@ const {output} = await bundle.write({
 });
 
 const editorEntryPointPath = path.resolve(EDITOR_ENTRY_POINT_PATH);
-const internalDiscoveryEntryPointPath = path.resolve(INTERNAL_DISCOVERY_ENTRY_POINT_PATH)
+const internalDiscoveryEntryPointPath = path.resolve(INTERNAL_DISCOVERY_ENTRY_POINT_PATH);
 let bundleEntryPoint;
 let internalDiscoveryEntryPoint;
 for (const chunkOrAsset of output) {
 	if (chunkOrAsset.type != "chunk") {
-		throw new Error("Assertion failed, unexpected type: "+ chunkOrAsset.type);
+		throw new Error("Assertion failed, unexpected type: " + chunkOrAsset.type);
 	}
 	if (chunkOrAsset.facadeModuleId == editorEntryPointPath) {
 		bundleEntryPoint = chunkOrAsset.fileName;
