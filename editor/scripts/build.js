@@ -45,9 +45,6 @@ async function setHtmlAttribute(filePath, tagComment, attributeValue, attribute 
 	await Deno.writeFile(filePath, textEncoder.encode(newData));
 }
 
-await setHtmlAttribute("../dist/index.html", "editor script tag", "./main.js");
-await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", "../internalDiscoveryEntryPoint.js");
-
 /**
  * @param {string} definesFilePath
  * @param {Object<string, unknown>} defines
@@ -121,10 +118,12 @@ const editorDefines = {
 	EDITOR_ENV: "production",
 	IS_DEV_BUILD: false,
 };
+const EDITOR_ENTRY_POINT_PATH = "../src/main.js";
+const INTERNAL_DISCOVERY_ENTRY_POINT_PATH = "../src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js";
 const bundle = await rollup({
 	input: [
-		"../src/main.js",
-		"../src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js",
+		EDITOR_ENTRY_POINT_PATH,
+		INTERNAL_DISCOVERY_ENTRY_POINT_PATH,
 	],
 	plugins: [
 		overrideDefines("/editor/src/editorDefines.js", editorDefines),
@@ -140,8 +139,33 @@ const bundle = await rollup({
 		if (message.code == "CIRCULAR_DEPENDENCY") return;
 		console.error(message.message);
 	},
+	preserveEntrySignatures: false,
 });
-await bundle.write({
+const {output} = await bundle.write({
 	dir: "../dist/",
 	format: "esm",
+	entryFileNames: "[name]-[hash].js",
 });
+
+const editorEntryPointPath = path.resolve(EDITOR_ENTRY_POINT_PATH);
+const internalDiscoveryEntryPointPath = path.resolve(INTERNAL_DISCOVERY_ENTRY_POINT_PATH)
+let bundleEntryPoint;
+let internalDiscoveryEntryPoint;
+for (const chunkOrAsset of output) {
+	if (chunkOrAsset.type != "chunk") {
+		throw new Error("Assertion failed, unexpected type: "+ chunkOrAsset.type);
+	}
+	if (chunkOrAsset.facadeModuleId == editorEntryPointPath) {
+		bundleEntryPoint = chunkOrAsset.fileName;
+	} else if (chunkOrAsset.facadeModuleId == internalDiscoveryEntryPointPath) {
+		internalDiscoveryEntryPoint = chunkOrAsset.fileName;
+	}
+}
+if (!bundleEntryPoint) {
+	throw new Error("Assertion failed: no editor entry point chunk was found");
+}
+if (!internalDiscoveryEntryPoint) {
+	throw new Error("Assertion failed: no internal discovery entry point chunk was found");
+}
+await setHtmlAttribute("../dist/index.html", "editor script tag", bundleEntryPoint);
+await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", internalDiscoveryEntryPoint);
