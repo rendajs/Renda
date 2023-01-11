@@ -5,6 +5,11 @@ import {CameraComponent} from "../../../../../src/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {EntryPointManager, getSelectedEntryPoint} from "./EntryPointManager.js";
+import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+
+/**
+ * @typedef {ReturnType<ContentWindowBuildView["getIframeResponseHandlers"]>} BuildViewIframeResponseHandlers
+ */
 
 export class ContentWindowBuildView extends ContentWindow {
 	static contentWindowTypeId = "buildView";
@@ -31,6 +36,18 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.iframeEl = document.createElement("iframe");
 		this.iframeEl.classList.add("buildViewIframe");
 		this.contentEl.appendChild(this.iframeEl);
+
+		/** @type {TypedMessenger<{}, BuildViewIframeResponseHandlers>} */
+		this.iframeMessenger = new TypedMessenger();
+		this.iframeMessenger.setResponseHandlers(this.getIframeResponseHandlers());
+		this.iframeMessenger.setSendHandler(data => {
+			if (!this.iframeEl.contentWindow) {
+				throw new Error("Failed to send message to build view iframe because it hasn't loaded yet.");
+			}
+			this.iframeEl.contentWindow.postMessage(data.sendData, "*", data.transfer);
+		});
+
+		window.addEventListener("message", this.onIframeMessage);
 
 		const colorizerFilterManager = getEditorInstance().colorizerFilterManager;
 
@@ -95,6 +112,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	destructor() {
 		this.setLinkedEntityEditor(null);
 		super.destructor();
+		window.removeEventListener("message", this.onIframeMessage);
 
 		this.previewCamDomTarget.destructor();
 	}
@@ -200,6 +218,24 @@ export class ContentWindowBuildView extends ContentWindow {
 			this.iframeEl.src = "";
 		}
 	}
+
+	getIframeResponseHandlers() {
+		return {
+			requestInternalDiscoveryUrl() {
+				const url = new URL("internalDiscovery.html", window.location.href);
+				return url.href;
+			},
+		};
+	}
+
+	/**
+	 * @param {MessageEvent} e
+	 */
+	onIframeMessage = e => {
+		if (e.source == this.iframeEl.contentWindow) {
+			this.iframeMessenger.handleReceivedMessage(e.data);
+		}
+	};
 
 	loop() {
 		if (this.previewCamRenderDirty) {
