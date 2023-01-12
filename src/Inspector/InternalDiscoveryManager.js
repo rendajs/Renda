@@ -1,4 +1,3 @@
-import {wait} from "../util/Timeout.js";
 import {TypedMessenger} from "../util/TypedMessenger.js";
 
 /** @typedef {ReturnType<InternalDiscoveryManager["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
@@ -21,9 +20,12 @@ export class InternalDiscoveryManager {
 	 * But if the current page is either not in an iframe or the parent doesn't respond, this fallback url will be used.
 	 * The discovery url should point to the discovery iframe page of an editor, i.e. if two applications wish to
 	 * communicate with each other, they should both use the same discovery url.
+	 * @param {string} [options.forceDiscoveryUrl] When set, no attempt is made to get the discovery url from the parent
+	 * window, and the forced url is used immediately instead.
 	 */
 	constructor({
 		fallbackDiscoveryUrl = "",
+		forceDiscoveryUrl = "",
 	} = {}) {
 		/** @private */
 		this.destructed = false;
@@ -37,6 +39,8 @@ export class InternalDiscoveryManager {
 			}
 		});
 
+		/** @private */
+		this._setIframeUrlCalled = false;
 		/** @private */
 		this.iframeLoaded = false;
 		/** @private @type {Set<() => void>} */
@@ -58,6 +62,7 @@ export class InternalDiscoveryManager {
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
 		this.iframeMessenger.setSendHandler(async data => {
+			await this._setIframeUrl(fallbackDiscoveryUrl, forceDiscoveryUrl);
 			await this._waitForIframeLoad();
 			if (!this.iframe.contentWindow) {
 				throw new Error("Failed to send message to internal discovery: iframe is not loaded.");
@@ -73,8 +78,8 @@ export class InternalDiscoveryManager {
 		 */
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
-		this.workerMessenger.setSendHandler(data => {
-			this.iframeMessenger.sendWithTransfer("postWorkerMessage", data.transfer, data.sendData, data.transfer);
+		this.workerMessenger.setSendHandler(async data => {
+			await this.iframeMessenger.sendWithTransfer("postWorkerMessage", data.transfer, data.sendData, data.transfer);
 		});
 
 		/**
@@ -95,8 +100,6 @@ export class InternalDiscoveryManager {
 		window.addEventListener("unload", () => {
 			this.destructor();
 		});
-
-		this._setIframeUrl(fallbackDiscoveryUrl);
 	}
 
 	/**
@@ -111,8 +114,15 @@ export class InternalDiscoveryManager {
 	 * or it doesn't respond, a fallback url will be used.
 	 * @private
 	 * @param {string} fallbackDiscoveryUrl
+	 * @param {string} forceDiscoveryUrl
 	 */
-	async _setIframeUrl(fallbackDiscoveryUrl) {
+	async _setIframeUrl(fallbackDiscoveryUrl, forceDiscoveryUrl) {
+		if (this._setIframeUrlCalled) return;
+		this._setIframeUrlCalled = true;
+		if (forceDiscoveryUrl) {
+			this.iframe.src = forceDiscoveryUrl;
+			return;
+		}
 		const parentPromise = (async () => {
 			if (this.isInIframe()) {
 				const url = await this.parentMessenger.send("requestInternalDiscoveryUrl");
@@ -121,11 +131,17 @@ export class InternalDiscoveryManager {
 				return "";
 			}
 		})();
-		const timeoutPromise = (async () => {
-			await wait(1000);
-			return "";
-		})();
+		let timeoutId = -1;
+		let timeoutResolve = /** @type {((url: string) => void)?} */ (null);
+		const timeoutPromise = new Promise(resolve => {
+			timeoutResolve = resolve;
+			timeoutId = setTimeout(() => {
+				resolve("");
+			}, 1000);
+		});
 		let url = await Promise.race([parentPromise, timeoutPromise]);
+		clearTimeout(timeoutId);
+		if (timeoutResolve) timeoutResolve("");
 		if (!url) {
 			if (!fallbackDiscoveryUrl) {
 				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by the editor.");

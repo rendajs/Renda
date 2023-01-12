@@ -25,10 +25,13 @@ function sendAllClientAddedMessages(activeConnections, createdConnection) {
  * @param {Map<import("../../../../../src/mod.js").UuidString, InternalDiscoveryWorkerConnection>} activeConnections
  * @param {import("../../../../../src/util/mod.js").UuidString} clientId
  */
-function sendAllClientRemoved(activeConnections, clientId) {
+async function sendAllClientRemoved(activeConnections, clientId) {
+	const promises = [];
 	for (const connection of activeConnections.values()) {
-		connection.parentMessenger.send("availableClientRemoved", clientId);
+		const promise = connection.parentMessenger.send("availableClientRemoved", clientId);
+		promises.push(promise);
 	}
+	await Promise.all(promises);
 }
 
 /**
@@ -60,10 +63,10 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 			parentWindowToWorkerMessage(data) {
 				parentWindowMessenger.handleReceivedMessage(data);
 			},
-			unregisterClient() {
+			async unregisterClient() {
 				if (!createdConnection) return;
 				activeConnections.delete(createdConnection.id);
-				sendAllClientRemoved(activeConnections, createdConnection.id);
+				await sendAllClientRemoved(activeConnections, createdConnection.id);
 				createdConnection = null;
 			},
 		},

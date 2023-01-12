@@ -2,18 +2,26 @@ import {InternalDiscoveryManager} from "../../../../src/mod.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
 import {initializeIframe} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryMain.js";
 import {initializeWorker} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
-import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
+import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
+import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
 
 /**
  * Creates an InternalDiscoveryManager, along with a mocked iframe and SharedWorker.
  * @param {Object} options
  * @param {() => Promise<void>} options.fn The test function to run
+ * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
+ * src gets set to this value.
+ * @param {boolean} [options.emulateEditorParent] Emulates a parent window with an editor that
+ * responds to "requestInternalDiscoveryUrl" messages.
  */
 async function basicSetup({
 	fn,
+	assertIframeSrc = null,
+	emulateEditorParent = true,
 }) {
 	const previousDocument = globalThis.document;
+	const previousParent = window.parent;
 	const previousSharedWorker = globalThis.SharedWorker;
 	const originalAddEventListener = window.addEventListener.bind(window);
 
@@ -78,6 +86,7 @@ async function basicSetup({
 				},
 			};
 		}
+		let iframeSrcWasSet = false;
 		globalThis.document = /** @type {Document} */ ({
 			/**
 			 * @param {"iframe"} tagName
@@ -86,23 +95,65 @@ async function basicSetup({
 				if (tagName != "iframe") {
 					throw new Error("Unexpected tag name");
 				}
+				/** @type {((message: any) => void)?} */
+				let createMessageEventFn = null;
 
 				const contentWindow = /** @type {Window} */ ({
 					postMessage(message, options) {
-						createMessageEvent(message);
+						if (createMessageEventFn) {
+							createMessageEventFn(message);
+						}
 					},
 				});
-				const {createMessageEvent} = createIframeWithWindow(contentWindow);
 
-				return /** @type {HTMLIFrameElement} */ ({
+				const mockIframe = /** @type {HTMLIFrameElement} */ ({
 					style: {},
 					contentWindow,
+					/**
+					 * @param {string} value
+					*/
+					set src(value) {
+						if (assertIframeSrc) {
+							assertEquals(value, assertIframeSrc);
+						}
+						iframeSrcWasSet = true;
+						const {createMessageEvent} = createIframeWithWindow(contentWindow);
+						createMessageEventFn = createMessageEvent;
+					},
 				});
+				return mockIframe;
 			},
 			body: {
 				appendChild(child) {},
 			},
 		});
+
+		if (emulateEditorParent) {
+			/** @type {TypedMessenger<{}, import("../../../../editor/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>} */
+			const parentTypedMessenger = new TypedMessenger();
+			parentTypedMessenger.setResponseHandlers({
+				requestInternalDiscoveryUrl() {
+					return "discovery_url";
+				},
+			});
+			parentTypedMessenger.setSendHandler(data => {
+				parentMessageEventListeners.forEach(listener => {
+					const event = /** @type {MessageEvent} */ ({
+						data: data.sendData,
+						source: window.parent,
+					});
+					listener(event);
+				});
+			});
+
+			window.parent = /** @type {Window} */ ({
+				postMessage(message) {
+					parentTypedMessenger.handleReceivedMessage(message);
+				},
+			});
+		} else {
+			window.parent = window;
+		}
 
 		/** @type {Set<MessageEventListener>} */
 		const sharedWorkerConnectCallbacks = new Set();
@@ -155,9 +206,14 @@ async function basicSetup({
 			});
 
 			await fn();
+
+			if (assertIframeSrc != null && !iframeSrcWasSet) {
+				throw new AssertionError("The test finished and no iframe src has been set");
+			}
 		})();
 	} finally {
 		globalThis.document = previousDocument;
+		window.parent = previousParent;
 		globalThis.SharedWorker = previousSharedWorker;
 
 		createdMessagePorts.forEach(p => p.close());
@@ -169,14 +225,14 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				const manager1 = new InternalDiscoveryManager();
+				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
 				/** @type {import("../../../../src/Inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
 				const spyFn = () => {};
 				const availableChangedSpy1 = spy(spyFn);
 				manager1.onAvailableClientUpdated(availableChangedSpy1);
 				await manager1.registerClient("inspector");
 
-				const manager2 = new InternalDiscoveryManager();
+				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
 				await manager2.registerClient("editor");
 
 				assertSpyCalls(availableChangedSpy1, 1);
@@ -205,7 +261,7 @@ Deno.test({
 					],
 				});
 
-				const manager3 = new InternalDiscoveryManager();
+				const manager3 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
 				const availableChangedSpy3 = spy(spyFn);
 				manager3.onAvailableClientUpdated(availableChangedSpy3);
 				await manager3.registerClient("inspector");
@@ -244,7 +300,6 @@ Deno.test({
 				});
 
 				await manager2.destructor();
-				await waitForMicrotasks();
 				assertSpyCalls(availableChangedSpy1, 4);
 				assertSpyCall(availableChangedSpy1, 3, {
 					args: [
@@ -268,7 +323,6 @@ Deno.test({
 				});
 
 				await manager3.destructor();
-				await waitForMicrotasks();
 				assertSpyCalls(availableChangedSpy1, 5);
 				assertSpyCall(availableChangedSpy1, 4, {
 					args: [
@@ -294,14 +348,14 @@ Deno.test({
 				/** @type {import("../../../../src/Inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
 				const onAvailableSpyFn = () => {};
 
-				const manager1 = new InternalDiscoveryManager();
+				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
 				const manager1ConnectionSpy = spy(onCreatedSpyFn);
 				manager1.onConnectionCreated(manager1ConnectionSpy);
 				const manager1AvailableSpy = spy(onAvailableSpyFn);
 				manager1.onAvailableClientUpdated(manager1AvailableSpy);
 				await manager1.registerClient("editor");
 
-				const manager2 = new InternalDiscoveryManager();
+				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
 				const manager2ConnectionSpy = spy(onCreatedSpyFn);
 				manager2.onConnectionCreated(manager2ConnectionSpy);
 				const manager2AvailableSpy = spy(onAvailableSpyFn);
@@ -345,6 +399,50 @@ Deno.test({
 
 				manager1Port.close();
 				manager2Port.close();
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Get discovery manager url from parent",
+	async fn() {
+		await basicSetup({
+			assertIframeSrc: "discovery_url",
+			async fn() {
+				const manager = new InternalDiscoveryManager();
+				await manager.registerClient("editor");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Fallbacck discovery url",
+	async fn() {
+		await basicSetup({
+			emulateEditorParent: false,
+			assertIframeSrc: "fallback_url",
+			async fn() {
+				const manager = new InternalDiscoveryManager({
+					fallbackDiscoveryUrl: "fallback_url",
+				});
+				await manager.registerClient("editor");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "No fallback url and not inside an iframe",
+	async fn() {
+		await basicSetup({
+			emulateEditorParent: false,
+			async fn() {
+				const manager = new InternalDiscoveryManager();
+				await assertRejects(async () => {
+					await manager.registerClient("editor");
+				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by the editor.");
 			},
 		});
 	},
