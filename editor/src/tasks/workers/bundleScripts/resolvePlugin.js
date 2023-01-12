@@ -1,3 +1,5 @@
+import {ENGINE_SOURCE_PATH} from "../../../editorDefines.js";
+
 /**
  * @typedef {"project" | "engine" | "enginegenerated" | "remote"} ScriptType
  */
@@ -42,7 +44,7 @@ export function resolvePlugin({getScriptContentFn, servicesSource}) {
 
 			if (sourcePath == "renda") {
 				scriptType = "engine";
-				sourcePath = "/dist/mod.js";
+				sourcePath = ENGINE_SOURCE_PATH;
 			} else if (sourcePath == "renda:services") {
 				scriptType = "enginegenerated";
 				sourcePath = "services";

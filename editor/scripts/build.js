@@ -9,6 +9,8 @@ import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
 import postcssUrl from "npm:postcss-url@10.1.3";
 import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
 import {dev} from "../../scripts/dev.js";
+import {buildEngine} from "../../scripts/build.js";
+import {toHashString} from "std/crypto/mod.ts";
 
 await dev();
 
@@ -25,6 +27,12 @@ await copy("../index.html", "../dist/index.html");
 await copy("../internalDiscovery.html", "../dist/internalDiscovery.html");
 await copy("../static/", "../dist/static/");
 await copy("../builtInAssets/", "../dist/builtInAssets/");
+
+const engineSource = await buildEngine();
+const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(engineSource));
+const hashString = toHashString(hash).slice(0, 8);
+const engineFileName = `renda-${hashString}.js`;
+await Deno.writeTextFile("../dist/" + engineFileName, engineSource);
 
 /**
  * Replaces the value of an attribute in a html file.
@@ -117,6 +125,7 @@ function rebaseCssUrl({
 const editorDefines = {
 	EDITOR_ENV: "production",
 	IS_DEV_BUILD: false,
+	ENGINE_SOURCE_PATH: engineFileName,
 };
 const EDITOR_ENTRY_POINT_PATH = "../src/main.js";
 const INTERNAL_DISCOVERY_ENTRY_POINT_PATH = "../src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js";
