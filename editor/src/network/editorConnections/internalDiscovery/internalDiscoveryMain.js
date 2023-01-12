@@ -9,7 +9,7 @@ import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
  * @param {Object} params
  * @param {TypedMessenger<any, any>} params.workerTypedMessenger
  * @param {TypedMessenger<any, any>} params.parentWindowTypedMessenger
- * @param {() => void} params.destructorFunction
+ * @param {() => Promise<void>} params.destructorFunction
  */
 function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destructorFunction}) {
 	return {
@@ -21,8 +21,8 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			postWorkerMessage(data, transfer) {
 				workerTypedMessenger.sendWithTransfer("parentWindowToWorkerMessage", transfer, data);
 			},
-			destructor() {
-				destructorFunction();
+			async destructor() {
+				await destructorFunction();
 			},
 		},
 		workerToIframeHandlers: {
@@ -44,10 +44,10 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
  */
 export function initializeIframe(window) {
 	let destructed = false;
-	function destructor() {
+	async function destructor() {
 		if (destructed) return;
 		destructed = true;
-		workerTypedMessenger.send("unregisterClient");
+		await workerTypedMessenger.send("unregisterClient");
 		worker.port.close();
 	}
 

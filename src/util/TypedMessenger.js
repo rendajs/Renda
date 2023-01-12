@@ -91,7 +91,7 @@
  * @template {TypedMessengerSignatures} TReq
  * @template {TypedMessengerSignatures} TRes
  * @template {boolean} TRequireHandlerReturnObjects
- * @typedef {(data: TypedMessengerMessage<TReq, TRes, TRequireHandlerReturnObjects>) => void} TypedMessengerSendHandler
+ * @typedef {(data: TypedMessengerMessage<TReq, TRes, TRequireHandlerReturnObjects>) => void | Promise<void>} TypedMessengerSendHandler
  */
 
 /**
@@ -293,7 +293,7 @@ export class TypedMessenger {
 				returnValue = castReturn.returnValue;
 			}
 
-			this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type, TRequireHandlerReturnObjects>} */ ({
+			await this.sendHandler(/** @type {TypedMessengerResponseMessageHelper<TRes, typeof data.type, TRequireHandlerReturnObjects>} */ ({
 				sendData: {
 					direction: "response",
 					id: data.id,
@@ -393,7 +393,7 @@ export class TypedMessenger {
 			});
 		});
 
-		this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
+		await this.sendHandler(/** @type {TypedMessengerRequestMessageHelper<TReq, T>} */ ({
 			sendData: {
 				direction: "request",
 				id: requestId,
