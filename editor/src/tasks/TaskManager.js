@@ -198,7 +198,7 @@ export class TaskManager {
 
 		/**
 		 * @template T
-		 * @param {import("../assets/AssetManager.js").AssetAssertionOptionsToProjectAsset<T>} asset
+		 * @param {import("../assets/AssetManager.js").AssetAssertionOptionsToProjectAsset<T>?} asset
 		 */
 		const runDependencyTasksAndRead = async asset => {
 			if (!asset) return null;
@@ -218,11 +218,13 @@ export class TaskManager {
 			allowDiskWrites,
 			async readAssetFromPath(path, assertionOptions) {
 				const asset = await assetManager?.getProjectAssetFromPath(path, {assertionOptions}) || null;
-				return await runDependencyTasksAndRead(asset);
+				const result = await runDependencyTasksAndRead(asset);
+				return /** @type {ReturnType<ReadAssetFromPathSignature>} */ (result);
 			},
 			async readAssetFromUuid(uuid, assertionOptions) {
 				const asset = await assetManager?.getProjectAssetFromUuid(uuid, assertionOptions) || null;
-				return await runDependencyTasksAndRead(asset);
+				const result = await runDependencyTasksAndRead(asset);
+				return /** @type {ReturnType<ReadAssetFromUuidSignature>} */ (result);
 			},
 			runDependencyTaskAsset: async uuid => {
 				const taskAsset = await assetManager?.getProjectAssetFromUuid(uuid, {
