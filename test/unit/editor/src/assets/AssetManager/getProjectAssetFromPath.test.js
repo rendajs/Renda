@@ -1,8 +1,8 @@
 import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-import { ProjectAssetTypeEntity } from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
-import { ProjectAssetTypeMaterial } from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import { assertIsType } from "../../../../../shared/typeAssertions.js";
+import {assertIsType} from "../../../../../shared/typeAssertions.js";
 import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
 import {BASIC_ASSET_PATH, BASIC_PROJECTASSETTYPE, NON_EXISTENT_ASSET_PATH, basicSetup} from "./shared.js";
 
@@ -38,7 +38,7 @@ Deno.test({
 		const result = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
 			assertionOptions: {
 				assertExists: false,
-			}
+			},
 		});
 
 		assertEquals(result, null);
@@ -88,33 +88,34 @@ Deno.test({
 			await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
 				registerIfNecessary: false,
 			});
-		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`)
+		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`);
 		const result1 = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
 			registerIfNecessary: false,
 			assertionOptions: {
 				assertExists: false,
-			}
+			},
 		});
 		assertEquals(result1, null);
 
 		const result2 = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
 			assertionOptions: {
 				assertExists: false,
-			}
+			},
 		});
 		assertExists(result2);
 	},
 });
 
 // No runtime behaviour is being tested here, only types.
+// eslint-disable-next-line no-unused-vars
 async function testTypes() {
 	const {assetManager} = await basicSetup();
 	const projectAssetUnknown = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>} */ ({});
 	const projectAssetUnknownOrNull = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>?} */ ({});
-	const projectAssetMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial>} */ ({})
-	const projectAssetMaterialOrNull = /** @type {typeof projectAssetMaterial | null} */ ({})
-	const projectAssetEntity = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeEntity>} */ ({})
-	const projectAssetEntityOrMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial | ProjectAssetTypeEntity>} */ ({})
+	const projectAssetMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial>} */ ({});
+	const projectAssetMaterialOrNull = /** @type {typeof projectAssetMaterial | null} */ ({});
+	const projectAssetEntity = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeEntity>} */ ({});
+	const projectAssetEntityOrMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial | ProjectAssetTypeEntity>} */ ({});
 
 	// Default assertions
 	const asset1 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH);
@@ -138,7 +139,7 @@ async function testTypes() {
 	const asset3 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
 		assertionOptions: {
 			assertAssetType: [ProjectAssetTypeMaterial],
-		}
+		},
 	});
 	assertIsType(projectAssetMaterial, asset3);
 	// @ts-expect-error Verify that the type isn't 'any'
@@ -149,7 +150,7 @@ async function testTypes() {
 		assertionOptions: {
 			assertAssetType: ProjectAssetTypeMaterial,
 			assertExists: false,
-		}
+		},
 	});
 	assertIsType(projectAssetMaterialOrNull, asset4);
 	assertIsType(asset4, null);
@@ -161,7 +162,7 @@ async function testTypes() {
 	const asset5 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
 		assertionOptions: {
 			assertAssetType: [ProjectAssetTypeMaterial, ProjectAssetTypeEntity],
-		}
+		},
 	});
 	assertIsType(projectAssetEntityOrMaterial, asset5);
 	assertIsType(asset5, projectAssetMaterial);

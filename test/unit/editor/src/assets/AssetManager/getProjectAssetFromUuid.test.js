@@ -1,9 +1,8 @@
 import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
-import { ProjectAsset } from "../../../../../../editor/src/assets/ProjectAsset.js";
-import { ProjectAssetTypeEntity } from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
-import { ProjectAssetTypeMaterial } from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
+import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
+import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import { assertIsType } from "../../../../../shared/typeAssertions.js";
+import {assertIsType} from "../../../../../shared/typeAssertions.js";
 import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
 import {BASIC_ASSET_PATH, BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup} from "./shared.js";
 
@@ -27,9 +26,7 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID);
-
-		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`)
-
+		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`);
 	},
 });
 
@@ -144,14 +141,15 @@ Deno.test({
 });
 
 // No runtime behaviour is being tested here, only types.
+// eslint-disable-next-line no-unused-vars
 async function testTypes() {
 	const {assetManager} = await basicSetup();
 	const projectAssetUnknown = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>} */ ({});
 	const projectAssetUnknownOrNull = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeUnknown>?} */ ({});
-	const projectAssetMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial>} */ ({})
-	const projectAssetMaterialOrNull = /** @type {typeof projectAssetMaterial | null} */ ({})
-	const projectAssetEntity = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeEntity>} */ ({})
-	const projectAssetEntityOrMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial | ProjectAssetTypeEntity>} */ ({})
+	const projectAssetMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial>} */ ({});
+	const projectAssetMaterialOrNull = /** @type {typeof projectAssetMaterial | null} */ ({});
+	const projectAssetEntity = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeEntity>} */ ({});
+	const projectAssetEntityOrMaterial = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterial | ProjectAssetTypeEntity>} */ ({});
 
 	// Default assertions
 	const asset1 = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);

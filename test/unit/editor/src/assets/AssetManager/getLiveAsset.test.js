@@ -25,10 +25,9 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await assetManager.getLiveAsset(NONEXISTENT_ASSET_UUID);
-		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`)
+		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`);
 	},
 });
-
 
 Deno.test({
 	name: "getLiveAsset() non existent, assertExists false",

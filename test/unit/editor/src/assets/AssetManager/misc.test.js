@@ -1,6 +1,6 @@
 import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import { assertIsType } from "../../../../../shared/typeAssertions.js";
+import {assertIsType} from "../../../../../shared/typeAssertions.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {ASSET_SETTINGS_PATH, BASIC_ASSET_PATH, BASIC_ASSET_UUID, basicSetup} from "./shared.js";
 
@@ -111,7 +111,7 @@ Deno.test({
 
 		await assertRejects(async () => {
 			await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"]);
-		}, Error, `Failed to get project asset from "non/existent/path.json" because it wasn't found.`)
+		}, Error, `Failed to get project asset from "non/existent/path.json" because it wasn't found.`);
 	},
 });
 
@@ -129,6 +129,7 @@ Deno.test({
 });
 
 // No runtime behaviour is being tested here, only types.
+// eslint-disable-next-line no-unused-vars
 async function testGetAssetUuidFromPathTypes() {
 	const {assetManager} = await basicSetup();
 	const uuidString = /** @type {import("../../../../../../src/mod.js").UuidString} */ ("");
