@@ -23,21 +23,21 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		await assertRejects(async () => {
-			await assetManager.getLiveAsset(NONEXISTENT_ASSET_UUID);
-		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`);
+		const liveAsset = await assetManager.getLiveAsset(NONEXISTENT_ASSET_UUID);
+
+		assertEquals(liveAsset, null);
 	},
 });
 
 Deno.test({
-	name: "getLiveAsset() non existent, assertExists false",
+	name: "getLiveAsset() non existent, assertExists true",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		const liveAsset = await assetManager.getLiveAsset(NONEXISTENT_ASSET_UUID, {
-			assertExists: false,
-		});
-
-		assertEquals(liveAsset, null);
+		await assertRejects(async () => {
+			await assetManager.getLiveAsset(NONEXISTENT_ASSET_UUID, {
+				assertExists: true,
+			});
+		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`);
 	},
 });

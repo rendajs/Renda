@@ -1,3 +1,4 @@
+import "../../../shared/initializeEditor.js";
 import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
@@ -24,22 +25,22 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		await assertRejects(async () => {
-			await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID);
-		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`);
+		const asset = await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID);
+
+		assertEquals(asset, null);
 	},
 });
 
 Deno.test({
-	name: "getProjectAssetFromUuid() non existent, assertExists false",
+	name: "getProjectAssetFromUuid() non existent, assertExists true",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		const asset = await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID, {
-			assertExists: false,
-		});
-
-		assertEquals(asset, null);
+		await assertRejects(async () => {
+			await assetManager.getProjectAssetFromUuid(NONEXISTENT_ASSET_UUID, {
+				assertExists: true,
+			});
+		}, Error, `Failed to get project asset, no asset with uuid "${NONEXISTENT_ASSET_UUID}" exists.`);
 	},
 });
 

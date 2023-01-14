@@ -109,22 +109,22 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		await assertRejects(async () => {
-			await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"]);
-		}, Error, `Failed to get project asset from "non/existent/path.json" because it wasn't found.`);
+		const result = await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"]);
+
+		assertEquals(result, null);
 	},
 });
 
 Deno.test({
-	name: "getAssetUuidFromPath() non existent, assertExists false",
+	name: "getAssetUuidFromPath() non existent, assertExists true",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		const result = await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"], {
-			assertExists: false,
-		});
-
-		assertEquals(result, null);
+		await assertRejects(async () => {
+			await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"], {
+				assertExists: true,
+			});
+		}, Error, `Failed to get project asset from "non/existent/path.json" because it wasn't found.`);
 	},
 });
 

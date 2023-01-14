@@ -1,3 +1,4 @@
+import "../../../shared/initializeEditor.js";
 import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
@@ -24,24 +25,24 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		await assertRejects(async () => {
-			await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH);
-		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`);
+		const result = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH);
+
+		assertEquals(result, null);
 	},
 });
 
 Deno.test({
-	name: "getProjectAssetFromPath() non existent, assertExists false",
+	name: "getProjectAssetFromPath() non existent, assertExists true",
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		const result = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
-			assertionOptions: {
-				assertExists: false,
-			},
-		});
-
-		assertEquals(result, null);
+		await assertRejects(async () => {
+			await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
+				assertionOptions: {
+					assertExists: true,
+				}
+			});
+		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`);
 	},
 });
 
@@ -84,24 +85,21 @@ Deno.test({
 
 		mockFileSystem.writeFile(NON_EXISTENT_ASSET_PATH, "test");
 
-		await assertRejects(async () => {
-			await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
-				registerIfNecessary: false,
-			});
-		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`);
 		const result1 = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
 			registerIfNecessary: false,
-			assertionOptions: {
-				assertExists: false,
-			},
 		});
 		assertEquals(result1, null);
 
-		const result2 = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
-			assertionOptions: {
-				assertExists: false,
-			},
-		});
+		await assertRejects(async () => {
+			await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
+				registerIfNecessary: false,
+				assertionOptions: {
+					assertExists: true,
+				}
+			});
+		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`);
+
+		const result2 = await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH);
 		assertExists(result2);
 	},
 });
