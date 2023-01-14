@@ -209,6 +209,7 @@ export class ContentWindowBuildView extends ContentWindow {
 			}
 			const projectAsset = await assetManager.getProjectAssetFromUuid(entryPointUuid, {
 				assertAssetType: [ProjectAssetTypeJavascript, ProjectAssetTypeHtml],
+				assertExists: true,
 			});
 			const path = projectAsset.path;
 			if (!path) {
