@@ -61,8 +61,9 @@ swSelf.addEventListener("message", e => {
 /**
  * @param {string} clientId
  * @param {string} pathname
+ * @param {URL} url
  */
-async function getClientResponse(clientId, pathname) {
+async function getClientResponse(clientId, pathname, url) {
 	const client = await swSelf.clients.get(clientId);
 	if (!client) {
 		return new Response("Editor client not found", {status: 404});
@@ -85,6 +86,14 @@ async function getClientResponse(clientId, pathname) {
 				"content-type": "application/javascript",
 			},
 		});
+	} else if (pathname == "getGeneratedHtml") {
+		const scriptSrc = url.searchParams.get("scriptSrc") || "";
+		const html = await messenger.send("getGeneratedHtml", scriptSrc);
+		return new Response(html, {
+			headers: {
+				"content-type": "text/html; charset=UTF-8",
+			},
+		});
 	}
 	return new Response("Not found", {
 		status: 404,
@@ -105,7 +114,7 @@ swSelf.addEventListener("fetch", e => {
 				const slashIndex = clientsPathname.indexOf("/");
 				const clientId = clientsPathname.slice(0, slashIndex);
 				const clientPath = clientsPathname.slice(slashIndex + 1);
-				e.respondWith(getClientResponse(clientId, clientPath));
+				e.respondWith(getClientResponse(clientId, clientPath, url));
 			}
 		}
 	}

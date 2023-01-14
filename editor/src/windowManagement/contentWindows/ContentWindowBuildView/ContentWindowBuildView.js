@@ -6,6 +6,8 @@ import {getEditorInstance} from "../../../editorInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {EntryPointManager, getSelectedEntryPoint} from "./EntryPointManager.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
+import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
 
 /**
  * @typedef {ReturnType<ContentWindowBuildView["getIframeResponseHandlers"]>} BuildViewIframeResponseHandlers
@@ -208,12 +210,24 @@ export class ContentWindowBuildView extends ContentWindow {
 			if (!entryPointUuid) {
 				throw new Error("Assertion failed, no entry point has been selected");
 			}
-			const path = await assetManager.getAssetPathFromUuid(entryPointUuid);
+			const projectAsset = await assetManager.getProjectAssetFromUuid(entryPointUuid, {
+				assertAssetType: [ProjectAssetTypeJavascript, ProjectAssetTypeHtml],
+				assertExists: true,
+			});
+			const path = projectAsset.path;
 			if (!path) {
 				throw new Error("Assertion failed, selected entry point doesn't exist or has been removed.");
 			}
 			const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
-			const newSrc = `sw/clients/${clientId}/projectFiles/${path.join("/")}`;
+			const projectAssetType = await projectAsset.getProjectAssetType();
+			let newSrc;
+			if (projectAssetType instanceof ProjectAssetTypeHtml) {
+				newSrc = `sw/clients/${clientId}/projectFiles/${path.join("/")}`;
+			} else if (projectAssetType instanceof ProjectAssetTypeJavascript) {
+				newSrc = `sw/clients/${clientId}/getGeneratedHtml?scriptSrc=projectFiles/${path.join("/")}`;
+			} else {
+				throw new Error(`Unexpected asset type for project asset with uuid "${entryPointUuid}"`);
+			}
 			if (this.iframeEl.src != newSrc || allowReload) {
 				this.iframeEl.src = newSrc;
 			}

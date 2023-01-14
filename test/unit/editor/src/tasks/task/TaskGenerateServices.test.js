@@ -3,6 +3,7 @@ import {TaskGenerateServices} from "../../../../../../editor/src/tasks/task/Task
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {createMockProjectAssetType} from "../../assets/shared/createMockProjectAssetType.js";
+import {getBasicRunTaskReadAssetOptions} from "./shared.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 const BASIC_ASSET_TYPE = "BASIC_ASSET_TYPE";
@@ -168,16 +169,7 @@ function createRunTaskOptions({
 			includeAll,
 		},
 		allowDiskWrites: false,
-		async readAssetFromPath(path, opts) {
-			return null;
-		},
-		async readAssetFromUuid(uuid, opts) {
-			return null;
-		},
-		async runDependencyTaskAsset(uuid) {},
-		async runChildTask(type, config, options) {
-			throw new Error("Not implemented");
-		},
+		...getBasicRunTaskReadAssetOptions(),
 	};
 	return options;
 }

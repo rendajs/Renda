@@ -4,6 +4,7 @@ import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSyst
 import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
 import {stub} from "std/testing/mock.ts";
 import {BinaryDecomposer} from "../../../../../../src/mod.js";
+import {getBasicRunTaskReadAssetOptions} from "./shared.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000001";
 const BASIC_ASSET_TYPE_UUID = "00000000-0000-0000-0000-000000000002";
@@ -77,16 +78,7 @@ const basicRunTaskOptions = {
 		excludeAssetsRecursive: [],
 	},
 	allowDiskWrites: true,
-	async readAssetFromPath(path, opts) {
-		return null;
-	},
-	async readAssetFromUuid(uuid, opts) {
-		return null;
-	},
-	async runDependencyTaskAsset(uuid) {},
-	async runChildTask(type, config, options) {
-		throw new Error("Not implemented");
-	},
+	...getBasicRunTaskReadAssetOptions(),
 };
 
 /**
