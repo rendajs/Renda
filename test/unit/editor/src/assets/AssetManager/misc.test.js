@@ -1,6 +1,5 @@
-import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import { assertIsType } from "../../../../../shared/typeAssertions.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {ASSET_SETTINGS_PATH, BASIC_ASSET_PATH, BASIC_ASSET_UUID, basicSetup} from "./shared.js";
 
@@ -109,47 +108,11 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 
-		await assertRejects(async () => {
-			await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"]);
-		}, Error, `Failed to get project asset from "non/existent/path.json" because it wasn't found.`)
-	},
-});
-
-Deno.test({
-	name: "getAssetUuidFromPath() non existent, assertExists false",
-	async fn() {
-		const {assetManager} = await basicSetup();
-
-		const result = await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"], {
-			assertExists: false,
-		});
+		const result = await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"]);
 
 		assertEquals(result, null);
 	},
 });
-
-// No runtime behaviour is being tested here, only types.
-async function testGetAssetUuidFromPathTypes() {
-	const {assetManager} = await basicSetup();
-	const uuidString = /** @type {import("../../../../../../src/mod.js").UuidString} */ ("");
-	const uuidStringOrNull = /** @type {typeof uuidString | null} */ ("");
-
-	// Default assertions
-	const uuid1 = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH);
-	assertIsType(uuidString, uuid1);
-	// @ts-expect-error Verify that the type isn't 'any'
-	assertIsType(true, uuid1);
-
-	// assertExists false
-	const uuid2 = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH, {
-		assertExists: false,
-	});
-	assertIsType(uuidStringOrNull, uuid2);
-	assertIsType(uuid2, null);
-	assertIsType(uuid2, uuidString);
-	// @ts-expect-error Verify that the type isn't 'any'
-	assertIsType(true, uuid2);
-}
 
 Deno.test({
 	name: "getAssetPathFromUuid()",

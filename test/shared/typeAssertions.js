@@ -2,10 +2,6 @@
  * These is a helper function for verifying types. You can use them to verify
  * return types from functions with generics.
  *
- * This function checks if the second parameter 'fits' inside the first parameter.
- *
- * ## Basic Usage
- *
  * For example, say you want to test if a variable is a string and nothing else:
  *
  * ```js
@@ -15,7 +11,7 @@
  * You can then verify the return type like so:
  *
  * ```js
- * // Verify that the type is a string and nothing else
+ * // Verify that the variable is a string and nothing else
  * assertIsType("", isString);
  * ```
  * This works, because passing `""` as first argument lets the function know you're
@@ -28,34 +24,12 @@
  * assertIsType("", isMaybeString);
  * ```
  *
- * ## Working with unions
  *
- * If you are working with unions, you need a few more checks.
- * For instance, say you want to verify if a type is `"yes" | "no"` you could do
- * ```js
- * const yesOrNo = true ? "yes" : "no";
- * assertIsType(yesOrNo, typeYouWishToCheck);
- * ```
- * But it is entirely possible that `typeYouWishToCheck` has the type `"yes"`, without any `"no"`.
- * To handle this, you can flip the two arguments around and check for each type
- * of the union that you want it to contain:
- * ```js
- * const yesOrNo = true ? "yes" : "no";
- * assertIsType(yesOrNo, typeYouWishToCheck);
- * assertIsType(typeYouWishToCheck, "yes");
- * assertIsType(typeYouWishToCheck, "no");
- * ```
- * But keep in mind to also perform your first check, otherwise `typeYouWishToCheck` might contain
- * extra types in its union that you don't want.
- *
- * ## Checking for `any`
- *
- * Whenever you use this, you'd probably also want to do another check to verify
- * that the variable or function doesn't have `any` as type. Otherwise all of
- * the assertions you make will pass regardless of the types you are checking for.
+ * Keep in mind though, that you'd probably also want to do a second check to verify
+ * that the variable or function doesn't have `any` as type:
  *
  * ```js
- * // @ts-expect-error Verify that the type isn't 'any'
+ * // @ts-expect-error Verify that the variable isn't 'any'
  * assertIsType(true, isString);
  * ```
  *

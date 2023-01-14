@@ -47,10 +47,10 @@ const basicRunTaskOptions = {
 	},
 	allowDiskWrites: false,
 	async readAssetFromPath(path, opts) {
-		return /** @type {ReturnType<import("../../../../../../editor/src/tasks/TaskManager.js").ReadAssetFromPathSignature>} */ (null);
+		return null;
 	},
 	async readAssetFromUuid(uuid, opts) {
-		return /** @type {ReturnType<import("../../../../../../editor/src/tasks/TaskManager.js").ReadAssetFromUuidSignature>} */ (null);
+		return null;
 	},
 	async runDependencyTaskAsset(uuid) {},
 	async runChildTask(type, config, options) {
