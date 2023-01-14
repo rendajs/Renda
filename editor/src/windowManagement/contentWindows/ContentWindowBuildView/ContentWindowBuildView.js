@@ -181,6 +181,9 @@ export class ContentWindowBuildView extends ContentWindow {
 		this.updateButtonVisibilities();
 		this.updateIframeVisibility();
 		this.updateFrameSrc();
+		if (isRunning) {
+			getEditorInstance().projectManager.markCurrentProjectAsWorthSaving();
+		}
 	}
 
 	updateButtonVisibilities() {
