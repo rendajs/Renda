@@ -40,7 +40,7 @@ Deno.test({
 			await assetManager.getProjectAssetFromPath(NON_EXISTENT_ASSET_PATH, {
 				assertionOptions: {
 					assertExists: true,
-				}
+				},
 			});
 		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`);
 	},
@@ -95,7 +95,7 @@ Deno.test({
 				registerIfNecessary: false,
 				assertionOptions: {
 					assertExists: true,
-				}
+				},
 			});
 		}, Error, `Failed to get project asset from "path/to/nonexistent/asset.json" because it wasn't found.`);
 
