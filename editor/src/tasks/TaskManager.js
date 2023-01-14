@@ -216,15 +216,25 @@ export class TaskManager {
 		const result = await task.runTask({
 			config,
 			allowDiskWrites,
+			/**
+			 * @template {import("../assets/AssetManager.js").AssetAssertionOptions} T
+			 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {T} [assertionOptions]
+			 */
 			async readAssetFromPath(path, assertionOptions) {
 				const asset = await assetManager?.getProjectAssetFromPath(path, {assertionOptions}) || null;
 				const result = await runDependencyTasksAndRead(asset);
-				return /** @type {ReturnType<ReadAssetFromPathSignature>} */ (result);
+				return /** @type {import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>} */ (result);
 			},
+			/**
+			 * @template {import("../assets/AssetManager.js").AssetAssertionOptions} T
+			 * @param {import("../../../src/mod.js").UuidString} uuid
+			 * @param {T} [assertionOptions]
+			 */
 			async readAssetFromUuid(uuid, assertionOptions) {
 				const asset = await assetManager?.getProjectAssetFromUuid(uuid, assertionOptions) || null;
 				const result = await runDependencyTasksAndRead(asset);
-				return /** @type {ReturnType<ReadAssetFromUuidSignature>} */ (result);
+				return /** @type {import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>} */ (result);
 			},
 			runDependencyTaskAsset: async uuid => {
 				const taskAsset = await assetManager?.getProjectAssetFromUuid(uuid, {
