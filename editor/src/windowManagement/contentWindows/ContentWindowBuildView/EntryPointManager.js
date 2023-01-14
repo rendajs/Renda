@@ -1,4 +1,5 @@
 import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAssetTypeHtml.js";
+import {ProjectAssetTypeJavascript} from "../../../assets/projectAssetType/ProjectAssetTypeJavascript.js";
 import {Button} from "../../../ui/Button.js";
 import {ButtonSelectorGui} from "../../../ui/ButtonSelectorGui.js";
 import {DroppableGui} from "../../../ui/DroppableGui.js";
@@ -67,7 +68,7 @@ export class EntryPointManager {
 		popover.el.appendChild(addContainer);
 
 		this.#droppableGui = DroppableGui.of({
-			supportedAssetTypes: [ProjectAssetTypeHtml],
+			supportedAssetTypes: [ProjectAssetTypeHtml, ProjectAssetTypeJavascript],
 		});
 		this.#droppableGui.el.style.flexGrow = "1";
 		addContainer.appendChild(this.#droppableGui.el);

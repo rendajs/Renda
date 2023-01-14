@@ -5,11 +5,11 @@ import {fillEnvironmentVariables} from "./environmentVariables.js";
 import {Task} from "./task/Task.js";
 
 /**
- * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(path: import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>?>} ReadAssetFromPathSignature
+ * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(path: import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>>} ReadAssetFromPathSignature
  */
 
 /**
- * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(uuid: import("../../../src/mod.js").UuidString, assertionOptions?: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>?>} ReadAssetFromUuidSignature
+ * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(uuid: import("../../../src/mod.js").UuidString, assertionOptions?: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>>} ReadAssetFromUuidSignature
  */
 
 /**
@@ -198,7 +198,7 @@ export class TaskManager {
 
 		/**
 		 * @template T
-		 * @param {import("../assets/ProjectAsset.js").ProjectAsset<import("../assets/AssetManager.js").AssetAssertionOptionsToProjectAssetType<T>>?} asset
+		 * @param {import("../assets/AssetManager.js").AssetAssertionOptionsToProjectAsset<T>} asset
 		 */
 		const runDependencyTasksAndRead = async asset => {
 			if (!asset) return null;

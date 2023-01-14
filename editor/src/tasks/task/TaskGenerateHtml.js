@@ -9,9 +9,16 @@ import {Task} from "./Task.js";
 
 /**
  * @typedef TaskGenerateHtmlConfig
- * @property {import("../../../../src/mod.js").UuidString?} template
- * @property {{find?: string, replace?: string}[]} replacements
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation
+ * @property {import("../../../../src/mod.js").UuidString?} template The uuid of a html asset to use as a template.
+ * @property {TaskGenerateHtmlReplacement[]} replacements A list of strings to replace in the template.
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation The location
+ * to write the modified html.
+ */
+
+/**
+ * @typedef TaskGenerateHtmlReplacement
+ * @property {string} [find] The variable name to look for, excluding the leading dollar sign ($).
+ * @property {string} [replace] The string to replace it with.
  */
 
 /** @extends {Task<TaskGenerateHtmlConfig>} */

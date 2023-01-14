@@ -1,5 +1,21 @@
 import {TypedMessenger} from "../../../src/util/TypedMessenger.js";
+import {ENGINE_SOURCE_PATH} from "../editorDefines.js";
 import {getEditorInstance} from "../editorInstance.js";
+
+/**
+ * Asserts
+ * @param {import("../tasks/task/Task.js").RunTaskReturn} runTaskResult
+ */
+function getAssertedStringWriteAsset(runTaskResult) {
+	if (!runTaskResult.writeAssets || runTaskResult.writeAssets.length != 1) {
+		throw new Error("Assertion failed: no services script was generated");
+	}
+	const fileData = runTaskResult.writeAssets[0].fileData;
+	if (typeof fileData != "string") {
+		throw new Error("Assertion failed, unexpected file data type");
+	}
+	return fileData;
+}
 
 const messageHandlers = {
 	/**
@@ -20,14 +36,34 @@ const messageHandlers = {
 			entryPoints: [],
 			includeAll: true,
 		});
-		if (!result.writeAssets || result.writeAssets.length != 1) {
-			throw new Error("Assertion failed: no services script was generated");
-		}
-		const fileData = result.writeAssets[0].fileData;
-		if (typeof fileData != "string") {
-			throw new Error("Assertion failed, unexpected file data type");
-		}
-		return fileData;
+		return getAssertedStringWriteAsset(result);
+	},
+	/**
+	 * @param {string} scriptSrc The location of the main entry point to include in the html.
+	 */
+	async getGeneratedHtml(scriptSrc) {
+		const importMap = {
+			imports: {
+				renda: ENGINE_SOURCE_PATH,
+				"renda:services": "./services.js",
+			},
+		};
+		const importMapTag = `<script type="importmap">${JSON.stringify(importMap)}</script>`;
+		const result = await getEditorInstance().taskManager.runTask("renda:generateHtml", {
+			outputLocation: ["index.html"],
+			replacements: [
+				{
+					find: "HTML_SCRIPT_SRC",
+					replace: scriptSrc,
+				},
+				{
+					find: "RENDA_IMPORT_MAP_TAG",
+					replace: importMapTag,
+				},
+			],
+			template: "264a38b9-4e43-4261-b57d-28a778a12dd9",
+		});
+		return getAssertedStringWriteAsset(result);
 	},
 };
 /** @typedef {typeof messageHandlers} ServiceWorkerManagerMessageHandlers */

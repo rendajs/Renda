@@ -118,7 +118,7 @@ export class ProjectAsset {
 		 */
 		this.internallyCreatedAssets = new WeakMap();
 
-		/** @type {T?} */
+		/** @private @type {T?} */
 		this._projectAssetType = null;
 		this.isGettingLiveAssetData = false;
 		this.currentGettingLiveAssetSymbol = null;
