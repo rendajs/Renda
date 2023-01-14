@@ -18,15 +18,25 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  */
 
 /**
- * @template {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny]
+ * @template {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [TAssetType = new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny]
+ * @template {boolean} [TAssertExists = boolean]
  * @typedef AssetAssertionOptions
- * @property {T | T[] | null} [assertAssetType]
+ * @property {TAssetType | TAssetType[] | null} [assertAssetType]
+ * @property {TAssertExists} [assertExists]
  */
 
 /**
- * @template {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [T = new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny]
- * @typedef RequiredAssetAssertionOptions
- * @property {T | T[]} assertAssetType
+ * @template {new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} [TAssetType = new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny]
+ * @template {boolean} [TAssertExists = boolean]
+ * @typedef GetLiveAssetAssertionOptions
+ * @property {TAssetType | TAssetType[]} assertAssetType
+ * @property {TAssertExists} [assertExists]
+ */
+
+/**
+ * @typedef AssetAssertionOptionsDefaults
+ * @property {null} assertAssetType
+ * @property {true} assertExists
  */
 
 /**
@@ -44,11 +54,11 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  */
 
 /**
- * @typedef {RequiredAssetAssertionOptions<new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny> & GetLiveAssetFromUuidOrEmbeddedAssetDataExtraOptions} GetLiveAssetFromUuidOrEmbeddedAssetDataOptions
+ * @typedef {GetLiveAssetAssertionOptions<new (...args: any[]) => import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny> & GetLiveAssetFromUuidOrEmbeddedAssetDataExtraOptions} GetLiveAssetFromUuidOrEmbeddedAssetDataOptions
  */
 
 /**
- * @template {AssetAssertionOptions} T
+ * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
  * @typedef {T["assertAssetType"] extends (new (...args: any[]) => infer ProjectAssetType) ?
  * 	ProjectAssetType :
  * T["assertAssetType"] extends (new (...args: any[]) => infer ProjectAssetType)[] ?
@@ -57,8 +67,10 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  */
 
 /**
- * @template {AssetAssertionOptions} T
- * @typedef {import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>} AssetAssertionOptionsToProjectAsset
+ * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
+ * @typedef {T["assertExists"] extends true ?
+ * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>> :
+ * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>?} AssetAssertionOptionsToProjectAsset
  */
 
 /**
@@ -69,8 +81,15 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  * 			TLiveAsset :
  * 			never :
  * 		never :
- * 	never} AssetAssertionOptionsToLiveAsset
+ * 	never} AssetAssertionOptionsToLiveAssetHelper
  */
+
+/**
+ * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
+ * @typedef {T["assertExists"] extends false ?
+* 	AssetAssertionOptionsToLiveAssetHelper<T>? :
+* 	AssetAssertionOptionsToLiveAssetHelper<T>} AssetAssertionOptionsToLiveAsset
+*/
 
 /**
  * @template {AssetAssertionOptions} T
@@ -80,7 +99,21 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
  * 			TFileData :
  * 			never :
  * 		never :
- * 	never} AssetAssertionOptionsToReadAssetDataReturn
+ * 	never} AssetAssertionOptionsToReadAssetDataReturnHelper
+ */
+
+/**
+ * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
+ * @typedef {T["assertExists"] extends false ?
+* 	AssetAssertionOptionsToReadAssetDataReturnHelper<T>? :
+* 	AssetAssertionOptionsToReadAssetDataReturnHelper<T>} AssetAssertionOptionsToReadAssetDataReturn
+*/
+
+/**
+ * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
+ * @typedef {T["assertExists"] extends true ?
+ * 	import("../../../src/mod.js").UuidString :
+ * import("../../../src/mod.js").UuidString?} AssetAssertionOptionsToProjectUuid
  */
 
 /** @typedef {(granted: boolean) => void} OnPermissionPromptResultCallback */
@@ -504,11 +537,14 @@ export class AssetManager {
 	}
 
 	/**
+	 * @template {AssetAssertionOptions} T
 	 * @param {string[]} path
+	 * @param {T} [assertionOptions]
+	 * @returns {Promise<AssetAssertionOptionsToProjectUuid<T>>}
 	 */
-	async getAssetUuidFromPath(path) {
-		const projectAsset = await this.getProjectAssetFromPath(path);
-		if (!projectAsset) return null;
+	async getAssetUuidFromPath(path, assertionOptions) {
+		const projectAsset = await this.getProjectAssetFromPath(path, {assertionOptions});
+		if (!projectAsset) return /** @type {AssetAssertionOptionsToProjectUuid<T>} */ (null);
 		return projectAsset.uuid;
 	}
 
@@ -551,17 +587,24 @@ export class AssetManager {
 	}
 
 	/**
-	 * @template {AssetAssertionOptions} [T = {}]
+	 * @template {AssetAssertionOptions} T
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
 	 * @param {T} options
-	 * @returns {Promise<AssetAssertionOptionsToProjectAsset<T>?>}
+	 * @returns {Promise<AssetAssertionOptionsToProjectAsset<T>>}
 	 */
 	async getProjectAssetFromUuid(uuid, {
 		assertAssetType = null,
+		assertExists = false,
 	} = /** @type {T} */ ({})) {
 		await this.loadAssetSettings(true);
 		const projectAsset = this.getProjectAssetFromUuidSync(uuid);
-		if (!projectAsset) return null;
+		if (!projectAsset) {
+			if (assertExists) {
+				throw new Error(`Failed to get project asset, no asset with uuid "${uuid}" exists.`);
+			} else {
+				return /** @type {AssetAssertionOptionsToProjectAsset<T>} */ (null);
+			}
+		}
 		if (assertAssetType) {
 			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
 			AssetManager.assertProjectAssetIsType(projectAssetTypeConstructor, assertAssetType);
@@ -576,7 +619,7 @@ export class AssetManager {
 	 * before calling this method.
 	 * Asset type assertion only works if the asset type has been determined in advance.
 	 *
-	 * @template {AssetAssertionOptions} [T = {}]
+	 * @template {AssetAssertionOptions} T
 	 * @param {import("../../../src/mod.js").UuidString | null | undefined} uuid
 	 * @param {T} options
 	 * @returns {AssetAssertionOptionsToProjectAsset<T>?}
@@ -624,7 +667,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @template {AssetAssertionOptions} [T = {}]
+	 * @template {AssetAssertionOptions} T
 	 * @param {string[]} path
 	 * @param {object} options
 	 * @param {boolean} [options.registerIfNecessary]
@@ -643,6 +686,11 @@ export class AssetManager {
 			}
 		}
 
+		const assertExists = assertionOptions?.assertExists ?? false;
+		if (assertExists && !projectAsset) {
+			throw new Error(`Failed to get project asset from "${path.join("/")}" because it wasn't found.`);
+		}
+
 		if (!projectAsset && registerIfNecessary && await this.fileSystem.isFile(path)) {
 			projectAsset = await this.registerAsset(path);
 		}
@@ -650,7 +698,7 @@ export class AssetManager {
 			const projectAssetTypeConstructor = await projectAsset.getProjectAssetTypeConstructor();
 			AssetManager.assertProjectAssetIsType(projectAssetTypeConstructor, assertionOptions.assertAssetType);
 		}
-		return /** @type {AssetAssertionOptionsToProjectAsset<T>?} */ (projectAsset);
+		return /** @type {AssetAssertionOptionsToProjectAsset<T>} */ (projectAsset);
 	}
 
 	/**
@@ -680,14 +728,14 @@ export class AssetManager {
 	}
 
 	/**
-	 * @template {AssetAssertionOptions} [T = {}]
+	 * @template {AssetAssertionOptions} T
 	 * @param {import("../../../src/mod.js").UuidString?} uuid
 	 * @param {T} [assertionOptions]
-	 * @returns {Promise<AssetAssertionOptionsToLiveAsset<T>?>}
+	 * @returns {Promise<AssetAssertionOptionsToLiveAsset<T>>}
 	 */
 	async getLiveAsset(uuid, assertionOptions) {
 		const projectAsset = await this.getProjectAssetFromUuid(uuid, assertionOptions);
-		if (!projectAsset) return null;
+		if (!projectAsset) return /** @type {AssetAssertionOptionsToLiveAsset<T>} */ (null);
 
 		const liveAsset = await projectAsset.getLiveAsset();
 		return /** @type {AssetAssertionOptionsToLiveAsset<T>} */ (liveAsset);
@@ -879,11 +927,11 @@ export class AssetManager {
 	 * @param {T} options
 	 * @returns {Promise<AssetAssertionOptionsToProjectAsset<T>?>}
 	 */
-	async getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, {assertAssetType, parentAsset, embeddedAssetPersistenceKey}) {
+	async getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, {assertAssetType, assertExists, parentAsset, embeddedAssetPersistenceKey}) {
 		if (!uuidOrData) return null;
 		let projectAsset;
 		if (typeof uuidOrData == "string") {
-			projectAsset = await this.getProjectAssetFromUuid(uuidOrData, {assertAssetType});
+			projectAsset = await this.getProjectAssetFromUuid(uuidOrData, {assertAssetType, assertExists});
 		} else {
 			projectAsset = this.getEmbeddedProjectAssetOrCreate(uuidOrData, assertAssetType, parentAsset, embeddedAssetPersistenceKey);
 		}
@@ -922,11 +970,11 @@ export class AssetManager {
 	 * @template {GetLiveAssetFromUuidOrEmbeddedAssetDataOptions} T
 	 * @param {import("../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
 	 * @param {T} options
-	 * @returns {Promise<AssetAssertionOptionsToLiveAsset<T>?>}
+	 * @returns {Promise<AssetAssertionOptionsToLiveAsset<T>>}
 	 */
 	async getLiveAssetFromUuidOrEmbeddedAssetData(uuidOrData, options) {
 		const projectAsset = await this.getProjectAssetFromUuidOrEmbeddedAssetData(uuidOrData, options);
-		if (!projectAsset) return null;
+		if (!projectAsset) return /** @type {AssetAssertionOptionsToLiveAsset<T>} */ (null);
 		const liveAsset = await projectAsset.getLiveAsset();
 		return /** @type {AssetAssertionOptionsToLiveAsset<T>} */ (liveAsset);
 	}
