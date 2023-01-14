@@ -137,17 +137,17 @@ async function testGetAssetUuidFromPathTypes() {
 
 	// Default assertions
 	const uuid1 = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH);
-	assertIsType(uuidString, uuid1);
+	assertIsType(uuidStringOrNull, uuid1);
+	assertIsType(uuid1, null);
+	assertIsType(uuid1, uuidString);
 	// @ts-expect-error Verify that the type isn't 'any'
 	assertIsType(true, uuid1);
 
-	// assertExists false
+	// assertExists true
 	const uuid2 = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH, {
-		assertExists: false,
+		assertExists: true,
 	});
-	assertIsType(uuidStringOrNull, uuid2);
-	assertIsType(uuid2, null);
-	assertIsType(uuid2, uuidString);
+	assertIsType(uuidString, uuid2);
 	// @ts-expect-error Verify that the type isn't 'any'
 	assertIsType(true, uuid2);
 }

@@ -119,19 +119,19 @@ async function testTypes() {
 
 	// Default assertions
 	const asset1 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH);
-	assertIsType(projectAssetUnknown, asset1);
+	assertIsType(projectAssetUnknownOrNull, asset1);
+	assertIsType(asset1, null);
+	assertIsType(asset1, projectAssetUnknown);
 	// @ts-expect-error Verify that the type isn't 'any'
 	assertIsType(true, asset1);
 
-	// assertExists false
+	// assertExists true
 	const asset2 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
 		assertionOptions: {
-			assertExists: false,
+			assertExists: true,
 		},
 	});
-	assertIsType(projectAssetUnknownOrNull, asset2);
-	assertIsType(asset2, null);
-	assertIsType(asset2, projectAssetUnknown);
+	assertIsType(projectAssetUnknown, asset2);
 	// @ts-expect-error Verify that the type isn't 'any'
 	assertIsType(true, asset2);
 
@@ -139,6 +139,7 @@ async function testTypes() {
 	const asset3 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
 		assertionOptions: {
 			assertAssetType: [ProjectAssetTypeMaterial],
+			assertExists: true,
 		},
 	});
 	assertIsType(projectAssetMaterial, asset3);
@@ -149,7 +150,6 @@ async function testTypes() {
 	const asset4 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
 		assertionOptions: {
 			assertAssetType: ProjectAssetTypeMaterial,
-			assertExists: false,
 		},
 	});
 	assertIsType(projectAssetMaterialOrNull, asset4);
@@ -162,6 +162,7 @@ async function testTypes() {
 	const asset5 = await assetManager.getProjectAssetFromPath(BASIC_ASSET_PATH, {
 		assertionOptions: {
 			assertAssetType: [ProjectAssetTypeMaterial, ProjectAssetTypeEntity],
+			assertExists: true,
 		},
 	});
 	assertIsType(projectAssetEntityOrMaterial, asset5);

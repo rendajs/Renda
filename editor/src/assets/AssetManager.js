@@ -68,9 +68,9 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
- * @typedef {T["assertExists"] extends false ?
- * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>? :
- * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>} AssetAssertionOptionsToProjectAsset
+ * @typedef {T["assertExists"] extends true ?
+ * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>> :
+ * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>?} AssetAssertionOptionsToProjectAsset
  */
 
 /**
@@ -111,9 +111,9 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
- * @typedef {T["assertExists"] extends false ?
- * 	import("../../../src/mod.js").UuidString? :
- * import("../../../src/mod.js").UuidString} AssetAssertionOptionsToProjectUuid
+ * @typedef {T["assertExists"] extends true ?
+ * 	import("../../../src/mod.js").UuidString :
+ * import("../../../src/mod.js").UuidString?} AssetAssertionOptionsToProjectUuid
  */
 
 /** @typedef {(granted: boolean) => void} OnPermissionPromptResultCallback */
@@ -594,7 +594,7 @@ export class AssetManager {
 	 */
 	async getProjectAssetFromUuid(uuid, {
 		assertAssetType = null,
-		assertExists = true,
+		assertExists = false,
 	} = /** @type {T} */ ({})) {
 		await this.loadAssetSettings(true);
 		const projectAsset = this.getProjectAssetFromUuidSync(uuid);
@@ -686,7 +686,7 @@ export class AssetManager {
 			}
 		}
 
-		const assertExists = assertionOptions?.assertExists ?? true;
+		const assertExists = assertionOptions?.assertExists ?? false;
 		if (assertExists && !projectAsset) {
 			throw new Error(`Failed to get project asset from "${path.join("/")}" because it wasn't found.`);
 		}
