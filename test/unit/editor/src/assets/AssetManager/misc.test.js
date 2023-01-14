@@ -1,5 +1,6 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
+import {assertIsType} from "../../../../../shared/typeAssertions.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {ASSET_SETTINGS_PATH, BASIC_ASSET_PATH, BASIC_ASSET_UUID, basicSetup} from "./shared.js";
 
@@ -113,6 +114,43 @@ Deno.test({
 		assertEquals(result, null);
 	},
 });
+
+Deno.test({
+	name: "getAssetUuidFromPath() non existent, assertExists true",
+	async fn() {
+		const {assetManager} = await basicSetup();
+
+		await assertRejects(async () => {
+			await assetManager.getAssetUuidFromPath(["non", "existent", "path.json"], {
+				assertExists: true,
+			});
+		}, Error, `Failed to get project asset from "non/existent/path.json" because it wasn't found.`);
+	},
+});
+
+// No runtime behaviour is being tested here, only types.
+// eslint-disable-next-line no-unused-vars
+async function testGetAssetUuidFromPathTypes() {
+	const {assetManager} = await basicSetup();
+	const uuidString = /** @type {import("../../../../../../src/mod.js").UuidString} */ ("");
+	const uuidStringOrNull = /** @type {typeof uuidString | null} */ ("");
+
+	// Default assertions
+	const uuid1 = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH);
+	assertIsType(uuidStringOrNull, uuid1);
+	assertIsType(uuid1, null);
+	assertIsType(uuid1, uuidString);
+	// @ts-expect-error Verify that the type isn't 'any'
+	assertIsType(true, uuid1);
+
+	// assertExists true
+	const uuid2 = await assetManager.getAssetUuidFromPath(BASIC_ASSET_PATH, {
+		assertExists: true,
+	});
+	assertIsType(uuidString, uuid2);
+	// @ts-expect-error Verify that the type isn't 'any'
+	assertIsType(true, uuid2);
+}
 
 Deno.test({
 	name: "getAssetPathFromUuid()",
