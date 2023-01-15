@@ -148,10 +148,11 @@ export class ContentWindowBuildView extends ContentWindow {
 			}
 			const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
 			const projectAssetType = await projectAsset.getProjectAssetType();
+			const projectAssetTypeAny = /** @type {any} */ (projectAssetType);
 			let newSrc;
-			if (projectAssetType instanceof ProjectAssetTypeHtml) {
+			if (projectAssetTypeAny instanceof ProjectAssetTypeHtml) {
 				newSrc = `sw/clients/${clientId}/projectFiles/${path.join("/")}`;
-			} else if (projectAssetType instanceof ProjectAssetTypeJavascript) {
+			} else if (projectAssetTypeAny instanceof ProjectAssetTypeJavascript) {
 				newSrc = `sw/clients/${clientId}/getGeneratedHtml?scriptSrc=projectFiles/${path.join("/")}`;
 			} else {
 				throw new Error(`Unexpected asset type for project asset with uuid "${entryPointUuid}"`);
