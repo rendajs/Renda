@@ -75,9 +75,12 @@ export class PropertiesTreeViewEntry extends TreeView {
 		this.label = document.createElement("div");
 		this.label.classList.add("guiTreeViewEntryLabel");
 		this.label.classList.toggle("smallLabel", smallLabel);
-		this.label.textContent = prettifyVariableName(guiOpts.label);
+		const labelText = prettifyVariableName(guiOpts.label);
+		this.label.textContent = labelText;
 		if (tooltip) {
-			this.label.title = tooltip;
+			this.label.title = labelText + "\n\n" + tooltip;
+		} else {
+			this.label.title = labelText;
 		}
 		this.customEl.appendChild(this.label);
 
