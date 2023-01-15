@@ -711,7 +711,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.markRenderDirty();
 
 		if (type == "transform") {
-			this.updateGizmoPositionsForEntity(entity);
+			for (const e of entity.traverseDown()) {
+				this.updateGizmoPositionsForEntity(e);
+			}
 			this.updateTransformationGizmos();
 		} else if (type == "component" || type == "componentProperty") {
 			this.updateGizmosForEntity(entity);

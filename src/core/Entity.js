@@ -14,7 +14,9 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
  * @typedef EntityTraverseOptions
- * @property {((entity: Entity) => boolean)?} [filter]
+ * @property {((entity: Entity) => boolean)?} [filter] A filter function that you can use
+ * to exclude certain parts of the tree. If the function returns false, that child and all of
+ * its children will be excluded from the traversal.
  */
 
 /**
@@ -665,6 +667,28 @@ export class Entity {
 	}
 
 	/**
+	 * Yields all children recursively, including this entity itself.
+	 *
+	 * @example
+	 * ```js
+	 * for (const child of entity.traverseDown()) {
+	 * 	// do something with the child
+	 * }
+	 * ```
+	 *
+	 * If you are dealing with a large tree of entities, you can exclude certain
+	 * parts of the tree using a filter.
+	 *
+	 * @example
+	 * ```js
+	 * const generator = entity.traverseDown({
+	 * 	filter: child => child != excludeEntity;
+	 * });
+	 * for (const child of generator) {
+	 * 	// do something with child
+	 * }
+	 * ```
+	 *
 	 * @param {EntityTraverseOptions} options
 	 * @returns {Generator<Entity>}
 	 */
@@ -680,6 +704,28 @@ export class Entity {
 	}
 
 	/**
+	 * Yields all parents recursively, including this entity itself.
+	 *
+	 * @example
+	 * ```js
+	 * for (const parent of entity.traverseUp()) {
+	 * 	// do something with the parent
+	 * }
+	 * ```
+	 *
+	 * If you are dealing with a large tree of entities, you can exclude certain
+	 * parts of the tree using a filter.
+	 *
+	 * @example
+	 * ```js
+	 * const generator = entity.traverseUp({
+	 * 	filter: parent => parent != excludeEntity;
+	 * });
+	 * for (const parent of generator) {
+	 * 	// do something with parent
+	 * }
+	 * ```
+	 *
 	 * @param {EntityTraverseOptions} options
 	 * @returns {Generator<Entity>}
 	 */
