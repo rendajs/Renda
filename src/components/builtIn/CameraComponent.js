@@ -42,11 +42,17 @@ export class CameraComponent extends Component {
 					defaultValue: 1000,
 				},
 			},
-			aspect: {
+			aspectRatio: {
 				type: "number",
 				guiOpts: {
 					min: 0,
 					defaultValue: 1,
+				},
+			},
+			autoUpdateAspectRatio : {
+				type: "boolean",
+				guiOpts: {
+					defaultValue: true,
 				},
 			},
 			autoUpdateProjectionMatrix: {
@@ -94,7 +100,9 @@ export class CameraComponent extends Component {
 				fov: StorageType.FLOAT64,
 				clipNear: StorageType.FLOAT64,
 				clipFar: StorageType.FLOAT64,
-				aspect: StorageType.FLOAT64,
+				aspectRatio: StorageType.FLOAT64,
+				autoUpdateAspectRatio: StorageType.BOOL,
+				autoUpdateProjectionMatrix: StorageType.BOOL,
 				renderOutputConfig: StorageType.ASSET_UUID,
 				clusteredLightsConfig: StorageType.ASSET_UUID,
 			},
@@ -102,9 +110,11 @@ export class CameraComponent extends Component {
 				fov: 1,
 				clipNear: 2,
 				clipFar: 3,
-				aspect: 4,
-				renderOutputConfig: 5,
-				clusteredLightsConfig: 6,
+				aspectRatio: 4,
+				autoUpdateAspectRatio: 5,
+				autoUpdateProjectionMatrix: 6,
+				renderOutputConfig: 7,
+				clusteredLightsConfig: 8,
 			},
 		};
 	}
@@ -119,7 +129,8 @@ export class CameraComponent extends Component {
 		this.fov = 90;
 		this.clipNear = 0.01;
 		this.clipFar = 1000;
-		this.aspect = 1;
+		this.aspectRatio = 1;
+		this.autoUpdateAspectRatio = true;
 		this.autoUpdateProjectionMatrix = true;
 		this.projectionMatrix = new Mat4();
 		/** @type {RenderOutputConfig?} */
@@ -133,7 +144,7 @@ export class CameraComponent extends Component {
 	// todo: cache the value
 	updateProjectionMatrixIfEnabled() {
 		if (!this.autoUpdateProjectionMatrix) return;
-		this.projectionMatrix = Mat4.createDynamicAspectPerspective(this.fov, this.clipNear, this.clipFar, this.aspect);
+		this.projectionMatrix = Mat4.createDynamicAspectPerspective(this.fov, this.clipNear, this.clipFar, this.aspectRatio);
 	}
 
 	/**
