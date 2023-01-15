@@ -1,7 +1,5 @@
 import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
-import {ContentWindowEntityEditor} from "../ContentWindowEntityEditor.js";
-import {CameraComponent} from "../../../../../src/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {EntryPointManager, getSelectedEntryPoint} from "./EntryPointManager.js";
