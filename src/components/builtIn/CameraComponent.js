@@ -49,7 +49,7 @@ export class CameraComponent extends Component {
 					defaultValue: 1,
 				},
 			},
-			autoUpdateAspectRatio : {
+			autoUpdateAspectRatio: {
 				type: "boolean",
 				guiOpts: {
 					defaultValue: true,
@@ -126,10 +126,14 @@ export class CameraComponent extends Component {
 	constructor(propertyValues = {}, ...args) {
 		super();
 
-		this.fov = 90;
-		this.clipNear = 0.01;
-		this.clipFar = 1000;
-		this.aspectRatio = 1;
+		/** @private */
+		this._fov = 90;
+		/** @private */
+		this._clipNear = 0.01;
+		/** @private */
+		this._clipFar = 1000;
+		/** @private */
+		this._aspectRatio = 1;
 		this.autoUpdateAspectRatio = true;
 		this.autoUpdateProjectionMatrix = true;
 		this.projectionMatrix = new Mat4();
@@ -138,13 +142,52 @@ export class CameraComponent extends Component {
 		/** @type {ClusteredLightsConfig?} */
 		this.clusteredLightsConfig = null;
 
+		/** @private */
+		this._projectionMatrixDirty = true;
+
 		this.initValues(propertyValues, ...args);
 	}
 
-	// todo: cache the value
+	get fov() {
+		return this._fov;
+	}
+	set fov(value) {
+		if (this._fov == value) return;
+		this._fov = value;
+		this._projectionMatrixDirty = true;
+	}
+
+	get clipNear() {
+		return this._clipNear;
+	}
+	set clipNear(value) {
+		if (this._clipNear == value) return;
+		this._clipNear = value;
+		this._projectionMatrixDirty = true;
+	}
+
+	get clipFar() {
+		return this._clipFar;
+	}
+	set clipFar(value) {
+		if (this._clipFar == value) return;
+		this._clipFar = value;
+		this._projectionMatrixDirty = true;
+	}
+
+	get aspectRatio() {
+		return this._aspectRatio;
+	}
+	set aspectRatio(value) {
+		if (this._aspectRatio == value) return;
+		this._aspectRatio = value;
+		this._projectionMatrixDirty = true;
+	}
+
 	updateProjectionMatrixIfEnabled() {
-		if (!this.autoUpdateProjectionMatrix) return;
+		if (!this.autoUpdateProjectionMatrix || !this._projectionMatrixDirty) return;
 		this.projectionMatrix = Mat4.createDynamicAspectPerspective(this.fov, this.clipNear, this.clipFar, this.aspectRatio);
+		this._projectionMatrixDirty = false;
 	}
 
 	/**
