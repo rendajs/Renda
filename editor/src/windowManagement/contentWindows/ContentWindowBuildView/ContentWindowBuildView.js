@@ -1,7 +1,5 @@
 import {ContentWindow} from "../ContentWindow.js";
 import {Button} from "../../../ui/Button.js";
-import {ContentWindowEntityEditor} from "../ContentWindowEntityEditor.js";
-import {CameraComponent} from "../../../../../src/mod.js";
 import {getEditorInstance} from "../../../editorInstance.js";
 import {ButtonGroup} from "../../../ui/ButtonGroup.js";
 import {EntryPointManager, getSelectedEntryPoint} from "./EntryPointManager.js";
@@ -26,13 +24,6 @@ export class ContentWindowBuildView extends ContentWindow {
 		super(...args);
 
 		this.setContentBehindTopBar(true);
-
-		this.previewCamDomTarget = this.editorInstance.renderer.createDomTarget();
-		this.renderTargetElement = this.previewCamDomTarget.getElement();
-		this.contentEl.appendChild(this.renderTargetElement);
-		this.previewCamComponent = null;
-		this.previewCamRenderDirty = true;
-		this.boundMarkPreviewCamRenderDirty = this.markPreviewCamRenderDirty.bind(this);
 
 		this.isRunning = false;
 		this.iframeEl = document.createElement("iframe");
@@ -103,76 +94,13 @@ export class ContentWindowBuildView extends ContentWindow {
 		});
 		this.addTopBarEl(this.entryPointButton.el);
 
-		/** @type {ContentWindowEntityEditor?} */
-		this.linkedEntityEditor = null;
-		this.setAvailableLinkedEntityEditor();
-
 		this.updateButtonVisibilities();
 		this.updateIframeVisibility();
 	}
 
 	destructor() {
-		this.setLinkedEntityEditor(null);
 		super.destructor();
 		window.removeEventListener("message", this.onIframeMessage);
-
-		this.previewCamDomTarget.destructor();
-	}
-
-	setAvailableLinkedEntityEditor() {
-		for (const entityEditor of this.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
-			this.setLinkedEntityEditor(entityEditor);
-			break;
-		}
-	}
-
-	/**
-	 * @param {ContentWindowEntityEditor?} linkedEntityEditor
-	 */
-	setLinkedEntityEditor(linkedEntityEditor) {
-		if (linkedEntityEditor == this.linkedEntityEditor) return;
-		if (this.linkedEntityEditor) this.linkedEntityEditor.removeOnRenderDirty(this.boundMarkPreviewCamRenderDirty);
-		this.linkedEntityEditor = linkedEntityEditor;
-		if (linkedEntityEditor) linkedEntityEditor.onRenderDirty(this.boundMarkPreviewCamRenderDirty);
-		this.updatePreviewCam();
-	}
-
-	markPreviewCamRenderDirty() {
-		this.previewCamRenderDirty = true;
-	}
-
-	updatePreviewCam() {
-		const lastCam = this.previewCamComponent;
-		let foundCamComponent = null;
-		if (this.linkedEntityEditor) {
-			for (const {entity} of this.linkedEntityEditor.selectionGroup.currentSelectedObjects) {
-				for (const camComponent of entity.getComponents(CameraComponent)) {
-					foundCamComponent = camComponent;
-					break;
-				}
-				if (foundCamComponent) break;
-			}
-
-			if (!foundCamComponent && this.linkedEntityEditor.editingEntity) {
-				for (const camComponent of this.linkedEntityEditor.editingEntity.getChildComponents(CameraComponent)) {
-					foundCamComponent = camComponent;
-					break;
-				}
-			}
-		}
-		this.previewCamComponent = foundCamComponent;
-		if (lastCam != this.previewCamComponent) {
-			this.previewCamRenderDirty = true;
-		}
-	}
-
-	/**
-	 * @param {number} w
-	 * @param {number} h
-	 */
-	onWindowResize(w, h) {
-		this.previewCamDomTarget.resize(w, h);
-		this.previewCamRenderDirty = true;
 	}
 
 	/**
@@ -220,10 +148,11 @@ export class ContentWindowBuildView extends ContentWindow {
 			}
 			const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
 			const projectAssetType = await projectAsset.getProjectAssetType();
+			const projectAssetTypeAny = /** @type {any} */ (projectAssetType);
 			let newSrc;
-			if (projectAssetType instanceof ProjectAssetTypeHtml) {
+			if (projectAssetTypeAny instanceof ProjectAssetTypeHtml) {
 				newSrc = `sw/clients/${clientId}/projectFiles/${path.join("/")}`;
-			} else if (projectAssetType instanceof ProjectAssetTypeJavascript) {
+			} else if (projectAssetTypeAny instanceof ProjectAssetTypeJavascript) {
 				newSrc = `sw/clients/${clientId}/getGeneratedHtml?scriptSrc=projectFiles/${path.join("/")}`;
 			} else {
 				throw new Error(`Unexpected asset type for project asset with uuid "${entryPointUuid}"`);
@@ -254,22 +183,7 @@ export class ContentWindowBuildView extends ContentWindow {
 		}
 	};
 
-	loop() {
-		if (this.previewCamRenderDirty) {
-			this.updatePreviewCam(); // todo: find a more efficient moment to update this
-			this.renderPreviewCam();
-			this.previewCamRenderDirty = false;
-		}
-	}
-
-	renderPreviewCam() {
-		if (this.previewCamComponent) {
-			this.previewCamDomTarget.render(this.previewCamComponent);
-		}
-	}
-
 	updateIframeVisibility() {
-		this.renderTargetElement.style.display = this.isRunning ? "none" : "block";
 		this.iframeEl.style.display = this.isRunning ? "" : "none";
 	}
 }

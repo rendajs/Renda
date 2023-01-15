@@ -1,6 +1,5 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
-import {ContentWindowBuildView} from "./ContentWindowBuildView/ContentWindowBuildView.js";
 import {Button} from "../../ui/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, OrbitControls, TranslationGizmo, Vec3} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
@@ -197,7 +196,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		for (const outliner of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
 			outliner.entityEditorUpdated({target: this});
 		}
-		this.updateBuildViews();
 		this.updateLiveAssetChangeListeners();
 	}
 
@@ -312,12 +310,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	render() {
 		this.domTarget.render(this.editorCamComponent);
-	}
-
-	updateBuildViews() {
-		for (const buildView of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)) {
-			buildView.setLinkedEntityEditor(this);
-		}
 	}
 
 	#updateTranslationMode() {
