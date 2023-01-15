@@ -72,9 +72,6 @@ export class ServiceWorkerManager {
 	constructor() {
 		this.registration = null;
 
-		this.installationFailed = false;
-		this.installSw();
-
 		if (this.supported) {
 			/** @type {TypedMessenger<import("../../sw.js").ServiceWorkerMessageHandlers, ServiceWorkerManagerMessageHandlers>} */
 			this.messenger = new TypedMessenger();
@@ -93,10 +90,10 @@ export class ServiceWorkerManager {
 	}
 
 	get supported() {
-		return "serviceWorker" in window.navigator && !this.installationFailed;
+		return "serviceWorker" in window.navigator;
 	}
 
-	async installSw() {
+	async init() {
 		if (!this.supported) return;
 		try {
 			// @rollup-plugin-resolve-url-objects
@@ -106,7 +103,6 @@ export class ServiceWorkerManager {
 			});
 		} catch (e) {
 			console.error("failed to install serviceWorker", e);
-			this.installationFailed = true;
 		}
 		const registration = this.registration;
 		if (registration) {
