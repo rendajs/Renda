@@ -89,6 +89,7 @@ export class Editor {
 		this.componentGizmosManager.init();
 		this.materialMapTypeSerializerManager.init();
 		this.builtInDefaultAssetLinksManager.init();
+		this.serviceWorkerManager.init();
 
 		this.webGpuShaderBuilder.onShaderUuidRequested(async uuid => {
 			const assetManager = await this.projectManager.getAssetManager();
