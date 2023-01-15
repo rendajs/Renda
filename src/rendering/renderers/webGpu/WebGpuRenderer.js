@@ -243,7 +243,9 @@ export class WebGpuRenderer extends Renderer {
 			throw new Error("Assertion failed, some required objects do not exist");
 		}
 
-		// todo, support for auto cam aspect based on domTarget size
+		if (camera.autoUpdateAspectRatio) {
+			camera.aspectRatio = domTarget.width / domTarget.height;
+		}
 
 		camera.updateProjectionMatrixIfEnabled();
 		if (camera.renderOutputConfig) {

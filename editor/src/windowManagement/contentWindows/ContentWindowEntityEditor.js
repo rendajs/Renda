@@ -208,8 +208,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 */
 	onWindowResize(w, h) {
 		this.domTarget.resize(w, h);
-
-		this.editorCamComponent.aspect = w / h;
 		this.markRenderDirty();
 	}
 
