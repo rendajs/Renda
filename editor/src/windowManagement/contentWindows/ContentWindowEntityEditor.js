@@ -197,7 +197,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		for (const outliner of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
 			outliner.entityEditorUpdated({target: this});
 		}
-		this.updateBuildViews();
 		this.updateLiveAssetChangeListeners();
 	}
 
@@ -314,12 +313,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	render() {
 		this.domTarget.render(this.editorCamComponent);
-	}
-
-	updateBuildViews() {
-		for (const buildView of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowBuildView)) {
-			buildView.setLinkedEntityEditor(this);
-		}
 	}
 
 	#updateTranslationMode() {
