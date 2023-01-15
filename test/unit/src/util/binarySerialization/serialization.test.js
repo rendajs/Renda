@@ -1,5 +1,5 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
-import {StorageType, createObjectToBinaryStructure} from "../../../../../src/util/binarySerialization.js";
+import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {StorageType, binaryToObject, createObjectToBinaryOptions, createObjectToBinaryStructure, objectToBinary} from "../../../../../src/util/binarySerialization.js";
 import {basicObjectToBinaryToObjectTest} from "./shared.js";
 
 Deno.test({
@@ -405,5 +405,57 @@ Deno.test({
 		assertEquals(result, {
 			array: [],
 		});
+	},
+});
+
+Deno.test({
+	name: "missing nameids",
+	fn() {
+		const object = {
+			foo: "foo",
+			bar: 42,
+		};
+		const opts = createObjectToBinaryOptions({
+			structure: {
+				foo: StorageType.STRING,
+				bar: StorageType.UINT32,
+			},
+			nameIds: {
+				foo: 1,
+			},
+		});
+		const buffer = objectToBinary(object, opts);
+		const object2 = binaryToObject(buffer, opts);
+		// @ts-expect-error Remove when #322 is fixed
+		assertEquals(object2, {
+			foo: "foo",
+		});
+	},
+});
+
+Deno.test({
+	name: "duplicate nameids",
+	fn() {
+		assertThrows(() => {
+			objectToBinary({}, {
+				structure: {},
+				nameIds: {
+					foo1: 1,
+					foo2: 1,
+					bar: 2,
+				},
+			});
+		}, Error, 'The name ids object contains duplicate ids: "foo1", "foo2"');
+		assertThrows(() => {
+			binaryToObject(new ArrayBuffer(0), {
+				structure: {},
+				nameIds: {
+					foo1: 1,
+					foo2: 1,
+					bar1: 2,
+					bar2: 2,
+				},
+			});
+		}, Error, 'The name ids object contains duplicate ids: "foo1", "foo2", "bar1", "bar2"');
 	},
 });
