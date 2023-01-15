@@ -18,9 +18,10 @@ export class LightComponent extends Component {
 	 */
 	static get guiStructure() {
 		return createTreeViewStructure({
-			lightType: {
+			type: {
 				type: "dropdown",
 				guiOpts: {
+					defaultValue: "point",
 					items: lightTypes,
 				},
 			},
@@ -36,11 +37,11 @@ export class LightComponent extends Component {
 	static get binarySerializationOpts() {
 		return {
 			structure: {
-				lightType: lightTypes,
+				type: lightTypes,
 				color: [StorageType.FLOAT64],
 			},
 			nameIds: {
-				lightType: 1,
+				type: 1,
 				color: 2,
 			},
 		};

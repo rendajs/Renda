@@ -35,7 +35,7 @@ Deno.test({
 		const entity = new Entity();
 		const component = new LightComponent({
 			color: [1, 0, 0],
-			lightType: "point",
+			type: "point",
 		});
 		entity.addComponent(component);
 
