@@ -122,10 +122,38 @@ function rebaseCssUrl({
 	return plugin;
 }
 
+/**
+ * @param {string} cmd
+ */
+async function runCmd(cmd) {
+	const p = Deno.run({
+		cmd: cmd.split(" "),
+		stdout: "piped",
+	});
+	const status = await p.status();
+	if (!status.success) {
+		throw new Error(`Running "${cmd}" exited with status code ${status.code}`);
+	}
+	const outputBuffer = await p.output();
+	let outputStr = new TextDecoder().decode(outputBuffer);
+	p.close();
+	outputStr = outputStr.trim();
+	if (!outputStr) {
+		throw new Error(`Running "${cmd}" resulted in an empty string`);
+	}
+	return outputStr;
+}
+
+const branch = await runCmd("git branch --show-current");
+const gitCommit = await runCmd("git rev-parse HEAD");
+
 const editorDefines = {
 	EDITOR_ENV: "production",
 	IS_DEV_BUILD: false,
 	ENGINE_SOURCE_PATH: engineFileName,
+	BUILD_GIT_BRANCH: branch,
+	BUILD_GIT_COMMIT: gitCommit,
+	BUILD_DATE: Date.now(),
 };
 const EDITOR_ENTRY_POINT_PATH = "../src/main.js";
 const INTERNAL_DISCOVERY_ENTRY_POINT_PATH = "../src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js";

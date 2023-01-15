@@ -12,3 +12,7 @@ export const EDITOR_ENV = "dev";
  * has its hash in the filename to invalidate cache.
  */
 export const ENGINE_SOURCE_PATH = "/src/mod.js";
+
+export const BUILD_GIT_BRANCH = "dev";
+export const BUILD_GIT_COMMIT = "-";
+export const BUILD_DATE = Date.now();
