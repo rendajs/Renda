@@ -217,6 +217,7 @@ export function objectToBinary(data, {
 	transformValueHook = null,
 	editorAssetManager = null,
 }) {
+	assertNonDuplicateNameIds(nameIds);
 	const nameIdsMap = new Map(Object.entries(nameIds));
 
 	const castData = /** @type {object} */ (data);
@@ -375,6 +376,8 @@ export function binaryToObject(buffer, {
 	variableLengthStorageTypes = null,
 	transformValueHook = null,
 }) {
+	assertNonDuplicateNameIds(nameIds);
+
 	/** @type {Required<BinarySerializationVariableLengthStorageTypes>} */
 	const useVariableLengthStorageTypes = {
 		...defaultVariableLengthStorageTypes,
@@ -885,6 +888,34 @@ function sortNameIdsArr(arr) {
 		}
 		return a.nameId - b.nameId;
 	});
+}
+
+/**
+ * @param {BinarySerializationNameIds} nameIds
+ */
+function assertNonDuplicateNameIds(nameIds) {
+	/** @type {Set<number>} */
+	const foundIds = new Set();
+	/** @type {Set<number>} */
+	const duplicateIds = new Set();
+	for (const id of Object.values(nameIds)) {
+		if (foundIds.has(id)) {
+			duplicateIds.add(id);
+		} else {
+			foundIds.add(id);
+		}
+	}
+	if (duplicateIds.size > 0) {
+		/** @type {Set<string>} */
+		const duplicateNames = new Set();
+		for (const [name, id] of Object.entries(nameIds)) {
+			if (duplicateIds.has(id)) {
+				duplicateNames.add(`"${name}"`);
+			}
+		}
+		const duplicates = Array.from(duplicateNames).join(", ");
+		throw new Error(`The name ids object contains duplicate ids: ${duplicates}`);
+	}
 }
 
 /**
