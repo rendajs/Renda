@@ -144,8 +144,15 @@ async function runCmd(cmd) {
 	return outputStr;
 }
 
-const branch = await runCmd("git branch --show-current");
-const gitCommit = await runCmd("git rev-parse HEAD");
+let branch = Deno.env.get("GITHUB_REF_NAME");
+if (!branch) {
+	branch = await runCmd("git branch --show-current");
+}
+
+let gitCommit = Deno.env.get("GITHUB_SHA");
+if (!gitCommit) {
+	gitCommit = await runCmd("git rev-parse HEAD");
+}
 
 const editorDefines = {
 	EDITOR_ENV: "production",
