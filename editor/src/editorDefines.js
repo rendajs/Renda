@@ -10,6 +10,8 @@ export const EDITOR_ENV = "dev";
  * to `/src/mod.js`, which is an unbundled entrypoint of the engine.
  * In production builds this points to a bundled version of the engine, which
  * has its hash in the filename to invalidate cache.
+ * Note that in production this is not an absolute path, it starts with ./ and
+ * is relative to the build directory.
  */
 export const ENGINE_SOURCE_PATH = "/src/mod.js";
 
