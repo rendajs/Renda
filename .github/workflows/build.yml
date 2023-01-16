@@ -1,6 +1,10 @@
 name: build
 on:
   workflow_call
+    inputs:
+      build-commit-sha:
+        required: false
+        type: string
 
 env:
   # be sure to also update these in ci.yml
@@ -35,7 +39,7 @@ jobs:
 
       - name: Build editor
         env:
-          BUILD_COMMIT_SHA: test
+          BUILD_COMMIT_SHA: ${{ inputs.build-commit-sha }}
         run: deno task build-editor
 
       - name: Tar build files
