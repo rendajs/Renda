@@ -149,7 +149,7 @@ if (!branch) {
 	branch = await runCmd("git branch --show-current");
 }
 
-let gitCommit = Deno.env.get("GITHUB_SHA");
+let gitCommit = Deno.env.get("GITHUB_HEAD_REF") || Deno.env.get("GITHUB_SHA");
 if (!gitCommit) {
 	gitCommit = await runCmd("git rev-parse HEAD");
 }
