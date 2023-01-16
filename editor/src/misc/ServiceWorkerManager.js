@@ -42,9 +42,10 @@ const messageHandlers = {
 	 * @param {string} scriptSrc The location of the main entry point to include in the html.
 	 */
 	async getGeneratedHtml(scriptSrc) {
+		const engineUrl = new URL(ENGINE_SOURCE_PATH, location.href);
 		const importMap = {
 			imports: {
-				renda: ENGINE_SOURCE_PATH,
+				renda: engineUrl.href,
 				"renda:services": "./services.js",
 			},
 		};

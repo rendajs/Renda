@@ -158,7 +158,7 @@ if (!gitCommit) {
 const editorDefines = {
 	EDITOR_ENV: "production",
 	IS_DEV_BUILD: false,
-	ENGINE_SOURCE_PATH: engineFileName,
+	ENGINE_SOURCE_PATH: "./" + engineFileName,
 	BUILD_GIT_BRANCH: branch,
 	BUILD_GIT_COMMIT: gitCommit,
 	BUILD_DATE: Date.now(),
