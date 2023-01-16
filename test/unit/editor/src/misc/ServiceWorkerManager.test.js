@@ -20,6 +20,7 @@ async function basicTest(fn, {
 	runTaskResult,
 } = {}) {
 	const previousNavigatorServiceWorker = navigator.serviceWorker;
+	const previousLocation = window.location;
 	try {
 		const mockFileSystem = new MemoryEditorFileSystem();
 		await mockFileSystem.writeText(["path", "to", "file"], "hello file");
@@ -86,10 +87,16 @@ async function basicTest(fn, {
 			},
 			ready: Promise.resolve(mockRegistration),
 		});
+
+		window.location = /** @type {Location} */ ({
+			href: "https://renda.studio/",
+		});
+
 		await fn({messenger, runTaskSpy});
 	} finally {
 		// @ts-ignore
 		navigator.serviceWorker = previousNavigatorServiceWorker;
+		window.location = previousLocation;
 		injectMockEditorInstance(null);
 	}
 }
@@ -154,7 +161,7 @@ Deno.test({
 							},
 							{
 								find: "RENDA_IMPORT_MAP_TAG",
-								replace: `<script type="importmap">{"imports":{"renda":"/src/mod.js","renda:services":"./services.js"}}</script>`,
+								replace: `<script type="importmap">{"imports":{"renda":"https://renda.studio/src/mod.js","renda:services":"./services.js"}}</script>`,
 							},
 						],
 						template: "264a38b9-4e43-4261-b57d-28a778a12dd9",
