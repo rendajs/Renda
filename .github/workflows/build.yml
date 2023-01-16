@@ -34,6 +34,8 @@ jobs:
         run: deno task build-engine
 
       - name: Build editor
+        env:
+          BUILD_COMMIT_SHA: test
         run: deno task build-editor
 
       - name: Tar build files
