@@ -13,6 +13,8 @@ import projectSelector from "../projectSelector/projectSelector.css" assert {typ
 // @ts-ignore
 import windowManagement from "../windowManagement/windowManagement.css" assert {type: "css"};
 // @ts-ignore
+import contentWindowAbout from "../windowManagement/contentWindows/ContentWindowAbout.css" assert {type: "css"};
+// @ts-ignore
 import popoverMenus from "../ui/popoverMenus/popoverMenus.css" assert {type: "css"};
 // @ts-ignore
 import guis from "../ui/guis.css" assert {type: "css"};
@@ -25,6 +27,7 @@ document.adoptedStyleSheets = [
 	zIndex,
 	projectSelector,
 	windowManagement,
+	contentWindowAbout,
 	popoverMenus,
 	guis,
 	treeView,

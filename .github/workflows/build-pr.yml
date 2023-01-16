@@ -10,3 +10,5 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
+    with:
+      build-commit-sha: ${{ github.event.pull_request.head.sha }}

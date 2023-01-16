@@ -26,6 +26,7 @@ export async function dev({
 	if (needsTypes) {
 		const promise = generateTypes({
 			outputDir: ".denoTypes",
+			unstable: true,
 			importMap: "importmap.json",
 			include: [
 				"scripts",
