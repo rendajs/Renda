@@ -32,7 +32,6 @@ export async function dev({
 				"scripts",
 				"test",
 				"editor/devSocket",
-				"editor/scripts",
 			],
 			excludeUrls: [
 				"rollup-plugin-cleanup",
