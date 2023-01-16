@@ -1,4 +1,7 @@
 import {BUILD_DATE, BUILD_GIT_BRANCH, BUILD_GIT_COMMIT} from "../../editorDefines.js";
+import {licenses} from "../../misc/thirdPartyLicenses.js";
+import {Button} from "../../ui/Button.js";
+import {TreeView} from "../../ui/TreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 
 export class ContentWindowAbout extends ContentWindow {
@@ -57,5 +60,43 @@ export class ContentWindowAbout extends ContentWindow {
 			relativeDateStr = rtf.format(Math.floor(elapsed / year), "year");
 		}
 		addInfo(`Date: ${dateStr} (${relativeDateStr})`);
+
+		const licensesTreeView = new TreeView({
+			name: "Third party licenses",
+			selectable: false,
+			collapsed: true,
+		});
+		this.contentEl.appendChild(licensesTreeView.el);
+
+		for (const licenseInfo of licenses) {
+			const treeView = licensesTreeView.addChild();
+			treeView.name = licenseInfo.libraryName;
+
+			const homePageTreeView = treeView.addChild();
+			const homePageButton = new Button({
+				text: "Visit Homepage",
+				onClick() {
+					window.open(licenseInfo.homepage, "_blank", "noopener");
+				},
+			});
+			homePageTreeView.addButton(homePageButton);
+
+			const licenseTreeView = treeView.addChild();
+			const licenseButton = new Button({
+				text: "View License",
+				onClick() {
+					const w = window.open("about:blank", "_blank");
+					if (!w) {
+						throw new Error("Failed to open window, the pop-up was probably blocked.");
+					}
+					const node = w.document.createElement("pre");
+					node.style.maxWidth = "700px";
+					node.style.whiteSpace = "pre-wrap";
+					node.textContent = licenseInfo.license;
+					w.document.body.appendChild(node);
+				},
+			});
+			licenseTreeView.addButton(licenseButton);
+		}
 	}
 }
