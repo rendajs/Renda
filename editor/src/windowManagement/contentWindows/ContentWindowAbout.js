@@ -16,25 +16,8 @@ export class ContentWindowAbout extends ContentWindow {
 		super(...args);
 
 		const aboutEl = document.createElement("p");
-		aboutEl.style.userSelect = "text";
+		aboutEl.classList.add("about-container");
 		this.contentEl.appendChild(aboutEl);
-
-		/**
-		 * @param {string} text
-		 */
-		function addInfo(text) {
-			const el = document.createTextNode(text);
-			aboutEl.appendChild(el);
-		}
-
-		function addBr() {
-			aboutEl.appendChild(document.createElement("br"));
-		}
-
-		addInfo("Branch: " + BUILD_GIT_BRANCH);
-		addBr();
-		addInfo("Commit: " + BUILD_GIT_COMMIT);
-		addBr();
 
 		const dateStr = new Date(BUILD_DATE).toLocaleString();
 		const second = 1000;
@@ -59,10 +42,23 @@ export class ContentWindowAbout extends ContentWindow {
 		} else {
 			relativeDateStr = rtf.format(Math.floor(elapsed / year), "year");
 		}
-		addInfo(`Date: ${dateStr} (${relativeDateStr})`);
+
+		let commitHtml = "-";
+		if (BUILD_GIT_COMMIT != "-") {
+			commitHtml = `<span title="${BUILD_GIT_COMMIT}">${BUILD_GIT_COMMIT.slice(0, 8)}</span>`;
+		}
+
+		const html = `
+			Branch: ${BUILD_GIT_BRANCH}
+			<br>
+			Commit: ${commitHtml}
+			<br>
+			Date: <span title="${relativeDateStr}">${dateStr}</span>
+		`;
+		aboutEl.innerHTML = html;
 
 		const licensesTreeView = new TreeView({
-			name: "Third party licenses",
+			name: "Third party software",
 			selectable: false,
 			collapsed: true,
 		});

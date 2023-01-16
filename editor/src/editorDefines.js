@@ -14,5 +14,6 @@ export const EDITOR_ENV = "dev";
 export const ENGINE_SOURCE_PATH = "/src/mod.js";
 
 export const BUILD_GIT_BRANCH = "dev";
+/** @type {string} */
 export const BUILD_GIT_COMMIT = "-";
 export const BUILD_DATE = Date.now();
