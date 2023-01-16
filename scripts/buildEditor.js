@@ -8,31 +8,32 @@ import {importAssertions} from "https://esm.sh/acorn-import-assertions@1.8.0?pin
 import postcss from "https://deno.land/x/postcss@8.4.13/mod.js";
 import postcssUrl from "npm:postcss-url@10.1.3";
 import resolveUrlObjects from "npm:rollup-plugin-resolve-url-objects@0.0.4";
-import {dev} from "../../scripts/dev.js";
-import {buildEngine} from "../../scripts/build.js";
+import {dev} from "./dev.js";
+import {buildEngine} from "./buildEngine.js";
 import {toHashString} from "std/crypto/mod.ts";
 
 await dev();
 
 setCwd();
+Deno.chdir("../editor");
 
 try {
-	await Deno.remove("../dist", {recursive: true});
+	await Deno.remove("dist", {recursive: true});
 } catch {
 	// Already removed
 }
-await ensureDir("../dist");
+await ensureDir("dist");
 
-await copy("../index.html", "../dist/index.html");
-await copy("../internalDiscovery.html", "../dist/internalDiscovery.html");
-await copy("../static/", "../dist/static/");
-await copy("../builtInAssets/", "../dist/builtInAssets/");
+await copy("index.html", "dist/index.html");
+await copy("internalDiscovery.html", "dist/internalDiscovery.html");
+await copy("static/", "dist/static/");
+await copy("builtInAssets/", "dist/builtInAssets/");
 
 const engineSource = await buildEngine();
 const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(engineSource));
 const hashString = toHashString(hash).slice(0, 8);
 const engineFileName = `renda-${hashString}.js`;
-await Deno.writeTextFile("../dist/" + engineFileName, engineSource);
+await Deno.writeTextFile("dist/" + engineFileName, engineSource);
 
 /**
  * Replaces the value of an attribute in a html file.
@@ -162,8 +163,8 @@ const editorDefines = {
 	BUILD_GIT_COMMIT: gitCommit,
 	BUILD_DATE: Date.now(),
 };
-const EDITOR_ENTRY_POINT_PATH = "../src/main.js";
-const INTERNAL_DISCOVERY_ENTRY_POINT_PATH = "../src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js";
+const EDITOR_ENTRY_POINT_PATH = "src/main.js";
+const INTERNAL_DISCOVERY_ENTRY_POINT_PATH = "src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js";
 const bundle = await rollup({
 	input: [
 		EDITOR_ENTRY_POINT_PATH,
@@ -174,7 +175,7 @@ const bundle = await rollup({
 		resolveUrlObjects(),
 		terser(),
 		rebaseCssUrl({
-			outputPath: path.resolve("../dist/"),
+			outputPath: path.resolve("dist/"),
 		}),
 		importAssertionsPlugin(),
 	],
@@ -186,7 +187,7 @@ const bundle = await rollup({
 	preserveEntrySignatures: false,
 });
 const {output} = await bundle.write({
-	dir: "../dist/",
+	dir: "dist/",
 	format: "esm",
 	entryFileNames: "[name]-[hash].js",
 });
@@ -211,5 +212,5 @@ if (!bundleEntryPoint) {
 if (!internalDiscoveryEntryPoint) {
 	throw new Error("Assertion failed: no internal discovery entry point chunk was found");
 }
-await setHtmlAttribute("../dist/index.html", "editor script tag", bundleEntryPoint);
-await setHtmlAttribute("../dist/internalDiscovery.html", "discovery script tag", internalDiscoveryEntryPoint);
+await setHtmlAttribute("dist/index.html", "editor script tag", bundleEntryPoint);
+await setHtmlAttribute("dist/internalDiscovery.html", "discovery script tag", internalDiscoveryEntryPoint);

@@ -19,8 +19,6 @@
 		"editor/devSocket/src/**/*.ts",
 		"editor/editorDiscoveryServer/src/**/*.js",
 		"editor/editorDiscoveryServer/src/**/*.ts",
-		"editor/scripts/**/*.js",
-		"editor/scripts/**/*.ts",
 		"scripts/**/*.js",
 		"scripts/**/*.ts",
 		"test/**/*.js",
