@@ -239,7 +239,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	/** @override */
-	activated() {
+	activate() {
 		this.treeView.focusIfNotFocused();
 		this.selectionGroup?.activate();
 	}

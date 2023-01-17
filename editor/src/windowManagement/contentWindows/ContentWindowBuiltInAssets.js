@@ -127,7 +127,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 	}
 
 	/** @override */
-	activated() {
+	activate() {
 		if (this.treeView.children.length > 0) {
 			this.treeView.children[0].focusIfNotFocused();
 		}

@@ -111,7 +111,7 @@ export class ContentWindow {
 	 * Normally you would use this to activate any selection groups related to the contentwindow.
 	 * This maybe called multiple times even though the window is already active.
 	 */
-	activated() {}
+	activate() {}
 
 	/**
 	 * @param {number} w

@@ -287,7 +287,7 @@ export class WindowManager {
 	 */
 	addContentWindowToLastClicked(contentWindow) {
 		this.lastClickedContentWindow = contentWindow;
-		contentWindow.activated();
+		contentWindow.activate();
 		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
 		this.#lastClickedValueSetter?.setValue(castConstructor.contentWindowTypeId);
 	}

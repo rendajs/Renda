@@ -524,7 +524,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/** @override */
-	activated() {
+	activate() {
 		this.treeView.focusIfNotFocused();
 		this.selectionGroup.activate();
 	}
