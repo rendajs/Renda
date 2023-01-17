@@ -6,7 +6,7 @@
  */
 export class ShorcutConditionValueSetter {
 	/**
-	 * @param {import("./ShortcutCondition.js").ShortcutCondition} condition
+	 * @param {import("./ShortcutCondition.js").ShortcutCondition<any>} condition
 	 * @param {number} priority
 	 */
 	constructor(condition, priority = 0) {
@@ -23,7 +23,8 @@ export class ShorcutConditionValueSetter {
 	destructor() {
 		if (this.destructed) return;
 		this.destructed = true;
-		this.condition.destroyValueSetter(this);
+		const castThis = /** @type {ShorcutConditionValueSetter<any>} */ (this);
+		this.condition.destroyValueSetter(castThis);
 	}
 
 	/**

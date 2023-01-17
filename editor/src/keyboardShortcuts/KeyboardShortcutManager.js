@@ -34,7 +34,7 @@ export class KeyboardShortcutManager {
 	 */
 
 	constructor() {
-		/** @type {Map<string, ShortcutCondition>} */
+		/** @type {Map<string, ShortcutCondition<any>>} */
 		this.registeredConditions = new Map();
 		/** @type {Set<ShortcutCommand>} */
 		this.registeredCommands = new Set();
@@ -66,8 +66,8 @@ export class KeyboardShortcutManager {
 		/** @type {Map<string, Set<CommandCallback>>} */
 		this.commandListeners = new Map();
 
-		for (const condition of autoRegisterShortcutConditions) {
-			this.registerCondition(condition);
+		for (const [name, options] of Object.entries(autoRegisterShortcutConditions)) {
+			this.registerCondition(name, options);
 		}
 
 		for (const commandOpts of autoRegisterShortcutCommands) {
@@ -84,10 +84,11 @@ export class KeyboardShortcutManager {
 	}
 
 	/**
+	 * @param {string} name
 	 * @param {import("./ShortcutCondition.js").ShortcutConditionOptions} opts
 	 */
-	registerCondition(opts) {
-		const condition = new ShortcutCondition(opts);
+	registerCondition(name, opts) {
+		const condition = new ShortcutCondition(name, opts);
 		this.registeredConditions.set(condition.name, condition);
 		condition.onValueChange(() => {
 			// todo: update only the section of the sequence map that is affected
@@ -97,12 +98,13 @@ export class KeyboardShortcutManager {
 	}
 
 	/**
-	 * @param {string} name
+	 * @template {keyof autoRegisterShortcutConditions} T
+	 * @param {T} name
 	 */
 	getCondition(name) {
 		const condition = this.registeredConditions.get(name);
 		if (!condition) throw new Error(`Shortcut Condition with name "${name}" not found.`);
-		return condition;
+		return /** @type {import("./autoRegisterShortcutConditions.js").GetShortcutConditionType<T>} */ (condition);
 	}
 
 	/**

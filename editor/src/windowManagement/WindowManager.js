@@ -6,6 +6,7 @@ import {WorkspaceManager} from "./WorkspaceManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {EventHandler} from "../../../src/util/EventHandler.js";
 import {EDITOR_ENV} from "../editorDefines.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 /**
  * @typedef {object} ContentWindowEvent
@@ -27,6 +28,11 @@ export class WindowManager {
 	contentWindowAddedHandler = new EventHandler();
 	/** @type {EventHandler<typeof ContentWindow, ContentWindowEvent>} */
 	contentWindowRemovedHandler = new EventHandler();
+
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<string>?} */
+	#lastClickedValueSetter = null;
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<string>?} */
+	#lastFocusedValueSetter = null;
 
 	constructor() {
 		this.rootWindow = null;
@@ -63,6 +69,12 @@ export class WindowManager {
 
 	init() {
 		this.reloadCurrentWorkspace();
+
+		const shortcuts = getEditorInstance().keyboardShortcutManager;
+		const lastClickedCondition = shortcuts.getCondition("windowManager.lastClickedContentWindowTypeId");
+		this.#lastClickedValueSetter = lastClickedCondition.requestValueSetter();
+		const lastFocusedCondition = shortcuts.getCondition("windowManager.lastFocusedContentWindowTypeId");
+		this.#lastFocusedValueSetter = lastFocusedCondition.requestValueSetter();
 	}
 
 	/**
@@ -276,6 +288,8 @@ export class WindowManager {
 	addContentWindowToLastClicked(contentWindow) {
 		this.lastClickedContentWindow = contentWindow;
 		contentWindow.activated();
+		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		this.#lastClickedValueSetter?.setValue(castConstructor.contentWindowTypeId);
 	}
 
 	/**
@@ -291,6 +305,8 @@ export class WindowManager {
 		}
 		this.lastFocusedContentWindows.unshift(new WeakRef(contentWindow));
 		this.lastFocusedContentWindow = contentWindow;
+		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		this.#lastFocusedValueSetter?.setValue(castConstructor.contentWindowTypeId);
 	}
 
 	/**

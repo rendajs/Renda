@@ -1,37 +1,45 @@
-/**
- * @typedef {object} ShortcutConditionOptionsObject
- * @property {string} name
- * @property {"boolean" | "string"} [type = "boolean"]
- */
-
 import {ShorcutConditionValueSetter} from "./ShorcutConditionValueSetter.js";
 
-/** @typedef {ShortcutConditionOptionsObject | string} ShortcutConditionOptions */
+/**
+ * @typedef {object} ShortcutConditionOptions
+ * @property {"boolean" | "string"} type
+ */
+
+/**
+ * @template {boolean | string[]} T
+ * @typedef {T extends boolean ?
+ * ShorcutConditionValueSetter<boolean> :
+ * T extends string[] ?
+ * ShorcutConditionValueSetter<string> :
+ * never} GetShorcutConditionValueSetterType
+ */
 
 /**
  * A condition that commands check for to see if they should be enabled. Only a
  * single instance exists for each condition.
  * The value of a condition can not be set directly. Use a value setter instead.
+ * @template {boolean | string[]} T
  */
 export class ShortcutCondition {
+	/** @typedef {(value: T?) => void} OnValueChangeCallback */
 	/**
+	 * @typedef {GetShorcutConditionValueSetterType<T>} ShorcutConditionValueSetterType
+	 */
+	/**
+	 * @param {string} name
 	 * @param {ShortcutConditionOptions} options
 	 */
-	constructor(options) {
-		if (typeof options === "string") {
-			options = {name: options};
-		}
-
-		this.name = options.name;
+	constructor(name, options) {
+		this.name = name;
 		this.type = options.type || "boolean";
 
-		/** @type {Set<ShorcutConditionValueSetter<any>>} */
+		/** @type {Set<ShorcutConditionValueSetterType>} */
 		this.valueSetters = new Set();
 
-		/** @type {Set<Function>} */
+		/** @type {Set<OnValueChangeCallback>} */
 		this.onValueChangeCbs = new Set();
 
-		/** @type {boolean | string[] | null} */
+		/** @type {T | null} */
 		this.value = null;
 		this.updateCurrentValue();
 	}
@@ -41,15 +49,16 @@ export class ShortcutCondition {
 	 */
 	requestValueSetter(priority = 0) {
 		const valueSetter = new ShorcutConditionValueSetter(this, priority);
-		this.valueSetters.add(valueSetter);
-		valueSetter.onValueChange(() => {
+		const castValueSetter = /** @type {ShorcutConditionValueSetterType} */ (valueSetter);
+		this.valueSetters.add(castValueSetter);
+		castValueSetter.onValueChange(() => {
 			this.updateCurrentValue();
 		});
-		return valueSetter;
+		return castValueSetter;
 	}
 
 	/**
-	 * @param {ShorcutConditionValueSetter<any>} valueSetter
+	 * @param {ShorcutConditionValueSetterType} valueSetter
 	 */
 	destroyValueSetter(valueSetter) {
 		valueSetter.destructor();
@@ -62,9 +71,9 @@ export class ShortcutCondition {
 		const setters = Array.from(this.valueSetters).filter(setter => setter.value != null).sort((a, b) => b.priority - a.priority);
 		if (setters.length == 0) {
 			if (this.type == "boolean") {
-				this.value = false;
+				this.value = /** @type {T} */ (false);
 			} else if (this.type == "string") {
-				this.value = [""];
+				this.value = /** @type {T} */ ([""]);
 			}
 		} else {
 			if (this.type == "boolean") {
@@ -79,11 +88,11 @@ export class ShortcutCondition {
 						break;
 					}
 				}
-				this.value = value;
+				this.value = /** @type {T} */ (value);
 			} else if (this.type == "string") {
 				const castSetters = /** @type {ShorcutConditionValueSetter<string>[]} */ (setters);
 				const values = castSetters.map(setter => setter.value).filter(value => !!value);
-				this.value = /** @type {string[]} */ (values);
+				this.value = /** @type {T} */ (values);
 			}
 		}
 		if (this.value != previousValue) {
@@ -92,7 +101,7 @@ export class ShortcutCondition {
 	}
 
 	/**
-	 * @param {Function} cb
+	 * @param {OnValueChangeCallback} cb
 	 */
 	onValueChange(cb) {
 		this.onValueChangeCbs.add(cb);
