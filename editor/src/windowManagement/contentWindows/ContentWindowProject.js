@@ -140,7 +140,6 @@ export class ContentWindowProject extends ContentWindow {
 		this.treeView.alwaysShowArrow = true;
 		this.treeView.collapsed = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
-		this.treeView.addEventListener("focuswithinchange", this.onTreeViewFocusWithinChange.bind(this));
 		this.treeView.addEventListener("collapsedchange", this.onTreeViewCollapsedChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
@@ -524,23 +523,10 @@ export class ContentWindowProject extends ContentWindow {
 		this.selectionGroup.changeSelection(changes);
 	}
 
-	/**
-	 * @param {import("../../ui/TreeView.js").TreeViewFocusWithinChangeEvent} e
-	 */
-	onTreeViewFocusWithinChange(e) {
-		if (e.hasFocusWithin) {
-			this.selectionGroup.activate();
-		}
-	}
-
-	/**
-	 * @override
-	 * @param {boolean} hasFocus
-	 */
-	focusWithinChange(hasFocus) {
-		if (hasFocus) {
-			this.treeView.focusIfNotFocused();
-		}
+	/** @override */
+	activated() {
+		this.treeView.focusIfNotFocused();
+		this.selectionGroup.activate();
 	}
 
 	/**

@@ -2,6 +2,8 @@ export class EditorWindow {
 	#focusWithin = false;
 	/** @type {Set<(hasFocus: boolean) => any>} */
 	#onFocusedChangeCbs = new Set();
+	/** @type {Set<() => any>} */
+	#onClickWithinCbs = new Set();
 
 	/**
 	 * @param {import("./WindowManager.js").WindowManager} windowManager
@@ -15,6 +17,9 @@ export class EditorWindow {
 		this.windowManager = windowManager;
 		this.isRoot = false;
 
+		this.el.addEventListener("click", () => {
+			this.#onClickWithinCbs.forEach(cb => cb());
+		});
 		this.el.addEventListener("focusin", e => {
 			this.#updateFocusWithin(e.target);
 		});
@@ -61,6 +66,13 @@ export class EditorWindow {
 	 */
 	onFocusedWithinChange(cb) {
 		this.#onFocusedChangeCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onClickWithin(cb) {
+		this.#onClickWithinCbs.add(cb);
 	}
 
 	focus() {

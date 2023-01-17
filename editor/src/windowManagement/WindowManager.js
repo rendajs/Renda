@@ -33,6 +33,8 @@ export class WindowManager {
 		/** @type {WeakRef<ContentWindow>[]} */
 		this.lastFocusedContentWindows = [];
 		this.lastFocusedContentWindow = null;
+		/** @type {ContentWindow?} */
+		this.lastClickedContentWindow = null;
 
 		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
@@ -118,6 +120,7 @@ export class WindowManager {
 		}
 		this.lastFocusedContentWindows = [];
 		this.lastFocusedContentWindow = null;
+		this.lastClickedContentWindow = null;
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.markRootWindowAsRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
@@ -252,6 +255,9 @@ export class WindowManager {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
+			castWindow.onClickWithin(() => {
+				this.addContentWindowToLastClicked(castWindow.activeTab);
+			});
 			castWindow.onFocusedWithinChange(hasFocus => {
 				if (hasFocus) {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
@@ -264,6 +270,16 @@ export class WindowManager {
 	}
 
 	/**
+	 * @private
+	 * @param {ContentWindow} contentWindow
+	 */
+	addContentWindowToLastClicked(contentWindow) {
+		this.lastClickedContentWindow = contentWindow;
+		contentWindow.activated();
+	}
+
+	/**
+	 * @private
 	 * @param {ContentWindow} contentWindow
 	 */
 	addContentWindowToLastFocused(contentWindow) {
