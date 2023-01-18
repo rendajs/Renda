@@ -99,7 +99,7 @@ export class KeyboardShortcutManager {
 
 	/**
 	 * @template {keyof autoRegisterShortcutConditions} T
-	 * @param {T} name
+	 * @param {string | T} name
 	 */
 	getCondition(name) {
 		const condition = this.registeredConditions.get(name);
