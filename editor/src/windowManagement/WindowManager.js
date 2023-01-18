@@ -67,14 +67,14 @@ export class WindowManager {
 		});
 	}
 
-	init() {
-		this.reloadCurrentWorkspace();
-
+	async init() {
 		const shortcuts = getEditorInstance().keyboardShortcutManager;
 		const lastClickedCondition = shortcuts.getCondition("windowManager.lastClickedContentWindowTypeId");
 		this.#lastClickedValueSetter = lastClickedCondition.requestValueSetter();
 		const lastFocusedCondition = shortcuts.getCondition("windowManager.lastFocusedContentWindowTypeId");
 		this.#lastFocusedValueSetter = lastFocusedCondition.requestValueSetter();
+
+		await this.reloadCurrentWorkspace();
 	}
 
 	/**
@@ -276,7 +276,8 @@ export class WindowManager {
 				}
 			});
 		} else {
-			throw new Error("Workspace has an invalid window type: " + workspaceWindowData.type);
+			const castData = /** @type {any} */ (workspaceWindowData);
+			throw new Error("Workspace has an invalid window type: " + castData.type);
 		}
 		return /** @type {any} */ (newWindow);
 	}

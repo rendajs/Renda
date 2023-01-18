@@ -1,4 +1,4 @@
-import {IndexedDbUtil} from "../../../src/mod.js";
+import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
 
 /**
  * @typedef {object} WorkspaceData
@@ -7,27 +7,24 @@ import {IndexedDbUtil} from "../../../src/mod.js";
  */
 
 /**
- * @typedef {object} WorkspaceDataWindow
- * @property {"split" | "tabs"} type
- */
-
-/**
- * @typedef {object} WorkspaceDataWindowSplitType
+ * @typedef {object} WorkspaceDataWindowSplit
+ * @property {"split"} type
  * @property {boolean} splitHorizontal
  * @property {number} splitPercentage
  * @property {WorkspaceDataWindow?} windowA
  * @property {WorkspaceDataWindow?} windowB
- *
- * @typedef {WorkspaceDataWindow & WorkspaceDataWindowSplitType} WorkspaceDataWindowSplit
  */
 
 /**
- * @typedef {object} WorkspaceDataWindowTabsType
+ * @typedef {object} WorkspaceDataWindowTabs
+ * @property {"tabs"} type
  * @property {string[]} tabTypes
  * @property {import("../../../src/util/mod.js").UuidString[]} tabUuids
  * @property {number} [activeTabIndex]
- *
- * @typedef {WorkspaceDataWindow & WorkspaceDataWindowTabsType} WorkspaceDataWindowTabs
+ */
+
+/**
+ * @typedef {WorkspaceDataWindowSplit | WorkspaceDataWindowTabs} WorkspaceDataWindow
  */
 
 export class WorkspaceManager {
