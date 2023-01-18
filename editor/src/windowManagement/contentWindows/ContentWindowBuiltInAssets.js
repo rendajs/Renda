@@ -19,7 +19,6 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		this.treeView.rowVisible = false;
 		this.treeView.draggable = true;
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
-		this.treeView.addEventListener("focuswithinchange", this.onTreeViewFocusWithinChange.bind(this));
 		// this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("dragstart", this.onTreeViewDragStart.bind(this));
 		// this.treeView.addEventListener("drop", this.onTreeViewDrop.bind(this));
@@ -127,25 +126,12 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		this.selectionGroup.changeSelection(changes);
 	}
 
-	/**
-	 * @param {import("../../ui/TreeView.js").TreeViewFocusWithinChangeEvent} e
-	 */
-	onTreeViewFocusWithinChange(e) {
-		if (e.hasFocusWithin) {
-			this.selectionGroup.activate();
+	/** @override */
+	activate() {
+		if (this.treeView.children.length > 0) {
+			this.treeView.children[0].focusIfNotFocused();
 		}
-	}
-
-	/**
-	 * @override
-	 * @param {boolean} hasFocus
-	 */
-	focusWithinChange(hasFocus) {
-		if (hasFocus) {
-			if (this.treeView.children.length > 0) {
-				this.treeView.children[0].focusIfNotFocused();
-			}
-		}
+		this.selectionGroup.activate();
 	}
 
 	/**

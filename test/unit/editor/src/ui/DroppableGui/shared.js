@@ -220,7 +220,7 @@ export function createBasicGui({
 			cbs.add(cb);
 		},
 		getCondition(name) {
-			const condition = /** @type {import("../../../../../../editor/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition} */ ({
+			const condition = /** @type {import("../../../../../../editor/src/keyboardShortcuts/ShortcutCondition.js").ShortcutCondition<any>} */ ({
 				requestValueSetter() {
 					const valueSetter = /** @type {import("../../../../../../editor/src/keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<any>} */ ({
 						setValue(value) {

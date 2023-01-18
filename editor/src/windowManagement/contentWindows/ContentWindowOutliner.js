@@ -25,7 +25,6 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.treeView.renameable = true;
 		this.contentEl.appendChild(this.treeView.el);
 		this.treeView.addEventListener("selectionchange", this.onTreeViewSelectionChange.bind(this));
-		this.treeView.addEventListener("focuswithinchange", this.onTreeViewFocusWithinChange.bind(this));
 		this.treeView.addEventListener("namechange", this.onTreeViewNameChange.bind(this));
 		this.treeView.addEventListener("contextmenu", this.onTreeViewContextMenu.bind(this));
 		this.treeView.addEventListener("validatedrag", this.onTreeViewValidatedrag.bind(this));
@@ -239,23 +238,10 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.selectionGroup.changeSelection(changeData);
 	}
 
-	/**
-	 * @param {import("../../ui/TreeView.js").TreeViewFocusWithinChangeEvent} e
-	 */
-	onTreeViewFocusWithinChange(e) {
-		if (e.hasFocusWithin) {
-			this.selectionGroup?.activate();
-		}
-	}
-
-	/**
-	 * @override
-	 * @param {boolean} hasFocus
-	 */
-	focusWithinChange(hasFocus) {
-		if (hasFocus) {
-			this.treeView.focusIfNotFocused();
-		}
+	/** @override */
+	activate() {
+		this.treeView.focusIfNotFocused();
+		this.selectionGroup?.activate();
 	}
 
 	/**

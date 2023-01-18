@@ -6,6 +6,7 @@ import {WorkspaceManager} from "./WorkspaceManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
 import {EventHandler} from "../../../src/util/EventHandler.js";
 import {EDITOR_ENV} from "../editorDefines.js";
+import {getEditorInstance} from "../editorInstance.js";
 
 /**
  * @typedef {object} ContentWindowEvent
@@ -28,11 +29,18 @@ export class WindowManager {
 	/** @type {EventHandler<typeof ContentWindow, ContentWindowEvent>} */
 	contentWindowRemovedHandler = new EventHandler();
 
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<string>?} */
+	#lastClickedValueSetter = null;
+	/** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<string>?} */
+	#lastFocusedValueSetter = null;
+
 	constructor() {
 		this.rootWindow = null;
 		/** @type {WeakRef<ContentWindow>[]} */
 		this.lastFocusedContentWindows = [];
 		this.lastFocusedContentWindow = null;
+		/** @type {ContentWindow?} */
+		this.lastClickedContentWindow = null;
 
 		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
@@ -59,8 +67,14 @@ export class WindowManager {
 		});
 	}
 
-	init() {
-		this.reloadCurrentWorkspace();
+	async init() {
+		const shortcuts = getEditorInstance().keyboardShortcutManager;
+		const lastClickedCondition = shortcuts.getCondition("windowManager.lastClickedContentWindowTypeId");
+		this.#lastClickedValueSetter = lastClickedCondition.requestValueSetter();
+		const lastFocusedCondition = shortcuts.getCondition("windowManager.lastFocusedContentWindowTypeId");
+		this.#lastFocusedValueSetter = lastFocusedCondition.requestValueSetter();
+
+		await this.reloadCurrentWorkspace();
 	}
 
 	/**
@@ -118,6 +132,7 @@ export class WindowManager {
 		}
 		this.lastFocusedContentWindows = [];
 		this.lastFocusedContentWindow = null;
+		this.lastClickedContentWindow = null;
 		this.rootWindow = this.parseWorkspaceWindow(workspace.rootWindow);
 		this.markRootWindowAsRoot();
 		this.parseWorkspaceWindowChildren(workspace.rootWindow, this.rootWindow);
@@ -252,18 +267,34 @@ export class WindowManager {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
+			castWindow.onClickWithin(() => {
+				this.addContentWindowToLastClicked(castWindow.activeTab);
+			});
 			castWindow.onFocusedWithinChange(hasFocus => {
 				if (hasFocus) {
 					this.addContentWindowToLastFocused(castWindow.activeTab);
 				}
 			});
 		} else {
-			throw new Error("Workspace has an invalid window type: " + workspaceWindowData.type);
+			const castData = /** @type {any} */ (workspaceWindowData);
+			throw new Error("Workspace has an invalid window type: " + castData.type);
 		}
 		return /** @type {any} */ (newWindow);
 	}
 
 	/**
+	 * @private
+	 * @param {ContentWindow} contentWindow
+	 */
+	addContentWindowToLastClicked(contentWindow) {
+		this.lastClickedContentWindow = contentWindow;
+		contentWindow.activate();
+		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		this.#lastClickedValueSetter?.setValue(castConstructor.contentWindowTypeId);
+	}
+
+	/**
+	 * @private
 	 * @param {ContentWindow} contentWindow
 	 */
 	addContentWindowToLastFocused(contentWindow) {
@@ -275,6 +306,8 @@ export class WindowManager {
 		}
 		this.lastFocusedContentWindows.unshift(new WeakRef(contentWindow));
 		this.lastFocusedContentWindow = contentWindow;
+		const castConstructor = /** @type {typeof ContentWindow} */ (contentWindow.constructor);
+		this.#lastFocusedValueSetter?.setValue(castConstructor.contentWindowTypeId);
 	}
 
 	/**

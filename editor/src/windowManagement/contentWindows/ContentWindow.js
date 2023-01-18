@@ -107,11 +107,11 @@ export class ContentWindow {
 	}
 
 	/**
-	 * Gets fired when the parent editor window receives or loses focus.
-	 * @param {boolean} hasFocus
+	 * Gets called when the user clicks this content window so that it receives focus.
+	 * Normally you would use this to activate any selection groups related to the contentwindow.
+	 * This maybe called multiple times even though the window is already active.
 	 */
-	focusWithinChange(hasFocus) {
-	}
+	activate() {}
 
 	/**
 	 * @param {number} w

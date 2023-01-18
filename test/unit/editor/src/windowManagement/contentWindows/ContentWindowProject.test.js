@@ -209,21 +209,13 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Activates the selection group when the treeview receives focus",
+	name: "Activates the selection group when the content window is activated",
 	async fn() {
 		const {contentWindow, mockSelectionGroup, uninstall} = await basicSetup();
 
 		try {
 			const activateSpy = stub(mockSelectionGroup, "activate", () => {});
-			contentWindow.treeView.fireEvent("focuswithinchange", {
-				hasFocusWithin: false,
-				target: contentWindow.treeView,
-			});
-			assertSpyCalls(activateSpy, 0);
-			contentWindow.treeView.fireEvent("focuswithinchange", {
-				hasFocusWithin: true,
-				target: contentWindow.treeView,
-			});
+			contentWindow.activate();
 			assertSpyCalls(activateSpy, 1);
 		} finally {
 			uninstall();
