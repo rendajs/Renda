@@ -1,6 +1,6 @@
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {Entity, TranslationGizmo, Vec3} from "../../../../../src/mod.js";
+import {Entity, MeshComponent, TranslationGizmo, Vec3} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
 import {createFakeGizmoManager} from "../shared.js";
 
@@ -11,33 +11,66 @@ function basicSetup(...opts) {
 	const data = createFakeGizmoManager(...opts);
 	const translationGizmo = new TranslationGizmo(data.gizmoManager);
 
+	assertEquals(translationGizmo.entity.components.length, 1);
+	const circleMeshComponent = translationGizmo.entity.components[0];
+	assertInstanceOf(circleMeshComponent, MeshComponent);
+
+	const circleMesh = circleMeshComponent.mesh;
+	assertExists(circleMesh);
+
+	/**
+	 * @param {number} index
+	 */
+	function getArrowMeshComponent(index) {
+		const child = translationGizmo.entity.children.at(index);
+		if (!child || child.name != "Arrow") {
+			throw new Error(`Failed to get arrow mesh component for index ${index}`);
+		}
+		const component = child.components[0];
+		assertInstanceOf(component, MeshComponent);
+		return component;
+	}
+
+	const xArrowMesh = getArrowMeshComponent(1);
+	const yArrowMesh = getArrowMeshComponent(3);
+	const zArrowMesh = getArrowMeshComponent(5);
+
+	const arrowMesh = xArrowMesh.mesh;
+	assertExists(arrowMesh);
+
 	return {
 		...data,
 		translationGizmo,
+		circleMeshComponent,
+		circleMesh,
+		arrowMesh,
+		xArrowMesh,
+		yArrowMesh,
+		zArrowMesh,
 	};
 }
 
 Deno.test({
 	name: "Materials get applied when they load via the engine assets manager",
 	fn() {
-		const {translationGizmo, initEngineAssets} = basicSetup({initEngineAssets: false});
+		const {circleMeshComponent, circleMesh, arrowMesh, xArrowMesh, yArrowMesh, zArrowMesh, translationGizmo, initEngineAssets} = basicSetup({initEngineAssets: false});
 
-		assertEquals(translationGizmo.circleMesh.vertexState, null);
-		assertEquals(translationGizmo.arrowMesh.vertexState, null);
-		assertEquals(translationGizmo.circleMeshComponent.materials, []);
-		assertEquals(translationGizmo.xArrowMesh.materials, []);
-		assertEquals(translationGizmo.yArrowMesh.materials, []);
-		assertEquals(translationGizmo.zArrowMesh.materials, []);
+		assertEquals(circleMesh.vertexState, null);
+		assertEquals(arrowMesh.vertexState, null);
+		assertEquals(circleMeshComponent.materials, []);
+		assertEquals(xArrowMesh.materials, []);
+		assertEquals(yArrowMesh.materials, []);
+		assertEquals(zArrowMesh.materials, []);
 
 		initEngineAssets();
 		translationGizmo.updateAssets();
 
-		assertExists(translationGizmo.circleMesh.vertexState);
-		assertExists(translationGizmo.arrowMesh.vertexState);
-		assertEquals(translationGizmo.circleMeshComponent.materials.length, 1);
-		assertEquals(translationGizmo.xArrowMesh.materials.length, 1);
-		assertEquals(translationGizmo.yArrowMesh.materials.length, 1);
-		assertEquals(translationGizmo.zArrowMesh.materials.length, 1);
+		assertExists(circleMesh.vertexState);
+		assertExists(arrowMesh.vertexState);
+		assertEquals(circleMeshComponent.materials.length, 1);
+		assertEquals(xArrowMesh.materials.length, 1);
+		assertEquals(yArrowMesh.materials.length, 1);
+		assertEquals(zArrowMesh.materials.length, 1);
 	},
 });
 
@@ -73,24 +106,24 @@ Deno.test({
 Deno.test({
 	name: "hovering over the center draggable shows hover feedback",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const {circleMeshComponent, createdDraggables} = basicSetup();
 
 		const centerDraggable = createdDraggables[0];
-		const material1 = translationGizmo.circleMeshComponent.materials[0];
+		const material1 = circleMeshComponent.materials[0];
 		assertExists(material1);
 		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [1, 1, 1]);
 
 		centerDraggable.fireIsHoveringChange(true);
 
-		const material2 = translationGizmo.circleMeshComponent.materials[0];
+		const material2 = circleMeshComponent.materials[0];
 		assertExists(material2);
 		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		centerDraggable.fireIsHoveringChange(false);
 
-		const material3 = translationGizmo.circleMeshComponent.materials[0];
+		const material3 = circleMeshComponent.materials[0];
 		assertExists(material3);
 		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [1, 1, 1]);
@@ -100,24 +133,24 @@ Deno.test({
 Deno.test({
 	name: "hovering over the x arrow draggable shows hover feedback",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const {xArrowMesh, createdDraggables} = basicSetup();
 
 		const xDraggable = createdDraggables[1];
-		const material1 = translationGizmo.xArrowMesh.materials[0];
+		const material1 = xArrowMesh.materials[0];
 		assertExists(material1);
 		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [1, 0.15, 0.15]);
 
 		xDraggable.fireIsHoveringChange(true);
 
-		const material2 = translationGizmo.xArrowMesh.materials[0];
+		const material2 = xArrowMesh.materials[0];
 		assertExists(material2);
 		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		xDraggable.fireIsHoveringChange(false);
 
-		const material3 = translationGizmo.xArrowMesh.materials[0];
+		const material3 = xArrowMesh.materials[0];
 		assertExists(material3);
 		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [1, 0.15, 0.15]);
@@ -127,24 +160,24 @@ Deno.test({
 Deno.test({
 	name: "hovering over the y arrow draggable shows hover feedback",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const {yArrowMesh, createdDraggables} = basicSetup();
 
 		const yDraggable = createdDraggables[2];
-		const material1 = translationGizmo.yArrowMesh.materials[0];
+		const material1 = yArrowMesh.materials[0];
 		assertExists(material1);
 		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [0.2, 1, 0.2]);
 
 		yDraggable.fireIsHoveringChange(true);
 
-		const material2 = translationGizmo.yArrowMesh.materials[0];
+		const material2 = yArrowMesh.materials[0];
 		assertExists(material2);
 		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		yDraggable.fireIsHoveringChange(false);
 
-		const material3 = translationGizmo.yArrowMesh.materials[0];
+		const material3 = yArrowMesh.materials[0];
 		assertExists(material3);
 		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [0.2, 1, 0.2]);
@@ -154,24 +187,24 @@ Deno.test({
 Deno.test({
 	name: "hovering over the z arrow draggable shows hover feedback",
 	fn() {
-		const {translationGizmo, createdDraggables} = basicSetup();
+		const {zArrowMesh, createdDraggables} = basicSetup();
 
 		const zDraggable = createdDraggables[3];
-		const material1 = translationGizmo.zArrowMesh.materials[0];
+		const material1 = zArrowMesh.materials[0];
 		assertExists(material1);
 		const color1 = material1.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color1, [0.3, 0.3, 1]);
 
 		zDraggable.fireIsHoveringChange(true);
 
-		const material2 = translationGizmo.zArrowMesh.materials[0];
+		const material2 = zArrowMesh.materials[0];
 		assertExists(material2);
 		const color2 = material2.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color2, [1, 0.7, 0]);
 
 		zDraggable.fireIsHoveringChange(false);
 
-		const material3 = translationGizmo.zArrowMesh.materials[0];
+		const material3 = zArrowMesh.materials[0];
 		assertExists(material3);
 		const color3 = material3.getProperty("colorMultiplier");
 		assertVecAlmostEquals(color3, [0.3, 0.3, 1]);

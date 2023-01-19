@@ -66,7 +66,7 @@ export class FakeGizmoDraggable {
 		this.onDragCbs = new Set();
 
 		this.axis = new Vec3();
-		this.entity = new Entity();
+		this.entity = new Entity("Fake draggable " + type);
 	}
 
 	addRaycastShape() {}

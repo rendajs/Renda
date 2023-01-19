@@ -23,14 +23,25 @@ export class TranslationGizmo extends Gizmo {
 	#yArrowColor = new Vec3(greenColor);
 	#zArrowColor = new Vec3(blueColor);
 
+	/** @type {Set<TranslationGizmoDragCallback>} */
+	#onDragCbs = new Set();
+
+	#circleMeshComponent;
+	#circleMesh = new Mesh();
+
+	/** @type {import("../draggables/GizmoDraggable.js").GizmoDraggable[]} */
+	#createdDraggables = [];
+
+	#arrowMesh = new Mesh();
+	#xArrowMesh;
+	#yArrowMesh;
+	#zArrowMesh;
+
 	/**
 	 * @param  {ConstructorParameters<typeof Gizmo>} args
 	 */
 	constructor(...args) {
 		super(...args);
-
-		/** @type {Set<TranslationGizmoDragCallback>} */
-		this.onDragCbs = new Set();
 
 		const circleSegmentCount = 32;
 		const circleColors = [];
@@ -49,32 +60,29 @@ export class TranslationGizmo extends Gizmo {
 			}
 			circleIndices.push(i, nextIndex);
 		}
-		this.circleMesh = new Mesh();
-		this.circleMesh.setVertexCount(circlePositions.length);
-		this.circleMesh.setIndexData(circleIndices);
-		this.circleMesh.setVertexData(Mesh.AttributeType.COLOR, circleColors, {
+		this.#circleMesh = new Mesh();
+		this.#circleMesh.setVertexCount(circlePositions.length);
+		this.#circleMesh.setIndexData(circleIndices);
+		this.#circleMesh.setVertexData(Mesh.AttributeType.COLOR, circleColors, {
 			unusedComponentCount: 3,
 			unusedFormat: Mesh.AttributeFormat.FLOAT32,
 		});
-		this.circleMesh.setVertexData(Mesh.AttributeType.POSITION, circlePositions, {
+		this.#circleMesh.setVertexData(Mesh.AttributeType.POSITION, circlePositions, {
 			unusedComponentCount: 2,
 			unusedFormat: Mesh.AttributeFormat.FLOAT32,
 		});
 
-		this.circleMeshComponent = this.entity.addComponent(MeshComponent, {
-			mesh: this.circleMesh,
+		this.#circleMeshComponent = this.entity.addComponent(MeshComponent, {
+			mesh: this.#circleMesh,
 			materials: [],
 		});
 
-		/** @type {import("../draggables/GizmoDraggable.js").GizmoDraggable[]} */
-		this.createdDraggables = [];
-
-		this.centerDraggable = this.gizmoManager.createDraggable("move");
-		this.createdDraggables.push(this.centerDraggable);
+		const centerDraggable = this.gizmoManager.createDraggable("move");
+		this.#createdDraggables.push(centerDraggable);
 		const sphere = new Sphere(0.5);
-		this.centerDraggable.addRaycastShape(sphere);
-		this.entity.add(this.centerDraggable.entity);
-		this.centerDraggable.onIsHoveringChange(isHovering => {
+		centerDraggable.addRaycastShape(sphere);
+		this.entity.add(centerDraggable.entity);
+		centerDraggable.onIsHoveringChange(isHovering => {
 			if (isHovering) {
 				this.#circleMaterialColor.set(hoverColor);
 			} else {
@@ -82,21 +90,20 @@ export class TranslationGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		this.centerDraggable.onDrag(e => {
+		centerDraggable.onDrag(e => {
 			this.pos.add(e.worldDelta);
 			this.gizmoNeedsRender();
 			let localDelta = e.worldDelta.clone();
 			const {rot} = this.entity.localMatrix.decompose();
 			rot.invert();
 			localDelta = rot.rotateVector(localDelta);
-			this.onDragCbs.forEach(cb => cb({
+			this.#onDragCbs.forEach(cb => cb({
 				worldDelta: e.worldDelta,
 				localDelta,
 			}));
 		});
 
-		this.arrowMesh = new Mesh();
-		this.arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
+		this.#arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
 
 		const arrowColors = [
 			new Vec3(1, 1, 1),
@@ -106,29 +113,29 @@ export class TranslationGizmo extends Gizmo {
 			new Vec3(0, 0, 0),
 			new Vec3(1, 0, 0),
 		];
-		this.arrowMesh.setVertexCount(8);
-		this.arrowMesh.setIndexData([0, 1]);
-		this.arrowMesh.setVertexData(Mesh.AttributeType.COLOR, arrowColors);
-		this.arrowMesh.setVertexData(Mesh.AttributeType.POSITION, arrowPositions);
+		this.#arrowMesh.setVertexCount(8);
+		this.#arrowMesh.setIndexData([0, 1]);
+		this.#arrowMesh.setVertexData(Mesh.AttributeType.COLOR, arrowColors);
+		this.#arrowMesh.setVertexData(Mesh.AttributeType.POSITION, arrowPositions);
 
-		const meshX = this.createArrow({
+		const meshX = this.#createArrow({
 			axis: new Vec3(1, 0, 0),
 			colorInstance: this.#xArrowColor,
 			defaultColor: redColor,
 		});
-		const meshY = this.createArrow({
+		const meshY = this.#createArrow({
 			axis: new Vec3(0, 1, 0),
 			colorInstance: this.#yArrowColor,
 			defaultColor: greenColor,
 		});
-		const meshZ = this.createArrow({
+		const meshZ = this.#createArrow({
 			axis: new Vec3(0, 0, 1),
 			colorInstance: this.#zArrowColor,
 			defaultColor: blueColor,
 		});
-		this.xArrowMesh = meshX;
-		this.yArrowMesh = meshY;
-		this.zArrowMesh = meshZ;
+		this.#xArrowMesh = meshX;
+		this.#yArrowMesh = meshY;
+		this.#zArrowMesh = meshZ;
 
 		this.updateAssets();
 	}
@@ -136,14 +143,14 @@ export class TranslationGizmo extends Gizmo {
 	destructor() {
 		super.destructor();
 
-		this.arrowMesh.destructor();
-		for (const draggable of this.createdDraggables) {
+		this.#arrowMesh.destructor();
+		for (const draggable of this.#createdDraggables) {
 			this.gizmoManager.removeDraggable(draggable);
 		}
 	}
 
 	updateAssets() {
-		this.arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
+		this.#arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
 		if (this.gizmoManager.meshMaterial) {
 			const material = this.gizmoManager.meshMaterial;
 			const xMaterial = material.clone();
@@ -152,16 +159,16 @@ export class TranslationGizmo extends Gizmo {
 			xMaterial.setProperty("colorMultiplier", this.#xArrowColor);
 			yMaterial.setProperty("colorMultiplier", this.#yArrowColor);
 			zMaterial.setProperty("colorMultiplier", this.#zArrowColor);
-			this.xArrowMesh.materials = [xMaterial];
-			this.yArrowMesh.materials = [yMaterial];
-			this.zArrowMesh.materials = [zMaterial];
+			this.#xArrowMesh.materials = [xMaterial];
+			this.#yArrowMesh.materials = [yMaterial];
+			this.#zArrowMesh.materials = [zMaterial];
 		} else {
-			this.xArrowMesh.materials = [];
-			this.yArrowMesh.materials = [];
-			this.zArrowMesh.materials = [];
+			this.#xArrowMesh.materials = [];
+			this.#yArrowMesh.materials = [];
+			this.#zArrowMesh.materials = [];
 		}
 
-		this.circleMesh.setVertexState(this.gizmoManager.billboardVertexState);
+		this.#circleMesh.setVertexState(this.gizmoManager.billboardVertexState);
 		/** @type {import("../../rendering/Material.js").Material[]} */
 		let circleMaterials = [];
 		if (this.gizmoManager.billboardMaterial) {
@@ -169,7 +176,7 @@ export class TranslationGizmo extends Gizmo {
 			circleMaterial.setProperty("colorMultiplier", this.#circleMaterialColor);
 			circleMaterials = [circleMaterial];
 		}
-		this.circleMeshComponent.materials = circleMaterials;
+		this.#circleMeshComponent.materials = circleMaterials;
 	}
 
 	/**
@@ -178,14 +185,14 @@ export class TranslationGizmo extends Gizmo {
 	 * @param {Vec3} options.colorInstance The Vec3 instance that should be changed when hovering.
 	 * @param {Vec3} options.defaultColor The color of the arrow when not hovering
 	 */
-	createArrow({
+	#createArrow({
 		axis,
 		colorInstance,
 		defaultColor,
 	}) {
-		const entity = new Entity();
+		const entity = new Entity("Arrow");
 		const meshComponent = entity.addComponent(MeshComponent, {
-			mesh: this.arrowMesh,
+			mesh: this.#arrowMesh,
 			materials: [this.gizmoManager.meshMaterial],
 		});
 		// Create a rotation axis perpendicular to the axis that we want the
@@ -199,7 +206,7 @@ export class TranslationGizmo extends Gizmo {
 		this.entity.add(entity);
 
 		const draggable = this.gizmoManager.createDraggable("move-axis");
-		this.createdDraggables.push(draggable);
+		this.#createdDraggables.push(draggable);
 		draggable.axis.set(axis);
 		this.entity.add(draggable.entity);
 		draggable.entity.pos.set(axis);
@@ -218,7 +225,7 @@ export class TranslationGizmo extends Gizmo {
 			this.gizmoNeedsRender();
 			const localDelta = axis.clone();
 			localDelta.magnitude = e.localDelta;
-			this.onDragCbs.forEach(cb => cb({
+			this.#onDragCbs.forEach(cb => cb({
 				localDelta,
 				worldDelta: e.worldDelta,
 			}));
@@ -231,6 +238,6 @@ export class TranslationGizmo extends Gizmo {
 	 * @param {TranslationGizmoDragCallback} cb
 	 */
 	onDrag(cb) {
-		this.onDragCbs.add(cb);
+		this.#onDragCbs.add(cb);
 	}
 }
