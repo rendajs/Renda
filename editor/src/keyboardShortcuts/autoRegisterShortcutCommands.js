@@ -49,6 +49,6 @@ const autoRegisterShortcutCommands = [
 		command: "entityEditor.transform.rotate",
 		defaultKeys: ["r"],
 		holdType: "smart",
-	}
+	},
 ];
 export {autoRegisterShortcutCommands};

@@ -312,7 +312,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (holdState) {
 			this.setTransformationMode("translate");
 		}
-	}
+	};
 
 	/**
 	 * @param {import("../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
@@ -322,7 +322,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (holdState) {
 			this.setTransformationMode("rotate");
 		}
-	}
+	};
 
 	/**
 	 * @param {TransformationMode} mode
