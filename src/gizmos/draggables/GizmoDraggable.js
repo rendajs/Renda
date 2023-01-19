@@ -28,7 +28,21 @@ import {Entity} from "../../core/Entity.js";
  */
 export class GizmoDraggable {
 	/** @typedef {(event: TDragEvent) => void} OnDragCallback */
-	/** @typedef {import("../../components/builtIn/CameraComponent.js").CameraComponent} CameraComponent */
+
+	/** @type {import("../GizmoPointerDevice.js").GizmoPointerDevice?} */
+	#activeDraggingPointer = null;
+
+	/** @type {Set<OnDragCallback>} */
+	#onDragCbs = new Set();
+
+	/** @type {Set<OnIsHoveringChangeCb>} */
+	#onIsHoveringChangeCbs = new Set();
+
+	#isHovering = false;
+
+	/** @type {Set<import("../GizmoPointerDevice.js").GizmoPointerDevice>} */
+	#hoveringPointers = new Set();
+
 	/**
 	 * A draggable is something that can be requested from the gizmo manager.
 	 * Usually this is done by gizmos, but you can also request them directly.
@@ -39,30 +53,13 @@ export class GizmoDraggable {
 		this.gizmoManager = gizmoManager;
 
 		this.entity = new Entity("GizmoDraggable (" + this.constructor.name + ")");
-		this._isHovering = false;
-		/** @type {Set<OnIsHoveringChangeCb>} */
-		this._onIsHoveringChangeCbs = new Set();
-		/** @type {Set<import("../GizmoPointerDevice.js").GizmoPointerDevice>} */
-		this._hoveringPointers = new Set();
-
-		/**
-		 * @private
-		 * @type {import("../GizmoPointerDevice.js").GizmoPointerDevice?}
-		 */
-		this.activeDraggingPointer = null;
-
-		/**
-		 * @private
-		 * @type {Set<OnDragCallback>}
-		 */
-		this.onDragCbs = new Set();
 
 		/** @type {Set<import("../../math/types.js").RaycastShape>} */
 		this.shapes = new Set();
 	}
 
 	get isHovering() {
-		return this._isHovering;
+		return this.#isHovering;
 	}
 
 	/**
@@ -119,23 +116,23 @@ export class GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
 	 */
 	pointerOver(pointerDevice) {
-		this._hoveringPointers.add(pointerDevice);
-		this._updateIsHovering();
+		this.#hoveringPointers.add(pointerDevice);
+		this.#updateIsHovering();
 	}
 
 	/**
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
 	 */
 	pointerOut(pointerDevice) {
-		this._hoveringPointers.delete(pointerDevice);
-		this._updateIsHovering();
+		this.#hoveringPointers.delete(pointerDevice);
+		this.#updateIsHovering();
 	}
 
-	_updateIsHovering() {
-		const isHovering = this._hoveringPointers.size > 0;
-		if (isHovering != this._isHovering) {
-			this._isHovering = isHovering;
-			this._onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
+	#updateIsHovering() {
+		const isHovering = this.#hoveringPointers.size > 0;
+		if (isHovering != this.#isHovering) {
+			this.#isHovering = isHovering;
+			this.#onIsHoveringChangeCbs.forEach(cb => cb(isHovering));
 		}
 	}
 
@@ -144,9 +141,9 @@ export class GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerEventData} eventData
 	 */
 	pointerDown(pointerDevice, eventData) {
-		if (this.activeDraggingPointer) return;
+		if (this.#activeDraggingPointer) return;
 
-		this.activeDraggingPointer = pointerDevice;
+		this.#activeDraggingPointer = pointerDevice;
 		this.handlePointerDown(pointerDevice, eventData);
 	}
 
@@ -160,9 +157,9 @@ export class GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerDevice} pointerDevice
 	 */
 	pointerUp(pointerDevice) {
-		if (this.activeDraggingPointer != pointerDevice) return;
+		if (this.#activeDraggingPointer != pointerDevice) return;
 
-		this.activeDraggingPointer = null;
+		this.#activeDraggingPointer = null;
 		this.handlePointerUp(pointerDevice);
 	}
 
@@ -176,7 +173,7 @@ export class GizmoDraggable {
 	 * @param {import("../GizmoPointerDevice.js").GizmoPointerEventData} eventData
 	 */
 	pointerMove(pointerDevice, eventData) {
-		if (this.activeDraggingPointer != pointerDevice) return;
+		if (this.#activeDraggingPointer != pointerDevice) return;
 
 		this.handlePointerMove(pointerDevice, eventData);
 	}
@@ -191,34 +188,34 @@ export class GizmoDraggable {
 	 * @param {OnIsHoveringChangeCb} cb
 	 */
 	onIsHoveringChange(cb) {
-		this._onIsHoveringChangeCbs.add(cb);
+		this.#onIsHoveringChangeCbs.add(cb);
 	}
 
 	/**
 	 * @param {OnIsHoveringChangeCb} cb
 	 */
 	removeOnIsHoveringChange(cb) {
-		this._onIsHoveringChangeCbs.delete(cb);
+		this.#onIsHoveringChangeCbs.delete(cb);
 	}
 
 	/**
 	 * @param {OnDragCallback} cb
 	 */
 	onDrag(cb) {
-		this.onDragCbs.add(cb);
+		this.#onDragCbs.add(cb);
 	}
 
 	/**
 	 * @param {OnDragCallback} cb
 	 */
 	removeOnDrag(cb) {
-		this.onDragCbs.delete(cb);
+		this.#onDragCbs.delete(cb);
 	}
 
 	/**
 	 * @param {TDragEvent} event
 	 */
 	fireDragCallbacks(event) {
-		this.onDragCbs.forEach(cb => cb(event));
+		this.#onDragCbs.forEach(cb => cb(event));
 	}
 }
