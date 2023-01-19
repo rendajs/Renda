@@ -98,8 +98,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.contentEl.appendChild(renderTargetElement);
 
 		this.renderDirty = false;
-		/** @type {Set<() => void>} */
-		this.onRenderDirtyCbs = new Set();
 
 		this.editorScene = new Entity("editorScene");
 		this.editorCamera = new Entity("editorCamera");
@@ -124,7 +122,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorScene.add(this.gizmos.entity);
 		this.gizmos.addPointerEventListeners(renderTargetElement, this.editorCamComponent);
 		this.gizmos.onGizmoNeedsRender(() => {
-			this.markRenderDirty(false);
+			this.markRenderDirty();
 		});
 
 		/** @type {TransformationGizmoData[]} */
@@ -215,29 +213,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.markRenderDirty();
 	}
 
-	markRenderDirty(notifyExternalRenders = true) {
+	markRenderDirty() {
 		this.renderDirty = true;
-		if (notifyExternalRenders) {
-			for (const cb of this.onRenderDirtyCbs) {
-				cb();
-			}
-		}
 	}
-
-	/**
-	 * @param {() => void} cb
-	 */
-	onRenderDirty(cb) {
-		this.onRenderDirtyCbs.add(cb);
-	}
-
-	/**
-	 * @param {() => void} cb
-	 */
-	removeOnRenderDirty(cb) {
-		this.onRenderDirtyCbs.delete(cb);
-	}
-
 	newEmptyEditingEntity() {
 		this.editingEntity = new Entity();
 	}
@@ -275,7 +253,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (this.orbitControls) {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
-				this.markRenderDirty(false);
+				this.markRenderDirty();
 				if (this.persistentDataLoaded) {
 					this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
 					this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
