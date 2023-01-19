@@ -1,3 +1,5 @@
+import {MalformedSyntaxError, parseExpression, verifyExpression} from "./conditionExpressions.js";
+
 /**
  * - `single` Only fire command once.
  * - `hold` Activate when the key is down, and deactivate when it is up.
@@ -44,7 +46,13 @@ export class ShortcutCommand {
 		this.holdStateActiveStartTime = -Infinity;
 		/** @type {ShortcutCommandSequence[]} */
 		this.parsedSequences = [];
+
+		/** @type {import("./conditionExpressions.js").ShortcutCommandAstNode?} */
+		this.conditionsAst = null;
+		this.conditionAstFailed = false;
+
 		this.parseSequence();
+		this.parseConditions();
 	}
 
 	parseSequence() {
@@ -57,6 +65,25 @@ export class ShortcutCommand {
 		for (const keySequence of keys) {
 			const parsedSequence = keySequence.split(" ").map(bit => bit.split("+"));
 			this.parsedSequences.push(parsedSequence);
+		}
+	}
+
+	parseConditions() {
+		if (this.conditions) {
+			this.conditionAstFailed = false;
+			let ast = null;
+			try {
+				ast = parseExpression(this.conditions);
+			} catch (e) {
+				this.conditionAstFailed = true;
+				if (e instanceof MalformedSyntaxError) {
+					// We'll silently ignore this for now, in the future we'll want
+					// to visualise shortcuts with malformed syntax in UI.
+				} else {
+					throw e;
+				}
+			}
+			this.conditionsAst = ast;
 		}
 	}
 
@@ -83,15 +110,12 @@ export class ShortcutCommand {
 	}
 
 	verifyCondtions() {
-		// todo:
-		// - support &&
-		// - support ||
-		// - support !
-		// - support ()
-		// - support string conditions
-		if (!this.conditions) return true;
-		const condition = this.shortcutManager.getCondition(this.conditions);
-		if (!condition) return false;
-		return !!condition.value;
+		if (this.conditionAstFailed) return false;
+		if (!this.conditionsAst) return true;
+		return verifyExpression(this.conditionsAst, name => {
+			const condition = this.shortcutManager.getCondition(name);
+			if (!condition) return;
+			return condition.value;
+		});
 	}
 }
