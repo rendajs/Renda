@@ -69,6 +69,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 		this.addTopBarEl(this.translationModeSelector.el);
 
+		getEditorInstance().keyboardShortcutManager.onCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		getEditorInstance().keyboardShortcutManager.onCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
+
 		this.transformationSpaceButton = new Button({
 			onClick: () => {
 				this.toggleTransformationSpace();
@@ -177,6 +180,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this._editingEntity = null;
 		this.selectionGroup.destructor();
 		this.gizmos.destructor();
+
+		getEditorInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		getEditorInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
 	}
 
 	get editingEntity() {
@@ -314,17 +320,37 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	#updateTranslationMode() {
 		if (this.translationModeSelector.value == 0) {
-			this.transformationMode = "translate";
+			this.setTransformationMode("translate");
 		} else if (this.translationModeSelector.value == 1) {
-			this.transformationMode = "rotate";
+			this.setTransformationMode("rotate");
 		}
-		this.updateTransformationGizmos();
+	}
+
+	/**
+	 * @param {import("../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
+	 */
+	#translateKeyboardShortcutPressed = e => {
+		const holdState = e.command.holdStateActive;
+		if (holdState) {
+			this.setTransformationMode("translate");
+		}
+	}
+
+	/**
+	 * @param {import("../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
+	 */
+	#rotateKeyboardShortcutPressed = e => {
+		const holdState = e.command.holdStateActive;
+		if (holdState) {
+			this.setTransformationMode("rotate");
+		}
 	}
 
 	/**
 	 * @param {TransformationMode} mode
 	 */
 	setTransformationMode(mode) {
+		if (this.transformationMode == mode) return;
 		this.transformationMode = mode;
 		this.updateTransformationGizmos();
 	}
