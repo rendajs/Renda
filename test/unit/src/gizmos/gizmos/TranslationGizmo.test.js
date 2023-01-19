@@ -57,12 +57,16 @@ Deno.test({
 Deno.test({
 	name: "default material colors are correct",
 	fn() {
-		const {translationGizmo} = basicSetup();
+		const {getBillboardMaterial, getMeshMaterial} = basicSetup();
 
-		assertVecAlmostEquals(translationGizmo.circleMaterialColor, new Vec3(1, 1, 1));
-		assertVecAlmostEquals(translationGizmo.xArrowColor, new Vec3(1, 0.15, 0.15));
-		assertVecAlmostEquals(translationGizmo.yArrowColor, new Vec3(0.2, 1, 0.2));
-		assertVecAlmostEquals(translationGizmo.zArrowColor, new Vec3(0.3, 0.3, 1));
+		const circleMaterial = getBillboardMaterial(0);
+		assertVecAlmostEquals(circleMaterial.getProperty("colorMultiplier"), new Vec3(1, 1, 1));
+		const xArrowMaterial = getMeshMaterial(0);
+		assertVecAlmostEquals(xArrowMaterial.getProperty("colorMultiplier"), new Vec3(1, 0.15, 0.15));
+		const yArrowMaterial = getMeshMaterial(1);
+		assertVecAlmostEquals(yArrowMaterial.getProperty("colorMultiplier"), new Vec3(0.2, 1, 0.2));
+		const zArrowMaterial = getMeshMaterial(2);
+		assertVecAlmostEquals(zArrowMaterial.getProperty("colorMultiplier"), new Vec3(0.3, 0.3, 1));
 	},
 });
 

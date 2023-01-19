@@ -18,16 +18,16 @@ import {blueColor, greenColor, hoverColor, redColor, whiteColor} from "./colors.
  */
 
 export class TranslationGizmo extends Gizmo {
+	#circleMaterialColor = new Vec3(whiteColor);
+	#xArrowColor = new Vec3(redColor);
+	#yArrowColor = new Vec3(greenColor);
+	#zArrowColor = new Vec3(blueColor);
+
 	/**
 	 * @param  {ConstructorParameters<typeof Gizmo>} args
 	 */
 	constructor(...args) {
 		super(...args);
-
-		this.circleMaterialColor = new Vec3(whiteColor);
-		this.xArrowColor = new Vec3(redColor);
-		this.yArrowColor = new Vec3(greenColor);
-		this.zArrowColor = new Vec3(blueColor);
 
 		/** @type {Set<TranslationGizmoDragCallback>} */
 		this.onDragCbs = new Set();
@@ -76,9 +76,9 @@ export class TranslationGizmo extends Gizmo {
 		this.entity.add(this.centerDraggable.entity);
 		this.centerDraggable.onIsHoveringChange(isHovering => {
 			if (isHovering) {
-				this.circleMaterialColor.set(hoverColor);
+				this.#circleMaterialColor.set(hoverColor);
 			} else {
-				this.circleMaterialColor.set(whiteColor);
+				this.#circleMaterialColor.set(whiteColor);
 			}
 			this.gizmoNeedsRender();
 		});
@@ -113,17 +113,17 @@ export class TranslationGizmo extends Gizmo {
 
 		const meshX = this.createArrow({
 			axis: new Vec3(1, 0, 0),
-			colorInstance: this.xArrowColor,
+			colorInstance: this.#xArrowColor,
 			defaultColor: redColor,
 		});
 		const meshY = this.createArrow({
 			axis: new Vec3(0, 1, 0),
-			colorInstance: this.yArrowColor,
+			colorInstance: this.#yArrowColor,
 			defaultColor: greenColor,
 		});
 		const meshZ = this.createArrow({
 			axis: new Vec3(0, 0, 1),
-			colorInstance: this.zArrowColor,
+			colorInstance: this.#zArrowColor,
 			defaultColor: blueColor,
 		});
 		this.xArrowMesh = meshX;
@@ -149,9 +149,9 @@ export class TranslationGizmo extends Gizmo {
 			const xMaterial = material.clone();
 			const yMaterial = material.clone();
 			const zMaterial = material.clone();
-			xMaterial.setProperty("colorMultiplier", this.xArrowColor);
-			yMaterial.setProperty("colorMultiplier", this.yArrowColor);
-			zMaterial.setProperty("colorMultiplier", this.zArrowColor);
+			xMaterial.setProperty("colorMultiplier", this.#xArrowColor);
+			yMaterial.setProperty("colorMultiplier", this.#yArrowColor);
+			zMaterial.setProperty("colorMultiplier", this.#zArrowColor);
 			this.xArrowMesh.materials = [xMaterial];
 			this.yArrowMesh.materials = [yMaterial];
 			this.zArrowMesh.materials = [zMaterial];
@@ -166,7 +166,7 @@ export class TranslationGizmo extends Gizmo {
 		let circleMaterials = [];
 		if (this.gizmoManager.billboardMaterial) {
 			const circleMaterial = this.gizmoManager.billboardMaterial.clone();
-			circleMaterial.setProperty("colorMultiplier", this.circleMaterialColor);
+			circleMaterial.setProperty("colorMultiplier", this.#circleMaterialColor);
 			circleMaterials = [circleMaterial];
 		}
 		this.circleMeshComponent.materials = circleMaterials;

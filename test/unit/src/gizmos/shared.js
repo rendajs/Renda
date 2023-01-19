@@ -1,6 +1,7 @@
 import {GizmoManager} from "../../../../src/gizmos/GizmoManager.js";
 import {CameraComponent, Material, Sphere, Vec3, VertexState} from "../../../../src/mod.js";
 import {Entity} from "../../../../src/core/Entity.js";
+import {spy} from "std/testing/mock.ts";
 
 export class FakeEngineAssetsManager {
 	/**
@@ -122,11 +123,17 @@ export function createFakeGizmoManager({
 		meshMaterial: null,
 	});
 
+	/** @type {import("std/testing/mock.ts").Spy<Material, [], Material>?} */
+	let billboardMaterialCloneSpy = null;
+	/** @type {import("std/testing/mock.ts").Spy<Material, [], Material>?} */
+	let meshMaterialCloneSpy = null;
 	function doInitEngineAssets() {
 		gizmoManager.billboardVertexState = new VertexState();
 		gizmoManager.meshVertexState = new VertexState();
 		gizmoManager.billboardMaterial = new Material();
+		billboardMaterialCloneSpy = spy(gizmoManager.billboardMaterial, "clone");
 		gizmoManager.meshMaterial = new Material();
+		meshMaterialCloneSpy = spy(gizmoManager.meshMaterial, "clone");
 	}
 
 	if (initEngineAssets) doInitEngineAssets();
@@ -136,5 +143,39 @@ export function createFakeGizmoManager({
 		needsRenderCalls,
 		createdDraggables,
 		initEngineAssets: doInitEngineAssets,
+		/**
+		 * @param {number} cloneCallIndex
+		 */
+		getBillboardMaterial(cloneCallIndex) {
+			if (!billboardMaterialCloneSpy) {
+				throw new Error("Failed to get billboard material clone, no clone spy set");
+			}
+			const call = billboardMaterialCloneSpy.calls.at(cloneCallIndex);
+			if (!call) {
+				throw new Error(`Failed to get billboard material clone, no clone call with index ${cloneCallIndex} exists.`);
+			}
+			const clone = call.returned;
+			if (!clone) {
+				throw new Error("Clone call returned nothing");
+			}
+			return clone;
+		},
+		/**
+		 * @param {number} cloneCallIndex
+		 */
+		getMeshMaterial(cloneCallIndex) {
+			if (!meshMaterialCloneSpy) {
+				throw new Error("Failed to get mesh material clone, no clone spy set");
+			}
+			const call = meshMaterialCloneSpy.calls.at(cloneCallIndex);
+			if (!call) {
+				throw new Error(`Failed to get mesh material clone, no clone call with index ${cloneCallIndex} exists.`);
+			}
+			const clone = call.returned;
+			if (!clone) {
+				throw new Error("Clone call returned nothing");
+			}
+			return clone;
+		},
 	};
 }
