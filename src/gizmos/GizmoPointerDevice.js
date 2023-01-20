@@ -69,18 +69,16 @@ export class GizmoPointerDevice {
 			screenPos: screenSpace,
 		};
 
-		this.#setHoveringDraggable(hit);
+		if (!this.#activeButtonIsForced) this.#setHoveringDraggable(hit);
 
 		if (this.#activeButtonDraggable) {
 			this.#activeButtonDraggable.pointerMove(this, this.#lastPointerEventData);
 		}
 
-		if (this.#activeButtonIsForced) {
-			if (this.#hasActiveButton == hasActiveButton) {
-				this.#activeButtonIsForced = false;
-			}
-		} else {
-			this.#setHasActiveButton(hasActiveButton, false);
+		if (!this.#activeButtonIsForced) this.#setHasActiveButton(hasActiveButton, false);
+
+		if (this.#activeButtonIsForced && this.#hasActiveButton == hasActiveButton) {
+			this.#activeButtonIsForced = false;
 		}
 	}
 
