@@ -56,22 +56,6 @@ function createMockGizmoManager(createDraggableCb = null) {
 	return /** @type {import("../../../../src/mod.js").GizmoManager} */ (new MockGizmoManager());
 }
 
-Deno.test({
-	name: "destructor",
-	fn() {
-		const mockGizmoManager = createMockGizmoManager();
-		const pointerDevice = new GizmoPointerDevice(mockGizmoManager);
-		const mockDraggable = new MockDraggable();
-		// eslint-disable-next-line no-underscore-dangle
-		pointerDevice._currentlyHoveringDraggable = /** @type {any} */ (mockDraggable);
-
-		pointerDevice.destructor();
-
-		assertEquals(pointerDevice.destructed, true);
-		assertEquals(mockDraggable.outCallCount, 1);
-	},
-});
-
 function basicSetup() {
 	installMockGetComputedStyle();
 	const mockDraggable = new MockDraggable();
@@ -94,6 +78,28 @@ function basicSetup() {
 		},
 	};
 }
+
+Deno.test({
+	name: "destructor",
+	fn() {
+		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
+
+		try {
+			const event1 = new PointerEvent("pointermove", {
+				clientX: 50,
+				clientY: 50,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
+
+			pointerDevice.destructor();
+
+			assertEquals(pointerDevice.destructed, true);
+			assertEquals(mockDraggable.outCallCount, 1);
+		} finally {
+			uninstall();
+		}
+	},
+});
 
 Deno.test({
 	name: "2d move event draggable over and out",

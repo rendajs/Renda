@@ -312,6 +312,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (holdState) {
 			this.setTransformationMode("translate");
 		}
+		const gizmo = this.getMainTransformationGizmo();
+		if (gizmo && gizmo instanceof TranslationGizmo) {
+			gizmo.setIsDragging(holdState);
+		}
 	};
 
 	/**
@@ -531,6 +535,21 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 
 		return pivots;
+	}
+
+	/**
+	 * Returns the transformation gizmo that controls the most recently selected object.
+	 */
+	getMainTransformationGizmo() {
+		const last = this.selectionGroup.currentSelectedObjects.at(-1);
+		if (!last) return null;
+
+		for (const {entities, gizmo} of this.activeTransformationGizmos) {
+			if (entities.includes(last.entity)) {
+				return gizmo;
+			}
+		}
+		return null;
 	}
 
 	/**

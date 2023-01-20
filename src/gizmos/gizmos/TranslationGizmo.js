@@ -31,6 +31,7 @@ export class TranslationGizmo extends Gizmo {
 
 	/** @type {import("../draggables/GizmoDraggable.js").GizmoDraggable[]} */
 	#createdDraggables = [];
+	#centerDraggable;
 
 	#arrowMesh = new Mesh();
 	#xArrowMesh;
@@ -77,12 +78,12 @@ export class TranslationGizmo extends Gizmo {
 			materials: [],
 		});
 
-		const centerDraggable = this.gizmoManager.createDraggable("move");
-		this.#createdDraggables.push(centerDraggable);
+		this.#centerDraggable = this.gizmoManager.createDraggable("move");
+		this.#createdDraggables.push(this.#centerDraggable);
 		const sphere = new Sphere(0.5);
-		centerDraggable.addRaycastShape(sphere);
-		this.entity.add(centerDraggable.entity);
-		centerDraggable.onIsHoveringChange(isHovering => {
+		this.#centerDraggable.addRaycastShape(sphere);
+		this.entity.add(this.#centerDraggable.entity);
+		this.#centerDraggable.onIsHoveringChange(isHovering => {
 			if (isHovering) {
 				this.#circleMaterialColor.set(hoverColor);
 			} else {
@@ -90,7 +91,7 @@ export class TranslationGizmo extends Gizmo {
 			}
 			this.gizmoNeedsRender();
 		});
-		centerDraggable.onDrag(e => {
+		this.#centerDraggable.onDrag(e => {
 			this.pos.add(e.worldDelta);
 			this.gizmoNeedsRender();
 			let localDelta = e.worldDelta.clone();
@@ -232,6 +233,17 @@ export class TranslationGizmo extends Gizmo {
 		});
 
 		return meshComponent;
+	}
+
+	/**
+	 * Allows you to override the current dragging state. Normally the dragging
+	 * state only changes when the user clicks and drags an element of the gizmo.
+	 * But this allows you to change the dragging state without the need for the
+	 * user to move their mouse up or down.
+	 * @param {boolean} isDragging
+	 */
+	setIsDragging(isDragging) {
+		this.gizmoManager.forceDraggableDraggingState(this.#centerDraggable, isDragging);
 	}
 
 	/**

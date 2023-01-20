@@ -149,6 +149,30 @@ export class GizmoManager {
 	}
 
 	/**
+	 * Forces a draggable to start or stop dragging. The same events will be fired
+	 * as if the draggable was actually dragged by a pointer.
+	 * The most suitable pointer device will be picked and assigned to the
+	 * draggable.
+	 * @param {import("./draggables/GizmoDraggable.js").GizmoDraggable} draggable
+	 * @param {boolean} dragging
+	 */
+	forceDraggableDraggingState(draggable, dragging) {
+		const devices = Array.from(this.pointerDevices);
+		// TODO: On desktops there's only a single pointer device, so this will work.
+		// But on touch devices we need to pick the correct pointer device and make
+		// sure the next touch will control that device.
+		const device = devices.at(0);
+		if (!device) {
+			throw new Error("No suitable pointer device found for forcing a drag state");
+		}
+		if (dragging) {
+			device.forceDragDraggable(draggable);
+		} else {
+			device.forceDragDraggable(null);
+		}
+	}
+
+	/**
 	 * @param {import("../components/builtIn/CameraComponent.js").CameraComponent} camera
 	 * @param {import("../math/Vec3.js").Vec3Parameters} screenPos
 	 */
