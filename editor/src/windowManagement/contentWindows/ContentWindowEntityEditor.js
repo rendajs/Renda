@@ -315,6 +315,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const gizmo = this.getMainTransformationGizmo();
 		if (gizmo && gizmo instanceof TranslationGizmo) {
 			gizmo.setIsDragging(holdState);
+			const dragEndCb = () => {
+				e.command.setHoldStateActive(false);
+				gizmo.removeOnDragEnd(dragEndCb);
+			};
+			gizmo.onDragEnd(dragEndCb);
 		}
 	};
 

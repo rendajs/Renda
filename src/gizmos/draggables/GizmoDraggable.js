@@ -34,6 +34,8 @@ export class GizmoDraggable {
 
 	/** @type {Set<OnDragCallback>} */
 	#onDragCbs = new Set();
+	/** @type {Set<() => void>} */
+	#onDragEndCbs = new Set();
 
 	/** @type {Set<OnIsHoveringChangeCb>} */
 	#onIsHoveringChangeCbs = new Set();
@@ -160,6 +162,7 @@ export class GizmoDraggable {
 		if (this.#activeDraggingPointer != pointerDevice) return;
 
 		this.#activeDraggingPointer = null;
+		this.#onDragEndCbs.forEach(cb => cb());
 		this.handlePointerUp(pointerDevice);
 	}
 
@@ -217,5 +220,19 @@ export class GizmoDraggable {
 	 */
 	fireDragCallbacks(event) {
 		this.#onDragCbs.forEach(cb => cb(event));
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onDragEnd(cb) {
+		this.#onDragEndCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnDragEnd(cb) {
+		this.#onDragEndCbs.delete(cb);
 	}
 }

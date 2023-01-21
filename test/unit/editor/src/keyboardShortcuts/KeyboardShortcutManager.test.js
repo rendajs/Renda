@@ -14,7 +14,7 @@ import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared
 
 /**
  * @param {Object} options
- * @param {(ctx: KeyboardShortcutManagerTestContext)} options.fn The test function
+ * @param {(ctx: KeyboardShortcutManagerTestContext) => void} options.fn The test function
  */
 function basicSetup({
 	fn,
@@ -157,6 +157,43 @@ Deno.test({
 				const event3 = fireKeyEvent("KeyA", true);
 				assertSpyCalls(commandSpy, 2);
 				assertEquals(commandSpy.calls[1].args[0].command.holdStateActive, false);
+				assertEquals(event3.defaultPrevented, true);
+
+				const event4 = fireKeyEvent("KeyA", false);
+				assertSpyCalls(commandSpy, 2);
+				assertEquals(event4.defaultPrevented, false);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "forcing hold state while the key is still down",
+	fn() {
+		basicSetup({
+			fn({manager, commandSpy, fireKeyEvent}) {
+				manager.registerCommand({
+					command: "cmd",
+					defaultKeys: ["a"],
+					holdType: "smart",
+				});
+				manager.onCommand("cmd", commandSpy);
+
+				const event1 = fireKeyEvent("KeyA", true);
+				assertSpyCalls(commandSpy, 1);
+				assertEquals(commandSpy.calls[0].args[0].command.holdStateActive, true);
+				assertEquals(event1.defaultPrevented, true);
+
+				const event2 = fireKeyEvent("KeyA", false);
+				assertSpyCalls(commandSpy, 1);
+				assertEquals(event2.defaultPrevented, false);
+
+				// force release the hold state
+				commandSpy.calls[0].args[0].command.setHoldStateActive(false);
+
+				const event3 = fireKeyEvent("KeyA", true);
+				assertSpyCalls(commandSpy, 2);
+				assertEquals(commandSpy.calls[1].args[0].command.holdStateActive, true);
 				assertEquals(event3.defaultPrevented, true);
 
 				const event4 = fireKeyEvent("KeyA", false);

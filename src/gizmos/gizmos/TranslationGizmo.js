@@ -25,6 +25,8 @@ export class TranslationGizmo extends Gizmo {
 
 	/** @type {Set<TranslationGizmoDragCallback>} */
 	#onDragCbs = new Set();
+	/** @type {Set<() => void>} */
+	#onDragEndCbs = new Set();
 
 	#circleMeshComponent;
 	#circleMesh = new Mesh();
@@ -102,6 +104,9 @@ export class TranslationGizmo extends Gizmo {
 				worldDelta: e.worldDelta,
 				localDelta,
 			}));
+		});
+		this.#centerDraggable.onDragEnd(() => {
+			this.#fireOnDragEndCbs();
 		});
 
 		this.#arrowMesh.setVertexState(this.gizmoManager.meshVertexState);
@@ -231,6 +236,9 @@ export class TranslationGizmo extends Gizmo {
 				worldDelta: e.worldDelta,
 			}));
 		});
+		draggable.onDragEnd(() => {
+			this.#fireOnDragEndCbs();
+		});
 
 		return meshComponent;
 	}
@@ -251,5 +259,23 @@ export class TranslationGizmo extends Gizmo {
 	 */
 	onDrag(cb) {
 		this.#onDragCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onDragEnd(cb) {
+		this.#onDragEndCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnDragEnd(cb) {
+		this.#onDragEndCbs.delete(cb);
+	}
+
+	#fireOnDragEndCbs() {
+		this.#onDragEndCbs.forEach(cb => cb());
 	}
 }

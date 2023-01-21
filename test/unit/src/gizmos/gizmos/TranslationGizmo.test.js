@@ -310,3 +310,25 @@ Deno.test({
 		assertVecAlmostEquals(createdDraggables[3].entity.worldPos, [1, 1, 2]);
 	},
 });
+
+Deno.test({
+	name: "onDragEnd callbacks fire",
+	fn() {
+		const {translationGizmo, createdDraggables} = basicSetup();
+
+		const cb1 = spy();
+		const cb2 = spy();
+		translationGizmo.onDragEnd(cb1);
+		translationGizmo.onDragEnd(cb2);
+		translationGizmo.removeOnDragEnd(cb2);
+
+		let i = 0;
+		for (const draggable of createdDraggables) {
+			draggable.fireOnDragEnd();
+			i++;
+			assertSpyCalls(cb1, i);
+		}
+
+		assertSpyCalls(cb2, 0);
+	},
+});

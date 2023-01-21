@@ -55,6 +55,11 @@ export class FakeGizmoDraggable {
 	/** @typedef {import("../../../../src/gizmos/draggables/GizmoDraggable.js").OnIsHoveringChangeCb} OnIsHoveringChangeCb */
 	/** @typedef {(event: TDragEvent) => void} OnDragCallback */
 
+	/** @type {Set<OnDragCallback>} */
+	#onDragCbs = new Set();
+	/** @type {Set<() => void>} */
+	#onDragEndCbs = new Set();
+
 	/**
 	 * @param {string} type
 	 */
@@ -62,8 +67,6 @@ export class FakeGizmoDraggable {
 		this.type = type;
 		/** @type {Set<OnIsHoveringChangeCb>} */
 		this.onIsHoveringChangeCbs = new Set();
-		/** @type {Set<OnDragCallback>} */
-		this.onDragCbs = new Set();
 
 		this.axis = new Vec3();
 		this.entity = new Entity("Fake draggable " + type);
@@ -89,14 +92,25 @@ export class FakeGizmoDraggable {
 	 * @param {OnDragCallback} cb
 	 */
 	onDrag(cb) {
-		this.onDragCbs.add(cb);
+		this.#onDragCbs.add(cb);
 	}
 
 	/**
 	 * @param {TDragEvent} event
 	 */
 	fireOnDrag(event) {
-		this.onDragCbs.forEach(cb => cb(event));
+		this.#onDragCbs.forEach(cb => cb(event));
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onDragEnd(cb) {
+		this.#onDragEndCbs.add(cb);
+	}
+
+	fireOnDragEnd() {
+		this.#onDragEndCbs.forEach(cb => cb());
 	}
 }
 
