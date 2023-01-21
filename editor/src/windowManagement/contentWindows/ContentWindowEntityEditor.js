@@ -69,6 +69,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 		this.addTopBarEl(this.translationModeSelector.el);
 
+		getEditorInstance().keyboardShortcutManager.onCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		getEditorInstance().keyboardShortcutManager.onCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
+
 		this.transformationSpaceButton = new Button({
 			onClick: () => {
 				this.toggleTransformationSpace();
@@ -95,8 +98,6 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.contentEl.appendChild(renderTargetElement);
 
 		this.renderDirty = false;
-		/** @type {Set<() => void>} */
-		this.onRenderDirtyCbs = new Set();
 
 		this.editorScene = new Entity("editorScene");
 		this.editorCamera = new Entity("editorCamera");
@@ -121,7 +122,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editorScene.add(this.gizmos.entity);
 		this.gizmos.addPointerEventListeners(renderTargetElement, this.editorCamComponent);
 		this.gizmos.onGizmoNeedsRender(() => {
-			this.markRenderDirty(false);
+			this.markRenderDirty();
 		});
 
 		/** @type {TransformationGizmoData[]} */
@@ -177,6 +178,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this._editingEntity = null;
 		this.selectionGroup.destructor();
 		this.gizmos.destructor();
+
+		getEditorInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		getEditorInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
 	}
 
 	get editingEntity() {
@@ -209,29 +213,9 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.markRenderDirty();
 	}
 
-	markRenderDirty(notifyExternalRenders = true) {
+	markRenderDirty() {
 		this.renderDirty = true;
-		if (notifyExternalRenders) {
-			for (const cb of this.onRenderDirtyCbs) {
-				cb();
-			}
-		}
 	}
-
-	/**
-	 * @param {() => void} cb
-	 */
-	onRenderDirty(cb) {
-		this.onRenderDirtyCbs.add(cb);
-	}
-
-	/**
-	 * @param {() => void} cb
-	 */
-	removeOnRenderDirty(cb) {
-		this.onRenderDirtyCbs.delete(cb);
-	}
-
 	newEmptyEditingEntity() {
 		this.editingEntity = new Entity();
 	}
@@ -269,7 +253,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		if (this.orbitControls) {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
-				this.markRenderDirty(false);
+				this.markRenderDirty();
 				if (this.persistentDataLoaded) {
 					this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
 					this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
@@ -314,17 +298,46 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	#updateTranslationMode() {
 		if (this.translationModeSelector.value == 0) {
-			this.transformationMode = "translate";
+			this.setTransformationMode("translate");
 		} else if (this.translationModeSelector.value == 1) {
-			this.transformationMode = "rotate";
+			this.setTransformationMode("rotate");
 		}
-		this.updateTransformationGizmos();
 	}
+
+	/**
+	 * @param {import("../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
+	 */
+	#translateKeyboardShortcutPressed = e => {
+		const holdState = e.command.holdStateActive;
+		if (holdState) {
+			this.setTransformationMode("translate");
+		}
+		const gizmo = this.getMainTransformationGizmo();
+		if (gizmo && gizmo instanceof TranslationGizmo) {
+			gizmo.setIsDragging(holdState);
+			const dragEndCb = () => {
+				e.command.setHoldStateActive(false);
+				gizmo.removeOnDragEnd(dragEndCb);
+			};
+			gizmo.onDragEnd(dragEndCb);
+		}
+	};
+
+	/**
+	 * @param {import("../../keyboardShortcuts/KeyboardShortcutManager.js").CommandCallbackEvent} e
+	 */
+	#rotateKeyboardShortcutPressed = e => {
+		const holdState = e.command.holdStateActive;
+		if (holdState) {
+			this.setTransformationMode("rotate");
+		}
+	};
 
 	/**
 	 * @param {TransformationMode} mode
 	 */
 	setTransformationMode(mode) {
+		if (this.transformationMode == mode) return;
 		this.transformationMode = mode;
 		this.updateTransformationGizmos();
 	}
@@ -527,6 +540,21 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 
 		return pivots;
+	}
+
+	/**
+	 * Returns the transformation gizmo that controls the most recently selected object.
+	 */
+	getMainTransformationGizmo() {
+		const last = this.selectionGroup.currentSelectedObjects.at(-1);
+		if (!last) return null;
+
+		for (const {entities, gizmo} of this.activeTransformationGizmos) {
+			if (entities.includes(last.entity)) {
+				return gizmo;
+			}
+		}
+		return null;
 	}
 
 	/**

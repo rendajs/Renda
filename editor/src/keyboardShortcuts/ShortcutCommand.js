@@ -15,6 +15,7 @@ import {MalformedSyntaxError, parseExpression, verifyExpression} from "./conditi
  * @property {string | string[] | null} [defaultKeys] The the keys that trigger the command.
  * @property {string} [conditions] The conditions to check for before triggering the command.
  * @property {ShortcutCommandHoldType} [holdType = "single"] How to deal with keys being held down.
+ * See {@linkcode ShortcutCommandHoldType} for a list of possible values.
  */
 
 /** @typedef {string[][]} ShortcutCommandSequence */

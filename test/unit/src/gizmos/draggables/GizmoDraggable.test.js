@@ -1,4 +1,5 @@
 import {assertEquals, assertNotEquals, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertSpyCalls, spy} from "std/testing/mock.ts";
 import {GizmoDraggable} from "../../../../../src/gizmos/draggables/GizmoDraggable.js";
 import {CameraComponent, Entity, Sphere, Vec2, Vec3} from "../../../../../src/mod.js";
 import {assertVecAlmostEquals} from "../../../shared/asserts.js";
@@ -231,13 +232,21 @@ Deno.test({
 });
 
 Deno.test({
-	name: "handlePointerUp() fires onPointerUp",
+	name: "handlePointerUp() fires onPointerUp and onDragEndCbs",
 	fn() {
 		const draggable = new ExtendedDraggable(mockGizmoManager);
+		const cb1 = spy();
+		const cb2 = spy();
+		draggable.onDragEnd(cb1);
+		draggable.onDragEnd(cb2);
+		draggable.removeOnDragEnd(cb2);
+
 		draggable.pointerDown(mockPointer1, stubPointerEventData);
 		draggable.pointerUp(mockPointer1);
 
 		assertEquals(draggable.handlePointerUpCalls, 1);
+		assertSpyCalls(cb1, 1);
+		assertSpyCalls(cb2, 0);
 	},
 });
 
@@ -245,9 +254,12 @@ Deno.test({
 	name: "handlePointerUp() doesn't fire when no pointer device is active",
 	fn() {
 		const draggable = new ExtendedDraggable(mockGizmoManager);
+		const cb = spy();
+		draggable.onDragEnd(cb);
 		draggable.pointerUp(mockPointer1);
 
 		assertEquals(draggable.handlePointerUpCalls, 0);
+		assertSpyCalls(cb, 0);
 	},
 });
 

@@ -40,5 +40,17 @@ const autoRegisterShortcutCommands = [
 		defaultKeys: ["v"],
 		conditions: "droppableGui.focusSelected",
 	},
+	{
+		command: "entityEditor.transform.translate",
+		defaultKeys: ["g"],
+		holdType: "smart",
+		conditions: "!treeView.renaming",
+	},
+	{
+		command: "entityEditor.transform.rotate",
+		defaultKeys: ["r"],
+		holdType: "smart",
+		conditions: "!treeView.renaming",
+	},
 ];
 export {autoRegisterShortcutCommands};

@@ -56,22 +56,6 @@ function createMockGizmoManager(createDraggableCb = null) {
 	return /** @type {import("../../../../src/mod.js").GizmoManager} */ (new MockGizmoManager());
 }
 
-Deno.test({
-	name: "destructor",
-	fn() {
-		const mockGizmoManager = createMockGizmoManager();
-		const pointerDevice = new GizmoPointerDevice(mockGizmoManager);
-		const mockDraggable = new MockDraggable();
-		// eslint-disable-next-line no-underscore-dangle
-		pointerDevice._currentlyHoveringDraggable = /** @type {any} */ (mockDraggable);
-
-		pointerDevice.destructor();
-
-		assertEquals(pointerDevice.destructed, true);
-		assertEquals(mockDraggable.outCallCount, 1);
-	},
-});
-
 function basicSetup() {
 	installMockGetComputedStyle();
 	const mockDraggable = new MockDraggable();
@@ -84,7 +68,9 @@ function basicSetup() {
 		clientHeight: 100,
 	});
 	const stubCamera = /** @type {import("../../../../src/mod.js").CameraComponent} */ ({});
+	const castMockDraggable = /** @type {import("../../../../src/gizmos/draggables/GizmoDraggable.js").GizmoDraggable} */ (/** @type {unknown} */ (mockDraggable));
 	return {
+		castMockDraggable,
 		mockDraggable,
 		pointerDevice,
 		stubElement,
@@ -96,10 +82,34 @@ function basicSetup() {
 }
 
 Deno.test({
+	name: "destructor",
+	fn() {
+		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
+
+		try {
+			// Hover over a draggable
+			const event1 = new PointerEvent("pointermove", {
+				clientX: 50,
+				clientY: 50,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
+
+			pointerDevice.destructor();
+
+			assertEquals(pointerDevice.destructed, true);
+			assertEquals(mockDraggable.outCallCount, 1);
+		} finally {
+			uninstall();
+		}
+	},
+});
+
+Deno.test({
 	name: "2d move event draggable over and out",
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
 
+		// Hover over a draggable
 		const event1 = new PointerEvent("pointermove", {
 			clientX: 50,
 			clientY: 50,
@@ -109,6 +119,7 @@ Deno.test({
 		assertEquals(mockDraggable.overCallCount, 1);
 		assertEquals(mockDraggable.outCallCount, 0);
 
+		// Hover away from the draggable
 		const event2 = new PointerEvent("pointermove", {
 			clientX: 0,
 			clientY: 0,
@@ -147,6 +158,7 @@ Deno.test({
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
 
+		// Click on a draggable
 		const event1 = new PointerEvent("pointerdown", {
 			clientX: 50,
 			clientY: 50,
@@ -157,6 +169,7 @@ Deno.test({
 		assertEquals(mockDraggable.downCallCount, 1);
 		assertEquals(mockDraggable.upCallCount, 0);
 
+		// Move slightly
 		const event2 = new PointerEvent("pointermove", {
 			clientX: 50,
 			clientY: 51,
@@ -166,6 +179,7 @@ Deno.test({
 		assertEquals(pointerDevice.hasActiveButton, true);
 		assertEquals(mockDraggable.moveCallCount, 1);
 
+		// Release mouse button
 		const event3 = new PointerEvent("pointerup", {
 			clientX: 50,
 			clientY: 50,
@@ -184,6 +198,7 @@ Deno.test({
 	fn() {
 		const {pointerDevice, stubElement, stubCamera, mockDraggable, uninstall} = basicSetup();
 
+		// Click draggable
 		const event1 = new PointerEvent("pointerdown", {
 			clientX: 50,
 			clientY: 50,
@@ -194,6 +209,7 @@ Deno.test({
 		assertEquals(mockDraggable.downCallCount, 1);
 		assertEquals(mockDraggable.upCallCount, 0);
 
+		// Move away from draggable
 		const event2 = new PointerEvent("pointermove", {
 			clientX: 0,
 			clientY: 0,
@@ -201,6 +217,7 @@ Deno.test({
 		});
 		pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
 
+		// Release mouse button
 		const event3 = new PointerEvent("pointerup", {
 			clientX: 0,
 			clientY: 0,
@@ -211,5 +228,60 @@ Deno.test({
 		assertEquals(mockDraggable.upCallCount, 1);
 
 		uninstall();
+	},
+});
+
+Deno.test({
+	name: "forceDragDraggable keeps dragging even though the mouse isn't down",
+	fn() {
+		const {pointerDevice, stubElement, stubCamera, mockDraggable, castMockDraggable, uninstall} = basicSetup();
+
+		try {
+			// Move cursor to set an initial location for the pointer device
+			const event1 = new PointerEvent("pointermove", {
+				clientX: 0,
+				clientY: 0,
+				buttons: 0,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event1);
+			assertEquals(mockDraggable.overCallCount, 0);
+			assertEquals(mockDraggable.downCallCount, 0);
+
+			pointerDevice.forceDragDraggable(castMockDraggable);
+			assertEquals(mockDraggable.overCallCount, 1);
+			assertEquals(mockDraggable.downCallCount, 1);
+
+			// Move cursor while pointer is up from draggable
+			const event2 = new PointerEvent("pointermove", {
+				clientX: 0,
+				clientY: 0,
+				buttons: 0,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event2);
+			assertEquals(pointerDevice.hasActiveButton, true);
+
+			// Click to release the forced drag
+			const event3 = new PointerEvent("pointerdown", {
+				clientX: 0,
+				clientY: 0,
+				buttons: 1,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event3);
+			assertEquals(mockDraggable.outCallCount, 0);
+			assertEquals(mockDraggable.upCallCount, 0);
+
+			const event4 = new PointerEvent("pointerup", {
+				clientX: 0,
+				clientY: 0,
+				buttons: 0,
+			});
+			pointerDevice.handle2dEvent(stubCamera, stubElement, event4);
+			assertEquals(mockDraggable.overCallCount, 1);
+			assertEquals(mockDraggable.downCallCount, 1);
+			assertEquals(mockDraggable.outCallCount, 1);
+			assertEquals(mockDraggable.upCallCount, 1);
+		} finally {
+			uninstall();
+		}
 	},
 });
