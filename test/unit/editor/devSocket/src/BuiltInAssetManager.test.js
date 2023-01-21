@@ -1,6 +1,6 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {BuiltInAssetManager} from "../../../../../editor/devSocket/src/BuiltInAssetManager.js";
-import {installMockDateNow, uninstallMockDateNow} from "../../../shared/mockDateNow.js";
+import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared/mockTime.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 
 const originalDenoWatchFs = Deno.watchFs;
@@ -215,7 +215,7 @@ async function installMocks({
 		},
 	});
 
-	const mockDateNow = installMockDateNow();
+	installMockTime();
 
 	const manager = new BuiltInAssetManager({
 		builtInAssetsPath: "/assets",
@@ -227,12 +227,11 @@ async function installMocks({
 		manager,
 		uninstall() {
 			uninstallMockDenoCalls();
-			uninstallMockDateNow();
+			uninstallMockTime();
 		},
 		triggerWatchEvent,
 		files,
 		writeTextFileCalls,
-		mockDateNow,
 	};
 }
 
@@ -459,14 +458,13 @@ Deno.test({
 Deno.test({
 	name: "external assetSettings.json change only triggers an asset settings reload if the application didn't write to it itself.",
 	async fn() {
-		const {manager, mockDateNow, uninstall, triggerWatchEvent, files} = await installMocks();
+		const {manager, uninstall, triggerWatchEvent, files} = await installMocks();
 
 		let didReloadAssetSettings = false;
 		manager.loadAssetSettings = async () => {
 			didReloadAssetSettings = true;
 		};
 
-		mockDateNow.setNowValue(1000);
 		// Two external changes should trigger two assetSettings.json writes,
 		// and as a result, two watch events for assetSettings.json
 		files.set("/assets/file1.dat", new Uint8Array([1, 1, 1]));
@@ -485,7 +483,7 @@ Deno.test({
 		assertEquals(didReloadAssetSettings, false);
 
 		// externally changing asset settings after a while should trigger a reload though
-		mockDateNow.setNowValue(10_000);
+		incrementTime(10_000);
 
 		files.set("/assets/assetSettings.json", JSON.stringify({
 			assets: {},

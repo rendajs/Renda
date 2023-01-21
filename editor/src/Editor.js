@@ -2,6 +2,8 @@ import {WindowManager} from "./windowManagement/WindowManager.js";
 import {SelectionManager} from "./misc/SelectionManager.js";
 import {PopoverManager} from "./ui/popoverMenus/PopoverManager.js";
 import {KeyboardShortcutManager} from "./keyboardShortcuts/KeyboardShortcutManager.js";
+import {autoRegisterShortcutCommands} from "./keyboardShortcuts/autoRegisterShortcutCommands.js";
+import {autoRegisterShortcutConditions} from "./keyboardShortcuts/autoRegisterShortcutConditions.js";
 import {PropertiesWindowContentManager} from "./propertiesWindowContent/PropertiesWindowContentManager.js";
 import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";
 import {ComponentGizmosManager} from "./componentGizmos/ComponentGizmosManager.js";
@@ -29,7 +31,13 @@ export class Editor {
 		this.selectionManager = new SelectionManager();
 		this.colorizerFilterManager = new ColorizerFilterManager();
 		this.popoverManager = new PopoverManager(this.colorizerFilterManager);
+
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
+		for (const [name, options] of Object.entries(autoRegisterShortcutConditions)) {
+			this.keyboardShortcutManager.registerCondition(name, options);
+		}
+		this.keyboardShortcutManager.registerCommands(autoRegisterShortcutCommands);
+
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager(this.windowManager);
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.taskManager = new TaskManager();
