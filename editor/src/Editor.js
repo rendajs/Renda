@@ -6,6 +6,8 @@ import {autoRegisterShortcutCommands} from "./keyboardShortcuts/autoRegisterShor
 import {autoRegisterShortcutConditions} from "./keyboardShortcuts/autoRegisterShortcutConditions.js";
 import {PropertiesWindowContentManager} from "./propertiesWindowContent/PropertiesWindowContentManager.js";
 import {ProjectAssetTypeManager} from "./assets/ProjectAssetTypeManager.js";
+import {TaskManager} from "./tasks/TaskManager.js";
+import {HistoryManager} from "./misc/HistoryManager.js";
 import {ComponentGizmosManager} from "./componentGizmos/ComponentGizmosManager.js";
 import {MaterialMapTypeSerializerManager} from "./assets/MaterialMapTypeSerializerManager.js";
 import {ProjectManager} from "./projectSelector/ProjectManager.js";
@@ -20,7 +22,6 @@ import {ComponentTypeManager} from "../../src/components/ComponentTypeManager.js
 
 import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
 import {ProjectAssetTypeShaderSource} from "./assets/projectAssetType/ProjectAssetTypeShaderSource.js";
-import {TaskManager} from "./tasks/TaskManager.js";
 
 export class Editor {
 	constructor() {
@@ -41,6 +42,7 @@ export class Editor {
 		this.propertiesWindowContentManager = new PropertiesWindowContentManager(this.windowManager);
 		this.projectAssetTypeManager = new ProjectAssetTypeManager();
 		this.taskManager = new TaskManager();
+		this.historyManager = new HistoryManager(this.keyboardShortcutManager);
 		this.componentGizmosManager = new ComponentGizmosManager();
 		this.materialMapTypeSerializerManager = new MaterialMapTypeSerializerManager();
 		this.projectManager = new ProjectManager();
