@@ -1,6 +1,14 @@
 /** @type {import("./ShortcutCommand.js").ShortcutCommandOptions[]} */
 const autoRegisterShortcutCommands = [
 	{
+		command: "history.undo",
+		defaultKeys: ["ctrl+z", "z"],
+	},
+	{
+		command: "history.redo",
+		defaultKeys: ["ctrl+y", "ctrl+shift+z", "shift+z"],
+	},
+	{
 		command: "treeView.selection.up",
 		defaultKeys: "up",
 		conditions: "treeView.focusSelected",

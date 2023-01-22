@@ -582,6 +582,7 @@ export class Entity {
 	}
 
 	/**
+	 * Adds an entity as child of this one.
 	 * @param {Entity} child
 	 * @param {boolean} keepWorldPosition
 	 */
@@ -590,6 +591,9 @@ export class Entity {
 	}
 
 	/**
+	 * Adds an entity as child of this one at a specific index.
+	 * Negative values count back from the last item in the children array.
+	 * I.e. an index of -1 will insert the child at the very end of the array.
 	 * @param {Entity} child
 	 * @param {number} index
 	 * @param {boolean} keepWorldPosition
@@ -609,7 +613,6 @@ export class Entity {
 
 	/**
 	 * Removes a child from this entity.
-	 * If the same child is attached multiple times, the first instance will be removed.
 	 * @param {Entity} child
 	 */
 	remove(child) {

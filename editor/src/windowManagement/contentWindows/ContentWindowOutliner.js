@@ -7,6 +7,7 @@ import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../assets/pr
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
+import {getEditorInstance} from "../../editorInstance.js";
 
 export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";
@@ -279,11 +280,21 @@ export class ContentWindowOutliner extends ContentWindow {
 						throw new Error("Failed to delete entity, entity not attached to a parent");
 					}
 					const parentEntity = this.getEntityByTreeViewItem(parentTreeView);
-					const index = e.target.index;
-					parentEntity.removeAtIndex(index);
-					this.updateTreeView();
 					const entity = this.getEntityByTreeViewItem(e.target);
-					this.notifyEntityEditors(entity, "delete");
+					const index = parentEntity.children.indexOf(entity);
+					getEditorInstance().historyManager.executeEntry({
+						uiText: "Delete entity",
+						redo: () => {
+							parentEntity.remove(entity);
+							this.updateTreeView();
+							this.notifyEntityEditors(entity, "delete");
+						},
+						undo: () => {
+							parentEntity.addAtIndex(entity, index);
+							this.updateTreeView();
+							this.notifyEntityEditors(entity, "create");
+						},
+					});
 				},
 			},
 		]);
