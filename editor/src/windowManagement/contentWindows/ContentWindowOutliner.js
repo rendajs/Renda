@@ -263,7 +263,19 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	onTreeViewNameChange(e) {
 		const ent = this.getEntityByTreeViewItem(e.target);
-		ent.name = e.target.name;
+		const newName = e.target.name;
+		const oldName = ent.name;
+		this.editorInstance.historyManager.executeEntry({
+			uiText: "Rename entity",
+			redo: () => {
+				ent.name = newName;
+				this.updateTreeView();
+			},
+			undo: () => {
+				ent.name = oldName;
+				this.updateTreeView();
+			},
+		});
 	}
 
 	/**
@@ -282,7 +294,7 @@ export class ContentWindowOutliner extends ContentWindow {
 					const parentEntity = this.getEntityByTreeViewItem(parentTreeView);
 					const entity = this.getEntityByTreeViewItem(e.target);
 					const index = parentEntity.children.indexOf(entity);
-					getEditorInstance().historyManager.executeEntry({
+					this.editorInstance.historyManager.executeEntry({
 						uiText: "Delete entity",
 						redo: () => {
 							parentEntity.remove(entity);
