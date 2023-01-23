@@ -3,22 +3,32 @@
  */
 
 /**
- * @typedef HistoryNode
- * @property {HistoryEntry} entry
- * @property {HistoryNode?} parent
- * @property {HistoryNode[]} children
- */
-
-/**
  * @typedef HistoryEntry
  * @property {string} uiText
  * @property {() => void} undo
  * @property {() => void} redo
  */
 
+/**
+ * @typedef HistoryEntriesResult
+ * @property {HistoryEntry} entry
+ * @property {number} indentation
+ * @property {boolean} active
+ * @property {boolean} current
+ */
+
 export class HistoryManager {
 	#rootNode;
 	#activeNode;
+	/** @type {Set<() => void>} */
+	#onTreeUpdatedCbs = new Set();
+
+	/**
+	 * @typedef HistoryNode
+	 * @property {HistoryEntry} entry
+	 * @property {HistoryNode?} parent
+	 * @property {HistoryNode[]} children
+	 */
 
 	/**
 	 * @param {import("../keyboardShortcuts/KeyboardShortcutManager.js").KeyboardShortcutManager} shortcutManager
@@ -44,6 +54,7 @@ export class HistoryManager {
 		const node = this.#createNode(entry, this.#activeNode);
 		this.#activeNode.children.push(node);
 		this.#activeNode = node;
+		this.#fireOnTreeUpdated();
 	}
 
 	/**
@@ -78,6 +89,7 @@ export class HistoryManager {
 		}
 		this.#activeNode.entry.undo();
 		this.#activeNode = parent;
+		this.#fireOnTreeUpdated();
 	}
 
 	redo() {
@@ -89,5 +101,51 @@ export class HistoryManager {
 		}
 		child.entry.redo();
 		this.#activeNode = child;
+		this.#fireOnTreeUpdated();
+	}
+
+	*getEntries() {
+		const activeNode = this.#activeNode;
+		/**
+		 * @param {HistoryNode} node
+		 * @param {number} indentation
+		 * @param {boolean} active
+		 * @returns {Generator<HistoryEntriesResult>}
+		 */
+		function *traverseDown(node, indentation, active) {
+			yield {
+				entry: node.entry,
+				indentation,
+				active,
+				current: node == activeNode,
+			};
+			if (node == activeNode) {
+				active = false;
+			}
+			for (const [i, child] of node.children.entries()) {
+				const extraIndentation = node.children.length - i - 1;
+				yield* traverseDown(child, indentation + extraIndentation, active && extraIndentation == 0);
+			}
+		}
+
+		yield* traverseDown(this.#rootNode, 0, true);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	onTreeUpdated(cb) {
+		this.#onTreeUpdatedCbs.add(cb);
+	}
+
+	/**
+	 * @param {() => void} cb
+	 */
+	removeOnTreeUpdated(cb) {
+		this.#onTreeUpdatedCbs.delete(cb);
+	}
+
+	#fireOnTreeUpdated() {
+		this.#onTreeUpdatedCbs.forEach(cb => cb());
 	}
 }

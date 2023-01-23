@@ -4,6 +4,7 @@ import {ContentWindowBuiltInAssets} from "./contentWindows/ContentWindowBuiltInA
 import {ContentWindowConnections} from "./contentWindows/ContentWindowConnections.js";
 import {ContentWindowDefaultAssetLinks} from "./contentWindows/ContentWindowDefaultAssetLinks.js";
 import {ContentWindowEntityEditor} from "./contentWindows/ContentWindowEntityEditor.js";
+import {ContentWindowHistory} from "./contentWindows/ContentWindowHistory.js";
 import {ContentWindowOutliner} from "./contentWindows/ContentWindowOutliner.js";
 import {ContentWindowProject} from "./contentWindows/ContentWindowProject.js";
 import {ContentWindowProperties} from "./contentWindows/ContentWindowProperties.js";
@@ -15,6 +16,7 @@ export const autoRegisterContentWindows = [
 	ContentWindowConnections,
 	ContentWindowDefaultAssetLinks,
 	ContentWindowEntityEditor,
+	ContentWindowHistory,
 	ContentWindowOutliner,
 	ContentWindowProject,
 	ContentWindowProperties,

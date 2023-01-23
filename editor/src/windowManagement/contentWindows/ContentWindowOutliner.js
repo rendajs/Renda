@@ -7,7 +7,6 @@ import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../assets/pr
 import {parseMimeType} from "../../util/util.js";
 import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
-import {getEditorInstance} from "../../editorInstance.js";
 
 export class ContentWindowOutliner extends ContentWindow {
 	static contentWindowTypeId = "outliner";

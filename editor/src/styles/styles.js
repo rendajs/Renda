@@ -15,6 +15,9 @@ import windowManagement from "../windowManagement/windowManagement.css" assert {
 // @ts-ignore
 import contentWindowAbout from "../windowManagement/contentWindows/ContentWindowAbout.css" assert {type: "css"};
 // @ts-ignore
+import contentWindowHistorySheet from "../windowManagement/contentWindows/ContentWindowHistory.css" assert {type: "css"};
+export {contentWindowHistorySheet};
+// @ts-ignore
 import popoverMenus from "../ui/popoverMenus/popoverMenus.css" assert {type: "css"};
 // @ts-ignore
 import guis from "../ui/guis.css" assert {type: "css"};

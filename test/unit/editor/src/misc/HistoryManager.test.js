@@ -1,5 +1,6 @@
 import {HistoryManager} from "../../../../../editor/src/misc/HistoryManager.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertEquals} from "std/testing/asserts.ts";
 
 /**
  * @typedef HistoryManagerTestContext
@@ -143,8 +144,165 @@ Deno.test({
 				assertSpyCalls(undoSpy, 0);
 				fireUndoShortcut();
 				assertSpyCalls(undoSpy, 1);
+			},
+		});
+	},
+});
 
-			}
-		})
-	}
-})
+Deno.test({
+	name: "getEntries",
+	fn() {
+		basicTest({
+			fn({manager}) {
+				/**
+				 * @param {string} uiText
+				 */
+				function pushEntry(uiText) {
+					manager.pushEntry({
+						uiText,
+						undo: () => {},
+						redo: () => {},
+					});
+				}
+
+				/**
+				 * @typedef ExpectedEntry
+				 * @property {string} uiText
+				 * @property {boolean} active
+				 * @property {boolean} current
+				 * @property {number} indentation
+				 */
+
+				/**
+				 * @param {ExpectedEntry[]} expectedEntries
+				 */
+				function expectEntries(expectedEntries) {
+					const actualEntries = Array.from(manager.getEntries());
+					const mapped = actualEntries.map(entry => {
+						/** @type {ExpectedEntry} */
+						const mappedEntry = {
+							uiText: entry.entry.uiText,
+							active: entry.active,
+							current: entry.current,
+							indentation: entry.indentation,
+						};
+						return mappedEntry;
+					});
+					assertEquals(mapped, expectedEntries);
+				}
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: true,
+						indentation: 0,
+					},
+				]);
+
+				pushEntry("entry1");
+				pushEntry("entry2");
+				pushEntry("entry3");
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry1",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry2",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry3",
+						active: true,
+						current: true,
+						indentation: 0,
+					},
+				]);
+
+				manager.undo();
+				manager.undo();
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry1",
+						active: true,
+						current: true,
+						indentation: 0,
+					},
+					{
+						uiText: "entry2",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry3",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+				]);
+
+				pushEntry("subEntry1");
+				pushEntry("subEntry2");
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry1",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry2",
+						active: false,
+						current: false,
+						indentation: 1,
+					},
+					{
+						uiText: "entry3",
+						active: false,
+						current: false,
+						indentation: 1,
+					},
+					{
+						uiText: "subEntry1",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "subEntry2",
+						active: true,
+						current: true,
+						indentation: 0,
+					},
+				]);
+			},
+		});
+	},
+});

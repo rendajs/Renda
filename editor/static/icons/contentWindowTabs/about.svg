@@ -2,7 +2,7 @@
 <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
   <g style="stroke: black; stroke-width: 20px; fill: transparent;">
     <circle cx="250" cy="250" r="180"/>
-    <circle cx="250" cy="180" r="10"/>
-    <path d="M 250 240 L 250 360" style=""/>
+    <circle cx="250" cy="165" r="8"/>
+    <path d="M 250 240 L 250 350" style=""/>
   </g>
 </svg>

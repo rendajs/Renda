@@ -5,8 +5,9 @@
       <rect x="0" y="0" width="500" height="500" style="fill: black"/>
       <g style="fill: transparent; stroke: white; stroke-width: 20px;">
         <ellipse cx="250" cy="250" rx="150" ry="150"/>
-        <path style="fill: black; stroke: none" d="M 250 250 L 500 370 L 500 175 Z"/>
-        <path d="M 320 200 L 395 205 L 420 130"/>
+        <path style="fill: black; stroke: none" d="M 250 250 L 0 370 L 0 175 Z"/>
+        <path d="M 180 200 L 105 205 L 80 130"/>
+        <path d="M 250 160 L 250 250 L 310 290"/>
       </g>
     </mask>
   </defs>
