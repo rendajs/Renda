@@ -19,7 +19,7 @@
 
 export class HistoryManager {
 	#rootNode;
-	#activeNode;
+	#currentNode;
 	/** @type {Set<() => void>} */
 	#onTreeUpdatedCbs = new Set();
 	/** @type {WeakMap<HistoryEntry, HistoryNode>} */
@@ -41,7 +41,7 @@ export class HistoryManager {
 			undo: () => {},
 			redo: () => {},
 		}, null);
-		this.#activeNode = this.#rootNode;
+		this.#currentNode = this.#rootNode;
 
 		shortcutManager.onCommand("history.undo", this.undo.bind(this));
 		shortcutManager.onCommand("history.redo", this.redo.bind(this));
@@ -53,9 +53,9 @@ export class HistoryManager {
 	 * @param {HistoryEntry} entry
 	 */
 	pushEntry(entry) {
-		const node = this.#createNode(entry, this.#activeNode);
-		this.#activeNode.children.push(node);
-		this.#activeNode = node;
+		const node = this.#createNode(entry, this.#currentNode);
+		this.#currentNode.children.push(node);
+		this.#currentNode = node;
 
 		// If a new entry is pushed we want to make sure that its branch becomes
 		// the main branch. We do this by walking up the tree and moving all nodes
@@ -99,31 +99,31 @@ export class HistoryManager {
 	}
 
 	undo() {
-		if (this.#activeNode == this.#rootNode) return;
+		if (this.#currentNode == this.#rootNode) return;
 
-		const parent = this.#activeNode.parent;
+		const parent = this.#currentNode.parent;
 		if (!parent) {
 			throw new Error("Assertion failed, active history node has no parent");
 		}
-		this.#activeNode.entry.undo();
-		this.#activeNode = parent;
+		this.#currentNode.entry.undo();
+		this.#currentNode = parent;
 		this.#fireOnTreeUpdated();
 	}
 
 	redo() {
-		if (this.#activeNode.children.length == 0) return;
+		if (this.#currentNode.children.length == 0) return;
 
-		const child = this.#activeNode.children.at(-1);
+		const child = this.#currentNode.children.at(-1);
 		if (!child) {
 			throw new Error("Assertion failed, active history node has no children");
 		}
 		child.entry.redo();
-		this.#activeNode = child;
+		this.#currentNode = child;
 		this.#fireOnTreeUpdated();
 	}
 
 	*getEntries() {
-		const activeNode = this.#activeNode;
+		const activeNode = this.#currentNode;
 
 		/**
 		 * @param {HistoryNode} node
@@ -170,7 +170,7 @@ export class HistoryManager {
 	 * @param {HistoryEntry} entry
 	 */
 	travelToEntry(entry) {
-		if (entry == this.#activeNode.entry) return;
+		if (entry == this.#currentNode.entry) return;
 
 		/**
 		 * @param {HistoryNode} node
@@ -195,7 +195,7 @@ export class HistoryManager {
 
 		const activeNodeParentChain = [];
 		let targetNodeParentChainIndex = -1;
-		for (const node of traverseUp(this.#activeNode)) {
+		for (const node of traverseUp(this.#currentNode)) {
 			const index = targetNodeParentChain.indexOf(node);
 			if (index >= 0) {
 				targetNodeParentChainIndex = index;
@@ -211,11 +211,11 @@ export class HistoryManager {
 			if (!node.parent) {
 				throw new Error("Assertion failed, history node has no parent");
 			}
-			this.#activeNode = node.parent;
+			this.#currentNode = node.parent;
 		}
 		for (const node of targetNodeParentChain.slice(targetNodeParentChainIndex + 1)) {
 			node.entry.redo();
-			this.#activeNode = node;
+			this.#currentNode = node;
 		}
 		this.#fireOnTreeUpdated();
 	}
