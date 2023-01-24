@@ -306,3 +306,39 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "onTreeUpdated",
+	fn() {
+		basicTest({
+			fn({manager}) {
+				const updatedSpy = spy();
+				manager.onTreeUpdated(updatedSpy);
+
+				manager.pushEntry({
+					uiText: "text",
+					undo: () => {},
+					redo: () => {},
+				});
+				assertSpyCalls(updatedSpy, 1);
+
+				manager.undo();
+				assertSpyCalls(updatedSpy, 2);
+
+				manager.undo();
+				assertSpyCalls(updatedSpy, 2);
+
+				manager.redo();
+				assertSpyCalls(updatedSpy, 3);
+
+				manager.removeOnTreeUpdated(updatedSpy);
+				manager.pushEntry({
+					uiText: "text",
+					undo: () => {},
+					redo: () => {},
+				});
+				assertSpyCalls(updatedSpy, 3);
+			},
+		});
+	},
+});
