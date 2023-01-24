@@ -22,6 +22,8 @@ export class HistoryManager {
 	#activeNode;
 	/** @type {Set<() => void>} */
 	#onTreeUpdatedCbs = new Set();
+	/** @type {WeakMap<HistoryEntry, HistoryNode>} */
+	#entryNodesMap = new WeakMap();
 
 	/**
 	 * @typedef HistoryNode
@@ -77,6 +79,7 @@ export class HistoryManager {
 			parent,
 			children: [],
 		};
+		this.#entryNodesMap.set(entry, node);
 		return node;
 	}
 
@@ -106,6 +109,20 @@ export class HistoryManager {
 
 	*getEntries() {
 		const activeNode = this.#activeNode;
+
+		/**
+		 * @param {HistoryNode} node
+		 * @param {HistoryNode} child
+		 */
+		function containsChild(node, child) {
+			if (node == child) return true;
+			if (node.children.includes(child)) return true;
+			for (const c of node.children) {
+				if (containsChild(c, child)) return true;
+			}
+			return false;
+		}
+
 		/**
 		 * @param {HistoryNode} node
 		 * @param {number} indentation
@@ -124,11 +141,66 @@ export class HistoryManager {
 			}
 			for (const [i, child] of node.children.entries()) {
 				const extraIndentation = node.children.length - i - 1;
-				yield* traverseDown(child, indentation + extraIndentation, active && extraIndentation == 0);
+				yield* traverseDown(child, indentation + extraIndentation, active && containsChild(child, activeNode));
 			}
 		}
 
 		yield* traverseDown(this.#rootNode, 0, true);
+	}
+
+	/**
+	 * Undoes and redoes entries until the provided entry has been reached.
+	 * @param {HistoryEntry} entry
+	 */
+	travelToEntry(entry) {
+		if (entry == this.#activeNode.entry) return;
+
+		/**
+		 * @param {HistoryNode} node
+		 * @returns {Generator<HistoryNode>}
+		 */
+		function *traverseUp(node) {
+			yield node;
+			if (node.parent) {
+				yield* traverseUp(node.parent);
+			}
+		}
+
+		const targetNode = this.#entryNodesMap.get(entry);
+		if (!targetNode) {
+			throw new Error("Failed to travel to history entry, the target entry no longer exists in the history tree.");
+		}
+		const targetNodeParentChain = Array.from(traverseUp(targetNode)).reverse();
+		const targetNodeRoot = targetNodeParentChain[0];
+		if (targetNodeRoot != this.#rootNode) {
+			throw new Error("Failed to travel to history entry, the target entry wasn't found in the history tree.");
+		}
+
+		const activeNodeParentChain = [];
+		let targetNodeParentChainIndex = -1;
+		for (const node of traverseUp(this.#activeNode)) {
+			const index = targetNodeParentChain.indexOf(node);
+			if (index >= 0) {
+				targetNodeParentChainIndex = index;
+				break;
+			}
+			activeNodeParentChain.push(node);
+		}
+		if (targetNodeParentChainIndex == -1) {
+			throw new Error("Assertion failed, history nodes don't share a parent");
+		}
+		for (const node of activeNodeParentChain) {
+			node.entry.undo();
+			if (!node.parent) {
+				throw new Error("Assertion failed, history node has no parent");
+			}
+			this.#activeNode = node.parent;
+		}
+		for (const node of targetNodeParentChain.slice(targetNodeParentChainIndex + 1)) {
+			node.entry.redo();
+			this.#activeNode = node;
+		}
+		this.#fireOnTreeUpdated();
 	}
 
 	/**

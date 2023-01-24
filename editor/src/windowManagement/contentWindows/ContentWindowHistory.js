@@ -21,6 +21,7 @@ export class ContentWindowHistory extends ContentWindow {
 		this.shadow.appendChild(this.graphEl);
 
 		this.entriesEl = document.createElement("ul");
+		this.entriesEl.setAttribute("role", "listbox");
 		this.shadow.appendChild(this.entriesEl);
 
 		this.editorInstance.historyManager.onTreeUpdated(this.#updateUi);
@@ -56,12 +57,18 @@ export class ContentWindowHistory extends ContentWindow {
 		let elementIndex = 0;
 		for (const result of this.editorInstance.historyManager.getEntries()) {
 			const el = document.createElement("li");
+			el.tabIndex = 0;
+			el.setAttribute("role", "option");
 			el.classList.add("history-window-entry");
 			el.classList.toggle("inactive", !result.active);
 			el.classList.toggle("current", result.current);
 			if (result.current) {
 				selectedElementIndex = elementIndex;
+				el.setAttribute("aria-selected", "true");
 			}
+			el.addEventListener("click", () => {
+				this.editorInstance.historyManager.travelToEntry(result.entry);
+			});
 			el.textContent = result.entry.uiText;
 			el.style.paddingLeft = 25 + result.indentation * INDENTATION_WIDTH + "px";
 			this.entriesEl.appendChild(el);

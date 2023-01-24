@@ -1,12 +1,25 @@
 import {HistoryManager} from "../../../../../editor/src/misc/HistoryManager.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertExists} from "std/testing/asserts.ts";
 
 /**
  * @typedef HistoryManagerTestContext
  * @property {HistoryManager} manager
  * @property {() => void} fireUndoShortcut
  * @property {() => void} fireRedoShortcut
+ * @property {(expectedEntries: ExpectedEntry[]) => void} expectEntries Calls `getEntries()` and asserts if the result is correct.
+ * @property {string[]} stateCalls A list of strings indicating which entries have been executed.
+ * @property {(uiText: string) => void} executeEntry Pushes an entry to the manager that adds a string to `stateCalls` whenever
+ * an undo or a redo is executed.
+ * @property {() => void} clearStateCalls
+ */
+
+/**
+ * @typedef ExpectedEntry
+ * @property {string} uiText
+ * @property {boolean} active
+ * @property {boolean} current
+ * @property {number} indentation
  */
 
 /**
@@ -41,6 +54,9 @@ function basicTest({
 		}
 	}
 
+	/** @type {string[]} */
+	const stateCalls = [];
+
 	fn({
 		manager,
 		fireUndoShortcut() {
@@ -48,6 +64,35 @@ function basicTest({
 		},
 		fireRedoShortcut() {
 			fireShortcutCommand("history.redo");
+		},
+		expectEntries(expectedEntries) {
+			const actualEntries = Array.from(manager.getEntries());
+			const mapped = actualEntries.map(entry => {
+				/** @type {ExpectedEntry} */
+				const mappedEntry = {
+					uiText: entry.entry.uiText,
+					active: entry.active,
+					current: entry.current,
+					indentation: entry.indentation,
+				};
+				return mappedEntry;
+			});
+			assertEquals(mapped, expectedEntries);
+		},
+		stateCalls,
+		executeEntry(uiText) {
+			manager.executeEntry({
+				uiText,
+				undo: () => {
+					stateCalls.push("undo " + uiText);
+				},
+				redo: () => {
+					stateCalls.push("redo " + uiText);
+				},
+			});
+		},
+		clearStateCalls() {
+			stateCalls.splice(0, stateCalls.length);
 		},
 	});
 }
@@ -153,44 +198,7 @@ Deno.test({
 	name: "getEntries",
 	fn() {
 		basicTest({
-			fn({manager}) {
-				/**
-				 * @param {string} uiText
-				 */
-				function pushEntry(uiText) {
-					manager.pushEntry({
-						uiText,
-						undo: () => {},
-						redo: () => {},
-					});
-				}
-
-				/**
-				 * @typedef ExpectedEntry
-				 * @property {string} uiText
-				 * @property {boolean} active
-				 * @property {boolean} current
-				 * @property {number} indentation
-				 */
-
-				/**
-				 * @param {ExpectedEntry[]} expectedEntries
-				 */
-				function expectEntries(expectedEntries) {
-					const actualEntries = Array.from(manager.getEntries());
-					const mapped = actualEntries.map(entry => {
-						/** @type {ExpectedEntry} */
-						const mappedEntry = {
-							uiText: entry.entry.uiText,
-							active: entry.active,
-							current: entry.current,
-							indentation: entry.indentation,
-						};
-						return mappedEntry;
-					});
-					assertEquals(mapped, expectedEntries);
-				}
-
+			fn({manager, expectEntries, executeEntry}) {
 				expectEntries([
 					{
 						uiText: "Open",
@@ -200,9 +208,9 @@ Deno.test({
 					},
 				]);
 
-				pushEntry("entry1");
-				pushEntry("entry2");
-				pushEntry("entry3");
+				executeEntry("entry1");
+				executeEntry("entry2");
+				executeEntry("entry3");
 
 				expectEntries([
 					{
@@ -261,8 +269,8 @@ Deno.test({
 					},
 				]);
 
-				pushEntry("subEntry1");
-				pushEntry("subEntry2");
+				executeEntry("subEntry1");
+				executeEntry("subEntry2");
 
 				expectEntries([
 					{
@@ -338,6 +346,272 @@ Deno.test({
 					redo: () => {},
 				});
 				assertSpyCalls(updatedSpy, 3);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "travelToEntry down",
+	fn() {
+		basicTest({
+			fn({manager, executeEntry, stateCalls, clearStateCalls, expectEntries}) {
+				executeEntry("entry1");
+				executeEntry("entry2");
+				executeEntry("entry3");
+				const entry3 = Array.from(manager.getEntries()).find(entry => entry.current);
+				assertExists(entry3);
+				executeEntry("entry4");
+				manager.undo();
+				manager.undo();
+				clearStateCalls();
+
+				const updatedSpy = spy();
+				manager.onTreeUpdated(updatedSpy);
+
+				manager.travelToEntry(entry3.entry);
+
+				assertEquals(stateCalls, ["redo entry3"]);
+				assertSpyCalls(updatedSpy, 1);
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry1",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry2",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry3",
+						active: true,
+						current: true,
+						indentation: 0,
+					},
+					{
+						uiText: "entry4",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+				]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "travelToEntry up",
+	fn() {
+		basicTest({
+			fn({manager, executeEntry, stateCalls, clearStateCalls, expectEntries}) {
+				executeEntry("entry1");
+				executeEntry("entry2");
+				const entry2 = Array.from(manager.getEntries()).find(entry => entry.current);
+				assertExists(entry2);
+				executeEntry("entry3");
+				executeEntry("entry4");
+				manager.undo();
+				clearStateCalls();
+
+				const updatedSpy = spy();
+				manager.onTreeUpdated(updatedSpy);
+
+				manager.travelToEntry(entry2.entry);
+
+				assertEquals(stateCalls, ["undo entry3"]);
+				assertSpyCalls(updatedSpy, 1);
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry1",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry2",
+						active: true,
+						current: true,
+						indentation: 0,
+					},
+					{
+						uiText: "entry3",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry4",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+				]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "travelToEntry to current entry",
+	fn() {
+		basicTest({
+			fn({manager, executeEntry, expectEntries, stateCalls, clearStateCalls}) {
+				executeEntry("entry1");
+				executeEntry("entry2");
+				executeEntry("entry3");
+
+				manager.undo();
+
+				assertEquals(stateCalls, [
+					"redo entry1",
+					"redo entry2",
+					"redo entry3",
+					"undo entry3",
+				]);
+				clearStateCalls();
+
+				const entry2 = Array.from(manager.getEntries()).find(entry => entry.current);
+				assertExists(entry2);
+
+				const updatedSpy = spy();
+				manager.onTreeUpdated(updatedSpy);
+
+				manager.travelToEntry(entry2.entry);
+
+				assertEquals(stateCalls, []);
+				assertSpyCalls(updatedSpy, 0);
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry1",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry2",
+						active: true,
+						current: true,
+						indentation: 0,
+					},
+					{
+						uiText: "entry3",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+				]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "travelToEntry up and into a subtree",
+	fn() {
+		basicTest({
+			fn({manager, executeEntry, expectEntries, stateCalls, clearStateCalls}) {
+				executeEntry("entry1");
+				executeEntry("entry2");
+
+				const entry2 = Array.from(manager.getEntries()).find(entry => entry.current);
+				assertExists(entry2);
+
+				executeEntry("entry3");
+
+				manager.undo();
+				manager.undo();
+
+				executeEntry("subEntry1");
+				executeEntry("subEntry2");
+
+				assertEquals(stateCalls, [
+					"redo entry1",
+					"redo entry2",
+					"redo entry3",
+					"undo entry3",
+					"undo entry2",
+					"redo subEntry1",
+					"redo subEntry2",
+				]);
+				clearStateCalls();
+
+				const updatedSpy = spy();
+				manager.onTreeUpdated(updatedSpy);
+
+				manager.travelToEntry(entry2.entry);
+
+				assertEquals(stateCalls, [
+					"undo subEntry2",
+					"undo subEntry1",
+					"redo entry2",
+				]);
+
+				assertSpyCalls(updatedSpy, 1);
+
+				expectEntries([
+					{
+						uiText: "Open",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry1",
+						active: true,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "entry2",
+						active: true,
+						current: true,
+						indentation: 1,
+					},
+					{
+						uiText: "entry3",
+						active: false,
+						current: false,
+						indentation: 1,
+					},
+					{
+						uiText: "subEntry1",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+					{
+						uiText: "subEntry2",
+						active: false,
+						current: false,
+						indentation: 0,
+					},
+				]);
 			},
 		});
 	},
