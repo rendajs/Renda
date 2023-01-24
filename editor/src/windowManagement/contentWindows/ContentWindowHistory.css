@@ -12,3 +12,19 @@ li.current {
 	background: var(--color-selected-blue-nofocus);
 	color: var(--selected-text-color-nofocus);
 }
+
+.graph {
+	position: absolute;
+}
+
+circle {
+	fill: var(--default-text-color);
+}
+circle.current {
+	fill: var(--selected-text-color-nofocus);
+}
+
+path {
+	stroke: var(--default-text-color);
+	fill: none;
+}
