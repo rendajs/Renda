@@ -56,6 +56,21 @@ export class HistoryManager {
 		const node = this.#createNode(entry, this.#activeNode);
 		this.#activeNode.children.push(node);
 		this.#activeNode = node;
+
+		// If a new entry is pushed we want to make sure that its branch becomes
+		// the main branch. We do this by walking up the tree and moving all nodes
+		// along this branch to the beginning of the children array.
+		let child = node;
+		let parent = node.parent;
+		while (parent) {
+			const index = parent.children.indexOf(child);
+			if (index == -1) break;
+			parent.children.splice(index, 1);
+			parent.children.unshift(child);
+			child = parent;
+			parent = child.parent;
+		}
+
 		this.#fireOnTreeUpdated();
 	}
 
@@ -139,9 +154,11 @@ export class HistoryManager {
 			if (node == activeNode) {
 				active = false;
 			}
-			for (const [i, child] of node.children.entries()) {
-				const extraIndentation = node.children.length - i - 1;
-				yield* traverseDown(child, indentation + extraIndentation, active && containsChild(child, activeNode));
+			// We traverse the children array in reverse order, that way entries from the main
+			// branch appears at the bottom of the list, and older branches appear higher up.
+			for (let i = node.children.length - 1; i >= 0; i--) {
+				const child = node.children[i];
+				yield* traverseDown(child, indentation + i, active && containsChild(child, activeNode));
 			}
 		}
 
