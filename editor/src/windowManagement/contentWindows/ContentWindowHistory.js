@@ -1,4 +1,4 @@
-import {contentWindowHistorySheet} from "../../styles/styles.js";
+import {contentWindowHistorySheet} from "../../styles/shadowStyles.js";
 import {Button} from "../../ui/Button.js";
 import {ButtonGroup} from "../../ui/ButtonGroup.js";
 import {ContentWindow} from "./ContentWindow.js";

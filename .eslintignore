@@ -7,4 +7,5 @@ editor/deps/
 node_modules
 npm_packages
 deno_dir
-editor/src/styles/styles.js
+editor/src/styles/documentStyles.js
+editor/src/styles/shadowStyles.js
