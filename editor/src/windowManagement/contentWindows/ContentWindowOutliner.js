@@ -265,11 +265,18 @@ export class ContentWindowOutliner extends ContentWindow {
 		const newName = e.target.name;
 		const oldName = ent.name;
 		if (newName != oldName) {
+			let needsUpdate = false;
 			this.editorInstance.historyManager.executeEntry({
 				uiText: "Rename entity",
 				redo: () => {
 					ent.name = newName;
-					this.updateTreeView();
+					if (needsUpdate) {
+						this.updateTreeView();
+					} else {
+						// We don't need to update the first time, since the
+						// treeview has already been renamed by the user
+						needsUpdate = true;
+					}
 				},
 				undo: () => {
 					ent.name = oldName;
