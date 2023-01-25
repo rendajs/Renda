@@ -264,17 +264,19 @@ export class ContentWindowOutliner extends ContentWindow {
 		const ent = this.getEntityByTreeViewItem(e.target);
 		const newName = e.target.name;
 		const oldName = ent.name;
-		this.editorInstance.historyManager.executeEntry({
-			uiText: "Rename entity",
-			redo: () => {
-				ent.name = newName;
-				this.updateTreeView();
-			},
-			undo: () => {
-				ent.name = oldName;
-				this.updateTreeView();
-			},
-		});
+		if (newName != oldName) {
+			this.editorInstance.historyManager.executeEntry({
+				uiText: "Rename entity",
+				redo: () => {
+					ent.name = newName;
+					this.updateTreeView();
+				},
+				undo: () => {
+					ent.name = oldName;
+					this.updateTreeView();
+				},
+			});
+		}
 	}
 
 	/**
