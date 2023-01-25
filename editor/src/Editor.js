@@ -1,4 +1,5 @@
 import {WindowManager} from "./windowManagement/WindowManager.js";
+import {autoRegisterContentWindows} from "./windowManagement/autoRegisterContentWindows.js";
 import {SelectionManager} from "./misc/SelectionManager.js";
 import {PopoverManager} from "./ui/popoverMenus/PopoverManager.js";
 import {KeyboardShortcutManager} from "./keyboardShortcuts/KeyboardShortcutManager.js";
@@ -28,7 +29,12 @@ export class Editor {
 		this.engineAssetManager = new EngineAssetsManager(new AssetLoader());
 		this.renderer = new WebGpuRenderer(this.engineAssetManager);
 		this.webGpuShaderBuilder = new ShaderBuilder();
+
 		this.windowManager = new WindowManager();
+		for (const w of autoRegisterContentWindows) {
+			this.windowManager.registerContentWindow(w);
+		}
+
 		this.selectionManager = new SelectionManager();
 		this.colorizerFilterManager = new ColorizerFilterManager();
 		this.popoverManager = new PopoverManager(this.colorizerFilterManager);

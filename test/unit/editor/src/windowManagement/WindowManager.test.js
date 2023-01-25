@@ -10,22 +10,6 @@ importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../share
 importer.makeReal("../../../../../editor/src/editorInstance.js");
 importer.makeReal("../../../../../src/mod.js");
 importer.makeReal("../../../../../src/util/mod.js");
-importer.fakeModule("../../../../../editor/src/windowManagement/autoRegisterContentWindows.js", `
-
-import {ContentWindow} from "./contentWindows/ContentWindow.js";
-
-export class ContentWindowTab1 extends ContentWindow {
-	static contentWindowTypeId = "tabtype1";
-}
-export class ContentWindowTab2 extends ContentWindow {
-	static contentWindowTypeId = "tabtype2";
-}
-export class ContentWindowTab3 extends ContentWindow {
-	static contentWindowTypeId = "tabtype3";
-}
-
-export const autoRegisterContentWindows = [ContentWindowTab1, ContentWindowTab2, ContentWindowTab3];
-`);
 
 /** @type {import("../../../../../editor/src/windowManagement/WindowManager.js")} */
 const WindowManagerMod = await importer.import("../../../../../editor/src/windowManagement/WindowManager.js");
@@ -57,6 +41,10 @@ const {EditorWindowSplit} = EditorWindowSplitMod;
 const EditorWindowTabsMod = await importer.import("../../../../../editor/src/windowManagement/EditorWindowTabs.js");
 const {EditorWindowTabs} = EditorWindowTabsMod;
 stub(EditorWindowTabs.prototype, "updateTabSelectorSpacer", () => {});
+
+/** @type {import("../../../../../editor/src/windowManagement/contentWindows/ContentWindow.js")} */
+const ContentWindowMod = await importer.import("../../../../../editor/src/windowManagement/contentWindows/ContentWindow.js");
+const {ContentWindow} = ContentWindowMod;
 
 /** @type {import("../../../../../editor/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../editor/src/windowManagement/WorkspaceManager.js");
@@ -129,6 +117,18 @@ async function basicSetup({
 
 	try {
 		const manager = new WindowManager();
+		class ContentWindowTab1 extends ContentWindow {
+			static contentWindowTypeId = "tabtype1";
+		}
+		manager.registerContentWindow(ContentWindowTab1);
+		class ContentWindowTab2 extends ContentWindow {
+			static contentWindowTypeId = "tabtype2";
+		}
+		manager.registerContentWindow(ContentWindowTab2);
+		class ContentWindowTab3 extends ContentWindow {
+			static contentWindowTypeId = "tabtype3";
+		}
+		manager.registerContentWindow(ContentWindowTab3);
 		await manager.init();
 
 		await fn({manager, shortcutConditionSetValueCalls});
