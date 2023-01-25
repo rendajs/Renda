@@ -153,16 +153,21 @@ Deno.test({
 				manager.undo();
 				assertSpyCalls(undoSpy2, 1);
 
+				assertEquals(manager.canUndo(), true);
+
 				assertSpyCalls(undoSpy1, 0);
 				manager.undo();
 				assertSpyCalls(undoSpy1, 1);
 
 				// Undo when there are no entries to undo should do nothing
 				manager.undo();
+				assertEquals(manager.canUndo(), false);
 
 				assertSpyCalls(redoSpy1, 0);
 				manager.redo();
 				assertSpyCalls(redoSpy1, 1);
+
+				assertEquals(manager.canRedo(), true);
 
 				assertSpyCalls(redoSpy2, 0);
 				manager.redo();
@@ -170,6 +175,7 @@ Deno.test({
 
 				// Undo when there are no entries to redo should do nothing
 				manager.redo();
+				assertEquals(manager.canRedo(), false);
 
 				assertSpyCalls(undoSpy2, 1);
 				manager.undo();

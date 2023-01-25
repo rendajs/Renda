@@ -98,8 +98,15 @@ export class HistoryManager {
 		return node;
 	}
 
+	/**
+	 * Returns true if there is an entry available before the current one.
+	 */
+	canUndo() {
+		return this.#currentNode != this.#rootNode;
+	}
+
 	undo() {
-		if (this.#currentNode == this.#rootNode) return;
+		if (!this.canUndo()) return;
 
 		const parent = this.#currentNode.parent;
 		if (!parent) {
@@ -110,8 +117,15 @@ export class HistoryManager {
 		this.#fireOnTreeUpdated();
 	}
 
+	/**
+	 * Returns true if there is an entry available after the current one.
+	 */
+	canRedo() {
+		return this.#currentNode.children.length > 0;
+	}
+
 	redo() {
-		if (this.#currentNode.children.length == 0) return;
+		if (!this.canRedo()) return;
 
 		const child = this.#currentNode.children[0];
 		if (!child) {

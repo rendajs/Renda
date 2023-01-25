@@ -30,20 +30,24 @@ export class ContentWindowHistory extends ContentWindow {
 
 		const buttonGroup = new ButtonGroup();
 		this.addTopBarEl(buttonGroup.el);
-		buttonGroup.addButton(new Button({
+
+		this.undoButton = new Button({
 			icon: "static/icons/undo.svg",
 			colorizerFilterManager: this.editorInstance.colorizerFilterManager,
 			onClick: () => {
 				this.editorInstance.historyManager.undo();
 			},
-		}));
-		buttonGroup.addButton(new Button({
+		});
+		buttonGroup.addButton(this.undoButton);
+
+		this.redoButton = new Button({
 			icon: "static/icons/redo.svg",
 			colorizerFilterManager: this.editorInstance.colorizerFilterManager,
 			onClick: () => {
 				this.editorInstance.historyManager.redo();
 			},
-		}));
+		});
+		buttonGroup.addButton(this.redoButton);
 
 		this.#updateUi();
 	}
@@ -72,9 +76,11 @@ export class ContentWindowHistory extends ContentWindow {
 		const INDENTATION_WIDTH = 12;
 		const DOT_SIZE = 4;
 
+		const historyManager = this.editorInstance.historyManager;
+
 		let selectedElementIndex = -1;
 		let elementIndex = 0;
-		for (const result of this.editorInstance.historyManager.getEntries()) {
+		for (const result of historyManager.getEntries()) {
 			const el = document.createElement("li");
 			el.tabIndex = 0;
 			el.setAttribute("role", "option");
@@ -86,7 +92,7 @@ export class ContentWindowHistory extends ContentWindow {
 				el.setAttribute("aria-selected", "true");
 			}
 			el.addEventListener("click", () => {
-				this.editorInstance.historyManager.travelToEntry(result.entry);
+				historyManager.travelToEntry(result.entry);
 			});
 			el.textContent = result.entry.uiText;
 			el.style.paddingLeft = 25 + result.indentation * INDENTATION_WIDTH + "px";
@@ -154,5 +160,8 @@ export class ContentWindowHistory extends ContentWindow {
 		}
 		this.graphEl.setAttribute("width", String(svgWidth));
 		this.graphEl.setAttribute("height", String(svgHeight));
+
+		this.undoButton.setDisabled(!historyManager.canUndo());
+		this.redoButton.setDisabled(!historyManager.canRedo());
 	};
 }
