@@ -1,4 +1,6 @@
 import {contentWindowHistorySheet} from "../../styles/styles.js";
+import {Button} from "../../ui/Button.js";
+import {ButtonGroup} from "../../ui/ButtonGroup.js";
 import {ContentWindow} from "./ContentWindow.js";
 
 const svgNs = "http://www.w3.org/2000/svg";
@@ -25,6 +27,23 @@ export class ContentWindowHistory extends ContentWindow {
 		this.shadow.appendChild(this.entriesEl);
 
 		this.editorInstance.historyManager.onTreeUpdated(this.#updateUi);
+
+		const buttonGroup = new ButtonGroup();
+		this.addTopBarEl(buttonGroup.el);
+		buttonGroup.addButton(new Button({
+			icon: "static/icons/undo.svg",
+			colorizerFilterManager: this.editorInstance.colorizerFilterManager,
+			onClick: () => {
+				this.editorInstance.historyManager.undo();
+			},
+		}));
+		buttonGroup.addButton(new Button({
+			icon: "static/icons/redo.svg",
+			colorizerFilterManager: this.editorInstance.colorizerFilterManager,
+			onClick: () => {
+				this.editorInstance.historyManager.redo();
+			},
+		}));
 
 		this.#updateUi();
 	}
