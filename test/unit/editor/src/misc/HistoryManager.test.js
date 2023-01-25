@@ -1,6 +1,6 @@
 import {HistoryManager} from "../../../../../editor/src/misc/HistoryManager.js";
 import {assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 
 /**
  * @typedef HistoryManagerTestContext
@@ -756,6 +756,30 @@ Deno.test({
 						indentation: 0,
 					},
 				]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Using redo chooses the main branch",
+	fn() {
+		basicTest({
+			fn({manager, executeEntry, getCurrentEntry}) {
+				executeEntry("entry1");
+				executeEntry("entry2");
+				executeEntry("entry3");
+				executeEntry("entry4");
+				manager.undo();
+				manager.undo();
+				executeEntry("subEntry1");
+				executeEntry("subEntry2");
+				const subEntry2 = getCurrentEntry();
+				manager.undo();
+				manager.undo();
+				manager.redo();
+				manager.redo();
+				assertStrictEquals(getCurrentEntry(), subEntry2);
 			},
 		});
 	},

@@ -113,7 +113,7 @@ export class HistoryManager {
 	redo() {
 		if (this.#currentNode.children.length == 0) return;
 
-		const child = this.#currentNode.children.at(-1);
+		const child = this.#currentNode.children[0];
 		if (!child) {
 			throw new Error("Assertion failed, active history node has no children");
 		}
