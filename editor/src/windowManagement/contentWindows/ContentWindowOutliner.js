@@ -262,7 +262,28 @@ export class ContentWindowOutliner extends ContentWindow {
 	 */
 	onTreeViewNameChange(e) {
 		const ent = this.getEntityByTreeViewItem(e.target);
-		ent.name = e.target.name;
+		const newName = e.target.name;
+		const oldName = ent.name;
+		if (newName != oldName) {
+			let needsUpdate = false;
+			this.editorInstance.historyManager.executeEntry({
+				uiText: "Rename entity",
+				redo: () => {
+					ent.name = newName;
+					if (needsUpdate) {
+						this.updateTreeView();
+					} else {
+						// We don't need to update the first time, since the
+						// treeview has already been renamed by the user
+						needsUpdate = true;
+					}
+				},
+				undo: () => {
+					ent.name = oldName;
+					this.updateTreeView();
+				},
+			});
+		}
 	}
 
 	/**
@@ -279,11 +300,21 @@ export class ContentWindowOutliner extends ContentWindow {
 						throw new Error("Failed to delete entity, entity not attached to a parent");
 					}
 					const parentEntity = this.getEntityByTreeViewItem(parentTreeView);
-					const index = e.target.index;
-					parentEntity.removeAtIndex(index);
-					this.updateTreeView();
 					const entity = this.getEntityByTreeViewItem(e.target);
-					this.notifyEntityEditors(entity, "delete");
+					const index = parentEntity.children.indexOf(entity);
+					this.editorInstance.historyManager.executeEntry({
+						uiText: "Delete entity",
+						redo: () => {
+							parentEntity.remove(entity);
+							this.updateTreeView();
+							this.notifyEntityEditors(entity, "delete");
+						},
+						undo: () => {
+							parentEntity.addAtIndex(entity, index);
+							this.updateTreeView();
+							this.notifyEntityEditors(entity, "create");
+						},
+					});
 				},
 			},
 		]);
@@ -319,6 +350,8 @@ export class ContentWindowOutliner extends ContentWindow {
 	 * @param {import("../../ui/TreeView.js").TreeViewRearrangeEvent} e
 	 */
 	onTreeViewRearrange(e) {
+		/** @type {{entity: Entity, oldParent: Entity, newParent: Entity, insertIndex: number | undefined, removeIndex: number}[]} */
+		const actions = [];
 		for (const movedItem of e.movedItems) {
 			const entity = this.getEntityByIndicesPath(movedItem.oldIndicesPath);
 			const oldParent = this.getEntityByIndicesPath(movedItem.oldIndicesPath.slice(0, -1));
@@ -328,9 +361,27 @@ export class ContentWindowOutliner extends ContentWindow {
 			if (!entity || !oldParent || !newParent) {
 				throw new Error("Failed to rearrange entities");
 			}
-			oldParent.remove(entity); // todo: remove at index
-			newParent.addAtIndex(entity, insertIndex);
+			const removeIndex = oldParent.children.indexOf(entity);
+			actions.push({entity, oldParent, newParent, insertIndex, removeIndex});
 		}
+		this.editorInstance.historyManager.executeEntry({
+			uiText: actions.length > 1 ? "Rearrange entities" : "Rearrange entity",
+			redo: () => {
+				for (const action of actions) {
+					action.oldParent.remove(action.entity);
+					action.newParent.addAtIndex(action.entity, action.insertIndex);
+				}
+				this.updateTreeView();
+			},
+			undo: () => {
+				for (let i = actions.length - 1; i >= 0; i--) {
+					const action = actions[i];
+					action.newParent.remove(action.entity);
+					action.oldParent.addAtIndex(action.entity, action.removeIndex);
+				}
+				this.updateTreeView();
+			},
+		});
 	}
 
 	/**

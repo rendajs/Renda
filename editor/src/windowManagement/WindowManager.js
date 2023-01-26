@@ -1,6 +1,5 @@
 import {EditorWindowSplit} from "./EditorWindowSplit.js";
 import {EditorWindowTabs} from "./EditorWindowTabs.js";
-import {autoRegisterContentWindows} from "./autoRegisterContentWindows.js";
 import {ContentWindow} from "./contentWindows/ContentWindow.js";
 import {WorkspaceManager} from "./WorkspaceManager.js";
 import {generateUuid} from "../../../src/util/mod.js";
@@ -50,10 +49,6 @@ export class WindowManager {
 
 		/** @type {Map<string, typeof ContentWindow>} */
 		this.registeredContentWindows = new Map();
-
-		for (const w of autoRegisterContentWindows) {
-			this.registerContentWindow(w);
-		}
 
 		this.tabDragEnabled = false;
 
