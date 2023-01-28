@@ -248,6 +248,8 @@ export class EditorConnectionsManager {
 
 				this.setDiscoveryServerStatus("connected");
 				this.fireOpenOrError(true);
+				this.lastWebRtcProjectMetaData = null;
+				this.#updateProjectMetaData();
 			});
 
 			this.discoveryWs.addEventListener("message", e => {
