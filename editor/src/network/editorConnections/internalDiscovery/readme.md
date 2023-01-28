@@ -11,7 +11,7 @@ This document contains an overview of how this system works in two sections:
 ## High level overview
 
 Internal discovery usage fairly straight forward. The main class that you're looking for is `InternalDiscoveryManager`,
-it can be found at [src/Inspector/InternalDiscoveryManager.js](../../../../../src/Inspector/InternalDiscoveryManager.js).
+it can be found at [src/iInspector/InternalDiscoveryManager.js](../../../../../src/inspector/InternalDiscoveryManager.js).
 
 It's important to note that normally you should not have to deal with creating your own InternalDiscoveryManager
 in order to connect an editor inspector. When running games from the editor, this is usually taken care for you.
@@ -25,7 +25,7 @@ import {InternalDiscoveryManager} from "renda";
 ```
 or like this:
 ```js
-import {InternalDiscoveryManager} from "src/Inspector/InternalDiscoveryManager.js";
+import {InternalDiscoveryManager} from "src/inspector/InternalDiscoveryManager.js";
 ```
 
 When creating an InternalDiscoveryManager, it needs to know which url to connect to.
@@ -78,7 +78,7 @@ The iframe and shared worker are hosted as part of the editor. And so all their 
 for the iframe and the shared worker respectively.
 
 The `InternalDiscoveryManager` itself, which sets everything in motion, needs to be shipped in applications,
-and so its files can be found in the engine source at [src/Inspector/InternalDiscoveryManager.js](../../../../../src/Inspector/InternalDiscoveryManager.js).
+and so its files can be found in the engine source at [src/inspector/InternalDiscoveryManager.js](../../../../../src/inspector/InternalDiscoveryManager.js).
 
 For now the internal discovery management is only used for two things:
 

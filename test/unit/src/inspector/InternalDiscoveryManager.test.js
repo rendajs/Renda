@@ -226,7 +226,7 @@ Deno.test({
 		await basicSetup({
 			async fn() {
 				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
-				/** @type {import("../../../../src/Inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
+				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
 				const spyFn = () => {};
 				const availableChangedSpy1 = spy(spyFn);
 				manager1.onAvailableClientUpdated(availableChangedSpy1);
@@ -343,9 +343,9 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn() {
-				/** @type {import("../../../../src/Inspector/InternalDiscoveryManager.js").OnConnectionCreatedCallback} */
+				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnConnectionCreatedCallback} */
 				const onCreatedSpyFn = () => {};
-				/** @type {import("../../../../src/Inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
+				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
 				const onAvailableSpyFn = () => {};
 
 				const manager1 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
