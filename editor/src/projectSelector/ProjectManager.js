@@ -120,6 +120,7 @@ export class ProjectManager {
 			}
 			this.currentProjectOpenEvent.name = newName;
 			this.fireOnProjectOpenEntryChangeCbs();
+			this.updateEditorConnectionsManager();
 		};
 
 		/** @type {(data: unknown[]) => Promise<void>} */
