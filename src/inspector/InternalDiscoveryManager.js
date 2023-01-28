@@ -84,7 +84,6 @@ export class InternalDiscoveryManager {
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
 		this.workerMessenger.setSendHandler(async data => {
-			console.log(data.sendData);
 			await this.iframeMessenger.sendWithTransfer("postWorkerMessage", data.transfer, data.sendData, data.transfer);
 		});
 
@@ -242,7 +241,7 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData} metaData
+	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
 		await this.workerMessenger.send("projectMetaData", metaData);

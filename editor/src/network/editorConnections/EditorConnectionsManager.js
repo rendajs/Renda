@@ -38,10 +38,17 @@ export class EditorConnectionsManager {
 		this.discoveryWs = null;
 		/** @type {DiscoveryServerStatusType} */
 		this.discoveryServerStatus = "disconnected";
-		/** @type {Set<function(DiscoveryServerStatusType):void>} */
+		/** @private @type {Set<function(DiscoveryServerStatusType):void>} */
 		this.onDiscoveryServerStatusChangeCbs = new Set();
-		/** @type {Set<(success: boolean) => void>} */
+		/** @private @type {Set<(success: boolean) => void>} */
 		this.onDiscoveryOpenOrErrorCbs = new Set();
+
+		/** @type {RemoteEditorMetaData?} */
+		this.currentProjectMetaData = null;
+		/** @type {RemoteEditorMetaData?} */
+		this.lastInternalProjectMetaData = null;
+		/** @type {RemoteEditorMetaData?} */
+		this.lastWebRtcProjectMetaData = null;
 
 		this.protocol = new ProtocolManager();
 
@@ -51,7 +58,7 @@ export class EditorConnectionsManager {
 		 * @type {AvailableEditorDataList}
 		 */
 		this.availableConnections = new Map();
-		/** @type {Set<function() : void>} */
+		/** @private @type {Set<function() : void>} */
 		this.onAvailableConnectionsChangedCbs = new Set();
 
 		/**
@@ -94,7 +101,7 @@ export class EditorConnectionsManager {
 					if (e.clientType) {
 						availableClient.clientType = e.clientType;
 					}
-					if (e.projectMetaData) {
+					if (e.projectMetaData !== undefined) {
 						availableClient.projectMetaData = e.projectMetaData;
 					}
 				}
@@ -171,9 +178,54 @@ export class EditorConnectionsManager {
 	 * @param {RemoteEditorMetaData} metaData
 	 */
 	setProjectMetaData(metaData) {
-		// todo: only change when it changed
-		this.sendProjectMetaData(metaData);
-		this.internalDiscovery.sendProjectMetaData(metaData);
+		this.currentProjectMetaData = metaData;
+		this.#updateProjectMetaData();
+	}
+
+	/**
+	 * @param {RemoteEditorMetaData?} oldData
+	 * @param {RemoteEditorMetaData?} newData
+	 */
+	#metaDataChanged(oldData, newData) {
+		if (oldData == newData) return false;
+		if (
+			newData && oldData &&
+			oldData.name == newData.name &&
+			oldData.uuid == newData.uuid &&
+			oldData.fileSystemHasWritePermissions == newData.fileSystemHasWritePermissions
+		) return false;
+
+		return true;
+	}
+
+	/**
+	 * Sends the current state of project metadata to remote and internal editor
+	 * connections.
+	 */
+	#updateProjectMetaData() {
+		if (this.#metaDataChanged(this.currentProjectMetaData, this.lastWebRtcProjectMetaData)) {
+			this.lastWebRtcProjectMetaData = this.currentProjectMetaData;
+			this.send({
+				op: "projectMetaData",
+				projectMetaData: this.currentProjectMetaData,
+			});
+		}
+
+		const internalMetaData = this.#allowInternalIncoming ? this.currentProjectMetaData : null;
+		if (this.#metaDataChanged(internalMetaData, this.lastInternalProjectMetaData)) {
+			this.lastInternalProjectMetaData = internalMetaData;
+			this.internalDiscovery.sendProjectMetaData(internalMetaData);
+		}
+	}
+
+	#allowInternalIncoming = false;
+
+	/**
+	 * @param {boolean} allowInternalIncoming
+	 */
+	setAllowInternalIncoming(allowInternalIncoming) {
+		this.#allowInternalIncoming = allowInternalIncoming;
+		this.#updateProjectMetaData();
 	}
 
 	/**
@@ -436,16 +488,6 @@ export class EditorConnectionsManager {
 		this.send({
 			op: "setIsEditorHost",
 			isHost,
-		});
-	}
-
-	/**
-	 * @param {RemoteEditorMetaData} projectMetaData
-	 */
-	sendProjectMetaData(projectMetaData) {
-		this.send({
-			op: "projectMetaData",
-			projectMetaData,
 		});
 	}
 

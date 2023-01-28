@@ -516,6 +516,8 @@ export class ProjectManager {
 			this.editorConnectionsManager.setDiscoveryEndpoint(null);
 		}
 
+		this.editorConnectionsManager.setAllowInternalIncoming(this.editorConnectionsAllowInternalIncoming);
+
 		this.editorConnectionsManager.sendSetIsEditorHost(!this.currentProjectIsRemote);
 		if (hasValidProject && this.currentProjectOpenEvent) {
 			this.editorConnectionsManager.setProjectMetaData({

@@ -27,7 +27,7 @@ export class InternalDiscoveryWorkerConnection {
 	}
 
 	/**
-	 * @param {import("../EditorConnectionsManager.js").RemoteEditorMetaData} projectMetaData
+	 * @param {import("../EditorConnectionsManager.js").RemoteEditorMetaData?} projectMetaData
 	 */
 	setProjectMetaData(projectMetaData) {
 		this.projectMetaData = projectMetaData;
