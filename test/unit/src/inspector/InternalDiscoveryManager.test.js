@@ -1,6 +1,6 @@
 import {InternalDiscoveryManager} from "../../../../src/mod.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {initializeIframe} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryMain.js";
+import {initializeIframe} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryIframeMain.js";
 import {initializeWorker} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
 import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";

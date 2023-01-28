@@ -106,7 +106,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 	};
 }
 /** @typedef {ReturnType<getResponseHandlers>["iframeResponseHandlers"]} InternalDiscoveryWorkerToIframeHandlers */
-/** @typedef {TypedMessenger<import("./internalDiscoveryMain.js").InternalDiscoveryIframeWorkerHandlers, InternalDiscoveryWorkerToIframeHandlers>} WorkerToIframeTypedMessengerType */
+/** @typedef {TypedMessenger<import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers, InternalDiscoveryWorkerToIframeHandlers>} WorkerToIframeTypedMessengerType */
 /** @typedef {ReturnType<getResponseHandlers>["parentWindowResponseHandlers"]} InternalDiscoveryWorkerToParentHandlers */
 /** @typedef {TypedMessenger<import("../../../../../src/Inspector/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers, InternalDiscoveryWorkerToParentHandlers>} WorkerToParentTypedMessengerType */
 
