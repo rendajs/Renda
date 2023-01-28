@@ -297,6 +297,8 @@ export class EditorConnectionsManager {
 
 			this.discoveryWs.addEventListener("close", () => {
 				this.setDiscoveryServerStatus("disconnected");
+				this.availableConnections.clear();
+				this.fireAvailableConnectionsChanged();
 			});
 		}
 	}
