@@ -30,6 +30,7 @@ export class WebSocketManager {
 		connections.add(connection);
 
 		socket.addEventListener("close", () => {
+			connection.onClose();
 			this.activeConnections.delete(connection.id);
 			const connections = this.connectionsByRemoteAddress.get(remoteAddress);
 			if (connections) {
