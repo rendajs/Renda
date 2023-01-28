@@ -84,6 +84,7 @@ export class InternalDiscoveryManager {
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
 		this.workerMessenger.setSendHandler(async data => {
+			console.log(data.sendData);
 			await this.iframeMessenger.sendWithTransfer("postWorkerMessage", data.transfer, data.sendData, data.transfer);
 		});
 

@@ -65,6 +65,12 @@ export class ProjectManager {
 		this.currentProjectOpenEvent = null;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 		this.currentProjectIsRemote = false;
+		/**
+		 * Technically some file system entries might not have write permissions even though the root does.
+		 * But in practice the root having write permissions always means that all files within the directory have permission.
+		 * The only exception would be when the user manually revokes permissions.
+		 */
+		this.rootHasWritePermissions = false;
 		this.gitIgnoreManager = null;
 		/**
 		 * Used for settings that are generally expected to be stored in the project's repository.
@@ -171,6 +177,15 @@ export class ProjectManager {
 		this.currentProjectIsRemote = fileSystem instanceof RemoteEditorFileSystem;
 		this.currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
+
+		this.rootHasWritePermissions = false;
+		this.updateEditorConnectionsManager();
+		(async () => {
+			await fileSystem.waitForPermission([], {writable: true});
+			if (fileSystem != this.currentProjectFileSystem) return;
+			this.rootHasWritePermissions = true;
+			this.updateEditorConnectionsManager();
+		})();
 
 		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
 		this.gitIgnoreManager = gitIgnoreManager;
@@ -502,13 +517,12 @@ export class ProjectManager {
 		}
 
 		this.editorConnectionsManager.sendSetIsEditorHost(!this.currentProjectIsRemote);
-		if (hasValidProject && (this.editorConnectionsAllowRemoteIncoming || this.editorConnectionsAllowInternalIncoming)) {
-			if (this.currentProjectOpenEvent) {
-				this.editorConnectionsManager.setProjectMetaData({
-					name: this.currentProjectOpenEvent.name,
-					uuid: this.currentProjectOpenEvent.projectUuid,
-				});
-			}
+		if (hasValidProject && this.currentProjectOpenEvent) {
+			this.editorConnectionsManager.setProjectMetaData({
+				name: this.currentProjectOpenEvent.name,
+				uuid: this.currentProjectOpenEvent.projectUuid,
+				fileSystemHasWritePermissions: this.rootHasWritePermissions,
+			});
 		}
 	}
 

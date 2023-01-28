@@ -7,6 +7,7 @@ import {InternalDiscoveryManager} from "../../../../src/inspector/InternalDiscov
 /**
  * @typedef {object} RemoteEditorMetaData
  * @property {string} name
+ * @property {boolean} fileSystemHasWritePermissions
  * @property {import("../../../../src/util/mod.js").UuidString} uuid
  */
 /** @typedef {"webRtc" | "internal"} MessageHandlerType */

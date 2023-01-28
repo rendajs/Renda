@@ -6,6 +6,7 @@ import {ContentWindow} from "./ContentWindow.js";
  * @typedef {object} ConectionGui
  * @property {PropertiesTreeView<any>} treeView
  * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
+ * @property {import("../../ui/Button.js").Button} connectButton
  */
 
 export class ContentWindowConnections extends ContentWindow {
@@ -204,7 +205,7 @@ export class ContentWindowConnections extends ContentWindow {
 					},
 				});
 
-				treeView.addItem({
+				const buttonTreeView = treeView.addItem({
 					type: "button",
 					guiOpts: {
 						label: "Connect",
@@ -214,17 +215,35 @@ export class ContentWindowConnections extends ContentWindow {
 						},
 					},
 				});
+				const connectButton = buttonTreeView.gui;
 
-				gui = {treeView, statusLabel};
+				gui = {treeView, statusLabel, connectButton};
 				guisList.set(connection.id, gui);
 			}
 
 			removeGuiIds.delete(connection.id);
 
-			gui.treeView.name = connection?.projectMetaData?.name || "Unnamed Project";
+			const projectMetaData = connection.projectMetaData;
+			if (projectMetaData) {
+				gui.treeView.name = projectMetaData.name || "Untitled Project";
+			} else {
+				gui.treeView.name = "Editor";
+			}
+
+			let available = false;
+			let status = "Unavailable";
+			if (projectMetaData) {
+				if (projectMetaData.fileSystemHasWritePermissions) {
+					available = true;
+					status = "Available";
+				} else {
+					status = "No Filesystem permissions";
+				}
+			}
+
+			gui.connectButton.setDisabled(!available);
 
 			const activeConnection = activeConnections.get(connection.id);
-			let status = "Available";
 			if (activeConnection) {
 				if (activeConnection.connectionState == "connecting") {
 					status = "Connecting";

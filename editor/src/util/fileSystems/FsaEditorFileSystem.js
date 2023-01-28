@@ -121,6 +121,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	/**
 	 * Iterates over the waitForPermission promises and resolves the ones that
 	 * should be resolved.
+	 * @private
 	 * @param {boolean} writable
 	 */
 	checkOnPermissionGrantedListeners(writable) {
