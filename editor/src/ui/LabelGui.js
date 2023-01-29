@@ -1,6 +1,7 @@
 /**
  * @typedef {object} LabelGuiOptionsType
  * @property {boolean} [showLabelBackground = true] Whether to show a background around the label text.
+ * @property {string} [tooltip] The text to display when hovering over the label.
  *
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & LabelGuiOptionsType} LabelGuiOptions
  */
@@ -11,6 +12,7 @@ export class LabelGui {
 	 */
 	constructor({
 		showLabelBackground = true,
+		tooltip = "",
 	} = {}) {
 		this._value = "";
 
@@ -18,6 +20,7 @@ export class LabelGui {
 		this.el.classList.add("label-gui");
 		this.el.classList.toggle("label-background", showLabelBackground);
 		this.el.textContent = "";
+		this.el.title = tooltip;
 	}
 
 	get value() {
@@ -27,5 +30,13 @@ export class LabelGui {
 	set value(value) {
 		this._value = value;
 		this.el.textContent = value;
+	}
+
+	get tooltip() {
+		return this.el.title;
+	}
+
+	set tooltip(value) {
+		this.el.title = value;
 	}
 }

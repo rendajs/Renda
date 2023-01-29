@@ -232,28 +232,35 @@ export class ContentWindowConnections extends ContentWindow {
 
 			let available = false;
 			let status = "Unavailable";
+			let tooltip = "";
 			if (projectMetaData) {
 				if (projectMetaData.fileSystemHasWritePermissions) {
 					available = true;
 					status = "Available";
 				} else {
 					status = "No Filesystem permissions";
+					tooltip = "The other editor hasn't aproved file system permissions in its tab yet.";
 				}
 			}
 
+			if (available) {
+				const activeConnection = activeConnections.get(connection.id);
+				if (activeConnection) {
+					if (activeConnection.connectionState == "connecting") {
+						status = "Connecting";
+					} else if (activeConnection.connectionState == "connected") {
+						status = "Connected";
+					} else if (activeConnection.connectionState == "disconnected") {
+						status = "Offline";
+					}
+					available = false;
+				}
+			} else {
+				tooltip = "This editor either doesn't have a project open or has disabled incoming connections in its connections window.";
+			}
 			gui.connectButton.setDisabled(!available);
-
-			const activeConnection = activeConnections.get(connection.id);
-			if (activeConnection) {
-				if (activeConnection.connectionState == "connecting") {
-					status = "Connecting";
-				} else if (activeConnection.connectionState == "connected") {
-					status = "Connected";
-				} else if (activeConnection.connectionState == "disconnected") {
-					status = "Offline";
-				}
-			}
 			gui.statusLabel.setValue(status);
+			gui.statusLabel.gui.tooltip = tooltip;
 		}
 
 		for (const removeGuiId of removeGuiIds) {
