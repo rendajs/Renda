@@ -277,7 +277,7 @@ export class EditorConnectionsManager {
 					const {id} = data;
 					this.availableConnections.delete(id);
 					this.fireAvailableConnectionsChanged();
-				} else if (op == "nearbyHostConnectionUpdateMetaData") {
+				} else if (op == "nearbyHostConnectionUpdateProjectMetaData") {
 					const {id, projectMetaData} = data;
 					const connection = this.availableConnections.get(id);
 					if (connection) {
