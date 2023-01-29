@@ -188,13 +188,6 @@ export class VectorGui {
 	}
 	/* eslint-enable jsdoc/no-undefined-types */
 
-	test() {
-		/** @type {VectorGui<Vec2>} */
-		const gui = new VectorGui();
-		const x = gui.getValue({getAsArray: false});
-		console.log(x);
-	}
-
 	get value() {
 		const castValue = /** @type {T} */ (this.getValue());
 		return castValue;

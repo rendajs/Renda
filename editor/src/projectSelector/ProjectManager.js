@@ -403,7 +403,6 @@ export class ProjectManager {
 			fileSystem = new FsaEditorFileSystem(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
 			fileSystem = new RemoteEditorFileSystem();
-			console.log(projectEntry);
 			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
