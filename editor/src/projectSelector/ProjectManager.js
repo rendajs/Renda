@@ -453,9 +453,9 @@ export class ProjectManager {
 		const settings = this.assertLocalSettingsExists();
 		this.editorConnectionsAllowRemoteIncoming = allow;
 		if (allow) {
-			settings.set("editorConnectionsAllowIncoming", allow);
+			settings.set("editorConnectionsAllowRemoteIncoming", allow);
 		} else {
-			settings.delete("editorConnectionsAllowIncoming");
+			settings.delete("editorConnectionsAllowRemoteIncoming");
 		}
 		this.updateEditorConnectionsManager();
 	}
@@ -490,7 +490,7 @@ export class ProjectManager {
 			this.editorConnectionsAllowInternalIncoming = false;
 		} else {
 			const settings = this.assertLocalSettingsExists();
-			this.editorConnectionsAllowRemoteIncoming = await settings.getBoolean("editorConnectionsAllowIncoming", false);
+			this.editorConnectionsAllowRemoteIncoming = await settings.getBoolean("editorConnectionsAllowRemoteIncoming", false);
 			this.editorConnectionsAllowInternalIncoming = await settings.getBoolean("editorConnectionsAllowInternalIncoming", false);
 		}
 		this.updateEditorConnectionsManager();
