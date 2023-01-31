@@ -229,14 +229,15 @@ Deno.test({
 				/** @type {import("../../../../src/inspector/InternalDiscoveryManager.js").OnAvailableClientUpdateCallback} */
 				const spyFn = () => {};
 				const availableChangedSpy1 = spy(spyFn);
+				let spyCall = 0;
 				manager1.onAvailableClientUpdated(availableChangedSpy1);
 				await manager1.registerClient("inspector");
 
 				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
 				await manager2.registerClient("editor");
 
-				assertSpyCalls(availableChangedSpy1, 1);
-				const event1 = availableChangedSpy1.calls[0].args[0];
+				assertSpyCalls(availableChangedSpy1, ++spyCall);
+				const event1 = availableChangedSpy1.calls[spyCall - 1].args[0];
 				const manager2ClientId = event1.clientId;
 				assertEquals(event1, {
 					clientId: manager2ClientId,
@@ -247,16 +248,48 @@ Deno.test({
 				await manager2.sendProjectMetaData({
 					name: "project name 1",
 					uuid: "project uuid 1",
+					fileSystemHasWritePermissions: false,
 				});
-				assertSpyCalls(availableChangedSpy1, 2);
-				assertSpyCall(availableChangedSpy1, 1, {
+				assertSpyCalls(availableChangedSpy1, ++spyCall);
+				assertSpyCall(availableChangedSpy1, spyCall - 1, {
 					args: [
 						{
 							clientId: manager2ClientId,
 							projectMetaData: {
 								name: "project name 1",
 								uuid: "project uuid 1",
+								fileSystemHasWritePermissions: false,
 							},
+						},
+					],
+				});
+
+				await manager2.sendProjectMetaData({
+					name: "project name 1",
+					uuid: "project uuid 1",
+					fileSystemHasWritePermissions: true,
+				});
+				assertSpyCalls(availableChangedSpy1, ++spyCall);
+				assertSpyCall(availableChangedSpy1, spyCall - 1, {
+					args: [
+						{
+							clientId: manager2ClientId,
+							projectMetaData: {
+								name: "project name 1",
+								uuid: "project uuid 1",
+								fileSystemHasWritePermissions: true,
+							},
+						},
+					],
+				});
+
+				await manager2.sendProjectMetaData(null);
+				assertSpyCalls(availableChangedSpy1, ++spyCall);
+				assertSpyCall(availableChangedSpy1, spyCall - 1, {
+					args: [
+						{
+							clientId: manager2ClientId,
+							projectMetaData: null,
 						},
 					],
 				});
@@ -282,16 +315,13 @@ Deno.test({
 						{
 							clientId: manager2ClientId,
 							clientType: "editor",
-							projectMetaData: {
-								name: "project name 1",
-								uuid: "project uuid 1",
-							},
+							projectMetaData: null,
 						},
 					],
 				});
 
-				assertSpyCalls(availableChangedSpy1, 3);
-				const event3 = availableChangedSpy1.calls[2].args[0];
+				assertSpyCalls(availableChangedSpy1, ++spyCall);
+				const event3 = availableChangedSpy1.calls[spyCall - 1].args[0];
 				const manager3ClientId = event3.clientId;
 				assertEquals(event3, {
 					clientId: manager3ClientId,
@@ -300,8 +330,8 @@ Deno.test({
 				});
 
 				await manager2.destructor();
-				assertSpyCalls(availableChangedSpy1, 4);
-				assertSpyCall(availableChangedSpy1, 3, {
+				assertSpyCalls(availableChangedSpy1, ++spyCall);
+				assertSpyCall(availableChangedSpy1, spyCall - 1, {
 					args: [
 						{
 							clientId: manager2ClientId,
@@ -323,8 +353,8 @@ Deno.test({
 				});
 
 				await manager3.destructor();
-				assertSpyCalls(availableChangedSpy1, 5);
-				assertSpyCall(availableChangedSpy1, 4, {
+				assertSpyCalls(availableChangedSpy1, ++spyCall);
+				assertSpyCall(availableChangedSpy1, spyCall - 1, {
 					args: [
 						{
 							clientId: manager3ClientId,

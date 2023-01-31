@@ -5,6 +5,14 @@ import {ProtocolManager} from "./ProtocolManager.js";
 import {InternalDiscoveryManager} from "../../../../src/inspector/InternalDiscoveryManager.js";
 
 /**
+ * @fileoverview The EditorConnectionsManager is responsible for managing connections with
+ * either other editors, or inspectors from running applications. The manager does not control
+ * any ui, but the ContentWindowConnections does tap into this manager in order to get the
+ * list of connections to display etc.
+ * This manager takes care of both internal as well as remote connections.
+ */
+
+/**
  * @typedef {object} RemoteEditorMetaData
  * @property {string} name
  * @property {boolean} fileSystemHasWritePermissions
