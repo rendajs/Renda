@@ -4,10 +4,9 @@ import {IndexedDbEditorFileSystem} from "../util/fileSystems/IndexedDbEditorFile
 import {RemoteEditorFileSystem} from "../util/fileSystems/RemoteEditorFileSystem.js";
 import {AssetManager} from "../assets/AssetManager.js";
 import {EditorConnectionsManager} from "../network/editorConnections/EditorConnectionsManager.js";
-import {generateUuid} from "../../../src/util/mod.js";
+import {generateUuid} from "../../../src/util/util.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
-import {EditorConnection} from "../network/editorConnections/EditorConnection.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 
@@ -94,7 +93,7 @@ export class ProjectManager {
 			let pickedAvailableConnection = null;
 			let pickedConnection = null;
 			for (const [id, connection] of activeConnections) {
-				if (connection.connectionState == "connected" && connection instanceof EditorConnection) {
+				if (connection.connectionState == "connected") {
 					const availableConnection = this.editorConnectionsManager.availableConnections.get(id);
 					pickedAvailableConnection = availableConnection;
 					pickedConnection = connection;
