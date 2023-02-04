@@ -16,7 +16,6 @@ import {RecursionTrackerLoadingAsset} from "./RecursionTrackerLoadingAsset.js";
  */
 export class RecursionTracker {
 	/**
-	 *
 	 * @param {import("./AssetLoader.js").AssetLoader} assetLoader
 	 * @param {import("../mod.js").UuidString} rootUuid
 	 */

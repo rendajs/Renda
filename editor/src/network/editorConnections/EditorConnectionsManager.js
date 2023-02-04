@@ -471,7 +471,6 @@ export class EditorConnectionsManager {
 	}
 
 	/**
-	 *
 	 * @param {import("../../../../src/util/mod.js").UuidString} toUuid
 	 * @param {RTCIceCandidate} iceCandidate
 	 */

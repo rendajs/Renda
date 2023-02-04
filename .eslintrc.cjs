@@ -206,6 +206,10 @@ module.exports = {
 		"jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef", "param"]}],
 		"jsdoc/check-property-names": "error",
 		"jsdoc/check-types": "error",
+		"jsdoc/match-description": ["error", {
+			matchDescription:"^\\S",
+			message: "JSDoc comments may not start with an emtpy line.",
+		}],
 		"jsdoc/no-bad-blocks": "error",
 		"jsdoc/no-defaults": "error",
 		"jsdoc/no-multi-asterisks": "error",
@@ -219,6 +223,13 @@ module.exports = {
 		"jsdoc/require-property-name": "error",
 		"jsdoc/require-property-type": "error",
 		"jsdoc/require-returns-type": "error",
+		"jsdoc/tag-lines": ["error", "never", {
+			tags: {
+				typedef: {
+					lines: "any",
+				},
+			},
+		}],
 
 		"rulesdir/no-default-exports": "error",
 	},
