@@ -17,7 +17,7 @@ const MAP_TYPE_REFERENCED_ASSET_UUID = "e8d38f05-0ed6-4426-af10-2a2a3ece686d";
 const DUPLICATE_REFERENCED_ASSET_UUID = "c726e574-ae6e-4c67-9266-a8249a7e1dfd";
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} [options.mappableValues] The list of mappable
  * values that the MapTypeSerializer should return.
  * @param {import("../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} [options.extraMappableValues] A list of extra
@@ -491,7 +491,7 @@ Deno.test({
 });
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {typeof MaterialMapTypeLoader} options.ExtendedMaterialMapTypeLoader
  * @param {import("../../../../../../src/mod.js").AssetLoader["getAsset"]} [options.getAssetFn]
  */

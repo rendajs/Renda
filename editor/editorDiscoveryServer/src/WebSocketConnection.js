@@ -137,7 +137,6 @@ export class WebSocketConnection {
 	}
 
 	/**
-	 *
 	 * @param {WebSocketConnection} connection
 	 */
 	sendNearbyHostConnectionUpdateProjectMetaData(connection) {

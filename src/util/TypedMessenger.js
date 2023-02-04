@@ -165,7 +165,7 @@ export class TypedMessenger {
 	 *
 	 * See these respective functions for usage examples.
 	 *
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {TRequireHandlerReturnObjects} [options.returnTransferSupport] Whether the
 	 * messenger has support for transferring objects from return values. When this is true,
 	 * the return values of your handlers are expected to be different:

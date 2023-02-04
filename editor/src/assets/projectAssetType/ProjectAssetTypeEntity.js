@@ -147,7 +147,6 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	}
 
 	/**
-	 *
 	 * @param {*} newParentObject
 	 * @param {*} originalParentObject
 	 * @param {string} propertyKey

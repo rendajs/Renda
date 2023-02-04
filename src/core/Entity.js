@@ -29,7 +29,8 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  * @property {number[]} [matrix]
  * @property {import("../components/Component.js").EntityJsonDataComponent[]} [components]
  * @property {EntityJsonData[]} [children]
- *
+ */
+/**
  * @typedef {EntityJsonDataBase & EntityJsonDataInlineEntityTypes} EntityJsonDataInlineEntity
  */
 
@@ -39,7 +40,8 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
  * @property {number[]} [pos]
  * @property {number[]} [rot]
  * @property {number[]} [scale]
- *
+ */
+/**
  * @typedef {EntityJsonDataBase & EntityJsonDataAssetEntityTypes} EntityJsonDataAssetEntity
  */
 
@@ -672,7 +674,6 @@ export class Entity {
 	/**
 	 * Yields all children recursively, including this entity itself.
 	 *
-	 * @example
 	 * ```js
 	 * for (const child of entity.traverseDown()) {
 	 * 	// do something with the child
@@ -682,7 +683,6 @@ export class Entity {
 	 * If you are dealing with a large tree of entities, you can exclude certain
 	 * parts of the tree using a filter.
 	 *
-	 * @example
 	 * ```js
 	 * const generator = entity.traverseDown({
 	 * 	filter: child => child != excludeEntity;
@@ -709,7 +709,6 @@ export class Entity {
 	/**
 	 * Yields all parents recursively, including this entity itself.
 	 *
-	 * @example
 	 * ```js
 	 * for (const parent of entity.traverseUp()) {
 	 * 	// do something with the parent
@@ -719,7 +718,6 @@ export class Entity {
 	 * If you are dealing with a large tree of entities, you can exclude certain
 	 * parts of the tree using a filter.
 	 *
-	 * @example
 	 * ```js
 	 * const generator = entity.traverseUp({
 	 * 	filter: parent => parent != excludeEntity;

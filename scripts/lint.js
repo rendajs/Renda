@@ -1,4 +1,5 @@
 import {ESLint} from "eslint";
+import jsdoc from "npm:eslint-plugin-jsdoc@39.8.0";
 import {rule as noDefaultExportsRule} from "../.eslintrules/no-default-exports.js";
 import {rule as noModImportsRule} from "../.eslintrules/no-mod-imports.js";
 import {rule as noThisInStaticMethodRule} from "../.eslintrules/no-this-in-static-method.js";
@@ -28,13 +29,6 @@ if (useIo) {
 	if (!fix) throw new Error(`${fixPrefix} is required when ${ioPrefix} is used.`);
 }
 
-/** @type {import("eslint").Rule.RuleModule} */
-const dummyRule = {
-	create(ctx) {
-		return {};
-	},
-};
-
 const eslint = new ESLint({
 	plugins: {
 		rulesdir: {
@@ -46,16 +40,7 @@ const eslint = new ESLint({
 				};
 			},
 		},
-		// For now this plugin only stubs some rules that are disabled/enabled
-		// in code using eslint-enable comments. But we'll replace this with
-		// the actual jsdoc plugin once "npm:eslint-plugin-jsdoc@39.3.6" is
-		// importable in Deno
-		jsdoc: {
-			rules: {
-				"no-undefined-types": dummyRule,
-				"require-description-complete-sentence": dummyRule,
-			},
-		},
+		jsdoc,
 	},
 	fix,
 });

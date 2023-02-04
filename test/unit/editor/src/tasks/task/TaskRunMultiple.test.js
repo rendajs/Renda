@@ -123,7 +123,7 @@ Deno.test({
 });
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../../editor/src/tasks/task/TaskRunMultiple.js").TaskRunMultipleConfig} options.config
  */
 function basicSetupForRunTask({
