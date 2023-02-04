@@ -37,6 +37,7 @@ export async function dev({
 				"rollup-plugin-cleanup",
 				"https://deno.land/x/dev@v0.2.0/mod.js", // Temporary workaround for https://github.com/denoland/deno/issues/17210
 				"npm:rollup-plugin-resolve-url-objects@0.0.4",
+				"npm:eslint-plugin-jsdoc@39.3.6",
 			],
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.
