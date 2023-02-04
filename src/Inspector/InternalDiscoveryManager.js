@@ -192,14 +192,14 @@ export class InternalDiscoveryManager {
 			},
 			/**
 			 * @param {import("../mod.js").UuidString} clientId
-			*/
+			 */
 			availableClientRemoved: clientId => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: null, deleted: true}));
 			},
 			/**
 			 * @param {import("../mod.js").UuidString} clientId
 			 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} metaData
-			*/
+			 */
 			projectMetaData: (clientId, metaData) => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: metaData}));
 			},

@@ -111,7 +111,7 @@ async function basicSetup({
 					contentWindow,
 					/**
 					 * @param {string} value
-					*/
+					 */
 					set src(value) {
 						if (assertIframeSrc) {
 							assertEquals(value, assertIframeSrc);
