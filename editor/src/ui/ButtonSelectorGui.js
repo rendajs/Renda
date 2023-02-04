@@ -11,7 +11,8 @@ import {ButtonGroup} from "./ButtonGroup.js";
  * @property {ButtonSelectorGuiOptionsItem[]} [items]
  * @property {boolean} [allowSelectNone] Set to true to allow the user to deselect by clicking the currently selected button.
  * @property {ButtonSelectorGuiValueTypes} [defaultValue] The default value of the gui when it hasn't been modified by the user.
- *
+ */
+/**
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & ButtonSelectorGuiOptionsType & import("./ButtonGroup.js").ButtonGroupOptions} ButtonSelectorGuiOptions
  */
 

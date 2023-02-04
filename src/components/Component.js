@@ -253,7 +253,6 @@ export class Component {
 	}
 
 	/**
-	 *
 	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
 	 * @param {ComponentEditorOptions?} editorOpts
 	 */

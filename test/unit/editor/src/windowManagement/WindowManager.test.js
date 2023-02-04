@@ -84,7 +84,7 @@ stub(WorkspaceManager.prototype, "getCurrentWorkspace", async () => {
  */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {(ctx: WindowManagerTestContext) => Promise<void> | void} options.fn The test function to run.
  */
 async function basicSetup({
