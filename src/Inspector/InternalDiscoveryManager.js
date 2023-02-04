@@ -14,7 +14,7 @@ import {TypedMessenger} from "../util/TypedMessenger.js";
 
 export class InternalDiscoveryManager {
 	/**
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {string} [options.fallbackDiscoveryUrl] When the current page is inside an iframe, the discovery manager
 	 * will ask the parent window for a discovery url. If the parent window is an editor, it will respond with a url.
 	 * But if the current page is either not in an iframe or the parent doesn't respond, this fallback url will be used.

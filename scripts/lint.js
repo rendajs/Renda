@@ -1,5 +1,5 @@
 import {ESLint} from "eslint";
-import jsdoc from "npm:eslint-plugin-jsdoc@39.3.6";
+import jsdoc from "npm:eslint-plugin-jsdoc@39.8.0";
 import {rule as noDefaultExportsRule} from "../.eslintrules/no-default-exports.js";
 import {rule as noModImportsRule} from "../.eslintrules/no-mod-imports.js";
 import {rule as noThisInStaticMethodRule} from "../.eslintrules/no-this-in-static-method.js";

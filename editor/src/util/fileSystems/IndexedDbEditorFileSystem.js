@@ -259,7 +259,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @param {string[]} path
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {string} [options.errorMessageActionName]
 	 * @returns {Promise<{pointer: IndexedDbEditorFileSystemPointer, obj: IndexedDbEditorFileSystemStoredObject}>}
 	 */

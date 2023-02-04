@@ -7,7 +7,7 @@ import {ShortcutCommand} from "../../../../../editor/src/keyboardShortcuts/Short
  */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {import("../../../../../editor/src/keyboardShortcuts/ShortcutCommand.js").ShortcutCommandOptions} options.commandOpts
  * @param {(ctx: ShortcutCommandTestContext) => void} options.fn
  * @param {{[x: string]: boolean | string}} [options.shortcutConditions]

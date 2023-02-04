@@ -87,8 +87,8 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
  * @typedef {T["assertExists"] extends false ?
-* 	AssetAssertionOptionsToLiveAssetHelper<T>? :
-* 	AssetAssertionOptionsToLiveAssetHelper<T>} AssetAssertionOptionsToLiveAsset
+ * 	AssetAssertionOptionsToLiveAssetHelper<T>? :
+ * 	AssetAssertionOptionsToLiveAssetHelper<T>} AssetAssertionOptionsToLiveAsset
 */
 
 /**

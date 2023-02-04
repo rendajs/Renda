@@ -6,7 +6,7 @@
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 
 /**
- * @param {Object} params
+ * @param {object} params
  * @param {TypedMessenger<any, any>} params.workerTypedMessenger
  * @param {TypedMessenger<any, any>} params.parentWindowTypedMessenger
  * @param {() => Promise<void>} params.destructorFunction
@@ -29,7 +29,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			/**
 			 * @param {any} data
 			 * @param {Transferable[]} transfer
-			*/
+			 */
 			sendToParentWindow(data, transfer) {
 				parentWindowTypedMessenger.sendWithTransfer("workerToParentWindowMessage", transfer, data);
 			},

@@ -131,7 +131,7 @@ export class TaskBuildApplication extends Task {
 				return result;
 			},
 			/**
-			 * @param {Object} options
+			 * @param {object} options
 			 * @param {number} options.contextId
 			 * @param {import("../../../../src/mod.js").UuidString[]} options.usedAssetsUuids
 			 * @param {import("../../../../src/mod.js").UuidString[]} options.entryPointUuids
