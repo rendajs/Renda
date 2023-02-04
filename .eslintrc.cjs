@@ -203,7 +203,7 @@ module.exports = {
 		"no-inner-declarations": "off",
 
 		"jsdoc/check-alignment": "error",
-		"jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef"]}],
+		"jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef", "param"]}],
 		"jsdoc/check-property-names": "error",
 		"jsdoc/check-types": "error",
 		"jsdoc/no-bad-blocks": "error",
