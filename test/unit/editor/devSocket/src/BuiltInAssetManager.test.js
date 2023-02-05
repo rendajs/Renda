@@ -13,12 +13,12 @@ const originalDenoReadDir = Deno.readDir;
 
 /**
  * @param {object} options
- * @param {(path: string | URL) => Deno.FileInfo} [options.statCb]
- * @param {(path: string | URL, options?: Deno.ReadFileOptions) => Uint8Array} [options.readFileCb]
- * @param {(path: string | URL, options?: Deno.ReadFileOptions) => string} [options.readTextFileCb]
- * @param {(path: string | URL, data: Uint8Array, options?: Deno.WriteFileOptions) => void} [options.writeFileCb]
- * @param {(path: string | URL, data: string, options?: Deno.WriteFileOptions) => void} [options.writeTextFileCb]
- * @param {(path: string | URL) => Deno.DirEntry[]} [options.readDirCb]
+ * @param {(...args: Parameters<Deno.stat>) => Deno.FileInfo} [options.statCb]
+ * @param {(...args: Parameters<Deno.readFile>) => Uint8Array} [options.readFileCb]
+ * @param {(...args: Parameters<Deno.readTextFile>) => string} [options.readTextFileCb]
+ * @param {(...args: Parameters<Deno.writeFile>) => void} [options.writeFileCb]
+ * @param {(...args: Parameters<Deno.writeTextFile>) => void} [options.writeTextFileCb]
+ * @param {(...args: Parameters<Deno.readDir>) => Deno.DirEntry[]} [options.readDirCb]
  */
 function installMockDenoCalls({
 	statCb,
@@ -195,6 +195,9 @@ async function installMocks({
 			}
 		},
 		writeTextFileCb(path, text) {
+			if (typeof text != "string") {
+				throw new Error("Only string arguments are supported in tests");
+			}
 			if (path instanceof URL) {
 				path = path.href;
 			}
