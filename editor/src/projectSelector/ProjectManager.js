@@ -508,7 +508,7 @@ export class ProjectManager {
 
 		if (hasValidProject && (this.currentProjectIsRemote || this.editorConnectionsAllowRemoteIncoming)) {
 			let endpoint = this.editorConnectionsDiscoveryEndpoint;
-			if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
+			if (!endpoint) endpoint = this.editorConnectionsManager.getDefaultEndPoint();
 			this.editorConnectionsManager.setDiscoveryEndpoint(endpoint);
 		} else {
 			this.editorConnectionsManager.setDiscoveryEndpoint(null);

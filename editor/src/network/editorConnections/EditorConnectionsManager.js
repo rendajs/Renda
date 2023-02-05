@@ -153,7 +153,7 @@ export class EditorConnectionsManager {
 		this.internalDiscovery.requestConnection(otherClientId);
 	}
 
-	static getDefaultEndPoint() {
+	getDefaultEndPoint() {
 		return `ws://${window.location.host}/editorDiscovery`;
 	}
 

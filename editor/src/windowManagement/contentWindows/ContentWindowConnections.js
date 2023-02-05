@@ -1,4 +1,3 @@
-import {EditorConnectionsManager} from "../../network/editorConnections/EditorConnectionsManager.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 
@@ -79,7 +78,7 @@ export class ContentWindowConnections extends ContentWindow {
 			/** @type {import("../../ui/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
-				placeholder: EditorConnectionsManager.getDefaultEndPoint(),
+				placeholder: this.editorInstance.projectManager.editorConnectionsManager.getDefaultEndPoint(),
 			},
 		});
 		discoveryServerEndpointField.onValueChange(endPoint => {

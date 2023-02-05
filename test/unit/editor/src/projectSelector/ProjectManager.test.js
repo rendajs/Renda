@@ -18,7 +18,7 @@ export class EditorConnectionsManager {
 	constructor() {
 		lastEditorConnectionsManager = this;
 	}
-	static getDefaultEndPoint() {
+	getDefaultEndPoint() {
 		return "ws://localhost/defaultEndpoint";
 	}
 	onActiveConnectionsChanged() {}
