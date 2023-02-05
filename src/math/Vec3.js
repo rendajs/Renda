@@ -580,6 +580,17 @@ export class Vec3 {
 	}
 
 	/**
+	 * Projects `vecA` onto `vecB` without modifying and returns a new vector with the result.
+	 * See {@linkcode projectOnVector} for more info.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static projectVectors(vecA, vecB) {
+		return new Vec3(vecA).projectOnVector(vecB);
+	}
+
+	/**
 	 * Vector rejection is similar to projection, but it returns a vector
 	 * perpendicular to the projection.
 	 * ```none
@@ -599,6 +610,16 @@ export class Vec3 {
 		const projection = this.clone().projectOnVector(...v);
 		this.sub(projection);
 		return this;
+	}
+
+	/**
+	 *
+	 * @param  {Vec3Parameters} planeNormal
+	 */
+	projectOnPlane(...planeNormal) {
+		const normal = new Vec3(...planeNormal);
+		const projectedNormal = Vec3.projectVectors(this, normal);
+		this.sub(projectedNormal);
 	}
 
 	toArray() {

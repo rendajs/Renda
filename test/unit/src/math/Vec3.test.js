@@ -788,14 +788,28 @@ Deno.test({
 		for (const {a, b, result} of tests) {
 			const vec = new Vec3(a);
 			vec.rejectFromVector(b);
+			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
 
-			const rounded = vec.toArray();
-			for (let i = 0; i < rounded.length; i++) {
-				rounded[i] = Math.round(rounded[i] * 100) / 100;
-				// if the value is -0, convert it to 0
-				if (rounded[i] == 0) rounded[i] = 0;
-			}
-			assertEquals(rounded, result, `${a} projected on ${b} should be ${result} but was ${rounded}`);
+Deno.test({
+	name: "projectOnPlane()",
+	fn() {
+		const tests = [
+			{a: [2, 2, 0], b: [0, 0, 1], result: [2, 2, 0]},
+			{a: [2, 2, 2], b: [0, 0, 1], result: [2, 2, 0]},
+			{a: [2, 2, 0], b: [0, 0, -1], result: [2, 2, 0]},
+			{a: [2, 2, 2], b: [0, 0, -1], result: [2, 2, 0]},
+			{a: [1, 2, 3], b: [0, 1, 0], result: [1, 0, 3]},
+			{a: [1, 2, 3], b: [1, 1, 1], result: [-1, 0, 1]},
+			{a: [1, 2, 3], b: [1, 0, 1], result: [-1, 2, 1]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec3(a);
+			vec.projectOnPlane(b);
+			assertVecAlmostEquals(vec, result);
 		}
 	},
 });
