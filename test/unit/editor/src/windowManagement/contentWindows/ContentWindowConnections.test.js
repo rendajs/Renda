@@ -15,7 +15,7 @@ import {Button} from "../../../../../../editor/src/ui/Button.js";
  */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {(ctx: ContentWindowConnectionsTestContext) => void | Promise<void>} options.fn
  * @param {import("../../../../../../editor/src/network/editorConnections/EditorConnectionsManager.js").AvailableEditorDataList} [options.availableConnections]
  * @param {import("../../../../../../editor/src/network/editorConnections/EditorConnectionsManager.js").ActiveEditorDataList} [options.activeConnections]

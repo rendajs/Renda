@@ -50,7 +50,7 @@ const getLastEditorConnectionsManager = EditorConnectionsManagerMod.getLastEdito
  */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {(ctx: ProjectManagerTestContext) => Promise<void>} options.fn
  */
 async function basicTest({fn}) {

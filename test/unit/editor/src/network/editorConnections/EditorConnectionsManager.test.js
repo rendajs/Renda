@@ -28,7 +28,7 @@ const {EditorConnectionsManager} = EditorConnectionsManagerMod;
  */
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {(ctx: EditorConnectionsManagerTestContext) => void} options.fn
  */
 function basicTest({fn}) {
