@@ -576,7 +576,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "shortestAngleTo()",
+	name: "angleTo()",
 	fn() {
 		/** @type {[Vec2, Vec2, number][]} */
 		const tests = [
@@ -596,8 +596,8 @@ Deno.test({
 		];
 
 		for (const [a, b, expected] of tests) {
-			const actual = a.shortestAngleTo(b);
-			assertAlmostEquals(actual, expected, 0.00001, `${a} shortestAngleTo ${b} should be ${expected} but was ${actual}`);
+			const actual = a.angleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} angleTo ${b} should be ${expected} but was ${actual}`);
 		}
 	},
 });

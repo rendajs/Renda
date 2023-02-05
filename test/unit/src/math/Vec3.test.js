@@ -661,7 +661,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "shortestAngleTo()",
+	name: "angleTo()",
 	fn() {
 		/** @type {[Vec3, Vec3, number][]} */
 		const tests = [

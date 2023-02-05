@@ -455,7 +455,7 @@ export class Vec3 {
 	 * ```
 	 * @param {Vec3} otherVector
 	 */
-	shortestAngleTo(otherVector) {
+	angleTo(otherVector) {
 		const dot = this.dot(otherVector);
 		const denominator = this.magnitude * otherVector.magnitude;
 		if (denominator == 0) return 0;
