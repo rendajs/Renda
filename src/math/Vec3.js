@@ -463,6 +463,55 @@ export class Vec3 {
 	}
 
 	/**
+	 * Similar to {@linkcode angleTo} but performed on a 2d plane. This returns a negative value
+	 * when `this` needs to be rotated counterclockwise in order to reach `otherVector`.
+	 * Unlike {@linkcode angleTo}, in this case the order of the two vectors
+	 * does matter. If you switch the order of the two vectors, the result will be the
+	 * same but multiplied by -1.
+	 *
+	 * For example:
+	 * ```none
+	 *    ^ this
+	 *    |
+	 *    |
+	 *    o 170º = 2.9 pi
+	 *     \
+	 *      \
+	 *       V otherVector
+	 * ```
+	 *
+	 * but...
+	 * ```none
+	 *                  ^ this
+	 *                  |
+	 *                  |
+	 *  -170º = -2.9 pi o
+	 *                 /
+	 *                /
+	 *               V otherVector
+	 * ```
+	 *
+	 * A second `measureAxis` needs to be provided in order for the operation to
+	 * know which axis you are trying to measure the angle around.
+	 * Note that the measured angle is not the same size as with {@linkcode angleTo}.
+	 * Instead, the two vectors are projected on a plane for which your `measureAxis` is the normal.
+	 * That is, the two vectors are measured in 2d as seen from the `measureAxis`. So the resulting angle
+	 * might actually be shorter compared to {@linkcode angleTo}.
+	 *
+	 * @param {Vec3} otherVector
+	 * @param {Vec3} measureAxis
+	 */
+	clockwiseAngleTo(otherVector, measureAxis) {
+		const projectedThis = new Vec3(this).projectOnPlane(measureAxis);
+		const projectedOther = new Vec3(otherVector).projectOnPlane(measureAxis);
+		let angle = projectedThis.angleTo(projectedOther);
+		const cross = Vec3.cross(this, otherVector);
+		const dot = measureAxis.dot(cross);
+		if (dot < 0) angle *= -1;
+		return angle;
+	}
+
+	/**
 	 * Computes the dot product between this vector and another vector.
 	 *
 	 * [Dot product visualisation](https://falstad.com/dotproduct/)
@@ -613,13 +662,13 @@ export class Vec3 {
 	}
 
 	/**
-	 *
 	 * @param  {Vec3Parameters} planeNormal
 	 */
 	projectOnPlane(...planeNormal) {
 		const normal = new Vec3(...planeNormal);
 		const projectedNormal = Vec3.projectVectors(this, normal);
 		this.sub(projectedNormal);
+		return this;
 	}
 
 	toArray() {

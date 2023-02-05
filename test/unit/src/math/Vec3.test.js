@@ -682,8 +682,39 @@ Deno.test({
 		];
 
 		for (const [a, b, expected] of tests) {
-			const actual = a.shortestAngleTo(b);
-			assertAlmostEquals(actual, expected, 0.00001, `${a} shortestAngleTo ${b} should be ${expected} but was ${actual}`);
+			const actual = a.angleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} angleTo ${b} should be ${expected} but was ${actual}`);
+		}
+	},
+});
+
+Deno.test({
+	name: "clockwiseAngleTo()",
+	fn() {
+		/** @type {[Vec3, Vec3, Vec3, number][]} */
+		const tests = [
+			[new Vec3(1, 0), new Vec3(1, 0), new Vec3(0, 0, 1), 0],
+			[new Vec3(1, 0), new Vec3(0, 1), new Vec3(0, 0, 1), Math.PI * 0.5],
+			[new Vec3(0, 1), new Vec3(1, 0), new Vec3(0, 0, 1), Math.PI * -0.5],
+			[new Vec3(0, 1), new Vec3(-1, 0), new Vec3(0, 0, 1), Math.PI * 0.5],
+			[new Vec3(1, 0), new Vec3(-1, 0), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(-1, 0), new Vec3(1, 0), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(0, -1), new Vec3(0, 1), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(0, 1), new Vec3(0, -1), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(123, 0), new Vec3(0, 456), new Vec3(0, 0, 1), Math.PI * 0.5],
+			[new Vec3(0, 123), new Vec3(456, 0), new Vec3(0, 0, 1), Math.PI * -0.5],
+			[new Vec3(0, 123), new Vec3(456, 0), new Vec3(0, 0, -1), Math.PI * 0.5],
+			[new Vec3(10, 0), new Vec3(5, 5), new Vec3(0, 0, 1), Math.PI * 0.25],
+			[new Vec3(5, 5), new Vec3(10, 0), new Vec3(0, 0, 1), Math.PI * -0.25],
+			[new Vec3(0, 0), new Vec3(0, 0), new Vec3(0, 0, 1), 0],
+			[new Vec3(0, 0), new Vec3(1, 0), new Vec3(0, 0, 1), 0],
+			[new Vec3(123, 456), new Vec3(123, 456), new Vec3(0, 0, 1), 0],
+			[new Vec3(0.08945095445971063, -0.08240613339399705), new Vec3(0.08945095445971063, -0.08240613339399705), new Vec3(0, 0, 1), 0],
+		];
+
+		for (const [a, b, measureAxis, expected] of tests) {
+			const actual = a.clockwiseAngleTo(b, measureAxis);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} clockwiseAngleTo ${b} with axis ${measureAxis} should be ${expected} but was ${actual}`);
 		}
 	},
 });
