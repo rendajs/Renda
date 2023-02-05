@@ -138,7 +138,7 @@ export class Vec2 {
 
 	/**
 	 * Multiplies each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector with the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB
@@ -188,7 +188,7 @@ export class Vec2 {
 
 	/**
 	 * Divides each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector of the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB
@@ -238,7 +238,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Adds `vecA` to `vecB` and returns a copy of the result.
+	 * Adds `vecA` to `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB
@@ -284,7 +284,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 * Subtracts `vecA` from `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB

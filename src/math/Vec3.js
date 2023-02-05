@@ -205,7 +205,7 @@ export class Vec3 {
 
 	/**
 	 * Multiplies each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector with the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -261,7 +261,7 @@ export class Vec3 {
 
 	/**
 	 * Divides each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector of the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -328,7 +328,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Adds `vecA` to `vecB` and returns a copy of the result.
+	 * Adds `vecA` to `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -378,7 +378,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 * Subtracts `vecA` from `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -510,7 +510,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Computes the cross product between two vectors.
+	 * Computes the cross product between this and another vector and changes the value of this vector.
 	 *
 	 * [Cross product visualisation](https://www.geogebra.org/m/psMTGDgc)
 	 *
@@ -536,7 +536,8 @@ export class Vec3 {
 	}
 
 	/**
-	 * Performs the cross product between two vectors and returns a copy of the result.
+	 * Performs the cross product between two vectors without modifying them and returns a new vector with the result.
+	 * See {@linkcode Vec3.prototype.cross}.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
