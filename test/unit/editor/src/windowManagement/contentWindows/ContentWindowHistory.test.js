@@ -26,7 +26,7 @@ function createEntry(uiText) {
 }
 
 /**
- * @param {object} options
+ * @param {Object} options
  * @param {(ctx: ContentWindowHistoryTestContext) => void} options.fn
  * @param {import("../../../../../../editor/src/misc/HistoryManager.js").HistoryEntriesResult[]} [options.startHistoryEntries]
  */

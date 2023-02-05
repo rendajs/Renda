@@ -25,7 +25,7 @@ import {assertEquals, assertExists, assertStrictEquals} from "std/testing/assert
  */
 
 /**
- * @param {object} options
+ * @param {Object} options
  * @param {(ctx: HistoryManagerTestContext) => void} options.fn
  */
 function basicTest({

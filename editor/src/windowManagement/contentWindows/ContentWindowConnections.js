@@ -155,6 +155,7 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	/**
+	 *
 	 * @param {import("../../network/editorConnections/EditorConnectionsManager.js").DiscoveryServerStatusType} status
 	 */
 	updateDiscoveryServerStatus(status) {

@@ -95,7 +95,7 @@ function terser(minifyOptions = {}) {
 
 /**
  * A rollup plugin for remapping url() paths in css files.
- * @param {object} options
+ * @param {Object} options
  * @param {string} options.outputPath The path where the Javascript files are
  * expected to be placed after bundling.
  */

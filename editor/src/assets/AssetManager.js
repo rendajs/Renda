@@ -87,9 +87,9 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
  * @typedef {T["assertExists"] extends false ?
- * 	AssetAssertionOptionsToLiveAssetHelper<T>? :
- * 	AssetAssertionOptionsToLiveAssetHelper<T>} AssetAssertionOptionsToLiveAsset
- */
+* 	AssetAssertionOptionsToLiveAssetHelper<T>? :
+* 	AssetAssertionOptionsToLiveAssetHelper<T>} AssetAssertionOptionsToLiveAsset
+*/
 
 /**
  * @template {AssetAssertionOptions} T
@@ -105,9 +105,9 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
  * @typedef {T["assertExists"] extends false ?
- * 	AssetAssertionOptionsToReadAssetDataReturnHelper<T>? :
- * 	AssetAssertionOptionsToReadAssetDataReturnHelper<T>} AssetAssertionOptionsToReadAssetDataReturn
- */
+* 	AssetAssertionOptionsToReadAssetDataReturnHelper<T>? :
+* 	AssetAssertionOptionsToReadAssetDataReturnHelper<T>} AssetAssertionOptionsToReadAssetDataReturn
+*/
 
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]

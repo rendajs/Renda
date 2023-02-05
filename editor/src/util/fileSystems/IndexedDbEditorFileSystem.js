@@ -20,8 +20,7 @@ const fileSystemPointerType = Symbol("file system pointer type");
  * @property {true} isFile
  * @property {false} [isDir = false]
  * @property {File} file
- */
-/**
+ *
  * @typedef {IndexedDbEditorFileSystemStoredObjectBase & IndexedDbEditorFileSystemStoredObjectFileType} IndexedDbEditorFileSystemStoredObjectFile
  */
 
@@ -30,8 +29,7 @@ const fileSystemPointerType = Symbol("file system pointer type");
  * @property {true} isDir
  * @property {false} [isFile = false]
  * @property {IndexedDbEditorFileSystemPointer[]} files
- */
-/**
+ *
  * @typedef {IndexedDbEditorFileSystemStoredObjectBase & IndexedDbEditorFileSystemStoredObjectDirType} IndexedDbEditorFileSystemStoredObjectDir
  */
 
@@ -261,7 +259,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @param {string[]} path
-	 * @param {object} options
+	 * @param {Object} options
 	 * @param {string} [options.errorMessageActionName]
 	 * @returns {Promise<{pointer: IndexedDbEditorFileSystemPointer, obj: IndexedDbEditorFileSystemStoredObject}>}
 	 */

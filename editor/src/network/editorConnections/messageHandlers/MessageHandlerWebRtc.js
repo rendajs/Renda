@@ -120,6 +120,7 @@ export class MessageHandlerWebRtc extends MessageHandler {
 	}
 
 	/**
+	 *
 	 * @param {RTCIceCandidateInit} iceCandidate
 	 */
 	async handleRtcIceCandidate(iceCandidate) {

@@ -2,6 +2,7 @@ import {CachedMeshBufferData} from "./CachedMeshBufferData.js";
 
 export class CachedMeshData {
 	/**
+	 *
 	 * @param {import("../../../core/Mesh.js").Mesh} mesh
 	 * @param {import("./WebGpuRenderer.js").WebGpuRenderer} renderer
 	 */

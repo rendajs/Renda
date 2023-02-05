@@ -6,6 +6,7 @@ import {PropertiesWindowContentMultiple} from "./PropertiesWindowContentMultiple
 
 export class PropertiesWindowContentManager {
 	/**
+	 *
 	 * @param {import("../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	constructor(windowManager) {

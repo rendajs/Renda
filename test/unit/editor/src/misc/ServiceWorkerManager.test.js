@@ -13,7 +13,7 @@ import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 
 /**
  * @param {(ctx: BasicTestContext) => Promise<void>} fn
- * @param {object} options
+ * @param {Object} options
  * @param {import("../../../../../editor/src/tasks/task/Task.js").RunTaskReturn} [options.runTaskResult]
  */
 async function basicTest(fn, {

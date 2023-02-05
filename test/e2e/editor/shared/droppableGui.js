@@ -56,6 +56,7 @@ export async function createEmbeddedAssetAndOpen(page, testContext, propertiesTr
 }
 
 /**
+ *
  * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
  * @param {import("puppeteer").ElementHandle?} propertiesTreeViewEntryEl

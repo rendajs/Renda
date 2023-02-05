@@ -989,6 +989,7 @@ function findBiggestVariableArrayLength(binaryDigestableArray) {
 }
 
 /**
+ *
  * @param {BinarySerializationBinaryDigestible[]} binaryDigestableArray
  * @param {StorageType} arrayLengthStorageType
  * @returns {Generator<BinarySerializationBinaryDigestible>}

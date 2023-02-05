@@ -10,8 +10,7 @@
  * @property {string} [prefix = ""] The prefix to render before the value.
  * @property {[number, string][]} [mappedStringValues = []] The string to return when the numeric value is one of these values.
  * @property {number | string} [defaultValue = null] The default value of the gui when it hasn't been modified by the user.
- */
-/**
+ *
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & NumericGuiOptionsType} NumericGuiOptions
  */
 

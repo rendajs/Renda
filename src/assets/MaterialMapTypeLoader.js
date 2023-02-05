@@ -10,6 +10,7 @@ export class MaterialMapTypeLoader {
 	}
 
 	/**
+	 *
 	 * @param {import("./AssetLoader.js").AssetLoader} assetLoader
 	 * @param {import("./assetLoaderTypes/AssetLoaderTypeMaterialMap.js").AssetLoaderTypeMaterialMap} materialLoader
 	 */

@@ -18,7 +18,7 @@ const scriptTypes = [
 
 /**
  * A rollup plugin for resolving file paths inside a worker.
- * @param {object} options
+ * @param {Object} options
  * @param {GetScriptContentFn} options.getScriptContentFn
  * @param {string} options.servicesSource The generated code that will be placed
  * in the file that a user can import via "renda:services".

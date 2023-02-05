@@ -480,7 +480,6 @@ export class Mat4 {
 		]);
 	}
 
-	/* eslint-disable jsdoc/no-multi-asterisks */
 	/**
 	 * Multiplies two matrices and returns a new instance with the result.
 	 * The order of the two matrices is important.
@@ -532,7 +531,6 @@ export class Mat4 {
 	 * @param {Mat4} a2
 	 */
 	static multiplyMatrices(a1, a2) {
-		/* eslint-enable jsdoc/no-multi-asterisks */
 		const v1 = a1.values;
 		const v2 = a2.values;
 

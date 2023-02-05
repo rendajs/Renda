@@ -13,7 +13,7 @@ import {incrementTime, installMockTime, uninstallMockTime} from "../../../shared
  */
 
 /**
- * @param {object} options
+ * @param {Object} options
  * @param {(ctx: KeyboardShortcutManagerTestContext) => void} options.fn The test function
  */
 function basicSetup({

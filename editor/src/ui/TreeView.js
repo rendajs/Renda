@@ -30,16 +30,14 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 /**
  * @typedef {object} TreeViewDragEventType
  * @property {DragEvent} rawEvent
- */
-/**
+ *
  * @typedef {TreeViewEvent & TreeViewDragEventType} TreeViewDragEvent
  */
 
 /**
  * @typedef {object} TreeViewDropEventType
  * @property {TreeViewDragPosition} dropPosition
- */
-/**
+ *
  * @typedef {TreeViewDragEvent & TreeViewDropEventType} TreeViewDropEvent
  */
 
@@ -50,8 +48,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {"string" | "file"} kind
  * @property {() => void} accept Mark the drag as accepted, renders drag feedback, and fires the drop event when dropped.
  * @property {() => void} reject Mark the drag as rejected. If any of the event handlers call `accept()`, this has no effect.
- */
-/**
+ *
  * @typedef {TreeViewDragEvent & TreeViewValidateDragEventType} TreeViewValidateDragEvent
  */
 
@@ -67,8 +64,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 /**
  * @typedef {object} TreeViewRearrangeEventType
  * @property {TreeViewRearrangedItem[]} movedItems
- */
-/**
+ *
  * @typedef {TreeViewEvent & TreeViewRearrangeEventType} TreeViewRearrangeEvent
  */
 
@@ -76,8 +72,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @typedef {object} TreeViewNameChangeEventType
  * @property {string} oldName
  * @property {string} newName
- */
-/**
+ *
  * @typedef {TreeViewEvent & TreeViewNameChangeEventType} TreeViewNameChangeEvent
  */
 
@@ -90,16 +85,14 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 /**
  * @typedef {object} TreeViewContextMenuEventType
  * @property {showContextMenuCallback} showContextMenu
- */
-/**
+ *
  * @typedef {TreeViewEvent & TreeViewContextMenuEventType} TreeViewContextMenuEvent
  */
 
 /**
  * @typedef {object} TreeViewFocusWithinChangeEventType
  * @property {boolean} hasFocusWithin
- */
-/**
+ *
  * @typedef {TreeViewEvent & TreeViewFocusWithinChangeEventType} TreeViewFocusWithinChangeEvent
  */
 
@@ -108,16 +101,14 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {boolean} reset
  * @property {Array<TreeView>} added
  * @property {Array<TreeView>} removed
- */
-/**
+ *
  * @typedef {TreeViewEvent & TreeViewSelectionChangeEventType} TreeViewSelectionChangeEvent
  */
 
 /**
  * @typedef {object} TreeViewCollapseEventType
  * @property {boolean} collapsed
- */
-/**
+ *
  * @typedef {TreeViewEvent & TreeViewCollapseEventType} TreeViewCollapseEvent
  */
 

@@ -140,6 +140,7 @@ export function createBasicGui({
 	const createEmbeddedAssetSpy = spy(createEmbeddedAssetFn);
 
 	/**
+	 *
 	 * @param {import("../../../../../../src/mod.js").UuidString | object | null | undefined} uuidOrData
 	 * @param {import("../../../../../../editor/src/assets/AssetManager.js").GetLiveAssetFromUuidOrEmbeddedAssetDataOptions} options
 	 */
