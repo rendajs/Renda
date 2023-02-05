@@ -1,6 +1,6 @@
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
 import {MemoryEditorFileSystem} from "../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {Importer} from "/Users/Jesper/repositories/fake-imports/mod.js";
+import {Importer} from "fake-imports";
 import {assertSpyCall, spy, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 
