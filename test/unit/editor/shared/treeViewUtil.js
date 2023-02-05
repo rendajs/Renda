@@ -1,14 +1,21 @@
 import {AssertionError, assertEquals} from "std/testing/asserts.ts";
+import "../shared/initializeEditor.js";
+import {PropertiesTreeViewEntry} from "../../../../editor/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 
 /**
  * @typedef ExpectedTreeViewStructure
  * @property {string} [name]
  * @property {ExpectedTreeViewStructure[]} [children]
+ * @property {boolean} [isPropertiesEntry]
+ * @property {string} [propertiesLabel]
  */
 
 /**
  * @typedef AssertTreeViewStructureEqualsOptions
- * @property {boolean} [checkAllChildren]
+ * @property {boolean} [checkAllChildren] When true (which is the default), the child counts must exactly match the
+ * expected structure. You can still omit the `children` property to assert if the child count is 0. But if you don't
+ * specify the `children` property and a treeview contains one child or more, an error will be thrown.
+ * When set to false, omitted `children` properties will not be checked for equality.
  */
 
 /**
@@ -36,6 +43,17 @@ export function assertTreeViewStructureEquals(treeView, expectedStructure, optio
 function treeViewStructureEquals(treeView, expectedStructure, options) {
 	if (expectedStructure.name !== undefined && treeView.name != expectedStructure.name) return false;
 
+	if (expectedStructure.isPropertiesEntry !== undefined) {
+		const isPropertiesEntry = (treeView instanceof PropertiesTreeViewEntry);
+		if (expectedStructure.isPropertiesEntry != isPropertiesEntry) return false;
+	}
+	if (expectedStructure.propertiesLabel !== undefined) {
+		if (!(treeView instanceof PropertiesTreeViewEntry)) {
+			return false;
+		}
+		return expectedStructure.propertiesLabel == treeView.label.textContent;
+	}
+
 	let expectedChildren = expectedStructure.children;
 	if (expectedChildren === undefined && options.checkAllChildren) {
 		expectedChildren = [];
@@ -62,7 +80,7 @@ function createExpectedTreeViewStructure(treeView, expectedStructure, options) {
 
 	if (!expectedStructure || expectedStructure.name !== undefined) structure.name = treeView.name;
 
-	if (!expectedStructure || expectedStructure.children !== undefined || options.checkAllChildren) {
+	if (!expectedStructure || expectedStructure.children !== undefined || (options.checkAllChildren && treeView.children.length > 0)) {
 		structure.children = [];
 		for (let i = 0; i < treeView.children.length; i++) {
 			/** @type {ExpectedTreeViewStructure?} */
@@ -74,5 +92,38 @@ function createExpectedTreeViewStructure(treeView, expectedStructure, options) {
 		}
 	}
 
+	if (!expectedStructure || expectedStructure.isPropertiesEntry !== undefined) {
+		structure.isPropertiesEntry = treeView instanceof PropertiesTreeViewEntry;
+	}
+
+	if (!expectedStructure) {
+		if (treeView instanceof PropertiesTreeViewEntry) {
+			structure.propertiesLabel = treeView.label.textContent || "";
+		}
+	} else if (expectedStructure.propertiesLabel !== undefined) {
+		if (treeView instanceof PropertiesTreeViewEntry) {
+			structure.propertiesLabel = treeView.label.textContent || "";
+		} else {
+			structure.propertiesLabel = "";
+		}
+	}
+
 	return structure;
+}
+
+/**
+ * @param {import("../../../../editor/src/ui/TreeView.js").TreeView} treeView
+ * @param  {...number} indices
+ */
+export function getChildTreeViewFromIndices(treeView, ...indices) {
+	let i = 0;
+	while (i < indices.length) {
+		const index = indices[i];
+		treeView = treeView.children[index];
+		if (!treeView) {
+			throw new Error("The TreeView at this indices path does not exist.");
+		}
+		i++;
+	}
+	return treeView;
 }

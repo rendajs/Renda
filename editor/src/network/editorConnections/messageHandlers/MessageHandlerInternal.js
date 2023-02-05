@@ -25,7 +25,6 @@ export class MessageHandlerInternal extends MessageHandler {
 		this.messagePort = messagePort;
 		messagePort.addEventListener("message", e => {
 			this.handleMessageReceived(e.data);
-			console.log(e.data);
 		});
 		messagePort.start();
 		this.setConnectionState("connected");

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview For more info about how the InspectorManagerWorks see
+ * /editor/src/network/editorConnections/internalDiscovery/readme.md
+ */
+
 import {TypedMessenger} from "../util/TypedMessenger.js";
 
 /** @typedef {ReturnType<InternalDiscoveryManager["_getIframeRequestHandlers"]>} InternalDiscoveryParentHandlers */
@@ -57,7 +62,7 @@ export class InternalDiscoveryManager {
 
 		/**
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the iframe it created.
-		 * @private @type {TypedMessenger<import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryMain.js").InternalDiscoveryIframeHandlers, InternalDiscoveryParentHandlers>}
+		 * @private @type {TypedMessenger<import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers, InternalDiscoveryParentHandlers>}
 		 */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
@@ -236,7 +241,7 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData} metaData
+	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
 		await this.workerMessenger.send("projectMetaData", metaData);

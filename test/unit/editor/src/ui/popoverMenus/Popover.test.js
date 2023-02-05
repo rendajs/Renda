@@ -1,13 +1,13 @@
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {PopoverManager} from "../../../../../editor/src/ui/popoverMenus/PopoverManager.js";
-import {ColorizerFilterManager} from "../../../../../editor/src/util/colorizerFilters/ColorizerFilterManager.js";
+import {PopoverManager} from "../../../../../../editor/src/ui/popoverMenus/PopoverManager.js";
+import {ColorizerFilterManager} from "../../../../../../editor/src/util/colorizerFilters/ColorizerFilterManager.js";
 
 /**
  * @param {(ctx: {
  * 	manager: PopoverManager,
- * 	popover: import("../../../../../editor/src/ui/popoverMenus/Popover.js").Popover,
+ * 	popover: import("../../../../../../editor/src/ui/popoverMenus/Popover.js").Popover,
  * }) => void} cb
  */
 async function basicPopoverTest(cb) {

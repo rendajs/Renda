@@ -3,6 +3,6 @@
  * The page is expected to be loaded in an iframe.
  */
 
-import {initializeIframe} from "./internalDiscoveryMain.js";
+import {initializeIframe} from "./internalDiscoveryIframeMain.js";
 
 initializeIframe(window);

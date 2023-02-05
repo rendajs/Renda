@@ -4,10 +4,9 @@ import {IndexedDbEditorFileSystem} from "../util/fileSystems/IndexedDbEditorFile
 import {RemoteEditorFileSystem} from "../util/fileSystems/RemoteEditorFileSystem.js";
 import {AssetManager} from "../assets/AssetManager.js";
 import {EditorConnectionsManager} from "../network/editorConnections/EditorConnectionsManager.js";
-import {generateUuid} from "../../../src/util/mod.js";
+import {generateUuid} from "../../../src/util/util.js";
 import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
-import {EditorConnection} from "../network/editorConnections/EditorConnection.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
 
@@ -65,6 +64,12 @@ export class ProjectManager {
 		this.currentProjectOpenEvent = null;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 		this.currentProjectIsRemote = false;
+		/**
+		 * Technically some file system entries might not have write permissions even though the root does.
+		 * But in practice the root having write permissions always means that all files within the directory have permission.
+		 * The only exception would be when the user manually revokes permissions.
+		 */
+		this.rootHasWritePermissions = false;
 		this.gitIgnoreManager = null;
 		/**
 		 * Used for settings that are generally expected to be stored in the project's repository.
@@ -88,7 +93,7 @@ export class ProjectManager {
 			let pickedAvailableConnection = null;
 			let pickedConnection = null;
 			for (const [id, connection] of activeConnections) {
-				if (connection.connectionState == "connected" && connection instanceof EditorConnection) {
+				if (connection.connectionState == "connected") {
 					const availableConnection = this.editorConnectionsManager.availableConnections.get(id);
 					pickedAvailableConnection = availableConnection;
 					pickedConnection = connection;
@@ -120,6 +125,7 @@ export class ProjectManager {
 			}
 			this.currentProjectOpenEvent.name = newName;
 			this.fireOnProjectOpenEntryChangeCbs();
+			this.updateEditorConnectionsManager();
 		};
 
 		/** @type {(data: unknown[]) => Promise<void>} */
@@ -170,6 +176,15 @@ export class ProjectManager {
 		this.currentProjectIsRemote = fileSystem instanceof RemoteEditorFileSystem;
 		this.currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
+
+		this.rootHasWritePermissions = false;
+		this.updateEditorConnectionsManager();
+		(async () => {
+			await fileSystem.waitForPermission([], {writable: true});
+			if (fileSystem != this.currentProjectFileSystem) return;
+			this.rootHasWritePermissions = true;
+			this.updateEditorConnectionsManager();
+		})();
 
 		const gitIgnoreManager = new GitIgnoreManager(fileSystem);
 		this.gitIgnoreManager = gitIgnoreManager;
@@ -387,7 +402,6 @@ export class ProjectManager {
 			fileSystem = new FsaEditorFileSystem(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
 			fileSystem = new RemoteEditorFileSystem();
-			console.log(projectEntry);
 			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
@@ -438,9 +452,9 @@ export class ProjectManager {
 		const settings = this.assertLocalSettingsExists();
 		this.editorConnectionsAllowRemoteIncoming = allow;
 		if (allow) {
-			settings.set("editorConnectionsAllowIncoming", allow);
+			settings.set("editorConnectionsAllowRemoteIncoming", allow);
 		} else {
-			settings.delete("editorConnectionsAllowIncoming");
+			settings.delete("editorConnectionsAllowRemoteIncoming");
 		}
 		this.updateEditorConnectionsManager();
 	}
@@ -475,7 +489,7 @@ export class ProjectManager {
 			this.editorConnectionsAllowInternalIncoming = false;
 		} else {
 			const settings = this.assertLocalSettingsExists();
-			this.editorConnectionsAllowRemoteIncoming = await settings.getBoolean("editorConnectionsAllowIncoming", false);
+			this.editorConnectionsAllowRemoteIncoming = await settings.getBoolean("editorConnectionsAllowRemoteIncoming", false);
 			this.editorConnectionsAllowInternalIncoming = await settings.getBoolean("editorConnectionsAllowInternalIncoming", false);
 		}
 		this.updateEditorConnectionsManager();
@@ -494,20 +508,21 @@ export class ProjectManager {
 
 		if (hasValidProject && (this.currentProjectIsRemote || this.editorConnectionsAllowRemoteIncoming)) {
 			let endpoint = this.editorConnectionsDiscoveryEndpoint;
-			if (!endpoint) endpoint = EditorConnectionsManager.getDefaultEndPoint();
+			if (!endpoint) endpoint = this.editorConnectionsManager.getDefaultEndPoint();
 			this.editorConnectionsManager.setDiscoveryEndpoint(endpoint);
 		} else {
 			this.editorConnectionsManager.setDiscoveryEndpoint(null);
 		}
 
+		this.editorConnectionsManager.setAllowInternalIncoming(this.editorConnectionsAllowInternalIncoming);
+
 		this.editorConnectionsManager.sendSetIsEditorHost(!this.currentProjectIsRemote);
-		if (hasValidProject && (this.editorConnectionsAllowRemoteIncoming || this.editorConnectionsAllowInternalIncoming)) {
-			if (this.currentProjectOpenEvent) {
-				this.editorConnectionsManager.setProjectMetaData({
-					name: this.currentProjectOpenEvent.name,
-					uuid: this.currentProjectOpenEvent.projectUuid,
-				});
-			}
+		if (hasValidProject && this.currentProjectOpenEvent) {
+			this.editorConnectionsManager.setProjectMetaData({
+				name: this.currentProjectOpenEvent.name,
+				uuid: this.currentProjectOpenEvent.projectUuid,
+				fileSystemHasWritePermissions: this.rootHasWritePermissions,
+			});
 		}
 	}
 

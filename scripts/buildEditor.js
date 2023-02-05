@@ -164,7 +164,7 @@ const editorDefines = {
 	BUILD_DATE: Date.now(),
 };
 const EDITOR_ENTRY_POINT_PATH = "src/main.js";
-const INTERNAL_DISCOVERY_ENTRY_POINT_PATH = "src/network/editorConnections/internalDiscovery/internalDiscoveryEntryPoint.js";
+const INTERNAL_DISCOVERY_ENTRY_POINT_PATH = "src/network/editorConnections/internalDiscovery/internalDiscoveryIframeEntryPoint.js";
 const bundle = await rollup({
 	input: [
 		EDITOR_ENTRY_POINT_PATH,

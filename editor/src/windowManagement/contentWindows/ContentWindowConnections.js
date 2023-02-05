@@ -1,4 +1,3 @@
-import {EditorConnectionsManager} from "../../network/editorConnections/EditorConnectionsManager.js";
 import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 
@@ -6,6 +5,7 @@ import {ContentWindow} from "./ContentWindow.js";
  * @typedef {object} ConectionGui
  * @property {PropertiesTreeView<any>} treeView
  * @property {import("../../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntry<import("../../ui/LabelGui.js").LabelGui>} statusLabel
+ * @property {import("../../ui/Button.js").Button} connectButton
  */
 
 export class ContentWindowConnections extends ContentWindow {
@@ -78,7 +78,7 @@ export class ContentWindowConnections extends ContentWindow {
 			/** @type {import("../../ui/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
-				placeholder: EditorConnectionsManager.getDefaultEndPoint(),
+				placeholder: this.editorInstance.projectManager.editorConnectionsManager.getDefaultEndPoint(),
 			},
 		});
 		discoveryServerEndpointField.onValueChange(endPoint => {
@@ -203,7 +203,7 @@ export class ContentWindowConnections extends ContentWindow {
 					},
 				});
 
-				treeView.addItem({
+				const buttonTreeView = treeView.addItem({
 					type: "button",
 					guiOpts: {
 						label: "Connect",
@@ -213,27 +213,52 @@ export class ContentWindowConnections extends ContentWindow {
 						},
 					},
 				});
+				const connectButton = buttonTreeView.gui;
 
-				gui = {treeView, statusLabel};
+				gui = {treeView, statusLabel, connectButton};
 				guisList.set(connection.id, gui);
 			}
 
 			removeGuiIds.delete(connection.id);
 
-			gui.treeView.name = connection?.projectMetaData?.name || "Unnamed Project";
+			const projectMetaData = connection.projectMetaData;
+			if (projectMetaData) {
+				gui.treeView.name = projectMetaData.name || "Untitled Project";
+			} else {
+				gui.treeView.name = "Editor";
+			}
 
-			const activeConnection = activeConnections.get(connection.id);
-			let status = "Available";
-			if (activeConnection) {
-				if (activeConnection.connectionState == "connecting") {
-					status = "Connecting";
-				} else if (activeConnection.connectionState == "connected") {
-					status = "Connected";
-				} else if (activeConnection.connectionState == "disconnected") {
-					status = "Offline";
+			let available = false;
+			let status = "Unavailable";
+			let tooltip = "";
+			if (projectMetaData) {
+				if (projectMetaData.fileSystemHasWritePermissions) {
+					available = true;
+					status = "Available";
+				} else {
+					status = "No Filesystem permissions";
+					tooltip = "The other editor hasn't aproved file system permissions in its tab yet.";
 				}
 			}
+
+			if (available) {
+				const activeConnection = activeConnections.get(connection.id);
+				if (activeConnection) {
+					if (activeConnection.connectionState == "connecting") {
+						status = "Connecting";
+					} else if (activeConnection.connectionState == "connected") {
+						status = "Connected";
+					} else if (activeConnection.connectionState == "disconnected") {
+						status = "Offline";
+					}
+					available = false;
+				}
+			} else {
+				tooltip = "This editor either doesn't have a project open or has disabled incoming connections in its connections window.";
+			}
+			gui.connectButton.setDisabled(!available);
 			gui.statusLabel.setValue(status);
+			gui.statusLabel.gui.tooltip = tooltip;
 		}
 
 		for (const removeGuiId of removeGuiIds) {

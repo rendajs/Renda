@@ -82,7 +82,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				sendAllClientAddedMessages(activeConnections, createdConnection);
 			},
 			/**
-			 * @param {import("../EditorConnectionsManager.js").RemoteEditorMetaData} metaData
+			 * @param {import("../EditorConnectionsManager.js").RemoteEditorMetaData?} metaData
 			 */
 			projectMetaData(metaData) {
 				if (!createdConnection) return;
@@ -106,9 +106,9 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 	};
 }
 /** @typedef {ReturnType<getResponseHandlers>["iframeResponseHandlers"]} InternalDiscoveryWorkerToIframeHandlers */
-/** @typedef {TypedMessenger<import("./internalDiscoveryMain.js").InternalDiscoveryIframeWorkerHandlers, InternalDiscoveryWorkerToIframeHandlers>} WorkerToIframeTypedMessengerType */
+/** @typedef {TypedMessenger<import("./internalDiscoveryIframeMain.js").InternalDiscoveryIframeWorkerHandlers, InternalDiscoveryWorkerToIframeHandlers>} WorkerToIframeTypedMessengerType */
 /** @typedef {ReturnType<getResponseHandlers>["parentWindowResponseHandlers"]} InternalDiscoveryWorkerToParentHandlers */
-/** @typedef {TypedMessenger<import("../../../../../src/Inspector/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers, InternalDiscoveryWorkerToParentHandlers>} WorkerToParentTypedMessengerType */
+/** @typedef {TypedMessenger<import("../../../../../src/inspector/InternalDiscoveryManager.js").InternalDiscoveryParentWorkerHandlers, InternalDiscoveryWorkerToParentHandlers>} WorkerToParentTypedMessengerType */
 
 /**
  * @param {typeof globalThis} workerGlobal
