@@ -53,7 +53,7 @@ export async function installIfNotInstalled() {
 }
 
 /**
- * @param {Object} options
+ * @param {object} options
  * @param {boolean} options.headless
  * @param {string} options.executablePath
  */

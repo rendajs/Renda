@@ -1,7 +1,7 @@
 import {assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {parseExpression, verifyExpression} from "../../../../../editor/src/keyboardShortcuts/conditionExpressions.js";
 
-/** @type {Object.<string, string[] | boolean | null>} */
+/** @type {Object<string, string[] | boolean | null>} */
 const basicConditions = {
 	isTrue: true,
 	isFalse: false,

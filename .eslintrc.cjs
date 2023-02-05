@@ -202,25 +202,34 @@ module.exports = {
 		"yield-star-spacing": "error",
 		"no-inner-declarations": "off",
 
-		// TODO: enable these once "npm:eslint-plugin-jsdoc@39.3.6" is importable in Deno:
-
-		// "jsdoc/check-alignment": "error",
-		// "jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef"]}],
-		// "jsdoc/check-property-names": "error",
-		// "jsdoc/check-types": "error",
-		// "jsdoc/no-bad-blocks": "error",
-		// "jsdoc/no-defaults": "error",
-		// "jsdoc/no-multi-asterisks": "error",
-		// "jsdoc/require-asterisk-prefix": "error",
-		// "jsdoc/require-hyphen-before-param-description": [
-		// 	"error",
-		// 	"never",
-		// 	{tags: {"*": "never"}},
-		// ],
-		// "jsdoc/require-property": "error",
-		// "jsdoc/require-property-name": "error",
-		// "jsdoc/require-property-type": "error",
-		// "jsdoc/require-returns-type": "error",
+		"jsdoc/check-alignment": "error",
+		"jsdoc/check-indentation": ["error", {excludeTags: ["returns", "typedef", "param"]}],
+		"jsdoc/check-property-names": "error",
+		"jsdoc/check-types": "error",
+		"jsdoc/match-description": ["error", {
+			matchDescription:"^\\S",
+			message: "JSDoc comments may not start with an emtpy line.",
+		}],
+		"jsdoc/no-bad-blocks": "error",
+		"jsdoc/no-defaults": "error",
+		"jsdoc/no-multi-asterisks": "error",
+		"jsdoc/require-asterisk-prefix": "error",
+		"jsdoc/require-hyphen-before-param-description": [
+			"error",
+			"never",
+			{tags: {"*": "never"}},
+		],
+		"jsdoc/require-property": "error",
+		"jsdoc/require-property-name": "error",
+		"jsdoc/require-property-type": "error",
+		"jsdoc/require-returns-type": "error",
+		"jsdoc/tag-lines": ["error", "never", {
+			tags: {
+				typedef: {
+					lines: "any",
+				},
+			},
+		}],
 
 		"rulesdir/no-default-exports": "error",
 	},

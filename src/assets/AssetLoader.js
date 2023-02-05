@@ -49,7 +49,6 @@ export class AssetLoader {
 	// TODO: If an asset is already being loaded, resolve using the same promise
 	// should be searched as well
 	/**
-	 *
 	 * @param {import("../util/util.js").UuidString} uuid
 	 * @param {object} options
 	 * @param {unknown} [options.assetOpts]

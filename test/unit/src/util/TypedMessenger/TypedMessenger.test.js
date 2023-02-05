@@ -1,5 +1,7 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
+import {assertIsType} from "../../../../shared/typeAssertions.js";
 
 Deno.test({
 	name: "Basic request",
@@ -68,6 +70,64 @@ Deno.test({
 				}
 			}
 		});
+	},
+});
+
+Deno.test({
+	name: "Send using proxy",
+	async fn() {
+		// eslint-disable-next-line no-unused-vars
+		const requestHandlers = {
+			/**
+			 * @param {number} num1
+			 * @param {number} num2
+			 */
+			twoArgs: (num1, num2) => {},
+			noArgs: () => {},
+			returnsBool: () => true,
+		};
+
+		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
+		const messenger = new TypedMessenger();
+
+		const sendSpy = stub(messenger, "send", async () => {});
+
+		messenger.proxy.twoArgs(1, 2);
+		assertSpyCalls(sendSpy, 1);
+		assertSpyCall(sendSpy, 0, {
+			args: ["twoArgs", 1, 2],
+		});
+
+		messenger.proxy.noArgs();
+		assertSpyCalls(sendSpy, 2);
+		assertSpyCall(sendSpy, 1, {
+			args: ["noArgs"],
+		});
+
+		// Non existent functions can be called without any runtime errors,
+		// because a TypedMessenger is not aware of the existing response handlers on the receiving end.
+		// This is fine, these calls will simply resolve with undefined.
+		// We'll want to make sure TypeScript warns us about calls to non existent functions though.
+		// @ts-expect-error Verify that TypeScript emits an error when a non existent function is called
+		messenger.proxy.nonExistent();
+
+		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
+		messenger.proxy.noArgs("too", "many", "args");
+
+		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
+		messenger.proxy.twoArgs();
+
+		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
+		messenger.proxy.twoArgs(1, 2, 3);
+
+		const expectedBoolPromise = Promise.resolve(true);
+		const actualBoolPromise = messenger.proxy.returnsBool();
+
+		// Verify that the type is Promise<boolean> and nothing else
+		assertIsType(expectedBoolPromise, actualBoolPromise);
+
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", actualBoolPromise);
 	},
 });
 

@@ -95,6 +95,12 @@
  */
 
 /**
+ * @template {TypedMessengerSignatures} TReq
+ * @template {boolean} TRequireHandlerReturnObjects
+ * @typedef {{[x in keyof TReq]: (...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerProxy
+ */
+
+/**
  * @typedef RequestHandlerReturn
  * @property {any} returnValue
  * @property {Transferable[]} [transfer]
@@ -159,7 +165,7 @@ export class TypedMessenger {
 	 *
 	 * See these respective functions for usage examples.
 	 *
-	 * @param {Object} options
+	 * @param {object} options
 	 * @param {TRequireHandlerReturnObjects} [options.returnTransferSupport] Whether the
 	 * messenger has support for transferring objects from return values. When this is true,
 	 * the return values of your handlers are expected to be different:
@@ -189,6 +195,40 @@ export class TypedMessenger {
 
 		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
+
+		const proxy = new Proxy({
+		}, {
+			get: (target, prop, receiver) => {
+				if (typeof prop == "symbol") {
+					return undefined;
+				}
+				/**
+				 * @param {Parameters<TReq[string]>} args
+				 */
+				return async (...args) => {
+					return await this.send(prop, ...args);
+				};
+			},
+		});
+		/**
+		 * The proxy property allows you to call functions by their actual name,
+		 * rather than passing them as a string parameter.
+		 *
+		 * ## Example
+		 *
+		 * Instead of
+		 * ```js
+		 * const result = await messenger.send("myFunction", 1, 2, 3);
+		 * ```
+		 * You can do
+		 * ```js
+		 * const result = await messenger.proxy.myFunction(1, 2, 3);
+		 * ```
+		 *
+		 * The difference might seem subtle, but the biggest benefit is that you can jump
+		 * to the implementation of a function by using the 'go to definition' option in your IDE.
+		 */
+		this.proxy = /** @type {TypedMessengerProxy<TReq, TRequireHandlerReturnObjects>} */ (proxy);
 	}
 
 	/**
