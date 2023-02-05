@@ -208,6 +208,7 @@ export class TaskBundleAssets extends Task {
 		const result = {};
 		if (allowDiskWrites) {
 			this.#fileStreams.delete(fileStreamId);
+			result.touchedPaths = [config.outputPath];
 		} else {
 			if (!bundle) {
 				throw new Error("Assertion failed, bundle is null");

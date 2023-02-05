@@ -288,8 +288,20 @@ export class TaskManager {
 				if (!assetManager) {
 					throw new Error("Failed to register touched assets, asset manager is not available.");
 				}
-				for (const assetUuid of result.touchedAssets) {
-					const asset = await assetManager.getProjectAssetFromUuid(assetUuid);
+				const touchedAssets = [];
+				if (result.touchedAssets) {
+					for (const assetUuid of result.touchedAssets) {
+						const asset = await assetManager.getProjectAssetFromUuid(assetUuid);
+						touchedAssets.push(asset);
+					}
+				}
+				if (result.touchedPaths) {
+					for (const assetPath of result.touchedPaths) {
+						const asset = await assetManager.getProjectAssetFromPath(assetPath);
+						touchedAssets.push(asset);
+					}
+				}
+				for (const asset of touchedAssets) {
 					if (asset) {
 						this.#touchedTaskAssets.set(asset, options.taskAsset);
 					}
