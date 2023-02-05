@@ -9,11 +9,21 @@
  */
 
 import {setCwd} from "chdir-anywhere";
-import {DevServer} from "./DevServer.js";
-import {generateTypes} from "https://deno.land/x/deno_tsc_helper@v0.2.1/mod.js";
-import {dev as devModule} from "https://deno.land/x/dev@v0.2.0/mod.js";
 
+/**
+ * @param {object} opts
+ * @param {boolean} [opts.needsDependencies] Download dependencies required for running the editor locally.
+ * @param {boolean} [opts.needsDevDependencies] Download dependencies for working on the project,
+ * for now this is only TypeScript. This allows vscode the specific TypeScript version included in the project.
+ * @param {boolean} [opts.needsTypes] Downloads types required for type checking the project.
+ * @param {boolean} [opts.needsTypesSync] Normally the promise of this function doesn't resolve until all types
+ * have been downloaded. You can set this to false to download the types in the background, while still being able to
+ * wait for other tasks to finish.
+ * @param {boolean} [opts.suppressTypesLogging] Don't log downloaded type messages to the console.
+ * @param {boolean} [opts.serve] Start a local webserver.
+ */
 export async function dev({
+	needsDependencies = false,
 	needsDevDependencies = false,
 	needsTypes = false,
 	needsTypesSync = true,
@@ -24,6 +34,11 @@ export async function dev({
 	Deno.chdir("..");
 
 	if (needsTypes) {
+		// For now we have to keep the import specifier in a separate string in order to
+		// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
+		const generateTypesSrc = "https://deno.land/x/deno_tsc_helper@v0.2.1/mod.js";
+		const {generateTypes} = await import(generateTypesSrc);
+
 		const promise = generateTypes({
 			outputDir: ".denoTypes",
 			unstable: true,
@@ -59,39 +74,50 @@ export async function dev({
 		}
 	}
 
-	await devModule({
-		actions: [
-			// required for during development, can be skipped with ci
-			{
-				type: "downloadNpmPackage",
-				package: "typescript@4.8.3",
-				ignore: !needsDevDependencies,
-			},
+	if (needsDependencies || needsDevDependencies) {
+		// For now we have to keep the import specifier in a separate string in order to
+		// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
+		const devSrc = "https://deno.land/x/dev@v0.2.0/mod.js";
+		const {dev} = await import(devSrc);
 
-			// editor dependencies
-			{
-				type: "downloadNpmPackage",
-				package: "rollup@2.60.0",
-			},
-			{
-				type: "downloadNpmPackage",
-				package: "rollup-plugin-resolve-url-objects@0.0.4",
-				downloadDependencies: true,
-			},
-			{
-				type: "esmify",
-				entryPointPath: "npm_packages/rollup/2.60.0/dist/rollup.browser.js",
-				outputPath: "editor/deps/rollup.browser.js",
-			},
-			{
-				type: "esmify",
-				entryPointPath: "npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
-				outputPath: "editor/deps/rollup-plugin-resolve-url-objects.js",
-			},
-		],
-	});
+		await dev({
+			actions: [
+				// required for during development, can be skipped with ci
+				{
+					type: "downloadNpmPackage",
+					package: "typescript@4.8.3",
+					ignore: !needsDevDependencies,
+				},
+
+				// editor dependencies
+				{
+					type: "downloadNpmPackage",
+					package: "rollup@2.60.0",
+				},
+				{
+					type: "downloadNpmPackage",
+					package: "rollup-plugin-resolve-url-objects@0.0.4",
+					downloadDependencies: true,
+				},
+				{
+					type: "esmify",
+					entryPointPath: "npm_packages/rollup/2.60.0/dist/rollup.browser.js",
+					outputPath: "editor/deps/rollup.browser.js",
+				},
+				{
+					type: "esmify",
+					entryPointPath: "npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
+					outputPath: "editor/deps/rollup-plugin-resolve-url-objects.js",
+				},
+			],
+		});
+	}
 
 	if (serve) {
+		// For now we have to keep the import specifier in a separate string in order to
+		// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
+		const devServerSrc = "./DevServer.js";
+		const {DevServer} = await import(devServerSrc);
 		const server = new DevServer({
 			port: 8080,
 			serverName: "development server",
@@ -106,6 +132,7 @@ if (import.meta.main) {
 		needsTypesSync: false,
 		suppressTypesLogging: true,
 		needsDevDependencies: true,
+		needsDependencies: true,
 		serve: true,
 	});
 }

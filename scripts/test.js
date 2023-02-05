@@ -2,9 +2,7 @@
 
 import {join} from "std/path/mod.ts";
 import {setCwd} from "chdir-anywhere";
-import {DevServer} from "./DevServer.js";
 import {dev} from "./dev.js";
-import {PUPPETEER_NO_HEADLESS_ARG, SEPARATE_BROWSER_PROCESSES_ARG, installIfNotInstalled, launch} from "../test/e2e/shared/browser.js";
 
 await dev();
 
@@ -37,17 +35,15 @@ const SCRIPT_ARGS = [
 
 /**
  * Args that are passed to the tests themselves.
+ * @type {string[]}
  */
-const APPLICATION_ARGS = [
-	PUPPETEER_NO_HEADLESS_ARG,
-	SEPARATE_BROWSER_PROCESSES_ARG,
-];
+const applicationArgs = [];
 
 /**
  * Arguments passed in from the command line that should be passed along to the
  * deno test command.
  */
-const userProvidedArgs = Deno.args.filter(arg => !SCRIPT_ARGS.includes(arg) && !APPLICATION_ARGS.includes(arg));
+let userProvidedArgs = Deno.args.filter(arg => !SCRIPT_ARGS.includes(arg));
 
 /**
  * If not null, only tests from a specific path should be run.
@@ -62,14 +58,32 @@ if (userProvidedArgs.length > 0 && !userProvidedArgs[0].startsWith("--")) {
 const needsUnitTests = !filteredTests || filteredTests.startsWith("test/unit");
 const needsE2eTests = !filteredTests || filteredTests.startsWith("test/e2e");
 
+let browserMod;
 /** Whether to start a new browser process for every e2e test */
-const separateBrowserProcesses = Deno.args.includes(SEPARATE_BROWSER_PROCESSES_ARG);
+let separateBrowserProcesses = false;
+if (needsE2eTests) {
+	// For now we have to keep the import specifier in a separate string in order to
+	// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
+	const browserScript = "../test/e2e/shared/browser.js";
+	browserMod = await import(browserScript);
+	const {PUPPETEER_NO_HEADLESS_ARG, SEPARATE_BROWSER_PROCESSES_ARG} = browserMod;
+	applicationArgs.push(PUPPETEER_NO_HEADLESS_ARG);
+	applicationArgs.push(SEPARATE_BROWSER_PROCESSES_ARG);
+	separateBrowserProcesses = Deno.args.includes(SEPARATE_BROWSER_PROCESSES_ARG);
+}
+
+userProvidedArgs = userProvidedArgs.filter(arg => !applicationArgs.includes(arg));
 
 let testServer = null;
 /** @type {string[]} */
 let testServerAddrs = [];
 let browser = null;
 if (needsE2eTests) {
+	// For now we have to keep the import specifier in a separate string in order to
+	// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
+	const devServerSrc = "./DevServer.js";
+	const {DevServer} = await import(devServerSrc);
+
 	// Start test server
 	testServer = new DevServer({
 		port: 0,
@@ -86,6 +100,11 @@ if (needsE2eTests) {
 	if (Deno.args.includes("--no-headless") || Deno.args.includes("--inspect") || Deno.args.includes("--inspect-brk")) {
 		headless = false;
 	}
+
+	if (!browserMod) {
+		throw new Error("Assertion failed, /e2e/shared/browser.js module not loaded");
+	}
+	const {installIfNotInstalled, launch} = browserMod;
 
 	const executablePath = await installIfNotInstalled();
 
@@ -115,10 +134,10 @@ if (needsUnitTests) {
 		denoTestArgs.push("--allow-write");
 	}
 	/** @type {Set<string>} */
-	const applicationArgs = new Set();
+	const applicationCmdArgs = new Set();
 	for (const arg of Deno.args) {
-		if (APPLICATION_ARGS.includes(arg)) {
-			applicationArgs.add(arg);
+		if (applicationArgs.includes(arg)) {
+			applicationCmdArgs.add(arg);
 		}
 	}
 	if (needsCoverage) {
@@ -126,11 +145,11 @@ if (needsUnitTests) {
 		await removeMaybeDirectory(FAKE_IMPORTS_COVERAGE_DIR);
 		denoTestArgs.push(`--coverage=${DENO_COVERAGE_DIR}`);
 		const coverageMapPath = join(Deno.cwd(), FAKE_IMPORTS_COVERAGE_DIR);
-		applicationArgs.add(`--fi-coverage-map=${coverageMapPath}`);
+		applicationCmdArgs.add(`--fi-coverage-map=${coverageMapPath}`);
 	}
 	denoTestArgs.push(filteredTests || "test/unit/");
 	denoTestArgs.push(...userProvidedArgs);
-	const cmd = [...denoTestArgs, "--", ...applicationArgs];
+	const cmd = [...denoTestArgs, "--", ...applicationCmdArgs];
 	testCommands.push({cmd});
 }
 
@@ -138,20 +157,20 @@ if (needsUnitTests) {
 if (needsE2eTests) {
 	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net"];
 	/** @type {Set<string>} */
-	const applicationArgs = new Set();
+	const applicationCmdArgs = new Set();
 	for (const arg of Deno.args) {
-		if (APPLICATION_ARGS.includes(arg)) {
-			applicationArgs.add(arg);
+		if (applicationArgs.includes(arg)) {
+			applicationCmdArgs.add(arg);
 		}
 	}
 	if (browser) {
-		applicationArgs.add(`--puppeteer-ws-endpoint=${browser.wsEndpoint()}`);
+		applicationCmdArgs.add(`--puppeteer-ws-endpoint=${browser.wsEndpoint()}`);
 	}
 	const addr = testServerAddrs[0];
-	applicationArgs.add(`--test-server-addr=${addr}`);
+	applicationCmdArgs.add(`--test-server-addr=${addr}`);
 	denoTestArgs.push(filteredTests || "test/e2e/");
 	denoTestArgs.push(...userProvidedArgs);
-	const cmd = [...denoTestArgs, "--", ...applicationArgs];
+	const cmd = [...denoTestArgs, "--", ...applicationCmdArgs];
 	testCommands.push({cmd});
 }
 
