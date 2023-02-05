@@ -205,7 +205,7 @@ export class Vec3 {
 
 	/**
 	 * Multiplies each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector with the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -261,7 +261,7 @@ export class Vec3 {
 
 	/**
 	 * Divides each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector of the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -328,7 +328,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Adds `vecA` to `vecB` and returns a copy of the result.
+	 * Adds `vecA` to `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -378,7 +378,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 * Subtracts `vecA` from `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -455,11 +455,60 @@ export class Vec3 {
 	 * ```
 	 * @param {Vec3} otherVector
 	 */
-	shortestAngleTo(otherVector) {
+	angleTo(otherVector) {
 		const dot = this.dot(otherVector);
 		const denominator = this.magnitude * otherVector.magnitude;
 		if (denominator == 0) return 0;
 		return Math.acos(clamp(dot / denominator, -1, 1));
+	}
+
+	/**
+	 * Similar to {@linkcode angleTo} but performed on a 2d plane. This returns a negative value
+	 * when `this` needs to be rotated counterclockwise in order to reach `otherVector`.
+	 * Unlike {@linkcode angleTo}, in this case the order of the two vectors
+	 * does matter. If you switch the order of the two vectors, the result will be the
+	 * same but multiplied by -1.
+	 *
+	 * For example:
+	 * ```none
+	 *    ^ this
+	 *    |
+	 *    |
+	 *    o 170º = 2.9 pi
+	 *     \
+	 *      \
+	 *       V otherVector
+	 * ```
+	 *
+	 * but...
+	 * ```none
+	 *                  ^ this
+	 *                  |
+	 *                  |
+	 *  -170º = -2.9 pi o
+	 *                 /
+	 *                /
+	 *               V otherVector
+	 * ```
+	 *
+	 * A second `measureAxis` needs to be provided in order for the operation to
+	 * know which axis you are trying to measure the angle around.
+	 * Note that the measured angle is not the same size as with {@linkcode angleTo}.
+	 * Instead, the two vectors are projected on a plane for which your `measureAxis` is the normal.
+	 * That is, the two vectors are measured in 2d as seen from the `measureAxis`. So the resulting angle
+	 * might actually be shorter compared to {@linkcode angleTo}.
+	 *
+	 * @param {Vec3} otherVector
+	 * @param {Vec3} measureAxis
+	 */
+	clockwiseAngleTo(otherVector, measureAxis) {
+		const projectedThis = new Vec3(this).projectOnPlane(measureAxis);
+		const projectedOther = new Vec3(otherVector).projectOnPlane(measureAxis);
+		let angle = projectedThis.angleTo(projectedOther);
+		const cross = Vec3.cross(this, otherVector);
+		const dot = measureAxis.dot(cross);
+		if (dot < 0) angle *= -1;
+		return angle;
 	}
 
 	/**
@@ -510,7 +559,7 @@ export class Vec3 {
 	}
 
 	/**
-	 * Computes the cross product between two vectors.
+	 * Computes the cross product between this and another vector and changes the value of this vector.
 	 *
 	 * [Cross product visualisation](https://www.geogebra.org/m/psMTGDgc)
 	 *
@@ -536,7 +585,8 @@ export class Vec3 {
 	}
 
 	/**
-	 * Performs the cross product between two vectors and returns a copy of the result.
+	 * Performs the cross product between two vectors without modifying them and returns a new vector with the result.
+	 * See {@linkcode Vec3.prototype.cross}.
 	 *
 	 * @param {Vec3ParameterSingle} vecA
 	 * @param {Vec3ParameterSingle} vecB
@@ -579,6 +629,17 @@ export class Vec3 {
 	}
 
 	/**
+	 * Projects `vecA` onto `vecB` without modifying and returns a new vector with the result.
+	 * See {@linkcode projectOnVector} for more info.
+	 *
+	 * @param {Vec3ParameterSingle} vecA
+	 * @param {Vec3ParameterSingle} vecB
+	 */
+	static projectVectors(vecA, vecB) {
+		return new Vec3(vecA).projectOnVector(vecB);
+	}
+
+	/**
 	 * Vector rejection is similar to projection, but it returns a vector
 	 * perpendicular to the projection.
 	 * ```none
@@ -597,6 +658,16 @@ export class Vec3 {
 	rejectFromVector(...v) {
 		const projection = this.clone().projectOnVector(...v);
 		this.sub(projection);
+		return this;
+	}
+
+	/**
+	 * @param  {Vec3Parameters} planeNormal
+	 */
+	projectOnPlane(...planeNormal) {
+		const normal = new Vec3(...planeNormal);
+		const projectedNormal = Vec3.projectVectors(this, normal);
+		this.sub(projectedNormal);
 		return this;
 	}
 

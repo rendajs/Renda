@@ -661,7 +661,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "shortestAngleTo()",
+	name: "angleTo()",
 	fn() {
 		/** @type {[Vec3, Vec3, number][]} */
 		const tests = [
@@ -682,8 +682,39 @@ Deno.test({
 		];
 
 		for (const [a, b, expected] of tests) {
-			const actual = a.shortestAngleTo(b);
-			assertAlmostEquals(actual, expected, 0.00001, `${a} shortestAngleTo ${b} should be ${expected} but was ${actual}`);
+			const actual = a.angleTo(b);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} angleTo ${b} should be ${expected} but was ${actual}`);
+		}
+	},
+});
+
+Deno.test({
+	name: "clockwiseAngleTo()",
+	fn() {
+		/** @type {[Vec3, Vec3, Vec3, number][]} */
+		const tests = [
+			[new Vec3(1, 0), new Vec3(1, 0), new Vec3(0, 0, 1), 0],
+			[new Vec3(1, 0), new Vec3(0, 1), new Vec3(0, 0, 1), Math.PI * 0.5],
+			[new Vec3(0, 1), new Vec3(1, 0), new Vec3(0, 0, 1), Math.PI * -0.5],
+			[new Vec3(0, 1), new Vec3(-1, 0), new Vec3(0, 0, 1), Math.PI * 0.5],
+			[new Vec3(1, 0), new Vec3(-1, 0), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(-1, 0), new Vec3(1, 0), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(0, -1), new Vec3(0, 1), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(0, 1), new Vec3(0, -1), new Vec3(0, 0, 1), Math.PI],
+			[new Vec3(123, 0), new Vec3(0, 456), new Vec3(0, 0, 1), Math.PI * 0.5],
+			[new Vec3(0, 123), new Vec3(456, 0), new Vec3(0, 0, 1), Math.PI * -0.5],
+			[new Vec3(0, 123), new Vec3(456, 0), new Vec3(0, 0, -1), Math.PI * 0.5],
+			[new Vec3(10, 0), new Vec3(5, 5), new Vec3(0, 0, 1), Math.PI * 0.25],
+			[new Vec3(5, 5), new Vec3(10, 0), new Vec3(0, 0, 1), Math.PI * -0.25],
+			[new Vec3(0, 0), new Vec3(0, 0), new Vec3(0, 0, 1), 0],
+			[new Vec3(0, 0), new Vec3(1, 0), new Vec3(0, 0, 1), 0],
+			[new Vec3(123, 456), new Vec3(123, 456), new Vec3(0, 0, 1), 0],
+			[new Vec3(0.08945095445971063, -0.08240613339399705), new Vec3(0.08945095445971063, -0.08240613339399705), new Vec3(0, 0, 1), 0],
+		];
+
+		for (const [a, b, measureAxis, expected] of tests) {
+			const actual = a.clockwiseAngleTo(b, measureAxis);
+			assertAlmostEquals(actual, expected, 0.00001, `${a} clockwiseAngleTo ${b} with axis ${measureAxis} should be ${expected} but was ${actual}`);
 		}
 	},
 });
@@ -788,14 +819,28 @@ Deno.test({
 		for (const {a, b, result} of tests) {
 			const vec = new Vec3(a);
 			vec.rejectFromVector(b);
+			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
 
-			const rounded = vec.toArray();
-			for (let i = 0; i < rounded.length; i++) {
-				rounded[i] = Math.round(rounded[i] * 100) / 100;
-				// if the value is -0, convert it to 0
-				if (rounded[i] == 0) rounded[i] = 0;
-			}
-			assertEquals(rounded, result, `${a} projected on ${b} should be ${result} but was ${rounded}`);
+Deno.test({
+	name: "projectOnPlane()",
+	fn() {
+		const tests = [
+			{a: [2, 2, 0], b: [0, 0, 1], result: [2, 2, 0]},
+			{a: [2, 2, 2], b: [0, 0, 1], result: [2, 2, 0]},
+			{a: [2, 2, 0], b: [0, 0, -1], result: [2, 2, 0]},
+			{a: [2, 2, 2], b: [0, 0, -1], result: [2, 2, 0]},
+			{a: [1, 2, 3], b: [0, 1, 0], result: [1, 0, 3]},
+			{a: [1, 2, 3], b: [1, 1, 1], result: [-1, 0, 1]},
+			{a: [1, 2, 3], b: [1, 0, 1], result: [-1, 2, 1]},
+		];
+
+		for (const {a, b, result} of tests) {
+			const vec = new Vec3(a);
+			vec.projectOnPlane(b);
+			assertVecAlmostEquals(vec, result);
 		}
 	},
 });

@@ -181,7 +181,7 @@ export class Vec4 {
 
 	/**
 	 * Multiplies each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector with the result.
 	 *
 	 * @param {Vec4ParameterSingle} vecA
 	 * @param {Vec4ParameterSingle} vecB
@@ -239,7 +239,7 @@ export class Vec4 {
 
 	/**
 	 * Divides each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector of the result.
 	 *
 	 * @param {Vec4ParameterSingle} vecA
 	 * @param {Vec4ParameterSingle} vecB
@@ -310,7 +310,7 @@ export class Vec4 {
 	}
 
 	/**
-	 * Adds `vecA` to `vecB` and returns a copy of the result.
+	 * Adds `vecA` to `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec4ParameterSingle} vecA
 	 * @param {Vec4ParameterSingle} vecB
@@ -362,7 +362,7 @@ export class Vec4 {
 	}
 
 	/**
-	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 * Subtracts `vecA` from `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec4ParameterSingle} vecA
 	 * @param {Vec4ParameterSingle} vecB

@@ -138,7 +138,7 @@ export class Vec2 {
 
 	/**
 	 * Multiplies each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector with the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB
@@ -188,7 +188,7 @@ export class Vec2 {
 
 	/**
 	 * Divides each component of `vecA` by its respective component from `vecB`
-	 * and returns a copy of the result.
+	 * without modifying the vectors and returns a new vector of the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB
@@ -238,7 +238,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Adds `vecA` to `vecB` and returns a copy of the result.
+	 * Adds `vecA` to `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB
@@ -284,7 +284,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Subtracts `vecB` from `vecA` and returns a copy of the result.
+	 * Subtracts `vecA` from `vecB` without modifying them and returns a new vector with the result.
 	 *
 	 * @param {Vec2ParameterSingle} vecA
 	 * @param {Vec2ParameterSingle} vecB
@@ -359,7 +359,7 @@ export class Vec2 {
 	 * ```
 	 * @param {Vec2} otherVector
 	 */
-	shortestAngleTo(otherVector) {
+	angleTo(otherVector) {
 		const dot = this.dot(otherVector);
 		const denominator = this.magnitude * otherVector.magnitude;
 		if (denominator == 0) return 0;
@@ -367,9 +367,9 @@ export class Vec2 {
 	}
 
 	/**
-	 * Similar to {@linkcode shortestAngleTo} except returns a negative value
+	 * Similar to {@linkcode angleTo} except returns a negative value
 	 * when `this` needs to be rotated counterclockwise in order to reach `otherVector`.
-	 * Unlike {@linkcode shortestAngleTo}, in this case the order of the two vectors
+	 * Unlike {@linkcode angleTo}, in this case the order of the two vectors
 	 * does matter. If you switch the order of the two vectors, the result will be the
 	 * same but multiplied by -1.
 	 *
@@ -398,7 +398,7 @@ export class Vec2 {
 	 * @param {Vec2} otherVector
 	 */
 	clockwiseAngleTo(otherVector) {
-		let angle = this.shortestAngleTo(otherVector);
+		let angle = this.angleTo(otherVector);
 		const cross = this.cross(otherVector);
 		if (cross < 0) angle *= -1;
 		return angle;
@@ -452,7 +452,7 @@ export class Vec2 {
 	}
 
 	/**
-	 * Computes the cross product between two vectors.
+	 * Computes the cross product between this and another vector and changes the value of this vector.
 	 *
 	 * [Cross product visualisation](https://www.geogebra.org/m/psMTGDgc) (in 3d)
 	 *
