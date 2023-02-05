@@ -16,6 +16,8 @@
  * flag is set to true.
  * @property {import("../../../../src/mod.js").UuidString[]} [touchedAssets] A list of assets that this task touched, or
  * might touch when the task is run a second time. This is used by other tasks for determining if this task needs to run before them.
+ * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath[]} [touchedPaths] A list of paths that this task touched, or
+ * might touch when the task is run a second time. This is used by other tasks for determining if this task needs to run before them.
  * @property {TCustomData} [customData] Custom data that a task might return, this is only useful when a task is run from a script.
  */
 

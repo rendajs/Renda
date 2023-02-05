@@ -156,7 +156,7 @@ Deno.test({
 	async fn() {
 		const {task, fileSystem, cleanup} = await basicSetup();
 		try {
-			await task.runTask({
+			const result = await task.runTask({
 				...basicRunTaskOptions,
 				config: {
 					assets: [],
@@ -166,6 +166,9 @@ Deno.test({
 				},
 			});
 
+			assertEquals(result, {
+				touchedPaths: [["out.rbundle"]],
+			});
 			const outFile = await fileSystem.readFile(["out.rbundle"]);
 			const outBuffer = await outFile.arrayBuffer();
 			assertEquals(outBuffer.byteLength, 4);
@@ -180,8 +183,11 @@ Deno.test({
 	async fn() {
 		const {task, fileSystem, cleanup} = await basicSetup();
 		try {
-			await task.runTask(basicRunTaskOptions);
+			const result = await task.runTask(basicRunTaskOptions);
 
+			assertEquals(result, {
+				touchedPaths: [["out.rbundle"]],
+			});
 			await basicFileSystemBundleChecks({
 				fileSystem,
 				bundleChecks: {
@@ -325,6 +331,7 @@ Deno.test({
 				},
 				allowDiskWrites: false,
 			});
+			assertEquals(result.touchedAssets, undefined);
 			assertExists(result.writeAssets);
 			assertEquals(result.writeAssets.length, 1);
 			assertEquals(result.writeAssets[0].path, ["out.rbundle"]);
