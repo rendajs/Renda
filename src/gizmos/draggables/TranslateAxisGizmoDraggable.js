@@ -70,8 +70,7 @@ export class TranslateAxisGizmoDraggable extends GizmoDraggable {
 		 * A direction vector pointing in the direction in which the
 		 * draggable can be dragged.
 		 */
-		let axisWorld = this.axis.clone();
-		axisWorld = this.entity.worldRot.rotateVector(axisWorld);
+		const axisWorld = this.axis.clone().rotate(this.entity.worldRot);
 
 		// First we create two points on the axis line that intersects with the
 		// point where the user started dragging.

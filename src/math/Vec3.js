@@ -33,34 +33,42 @@ export class Vec3 {
 		this.set(...args);
 	}
 
+	/** Returns a new vector pointing to the left (-1, 0, 0) */
 	static get left() {
 		return new Vec3(-1, 0, 0);
 	}
 
+	/** Returns a new vector pointing down (0, -1, 0) */
 	static get down() {
 		return new Vec3(0, -1, 0);
 	}
 
+	/** Returns a new vector pointing backwards (0, 0, -1) */
 	static get back() {
 		return new Vec3(0, 0, -1);
 	}
 
+	/** Returns a new vector pointing to the right (1, 0, 0) */
 	static get right() {
 		return new Vec3(1, 0, 0);
 	}
 
+	/** Returns a new vector pointing up (0, 1, 0) */
 	static get up() {
 		return new Vec3(0, 1, 0);
 	}
 
+	/** Returns a new vector pointing forwards (0, 0, 1) */
 	static get forward() {
 		return new Vec3(0, 0, 1);
 	}
 
+	/** Returns a new vector with all components set to one (1, 1, 1) */
 	static get one() {
 		return new Vec3(1, 1, 1);
 	}
 
+	/** Returns a new vector with all components set to zero (0, 0, 0). This is the same as `new Vec3()`. */
 	static get zero() {
 		return new Vec3();
 	}

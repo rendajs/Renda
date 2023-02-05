@@ -8,11 +8,11 @@ Deno.test({
 		const quat = new Quat();
 
 		quat.rotateAxisAngle(0, 1, 0, Math.PI * 0.5);
-		const result1 = quat.rotateVector(Vec3.right);
+		const result1 = Vec3.right.rotate(quat);
 		assertVecAlmostEquals(result1, Vec3.back);
 
 		quat.rotateAxisAngle(1, 0, 0, -Math.PI * 0.5);
-		const result2 = quat.rotateVector(Vec3.right);
+		const result2 = Vec3.right.rotate(quat);
 		assertVecAlmostEquals(result2, Vec3.down);
 	},
 });
@@ -21,7 +21,7 @@ Deno.test({
 	name: "toMat4()",
 	fn() {
 		const quat = Quat.fromAxisAngle(0, 1, 0, Math.PI * 0.5);
-		const v1 = quat.rotateVector(0, 0, 1);
+		const v1 = Vec3.forward.rotate(quat);
 
 		const mat = quat.toMat4();
 		const v2 = new Vec3(0, 0, 1).multiply(mat);

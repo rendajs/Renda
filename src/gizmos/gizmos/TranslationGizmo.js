@@ -96,10 +96,9 @@ export class TranslationGizmo extends Gizmo {
 		this.#centerDraggable.onDrag(e => {
 			this.pos.add(e.worldDelta);
 			this.gizmoNeedsRender();
-			let localDelta = e.worldDelta.clone();
 			const {rot} = this.entity.localMatrix.decompose();
 			rot.invert();
-			localDelta = rot.rotateVector(localDelta);
+			const localDelta = e.worldDelta.clone().rotate(rot);
 			this.#onDragCbs.forEach(cb => cb({
 				worldDelta: e.worldDelta,
 				localDelta,
