@@ -1,5 +1,6 @@
 import {clamp} from "../util/util.js";
 import {Mat4} from "./Mat4.js";
+import {Quat} from "./Quat.js";
 import {Vec2} from "./Vec2.js";
 import {Vec4} from "./Vec4.js";
 
@@ -668,6 +669,21 @@ export class Vec3 {
 		const normal = new Vec3(...planeNormal);
 		const projectedNormal = Vec3.projectVectors(this, normal);
 		this.sub(projectedNormal);
+		return this;
+	}
+
+	/**
+	 * Rotates this vector by a quaternion.
+	 * @param {import("./Quat.js").QuatParameters} args
+	 */
+	rotate(...args) {
+		// TODO: optimise: gamedev.stackexchange.com/a/50545/87477
+		const quat = new Quat(...args);
+		const result = new Quat(this.x, this.y, this.z, 1);
+		const conjugate = new Quat(quat).invert();
+		result.preMultiply(quat);
+		result.multiply(conjugate);
+		this.set(result.x, result.y, result.z);
 		return this;
 	}
 

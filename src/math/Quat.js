@@ -303,24 +303,6 @@ export class Quat {
 		return this;
 	}
 
-	/**
-	 * @param  {import("./Vec3.js").Vec3Parameters} args
-	 */
-	rotateVector(...args) {
-		// TODO: optimise: gamedev.stackexchange.com/a/50545/87477
-		const vec = new Vec3(...args);
-		const result = new Quat(vec.x, vec.y, vec.z, 1);
-		const conjugate = new Quat(this).invert();
-		result.preMultiply(this);
-		result.multiply(conjugate);
-		const newVec = new Vec3(
-			result.x,
-			result.y,
-			result.z
-		);
-		return newVec;
-	}
-
 	toArray() {
 		return [this.x, this.y, this.z, this.w];
 	}

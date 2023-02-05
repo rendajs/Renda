@@ -1,5 +1,5 @@
 import {assertEquals, assertNotStrictEquals} from "std/testing/asserts.ts";
-import {Mat4, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {Mat4, Quat, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
@@ -841,6 +841,27 @@ Deno.test({
 			const vec = new Vec3(a);
 			vec.projectOnPlane(b);
 			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
+
+Deno.test({
+	name: "rotate()",
+	fn() {
+		/** @type {[number[], Quat, number[]][]} */
+		const tests = [
+			[[1, 0, 0], new Quat(), [1, 0, 0]],
+			[[1, 0, 0], Quat.fromAxisAngle(0, 0, 1, Math.PI * 0.5), [0, 1, 0]],
+			[[5, 0, 0], Quat.fromAxisAngle(0, 0, 1, Math.PI * 0.5), [0, 5, 0]],
+			[[5, 3, -1], Quat.fromAxisAngle(0, 1, 0, Math.PI), [-5, 3, 1]],
+			[[5, 3, -1], Quat.fromAxisAngle(0, 1, 0, -Math.PI), [-5, 3, 1]],
+			[[5, 3, -1], Quat.fromAxisAngle(0, 1, 0, Math.PI * 0.5), [-1, 3, -5]],
+		];
+
+		for (const [vec, quat, expected] of tests) {
+			const v = new Vec3(vec);
+			const rotated = v.rotate(quat);
+			assertVecAlmostEquals(rotated, expected);
 		}
 	},
 });
