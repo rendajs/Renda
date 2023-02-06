@@ -1,5 +1,6 @@
 import {clamp} from "../util/util.js";
 import {Mat4} from "./Mat4.js";
+import {Quat} from "./Quat.js";
 import {Vec2} from "./Vec2.js";
 import {Vec4} from "./Vec4.js";
 
@@ -32,34 +33,42 @@ export class Vec3 {
 		this.set(...args);
 	}
 
+	/** Returns a new vector pointing to the left (-1, 0, 0) */
 	static get left() {
 		return new Vec3(-1, 0, 0);
 	}
 
+	/** Returns a new vector pointing down (0, -1, 0) */
 	static get down() {
 		return new Vec3(0, -1, 0);
 	}
 
+	/** Returns a new vector pointing backwards (0, 0, -1) */
 	static get back() {
 		return new Vec3(0, 0, -1);
 	}
 
+	/** Returns a new vector pointing to the right (1, 0, 0) */
 	static get right() {
 		return new Vec3(1, 0, 0);
 	}
 
+	/** Returns a new vector pointing up (0, 1, 0) */
 	static get up() {
 		return new Vec3(0, 1, 0);
 	}
 
+	/** Returns a new vector pointing forwards (0, 0, 1) */
 	static get forward() {
 		return new Vec3(0, 0, 1);
 	}
 
+	/** Returns a new vector with all components set to one (1, 1, 1) */
 	static get one() {
 		return new Vec3(1, 1, 1);
 	}
 
+	/** Returns a new vector with all components set to zero (0, 0, 0). This is the same as `new Vec3()`. */
 	static get zero() {
 		return new Vec3();
 	}
@@ -668,6 +677,21 @@ export class Vec3 {
 		const normal = new Vec3(...planeNormal);
 		const projectedNormal = Vec3.projectVectors(this, normal);
 		this.sub(projectedNormal);
+		return this;
+	}
+
+	/**
+	 * Rotates this vector by a quaternion.
+	 * @param {import("./Quat.js").QuatParameters} args
+	 */
+	rotate(...args) {
+		// TODO: optimise: gamedev.stackexchange.com/a/50545/87477
+		const quat = new Quat(...args);
+		const result = new Quat(this.x, this.y, this.z, 1);
+		const conjugate = new Quat(quat).invert();
+		result.preMultiply(quat);
+		result.multiply(conjugate);
+		this.set(result.x, result.y, result.z);
 		return this;
 	}
 

@@ -1,5 +1,5 @@
 import {assertEquals, assertNotStrictEquals} from "std/testing/asserts.ts";
-import {Mat4, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
+import {Mat4, Quat, Vec2, Vec3, Vec4} from "../../../../src/mod.js";
 import {assertAlmostEquals, assertVecAlmostEquals} from "../../shared/asserts.js";
 
 Deno.test({
@@ -713,8 +713,12 @@ Deno.test({
 		];
 
 		for (const [a, b, measureAxis, expected] of tests) {
+			const oldA = a.clone();
+			const oldB = b.clone();
 			const actual = a.clockwiseAngleTo(b, measureAxis);
 			assertAlmostEquals(actual, expected, 0.00001, `${a} clockwiseAngleTo ${b} with axis ${measureAxis} should be ${expected} but was ${actual}`);
+			assertVecAlmostEquals(a, oldA, 0.00001, "Expected vector a to not change");
+			assertVecAlmostEquals(b, oldB, 0.00001, "Expected vector a to not change");
 		}
 	},
 });
@@ -841,6 +845,27 @@ Deno.test({
 			const vec = new Vec3(a);
 			vec.projectOnPlane(b);
 			assertVecAlmostEquals(vec, result);
+		}
+	},
+});
+
+Deno.test({
+	name: "rotate()",
+	fn() {
+		/** @type {[number[], Quat, number[]][]} */
+		const tests = [
+			[[1, 0, 0], new Quat(), [1, 0, 0]],
+			[[1, 0, 0], Quat.fromAxisAngle(0, 0, 1, Math.PI * 0.5), [0, 1, 0]],
+			[[5, 0, 0], Quat.fromAxisAngle(0, 0, 1, Math.PI * 0.5), [0, 5, 0]],
+			[[5, 3, -1], Quat.fromAxisAngle(0, 1, 0, Math.PI), [-5, 3, 1]],
+			[[5, 3, -1], Quat.fromAxisAngle(0, 1, 0, -Math.PI), [-5, 3, 1]],
+			[[5, 3, -1], Quat.fromAxisAngle(0, 1, 0, Math.PI * 0.5), [-1, 3, -5]],
+		];
+
+		for (const [vec, quat, expected] of tests) {
+			const v = new Vec3(vec);
+			const rotated = v.rotate(quat);
+			assertVecAlmostEquals(rotated, expected);
 		}
 	},
 });
@@ -996,6 +1021,11 @@ Deno.test({
 		expectedResult.push(0x111);
 		expectedResult.push(0x111);
 
+		Vec3.projectVectors(vec, vec);
+		// static projectVectors() shouldn't fire callbacks
+		fireResults.push(-1);
+		expectedResult.push(-1);
+
 		vec.set(1, 2, 3);
 		vec.rejectFromVector(3, 2, 1);
 		expectedResult.push(0x111);
@@ -1005,6 +1035,19 @@ Deno.test({
 		// static cross() shouldn't fire the callback
 		fireResults.push(-1);
 		expectedResult.push(-1);
+
+		vec.projectOnPlane(0, 1, 0);
+		expectedResult.push(0x010);
+
+		vec.projectOnPlane(1, 1, 1);
+		expectedResult.push(0x111);
+
+		vec.set(0, 0, 1);
+		expectedResult.push(0x111);
+
+		const rotation = Quat.fromAxisAngle(Vec3.up, Math.PI * 0.5);
+		vec.rotate(rotation);
+		expectedResult.push(0x101);
 
 		assertEquals(fireResults, expectedResult);
 	},

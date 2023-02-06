@@ -58,11 +58,11 @@ export class RotateAxisGizmoDraggable extends GizmoDraggable {
 		this._prevAngle.set(angle);
 
 		const worldRot = this.entity.worldRot.clone();
-		const worldAxis = worldRot.rotateVector(this.axis);
+		const worldAxis = new Vec3(this.axis).rotate(worldRot);
 
 		const camWorldRot = eventData.camera.entity?.worldRot;
 		if (camWorldRot) {
-			const forward = camWorldRot.rotateVector(Vec3.forward);
+			const forward = Vec3.forward.rotate(camWorldRot);
 			if (worldAxis.dot(forward) > 0) {
 				deltaAngle *= -1;
 			}

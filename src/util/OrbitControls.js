@@ -76,12 +76,12 @@ export class OrbitControls {
 		if (e.ctrlKey) {
 			this.lookDist -= dy * 0.01;
 		} else if (e.shiftKey) {
-			const xDir = this.lookRot.rotateVector(Vec3.right).multiply(-dx * 0.01);
-			const yDir = this.lookRot.rotateVector(Vec3.up).multiply(dy * 0.01);
+			const xDir = Vec3.right.rotate(this.lookRot).multiply(-dx * 0.01);
+			const yDir = Vec3.up.rotate(this.lookRot).multiply(dy * 0.01);
 			this.lookPos.add(xDir).add(yDir);
 		} else {
 			this.lookRot.rotateAxisAngle(new Vec3(0, 1, 0), dx * 0.01);
-			const pitchAxis = this.lookRot.rotateVector(Vec3.right);
+			const pitchAxis = Vec3.right.rotate(this.lookRot);
 			this.lookRot.rotateAxisAngle(pitchAxis, dy * 0.01);
 		}
 	}
@@ -96,7 +96,7 @@ export class OrbitControls {
 	}
 
 	updateCamPos() {
-		const lookDir = this.lookRot.rotateVector(Vec3.back);
+		const lookDir = Vec3.back.rotate(this.lookRot);
 		this.camera.pos = lookDir.clone().multiply(2 ** this.lookDist).add(this.lookPos);
 		this.camera.rot = this.lookRot.clone();
 	}
