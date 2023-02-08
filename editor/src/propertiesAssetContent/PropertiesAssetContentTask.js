@@ -37,6 +37,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 
 		/** @type {import("../ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView<typeof environmentVariablesStructure>} */
 		this.environmentVariablesTree = this.treeView.addCollapsable("environment variables");
+		this.environmentVariablesTree.renderContainer = true;
 		this.environmentVariablesTree.generateFromSerializableStructure(environmentVariablesStructure);
 		this.environmentVariablesTree.onChildValueChange(() => {
 			if (this.#isLoadingTaskAssets) return;
@@ -44,6 +45,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		});
 
 		this.taskConfigTree = this.treeView.addCollapsable("task settings");
+		this.taskConfigTree.renderContainer = true;
 		this.taskConfigTree.onChildValueChange(() => {
 			if (this.#isLoadingTaskAssets) return;
 			this.saveTaskAsset();

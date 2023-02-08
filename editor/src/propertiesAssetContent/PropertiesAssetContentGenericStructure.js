@@ -14,6 +14,7 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 		this.structure = structure;
 
 		this.assetTreeView = this.treeView.addCollapsable("Asset Values");
+		this.assetTreeView.renderContainer = true;
 		this.assetTreeView.generateFromSerializableStructure(this.structure);
 		this.assetTreeView.onChildValueChange(() => {
 			if (this.isUpdatingUi) return;
