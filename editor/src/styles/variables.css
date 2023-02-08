@@ -2,13 +2,17 @@
 	--default-border-radius: 5px;
 	--selection-border-radius: 10px;
 	--default-selection-text-padding: 5px;
-	--default-ui-bg-color: #1b1b1b;
+	--bg-color-level0: #1b1b1b;
+	--bg-color-level1: #272727;
+	--bg-color-level2: #373737;
+	--text-color-level0: #bdbdbd;
+	--text-color-level1: #d5d5d5;
+	--text-color-level2: #ededed;
+	--default-text-color-disabled-context-menu: #5a5a5a;
+	--default-text-color-disabled-textfield: #8d8d8d;
 	--panel-borders-color: #272727;
 	--overlay-panel-borders-color: #5a5a5a;
 	--overlay-panel-box-shadow: 3px 3px 10px 0px rgba(0,0,0,0.6);
-	--default-text-color: #bdbdbd;
-	--default-text-color-disabled-context-menu: #5a5a5a;
-	--default-text-color-disabled-textfield: #8d8d8d;
 	--color-selected-blue: #005598;
 	--color-selected-blue-textfield: #005598fe;
 	--color-selected-blue-nofocus: #505050;
@@ -36,13 +40,17 @@
 }
 @media(prefers-color-scheme: light){
 	:root{
-		--default-ui-bg-color: #ffffff;
+		--bg-color-level0: #ffffff;
+		--bg-color-level1: #f2f2f2;
+		--bg-color-level2: #dadada;
+		--text-color-level0: #505050;
+		--text-color-level1: #424242;
+		--text-color-level2: #3b3b3b;
+		--default-text-color-disabled-context-menu: #bdbdbd;
+		--default-text-color-disabled-textfield: #7f7f7f;
 		--panel-borders-color: #e0e0e0;
 		--overlay-panel-borders-color: #c9c9c9;
 		--overlay-panel-box-shadow: 6px 6px 10px 0px rgba(0,0,0,0.06);
-		--default-text-color: #505050;
-		--default-text-color-disabled-context-menu: #bdbdbd;
-		--default-text-color-disabled-textfield: #7f7f7f;
 		--color-selected-blue: #008fff;
 		--selected-text-color: #ffffff;
 		--color-selected-blue-textfield: #95c0fffe;
@@ -50,7 +58,7 @@
 		--selected-text-color-nofocus: #292929;
 		--color-highlighted-yellow: #FFE006;
 		--color-highlighted-yellow-text: #333333;
-		--default-button-color: #dcdcdc;
+		--default-button-color: #e7e7e7;
 		--default-button-hover-brightness: 0.93;
 		--default-button-active-color: #b9b9b9;
 		--default-button-selected-color: #afafaf;

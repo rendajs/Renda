@@ -8,7 +8,7 @@
 .project-selector-window {
 	width: 500px;
 	height: 400px;
-	background-color: var(--default-ui-bg-color);
+	background-color: var(--bg-color-level0);
 	position: absolute;
 	z-index: var(--z-project-selector);
 	left: 50%;

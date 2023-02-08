@@ -11,6 +11,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {boolean} [collapsed = false]
  * @property {boolean} [rowVisible = true]
  * @property {boolean} [visible = true]
+ * @property {boolean} [renderContainer = false]
  * @property {TreeView} [copySettings]
  * @property {TreeViewInitData[]} [children]
  */
@@ -146,6 +147,7 @@ export class TreeView {
 	#rearrangeableOrder = false;
 	#rearrangeableHierarchy = false;
 	#elDraggable = false;
+	#renderContainer = false;
 
 	#boundDragStart;
 	#boundDragEnd;
@@ -257,7 +259,15 @@ export class TreeView {
 		this.children = [];
 		/** @type {?TreeView} */
 		this.parent = data.parent ?? null; // todo: make this read only
+		/**
+		 * How deep this TreeView is nested. I.e. how many parents this TreeView has above it.
+		 */
 		this.recursionDepth = 0;
+		/**
+		 * How deep this TreeView is nested excluding any TreeViews that are not containers.
+		 * I.e, how many parents this TreeView has above it that are rendering their container.
+		 */
+		this.containerRecursionDepth = 0;
 		/** @type {boolean} */
 		this._collapsed = false;
 		/** @type {boolean} */
@@ -269,6 +279,7 @@ export class TreeView {
 		this.renameable = false;
 		this.renameTextField = null;
 		this._rowVisible = data.rowVisible ?? true;
+		this.#renderContainer = data.renderContainer ?? false;
 		this._visible = data.visible ?? true;
 
 		if (this.selectable) {
@@ -322,7 +333,7 @@ export class TreeView {
 
 		this.updateArrowHidden();
 		if (data) this.updateData(data);
-		this.updatePadding();
+		this.updateRecursionStyle();
 
 		this.hasRootEventListeners = false;
 		this.updateRootEventListeners();
@@ -413,15 +424,24 @@ export class TreeView {
 	updateRecursionDepth() {
 		if (this.isRoot || !this.parent) {
 			this.recursionDepth = 0;
+			this.containerRecursionDepth = 0;
+			if (this.#renderContainer) {
+				this.containerRecursionDepth = 1;
+			}
 		} else {
 			this.recursionDepth = this.parent.recursionDepth + 1;
+			this.containerRecursionDepth = this.parent.containerRecursionDepth;
+			if (this.#renderContainer) {
+				this.containerRecursionDepth++;
+			}
 		}
-		this.updatePadding();
+		this.updateRecursionStyle();
 	}
 
-	updatePadding() {
+	updateRecursionStyle() {
 		const padding = this.recursionDepth * 12 + 18;
 		this.rowEl.style.paddingLeft = padding + "px";
+		this.#updateRenderContainer();
 	}
 
 	get isRoot() {
@@ -586,6 +606,10 @@ export class TreeView {
 		this.updateRowVisibility();
 	}
 
+	updateRowVisibility() {
+		this.rowEl.classList.toggle("hidden", !this.rowVisible);
+	}
+
 	get visible() {
 		return this._visible;
 	}
@@ -595,8 +619,27 @@ export class TreeView {
 		this.el.style.display = value ? "" : "none";
 	}
 
-	updateRowVisibility() {
-		this.rowEl.classList.toggle("hidden", !this.rowVisible);
+	get renderContainer() {
+		return this.#renderContainer;
+	}
+
+	set renderContainer(value) {
+		this.#renderContainer = value;
+		this.updateRecursionDepth();
+	}
+
+	#updateRenderContainer() {
+		this.el.classList.toggle("render-container", this.#renderContainer);
+		const d = this.containerRecursionDepth;
+		if (d == 0) {
+			this.el.style.setProperty("background-color", "");
+			this.el.style.setProperty("color", "");
+		} else {
+			const indentColor = 1 + ((1 + d) % 2);
+			this.el.dataset.indentLevel = String(d);
+			this.el.style.setProperty("background-color", `var(--bg-color-level${indentColor})`);
+			this.el.style.setProperty("color", `var(--text-color-level${indentColor})`);
+		}
 	}
 
 	get alwaysShowArrow() {

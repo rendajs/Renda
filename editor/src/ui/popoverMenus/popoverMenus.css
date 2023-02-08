@@ -10,7 +10,7 @@
 	position: absolute;
 	z-index: var(--z-context-menu);
 	border-radius: var(--default-border-radius);
-	background: var(--default-ui-bg-color);
+	background: var(--bg-color-level0);
 	padding: 3px 0px;
 	white-space: nowrap;
 	border: 1px solid var(--overlay-panel-borders-color);
@@ -23,7 +23,7 @@
 	left: 50%;
 	top: 0;
 	transform: translate(-50%, -100%);
-	fill: var(--default-ui-bg-color);
+	fill: var(--bg-color-level0);
 }
 .popover-arrow.bottom {
 	left: 50%;
@@ -67,7 +67,7 @@
 	height: 0px;
 	display: inline-block;
 	border: 5px solid transparent;
-	border-left: 10px solid var(--default-text-color);
+	border-left: 10px solid var(--text-color-level0);
 	border-right: 0px solid transparent;
 	margin-left: 6px;
 }

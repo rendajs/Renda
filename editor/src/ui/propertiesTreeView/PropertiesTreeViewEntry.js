@@ -140,21 +140,18 @@ export class PropertiesTreeViewEntry extends TreeView {
 				...castGuiOpts,
 			});
 			this.valueEl.appendChild(setGui.el);
-			this.label.classList.add("multiLine");
-			this.valueEl.classList.add("multiLine");
+			this.customEl.classList.add("multiLine");
 		} else if (type == "object") {
 			setGui = new ObjectGui({
 				structure: type,
 				...guiOpts,
 			});
 			this.valueEl.appendChild(setGui.treeView.el);
-			this.label.classList.add("multiLine");
-			this.valueEl.classList.add("multiLine");
+			this.customEl.classList.add("multiLine");
 		} else if (type == "path") {
 			setGui = new PathGui(guiOpts);
 			this.valueEl.appendChild(setGui.el);
-			this.label.classList.add("multiLine");
-			this.valueEl.classList.add("multiLine");
+			this.customEl.classList.add("multiLine");
 		} else if (type == "button") {
 			setGui = new Button({
 				...guiOpts,

@@ -8,7 +8,7 @@ body, html{
 	-webkit-touch-callout: none;
 	font-family: ui-sans-serif,system-ui,sans-serif;
 	background: var(--panel-borders-color);
-	color: var(--default-text-color);
+	color: var(--text-color-level0);
 }
 
 .tabDragFeedback {
@@ -115,7 +115,7 @@ body, html{
 
 .textInput{
 	background: var(--default-input-box-color);
-	color: var(--default-text-color);
+	color: var(--text-color-level0);
 	width: 100%;
 	box-shadow: inset 0px 0px 0 1px var(--default-input-box-border-color);
 }

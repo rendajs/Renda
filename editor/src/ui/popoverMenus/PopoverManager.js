@@ -13,7 +13,7 @@ export class PopoverManager {
 		this.curtainEl = document.createElement("div");
 		this.curtainEl.classList.add("popover-curtain");
 
-		const iconDefaultColorFilter = colorizerFilterManager.getFilter("var(--default-text-color)");
+		const iconDefaultColorFilter = colorizerFilterManager.getFilter("var(--text-color-level0)");
 		const iconHoverColorFilter = colorizerFilterManager.getFilter("var(--selected-text-color)");
 
 		// References are kept around to ensure the filters don't get garbage collected.
