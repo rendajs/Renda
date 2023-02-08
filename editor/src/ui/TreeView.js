@@ -439,6 +439,9 @@ export class TreeView {
 			}
 		}
 		this.updateRecursionStyle();
+		for (const child of this.children) {
+			child.updateRecursionDepth();
+		}
 	}
 
 	updateRecursionStyle() {

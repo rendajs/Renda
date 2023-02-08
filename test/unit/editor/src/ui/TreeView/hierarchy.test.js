@@ -48,6 +48,21 @@ Deno.test({
 			assertEquals(child3.containerRecursionDepth, 2);
 			assertEquals(child4.containerRecursionDepth, 2);
 			assertEquals(child5.containerRecursionDepth, 2);
+
+			const child6 = new TreeView();
+			const child7 = child6.addChild();
+			const child8 = child7.addChild();
+			child8.renderContainer = true;
+
+			child5.addChild(child6);
+
+			assertEquals(child6.recursionDepth, 3);
+			assertEquals(child7.recursionDepth, 4);
+			assertEquals(child8.recursionDepth, 0);
+
+			assertEquals(child6.containerRecursionDepth, 2);
+			assertEquals(child7.containerRecursionDepth, 2);
+			assertEquals(child8.containerRecursionDepth, 3);
 		});
 	},
 });
