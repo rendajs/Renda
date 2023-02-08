@@ -37,10 +37,10 @@ Deno.test({
 
 			assertEquals(tv.recursionDepth, 0);
 			assertEquals(child1.recursionDepth, 1);
-			assertEquals(child2.recursionDepth, 2);
-			assertEquals(child3.recursionDepth, 3);
-			assertEquals(child4.recursionDepth, 4);
-			assertEquals(child5.recursionDepth, 5);
+			assertEquals(child2.recursionDepth, 0);
+			assertEquals(child3.recursionDepth, 0);
+			assertEquals(child4.recursionDepth, 1);
+			assertEquals(child5.recursionDepth, 2);
 
 			assertEquals(tv.containerRecursionDepth, 0);
 			assertEquals(child1.containerRecursionDepth, 0);
@@ -89,21 +89,21 @@ Deno.test({
 
 			const bgColors = treeViews.map(tv => tv.el.style.getPropertyValue("background-color"));
 			assertEquals(bgColors, [
-				"var(--bg-color-level0)",
+				"",
 				"var(--bg-color-level1)",
 				"var(--bg-color-level2)",
 				"var(--bg-color-level1)",
-				"var(--bg-color-level0)",
+				"var(--bg-color-level2)",
 				"var(--bg-color-level1)",
 				"var(--bg-color-level2)",
 			]);
 			const textColors = treeViews.map(tv => tv.el.style.getPropertyValue("color"));
 			assertEquals(textColors, [
-				"var(--text-color-level0)",
+				"",
 				"var(--text-color-level1)",
 				"var(--text-color-level2)",
 				"var(--text-color-level1)",
-				"var(--text-color-level0)",
+				"var(--text-color-level2)",
 				"var(--text-color-level1)",
 				"var(--text-color-level2)",
 			]);

@@ -260,7 +260,8 @@ export class TreeView {
 		/** @type {?TreeView} */
 		this.parent = data.parent ?? null; // todo: make this read only
 		/**
-		 * How deep this TreeView is nested. I.e. how many parents this TreeView has above it.
+		 * How deep this TreeView is nested inside a container.
+		 * I.e. how many parents this TreeView has above it up until a parent is a TreeView that is rendering as a container.
 		 */
 		this.recursionDepth = 0;
 		/**
@@ -429,10 +430,12 @@ export class TreeView {
 				this.containerRecursionDepth = 1;
 			}
 		} else {
-			this.recursionDepth = this.parent.recursionDepth + 1;
 			this.containerRecursionDepth = this.parent.containerRecursionDepth;
 			if (this.#renderContainer) {
+				this.recursionDepth = 0;
 				this.containerRecursionDepth++;
+			} else {
+				this.recursionDepth = this.parent.recursionDepth + 1;
 			}
 		}
 		this.updateRecursionStyle();
