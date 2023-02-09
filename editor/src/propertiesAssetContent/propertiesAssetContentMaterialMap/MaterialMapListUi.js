@@ -24,9 +24,10 @@ export class MaterialMapListUi {
 	}) {
 		/** @type {Map<string, MappableItem>} */
 		this.createdMapListUis = new Map();
-		this.treeView = new PropertiesTreeView({name: "mapList"});
+		this.treeView = new PropertiesTreeView();
 		for (const item of items) {
 			const mappableItemTreeView = this.treeView.addCollapsable(item.name);
+			mappableItemTreeView.renderContainer = true;
 			/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 			let defaultValueTypeOptions;
 			if (item.type == "sampler") {
