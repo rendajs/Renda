@@ -125,3 +125,26 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "forceContainerRecursionDepth()",
+	fn() {
+		runWithDom(() => {
+			const tv1 = new TreeView();
+			tv1.renderContainer = true;
+
+			const tv2 = tv1.addChild();
+			const tv3 = tv2.addChild();
+			tv3.renderContainer = true;
+			const tv4 = tv3.addChild();
+
+			tv1.forceContainerRecursionDepth(4);
+
+			const treeViews = [tv1, tv2, tv3, tv4];
+			const depths = treeViews.map(tv => tv.recursionDepth);
+			assertEquals(depths, [0, 1, 0, 1]);
+			const containerDepths = treeViews.map(tv => tv.containerRecursionDepth);
+			assertEquals(containerDepths, [4, 4, 5, 5]);
+		});
+	},
+});

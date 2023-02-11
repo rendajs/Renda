@@ -64,6 +64,14 @@ export class ObjectGui {
 	}
 
 	/**
+	 * @param {import("./TreeView.js").TreeView} parent
+	 */
+	updateContainerDepthFromParent(parent) {
+		const depth = parent.containerRecursionDepth + 1;
+		this.treeView.forceContainerRecursionDepth(depth);
+	}
+
+	/**
 	 * @param {import("./propertiesTreeView/types.js").StructureToSetObject<T>} value
 	 * @param {import("./propertiesTreeView/types.js").AllPossibleSetValueOpts} [setValueOpts]
 	 */

@@ -135,7 +135,7 @@ export class PropertiesTreeViewEntry extends TreeView {
 			});
 			this.valueEl.appendChild(setGui.el);
 		} else if (type == "array") {
-			const castGuiOpts = /** @type {GetGuiOpts<typeof type>} */ (guiOpts);
+			const castGuiOpts = /** @type {GetGuiOpts<"array">} */ (guiOpts);
 			setGui = new ArrayGui({
 				...castGuiOpts,
 			});
@@ -252,6 +252,15 @@ export class PropertiesTreeViewEntry extends TreeView {
 			return castGui.getValue(guiOpts);
 		} else {
 			return castGui?.value;
+		}
+	}
+
+	/** @override */
+	updateRecursionDepth() {
+		super.updateRecursionDepth();
+
+		if (this.gui instanceof ArrayGui || this.gui instanceof ObjectGui) {
+			this.gui.updateContainerDepthFromParent(this);
 		}
 	}
 

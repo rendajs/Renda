@@ -148,6 +148,8 @@ export class TreeView {
 	#rearrangeableHierarchy = false;
 	#elDraggable = false;
 	#renderContainer = false;
+	/** @type {number?} */
+	#forcedContainerRecursionDepth = null;
 
 	#boundDragStart;
 	#boundDragEnd;
@@ -423,21 +425,25 @@ export class TreeView {
 	 * of the element.
 	 */
 	updateRecursionDepth() {
-		if (this.isRoot || !this.parent) {
-			this.recursionDepth = 0;
-			this.containerRecursionDepth = 0;
-			if (this.#renderContainer) {
-				this.containerRecursionDepth = 1;
-			}
-		} else {
+		if (this.#forcedContainerRecursionDepth) {
+			this.containerRecursionDepth = this.#forcedContainerRecursionDepth;
+		} else if (this.isRoot) {
+			this.containerRecursionDepth = this.#renderContainer ? 1 : 0;
+		} else if (this.parent) {
 			this.containerRecursionDepth = this.parent.containerRecursionDepth;
+			if (this.#renderContainer) this.containerRecursionDepth++;
+		}
+
+		if (this.parent) {
 			if (this.#renderContainer) {
 				this.recursionDepth = 0;
-				this.containerRecursionDepth++;
 			} else {
 				this.recursionDepth = this.parent.recursionDepth + 1;
 			}
+		} else {
+			this.recursionDepth = 0;
 		}
+
 		this.updateRecursionStyle();
 		for (const child of this.children) {
 			child.updateRecursionDepth();
@@ -645,6 +651,21 @@ export class TreeView {
 			this.el.style.setProperty("background-color", `var(--bg-color-level${indentColor})`);
 			this.el.style.setProperty("color", `var(--text-color-level${indentColor})`);
 		}
+	}
+
+	/**
+	 * Forces the TreeView to start at a specific recursion depth.
+	 * This is useful when you want to manually add a treeview as child element of another TreeView.
+	 * Normally when using {@linkcode addChild} the recursion depth is automatically updated.
+	 * But when you manually use `appendChild` on the {@linkcode customEl} of a TreeView this is not the case,
+	 * because the child TreeView is technically the root. To ensure elements are rendered with the correct styling,
+	 * you should use this to let the TreeView know what it's recursion depth is.
+	 * You can set the depth back to `null` if you wish update depth automatically again.
+	 * @param {number?} depth
+	 */
+	forceContainerRecursionDepth(depth) {
+		this.#forcedContainerRecursionDepth = depth;
+		this.updateRecursionDepth();
 	}
 
 	get alwaysShowArrow() {
