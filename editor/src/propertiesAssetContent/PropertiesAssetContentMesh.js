@@ -31,7 +31,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 			},
 		});
 
-		this.meshSettingsTree = this.treeView.addCollapsable("mesh settings");
+		this.meshSettingsTree = this.treeView.addCollapsable("Mesh Settings");
 		this.meshSettingsTree.renderContainer = true;
 		this.meshSettingsTree.generateFromSerializableStructure(this.meshSettingsStructure);
 		this.meshSettingsTree.onChildValueChange(() => {

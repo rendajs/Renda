@@ -25,11 +25,12 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 		super(...args);
 
 		const materialTree = this.treeView.addCollapsable("material");
+		materialTree.rowVisible = false;
 		this.mapTreeView = materialTree.addItem({
 			type: "droppable",
 			guiOpts: {
 				supportedAssetTypes: [MaterialMap],
-				label: "Map",
+				label: "Material Map",
 				defaultValue: DEFAULT_MATERIAL_MAP_UUID,
 			},
 		});
@@ -52,7 +53,8 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 			await this.loadAssetFn();
 		});
 
-		this.mapValuesTreeView = materialTree.addCollapsable("map values");
+		this.mapValuesTreeView = materialTree.addCollapsable("Material Properties");
+		this.mapValuesTreeView.renderContainer = true;
 
 		this.isUpdatingUi = false;
 	}
