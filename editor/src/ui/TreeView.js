@@ -437,8 +437,10 @@ export class TreeView {
 		if (this.parent) {
 			if (this.#renderContainer) {
 				this.recursionDepth = 0;
-			} else {
+			} else if (this.rowVisible) {
 				this.recursionDepth = this.parent.recursionDepth + 1;
+			} else {
+				this.recursionDepth = this.parent.recursionDepth;
 			}
 		} else {
 			this.recursionDepth = 0;
@@ -616,6 +618,7 @@ export class TreeView {
 	set rowVisible(value) {
 		this._rowVisible = value;
 		this.updateRowVisibility();
+		this.updateRecursionDepth();
 	}
 
 	updateRowVisibility() {

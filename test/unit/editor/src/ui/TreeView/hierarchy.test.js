@@ -148,3 +148,21 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "rowVisible = false skips indentation",
+	fn() {
+		runWithDom(() => {
+			const tv1 = new TreeView();
+			const tv2 = tv1.addChild();
+			const tv3 = tv2.addChild();
+			const tv4 = tv3.addChild();
+			const tv5 = tv4.addChild();
+			const treeViews = [tv1, tv2, tv3, tv4, tv5];
+			tv3.rowVisible = false;
+
+			const depths = treeViews.map(tv => tv.recursionDepth);
+			assertEquals(depths, [0, 1, 1, 2, 3]);
+		});
+	},
+});
