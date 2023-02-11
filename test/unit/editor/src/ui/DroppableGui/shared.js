@@ -315,14 +315,15 @@ export function createBasicGui({
 }
 
 export function createMockProjectAssetType({
-	type = "namespace:type", uiCreateName = "Mock Project Asset",
+	type = "namespace:type",
+	uiName = "Mock Project Asset",
 } = {}) {
 	class MockLiveAssetConstructor { }
 
 	class MockProjectAssetType {
 		static type = type;
 		static expectedLiveAssetConstructor = MockLiveAssetConstructor;
-		static uiCreateName = uiCreateName;
+		static uiName = uiName;
 	}
 
 	const cast1 = /** @type {unknown} */ (MockProjectAssetType);

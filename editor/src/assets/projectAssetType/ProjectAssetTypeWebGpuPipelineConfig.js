@@ -20,6 +20,7 @@ export class ProjectAssetTypeWebGpuPipelineConfig extends ProjectAssetType {
 	static type = "renda:webGpuPipelineConfig";
 	static typeUuid = "c850b2eb-ab27-4991-b30e-b60d70ff6a2d";
 	static newFileName = "New Pipeline Config";
+	static uiName = "Pipeline Config";
 
 	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {

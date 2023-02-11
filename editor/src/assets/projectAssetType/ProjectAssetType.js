@@ -93,10 +93,24 @@ export class ProjectAssetType {
 	static newFileExtension = "json";
 
 	/**
-	 * The text that is shown in ui when choosing from a list of asset types
-	 * when creating a new asset.
+	 * The text that is shown in ui when choosing from a list of asset types when creating a new asset.
+	 * Use {@linkcode getUiName} to get a string with fallback support in case no uiName has been set.
 	 */
-	static uiCreateName = "";
+	static uiName = "";
+
+	/**
+	 * Returns a string that can be shown in UI to refer to this ProjectAssetType.
+	 * This function has fallback support in case no uiName has been set.
+	 */
+	static getUiName() {
+		let uiName = "<unknown>";
+		if (this.uiName) {
+			uiName = this.uiName;
+		} else if (this.type) {
+			uiName = `<${this.type}>`;
+		}
+		return uiName;
+	}
 
 	static storeInProjectAsJson = true;
 	static storeInProjectAsText = false;
@@ -122,7 +136,7 @@ export class ProjectAssetType {
 	/**
 	 * If you want more control over ui rendering in the properties window,
 	 * you can set this to the constructor of an extended {@linkcode PropertiesAssetContent} class.
-	 * @type {(new (...args: any) => import("../../propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>)?}
+	 * @type {(new (editor: import("../../Editor.js").Editor) => import("../../propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>)?}
 	 */
 	static propertiesAssetContentConstructor = null;
 

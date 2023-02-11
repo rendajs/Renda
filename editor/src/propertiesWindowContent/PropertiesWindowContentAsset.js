@@ -152,7 +152,9 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		// Create new assetcontent if needed
 		if (needsNew && constructor) {
 			if (constructor == PropertiesAssetContentGenericStructure && foundStructure) {
-				this.activeAssetContent = new PropertiesAssetContentGenericStructure(foundStructure, this.editorInstance);
+				const newContent = new PropertiesAssetContentGenericStructure(this.editorInstance);
+				newContent.setStructure(foundStructure, foundStructureType);
+				this.activeAssetContent = newContent;
 			} else {
 				this.activeAssetContent = new constructor(this.editorInstance);
 			}
