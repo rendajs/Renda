@@ -642,7 +642,6 @@ export class TreeView {
 			this.el.style.setProperty("color", "");
 		} else {
 			const indentColor = 1 + ((1 + d) % 2);
-			this.el.dataset.indentLevel = String(d);
 			this.el.style.setProperty("background-color", `var(--bg-color-level${indentColor})`);
 			this.el.style.setProperty("color", `var(--text-color-level${indentColor})`);
 		}
