@@ -15,7 +15,7 @@ const MATERIAL_ASSET_PATH = ["New Material.json"];
  * @param {import("puppeteer").ElementHandle} assetContentEl
  */
 async function findMapTreeViewEntry(page, assetContentEl) {
-	return await getTreeViewItemElement(page, assetContentEl, [0, "material", "Map"]);
+	return await getTreeViewItemElement(page, assetContentEl, [0, "Material Map", "Material Map"]);
 }
 
 Deno.test({
