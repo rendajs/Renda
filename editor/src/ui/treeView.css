@@ -38,10 +38,10 @@
 	height: 16px;
 	border-radius: var(--selection-border-radius);
 	position: absolute;
-	transform: translate(-100%, 1px);
+	transform: translate(-18px, 1px);
 }
 .treeViewArrowContainer:not(.collapsed){
-	transform: translate(-100%, 1px) rotate(90deg);
+	transform: translate(-18px, 1px) rotate(90deg);
 }
 .treeViewArrowContainer.hover{
 	background: var(--text-color-level0);

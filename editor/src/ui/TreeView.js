@@ -445,7 +445,7 @@ export class TreeView {
 	}
 
 	updateRecursionStyle() {
-		const padding = this.recursionDepth * 12 + 18;
+		const padding = this.recursionDepth * 12 + 24;
 		this.rowEl.style.paddingLeft = padding + "px";
 		this.#updateRenderContainer();
 	}
