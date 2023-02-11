@@ -9,6 +9,8 @@ globalThis["projectSelector"] = projectSelector;
 globalThis["Util"] = null;
 /** @type {import("./Editor.js").Editor?} */
 globalThis["editor"] = null;
+/** @type {import("./util/e2e/mod.js")?} */
+globalThis["e2e"] = null;
 
 (async () => {
 	// We'll assign some modules to the global scope so that they can be used in the browser console.
@@ -28,3 +30,7 @@ globalThis["editor"] = null;
 	}
 })();
 
+(async () => {
+	const module = await import("./util/e2e/mod.js");
+	globalThis["e2e"] = module;
+})();
