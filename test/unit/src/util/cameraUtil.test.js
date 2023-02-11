@@ -280,9 +280,9 @@ Deno.test({
 			y: 100,
 			clientWidth: 100,
 			clientHeight: 100,
-			paddingLeft: 50,
-			paddingTop: 50,
 		});
+		el.style.paddingLeft = "50px";
+		el.style.paddingTop = "50px";
 
 		const screen1 = domSpaceToScreenSpace(el, 100, 100);
 		assertVecAlmostEquals(screen1, [-0.5, -0.5]);
@@ -297,9 +297,9 @@ Deno.test({
 			y: 100,
 			clientWidth: 100,
 			clientHeight: 100,
-			paddingRight: 50,
-			paddingBottom: 50,
 		});
+		el.style.paddingRight = "50px";
+		el.style.paddingBottom = "50px";
 
 		const screen1 = domSpaceToScreenSpace(el, 200, 200);
 		assertVecAlmostEquals(screen1, [1, 1]);
@@ -350,9 +350,9 @@ Deno.test({
 			y: 100,
 			clientWidth: 100,
 			clientHeight: 100,
-			paddingLeft: 50,
-			paddingTop: 50,
 		});
+		el.style.paddingLeft = "50px";
+		el.style.paddingTop = "50px";
 
 		const domPos = screenSpaceToDomSpace(el, -0.5, -0.5);
 		assertVecAlmostEquals(domPos, [100, 100]);
@@ -367,9 +367,9 @@ Deno.test({
 			y: 100,
 			clientWidth: 100,
 			clientHeight: 100,
-			paddingRight: 50,
-			paddingBottom: 50,
 		});
+		el.style.paddingRight = "50px";
+		el.style.paddingBottom = "50px";
 
 		const domPos = screenSpaceToDomSpace(el, 1, 1);
 		assertVecAlmostEquals(domPos, [200, 200]);
