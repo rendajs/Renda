@@ -323,7 +323,9 @@ export function createMockProjectAssetType({
 	class MockProjectAssetType {
 		static type = type;
 		static expectedLiveAssetConstructor = MockLiveAssetConstructor;
-		static uiName = uiName;
+		static getUiName() {
+			return uiName;
+		}
 	}
 
 	const cast1 = /** @type {unknown} */ (MockProjectAssetType);

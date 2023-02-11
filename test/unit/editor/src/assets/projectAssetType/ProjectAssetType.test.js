@@ -192,3 +192,24 @@ Deno.test({
 		}, Error, `"ExtendedProjectAssetType" hasn't implemented saveLiveAssetData(). If you're trying to save an embedded asset, this is only supported if all of its parent assets implement saveLiveAssetData().`);
 	},
 });
+
+Deno.test({
+	name: "getUiName()",
+	fn() {
+		/** @extends {ProjectAssetType<null, {}, {}>} */
+		class Type1 extends ProjectAssetType {}
+		assertEquals(Type1.getUiName(), "<unknown>");
+
+		/** @extends {ProjectAssetType<null, {}, {}>} */
+		class Type2 extends ProjectAssetType {
+			static type = "namespace:type";
+		}
+		assertEquals(Type2.getUiName(), "<namespace:type>");
+
+		/** @extends {ProjectAssetType<null, {}, {}>} */
+		class Type3 extends ProjectAssetType {
+			static uiName = "UI Name";
+		}
+		assertEquals(Type3.getUiName(), "UI Name");
+	},
+});
