@@ -230,7 +230,6 @@ Deno.test({
 			const firstArrayItemGui = variablesTreeView.gui.valueItems[0].gui;
 			const valueGui = firstArrayItemGui.treeView.getSerializableStructureEntry("value").gui;
 			valueGui.setValue("baz");
-			valueGui.fireOnChangeCbs();
 
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertSpyCall(writeAssetDataSpy, 0, {
@@ -269,7 +268,6 @@ Deno.test({
 
 			// Empty value
 			valueGui.setValue("");
-			valueGui.fireOnChangeCbs();
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertSpyCall(writeAssetDataSpy, 0, {
 				args: [
@@ -285,9 +283,15 @@ Deno.test({
 			// Empty key
 			keyGui.setValue("");
 			valueGui.setValue("value");
-			valueGui.fireOnChangeCbs();
-			assertSpyCalls(writeAssetDataSpy, 2);
+			assertSpyCalls(writeAssetDataSpy, 3);
 			assertSpyCall(writeAssetDataSpy, 1, {
+				args: [
+					{
+						taskType: "namespace:tasktype",
+					},
+				],
+			});
+			assertSpyCall(writeAssetDataSpy, 2, {
 				args: [
 					{
 						taskType: "namespace:tasktype",
@@ -297,9 +301,8 @@ Deno.test({
 
 			// Empty key and empty value
 			valueGui.setValue("");
-			valueGui.fireOnChangeCbs();
-			assertSpyCalls(writeAssetDataSpy, 3);
-			assertSpyCall(writeAssetDataSpy, 2, {
+			assertSpyCalls(writeAssetDataSpy, 4);
+			assertSpyCall(writeAssetDataSpy, 3, {
 				args: [
 					{
 						taskType: "namespace:tasktype",
@@ -330,7 +333,6 @@ Deno.test({
 			const fooGui = fooNode.gui;
 			assertInstanceOf(fooGui, TextGui);
 			fooNode.setValue("baz");
-			fooGui.fireOnChangeCbs();
 
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertEquals(writeAssetDataSpy.calls[0].args[0], {
@@ -363,7 +365,6 @@ Deno.test({
 			const fooGui = fooNode.gui;
 			assertInstanceOf(fooGui, TextGui);
 			fooNode.setValue("");
-			fooGui.fireOnChangeCbs();
 
 			assertSpyCalls(writeAssetDataSpy, 1);
 			assertEquals(writeAssetDataSpy.calls[0].args[0], {
