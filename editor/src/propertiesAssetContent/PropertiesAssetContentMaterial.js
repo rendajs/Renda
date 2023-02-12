@@ -24,7 +24,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	constructor(...args) {
 		super(...args);
 
-		const materialTree = this.treeView.addCollapsable("material");
+		const materialTree = this.treeView.addCollapsable("Material");
 		materialTree.rowVisible = false;
 		this.mapTreeView = materialTree.addItem({
 			type: "droppable",
