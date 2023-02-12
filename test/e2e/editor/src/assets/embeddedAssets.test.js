@@ -107,7 +107,7 @@ Deno.test({
 				const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
 				await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);
 
-				const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ['', '', 'WebGPU Renderer', '', '', 'Forward Pipeline Config']);
+				const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "", "WebGPU Renderer", "", "", "Forward Pipeline Config"]);
 				await openDroppableGuiTreeViewEntry(page, testContext, forwardPipelineConfigTreeViewEntry);
 
 				const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Pipeline Config", "Depth Write Enabled"]);

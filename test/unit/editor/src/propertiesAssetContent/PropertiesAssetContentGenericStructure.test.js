@@ -1,13 +1,13 @@
 import "../../shared/initializeEditor.js";
-import { PropertiesAssetContentGenericStructure } from "../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
-import { runWithDom, runWithDomAsync } from "../../shared/runWithDom.js";
-import { assertTreeViewStructureEquals } from "../../shared/treeViewUtil.js";
-import { assertEquals, assertInstanceOf, assertThrows } from "std/testing/asserts.ts";
+import {PropertiesAssetContentGenericStructure} from "../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentGenericStructure.js";
+import {runWithDom, runWithDomAsync} from "../../shared/runWithDom.js";
+import {assertTreeViewStructureEquals} from "../../shared/treeViewUtil.js";
+import {assertEquals, assertInstanceOf, assertThrows} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import { createMockProjectAsset } from "../../shared/createMockProjectAsset.js";
-import { PropertiesTreeViewEntry } from "../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
+import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
+import {PropertiesTreeViewEntry} from "../../../../../editor/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 import {TextGui} from "../../../../../editor/src/ui/TextGui.js";
-import { waitForMicrotasks } from "../../../shared/waitForMicroTasks.js";
+import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 
 const mockEditor = /** @type {import("../../../../../editor/src/Editor.js").Editor} */ ({});
 
@@ -16,7 +16,7 @@ class MockProjectAssetType {
 		return "UI name";
 	}
 }
-const mockAssetType = /** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (new MockProjectAssetType())
+const mockAssetType = /** @type {import("../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} */ (new MockProjectAssetType());
 
 Deno.test({
 	name: "Setting structure",
@@ -34,21 +34,20 @@ Deno.test({
 				children: [
 					{
 						propertiesLabel: "Foo",
-					}
-				]
-			})
+					},
+				],
+			});
 
 			assertThrows(() => {
 				content.setStructure({
 					bar: {
 						type: "boolean",
-					}
-				}, mockAssetType)
-			}, Error, "Assertion failed: structure can only be set once.")
+					},
+				}, mockAssetType);
+			}, Error, "Assertion failed: structure can only be set once.");
 		});
-	}
-})
-
+	},
+});
 
 Deno.test({
 	name: "loading and saving",
@@ -64,7 +63,7 @@ Deno.test({
 			const {projectAsset: mockAsset} = createMockProjectAsset({
 				readAssetDataReturnValue: {
 					foo: "bar",
-				}
+				},
 			});
 			const fillValuesSpy = spy(content.assetTreeView, "fillSerializableStructureValues");
 			const writeAssetSpy = spy(mockAsset, "writeAssetData");
@@ -78,9 +77,9 @@ Deno.test({
 				args: [
 					{
 						foo: "bar",
-					}
-				]
-			})
+					},
+				],
+			});
 			assertSpyCalls(writeAssetSpy, 0);
 			assertSpyCalls(needsReplacementSpy, 0);
 
@@ -99,13 +98,13 @@ Deno.test({
 				args: [
 					{
 						foo: "baz",
-					}
-				]
+					},
+				],
 			});
 			const writePromise = writeAssetSpy.calls[0].returned;
 			await writePromise;
 			await waitForMicrotasks();
 			assertSpyCalls(needsReplacementSpy, 1);
 		});
-	}
-})
+	},
+});
