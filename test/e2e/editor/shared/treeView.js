@@ -14,11 +14,7 @@ import {assertExists} from "std/testing/asserts.ts";
  * textContent of a propertiesTreeViewEntry, or index of a child.
  */
 export async function getTreeViewItemElement(page, treeViewElementHandle, itemsPath) {
-	const result = await page.waitForFunction((treeViewElement, itemsPath) => {
-		if (!globalThis.e2e) return null;
-		return globalThis.e2e.getTreeViewPathElement(treeViewElement, itemsPath);
-	}, {}, treeViewElementHandle, itemsPath);
-	return /** @type {import("puppeteer").ElementHandle<Element>} */ (result);
+	return await getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPath, false);
 }
 
 /**
@@ -29,12 +25,61 @@ export async function getTreeViewItemElement(page, treeViewElementHandle, itemsP
  * @param {(string | number)[]} itemsPath An array where each item represents the textContent of a treeViewRow element,
  * textContent of a propertiesTreeViewEntry, or index of a child.
  */
-export async function waitForTreeViewDisappear(page, treeViewElementHandle, itemsPath) {
-	await page.waitForFunction((treeViewElement, itemsPath) => {
-		if (!globalThis.e2e) return false;
-		const el = globalThis.e2e.getTreeViewPathElement(treeViewElement, itemsPath);
-		return !el;
-	}, {}, treeViewElementHandle, itemsPath);
+export async function getNotTreeViewItemElement(page, treeViewElementHandle, itemsPath) {
+	return await getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPath, true);
+}
+
+/**
+ * Helper function for {@linkcode getTreeViewItemElement} and {@linkcode getNotTreeViewItemElement}.
+ * @template {boolean} TIsNotFunction
+ * @param {import("puppeteer").Page} page
+ * @param {import("puppeteer").ElementHandle} treeViewElementHandle
+ * @param {(string | number)[]} itemsPath
+ * @param {TIsNotFunction} isNotFunction
+ */
+async function getTreeViewItemElementHelper(page, treeViewElementHandle, itemsPath, isNotFunction) {
+	const result = await page.waitForFunction((treeViewElement, itemsPath, isNotFunction) => {
+		const jointItemsPath = itemsPath.join(" > ");
+		if (!treeViewElement.classList.contains("treeViewItem")) {
+			throw new TypeError(`Invalid root treeViewElementHandle element type received while trying to find the treeview at ${jointItemsPath}. Element is not a TreeView because it doesn't have the "treeViewItem" class.`);
+		}
+		let currentTreeView = treeViewElement;
+		for (let i = 0; i < itemsPath.length; i++) {
+			const itemIdentifier = itemsPath[i];
+			const treeViewChildren = Array.from(currentTreeView.querySelectorAll(":scope > .treeViewChildList > .treeViewItem"));
+			let child;
+			if (typeof itemIdentifier == "number") {
+				child = treeViewChildren[itemIdentifier];
+			} else {
+				child = treeViewChildren.find(child => {
+					// First check the row name, in case this is a regular TreeView.
+					const row = child.querySelector(".treeViewRow");
+					if (row instanceof HTMLElement && row.textContent == itemIdentifier) return true;
+
+					// If this is a PropertiesTreeViewEntry, check the name of the entry.
+					const labelEl = child.querySelector(".treeViewCustomEl.guiTreeViewEntry > .guiTreeViewEntryLabel");
+					if (labelEl && labelEl.textContent == itemIdentifier) return true;
+
+					return false;
+				});
+			}
+			if (!child) {
+				if (isNotFunction) {
+					return true;
+				} else {
+					return null;
+				}
+			}
+			currentTreeView = child;
+		}
+		if (isNotFunction) {
+			return false;
+		} else {
+			return currentTreeView;
+		}
+	}, {}, treeViewElementHandle, itemsPath, isNotFunction);
+	// We can exclude `null` from the cast because `waitForFunction` shouldn't return null.
+	return /** @type {TIsNotFunction extends true ? import("puppeteer").JSHandle<boolean> : import("puppeteer").ElementHandle<Element> } */ (result);
 }
 
 /**
