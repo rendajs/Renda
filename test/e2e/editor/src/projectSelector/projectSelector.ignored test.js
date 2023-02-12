@@ -1,7 +1,7 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
-import {createAsset, getAssetTreeView, waitForAssetDissappear} from "../../shared/assets.js";
+import {createAsset, getAssetTreeView, getNotAssetTreeView} from "../../shared/assets.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {openProjectSelector, setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 import {waitSeconds} from "../../shared/waitSeconds.js";
@@ -123,7 +123,7 @@ Deno.test({
 		await testContext.step({
 			name: "Wait for new project to be created",
 			async fn() {
-				await waitForAssetDissappear(page, ["New Entity.json"]);
+				await getNotAssetTreeView(page, ["New Entity.json"]);
 			},
 		});
 
