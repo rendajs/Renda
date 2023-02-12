@@ -26,35 +26,34 @@ Deno.test({
 	name: "recursion depths",
 	fn() {
 		runWithDom(() => {
-			const tv = new TreeView();
-			const child1 = tv.addChild();
-			const child2 = child1.addChild();
-			child2.renderContainer = true;
-			const child3 = child2.addChild();
-			child3.renderContainer = true;
-			const child4 = child3.addChild();
-			const child5 = child4.addChild();
+			const tv1 = new TreeView();
+			const tv2 = tv1.addChild();
+			const tv3 = tv2.addChild();
+			tv3.renderContainer = true;
+			const tv4 = tv3.addChild();
+			tv4.renderContainer = true;
+			const tv5 = tv4.addChild();
+			const tv6 = tv5.addChild();
 
-			assertEquals(tv.recursionDepth, 0);
-			assertEquals(child1.recursionDepth, 1);
-			assertEquals(child2.recursionDepth, 0);
-			assertEquals(child3.recursionDepth, 0);
-			assertEquals(child4.recursionDepth, 1);
-			assertEquals(child5.recursionDepth, 2);
+			const treeViews = [tv1, tv2, tv3, tv4, tv5, tv6];
+			const renderContainerValues = treeViews.map(tv => tv.renderContainer);
+			const renderContainerClasses = treeViews.map(tv => tv.el.classList.contains("render-container"));
+			const expectedRenderContainerValues = [false, false, true, true, false, false];
+			assertEquals(renderContainerValues, expectedRenderContainerValues);
+			assertEquals(renderContainerClasses, expectedRenderContainerValues);
 
-			assertEquals(tv.containerRecursionDepth, 0);
-			assertEquals(child1.containerRecursionDepth, 0);
-			assertEquals(child2.containerRecursionDepth, 1);
-			assertEquals(child3.containerRecursionDepth, 2);
-			assertEquals(child4.containerRecursionDepth, 2);
-			assertEquals(child5.containerRecursionDepth, 2);
+			const recursionDepths = treeViews.map(tv => tv.recursionDepth);
+			assertEquals(recursionDepths, [0, 1, 0, 0, 1, 2]);
+
+			const containerRecursionDepths = treeViews.map(tv => tv.containerRecursionDepth);
+			assertEquals(containerRecursionDepths, [0, 0, 1, 2, 2, 2]);
 
 			const child6 = new TreeView();
 			const child7 = child6.addChild();
 			const child8 = child7.addChild();
 			child8.renderContainer = true;
 
-			child5.addChild(child6);
+			tv6.addChild(child6);
 
 			assertEquals(child6.recursionDepth, 3);
 			assertEquals(child7.recursionDepth, 4);
