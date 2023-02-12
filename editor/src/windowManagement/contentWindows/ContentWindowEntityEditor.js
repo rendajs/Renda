@@ -138,36 +138,32 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
-		this.persistentDataLoaded = false;
 		this.ignoreNextPersistentDataOrbitChange = false;
-		this.loadPersistentData();
-	}
-
-	async loadPersistentData() {
-		const loadedEntityPath = await this.persistentData.get("loadedEntityPath");
-		if (loadedEntityPath) {
-			const castLoadedEntityPath = /** @type {string[]} */ (loadedEntityPath);
-			const assetManager = await this.editorInstance.projectManager.getAssetManager();
-			const assetUuid = await assetManager.getAssetUuidFromPath(castLoadedEntityPath);
-			if (assetUuid) {
-				this.loadEntityAsset(assetUuid, true);
-
-				const lookPos = await this.persistentData.get("orbitLookPos");
-				if (lookPos) {
-					this.orbitControls.lookPos = /** @type {import("../../../../src/mod.js").Vec3} */ (lookPos);
-				}
-				const lookRot = await this.persistentData.get("orbitLookRot");
-				if (lookRot) {
-					this.orbitControls.lookRot = /** @type {import("../../../../src/mod.js").Quat} */ (lookRot);
-				}
-				const dist = await this.persistentData.get("orbitLookDist");
-				if (dist != undefined) {
-					this.orbitControls.lookDist = /** @type {number} */ (dist);
-				}
-				this.ignoreNextPersistentDataOrbitChange = true;
+		this.persistentData.onDataLoad(async () => {
+			const lookPos = this.persistentData.get("orbitLookPos");
+			if (lookPos) {
+				this.orbitControls.lookPos = /** @type {import("../../../../src/mod.js").Vec3} */ (lookPos);
 			}
-		}
-		this.persistentDataLoaded = true;
+			const lookRot = this.persistentData.get("orbitLookRot");
+			if (lookRot) {
+				this.orbitControls.lookRot = /** @type {import("../../../../src/mod.js").Quat} */ (lookRot);
+			}
+			const dist = this.persistentData.get("orbitLookDist");
+			if (dist != undefined) {
+				this.orbitControls.lookDist = /** @type {number} */ (dist);
+			}
+			this.ignoreNextPersistentDataOrbitChange = true;
+
+			const loadedEntityPath = this.persistentData.get("loadedEntityPath");
+			if (loadedEntityPath) {
+				const castLoadedEntityPath = /** @type {string[]} */ (loadedEntityPath);
+				const assetManager = await this.editorInstance.projectManager.getAssetManager();
+				const assetUuid = await assetManager.getAssetUuidFromPath(castLoadedEntityPath);
+				if (assetUuid) {
+					this.loadEntityAsset(assetUuid, true);
+				}
+			}
+		});
 	}
 
 	destructor() {
@@ -254,34 +250,30 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
 				this.markRenderDirty();
-				if (this.persistentDataLoaded) {
-					this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
-					this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
-					this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
-				}
+				this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
+				this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
+				this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
 				this.orbitControlsValuesDirty = true;
 				this.lastOrbitControlsValuesChangeTime = Date.now();
 			}
 
 			if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
-				if (this.persistentDataLoaded) {
-					if (!this.ignoreNextPersistentDataOrbitChange) {
-						(async () => {
-							try {
-								await this.persistentData.flush();
-							} catch (e) {
-								if (e instanceof DOMException && e.name == "SecurityError") {
-									// The flush was probably triggered by scrolling, which doesn't cause
-									// transient activation. If this is the case a security error is thrown.
-									// This is fine though, since storing the orbit state doesn't have a high priority.
-								} else {
-									throw e;
-								}
+				if (!this.ignoreNextPersistentDataOrbitChange) {
+					(async () => {
+						try {
+							await this.persistentData.flush();
+						} catch (e) {
+							if (e instanceof DOMException && e.name == "SecurityError") {
+								// The flush was probably triggered by scrolling, which doesn't cause
+								// transient activation. If this is the case a security error is thrown.
+								// This is fine though, since storing the orbit state doesn't have a high priority.
+							} else {
+								throw e;
 							}
-						})();
-					}
-					this.ignoreNextPersistentDataOrbitChange = false;
+						}
+					})();
 				}
+				this.ignoreNextPersistentDataOrbitChange = false;
 				this.orbitControlsValuesDirty = false;
 			}
 		}
