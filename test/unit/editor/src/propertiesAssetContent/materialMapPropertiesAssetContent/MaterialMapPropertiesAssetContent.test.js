@@ -1,5 +1,5 @@
 import {Importer} from "fake-imports";
-import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 
 const importer = new Importer(import.meta.url, {

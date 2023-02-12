@@ -182,6 +182,7 @@ export class ContentWindowConnections extends ContentWindow {
 			let gui = guisList.get(connection.id);
 			if (!gui) {
 				const treeView = listTreeView.addCollapsable();
+				treeView.renderContainer = true;
 				const connectionTypeLabel = treeView.addItem({
 					type: "label",
 					guiOpts: {

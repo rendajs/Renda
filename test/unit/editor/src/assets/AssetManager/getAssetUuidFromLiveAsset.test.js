@@ -1,7 +1,7 @@
 import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {BASIC_ASSET_UUID, BASIC_PERSISTENCE_KEY, BASIC_PROJECTASSETTYPE, basicSetup} from "./shared.js";
-import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 
 injectMockEditorInstance(/** @type {any} */ ({}));
 
@@ -19,7 +19,7 @@ Deno.test({
 	async fn() {
 		const {assetManager} = await basicSetup();
 		const projectAsset = await assetManager.getProjectAssetFromUuid(BASIC_ASSET_UUID);
-		const castProjectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../shared/createMockProjectAssetType.js").MockProjectAssetType>?} */ (projectAsset);
+		const castProjectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAsset<import("../../../shared/createMockProjectAssetType.js").MockProjectAssetType>?} */ (projectAsset);
 		assertExists(castProjectAsset);
 		const liveAsset = await castProjectAsset.getLiveAsset();
 		const uuid = assetManager.getAssetUuidFromLiveAsset(liveAsset);

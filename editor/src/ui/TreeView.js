@@ -11,6 +11,7 @@ import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
  * @property {boolean} [collapsed = false]
  * @property {boolean} [rowVisible = true]
  * @property {boolean} [visible = true]
+ * @property {boolean} [renderContainer = false]
  * @property {TreeView} [copySettings]
  * @property {TreeViewInitData[]} [children]
  */
@@ -146,6 +147,9 @@ export class TreeView {
 	#rearrangeableOrder = false;
 	#rearrangeableHierarchy = false;
 	#elDraggable = false;
+	#renderContainer = false;
+	/** @type {number?} */
+	#forcedContainerRecursionDepth = null;
 
 	#boundDragStart;
 	#boundDragEnd;
@@ -257,7 +261,16 @@ export class TreeView {
 		this.children = [];
 		/** @type {?TreeView} */
 		this.parent = data.parent ?? null; // todo: make this read only
+		/**
+		 * How deep this TreeView is nested inside a container.
+		 * I.e. how many parents this TreeView has above it up until a parent is a TreeView that is rendering as a container.
+		 */
 		this.recursionDepth = 0;
+		/**
+		 * How deep this TreeView is nested excluding any TreeViews that are not containers.
+		 * I.e, how many parents this TreeView has above it that are rendering their container.
+		 */
+		this.containerRecursionDepth = 0;
 		/** @type {boolean} */
 		this._collapsed = false;
 		/** @type {boolean} */
@@ -269,6 +282,7 @@ export class TreeView {
 		this.renameable = false;
 		this.renameTextField = null;
 		this._rowVisible = data.rowVisible ?? true;
+		this.#renderContainer = data.renderContainer ?? false;
 		this._visible = data.visible ?? true;
 
 		if (this.selectable) {
@@ -322,7 +336,7 @@ export class TreeView {
 
 		this.updateArrowHidden();
 		if (data) this.updateData(data);
-		this.updatePadding();
+		this.updateRecursionStyle();
 
 		this.hasRootEventListeners = false;
 		this.updateRootEventListeners();
@@ -411,17 +425,37 @@ export class TreeView {
 	 * of the element.
 	 */
 	updateRecursionDepth() {
-		if (this.isRoot || !this.parent) {
-			this.recursionDepth = 0;
-		} else {
-			this.recursionDepth = this.parent.recursionDepth + 1;
+		if (this.#forcedContainerRecursionDepth) {
+			this.containerRecursionDepth = this.#forcedContainerRecursionDepth;
+		} else if (this.isRoot) {
+			this.containerRecursionDepth = this.#renderContainer ? 1 : 0;
+		} else if (this.parent) {
+			this.containerRecursionDepth = this.parent.containerRecursionDepth;
+			if (this.#renderContainer) this.containerRecursionDepth++;
 		}
-		this.updatePadding();
+
+		if (this.parent) {
+			if (this.#renderContainer) {
+				this.recursionDepth = 0;
+			} else if (this.rowVisible) {
+				this.recursionDepth = this.parent.recursionDepth + 1;
+			} else {
+				this.recursionDepth = this.parent.recursionDepth;
+			}
+		} else {
+			this.recursionDepth = 0;
+		}
+
+		this.updateRecursionStyle();
+		for (const child of this.children) {
+			child.updateRecursionDepth();
+		}
 	}
 
-	updatePadding() {
-		const padding = this.recursionDepth * 12 + 18;
+	updateRecursionStyle() {
+		const padding = this.recursionDepth * 12 + 24;
 		this.rowEl.style.paddingLeft = padding + "px";
+		this.#updateRenderContainer();
 	}
 
 	get isRoot() {
@@ -584,6 +618,11 @@ export class TreeView {
 	set rowVisible(value) {
 		this._rowVisible = value;
 		this.updateRowVisibility();
+		this.updateRecursionDepth();
+	}
+
+	updateRowVisibility() {
+		this.rowEl.classList.toggle("hidden", !this.rowVisible);
 	}
 
 	get visible() {
@@ -595,8 +634,41 @@ export class TreeView {
 		this.el.style.display = value ? "" : "none";
 	}
 
-	updateRowVisibility() {
-		this.rowEl.classList.toggle("hidden", !this.rowVisible);
+	get renderContainer() {
+		return this.#renderContainer;
+	}
+
+	set renderContainer(value) {
+		this.#renderContainer = value;
+		this.updateRecursionDepth();
+	}
+
+	#updateRenderContainer() {
+		this.el.classList.toggle("render-container", this.#renderContainer);
+		const d = this.containerRecursionDepth;
+		if (d == 0) {
+			this.el.style.setProperty("background-color", "");
+			this.el.style.setProperty("color", "");
+		} else {
+			const indentColor = 1 + ((1 + d) % 2);
+			this.el.style.setProperty("background-color", `var(--bg-color-level${indentColor})`);
+			this.el.style.setProperty("color", `var(--text-color-level${indentColor})`);
+		}
+	}
+
+	/**
+	 * Forces the TreeView to start at a specific recursion depth.
+	 * This is useful when you want to manually add a treeview as child element of another TreeView.
+	 * Normally when using {@linkcode addChild} the recursion depth is automatically updated.
+	 * But when you manually use `appendChild` on the {@linkcode customEl} of a TreeView this is not the case,
+	 * because the child TreeView is technically the root. To ensure elements are rendered with the correct styling,
+	 * you should use this to let the TreeView know what it's recursion depth is.
+	 * You can set the depth back to `null` if you wish update depth automatically again.
+	 * @param {number?} depth
+	 */
+	forceContainerRecursionDepth(depth) {
+		this.#forcedContainerRecursionDepth = depth;
+		this.updateRecursionDepth();
 	}
 
 	get alwaysShowArrow() {

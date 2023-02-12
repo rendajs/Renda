@@ -91,6 +91,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		});
 
 		this.componentsSection = this.treeView.addCollapsable("Components");
+		this.componentsSection.renderContainer = true;
 		const createComponentButton = new Button({
 			text: "+",
 			onClick: async () => {
@@ -184,6 +185,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 			const componentConstructor = /** @type {typeof import("../../../src/components/Component.js").Component} */ (componentGroup.constructor);
 			const componentName = componentConstructor?.name || componentConstructor?.uuid || "<unknown>";
 			const componentUI = this.componentsSection.addCollapsable(componentName);
+			componentUI.renderContainer = true;
 			componentUI.addEventListener("contextmenu", e => {
 				e.showContextMenu([
 					{

@@ -8,7 +8,7 @@
 
 .numericGui.nocaret:not(:disabled){
 	color: transparent;
-	text-shadow: 0 0 0 var(--default-text-color);
+	text-shadow: 0 0 0 var(--text-color-level0);
 }
 
 .numericGui.no-cursor {
@@ -33,7 +33,7 @@
 	width: 16px;
 	height: 16px;
 	display: block;
-	background: var(--default-text-color);
+	background: var(--text-color-level0);
 	mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path style="fill: none; stroke: white; stroke-width: 6px;" d="M 10 25 L 20 35 L 40 15"></path></svg>');
 	-webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><path style="fill: none; stroke: white; stroke-width: 6px;" d="M 10 25 L 20 35 L 40 15"></path></svg>');
 	background-size: contain;
@@ -95,7 +95,7 @@
 	display: inline-block;
 	position: relative;
 	color: transparent;
-	caret-color: var(--default-text-color);
+	caret-color: var(--text-color-level0);
 	user-select: initial;
 }
 .path-arrow::selection {

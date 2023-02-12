@@ -1,7 +1,7 @@
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {BASIC_ASSET_UUID, BASIC_PERSISTENCE_KEY, BASIC_PROJECTASSETTYPE, STRINGIFIED_PERSISTENCE_KEY, basicSetup} from "./shared.js";
-import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 
 injectMockEditorInstance(/** @type {any} */ ({}));
 

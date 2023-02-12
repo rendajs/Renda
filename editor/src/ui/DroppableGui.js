@@ -700,14 +700,8 @@ export class DroppableGui {
 						/** @type {import("./popoverMenus/ContextMenu.js").ContextMenuStructure} */
 						const submenuStructure = [];
 						for (const projectAssetType of availableTypes) {
-							let text = "<unknown>";
-							if (projectAssetType.uiCreateName) {
-								text = projectAssetType.uiCreateName;
-							} else if (projectAssetType.type) {
-								text = `<${projectAssetType.type}>`;
-							}
 							submenuStructure.push({
-								text,
+								text: projectAssetType.getUiName(),
 								onClick: () => {
 									this.createEmbeddedAsset(projectAssetType);
 								},

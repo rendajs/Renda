@@ -98,7 +98,7 @@ export class PathGui {
 			if (!isLast) {
 				const arrow = document.createElement("span");
 				arrow.textContent = "/";
-				getEditorInstance().colorizerFilterManager.applyFilter(arrow, "var(--default-text-color)");
+				getEditorInstance().colorizerFilterManager.applyFilter(arrow, "var(--text-color-level0)");
 				arrow.classList.add("path-arrow");
 				this.el.appendChild(arrow);
 			}

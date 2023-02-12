@@ -9,6 +9,7 @@ export class ProjectAssetTypeRenderOutputConfig extends ProjectAssetType {
 	static type = "renda:renderOutputConfig";
 	static typeUuid = "b4c9bbdc-86dc-4270-ae94-780dbaa66976";
 	static newFileName = "New Render Output Config";
+	static uiName = "Render Output Config";
 
 	// todo: better support for webgl config
 	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */

@@ -25,12 +25,18 @@ export class MaterialMapTypeEntry {
 			this.propertiesContentInstance = new PropertiesMaterialMapContentGenericStructure(this, typeConstructor.settingsStructure);
 		}
 
-		this.treeView = new PropertiesTreeView();
-		this.settingsTreeView = this.treeView.addCollapsable("Map Settings");
+		this.treeView = new PropertiesTreeView({
+			rowVisible: true,
+			name: typeConstructor.uiName,
+		});
+		this.treeView.renderContainer = true;
+		this.settingsTreeView = this.treeView.addCollapsable();
+		this.settingsTreeView.rowVisible = false;
 		this.settingsTreeView.addChild(this.propertiesContentInstance.treeView);
 		/** @type {Set<() => void>} */
 		this.onValueChangeCbs = new Set();
 		this.mapListTreeView = this.treeView.addCollapsable("Map List");
+		this.mapListTreeView.rowVisible = false;
 		this.mapListUi = null;
 		this.lastSavedCustomData = null;
 		this.lastSavedCustomDataDirty = true;

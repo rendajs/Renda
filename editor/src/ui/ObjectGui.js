@@ -52,6 +52,7 @@ export class ObjectGui {
 		this.disabled = false;
 		this.structure = structure;
 		this.treeView = PropertiesTreeView.withStructure(structure);
+		this.treeView.renderContainer = true;
 		/** @type {Set<OnValueChangeCallback>} */
 		this.onValueChangeCbs = new Set();
 		this.treeView.onChildValueChange(() => {
@@ -60,6 +61,14 @@ export class ObjectGui {
 
 		this.setValue(value);
 		if (disabled) this.setDisabled(true);
+	}
+
+	/**
+	 * @param {import("./TreeView.js").TreeView} parent
+	 */
+	updateContainerDepthFromParent(parent) {
+		const depth = parent.containerRecursionDepth + 1;
+		this.treeView.forceContainerRecursionDepth(depth);
 	}
 
 	/**

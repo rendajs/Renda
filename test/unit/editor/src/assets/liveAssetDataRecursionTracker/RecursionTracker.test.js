@@ -2,7 +2,7 @@ import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/te
 import {assertIsError} from "std/testing/asserts.ts";
 import {RecursionTracker} from "../../../../../../editor/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js";
 import {ProjectAssetType} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetType.js";
-import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 
 const BASIC_ROOT_ASSET_UUID = "basic asset uuid";
 const BASIC_OTHER_ASSET_UUID = "basic other asset uuid";

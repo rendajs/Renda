@@ -15,7 +15,7 @@ const MATERIAL_ASSET_PATH = ["New Material.json"];
  * @param {import("puppeteer").ElementHandle} assetContentEl
  */
 async function findMapTreeViewEntry(page, assetContentEl) {
-	return await getTreeViewItemElement(page, assetContentEl, [0, "material", "Map"]);
+	return await getTreeViewItemElement(page, assetContentEl, [0, "Material", "Material Map"]);
 }
 
 Deno.test({
@@ -61,7 +61,7 @@ Deno.test({
 
 						await clickContextMenuItem(page, testContext, ["WebGPU Renderer"]);
 
-						const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
+						const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "", "WebGPU Renderer", "", "", "Forward Pipeline Config"]);
 						await createEmbeddedAssetAndOpen(page, testContext, forwardPipelineConfigTreeViewEntry);
 					},
 				});
@@ -70,7 +70,7 @@ Deno.test({
 				await testContext.step({
 					name: "Toggle Depth Write checkbox",
 					async fn(testContext) {
-						const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
+						const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Pipeline Config", "Depth Write Enabled"]);
 						assertExists(depthWriteEntry);
 						const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
 						const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
@@ -107,10 +107,10 @@ Deno.test({
 				const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
 				await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);
 
-				const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "Map Types", "", "Map Settings", "", "Forward Pipeline Config"]);
+				const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "", "WebGPU Renderer", "", "", "Forward Pipeline Config"]);
 				await openDroppableGuiTreeViewEntry(page, testContext, forwardPipelineConfigTreeViewEntry);
 
-				const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Asset Values", "Depth Write Enabled"]);
+				const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Pipeline Config", "Depth Write Enabled"]);
 				assertExists(depthWriteEntry);
 				const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
 				const checkbox = await depthWriteValueEl.$("input[type=checkbox]");

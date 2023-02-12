@@ -3,7 +3,7 @@ import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import "../../../shared/initializeEditor.js";
 import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ContentWindowEntityEditor} from "../../../../../../editor/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
-import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {Entity, MeshComponent} from "../../../../../../src/mod.js";
 
 const BASIC_ASSET_UUID = "00000000-0000-0000-0000-000000000000";

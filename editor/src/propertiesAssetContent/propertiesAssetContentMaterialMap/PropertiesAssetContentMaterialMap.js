@@ -44,7 +44,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 
 		/** @type {Map<import("../../../../src/util/mod.js").UuidString, MaterialMapTypeEntry>} */
 		this.addedMapTypes = new Map();
-		this.mapTypesTreeView = this.treeView.addCollapsable("Map Types");
+		this.mapTypesTreeView = this.treeView.addCollapsable();
+		this.mapTypesTreeView.rowVisible = false;
 
 		this.addMapTypeButtonEntry = this.treeView.addItem({
 			type: "button",

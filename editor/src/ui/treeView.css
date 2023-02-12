@@ -2,6 +2,12 @@
 	white-space: nowrap;
 }
 
+.treeViewItem.render-container {
+    margin: 5px;
+    padding: 5px 0px;
+    border-radius: var(--default-border-radius);
+}
+
 .treeViewName{
 	display: inline-block;
 	position: relative;
@@ -32,13 +38,13 @@
 	height: 16px;
 	border-radius: var(--selection-border-radius);
 	position: absolute;
-	transform: translate(-100%, 1px);
+	transform: translate(-18px, 1px);
 }
 .treeViewArrowContainer:not(.collapsed){
-	transform: translate(-100%, 1px) rotate(90deg);
+	transform: translate(-18px, 1px) rotate(90deg);
 }
 .treeViewArrowContainer.hover{
-	background: var(--default-text-color);
+	background: var(--text-color-level0);
 }
 .selected > .treeViewArrowContainer.hover{
 	background: var(--selected-text-color);
@@ -51,11 +57,11 @@
 	left: 4px;
 	top: 3px;
 	border: 5px solid transparent;
-	border-left: 10px solid var(--default-text-color);
+	border-left: 10px solid var(--text-color-level0);
 	border-right: 0px solid transparent;
 }
 .treeViewArrowContainer.hover > .treeViewArrow{
-	border-left: 10px solid var(--default-ui-bg-color);
+	border-left: 10px solid var(--bg-color-level0);
 }
 .selected > .treeViewArrowContainer > .treeViewArrow{
 	border-left: 10px solid var(--selected-text-color);
@@ -89,7 +95,7 @@
 }
 
 .treeViewRow.drag-over-feedback, .tree-view-drag-feedback {
-	box-shadow: 0px 0px 0 2px var(--color-selected-blue), inset 0px 0px 0 2px var(--default-text-color);
+	box-shadow: 0px 0px 0 2px var(--color-selected-blue), inset 0px 0px 0 2px var(--text-color-level0);
 }
 
 .tree-view-drag-feedback {
@@ -117,7 +123,6 @@
 	width: 100%;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	padding: 0px 5px;
 	box-sizing: border-box;
 	margin-top: 1px;
 }
@@ -128,11 +133,16 @@
 	flex-grow: 1;
 }
 
-.guiTreeViewEntry > .multiLine{
+.guiTreeViewEntry:not(.multiLine),
+.guiTreeViewEntry.multiLine > .guiTreeViewEntryLabel {
+	padding: 0px 5px;
+}
+
+.guiTreeViewEntry.multiLine > * {
 	width: 100%;
 }
 
-.guiTreeViewEntryLabel{
+.guiTreeViewEntryLabel {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;

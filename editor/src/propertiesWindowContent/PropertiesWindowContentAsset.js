@@ -26,8 +26,10 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		this.treeView = new PropertiesTreeView();
 		this.el.appendChild(this.treeView.el);
 
-		this.assetSettingsTree = this.treeView.addCollapsable("Asset settings will be placed here");
-		this.assetContentTree = this.treeView.addCollapsable("Asset content will be placed here");
+		this.assetSettingsTree = this.treeView.addCollapsable("Asset Settings");
+		this.assetSettingsTree.rowVisible = false;
+		this.assetContentTree = this.treeView.addCollapsable("Asset Content");
+		this.assetContentTree.rowVisible = false;
 
 		this.isUpdatingAssetSettingsUi = false;
 		this.assetSettingsTree.onChildValueChange(() => {
@@ -150,7 +152,9 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		// Create new assetcontent if needed
 		if (needsNew && constructor) {
 			if (constructor == PropertiesAssetContentGenericStructure && foundStructure) {
-				this.activeAssetContent = new PropertiesAssetContentGenericStructure(foundStructure, this.editorInstance);
+				const newContent = new PropertiesAssetContentGenericStructure(this.editorInstance);
+				newContent.setStructure(foundStructure, foundStructureType);
+				this.activeAssetContent = newContent;
 			} else {
 				this.activeAssetContent = new constructor(this.editorInstance);
 			}

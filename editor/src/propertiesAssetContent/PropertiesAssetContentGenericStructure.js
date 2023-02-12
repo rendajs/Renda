@@ -5,22 +5,39 @@ import {PropertiesAssetContent} from "./PropertiesAssetContent.js";
  */
 export class PropertiesAssetContentGenericStructure extends PropertiesAssetContent {
 	/**
-	 * @param {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
 	 * @param {ConstructorParameters<typeof PropertiesAssetContent>} args
 	 */
-	constructor(structure, ...args) {
+	constructor(...args) {
 		super(...args);
 
-		this.structure = structure;
+		this.structure = null;
 
-		this.assetTreeView = this.treeView.addCollapsable("Asset Values");
-		this.assetTreeView.generateFromSerializableStructure(this.structure);
+		this.assetTreeView = this.treeView.addCollapsable();
+		this.assetTreeView.renderContainer = true;
 		this.assetTreeView.onChildValueChange(() => {
 			if (this.isUpdatingUi) return;
 			this.saveAsset();
 		});
 
 		this.isUpdatingUi = false;
+	}
+
+	/**
+	 * @param {import("../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} structure
+	 * @param {import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny?} assetType
+	 */
+	setStructure(structure, assetType) {
+		if (this.structure) {
+			throw new Error("Assertion failed: structure can only be set once.");
+		}
+		this.structure = structure;
+		let uiName = "Asset Properties";
+		if (assetType) {
+			const castConstructor = /** @type {typeof import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetType} */ (assetType.constructor);
+			uiName = castConstructor.getUiName();
+		}
+		this.assetTreeView.name = uiName;
+		this.assetTreeView.generateFromSerializableStructure(this.structure);
 	}
 
 	/**
@@ -49,6 +66,9 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 
 	async saveAsset() {
 		// todo: handle multiple selected items or no selection
+		if (!this.structure) {
+			throw new Error("Assertion failed, no structure has been set");
+		}
 		const assetData = this.assetTreeView.getSerializableStructureValues(this.structure, {
 			purpose: "fileStorage",
 		});

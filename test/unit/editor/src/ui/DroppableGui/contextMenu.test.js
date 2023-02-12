@@ -165,8 +165,8 @@ Deno.test({
 	name: "context menu with embedded assets enabled and two supported asset types",
 	async fn() {
 		const mockParent = createMockProjectAsset();
-		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
-		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiName: "Mock Live Asset 1"});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiName: "Mock Live Asset 2"});
 		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",
@@ -187,7 +187,7 @@ Deno.test({
 				text: "Create embedded asset",
 				submenu: [
 					{text: "Mock Live Asset 1"},
-					{text: "<namespace2:type2>"},
+					{text: "Mock Live Asset 2"},
 				],
 			},
 		]);
@@ -199,8 +199,8 @@ Deno.test({
 Deno.test({
 	name: "context menu with embedded assets disabled and two supported asset types",
 	async fn() {
-		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiCreateName: "Mock Live Asset 1"});
-		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiCreateName: ""});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor1, ProjectAssetType: ProjectAssetType1} = createMockProjectAssetType({type: "namespace1:type1", uiName: "Mock Live Asset 1"});
+		const {MockLiveAssetConstructor: MockLiveAssetConstructor2, ProjectAssetType: ProjectAssetType2} = createMockProjectAssetType({type: "namespace2:type2", uiName: ""});
 		const {uninstall, createContextMenuCalls} = await basicSetupForContextMenus({
 			basicGuiOptions: {
 				valueType: "none",

@@ -1,7 +1,7 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {TaskGenerateHtml} from "../../../../../../editor/src/tasks/task/TaskGenerateHtml.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {getBasicRunTaskReadAssetOptions} from "./shared.js";
 
 const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";

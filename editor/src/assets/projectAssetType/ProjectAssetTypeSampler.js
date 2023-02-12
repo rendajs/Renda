@@ -21,6 +21,7 @@ export class ProjectAssetTypeSampler extends ProjectAssetType {
 	static type = "renda:sampler";
 	static typeUuid = "3e526f40-1b56-4b23-814e-13fcf75617c3";
 	static newFileName = "New Sampler";
+	static uiName = "Sampler";
 
 	/** @type {import("../../ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} */
 	static propertiesAssetContentStructure = {

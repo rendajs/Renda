@@ -92,6 +92,17 @@ export class ArrayGui {
 		}
 	}
 
+	/**
+	 * @param {import("./TreeView.js").TreeView} parent
+	 */
+	updateContainerDepthFromParent(parent) {
+		let depth = parent.containerRecursionDepth;
+		const renderContainer = this.type != "object";
+		if (renderContainer) depth++;
+		this.treeView.renderContainer = renderContainer;
+		this.treeView.forceContainerRecursionDepth(depth);
+	}
+
 	// adds new item to the end of the array
 	addItem(extraArrayOpts = {}) {
 		const index = this.value.length;

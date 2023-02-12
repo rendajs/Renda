@@ -2,7 +2,7 @@ import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {MaterialMapTypeSerializerWebGpu} from "../../../../../../editor/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializerWebGpu.js";
 import {WebGpuPipelineConfig} from "../../../../../../src/mod.js";
 import {WebGpuMaterialMapType} from "../../../../../../src/rendering/renderers/webGpu/WebGpuMaterialMapType.js";
-import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 
 const BASIC_FORWARD_PIPELINE_CONFIG_ASSET_UUID = "basic forward pipeline config asset uuid";
