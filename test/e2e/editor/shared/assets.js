@@ -1,7 +1,7 @@
 import {click} from "../../shared/util.js";
 import {getContentWindowElement} from "./contentWindows.js";
 import {clickContextMenuItem} from "./contextMenu.js";
-import {getNotTreeViewItemElement, getTreeViewItemElement} from "./treeView.js";
+import {getTreeViewItemElement, waitForTreeViewDisappear} from "./treeView.js";
 
 /**
  * Clicks the create asset button in the project window and clicks the specified
@@ -34,22 +34,14 @@ export async function createAsset(page, testContext, createMenuPath) {
 /**
  * @template {boolean} TIsNotFunction
  * @param {import("puppeteer").Page} page
- * @param {string[]} assetPath
- * @param {TIsNotFunction} isNotFunction
  */
-async function getAssetTreeViewHelper(page, assetPath, isNotFunction) {
+async function getProjectRootTreeViewEl(page) {
 	const projectEl = await getContentWindowElement(page, "project");
 	const projectRootTreeViewEl = await projectEl.$(":scope > .editorContentWindowContent > .treeViewItem");
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
 	}
-	let result;
-	if (isNotFunction) {
-		result = await getNotTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
-	} else {
-		result = await getTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
-	}
-	return /** @type {TIsNotFunction extends true ? import("puppeteer").JSHandle<boolean> : import("puppeteer").ElementHandle} */ (result);
+	return projectRootTreeViewEl;
 }
 
 /**
@@ -58,16 +50,19 @@ async function getAssetTreeViewHelper(page, assetPath, isNotFunction) {
  * @param {string[]} assetPath
  */
 export async function getAssetTreeView(page, assetPath) {
-	return await getAssetTreeViewHelper(page, assetPath, false);
+	const projectRootTreeViewEl = await getProjectRootTreeViewEl(page);
+	const result = await getTreeViewItemElement(page, projectRootTreeViewEl, assetPath);
+	return /** @type {import("puppeteer").ElementHandle} */ (result);
 }
 
 /**
- * Finds the project window and searches for the specified asset treeview element.
+ * Finds the project window and waits for an asset treeview to disappear.
  * @param {import("puppeteer").Page} page
  * @param {string[]} assetPath
  */
-export async function getNotAssetTreeView(page, assetPath) {
-	return await getAssetTreeViewHelper(page, assetPath, true);
+export async function waitForAssetDissappear(page, assetPath) {
+	const projectRootTreeViewEl = await getProjectRootTreeViewEl(page);
+	await waitForTreeViewDisappear(page, projectRootTreeViewEl, assetPath);
 }
 
 /**
