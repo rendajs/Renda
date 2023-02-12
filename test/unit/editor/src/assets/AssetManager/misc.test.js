@@ -1,6 +1,6 @@
 import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import {assertIsType} from "../../../../../shared/typeAssertions.js";
+import {assertIsType} from "../../../../shared/typeAssertions.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {ASSET_SETTINGS_PATH, BASIC_ASSET_PATH, BASIC_ASSET_UUID, basicSetup} from "./shared.js";
 

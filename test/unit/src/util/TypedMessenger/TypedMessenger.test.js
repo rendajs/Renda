@@ -1,7 +1,7 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
-import {assertIsType} from "../../../../shared/typeAssertions.js";
+import {assertIsType} from "../../../shared/typeAssertions.js";
 
 Deno.test({
 	name: "Basic request",
