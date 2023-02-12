@@ -3,7 +3,7 @@ import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {ButtonSelectorGui} from "../../../../../editor/src/ui/ButtonSelectorGui.js";
 import {runWithDom} from "../../shared/runWithDom.js";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
-import {assertIsType} from "../../../../shared/typeAssertions.js";
+import {assertIsType} from "../../../shared/typeAssertions.js";
 
 /**
  * @param {ButtonSelectorGui} gui

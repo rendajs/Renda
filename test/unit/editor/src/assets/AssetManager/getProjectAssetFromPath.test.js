@@ -3,7 +3,7 @@ import {assertEquals, assertExists, assertRejects} from "std/testing/asserts.ts"
 import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
-import {assertIsType} from "../../../../../shared/typeAssertions.js";
+import {assertIsType} from "../../../../shared/typeAssertions.js";
 import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
 import {BASIC_ASSET_PATH, BASIC_PROJECTASSETTYPE, NON_EXISTENT_ASSET_PATH, basicSetup} from "./shared.js";
 
