@@ -41,10 +41,15 @@ export class TextGui {
 	 */
 	setValue(value) {
 		this.el.value = value;
+		this.fireOnChangeCbs();
 	}
 
 	get value() {
 		return this.el.value;
+	}
+
+	set value(value) {
+		this.setValue(value);
 	}
 
 	/**

@@ -14,3 +14,18 @@ export function runWithDom(fn) {
 		uninstallFakeDocument();
 	}
 }
+
+/**
+ * Runs the function with an installed fake dom.
+ * Ensures global scope is cleaned up after running, even if errors are thrown.
+ * @param {() => Promise<void>} fn
+ */
+export async function runWithDomAsync(fn) {
+	installFakeDocument();
+
+	try {
+		await fn();
+	} finally {
+		uninstallFakeDocument();
+	}
+}

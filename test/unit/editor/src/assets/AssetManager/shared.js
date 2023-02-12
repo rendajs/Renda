@@ -1,7 +1,7 @@
 import {AssetManager} from "../../../../../../editor/src/assets/AssetManager.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
-import {createMockProjectAssetTypeManager} from "../shared/createMockProjectAssetTypeManager.js";
+import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
+import {createMockProjectAssetTypeManager} from "../../../shared/createMockProjectAssetTypeManager.js";
 
 export const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 export const NONEXISTENT_ASSET_UUID = "NONEXISTENT_ASSET_UUID";

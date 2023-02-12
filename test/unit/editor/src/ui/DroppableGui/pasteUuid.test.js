@@ -4,7 +4,7 @@ import {assertContextMenuStructureContains, assertContextMenuStructureNotContain
 import {basicSetupForContextMenus} from "./shared.js";
 import {ClipboardEvent} from "fake-dom/FakeClipboardEvent.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
-import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 
 const BASIC_PASTED_ASSET_UUID = "a75c1304-5347-4f86-ae7a-3f57c1fb3ebf";
 

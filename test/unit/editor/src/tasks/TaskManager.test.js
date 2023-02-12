@@ -5,7 +5,7 @@ import {TaskManager} from "../../../../../editor/src/tasks/TaskManager.js";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {injectMockEditorInstance} from "../../../../../editor/src/editorInstance.js";
-import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
 import {stringArrayEquals} from "../../../../../src/mod.js";
 
 Deno.test({

@@ -1,6 +1,6 @@
 /**
  * @param {object} options
- * @param {import("../../../../../../src/mod.js").UuidString} [options.uuid]
+ * @param {import("../../../../src/mod.js").UuidString} [options.uuid]
  * @param {unknown} [options.liveAsset]
  * @param {boolean} [options.allowImmediateLiveAssetReturn]
  * @param {unknown} [options.readAssetDataReturnValue]
@@ -21,7 +21,7 @@ export function createMockProjectAsset({
 	/** @type {Map<string, object>} */
 	const previousEmbeddedLiveAssets = new Map();
 
-	const projectAsset = /** @type {import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
+	const projectAsset = /** @type {import("../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ ({
 		uuid,
 		async waitForInit() {},
 		async getLiveAsset() {

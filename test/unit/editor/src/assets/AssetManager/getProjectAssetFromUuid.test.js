@@ -4,7 +4,7 @@ import {ProjectAssetTypeEntity} from "../../../../../../editor/src/assets/projec
 import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/projectAssetType/ProjectAssetTypeMaterial.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {assertIsType} from "../../../../../shared/typeAssertions.js";
-import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
+import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
 import {BASIC_ASSET_PATH, BASIC_ASSET_UUID, BASIC_PROJECTASSETTYPE, NONEXISTENT_ASSET_UUID, NONEXISTENT_PROJECTASSETTYPE, basicSetup} from "./shared.js";
 
 injectMockEditorInstance(/** @type {any} */ ({}));

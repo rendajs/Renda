@@ -5,7 +5,7 @@ import {ProjectAssetTypeMaterial} from "../../../../../../editor/src/assets/proj
 import {createMockDependencies} from "./shared.js";
 import {Material, Vec3} from "../../../../../../src/mod.js";
 import {MaterialMap} from "../../../../../../src/rendering/MaterialMap.js";
-import {createMockProjectAsset} from "../shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {DEFAULT_MATERIAL_MAP_UUID} from "../../../../../../editor/src/assets/builtinAssetUuids.js";
 import {Texture} from "../../../../../../src/core/Texture.js";
 import {Sampler} from "../../../../../../src/rendering/Sampler.js";

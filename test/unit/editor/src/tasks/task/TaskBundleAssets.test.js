@@ -1,7 +1,7 @@
 import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
 import {TaskBundleAssets} from "../../../../../../editor/src/tasks/task/TaskBundleAssets.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {createMockProjectAsset} from "../../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {stub} from "std/testing/mock.ts";
 import {BinaryDecomposer} from "../../../../../../src/mod.js";
 import {getBasicRunTaskReadAssetOptions} from "./shared.js";

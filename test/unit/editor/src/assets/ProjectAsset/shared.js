@@ -2,8 +2,8 @@ import {spy} from "std/testing/mock.ts";
 import {ProjectAsset} from "../../../../../../editor/src/assets/ProjectAsset.js";
 import {injectMockEditorInstance} from "../../../../../../editor/src/editorInstance.js";
 import {MemoryEditorFileSystem} from "../../../../../../editor/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {createMockProjectAssetType} from "../shared/createMockProjectAssetType.js";
-import {createMockProjectAssetTypeManager} from "../shared/createMockProjectAssetTypeManager.js";
+import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
+import {createMockProjectAssetTypeManager} from "../../../shared/createMockProjectAssetTypeManager.js";
 
 export const BASIC_UUID = "00000000-0000-0000-0000-000000000000";
 export const BASIC_PROJECTASSETTYPE = "test:basicassettype";
@@ -99,7 +99,7 @@ export function basicSetup({
 		});
 	}
 
-	const castProjectAsset = /** @type {TIsKnown extends true ? ProjectAsset<import("../shared/createMockProjectAssetType.js").MockProjectAssetType> : import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (projectAsset);
+	const castProjectAsset = /** @type {TIsKnown extends true ? ProjectAsset<import("../../../shared/createMockProjectAssetType.js").MockProjectAssetType> : import("../../../../../../editor/src/assets/ProjectAsset.js").ProjectAssetAny} */ (projectAsset);
 	return {
 		mocks,
 		projectAsset: castProjectAsset,

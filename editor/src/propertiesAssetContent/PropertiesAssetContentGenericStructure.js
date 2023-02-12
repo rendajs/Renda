@@ -27,6 +27,9 @@ export class PropertiesAssetContentGenericStructure extends PropertiesAssetConte
 	 * @param {import("../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny?} assetType
 	 */
 	setStructure(structure, assetType) {
+		if (this.structure) {
+			throw new Error("Assertion failed: structure can only be set once.");
+		}
 		this.structure = structure;
 		let uiName = "Asset Properties";
 		if (assetType) {

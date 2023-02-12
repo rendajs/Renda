@@ -1,7 +1,7 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {stub} from "std/testing/mock.ts";
 import "../../shared/initializeEditor.js";
-import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
 import {Material, Vec2, Vec3, Vec4} from "../../../../../src/mod.js";
 import {createMockKeyboardShortcutManager} from "../../shared/mockKeyboardShortcutManager.js";
 import {MaterialMap} from "../../../../../src/rendering/MaterialMap.js";

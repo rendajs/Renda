@@ -1,7 +1,7 @@
 import "../../shared/initializeEditor.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {PropertiesAssetContentTask, environmentVariablesStructure} from "../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentTask.js";
-import {createMockProjectAsset} from "../assets/shared/createMockProjectAsset.js";
+import {createMockProjectAsset} from "../../shared/createMockProjectAsset.js";
 import {createTreeViewStructure} from "../../../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {Task} from "../../../../../editor/src/tasks/task/Task.js";
 import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
