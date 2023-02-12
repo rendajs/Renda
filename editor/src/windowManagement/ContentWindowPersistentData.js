@@ -3,11 +3,10 @@ export class ContentWindowPersistentData {
 	#data = new Map();
 	/** @type {Set<(windowManager: import("./WindowManager.js").WindowManager) => any>} */
 	#onWindowManagerCbs = new Set();
-	#dataLoaded = false;
-	/** @type {Set<() => void>} */
-	#onDataLoadCbs = new Set();
 	/** @type {import("./WindowManager.js").WindowManager?} */
 	#windowManager = null;
+	/** @type {Set<() => void>} */
+	#onDataLoadCbs = new Set();
 
 	/**
 	 * @param {import("./WindowManager.js").WindowManager} windowManager
@@ -25,18 +24,12 @@ export class ContentWindowPersistentData {
 		return await promise;
 	}
 
-	async #waitForDataLoad() {
-		if (this.#dataLoaded) return;
-		/** @type {Promise<void>} */
-		const promise = new Promise(r => this.#onDataLoadCbs.add(r));
-		await promise;
-	}
-
 	/**
+	 * Returns the current value of an item. Note that this might not be available yet when the window loads.
+	 * To ensure your content window stays up to date, make sure to use {@linkcode onDataLoad}.
 	 * @param {string} key
 	 */
-	async get(key) {
-		await this.#waitForDataLoad();
+	get(key) {
 		return this.#data.get(key);
 	}
 
@@ -86,7 +79,21 @@ export class ContentWindowPersistentData {
 			this.#data.set(k, v);
 		}
 		this.#onDataLoadCbs.forEach(cb => cb());
-		this.#onDataLoadCbs.clear();
-		this.#dataLoaded = true;
+	}
+
+	/**
+	 * Fires when data from the project has loaded.
+	 * @param {() => void} cb
+	 */
+	onDataLoad(cb) {
+		this.#onDataLoadCbs.add(cb);
+	}
+
+	/**
+	 * Fires when data from the project has loaded.
+	 * @param {() => void} cb
+	 */
+	removeOnDataLoad(cb) {
+		this.#onDataLoadCbs.delete(cb);
 	}
 }
