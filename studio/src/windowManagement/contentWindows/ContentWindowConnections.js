@@ -163,15 +163,15 @@ export class ContentWindowConnections extends ContentWindow {
 
 	updateConnectionLists() {
 		const {availableConnections, activeConnections} = this.editorInstance.projectManager.studioConnectionsManager;
-		this.updateConnectionsList(this.editorConnectionGuis, this.editorConnectionsList, availableConnections, activeConnections, "editor");
+		this.updateConnectionsList(this.editorConnectionGuis, this.editorConnectionsList, availableConnections, activeConnections, "studio");
 		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, availableConnections, activeConnections, "inspector");
 	}
 
 	/**
 	 * @param {Map<string, ConectionGui>} guisList
 	 * @param {PropertiesTreeView<any>} listTreeView
-	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} availableConnections
-	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").ActiveEditorDataList} activeConnections
+	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} availableConnections
+	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").ActiveStudioDataList} activeConnections
 	 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").ClientType} allowedClientType
 	 */
 	updateConnectionsList(guisList, listTreeView, availableConnections, activeConnections, allowedClientType) {
@@ -226,7 +226,7 @@ export class ContentWindowConnections extends ContentWindow {
 			if (projectMetaData) {
 				gui.treeView.name = projectMetaData.name || "Untitled Project";
 			} else {
-				gui.treeView.name = "Editor";
+				gui.treeView.name = "Studio";
 			}
 
 			let available = false;

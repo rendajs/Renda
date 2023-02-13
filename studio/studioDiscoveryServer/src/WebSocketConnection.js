@@ -10,7 +10,7 @@ export class WebSocketConnection {
 		this.webSocketManager = webSocketManager;
 		this.remoteAddress = remoteAddress;
 		this.id = generateUuid();
-		this.clientType = "editor"; // todo: support for setting this from client
+		this.clientType = "studio"; // todo: support for setting this from client
 		this.projectMetaData = null;
 		this.rawConnection = rawConnection;
 

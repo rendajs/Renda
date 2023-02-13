@@ -20,14 +20,14 @@ export class InternalDiscoveryWorkerConnection {
 		 */
 		this.port = port;
 		this.clientType = clientType;
-		/** @type {import("../StudioConnectionsManager.js").RemoteEditorMetaData?} */
+		/** @type {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} */
 		this.projectMetaData = null;
 		this.iframeMessenger = iframeMessenger;
 		this.parentMessenger = parentWindowMessenger;
 	}
 
 	/**
-	 * @param {import("../StudioConnectionsManager.js").RemoteEditorMetaData?} projectMetaData
+	 * @param {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} projectMetaData
 	 */
 	setProjectMetaData(projectMetaData) {
 		this.projectMetaData = projectMetaData;

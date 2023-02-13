@@ -11,7 +11,7 @@ import {TypedMessenger} from "../util/TypedMessenger.js";
  * @typedef AvailableClientUpdateEvent
  * @property {import("../mod.js").UuidString} clientId
  * @property {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} [clientType]
- * @property {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} [projectMetaData]
+ * @property {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} [projectMetaData]
  * @property {boolean} [deleted] Whether the client has become unavailable.
  */
 /** @typedef {(event: AvailableClientUpdateEvent) => void} OnAvailableClientUpdateCallback */
@@ -190,7 +190,7 @@ export class InternalDiscoveryManager {
 			/**
 			 * @param {import("../mod.js").UuidString} clientId
 			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
-			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} projectMetaData
+			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} projectMetaData
 			 */
 			availableClientAdded: (clientId, clientType, projectMetaData) => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, clientType, projectMetaData}));
@@ -203,7 +203,7 @@ export class InternalDiscoveryManager {
 			},
 			/**
 			 * @param {import("../mod.js").UuidString} clientId
-			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} metaData
+			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 			 */
 			projectMetaData: (clientId, metaData) => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: metaData}));
@@ -241,7 +241,7 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} metaData
+	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
 		await this.workerMessenger.send("projectMetaData", metaData);

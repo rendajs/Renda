@@ -82,7 +82,7 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				sendAllClientAddedMessages(activeConnections, createdConnection);
 			},
 			/**
-			 * @param {import("../StudioConnectionsManager.js").RemoteEditorMetaData?} metaData
+			 * @param {import("../StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 			 */
 			projectMetaData(metaData) {
 				if (!createdConnection) return;

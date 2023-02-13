@@ -6,30 +6,30 @@ import {InternalDiscoveryManager} from "../../../../src/inspector/InternalDiscov
 
 /**
  * @fileoverview The StudioConnectionsManager is responsible for managing connections with
- * either other editors, or inspectors from running applications. The manager does not control
+ * either other studio instances, or inspectors from running applications. The manager does not control
  * any ui, but the ContentWindowConnections does tap into this manager in order to get the
  * list of connections to display etc.
  * This manager takes care of both internal as well as remote connections.
  */
 
 /**
- * @typedef {object} RemoteEditorMetaData
+ * @typedef {object} RemoteStudioMetaData
  * @property {string} name
  * @property {boolean} fileSystemHasWritePermissions
  * @property {import("../../../../src/util/mod.js").UuidString} uuid
  */
 /** @typedef {"webRtc" | "internal"} MessageHandlerType */
-/** @typedef {"editor" | "inspector"} ClientType */
+/** @typedef {"studio" | "inspector"} ClientType */
 /**
- * @typedef {object} AvailableEditorData
+ * @typedef {object} AvailableStudioData
  * @property {import("../../../../src/util/mod.js").UuidString} id
  * @property {MessageHandlerType} messageHandlerType
  * @property {ClientType} clientType
- * @property {RemoteEditorMetaData?} projectMetaData
+ * @property {RemoteStudioMetaData?} projectMetaData
  */
 
-/** @typedef {Map<import("../../../../src/util/mod.js").UuidString, AvailableEditorData>} AvailableEditorDataList */
-/** @typedef {Map<import("../../../../src/util/mod.js").UuidString, StudioConnection>} ActiveEditorDataList */
+/** @typedef {Map<import("../../../../src/util/mod.js").UuidString, AvailableStudioData>} AvailableStudioDataList */
+/** @typedef {Map<import("../../../../src/util/mod.js").UuidString, StudioConnection>} ActiveStudioDataList */
 
 /** @typedef {"disconnected" | "connecting" | "connected"} DiscoveryServerStatusType */
 
@@ -51,11 +51,11 @@ export class StudioConnectionsManager {
 		/** @private @type {Set<(success: boolean) => void>} */
 		this.onDiscoveryOpenOrErrorCbs = new Set();
 
-		/** @type {RemoteEditorMetaData?} */
+		/** @type {RemoteStudioMetaData?} */
 		this.currentProjectMetaData = null;
-		/** @type {RemoteEditorMetaData?} */
+		/** @type {RemoteStudioMetaData?} */
 		this.lastInternalProjectMetaData = null;
-		/** @type {RemoteEditorMetaData?} */
+		/** @type {RemoteStudioMetaData?} */
 		this.lastWebRtcProjectMetaData = null;
 
 		this.protocol = new ProtocolManager();
@@ -63,7 +63,7 @@ export class StudioConnectionsManager {
 		/**
 		 * List of available studio instances that are visible via a discovery service
 		 * but the studio instances are not necessarily connected yet.
-		 * @type {AvailableEditorDataList}
+		 * @type {AvailableStudioDataList}
 		 */
 		this.availableConnections = new Map();
 		/** @private @type {Set<function() : void>} */
@@ -71,10 +71,10 @@ export class StudioConnectionsManager {
 
 		/**
 		 * The list of connections the client is currently connected to.
-		 * @type {ActiveEditorDataList}
+		 * @type {ActiveStudioDataList}
 		 */
 		this.activeConnections = new Map();
-		/** @type {Set<function(ActiveEditorDataList) : void>} */
+		/** @type {Set<function(ActiveStudioDataList) : void>} */
 		this.onActiveConnectionsChangedCbs = new Set();
 
 		this.internalDiscovery = new InternalDiscoveryManager({
@@ -117,7 +117,7 @@ export class StudioConnectionsManager {
 
 			this.fireAvailableConnectionsChanged();
 		});
-		this.internalDiscovery.registerClient("editor");
+		this.internalDiscovery.registerClient("studio");
 
 		/**
 		 * When the user opens a recent project that is a remote project,
@@ -183,7 +183,7 @@ export class StudioConnectionsManager {
 	 * Notifies any discovery services about the current metadata of a project.
 	 * This is to make it possible for other clients to render the name etc.
 	 * before the actual connection is being made.
-	 * @param {RemoteEditorMetaData} metaData
+	 * @param {RemoteStudioMetaData} metaData
 	 */
 	setProjectMetaData(metaData) {
 		this.currentProjectMetaData = metaData;
@@ -191,8 +191,8 @@ export class StudioConnectionsManager {
 	}
 
 	/**
-	 * @param {RemoteEditorMetaData?} oldData
-	 * @param {RemoteEditorMetaData?} newData
+	 * @param {RemoteStudioMetaData?} oldData
+	 * @param {RemoteStudioMetaData?} newData
 	 */
 	#metaDataChanged(oldData, newData) {
 		if (oldData == newData) return false;
@@ -207,8 +207,7 @@ export class StudioConnectionsManager {
 	}
 
 	/**
-	 * Sends the current state of project metadata to remote and internal editor
-	 * connections.
+	 * Sends the current state of project metadata to remote and internal studio connections.
 	 */
 	#updateProjectMetaData() {
 		if (this.#metaDataChanged(this.currentProjectMetaData, this.lastWebRtcProjectMetaData)) {
@@ -317,7 +316,7 @@ export class StudioConnectionsManager {
 	 * @typedef {object} AvailableRtcConnectionData
 	 * @property {import("../../../../src/util/mod.js").UuidString} id
 	 * @property {ClientType} clientType
-	 * @property {RemoteEditorMetaData?} projectMetaData
+	 * @property {RemoteStudioMetaData?} projectMetaData
 	 */
 
 	/**
@@ -385,14 +384,14 @@ export class StudioConnectionsManager {
 	 * A connection is considered active when messages can be sent. I.e.
 	 * available connections from a discovery service are not listed here
 	 * unless they are also connected.
-	 * @param {function(ActiveEditorDataList) : void} cb
+	 * @param {function(ActiveStudioDataList) : void} cb
 	 */
 	onActiveConnectionsChanged(cb) {
 		this.onActiveConnectionsChangedCbs.add(cb);
 	}
 
 	/**
-	 * @param {function(ActiveEditorDataList) : void} cb
+	 * @param {function(ActiveStudioDataList) : void} cb
 	 */
 	removeOnActiveConnectionsChanged(cb) {
 		this.onActiveConnectionsChangedCbs.delete(cb);
@@ -458,38 +457,38 @@ export class StudioConnectionsManager {
 	 * @return {StudioConnection}
 	 */
 	addActiveConnection(connectionId, messageHandler) {
-		const editorConnection = new StudioConnection(messageHandler, this.protocol);
-		editorConnection.onConnectionStateChange(newState => {
+		const studioConnection = new StudioConnection(messageHandler, this.protocol);
+		studioConnection.onConnectionStateChange(newState => {
 			this.fireActiveConnectionsChanged();
 		});
-		this.activeConnections.set(connectionId, editorConnection);
+		this.activeConnections.set(connectionId, studioConnection);
 		this.fireActiveConnectionsChanged();
-		return editorConnection;
+		return studioConnection;
 	}
 
 	/**
-	 * @param {import("../../../../src/util/mod.js").UuidString} editorId
+	 * @param {import("../../../../src/util/mod.js").UuidString} studioId
 	 * @param {RTCSessionDescriptionInit} rtcDescription
 	 */
-	handleRtcOffer(editorId, rtcDescription) {
-		let editorConnection = this.activeConnections.get(editorId);
-		if (!editorConnection) {
-			const messageHandler = new MessageHandlerWebRtc(editorId, this);
-			editorConnection = this.addActiveConnection(editorId, messageHandler);
+	handleRtcOffer(studioId, rtcDescription) {
+		let studioConnection = this.activeConnections.get(studioId);
+		if (!studioConnection) {
+			const messageHandler = new MessageHandlerWebRtc(studioId, this);
+			studioConnection = this.addActiveConnection(studioId, messageHandler);
 		}
-		const handler = /** @type {MessageHandlerWebRtc} */ (editorConnection.messageHandler);
+		const handler = /** @type {MessageHandlerWebRtc} */ (studioConnection.messageHandler);
 		handler.handleRtcOffer(rtcDescription);
 	}
 
 	/**
-	 * @param {import("../../../../src/util/mod.js").UuidString} editorId
+	 * @param {import("../../../../src/util/mod.js").UuidString} studioId
 	 * @param {RTCIceCandidateInit} iceCandidate
 	 */
-	handleRtcIceCandidate(editorId, iceCandidate) {
-		const editorConnection = this.activeConnections.get(editorId);
-		if (!editorConnection) return;
+	handleRtcIceCandidate(studioId, iceCandidate) {
+		const studioConnection = this.activeConnections.get(studioId);
+		if (!studioConnection) return;
 
-		const handler = /** @type {MessageHandlerWebRtc} */ (editorConnection.messageHandler);
+		const handler = /** @type {MessageHandlerWebRtc} */ (studioConnection.messageHandler);
 		handler.handleRtcIceCandidate(iceCandidate);
 	}
 

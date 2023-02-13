@@ -17,8 +17,8 @@ import {Button} from "../../../../../../studio/src/ui/Button.js";
 /**
  * @param {object} options
  * @param {(ctx: ContentWindowConnectionsTestContext) => void | Promise<void>} options.fn
- * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} [options.availableConnections]
- * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ActiveEditorDataList} [options.activeConnections]
+ * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} [options.availableConnections]
+ * @param {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").ActiveStudioDataList} [options.activeConnections]
  * @param {boolean} [options.currentProjectIsRemote]
  */
 async function basicTest({
@@ -129,13 +129,13 @@ function assertConnectionTreeView(treeView, projectName, connectionType, status,
 }
 
 Deno.test({
-	name: "Another internal editor without project meta data",
+	name: "Another internal studio without project meta data",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
-			clientType: "editor",
+			clientType: "studio",
 			messageHandlerType: "internal",
 			projectMetaData: null,
 		});
@@ -143,20 +143,20 @@ Deno.test({
 			availableConnections,
 			fn({editorsListTreeView}) {
 				const editorTreeView = getChildTreeViewFromIndices(editorsListTreeView, 0);
-				assertConnectionTreeView(editorTreeView, "Editor", "Internal", "Unavailable", "This editor either doesn't have a project open or has disabled incoming connections in its connections window.", false);
+				assertConnectionTreeView(editorTreeView, "Studio", "Internal", "Unavailable", "This editor either doesn't have a project open or has disabled incoming connections in its connections window.", false);
 			},
 		});
 	},
 });
 
 Deno.test({
-	name: "Another internal editor with project meta data, no write permission",
+	name: "Another internal studio with project meta data, no write permission",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
-			clientType: "editor",
+			clientType: "studio",
 			messageHandlerType: "internal",
 			projectMetaData: {
 				fileSystemHasWritePermissions: false,
@@ -177,11 +177,11 @@ Deno.test({
 Deno.test({
 	name: "Another internal editor with project meta data, available",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
-			clientType: "editor",
+			clientType: "studio",
 			messageHandlerType: "internal",
 			projectMetaData: {
 				fileSystemHasWritePermissions: true,
@@ -202,11 +202,11 @@ Deno.test({
 Deno.test({
 	name: "Another webrtc editor with project meta data, available",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
-			clientType: "editor",
+			clientType: "studio",
 			messageHandlerType: "webRtc",
 			projectMetaData: {
 				fileSystemHasWritePermissions: true,
@@ -227,11 +227,11 @@ Deno.test({
 Deno.test({
 	name: "Old connections get removed",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		availableConnections.set("uuid1", {
 			id: "uuid1",
-			clientType: "editor",
+			clientType: "studio",
 			messageHandlerType: "webRtc",
 			projectMetaData: null,
 		});
@@ -249,14 +249,14 @@ Deno.test({
 Deno.test({
 	name: "Callbacks are unregistered when destructed",
 	async fn() {
-		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableEditorDataList} */
+		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
 		await basicTest({
 			availableConnections,
 			fn({contentWindow, editorsListTreeView, fireOnAvailableConnectionsChanged}) {
 				availableConnections.set("uuid1", {
 					id: "uuid1",
-					clientType: "editor",
+					clientType: "studio",
 					messageHandlerType: "webRtc",
 					projectMetaData: null,
 				});
