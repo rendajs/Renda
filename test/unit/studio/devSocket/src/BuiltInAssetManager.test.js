@@ -245,8 +245,8 @@ Deno.test({
 			builtInAssetsPath: null,
 		});
 
-		assert(manager.builtInAssetsPath.endsWith("editor/builtInAssets"));
-		assert(manager.assetSettingsPath.endsWith("editor/builtInAssets/assetSettings.json"));
+		assert(manager.builtInAssetsPath.endsWith("studio/builtInAssets"));
+		assert(manager.assetSettingsPath.endsWith("studio/builtInAssets/assetSettings.json"));
 	},
 });
 
