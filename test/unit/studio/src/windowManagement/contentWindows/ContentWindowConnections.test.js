@@ -143,7 +143,7 @@ Deno.test({
 			availableConnections,
 			fn({studiosListTreeView}) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
-				assertConnectionTreeView(studioTreeView, "Studio", "Internal", "Unavailable", "This studio instance either doesn't have a project open or has disabled incoming connections in its connections window.", false);
+				assertConnectionTreeView(studioTreeView, "Studio", "Internal", "Unavailable", "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.", false);
 			},
 		});
 	},
@@ -168,7 +168,7 @@ Deno.test({
 			availableConnections,
 			fn({studiosListTreeView}) {
 				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
-				assertConnectionTreeView(studioTreeView, "My Project", "Internal", "No Filesystem permissions", "This studio instance either doesn't have a project open or has disabled incoming connections in its connections window.", false);
+				assertConnectionTreeView(studioTreeView, "My Project", "Internal", "No Filesystem permissions", "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.", false);
 			},
 		});
 	},
