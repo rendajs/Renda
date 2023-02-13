@@ -19,7 +19,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Creates an empty project on editor load",
+	name: "Creates an empty project on studio load",
 	async fn() {
 		const {projectSelector, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
 
@@ -125,7 +125,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Opening project directory after editor has already loaded",
+	name: "Opening project directory after studio has already loaded",
 	async fn() {
 		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerEditorLoad, uninstall} = basicSetup();
 

@@ -26,7 +26,7 @@ const scriptTypes = [
  */
 export function resolvePlugin({getScriptContentFn, servicesSource}) {
 	return {
-		name: "editor-resolve-scripts",
+		name: "studio-resolve-scripts",
 		resolveId(source, importer, opts) {
 			const castThis = /** @type {import("rollup").PluginContext} */ (/** @type {unknown} */ (this));
 			let importerInfo = null;
@@ -35,7 +35,7 @@ export function resolvePlugin({getScriptContentFn, servicesSource}) {
 			}
 			let {scriptType, sourcePath} = getPathType(source);
 			/** @type {ScriptType?} */
-			const importerType = importerInfo?.meta?.editorResolve?.scriptType ?? null;
+			const importerType = importerInfo?.meta?.studioResolve?.scriptType ?? null;
 			scriptType = scriptType || importerType || null;
 
 			const originalIsRelative = !sourcePath.startsWith("/");
@@ -69,7 +69,7 @@ export function resolvePlugin({getScriptContentFn, servicesSource}) {
 			return {
 				id: resolvedPath,
 				meta: {
-					editorResolve: {
+					studioResolve: {
 						scriptType,
 					},
 				},
@@ -79,7 +79,7 @@ export function resolvePlugin({getScriptContentFn, servicesSource}) {
 			const castThis = /** @type {import("rollup").PluginContext} */ (/** @type {unknown} */ (this));
 			const moduleInfo = castThis.getModuleInfo(id);
 			/** @type {ScriptType?} */
-			const scriptType = moduleInfo?.meta?.editorResolve?.scriptType ?? null;
+			const scriptType = moduleInfo?.meta?.studioResolve?.scriptType ?? null;
 			if (scriptType == "project") {
 				return await getScriptContentFn(id.split("/"));
 			} else if (scriptType == "engine") {

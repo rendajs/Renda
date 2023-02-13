@@ -47,7 +47,7 @@ export class ComponentGizmosManager {
 	createComponentGizmosInstance(componentType, component, gizmoManager) {
 		const ComponentGizmosConstructor = this.getComponentGizmosConstructor(componentType);
 		if (!ComponentGizmosConstructor) return null;
-		const editor = getStudioInstance();
-		return new ComponentGizmosConstructor(editor, component, gizmoManager);
+		const studio = getStudioInstance();
+		return new ComponentGizmosConstructor(studio, component, gizmoManager);
 	}
 }

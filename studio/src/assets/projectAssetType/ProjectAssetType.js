@@ -119,7 +119,7 @@ export class ProjectAssetType {
 	 * in a json object that contains extra studio metadata.
 	 * @type {boolean}
 	 */
-	static wrapProjectJsonWithEditorMetaData = true;
+	static wrapProjectJsonWithStudioMetaData = true;
 
 	/** @typedef {import("../../ui/propertiesTreeView/PropertiesTreeView.js").PropertiesTreeView} PropertiesTreeView */
 	/**
@@ -202,7 +202,8 @@ export class ProjectAssetType {
 	 * i.e. It is only called twice if destroyLiveAssetData gets called first.
 	 * `studioData` will be passed back to {@linkcode saveLiveAssetData}.
 	 * You can use this to store extra data that can be manipulated by studio.
-	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
+	 * Studio data is useful for storing info along with binary files that can't be stored in the assets themselves,
+	 * such as jpeg or glb files.
 	 * @param {TGetFileData?} fileData The result returned from {@linkcode ProjectAsset.readAssetData}.
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
 	 * @returns {Promise<LiveAssetData<TLiveAsset, TStudioData>>}

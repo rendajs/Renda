@@ -2,12 +2,12 @@ import {Texture} from "../../../../src/core/Texture.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
 
 /**
- * @typedef ProjectAssetTypeTextureEditorData
+ * @typedef ProjectAssetTypeTextureStudioData
  * @property {unknown} [todo]
  */
 
 /**
- * @extends {ProjectAssetType<Texture, ProjectAssetTypeTextureEditorData, any, null>}
+ * @extends {ProjectAssetType<Texture, ProjectAssetTypeTextureStudioData, any, null>}
  */
 export class ProjectAssetTypeTexture extends ProjectAssetType {
 	static type = "renda:texture";
@@ -27,7 +27,7 @@ export class ProjectAssetTypeTexture extends ProjectAssetType {
 	 * @override
 	 * @param {Blob} blob
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Texture, ProjectAssetTypeTextureEditorData>>}
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Texture, ProjectAssetTypeTextureStudioData>>}
 	 */
 	async getLiveAssetData(blob, recursionTracker) {
 		return {

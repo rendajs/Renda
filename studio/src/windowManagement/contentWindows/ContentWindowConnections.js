@@ -22,26 +22,26 @@ export class ContentWindowConnections extends ContentWindow {
 		this.headerTreeView = new PropertiesTreeView();
 		this.contentEl.appendChild(this.headerTreeView.el);
 
-		this.editorConnectionGuis = new Map();
+		this.studioConnectionGuis = new Map();
 		this.inspectorConnectionGuis = new Map();
 
 		const {discoveryServerStatusLabel} = this.createHeaderUi();
 		this.discoveryServerStatusLabel = discoveryServerStatusLabel;
 
-		const {editorHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox} = this.createHostConnectionsUi();
-		this.editorHostConnectionTreeView = editorHostConnectionTreeView;
+		const {studioHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox} = this.createHostConnectionsUi();
+		this.studioHostConnectionTreeView = studioHostConnectionTreeView;
 		this.allowRemoteIncomingCheckbox = allowRemoteIncomingCheckbox;
 		this.allowInternalIncomingCheckbox = allowInternalIncomingCheckbox;
 
-		const {editorClientConnectionTreeView, editorConnectionsList} = this.createClientConnectionUi();
-		this.editorClientConnectionTreeView = editorClientConnectionTreeView;
-		this.editorConnectionsList = editorConnectionsList;
+		const {studioClientConnectionTreeView, studioConnectionsList} = this.createClientConnectionUi();
+		this.studioClientConnectionTreeView = studioClientConnectionTreeView;
+		this.studioConnectionsList = studioConnectionsList;
 
 		const {inspectorConnectionsList} = this.createInspectorConnectionsUi();
 		this.inspectorConnectionsList = inspectorConnectionsList;
 
-		this.editorHostConnectionTreeView.visible = !this.studioInstance.projectManager.currentProjectIsRemote;
-		this.editorClientConnectionTreeView.visible = this.studioInstance.projectManager.currentProjectIsRemote;
+		this.studioHostConnectionTreeView.visible = !this.studioInstance.projectManager.currentProjectIsRemote;
+		this.studioClientConnectionTreeView.visible = this.studioInstance.projectManager.currentProjectIsRemote;
 
 		const connectionsManager = this.studioInstance.projectManager.studioConnectionsManager;
 		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
@@ -94,10 +94,10 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	createHostConnectionsUi() {
-		const editorHostConnectionTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(editorHostConnectionTreeView.el);
+		const studioHostConnectionTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(studioHostConnectionTreeView.el);
 
-		const allowRemoteIncomingCheckbox = editorHostConnectionTreeView.addItem({
+		const allowRemoteIncomingCheckbox = studioHostConnectionTreeView.addItem({
 			type: "boolean",
 			/** @type {import("../../ui/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
@@ -105,10 +105,10 @@ export class ContentWindowConnections extends ContentWindow {
 			},
 		});
 		allowRemoteIncomingCheckbox.onValueChange(allowIncoming => {
-			this.studioInstance.projectManager.setEditorConnectionsAllowRemoteIncoming(allowIncoming);
+			this.studioInstance.projectManager.setStudioConnectionsAllowRemoteIncoming(allowIncoming);
 		});
 
-		const allowInternalIncomingCheckbox = editorHostConnectionTreeView.addItem({
+		const allowInternalIncomingCheckbox = studioHostConnectionTreeView.addItem({
 			type: "boolean",
 			/** @type {import("../../ui/BooleanGui.js").BooleanGuiOptions} */
 			guiOpts: {
@@ -116,20 +116,20 @@ export class ContentWindowConnections extends ContentWindow {
 			},
 		});
 		allowInternalIncomingCheckbox.onValueChange(allowIncoming => {
-			this.studioInstance.projectManager.setEditorConnectionsAllowInternalIncoming(allowIncoming);
+			this.studioInstance.projectManager.setStudioConnectionsAllowInternalIncoming(allowIncoming);
 		});
 
-		return {editorHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox};
+		return {studioHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox};
 	}
 
 	createClientConnectionUi() {
-		const editorClientConnectionTreeView = new PropertiesTreeView();
-		this.contentEl.appendChild(editorClientConnectionTreeView.el);
+		const studioClientConnectionTreeView = new PropertiesTreeView();
+		this.contentEl.appendChild(studioClientConnectionTreeView.el);
 
 		// todo: add status label for client connection
 
-		const editorConnectionsList = editorClientConnectionTreeView.addCollapsable("Editors");
-		return {editorClientConnectionTreeView, editorConnectionsList};
+		const studioConnectionsList = studioClientConnectionTreeView.addCollapsable("Editors");
+		return {studioClientConnectionTreeView, studioConnectionsList};
 	}
 
 	createInspectorConnectionsUi() {
@@ -150,8 +150,8 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	async loadSettings() {
-		this.allowRemoteIncomingCheckbox.setValue(await this.studioInstance.projectManager.getEditorConnectionsAllowRemoteIncoming());
-		this.allowInternalIncomingCheckbox.setValue(await this.studioInstance.projectManager.getEditorConnectionsAllowInternalIncoming());
+		this.allowRemoteIncomingCheckbox.setValue(await this.studioInstance.projectManager.getStudioConnectionsAllowRemoteIncoming());
+		this.allowInternalIncomingCheckbox.setValue(await this.studioInstance.projectManager.getStudioConnectionsAllowInternalIncoming());
 	}
 
 	/**
@@ -163,7 +163,7 @@ export class ContentWindowConnections extends ContentWindow {
 
 	updateConnectionLists() {
 		const {availableConnections, activeConnections} = this.studioInstance.projectManager.studioConnectionsManager;
-		this.updateConnectionsList(this.editorConnectionGuis, this.editorConnectionsList, availableConnections, activeConnections, "studio");
+		this.updateConnectionsList(this.studioConnectionGuis, this.studioConnectionsList, availableConnections, activeConnections, "studio");
 		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, availableConnections, activeConnections, "inspector");
 	}
 
@@ -238,7 +238,7 @@ export class ContentWindowConnections extends ContentWindow {
 					status = "Available";
 				} else {
 					status = "No Filesystem permissions";
-					tooltip = "The other editor hasn't aproved file system permissions in its tab yet.";
+					tooltip = "The other studio instance hasn't aproved file system permissions in its tab yet.";
 				}
 			}
 
@@ -255,7 +255,7 @@ export class ContentWindowConnections extends ContentWindow {
 					available = false;
 				}
 			} else {
-				tooltip = "This editor either doesn't have a project open or has disabled incoming connections in its connections window.";
+				tooltip = "The other studio instance either doesn't have a project open or has disabled incoming connections in its connections window.";
 			}
 			gui.connectButton.setDisabled(!available);
 			gui.statusLabel.setValue(status);

@@ -36,7 +36,7 @@ function basicSetup() {
 
 	let didCallNotifyMaterialChanged = false;
 
-	const mockEditorInstance = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		keyboardShortcutManager,
 		projectManager: {
 			assertAssetManagerExists() {
@@ -62,7 +62,7 @@ function basicSetup() {
 		},
 	});
 
-	const assetContent = new PropertiesAssetContentMaterial(mockEditorInstance);
+	const assetContent = new PropertiesAssetContentMaterial(mockStudio);
 
 	/**
 	 * @typedef EmbeddedParentAssetCall
@@ -80,7 +80,7 @@ function basicSetup() {
 	};
 
 	return {
-		mockEditorInstance,
+		mockStudio,
 		assetContent,
 		setEmbeddedParentAssetCalls,
 		getDidCallNotifyMaterialChanged() {
@@ -130,8 +130,8 @@ Deno.test({
 Deno.test({
 	name: "load material with a material map and properties",
 	async fn() {
-		const {assetContent, mockEditorInstance} = basicSetup();
-		stub(mockEditorInstance.materialMapTypeSerializerManager, "getMapValuesForMapAssetUuid", async () => {
+		const {assetContent, mockStudio} = basicSetup();
+		stub(mockStudio.materialMapTypeSerializerManager, "getMapValuesForMapAssetUuid", async () => {
 			/** @type {import("../../../../../studio/src/assets/materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapTypeMappableValue[]} */
 			const values = [
 				{

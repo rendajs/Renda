@@ -6,41 +6,41 @@ import {wait} from "../../../../src/util/Timeout.js";
 // eslint-disable-next-line no-unused-vars
 const fileSystemPointerType = Symbol("file system pointer type");
 
-/** @typedef {import("../../../../src/mod.js").UuidString & {__fileSystemPointerType: fileSystemPointerType}} IndexedDbEditorFileSystemPointer */
+/** @typedef {import("../../../../src/mod.js").UuidString & {__fileSystemPointerType: fileSystemPointerType}} IndexedDbStudioFileSystemPointer */
 
 /**
- * @typedef {object} IndexedDbEditorFileSystemStoredObjectBase
+ * @typedef {object} IndexedDbStudioFileSystemStoredObjectBase
  * @property {boolean} [isFile = false]
  * @property {boolean} [isDir = false]
  * @property {string} fileName
  */
 
 /**
- * @typedef {object} IndexedDbEditorFileSystemStoredObjectFileType
+ * @typedef {object} IndexedDbStudioFileSystemStoredObjectFileType
  * @property {true} isFile
  * @property {false} [isDir = false]
  * @property {File} file
  */
 /**
- * @typedef {IndexedDbEditorFileSystemStoredObjectBase & IndexedDbEditorFileSystemStoredObjectFileType} IndexedDbEditorFileSystemStoredObjectFile
+ * @typedef {IndexedDbStudioFileSystemStoredObjectBase & IndexedDbStudioFileSystemStoredObjectFileType} IndexedDbStudioFileSystemStoredObjectFile
  */
 
 /**
- * @typedef {object} IndexedDbEditorFileSystemStoredObjectDirType
+ * @typedef {object} IndexedDbStudioFileSystemStoredObjectDirType
  * @property {true} isDir
  * @property {false} [isFile = false]
- * @property {IndexedDbEditorFileSystemPointer[]} files
+ * @property {IndexedDbStudioFileSystemPointer[]} files
  */
 /**
- * @typedef {IndexedDbEditorFileSystemStoredObjectBase & IndexedDbEditorFileSystemStoredObjectDirType} IndexedDbEditorFileSystemStoredObjectDir
+ * @typedef {IndexedDbStudioFileSystemStoredObjectBase & IndexedDbStudioFileSystemStoredObjectDirType} IndexedDbStudioFileSystemStoredObjectDir
  */
 
-/** @typedef {IndexedDbEditorFileSystemStoredObjectFile | IndexedDbEditorFileSystemStoredObjectDir} IndexedDbEditorFileSystemStoredObject */
+/** @typedef {IndexedDbStudioFileSystemStoredObjectFile | IndexedDbStudioFileSystemStoredObjectDir} IndexedDbStudioFileSystemStoredObject */
 
 /**
- * @typedef {object} IndexedDbEditorFileSystemTravelledDataEntry
- * @property {IndexedDbEditorFileSystemStoredObject} obj
- * @property {IndexedDbEditorFileSystemPointer} pointer
+ * @typedef {object} IndexedDbStudioFileSystemTravelledDataEntry
+ * @property {IndexedDbStudioFileSystemStoredObject} obj
+ * @property {IndexedDbStudioFileSystemPointer} pointer
  */
 
 /**
@@ -50,7 +50,7 @@ const fileSystemPointerType = Symbol("file system pointer type");
 const SYSTEM_LOCK_QUEUE_LENGTH_FOR_WARNING = 20;
 
 export class IndexedDbStudioFileSystem extends StudioFileSystem {
-	/** @typedef {import("./StudioFileSystem.js").StudioFileSystemPath} EditorFileSystemPath */
+	/** @typedef {import("./StudioFileSystem.js").StudioFileSystemPath} StudioFileSystemPath */
 
 	/**
 	 * @param {string} fileSystemName The name of the FileSystem, will be used in the IndexedDB database name.
@@ -151,8 +151,8 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {IndexedDbEditorFileSystemStoredObject} obj
-	 * @return {asserts obj is IndexedDbEditorFileSystemStoredObjectDir}
+	 * @param {IndexedDbStudioFileSystemStoredObject} obj
+	 * @return {asserts obj is IndexedDbStudioFileSystemStoredObjectDir}
 	 */
 	assertIsDir(obj, message = `Couldn't perform operation, ${obj.fileName} is not a directory.`) {
 		if (!obj.isDir) throw new Error(message);
@@ -200,7 +200,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @param {boolean} waitForRootCreate
-	 * @returns {Promise<IndexedDbEditorFileSystemPointer>}
+	 * @returns {Promise<IndexedDbStudioFileSystemPointer>}
 	 */
 	async getRootPointer(waitForRootCreate = true) {
 		if (waitForRootCreate) await this.waitForRootCreate();
@@ -209,7 +209,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {IndexedDbEditorFileSystemPointer} pointer
+	 * @param {IndexedDbStudioFileSystemPointer} pointer
 	 * @returns {Promise<void>}
 	 */
 	async setRootPointer(pointer) {
@@ -248,8 +248,8 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {IndexedDbEditorFileSystemPointer} pointer
-	 * @returns {Promise<IndexedDbEditorFileSystemStoredObject>}
+	 * @param {IndexedDbStudioFileSystemPointer} pointer
+	 * @returns {Promise<IndexedDbStudioFileSystemStoredObject>}
 	 */
 	async getObject(pointer) {
 		if (!pointer) throw new Error("pointer not specified");
@@ -263,7 +263,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 * @param {string[]} path
 	 * @param {object} options
 	 * @param {string} [options.errorMessageActionName]
-	 * @returns {Promise<{pointer: IndexedDbEditorFileSystemPointer, obj: IndexedDbEditorFileSystemStoredObject}>}
+	 * @returns {Promise<{pointer: IndexedDbStudioFileSystemPointer, obj: IndexedDbStudioFileSystemStoredObject}>}
 	 */
 	async getObjectFromPath(path, {
 		errorMessageActionName = "perform operation",
@@ -295,18 +295,18 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {IndexedDbEditorFileSystemStoredObject} obj
+	 * @param {IndexedDbStudioFileSystemStoredObject} obj
 	 */
 	async createObject(obj) {
 		const pointer = generateUuid();
 		const db = this.assertDbExists();
 		await db.set(pointer, obj);
-		return /** @type {IndexedDbEditorFileSystemPointer} */ (pointer);
+		return /** @type {IndexedDbStudioFileSystemPointer} */ (pointer);
 	}
 
 	/**
 	 * @override
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 */
 	async createDir(path) {
 		path = [...path];
@@ -339,10 +339,10 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		const createDirs = path.slice(recursionDepth);
 		createDirs.reverse();
 		let lastCreatedPointer = null;
-		/** @type {IndexedDbEditorFileSystemTravelledDataEntry[]} */
+		/** @type {IndexedDbStudioFileSystemTravelledDataEntry[]} */
 		const extraTravelledData = [];
 		for (const [i, dir] of createDirs.entries()) {
-			/** @type {IndexedDbEditorFileSystemStoredObjectDir} */
+			/** @type {IndexedDbStudioFileSystemStoredObjectDir} */
 			const createdObject = {
 				isDir: true,
 				files: [],
@@ -386,7 +386,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	async findDeepestExisting(path) {
 		let currentPointer = await this.getRootPointer();
 		let currentObj = await this.getObject(currentPointer);
-		/** @type {IndexedDbEditorFileSystemTravelledDataEntry[]} */
+		/** @type {IndexedDbStudioFileSystemTravelledDataEntry[]} */
 		const travelledData = [
 			{
 				obj: currentObj,
@@ -425,8 +425,8 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {IndexedDbEditorFileSystemPointer} pointer
-	 * @param {IndexedDbEditorFileSystemStoredObject} newData
+	 * @param {IndexedDbStudioFileSystemPointer} pointer
+	 * @param {IndexedDbStudioFileSystemStoredObject} newData
 	 */
 	async updateObject(pointer, newData) {
 		const db = this.assertDbExists();
@@ -435,7 +435,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 */
 	async readDir(path) {
 		const {unlock} = await this.#getSystemLock();
@@ -457,12 +457,12 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	/**
 	 * Internal helper function for getting all child objects of a directory object.
 	 * @private
-	 * @param {IndexedDbEditorFileSystemStoredObjectDir} dirObject
+	 * @param {IndexedDbStudioFileSystemStoredObjectDir} dirObject
 	 */
 	async readDirObject(dirObject) {
-		/** @type {Map<string, IndexedDbEditorFileSystemPointer>} */
+		/** @type {Map<string, IndexedDbStudioFileSystemPointer>} */
 		const files = new Map();
-		/** @type {Map<string, IndexedDbEditorFileSystemPointer>} */
+		/** @type {Map<string, IndexedDbStudioFileSystemPointer>} */
 		const directories = new Map();
 		for (const filePointer of dirObject.files) {
 			const fileObj = await this.getObject(filePointer);
@@ -581,7 +581,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	 * Deletes a file or directory.
 	 * Will throw if the path does not exist.
 	 * @override
-	 * @param {EditorFileSystemPath} path The file or directory to delete.
+	 * @param {StudioFileSystemPath} path The file or directory to delete.
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path, recursive = false) {
@@ -606,7 +606,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * Same as `delete` but without locking so that it can be called recursively without getting stuck forever.
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @param {boolean} recursive
 	 */
 	async #deleteInternal(path, recursive) {
@@ -683,7 +683,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 			});
 
 			// Remove existing pointer with the same name
-			/** @type {IndexedDbEditorFileSystemPointer[]} */
+			/** @type {IndexedDbStudioFileSystemPointer[]} */
 			const deletePointers = [];
 			for (const pointer of newParentObj.obj.files) {
 				const fileObject = await this.getObject(pointer);

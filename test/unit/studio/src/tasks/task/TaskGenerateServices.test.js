@@ -76,7 +76,7 @@ function basicSetup({
 		readAssetDataReturnValue: entryPointContent,
 	});
 
-	const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			currentProjectFileSystem: fileSystem,
 			assetManager: {
@@ -108,7 +108,7 @@ function basicSetup({
 			},
 		},
 	});
-	const task = new TaskGenerateServices(mockEditor);
+	const task = new TaskGenerateServices(mockStudio);
 
 	/**
 	 * @param {import("../../../../../../studio/src/tasks/task/Task.js").RunTaskReturn<import("../../../../../../studio/src/tasks/task/TaskGenerateServices.js").TaskGenerateServicesCustomData>} runTaskResult
@@ -145,7 +145,7 @@ function basicSetup({
 		secondAsset,
 		fileSystem,
 		mockFileSystem,
-		mockEditor,
+		mockStudio,
 		getScriptContent,
 		callInitializeServices,
 	};
@@ -188,8 +188,8 @@ Deno.test({
 Deno.test({
 	name: "Throws when there is no asset manager",
 	async fn() {
-		const {task, mockEditor} = basicSetup();
-		mockEditor.projectManager.assetManager = null;
+		const {task, mockStudio} = basicSetup();
+		mockStudio.projectManager.assetManager = null;
 		await assertRejects(async () => {
 			await task.runTask(createRunTaskOptions({}));
 		}, Error, "Failed to run task: no asset manager.");

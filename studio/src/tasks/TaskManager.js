@@ -140,8 +140,8 @@ export class TaskManager {
 		if (task) return task;
 
 		const TaskConstructor = this.getTaskType(taskType);
-		const editor = getStudioInstance();
-		task = new TaskConstructor(editor);
+		const studio = getStudioInstance();
+		task = new TaskConstructor(studio);
 		this.#initializedTasks.set(taskType, task);
 		return task;
 	}

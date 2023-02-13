@@ -199,12 +199,12 @@ Deno.test({
 Deno.test({
 	name: "getReferencedAssetUuids() with an asset loader type set",
 	async fn() {
-		const {projectAsset, mocks, mockEditor, uninstall} = basicSetup();
+		const {projectAsset, mocks, mockStudio, uninstall} = basicSetup();
 		mocks.ProjectAssetType.prototype.createBundledAssetData = async () => null;
 		installFakeDocument();
 
 		const {keyboardShortcutManager} = createMockKeyboardShortcutManager();
-		mockEditor.keyboardShortcutManager = keyboardShortcutManager;
+		mockStudio.keyboardShortcutManager = keyboardShortcutManager;
 
 		const binarySerializationOpts = {
 			structure: {

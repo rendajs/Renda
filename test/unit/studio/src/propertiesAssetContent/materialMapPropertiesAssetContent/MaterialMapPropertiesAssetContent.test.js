@@ -8,7 +8,7 @@ const importer = new Importer(import.meta.url, {
 importer.redirectModule("../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeView.js", "../../../shared/mockTreeView/PropertiesTreeView.js");
 importer.fakeModule("../../../../../../studio/src/propertiesAssetContent/propertiesAssetContentMaterialMap/MaterialMapTypeEntry.js", `
 	export class MaterialMapTypeEntry {
-		constructor(editorInstance, typeConstructor) {
+		constructor(studioInstance, typeConstructor) {
 			this.typeConstructor = typeConstructor;
 		}
 		onValueChange() {}
@@ -29,7 +29,7 @@ function basicSetup() {
 		static typeUuid = BASIC_MAP_TYPE_UUID;
 	}
 
-	const mockEditorInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		materialMapTypeSerializerManager: {
 			getTypeByUuid(uuid) {
 				return MockMaterialMapTypeSerializer;
@@ -37,7 +37,7 @@ function basicSetup() {
 		},
 	});
 
-	const assetContent = new PropertiesAssetContentMaterialMap(mockEditorInstance);
+	const assetContent = new PropertiesAssetContentMaterialMap(mockStudio);
 
 	return {
 		assetContent,

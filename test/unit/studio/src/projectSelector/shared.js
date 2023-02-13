@@ -23,20 +23,20 @@ export function basicSetup() {
 
 	const projectSelector = new ProjectSelector();
 
-	const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			onProjectOpenEntryChange(cb) {},
 		},
 	});
 
-	const openNewDbProjectSpy = stub(mockEditor.projectManager, "openNewDbProject", async fromUserGesture => {});
-	const openProjectFromLocalDirectorySpy = stub(mockEditor.projectManager, "openProjectFromLocalDirectory", async () => {});
+	const openNewDbProjectSpy = stub(mockStudio.projectManager, "openNewDbProject", async fromUserGesture => {});
+	const openProjectFromLocalDirectorySpy = stub(mockStudio.projectManager, "openProjectFromLocalDirectory", async () => {});
 
 	const newProjectButton = projectSelector.actionsListEl.children[0];
 	const openProjectButton = projectSelector.actionsListEl.children[1];
 
 	function triggerEditorLoad() {
-		projectSelector.setStudioLoaded(mockEditor);
+		projectSelector.setStudioLoaded(mockStudio);
 	}
 
 	async function uninstall() {
@@ -46,7 +46,7 @@ export function basicSetup() {
 	}
 	return {
 		projectSelector,
-		mockEditor,
+		mockStudio,
 		openNewDbProjectSpy,
 		openProjectFromLocalDirectorySpy,
 		newProjectButton,

@@ -182,7 +182,7 @@ function basicGetMapValuesForMapAssetUuidSetup({
 		},
 	});
 
-	const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			async getAssetManager() {
 				return mockAssetManager;
@@ -190,7 +190,7 @@ function basicGetMapValuesForMapAssetUuidSetup({
 			assetManager: mockAssetManager,
 		},
 	});
-	injectMockStudioInstance(mockEditor);
+	injectMockStudioInstance(mockStudio);
 
 	const manager = new MaterialMapTypeSerializerManager();
 	manager.registerMapType(ExtendedMaterialMapTypeSerializer);

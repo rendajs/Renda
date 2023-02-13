@@ -156,8 +156,8 @@ export class ProjectManager {
 		/** @type {Set<() => void>} */
 		this.onAssetManagerLoadCbs = new Set();
 
-		this.loadEditorConnectionsAllowIncomingInstance = new SingleInstancePromise(async () => {
-			await this.loadEditorConnectionsAllowIncoming();
+		this.loadStudioConnectionsAllowIncomingInstance = new SingleInstancePromise(async () => {
+			await this.loadStudioConnectionsAllowIncoming();
 		});
 	}
 
@@ -195,7 +195,7 @@ export class ProjectManager {
 			gitIgnoreManager.addEntry(localSettingsPath);
 		});
 
-		this.loadEditorConnectionsAllowIncomingInstance.run();
+		this.loadStudioConnectionsAllowIncomingInstance.run();
 
 		fileSystem.onChange(this.#onFileSystemChange);
 		fileSystem.onRootNameChange(this.#boundOnFileSystemRootNameChange);
@@ -203,10 +203,10 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		const editor = getStudioInstance();
-		editor.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
-		await editor.windowManager.reloadCurrentWorkspace();
-		editor.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+		const studio = getStudioInstance();
+		studio.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+		await studio.windowManager.reloadCurrentWorkspace();
+		studio.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 
 		await this.reloadAssetManager();
 		await this.waitForAssetListsLoad();
@@ -214,7 +214,7 @@ export class ProjectManager {
 
 		const contentWindowPersistentData = await this.localProjectSettings.get("contentWindowPersistentData");
 		const castData = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPersistentData);
-		editor.windowManager.setContentWindowPersistentData(castData);
+		studio.windowManager.setContentWindowPersistentData(castData);
 
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
@@ -251,10 +251,10 @@ export class ProjectManager {
 		if (!this.currentProjectFileSystem) {
 			throw new Error("Unable to reload the asset manager. No active file system.");
 		}
-		const editor = getStudioInstance();
-		const builtInAssetManager = editor.builtInAssetManager;
-		const builtInDefaultAssetLinksManager = editor.builtInDefaultAssetLinksManager;
-		const projectAssetTypeManager = editor.projectAssetTypeManager;
+		const studio = getStudioInstance();
+		const builtInAssetManager = studio.builtInAssetManager;
+		const builtInDefaultAssetLinksManager = studio.builtInDefaultAssetLinksManager;
+		const projectAssetTypeManager = studio.projectAssetTypeManager;
 		this.assetManager = new AssetManager(this, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, this.currentProjectFileSystem);
 		await this.assetManager.waitForAssetSettingsLoad();
 		for (const cb of this.onAssetManagerLoadCbs) {
@@ -448,49 +448,49 @@ export class ProjectManager {
 	/**
 	 * @param {boolean} allow
 	 */
-	setEditorConnectionsAllowRemoteIncoming(allow) {
+	setStudioConnectionsAllowRemoteIncoming(allow) {
 		const settings = this.assertLocalSettingsExists();
 		this.studioConnectionsAllowRemoteIncoming = allow;
 		if (allow) {
-			settings.set("editorConnectionsAllowRemoteIncoming", allow);
+			settings.set("studioConnections.allowRemoteIncoming", allow);
 		} else {
-			settings.delete("editorConnectionsAllowRemoteIncoming");
+			settings.delete("studioConnections.allowRemoteIncoming");
 		}
 		this.updateStudioConnectionsManager();
 	}
 
-	async getEditorConnectionsAllowRemoteIncoming() {
-		await this.loadEditorConnectionsAllowIncomingInstance.waitForFinish();
+	async getStudioConnectionsAllowRemoteIncoming() {
+		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinish();
 		return this.studioConnectionsAllowRemoteIncoming;
 	}
 
 	/**
 	 * @param {boolean} allow
 	 */
-	setEditorConnectionsAllowInternalIncoming(allow) {
+	setStudioConnectionsAllowInternalIncoming(allow) {
 		const settings = this.assertLocalSettingsExists();
 		this.studioConnectionsAllowInternalIncoming = allow;
 		if (allow) {
-			settings.set("editorConnectionsAllowInternalIncoming", allow);
+			settings.set("studioConnections.allowInternalIncoming", allow);
 		} else {
-			settings.delete("editorConnectionsAllowInternalIncoming");
+			settings.delete("studioConnections.allowInternalIncoming");
 		}
 		this.updateStudioConnectionsManager();
 	}
 
-	async getEditorConnectionsAllowInternalIncoming() {
-		await this.loadEditorConnectionsAllowIncomingInstance.waitForFinish();
+	async getStudioConnectionsAllowInternalIncoming() {
+		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinish();
 		return this.studioConnectionsAllowInternalIncoming;
 	}
 
-	async loadEditorConnectionsAllowIncoming() {
+	async loadStudioConnectionsAllowIncoming() {
 		if (this.currentProjectIsRemote) {
 			this.studioConnectionsAllowRemoteIncoming = false;
 			this.studioConnectionsAllowInternalIncoming = false;
 		} else {
 			const settings = this.assertLocalSettingsExists();
-			this.studioConnectionsAllowRemoteIncoming = await settings.getBoolean("editorConnectionsAllowRemoteIncoming", false);
-			this.studioConnectionsAllowInternalIncoming = await settings.getBoolean("editorConnectionsAllowInternalIncoming", false);
+			this.studioConnectionsAllowRemoteIncoming = await settings.getBoolean("studioConnections.allowRemoteIncoming", false);
+			this.studioConnectionsAllowInternalIncoming = await settings.getBoolean("studioConnections.allowInternalIncoming", false);
 		}
 		this.updateStudioConnectionsManager();
 	}

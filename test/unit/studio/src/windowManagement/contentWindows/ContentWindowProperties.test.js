@@ -73,7 +73,7 @@ function basicSetup() {
 	});
 
 	let getContentTypeForObjectsEnabled = true;
-	const mockEditorInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		selectionManager: {
 			onSelectionChange(cb) {
 				selectionChangeCbs.add(cb);
@@ -96,7 +96,7 @@ function basicSetup() {
 
 	const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 
-	const contentWindow = new ContentWindowProperties(mockEditorInstance, mockWindowManager, BASIC_WINDOW_UUID);
+	const contentWindow = new ContentWindowProperties(mockStudioInstance, mockWindowManager, BASIC_WINDOW_UUID);
 	contentWindow.isMostSuitableContentWindow = () => {
 		return true;
 	};

@@ -11,7 +11,7 @@ export function createMockDependencies({
 		throw new Error("getProjectAssetFromUuidOrEmbeddedAssetData not implemented");
 	},
 } = {}) {
-	const editor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
+	const studio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
 
 	const projectAsset = /** @type {import("../../../../../../studio/src/assets/ProjectAsset.js").ProjectAsset<any>} */ ({});
 
@@ -34,14 +34,14 @@ export function createMockDependencies({
 	const assetTypeManager = /** @type {import("../../../../../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({});
 
 	const projectAssetTypeArgs = /** @type {const} */ ([
-		editor,
+		studio,
 		projectAsset,
 		assetManager,
 		assetTypeManager,
 	]);
 
 	return {
-		editor,
+		studio,
 		projectAsset,
 		assetManager,
 		assetTypeManager,

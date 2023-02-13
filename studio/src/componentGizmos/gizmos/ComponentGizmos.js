@@ -29,12 +29,12 @@ export class ComponentGizmos {
 	static requiredGizmos = [];
 
 	/**
-	 * @param {import("../../Studio.js").Studio} editor
+	 * @param {import("../../Studio.js").Studio} studio
 	 * @param {T} component
 	 * @param {import("../../../../src/mod.js").GizmoManager} gizmoManager
 	 */
-	constructor(editor, component, gizmoManager) {
-		this.editor = editor;
+	constructor(studio, component, gizmoManager) {
+		this.studio = studio;
 		this.component = component;
 		this.gizmoManager = gizmoManager;
 

@@ -95,7 +95,7 @@ async function basicSetup({
 	/** @type {SetValueCalls} */
 	const shortcutConditionSetValueCalls = [];
 
-	const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		keyboardShortcutManager: {
 			getCondition(name) {
 				return {
@@ -113,7 +113,7 @@ async function basicSetup({
 			},
 		},
 	});
-	injectMockStudioInstance(mockEditor);
+	injectMockStudioInstance(mockStudio);
 
 	try {
 		const manager = new WindowManager();

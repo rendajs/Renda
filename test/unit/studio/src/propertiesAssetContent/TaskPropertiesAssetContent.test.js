@@ -40,7 +40,7 @@ function basicSetup({
 		taskTypes.set(task.type, task);
 	}
 
-	const editor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+	const studio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		taskManager: {
 			getTaskType(type) {
 				const task = taskTypes.get(type);
@@ -54,7 +54,7 @@ function basicSetup({
 			},
 		},
 	});
-	const assetContent = new PropertiesAssetContentTask(editor);
+	const assetContent = new PropertiesAssetContentTask(studio);
 
 	/** @type {import("../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeTask.js").TaskProjectAssetDiskData} */
 	const readAssetDataReturnValue = {

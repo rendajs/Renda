@@ -9,9 +9,9 @@ Deno.test({
 			static workerUrl = new URL("../shared/basicWorker.js", import.meta.url);
 		}
 
-		const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
+		const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
 
-		const task = new ExtendedTask(mockEditor);
+		const task = new ExtendedTask(mockStudio);
 		await assertRejects(async () => {
 			await task.runTask(/** @type {any} */ ({}));
 		}, Error, `Task "ExtendedTask" does not implement runTask().`);
@@ -27,9 +27,9 @@ Deno.test({
 		class ExtendedTask extends Task {
 		}
 
-		const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
+		const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
 
-		const task = new ExtendedTask(mockEditor);
+		const task = new ExtendedTask(mockStudio);
 		await assertRejects(async () => {
 			task.worker.terminate();
 		}, Error, "This task does not have a worker. If you wish to use a worker, make sure the the static workerUrl property is set.");

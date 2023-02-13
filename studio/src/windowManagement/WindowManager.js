@@ -490,7 +490,7 @@ export class WindowManager {
 	 *
 	 * Usage in the javascript console:
 	 * ```js
-	 * editor.windowManager.getWindowByElement($0)
+	 * studio.windowManager.getWindowByElement($0)
 	 * ```
 	 * @param {HTMLElement} el
 	 */

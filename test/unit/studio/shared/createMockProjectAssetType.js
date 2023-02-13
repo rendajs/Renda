@@ -5,12 +5,12 @@
  */
 
 /**
- * @typedef MockProjectAssetTypeEditorData
- * @property {number} editorNum
- * @property {string} editorStr
+ * @typedef MockProjectAssetTypeStudioData
+ * @property {number} studioNum
+ * @property {string} studioStr
  */
 
-/** @typedef {import("../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType<MockProjectAssetTypeLiveAsset, MockProjectAssetTypeEditorData, MockProjectAssetTypeDiskData>} MockProjectAssetType */
+/** @typedef {import("../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").ProjectAssetType<MockProjectAssetTypeLiveAsset, MockProjectAssetTypeStudioData, MockProjectAssetTypeDiskData>} MockProjectAssetType */
 
 class MockProjectAssetTypeLiveAsset {
 	constructor() {
@@ -27,7 +27,7 @@ export function createMockProjectAssetType(type) {
 		static type = type;
 		static typeUuid = "00000000-0000-0000-0000-000000000000";
 		static storeInProjectAsJson = true;
-		static wrapProjectJsonWithEditorMetaData = true;
+		static wrapProjectJsonWithStudioMetaData = true;
 
 		/**
 		 * @param {import("../../../../studio/src/Studio.js").Studio} studioInstance
@@ -41,7 +41,7 @@ export function createMockProjectAssetType(type) {
 		/**
 		 * @param {MockProjectAssetTypeDiskData?} fileData
 		 * @param {import("../../../../studio/src/assets/liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-		 * @returns {Promise<import("../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetData<MockProjectAssetTypeLiveAsset, MockProjectAssetTypeEditorData>>}
+		 * @returns {Promise<import("../../../../studio/src/assets/projectAssetType/ProjectAssetType.js").LiveAssetData<MockProjectAssetTypeLiveAsset, MockProjectAssetTypeStudioData>>}
 		 */
 		async getLiveAssetData(fileData, recursionTracker) {
 			if (!fileData) {
@@ -54,8 +54,8 @@ export function createMockProjectAssetType(type) {
 			return {
 				liveAsset,
 				studioData: {
-					editorNum: 42,
-					editorStr: "defaultMockLiveAssetEditorStr",
+					studioNum: 42,
+					studioStr: "defaultMockLiveAssetEditorStr",
 				},
 			};
 		}

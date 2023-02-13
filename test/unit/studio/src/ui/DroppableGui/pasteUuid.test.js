@@ -70,7 +70,7 @@ async function basicSetupForPastingUuid({
 	});
 	returnValue.addMockProjectAsset(BASIC_PASTED_ASSET_UUID, mockProjectAsset);
 
-	const assetManager = returnValue.mockEditor.projectManager.assetManager;
+	const assetManager = returnValue.mockStudio.projectManager.assetManager;
 	assertExists(assetManager);
 	stub(assetManager, "getProjectAssetFromUuid", async uuid => {
 		if (uuid == BASIC_PASTED_ASSET_UUID) {
@@ -298,10 +298,10 @@ Deno.test({
 	name: "paste uuid via context menu makes asset uuid persistent",
 	ignore: true,
 	async fn() {
-		const {mockEditor, dispatchContextMenuEvent, assertContextMenu, clickPaste, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
+		const {mockStudio, dispatchContextMenuEvent, assertContextMenu, clickPaste, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
 
 		try {
-			const assetManager = mockEditor.projectManager.assetManager;
+			const assetManager = mockStudio.projectManager.assetManager;
 			assertExists(assetManager);
 			const makePersistentSpy = spy(assetManager, "makeAssetUuidPersistent");
 
@@ -527,10 +527,10 @@ Deno.test({
 	name: "paste event makes asset uuid persistent",
 	ignore: true,
 	async fn() {
-		const {mockEditor, dispatchFocusEvent, dispatchPasteEvent, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
+		const {mockStudio, dispatchFocusEvent, dispatchPasteEvent, mockProjectAsset, uninstall} = await basicSetupForPastingUuid();
 
 		try {
-			const assetManager = mockEditor.projectManager.assetManager;
+			const assetManager = mockStudio.projectManager.assetManager;
 			assertExists(assetManager);
 			const makePersistentSpy = spy(assetManager, "makeAssetUuidPersistent");
 

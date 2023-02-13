@@ -15,7 +15,7 @@ function basicSetup({
 		readAssetDataReturnValue: "abc$VAR1def$VAR1ghi$VAR2jkl",
 	});
 
-	const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			assetManager: {
 				async getProjectAssetFromUuid(uuid, opts) {
@@ -29,10 +29,10 @@ function basicSetup({
 		},
 	});
 
-	const task = new TaskGenerateHtml(mockEditor);
+	const task = new TaskGenerateHtml(mockStudio);
 
 	return {
-		mockEditor,
+		mockStudio,
 		mockProjectAsset,
 		fileSystem,
 		task,

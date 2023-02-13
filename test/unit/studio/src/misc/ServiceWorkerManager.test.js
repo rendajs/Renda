@@ -25,7 +25,7 @@ async function basicTest(fn, {
 		const mockFileSystem = new MemoryStudioFileSystem();
 		await mockFileSystem.writeText(["path", "to", "file"], "hello file");
 
-		const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+		const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			projectManager: {
 				currentProjectFileSystem: /** @type {import("../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (mockFileSystem),
 			},
@@ -42,9 +42,9 @@ async function basicTest(fn, {
 				},
 			},
 		});
-		injectMockStudioInstance(mockEditor);
+		injectMockStudioInstance(mockStudio);
 
-		const runTaskSpy = spy(mockEditor.taskManager, "runTask");
+		const runTaskSpy = spy(mockStudio.taskManager, "runTask");
 
 		/** @typedef {(e: MessageEvent) => void} OnMessageListener */
 		/** @type {Set<OnMessageListener>} */

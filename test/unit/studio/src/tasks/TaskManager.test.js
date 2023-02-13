@@ -112,7 +112,7 @@ function basicTaskRunningSetup({
 	 */
 	/** @type {RegisteredAssetData[]} */
 	const registeredAssets = [];
-	const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			assetManager: {
 				async getProjectAssetFromPath(path, options) {
@@ -140,10 +140,10 @@ function basicTaskRunningSetup({
 			},
 		},
 	});
-	injectMockStudioInstance(mockEditor);
+	injectMockStudioInstance(mockStudio);
 
 	return {
-		mockEditor,
+		mockStudio,
 		registeredAssets,
 		cleanup() {
 			injectMockStudioInstance(null);
@@ -237,7 +237,7 @@ Deno.test({
 Deno.test({
 	name: "Running a tasks that writes a file without an asset type",
 	async fn() {
-		const {mockEditor, cleanup} = basicTaskRunningSetup();
+		const {mockStudio, cleanup} = basicTaskRunningSetup();
 
 		try {
 			const manager = new TaskManager();
@@ -263,7 +263,7 @@ Deno.test({
 				}
 			}
 
-			const fileSystem = mockEditor.projectManager.assetManager?.fileSystem;
+			const fileSystem = mockStudio.projectManager.assetManager?.fileSystem;
 			assertExists(fileSystem);
 			const writeFileSpy = stub(fileSystem, "writeFile");
 

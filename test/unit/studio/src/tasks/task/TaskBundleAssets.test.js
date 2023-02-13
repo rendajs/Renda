@@ -31,7 +31,7 @@ async function basicSetup({
 		return bundledAssetDataReturn;
 	});
 
-	const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: {
 			currentProjectFileSystem: null,
 			assetManager: {
@@ -51,9 +51,9 @@ async function basicSetup({
 			},
 		},
 	});
-	mockEditor.projectManager.currentProjectFileSystem = fileSystem;
+	mockStudio.projectManager.currentProjectFileSystem = fileSystem;
 
-	const task = new TaskBundleAssets(mockEditor);
+	const task = new TaskBundleAssets(mockStudio);
 
 	return {
 		task,

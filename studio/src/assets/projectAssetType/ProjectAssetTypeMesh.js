@@ -4,12 +4,12 @@ import {BinaryComposer, BinaryDecomposer, Mesh, createUvSphere} from "../../../.
 import {ProjectAssetTypeVertexState} from "./ProjectAssetTypeVertexState.js";
 
 /**
- * @typedef {object} ProjectAssetTypeMeshEditorData
+ * @typedef {object} ProjectAssetTypeMeshStudioData
  * @property {import("../../../../src/mod.js").UuidString?} vertexStateUuid
  */
 
 /**
- * @extends {ProjectAssetType<Mesh?, ProjectAssetTypeMeshEditorData?, "binary">}
+ * @extends {ProjectAssetType<Mesh?, ProjectAssetTypeMeshStudioData?, "binary">}
  */
 export class ProjectAssetTypeMesh extends ProjectAssetType {
 	static type = "renda:mesh";
@@ -55,7 +55,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	 * @override
 	 * @param {Blob} blob
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh?, ProjectAssetTypeMeshEditorData?>>}
+	 * @returns {Promise<import("./ProjectAssetType.js").LiveAssetData<Mesh?, ProjectAssetTypeMeshStudioData?>>}
 	 */
 	async getLiveAssetData(blob, recursionTracker) {
 		// todo: remove all of this and reuse the code in AssetLoaderTypeMesh
@@ -168,7 +168,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {Mesh} liveAsset
-	 * @param {ProjectAssetTypeMeshEditorData} studioData
+	 * @param {ProjectAssetTypeMeshStudioData} studioData
 	 * @returns {Promise<ArrayBuffer>}
 	 */
 	async saveLiveAssetData(liveAsset, studioData) {

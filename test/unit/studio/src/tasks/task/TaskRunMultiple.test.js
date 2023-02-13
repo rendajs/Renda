@@ -129,8 +129,8 @@ Deno.test({
 function basicSetupForRunTask({
 	config,
 }) {
-	const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
-	const task = new TaskRunMultiple(mockEditor);
+	const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
+	const task = new TaskRunMultiple(mockStudio);
 
 	/** @type {(() => void)[]} */
 	const dependencyResolveCallbacks = [];

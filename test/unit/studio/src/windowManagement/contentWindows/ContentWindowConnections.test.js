@@ -10,7 +10,7 @@ import {Button} from "../../../../../../studio/src/ui/Button.js";
 /**
  * @typedef ContentWindowConnectionsTestContext
  * @property {ContentWindowConnections} contentWindow
- * @property {import("../../../../../../studio/src/ui/TreeView.js").TreeView} editorsListTreeView
+ * @property {import("../../../../../../studio/src/ui/TreeView.js").TreeView} studiosListTreeView
  * @property {() => void} fireOnAvailableConnectionsChanged
  */
 
@@ -32,7 +32,7 @@ async function basicTest({
 	try {
 		/** @type {Set<() => void>} */
 		const onAvailableConnectionsChangedCbs = new Set();
-		const mockEditorInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+		const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 			projectManager: {
 				studioConnectionsManager: {
 					getDefaultEndPoint() {},
@@ -49,10 +49,10 @@ async function basicTest({
 					availableConnections,
 					activeConnections,
 				},
-				async getEditorConnectionsAllowRemoteIncoming() {
+				async getStudioConnectionsAllowRemoteIncoming() {
 					return false;
 				},
-				async getEditorConnectionsAllowInternalIncoming() {
+				async getStudioConnectionsAllowInternalIncoming() {
 					return false;
 				},
 				currentProjectIsRemote,
@@ -60,9 +60,9 @@ async function basicTest({
 		});
 		const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 
-		const contentWindow = new ContentWindowConnections(mockEditorInstance, mockWindowManager, "uuid");
+		const contentWindow = new ContentWindowConnections(mockStudioInstance, mockWindowManager, "uuid");
 
-		assertTreeViewStructureEquals(contentWindow.editorClientConnectionTreeView, {
+		assertTreeViewStructureEquals(contentWindow.studioClientConnectionTreeView, {
 			children: [
 				{
 					name: "Editors",
@@ -71,12 +71,12 @@ async function basicTest({
 		}, {
 			checkAllChildren: false,
 		});
-		const editorsListTreeView = getChildTreeViewFromIndices(contentWindow.editorClientConnectionTreeView, 0);
+		const studiosListTreeView = getChildTreeViewFromIndices(contentWindow.studioClientConnectionTreeView, 0);
 
 		/** @type {ContentWindowConnectionsTestContext} */
 		const testContext = {
 			contentWindow,
-			editorsListTreeView,
+			studiosListTreeView,
 			fireOnAvailableConnectionsChanged() {
 				onAvailableConnectionsChangedCbs.forEach(cb => cb());
 			},
@@ -141,9 +141,9 @@ Deno.test({
 		});
 		await basicTest({
 			availableConnections,
-			fn({editorsListTreeView}) {
-				const editorTreeView = getChildTreeViewFromIndices(editorsListTreeView, 0);
-				assertConnectionTreeView(editorTreeView, "Studio", "Internal", "Unavailable", "This editor either doesn't have a project open or has disabled incoming connections in its connections window.", false);
+			fn({studiosListTreeView}) {
+				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
+				assertConnectionTreeView(studioTreeView, "Studio", "Internal", "Unavailable", "This studio instance either doesn't have a project open or has disabled incoming connections in its connections window.", false);
 			},
 		});
 	},
@@ -166,16 +166,16 @@ Deno.test({
 		});
 		await basicTest({
 			availableConnections,
-			fn({editorsListTreeView}) {
-				const editorTreeView = getChildTreeViewFromIndices(editorsListTreeView, 0);
-				assertConnectionTreeView(editorTreeView, "My Project", "Internal", "No Filesystem permissions", "This editor either doesn't have a project open or has disabled incoming connections in its connections window.", false);
+			fn({studiosListTreeView}) {
+				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
+				assertConnectionTreeView(studioTreeView, "My Project", "Internal", "No Filesystem permissions", "This studio instance either doesn't have a project open or has disabled incoming connections in its connections window.", false);
 			},
 		});
 	},
 });
 
 Deno.test({
-	name: "Another internal editor with project meta data, available",
+	name: "Another internal studion instance with project meta data, available",
 	async fn() {
 		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
@@ -191,16 +191,16 @@ Deno.test({
 		});
 		await basicTest({
 			availableConnections,
-			fn({editorsListTreeView}) {
-				const editorTreeView = getChildTreeViewFromIndices(editorsListTreeView, 0);
-				assertConnectionTreeView(editorTreeView, "Untitled Project", "Internal", "Available", "", true);
+			fn({studiosListTreeView}) {
+				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
+				assertConnectionTreeView(studioTreeView, "Untitled Project", "Internal", "Available", "", true);
 			},
 		});
 	},
 });
 
 Deno.test({
-	name: "Another webrtc editor with project meta data, available",
+	name: "Another webrtc studio instance with project meta data, available",
 	async fn() {
 		/** @type {import("../../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").AvailableStudioDataList} */
 		const availableConnections = new Map();
@@ -216,9 +216,9 @@ Deno.test({
 		});
 		await basicTest({
 			availableConnections,
-			fn({editorsListTreeView}) {
-				const editorTreeView = getChildTreeViewFromIndices(editorsListTreeView, 0);
-				assertConnectionTreeView(editorTreeView, "Untitled Project", "WebRTC", "Available", "", true);
+			fn({studiosListTreeView}) {
+				const studioTreeView = getChildTreeViewFromIndices(studiosListTreeView, 0);
+				assertConnectionTreeView(studioTreeView, "Untitled Project", "WebRTC", "Available", "", true);
 			},
 		});
 	},
@@ -237,10 +237,10 @@ Deno.test({
 		});
 		await basicTest({
 			availableConnections,
-			fn({editorsListTreeView, fireOnAvailableConnectionsChanged}) {
+			fn({studiosListTreeView, fireOnAvailableConnectionsChanged}) {
 				availableConnections.clear();
 				fireOnAvailableConnectionsChanged();
-				assertEquals(editorsListTreeView.children.length, 0);
+				assertEquals(studiosListTreeView.children.length, 0);
 			},
 		});
 	},
@@ -253,7 +253,7 @@ Deno.test({
 		const availableConnections = new Map();
 		await basicTest({
 			availableConnections,
-			fn({contentWindow, editorsListTreeView, fireOnAvailableConnectionsChanged}) {
+			fn({contentWindow, studiosListTreeView, fireOnAvailableConnectionsChanged}) {
 				availableConnections.set("uuid1", {
 					id: "uuid1",
 					clientType: "studio",
@@ -261,13 +261,13 @@ Deno.test({
 					projectMetaData: null,
 				});
 				fireOnAvailableConnectionsChanged();
-				assertEquals(editorsListTreeView.children.length, 1);
+				assertEquals(studiosListTreeView.children.length, 1);
 
 				contentWindow.destructor();
 
 				availableConnections.clear();
 				fireOnAvailableConnectionsChanged();
-				assertEquals(editorsListTreeView.children.length, 1);
+				assertEquals(studiosListTreeView.children.length, 1);
 			},
 		});
 	},

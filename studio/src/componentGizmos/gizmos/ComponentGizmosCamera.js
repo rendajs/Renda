@@ -33,9 +33,9 @@ export class ComponentGizmosCamera extends ComponentGizmos {
 	async updateClusterBounds() {
 		if (!ENABLE_WEBGPU_CLUSTERED_LIGHTS) return;
 		const clusterDataGizmo = this.createdGizmos[2];
-		const clusterComputeManager = this.editor.renderer.getCachedCameraData(this.component).clusterComputeManager;
+		const clusterComputeManager = this.studio.renderer.getCachedCameraData(this.component).clusterComputeManager;
 		if (!clusterComputeManager || !clusterComputeManager.boundsBuffer || !clusterComputeManager.config) return;
-		const buffer = await this.editor.renderer.inspectBuffer(clusterComputeManager.boundsBuffer, clusterComputeManager.config.totalClusterCount * 32);
+		const buffer = await this.studio.renderer.inspectBuffer(clusterComputeManager.boundsBuffer, clusterComputeManager.config.totalClusterCount * 32);
 
 		const clusterBoundsData = [];
 		const dataView = new DataView(buffer);

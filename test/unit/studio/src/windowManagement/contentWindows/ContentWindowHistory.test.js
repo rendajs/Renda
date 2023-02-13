@@ -48,7 +48,7 @@ function basicTest({fn, startHistoryEntries = []}) {
 
 		/** @type {Set<() => void>} */
 		const onTreeUpdatedCbs = new Set();
-		const mockEditorInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+		const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 			historyManager: {
 				onTreeUpdated(cb) {
 					onTreeUpdatedCbs.add(cb);
@@ -68,7 +68,7 @@ function basicTest({fn, startHistoryEntries = []}) {
 		});
 		const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 
-		testContext.contentWindow = new ContentWindowHistory(mockEditorInstance, mockWindowManager, "basic uuid");
+		testContext.contentWindow = new ContentWindowHistory(mockStudioInstance, mockWindowManager, "basic uuid");
 
 		fn(testContext);
 	} finally {

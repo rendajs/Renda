@@ -49,10 +49,10 @@ import {AssetManager} from "./AssetManager.js";
  */
 export class ProjectAsset {
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any, any> ? U :never} LiveAssetType */
-	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any, any> ? U :never} EditorDataType */
+	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any, any> ? U :never} StudioDataType */
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U, any> ? U :never} FileDataType */
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
-	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, EditorDataType>} TLiveAssetData */
+	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, StudioDataType>} TLiveAssetData */
 	/** @typedef {(liveAssetData: TLiveAssetData) => void} LiveAssetDataChangeCallback */
 	/**
 	 * @typedef LiveAssetDataChangePromise
@@ -124,7 +124,7 @@ export class ProjectAsset {
 		this.currentGettingLiveAssetSymbol = null;
 		/** @type {LiveAssetType?} */
 		this.liveAsset = null;
-		/** @type {EditorDataType?} */
+		/** @type {StudioDataType?} */
 		this.studioData = null;
 		/** @private @type {FileDataType} */
 		this.currentEmbeddedAssetData = /** @type {FileDataType} */ ({});
@@ -490,7 +490,7 @@ export class ProjectAsset {
 
 	/**
 	 * @param {RecursionTracker?} recursionTracker
-	 * @returns {Promise<EditorDataType?>}
+	 * @returns {Promise<StudioDataType?>}
 	 */
 	async getStudioData(recursionTracker = null) {
 		const {studioData} = await this.getLiveAssetData(recursionTracker);
@@ -720,7 +720,7 @@ export class ProjectAsset {
 			fileData = await this.fileSystem.readFile(this.path);
 		}
 
-		if (format == "json" && this.projectAssetTypeConstructorSync.wrapProjectJsonWithEditorMetaData && !this.isEmbedded) {
+		if (format == "json" && this.projectAssetTypeConstructorSync.wrapProjectJsonWithStudioMetaData && !this.isEmbedded) {
 			fileData = fileData.asset || {};
 		}
 		return fileData;
@@ -755,7 +755,7 @@ export class ProjectAsset {
 				await this.writeEmbeddedAssetData(fileData);
 			} else {
 				let json = null;
-				if (this.projectAssetTypeConstructorSync.wrapProjectJsonWithEditorMetaData) {
+				if (this.projectAssetTypeConstructorSync.wrapProjectJsonWithStudioMetaData) {
 					json = {
 						assetType: this.projectAssetTypeConstructorSync.type,
 						asset: fileData,

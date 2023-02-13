@@ -62,7 +62,7 @@ function basicSetup({
 	extraMappableValues = [],
 	readAssetDataReturnValue = {},
 } = {}) {
-	const {projectAssetTypeArgs, editor, assetManager, projectAsset} = createMockDependencies();
+	const {projectAssetTypeArgs, studio, assetManager, projectAsset} = createMockDependencies();
 
 	class ExtendedMaterialMapType extends MaterialMapType {
 		/**
@@ -130,7 +130,7 @@ function basicSetup({
 		};
 	}
 
-	editor.materialMapTypeSerializerManager = /** @type {import("../../../../../../studio/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapTypeSerializerManager} */ ({
+	studio.materialMapTypeSerializerManager = /** @type {import("../../../../../../studio/src/assets/MaterialMapTypeSerializerManager.js").MaterialMapTypeSerializerManager} */ ({
 		getTypeByLiveAssetConstructor(mapConstructor) {
 			if (mapConstructor == ExtendedMaterialMapType) return ExtendedMaterialMapTypeSerializer;
 			return null;
@@ -167,7 +167,7 @@ function basicSetup({
 	return {
 		projectAssetType,
 		projectAsset,
-		editor,
+		studio,
 		ExtendedMaterialMapTypeSerializer,
 		ExtendedMaterialMapType,
 		UnregisteredExtendedMaterialMapType,
@@ -507,7 +507,7 @@ function createBasicMaterialMapLoader({ExtendedMaterialMapTypeLoader, getAssetFn
 Deno.test({
 	name: "createBundledAssetData()",
 	async fn() {
-		const {projectAssetType, editor, assetManager, ExtendedMaterialMapTypeSerializer, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
+		const {projectAssetType, studio, assetManager, ExtendedMaterialMapTypeSerializer, ExtendedMaterialMapTypeLoader, MapType} = basicSetup({
 			readAssetDataReturnValue: {
 				maps: [
 					{
@@ -544,7 +544,7 @@ Deno.test({
 		assertSpyCalls(mapDataToAssetBundleBinarySpy, 1);
 		assertSpyCall(mapDataToAssetBundleBinarySpy, 0, {
 			args: [
-				editor,
+				studio,
 				assetManager,
 				{foo: "bar"},
 			],

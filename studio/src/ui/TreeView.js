@@ -325,12 +325,12 @@ export class TreeView {
 			this.registerNewEventType(eventType);
 		}
 
-		const editor = getMaybeStudioInstance();
-		if (editor && editor.keyboardShortcutManager) {
-			const renamingCondition = editor.keyboardShortcutManager.getCondition("treeView.renaming");
+		const studio = getMaybeStudioInstance();
+		if (studio && studio.keyboardShortcutManager) {
+			const renamingCondition = studio.keyboardShortcutManager.getCondition("treeView.renaming");
 			this.#renamingShortcutCondition = /** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (renamingCondition.requestValueSetter());
 
-			const focusSelectedCondition = editor.keyboardShortcutManager.getCondition("treeView.focusSelected");
+			const focusSelectedCondition = studio.keyboardShortcutManager.getCondition("treeView.focusSelected");
 			this.#focusSelectedShortcutCondition = /** @type {import("../keyboardShortcuts/ShorcutConditionValueSetter.js").ShorcutConditionValueSetter<boolean>} */ (focusSelectedCondition.requestValueSetter());
 		}
 
@@ -756,15 +756,15 @@ export class TreeView {
 			draggingItems = [this];
 		}
 		if (e.dataTransfer) {
-			const editor = getMaybeStudioInstance();
+			const studio = getMaybeStudioInstance();
 			if (this.rearrangeable) {
 				e.dataTransfer.effectAllowed = "move";
-				if (editor) {
+				if (studio) {
 					/** @type {TreeViewDraggingData} */
 					const draggingData = {
 						draggingItems,
 					};
-					this.#currentDraggingRearrangeDataId = editor.dragManager.registerDraggingData(draggingData);
+					this.#currentDraggingRearrangeDataId = studio.dragManager.registerDraggingData(draggingData);
 					const castRoot = /** @type {TreeViewWithDragRoot} */ (root);
 					let rootUuid = castRoot[dragRootUuidSymbol];
 					if (rootUuid == null) {
@@ -774,8 +774,8 @@ export class TreeView {
 					e.dataTransfer.setData(`text/renda; dragtype=rearrangingtreeview; rootuuid=${rootUuid}`, this.#currentDraggingRearrangeDataId);
 				}
 			}
-			if (editor) {
-				const {el, x, y} = editor.dragManager.createDragFeedbackText({
+			if (studio) {
+				const {el, x, y} = studio.dragManager.createDragFeedbackText({
 					text: draggingItems.map(item => item.name),
 				});
 				this.#currenDragFeedbackText = el;
@@ -792,10 +792,10 @@ export class TreeView {
 	 * @param {DragEvent} e
 	 */
 	#onDragEndEvent(e) {
-		const editor = getMaybeStudioInstance();
-		if (editor) {
-			if (this.#currenDragFeedbackText) editor.dragManager.removeFeedbackText(this.#currenDragFeedbackText);
-			if (this.#currentDraggingRearrangeDataId) editor.dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
+		const studio = getMaybeStudioInstance();
+		if (studio) {
+			if (this.#currenDragFeedbackText) studio.dragManager.removeFeedbackText(this.#currenDragFeedbackText);
+			if (this.#currentDraggingRearrangeDataId) studio.dragManager.unregisterDraggingData(this.#currentDraggingRearrangeDataId);
 		}
 		this.#currenDragFeedbackText = null;
 		this.#currentDraggingRearrangeDataId = null;
@@ -856,9 +856,9 @@ export class TreeView {
 
 					const promise = (async () => {
 						const dataId = await new Promise(r => item.getAsString(r));
-						const editor = getMaybeStudioInstance();
-						if (!editor) return null;
-						const draggingData = /** @type {TreeViewDraggingData} */ (editor.dragManager.getDraggingData(dataId));
+						const studio = getMaybeStudioInstance();
+						if (!studio) return null;
+						const draggingData = /** @type {TreeViewDraggingData} */ (studio.dragManager.getDraggingData(dataId));
 						if (!draggingData || !draggingData.draggingItems) return null;
 						return /** @type {TreeView[]} */ (draggingData.draggingItems);
 					})();

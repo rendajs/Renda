@@ -11,7 +11,7 @@
  * Note that if you are not writing some assets as a result of caching, but might write them in the future, you should add them to the `touchedAssets` list.
  * This way other tasks can trigger this task to run if it depends on them.
  * If you need more control over how assets are written, such as writing to a file stream, you can write them manually using
- * the current editor file system. But be sure to list the changed assets in `touchedAssets` as well. Though when using this
+ * the current studio file system. But be sure to list the changed assets in `touchedAssets` as well. Though when using this
  * method, the task won't be able to be used programmatically. Unless you handle this case specifically when the `needsAlltouchedAssets`
  * flag is set to true.
  * @property {import("../../../../src/mod.js").UuidString[]} [touchedAssets] A list of assets that this task touched, or

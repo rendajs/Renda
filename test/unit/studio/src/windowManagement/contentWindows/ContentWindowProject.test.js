@@ -59,14 +59,14 @@ async function basicSetup({
 		},
 	});
 
-	const mockEditorInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		selectionManager: mockSelectionManager,
 		projectManager: mockProjectManager,
 	});
 
-	injectMockStudioInstance(mockEditorInstance);
+	injectMockStudioInstance(mockStudioInstance);
 
-	const contentWindow = new ContentWindowProject(mockEditorInstance, mockWindowManager, BASIC_WINDOW_UUID);
+	const contentWindow = new ContentWindowProject(mockStudioInstance, mockWindowManager, BASIC_WINDOW_UUID);
 
 	await contentWindow.waitForInit();
 

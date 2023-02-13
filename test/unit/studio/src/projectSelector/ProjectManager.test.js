@@ -58,7 +58,7 @@ async function basicTest({fn}) {
 	try {
 		globalThis.document = /** @type {Document} */ (new EventTarget());
 
-		const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
+		const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			windowManager: {
 				onContentWindowPersistentDataFlushRequest(cb) {},
 				removeOnContentWindowPersistentDataFlushRequest(cb) {},
@@ -66,7 +66,7 @@ async function basicTest({fn}) {
 				setContentWindowPersistentData() {},
 			},
 		});
-		injectMockStudioInstance(mockEditor);
+		injectMockStudioInstance(mockStudio);
 
 		const manager = new ProjectManager();
 
@@ -103,8 +103,8 @@ Deno.test({
 					});
 				});
 				fs.writeJson(["ProjectSettings", "localProjectSettings.json"], {
-					editorConnectionsAllowInternalIncoming: true,
-					editorConnectionsAllowRemoteIncoming: true,
+					"studioConnections.allowInternalIncoming": true,
+					"studioConnections.allowRemoteIncoming": true,
 				});
 				const entry = createStoredProjectEntry();
 

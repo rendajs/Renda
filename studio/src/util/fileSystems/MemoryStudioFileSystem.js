@@ -16,7 +16,7 @@ import {MemoryFileSystemWritableFileStream} from "./MemoryFileSystemWritableFile
  */
 
 /**
- * An EditorFileSystem that is stored in memory only. Restarting the application will clear all file data.
+ * A StudioFileSystem that is stored in memory only. Restarting the application will clear all file data.
  * This is mostly useful for mocking in unit tests, but can also be used as
  * a fallback in case any other file system types are not supported on a platform.
  */

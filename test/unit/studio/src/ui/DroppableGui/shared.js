@@ -233,7 +233,7 @@ export function createBasicGui({
 		},
 	});
 
-	const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		projectManager: mockProjectManager,
 		dragManager: mockDragManager,
 		windowManager: mockWindowManager,
@@ -241,7 +241,7 @@ export function createBasicGui({
 		projectAssetTypeManager: mockProjectAssetTypeManager,
 		keyboardShortcutManager: mockKeyboardShortcutManager,
 	});
-	injectMockStudioInstance(mockEditor);
+	injectMockStudioInstance(mockStudio);
 
 	const gui = DroppableGui.of(guiOpts);
 	if (valueType == "basic") {
@@ -259,7 +259,7 @@ export function createBasicGui({
 	return {
 		gui,
 		document,
-		mockEditor,
+		mockStudio,
 		mockDefaultAssetLink,
 		mockLiveAsset,
 		mockProjectAsset,
@@ -358,7 +358,7 @@ export async function basicSetupForContextMenus({
 		},
 	});
 	const returnValue = createBasicGui(basicGuiOptions);
-	returnValue.mockEditor.popoverManager = mockContextMenuManager;
+	returnValue.mockStudio.popoverManager = mockContextMenuManager;
 
 	async function dispatchContextMenuEventFn() {
 		returnValue.gui.el.dispatchEvent(new FakeMouseEvent("contextmenu"));

@@ -65,8 +65,8 @@ export function basicSetup({
 	isKnownAssetType = /** @type {TIsKnown} */ (true),
 	setMockEmbeddedParent = false,
 } = {}) {
-	const mockEditor = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
-	injectMockStudioInstance(mockEditor);
+	const mockStudio = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
+	injectMockStudioInstance(mockStudio);
 
 	const mocks = getMocks(mocksOptions);
 
@@ -105,7 +105,7 @@ export function basicSetup({
 		projectAsset: castProjectAsset,
 		mockParent,
 		addEmbeddedChildLiveAssetSpy,
-		mockEditor,
+		mockStudio,
 		async uninstall() {
 			await projectAsset.waitForInit();
 			injectMockStudioInstance(null);

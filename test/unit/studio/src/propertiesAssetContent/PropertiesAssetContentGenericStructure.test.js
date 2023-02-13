@@ -9,7 +9,7 @@ import {PropertiesTreeViewEntry} from "../../../../../studio/src/ui/propertiesTr
 import {TextGui} from "../../../../../studio/src/ui/TextGui.js";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 
-const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({});
+const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({});
 
 class MockProjectAssetType {
 	static getUiName() {
@@ -22,7 +22,7 @@ Deno.test({
 	name: "Setting structure",
 	fn() {
 		runWithDom(() => {
-			const content = new PropertiesAssetContentGenericStructure(mockEditor);
+			const content = new PropertiesAssetContentGenericStructure(mockStudio);
 			content.setStructure({
 				foo: {
 					type: "string",
@@ -53,7 +53,7 @@ Deno.test({
 	name: "loading and saving",
 	async fn() {
 		await runWithDomAsync(async () => {
-			const content = new PropertiesAssetContentGenericStructure(mockEditor);
+			const content = new PropertiesAssetContentGenericStructure(mockStudio);
 			content.setStructure({
 				foo: {
 					type: "string",

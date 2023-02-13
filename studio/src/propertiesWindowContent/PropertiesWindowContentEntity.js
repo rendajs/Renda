@@ -104,7 +104,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 							for (const {entity} of this.currentSelection) {
 								const componentInstance = entity.addComponent(component, {}, {
 									studioOpts: {
-										editorAssetTypeManager: this.studioInstance.projectAssetTypeManager,
+										studioAssetTypeManager: this.studioInstance.projectAssetTypeManager,
 										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 										assetManager: this.studioInstance.projectManager.assertAssetManagerExists(),
 									},
