@@ -128,7 +128,7 @@ export class ContentWindowConnections extends ContentWindow {
 
 		// todo: add status label for client connection
 
-		const studioConnectionsList = studioClientConnectionTreeView.addCollapsable("Editors");
+		const studioConnectionsList = studioClientConnectionTreeView.addCollapsable("Studios");
 		return {studioClientConnectionTreeView, studioConnectionsList};
 	}
 

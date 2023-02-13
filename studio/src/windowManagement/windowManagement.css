@@ -1,15 +1,15 @@
-.editorWindowSplitHalf{
+.studio-window-split-half {
 	position: relative;
 }
 
-.editorWindowSplit{
+.studio-window-split {
 	display: flex;
 	position: absolute;
 	width: 100%;
 	height: 100%;
 }
 
-.editorWindowTabs{
+.studio-window-tabs {
 	width: 100%;
 	height: 100%;
 	background: var(--bg-color-level0);
@@ -18,19 +18,19 @@
 	display: inline-block;
 	overflow: hidden;
 }
-.editorWindowTabs:focus-within{
+.studio-window-tabs:focus-within {
 	box-shadow: 0px 0px 0 1px var(--focused-window-border-color);
 }
-.editorWindowTabsList{
+.studio-window-tabs-list{
 	height: 100%;
 }
 
-.editorWindowTabButtonGroup{
+.studio-window-tab-button-group {
 	position: absolute;
 	z-index: 20;
 }
 
-.editorWindowTabDragOverlay {
+.studio-window-tab-drag-overlay {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -40,48 +40,48 @@
 }
 
 
-.editorWindowRoot{
+.studio-window-root {
 	width: calc(100% - 6px);
 	height: calc(100% - 6px);
 	margin: 3px;
 }
 
-.editorContentWindow{
+.studio-content-window {
 	width: 100%;
 	height: 100%;
 	display: flex;
 	flex-flow: column;
 }
 
-.editorContentWindow.hidden{
+.studio-content-window.hidden {
 	display: none;
 }
 
-.editorContentWindowTopButtonBar {
+.studio-content-window-top-button-bar {
 	width: 100%;
 	z-index: 10;
 	pointer-events: none;
 }
 
-.editorContentWindowTopButtonBar > *:not(.editorContentWindowTopButtonBarSpacer) {
+.studio-content-window-top-button-bar > *:not(.studio-content-window-top-button-bar-spacer) {
 	pointer-events: auto;
 	margin: 5px;
 }
 
-.editorContentWindowTopButtonBarSpacer{
+.studio-content-window-top-button-bar-spacer {
 	display: inline-block;
 	vertical-align: top;
 	pointer-events: none;
 }
 
-.editorContentWindowContent {
+.studio-content-window-content {
 	position: relative;
 	flex-grow: 1;
 }
-.editorContentWindowContent.scrollable {
+.studio-content-window-content.scrollable {
 	overflow: auto;
 }
-.editorContentWindowContent.behindTopButtonBar{
+.studio-content-window-content.behind-top-button-bar {
 	position: absolute;
 	left: 0;
 	right: 0;

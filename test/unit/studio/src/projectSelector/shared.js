@@ -35,7 +35,7 @@ export function basicSetup() {
 	const newProjectButton = projectSelector.actionsListEl.children[0];
 	const openProjectButton = projectSelector.actionsListEl.children[1];
 
-	function triggerEditorLoad() {
+	function triggerStudioLoad() {
 		projectSelector.setStudioLoaded(mockStudio);
 	}
 
@@ -51,7 +51,7 @@ export function basicSetup() {
 		openProjectFromLocalDirectorySpy,
 		newProjectButton,
 		openProjectButton,
-		triggerEditorLoad,
+		triggerStudioLoad,
 		uninstall,
 	};
 }

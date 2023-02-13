@@ -55,7 +55,7 @@ export function createMockProjectAssetType(type) {
 				liveAsset,
 				studioData: {
 					studioNum: 42,
-					studioStr: "defaultMockLiveAssetEditorStr",
+					studioStr: "defaultMockLiveAssetStudioStr",
 				},
 			};
 		}

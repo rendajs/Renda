@@ -9,13 +9,13 @@
 /**
  * Gets the first content window element of a given type.
  * This returns the full contentWindow element, including the top button bar.
- * I.e. the element with the "editorContentWindow" class.
+ * I.e. the element with the "studio-content-window" class.
  * @param {import("puppeteer").Page} page
  * @param {string} contentWindowType The static `contentWindowTypeId` property of the content window. See {@linkcode ContentWindow.contentWindowTypeId}.
  */
 export async function getContentWindowElement(page, contentWindowType) {
 	const el = await page.evaluateHandle(async contentWindowType => {
-		if (!globalThis.studio) throw new Error("Editor instance does not exist");
+		if (!globalThis.studio) throw new Error("Studio instance does not exist");
 		const array = Array.from(globalThis.studio.windowManager.getContentWindowsByType(contentWindowType));
 		if (array.length <= 0) return null;
 		const el = array[0].el;
@@ -32,7 +32,7 @@ export async function getContentWindowElement(page, contentWindowType) {
 export async function getContentWindowReference(page, contentWindowType) {
 	const el = await getContentWindowElement(page, contentWindowType);
 	const reference = await page.evaluateHandle(el => {
-		if (!globalThis.studio) throw new Error("Editor instance does not exist");
+		if (!globalThis.studio) throw new Error("Studio instance does not exist");
 		if (!(el instanceof HTMLElement)) throw new Error("Assertion failed, el is not a HTMLElement.");
 		const contentWindowReference = globalThis.studio.windowManager.getWindowByElement(el);
 		if (!contentWindowReference) throw new Error(`Failed to get content window reference for "${contentWindowType}".`);

@@ -21,12 +21,12 @@ Deno.test({
 Deno.test({
 	name: "Creates an empty project on studio load",
 	async fn() {
-		const {projectSelector, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, openNewDbProjectSpy, triggerStudioLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
 
-			triggerEditorLoad();
+			triggerStudioLoad();
 			await waitForMicrotasks();
 
 			assertSpyCalls(openNewDbProjectSpy, 1);
@@ -43,7 +43,7 @@ Deno.test({
 Deno.test({
 	name: "Opening new project by clicking only opens a new project once",
 	async fn() {
-		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerStudioLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -52,7 +52,7 @@ Deno.test({
 
 			assertSpyCalls(openNewDbProjectSpy, 0);
 
-			triggerEditorLoad();
+			triggerStudioLoad();
 			await waitForMicrotasks();
 
 			assertSpyCalls(openNewDbProjectSpy, 1);
@@ -69,12 +69,12 @@ Deno.test({
 Deno.test({
 	name: "Opening new project by clicking after studio has loaded only hides the project selector",
 	async fn() {
-		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, newProjectButton, openNewDbProjectSpy, triggerStudioLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
 
-			triggerEditorLoad();
+			triggerStudioLoad();
 			await waitForMicrotasks();
 
 			assertSpyCalls(openNewDbProjectSpy, 1);
@@ -102,7 +102,7 @@ Deno.test({
 Deno.test({
 	name: "Opening project directory by clicking doesn't open empty project",
 	async fn() {
-		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerStudioLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
@@ -113,7 +113,7 @@ Deno.test({
 			assertSpyCalls(openNewDbProjectSpy, 0);
 			assertSpyCalls(openProjectFromLocalDirectorySpy, 0);
 
-			triggerEditorLoad();
+			triggerStudioLoad();
 			await waitForMicrotasks();
 
 			assertSpyCalls(openProjectFromLocalDirectorySpy, 1);
@@ -127,13 +127,13 @@ Deno.test({
 Deno.test({
 	name: "Opening project directory after studio has already loaded",
 	async fn() {
-		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerEditorLoad, uninstall} = basicSetup();
+		const {projectSelector, openProjectButton, openNewDbProjectSpy, openProjectFromLocalDirectorySpy, triggerStudioLoad, uninstall} = basicSetup();
 
 		try {
 			assertSpyCalls(openNewDbProjectSpy, 0);
 			assertSpyCalls(openProjectFromLocalDirectorySpy, 0);
 
-			triggerEditorLoad();
+			triggerStudioLoad();
 			await waitForMicrotasks();
 
 			assertSpyCalls(openNewDbProjectSpy, 1);

@@ -37,8 +37,8 @@ export class ContentWindow {
 		this.studioInstance = studioInstance;
 		this.windowManager = windowManager;
 
-		/** @type {import("../EditorWindowTabs.js").EditorWindowTabs?} */
-		this.parentEditorWindow = null;
+		/** @type {import("../TabsStudioWindow.js").TabsStudioWindow?} */
+		this.parentStudioWindow = null;
 		/**
 		 * The instance uuid of the ContentWindow.
 		 * This is used for dragging tabs and associating the ContentWindow with the persistent data.
@@ -52,22 +52,22 @@ export class ContentWindow {
 		const castConstructor = /** @type {typeof ContentWindow} */ (this.constructor);
 
 		this.el = document.createElement("div");
-		this.el.classList.add("editorContentWindow");
+		this.el.classList.add("studio-content-window");
 
 		if (STUDIO_ENV == "dev") {
 			this.el.dataset.contentWindowTypeId = castConstructor.contentWindowTypeId;
 		}
 
 		this.topButtonBar = document.createElement("div");
-		this.topButtonBar.classList.add("editorContentWindowTopButtonBar");
+		this.topButtonBar.classList.add("studio-content-window-top-button-bar");
 		this.el.appendChild(this.topButtonBar);
 
 		this.tabSelectorSpacer = document.createElement("div");
-		this.tabSelectorSpacer.classList.add("editorContentWindowTopButtonBarSpacer");
+		this.tabSelectorSpacer.classList.add("studio-content-window-top-button-bar-spacer");
 		this.topButtonBar.appendChild(this.tabSelectorSpacer);
 
 		this.contentEl = document.createElement("div");
-		this.contentEl.classList.add("editorContentWindowContent");
+		this.contentEl.classList.add("studio-content-window-content");
 		this.contentEl.classList.toggle("scrollable", castConstructor.scrollable);
 		this.el.appendChild(this.contentEl);
 
@@ -87,16 +87,16 @@ export class ContentWindow {
 	}
 
 	/**
-	 * @param {import("../EditorWindowTabs.js").EditorWindowTabs} parentEditorWindow
+	 * @param {import("../TabsStudioWindow.js").TabsStudioWindow} parentStudioWindow
 	 */
-	attachParentEditorWindow(parentEditorWindow) {
-		this.parentEditorWindow = parentEditorWindow;
+	attachParentStudioWindow(parentStudioWindow) {
+		this.parentStudioWindow = parentStudioWindow;
 	}
 
-	detachParentEditorWindow() {
-		if (!this.parentEditorWindow) return;
-		this.parentEditorWindow.contentWindowDetached(this);
-		this.parentEditorWindow = null;
+	detachParentStudioWindow() {
+		if (!this.parentStudioWindow) return;
+		this.parentStudioWindow.contentWindowDetached(this);
+		this.parentStudioWindow = null;
 	}
 
 	/**
@@ -129,7 +129,7 @@ export class ContentWindow {
 	 * @param {boolean} value
 	 */
 	setContentBehindTopBar(value) {
-		this.contentEl.classList.toggle("behindTopButtonBar", value);
+		this.contentEl.classList.toggle("behind-top-button-bar", value);
 	}
 
 	get contentWidth() {

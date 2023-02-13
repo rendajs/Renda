@@ -9,7 +9,7 @@ import {getTreeViewItemElement} from "../treeView.js";
  */
 export async function getPropertiesWindowRootTreeView(page) {
 	const propertiesWindow = await getContentWindowElement(page, "properties");
-	const treeView = await waitFor(propertiesWindow, ":scope > .editorContentWindowContent > div > .treeViewItem");
+	const treeView = await waitFor(propertiesWindow, ":scope > .studio-content-window-content > div > .treeViewItem");
 	assertExists(treeView);
 	return treeView;
 }

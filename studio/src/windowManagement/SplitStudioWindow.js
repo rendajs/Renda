@@ -1,14 +1,14 @@
-import {EditorWindow} from "./EditorWindow.js";
+import {StudioWindow} from "./StudioWindow.js";
 import {clamp01, mapValue} from "../../../src/util/mod.js";
 
-export class EditorWindowSplit extends EditorWindow {
+export class SplitStudioWindow extends StudioWindow {
 	/**
-	 * @param {ConstructorParameters<typeof EditorWindow>} args
+	 * @param {ConstructorParameters<typeof StudioWindow>} args
 	 */
 	constructor(...args) {
 		super(...args);
 
-		this.el.classList.add("editorWindowSplit");
+		this.el.classList.add("studio-window-split");
 
 		this.splitHorizontal = false;
 		this.splitPercentage = 0.5;
@@ -23,23 +23,22 @@ export class EditorWindowSplit extends EditorWindow {
 		this.resizeStartBounds = null;
 
 		this.elA = document.createElement("div");
-		this.elA.classList.add("editorWindowSplitHalf");
+		this.elA.classList.add("studio-window-split-half");
 		this.el.appendChild(this.elA);
 
 		this.resizer = document.createElement("div");
-		this.resizer.classList.add("editorWindowSplitResizer");
 		this.el.appendChild(this.resizer);
 
 		this.resizer.addEventListener("mousedown", this.boundOnResizerDown);
 
 		this.elB = document.createElement("div");
-		this.elB.classList.add("editorWindowSplitHalf");
+		this.elB.classList.add("studio-window-split-half");
 		this.el.appendChild(this.elB);
 	}
 
 	/**
-	 * @param {EditorWindow?} windowA
-	 * @param {EditorWindow?} windowB
+	 * @param {StudioWindow?} windowA
+	 * @param {StudioWindow?} windowB
 	 */
 	setWindows(windowA, windowB) {
 		this.windowA = windowA;
@@ -156,7 +155,7 @@ export class EditorWindowSplit extends EditorWindow {
 	}
 
 	/**
-	 * @param {EditorWindow} closedSplitWindow
+	 * @param {StudioWindow} closedSplitWindow
 	 */
 	unsplitWindow(closedSplitWindow) {
 		let remainingWindow;
@@ -172,15 +171,15 @@ export class EditorWindowSplit extends EditorWindow {
 		}
 		if (this.isRoot) {
 			this.windowManager.replaceRootWindow(remainingWindow);
-		} else if (this.parent && this.parent instanceof EditorWindowSplit) {
+		} else if (this.parent && this.parent instanceof SplitStudioWindow) {
 			this.parent.replaceWindow(this, remainingWindow);
 			this.destructor();
 		}
 	}
 
 	/**
-	 * @param {EditorWindow} oldWindow
-	 * @param {EditorWindow} newWindow
+	 * @param {StudioWindow} oldWindow
+	 * @param {StudioWindow} newWindow
 	 */
 	replaceWindow(oldWindow, newWindow) {
 		if (this.windowA === oldWindow) {

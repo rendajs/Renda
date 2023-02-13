@@ -65,7 +65,7 @@ async function basicTest({
 		assertTreeViewStructureEquals(contentWindow.studioClientConnectionTreeView, {
 			children: [
 				{
-					name: "Editors",
+					name: "Studios",
 				},
 			],
 		}, {

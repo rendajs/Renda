@@ -11,7 +11,7 @@ export async function waitForProjectOpen(page, testContext, allowExisting = true
 	await waitForStudioLoad(page, testContext);
 	await testContext.step("Wait for project to open", async () => {
 		await page.evaluate(async allowExisting => {
-			if (!globalThis.studio) throw new Error("Editor instance does not exist");
+			if (!globalThis.studio) throw new Error("Studio instance does not exist");
 			await globalThis.studio.projectManager.waitForProjectOpen(allowExisting);
 		}, allowExisting);
 	});
@@ -29,7 +29,7 @@ export async function openProjectSelector(page, testContext) {
 		name: "Open project selector",
 		async fn() {
 			const projectEl = await getContentWindowElement(page, "project");
-			await click(projectEl, "div.editorContentWindowTopButtonBar > div:nth-child(3)");
+			await click(projectEl, "div.studio-content-window-top-button-bar > div:nth-child(3)");
 			projectSelectorEl = await waitFor(page, ".project-selector-window");
 		},
 	});

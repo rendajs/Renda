@@ -1,4 +1,4 @@
-export class EditorWindow {
+export class StudioWindow {
 	#focusWithin = false;
 	/** @type {Set<(hasFocus: boolean) => any>} */
 	#onFocusedChangeCbs = new Set();
@@ -12,7 +12,7 @@ export class EditorWindow {
 		this.el = document.createElement("div");
 		this.el.tabIndex = -1;
 
-		/** @type {EditorWindow?} */
+		/** @type {StudioWindow?} */
 		this.parent = null;
 		this.windowManager = windowManager;
 		this.isRoot = false;
@@ -43,7 +43,7 @@ export class EditorWindow {
 	setRoot() {
 		this.isRoot = true;
 		this.parent = null;
-		this.el.classList.add("editorWindowRoot");
+		this.el.classList.add("studio-window-root");
 	}
 
 	/**
@@ -87,7 +87,7 @@ export class EditorWindow {
 	onContentWindowRegistered(constructor) {}
 
 	/**
-	 * @param {EditorWindow} parent
+	 * @param {StudioWindow} parent
 	 */
 	setParent(parent) {
 		this.parent = parent;
@@ -96,7 +96,7 @@ export class EditorWindow {
 	getParent() {}
 
 	/**
-	 * @returns {Generator<EditorWindow>}
+	 * @returns {Generator<StudioWindow>}
 	 */
 	*getChildren() {}
 

@@ -29,7 +29,7 @@ Deno.test({
 			assertEquals(liveAssetData.liveAsset.str, "defaultBasicAssetDiskString");
 			assertEquals(liveAssetData.studioData, {
 				studioNum: 42,
-				studioStr: "defaultMockLiveAssetEditorStr",
+				studioStr: "defaultMockLiveAssetStudioStr",
 			});
 		} finally {
 			await uninstall();
@@ -143,7 +143,7 @@ Deno.test({
 			assertEquals(promiseResult1.liveAsset.str, "defaultBasicAssetDiskString");
 			assertEquals(promiseResult1.studioData, {
 				studioNum: 42,
-				studioStr: "defaultMockLiveAssetEditorStr",
+				studioStr: "defaultMockLiveAssetStudioStr",
 			});
 		} finally {
 			await uninstall();

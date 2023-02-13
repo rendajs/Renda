@@ -1,12 +1,12 @@
-import {EditorWindow} from "./EditorWindow.js";
+import {StudioWindow} from "./StudioWindow.js";
 import {getElemSize, parseMimeType} from "../util/util.js";
 import {generateUuid, iLerp} from "../../../src/util/mod.js";
 import {getStudioInstance} from "../studioInstance.js";
 import {Button} from "../ui/Button.js";
 import {ButtonGroup} from "../ui/ButtonGroup.js";
-import {EditorWindowSplit} from "./EditorWindowSplit.js";
+import {SplitStudioWindow} from "./SplitStudioWindow.js";
 
-export class EditorWindowTabs extends EditorWindow {
+export class TabsStudioWindow extends StudioWindow {
 	/** @type {Array<string>} */
 	#intendedTabTypes = [];
 	/** @type {import("../../../src/util/mod.js").UuidString[]} */
@@ -16,12 +16,12 @@ export class EditorWindowTabs extends EditorWindow {
 	/** @typedef {typeof import("./contentWindows/ContentWindow.js").ContentWindow} ContentWindowConstructor */
 
 	/**
-	 * @param {ConstructorParameters<typeof EditorWindow>} args
+	 * @param {ConstructorParameters<typeof StudioWindow>} args
 	 */
 	constructor(...args) {
 		super(...args);
 
-		this.el.classList.add("editorWindowTabs");
+		this.el.classList.add("studio-window-tabs");
 
 		/** @type {Array<ContentWindow>} */
 		this.tabs = [];
@@ -30,18 +30,18 @@ export class EditorWindowTabs extends EditorWindow {
 		this.onTabChangeCbs = new Set();
 
 		this.tabsSelectorGroup = new ButtonGroup();
-		this.tabsSelectorGroup.el.classList.add("editorWindowTabButtonGroup");
+		this.tabsSelectorGroup.el.classList.add("studio-window-tab-button-group");
 		this.el.appendChild(this.tabsSelectorGroup.el);
 
 		this.boundOnTabsContextMenu = this.onTabsContextMenu.bind(this);
 		this.tabsSelectorGroup.onContextMenu(this.boundOnTabsContextMenu);
 
 		this.tabsEl = document.createElement("div");
-		this.tabsEl.classList.add("editorWindowTabsList");
+		this.tabsEl.classList.add("studio-window-tabs-list");
 		this.el.appendChild(this.tabsEl);
 
 		this.tabDragOverlayEl = document.createElement("div");
-		this.tabDragOverlayEl.classList.add("editorWindowTabDragOverlay");
+		this.tabDragOverlayEl.classList.add("studio-window-tab-drag-overlay");
 		this.el.appendChild(this.tabDragOverlayEl);
 
 		this.lastTabDragOverlayBoundingRect = null;
@@ -183,8 +183,8 @@ export class EditorWindowTabs extends EditorWindow {
 	 */
 	setExistingContentWindow(index, contentWindow) {
 		if (this.tabs[index]) throw new Error("Replacing existing content windows is not yet implemented.");
-		contentWindow.detachParentEditorWindow();
-		contentWindow.attachParentEditorWindow(this);
+		contentWindow.detachParentStudioWindow();
+		contentWindow.attachParentStudioWindow(this);
 		this.tabs[index] = contentWindow;
 		const castConstructor = /** @type {ContentWindowConstructor} */ (contentWindow.constructor);
 		this.#intendedTabTypes[index] = castConstructor.contentWindowTypeId;
@@ -238,7 +238,7 @@ export class EditorWindowTabs extends EditorWindow {
 						if (!e.dataTransfer) return;
 						this.windowManager.setTabDragEnabled(true);
 						e.dataTransfer.effectAllowed = "move";
-						e.dataTransfer.setData("text/renda; dragtype=editorwindowtab", contentWindow.uuid);
+						e.dataTransfer.setData("text/renda; dragtype=studiowindowtab", contentWindow.uuid);
 					},
 					onDragEnd: () => {
 						this.windowManager.setTabDragEnabled(false);
@@ -519,7 +519,7 @@ export class EditorWindowTabs extends EditorWindow {
 		const parsed = parseMimeType(mimeType);
 		if (!parsed) return false;
 		const {type, subType, parameters} = parsed;
-		if (type != "text" || subType != "renda" || parameters.dragtype != "editorwindowtab") return false;
+		if (type != "text" || subType != "renda" || parameters.dragtype != "studiowindowtab") return false;
 		return true;
 	}
 
@@ -568,10 +568,10 @@ export class EditorWindowTabs extends EditorWindow {
 	 * @param {boolean} splitHorizontal
 	 */
 	splitWindow(emptySide, splitHorizontal) {
-		const newSplitWindow = new EditorWindowSplit(this.windowManager);
+		const newSplitWindow = new SplitStudioWindow(this.windowManager);
 		newSplitWindow.splitHorizontal = splitHorizontal;
 
-		const newTabWindow = new EditorWindowTabs(this.windowManager);
+		const newTabWindow = new TabsStudioWindow(this.windowManager);
 		const oldParent = this.parent;
 		if (emptySide == "left" || emptySide == "top") {
 			newSplitWindow.setWindows(newTabWindow, this);
@@ -583,14 +583,14 @@ export class EditorWindowTabs extends EditorWindow {
 
 		if (this.isRoot) {
 			this.windowManager.replaceRootWindow(newSplitWindow, false);
-		} else if (oldParent && oldParent instanceof EditorWindowSplit) {
+		} else if (oldParent && oldParent instanceof SplitStudioWindow) {
 			oldParent.replaceWindow(this, newSplitWindow);
 		}
 		return newTabWindow;
 	}
 
 	unsplitParent() {
-		if (this.parent && this.parent instanceof EditorWindowSplit) {
+		if (this.parent && this.parent instanceof SplitStudioWindow) {
 			this.parent.unsplitWindow(this);
 		}
 	}

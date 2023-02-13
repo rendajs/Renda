@@ -15,32 +15,32 @@ importer.makeReal("../../../../../src/util/mod.js");
 const WindowManagerMod = await importer.import("../../../../../studio/src/windowManagement/WindowManager.js");
 const {WindowManager} = WindowManagerMod;
 
-/** @type {import("../../../../../studio/src/windowManagement/EditorWindow.js")} */
-const EditorWindowMod = await importer.import("../../../../../studio/src/windowManagement/EditorWindow.js");
-const {EditorWindow} = EditorWindowMod;
+/** @type {import("../../../../../studio/src/windowManagement/StudioWindow.js")} */
+const StudioWindowMod = await importer.import("../../../../../studio/src/windowManagement/StudioWindow.js");
+const {StudioWindow} = StudioWindowMod;
 const onFocusedWithinChangeSym = Symbol("onFocusedWithinChange");
 
-/** @typedef {import("../../../../../studio/src/windowManagement/EditorWindow.js").EditorWindow & {[onFocusedWithinChangeSym]: Set<(hasFocus: boolean) => void>}} EditorWindowWithSym */
+/** @typedef {import("../../../../../studio/src/windowManagement/StudioWindow.js").StudioWindow & {[onFocusedWithinChangeSym]: Set<(hasFocus: boolean) => void>}} StudioWindowWithSym */
 // eslint-disable-next-line no-unused-expressions
 () => {};
 
-stub(EditorWindow.prototype, "onFocusedWithinChange", function(cb) {
+stub(StudioWindow.prototype, "onFocusedWithinChange", function(cb) {
 	// eslint-disable-next-line no-invalid-this
-	const castThis = /** @type {EditorWindowWithSym} */ (this);
+	const castThis = /** @type {StudioWindowWithSym} */ (this);
 	if (!castThis[onFocusedWithinChangeSym]) {
 		castThis[onFocusedWithinChangeSym] = new Set();
 	}
 	castThis[onFocusedWithinChangeSym].add(cb);
 });
 
-/** @type {import("../../../../../studio/src/windowManagement/EditorWindowSplit.js")} */
-const EditorWindowSplitMod = await importer.import("../../../../../studio/src/windowManagement/EditorWindowSplit.js");
-const {EditorWindowSplit} = EditorWindowSplitMod;
+/** @type {import("../../../../../studio/src/windowManagement/SplitStudioWindow.js")} */
+const StudioWindowSplitMod = await importer.import("../../../../../studio/src/windowManagement/SplitStudioWindow.js");
+const {SplitStudioWindow} = StudioWindowSplitMod;
 
-/** @type {import("../../../../../studio/src/windowManagement/EditorWindowTabs.js")} */
-const EditorWindowTabsMod = await importer.import("../../../../../studio/src/windowManagement/EditorWindowTabs.js");
-const {EditorWindowTabs} = EditorWindowTabsMod;
-stub(EditorWindowTabs.prototype, "updateTabSelectorSpacer", () => {});
+/** @type {import("../../../../../studio/src/windowManagement/TabsStudioWindow.js")} */
+const StudioWindowTabsMod = await importer.import("../../../../../studio/src/windowManagement/TabsStudioWindow.js");
+const {TabsStudioWindow} = StudioWindowTabsMod;
+stub(TabsStudioWindow.prototype, "updateTabSelectorSpacer", () => {});
 
 /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js")} */
 const ContentWindowMod = await importer.import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js");
@@ -143,9 +143,9 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			fn({manager}) {
-				assertInstanceOf(manager.rootWindow, EditorWindowSplit);
-				assertInstanceOf(manager.rootWindow.windowA, EditorWindowTabs);
-				assertInstanceOf(manager.rootWindow.windowB, EditorWindowTabs);
+				assertInstanceOf(manager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(manager.rootWindow.windowA, TabsStudioWindow);
+				assertInstanceOf(manager.rootWindow.windowB, TabsStudioWindow);
 			},
 		});
 	},
@@ -156,8 +156,8 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn({manager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(manager.rootWindow, EditorWindowSplit);
-				assertInstanceOf(manager.rootWindow.windowA, EditorWindowTabs);
+				assertInstanceOf(manager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(manager.rootWindow.windowA, TabsStudioWindow);
 				const e = new FakeMouseEvent("click");
 				manager.rootWindow.windowA.el.dispatchEvent(e);
 
@@ -173,9 +173,9 @@ Deno.test({
 	async fn() {
 		await basicSetup({
 			async fn({manager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(manager.rootWindow, EditorWindowSplit);
-				assertInstanceOf(manager.rootWindow.windowA, EditorWindowTabs);
-				const castWindow = /** @type {EditorWindowWithSym} */ (/** @type {unknown} */ (manager.rootWindow.windowA));
+				assertInstanceOf(manager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(manager.rootWindow.windowA, TabsStudioWindow);
+				const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (manager.rootWindow.windowA));
 				castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
 
 				assertStrictEquals(manager.lastFocusedContentWindow, manager.rootWindow.windowA.tabs[0]);
