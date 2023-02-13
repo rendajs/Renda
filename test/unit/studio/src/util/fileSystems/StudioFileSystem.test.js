@@ -61,9 +61,9 @@ Deno.test({
 		/** @type {{path: import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath, text: string}[]} */
 		const writeCalls = [];
 
-		const {EditorFileSystem: EditorFileSystem2} = await importer.import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js");
-		const CastEditorFileSystem = /** @type {typeof StudioFileSystem} */ (EditorFileSystem2);
-		class ImplementedFileSystem extends CastEditorFileSystem {
+		const {StudioFileSystem: StudioFileSystem2} = await importer.import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js");
+		const CastStudioFileSystem = /** @type {typeof StudioFileSystem} */ (StudioFileSystem2);
+		class ImplementedFileSystem extends CastStudioFileSystem {
 			/**
 			 * @override
 			 * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
