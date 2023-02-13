@@ -13,7 +13,7 @@ Deno.test({
 
 		assertEquals(result, {
 			liveAsset: null,
-			editorData: null,
+			studioData: null,
 		});
 	},
 });

@@ -5,10 +5,10 @@ import {PropertiesTreeView} from "../ui/propertiesTreeView/PropertiesTreeView.js
  */
 export class PropertiesAssetContent {
 	/**
-	 * @param {import("../Studio.js").Studio} editorInstance
+	 * @param {import("../Studio.js").Studio} studioInstance
 	 */
-	constructor(editorInstance) {
-		this.editorInstance = editorInstance;
+	constructor(studioInstance) {
+		this.studioInstance = studioInstance;
 
 		/** @type {import("../assets/ProjectAsset.js").ProjectAsset<TAssetType>[]} */
 		this.currentSelection = [];

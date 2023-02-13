@@ -144,7 +144,7 @@ export class TaskBundleAssets extends Task {
 		super(...args);
 
 		this.#messenger = new TypedMessenger({returnTransferSupport: true});
-		const assetManager = this.editorInstance.projectManager.assetManager;
+		const assetManager = this.studioInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to create Bundle Scripts task: no asset manager.");
 		}
@@ -158,11 +158,11 @@ export class TaskBundleAssets extends Task {
 		if (!config) {
 			throw new Error("Failed to run task: no config provided");
 		}
-		const fileSystem = this.editorInstance.projectManager.currentProjectFileSystem;
+		const fileSystem = this.studioInstance.projectManager.currentProjectFileSystem;
 		if (!fileSystem) {
 			throw new Error("Failed to run task: no project file system.");
 		}
-		const assetManager = this.editorInstance.projectManager.assetManager;
+		const assetManager = this.studioInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task: no asset manager.");
 		}

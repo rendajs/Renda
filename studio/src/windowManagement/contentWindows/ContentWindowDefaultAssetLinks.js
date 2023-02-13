@@ -48,12 +48,12 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 	}
 
 	async loadDefaultAssetLinks() {
-		await this.editorInstance.projectManager.waitForAssetListsLoad();
-		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		await this.studioInstance.projectManager.waitForAssetListsLoad();
+		const assetManager = await this.studioInstance.projectManager.getAssetManager();
 		if (!this.el) return; // the content window was destructed
 
 		this.builtInAssetLinksTreeView.clearChildren();
-		for (const builtInAssetLink of this.editorInstance.builtInDefaultAssetLinksManager.registeredAssetLinks) {
+		for (const builtInAssetLink of this.studioInstance.builtInDefaultAssetLinksManager.registeredAssetLinks) {
 			const item = this.builtInAssetLinksTreeView.addItem(this.builtInAssetLinkGuiStructure);
 			const assetLink = assetManager.getDefaultAssetLink(builtInAssetLink.defaultAssetUuid);
 			const originalAsset = assetLink && assetLink.originalAssetUuid;
@@ -144,7 +144,7 @@ export class ContentWindowDefaultAssetLinks extends ContentWindow {
 		}
 
 		// save default asset link settings to disk and generate uuids for new links
-		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();
 		const userDefaultAssetLinkUuids = assetManager.setDefaultAssetLinks(builtInAssetLinks, assetLinks);
 
 		const arrayTreeView = this.treeView.getSerializableStructureEntry("defaultAssetLinks");

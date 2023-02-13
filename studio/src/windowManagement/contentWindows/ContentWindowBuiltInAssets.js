@@ -28,13 +28,13 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		this.contentEl.appendChild(this.treeView.el);
 
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../assets/ProjectAsset.js").ProjectAssetAny>} */
-		this.selectionGroup = this.editorInstance.selectionManager.createSelectionGroup();
+		this.selectionGroup = this.studioInstance.selectionManager.createSelectionGroup();
 
 		this.init();
 	}
 
 	async init() {
-		await this.editorInstance.builtInAssetManager.waitForLoad();
+		await this.studioInstance.builtInAssetManager.waitForLoad();
 		this.updateTreeView();
 	}
 
@@ -47,7 +47,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 
 	updateTreeView() {
 		if (this.destructed) return;
-		for (const asset of this.editorInstance.builtInAssetManager.assets.values()) {
+		for (const asset of this.studioInstance.builtInAssetManager.assets.values()) {
 			this.addAssetToTreeView(asset, asset.path, this.treeView);
 		}
 	}
@@ -80,7 +80,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 		if (!projectAsset) return;
 
 		let assetType = null;
-		if (projectAsset.assetType) assetType = this.editorInstance.projectAssetTypeManager.getAssetType(projectAsset.assetType);
+		if (projectAsset.assetType) assetType = this.studioInstance.projectAssetTypeManager.getAssetType(projectAsset.assetType);
 
 		/** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */
 		const draggingData = {
@@ -88,7 +88,7 @@ export class ContentWindowBuiltInAssets extends ContentWindow {
 			assetType,
 			assetUuid: projectAsset.uuid,
 		};
-		const draggingDataUuid = this.editorInstance.dragManager.registerDraggingData(draggingData);
+		const draggingDataUuid = this.studioInstance.dragManager.registerDraggingData(draggingData);
 		if (e.rawEvent.dataTransfer) {
 			e.rawEvent.dataTransfer.setData(`text/renda; dragtype=projectasset; draggingdata=${draggingDataUuid}`, "");
 			e.rawEvent.dataTransfer.effectAllowed = "all";

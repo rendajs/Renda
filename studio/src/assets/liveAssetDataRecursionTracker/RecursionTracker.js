@@ -34,11 +34,11 @@ import {LoadingAsset} from "./LoadingAsset.js";
  */
 /**
  * @template {GetLiveAssetDataOptions} TOpts
- * @typedef {TOpts extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} EditorDataType
+ * @typedef {TOpts extends import("../projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any> ? U :never} StudioDataType
  */
 /**
  * @template {GetLiveAssetDataOptions} TOpts
- * @typedef {import("../projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<TOpts>, EditorDataType<TOpts>>} LiveAssetData
+ * @typedef {import("../projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType<TOpts>, StudioDataType<TOpts>>} LiveAssetData
  */
 
 /**

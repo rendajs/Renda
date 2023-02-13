@@ -57,7 +57,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 				text: "Run Task",
 				onClick: async () => {
 					for (const asset of this.currentSelection) {
-						this.editorInstance.taskManager.runTaskAsset(asset);
+						this.studioInstance.taskManager.runTaskAsset(asset);
 					}
 				},
 			},
@@ -89,7 +89,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		const assetContent = await asset.readAssetData();
 
 		this.#currentSelectedTaskType = assetContent.taskType;
-		const taskType = this.editorInstance.taskManager.getTaskType(assetContent.taskType);
+		const taskType = this.studioInstance.taskManager.getTaskType(assetContent.taskType);
 
 		const environmentVariables = [];
 		if (assetContent.environmentVariables) {
@@ -104,7 +104,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 		this.#currentConfigStructure = taskType.configStructure;
 		if (taskType.configStructure) {
 			this.taskConfigTree.generateFromSerializableStructure(taskType.configStructure);
-			const configData = this.editorInstance.taskManager.transformAssetToUiData(this.#currentSelectedTaskType, assetContent.taskConfig);
+			const configData = this.studioInstance.taskManager.transformAssetToUiData(this.#currentSelectedTaskType, assetContent.taskConfig);
 			const castConfigData = /** @type {import("../ui/propertiesTreeView/types.js").StructureToSetObject<any> | undefined} */ (configData);
 			if (castConfigData) {
 				this.taskConfigTree.fillSerializableStructureValues(castConfigData);
@@ -146,7 +146,7 @@ export class PropertiesAssetContentTask extends PropertiesAssetContent {
 			const uiConfigData = this.taskConfigTree.getSerializableStructureValues(this.#currentConfigStructure, {
 				purpose: "fileStorage",
 			});
-			const configData = this.editorInstance.taskManager.transformUiToAssetData(this.#currentSelectedTaskType, uiConfigData);
+			const configData = this.studioInstance.taskManager.transformUiToAssetData(this.#currentSelectedTaskType, uiConfigData);
 			if (configData) assetData.taskConfig = configData;
 		}
 		await this.currentSelection[0].writeAssetData(assetData);

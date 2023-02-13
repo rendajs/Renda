@@ -17,14 +17,14 @@ export class ContentWindowProperties extends ContentWindow {
 		this.activeContent = null;
 
 		this.boundOnSelectionChanged = this.onSelectionChanged.bind(this);
-		this.editorInstance.selectionManager.onSelectionChange(this.boundOnSelectionChanged);
+		this.studioInstance.selectionManager.onSelectionChange(this.boundOnSelectionChanged);
 	}
 
 	destructor() {
 		super.destructor();
 		if (this.activeContent) this.activeContent.destructor();
 		this.activeContent = null;
-		this.editorInstance.selectionManager.removeOnSelectionChange(this.boundOnSelectionChanged);
+		this.studioInstance.selectionManager.removeOnSelectionChange(this.boundOnSelectionChanged);
 	}
 
 	onContentTypeRegistered() {
@@ -48,10 +48,10 @@ export class ContentWindowProperties extends ContentWindow {
 	}
 
 	updateCurrentContentType() {
-		const PropertiesWindowContent = this.editorInstance.propertiesWindowContentManager.getContentTypeForObjects(this.activeObjects);
+		const PropertiesWindowContent = this.studioInstance.propertiesWindowContentManager.getContentTypeForObjects(this.activeObjects);
 		if (!this.activeContent || this.activeContent.constructor != PropertiesWindowContent) {
 			if (this.activeContent) this.activeContent.destructor();
-			this.activeContent = new PropertiesWindowContent(this.editorInstance, this.windowManager);
+			this.activeContent = new PropertiesWindowContent(this.studioInstance, this.windowManager);
 			this.contentEl.appendChild(this.activeContent.el);
 		}
 

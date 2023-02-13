@@ -37,7 +37,7 @@ Deno.test("reload component values when changed", async () => {
 	const fakeRecursionTracker = new FakeRecursionTracker();
 
 	let markRenderDirtyCalled = false;
-	const mockEditorInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
+	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		windowManager: {
 			*getContentWindowsByConstructor(windowConstructor) {
 				if (windowConstructor == /** @type {any} */ (ContentWindowEntityEditor)) {
@@ -52,7 +52,7 @@ Deno.test("reload component values when changed", async () => {
 		},
 	});
 
-	const assetType = new ProjectAssetTypeEntity(mockEditorInstance, /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
+	const assetType = new ProjectAssetTypeEntity(mockStudioInstance, /** @type {any} */ ({}), /** @type {any} */ ({}), /** @type {any} */ ({}));
 
 	assetType.fillComponentPropertyValueFromJson(newComponentData, originalComponentData, "mesh", "droppable", {}, /** @type {any} */ (fakeRecursionTracker));
 
@@ -76,7 +76,7 @@ async function basicSetupForAssetLoaderImportConfig({
 	assertExists(ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra);
 	const result = await ProjectAssetTypeEntity.assetLoaderTypeImportConfig.extra({
 		addImport: addImportSpy,
-		editor: /** @type {any} */ ({
+		studio: /** @type {any} */ ({
 			componentTypeManager: {
 				*getAllComponents() {
 					yield MeshComponent;

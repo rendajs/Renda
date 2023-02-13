@@ -97,7 +97,7 @@ function basicSetup({
 			const cbs = liveAssetChangeCbs.get(uuid);
 			if (cbs) {
 				cbs.forEach(cb => cb({
-					editorData: null,
+					studioData: null,
 					liveAsset: newLiveAsset,
 				}));
 			}
@@ -121,7 +121,7 @@ Deno.test({
 		assertSpyCall(cbSpy, 0, {
 			args: [
 				{
-					editorData: null,
+					studioData: null,
 					liveAsset: otherProjectAssetLiveAsset1,
 				},
 			],
@@ -165,7 +165,7 @@ Deno.test({
 		assertSpyCall(cbSpy, 0, {
 			args: [
 				{
-					editorData: null,
+					studioData: null,
 					liveAsset: otherProjectAssetLiveAsset1,
 				},
 			],

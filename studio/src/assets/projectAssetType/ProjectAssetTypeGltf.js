@@ -35,7 +35,7 @@ export class ProjectAssetTypeGltf extends ProjectAssetType {
 		if (!blob) {
 			return {
 				liveAsset: null,
-				editorData: null,
+				studioData: null,
 			};
 		}
 		const arrayBuffer = await blob.arrayBuffer();
@@ -64,7 +64,7 @@ export class ProjectAssetTypeGltf extends ProjectAssetType {
 		});
 		return {
 			liveAsset: entity,
-			editorData: null,
+			studioData: null,
 		};
 	}
 }

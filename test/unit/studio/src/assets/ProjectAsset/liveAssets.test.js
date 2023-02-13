@@ -27,7 +27,7 @@ Deno.test({
 			assertInstanceOf(liveAssetData.liveAsset, mocks.MockProjectAssetTypeLiveAsset);
 			assertEquals(liveAssetData.liveAsset.num, 42);
 			assertEquals(liveAssetData.liveAsset.str, "defaultBasicAssetDiskString");
-			assertEquals(liveAssetData.editorData, {
+			assertEquals(liveAssetData.studioData, {
 				editorNum: 42,
 				editorStr: "defaultMockLiveAssetEditorStr",
 			});
@@ -46,7 +46,7 @@ Deno.test({
 			const liveAssetData1 = await projectAsset.getLiveAssetData();
 			const liveAssetData2 = await projectAsset.getLiveAssetData();
 			assertStrictEquals(liveAssetData1.liveAsset, liveAssetData2.liveAsset);
-			assertStrictEquals(liveAssetData1.editorData, liveAssetData2.editorData);
+			assertStrictEquals(liveAssetData1.studioData, liveAssetData2.studioData);
 		} finally {
 			await uninstall();
 		}
@@ -64,7 +64,7 @@ Deno.test({
 			const liveAssetData1 = await promise1;
 			const liveAssetData2 = await promise2;
 			assertStrictEquals(liveAssetData1.liveAsset, liveAssetData2.liveAsset);
-			assertStrictEquals(liveAssetData1.editorData, liveAssetData2.editorData);
+			assertStrictEquals(liveAssetData1.studioData, liveAssetData2.studioData);
 		} finally {
 			await uninstall();
 		}
@@ -83,14 +83,14 @@ Deno.test({
 			const liveAssetData = await projectAsset.getLiveAssetData();
 			assertSpyCalls(dataChangeSpy, 1);
 			assertStrictEquals(dataChangeSpy.calls[0].args[0].liveAsset, liveAssetData.liveAsset);
-			assertStrictEquals(dataChangeSpy.calls[0].args[0].editorData, liveAssetData.editorData);
+			assertStrictEquals(dataChangeSpy.calls[0].args[0].studioData, liveAssetData.studioData);
 
 			projectAsset.destroyLiveAssetData();
 
 			const liveAssetData2 = await projectAsset.getLiveAssetData();
 			assertSpyCalls(dataChangeSpy, 2);
 			assertStrictEquals(dataChangeSpy.calls[1].args[0].liveAsset, liveAssetData2.liveAsset);
-			assertStrictEquals(dataChangeSpy.calls[1].args[0].editorData, liveAssetData2.editorData);
+			assertStrictEquals(dataChangeSpy.calls[1].args[0].studioData, liveAssetData2.studioData);
 		} finally {
 			await uninstall();
 		}
@@ -141,7 +141,7 @@ Deno.test({
 			assertInstanceOf(promiseResult1.liveAsset, mocks.MockProjectAssetTypeLiveAsset);
 			assertEquals(promiseResult1.liveAsset.num, 42);
 			assertEquals(promiseResult1.liveAsset.str, "defaultBasicAssetDiskString");
-			assertEquals(promiseResult1.editorData, {
+			assertEquals(promiseResult1.studioData, {
 				editorNum: 42,
 				editorStr: "defaultMockLiveAssetEditorStr",
 			});

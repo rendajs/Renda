@@ -115,10 +115,10 @@ export class Task {
 	}
 
 	/**
-	 * @param {import("../../Studio.js").Studio} editorInstance
+	 * @param {import("../../Studio.js").Studio} studioInstance
 	 */
-	constructor(editorInstance) {
-		this.editorInstance = editorInstance;
+	constructor(studioInstance) {
+		this.studioInstance = studioInstance;
 
 		const castConstructor = /** @type {typeof Task} */ (this.constructor);
 		if (castConstructor.workerUrl) {

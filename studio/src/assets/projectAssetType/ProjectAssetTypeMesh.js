@@ -38,7 +38,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		});
 		return {
 			liveAsset: mesh,
-			editorData: {
+			studioData: {
 				vertexStateUuid: defaultVertexStateAssetUuid,
 			},
 		};
@@ -61,14 +61,14 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 		// todo: remove all of this and reuse the code in AssetLoaderTypeMesh
 		const arrayBuffer = await blob.arrayBuffer();
 		const decomposer = new BinaryDecomposer(arrayBuffer);
-		if (decomposer.getUint32() != this.magicHeader) return {liveAsset: null, editorData: null};
+		if (decomposer.getUint32() != this.magicHeader) return {liveAsset: null, studioData: null};
 		if (decomposer.getUint16() != 1) {
 			throw new Error("mesh version is too new");
 		}
 		const mesh = new Mesh();
 
 		const vertexStateUuid = decomposer.getUuid();
-		if (!vertexStateUuid) return {liveAsset: null, editorData: null};
+		if (!vertexStateUuid) return {liveAsset: null, studioData: null};
 		const layoutProjectAsset = await this.assetManager.getProjectAssetFromUuid(vertexStateUuid, {
 			assertAssetType: ProjectAssetTypeVertexState,
 		});
@@ -111,7 +111,7 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 
 		return {
 			liveAsset: mesh,
-			editorData: {
+			studioData: {
 				vertexStateUuid,
 			},
 		};
@@ -168,11 +168,11 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {Mesh} liveAsset
-	 * @param {ProjectAssetTypeMeshEditorData} editorData
+	 * @param {ProjectAssetTypeMeshEditorData} studioData
 	 * @returns {Promise<ArrayBuffer>}
 	 */
-	async saveLiveAssetData(liveAsset, editorData) {
-		return this.meshToBuffer(liveAsset, editorData?.vertexStateUuid);
+	async saveLiveAssetData(liveAsset, studioData) {
+		return this.meshToBuffer(liveAsset, studioData?.vertexStateUuid);
 	}
 
 	/**
@@ -181,9 +181,9 @@ export class ProjectAssetTypeMesh extends ProjectAssetType {
 	 * @returns {Promise<ArrayBuffer?>}
 	 */
 	async createBundledAssetData(assetSettingOverrides = {}) {
-		const {liveAsset, editorData} = await this.projectAsset.getLiveAssetData();
+		const {liveAsset, studioData} = await this.projectAsset.getLiveAssetData();
 		if (!liveAsset) return null;
-		let vertexStateUuid = editorData?.vertexStateUuid;
+		let vertexStateUuid = studioData?.vertexStateUuid;
 		if (!vertexStateUuid) return null;
 		vertexStateUuid = this.assetManager.resolveDefaultAssetLinkUuid(vertexStateUuid);
 		return this.meshToBuffer(liveAsset, vertexStateUuid);

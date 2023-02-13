@@ -146,7 +146,7 @@ export class ContentWindowBuildView extends ContentWindow {
 			if (!path) {
 				throw new Error("Assertion failed, selected entry point doesn't exist or has been removed.");
 			}
-			const clientId = await this.editorInstance.serviceWorkerManager.getClientId();
+			const clientId = await this.studioInstance.serviceWorkerManager.getClientId();
 			const projectAssetType = await projectAsset.getProjectAssetType();
 			const projectAssetTypeAny = /** @type {any} */ (projectAssetType);
 			let newSrc;

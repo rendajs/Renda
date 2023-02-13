@@ -32,7 +32,7 @@ export class ProjectAssetTypeTexture extends ProjectAssetType {
 	async getLiveAssetData(blob, recursionTracker) {
 		return {
 			liveAsset: new Texture(blob),
-			editorData: {},
+			studioData: {},
 		};
 	}
 }

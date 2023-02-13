@@ -61,7 +61,7 @@ export class TaskGenerateHtml extends Task {
 		if (!config) {
 			throw new Error("Failed to run task: no config provided");
 		}
-		const assetManager = this.editorInstance.projectManager.assetManager;
+		const assetManager = this.studioInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task, no asset manager");
 		}

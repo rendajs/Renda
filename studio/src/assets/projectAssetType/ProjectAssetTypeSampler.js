@@ -86,7 +86,7 @@ export class ProjectAssetTypeSampler extends ProjectAssetType {
 		const sampler = new Sampler(fileData || {});
 		return {
 			liveAsset: sampler,
-			editorData: null,
+			studioData: null,
 		};
 	}
 }

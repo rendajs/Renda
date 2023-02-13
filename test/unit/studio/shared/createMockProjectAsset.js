@@ -38,7 +38,7 @@ export function createMockProjectAsset({
 				const promise = new Promise(r => liveAssetReturnCbs.add(r));
 				await promise;
 			}
-			return {liveAsset, editorData: null};
+			return {liveAsset, studioData: null};
 		},
 		async saveLiveAssetData() {
 			saveLiveAssetDataCallCount++;

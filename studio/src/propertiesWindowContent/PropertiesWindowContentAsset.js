@@ -96,7 +96,7 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 			// todo: handle selecting multiple assets or none
 			if (structure) {
 				projectAsset.assetSettings = this.assetSettingsTree.getSerializableStructureValues(structure, {purpose: "fileStorage"});
-				const assetManager = await this.editorInstance.projectManager.getAssetManager();
+				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				await assetManager.saveAssetSettings();
 				break;
 			}
@@ -152,11 +152,11 @@ export class PropertiesWindowContentAsset extends PropertiesWindowContent {
 		// Create new assetcontent if needed
 		if (needsNew && constructor) {
 			if (constructor == PropertiesAssetContentGenericStructure && foundStructure) {
-				const newContent = new PropertiesAssetContentGenericStructure(this.editorInstance);
+				const newContent = new PropertiesAssetContentGenericStructure(this.studioInstance);
 				newContent.setStructure(foundStructure, foundStructureType);
 				this.activeAssetContent = newContent;
 			} else {
-				this.activeAssetContent = new constructor(this.editorInstance);
+				this.activeAssetContent = new constructor(this.studioInstance);
 			}
 			this.assetContentTree.addChild(this.activeAssetContent.treeView);
 		}

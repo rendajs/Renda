@@ -33,7 +33,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	createLiveAssetDataContext() {
 		/** @type {import("../materialMapTypeSerializers/MaterialMapTypeSerializer.js").MaterialMapLiveAssetDataContext} */
 		const context = {
-			editor: this.editorInstance,
+			studio: this.studioInstance,
 			assetManager: this.assetManager,
 			materialMapAsset: /** @type {import("../ProjectAsset.js").ProjectAsset<ProjectAssetTypeMaterialMap>} */ (this.projectAsset),
 		};
@@ -44,7 +44,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 	 * @param {import("../MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} mapAssetData
 	 */
 	async #getMappedValuesFromAssetData(mapAssetData) {
-		const typeSerializer = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(mapAssetData.mapTypeId);
+		const typeSerializer = this.studioInstance.materialMapTypeSerializerManager.getTypeByUuid(mapAssetData.mapTypeId);
 		if (!typeSerializer) return null;
 
 		const context = this.createLiveAssetDataContext();
@@ -154,22 +154,22 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		});
 		return {
 			liveAsset: materialMap,
-			editorData: null,
+			studioData: null,
 		};
 	}
 
 	/**
 	 * @override
 	 * @param {MaterialMap?} liveAsset
-	 * @param {null} editorData
+	 * @param {null} studioData
 	 */
-	async saveLiveAssetData(liveAsset, editorData) {
+	async saveLiveAssetData(liveAsset, studioData) {
 		if (!liveAsset) return null;
 
 		/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData[]} */
 		const maps = [];
 		for (const [mapConstructor, mapInstance] of liveAsset.mapTypes) {
-			const mapTypeConstructor = this.editorInstance.materialMapTypeSerializerManager.getTypeByLiveAssetConstructor(mapConstructor);
+			const mapTypeConstructor = this.studioInstance.materialMapTypeSerializerManager.getTypeByLiveAssetConstructor(mapConstructor);
 			if (!mapTypeConstructor) continue;
 
 			/** @type {import("../MaterialMapTypeSerializerManager.js").MaterialMapTypeAssetData} */
@@ -223,13 +223,13 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const mapAssetData of assetData.maps) {
-				const mapTypeSerializer = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(mapAssetData.mapTypeId);
+				const mapTypeSerializer = this.studioInstance.materialMapTypeSerializerManager.getTypeByUuid(mapAssetData.mapTypeId);
 				if (!mapTypeSerializer) continue;
 				if (mapTypeSerializer.allowExportInAssetBundles) {
 					const mappedValuesData = await this.#getMappedValuesFromAssetData(mapAssetData);
 					if (!mappedValuesData) continue;
 
-					let arrayBuffer = mapTypeSerializer.mapDataToAssetBundleBinary(this.editorInstance, this.assetManager, mapAssetData.customData);
+					let arrayBuffer = mapTypeSerializer.mapDataToAssetBundleBinary(this.studioInstance, this.assetManager, mapAssetData.customData);
 					if (!arrayBuffer) {
 						arrayBuffer = new ArrayBuffer(0);
 					}
@@ -340,7 +340,7 @@ export class ProjectAssetTypeMaterialMap extends ProjectAssetType {
 		const assetData = await this.projectAsset.readAssetData();
 		if (assetData.maps) {
 			for (const mapAssetData of assetData.maps) {
-				const mapTypeSerializer = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(mapAssetData.mapTypeId);
+				const mapTypeSerializer = this.studioInstance.materialMapTypeSerializerManager.getTypeByUuid(mapAssetData.mapTypeId);
 				if (!mapTypeSerializer) continue;
 				if (mapTypeSerializer.allowExportInAssetBundles) {
 					const mappedValuesData = await this.#getMappedValuesFromAssetData(mapAssetData);

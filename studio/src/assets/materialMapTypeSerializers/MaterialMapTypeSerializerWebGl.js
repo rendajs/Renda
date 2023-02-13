@@ -30,11 +30,11 @@ export class MaterialMapTypeSerializerWebGl extends MaterialMapTypeSerializer {
 
 	/**
 	 * @override
-	 * @param {import("../../Studio.js").Studio} editorInstance
+	 * @param {import("../../Studio.js").Studio} studioInstance
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData
 	 */
-	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {
+	static async *getLinkedAssetsInCustomData(studioInstance, assetManager, customData) {
 		const vertexAsset = await assetManager.getProjectAssetFromUuid(customData.vertexShader, {
 			assertAssetType: ProjectAssetTypeShaderSource,
 		});

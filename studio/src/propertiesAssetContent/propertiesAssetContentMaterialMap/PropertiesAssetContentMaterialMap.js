@@ -53,8 +53,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			guiOpts: {
 				text: "Add Map Type",
 				onClick: async () => {
-					const menu = await this.editorInstance.popoverManager.createContextMenu();
-					for (const typeConstructor of this.editorInstance.materialMapTypeSerializerManager.getAllTypes()) {
+					const menu = await this.studioInstance.popoverManager.createContextMenu();
+					for (const typeConstructor of this.studioInstance.materialMapTypeSerializerManager.getAllTypes()) {
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem({
 							text: typeConstructor.uiName,
@@ -108,7 +108,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 	addMapTypeUuid(uuid, {
 		updateMapListUi = true,
 	} = {}) {
-		const constructor = this.editorInstance.materialMapTypeSerializerManager.getTypeByUuid(uuid);
+		const constructor = this.studioInstance.materialMapTypeSerializerManager.getTypeByUuid(uuid);
 		if (!constructor) throw new Error(`Material map type with uuid ${uuid} not found.`);
 		return this.addMapType(constructor, {updateMapListUi});
 	}
@@ -128,7 +128,7 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			if (typeConstructor) return typeConstructor;
 		}
 
-		const entry = new MaterialMapTypeEntry(this.editorInstance, MaterialMapTypeConstructor);
+		const entry = new MaterialMapTypeEntry(this.studioInstance, MaterialMapTypeConstructor);
 		this.mapTypesTreeView.addChild(entry.treeView);
 
 		this.addedMapTypes.set(MaterialMapTypeConstructor.typeUuid, entry);

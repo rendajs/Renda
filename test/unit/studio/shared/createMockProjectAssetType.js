@@ -30,11 +30,11 @@ export function createMockProjectAssetType(type) {
 		static wrapProjectJsonWithEditorMetaData = true;
 
 		/**
-		 * @param {import("../../../../studio/src/Studio.js").Studio} editorInstance
+		 * @param {import("../../../../studio/src/Studio.js").Studio} studioInstance
 		 * @param {import("../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny} projectAsset
 		 */
-		constructor(editorInstance, projectAsset) {
-			this.editorInstance = editorInstance;
+		constructor(studioInstance, projectAsset) {
+			this.studioInstance = studioInstance;
 			this.projectAsset = projectAsset;
 		}
 
@@ -53,7 +53,7 @@ export function createMockProjectAssetType(type) {
 			liveAsset.str = fileData.str || "";
 			return {
 				liveAsset,
-				editorData: {
+				studioData: {
 					editorNum: 42,
 					editorStr: "defaultMockLiveAssetEditorStr",
 				},
@@ -62,14 +62,14 @@ export function createMockProjectAssetType(type) {
 
 		/**
 		 * @param {unknown} liveAsset
-		 * @param {unknown} editorData
+		 * @param {unknown} studioData
 		 */
-		saveLiveAssetData(liveAsset, editorData) {}
+		saveLiveAssetData(liveAsset, studioData) {}
 
 		createNewLiveAssetData() {
 			return {
 				liveAsset: null,
-				editorData: null,
+				studioData: null,
 			};
 		}
 

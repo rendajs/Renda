@@ -82,7 +82,7 @@ export class TaskBundleScripts extends Task {
 		};
 		const readScriptCallbackId = this.#lastReadScriptCallbackId++;
 		this.#readScriptCallbacks.set(readScriptCallbackId, readScriptCallback);
-		const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();
 		const inputPaths = [];
 		for (const entryPoint of entryPoints) {
 			const path = await assetManager.getAssetPathFromUuid(entryPoint);

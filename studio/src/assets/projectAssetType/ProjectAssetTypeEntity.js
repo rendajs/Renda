@@ -35,7 +35,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
 		return {
 			liveAsset,
-			editorData: null,
+			studioData: null,
 		};
 	}
 
@@ -47,7 +47,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		/** @type {EntityWithAssetRootUuid} */
 		const liveAsset = await this.createEntityFromJsonData(json, recursionTracker);
 		liveAsset[entityAssetRootUuidSymbol] = this.projectAsset.uuid;
-		return {liveAsset, editorData: null};
+		return {liveAsset, studioData: null};
 	}
 
 	/**
@@ -89,14 +89,14 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 		if (jsonData.components) {
 			for (const component of jsonData.components) {
 				const componentUuid = component.uuid;
-				const ComponentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(componentUuid);
+				const ComponentConstructor = this.studioInstance.componentTypeManager.getComponentConstructorForUuid(componentUuid);
 				if (!ComponentConstructor) {
 					throw new Error(`Unable to create component with uuid ${componentUuid}. Unknown component type.`);
 				}
 				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
 					studioOpts: {
-						editorAssetTypeManager: this.projectAssetTypeManager,
+						studioAssetTypeManager: this.projectAssetTypeManager,
 						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 						assetManager: this.assetManager,
 					},
@@ -179,7 +179,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			recursionTracker.getLiveAsset(propertyValue, liveAsset => {
 				if (!liveAsset) liveAsset = null;
 				newParentObject[propertyKey] = liveAsset;
-				for (const w of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+				for (const w of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 					if (w.editingEntity == this.projectAsset.liveAsset) {
 						w.markRenderDirty();
 					}
@@ -228,7 +228,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			}
 
 			if (ctx.includeAll) {
-				for (const component of ctx.editor.componentTypeManager.getAllComponents()) {
+				for (const component of ctx.studio.componentTypeManager.getAllComponents()) {
 					usedComponentTypes.add(component);
 				}
 			}
@@ -252,7 +252,7 @@ entityLoader.setComponentTypeManager(componentTypeManager);`;
 		const castEntityData = /** @type {import("../../../../src/core/Entity.js").EntityJsonDataInlineEntity} */ (entityData);
 		if (castEntityData.components) {
 			for (const component of castEntityData.components) {
-				const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
+				const componentConstructor = this.studioInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 				if (!componentConstructor) continue;
 				if (!componentConstructor.binarySerializationOpts) {
 					throw new Error("Assertion failed, component type has no binarySerializationOpts");
@@ -297,7 +297,7 @@ entityLoader.setComponentTypeManager(componentTypeManager);`;
 		} else {
 			if (entityData.components) {
 				for (const component of entityData.components) {
-					const componentConstructor = this.editorInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
+					const componentConstructor = this.studioInstance.componentTypeManager.getComponentConstructorForUuid(component.uuid);
 					if (!componentConstructor) continue;
 					const binarySerializationOpts = componentConstructor.binarySerializationOpts;
 					if (!binarySerializationOpts) continue;

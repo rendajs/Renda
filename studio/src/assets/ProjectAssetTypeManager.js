@@ -20,9 +20,9 @@ export class ProjectAssetTypeManager {
 
 	/**
 	 * @template {any} TLiveAsset
-	 * @template {any} TEditorData
+	 * @template {any} TStudioData
 	 * @template {import("./projectAssetType/ProjectAssetType.js").ProjectAssetDiskDataType} TFileData
-	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<TLiveAsset, TEditorData, TFileData>} constructor
+	 * @param {import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeConstructor<TLiveAsset, TStudioData, TFileData>} constructor
 	 */
 	registerAssetType(constructor) {
 		const castConstructor = /** @type {typeof ProjectAssetType} */ (constructor);

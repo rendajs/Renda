@@ -40,10 +40,10 @@ export class ContentWindowConnections extends ContentWindow {
 		const {inspectorConnectionsList} = this.createInspectorConnectionsUi();
 		this.inspectorConnectionsList = inspectorConnectionsList;
 
-		this.editorHostConnectionTreeView.visible = !this.editorInstance.projectManager.currentProjectIsRemote;
-		this.editorClientConnectionTreeView.visible = this.editorInstance.projectManager.currentProjectIsRemote;
+		this.editorHostConnectionTreeView.visible = !this.studioInstance.projectManager.currentProjectIsRemote;
+		this.editorClientConnectionTreeView.visible = this.studioInstance.projectManager.currentProjectIsRemote;
 
-		const connectionsManager = this.editorInstance.projectManager.studioConnectionsManager;
+		const connectionsManager = this.studioInstance.projectManager.studioConnectionsManager;
 		this.updateDiscoveryServerStatus(connectionsManager.discoveryServerStatus);
 		/**
 		 * @param {import("../../network/studioConnections/StudioConnectionsManager.js").DiscoveryServerStatusType} status
@@ -66,7 +66,7 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	destructor() {
-		const connectionsManager = this.editorInstance.projectManager.studioConnectionsManager;
+		const connectionsManager = this.studioInstance.projectManager.studioConnectionsManager;
 		connectionsManager.removeOnDiscoveryServerStatusChange(this.boundUpdateDiscoveryServerStatus);
 		connectionsManager.removeOnAvailableConnectionsChanged(this.boundUpdateConnectionLists);
 		connectionsManager.removeOnActiveConnectionsChanged(this.boundUpdateConnectionLists);
@@ -78,11 +78,11 @@ export class ContentWindowConnections extends ContentWindow {
 			/** @type {import("../../ui/TextGui.js").TextGuiOptions} */
 			guiOpts: {
 				label: "Discovery Server",
-				placeholder: this.editorInstance.projectManager.studioConnectionsManager.getDefaultEndPoint(),
+				placeholder: this.studioInstance.projectManager.studioConnectionsManager.getDefaultEndPoint(),
 			},
 		});
 		discoveryServerEndpointField.onValueChange(endPoint => {
-			this.editorInstance.projectManager.setStudioConnectionsDiscoveryEndpoint(endPoint);
+			this.studioInstance.projectManager.setStudioConnectionsDiscoveryEndpoint(endPoint);
 		});
 		const discoveryServerStatusLabel = this.headerTreeView.addItem({
 			type: "label",
@@ -105,7 +105,7 @@ export class ContentWindowConnections extends ContentWindow {
 			},
 		});
 		allowRemoteIncomingCheckbox.onValueChange(allowIncoming => {
-			this.editorInstance.projectManager.setEditorConnectionsAllowRemoteIncoming(allowIncoming);
+			this.studioInstance.projectManager.setEditorConnectionsAllowRemoteIncoming(allowIncoming);
 		});
 
 		const allowInternalIncomingCheckbox = editorHostConnectionTreeView.addItem({
@@ -116,7 +116,7 @@ export class ContentWindowConnections extends ContentWindow {
 			},
 		});
 		allowInternalIncomingCheckbox.onValueChange(allowIncoming => {
-			this.editorInstance.projectManager.setEditorConnectionsAllowInternalIncoming(allowIncoming);
+			this.studioInstance.projectManager.setEditorConnectionsAllowInternalIncoming(allowIncoming);
 		});
 
 		return {editorHostConnectionTreeView, allowRemoteIncomingCheckbox, allowInternalIncomingCheckbox};
@@ -150,8 +150,8 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	async loadSettings() {
-		this.allowRemoteIncomingCheckbox.setValue(await this.editorInstance.projectManager.getEditorConnectionsAllowRemoteIncoming());
-		this.allowInternalIncomingCheckbox.setValue(await this.editorInstance.projectManager.getEditorConnectionsAllowInternalIncoming());
+		this.allowRemoteIncomingCheckbox.setValue(await this.studioInstance.projectManager.getEditorConnectionsAllowRemoteIncoming());
+		this.allowInternalIncomingCheckbox.setValue(await this.studioInstance.projectManager.getEditorConnectionsAllowInternalIncoming());
 	}
 
 	/**
@@ -162,7 +162,7 @@ export class ContentWindowConnections extends ContentWindow {
 	}
 
 	updateConnectionLists() {
-		const {availableConnections, activeConnections} = this.editorInstance.projectManager.studioConnectionsManager;
+		const {availableConnections, activeConnections} = this.studioInstance.projectManager.studioConnectionsManager;
 		this.updateConnectionsList(this.editorConnectionGuis, this.editorConnectionsList, availableConnections, activeConnections, "studio");
 		this.updateConnectionsList(this.inspectorConnectionGuis, this.inspectorConnectionsList, availableConnections, activeConnections, "inspector");
 	}
@@ -210,7 +210,7 @@ export class ContentWindowConnections extends ContentWindow {
 						label: "Connect",
 						text: "Connect",
 						onClick: () => {
-							this.editorInstance.projectManager.studioConnectionsManager.startConnection(connection.id);
+							this.studioInstance.projectManager.studioConnectionsManager.startConnection(connection.id);
 						},
 					},
 				});

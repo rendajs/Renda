@@ -92,7 +92,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		pivotControlsGroup.addButton(this.transformationPivotButton);
 		this.addTopBarEl(pivotControlsGroup.el);
 
-		this.domTarget = this.editorInstance.renderer.createDomTarget();
+		this.domTarget = this.studioInstance.renderer.createDomTarget();
 		const renderTargetElement = this.domTarget.getElement();
 		renderTargetElement.style.display = "block";
 		this.contentEl.appendChild(renderTargetElement);
@@ -113,12 +113,12 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Entity?} */
 		this._editingEntity = null;
 		/** @type {import("../../misc/SelectionGroup.js").SelectionGroup<import("../../misc/EntitySelection.js").EntitySelection>} */
-		this.selectionGroup = this.editorInstance.selectionManager.createSelectionGroup();
+		this.selectionGroup = this.studioInstance.selectionManager.createSelectionGroup();
 
 		/** @type {Set<{projectAsset: import("../../assets/ProjectAsset.js").ProjectAssetAny, listener: () => void}>} */
 		this.createdLiveAssetChangeListeners = new Set();
 
-		this.gizmos = new GizmoManager(this.editorInstance.engineAssetManager);
+		this.gizmos = new GizmoManager(this.studioInstance.engineAssetManager);
 		this.editorScene.add(this.gizmos.entity);
 		this.gizmos.addPointerEventListeners(renderTargetElement, this.editorCamComponent);
 		this.gizmos.onGizmoNeedsRender(() => {
@@ -157,7 +157,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const loadedEntityPath = this.persistentData.get("loadedEntityPath");
 			if (loadedEntityPath) {
 				const castLoadedEntityPath = /** @type {string[]} */ (loadedEntityPath);
-				const assetManager = await this.editorInstance.projectManager.getAssetManager();
+				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				const assetUuid = await assetManager.getAssetUuidFromPath(castLoadedEntityPath);
 				if (assetUuid) {
 					this.loadEntityAsset(assetUuid, true);
@@ -193,7 +193,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.updateGizmos();
 		this.markRenderDirty();
-		for (const outliner of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
+		for (const outliner of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
 			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateLiveAssetChangeListeners();
@@ -221,7 +221,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	 * @param {boolean} fromContentWindowLoad
 	 */
 	async loadEntityAsset(entityUuid, fromContentWindowLoad = false) {
-		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		const assetManager = await this.studioInstance.projectManager.getAssetManager();
 		const projectAsset = await assetManager.getProjectAssetFromUuid(entityUuid, {
 			assertAssetType: [ProjectAssetTypeEntity, ProjectAssetTypeGltf],
 		});
@@ -239,7 +239,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 	async saveEntityAsset() {
 		if (!this.editingEntityUuid) return;
-		const assetManager = await this.editorInstance.projectManager.getAssetManager();
+		const assetManager = await this.studioInstance.projectManager.getAssetManager();
 		const asset = await assetManager.getProjectAssetFromUuid(this.editingEntityUuid);
 		if (!asset) return;
 		await asset.saveLiveAssetData();
@@ -278,7 +278,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			}
 		}
 
-		if (this.renderDirty && this.editorInstance.renderer.isInit) {
+		if (this.renderDirty && this.studioInstance.renderer.isInit) {
 			this.render();
 			this.renderDirty = false;
 		}
@@ -601,7 +601,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 				let componentGizmos = linkedComponentGizmos.get(component) ?? null;
 				if (!componentGizmos) {
 					const componentConstructor = /** @type {typeof import("../../../../src/mod.js").Component} */ (component.constructor);
-					componentGizmos = this.editorInstance.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
+					componentGizmos = this.studioInstance.componentGizmosManager.createComponentGizmosInstance(componentConstructor, component, this.gizmos);
 					if (componentGizmos) {
 						componentGizmos.entityMatrixChanged(entity.worldMatrix);
 						linkedComponentGizmos.set(component, componentGizmos);
@@ -703,7 +703,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			}
 		} else if (structure.type == "droppable") {
 			if (data) {
-				const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+				const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();
 				const projectAsset = assetManager.getProjectAssetForLiveAsset(data);
 				if (projectAsset) {
 					const listener = async () => {

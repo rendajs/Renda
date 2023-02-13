@@ -1,10 +1,10 @@
 export class PropertiesWindowContent {
 	/**
-	 * @param {import("../Studio.js").Studio} editorInstance
+	 * @param {import("../Studio.js").Studio} studioInstance
 	 * @param {import("../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
-	constructor(editorInstance, windowManager) {
-		this.editorInstance = editorInstance;
+	constructor(studioInstance, windowManager) {
+		this.studioInstance = studioInstance;
 		this.windowManager = windowManager;
 
 		this.el = document.createElement("div");

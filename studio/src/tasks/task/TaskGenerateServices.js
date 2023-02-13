@@ -56,7 +56,7 @@ import {Task} from "./Task.js";
 /**
  * @template {import("../../assets/projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny} TProjectAssetType
  * @typedef AssetLoaderTypeImportConfigExtraContext
- * @property {import("../../Studio.js").Studio} editor The editor instance.
+ * @property {import("../../Studio.js").Studio} studio The studio instance.
  * @property {(identifier: string, moduleSpecifier: string) => void} addImport Call this function to add extra
  * imports to the top of the file. For example:
  * ```js
@@ -119,7 +119,7 @@ export class TaskGenerateServices extends Task {
 			throw new Error("Failed to run task: no config provided");
 		}
 
-		const assetManager = this.editorInstance.projectManager.assetManager;
+		const assetManager = this.studioInstance.projectManager.assetManager;
 		if (!assetManager) {
 			throw new Error("Failed to run task: no asset manager.");
 		}
@@ -199,7 +199,7 @@ export class TaskGenerateServices extends Task {
 			}
 
 			if (includeAll) {
-				for (const uuid of this.editorInstance.projectAssetTypeManager.getAssetTypeIds()) {
+				for (const uuid of this.studioInstance.projectAssetTypeManager.getAssetTypeIds()) {
 					if (!assetTypes.has(uuid)) {
 						assetTypes.set(uuid, new Set());
 					}
@@ -207,7 +207,7 @@ export class TaskGenerateServices extends Task {
 			}
 
 			for (const [assetTypeIdentifier, assets] of assetTypes) {
-				const assetType = this.editorInstance.projectAssetTypeManager.getAssetType(assetTypeIdentifier);
+				const assetType = this.studioInstance.projectAssetTypeManager.getAssetType(assetTypeIdentifier);
 				const config = assetType?.assetLoaderTypeImportConfig;
 				if (config) {
 					const moduleSpecifier = config.moduleSpecifier || "renda";
@@ -215,7 +215,7 @@ export class TaskGenerateServices extends Task {
 					let extra = "";
 					if (config.extra) {
 						extra = await config.extra({
-							editor: this.editorInstance,
+							studio: this.studioInstance,
 							addImport,
 							usedAssets: Array.from(assets),
 							includeAll,

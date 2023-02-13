@@ -6,10 +6,10 @@ import {ContentWindowProperties} from "../../windowManagement/contentWindows/Con
 /** @typedef {ProjectAssetType<unknown, unknown, object, unknown>} ProjectAssetTypeUnknown */
 /**
  * @template {any} TLiveAsset
- * @template {any} TEditorData
+ * @template {any} TStudioData
  * @template {ProjectAssetDiskDataType} TFileData
  * @template {any} [TAssetSettings = null]
- * @typedef {new (...args: any) => ProjectAssetType<TLiveAsset, TEditorData, TFileData, TAssetSettings>} ProjectAssetTypeConstructor
+ * @typedef {new (...args: any) => ProjectAssetType<TLiveAsset, TStudioData, TFileData, TAssetSettings>} ProjectAssetTypeConstructor
  */
 /** @typedef {ProjectAssetTypeConstructor<any, any, any, any>} ProjectAssetTypeConstructorAny */
 
@@ -17,10 +17,10 @@ import {ContentWindowProperties} from "../../windowManagement/contentWindows/Con
 
 /**
  * @template TLiveAsset
- * @template TEditorData
+ * @template TStudioData
  * @typedef {object} LiveAssetData
  * @property {TLiveAsset} liveAsset
- * @property {TEditorData} editorData
+ * @property {TStudioData} studioData
  */
 
 /**
@@ -40,10 +40,9 @@ import {ContentWindowProperties} from "../../windowManagement/contentWindows/Con
  *
  * For a more complicated example, see `ProjectAssetTypeMaterial`.
  *
- * If you want an asset that is not a live asset, but only available in the
- * editor, have a look at `ProjectAssetTypeAssetBundle`. It only configures
- * a minimal amount. Most of it is implemented in its
- * `propertiesAssetContentConstructor`.
+ * If you want an asset that is not a live asset, but only available in studio,
+ * have a look at `ProjectAssetTypeAssetBundle`. It only configures a minimal amount.
+ * Most of it is implemented in its `propertiesAssetContentConstructor`.
  *
  * Live assets should have the same type as what is created by AssetLoaderTypes
  * when running a project. If you want to add extra properties to live assets,
@@ -51,14 +50,14 @@ import {ContentWindowProperties} from "../../windowManagement/contentWindows/Con
  *
  * New instances of this class are generally instantiated at {@linkcode ProjectAsset.init}.
  * @template {any} TLiveAsset
- * @template {any} TEditorData
+ * @template {any} TStudioData
  * @template {ProjectAssetDiskDataType} TFileData
  * @template {any} [TAssetSettings = null]
  */
 export class ProjectAssetType {
 	/**
 	 * Identifier of the assetType. This is stored in various places
-	 * such as the asset settings file or the wrapped editor meta data.
+	 * such as the asset settings file or the wrapped studio meta data.
 	 * This should have the format "namespace:assetType", for example: "renda:mesh".
 	 * @type {ProjectAssetTypeIdentifier}
 	 */
@@ -117,7 +116,7 @@ export class ProjectAssetType {
 
 	/**
 	 * Whether the assetdata from {@linkcode saveLiveAssetData} gets wrapped
-	 * in a json object that contains extra editor metadata.
+	 * in a json object that contains extra studio metadata.
 	 * @type {boolean}
 	 */
 	static wrapProjectJsonWithEditorMetaData = true;
@@ -136,7 +135,7 @@ export class ProjectAssetType {
 	/**
 	 * If you want more control over ui rendering in the properties window,
 	 * you can set this to the constructor of an extended {@linkcode PropertiesAssetContent} class.
-	 * @type {(new (editor: import("../../Studio.js").Studio) => import("../../propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>)?}
+	 * @type {(new (studio: import("../../Studio.js").Studio) => import("../../propertiesAssetContent/PropertiesAssetContent.js").PropertiesAssetContent<any>)?}
 	 */
 	static propertiesAssetContentConstructor = null;
 
@@ -146,16 +145,16 @@ export class ProjectAssetType {
 	 */
 	static assetSettingsStructure = {};
 
-	/** @typedef {import("../ProjectAsset.js").ProjectAsset<ProjectAssetType<TLiveAsset, TEditorData, TFileData, TAssetSettings>>} ProjectAsset */
+	/** @typedef {import("../ProjectAsset.js").ProjectAsset<ProjectAssetType<TLiveAsset, TStudioData, TFileData, TAssetSettings>>} ProjectAsset */
 
 	/**
-	 * @param {import("../../Studio.js").Studio} editorInstance
+	 * @param {import("../../Studio.js").Studio} studioInstance
 	 * @param {ProjectAsset} projectAsset
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {import("../ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
 	 */
-	constructor(editorInstance, projectAsset, assetManager, assetTypeManager) {
-		this.editorInstance = editorInstance;
+	constructor(studioInstance, projectAsset, assetManager, assetTypeManager) {
+		this.studioInstance = studioInstance;
 		/**
 		 * You can use this in any of the hook methods of a ProjectAssetType.
 		 * If you need access to the path or uuid of an asset for instance.
@@ -172,12 +171,12 @@ export class ProjectAssetType {
 	/**
 	 * This will be called when a new file of this type is created
 	 * the returned value will be passed along to {@linkcode saveLiveAssetData}.
-	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
+	 * @returns {Promise<LiveAssetData<TLiveAsset, TStudioData>>}
 	 */
 	async createNewLiveAssetData() {
 		return {
 			liveAsset: /** @type {TLiveAsset} */ (null),
-			editorData: /** @type {TEditorData} */ (null),
+			studioData: /** @type {TStudioData} */ (null),
 		};
 	}
 
@@ -198,21 +197,20 @@ export class ProjectAssetType {
 
 	/**
 	 * If you plan on supporting loading live assets in studio,
-	 * return your liveasset instance and editorData here.
+	 * return your liveasset instance and studioData here.
 	 * This it guaranteed to not get called if a liveAssets already exists,
 	 * i.e. It is only called twice if destroyLiveAssetData gets called first.
-	 * Both `editorData` and `liveAsset` are optional.
-	 * `editorData` will be passed back to {@linkcode saveLiveAssetData}.
+	 * `studioData` will be passed back to {@linkcode saveLiveAssetData}.
 	 * You can use this to store extra data that can be manipulated by studio.
 	 * Editor data is useful for storing info that is not necessary in assetbundle exports.
 	 * @param {TGetFileData?} fileData The result returned from {@linkcode ProjectAsset.readAssetData}.
 	 * @param {import("../liveAssetDataRecursionTracker/RecursionTracker.js").RecursionTracker} recursionTracker
-	 * @returns {Promise<LiveAssetData<TLiveAsset, TEditorData>>}
+	 * @returns {Promise<LiveAssetData<TLiveAsset, TStudioData>>}
 	 */
 	async getLiveAssetData(fileData, recursionTracker) {
 		return {
 			liveAsset: /** @type {TLiveAsset} */ (null),
-			editorData: /** @type {TEditorData} */ (null),
+			studioData: /** @type {TStudioData} */ (null),
 		};
 	}
 
@@ -221,10 +219,10 @@ export class ProjectAssetType {
 	 * the return value will be passed on to {@linkcode ProjectAsset.writeAssetData} so depending
 	 * on your configuration you can return a json object, DOMString, or binary data.
 	 * @param {*} liveAsset
-	 * @param {*} editorData
+	 * @param {*} studioData
 	 * @returns {Promise<TSaveFileData?>}
 	 */
-	async saveLiveAssetData(liveAsset, editorData) {
+	async saveLiveAssetData(liveAsset, studioData) {
 		throw new Error(`"${this.constructor.name}" hasn't implemented saveLiveAssetData(). If you're trying to save an embedded asset, this is only supported if all of its parent assets implement saveLiveAssetData().`);
 	}
 
@@ -265,9 +263,9 @@ export class ProjectAssetType {
 	 * Gets called when a liveAsset is no longer needed.
 	 * You can override this for custom asset destruction.
 	 * @param {*} liveAsset
-	 * @param {*} editorData
+	 * @param {*} studioData
 	 */
-	destroyLiveAssetData(liveAsset = null, editorData = null) {
+	destroyLiveAssetData(liveAsset = null, studioData = null) {
 		liveAsset?.destructor?.();
 		for (const projectAsset of this.usedLiveAssets) {
 			projectAsset.removeOnLiveAssetNeedsReplacement(this.boundLiveAssetNeedsReplacement);

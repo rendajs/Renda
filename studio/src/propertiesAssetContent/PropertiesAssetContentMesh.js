@@ -46,10 +46,10 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 		// todo: handle multiple selected items or no selection
 
 		const asset = this.currentSelection[0];
-		const {liveAsset, editorData} = await asset.getLiveAssetData();
+		const {liveAsset, studioData} = await asset.getLiveAssetData();
 		this.isUpdatingUi = true;
 
-		if (liveAsset && editorData) {
+		if (liveAsset && studioData) {
 			const attributeNames = [];
 			for (const attributeBuffer of liveAsset.getBuffers()) {
 				for (const attribute of attributeBuffer.attributes) {
@@ -58,7 +58,7 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 				}
 			}
 			this.meshSettingsTree.fillSerializableStructureValues({
-				vertexState: editorData.vertexStateUuid,
+				vertexState: studioData.vertexStateUuid,
 				attributes: attributeNames,
 			});
 		}
@@ -71,10 +71,10 @@ export class PropertiesAssetContentMesh extends PropertiesAssetContent {
 
 		// todo: handle multiple selected items or no selection
 		const asset = this.currentSelection[0];
-		const {liveAsset, editorData} = await asset.getLiveAssetData();
-		if (liveAsset && editorData) {
-			editorData.vertexStateUuid = settings.vertexState;
-			const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+		const {liveAsset, studioData} = await asset.getLiveAssetData();
+		if (liveAsset && studioData) {
+			studioData.vertexStateUuid = settings.vertexState;
+			const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();
 			const vertexStateLiveAsset = await assetManager.getLiveAsset(settings.vertexState, {
 				assertAssetType: ProjectAssetTypeVertexState,
 			});

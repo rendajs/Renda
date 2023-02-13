@@ -30,7 +30,7 @@ function createMockProjectAsset({
 }
 
 function getMocks() {
-	const mockEditorInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
+	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({});
 
 	let liveAssetNeedsReplacementCallCount = 0;
 	const {mockProjectAsset} = createMockProjectAsset({
@@ -44,14 +44,14 @@ function getMocks() {
 	const mockAssetTypeManager = /** @type {import("../../../../../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} */ ({});
 
 	const projectAssetTypeArgs = /** @type {const} */ ([
-		mockEditorInstance,
+		mockStudioInstance,
 		mockProjectAsset,
 		mockAssetManager,
 		mockAssetTypeManager,
 	]);
 
 	return {
-		mockEditorInstance,
+		mockStudioInstance,
 		mockProjectAsset,
 		mockAssetManager,
 		mockAssetTypeManager,

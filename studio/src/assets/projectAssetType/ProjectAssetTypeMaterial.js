@@ -73,7 +73,7 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 		const material = new Material(materialMap, properties);
 		return {
 			liveAsset: material,
-			editorData: null,
+			studioData: null,
 		};
 	}
 
@@ -84,9 +84,9 @@ export class ProjectAssetTypeMaterial extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {Material?} liveAsset
-	 * @param {null} editorData
+	 * @param {null} studioData
 	 */
-	async saveLiveAssetData(liveAsset, editorData) {
+	async saveLiveAssetData(liveAsset, studioData) {
 		/** @type {import("../../propertiesAssetContent/PropertiesAssetContentMaterial.js").MaterialAssetData} */
 		const assetData = {};
 		if (liveAsset) {

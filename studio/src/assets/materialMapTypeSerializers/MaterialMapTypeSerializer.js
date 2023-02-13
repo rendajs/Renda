@@ -13,7 +13,7 @@ import {StorageType, objectToBinary} from "../../../../src/util/binarySerializat
 
 /**
  * @typedef MaterialMapLiveAssetDataContext
- * @property {import("../../Studio.js").Studio} editor
+ * @property {import("../../Studio.js").Studio} studio
  * @property {import("../AssetManager.js").AssetManager} assetManager
  * @property {import("../ProjectAsset.js").ProjectAsset<import("../projectAssetType/ProjectAssetTypeMaterialMap.js").ProjectAssetTypeMaterialMap>} materialMapAsset
  */
@@ -112,12 +112,12 @@ export class MaterialMapTypeSerializer {
 	 * This should yield ProjectAssets that are linked in the custom data.
 	 * This will be used to replace material instances in studio whenever a
 	 * linked live asset changes (a shader for example).
-	 * @param {import("../../Studio.js").Studio} editorInstance
+	 * @param {import("../../Studio.js").Studio} studioInstance
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {AsyncGenerator<import("../ProjectAsset.js").ProjectAssetAny?>}
 	 */
-	static async *getLinkedAssetsInCustomData(editorInstance, assetManager, customData) {}
+	static async *getLinkedAssetsInCustomData(studioInstance, assetManager, customData) {}
 
 	/* ==== AssetBundle related methods ==== */
 
@@ -126,12 +126,12 @@ export class MaterialMapTypeSerializer {
 	 * By default this turns the result of {@link mapDataToAssetBundleData} into
 	 * an ArrayBuffer using {@link objectToBinary}. But you can
 	 * override this and return your custom ArrayBuffer.
-	 * @param {import("../../Studio.js").Studio} editorInstance
+	 * @param {import("../../Studio.js").Studio} studioInstance
 	 * @param {import("../AssetManager.js").AssetManager} assetManager
 	 * @param {*} customData The customData as stored on disk.
 	 * @returns {ArrayBuffer?} The binary data to be stored in the material asset.
 	 */
-	static mapDataToAssetBundleBinary(editorInstance, assetManager, customData) {
+	static mapDataToAssetBundleBinary(studioInstance, assetManager, customData) {
 		const bundleMapData = this.mapDataToAssetBundleData(customData);
 		if (!bundleMapData) {
 			// fail silently, you probaly intended to not export anything

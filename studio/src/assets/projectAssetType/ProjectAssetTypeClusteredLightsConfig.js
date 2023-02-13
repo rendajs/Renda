@@ -3,7 +3,7 @@ import {AssetLoaderTypeClusteredLightsConfig, ClusteredLightsConfig, Vec3} from 
 
 // todo: better types for generics
 /**
- * @extends {ProjectAssetType<null, null, any>}
+ * @extends {ProjectAssetType<ClusteredLightsConfig, null, any>}
  */
 export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	static type = "renda:clusteredLightsConfig";
@@ -42,10 +42,9 @@ export class ProjectAssetTypeClusteredLightsConfig extends ProjectAssetType {
 	/**
 	 * @override
 	 * @param {*} fileData
-	 * @returns {Promise<*>}
 	 */
 	async getLiveAssetData(fileData) {
 		const liveAsset = new ClusteredLightsConfig(fileData);
-		return {liveAsset, editorData: null};
+		return {liveAsset, studioData: null};
 	}
 }

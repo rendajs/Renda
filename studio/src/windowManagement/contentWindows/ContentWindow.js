@@ -29,12 +29,12 @@ export class ContentWindow {
 	static scrollable = true;
 
 	/**
-	 * @param {import("../../Studio.js").Studio} editorInstance
+	 * @param {import("../../Studio.js").Studio} studioInstance
 	 * @param {import("../WindowManager.js").WindowManager} windowManager
 	 * @param {import("../../../../src/util/mod.js").UuidString} uuid
 	 */
-	constructor(editorInstance, windowManager, uuid) {
-		this.editorInstance = editorInstance;
+	constructor(studioInstance, windowManager, uuid) {
+		this.studioInstance = studioInstance;
 		this.windowManager = windowManager;
 
 		/** @type {import("../EditorWindowTabs.js").EditorWindowTabs?} */

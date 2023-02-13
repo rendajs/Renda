@@ -125,7 +125,7 @@ export class ProjectAsset {
 		/** @type {LiveAssetType?} */
 		this.liveAsset = null;
 		/** @type {EditorDataType?} */
-		this.editorData = null;
+		this.studioData = null;
 		/** @private @type {FileDataType} */
 		this.currentEmbeddedAssetData = /** @type {FileDataType} */ ({});
 		/** @private @type {ProjectAssetAny?} */
@@ -263,7 +263,7 @@ export class ProjectAsset {
 
 	/**
 	 * Reads the asset data from disk and if it is stored as json, wrapped with
-	 * editor metadata, returns the asset type from the metadata.
+	 * studio metadata, returns the asset type from the metadata.
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
 	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} fileSystem Can be null for built-in assets only.
@@ -347,10 +347,10 @@ export class ProjectAsset {
 	async createNewLiveAssetData() {
 		await this.waitForInit();
 		if (!this._projectAssetType) return;
-		const {liveAsset, editorData} = await this._projectAssetType.createNewLiveAssetData();
+		const {liveAsset, studioData} = await this._projectAssetType.createNewLiveAssetData();
 		let assetData = null;
 		try {
-			assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
+			assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, studioData);
 		} catch (e) {
 			if (e instanceof Error && e.message.includes("hasn't implemented saveLiveAssetData()")) {
 				// Most ProjectAssetTypes don't actually implement this, which is fine in this case.
@@ -385,10 +385,10 @@ export class ProjectAsset {
 	 * @returns {Promise<TLiveAssetData>}
 	 */
 	async getLiveAssetData(recursionTracker = null) {
-		if (this.liveAsset || this.editorData) {
+		if (this.liveAsset || this.studioData) {
 			return /** @type {TLiveAssetData} */ ({
 				liveAsset: this.liveAsset,
-				editorData: this.editorData,
+				studioData: this.studioData,
 			});
 		}
 
@@ -427,7 +427,7 @@ export class ProjectAsset {
 			console.warn("error getting live asset for " + this.path.join("/"));
 			this.fireOnLiveAssetDataChangeCbs(/** @type {TLiveAssetData} */ ({
 				liveAsset: null,
-				editorData: null,
+				studioData: null,
 			}));
 			// @ts-expect-error TODO, throw an error instead of logging a warning
 			return {};
@@ -440,21 +440,21 @@ export class ProjectAsset {
 
 		recursionTracker.pushProjectAssetToStack(this);
 
-		const {liveAsset, editorData} = await this._projectAssetType.getLiveAssetData(fileData, recursionTracker);
+		const {liveAsset, studioData} = await this._projectAssetType.getLiveAssetData(fileData, recursionTracker);
 
 		recursionTracker.popProjectAssetFromStack();
 
 		if (isRootRecursionTracker) {
 			if (recursionTracker.rootLoadingAsset) {
-				recursionTracker.rootLoadingAsset.setLoadedAssetData({liveAsset, editorData});
+				recursionTracker.rootLoadingAsset.setLoadedAssetData({liveAsset, studioData});
 			}
 			await recursionTracker.waitForAll();
 		}
 
 		// if destroyLiveAssetData has been called before this Promise was finished
 		if (getLiveAssetSymbol != this.currentGettingLiveAssetSymbol) {
-			if ((liveAsset || editorData) && this._projectAssetType) {
-				this._projectAssetType.destroyLiveAssetData(liveAsset, editorData);
+			if ((liveAsset || studioData) && this._projectAssetType) {
+				this._projectAssetType.destroyLiveAssetData(liveAsset, studioData);
 			}
 			this.clearRecursionTrackerLiveAssetChangeHandlers();
 			return await this.getLiveAssetData(recursionTracker);
@@ -465,15 +465,15 @@ export class ProjectAsset {
 		}
 
 		this.liveAsset = liveAsset;
-		this.editorData = editorData;
+		this.studioData = studioData;
 
 		/** @type {TLiveAssetData} */
 		const liveAssetData = {};
 		if (liveAsset) {
 			liveAssetData.liveAsset = liveAsset;
 		}
-		if (editorData) {
-			liveAssetData.editorData = editorData;
+		if (studioData) {
+			liveAssetData.studioData = studioData;
 		}
 		this.fireOnLiveAssetDataChangeCbs(liveAssetData);
 		return liveAssetData;
@@ -492,9 +492,9 @@ export class ProjectAsset {
 	 * @param {RecursionTracker?} recursionTracker
 	 * @returns {Promise<EditorDataType?>}
 	 */
-	async getEditorData(recursionTracker = null) {
-		const {editorData} = await this.getLiveAssetData(recursionTracker);
-		return editorData ?? null;
+	async getStudioData(recursionTracker = null) {
+		const {studioData} = await this.getLiveAssetData(recursionTracker);
+		return studioData ?? null;
 	}
 
 	/**
@@ -608,11 +608,11 @@ export class ProjectAsset {
 	destroyLiveAssetData() {
 		if (this.isGettingLiveAssetData) {
 			this.currentGettingLiveAssetSymbol = null;
-		} else if ((this.liveAsset || this.editorData) && this._projectAssetType) {
-			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.editorData);
+		} else if ((this.liveAsset || this.studioData) && this._projectAssetType) {
+			this._projectAssetType.destroyLiveAssetData(this.liveAsset, this.studioData);
 			this.clearRecursionTrackerLiveAssetChangeHandlers();
 			this.liveAsset = null;
-			this.editorData = null;
+			this.studioData = null;
 		}
 		this.rejectOnLiveAssetDataChangePromises(new Error("The live asset was destroyed before it finished loading."));
 	}
@@ -662,8 +662,8 @@ export class ProjectAsset {
 		await this.waitForInit();
 		if (!this._projectAssetType) return;
 		const liveAsset = await this.getLiveAsset();
-		const editorData = await this.getEditorData();
-		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, editorData);
+		const studioData = await this.getStudioData();
+		const assetData = await this._projectAssetType.saveLiveAssetData(liveAsset, studioData);
 		await this.writeAssetData(assetData);
 	}
 

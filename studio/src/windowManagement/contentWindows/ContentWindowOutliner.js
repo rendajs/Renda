@@ -48,7 +48,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		this.selectEntityEditorDropDown.onValueChange(() => {
 			const index = this.selectEntityEditorDropDown.getValue({getAsString: false});
 			const uuid = this.availableEntityEditorUuids[index];
-			const entityEditor = /** @type {ContentWindowEntityEditor} */ (this.editorInstance.windowManager.getContentWindowByUuid(uuid));
+			const entityEditor = /** @type {ContentWindowEntityEditor} */ (this.studioInstance.windowManager.getContentWindowByUuid(uuid));
 			this.setLinkedEntityEditor(entityEditor);
 		});
 		this.selectEntityEditorDropDownContainer = document.createElement("div");
@@ -99,7 +99,7 @@ export class ContentWindowOutliner extends ContentWindow {
 
 			let entityAssetName = null;
 			if (entityEditor.editingEntityUuid) {
-				const assetManager = this.editorInstance.projectManager.assertAssetManagerExists();
+				const assetManager = this.studioInstance.projectManager.assertAssetManagerExists();
 				const editingEntityAsset = assetManager.getProjectAssetFromUuidSync(entityEditor.editingEntityUuid);
 				if (editingEntityAsset) {
 					entityAssetName = editingEntityAsset.fileName;
@@ -266,7 +266,7 @@ export class ContentWindowOutliner extends ContentWindow {
 		const oldName = ent.name;
 		if (newName != oldName) {
 			let needsUpdate = false;
-			this.editorInstance.historyManager.executeEntry({
+			this.studioInstance.historyManager.executeEntry({
 				uiText: "Rename entity",
 				redo: () => {
 					ent.name = newName;
@@ -302,7 +302,7 @@ export class ContentWindowOutliner extends ContentWindow {
 					const parentEntity = this.getEntityByTreeViewItem(parentTreeView);
 					const entity = this.getEntityByTreeViewItem(e.target);
 					const index = parentEntity.children.indexOf(entity);
-					this.editorInstance.historyManager.executeEntry({
+					this.studioInstance.historyManager.executeEntry({
 						uiText: "Delete entity",
 						redo: () => {
 							parentEntity.remove(entity);
@@ -338,7 +338,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			mimeType.subType == "renda" &&
 			mimeType.parameters.dragtype == "projectasset"
 		) {
-			const dragData = /** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */ (this.editorInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata));
+			const dragData = /** @type {import("./ContentWindowProject.js").DraggingProjectAssetData} */ (this.studioInstance.dragManager.getDraggingData(mimeType.parameters.draggingdata));
 			if (dragData.assetType == ProjectAssetTypeEntity) {
 				return dragData;
 			}
@@ -364,7 +364,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			const removeIndex = oldParent.children.indexOf(entity);
 			actions.push({entity, oldParent, newParent, insertIndex, removeIndex});
 		}
-		this.editorInstance.historyManager.executeEntry({
+		this.studioInstance.historyManager.executeEntry({
 			uiText: actions.length > 1 ? "Rearrange entities" : "Rearrange entity",
 			redo: () => {
 				for (const action of actions) {
@@ -397,7 +397,7 @@ export class ContentWindowOutliner extends ContentWindow {
 			const dragData = this.validateDragMimeType(mimeType);
 			if (dragData && dragData.dataPopulated && dragData.assetUuid) {
 				const entityAssetUuid = dragData.assetUuid;
-				const assetManager = await this.editorInstance.projectManager.getAssetManager();
+				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				const projectAsset = await assetManager.getProjectAssetFromUuid(entityAssetUuid, {
 					assertAssetType: ProjectAssetTypeEntity,
 				});

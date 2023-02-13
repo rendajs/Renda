@@ -26,25 +26,25 @@ export class ContentWindowHistory extends ContentWindow {
 		this.entriesEl.setAttribute("role", "listbox");
 		this.shadow.appendChild(this.entriesEl);
 
-		this.editorInstance.historyManager.onTreeUpdated(this.#updateUi);
+		this.studioInstance.historyManager.onTreeUpdated(this.#updateUi);
 
 		const buttonGroup = new ButtonGroup();
 		this.addTopBarEl(buttonGroup.el);
 
 		this.undoButton = new Button({
 			icon: "static/icons/undo.svg",
-			colorizerFilterManager: this.editorInstance.colorizerFilterManager,
+			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
-				this.editorInstance.historyManager.undo();
+				this.studioInstance.historyManager.undo();
 			},
 		});
 		buttonGroup.addButton(this.undoButton);
 
 		this.redoButton = new Button({
 			icon: "static/icons/redo.svg",
-			colorizerFilterManager: this.editorInstance.colorizerFilterManager,
+			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			onClick: () => {
-				this.editorInstance.historyManager.redo();
+				this.studioInstance.historyManager.redo();
 			},
 		});
 		buttonGroup.addButton(this.redoButton);
@@ -54,7 +54,7 @@ export class ContentWindowHistory extends ContentWindow {
 
 	destructor() {
 		super.destructor();
-		this.editorInstance.historyManager.removeOnTreeUpdated(this.#updateUi);
+		this.studioInstance.historyManager.removeOnTreeUpdated(this.#updateUi);
 	}
 
 	#updateUi = () => {
@@ -76,7 +76,7 @@ export class ContentWindowHistory extends ContentWindow {
 		const INDENTATION_WIDTH = 12;
 		const DOT_SIZE = 4;
 
-		const historyManager = this.editorInstance.historyManager;
+		const historyManager = this.studioInstance.historyManager;
 
 		let selectedElementIndex = -1;
 		let elementIndex = 0;

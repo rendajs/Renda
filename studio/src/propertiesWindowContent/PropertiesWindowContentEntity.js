@@ -95,8 +95,8 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		const createComponentButton = new Button({
 			text: "+",
 			onClick: async () => {
-				const menu = await this.editorInstance.popoverManager.createContextMenu();
-				for (const component of this.editorInstance.componentTypeManager.getAllComponents()) {
+				const menu = await this.studioInstance.popoverManager.createContextMenu();
+				for (const component of this.studioInstance.componentTypeManager.getAllComponents()) {
 					menu.addItem({
 						text: component.componentName || component.uuid || "",
 						onClick: async () => {
@@ -104,9 +104,9 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 							for (const {entity} of this.currentSelection) {
 								const componentInstance = entity.addComponent(component, {}, {
 									studioOpts: {
-										editorAssetTypeManager: this.editorInstance.projectAssetTypeManager,
+										editorAssetTypeManager: this.studioInstance.projectAssetTypeManager,
 										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
-										assetManager: this.editorInstance.projectManager.assertAssetManagerExists(),
+										assetManager: this.studioInstance.projectManager.assertAssetManagerExists(),
 									},
 								});
 								await componentInstance.waitForStudioDefaults();
@@ -209,7 +209,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 					beforeValueSetHook: ({value, setOnObject, setOnObjectKey}) => {
 						if (value) {
 							const castValue = /** @type {any} */ (value);
-							if (this.editorInstance.projectAssetTypeManager.constructorHasAssetType(castValue.constructor)) {
+							if (this.studioInstance.projectAssetTypeManager.constructorHasAssetType(castValue.constructor)) {
 								const usedAssetUuids = setOnObject[ProjectAssetTypeEntity.usedAssetUuidsSymbol];
 								if (usedAssetUuids) {
 									const uuid = usedAssetUuids[setOnObjectKey];
@@ -265,7 +265,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 	 * @param {import("../windowManagement/contentWindows/ContentWindowEntityEditor.js").EntityChangedEventType} type
 	 */
 	notifyEntityEditors(entity, type) {
-		for (const entityEditor of this.editorInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
 			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}

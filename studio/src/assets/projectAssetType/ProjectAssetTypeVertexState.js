@@ -106,7 +106,7 @@ export class ProjectAssetTypeVertexState extends ProjectAssetType {
 	 */
 	async getLiveAssetData(fileData) {
 		const liveAsset = new VertexState(fileData);
-		return {liveAsset, editorData: null};
+		return {liveAsset, studioData: null};
 	}
 
 	/**

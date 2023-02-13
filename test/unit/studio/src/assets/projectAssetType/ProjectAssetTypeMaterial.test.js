@@ -65,8 +65,8 @@ Deno.test({
 	name: "Creating a new asset",
 	async fn() {
 		const {projectAssetType} = basicSetup();
-		const {liveAsset, editorData} = await projectAssetType.createNewLiveAssetData();
-		const assetData = await projectAssetType.saveLiveAssetData(liveAsset || null, editorData || null);
+		const {liveAsset, studioData} = await projectAssetType.createNewLiveAssetData();
+		const assetData = await projectAssetType.saveLiveAssetData(liveAsset || null, studioData || null);
 
 		assertEquals(assetData, {});
 	},
