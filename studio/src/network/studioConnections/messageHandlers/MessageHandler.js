@@ -1,12 +1,12 @@
-/** @typedef {"disconnected" | "connecting" | "connected"} EditorConnectionState */
+/** @typedef {"disconnected" | "connecting" | "connected"} StudioConnectionState */
 
-/** @typedef {(state: EditorConnectionState) => void} OnConnectionStateChangeCallback */
+/** @typedef {(state: StudioConnectionState) => void} OnConnectionStateChangeCallback */
 
 export class MessageHandler {
 	constructor() {
 		/** @type {Set<(data: any) => void>} */
 		this.onMessageCbs = new Set();
-		/** @type {EditorConnectionState} */
+		/** @type {StudioConnectionState} */
 		this.connectionState = "disconnected";
 		/** @type {Set<OnConnectionStateChangeCallback>} */
 		this.onConnectionStateChangeCbs = new Set();
@@ -34,7 +34,7 @@ export class MessageHandler {
 	}
 
 	/**
-	 * @param {EditorConnectionState} state
+	 * @param {StudioConnectionState} state
 	 */
 	setConnectionState(state) {
 		if (state == this.connectionState) return;

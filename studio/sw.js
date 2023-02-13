@@ -66,7 +66,7 @@ swSelf.addEventListener("message", e => {
 async function getClientResponse(clientId, pathname, url) {
 	const client = await swSelf.clients.get(clientId);
 	if (!client) {
-		return new Response("Editor client not found", {status: 404});
+		return new Response("Studio client not found", {status: 404});
 	}
 	const messenger = getTypedMessenger(client);
 	const projectFilesPrefix = "projectFiles/";

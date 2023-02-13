@@ -516,7 +516,7 @@ export class ProjectManager {
 
 		this.studioConnectionsManager.setAllowInternalIncoming(this.studioConnectionsAllowInternalIncoming);
 
-		this.studioConnectionsManager.sendSetIsEditorHost(!this.currentProjectIsRemote);
+		this.studioConnectionsManager.sendSetIsStudioHost(!this.currentProjectIsRemote);
 		if (hasValidProject && this.currentProjectOpenEvent) {
 			this.studioConnectionsManager.setProjectMetaData({
 				name: this.currentProjectOpenEvent.name,

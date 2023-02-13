@@ -15,7 +15,7 @@ export class WebSocketConnection {
 		this.rawConnection = rawConnection;
 
 		this.firstIsHostMessageReceived = false;
-		this.isEditorHost = false;
+		this.isStudioHost = false;
 		this.isDiscovering = false;
 
 		this.rawConnection.addEventListener("message", this.onMessage.bind(this));
@@ -36,12 +36,12 @@ export class WebSocketConnection {
 		const {op} = data;
 		if (!op) return;
 
-		if (op == "setIsEditorHost") {
+		if (op == "setIsStudioHost") {
 			const newIsHost = !!data.isHost;
-			if (newIsHost == this.isEditorHost && this.firstIsHostMessageReceived) return;
-			this.isEditorHost = newIsHost;
+			if (newIsHost == this.isStudioHost && this.firstIsHostMessageReceived) return;
+			this.isStudioHost = newIsHost;
 			this.firstIsHostMessageReceived = true;
-			if (this.isEditorHost) {
+			if (this.isStudioHost) {
 				this.notifyNearbyHostConnectionsAdd();
 			} else {
 				this.sendNearbyHostConnectionsList();
@@ -60,7 +60,7 @@ export class WebSocketConnection {
 	}
 
 	onClose() {
-		if (this.isEditorHost) {
+		if (this.isStudioHost) {
 			this.notifyNearbyHostConnectionsRemove();
 		}
 	}
@@ -83,7 +83,7 @@ export class WebSocketConnection {
 	sendNearbyHostConnectionsList() {
 		const connectionsData = [];
 		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
-			if (!connection.isEditorHost) continue;
+			if (!connection.isStudioHost) continue;
 			connectionsData.push(connection.getConnectionData());
 		}
 		this.send({
@@ -94,7 +94,7 @@ export class WebSocketConnection {
 
 	notifyNearbyHostConnectionsAdd() {
 		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
-			if (connection.isEditorHost) continue;
+			if (connection.isStudioHost) continue;
 
 			connection.sendNearbyHostConnectionAdded(this);
 		}
@@ -102,7 +102,7 @@ export class WebSocketConnection {
 
 	notifyNearbyHostConnectionsRemove() {
 		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
-			if (connection.isEditorHost) continue;
+			if (connection.isStudioHost) continue;
 
 			connection.sendNearbyHostConnectionRemoved(this);
 		}
@@ -110,7 +110,7 @@ export class WebSocketConnection {
 
 	notifyNearbyHostConnectionsUpdateProjectMetaData() {
 		for (const connection of this.webSocketManager.getConnectionsByRemoteAddress(this.remoteAddress)) {
-			if (connection.isEditorHost) continue;
+			if (connection.isStudioHost) continue;
 
 			connection.sendNearbyHostConnectionUpdateProjectMetaData(this);
 		}

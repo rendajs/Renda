@@ -23,10 +23,10 @@ globalThis["e2e"] = null;
 (async () => {
 	const module = await import("./studioInstance.js");
 	module.initStudio();
-	const editor = module.getStudioInstance();
-	globalThis["studio"] = editor;
-	if (editor) {
-		projectSelector.setStudioLoaded(editor);
+	const studio = module.getStudioInstance();
+	globalThis["studio"] = studio;
+	if (studio) {
+		projectSelector.setStudioLoaded(studio);
 	}
 })();
 

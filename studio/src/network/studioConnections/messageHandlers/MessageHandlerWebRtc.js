@@ -51,7 +51,7 @@ export class MessageHandlerWebRtc extends MessageHandler {
 
 	updateConnectionState() {
 		const rtcState = this.rtcConnection.connectionState;
-		/** @type {import("./MessageHandler.js").EditorConnectionState} */
+		/** @type {import("./MessageHandler.js").StudioConnectionState} */
 		let state = "disconnected";
 		if (rtcState == "new" || rtcState == "connecting") {
 			state = "connecting";

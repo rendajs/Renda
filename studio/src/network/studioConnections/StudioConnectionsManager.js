@@ -493,11 +493,13 @@ export class StudioConnectionsManager {
 	}
 
 	/**
+	 * Let the discovery server know whether this client has a project available that others can connect to.
+	 * When set to true there is a project availble, when set to false then we're looking to connect to another project.
 	 * @param {boolean} isHost
 	 */
-	sendSetIsEditorHost(isHost) {
+	sendSetIsStudioHost(isHost) {
 		this.send({
-			op: "setIsEditorHost",
+			op: "setIsStudioHost",
 			isHost,
 		});
 	}

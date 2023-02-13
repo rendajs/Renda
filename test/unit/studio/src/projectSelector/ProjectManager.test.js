@@ -24,7 +24,7 @@ export class StudioConnectionsManager {
 	onActiveConnectionsChanged() {}
 	setDiscoveryEndpoint() {}
 	setAllowInternalIncoming() {}
-	sendSetIsEditorHost() {}
+	sendSetIsStudioHost() {}
 	setProjectMetaData() {}
 }
 `);
@@ -110,7 +110,7 @@ Deno.test({
 
 				const setDiscoveryEndpointSpy = spy(studioConnectionsManager, "setDiscoveryEndpoint");
 				const setAllowInternalIncomingSpy = spy(studioConnectionsManager, "setAllowInternalIncoming");
-				const sendSetIsEditorHostSpy = spy(studioConnectionsManager, "sendSetIsEditorHost");
+				const sendSetIsStudioHostSpy = spy(studioConnectionsManager, "sendSetIsStudioHost");
 				const setProjectMetaDataSpy = spy(studioConnectionsManager, "setProjectMetaData");
 
 				await manager.openProject(fs, entry, true);
@@ -121,7 +121,7 @@ Deno.test({
 				assertSpyCall(setAllowInternalIncomingSpy, setAllowInternalIncomingSpy.call.length - 1, {
 					args: [false],
 				});
-				assertSpyCall(sendSetIsEditorHostSpy, sendSetIsEditorHostSpy.calls.length - 1, {
+				assertSpyCall(sendSetIsStudioHostSpy, sendSetIsStudioHostSpy.calls.length - 1, {
 					args: [true],
 				});
 				assertSpyCall(setProjectMetaDataSpy, setProjectMetaDataSpy.calls.length - 1, {
@@ -143,7 +143,7 @@ Deno.test({
 				assertSpyCall(setAllowInternalIncomingSpy, setAllowInternalIncomingSpy.calls.length - 1, {
 					args: [true],
 				});
-				assertSpyCall(sendSetIsEditorHostSpy, sendSetIsEditorHostSpy.calls.length - 1, {
+				assertSpyCall(sendSetIsStudioHostSpy, sendSetIsStudioHostSpy.calls.length - 1, {
 					args: [true],
 				});
 				assertSpyCall(setProjectMetaDataSpy, setProjectMetaDataSpy.calls.length - 1, {

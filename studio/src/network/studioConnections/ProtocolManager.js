@@ -24,16 +24,16 @@ import {autoRegisterRequestHandlers} from "./protocolRequestHandlers/autoRegiste
 
 // This procedure is needed to not leak types in the global scope while still
 // being able to use it in `@linkcode`
-let EditorConnection;
+let StudioConnection;
 {
 	const x = /** @type {import("./StudioConnection.js").StudioConnection?} */ (null);
 	// eslint-disable-next-line no-unused-vars
-	EditorConnection = x;
+	StudioConnection = x;
 }
 
 /**
  * An object that can be registered on the ProtocolManager. It contains several configurable properties and hooks
- * needed for sending roundtrip requests on EditorConnections.
+ * needed for sending roundtrip requests on StudioConnections.
  *
  * ### Hooks
  *
@@ -44,7 +44,7 @@ let EditorConnection;
  * - `handleRequest`: Called on the server when a request is received. It should
  * return response data that will be sent back to the client.
  * - `handleResponse`: Called on the client when a response is received. It
- * should return data that you want {@linkcode EditorConnection.call} to return.
+ * should return data that you want {@linkcode StudioConnection.call} to return.
  *
  * Only `handleRequest` is required, the rest is optional. If a hook is omitted,
  * a best attempt at serializing the arguments and return values will be made.

@@ -75,7 +75,7 @@ export class StudioConnection {
 	}
 
 	/**
-	 * @param {function(import("./messageHandlers/MessageHandler.js").EditorConnectionState) : void} cb
+	 * @param {function(import("./messageHandlers/MessageHandler.js").StudioConnectionState) : void} cb
 	 */
 	onConnectionStateChange(cb) {
 		this.messageHandler.onConnectionStateChange(cb);

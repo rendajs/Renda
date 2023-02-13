@@ -69,7 +69,7 @@ export class Studio {
 
 	/**
 	 * This serves as both a convencience function for quicly accessing selected
-	 * objects from the console using `editor.selected` and is also used in e2e
+	 * objects from the console using `studio.selected` and is also used in e2e
 	 * tests for getting access to objects.
 	 */
 	get selected() {
