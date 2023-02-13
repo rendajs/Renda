@@ -4,6 +4,7 @@ await dev({
 	needsTypes: true,
 });
 
+console.log("Running tsc");
 const proc = Deno.run({
 	cmd: ["deno", "run", "--allow-env", "--allow-read", "npm:typescript@4.8.3/tsc", "--noEmit", "-p", "./jsconfig.json"],
 });
