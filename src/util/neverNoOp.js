@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * This is useful for working around TypeScript erros when using EngineDefines.
+ * This is useful for working around TypeScript errors when using StudioDefines.
  * For instance, wraping a `throw` inside `DEBUG_INCLUDE_ERROR_THROWS` will
  * cause TypeScript to think that the function may not actually throw.
  * However, this variable is specifically used for stripping code that is

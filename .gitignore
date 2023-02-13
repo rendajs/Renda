@@ -1,6 +1,6 @@
 /dist
-/editor/dist
-editor/deps/
+/studio/dist
+studio/deps/
 .coverage
 npm_packages
 deno.lock

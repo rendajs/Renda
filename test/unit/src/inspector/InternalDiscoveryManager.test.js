@@ -1,7 +1,7 @@
 import {InternalDiscoveryManager} from "../../../../src/mod.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {initializeIframe} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryIframeMain.js";
-import {initializeWorker} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
+import {initializeIframe} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
+import {initializeWorker} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
 import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
 import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
@@ -129,7 +129,7 @@ async function basicSetup({
 		});
 
 		if (emulateEditorParent) {
-			/** @type {TypedMessenger<{}, import("../../../../editor/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>} */
+			/** @type {TypedMessenger<{}, import("../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>} */
 			const parentTypedMessenger = new TypedMessenger();
 			parentTypedMessenger.setResponseHandlers({
 				requestInternalDiscoveryUrl() {
@@ -472,7 +472,7 @@ Deno.test({
 				const manager = new InternalDiscoveryManager();
 				await assertRejects(async () => {
 					await manager.registerClient("editor");
-				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by the editor.");
+				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by studio.");
 			},
 		});
 	},

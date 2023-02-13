@@ -7,15 +7,15 @@
 
 import {serveDir} from "std/http/file_server.ts";
 import {Server} from "std/http/server.ts";
-import {Application as DevSocket} from "../editor/devSocket/src/Application.js";
-import {Application as EditorDiscovery} from "../editor/editorDiscoveryServer/src/Application.js";
+import {Application as DevSocket} from "../studio/devSocket/src/Application.js";
+import {Application as StudioDiscovery} from "../studio/studioDiscoveryServer/src/Application.js";
 import {resolve} from "std/path/mod.ts";
 
 export class DevServer {
 	#port;
 	#serverName;
 	#devSocket;
-	#editorDiscovery;
+	#studioDiscovery;
 	#httpServer;
 
 	/**
@@ -29,11 +29,11 @@ export class DevServer {
 	}) {
 		this.#port = port;
 		this.#serverName = serverName;
-		const builtInAssetsPath = resolve(Deno.cwd(), "./editor/builtInAssets/");
+		const builtInAssetsPath = resolve(Deno.cwd(), "./studio/builtInAssets/");
 		this.#devSocket = new DevSocket({
 			builtInAssetsPath,
 		});
-		this.#editorDiscovery = new EditorDiscovery();
+		this.#studioDiscovery = new StudioDiscovery();
 
 		const fsRoot = Deno.cwd();
 		this.#httpServer = new Server({
@@ -43,8 +43,8 @@ export class DevServer {
 				if (url.pathname == "/devSocket") {
 					return this.#devSocket.webSocketManager.handleRequest(request);
 				}
-				if (url.pathname == "/editorDiscovery") {
-					return this.#editorDiscovery.webSocketManager.handleRequest(request, connInfo);
+				if (url.pathname == "/studioDiscovery") {
+					return this.#studioDiscovery.webSocketManager.handleRequest(request, connInfo);
 				}
 				return serveDir(request, {
 					fsRoot,

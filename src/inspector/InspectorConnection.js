@@ -1,6 +1,6 @@
 export class InspectorConnection {
 	/**
-	 * @param {import("../../editor/src/../../src/util/util.js").UuidString} id
+	 * @param {import("../../studio/src/../../src/util/util.js").UuidString} id
 	 * @param {MessagePort} messagePort
 	 */
 	constructor(id, messagePort) {

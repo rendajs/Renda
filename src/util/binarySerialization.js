@@ -11,7 +11,7 @@ import {clamp, isUuid} from "./util.js";
  * @property {boolean} [useHeaderByte = true]
  * @property {BinarySerializationVariableLengthStorageTypes?} [variableLengthStorageTypes = true]
  * @property {ObjectToBinaryTransformValueHook?} [transformValueHook = null]
- * @property {import("../../editor/src/assets/AssetManager.js").AssetManager?} [editorAssetManager = null]
+ * @property {import("../../studio/src/assets/AssetManager.js").AssetManager?} [editorAssetManager = null]
  */
 
 /**
@@ -1066,7 +1066,7 @@ function getStructureTypeLength(type, {
  * @param {boolean} [options.littleEndian]
  * @param {StorageType} [options.stringLengthStorageType]
  * @param {StorageType} [options.arrayBufferLengthStorageType]
- * @param {import("../../editor/src/assets/AssetManager.js").AssetManager?} [options.editorAssetManager]
+ * @param {import("../../studio/src/assets/AssetManager.js").AssetManager?} [options.editorAssetManager]
  */
 function setDataViewValue(dataView, value, type, byteOffset = 0, {
 	littleEndian = true,

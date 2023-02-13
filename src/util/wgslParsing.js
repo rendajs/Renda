@@ -71,7 +71,7 @@ export function parseMaterialUniforms(shaderSource) {
 				type = matrixMatch.groups.matrixType;
 			}
 		}
-		/** @type {import("../../editor/src/ui/propertiesTreeView/types.js").GuiTypes} */
+		/** @type {import("../../studio/src/ui/propertiesTreeView/types.js").GuiTypes} */
 		let mappableValueType = "number";
 		if (isVector) {
 			if (vectorSize == 2) {

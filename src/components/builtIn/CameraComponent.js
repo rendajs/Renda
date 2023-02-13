@@ -1,11 +1,11 @@
 import {StorageType} from "../../util/binarySerialization.js";
 import {RenderOutputConfig} from "../../rendering/RenderOutputConfig.js";
 import {ClusteredLightsConfig} from "../../rendering/ClusteredLightsConfig.js";
-import {EDITOR_DEFAULTS_IN_COMPONENTS} from "../../engineDefines.js";
+import {STUDIO_DEFAULTS_IN_COMPONENTS} from "../../studioDefines.js";
 import {Component} from "../Component.js";
 import {Vec4} from "../../math/Vec4.js";
 import {Mat4} from "../../math/Mat4.js";
-import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
+import {createTreeViewStructure} from "../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {getRaycastRayFromScreenPos, screenToWorldPos, worldToScreenPos} from "../../util/cameraUtil.js";
 
 export class CameraComponent extends Component {
@@ -82,9 +82,9 @@ export class CameraComponent extends Component {
 			// }
 		});
 
-		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+		if (STUDIO_DEFAULTS_IN_COMPONENTS) {
 			const defaultClusteredLightsConfigAssetLinkUuid = "f676813d-a631-4a39-9bb4-1ea1f291af19";
-			const guiOpts = /** @type {import("../../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<unknown>} */ (structure.clusteredLightsConfig.guiOpts);
+			const guiOpts = /** @type {import("../../../studio/src/ui/DroppableGui.js").DroppableGuiOptions<unknown>} */ (structure.clusteredLightsConfig.guiOpts);
 			guiOpts.defaultValue = defaultClusteredLightsConfigAssetLinkUuid;
 		}
 
@@ -219,7 +219,7 @@ export class CameraComponent extends Component {
 	}
 }
 
-// if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+// if (STUDIO_DEFAULTS_IN_COMPONENTS) {
 // 	const defaultClusteredLightsAssetLinkUuid = "f676813d-a631-4a39-9bb4-1ea1f291af19";
 // 	CameraComponent.properties.clusteredLightsConfig.defaultValue = defaultClusteredLightsAssetLinkUuid;
 // }

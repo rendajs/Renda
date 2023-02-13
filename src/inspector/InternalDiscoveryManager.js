@@ -1,6 +1,6 @@
 /**
  * @fileoverview For more info about how the InspectorManagerWorks see
- * /editor/src/network/editorConnections/internalDiscovery/readme.md
+ * /editor/src/network/studioConnections/internalDiscovery/readme.md
  */
 
 import {TypedMessenger} from "../util/TypedMessenger.js";
@@ -10,8 +10,8 @@ import {TypedMessenger} from "../util/TypedMessenger.js";
 /**
  * @typedef AvailableClientUpdateEvent
  * @property {import("../mod.js").UuidString} clientId
- * @property {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType} [clientType]
- * @property {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} [projectMetaData]
+ * @property {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} [clientType]
+ * @property {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} [projectMetaData]
  * @property {boolean} [deleted] Whether the client has become unavailable.
  */
 /** @typedef {(event: AvailableClientUpdateEvent) => void} OnAvailableClientUpdateCallback */
@@ -62,7 +62,7 @@ export class InternalDiscoveryManager {
 
 		/**
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the iframe it created.
-		 * @private @type {TypedMessenger<import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers, InternalDiscoveryParentHandlers>}
+		 * @private @type {TypedMessenger<import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js").InternalDiscoveryIframeHandlers, InternalDiscoveryParentHandlers>}
 		 */
 		this.iframeMessenger = new TypedMessenger();
 		this.iframeMessenger.setResponseHandlers(this._getIframeRequestHandlers());
@@ -79,7 +79,7 @@ export class InternalDiscoveryManager {
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the shared
 		 * worker that was created by the iframe. Messages first go through the iframe messenger which then
 		 * passes messages on to the sharedworker.
-		 * @private @type {TypedMessenger<import("../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers, InternalDiscoveryParentWorkerHandlers>}
+		 * @private @type {TypedMessenger<import("../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js").InternalDiscoveryWorkerToParentHandlers, InternalDiscoveryParentWorkerHandlers>}
 		 */
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
@@ -89,10 +89,10 @@ export class InternalDiscoveryManager {
 
 		/**
 		 * The messenger between whatever page instantiated the InternalDiscoveryManager and the potential
-		 * parent window of that page. This exists to make it possible to communicate with the editor and request
+		 * parent window of that page. This exists to make it possible to communicate with studio and request
 		 * the url of the to be created iframe. If the page that created the InternalDiscoveryManager is not
 		 * in an iframe, this messenger is useless.
-		 * @private @type {TypedMessenger<import("../../editor/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>}
+		 * @private @type {TypedMessenger<import("../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers, {}>}
 		 */
 		this.parentMessenger = new TypedMessenger();
 		this.parentMessenger.setSendHandler(data => {
@@ -149,7 +149,7 @@ export class InternalDiscoveryManager {
 		if (timeoutResolve) timeoutResolve("");
 		if (!url) {
 			if (!fallbackDiscoveryUrl) {
-				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by the editor.");
+				throw new Error("Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by studio.");
 			}
 			url = fallbackDiscoveryUrl;
 		}
@@ -189,8 +189,8 @@ export class InternalDiscoveryManager {
 			},
 			/**
 			 * @param {import("../mod.js").UuidString} clientId
-			 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType} clientType
-			 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} projectMetaData
+			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
+			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} projectMetaData
 			 */
 			availableClientAdded: (clientId, clientType, projectMetaData) => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, clientType, projectMetaData}));
@@ -203,7 +203,7 @@ export class InternalDiscoveryManager {
 			},
 			/**
 			 * @param {import("../mod.js").UuidString} clientId
-			 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} metaData
+			 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} metaData
 			 */
 			projectMetaData: (clientId, metaData) => {
 				this.onAvailableClientUpdatedCbs.forEach(cb => cb({clientId, projectMetaData: metaData}));
@@ -227,7 +227,7 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").ClientType} clientType
+	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
 		await this.workerMessenger.send("registerClient", clientType);
@@ -241,7 +241,7 @@ export class InternalDiscoveryManager {
 	}
 
 	/**
-	 * @param {import("../../editor/src/network/editorConnections/EditorConnectionsManager.js").RemoteEditorMetaData?} metaData
+	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteEditorMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
 		await this.workerMessenger.send("projectMetaData", metaData);

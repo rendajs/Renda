@@ -2,7 +2,7 @@ import {Mat4} from "../math/Mat4.js";
 import {Quat} from "../math/Quat.js";
 import {Vec3} from "../math/Vec3.js";
 import {Component} from "../components/Component.js";
-import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../engineDefines.js";
+import {ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT} from "../studioDefines.js";
 import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
@@ -49,8 +49,8 @@ import {ComponentTypeManager} from "../components/ComponentTypeManager.js";
 
 /**
  * @typedef {object} EntityToJsonOptions
- * @property {import("../../editor/src/assets/AssetManager.js").AssetManager} assetManager
- * @property {import("../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
+ * @property {import("../../studio/src/assets/AssetManager.js").AssetManager} assetManager
+ * @property {import("../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
  * @property {symbol} entityAssetRootUuidSymbol
  */

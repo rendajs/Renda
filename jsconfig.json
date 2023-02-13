@@ -12,13 +12,13 @@
 	"include": [
 		"src/**/*.js",
 		"src/**/*.ts",
-		"editor/src/**/*.js",
-		"editor/src/**/*.ts",
-		"editor/sw.js",
-		"editor/devSocket/src/**/*.js",
-		"editor/devSocket/src/**/*.ts",
-		"editor/editorDiscoveryServer/src/**/*.js",
-		"editor/editorDiscoveryServer/src/**/*.ts",
+		"studio/src/**/*.js",
+		"studio/src/**/*.ts",
+		"studio/sw.js",
+		"studio/devSocket/src/**/*.js",
+		"studio/devSocket/src/**/*.ts",
+		"studio/studioDiscoveryServer/src/**/*.js",
+		"studio/studioDiscoveryServer/src/**/*.ts",
 		"scripts/**/*.js",
 		"scripts/**/*.ts",
 		"test/**/*.js",
@@ -26,7 +26,7 @@
 	],
 	"files": [
 		"src/mod.js",
-		"editor/src/main.js",
-		"editor/devSocket/src/main.js",
+		"studio/src/main.js",
+		"studio/devSocket/src/main.js",
 	]
 }

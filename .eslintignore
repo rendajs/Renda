@@ -1,11 +1,11 @@
 dist
-editor/dist/js/*
-editor/deps/
+studio/dist/js/*
+studio/deps/
 *.ts
 .coverage
 .denoTypes
 node_modules
 npm_packages
 deno_dir
-editor/src/styles/documentStyles.js
-editor/src/styles/shadowStyles.js
+studio/src/styles/documentStyles.js
+studio/src/styles/shadowStyles.js

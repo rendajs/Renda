@@ -2,7 +2,7 @@ import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
 import {Mat4} from "../math/Mat4.js";
-import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, EDITOR_DEFAULTS_IN_COMPONENTS} from "../engineDefines.js";
+import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, STUDIO_DEFAULTS_IN_COMPONENTS} from "../studioDefines.js";
 import {mathTypeToJson} from "../math/MathTypes.js";
 
 const settingDefaultsPromisesSym = Symbol("settingDefaultsPromises");
@@ -15,9 +15,9 @@ const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
 
 /**
  * @typedef {object} ComponentEditorOptions
- * @property {import("../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} editorAssetTypeManager
+ * @property {import("../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} editorAssetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
- * @property {import("../../editor/src/assets/AssetManager.js").AssetManager} assetManager
+ * @property {import("../../studio/src/assets/AssetManager.js").AssetManager} assetManager
  */
 
 /**
@@ -53,7 +53,7 @@ export class Component {
 		return null;
 	}
 	/**
-	 * @returns {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @returns {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static get guiStructure() {
 		return null;
@@ -80,7 +80,7 @@ export class Component {
 		/** @type {import("../core/Entity.js").Entity?} */
 		this.entity = null;
 
-		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+		if (STUDIO_DEFAULTS_IN_COMPONENTS) {
 			const castComponent = /** @type {ComponentWithSyms} */ (this);
 			castComponent[editorDefaultsHandledSym] = false;
 		}
@@ -100,7 +100,7 @@ export class Component {
 			this._setDefaultValues(castConstructor.guiStructure, editorOpts);
 		}
 
-		if (!EDITOR_DEFAULTS_IN_COMPONENTS) {
+		if (!STUDIO_DEFAULTS_IN_COMPONENTS) {
 			this._applyPropertyValues(propertyValues);
 		} else {
 			this._handleDefaultEditorValues(propertyValues);
@@ -133,7 +133,7 @@ export class Component {
 	 * @param {Object<string, unknown>} propertyValues
 	 */
 	async _handleDefaultEditorValues(propertyValues) {
-		if (!EDITOR_DEFAULTS_IN_COMPONENTS) return;
+		if (!STUDIO_DEFAULTS_IN_COMPONENTS) return;
 		const castComponent = /** @type {ComponentWithSyms} */ (this);
 		const promises = castComponent[settingDefaultsPromisesSym];
 		if (promises) {
@@ -253,7 +253,7 @@ export class Component {
 	}
 
 	/**
-	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
+	 * @param {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
 	 * @param {ComponentEditorOptions?} editorOpts
 	 */
 	_setDefaultValues(properties, editorOpts = null) {
@@ -265,7 +265,7 @@ export class Component {
 	/**
 	 * @param {Object<string | number, unknown>} object
 	 * @param {string} propertyName
-	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
+	 * @param {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
 	 * @param {ComponentEditorOptions?} editorOpts
 	 */
 	setPropertyDefaultValue(object, propertyName, propertyData, editorOpts = null) {
@@ -277,9 +277,9 @@ export class Component {
 			/** @type {unknown[]} */
 			const array = [];
 			if (defaultValue) {
-				const arrayGuiOptions = /** @type {import("../../editor/src/ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyData.guiOpts);
+				const arrayGuiOptions = /** @type {import("../../studio/src/ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyData.guiOpts);
 				for (const [i, value] of Object.entries(defaultValue)) {
-					/** @type {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+					/** @type {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 					const childPropertyData = {
 						type: arrayGuiOptions.arrayType,
 						guiOpts: {
@@ -305,7 +305,7 @@ export class Component {
 				editorOpts.usedAssetUuidsSymbol &&
 				editorOpts.assetManager
 			) {
-				const droppableGuiOptions = /** @type {import("../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<(new (...args: any) => unknown)>} */ (propertyData.guiOpts);
+				const droppableGuiOptions = /** @type {import("../../studio/src/ui/DroppableGui.js").DroppableGuiOptions<(new (...args: any) => unknown)>} */ (propertyData.guiOpts);
 				if (droppableGuiOptions.supportedAssetTypes) {
 					for (const assetType of droppableGuiOptions.supportedAssetTypes) {
 						if (editorOpts.editorAssetTypeManager.constructorHasAssetType(assetType)) {
@@ -317,7 +317,7 @@ export class Component {
 			}
 
 			if (resolveDroppableAsset) {
-				if (EDITOR_DEFAULTS_IN_COMPONENTS && editorOpts) {
+				if (STUDIO_DEFAULTS_IN_COMPONENTS && editorOpts) {
 					let usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol];
 					if (!usedAssetUuids) {
 						usedAssetUuids = {};
@@ -349,7 +349,7 @@ export class Component {
 	}
 
 	async waitForEditorDefaults() {
-		if (!EDITOR_DEFAULTS_IN_COMPONENTS) return;
+		if (!STUDIO_DEFAULTS_IN_COMPONENTS) return;
 		const castComponent = /** @type {ComponentWithSyms} */ (this);
 		if (castComponent[editorDefaultsHandledSym]) return;
 		let cbs = castComponent[onEditorDefaultsCbsSym];

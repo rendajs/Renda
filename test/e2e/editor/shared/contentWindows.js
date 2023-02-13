@@ -3,7 +3,7 @@
 // https://github.com/microsoft/TypeScript/issues/43869.
 //
 {
-	/** @typedef {typeof import("../../../../editor/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} ContentWindow */
+	/** @typedef {typeof import("../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} ContentWindow */
 }
 
 /**
