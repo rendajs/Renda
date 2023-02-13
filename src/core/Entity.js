@@ -810,10 +810,10 @@ export class Entity {
 	}
 
 	/**
-	 * @param {EntityToJsonOptions?} editorOpts
+	 * @param {EntityToJsonOptions?} studioOpts
 	 * @returns {EntityJsonData}
 	 */
-	toJson(editorOpts = null) {
+	toJson(studioOpts = null) {
 		/** @typedef {Entity & {[x: symbol] : any}} EntityWithAssetRootUuid */
 
 		/** @type {EntityJsonDataInlineEntity} */
@@ -829,13 +829,13 @@ export class Entity {
 		if (this.components.length > 0) {
 			json.components = [];
 			for (const component of this.components) {
-				json.components.push(component.toJson(editorOpts));
+				json.components.push(component.toJson(studioOpts));
 			}
 		}
 
 		const children = [];
-		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && editorOpts && editorOpts.entityAssetRootUuidSymbol) {
-			const sym = editorOpts.entityAssetRootUuidSymbol;
+		if (ENTITY_ASSETS_IN_ENTITY_JSON_EXPORT && studioOpts && studioOpts.entityAssetRootUuidSymbol) {
+			const sym = studioOpts.entityAssetRootUuidSymbol;
 			for (const child of this.getChildren()) {
 				const castChild = /** @type {EntityWithAssetRootUuid} */ (child);
 				if (castChild[sym]) {
@@ -845,12 +845,12 @@ export class Entity {
 					};
 					children.push(childJson);
 				} else {
-					children.push(child.toJson(editorOpts));
+					children.push(child.toJson(studioOpts));
 				}
 			}
 		} else {
 			for (const child of this.getChildren()) {
-				children.push(child.toJson(editorOpts));
+				children.push(child.toJson(studioOpts));
 			}
 		}
 		if (children.length > 0) {

@@ -103,13 +103,13 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 							if (!this.currentSelection) return;
 							for (const {entity} of this.currentSelection) {
 								const componentInstance = entity.addComponent(component, {}, {
-									editorOpts: {
+									studioOpts: {
 										editorAssetTypeManager: this.editorInstance.projectAssetTypeManager,
 										usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 										assetManager: this.editorInstance.projectManager.assertAssetManagerExists(),
 									},
 								});
-								await componentInstance.waitForEditorDefaults();
+								await componentInstance.waitForStudioDefaults();
 								this.notifyEntityEditors(entity, "component");
 							}
 							this.refreshComponents();

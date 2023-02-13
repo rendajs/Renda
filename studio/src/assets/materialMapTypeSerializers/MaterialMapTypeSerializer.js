@@ -144,7 +144,7 @@ export class MaterialMapTypeSerializer {
 		}
 		return objectToBinary(bundleMapData, {
 			...this.assetBundleBinarySerializationOpts,
-			editorAssetManager: assetManager,
+			studioAssetManager: assetManager,
 		});
 	}
 

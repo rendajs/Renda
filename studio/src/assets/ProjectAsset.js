@@ -922,7 +922,7 @@ export class ProjectAsset {
 				}
 				binaryData = objectToBinary(assetData, {
 					...castAssetLoaderType.binarySerializationOpts,
-					editorAssetManager: this.assetManager,
+					studioAssetManager: this.assetManager,
 				});
 			}
 		}

@@ -1,6 +1,6 @@
 /**
  * @fileoverview For more info about how the InspectorManagerWorks see
- * /editor/src/network/studioConnections/internalDiscovery/readme.md
+ * /studio/src/network/studioConnections/internalDiscovery/readme.md
  */
 
 import {TypedMessenger} from "../util/TypedMessenger.js";
@@ -21,9 +21,9 @@ export class InternalDiscoveryManager {
 	/**
 	 * @param {object} options
 	 * @param {string} [options.fallbackDiscoveryUrl] When the current page is inside an iframe, the discovery manager
-	 * will ask the parent window for a discovery url. If the parent window is an editor, it will respond with a url.
+	 * will ask the parent window for a discovery url. If the parent window is a studio instance, it will respond with a url.
 	 * But if the current page is either not in an iframe or the parent doesn't respond, this fallback url will be used.
-	 * The discovery url should point to the discovery iframe page of an editor, i.e. if two applications wish to
+	 * The discovery url should point to the discovery iframe page of a studio instance, i.e. if two applications wish to
 	 * communicate with each other, they should both use the same discovery url.
 	 * @param {string} [options.forceDiscoveryUrl] When set, no attempt is made to get the discovery url from the parent
 	 * window, and the forced url is used immediately instead.

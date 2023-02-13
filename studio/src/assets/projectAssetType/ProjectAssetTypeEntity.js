@@ -95,7 +95,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 				}
 				const componentPropertyValues = await this.getComponentPropertyValuesFromJson(component.propertyValues, ComponentConstructor.guiStructure, recursionTracker);
 				ent.addComponent(ComponentConstructor, componentPropertyValues, {
-					editorOpts: {
+					studioOpts: {
 						editorAssetTypeManager: this.projectAssetTypeManager,
 						usedAssetUuidsSymbol: ProjectAssetTypeEntity.usedAssetUuidsSymbol,
 						assetManager: this.assetManager,
@@ -259,7 +259,7 @@ entityLoader.setComponentTypeManager(componentTypeManager);`;
 				}
 				component.propertyValues = objectToBinary(component.propertyValues, {
 					...componentConstructor.binarySerializationOpts,
-					editorAssetManager: this.assetManager,
+					studioAssetManager: this.assetManager,
 					transformValueHook: opts => {
 						if (opts.type == StorageType.ASSET_UUID) {
 							const uuid = /** @type {import("../../../../src/mod.js").UuidString} */ (opts.value);
