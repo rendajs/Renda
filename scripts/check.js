@@ -2,6 +2,7 @@ import {dev} from "./dev.js";
 
 await dev({
 	needsTypes: true,
+	needsDependencies: true,
 });
 
 const proc = Deno.run({
