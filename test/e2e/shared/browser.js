@@ -70,7 +70,7 @@ export async function launch({headless, executablePath}) {
  * Connects to the browser instance created by the test runner and creates a new
  * incognito page.
  */
-export async function getContext(url = getMainPageUrl() + "/editor/") {
+export async function getContext(url = getMainPageUrl() + "/studio/") {
 	let wsEndpoint = null;
 	for (const arg of Deno.args) {
 		if (arg.startsWith(PUPPETEER_WS_ENDPOINT_ARG)) {

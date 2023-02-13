@@ -78,9 +78,9 @@ Deno.test({
 						await click(page, checkbox);
 
 						await page.evaluate(async () => {
-							const e = editor;
-							if (!e) return;
-							const fs = e.projectManager.currentProjectFileSystem;
+							const studio = globalThis.studio;
+							if (!studio) return;
+							const fs = studio.projectManager.currentProjectFileSystem;
 							if (!fs) return;
 							await fs.waitForWritesFinish();
 						});
