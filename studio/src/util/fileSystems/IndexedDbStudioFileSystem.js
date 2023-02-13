@@ -1,4 +1,4 @@
-import {EditorFileSystem} from "./EditorFileSystem.js";
+import {StudioFileSystem} from "./StudioFileSystem.js";
 import {IndexedDbUtil} from "../../../../src/util/IndexedDbUtil.js";
 import {generateUuid} from "../../../../src/util/util.js";
 import {wait} from "../../../../src/util/Timeout.js";
@@ -49,8 +49,8 @@ const fileSystemPointerType = Symbol("file system pointer type");
  */
 const SYSTEM_LOCK_QUEUE_LENGTH_FOR_WARNING = 20;
 
-export class IndexedDbEditorFileSystem extends EditorFileSystem {
-	/** @typedef {import("./EditorFileSystem.js").EditorFileSystemPath} EditorFileSystemPath */
+export class IndexedDbStudioFileSystem extends StudioFileSystem {
+	/** @typedef {import("./StudioFileSystem.js").StudioFileSystemPath} EditorFileSystemPath */
 
 	/**
 	 * @param {string} fileSystemName The name of the FileSystem, will be used in the IndexedDB database name.
@@ -58,7 +58,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	constructor(fileSystemName) {
 		super();
 
-		const dbName = IndexedDbEditorFileSystem.getDbName(fileSystemName);
+		const dbName = IndexedDbStudioFileSystem.getDbName(fileSystemName);
 		/**
 		 * Null if the db has been deleted.
 		 * @type {IndexedDbUtil?}
@@ -164,7 +164,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	 * @returns {Promise<boolean>}
 	 */
 	static async exists(fileSystemName) {
-		const dbName = IndexedDbEditorFileSystem.getDbName(fileSystemName);
+		const dbName = IndexedDbStudioFileSystem.getDbName(fileSystemName);
 		const databases = await indexedDB.databases();
 		return databases.some(db => db.name == dbName);
 	}
@@ -650,7 +650,7 @@ export class IndexedDbEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {Array<string>} path
-	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
+	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		path = [...path];

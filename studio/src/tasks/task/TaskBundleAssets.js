@@ -4,7 +4,7 @@ import {Task} from "./Task.js";
 
 /**
  * @typedef TaskBundleAssetsConfig
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [outputPath]
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} [outputPath]
  * @property {TaskBundleAssetsConfigAssetItem[]} [assets]
  * @property {import("../../../../src/mod.js").UuidString[]} [excludeAssets]
  * @property {import("../../../../src/mod.js").UuidString[]} [excludeAssetsRecursive]

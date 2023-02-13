@@ -2,7 +2,7 @@ export function getBasicRunTaskReadAssetOptions() {
 	return {
 		/**
 		 * @template {import("../../../../../../studio/src/assets/AssetManager.js").AssetAssertionOptions} T
-		 * @param {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+		 * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 * @param {T} [assertionOptions]
 		 */
 		async readAssetFromPath(path, assertionOptions) {

@@ -99,7 +99,7 @@ Deno.test({
 
 /**
  * @param {object} options
- * @param {{path: import("../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, projectAsset: import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny}[]} [options.pathProjectAssets]
+ * @param {{path: import("../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath, projectAsset: import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny}[]} [options.pathProjectAssets]
  * @param {Map<import("../../../../../src/mod.js").UuidString, import("../../../../../studio/src/assets/ProjectAsset.js").ProjectAssetAny>} [options.uuidProjectAssets] A map of mock project assets that will be returned by the asset manager.
  */
 function basicTaskRunningSetup({
@@ -366,7 +366,7 @@ Deno.test({
 			/**
 			 * @typedef DependencyTaskConfig
 			 * @property {string | undefined} assetType
-			 * @property {import("../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} dependencyPath
+			 * @property {import("../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} dependencyPath
 			 */
 
 			/** @extends {Task<DependencyTaskConfig>} */
@@ -397,7 +397,7 @@ Deno.test({
 
 			/**
 			 * @typedef ParentTaskConfig
-			 * @property {import("../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [assetPath]
+			 * @property {import("../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} [assetPath]
 			 * @property {import("../../../../../src/mod.js").UuidString} [assetUuid]
 			 * @property {import("../../../../../src/mod.js").UuidString} [taskAssetUuid]
 			 */

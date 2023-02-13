@@ -10,7 +10,7 @@ import {Task} from "./Task.js";
 /**
  * @typedef TaskBuildApplicationConfig
  * @property {import("../../../../src/mod.js").UuidString} [entryPoint]
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [outputDir]
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} [outputDir]
  */
 
 /** @extends {Task<TaskBuildApplicationConfig>} */

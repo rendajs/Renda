@@ -13,7 +13,7 @@ const scriptTypes = [
 ];
 
 /**
- * @typedef {(id: import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath) => Promise<string>} GetScriptContentFn
+ * @typedef {(id: import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath) => Promise<string>} GetScriptContentFn
  */
 
 /**

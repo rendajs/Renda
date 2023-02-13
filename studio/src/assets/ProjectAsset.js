@@ -73,7 +73,7 @@ export class ProjectAsset {
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem?} fileSystem
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} fileSystem
 	 * @param {ProjectAssetOptions} options
 	 */
 	constructor(assetManager, assetTypeManager, builtInAssetManager, fileSystem, {
@@ -95,7 +95,7 @@ export class ProjectAsset {
 		}
 		/**
 		 * This is null for builtIn assets.
-		 * @type {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem?}
+		 * @type {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?}
 		 */
 		this.fileSystem = fileSystem;
 
@@ -234,7 +234,7 @@ export class ProjectAsset {
 	 * @param {import("./AssetManager.js").AssetManager} assetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} assetTypeManager
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem?} fileSystem
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} fileSystem
 	 * @param {ProjectAssetOptions} assetData
 	 */
 	static async guessAssetTypeAndCreate(assetManager, assetTypeManager, builtInAssetManager, fileSystem, assetData) {
@@ -266,7 +266,7 @@ export class ProjectAsset {
 	 * editor metadata, returns the asset type from the metadata.
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem?} fileSystem Can be null for built-in assets only.
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem?} fileSystem Can be null for built-in assets only.
 	 * @param {string[]} path
 	 * @param {boolean} isBuiltIn
 	 * @returns {Promise<string | null>}

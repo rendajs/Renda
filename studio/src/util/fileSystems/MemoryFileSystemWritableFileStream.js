@@ -4,7 +4,7 @@
 export class MemoryFileSystemWritableFileStream extends WritableStream {
 	#cursor = 0;
 	/**
-	 * @param {import("./MemoryEditorFileSystem.js").MemoryEditorFileSystemFilePointer} pointer
+	 * @param {import("./MemoryStudioFileSystem.js").MemoryStudioFileSystemFilePointer} pointer
 	 */
 	constructor(pointer) {
 		super();

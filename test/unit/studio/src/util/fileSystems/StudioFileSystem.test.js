@@ -1,5 +1,5 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {EditorFileSystem} from "../../../../../../studio/src/util/fileSystems/EditorFileSystem.js";
+import {StudioFileSystem} from "../../../../../../studio/src/util/fileSystems/StudioFileSystem.js";
 import {Importer} from "fake-imports";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
@@ -8,10 +8,10 @@ Deno.test({
 	fn: async () => {
 		let writtenPath = null;
 		let writtenFile = new File([], "");
-		class ImplementedFileSystem extends EditorFileSystem {
+		class ImplementedFileSystem extends StudioFileSystem {
 			/**
 			 * @override
-			 * @param {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 			 * @param {File} file
 			 */
 			async writeFile(path, file) {
@@ -33,10 +33,10 @@ Deno.test({
 Deno.test({
 	name: "readText",
 	fn: async () => {
-		class ImplementedFileSystem extends EditorFileSystem {
+		class ImplementedFileSystem extends StudioFileSystem {
 			/**
 			 * @override
-			 * @param {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 			 */
 			async readFile(path) {
 				assertEquals(path, ["text.txt"]);
@@ -58,15 +58,15 @@ Deno.test({
 		importer.fakeModule("../../../../../../src/util/toFormattedJsonString.js", `
 			export const toFormattedJsonString = (json) => JSON.stringify(json);
 		`);
-		/** @type {{path: import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, text: string}[]} */
+		/** @type {{path: import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath, text: string}[]} */
 		const writeCalls = [];
 
 		const {EditorFileSystem: EditorFileSystem2} = await importer.import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js");
-		const CastEditorFileSystem = /** @type {typeof EditorFileSystem} */ (EditorFileSystem2);
+		const CastEditorFileSystem = /** @type {typeof StudioFileSystem} */ (EditorFileSystem2);
 		class ImplementedFileSystem extends CastEditorFileSystem {
 			/**
 			 * @override
-			 * @param {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 			 * @param {string} text
 			 */
 			async writeText(path, text) {
@@ -89,10 +89,10 @@ Deno.test({
 Deno.test({
 	name: "readJson",
 	fn: async () => {
-		class ImplementedFileSystem extends EditorFileSystem {
+		class ImplementedFileSystem extends StudioFileSystem {
 			/**
 			 * @override
-			 * @param {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 			 */
 			async readFile(path) {
 				assertEquals(path, ["data.json"]);
@@ -110,10 +110,10 @@ Deno.test({
 Deno.test({
 	name: "readJson tries to parse as json even when mimeType is not application/json",
 	fn: async () => {
-		class ImplementedFileSystem extends EditorFileSystem {
+		class ImplementedFileSystem extends StudioFileSystem {
 			/**
 			 * @override
-			 * @param {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 			 */
 			async readFile(path) {
 				assertEquals(path, ["data.json"]);
@@ -131,7 +131,7 @@ Deno.test({
 Deno.test({
 	name: "waitForWritesFinish() resolves without any pending operations",
 	async fn() {
-		const fs = new EditorFileSystem();
+		const fs = new StudioFileSystem();
 		await fs.waitForWritesFinish();
 	},
 });
@@ -139,7 +139,7 @@ Deno.test({
 Deno.test({
 	name: "waitForWritesFinish() resolves when the last pending operation is resolved",
 	async fn() {
-		const fs = new EditorFileSystem();
+		const fs = new StudioFileSystem();
 		const writeOp = fs.requestWriteOperation();
 		const promise = fs.waitForWritesFinish();
 
@@ -159,7 +159,7 @@ Deno.test({
 Deno.test({
 	name: "waitForWritesFinish() with multiple pending operations",
 	async fn() {
-		const fs = new EditorFileSystem();
+		const fs = new StudioFileSystem();
 		const op1 = fs.requestWriteOperation();
 		const op2 = fs.requestWriteOperation();
 		const promise = fs.waitForWritesFinish();

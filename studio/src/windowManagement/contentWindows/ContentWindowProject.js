@@ -392,7 +392,7 @@ export class ContentWindowProject extends ContentWindow {
 	}
 
 	/**
-	 * @param {import("../../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent} e
+	 * @param {import("../../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent} e
 	 */
 	#onFileChange = async e => {
 		const parentPath = e.path.slice(0, -1);

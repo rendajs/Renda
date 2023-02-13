@@ -1,11 +1,11 @@
 import {toFormattedJsonString} from "../../../../src/util/toFormattedJsonString.js";
 import {WriteOperation} from "./WriteOperation.js";
 
-/** @typedef {string[]} EditorFileSystemPath */
+/** @typedef {string[]} StudioFileSystemPath */
 
 /** @typedef {File | BufferSource | Blob | string} AllowedWriteFileTypes */
 
-/** @typedef {{files: Array<string>, directories: Array<string>}} EditorFileSystemReadDirResult */
+/** @typedef {{files: Array<string>, directories: Array<string>}} StudioFileSystemReadDirResult */
 
 /** @typedef {"file" | "directory" | "unknown"} FileSystemChangeKind */
 
@@ -23,7 +23,7 @@ import {WriteOperation} from "./WriteOperation.js";
 /**
  * @abstract
  */
-export class EditorFileSystem {
+export class StudioFileSystem {
 	/** @type {Set<FileSystemChangeCallback>} */
 	#onChangeCbs = new Set();
 
@@ -44,7 +44,7 @@ export class EditorFileSystem {
 	 * `prompt` is false.
 	 * Additionaly you can also call this in advance from a user gesture with
 	 * `prompt` set to true.
-	 * @param {EditorFileSystemPath} path The path to get permissions for.
+	 * @param {StudioFileSystemPath} path The path to get permissions for.
 	 * @param {object} opts
 	 * @param {boolean} [opts.writable] Check for writable permissions if true.
 	 * @param {boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
@@ -61,11 +61,11 @@ export class EditorFileSystem {
 
 	/**
 	 * Resolves once permission has been granted. Note that you still need to call
-	 * {@link EditorFileSystem.getPermission} or any other method that requires
+	 * {@link StudioFileSystem.getPermission} or any other method that requires
 	 * permission in order to trigger the permission prompt.
 	 * This is useful in a scenario where you want to access a file but the running
 	 * code is not triggered by a user gesture.
-	 * @param {EditorFileSystemPath} path The path to get permissions for.
+	 * @param {StudioFileSystemPath} path The path to get permissions for.
 	 * @param {object} opts
 	 * @param {boolean} [opts.writable] Check for writable permissions if true.
 	 */
@@ -75,8 +75,8 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemPath} path
-	 * @returns {Promise<EditorFileSystemReadDirResult>}
+	 * @param {StudioFileSystemPath} path
+	 * @returns {Promise<StudioFileSystemReadDirResult>}
 	 */
 	async readDir(path) {
 		return {
@@ -86,13 +86,13 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @returns {Promise<void>}
 	 */
 	async createDir(path) {}
 
 	/**
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
@@ -101,16 +101,16 @@ export class EditorFileSystem {
 
 	/**
 	 * Writes file to the system, overwrites file if it already exists.
-	 * Use {@link EditorFileSystem.writeText} for writing strings.
-	 * Use {@link EditorFileSystem.writeJson} for writing json Objects.
-	 * @param {EditorFileSystemPath} path
+	 * Use {@link StudioFileSystem.writeText} for writing strings.
+	 * Use {@link StudioFileSystem.writeJson} for writing json Objects.
+	 * @param {StudioFileSystemPath} path
 	 * @param {AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {}
 
 	/**
 	 * @abstract
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @param {boolean} keepExistingData
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
@@ -152,8 +152,8 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemPath} fromPath
-	 * @param {EditorFileSystemPath} toPath
+	 * @param {StudioFileSystemPath} fromPath
+	 * @param {StudioFileSystemPath} toPath
 	 */
 	async move(fromPath, toPath) {}
 
@@ -193,7 +193,7 @@ export class EditorFileSystem {
 	/**
 	 * Deletes a file or directory.
 	 * Will throw if the path does not exist.
-	 * @param {EditorFileSystemPath} path The file or directory to delete.
+	 * @param {StudioFileSystemPath} path The file or directory to delete.
 	 * @param {boolean} recursive Whether to delete all subdirectories and files.
 	 */
 	async delete(path, recursive = false) {}
@@ -201,7 +201,7 @@ export class EditorFileSystem {
 	/**
 	 * Check if a file exists at the specified path, and if it is a file.
 	 * Does not throw when any part of the path doesn't exist.
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path) {
@@ -211,7 +211,7 @@ export class EditorFileSystem {
 	/**
 	 * Check if a directory exists at the specified path, and if it is a directory.
 	 * Does not throw when any part of the path doesn't exist.
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path) {
@@ -219,7 +219,7 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async exists(path) {
@@ -260,7 +260,7 @@ export class EditorFileSystem {
 	/* ==== util functions ==== */
 
 	/**
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @param {string} text
 	 * @param {object} opts
 	 * @param {string} [opts.type]
@@ -272,7 +272,7 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @returns {Promise<string>}
 	 */
 	async readText(path) {
@@ -281,7 +281,7 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @param {any} json
 	 */
 	async writeJson(path, json) {
@@ -290,7 +290,7 @@ export class EditorFileSystem {
 	}
 
 	/**
-	 * @param {EditorFileSystemPath} path
+	 * @param {StudioFileSystemPath} path
 	 * @returns {Promise<?object>}
 	 */
 	async readJson(path) {

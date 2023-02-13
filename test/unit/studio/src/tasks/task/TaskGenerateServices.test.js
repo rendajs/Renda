@@ -1,6 +1,6 @@
 import {assert, assertEquals, assertExists, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TaskGenerateServices} from "../../../../../../studio/src/tasks/task/TaskGenerateServices.js";
-import {MemoryEditorFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
 import {getBasicRunTaskReadAssetOptions} from "./shared.js";
@@ -59,8 +59,8 @@ function basicSetup({
 	},
 	entryPointContent = "",
 } = {}) {
-	const mockFileSystem = new MemoryEditorFileSystem();
-	const fileSystem = /** @type {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (mockFileSystem);
+	const mockFileSystem = new MemoryStudioFileSystem();
+	const fileSystem = /** @type {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (mockFileSystem);
 
 	const {ProjectAssetType} = createMockProjectAssetType(BASIC_ASSET_TYPE);
 	ProjectAssetType.assetLoaderTypeImportConfig = importConfig;

@@ -1,10 +1,10 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {MemoryEditorFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 
 Deno.test({
 	name: "basic structure",
 	async fn() {
-		const fs = new MemoryEditorFileSystem();
+		const fs = new MemoryStudioFileSystem();
 
 		const file1 = new File(["file1"], "file1.txt");
 		const file2 = "file2";

@@ -213,7 +213,7 @@ export class BuiltInAssetManager {
 		if (!this.assetSettingsLoaded) return;
 		/** @type {Object<import("../../../src/util/mod.js").UuidString, number>} */
 		const assets = {};
-		/** @type {Map<import("../../../src/mod.js").UuidString, import("../../src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath>} */
+		/** @type {Map<import("../../../src/mod.js").UuidString, import("../../src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath>} */
 		const uuidPaths = new Map();
 		for (const [uuid, assetSettings] of this.assetSettings) {
 			uuidPaths.set(uuid, assetSettings.path);

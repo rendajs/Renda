@@ -1,13 +1,13 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {FsaEditorFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaEditorFileSystem.js";
-import {MemoryEditorFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {registerOnChangeSpy} from "../../shared.js";
 import {testAll} from "../shared.js";
 
 testAll({
 	name: "move() rename a file",
-	ignore: [MemoryEditorFileSystem],
+	ignore: [MemoryStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -54,7 +54,7 @@ testAll({
 
 testAll({
 	name: "move() a file",
-	ignore: [MemoryEditorFileSystem],
+	ignore: [MemoryStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -105,7 +105,7 @@ testAll({
 
 testAll({
 	name: "move() rename a directory with files",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -145,7 +145,7 @@ testAll({
 
 testAll({
 	name: "move() rename a directory with dirs",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -162,7 +162,7 @@ testAll({
 
 testAll({
 	name: "move() a directory with files",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -179,7 +179,7 @@ testAll({
 
 testAll({
 	name: "move() a directory with dirs",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -196,7 +196,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when the from path doesn't exist",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -214,7 +214,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when overwriting an existing file",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -226,7 +226,7 @@ testAll({
 
 testAll({
 	name: "move() should throw when overwriting an existing directory",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -241,7 +241,7 @@ testAll({
 
 testAll({
 	name: "move() should not throw when overwriting an existing directory if it's empty",
-	ignore: [MemoryEditorFileSystem, FsaEditorFileSystem],
+	ignore: [MemoryStudioFileSystem, FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

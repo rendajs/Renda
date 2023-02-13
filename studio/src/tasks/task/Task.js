@@ -16,7 +16,7 @@
  * flag is set to true.
  * @property {import("../../../../src/mod.js").UuidString[]} [touchedAssets] A list of assets that this task touched, or
  * might touch when the task is run a second time. This is used by other tasks for determining if this task needs to run before them.
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath[]} [touchedPaths] A list of paths that this task touched, or
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath[]} [touchedPaths] A list of paths that this task touched, or
  * might touch when the task is run a second time. This is used by other tasks for determining if this task needs to run before them.
  * @property {TCustomData} [customData] Custom data that a task might return, this is only useful when a task is run from a script.
  */
@@ -24,10 +24,10 @@
 /**
  * @template [TCustomData = unknown]
  * @typedef RunTaskCreateAssetData
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path The location where the fileData
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path The location where the fileData
  * should be written to in the project.
  * @property {string} [assetType] The type of the asset, for example "renda:javascript"
- * @property {import("../../util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes} fileData The file data to write to disk.
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").AllowedWriteFileTypes} fileData The file data to write to disk.
  * @property {TCustomData} [customData] Custom data related to this file that a task can provide.
  */
 

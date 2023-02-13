@@ -38,8 +38,8 @@ Deno.test("Custom numberPrefix", () => {
 	assertEquals(result, "existingFile-1.txt");
 });
 
-Deno.test("Using EditorFileSystemReadDirResult", () => {
-	/** @type {import("../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemReadDirResult} */
+Deno.test("Using StudioFileSystemReadDirResult", () => {
+	/** @type {import("../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemReadDirResult} */
 	const readDirResult = {
 		directories: [],
 		files: ["existingFile.txt"],

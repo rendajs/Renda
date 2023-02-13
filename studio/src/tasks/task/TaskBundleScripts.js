@@ -6,7 +6,7 @@ import {Task} from "./Task.js";
 /**
  * @typedef TaskBundleScriptsConfig
  * @property {import("../../../../src/mod.js").UuidString[]} [entryPoints]
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [outputPath]
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} [outputPath]
  * @property {string} [servicesSource] The code that the import specifier 'renda:services' will resolve with.
  */
 
@@ -28,7 +28,7 @@ export class TaskBundleScripts extends Task {
 	#messenger;
 
 	#lastReadScriptCallbackId = 0;
-	/** @type {Map<number, (path: import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath) => Promise<string | null>>} */
+	/** @type {Map<number, (path: import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath) => Promise<string | null>>} */
 	#readScriptCallbacks = new Map();
 
 	static configStructure = createTreeViewStructure({
@@ -73,7 +73,7 @@ export class TaskBundleScripts extends Task {
 		}
 
 		/**
-		 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+		 * @param {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 		 */
 		const readScriptCallback = async path => {
 			return await readAssetFromPath(path, {
@@ -107,7 +107,7 @@ export class TaskBundleScripts extends Task {
 	getResponseHandlers() {
 		return {
 			/**
-			 * @param {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
+			 * @param {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} filePath
 			 * @param {number} readScriptCallbackId
 			 */
 			getScriptContent: async (filePath, readScriptCallbackId) => {

@@ -1,6 +1,6 @@
 import {IndexedDbUtil} from "../../../src/util/IndexedDbUtil.js";
 import {PromiseWaitHelper} from "../../../src/util/PromiseWaitHelper.js";
-import {IndexedDbEditorFileSystem} from "../util/fileSystems/IndexedDbEditorFileSystem.js";
+import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
 
 export class ProjectSelector {
 	/** @typedef {import("./ProjectManager.js").StoredProjectEntryAny} StoredProjectEntryAny */
@@ -131,7 +131,7 @@ export class ProjectSelector {
 		this.recentProjectsList = this.recentProjectsList.filter(entry => {
 			if (entry.fileSystemType != "db") return true;
 
-			const dbName = IndexedDbEditorFileSystem.getDbName(entry.projectUuid);
+			const dbName = IndexedDbStudioFileSystem.getDbName(entry.projectUuid);
 			return databaseNames.includes(dbName);
 		});
 		this.getRecentsWaiter.fire();

@@ -14,7 +14,7 @@ import {Task} from "./Task.js";
 
 /**
  * @typedef TaskGenerateServicesConfig
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} outputLocation
  * @property {import("../../../../src/mod.js").UuidString[]} usedAssets A list of
  * asset uuids that are expected to be loaded. The task uses this list to determine
  * which asset loader types should be included. This way, loader types that are

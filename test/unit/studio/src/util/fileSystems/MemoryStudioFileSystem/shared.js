@@ -1,7 +1,7 @@
-import {MemoryEditorFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 
 export async function createBasicFs() {
-	const fs = new MemoryEditorFileSystem();
+	const fs = new MemoryStudioFileSystem();
 	await fs.createDir(["root"]);
 	await fs.writeText(["root", "file1"], "hello");
 	await fs.writeText(["root", "file2"], "hello");

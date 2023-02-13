@@ -1,11 +1,11 @@
 import {assert, assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls} from "std/testing/mock.ts";
-import {FsaEditorFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaEditorFileSystem.js";
-import {MemoryEditorFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {assertPromiseResolved} from "../../../../../../shared/asserts.js";
 import {waitForMicrotasks} from "../../../../../../shared/waitForMicroTasks.js";
 import {registerOnChangeSpy} from "../../shared.js";
-import {IndexedDbEditorFileSystem, testAll} from "../shared.js";
+import {IndexedDbStudioFileSystem, testAll} from "../shared.js";
 
 testAll({
 	name: "writeFile should create the file and fire onChange",
@@ -115,7 +115,7 @@ testAll({
 
 testAll({
 	name: "writeFile should error when the target is a directory",
-	ignore: [IndexedDbEditorFileSystem],
+	ignore: [IndexedDbStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
@@ -149,7 +149,7 @@ testAll({
 
 testAll({
 	name: "writeFile() causes waitForWritesFinish to stay pending until done",
-	ignore: [FsaEditorFileSystem, MemoryEditorFileSystem],
+	ignore: [FsaStudioFileSystem, MemoryStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 

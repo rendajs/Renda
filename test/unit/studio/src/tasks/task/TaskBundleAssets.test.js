@@ -1,6 +1,6 @@
 import {assertEquals, assertExists, assertInstanceOf} from "std/testing/asserts.ts";
 import {TaskBundleAssets} from "../../../../../../studio/src/tasks/task/TaskBundleAssets.js";
-import {MemoryEditorFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {stub} from "std/testing/mock.ts";
 import {BinaryDecomposer} from "../../../../../../src/mod.js";
@@ -19,7 +19,7 @@ async function basicSetup({
 	bundledAssetDataReturn = new Uint8Array([0, 1, 2, 3]).buffer,
 	getAssetTypeUuidReturn = BASIC_ASSET_TYPE_UUID,
 } = {}) {
-	const fileSystem = new MemoryEditorFileSystem();
+	const fileSystem = new MemoryStudioFileSystem();
 
 	const {projectAsset} = createMockProjectAsset();
 
@@ -137,8 +137,8 @@ async function basicBundleChecks(bundleBuffer, {
  * Checks if a generated bundle has the correct data on the provided `fileSystem`.
  * Only the first asset is checked.
  * @param {object} options
- * @param {MemoryEditorFileSystem} options.fileSystem
- * @param {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} [options.outFilePath]
+ * @param {MemoryStudioFileSystem} options.fileSystem
+ * @param {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} [options.outFilePath]
  * @param {BundleChecks} options.bundleChecks
  */
 async function basicFileSystemBundleChecks({

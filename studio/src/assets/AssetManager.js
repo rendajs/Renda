@@ -127,7 +127,7 @@ export class AssetManager {
 	 * @param {import("./BuiltInAssetManager.js").BuiltInAssetManager} builtInAssetManager
 	 * @param {import("./BuiltInDefaultAssetLinksManager.js").BuiltInDefaultAssetLinksManager} builtInDefaultAssetLinksManager
 	 * @param {import("./ProjectAssetTypeManager.js").ProjectAssetTypeManager} projectAssetTypeManager
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
 	 */
 	constructor(projectManager, builtInAssetManager, builtInDefaultAssetLinksManager, projectAssetTypeManager, fileSystem) {
 		this.projectManager = projectManager;
@@ -459,7 +459,7 @@ export class AssetManager {
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent} e
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent} e
 	 */
 	#onFileChange = async e => {
 		if (!e.external) return;

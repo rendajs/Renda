@@ -4,7 +4,7 @@ import {Importer} from "fake-imports";
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/FakeIndexedDbUtil.js");
 
-/** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbEditorFileSystem.js")} */
+/** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js")} */
 const IndexedDbEditorFileSystemMod = await importer.import("../../../../../../../studio/src/util/fileSystems/IndexedDbEditorFileSystem.js");
 const {IndexedDbEditorFileSystem} = IndexedDbEditorFileSystemMod;
 

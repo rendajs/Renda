@@ -1,5 +1,5 @@
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
-import {MemoryEditorFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {Importer} from "fake-imports";
 import {assertSpyCall, spy, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
@@ -95,7 +95,7 @@ Deno.test({
 	async fn() {
 		await basicTest({
 			async fn({manager, studioConnectionsManager}) {
-				const fs = new MemoryEditorFileSystem();
+				const fs = new MemoryStudioFileSystem();
 				let resolveWaitForPermission = () => {};
 				stub(fs, "waitForPermission", () => {
 					return new Promise(resolve => {

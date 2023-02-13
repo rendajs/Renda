@@ -1,7 +1,7 @@
 import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {ServiceWorkerManager} from "../../../../../studio/src/misc/ServiceWorkerManager.js";
-import {MemoryEditorFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 
@@ -22,12 +22,12 @@ async function basicTest(fn, {
 	const previousNavigatorServiceWorker = navigator.serviceWorker;
 	const previousLocation = window.location;
 	try {
-		const mockFileSystem = new MemoryEditorFileSystem();
+		const mockFileSystem = new MemoryStudioFileSystem();
 		await mockFileSystem.writeText(["path", "to", "file"], "hello file");
 
 		const mockEditor = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			projectManager: {
-				currentProjectFileSystem: /** @type {import("../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (mockFileSystem),
+				currentProjectFileSystem: /** @type {import("../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (mockFileSystem),
 			},
 			taskManager: {
 				/**

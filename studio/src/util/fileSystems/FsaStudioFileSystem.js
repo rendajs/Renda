@@ -1,7 +1,7 @@
 import {SingleInstancePromise} from "../../../../src/util/SingleInstancePromise.js";
-import {EditorFileSystem} from "./EditorFileSystem.js";
+import {StudioFileSystem} from "./StudioFileSystem.js";
 
-export class FsaEditorFileSystem extends EditorFileSystem {
+export class FsaStudioFileSystem extends StudioFileSystem {
 	/**
 	 * @typedef {object} WatchTreeNode
 	 * @property {boolean} init If false, the file/directory has not been checked yet and shouldn't fire an external
@@ -51,12 +51,12 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	static async openUserDir() {
 		const directoryHandle = await globalThis.showDirectoryPicker();
-		return new FsaEditorFileSystem(directoryHandle);
+		return new FsaStudioFileSystem(directoryHandle);
 	}
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @param {object} opts
 	 * @param {boolean} [opts.writable] Check for writable permissions if true.
 	 * @param {boolean} [opts.prompt] If set to false, this method will not trigger any ui pop ups asking the user for permissions.
@@ -102,7 +102,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path The path to get permissions for.
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path The path to get permissions for.
 	 */
 	async waitForPermission(path, {
 		writable = true,
@@ -300,13 +300,13 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async readDir(path) {
 		const handle = await this.getDirHandle(path, {
 			errorMessageActionName: "readDir",
 		});
-		/** @type {import("./EditorFileSystem.js").EditorFileSystemReadDirResult} */
+		/** @type {import("./StudioFileSystem.js").StudioFileSystemReadDirResult} */
 		const result = {
 			files: [],
 			directories: [],
@@ -323,7 +323,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async createDir(path) {
 		path = [...path];
@@ -332,8 +332,8 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} fromPath
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} toPath
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} fromPath
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} toPath
 	 */
 	async move(fromPath = [], toPath = []) {
 		if (await this.isDir(fromPath)) {
@@ -361,7 +361,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async delete(path, recursive = false) {
 		path = [...path];
@@ -384,7 +384,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	splitDirFileName(path) {
 		const dirPath = path.slice(0, path.length - 1);
@@ -394,7 +394,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async readFile(path) {
 		const jointPath = path.join("/");
@@ -438,7 +438,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	/**
 	 * @override
 	 * @param {Array<string>} path
-	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
+	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		path = [...path];
@@ -460,7 +460,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async writeFileStream(path, keepExistingData = false) {
 		const {fileStream} = await this.#writeFileStreamInternal(path, keepExistingData, "writeFileStream");
@@ -468,7 +468,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	}
 
 	/**
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @param {boolean} keepExistingData
 	 * @param {string} errorMessageActionName
 	 */
@@ -484,7 +484,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async isFile(path) {
 		try {
@@ -501,7 +501,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async isDir(path) {
 		try {
@@ -524,7 +524,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	}
 
 	async updateWatchTree() {
-		/** @type {import("./EditorFileSystem.js").FileSystemChangeEvent[]} */
+		/** @type {import("./StudioFileSystem.js").FileSystemChangeEvent[]} */
 		const collectedChanges = [];
 
 		await this.traverseWatchTree(this.watchTree, this.handle, collectedChanges);
@@ -540,7 +540,7 @@ export class FsaEditorFileSystem extends EditorFileSystem {
 	 * an external change event.
 	 * @param {WatchTreeNode} watchTree
 	 * @param {FileSystemDirectoryHandle} dirHandle
-	 * @param {import("./EditorFileSystem.js").FileSystemChangeEvent[]} collectedChanges
+	 * @param {import("./StudioFileSystem.js").FileSystemChangeEvent[]} collectedChanges
 	 * @param {string[]} traversedPath
 	 * @returns {Promise<boolean>} True if the file/dir and all of it's children were checked correctly.
 	 */

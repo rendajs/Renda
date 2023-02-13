@@ -1,18 +1,18 @@
-import {EditorFileSystem} from "./EditorFileSystem.js";
+import {StudioFileSystem} from "./StudioFileSystem.js";
 import {MemoryFileSystemWritableFileStream} from "./MemoryFileSystemWritableFileStream.js";
 
-/** @typedef {MemoryEditorFileSystemFilePointer | MemoryEditorFileSystemDirPointer} MemoryEditorFileSystemPointer */
+/** @typedef {MemoryStudioFileSystemFilePointer | MemoryStudioFileSystemDirPointer} MemoryStudioFileSystemPointer */
 /**
- * @typedef MemoryEditorFileSystemFilePointer
+ * @typedef MemoryStudioFileSystemFilePointer
  * @property {true} isFile
  * @property {string} name
  * @property {File} file
  */
 /**
- * @typedef MemoryEditorFileSystemDirPointer
+ * @typedef MemoryStudioFileSystemDirPointer
  * @property {false} isFile
  * @property {string} name
- * @property {MemoryEditorFileSystemPointer[]} children
+ * @property {MemoryStudioFileSystemPointer[]} children
  */
 
 /**
@@ -20,11 +20,11 @@ import {MemoryFileSystemWritableFileStream} from "./MemoryFileSystemWritableFile
  * This is mostly useful for mocking in unit tests, but can also be used as
  * a fallback in case any other file system types are not supported on a platform.
  */
-export class MemoryEditorFileSystem extends EditorFileSystem {
+export class MemoryStudioFileSystem extends StudioFileSystem {
 	constructor() {
 		super();
 
-		/** @type {MemoryEditorFileSystemDirPointer} */
+		/** @type {MemoryStudioFileSystemDirPointer} */
 		this.rootObject = {
 			isFile: false,
 			name: "root",
@@ -38,7 +38,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @private
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @param {object} options
 	 * @param {boolean} [options.create]
 	 * @param {"file" | "dir"} [options.createType]
@@ -49,7 +49,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 		createType = "dir",
 		errorMessageActionName = "get object",
 	} = {}) {
-		/** @type {MemoryEditorFileSystemPointer} */
+		/** @type {MemoryStudioFileSystemPointer} */
 		let currentObject = this.rootObject;
 		let created = false;
 		for (const [i, name] of path.entries()) {
@@ -72,7 +72,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 			if (currentObject.isFile) {
 				throwError("type-mismatch");
 			}
-			/** @type {MemoryEditorFileSystemPointer[]} */
+			/** @type {MemoryStudioFileSystemPointer[]} */
 			const children = currentObject.children;
 			let child = children.find(c => c.name == name);
 			if (!child) {
@@ -111,8 +111,8 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @returns {Promise<import("./EditorFileSystem.js").EditorFileSystemReadDirResult>}
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
+	 * @returns {Promise<import("./StudioFileSystem.js").StudioFileSystemReadDirResult>}
 	 */
 	async readDir(path) {
 		const files = [];
@@ -136,7 +136,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async createDir(path) {
 		path = [...path];
@@ -149,7 +149,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
@@ -164,8 +164,8 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		path = [...path];
@@ -192,7 +192,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @param {boolean} keepExistingData
 	 * @returns {Promise<FileSystemWritableFileStream>}
 	 */
@@ -214,7 +214,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path) {
@@ -228,7 +228,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path) {
@@ -255,7 +255,7 @@ export class MemoryEditorFileSystem extends EditorFileSystem {
 	 * });
 	 * ```
 	 * })
-	 * @param {Object<string, import("./EditorFileSystem.js").AllowedWriteFileTypes>} structure
+	 * @param {Object<string, import("./StudioFileSystem.js").AllowedWriteFileTypes>} structure
 	 */
 	async setFullStructure(structure) {
 		this.rootObject = {

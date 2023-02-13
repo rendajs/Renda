@@ -1,26 +1,26 @@
-import {FsaEditorFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaEditorFileSystem.js";
-import {MemoryEditorFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
-import {FakeHandle} from "../FsaEditorFileSystem/shared.js";
+import {FsaStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
+import {FakeHandle} from "../FsaStudioFileSystem/shared.js";
 import {Importer} from "fake-imports";
 import {generateUuid} from "../../../../../../../src/mod.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/FakeIndexedDbUtil.js");
 
-/** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbEditorFileSystem.js")} */
-const IndexedDbEditorFileSystemMod = await importer.import("../../../../../../../studio/src/util/fileSystems/IndexedDbEditorFileSystem.js");
-const {IndexedDbEditorFileSystem} = IndexedDbEditorFileSystemMod;
-export {IndexedDbEditorFileSystem};
+/** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js")} */
+const IndexedDbStudioFileSystemMod = await importer.import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js");
+const {IndexedDbStudioFileSystem} = IndexedDbStudioFileSystemMod;
+export {IndexedDbStudioFileSystem};
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
 const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
-/** @typedef {typeof FsaEditorFileSystem | typeof IndexedDbEditorFileSystem | typeof MemoryEditorFileSystem} FileSystemTypes */
+/** @typedef {typeof FsaStudioFileSystem | typeof IndexedDbStudioFileSystem | typeof MemoryStudioFileSystem} FileSystemTypes */
 
 /**
  * @typedef FileSystemTestConfig
  * @property {FileSystemTypes} ctor
- * @property {(options?: CreateFsOptions) => import("../../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} create Should
+ * @property {(options?: CreateFsOptions) => import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} create Should
  * create a new instance of the file system.
  * @property {(pending: boolean) => void} forcePendingOperations Should force all read and write promises to stay pending for this
  * file system type.
@@ -29,22 +29,22 @@ const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../sh
 /** @type {FileSystemTestConfig[]} */
 const fileSystems = [
 	{
-		ctor: FsaEditorFileSystem,
+		ctor: FsaStudioFileSystem,
 		create() {
 			const rootHandle = new FakeHandle("directory", "actualRoot");
-			return new FsaEditorFileSystem(/** @type {any} */ (rootHandle));
+			return new FsaStudioFileSystem(/** @type {any} */ (rootHandle));
 		},
 		forcePendingOperations(pending) {
 
 		},
 	},
 	{
-		ctor: IndexedDbEditorFileSystem,
+		ctor: IndexedDbStudioFileSystem,
 		create({
 			disableStructuredClone = false,
 		} = {}) {
 			const uuid = generateUuid();
-			const fs = new IndexedDbEditorFileSystem("fileSystem" + uuid);
+			const fs = new IndexedDbStudioFileSystem("fileSystem" + uuid);
 			if (disableStructuredClone) {
 				const castDb = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
 				castDb?.setUseStructuredClone(false);
@@ -56,9 +56,9 @@ const fileSystems = [
 		},
 	},
 	{
-		ctor: MemoryEditorFileSystem,
+		ctor: MemoryStudioFileSystem,
 		create() {
-			return new MemoryEditorFileSystem();
+			return new MemoryStudioFileSystem();
 		},
 		forcePendingOperations(pending) {
 			throw new Error("Not yet implemented");
@@ -85,9 +85,9 @@ const fileSystems = [
 
 /**
  * @typedef FileSystemTestContext
- * @property {(options?: CreateFsOptions) => Promise<import("../../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem>} createFs Creates a
+ * @property {(options?: CreateFsOptions) => Promise<import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem>} createFs Creates a
  * new instance of a file system for each file system type that is not ignored.
- * @property {(options?: CreateFsOptions) => Promise<import("../../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem>} createBasicFs Same as
+ * @property {(options?: CreateFsOptions) => Promise<import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem>} createBasicFs Same as
  * `createFs` but has `initializeFiles` set to true.
  * @property {(pending: boolean) => void} forcePendingOperations Forces all read and write promises to stay pending for this
  * file system type.

@@ -1,6 +1,6 @@
 import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {TaskGenerateHtml} from "../../../../../../studio/src/tasks/task/TaskGenerateHtml.js";
-import {MemoryEditorFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {getBasicRunTaskReadAssetOptions} from "./shared.js";
 
@@ -9,7 +9,7 @@ const BASIC_ASSET_UUID = "BASIC_ASSET_UUID";
 function basicSetup({
 	assetExists = true,
 } = {}) {
-	const fileSystem = /** @type {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (new MemoryEditorFileSystem());
+	const fileSystem = /** @type {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (new MemoryStudioFileSystem());
 
 	const {projectAsset: mockProjectAsset} = createMockProjectAsset({
 		readAssetDataReturnValue: "abc$VAR1def$VAR1ghi$VAR2jkl",

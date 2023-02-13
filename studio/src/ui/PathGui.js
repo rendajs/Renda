@@ -4,7 +4,7 @@ import {getStudioInstance} from "../studioInstance.js";
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase} PathGuiOptions
  */
 
-/** @typedef {(path: import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath) => void} OnPathGuiChangeCallback */
+/** @typedef {(path: import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath) => void} OnPathGuiChangeCallback */
 
 export class PathGui {
 	/** @type {Set<OnPathGuiChangeCallback>} */
@@ -34,7 +34,7 @@ export class PathGui {
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} value
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} value
 	 */
 	setValue(value) {
 		this.el.textContent = value.join("/");

@@ -1,5 +1,5 @@
 import {AssetManager} from "../../../../../../studio/src/assets/AssetManager.js";
-import {MemoryEditorFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {createMockProjectAssetType} from "../../../shared/createMockProjectAssetType.js";
 import {createMockProjectAssetTypeManager} from "../../../shared/createMockProjectAssetTypeManager.js";
 
@@ -20,7 +20,7 @@ export const BASIC_ASSET_EXTENSION = "BASIC_ASSET_EXTENSION";
  * @typedef StubAssetConfig
  * @property {string} assetType
  * @property {import("../../../../../../src/mod.js").UuidString} uuid
- * @property {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+ * @property {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
  * @property {any} [jsonContent]
  */
 
@@ -65,7 +65,7 @@ export async function basicSetup({
 		ProjectAssetType,
 	});
 
-	const mockFileSystem = new MemoryEditorFileSystem();
+	const mockFileSystem = new MemoryStudioFileSystem();
 
 	let assetSettingsAssets = null;
 	if (assetSettings == null) {

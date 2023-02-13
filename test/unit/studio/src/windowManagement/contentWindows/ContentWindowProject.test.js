@@ -1,7 +1,7 @@
 import "../../../shared/initializeStudio.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {injectMockStudioInstance} from "../../../../../../studio/src/studioInstance.js";
-import {MemoryEditorFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryEditorFileSystem.js";
+import {MemoryStudioFileSystem} from "../../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {ContentWindowProject} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js";
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 import {assertEquals} from "std/testing/asserts.ts";
@@ -11,7 +11,7 @@ const BASIC_WINDOW_UUID = "basic window uuid";
 
 /**
  * @param {object} options
- * @param {Object<string, import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes>} [options.fileSystemStructure]
+ * @param {Object<string, import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").AllowedWriteFileTypes>} [options.fileSystemStructure]
  * @param {boolean} [options.assetSettingsLoaded] Whether the mock asset manager should already have loaded asset settings.
  * @param {"none" | "expand"} [options.treeViewAction] If true, the root tree view will be expanded in order to trigger the asset settings load.
  */
@@ -31,7 +31,7 @@ async function basicSetup({
 		},
 	});
 
-	const mockFileSystem = new MemoryEditorFileSystem();
+	const mockFileSystem = new MemoryStudioFileSystem();
 	mockFileSystem.setFullStructure(fileSystemStructure);
 
 	/** @type {Set<import("../../../../../../studio/src/assets/AssetManager.js").OnPermissionPromptResultCallback>} */
@@ -49,7 +49,7 @@ async function basicSetup({
 	});
 
 	const mockProjectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
-		currentProjectFileSystem: /** @type {import("../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").EditorFileSystem} */ (mockFileSystem),
+		currentProjectFileSystem: /** @type {import("../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").StudioFileSystem} */ (mockFileSystem),
 		onFileChange(cb) {},
 		assertAssetManagerExists() {
 			return mockAssetManager;

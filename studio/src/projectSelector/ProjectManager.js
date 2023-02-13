@@ -1,7 +1,7 @@
 import {getStudioInstance} from "../studioInstance.js";
-import {FsaEditorFileSystem} from "../util/fileSystems/FsaEditorFileSystem.js";
-import {IndexedDbEditorFileSystem} from "../util/fileSystems/IndexedDbEditorFileSystem.js";
-import {RemoteEditorFileSystem} from "../util/fileSystems/RemoteEditorFileSystem.js";
+import {FsaStudioFileSystem} from "../util/fileSystems/FsaStudioFileSystem.js";
+import {IndexedDbStudioFileSystem} from "../util/fileSystems/IndexedDbStudioFileSystem.js";
+import {RemoteStudioFileSystem} from "../util/fileSystems/RemoteEditorFileSystem.js";
 import {AssetManager} from "../assets/AssetManager.js";
 import {StudioConnectionsManager} from "../network/studioConnections/StudioConnectionsManager.js";
 import {generateUuid} from "../../../src/util/util.js";
@@ -54,11 +54,11 @@ export class ProjectManager {
 
 	#boundSaveContentWindowPersistentData;
 
-	/** @type {Set<import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback>} */
+	/** @type {Set<import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeCallback>} */
 	#onFileChangeCbs = new Set();
 
 	constructor() {
-		/** @type {?import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} */
+		/** @type {?import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} */
 		this.currentProjectFileSystem = null;
 		/** @type {StoredProjectEntryAny?} */
 		this.currentProjectOpenEvent = null;
@@ -112,7 +112,7 @@ export class ProjectManager {
 					remoteProjectUuid: metaData.uuid,
 					remoteProjectConnectionType: pickedAvailableConnection.messageHandlerType,
 				};
-				const fileSystem = /** @type {RemoteEditorFileSystem} */ (this.currentProjectFileSystem);
+				const fileSystem = /** @type {RemoteStudioFileSystem} */ (this.currentProjectFileSystem);
 				fileSystem.setConnection(pickedConnection);
 				this.markCurrentProjectAsWorthSaving();
 			}
@@ -162,7 +162,7 @@ export class ProjectManager {
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
 	 * @param {StoredProjectEntryAny} openProjectChangeEvent
 	 * @param {boolean} fromUserGesture
 	 */
@@ -173,7 +173,7 @@ export class ProjectManager {
 			this.currentProjectFileSystem.removeOnRootNameChange(this.#boundOnFileSystemRootNameChange);
 		}
 		this.currentProjectFileSystem = fileSystem;
-		this.currentProjectIsRemote = fileSystem instanceof RemoteEditorFileSystem;
+		this.currentProjectIsRemote = fileSystem instanceof RemoteStudioFileSystem;
 		this.currentProjectOpenEvent = openProjectChangeEvent;
 		this.currentProjectIsMarkedAsWorthSaving = false;
 
@@ -291,7 +291,7 @@ export class ProjectManager {
 		return this.assetManager;
 	}
 
-	/** @type {(e: import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent) => void} */
+	/** @type {(e: import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent) => void} */
 	#onFileSystemChange = e => {
 		for (const cb of this.#onFileChangeCbs) {
 			cb(e);
@@ -333,7 +333,7 @@ export class ProjectManager {
 	 */
 	async openNewDbProject(fromUserGesture) {
 		const uuid = generateUuid();
-		const fileSystem = new IndexedDbEditorFileSystem(uuid);
+		const fileSystem = new IndexedDbStudioFileSystem(uuid);
 		const projectName = "Untitled Project";
 		await fileSystem.setRootName(projectName);
 		await this.openProject(fileSystem, {
@@ -352,14 +352,14 @@ export class ProjectManager {
 			await this.openNewDbProject(true);
 		}
 		const uuid = entry.projectUuid;
-		if (await IndexedDbEditorFileSystem.exists(uuid)) {
-			const fileSystem = new IndexedDbEditorFileSystem(uuid);
+		if (await IndexedDbStudioFileSystem.exists(uuid)) {
+			const fileSystem = new IndexedDbStudioFileSystem(uuid);
 			await fileSystem.deleteDb();
 		}
 	}
 
 	async openProjectFromLocalDirectory() {
-		const fileSystem = await FsaEditorFileSystem.openUserDir();
+		const fileSystem = await FsaStudioFileSystem.openUserDir();
 		const permission = await fileSystem.getPermission([], {prompt: true, writable: false});
 		let name = "Unnamed Filesystem";
 		if (permission) {
@@ -379,7 +379,7 @@ export class ProjectManager {
 	 * @param {boolean} fromUserGesture
 	 */
 	async openNewRemoteProject(fromUserGesture) {
-		const fileSystem = new RemoteEditorFileSystem();
+		const fileSystem = new RemoteStudioFileSystem();
 		const projectUuid = generateUuid();
 		await this.openProject(fileSystem, {
 			fileSystemType: "remote",
@@ -397,11 +397,11 @@ export class ProjectManager {
 	openExistingProject(projectEntry, fromUserGesture) {
 		let fileSystem;
 		if (projectEntry.fileSystemType === "db") {
-			fileSystem = new IndexedDbEditorFileSystem(projectEntry.projectUuid);
+			fileSystem = new IndexedDbStudioFileSystem(projectEntry.projectUuid);
 		} else if (projectEntry.fileSystemType == "fsa") {
-			fileSystem = new FsaEditorFileSystem(projectEntry.fileSystemHandle);
+			fileSystem = new FsaStudioFileSystem(projectEntry.fileSystemHandle);
 		} else if (projectEntry.fileSystemType == "remote") {
-			fileSystem = new RemoteEditorFileSystem();
+			fileSystem = new RemoteStudioFileSystem();
 			if (!projectEntry.remoteProjectUuid || !projectEntry.remoteProjectConnectionType) {
 				throw new Error("Unable to open remote project. Remote project data is corrupt.");
 			}
@@ -419,14 +419,14 @@ export class ProjectManager {
 	 * project is changed. This callback will keep working when switching between projects.
 	 * You can use this instead of `onChange` on the {@linkcode currentProjectFileSystem},
 	 * that way you don't have to keep registering a new callback whenever the current project changes.
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeCallback} cb
 	 */
 	onFileChange(cb) {
 		this.#onFileChangeCbs.add(cb);
 	}
 
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").FileSystemChangeCallback} cb
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeCallback} cb
 	 */
 	removeOnFileChange(cb) {
 		this.#onFileChangeCbs.delete(cb);

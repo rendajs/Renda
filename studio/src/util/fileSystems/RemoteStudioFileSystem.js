@@ -1,6 +1,6 @@
-import {EditorFileSystem} from "./EditorFileSystem.js";
+import {StudioFileSystem} from "./StudioFileSystem.js";
 
-export class RemoteEditorFileSystem extends EditorFileSystem {
+export class RemoteStudioFileSystem extends StudioFileSystem {
 	constructor() {
 		super();
 
@@ -39,7 +39,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	async readDir(path) {
 		const connection = await this.waitForConnection();
@@ -48,7 +48,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<void>}
 	 */
 	async createDir(path) {
@@ -58,7 +58,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<File>}
 	 */
 	async readFile(path) {
@@ -68,7 +68,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async isFile(path) {
@@ -78,7 +78,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async isDir(path) {
@@ -88,7 +88,7 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */
 	async exists(path) {
@@ -98,8 +98,8 @@ export class RemoteEditorFileSystem extends EditorFileSystem {
 
 	/**
 	 * @override
-	 * @param {import("./EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {import("./EditorFileSystem.js").AllowedWriteFileTypes} file
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
+	 * @param {import("./StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async writeFile(path, file) {
 		const connection = await this.waitForConnection();

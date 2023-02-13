@@ -11,7 +11,7 @@ function getCurrentFileSystem() {
 const readDir = createRequestHandler({
 	command: "fileSystem.readDir",
 	/**
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	handleRequest: async path => {
 		return await getCurrentFileSystem().readDir(path);
@@ -21,7 +21,7 @@ const readDir = createRequestHandler({
 const createDir = createRequestHandler({
 	command: "fileSystem.createDir",
 	/**
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	handleRequest: async path => {
 		return await getCurrentFileSystem().createDir(path);
@@ -71,7 +71,7 @@ const readFile = createRequestHandler({
 	needsRequestMetaData: true,
 	/**
 	 * @param {import("../ProtocolManager.js").RequestMetaData} meta
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	handleRequest: async (meta, path) => {
 		const file = await getCurrentFileSystem().readFile(path);
@@ -104,11 +104,11 @@ const writeFile = createRequestHandler({
 	requestSerializeCondition: "never",
 	/**
 	 * @param {import("../ProtocolManager.js").RequestMetaData} meta
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes} file
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").AllowedWriteFileTypes} file
 	 */
 	async prepare(meta, path, file) {
-		/** @type {{path: string[], file: import("../../../util/fileSystems/EditorFileSystem.js").AllowedWriteFileTypes}} */
+		/** @type {{path: string[], file: import("../../../util/fileSystems/StudioFileSystem.js").AllowedWriteFileTypes}} */
 		const sendData = {path, file};
 		if (meta.autoSerializationSupported) {
 			return sendData;
@@ -143,7 +143,7 @@ const writeFile = createRequestHandler({
 const isFile = createRequestHandler({
 	command: "fileSystem.isFile",
 	/**
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	handleRequest: async path => {
 		return await getCurrentFileSystem().isFile(path);
@@ -153,7 +153,7 @@ const isFile = createRequestHandler({
 const isDir = createRequestHandler({
 	command: "fileSystem.isDir",
 	/**
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	handleRequest: async path => {
 		return await getCurrentFileSystem().isDir(path);
@@ -163,7 +163,7 @@ const isDir = createRequestHandler({
 const exists = createRequestHandler({
 	command: "fileSystem.exists",
 	/**
-	 * @param {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+	 * @param {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 	 */
 	handleRequest: async path => {
 		return await getCurrentFileSystem().exists(path);

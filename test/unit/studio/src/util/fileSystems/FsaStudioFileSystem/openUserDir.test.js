@@ -1,5 +1,5 @@
 import {assert} from "std/testing/asserts.ts";
-import {FsaEditorFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaEditorFileSystem.js";
+import {FsaStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
 import {FakeHandle} from "./shared.js";
 
 Deno.test({
@@ -12,7 +12,7 @@ Deno.test({
 		const castGlobalThis = /** @type {any} */ (globalThis);
 		castGlobalThis.showDirectoryPicker = mockShowDirectoryPicker;
 
-		const fs = await FsaEditorFileSystem.openUserDir();
+		const fs = await FsaStudioFileSystem.openUserDir();
 
 		assert(fs.handle === mockHandle);
 	},

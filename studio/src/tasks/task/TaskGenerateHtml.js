@@ -11,7 +11,7 @@ import {Task} from "./Task.js";
  * @typedef TaskGenerateHtmlConfig
  * @property {import("../../../../src/mod.js").UuidString?} template The uuid of a html asset to use as a template.
  * @property {TaskGenerateHtmlReplacement[]} replacements A list of strings to replace in the template.
- * @property {import("../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputLocation The location
+ * @property {import("../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} outputLocation The location
  * to write the modified html.
  */
 

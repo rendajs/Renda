@@ -1,5 +1,5 @@
 import {assert, assertEquals, assertIsError, assertNotEquals, assertRejects} from "std/testing/asserts.ts";
-import {FsaEditorFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaEditorFileSystem.js";
+import {FsaStudioFileSystem} from "../../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
 import {testAll} from "../shared.js";
 
 testAll({
@@ -107,7 +107,7 @@ testAll({
 
 testAll({
 	name: "readFile while it is being written",
-	ignore: [FsaEditorFileSystem],
+	ignore: [FsaStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs({disableStructuredClone: true});
 

@@ -1,4 +1,4 @@
-import {FsaEditorFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaEditorFileSystem.js";
+import {FsaStudioFileSystem} from "../../../../../../../studio/src/util/fileSystems/FsaStudioFileSystem.js";
 
 export class FakeHandle {
 	/** @type {FakeHandle[]} */
@@ -230,7 +230,7 @@ export function createBasicFs(beforeCreateHook = null) {
 
 	if (beforeCreateHook) beforeCreateHook(basicFs);
 
-	const fs = new FsaEditorFileSystem(/** @type {any} */ (rootHandle));
+	const fs = new FsaStudioFileSystem(/** @type {any} */ (rootHandle));
 
 	return {
 		fs,

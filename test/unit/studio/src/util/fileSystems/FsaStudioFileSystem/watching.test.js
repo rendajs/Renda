@@ -20,7 +20,7 @@ Deno.test({
 	fn: async () => {
 		const {fs} = createBasicFs();
 
-		/** @type {import("../../../../../../../studio/src/util/fileSystems/EditorFileSystem.js").FileSystemChangeEvent[]} */
+		/** @type {import("../../../../../../../studio/src/util/fileSystems/StudioFileSystem.js").FileSystemChangeEvent[]} */
 		const changeEvents = [];
 		fs.onChange(e => changeEvents.push(e));
 		fs.suggestCheckExternalChanges();

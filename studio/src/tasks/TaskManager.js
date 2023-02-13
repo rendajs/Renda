@@ -5,7 +5,7 @@ import {fillEnvironmentVariables} from "./environmentVariables.js";
 import {Task} from "./task/Task.js";
 
 /**
- * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(path: import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>>} ReadAssetFromPathSignature
+ * @typedef {<T extends import("../assets/AssetManager.js").AssetAssertionOptions>(path: import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath, assertionOptions: T) => Promise<import("../assets/AssetManager.js").AssetAssertionOptionsToReadAssetDataReturn<T>>} ReadAssetFromPathSignature
  */
 
 /**
@@ -218,7 +218,7 @@ export class TaskManager {
 			allowDiskWrites,
 			/**
 			 * @template {import("../assets/AssetManager.js").AssetAssertionOptions} T
-			 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} path
+			 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} path
 			 * @param {T} [assertionOptions]
 			 */
 			async readAssetFromPath(path, assertionOptions) {

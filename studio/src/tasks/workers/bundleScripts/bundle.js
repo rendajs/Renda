@@ -7,7 +7,7 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
 /**
  * @typedef BundleOptions
  * @property {string[]} inputPaths
- * @property {import("../../../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} outputPath
+ * @property {import("../../../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} outputPath
  * @property {number} readScriptCallbackId
  * @property {string} servicesSource The code that the import specifier 'renda:services' will resolve with.
  */

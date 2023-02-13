@@ -1,7 +1,7 @@
 /**
  * This is a basic class used for letting filesystems know if there
  * are any pending write operations. Request an object using
- * `EditorFileSystem.requestWriteOperation()` at the start of functions such as
+ * `StudioFileSystem.requestWriteOperation()` at the start of functions such as
  * `writeFile()` and `delete()` and call {@linkcode done} when the data is known
  * to be written.
  */

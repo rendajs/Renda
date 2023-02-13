@@ -2,8 +2,8 @@ import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js"
 
 export class ProjectSettingsManager {
 	/**
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystem} fileSystem
-	 * @param {import("../util/fileSystems/EditorFileSystem.js").EditorFileSystemPath} filePath
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystem} fileSystem
+	 * @param {import("../util/fileSystems/StudioFileSystem.js").StudioFileSystemPath} filePath
 	 * @param {boolean} fromUserGesture
 	 */
 	constructor(fileSystem, filePath, fromUserGesture = false) {
