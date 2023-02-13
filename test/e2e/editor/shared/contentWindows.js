@@ -15,8 +15,8 @@
  */
 export async function getContentWindowElement(page, contentWindowType) {
 	const el = await page.evaluateHandle(async contentWindowType => {
-		if (!globalThis.editor) throw new Error("Editor instance does not exist");
-		const array = Array.from(globalThis.editor.windowManager.getContentWindowsByType(contentWindowType));
+		if (!globalThis.studio) throw new Error("Editor instance does not exist");
+		const array = Array.from(globalThis.studio.windowManager.getContentWindowsByType(contentWindowType));
 		if (array.length <= 0) return null;
 		const el = array[0].el;
 		return el;
@@ -32,9 +32,9 @@ export async function getContentWindowElement(page, contentWindowType) {
 export async function getContentWindowReference(page, contentWindowType) {
 	const el = await getContentWindowElement(page, contentWindowType);
 	const reference = await page.evaluateHandle(el => {
-		if (!globalThis.editor) throw new Error("Editor instance does not exist");
+		if (!globalThis.studio) throw new Error("Editor instance does not exist");
 		if (!(el instanceof HTMLElement)) throw new Error("Assertion failed, el is not a HTMLElement.");
-		const contentWindowReference = globalThis.editor.windowManager.getWindowByElement(el);
+		const contentWindowReference = globalThis.studio.windowManager.getWindowByElement(el);
 		if (!contentWindowReference) throw new Error(`Failed to get content window reference for "${contentWindowType}".`);
 		return contentWindowReference;
 	}, el);

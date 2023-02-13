@@ -44,11 +44,11 @@ Deno.test({
 			assertExists(contentWindowProjectEl);
 
 			await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
-				if (!globalThis.editor) throw new Error("Editor instance does not exist");
+				if (!globalThis.studio) throw new Error("Editor instance does not exist");
 				if (!(contentWindowProjectEl instanceof HTMLElement)) throw new Error("Assertion failed, contentWindowProjectEl is not a HTMLElement");
-				const contentWindowProject = globalThis.editor.windowManager.getWindowByElement(contentWindowProjectEl);
+				const contentWindowProject = globalThis.studio.windowManager.getWindowByElement(contentWindowProjectEl);
 				if (!contentWindowProject) throw new Error("No project window found");
-				const ContentWindowProjectConstructor = globalThis.editor.windowManager.registeredContentWindows.get("project");
+				const ContentWindowProjectConstructor = globalThis.studio.windowManager.registeredContentWindows.get("project");
 				const ContentWindowProject = /** @type {typeof import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (ContentWindowProjectConstructor);
 				if (!(contentWindowProject instanceof ContentWindowProject)) {
 					throw new Error("content window is not of type project");
@@ -89,8 +89,8 @@ Deno.test({
 		await waitForProjectOpen(page, testContext);
 
 		const exists = await page.evaluate(async () => {
-			if (!globalThis.editor) throw new Error("Editor instance does not exist");
-			return await globalThis.editor.projectManager.currentProjectFileSystem?.isFile(["ProjectSettings", "localProjectSettings.json"]);
+			if (!globalThis.studio) throw new Error("Editor instance does not exist");
+			return await globalThis.studio.projectManager.currentProjectFileSystem?.isFile(["ProjectSettings", "localProjectSettings.json"]);
 		});
 
 		assert(!exists, "Expected localProjectSettings.json to not exist");

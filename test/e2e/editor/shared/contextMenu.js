@@ -13,21 +13,21 @@ export async function clickContextMenuItem(page, testContext, menuPath) {
 		name: `Click context menu "${menuPath.join(" > ")}"`,
 		fn: async () => {
 			await page.waitForFunction(() => {
-				if (!globalThis.editor) throw new Error("Editor instance does not exist");
-				return globalThis.editor.popoverManager.currentContextMenu;
+				if (!globalThis.studio) throw new Error("Editor instance does not exist");
+				return globalThis.studio.popoverManager.currentContextMenu;
 			});
 			for (let i = 0; i < menuPath.length; i++) {
 				const itemName = menuPath[i];
 				const expectedSubmenuCount = i;
 				const jsHandle = await page.evaluateHandle(async (itemName, expectedSubmenuCount, menuPath) => {
-					if (!globalThis.editor) throw new Error("Editor instance does not exist");
-					if (!globalThis.editor.popoverManager.currentContextMenu) throw new Error("Context menu no longer exists");
+					if (!globalThis.studio) throw new Error("Editor instance does not exist");
+					if (!globalThis.studio.popoverManager.currentContextMenu) throw new Error("Context menu no longer exists");
 					// Submenus only get created when hovering over them. Hovering over another item closes the existing
 					// submenu and creates a new one. So there's always only one submenu open for each context menu.
 					// This means we can just recurse down all the existing menus and then return the element from the
 					// last submenu.
 					let submenuCount = 0;
-					let currentMenu = globalThis.editor.popoverManager.currentContextMenu;
+					let currentMenu = globalThis.studio.popoverManager.currentContextMenu;
 					while (true) {
 						const submenu = currentMenu.currentSubmenu;
 						if (!submenu) break;

@@ -11,8 +11,8 @@ export async function waitForProjectOpen(page, testContext, allowExisting = true
 	await waitForStudioLoad(page, testContext);
 	await testContext.step("Wait for project to open", async () => {
 		await page.evaluate(async allowExisting => {
-			if (!globalThis.editor) throw new Error("Editor instance does not exist");
-			await globalThis.editor.projectManager.waitForProjectOpen(allowExisting);
+			if (!globalThis.studio) throw new Error("Editor instance does not exist");
+			await globalThis.studio.projectManager.waitForProjectOpen(allowExisting);
 		}, allowExisting);
 	});
 }

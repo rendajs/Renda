@@ -8,7 +8,7 @@ globalThis["projectSelector"] = projectSelector;
 /** @type {typeof import("../../src/util/mod.js")?} */
 globalThis["Util"] = null;
 /** @type {import("./Studio.js").Studio?} */
-globalThis["editor"] = null;
+globalThis["studio"] = null;
 /** @type {import("./util/e2e/mod.js")?} */
 globalThis["e2e"] = null;
 
@@ -24,7 +24,7 @@ globalThis["e2e"] = null;
 	const module = await import("./studioInstance.js");
 	module.initStudio();
 	const editor = module.getStudioInstance();
-	globalThis["editor"] = editor;
+	globalThis["studio"] = editor;
 	if (editor) {
 		projectSelector.setStudioLoaded(editor);
 	}
