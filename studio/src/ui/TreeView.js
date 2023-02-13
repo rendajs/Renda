@@ -1,4 +1,4 @@
-import {getStudioInstance, getMaybeStudioInstance} from "../studioInstance.js";
+import {getMaybeStudioInstance, getStudioInstance} from "../studioInstance.js";
 import {parseMimeType} from "../util/util.js";
 import {clamp, generateUuid, iLerp} from "../../../src/util/mod.js";
 
