@@ -4,8 +4,6 @@ import {join} from "std/path/mod.ts";
 import {setCwd} from "chdir-anywhere";
 import {dev} from "./dev.js";
 
-await dev();
-
 setCwd();
 Deno.chdir("..");
 
@@ -57,6 +55,10 @@ if (userProvidedArgs.length > 0 && !userProvidedArgs[0].startsWith("--")) {
 
 const needsUnitTests = !filteredTests || filteredTests.startsWith("test/unit");
 const needsE2eTests = !filteredTests || filteredTests.startsWith("test/e2e");
+
+await dev({
+	needsDependencies: needsE2eTests,
+});
 
 let browserMod;
 /** Whether to start a new browser process for every e2e test */
