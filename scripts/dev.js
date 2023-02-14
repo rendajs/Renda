@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-env --allow-run --allow-read --allow-write --allow-net --no-check
+#!/usr/bin/env -S deno run --unstable --allow-env --allow-run --allow-read --allow-write --allow-net
 
 /**
  * @fileoverview
