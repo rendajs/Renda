@@ -20,7 +20,7 @@ export async function getOutlinerRootEntityTreeView(page) {
 	await page.evaluate(outlinerElement => {
 		console.log(outlinerElement);
 	}, outlinerElement);
-	const treeViewEl = await waitFor(outlinerElement, ":scope > .editorContentWindowContent > .treeViewItem");
+	const treeViewEl = await waitFor(outlinerElement, ":scope > .studio-content-window-content > .treeViewItem");
 	assertExists(treeViewEl);
 	return treeViewEl;
 }
@@ -31,7 +31,7 @@ export async function getOutlinerRootEntityTreeView(page) {
  */
 export async function getOutlinerCreateEmptyButton(page) {
 	const outlinerElement = await getContentWindowElement(page, "outliner");
-	const buttonEl = await waitFor(outlinerElement, ":scope > .editorContentWindowTopButtonBar > .button");
+	const buttonEl = await waitFor(outlinerElement, ":scope > .studio-content-window-top-button-bar > .button");
 	assertExists(buttonEl);
 	return buttonEl;
 }

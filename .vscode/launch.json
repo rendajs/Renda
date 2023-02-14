@@ -11,7 +11,7 @@
 			"name": "Launch Chrome",
 			"request": "launch",
 			"type": "pwa-chrome",
-			"url": "http://localhost:8080/editor/dist/",
+			"url": "http://localhost:8080/studio/dist/",
 			"webRoot": "${workspaceFolder}"
 		},
 		{
@@ -19,7 +19,7 @@
 			"request": "launch",
 			"type": "pwa-chrome",
 			"runtimeExecutable": "canary",
-			"url": "http://localhost:8080/editor/dist/",
+			"url": "http://localhost:8080/studio/dist/",
 			"webRoot": "${workspaceFolder}"
 		},
 	]

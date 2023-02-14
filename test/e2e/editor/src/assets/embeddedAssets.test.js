@@ -35,7 +35,7 @@ Deno.test({
 
 				const assetContentReference = await getPropertiesAssetContentReference(page);
 				await page.evaluateHandle(async assetContent => {
-					const {PropertiesAssetContentMaterial} = await import("../../../../../editor/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+					const {PropertiesAssetContentMaterial} = await import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
 					if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
 					await assetContent.waitForAssetLoad();
 				}, assetContentReference);
@@ -78,9 +78,9 @@ Deno.test({
 						await click(page, checkbox);
 
 						await page.evaluate(async () => {
-							const e = editor;
-							if (!e) return;
-							const fs = e.projectManager.currentProjectFileSystem;
+							const studio = globalThis.studio;
+							if (!studio) return;
+							const fs = studio.projectManager.currentProjectFileSystem;
 							if (!fs) return;
 							await fs.waitForWritesFinish();
 						});

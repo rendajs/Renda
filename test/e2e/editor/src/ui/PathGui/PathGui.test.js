@@ -10,7 +10,7 @@ Deno.test({
 		const el = await waitFor(page, "div[role='textbox']");
 		const gui = await page.evaluateHandle(() => {
 			const g1 = /** @type {unknown} */ (globalThis);
-			const g2 = /** @type {{gui: import("../../../../../../editor/src/ui/PathGui.js").PathGui}} */ (g1);
+			const g2 = /** @type {{gui: import("../../../../../../studio/src/ui/PathGui.js").PathGui}} */ (g1);
 			return g2.gui;
 		});
 		const childCount1 = await page.evaluate(el => el.childNodes.length, el);

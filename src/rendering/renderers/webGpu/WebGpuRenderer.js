@@ -1,4 +1,4 @@
-import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../engineDefines.js";
+import {ENABLE_WEBGPU_CLUSTERED_LIGHTS} from "../../../studioDefines.js";
 import {Renderer} from "../Renderer.js";
 import {WebGpuRendererDomTarget} from "./WebGpuRendererDomTarget.js";
 import {WebGpuChunkedBuffer} from "./bufferHelper/WebGpuChunkedBuffer.js";

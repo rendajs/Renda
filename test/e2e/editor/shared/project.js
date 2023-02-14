@@ -1,6 +1,6 @@
 import {click, waitFor} from "../../shared/util.js";
 import {getContentWindowElement} from "./contentWindows.js";
-import {waitForEditorLoad} from "./editor.js";
+import {waitForStudioLoad} from "./studio.js";
 
 /**
  * @param {import("puppeteer").Page} page
@@ -8,11 +8,11 @@ import {waitForEditorLoad} from "./editor.js";
  * @param {boolean} allowExisting Whether it should resolve immediately if a project is already open.
  */
 export async function waitForProjectOpen(page, testContext, allowExisting = true) {
-	await waitForEditorLoad(page, testContext);
+	await waitForStudioLoad(page, testContext);
 	await testContext.step("Wait for project to open", async () => {
 		await page.evaluate(async allowExisting => {
-			if (!globalThis.editor) throw new Error("Editor instance does not exist");
-			await globalThis.editor.projectManager.waitForProjectOpen(allowExisting);
+			if (!globalThis.studio) throw new Error("Studio instance does not exist");
+			await globalThis.studio.projectManager.waitForProjectOpen(allowExisting);
 		}, allowExisting);
 	});
 }
@@ -29,7 +29,7 @@ export async function openProjectSelector(page, testContext) {
 		name: "Open project selector",
 		async fn() {
 			const projectEl = await getContentWindowElement(page, "project");
-			await click(projectEl, "div.editorContentWindowTopButtonBar > div:nth-child(3)");
+			await click(projectEl, "div.studio-content-window-top-button-bar > div:nth-child(3)");
 			projectSelectorEl = await waitFor(page, ".project-selector-window");
 		},
 	});
@@ -45,7 +45,7 @@ export async function openProjectSelector(page, testContext) {
  * of your test you should call {@linkcode openProjectSelector} first.
  * @param {import("puppeteer").Page} page
  * @param {Deno.TestContext} testContext
- * @returns {Promise<void>} A promise that resolves when the editor is loaded and project fully opened.
+ * @returns {Promise<void>} A promise that resolves when studio has loaded and the project fully opened.
  */
 export async function setupNewProject(page, testContext) {
 	await testContext.step({

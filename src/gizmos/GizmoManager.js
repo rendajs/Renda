@@ -1,5 +1,5 @@
 import {Entity} from "../core/Entity.js";
-import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
+import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
 import {RotateAxisGizmoDraggable} from "./draggables/RotateAxisGizmoDraggable.js";
 import {TranslateAxisGizmoDraggable} from "./draggables/TranslateAxisGizmoDraggable.js";
 import {TranslateGizmoDraggable} from "./draggables/TranslateGizmoDraggable.js";

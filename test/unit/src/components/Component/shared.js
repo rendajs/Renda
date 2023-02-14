@@ -1,4 +1,4 @@
-import {createTreeViewStructure} from "../../../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
+import {createTreeViewStructure} from "../../../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
 import {Component, Mesh} from "../../../../../src/mod.js";
 
 export function getBasicExtendedComponent() {

@@ -11,7 +11,7 @@ import {clamp, isUuid} from "./util.js";
  * @property {boolean} [useHeaderByte = true]
  * @property {BinarySerializationVariableLengthStorageTypes?} [variableLengthStorageTypes = true]
  * @property {ObjectToBinaryTransformValueHook?} [transformValueHook = null]
- * @property {import("../../editor/src/assets/AssetManager.js").AssetManager?} [editorAssetManager = null]
+ * @property {import("../../studio/src/assets/AssetManager.js").AssetManager?} [studioAssetManager = null]
  */
 
 /**
@@ -215,7 +215,7 @@ export function objectToBinary(data, {
 	useHeaderByte = true,
 	variableLengthStorageTypes = null,
 	transformValueHook = null,
-	editorAssetManager = null,
+	studioAssetManager = null,
 }) {
 	assertNonDuplicateNameIds(nameIds);
 	const nameIdsMap = new Map(Object.entries(nameIds));
@@ -355,7 +355,7 @@ export function objectToBinary(data, {
 	}
 
 	for (const item of flattened) {
-		const bytesMoved = setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, editorAssetManager});
+		const bytesMoved = setDataViewValue(dataView, item.value, item.type, byteOffset, {littleEndian, stringLengthStorageType, arrayBufferLengthStorageType, studioAssetManager});
 		byteOffset += bytesMoved;
 	}
 
@@ -1066,13 +1066,13 @@ function getStructureTypeLength(type, {
  * @param {boolean} [options.littleEndian]
  * @param {StorageType} [options.stringLengthStorageType]
  * @param {StorageType} [options.arrayBufferLengthStorageType]
- * @param {import("../../editor/src/assets/AssetManager.js").AssetManager?} [options.editorAssetManager]
+ * @param {import("../../studio/src/assets/AssetManager.js").AssetManager?} [options.studioAssetManager]
  */
 function setDataViewValue(dataView, value, type, byteOffset = 0, {
 	littleEndian = true,
 	stringLengthStorageType = StorageType.UINT8,
 	arrayBufferLengthStorageType = StorageType.UINT8,
-	editorAssetManager = null,
+	studioAssetManager = null,
 } = {}) {
 	let bytesMoved = 0;
 	if (type == StorageType.INT8) {
@@ -1117,8 +1117,8 @@ function setDataViewValue(dataView, value, type, byteOffset = 0, {
 		bytesMoved = 1;
 	} else if (type == StorageType.UUID || type == StorageType.ASSET_UUID) {
 		const castValue = /** @type {import("./binarySerializationTypes.js").StructureItemToObject<typeof type>} */ (value);
-		if (type == StorageType.ASSET_UUID && editorAssetManager) {
-			value = editorAssetManager.resolveDefaultAssetLinkUuid(castValue);
+		if (type == StorageType.ASSET_UUID && studioAssetManager) {
+			value = studioAssetManager.resolveDefaultAssetLinkUuid(castValue);
 		}
 		const binaryUuid = uuidToBinary(castValue);
 		const view = new Uint8Array(dataView.buffer);

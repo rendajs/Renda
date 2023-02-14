@@ -12,7 +12,7 @@ import {setCwd} from "chdir-anywhere";
 
 /**
  * @param {object} opts
- * @param {boolean} [opts.needsDependencies] Download dependencies required for running the editor locally.
+ * @param {boolean} [opts.needsDependencies] Download dependencies required for running studio locally.
  * @param {boolean} [opts.needsDevDependencies] Download dependencies for working on the project,
  * for now this is only TypeScript. This allows vscode the specific TypeScript version included in the project.
  * @param {boolean} [opts.needsTypes] Downloads types required for type checking the project.
@@ -43,7 +43,7 @@ export async function dev({
 			include: [
 				"scripts",
 				"test",
-				"editor/devSocket",
+				"studio/devSocket",
 			],
 			excludeUrls: [
 				"rollup-plugin-cleanup",
@@ -83,7 +83,7 @@ export async function dev({
 					ignore: !needsDevDependencies,
 				},
 
-				// editor dependencies
+				// studio dependencies
 				{
 					type: "downloadNpmPackage",
 					package: "rollup@2.60.0",
@@ -96,12 +96,12 @@ export async function dev({
 				{
 					type: "esmify",
 					entryPointPath: "npm_packages/rollup/2.60.0/dist/rollup.browser.js",
-					outputPath: "editor/deps/rollup.browser.js",
+					outputPath: "studio/deps/rollup.browser.js",
 				},
 				{
 					type: "esmify",
 					entryPointPath: "npm_packages/rollup-plugin-resolve-url-objects/0.0.4/main.js",
-					outputPath: "editor/deps/rollup-plugin-resolve-url-objects.js",
+					outputPath: "studio/deps/rollup-plugin-resolve-url-objects.js",
 				},
 			],
 		});

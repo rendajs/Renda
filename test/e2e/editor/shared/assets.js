@@ -20,7 +20,7 @@ export async function createAsset(page, testContext, createMenuPath) {
 	await testContext.step({
 		name: "Click create asset button",
 		async fn() {
-			const createAssetButtonEl = await projectEl.$(".editorContentWindowTopButtonBar > .button:nth-child(2)");
+			const createAssetButtonEl = await projectEl.$(".studio-content-window-top-button-bar > .button:nth-child(2)");
 			if (!createAssetButtonEl) {
 				throw new Error("Could not find create asset button");
 			}
@@ -37,7 +37,7 @@ export async function createAsset(page, testContext, createMenuPath) {
  */
 async function getProjectRootTreeViewEl(page) {
 	const projectEl = await getContentWindowElement(page, "project");
-	const projectRootTreeViewEl = await projectEl.$(":scope > .editorContentWindowContent > .treeViewItem");
+	const projectRootTreeViewEl = await projectEl.$(":scope > .studio-content-window-content > .treeViewItem");
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
 	}

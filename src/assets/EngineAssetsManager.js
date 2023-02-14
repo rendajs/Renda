@@ -1,4 +1,4 @@
-import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
+import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../studioDefines.js";
 
 /** @typedef {Parameters<import("./AssetLoader.js").AssetLoader["getAsset"]>} GetAssetArgs */
 /** @typedef {(...args: GetAssetArgs) => any} GetEngineAssetHandler */
@@ -7,7 +7,7 @@ import {ENGINE_ASSETS_LIVE_UPDATES_SUPPORT} from "../engineDefines.js";
 /**
  * This class is responsible for loading assets that are being used by the
  * engine itself. This class mostly exists so that we can reload assets when
- * they change during development of the editor.
+ * they change during development of studio.
  * When this code runs in release builds, `ENGINE_ASSETS_LIVE_UPDATES_SUPPORT`
  * is expected to be false. When that is the case this class functions as little
  * more than a wrapper around the `AssetLoader.getAsset()` method.

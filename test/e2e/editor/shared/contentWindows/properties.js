@@ -9,7 +9,7 @@ import {getTreeViewItemElement} from "../treeView.js";
  */
 export async function getPropertiesWindowRootTreeView(page) {
 	const propertiesWindow = await getContentWindowElement(page, "properties");
-	const treeView = await waitFor(propertiesWindow, ":scope > .editorContentWindowContent > div > .treeViewItem");
+	const treeView = await waitFor(propertiesWindow, ":scope > .studio-content-window-content > div > .treeViewItem");
 	assertExists(treeView);
 	return treeView;
 }
@@ -34,7 +34,7 @@ export async function getPropertiesWindowContentAsset(page) {
 export async function getPropertiesWindowContentReference(page) {
 	const contentWindowReference = await getContentWindowReference(page, "properties");
 	const propertiesWindowContentReference = await page.evaluateHandle(async contentWindow => {
-		const {ContentWindowProperties} = await import("../../../../../editor/src/windowManagement/contentWindows/ContentWindowProperties.js");
+		const {ContentWindowProperties} = await import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowProperties.js");
 		if (!(contentWindow instanceof ContentWindowProperties)) {
 			throw new Error("Assertion failed, content is not an instance of ContentWindowProperties");
 		}
@@ -55,7 +55,7 @@ export async function getPropertiesWindowContentReference(page) {
 export async function getPropertiesAssetContentReference(page) {
 	const propertiesWindowContentReference = await getPropertiesWindowContentReference(page);
 	const propertiesAssetContentReference = await page.evaluateHandle(async propertiesWindowContent => {
-		const {PropertiesWindowContentAsset} = await import("../../../../../editor/src/propertiesWindowContent/PropertiesWindowContentAsset.js");
+		const {PropertiesWindowContentAsset} = await import("../../../../../studio/src/propertiesWindowContent/PropertiesWindowContentAsset.js");
 		if (!(propertiesWindowContent instanceof PropertiesWindowContentAsset)) {
 			throw new Error("Assertion failed, propertiesWindowContent is not an instance of PropertiesWindowContentAsset.");
 		}

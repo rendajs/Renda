@@ -1,7 +1,7 @@
 import {InternalDiscoveryManager} from "../../../../src/mod.js";
 import {assertSpyCall, assertSpyCalls, mockSessionAsync, spy, stub} from "std/testing/mock.ts";
-import {initializeIframe} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryIframeMain.js";
-import {initializeWorker} from "../../../../editor/src/network/editorConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
+import {initializeIframe} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryIframeMain.js";
+import {initializeWorker} from "../../../../studio/src/network/studioConnections/internalDiscovery/internalDiscoveryWorkerMain.js";
 import {AssertionError, assertEquals, assertInstanceOf, assertRejects} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
 import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
@@ -12,13 +12,13 @@ import {TypedMessenger} from "../../../../src/util/TypedMessenger.js";
  * @param {() => Promise<void>} options.fn The test function to run
  * @param {string?} [options.assertIframeSrc] If set, makes an assertion that the iframe
  * src gets set to this value.
- * @param {boolean} [options.emulateEditorParent] Emulates a parent window with an editor that
+ * @param {boolean} [options.emulateStudioParent] Emulates a parent window with a studio instance that
  * responds to "requestInternalDiscoveryUrl" messages.
  */
 async function basicSetup({
 	fn,
 	assertIframeSrc = null,
-	emulateEditorParent = true,
+	emulateStudioParent = true,
 }) {
 	const previousDocument = globalThis.document;
 	const previousParent = window.parent;
@@ -128,8 +128,8 @@ async function basicSetup({
 			},
 		});
 
-		if (emulateEditorParent) {
-			/** @type {TypedMessenger<{}, import("../../../../editor/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>} */
+		if (emulateStudioParent) {
+			/** @type {TypedMessenger<{}, import("../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js").BuildViewIframeResponseHandlers>} */
 			const parentTypedMessenger = new TypedMessenger();
 			parentTypedMessenger.setResponseHandlers({
 				requestInternalDiscoveryUrl() {
@@ -234,14 +234,14 @@ Deno.test({
 				await manager1.registerClient("inspector");
 
 				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
-				await manager2.registerClient("editor");
+				await manager2.registerClient("studio");
 
 				assertSpyCalls(availableChangedSpy1, ++spyCall);
 				const event1 = availableChangedSpy1.calls[spyCall - 1].args[0];
 				const manager2ClientId = event1.clientId;
 				assertEquals(event1, {
 					clientId: manager2ClientId,
-					clientType: "editor",
+					clientType: "studio",
 					projectMetaData: null,
 				});
 
@@ -314,7 +314,7 @@ Deno.test({
 					args: [
 						{
 							clientId: manager2ClientId,
-							clientType: "editor",
+							clientType: "studio",
 							projectMetaData: null,
 						},
 					],
@@ -383,7 +383,7 @@ Deno.test({
 				manager1.onConnectionCreated(manager1ConnectionSpy);
 				const manager1AvailableSpy = spy(onAvailableSpyFn);
 				manager1.onAvailableClientUpdated(manager1AvailableSpy);
-				await manager1.registerClient("editor");
+				await manager1.registerClient("studio");
 
 				const manager2 = new InternalDiscoveryManager({forceDiscoveryUrl: "url"});
 				const manager2ConnectionSpy = spy(onCreatedSpyFn);
@@ -441,7 +441,7 @@ Deno.test({
 			assertIframeSrc: "discovery_url",
 			async fn() {
 				const manager = new InternalDiscoveryManager();
-				await manager.registerClient("editor");
+				await manager.registerClient("studio");
 			},
 		});
 	},
@@ -451,13 +451,13 @@ Deno.test({
 	name: "Fallbacck discovery url",
 	async fn() {
 		await basicSetup({
-			emulateEditorParent: false,
+			emulateStudioParent: false,
 			assertIframeSrc: "fallback_url",
 			async fn() {
 				const manager = new InternalDiscoveryManager({
 					fallbackDiscoveryUrl: "fallback_url",
 				});
-				await manager.registerClient("editor");
+				await manager.registerClient("studio");
 			},
 		});
 	},
@@ -467,12 +467,12 @@ Deno.test({
 	name: "No fallback url and not inside an iframe",
 	async fn() {
 		await basicSetup({
-			emulateEditorParent: false,
+			emulateStudioParent: false,
 			async fn() {
 				const manager = new InternalDiscoveryManager();
 				await assertRejects(async () => {
-					await manager.registerClient("editor");
-				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by the editor.");
+					await manager.registerClient("studio");
+				}, Error, "Failed to initialize InternalDiscoveryManager. Either the current page is not in an iframe, or the parent didn't respond with a discovery url in a timely manner. Make sure to set a fallback discovery url if you wish to use an inspector on pages not hosted by studio.");
 			},
 		});
 	},

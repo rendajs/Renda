@@ -1,7 +1,7 @@
 import {StorageType} from "../../util/binarySerialization.js";
 import {Vec3} from "../../math/Vec3.js";
 import {Component} from "../Component.js";
-import {createTreeViewStructure} from "../../../editor/src/ui/propertiesTreeView/createStructureHelpers.js";
+import {createTreeViewStructure} from "../../../studio/src/ui/propertiesTreeView/createStructureHelpers.js";
 
 const lightTypes = ["point", "directional", "spot"];
 

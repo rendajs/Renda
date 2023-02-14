@@ -26,7 +26,7 @@ jobs:
             deno_dir
             .denoTypes
             npm_packages
-            editor/deps
+            studio/deps
           key: ci-${{ github.run_id }}_${{ github.run_attempt }}
           restore-keys: ci-
 
@@ -51,7 +51,7 @@ jobs:
             deno_dir
             .denoTypes
             npm_packages
-            editor/deps
+            studio/deps
           key: ci-${{ github.run_id }}_${{ github.run_attempt }}
           restore-keys: ci-
 
@@ -76,7 +76,7 @@ jobs:
             deno_dir
             .denoTypes
             npm_packages
-            editor/deps
+            studio/deps
           key: ci-${{ github.run_id }}_${{ github.run_attempt }}
           restore-keys: ci-
 
@@ -107,7 +107,7 @@ jobs:
             deno_dir
             .denoTypes
             npm_packages
-            editor/deps
+            studio/deps
           key: ci-${{ github.run_id }}_${{ github.run_attempt }}
           restore-keys: ci-
 

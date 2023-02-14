@@ -25,7 +25,7 @@ jobs:
             deno_dir
             .denoTypes
             npm_packages
-            editor/deps
+            studio/deps
           key: ci-${{ github.run_id }}_${{ github.run_attempt }}
           restore-keys: ci-
 
@@ -37,14 +37,14 @@ jobs:
       - name: Build engine
         run: deno task build-engine
 
-      - name: Build editor
+      - name: Build studio
         env:
           BUILD_COMMIT_SHA: ${{ inputs.build-commit-sha }}
-        run: deno task build-editor
+        run: deno task build-studio
 
       - name: Tar build files
         run: |
-          cd editor/dist
+          cd studio/dist
           tar -czf ../../build_files.tar *
 
       - name: Write PR data

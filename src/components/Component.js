@@ -2,27 +2,27 @@ import {Vec2} from "../math/Vec2.js";
 import {Vec3} from "../math/Vec3.js";
 import {Vec4} from "../math/Vec4.js";
 import {Mat4} from "../math/Mat4.js";
-import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, EDITOR_DEFAULTS_IN_COMPONENTS} from "../engineDefines.js";
+import {DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT, STUDIO_DEFAULTS_IN_COMPONENTS} from "../studioDefines.js";
 import {mathTypeToJson} from "../math/MathTypes.js";
 
 const settingDefaultsPromisesSym = Symbol("settingDefaultsPromises");
-const onEditorDefaultsCbsSym = Symbol("onEditorDefaultsCbs");
-const editorDefaultsHandledSym = Symbol("editorDefaultsHandled");
+const onStudioDefaultsCbsSym = Symbol("onStudioDefaultsCbs");
+const studioDefaultsHandledSym = Symbol("studioDefaultsHandled");
 
 /**
  * @typedef {new (...args: any) => Component} ComponentConstructor
  */
 
 /**
- * @typedef {object} ComponentEditorOptions
- * @property {import("../../editor/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} editorAssetTypeManager
+ * @typedef {object} ComponentStudioOptions
+ * @property {import("../../studio/src/assets/ProjectAssetTypeManager.js").ProjectAssetTypeManager} studioAssetTypeManager
  * @property {symbol} usedAssetUuidsSymbol
- * @property {import("../../editor/src/assets/AssetManager.js").AssetManager} assetManager
+ * @property {import("../../studio/src/assets/AssetManager.js").AssetManager} assetManager
  */
 
 /**
  * @typedef {object} ComponentInitOptions
- * @property {ComponentEditorOptions?} [editorOpts]
+ * @property {ComponentStudioOptions?} [studioOpts]
  */
 
 /**
@@ -53,7 +53,7 @@ export class Component {
 		return null;
 	}
 	/**
-	 * @returns {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
+	 * @returns {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure?}
 	 */
 	static get guiStructure() {
 		return null;
@@ -67,9 +67,9 @@ export class Component {
 
 	/**
 	 * @typedef {Component & {
-	 * [editorDefaultsHandledSym]? : boolean
+	 * [studioDefaultsHandledSym]? : boolean
 	 * [settingDefaultsPromisesSym]? : Promise<void>[]
-	 * [onEditorDefaultsCbsSym]? : Set<(...args: any) => void>
+	 * [onStudioDefaultsCbsSym]? : Set<(...args: any) => void>
 	 * }} ComponentWithSyms
 	 */
 
@@ -80,9 +80,9 @@ export class Component {
 		/** @type {import("../core/Entity.js").Entity?} */
 		this.entity = null;
 
-		if (EDITOR_DEFAULTS_IN_COMPONENTS) {
+		if (STUDIO_DEFAULTS_IN_COMPONENTS) {
 			const castComponent = /** @type {ComponentWithSyms} */ (this);
-			castComponent[editorDefaultsHandledSym] = false;
+			castComponent[studioDefaultsHandledSym] = false;
 		}
 	}
 
@@ -92,18 +92,18 @@ export class Component {
 	 * @param {ComponentInitOptions} options
 	 */
 	initValues(propertyValues = {}, {
-		editorOpts = null,
+		studioOpts = null,
 	} = {}) {
 		const castConstructor = /** @type {typeof Component} */ (this.constructor);
 		const structure = castConstructor.guiStructure;
 		if (structure) {
-			this._setDefaultValues(castConstructor.guiStructure, editorOpts);
+			this._setDefaultValues(castConstructor.guiStructure, studioOpts);
 		}
 
-		if (!EDITOR_DEFAULTS_IN_COMPONENTS) {
+		if (!STUDIO_DEFAULTS_IN_COMPONENTS) {
 			this._applyPropertyValues(propertyValues);
 		} else {
-			this._handleDefaultEditorValues(propertyValues);
+			this._handleDefaultStudioValues(propertyValues);
 		}
 	}
 
@@ -132,8 +132,8 @@ export class Component {
 	/**
 	 * @param {Object<string, unknown>} propertyValues
 	 */
-	async _handleDefaultEditorValues(propertyValues) {
-		if (!EDITOR_DEFAULTS_IN_COMPONENTS) return;
+	async _handleDefaultStudioValues(propertyValues) {
+		if (!STUDIO_DEFAULTS_IN_COMPONENTS) return;
 		const castComponent = /** @type {ComponentWithSyms} */ (this);
 		const promises = castComponent[settingDefaultsPromisesSym];
 		if (promises) {
@@ -141,13 +141,13 @@ export class Component {
 		}
 		this._applyPropertyValues(propertyValues);
 
-		castComponent[editorDefaultsHandledSym] = true;
-		const cbs = castComponent[onEditorDefaultsCbsSym];
+		castComponent[studioDefaultsHandledSym] = true;
+		const cbs = castComponent[onStudioDefaultsCbsSym];
 		if (cbs) {
 			cbs.forEach(cb => cb());
 		}
 		delete castComponent[settingDefaultsPromisesSym];
-		delete castComponent[onEditorDefaultsCbsSym];
+		delete castComponent[onStudioDefaultsCbsSym];
 	}
 
 	destructor() {
@@ -155,9 +155,9 @@ export class Component {
 	}
 
 	/**
-	 * @param {import("../core/Entity.js").EntityToJsonOptions?} editorOpts
+	 * @param {import("../core/Entity.js").EntityToJsonOptions?} studioOpts
 	 */
-	toJson(editorOpts = null) {
+	toJson(studioOpts = null) {
 		/** @type {Object<string, unknown>} */
 		const propertyValues = {};
 		const castConstructor = /** @type {typeof Component} */ (this.constructor);
@@ -166,7 +166,7 @@ export class Component {
 			const castComponentA = /** @type {unknown} */ (this);
 			const castComponentB = /** @type {Object<string, unknown>} */ (castComponentA);
 			for (const propertyName of Object.keys(structure)) {
-				propertyValues[propertyName] = this.propertyToJson(castComponentB, propertyName, editorOpts);
+				propertyValues[propertyName] = this.propertyToJson(castComponentB, propertyName, studioOpts);
 			}
 		}
 		/** @type {EntityJsonDataComponent} */
@@ -181,17 +181,17 @@ export class Component {
 	/**
 	 * @param {Object<string | number, unknown>} object
 	 * @param {string | number} propertyName
-	 * @param {import("../core/Entity.js").EntityToJsonOptions?} editorOpts
+	 * @param {import("../core/Entity.js").EntityToJsonOptions?} studioOpts
 	 * @returns {unknown}
 	 */
-	propertyToJson(object, propertyName, editorOpts) {
+	propertyToJson(object, propertyName, studioOpts) {
 		const propertyValue = object[propertyName];
 		if (Array.isArray(propertyValue)) {
 			const castPropertyValue = /** @type {unknown[]} */ (propertyValue);
 			/** @type {unknown[]} */
 			const mappedArray = [];
 			for (const i of castPropertyValue.keys()) {
-				mappedArray[i] = this.propertyToJson(castPropertyValue, i, editorOpts);
+				mappedArray[i] = this.propertyToJson(castPropertyValue, i, studioOpts);
 			}
 			return mappedArray;
 		}
@@ -201,14 +201,14 @@ export class Component {
 			return replacedMathType;
 		}
 
-		if (DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT && propertyValue && editorOpts && editorOpts.usedAssetUuidsSymbol && editorOpts.assetManager && editorOpts.assetTypeManager && editorOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)) {
-			const usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol];
+		if (DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT && propertyValue && studioOpts && studioOpts.usedAssetUuidsSymbol && studioOpts.assetManager && studioOpts.assetTypeManager && studioOpts.assetTypeManager.constructorHasAssetType(propertyValue.constructor)) {
+			const usedAssetUuids = object[studioOpts.usedAssetUuidsSymbol];
 			if (usedAssetUuids) {
 				const assetUuid = usedAssetUuids[propertyName];
 				if (assetUuid) return assetUuid;
 			}
 
-			const projectAsset = editorOpts.assetManager.getProjectAssetForLiveAsset(propertyValue);
+			const projectAsset = studioOpts.assetManager.getProjectAssetForLiveAsset(propertyValue);
 			if (projectAsset) {
 				return projectAsset.uuid;
 			} else {
@@ -253,22 +253,22 @@ export class Component {
 	}
 
 	/**
-	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
-	 * @param {ComponentEditorOptions?} editorOpts
+	 * @param {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewStructure} properties
+	 * @param {ComponentStudioOptions?} studioOpts
 	 */
-	_setDefaultValues(properties, editorOpts = null) {
+	_setDefaultValues(properties, studioOpts = null) {
 		for (const [propertyName, propertyData] of Object.entries(properties)) {
-			this.setPropertyDefaultValue(this, propertyName, propertyData, editorOpts);
+			this.setPropertyDefaultValue(this, propertyName, propertyData, studioOpts);
 		}
 	}
 
 	/**
 	 * @param {Object<string | number, unknown>} object
 	 * @param {string} propertyName
-	 * @param {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
-	 * @param {ComponentEditorOptions?} editorOpts
+	 * @param {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} propertyData
+	 * @param {ComponentStudioOptions?} studioOpts
 	 */
-	setPropertyDefaultValue(object, propertyName, propertyData, editorOpts = null) {
+	setPropertyDefaultValue(object, propertyName, propertyData, studioOpts = null) {
 		let defaultValue;
 		if (propertyData && propertyData.guiOpts) {
 			defaultValue = propertyData.guiOpts.defaultValue;
@@ -277,9 +277,9 @@ export class Component {
 			/** @type {unknown[]} */
 			const array = [];
 			if (defaultValue) {
-				const arrayGuiOptions = /** @type {import("../../editor/src/ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyData.guiOpts);
+				const arrayGuiOptions = /** @type {import("../../studio/src/ui/ArrayGui.js").ArrayGuiOptions<any>} */ (propertyData.guiOpts);
 				for (const [i, value] of Object.entries(defaultValue)) {
-					/** @type {import("../../editor/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
+					/** @type {import("../../studio/src/ui/propertiesTreeView/types.js").PropertiesTreeViewEntryOptions} */
 					const childPropertyData = {
 						type: arrayGuiOptions.arrayType,
 						guiOpts: {
@@ -288,7 +288,7 @@ export class Component {
 						},
 					};
 					if (DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT) {
-						this.setPropertyDefaultValue(array, i, childPropertyData, editorOpts);
+						this.setPropertyDefaultValue(array, i, childPropertyData, studioOpts);
 					} else {
 						this.setPropertyDefaultValue(array, i, childPropertyData);
 					}
@@ -301,14 +301,14 @@ export class Component {
 				typeof defaultValue == "string" &&
 				propertyData.type == "droppable" &&
 				DEFAULT_ASSET_LINKS_IN_ENTITY_JSON_EXPORT &&
-				editorOpts && editorOpts.editorAssetTypeManager &&
-				editorOpts.usedAssetUuidsSymbol &&
-				editorOpts.assetManager
+				studioOpts && studioOpts.studioAssetTypeManager &&
+				studioOpts.usedAssetUuidsSymbol &&
+				studioOpts.assetManager
 			) {
-				const droppableGuiOptions = /** @type {import("../../editor/src/ui/DroppableGui.js").DroppableGuiOptions<(new (...args: any) => unknown)>} */ (propertyData.guiOpts);
+				const droppableGuiOptions = /** @type {import("../../studio/src/ui/DroppableGui.js").DroppableGuiOptions<(new (...args: any) => unknown)>} */ (propertyData.guiOpts);
 				if (droppableGuiOptions.supportedAssetTypes) {
 					for (const assetType of droppableGuiOptions.supportedAssetTypes) {
-						if (editorOpts.editorAssetTypeManager.constructorHasAssetType(assetType)) {
+						if (studioOpts.studioAssetTypeManager.constructorHasAssetType(assetType)) {
 							resolveDroppableAsset = true;
 							break;
 						}
@@ -317,16 +317,16 @@ export class Component {
 			}
 
 			if (resolveDroppableAsset) {
-				if (EDITOR_DEFAULTS_IN_COMPONENTS && editorOpts) {
-					let usedAssetUuids = object[editorOpts.usedAssetUuidsSymbol];
+				if (STUDIO_DEFAULTS_IN_COMPONENTS && studioOpts) {
+					let usedAssetUuids = object[studioOpts.usedAssetUuidsSymbol];
 					if (!usedAssetUuids) {
 						usedAssetUuids = {};
-						object[editorOpts.usedAssetUuidsSymbol] = usedAssetUuids;
+						object[studioOpts.usedAssetUuidsSymbol] = usedAssetUuids;
 					}
 					usedAssetUuids[propertyName] = defaultValue;
 					const promise = (async () => {
 						object[propertyName] = null;
-						object[propertyName] = await editorOpts.assetManager.getLiveAsset(defaultValue);
+						object[propertyName] = await studioOpts.assetManager.getLiveAsset(defaultValue);
 					})();
 					const castComponent = /** @type {ComponentWithSyms} */ (this);
 					let promises = castComponent[settingDefaultsPromisesSym];
@@ -348,14 +348,14 @@ export class Component {
 		}
 	}
 
-	async waitForEditorDefaults() {
-		if (!EDITOR_DEFAULTS_IN_COMPONENTS) return;
+	async waitForStudioDefaults() {
+		if (!STUDIO_DEFAULTS_IN_COMPONENTS) return;
 		const castComponent = /** @type {ComponentWithSyms} */ (this);
-		if (castComponent[editorDefaultsHandledSym]) return;
-		let cbs = castComponent[onEditorDefaultsCbsSym];
+		if (castComponent[studioDefaultsHandledSym]) return;
+		let cbs = castComponent[onStudioDefaultsCbsSym];
 		if (!cbs) {
 			cbs = new Set();
-			castComponent[onEditorDefaultsCbsSym] = cbs;
+			castComponent[onStudioDefaultsCbsSym] = cbs;
 		}
 		const certainCbs = cbs;
 		await new Promise(r => certainCbs.add(r));

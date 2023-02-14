@@ -1,12 +1,12 @@
-import {injectMockEditorInstance} from "../../../../../../../editor/src/editorInstance.js";
-import {PathGui} from "../../../../../../../editor/src/ui/PathGui.js";
+import {injectMockStudioInstance} from "../../../../../../../studio/src/studioInstance.js";
+import {PathGui} from "../../../../../../../studio/src/ui/PathGui.js";
 
-const mockEditor = /** @type {import("../../../../../../../editor/src/Editor.js").Editor} */ ({
+const mockStudio = /** @type {import("../../../../../../../studio/src/Studio.js").Studio} */ ({
 	colorizerFilterManager: {
 		applyFilter(el, color) {},
 	},
 });
-injectMockEditorInstance(mockEditor);
+injectMockStudioInstance(mockStudio);
 
 const gui = new PathGui();
 document.body.appendChild(gui.el);
