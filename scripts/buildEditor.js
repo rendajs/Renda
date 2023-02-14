@@ -12,7 +12,9 @@ import {dev} from "./dev.js";
 import {buildEngine} from "./buildEngine.js";
 import {toHashString} from "std/crypto/mod.ts";
 
-await dev();
+await dev({
+	needsDependencies: true,
+});
 
 setCwd();
 Deno.chdir("../editor");
