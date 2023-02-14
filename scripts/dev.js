@@ -34,10 +34,7 @@ export async function dev({
 	Deno.chdir("..");
 
 	if (needsTypes) {
-		// For now we have to keep the import specifier in a separate string in order to
-		// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
-		const generateTypesSrc = "https://deno.land/x/deno_tsc_helper@v0.2.1/mod.js";
-		const {generateTypes} = await import(generateTypesSrc);
+		const {generateTypes} = await import("https://deno.land/x/deno_tsc_helper@v0.4.0/mod.js");
 
 		const promise = generateTypes({
 			outputDir: ".denoTypes",
@@ -75,10 +72,7 @@ export async function dev({
 	}
 
 	if (needsDependencies || needsDevDependencies) {
-		// For now we have to keep the import specifier in a separate string in order to
-		// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
-		const devSrc = "https://deno.land/x/dev@v0.2.0/mod.js";
-		const {dev} = await import(devSrc);
+		const {dev} = await import("https://deno.land/x/dev@v0.2.0/mod.js");
 
 		await dev({
 			actions: [
@@ -114,10 +108,7 @@ export async function dev({
 	}
 
 	if (serve) {
-		// For now we have to keep the import specifier in a separate string in order to
-		// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
-		const devServerSrc = "./DevServer.js";
-		const {DevServer} = await import(devServerSrc);
+		const {DevServer} = await import("./DevServer.js");
 		const server = new DevServer({
 			port: 8080,
 			serverName: "development server",
