@@ -30,7 +30,7 @@ Deno.test({
 		await page.keyboard.press("Enter");
 
 		// todo: wait for new name to be saved to indexeddb
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await waitSeconds(5);
 
 		reloadPage(page);
 
@@ -64,8 +64,6 @@ Deno.test({
 
 		await disconnect();
 	},
-	sanitizeOps: false,
-	sanitizeResources: false,
 });
 
 Deno.test({
