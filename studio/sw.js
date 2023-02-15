@@ -72,7 +72,7 @@ async function getClientResponse(clientId, pathname, url) {
 	const projectFilesPrefix = "projectFiles/";
 	if (pathname.startsWith(projectFilesPrefix)) {
 		const filePath = pathname.slice(projectFilesPrefix.length);
-		const file = await messenger.send("getProjectFile", filePath);
+		const file = await messenger.send.getProjectFile(filePath);
 		/** @type {HeadersInit} */
 		const headers = {};
 		headers["Content-Length"] = String(file.size);
@@ -80,7 +80,7 @@ async function getClientResponse(clientId, pathname, url) {
 			headers,
 		});
 	} else if (pathname == "services.js") {
-		const servicesScript = await messenger.send("getGeneratedServices");
+		const servicesScript = await messenger.send.getGeneratedServices();
 		return new Response(servicesScript, {
 			headers: {
 				"content-type": "application/javascript",
@@ -88,7 +88,7 @@ async function getClientResponse(clientId, pathname, url) {
 		});
 	} else if (pathname == "getGeneratedHtml") {
 		const scriptSrc = url.searchParams.get("scriptSrc") || "";
-		const html = await messenger.send("getGeneratedHtml", scriptSrc);
+		const html = await messenger.send.getGeneratedHtml(scriptSrc);
 		return new Response(html, {
 			headers: {
 				"content-type": "text/html; charset=UTF-8",

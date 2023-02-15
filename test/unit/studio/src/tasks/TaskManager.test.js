@@ -183,7 +183,7 @@ Deno.test({
 				 * @param {import("../../../../../studio/src/tasks/task/Task.js").RunTaskOptions<{}>} options
 				 */
 				async runTask(options) {
-					const str = await this.#messenger.send("repeatString", "foo");
+					const str = await this.#messenger.send.repeatString("foo");
 					/** @type {import("../../../../../studio/src/tasks/task/Task.js").RunTaskReturn} */
 					const returnValue = {
 						writeAssets: [

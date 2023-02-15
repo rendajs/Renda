@@ -202,7 +202,7 @@ export class TaskBundleAssets extends Task {
 			this.#fileStreams.set(fileStreamId, bundleFileStream);
 		}
 
-		const bundle = await this.#messenger.send("bundle", Array.from(assetUuids), fileStreamId);
+		const bundle = await this.#messenger.send.bundle(Array.from(assetUuids), fileStreamId);
 
 		/** @type {import("./Task.js").RunTaskReturn} */
 		const result = {};

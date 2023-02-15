@@ -203,7 +203,7 @@ export class TaskBuildApplication extends Task {
 	async runTask(options) {
 		const contextId = this.#lastContextId++;
 		this.#contexts.set(contextId, options);
-		const result = await this.#messenger.send("buildApplication", contextId, options.config);
+		const result = await this.#messenger.send.buildApplication(contextId, options.config);
 		this.#contexts.delete(contextId);
 		return result;
 	}

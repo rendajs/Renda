@@ -7,7 +7,7 @@ const requestHandlers = {
 	 * @param {ArrayBuffer} arr
 	 */
 	async bar(arr) {
-		const result = await messenger.sendWithTransfer("foo", [arr], arr);
+		const result = await messenger.sendWithTransfer.foo([arr], arr);
 		const arr2 = result.arr;
 		return {
 			returnValue: {arr: arr2},

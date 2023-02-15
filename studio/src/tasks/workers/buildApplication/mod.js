@@ -20,7 +20,7 @@ const responseHandlers = {
 
 		// TODO: We're only getting uuids from the main entry point right now,
 		// but we'll want to check all imports recursively for uuids as well.
-		const javascript = await messenger.send("readJavaScript", contextId, config.entryPoint);
+		const javascript = await messenger.send.readJavaScript(contextId, config.entryPoint);
 		/** @type {string[]} */
 		const usedAssetsUuids = [];
 		if (javascript) {
@@ -33,7 +33,7 @@ const responseHandlers = {
 		/** @type {import("../../task/Task.js").RunTaskCreateAssetData[]} */
 		const writeAssets = [];
 
-		const {servicesScript, usedAssets: usedServicesAssets} = await messenger.send("generateServices", {
+		const {servicesScript, usedAssets: usedServicesAssets} = await messenger.send.generateServices({
 			contextId,
 			usedAssetsUuids,
 			entryPointUuids: [config.entryPoint],
@@ -42,13 +42,13 @@ const responseHandlers = {
 			usedAssetsUuids.push(assetUuid);
 		}
 
-		const assetBundle = await messenger.send("bundleAssets", contextId, usedAssetsUuids);
+		const assetBundle = await messenger.send.bundleAssets(contextId, usedAssetsUuids);
 		writeAssets.push({
 			fileData: assetBundle,
 			path: [...config.outputDir, "bundle.rbundle"],
 		});
 
-		const scriptBundle = await messenger.send("bundleScripts", contextId, config.entryPoint, servicesScript);
+		const scriptBundle = await messenger.send.bundleScripts(contextId, config.entryPoint, servicesScript);
 		if (!scriptBundle.writeAssets || scriptBundle.writeAssets.length == 0) {
 			throw new Error("Failed to run task: bundling scripts resulted in no output.");
 		}
@@ -65,7 +65,7 @@ const responseHandlers = {
 		}
 		const bundledEntryPoint = bundledEntryPoints[0].path;
 
-		const html = await messenger.send("generateHtml", contextId, bundledEntryPoint.join("/"));
+		const html = await messenger.send.generateHtml(contextId, bundledEntryPoint.join("/"));
 		writeAssets.push({
 			fileData: html,
 			path: [...config.outputDir, "index.html"],

@@ -24,7 +24,7 @@ const rollup = /** @type {import("rollup")} */ (transpiledRollup);
 export async function bundle({inputPaths, outputPath, readScriptCallbackId, servicesSource}, messenger) {
 	/** @type {import("./resolvePlugin.js").GetScriptContentFn} */
 	const getScriptContentFn = async path => {
-		const result = await messenger.send("getScriptContent", path, readScriptCallbackId);
+		const result = await messenger.send.getScriptContent(path, readScriptCallbackId);
 		if (result == null) {
 			throw new Error(`Failed to read script ${path}`);
 		}

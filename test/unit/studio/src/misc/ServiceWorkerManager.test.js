@@ -108,7 +108,7 @@ Deno.test({
 			const manager = new ServiceWorkerManager();
 			await manager.init();
 
-			const result = await ctx.messenger.send("getProjectFile", "path/to/file");
+			const result = await ctx.messenger.send.getProjectFile("path/to/file");
 			assertInstanceOf(result, File);
 			const textResult = await result.text();
 			assertEquals(textResult, "hello file");
@@ -123,7 +123,7 @@ Deno.test({
 			const manager = new ServiceWorkerManager();
 			await manager.init();
 
-			const result = await ctx.messenger.send("getGeneratedServices");
+			const result = await ctx.messenger.send.getGeneratedServices();
 			assertEquals(result, "hello services");
 		}, {
 			runTaskResult: {
@@ -145,7 +145,7 @@ Deno.test({
 			const manager = new ServiceWorkerManager();
 			await manager.init();
 
-			const result = await ctx.messenger.send("getGeneratedHtml", "path/to/script.js");
+			const result = await ctx.messenger.send.getGeneratedHtml("path/to/script.js");
 			assertEquals(result, "hello html");
 
 			assertSpyCalls(ctx.runTaskSpy, 1);

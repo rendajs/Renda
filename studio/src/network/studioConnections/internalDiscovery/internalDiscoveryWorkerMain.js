@@ -16,8 +16,8 @@ function sendAllClientAddedMessages(activeConnections, createdConnection) {
 	for (const [id, activeConnection] of activeConnections) {
 		if (activeConnection.port == createdConnection.port) continue;
 
-		createdConnection.parentMessenger.send("availableClientAdded", id, activeConnection.clientType, activeConnection.projectMetaData);
-		activeConnection.parentMessenger.send("availableClientAdded", createdConnection.id, createdConnection.clientType, null);
+		createdConnection.parentMessenger.send.availableClientAdded(id, activeConnection.clientType, activeConnection.projectMetaData);
+		activeConnection.parentMessenger.send.availableClientAdded(createdConnection.id, createdConnection.clientType, null);
 	}
 }
 
@@ -28,7 +28,7 @@ function sendAllClientAddedMessages(activeConnections, createdConnection) {
 async function sendAllClientRemoved(activeConnections, clientId) {
 	const promises = [];
 	for (const connection of activeConnections.values()) {
-		const promise = connection.parentMessenger.send("availableClientRemoved", clientId);
+		const promise = connection.parentMessenger.send.availableClientRemoved(clientId);
 		promises.push(promise);
 	}
 	await Promise.all(promises);
@@ -41,7 +41,7 @@ async function sendAllClientRemoved(activeConnections, clientId) {
 function sendAllProjectMetaData(activeConnections, connection) {
 	for (const otherConnection of activeConnections.values()) {
 		if (connection == otherConnection) continue;
-		otherConnection.parentMessenger.send("projectMetaData", connection.id, connection.projectMetaData);
+		otherConnection.parentMessenger.send.projectMetaData(connection.id, connection.projectMetaData);
 	}
 }
 
@@ -99,8 +99,8 @@ function getResponseHandlers(port, iframeMessenger, parentWindowMessenger, activ
 				if (!otherConnection) return;
 
 				const messageChannel = new MessageChannel();
-				createdConnection.parentMessenger.sendWithTransfer("connectionCreated", [messageChannel.port1], otherClientId, messageChannel.port1);
-				otherConnection.parentMessenger.sendWithTransfer("connectionCreated", [messageChannel.port2], createdConnection.id, messageChannel.port2);
+				createdConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port1], otherClientId, messageChannel.port1);
+				otherConnection.parentMessenger.sendWithTransfer.connectionCreated([messageChannel.port2], createdConnection.id, messageChannel.port2);
 			},
 		},
 	};
@@ -141,7 +141,7 @@ export function initializeWorker(workerGlobal) {
 
 		parentMessenger.setResponseHandlers(parentWindowResponseHandlers);
 		parentMessenger.setSendHandler(data => {
-			iframeMessenger.sendWithTransfer("sendToParentWindow", data.transfer, data.sendData, data.transfer);
+			iframeMessenger.sendWithTransfer.sendToParentWindow(data.transfer, data.sendData, data.transfer);
 		});
 	});
 }
