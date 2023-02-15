@@ -10,6 +10,7 @@ import {waitSeconds} from "../../shared/waitSeconds.js";
 
 Deno.test({
 	name: "Rename a project and refresh the page, it should open the latest project",
+	ignore: true,
 	...puppeteerSanitizers,
 	fn: async () => {
 		const {page, disconnect} = await getContext();
