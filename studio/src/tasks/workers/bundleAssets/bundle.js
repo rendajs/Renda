@@ -13,7 +13,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 	// fill header with zeros
 	const emptyHeader = new ArrayBuffer(headerByteLength);
 	if (useFileStream) {
-		await messenger.sendWithTransfer("writeFile", [emptyHeader], fileStreamId, emptyHeader);
+		await messenger.sendWithTransfer.writeFile([emptyHeader], fileStreamId, emptyHeader);
 	}
 
 	const header = new ArrayBuffer(headerByteLength);
@@ -37,7 +37,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 		// We should move this over to the worker, but this requires some kind
 		// of api that allows ProjectAssetTypes to include a function that can
 		// be transfered to this worker.
-		const assetDataResult = await messenger.send("getBundledAssetData", assetUuid);
+		const assetDataResult = await messenger.send.getBundledAssetData(assetUuid);
 		if (!assetDataResult) continue;
 
 		const {assetData, assetTypeUuid} = assetDataResult;
@@ -65,7 +65,7 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 			transfer.push(assetData);
 		}
 		if (useFileStream) {
-			await messenger.sendWithTransfer("writeFile", [], fileStreamId, assetData);
+			await messenger.sendWithTransfer.writeFile([], fileStreamId, assetData);
 		} else {
 			let buffer;
 			if (typeof assetData == "string") {
@@ -79,12 +79,12 @@ export async function bundle(assetUuids, fileStreamId, messenger) {
 
 	let returnValue = null;
 	if (useFileStream) {
-		await messenger.sendWithTransfer("writeFile", [header], fileStreamId, {
+		await messenger.sendWithTransfer.writeFile([header], fileStreamId, {
 			type: "write",
 			position: 0,
 			data: header,
 		});
-		await messenger.send("closeFile", fileStreamId);
+		await messenger.send.closeFile(fileStreamId);
 	} else {
 		let totalBufferLength = header.byteLength;
 		for (const buffer of assetBuffers) {

@@ -1,10 +1,9 @@
-import {assertEquals, assertRejects} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, stub} from "std/testing/mock.ts";
+import {assertEquals, assertRejects, assertStrictEquals} from "std/testing/asserts.ts";
 import {TypedMessenger} from "../../../../../src/util/TypedMessenger.js";
 import {assertIsType} from "../../../shared/typeAssertions.js";
 
 Deno.test({
-	name: "Basic request",
+	name: "send proxy and sendWithTransferProxy",
 	async fn() {
 		const requestHandlers = {
 			/**
@@ -13,6 +12,13 @@ Deno.test({
 			 */
 			isHigher: (num1, num2) => num1 > num2,
 			returnsTrue: () => true,
+			/**
+			 * @param {number} num1
+			 * @param {number} num2
+			 */
+			twoArgs: (num1, num2) => {},
+			noArgs: () => {},
+			returnsBool: () => true,
 		};
 
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
@@ -30,26 +36,71 @@ Deno.test({
 		});
 		messengerB.setResponseHandlers(requestHandlers);
 
-		const result1 = await messengerA.send("isHigher", 2, 1);
+		const result1 = await messengerA.send.isHigher(2, 1);
 		assertEquals(result1, true);
-		const result2 = await messengerA.send("isHigher", 1, 2);
+		const result2 = await messengerA.send.isHigher(1, 2);
 		assertEquals(result2, false);
-
-		/**
-		 * Helper functions for verifying types.
-		 * @param {string} str
-		 */
-		function takesString(str) {}
-
-		// Verify that the parameter types are correct and not 'any':
-		// @ts-expect-error
-		await messengerA.send("isHigher", 2, "not a number");
-
-		// Verify that the return type is boolean and not 'any':
-		const result3 = await messengerA.send("returnsTrue");
-		// @ts-expect-error
-		takesString(result3);
+		const result3 = await messengerA.sendWithTransfer.isHigher([], 2, 1);
 		assertEquals(result3, true);
+		const result4 = await messengerA.sendWithTransfer.isHigher([], 1, 2);
+		assertEquals(result4, false);
+
+		// @ts-expect-error Verify that the parameter types are correct and not 'any':
+		await messengerA.send.isHigher(2, "not a number");
+
+		const result5 = await messengerA.send.returnsTrue();
+		// Verify that the return type is boolean and nothing else
+		assertIsType(true, result5);
+		// @ts-expect-error Verify that the return type is boolean and not 'any':
+		assertIsType("", result5);
+		assertEquals(result5, true);
+
+		const result6 = await messengerA.sendWithTransfer.returnsTrue([]);
+		// Verify that the return type is boolean and nothing else
+		assertIsType(true, result6);
+		// @ts-expect-error Verify that the return type is boolean and not 'any':
+		assertIsType("", result6);
+		assertEquals(result6, true);
+
+		// Non existent functions can be called without any runtime errors,
+		// because a TypedMessenger is not aware of the existing response handlers on the receiving end.
+		// This is fine, these calls will simply resolve with undefined.
+		// We'll want to make sure TypeScript warns us about calls to non existent functions though.
+		// @ts-expect-error Verify that TypeScript emits an error when a non existent function is called
+		messengerA.send.nonExistent();
+		// @ts-expect-error Verify that TypeScript emits an error when a non existent function is called
+		messengerA.sendWithTransfer.nonExistent([]);
+
+		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
+		messengerA.send.noArgs("too", "many", "args");
+		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
+		messengerA.sendWithTransfer.noArgs([], "too", "many", "args");
+
+		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
+		messengerA.send.twoArgs();
+		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
+		messengerA.sendWithTransfer.twoArgs([]);
+		// @ts-expect-error Verify that an error is emitted the transfer argument is missing.
+		messengerA.sendWithTransfer.twoArgs(1, 2);
+
+		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
+		messengerA.send.twoArgs(1, 2, 3);
+		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
+		messengerA.send.twoArgs([], 1, 2, 3);
+
+		const expectedBoolPromise = Promise.resolve(true);
+
+		const actualBoolPromise1 = messengerA.send.returnsBool();
+		// Verify that the type is Promise<boolean> and nothing else
+		assertIsType(expectedBoolPromise, actualBoolPromise1);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", actualBoolPromise1);
+
+		const actualBoolPromise2 = messengerA.sendWithTransfer.returnsBool([]);
+		// Verify that the type is Promise<boolean> and nothing else
+		assertIsType(expectedBoolPromise, actualBoolPromise2);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", actualBoolPromise2);
 
 		// Verify that the send handler types are correct and not 'any':
 		messengerA.setSendHandler(data => {
@@ -74,69 +125,52 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Send using proxy",
+	name: "sendWithTransfer is passed on in the transfer property",
 	async fn() {
-		// eslint-disable-next-line no-unused-vars
 		const requestHandlers = {
 			/**
-			 * @param {number} num1
-			 * @param {number} num2
+			 * @param {number} x
+			 * @param {number} y
 			 */
-			twoArgs: (num1, num2) => {},
-			noArgs: () => {},
-			returnsBool: () => true,
+			needsTransfer: (x, y) => {},
 		};
 
 		/** @type {TypedMessenger<typeof requestHandlers, {}>} */
-		const messenger = new TypedMessenger();
+		const messengerA = new TypedMessenger();
+		/** @type {TypedMessenger<{}, typeof requestHandlers>} */
+		const messengerB = new TypedMessenger();
 
-		const sendSpy = stub(messenger, "send", async () => {});
+		/** @type {import("../../../../../src/util/TypedMessenger.js").TypedMessengerRequestMessage<typeof requestHandlers>[]} */
+		const messages = [];
 
-		messenger.proxy.twoArgs(1, 2);
-		assertSpyCalls(sendSpy, 1);
-		assertSpyCall(sendSpy, 0, {
-			args: ["twoArgs", 1, 2],
+		// Normally we would send the data to the worker
+		// but since this is a test, we send it between the messengers directly.
+		messengerA.setSendHandler(data => {
+			messages.push(data);
+			messengerB.handleReceivedMessage(data.sendData);
 		});
-
-		messenger.proxy.noArgs();
-		assertSpyCalls(sendSpy, 2);
-		assertSpyCall(sendSpy, 1, {
-			args: ["noArgs"],
+		messengerB.setSendHandler(data => {
+			messengerA.handleReceivedMessage(data.sendData);
 		});
+		messengerB.setResponseHandlers(requestHandlers);
 
-		// Non existent functions can be called without any runtime errors,
-		// because a TypedMessenger is not aware of the existing response handlers on the receiving end.
-		// This is fine, these calls will simply resolve with undefined.
-		// We'll want to make sure TypeScript warns us about calls to non existent functions though.
-		// @ts-expect-error Verify that TypeScript emits an error when a non existent function is called
-		messenger.proxy.nonExistent();
+		const transferObj = new ArrayBuffer(0);
 
-		// @ts-expect-error Verify that an error is emitted when too many arguments are passed.
-		messenger.proxy.noArgs("too", "many", "args");
+		await messengerA.sendWithTransfer.needsTransfer([transferObj], 1, 2);
 
-		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
-		messenger.proxy.twoArgs();
-
-		// @ts-expect-error Verify that an error is emitted when too few arguments are passed.
-		messenger.proxy.twoArgs(1, 2, 3);
-
-		const expectedBoolPromise = Promise.resolve(true);
-		const actualBoolPromise = messenger.proxy.returnsBool();
-
-		// Verify that the type is Promise<boolean> and nothing else
-		assertIsType(expectedBoolPromise, actualBoolPromise);
-
-		// @ts-expect-error Verify that the type isn't 'any'
-		assertIsType("", actualBoolPromise);
+		assertEquals(messages.length, 1);
+		assertEquals(messages[0].sendData.args, [1, 2]);
+		assertEquals(messages[0].transfer.length, 1);
+		assertStrictEquals(messages[0].transfer[0], transferObj);
 	},
 });
 
 Deno.test({
-	name: "send() throws if no send handler has been set",
+	name: "sending throws if no send handler has been set",
 	async fn() {
 		const messenger = new TypedMessenger();
 		await assertRejects(async () => {
-			await messenger.send("foo");
+			await messenger.send.foo();
 		}, Error, "Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
 	},
 });
@@ -187,7 +221,7 @@ Deno.test({
 		});
 		messengerB.setResponseHandlers({});
 
-		const result = await messengerA.send("foo");
+		const result = await messengerA.send.foo();
 		assertEquals(result, undefined);
 	},
 });
@@ -221,7 +255,7 @@ Deno.test({
 		};
 		messengerB.setResponseHandlers(requestHandlers);
 
-		const result = await messengerA.send("sameNum", 123);
+		const result = await messengerA.send.sameNum(123);
 		assertEquals(result, 123);
 
 		channel.port1.close();
@@ -249,7 +283,7 @@ Deno.test({
 		messengerB.setResponseHandlers(requestHandlers);
 
 		await assertRejects(async () => {
-			await messengerA.send("throws");
+			await messengerA.send.throws();
 		}, TypeError, "Error message");
 	},
 });
@@ -285,8 +319,8 @@ Deno.test({
 		});
 		messengerB.setResponseHandlers(requestHandlers);
 
-		const promise1 = messengerA.send("sameNum", 123);
-		const promise2 = messengerA.send("sameNum", 456);
+		const promise1 = messengerA.send.sameNum(123);
+		const promise2 = messengerA.send.sameNum(456);
 		assertEquals(await promise1, 123);
 		assertEquals(await promise2, 456);
 	},
@@ -330,9 +364,9 @@ Deno.test({
 		});
 		messengerB.setResponseHandlers(requestHandlers);
 
-		const result1 = await messengerA.send("isHigher", 2, 1);
+		const result1 = await messengerA.send.isHigher(2, 1);
 		assertEquals(result1, true);
-		const result2 = await messengerA.send("isHigher", 1, 2);
+		const result2 = await messengerA.send.isHigher(1, 2);
 		assertEquals(result2, false);
 
 		/**
@@ -343,21 +377,21 @@ Deno.test({
 
 		// Verify that the parameter types are correct and not 'any':
 		// @ts-expect-error
-		await messengerA.send("isHigher", 2, "not a number");
+		await messengerA.send.isHigher(2, "not a number");
 
 		// Verify that the return type is boolean and not 'any':
-		const result3 = await messengerA.send("returnsTrue");
+		const result3 = await messengerA.send.returnsTrue();
 		// @ts-expect-error
 		takesString(result3);
 		assertEquals(result3, true);
 
 		// Verify that the return type is void for functions that don't return anything:
-		const result4 = await messengerA.send("noReturnValue");
+		const result4 = await messengerA.send.noReturnValue();
 		// @ts-expect-error
 		takesString(result4);
 		assertEquals(result4, undefined);
 
-		const result5 = await messengerA.send("returnsPromise");
+		const result5 = await messengerA.send.returnsPromise();
 		// @ts-expect-error
 		takesString(result5);
 		assertEquals(result5, true);
@@ -404,7 +438,7 @@ Deno.test({
 		messengerB.setResponseHandlers(requestHandlers);
 
 		await assertRejects(async () => {
-			await messengerA.send("throws");
+			await messengerA.send.throws();
 		}, TypeError, "Error message");
 	},
 });
@@ -436,7 +470,7 @@ Deno.test({
 
 			const view = new Uint8Array([1, 2, 3]);
 			const arr = view.buffer;
-			const result = await messenger.send("bar", arr);
+			const result = await messenger.send.bar(arr);
 			const newView = new Uint8Array(result.arr);
 			assertEquals([...newView], [1, 2, 3]);
 		} finally {

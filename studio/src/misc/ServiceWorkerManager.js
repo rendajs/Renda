@@ -126,6 +126,6 @@ export class ServiceWorkerManager {
 		if (!this.messenger) {
 			throw new Error("Assertion failed, no connection with the service worker is established.");
 		}
-		return await this.messenger.proxy.requestClientId();
+		return await this.messenger.send.requestClientId();
 	}
 }

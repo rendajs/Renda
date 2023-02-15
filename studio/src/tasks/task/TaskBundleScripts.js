@@ -90,7 +90,7 @@ export class TaskBundleScripts extends Task {
 				inputPaths.push(path.join("/"));
 			}
 		}
-		const result = await this.#messenger.send("bundle", {
+		const result = await this.#messenger.send.bundle({
 			inputPaths, outputPath,
 			readScriptCallbackId,
 			servicesSource: config?.servicesSource || "",

@@ -84,7 +84,7 @@ export class InternalDiscoveryManager {
 		this.workerMessenger = new TypedMessenger();
 		this.workerMessenger.setResponseHandlers(this._getWorkerResponseHandlers());
 		this.workerMessenger.setSendHandler(async data => {
-			await this.iframeMessenger.sendWithTransfer("postWorkerMessage", data.transfer, data.sendData, data.transfer);
+			await this.iframeMessenger.sendWithTransfer.postWorkerMessage(data.transfer, data.sendData, data.transfer);
 		});
 
 		/**
@@ -130,7 +130,7 @@ export class InternalDiscoveryManager {
 		}
 		const parentPromise = (async () => {
 			if (this.isInIframe()) {
-				const url = await this.parentMessenger.send("requestInternalDiscoveryUrl");
+				const url = await this.parentMessenger.send.requestInternalDiscoveryUrl();
 				return url;
 			} else {
 				return "";
@@ -213,7 +213,7 @@ export class InternalDiscoveryManager {
 
 	async destructor() {
 		this.destructed = true;
-		await this.iframeMessenger.send("destructor");
+		await this.iframeMessenger.send.destructor();
 	}
 
 	/**
@@ -230,21 +230,21 @@ export class InternalDiscoveryManager {
 	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").ClientType} clientType
 	 */
 	async registerClient(clientType) {
-		await this.workerMessenger.send("registerClient", clientType);
+		await this.workerMessenger.send.registerClient(clientType);
 	}
 
 	/**
 	 * @param {import("../mod.js").UuidString} otherClientId
 	 */
 	async requestConnection(otherClientId) {
-		await this.workerMessenger.send("requestConnection", otherClientId);
+		await this.workerMessenger.send.requestConnection(otherClientId);
 	}
 
 	/**
 	 * @param {import("../../studio/src/network/studioConnections/StudioConnectionsManager.js").RemoteStudioMetaData?} metaData
 	 */
 	async sendProjectMetaData(metaData) {
-		await this.workerMessenger.send("projectMetaData", metaData);
+		await this.workerMessenger.send.projectMetaData(metaData);
 	}
 
 	/**

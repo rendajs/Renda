@@ -101,6 +101,12 @@
  */
 
 /**
+ * @template {TypedMessengerSignatures} TReq
+ * @template {boolean} TRequireHandlerReturnObjects
+ * @typedef {{[x in keyof TReq]: (transfer: Transferable[], ...args: Parameters<TReq[x]>) => Promise<GetReturnType<TReq, x, TRequireHandlerReturnObjects>>}} TypedMessengerWithTransferProxy
+ */
+
+/**
  * @typedef RequestHandlerReturn
  * @property {any} returnValue
  * @property {Transferable[]} [transfer]
@@ -173,7 +179,7 @@ export class TypedMessenger {
 	 * But when this is true you should return an object with the format
 	 * `{returnValue: any, transfer?: Transferable[]}`.
 	 * Note that transferring objects that are passed in as arguments is always
-	 * supported. You can use {@linkcode sendWithTransfer} for this. This option
+	 * supported. You can use {@linkcode _sendInternal} for this. This option
 	 * is only useful if you wish to transfer objects from return values.
 	 * For more info see
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects.
@@ -196,8 +202,7 @@ export class TypedMessenger {
 		/** @private @type {Map<number, Set<(message: TypedMessengerResponseMessageSendData<TReq, keyof TReq, TRequireHandlerReturnObjects>) => void>>} */
 		this.onRequestIdMessageCbs = new Map();
 
-		const proxy = new Proxy({
-		}, {
+		const proxy = new Proxy({}, {
 			get: (target, prop, receiver) => {
 				if (typeof prop == "symbol") {
 					return undefined;
@@ -206,29 +211,41 @@ export class TypedMessenger {
 				 * @param {Parameters<TReq[string]>} args
 				 */
 				return async (...args) => {
-					return await this.send(prop, ...args);
+					return await this._sendInternal(prop, [], ...args);
 				};
 			},
 		});
 		/**
-		 * The proxy property allows you to call functions by their actual name,
-		 * rather than passing them as a string parameter.
+		 * The proxy property allows you send messages to the other TypedMessenger.
 		 *
 		 * ## Example
 		 *
-		 * Instead of
-		 * ```js
-		 * const result = await messenger.send("myFunction", 1, 2, 3);
-		 * ```
-		 * You can do
 		 * ```js
 		 * const result = await messenger.proxy.myFunction(1, 2, 3);
 		 * ```
+		 * where `myFunction` is the name of one of the functions provided in {@linkcode initialize} or {@linkcode setResponseHandlers}.
 		 *
-		 * The difference might seem subtle, but the biggest benefit is that you can jump
-		 * to the implementation of a function by using the 'go to definition' option in your IDE.
 		 */
-		this.proxy = /** @type {TypedMessengerProxy<TReq, TRequireHandlerReturnObjects>} */ (proxy);
+		this.send = /** @type {TypedMessengerProxy<TReq, TRequireHandlerReturnObjects>} */ (proxy);
+
+		const sendWithTransferProxy = new Proxy({}, {
+			get: (target, prop, receiver) => {
+				if (typeof prop == "symbol") {
+					return undefined;
+				}
+				/**
+				 * @param {[transfer: Transferable[], ...rest: Parameters<TReq[string]>]} args
+				 */
+				return async (...args) => {
+					const [transfer, ...restArgs] = args;
+					return await this._sendInternal(prop, transfer, ...restArgs);
+				};
+			},
+		});
+		/**
+		 * This is the same as {@linkcode send}, but the first argument is an array
+		 */
+		this.sendWithTransfer = /** @type {TypedMessengerWithTransferProxy<TReq, TRequireHandlerReturnObjects>} */ (sendWithTransferProxy);
 	}
 
 	/**
@@ -386,7 +403,7 @@ export class TypedMessenger {
 	 * messenger.setResponseHandlers(myHandlers);
 	 * ```
 	 *
-	 * Now whenever the other end makes a call to {@linkcode send} on its own messenger (when
+	 * Now whenever the other end makes a call using {@linkcode send} on its own messenger (when
 	 * hooked up correctly to {@linkcode handleReceivedMessage}), your respective handler
 	 * will be called and its return value will be sent back to the other end.
 	 * @param {ResponseHandlers} handlers
@@ -396,25 +413,14 @@ export class TypedMessenger {
 	}
 
 	/**
-	 * @template {keyof TReq} T
-	 * @param {T} type
-	 * @param {Parameters<TReq[T]>} args
-	 */
-	async send(type, ...args) {
-		return await this.sendWithTransfer(type, [], ...args);
-	}
-
-	/**
-	 * Same as `send` but passes a transfer object along to the sendHandler.
-	 * The sendHandler is expected to pass this along to postmessage.
-	 * If the TypedMessenger is not used for postMessaging between threads,
-	 * this is not supported.
+	 * Sends a message to the other TypedMessenger.
+	 * @private
 	 * @template {keyof TReq} T
 	 * @param {T} type
 	 * @param {Transferable[]} transfer
 	 * @param {Parameters<TReq[T]>} args
 	 */
-	async sendWithTransfer(type, transfer, ...args) {
+	async _sendInternal(type, transfer, ...args) {
 		if (!this.sendHandler) {
 			throw new Error("Failed to send message, no send handler set. Make sure to call `setSendHandler` before sending messages.");
 		}

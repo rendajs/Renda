@@ -19,7 +19,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			postWorkerMessage(data, transfer) {
-				workerTypedMessenger.sendWithTransfer("parentWindowToWorkerMessage", transfer, data);
+				workerTypedMessenger.sendWithTransfer.parentWindowToWorkerMessage(transfer, data);
 			},
 			async destructor() {
 				await destructorFunction();
@@ -31,7 +31,7 @@ function getHandlers({workerTypedMessenger, parentWindowTypedMessenger, destruct
 			 * @param {Transferable[]} transfer
 			 */
 			sendToParentWindow(data, transfer) {
-				parentWindowTypedMessenger.sendWithTransfer("workerToParentWindowMessage", transfer, data);
+				parentWindowTypedMessenger.sendWithTransfer.workerToParentWindowMessage(transfer, data);
 			},
 		},
 	};
@@ -47,7 +47,7 @@ export function initializeIframe(window) {
 	async function destructor() {
 		if (destructed) return;
 		destructed = true;
-		await workerTypedMessenger.send("unregisterClient");
+		await workerTypedMessenger.send.unregisterClient();
 		worker.port.close();
 	}
 
@@ -90,7 +90,7 @@ export function initializeIframe(window) {
 
 	// Notify the parent window that the page is ready.
 	if (window.parent !== window) {
-		parentWindowTypedMessenger.send("inspectorDiscoveryLoaded");
+		parentWindowTypedMessenger.send.inspectorDiscoveryLoaded();
 	}
 }
 
