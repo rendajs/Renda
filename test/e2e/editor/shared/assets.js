@@ -1,3 +1,4 @@
+import {log} from "../../shared/log.js";
 import {click} from "../../shared/util.js";
 import {getContentWindowElement} from "./contentWindows.js";
 import {clickContextMenuItem} from "./contextMenu.js";
@@ -9,30 +10,24 @@ import {getTreeViewItemElement, waitForTreeViewDisappear} from "./treeView.js";
  * To wait for the asset to exist use {@linkcode getAssetTreeView}.
  *
  * @param {import("puppeteer").Page} page
- * @param {Deno.TestContext} testContext
  * @param {string[]} createMenuPath The path of the context menu item that creates the asset.
  */
-export async function createAsset(page, testContext, createMenuPath) {
+export async function createAsset(page, createMenuPath) {
 	const projectEl = await getContentWindowElement(page, "project");
 
 	// Get the selected folder or the root folder, so that we can wait for added children later.
 
-	await testContext.step({
-		name: "Click create asset button",
-		async fn() {
-			const createAssetButtonEl = await projectEl.$(".studio-content-window-top-button-bar > .button:nth-child(2)");
-			if (!createAssetButtonEl) {
-				throw new Error("Could not find create asset button");
-			}
-			await click(page, createAssetButtonEl);
-		},
-	});
+	log("Click create asset button");
+	const createAssetButtonEl = await projectEl.$(".studio-content-window-top-button-bar > .button:nth-child(2)");
+	if (!createAssetButtonEl) {
+		throw new Error("Could not find create asset button");
+	}
+	await click(page, createAssetButtonEl);
 
-	await clickContextMenuItem(page, testContext, createMenuPath);
+	await clickContextMenuItem(page, createMenuPath);
 }
 
 /**
- * @template {boolean} TIsNotFunction
  * @param {import("puppeteer").Page} page
  */
 async function getProjectRootTreeViewEl(page) {
@@ -61,23 +56,20 @@ export async function getAssetTreeView(page, assetPath) {
  * @param {string[]} assetPath
  */
 export async function waitForAssetDissappear(page, assetPath) {
+	log(`Wait for asset to disappear: ${assetPath.join(" > ")}`);
 	const projectRootTreeViewEl = await getProjectRootTreeViewEl(page);
 	await waitForTreeViewDisappear(page, projectRootTreeViewEl, assetPath);
+	log("Asset disappeared");
 }
 
 /**
  * @param {import("puppeteer").Page} page
- * @param {Deno.TestContext} testContext
  * @param {string[]} assetPath
  * @param {import("puppeteer").ClickOptions} [clickOptions]
  */
-export async function clickAsset(page, testContext, assetPath, clickOptions) {
+export async function clickAsset(page, assetPath, clickOptions) {
 	const joinedPath = assetPath.join("/");
-	await testContext.step({
-		name: `Click asset "${joinedPath}"`,
-		async fn() {
-			const createdAssetTreeView = await getAssetTreeView(page, assetPath);
-			await click(page, createdAssetTreeView, clickOptions);
-		},
-	});
+	log(`Click asset "${joinedPath}"`);
+	const createdAssetTreeView = await getAssetTreeView(page, assetPath);
+	await click(page, createdAssetTreeView, clickOptions);
 }

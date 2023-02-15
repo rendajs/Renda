@@ -1,4 +1,5 @@
 import {assertExists} from "std/testing/asserts.ts";
+import {log} from "../../../shared/log.js";
 import {click, waitFor} from "../../../shared/util.js";
 import {getContentWindowElement, getContentWindowReference} from "../contentWindows.js";
 
@@ -39,14 +40,9 @@ export async function getOutlinerCreateEmptyButton(page) {
 /**
  * Clicks the button element for creating new empties from the first available outliner window.
  * @param {import("puppeteer").Page} page
- * @param {Deno.TestContext} testContext
  */
-export async function clickCreateEmptyButton(page, testContext) {
-	await testContext.step({
-		name: "Click the create new empty button",
-		async fn() {
-			const buttonEl = await getOutlinerCreateEmptyButton(page);
-			await click(page, buttonEl);
-		},
-	});
+export async function clickCreateEmptyButton(page) {
+	log("Click the create new empty button");
+	const buttonEl = await getOutlinerCreateEmptyButton(page);
+	await click(page, buttonEl);
 }

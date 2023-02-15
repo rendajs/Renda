@@ -5,12 +5,12 @@ import {setupNewProject} from "../../../shared/project.js";
 Deno.test({
 	name: "Creating a new PipelineConfig asset",
 	...puppeteerSanitizers,
-	async fn(testContext) {
+	async fn() {
 		const {page, disconnect} = await getContext();
 
-		await setupNewProject(page, testContext);
+		await setupNewProject(page);
 
-		await createAsset(page, testContext, ["Materials", "New WebGPU Pipeline Config"]);
+		await createAsset(page, ["Materials", "New WebGPU Pipeline Config"]);
 		await getAssetTreeView(page, ["New Pipeline Config.json"]);
 
 		await disconnect();

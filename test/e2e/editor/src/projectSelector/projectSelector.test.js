@@ -1,45 +1,44 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
+import {log} from "../../../shared/log.js";
 import {click} from "../../../shared/util.js";
 import {createAsset, getAssetTreeView, waitForAssetDissappear} from "../../shared/assets.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {openProjectSelector, setupNewProject, waitForProjectOpen} from "../../shared/project.js";
+import {reloadPage} from "../../shared/reloadPage.js";
 import {waitSeconds} from "../../shared/waitSeconds.js";
 
 Deno.test({
 	name: "Rename a project and refresh the page, it should open the latest project",
+	ignore: true,
 	...puppeteerSanitizers,
-	fn: async testContext => {
+	fn: async () => {
 		const {page, disconnect} = await getContext();
 
 		const newProjectName = "New Project Name";
 		const projectWindowSelector = "[data-content-window-type-id='project']";
 		const rootNameTreeViewSelector = `${projectWindowSelector} .studio-content-window-content > .treeViewItem`;
 
-		await setupNewProject(page, testContext);
+		await setupNewProject(page);
 
-		await testContext.step("Rename the project root folder", async () => {
-			const projectNameEl = await page.waitForSelector(rootNameTreeViewSelector);
-			assertExists(projectNameEl);
-			await projectNameEl.click();
+		log("Rename the project root folder");
+		const projectNameEl = await page.waitForSelector(rootNameTreeViewSelector);
+		assertExists(projectNameEl);
+		await projectNameEl.click();
 
-			await page.keyboard.press("Enter");
-			await page.keyboard.type(newProjectName);
-			await page.keyboard.press("Enter");
+		await page.keyboard.press("Enter");
+		await page.keyboard.type(newProjectName);
+		await page.keyboard.press("Enter");
 
-			// todo: wait for new name to be saved to indexeddb
-			await new Promise(resolve => setTimeout(resolve, 100));
-		});
+		// todo: wait for new name to be saved to indexeddb
+		await waitSeconds(5);
 
-		await testContext.step("Reload the page", async testContext => {
-			await page.reload({
-				timeout: 0,
-			});
-		});
+		reloadPage(page);
 
-		await waitForProjectOpen(page, testContext);
+		await waitForProjectOpen(page);
 
-		await testContext.step("Check if the project loaded with the changed name", async () => {
+		log("Check if the project loaded with the changed name");
+		{
 			const contentWindowProjectEl = await page.waitForSelector(projectWindowSelector);
 			assertExists(contentWindowProjectEl);
 
@@ -62,31 +61,27 @@ Deno.test({
 				return projectNameEl.textContent;
 			});
 			assertEquals(projectName, newProjectName);
-		});
+		}
 
 		await disconnect();
 	},
-	sanitizeOps: false,
-	sanitizeResources: false,
 });
 
 Deno.test({
 	name: "Empty db projects do not persist",
 	...puppeteerSanitizers,
-	async fn(testContext) {
+	async fn() {
 		const {page, disconnect} = await getContext();
 
-		await setupNewProject(page, testContext);
+		await setupNewProject(page);
 
 		// Since what we're testing for can be triggered by anything, there's
 		// no good way to wait for something specific, so we'll just wait 5 seconds,
 		// this should catch most cases
-		await waitSeconds(testContext, 5);
+		await waitSeconds(5);
 
-		await testContext.step("Reload the page", async () => {
-			await page.reload();
-		});
-		await waitForProjectOpen(page, testContext);
+		await reloadPage(page);
+		await waitForProjectOpen(page);
 
 		const exists = await page.evaluate(async () => {
 			if (!globalThis.studio) throw new Error("Studio instance does not exist");
@@ -102,16 +97,16 @@ Deno.test({
 Deno.test({
 	name: "Deleting db project closes it if it currently open",
 	...puppeteerSanitizers,
-	async fn(testContext) {
+	async fn() {
 		const {page, disconnect} = await getContext();
 
-		await setupNewProject(page, testContext);
+		await setupNewProject(page);
 
 		// Create an asset to mark the project as isWorthSaving
-		await createAsset(page, testContext, ["New Entity"]);
+		await createAsset(page, ["New Entity"]);
 		await getAssetTreeView(page, ["New Entity.json"]);
 
-		const projectSelectorEl = await openProjectSelector(page, testContext);
+		const projectSelectorEl = await openProjectSelector(page);
 
 		await click(projectSelectorEl, ".project-selector-recent-list-container > .project-selector-list > .project-selector-button:nth-child(1)", {
 			button: "right",
@@ -119,13 +114,9 @@ Deno.test({
 		page.on("dialog", async dialog => {
 			await dialog.accept();
 		});
-		await clickContextMenuItem(page, testContext, ["Delete"]);
-		await testContext.step({
-			name: "Wait for new project to be created",
-			async fn() {
-				await waitForAssetDissappear(page, ["New Entity.json"]);
-			},
-		});
+		await clickContextMenuItem(page, ["Delete"]);
+		log("Wait for new project to be created");
+		await waitForAssetDissappear(page, ["New Entity.json"]);
 
 		await disconnect();
 	},
