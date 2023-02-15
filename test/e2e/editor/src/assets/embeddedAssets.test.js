@@ -1,11 +1,13 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
+import {log} from "../../../shared/log.js";
 import {click} from "../../../shared/util.js";
 import {clickAsset, createAsset} from "../../shared/assets.js";
 import {getPropertiesAssetContentReference, getPropertiesWindowContentAsset} from "../../shared/contentWindows/properties.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../shared/droppableGui.js";
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
+import {reloadPage} from "../../shared/reloadPage.js";
 import {getPropertiesTreeViewEntryValueEl, getTreeViewItemElement} from "../../shared/treeView.js";
 
 const MATERIAL_ASSET_PATH = ["New Material.json"];
@@ -21,108 +23,83 @@ async function findMapTreeViewEntry(page, assetContentEl) {
 Deno.test({
 	name: "Creating a new material asset with embedded map and pipeline config",
 	...puppeteerSanitizers,
-	async fn(testContext) {
+	async fn() {
 		const {page, disconnect} = await getContext();
 
-		await setupNewProject(page, testContext);
+		await setupNewProject(page);
 
-		await testContext.step({
-			name: "Creating the assets",
-			async fn(testContext) {
-				await createAsset(page, testContext, ["Materials", "New Material"]);
-				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				const assetContentEl = await getPropertiesWindowContentAsset(page);
+		log("Creating the assets");
+		await createAsset(page, ["Materials", "New Material"]);
+		await clickAsset(page, MATERIAL_ASSET_PATH);
+		const assetContentEl = await getPropertiesWindowContentAsset(page);
 
-				const assetContentReference = await getPropertiesAssetContentReference(page);
-				await page.evaluateHandle(async assetContent => {
-					const {PropertiesAssetContentMaterial} = await import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
-					if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
-					await assetContent.waitForAssetLoad();
-				}, assetContentReference);
+		const assetContentReference = await getPropertiesAssetContentReference(page);
+		await page.evaluateHandle(async assetContent => {
+			const {PropertiesAssetContentMaterial} = await import("../../../../../studio/src/propertiesAssetContent/PropertiesAssetContentMaterial.js");
+			if (!(assetContent instanceof PropertiesAssetContentMaterial)) throw new Error("Assertion failed, assetcontent is not PropertiesAssetContentMaterial");
+			await assetContent.waitForAssetLoad();
+		}, assetContentReference);
 
-				await testContext.step({
-					name: "Create embedded asset",
-					async fn(testContext) {
-						const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
-						await createEmbeddedAssetAndOpen(page, testContext, mapTreeViewEntry);
-					},
-				});
+		log("Create embedded asset");
+		const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
+		await createEmbeddedAssetAndOpen(page, mapTreeViewEntry);
 
-				await testContext.step({
-					name: "Add map type",
-					async fn(testContext) {
-						// Click the 'Add Map Type' button
-						const addMapTypeEntry = await getTreeViewItemElement(page, assetContentEl, [0, 1]);
-						assertExists(addMapTypeEntry);
-						const addMapTypeValueEl = await getPropertiesTreeViewEntryValueEl(addMapTypeEntry);
-						const addMapTypeButton = await addMapTypeValueEl.$(".button");
-						assertExists(addMapTypeButton);
-						await click(page, addMapTypeButton);
+		log("Add map type");
+		// Click the 'Add Map Type' button
+		const addMapTypeEntry = await getTreeViewItemElement(page, assetContentEl, [0, 1]);
+		assertExists(addMapTypeEntry);
+		const addMapTypeValueEl = await getPropertiesTreeViewEntryValueEl(addMapTypeEntry);
+		const addMapTypeButton = await addMapTypeValueEl.$(".button");
+		assertExists(addMapTypeButton);
+		await click(page, addMapTypeButton);
 
-						await clickContextMenuItem(page, testContext, ["WebGPU Renderer"]);
+		await clickContextMenuItem(page, ["WebGPU Renderer"]);
 
-						const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "", "WebGPU Renderer", "", "", "Forward Pipeline Config"]);
-						await createEmbeddedAssetAndOpen(page, testContext, forwardPipelineConfigTreeViewEntry);
-					},
-				});
+		const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "", "WebGPU Renderer", "", "", "Forward Pipeline Config"]);
+		await createEmbeddedAssetAndOpen(page, forwardPipelineConfigTreeViewEntry);
 
-				// We'll change an arbitrary property to check if changes are saved
-				await testContext.step({
-					name: "Toggle Depth Write checkbox",
-					async fn(testContext) {
-						const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Pipeline Config", "Depth Write Enabled"]);
-						assertExists(depthWriteEntry);
-						const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
-						const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
-						assertExists(checkbox);
-						await click(page, checkbox);
+		// We'll change an arbitrary property to check if changes are saved
+		log("Toggle Depth Write checkbox");
+		const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Pipeline Config", "Depth Write Enabled"]);
+		assertExists(depthWriteEntry);
+		const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
+		const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
+		assertExists(checkbox);
+		await click(page, checkbox);
 
-						await page.evaluate(async () => {
-							const studio = globalThis.studio;
-							if (!studio) return;
-							const fs = studio.projectManager.currentProjectFileSystem;
-							if (!fs) return;
-							await fs.waitForWritesFinish();
-						});
-					},
-				});
-			},
+		await page.evaluate(async () => {
+			const studio = globalThis.studio;
+			if (!studio) return;
+			const fs = studio.projectManager.currentProjectFileSystem;
+			if (!fs) return;
+			await fs.waitForWritesFinish();
 		});
 
-		await testContext.step({
-			name: "Reload the page",
-			async fn(testContext) {
-				await page.reload();
-			},
+		await reloadPage(page);
+
+		await waitForProjectOpen(page);
+
+		log("Verify if changes were saved");
+		await clickAsset(page, MATERIAL_ASSET_PATH);
+		const assetContentEl2 = await getPropertiesWindowContentAsset(page);
+
+		const mapTreeViewEntry2 = await findMapTreeViewEntry(page, assetContentEl2);
+		await openDroppableGuiTreeViewEntry(page, mapTreeViewEntry2);
+
+		const forwardPipelineConfigTreeViewEntry2 = await getTreeViewItemElement(page, assetContentEl2, ["", "", "WebGPU Renderer", "", "", "Forward Pipeline Config"]);
+		await openDroppableGuiTreeViewEntry(page, forwardPipelineConfigTreeViewEntry2);
+
+		const depthWriteEntry2 = await getTreeViewItemElement(page, assetContentEl2, [0, "Pipeline Config", "Depth Write Enabled"]);
+		assertExists(depthWriteEntry2);
+		const depthWriteValueEl2 = await getPropertiesTreeViewEntryValueEl(depthWriteEntry2);
+		const checkbox2 = await depthWriteValueEl2.$("input[type=checkbox]");
+		assertExists(checkbox2);
+
+		const checked = await checkbox2.evaluate(checkbox => {
+			if (!(checkbox instanceof HTMLInputElement)) throw new Error("Assertion failed, checkbox is not a HTMLInputElement.");
+			return checkbox.checked;
 		});
-
-		await waitForProjectOpen(page, testContext);
-
-		await testContext.step({
-			name: "Verify if changes were saved",
-			async fn(testContext) {
-				await clickAsset(page, testContext, MATERIAL_ASSET_PATH);
-				const assetContentEl = await getPropertiesWindowContentAsset(page);
-
-				const mapTreeViewEntry = await findMapTreeViewEntry(page, assetContentEl);
-				await openDroppableGuiTreeViewEntry(page, testContext, mapTreeViewEntry);
-
-				const forwardPipelineConfigTreeViewEntry = await getTreeViewItemElement(page, assetContentEl, ["", "", "WebGPU Renderer", "", "", "Forward Pipeline Config"]);
-				await openDroppableGuiTreeViewEntry(page, testContext, forwardPipelineConfigTreeViewEntry);
-
-				const depthWriteEntry = await getTreeViewItemElement(page, assetContentEl, [0, "Pipeline Config", "Depth Write Enabled"]);
-				assertExists(depthWriteEntry);
-				const depthWriteValueEl = await getPropertiesTreeViewEntryValueEl(depthWriteEntry);
-				const checkbox = await depthWriteValueEl.$("input[type=checkbox]");
-				assertExists(checkbox);
-
-				const checked = await checkbox.evaluate(checkbox => {
-					if (!(checkbox instanceof HTMLInputElement)) throw new Error("Assertion failed, checkbox is not a HTMLInputElement.");
-					return checkbox.checked;
-				});
-				assertEquals(checked, false);
-			},
-		});
+		assertEquals(checked, false);
 
 		await disconnect();
 	},
