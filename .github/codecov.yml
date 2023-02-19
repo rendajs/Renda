@@ -1,5 +1,13 @@
-comment: false
 coverage:
   status:
-    project: off
-    patch: off
+    # https://docs.codecov.com/docs/commit-status#project-status
+    project:
+      default:
+        informational: true
+    # https://docs.codecov.com/docs/commit-status#patch-status
+    patch:
+      default:
+        informational: true
+
+# https://docs.codecov.com/docs/pull-request-comments#disable-comment
+comment: false
