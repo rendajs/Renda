@@ -124,8 +124,9 @@ export class ProjectSelector {
 	}
 
 	async startGetRecentProjects() {
-		this.recentProjectsList = await this.indexedDb.get("recentProjectsList");
-		if (!this.recentProjectsList) this.recentProjectsList = [];
+		/** @type {typeof this.indexedDb.get<StoredProjectEntryAny[]>} */
+		const dbGetProjectsList = this.indexedDb.get;
+		this.recentProjectsList = await dbGetProjectsList("recentProjectsList") || [];
 		const databases = await indexedDB.databases();
 		const databaseNames = databases.map(db => db.name);
 		this.recentProjectsList = this.recentProjectsList.filter(entry => {

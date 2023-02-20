@@ -65,9 +65,10 @@ export class IndexedDbUtil {
 	}
 
 	/**
+	 * @template [T = unknown]
 	 * @param {string} key The key to search for.
 	 * @param {string} objectStoreName The object store to search in.
-	 * @returns {Promise<*>} The value of the key.
+	 * @returns {Promise<T | undefined>} The value of the key.
 	 */
 	async get(key, objectStoreName = this.objectStoreNames[0]) {
 		const db = await this.#dbPromise;
@@ -80,7 +81,7 @@ export class IndexedDbUtil {
 	/**
 	 * Sets a value for a key.
 	 * @param {string} key The key to save at.
-	 * @param {*} value The object to save.
+	 * @param {unknown} value The object to save.
 	 * @param {string} objectStoreName The object store to save in.
 	 * @returns {Promise<void>}
 	 */
@@ -95,7 +96,7 @@ export class IndexedDbUtil {
 	 * Locks the value between read and write.
 	 * The parameter of the callback will be undefined if the key does not exist
 	 * yet, otherwise it will be the value of the key.
-	 * @template T
+	 * @template [T = unknown]
 	 * @param {string} key The key to save at.
 	 * @param {(value: T | undefined) => T} cb The function to call to get the replaced value to save.
 	 * @param {string} objectStoreName The object store to save in.
