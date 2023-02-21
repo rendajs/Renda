@@ -75,3 +75,19 @@ Deno.test({
 		assertSpyCalls(spyFn, fireCount);
 	},
 });
+
+Deno.test({
+	name: "getAllPreferences",
+	fn() {
+		const location = new PreferencesLocation("global");
+		location.loadPreferences({
+			foo: "foo",
+		});
+		location.set("bar", true);
+
+		assertEquals(location.getAllPreferences(), {
+			foo: "foo",
+			bar: true,
+		});
+	},
+});

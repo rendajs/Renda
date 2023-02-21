@@ -38,6 +38,24 @@ export class PreferencesLocation {
 	}
 
 	/**
+	 * Gets an object containing all preferences and their values.
+	 * Useful when flushing data to disk
+	 */
+	getAllPreferences() {
+		/** @type {Object<string, unknown>} */
+		const preferences = {};
+		for (const [preference, value] of this.#storedPreferences) {
+			preferences[preference] = value;
+		}
+		return preferences;
+	}
+
+	/**
+	 * Write all preferences to disk.
+	 */
+	async flush() {}
+
+	/**
 	 * @param {OnPreferenceLoadCallback} cb
 	 */
 	onPreferenceLoaded(cb) {

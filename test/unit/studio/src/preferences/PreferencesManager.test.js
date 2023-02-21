@@ -1,7 +1,8 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
+import {assertPromiseResolved} from "../../../shared/asserts.js";
 
 /**
  * Creates a manager and registers a bunch of test types.
@@ -254,5 +255,71 @@ Deno.test({
 				},
 			],
 		});
+	},
+});
+
+Deno.test({
+	name: "Values are immediately flushed by default",
+	fn() {
+		const {manager, locations} = createManager();
+		const flushSpy = spy(locations.global, "flush");
+
+		manager.set("boolPref1", true);
+		assertSpyCalls(flushSpy, 1);
+
+		manager.reset("boolPref1");
+		assertSpyCalls(flushSpy, 2);
+	},
+});
+
+Deno.test({
+	name: "Calling flush flushes unflushed locations",
+	async fn() {
+		const {manager, locations} = createManager();
+		/** @type {Set<() => void>} */
+		const globalFlushResolveFunctions = new Set();
+		const globalFlushSpy = stub(locations.global, "flush", () => {
+			return new Promise(resolve => {
+				globalFlushResolveFunctions.add(resolve);
+			});
+		});
+		const workspaceFlushSpy = spy(locations.workspace, "flush");
+		const versionControlFlushSpy = spy(locations.versionControl, "flush");
+		const projectFlushSpy = spy(locations.project, "flush");
+
+		// don't flush global location
+		manager.set("boolPref1", true, {
+			flush: false,
+		});
+
+		// don't flush project location
+		manager.set("projectPref", "value", {
+			flush: false,
+		});
+
+		// flush workspace location
+		manager.set("workspacePref", "value");
+
+		// don't set versionControl location at all
+
+		assertSpyCalls(globalFlushSpy, 0);
+		assertSpyCalls(projectFlushSpy, 0);
+		assertSpyCalls(workspaceFlushSpy, 1);
+		assertSpyCalls(versionControlFlushSpy, 0);
+
+		// Now flush all locations that have not been flushed yet
+		const flushPromise = manager.flush();
+
+		await assertPromiseResolved(flushPromise, false);
+
+		globalFlushResolveFunctions.forEach(cb => cb());
+		globalFlushResolveFunctions.clear();
+
+		await assertPromiseResolved(flushPromise, true);
+
+		assertSpyCalls(globalFlushSpy, 1);
+		assertSpyCalls(projectFlushSpy, 1);
+		assertSpyCalls(workspaceFlushSpy, 1);
+		assertSpyCalls(versionControlFlushSpy, 0);
 	},
 });

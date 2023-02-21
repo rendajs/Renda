@@ -81,6 +81,8 @@ export class PreferencesManager {
 	#registeredPreferences = new Map();
 	/** @type {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} */
 	#registeredLocations = [];
+	/** @type {WeakMap<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, boolean>} */
+	#locationsFlushed = new WeakMap();
 
 	/** @type {EventHandler<PreferenceTypes, OnPreferenceChangeEvent<any>>} */
 	#onChangeHandler = new EventHandler();
@@ -150,6 +152,8 @@ export class PreferencesManager {
 	 * @property {boolean} [performedByUser]
 	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [location] The location
 	 * where the preference should be changed. Defaults to the defaultLocation of the specified preference.
+	 * @property {boolean} [flush] When set to true (which is the default),
+	 * preferences are flushed asynchronously right after the change is applied.
 	 */
 
 	/**
@@ -179,10 +183,10 @@ export class PreferencesManager {
 	 * Resets a preference back to its default value, or if a value has been set on a different location
 	 * the value may get reset to the value of that location depending on its priority.
 	 * @param {PreferenceTypes} preference
-	 * @param {SetPreferenceOptions} locationOptions
+	 * @param {SetPreferenceOptions} [setPreferenceOptions]
 	 */
-	reset(preference, locationOptions) {
-		return this.#changeAndFireEvents(preference, locationOptions, location => {
+	reset(preference, setPreferenceOptions) {
+		return this.#changeAndFireEvents(preference, setPreferenceOptions, location => {
 			location.delete(preference);
 		});
 	}
@@ -194,10 +198,10 @@ export class PreferencesManager {
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
 	 * @param {GetPreferenceType<T>} value
-	 * @param {SetPreferenceOptions} [locationOptions]
+	 * @param {SetPreferenceOptions} [setPreferenceOptions]
 	 */
-	set(preference, value, locationOptions) {
-		this.#changeAndFireEvents(preference, locationOptions, location => {
+	set(preference, value, setPreferenceOptions) {
+		this.#changeAndFireEvents(preference, setPreferenceOptions, location => {
 			location.set(preference, value);
 		});
 	}
@@ -207,22 +211,37 @@ export class PreferencesManager {
 	 * If so, the appropriate events are fired.
 	 * @template T
 	 * @param {PreferenceTypes} preference
-	 * @param {SetPreferenceOptions | undefined} locationOptions
+	 * @param {SetPreferenceOptions | undefined} setPreferenceOptions
 	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation) => T} cb
 	 */
-	#changeAndFireEvents(preference, locationOptions, cb) {
+	#changeAndFireEvents(preference, setPreferenceOptions, cb) {
 		const previousValue = this.get(preference);
-		const location = this.#getLocation(preference, locationOptions);
+		const location = this.#getLocation(preference, setPreferenceOptions);
 		const cbResult = cb(location);
+		const flush = setPreferenceOptions?.flush ?? true;
+		if (flush) location.flush();
+		this.#locationsFlushed.set(location, flush);
 		const newValue = this.get(preference);
 		if (previousValue != newValue) {
 			this.#onChangeHandler.fireEvent(preference, {
 				location: location.locationType,
-				trigger: locationOptions?.performedByUser ? "user" : "application",
+				trigger: setPreferenceOptions?.performedByUser ? "user" : "application",
 				value: newValue,
 			});
 		}
 		return cbResult;
+	}
+
+	async flush() {
+		const promises = [];
+		for (const location of this.#registeredLocations) {
+			const flushed = this.#locationsFlushed.get(location);
+			if (flushed == false) {
+				promises.push(location.flush());
+				this.#locationsFlushed.set(location, true);
+			}
+		}
+		await Promise.all(promises);
 	}
 
 	/**
