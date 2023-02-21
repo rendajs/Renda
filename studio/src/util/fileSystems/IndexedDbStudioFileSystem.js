@@ -126,7 +126,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		let locked = true;
 		while (locked) {
 			/** @type {typeof db.getSet<number>} */
-			const getSetLock = db.getSet;
+			const getSetLock = db.getSet.bind(db);
 			await getSetLock("systemLock", existingLock => {
 				if (!existingLock || Date.now() - existingLock > 1_000) {
 					locked = false;
@@ -207,7 +207,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		if (waitForRootCreate) await this.waitForRootCreate();
 		const db = this.assertDbExists();
 		/** @type {typeof db.get<IndexedDbStudioFileSystemPointer>} */
-		const dbGetPointer = db.get;
+		const dbGetPointer = db.get.bind(db);
 		const pointer = await dbGetPointer("rootPointer", "system");
 		if (!pointer) throw new Error("Assertion failed, no root pointer was found");
 		return pointer;
@@ -259,7 +259,7 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		if (!pointer) throw new Error("pointer not specified");
 		const db = this.assertDbExists();
 		/** @type {typeof db.get<IndexedDbStudioFileSystemStoredObject>} */
-		const dbGetPointer = db.get;
+		const dbGetPointer = db.get.bind(db);
 		const obj = await dbGetPointer(pointer);
 		if (!obj) throw new Error("The specified pointer does not exist");
 		return obj;
