@@ -149,7 +149,8 @@ export class PreferencesManager {
 
 	/**
 	 * @typedef SetPreferenceOptions
-	 * @property {boolean} [performedByUser]
+	 * @property {boolean} [performedByUser] Whether the value was changed by the user.
+	 * Controls the `trigger` value of change events. Defaults to false.
 	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [location] The location
 	 * where the preference should be changed. Defaults to the defaultLocation of the specified preference.
 	 * @property {boolean} [flush] When set to true (which is the default),
