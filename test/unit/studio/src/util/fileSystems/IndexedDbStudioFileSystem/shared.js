@@ -2,7 +2,7 @@ import {assertExists} from "std/testing/asserts.ts";
 import {Importer} from "fake-imports";
 
 const importer = new Importer(import.meta.url);
-importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/FakeIndexedDbUtil.js");
+importer.redirectModule("../../../../../../../src/util/IndexedDbUtil.js", "../../../../shared/MockIndexedDbUtil.js");
 
 /** @type {import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js")} */
 const IndexedDbStudioFileSystemMod = await importer.import("../../../../../../../studio/src/util/fileSystems/IndexedDbStudioFileSystem.js");
