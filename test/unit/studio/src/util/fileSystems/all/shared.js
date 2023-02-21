@@ -13,7 +13,7 @@ const {IndexedDbStudioFileSystem} = IndexedDbStudioFileSystemMod;
 export {IndexedDbStudioFileSystem};
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
-const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
+const forcePendingIndexedDbOperations = /** @type {typeof import("../../../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
 /** @typedef {typeof FsaStudioFileSystem | typeof IndexedDbStudioFileSystem | typeof MemoryStudioFileSystem} FileSystemTypes */
 
@@ -46,7 +46,7 @@ const fileSystems = [
 			const uuid = generateUuid();
 			const fs = new IndexedDbStudioFileSystem("fileSystem" + uuid);
 			if (disableStructuredClone) {
-				const castDb = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
+				const castDb = /** @type {import("../../../../shared/MockIndexedDbUtil.js").MockIndexedDbUtil?} */ (fs.db);
 				castDb?.setUseStructuredClone(false);
 			}
 			return fs;

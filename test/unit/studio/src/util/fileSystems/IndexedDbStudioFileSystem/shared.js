@@ -9,7 +9,7 @@ const IndexedDbStudioFileSystemMod = await importer.import("../../../../../../..
 const {IndexedDbStudioFileSystem} = IndexedDbStudioFileSystemMod;
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../../../src/util/IndexedDbUtil.js");
-const forcePendingOperations = /** @type {typeof import("../../../../shared/FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
+const forcePendingOperations = /** @type {typeof import("../../../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
 export {forcePendingOperations};
 
@@ -26,7 +26,7 @@ export async function createBasicFs({
 	lastCreatedFsNameId++;
 	const fs = await createFs(`fileSystem_${lastCreatedFsNameId}`);
 	if (disableStructuredClone) {
-		const castDb = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
+		const castDb = /** @type {import("../../../../shared/MockIndexedDbUtil.js").MockIndexedDbUtil?} */ (fs.db);
 		castDb?.setUseStructuredClone(false);
 	}
 	await fs.createDir(["root"]);
@@ -44,7 +44,7 @@ export async function createBasicFs({
 	return {
 		fs,
 		getEntryCount() {
-			const db = /** @type {import("../../../../shared/FakeIndexedDbUtil.js").IndexedDbUtil?} */ (fs.db);
+			const db = /** @type {import("../../../../shared/MockIndexedDbUtil.js").MockIndexedDbUtil?} */ (fs.db);
 			assertExists(db);
 			return Array.from(db.entries()).length;
 		},

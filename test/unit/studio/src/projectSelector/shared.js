@@ -10,7 +10,7 @@ const ProjectSelectorMod = await importer.import("../../../../../studio/src/proj
 const {ProjectSelector} = ProjectSelectorMod;
 
 const {forcePendingOperations: forcePendingOperationsImported} = await importer.import("../../../../../src/util/IndexedDbUtil.js");
-const forcePendingOperations = /** @type {typeof import("../../shared/FakeIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
+const forcePendingOperations = /** @type {typeof import("../../shared/MockIndexedDbUtil.js").forcePendingOperations} */ (forcePendingOperationsImported);
 
 export {forcePendingOperations, ProjectSelector};
 

@@ -100,7 +100,7 @@ export function forcePendingOperations(pending) {
 	}
 }
 
-export class IndexedDbUtil {
+export class MockIndexedDbUtil {
 	#dbName;
 	#db;
 	#objectStoreNames;
@@ -183,3 +183,6 @@ export class IndexedDbUtil {
 		return this.#db.entries(objectStoreName);
 	}
 }
+
+const cast = /** @type {typeof MockIndexedDbUtil & typeof import("../../../../src/mod.js").IndexedDbUtil & (new (...args: any) => (MockIndexedDbUtil & import("../../../../src/mod.js").IndexedDbUtil))} */ (MockIndexedDbUtil);
+export {cast as IndexedDbUtil};
