@@ -201,16 +201,20 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {boolean} waitForRootCreate
+	 * @template {boolean} [TWait = true]
+	 * @param {TWait} waitForRootCreate
 	 */
-	async getRootPointer(waitForRootCreate = true) {
+	async getRootPointer(waitForRootCreate = /** @type {TWait} */ (true)) {
 		if (waitForRootCreate) await this.waitForRootCreate();
 		const db = this.assertDbExists();
 		/** @type {typeof db.get<IndexedDbStudioFileSystemPointer>} */
 		const dbGetPointer = db.get.bind(db);
 		const pointer = await dbGetPointer("rootPointer", "system");
-		if (!pointer) throw new Error("Assertion failed, no root pointer was found");
-		return pointer;
+		if (waitForRootCreate) {
+			if (!pointer) throw new Error("Assertion failed, no root pointer was found");
+			return pointer;
+		}
+		return /** @type {TWait extends true ? IndexedDbStudioFileSystemPointer : IndexedDbStudioFileSystemPointer?} */ (pointer || null);
 	}
 
 	/**
