@@ -1,4 +1,5 @@
 import {assertEquals} from "std/testing/asserts.ts";
+import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 
@@ -50,12 +51,17 @@ function createManager() {
 	const manager = new PreferencesManager();
 	manager.registerPreferences(registerPreferences);
 
-	manager.addLocation(new PreferencesLocation("global"));
-	manager.addLocation(new PreferencesLocation("workspace"));
-	manager.addLocation(new PreferencesLocation("version-control"));
-	manager.addLocation(new PreferencesLocation("project"));
+	const locations = {
+		global: new PreferencesLocation("global"),
+		workspace: new PreferencesLocation("workspace"),
+		versionControl: new PreferencesLocation("version-control"),
+		project: new PreferencesLocation("project"),
+	};
+	for (const location of Object.values(locations)) {
+		manager.addLocation(location);
+	}
 
-	return {manager};
+	return {manager, locations};
 }
 
 Deno.test({
@@ -119,12 +125,134 @@ Deno.test({
 });
 
 Deno.test({
-	name: "Preferences use their default locations",
+	name: "All locations are considered when ",
 	fn() {
 		const {manager} = createManager();
 
 		manager.set("projectPref", "global", {location: "global"});
 		manager.set("projectPref", "project");
 		assertEquals(manager.get("projectPref"), "project");
+	},
+});
+
+Deno.test({
+	name: "Events are fired for changed preferences",
+	fn() {
+		const {manager, locations} = createManager();
+
+		/** @type {Parameters<typeof manager.onChange<"numPref2">>[1]} */
+		const changeFn = () => {};
+		const spyFn = spy(changeFn);
+		let callCount = 0;
+
+		locations.global.loadPreferences({
+			numPref2: 123,
+		});
+		assertSpyCalls(spyFn, callCount);
+
+		manager.onChange("numPref2", spyFn);
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					value: 123,
+					trigger: "initial",
+					location: null,
+				},
+			],
+		});
+
+		locations.workspace.loadPreferences({
+			numPref2: 456,
+		});
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					value: 456,
+					trigger: "load",
+					location: "workspace",
+				},
+			],
+		});
+
+		manager.set("numPref2", 789, {location: "workspace"});
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					value: 789,
+					trigger: "application",
+					location: "workspace",
+				},
+			],
+		});
+
+		// Setting to an existing value should not fire any events
+		manager.set("numPref2", 789, {location: "workspace"});
+		assertSpyCalls(spyFn, callCount);
+
+		// Setting a location with higher priority to an existing value should not fire any events
+		manager.set("numPref2", 789, {location: "project"});
+		manager.reset("numPref2", {location: "project"});
+		assertSpyCalls(spyFn, callCount);
+
+		// Setting a location with lower priority should not fire events
+		manager.set("numPref2", 42, {location: "global"});
+		manager.reset("numPref2", {location: "global"});
+		manager.set("numPref2", 123, {location: "global"});
+		assertSpyCalls(spyFn, callCount);
+
+		// Resetting a location that was never set should not fire events
+		manager.reset("numPref2", {location: "version-control"});
+
+		manager.reset("numPref2", {location: "workspace"});
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					value: 123,
+					trigger: "application",
+					location: "workspace",
+				},
+			],
+		});
+
+		manager.set("numPref2", 789, {location: "workspace", performedByUser: true});
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					value: 789,
+					trigger: "user",
+					location: "workspace",
+				},
+			],
+		});
+
+		manager.reset("numPref2", {location: "workspace", performedByUser: true});
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					value: 123,
+					trigger: "user",
+					location: "workspace",
+				},
+			],
+		});
+
+		// When a location loads new values, it might reset ones that have not been specified.
+		locations.global.loadPreferences({});
+		assertSpyCalls(spyFn, ++callCount);
+		assertSpyCall(spyFn, callCount - 1, {
+			args: [
+				{
+					value: 42,
+					trigger: "load",
+					location: "global",
+				},
+			],
+		});
 	},
 });

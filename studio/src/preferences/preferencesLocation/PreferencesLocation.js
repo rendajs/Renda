@@ -1,15 +1,54 @@
 /** @typedef {"global" | "workspace" | "version-control" | "project" | "workspace" | "contentwindow-workspace" | "contentwindow-project"} PreferenceLocationTypes */
+/** @typedef {(key: string) => void} OnPreferenceLoadCallback */
 
 export class PreferencesLocation {
 	locationType;
 	/** @type {Map<string, unknown>} */
 	#storedPreferences = new Map();
 
+	/** @type {Set<OnPreferenceLoadCallback>} */
+	#onPreferenceLoadedCbs = new Set();
+
 	/**
 	 * @param {PreferenceLocationTypes} locationType
 	 */
 	constructor(locationType) {
 		this.locationType = locationType;
+	}
+
+	/**
+	 * Clears existing values and loads the provided preferences.
+	 * Notifies the PreferencesManager that preferences have been changed.
+	 * @param {Object<string, unknown>} preferences
+	 */
+	loadPreferences(preferences) {
+		const removedPreferences = new Set(this.#storedPreferences.keys());
+		for (const [preference, value] of Object.entries(preferences)) {
+			removedPreferences.delete(preference);
+			const previousValue = this.#storedPreferences.get(preference);
+			if (value != previousValue) {
+				this.#storedPreferences.set(preference, value);
+				this.#onPreferenceLoadedCbs.forEach(cb => cb(preference));
+			}
+		}
+		for (const preference of removedPreferences) {
+			this.#storedPreferences.delete(preference);
+			this.#onPreferenceLoadedCbs.forEach(cb => cb(preference));
+		}
+	}
+
+	/**
+	 * @param {OnPreferenceLoadCallback} cb
+	 */
+	onPreferenceLoaded(cb) {
+		this.#onPreferenceLoadedCbs.add(cb);
+	}
+
+	/**
+	 * @param {OnPreferenceLoadCallback} cb
+	 */
+	removeOnPreferenceLoaded(cb) {
+		this.#onPreferenceLoadedCbs.delete(cb);
 	}
 
 	/**

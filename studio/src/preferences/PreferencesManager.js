@@ -5,6 +5,8 @@
  * @property {string} string
  */
 
+import {EventHandler} from "../../../src/util/EventHandler.js";
+
 /** @typedef {keyof PreferenceTypesMap} PreferenceValueTypes */
 /**
  * @template {PreferenceValueTypes} T
@@ -22,6 +24,31 @@
  * If the user does not choose a location, each preference will have its own default location.
  */
 /** @typedef {PreferenceConfigHelper<PreferenceValueTypes>} PreferenceConfig */
+
+/**
+ * - `"initial"` Events are guaranteed to fire once when you register the event listener for the first time.
+ * - `"user"` The change was caused by the user changing a value via UI.
+ * - `"load"` A new preferences location has been loaded, for instance when a new project is opened, or the current workspace has been changed.
+ * - `"application"` The value was changed programatically.
+ * @typedef {"initial" | "user" | "load" | "application"} PreferenceChangeEventTrigger
+ */
+
+/**
+ * @template T
+ * @typedef OnPreferenceChangeEvent
+ * @property {T} value The current value of the preference.
+ * @property {PreferenceChangeEventTrigger} trigger What type of action triggered the event.
+ * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} location The location
+ * that changed and caused the value to change. Note that this location is not necessarily the location that currently
+ * has a value set. For instance, a location might reset a preference to the default.
+ * In that case the current value is either the default value, or from a location with lower priority.
+ * The location is `null` when the event fires for the first time, in which case `trigger` will be `"initial"`.
+ */
+
+/**
+ * @template T
+ * @typedef {(e: OnPreferenceChangeEvent<T>) => void} OnPreferenceChangeCallback
+ */
 
 /**
  * @type {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]}
@@ -55,6 +82,12 @@ export class PreferencesManager {
 	/** @type {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} */
 	#registeredLocations = [];
 
+	/** @type {EventHandler<PreferenceTypes, OnPreferenceChangeEvent<any>>} */
+	#onChangeHandler = new EventHandler();
+
+	/** @type {Map<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, import("./preferencesLocation/PreferencesLocation.js").OnPreferenceLoadCallback>} */
+	#onPreferenceLoadedHandlers = new Map();
+
 	/**
 	 * @param {string | PreferenceTypes} preference
 	 * @param {PreferenceConfig} preferenceConfig
@@ -78,6 +111,23 @@ export class PreferencesManager {
 	addLocation(location) {
 		if (!this.#registeredLocations.includes(location)) {
 			this.#registeredLocations.push(location);
+
+			/**
+			 * @param {string} key
+			 */
+			const onPreferenceLoaded = key => {
+				const castKey = /** @type {PreferenceTypes} */ (key);
+				this.#onChangeHandler.fireEvent(castKey, {
+					location: location.locationType,
+					trigger: "load",
+					value: this.get(castKey),
+				});
+			};
+			if (this.#onPreferenceLoadedHandlers.has(location)) {
+				throw new Error("Assertion failed, a handler has already been registered");
+			}
+			this.#onPreferenceLoadedHandlers.set(location, onPreferenceLoaded);
+			location.onPreferenceLoaded(onPreferenceLoaded);
 		}
 		this.#registeredLocations.sort((a, b) => {
 			const indexA = locationTypePriorities.indexOf(a.locationType);
@@ -91,17 +141,20 @@ export class PreferencesManager {
 	 */
 	removeLocation(location) {
 		this.#registeredLocations = this.#registeredLocations.filter(l => l != location);
+		const handler = this.#onPreferenceLoadedHandlers.get(location);
+		if (handler) location.removeOnPreferenceLoaded(handler);
 	}
 
 	/**
-	 * @typedef LocationOptions
+	 * @typedef SetPreferenceOptions
+	 * @property {boolean} [performedByUser]
 	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [location] The location
 	 * where the preference should be changed. Defaults to the defaultLocation of the specified preference.
 	 */
 
 	/**
 	 * @param {PreferenceTypes} preference
-	 * @param {LocationOptions} [locationOptions]
+	 * @param {SetPreferenceOptions} [locationOptions]
 	 */
 	#getLocation(preference, locationOptions) {
 		let locationType = locationOptions?.location;
@@ -126,11 +179,12 @@ export class PreferencesManager {
 	 * Resets a preference back to its default value, or if a value has been set on a different location
 	 * the value may get reset to the value of that location depending on its priority.
 	 * @param {PreferenceTypes} preference
-	 * @param {LocationOptions} locationOptions
+	 * @param {SetPreferenceOptions} locationOptions
 	 */
 	reset(preference, locationOptions) {
-		const location = this.#getLocation(preference, locationOptions);
-		return location.delete(preference);
+		return this.#changeAndFireEvents(preference, locationOptions, location => {
+			location.delete(preference);
+		});
 	}
 
 	/**
@@ -140,11 +194,35 @@ export class PreferencesManager {
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
 	 * @param {GetPreferenceType<T>} value
-	 * @param {LocationOptions} [locationOptions]
+	 * @param {SetPreferenceOptions} [locationOptions]
 	 */
 	set(preference, value, locationOptions) {
+		this.#changeAndFireEvents(preference, locationOptions, location => {
+			location.set(preference, value);
+		});
+	}
+
+	/**
+	 * Runs a callback, and verifies if the value of a preference was changed during that callback.
+	 * If so, the appropriate events are fired.
+	 * @template T
+	 * @param {PreferenceTypes} preference
+	 * @param {SetPreferenceOptions | undefined} locationOptions
+	 * @param {(location: import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation) => T} cb
+	 */
+	#changeAndFireEvents(preference, locationOptions, cb) {
+		const previousValue = this.get(preference);
 		const location = this.#getLocation(preference, locationOptions);
-		location.set(preference, value);
+		const cbResult = cb(location);
+		const newValue = this.get(preference);
+		if (previousValue != newValue) {
+			this.#onChangeHandler.fireEvent(preference, {
+				location: location.locationType,
+				trigger: locationOptions?.performedByUser ? "user" : "application",
+				value: newValue,
+			});
+		}
+		return cbResult;
 	}
 
 	/**
@@ -172,5 +250,28 @@ export class PreferencesManager {
 			}
 		}
 		return value;
+	}
+
+	/**
+	 * @template {PreferenceTypes} T
+	 * @param {T} preference
+	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
+	 */
+	onChange(preference, cb) {
+		this.#onChangeHandler.addEventListener(preference, cb);
+		cb({
+			location: null,
+			trigger: "initial",
+			value: this.get(preference),
+		});
+	}
+
+	/**
+	 * @template {PreferenceTypes} T
+	 * @param {T} preference
+	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
+	 */
+	removeOnChange(preference, cb) {
+		this.#onChangeHandler.removeEventListener(preference, cb);
 	}
 }
