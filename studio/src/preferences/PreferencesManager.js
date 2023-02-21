@@ -228,7 +228,6 @@ export class PreferencesManager {
 	/**
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
-	 * @returns {GetPreferenceType<T>}
 	 */
 	get(preference) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
@@ -245,11 +244,22 @@ export class PreferencesManager {
 		}
 		for (const location of this.#registeredLocations) {
 			if (location.has(preference)) {
-				value = location.get(preference);
-				break;
+				const locationValue = location.get(preference);
+				let validLocation = false;
+				if (preferenceConfig.type == "boolean" && typeof locationValue == "boolean") {
+					validLocation = true;
+				} else if (preferenceConfig.type == "number" && typeof locationValue == "number") {
+					validLocation = true;
+				} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
+					validLocation = true;
+				}
+				if (validLocation) {
+					value = validLocation;
+					break;
+				}
 			}
 		}
-		return value;
+		return /** @type {GetPreferenceType<T>} */ (value);
 	}
 
 	/**
