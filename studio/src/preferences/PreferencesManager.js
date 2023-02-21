@@ -245,16 +245,14 @@ export class PreferencesManager {
 		for (const location of this.#registeredLocations) {
 			if (location.has(preference)) {
 				const locationValue = location.get(preference);
-				let validLocation = false;
 				if (preferenceConfig.type == "boolean" && typeof locationValue == "boolean") {
-					validLocation = true;
+					value = locationValue;
+					break;
 				} else if (preferenceConfig.type == "number" && typeof locationValue == "number") {
-					validLocation = true;
+					value = locationValue;
+					break;
 				} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
-					validLocation = true;
-				}
-				if (validLocation) {
-					value = validLocation;
+					value = locationValue;
 					break;
 				}
 			}
