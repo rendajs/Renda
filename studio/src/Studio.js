@@ -21,16 +21,21 @@ import {IS_DEV_BUILD} from "./studioDefines.js";
 import {DevSocketManager} from "./network/DevSocketManager.js";
 import {ComponentTypeManager} from "../../src/components/ComponentTypeManager.js";
 
-import {AssetLoader, EngineAssetsManager, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
+import {AssetLoader, EngineAssetsManager, IndexedDbUtil, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
 import {ProjectAssetTypeShaderSource} from "./assets/projectAssetType/ProjectAssetTypeShaderSource.js";
 import {PreferencesManager} from "./preferences/PreferencesManager.js";
 import {autoRegisterPreferences} from "./preferences/autoRegisterPreferences.js";
+import {GlobalPreferencesLocation} from "./preferences/preferencesLocation/GlobalPreferencesLocation.js";
 
 export class Studio {
 	constructor() {
 		this.engineAssetManager = new EngineAssetsManager(new AssetLoader());
 		this.renderer = new WebGpuRenderer(this.engineAssetManager);
 		this.webGpuShaderBuilder = new ShaderBuilder();
+		/**
+		 * A general purpose IndexedDb for storing data across sessions.
+		 */
+		this.indexedDb = new IndexedDbUtil("studioStorage");
 
 		this.windowManager = new WindowManager();
 		for (const w of autoRegisterContentWindows) {
@@ -40,6 +45,7 @@ export class Studio {
 		/** @type {PreferencesManager<typeof autoRegisterPreferences>} */
 		this.preferencesManager = new PreferencesManager();
 		this.preferencesManager.registerPreferences(autoRegisterPreferences);
+		this.preferencesManager.addLocation(new GlobalPreferencesLocation(this.indexedDb));
 
 		this.selectionManager = new SelectionManager();
 		this.colorizerFilterManager = new ColorizerFilterManager();
