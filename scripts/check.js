@@ -6,7 +6,8 @@ await dev({
 });
 
 const proc = Deno.run({
-	cmd: ["deno", "run", "--allow-env", "--allow-read", "npm:typescript@4.8.3/tsc", "--noEmit", "-p", "./jsconfig.json"],
+	// Also update the version in ./scripts/dev.js
+	cmd: ["deno", "run", "--allow-env", "--allow-read", "npm:typescript@4.9.5/tsc", "--noEmit", "-p", "./jsconfig.json"],
 });
 
 const status = await proc.status();

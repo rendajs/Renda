@@ -44,7 +44,6 @@ Deno.test({
 		const lastChar = await page.evaluate(() => {
 			const selection = getSelection();
 			if (!selection) return "";
-			// @ts-expect-error
 			selection.modify("extend", "left", "character");
 			return selection.toString();
 		});
