@@ -7,14 +7,18 @@ import {waitForMicrotasks} from "../../shared/waitForMicroTasks.js";
 function basicSpyFn() {
 	/** @type {((result: string) => void)?} */
 	let resolvePromise = null;
-	const spyFn = spy(async (/** @type {string} */ param) => {
+	/**
+	 * @param {string} param
+	 */
+	const fn = async param => {
 		/** @type {Promise<string>} */
 		const promise = new Promise(r => {
 			resolvePromise = r;
 		});
 		const promiseResult = await promise;
 		return param + promiseResult;
-	});
+	};
+	const spyFn = spy(fn);
 	return {
 		/** @param {string} result */
 		async resolvePromise(result) {
@@ -31,9 +35,11 @@ function basicSpyFn() {
 Deno.test({
 	name: "Single run",
 	async fn() {
-		const instance = new SingleInstancePromise((/** @type {number} */ x) => {
-			return x;
-		});
+		/**
+		 * @param {number} x
+		 */
+		const fn = x => x;
+		const instance = new SingleInstancePromise(fn);
 
 		const result = await instance.run(1337);
 		assertEquals(result, 1337);
@@ -68,7 +74,11 @@ Deno.test({
 Deno.test({
 	name: "once: true, only runs once",
 	async fn() {
-		const fn = spy((/** @type {number} */ x) => x);
+		/**
+		 * @param {number} x
+		 */
+		const spyFn = x => x;
+		const fn = spy(spyFn);
 		const instance = new SingleInstancePromise(fn, {once: true});
 
 		await instance.run(123);
