@@ -9,17 +9,26 @@ export class OrbitControls {
 	constructor(cameraEntity, eventElement) {
 		this.camera = cameraEntity;
 
-		this.camTransformDirty = true;
+		this.invertScrollX = false;
+		this.invertScrollY = false;
+
+		/** @private */
+		this._camTransformDirty = true;
+		/** @private */
 		this._boundMarkTransformDirty = this.markTransformDirty.bind(this);
+		/** @private */
 		this._lookPos = new Vec3();
 		this._lookPos.onChange(this._boundMarkTransformDirty);
+		/** @private */
 		this._lookRot = new Quat();
 		this._lookRot.onChange(this._boundMarkTransformDirty);
+		/** @private */
 		this._lookDist = 3;
 
-		this.boundOnWheel = this.onWheel.bind(this);
-		/** @type {HTMLElement[]} */
-		this.addedEventElements = [];
+		/** @private */
+		this._boundOnWheel = this.onWheel.bind(this);
+		/** @private @type {HTMLElement[]} */
+		this._addedEventElements = [];
 		if (eventElement) this.addEventElement(eventElement);
 	}
 
@@ -49,12 +58,12 @@ export class OrbitControls {
 	}
 
 	markTransformDirty() {
-		this.camTransformDirty = true;
+		this._camTransformDirty = true;
 	}
 
 	destructor() {
-		for (const elem of this.addedEventElements) {
-			elem.removeEventListener("wheel", this.boundOnWheel);
+		for (const elem of this._addedEventElements) {
+			elem.removeEventListener("wheel", this._boundOnWheel);
 		}
 	}
 
@@ -62,8 +71,8 @@ export class OrbitControls {
 	 * @param {HTMLElement} elem
 	 */
 	addEventElement(elem) {
-		this.addedEventElements.push(elem);
-		elem.addEventListener("wheel", this.boundOnWheel);
+		this._addedEventElements.push(elem);
+		elem.addEventListener("wheel", this._boundOnWheel);
 	}
 
 	/**
@@ -71,8 +80,8 @@ export class OrbitControls {
 	 */
 	onWheel(e) {
 		e.preventDefault();
-		const dx = -e.deltaX;
-		const dy = -e.deltaY;
+		const dx = this.invertScrollX ? e.deltaX : -e.deltaX;
+		const dy = this.invertScrollY ? e.deltaY : -e.deltaY;
 		if (e.ctrlKey) {
 			this.lookDist -= dy * 0.01;
 		} else if (e.shiftKey) {
@@ -87,9 +96,9 @@ export class OrbitControls {
 	}
 
 	loop() {
-		if (this.camTransformDirty) {
+		if (this._camTransformDirty) {
 			this.updateCamPos();
-			this.camTransformDirty = false;
+			this._camTransformDirty = false;
 			return true;
 		}
 		return false;

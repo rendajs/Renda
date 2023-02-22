@@ -61,7 +61,7 @@ Deno.test({
 			}
 			const result = await originalGet(key, objectStoreName);
 			currentlyRunningCalls--;
-			return result;
+			return /** @type {any} */ (result);
 		};
 
 		forcePendingOperations(true);

@@ -125,7 +125,9 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 		// polling :(
 		let locked = true;
 		while (locked) {
-			await db.getSet("systemLock", existingLock => {
+			/** @type {typeof db.getSet<number>} */
+			const getSetLock = db.getSet.bind(db);
+			await getSetLock("systemLock", existingLock => {
 				if (!existingLock || Date.now() - existingLock > 1_000) {
 					locked = false;
 					return Date.now();
@@ -199,13 +201,20 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 	}
 
 	/**
-	 * @param {boolean} waitForRootCreate
-	 * @returns {Promise<IndexedDbStudioFileSystemPointer>}
+	 * @template {boolean} [TWait = true]
+	 * @param {TWait} waitForRootCreate
 	 */
-	async getRootPointer(waitForRootCreate = true) {
+	async getRootPointer(waitForRootCreate = /** @type {TWait} */ (true)) {
 		if (waitForRootCreate) await this.waitForRootCreate();
 		const db = this.assertDbExists();
-		return await db.get("rootPointer", "system");
+		/** @type {typeof db.get<IndexedDbStudioFileSystemPointer>} */
+		const dbGetPointer = db.get.bind(db);
+		const pointer = await dbGetPointer("rootPointer", "system");
+		if (waitForRootCreate) {
+			if (!pointer) throw new Error("Assertion failed, no root pointer was found");
+			return pointer;
+		}
+		return /** @type {TWait extends true ? IndexedDbStudioFileSystemPointer : IndexedDbStudioFileSystemPointer?} */ (pointer || null);
 	}
 
 	/**
@@ -249,12 +258,13 @@ export class IndexedDbStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @param {IndexedDbStudioFileSystemPointer} pointer
-	 * @returns {Promise<IndexedDbStudioFileSystemStoredObject>}
 	 */
 	async getObject(pointer) {
 		if (!pointer) throw new Error("pointer not specified");
 		const db = this.assertDbExists();
-		const obj = await db.get(pointer);
+		/** @type {typeof db.get<IndexedDbStudioFileSystemStoredObject>} */
+		const dbGetPointer = db.get.bind(db);
+		const obj = await dbGetPointer(pointer);
 		if (!obj) throw new Error("The specified pointer does not exist");
 		return obj;
 	}

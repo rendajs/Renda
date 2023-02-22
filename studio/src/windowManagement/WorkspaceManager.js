@@ -38,29 +38,27 @@ export class WorkspaceManager {
 		this.onCurrentWorkspaceIdChangeCbs = new Set();
 	}
 
-	/**
-	 * @returns {Promise<Array<string>>}
-	 */
 	async getWorkspacesList() {
-		const list = await this.indexedDb.get("workspaces", "workspaceSettings");
+		/** @type {typeof this.indexedDb.get<string[]>} */
+		const getWorkspaces = this.indexedDb.get.bind(this.indexedDb);
+		const list = await getWorkspaces("workspaces", "workspaceSettings");
 		if (!list || list.length <= 0) return ["Default"];
 		return list;
 	}
 
 	/**
-	 * @param {Array<string>} value
+	 * @param {string[]} value
 	 */
 	async setWorkspacesList(value) {
 		await this.indexedDb.set("workspaces", value, "workspaceSettings");
 	}
 
-	/**
-	 * @returns {Promise<string>}
-	 */
 	async getCurrentWorkspaceId() {
 		if (this.currentWorkSpaceIdCache) return this.currentWorkSpaceIdCache;
 
-		this.currentWorkSpaceIdCache = await this.indexedDb.get("currentWorkspaceId", "workspaceSettings");
+		/** @type {typeof this.indexedDb.get<string>} */
+		const getWorkspaceId = this.indexedDb.get.bind(this.indexedDb);
+		this.currentWorkSpaceIdCache = await getWorkspaceId("currentWorkspaceId", "workspaceSettings");
 		if (!this.currentWorkSpaceIdCache) this.currentWorkSpaceIdCache = "Default";
 		return this.currentWorkSpaceIdCache;
 	}
@@ -85,10 +83,11 @@ export class WorkspaceManager {
 
 	/**
 	 * @param {string} workspaceId
-	 * @returns {Promise<WorkspaceData>}
 	 */
 	async getWorkspace(workspaceId) {
-		const workspaceData = await this.indexedDb.get(workspaceId, "workspaces");
+		/** @type {typeof this.indexedDb.get<WorkspaceData>} */
+		const dbGetWorkspace = this.indexedDb.get.bind(this.indexedDb);
+		const workspaceData = await dbGetWorkspace(workspaceId, "workspaces");
 		if (!workspaceData) return this.getDefaultWorkspace();
 		return workspaceData;
 	}

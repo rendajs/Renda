@@ -6,7 +6,7 @@ import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 
 const importer = new Importer(import.meta.url);
-importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/FakeIndexedDbUtil.js");
+importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
 importer.makeReal("../../../../../studio/src/studioInstance.js");
 importer.makeReal("../../../../../src/mod.js");
 importer.makeReal("../../../../../src/util/mod.js");
