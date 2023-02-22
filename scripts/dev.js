@@ -79,7 +79,8 @@ export async function dev({
 				// required for during development, can be skipped with ci
 				{
 					type: "downloadNpmPackage",
-					package: "typescript@4.8.3",
+					// Also update this version in ./scripts/check.js and ./.vscode/settings.json
+					package: "typescript@5.0.0-dev.20230222",
 					ignore: !needsDevDependencies,
 				},
 
