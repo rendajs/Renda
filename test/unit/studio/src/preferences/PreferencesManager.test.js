@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
@@ -122,6 +122,22 @@ Deno.test({
 
 		manager.reset("str", {location: "global"});
 		assertEquals(manager.get("str"), "");
+	},
+});
+
+Deno.test({
+	name: "Setting at missing location throws",
+	fn() {
+		const {manager, locations} = createManager();
+
+		assertThrows(() => {
+			manager.set("str", "value", {location: "contentwindow-project"});
+		}, Error, '"contentwindow-project" preference location was found.');
+
+		manager.removeLocation(locations.global);
+		assertThrows(() => {
+			manager.set("str", "value", {location: "global"});
+		}, Error, '"global" preference location was found.');
 	},
 });
 
@@ -255,6 +271,11 @@ Deno.test({
 				},
 			],
 		});
+
+		// Unregistering should stop firing the callback
+		manager.removeOnChange("numPref2", spyFn);
+		manager.set("numPref2", 789, {location: "workspace"});
+		assertSpyCalls(spyFn, callCount);
 	},
 });
 

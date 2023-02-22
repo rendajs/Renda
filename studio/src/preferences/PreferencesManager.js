@@ -175,7 +175,7 @@ export class PreferencesManager {
 			return false;
 		});
 		if (!location) {
-			throw new Error("Assertion failed, no preference location was found.");
+			throw new Error(`"${locationType}" preference location was found.`);
 		}
 		return location;
 	}
