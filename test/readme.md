@@ -1,8 +1,13 @@
 # Testing
 
-There are two test suites: `e2e` and `unit`. These are not 'end to end' and 'unit' tests in the strict sense in that unit tests only test for very small isolated functions and that e2e tests are testing a full flows in studio. But rather, the unit tests are fast and the e2e tests require puppeteer in order to run, making them slower and more flaky.
+There are two test suites: `e2e` and `unit`. These are not 'end to end' and 'unit' tests
+in the strict sense in that unit tests only test for very small isolated functions
+and that e2e tests are testing a full flows in studio.
+But rather, the unit tests are fast and the e2e tests require puppeteer in order to run, making them slower and more flaky.
 
-To run tests you can run `deno task test` or `./scripts/test.js`. You can optionally provide a path to only run a specific portion of the test suite. `./scripts/test.js test/unit` only runs the unit test suite for example.
+To run tests you can run `deno task test` or `./scripts/test.js`.
+You can optionally provide a path to only run a specific portion of the test suite.
+`./scripts/test.js test/unit` only runs the unit test suite for example.
 
 The test script takes some optional parameters:
 
@@ -11,3 +16,55 @@ The test script takes some optional parameters:
 - `--no-headless` to disable headless mode in e2e tests.
 - `-i`, `--inspect` to wait for a debugger to connect, this also automatically disables headless mode for e2e tests.
 - `--separate-browser-processes` to create a new browser process for every test. This slower but might make tests less flaky ([#328](https://github.com/rendajs/Renda/issues/328))
+
+## Unit tests
+
+The unit tests are located at `/test/unit`.
+Test files share the same path as the file they are supposed to be testing.
+So if you have a `Foo` class inside `/studio/src/path/to/Foo.js`,
+then it's test file will be at `/test/unit/studio/src/path/to/Foo.js`.
+
+### Debugging unit tests
+
+You can use the `-i` or `--inspect` flag to start an inspector while running the tests.
+However, a new inspector is opened for every test file, so you'll want to specify a path to the test that you wish to run.
+If you want to further filter out other tests you can use [the `only` option from Deno](https://deno.land/manual@v1.30.3/basics/testing#filtering-in-only-run-these-tests).
+
+### Code that needs the dom
+
+Some code, especially code making use of TreeViews, require the dom in order to run.
+More often than not you can make use of `runWithDom()` which creates a very basic mocked dom using [`fake-dom`](https://github.com/jespertheend/fake-dom).
+It is pretty lightweight so as to not slow tests down.
+But because of this you might run into situations that have not been mocked.
+If what you would like to mock is too much of an edge case, it's best to mock the missing functionality within the test file that needs it.
+Otherwise it's better to open up a PR in [`fake-dom`](https://github.com/jespertheend/fake-dom).
+
+## E2e tests
+
+The end to end tests are located at `/test/e2e/`.
+A single browser process is started and each test connects to this process separately.
+`getContext()` creates a new incognito window so that every test starts with a fresh environment.
+
+### Debugging e2e tests.
+To debug tests, the `-i` flag will automatically start an inspector and start the browser in headful mode.
+This starts two inspectors: a test inspector and a browser inspector.
+
+The test inspector is the same as when writing unit tests. You can connect to it with your ide or via `chrome://inspect`.
+The browser inspector is opened to the side of the opened browser window.
+
+### e2e global variable in studio
+
+Studio contains a global variable called `e2e`.
+This contains the utility functions found at `/studio/src/util/e2e/mod.js`.
+Writing large amounts of code inside `page.evaluate()` is not easy if you want to set breakpoints.
+In that case it is better to add a function to the e2e utilities module and invoke that from `page.evaluate()` instead.
+
+This module also contains functions not called by tests, but that you can use to help you with writing tests.
+For example, calling `e2e.logTreeViewPath($0)` will tell you the path that would need to be passed into the
+`getTreeViewItemElement()` function in `test/e2e/studio/shared/treeView.js`.
+In this case `$0` is [the most recently selected node](https://developer.chrome.com/blog/the-currently-selected-dom-node/).
+
+## Shared folders
+
+Some folders contain a `shared` folder, these contain code shared by more than one test file,
+such as mock or assertion utilities.
