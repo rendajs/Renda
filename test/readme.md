@@ -9,5 +9,5 @@ The test script takes some optional parameters:
 - `--coverage` generates a coverage file in `.lcov` format. This is useful if your IDE supports it.
 - `--html` generates a coverage file in `.html` format. `genhtml` needs to be installed for this to work. The generated html can be found at `.coverage/html`.
 - `--no-headless` to disable headless mode in e2e tests.
-- `--inspect-brk` to wait for a debugger to connect, this also automatically disables headless mode for e2e tests (though [this is broken](https://github.com/rendajs/Renda/issues/346) at the moment).
+- `-i`, `--inspect` to wait for a debugger to connect, this also automatically disables headless mode for e2e tests.
 - `--separate-browser-processes` to create a new browser process for every test. This slower but might make tests less flaky ([#328](https://github.com/rendajs/Renda/issues/328))
