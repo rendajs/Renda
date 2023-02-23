@@ -1,9 +1,7 @@
 import puppeteer from "puppeteer";
 import {PUPPETEER_REVISIONS} from "puppeteer/vendor/puppeteer-core/puppeteer/revisions.js";
 
-export const SEPARATE_BROWSER_PROCESSES_ARG = "--separate-browser-processes";
-export const PUPPETEER_WS_ENDPOINT_ARG = "--puppeteer-ws-endpoint=";
-export const PUPPETEER_NO_HEADLESS_ARG = "--no-headless";
+import {PUPPETEER_WS_ENDPOINT_ARG, SEPARATE_BROWSER_PROCESSES_ARG, parseArgs} from "../../../scripts/testArgs.js";
 
 function getMainPageUrl() {
 	const prefix = "--test-server-addr=";
@@ -77,11 +75,10 @@ export async function getContext(url = getMainPageUrl() + "/studio/") {
 			wsEndpoint = arg.slice(PUPPETEER_WS_ENDPOINT_ARG.length);
 		}
 	}
-	const separateProcesses = Deno.args.includes(SEPARATE_BROWSER_PROCESSES_ARG);
+	const {separateBrowserProcesses, headless} = parseArgs();
 	let browser;
-	if (separateProcesses) {
+	if (separateBrowserProcesses) {
 		const executablePath = await installIfNotInstalled();
-		const headless = !Deno.args.includes(PUPPETEER_NO_HEADLESS_ARG);
 		browser = await launch({headless, executablePath});
 	} else {
 		if (!wsEndpoint) {
@@ -101,7 +98,7 @@ export async function getContext(url = getMainPageUrl() + "/studio/") {
 		page,
 		async disconnect() {
 			await page.close();
-			if (separateProcesses) {
+			if (separateBrowserProcesses) {
 				await browserRef.close();
 			} else {
 				browserRef.disconnect();
