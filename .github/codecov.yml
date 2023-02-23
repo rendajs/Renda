@@ -6,14 +6,10 @@ coverage:
     # https://docs.codecov.com/docs/commit-status#project-status
     project:
       default:
-        target: auto
-        threshold: 0%
         informational: true
     # https://docs.codecov.com/docs/commit-status#patch-status
     patch:
       default:
-        target: auto
-        threshold: 0%
         informational: true
 
 # https://docs.codecov.com/docs/pull-request-comments#disable-comment
