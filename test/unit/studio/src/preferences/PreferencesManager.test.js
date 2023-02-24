@@ -1,5 +1,6 @@
 import {assertEquals, assertThrows} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
+import {ContentWindowPreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
@@ -132,12 +133,12 @@ Deno.test({
 
 		assertThrows(() => {
 			manager.set("str", "value", {location: "contentwindow-project"});
-		}, Error, '"contentwindow-project" preference location was found.');
+		}, Error, '"contentwindow-project" preference location was not found.');
 
 		manager.removeLocation(locations.global);
 		assertThrows(() => {
 			manager.set("str", "value", {location: "global"});
-		}, Error, '"global" preference location was found.');
+		}, Error, '"global" preference location was not found.');
 	},
 });
 
@@ -342,5 +343,47 @@ Deno.test({
 		assertSpyCalls(projectFlushSpy, 1);
 		assertSpyCalls(workspaceFlushSpy, 1);
 		assertSpyCalls(versionControlFlushSpy, 0);
+	},
+});
+
+Deno.test({
+	name: "Getting and setting for a specific content window",
+	fn() {
+		const {manager} = createManager();
+
+		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", "location1");
+		manager.addLocation(location1);
+		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", "location2");
+		manager.addLocation(location2);
+
+		manager.set("str", "global value", {location: "global"});
+		manager.set("str", "location1 value", {
+			location: "contentwindow-project",
+			contentWindowUuid: "location1",
+		});
+		manager.set("str", "location2 value", {
+			location: "contentwindow-project",
+			contentWindowUuid: "location2",
+		});
+
+		assertEquals(manager.get("str"), "global value");
+		assertEquals(manager.get("str", {contentWindowUuid: "location1"}), "location1 value");
+		assertEquals(manager.get("str", {contentWindowUuid: "location2"}), "location2 value");
+		assertThrows(() => {
+			manager.get("str", {contentWindowUuid: "non existent"});
+		}, Error, 'A content window uuid was provided ("non existent") but no location for this uuid was found.');
+
+		assertThrows(() => {
+			manager.set("str", "missing location uuid", {
+				location: "contentwindow-project",
+			});
+		}, Error, '"contentwindow-project" preference location was not found.');
+
+		assertThrows(() => {
+			manager.set("str", "value", {
+				location: "contentwindow-project",
+				contentWindowUuid: "non existent uuid",
+			});
+		}, Error, '"contentwindow-project" preference location was not found.');
 	},
 });

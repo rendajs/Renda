@@ -6,6 +6,7 @@
  */
 
 import {EventHandler} from "../../../src/util/EventHandler.js";
+import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWindowPreferencesLocation.js";
 
 /** @typedef {keyof PreferenceTypesMap} PreferenceValueTypes */
 /**
@@ -153,6 +154,7 @@ export class PreferencesManager {
 	 * Controls the `trigger` value of change events. Defaults to false.
 	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [location] The location
 	 * where the preference should be changed. Defaults to the defaultLocation of the specified preference.
+	 * @property {import("../../../src/mod.js").UuidString} [contentWindowUuid]
 	 * @property {boolean} [flush] When set to true (which is the default),
 	 * preferences are flushed asynchronously right after the change is applied.
 	 */
@@ -171,11 +173,15 @@ export class PreferencesManager {
 			locationType = "global";
 		}
 		const location = this.#registeredLocations.find(location => {
-			if (location.locationType == locationType) return true;
-			return false;
+			if (location.locationType != locationType) return false;
+			if (location instanceof ContentWindowPreferencesLocation) {
+				if (!locationOptions?.contentWindowUuid) return false;
+				if (locationOptions.contentWindowUuid != location.contentWindowUuid) return false;
+			}
+			return true;
 		});
 		if (!location) {
-			throw new Error(`"${locationType}" preference location was found.`);
+			throw new Error(`"${locationType}" preference location was not found.`);
 		}
 		return location;
 	}
@@ -248,8 +254,12 @@ export class PreferencesManager {
 	/**
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
+	 * @param {object} options
+	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 */
-	get(preference) {
+	get(preference, {
+		contentWindowUuid,
+	} = {}) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
 		if (!preferenceConfig) {
 			throw new Error(`Preference "${preference}" has not been registered.`);
@@ -262,7 +272,13 @@ export class PreferencesManager {
 		} else if (preferenceConfig.type == "string") {
 			value = value || "";
 		}
+		let foundContentWindowLocation = false;
 		for (const location of this.#registeredLocations) {
+			if (location instanceof ContentWindowPreferencesLocation) {
+				if (!contentWindowUuid) continue;
+				if (location.contentWindowUuid != contentWindowUuid) continue;
+				foundContentWindowLocation = true;
+			}
 			if (location.has(preference)) {
 				const locationValue = location.get(preference);
 				if (preferenceConfig.type == "boolean" && typeof locationValue == "boolean") {
@@ -276,6 +292,9 @@ export class PreferencesManager {
 					break;
 				}
 			}
+		}
+		if (contentWindowUuid && !foundContentWindowLocation) {
+			throw new Error(`A content window uuid was provided ("${contentWindowUuid}") but no location for this uuid was found.`);
 		}
 		return /** @type {GetPreferenceType<T>} */ (value);
 	}

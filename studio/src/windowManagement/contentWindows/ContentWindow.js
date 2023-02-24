@@ -41,7 +41,7 @@ export class ContentWindow {
 		this.parentStudioWindow = null;
 		/**
 		 * The instance uuid of the ContentWindow.
-		 * This is used for dragging tabs and associating the ContentWindow with the persistent data.
+		 * This is used for dragging tabs and linking preferences that are stored in a contentwindow location.
 		 */
 		this.uuid = uuid;
 

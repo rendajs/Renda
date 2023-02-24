@@ -2,7 +2,6 @@
 /** @typedef {(key: string) => void} OnPreferenceLoadCallback */
 
 export class PreferencesLocation {
-	locationType;
 	/** @type {Map<string, unknown>} */
 	#storedPreferences = new Map();
 
