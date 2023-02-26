@@ -69,7 +69,7 @@ function createManager() {
 
 function createMockWindowManager() {
 	const mockWindowManager = /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({
-		requestContentWindowPreferencesFlush() {}
+		requestContentWindowPreferencesFlush() {},
 	});
 	return mockWindowManager;
 }
