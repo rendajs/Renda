@@ -214,6 +214,45 @@ export class MemoryStudioFileSystem extends StudioFileSystem {
 
 	/**
 	 * @override
+	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path The file or directory to delete.
+	 * @param {boolean} recursive Whether to delete all subdirectories and files.
+	 */
+	async delete(path, recursive = false) {
+		path = [...path];
+
+		/** @returns {never} */
+		function notFoundError() {
+			throw new Error(`Failed to delete "${path.join("/")}" because it does not exist.`);
+		}
+
+		if (!recursive) {
+			const {pointer} = this.getObjectPointer(path, {
+				errorMessageActionName: "delete",
+			});
+			if (!pointer.isFile) notFoundError();
+		}
+
+		const parentPath = path.slice(0, -1);
+		const basename = path.at(-1);
+		if (!basename) notFoundError();
+		const {pointer: parentPointer} = this.getObjectPointer(parentPath, {
+			errorMessageActionName: "delete",
+		});
+		if (parentPointer.isFile) notFoundError();
+		const index = parentPointer.children.findIndex(child => child.name == basename);
+		if (index == -1) notFoundError();
+		parentPointer.children.splice(index, 1);
+
+		this.fireChange({
+			external: false,
+			kind: "unknown",
+			path,
+			type: "deleted",
+		});
+	}
+
+	/**
+	 * @override
 	 * @param {import("./StudioFileSystem.js").StudioFileSystemPath} path
 	 * @returns {Promise<boolean>}
 	 */

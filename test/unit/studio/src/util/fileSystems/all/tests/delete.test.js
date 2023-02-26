@@ -9,7 +9,6 @@ import {testAll} from "../shared.js";
 
 testAll({
 	name: "Should delete files and fire onChange",
-	ignore: [MemoryStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 		const onChangeSpy = registerOnChangeSpy(fs);
@@ -85,7 +84,6 @@ testAll({
 
 testAll({
 	name: "delete() a directory with recursive = true",
-	ignore: [MemoryStudioFileSystem],
 	async fn(ctx) {
 		const fs = await ctx.createBasicFs();
 
