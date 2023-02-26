@@ -1,7 +1,7 @@
 import {assertEquals} from "std/testing/asserts.ts";
 import {stub} from "std/testing/mock.ts";
 import {NumericGui} from "../../../../../studio/src/ui/NumericGui.js";
-import { runWithDom } from "../../shared/runWithDom.js";
+import {runWithDom} from "../../shared/runWithDom.js";
 import {WheelEvent} from "fake-dom/FakeWheelEvent.js";
 import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 
@@ -16,7 +16,7 @@ Deno.test({
 			numericGui.el.dispatchEvent(wheelEvent);
 
 			assertEquals(numericGui.el.classList.contains("no-cursor"), true);
-		})
+		});
 	},
 });
 
@@ -33,7 +33,7 @@ Deno.test({
 			numericGui.el.dispatchEvent(mouseEvent);
 
 			assertEquals(numericGui.el.classList.contains("no-cursor"), false);
-		})
+		});
 	},
 });
 
