@@ -67,8 +67,9 @@ const locationTypePriorities = [
  */
 export class PreferencesManager {
 	/** @typedef {keyof TRegisteredPreferences extends string ? keyof TRegisteredPreferences : never} PreferenceTypes */
+	/** @typedef {PreferenceTypes | (string & {})} PreferenceTypesOrString */
 	/**
-	 * @template {PreferenceTypes | string} T
+	 * @template {PreferenceTypesOrString} T
 	 * @typedef {T extends PreferenceTypes ?
 	 * 	TRegisteredPreferences[T]["type"] extends infer Type ?
 	 * 		Type extends import("./PreferencesManager.js").PreferenceValueTypes ?
@@ -76,6 +77,11 @@ export class PreferencesManager {
 	 * 			never :
 	 * 		never :
 	 * 	never} GetPreferenceType
+	 */
+	/**
+	 * @template {PreferenceTypesOrString} T
+	 * @template {boolean} TAssertRegistered
+	 * @typedef {TAssertRegistered extends true ? GetPreferenceType<T> : (string | boolean | number | null)} GetPreferenceTypeWithAssertionOption
 	 */
 	/** @type {Map<string | PreferenceTypes, PreferenceConfig>} */
 	#registeredPreferences = new Map();
@@ -129,9 +135,9 @@ export class PreferencesManager {
 				let value;
 				if (location instanceof ContentWindowPreferencesLocation) {
 					contentWindowUuid = location.contentWindowUuid;
-					value = this.get(castKey, {contentWindowUuid});
+					value = this.get(castKey, {contentWindowUuid, assertRegistered: false});
 				} else {
-					value = this.get(castKey);
+					value = this.get(castKey, {assertRegistered: false});
 				}
 				this.#fireChangeEvent(castKey, contentWindowUuid, {
 					location: location.locationType,
@@ -279,25 +285,31 @@ export class PreferencesManager {
 	}
 
 	/**
-	 * @template {PreferenceTypes} T
+	 * @template {PreferenceTypesOrString} T
+	 * @template {boolean} [TAssertRegistered = true]
 	 * @param {T} preference
 	 * @param {object} options
 	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
+	 * @param {TAssertRegistered} [options.assertRegistered]
 	 */
 	get(preference, {
 		contentWindowUuid,
+		assertRegistered = /** @type {TAssertRegistered} */ (true),
 	} = {}) {
 		const preferenceConfig = this.#registeredPreferences.get(preference);
-		if (!preferenceConfig) {
+		if (assertRegistered && !preferenceConfig) {
 			throw new Error(`Preference "${preference}" has not been registered.`);
 		}
-		let value = preferenceConfig.default;
-		if (preferenceConfig.type == "boolean") {
-			value = value || false;
-		} else if (preferenceConfig.type == "number") {
-			value = value || 0;
-		} else if (preferenceConfig.type == "string") {
-			value = value || "";
+		let value = null;
+		if (preferenceConfig) {
+			value = preferenceConfig.default;
+			if (preferenceConfig.type == "boolean") {
+				value = value || false;
+			} else if (preferenceConfig.type == "number") {
+				value = value || 0;
+			} else if (preferenceConfig.type == "string") {
+				value = value || "";
+			}
 		}
 		let foundContentWindowLocation = false;
 		for (const location of this.#registeredLocations) {
@@ -308,22 +320,26 @@ export class PreferencesManager {
 			}
 			if (location.has(preference)) {
 				const locationValue = location.get(preference);
-				if (preferenceConfig.type == "boolean" && typeof locationValue == "boolean") {
+				if (!preferenceConfig) {
 					value = locationValue;
-					break;
-				} else if (preferenceConfig.type == "number" && typeof locationValue == "number") {
-					value = locationValue;
-					break;
-				} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
-					value = locationValue;
-					break;
+				} else {
+					if (preferenceConfig.type == "boolean" && typeof locationValue == "boolean") {
+						value = locationValue;
+						break;
+					} else if (preferenceConfig.type == "number" && typeof locationValue == "number") {
+						value = locationValue;
+						break;
+					} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
+						value = locationValue;
+						break;
+					}
 				}
 			}
 		}
 		if (contentWindowUuid && !foundContentWindowLocation) {
 			throw new Error(`A content window uuid was provided ("${contentWindowUuid}") but no location for this uuid was found.`);
 		}
-		return /** @type {GetPreferenceType<T>} */ (value);
+		return /** @type {GetPreferenceTypeWithAssertionOption<T, TAssertRegistered>} */ (value);
 	}
 
 	/**
@@ -357,10 +373,11 @@ export class PreferencesManager {
 		}
 		callbacks.add(cb);
 
+		const value = this.get(preference, {contentWindowUuid});
 		cb({
 			location: null,
 			trigger: "initial",
-			value: this.get(preference, {contentWindowUuid}),
+			value,
 		});
 	}
 

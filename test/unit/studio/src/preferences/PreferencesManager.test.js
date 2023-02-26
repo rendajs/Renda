@@ -4,6 +4,7 @@ import {ContentWindowPreferencesLocation} from "../../../../../studio/src/prefer
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
+import {assertIsType} from "../../../shared/typeAssertions.js";
 
 /**
  * Creates a manager and registers a bunch of test types.
@@ -85,12 +86,18 @@ Deno.test({
 		manager.set("projectPref", "str");
 		manager.set("workspacePref", "str2");
 
-		assertEquals(manager.get("boolPref1"), true);
+		const boolPref1 = manager.get("boolPref1");
+		assertEquals(boolPref1, true);
 		assertEquals(manager.get("boolPref2"), false);
 		assertEquals(manager.get("numPref1"), 123);
 		assertEquals(manager.get("numPref2"), 456);
 		assertEquals(manager.get("projectPref"), "str");
 		assertEquals(manager.get("workspacePref"), "str2");
+
+		// Verify that the type is a boolean and nothing else
+		assertIsType(true, boolPref1);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", boolPref1);
 	},
 });
 
@@ -347,6 +354,46 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Using preferences that have not been registered",
+	fn() {
+		const {manager, locations} = createManager();
+
+		// Loading non existent preferences should be ignored silently.
+		// Otherwise a deprecated or removed preference in a preferences file on disk
+		// would prevent studio from loading entirely.
+		locations.global.loadPreferences({
+			nonExistent: "foo",
+		});
+
+		// Same for preferences in content window locations
+		const contentWindowLocation = new ContentWindowPreferencesLocation("contentwindow-project", "contentWindowLocation");
+		manager.addLocation(contentWindowLocation);
+		contentWindowLocation.loadPreferences({
+			nonExistent: "foo",
+		});
+
+		const value = manager.get("nonExistent", {assertRegistered: false});
+		assertEquals(value, "foo");
+
+		// Verify that the type is `string | number | boolean | null` and nothing else
+		const primitiveOrNull = /** @type {string | number | boolean | null} */ (null);
+		assertIsType(primitiveOrNull, value);
+		assertIsType(value, "");
+		assertIsType(value, null);
+
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType({}, value);
+
+		assertThrows(() => {
+			manager.get("nonExistent", {assertRegistered: true});
+		});
+		assertThrows(() => {
+			manager.get("nonExistent");
+		});
+	},
+});
+
+Deno.test({
 	name: "Getting and setting for a specific content window",
 	fn() {
 		const {manager} = createManager();
@@ -385,6 +432,13 @@ Deno.test({
 				contentWindowUuid: "non existent uuid",
 			});
 		}, Error, 'A content window uuid was provided ("non existent uuid") but no location for this uuid was found.');
+
+		const str = manager.get("str", {contentWindowUuid: "location1"});
+
+		// Verify that the type is a string and nothing else
+		assertIsType("", str);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType(true, str);
 	},
 });
 
