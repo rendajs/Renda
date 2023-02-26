@@ -111,9 +111,13 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitX", e => {
 			this.orbitControls.invertScrollX = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
 		});
 		this.studioInstance.preferencesManager.onChange("entityEditor.invertScrollOrbitY", e => {
 			this.orbitControls.invertScrollY = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
 		});
 
 		this.editingEntityUuid = null;

@@ -290,7 +290,9 @@ export class PreferencesManager {
 	 * @param {T} preference
 	 * @param {object} options
 	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
-	 * @param {TAssertRegistered} [options.assertRegistered]
+	 * @param {TAssertRegistered} [options.assertRegistered] Assert that `preference` has been registered. Set to false
+	 * to disable this assertion. Disabling the assertion will also change the returned type to include `null`,
+	 * since there is no known default value for unregistered preferences.
 	 */
 	get(preference, {
 		contentWindowUuid,

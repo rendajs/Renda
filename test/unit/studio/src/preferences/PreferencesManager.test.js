@@ -67,6 +67,13 @@ function createManager() {
 	return {manager, locations};
 }
 
+function createMockWindowManager() {
+	const mockWindowManager = /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({
+		requestContentWindowPreferencesFlush() {}
+	});
+	return mockWindowManager;
+}
+
 Deno.test({
 	name: "Getting and setting preferences.",
 	fn() {
@@ -366,7 +373,8 @@ Deno.test({
 		});
 
 		// Same for preferences in content window locations
-		const contentWindowLocation = new ContentWindowPreferencesLocation("contentwindow-project", "contentWindowLocation");
+		const mockWindowManager = createMockWindowManager();
+		const contentWindowLocation = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "contentWindowLocation");
 		manager.addLocation(contentWindowLocation);
 		contentWindowLocation.loadPreferences({
 			nonExistent: "foo",
@@ -398,9 +406,11 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", "location1");
+		const mockWindowManager = createMockWindowManager();
+
+		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location1");
 		manager.addLocation(location1);
-		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", "location2");
+		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location2");
 		manager.addLocation(location2);
 
 		manager.set("str", "global value", {location: "global"});
@@ -447,9 +457,10 @@ Deno.test({
 	fn() {
 		const {manager} = createManager();
 
-		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", "location1");
+		const mockWindowManager = createMockWindowManager();
+		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location1");
 		manager.addLocation(location1);
-		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", "location2");
+		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location2");
 		manager.addLocation(location2);
 		location1.loadPreferences({
 			str: "location1",

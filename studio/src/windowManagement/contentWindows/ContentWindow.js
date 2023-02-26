@@ -1,3 +1,4 @@
+import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {STUDIO_ENV} from "../../studioDefines.js";
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
 
@@ -28,6 +29,8 @@ export class ContentWindow {
 	 */
 	static scrollable = true;
 
+	#projectPreferencesLocation;
+
 	/**
 	 * @param {import("../../Studio.js").Studio} studioInstance
 	 * @param {import("../WindowManager.js").WindowManager} windowManager
@@ -46,6 +49,9 @@ export class ContentWindow {
 		this.uuid = uuid;
 
 		this.persistentData = new ContentWindowPersistentData();
+
+		this.#projectPreferencesLocation = new ContentWindowPreferencesLocation("contentwindow-project", windowManager, uuid);
+		studioInstance.preferencesManager.addLocation(this.#projectPreferencesLocation);
 
 		this.destructed = false;
 
@@ -84,6 +90,7 @@ export class ContentWindow {
 
 	destructor() {
 		this.destructed = true;
+		this.studioInstance.preferencesManager.removeLocation(this.#projectPreferencesLocation);
 	}
 
 	/**
@@ -97,6 +104,19 @@ export class ContentWindow {
 		if (!this.parentStudioWindow) return;
 		this.parentStudioWindow.contentWindowDetached(this);
 		this.parentStudioWindow = null;
+	}
+
+	getProjectPreferencesLocationData() {
+		const preferences = this.#projectPreferencesLocation.getAllPreferences();
+		if (Object.keys(preferences).length == 0) return null;
+		return preferences;
+	}
+
+	/**
+	 * @param {Object<string, unknown>} preferences
+	 */
+	setProjectPreferencesLocationData(preferences) {
+		this.#projectPreferencesLocation.loadPreferences(preferences);
 	}
 
 	/**

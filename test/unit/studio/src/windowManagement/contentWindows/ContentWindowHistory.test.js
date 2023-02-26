@@ -1,6 +1,7 @@
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {installShadowDom} from "fake-dom/FakeShadowRoot.js";
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
+import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
 import {ContentWindowHistory} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowHistory.js";
 
 /**
@@ -65,6 +66,7 @@ function basicTest({fn, startHistoryEntries = []}) {
 					return testContext.canRedo;
 				},
 			},
+			preferencesManager: new PreferencesManager(),
 		});
 		const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 

@@ -3,6 +3,7 @@ import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, ass
 import {PropertiesWindowContent} from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContent.js";
 import {ContentWindowProperties} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowProperties.js";
 import {PropertiesWindowContentEmpty} from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContentEmpty.js";
+import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
@@ -92,6 +93,7 @@ function basicSetup() {
 				return /** @type {typeof PropertiesWindowContent} */ (PropertiesWindowContentExtended1);
 			},
 		},
+		preferencesManager: new PreferencesManager(),
 	});
 
 	const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});

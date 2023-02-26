@@ -6,6 +6,7 @@ import {ContentWindowProject} from "../../../../../../studio/src/windowManagemen
 import {assertTreeViewStructureEquals} from "../../../shared/treeViewUtil.js";
 import {assertEquals} from "std/testing/asserts.ts";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
+import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
 
 const BASIC_WINDOW_UUID = "basic window uuid";
 
@@ -62,6 +63,7 @@ async function basicSetup({
 	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		selectionManager: mockSelectionManager,
 		projectManager: mockProjectManager,
+		preferencesManager: new PreferencesManager(),
 	});
 
 	injectMockStudioInstance(mockStudioInstance);
