@@ -6,6 +6,7 @@ import {assertEquals, assertInstanceOf} from "std/testing/asserts.ts";
 import {LabelGui} from "../../../../../../studio/src/ui/LabelGui.js";
 import {PropertiesTreeViewEntry} from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 import {Button} from "../../../../../../studio/src/ui/Button.js";
+import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
 
 /**
  * @typedef ContentWindowConnectionsTestContext
@@ -57,6 +58,7 @@ async function basicTest({
 				},
 				currentProjectIsRemote,
 			},
+			preferencesManager: new PreferencesManager(),
 		});
 		const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
 

@@ -16,12 +16,15 @@ import {getStudioInstance} from "../studioInstance.js";
  * @typedef ContentWindowPersistentDiskData
  * @property {import("../../../src/util/mod.js").UuidString} id
  * @property {string} type
- * @property {any} data
+ * @property {Object<string, unknown>} data
  */
 
 export class WindowManager {
-	/** @type {Set<(data: any) => Promise<void>>} */
+	/** @deprecated @type {Set<(data: any) => Promise<void>>} */
 	onContentWindowPersistentDataFlushRequestCbs = new Set();
+
+	/** @type {Set<(data: unknown) => Promise<void>>} */
+	#onPreferencesFlushRequest = new Set();
 
 	/** @type {EventHandler<typeof ContentWindow, ContentWindowEvent>} */
 	contentWindowAddedHandler = new EventHandler();
@@ -140,6 +143,93 @@ export class WindowManager {
 		this.isLoadingWorkspace = false;
 	}
 
+	/**
+	 * @param {(data: unknown) => Promise<void>} cb
+	 */
+	onContentWindowPreferencesFlushRequest(cb) {
+		this.#onPreferencesFlushRequest.add(cb);
+	}
+
+	/**
+	 * @param {(data: unknown) => Promise<void>} cb
+	 */
+	removeOnContentWindowPreferencesFlushRequest(cb) {
+		this.#onPreferencesFlushRequest.delete(cb);
+	}
+
+	async requestContentWindowPreferencesFlush() {
+		/** @type {ContentWindowPersistentDiskData[]} */
+		const datas = [];
+		for (const contentWindow of this.allContentWindows()) {
+			const data = contentWindow.getProjectPreferencesLocationData();
+			if (data) {
+				datas.push({
+					id: contentWindow.uuid,
+					type: /** @type {typeof ContentWindow} */ (contentWindow.constructor).contentWindowTypeId,
+					data,
+				});
+			}
+		}
+
+		const flushData = datas.length == 0 ? null : datas;
+
+		const promises = [];
+		for (const cb of this.#onPreferencesFlushRequest) {
+			promises.push(cb(flushData));
+		}
+		await Promise.all(promises);
+	}
+
+	/**
+	 * @param {ContentWindowPersistentDiskData[]} datas
+	 */
+	setContentWindowPreferences(datas = []) {
+		const datasSet = new Set(datas);
+		const contentWindows = new Set(this.allContentWindows());
+
+		// First we try to find the content window by uuid for each data item
+		for (const data of datasSet) {
+			let contentWindow = null;
+			for (const c of contentWindows) {
+				if (c.uuid == data.id) {
+					contentWindow = c;
+					break;
+				}
+			}
+			if (contentWindow) {
+				contentWindow.setProjectPreferencesLocationData(data.data);
+				contentWindows.delete(contentWindow);
+				datasSet.delete(data);
+			}
+		}
+
+		// If some of the uuids were not found, the user likely has a different workspace open.
+		// We'll apply remaining data based on the content window types.
+		for (const data of datasSet) {
+			let contentWindow = null;
+			for (const c of contentWindows) {
+				if (/** @type {typeof ContentWindow} */ (c.constructor).contentWindowTypeId == data.type) {
+					contentWindow = c;
+					break;
+				}
+			}
+			if (contentWindow) {
+				contentWindow.setProjectPreferencesLocationData(data.data);
+				contentWindows.delete(contentWindow);
+				datasSet.delete(data);
+			}
+		}
+
+		// If there's still content windows left at this point.
+		// We want ot notify them that no data exists for them so that any old data gets cleared.
+		for (const contentWindow of contentWindows) {
+			contentWindow.setProjectPreferencesLocationData({});
+		}
+	}
+
+	/**
+	 * @deprecated
+	 */
 	getContentWindowPersistentData() {
 		const datas = [];
 		for (const contentWindow of this.allContentWindows()) {
@@ -155,6 +245,7 @@ export class WindowManager {
 	}
 
 	/**
+	 * @deprecated
 	 * @param {ContentWindowPersistentDiskData[]} datas
 	 */
 	setContentWindowPersistentData(datas = []) {
@@ -199,6 +290,9 @@ export class WindowManager {
 		}
 	}
 
+	/**
+	 * @deprecated
+	 */
 	async requestContentWindowPersistentDataFlush() {
 		const data = this.getContentWindowPersistentData();
 		const promises = [];
@@ -209,6 +303,7 @@ export class WindowManager {
 	}
 
 	/**
+	 * @deprecated
 	 * @param {(data: any) => Promise<void>} cb
 	 */
 	onContentWindowPersistentDataFlushRequest(cb) {
@@ -216,6 +311,7 @@ export class WindowManager {
 	}
 
 	/**
+	 * @deprecated
 	 * @param {(data: any) => Promise<void>} cb
 	 */
 	removeOnContentWindowPersistentDataFlushRequest(cb) {

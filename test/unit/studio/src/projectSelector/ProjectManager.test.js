@@ -1,8 +1,9 @@
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {MemoryStudioFileSystem} from "../../../../../studio/src/util/fileSystems/MemoryStudioFileSystem.js";
 import {Importer} from "fake-imports";
-import {assertSpyCall, spy, stub} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
+import {assertEquals} from "std/testing/asserts.ts";
 
 console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
@@ -33,6 +34,7 @@ importer.fakeModule("../../../../../studio/src/assets/AssetManager.js", `export 
 	assetSettingsLoaded = true;
 	async waitForAssetSettingsLoad() {}
 	async waitForAssetListsLoad() {}
+	destructor() {}
 }`);
 
 /** @type {import("../../../../../studio/src/projectSelector/ProjectManager.js")} */
@@ -43,10 +45,14 @@ const StudiorConnectionsManagerMod = await importer.import("../../../../../studi
 /** @type {() => import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} */
 const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
 
+const LOCAL_PROJECT_SETTINGS_PATH = ["ProjectSettings", "localProjectSettings.json"];
+
 /**
  * @typedef ProjectManagerTestContext
  * @property {import("../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} manager
  * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
+ * @property {import("../../../../../studio/src/Studio.js").Studio} studio
+ * @property {(data: unknown) => Promise<void>} fireFlushRequestCallbacks
  */
 
 /**
@@ -58,12 +64,22 @@ async function basicTest({fn}) {
 	try {
 		globalThis.document = /** @type {Document} */ (new EventTarget());
 
+		/** @type {Set<(data: unknown) => Promise<void>>} */
+		const flushRequestCallbacks = new Set();
+
 		const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			windowManager: {
 				onContentWindowPersistentDataFlushRequest(cb) {},
 				removeOnContentWindowPersistentDataFlushRequest(cb) {},
 				reloadCurrentWorkspace() {},
 				setContentWindowPersistentData() {},
+				onContentWindowPreferencesFlushRequest(cb) {
+					flushRequestCallbacks.add(cb);
+				},
+				removeOnContentWindowPreferencesFlushRequest(cb) {
+					flushRequestCallbacks.delete(cb);
+				},
+				setContentWindowPreferences() {},
 			},
 		});
 		injectMockStudioInstance(mockStudio);
@@ -72,7 +88,17 @@ async function basicTest({fn}) {
 
 		const studioConnectionsManager = getLastStudioConnectionsManager();
 
-		await fn({manager, studioConnectionsManager});
+		await fn({
+			manager,
+			studioConnectionsManager, studio: mockStudio,
+			async fireFlushRequestCallbacks(data) {
+				const promises = [];
+				for (const cb of flushRequestCallbacks) {
+					promises.push(cb(data));
+				}
+				await Promise.all(promises);
+			},
+		});
 	} finally {
 		globalThis.document = oldDocument;
 		injectMockStudioInstance(null);
@@ -102,7 +128,7 @@ Deno.test({
 						resolveWaitForPermission = resolve;
 					});
 				});
-				fs.writeJson(["ProjectSettings", "localProjectSettings.json"], {
+				fs.writeJson(LOCAL_PROJECT_SETTINGS_PATH, {
 					"studioConnections.allowInternalIncoming": true,
 					"studioConnections.allowRemoteIncoming": true,
 				});
@@ -152,6 +178,118 @@ Deno.test({
 							name: "name",
 							uuid: "uuid",
 							fileSystemHasWritePermissions: true,
+						},
+					],
+				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "content window preferences are loaded and saved",
+	async fn() {
+		await basicTest({
+			async fn({manager, studio, fireFlushRequestCallbacks}) {
+				const fs = new MemoryStudioFileSystem();
+				fs.writeJson(LOCAL_PROJECT_SETTINGS_PATH, {
+					contentWindowPreferences: [
+						{
+							id: "uuid",
+							type: "type",
+							data: {foo: "bar"},
+						},
+					],
+				});
+				const entry = createStoredProjectEntry();
+
+				const setContentWindowPreferencesSpy = spy(studio.windowManager, "setContentWindowPreferences");
+
+				await manager.openProject(fs, entry, true);
+
+				assertSpyCalls(setContentWindowPreferencesSpy, 1);
+				assertSpyCall(setContentWindowPreferencesSpy, 0, {
+					args: [
+						[
+							{
+								id: "uuid",
+								type: "type",
+								data: {
+									foo: "bar",
+								},
+							},
+						],
+					],
+				});
+
+				await fireFlushRequestCallbacks([
+					{
+						id: "uuid",
+						type: "type",
+						data: {foo2: "bar2"},
+					},
+				]);
+				assertEquals(await fs.readJson(LOCAL_PROJECT_SETTINGS_PATH), {
+					contentWindowPreferences: [
+						{
+							id: "uuid",
+							type: "type",
+							data: {foo2: "bar2"},
+						},
+					],
+				});
+
+				await fireFlushRequestCallbacks(null);
+				assertEquals(await fs.exists(LOCAL_PROJECT_SETTINGS_PATH), false);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Flush requests are not written while loading a workspace",
+	async fn() {
+		await basicTest({
+			async fn({manager, studio, fireFlushRequestCallbacks}) {
+				stub(studio.windowManager, "reloadCurrentWorkspace", async () => {
+					await fireFlushRequestCallbacks({
+						label: "this data should not be written",
+					});
+				});
+
+				const fs = new MemoryStudioFileSystem();
+				fs.writeJson(LOCAL_PROJECT_SETTINGS_PATH, {
+					contentWindowPreferences: [
+						{
+							id: "uuid",
+							type: "type",
+							data: {foo: "bar"},
+						},
+					],
+				});
+				const entry = createStoredProjectEntry();
+
+				await manager.openProject(fs, entry, true);
+
+				assertEquals(await fs.readJson(LOCAL_PROJECT_SETTINGS_PATH), {
+					contentWindowPreferences: [
+						{
+							id: "uuid",
+							type: "type",
+							data: {foo: "bar"},
+						},
+					],
+				});
+
+				// Run it a second time to ensure the previous callback gets unregistered
+				await manager.openProject(fs, entry, true);
+
+				assertEquals(await fs.readJson(LOCAL_PROJECT_SETTINGS_PATH), {
+					contentWindowPreferences: [
+						{
+							id: "uuid",
+							type: "type",
+							data: {foo: "bar"},
 						},
 					],
 				});

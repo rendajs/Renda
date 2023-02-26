@@ -1,15 +1,19 @@
 import {Importer} from "fake-imports";
-import {stub} from "std/testing/mock.ts";
+import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
+import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
+import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
+import {assertPromiseResolved} from "../../../shared/asserts.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
 importer.makeReal("../../../../../studio/src/studioInstance.js");
 importer.makeReal("../../../../../src/mod.js");
 importer.makeReal("../../../../../src/util/mod.js");
+importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js");
 
 /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js")} */
 const WindowManagerMod = await importer.import("../../../../../studio/src/windowManagement/WindowManager.js");
@@ -21,6 +25,7 @@ const {StudioWindow} = StudioWindowMod;
 const onFocusedWithinChangeSym = Symbol("onFocusedWithinChange");
 
 /** @typedef {import("../../../../../studio/src/windowManagement/StudioWindow.js").StudioWindow & {[onFocusedWithinChangeSym]: Set<(hasFocus: boolean) => void>}} StudioWindowWithSym */
+// https://github.com/microsoft/TypeScript/issues/47259#issuecomment-1317399906:
 // eslint-disable-next-line no-unused-expressions
 () => {};
 
@@ -46,6 +51,13 @@ stub(TabsStudioWindow.prototype, "updateTabSelectorSpacer", () => {});
 const ContentWindowMod = await importer.import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js");
 const {ContentWindow} = ContentWindowMod;
 
+const CONTENT_WINDOW_UUID_1 = "uuid1";
+const CONTENT_WINDOW_UUID_2 = "uuid2";
+const CONTENT_WINDOW_UUID_3 = "uuid3";
+const CONTENT_WINDOW_TYPE_1 = "content window type 1";
+const CONTENT_WINDOW_TYPE_2 = "content window type 2";
+const CONTENT_WINDOW_TYPE_3 = "content window type 3";
+
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
 const {WorkspaceManager} = WorkspaceManagerMod;
@@ -58,14 +70,14 @@ stub(WorkspaceManager.prototype, "getCurrentWorkspace", async () => {
 			splitPercentage: 0.5,
 			windowA: {
 				type: "tabs",
-				tabTypes: ["tabtype1", "tabtype2"],
-				tabUuids: ["uuid1", "uuid2"],
+				tabTypes: [CONTENT_WINDOW_TYPE_1, CONTENT_WINDOW_TYPE_2],
+				tabUuids: [CONTENT_WINDOW_UUID_1, CONTENT_WINDOW_UUID_2],
 				activeTabIndex: 0,
 			},
 			windowB: {
 				type: "tabs",
-				tabTypes: ["tabtype3"],
-				tabUuids: ["uuid3"],
+				tabTypes: [CONTENT_WINDOW_TYPE_3],
+				tabUuids: [CONTENT_WINDOW_UUID_3],
 				activeTabIndex: 0,
 			},
 		},
@@ -77,23 +89,48 @@ stub(WorkspaceManager.prototype, "getCurrentWorkspace", async () => {
  * @typedef {[name: string, value: string | boolean][]} SetValueCalls
  */
 
+function pref() {
+	/** @type {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} */
+	const pref = {
+		type: "string",
+		default: "",
+	};
+	return pref;
+}
+
+const autoRegisterPreferences = /** @type {const} */ ({
+	pref1: pref(),
+	pref2: pref(),
+	pref3: pref(),
+});
+
 /**
  * @typedef WindowManagerTestContext
- * @property {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} manager
+ * @property {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} windowManager
  * @property {SetValueCalls} shortcutConditionSetValueCalls
+ * @property {import("../../../../../studio/src/Studio.js").Studio} studio
+ * @property {PreferencesManager<typeof autoRegisterPreferences>} preferencesManager
  */
 
 /**
  * @param {object} options
+ * @param {(studio: import("../../../../../studio/src/Studio.js").Studio) => void} [options.beforeCreate]
  * @param {(ctx: WindowManagerTestContext) => Promise<void> | void} options.fn The test function to run.
  */
 async function basicSetup({
+	beforeCreate,
 	fn,
 }) {
 	installFakeDocument();
 
 	/** @type {SetValueCalls} */
 	const shortcutConditionSetValueCalls = [];
+
+	/** @type {PreferencesManager<typeof autoRegisterPreferences>} */
+	const mockPreferencesManager = new PreferencesManager();
+	mockPreferencesManager.registerPreferences(autoRegisterPreferences);
+	const globalPreferencesLocation = new PreferencesLocation("global");
+	mockPreferencesManager.addLocation(globalPreferencesLocation);
 
 	const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 		keyboardShortcutManager: {
@@ -112,26 +149,28 @@ async function basicSetup({
 				};
 			},
 		},
+		preferencesManager: /** @type {PreferencesManager<any>} */ (mockPreferencesManager),
 	});
 	injectMockStudioInstance(mockStudio);
 
 	try {
-		const manager = new WindowManager();
+		if (beforeCreate) beforeCreate(mockStudio);
+		const windowManager = new WindowManager();
 		class ContentWindowTab1 extends ContentWindow {
-			static contentWindowTypeId = "tabtype1";
+			static contentWindowTypeId = CONTENT_WINDOW_TYPE_1;
 		}
-		manager.registerContentWindow(ContentWindowTab1);
+		windowManager.registerContentWindow(ContentWindowTab1);
 		class ContentWindowTab2 extends ContentWindow {
-			static contentWindowTypeId = "tabtype2";
+			static contentWindowTypeId = CONTENT_WINDOW_TYPE_2;
 		}
-		manager.registerContentWindow(ContentWindowTab2);
+		windowManager.registerContentWindow(ContentWindowTab2);
 		class ContentWindowTab3 extends ContentWindow {
-			static contentWindowTypeId = "tabtype3";
+			static contentWindowTypeId = CONTENT_WINDOW_TYPE_3;
 		}
-		manager.registerContentWindow(ContentWindowTab3);
-		await manager.init();
+		windowManager.registerContentWindow(ContentWindowTab3);
+		await windowManager.init();
 
-		await fn({manager, shortcutConditionSetValueCalls});
+		await fn({windowManager, shortcutConditionSetValueCalls, studio: mockStudio, preferencesManager: mockPreferencesManager});
 	} finally {
 		uninstallFakeDocument();
 		injectMockStudioInstance(null);
@@ -142,10 +181,10 @@ Deno.test({
 	name: "loading basic workspace",
 	async fn() {
 		await basicSetup({
-			fn({manager}) {
-				assertInstanceOf(manager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(manager.rootWindow.windowA, TabsStudioWindow);
-				assertInstanceOf(manager.rootWindow.windowB, TabsStudioWindow);
+			fn({windowManager}) {
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
 			},
 		});
 	},
@@ -155,14 +194,14 @@ Deno.test({
 	name: "lastClickedContentWindow",
 	async fn() {
 		await basicSetup({
-			async fn({manager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(manager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(manager.rootWindow.windowA, TabsStudioWindow);
+			async fn({windowManager, shortcutConditionSetValueCalls}) {
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
 				const e = new FakeMouseEvent("click");
-				manager.rootWindow.windowA.el.dispatchEvent(e);
+				windowManager.rootWindow.windowA.el.dispatchEvent(e);
 
-				assertStrictEquals(manager.lastClickedContentWindow, manager.rootWindow.windowA.tabs[0]);
-				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastClickedContentWindowTypeId", "tabtype1"]]);
+				assertStrictEquals(windowManager.lastClickedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
+				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastClickedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
 			},
 		});
 	},
@@ -172,14 +211,198 @@ Deno.test({
 	name: "lastFocusedContentWindow",
 	async fn() {
 		await basicSetup({
-			async fn({manager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(manager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(manager.rootWindow.windowA, TabsStudioWindow);
-				const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (manager.rootWindow.windowA));
+			async fn({windowManager, shortcutConditionSetValueCalls}) {
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (windowManager.rootWindow.windowA));
 				castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
 
-				assertStrictEquals(manager.lastFocusedContentWindow, manager.rootWindow.windowA.tabs[0]);
-				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastFocusedContentWindowTypeId", "tabtype1"]]);
+				assertStrictEquals(windowManager.lastFocusedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
+				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastFocusedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Each content window registers a preferences location",
+	async fn() {
+		/** @type {import("std/testing/mock.ts").Spy} */
+		let addLocationSpy;
+		await basicSetup({
+			beforeCreate(studio) {
+				addLocationSpy = spy(studio.preferencesManager, "addLocation");
+			},
+			async fn() {
+				assertSpyCalls(addLocationSpy, 3);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "setContentWindowPreferences() loads the preferences on the correct content window",
+	async fn() {
+		await basicSetup({
+			async fn({windowManager, preferencesManager}) {
+				// First we set a few values to verify that they get deleted later on
+				windowManager.setContentWindowPreferences([
+					{
+						type: "unknown",
+						id: CONTENT_WINDOW_UUID_1,
+						data: {
+							pref1: "content window 1",
+						},
+					},
+					{
+						type: "unknown",
+						id: CONTENT_WINDOW_UUID_2,
+						data: {
+							pref1: "content window 2",
+						},
+					},
+					{
+						type: "unknown",
+						id: CONTENT_WINDOW_UUID_3,
+						data: {
+							pref1: "content window 3",
+						},
+					},
+				]);
+				assertEquals(preferencesManager.get("pref1", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				}), "content window 1");
+				assertEquals(preferencesManager.get("pref1", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_2,
+				}), "content window 2");
+				assertEquals(preferencesManager.get("pref1", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_3,
+				}), "content window 3");
+
+				windowManager.setContentWindowPreferences([
+					// Data with known uuids
+					{
+						type: "unknown",
+						id: CONTENT_WINDOW_UUID_1,
+						data: {
+							pref2: "foo",
+						},
+					},
+					// Data with known types
+					{
+						type: CONTENT_WINDOW_TYPE_2,
+						id: "unknown uuid",
+						data: {
+							pref3: "bar",
+						},
+					},
+					// Window 3 has no data, this should only delete old values
+				]);
+
+				assertEquals(preferencesManager.get("pref2", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				}), "foo");
+				assertEquals(preferencesManager.get("pref3", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_2,
+				}), "bar");
+
+				// Verify that old values are deleted
+				assertEquals(preferencesManager.get("pref1", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				}), "");
+				assertEquals(preferencesManager.get("pref1", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_2,
+				}), "");
+				assertEquals(preferencesManager.get("pref1", {
+					contentWindowUuid: CONTENT_WINDOW_UUID_3,
+				}), "");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Flushing content window locations",
+	async fn() {
+		await basicSetup({
+			async fn({windowManager, preferencesManager}) {
+				/** @type {Set<() => void>} */
+				const flushPromises = new Set();
+
+				/**
+				 * @param {unknown} data
+				 */
+				const flushFn = data => {
+					/** @type {Promise<void>} */
+					const promise = new Promise(resolve => {
+						flushPromises.add(resolve);
+					});
+					return promise;
+				};
+				function resolveFlushPromises() {
+					flushPromises.forEach(resolve => resolve());
+					flushPromises.clear();
+				}
+				const flushSpy = spy(flushFn);
+				windowManager.onContentWindowPreferencesFlushRequest(flushSpy);
+
+				preferencesManager.set("pref1", "foo", {
+					location: "contentwindow-project",
+					contentWindowUuid: CONTENT_WINDOW_UUID_1,
+					flush: false,
+				});
+
+				const flushPromise1 = preferencesManager.flush();
+
+				assertSpyCalls(flushSpy, 1);
+				assertSpyCall(flushSpy, 0, {
+					args: [
+						[
+							{
+								data: {
+									pref1: "foo",
+								},
+								id: "uuid1",
+								type: "content window type 1",
+							},
+						],
+					],
+				});
+
+				// Flush should stay pending until all flush promises have been resolved
+				await assertPromiseResolved(flushPromise1, false);
+				resolveFlushPromises();
+				await assertPromiseResolved(flushPromise1, true);
+
+				// When there is no data, the flushed data should be null
+				preferencesManager.reset("pref1", {
+					location: "contentwindow-project",
+					contentWindowUuid: CONTENT_WINDOW_UUID_1,
+					flush: false,
+				});
+				const flushPromise2 = preferencesManager.flush();
+				await assertPromiseResolved(flushPromise2, false);
+				resolveFlushPromises();
+				await assertPromiseResolved(flushPromise2, true);
+
+				assertSpyCalls(flushSpy, 2);
+				assertSpyCall(flushSpy, 1, {
+					args: [null],
+				});
+
+				// The listener should not fire after being removed
+				windowManager.removeOnContentWindowPreferencesFlushRequest(flushSpy);
+
+				preferencesManager.set("pref1", "foo", {
+					location: "contentwindow-project",
+					contentWindowUuid: CONTENT_WINDOW_UUID_1,
+					flush: false,
+				});
+
+				const flushPromise3 = preferencesManager.flush();
+				await assertPromiseResolved(flushPromise3, true);
+
+				assertSpyCalls(flushSpy, 2);
 			},
 		});
 	},

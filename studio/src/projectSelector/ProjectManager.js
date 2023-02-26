@@ -205,7 +205,9 @@ export class ProjectManager {
 		this.removeAssetManager();
 		const studio = getStudioInstance();
 		studio.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
+		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		await studio.windowManager.reloadCurrentWorkspace();
+		studio.windowManager.onContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		studio.windowManager.onContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 
 		await this.reloadAssetManager();
@@ -216,10 +218,26 @@ export class ProjectManager {
 		const castData = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPersistentData);
 		studio.windowManager.setContentWindowPersistentData(castData);
 
+		const contentWindowPreferences = await this.localProjectSettings.get("contentWindowPreferences");
+		const castPreferences = /** @type {import("../windowManagement/WindowManager.js").ContentWindowPersistentDiskData[]} */ (contentWindowPreferences);
+		studio.windowManager.setContentWindowPreferences(castPreferences);
+
 		this.hasOpeneProject = true;
 		this.onProjectOpenCbs.forEach(cb => cb());
 		this.onProjectOpenCbs.clear();
 	}
+
+	/**
+	 * @param {unknown} data
+	 */
+	#contentWindowPreferencesFlushRequest = async data => {
+		if (!this.localProjectSettings) return;
+		if (!data) {
+			await this.localProjectSettings.delete("contentWindowPreferences");
+		} else {
+			await this.localProjectSettings.set("contentWindowPreferences", data);
+		}
+	};
 
 	/**
 	 * If asset settings are already loaded, this is a no-op.
