@@ -384,6 +384,169 @@ Deno.test({
 				location: "contentwindow-project",
 				contentWindowUuid: "non existent uuid",
 			});
-		}, Error, '"contentwindow-project" preference location was not found.');
+		}, Error, 'A content window uuid was provided ("non existent uuid") but no location for this uuid was found.');
+	},
+});
+
+Deno.test({
+	name: "Events fire for specific content windows",
+	fn() {
+		const {manager} = createManager();
+
+		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", "location1");
+		manager.addLocation(location1);
+		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", "location2");
+		manager.addLocation(location2);
+		location1.loadPreferences({
+			str: "location1",
+		});
+		location2.loadPreferences({
+			str: "location2",
+		});
+
+		/** @type {Parameters<typeof manager.onChange<"str">>[1]} */
+		const onChangeCallbackSignature = () => {};
+		const globalSpyFn = spy(onChangeCallbackSignature);
+		let globalSpyFnCallCount = 0;
+		const contentWindowSpyFn = spy(onChangeCallbackSignature);
+		let contentWindowSpyFnCallCount = 0;
+
+		// Register the global listener
+		manager.onChange("str", globalSpyFn);
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: null,
+					trigger: "initial",
+					value: "",
+				},
+			],
+		});
+
+		// Register the content window listener
+		manager.onChange("str", contentWindowSpyFn, {contentWindowUuid: "location1"});
+		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
+		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+			args: [
+				{
+					location: null,
+					trigger: "initial",
+					value: "location1",
+				},
+			],
+		});
+
+		// Setting value from the content window, should only fire the content window listener
+		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: "location1"});
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
+		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+					value: "location1set",
+				},
+			],
+		});
+
+		// Setting it to the same value again, should not fire any listeners
+		manager.set("str", "location1set", {location: "contentwindow-project", contentWindowUuid: "location1"});
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
+
+		// Setting value from an unrelated content window should fire no events
+		manager.set("str", "location2set", {location: "contentwindow-project", contentWindowUuid: "location2"});
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
+
+		// Setting value globally shouldn't fire the content window events
+		manager.set("str", "globalValueSet", {location: "global"});
+		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+					value: "globalValueSet",
+				},
+			],
+		});
+
+		// Resetting content window should fire with the global value
+		manager.reset("str", {location: "contentwindow-project", contentWindowUuid: "location1"});
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
+		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+					value: "globalValueSet",
+				},
+			],
+		});
+
+		// Setting by user on content window should fire
+		manager.set("str", "location1SetUser", {location: "contentwindow-project", contentWindowUuid: "location1", performedByUser: true});
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
+		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
+		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "user",
+					value: "location1SetUser",
+				},
+			],
+		});
+
+		// Removing the listeners still fires them when the incorrect or no uuid is provided
+		manager.removeOnChange("str", contentWindowSpyFn);
+		manager.set("str", "location1set1", {location: "contentwindow-project", contentWindowUuid: "location1"});
+		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
+		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+					value: "location1set1",
+				},
+			],
+		});
+		manager.removeOnChange("str", contentWindowSpyFn, {contentWindowUuid: "wrong location"});
+		manager.set("str", "location1set2", {location: "contentwindow-project", contentWindowUuid: "location1"});
+		assertSpyCalls(contentWindowSpyFn, ++contentWindowSpyFnCallCount);
+		assertSpyCall(contentWindowSpyFn, contentWindowSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "contentwindow-project",
+					trigger: "application",
+					value: "location1set2",
+				},
+			],
+		});
+		manager.removeOnChange("str", globalSpyFn, {contentWindowUuid: "location1"});
+		manager.set("str", "globalValueSet2");
+		assertSpyCalls(globalSpyFn, ++globalSpyFnCallCount);
+		assertSpyCall(globalSpyFn, globalSpyFnCallCount - 1, {
+			args: [
+				{
+					location: "global",
+					trigger: "application",
+					value: "globalValueSet2",
+				},
+			],
+		});
+
+		// Removing the listeners on the correct location should no longer fire them
+		manager.removeOnChange("str", contentWindowSpyFn, {contentWindowUuid: "location1"});
+		manager.set("str", "location1set3", {location: "contentwindow-project", contentWindowUuid: "location1"});
+		assertSpyCalls(contentWindowSpyFn, contentWindowSpyFnCallCount);
+		manager.removeOnChange("str", globalSpyFn);
+		manager.set("str", "globalValueSet3");
+		assertSpyCalls(globalSpyFn, globalSpyFnCallCount);
 	},
 });

@@ -1,12 +1,11 @@
+import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWindowPreferencesLocation.js";
+
 /**
  * @typedef PreferenceTypesMap
  * @property {boolean} boolean
  * @property {number} number
  * @property {string} string
  */
-
-import {EventHandler} from "../../../src/util/EventHandler.js";
-import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWindowPreferencesLocation.js";
 
 /** @typedef {keyof PreferenceTypesMap} PreferenceValueTypes */
 /**
@@ -85,8 +84,14 @@ export class PreferencesManager {
 	/** @type {WeakMap<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, boolean>} */
 	#locationsFlushed = new WeakMap();
 
-	/** @type {EventHandler<PreferenceTypes, OnPreferenceChangeEvent<any>>} */
-	#onChangeHandler = new EventHandler();
+	/**
+	 * @typedef OnChangeEventCallbackGroup
+	 * @property {Set<OnPreferenceChangeCallback<any>>} callbacks
+	 * @property {Map<import("../../../src/mod.js").UuidString, Set<OnPreferenceChangeCallback<any>>>} contentWindowCallbacks
+	 */
+
+	/** @type {Map<PreferenceTypes, OnChangeEventCallbackGroup>} */
+	#onChangeEventCallbacks = new Map();
 
 	/** @type {Map<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, import("./preferencesLocation/PreferencesLocation.js").OnPreferenceLoadCallback>} */
 	#onPreferenceLoadedHandlers = new Map();
@@ -120,10 +125,18 @@ export class PreferencesManager {
 			 */
 			const onPreferenceLoaded = key => {
 				const castKey = /** @type {PreferenceTypes} */ (key);
-				this.#onChangeHandler.fireEvent(castKey, {
+				let contentWindowUuid = null;
+				let value;
+				if (location instanceof ContentWindowPreferencesLocation) {
+					contentWindowUuid = location.contentWindowUuid;
+					value = this.get(castKey, {contentWindowUuid});
+				} else {
+					value = this.get(castKey);
+				}
+				this.#fireChangeEvent(castKey, contentWindowUuid, {
 					location: location.locationType,
 					trigger: "load",
-					value: this.get(castKey),
+					value,
 				});
 			};
 			if (this.#onPreferenceLoadedHandlers.has(location)) {
@@ -223,18 +236,32 @@ export class PreferencesManager {
 	 */
 	#changeAndFireEvents(preference, setPreferenceOptions, cb) {
 		const previousValue = this.get(preference);
+		const previousContentWindowValue = this.get(preference, {contentWindowUuid: setPreferenceOptions?.contentWindowUuid});
+
 		const location = this.#getLocation(preference, setPreferenceOptions);
 		const cbResult = cb(location);
 		const flush = setPreferenceOptions?.flush ?? true;
 		if (flush) location.flush();
 		this.#locationsFlushed.set(location, flush);
+
 		const newValue = this.get(preference);
-		if (previousValue != newValue) {
-			this.#onChangeHandler.fireEvent(preference, {
+		if (newValue != previousValue) {
+			this.#fireChangeEvent(preference, null, {
 				location: location.locationType,
 				trigger: setPreferenceOptions?.performedByUser ? "user" : "application",
 				value: newValue,
 			});
+		}
+
+		if (setPreferenceOptions?.contentWindowUuid) {
+			const newContentWindowValue = this.get(preference, {contentWindowUuid: setPreferenceOptions?.contentWindowUuid});
+			if (newContentWindowValue != previousContentWindowValue) {
+				this.#fireChangeEvent(preference, setPreferenceOptions.contentWindowUuid, {
+					location: location.locationType,
+					trigger: setPreferenceOptions?.performedByUser ? "user" : "application",
+					value: newContentWindowValue,
+				});
+			}
 		}
 		return cbResult;
 	}
@@ -303,13 +330,37 @@ export class PreferencesManager {
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
 	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
+	 * @param {object} options
+	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 */
-	onChange(preference, cb) {
-		this.#onChangeHandler.addEventListener(preference, cb);
+	onChange(preference, cb, {
+		contentWindowUuid,
+	} = {}) {
+		let group = this.#onChangeEventCallbacks.get(preference);
+		if (!group) {
+			group = {
+				callbacks: new Set(),
+				contentWindowCallbacks: new Map(),
+			};
+			this.#onChangeEventCallbacks.set(preference, group);
+		}
+
+		let callbacks;
+		if (contentWindowUuid) {
+			callbacks = group.contentWindowCallbacks.get(contentWindowUuid);
+			if (!callbacks) {
+				callbacks = new Set();
+				group.contentWindowCallbacks.set(contentWindowUuid, callbacks);
+			}
+		} else {
+			callbacks = group.callbacks;
+		}
+		callbacks.add(cb);
+
 		cb({
 			location: null,
 			trigger: "initial",
-			value: this.get(preference),
+			value: this.get(preference, {contentWindowUuid}),
 		});
 	}
 
@@ -317,8 +368,56 @@ export class PreferencesManager {
 	 * @template {PreferenceTypes} T
 	 * @param {T} preference
 	 * @param {OnPreferenceChangeCallback<GetPreferenceType<T>>} cb
+	 * @param {object} options
+	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
 	 */
-	removeOnChange(preference, cb) {
-		this.#onChangeHandler.removeEventListener(preference, cb);
+	removeOnChange(preference, cb, {
+		contentWindowUuid,
+	} = {}) {
+		const group = this.#onChangeEventCallbacks.get(preference);
+		if (!group) return;
+
+		let performDeleteCheck = false;
+		if (contentWindowUuid) {
+			const callbacks = group.contentWindowCallbacks.get(contentWindowUuid);
+			if (!callbacks) return;
+			callbacks.delete(cb);
+			if (callbacks.size == 0) {
+				group.contentWindowCallbacks.delete(contentWindowUuid);
+				performDeleteCheck = true;
+			}
+		} else {
+			group.callbacks.delete(cb);
+			if (group.callbacks.size == 0) {
+				performDeleteCheck = true;
+			}
+		}
+
+		if (performDeleteCheck && group.callbacks.size == 0 && group.contentWindowCallbacks.size == 0) {
+			this.#onChangeEventCallbacks.delete(preference);
+		}
+	}
+
+	/**
+	 * Fires either the global event callbacks for a preference,
+	 * or the event callbacks for a specific content window.
+	 * @param {PreferenceTypes} preference
+	 * @param {import("../../../src/mod.js").UuidString?} contentWindowUuid The uuid of the
+	 * content window to fire the events for. Set to null to fire the global event callbacks.
+	 * @param {OnPreferenceChangeEvent<any>} event
+	 */
+	#fireChangeEvent(preference, contentWindowUuid, event) {
+		const group = this.#onChangeEventCallbacks.get(preference);
+		if (!group) return;
+
+		let callbacks;
+		if (contentWindowUuid) {
+			callbacks = group.contentWindowCallbacks.get(contentWindowUuid);
+		} else {
+			callbacks = group.callbacks;
+		}
+		if (!callbacks) return;
+		callbacks.forEach(cb => cb(event));
 	}
 }
+
