@@ -75,7 +75,7 @@ if (needsE2eTests) {
 	}
 }
 
-let needsCoverage = Deno.args.includes("--coverage");
+let needsCoverage = Deno.args.includes("--coverage") || Deno.args.includes("-c");
 const needsHtmlCoverageReport = Deno.args.includes("--html");
 if (needsHtmlCoverageReport) {
 	needsCoverage = true;
