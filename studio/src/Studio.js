@@ -20,12 +20,12 @@ import {ServiceWorkerManager} from "./misc/ServiceWorkerManager.js";
 import {IS_DEV_BUILD} from "./studioDefines.js";
 import {DevSocketManager} from "./network/DevSocketManager.js";
 import {ComponentTypeManager} from "../../src/components/ComponentTypeManager.js";
-
 import {AssetLoader, EngineAssetsManager, IndexedDbUtil, ShaderBuilder, WebGpuRenderer, builtInComponents} from "../../src/mod.js";
 import {ProjectAssetTypeShaderSource} from "./assets/projectAssetType/ProjectAssetTypeShaderSource.js";
 import {PreferencesManager} from "./preferences/PreferencesManager.js";
 import {autoRegisterPreferences} from "./preferences/autoRegisterPreferences.js";
 import {GlobalPreferencesLocation} from "./preferences/preferencesLocation/GlobalPreferencesLocation.js";
+import {GestureInProgressManager} from "./misc/GestureInProgressManager.js";
 
 export class Studio {
 	constructor() {
@@ -50,6 +50,7 @@ export class Studio {
 		this.selectionManager = new SelectionManager();
 		this.colorizerFilterManager = new ColorizerFilterManager();
 		this.popoverManager = new PopoverManager(this.colorizerFilterManager);
+		this.gestureInProgressManager = new GestureInProgressManager();
 
 		this.keyboardShortcutManager = new KeyboardShortcutManager();
 		for (const [name, options] of Object.entries(autoRegisterShortcutConditions)) {
