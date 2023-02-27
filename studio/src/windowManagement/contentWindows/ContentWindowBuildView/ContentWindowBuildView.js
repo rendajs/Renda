@@ -40,6 +40,8 @@ export class ContentWindowBuildView extends ContentWindow {
 			this.iframeEl.contentWindow.postMessage(data.sendData, "*", data.transfer);
 		});
 
+		this.studioInstance.gestureInProgressManager.onGestureInProgressChange(this.#onGestureInProgressChange);
+
 		window.addEventListener("message", this.onIframeMessage);
 
 		const colorizerFilterManager = getStudioInstance().colorizerFilterManager;
@@ -186,4 +188,11 @@ export class ContentWindowBuildView extends ContentWindow {
 	updateIframeVisibility() {
 		this.iframeEl.style.display = this.isRunning ? "" : "none";
 	}
+
+	/**
+	 * @param {boolean} gestureInProgress
+	 */
+	#onGestureInProgressChange = gestureInProgress => {
+		this.iframeEl.style.pointerEvents = gestureInProgress ? "none" : "";
+	};
 }

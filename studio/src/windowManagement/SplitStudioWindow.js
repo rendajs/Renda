@@ -1,7 +1,11 @@
 import {StudioWindow} from "./StudioWindow.js";
 import {clamp01, mapValue} from "../../../src/util/mod.js";
+import {getStudioInstance} from "../studioInstance.js";
 
 export class SplitStudioWindow extends StudioWindow {
+	/** @type {{stopGesture: () => void}?} */
+	#currentGesture = null;
+
 	/**
 	 * @param {ConstructorParameters<typeof StudioWindow>} args
 	 */
@@ -16,9 +20,6 @@ export class SplitStudioWindow extends StudioWindow {
 		this.windowB = null;
 
 		this.isResizing = false;
-		this.boundOnResizerDown = this.onResizerDown.bind(this);
-		this.boundOnResizerMove = this.onResizerMove.bind(this);
-		this.boundOnResizerUp = this.onResizerUp.bind(this);
 
 		this.resizeStartBounds = null;
 
@@ -29,7 +30,7 @@ export class SplitStudioWindow extends StudioWindow {
 		this.resizer = document.createElement("div");
 		this.el.appendChild(this.resizer);
 
-		this.resizer.addEventListener("mousedown", this.boundOnResizerDown);
+		this.resizer.addEventListener("mousedown", this.#onResizerDown);
 
 		this.elB = document.createElement("div");
 		this.elB.classList.add("studio-window-split-half");
@@ -59,8 +60,8 @@ export class SplitStudioWindow extends StudioWindow {
 		if (this.windowB) this.windowB.destructor();
 		this.windowA = null;
 		this.windowB = null;
-		this.onResizerUp();
-		this.resizer.removeEventListener("mousedown", this.boundOnResizerDown);
+		this.#onResizerUp();
+		this.resizer.removeEventListener("mousedown", this.#onResizerDown);
 		super.destructor();
 	}
 
@@ -95,24 +96,27 @@ export class SplitStudioWindow extends StudioWindow {
 		this.elB.style.flexBasis = "0";
 	}
 
-	onResizerDown() {
+	#onResizerDown = () => {
 		this.isResizing = true;
 		this.resizeStartBounds = this.el.getBoundingClientRect();
-		window.addEventListener("mouseup", this.boundOnResizerUp);
-		window.addEventListener("mousemove", this.boundOnResizerMove);
-	}
+		window.addEventListener("mouseup", this.#onResizerUp);
+		window.addEventListener("mousemove", this.#onResizerMove);
+		const previousGesture = this.#currentGesture;
+		this.#currentGesture = getStudioInstance().gestureInProgressManager.startGesture();
+		if (previousGesture) previousGesture.stopGesture();
+	};
 
 	/**
 	 * @param {MouseEvent} e
 	 */
-	onResizerMove(e) {
+	#onResizerMove = e => {
 		if (!this.resizeStartBounds) return;
 		this.calcNewPercentage(
 			this.splitHorizontal ? this.resizeStartBounds.top : this.resizeStartBounds.left,
 			this.splitHorizontal ? this.resizeStartBounds.bottom : this.resizeStartBounds.right,
 			this.splitHorizontal ? e.clientY : e.clientX
 		);
-	}
+	};
 
 	/**
 	 * @param {number} boundStart
@@ -133,11 +137,15 @@ export class SplitStudioWindow extends StudioWindow {
 		this.onResized();
 	}
 
-	onResizerUp() {
+	#onResizerUp = () => {
 		this.isResizing = false;
-		window.removeEventListener("mouseup", this.boundOnResizerUp);
-		window.removeEventListener("mousemove", this.boundOnResizerMove);
-	}
+		window.removeEventListener("mouseup", this.#onResizerUp);
+		window.removeEventListener("mousemove", this.#onResizerMove);
+		if (this.#currentGesture) {
+			this.#currentGesture.stopGesture();
+			this.#currentGesture = null;
+		}
+	};
 
 	*getChildren() {
 		if (this.windowA) {
