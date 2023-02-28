@@ -58,7 +58,7 @@ export class WorkspaceManager {
 	/**
 	 * @param {string[]} value
 	 */
-	async setWorkspacesList(value) {
+	async #setWorkspacesList(value) {
 		await this.indexedDb.set(WORKSPACES_KEY, value, WORKSPACE_SETTINGS_OBJECT_STORE_NAME);
 	}
 
@@ -89,17 +89,6 @@ export class WorkspaceManager {
 	}
 
 	/**
-	 * @param {string} workspaceId
-	 */
-	async getWorkspace(workspaceId) {
-		/** @type {typeof this.indexedDb.get<WorkspaceData>} */
-		const dbGetWorkspace = this.indexedDb.get.bind(this.indexedDb);
-		const workspaceData = await dbGetWorkspace(workspaceId, WORKSPACES_OBJECT_STORE_NAME);
-		if (!workspaceData) return this.getDefaultWorkspace();
-		return workspaceData;
-	}
-
-	/**
 	 * Active workspace data is the state of the workspace that is persisted across sessions.
 	 * This is not necessarily the same as the currently saved workspace, since it is possible for the user to
 	 * disable autosave and then make adjustments to the workspace.
@@ -111,7 +100,7 @@ export class WorkspaceManager {
 			const dbGetWorkspace = this.indexedDb.get.bind(this.indexedDb);
 			let workspaceData = await dbGetWorkspace(ACTIVE_WORKSPACE_KEY, WORKSPACE_SETTINGS_OBJECT_STORE_NAME);
 			if (!workspaceData) {
-				workspaceData = await this.getCurrentWorkspaceData();
+				workspaceData = await this.#getCurrentWorkspaceData();
 			}
 			this.#activeWorkspaceData = workspaceData;
 			delete this.#activeWorkspaceData.autosaveWorkspace;
@@ -125,8 +114,13 @@ export class WorkspaceManager {
 	 * disable autosave and then make adjustments to the workspace.
 	 * @returns {Promise<WorkspaceData>}
 	 */
-	async getCurrentWorkspaceData() {
-		return await this.getWorkspace(await this.getCurrentWorkspaceId());
+	async #getCurrentWorkspaceData() {
+		const workspaceId = await this.getCurrentWorkspaceId();
+		/** @type {typeof this.indexedDb.get<WorkspaceData>} */
+		const dbGetWorkspace = this.indexedDb.get.bind(this.indexedDb);
+		const workspaceData = await dbGetWorkspace(workspaceId, WORKSPACES_OBJECT_STORE_NAME);
+		if (!workspaceData) return this.getDefaultWorkspace();
+		return workspaceData;
 	}
 
 	/**
@@ -139,7 +133,7 @@ export class WorkspaceManager {
 	}
 
 	async getCurrentWorkspaceAutoSaveValue() {
-		const workspaceData = await this.getCurrentWorkspaceData();
+		const workspaceData = await this.#getCurrentWorkspaceData();
 		return workspaceData.autosaveWorkspace ?? true;
 	}
 
@@ -147,7 +141,7 @@ export class WorkspaceManager {
 	 * @param {boolean} value
 	 */
 	async setCurrentWorkspaceAutoSaveValue(value) {
-		const workspaceData = await this.getCurrentWorkspaceData();
+		const workspaceData = await this.#getCurrentWorkspaceData();
 		workspaceData.autosaveWorkspace = value;
 		await this.#saveCurrentWorkspace(workspaceData);
 	}
@@ -156,7 +150,7 @@ export class WorkspaceManager {
 		if (this.#activeWorkspaceData) {
 			await this.indexedDb.set(ACTIVE_WORKSPACE_KEY, this.#activeWorkspaceData, WORKSPACE_SETTINGS_OBJECT_STORE_NAME);
 			if (await this.getCurrentWorkspaceAutoSaveValue()) {
-				const currentWorkspaceData = await this.getCurrentWorkspaceData();
+				const currentWorkspaceData = await this.#getCurrentWorkspaceData();
 				currentWorkspaceData.rootWindow = this.#activeWorkspaceData.rootWindow;
 				await this.#saveCurrentWorkspace(currentWorkspaceData);
 			}
@@ -167,14 +161,14 @@ export class WorkspaceManager {
 	 * @param {WorkspaceData} workspaceData
 	 */
 	async #saveCurrentWorkspace(workspaceData) {
-		await this.saveWorkspace(await this.getCurrentWorkspaceId(), workspaceData);
+		await this.#saveWorkspace(await this.getCurrentWorkspaceId(), workspaceData);
 	}
 
 	/**
 	 * @param {string} workspaceId
 	 * @param {WorkspaceData} workspaceData
 	 */
-	async saveWorkspace(workspaceId, workspaceData) {
+	async #saveWorkspace(workspaceId, workspaceData) {
 		await this.indexedDb.set(workspaceId, workspaceData, WORKSPACES_OBJECT_STORE_NAME);
 	}
 
@@ -187,7 +181,7 @@ export class WorkspaceManager {
 			throw new Error(`A workspace with the name "${name}" already exists.`);
 		}
 		list.push(name);
-		await this.setWorkspacesList(list);
+		await this.#setWorkspacesList(list);
 		await this.setCurrentWorkspaceId(name);
 	}
 
@@ -200,9 +194,9 @@ export class WorkspaceManager {
 			throw new Error(`A workspace with the name "${newName}" already exists.`);
 		}
 		list.push(newName);
-		await this.setWorkspacesList(list);
+		await this.#setWorkspacesList(list);
 		const previousWorkspaceData = await this.getActiveWorkspaceData();
-		await this.saveWorkspace(newName, previousWorkspaceData);
+		await this.#saveWorkspace(newName, previousWorkspaceData);
 		await this.setCurrentWorkspaceId(newName);
 	}
 
@@ -213,70 +207,59 @@ export class WorkspaceManager {
 		}
 		const currentWorkspace = await this.getCurrentWorkspaceId();
 		const newList = list.filter(id => id != currentWorkspace);
-		await this.setWorkspacesList(newList);
+		await this.#setWorkspacesList(newList);
 		await this.indexedDb.delete(currentWorkspace, WORKSPACES_OBJECT_STORE_NAME);
 		await this.setCurrentWorkspaceId(newList[0]);
 	}
 
 	async revertCurrentWorkspace() {
-		this.#activeWorkspaceData = await this.getCurrentWorkspaceData();
+		this.#activeWorkspaceData = await this.#getCurrentWorkspaceData();
 		delete this.#activeWorkspaceData.autosaveWorkspace;
 		this.#onActiveWorkspaceDataChangeCbs.forEach(cb => cb());
 		await this.#saveActiveWorkspace();
 	}
 
-	/**
-	 * @returns {WorkspaceData}
-	 */
 	getDefaultWorkspace() {
-		return {
-			/** @type {WorkspaceDataWindowSplit} */
+		/** @type {WorkspaceData} */
+		const defaultWorkspace = {
 			rootWindow: {
 				type: "split",
 				splitHorizontal: false,
 				splitPercentage: 0.25,
-				/** @type {WorkspaceDataWindowSplit} */
 				windowA: {
 					type: "split",
 					splitHorizontal: true,
 					splitPercentage: 0.6,
-					/** @type {WorkspaceDataWindowTabs} */
 					windowA: {
 						type: "tabs",
 						tabTypes: ["outliner", "defaultAssetLinks"],
 						tabUuids: ["065116de-2e58-4391-b97f-f91187c2ee73", "2136a06a-80e5-40a4-ba60-ec9dac36a3bb"],
 					},
-					/** @type {WorkspaceDataWindowTabs} */
 					windowB: {
 						type: "tabs",
 						tabTypes: ["project", "builtInAssets"],
 						tabUuids: ["9a231e9a-e3ab-436f-9ebc-2c6f58c64428", "9b8ca89c-c4be-4352-adcf-faf5d40821d0"],
 					},
 				},
-				/** @type {WorkspaceDataWindowSplit} */
 				windowB: {
 					type: "split",
 					splitHorizontal: false,
 					splitPercentage: 0.6,
-					/** @type {WorkspaceDataWindowSplit} */
 					windowA: {
 						type: "split",
 						splitHorizontal: true,
 						splitPercentage: 0.5,
-						/** @type {WorkspaceDataWindowTabs} */
 						windowA: {
 							type: "tabs",
 							tabTypes: ["entityEditor"],
 							tabUuids: ["c32f1b01-a76e-4124-adcb-e972a9ace63f"],
 						},
-						/** @type {WorkspaceDataWindowTabs} */
 						windowB: {
 							type: "tabs",
 							tabTypes: ["buildView"],
 							tabUuids: ["06b33121-13c9-42e2-82c9-82796f448c30"],
 						},
 					},
-					/** @type {WorkspaceDataWindowTabs} */
 					windowB: {
 						type: "tabs",
 						tabTypes: ["properties"],
@@ -285,5 +268,6 @@ export class WorkspaceManager {
 				},
 			},
 		};
+		return defaultWorkspace;
 	}
 }
