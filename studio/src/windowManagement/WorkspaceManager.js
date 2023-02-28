@@ -116,6 +116,13 @@ export class WorkspaceManager {
 	 */
 	async #getCurrentWorkspaceData() {
 		const workspaceId = await this.getCurrentWorkspaceId();
+		return this.#getWorkspaceData(workspaceId);
+	}
+
+	/**
+	 * @param {string} workspaceId
+	 */
+	async #getWorkspaceData(workspaceId) {
 		/** @type {typeof this.indexedDb.get<WorkspaceData>} */
 		const dbGetWorkspace = this.indexedDb.get.bind(this.indexedDb);
 		const workspaceData = await dbGetWorkspace(workspaceId, WORKSPACES_OBJECT_STORE_NAME);
@@ -186,29 +193,34 @@ export class WorkspaceManager {
 	}
 
 	/**
-	 * @param {string} newName
+	 * @param {string} workspaceId The workspace to clone.
 	 */
-	async cloneCurrentWorkspace(newName) {
+	async cloneWorkspace(workspaceId) {
+		const newName = prompt("Enter Workspace Name", `Copy of ${workspaceId}`);
 		const list = await this.getWorkspacesList();
+		if (!newName) return;
+
 		if (list.includes(newName)) {
 			throw new Error(`A workspace with the name "${newName}" already exists.`);
 		}
 		list.push(newName);
 		await this.#setWorkspacesList(list);
-		const previousWorkspaceData = await this.getActiveWorkspaceData();
+		const previousWorkspaceData = await this.#getWorkspaceData(workspaceId);
 		await this.#saveWorkspace(newName, previousWorkspaceData);
 		await this.setCurrentWorkspaceId(newName);
 	}
 
-	async deleteCurrentWorkspace() {
+	/**
+	 * @param {string} workspaceId
+	 */
+	async deleteWorkspace(workspaceId) {
 		const list = await this.getWorkspacesList();
 		if (list.length <= 1) {
 			throw new Error("Cannot delete workspace when it's the only one");
 		}
-		const currentWorkspace = await this.getCurrentWorkspaceId();
-		const newList = list.filter(id => id != currentWorkspace);
+		const newList = list.filter(id => id != workspaceId);
 		await this.#setWorkspacesList(newList);
-		await this.indexedDb.delete(currentWorkspace, WORKSPACES_OBJECT_STORE_NAME);
+		await this.indexedDb.delete(workspaceId, WORKSPACES_OBJECT_STORE_NAME);
 		await this.setCurrentWorkspaceId(newList[0]);
 	}
 
