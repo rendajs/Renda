@@ -379,7 +379,7 @@ export class TabsStudioWindow extends StudioWindow {
 						});
 					}
 
-					let autoSaveValue = await this.windowManager.workspaceManager.getAutoSaveValue();
+					let autoSaveValue = await this.windowManager.workspaceManager.getCurrentWorkspaceAutoSaveValue();
 
 					workspacesSubmenu.push(
 						{
@@ -408,7 +408,7 @@ export class TabsStudioWindow extends StudioWindow {
 								e.preventMenuClose();
 								autoSaveValue = !autoSaveValue;
 								e.item.showCheckmark = autoSaveValue;
-								this.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
+								this.windowManager.workspaceManager.setCurrentWorkspaceAutoSaveValue(autoSaveValue);
 							},
 						},
 						{
@@ -425,6 +425,12 @@ export class TabsStudioWindow extends StudioWindow {
 							disabled: workspaces.length <= 1,
 							onClick: () => {
 								this.windowManager.workspaceManager.deleteCurrentWorkspace();
+							},
+						},
+						{
+							text: `Revert '${currentWorkspace}'`,
+							onClick: () => {
+								this.windowManager.workspaceManager.revertCurrentWorkspace();
 							},
 						}
 					);

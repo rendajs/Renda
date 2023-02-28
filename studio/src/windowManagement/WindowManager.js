@@ -46,7 +46,7 @@ export class WindowManager {
 
 		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
-		this.workspaceManager.onCurrentWorkspaceIdChange(() => {
+		this.workspaceManager.onActiveWorkspaceDataChange(() => {
 			this.reloadCurrentWorkspace();
 		});
 
@@ -88,7 +88,7 @@ export class WindowManager {
 		document.body.appendChild(this.rootWindow.el);
 		this.rootWindow.updateEls();
 		this.rootWindow.onResized();
-		this.autoSaveWorkspace();
+		this.saveWorkspace();
 	}
 
 	assertHasRootWindow() {
@@ -97,26 +97,14 @@ export class WindowManager {
 	}
 
 	async reloadCurrentWorkspace() {
-		const workspaceData = await this.workspaceManager.getCurrentWorkspace();
+		const workspaceData = await this.workspaceManager.getActiveWorkspaceData();
 		this.loadWorkspace(workspaceData);
 	}
 
-	async autoSaveWorkspace() {
-		const autoSaveValue = await this.workspaceManager.getAutoSaveValue();
-		if (autoSaveValue) {
-			await this.saveWorkspace();
-		}
-	}
-
 	async saveWorkspace() {
-		const workspaceData = this.getCurrentWorkspaceData();
-		await this.workspaceManager.saveCurrentWorkspace(workspaceData);
-	}
-
-	getCurrentWorkspaceData() {
-		const rw = this.assertHasRootWindow();
-		const rootWindow = this.serializeWorkspaceWindow(rw);
-		return {rootWindow};
+		const rootWindow = this.assertHasRootWindow();
+		const serializedRootWindow = this.serializeWorkspaceWindow(rootWindow);
+		await this.workspaceManager.saveActiveWorkspaceWindows(serializedRootWindow);
 	}
 
 	/**
@@ -323,7 +311,7 @@ export class WindowManager {
 		rootWindow.setRoot();
 		rootWindow.onWorkspaceChange(() => {
 			if (!this.isLoadingWorkspace) {
-				this.autoSaveWorkspace();
+				this.saveWorkspace();
 			}
 		});
 	}
