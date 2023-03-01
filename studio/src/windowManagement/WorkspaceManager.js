@@ -76,9 +76,10 @@ export class WorkspaceManager {
 	 * @param {string} id
 	 */
 	async setCurrentWorkspaceId(id) {
+		if (this.#activeWorkSpaceId == id) return;
 		this.#activeWorkSpaceId = id;
 		await this.indexedDb.set(CURRENT_WORKSPACE_ID_KEY, id, WORKSPACE_SETTINGS_OBJECT_STORE_NAME);
-		this.revertCurrentWorkspace();
+		await this.revertCurrentWorkspace();
 	}
 
 	/**
@@ -216,7 +217,7 @@ export class WorkspaceManager {
 	async deleteWorkspace(workspaceId) {
 		const list = await this.getWorkspacesList();
 		if (list.length <= 1) {
-			throw new Error("Cannot delete workspace when it's the only one");
+			throw new Error("Cannot delete workspace when it's the only one.");
 		}
 		const newList = list.filter(id => id != workspaceId);
 		await this.#setWorkspacesList(newList);
