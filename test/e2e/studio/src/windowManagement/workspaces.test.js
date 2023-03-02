@@ -37,60 +37,58 @@ async function getFirstTabGroupTypes(page) {
 	});
 }
 
-for (let i=0; i<100; i++) {
-	Deno.test({
-		name: "Adding a new workspace and switching between them",
-		...puppeteerSanitizers,
-		async fn() {
-			const {page, disconnect} = await getContext();
+Deno.test({
+	name: "Adding a new workspace and switching between them",
+	...puppeteerSanitizers,
+	async fn() {
+		const {page, disconnect} = await getContext();
 
-			try {
-				let workspaceIndex = 0;
-				page.on("dialog", async dialog => {
-					workspaceIndex++;
-					await dialog.accept("workspace" + workspaceIndex);
-				});
+		try {
+			let workspaceIndex = 0;
+			page.on("dialog", async dialog => {
+				workspaceIndex++;
+				await dialog.accept("workspace" + workspaceIndex);
+			});
 
-				await setupNewProject(page);
+			await setupNewProject(page);
 
-				// Sanity check to verify that the default workspace is what we expect.
-				// If you just changed the default workspace layout or content window names and this test fails,
-				// all you should have to do is update the tab types from the top left content window.
-				const FIRST_TAB_TYPE = "Outliner";
-				const SECOND_TAB_TYPE = "Default Asset Links";
-				const result1 = await getFirstTabGroupTypes(page);
-				assertEquals(result1, [FIRST_TAB_TYPE, SECOND_TAB_TYPE]);
+			// Sanity check to verify that the default workspace is what we expect.
+			// If you just changed the default workspace layout or content window names and this test fails,
+			// all you should have to do is update the tab types from the top left content window.
+			const FIRST_TAB_TYPE = "Outliner";
+			const SECOND_TAB_TYPE = "Default Asset Links";
+			const result1 = await getFirstTabGroupTypes(page);
+			assertEquals(result1, [FIRST_TAB_TYPE, SECOND_TAB_TYPE]);
 
-				await rightClickTabButton(page);
+			await rightClickTabButton(page);
 
-				console.log("Add new workspace");
-				await clickContextMenuItem(page, ["Workspaces", "Add New Workspace"]);
-				await waitForWorkspaceLoad(page);
+			console.log("Add new workspace");
+			await clickContextMenuItem(page, ["Workspaces", "Add New Workspace"]);
+			await waitForWorkspaceLoad(page);
 
-				await rightClickTabButton(page);
-				await clickContextMenuItem(page, ["Close Tab"]);
+			await rightClickTabButton(page);
+			await clickContextMenuItem(page, ["Close Tab"]);
 
-				const result2 = await getFirstTabGroupTypes(page);
-				assertEquals(result2, [SECOND_TAB_TYPE]);
+			const result2 = await getFirstTabGroupTypes(page);
+			assertEquals(result2, [SECOND_TAB_TYPE]);
 
-				console.log("Activate default workspace");
-				await rightClickTabButton(page);
-				await clickContextMenuItem(page, ["Workspaces", "Default", "Activate"]);
-				await waitForWorkspaceLoad(page);
+			console.log("Activate default workspace");
+			await rightClickTabButton(page);
+			await clickContextMenuItem(page, ["Workspaces", "Default", "Activate"]);
+			await waitForWorkspaceLoad(page);
 
-				const result3 = await getFirstTabGroupTypes(page);
-				assertEquals(result3, [FIRST_TAB_TYPE, SECOND_TAB_TYPE]);
+			const result3 = await getFirstTabGroupTypes(page);
+			assertEquals(result3, [FIRST_TAB_TYPE, SECOND_TAB_TYPE]);
 
-				console.log("Activate the new workspace again");
-				await rightClickTabButton(page);
-				await clickContextMenuItem(page, ["Workspaces", "workspace1", "Activate"]);
-				await waitForWorkspaceLoad(page);
+			console.log("Activate the new workspace again");
+			await rightClickTabButton(page);
+			await clickContextMenuItem(page, ["Workspaces", "workspace1", "Activate"]);
+			await waitForWorkspaceLoad(page);
 
-				const result4 = await getFirstTabGroupTypes(page);
-				assertEquals(result4, [SECOND_TAB_TYPE]);
-			} finally {
-				await disconnect();
-			}
-		},
-	});
-}
+			const result4 = await getFirstTabGroupTypes(page);
+			assertEquals(result4, [SECOND_TAB_TYPE]);
+		} finally {
+			await disconnect();
+		}
+	},
+});
