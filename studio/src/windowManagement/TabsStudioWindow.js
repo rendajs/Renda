@@ -261,7 +261,9 @@ export class TabsStudioWindow extends StudioWindow {
 
 		for (let i = 0; i < this.tabs.length; i++) {
 			const contentWindowType = /** @type {ContentWindowConstructor} */ (this.tabs[i].constructor);
-			this.tabsSelectorGroup.buttons[i].setIcon(contentWindowType.contentWindowUiIcon);
+			const button = this.tabsSelectorGroup.buttons[i];
+			button.setIcon(contentWindowType.contentWindowUiIcon);
+			button.setTooltip(contentWindowType.contentWindowUiName);
 		}
 	}
 
@@ -369,17 +371,71 @@ export class TabsStudioWindow extends StudioWindow {
 
 					const workspaces = await this.windowManager.workspaceManager.getWorkspacesList();
 					for (const workspaceId of workspaces) {
+						const isCurrentWorkspace = workspaceId == currentWorkspace;
 						workspacesSubmenu.push({
 							text: workspaceId,
 							reserveIconSpace: true,
-							showBullet: workspaceId == currentWorkspace,
-							onClick: () => {
-								this.windowManager.workspaceManager.setCurrentWorkspaceId(workspaceId);
+							showBullet: isCurrentWorkspace,
+							submenu: async () => {
+								/** @type {import("../ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
+								const submenu = [];
+								if (!isCurrentWorkspace) {
+									submenu.push({
+										text: "Activate",
+										onClick: () => {
+											this.windowManager.workspaceManager.setCurrentWorkspaceId(workspaceId);
+										},
+									});
+								}
+								if (isCurrentWorkspace) {
+									let autoSaveValue = await this.windowManager.workspaceManager.getCurrentWorkspaceAutoSaveValue();
+									submenu.push(
+										{
+											text: "Save",
+											onClick: () => {
+												this.windowManager.saveWorkspace();
+											},
+										},
+										{
+											text: "Autosave",
+											reserveIconSpace: true,
+											showCheckmark: autoSaveValue,
+											onClick: e => {
+												e.preventMenuClose();
+												autoSaveValue = !autoSaveValue;
+												e.item.showCheckmark = autoSaveValue;
+												this.windowManager.workspaceManager.setCurrentWorkspaceAutoSaveValue(autoSaveValue);
+											},
+										}
+									);
+								}
+								submenu.push(
+									{
+										text: "Clone",
+										onClick: () => {
+											this.windowManager.workspaceManager.cloneWorkspace(workspaceId);
+										},
+									},
+									{
+										text: "Delete",
+										disabled: workspaces.length <= 1,
+										onClick: () => {
+											this.windowManager.workspaceManager.deleteWorkspace(workspaceId);
+										},
+									}
+								);
+								if (isCurrentWorkspace) {
+									submenu.push({
+										text: "Revert to saved state",
+										onClick: () => {
+											this.windowManager.workspaceManager.revertCurrentWorkspace();
+										},
+									});
+								}
+								return submenu;
 							},
 						});
 					}
-
-					let autoSaveValue = await this.windowManager.workspaceManager.getAutoSaveValue();
 
 					workspacesSubmenu.push(
 						{
@@ -392,39 +448,6 @@ export class TabsStudioWindow extends StudioWindow {
 								if (name && !workspaces.includes(name)) {
 									this.windowManager.workspaceManager.addNewWorkspace(name);
 								}
-							},
-						},
-						{
-							text: `Save '${currentWorkspace}'`,
-							onClick: () => {
-								this.windowManager.saveWorkspace();
-							},
-						},
-						{
-							text: `Autosave '${currentWorkspace}'`,
-							reserveIconSpace: true,
-							showCheckmark: autoSaveValue,
-							onClick: e => {
-								e.preventMenuClose();
-								autoSaveValue = !autoSaveValue;
-								e.item.showCheckmark = autoSaveValue;
-								this.windowManager.workspaceManager.setAutoSaveValue(autoSaveValue);
-							},
-						},
-						{
-							text: `Clone '${currentWorkspace}'`,
-							onClick: () => {
-								const name = prompt("Enter Workspace Name", `Copy of ${currentWorkspace}`);
-								if (name && !workspaces.includes(name)) {
-									this.windowManager.workspaceManager.cloneCurrentWorkspace(name);
-								}
-							},
-						},
-						{
-							text: `Delete '${currentWorkspace}'`,
-							disabled: workspaces.length <= 1,
-							onClick: () => {
-								this.windowManager.workspaceManager.deleteCurrentWorkspace();
 							},
 						}
 					);

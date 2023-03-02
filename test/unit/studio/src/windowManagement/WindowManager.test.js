@@ -61,7 +61,7 @@ const CONTENT_WINDOW_TYPE_3 = "content window type 3";
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
 const {WorkspaceManager} = WorkspaceManagerMod;
-stub(WorkspaceManager.prototype, "getCurrentWorkspace", async () => {
+stub(WorkspaceManager.prototype, "getActiveWorkspaceData", async () => {
 	/** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js").WorkspaceData} */
 	const workspaceData = {
 		rootWindow: {

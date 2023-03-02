@@ -3,6 +3,7 @@ const databases = new Map();
 
 class Database {
 	#useStructuredClone = true;
+	#deleted = false;
 
 	/**
 	 * @param {string[]} objectStoreNames
@@ -19,6 +20,7 @@ class Database {
 	 * @param {string} objectStoreName
 	 */
 	#getObjectStore(objectStoreName) {
+		if (this.#deleted) throw new Error("Database has been deleted");
 		const objectStore = this.objectStores.get(objectStoreName);
 		if (!objectStore) {
 			// Not sure what the behaviour should be according to the spec
@@ -73,6 +75,10 @@ class Database {
 		const store = this.#getObjectStore(objectStoreName);
 		return store.entries();
 	}
+
+	deleteDb() {
+		this.#deleted = true;
+	}
 }
 
 /** @type {Promise<void>?} */
@@ -98,6 +104,13 @@ export function forcePendingOperations(pending) {
 			currentForcePendingPromise = null;
 		}
 	}
+}
+
+export function deleteAllDbs() {
+	for (const db of databases.values()) {
+		db.deleteDb();
+	}
+	databases.clear();
 }
 
 export class MockIndexedDbUtil {
@@ -176,6 +189,8 @@ export class MockIndexedDbUtil {
 	}
 
 	deleteDb() {
+		const db = databases.get(this.#dbName);
+		if (db) db.deleteDb();
 		databases.delete(this.#dbName);
 	}
 

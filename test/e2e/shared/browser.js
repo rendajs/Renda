@@ -91,6 +91,13 @@ export async function getContext(url = getMainPageUrl() + "/studio/") {
 
 	const context = await browser.createIncognitoBrowserContext();
 	const page = await context.newPage();
+	page.on("console", async message => {
+		const jsonArgs = [];
+		for (const arg of message.args()) {
+			jsonArgs.push(await arg.jsonValue());
+		}
+		console.log(...jsonArgs);
+	});
 	await page.goto(url);
 	const browserRef = browser;
 	return {
