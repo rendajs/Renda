@@ -478,7 +478,7 @@ export class ProjectManager {
 	}
 
 	async getStudioConnectionsAllowRemoteIncoming() {
-		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinish();
+		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinishOnce();
 		return this.studioConnectionsAllowRemoteIncoming;
 	}
 
@@ -497,7 +497,7 @@ export class ProjectManager {
 	}
 
 	async getStudioConnectionsAllowInternalIncoming() {
-		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinish();
+		await this.loadStudioConnectionsAllowIncomingInstance.waitForFinishOnce();
 		return this.studioConnectionsAllowInternalIncoming;
 	}
 

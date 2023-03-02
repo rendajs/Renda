@@ -87,7 +87,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	async waitForAssetLoad() {
-		await this.#loadAssetInstance.waitForFinish();
+		await this.#loadAssetInstance.waitForFinishOnce();
 	}
 
 	async saveAsset() {

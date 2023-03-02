@@ -30,7 +30,7 @@ export class AssetBundle {
 	}
 
 	async waitForLoad() {
-		await this.downloadInstance.waitForFinish();
+		await this.downloadInstance.waitForFinishOnce();
 	}
 
 	async downloadLogic() {

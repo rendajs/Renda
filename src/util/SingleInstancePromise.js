@@ -14,7 +14,8 @@ export class SingleInstancePromise {
 	/**
 	 * @param {TFunc} promiseFn
 	 * @param {object} opts
-	 * @param {boolean} [opts.once] If true, the function will only be run once. Repeated calls will return the first result.
+	 * @param {boolean} [opts.once] If true, the function will only be run once.
+	 * Repeated calls will return the first result. `false` by default.
 	 */
 	constructor(promiseFn, {
 		once = false,
@@ -89,13 +90,27 @@ export class SingleInstancePromise {
 	}
 
 	/**
-	 * Returns a promise that will resolve once the function has run at least once.
-	 * If the function hasn't run yet, this promise will resolve once it's done
-	 * running for the first time. So {@linkcode run} has to have been called at
-	 * least once for this to resolve at all.
+	 * Returns a promise that will resolve once the function is done running.
+	 * Will stay pending if the function is not running, either because it is done or if it has already run.
+	 * In this case the promise will resolve once the next run finishes.
 	 * @returns {Promise<void>}
 	 */
 	async waitForFinish() {
+		if (this.once) {
+			throw new Error("waitForFinish() will stay pending forever when once has been set, use waitForFinishOnce() instead.");
+		}
+		/** @type {Promise<void>} */
+		const promise = new Promise(r => this._onFinishCbs.add(r));
+		await promise;
+	}
+
+	/**
+	 * Returns a promise that will resolve once the function has run for the first time.
+	 * Resolves immediately when the function is done running, even when it is currently running for a second time.
+	 * If the function hasn't run yet, this promise will resolve once it's done running for the first time.
+	 * @returns {Promise<void>}
+	 */
+	async waitForFinishOnce() {
 		if (this.hasRun) return;
 		/** @type {Promise<void>} */
 		const promise = new Promise(r => this._onFinishCbs.add(r));
@@ -104,8 +119,7 @@ export class SingleInstancePromise {
 
 	/**
 	 * Returns a promise that will resolve once the function is done running.
-	 * Resolves immediately if the function is not running, either because its
-	 * done or if it has already run.
+	 * Resolves immediately if the function is not running, either because it is done or if it has already run.
 	 */
 	async waitForFinishIfRunning() {
 		if (!this._isEmptyingQueue) return;
