@@ -26,7 +26,7 @@ export class ProjectSettingsManager {
 	 * @param {any} value
 	 */
 	async set(key, value) {
-		await this.loadInstance.waitForFinish();
+		await this.loadInstance.waitForFinishOnce();
 		if (this.currentSettings.has(key)) {
 			const currentValue = this.currentSettings.get(key);
 			if (currentValue === value) return;
@@ -39,7 +39,7 @@ export class ProjectSettingsManager {
 	 * @param {string} key
 	 */
 	async delete(key) {
-		await this.loadInstance.waitForFinish();
+		await this.loadInstance.waitForFinishOnce();
 		if (!this.currentSettings.has(key)) return;
 		this.currentSettings.delete(key);
 		await this.save();
@@ -51,7 +51,7 @@ export class ProjectSettingsManager {
 	 * @returns {Promise<unknown?>}
 	 */
 	async get(key, defaultValue = null) {
-		await this.loadInstance.waitForFinish();
+		await this.loadInstance.waitForFinishOnce();
 		if (!this.currentSettings.has(key)) return defaultValue;
 		const value = this.currentSettings.get(key);
 		if (value) {

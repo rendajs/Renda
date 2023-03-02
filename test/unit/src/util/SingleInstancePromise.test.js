@@ -1,4 +1,4 @@
-import {assertEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertRejects} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import {SingleInstancePromise} from "../../../../src/mod.js";
 import {assertPromiseResolved} from "../../shared/asserts.js";
@@ -146,20 +146,54 @@ async function runOnceMatrix(test) {
 }
 
 Deno.test({
-	name: "waitForFinish resolves when the first run is done",
+	name: "waitForFinish resolves when the any run is done",
+	async fn() {
+		const basic = basicSpyFn();
+		const instance = new SingleInstancePromise(basic.spyFn);
+
+		await assertPromiseResolved(instance.waitForFinish(), false);
+		instance.run("");
+		const promise = instance.waitForFinish();
+		await assertPromiseResolved(promise, false);
+		await basic.resolvePromise("");
+		await assertPromiseResolved(promise, true);
+		await assertPromiseResolved(instance.waitForFinish(), false);
+
+		// Running a second time to make sure that waitForFinish() becomes pending again
+		instance.run("");
+		const promise2 = instance.waitForFinish();
+		await assertPromiseResolved(promise2, false);
+		await basic.resolvePromise("");
+		await assertPromiseResolved(promise2, true);
+		await assertPromiseResolved(instance.waitForFinish(), false);
+	},
+});
+
+Deno.test({
+	name: "waitForFinish throws when once is true",
+	async fn() {
+		const instance = new SingleInstancePromise(async () => {}, {once: true});
+		await assertRejects(async () => {
+			await instance.waitForFinish();
+		}, Error, "waitForFinish() will stay pending forever when once has been set, use waitForFinishOnce() instead.");
+	},
+});
+
+Deno.test({
+	name: "waitForFinishOnce resolves when the first run is done",
 	async fn() {
 		await runOnceMatrix(async ({instance, resolvePromise}) => {
-			await assertPromiseResolved(instance.waitForFinish(), false);
+			await assertPromiseResolved(instance.waitForFinishOnce(), false);
 			instance.run("");
-			await assertPromiseResolved(instance.waitForFinish(), false);
+			await assertPromiseResolved(instance.waitForFinishOnce(), false);
 			await resolvePromise("");
-			await assertPromiseResolved(instance.waitForFinish(), true);
+			await assertPromiseResolved(instance.waitForFinishOnce(), true);
 
 			// Running a second time to make sure that waitForFinish() stays resolved
 			instance.run("");
-			await assertPromiseResolved(instance.waitForFinish(), true);
+			await assertPromiseResolved(instance.waitForFinishOnce(), true);
 			await resolvePromise("");
-			await assertPromiseResolved(instance.waitForFinish(), true);
+			await assertPromiseResolved(instance.waitForFinishOnce(), true);
 		});
 	},
 });
