@@ -399,13 +399,13 @@ export class ProjectManager {
 	async openNewRemoteProject(fromUserGesture) {
 		const fileSystem = new RemoteStudioFileSystem();
 		const projectUuid = generateUuid();
+		getStudioInstance().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
 		await this.openProject(fileSystem, {
 			fileSystemType: "remote",
 			projectUuid,
 			name: "Remote Filesystem",
 			isWorthSaving: false,
 		}, fromUserGesture);
-		getStudioInstance().windowManager.focusOrCreateContentWindow(ContentWindowConnections);
 	}
 
 	/**
