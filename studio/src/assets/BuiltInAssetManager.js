@@ -88,7 +88,7 @@ export class BuiltInAssetManager {
 	}
 
 	async waitForLoad() {
-		await this.loadAssetsInstance.waitForFinish();
+		await this.loadAssetsInstance.waitForFinishOnce();
 	}
 
 	get allowAssetEditing() {
