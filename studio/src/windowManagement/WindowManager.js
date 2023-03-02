@@ -2,7 +2,7 @@ import {SplitStudioWindow} from "./SplitStudioWindow.js";
 import {TabsStudioWindow} from "./TabsStudioWindow.js";
 import {ContentWindow} from "./contentWindows/ContentWindow.js";
 import {WorkspaceManager} from "./WorkspaceManager.js";
-import {generateUuid} from "../../../src/util/mod.js";
+import {SingleInstancePromise, generateUuid} from "../../../src/util/mod.js";
 import {EventHandler} from "../../../src/util/EventHandler.js";
 import {STUDIO_ENV} from "../studioDefines.js";
 import {getStudioInstance} from "../studioInstance.js";
@@ -47,7 +47,10 @@ export class WindowManager {
 		this.isLoadingWorkspace = false;
 		this.workspaceManager = new WorkspaceManager();
 		this.workspaceManager.onActiveWorkspaceDataChange(() => {
-			this.reloadCurrentWorkspace();
+			this.reloadWorkspaceInstance.run();
+		});
+		this.reloadWorkspaceInstance = new SingleInstancePromise(async () => {
+			await this.reloadCurrentWorkspace();
 		});
 
 		/** @type {Map<string, typeof ContentWindow>} */
@@ -72,7 +75,7 @@ export class WindowManager {
 		const lastFocusedCondition = shortcuts.getCondition("windowManager.lastFocusedContentWindowTypeId");
 		this.#lastFocusedValueSetter = lastFocusedCondition.requestValueSetter();
 
-		await this.reloadCurrentWorkspace();
+		await this.reloadWorkspaceInstance.run();
 	}
 
 	/**

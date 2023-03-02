@@ -261,7 +261,9 @@ export class TabsStudioWindow extends StudioWindow {
 
 		for (let i = 0; i < this.tabs.length; i++) {
 			const contentWindowType = /** @type {ContentWindowConstructor} */ (this.tabs[i].constructor);
-			this.tabsSelectorGroup.buttons[i].setIcon(contentWindowType.contentWindowUiIcon);
+			const button = this.tabsSelectorGroup.buttons[i];
+			button.setIcon(contentWindowType.contentWindowUiIcon);
+			button.setTooltip(contentWindowType.contentWindowUiName);
 		}
 	}
 

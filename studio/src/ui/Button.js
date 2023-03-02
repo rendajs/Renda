@@ -193,6 +193,13 @@ export class Button {
 	}
 
 	/**
+	 * @param {string} text
+	 */
+	setTooltip(text) {
+		this.el.title = text;
+	}
+
+	/**
 	 * @param {MouseEvent} e
 	 */
 	fireContextMenuCbs(e) {
