@@ -23,13 +23,20 @@ export async function waitForProjectOpen(page, allowExisting = true) {
  * @param {import("puppeteer").Page} page
  */
 export async function openProjectSelector(page) {
-	let projectSelectorEl = /** @type {import("puppeteer").ElementHandle?} */ (null);
 	log("Opening project selector...");
 	const projectEl = await getContentWindowElement(page, "project");
 	await click(projectEl, "div.studio-content-window-top-button-bar > div:nth-child(3)");
-	projectSelectorEl = await waitFor(page, ".project-selector-window");
+	return await waitForProjectSelector(page);
+}
+
+/**
+ * Waits until the project selector window is open and returns its element.
+ * @param {import("puppeteer").Page} page
+ */
+export async function waitForProjectSelector(page) {
+	log("Waiting for project selector window");
+	const projectSelectorEl = await waitFor(page, ".project-selector-window");
 	log("Project selector is open");
-	if (!projectSelectorEl) throw new Error("Failed to find project selector element.");
 	return projectSelectorEl;
 }
 

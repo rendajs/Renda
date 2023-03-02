@@ -3,9 +3,11 @@ import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
 import {log} from "../../../shared/log.js";
 import {click} from "../../../shared/util.js";
 import {createAsset, getAssetTreeView, waitForAssetDissappear} from "../../shared/assets.js";
+import {getMaybeContentWindowConnectionsElement, waitForContentWindowConnectionsElement} from "../../shared/contentWindows/connections.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
-import {openProjectSelector, setupNewProject, waitForProjectOpen} from "../../shared/project.js";
+import {openProjectSelector, setupNewProject, waitForProjectOpen, waitForProjectSelector} from "../../shared/project.js";
 import {reloadPage} from "../../shared/reloadPage.js";
+import {waitForStudioLoad} from "../../shared/studio.js";
 import {waitSeconds} from "../../shared/waitSeconds.js";
 
 Deno.test({
@@ -119,5 +121,29 @@ Deno.test({
 		await waitForAssetDissappear(page, ["New Entity.json"]);
 
 		await disconnect();
+	},
+});
+
+Deno.test({
+	name: "Connect remote project opens the connections window",
+	...puppeteerSanitizers,
+	async fn() {
+		const {page, disconnect} = await getContext();
+
+		try {
+			const projectSelectorEl = await waitForProjectSelector(page);
+			await waitForStudioLoad(page);
+
+			// Verify that the connections window doesn't exist yet.
+			// If we ever end up changing the default workspace in the future
+			// the connections content window might already exist, rendering this test useless.
+			const connectionsEl = await getMaybeContentWindowConnectionsElement(page);
+			assertEquals(connectionsEl, null);
+
+			await click(projectSelectorEl, ".project-selector-actions-list-container > .project-selector-list > .project-selector-button:nth-child(3)");
+			await waitForContentWindowConnectionsElement(page);
+		} finally {
+			await disconnect();
+		}
 	},
 });
