@@ -3,6 +3,7 @@ import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 /**
  * @param {(ctx: {
@@ -10,7 +11,7 @@ import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorize
  * 	popover: import("../../../../../../studio/src/ui/popoverMenus/Popover.js").Popover,
  * }) => void} cb
  */
-function basicPopoverTest(cb) {
+async function basicPopoverTest(cb) {
 	installFakeDocument();
 	const originalMouseEvent = globalThis.MouseEvent;
 	globalThis.MouseEvent = MouseEvent;
@@ -27,6 +28,9 @@ function basicPopoverTest(cb) {
 			manager,
 			popover,
 		});
+
+		// Created popovers update some elements in the next event loop
+		await waitForMicrotasks();
 	} finally {
 		uninstallFakeDocument();
 		globalThis.MouseEvent = originalMouseEvent;
@@ -38,7 +42,7 @@ function basicPopoverTest(cb) {
 Deno.test({
 	name: "setPos()",
 	async fn() {
-		basicPopoverTest(({popover}) => {
+		await basicPopoverTest(({popover}) => {
 			assertExists(popover.arrowEl);
 
 			popover.setPos(new MouseEvent("contextmenu", {
