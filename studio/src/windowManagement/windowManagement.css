@@ -74,6 +74,10 @@
 	pointer-events: none;
 }
 
+.content-window-settings-button {
+	float: right;
+}
+
 .studio-content-window-content {
 	position: relative;
 	flex-grow: 1;

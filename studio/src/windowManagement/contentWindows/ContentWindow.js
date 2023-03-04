@@ -1,5 +1,6 @@
 import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {STUDIO_ENV} from "../../studioDefines.js";
+import { Button } from "../../ui/Button.js";
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
 
 export class ContentWindow {
@@ -71,6 +72,13 @@ export class ContentWindow {
 		this.tabSelectorSpacer = document.createElement("div");
 		this.tabSelectorSpacer.classList.add("studio-content-window-top-button-bar-spacer");
 		this.topButtonBar.appendChild(this.tabSelectorSpacer);
+
+		this.settingsButton = new Button({
+			icon: "static/icons/settings.svg",
+			colorizerFilterManager: studioInstance.colorizerFilterManager,
+		});
+		this.settingsButton.el.classList.add("content-window-settings-button")
+		this.addTopBarEl(this.settingsButton.el);
 
 		this.contentEl = document.createElement("div");
 		this.contentEl.classList.add("studio-content-window-content");
