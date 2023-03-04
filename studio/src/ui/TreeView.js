@@ -1705,7 +1705,7 @@ export class TreeView {
 		const eventData = {
 			rawEvent: e,
 			target: this,
-			showContextMenu: async structure => {
+			showContextMenu: structure => {
 				if (eventExpired) {
 					throw new Error("showContextMenu should be called from within the contextmenu event");
 				}
@@ -1715,7 +1715,7 @@ export class TreeView {
 
 				menuCreated = true;
 				e.preventDefault();
-				const menu = await getStudioInstance().popoverManager.createContextMenu(structure);
+				const menu = getStudioInstance().popoverManager.createContextMenu(structure);
 				menu.setPos(e);
 				return menu;
 			},

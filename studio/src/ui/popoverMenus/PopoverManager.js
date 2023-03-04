@@ -39,26 +39,26 @@ export class PopoverManager {
 		return null;
 	}
 
-	async createPopover() {
+	createPopover() {
 		if (this.#activePopover && this.#activePopover.el) {
 			throw new Error("Cannot create a popover while one is already open.");
 		}
 
 		const popover = new Popover(this);
-		await this.#popoverCreated(popover);
+		this.#popoverCreated(popover);
 		return popover;
 	}
 
 	/**
 	 * @param {import("./ContextMenu.js").ContextMenuStructure?} structure
 	 */
-	async createContextMenu(structure = null) {
+	createContextMenu(structure = null) {
 		if (this.#activePopover && this.#activePopover.el) {
 			throw new Error("Cannot create a popover while one is already open.");
 		}
 
 		const contextMenu = new ContextMenu(this, {structure});
-		await this.#popoverCreated(contextMenu);
+		this.#popoverCreated(contextMenu);
 		return contextMenu;
 	}
 

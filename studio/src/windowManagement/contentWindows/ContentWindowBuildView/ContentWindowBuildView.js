@@ -81,12 +81,12 @@ export class ContentWindowBuildView extends ContentWindow {
 			text: "Entry Point",
 			hasDownArrow: true,
 			colorizerFilterManager,
-			onClick: async () => {
+			onClick: () => {
 				const studio = getStudioInstance();
 				const projectSettings = studio.projectManager.projectSettings;
 				const assetManager = studio.projectManager.assetManager;
 				if (!projectSettings || !assetManager) return;
-				const popover = await studio.popoverManager.createPopover();
+				const popover = studio.popoverManager.createPopover();
 				// eslint-disable-next-line no-new
 				new EntryPointManager(popover, projectSettings, assetManager, this.persistentData);
 

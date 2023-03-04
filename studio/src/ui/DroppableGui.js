@@ -835,7 +835,7 @@ export class DroppableGui {
 			});
 		}
 		if (contextMenuStructure.length == 0) return;
-		const menu = await getStudioInstance().popoverManager.createContextMenu(contextMenuStructure);
+		const menu = getStudioInstance().popoverManager.createContextMenu(contextMenuStructure);
 		menu.setPos(e);
 	}
 

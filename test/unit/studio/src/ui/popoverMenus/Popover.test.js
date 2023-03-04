@@ -10,7 +10,7 @@ import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorize
  * 	popover: import("../../../../../../studio/src/ui/popoverMenus/Popover.js").Popover,
  * }) => void} cb
  */
-async function basicPopoverTest(cb) {
+function basicPopoverTest(cb) {
 	installFakeDocument();
 	const originalMouseEvent = globalThis.MouseEvent;
 	globalThis.MouseEvent = MouseEvent;
@@ -21,7 +21,7 @@ async function basicPopoverTest(cb) {
 	try {
 		const colorizerFilterManager = new ColorizerFilterManager();
 		const manager = new PopoverManager(colorizerFilterManager);
-		const popover = await manager.createPopover();
+		const popover = manager.createPopover();
 
 		cb({
 			manager,
@@ -38,7 +38,7 @@ async function basicPopoverTest(cb) {
 Deno.test({
 	name: "setPos()",
 	async fn() {
-		await basicPopoverTest(({popover}) => {
+		basicPopoverTest(({popover}) => {
 			assertExists(popover.arrowEl);
 
 			popover.setPos(new MouseEvent("contextmenu", {
