@@ -36,6 +36,7 @@ export class ContentWindowOutliner extends ContentWindow {
 
 		const createEmptyButton = new Button({
 			text: "+",
+			tooltip: "Add Entity",
 			onClick: () => {
 				this.createNewEmpty();
 			},
