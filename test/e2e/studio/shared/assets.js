@@ -13,7 +13,7 @@ import {getTreeViewItemElement, waitForTreeViewDisappear} from "./treeView.js";
  * @param {string[]} createMenuPath The path of the context menu item that creates the asset.
  */
 export async function createAsset(page, createMenuPath) {
-	const projectEl = await getContentWindowElement(page, "project");
+	const projectEl = await getContentWindowElement(page, "renda:project");
 
 	// Get the selected folder or the root folder, so that we can wait for added children later.
 
@@ -31,7 +31,7 @@ export async function createAsset(page, createMenuPath) {
  * @param {import("puppeteer").Page} page
  */
 async function getProjectRootTreeViewEl(page) {
-	const projectEl = await getContentWindowElement(page, "project");
+	const projectEl = await getContentWindowElement(page, "renda:project");
 	const projectRootTreeViewEl = await projectEl.$(":scope > .studio-content-window-content > .treeViewItem");
 	if (!projectRootTreeViewEl) {
 		throw new Error("Project root treeview element not found.");
