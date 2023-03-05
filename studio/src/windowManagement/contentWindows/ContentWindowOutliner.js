@@ -9,7 +9,7 @@ import {EntitySelection} from "../../misc/EntitySelection.js";
 import {DropDownGui} from "../../ui/DropDownGui.js";
 
 export class ContentWindowOutliner extends ContentWindow {
-	static contentWindowTypeId = "outliner";
+	static contentWindowTypeId = "renda:outliner";
 	static contentWindowUiName = "Outliner";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/outliner.svg";
 

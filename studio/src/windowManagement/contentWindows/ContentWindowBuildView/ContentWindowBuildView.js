@@ -12,7 +12,7 @@ import {ProjectAssetTypeHtml} from "../../../assets/projectAssetType/ProjectAsse
  */
 
 export class ContentWindowBuildView extends ContentWindow {
-	static contentWindowTypeId = "buildView";
+	static contentWindowTypeId = "renda:buildView";
 	static contentWindowUiName = "Build";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/buildView.svg";
 	static scrollable = false;

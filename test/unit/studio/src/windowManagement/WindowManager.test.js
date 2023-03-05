@@ -1,6 +1,6 @@
 import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertEquals, assertInstanceOf, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
@@ -54,9 +54,9 @@ const {ContentWindow} = ContentWindowMod;
 const CONTENT_WINDOW_UUID_1 = "uuid1";
 const CONTENT_WINDOW_UUID_2 = "uuid2";
 const CONTENT_WINDOW_UUID_3 = "uuid3";
-const CONTENT_WINDOW_TYPE_1 = "content window type 1";
-const CONTENT_WINDOW_TYPE_2 = "content window type 2";
-const CONTENT_WINDOW_TYPE_3 = "content window type 3";
+const CONTENT_WINDOW_TYPE_1 = "namespace:content window type 1";
+const CONTENT_WINDOW_TYPE_2 = "namespace:content window type 2";
+const CONTENT_WINDOW_TYPE_3 = "namespace:content window type 3";
 
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
@@ -176,6 +176,66 @@ async function basicSetup({
 		injectMockStudioInstance(null);
 	}
 }
+
+Deno.test({
+	name: "Registering content window with wrong class type",
+	async fn() {
+		await basicSetup({
+			fn({windowManager}) {
+				class NotAContentWindow {}
+
+				assertThrows(() => {
+					windowManager.registerContentWindow(/** @type {any} */ (NotAContentWindow));
+				}, Error, 'Tried to register content window "NotAContentWindow" that does not extend ContentWindow class.');
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Registering a content window without a type",
+	async fn() {
+		class MissingType extends ContentWindow {
+		}
+
+		await basicSetup({
+			fn({windowManager}) {
+				assertThrows(() => {
+					windowManager.registerContentWindow(MissingType);
+				}, Error, 'Tried to register content window "MissingType" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.');
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Registering a content window without a namespace in the type",
+	async fn() {
+		class MissingNamespace extends ContentWindow {
+			static contentWindowTypeId = "nonamespace";
+		}
+		class EmptyNamespace extends ContentWindow {
+			static contentWindowTypeId = ":nonamespace";
+		}
+		class EmptyType extends ContentWindow {
+			static contentWindowTypeId = "notype:";
+		}
+
+		await basicSetup({
+			fn({windowManager}) {
+				assertThrows(() => {
+					windowManager.registerContentWindow(MissingNamespace);
+				}, Error, 'Tried to register content window "MissingNamespace" without a namespace in the contentWindowTypeId.');
+				assertThrows(() => {
+					windowManager.registerContentWindow(EmptyNamespace);
+				}, Error, 'Tried to register content window "EmptyNamespace" without a namespace in the contentWindowTypeId.');
+				assertThrows(() => {
+					windowManager.registerContentWindow(EmptyType);
+				}, Error, 'Tried to register content window "EmptyType" without a namespace in the contentWindowTypeId.');
+			},
+		});
+	},
+});
 
 Deno.test({
 	name: "loading basic workspace",
@@ -363,7 +423,7 @@ Deno.test({
 									pref1: "foo",
 								},
 								id: "uuid1",
-								type: "content window type 1",
+								type: CONTENT_WINDOW_TYPE_1,
 							},
 						],
 					],

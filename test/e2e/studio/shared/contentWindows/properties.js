@@ -8,7 +8,7 @@ import {getTreeViewItemElement} from "../treeView.js";
  * @param {import("puppeteer").Page} page
  */
 export async function getPropertiesWindowRootTreeView(page) {
-	const propertiesWindow = await getContentWindowElement(page, "properties");
+	const propertiesWindow = await getContentWindowElement(page, "renda:properties");
 	const treeView = await waitFor(propertiesWindow, ":scope > .studio-content-window-content > div > .treeViewItem");
 	assertExists(treeView);
 	return treeView;
@@ -32,7 +32,7 @@ export async function getPropertiesWindowContentAsset(page) {
  * @param {import("puppeteer").Page} page
  */
 export async function getPropertiesWindowContentReference(page) {
-	const contentWindowReference = await getContentWindowReference(page, "properties");
+	const contentWindowReference = await getContentWindowReference(page, "renda:properties");
 	const propertiesWindowContentReference = await page.evaluateHandle(async contentWindow => {
 		const {ContentWindowProperties} = await import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowProperties.js");
 		if (!(contentWindow instanceof ContentWindowProperties)) {

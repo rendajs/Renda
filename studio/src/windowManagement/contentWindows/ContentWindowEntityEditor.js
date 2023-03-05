@@ -12,7 +12,7 @@ import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
 export class ContentWindowEntityEditor extends ContentWindow {
-	static contentWindowTypeId = "entityEditor";
+	static contentWindowTypeId = "renda:entityEditor";
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
 	static scrollable = false;

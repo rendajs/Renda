@@ -245,12 +245,12 @@ export class WorkspaceManager {
 					splitPercentage: 0.6,
 					windowA: {
 						type: "tabs",
-						tabTypes: ["outliner", "defaultAssetLinks"],
+						tabTypes: ["renda:outliner", "renda:defaultAssetLinks"],
 						tabUuids: ["065116de-2e58-4391-b97f-f91187c2ee73", "2136a06a-80e5-40a4-ba60-ec9dac36a3bb"],
 					},
 					windowB: {
 						type: "tabs",
-						tabTypes: ["project", "builtInAssets"],
+						tabTypes: ["renda:project", "renda:builtInAssets"],
 						tabUuids: ["9a231e9a-e3ab-436f-9ebc-2c6f58c64428", "9b8ca89c-c4be-4352-adcf-faf5d40821d0"],
 					},
 				},
@@ -264,18 +264,18 @@ export class WorkspaceManager {
 						splitPercentage: 0.5,
 						windowA: {
 							type: "tabs",
-							tabTypes: ["entityEditor"],
+							tabTypes: ["renda:entityEditor"],
 							tabUuids: ["c32f1b01-a76e-4124-adcb-e972a9ace63f"],
 						},
 						windowB: {
 							type: "tabs",
-							tabTypes: ["buildView"],
+							tabTypes: ["renda:buildView"],
 							tabUuids: ["06b33121-13c9-42e2-82c9-82796f448c30"],
 						},
 					},
 					windowB: {
 						type: "tabs",
-						tabTypes: ["properties"],
+						tabTypes: ["renda:properties"],
 						tabUuids: ["6b534a19-eb78-40f1-aea8-652535aafb96"],
 					},
 				},

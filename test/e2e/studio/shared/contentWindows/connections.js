@@ -5,7 +5,7 @@ import {getContentWindowElement, waitForContentWindowElement} from "../contentWi
  * @param {import("puppeteer").Page} page
  */
 export async function waitForContentWindowConnectionsElement(page) {
-	return await waitForContentWindowElement(page, "connections");
+	return await waitForContentWindowElement(page, "renda:connections");
 }
 
 /**
@@ -13,7 +13,7 @@ export async function waitForContentWindowConnectionsElement(page) {
  * @param {import("puppeteer").Page} page
  */
 export async function getMaybeContentWindowConnectionsElement(page) {
-	return await getContentWindowElement(page, "connections", {
+	return await getContentWindowElement(page, "renda:connections", {
 		assertExists: false,
 	});
 }

@@ -442,12 +442,13 @@ export class WindowManager {
 	 */
 	registerContentWindow(constructor) {
 		if (!(constructor.prototype instanceof ContentWindow)) {
-			console.warn("Tried to register content window (" + constructor.name + ") that does not extend ContentWindow class.");
-			return;
+			throw new Error(`Tried to register content window "${constructor.name}" that does not extend ContentWindow class.`);
 		}
 		if (!constructor.contentWindowTypeId) {
-			console.warn("Tried to register content window (" + constructor.name + ") with no type id, override the static contentWindowTypeId property in order for this content window to function properly");
-			return;
+			throw new Error(`Tried to register content window "${constructor.name}" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.`);
+		}
+		if (!constructor.contentWindowTypeId.includes(":") || constructor.contentWindowTypeId.split(":").filter(s => Boolean(s)).length < 2) {
+			throw new Error(`Tried to register content window "${constructor.name}" without a namespace in the contentWindowTypeId.`);
 		}
 
 		this.registeredContentWindows.set(constructor.contentWindowTypeId, constructor);
