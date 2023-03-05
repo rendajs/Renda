@@ -39,6 +39,14 @@ stub(StudioWindow.prototype, "onFocusedWithinChange", function(cb) {
 	castThis[onFocusedWithinChangeSym].add(cb);
 });
 
+/**
+ * @param {import("../../../../../studio/src/windowManagement/StudioWindow.js").StudioWindow} studioWindow
+ */
+function triggerOnFocusedWithinChange(studioWindow) {
+	const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (studioWindow));
+	castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+}
+
 /** @type {import("../../../../../studio/src/windowManagement/SplitStudioWindow.js")} */
 const StudioWindowSplitMod = await importer.import("../../../../../studio/src/windowManagement/SplitStudioWindow.js");
 const {SplitStudioWindow} = StudioWindowSplitMod;
@@ -295,8 +303,7 @@ Deno.test({
 		try {
 			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
 			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-			const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (windowManager.rootWindow.windowA));
-			castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+			triggerOnFocusedWithinChange(windowManager.rootWindow.windowA);
 
 			assertStrictEquals(windowManager.lastFocusedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
 			assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastFocusedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
@@ -646,6 +653,250 @@ Deno.test({
 			const result = windowManager.getOrCreateContentWindow(ContentWindowTab4);
 			assertInstanceOf(result, ContentWindowTab4);
 			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by id",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When a window has been focused before, that is returned
+			{
+				assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
+				// Verify that the active tab is ContentWindowTab2, in case the tests change in the future
+				assertInstanceOf(windowManager.rootWindow.windowB.activeTab, ContentWindowTab2);
+				triggerOnFocusedWithinChange(windowManager.rootWindow.windowB);
+
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+				assertStrictEquals(result, windowManager.rootWindow.windowB.tabs[0]);
+			}
+
+			// Check return type for known strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("renda:about");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("unknown");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "create using getMostSuitableContentWindow by id",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by id, create = false",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_2, false);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When it doesn't exist, it returns null
+			{
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_4, false);
+				assertEquals(result, null);
+			}
+
+			// Check return type for known strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("renda:about", false);
+				const contentWindowAbout = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				const maybeContentWindowAbout = /** @type {typeof contentWindowAbout?} */ (contentWindowAbout);
+
+				// Verify that the type is `ContentWindowAbout | null`
+				assertIsType(maybeContentWindowAbout, actualType);
+				assertIsType(actualType, contentWindowAbout);
+				assertIsType(actualType, null);
+
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("unknown", false);
+				const contentWindow = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				const maybeContentWindow = /** @type {typeof contentWindow?} */ (contentWindow);
+
+				// Verify that the type is `ContentWindow | null`
+				assertIsType(maybeContentWindow, actualType);
+				assertIsType(actualType, contentWindow);
+				assertIsType(actualType, null);
+
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When a window has been focused before, that is returned
+			{
+				assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
+				// Verify that the active tab is ContentWindowTab2, in case the tests change in the future
+				assertInstanceOf(windowManager.rootWindow.windowB.activeTab, ContentWindowTab2);
+				triggerOnFocusedWithinChange(windowManager.rootWindow.windowB);
+
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+				assertStrictEquals(result, windowManager.rootWindow.windowB.tabs[0]);
+			}
+
+			// Check return type
+			{
+				const actualType = windowManager.getMostSuitableContentWindow(ContentWindowTab2);
+				const assertType = /** @type {InstanceType<ContentWindowTab2>} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "create using getMostSuitableContentWindow by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getMostSuitableContentWindow(ContentWindowTab4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by constructor, create = false",
+	async fn() {
+		const {windowManager, ContentWindowTab2, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab2, false);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When it doesn't exist, it returns null
+			{
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab4, false);
+				assertEquals(result, null);
+			}
+
+			// Verify return type
+			{
+				const actualType = windowManager.getMostSuitableContentWindow(ContentWindowTab4, false);
+				const contentWindowTab4 = /** @type {InstanceType<ContentWindowTab4>} */ (/** @type {unknown} */ (null));
+				const maybeContentWindowTab4 = /** @type {typeof contentWindowTab4?} */ (contentWindowTab4);
+
+				// Verify that the type is `ContentWindowAbout | null`
+				assertIsType(maybeContentWindowTab4, actualType);
+				assertIsType(actualType, contentWindowTab4);
+				assertIsType(actualType, null);
+
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
 		} finally {
 			cleanup();
 		}

@@ -561,27 +561,37 @@ export class WindowManager {
 	/**
 	 * Get the last focused content window of the specefied type.
 	 * If no content window of the type has ever been focused, returns the first available content window of that type.
-	 * @template {ContentWindow} T
-	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructorOrId
-	 * @param {boolean} create Whether to create a new content window if none exist.
-	 * @returns {T?}
+	 * @template {ContentWindowConstructorOrId} T
+	 * @template {boolean} [TCreate = true]
+	 * @param {T} contentWindowConstructorOrId
+	 * @param {TCreate} [create] Whether to create a new content window if none exist.
 	 */
-	getMostSuitableContentWindow(contentWindowConstructorOrId, create = true) {
-		for (const weakRef of this.lastFocusedContentWindows) {
-			const ref = weakRef.deref();
-			if (!ref || ref.destructed) continue;
-			if (ref instanceof contentWindowConstructorOrId) {
-				return ref;
+	getMostSuitableContentWindow(contentWindowConstructorOrId, create = /** @type {TCreate} */ (true)) {
+		/** @typedef {TCreate extends true ? ContentWindowConstructorOrIdToInstance<T> : ContentWindowConstructorOrIdToInstance<T>?} ReturnType */
+		let certainConstructor;
+		if (typeof contentWindowConstructorOrId == "string") {
+			certainConstructor = this.getContentWindowConstructorByType(contentWindowConstructorOrId);
+		} else {
+			certainConstructor = contentWindowConstructorOrId;
+		}
+		if (certainConstructor) {
+			for (const weakRef of this.lastFocusedContentWindows) {
+				const ref = weakRef.deref();
+				if (!ref || ref.destructed) continue;
+				if (ref instanceof certainConstructor) {
+					return /** @type {ReturnType} */ (ref);
+				}
 			}
 		}
 		if (create) {
-			return this.getOrCreateContentWindow(contentWindowConstructorOrId);
+			const result = this.getOrCreateContentWindow(contentWindowConstructorOrId);
+			return /** @type {ReturnType} */ (result);
 		} else {
 			for (const w of this.getContentWindows(contentWindowConstructorOrId)) {
-				return w;
+				return /** @type {ReturnType} */ (w);
 			}
 		}
-		return null;
+		return /** @type {ReturnType} */ (null);
 	}
 
 	/**
