@@ -18,7 +18,7 @@ import {getProjectSelectorInstance} from "../../projectSelector/projectSelectorI
  */
 
 export class ContentWindowProject extends ContentWindow {
-	static contentWindowTypeId = "project";
+	static contentWindowTypeId = "renda:project";
 	static contentWindowUiName = "Project Files";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/project.svg";
 
