@@ -1,6 +1,6 @@
 import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
@@ -58,6 +58,7 @@ const CONTENT_WINDOW_UUID_3 = "uuid3";
 const CONTENT_WINDOW_TYPE_1 = "namespace:content window type 1";
 const CONTENT_WINDOW_TYPE_2 = "namespace:content window type 2";
 const CONTENT_WINDOW_TYPE_3 = "namespace:content window type 3";
+const CONTENT_WINDOW_TYPE_4 = "namespace:content window type 4";
 
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
@@ -171,6 +172,10 @@ async function basicSetup({
 		static contentWindowTypeId = CONTENT_WINDOW_TYPE_3;
 	}
 	windowManager.registerContentWindow(ContentWindowTab3);
+	class ContentWindowTab4 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_4;
+	}
+	windowManager.registerContentWindow(ContentWindowTab4);
 	await windowManager.init();
 
 	return {
@@ -178,7 +183,7 @@ async function basicSetup({
 		studio: mockStudio,
 		preferencesManager: mockPreferencesManager,
 		cleanup,
-		ContentWindowTab1, ContentWindowTab2, ContentWindowTab3,
+		ContentWindowTab1, ContentWindowTab2, ContentWindowTab3, ContentWindowTab4,
 	};
 }
 
@@ -549,6 +554,98 @@ Deno.test({
 			assertIsType(assertType, actualType);
 			// @ts-expect-error Verify that the type isn't 'any'
 			assertIsType(true, actualType);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "existing getOrCreateContentWindow() by id",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(CONTENT_WINDOW_TYPE_2);
+			assertInstanceOf(result, ContentWindowTab2);
+			assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+			// Check return type for known strings
+			{
+				const actualType = windowManager.getOrCreateContentWindow("renda:about");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = windowManager.getOrCreateContentWindow("unknown");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "existing getOrCreateContentWindow() by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(ContentWindowTab2);
+			assertInstanceOf(result, ContentWindowTab2);
+			assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+			const actualType = windowManager.getOrCreateContentWindow(ContentWindowTab2);
+			const assertType = /** @type {InstanceType<ContentWindowTab2>} */ (/** @type {unknown} */ (null));
+			assertIsType(assertType, actualType);
+			// @ts-expect-error Verify that the type isn't 'any'
+			assertIsType(true, actualType);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "non existent getOrCreateContentWindow() by id",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(CONTENT_WINDOW_TYPE_4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "non existent getOrCreateContentWindow() by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(ContentWindowTab4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
 		} finally {
 			cleanup();
 		}

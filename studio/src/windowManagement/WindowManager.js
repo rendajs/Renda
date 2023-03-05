@@ -533,28 +533,29 @@ export class WindowManager {
 
 	/**
 	 * Get the first content window of the given type.
-	 * @template {ContentWindow} T
-	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructorOrId
-	 * @param {boolean} create Whether to create a new content window if none exist.
-	 * @returns {T?}
+	 * @template {ContentWindowConstructorOrId} T
+	 * @param {T} contentWindowConstructorOrId
+	 * @returns {ContentWindowConstructorOrIdToInstance<T>}
 	 */
-	getOrCreateContentWindow(contentWindowConstructorOrId, create = true) {
+	getOrCreateContentWindow(contentWindowConstructorOrId) {
 		for (const w of this.getContentWindows(contentWindowConstructorOrId)) {
 			return w;
 		}
-		if (create) {
-			for (const w of this.allStudioWindows()) {
-				if (w instanceof TabsStudioWindow) {
+		for (const w of this.allStudioWindows()) {
+			if (w instanceof TabsStudioWindow) {
+				let id;
+				if (typeof contentWindowConstructorOrId == "string") {
+					id = contentWindowConstructorOrId;
+				} else {
 					const castConstructorAny = /** @type {*} */ (contentWindowConstructorOrId);
 					const castConstructor = /** @type {typeof ContentWindow} */ (castConstructorAny);
-					const created = w.addTabType(castConstructor.contentWindowTypeId);
-					/* eslint-disable jsdoc/no-undefined-types */
-					return /** @type {T} */ (created);
-					/* eslint-enable jsdoc/no-undefined-types */
+					id = castConstructor.contentWindowTypeId;
 				}
+				const created = w.addTabType(id);
+				return /** @type {ContentWindowConstructorOrIdToInstance<T>} */ (created);
 			}
 		}
-		return null;
+		throw new Error("No tabs window was found");
 	}
 
 	/**
@@ -573,7 +574,14 @@ export class WindowManager {
 				return ref;
 			}
 		}
-		return this.getOrCreateContentWindow(contentWindowConstructorOrId, create);
+		if (create) {
+			return this.getOrCreateContentWindow(contentWindowConstructorOrId);
+		} else {
+			for (const w of this.getContentWindows(contentWindowConstructorOrId)) {
+				return w;
+			}
+		}
+		return null;
 	}
 
 	/**
