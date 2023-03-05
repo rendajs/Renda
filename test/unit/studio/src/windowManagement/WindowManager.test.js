@@ -1,12 +1,13 @@
 import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
-import {assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assert, assertEquals, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance.js";
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
+import {assertIsType} from "../../../shared/typeAssertions.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
@@ -38,6 +39,14 @@ stub(StudioWindow.prototype, "onFocusedWithinChange", function(cb) {
 	castThis[onFocusedWithinChangeSym].add(cb);
 });
 
+/**
+ * @param {import("../../../../../studio/src/windowManagement/StudioWindow.js").StudioWindow} studioWindow
+ */
+function triggerOnFocusedWithinChange(studioWindow) {
+	const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (studioWindow));
+	castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+}
+
 /** @type {import("../../../../../studio/src/windowManagement/SplitStudioWindow.js")} */
 const StudioWindowSplitMod = await importer.import("../../../../../studio/src/windowManagement/SplitStudioWindow.js");
 const {SplitStudioWindow} = StudioWindowSplitMod;
@@ -57,6 +66,7 @@ const CONTENT_WINDOW_UUID_3 = "uuid3";
 const CONTENT_WINDOW_TYPE_1 = "namespace:content window type 1";
 const CONTENT_WINDOW_TYPE_2 = "namespace:content window type 2";
 const CONTENT_WINDOW_TYPE_3 = "namespace:content window type 3";
+const CONTENT_WINDOW_TYPE_4 = "namespace:content window type 4";
 
 /** @type {import("../../../../../studio/src/windowManagement/WorkspaceManager.js")} */
 const WorkspaceManagerMod = await importer.import("../../../../../studio/src/windowManagement/WorkspaceManager.js");
@@ -76,8 +86,8 @@ stub(WorkspaceManager.prototype, "getActiveWorkspaceData", async () => {
 			},
 			windowB: {
 				type: "tabs",
-				tabTypes: [CONTENT_WINDOW_TYPE_3],
-				tabUuids: [CONTENT_WINDOW_UUID_3],
+				tabTypes: [CONTENT_WINDOW_TYPE_2, CONTENT_WINDOW_TYPE_3],
+				tabUuids: [CONTENT_WINDOW_UUID_2, CONTENT_WINDOW_UUID_3],
 				activeTabIndex: 0,
 			},
 		},
@@ -115,12 +125,10 @@ const autoRegisterPreferences = /** @type {const} */ ({
 /**
  * @param {object} options
  * @param {(studio: import("../../../../../studio/src/Studio.js").Studio) => void} [options.beforeCreate]
- * @param {(ctx: WindowManagerTestContext) => Promise<void> | void} options.fn The test function to run.
  */
 async function basicSetup({
 	beforeCreate,
-	fn,
-}) {
+} = {}) {
 	installFakeDocument();
 
 	/** @type {SetValueCalls} */
@@ -153,42 +161,54 @@ async function basicSetup({
 	});
 	injectMockStudioInstance(mockStudio);
 
-	try {
-		if (beforeCreate) beforeCreate(mockStudio);
-		const windowManager = new WindowManager();
-		class ContentWindowTab1 extends ContentWindow {
-			static contentWindowTypeId = CONTENT_WINDOW_TYPE_1;
-		}
-		windowManager.registerContentWindow(ContentWindowTab1);
-		class ContentWindowTab2 extends ContentWindow {
-			static contentWindowTypeId = CONTENT_WINDOW_TYPE_2;
-		}
-		windowManager.registerContentWindow(ContentWindowTab2);
-		class ContentWindowTab3 extends ContentWindow {
-			static contentWindowTypeId = CONTENT_WINDOW_TYPE_3;
-		}
-		windowManager.registerContentWindow(ContentWindowTab3);
-		await windowManager.init();
-
-		await fn({windowManager, shortcutConditionSetValueCalls, studio: mockStudio, preferencesManager: mockPreferencesManager});
-	} finally {
+	function cleanup() {
 		uninstallFakeDocument();
 		injectMockStudioInstance(null);
 	}
+
+	if (beforeCreate) beforeCreate(mockStudio);
+	const windowManager = new WindowManager();
+	class ContentWindowTab1 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_1;
+	}
+	windowManager.registerContentWindow(ContentWindowTab1);
+	class ContentWindowTab2 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_2;
+	}
+	windowManager.registerContentWindow(ContentWindowTab2);
+	class ContentWindowTab3 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_3;
+	}
+	windowManager.registerContentWindow(ContentWindowTab3);
+	class ContentWindowTab4 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_4;
+	}
+	windowManager.registerContentWindow(ContentWindowTab4);
+	await windowManager.init();
+
+	return {
+		windowManager, shortcutConditionSetValueCalls,
+		studio: mockStudio,
+		preferencesManager: mockPreferencesManager,
+		cleanup,
+		ContentWindowTab1, ContentWindowTab2, ContentWindowTab3, ContentWindowTab4,
+	};
 }
 
 Deno.test({
 	name: "Registering content window with wrong class type",
 	async fn() {
-		await basicSetup({
-			fn({windowManager}) {
-				class NotAContentWindow {}
+		const {windowManager, cleanup} = await basicSetup();
 
-				assertThrows(() => {
-					windowManager.registerContentWindow(/** @type {any} */ (NotAContentWindow));
-				}, Error, 'Tried to register content window "NotAContentWindow" that does not extend ContentWindow class.');
-			},
-		});
+		try {
+			class NotAContentWindow {}
+
+			assertThrows(() => {
+				windowManager.registerContentWindow(/** @type {any} */ (NotAContentWindow));
+			}, Error, 'Tried to register content window "NotAContentWindow" that does not extend ContentWindow class.');
+		} finally {
+			cleanup();
+		}
 	},
 });
 
@@ -198,13 +218,15 @@ Deno.test({
 		class MissingType extends ContentWindow {
 		}
 
-		await basicSetup({
-			fn({windowManager}) {
-				assertThrows(() => {
-					windowManager.registerContentWindow(MissingType);
-				}, Error, 'Tried to register content window "MissingType" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.');
-			},
-		});
+		const {windowManager, cleanup} = await basicSetup();
+
+		try {
+			assertThrows(() => {
+				windowManager.registerContentWindow(MissingType);
+			}, Error, 'Tried to register content window "MissingType" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.');
+		} finally {
+			cleanup();
+		}
 	},
 });
 
@@ -221,66 +243,73 @@ Deno.test({
 			static contentWindowTypeId = "notype:";
 		}
 
-		await basicSetup({
-			fn({windowManager}) {
-				assertThrows(() => {
-					windowManager.registerContentWindow(MissingNamespace);
-				}, Error, 'Tried to register content window "MissingNamespace" without a namespace in the contentWindowTypeId.');
-				assertThrows(() => {
-					windowManager.registerContentWindow(EmptyNamespace);
-				}, Error, 'Tried to register content window "EmptyNamespace" without a namespace in the contentWindowTypeId.');
-				assertThrows(() => {
-					windowManager.registerContentWindow(EmptyType);
-				}, Error, 'Tried to register content window "EmptyType" without a namespace in the contentWindowTypeId.');
-			},
-		});
+		const {windowManager, cleanup} = await basicSetup();
+
+		try {
+			assertThrows(() => {
+				windowManager.registerContentWindow(MissingNamespace);
+			}, Error, 'Tried to register content window "MissingNamespace" without a namespace in the contentWindowTypeId.');
+			assertThrows(() => {
+				windowManager.registerContentWindow(EmptyNamespace);
+			}, Error, 'Tried to register content window "EmptyNamespace" without a namespace in the contentWindowTypeId.');
+			assertThrows(() => {
+				windowManager.registerContentWindow(EmptyType);
+			}, Error, 'Tried to register content window "EmptyType" without a namespace in the contentWindowTypeId.');
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "loading basic workspace",
 	async fn() {
-		await basicSetup({
-			fn({windowManager}) {
-				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
-			},
-		});
+		const {windowManager, cleanup} = await basicSetup();
+
+		try {
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "lastClickedContentWindow",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-				const e = new FakeMouseEvent("click");
-				windowManager.rootWindow.windowA.el.dispatchEvent(e);
+		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
 
-				assertStrictEquals(windowManager.lastClickedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
-				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastClickedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
-			},
-		});
+		try {
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+			const e = new FakeMouseEvent("click");
+			windowManager.rootWindow.windowA.el.dispatchEvent(e);
+
+			assertStrictEquals(windowManager.lastClickedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
+			assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastClickedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "lastFocusedContentWindow",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-				const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (windowManager.rootWindow.windowA));
-				castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
 
-				assertStrictEquals(windowManager.lastFocusedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
-				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastFocusedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
-			},
-		});
+		try {
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+			triggerOnFocusedWithinChange(windowManager.rootWindow.windowA);
+
+			assertStrictEquals(windowManager.lastFocusedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
+			assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastFocusedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
+		} finally {
+			cleanup();
+		}
 	},
 });
 
@@ -289,181 +318,587 @@ Deno.test({
 	async fn() {
 		/** @type {import("std/testing/mock.ts").Spy} */
 		let addLocationSpy;
-		await basicSetup({
+		const {cleanup} = await basicSetup({
 			beforeCreate(studio) {
 				addLocationSpy = spy(studio.preferencesManager, "addLocation");
 			},
-			async fn() {
-				assertSpyCalls(addLocationSpy, 3);
-			},
 		});
+
+		const fn = (() => {
+			try {
+				assertSpyCalls(addLocationSpy, 4);
+				assertEquals(addLocationSpy.calls[0].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
+				assertEquals(addLocationSpy.calls[1].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+			} finally {
+				cleanup();
+			}
+		});
+		fn();
 	},
 });
 
 Deno.test({
 	name: "setContentWindowPreferences() loads the preferences on the correct content window",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, preferencesManager}) {
-				// First we set a few values to verify that they get deleted later on
-				windowManager.setContentWindowPreferences([
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_1,
-						data: {
-							pref1: "content window 1",
-						},
-					},
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_2,
-						data: {
-							pref1: "content window 2",
-						},
-					},
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_3,
-						data: {
-							pref1: "content window 3",
-						},
-					},
-				]);
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-				}), "content window 1");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_2,
-				}), "content window 2");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_3,
-				}), "content window 3");
+		const {windowManager, preferencesManager, cleanup} = await basicSetup();
 
-				windowManager.setContentWindowPreferences([
-					// Data with known uuids
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_1,
-						data: {
-							pref2: "foo",
-						},
+		try {
+			// First we set a few values to verify that they get deleted later on
+			windowManager.setContentWindowPreferences([
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_1,
+					data: {
+						pref1: "content window 1",
 					},
-					// Data with known types
-					{
-						type: CONTENT_WINDOW_TYPE_2,
-						id: "unknown uuid",
-						data: {
-							pref3: "bar",
-						},
+				},
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_2,
+					data: {
+						pref1: "content window 2",
 					},
-					// Window 3 has no data, this should only delete old values
-				]);
+				},
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_3,
+					data: {
+						pref1: "content window 3",
+					},
+				},
+			]);
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+			}), "content window 1");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_2,
+			}), "content window 2");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_3,
+			}), "content window 3");
 
-				assertEquals(preferencesManager.get("pref2", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-				}), "foo");
-				assertEquals(preferencesManager.get("pref3", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_2,
-				}), "bar");
+			windowManager.setContentWindowPreferences([
+				// Data with known uuids
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_1,
+					data: {
+						pref2: "foo",
+					},
+				},
+				// Data with known types
+				{
+					type: CONTENT_WINDOW_TYPE_2,
+					id: "unknown uuid",
+					data: {
+						pref3: "bar",
+					},
+				},
+				// Window 3 has no data, this should only delete old values
+			]);
 
-				// Verify that old values are deleted
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-				}), "");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_2,
-				}), "");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_3,
-				}), "");
-			},
-		});
+			assertEquals(preferencesManager.get("pref2", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+			}), "foo");
+			assertEquals(preferencesManager.get("pref3", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_2,
+			}), "bar");
+
+			// Verify that old values are deleted
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+			}), "");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_2,
+			}), "");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_3,
+			}), "");
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "Flushing content window locations",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, preferencesManager}) {
-				/** @type {Set<() => void>} */
-				const flushPromises = new Set();
+		const {windowManager, preferencesManager, cleanup} = await basicSetup();
 
-				/**
-				 * @param {unknown} data
-				 */
-				const flushFn = data => {
-					/** @type {Promise<void>} */
-					const promise = new Promise(resolve => {
-						flushPromises.add(resolve);
-					});
-					return promise;
-				};
-				function resolveFlushPromises() {
-					flushPromises.forEach(resolve => resolve());
-					flushPromises.clear();
-				}
-				const flushSpy = spy(flushFn);
-				windowManager.onContentWindowPreferencesFlushRequest(flushSpy);
+		try {
+			/** @type {Set<() => void>} */
+			const flushPromises = new Set();
 
-				preferencesManager.set("pref1", "foo", {
-					location: "contentwindow-project",
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-					flush: false,
+			/**
+			 * @param {unknown} data
+			 */
+			const flushFn = data => {
+				/** @type {Promise<void>} */
+				const promise = new Promise(resolve => {
+					flushPromises.add(resolve);
 				});
+				return promise;
+			};
+			function resolveFlushPromises() {
+				flushPromises.forEach(resolve => resolve());
+				flushPromises.clear();
+			}
+			const flushSpy = spy(flushFn);
+			windowManager.onContentWindowPreferencesFlushRequest(flushSpy);
 
-				const flushPromise1 = preferencesManager.flush();
+			preferencesManager.set("pref1", "foo", {
+				location: "contentwindow-project",
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				flush: false,
+			});
 
-				assertSpyCalls(flushSpy, 1);
-				assertSpyCall(flushSpy, 0, {
-					args: [
-						[
-							{
-								data: {
-									pref1: "foo",
-								},
-								id: "uuid1",
-								type: CONTENT_WINDOW_TYPE_1,
+			const flushPromise1 = preferencesManager.flush();
+
+			assertSpyCalls(flushSpy, 1);
+			assertSpyCall(flushSpy, 0, {
+				args: [
+					[
+						{
+							data: {
+								pref1: "foo",
 							},
-						],
+							id: "uuid1",
+							type: CONTENT_WINDOW_TYPE_1,
+						},
 					],
-				});
+				],
+			});
 
-				// Flush should stay pending until all flush promises have been resolved
-				await assertPromiseResolved(flushPromise1, false);
-				resolveFlushPromises();
-				await assertPromiseResolved(flushPromise1, true);
+			// Flush should stay pending until all flush promises have been resolved
+			await assertPromiseResolved(flushPromise1, false);
+			resolveFlushPromises();
+			await assertPromiseResolved(flushPromise1, true);
 
-				// When there is no data, the flushed data should be null
-				preferencesManager.reset("pref1", {
-					location: "contentwindow-project",
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-					flush: false,
-				});
-				const flushPromise2 = preferencesManager.flush();
-				await assertPromiseResolved(flushPromise2, false);
-				resolveFlushPromises();
-				await assertPromiseResolved(flushPromise2, true);
+			// When there is no data, the flushed data should be null
+			preferencesManager.reset("pref1", {
+				location: "contentwindow-project",
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				flush: false,
+			});
+			const flushPromise2 = preferencesManager.flush();
+			await assertPromiseResolved(flushPromise2, false);
+			resolveFlushPromises();
+			await assertPromiseResolved(flushPromise2, true);
 
-				assertSpyCalls(flushSpy, 2);
-				assertSpyCall(flushSpy, 1, {
-					args: [null],
-				});
+			assertSpyCalls(flushSpy, 2);
+			assertSpyCall(flushSpy, 1, {
+				args: [null],
+			});
 
-				// The listener should not fire after being removed
-				windowManager.removeOnContentWindowPreferencesFlushRequest(flushSpy);
+			// The listener should not fire after being removed
+			windowManager.removeOnContentWindowPreferencesFlushRequest(flushSpy);
 
-				preferencesManager.set("pref1", "foo", {
-					location: "contentwindow-project",
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-					flush: false,
-				});
+			preferencesManager.set("pref1", "foo", {
+				location: "contentwindow-project",
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				flush: false,
+			});
 
-				const flushPromise3 = preferencesManager.flush();
-				await assertPromiseResolved(flushPromise3, true);
+			const flushPromise3 = preferencesManager.flush();
+			await assertPromiseResolved(flushPromise3, true);
 
-				assertSpyCalls(flushSpy, 2);
-			},
-		});
+			assertSpyCalls(flushSpy, 2);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getContentWindows() by id",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const result = Array.from(windowManager.getContentWindows(CONTENT_WINDOW_TYPE_2));
+			assertEquals(result.length, 2);
+			assertInstanceOf(result[0], ContentWindowTab2);
+			assertInstanceOf(result[1], ContentWindowTab2);
+
+			// Check return type for known strings
+			{
+				const actualType = Array.from(windowManager.getContentWindows("renda:about"))[0];
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = Array.from(windowManager.getContentWindows("unknown"))[0];
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getContentWindows() by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const result = Array.from(windowManager.getContentWindows(ContentWindowTab2));
+			assertEquals(result.length, 2);
+			assertInstanceOf(result[0], ContentWindowTab2);
+			assertInstanceOf(result[1], ContentWindowTab2);
+
+			const actualType = Array.from(windowManager.getContentWindows(ContentWindowTab2))[0];
+			const assertType = /** @type {InstanceType<ContentWindowTab2>} */ (/** @type {unknown} */ (null));
+			assertIsType(assertType, actualType);
+			// @ts-expect-error Verify that the type isn't 'any'
+			assertIsType(true, actualType);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "existing getOrCreateContentWindow() by id",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(CONTENT_WINDOW_TYPE_2);
+			assertInstanceOf(result, ContentWindowTab2);
+			assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+			// Check return type for known strings
+			{
+				const actualType = windowManager.getOrCreateContentWindow("renda:about");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = windowManager.getOrCreateContentWindow("unknown");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "existing getOrCreateContentWindow() by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(ContentWindowTab2);
+			assertInstanceOf(result, ContentWindowTab2);
+			assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+			const actualType = windowManager.getOrCreateContentWindow(ContentWindowTab2);
+			const assertType = /** @type {InstanceType<ContentWindowTab2>} */ (/** @type {unknown} */ (null));
+			assertIsType(assertType, actualType);
+			// @ts-expect-error Verify that the type isn't 'any'
+			assertIsType(true, actualType);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "non existent getOrCreateContentWindow() by id",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(CONTENT_WINDOW_TYPE_4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "non existent getOrCreateContentWindow() by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getOrCreateContentWindow(ContentWindowTab4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by id",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When a window has been focused before, that is returned
+			{
+				assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
+				// Verify that the active tab is ContentWindowTab2, in case the tests change in the future
+				assertInstanceOf(windowManager.rootWindow.windowB.activeTab, ContentWindowTab2);
+				triggerOnFocusedWithinChange(windowManager.rootWindow.windowB);
+
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+				assertStrictEquals(result, windowManager.rootWindow.windowB.tabs[0]);
+			}
+
+			// Check return type for known strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("renda:about");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("unknown");
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "create using getMostSuitableContentWindow by id",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by id, create = false",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_2, false);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When it doesn't exist, it returns null
+			{
+				const result = windowManager.getMostSuitableContentWindow(CONTENT_WINDOW_TYPE_4, false);
+				assertEquals(result, null);
+			}
+
+			// Check return type for known strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("renda:about", false);
+				const contentWindowAbout = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				const maybeContentWindowAbout = /** @type {typeof contentWindowAbout?} */ (contentWindowAbout);
+
+				// Verify that the type is `ContentWindowAbout | null`
+				assertIsType(maybeContentWindowAbout, actualType);
+				assertIsType(actualType, contentWindowAbout);
+				assertIsType(actualType, null);
+
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = windowManager.getMostSuitableContentWindow("unknown", false);
+				const contentWindow = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				const maybeContentWindow = /** @type {typeof contentWindow?} */ (contentWindow);
+
+				// Verify that the type is `ContentWindow | null`
+				assertIsType(maybeContentWindow, actualType);
+				assertIsType(actualType, contentWindow);
+				assertIsType(actualType, null);
+
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When a window has been focused before, that is returned
+			{
+				assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
+				// Verify that the active tab is ContentWindowTab2, in case the tests change in the future
+				assertInstanceOf(windowManager.rootWindow.windowB.activeTab, ContentWindowTab2);
+				triggerOnFocusedWithinChange(windowManager.rootWindow.windowB);
+
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab2);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+				assertStrictEquals(result, windowManager.rootWindow.windowB.tabs[0]);
+			}
+
+			// Check return type
+			{
+				const actualType = windowManager.getMostSuitableContentWindow(ContentWindowTab2);
+				const assertType = /** @type {InstanceType<ContentWindowTab2>} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "create using getMostSuitableContentWindow by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+			const result = windowManager.getMostSuitableContentWindow(ContentWindowTab4);
+			assertInstanceOf(result, ContentWindowTab4);
+			assert(!windowsBeforeCall.includes(result), "Expected content window to get created");
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getMostSuitableContentWindow by constructor, create = false",
+	async fn() {
+		const {windowManager, ContentWindowTab2, ContentWindowTab4, cleanup} = await basicSetup();
+
+		try {
+			// When no windows of the provided type have been focused, the first one is returned.
+			{
+				const windowsBeforeCall = Array.from(windowManager.allContentWindows());
+
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab2, false);
+				assertInstanceOf(result, ContentWindowTab2);
+				assert(windowsBeforeCall.includes(result), "Expected content window to not get created");
+
+				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+				assertStrictEquals(result, windowManager.rootWindow.windowA.tabs[1]);
+			}
+
+			// When it doesn't exist, it returns null
+			{
+				const result = windowManager.getMostSuitableContentWindow(ContentWindowTab4, false);
+				assertEquals(result, null);
+			}
+
+			// Verify return type
+			{
+				const actualType = windowManager.getMostSuitableContentWindow(ContentWindowTab4, false);
+				const contentWindowTab4 = /** @type {InstanceType<ContentWindowTab4>} */ (/** @type {unknown} */ (null));
+				const maybeContentWindowTab4 = /** @type {typeof contentWindowTab4?} */ (contentWindowTab4);
+
+				// Verify that the type is `ContentWindowAbout | null`
+				assertIsType(maybeContentWindowTab4, actualType);
+				assertIsType(actualType, contentWindowTab4);
+				assertIsType(actualType, null);
+
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
 	},
 });

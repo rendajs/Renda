@@ -24,7 +24,7 @@ export async function getContentWindowElement(page, contentWindowType, {
 } = {}) {
 	const result = await page.evaluateHandle(async (contentWindowType, assertExists) => {
 		if (!globalThis.studio) throw new Error("Studio instance does not exist");
-		const array = Array.from(globalThis.studio.windowManager.getContentWindowsByType(contentWindowType));
+		const array = Array.from(globalThis.studio.windowManager.getContentWindows(contentWindowType));
 		if (array.length <= 0) {
 			if (assertExists) {
 				throw new Error(`Failed to get '${contentWindowType}' content window element because it wasn't found.`);
@@ -53,7 +53,7 @@ export async function waitForContentWindowElement(page, contentWindowType) {
 	log(`Wait for '${contentWindowType}' content window`);
 	const result = await page.waitForFunction(async contentWindowType => {
 		if (!globalThis.studio) throw new Error("Studio instance does not exist");
-		const array = Array.from(globalThis.studio.windowManager.getContentWindowsByType(contentWindowType));
+		const array = Array.from(globalThis.studio.windowManager.getContentWindows(contentWindowType));
 		if (array.length <= 0) return null;
 		const el = array[0].el;
 		return el;

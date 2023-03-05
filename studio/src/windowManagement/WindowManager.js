@@ -492,72 +492,108 @@ export class WindowManager {
 		}
 	}
 
+	/** @typedef {string & {}} ContentWindowId */
+
 	/**
-	 * @template {ContentWindow} T
-	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
-	 * @returns {Generator<T>}
+	 * @typedef {ContentWindowId | keyof import("./autoRegisterContentWindows.js").AutoRegisterContentWindows | (new (...args: ConstructorParameters<typeof ContentWindow>) => ContentWindow)} ContentWindowConstructorOrId
 	 */
-	*getContentWindowsByConstructor(contentWindowConstructor) {
-		for (const w of this.allContentWindows()) {
-			if (w instanceof contentWindowConstructor) {
-				yield w;
+
+	/**
+	 * @template {ContentWindowConstructorOrId} T
+	 * @typedef {T extends string ?
+	 * 	T extends keyof import("./autoRegisterContentWindows.js").AutoRegisterContentWindows ?
+	 * 		import("./autoRegisterContentWindows.js").AutoRegisterContentWindows[T] extends infer TConstructor ?
+	 * 			TConstructor extends abstract new (...args: any) => any ?
+	 *	 			InstanceType<TConstructor> :
+	 * 				never :
+	 * 			never :
+	 * 		ContentWindow :
+	 * 	T extends new (...args: ConstructorParameters<typeof ContentWindow>) => infer TContentWindow ?
+	 * 		TContentWindow :
+	 * 		never} ContentWindowConstructorOrIdToInstance
+	 */
+
+	/**
+	 * @template {ContentWindowConstructorOrId} T
+	 * @param {T} contentWindowConstructorOrId
+	 * @returns {Generator<ContentWindowConstructorOrIdToInstance<T>>}
+	 */
+	*getContentWindows(contentWindowConstructorOrId) {
+		if (typeof contentWindowConstructorOrId == "string") {
+			const contentWindowConstructor = this.getContentWindowConstructorByType(contentWindowConstructorOrId);
+			if (!contentWindowConstructor) return;
+			yield* /** @type {Generator<ContentWindowConstructorOrIdToInstance<T>>} */ (this.getContentWindows(contentWindowConstructor));
+		} else {
+			for (const w of this.allContentWindows()) {
+				const castConstructor = /** @type {typeof ContentWindow} */ (contentWindowConstructorOrId);
+				if (w instanceof castConstructor) {
+					yield /** @type {ContentWindowConstructorOrIdToInstance<T>} */ (w);
+				}
 			}
 		}
 	}
 
 	/**
 	 * Get the first content window of the given type.
-	 * @template {ContentWindow} T
-	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
-	 * @param {boolean} create Whether to create a new content window if none exist.
-	 * @returns {T?}
+	 * @template {ContentWindowConstructorOrId} T
+	 * @param {T} contentWindowConstructorOrId
+	 * @returns {ContentWindowConstructorOrIdToInstance<T>}
 	 */
-	getOrCreateContentWindowByConstructor(contentWindowConstructor, create = true) {
-		for (const w of this.getContentWindowsByConstructor(contentWindowConstructor)) {
+	getOrCreateContentWindow(contentWindowConstructorOrId) {
+		for (const w of this.getContentWindows(contentWindowConstructorOrId)) {
 			return w;
 		}
-		if (create) {
-			for (const w of this.allStudioWindows()) {
-				if (w instanceof TabsStudioWindow) {
-					const castConstructorAny = /** @type {*} */ (contentWindowConstructor);
+		for (const w of this.allStudioWindows()) {
+			if (w instanceof TabsStudioWindow) {
+				let id;
+				if (typeof contentWindowConstructorOrId == "string") {
+					id = contentWindowConstructorOrId;
+				} else {
+					const castConstructorAny = /** @type {*} */ (contentWindowConstructorOrId);
 					const castConstructor = /** @type {typeof ContentWindow} */ (castConstructorAny);
-					const created = w.addTabType(castConstructor.contentWindowTypeId);
-					/* eslint-disable jsdoc/no-undefined-types */
-					return /** @type {T} */ (created);
-					/* eslint-enable jsdoc/no-undefined-types */
+					id = castConstructor.contentWindowTypeId;
 				}
+				const created = w.addTabType(id);
+				return /** @type {ContentWindowConstructorOrIdToInstance<T>} */ (created);
 			}
 		}
-		return null;
+		throw new Error("No tabs window was found");
 	}
 
 	/**
 	 * Get the last focused content window of the specefied type.
 	 * If no content window of the type has ever been focused, returns the first available content window of that type.
-	 * @template {ContentWindow} T
-	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
-	 * @param {boolean} create Whether to create a new content window if none exist.
-	 * @returns {T?}
+	 * @template {ContentWindowConstructorOrId} T
+	 * @template {boolean} [TCreate = true]
+	 * @param {T} contentWindowConstructorOrId
+	 * @param {TCreate} [create] Whether to create a new content window if none exist.
 	 */
-	getMostSuitableContentWindowByConstructor(contentWindowConstructor, create = true) {
-		for (const weakRef of this.lastFocusedContentWindows) {
-			const ref = weakRef.deref();
-			if (!ref || ref.destructed) continue;
-			if (ref instanceof contentWindowConstructor) {
-				return ref;
+	getMostSuitableContentWindow(contentWindowConstructorOrId, create = /** @type {TCreate} */ (true)) {
+		/** @typedef {TCreate extends true ? ContentWindowConstructorOrIdToInstance<T> : ContentWindowConstructorOrIdToInstance<T>?} ReturnType */
+		let certainConstructor;
+		if (typeof contentWindowConstructorOrId == "string") {
+			certainConstructor = this.getContentWindowConstructorByType(contentWindowConstructorOrId);
+		} else {
+			certainConstructor = contentWindowConstructorOrId;
+		}
+		if (certainConstructor) {
+			for (const weakRef of this.lastFocusedContentWindows) {
+				const ref = weakRef.deref();
+				if (!ref || ref.destructed) continue;
+				if (ref instanceof certainConstructor) {
+					return /** @type {ReturnType} */ (ref);
+				}
 			}
 		}
-		return this.getOrCreateContentWindowByConstructor(contentWindowConstructor, create);
-	}
-
-	/**
-	 * @param {string} type
-	 * @returns {Generator<ContentWindow>}
-	 */
-	*getContentWindowsByType(type) {
-		const contentWindowConstructor = this.getContentWindowConstructorByType(type);
-		if (!contentWindowConstructor) return;
-		yield* this.getContentWindowsByConstructor(contentWindowConstructor);
+		if (create) {
+			const result = this.getOrCreateContentWindow(contentWindowConstructorOrId);
+			return /** @type {ReturnType} */ (result);
+		} else {
+			for (const w of this.getContentWindows(contentWindowConstructorOrId)) {
+				return /** @type {ReturnType} */ (w);
+			}
+		}
+		return /** @type {ReturnType} */ (null);
 	}
 
 	/**
@@ -606,11 +642,11 @@ export class WindowManager {
 	 * Focuses on the most suitable content window of the specified type.
 	 * Creates one if it doesn't exist.
 	 * @template {ContentWindow} T
-	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructor
+	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructorOrId
 	 * @returns {T}
 	 */
-	focusOrCreateContentWindow(contentWindowConstructor) {
-		const contentWindow = this.getMostSuitableContentWindowByConstructor(contentWindowConstructor);
+	focusOrCreateContentWindow(contentWindowConstructorOrId) {
+		const contentWindow = this.getMostSuitableContentWindow(contentWindowConstructorOrId);
 		if (!contentWindow) throw new Error("Failed to create content window.");
 		if (!contentWindow.parentStudioWindow) throw new Error("Assertion failed, content window has no parent window.");
 		contentWindow.parentStudioWindow.focus();

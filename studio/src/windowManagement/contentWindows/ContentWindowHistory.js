@@ -6,7 +6,7 @@ import {ContentWindow} from "./ContentWindow.js";
 const svgNs = "http://www.w3.org/2000/svg";
 
 export class ContentWindowHistory extends ContentWindow {
-	static contentWindowTypeId = "renda:history";
+	static contentWindowTypeId = /** @type {const} */ ("renda:history");
 	static contentWindowUiName = "History";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/history.svg";
 

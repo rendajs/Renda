@@ -9,7 +9,7 @@ import {ContentWindowOutliner} from "./contentWindows/ContentWindowOutliner.js";
 import {ContentWindowProject} from "./contentWindows/ContentWindowProject.js";
 import {ContentWindowProperties} from "./contentWindows/ContentWindowProperties.js";
 
-export const autoRegisterContentWindows = [
+export const autoRegisterContentWindows = /** @type {const} */ ([
 	ContentWindowAbout,
 	ContentWindowBuildView,
 	ContentWindowBuiltInAssets,
@@ -20,4 +20,10 @@ export const autoRegisterContentWindows = [
 	ContentWindowOutliner,
 	ContentWindowProject,
 	ContentWindowProperties,
-];
+]);
+
+/**
+ * @typedef {{
+ * 	[I in Extract<keyof autoRegisterContentWindows, `${number}`> as (typeof autoRegisterContentWindows)[I]["contentWindowTypeId"]]: (typeof autoRegisterContentWindows)[I];
+ * }} AutoRegisterContentWindows
+ */
