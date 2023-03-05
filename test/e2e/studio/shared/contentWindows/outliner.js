@@ -8,7 +8,7 @@ import {getContentWindowElement, getContentWindowReference} from "../contentWind
  * @param {import("puppeteer").Page} page
  */
 export async function getContentWindowOutlinerReference(page) {
-	const contentWindowReference = await getContentWindowReference(page, "outliner");
+	const contentWindowReference = await getContentWindowReference(page, "renda:outliner");
 	return contentWindowReference;
 }
 
@@ -17,7 +17,7 @@ export async function getContentWindowOutlinerReference(page) {
  * @param {import("puppeteer").Page} page
  */
 export async function getOutlinerRootEntityTreeView(page) {
-	const outlinerElement = await getContentWindowElement(page, "outliner");
+	const outlinerElement = await getContentWindowElement(page, "renda:outliner");
 	await page.evaluate(outlinerElement => {
 		console.log(outlinerElement);
 	}, outlinerElement);
@@ -31,7 +31,7 @@ export async function getOutlinerRootEntityTreeView(page) {
  * @param {import("puppeteer").Page} page
  */
 export async function getOutlinerCreateEmptyButton(page) {
-	const outlinerElement = await getContentWindowElement(page, "outliner");
+	const outlinerElement = await getContentWindowElement(page, "renda:outliner");
 	const buttonEl = await waitFor(outlinerElement, ":scope > .studio-content-window-top-button-bar > .button[title='Add Entity']");
 	assertExists(buttonEl);
 	return buttonEl;

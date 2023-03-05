@@ -9,7 +9,7 @@ import {ContentWindow} from "./ContentWindow.js";
  */
 
 export class ContentWindowConnections extends ContentWindow {
-	static contentWindowTypeId = "connections";
+	static contentWindowTypeId = /** @type {const} */ ("renda:connections");
 	static contentWindowUiName = "Connections";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/connections.svg";
 

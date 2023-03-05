@@ -157,7 +157,7 @@ Deno.test({
 		/** @type {unknown[][]} */
 		const setActiveObjectsCalls = [];
 		const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({
-			getMostSuitableContentWindowByConstructor(constructor) {
+			getMostSuitableContentWindow(constructor) {
 				return {
 					/**
 					 * @param {unknown[]} objects

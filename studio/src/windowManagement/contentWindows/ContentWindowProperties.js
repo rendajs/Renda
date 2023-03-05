@@ -1,7 +1,7 @@
 import {ContentWindow} from "./ContentWindow.js";
 
 export class ContentWindowProperties extends ContentWindow {
-	static contentWindowTypeId = "properties";
+	static contentWindowTypeId = /** @type {const} */ ("renda:properties");
 	static contentWindowUiName = "Properties";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/properties.svg";
 

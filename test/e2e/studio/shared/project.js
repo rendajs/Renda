@@ -24,7 +24,7 @@ export async function waitForProjectOpen(page, allowExisting = true) {
  */
 export async function openProjectSelector(page) {
 	log("Opening project selector...");
-	const projectEl = await getContentWindowElement(page, "project");
+	const projectEl = await getContentWindowElement(page, "renda:project");
 	const topButtonBarEl = await waitFor(projectEl, ".studio-content-window-top-button-bar");
 	await click(topButtonBarEl, "xpath/.//div[contains(., 'Open Project')]");
 	return await waitForProjectSelector(page);

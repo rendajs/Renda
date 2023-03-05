@@ -44,7 +44,7 @@ function basicSetup() {
 			},
 		},
 		windowManager: {
-			*getContentWindowsByConstructor(ctor) {
+			*getContentWindows(ctor) {
 				const mockEntityEditor = /** @type {any} */ ({
 					notifyMaterialChanged() {
 						didCallNotifyMaterialChanged = true;

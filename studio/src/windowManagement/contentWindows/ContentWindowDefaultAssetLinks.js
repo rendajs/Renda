@@ -3,7 +3,7 @@ import {PropertiesTreeView} from "../../ui/propertiesTreeView/PropertiesTreeView
 import {createTreeViewEntryOptions, createTreeViewStructure} from "../../ui/propertiesTreeView/createStructureHelpers.js";
 
 export class ContentWindowDefaultAssetLinks extends ContentWindow {
-	static contentWindowTypeId = "defaultAssetLinks";
+	static contentWindowTypeId = /** @type {const} */ ("renda:defaultAssetLinks");
 	static contentWindowUiName = "Default Asset Links";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/defaultAssetLinks.svg";
 

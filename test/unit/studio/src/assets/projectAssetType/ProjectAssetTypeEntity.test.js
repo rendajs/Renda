@@ -2,7 +2,6 @@ import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {assertSpyCall, assertSpyCalls, spy} from "std/testing/mock.ts";
 import "../../../shared/initializeStudio.js";
 import {ProjectAssetTypeEntity, entityAssetRootUuidSymbol} from "../../../../../../studio/src/assets/projectAssetType/ProjectAssetTypeEntity.js";
-import {ContentWindowEntityEditor} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {Entity, MeshComponent} from "../../../../../../src/mod.js";
 
@@ -39,9 +38,9 @@ Deno.test("reload component values when changed", async () => {
 	let markRenderDirtyCalled = false;
 	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		windowManager: {
-			*getContentWindowsByConstructor(windowConstructor) {
-				if (windowConstructor == /** @type {any} */ (ContentWindowEntityEditor)) {
-					const w = /** @type {ContentWindowEntityEditor} */ ({
+			*getContentWindows(type) {
+				if (type == "renda:entityEditor") {
+					const w = /** @type {import("../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor.js").ContentWindowEntityEditor} */ ({
 						markRenderDirty() {
 							markRenderDirtyCalled = true;
 						},

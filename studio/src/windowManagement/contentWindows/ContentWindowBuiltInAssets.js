@@ -2,7 +2,7 @@ import {ContentWindow} from "./ContentWindow.js";
 import {TreeView} from "../../ui/TreeView.js";
 
 export class ContentWindowBuiltInAssets extends ContentWindow {
-	static contentWindowTypeId = "builtInAssets";
+	static contentWindowTypeId = /** @type {const} */ ("renda:builtInAssets");
 	static contentWindowUiName = "Built-in Assets";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/builtInAssets.svg";
 

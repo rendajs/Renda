@@ -1,5 +1,4 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {Button} from "../../ui/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, OrbitControls, TranslationGizmo, Vec3} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
@@ -12,7 +11,7 @@ import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
 export class ContentWindowEntityEditor extends ContentWindow {
-	static contentWindowTypeId = "entityEditor";
+	static contentWindowTypeId = /** @type {const} */ ("renda:entityEditor");
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
 	static scrollable = false;
@@ -204,7 +203,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.updateGizmos();
 		this.markRenderDirty();
-		for (const outliner of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
+		for (const outliner of this.studioInstance.windowManager.getContentWindows("renda:outliner")) {
 			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateLiveAssetChangeListeners();
