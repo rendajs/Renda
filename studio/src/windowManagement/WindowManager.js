@@ -492,8 +492,10 @@ export class WindowManager {
 		}
 	}
 
+	/** @typedef {string & {}} ContentWindowId */
+
 	/**
-	 * @typedef {string | (new (...args: ConstructorParameters<typeof ContentWindow>) => ContentWindow)} ContentWindowConstructorOrId
+	 * @typedef {ContentWindowId | keyof import("./autoRegisterContentWindows.js").AutoRegisterContentWindows | (new (...args: ConstructorParameters<typeof ContentWindow>) => ContentWindow)} ContentWindowConstructorOrId
 	 */
 
 	/**

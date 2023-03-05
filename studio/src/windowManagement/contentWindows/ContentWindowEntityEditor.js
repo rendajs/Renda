@@ -1,5 +1,4 @@
 import {ContentWindow} from "./ContentWindow.js";
-import {ContentWindowOutliner} from "./ContentWindowOutliner.js";
 import {Button} from "../../ui/Button.js";
 import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, OrbitControls, TranslationGizmo, Vec3} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
@@ -204,7 +203,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.updateGizmos();
 		this.markRenderDirty();
-		for (const outliner of this.studioInstance.windowManager.getContentWindows(ContentWindowOutliner)) {
+		for (const outliner of this.studioInstance.windowManager.getContentWindows("renda:outliner")) {
 			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateLiveAssetChangeListeners();

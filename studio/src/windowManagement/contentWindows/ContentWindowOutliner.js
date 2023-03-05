@@ -94,7 +94,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	updateAvailableEntityEditorsList() {
 		this.availableEntityEditorUuids = [];
 		const dropDownItems = [];
-		for (const entityEditor of this.windowManager.getContentWindows(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.windowManager.getContentWindows("renda:entityEditor")) {
 			this.availableEntityEditorUuids.push(entityEditor.uuid);
 
 			let entityAssetName = null;
@@ -123,7 +123,7 @@ export class ContentWindowOutliner extends ContentWindow {
 	}
 
 	setAvailableLinkedEntityEditor() {
-		const entityEditor = this.windowManager.getMostSuitableContentWindow(ContentWindowEntityEditor, false);
+		const entityEditor = this.windowManager.getMostSuitableContentWindow("renda:entityEditor", false);
 		if (entityEditor) {
 			this.setLinkedEntityEditor(entityEditor);
 			this.selectEntityEditorDropDown.value = this.availableEntityEditorUuids.indexOf(entityEditor.uuid);

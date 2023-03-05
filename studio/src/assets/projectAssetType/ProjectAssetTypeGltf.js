@@ -1,6 +1,5 @@
 import {parseGltf} from "../../../../src/util/gltf/gltfParsing.js";
 import {getNameAndExtension} from "../../util/fileSystems/pathUtil.js";
-import {ContentWindowEntityEditor} from "../../windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {ProjectAssetTypeMaterialMap} from "./ProjectAssetTypeMaterialMap.js";
 import {ProjectAssetTypeMaterial} from "./ProjectAssetTypeMaterial.js";
 import {ProjectAssetType} from "./ProjectAssetType.js";
@@ -21,7 +20,7 @@ export class ProjectAssetTypeGltf extends ProjectAssetType {
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
-		const entityEditor = windowManager.getMostSuitableContentWindow(ContentWindowEntityEditor);
+		const entityEditor = windowManager.getMostSuitableContentWindow("renda:entityEditor");
 		if (entityEditor) {
 			await entityEditor.loadEntityAsset(this.projectAsset.uuid);
 		}

@@ -39,8 +39,8 @@ Deno.test("reload component values when changed", async () => {
 	let markRenderDirtyCalled = false;
 	const mockStudioInstance = /** @type {import("../../../../../../studio/src/Studio.js").Studio} */ ({
 		windowManager: {
-			*getContentWindows(windowConstructor) {
-				if (windowConstructor == /** @type {any} */ (ContentWindowEntityEditor)) {
+			*getContentWindows(type) {
+				if (type == "renda:entityEditor") {
 					const w = /** @type {ContentWindowEntityEditor} */ ({
 						markRenderDirty() {
 							markRenderDirtyCalled = true;
