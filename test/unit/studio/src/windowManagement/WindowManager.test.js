@@ -76,8 +76,8 @@ stub(WorkspaceManager.prototype, "getActiveWorkspaceData", async () => {
 			},
 			windowB: {
 				type: "tabs",
-				tabTypes: [CONTENT_WINDOW_TYPE_3],
-				tabUuids: [CONTENT_WINDOW_UUID_3],
+				tabTypes: [CONTENT_WINDOW_TYPE_2, CONTENT_WINDOW_TYPE_3],
+				tabUuids: [CONTENT_WINDOW_UUID_2, CONTENT_WINDOW_UUID_3],
 				activeTabIndex: 0,
 			},
 		},
@@ -115,12 +115,10 @@ const autoRegisterPreferences = /** @type {const} */ ({
 /**
  * @param {object} options
  * @param {(studio: import("../../../../../studio/src/Studio.js").Studio) => void} [options.beforeCreate]
- * @param {(ctx: WindowManagerTestContext) => Promise<void> | void} options.fn The test function to run.
  */
 async function basicSetup({
 	beforeCreate,
-	fn,
-}) {
+} = {}) {
 	installFakeDocument();
 
 	/** @type {SetValueCalls} */
@@ -153,42 +151,49 @@ async function basicSetup({
 	});
 	injectMockStudioInstance(mockStudio);
 
-	try {
-		if (beforeCreate) beforeCreate(mockStudio);
-		const windowManager = new WindowManager();
-		class ContentWindowTab1 extends ContentWindow {
-			static contentWindowTypeId = CONTENT_WINDOW_TYPE_1;
-		}
-		windowManager.registerContentWindow(ContentWindowTab1);
-		class ContentWindowTab2 extends ContentWindow {
-			static contentWindowTypeId = CONTENT_WINDOW_TYPE_2;
-		}
-		windowManager.registerContentWindow(ContentWindowTab2);
-		class ContentWindowTab3 extends ContentWindow {
-			static contentWindowTypeId = CONTENT_WINDOW_TYPE_3;
-		}
-		windowManager.registerContentWindow(ContentWindowTab3);
-		await windowManager.init();
-
-		await fn({windowManager, shortcutConditionSetValueCalls, studio: mockStudio, preferencesManager: mockPreferencesManager});
-	} finally {
+	function cleanup() {
 		uninstallFakeDocument();
 		injectMockStudioInstance(null);
 	}
+
+	if (beforeCreate) beforeCreate(mockStudio);
+	const windowManager = new WindowManager();
+	class ContentWindowTab1 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_1;
+	}
+	windowManager.registerContentWindow(ContentWindowTab1);
+	class ContentWindowTab2 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_2;
+	}
+	windowManager.registerContentWindow(ContentWindowTab2);
+	class ContentWindowTab3 extends ContentWindow {
+		static contentWindowTypeId = CONTENT_WINDOW_TYPE_3;
+	}
+	windowManager.registerContentWindow(ContentWindowTab3);
+	await windowManager.init();
+
+	return {
+		windowManager, shortcutConditionSetValueCalls,
+		studio: mockStudio,
+		preferencesManager: mockPreferencesManager,
+		cleanup,
+	};
 }
 
 Deno.test({
 	name: "Registering content window with wrong class type",
 	async fn() {
-		await basicSetup({
-			fn({windowManager}) {
-				class NotAContentWindow {}
+		const {windowManager, cleanup} = await basicSetup();
 
-				assertThrows(() => {
-					windowManager.registerContentWindow(/** @type {any} */ (NotAContentWindow));
-				}, Error, 'Tried to register content window "NotAContentWindow" that does not extend ContentWindow class.');
-			},
-		});
+		try {
+			class NotAContentWindow {}
+
+			assertThrows(() => {
+				windowManager.registerContentWindow(/** @type {any} */ (NotAContentWindow));
+			}, Error, 'Tried to register content window "NotAContentWindow" that does not extend ContentWindow class.');
+		} finally {
+			cleanup();
+		}
 	},
 });
 
@@ -198,13 +203,15 @@ Deno.test({
 		class MissingType extends ContentWindow {
 		}
 
-		await basicSetup({
-			fn({windowManager}) {
-				assertThrows(() => {
-					windowManager.registerContentWindow(MissingType);
-				}, Error, 'Tried to register content window "MissingType" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.');
-			},
-		});
+		const {windowManager, cleanup} = await basicSetup();
+
+		try {
+			assertThrows(() => {
+				windowManager.registerContentWindow(MissingType);
+			}, Error, 'Tried to register content window "MissingType" with no type id, override the static contentWindowTypeId property in order for this content window to function properly.');
+		} finally {
+			cleanup();
+		}
 	},
 });
 
@@ -221,66 +228,74 @@ Deno.test({
 			static contentWindowTypeId = "notype:";
 		}
 
-		await basicSetup({
-			fn({windowManager}) {
-				assertThrows(() => {
-					windowManager.registerContentWindow(MissingNamespace);
-				}, Error, 'Tried to register content window "MissingNamespace" without a namespace in the contentWindowTypeId.');
-				assertThrows(() => {
-					windowManager.registerContentWindow(EmptyNamespace);
-				}, Error, 'Tried to register content window "EmptyNamespace" without a namespace in the contentWindowTypeId.');
-				assertThrows(() => {
-					windowManager.registerContentWindow(EmptyType);
-				}, Error, 'Tried to register content window "EmptyType" without a namespace in the contentWindowTypeId.');
-			},
-		});
+		const {windowManager, cleanup} = await basicSetup();
+
+		try {
+			assertThrows(() => {
+				windowManager.registerContentWindow(MissingNamespace);
+			}, Error, 'Tried to register content window "MissingNamespace" without a namespace in the contentWindowTypeId.');
+			assertThrows(() => {
+				windowManager.registerContentWindow(EmptyNamespace);
+			}, Error, 'Tried to register content window "EmptyNamespace" without a namespace in the contentWindowTypeId.');
+			assertThrows(() => {
+				windowManager.registerContentWindow(EmptyType);
+			}, Error, 'Tried to register content window "EmptyType" without a namespace in the contentWindowTypeId.');
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "loading basic workspace",
 	async fn() {
-		await basicSetup({
-			fn({windowManager}) {
-				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
-			},
-		});
+		const {windowManager, cleanup} = await basicSetup();
+
+		try {
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowB, TabsStudioWindow);
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "lastClickedContentWindow",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-				const e = new FakeMouseEvent("click");
-				windowManager.rootWindow.windowA.el.dispatchEvent(e);
+		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
 
-				assertStrictEquals(windowManager.lastClickedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
-				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastClickedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
-			},
-		});
+		try {
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+			const e = new FakeMouseEvent("click");
+			windowManager.rootWindow.windowA.el.dispatchEvent(e);
+
+			assertStrictEquals(windowManager.lastClickedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
+			assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastClickedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "lastFocusedContentWindow",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, shortcutConditionSetValueCalls}) {
-				assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
-				assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
-				const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (windowManager.rootWindow.windowA));
-				castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+		const {windowManager, shortcutConditionSetValueCalls, cleanup} = await basicSetup();
 
-				assertStrictEquals(windowManager.lastFocusedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
-				assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastFocusedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
-			},
-		});
+		try {
+			assertInstanceOf(windowManager.rootWindow, SplitStudioWindow);
+			assertInstanceOf(windowManager.rootWindow.windowA, TabsStudioWindow);
+			const castWindow = /** @type {StudioWindowWithSym} */ (/** @type {unknown} */ (windowManager.rootWindow.windowA));
+			castWindow[onFocusedWithinChangeSym].forEach(cb => cb(true));
+
+			assertStrictEquals(windowManager.lastFocusedContentWindow, windowManager.rootWindow.windowA.tabs[0]);
+			assertEquals(shortcutConditionSetValueCalls, [["windowManager.lastFocusedContentWindowTypeId", CONTENT_WINDOW_TYPE_1]]);
+		} finally {
+			cleanup();
+		}
 	},
 });
 
@@ -289,181 +304,195 @@ Deno.test({
 	async fn() {
 		/** @type {import("std/testing/mock.ts").Spy} */
 		let addLocationSpy;
-		await basicSetup({
+		const {cleanup} = await basicSetup({
 			beforeCreate(studio) {
 				addLocationSpy = spy(studio.preferencesManager, "addLocation");
 			},
-			async fn() {
-				assertSpyCalls(addLocationSpy, 3);
-			},
 		});
+
+		const fn = (() => {
+			try {
+				assertSpyCalls(addLocationSpy, 4);
+				assertEquals(addLocationSpy.calls[0].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_1);
+				assertEquals(addLocationSpy.calls[1].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[2].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_2);
+				assertEquals(addLocationSpy.calls[3].args[0].contentWindowUuid, CONTENT_WINDOW_UUID_3);
+			} finally {
+				cleanup();
+			}
+		});
+		fn();
 	},
 });
 
 Deno.test({
 	name: "setContentWindowPreferences() loads the preferences on the correct content window",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, preferencesManager}) {
-				// First we set a few values to verify that they get deleted later on
-				windowManager.setContentWindowPreferences([
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_1,
-						data: {
-							pref1: "content window 1",
-						},
-					},
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_2,
-						data: {
-							pref1: "content window 2",
-						},
-					},
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_3,
-						data: {
-							pref1: "content window 3",
-						},
-					},
-				]);
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-				}), "content window 1");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_2,
-				}), "content window 2");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_3,
-				}), "content window 3");
+		const {windowManager, preferencesManager, cleanup} = await basicSetup();
 
-				windowManager.setContentWindowPreferences([
-					// Data with known uuids
-					{
-						type: "unknown",
-						id: CONTENT_WINDOW_UUID_1,
-						data: {
-							pref2: "foo",
-						},
+		try {
+			// First we set a few values to verify that they get deleted later on
+			windowManager.setContentWindowPreferences([
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_1,
+					data: {
+						pref1: "content window 1",
 					},
-					// Data with known types
-					{
-						type: CONTENT_WINDOW_TYPE_2,
-						id: "unknown uuid",
-						data: {
-							pref3: "bar",
-						},
+				},
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_2,
+					data: {
+						pref1: "content window 2",
 					},
-					// Window 3 has no data, this should only delete old values
-				]);
+				},
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_3,
+					data: {
+						pref1: "content window 3",
+					},
+				},
+			]);
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+			}), "content window 1");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_2,
+			}), "content window 2");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_3,
+			}), "content window 3");
 
-				assertEquals(preferencesManager.get("pref2", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-				}), "foo");
-				assertEquals(preferencesManager.get("pref3", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_2,
-				}), "bar");
+			windowManager.setContentWindowPreferences([
+				// Data with known uuids
+				{
+					type: "unknown",
+					id: CONTENT_WINDOW_UUID_1,
+					data: {
+						pref2: "foo",
+					},
+				},
+				// Data with known types
+				{
+					type: CONTENT_WINDOW_TYPE_2,
+					id: "unknown uuid",
+					data: {
+						pref3: "bar",
+					},
+				},
+				// Window 3 has no data, this should only delete old values
+			]);
 
-				// Verify that old values are deleted
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-				}), "");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_2,
-				}), "");
-				assertEquals(preferencesManager.get("pref1", {
-					contentWindowUuid: CONTENT_WINDOW_UUID_3,
-				}), "");
-			},
-		});
+			assertEquals(preferencesManager.get("pref2", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+			}), "foo");
+			assertEquals(preferencesManager.get("pref3", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_2,
+			}), "bar");
+
+			// Verify that old values are deleted
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+			}), "");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_2,
+			}), "");
+			assertEquals(preferencesManager.get("pref1", {
+				contentWindowUuid: CONTENT_WINDOW_UUID_3,
+			}), "");
+		} finally {
+			cleanup();
+		}
 	},
 });
 
 Deno.test({
 	name: "Flushing content window locations",
 	async fn() {
-		await basicSetup({
-			async fn({windowManager, preferencesManager}) {
-				/** @type {Set<() => void>} */
-				const flushPromises = new Set();
+		const {windowManager, preferencesManager, cleanup} = await basicSetup();
 
-				/**
-				 * @param {unknown} data
-				 */
-				const flushFn = data => {
-					/** @type {Promise<void>} */
-					const promise = new Promise(resolve => {
-						flushPromises.add(resolve);
-					});
-					return promise;
-				};
-				function resolveFlushPromises() {
-					flushPromises.forEach(resolve => resolve());
-					flushPromises.clear();
-				}
-				const flushSpy = spy(flushFn);
-				windowManager.onContentWindowPreferencesFlushRequest(flushSpy);
+		try {
+			/** @type {Set<() => void>} */
+			const flushPromises = new Set();
 
-				preferencesManager.set("pref1", "foo", {
-					location: "contentwindow-project",
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-					flush: false,
+			/**
+			 * @param {unknown} data
+			 */
+			const flushFn = data => {
+				/** @type {Promise<void>} */
+				const promise = new Promise(resolve => {
+					flushPromises.add(resolve);
 				});
+				return promise;
+			};
+			function resolveFlushPromises() {
+				flushPromises.forEach(resolve => resolve());
+				flushPromises.clear();
+			}
+			const flushSpy = spy(flushFn);
+			windowManager.onContentWindowPreferencesFlushRequest(flushSpy);
 
-				const flushPromise1 = preferencesManager.flush();
+			preferencesManager.set("pref1", "foo", {
+				location: "contentwindow-project",
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				flush: false,
+			});
 
-				assertSpyCalls(flushSpy, 1);
-				assertSpyCall(flushSpy, 0, {
-					args: [
-						[
-							{
-								data: {
-									pref1: "foo",
-								},
-								id: "uuid1",
-								type: CONTENT_WINDOW_TYPE_1,
+			const flushPromise1 = preferencesManager.flush();
+
+			assertSpyCalls(flushSpy, 1);
+			assertSpyCall(flushSpy, 0, {
+				args: [
+					[
+						{
+							data: {
+								pref1: "foo",
 							},
-						],
+							id: "uuid1",
+							type: CONTENT_WINDOW_TYPE_1,
+						},
 					],
-				});
+				],
+			});
 
-				// Flush should stay pending until all flush promises have been resolved
-				await assertPromiseResolved(flushPromise1, false);
-				resolveFlushPromises();
-				await assertPromiseResolved(flushPromise1, true);
+			// Flush should stay pending until all flush promises have been resolved
+			await assertPromiseResolved(flushPromise1, false);
+			resolveFlushPromises();
+			await assertPromiseResolved(flushPromise1, true);
 
-				// When there is no data, the flushed data should be null
-				preferencesManager.reset("pref1", {
-					location: "contentwindow-project",
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-					flush: false,
-				});
-				const flushPromise2 = preferencesManager.flush();
-				await assertPromiseResolved(flushPromise2, false);
-				resolveFlushPromises();
-				await assertPromiseResolved(flushPromise2, true);
+			// When there is no data, the flushed data should be null
+			preferencesManager.reset("pref1", {
+				location: "contentwindow-project",
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				flush: false,
+			});
+			const flushPromise2 = preferencesManager.flush();
+			await assertPromiseResolved(flushPromise2, false);
+			resolveFlushPromises();
+			await assertPromiseResolved(flushPromise2, true);
 
-				assertSpyCalls(flushSpy, 2);
-				assertSpyCall(flushSpy, 1, {
-					args: [null],
-				});
+			assertSpyCalls(flushSpy, 2);
+			assertSpyCall(flushSpy, 1, {
+				args: [null],
+			});
 
-				// The listener should not fire after being removed
-				windowManager.removeOnContentWindowPreferencesFlushRequest(flushSpy);
+			// The listener should not fire after being removed
+			windowManager.removeOnContentWindowPreferencesFlushRequest(flushSpy);
 
-				preferencesManager.set("pref1", "foo", {
-					location: "contentwindow-project",
-					contentWindowUuid: CONTENT_WINDOW_UUID_1,
-					flush: false,
-				});
+			preferencesManager.set("pref1", "foo", {
+				location: "contentwindow-project",
+				contentWindowUuid: CONTENT_WINDOW_UUID_1,
+				flush: false,
+			});
 
-				const flushPromise3 = preferencesManager.flush();
-				await assertPromiseResolved(flushPromise3, true);
+			const flushPromise3 = preferencesManager.flush();
+			await assertPromiseResolved(flushPromise3, true);
 
-				assertSpyCalls(flushSpy, 2);
-			},
-		});
+			assertSpyCalls(flushSpy, 2);
+		} finally {
+			cleanup();
+		}
 	},
 });
