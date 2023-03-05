@@ -174,7 +174,7 @@ export class PropertiesAssetContentMaterial extends PropertiesAssetContent {
 	}
 
 	notifyEntityEditorsMaterialChanged() {
-		for (const entityEditor of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.studioInstance.windowManager.getContentWindows(ContentWindowEntityEditor)) {
 			entityEditor.notifyMaterialChanged();
 		}
 	}

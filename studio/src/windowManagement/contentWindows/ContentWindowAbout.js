@@ -5,7 +5,7 @@ import {TreeView} from "../../ui/TreeView.js";
 import {ContentWindow} from "./ContentWindow.js";
 
 export class ContentWindowAbout extends ContentWindow {
-	static contentWindowTypeId = "renda:about";
+	static contentWindowTypeId = /** @type {const} */ ("renda:about");
 	static contentWindowUiName = "About";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/about.svg";
 

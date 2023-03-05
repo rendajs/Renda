@@ -279,7 +279,7 @@ export class ProjectAssetType {
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
-		const propertiesWindow = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowProperties);
+		const propertiesWindow = windowManager.getMostSuitableContentWindow(ContentWindowProperties);
 		if (propertiesWindow) {
 			propertiesWindow.setActiveObjects([this.projectAsset]);
 		}

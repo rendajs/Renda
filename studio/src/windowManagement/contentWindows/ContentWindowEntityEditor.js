@@ -12,7 +12,7 @@ import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
 
 export class ContentWindowEntityEditor extends ContentWindow {
-	static contentWindowTypeId = "renda:entityEditor";
+	static contentWindowTypeId = /** @type {const} */ ("renda:entityEditor");
 	static contentWindowUiName = "Entity Editor";
 	static contentWindowUiIcon = "static/icons/contentWindowTabs/entityEditor.svg";
 	static scrollable = false;
@@ -204,7 +204,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}
 		this.updateGizmos();
 		this.markRenderDirty();
-		for (const outliner of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowOutliner)) {
+		for (const outliner of this.studioInstance.windowManager.getContentWindows(ContentWindowOutliner)) {
 			outliner.entityEditorUpdated({target: this});
 		}
 		this.updateLiveAssetChangeListeners();

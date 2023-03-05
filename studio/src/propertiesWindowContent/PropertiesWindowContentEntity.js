@@ -265,7 +265,7 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 	 * @param {import("../windowManagement/contentWindows/ContentWindowEntityEditor.js").EntityChangedEventType} type
 	 */
 	notifyEntityEditors(entity, type) {
-		for (const entityEditor of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+		for (const entityEditor of this.studioInstance.windowManager.getContentWindows(ContentWindowEntityEditor)) {
 			entityEditor.notifyEntityChanged(entity, type);
 		}
 	}

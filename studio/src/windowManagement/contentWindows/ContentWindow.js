@@ -173,7 +173,7 @@ export class ContentWindow {
 
 	isMostSuitableContentWindow() {
 		const castConstructor = /** @type {typeof ContentWindow} */ (this.constructor);
-		const mostSuitable = this.windowManager.getMostSuitableContentWindowByConstructor(castConstructor, false);
+		const mostSuitable = this.windowManager.getMostSuitableContentWindow(castConstructor, false);
 		return mostSuitable == this;
 	}
 

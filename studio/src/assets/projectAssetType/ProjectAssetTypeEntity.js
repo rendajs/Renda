@@ -68,7 +68,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
-		const entityEditor = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);
+		const entityEditor = windowManager.getMostSuitableContentWindow(ContentWindowEntityEditor);
 		if (entityEditor) {
 			await entityEditor.loadEntityAsset(this.projectAsset.uuid);
 		}
@@ -179,7 +179,7 @@ export class ProjectAssetTypeEntity extends ProjectAssetType {
 			recursionTracker.getLiveAsset(propertyValue, liveAsset => {
 				if (!liveAsset) liveAsset = null;
 				newParentObject[propertyKey] = liveAsset;
-				for (const w of this.studioInstance.windowManager.getContentWindowsByConstructor(ContentWindowEntityEditor)) {
+				for (const w of this.studioInstance.windowManager.getContentWindows(ContentWindowEntityEditor)) {
 					if (w.editingEntity == this.projectAsset.liveAsset) {
 						w.markRenderDirty();
 					}

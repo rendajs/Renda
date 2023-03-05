@@ -21,7 +21,7 @@ export class ProjectAssetTypeGltf extends ProjectAssetType {
 	 * @param {import("../../windowManagement/WindowManager.js").WindowManager} windowManager
 	 */
 	async open(windowManager) {
-		const entityEditor = windowManager.getMostSuitableContentWindowByConstructor(ContentWindowEntityEditor);
+		const entityEditor = windowManager.getMostSuitableContentWindow(ContentWindowEntityEditor);
 		if (entityEditor) {
 			await entityEditor.loadEntityAsset(this.projectAsset.uuid);
 		}

@@ -47,7 +47,7 @@ export class PropertiesWindowContentManager {
 		}
 
 		// todo: make this a callback that properties window register
-		for (const w of this.windowManager.getContentWindowsByConstructor(ContentWindowProperties)) {
+		for (const w of this.windowManager.getContentWindows(ContentWindowProperties)) {
 			w.onContentTypeRegistered();
 		}
 	}

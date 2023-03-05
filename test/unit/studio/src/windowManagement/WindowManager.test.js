@@ -7,6 +7,7 @@ import {injectMockStudioInstance} from "../../../../../studio/src/studioInstance
 import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 import {PreferencesLocation} from "../../../../../studio/src/preferences/preferencesLocation/PreferencesLocation.js";
 import {assertPromiseResolved} from "../../../shared/asserts.js";
+import {assertIsType} from "../../../shared/typeAssertions.js";
 
 const importer = new Importer(import.meta.url);
 importer.redirectModule("../../../../../src/util/IndexedDbUtil.js", "../../shared/MockIndexedDbUtil.js");
@@ -177,6 +178,7 @@ async function basicSetup({
 		studio: mockStudio,
 		preferencesManager: mockPreferencesManager,
 		cleanup,
+		ContentWindowTab1, ContentWindowTab2, ContentWindowTab3,
 	};
 }
 
@@ -491,6 +493,62 @@ Deno.test({
 			await assertPromiseResolved(flushPromise3, true);
 
 			assertSpyCalls(flushSpy, 2);
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getContentWindows() by id",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const result = Array.from(windowManager.getContentWindows(CONTENT_WINDOW_TYPE_2));
+			assertEquals(result.length, 2);
+			assertInstanceOf(result[0], ContentWindowTab2);
+			assertInstanceOf(result[1], ContentWindowTab2);
+
+			// Check return type for known strings
+			{
+				const actualType = Array.from(windowManager.getContentWindows("renda:about"))[0];
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowAbout.js").ContentWindowAbout} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+
+			// Check return type for unknown strings
+			{
+				const actualType = Array.from(windowManager.getContentWindows("unknown"))[0];
+				const assertType = /** @type {import("../../../../../studio/src/windowManagement/contentWindows/ContentWindow.js").ContentWindow} */ (/** @type {unknown} */ (null));
+				assertIsType(assertType, actualType);
+				// @ts-expect-error Verify that the type isn't 'any'
+				assertIsType(true, actualType);
+			}
+		} finally {
+			cleanup();
+		}
+	},
+});
+
+Deno.test({
+	name: "getContentWindows() by constructor",
+	async fn() {
+		const {windowManager, ContentWindowTab2, cleanup} = await basicSetup();
+
+		try {
+			const result = Array.from(windowManager.getContentWindows(ContentWindowTab2));
+			assertEquals(result.length, 2);
+			assertInstanceOf(result[0], ContentWindowTab2);
+			assertInstanceOf(result[1], ContentWindowTab2);
+
+			const actualType = Array.from(windowManager.getContentWindows(ContentWindowTab2))[0];
+			const assertType = /** @type {InstanceType<ContentWindowTab2>} */ (/** @type {unknown} */ (null));
+			assertIsType(assertType, actualType);
+			// @ts-expect-error Verify that the type isn't 'any'
+			assertIsType(true, actualType);
 		} finally {
 			cleanup();
 		}
