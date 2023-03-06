@@ -1,3 +1,4 @@
+import "../../../shared/initializeStudio.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {installShadowDom} from "fake-dom/FakeShadowRoot.js";
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";

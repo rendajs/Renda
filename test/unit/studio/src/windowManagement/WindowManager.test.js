@@ -15,6 +15,7 @@ importer.makeReal("../../../../../studio/src/studioInstance.js");
 importer.makeReal("../../../../../src/mod.js");
 importer.makeReal("../../../../../src/util/mod.js");
 importer.makeReal("../../../../../studio/src/preferences/preferencesLocation/ContentWindowPreferencesLocation.js");
+importer.makeReal("../../../../../studio/src/windowManagement/SettingsPopoverManager.js");
 
 /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js")} */
 const WindowManagerMod = await importer.import("../../../../../studio/src/windowManagement/WindowManager.js");
