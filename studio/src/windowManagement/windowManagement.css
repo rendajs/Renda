@@ -92,3 +92,9 @@
 	top: 0;
 	bottom: 0;
 }
+
+.settings-popover-top-bar {
+	margin: 3px;
+	margin-left: 5px;
+	margin-bottom: 8px;
+}

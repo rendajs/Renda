@@ -607,7 +607,6 @@ export class WindowManager {
 		return null;
 	}
 
-	/* eslint-disable jsdoc/require-description-complete-sentence */
 	/**
 	 * Utility function for quickly getting a reference to a StudioWindow or ContentWindow.
 	 * Used by tests and useful for debugging.
@@ -618,7 +617,6 @@ export class WindowManager {
 	 * ```
 	 * @param {HTMLElement} el
 	 */
-	/* eslint-enable jsdoc/require-description-complete-sentence */
 	getWindowByElement(el) {
 		if (STUDIO_ENV != "dev") return null;
 
@@ -641,9 +639,8 @@ export class WindowManager {
 	/**
 	 * Focuses on the most suitable content window of the specified type.
 	 * Creates one if it doesn't exist.
-	 * @template {ContentWindow} T
-	 * @param {new (...args: ConstructorParameters<typeof ContentWindow>) => T} contentWindowConstructorOrId
-	 * @returns {T}
+	 * @template {ContentWindowConstructorOrId} T
+	 * @param {T} contentWindowConstructorOrId
 	 */
 	focusOrCreateContentWindow(contentWindowConstructorOrId) {
 		const contentWindow = this.getMostSuitableContentWindow(contentWindowConstructorOrId);
@@ -651,7 +648,7 @@ export class WindowManager {
 		if (!contentWindow.parentStudioWindow) throw new Error("Assertion failed, content window has no parent window.");
 		contentWindow.parentStudioWindow.focus();
 		contentWindow.parentStudioWindow.setActiveContentWindow(contentWindow);
-		return contentWindow;
+		return /** @type {ContentWindowConstructorOrIdToInstance<T>} */ (contentWindow);
 	}
 
 	/**

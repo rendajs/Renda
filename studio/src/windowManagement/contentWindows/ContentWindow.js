@@ -2,6 +2,7 @@ import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLoc
 import {STUDIO_ENV} from "../../studioDefines.js";
 import {Button} from "../../ui/Button.js";
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
+import {SettingsPopoverManager} from "../SettingsPopoverManager.js";
 
 export class ContentWindow {
 	/**
@@ -31,6 +32,8 @@ export class ContentWindow {
 	static scrollable = true;
 
 	#projectPreferencesLocation;
+	#settingsButton;
+	#settingsPopoverManager;
 
 	/**
 	 * @param {import("../../Studio.js").Studio} studioInstance
@@ -73,12 +76,16 @@ export class ContentWindow {
 		this.tabSelectorSpacer.classList.add("studio-content-window-top-button-bar-spacer");
 		this.topButtonBar.appendChild(this.tabSelectorSpacer);
 
-		this.settingsButton = new Button({
+		this.#settingsPopoverManager = new SettingsPopoverManager();
+		this.#settingsButton = new Button({
 			icon: "static/icons/settings.svg",
 			colorizerFilterManager: studioInstance.colorizerFilterManager,
+			onClick: () => {
+				this.#settingsPopoverManager.showPopover(this.#settingsButton.el);
+			},
 		});
-		this.settingsButton.el.classList.add("content-window-settings-button");
-		this.addTopBarEl(this.settingsButton.el);
+		this.#settingsButton.el.classList.add("content-window-settings-button");
+		this.addTopBarEl(this.#settingsButton.el);
 
 		this.contentEl = document.createElement("div");
 		this.contentEl.classList.add("studio-content-window-content");
