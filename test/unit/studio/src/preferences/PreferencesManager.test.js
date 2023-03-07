@@ -75,6 +75,63 @@ function createMockWindowManager() {
 }
 
 Deno.test({
+	name: "getting preference config",
+	fn() {
+		/**
+		 * @param {string} preferenceName
+		 * @param {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} config
+		 * @param {ReturnType<(typeof PreferencesManager)["prototype"]["getPreferenceConfig"]>} expectedResult
+		 */
+		function configTest(preferenceName, config, expectedResult) {
+			const manager = new PreferencesManager();
+			manager.registerPreference(preferenceName, config);
+			assertEquals(manager.getPreferenceConfig(preferenceName), expectedResult);
+		}
+
+		configTest("pref", {type: "boolean"}, {
+			type: "boolean",
+			uiName: "Pref",
+		});
+		configTest("namespace.myPreference", {type: "number"}, {
+			type: "number",
+			uiName: "My Preference",
+		});
+		configTest("namespace.explicitName", {
+			type: "string",
+			uiName: "Hello",
+		}, {
+			type: "string",
+			uiName: "Hello",
+		});
+		configTest("endswithdot.", {
+			type: "string",
+			uiName: "Hello",
+		}, {
+			type: "string",
+			uiName: "Hello",
+		});
+
+		const manager = new PreferencesManager();
+		manager.registerPreference("endswithdot.", {
+			type: "string",
+		});
+		assertThrows(() => {
+			manager.getPreferenceConfig("endswithdot.");
+		}, Error, "Preference UI name could not be determined.");
+	},
+});
+
+Deno.test({
+	name: "getPreferenceConfig() throws when not registered",
+	fn() {
+		const manager = new PreferencesManager();
+		assertThrows(() => {
+			manager.getPreferenceConfig("nonExistent");
+		}, Error, 'Preference "nonExistent" has not been registered.');
+	},
+});
+
+Deno.test({
 	name: "Getting and setting preferences.",
 	fn() {
 		const {manager} = createManager();

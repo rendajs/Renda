@@ -39,14 +39,18 @@ export class PopoverManager {
 		return null;
 	}
 
-	createPopover() {
+	/**
+	 * @template {Popover} T
+	 * @param {new (...args: any[]) => T} PopoverConstructor
+	 */
+	createPopover(PopoverConstructor = /** @type {new (...args: any[]) => T} */ (Popover)) {
 		if (this.#activePopover && this.#activePopover.el) {
 			throw new Error("Cannot create a popover while one is already open.");
 		}
 
-		const popover = new Popover(this);
+		const popover = new PopoverConstructor(this);
 		this.#popoverCreated(popover);
-		return popover;
+		return /** @type {T} */ (popover);
 	}
 
 	/**

@@ -74,7 +74,7 @@
 	pointer-events: none;
 }
 
-.content-window-settings-button {
+.content-window-preferences-button {
 	float: right;
 }
 
@@ -93,7 +93,7 @@
 	bottom: 0;
 }
 
-.settings-popover-top-bar {
+.preferences-popover-top-bar {
 	margin: 3px;
 	margin-left: 5px;
 	margin-bottom: 8px;

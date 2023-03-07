@@ -11,11 +11,9 @@ function pref(preference) {
 const autoRegisterPreferences = /** @type {const} */ ({
 	"entityEditor.invertScrollOrbitX": pref({
 		type: "boolean",
-		default: false,
 	}),
 	"entityEditor.invertScrollOrbitY": pref({
 		type: "boolean",
-		default: false,
 	}),
 });
 

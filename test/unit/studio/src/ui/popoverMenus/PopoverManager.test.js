@@ -1,6 +1,7 @@
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {FakeMouseEvent} from "fake-dom/FakeMouseEvent.js";
-import {assertEquals, assertExists, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertInstanceOf, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
+import {Popover} from "../../../../../../studio/src/ui/popoverMenus/Popover.js";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
@@ -54,6 +55,13 @@ Deno.test({
 			popover2.close();
 			assertEquals(manager.current, null);
 			assertEquals(manager.currentContextMenu, null);
+
+			// Creating popover with custom class
+			class ExtendedPopOver extends Popover {
+
+			}
+			const popover3 = manager.createPopover(ExtendedPopOver);
+			assertInstanceOf(popover3, ExtendedPopOver);
 
 			// Wait for click event listener to get removed
 			await waitForMicrotasks();

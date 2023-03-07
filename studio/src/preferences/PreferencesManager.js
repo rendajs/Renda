@@ -1,3 +1,4 @@
+import {prettifyVariableName} from "../util/util.js";
 import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWindowPreferencesLocation.js";
 
 /**
@@ -17,6 +18,11 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * @template {PreferenceValueTypes} [T = PreferenceValueTypes]
  * @typedef PreferenceConfigGeneric
  * @property {T} type
+ * @property {string} [uiName] The name of the setting that is shown in UI.
+ * When not set, the UI name will be inferred from the setting name:
+ * - If the name contains dots, only the characters after the last dot is used.
+ * - Camel case will be converted to title case using `prettifyVariableName()`.
+ * @property {string} [description] Description that is shown in UI explaining what the setting does.
  * @property {PreferenceTypesMap[T]} [default]
  * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [defaultLocation] The default
  * location where the preference will be stored. This defaults to "global" when not set.
@@ -66,7 +72,7 @@ const locationTypePriorities = [
  * @template {Object<string, PreferenceConfig>} TRegisteredPreferences
  */
 export class PreferencesManager {
-	/** @typedef {keyof TRegisteredPreferences extends string ? keyof TRegisteredPreferences : never} PreferenceTypes */
+	/** @typedef {keyof TRegisteredPreferences extends string ? keyof TRegisteredPreferences : string} PreferenceTypes */
 	/** @typedef {PreferenceTypes | (string & {})} PreferenceTypesOrString */
 	/**
 	 * @template {PreferenceTypesOrString} T
@@ -117,6 +123,31 @@ export class PreferencesManager {
 		for (const [preference, config] of Object.entries(preferences)) {
 			this.registerPreference(preference, config);
 		}
+	}
+
+	/**
+	 * Returns configuration data for a preference that is needed to show UI.
+	 * @param {PreferenceTypesOrString} preference
+	 */
+	getPreferenceConfig(preference) {
+		const config = this.#registeredPreferences.get(preference);
+		if (!config) {
+			throw new Error(`Preference "${preference}" has not been registered.`);
+		}
+		let uiName = "";
+		if (config.uiName) {
+			uiName = config.uiName;
+		} else {
+			const lastPart = preference.split(".").at(-1);
+			if (!lastPart) {
+				throw new Error("Preference UI name could not be determined.");
+			}
+			uiName = prettifyVariableName(lastPart);
+		}
+		return {
+			type: config.type,
+			uiName,
+		};
 	}
 
 	/**
