@@ -6,6 +6,7 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * @property {boolean} boolean
  * @property {number} number
  * @property {string} string
+ * @property {unknown} unknown
  */
 
 /** @typedef {keyof PreferenceTypesMap} PreferenceValueTypes */
@@ -336,6 +337,8 @@ export class PreferencesManager {
 			return value || 0;
 		} else if (preferenceConfig.type == "string") {
 			return value || "";
+		} else if (preferenceConfig.type == "unknown") {
+			return value;
 		} else {
 			const type = /** @type {any} */ (preferenceConfig).type;
 			throw new Error(`Unexpected preference type: "${type}"`);
@@ -383,6 +386,9 @@ export class PreferencesManager {
 						value = locationValue;
 						break;
 					} else if (preferenceConfig.type == "string" && typeof locationValue == "string") {
+						value = locationValue;
+						break;
+					} else if (preferenceConfig.type == "unknown") {
 						value = locationValue;
 						break;
 					}

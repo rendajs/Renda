@@ -48,6 +48,16 @@ function createManager() {
 			defaultLocation: "workspace",
 			default: "default",
 		}),
+		unknownPref1: pref({
+			type: "unknown",
+			default: {
+				some: "data",
+			},
+		}),
+		unknownPref2: pref({
+			type: "unknown",
+			default: [1, 2, 3],
+		}),
 	});
 
 	const locations = {
@@ -162,6 +172,8 @@ Deno.test({
 		assertEquals(manager.get("numPref2"), 42);
 		assertEquals(manager.get("projectPref"), "");
 		assertEquals(manager.get("workspacePref"), "default");
+		assertEquals(manager.get("unknownPref1"), {some: "data"});
+		assertEquals(manager.get("unknownPref2"), [1, 2, 3]);
 
 		manager.set("boolPref1", true);
 		manager.set("boolPref2", false);
@@ -169,6 +181,8 @@ Deno.test({
 		manager.set("numPref2", 456);
 		manager.set("projectPref", "str");
 		manager.set("workspacePref", "str2");
+		manager.set("unknownPref1", {someOther: "data"});
+		manager.set("unknownPref2", {not: "an array"});
 
 		const boolPref1 = manager.get("boolPref1");
 		assertEquals(boolPref1, true);
@@ -177,6 +191,8 @@ Deno.test({
 		assertEquals(manager.get("numPref2"), 456);
 		assertEquals(manager.get("projectPref"), "str");
 		assertEquals(manager.get("workspacePref"), "str2");
+		assertEquals(manager.get("unknownPref1"), {someOther: "data"});
+		assertEquals(manager.get("unknownPref2"), {not: "an array"});
 
 		// Verify that the type is a boolean and nothing else
 		assertIsType(true, boolPref1);
@@ -229,6 +245,8 @@ Deno.test({
 		assertEquals(manager.getUiValueAtLocation("numPref1", null), 0);
 		assertEquals(manager.getUiValueAtLocation("numPref2", null), 42);
 		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
+		assertEquals(manager.getUiValueAtLocation("unknownPref1", null), {some: "data"});
+		assertEquals(manager.getUiValueAtLocation("unknownPref2", null), [1, 2, 3]);
 
 		assertEquals(manager.getUiValueAtLocation("str", "global"), null);
 		manager.set("str", "global", {location: "global"});
