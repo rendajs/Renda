@@ -11,7 +11,6 @@ export class PreferencesPopover extends Popover {
 	/** @type {Map<string, import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryAny>} */
 	#createdEntries = new Map();
 
-	#preferencesTreeView;
 	#locationDropDown;
 
 	/**
@@ -41,8 +40,8 @@ export class PreferencesPopover extends Popover {
 		});
 		topBarEl.appendChild(this.#locationDropDown.el);
 
-		this.#preferencesTreeView = new PropertiesTreeView();
-		this.el.appendChild(this.#preferencesTreeView.el);
+		this.preferencesTreeView = new PropertiesTreeView();
+		this.el.appendChild(this.preferencesTreeView.el);
 	}
 
 	/**
@@ -60,13 +59,14 @@ export class PreferencesPopover extends Popover {
 
 		for (const id of preferenceIds) {
 			const {uiName, type} = preferencesManager.getPreferenceConfig(id);
-			const entry = this.#preferencesTreeView.addItem({
+			const entry = this.preferencesTreeView.addItem({
 				type,
 				guiOpts: {
 					label: uiName,
 				},
 			});
 			entry.onValueChange(() => {
+				// TODO: Ignore events from loading state
 				preferencesManager.set(id, entry.getValue(), {
 					location: this.#getCurrentLocation(),
 					contentWindowUuid,
