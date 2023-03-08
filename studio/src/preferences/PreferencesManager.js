@@ -211,7 +211,7 @@ export class PreferencesManager {
 	 * @typedef SetPreferenceOptions
 	 * @property {boolean} [performedByUser] Whether the value was changed by the user.
 	 * Controls the `trigger` value of change events. Defaults to false.
-	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [location] The location
+	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} [location] The location
 	 * where the preference should be changed. Defaults to the defaultLocation of the specified preference.
 	 * @property {import("../../../src/mod.js").UuidString} [contentWindowUuid]
 	 * @property {boolean} [flush] When set to true (which is the default),
@@ -425,8 +425,12 @@ export class PreferencesManager {
 			contentWindowUuid,
 		});
 		let value = preferenceLocation.get(preference);
-		if (location == null && value === undefined) {
-			value = this.#getDefaultType(preferenceConfig);
+		if (value === undefined) {
+			if (location == null) {
+				value = this.#getDefaultType(preferenceConfig);
+			} else {
+				value = null;
+			}
 		}
 		return /** @type {GetPreferenceTypeWithAssertionOption<T, true>?} */ (value);
 	}

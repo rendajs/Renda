@@ -230,13 +230,18 @@ Deno.test({
 		assertEquals(manager.getUiValueAtLocation("numPref2", null), 42);
 		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
 
+		assertEquals(manager.getUiValueAtLocation("str", "global"), null);
 		manager.set("str", "global", {location: "global"});
-		assertEquals(manager.get("str"), "global");
+		assertEquals(manager.getUiValueAtLocation("str", "global"), "global");
+		assertEquals(manager.getUiValueAtLocation("str", "project"), null);
 
 		manager.set("str", "project", {location: "project"});
 		assertEquals(manager.getUiValueAtLocation("str", "project"), "project");
 
+		assertEquals(manager.getUiValueAtLocation("workspacePref", "global"), null);
+		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
 		manager.set("workspacePref", "workspace", {location: "workspace"});
+		assertEquals(manager.getUiValueAtLocation("workspacePref", "global"), null);
 		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "workspace");
 
 		assertThrows(() => {

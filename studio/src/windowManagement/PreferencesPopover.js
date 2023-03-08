@@ -8,10 +8,17 @@ export class PreferencesPopover extends Popover {
 	/** @type {import("../../../src/mod.js").UuidString?} */
 	#contentWindowUuid = null;
 
-	/** @type {Map<string, import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryAny>} */
-	#createdEntries = new Map();
+	/**
+	 * @typedef CreatedEntryData
+	 * @property {import("../preferences/PreferencesManager.js").PreferenceValueTypes} type
+	 * @property {import("../ui/propertiesTreeView/PropertiesTreeViewEntry.js").PropertiesTreeViewEntryAny} entry
+	 */
 
-	#locationDropDown;
+	/** @type {Map<string, CreatedEntryData>} */
+	#createdEntries = new Map();
+	#isLoadingValues = false;
+
+	locationDropDown;
 
 	/**
 	 * @param {ConstructorParameters<typeof Popover>} args
@@ -23,7 +30,7 @@ export class PreferencesPopover extends Popover {
 		topBarEl.classList.add("preferences-popover-top-bar");
 		this.el.appendChild(topBarEl);
 
-		this.#locationDropDown = new DropDownGui({
+		this.locationDropDown = new DropDownGui({
 			items: [
 				"Default",
 				"Global",
@@ -35,10 +42,10 @@ export class PreferencesPopover extends Popover {
 			],
 			defaultValue: 0,
 		});
-		this.#locationDropDown.onValueChange(() => {
+		this.locationDropDown.onValueChange(() => {
 			this.#updateEntryValues();
 		});
-		topBarEl.appendChild(this.#locationDropDown.el);
+		topBarEl.appendChild(this.locationDropDown.el);
 
 		this.preferencesTreeView = new PropertiesTreeView();
 		this.el.appendChild(this.preferencesTreeView.el);
@@ -66,13 +73,16 @@ export class PreferencesPopover extends Popover {
 				},
 			});
 			entry.onValueChange(() => {
-				// TODO: Ignore events from loading state
+				if (this.#isLoadingValues) return;
 				preferencesManager.set(id, entry.getValue(), {
 					location: this.#getCurrentLocation(),
 					contentWindowUuid,
 				});
 			});
-			this.#createdEntries.set(id, entry);
+			this.#createdEntries.set(id, {
+				type,
+				entry,
+			});
 		}
 
 		this.#updateEntryValues();
@@ -81,7 +91,7 @@ export class PreferencesPopover extends Popover {
 	}
 
 	#getCurrentLocation() {
-		const index = this.#locationDropDown.getValue({getAsString: false}) - 1;
+		const index = this.locationDropDown.getValue({getAsString: false}) - 1;
 		/**
 		 * @type {import("../preferences/preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes[]}
 		 */
@@ -93,7 +103,7 @@ export class PreferencesPopover extends Popover {
 			"contentwindow-workspace",
 			"contentwindow-project",
 		];
-		if (index < 0 || index > locationTypes.length - 1) return undefined;
+		if (index < 0 || index > locationTypes.length - 1) return null;
 		return locationTypes[index];
 	}
 
@@ -101,13 +111,24 @@ export class PreferencesPopover extends Popover {
 		if (!this.#preferencesManager || !this.#contentWindowUuid) {
 			throw new Error("Assertion failed, popover has not been initialized");
 		}
-		// const location = this.#getCurrentLocation();
 
-		for (const [id, entry] of this.#createdEntries) {
-			const value = this.#preferencesManager.get(id, {
+		this.#isLoadingValues = true;
+		const location = this.#getCurrentLocation();
+		for (const [id, {entry, type}] of this.#createdEntries) {
+			let value = this.#preferencesManager.getUiValueAtLocation(id, location, {
 				contentWindowUuid: this.#contentWindowUuid,
 			});
+			if (value == null) {
+				if (type == "boolean") {
+					value = false;
+				} else if (type == "number") {
+					value = 0;
+				} else if (type == "string") {
+					value = "";
+				}
+			}
 			entry.setValue(value);
 		}
+		this.#isLoadingValues = false;
 	}
 }
