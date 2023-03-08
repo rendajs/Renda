@@ -218,6 +218,55 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Getting preferences at a specific location",
+	fn() {
+		const {manager} = createManager();
+
+		// Get default value when no location is provided
+		assertEquals(manager.getUiValueAtLocation("str", null), "");
+		assertEquals(manager.getUiValueAtLocation("boolPref1", null), false);
+		assertEquals(manager.getUiValueAtLocation("boolPref2", null), true);
+		assertEquals(manager.getUiValueAtLocation("numPref1", null), 0);
+		assertEquals(manager.getUiValueAtLocation("numPref2", null), 42);
+		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
+
+		manager.set("str", "global", {location: "global"});
+		assertEquals(manager.get("str"), "global");
+
+		manager.set("str", "project", {location: "project"});
+		assertEquals(manager.getUiValueAtLocation("str", "project"), "project");
+
+		manager.set("workspacePref", "workspace", {location: "workspace"});
+		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "workspace");
+
+		assertThrows(() => {
+			manager.getUiValueAtLocation("nonexistent", null);
+		}, Error, 'The preference "nonexistent" has not been registered.');
+
+		const mockWindowManager = createMockWindowManager();
+		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location1");
+		manager.addLocation(location1);
+		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location2");
+		manager.addLocation(location2);
+
+		manager.set("str", "location1 value", {
+			location: "contentwindow-project",
+			contentWindowUuid: "location1",
+		});
+		manager.set("str", "location2 value", {
+			location: "contentwindow-project",
+			contentWindowUuid: "location2",
+		});
+
+		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "location1"}), "location1 value");
+		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "location2"}), "location2 value");
+		assertThrows(() => {
+			manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "nonexistent"});
+		});
+	},
+});
+
+Deno.test({
 	name: "Setting at missing location throws",
 	fn() {
 		const {manager, locations} = createManager();
