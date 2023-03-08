@@ -15,6 +15,10 @@ const autoRegisterPreferences = /** @type {const} */ ({
 	"entityEditor.invertScrollOrbitY": pref({
 		type: "boolean",
 	}),
+	"entityEditor.orbitLookPos": pref({type: "unknown"}),
+	"entityEditor.orbitLookRot": pref({type: "unknown"}),
+	"entityEditor.orbitLookDist": pref({type: "number"}),
+	"entityEditor.loadedEntityPath": pref({type: "unknown"}),
 });
 
 /** @typedef {keyof autoRegisterPreferences} AutoRegisterPreferenceTypes */
