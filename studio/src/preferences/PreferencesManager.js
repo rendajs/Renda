@@ -109,6 +109,15 @@ export class PreferencesManager {
 	#onPreferenceLoadedHandlers = new Map();
 
 	/**
+	 * @param {TRegisteredPreferences} [preferences]
+	 */
+	constructor(preferences) {
+		if (preferences) {
+			this.registerPreferences(preferences);
+		}
+	}
+
+	/**
 	 * @param {string | PreferenceTypes} preference
 	 * @param {PreferenceConfig} preferenceConfig
 	 */

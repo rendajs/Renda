@@ -21,7 +21,7 @@ function createManager() {
 		return preference;
 	}
 
-	const registerPreferences = /** @type {const} */ ({
+	const manager = new PreferencesManager({
 		boolPref1: pref({
 			type: "boolean",
 		}),
@@ -50,10 +50,6 @@ function createManager() {
 		}),
 	});
 
-	/** @type {PreferencesManager<registerPreferences>} */
-	const manager = new PreferencesManager();
-	manager.registerPreferences(registerPreferences);
-
 	const locations = {
 		global: new PreferencesLocation("global"),
 		workspace: new PreferencesLocation("workspace"),
@@ -73,6 +69,30 @@ function createMockWindowManager() {
 	});
 	return mockWindowManager;
 }
+
+Deno.test({
+	name: "Constructor registers preferences and infers the type",
+	fn() {
+		const manager = new PreferencesManager({
+			boolPref: {
+				type: "boolean",
+			},
+			numPref: {
+				type: "number",
+			},
+		});
+
+		const boolResult = manager.get("boolPref");
+		assertIsType(true, boolResult);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", boolResult);
+
+		const numResult = manager.get("numPref");
+		assertIsType(0, numResult);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", numResult);
+	},
+});
 
 Deno.test({
 	name: "getting preference config",
