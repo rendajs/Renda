@@ -18,7 +18,7 @@ export async function createAsset(page, createMenuPath) {
 	// Get the selected folder or the root folder, so that we can wait for added children later.
 
 	log("Click create asset button");
-	const createAssetButtonEl = await projectEl.$(".studio-content-window-top-button-bar > .button:nth-child(2)");
+	const createAssetButtonEl = await projectEl.$(".studio-content-window-top-button-bar > .button[title='Create Asset']");
 	if (!createAssetButtonEl) {
 		throw new Error("Could not find create asset button");
 	}

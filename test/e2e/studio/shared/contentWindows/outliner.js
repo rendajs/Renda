@@ -32,7 +32,7 @@ export async function getOutlinerRootEntityTreeView(page) {
  */
 export async function getOutlinerCreateEmptyButton(page) {
 	const outlinerElement = await getContentWindowElement(page, "renda:outliner");
-	const buttonEl = await waitFor(outlinerElement, ":scope > .studio-content-window-top-button-bar > .button");
+	const buttonEl = await waitFor(outlinerElement, ":scope > .studio-content-window-top-button-bar > .button[title='Add Entity']");
 	assertExists(buttonEl);
 	return buttonEl;
 }

@@ -1,3 +1,4 @@
+import "../../../shared/initializeStudio.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {assertEquals, assertExists, assertInstanceOf, assertNotStrictEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {PropertiesWindowContent} from "../../../../../../studio/src/propertiesWindowContent/PropertiesWindowContent.js";

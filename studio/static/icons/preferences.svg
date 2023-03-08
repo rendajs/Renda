@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<path id="tooth" d="M -48 -152 C -48 -170 -38 -180 -20 -180 L 20 -180 C 38 -180 48 -170 48 -152 C 48 -105.4 64.3 -94.7 100.9 -115.8"/>
+	</defs>
+	<g transform="translate(250, 250)" style="stroke: black; stroke-width: 20px; fill: transparent;">
+		<circle cx="0" cy="0" r="60"/>
+		<use x="5" y="5" href="#tooth" />
+		<use x="5" y="5" href="#tooth" transform="rotate(60)"/>
+		<use x="5" y="5" href="#tooth" transform="rotate(120)"/>
+		<use x="5" y="5" href="#tooth" transform="rotate(180)"/>
+		<use x="5" y="5" href="#tooth" transform="rotate(240)"/>
+		<use x="5" y="5" href="#tooth" transform="rotate(300)"/>
+	</g>
+</svg>

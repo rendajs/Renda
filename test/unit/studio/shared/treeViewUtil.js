@@ -8,6 +8,8 @@ import {PropertiesTreeViewEntry} from "../../../../studio/src/ui/propertiesTreeV
  * @property {ExpectedTreeViewStructure[]} [children]
  * @property {boolean} [isPropertiesEntry]
  * @property {string} [propertiesLabel]
+ * @property {import("../../../../studio/src/ui/propertiesTreeView/types").GuiTypes} [propertiesType]
+ * @property {any} [propertiesValue]
  */
 
 /**
@@ -48,10 +50,19 @@ function treeViewStructureEquals(treeView, expectedStructure, options) {
 		if (expectedStructure.isPropertiesEntry != isPropertiesEntry) return false;
 	}
 	if (expectedStructure.propertiesLabel !== undefined) {
-		if (!(treeView instanceof PropertiesTreeViewEntry)) {
+		if (!(treeView instanceof PropertiesTreeViewEntry) || expectedStructure.propertiesLabel != treeView.label.textContent) {
 			return false;
 		}
-		return expectedStructure.propertiesLabel == treeView.label.textContent;
+	}
+	if (expectedStructure.propertiesType !== undefined) {
+		if (!(treeView instanceof PropertiesTreeViewEntry) || expectedStructure.propertiesType != treeView.type) {
+			return false;
+		}
+	}
+	if (expectedStructure.propertiesValue !== undefined) {
+		if (!(treeView instanceof PropertiesTreeViewEntry) || expectedStructure.propertiesValue != treeView.value) {
+			return false;
+		}
 	}
 
 	let expectedChildren = expectedStructure.children;
@@ -99,12 +110,30 @@ function createExpectedTreeViewStructure(treeView, expectedStructure, options) {
 	if (!expectedStructure) {
 		if (treeView instanceof PropertiesTreeViewEntry) {
 			structure.propertiesLabel = treeView.label.textContent || "";
+			structure.propertiesType = treeView.type;
+			structure.propertiesValue = treeView.value;
 		}
-	} else if (expectedStructure.propertiesLabel !== undefined) {
-		if (treeView instanceof PropertiesTreeViewEntry) {
-			structure.propertiesLabel = treeView.label.textContent || "";
-		} else {
-			structure.propertiesLabel = "";
+	} else {
+		if (expectedStructure.propertiesLabel !== undefined) {
+			if (treeView instanceof PropertiesTreeViewEntry) {
+				structure.propertiesLabel = treeView.label.textContent || "";
+			} else {
+				structure.propertiesLabel = "";
+			}
+		}
+		if (expectedStructure.propertiesType !== undefined) {
+			if (treeView instanceof PropertiesTreeViewEntry) {
+				structure.propertiesType = treeView.type;
+			} else {
+				structure.propertiesType = undefined;
+			}
+		}
+		if (expectedStructure.propertiesValue !== undefined) {
+			if (treeView instanceof PropertiesTreeViewEntry) {
+				structure.propertiesValue = treeView.value;
+			} else {
+				structure.propertiesValue = undefined;
+			}
 		}
 	}
 

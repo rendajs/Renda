@@ -1,6 +1,8 @@
 import {ContentWindowPreferencesLocation} from "../../preferences/preferencesLocation/ContentWindowPreferencesLocation.js";
 import {STUDIO_ENV} from "../../studioDefines.js";
+import {Button} from "../../ui/Button.js";
 import {ContentWindowPersistentData} from "../ContentWindowPersistentData.js";
+import {PreferencesPopover} from "../PreferencesPopover.js";
 
 export class ContentWindow {
 	/**
@@ -30,6 +32,8 @@ export class ContentWindow {
 	static scrollable = true;
 
 	#projectPreferencesLocation;
+	/** @type {Button?} */
+	#preferencesButton = null;
 
 	/**
 	 * @param {import("../../Studio.js").Studio} studioInstance
@@ -182,6 +186,29 @@ export class ContentWindow {
 	 */
 	addTopBarEl(element) {
 		this.topButtonBar.appendChild(element);
+	}
+
+	/**
+	 * Adds a preferences button to the top right of the content window.
+	 * The preferences button opens a popover with the provided list of preferences.
+	 * This can only be called once for each content window.
+	 * @param {import("../../preferences/autoRegisterPreferences.js").AutoRegisterPreferenceTypes[]} preferenceIds
+	 */
+	addPreferencesButton(...preferenceIds) {
+		if (this.#preferencesButton) {
+			throw new Error("A preferences button has already been added.");
+		}
+		const button = new Button({
+			icon: "static/icons/preferences.svg",
+			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
+			onClick: () => {
+				const popover = this.studioInstance.popoverManager.createPopover(PreferencesPopover);
+				popover.initialize(this.studioInstance.preferencesManager, preferenceIds, button.el, this.uuid);
+			},
+		});
+		this.#preferencesButton = button;
+		button.el.classList.add("content-window-preferences-button");
+		this.addTopBarEl(button.el);
 	}
 
 	_loop() {

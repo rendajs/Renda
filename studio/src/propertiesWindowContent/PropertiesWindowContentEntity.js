@@ -93,8 +93,8 @@ export class PropertiesWindowContentEntity extends PropertiesWindowContent {
 		this.componentsSection.renderContainer = true;
 		const createComponentButton = new Button({
 			text: "+",
-			onClick: async () => {
-				const menu = await this.studioInstance.popoverManager.createContextMenu();
+			onClick: () => {
+				const menu = this.studioInstance.popoverManager.createContextMenu();
 				for (const component of this.studioInstance.componentTypeManager.getAllComponents()) {
 					menu.addItem({
 						text: component.componentName || component.uuid || "",

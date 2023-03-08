@@ -3,6 +3,7 @@ import {MouseEvent} from "fake-dom/FakeMouseEvent.js";
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
 import {PopoverManager} from "../../../../../../studio/src/ui/popoverMenus/PopoverManager.js";
 import {ColorizerFilterManager} from "../../../../../../studio/src/util/colorizerFilters/ColorizerFilterManager.js";
+import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 
 /**
  * @param {(ctx: {
@@ -21,12 +22,15 @@ async function basicPopoverTest(cb) {
 	try {
 		const colorizerFilterManager = new ColorizerFilterManager();
 		const manager = new PopoverManager(colorizerFilterManager);
-		const popover = await manager.createPopover();
+		const popover = manager.createPopover();
 
 		cb({
 			manager,
 			popover,
 		});
+
+		// Created popovers update some elements in the next event loop
+		await waitForMicrotasks();
 	} finally {
 		uninstallFakeDocument();
 		globalThis.MouseEvent = originalMouseEvent;

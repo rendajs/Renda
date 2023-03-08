@@ -48,8 +48,9 @@ export class ContentWindowProject extends ContentWindow {
 
 		const createButton = new Button({
 			text: "+",
-			onClick: async () => {
-				const menu = await this.studioInstance.popoverManager.createContextMenu([
+			tooltip: "Create Asset",
+			onClick: () => {
+				const menu = this.studioInstance.popoverManager.createContextMenu([
 					{
 						text: "New Folder",
 						onClick: () => this.createNewDir(),

@@ -21,7 +21,7 @@ function createManager() {
 		return preference;
 	}
 
-	const registerPreferences = /** @type {const} */ ({
+	const manager = new PreferencesManager({
 		boolPref1: pref({
 			type: "boolean",
 		}),
@@ -50,10 +50,6 @@ function createManager() {
 		}),
 	});
 
-	/** @type {PreferencesManager<registerPreferences>} */
-	const manager = new PreferencesManager();
-	manager.registerPreferences(registerPreferences);
-
 	const locations = {
 		global: new PreferencesLocation("global"),
 		workspace: new PreferencesLocation("workspace"),
@@ -73,6 +69,87 @@ function createMockWindowManager() {
 	});
 	return mockWindowManager;
 }
+
+Deno.test({
+	name: "Constructor registers preferences and infers the type",
+	fn() {
+		const manager = new PreferencesManager({
+			boolPref: {
+				type: "boolean",
+			},
+			numPref: {
+				type: "number",
+			},
+		});
+
+		const boolResult = manager.get("boolPref");
+		assertIsType(true, boolResult);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", boolResult);
+
+		const numResult = manager.get("numPref");
+		assertIsType(0, numResult);
+		// @ts-expect-error Verify that the type isn't 'any'
+		assertIsType("", numResult);
+	},
+});
+
+Deno.test({
+	name: "getting preference config",
+	fn() {
+		/**
+		 * @param {string} preferenceName
+		 * @param {import("../../../../../studio/src/preferences/PreferencesManager.js").PreferenceConfig} config
+		 * @param {ReturnType<(typeof PreferencesManager)["prototype"]["getPreferenceConfig"]>} expectedResult
+		 */
+		function configTest(preferenceName, config, expectedResult) {
+			const manager = new PreferencesManager();
+			manager.registerPreference(preferenceName, config);
+			assertEquals(manager.getPreferenceConfig(preferenceName), expectedResult);
+		}
+
+		configTest("pref", {type: "boolean"}, {
+			type: "boolean",
+			uiName: "Pref",
+		});
+		configTest("namespace.myPreference", {type: "number"}, {
+			type: "number",
+			uiName: "My Preference",
+		});
+		configTest("namespace.explicitName", {
+			type: "string",
+			uiName: "Hello",
+		}, {
+			type: "string",
+			uiName: "Hello",
+		});
+		configTest("endswithdot.", {
+			type: "string",
+			uiName: "Hello",
+		}, {
+			type: "string",
+			uiName: "Hello",
+		});
+
+		const manager = new PreferencesManager();
+		manager.registerPreference("endswithdot.", {
+			type: "string",
+		});
+		assertThrows(() => {
+			manager.getPreferenceConfig("endswithdot.");
+		}, Error, "Preference UI name could not be determined.");
+	},
+});
+
+Deno.test({
+	name: "getPreferenceConfig() throws when not registered",
+	fn() {
+		const manager = new PreferencesManager();
+		assertThrows(() => {
+			manager.getPreferenceConfig("nonExistent");
+		}, Error, 'Preference "nonExistent" has not been registered.');
+	},
+});
 
 Deno.test({
 	name: "Getting and setting preferences.",
@@ -137,6 +214,60 @@ Deno.test({
 
 		manager.reset("str", {location: "global"});
 		assertEquals(manager.get("str"), "");
+	},
+});
+
+Deno.test({
+	name: "Getting preferences at a specific location",
+	fn() {
+		const {manager} = createManager();
+
+		// Get default value when no location is provided
+		assertEquals(manager.getUiValueAtLocation("str", null), "");
+		assertEquals(manager.getUiValueAtLocation("boolPref1", null), false);
+		assertEquals(manager.getUiValueAtLocation("boolPref2", null), true);
+		assertEquals(manager.getUiValueAtLocation("numPref1", null), 0);
+		assertEquals(manager.getUiValueAtLocation("numPref2", null), 42);
+		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
+
+		assertEquals(manager.getUiValueAtLocation("str", "global"), null);
+		manager.set("str", "global", {location: "global"});
+		assertEquals(manager.getUiValueAtLocation("str", "global"), "global");
+		assertEquals(manager.getUiValueAtLocation("str", "project"), null);
+
+		manager.set("str", "project", {location: "project"});
+		assertEquals(manager.getUiValueAtLocation("str", "project"), "project");
+
+		assertEquals(manager.getUiValueAtLocation("workspacePref", "global"), null);
+		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "default");
+		manager.set("workspacePref", "workspace", {location: "workspace"});
+		assertEquals(manager.getUiValueAtLocation("workspacePref", "global"), null);
+		assertEquals(manager.getUiValueAtLocation("workspacePref", null), "workspace");
+
+		assertThrows(() => {
+			manager.getUiValueAtLocation("nonexistent", null);
+		}, Error, 'The preference "nonexistent" has not been registered.');
+
+		const mockWindowManager = createMockWindowManager();
+		const location1 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location1");
+		manager.addLocation(location1);
+		const location2 = new ContentWindowPreferencesLocation("contentwindow-project", mockWindowManager, "location2");
+		manager.addLocation(location2);
+
+		manager.set("str", "location1 value", {
+			location: "contentwindow-project",
+			contentWindowUuid: "location1",
+		});
+		manager.set("str", "location2 value", {
+			location: "contentwindow-project",
+			contentWindowUuid: "location2",
+		});
+
+		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "location1"}), "location1 value");
+		assertEquals(manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "location2"}), "location2 value");
+		assertThrows(() => {
+			manager.getUiValueAtLocation("str", "contentwindow-project", {contentWindowUuid: "nonexistent"});
+		});
 	},
 });
 

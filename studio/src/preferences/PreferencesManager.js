@@ -1,3 +1,4 @@
+import {prettifyVariableName} from "../util/util.js";
 import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWindowPreferencesLocation.js";
 
 /**
@@ -17,6 +18,11 @@ import {ContentWindowPreferencesLocation} from "./preferencesLocation/ContentWin
  * @template {PreferenceValueTypes} [T = PreferenceValueTypes]
  * @typedef PreferenceConfigGeneric
  * @property {T} type
+ * @property {string} [uiName] The name of the setting that is shown in UI.
+ * When not set, the UI name will be inferred from the setting name:
+ * - If the name contains dots, only the characters after the last dot is used.
+ * - Camel case will be converted to title case using `prettifyVariableName()`.
+ * @property {string} [description] Description that is shown in UI explaining what the setting does.
  * @property {PreferenceTypesMap[T]} [default]
  * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [defaultLocation] The default
  * location where the preference will be stored. This defaults to "global" when not set.
@@ -66,7 +72,7 @@ const locationTypePriorities = [
  * @template {Object<string, PreferenceConfig>} TRegisteredPreferences
  */
 export class PreferencesManager {
-	/** @typedef {keyof TRegisteredPreferences extends string ? keyof TRegisteredPreferences : never} PreferenceTypes */
+	/** @typedef {keyof TRegisteredPreferences extends string ? keyof TRegisteredPreferences : string} PreferenceTypes */
 	/** @typedef {PreferenceTypes | (string & {})} PreferenceTypesOrString */
 	/**
 	 * @template {PreferenceTypesOrString} T
@@ -103,6 +109,15 @@ export class PreferencesManager {
 	#onPreferenceLoadedHandlers = new Map();
 
 	/**
+	 * @param {TRegisteredPreferences} [preferences]
+	 */
+	constructor(preferences) {
+		if (preferences) {
+			this.registerPreferences(preferences);
+		}
+	}
+
+	/**
 	 * @param {string | PreferenceTypes} preference
 	 * @param {PreferenceConfig} preferenceConfig
 	 */
@@ -117,6 +132,31 @@ export class PreferencesManager {
 		for (const [preference, config] of Object.entries(preferences)) {
 			this.registerPreference(preference, config);
 		}
+	}
+
+	/**
+	 * Returns configuration data for a preference that is needed to show UI.
+	 * @param {PreferenceTypesOrString} preference
+	 */
+	getPreferenceConfig(preference) {
+		const config = this.#registeredPreferences.get(preference);
+		if (!config) {
+			throw new Error(`Preference "${preference}" has not been registered.`);
+		}
+		let uiName = "";
+		if (config.uiName) {
+			uiName = config.uiName;
+		} else {
+			const lastPart = preference.split(".").at(-1);
+			if (!lastPart) {
+				throw new Error("Preference UI name could not be determined.");
+			}
+			uiName = prettifyVariableName(lastPart);
+		}
+		return {
+			type: config.type,
+			uiName,
+		};
 	}
 
 	/**
@@ -171,7 +211,7 @@ export class PreferencesManager {
 	 * @typedef SetPreferenceOptions
 	 * @property {boolean} [performedByUser] Whether the value was changed by the user.
 	 * Controls the `trigger` value of change events. Defaults to false.
-	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes} [location] The location
+	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} [location] The location
 	 * where the preference should be changed. Defaults to the defaultLocation of the specified preference.
 	 * @property {import("../../../src/mod.js").UuidString} [contentWindowUuid]
 	 * @property {boolean} [flush] When set to true (which is the default),
@@ -285,6 +325,24 @@ export class PreferencesManager {
 	}
 
 	/**
+	 * Returns the default value from a preference config and fills it in if it doesn't exist.
+	 * @param {PreferenceConfig} preferenceConfig
+	 */
+	#getDefaultType(preferenceConfig) {
+		const value = preferenceConfig.default;
+		if (preferenceConfig.type == "boolean") {
+			return value || false;
+		} else if (preferenceConfig.type == "number") {
+			return value || 0;
+		} else if (preferenceConfig.type == "string") {
+			return value || "";
+		} else {
+			const type = /** @type {any} */ (preferenceConfig).type;
+			throw new Error(`Unexpected preference type: "${type}"`);
+		}
+	}
+
+	/**
 	 * @template {PreferenceTypesOrString} T
 	 * @template {boolean} [TAssertRegistered = true]
 	 * @param {T} preference
@@ -304,14 +362,7 @@ export class PreferencesManager {
 		}
 		let value = null;
 		if (preferenceConfig) {
-			value = preferenceConfig.default;
-			if (preferenceConfig.type == "boolean") {
-				value = value || false;
-			} else if (preferenceConfig.type == "number") {
-				value = value || 0;
-			} else if (preferenceConfig.type == "string") {
-				value = value || "";
-			}
+			value = this.#getDefaultType(preferenceConfig);
 		}
 		let foundContentWindowLocation = false;
 		for (const location of this.#registeredLocations) {
@@ -342,6 +393,46 @@ export class PreferencesManager {
 			throw new Error(`A content window uuid was provided ("${contentWindowUuid}") but no location for this uuid was found.`);
 		}
 		return /** @type {GetPreferenceTypeWithAssertionOption<T, TAssertRegistered>} */ (value);
+	}
+
+	/**
+	 * Gets the value of a preference at a specific location.
+	 * This should only be used to display the value of a preference in ui,
+	 * where the ui reflects that this is the value at that specific location.
+	 * The user expects the preference location system to have an effect on the current value of a preference.
+	 * So this should not be used to determine desired behaviour based on the value of a preference.
+	 * For that {@linkcode get} should be used.
+	 * @template {PreferenceTypesOrString} T
+	 * @param {T} preference The preference id to get the value for.
+	 * @param {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} location The location
+	 * to get the value at, use `null` to get the default location of that preference.
+	 * @param {object} options
+	 * @param {import("../../../src/mod.js").UuidString} [options.contentWindowUuid]
+	 * @returns {GetPreferenceTypeWithAssertionOption<T, true>?} The value at the specified location, or null when
+	 * no value was set for that location. Except when no location is provided, in which case the default value
+	 * for the preference is returned.
+	 */
+	getUiValueAtLocation(preference, location, {
+		contentWindowUuid,
+	} = {}) {
+		const preferenceConfig = this.#registeredPreferences.get(preference);
+		if (!preferenceConfig) {
+			throw new Error(`The preference "${preference}" has not been registered.`);
+		}
+
+		const preferenceLocation = this.#getLocation(preference, {
+			location: location || undefined,
+			contentWindowUuid,
+		});
+		let value = preferenceLocation.get(preference);
+		if (value === undefined) {
+			if (location == null) {
+				value = this.#getDefaultType(preferenceConfig);
+			} else {
+				value = null;
+			}
+		}
+		return /** @type {GetPreferenceTypeWithAssertionOption<T, true>?} */ (value);
 	}
 
 	/**

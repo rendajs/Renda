@@ -82,6 +82,23 @@ Deno.test({
 					{
 						isPropertiesEntry: true,
 						propertiesLabel: "Label",
+						propertiesType: "string",
+					},
+				],
+			});
+
+			assertTreeViewStructureEquals(tv1, {
+				children: [
+					{
+						propertiesLabel: "Label",
+					},
+				],
+			});
+
+			assertTreeViewStructureEquals(tv1, {
+				children: [
+					{
+						propertiesType: "string",
 					},
 				],
 			});
@@ -102,6 +119,61 @@ Deno.test({
 						{
 							isPropertiesEntry: true,
 							propertiesLabel: "different",
+						},
+					],
+				});
+			});
+
+			assertThrows(() => {
+				assertTreeViewStructureEquals(tv1, {
+					children: [
+						{
+							propertiesLabel: "different",
+						},
+					],
+				});
+			});
+
+			assertThrows(() => {
+				assertTreeViewStructureEquals(tv1, {
+					children: [
+						{
+							propertiesLabel: "Label",
+							propertiesType: "boolean",
+						},
+					],
+				});
+			});
+		});
+	},
+});
+
+Deno.test({
+	name: "propertiesValue",
+	fn() {
+		runWithDom(() => {
+			const tv1 = new PropertiesTreeView();
+			const str = tv1.addItem({
+				type: "string",
+				guiOpts: {
+					label: "label",
+				},
+			});
+			str.setValue("value");
+
+			assertTreeViewStructureEquals(tv1, {
+				children: [
+					{
+						propertiesValue: "value",
+					},
+				],
+			});
+
+			assertThrows(() => {
+				assertTreeViewStructureEquals(tv1, {
+					children: [
+						{
+							propertiesValue: "different",
 						},
 					],
 				});

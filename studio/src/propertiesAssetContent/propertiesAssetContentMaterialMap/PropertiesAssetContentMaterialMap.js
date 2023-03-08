@@ -52,8 +52,8 @@ export class PropertiesAssetContentMaterialMap extends PropertiesAssetContent {
 			/** @type {import("../../ui/Button.js").ButtonGuiOptions} */
 			guiOpts: {
 				text: "Add Map Type",
-				onClick: async () => {
-					const menu = await this.studioInstance.popoverManager.createContextMenu();
+				onClick: () => {
+					const menu = this.studioInstance.popoverManager.createContextMenu();
 					for (const typeConstructor of this.studioInstance.materialMapTypeSerializerManager.getAllTypes()) {
 						const disabled = this.hasTypeConstructor(typeConstructor);
 						menu.addItem({

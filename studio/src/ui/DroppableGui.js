@@ -1,9 +1,6 @@
 import {getStudioInstance} from "../studioInstance.js";
 import {parseMimeType} from "../util/util.js";
 import {ProjectAsset} from "../assets/ProjectAsset.js";
-import {ContentWindowDefaultAssetLinks} from "../windowManagement/contentWindows/ContentWindowDefaultAssetLinks.js";
-import {ContentWindowBuiltInAssets} from "../windowManagement/contentWindows/ContentWindowBuiltInAssets.js";
-import {ContentWindowProject} from "../windowManagement/contentWindows/ContentWindowProject.js";
 import {ProjectAssetType} from "../assets/projectAssetType/ProjectAssetType.js";
 import {isUuid} from "../../../src/mod.js";
 
@@ -818,15 +815,13 @@ export class DroppableGui {
 					if (this.defaultAssetLink) {
 						// todo: highlight assetLink
 						// eslint-disable-next-line no-unused-vars
-						const assetLinksWindow = getStudioInstance().windowManager.focusOrCreateContentWindow(ContentWindowDefaultAssetLinks);
+						const assetLinksWindow = getStudioInstance().windowManager.focusOrCreateContentWindow("renda:defaultAssetLinks");
 					} else if (this.projectAssetValue) {
 						let assetLinksWindow;
 						if (this.projectAssetValue.isBuiltIn) {
-							const contentWindow = getStudioInstance().windowManager.focusOrCreateContentWindow(ContentWindowBuiltInAssets);
-							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowBuiltInAssets.js").ContentWindowBuiltInAssets} */ (contentWindow);
+							assetLinksWindow = getStudioInstance().windowManager.focusOrCreateContentWindow("renda:builtInAssets");
 						} else {
-							const contentWindow = getStudioInstance().windowManager.focusOrCreateContentWindow(ContentWindowProject);
-							assetLinksWindow = /** @type {import("../windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (contentWindow);
+							assetLinksWindow = getStudioInstance().windowManager.focusOrCreateContentWindow("renda:project");
 						}
 						assetLinksWindow.highlightPath(this.projectAssetValue.path);
 					}
@@ -835,7 +830,7 @@ export class DroppableGui {
 			});
 		}
 		if (contextMenuStructure.length == 0) return;
-		const menu = await getStudioInstance().popoverManager.createContextMenu(contextMenuStructure);
+		const menu = getStudioInstance().popoverManager.createContextMenu(contextMenuStructure);
 		menu.setPos(e);
 	}
 

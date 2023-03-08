@@ -322,7 +322,7 @@ export class TabsStudioWindow extends StudioWindow {
 	 * @param {Button} button
 	 * @param {MouseEvent} e
 	 */
-	async onTabsContextMenu(button, e) {
+	onTabsContextMenu(button, e) {
 		e.preventDefault();
 
 		/** @type {import("../ui/popoverMenus/ContextMenu.js").ContextMenuStructure} */
@@ -457,7 +457,7 @@ export class TabsStudioWindow extends StudioWindow {
 			},
 		];
 
-		const menu = await getStudioInstance().popoverManager.createContextMenu(contextMenuStructure);
+		const menu = getStudioInstance().popoverManager.createContextMenu(contextMenuStructure);
 		menu.setPos(e);
 	}
 

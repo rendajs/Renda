@@ -74,6 +74,10 @@
 	pointer-events: none;
 }
 
+.content-window-preferences-button {
+	float: right;
+}
+
 .studio-content-window-content {
 	position: relative;
 	flex-grow: 1;
@@ -87,4 +91,10 @@
 	right: 0;
 	top: 0;
 	bottom: 0;
+}
+
+.preferences-popover-top-bar {
+	margin: 3px;
+	margin-left: 5px;
+	margin-bottom: 8px;
 }

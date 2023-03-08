@@ -34,6 +34,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 
 		this.setContentBehindTopBar(true);
 
+		this.addPreferencesButton(
+			"entityEditor.invertScrollOrbitX",
+			"entityEditor.invertScrollOrbitY"
+		);
+
 		const saveEntityButton = new Button({
 			text: "Save",
 			onClick: () => {
