@@ -19,7 +19,6 @@ export class ClusterComputeManager {
 
 		this.computeLightIndicesPipeline = null;
 		this.lightIndicesBuffer = null;
-		this.lightIndicesBindGroup = null;
 	}
 
 	get config() {
@@ -104,27 +103,6 @@ export class ClusterComputeManager {
 			usage: GPUBufferUsage.STORAGE,
 		});
 
-		// todo: this bindgroup is unnecessary, the indices binding
-		// from the viewBindGroupLayout can be used instead
-		this.lightIndicesBindGroup = this.renderer.device.createBindGroup({
-			label: "ClusteredComputeManager lightIndicesBindGroup",
-			layout: this.renderer.computeClusterLightsBindGroupLayout,
-			entries: [
-				{
-					binding: 0,
-					resource: {
-						buffer: this.boundsBuffer,
-					},
-				},
-				{
-					binding: 1,
-					resource: {
-						buffer: this.lightIndicesBuffer,
-					},
-				},
-			],
-		});
-
 		return true;
 	}
 
@@ -149,10 +127,9 @@ export class ClusterComputeManager {
 		computePassEncoder.setBindGroup(1, this.boundsBindGroup);
 		computePassEncoder.dispatchWorkgroups(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 
-		if (this.computeLightIndicesPipeline && this.cachedCameraData.viewBindGroup && this.lightIndicesBindGroup) {
+		if (this.computeLightIndicesPipeline && this.cachedCameraData.viewBindGroup) {
 			computePassEncoder.setPipeline(this.computeLightIndicesPipeline);
 			computePassEncoder.setBindGroup(0, this.cachedCameraData.viewBindGroup);
-			computePassEncoder.setBindGroup(1, this.lightIndicesBindGroup);
 			computePassEncoder.dispatchWorkgroups(this.config.clusterCount.x, this.config.clusterCount.y, this.config.clusterCount.z);
 		}
 

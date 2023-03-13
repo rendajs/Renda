@@ -13,16 +13,8 @@
 // file://./../util/fresnelSchlick.wgsl
 // @import 98c32773-068b-4368-9a55-a3d046624acd
 
-//todo: import this from clusterBoundsStruct.wgsl
-struct ClusterLightIndices {
-	lightCount : u32,
-	indices: array<u32, ${maxLightsPerClusterPass}>,
-};
-struct ClusterLightIndicesArray {
-	clusters: array<ClusterLightIndices, ${totalClusterCount}>,
-};
-@group(0) @binding(2)
-var<storage,read_write> clusterLightIndices : ClusterLightIndicesArray;
+// file://./../ClusteredCompute/ClusterLightsStruct.wgsl
+// @import 0e0f87de-6305-45df-9513-c5c08d08a2d7
 
 fn depthToLinear(z : f32) -> f32 {
 	// let m : mat4x4<f32> = viewUniforms.projectionMatrix;
