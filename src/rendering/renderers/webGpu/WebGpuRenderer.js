@@ -114,7 +114,7 @@ export class WebGpuRenderer extends Renderer {
 				},
 				{
 					binding: 2, // cluster light indices
-					visibility: GPUShaderStage.FRAGMENT,
+					visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.COMPUTE,
 					buffer: {type: "storage"},
 				},
 			],
@@ -145,11 +145,6 @@ export class WebGpuRenderer extends Renderer {
 				entries: [
 					{
 						binding: 0, // cluster bounds buffer
-						visibility: GPUShaderStage.COMPUTE,
-						buffer: {type: "storage"},
-					},
-					{
-						binding: 1, // cluster lights buffer
 						visibility: GPUShaderStage.COMPUTE,
 						buffer: {type: "storage"},
 					},
