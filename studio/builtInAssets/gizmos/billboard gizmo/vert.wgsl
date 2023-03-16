@@ -16,14 +16,10 @@ struct VertexOutput {
 @vertex
 fn main(input : VertexInput) -> VertexOutput {
 	var vertOut : VertexOutput;
-	var objPos : vec4<f32> = modelUniforms.m[3];
-	vertOut.position = modelUniforms.vp * objPos;
-	var w : f32 = vertOut.position.w;
-	vertOut.position = vertOut.position / vec4<f32>(w,w,w,w);
-	vertOut.position.x = vertOut.position.x + input.position.x / viewUniforms.screenSize.x;
-	vertOut.position.y = vertOut.position.y + input.position.y / viewUniforms.screenSize.y;
-	vertOut.position.z = vertOut.position.z + input.position.z / viewUniforms.screenSize.z;
-	vertOut.position = vec4<f32>(vertOut.position.xyz, 1.0);
+	var objPos = modelUniforms.m[3];
+	var screenPos = modelUniforms.vp * objPos;
+	screenPos /= screenPos.w;
+	vertOut.position = vec4<f32>(screenPos.xy + input.position.xy / viewUniforms.screenSize.xy, 0.0, 1.0);
 	vertOut.color = input.color;
 	return vertOut;
 }
