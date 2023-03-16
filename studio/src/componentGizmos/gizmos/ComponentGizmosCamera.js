@@ -16,6 +16,16 @@ export class ComponentGizmosCamera extends ComponentGizmos {
 	constructor(...args) {
 		super(...args);
 
+		// Debugging cluster bounds dus currently not work out of the box. To debug:
+		// - set this.debugClusterBounds to true
+		// - add GPUBufferUsage.COPY_SRC to the "ClusteredComputeManager boundsBuffer"
+		// - Update the cluster bounds of a camera in a scene:
+		//   - Add an entity with camera component to the scene
+		//   - Make sure the camera entity is selected
+		//   - Click the entity editor window to make it the last focused window
+		//   - run the following in the browser console:
+		//     studio.renderer.render(studio.windowManager.lastFocusedContentWindow.domTarget, studio.selected.entity.components[0])
+		// - Adjust a property of the camera component in order to rerender the entity editor with updated debug bounds.
 		this.debugClusterBounds = false;
 		this.updateClusterBoundsInstance = new SingleInstancePromise(this.updateClusterBounds.bind(this));
 	}
