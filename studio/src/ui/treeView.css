@@ -89,6 +89,9 @@
 .treeViewRow.hidden{
 	display: none;
 }
+.treeViewRow:focus-visible {
+	outline: none;
+}
 
 .treeViewArrow.hidden{
 	display: none;
