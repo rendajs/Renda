@@ -136,10 +136,12 @@ export class NumericGui {
 		// We allow running without a studio instance to make this easier to use in tests
 		if (studio) {
 			const shortcutManager = studio.keyboardShortcutManager;
-			shortcutManager.onCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
-			shortcutManager.onCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
-			const focusCondition = shortcutManager.getCondition("numericGui.hasFocus");
-			this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+			if (shortcutManager) {
+				shortcutManager.onCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+				shortcutManager.onCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
+				const focusCondition = shortcutManager.getCondition("numericGui.hasFocus");
+				this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+			}
 		}
 
 		this.setIsTextAdjusting(false);
@@ -161,8 +163,10 @@ export class NumericGui {
 		const studio = getMaybeStudioInstance();
 		if (studio) {
 			const shortcutManager = studio.keyboardShortcutManager;
-			shortcutManager.removeOnCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
-			shortcutManager.removeOnCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
+			if (shortcutManager) {
+				shortcutManager.removeOnCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+				shortcutManager.removeOnCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
+			}
 		}
 		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.destructor();
 
