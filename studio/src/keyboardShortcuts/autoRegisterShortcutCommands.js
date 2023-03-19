@@ -41,13 +41,13 @@ const autoRegisterShortcutCommands = [
 		captureInsideTextFields: true,
 	},
 	{
-		command: "numericGui.incrementSelection",
+		command: "numericGui.incrementAtCaret",
 		defaultKeys: "up",
 		conditions: "numericGui.hasFocus",
 		captureInsideTextFields: true,
 	},
 	{
-		command: "numericGui.decrementSelection",
+		command: "numericGui.decrementAtCaret",
 		defaultKeys: "down",
 		conditions: "numericGui.hasFocus",
 		captureInsideTextFields: true,

@@ -1,3 +1,5 @@
+import {getStudioInstance} from "../studioInstance.js";
+
 /**
  * @typedef {object} NumericGuiOptionsType
  * @property {number?} [min = null] The minimum allowed value.
@@ -14,8 +16,6 @@
 /**
  * @typedef {import("./propertiesTreeView/types.js").GuiOptionsBase & NumericGuiOptionsType} NumericGuiOptions
  */
-
-import {getStudioInstance} from "../studioInstance.js";
 
 /**
  * @template {boolean} [T = false]
@@ -133,8 +133,8 @@ export class NumericGui {
 		this.el.addEventListener("input", this.boundOnInput);
 
 		const shortcutManager = getStudioInstance().keyboardShortcutManager;
-		shortcutManager.onCommand("numericGui.incrementSelection", this.#incrementSelection);
-		shortcutManager.onCommand("numericGui.decrementSelection", this.#decrementSelection);
+		shortcutManager.onCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+		shortcutManager.onCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
 		const focusCondition = shortcutManager.getCondition("numericGui.hasFocus");
 		this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
 
@@ -155,8 +155,8 @@ export class NumericGui {
 		this.el.removeEventListener("input", this.boundOnInput);
 
 		const shortcutManager = getStudioInstance().keyboardShortcutManager;
-		shortcutManager.removeOnCommand("numericGui.incrementSelection", this.#incrementSelection);
-		shortcutManager.removeOnCommand("numericGui.decrementSelection", this.#decrementSelection);
+		shortcutManager.removeOnCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+		shortcutManager.removeOnCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
 		this.#shortcutFocusValueSetter.destructor();
 
 		this.removeEventListeners();
@@ -381,11 +381,11 @@ export class NumericGui {
 		return parseFloat(value);
 	}
 
-	#incrementSelection = () => {
+	#incrementAtCaret = () => {
 		this.#handleCaretAdjust(1);
 	};
 
-	#decrementSelection = () => {
+	#decrementAtCaret = () => {
 		this.#handleCaretAdjust(-1);
 	};
 
