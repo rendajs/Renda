@@ -264,3 +264,60 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Shortcuts are not fired when a textfield has focus",
+	fn() {
+		basicSetup({
+			fn({manager, commandSpy, fireKeyEvent}) {
+				manager.registerCommand({
+					command: "cmd",
+					defaultKeys: ["a"],
+				});
+				manager.onCommand("cmd", commandSpy);
+
+				// @ts-ignore
+				document.activeElement = {
+					tagName: "INPUT",
+				};
+
+				const event1 = fireKeyEvent("KeyA", true);
+				assertSpyCalls(commandSpy, 0);
+				assertEquals(event1.defaultPrevented, false);
+
+				const event2 = fireKeyEvent("KeyA", false);
+				assertSpyCalls(commandSpy, 0);
+				assertEquals(event2.defaultPrevented, false);
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Shortcuts with captureInsideTextFields are fired when a textfield has focus",
+	fn() {
+		basicSetup({
+			fn({manager, commandSpy, fireKeyEvent}) {
+				manager.registerCommand({
+					command: "cmd",
+					defaultKeys: ["a"],
+					captureInsideTextFields: true,
+				});
+				manager.onCommand("cmd", commandSpy);
+
+				// @ts-ignore
+				document.activeElement = {
+					tagName: "INPUT",
+				};
+
+				const event1 = fireKeyEvent("KeyA", true);
+				assertSpyCalls(commandSpy, 1);
+				assertEquals(event1.defaultPrevented, true);
+
+				const event2 = fireKeyEvent("KeyA", false);
+				assertSpyCalls(commandSpy, 1);
+				assertEquals(event2.defaultPrevented, false);
+			},
+		});
+	},
+});
