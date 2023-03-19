@@ -331,7 +331,7 @@ export class KeyboardShortcutManager {
 	fireCommand(commandId) {
 		const command = this.registeredCommands.get(commandId);
 		if (!command) {
-			throw new Error(`Shortcut Command "${command}" has not been registered.`);
+			throw new Error(`Shortcut Command "${commandId}" has not been registered.`);
 		}
 		this.#fireCommand(command);
 	}
