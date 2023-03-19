@@ -170,7 +170,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	getIframeResponseHandlers() {
 		return {
 			requestInternalDiscoveryUrl() {
-				const url = new URL("internalDiscovery.html", window.location.href);
+				const url = new URL("internalDiscovery", window.location.href);
 				return url.href;
 			},
 		};
