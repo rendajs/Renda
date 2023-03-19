@@ -7,5 +7,6 @@ studio/deps/
 node_modules
 npm_packages
 deno_dir
-studio/src/styles/documentStyles.js
+studio/src/styles/projectSelectorStyles.js
+studio/src/styles/studioStyles.js
 studio/src/styles/shadowStyles.js

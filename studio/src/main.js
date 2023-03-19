@@ -1,4 +1,4 @@
-import "./styles/documentStyles.js";
+import "./styles/projectSelectorStyles.js";
 import {getProjectSelectorInstance, initProjectSelector} from "./projectSelector/projectSelectorInstance.js";
 export {};
 

@@ -1,3 +1,4 @@
+import "./styles/studioStyles.js";
 import {Studio} from "./Studio.js";
 
 /** @type {Studio?} */
