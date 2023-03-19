@@ -41,6 +41,18 @@ const autoRegisterShortcutCommands = [
 		captureInsideTextFields: true,
 	},
 	{
+		command: "numericGui.incrementSelection",
+		defaultKeys: "up",
+		conditions: "numericGui.hasFocus",
+		captureInsideTextFields: true,
+	},
+	{
+		command: "numericGui.decrementSelection",
+		defaultKeys: "down",
+		conditions: "numericGui.hasFocus",
+		captureInsideTextFields: true,
+	},
+	{
 		command: "droppableGui.unlink",
 		defaultKeys: ["backspace", "delete"],
 		conditions: "droppableGui.focusSelected",
