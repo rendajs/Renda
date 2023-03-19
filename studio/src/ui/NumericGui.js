@@ -1,4 +1,4 @@
-import {getStudioInstance} from "../studioInstance.js";
+import {getMaybeStudioInstance} from "../studioInstance.js";
 
 /**
  * @typedef {object} NumericGuiOptionsType
@@ -132,11 +132,15 @@ export class NumericGui {
 		this.el.addEventListener("wheel", this.boundOnWheel);
 		this.el.addEventListener("input", this.boundOnInput);
 
-		const shortcutManager = getStudioInstance().keyboardShortcutManager;
-		shortcutManager.onCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
-		shortcutManager.onCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
-		const focusCondition = shortcutManager.getCondition("numericGui.hasFocus");
-		this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+		const studio = getMaybeStudioInstance();
+		// We allow running without a studio instance to make this easier to use in tests
+		if (studio) {
+			const shortcutManager = studio.keyboardShortcutManager;
+			shortcutManager.onCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+			shortcutManager.onCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
+			const focusCondition = shortcutManager.getCondition("numericGui.hasFocus");
+			this.#shortcutFocusValueSetter = focusCondition.requestValueSetter();
+		}
 
 		this.setIsTextAdjusting(false);
 		this.setValue(defaultValue);
@@ -154,10 +158,13 @@ export class NumericGui {
 		this.el.removeEventListener("wheel", this.boundOnWheel);
 		this.el.removeEventListener("input", this.boundOnInput);
 
-		const shortcutManager = getStudioInstance().keyboardShortcutManager;
-		shortcutManager.removeOnCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
-		shortcutManager.removeOnCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
-		this.#shortcutFocusValueSetter.destructor();
+		const studio = getMaybeStudioInstance();
+		if (studio) {
+			const shortcutManager = studio.keyboardShortcutManager;
+			shortcutManager.removeOnCommand("numericGui.incrementAtCaret", this.#incrementAtCaret);
+			shortcutManager.removeOnCommand("numericGui.decrementAtCaret", this.#decrementAtCaret);
+		}
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.destructor();
 
 		this.removeEventListeners();
 		this.onValueChangeCbs = [];
@@ -265,14 +272,14 @@ export class NumericGui {
 		this.setIsTextAdjusting(true);
 		const valueText = this.el.value;
 		this.el.setSelectionRange(this.suffix.length, valueText.length - this.prefix.length);
-		this.#shortcutFocusValueSetter.setValue(true);
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.setValue(true);
 	}
 
 	onBlur() {
 		this.setIsTextAdjusting(false);
 		this.updateTextValue();
 		this.unroundedValue = this.internalValue;
-		this.#shortcutFocusValueSetter.setValue(false);
+		if (this.#shortcutFocusValueSetter) this.#shortcutFocusValueSetter.setValue(false);
 	}
 
 	/**
