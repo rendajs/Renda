@@ -36,7 +36,7 @@ When hosting your app from studio, figuring out this url is automatically taken 
 The InternalDiscoveryManager tries to communicate with its creator window and ask what this url is.
 But this won't work when your app was not opened from studio, when you host your app on your own (local) server
 and manually type in its address in the browser for example. In that case you will have to let the InternalDiscoveryManager know
-what url you would like to use. The url is likely something like `https://renda.studio/internalDiscovery.html`,
+what url you would like to use. The url is likely something like `https://renda.studio/internalDiscovery`,
 but might be different if you are using a specific version or hosting your own studio. To provide a url, you can use two options.
 
 When using `fallbackDiscoveryUrl`, the InternalDiscoveryManager will first attempt to request a url from the parent window,
