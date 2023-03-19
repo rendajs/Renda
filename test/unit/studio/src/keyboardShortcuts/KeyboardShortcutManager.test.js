@@ -73,10 +73,10 @@ Deno.test({
 				fireKeyEvent("KeyA", true);
 				fireKeyEvent("KeyA", false);
 				assertSpyCalls(commandSpy, 2);
-			}
-		})
-	}
-})
+			},
+		});
+	},
+});
 
 Deno.test({
 	name: "fireCommand throws when the command is not registered",
@@ -85,11 +85,11 @@ Deno.test({
 			fn({manager}) {
 				assertThrows(() => {
 					manager.fireCommand("does not exist");
-				}, Error, 'Shortcut Command "does not exist" has not been registered.')
-			}
-		})
-	}
-})
+				}, Error, 'Shortcut Command "does not exist" has not been registered.');
+			},
+		});
+	},
+});
 
 Deno.test({
 	name: "holdType single",
