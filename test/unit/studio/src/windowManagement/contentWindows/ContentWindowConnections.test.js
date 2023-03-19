@@ -7,6 +7,7 @@ import {LabelGui} from "../../../../../../studio/src/ui/LabelGui.js";
 import {PropertiesTreeViewEntry} from "../../../../../../studio/src/ui/propertiesTreeView/PropertiesTreeViewEntry.js";
 import {Button} from "../../../../../../studio/src/ui/Button.js";
 import {PreferencesManager} from "../../../../../../studio/src/preferences/PreferencesManager.js";
+import {getMockWindowManager} from "./shared.js";
 
 /**
  * @typedef ContentWindowConnectionsTestContext
@@ -60,9 +61,7 @@ async function basicTest({
 			},
 			preferencesManager: new PreferencesManager(),
 		});
-		const mockWindowManager = /** @type {import("../../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({});
-
-		const contentWindow = new ContentWindowConnections(mockStudioInstance, mockWindowManager, "uuid");
+		const contentWindow = new ContentWindowConnections(mockStudioInstance, getMockWindowManager(), "uuid");
 
 		assertTreeViewStructureEquals(contentWindow.studioClientConnectionTreeView, {
 			children: [

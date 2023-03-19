@@ -44,7 +44,7 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		window.addEventListener("message", this.onIframeMessage);
 
-		const colorizerFilterManager = getStudioInstance().colorizerFilterManager;
+		const colorizerFilterManager = this.studioInstance.colorizerFilterManager;
 
 		const playStateButtonsGroup = new ButtonGroup();
 		this.addTopBarEl(playStateButtonsGroup.el);
