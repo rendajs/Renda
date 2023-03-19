@@ -200,8 +200,10 @@ export class KeyboardShortcutManager {
 				break;
 			}
 		}
+		const hasTextFieldFocus = document.activeElement?.tagName == "INPUT";
 		if (sequenceHasCommands && down) {
 			for (const command of currentMapNode.commands) {
+				if (hasTextFieldFocus && !command.captureInsideTextFields) continue;
 				if (command.holdType != "single") {
 					let success = true;
 					if (command.holdType == "toggle" || command.holdType == "smart") {

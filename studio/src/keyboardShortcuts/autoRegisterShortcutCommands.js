@@ -32,11 +32,13 @@ const autoRegisterShortcutCommands = [
 		command: "treeView.toggleRename",
 		defaultKeys: ["enter", "f2"],
 		conditions: "treeView.focusSelected",
+		captureInsideTextFields: true,
 	},
 	{
 		command: "treeView.cancelRename",
 		defaultKeys: "escape",
 		conditions: "treeView.renaming",
+		captureInsideTextFields: true,
 	},
 	{
 		command: "droppableGui.unlink",
@@ -52,13 +54,11 @@ const autoRegisterShortcutCommands = [
 		command: "entityEditor.transform.translate",
 		defaultKeys: ["g"],
 		holdType: "smart",
-		conditions: "!treeView.renaming",
 	},
 	{
 		command: "entityEditor.transform.rotate",
 		defaultKeys: ["r"],
 		holdType: "smart",
-		conditions: "!treeView.renaming",
 	},
 ];
 export {autoRegisterShortcutCommands};
