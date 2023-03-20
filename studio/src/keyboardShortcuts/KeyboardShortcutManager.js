@@ -34,8 +34,8 @@ export class KeyboardShortcutManager {
 	constructor() {
 		/** @type {Map<string, ShortcutCondition<any>>} */
 		this.registeredConditions = new Map();
-		/** @type {Set<ShortcutCommand>} */
-		this.registeredCommands = new Set();
+		/** @type {Map<string, ShortcutCommand>} */
+		this.registeredCommands = new Map();
 		/** @type {ShortcutSequenceTreeNode} */
 		this.sequenceMap = {
 			childNodes: new Map(),
@@ -102,7 +102,7 @@ export class KeyboardShortcutManager {
 	 */
 	registerCommand(opts, rebuildSequenceMap = true) {
 		const command = new ShortcutCommand(this, opts);
-		this.registeredCommands.add(command);
+		this.registeredCommands.set(command.command, command);
 		if (rebuildSequenceMap) this.rebuildSequenceMap();
 	}
 
@@ -119,7 +119,7 @@ export class KeyboardShortcutManager {
 	rebuildSequenceMap() {
 		this.sequenceMap.childNodes.clear();
 		this.sequenceMap.commands.clear();
-		for (const command of this.registeredCommands) {
+		for (const command of this.registeredCommands.values()) {
 			if (!command.verifyCondtions()) continue;
 			const sequences = command.parsedSequences;
 			if (!sequences || sequences.length == 0) continue;
@@ -163,7 +163,7 @@ export class KeyboardShortcutManager {
 						}
 						if (!command.testAllowSmartHoldDeactivate()) continue;
 						command.setHoldStateActive(false);
-						this.fireCommand(command);
+						this.#fireCommand(command);
 					}
 				}
 			}
@@ -214,7 +214,7 @@ export class KeyboardShortcutManager {
 					if (!success) break;
 					this.currentActiveHoldStateCommands.add(command);
 				}
-				this.fireCommand(command);
+				this.#fireCommand(command);
 				this.clearCurrentSequence();
 				this.currentConsumedKeys.add(keyName);
 				e.preventDefault();
@@ -313,7 +313,7 @@ export class KeyboardShortcutManager {
 	/**
 	 * @param {ShortcutCommand} command
 	 */
-	fireCommand(command) {
+	#fireCommand(command) {
 		const listeners = this.commandListeners.get(command.command);
 		if (listeners) {
 			const eventData = {
@@ -323,5 +323,16 @@ export class KeyboardShortcutManager {
 				cb(eventData);
 			}
 		}
+	}
+
+	/**
+	 * @param {string} commandId
+	 */
+	fireCommand(commandId) {
+		const command = this.registeredCommands.get(commandId);
+		if (!command) {
+			throw new Error(`Shortcut Command "${commandId}" has not been registered.`);
+		}
+		this.#fireCommand(command);
 	}
 }

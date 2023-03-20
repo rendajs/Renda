@@ -5,6 +5,9 @@ const autoRegisterShortcutConditions = /** @type {const} */ ({
 	"treeView.renaming": {
 		type: "boolean",
 	},
+	"numericGui.hasFocus": {
+		type: "boolean",
+	},
 	"droppableGui.focusSelected": {
 		type: "boolean",
 	},
