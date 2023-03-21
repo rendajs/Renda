@@ -279,7 +279,11 @@ export class ContentWindowEntityEditor extends ContentWindow {
 	}
 
 	loop() {
-		if (this.orbitControls) {
+		// If no entity is loaded, we don't want orbit controls to have any effect.
+		// Not only will this prevent the user from accidentally moving the camera very far away from the origin,
+		// it also prevents the orbit position from being written to the project settings.
+		// Without this, empty projects will be marked as worth saving even though nothing was changed.
+		if (this.editingEntity) {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
 				this.markRenderDirty();
