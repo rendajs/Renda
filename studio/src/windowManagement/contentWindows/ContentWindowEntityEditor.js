@@ -153,22 +153,29 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		/** @type {Map<Entity, Map<import("../../../../src/mod.js").Component, import("../../componentGizmos/gizmos/ComponentGizmos.js").ComponentGizmosAny>>} */
 		this.currentLinkedGizmos = new Map();
 
-		this.ignoreNextPersistentDataOrbitChange = false;
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookPos", e => {
+			if (e.trigger == "application") return;
+			if (!Array.isArray(e.value)) return;
+			// @ts-ignore
+			this.orbitControls.lookPos = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
+		});
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookRot", e => {
+			if (e.trigger == "application") return;
+			if (!Array.isArray(e.value)) return;
+			// @ts-ignore
+			this.orbitControls.lookRot = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
+		});
+		this.studioInstance.preferencesManager.onChange("entityEditor.orbitLookDist", e => {
+			if (e.trigger == "application") return;
+			this.orbitControls.lookDist = e.value;
+		}, {
+			contentWindowUuid: this.uuid,
+		});
 		this.persistentData.onDataLoad(async () => {
-			const lookPos = this.persistentData.get("orbitLookPos");
-			if (lookPos) {
-				this.orbitControls.lookPos = /** @type {import("../../../../src/mod.js").Vec3} */ (lookPos);
-			}
-			const lookRot = this.persistentData.get("orbitLookRot");
-			if (lookRot) {
-				this.orbitControls.lookRot = /** @type {import("../../../../src/mod.js").Quat} */ (lookRot);
-			}
-			const dist = this.persistentData.get("orbitLookDist");
-			if (dist != undefined) {
-				this.orbitControls.lookDist = /** @type {number} */ (dist);
-			}
-			this.ignoreNextPersistentDataOrbitChange = true;
-
 			const loadedEntityPath = this.persistentData.get("loadedEntityPath");
 			if (loadedEntityPath) {
 				const castLoadedEntityPath = /** @type {string[]} */ (loadedEntityPath);
@@ -265,30 +272,40 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
 				this.markRenderDirty();
-				this.persistentData.set("orbitLookPos", this.orbitControls.lookPos.toArray(), false);
-				this.persistentData.set("orbitLookRot", this.orbitControls.lookRot.toArray(), false);
-				this.persistentData.set("orbitLookDist", this.orbitControls.lookDist, false);
+				this.studioInstance.preferencesManager.set("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray(), {
+					contentWindowUuid: this.uuid,
+					location: "contentwindow-project",
+					flush: false,
+				});
+				this.studioInstance.preferencesManager.set("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray(), {
+					contentWindowUuid: this.uuid,
+					location: "contentwindow-project",
+					flush: false,
+				});
+				this.studioInstance.preferencesManager.set("entityEditor.orbitLookDist", this.orbitControls.lookDist, {
+					contentWindowUuid: this.uuid,
+					location: "contentwindow-project",
+					flush: false,
+				});
 				this.orbitControlsValuesDirty = true;
 				this.lastOrbitControlsValuesChangeTime = Date.now();
 			}
 
+			// Add a delay to the flush to prevent it from flushing with every scroll event.
 			if (this.orbitControlsValuesDirty && Date.now() - this.lastOrbitControlsValuesChangeTime > 1000) {
-				if (!this.ignoreNextPersistentDataOrbitChange) {
-					(async () => {
-						try {
-							await this.persistentData.flush();
-						} catch (e) {
-							if (e instanceof DOMException && e.name == "SecurityError") {
-								// The flush was probably triggered by scrolling, which doesn't cause
-								// transient activation. If this is the case a security error is thrown.
-								// This is fine though, since storing the orbit state doesn't have a high priority.
-							} else {
-								throw e;
-							}
+				(async () => {
+					try {
+						await this.studioInstance.preferencesManager.flush();
+					} catch (e) {
+						if (e instanceof DOMException && e.name == "SecurityError") {
+							// The flush was probably triggered by scrolling, which doesn't cause
+							// transient activation. If this is the case a security error is thrown.
+							// This is fine though, since storing the orbit state doesn't have a high priority.
+						} else {
+							throw e;
 						}
-					})();
-				}
-				this.ignoreNextPersistentDataOrbitChange = false;
+					}
+				})();
 				this.orbitControlsValuesDirty = false;
 			}
 		}
