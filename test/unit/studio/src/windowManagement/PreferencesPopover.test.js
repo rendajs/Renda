@@ -31,6 +31,9 @@ function getMocks() {
 			type: "string",
 			default: "default",
 		},
+		unknownPref: {
+			type: "unknown",
+		},
 	});
 	const mockWindowManager = /** @type {import("../../../../../studio/src/windowManagement/WindowManager.js").WindowManager} */ ({
 		requestContentWindowPreferencesFlush() {},
@@ -201,6 +204,19 @@ Deno.test({
 					},
 				],
 			});
+		});
+	},
+});
+
+Deno.test({
+	name: "Throws when a preference with 'unknown' type is added",
+	fn() {
+		const {popoverManager, preferencesManager} = getMocks();
+
+		runWithDom(() => {
+			assertThrows(() => {
+				initializePopover(popoverManager, preferencesManager, ["unknownPref"]);
+			}, Error, "Preferences with unknown type can not be added to PreferencesPopovers.");
 		});
 	},
 });
