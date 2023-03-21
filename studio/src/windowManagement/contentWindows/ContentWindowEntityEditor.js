@@ -175,16 +175,24 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		}, {
 			contentWindowUuid: this.uuid,
 		});
-		this.persistentData.onDataLoad(async () => {
-			const loadedEntityPath = this.persistentData.get("loadedEntityPath");
-			if (loadedEntityPath) {
-				const castLoadedEntityPath = /** @type {string[]} */ (loadedEntityPath);
+
+		// TODO #467
+		// We store the loaded entity by path rather than uuid because the entity might not have a persistent uuid.
+		// We could make the uuid persistent but this would cause assetSettings.json to be updated.
+		// assetSettings.json is expected to be tracked in version control and we don't want to surprise the user
+		// with unexpected changed files.
+		this.studioInstance.preferencesManager.onChange("entityEditor.loadedEntityPath", async e => {
+			if (e.trigger == "application") return;
+			if (Array.isArray(e.value)) {
+				const castLoadedEntityPath = /** @type {string[]} */ (e.value);
 				const assetManager = await this.studioInstance.projectManager.getAssetManager();
 				const assetUuid = await assetManager.getAssetUuidFromPath(castLoadedEntityPath);
 				if (assetUuid) {
 					this.loadEntityAsset(assetUuid, true);
 				}
 			}
+		}, {
+			contentWindowUuid: this.uuid,
 		});
 	}
 
@@ -255,7 +263,10 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.editingEntityUuid = entityUuid;
 		this.editingEntity = entity;
 		if (!fromContentWindowLoad) {
-			this.persistentData.set("loadedEntityPath", projectAsset.path);
+			this.studioInstance.preferencesManager.set("entityEditor.loadedEntityPath", projectAsset.path, {
+				contentWindowUuid: this.uuid,
+				location: "contentwindow-project",
+			});
 		}
 	}
 
