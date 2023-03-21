@@ -66,6 +66,9 @@ export class PreferencesPopover extends Popover {
 
 		for (const id of preferenceIds) {
 			const {uiName, type} = preferencesManager.getPreferenceConfig(id);
+			if (type == "unknown") {
+				throw new Error("Preferences with unknown type can not be added to PreferencesPopovers.");
+			}
 			const entry = this.preferencesTreeView.addItem({
 				type,
 				guiOpts: {
