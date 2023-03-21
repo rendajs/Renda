@@ -94,8 +94,8 @@ export class PreferencesManager {
 	#registeredPreferences = new Map();
 	/** @type {import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation[]} */
 	#registeredLocations = [];
-	/** @type {WeakMap<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation, boolean>} */
-	#locationsFlushed = new WeakMap();
+	/** @type {WeakSet<import("./preferencesLocation/PreferencesLocation.js").PreferencesLocation>} */
+	#unflushedLocations = new WeakSet();
 
 	/**
 	 * @typedef OnChangeEventCallbackGroup
@@ -211,7 +211,12 @@ export class PreferencesManager {
 	/**
 	 * @typedef SetPreferenceOptions
 	 * @property {boolean} [performedByUser] Whether the value was changed by the user.
-	 * Controls the `trigger` value of change events. Defaults to false.
+	 * Controls the `trigger` value of change events:
+	 *
+	 * - `"user"` when set to `true`.
+	 * - `"application"` when set to `false`.
+	 *
+	 * Defaults to false.
 	 * @property {import("./preferencesLocation/PreferencesLocation.js").PreferenceLocationTypes?} [location] The location
 	 * where the preference should be changed. Defaults to the defaultLocation of the specified preference.
 	 * @property {import("../../../src/mod.js").UuidString} [contentWindowUuid]
@@ -288,8 +293,12 @@ export class PreferencesManager {
 		const location = this.#getLocation(preference, setPreferenceOptions);
 		const cbResult = cb(location);
 		const flush = setPreferenceOptions?.flush ?? true;
-		if (flush) location.flush();
-		this.#locationsFlushed.set(location, flush);
+		if (flush) {
+			location.flush();
+			this.#unflushedLocations.delete(location);
+		} else {
+			this.#unflushedLocations.add(location);
+		}
 
 		const newValue = this.get(preference);
 		if (newValue != previousValue) {
@@ -316,10 +325,9 @@ export class PreferencesManager {
 	async flush() {
 		const promises = [];
 		for (const location of this.#registeredLocations) {
-			const flushed = this.#locationsFlushed.get(location);
-			if (flushed == false) {
+			if (this.#unflushedLocations.has(location)) {
 				promises.push(location.flush());
-				this.#locationsFlushed.set(location, true);
+				this.#unflushedLocations.delete(location);
 			}
 		}
 		await Promise.all(promises);
