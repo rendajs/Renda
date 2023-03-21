@@ -78,7 +78,7 @@ export class StudioConnectionsManager {
 		this.onActiveConnectionsChangedCbs = new Set();
 
 		this.internalDiscovery = new InternalDiscoveryManager({
-			fallbackDiscoveryUrl: new URL("internalDiscovery.html", window.location.href).href,
+			fallbackDiscoveryUrl: new URL("internalDiscovery", window.location.href).href,
 		});
 		this.internalDiscovery.onConnectionCreated((otherClientId, messagePort) => {
 			let connection = this.activeConnections.get(otherClientId);

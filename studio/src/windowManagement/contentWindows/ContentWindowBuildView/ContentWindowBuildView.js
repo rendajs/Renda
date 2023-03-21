@@ -44,7 +44,7 @@ export class ContentWindowBuildView extends ContentWindow {
 
 		window.addEventListener("message", this.onIframeMessage);
 
-		const colorizerFilterManager = getStudioInstance().colorizerFilterManager;
+		const colorizerFilterManager = this.studioInstance.colorizerFilterManager;
 
 		const playStateButtonsGroup = new ButtonGroup();
 		this.addTopBarEl(playStateButtonsGroup.el);
@@ -170,7 +170,7 @@ export class ContentWindowBuildView extends ContentWindow {
 	getIframeResponseHandlers() {
 		return {
 			requestInternalDiscoveryUrl() {
-				const url = new URL("internalDiscovery.html", window.location.href);
+				const url = new URL("internalDiscovery", window.location.href);
 				return url.href;
 			},
 		};

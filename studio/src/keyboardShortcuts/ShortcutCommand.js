@@ -16,6 +16,9 @@ import {MalformedSyntaxError, parseExpression, verifyExpression} from "./conditi
  * @property {string} [conditions] The conditions to check for before triggering the command.
  * @property {ShortcutCommandHoldType} [holdType = "single"] How to deal with keys being held down.
  * See {@linkcode ShortcutCommandHoldType} for a list of possible values.
+ * @property {boolean} [captureInsideTextFields] By default, keys are not captured when a text fields has focus in order
+ * to allow typing characters in the text field and to navigate using the arrow keys. But if you set this to true
+ * keys that are used in the command will be captured and key presses will not go to the text field.
  */
 
 /** @typedef {string[][]} ShortcutCommandSequence */
@@ -35,6 +38,7 @@ export class ShortcutCommand {
 		defaultKeys = null,
 		conditions = "",
 		holdType = "single",
+		captureInsideTextFields = false,
 	}) {
 		this.shortcutManager = shortcutManager;
 		this.name = name;
@@ -42,6 +46,7 @@ export class ShortcutCommand {
 		this.defaultKeys = defaultKeys;
 		this.conditions = conditions;
 		this.holdType = holdType;
+		this.captureInsideTextFields = captureInsideTextFields;
 
 		this.holdStateActive = false;
 		this.holdStateActiveStartTime = -Infinity;

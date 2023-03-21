@@ -3,7 +3,7 @@
 		"eslint": "npm:eslint@8.23.0",
 		"std/": "https://deno.land/std@0.171.0/",
 		"chdir-anywhere": "https://deno.land/x/chdir_anywhere@v0.0.2/mod.js",
-		"fake-imports": "https://deno.land/x/fake_imports@v0.8.0/mod.js",
+		"fake-imports": "https://deno.land/x/fake_imports@v0.8.1/mod.js",
 		"fake-dom/": "https://deno.land/x/fake_dom@v0.5.0/src/",
 		"puppeteer": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/lib-dom-types/mod.ts",
 		"puppeteer/": "https://raw.githubusercontent.com/jespertheend/deno-puppeteer/lib-dom-types/",
@@ -13,6 +13,7 @@
 		"rollup-plugin-commonjs": "npm:@rollup/plugin-commonjs@11.1.0",
 		"rollup-plugin-node-resolve": "npm:@rollup/plugin-node-resolve@13.0.6",
 		"terser": "npm:terser@5.15.0",
-		"./studio/src/styles/shadowStyles.js": "./studio/src/styles/denoShadowStyles.js"
+		"./studio/src/styles/shadowStyles.js": "./studio/src/styles/dummyStylesModule.js",
+		"./studio/src/styles/studioStyles.js": "./studio/src/styles/dummyStylesModule.js"
 	}
 }

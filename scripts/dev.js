@@ -54,15 +54,15 @@ export async function dev({
 			extraTypeRoots: {
 				// We prefix webgpu with aa to ensure it is placed above deno-types.
 				// The Deno types include webgpu types but they are outdated.
-				"aa-webgpu": "https://unpkg.com/@webgpu/types@0.1.21/dist/index.d.ts",
-				"wicg-file-system-access": "https://unpkg.com/@types/wicg-file-system-access@2020.9.5/index.d.ts",
+				"aa-webgpu": "https://cdn.jsdelivr.net/npm/@webgpu/types@0.1.21/dist/index.d.ts",
+				"wicg-file-system-access": "https://cdn.jsdelivr.net/npm/@types/wicg-file-system-access@2020.9.5/index.d.ts",
 				"strict-map": "https://deno.land/x/strictly@v0.0.1/src/map.d.ts",
 				"strict-set": "https://deno.land/x/strictly@v0.0.1/src/set.d.ts",
 			},
 			exactTypeModules: {
-				eslint: "https://unpkg.com/@types/eslint@8.4.6/index.d.ts",
-				estree: "https://unpkg.com/@types/estree@1.0.0/index.d.ts",
-				"npm:postcss-url@10.1.3": "https://unpkg.com/@types/postcss-url@10.0.0/index.d.ts",
+				eslint: "https://cdn.jsdelivr.net/npm/@types/eslint@8.4.6/index.d.ts",
+				estree: "https://cdn.jsdelivr.net/npm/@types/estree@1.0.0/index.d.ts",
+				"npm:postcss-url@10.1.3": "https://cdn.jsdelivr.net/npm/@types/postcss-url@10.0.0/index.d.ts",
 			},
 			logLevel: suppressTypesLogging ? "WARNING" : "DEBUG",
 		});
