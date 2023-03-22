@@ -193,6 +193,7 @@ export class AssetManager {
 
 		const hasPermissions = await this.fileSystem.getPermission(this.assetSettingsPath, {
 			prompt: this.loadAssetSettingsFromUserGesture,
+			writable: false,
 		});
 		if (this.loadAssetSettingsFromUserGesture || hasPermissions) {
 			this.#onPermissionPromptResultCbs.forEach(cb => cb(hasPermissions));
