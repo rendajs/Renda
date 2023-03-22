@@ -277,6 +277,31 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		await asset.saveLiveAssetData();
 	}
 
+	/**
+	 * Sets a preference but only if it has been changed.
+	 * @param {"entityEditor.orbitLookPos" | "entityEditor.orbitLookRot"} preference
+	 * @param {number[]} newValue
+	 */
+	#setOrbitPreference(preference, newValue) {
+		const currentValue = this.studioInstance.preferencesManager.get(preference, {contentWindowUuid: this.uuid});
+		if (currentValue && Array.isArray(currentValue) && currentValue.length == newValue.length) {
+			let same = true;
+			for (let i = 0; i < currentValue.length; i++) {
+				if (currentValue[i] != newValue[i]) {
+					same = false;
+					break;
+				}
+			}
+			if (same) return;
+		}
+		this.studioInstance.preferencesManager.set(preference, newValue, {
+			contentWindowUuid: this.uuid,
+			location: "contentwindow-project",
+			flush: false,
+		});
+		this.orbitControlsValuesDirty = true;
+	}
+
 	loop() {
 		// If no entity is loaded, we don't want orbit controls to have any effect.
 		// Not only will this prevent the user from accidentally moving the camera very far away from the origin,
@@ -286,23 +311,23 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			const camChanged = this.orbitControls.loop();
 			if (camChanged) {
 				this.markRenderDirty();
-				this.studioInstance.preferencesManager.set("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray(), {
-					contentWindowUuid: this.uuid,
-					location: "contentwindow-project",
-					flush: false,
-				});
-				this.studioInstance.preferencesManager.set("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray(), {
-					contentWindowUuid: this.uuid,
-					location: "contentwindow-project",
-					flush: false,
-				});
-				this.studioInstance.preferencesManager.set("entityEditor.orbitLookDist", this.orbitControls.lookDist, {
-					contentWindowUuid: this.uuid,
-					location: "contentwindow-project",
-					flush: false,
-				});
-				this.orbitControlsValuesDirty = true;
-				this.lastOrbitControlsValuesChangeTime = Date.now();
+
+				this.#setOrbitPreference("entityEditor.orbitLookPos", this.orbitControls.lookPos.toArray());
+				this.#setOrbitPreference("entityEditor.orbitLookRot", this.orbitControls.lookRot.toArray());
+
+				const currentDist = this.studioInstance.preferencesManager.get("entityEditor.orbitLookDist", {contentWindowUuid: this.uuid});
+				if (this.orbitControls.lookDist != currentDist) {
+					this.studioInstance.preferencesManager.set("entityEditor.orbitLookDist", this.orbitControls.lookDist, {
+						contentWindowUuid: this.uuid,
+						location: "contentwindow-project",
+						flush: false,
+					});
+					this.orbitControlsValuesDirty = true;
+				}
+
+				if (this.orbitControlsValuesDirty) {
+					this.lastOrbitControlsValuesChangeTime = Date.now();
+				}
 			}
 
 			// Add a delay to the flush to prevent it from flushing with every scroll event.
