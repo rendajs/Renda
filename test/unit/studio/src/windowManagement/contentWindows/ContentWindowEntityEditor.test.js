@@ -7,7 +7,6 @@ import {SelectionManager} from "../../../../../../studio/src/misc/SelectionManag
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
 import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
-import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
 import {Entity, Quat} from "../../../../../../src/mod.js";
 import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../../shared/asserts.js";
 
