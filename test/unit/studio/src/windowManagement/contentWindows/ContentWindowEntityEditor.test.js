@@ -56,9 +56,18 @@ function basicTest() {
 
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitX", {type: "boolean"});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.invertScrollOrbitY", {type: "boolean"});
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookPos", {type: "unknown"});
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookRot", {type: "unknown"});
-	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookDist", {type: "number"});
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookPos", {
+		type: "unknown",
+		default: [0, 0, 0],
+	});
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookRot", {
+		type: "unknown",
+		default: [0.13806283196906857, 0.37838630992789435, -0.057187497461225936, 0.9135053612442318],
+	});
+	mockStudioInstance.preferencesManager.registerPreference("entityEditor.orbitLookDist", {
+		type: "number",
+		default: 0,
+	});
 	mockStudioInstance.preferencesManager.registerPreference("entityEditor.loadedEntityPath", {type: "unknown"});
 
 	return {
@@ -87,12 +96,18 @@ Deno.test({
 			});
 			getProjectAssetFromUuidResults.set(BASIC_ENTITY_UUID, entityProjectAsset);
 			const contentWindow1 = new ContentWindowEntityEditor(...args);
+			contentWindow1.setProjectPreferencesLocationData({});
 
 			await contentWindow1.loadEntityAsset(BASIC_ENTITY_UUID, false);
-
 			assertSpyCalls(preferencesFlushSpy, 1);
 			assertEquals(contentWindow1.editingEntityUuid, BASIC_ENTITY_UUID);
 			assertStrictEquals(contentWindow1.editingEntity, entity);
+
+			// Orbit controls should not be saved when nothing has changed
+			contentWindow1.loop();
+			await time.tickAsync(10_000);
+			contentWindow1.loop();
+			assertSpyCalls(preferencesFlushSpy, 1);
 
 			const newLookRot = Quat.fromAxisAngle(0, 1, 0, Math.PI);
 
