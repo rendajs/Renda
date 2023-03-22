@@ -5,7 +5,6 @@ import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAsset
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
 import {ButtonGroup} from "../../ui/ButtonGroup.js";
-import {getStudioInstance} from "../../studioInstance.js";
 import {ButtonSelectorGui} from "../../ui/ButtonSelectorGui.js";
 
 /** @typedef {"create" | "delete" | "transform" | "component" | "componentProperty"} EntityChangedEventType */
@@ -58,12 +57,12 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			items: [
 				{
 					icon: "static/icons/entityEditor/translate.svg",
-					colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Translate Mode",
 				},
 				{
 					icon: "static/icons/entityEditor/rotate.svg",
-					colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+					colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 					tooltip: "Rotate Mode",
 				},
 			],
@@ -73,14 +72,14 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		});
 		this.addTopBarEl(this.translationModeSelector.el);
 
-		getStudioInstance().keyboardShortcutManager.onCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
-		getStudioInstance().keyboardShortcutManager.onCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.onCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.onCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
 
 		this.transformationSpaceButton = new Button({
 			onClick: () => {
 				this.toggleTransformationSpace();
 			},
-			colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			tooltip: "Transformation Space",
 		});
 
@@ -88,7 +87,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 			onClick: () => {
 				this.toggleTransformationPivot();
 			},
-			colorizerFilterManager: getStudioInstance().colorizerFilterManager,
+			colorizerFilterManager: this.studioInstance.colorizerFilterManager,
 			tooltip: "Transformation Pivot",
 		});
 		const pivotControlsGroup = new ButtonGroup();
@@ -205,8 +204,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.selectionGroup.destructor();
 		this.gizmos.destructor();
 
-		getStudioInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
-		getStudioInstance().keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.removeOnCommand("entityEditor.transform.translate", this.#translateKeyboardShortcutPressed);
+		this.studioInstance.keyboardShortcutManager.removeOnCommand("entityEditor.transform.rotate", this.#rotateKeyboardShortcutPressed);
 	}
 
 	get editingEntity() {

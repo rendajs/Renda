@@ -1,4 +1,4 @@
-import {getDefaultArgs} from "./shared.js";
+import {getMockArgs} from "./shared.js";
 import {ContentWindowBuildView} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowBuildView/ContentWindowBuildView.js";
 import {runWithDom} from "../../../shared/runWithDom.js";
 import {GestureInProgressManager} from "../../../../../../studio/src/misc/GestureInProgressManager.js";
@@ -15,7 +15,7 @@ Deno.test({
 			});
 
 			try {
-				const {args, mockStudioInstance} = getDefaultArgs();
+				const {args, mockStudioInstance} = getMockArgs();
 				mockStudioInstance.gestureInProgressManager = new GestureInProgressManager();
 
 				/**
