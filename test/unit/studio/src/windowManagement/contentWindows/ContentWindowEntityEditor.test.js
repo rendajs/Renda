@@ -2,16 +2,17 @@ import {getMockArgs} from "./shared.js";
 import {ContentWindowEntityEditor} from "../../../../../../studio/src/windowManagement/contentWindows/ContentWindowEntityEditor.js";
 import {FakeHtmlElement} from "fake-dom/FakeHtmlElement.js";
 import {assertSpyCalls, stub} from "std/testing/mock.ts";
+import {FakeTime} from "std/testing/time.ts";
 import {SelectionManager} from "../../../../../../studio/src/misc/SelectionManager.js";
 import {installFakeDocument, uninstallFakeDocument} from "fake-dom/FakeDocument.js";
 import {createMockProjectAsset} from "../../../shared/createMockProjectAsset.js";
-import {assertEquals, assertExists} from "std/testing/asserts.ts";
+import {assertEquals, assertExists, assertStrictEquals} from "std/testing/asserts.ts";
 import {waitForMicrotasks} from "../../../../shared/waitForMicroTasks.js";
+import {Entity, Quat} from "../../../../../../src/mod.js";
+import {assertQuatAlmostEquals, assertVecAlmostEquals} from "../../../../shared/asserts.js";
 
-/**
- * @typedef ContentWindowEntityEditorTestContext
- * @property {ContentWindowEntityEditor} contentWindow
- */
+const BASIC_ENTITY_UUID = "entity uuid1";
+const BASIC_ENTITY_PATH = ["path", "to", "entity"];
 
 function basicTest() {
 	installFakeDocument();
@@ -41,7 +42,7 @@ function basicTest() {
 		},
 		async getAssetUuidFromPath(path) {
 			for (const asset of getProjectAssetFromUuidResults.values()) {
-				if (asset.path.join("/") == path.join("/")) return asset;
+				if (asset.path.join("/") == path.join("/")) return asset.uuid;
 			}
 			return null;
 		},
@@ -74,23 +75,35 @@ function basicTest() {
 }
 
 Deno.test({
-	name: "last loaded entity is saved and loaded",
+	name: "last loaded entity and orbit controls are saved and loaded",
 	async fn() {
-		const ENTITY_UUID = "entity uuid1";
-		const ENTITY_PATH = ["path", "to", "entity"];
 		const {args, preferencesFlushSpy, getProjectAssetFromUuidResults, uninstall} = basicTest();
+		const time = new FakeTime();
 		try {
+			const entity = new Entity();
 			const {projectAsset: entityProjectAsset} = createMockProjectAsset({
-				uuid: ENTITY_UUID,
-				path: ENTITY_PATH,
+				uuid: BASIC_ENTITY_UUID,
+				path: BASIC_ENTITY_PATH,
+				liveAsset: entity,
 			});
-			getProjectAssetFromUuidResults.set(ENTITY_UUID, entityProjectAsset);
+			getProjectAssetFromUuidResults.set(BASIC_ENTITY_UUID, entityProjectAsset);
 			const contentWindow1 = new ContentWindowEntityEditor(...args);
 
-			await contentWindow1.loadEntityAsset(ENTITY_UUID, false);
+			await contentWindow1.loadEntityAsset(BASIC_ENTITY_UUID, false);
 
 			assertSpyCalls(preferencesFlushSpy, 1);
-			assertEquals(contentWindow1.editingEntityUuid, ENTITY_UUID);
+			assertEquals(contentWindow1.editingEntityUuid, BASIC_ENTITY_UUID);
+			assertStrictEquals(contentWindow1.editingEntity, entity);
+
+			const newLookRot = Quat.fromAxisAngle(0, 1, 0, Math.PI);
+
+			contentWindow1.orbitControls.lookPos.set(1, 2, 3);
+			contentWindow1.orbitControls.lookRot.set(newLookRot);
+			contentWindow1.orbitControls.lookDist = 123;
+			contentWindow1.loop();
+			await time.tickAsync(10_000);
+			contentWindow1.loop();
+			assertSpyCalls(preferencesFlushSpy, 2);
 
 			const preferencesData = contentWindow1.getProjectPreferencesLocationData();
 			assertExists(preferencesData);
@@ -99,10 +112,16 @@ Deno.test({
 			const contentWindow2 = new ContentWindowEntityEditor(...args);
 			contentWindow2.setProjectPreferencesLocationData(preferencesData);
 			// Wait for the entity to load
-			await waitForMicrotasks();
-			assertEquals(contentWindow1.editingEntityUuid, ENTITY_UUID);
+			await time.runMicrotasks();
+			assertEquals(contentWindow1.editingEntityUuid, BASIC_ENTITY_UUID);
+			assertStrictEquals(contentWindow1.editingEntity, entity);
+
+			assertVecAlmostEquals(contentWindow2.orbitControls.lookPos, [1, 2, 3]);
+			assertQuatAlmostEquals(contentWindow2.orbitControls.lookRot, newLookRot);
+			assertEquals(contentWindow2.orbitControls.lookDist, 123);
 		} finally {
 			uninstall();
+			time.restore();
 		}
 	},
 });
