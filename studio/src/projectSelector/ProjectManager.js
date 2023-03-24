@@ -391,6 +391,7 @@ export class ProjectManager {
 			name,
 			isWorthSaving: false,
 		}, true);
+		this.markCurrentProjectAsWorthSaving();
 	}
 
 	/**
