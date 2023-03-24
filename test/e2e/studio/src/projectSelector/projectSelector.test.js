@@ -13,7 +13,6 @@ import {waitSeconds} from "../../shared/waitSeconds.js";
 
 await runE2eTest({
 	name: "Rename a project and refresh the page, it should open the latest project",
-	ignore: true,
 	fn: async () => {
 		const {page, disconnect} = await getContext();
 
