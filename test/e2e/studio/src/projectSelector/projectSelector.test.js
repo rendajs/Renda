@@ -18,7 +18,7 @@ await runE2eTest({
 
 		try {
 			const newProjectName = "New Project Name";
-			const projectWindowSelector = "[data-content-window-type-id='project']";
+			const projectWindowSelector = "[data-content-window-type-id='renda:project']";
 			const rootNameTreeViewSelector = `${projectWindowSelector} .studio-content-window-content > .treeViewItem`;
 
 			await setupNewProject(page);
@@ -35,7 +35,7 @@ await runE2eTest({
 			// todo: wait for new name to be saved to indexeddb
 			await waitSeconds(5);
 
-			reloadPage(page);
+			await reloadPage(page);
 
 			await waitForProjectOpen(page);
 
@@ -46,10 +46,11 @@ await runE2eTest({
 
 				await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
 					if (!globalThis.studio) throw new Error("Studio instance does not exist");
+					debugger;
 					if (!(contentWindowProjectEl instanceof HTMLElement)) throw new Error("Assertion failed, contentWindowProjectEl is not a HTMLElement");
 					const contentWindowProject = globalThis.studio.windowManager.getWindowByElement(contentWindowProjectEl);
 					if (!contentWindowProject) throw new Error("No project window found");
-					const ContentWindowProjectConstructor = globalThis.studio.windowManager.registeredContentWindows.get("project");
+					const ContentWindowProjectConstructor = globalThis.studio.windowManager.registeredContentWindows.get("renda:project");
 					const ContentWindowProject = /** @type {typeof import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (ContentWindowProjectConstructor);
 					if (!(contentWindowProject instanceof ContentWindowProject)) {
 						throw new Error("content window is not of type project");
