@@ -1,6 +1,7 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
+import {getContext} from "../../../shared/browser.js";
 import {log} from "../../../shared/log.js";
+import {runE2eTest} from "../../../shared/runE2eTest.js";
 import {click} from "../../../shared/util.js";
 import {clickAsset, createAsset} from "../../shared/assets.js";
 import {getPropertiesAssetContentReference, getPropertiesWindowContentAsset} from "../../shared/contentWindows/properties.js";
@@ -20,9 +21,8 @@ async function findMapTreeViewEntry(page, assetContentEl) {
 	return await getTreeViewItemElement(page, assetContentEl, [0, "Material", "Material Map"]);
 }
 
-Deno.test({
+await runE2eTest({
 	name: "Creating a new material asset with embedded map and pipeline config",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await getContext();
 

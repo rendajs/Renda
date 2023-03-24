@@ -1,10 +1,10 @@
-import {getContext, puppeteerSanitizers} from "../../../../shared/browser.js";
+import {getContext} from "../../../../shared/browser.js";
+import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {createAsset, getAssetTreeView} from "../../../shared/assets.js";
 import {setupNewProject} from "../../../shared/project.js";
 
-Deno.test({
+await runE2eTest({
 	name: "Creating a new PipelineConfig asset",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await getContext();
 

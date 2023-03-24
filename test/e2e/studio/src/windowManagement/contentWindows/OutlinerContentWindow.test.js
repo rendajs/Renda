@@ -1,14 +1,14 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {getContext, puppeteerSanitizers} from "../../../../shared/browser.js";
+import {getContext} from "../../../../shared/browser.js";
 import {log} from "../../../../shared/log.js";
+import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {click, drag, waitFor} from "../../../../shared/util.js";
 import {clickAsset, createAsset} from "../../../shared/assets.js";
 import {clickCreateEmptyButton, getOutlinerRootEntityTreeView} from "../../../shared/contentWindows/outliner.js";
 import {setupNewProject} from "../../../shared/project.js";
 
-Deno.test({
+await runE2eTest({
 	name: "Dragging entities within a scene",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await getContext();
 
