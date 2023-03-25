@@ -3,7 +3,7 @@
 import {join} from "std/path/mod.ts";
 import {setCwd} from "chdir-anywhere";
 import {dev} from "./dev.js";
-import {parseArgs} from "./testArgs.js";
+import {parseArgs} from "../test/shared/testArgs.js";
 
 setCwd();
 Deno.chdir("..");
@@ -40,40 +40,7 @@ await dev({
 	needsDependencies: needsE2eTests,
 });
 
-const {separateBrowserProcesses, inspect, headless} = parseArgs();
-
-let testServer = null;
-/** @type {string[]} */
-let testServerAddrs = [];
-let browser = null;
-if (needsE2eTests) {
-	// For now we have to keep the import specifier in a separate string in order to
-	// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
-	const devServerSrc = "./DevServer.js";
-	const {DevServer} = await import(devServerSrc);
-
-	// Start test server
-	testServer = new DevServer({
-		port: 0,
-		serverName: "test server",
-	});
-	testServer.start();
-	testServerAddrs = testServer.getAddrs();
-	if (testServerAddrs.length <= 0) {
-		throw new Error("Failed to get test server url.");
-	}
-
-	// For now we have to keep the import specifier in a separate string in order to
-	// not slow down script startup time, see https://github.com/denoland/deno/issues/17658
-	const browserScript = "../test/e2e/shared/browser.js";
-	const {installIfNotInstalled, launch} = await import(browserScript);
-
-	const executablePath = await installIfNotInstalled();
-
-	if (!separateBrowserProcesses) {
-		browser = await launch({headless, executablePath});
-	}
-}
+const {inspect} = parseArgs();
 
 let needsCoverage = Deno.args.includes("--coverage") || Deno.args.includes("-c");
 const needsHtmlCoverageReport = Deno.args.includes("--html");
@@ -81,15 +48,10 @@ if (needsHtmlCoverageReport) {
 	needsCoverage = true;
 }
 
-/**
- * @typedef TestCommand
- * @property {string[]} cmd
- */
-
-/** @type {TestCommand[]} */
+/** @type {string[][]} */
 const testCommands = [];
 
-// Unit tests command
+// Unit tests
 if (needsUnitTests) {
 	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-net", "--parallel"];
 	if (needsCoverage) {
@@ -107,43 +69,25 @@ if (needsUnitTests) {
 	denoTestArgs.push(filteredTests || "test/unit/");
 	if (inspect) denoTestArgs.push("--inspect-brk");
 	const cmd = [...denoTestArgs, "--", ...applicationCmdArgs];
-	testCommands.push({cmd});
+	testCommands.push(cmd);
 }
 
-// E2E tests command
+// E2e tests
 if (needsE2eTests) {
-	const denoTestArgs = ["deno", "test", "--no-check", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net"];
-	/** @type {Set<string>} */
-	const applicationCmdArgs = new Set();
-	if (browser) {
-		applicationCmdArgs.add(`--puppeteer-ws-endpoint=${browser.wsEndpoint()}`);
-	}
-	const addr = testServerAddrs[0];
-	applicationCmdArgs.add(`--test-server-addr=${addr}`);
-	denoTestArgs.push(filteredTests || "test/e2e/");
-	if (inspect) denoTestArgs.push("--inspect-brk");
-	const cmd = [...denoTestArgs, "--", ...applicationCmdArgs, ...Deno.args];
-	testCommands.push({cmd});
+	const cmd = ["deno", "run", "--allow-env", "--allow-read", "--allow-write", "--allow-run", "--allow-net"];
+	if (inspect) cmd.push("--inspect-brk");
+	cmd.push("test/e2e/shared/e2eTestRunner.js", ...Deno.args);
+	testCommands.push(cmd);
 }
 
 let lastTestStatus;
-for (const {cmd} of testCommands) {
+for (const cmd of testCommands) {
 	console.log(`Running: ${cmd.join(" ")}`);
 	const testProcess = Deno.run({cmd});
 	lastTestStatus = await testProcess.status();
 	if (!lastTestStatus.success) {
-		break;
+		Deno.exit(lastTestStatus.code);
 	}
-}
-
-testServer?.close();
-
-if (browser) {
-	await browser.close();
-}
-
-if (lastTestStatus && !lastTestStatus.success) {
-	Deno.exit(lastTestStatus.code);
 }
 
 if (needsCoverage) {

@@ -1,10 +1,10 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
+import {openBasicScriptPage} from "../../../../shared/browser.js";
+import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {waitFor} from "../../../../shared/util.js";
 
-Deno.test({
+await runE2eTest({
 	name: "Setting and getting a value",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await openBasicScriptPage("./browserContent/basic.js", import.meta.url);
 		const el = await waitFor(page, "div[role='textbox']");

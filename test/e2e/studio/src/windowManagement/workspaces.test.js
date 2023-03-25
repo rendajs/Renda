@@ -1,8 +1,9 @@
-import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
+import {getContext} from "../../../shared/browser.js";
 import {click} from "../../../shared/util.js";
 import {setupNewProject} from "../../shared/project.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {assertEquals} from "std/testing/asserts.ts";
+import {runE2eTest} from "../../../shared/runE2eTest.js";
 
 /**
  * Right clicks the first found tab element of a content window.
@@ -37,9 +38,8 @@ async function getFirstTabGroupTypes(page) {
 	});
 }
 
-Deno.test({
+await runE2eTest({
 	name: "Adding a new workspace and switching between them",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await getContext();
 

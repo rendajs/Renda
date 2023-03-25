@@ -1,6 +1,7 @@
 import {assert, assertEquals, assertExists} from "std/testing/asserts.ts";
-import {getContext, puppeteerSanitizers} from "../../../shared/browser.js";
+import {getContext} from "../../../shared/browser.js";
 import {log} from "../../../shared/log.js";
+import {runE2eTest} from "../../../shared/runE2eTest.js";
 import {click} from "../../../shared/util.js";
 import {createAsset, getAssetTreeView, waitForAssetDissappear} from "../../shared/assets.js";
 import {getMaybeContentWindowConnectionsElement, waitForContentWindowConnectionsElement} from "../../shared/contentWindows/connections.js";
@@ -10,16 +11,14 @@ import {reloadPage} from "../../shared/reloadPage.js";
 import {waitForStudioLoad} from "../../shared/studio.js";
 import {waitSeconds} from "../../shared/waitSeconds.js";
 
-Deno.test({
+await runE2eTest({
 	name: "Rename a project and refresh the page, it should open the latest project",
-	ignore: true,
-	...puppeteerSanitizers,
 	fn: async () => {
 		const {page, disconnect} = await getContext();
 
 		try {
 			const newProjectName = "New Project Name";
-			const projectWindowSelector = "[data-content-window-type-id='project']";
+			const projectWindowSelector = "[data-content-window-type-id='renda:project']";
 			const rootNameTreeViewSelector = `${projectWindowSelector} .studio-content-window-content > .treeViewItem`;
 
 			await setupNewProject(page);
@@ -36,7 +35,7 @@ Deno.test({
 			// todo: wait for new name to be saved to indexeddb
 			await waitSeconds(5);
 
-			reloadPage(page);
+			await reloadPage(page);
 
 			await waitForProjectOpen(page);
 
@@ -50,7 +49,7 @@ Deno.test({
 					if (!(contentWindowProjectEl instanceof HTMLElement)) throw new Error("Assertion failed, contentWindowProjectEl is not a HTMLElement");
 					const contentWindowProject = globalThis.studio.windowManager.getWindowByElement(contentWindowProjectEl);
 					if (!contentWindowProject) throw new Error("No project window found");
-					const ContentWindowProjectConstructor = globalThis.studio.windowManager.registeredContentWindows.get("project");
+					const ContentWindowProjectConstructor = globalThis.studio.windowManager.registeredContentWindows.get("renda:project");
 					const ContentWindowProject = /** @type {typeof import("../../../../../studio/src/windowManagement/contentWindows/ContentWindowProject.js").ContentWindowProject} */ (ContentWindowProjectConstructor);
 					if (!(contentWindowProject instanceof ContentWindowProject)) {
 						throw new Error("content window is not of type project");
@@ -71,9 +70,8 @@ Deno.test({
 	},
 });
 
-Deno.test({
+await runE2eTest({
 	name: "Empty db projects do not persist",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await getContext();
 
@@ -100,9 +98,8 @@ Deno.test({
 	},
 });
 
-Deno.test({
+await runE2eTest({
 	name: "Deleting db project closes it if it currently open",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await getContext();
 
@@ -130,9 +127,8 @@ Deno.test({
 	},
 });
 
-Deno.test({
+await runE2eTest({
 	name: "Connect remote project opens the connections window",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await getContext();
 

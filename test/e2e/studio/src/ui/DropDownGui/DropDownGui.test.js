@@ -1,10 +1,10 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {openBasicScriptPage, puppeteerSanitizers} from "../../../../shared/browser.js";
+import {openBasicScriptPage} from "../../../../shared/browser.js";
+import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {waitFor} from "../../../../shared/util.js";
 
-Deno.test({
+await runE2eTest({
 	name: "Creates the element with the correct defaultValue",
-	...puppeteerSanitizers,
 	async fn() {
 		const {page, disconnect} = await openBasicScriptPage("./browserContent/defaultValue.js", import.meta.url);
 		await waitFor(page, "select");
