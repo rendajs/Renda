@@ -9,7 +9,7 @@ on:
 env:
   # be sure to also update these in ci.yml
   DENO_DIR: deno_dir
-  DENO_VERSION: "1.30.2"
+  DENO_VERSION: "1.32.1"
 
 jobs:
   build:
