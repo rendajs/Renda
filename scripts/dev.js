@@ -79,7 +79,7 @@ export async function dev({
 				// required for during development, can be skipped with ci
 				{
 					type: "downloadNpmPackage",
-					package: "typescript@4.9.5",
+					package: "typescript@5.0.2",
 					ignore: !needsDevDependencies,
 				},
 

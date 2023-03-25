@@ -25,7 +25,7 @@
  * @typedef {LiveAssetData<any, any>} LiveAssetDataAny
  */
 
-/** @typedef {object | string | "binary"} ProjectAssetDiskDataType */
+/** @typedef {object | string | "binary" | undefined} ProjectAssetDiskDataType */
 
 /**
  * ProjectAssetTypes are classes that are extended and implemented by different

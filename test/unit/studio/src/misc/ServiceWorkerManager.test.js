@@ -31,7 +31,7 @@ async function basicTest(fn, {
 			},
 			taskManager: {
 				/**
-				 * @template T
+				 * @template {string} T
 				 * @param {T} taskType
 				 */
 				async runTask(taskType, taskConfig, options) {

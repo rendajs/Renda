@@ -197,7 +197,7 @@ export class TaskManager {
 		fillEnvironmentVariables(config, environmentVariables);
 
 		/**
-		 * @template T
+		 * @template {import("../assets/AssetManager.js").AssetAssertionOptions} T
 		 * @param {import("../assets/AssetManager.js").AssetAssertionOptionsToProjectAsset<T>?} asset
 		 */
 		const runDependencyTasksAndRead = async asset => {

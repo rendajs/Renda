@@ -176,8 +176,9 @@ export function createBasicGui({
 		},
 		async makeAssetUuidPersistent(asset) {},
 		createEmbeddedAsset: /** @type {typeof createEmbeddedAssetFn} */ (createEmbeddedAssetSpy),
-		getProjectAssetFromUuidOrEmbeddedAssetDataSync: /** @type {typeof getProjectAssetFromUuidOrEmbeddedAssetDataSyncFn} */ (getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy),
 	});
+	// @ts-ignore
+	mockAssetManager.getProjectAssetFromUuidOrEmbeddedAssetDataSync = getProjectAssetFromUuidOrEmbeddedAssetDataSyncSpy;
 
 	const mockProjectManager = /** @type {import("../../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} */ ({
 		assertAssetManagerExists() {

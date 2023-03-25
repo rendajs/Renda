@@ -233,7 +233,7 @@ type StringKeyMap = {
  * }
  * ```
  */
-type StructureToGetObject<T extends StringKeyMap, TGuiOpts> = {
+type StructureToGetObject<T extends StringKeyMap, TGuiOpts extends GuiOptionsBase> = {
 	[x in keyof T]: GetValueType<GetGuiInstanceForOpts<T[x]>, TGuiOpts>;
 }
 
@@ -292,7 +292,7 @@ export type DefaultRecursionLimit = 9;
 // For instance {returnLiveAsset: true, purpose: "default"}, or {} if no
 // options were passed in. Use this to return a specific type based on the
 // options.
-export type GetValueType<T extends GuiInterface, TOpts = any, TRecursionLimit extends RecursionLimitNumbers = DefaultRecursionLimit> =
+export type GetValueType<T extends GuiInterface, TOpts extends GuiOptionsBase = any, TRecursionLimit extends RecursionLimitNumbers = DefaultRecursionLimit> =
 	T extends VectorGui<infer TVectorType> ?
 		GetVectorValueTypeForOptions<TVectorType, TOpts> :
 	T extends NumericGui ?
@@ -306,7 +306,9 @@ export type GetValueType<T extends GuiInterface, TOpts = any, TRecursionLimit ex
 	T extends ArrayGui<any, Prev[TRecursionLimit]> ?
 		[TRecursionLimit] extends [never] ?
 			never :
-			GetArrayGuiValueTypeForOptions<T, TOpts, TRecursionLimit> :
+			TOpts extends AllPossibleGetValueOpts ?
+				GetArrayGuiValueTypeForOptions<T, TOpts, TRecursionLimit> :
+				never :
 	T extends {getValue: (...args: any) => infer R} ?
 		R :
 	T extends {value: infer V} ?
@@ -334,7 +336,7 @@ export type BaseSetValueOptions = {
 
 type FlattenAllPossibleOptsHelper<T> = UnionToIntersection<Partial<NonNullable<T>>>
 
-export type AllPossibleGetValueOpts = FlattenAllPossibleOptsHelper<GetValueOptionsType<NonCircularInstances>>;
+export type AllPossibleGetValueOpts = FlattenAllPossibleOptsHelper<GetValueOptionsType<NonCircularInstances>> & GuiOptionsBase;
 export type AllPossibleSetValueOpts = FlattenAllPossibleOptsHelper<SetValueOptionsType<NonCircularInstances>>;
 
 export type GetStructureValuesReturnType<TStructure extends PropertiesTreeViewStructure, TGuiOpts extends AllPossibleGetValueOpts = {}> =
