@@ -46,7 +46,6 @@ await runE2eTest({
 
 				await contentWindowProjectEl.evaluate(async contentWindowProjectEl => {
 					if (!globalThis.studio) throw new Error("Studio instance does not exist");
-					debugger;
 					if (!(contentWindowProjectEl instanceof HTMLElement)) throw new Error("Assertion failed, contentWindowProjectEl is not a HTMLElement");
 					const contentWindowProject = globalThis.studio.windowManager.getWindowByElement(contentWindowProjectEl);
 					if (!contentWindowProject) throw new Error("No project window found");
