@@ -154,7 +154,11 @@ export class StudioConnectionsManager {
 	}
 
 	getDefaultEndPoint() {
-		return `ws://${window.location.host}/studioDiscovery`;
+		if (window.location.hostname == "renda.studio" || window.location.hostname.startsWith(".renda.studio")) {
+			return "wss://discovery.renda.studio/";
+		} else {
+			return `ws://${window.location.host}/studioDiscovery`;
+		}
 	}
 
 	/**
