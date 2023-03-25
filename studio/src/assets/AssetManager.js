@@ -68,16 +68,18 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 
 /**
  * @template {AssetAssertionOptions} [T = AssetAssertionOptionsDefaults]
- * @typedef {T["assertExists"] extends true ?
- * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>> :
- * 	import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>?} AssetAssertionOptionsToProjectAsset
+ * @typedef {AssetAssertionOptionsToProjectAssetType<T> extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny ?
+ *	T["assertExists"] extends true ?
+ * 		import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>> :
+ * 		import("./ProjectAsset.js").ProjectAsset<AssetAssertionOptionsToProjectAssetType<T>>? :
+ * never} AssetAssertionOptionsToProjectAsset
  */
 
 /**
  * @template {AssetAssertionOptions} T
  * @typedef {AssetAssertionOptionsToProjectAsset<T> extends infer ProjectAsset ?
- * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer ProjectAssetType> ?
- * 		ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any, any> ?
+ * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer TProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny> ?
+ * 		TProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer TLiveAsset, any, any, any> ?
  * 			TLiveAsset :
  * 			never :
  * 		never :
@@ -94,8 +96,8 @@ import {InternallyCreatedAsset} from "./InternallyCreatedAsset.js";
 /**
  * @template {AssetAssertionOptions} T
  * @typedef {AssetAssertionOptionsToProjectAsset<T> extends infer ProjectAsset ?
- * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer ProjectAssetType> ?
- * 		ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer TFileData, any> ?
+ * 	ProjectAsset extends import("./ProjectAsset.js").ProjectAsset<infer ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetTypeAny> ?
+ * 		ProjectAssetType extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer TFileData extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetDiskDataType, any> ?
  * 			TFileData :
  * 			never :
  * 		never :

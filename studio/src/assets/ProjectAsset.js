@@ -50,7 +50,7 @@ import {AssetManager} from "./AssetManager.js";
 export class ProjectAsset {
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<infer U, any, any, any> ? U :never} LiveAssetType */
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, infer U, any, any> ? U :never} StudioDataType */
-	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U, any> ? U :never} FileDataType */
+	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, infer U  extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetDiskDataType, any> ? U :never} FileDataType */
 	/** @typedef {T extends import("./projectAssetType/ProjectAssetType.js").ProjectAssetType<any, any, any, infer U> ? U :never} AssetSettigsType */
 	/** @typedef {import("./projectAssetType/ProjectAssetType.js").LiveAssetData<LiveAssetType, StudioDataType>} TLiveAssetData */
 	/** @typedef {(liveAssetData: TLiveAssetData) => void} LiveAssetDataChangeCallback */
