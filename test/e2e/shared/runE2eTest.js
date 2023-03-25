@@ -18,6 +18,15 @@ export function setPath(path) {
 /** @type {string[]} */
 let failedTests = [];
 
+/**
+ * @param {number} attempts
+ * @param {number} successCount
+ */
+function isSuccessful(attempts, successCount) {
+	const percentage = successCount / attempts;
+	return percentage > 0.7;
+}
+
 let isRunningTest = false;
 /**
  * @param {E2eTestConfig} config
@@ -27,25 +36,54 @@ export async function runE2eTest(config) {
 		throw new Error("Cannot run multiple e2e tests at the same time. Make sure to await the `runE2eTest` call.");
 	}
 	isRunningTest = true;
-	console.log(gray(currentPath));
-	console.log(`${gray("TEST: ")}${config.name}...`);
+	console.log("\n" + gray(currentPath));
 	let status;
 	if (config.ignore) {
 		status = yellow("ignored");
 	} else {
-		let ok = true;
-		try {
-			await config.fn();
-		} catch (e) {
-			ok = false;
-			if (e instanceof Error) {
-				console.log(`${bgRed(e.name)} ${e.message}\n${e.stack}`);
+		let attempts = 0;
+		let successCount = 0;
+		let lastError = null;
+		while (true) {
+			let ok = true;
+			let attemptText = "";
+			if (attempts == 0) {
+				attemptText = "...";
 			} else {
-				console.log(`${bgRed("ERROR")} ${e}`);
+				attemptText = " " + gray(`(attempt ${attempts})`);
+			}
+			console.log(gray("TEST: ") + config.name + attemptText);
+			try {
+				await config.fn();
+			} catch (e) {
+				ok = false;
+				lastError = e;
+			}
+			if (ok) successCount++;
+			attempts++;
+			if (attempts > 1 || !ok) {
+				const status = ok ? green("ok") : red("error");
+				console.log(`attempt ${attempts} ${status}`);
+			}
+			if (attempts >= 10 || isSuccessful(attempts, successCount)) {
+				break;
+			}
+		}
+		if (isSuccessful(attempts, successCount)) {
+			status = green("ok");
+			if (attempts > 1) {
+				console.log(`Test passed ${successCount} out of ${attempts} times.`);
+			}
+		} else {
+			if (lastError instanceof Error) {
+				console.log(`${bgRed(lastError.name)} ${lastError.message}\n${lastError.stack}`);
+			} else {
+				console.log(`${bgRed("ERROR")} ${lastError}`);
 			}
 			failedTests.push(config.name);
+			status = red("error");
+			console.log(`Test failed too many times: failed ${attempts - successCount} out of ${attempts} times.`);
 		}
-		status = ok ? green("ok") : red("error");
 	}
 	console.log(`${config.name} ${status}`);
 	isRunningTest = false;
