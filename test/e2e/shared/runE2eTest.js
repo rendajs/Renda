@@ -1,10 +1,16 @@
 import {bgRed, gray, green, red, yellow} from "std/fmt/colors.ts";
+import {getContext} from "./browser.js";
 
 /**
  * @typedef E2eTestConfig
  * @property {string} name
  * @property {boolean} [ignore]
- * @property {() => Promise<void> | void} fn
+ * @property {(ctx: E2eTestContext) => Promise<void> | void} fn
+ */
+
+/**
+ * @typedef E2eTestContext
+ * @property {import("puppeteer").Page} page
  */
 
 let currentPath = "";
@@ -18,14 +24,8 @@ export function setPath(path) {
 /** @type {string[]} */
 let failedTests = [];
 
-/**
- * @param {number} attempts
- * @param {number} successCount
- */
-function isSuccessful(attempts, successCount) {
-	const percentage = successCount / attempts;
-	return percentage > 0.7;
-}
+const MAX_ATTEMPTS = 10;
+const REQUIRED_SUCCESS_RATE = 0.7;
 
 let isRunningTest = false;
 /**
@@ -43,9 +43,11 @@ export async function runE2eTest(config) {
 	} else {
 		let attempts = 0;
 		let successCount = 0;
-		let lastError = null;
+		let lastError = /** @type {unknown} */ (null);
+		let success = false;
 		while (true) {
 			let ok = true;
+			let testFinished = false;
 			let attemptText = "";
 			if (attempts == 0) {
 				attemptText = "...";
@@ -53,23 +55,52 @@ export async function runE2eTest(config) {
 				attemptText = " " + gray(`(attempt ${attempts})`);
 			}
 			console.log(gray("TEST: ") + config.name + attemptText);
-			try {
-				await config.fn();
-			} catch (e) {
+			const {page, disconnect} = await getContext();
+			const testPromise = (async () => {
+				try {
+					await config.fn({page});
+				} catch (e) {
+					if (testFinished) return;
+					ok = false;
+					lastError = e;
+				}
+				testFinished = true;
+			})();
+			const timeoutPromise = (async () => {
+				await new Promise(resolve => setTimeout(resolve, 30_000));
+				if (testFinished) return;
+				testFinished = true;
 				ok = false;
-				lastError = e;
-			}
+				lastError = new Error("Test timed out");
+			})();
+			await Promise.race([testPromise, timeoutPromise]);
+			await disconnect();
 			if (ok) successCount++;
 			attempts++;
 			if (attempts > 1 || !ok) {
 				const status = ok ? green("ok") : red("error");
 				console.log(`attempt ${attempts} ${status}`);
 			}
-			if (attempts >= 10 || isSuccessful(attempts, successCount)) {
+
+			if (attempts >= MAX_ATTEMPTS) break;
+
+			// If enough runs have succeeded, we can stop
+			if (successCount / attempts > REQUIRED_SUCCESS_RATE) {
+				success = true;
 				break;
 			}
+
+			// If too many runs have failed, and we're never able to reach the success rate, there's no point in continuing
+			{
+				const remainingAttempts = MAX_ATTEMPTS - attempts;
+				const maxPossibleSuccessCount = successCount + remainingAttempts;
+				const maxPossibleSuccessRate = maxPossibleSuccessCount / MAX_ATTEMPTS;
+				if (maxPossibleSuccessRate <= REQUIRED_SUCCESS_RATE) {
+					break;
+				}
+			}
 		}
-		if (isSuccessful(attempts, successCount)) {
+		if (success) {
 			status = green("ok");
 			if (attempts > 1) {
 				console.log(`Test passed ${successCount} out of ${attempts} times.`);
