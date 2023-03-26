@@ -48,6 +48,9 @@ export class DevServer {
 					const studioDiscovery = await this.#studioDiscoveryPromise;
 					return studioDiscovery.webSocketManager.handleRequest(request, connInfo);
 				}
+				if (url.pathname == "/studio/internalDiscovery") {
+					request = new Request(request.url + ".html", request);
+				}
 				return serveDir(request, {
 					fsRoot,
 					showDirListing: true,
