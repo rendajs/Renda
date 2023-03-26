@@ -9,6 +9,7 @@ import {GitIgnoreManager} from "./GitIgnoreManager.js";
 import {ProjectSettingsManager} from "./ProjectSettingsManager.js";
 import {SingleInstancePromise} from "../../../src/util/SingleInstancePromise.js";
 import {ContentWindowConnections} from "../windowManagement/contentWindows/ContentWindowConnections.js";
+import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePreferencesLocation.js";
 
 /**
  * @typedef {object} StoredProjectEntryBase
@@ -195,6 +196,17 @@ export class ProjectManager {
 			gitIgnoreManager.addEntry(localSettingsPath);
 		});
 
+		const studio = getStudioInstance();
+
+		const localPreferencesPath = ["ProjectSettings", "preferencesLocal.json"];
+		const projectPreferencesLocation = new FilePreferencesLocation("project", fileSystem, localPreferencesPath, fromUserGesture);
+		projectPreferencesLocation.onFileCreated(() => {
+			gitIgnoreManager.addEntry(localPreferencesPath);
+		});
+		studio.preferencesManager.addLocation(projectPreferencesLocation);
+		const versionControlProjectPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, ["ProjectSettings", "preferences.json"], fromUserGesture);
+		studio.preferencesManager.addLocation(versionControlProjectPreferencesLocation);
+
 		this.loadStudioConnectionsAllowIncomingInstance.run();
 
 		fileSystem.onChange(this.#onFileSystemChange);
@@ -203,7 +215,6 @@ export class ProjectManager {
 			this.fireOnProjectOpenEntryChangeCbs();
 		}
 		this.removeAssetManager();
-		const studio = getStudioInstance();
 		studio.windowManager.removeOnContentWindowPersistentDataFlushRequest(this.#boundSaveContentWindowPersistentData);
 		studio.windowManager.removeOnContentWindowPreferencesFlushRequest(this.#contentWindowPreferencesFlushRequest);
 		await studio.windowManager.reloadCurrentWorkspace();
