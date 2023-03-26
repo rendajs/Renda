@@ -1,18 +1,13 @@
-import {getContext} from "../../../../shared/browser.js";
 import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {createAsset, getAssetTreeView} from "../../../shared/assets.js";
 import {setupNewProject} from "../../../shared/project.js";
 
 await runE2eTest({
 	name: "Creating a new PipelineConfig asset",
-	async fn() {
-		const {page, disconnect} = await getContext();
-
+	async fn({page}) {
 		await setupNewProject(page);
 
 		await createAsset(page, ["Materials", "New WebGPU Pipeline Config"]);
 		await getAssetTreeView(page, ["New Pipeline Config.json"]);
-
-		await disconnect();
 	},
 });

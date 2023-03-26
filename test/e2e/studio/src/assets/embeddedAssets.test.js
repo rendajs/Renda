@@ -1,5 +1,4 @@
 import {assertEquals, assertExists} from "std/testing/asserts.ts";
-import {getContext} from "../../../shared/browser.js";
 import {log} from "../../../shared/log.js";
 import {runE2eTest} from "../../../shared/runE2eTest.js";
 import {click} from "../../../shared/util.js";
@@ -23,9 +22,7 @@ async function findMapTreeViewEntry(page, assetContentEl) {
 
 await runE2eTest({
 	name: "Creating a new material asset with embedded map and pipeline config",
-	async fn() {
-		const {page, disconnect} = await getContext();
-
+	async fn({page}) {
 		await setupNewProject(page);
 
 		log("Creating the assets");
@@ -100,7 +97,5 @@ await runE2eTest({
 			return checkbox.checked;
 		});
 		assertEquals(checked, false);
-
-		await disconnect();
 	},
 });

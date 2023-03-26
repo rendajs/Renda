@@ -1,5 +1,4 @@
 import {assertEquals} from "std/testing/asserts.ts";
-import {getContext} from "../../../../shared/browser.js";
 import {log} from "../../../../shared/log.js";
 import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {click, drag, waitFor} from "../../../../shared/util.js";
@@ -9,9 +8,7 @@ import {setupNewProject} from "../../../shared/project.js";
 
 await runE2eTest({
 	name: "Dragging entities within a scene",
-	async fn() {
-		const {page, disconnect} = await getContext();
-
+	async fn({page}) {
 		await setupNewProject(page);
 
 		await createAsset(page, ["New Entity"]);
@@ -62,7 +59,5 @@ await runE2eTest({
 			});
 			assertEquals(childChildCounts, [0, 0, 0, 0]);
 		}
-
-		await disconnect();
 	},
 });
