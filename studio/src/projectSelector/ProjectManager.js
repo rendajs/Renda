@@ -528,6 +528,9 @@ export class ProjectManager {
 		if (hasValidProject && (this.currentProjectIsRemote || this.studioConnectionsAllowRemoteIncoming)) {
 			let endpoint = this.studioConnectionsDiscoveryEndpoint;
 			if (!endpoint) endpoint = this.studioConnectionsManager.getDefaultEndPoint();
+			if (!endpoint.startsWith("ws://") && !endpoint.startsWith("wss://")) {
+				endpoint = "wss://" + endpoint;
+			}
 			this.studioConnectionsManager.setDiscoveryEndpoint(endpoint);
 		} else {
 			this.studioConnectionsManager.setDiscoveryEndpoint(null);
