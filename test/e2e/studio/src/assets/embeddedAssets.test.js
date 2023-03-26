@@ -9,6 +9,7 @@ import {createEmbeddedAssetAndOpen, openDroppableGuiTreeViewEntry} from "../../s
 import {setupNewProject, waitForProjectOpen} from "../../shared/project.js";
 import {reloadPage} from "../../shared/reloadPage.js";
 import {getPropertiesTreeViewEntryValueEl, getTreeViewItemElement} from "../../shared/treeView.js";
+import {getPage} from "../../../shared/browser.js";
 
 const MATERIAL_ASSET_PATH = ["New Material.json"];
 
@@ -22,7 +23,8 @@ async function findMapTreeViewEntry(page, assetContentEl) {
 
 await runE2eTest({
 	name: "Creating a new material asset with embedded map and pipeline config",
-	async fn({page}) {
+	async fn() {
+		const {page} = await getPage();
 		await setupNewProject(page);
 
 		log("Creating the assets");

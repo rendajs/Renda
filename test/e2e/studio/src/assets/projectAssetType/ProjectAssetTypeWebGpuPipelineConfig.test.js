@@ -1,10 +1,12 @@
+import {getPage} from "../../../../shared/browser.js";
 import {runE2eTest} from "../../../../shared/runE2eTest.js";
 import {createAsset, getAssetTreeView} from "../../../shared/assets.js";
 import {setupNewProject} from "../../../shared/project.js";
 
 await runE2eTest({
 	name: "Creating a new PipelineConfig asset",
-	async fn({page}) {
+	async fn() {
+		const {page} = await getPage();
 		await setupNewProject(page);
 
 		await createAsset(page, ["Materials", "New WebGPU Pipeline Config"]);

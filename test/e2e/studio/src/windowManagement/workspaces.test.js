@@ -3,6 +3,7 @@ import {setupNewProject} from "../../shared/project.js";
 import {clickContextMenuItem} from "../../shared/contextMenu.js";
 import {assertEquals} from "std/testing/asserts.ts";
 import {runE2eTest} from "../../../shared/runE2eTest.js";
+import {getPage} from "../../../shared/browser.js";
 
 /**
  * Right clicks the first found tab element of a content window.
@@ -39,7 +40,8 @@ async function getFirstTabGroupTypes(page) {
 
 await runE2eTest({
 	name: "Adding a new workspace and switching between them",
-	async fn({page}) {
+	async fn() {
+		const {page} = await getPage();
 		let workspaceIndex = 0;
 		page.on("dialog", async dialog => {
 			workspaceIndex++;

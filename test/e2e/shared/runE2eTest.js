@@ -1,16 +1,11 @@
 import {bgRed, gray, green, red, yellow} from "std/fmt/colors.ts";
-import {getContext} from "./browser.js";
+import {discardCurrentContexts} from "./browser.js";
 
 /**
  * @typedef E2eTestConfig
  * @property {string} name
  * @property {boolean} [ignore]
- * @property {(ctx: E2eTestContext) => Promise<void> | void} fn
- */
-
-/**
- * @typedef E2eTestContext
- * @property {import("puppeteer").Page} page
+ * @property {() => Promise<void> | void} fn
  */
 
 let currentPath = "";
@@ -55,10 +50,9 @@ export async function runE2eTest(config) {
 				attemptText = " " + gray(`(attempt ${attempts})`);
 			}
 			console.log(gray("TEST: ") + config.name + attemptText);
-			const {page, disconnect} = await getContext();
 			const testPromise = (async () => {
 				try {
-					await config.fn({page});
+					await config.fn();
 				} catch (e) {
 					if (testFinished) return;
 					ok = false;
@@ -78,7 +72,7 @@ export async function runE2eTest(config) {
 			})();
 			await Promise.race([testPromise, timeoutPromise]);
 			clearTimeout(createdTimeout);
-			await disconnect();
+			await discardCurrentContexts();
 			if (ok) successCount++;
 			attempts++;
 			if (attempts > 1 || !ok) {
