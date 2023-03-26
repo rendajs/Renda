@@ -66,14 +66,18 @@ export async function runE2eTest(config) {
 				}
 				testFinished = true;
 			})();
+			let createdTimeout;
 			const timeoutPromise = (async () => {
-				await new Promise(resolve => setTimeout(resolve, 30_000));
+				await new Promise(resolve => {
+					createdTimeout = setTimeout(resolve, 30_000);
+				});
 				if (testFinished) return;
 				testFinished = true;
 				ok = false;
 				lastError = new Error("Test timed out");
 			})();
 			await Promise.race([testPromise, timeoutPromise]);
+			clearTimeout(createdTimeout);
 			await disconnect();
 			if (ok) successCount++;
 			attempts++;
