@@ -48,7 +48,6 @@ let browser = null;
  */
 export async function launch({headless}) {
 	const executablePath = await installIfNotInstalled();
-	console.log(executablePath);
 	browser = await puppeteer.launch({
 		headless,
 		args: ["--enable-unsafe-webgpu"],
@@ -58,16 +57,20 @@ export async function launch({headless}) {
 	return browser;
 }
 
+/** @type {Set<import("puppeteer").BrowserContext>} */
+const contexts = new Set();
+
 /**
- * Connects to the browser instance created by the test runner and creates a new
- * incognito page.
+ * Creates a new incognito context and a page.
+ * Contexts are automatically cleaned up after each test, even if the test fails.
  */
-export async function getContext(url = getMainPageUrl() + "/studio/") {
+export async function getPage(url = getMainPageUrl() + "/studio/") {
 	if (!browser) {
 		throw new Error("Assertion failed, browser was not launched, call `launch` first.");
 	}
 
 	const context = await browser.createIncognitoBrowserContext();
+	contexts.add(context);
 	const page = await context.newPage();
 	page.on("console", async message => {
 		const jsonArgs = [];
@@ -80,10 +83,23 @@ export async function getContext(url = getMainPageUrl() + "/studio/") {
 	return {
 		context,
 		page,
-		async disconnect() {
-			await page.close();
+		async discard() {
+			contexts.delete(context);
+			await context.close();
 		},
 	};
+}
+
+/**
+ * Discards all created contexts. Called by the test runner at the end of a test.
+ */
+export async function discardCurrentContexts() {
+	const promises = [];
+	for (const context of contexts) {
+		promises.push(context.close());
+	}
+	contexts.clear();
+	await Promise.all(promises);
 }
 
 /**
@@ -104,5 +120,5 @@ export async function openBasicScriptPage(scriptLocation, relativeTo) {
 	const pageUrl = new URL(`${getMainPageUrl()}/test/e2e/resources/basicScriptPage/page.html`);
 	pageUrl.searchParams.set("script", "/" + relativeScriptLocation);
 
-	return await getContext(pageUrl.href);
+	return await getPage(pageUrl.href);
 }
