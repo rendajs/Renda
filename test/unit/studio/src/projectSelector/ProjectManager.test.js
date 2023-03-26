@@ -4,6 +4,7 @@ import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {assertEquals} from "std/testing/asserts.ts";
+import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 
 console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
@@ -81,6 +82,7 @@ async function basicTest({fn}) {
 				},
 				setContentWindowPreferences() {},
 			},
+			preferencesManager: new PreferencesManager(),
 		});
 		injectMockStudioInstance(mockStudio);
 
