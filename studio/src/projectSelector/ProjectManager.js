@@ -52,8 +52,12 @@ import {FilePreferencesLocation} from "../preferences/preferencesLocation/FilePr
 
 export class ProjectManager {
 	#boundOnFileSystemRootNameChange;
-
 	#boundSaveContentWindowPersistentData;
+
+	/** @type {FilePreferencesLocation?} */
+	#currentPreferencesLocation = null;
+	/** @type {FilePreferencesLocation?} */
+	#currentVersionControlPreferencesLocation = null;
 
 	/** @type {Set<import("../util/fileSystems/StudioFileSystem.js").FileSystemChangeCallback>} */
 	#onFileChangeCbs = new Set();
@@ -198,14 +202,20 @@ export class ProjectManager {
 
 		const studio = getStudioInstance();
 
+		if (this.#currentPreferencesLocation) {
+			studio.preferencesManager.removeLocation(this.#currentPreferencesLocation);
+		}
+		if (this.#currentVersionControlPreferencesLocation) {
+			studio.preferencesManager.removeLocation(this.#currentVersionControlPreferencesLocation);
+		}
 		const localPreferencesPath = ["ProjectSettings", "preferencesLocal.json"];
-		const projectPreferencesLocation = new FilePreferencesLocation("project", fileSystem, localPreferencesPath, fromUserGesture);
-		projectPreferencesLocation.onFileCreated(() => {
+		this.#currentPreferencesLocation = new FilePreferencesLocation("project", fileSystem, localPreferencesPath, fromUserGesture);
+		this.#currentPreferencesLocation.onFileCreated(() => {
 			gitIgnoreManager.addEntry(localPreferencesPath);
 		});
-		studio.preferencesManager.addLocation(projectPreferencesLocation);
-		const versionControlProjectPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, ["ProjectSettings", "preferences.json"], fromUserGesture);
-		studio.preferencesManager.addLocation(versionControlProjectPreferencesLocation);
+		studio.preferencesManager.addLocation(this.#currentPreferencesLocation);
+		this.#currentVersionControlPreferencesLocation = new FilePreferencesLocation("version-control", fileSystem, ["ProjectSettings", "preferences.json"], fromUserGesture);
+		studio.preferencesManager.addLocation(this.#currentVersionControlPreferencesLocation);
 
 		this.loadStudioConnectionsAllowIncomingInstance.run();
 

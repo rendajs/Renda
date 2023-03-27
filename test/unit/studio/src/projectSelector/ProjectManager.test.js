@@ -343,3 +343,25 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Removes preference locations when project is closed",
+	async fn() {
+		await basicTest({
+			async fn({manager, mockPreferencesManager}) {
+				const fs = new MemoryStudioFileSystem();
+				const entry1 = createStoredProjectEntry();
+				const removeLocationSpy = spy(mockPreferencesManager, "removeLocation");
+
+				await manager.openProject(fs, entry1, true);
+				assertSpyCalls(removeLocationSpy, 0);
+
+				const entry2 = createStoredProjectEntry();
+				entry2.projectUuid = "uuid2";
+				await manager.openProject(fs, entry2, true);
+
+				assertSpyCalls(removeLocationSpy, 2);
+			},
+		});
+	},
+});
