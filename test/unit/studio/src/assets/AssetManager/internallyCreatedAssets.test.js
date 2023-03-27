@@ -20,11 +20,11 @@ Deno.test({
 		// Trigger a save in case this hasn't been done yet.
 		await assetManager.saveAssetSettings();
 
-		/** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
 		const projectSettings = await mockFileSystem.readJson(["ProjectSettings", "assetSettings.json"]);
-		assertExists(projectSettings);
+		const castProjectSettings = /** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */ (projectSettings);
+		assertExists(castProjectSettings);
 		// Internally created assets must only be set if the project asset's uuid is marked as persistent.
-		assertEquals(projectSettings.internallyCreatedAssets, undefined);
+		assertEquals(castProjectSettings.internallyCreatedAssets, undefined);
 	},
 });
 
@@ -41,11 +41,11 @@ Deno.test({
 		// Trigger a save in case this hasn't been done yet.
 		await assetManager.saveAssetSettings();
 
-		/** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
 		const projectSettings = await mockFileSystem.readJson(["ProjectSettings", "assetSettings.json"]);
-		assertExists(projectSettings);
+		const castProjectSettings = /** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */ (projectSettings);
+		assertExists(castProjectSettings);
 		// Internally created assets must only be set if the project asset's uuid is marked as persistent.
-		assertEquals(projectSettings.internallyCreatedAssets, undefined);
+		assertEquals(castProjectSettings.internallyCreatedAssets, undefined);
 	},
 });
 
@@ -62,10 +62,10 @@ Deno.test({
 		const asset2 = assetManager.getOrCreateInternallyCreatedAsset({foo: "bar"});
 		assertStrictEquals(asset1, asset2);
 
-		/** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
 		const projectSettings = await mockFileSystem.readJson(["ProjectSettings", "assetSettings.json"]);
-		assertExists(projectSettings);
-		assertEquals(projectSettings.internallyCreatedAssets, [
+		const castProjectSettings = /** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */ (projectSettings);
+		assertExists(castProjectSettings);
+		assertEquals(castProjectSettings.internallyCreatedAssets, [
 			{
 				uuid: projectAsset.uuid,
 				persistenceData: {foo: "bar"},
@@ -100,10 +100,10 @@ Deno.test({
 		// Verify that the uuid stays the same when calling `makeAssetUuidPersistent()` again.
 		await assetManager.makeAssetUuidPersistent(projectAsset);
 
-		/** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
 		const projectSettings = await mockFileSystem.readJson(["ProjectSettings", "assetSettings.json"]);
-		assertExists(projectSettings);
-		assertEquals(projectSettings.internallyCreatedAssets, [
+		const castProjectSettings = /** @type {import("../../../../../../studio/src/assets/AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */ (projectSettings);
+		assertExists(castProjectSettings);
+		assertEquals(castProjectSettings.internallyCreatedAssets, [
 			{
 				uuid: BASIC_ASSET_UUID,
 				persistenceData: {foo: "bar"},

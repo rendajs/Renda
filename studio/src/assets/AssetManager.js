@@ -211,8 +211,7 @@ export class AssetManager {
 		}
 
 		if (await this.fileSystem.isFile(this.assetSettingsPath)) {
-			/** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */
-			const json = await this.fileSystem.readJson(this.assetSettingsPath);
+			const json = /** @type {import("./AssetSettingsDiskTypes.js").AssetSettingsDiskData?} */ (await this.fileSystem.readJson(this.assetSettingsPath));
 			if (json) {
 				if (json.assets) {
 					for (const [uuid, assetData] of Object.entries(json.assets)) {

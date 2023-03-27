@@ -18,7 +18,7 @@ export class PreferencesLocation {
 	/**
 	 * Clears existing values and loads the provided preferences.
 	 * Notifies the PreferencesManager that preferences have been changed.
-	 * @param {Object<string, unknown>} preferences
+	 * @param {Object<string, unknown> | {}} preferences
 	 */
 	loadPreferences(preferences) {
 		const removedPreferences = new Set(this.#storedPreferences.keys());

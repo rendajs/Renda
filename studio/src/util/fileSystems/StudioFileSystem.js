@@ -291,7 +291,7 @@ export class StudioFileSystem {
 
 	/**
 	 * @param {StudioFileSystemPath} path
-	 * @returns {Promise<?object>}
+	 * @returns {Promise<unknown>}
 	 */
 	async readJson(path) {
 		const file = await this.readFile(path);

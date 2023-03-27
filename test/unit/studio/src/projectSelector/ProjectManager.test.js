@@ -4,6 +4,7 @@ import {Importer} from "fake-imports";
 import {assertSpyCall, assertSpyCalls, spy, stub} from "std/testing/mock.ts";
 import {waitForMicrotasks} from "../../../shared/waitForMicroTasks.js";
 import {assertEquals} from "std/testing/asserts.ts";
+import {PreferencesManager} from "../../../../../studio/src/preferences/PreferencesManager.js";
 
 console.log(import.meta.url);
 const importer = new Importer(import.meta.url);
@@ -46,12 +47,16 @@ const StudiorConnectionsManagerMod = await importer.import("../../../../../studi
 const getLastStudioConnectionsManager = StudiorConnectionsManagerMod.getLastStudioConnectionsManager;
 
 const LOCAL_PROJECT_SETTINGS_PATH = ["ProjectSettings", "localProjectSettings.json"];
+const PROJECT_PREFERENCES_PATH = ["ProjectSettings", "preferences.json"];
+const LOCAL_PROJECT_PREFERENCES_PATH = ["ProjectSettings", "preferencesLocal.json"];
+const GITIGNORE_PATH = [".gitignore"];
 
 /**
  * @typedef ProjectManagerTestContext
  * @property {import("../../../../../studio/src/projectSelector/ProjectManager.js").ProjectManager} manager
  * @property {import("../../../../../studio/src/network/studioConnections/StudioConnectionsManager.js").StudioConnectionsManager} studioConnectionsManager
  * @property {import("../../../../../studio/src/Studio.js").Studio} studio
+ * @property {PreferencesManager<{strPref: {type: "string", default: "default"}}>} mockPreferencesManager
  * @property {(data: unknown) => Promise<void>} fireFlushRequestCallbacks
  */
 
@@ -67,6 +72,13 @@ async function basicTest({fn}) {
 		/** @type {Set<(data: unknown) => Promise<void>>} */
 		const flushRequestCallbacks = new Set();
 
+		const mockPreferencesManager = new PreferencesManager({
+			strPref: {
+				type: "string",
+				default: "default",
+			},
+		});
+
 		const mockStudio = /** @type {import("../../../../../studio/src/Studio.js").Studio} */ ({
 			windowManager: {
 				onContentWindowPersistentDataFlushRequest(cb) {},
@@ -81,6 +93,7 @@ async function basicTest({fn}) {
 				},
 				setContentWindowPreferences() {},
 			},
+			preferencesManager: /** @type {PreferencesManager<any>} */ (mockPreferencesManager),
 		});
 		injectMockStudioInstance(mockStudio);
 
@@ -91,6 +104,7 @@ async function basicTest({fn}) {
 		await fn({
 			manager,
 			studioConnectionsManager, studio: mockStudio,
+			mockPreferencesManager,
 			async fireFlushRequestCallbacks(data) {
 				const promises = [];
 				for (const cb of flushRequestCallbacks) {
@@ -293,6 +307,60 @@ Deno.test({
 						},
 					],
 				});
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Creates preference locations for project and version-control",
+	async fn() {
+		await basicTest({
+			async fn({manager, mockPreferencesManager}) {
+				const fs = new MemoryStudioFileSystem();
+				const entry = createStoredProjectEntry();
+
+				await manager.openProject(fs, entry, true);
+				assertEquals(mockPreferencesManager.get("strPref"), "default");
+				assertEquals(await fs.exists(PROJECT_PREFERENCES_PATH), false);
+				assertEquals(await fs.exists(LOCAL_PROJECT_PREFERENCES_PATH), false);
+				assertEquals(await fs.exists(GITIGNORE_PATH), false);
+
+				mockPreferencesManager.set("strPref", "project", {location: "project"});
+				mockPreferencesManager.set("strPref", "versionControl", {location: "version-control"});
+
+				// Wait for flush
+				await waitForMicrotasks();
+
+				assertEquals(await fs.readJson(PROJECT_PREFERENCES_PATH), {
+					strPref: "versionControl",
+				});
+				assertEquals(await fs.readJson(LOCAL_PROJECT_PREFERENCES_PATH), {
+					strPref: "project",
+				});
+				assertEquals(await fs.readText(GITIGNORE_PATH), "ProjectSettings/preferencesLocal.json");
+			},
+		});
+	},
+});
+
+Deno.test({
+	name: "Removes preference locations when project is closed",
+	async fn() {
+		await basicTest({
+			async fn({manager, mockPreferencesManager}) {
+				const fs = new MemoryStudioFileSystem();
+				const entry1 = createStoredProjectEntry();
+				const removeLocationSpy = spy(mockPreferencesManager, "removeLocation");
+
+				await manager.openProject(fs, entry1, true);
+				assertSpyCalls(removeLocationSpy, 0);
+
+				const entry2 = createStoredProjectEntry();
+				entry2.projectUuid = "uuid2";
+				await manager.openProject(fs, entry2, true);
+
+				assertSpyCalls(removeLocationSpy, 2);
 			},
 		});
 	},
