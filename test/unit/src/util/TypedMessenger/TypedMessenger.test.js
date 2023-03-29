@@ -524,3 +524,109 @@ Deno.test({
 		});
 	},
 });
+
+Deno.test({
+	name: "Serializing and deserializing errors",
+	async fn() {
+		class MyError extends Error {
+			/**
+			 * @param {string} message
+			 */
+			constructor(message) {
+				super(message);
+				this.name = "MyError";
+			}
+		}
+
+		class UnhandledError extends Error {
+			/**
+			 * @param {string} message
+			 */
+			constructor(message) {
+				super(message);
+				this.name = "UnhandledError";
+			}
+		}
+
+		const handlers = {
+			throwMyError() {
+				throw new MyError("Error message");
+			},
+			throwError() {
+				throw new Error("Error message");
+			},
+			throwUnhandledError() {
+				throw new UnhandledError("Error message");
+			},
+		};
+
+		/** @type {TypedMessenger<{}, typeof handlers>} */
+		const messengerA = new TypedMessenger({
+			serializeErrorHook(error) {
+				if (error instanceof MyError) {
+					return {
+						type: "myError",
+						message: error.message,
+					};
+				} else if (error instanceof UnhandledError) {
+					// In this test we're explicitly returning 'undefined',
+					// but this meant to test a case where the user forgets to handle and return an error.
+					return undefined;
+				}
+				return error;
+			},
+		});
+
+		/**
+		 * @typedef SerializedError
+		 * @property {string} type
+		 * @property {string} message
+		 */
+
+		/** @type {TypedMessenger<typeof handlers, {}>} */
+		const messengerB = new TypedMessenger({
+			deserializeErrorHook: error => {
+				if (error) {
+					const castError = /** @type {SerializedError} */ (error);
+					if (castError.type == "myError") {
+						return new MyError(castError.message);
+					}
+				}
+				return error;
+			},
+		});
+
+		/**
+		 * @param {any} data
+		 */
+		function serialize(data) {
+			return JSON.parse(JSON.stringify(data));
+		}
+
+		messengerA.setSendHandler(data => {
+			messengerB.handleReceivedMessage(serialize(data.sendData));
+		});
+		messengerB.setSendHandler(data => {
+			messengerA.handleReceivedMessage(serialize(data.sendData));
+		});
+		messengerA.setResponseHandlers(handlers);
+
+		// When dealing with workers, `Error` objects are serialized for us.
+		// However, in this test we're serializing using JSON.parse. In that case errors are flattened to `{}`.
+		const rejectValue1 = await assertRejects(async () => {
+			await messengerB.send.throwError();
+		});
+		assertEquals(rejectValue1, {});
+
+		// The hooks contain serialization logic for MyError.
+		await assertRejects(async () => {
+			await messengerB.send.throwMyError();
+		}, MyError, "Error message");
+
+		// But no logic for UnhandledError, so it should be undefined.
+		const rejectValue2 = await assertRejects(async () => {
+			await messengerB.send.throwUnhandledError();
+		});
+		assertEquals(rejectValue2, undefined);
+	},
+});
