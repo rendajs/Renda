@@ -527,7 +527,6 @@ Deno.test({
 
 Deno.test({
 	name: "Serializing and deserializing errors",
-	only: true,
 	async fn() {
 		class MyError extends Error {
 			/**
