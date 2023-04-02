@@ -1,0 +1,15 @@
+{
+	"assetType": "renda:vertexState",
+	"asset": {
+		"buffers": [
+			{
+				"attributes": [
+					{
+						"attributeType": "POSITION",
+						"format": "FLOAT32"
+					}
+				]
+			}
+		]
+	}
+}

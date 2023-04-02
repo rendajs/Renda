@@ -15,6 +15,9 @@
 		"264a38b9-4e43-4261-b57d-28a778a12dd9": {
 			"path": ["buildSupport", "basicIndex.html"]
 		},
+		"f7f15715-6457-47fb-b8b1-0b5b2e7aeda2": {
+			"path": ["studio", "readme.md"]
+		},
 		"873ade41-8986-4371-b2a3-5bc1aff9d938": {
 			"path": ["DefaultAssets", "Default Material", "Default Material Map.json"]
 		},
@@ -86,6 +89,18 @@
 		},
 		"76ed4a0e-36ac-4419-af53-4890041b673a": {
 			"path": ["shaders", "wgsl", "util", "trowbridgeReitzGgx.wgsl"]
+		},
+		"12b5f619-5651-478d-8df1-642a23a43e3e": {
+			"path": ["studio", "entityEditor", "grid", "Material.json"]
+		},
+		"35fe0836-6ed6-42c1-83ab-06243aef04d2": {
+			"path": ["studio", "entityEditor", "grid", "Vertex State.json"]
+		},
+		"2b0900bd-7804-4344-b85f-90a57454277b": {
+			"path": ["studio", "entityEditor", "grid", "frag.wgsl"]
+		},
+		"c90b3e99-2e94-497e-b10f-52e1b3cf0029": {
+			"path": ["studio", "entityEditor", "grid", "vert.wgsl"]
 		},
 		"8cd64104-1d45-4536-972a-5685a2523725": {
 			"path": ["shaders", "wgsl", "materials", "structs", "lightUniforms.wgsl"]
