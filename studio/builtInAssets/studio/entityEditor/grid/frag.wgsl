@@ -11,7 +11,7 @@ struct FragmentOutput {
 
 /// Creates a curve used for fading out the grid lines.
 fn grid1d(x: f32) -> f32 {
-	// fwidth makes sure all the lines have the same dickness regardless of the distance of the camera.
+	// fwidth makes sure all the lines have the same thickness regardless of the distance of the camera.
 	var fw = fwidth(x);
 
 	var grid = 1.0 - abs(fract(x - 0.5) - 0.5) / fw;
