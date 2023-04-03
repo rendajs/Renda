@@ -1,6 +1,6 @@
 import {ContentWindow} from "./ContentWindow.js";
 import {Button} from "../../ui/Button.js";
-import {CameraComponent, ClusteredLightsConfig, createPlane, Entity, GizmoManager, Mat4, MeshComponent, OrbitControls, TranslationGizmo, Vec3} from "../../../../src/mod.js";
+import {CameraComponent, ClusteredLightsConfig, Entity, GizmoManager, Mat4, MeshComponent, OrbitControls, TranslationGizmo, Vec3, createPlane} from "../../../../src/mod.js";
 import {ProjectAssetTypeEntity} from "../../assets/projectAssetType/ProjectAssetTypeEntity.js";
 import {ProjectAssetTypeGltf} from "../../assets/projectAssetType/ProjectAssetTypeGltf.js";
 import {RotationGizmo} from "../../../../src/gizmos/gizmos/RotationGizmo.js";
@@ -112,12 +112,12 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.grid = new Entity("grid");
 		this.editorScene.add(this.grid);
 		const gridMeshComponent = this.grid.addComponent(MeshComponent, {
-			materials: []
+			materials: [],
 		});
 		this.studioInstance.engineAssetManager.watchAsset("12b5f619-5651-478d-8df1-642a23a43e3e", asset => {
 			gridMeshComponent.materials = [asset];
 			this.markRenderDirty();
-		})
+		});
 		const gridMesh = createPlane({
 			width: 500,
 			height: 500,
@@ -128,7 +128,7 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		this.studioInstance.engineAssetManager.watchAsset("35fe0836-6ed6-42c1-83ab-06243aef04d2", asset => {
 			gridMesh.setVertexState(asset);
 			this.markRenderDirty();
-		})
+		});
 
 		this.orbitControls = new OrbitControls(this.editorCamera, renderTargetElement);
 		this.orbitControlsValuesDirty = false;

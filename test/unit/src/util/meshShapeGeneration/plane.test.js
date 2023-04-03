@@ -42,12 +42,14 @@ Deno.test({
 		const vertexData = Array.from(positionBuffer.getVertexData(0));
 		assertEquals(vertexData.length, 9);
 		const indexData = Array.from(mesh.getIndexData());
+		/* eslint-disable array-element-newline */
 		assertEquals(indexData.join(","), [
 			0, 1, 3, 1, 4, 3,
 			1, 2, 4, 2, 5, 4,
 			3, 4, 6, 4, 7, 6,
 			4, 5, 7, 5, 8, 7,
 		].join(","));
+		/* eslint-enable array-element-newline */
 	},
 });
 
