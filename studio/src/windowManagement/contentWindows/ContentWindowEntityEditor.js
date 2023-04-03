@@ -121,6 +121,8 @@ export class ContentWindowEntityEditor extends ContentWindow {
 		const gridMesh = createPlane({
 			width: 500,
 			height: 500,
+			widthSegments: 10,
+			heightSegments: 10,
 		});
 		gridMeshComponent.mesh = gridMesh;
 		this.studioInstance.engineAssetManager.watchAsset("35fe0836-6ed6-42c1-83ab-06243aef04d2", asset => {
