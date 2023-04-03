@@ -47,7 +47,18 @@ export function createPlane({
 		}
 	}
 
-	indices.push(0, 1, 2, 1, 3, 2);
+	for (let x = 0; x < widthSegments; x++) {
+		for (let y = 0; y < heightSegments; y++) {
+			const bottomLeft = y + x * (heightSegments + 1);
+			const topLeft = bottomLeft + 1;
+			const bottomRight = bottomLeft + heightSegments + 1;
+			const topRight = bottomRight + 1;
+			indices.push(
+				bottomLeft, topLeft, bottomRight,
+				topLeft, topRight, bottomRight,
+			);
+		}
+	}
 
 	const mesh = new Mesh();
 	mesh.setVertexCount(positions.length);

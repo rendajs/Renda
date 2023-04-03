@@ -31,6 +31,27 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Custom segment indices",
+	fn() {
+		const mesh = createPlane({
+			widthSegments: 2,
+			heightSegments: 2,
+		});
+
+		const positionBuffer = mesh.getBufferForAttributeType(0);
+		const vertexData = Array.from(positionBuffer.getVertexData(0));
+		assertEquals(vertexData.length, 9);
+		const indexData = Array.from(mesh.getIndexData());
+		assertEquals(indexData.join(","), [
+			0, 1, 3, 1, 4, 3,
+			1, 2, 4, 2, 5, 4,
+			3, 4, 6, 4, 7, 6,
+			4, 5, 7, 5, 8, 7,
+		].join(","));
+	},
+});
+
+Deno.test({
 	name: "Custom size",
 	fn() {
 		const mesh = createPlane({
