@@ -34,7 +34,7 @@ export async function dev({
 	Deno.chdir("..");
 
 	if (needsTypes) {
-		const {generateTypes} = await import("https://deno.land/x/deno_tsc_helper@v0.4.0/mod.js");
+		const {generateTypes} = await import("https://deno.land/x/deno_tsc_helper@v0.5.0/mod.js");
 
 		const promise = generateTypes({
 			outputDir: ".denoTypes",
