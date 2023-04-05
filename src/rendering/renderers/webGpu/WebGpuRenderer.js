@@ -313,7 +313,7 @@ export class WebGpuRenderer extends Renderer {
 			if (!light.entity) continue;
 			this.lightsBuffer.appendData(light.entity.pos);
 			this.lightsBuffer.skipBytes(4);
-			this.lightsBuffer.appendData(light.color);
+			this.lightsBuffer.appendData(light.color.clone().multiplyScalar(light.intensity));
 			this.lightsBuffer.skipBytes(4);
 		}
 		this.lightsBuffer.writeAllChunksToGpu();
