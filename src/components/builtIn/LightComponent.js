@@ -27,7 +27,18 @@ export class LightComponent extends Component {
 			},
 			color: {
 				type: "vec3",
+				guiOpts: {
+					defaultValue: new Vec3(1, 1, 1),
+					min: 0,
+					max: 1,
+				},
 			},
+			intensity: {
+				type: "number",
+				guiOpts: {
+					defaultValue: 1.0,
+				}
+			}
 		});
 	}
 
@@ -39,10 +50,12 @@ export class LightComponent extends Component {
 			structure: {
 				type: lightTypes,
 				color: [StorageType.FLOAT64],
+				intensity: StorageType.FLOAT64,
 			},
 			nameIds: {
 				type: 1,
 				color: 2,
+				intensity: 3,
 			},
 		};
 	}
@@ -56,6 +69,7 @@ export class LightComponent extends Component {
 
 		this.type = lightTypes[0];
 		this.color = new Vec3(1, 1, 1);
+		this.intensity = 1.0;
 
 		this.initValues(propertyValues, ...args);
 	}
