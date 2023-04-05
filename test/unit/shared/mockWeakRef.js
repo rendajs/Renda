@@ -156,7 +156,7 @@ class MockWeakMap {
 		if (item) {
 			registeredWeakRefs.delete(item.registeredWeakRef);
 		}
-		this.#map.delete(key);
+		return this.#map.delete(key);
 	}
 }
 

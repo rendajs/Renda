@@ -22,9 +22,15 @@ Deno.test({
 			map.set([symA, symB], objectB);
 			map.set([symA, symB, symD], objectC);
 
+			assertEquals(map.get([symA]), undefined);
 			assertStrictEquals(map.get([symA, symB, symC]), objectA);
 			assertStrictEquals(map.get([symA, symB]), objectB);
 			assertStrictEquals(map.get([symA, symB, symD]), objectC);
+
+			assertEquals(map.has([symA]), false);
+			assertEquals(map.has([symA, symB, symC]), true);
+			assertEquals(map.has([symA, symB]), true);
+			assertEquals(map.has([symA, symB, symD]), true);
 
 			forceCleanup(symB);
 
@@ -91,7 +97,11 @@ Deno.test({
 			assertStrictEquals(map.get([symA, symB]), object);
 			assertStrictEquals(map.get([symA, symB, symC]), object);
 
-			map.delete([symA, symB]);
+			const result1 = map.delete([symA, symB]);
+			assertEquals(result1, true);
+
+			const result2 = map.delete([symA, symB]);
+			assertEquals(result2, false);
 
 			assertEquals(map.get([symA, symB]), undefined);
 			assertStrictEquals(map.get([symA, symB, symC]), object);
@@ -100,6 +110,29 @@ Deno.test({
 
 			assertEquals(map.get([symA, symB]), undefined);
 			assertEquals(map.get([symA, symB, symC]), undefined);
+		} finally {
+			uninstallMockWeakRef();
+		}
+	},
+});
+
+Deno.test({
+	name: "Deleting key that has been garbage collected",
+	fn() {
+		installMockWeakRef();
+
+		try {
+			const map = new MultiKeyWeakMap();
+			const symA = Symbol("a");
+			const symB = Symbol("b");
+
+			const object = Symbol("object");
+
+			map.set([symA, symB], object);
+
+			forceCleanup(symB);
+
+			assertEquals(map.delete([symA, symB]), false);
 		} finally {
 			uninstallMockWeakRef();
 		}
