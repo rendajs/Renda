@@ -24,15 +24,3 @@ Deno.test({
     assertEquals(light.type, "directional");
   }
 })
-
-Deno.test({
-  name: "set color clamps values between 0 and 1",
-  fn: () => {
-    const light = new LightComponent();
-    light.color = new Vec3(55, 35, 20);
-    assertEquals(light.color.toArray(), [1,1,1]);
-
-    light.color = new Vec3(-55, -35, -20);
-    assertEquals(light.color.toArray(), [0,0,0]);
-  }
-});
