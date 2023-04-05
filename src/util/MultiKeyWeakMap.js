@@ -6,13 +6,21 @@ export class MultiKeyWeakMap {
 	/**
 	 * @typedef WeakMapNode
 	 * @property {WeakMap<any, WeakMapNode>} weakMap
-	 * @property {Map<number | string | symbol, WeakRef<WeakMapNode>>} map
+	 * @property {Map<number | string | symbol, WeakMapNode>} map
 	 * @property {V | undefined} value
 	 */
 	/**
 	 * @param {Iterable<[K, V]>} iterable
+	 * @param {object} options
+	 * @param {boolean} [options.allowNonObjects] Set to true if you want to be able to include strings, numbers etc. as keys.
+	 * This is not the default because the behaviour is kind of unexpected. Since there is no way to store references of strings,
+	 * this means the values of string keys will never be garbage collected.
+	 * To avoid this you should always make sure to also use an object that can be garbage collected in your key array.
 	 */
-	constructor(iterable = []) {
+	constructor(iterable = [], {
+		allowNonObjects = false,
+	} = {}) {
+		this.allowNonObjects = allowNonObjects;
 		this.rootNode = this._createEmptyNode();
 		if (iterable) {
 			for (const [keys, value] of iterable) {
@@ -48,33 +56,26 @@ export class MultiKeyWeakMap {
 	_getLastNode(keys, create = /** @type {C} */ (false)) {
 		let currentNode = this.rootNode;
 		for (const key of keys) {
-			// Objects can be used in WeakMap keys, for strings, numbers and symbols we use a Map with WeakRefs.
+			let map;
+			// Objects can be used in WeakMap keys, for strings, numbers and symbols we use a Regular Map.
 			if ((typeof key == "object" || typeof key == "function" || typeof key == "symbol") && key !== null) {
-				let nextNode = currentNode.weakMap.get(key);
-				if (!nextNode && create) {
-					nextNode = this._createEmptyNode();
-					currentNode.weakMap.set(key, nextNode);
-				}
-				if (!nextNode) {
-					return /** @type {GetLastMapReturnType<C>} */ (undefined);
-				}
-				currentNode = nextNode;
+				map = currentNode.weakMap;
 			} else {
-				let weakRef = currentNode.map.get(key);
-				let nextNode;
-				if (!weakRef && create) {
-					nextNode = this._createEmptyNode();
-					weakRef = new WeakRef(nextNode);
-					currentNode.map.set(key, weakRef);
+				if (this.allowNonObjects) {
+					map = currentNode.map;
+				} else {
+					throw new Error("MultiKeyWeakMap only supports objects as keys. If you want to use non-objects as keys, set allowNonObjects to true.");
 				}
-				if (!nextNode) {
-					nextNode = weakRef && weakRef.deref();
-				}
-				if (!nextNode) {
-					return /** @type {GetLastMapReturnType<C>} */ (undefined);
-				}
-				currentNode = nextNode;
 			}
+			let nextNode = map.get(key);
+			if (!nextNode && create) {
+				nextNode = this._createEmptyNode();
+				map.set(key, nextNode);
+			}
+			if (!nextNode) {
+				return /** @type {GetLastMapReturnType<C>} */ (undefined);
+			}
+			currentNode = nextNode;
 		}
 		return /** @type {GetLastMapReturnType<C>} */ (currentNode);
 	}
