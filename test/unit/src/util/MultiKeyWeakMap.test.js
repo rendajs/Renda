@@ -1,4 +1,4 @@
-import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
+import {assertEquals, assertStrictEquals, assertThrows} from "std/testing/asserts.ts";
 import {MultiKeyWeakMap} from "../../../../src/mod.js";
 import {forceCleanup, forceCleanupAll, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
 
@@ -153,6 +153,28 @@ Deno.test({
 });
 
 Deno.test({
+	name: "Using non-objects as keys throws by default",
+	fn() {
+		runWithMocks(() => {
+			assertThrows(() => {
+				new MultiKeyWeakMap([[["a", "b"], 1]]);
+			}, Error, "MultiKeyWeakMap only supports objects as keys. If you want to use non-objects as keys, set allowNonObjects to true.");
+
+			const map = new MultiKeyWeakMap();
+			assertThrows(() => {
+				map.set(["a", "b"], 1);
+			}, Error, "MultiKeyWeakMap only supports objects as keys. If you want to use non-objects as keys, set allowNonObjects to true.");
+			assertThrows(() => {
+				map.set([1, 2], 1);
+			}, Error, "MultiKeyWeakMap only supports objects as keys. If you want to use non-objects as keys, set allowNonObjects to true.");
+			assertThrows(() => {
+				map.set([null, undefined], 1);
+			}, Error, "MultiKeyWeakMap only supports objects as keys. If you want to use non-objects as keys, set allowNonObjects to true.");
+		});
+	},
+});
+
+Deno.test({
 	name: "Using string as keys",
 	fn() {
 		const symA = Symbol("a");
@@ -171,7 +193,7 @@ Deno.test({
 		for (const test of tests) {
 			runWithMocks(() => {
 				const object = Symbol("object");
-				const map = new MultiKeyWeakMap();
+				const map = new MultiKeyWeakMap([], {allowNonObjects: true});
 				map.set(test, object);
 				assertStrictEquals(map.get(test), object);
 				assertEquals(map.has(test), true);
@@ -183,7 +205,7 @@ Deno.test({
 
 			runWithMocks(() => {
 				const object = Symbol("object");
-				const map = new MultiKeyWeakMap();
+				const map = new MultiKeyWeakMap([], {allowNonObjects: true});
 				map.set(test, object);
 				assertStrictEquals(map.get(test), object);
 				assertEquals(map.has(test), true);
@@ -200,7 +222,7 @@ Deno.test({
 	name: "Multiple strings",
 	fn() {
 		runWithMocks(() => {
-			const map = new MultiKeyWeakMap();
+			const map = new MultiKeyWeakMap([], {allowNonObjects: true});
 
 			const objectA = Symbol("objectA");
 			const objectB = Symbol("objectB");
