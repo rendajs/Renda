@@ -37,8 +37,8 @@ export class LightComponent extends Component {
 				type: "number",
 				guiOpts: {
 					defaultValue: 1.0,
-				}
-			}
+				},
+			},
 		});
 	}
 
