@@ -2,7 +2,11 @@ const originalFinalizationRegistry = globalThis.FinalizationRegistry;
 const originalWeakRef = globalThis.WeakRef;
 const originalWeakMap = globalThis.WeakMap;
 
-/** @type {Map<object, RegistryItem>} */
+/**
+ * A collection of objects that have been registered with a FinalizationRegistry.
+ * WeakMaps, WeakSets, and WeakRefs are not included in this collection.
+ * @type {Map<object, RegistryItem>}
+ */
 const registry = new Map();
 
 /**
@@ -10,7 +14,10 @@ const registry = new Map();
  * @property {object} target
  */
 
-/** @type {Set<RegisteredWeakRef>} */
+/**
+ * A collection of objects that have been registered with a WeakMap, WeakSet or WeakRef.
+ * @type {Set<RegisteredWeakRef>}
+ */
 const registeredWeakRefs = new Set();
 
 class RegistryItem {

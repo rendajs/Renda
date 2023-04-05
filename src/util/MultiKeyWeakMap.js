@@ -23,6 +23,7 @@ export class MultiKeyWeakMap {
 	 */
 
 	/**
+	 * @private
 	 * @template {boolean} C
 	 * @param {K} keys
 	 * @param {C} create
