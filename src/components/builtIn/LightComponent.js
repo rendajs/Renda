@@ -50,7 +50,7 @@ export class LightComponent extends Component {
 			structure: {
 				type: lightTypes,
 				color: [StorageType.FLOAT64],
-				intensity: StorageType.FLOAT64,
+				intensity: StorageType.FLOAT32,
 			},
 			nameIds: {
 				type: 1,
