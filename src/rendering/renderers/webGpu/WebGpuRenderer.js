@@ -313,7 +313,8 @@ export class WebGpuRenderer extends Renderer {
 			if (!light.entity) continue;
 			this.lightsBuffer.appendData(light.entity.pos);
 			this.lightsBuffer.skipBytes(4);
-			this.lightsBuffer.appendData(light.color);
+			// FIXME: a bit hacky; using color.multiplyScalar(intensity) doesn't work since the light.color vector will reclamp itself between 0 and 1.
+			this.lightsBuffer.appendData(new Vec3(light.color.x * light.intensity, light.color.y * light.intensity, light.color.z * light.intensity))
 			this.lightsBuffer.skipBytes(4);
 		}
 		this.lightsBuffer.writeAllChunksToGpu();
