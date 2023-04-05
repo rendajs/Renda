@@ -8,7 +8,7 @@ Deno.test({
 		assertEquals(light.color.toArray(), [1, 1, 1]);
 		assertEquals(light.intensity, 1.0);
 		assertEquals(light.type, "point");
-	}
+	},
 });
 
 Deno.test({
@@ -16,10 +16,10 @@ Deno.test({
 	fn: () => {
 		const light = new LightComponent({
 			color: new Vec3(0.3, 0.5, 0.6),
-			type: "directional"
+			type: "directional",
 		});
 		assertEquals(light.color.toArray(), [0.3, 0.5, 0.6]);
 		assertEquals(light.intensity, 1.0);
 		assertEquals(light.type, "directional");
-	}
-})
+	},
+});
