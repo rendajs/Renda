@@ -15,6 +15,23 @@ function runWithMocks(fn) {
 }
 
 Deno.test({
+	name: "Constructing with values",
+	fn() {
+		runWithMocks(() => {
+			const symA = Symbol("a");
+			const symB = Symbol("b");
+			const map = new MultiKeyWeakMap([
+				[[symA, symB], 1],
+				[[symA], 2],
+			]);
+
+			assertEquals(map.get([symA, symB]), 1);
+			assertEquals(map.get([symA]), 2);
+		});
+	},
+});
+
+Deno.test({
 	name: "Getting and setting values with different key lengths",
 	fn() {
 		runWithMocks(() => {
