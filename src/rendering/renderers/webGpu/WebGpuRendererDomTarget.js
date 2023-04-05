@@ -79,8 +79,6 @@ export class WebGpuRendererDomTarget extends RendererDomTarget {
 	 * @param {RenderOutputConfig} outputConfig
 	 */
 	setRenderOutputConfig(outputConfig) {
-		// todo: add support for cloning config and filling in fragmentTargets
-		// with preferred swapchain format
 		this._outputConfig = outputConfig;
 		this.generateTextures();
 	}

@@ -600,7 +600,13 @@ export class WebGpuRenderer extends Renderer {
 				fragment: {
 					module: fragmentModule,
 					entryPoint: "main",
-					targets: outputConfig.fragmentTargets,
+					targets: [
+						{
+							// TODO: Get the color format as argument and integrate it in the
+							// this.cachedPipelines WeakMap.
+							format: outputConfig.colorFormat,
+						}
+					],
 				},
 			});
 			this.cachedPipelines.set(keys, pipeline);
