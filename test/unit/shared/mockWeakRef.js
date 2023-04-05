@@ -120,6 +120,7 @@ class MockWeakMap {
 	 * @param {any} value
 	 */
 	set(key, value) {
+		if ((typeof key !== "object" && typeof key !== "function" && typeof key !== "symbol") || key === null) throw new TypeError("Invalid value used as weak map key");
 		const registeredWeakRef = {target: key};
 		registeredWeakRefs.add(registeredWeakRef);
 		this.#map.set(key, {value, registeredWeakRef});
@@ -167,12 +168,16 @@ export function installMockWeakRef() {
 }
 
 export function uninstallMockWeakRef() {
+	forceCleanupAll(false);
 	globalThis.FinalizationRegistry = originalFinalizationRegistry;
 	globalThis.WeakRef = originalWeakRef;
 	globalThis.WeakMap = originalWeakMap;
 }
 
 /**
+ * Acts as if this object has been garbage collected, even though there might still be a reference to it inside a test.
+ * In the case of WeakMaps, the key should be provided. This is because WeakMaps hold a weak reference to the key, not the value.
+ * I.e. in the real world a key would never be garbage collected as long as the key is still accessible.
  * @param {any} target
  */
 export function forceCleanup(target) {
@@ -184,4 +189,21 @@ export function forceCleanup(target) {
 			registeredWeakRefs.delete(weakRef);
 		}
 	}
+}
+
+/**
+ * Cleans up all entries that have ever been registered.
+ */
+export function forceCleanupAll(fireFinalizationRegistryCallbacks = true) {
+	if (fireFinalizationRegistryCallbacks) {
+		for (const item of registry.values()) {
+			item.forceCleanup();
+		}
+	}
+	registry.clear();
+
+	for (const weakRef of registeredWeakRefs) {
+		registeredWeakRefs.delete(weakRef);
+	}
+	registeredWeakRefs.clear();
 }

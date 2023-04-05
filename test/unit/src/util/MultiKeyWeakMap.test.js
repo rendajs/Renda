@@ -1,13 +1,23 @@
 import {assertEquals, assertStrictEquals} from "std/testing/asserts.ts";
 import {MultiKeyWeakMap} from "../../../../src/mod.js";
-import {forceCleanup, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
+import {forceCleanup, forceCleanupAll, installMockWeakRef, uninstallMockWeakRef} from "../../shared/mockWeakRef.js";
+
+/**
+ * @param {() => void} fn
+ */
+function runWithMocks(fn) {
+	try {
+		installMockWeakRef();
+		fn();
+	} finally {
+		uninstallMockWeakRef();
+	}
+}
 
 Deno.test({
 	name: "Getting and setting values with different key lengths",
 	fn() {
-		installMockWeakRef();
-
-		try {
+		runWithMocks(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -41,18 +51,14 @@ Deno.test({
 			assertEquals(map.has([symA, symB, symC]), false);
 			assertEquals(map.has([symA, symB]), false);
 			assertEquals(map.has([symA, symB, symD]), false);
-		} finally {
-			uninstallMockWeakRef();
-		}
+		});
 	},
 });
 
 Deno.test({
 	name: "Overwriting keys",
 	fn() {
-		installMockWeakRef();
-
-		try {
+		runWithMocks(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -72,18 +78,14 @@ Deno.test({
 
 			assertStrictEquals(map.get([symA, symB]), objectB);
 			assertEquals(map.get([symA, symB, symC]), undefined);
-		} finally {
-			uninstallMockWeakRef();
-		}
+		});
 	},
 });
 
 Deno.test({
 	name: "Deleting keys",
 	fn() {
-		installMockWeakRef();
-
-		try {
+		runWithMocks(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -110,18 +112,14 @@ Deno.test({
 
 			assertEquals(map.get([symA, symB]), undefined);
 			assertEquals(map.get([symA, symB, symC]), undefined);
-		} finally {
-			uninstallMockWeakRef();
-		}
+		});
 	},
 });
 
 Deno.test({
 	name: "Deleting key that has been garbage collected",
 	fn() {
-		installMockWeakRef();
-
-		try {
+		runWithMocks(() => {
 			const map = new MultiKeyWeakMap();
 			const symA = Symbol("a");
 			const symB = Symbol("b");
@@ -133,8 +131,68 @@ Deno.test({
 			forceCleanup(symB);
 
 			assertEquals(map.delete([symA, symB]), false);
-		} finally {
-			uninstallMockWeakRef();
+		});
+	},
+});
+
+Deno.test({
+	name: "Using string as keys",
+	fn() {
+		const symA = Symbol("a");
+		const symB = Symbol("b");
+		const stringKey = "stringKey";
+
+		const tests = [
+			[symA, stringKey, symB],
+			[symA, stringKey],
+			[symA, stringKey, symB, stringKey],
+			[symA, stringKey, symB, stringKey, symB],
+			[stringKey, symA, symB],
+			[stringKey, symA, symB, stringKey],
+		];
+
+		for (const test of tests) {
+			runWithMocks(() => {
+				const object = Symbol("object");
+				const map = new MultiKeyWeakMap();
+				map.set(test, object);
+				assertStrictEquals(map.get(test), object);
+				assertEquals(map.has(test), true);
+				assertEquals(map.delete(test), true);
+				assertEquals(map.delete(test), false);
+				assertEquals(map.get(test), undefined);
+				assertEquals(map.has(test), false);
+			});
+
+			runWithMocks(() => {
+				const object = Symbol("object");
+				const map = new MultiKeyWeakMap();
+				map.set(test, object);
+				assertStrictEquals(map.get(test), object);
+				assertEquals(map.has(test), true);
+				forceCleanupAll();
+				assertEquals(map.delete(test), false);
+				assertEquals(map.get(test), undefined);
+				assertEquals(map.has(test), false);
+			});
 		}
+	},
+});
+
+Deno.test({
+	name: "Multiple strings",
+	fn() {
+		runWithMocks(() => {
+			const map = new MultiKeyWeakMap();
+
+			const objectA = Symbol("objectA");
+			const objectB = Symbol("objectB");
+
+			map.set(["a", "b"], objectA);
+			map.set(["a", "c"], objectB);
+
+			assertStrictEquals(map.get(["a", "b"]), objectA);
+			assertStrictEquals(map.get(["a", "c"]), objectB);
+		});
 	},
 });
